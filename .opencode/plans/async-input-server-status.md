@@ -874,6 +874,164 @@ zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL3G_Comp_Test_
   represented by this single-node local CTest environment.
 - Steps 16-22 of the MultiGroup-style redesign are complete locally.
 
+### Steps 23-25: Review Correctness Fixes (2026-10-01)
+
+- State: complete.
+- Source: `.opencode/plans/async-input-server-review.md` Findings 4, 5, 6,
+  planned as Steps 23-25 in
+  `.opencode/plans/async-input-server-fix-plan.md`.
+- Baseline before this work: `HEAD` = `9f9a066a6`, `ESSENTIAL` 69/69 passing.
+
+#### Step 23: shared-memory mailbox reads made safe under optimization
+
+- Added a `volatile` pointer alias (`mailbox_state`) for the single mailbox
+  state word in both `publish_result_to_mailbox` and
+  `consume_shared_result`, and routed every read and write of that word
+  through it. `MPI_Win_sync` calls are unchanged; `volatile` and the sync are
+  complementary.
+- Scope was deliberately limited to the state word. The bulk payload copy is
+  intentionally left non-volatile so it can still be vectorized, which is safe
+  because the payload is only written while the consumer is excluded by a
+  non-READY state.
+- `state` in `consume_shared_result` remains a one-shot snapshot of the
+  volatile word, so every check after the wait loop tests the same value.
+
+Verification, and why it is more than a build check:
+
+The hazard was reproduced and the fix confirmed directly, rather than assumed.
+A spin loop of the same shape was compiled with gfortran 16.1 at `-O2` in
+three configurations:
+
+| Configuration | Non-volatile | Volatile |
+| --- | --- | --- |
+| Barrier opaque (separate TU, no LTO) | reloads each iteration; hazard latent | reloads |
+| Barrier visible to optimizer (inlining or LTO) | collapses to `jmp` self, infinite loop, load hoisted entirely | reloads |
+
+The second row is the finding that matters: correctness depended on build-time
+inlining decisions. The measured asm for the non-volatile visible-barrier case
+is an unconditional self-branch with no load in the loop body at all. This
+evidence is recorded in the source comment so it is not re-litigated later.
+
+A full second-compiler MAPL build was not attempted because it would violate
+the "do not mix compilers in `build/`" discipline; the isolated reproduction
+above targets the same question more directly.
+
+#### Step 24: reader read failures propagated to the requesting model rank
+
+- `execute_reader_request` now returns a separate `read_status` instead of
+  aborting. `rc` remains reserved for genuine internal faults (malformed
+  protocol payload, slice extraction bugs); a bad file or variable is data
+  error and is reported.
+- `read_global_slab_into_slot` now opens the file once before the type
+  dispatch and reports both open and `get_var` failures through `rc` using an
+  explicit `rc = status; return` rather than the error-return macro, because
+  that macro also throws, which would abort the worker for a data error. `rc`
+  is always assigned on those paths, so this does not reintroduce the Step 25
+  bug. The four per-branch open calls and their `_VERIFY`s were removed.
+- The formatter is now closed on every failure path, including the
+  unsupported-type path. Previously a failed `get_var` aborted the process, so
+  leaking the open handle was moot; now the worker survives and a repeatedly
+  failing read would otherwise leak one NetCDF handle per attempt.
+- The worker publishes the mailbox with the failure status for a failed demand
+  request, so the blocked model rank observes `ASYNC_INPUT_MAILBOX_ERROR`
+  instead of spinning. A failed cache-only request publishes nothing, since it
+  has no waiting consumer, and reports only through the completion.
+- The completion is now always sent, carrying `read_status`, so the worker
+  stays in its service loop and the captain's bookkeeping stays consistent.
+- `poll_reader_completions` no longer treats a worker-reported read failure as
+  a protocol fault. Identity mismatches still set `MPI_ERR_OTHER`; a read
+  failure now releases the worker normally. Previously the combined test both
+  aborted the captain and left the worker permanently busy.
+- A failed key is no longer recorded in the captain's warm directory, and a
+  failed read can no longer be counted as an honored warm hint.
+- Fixed a pre-existing leak found while editing this path: `result` was only
+  deallocated when `msize_word > 0`, so every cache-only request leaked it.
+  It is now deallocated on every path.
+- Guarded `cache_slots(slot_index)` against a zero index when building the
+  completion.
+
+Verification:
+
+- New focused test `test_failed_read_reports_error_without_hanging`
+  (`npes=[3]`: 1 model, 1 captain, 1 worker) demands a variable from a file
+  that does not exist and asserts the model reports failure while both reader
+  ranks still return cleanly from `start` and shutdown completes.
+- Negative control, which is the part that makes the test meaningful: the
+  worker-side failure publication was temporarily reverted to pre-Step-24
+  behavior and the suite was rerun. Result: **CTest `Timeout` after 61.20 s**,
+  reproducing exactly the three-way hang described in review Finding 5. With
+  the fix restored the same suite passes in 2.14 s. The hang is therefore
+  demonstrated to be real and demonstrated to be fixed, not merely asserted.
+- Because a regression reappears as a timeout rather than a silent pass, this
+  suite must always be run with an explicit `--timeout`.
+
+Finding recorded while testing, relevant to interpreting the fix:
+
+`MAPL_mpi_fail` in `mp_utils/MAPL_MpiErrorHandling.F90` only prints a
+diagnostic; it does **not** call `MPI_Abort`, despite its own comment saying it
+does. So in production the NetCDF formatter's internal `_VERIFY` on a failed
+open prints a diagnostic and execution continues with the status propagating,
+which is the desired behavior. Under the pFUnit driver
+`MAPL_set_throw_method` turns that same throw into an exception, so the test
+drains the expected exceptions on the reader ranks. Leaving them pending would
+have reported the test as failing for the exact behavior it asserts. The
+comment on `MAPL_mpi_fail` is misleading and is worth correcting separately.
+
+#### Step 25: undefined `rc` on the mailbox publish failure path
+
+- Replaced the bare `return` in `publish_shared_result` with `_VERIFY(ierr)`.
+  A mailbox-addressing or `MPI_Win_sync` fault is an internal error, so
+  failing is correct; it is distinct from `result_status`, which carries a data
+  read failure into the mailbox.
+- Audited the whole file programmatically for any procedure with an optional
+  `intent(out) :: rc` containing a return path that does not assign it. This
+  site was the only one; no others remain.
+
+Files changed (Steps 23-25):
+
+- `pfio/AsyncInputServer.F90`
+- `pfio/tests/Test_AsyncInputServer.pf`
+
+Commands and results:
+
+```bash
+zsh -lic 'module load nag-stack && cmake --build build -j 8 --target MAPL.pfio 2>&1 | tee build/step23-build-pfio.log'
+zsh -lic 'module load nag-stack && cmake --build build -j 8 --target build-tests 2>&1 | tee build/step23-build-tests.log'
+zsh -lic 'module load nag-stack && MAPL_ASYNC_INPUT_SHMEM_WORDS=16 MAPL_ASYNC_INPUT_CACHE_SLOTS=1 ctest --test-dir build -R "^MAPL.pfio.tests$" --output-on-failure --timeout 120 2>&1 | tee build/step25-pfio-tests.log'
+zsh -lic 'module load nag-stack && ctest --test-dir build -R "^MAPL3G_Comp_Test_pfio_case0[1-5]$" --output-on-failure --timeout 180 2>&1 | tee build/step23-pfio-components.log'
+zsh -lic 'module load nag-stack && ctest --test-dir build -L ESSENTIAL --output-on-failure --timeout 300 2>&1 | tee build/step25-ctest-essential.log'
+```
+
+- NAG `MAPL.pfio` and `build-tests`: passed. The only diagnostics are the two
+  pre-existing "Questionable: Last statement of DO loop body is an
+  unconditional RETURN" notes in `select_pending_request`, already recorded in
+  the Step 20 entry. No new warning class.
+- `MAPL.pfio.tests`: 99 pFUnit cases passed (98 pre-existing + 1 new).
+- PFIO component cases 01-05: 5/5 passed.
+- Full `ESSENTIAL`: 69/69 passed in 398.10 s.
+- Negative control log: `build/step24-negative-control.log` (Timeout, as
+  intended, with the fix reverted).
+
+Notes and remaining risks:
+
+- Two transient mistakes worth recording because both are easy to repeat:
+  the NAG preprocessor expands `_RC` even inside a Fortran comment, so macro
+  names must not appear in comments; and the `pfunit` umbrella module
+  re-exports `catch`, `catchNext`, and `anyExceptions` but not `catchAny` or
+  `getNumExceptions`.
+- An early draft of the Step 23 edit shifted indentation by one space across
+  both routines, inflating the diff from 46 to 131 insertions. It was
+  corrected so Steps 23-25 contain no reformatting; whole-file style is
+  deliberately left to Step 30.
+- Steps 23-25 of the fix plan are complete. Remaining fix-plan work is Steps
+  26-32, of which Step 31 (cluster verification) is the one that determines
+  whether this feature is worth keeping; see review Finding 1, which records
+  the benchmark currently showing `AsyncInputServer` 22.2% slower than
+  `MpiServer` on 60% more PETs.
+- Next step: Step 26, size mailboxes from the request instead of the fixed
+  4 Mi-word default.
+
+
 ### Files Added
 - `.opencode/plans/async-input-server-plan.md`
 - `.opencode/plans/async-input-server-status.md`

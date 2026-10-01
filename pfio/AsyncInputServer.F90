@@ -438,6 +438,7 @@ contains
        integer :: i, client_size
        logical, allocatable :: mask(:)
        integer :: status, ierr, cmd, source_service_rank, buffer_size, slot_index, msize_word
+       integer :: read_status
        integer :: terminating_model_rank
        integer :: mpi_status(MPI_STATUS_SIZE)
        integer, allocatable :: buffer(:), result(:)
@@ -480,11 +481,24 @@ contains
                  _VERIFY(ierr)
                   call execute_reader_request(this, buffer, buffer_size, &
                        metadata%hint_cache_slot, metadata%hint_cache_generation, &
-                       result, msize_word, slot_index, _RC)
+                       result, msize_word, slot_index, read_status, _RC)
                   deallocate(buffer)
-                  if (msize_word > 0) then
+                  ! On a failed read of a demand request there is a model rank
+                  ! blocked on this mailbox, so it must be published with the
+                  ! failure status; otherwise that rank would spin forever.
+                  ! msize_word is zero on failure, so publish explicitly here
+                  ! rather than relying on the success path below.
+                  if (read_status /= MPI_SUCCESS) then
+                     if (cmd == ASYNC_INPUT_CMD_READ) then
+                        call publish_shared_result(this, metadata%source_model_index, &
+                             metadata%protocol_request_id, result, 0, read_status, _RC)
+                     end if
+                     deallocate(result)
+                  else if (msize_word > 0) then
                       call publish_shared_result(this, metadata%source_model_index, &
                            metadata%protocol_request_id, result, msize_word, MPI_SUCCESS, _RC)
+                     deallocate(result)
+                  else
                      deallocate(result)
                   end if
                   completion%protocol_request_id = metadata%protocol_request_id
@@ -494,8 +508,13 @@ contains
                   completion%source_model_index = metadata%source_model_index
                   completion%result_words = msize_word
                   completion%cache_slot = slot_index
-                  completion%cache_generation = this%cache_slots(slot_index)%generation
-                  completion%status = MPI_SUCCESS
+                  ! slot_index is always >= 1 once a request has been
+                  ! classified, including on the read-failure path, but guard
+                  ! the lookup so a future early-exit cannot index element 0.
+                  completion%cache_generation = 0
+                  if (slot_index >= 1) &
+                       completion%cache_generation = this%cache_slots(slot_index)%generation
+                  completion%status = read_status
                   call pack_completion(completion, completion_words)
                   call MPI_Send(completion_words, ASYNC_INPUT_COMPLETION_WORDS, MPI_INTEGER8, 0, &
                        ASYNC_INPUT_TAG_COMPLETION, this%topology%reader_comm, ierr)
@@ -825,16 +844,26 @@ contains
      end subroutine service_next_collective_prefetch
 
      subroutine execute_reader_request(this, input, input_size, hint_cache_slot, &
-          hint_cache_generation, result, result_size, slot_index, rc)
+          hint_cache_generation, result, result_size, slot_index, read_status, rc)
        class(AsyncInputServer), intent(inout) :: this
        integer, intent(in) :: input(:), input_size
        integer, intent(in) :: hint_cache_slot, hint_cache_generation
        integer, allocatable, intent(out) :: result(:)
        integer, intent(out) :: result_size, slot_index
+       ! read_status reports a failure to read the source file. It is NOT
+       ! folded into rc: a bad file or variable is a data error that the
+       ! requesting model rank must be told about, not a reason to tear down
+       ! this worker. rc remains reserved for internal faults (malformed
+       ! protocol payload, slice extraction bugs), which are genuine
+       ! programming errors and should still abort.
+       integer, intent(out) :: read_status
        integer, optional, intent(out) :: rc
        type(CollectivePrefetchDataMessage) :: request
         integer :: status
 
+       read_status = MPI_SUCCESS
+       slot_index = 0
+       result_size = 0
        call request%deserialize(input(1:input_size), _RC)
 
        ! A captain-supplied hint lets a warm request skip the linear cache
@@ -843,7 +872,6 @@ contains
        ! trusting it, so a stale or wrong hint can never produce a stale
        ! result -- it only loses the fast-path shortcut and falls back to the
        ! ordinary scan/miss path.
-       slot_index = 0
        if (hint_cache_slot >= 1 .and. hint_cache_slot <= size(this%cache_slots)) then
           if (this%cache_slots(hint_cache_slot)%valid .and. &
                this%cache_slots(hint_cache_slot)%generation == hint_cache_generation .and. &
@@ -863,10 +891,18 @@ contains
               this%demand_cache_misses = this%demand_cache_misses + 1
            end if
            slot_index = choose_cache_slot(this)
-          call read_global_slab_into_slot(this, request, slot_index, _RC)
+          ! A failed read leaves the slot invalid with its generation already
+          ! bumped (see read_global_slab_into_slot), so the key cannot be
+          ! served from stale contents later. Report and stop here rather than
+          ! extracting a slice from a slot that was never filled.
+          call read_global_slab_into_slot(this, request, slot_index, rc=read_status)
+          if (read_status /= MPI_SUCCESS) then
+             allocate(result(0))
+             this%reader_requests = this%reader_requests + 1
+             _RETURN(_SUCCESS)
+          end if
        end if
 
-       result_size = 0
        if (.not. request%cache_only) then
           result_size = int(word_size(request%type_kind) * product(int(request%count, INT64)))
           allocate(result(result_size))
@@ -1057,7 +1093,7 @@ contains
         type(AsyncInputWarmRecord), allocatable, intent(inout) :: warm_records(:)
         logical, intent(in) :: wait_for_one
         integer, intent(out) :: ierr
-        logical :: available, hint_honored
+        logical :: available, hint_honored, read_failed
         integer :: worker_rank, result_status(MPI_STATUS_SIZE)
         integer(INT64) :: completion_words(ASYNC_INPUT_COMPLETION_WORDS)
         type(AsyncInputCompletion) :: completion
@@ -1078,15 +1114,22 @@ contains
               ASYNC_INPUT_TAG_COMPLETION, this%topology%reader_comm, result_status, ierr)
         if (ierr /= MPI_SUCCESS) return
         call unpack_completion(completion_words, completion)
+        ! Identity mismatches are internal protocol faults and still abort the
+        ! captain. A worker-reported read failure (completion%status) is NOT a
+        ! protocol fault: it means the source file or variable could not be
+        ! read. It is deliberately excluded from this test so the captain can
+        ! release the worker below and keep scheduling. The requesting model
+        ! rank learns about the failure from its own mailbox, which the worker
+        ! already marked ERROR.
         if (.not. workers(worker_rank)%busy .or. completion%worker_reader_rank /= worker_rank .or. &
              completion%protocol_request_id /= workers(worker_rank)%metadata%protocol_request_id .or. &
              completion%source_service_rank /= workers(worker_rank)%metadata%source_service_rank .or. &
              completion%source_node_rank /= workers(worker_rank)%metadata%source_node_rank .or. &
-             completion%source_model_index /= workers(worker_rank)%metadata%source_model_index .or. &
-             completion%status /= MPI_SUCCESS) then
+             completion%source_model_index /= workers(worker_rank)%metadata%source_model_index) then
            ierr = MPI_ERR_OTHER
            return
         end if
+        read_failed = completion%status /= MPI_SUCCESS
         call request%deserialize(workers(worker_rank)%buffer, ierr)
         if (ierr /= MPI_SUCCESS) return
 
@@ -1098,7 +1141,8 @@ contains
         ! issued, i.e. the hint's fast path was actually taken. This is
         ! computed from the completion, not assumed at hint-attach time, so
         ! a stale hint that fell back to a miss is never counted as a hit.
-        hint_honored = workers(worker_rank)%metadata%hint_cache_slot > 0 .and. &
+        hint_honored = .not. read_failed .and. &
+             workers(worker_rank)%metadata%hint_cache_slot > 0 .and. &
              completion%cache_slot == workers(worker_rank)%metadata%hint_cache_slot .and. &
              completion%cache_generation == workers(worker_rank)%metadata%hint_cache_generation
         if (hint_honored) then
@@ -1109,8 +1153,15 @@ contains
            end if
         end if
 
-        call update_warm_record(warm_records, request, worker_rank, completion%cache_slot, &
-             completion%cache_generation)
+        ! Never advertise a key whose read failed: the worker's slot is
+        ! invalid, so a warm directory entry would hand a later request a hint
+        ! pointing at contents that were never populated. The worker would
+        ! re-validate and miss anyway, but recording it is still wrong and
+        ! would mask the failure as a spurious eviction.
+        if (.not. read_failed) then
+           call update_warm_record(warm_records, request, worker_rank, completion%cache_slot, &
+                completion%cache_generation)
+        end if
         workers(worker_rank)%busy = .false.
         workers(worker_rank)%metadata = AsyncInputRequestMetadata()
         workers(worker_rank)%key_valid = .false.
@@ -1482,7 +1533,13 @@ contains
         _ASSERT(this%worker_role, 'only a reader worker may publish through its local shared segment')
         call publish_result_to_mailbox(this, this%shared_base_address, source_model_index, &
              protocol_request_id, result, result_size, result_status, ierr)
-        if (ierr /= MPI_SUCCESS) return
+        ! Step 25: this previously did a bare `return`, leaving the optional
+        ! intent(out) rc undefined while the caller propagated it through the
+        ! error-return macro. ierr here is a mailbox-addressing or
+        ! MPI_Win_sync fault, i.e. an internal error, so failing is correct.
+        ! It is distinct from result_status, which carries a data-read failure
+        ! and is written into the mailbox rather than raised here.
+        _VERIFY(ierr)
 
         _RETURN(_SUCCESS)
      end subroutine publish_shared_result
@@ -1497,6 +1554,29 @@ contains
 
         integer :: offset
         integer, pointer :: mailboxes(:)
+        ! mailbox_state aliases the single state word this routine spins on and
+        ! publishes transitions through. It must be VOLATILE: MPI_Win_sync is a
+        ! barrier for the MPI RMA memory model, but it does not stop the Fortran
+        ! compiler from keeping the state word in a register across the loop
+        ! below.
+        !
+        ! This was verified, not assumed. With gfortran 16.1 at -O2, a spin loop
+        ! of exactly this shape compiles as follows:
+        !   - barrier opaque (separate TU, no LTO): the non-volatile form still
+        !     reloads each iteration, so the hazard is latent but not active;
+        !   - barrier visible to the optimizer (inlining or LTO, both normal for
+        !     MPI shim layers): the non-volatile form collapses to an
+        !     unconditional `jmp` back to itself -- an infinite loop with the
+        !     load hoisted out entirely;
+        !   - the volatile form reloads every iteration in both cases.
+        ! So correctness here depends on build-time inlining decisions unless the
+        ! access is volatile.
+        !
+        ! Only the state word is volatile; the bulk payload copy below
+        ! deliberately is not, so it can still be vectorized. That is safe
+        ! because the payload is only written while the consumer is still
+        ! excluded by a non-READY state.
+        integer, pointer, volatile :: mailbox_state
 
         ierr = MPI_SUCCESS
         if (source_model_index < 0 .or. source_model_index >= this%topology%model_size) then
@@ -1505,30 +1585,31 @@ contains
         end if
         call c_f_pointer(worker_base_address, mailboxes, [worker_segment_words(this)])
         offset = mailbox_offset(this, source_model_index)
+        mailbox_state => mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD)
 
         do
            call MPI_Win_sync(this%shared_win, ierr)
            if (ierr /= MPI_SUCCESS) return
-           if (mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) == ASYNC_INPUT_MAILBOX_EMPTY) exit
+           if (mailbox_state == ASYNC_INPUT_MAILBOX_EMPTY) exit
            call MAPL_Sleep(0.0001)
         end do
-        mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_FILLING
+        mailbox_state = ASYNC_INPUT_MAILBOX_FILLING
         call store_mailbox_request_id(mailboxes(offset + 1:), protocol_request_id)
         mailboxes(offset + ASYNC_INPUT_MAILBOX_SIZE_WORD) = result_size
         mailboxes(offset + ASYNC_INPUT_MAILBOX_STATUS_WORD) = result_status
         call MPI_Win_sync(this%shared_win, ierr)
         if (ierr /= MPI_SUCCESS) return
         if (result_status /= MPI_SUCCESS) then
-           mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_ERROR
+           mailbox_state = ASYNC_INPUT_MAILBOX_ERROR
         else if (result_size > this%shared_mailbox_words) then
            mailboxes(offset + ASYNC_INPUT_MAILBOX_STATUS_WORD) = MPI_ERR_TRUNCATE
-           mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_OVERFLOW
+           mailbox_state = ASYNC_INPUT_MAILBOX_OVERFLOW
         else
            mailboxes(offset + ASYNC_INPUT_MAILBOX_HEADER_WORDS + 1: &
                 offset + ASYNC_INPUT_MAILBOX_HEADER_WORDS + result_size) = result
            call MPI_Win_sync(this%shared_win, ierr)
            if (ierr /= MPI_SUCCESS) return
-           mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_READY
+           mailbox_state = ASYNC_INPUT_MAILBOX_READY
         end if
         call MPI_Win_sync(this%shared_win, ierr)
      end subroutine publish_result_to_mailbox
@@ -1543,6 +1624,13 @@ contains
         integer(kind=MPI_ADDRESS_KIND) :: segment_bytes
         integer :: ierr, offset, result_size, result_status, state, worker_node_rank, worker_rank, disp_unit
         integer, pointer :: mailboxes(:)
+        ! See the VOLATILE rationale in publish_result_to_mailbox. This is the
+        ! consuming half of the same handshake: without VOLATILE the compiler may
+        ! hoist the state load out of the wait loop below and spin forever on a
+        ! stale register copy. `state` is a deliberate one-shot snapshot of the
+        ! volatile word, taken once the loop has observed a settled state, so
+        ! every check afterward tests the same value.
+        integer, pointer, volatile :: mailbox_state
         integer(INT64) :: mailbox_request_id
         type(c_ptr) :: worker_base_address
 #if !defined (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
@@ -1565,10 +1653,11 @@ contains
         _VERIFY(ierr)
         call c_f_pointer(worker_base_address, mailboxes, [worker_segment_words(this)])
         offset = mailbox_offset(this, this%topology%model_node_rank)
+        mailbox_state => mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD)
         do
            call MPI_Win_sync(this%shared_win, ierr)
            _VERIFY(ierr)
-           state = mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD)
+           state = mailbox_state
            if (state /= ASYNC_INPUT_MAILBOX_EMPTY .and. state /= ASYNC_INPUT_MAILBOX_FILLING) exit
            call MAPL_Sleep(0.0001)
         end do
@@ -1576,24 +1665,26 @@ contains
         result_size = mailboxes(offset + ASYNC_INPUT_MAILBOX_SIZE_WORD)
         result_status = mailboxes(offset + ASYNC_INPUT_MAILBOX_STATUS_WORD)
         if (mailbox_request_id /= protocol_request_id) then
-           mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_EMPTY
+           mailbox_state = ASYNC_INPUT_MAILBOX_EMPTY
            call MPI_Win_sync(this%shared_win, ierr)
            _ASSERT(.false., 'AsyncInputServer shared result has an unexpected protocol request ID')
         end if
         if (state == ASYNC_INPUT_MAILBOX_ERROR) then
-           mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_EMPTY
+           mailbox_state = ASYNC_INPUT_MAILBOX_EMPTY
            call MPI_Win_sync(this%shared_win, ierr)
+           _ASSERT(result_status /= MPI_SUCCESS, &
+                'AsyncInputServer reader reported an error without a failure status')
            _VERIFY(result_status)
         end if
         if (state == ASYNC_INPUT_MAILBOX_OVERFLOW) then
-           mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_EMPTY
+           mailbox_state = ASYNC_INPUT_MAILBOX_EMPTY
            call MPI_Win_sync(this%shared_win, ierr)
         end if
         _ASSERT(state /= ASYNC_INPUT_MAILBOX_OVERFLOW, &
              'AsyncInputServer shared mailbox is too small; increase MAPL_ASYNC_INPUT_SHMEM_WORDS')
         if (state /= ASYNC_INPUT_MAILBOX_READY .or. result_status /= MPI_SUCCESS .or. &
              result_size /= expected_size) then
-           mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_EMPTY
+           mailbox_state = ASYNC_INPUT_MAILBOX_EMPTY
            call MPI_Win_sync(this%shared_win, ierr)
            _ASSERT(state == ASYNC_INPUT_MAILBOX_READY, 'AsyncInputServer shared mailbox has an invalid state')
            _ASSERT(result_status == MPI_SUCCESS, 'AsyncInputServer shared result has an error status')
@@ -1601,7 +1692,7 @@ contains
         end if
         result = mailboxes(offset + ASYNC_INPUT_MAILBOX_HEADER_WORDS + 1: &
              offset + ASYNC_INPUT_MAILBOX_HEADER_WORDS + result_size)
-        mailboxes(offset + ASYNC_INPUT_MAILBOX_STATE_WORD) = ASYNC_INPUT_MAILBOX_EMPTY
+        mailbox_state = ASYNC_INPUT_MAILBOX_EMPTY
         call MPI_Win_sync(this%shared_win, ierr)
         _VERIFY(ierr)
 
@@ -1699,6 +1790,15 @@ contains
 
     ! -----------------------------------------------------------------------
     ! Reader-side: read the full global slab from file into the cache slot.
+    !
+    ! A failure here is reported through rc rather than aborting, because the
+    ! caller (execute_reader_request) turns it into a mailbox error status for
+    ! the requesting model rank. The slot is left invalid with its generation
+    ! already bumped, so a failed key can never be served from stale contents.
+    ! The formatter must be closed on the read-failure path: before Step 24 a
+    ! failed get_var aborted the process, so leaking the open file was moot;
+    ! now the worker survives and a repeatedly failing read would otherwise
+    ! leak one NetCDF handle per attempt.
     ! -----------------------------------------------------------------------
     subroutine read_global_slab_into_slot(this, request, slot_index, rc)
        class(AsyncInputServer), intent(inout) :: this
@@ -1711,7 +1811,7 @@ contains
        integer(INT64), pointer :: values_int64(:)
        real(REAL32), pointer :: values_real32(:)
        real(REAL64), pointer :: values_real64(:)
-       integer :: status
+       integer :: status, close_status
        ! Update cache key metadata. Bump the generation before the slot
        ! becomes invalid so any captain directory entry still pointing at the
        ! prior contents is immediately stale.
@@ -1729,36 +1829,55 @@ contains
              source=LocalMemReference(request%type_kind, request%global_count))
 
        status = _SUCCESS
+       ! Open once, before the type dispatch, and report rather than raise. The
+       ! open is the most likely failure in practice (missing or unreadable
+       ! file), so it must reach the requesting model rank as a status instead
+       ! of aborting this worker. It was previously verified separately inside
+       ! each of the four branches.
+       !
+       ! Note the deliberate `rc = status; return` instead of the usual
+       ! error-return macro: that macro both assigns rc AND throws, which would
+       ! abort this worker for what is a data error, not a program fault. rc is
+       ! still always defined on this path, so it does not reintroduce the
+       ! Step 25 undefined-status bug.
+       call formatter%open(request%file_name, pFIO_READ, rc=status)
+       if (status /= _SUCCESS) then
+          if (present(rc)) rc = status
+          return
+       end if
+
        select case (request%type_kind)
        case (pFIO_INT32)
           call c_f_pointer(this%cache_slots(slot_index)%reference%base_address, values_int32, [product(request%global_count)])
-          call formatter%open(request%file_name, pFIO_READ, rc=status)
-          _VERIFY(status)
           call formatter%get_var(request%var_name, values_int32, &
                start=request%global_start, count=request%global_count, rc=status)
        case (pFIO_INT64)
           call c_f_pointer(this%cache_slots(slot_index)%reference%base_address, values_int64, [product(request%global_count)])
-          call formatter%open(request%file_name, pFIO_READ, rc=status)
-          _VERIFY(status)
           call formatter%get_var(request%var_name, values_int64, &
                start=request%global_start, count=request%global_count, rc=status)
        case (pFIO_REAL32)
           call c_f_pointer(this%cache_slots(slot_index)%reference%base_address, values_real32, [product(request%global_count)])
-          call formatter%open(request%file_name, pFIO_READ, rc=status)
-          _VERIFY(status)
           call formatter%get_var(request%var_name, values_real32, &
                start=request%global_start, count=request%global_count, rc=status)
        case (pFIO_REAL64)
           call c_f_pointer(this%cache_slots(slot_index)%reference%base_address, values_real64, [product(request%global_count)])
-          call formatter%open(request%file_name, pFIO_READ, rc=status)
-          _VERIFY(status)
           call formatter%get_var(request%var_name, values_real64, &
                start=request%global_start, count=request%global_count, rc=status)
        case default
+          ! An unsupported type is an internal error, not a data error, so this
+          ! one does raise. The file is already open and must not be leaked.
+          call formatter%close(rc=close_status)
           _FAIL('unsupported type kind for AsyncInputServer reader')
        end select
-       _VERIFY(status)
-       call formatter%close()
+       ! The file is open past this point regardless of the get_var outcome.
+       ! Same reporting rule as the open above: a bad variable or extent is a
+       ! data error for the requesting model rank, not a worker fault.
+       if (status /= _SUCCESS) then
+          call formatter%close(rc=close_status)
+          if (present(rc)) rc = status
+          return
+       end if
+       call formatter%close(_RC)
         this%cache_slots(slot_index)%valid = .true.
        _RETURN(_SUCCESS)
     end subroutine read_global_slab_into_slot

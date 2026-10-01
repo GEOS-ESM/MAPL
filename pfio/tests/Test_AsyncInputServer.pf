@@ -377,6 +377,124 @@ contains
    end subroutine test_prefetch_then_demand_single_read_and_worker_publish
 
    ! -----------------------------------------------------------------------
+   ! test_failed_read_reports_error_without_hanging
+   !
+   ! 3-rank topology (1 model, 1 captain, 1 worker). Step 24 regression.
+   !
+   ! Before Step 24 a reader-side read failure aborted the worker inside
+   ! execute_reader_request's error return, so no completion ever reached the
+   ! captain and no mailbox was ever published. The captain blocked in
+   ! poll_reader_completions and the model rank spun forever in
+   ! consume_shared_result: a three-way hang with no diagnostic. The mailbox
+   ! ERROR state existed but had no producer.
+   !
+   ! This test demands a variable from a file that does not exist and asserts
+   ! the failure is reported rather than hung:
+   !   - the model rank returns a nonzero status from its demand request;
+   !   - the captain and worker both still return cleanly from start(),
+   !     proving the worker stayed in its service loop and the captain
+   !     released it rather than treating a data error as a protocol fault;
+   !   - shutdown still completes, so the topology is not left wedged.
+   !
+   ! The model's failure arrives as a MAPL throw (the mailbox carries an ERROR
+   ! state, which consume_shared_result raises). Under the pFUnit driver
+   ! MAPL_set_throw_method routes that into a pFUnit exception, so the test
+   ! catches and clears it deliberately -- an uncaught throw here would be
+   ! reported as this test failing rather than as the behavior under test.
+   !
+   ! A regression to the old hanging behavior shows up as a CTest timeout
+   ! rather than a silent pass, which is why the ctest invocation for this
+   ! suite always passes an explicit --timeout.
+   ! -----------------------------------------------------------------------
+   @test(npes=[3])
+   subroutine test_failed_read_reports_error_without_hanging(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      character(len=*), parameter :: missing_file = 'async_step24_absent.nc4'
+      character(len=*), parameter :: var_name = 'v'
+
+      type(AsyncInputServer) :: server
+      type(CaptureSocket), target :: connection
+      integer :: parent_comm, model_comm
+      integer :: parent_rank, model_color
+      integer :: init_rc, start_rc, shutdown_rc, ierr
+      integer :: demand_rc
+      logical :: model_ok, reader_ok
+      logical :: threw
+
+      parent_comm = this%getMpiCommunicator()
+      parent_rank = this%getProcessRank()
+
+      ! Roles: rank 2 = model, rank 0 = captain, rank 1 = worker.
+      model_color = MPI_UNDEFINED
+      if (parent_rank == 2) model_color = 0
+      call MPI_Comm_split(parent_comm, model_color, 0, model_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      server = AsyncInputServer(parent_comm, 'test24-failed-read', model_comm=model_comm, rc=init_rc)
+      @assertEqual(0, init_rc)
+      if (model_comm /= MPI_COMM_NULL) call MPI_Comm_free(model_comm, ierr)
+
+      ! Deliberately create no fixture: the requested file must not exist.
+      call MPI_Barrier(parent_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      model_ok = .true.
+      reader_ok = .true.
+      threw = .false.
+
+      select case (parent_rank)
+      case (0, 1) ! captain and worker
+         call server%start(rc=start_rc)
+         ! The reader ranks must survive a data error. A nonzero start_rc here
+         ! would mean the failure was misclassified as an internal fault.
+         reader_ok = start_rc == 0
+         ! The worker legitimately produces a diagnostic throw: the NetCDF
+         ! formatter's own open() verifies its status internally before
+         ! returning it. In production MAPL_mpi_fail only prints that
+         ! diagnostic and execution continues with the status propagating, so
+         ! the message is wanted. Under the pFUnit driver the same throw is
+         ! recorded as an exception, so drain it here; leaving it pending would
+         ! report this test as failed for the exact behavior it is asserting.
+         do while (anyExceptions())
+            threw = catch()
+         end do
+      case (2) ! model
+         call prepare_model_for_direct_service(server)
+
+         ! Start from a clean slate so the drain below cannot consume an
+         ! exception raised by earlier setup in this test.
+         do while (anyExceptions())
+            threw = catch()
+         end do
+
+         call model_submit_demand(server, connection, missing_file, var_name, &
+              [1], [1], 2401, demand_rc)
+
+         ! The failure surfaces as MAPL throws raised while the error unwinds
+         ! from consume_shared_result up through forward_request_to_reader, so
+         ! more than one exception can be pending. Drain them all, recording
+         ! that at least one occurred. Requiring a report here is the point of
+         ! the test: silently succeeding would mean the model consumed a
+         ! mailbox that was never filled.
+         threw = .false.
+         do while (anyExceptions())
+            threw = catch()
+         end do
+         model_ok = (demand_rc /= 0) .or. threw
+
+         call server%shutdown(rc=shutdown_rc)
+         model_ok = model_ok .and. (shutdown_rc == 0)
+      end select
+
+      call MPI_Barrier(parent_comm, ierr)
+      @assertEqual(MPI_SUCCESS, ierr)
+
+      @assertTrue(reader_ok)
+      @assertTrue(model_ok)
+   end subroutine test_failed_read_reports_error_without_hanging
+
+   ! -----------------------------------------------------------------------
    ! test_slot_replacement_then_evicted_key_request
    !
    ! 3-rank topology (1 model, 1 captain, 1 worker), same as above. Covers
