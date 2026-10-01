@@ -178,7 +178,7 @@ contains
             countsPerDEDim2=this%jms, &
             indexFlag=ESMF_INDEX_DELOCAL, &
             gridEdgeLWidth=[0,0], &
-            gridEdgeUWidth=[0,1], &
+            gridEdgeUWidth=[1,1], &  ! non-periodic in x and y: IM+1 x JM+1 corners
             coordDep1=[1,2], &
             coordDep2=[1,2], &
             coordSys=ESMF_COORDSYS_SPH_RAD, _RC)
@@ -240,7 +240,11 @@ contains
        call MAPL_Grid_Interior(grid, i_1, i_n, j_1, j_n)
 
        ic_1=i_1
-       ic_n=i_n
+       if (i_n == this%im_world) then
+          ic_n=i_n+1
+       else
+          ic_n=i_n
+       end if
 
        jc_1=j_1
        if (j_n == this%jm_world) then
