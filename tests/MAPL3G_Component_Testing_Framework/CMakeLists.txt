@@ -68,10 +68,5 @@ foreach(TEST_CASE ${TEST_CASES})
   )
    set_tests_properties ("MAPL3G_Comp_Test_${TEST_NAME}" PROPERTIES LABELS "ESSENTIAL")
    set(TEST_CASE_ENV ${TEST_ENV})
-   if (TEST_CASE MATCHES "^pfio/case0[2-5]$")
-     # These 13x9 PFIO cases need only a few hundred words per payload. Keep
-     # concurrent tests below restrictive cluster shared-memory limits.
-     list(APPEND TEST_CASE_ENV "MAPL_ASYNC_INPUT_SHMEM_WORDS=4096")
-   endif()
    set_tests_properties ("MAPL3G_Comp_Test_${TEST_NAME}" PROPERTIES ENVIRONMENT "${TEST_CASE_ENV}")
 endforeach()

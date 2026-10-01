@@ -1,14 +1,15 @@
 module test_AsyncInputServer
    use pfunit
    use mpi
-   use, intrinsic :: iso_fortran_env, only: INT64, REAL32
+   use, intrinsic :: iso_fortran_env, only: INT32, INT64, REAL32, REAL64
    use, intrinsic :: iso_c_binding, only: c_f_pointer
    use pFIO_AsyncInputServerMod, only: AsyncInputServer
    use pFIO_MessageVectorMod, only: MessageVector
    use pFIO_CollectivePrefetchDataMessageMod, only: CollectivePrefetchDataMessage
    use pFIO_NextCollectivePrefetchMessageMod, only: NextCollectivePrefetchMessage
    use pFIO_LocalMemReferenceMod, only: LocalMemReference
-   use pFIO_ConstantsMod, only: pFIO_REAL32
+   use pFIO_ConstantsMod, only: pFIO_INT32, pFIO_INT64, pFIO_REAL32, pFIO_REAL64
+   use pFIO_UtilitiesMod, only: word_size
    use pFIO_AbstractSocketMod, only: AbstractSocket
    use pFIO_AbstractMessageMod, only: AbstractMessage
    use pFIO_AbstractDataReferenceMod, only: AbstractDataReference
@@ -23,13 +24,13 @@ module test_AsyncInputServer
    ! payload delivered through connection%put() during
    ! forward_request_to_reader's demand-read path. Unlike MockSocket (which
    ! hard-codes shapes for the pre-existing ServerThread/Client tests), this
-   ! captures an arbitrary flat REAL32 payload so a Step 19 warm-cache test
-   ! can assert the exact values that reached the model rank came from the
-   ! worker's own mailbox, proving the worker (not the captain) served the
-   ! data correctly end-to-end.
+   ! captures arbitrary payload words and their pFIO type so tests can assert
+   ! the exact values reaching the model came from the worker's own mailbox.
    ! -----------------------------------------------------------------------
    type, extends(AbstractSocket) :: CaptureSocket
       real(kind=REAL32), allocatable :: captured(:)
+      integer, allocatable :: captured_words(:)
+      integer :: captured_type_kind = 0
    contains
       procedure :: receive => capture_receive
       procedure :: send => capture_send
@@ -131,11 +132,18 @@ contains
       integer, optional, intent(out) :: rc
 
       real(kind=REAL32), pointer :: vals(:)
-      integer(INT64) :: n
+      integer, pointer :: words(:)
+      integer(INT64) :: n, n_words
 
       n = product(int(local_reference%shape, INT64))
-      call c_f_pointer(local_reference%base_address, vals, [n])
-      this%captured = vals
+      n_words = int(word_size(local_reference%type_kind), INT64) * n
+      call c_f_pointer(local_reference%base_address, words, [int(n_words)])
+      this%captured_words = words
+      this%captured_type_kind = local_reference%type_kind
+      if (local_reference%type_kind == pFIO_REAL32) then
+         call c_f_pointer(local_reference%base_address, vals, [int(n)])
+         this%captured = vals
+      end if
 
       allocate(handle, source=CaptureHandle())
       if (present(rc)) rc = 0
@@ -186,6 +194,53 @@ contains
       call formatter%close()
    end subroutine create_real32_fixture
 
+   subroutine create_typed_fixture(file_name, var_name, dim_name, type_kind, expected_words, extent)
+      character(len=*), intent(in) :: file_name, var_name, dim_name
+      integer, intent(in) :: type_kind, extent
+      integer, allocatable, intent(out) :: expected_words(:)
+
+      type(FileMetadata) :: metadata
+      type(NetCDF4_FileFormatter) :: formatter
+      integer(INT32), allocatable :: values_int32(:)
+      integer(INT64), allocatable :: values_int64(:)
+      real(REAL32), allocatable :: values_real32(:)
+      real(REAL64), allocatable :: values_real64(:)
+      integer :: i, n_words
+
+      call metadata%add_dimension(dim_name, extent)
+      call metadata%add_variable(var_name, Variable(type=type_kind, dimensions=dim_name))
+      call formatter%create(file_name)
+      call formatter%write(metadata)
+
+      n_words = word_size(type_kind) * extent
+      allocate(expected_words(n_words))
+      select case (type_kind)
+      case (pFIO_INT32)
+         allocate(values_int32(extent))
+         values_int32 = [(int(10 * i + 1, INT32), i = 1, extent)]
+         call formatter%put_var(var_name, values_int32)
+         expected_words = transfer(values_int32, expected_words)
+      case (pFIO_INT64)
+         allocate(values_int64(extent))
+         values_int64 = [(int(1000000 * i + 7, INT64), i = 1, extent)]
+         call formatter%put_var(var_name, values_int64)
+         expected_words = transfer(values_int64, expected_words)
+      case (pFIO_REAL32)
+         allocate(values_real32(extent))
+         values_real32 = [(real(i, REAL32) + 0.25_REAL32, i = 1, extent)]
+         call formatter%put_var(var_name, values_real32)
+         expected_words = transfer(values_real32, expected_words)
+      case (pFIO_REAL64)
+         allocate(values_real64(extent))
+         values_real64 = [(real(i, REAL64) + 0.125_REAL64, i = 1, extent)]
+         call formatter%put_var(var_name, values_real64)
+         expected_words = transfer(values_real64, expected_words)
+      case default
+         error stop 'unsupported fixture type'
+      end select
+      call formatter%close()
+   end subroutine create_typed_fixture
+
    subroutine delete_fixture_file(file_name)
       character(len=*), intent(in) :: file_name
       integer :: unit
@@ -225,20 +280,23 @@ contains
    ! already exercise for is_reader_role() ranks.
    ! -----------------------------------------------------------------------
    subroutine model_submit_prefetch(server, connection, file_name, var_name, &
-        global_start, global_count, request_id, rc)
+        global_start, global_count, request_id, rc, type_kind)
       class(AsyncInputServer), intent(inout) :: server
       class(AbstractSocket), intent(inout), target :: connection
       character(len=*), intent(in) :: file_name, var_name
       integer, intent(in) :: global_start(:), global_count(:)
       integer, intent(in) :: request_id
       integer, intent(out) :: rc
+      integer, optional, intent(in) :: type_kind
 
       type(MessageVector) :: backlog
       type(LocalMemReference) :: data_ref
       logical :: handled
-      integer :: status
+      integer :: status, type_kind_
 
-      data_ref = LocalMemReference(pFIO_REAL32, global_count)
+      type_kind_ = pFIO_REAL32
+      if (present(type_kind)) type_kind_ = type_kind
+      data_ref = LocalMemReference(type_kind_, global_count)
       backlog = MessageVector()
       call backlog%push_back(NextCollectivePrefetchMessage(request_id, 1, file_name, var_name, &
            data_ref, start=global_start, global_start=global_start, global_count=global_count))
@@ -250,20 +308,23 @@ contains
    end subroutine model_submit_prefetch
 
    subroutine model_submit_demand(server, connection, file_name, var_name, &
-        global_start, global_count, request_id, rc)
+        global_start, global_count, request_id, rc, type_kind)
       class(AsyncInputServer), intent(inout) :: server
       class(AbstractSocket), intent(inout), target :: connection
       character(len=*), intent(in) :: file_name, var_name
       integer, intent(in) :: global_start(:), global_count(:)
       integer, intent(in) :: request_id
       integer, intent(out) :: rc
+      integer, optional, intent(in) :: type_kind
 
       type(MessageVector) :: backlog
       type(LocalMemReference) :: data_ref
       logical :: handled
-      integer :: status
+      integer :: status, type_kind_
 
-      data_ref = LocalMemReference(pFIO_REAL32, global_count)
+      type_kind_ = pFIO_REAL32
+      if (present(type_kind)) type_kind_ = type_kind
+      data_ref = LocalMemReference(type_kind_, global_count)
       backlog = MessageVector()
       call backlog%push_back(CollectivePrefetchDataMessage(request_id, 1, file_name, var_name, &
            data_ref, start=global_start, global_start=global_start, global_count=global_count, &
@@ -275,106 +336,109 @@ contains
       if (rc == 0 .and. .not. handled) rc = 1
    end subroutine model_submit_demand
 
-   ! -----------------------------------------------------------------------
-   ! test_prefetch_then_demand_single_read_and_worker_publish
-   !
-   ! 3-rank topology: 1 model, 1 captain, 1 worker (worker_rank=1). Covers
-   ! Step 19 review Finding 4 test cases 1 and 2:
-   !   (1) prefetch-then-demand single-read proof: a cache-only prefetch
-   !       followed by a demand read for the exact same global key causes
-   !       exactly one physical read (one cache miss) and one cache hit on
-   !       the worker, and the demand hit is confirmed captain-side as an
-   !       honored warm hint (get_captain_warm_hits()==1), not merely
-   !       attempted.
-   !   (2) worker-side (not captain-side) warm publication: the payload
-   !       delivered to the model through connection%put() (captured here
-   !       by CaptureSocket, bypassing the socket layer entirely) matches
-   !       the real fixture data, proving the value reached the model
-   !       through the worker's own mailbox/publish path.
-   ! -----------------------------------------------------------------------
    @test(npes=[3])
-   subroutine test_prefetch_then_demand_single_read_and_worker_publish(this)
+   subroutine test_worker_mailbox_int32(this)
       class(MpiTestMethod), intent(inout) :: this
+      logical :: test_ok
 
-      character(len=*), parameter :: file_name = 'warm_single_read.nc4'
+      call run_worker_mailbox_type(this, pFIO_INT32, 'mailbox_int32.nc4', test_ok)
+      @assertTrue(test_ok)
+   end subroutine test_worker_mailbox_int32
+
+   @test(npes=[3])
+   subroutine test_worker_mailbox_int64(this)
+      class(MpiTestMethod), intent(inout) :: this
+      logical :: test_ok
+
+      call run_worker_mailbox_type(this, pFIO_INT64, 'mailbox_int64.nc4', test_ok)
+      @assertTrue(test_ok)
+   end subroutine test_worker_mailbox_int64
+
+   @test(npes=[3])
+   subroutine test_worker_mailbox_real32(this)
+      class(MpiTestMethod), intent(inout) :: this
+      logical :: test_ok
+
+      call run_worker_mailbox_type(this, pFIO_REAL32, 'mailbox_real32.nc4', test_ok)
+      @assertTrue(test_ok)
+   end subroutine test_worker_mailbox_real32
+
+   @test(npes=[3])
+   subroutine test_worker_mailbox_real64(this)
+      class(MpiTestMethod), intent(inout) :: this
+      logical :: test_ok
+
+      call run_worker_mailbox_type(this, pFIO_REAL64, 'mailbox_real64.nc4', test_ok)
+      @assertTrue(test_ok)
+   end subroutine test_worker_mailbox_real64
+
+   subroutine run_worker_mailbox_type(this, type_kind, file_name, test_ok)
+      class(MpiTestMethod), intent(inout) :: this
+      integer, intent(in) :: type_kind
+      character(len=*), intent(in) :: file_name
+      logical, intent(out) :: test_ok
+
       character(len=*), parameter :: var_name = 'v'
-      integer, parameter :: extent = 8
-      real(kind=REAL32), parameter :: expected(extent) = &
-           [10., 20., 30., 40., 50., 60., 70., 80.]
-
+      integer, parameter :: extent = 4
       type(AsyncInputServer) :: server
       type(CaptureSocket), target :: connection
+      integer, allocatable :: expected_words(:)
       integer :: parent_comm, model_comm
       integer :: parent_rank, model_color
       integer :: init_rc, start_rc, shutdown_rc, ierr
       integer :: prefetch_rc, demand_rc
-      logical :: cache_ok, captain_ok, model_ok
 
       parent_comm = this%getMpiCommunicator()
       parent_rank = this%getProcessRank()
-
-      ! Roles: rank 2 = model, rank 0 = captain, rank 1 = worker.
       model_color = MPI_UNDEFINED
       if (parent_rank == 2) model_color = 0
       call MPI_Comm_split(parent_comm, model_color, 0, model_comm, ierr)
-      @assertEqual(MPI_SUCCESS, ierr)
+      test_ok = ierr == MPI_SUCCESS
 
-      server = AsyncInputServer(parent_comm, 'test19-single-read', model_comm=model_comm, rc=init_rc)
-      @assertEqual(0, init_rc)
+      server = AsyncInputServer(parent_comm, 'test27-typed-mailbox', model_comm=model_comm, rc=init_rc)
+      test_ok = test_ok .and. init_rc == 0
       if (model_comm /= MPI_COMM_NULL) call MPI_Comm_free(model_comm, ierr)
 
       if (parent_rank == 2) then
-         call create_real32_fixture(file_name, var_name, 'i', expected)
+         call create_typed_fixture(file_name, var_name, 'i', type_kind, expected_words, extent)
       end if
       call MPI_Barrier(parent_comm, ierr)
-      @assertEqual(MPI_SUCCESS, ierr)
-
-      cache_ok = .true.
-      captain_ok = .true.
-      model_ok = .true.
+      test_ok = test_ok .and. ierr == MPI_SUCCESS
 
       select case (parent_rank)
-      case (0) ! captain
+      case (0)
          call server%start(rc=start_rc)
-         @assertEqual(0, start_rc)
-         captain_ok = server%get_captain_warm_hits() == 1
-         captain_ok = captain_ok .and. server%get_captain_prefetch_hits() == 0
-      case (1) ! worker
+         test_ok = test_ok .and. start_rc == 0
+         test_ok = test_ok .and. server%get_captain_warm_hits() == 1
+         test_ok = test_ok .and. server%get_captain_prefetch_hits() == 0
+      case (1)
          call server%start(rc=start_rc)
-         @assertEqual(0, start_rc)
-         cache_ok = server%get_cache_hits() == 1
-         cache_ok = cache_ok .and. server%get_cache_misses() == 1
-      case (2) ! model
+         test_ok = test_ok .and. start_rc == 0
+         test_ok = test_ok .and. server%get_cache_hits() == 1
+         test_ok = test_ok .and. server%get_cache_misses() == 1
+      case (2)
          call prepare_model_for_direct_service(server)
-
          call model_submit_prefetch(server, connection, file_name, var_name, &
-              [1], [extent], 101, prefetch_rc)
+              [1], [extent], 2701, prefetch_rc, type_kind=type_kind)
          call model_submit_demand(server, connection, file_name, var_name, &
-              [1], [extent], 102, demand_rc)
+              [1], [extent], 2702, demand_rc, type_kind=type_kind)
 
-         model_ok = (prefetch_rc == 0) .and. (demand_rc == 0)
-         model_ok = model_ok .and. allocated(connection%captured)
-         if (model_ok) then
-            model_ok = size(connection%captured) == extent
-         end if
-         if (model_ok) then
-            model_ok = all(connection%captured == expected)
-         end if
+         test_ok = test_ok .and. prefetch_rc == 0 .and. demand_rc == 0
+         test_ok = test_ok .and. connection%captured_type_kind == type_kind
+         test_ok = test_ok .and. allocated(connection%captured_words)
+         if (test_ok) test_ok = size(connection%captured_words) == size(expected_words)
+         if (test_ok) test_ok = all(connection%captured_words == expected_words)
 
          call server%shutdown(rc=shutdown_rc)
-         @assertEqual(0, shutdown_rc)
+         test_ok = test_ok .and. shutdown_rc == 0
       end select
 
       call MPI_Barrier(parent_comm, ierr)
-      @assertEqual(MPI_SUCCESS, ierr)
+      test_ok = test_ok .and. ierr == MPI_SUCCESS
       if (parent_rank == 2) call delete_fixture_file(file_name)
       call MPI_Barrier(parent_comm, ierr)
-      @assertEqual(MPI_SUCCESS, ierr)
-
-      @assertTrue(cache_ok)
-      @assertTrue(captain_ok)
-      @assertTrue(model_ok)
-   end subroutine test_prefetch_then_demand_single_read_and_worker_publish
+      test_ok = test_ok .and. ierr == MPI_SUCCESS
+   end subroutine run_worker_mailbox_type
 
    ! -----------------------------------------------------------------------
    ! test_failed_read_reports_error_without_hanging
@@ -493,6 +557,77 @@ contains
       @assertTrue(reader_ok)
       @assertTrue(model_ok)
    end subroutine test_failed_read_reports_error_without_hanging
+
+   ! MAPL.pfio.tests runs with a 16-word mailbox. Nine INT64 values require
+   ! 18 default-integer words, so this deterministically exercises the
+   ! OVERFLOW state without allocating an impractically large fixture.
+   @test(npes=[3])
+   subroutine test_mailbox_overflow_reports_error(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      character(len=*), parameter :: file_name = 'mailbox_overflow.nc4'
+      character(len=*), parameter :: var_name = 'v'
+      integer, parameter :: extent = 9
+      type(AsyncInputServer) :: server
+      type(CaptureSocket), target :: connection
+      integer, allocatable :: expected_words(:)
+      integer :: parent_comm, model_comm
+      integer :: parent_rank, model_color
+      integer :: init_rc, start_rc, shutdown_rc, ierr, demand_rc
+      logical :: test_ok, threw
+
+      parent_comm = this%getMpiCommunicator()
+      parent_rank = this%getProcessRank()
+      model_color = MPI_UNDEFINED
+      if (parent_rank == 2) model_color = 0
+      call MPI_Comm_split(parent_comm, model_color, 0, model_comm, ierr)
+      test_ok = ierr == MPI_SUCCESS
+
+      server = AsyncInputServer(parent_comm, 'test27-overflow', model_comm=model_comm, rc=init_rc)
+      test_ok = test_ok .and. init_rc == 0
+      if (model_comm /= MPI_COMM_NULL) call MPI_Comm_free(model_comm, ierr)
+
+      if (parent_rank == 2) then
+         call create_typed_fixture(file_name, var_name, 'i', pFIO_INT64, expected_words, extent)
+      end if
+      call MPI_Barrier(parent_comm, ierr)
+      test_ok = test_ok .and. ierr == MPI_SUCCESS
+
+      select case (parent_rank)
+      case (0, 1)
+         call server%start(rc=start_rc)
+         test_ok = test_ok .and. start_rc == 0
+         do while (anyExceptions())
+            threw = catch()
+         end do
+      case (2)
+         call prepare_model_for_direct_service(server)
+         do while (anyExceptions())
+            threw = catch()
+         end do
+
+         call model_submit_demand(server, connection, file_name, var_name, &
+              [1], [extent], 2710, demand_rc, type_kind=pFIO_INT64)
+
+         threw = .false.
+         do while (anyExceptions())
+            threw = catch()
+         end do
+         test_ok = test_ok .and. ((demand_rc /= 0) .or. threw)
+         test_ok = test_ok .and. .not. allocated(connection%captured_words)
+
+         call server%shutdown(rc=shutdown_rc)
+         test_ok = test_ok .and. shutdown_rc == 0
+      end select
+
+      call MPI_Barrier(parent_comm, ierr)
+      test_ok = test_ok .and. ierr == MPI_SUCCESS
+      if (parent_rank == 2) call delete_fixture_file(file_name)
+      call MPI_Barrier(parent_comm, ierr)
+      test_ok = test_ok .and. ierr == MPI_SUCCESS
+
+      @assertTrue(test_ok)
+   end subroutine test_mailbox_overflow_reports_error
 
    ! -----------------------------------------------------------------------
    ! test_slot_replacement_then_evicted_key_request

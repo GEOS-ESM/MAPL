@@ -484,12 +484,13 @@ contains
        integer :: server_comm, model_server_comm
        integer :: num_model_ssis
        integer :: n_servers
-       logical :: is_local, has_subclass, has_nwriter
+       logical :: is_local, has_nwriter
        integer :: ssi_0, ssi_1, i_server, i_all
        integer, allocatable :: ssis_per_server(:)
        integer, allocatable :: model_pets(:), server_pets(:)
       type(ESMF_HConfig), allocatable :: server_hconfigs(:)
       character(ESMF_MAXSTR), allocatable :: server_names(:)
+      character(:), allocatable :: subclass_name
       class(Logger), pointer :: lgr
       type(ServerResources) :: srv_resources
 
@@ -516,7 +517,7 @@ contains
       i_server = 0
       do i_all = 1, size(server_hconfigs)
          ! Skip local servers (already handled in initialize_configured_local_servers)
-         is_local = is_local_server(server_hconfigs(i_all), _RC)
+         call resolve_server_configuration(server_hconfigs(i_all), subclass_name, is_local, _RC)
          if (is_local) then
             cycle
          end if
@@ -529,10 +530,7 @@ contains
          srv_resources%world_comm = model_server_comm
          srv_resources%model_comm = this%model_comm
          srv_resources%server_comm = server_comm
-         srv_resources%subclass = 'MpiServer'
-         has_subclass = ESMF_HConfigIsDefined(server_hconfigs(i_all), keystring='subclass', _RC)
-         if (has_subclass) srv_resources%subclass = &
-              ESMF_HConfigAsString(server_hconfigs(i_all), keystring='subclass', _RC)
+         srv_resources%subclass = subclass_name
          srv_resources%nwriter_per_node = 1
          has_nwriter = ESMF_HConfigIsDefined(server_hconfigs(i_all), keystring='nwriter_per_node', _RC)
          if (has_nwriter) srv_resources%nwriter_per_node = &
@@ -565,7 +563,7 @@ contains
         type(ESMF_HConfig) :: server_val
         character(:), allocatable :: server_name
         character(:), allocatable :: subclass_name
-        logical :: is_local, has_subclass_local, is_async_local
+        logical :: is_local, is_async_local
         type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
 
        ! Iterate the servers: section and register colocated entries.
@@ -577,26 +575,21 @@ contains
        do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
           server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
           server_val = ESMF_HConfigCreateAtMapVal(iter, _RC)
-          is_local = is_local_server_configuration(server_val, _RC)
+         call resolve_server_configuration(server_val, subclass_name, is_local, _RC)
           if (is_local) then
-             subclass_name = 'MpiServer'
-             has_subclass_local = ESMF_HConfigIsDefined(server_val, keystring='subclass', _RC)
-             if (has_subclass_local) then
-                subclass_name = ESMF_HConfigAsString(server_val, keystring='subclass', _RC)
-             end if
              is_async_local = (subclass_name == 'AsyncInputServer')
              if (is_async_local) then
                 if (this%is_model_pet) then
                    call this%add_local_server(server_name, server_name, &
-                        hconfig=server_val, register_client=.true., rc=status)
+                         subclass_name=subclass_name, register_client=.true., rc=status)
                 else
                    call this%add_local_server(server_name, server_name, &
-                        hconfig=server_val, register_client=.false., rc=status)
+                         subclass_name=subclass_name, register_client=.false., rc=status)
                 end if
              else
                 if (this%is_model_pet) then
                    call this%add_local_server(server_name, server_name, &
-                        hconfig=server_val, rc=status)
+                         subclass_name=subclass_name, rc=status)
                 end if
               end if
           end if
@@ -613,14 +606,13 @@ contains
    ! Register one local server and connect its client in a single atomic step.
    ! server_name: key used in local_server_map and DirectoryService port registry.
    ! client_name: key used in the pfio ClientManager.
-   ! hconfig: optional — if provided, reads subclass: to dispatch server type.
-   !          If not provided, defaults to MpiServer.
+   ! subclass_name: optional resolved subclass; defaults to MpiServer.
    ! fast_client: if .true., use FastClientThread for the client; default is ClientThread.
-    subroutine add_local_server(this, server_name, client_name, hconfig, fast_client, register_client, rc)
+    subroutine add_local_server(this, server_name, client_name, subclass_name, fast_client, register_client, rc)
       class(MaplFramework), target, intent(inout) :: this
       character(*), intent(in) :: server_name
       character(*), intent(in) :: client_name
-       type(ESMF_HConfig), optional, intent(in) :: hconfig
+       character(len=*), optional, intent(in) :: subclass_name
       logical, optional, intent(in) :: fast_client
       logical, optional, intent(in) :: register_client
       integer, optional, intent(out) :: rc
@@ -631,18 +623,15 @@ contains
       class(BaseServer), pointer :: srv
       class(ClientThread), allocatable :: new_client
       class(ClientThread), pointer :: p_client
-      logical :: has_subclass, use_fast, register_client_, supports_cache_only_prefetch
-      character(:), allocatable :: subclass_name
+      logical :: use_fast, register_client_, supports_cache_only_prefetch
+      character(:), allocatable :: resolved_subclass_name
 
       ! Determine server subclass.
-      subclass_name = 'MpiServer'  ! default
-      if (present(hconfig)) then
-         has_subclass = ESMF_HConfigIsDefined(hconfig, keystring='subclass', _RC)
-         if (has_subclass) subclass_name = ESMF_HConfigAsString(hconfig, keystring='subclass', _RC)
-      end if
+      resolved_subclass_name = 'MpiServer'
+      if (present(subclass_name)) resolved_subclass_name = subclass_name
 
       ! Allocate appropriate server subclass.
-      select case (trim(subclass_name))
+      select case (trim(resolved_subclass_name))
       case ('MpiServer')
           allocate(tmp, source=MpiServer(this%model_comm, server_name, rc=status), stat=alloc_stat)
           _VERIFY(status)
@@ -658,7 +647,7 @@ contains
          _VERIFY(status)
          _VERIFY(alloc_stat)
       case default
-         _ASSERT(.false., "Unknown server subclass: '"//trim(subclass_name)//"'")
+         _ASSERT(.false., "Unknown server subclass: '"//trim(resolved_subclass_name)//"'")
       end select
 
       ! Publish the server so connect_to_server can find it by name.
@@ -678,7 +667,7 @@ contains
       ! stable long-lived storage (the ClientManager map) before connecting.
       use_fast = .false.
       if (present(fast_client)) use_fast = fast_client
-      supports_cache_only_prefetch = (trim(subclass_name) == 'AsyncInputServer')
+      supports_cache_only_prefetch = (trim(resolved_subclass_name) == 'AsyncInputServer')
 
       if (use_fast) then
          allocate(new_client, source=FastClientThread(client_comm=this%model_comm, &
@@ -734,7 +723,7 @@ contains
       type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
       class(BaseServer), pointer :: server_ptr
       character(:), allocatable :: server_name, subclass_name
-      logical :: is_local, has_subclass_local
+      logical :: is_local
 
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
       iter_begin = ESMF_HConfigIterBegin(servers_hconfig, _RC)
@@ -743,10 +732,7 @@ contains
       do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
          server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
          server_val = ESMF_HConfigCreateAtMapVal(iter, _RC)
-         is_local = is_local_server_configuration(server_val, _RC)
-         subclass_name = 'MpiServer'
-         has_subclass_local = ESMF_HConfigIsDefined(server_val, keystring='subclass', _RC)
-         if (has_subclass_local) subclass_name = ESMF_HConfigAsString(server_val, keystring='subclass', _RC)
+         call resolve_server_configuration(server_val, subclass_name, is_local, _RC)
          if (is_local .and. subclass_name == 'AsyncInputServer') then
              server_ptr => this%local_server_map%at(server_name)
              select type (typed_server => server_ptr)
@@ -900,7 +886,7 @@ contains
       type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
       class(BaseServer), pointer :: server_ptr
       character(:), allocatable :: server_name, subclass_name
-      logical :: is_local, has_subclass_local
+      logical :: is_local
 
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
       iter_begin = ESMF_HConfigIterBegin(servers_hconfig, _RC)
@@ -909,10 +895,7 @@ contains
       do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
          server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
          server_val = ESMF_HConfigCreateAtMapVal(iter, _RC)
-         is_local = is_local_server_configuration(server_val, _RC)
-         subclass_name = 'MpiServer'
-         has_subclass_local = ESMF_HConfigIsDefined(server_val, keystring='subclass', _RC)
-         if (has_subclass_local) subclass_name = ESMF_HConfigAsString(server_val, keystring='subclass', _RC)
+         call resolve_server_configuration(server_val, subclass_name, is_local, _RC)
          if (is_local .and. subclass_name == 'AsyncInputServer') then
             server_ptr => this%local_server_map%at(server_name)
             select type (typed_server => server_ptr)
@@ -992,20 +975,6 @@ contains
        end if
     end function make_client_name
 
-    ! Resolve placement. AsyncInputServer has a fixed colocated placement;
-    ! other server classes retain the explicit local setting.
-    function is_local_server(server_hconfig, rc) result(is_local)
-       type(ESMF_HConfig), intent(in) :: server_hconfig
-       integer, optional, intent(out) :: rc
-       logical :: is_local
-
-       integer :: status
-
-       is_local = is_local_server_configuration(server_hconfig, _RC)
-
-       _RETURN(_SUCCESS)
-    end function is_local_server
-
     ! Helper function to count the number of remote (non-local) server entries.
     function count_remote_servers(server_hconfigs, rc) result(count)
        type(ESMF_HConfig), intent(in) :: server_hconfigs(:)
@@ -1015,10 +984,11 @@ contains
        integer :: status
        logical :: is_local
        integer :: i_server
+       character(:), allocatable :: subclass_name
 
        count = 0
        do i_server = 1, size(server_hconfigs)
-          is_local = is_local_server(server_hconfigs(i_server), _RC) 
+          call resolve_server_configuration(server_hconfigs(i_server), subclass_name, is_local, _RC)
           if (.not. is_local) then
              count = count + 1
           end if

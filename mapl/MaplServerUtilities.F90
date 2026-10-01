@@ -2,6 +2,7 @@
 
 module mapl_MaplServerUtilities_mod
 
+   use, intrinsic :: iso_fortran_env, only: error_unit
    use mapl_ErrorHandling_mod
    use esmf
    use mpi
@@ -19,6 +20,9 @@ module mapl_MaplServerUtilities_mod
    public :: make_server_gridcomp
    public :: validate_server_configuration
    public :: is_local_server_configuration
+   public :: resolve_server_configuration
+
+   logical, save :: warned_async_local = .false.
 
    type :: ServerResources
       integer :: world_comm
@@ -35,19 +39,13 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      logical :: is_local, has_local, has_subclass
+      logical :: is_local
       character(:), allocatable :: subclass_name
 
-      has_local = ESMF_HConfigIsDefined(server_hconfig, keystring='local', _RC)
-      is_local = .false.
-      if (has_local) is_local = ESMF_HConfigAsLogical(server_hconfig, keystring='local', _RC)
-      has_subclass = ESMF_HConfigIsDefined(server_hconfig, keystring='subclass', _RC)
-      subclass_name = 'MpiServer'
-      if (has_subclass) subclass_name = ESMF_HConfigAsString(server_hconfig, keystring='subclass', _RC)
-
-      if (subclass_name == 'AsyncInputServer') then
-         _ASSERT(.not. has_local .or. is_local, &
-              'AsyncInputServer placement is fixed; omit local or set it to true')
+      call resolve_server_configuration(server_hconfig, subclass_name, is_local, rc=status)
+      if (status /= _SUCCESS) then
+         if (present(rc)) rc = status
+         return
       end if
 
       _RETURN(_SUCCESS)
@@ -59,21 +57,49 @@ contains
       logical :: is_local
 
       integer :: status
-      logical :: has_subclass
       character(:), allocatable :: subclass_name
+
+      call resolve_server_configuration(server_hconfig, subclass_name, is_local, rc=status)
+      if (status /= _SUCCESS) then
+         if (present(rc)) rc = status
+         return
+      end if
+
+      _RETURN(_SUCCESS)
+   end function is_local_server_configuration
+
+   subroutine resolve_server_configuration(server_hconfig, subclass_name, is_local, rc)
+      type(ESMF_HConfig), intent(in) :: server_hconfig
+      character(:), allocatable, intent(out) :: subclass_name
+      logical, intent(out) :: is_local
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: has_local, has_subclass, requested_local
 
       subclass_name = 'MpiServer'
       has_subclass = ESMF_HConfigIsDefined(server_hconfig, keystring='subclass', _RC)
       if (has_subclass) subclass_name = ESMF_HConfigAsString(server_hconfig, keystring='subclass', _RC)
 
-      is_local = subclass_name == 'AsyncInputServer'
-      if (.not. is_local) then
-         is_local = ESMF_HConfigIsDefined(server_hconfig, keystring='local', _RC)
-         if (is_local) is_local = ESMF_HConfigAsLogical(server_hconfig, keystring='local', _RC)
+      has_local = ESMF_HConfigIsDefined(server_hconfig, keystring='local', _RC)
+      requested_local = .false.
+      if (has_local) requested_local = ESMF_HConfigAsLogical(server_hconfig, keystring='local', _RC)
+
+      if (subclass_name == 'AsyncInputServer') then
+         _ASSERT(.not. has_local .or. requested_local, &
+              'AsyncInputServer placement is fixed; omit local or set it to true')
+         is_local = .true.
+         if (has_local .and. .not. warned_async_local) then
+            write(error_unit, '(A)') &
+                 'WARNING: AsyncInputServer local: true is deprecated; omit local because placement is fixed.'
+            warned_async_local = .true.
+         end if
+      else
+         is_local = requested_local
       end if
 
       _RETURN(_SUCCESS)
-   end function is_local_server_configuration
+   end subroutine resolve_server_configuration
 
    ! Return the PET indices of all PETs whose SSI index falls in [ssi_lo, ssi_hi).
    pure function pets_on_ssis(ssiMap, ssi_lo, ssi_hi) result(pets)
@@ -184,20 +210,19 @@ contains
        integer :: used_ssis
        logical :: is_local
        logical :: has_num_nodes
-       character(:), allocatable :: num_nodes_str
+       character(:), allocatable :: num_nodes_str, subclass_name
 
        associate (n_servers => size(server_hconfigs))
           allocate(ssis_per_server(n_servers))
           used_ssis = num_model_ssis
           do i_server = 1, n_servers
-             call validate_server_configuration(server_hconfigs(i_server), _RC)
-             is_local = is_local_server_configuration(server_hconfigs(i_server), _RC)
+             call resolve_server_configuration(server_hconfigs(i_server), subclass_name, is_local, _RC)
 
              if (is_local) then
                 ! Local servers consume zero extra SSIs.
-                ! Validation: local: true and num_nodes are mutually exclusive.
+                ! Colocated placement and num_nodes are mutually exclusive.
                 has_num_nodes = ESMF_HConfigIsDefined(server_hconfigs(i_server), keystring='num_nodes', _RC)
-                _ASSERT(.not. has_num_nodes, "Server entry cannot have both 'local: true' and 'num_nodes'")
+                _ASSERT(.not. has_num_nodes, 'Colocated server entry cannot specify num_nodes')
                 ssis_per_server(i_server) = 0
                 cycle
              end if

@@ -218,8 +218,9 @@ such as `MpiServer` use model-job resources or dedicated remote resources. It
 is unnecessary for `AsyncInputServer`: its current payload transport uses
 `MPI_Win_allocate_shared`, so the subclass always selects a colocated topology
 in which each model, its reader captain, and its reader workers belong to the
-same MPI shared-memory domain. Existing `local: true` entries remain valid,
-but `local: false` is rejected as contradictory.
+same MPI shared-memory domain. Existing `local: true` entries remain valid as
+a deprecated compatibility spelling, but new configurations should omit the
+key. `local: false` is rejected as contradictory.
 
 ### Topology and Minimum Processes
 
@@ -265,8 +266,12 @@ second termination request.
   default is `2`; invalid or values below one fall back to the default.
 - `MAPL_ASYNC_INPUT_SHMEM_WORDS`: payload capacity, in default-integer words,
   of each worker-owned mailbox for each model rank. The default is
-  `4194304`. Increase it if a local slice exceeds the mailbox and the server
-  reports an overflow.
+  `262144`. Increase it if a local slice exceeds the mailbox and the server
+  reports an overflow. Each worker allocates one mailbox per node-local model
+  rank, so the node total is approximately
+  `workers * model_ranks * MAPL_ASYNC_INPUT_SHMEM_WORDS * sizeof(default integer)`.
+  With 4-byte default integers, five model ranks, and two workers, the default
+  reserves approximately 10 MiB per node.
 
 The cache key is `(file_name, var_name, type_kind, global_start,
 global_count)`. Concurrent requests for one key stay with one owning worker,

@@ -209,12 +209,17 @@ contains
    subroutine test_async_input_server_implies_local()
       type(ESMF_HConfig) :: hcfg
       integer :: rc
+      logical :: is_local
+      character(:), allocatable :: subclass_name
 
       hcfg = ESMF_HConfigCreate(content='subclass: AsyncInputServer', rc=rc)
       @assertEqual(0, rc)
       call validate_server_configuration(hcfg, rc=rc)
       @assertEqual(0, rc)
       @assertTrue(is_local_server_configuration(hcfg, rc=rc))
+      call resolve_server_configuration(hcfg, subclass_name, is_local, rc=rc)
+      @assertEqual('AsyncInputServer', subclass_name)
+      @assertTrue(is_local)
       call ESMF_HConfigDestroy(hcfg, rc=rc)
    end subroutine test_async_input_server_implies_local
 
@@ -259,5 +264,56 @@ contains
       call ESMF_HConfigDestroy(remote_hcfg, rc=rc)
       call ESMF_HConfigDestroy(local_hcfg, rc=rc)
    end subroutine test_mpi_server_placement_remains_explicit
+
+   @test
+   subroutine test_default_server_resolves_remote_mpi()
+      type(ESMF_HConfig) :: hcfg
+      character(:), allocatable :: subclass_name
+      logical :: is_local
+      integer :: rc
+
+      hcfg = ESMF_HConfigCreate(content='num_nodes: 1', rc=rc)
+      @assertEqual(0, rc)
+      call resolve_server_configuration(hcfg, subclass_name, is_local, rc=rc)
+      @assertEqual('MpiServer', subclass_name)
+      @assertFalse(is_local)
+      call ESMF_HConfigDestroy(hcfg, rc=rc)
+   end subroutine test_default_server_resolves_remote_mpi
+
+   @test
+   subroutine test_multigroup_placement_remains_explicit()
+      type(ESMF_HConfig) :: remote_hcfg, local_hcfg
+      character(:), allocatable :: subclass_name
+      logical :: is_local
+      integer :: rc
+
+      remote_hcfg = ESMF_HConfigCreate(content='subclass: MultiGroupServer', rc=rc)
+      @assertEqual(0, rc)
+      call resolve_server_configuration(remote_hcfg, subclass_name, is_local, rc=rc)
+      @assertEqual('MultiGroupServer', subclass_name)
+      @assertFalse(is_local)
+
+      local_hcfg = ESMF_HConfigCreate(content='{"local": true, "subclass": "MultiGroupServer"}', rc=rc)
+      @assertEqual(0, rc)
+      call resolve_server_configuration(local_hcfg, subclass_name, is_local, rc=rc)
+      @assertEqual('MultiGroupServer', subclass_name)
+      @assertTrue(is_local)
+
+      call ESMF_HConfigDestroy(remote_hcfg, rc=rc)
+      call ESMF_HConfigDestroy(local_hcfg, rc=rc)
+   end subroutine test_multigroup_placement_remains_explicit
+
+   @test
+   subroutine test_implied_local_async_rejects_num_nodes()
+      type(ESMF_HConfig) :: hcfg(1)
+      integer, allocatable :: result(:)
+      integer :: rc
+
+      hcfg(1) = ESMF_HConfigCreate(content='{"subclass": "AsyncInputServer", "num_nodes": 1}', rc=rc)
+      @assertEqual(0, rc)
+      result = get_ssis_per_server(hcfg, ssiCount=2, num_model_ssis=1, rc=rc)
+      @assertExceptionRaised('Colocated server entry cannot specify num_nodes')
+      call ESMF_HConfigDestroy(hcfg(1), rc=rc)
+   end subroutine test_implied_local_async_rejects_num_nodes
 
 end module Test_MaplServerUtilities

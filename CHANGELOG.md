@@ -18,7 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `AsyncInputServer` now implies its required colocated shared-memory placement;
-  its server configuration no longer requires the redundant `local: true` key.
+  omitting `local` is canonical. The redundant `local: true` spelling remains
+  accepted with a deprecation warning, while `local: false` is rejected.
 - For vector items in ExtData change variables separted by `;` to a sequence of variables like History
 - Moved DSO-backed child `setServices` ownership into child configurations and added support for raw `ESMF_GridCompCreate` followed by `ESMF_GridCompSetServices` startup.
 - Refactored `UserSetServices.F90` to remove the `user_setservices` interface, rename `AbstractUserSetServices` to `UserSetServices`, and giving `ProcSetServices` and `DSOSetServices` their own constructors

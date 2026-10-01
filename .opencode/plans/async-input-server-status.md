@@ -1032,6 +1032,129 @@ Notes and remaining risks:
   4 Mi-word default.
 
 
+### Steps 26-30: Review Completion Fixes (2026-10-01)
+
+- State: complete.
+- Source: `.opencode/plans/async-input-server-review.md` Findings 2, 3, 7,
+  and 9, planned as Steps 26-30 in
+  `.opencode/plans/async-input-server-fix-plan.md`.
+
+#### Step 26: reduced shared-mailbox allocation
+
+- True request-derived sizing is not available at construction: the shared
+  window is allocated collectively before ExtData submits any request shape,
+  and the first request does not bound later requests. Implemented the plan's
+  minimum acceptable path instead.
+- Lowered the default mailbox capacity from 4,194,304 to 262,144 default-
+  integer words per model rank per worker. The environment override remains.
+- Removed the component-test-only 4096-word override; PFIO cases 01-05 now run
+  with the production default.
+- Documented the allocation formula in `pfio/pfio.md`.
+- With 4-byte default integers, five model ranks, and two workers, the
+  benchmark topology drops from 160 MiB to 10 MiB of shared mailbox storage.
+  The new default still fits the benchmark's full 512x384 R4 field (196,608
+  words), so every local slice fits.
+
+#### Step 27: typed payload and overflow coverage
+
+- Generalized the test socket to capture raw default-integer words and the
+  delivered pFIO type while preserving the existing REAL32 view.
+- Added typed NetCDF fixtures and end-to-end worker-mailbox tests for INT32,
+  INT64, REAL32, and REAL64. Each test performs cache-only prefetch followed by
+  demand, confirms one miss/one hit and a captain warm hit, then compares the
+  exact delivered mailbox words.
+- Added a deterministic overflow test. `MAPL.pfio.tests` runs with a 16-word
+  mailbox; nine INT64 elements require 18 words. The model observes the
+  controlled overflow, receives no payload, and shutdown remains clean.
+- Size mismatch is not directly injectable through valid public traffic:
+  model expected size and worker result size are both derived from the same
+  serialized request. No production-only test hook was added merely to corrupt
+  mailbox metadata; this remains a documented coverage gap.
+- Negative control: temporarily zeroing only the INT64 worker-read branch made
+  exactly `test_worker_mailbox_int64` fail; INT32, REAL32, REAL64, overflow,
+  and all previous cases remained green. Production code was restored.
+- pFUnit count increased from 98 to 102: three net new typed tests (the prior
+  REAL32 warm test became the REAL32 typed case) plus one overflow test.
+
+#### Step 28: centralized server placement resolution
+
+- Added `resolve_server_configuration`, which parses subclass and explicit
+  placement once and returns both resolved values.
+- `validate_server_configuration` and `is_local_server_configuration` remain
+  compatibility wrappers around the resolver.
+- Updated framework server creation, local startup/shutdown, remote counting,
+  and SSI allocation to use the resolver instead of reparsing subclass and
+  placement independently.
+- `add_local_server` now receives an already-resolved subclass name, removing
+  the last duplicate parse.
+- Placement policy:
+  - omitted `local` is canonical for `AsyncInputServer`;
+  - `local: true` remains accepted as a deprecated compatibility spelling,
+    because it was previously required, and warns once per process;
+  - `local: false` remains rejected;
+  - `MpiServer` and `MultiGroupServer` retain explicit placement semantics.
+- Added resolver tests for implied-local AsyncInputServer, default MpiServer,
+  and explicit MultiGroupServer placement. PFIO case01 uses the deprecated
+  spelling as integration coverage; cases 02-05 retain canonical omission.
+
+#### Step 29: machine-checkable selector-aware lookahead
+
+- Added case03 output checks for the exact irregular-timestep future-left
+  sequence: indices 00002, 00004, and 00007, plus the exact eight-request
+  worker summary.
+- The selector messages are written to `step2.stderr`, not stdout; the test
+  checks that stream. Counters alone cannot prove correctness because choosing
+  the preview's wrong node still creates three duplicated unique keys and
+  therefore identical hit/miss totals.
+- Negative control: temporarily selecting the preview right node for the
+  future-left request, rebuilding `MAPL.extdata`, and rerunning case03 failed
+  exactly on the missing 00002 assertion. The correct selector was restored.
+- Negative-control log: `build/step29-negative-control2.log`.
+
+#### Step 30: mechanical Fortran style pass
+
+- Reindented all of `pfio/AsyncInputServer.F90` to the 3-space house standard
+  with `fprettify` 0.3.7 from an isolated temporary install.
+- Renamed the misleading `sleep_string`, `sleep_length`, and `sleep_status`
+  environment-parsing locals.
+- Replaced four hard-coded `MAPL_Sleep(0.0001)` calls with
+  `ASYNC_INPUT_POLL_INTERVAL_SECONDS`.
+- Mechanical semantic-neutrality proof: after reversing only the planned
+  local renames and poll constant, pre/post token streams with comments,
+  whitespace, and continuation markers removed were identical: 61,262
+  characters on both sides.
+
+Files changed (Steps 26-30):
+
+- `CHANGELOG.md`
+- `mapl/MaplFramework.F90`
+- `mapl/MaplServerUtilities.F90`
+- `mapl/tests/Test_MaplServerUtilities.pf`
+- `pfio/AsyncInputServer.F90`
+- `pfio/pfio.md`
+- `pfio/tests/CMakeLists.txt`
+- `pfio/tests/Test_AsyncInputServer.pf`
+- `tests/MAPL3G_Component_Testing_Framework/CMakeLists.txt`
+- `tests/MAPL3G_Component_Testing_Framework/test_cases/pfio/case01/cap2.yaml`
+- `tests/MAPL3G_Component_Testing_Framework/test_cases/pfio/case03/output_checks.rc`
+
+Verification:
+
+```bash
+zsh -lic 'module load nag-stack && cmake --build build -j 8 --target build-tests MAPL.extdata GEOS.x 2>&1 | tee build/step30-build-tests.log'
+zsh -lic 'module load nag-stack && ctest --test-dir build -R "^(MAPL.pfio.tests|MAPL.mapl.server_utilities|MAPL3G_Comp_Test_pfio_case0[1-5])$" --output-on-failure --timeout 180 2>&1 | tee build/step30-focused-tests.log'
+zsh -lic 'module load nag-stack && ctest --test-dir build -L ESSENTIAL --output-on-failure --timeout 300 2>&1 | tee build/step30-ctest-essential.log'
+```
+
+- Focused selection: 7/7 passed.
+- PFIO component cases 01-05: 5/5 passed without a test-specific mailbox
+  override.
+- `MAPL.pfio.tests`: passed with 102 pFUnit cases.
+- `MAPL.mapl.server_utilities`: passed with 24 pFUnit cases.
+- Full `ESSENTIAL`: 69/69 passed in 393.36 seconds.
+- Remaining implementation work from the fix plan: Step 31 cluster
+  verification and Step 32 plan/status archive hygiene.
+
 ### Files Added
 - `.opencode/plans/async-input-server-plan.md`
 - `.opencode/plans/async-input-server-status.md`
