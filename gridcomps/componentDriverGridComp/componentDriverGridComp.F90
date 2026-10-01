@@ -85,6 +85,12 @@ contains
               units='NA', &
               vertical_stagger=MAPL_VERTICAL_STAGGER_NONE, &
               fill_value=0.0, _RC)
+         call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, &
+              'fixed_columns', &
+              standard_name='fixed_columns', &
+              units='NA', &
+              vertical_stagger=MAPL_VERTICAL_STAGGER_CENTER, &
+              fill_value=0.0, _RC)
          _RETURN(_SUCCESS)
 
       end subroutine add_internal_specs
@@ -165,6 +171,7 @@ contains
       type(ESMF_Time) :: current_time
       type(ESMF_Grid) :: grid
       type(ESMF_HConfig) :: hconfig
+      logical :: is_present, print_min_max
 
       _GET_NAMED_PRIVATE_STATE(gridcomp, Comp_Driver_Support, PRIVATE_STATE, support)
       call ESMF_ClockGet(clock, currTime=current_time, _RC)
@@ -190,8 +197,14 @@ contains
          _FAIL("no run mode selected")
       end if
 
-      ! DEBUG: print min/max of every field in the export state
-      call print_state_min_max(exportState, "exportState", _RC)
+      ! DEBUG: optionally print min/max of every field in the export state
+      ! (top-level hconfig key 'print_export_min_max', default false)
+      print_min_max = .false.
+      is_present = ESMF_HConfigIsDefined(hconfig, keyString='print_export_min_max', _RC)
+      if (is_present) then
+         print_min_max = ESMF_HConfigAsLogical(hconfig, keyString='print_export_min_max', _RC)
+      end if
+      if (print_min_max) call print_state_min_max(exportState, "exportState", _RC)
 
       _UNUSED_DUMMY(importState)
       _UNUSED_DUMMY(exportState)
@@ -272,15 +285,23 @@ contains
 
       integer :: status
       real, pointer :: ptr_2d(:, :)
+      logical :: is_present, apply_perturbation
 
       call MAPL_StateGetPointer(internal_state, ptr_2d, 'time_interval', _RC)
       ptr_2d = support%tFunc%evaluate_time(current_time, _RC)
 
-      ! Re-apply the configured vertical profiles and layer on a fresh,
-      ! independent random whole-number perturbation (in [-100, 100]) for
-      ! each field listed under 'vertical_levels', so the perturbation
-      ! varies each time this routine is called without drifting/accumulating.
-      call fill_vertical_levels_from_config(internal_state, hconfig, apply_perturbation=.true., _RC)
+      ! Re-apply the configured vertical profiles and, unless the top-level
+      ! hconfig key 'apply_perturbation' is set to false (default: true),
+      ! layer on a fresh, independent random whole-number perturbation
+      ! (in [-100, 100]) for each field listed under 'vertical_levels', so the
+      ! perturbation varies each time this routine is called without
+      ! drifting/accumulating.
+      apply_perturbation = .true.
+      is_present = ESMF_HConfigIsDefined(hconfig, keyString='apply_perturbation', _RC)
+      if (is_present) then
+         apply_perturbation = ESMF_HConfigAsLogical(hconfig, keyString='apply_perturbation', _RC)
+      end if
+      call fill_vertical_levels_from_config(internal_state, hconfig, apply_perturbation=apply_perturbation, _RC)
 
       _RETURN(_SUCCESS)
 
@@ -331,11 +352,6 @@ contains
                call random_number(harvest)
                perturbation = floor(harvest * 201.0) - 100  ! whole number in [-100, 100]
                ptr3d = ptr3d + real(perturbation, kind=ESMF_KIND_R4)
-            end if
-            if (do_perturb) then
-            write(*,*)"bmaa ple gc: ",minval(ptr3d),maxval(ptr3d),perturbation
-            else
-            write(*,*)"bmaa ple gc: ",minval(ptr3d),maxval(ptr3d)
             end if
          end do
          call ESMF_HConfigDestroy(vertical_levels_cfg, _RC)
