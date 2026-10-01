@@ -569,3 +569,410 @@ bmauer asked explicitly not to commit)
 4. Rerun the `test_ple` reproducer per the command under Context above;
    expect exit 0, no crash, and `ncdump -h test.nc4` showing `E_1` with no
    `lev` dimension and `E_2` with `lev=4`.
+
+---
+
+# Update: 2026-10-01 - back to the GEOSgcm `dyn-sa` regression test: garbage
+# `PLE` coordinate values (Bug #6) and FV3's top-first level ordering
+# (Bug #7)
+
+Date: 2026-10-01
+Branch: still `feature/bmauer/enable_vert_regrid_history3g` (MAPL submodule at
+`src/Shared/@MAPL`, back to the GEOSgcm-submodule setup from the 2026-09-28
+entry, not the standalone MAPL checkout from the 2026-09-29 entry)
+Test dir: `regression/dyn-sa/temp7887/` (same scratch run dir as 2026-09-28;
+source configs live in `regression/dyn-sa/`)
+
+## Context
+
+Picked back up from the end of the 2026-09-28 entry: `dyn-sa.yaml`/
+`history.yaml` already had the Bug #1 schema fix (`grid_type: model`,
+`fields: {pressure: PLE}`) and `history.yaml` requests `T` on a 2-level
+`pressure_levs` (`[500., 400.]` hPa) `fixed_levels` grid. `bmauer` had added
+his own temporary debug prints (`print*,'bmaa src/dst: ',maxval(src),
+maxval(dst)` in `VerticalLinearMap.F90`'s `compute_linear_map`, plus a
+`MAPL_StateGetPointer(export, ptr4, "PLE", ...); write(*,*)"bmaa ple
+",minval(ptr4),maxval(ptr4)` block at the end of `DynCore_GridCompMod.F90`'s
+`run`) to narrow down why `src` (the `PLE`-derived coordinate column fed into
+the linear interpolator) was coming out as either exactly `0.0` or an
+unphysical ~`1e9`-ish value on different runs, while asking: *is DynCore's
+own `PLE` export actually bad, or is something downstream of it corrupting
+the value?*
+
+Command used throughout (same as 2026-09-28, plus two environment-setup
+steps that turned out to be required on this machine - see **Environment
+gotcha** below):
+```
+source ~/.bashrc && ifxstack && append_esma_libs
+cd regression/dyn-sa/temp7887
+mpirun -np 6 /home/bmauer/models/GEOS_mapl_v3/GEOSgcm/install-debug/bin/GEOS.x mapl.yaml |& tee run.log
+```
+Rebuild:
+```
+source ~/.bashrc && ifxstack
+cmake --build /home/bmauer/models/GEOS_mapl_v3/GEOSgcm/build-debug --target install -j 8
+```
+
+### Environment gotcha (not a code bug, but cost significant time)
+
+A plain, non-interactive shell on this machine does **not** have the right
+Intel `ifx` toolchain modules loaded by default, and does not have
+`LD_LIBRARY_PATH` pointed at the freshly-built `.so`s. Building/running
+without first doing
+```
+source ~/.bashrc && ifxstack
+```
+(before any `cmake --build`) produces a *misleading* link-time error that
+looks like a real code problem:
+```
+../../../../lib/libMAPL.generic.so: undefined reference to `__intel_free_bpv'
+../../../../lib/libMAPL.generic.so: undefined reference to `__intel_alloc_bpv'
+```
+and, separately, running `GEOS.x` without first doing
+```
+source ~/.bashrc && ifxstack && append_esma_libs
+```
+(both are bash functions defined in `~/.bashrc`; `append_esma_libs` walks
+`$ESMADIR` for every `.so` and appends its directory to `LD_LIBRARY_PATH`)
+produces an unrelated-looking `dlopen`/`SetServices` failure at startup:
+```
+pe=00003 FAIL at line=00165    UserSetServices.F90                      <status=506>
+```
+(a `ESMF_GridCompSetServices(..., sharedObj=...)` failure, seemingly random
+per-rank since it is really an NFS/dlopen race on which ranks happen to find
+the `.so` first via whatever stale `LD_LIBRARY_PATH` was inherited).
+**Neither of these is a MAPL code regression** - always `ifxstack` then
+`append_esma_libs` before building or running anything in this checkout.
+
+## Bug #6 (real code bug): `VerticalRegridTransform::initialize()` never
+initializes `v_in_coupler`/`v_out_coupler`, leaving `ConvertUnitsTransform`'s
+UDUNITS converter uninitialized -> garbage (0 / ~1e9 / NaN / Inf) coordinate
+values
+
+### Diagnostic methodology (worth reusing for future sessions on this code)
+
+Static reading alone could not pin this down - the generic
+coupler/extension framework recursively builds and runs multi-step producer
+chains, and the actual failure mode (clean `0.0` on one run, `NaN`/`Infinity`
+on another, for the *same* code path) was itself the key clue that this was
+an *uninitialized-memory* bug, not a wrong-formula bug. The following
+temporary `print*, 'DBGTRACE ...'`-tagged instrumentation (distinct tag from
+bmauer's own pre-existing `'bmaa ...'` prints, so the two could be
+distinguished/grepped independently) was added, built, run, and then fully
+reverted once the root cause was confirmed:
+
+1. `ModelVerticalGrid.F90::get_coordinate_field_with_coupler` - printed
+   `associated(coupler)` and the returned field's name/typekind right after
+   `this%registry%extend(...)`.
+2. `VerticalRegridTransform.F90::update` - printed `v_in_coord`'s min/max
+   immediately before and after `call this%v_in_coupler%run(...)`.
+3. `CopyTransform.F90::update` - printed src/dst field name + typekind +
+   min/max immediately before and after `FieldCopy(...)`.
+4. `ConvertUnitsTransform.F90::update_field` - printed src/dst min/max
+   immediately before and after `converter%convert(...)`.
+5. `CouplerMetaComponent.F90::update` *and* `::initialize` - printed the
+   wrapped transform's `get_transformId()%to_string()` and the `stale` flag
+   on every entry, for both methods.
+
+**Critical gotcha while instrumenting:** this is a `-fpe0` debug build
+(`CMAKE_Fortran_FLAGS_DEBUG` includes `-fpe0 -check all,...`), so a bare
+`minval()`/`maxval()` call on an array that happens to contain `NaN`
+(expected, mid-investigation, on a field that hasn't been populated yet)
+**traps and crashes immediately** - including inside the print statement
+itself, before anything is written to stdout. bmauer's own pre-existing
+`print*,'bmaa src/dst: ',maxval(src),maxval(dst)` in `VerticalLinearMap.F90`
+had already been silently relying on `src`/`dst` never actually containing a
+hard `NaN` (only the physically-wrong-but-finite `0.0`/`1e9` cases); the very
+first attempt to add *new* instrumentation upstream of that point crashed
+immediately on `NaN` with zero diagnostic output. Fixed by bracketing every
+new diagnostic `minval`/`maxval`/`any(ieee_is_nan(...))` call with:
+```fortran
+use, intrinsic :: ieee_exceptions, only: ieee_invalid, ieee_get_halting_mode, ieee_set_halting_mode
+use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
+...
+call ieee_get_halting_mode(ieee_invalid, dbg_halt_invalid)
+call ieee_set_halting_mode(ieee_invalid, .false.)
+! ... prints that may touch NaN/Inf data ...
+call ieee_set_halting_mode(ieee_invalid, dbg_halt_invalid)
+```
+This let the instrumentation safely print the *actual* NaN/Inf/garbage
+values (and an explicit `any(ieee_is_nan(...))` flag) instead of crashing
+before revealing anything.
+
+### Root cause
+
+With the above in place, the chain for the single horizontal point that
+fails was, in order:
+1. `CouplerMetaComponent::initialize` fires exactly 6 times total (once per
+   rank), **always** for `transformId=VERTICAL_GRID` - i.e. only the
+   top-level `VerticalRegridTransform` (the `T`<->History connection itself)
+   ever gets its `initialize()` called by MAPL's normal framework traversal.
+2. `CouplerMetaComponent::update`, by contrast, *does* show the full nested
+   chain every timestep: `VERTICAL_GRID` -> `TYPEKIND` -> `UNITS` -> (inside
+   `ConvertUnitsTransform::update_field`) -> (inside `CopyTransform::update`).
+   This chain is `v_in_coupler`, built inside
+   `ModelVerticalGrid::get_coordinate_field_with_coupler` /
+   `StateRegistry::extend()` to turn DYNsa's native `PE` (R8, Pa) into the
+   R4, `hPa` coordinate column `VerticalLinearMap`/`compute_linear_map`
+   needs.
+3. `ConvertUnitsTransform::initialize` (which calls `UDUNITS_GetConverter`
+   to build `this%converter`) **never prints at all** - i.e. is never
+   called - even though `ConvertUnitsTransform::update_field` runs every
+   timestep and calls `converter%convert(...)` on that never-initialized
+   `converter`.
+4. Directly confirmed with before/after prints around
+   `converter%convert(...)`: input `PE` data going in was always perfectly
+   sane (`1.0` to `~100117` Pa, matching bmauer's own `PLE` print at the end
+   of `DynCore_GridCompMod.F90::run`); the *output* of
+   `converter%convert()` on that sane input was garbage - e.g.
+   `-3.69e19` / `1.72e256` / `NaN` - varying run-to-run with whatever
+   uninitialized memory `this%converter`'s internals happened to contain.
+
+`VerticalRegridTransform::initialize()` (unlike `::update()`) never
+propagated initialization into `v_in_coupler`/`v_out_coupler`:
+`update()` already explicitly calls `this%v_in_coupler%run(phase_idx=
+MAPL_GENERIC_COUPLER_UPDATE, ...)` every timestep, but the analogous
+`this%v_in_coupler%initialize(phase_idx=MAPL_GENERIC_COUPLER_INITIALIZE,
+...)` was simply missing from `initialize()`. Since these nested
+unit/typekind-conversion couplers are created dynamically (inside
+`make_transform`, as a side effect of resolving the `T`<->History
+`VERTICAL_GRID` aspect) rather than being part of the normal
+registry-managed extension tree MAPL's framework walks during its own
+Initialize phase, nothing else ever called their `initialize()` either -
+leaving `ConvertUnitsTransform`'s `UDUNITS_converter` permanently
+uninitialized.
+
+### Fix (`superstructure/generic/transforms/VerticalRegridTransform.F90`)
+
+Added the missing propagation to `initialize()`, mirroring the existing
+`run()` propagation already present in `update()`:
+```fortran
+if (associated(this%v_in_coupler)) then
+   call this%v_in_coupler%initialize(phase_idx=MAPL_GENERIC_COUPLER_INITIALIZE, _RC)
+end if
+if (associated(this%v_out_coupler)) then
+   call this%v_out_coupler%initialize(phase_idx=MAPL_GENERIC_COUPLER_INITIALIZE, _RC)
+end if
+```
+(plus importing `MAPL_GENERIC_COUPLER_INITIALIZE` from `mapl_enums_api`,
+already alongside the existing `MAPL_GENERIC_COUPLER_UPDATE` import).
+
+**Verified:** rebuilt, reran - `ConvertUnitsTransform::initialize` now fires
+(confirmed `src_units=Pa dst_units=hPa` printed once per rank at Initialize
+time) and `converter%convert()` now produces correct, physical values (e.g.
+`bmaa src/dst:  998.7006  500.0000` - a believable surface pressure in hPa
+vs. the requested 500 hPa output level - where before it would have been
+`0.0`/`1e9`/`NaN` against the same `500.0000`).
+
+## Bug #7 (real code bug, exposed only once Bug #6 was fixed): no
+`VerticalGrid` subclass has any way to declare a non-default
+`coordinate_direction`, and FV3's `PLE` is natively top-first (UP), not the
+hardcoded DOWN default
+
+With Bug #6 fixed, the run immediately progressed to a different, legitimate
+`_ASSERT`:
+```
+VerticalLinearMap.F90:51  <src array is not decreasing>
+```
+(not the `maxval(dst) > maxval(src)` one - that one now correctly *passes*,
+since `src` is finally a sane ~998 hPa-ish surface value).
+
+**bmauer's diagnosis (confirmed correct):** `DynCore`'s `PLE` is produced
+with index 1 = top of atmosphere and the last index = surface, i.e. pressure
+*increases* with index - a perfectly valid, deliberate FV3/dynamical-core
+convention, not a bug in `DynCore_GridCompMod.F90`.
+
+**Root cause:** `mapl_VerticalGrid_mod`'s base type hardcodes
+```fortran
+type(VerticalCoordinateDirection) :: coordinate_direction = VCOORD_DIRECTION_DOWN
+```
+with a `get_coordinate_direction`/`set_coordinate_direction` pair - but
+`grep -rn set_coordinate_direction` across the *entire* MAPL tree (before
+this fix) turns up **zero** call sites. Every single `VerticalGrid`
+subclass/factory (`ModelVerticalGrid`, `FixedLevelsVerticalGrid`,
+`BasicVerticalGrid`) is permanently stuck at `DOWN` ("surface-first,
+decreasing" - the implicit convention `VerticalRegridTransform`'s
+`compute_interpolation_matrix_` flip logic and `VerticalLinearMap`'s
+`is_decreasing` assertion both assume), with **no config-level or
+programmatic way to ever override it** for a model whose native ordering is
+actually the opposite (UP). Since `src_alignment` resolves to `DOWN` by
+default (`VerticalGridAspect::get_resolved_alignment` ->
+`VerticalAlignment%resolve(grid_direction)` with the default
+`VALIGN_WITH_GRID`), the `if (src_alignment == VCOORD_DIRECTION_UP) vv_in =
+flip_vertical_coords(vv_in)` flip in `VerticalRegridTransform.F90` never
+fires for DYNsa's `PLE`, so its genuinely-increasing array is fed to
+`compute_linear_map` unflipped, and `is_decreasing(src)` correctly rejects
+it.
+
+**Fix** - added an optional `direction:` HConfig key, threaded through to
+`set_coordinate_direction()`, to **both** real (non-placeholder)
+`VerticalGrid` factories (`BasicVerticalGrid`/`MirrorVerticalGrid` are both
+sentinel/placeholder types whose `get_coordinate_field` always `_FAIL`s and
+were left untouched):
+
+1. `superstructure/generic/vertical/ModelVerticalGrid.F90`:
+   - `ModelVerticalGridSpec` gained a `coordinate_direction` field (default
+     `VCOORD_DIRECTION_DOWN`, so every existing config's behavior is
+     unchanged unless it opts in).
+   - `new_ModelVerticalGridSpec` gained an optional `coordinate_direction`
+     constructor argument.
+   - `create_spec_from_config` parses an optional `direction:` key (reusing
+     `VerticalCoordinateDirection(str)`'s existing `up`/`down`/`upward`/
+     `downward` string parsing, `_ASSERT`ing on anything else).
+   - `ModelVerticalGrid::initialize` now calls
+     `call this%set_coordinate_direction(spec%coordinate_direction)`.
+2. `superstructure/generic/vertical/FixedLevelsVerticalGrid.F90` - identical
+   pattern (`FixedLevelsVerticalGridSpec%coordinate_direction`,
+   constructor arg, `direction:` HConfig parsing, `initialize()` override),
+   added proactively for symmetry: a user who lists `levels:`
+   top-of-atmosphere-first (increasing) in a History `fixed_levels:` block
+   would hit the exact same latent bug, with no prior way to declare it
+   either.
+3. `regression/dyn-sa/dyn-sa.yaml` (GEOSgcm repo) - added
+   `direction: up` to `geometry.vertical_grid:`.
+
+**Verified end-to-end:** rebuilt + reinstalled, reran the `dyn-sa`
+reproducer - clean full run, zero `FAIL`/crash output, `History: run:`
+completed for all 3 timesteps of the 1-hour segment, and
+`test.nc4`'s `T(time,lev,nf,Ydim,Xdim)` on the two requested pressure levels
+(`lev = [1, 2]` i.e. 500/400 hPa) holds physically sane values:
+`T min/max: 239.40121 267.60065` (K).
+
+## Post-fix regression testing (both bugs)
+
+- `ctest -R "^MAPL\.generic\.(vertical|transforms|aspects)$"`: 3/3 pass.
+- `make -j8 tests` (builds + runs **every** `ESSENTIAL`-labeled ctest target,
+  67 tests total - includes `MAPL.generic.{scenarios,vertical,transforms,
+  aspects,components,core}`, `MAPL.vertical_grid.tests` (48 pf-unit tests),
+  `MAPL.history.tests`, `MAPL.state.tests`, all 30 `MAPL3G_Comp_Test_case*`
+  end-to-end scenario tests, etc.): **100% tests passed out of 67**, zero
+  `Failed`/`FAILED` anywhere in the log.
+- `regression/dyn-sa` reproducer rerun end-to-end per above: clean pass.
+
+## Files changed
+
+MAPL submodule (`src/Shared/@MAPL`, branch
+`feature/bmauer/enable_vert_regrid_history3g`, **uncommitted** as of this
+writing):
+- `superstructure/generic/transforms/VerticalRegridTransform.F90` - Bug #6
+  fix (`initialize()` now propagates to `v_in_coupler`/`v_out_coupler`).
+- `superstructure/generic/vertical/ModelVerticalGrid.F90` - Bug #7 fix
+  (`direction:` config support).
+- `superstructure/generic/vertical/FixedLevelsVerticalGrid.F90` - Bug #7
+  symmetric fix (`direction:` config support), same pattern as above.
+
+All temporary `DBGTRACE`-tagged diagnostic instrumentation described above
+(in these same 3 files, plus `CopyTransform.F90` and
+`ConvertUnitsTransform.F90`, which ended up needing **no** permanent code
+change and are back to byte-for-byte pre-session state) was fully reverted
+once the root causes were confirmed; `git diff --stat` in `src/Shared/@MAPL`
+shows only the 3 files above.
+
+bmauer's own pre-existing debug instrumentation from before this session
+(`print*,'bmaa src/dst: ...'` in `VerticalLinearMap.F90`, the `block ...
+write(*,*)"bmaa ple ..."` + two `_HERE, ' bmaa '` markers in
+`DynCore_GridCompMod.F90`) was also removed at bmauer's request once the
+real fixes were confirmed working; both files are now back to their
+pre-debugging state (`VerticalLinearMap.F90` identical to its state before
+the 2026-09-28 entry even started; `DynCore_GridCompMod.F90`, which lives in
+the GEOSgcm repo's `FVdycoreCubed_GridComp` component, not this MAPL
+checkout, is back to `git checkout --`-clean).
+
+GEOSgcm repo (`src/Components/@GEOSgcm_GridComp/.../@FVdycoreCubed_GridComp`,
+this component, separate git repo from `src/Shared/@MAPL`):
+- `regression/dyn-sa/dyn-sa.yaml` - added `direction: up` (Bug #7 fix
+  application; see diff below).
+- `regression/dyn-sa/temp7887/` - untracked scratch run directory, kept in
+  sync with `dyn-sa.yaml` (copied after each edit); logs from this session
+  (`run_dbg*.log`, `run_dir.log`, `run_final.log`, etc.) are left in place
+  and can be deleted/regenerated freely.
+- `DynCore_GridCompMod.F90` - reverted to clean (`git checkout --`) as noted
+  above; no longer shows as modified.
+- `regression/dyn-sa/history.yaml` - unchanged this session (still shows as
+  modified relative to upstream from the 2026-09-28 entry's `class:` ->
+  `grid_type:` rename).
+
+```diff
+--- a/regression/dyn-sa/dyn-sa.yaml
++++ b/regression/dyn-sa/dyn-sa.yaml
+@@ -17,12 +17,15 @@ geometry:
+     nx_face: 1
+     ny_face: 1
+   vertical_grid:
+-    class: model
+-    standard_name: air_pressure
+-    units: hPa
++    grid_type: model
++    fields: {pressure: PLE}
+     num_levels: 91
+-    field_edge: PLE
+-    field_center: PE
++    # FV3's PLE is stored top-of-atmosphere-first (index 1 = model top,
++    # increasing pressure with index), not the "down" (surface-first,
++    # decreasing) convention MAPL's ModelVerticalGrid otherwise assumes by
++    # default. Declare it explicitly so VerticalRegridTransform flips it to
++    # the canonical orientation before interpolation.
++    direction: up
+```
+(Note: this diff is relative to the *pre-2026-09-28* upstream `dyn-sa.yaml`,
+same as the 2026-09-28 entry's Bug #1 diff - the `grid_type`/`fields:` half
+was already in place from that earlier session; only the trailing
+`direction: up` + comment is new this session.)
+
+## Open items / not yet done
+
+- Nothing from this session has been committed (consistent with bmauer's
+  standing "do not commit" instruction from the 2026-09-29 entry - not
+  re-confirmed explicitly this session, but no instruction to the contrary
+  was given either).
+- `BasicVerticalGrid` was deliberately **not** given `direction:` support -
+  it's a placeholder whose `get_coordinate_field` always `_FAIL`s (see its
+  own source comment: "should have been connected to a different subclass
+  before this is called"), so it never actually participates in real
+  coordinate-based regridding. Flagged here in case that assumption changes
+  in the future.
+- No new permanent pf-unit regression test was added specifically for Bug
+  #6 (the coupler-initialize propagation) or Bug #7 (the `direction:`
+  config option) in this session - only the pre-existing full-suite re-run
+  described above. `superstructure/generic/vertical/tests/` (via
+  `superstructure/generic/tests/CMakeLists.txt`'s `vertical_test_srcs`) and
+  `infrastructure/vertical/vertical_grid/tests/Test_FixedLevelsVerticalGrid.pf`
+  would be the natural homes for such tests (the latter already exercises
+  `get_coordinate_direction`/`set_coordinate_direction` directly - see
+  `test_fixed_level_coordinate_direction_default`/`_get_set` - but not yet
+  the new `direction:` HConfig key itself).
+- The still-untracked `regression/dyn-sa/temp7887/` scratch directory (and
+  this session's several `run_dbg*.log`/`run_*.log` files inside it) have
+  not been cleaned up; harmless, regenerable, same status as noted in the
+  2026-09-28 entry.
+
+## How to restore / re-verify this state
+
+1. `cd src/Shared/@MAPL && git diff --stat` should show exactly:
+   `superstructure/generic/transforms/VerticalRegridTransform.F90`,
+   `superstructure/generic/vertical/ModelVerticalGrid.F90`,
+   `superstructure/generic/vertical/FixedLevelsVerticalGrid.F90`.
+2. `cd regression/dyn-sa && git diff -- dyn-sa.yaml` should show the
+   `direction: up` addition described above (on top of the pre-existing
+   `grid_type`/`fields:` schema fix from 2026-09-28).
+3. Rebuild:
+   ```
+   source ~/.bashrc && ifxstack
+   cmake --build /home/bmauer/models/GEOS_mapl_v3/GEOSgcm/build-debug --target install -j 8
+   ```
+4. Regression-test:
+   ```
+   source ~/.bashrc && ifxstack
+   cd /home/bmauer/models/GEOS_mapl_v3/GEOSgcm/build-debug
+   make -j8 tests
+   ```
+   expect `100% tests passed out of 67`.
+5. Rerun the `dyn-sa` reproducer:
+   ```
+   source ~/.bashrc && ifxstack && append_esma_libs
+   cd regression/dyn-sa/temp7887
+   mpirun -np 6 /home/bmauer/models/GEOS_mapl_v3/GEOSgcm/install-debug/bin/GEOS.x mapl.yaml |& tee run.log
+   ```
+   expect exit 0, no `FAIL`/abort anywhere in `run.log`, and (if `netCDF4`
+   is available) `test.nc4`'s `T` variable in the range of ~239-268 K on
+   both pressure levels.

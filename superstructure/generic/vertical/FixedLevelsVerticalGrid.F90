@@ -12,6 +12,7 @@ module mapl_FixedLevelsVerticalGrid_mod
    use esmf, only: esmf_Field, esmf_Geom, esmf_TypeKind_Flag
    use esmf, only: ESMF_KIND_R4, ESMF_TYPEKIND_R4
    use mapl_VerticalStaggerLoc_mod
+   use mapl_VerticalCoordinateDirection_mod
    use gftl2_StringVector, only: StringVector
    use mapl_ErrorHandling_mod
    implicit none(type,external)
@@ -27,6 +28,15 @@ module mapl_FixedLevelsVerticalGrid_mod
       character(len=:), allocatable :: physical_dimension
       real, allocatable :: levels(:)
       character(len=:), allocatable :: units
+      ! Native ordering of the user-supplied `levels` list. Defaults to DOWN
+      ! (the pre-existing/implicit convention: levels listed surface-first,
+      ! decreasing), to preserve behavior for existing configs. If a user
+      ! lists levels top-of-atmosphere-first (increasing, e.g.
+      ! [200., 500., 850., 1000.]), they must set "direction: up" so
+      ! VerticalRegridTransform flips it to the canonical orientation
+      ! expected by compute_linear_map/compute_conservative_map. See
+      ! mapl_ModelVerticalGrid_mod for the analogous fix/explanation.
+      type(VerticalCoordinateDirection) :: coordinate_direction = VCOORD_DIRECTION_DOWN
    end type FixedLevelsVerticalGridSpec
    
    ! Grid type
@@ -62,15 +72,17 @@ module mapl_FixedLevelsVerticalGrid_mod
 
 contains
 
-   function new_FixedLevelsVerticalGridSpec(physical_dimension, levels, units) result(spec)
+   function new_FixedLevelsVerticalGridSpec(physical_dimension, levels, units, coordinate_direction) result(spec)
       type(FixedLevelsVerticalGridSpec) :: spec
       character(*), intent(in) :: physical_dimension
       real, intent(in) :: levels(:)
       character(*), intent(in) :: units
+      type(VerticalCoordinateDirection), optional, intent(in) :: coordinate_direction
 
       spec%physical_dimension = physical_dimension
       spec%levels = levels
       spec%units = units
+      if (present(coordinate_direction)) spec%coordinate_direction = coordinate_direction
    end function new_FixedLevelsVerticalGridSpec
 
 
@@ -79,7 +91,10 @@ contains
       type(FixedLevelsVerticalGridSpec), intent(in) :: spec
 
       this%spec = spec
-      ! Default coordinate direction is already set to VCOORD_DIRECTION_DOWN in VerticalGrid
+      ! VerticalGrid's own coordinate_direction defaults to DOWN; override it
+      ! here from the spec so a user-supplied top-first (UP) levels list is
+      ! correctly flipped by VerticalRegridTransform.
+      call this%set_coordinate_direction(spec%coordinate_direction)
    end subroutine initialize
 
    function get_levels(this) result(levels)
@@ -274,6 +289,19 @@ contains
          local_spec%units = esmf_HConfigAsString(config, keyString="units", _RC)
       else
          local_spec%units = get_default_units(local_spec%physical_dimension)
+      end if
+
+      ! Get direction (optional - defaults to DOWN, i.e. levels listed
+      ! surface-first/decreasing, preserving existing behavior). See
+      ! FixedLevelsVerticalGridSpec's coordinate_direction field for details.
+      if (esmf_HConfigIsDefined(config, keyString="direction")) then
+         block
+            character(len=:), allocatable :: direction_str
+            direction_str = esmf_HConfigAsString(config, keyString="direction", _RC)
+            local_spec%coordinate_direction = VerticalCoordinateDirection(direction_str)
+            _ASSERT(local_spec%coordinate_direction /= VCOORD_DIRECTION_INVALID, &
+                 "invalid 'direction' for fixed_levels vertical_grid: "//direction_str)
+         end block
       end if
       
       ! Use polymorphic allocation

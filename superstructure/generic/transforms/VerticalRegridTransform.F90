@@ -8,7 +8,7 @@ module mapl_VerticalRegridTransform_mod
    use mapl_StateItem_mod
    use mapl_ExtensionTransform_mod
    use mapl_ComponentDriver_mod
-   use mapl_enums_api, only: MAPL_GENERIC_COUPLER_UPDATE
+   use mapl_enums_api, only: MAPL_GENERIC_COUPLER_UPDATE, MAPL_GENERIC_COUPLER_INITIALIZE
    use mapl_VerticalRegridMethod_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalLinearMap_mod, only: compute_linear_map
@@ -150,10 +150,31 @@ contains
       type(ESMF_Clock) :: clock
       integer, optional, intent(out) :: rc
 
+      integer :: status
+
       _ASSERT(this%method == VERTICAL_REGRID_LINEAR .or. this%method == VERTICAL_REGRID_CONSERVATIVE, "method must be LINEAR or CONSERVATIVE")
 
       ! Degenerate case is determined by VerticalGridAspect and passed to constructor
       ! No need to re-check here
+
+      ! v_in_coupler/v_out_coupler are the (possibly multi-step) producer
+      ! chains that populate v_in_coord/v_out_coord (e.g. units and/or
+      ! typekind conversion extensions built on top of the model's native
+      ! vertical coordinate field). These couplers are not part of the
+      ! normal registry-managed extension tree that MAPL's generic
+      ! framework walks during Initialize, so they must be explicitly
+      ! initialized here (mirroring the explicit %run() calls already done
+      ! in update()). Without this, e.g. ConvertUnitsTransform::initialize()
+      ! (which builds the UDUNITS converter) is never called, leaving any
+      ! units-conversion step in the chain operating on an uninitialized
+      ! converter and producing garbage/NaN coordinate values.
+      if (associated(this%v_in_coupler)) then
+         call this%v_in_coupler%initialize(phase_idx=MAPL_GENERIC_COUPLER_INITIALIZE, _RC)
+      end if
+
+      if (associated(this%v_out_coupler)) then
+         call this%v_out_coupler%initialize(phase_idx=MAPL_GENERIC_COUPLER_INITIALIZE, _RC)
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(importState)
