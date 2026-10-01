@@ -325,6 +325,10 @@ contains
       character(len=:), allocatable :: level_field_name
       real(kind=ESMF_KIND_R4), allocatable :: level_values(:)
       real(kind=ESMF_KIND_R4), pointer :: ptr3d(:, :, :)
+      real(kind=ESMF_KIND_R8), allocatable :: level_values_r8(:)
+      real(kind=ESMF_KIND_R8), pointer :: ptr3d_r8(:, :, :)
+      type(ESMF_Field) :: level_field
+      type(ESMF_TypeKind_Flag) :: level_typekind
       real :: harvest
       integer :: perturbation
 
@@ -340,18 +344,34 @@ contains
          do while (ESMF_HConfigIterLoop(iter, b, e))
             level_field_name = ESMF_HConfigAsStringMapKey(iter, _RC)
             level_val_cfg = ESMF_HConfigCreateAtMapVal(iter, _RC)
-            level_values = ESMF_HConfigAsR4Seq(level_val_cfg, _RC)
-            call MAPL_StateGetPointer(internal_state, ptr3d, trim(level_field_name), _RC)
-            shape_ = shape(ptr3d)
-            _ASSERT(shape_(3) == size(level_values), &
-                 "vertical_levels size mismatch for field " // trim(level_field_name))
-            do concurrent(ii = 1:shape_(1), jj = 1:shape_(2))
-               ptr3d(ii, jj, :) = level_values
-            end do
+            call ESMF_StateGet(internal_state, trim(level_field_name), level_field, _RC)
+            call ESMF_FieldGet(level_field, typekind=level_typekind, _RC)
             if (do_perturb) then
                call random_number(harvest)
                perturbation = floor(harvest * 201.0) - 100  ! whole number in [-100, 100]
-               ptr3d = ptr3d + real(perturbation, kind=ESMF_KIND_R4)
+            end if
+            if (level_typekind == ESMF_TYPEKIND_R4) then
+               level_values = ESMF_HConfigAsR4Seq(level_val_cfg, _RC)
+               call MAPL_StateGetPointer(internal_state, ptr3d, trim(level_field_name), _RC)
+               shape_ = shape(ptr3d)
+               _ASSERT(shape_(3) == size(level_values), &
+                    "vertical_levels size mismatch for field " // trim(level_field_name))
+               do concurrent(ii = 1:shape_(1), jj = 1:shape_(2))
+                  ptr3d(ii, jj, :) = level_values
+               end do
+               if (do_perturb) ptr3d = ptr3d + real(perturbation, kind=ESMF_KIND_R4)
+            else if (level_typekind == ESMF_TYPEKIND_R8) then
+               level_values_r8 = ESMF_HConfigAsR8Seq(level_val_cfg, _RC)
+               call MAPL_StateGetPointer(internal_state, ptr3d_r8, trim(level_field_name), _RC)
+               shape_ = shape(ptr3d_r8)
+               _ASSERT(shape_(3) == size(level_values_r8), &
+                    "vertical_levels size mismatch for field " // trim(level_field_name))
+               do concurrent(ii = 1:shape_(1), jj = 1:shape_(2))
+                  ptr3d_r8(ii, jj, :) = level_values_r8
+               end do
+               if (do_perturb) ptr3d_r8 = ptr3d_r8 + real(perturbation, kind=ESMF_KIND_R8)
+            else
+               _FAIL("unsupported typekind for vertical_levels field " // trim(level_field_name))
             end if
          end do
          call ESMF_HConfigDestroy(vertical_levels_cfg, _RC)
