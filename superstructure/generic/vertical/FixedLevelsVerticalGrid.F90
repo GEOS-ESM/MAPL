@@ -299,8 +299,7 @@ contains
             character(len=:), allocatable :: direction_str
             direction_str = esmf_HConfigAsString(config, keyString="direction", _RC)
             local_spec%coordinate_direction = VerticalCoordinateDirection(direction_str)
-            _ASSERT(local_spec%coordinate_direction /= VCOORD_DIRECTION_INVALID, &
-                 "invalid 'direction' for fixed_levels vertical_grid: "//direction_str)
+            _ASSERT(local_spec%coordinate_direction /= VCOORD_DIRECTION_INVALID, "invalid 'direction' for fixed_levels vertical_grid: "//direction_str)
          end block
       end if
       
