@@ -198,9 +198,57 @@ contains
          return
       end if
 
-      if (any([src%vertical_stagger,dst%vertical_stagger] == VERTICAL_STAGGER_NONE)) then
-         ! both must be 2D
-         matches = src%vertical_stagger == dst%vertical_stagger
+      ! VERTICAL_STAGGER_NONE is never a silent/implicit default anywhere in
+      ! the codebase (an omitted vertical_dim_spec becomes CENTER - see this
+      ! module's own constructor default below - or INVALID via
+      ! ComponentSpecParser, but never NONE), so seeing it here always means
+      ! a producer or consumer explicitly declared "no vertical dimension"
+      ! for this item.
+      !
+      ! If the source (src, the already-connected/producer side - see
+      ! StateItemSpec::make_extension) is NONE, there is nothing to
+      ! vertically regrid, full stop - regardless of what dst nominally
+      ! requests. dst's vertical_stagger/vertical_grid may only reflect a
+      ! component-wide default vertical grid unconditionally stamped onto
+      ! every registered item by MAPL_GridCompSetVerticalGrid (see
+      ! StateItemSpec::target_set_geom), not a genuine per-variable request -
+      ! e.g. a History collection's `vertical_grid:` applies to every
+      ! variable in its var_list by default, including ones (like a plain
+      ! 2D diagnostic) that were never meant to be vertically regridded.
+      !
+      ! Note: these use VerticalStaggerLoc::is_none(), NOT
+      ! `== VERTICAL_STAGGER_NONE`. The latter goes through
+      ! VerticalStaggerLoc's overloaded operator(==), which has special
+      ! "MIRROR matches anything" wildcard semantics - it would spuriously
+      ! return .true. whenever either side is VERTICAL_STAGGER_MIRROR (e.g. a
+      ! History import declared `vertical_dim_spec: MIRROR`), incorrectly
+      ! routing genuinely mirror-staggered items through this NONE-specific
+      ! logic instead of the ordinary grid-matching below.
+      if (src%vertical_stagger%is_none()) then
+         matches = .true.
+         return
+      end if
+
+      ! dst genuinely declared NONE (see above - never a silent default) but
+      ! src has real vertical structure: a genuine mismatch, not something to
+      ! silently truncate.
+      if (dst%vertical_stagger%is_none()) then
+         matches = .false.
+         return
+      end if
+
+      ! VERTICAL_STAGGER_MIRROR is an explicit, deliberate "matches any real
+      ! stagger" wildcard declaration (see VerticalStaggerLoc::are_equal) -
+      ! e.g. a History import declared `vertical_dim_spec: MIRROR` to accept
+      ! whatever vertical structure its connected export happens to have.
+      ! Honor that directly here (now that the NONE checks above use exact
+      ! is_none() rather than the wildcard-aware operator(==)) - a
+      ! MIRROR-staggered item is not required to carry an allocated
+      ! vertical_grid of its own, so falling through to the grid-id
+      ! comparison below would crash on an unallocated dst%vertical_grid (or
+      ! src%vertical_grid).
+      if (src%vertical_stagger%is_mirror() .or. dst%vertical_stagger%is_mirror()) then
+         matches = .true.
          return
       end if
 

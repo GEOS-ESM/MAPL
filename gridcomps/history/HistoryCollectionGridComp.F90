@@ -106,13 +106,19 @@ contains
       integer :: status
       type(ESMF_HConfig) :: hconfig
       type(ESMF_Geom) :: geom
-      logical :: has_geom
+      class(MAPL_VerticalGrid), allocatable :: vertical_grid
+      logical :: has_geom, has_vertical_grid
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
       has_geom = ESMF_HConfigIsDefined(hconfig, keystring='geom', _RC)
       if (has_geom) then
          geom = make_geom(hconfig)
          call MAPL_GridCompSetGeom(gridcomp, geom, _RC)
+      end if
+      has_vertical_grid = ESMF_HConfigIsDefined(hconfig, keyString='vertical_grid', _RC)
+      if (has_vertical_grid) then
+         vertical_grid = make_vertical_grid(hconfig, _RC)
+         call MAPL_GridCompSetVerticalGrid(gridcomp, vertical_grid, _RC)
       end if
 
       _RETURN(_SUCCESS)
