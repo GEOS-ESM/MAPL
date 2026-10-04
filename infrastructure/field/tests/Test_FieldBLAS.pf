@@ -449,4 +449,184 @@ contains
 
    end subroutine test_almost_equal_array
 
+   ! ------------------------------------------------------------------
+   ! No-DE regression tests.
+   !
+   ! mk_grid() creates a grid with exactly 4 DEs (a 2x2 decomposition).
+   ! Running with 5 PEs means PET 4 legitimately owns zero DEs for XR4/
+   ! YR4/XR8/YR8. These tests confirm the BLAS-like operations no longer
+   ! crash on that rank (they used to, via an unconditional
+   ! ESMF_FieldGet(..., farrayPtr=...) inside assign_fptr()/FieldGetCptr()),
+   ! and that the PETs that do own data still get correct results.
+   ! ------------------------------------------------------------------
+
+   @Test(npes=[5])
+   subroutine test_FieldCOPY_R4_no_DE(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_Field) :: x, y
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: x_ptr, y_ptr
+      integer :: status, rc
+      logical :: has_de
+
+      x = XR4
+      y = YR4
+      has_de = field_has_de(x, _RC)
+      call FieldCOPY(x, y, _RC)
+      if (has_de) then
+         call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+         call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+         @assertEqual(x_ptr, y_ptr)
+      end if
+
+   end subroutine test_FieldCOPY_R4_no_DE
+
+   @Test(npes=[5])
+   subroutine test_FieldCOPY_R8_no_DE(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_Field) :: x, y
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr, y_ptr
+      integer :: status, rc
+      logical :: has_de
+
+      x = XR8
+      y = YR8
+      has_de = field_has_de(x, _RC)
+      call FieldCOPY(x, y, _RC)
+      if (has_de) then
+         call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+         call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+         @assertEqual(x_ptr, y_ptr)
+      end if
+
+   end subroutine test_FieldCOPY_R8_no_DE
+
+   @Test(npes=[5])
+   subroutine test_FieldSCAL_R4_no_DE(this)
+      class(MpiTestMethod), intent(inout) :: this
+      real(kind=ESMF_KIND_R4), parameter :: a = 2.0
+      type(ESMF_Field) :: x
+      real(kind=ESMF_KIND_R4), dimension(:,:), allocatable :: x_array
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: x_ptr
+      integer :: status, rc
+      logical :: has_de
+
+      x = XR4
+      has_de = field_has_de(x, _RC)
+      if (has_de) then
+         call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+         x_array = x_ptr
+      end if
+      call FieldSCAL(a, x, _RC)
+      if (has_de) then
+         call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+         @assertEqual(x_ptr, a*x_array)
+      end if
+
+   end subroutine test_FieldSCAL_R4_no_DE
+
+   @Test(npes=[5])
+   subroutine test_FieldSCAL_R8_no_DE(this)
+      class(MpiTestMethod), intent(inout) :: this
+      real(kind=ESMF_KIND_R8), parameter :: a = 2.0
+      type(ESMF_Field) :: x
+      real(kind=ESMF_KIND_R8), dimension(:,:), allocatable :: x_array
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr
+      integer :: status, rc
+      logical :: has_de
+
+      x = XR8
+      has_de = field_has_de(x, _RC)
+      if (has_de) then
+         call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+         x_array = x_ptr
+      end if
+      call FieldSCAL(a, x, _RC)
+      if (has_de) then
+         call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+         @assertEqual(x_ptr, a*x_array)
+      end if
+
+   end subroutine test_FieldSCAL_R8_no_DE
+
+   @Test(npes=[5])
+   subroutine test_FieldAXPY_R4_no_DE(this)
+      class(MpiTestMethod), intent(inout) :: this
+      real(kind=ESMF_KIND_R4), parameter :: a = 2.0
+      type(ESMF_Field) :: x, y
+      real(kind=ESMF_KIND_R4), dimension(:,:), allocatable :: x_array, y_array
+      real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: x_ptr, y_ptr
+      integer :: status, rc
+      logical :: has_de
+
+      x = XR4
+      y = YR4
+      has_de = field_has_de(x, _RC)
+      if (has_de) then
+         call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+         x_array = x_ptr
+         call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+         y_array = y_ptr
+      end if
+      call FieldAXPY(a, x, y, _RC)
+      if (has_de) then
+         call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+         @assertEqual(y_ptr, a*x_array+y_array)
+      end if
+
+   end subroutine test_FieldAXPY_R4_no_DE
+
+   @Test(npes=[5])
+   subroutine test_FieldAXPY_R8_no_DE(this)
+      class(MpiTestMethod), intent(inout) :: this
+      real(kind=ESMF_KIND_R8), parameter :: a = 2.0
+      type(ESMF_Field) :: x, y
+      real(kind=ESMF_KIND_R8), dimension(:,:), allocatable :: x_array, y_array
+      real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: x_ptr, y_ptr
+      integer :: status, rc
+      logical :: has_de
+
+      x = XR8
+      y = YR8
+      has_de = field_has_de(x, _RC)
+      if (has_de) then
+         call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+         x_array = x_ptr
+         call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+         y_array = y_ptr
+      end if
+      call FieldAXPY(a, x, y, _RC)
+      if (has_de) then
+         call ESMF_FieldGet(y, farrayPtr = y_ptr, _RC)
+         @assertEqual(y_ptr, a*x_array+y_array)
+      end if
+
+   end subroutine test_FieldAXPY_R8_no_DE
+
+   @Test(npes=[5])
+   subroutine test_FieldConvertPrec_R4R8_no_DE(this)
+      class(MpiTestMethod), intent(inout) :: this
+      integer, parameter :: NROWS = 2
+      integer, parameter :: NCOLS = NROWS
+      type(ESMF_Field) :: r4_field, r8_field
+      real(kind=ESMF_KIND_R4) :: r4_data(NROWS,NCOLS)
+      real(kind=ESMF_KIND_R8) :: r8_data(NROWS,NCOLS)
+      real(kind=ESMF_KIND_R8) :: r8_converted(NROWS,NCOLS)
+      real(kind=ESMF_KIND_R8), pointer :: r8_pointer(:,:)
+      integer :: rc, status
+      logical :: has_de
+
+      call initialize_array(r4_data, 0.0, 1.0)
+      r8_data = 0.0
+      r8_converted = r4_data
+      r4_field = mk_field(r4_data, name = 'XR4', _RC)
+      r8_field = mk_field(r8_data, name = 'YR8', _RC)
+      has_de = field_has_de(r4_field, _RC)
+      call FieldConvertPrec(r4_field, r8_field, _RC)
+      if (has_de) then
+         call ESMF_FieldGet(r8_field, farrayPtr = r8_pointer, _RC)
+         @assertEqual(r8_converted, r8_pointer)
+      end if
+
+   end subroutine test_FieldConvertPrec_R4R8_no_DE
+
 end module Test_FieldBLAS
