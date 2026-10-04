@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed a crash in `RestartHandler` when a state's restart-eligible bundle ends up empty
+  after filtering (e.g. a component whose exports are all unallocated because nothing is
+  connected downstream and `activate_all_exports` is off). The state's non-zero item count
+  passed the existing guard, but `MAPL_FieldBundleGetGeom` on the empty bundle returned an
+  uninitialized geom and `ESMF_InfoGetFromHost` then failed in `GeomGetId`. `write_bundle_`
+  and `read_bundle_` now return early when the bundle holds no fields, resolving a
+  pre-existing TODO
+
 - Fixed `LatLonDecomposition`'s topology constructor to pack out zero-extent bins returned
   by `mapl_GetPartition()` when a LatLon grid is too coarse to be decomposed onto the
   requested `nx`/`ny` topology given ESMF's `min_extent=2` constraint, and updated
