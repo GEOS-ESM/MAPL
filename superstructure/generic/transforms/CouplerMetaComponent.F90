@@ -465,12 +465,28 @@ contains
 
       integer :: status
 
+      ! Wrapper layout must match _DECLARE_WRAPPER(CouplerMetaComponent),
+      ! i.e. one pointer component named ptr.  Direct ESMF lookup used here
+      ! because CouplerMetaComponent is always on the outer-meta gridcomp
+      ! (self_gridcomp), never on a mini gridcomp, so the redirect via
+      ! mapl_get_owning_gridcomp is not needed and would pull in a large
+      ! dependency that triggers an ifx compiler bug.
+      type :: CouplerWrapper
+         type(CouplerMetaComponent), pointer :: ptr
+      end type CouplerWrapper
+      type(CouplerWrapper) :: w
+
       !TODO: This block is a workaround for weird link error with NAG
       !      7.2 Appears to be a collision in numbering of local
       !      scopes.
       block
       end block
-      _GET_NAMED_PRIVATE_STATE(gridcomp, CouplerMetaComponent, COUPLER_META_PRIVATE_STATE, meta)
+      call ESMF_InternalStateGet(gridcomp, internalState=w, &
+           label=COUPLER_META_PRIVATE_STATE, rc=status)
+      _ASSERT(status == ESMF_SUCCESS, &
+           "Private state with name <" // COUPLER_META_PRIVATE_STATE // &
+           "> not found for this gridcomp.")
+      meta => w%ptr
 
       _RETURN(_SUCCESS)
    end function get_coupler_meta
@@ -491,9 +507,19 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(CouplerMetaComponent), pointer :: coupler_meta
 
-      _GET_NAMED_PRIVATE_STATE(gridcomp, CouplerMetaComponent, COUPLER_META_PRIVATE_STATE, coupler_meta)
+      ! See comment in get_coupler_meta for rationale.
+      type :: CouplerWrapper
+         type(CouplerMetaComponent), pointer :: ptr
+      end type CouplerWrapper
+      type(CouplerWrapper) :: w
+
+      call ESMF_InternalStateGet(gridcomp, internalState=w, &
+           label=COUPLER_META_PRIVATE_STATE, rc=status)
+      _ASSERT(status == ESMF_SUCCESS, &
+           "Private state with name <" // COUPLER_META_PRIVATE_STATE // &
+           "> not found for this gridcomp.")
+      ! Pointer available via w%ptr; caller responsible for cleanup.
 
       _RETURN(_SUCCESS)
    end subroutine free_coupler_meta

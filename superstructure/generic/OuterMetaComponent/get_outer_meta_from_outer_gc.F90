@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
 submodule (mapl_OuterMetaComponent_mod) get_outer_meta_from_outer_gc_smod
+   use mapl_OwningGridComp_mod, only: mapl_get_owning_gridcomp
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 

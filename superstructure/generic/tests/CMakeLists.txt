@@ -159,7 +159,7 @@ add_pfunit_ctest(
   MAX_PES 4
 )
 set_tests_properties(MAPL.generic.components PROPERTIES LABELS "ESSENTIAL")
-add_dependencies(MAPL.generic.components proto_extdata_gc proto_stat_gc)
+add_dependencies(MAPL.generic.components proto_extdata_gc proto_stat_gc threaded_private_state_gc)
 
 # 6. MAPL.generic.core - Core functionality tests
 set(core_test_srcs

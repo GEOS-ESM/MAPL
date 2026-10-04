@@ -5,13 +5,16 @@
 !   - parsing of the `use_threads` / `num_threads` options
 !   - the GridCompGet/GridCompSet accessors
 !   - the decomposition of a local domain across threads
+!   - private-state sharing: _GET_NAMED_PRIVATE_STATE on a mini gridcomp
+!     must resolve to the same object as on the primary user gridcomp
 
 module Test_Threading
    use mapl_ComponentSpec_mod
    use mapl_ComponentSpecParser_mod
    use mapl_StateRegistry_mod
    use mapl_UserSetServices_mod
-   use mapl_Generic_api, only: mapl_GridCompCreate, mapl_GridCompGet, mapl_GridCompSet
+   use mapl_Generic_api, only: mapl_GridCompCreate, mapl_GridCompGet, mapl_GridCompSet, &
+        mapl_get_owning_gridcomp
    use mapl_OpenMP_Support_mod, only: Interval, find_bounds, get_num_threads, get_current_thread
    use ESMF
    use pfunit
@@ -160,5 +163,26 @@ contains
    subroutine test_get_current_thread()
       @assert_that(get_current_thread(), is(0))
    end subroutine test_get_current_thread
+
+   ! mapl_get_owning_gridcomp: a plain ESMF gridcomp with no inner meta
+   ! must be returned unchanged.  This covers the common non-threaded path
+   ! where a component is not managed by MAPL's threading layer.
+   @test(npes=[0])
+   subroutine test_owning_gridcomp_plain_gc(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc, owner
+      character(len=ESMF_MAXSTR) :: gc_name, owner_name
+      integer :: status
+
+      gc = ESMF_GridCompCreate(name='plain', petlist=[0], _RC)
+      owner = mapl_get_owning_gridcomp(gc, _RC)
+
+      call ESMF_GridCompGet(gc,    name=gc_name,    _RC)
+      call ESMF_GridCompGet(owner, name=owner_name, _RC)
+      @assert_that(trim(owner_name), is(trim(gc_name)))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_owning_gridcomp_plain_gc
 
 end module Test_Threading

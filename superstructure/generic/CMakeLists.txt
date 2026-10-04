@@ -13,6 +13,7 @@ set(srcs
 
   InnerMetaComponent.F90
   OuterMetaComponent.F90
+  OwningGridComp.F90
   GenericGridComp.F90
 
   MAPL_Generic.F90
@@ -100,7 +101,7 @@ esma_add_fortran_submodules(
           finalize.F90 start_timer.F90 stop_timer.F90 get_checkpoint_dir.F90
           ensure_memory_checkpoint.F90 get_memory_checkpoint_state.F90
           threading_accessors.F90 activate_threading.F90 deactivate_threading.F90
-          create_subobjects.F90 get_thread_context.F90 run_user_threaded.F90)
+           create_subobjects.F90 get_thread_context.F90 run_user_threaded.F90)
 
 esma_add_fortran_submodules(
   TARGET MAPL.generic

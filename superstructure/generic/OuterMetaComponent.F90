@@ -68,6 +68,11 @@ module mapl_OuterMetaComponent_mod
       type(EntryPointVector)                      :: run_entry_points
       type(SubComponent), allocatable             :: subcomponents(:)
       logical :: threading_active = .false.
+      ! Number of ESMF internal-state labels on the primary user gridcomp at
+      ! the time subcomponents were created.  Used by activate_threading to
+      ! detect private state that was added after the first threaded run
+      ! (which would not be propagated to the existing mini gridcomps).
+      integer :: user_gc_label_count = 0
 
 ! Hierarchy
       type(GriddedComponentDriverMap)             :: children
