@@ -66,7 +66,6 @@ contains
       call ESMF_StateGet(state, itemCount=item_count, _RC)
       _RETURN_UNLESS(item_count>0)
 
-      call this%lgr%info("Writing checkpoint: %a", filename)
       call get_restart_bundle(state, is_write=.true., bundle=bundle, _RC)
       call this%write_bundle_(bundle, filename, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
@@ -91,7 +90,7 @@ contains
       inquire(file=filename, exist=file_exists)
       _RETURN_IF(bootstrap .and. (.not. file_exists))
       _ASSERT(file_exists, "Restart file " // trim(filename) // " does not exist")
-      call this%lgr%info("Reading restart: %a", trim(filename))
+
       call get_restart_bundle(state, is_write=.false., bundle=bundle, _RC)
       call this%read_bundle_(filename, bundle, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
@@ -108,15 +107,19 @@ contains
       type(FileMetaData) :: metadata
       class(GeomPFIO), allocatable :: writer
       type(ESMF_Geom) :: geom
-      integer :: status
+      integer :: field_count, status
       class(ClientThread), pointer :: o_client
 
+      ! An empty bundle carries no geom to write against.
+      call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+      _RETURN_UNLESS(field_count>0)
+
+      call this%lgr%info("Writing checkpoint: %a", filename)
       geom = MAPL_FieldBundleGetGeom(bundle, _RC)
       metadata = bundle_to_metadata(bundle, geom, _RC)
       allocate(writer, source=make_geom_pfio(metadata), _STAT)
       call writer%initialize(metadata, geom, _RC)
       call writer%update_time_on_server(this%current_time, _RC)
-      ! TODO: no-op if bundle is empty, or should we skip empty bundles?
       call writer%stage_coordinates_to_file(filename, _RC)
       call writer%stage_data_to_file(bundle, filename, 1, _RC)
        o_client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
@@ -136,9 +139,14 @@ contains
       type(FileMetaData) :: metadata
       class(GeomPFIO), allocatable :: reader
       type(ESMF_Geom) :: geom
-      integer :: status
+      integer :: field_count, status
       class(ClientThread), pointer :: i_client
 
+      ! An empty bundle carries no geom to read against.
+      call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+      _RETURN_UNLESS(field_count>0)
+
+      call this%lgr%info("Reading restart: %a", trim(filename))
       call file_formatter%open(filename, PFIO_READ, _RC)
       metadata = file_formatter%read(_RC)
       call file_formatter%close(_RC)
