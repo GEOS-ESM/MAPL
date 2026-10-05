@@ -46,11 +46,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Test_FieldCondensedArray_private.pf` gained no-DE variants (also adding the
   first coverage at all for `FieldSet`/`FieldIsConstant`).
 
+- Ensured all libraries created by MAPL are built as shared libraries by
+  adding `TYPE SHARED` to `MAPL.raster_to_mesh` in
+  `infrastructure/geom/Mesh/raster_to_mesh/CMakeLists.txt` and `SHARED` to
+  `MAPL.Apps.tests.acg3` in `apps/tests/acg3/CMakeLists.txt`.
+
 ### Added
+
+- Added CI verification step to `.github/actions/ci-build-and-test-mapl/action.yml`
+  that checks for and fails if any static libraries (`*.a`) are installed in
+  standalone MAPL builds.
 
 ### Changed
 
 ### Removed
+
+- Removed obsolete `BUILD_SHARED_MAPL` CMake option and unused
+  `MAPL_LIBRARY_TYPE` variable from root `CMakeLists.txt` and `INSTALL.md`, as
+  MAPL3 exclusively builds shared libraries.
 
 ### Deprecated
 
