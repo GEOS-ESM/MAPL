@@ -274,6 +274,33 @@ drop its own "blocked until legacy is retired" follow-up elsewhere:**
   instantiates the legacy type directly from the live
   `StateRegistry_Extensions_smod.F90` dispatch path — load-bearing, not
   dead code.
+- Consolidate `VariableSpec%itemType` (`ESMF_StateItem_Flag`,
+  `superstructure/generic/specs/VariableSpec.F90`) onto a single,
+  graph-native `MAPL_StateItem_Flag`-typed field (per 4f's
+  `state_item_variant`, `mapl_StateItemFlag_mod`), with `itemType`
+  becoming a derived/truncated view (native-kind parent of whatever
+  refined value is stored) rather than a separately-stored field.
+  Originates from 4f (`openspec/changes/vertical-grid-graph-state-item`,
+  design.md discussion): every graph-native refined value (`GEOM`,
+  `VECTOR`/`BRACKET`/`VECTORBRACKET`, `VERTICALGRID`, `ROUTEHANDLE`)
+  already implies exactly one native `itemType` parent and never
+  contradicts it — the two fields hold no genuinely independent
+  information, only `VariableSpec`'s historical split between the
+  legacy `mapl_StateItem_mod`/`ClassAspect`-dispatch vocabulary and the
+  newer graph-only vocabulary keeps them as two stored fields today
+  (unlike `GraphStateItem%itemType()`, which is already a pure derived
+  query, not stored, at the node-payload tier). **Blocked**:
+  `itemType`'s current `ESMF_StateItem_Flag` values include
+  `WILDCARD`/`SERVICE`/`SERVICE_PROVIDER`/`SERVICE_SUBSCRIBER`/
+  `EXPRESSION` (`mapl_StateItem_mod`, codes 201-208) with no graph-native
+  equivalent yet, dispatched live from `make_ClassAspect`
+  (`VariableSpec.F90:759`) and parsed live from YAML
+  (`ComponentSpecParser/to_itemtype.F90`) — real, in-use legacy vocabulary,
+  not dead code. `SERVICE` is expected to be retired outright (replaced
+  by callbacks, `CallbackInterfaceId`), but `WILDCARD`/`EXPRESSION` are
+  not yet represented in graph's vocabulary at all. Do not attempt this
+  consolidation before `ClassAspect`'s own dispatch is itself retired or
+  graph-natively replaced.
 
 ### 20.4.3 Phase 4 sub-sequencing
 
@@ -453,13 +480,59 @@ composite structure); is a real prerequisite for 4c/4d below.
   multi-source `XGrid`) and all of §13.4 (time-dependent geometry renewal
   under freeze) are out of scope — static geometry only. Depended on
   Phase 1–3 only, as planned.
-- **4f. VerticalGrid model** (`13` §13.3) — `VerticalGrid` as an
-  `esmf_state`-kind `GraphStateItem` with `variant() ==
-  MAPL_STATEITEM_VERTICALGRID` (REQ-GEO-009), physical-dimension-keyed
-  coordinate sets (REQ-GEO-004/004a), the dimension-adaptability check
-  for mismatched vertical grids (REQ-GEO-007a), and the
-  `ReferenceCharacteristic` link back to horizontal geometry. Depends on
-  4e.
+- **4f. VerticalGrid model** (`13` §13.3) —
+  **landed** (`openspec/changes/vertical-grid-graph-state-item`):
+  `VerticalGrid` as an `esmf_state`-kind `GraphStateItem` with
+  `variant() == MAPL_STATEITEM_VERTICALGRID` (REQ-GEO-009),
+  physical-dimension-keyed coordinate sets (REQ-GEO-004/004a), and the
+  dimension-adaptability check for mismatched vertical grids
+  (REQ-GEO-007a). **Significant deviation from this entry's original
+  wording, discovered during implementation:** the original plan (wrap
+  `OuterMetaComponent%get_vertical_grid()`/legacy `ModelVerticalGrid%
+  get_coordinate_field()`, mirroring 4e's `run_geometry_hook` shape) was
+  abandoned after tracing `get_coordinate_field()` into
+  `StateRegistry%extend()`, which can mutate the registry (build a real
+  `ESMF_GridComp` coupler) as a side effect — disallowed by explicit
+  project direction: **the graph solution must not use `StateRegistry`**;
+  legacy's aspect/extension machinery is at most suggestive of needed
+  capability, never something the graph code calls into. The landed
+  design instead reuses the already-shipped, zero-`StateRegistry`
+  `composite-state-spec` mechanism directly: a component declares its
+  vertical grid as an ordinary composite `VariableSpec` (`declare_member`,
+  one member per physical dimension), tagged via a new
+  `VariableSpec%state_item_variant` field (mirrors the existing
+  `callback_interface_id` field's "mark the item, not a new itemType"
+  precedent); `CompositeStateMaterialization` gained one line to apply
+  the tag via the existing `set_variant`. REQ-GEO-007a's classification
+  lives inside the **existing** `VerticalGridCharacteristic` (not a new
+  characteristic kind — a first implementation added a separate
+  `VerticalGridMembershipCharacteristic`, reverted after review: two
+  "vertical grid" characteristics was confusing, and matching by
+  dimension-name overlap with no identity-token fallback at all was a
+  real false-positive risk, not merely a documented limitation).
+  `VerticalGridCharacteristic` instead gained an optional declared
+  physical-dimension set alongside its existing opaque identity token —
+  identity-token comparison remains authoritative when both sides have
+  one (unchanged ordinary-Field behavior); dimension-set equality is the
+  fallback, used only when no identity token exists (always true for the
+  composite case). Because `get_supported_physical_dimensions()` is a
+  pure accessor, dimensions are populated for the ordinary-Field path
+  too, so the three-way diagnostic applies uniformly — one pre-existing
+  test's expected failure message was updated accordingly. Exercised
+  through the *existing*, unmodified `resolve_one`/`build_characteristics`
+  path — **no new `GraphBuilder.F90` hook was needed**, unlike 4e's own
+  `run_geometry_hook`; no new toggle was needed either, since the new
+  field is inert for every declaration that does not opt in. REQ-GEO-007's
+  superseded-text `ReferenceCharacteristic`
+  link back to horizontal geometry is **not implemented as such** —
+  `GraphStateItem` has no persisted characteristics map
+  (`18-state-item-characteristics.md` REQ-CHAR-007, Phase 5) — the
+  association is instead a structural fact (a coordinate-set item and its
+  component's own 4e geometry item always share one `ComponentGraph`).
+  Depended on 4e only, as planned; REQ-GEO-005's reserved
+  `MAPL_VerticalGrids` materialization, REQ-GEO-007b's general
+  multi-candidate-import case, real vertical-regrid execution, and §13.4
+  remain explicit deferrals.
 - **4g. RouteHandleValue/Key** (`14`) — `RouteHandleKey` structure
   (REQ-RH-002/003), the `RouteHandleKey -> NodeId` semantic index for
   reuse (REQ-RH-004/005). **Explicit deferral, to be stated in this
