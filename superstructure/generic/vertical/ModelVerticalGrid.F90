@@ -459,8 +459,7 @@ contains
          if (has_direction) then
             direction_str = esmf_HConfigAsString(config, keyString="direction", _RC)
             spec%coordinate_direction = VerticalCoordinateDirection(direction_str)
-            _ASSERT(spec%coordinate_direction /= VCOORD_DIRECTION_INVALID, &
-                 "invalid 'direction' for model vertical_grid: "//direction_str)
+            _ASSERT(spec%coordinate_direction /= VCOORD_DIRECTION_INVALID, "invalid 'direction' for model vertical_grid: "//direction_str)
          end if
 
          fields_cfg = esmf_HConfigCreateAt(config, keyString="fields", _RC)
