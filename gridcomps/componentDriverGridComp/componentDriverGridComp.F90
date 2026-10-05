@@ -354,8 +354,7 @@ contains
                level_values = ESMF_HConfigAsR4Seq(level_val_cfg, _RC)
                call MAPL_StateGetPointer(internal_state, ptr3d, trim(level_field_name), _RC)
                shape_ = shape(ptr3d)
-               _ASSERT(shape_(3) == size(level_values), &
-                    "vertical_levels size mismatch for field " // trim(level_field_name))
+               _ASSERT(shape_(3) == size(level_values), "vertical_levels size mismatch for field " // trim(level_field_name))
                do concurrent(ii = 1:shape_(1), jj = 1:shape_(2))
                   ptr3d(ii, jj, :) = level_values
                end do
@@ -364,8 +363,7 @@ contains
                level_values_r8 = ESMF_HConfigAsR8Seq(level_val_cfg, _RC)
                call MAPL_StateGetPointer(internal_state, ptr3d_r8, trim(level_field_name), _RC)
                shape_ = shape(ptr3d_r8)
-               _ASSERT(shape_(3) == size(level_values_r8), &
-                    "vertical_levels size mismatch for field " // trim(level_field_name))
+               _ASSERT(shape_(3) == size(level_values_r8), "vertical_levels size mismatch for field " // trim(level_field_name))
                do concurrent(ii = 1:shape_(1), jj = 1:shape_(2))
                   ptr3d_r8(ii, jj, :) = level_values_r8
                end do
