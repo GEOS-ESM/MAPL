@@ -106,7 +106,7 @@ contains
       integer :: status
       type(ESMF_HConfig) :: hconfig
       type(ESMF_Geom) :: geom
-      class(MAPL_VerticalGrid), allocatable :: vertical_grid
+      class(MAPL_VerticalGrid), pointer :: vertical_grid
       logical :: has_geom, has_vertical_grid
 
       call MAPL_GridCompGet(gridcomp, hconfig=hconfig, _RC)
@@ -117,7 +117,7 @@ contains
       end if
       has_vertical_grid = ESMF_HConfigIsDefined(hconfig, keyString='vertical_grid', _RC)
       if (has_vertical_grid) then
-         vertical_grid = make_vertical_grid(hconfig, _RC)
+         vertical_grid => make_vertical_grid(hconfig, _RC)
          call MAPL_GridCompSetVerticalGrid(gridcomp, vertical_grid, _RC)
       end if
 

@@ -5,7 +5,7 @@ submodule (mapl_VerticalGridAspect_mod) make_transform_smod
    use mapl_ModelVerticalGrid_mod, only: ModelVerticalGrid
    use mapl_ComponentDriver_mod
    use mapl_StandardNameAspect_mod, only: StandardNameAspect
-   use mapl_WildcardClassAspect_mod, only: WildcardClassAspect
+   use mapl_FieldClassAspect_mod, only: fieldClassAspect
 
    implicit none(type,external)
 
@@ -74,7 +74,7 @@ contains
       coord_aspects = other_aspects
       call coord_aspects%insert(UNITS_ASPECT_ID, UnitsAspect(units))
       call coord_aspects%insert(STANDARD_NAME_ASPECT_ID, StandardNameAspect())
-      call coord_aspects%insert(CLASS_ASPECT_ID, WildcardClassAspect())
+      call coord_aspects%insert(CLASS_ASPECT_ID, FieldClassAspect())
 
       v_in_field = src%vertical_grid%get_coordinate_field(physical_dimension, coord_aspects, _RC)
       select type (vg => src%vertical_grid)
