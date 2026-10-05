@@ -76,6 +76,56 @@
 !     initialize_accept_transfer.F90, alongside the real connect() call,
 !     followed by graphbuilder_freeze() there (freezing before real
 !     wiring exists would be premature).
+!
+! Horizontal geometry (openspec/changes/horizontal-geometry-graph-state-
+! item, roadmap Phase 4e, docs/graph/spec/13-geometry-and-vertical-
+! grids.md REQ-GEO-001/002/003): unlike ordinary items, a component's
+! horizontal geometry is not declared as a VariableSpec - GeometrySpec
+! (superstructure/generic/specs/GeometrySpec.F90) already fully resolves
+! which geometry a component ends up with (GEOMETRY_PROVIDER/
+! GEOMETRY_FROM_PARENT/GEOMETRY_FROM_CHILD), via initialize_geom_a.F90/
+! initialize_geom_b.F90, in phases 3-4 of GenericPhases.F90's fixed
+! sequence - entirely before GENERIC_INIT_ADVERTISE (phase 5), and
+! across the WHOLE hierarchy before any component reaches ADVERTISE.
+! graphbuilder_run_geometry_hook does not re-resolve that decision; it
+! gives it graph-native STRUCTURE, once it is already known:
+!   - graphbuilder_advertise_geometry(): if this%has_geom(), wraps
+!     this%get_geom() as a geometry-proxy GraphStateItem
+!     (mapl_GeomProxyField_mod) and registers it as an ordinary
+!     StateItemNode in this component's own local graph, indexed under
+!     the reserved GEOMETRY_ITEM_NAME key - deliberately NOT inserted
+!     into ComponentSpec%var_specs (unlike ordinary items), so it is
+!     structurally unreachable from self_advertise/
+!     StateRegistry%add_to_states and can never leak into a user-facing
+!     state (REQ-GEO-003) - this is what makes "declare it as an
+!     ordinary VariableSpec" (an earlier, abandoned draft of this
+!     design) unnecessary: item_key()/get_or_make_local_node_id() key
+!     off (state_intent, short_name) strings, not off VariableSpec
+!     identity, so reusing that machinery for a non-VariableSpec item
+!     needs no VariableSpec at all.
+!   - graphbuilder_resolve_geometry(): gives the ALREADY-resolved
+!     parent/child relationship a real dependency edge, reusing
+!     get_or_make_local_node_id() unmodified for the "receives from a
+!     named child" pull direction (structurally identical to an
+!     ordinary cross-boundary MatchConnection), and a new, symmetric
+!     push-direction helper (push_geometry_to_child, using the same
+!     framework-internal get_child_component_graph() carve-out
+!     REQ-GB-002 already establishes) for the "provides to a child"
+!     direction, which pull-direction machinery cannot express. Both
+!     directions build their CharacteristicMap from GeomCharacteristic
+!     (mirroring UnitsCharacteristic/VerticalGridCharacteristic exactly)
+!     and go through find_mismatched_characteristics/
+!     find_or_build_extension_chain like any other connection - a
+!     mismatch here would mean GeometrySpec's own resolution and the
+!     graph's independently-read this%get_geom_id() disagree, which
+!     should be unreachable; it is asserted, not silently trusted.
+!   - Entirely gated behind mapl_GraphMode_mod%graph_native_enabled()
+!     (design.md Decision D6): a no-op for every real production run
+!     today. Bottom-up call ordering (initialize_advertise.F90 recurses
+!     into children before running this hook on itself) guarantees that
+!     by the time a parent's own hook runs, every child already has its
+!     own geometry node registered - required for both the pull and the
+!     push direction above.
 !------------------------------------------------------------------------------
 module mapl_GraphBuilder_mod
    use mapl_OuterMetaComponent_mod, only: OuterMetaComponent
@@ -102,12 +152,20 @@ module mapl_GraphBuilder_mod
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use gFTL2_StringVector, only: StringVector
    use mapl_Characteristic_mod, only: CharacteristicMap
-   use mapl_CharacteristicId_mod, only: CharacteristicId, UNITS_CHARACTERISTIC_ID, VERTICAL_GRID_CHARACTERISTIC_ID
+   use mapl_CharacteristicId_mod, only: CharacteristicId, UNITS_CHARACTERISTIC_ID, VERTICAL_GRID_CHARACTERISTIC_ID, &
+        GEOM_CHARACTERISTIC_ID
    use mapl_UnitsCharacteristic_mod, only: UnitsCharacteristic
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
+   use mapl_GeomCharacteristic_mod, only: GeomCharacteristic
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain, &
         materialize_extensions_enabled
    use mapl_ExtensionMaterialization_mod, only: materialize_field_extension
+   ! -- horizontal geometry (openspec/changes/
+   ! horizontal-geometry-graph-state-item, Phase 4e) -----------------
+   use mapl_GeomProxyField_mod, only: new_geom_proxy_item
+   use mapl_GraphMode_mod, only: graph_native_enabled
+   use mapl_GeometrySpec_mod, only: GEOMETRY_FROM_PARENT, GEOMETRY_FROM_CHILD
+   use mapl_GeomId_mod, only: GeomId
    use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, &
         MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_BRACKET, &
         MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_EXPRESSION
@@ -144,6 +202,13 @@ module mapl_GraphBuilder_mod
    public :: GraphBuilder
    public :: item_key
    public :: proxy_key
+   ! openspec/changes/horizontal-geometry-graph-state-item (Phase 4e):
+   ! exposed the same way item_key/proxy_key already are, so tests (and
+   ! any future code with legitimate reason to identify a geometry node
+   ! or its cross-graph proxy) do not need to duplicate this module's
+   ! key format.
+   public :: GEOMETRY_ITEM_NAME
+   public :: parent_geometry_proxy_key
 
    ! openspec/changes/callback-wiring: exposed (like item_key/proxy_key
    ! above) so tests exercising this capability's own internal
@@ -176,6 +241,11 @@ module mapl_GraphBuilder_mod
       procedure, nopass :: run_advertise_hook => graphbuilder_run_advertise_hook
       procedure, nopass :: run_activate_hook => graphbuilder_run_activate_hook
       procedure, nopass :: run_connect_hook => graphbuilder_run_connect_hook
+      ! openspec/changes/horizontal-geometry-graph-state-item (Phase 4e):
+      ! gated entirely behind mapl_GraphMode_mod%graph_native_enabled()
+      ! (design.md Decision D6) - a no-op for every real production run
+      ! unless a test explicitly enables graph-native mode.
+      procedure, nopass :: run_geometry_hook => graphbuilder_run_geometry_hook
    end type GraphBuilder
 
    ! Matches StateRegistry_Hierarchy_smod's own SELF sentinel
@@ -183,6 +253,23 @@ module mapl_GraphBuilder_mod
    ! a ConnectionPt component_name of "<self>" always refers to the
    ! component the connection was declared on.
    character(*), parameter :: SELF_COMPONENT_NAME = '<self>'
+
+   ! openspec/changes/horizontal-geometry-graph-state-item (Phase 4e):
+   ! reserved item name for a component's own resolved horizontal
+   ! geometry, indexed via the same item_key()/get_or_make_local_node_id
+   ! machinery ordinary advertised items use, but never inserted into
+   ! ComponentSpec%var_specs (design.md D5-revised - see module header
+   ! "Horizontal geometry" note) so it never reaches self_advertise/
+   ! StateRegistry%add_to_states and cannot leak into user-facing states
+   ! (REQ-GEO-003).
+   character(*), parameter :: GEOMETRY_ITEM_NAME = 'MAPL_Geometry'
+
+   ! Reserved sentinel for "the proxy, in a child's own local graph,
+   ! standing in for that child's parent" - the push-direction mirror of
+   ! proxy_key()'s own pull-direction convention above (a child has
+   ! exactly one parent, so no per-name variation is needed the way
+   ! proxy_key's comp_name parameter provides for the pull direction).
+   character(*), parameter :: PARENT_PROXY_NAME = '<parent>'
 
    ! Per-match callback signature for for_each_matching_import() below -
    ! same shape/precedent as OuterMetaComponent's own I_child_op
@@ -1072,6 +1159,274 @@ contains
    end function get_or_make_local_node_id
 
    ! ============================================================
+   ! Horizontal geometry (openspec/changes/
+   ! horizontal-geometry-graph-state-item, Phase 4e) - see module header
+   ! "Horizontal geometry" note above for the overall design.
+   ! ============================================================
+
+   subroutine graphbuilder_run_geometry_hook(this)
+      class(OuterMetaComponent), target, intent(inout) :: this
+
+      integer :: status
+
+      if (.not. graph_native_enabled()) return
+
+      call graphbuilder_advertise_geometry(this, status)
+      call report_if_failed(this, 'advertise_geometry', status)
+
+      call graphbuilder_resolve_geometry(this, status)
+      call report_if_failed(this, 'resolve_geometry', status)
+   end subroutine graphbuilder_run_geometry_hook
+
+   ! Wraps this%get_geom() (already resolved by GeometrySpec/
+   ! initialize_geom_a.F90/initialize_geom_b.F90, long before this ever
+   ! runs) as an ordinary StateItemNode in this component's own local
+   ! graph. Idempotent, mirroring advertise_one's own re-advertisement
+   ! guard.
+   subroutine graphbuilder_advertise_geometry(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentGraph), pointer :: graph
+      character(:), allocatable :: key
+      type(NodeId), pointer :: existing
+      type(NodeId) :: id
+      type(ESMF_Geom) :: geom
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemNode) :: node
+
+      _RETURN_UNLESS(this%has_geom())
+
+      graph => this%get_component_graph()
+      key = item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME)
+
+      existing => graph%get_resource_index(key)
+      if (associated(existing)) then
+         _RETURN(_SUCCESS)
+      end if
+
+      geom = this%get_geom(_RC)
+      payload = new_geom_proxy_item(geom, _RC)
+      id = graph%next_node_id(_RC)
+      node = StateItemNode(id, payload, revision)
+      call graph%register_node(node, _RC)
+      call graph%add_resource_index(key, id, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine graphbuilder_advertise_geometry
+
+   ! Reserved key for the proxy, in a child's own local graph, standing
+   ! in for that child's parent's geometry item - the push-direction
+   ! mirror of proxy_key()'s own pull-direction convention.
+   function parent_geometry_proxy_key() result(key)
+      character(:), allocatable :: key
+
+      key = 'PROXY:' // PARENT_PROXY_NAME // ':' // item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME)
+   end function parent_geometry_proxy_key
+
+   ! Gives the already-resolved parent/child geometry relationship (per
+   ! this%get_component_spec()%geometry_spec%kind) real graph structure:
+   ! a dependency edge from whichever side provides to whichever side
+   ! receives. Does not re-decide own/from_parent/from_child - that
+   ! decision is GeometrySpec's, already made in phases 3-4.
+   subroutine graphbuilder_resolve_geometry(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i, n
+      character(:), allocatable :: child_name
+      type(ComponentSpec), pointer :: this_spec
+      type(ComponentSpec), pointer :: child_spec
+
+      this_spec => this%get_component_spec()
+
+      ! -- pull: this component receives geometry from a named child --
+      if (this_spec%geometry_spec%kind == GEOMETRY_FROM_CHILD) then
+         call resolve_geometry_from_child(this, this_spec%geometry_spec%provider, _RC)
+      end if
+
+      ! -- push: for each of this component's own children that wants
+      ! geometry from its parent (this) --
+      n = this%get_num_children()
+      do i = 1, n
+         child_name = this%get_child_name(i, _RC)
+         child_spec => this%get_child_component_spec(child_name, _RC)
+         if (child_spec%geometry_spec%kind == GEOMETRY_FROM_PARENT) then
+            call push_geometry_to_child(this, child_name, _RC)
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine graphbuilder_resolve_geometry
+
+   ! Pull direction: reuses get_or_make_local_node_id() unmodified -
+   ! structurally identical to an ordinary cross-boundary MatchConnection
+   ! pulling a named child's item into this component's own graph.
+   subroutine resolve_geometry_from_child(this, provider_name, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: provider_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentGraph), pointer :: this_graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId), pointer :: existing
+      type(NodeId) :: this_own_id
+      type(NodeId) :: child_proxy_id
+      type(NodeId) :: final_id
+      type(OuterMetaComponent), pointer :: child_meta
+      type(CharacteristicMap), target :: this_map, child_map
+      type(CharacteristicId), allocatable :: mismatched(:)
+      character(20) :: id_buffer
+      character(:), allocatable :: unsupported
+      character(:), allocatable :: assertion_message
+      type(GeomId) :: this_own_geom_id
+      type(GeomId) :: provider_geom_id
+
+      this_graph => this%get_component_graph()
+      net_id = this_graph%get_default_network_id()
+      existing => this_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
+      _ASSERT(associated(existing), 'GraphBuilder: resolve_geometry_from_child called before this component advertised its own geometry')
+      this_own_id = existing
+
+      child_proxy_id = get_or_make_local_node_id(this, provider_name, ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME, _RC)
+
+      child_meta => this%get_child_outer_meta(provider_name, _RC)
+
+      ! Fortran does not permit invoking a type-bound procedure directly
+      ! on the (non-pointer, non-variable) result of another type-bound
+      ! function call - `this%get_geom_id()%get_value()` is not a valid
+      ! designator. Bind each intermediate result to a named variable
+      ! first instead (confirmed by bisection against NAG's rejection).
+      this_own_geom_id = this%get_geom_id()
+      provider_geom_id = child_meta%get_geom_id()
+      write(id_buffer, '(I0)') provider_geom_id%get_value()
+      call child_map%insert(GEOM_CHARACTERISTIC_ID, GeomCharacteristic(trim(id_buffer)))
+      write(id_buffer, '(I0)') this_own_geom_id%get_value()
+      call this_map%insert(GEOM_CHARACTERISTIC_ID, GeomCharacteristic(trim(id_buffer)))
+
+      ! Same dispatch shape as resolve_one's own REQ-EXT-001/003/005
+      ! handling (mirrored, not duplicated as a bespoke check): no-op on
+      ! exact match, else delegate to extension-reuse rather than wiring
+      ! the mismatched pair directly - here expected to be unreachable
+      ! given GeometrySpec's own exclusive resolution (design.md D4), but
+      ! handled through the real path rather than assumed away.
+      mismatched = find_mismatched_characteristics(child_map, this_map)
+      if (size(mismatched) == 0) then
+         call this_graph%add_dependency(net_id, child_proxy_id, this_own_id, _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      call find_or_build_extension_chain(this_graph, net_id, child_proxy_id, &
+           child_map, this_map, mismatched, final_id, unsupported, _RC)
+      assertion_message = 'GraphBuilder: geometry from child ' // provider_name // &
+            ' does not match the receiving component own resolved geometry (unsupported: ' // &
+            unsupported // ') - should be unreachable given GeometrySpec own exclusive resolution'
+      _ASSERT(unsupported == '', assertion_message)
+
+      call this_graph%add_dependency(net_id, final_id, this_own_id, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine resolve_geometry_from_child
+
+   ! Push direction: get_or_make_local_node_id() cannot express this (it
+   ! only pulls a NAMED CHILD's item into the CALLER's own graph) - this
+   ! is the symmetric case, injecting a proxy for the PARENT (this) into
+   ! the CHILD's own graph, using the same framework-internal
+   ! get_child_component_graph() carve-out (REQ-GB-002).
+   subroutine push_geometry_to_child(this, child_name, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: child_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentGraph), pointer :: this_graph
+      type(ComponentGraph), pointer :: child_graph
+      type(DependencyNetworkId) :: child_net_id
+      type(NodeId), pointer :: existing
+      type(NodeId) :: child_own_id
+      type(NodeId) :: parent_proxy_id
+      type(NodeId) :: final_id
+      character(:), allocatable :: pkey
+      type(OuterMetaComponent), pointer :: child_meta
+      type(CharacteristicMap), target :: this_map, child_map
+      type(CharacteristicId), allocatable :: mismatched(:)
+      character(20) :: id_buffer
+      type(StateItemNode) :: proxy_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      character(:), allocatable :: unsupported
+      character(:), allocatable :: assertion_message
+      type(GeomId) :: this_geom_id
+      type(GeomId) :: child_geom_id
+
+      this_graph => this%get_component_graph()
+      existing => this_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
+      _ASSERT(associated(existing), 'GraphBuilder: push_geometry_to_child called before this component advertised its own geometry')
+      ! Existence is all that matters here (this component must have
+      ! already advertised its own geometry before it can push it into a
+      ! child) - unlike resolve_geometry_from_child, this component's own
+      ! NodeId is not itself an endpoint of the dependency edge added
+      ! below, so it is not retained past this check.
+
+      child_graph => this%get_child_component_graph(child_name, _RC)
+      child_meta => this%get_child_outer_meta(child_name, _RC)
+
+      existing => child_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
+      assertion_message = 'GraphBuilder: child "' // child_name // &
+            '" has no geometry to receive into - has it run its own advertise_geometry yet?'
+      _ASSERT(associated(existing), assertion_message)
+      child_own_id = existing
+
+      pkey = parent_geometry_proxy_key()
+      existing => child_graph%get_resource_index(pkey)
+      if (associated(existing)) then
+         parent_proxy_id = existing
+      else
+         parent_proxy_id = child_graph%next_node_id(_RC)
+         proxy_node = StateItemNode(parent_proxy_id, payload, revision)
+         call child_graph%register_node(proxy_node, _RC)
+         call child_graph%add_resource_index(pkey, parent_proxy_id, _RC)
+      end if
+
+      ! See resolve_geometry_from_child's own comment above - same
+      ! not-a-valid-designator reason for binding each intermediate
+      ! result to a named variable first.
+      this_geom_id = this%get_geom_id()
+      child_geom_id = child_meta%get_geom_id()
+      write(id_buffer, '(I0)') this_geom_id%get_value()
+      call this_map%insert(GEOM_CHARACTERISTIC_ID, GeomCharacteristic(trim(id_buffer)))
+      write(id_buffer, '(I0)') child_geom_id%get_value()
+      call child_map%insert(GEOM_CHARACTERISTIC_ID, GeomCharacteristic(trim(id_buffer)))
+
+      ! Same dispatch shape as resolve_one's own REQ-EXT-001/003/005
+      ! handling, and as resolve_geometry_from_child's own pull-direction
+      ! mirror above - the edge (and, if mismatched, any extension chain)
+      ! lives in the CHILD's own graph/network, since both its endpoints
+      ! (parent_proxy_id, child_own_id) are child_graph nodes.
+      child_net_id = child_graph%get_default_network_id()
+      mismatched = find_mismatched_characteristics(this_map, child_map)
+      if (size(mismatched) == 0) then
+         call child_graph%add_dependency(child_net_id, parent_proxy_id, child_own_id, _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      call find_or_build_extension_chain(child_graph, child_net_id, parent_proxy_id, &
+           this_map, child_map, mismatched, final_id, unsupported, _RC)
+      assertion_message = 'GraphBuilder: parent geometry does not match child ' // child_name // &
+            ' own resolved geometry (unsupported: ' // unsupported // &
+            ') - should be unreachable given GeometrySpec own exclusive resolution'
+      _ASSERT(unsupported == '', assertion_message)
+
+      call child_graph%add_dependency(child_net_id, final_id, child_own_id, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine push_geometry_to_child
+
+   ! ============================================================
    ! Task 5: Validate and freeze
    ! ============================================================
 
@@ -1224,6 +1579,8 @@ contains
       character(:), allocatable :: child_name, child_path
       type(OuterMetaComponent), pointer :: child_meta
       type(QualifiedExportEntry) :: entry
+      type(QualifiedExportEntry), allocatable :: grown_entries(:)
+      integer :: n
 
       comp_spec => owner%get_component_spec()
 
@@ -1240,7 +1597,21 @@ contains
                entry%qualified_name = path_prefix // '/' // var_spec%short_name
             end if
             entry%var_spec = var_spec
-            entries = [entries, entry]
+            ! Classic ifort (2021.13, -O0) segfaults compiling the more
+            ! natural self-referencing array-constructor growth
+            ! `entries = [entries, entry]` here, where entries is an
+            ! allocatable array of a derived type (QualifiedExportEntry)
+            ! with a nested allocatable-component type (VariableSpec) -
+            ! bisected against this file's own ICE (gfortran, NAG, and
+            ! ifx all accept the array-constructor form without issue).
+            ! Grow via an explicit fresh temporary and move_alloc
+            ! instead - functionally identical, but never assigns the
+            ! array constructor result back onto one of its own operands.
+            n = size(entries)
+            allocate(grown_entries(n + 1))
+            grown_entries(1:n) = entries
+            grown_entries(n + 1) = entry
+            call move_alloc(grown_entries, entries)
          end do
       end associate
 
@@ -1453,8 +1824,10 @@ contains
       type(CallbackInterface) :: expected_iface
       type(StringVector) :: reject_reasons
       integer :: i
+      integer :: n
       logical :: conforms
       character(:), allocatable :: reason
+      type(QualifiedExportEntry), allocatable :: grown_matches(:)
 
       allocate(matches(0))
 
@@ -1472,7 +1845,14 @@ contains
             cycle
          end if
 
-         matches = [matches, namespace(i)]
+         ! Same classic-ifort self-referencing-array-constructor ICE as
+         ! collect_qualified_exports above - grow via a fresh temporary
+         ! and move_alloc instead of `matches = [matches, namespace(i)]`.
+         n = size(matches)
+         allocate(grown_matches(n + 1))
+         grown_matches(1:n) = matches
+         grown_matches(n + 1) = namespace(i)
+         call move_alloc(grown_matches, matches)
       end do
 
       if (present(rejected)) rejected = reject_reasons
