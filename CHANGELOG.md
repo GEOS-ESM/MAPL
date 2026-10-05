@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed an ifort internal compiler error in `GraphBuilder.F90` by replacing
+  self-referencing array-constructor growth (`x = [x, y]`) of an allocatable
+  `QualifiedExportEntry` array with an explicit allocate/copy/`move_alloc`
+  temporary.
 - Avoided passing the HConfig geometry-factory predicate as an internal
   procedure callback, fixing a Flang 23 crash on hardened macOS systems; see
   [LLVM #223705](https://github.com/llvm/llvm-project/issues/223705).

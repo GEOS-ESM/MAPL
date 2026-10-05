@@ -1,0 +1,134 @@
+! openspec/changes/horizontal-geometry-graph-state-item - task 1.3:
+! GeomCharacteristic mirrors VerticalGridCharacteristic's own test
+! coverage exactly (Test_Characteristic.pf's vertical-grid tests) - an
+! opaque identity-token comparison, plus a build_transform that always
+! fails since no real horizontal-regrid provider exists yet.
+!
+! FakeOtherCharacteristic (MOCK_CHARACTERISTIC_ID) mirrors
+! Test_ExtensionResolution.pf's own FakeCharacteristic precedent - a
+! minimal test-only Characteristic subclass used only to exercise
+! needs_extension_for's defensive class-default branch.
+module Test_GeomCharacteristic
+   use mapl_Characteristic_mod, only: Characteristic
+   use mapl_CharacteristicId_mod, only: CharacteristicId, GEOM_CHARACTERISTIC_ID, &
+        MOCK_CHARACTERISTIC_ID, operator(==)
+   use mapl_GeomCharacteristic_mod, only: GeomCharacteristic
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_Transform_mod, only: Transform
+   use mapl_ErrorHandling_mod
+   use funit
+   implicit none
+
+   ! Test-only Characteristic - see module header.
+   type, extends(Characteristic) :: FakeOtherCharacteristic
+   contains
+      procedure, nopass :: get_id => fake_get_id
+      procedure :: get_signature => fake_get_signature
+      procedure :: needs_extension_for => fake_needs_extension_for
+      procedure :: build_transform => fake_build_transform
+   end type FakeOtherCharacteristic
+
+contains
+
+   @test
+   subroutine test_geom_characteristic_get_id()
+      type(GeomCharacteristic) :: geom
+
+      geom = GeomCharacteristic('1')
+
+      @assertTrue(geom%get_id() == GEOM_CHARACTERISTIC_ID)
+   end subroutine test_geom_characteristic_get_id
+
+   @test
+   subroutine test_geom_characteristic_get_signature()
+      type(GeomCharacteristic) :: geom
+
+      geom = GeomCharacteristic('1')
+
+      @assertEqual('geom=1', geom%get_signature())
+   end subroutine test_geom_characteristic_get_signature
+
+   @test
+   subroutine test_geom_characteristic_needs_extension_for()
+      type(GeomCharacteristic) :: geom_a, also_geom_a, geom_b
+
+      geom_a = GeomCharacteristic('1')
+      also_geom_a = GeomCharacteristic('1')
+      geom_b = GeomCharacteristic('2')
+
+      @assertFalse(geom_a%needs_extension_for(also_geom_a))
+      @assertTrue(geom_a%needs_extension_for(geom_b))
+   end subroutine test_geom_characteristic_needs_extension_for
+
+   @test
+   subroutine test_geom_characteristic_needs_extension_for_non_geom_goal()
+      type(GeomCharacteristic) :: geom_a
+      type(FakeOtherCharacteristic) :: other
+
+      geom_a = GeomCharacteristic('1')
+
+      ! Defensive class-default branch: a genuine kind mismatch reports
+      ! "needs extension" rather than silently matching.
+      @assertTrue(geom_a%needs_extension_for(other))
+   end subroutine test_geom_characteristic_needs_extension_for_non_geom_goal
+
+   @test
+   subroutine test_geom_characteristic_build_transform_fails_explicitly()
+      type(GeomCharacteristic) :: geom_a, geom_b
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: input_id, output_id
+      class(Transform), allocatable :: transformer
+      integer :: status
+
+      geom_a = GeomCharacteristic('1')
+      geom_b = GeomCharacteristic('2')
+      graph = ComponentGraph()
+      input_id = graph%next_node_id(rc=status)
+      output_id = graph%next_node_id(rc=status)
+
+      call geom_a%build_transform(graph, input_id, output_id, geom_b, transformer, rc=status)
+
+      ! Matches this test target's own established convention
+      ! (Test_ExtensionResolution.pf's "fails loudly" tests): check the
+      ! returned rc directly rather than @assertExceptionRaised, which
+      ! has no precedent in this test target.
+      @assertTrue(status /= 0)
+      @assertFalse(allocated(transformer))
+   end subroutine test_geom_characteristic_build_transform_fails_explicitly
+
+   function fake_get_id() result(id)
+      type(CharacteristicId) :: id
+      id = MOCK_CHARACTERISTIC_ID
+   end function fake_get_id
+
+   function fake_get_signature(this) result(signature)
+      class(FakeOtherCharacteristic), intent(in) :: this
+      character(:), allocatable :: signature
+      signature = 'fake'
+   end function fake_get_signature
+
+   logical function fake_needs_extension_for(this, goal) result(needs_extension)
+      class(FakeOtherCharacteristic), intent(in) :: this
+      class(Characteristic), intent(in) :: goal
+      needs_extension = .true.
+   end function fake_needs_extension_for
+
+   subroutine fake_build_transform(this, graph, input_node_id, output_node_id, goal, transformer, rc)
+      class(FakeOtherCharacteristic), intent(in) :: this
+      class(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: input_node_id
+      type(NodeId), intent(in) :: output_node_id
+      class(Characteristic), intent(in) :: goal
+      class(Transform), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
+      ! Not exercised by any test here (FakeOtherCharacteristic only
+      ! stands in for needs_extension_for's class-default branch) - not
+      ! implemented, mirrors Test_ExtensionResolution.pf's own
+      ! FakeCharacteristic precedent of a plain rc-based failure (no
+      ! MAPL error-handling macros in .pf test files).
+      if (present(rc)) rc = 1
+   end subroutine fake_build_transform
+
+end module Test_GeomCharacteristic
