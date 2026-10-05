@@ -27,6 +27,7 @@ set(test_srcs
   Test_NodeIdLabelMap.pf
   Test_GraphNodeHierarchy.pf
   Test_GraphStateItem.pf
+  Test_GeomProxyField.pf
   Test_NodeRevision.pf
   Test_DependencyNetwork.pf
   Test_ComponentGraph.pf
@@ -42,6 +43,7 @@ set(test_srcs
   Test_MethodInvocation.pf
   Test_GraphExport.pf
   Test_Characteristic.pf
+  Test_GeomCharacteristic.pf
   Test_ExtensionResolution.pf
   Test_ExtensionMaterialization.pf
   Test_UnitsConverterTransform.pf

@@ -10,10 +10,12 @@ target_sources(MAPL.generic PRIVATE
   NodeRevision.F90
   MAPLStateItemFlag.F90
   StateItemVariantInfo.F90
+  GraphMode.F90
 
   containers/StateItemMemberMap.F90
   GraphStateItem.F90
   StateItemNode.F90
+  GeomProxyField.F90
 
   PortSpec.F90
   containers/PortSpecMap.F90
@@ -55,6 +57,7 @@ target_sources(MAPL.generic PRIVATE
   Characteristic.F90
   UnitsCharacteristic.F90
   VerticalGridCharacteristic.F90
+  GeomCharacteristic.F90
   UnitsConverterTransform.F90
   ExtensionResolution.F90
   ExtensionMaterialization.F90

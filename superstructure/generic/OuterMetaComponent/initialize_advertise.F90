@@ -52,6 +52,14 @@ contains
       ! "Invocation point" decision. run_advertise_hook() never
       ! propagates failure into this routine's own error path.
       call gb%run_advertise_hook(this)
+      ! openspec/changes/horizontal-geometry-graph-state-item (Phase
+      ! 4e): gated behind mapl_GraphMode_mod%graph_native_enabled(), a
+      ! no-op today. Must run after run_advertise_hook above (needs
+      ! nothing from it directly, but keeps geometry's own advertise
+      ! step alongside ordinary items') and relies on recurse() above
+      ! having already completed every child's own INIT_ADVERTISE
+      ! (including their own run_geometry_hook) bottom-up.
+      call gb%run_geometry_hook(this)
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 
       call process_connections(this, _RC)

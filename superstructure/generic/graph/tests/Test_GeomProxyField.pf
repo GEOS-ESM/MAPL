@@ -1,0 +1,91 @@
+! openspec/changes/horizontal-geometry-graph-state-item - tasks 2.2/2.3:
+! mapl_GeomProxyField_mod builds a geometry-proxy GraphStateItem from a
+! real ESMF_Geom - grid assigned (ESMF_FIELDSTATUS_GRIDSET), no data
+! array allocated, tagged with the MAPL_STATEITEM_GEOM variant.
+module Test_GeomProxyField
+   use mapl_GeomProxyField_mod, only: new_geom_proxy_item
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_GEOM, operator(==)
+   use ESMF, only: ESMF_Geom, ESMF_GeomCreate
+   use ESMF, only: ESMF_Grid, ESMF_GridCreateNoPeriDim
+   use ESMF, only: ESMF_Field, ESMF_FieldGet
+   use ESMF, only: ESMF_FieldStatus_Flag, ESMF_FIELDSTATUS_GRIDSET, ESMF_FIELDSTATUS_COMPLETE
+   use ESMF, only: ESMF_STATEITEM_FIELD, operator(==)
+   use funit
+   implicit none
+
+contains
+
+   function make_test_geom(rc) result(geom)
+      integer, optional, intent(out) :: rc
+      type(ESMF_Geom) :: geom
+
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[2], countsPerDeDim2=[2], rc=status)
+      if (status /= 0) then
+         if (present(rc)) rc = status
+         return
+      end if
+
+      geom = ESMF_GeomCreate(grid=grid, rc=status)
+      if (present(rc)) rc = status
+   end function make_test_geom
+
+   @test
+   subroutine test_geom_proxy_item_has_grid_no_data()
+      type(ESMF_Geom) :: geom
+      type(GraphStateItem) :: item
+      type(ESMF_Field) :: field
+      type(ESMF_FieldStatus_Flag) :: fstatus
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+
+      item = new_geom_proxy_item(geom, rc=status)
+      @assertEqual(0, status)
+
+      field = item%get_field(rc=status)
+      @assertEqual(0, status)
+
+      call ESMF_FieldGet(field, status=fstatus, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(fstatus == ESMF_FIELDSTATUS_GRIDSET)
+      @assertFalse(fstatus == ESMF_FIELDSTATUS_COMPLETE)
+   end subroutine test_geom_proxy_item_has_grid_no_data
+
+   @test
+   subroutine test_geom_proxy_item_is_tagged_geom_variant()
+      type(ESMF_Geom) :: geom
+      type(GraphStateItem) :: item
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+
+      item = new_geom_proxy_item(geom, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(item%variant(rc=status) == MAPL_STATEITEM_GEOM)
+      @assertEqual(0, status)
+   end subroutine test_geom_proxy_item_is_tagged_geom_variant
+
+   @test
+   subroutine test_geom_proxy_item_is_field_kind()
+      type(ESMF_Geom) :: geom
+      type(GraphStateItem) :: item
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+
+      item = new_geom_proxy_item(geom, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(item%itemType(rc=status) == ESMF_STATEITEM_FIELD)
+      @assertEqual(0, status)
+   end subroutine test_geom_proxy_item_is_field_kind
+
+end module Test_GeomProxyField
