@@ -49,7 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ensured all libraries created by MAPL are built as shared libraries by
   adding `TYPE SHARED` to `MAPL.raster_to_mesh` in
   `infrastructure/geom/Mesh/raster_to_mesh/CMakeLists.txt` and `SHARED` to
-  `MAPL.Apps.tests.acg3` in `apps/tests/acg3/CMakeLists.txt`.
+  `MAPL.Apps.tests.acg3` in `apps/tests/acg3/CMakeLists.txt`, and replaced
+  the stale `MAPL.shared` dependency with `MAPL.utils` and `MAPL.enums`.
 
 ### Added
 
