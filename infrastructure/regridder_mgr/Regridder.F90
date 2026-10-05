@@ -158,6 +158,8 @@ contains
       _ASSERT(size(uv_in) == 2, 'TangentVector must consist of exactly 2 fields.')
       _ASSERT(size(uv_out) == 2, 'TangentVector must consist of exactly 2 fields.')
 
+      call ESMF_FieldFill(uv_in(1), dataFillScheme='const', const1=0.d0, _RC)
+      call ESMF_FieldFill(uv_in(2), dataFillScheme='const', const1=0.d0, _RC)
       call ESMF_FieldFill(uv_out(1), dataFillScheme='const', const1=0.d0, _RC)
       call ESMF_FieldFill(uv_out(2), dataFillScheme='const', const1=0.d0, _RC)
       call create_field_vector(archetype=uv_in(1), fv=xyz_in, _RC)
