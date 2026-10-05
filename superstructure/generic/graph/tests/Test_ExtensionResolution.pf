@@ -27,6 +27,7 @@ module Test_ExtensionResolution
    implicit none
 
    type, extends(Transform) :: FakeCompute
+      integer :: placeholder = 1
    contains
       procedure :: compute => fake_compute
    end type FakeCompute
@@ -91,6 +92,8 @@ contains
 
       type(FakeCompute) :: strategy
 
+      ! kludge      
+      strategy%placeholder = 2
       allocate(transformer, source=strategy)
       call transformer%declare_input_port('source_field')
       call transformer%declare_output_port('destination_field')
