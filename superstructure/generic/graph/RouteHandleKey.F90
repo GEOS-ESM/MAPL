@@ -3,6 +3,7 @@
 module mapl_RouteHandleKey_mod
    use esmf
    use mapl_NodeId_mod, only: NodeId
+   use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
 
@@ -53,6 +54,84 @@ module mapl_RouteHandleKey_mod
    end interface operator(==)
 
 contains
+
+   function regrid_code(value, rc) result(code)
+      type(ESMF_RegridMethod_Flag), intent(in) :: value
+      integer, optional, intent(out) :: rc
+      character(:), allocatable :: code
+      integer :: status
+
+      if (value == ESMF_REGRIDMETHOD_BILINEAR) then; code='BILINEAR'
+      else if (value == ESMF_REGRIDMETHOD_CONSERVE) then; code='CONSERVE'
+      else if (value == ESMF_REGRIDMETHOD_CONSERVE_2ND) then; code='CONSERVE_2ND'
+      else if (value == ESMF_REGRIDMETHOD_PATCH) then; code='PATCH'
+      else if (value == ESMF_REGRIDMETHOD_NEAREST_STOD) then; code='NEAREST_STOD'
+      else; _FAIL('RouteHandleKey: unsupported regrid method')
+      end if
+      _RETURN(_SUCCESS)
+   end function regrid_code
+
+   function extrap_code(value, rc) result(code)
+      type(ESMF_ExtrapMethod_Flag), intent(in) :: value
+      integer, optional, intent(out) :: rc
+      character(:), allocatable :: code
+      integer :: status
+
+      if (value == ESMF_EXTRAPMETHOD_NONE) then; code='NONE'
+      else; _FAIL('RouteHandleKey: unsupported extrapolation method')
+      end if
+      _RETURN(_SUCCESS)
+   end function extrap_code
+
+   function norm_code(value, rc) result(code)
+      type(ESMF_NormType_Flag), intent(in) :: value
+      integer, optional, intent(out) :: rc
+      character(:), allocatable :: code
+      integer :: status
+
+      if (value == ESMF_NORMTYPE_DSTAREA) then; code='DSTAREA'
+      else; _FAIL('RouteHandleKey: unsupported normalization type')
+      end if
+      _RETURN(_SUCCESS)
+   end function norm_code
+
+   function pole_code(value, rc) result(code)
+      type(ESMF_PoleMethod_Flag), intent(in) :: value
+      integer, optional, intent(out) :: rc
+      character(:), allocatable :: code
+      integer :: status
+
+      if (value == ESMF_POLEMETHOD_ALLAVG) then; code='ALLAVG'
+      else if (value == ESMF_POLEMETHOD_NONE) then; code='NONE'
+      else; _FAIL('RouteHandleKey: unsupported pole method')
+      end if
+      _RETURN(_SUCCESS)
+   end function pole_code
+
+   function line_code(value, rc) result(code)
+      type(ESMF_LineType_Flag), intent(in) :: value
+      integer, optional, intent(out) :: rc
+      character(:), allocatable :: code
+      integer :: status
+
+      if (value == ESMF_LINETYPE_GREAT_CIRCLE) then; code='GREAT_CIRCLE'
+      else; _FAIL('RouteHandleKey: unsupported line type')
+      end if
+      _RETURN(_SUCCESS)
+   end function line_code
+
+   function unmapped_code(value, rc) result(code)
+      type(ESMF_UnmappedAction_Flag), intent(in) :: value
+      integer, optional, intent(out) :: rc
+      character(:), allocatable :: code
+      integer :: status
+
+      if (value == ESMF_UNMAPPEDACTION_ERROR) then; code='ERROR'
+      else if (value == ESMF_UNMAPPEDACTION_IGNORE) then; code='IGNORE'
+      else; _FAIL('RouteHandleKey: unsupported unmapped action')
+      end if
+      _RETURN(_SUCCESS)
+   end function unmapped_code
 
    function new_RouteHandleKey(source_geometry, destination_geometry, srcMaskValues, dstMaskValues, &
       regridmethod, polemethod, regridPoleNPnts, linetype, normtype, extrapmethod, &
@@ -113,117 +192,53 @@ contains
 
       key_string = ''
       rendering = 'ROUTEHANDLE:' // this%source_geometry%to_string() // ':' // this%destination_geometry%to_string()
-      code = regrid_code(this%regridmethod, status)
-      if (status /= _SUCCESS) then; if (present(rc)) rc = status; return; end if
+      code = regrid_code(this%regridmethod, _RC)
       rendering = rendering // ':' // code
       rendering = rendering // ':' // int_list(this%srcMaskValues) // ':' // int_list(this%dstMaskValues)
-      code = extrap_code(this%extrapmethod, status)
-      if (status /= _SUCCESS) then; if (present(rc)) rc = status; return; end if
+      code = extrap_code(this%extrapmethod, _RC)
       rendering = rendering // ':' // code
       rendering = rendering // ':' // int_value(this%extrapNumSrcPnts) // ':' // real_value(this%extrapDistExponent)
       rendering = rendering // ':' // scalar_alloc(this%extrapNumLevels)
-      code = norm_code(this%normtype, status)
-      if (status /= _SUCCESS) then; if (present(rc)) rc = status; return; end if
+      code = norm_code(this%normtype, _RC)
       rendering = rendering // ':' // code
-      code = pole_code(this%polemethod, status)
-      if (status /= _SUCCESS) then; if (present(rc)) rc = status; return; end if
+      code = pole_code(this%polemethod, _RC)
       rendering = rendering // ':' // code
       rendering = rendering // ':' // scalar_alloc(this%regridPoleNPnts)
-      code = line_code(this%linetype, status)
-      if (status /= _SUCCESS) then; if (present(rc)) rc = status; return; end if
+      code = line_code(this%linetype, _RC)
       rendering = rendering // ':' // code
-      code = unmapped_code(this%unmappedaction, status)
-      if (status /= _SUCCESS) then; if (present(rc)) rc = status; return; end if
+      code = unmapped_code(this%unmappedaction, _RC)
       rendering = rendering // ':' // code
       rendering = rendering // ':' // merge('T', 'F', this%ignoreDegenerate)
       key_string = rendering
-      if (present(rc)) rc = _SUCCESS
-      return
-   contains
-      function regrid_code(value, status) result(code)
-         type(ESMF_RegridMethod_Flag), intent(in) :: value
-         integer, intent(out) :: status
-         character(:), allocatable :: code
-         status = _SUCCESS
-         if (value == ESMF_REGRIDMETHOD_BILINEAR) then; code='BILINEAR'
-         else if (value == ESMF_REGRIDMETHOD_CONSERVE) then; code='CONSERVE'
-         else if (value == ESMF_REGRIDMETHOD_CONSERVE_2ND) then; code='CONSERVE_2ND'
-         else if (value == ESMF_REGRIDMETHOD_PATCH) then; code='PATCH'
-         else if (value == ESMF_REGRIDMETHOD_NEAREST_STOD) then; code='NEAREST_STOD'
-         else; status = _FAILURE
-         end if
-      end function regrid_code
-      function extrap_code(value, status) result(code)
-         type(ESMF_ExtrapMethod_Flag), intent(in) :: value
-         integer, intent(out) :: status
-         character(:), allocatable :: code
-         status = _SUCCESS
-         if (value == ESMF_EXTRAPMETHOD_NONE) then; code='NONE'; else; status = _FAILURE; end if
-      end function extrap_code
-      function norm_code(value, status) result(code)
-         type(ESMF_NormType_Flag), intent(in) :: value
-         integer, intent(out) :: status
-         character(:), allocatable :: code
-         status = _SUCCESS
-         if (value == ESMF_NORMTYPE_DSTAREA) then; code='DSTAREA'; else; status = _FAILURE; end if
-      end function norm_code
-      function pole_code(value, status) result(code)
-         type(ESMF_PoleMethod_Flag), intent(in) :: value
-         integer, intent(out) :: status
-         character(:), allocatable :: code
-         status = _SUCCESS
-         if (value == ESMF_POLEMETHOD_ALLAVG) then; code='ALLAVG'
-         else if (value == ESMF_POLEMETHOD_NONE) then; code='NONE'; else; status = _FAILURE
-         end if
-      end function pole_code
-      function line_code(value, status) result(code)
-         type(ESMF_LineType_Flag), intent(in) :: value
-         integer, intent(out) :: status
-         character(:), allocatable :: code
-         status = _SUCCESS
-         if (value == ESMF_LINETYPE_GREAT_CIRCLE) then; code='GREAT_CIRCLE'; else; status = _FAILURE; end if
-      end function line_code
-      function unmapped_code(value, status) result(code)
-         type(ESMF_UnmappedAction_Flag), intent(in) :: value
-         integer, intent(out) :: status
-         character(:), allocatable :: code
-         status = _SUCCESS
-         if (value == ESMF_UNMAPPEDACTION_ERROR) then; code='ERROR'
-         else if (value == ESMF_UNMAPPEDACTION_IGNORE) then; code='IGNORE'; else; status = _FAILURE
-         end if
-      end function unmapped_code
-      function int_value(value) result(text)
-         integer, intent(in) :: value
-         character(:), allocatable :: text; character(32) :: buffer
-         write(buffer, '(I0)') value; text=trim(buffer)
-      end function int_value
-      function real_value(value) result(text)
-         real(ESMF_KIND_R4), intent(in) :: value
-         character(:), allocatable :: text; character(64) :: buffer
-         write(buffer, '(ES24.16E3)') value; text=trim(adjustl(buffer))
-      end function real_value
-      function int_alloc(value) result(text)
-         integer, allocatable, intent(in) :: value(:)
-         character(:), allocatable :: text; integer :: i
-         if (.not. allocated(value)) then; text='U'; return; end if
-         text='A'
-         if (size(value) == 0) return
-         text='A' // int_value(value(1)); do i=2,size(value); text=text//','//int_value(value(i)); end do
-      end function int_alloc
-      function scalar_alloc(value) result(text)
-         integer, allocatable, intent(in) :: value
-         character(:), allocatable :: text
-         if (allocated(value)) then; text='A' // int_value(value); else; text='U'; end if
-      end function scalar_alloc
-      function int_list(value) result(text)
-         integer, allocatable, intent(in) :: value(:)
-         character(:), allocatable :: text; integer :: i
-         if (.not. allocated(value)) then; text='U'; return; end if
-         text='A'
-         if (size(value) == 0) return
-         text='A' // int_value(value(1)); do i=2,size(value); text=text//','//int_value(value(i)); end do
-      end function int_list
+      _RETURN(_SUCCESS)
    end function key_to_string
+
+   function int_value(value) result(text)
+      integer, intent(in) :: value
+      character(:), allocatable :: text; character(32) :: buffer
+      write(buffer, '(I0)') value; text=trim(buffer)
+   end function int_value
+
+   function real_value(value) result(text)
+      real(ESMF_KIND_R4), intent(in) :: value
+      character(:), allocatable :: text; character(64) :: buffer
+      write(buffer, '(ES24.16E3)') value; text=trim(adjustl(buffer))
+   end function real_value
+
+   function scalar_alloc(value) result(text)
+      integer, allocatable, intent(in) :: value
+      character(:), allocatable :: text
+      if (allocated(value)) then; text='A' // int_value(value); else; text='U'; end if
+   end function scalar_alloc
+
+   function int_list(value) result(text)
+      integer, allocatable, intent(in) :: value(:)
+      character(:), allocatable :: text; integer :: i
+      if (.not. allocated(value)) then; text='U'; return; end if
+      text='A'
+      if (size(value) == 0) return
+      text='A' // int_value(value(1)); do i=2,size(value); text=text//','//int_value(value(i)); end do
+   end function int_list
 
    logical function key_equal(left, right)
       type(RouteHandleKey), intent(in) :: left, right
