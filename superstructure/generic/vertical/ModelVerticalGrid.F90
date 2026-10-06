@@ -27,6 +27,7 @@ module mapl_ModelVerticalGrid_mod
    use mapl_QuantityTypeAspect_mod
    use mapl_NormalizationAspect_mod
    use mapl_VerticalGridAspect_mod
+   use mapl_VerticalCoordinateDirection_mod
    use pfio
    use esmf
    use gftl2_StringVector, only: StringVector
@@ -43,6 +44,7 @@ module mapl_ModelVerticalGrid_mod
       type(StringVector) :: names
       type(StringVector) :: physical_dimensions
       integer :: num_levels = -1
+      type(VerticalCoordinateDirection) :: coordinate_direction = VCOORD_DIRECTION_DOWN
    end type ModelVerticalGridSpec
 
     type, extends(mapl_VerticalGrid) :: ModelVerticalGrid
@@ -99,15 +101,17 @@ module mapl_ModelVerticalGrid_mod
 
 contains
 
-   function new_ModelVerticalGridSpec(names, physical_dimensions, num_levels) result(spec)
+   function new_ModelVerticalGridSpec(names, physical_dimensions, num_levels, coordinate_direction) result(spec)
       type(ModelVerticalGridSpec) :: spec
       type(StringVector), intent(in) :: names
       type(StringVector), intent(in) :: physical_dimensions
       integer, intent(in) ::  num_levels
+      type(VerticalCoordinateDirection), optional, intent(in) :: coordinate_direction
 
       spec%names = names
       spec%physical_dimensions = physical_dimensions
       spec%num_levels = num_levels
+      if (present(coordinate_direction)) spec%coordinate_direction = coordinate_direction
 
    end function new_ModelVerticalGridSpec
 
@@ -323,7 +327,7 @@ contains
       type(ModelVerticalGridSpec), intent(in) :: spec
 
       this%spec = spec
-      ! Default coordinate direction is already set to VCOORD_DIRECTION_DOWN in VerticalGrid
+      call this%set_coordinate_direction(spec%coordinate_direction)
    end subroutine initialize
 
    logical function matches(this, other)
@@ -423,6 +427,8 @@ contains
       type(ESMF_HConfigIter) :: iter, b, e
       character(len=:), allocatable :: physical_dimension
       character(len=:), allocatable :: field_name
+      character(len=:), allocatable :: direction_str
+      logical :: has_direction
 
       allocate(ModelVerticalGridSpec :: spec)
 
@@ -430,7 +436,19 @@ contains
       type is (ModelVerticalGridSpec)
          
          spec%num_levels = esmf_HConfigAsI4(config, keyString="num_levels", _RC)
-         
+
+         ! Optional: native ordering of this model's vertical coordinate
+         ! arrays. DOWN means coordinate values increase with index (e.g.
+         ! pressure edges listed top-of-atmosphere first, the GEOS
+         ! convention); UP means values decrease with index. Defaults to
+         ! DOWN if not specified.
+         has_direction = esmf_HConfigIsDefined(config, keyString="direction", _RC)
+         if (has_direction) then
+            direction_str = esmf_HConfigAsString(config, keyString="direction", _RC)
+            spec%coordinate_direction = VerticalCoordinateDirection(direction_str)
+            _ASSERT(spec%coordinate_direction /= VCOORD_DIRECTION_INVALID, "invalid 'direction' for model vertical_grid: "//direction_str)
+         end if
+
          fields_cfg = esmf_HConfigCreateAt(config, keyString="fields", _RC)
          
          b = esmf_HConfigIterBegin(fields_cfg)
