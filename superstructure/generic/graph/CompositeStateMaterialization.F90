@@ -35,6 +35,7 @@ module mapl_CompositeStateMaterialization_mod
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_StateItemVariantInfo_mod, only: set_variant
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -67,6 +68,15 @@ contains
       type(NodeId) :: child_id
 
       state = ESMF_StateCreate(_RC)
+      ! openspec/changes/vertical-grid-graph-state-item, design.md D2:
+      ! a composite tagged via VariableSpec%state_item_variant (e.g.
+      ! MAPL_STATEITEM_VERTICALGRID) gets that variant attached to its
+      ! materialized ESMF_State before wrapping - untagged composites
+      ! (the default, unallocated) are unaffected and keep reporting the
+      ! plain STATE variant (GraphStateItem.F90's own existing fallback).
+      if (allocated(var_spec%state_item_variant)) then
+         call set_variant(state, var_spec%state_item_variant, _RC)
+      end if
       call payload%set(state, _RC)
 
       names = var_spec%get_member_names()

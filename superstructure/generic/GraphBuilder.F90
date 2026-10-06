@@ -185,7 +185,7 @@ module mapl_GraphBuilder_mod
    use mapl_StateMethodInvocation_mod, only: StateMethodInvocation
    use mapl_AccessSpec_mod, only: AccessSpec, operator(==), MAPL_ACCESS_IN, MAPL_ACCESS_OUT, MAPL_ACCESS_INOUT
    use mapl_AccessSpecMap_mod, only: AccessSpecMap, AccessSpecMapIterator, operator(/=)
-   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
+   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag, MAPL_STATEITEM_VERTICALGRID, operator(==)
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap, StateItemMemberMapIterator, operator(/=)
    ! ----------------------------------------------------------------------
@@ -807,9 +807,33 @@ contains
          ! signature (Characteristic.F90 get_signature contract), so it
          ! is rendered to text here rather than changing
          ! VerticalGridCharacteristic's own constructor to know about
-         ! integer ids specifically.
+         ! integer ids specifically. get_supported_physical_dimensions()
+         ! is a pure accessor (no StateRegistry involvement, unlike
+         ! get_coordinate_field()) - also supplied here so a mismatched
+         ! identity gets REQ-GEO-007a's dimension-overlap classification
+         ! (openspec/changes/vertical-grid-graph-state-item) rather than
+         ! an undifferentiated failure.
          write(grid_id_buffer, '(I0)') var_spec%vertical_grid%get_id()
-         call characteristics%insert(VERTICAL_GRID_CHARACTERISTIC_ID, VerticalGridCharacteristic(trim(grid_id_buffer)))
+         call characteristics%insert(VERTICAL_GRID_CHARACTERISTIC_ID, &
+              VerticalGridCharacteristic(grid_id=trim(grid_id_buffer), &
+                   dimensions=var_spec%vertical_grid%get_supported_physical_dimensions()))
+      end if
+      ! openspec/changes/vertical-grid-graph-state-item: a composite
+      ! VariableSpec tagged state_item_variant == MAPL_STATEITEM_VERTICALGRID
+      ! (REQ-GEO-009) has no legacy VerticalGrid object to pull an
+      ! identity token from - only its own declared member names
+      ! (REQ-GEO-004a: member name = physical dimension, so
+      ! get_member_names() already IS the dimension set). Uses the SAME
+      ! VerticalGridCharacteristic/VERTICAL_GRID_CHARACTERISTIC_ID as the
+      ! branch above (not a separate characteristic kind) - with no
+      ! identity token supplied, needs_extension_for falls back to
+      ! dimension-set comparison (VerticalGridCharacteristic.F90's own
+      ! module header).
+      if (allocated(var_spec%state_item_variant)) then
+         if (var_spec%state_item_variant == MAPL_STATEITEM_VERTICALGRID) then
+            call characteristics%insert(VERTICAL_GRID_CHARACTERISTIC_ID, &
+                 VerticalGridCharacteristic(dimensions=var_spec%get_member_names()))
+         end if
       end if
 
       _RETURN(_SUCCESS)

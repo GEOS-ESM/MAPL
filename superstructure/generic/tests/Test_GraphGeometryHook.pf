@@ -38,7 +38,12 @@ module Test_GraphGeometryHook
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem
-   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_GEOM, operator(==)
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_GEOM, MAPL_STATEITEM_VERTICALGRID, operator(==)
+   ! -- openspec/changes/vertical-grid-graph-state-item (Phase 4f) -------
+   use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_STATE
+   ! ----------------------------------------------------------------------
    use esmf, only: ESMF_STATEINTENT_EXPORT
    use esmf, only: ESMF_Geom, ESMF_GeomCreate
    use esmf, only: ESMF_Grid, ESMF_GridCreateNoPeriDim
@@ -404,5 +409,88 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_hook_is_noop_when_graph_native_disabled
+
+   ! openspec/changes/vertical-grid-graph-state-item, task 4.1 / design.md
+   ! D4: verifies the already-true structural fact this capability's
+   ! geometry-association requirement relies on - a coordinate-set item
+   ! materialized from a MAPL_STATEITEM_VERTICALGRID-tagged composite is
+   ! registered in the SAME ComponentGraph as that component's own
+   ! Phase-4e horizontal-geometry item, so the geometry is identifiable
+   ! via the existing get_resource_index lookup without any new
+   ! per-item reference mechanism. No new production code is exercised
+   ! here beyond what groups 1-3 already added - this test is
+   ! verification only.
+   @test(npes=[0])
+   subroutine test_vertical_grid_member_shares_graph_with_geometry(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(ESMF_Geom) :: geom
+      type(NodeId), pointer :: geom_node_id
+      type(NodeId), pointer :: vgrid_top_id
+      type(NodeId), pointer :: pressure_id
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: payload
+      type(StateItemMemberMap) :: members
+      type(VariableSpec) :: vgrid
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call set_graph_native_enabled(.true.)
+
+      call make_outer_meta('geom_and_vgrid', gc, meta, _RC)
+      geom = make_test_geom(_RC)
+      call meta%set_geom(geom)
+      call gb%run_geometry_hook(meta)
+
+      vgrid%state_intent = ESMF_STATEINTENT_EXPORT
+      vgrid%short_name = 'MY_VGRID'
+      vgrid%itemType = MAPL_STATEITEM_STATE
+      vgrid%state_item_variant = MAPL_STATEITEM_VERTICALGRID
+      block
+         type(VariableSpec) :: pressure_member
+         pressure_member%state_intent = ESMF_STATEINTENT_EXPORT
+         pressure_member%short_name = 'PLE'
+         call vgrid%declare_member('pressure', pressure_member, rc=status)
+         @assert_that(status, is(0))
+      end block
+      comp_spec => meta%get_component_spec()
+      call comp_spec%add_var_spec(vgrid)
+      call gb%advertise(meta, status)
+      @assert_that(status, is(0))
+
+      graph => meta%get_component_graph()
+
+      geom_node_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
+      @assert_that(associated(geom_node_id), is(true()))
+
+      vgrid_top_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'MY_VGRID'))
+      @assert_that(associated(vgrid_top_id), is(true()))
+
+      node => graph%get_node(vgrid_top_id)
+      select type (node)
+      class is (StateItemNode)
+         payload = node%get_payload()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      members = payload%state_members()
+      pressure_id => members%at('pressure')
+      @assert_that(associated(pressure_id), is(true()))
+
+      ! The assertion this test exists for: the geometry item and the
+      ! vertical-grid composite's own coordinate-set member both belong
+      ! to the SAME ComponentGraph - no cross-graph lookup is needed to
+      ! find "this component's own geometry" starting from a
+      ! coordinate-set NodeId.
+      @assert_that(graph%owns_node(geom_node_id), is(true()))
+      @assert_that(graph%owns_node(pressure_id), is(true()))
+
+      call set_graph_native_enabled(.false.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_vertical_grid_member_shares_graph_with_geometry
 
 end module Test_GraphGeometryHook
