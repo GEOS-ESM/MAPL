@@ -696,10 +696,6 @@ Also exports module-level variable: `debug_unit` (integer, save).
 | `MAPL_LoadBalanceGet` | subroutine |
 | `MAPL_LOADBALANCE_DISTRIBUTE` | parameter (integer = 1) |
 | `MAPL_LOADBALANCE_RETRIEVE` | parameter (integer = 2) |
-| `MAPL_BalanceWork` | subroutine (deprecated alias of `MAPL_LoadBalanceRun`) |
-| `MAPL_BalanceCreate` | subroutine (deprecated alias of `MAPL_LoadBalanceCreate`) |
-| `MAPL_BalanceDestroy` | subroutine (deprecated alias of `MAPL_LoadBalanceDestroy`) |
-| `MAPL_BalanceGet` | subroutine (deprecated alias of `MAPL_LoadBalanceGet`) |
 
 ---
 
