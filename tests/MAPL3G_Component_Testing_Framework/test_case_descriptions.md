@@ -32,3 +32,4 @@ Note all test cases are in a numbered directory caseX, where a X is an integer a
 42. Test of Historys ability to output monthly and djf averages
 43. Test of Historys ability to output daily averge and modify on a per-variable basis the units, averaging type, and precision
 44. Test ExtData file-read logging: enable log_files_read in extdata config, run a 2-step case where step 1 generates and writes files and step 2 reads them with logging enabled, then compare the generated log against a golden reference file
+45. Test vertical regridding from "model" levels to fixed pressure levels

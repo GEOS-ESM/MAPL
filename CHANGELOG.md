@@ -57,6 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added ability to output on a set of fixed pressure or height levels in History3G
+
 ### Changed
 
 ### Removed
