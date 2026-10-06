@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Changed
+
+- Renamed the load-balance public API and exported the direction constants through the
+  `mp_utils` umbrella, which previously omitted them and forced clients to `use
+  mapl_LoadBalance_mod` directly: `MAPL_BalanceCreate`/`MAPL_BalanceGet`/`MAPL_BalanceWork`/
+  `MAPL_BalanceDestroy` are now `MAPL_LoadBalanceCreate`/`MAPL_LoadBalanceGet`/
+  `MAPL_LoadBalanceRun`/`MAPL_LoadBalanceDestroy`, and `MAPL_Distribute`/`MAPL_Retrieve` are
+  now `MAPL_LOADBALANCE_DISTRIBUTE`/`MAPL_LOADBALANCE_RETRIEVE`. The old names remain
+  available as deprecated aliases so existing callers keep building; they will be removed
+  in a future release
+
 ### Fixed
 
 - Fixed a crash in `RestartHandler` when a state's restart-eligible bundle ends up empty
