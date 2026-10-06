@@ -55,12 +55,26 @@ module mapl_RouteHandleKey_mod
 
 contains
 
+   ! NOTE: every code= branch below, including the final failing
+   ! else-branch, must leave the result "code" allocated. The error-macro
+   ! expansion used at each call site (see MAPL_ErrLog.h) performs the
+   ! assignment into the caller's "code" variable BEFORE the following
+   ! status check and early return. If this function instead took the
+   ! failing branch with its own result left unallocated, the caller's
+   ! assignment would reference an unallocated allocatable-character
+   ! function result - non-conforming (undefined outside an ALLOCATED
+   ! query or DEALLOCATE) and, on Intel ifort (observed on bucy), a real
+   ! SIGSEGV reading garbage length metadata, even though gfortran/NAG
+   ! silently tolerate it. Pre-setting code to an empty string up front
+   ! (before the failing branch can be reached) keeps the result always
+   ! allocated regardless of outcome.
    function regrid_code(value, rc) result(code)
       type(ESMF_RegridMethod_Flag), intent(in) :: value
       integer, optional, intent(out) :: rc
       character(:), allocatable :: code
       integer :: status
 
+      code = ''
       if (value == ESMF_REGRIDMETHOD_BILINEAR) then; code='BILINEAR'
       else if (value == ESMF_REGRIDMETHOD_CONSERVE) then; code='CONSERVE'
       else if (value == ESMF_REGRIDMETHOD_CONSERVE_2ND) then; code='CONSERVE_2ND'
@@ -77,6 +91,7 @@ contains
       character(:), allocatable :: code
       integer :: status
 
+      code = ''
       if (value == ESMF_EXTRAPMETHOD_NONE) then; code='NONE'
       else; _FAIL('RouteHandleKey: unsupported extrapolation method')
       end if
@@ -89,6 +104,7 @@ contains
       character(:), allocatable :: code
       integer :: status
 
+      code = ''
       if (value == ESMF_NORMTYPE_DSTAREA) then; code='DSTAREA'
       else; _FAIL('RouteHandleKey: unsupported normalization type')
       end if
@@ -101,6 +117,7 @@ contains
       character(:), allocatable :: code
       integer :: status
 
+      code = ''
       if (value == ESMF_POLEMETHOD_ALLAVG) then; code='ALLAVG'
       else if (value == ESMF_POLEMETHOD_NONE) then; code='NONE'
       else; _FAIL('RouteHandleKey: unsupported pole method')
@@ -114,6 +131,7 @@ contains
       character(:), allocatable :: code
       integer :: status
 
+      code = ''
       if (value == ESMF_LINETYPE_GREAT_CIRCLE) then; code='GREAT_CIRCLE'
       else; _FAIL('RouteHandleKey: unsupported line type')
       end if
@@ -126,6 +144,7 @@ contains
       character(:), allocatable :: code
       integer :: status
 
+      code = ''
       if (value == ESMF_UNMAPPEDACTION_ERROR) then; code='ERROR'
       else if (value == ESMF_UNMAPPEDACTION_IGNORE) then; code='IGNORE'
       else; _FAIL('RouteHandleKey: unsupported unmapped action')
