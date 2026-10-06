@@ -63,21 +63,17 @@ contains
       ! Allow round-off level differences (relative to coordinate magnitude)
       range_tol = 100.0_REAL32 * epsilon(1.0_REAL32) * &
            max(maxval(abs(src_interfaces)), maxval(abs(dst_interfaces)))
-      _ASSERT(minval(dst_interfaces) >= minval(src_interfaces) - range_tol, &
-              "Destination extends below source domain")
-      _ASSERT(maxval(dst_interfaces) <= maxval(src_interfaces) + range_tol, &
-              "Destination extends above source domain")
+      _ASSERT(minval(dst_interfaces) >= minval(src_interfaces) - range_tol, "Destination extends below source domain")
+      _ASSERT(maxval(dst_interfaces) <= maxval(src_interfaces) + range_tol, "Destination extends above source domain")
 
       ! Validate no zero-thickness source layers
       do k = 1, nlev_src
-         _ASSERT(abs(src_interfaces(k+1) - src_interfaces(k)) > epsilon_sp, &
-                 "Source layer has zero thickness")
+         _ASSERT(abs(src_interfaces(k+1) - src_interfaces(k)) > epsilon_sp, "Source layer has zero thickness")
       end do
 
       ! Validate no zero-thickness destination layers
       do j = 1, nlev_dst
-         _ASSERT(abs(dst_interfaces(j+1) - dst_interfaces(j)) > epsilon_sp, &
-                 "Destination layer has zero thickness")
+         _ASSERT(abs(dst_interfaces(j+1) - dst_interfaces(j)) > epsilon_sp, "Destination layer has zero thickness")
       end do
 #endif
 
@@ -120,8 +116,7 @@ contains
          ! Verify conservation: row weights should sum to 1.0
          ! This is a critical check for conservative regridding
          row_sum = sum(row_weights)
-         _ASSERT(abs(row_sum - 1.0_REAL32) < tolerance, &
-                 "Row weights do not sum to 1.0 (conservation violated)")
+         _ASSERT(abs(row_sum - 1.0_REAL32) < tolerance, "Row weights do not sum to 1.0 (conservation violated)")
 #endif
 
          ! Add this row to the sparse matrix (all columns, starting from column 1)
