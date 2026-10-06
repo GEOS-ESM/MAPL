@@ -171,6 +171,7 @@ contains
       integer :: outcome
       character(:), allocatable :: overlap_name
       character(:), allocatable :: overlap_list
+      character(:), allocatable :: failure_message
 
       _UNUSED_DUMMY(graph)
       _UNUSED_DUMMY(input_node_id)
@@ -185,15 +186,25 @@ contains
 
       select case (outcome)
       case (DIMENSION_OVERLAP_SINGLE)
-         _FAIL('VerticalGridCharacteristic: single overlapping physical dimension ' // &
+         ! Built as an ordinary local variable, not inline as the _FAIL
+         ! macro's own argument - gfortran's preprocessor does not
+         ! support Fortran's `&` continuation spanning a macro
+         ! invocation's own argument list (unlike a plain assignment
+         ! statement, where `&` continuation is genuine Fortran, not
+         ! macro text). Mirrors GraphBuilder.F90's own
+         ! assertion_message/_ASSERT precedent.
+         failure_message = 'VerticalGridCharacteristic: single overlapping physical dimension ' // &
               '"' // overlap_name // '" identified as the adaptation candidate, ' // &
-              'but no real vertical-regrid Transform is implemented yet')
+              'but no real vertical-regrid Transform is implemented yet'
+         _FAIL(failure_message)
       case (DIMENSION_OVERLAP_INCOMPATIBLE)
-         _FAIL('VerticalGridCharacteristic: incompatible - no common physical dimension ' // &
-              'between export and import vertical grids')
+         failure_message = 'VerticalGridCharacteristic: incompatible - no common physical dimension ' // &
+              'between export and import vertical grids'
+         _FAIL(failure_message)
       case (DIMENSION_OVERLAP_AMBIGUOUS)
-         _FAIL('VerticalGridCharacteristic: ambiguous - more than one common physical ' // &
-              'dimension between export and import vertical grids (' // overlap_list // ')')
+         failure_message = 'VerticalGridCharacteristic: ambiguous - more than one common physical ' // &
+              'dimension between export and import vertical grids (' // overlap_list // ')'
+         _FAIL(failure_message)
       case default
          _FAIL('VerticalGridCharacteristic: unrecognized dimension-overlap outcome')
       end select
