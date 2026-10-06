@@ -32,7 +32,7 @@ contains
 
    ! Compute linear interpolation transformation matrix,
    ! src*matrix = dst, when regridding (vertical) from src to dst
-   ! NOTE: find_bracket_ below ASSUMEs that src array is monotonic and decreasing
+   ! NOTE: find_bracket_ below handles monotonic src arrays (increasing or decreasing)
    subroutine compute_linear_map(src, dst, matrix, rc)
       real(REAL32), intent(in) :: src(:)
       real(REAL32), intent(in) :: dst(:)
@@ -47,7 +47,7 @@ contains
 #ifndef NDEBUG
       _ASSERT(maxval(dst) <= maxval(src), "maxval(dst) > maxval(src)")
       _ASSERT(minval(dst) >= minval(src), "minval(dst) < minval(src)")
-      _ASSERT(is_decreasing(src), "src array is not decreasing")
+      ! _ASSERT(is_decreasing(src), "src array is not decreasing")
 #endif
 
       ! allocate(matrix(size(dst), size(src)), source=0., _STAT)
@@ -70,31 +70,61 @@ contains
       _RETURN(_SUCCESS)
    end subroutine compute_linear_map
 
-   ! Find array bracket [pair_1, pair_2] containing val
-   ! ASSUME: array is monotonic and decreasing
+
+   ! Find array bracket [pair_1, pair_2] containing val.
+   ! The array must be monotonic, but may be increasing or decreasing.
+   ! An exact match or an out-of-range val returns a degenerate bracket
+   ! (pair_1 and pair_2 have the same index).
    subroutine find_bracket(val, array, pair)
       real(REAL32), intent(in) :: val
       real(REAL32), intent(in) :: array(:)
       Type(IndexValuePair), intent(out) :: pair(2)
 
-      integer :: ndx1, ndx2, n, nearest
+      integer :: ndx1, ndx2, n, i
+      logical :: is_increasing
 
       n = size(array)
-      nearest = minloc(abs(array - val), 1)
-      if (array(nearest) < val) then
-         ndx1 = max(1,nearest - 1)
-         ndx2 = min(n,nearest)
-      else
-         ndx1 = nearest
-         if (array(nearest) == val) then
-            ndx2 = nearest  ! Exact match
+      is_increasing = (array(n) > array(1))
+      ndx1 = 1
+      ndx2 = 1
+
+      if (is_increasing) then
+         if (val <= array(1)) then
+            ndx1 = 1; ndx2 = 1
+         else if (val >= array(n)) then
+            ndx1 = n; ndx2 = n
          else
-            ndx2 = min(n,nearest+1)
-         endif
-      endif
-       pair(1) = IndexValuePair(ndx1, array(ndx1))
-       pair(2) = IndexValuePair(ndx2, array(ndx2))
-    end subroutine find_bracket
+            do i = 1, n-1
+               if (val == array(i)) then
+                  ndx1 = i; ndx2 = i
+                  exit
+               else if (array(i) < val .and. val < array(i+1)) then
+                  ndx1 = i; ndx2 = i+1
+                  exit
+               end if
+            end do
+         end if
+      else  ! decreasing
+         if (val >= array(1)) then
+            ndx1 = 1; ndx2 = 1
+         else if (val <= array(n)) then
+            ndx1 = n; ndx2 = n
+         else
+            do i = 1, n-1
+               if (val == array(i)) then
+                  ndx1 = i; ndx2 = i
+                  exit
+               else if (array(i) > val .and. val > array(i+1)) then
+                  ndx1 = i; ndx2 = i+1
+                  exit
+               end if
+            end do
+         end if
+      end if
+
+      pair(1) = IndexValuePair(ndx1, array(ndx1))
+      pair(2) = IndexValuePair(ndx2, array(ndx2))
+   end subroutine find_bracket
 
    ! Compute linear interpolation weights
    subroutine compute_weights(val, value_, weight)

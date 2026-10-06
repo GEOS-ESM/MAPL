@@ -44,15 +44,6 @@ module mapl_ModelVerticalGrid_mod
       type(StringVector) :: names
       type(StringVector) :: physical_dimensions
       integer :: num_levels = -1
-      ! Native ordering of this model's vertical coordinate arrays (e.g. PLE).
-      ! DOWN (default, matches VerticalGrid's own default) means index 1 is
-      ! the surface and values decrease with increasing index (the "GEOS
-      ! convention" already assumed elsewhere in this framework). Dynamical
-      ! cores such as FV3 instead store levels top-of-atmosphere-first, with
-      ! values *increasing* with index, which must be declared as UP so that
-      ! VerticalRegridTransform correctly flips the array to the canonical
-      ! (decreasing) orientation expected by compute_linear_map/
-      ! compute_conservative_map before interpolating.
       type(VerticalCoordinateDirection) :: coordinate_direction = VCOORD_DIRECTION_DOWN
    end type ModelVerticalGridSpec
 
@@ -336,9 +327,6 @@ contains
       type(ModelVerticalGridSpec), intent(in) :: spec
 
       this%spec = spec
-      ! VerticalGrid's own coordinate_direction defaults to DOWN; override it
-      ! here from the spec so models with a native top-first (UP) ordering
-      ! (e.g. FV3's PLE) are correctly flipped by VerticalRegridTransform.
       call this%set_coordinate_direction(spec%coordinate_direction)
    end subroutine initialize
 
@@ -450,11 +438,10 @@ contains
          spec%num_levels = esmf_HConfigAsI4(config, keyString="num_levels", _RC)
 
          ! Optional: native ordering of this model's vertical coordinate
-         ! arrays. Defaults to DOWN (surface-first, decreasing - the
-         ! pre-existing/implicit GEOS convention) if not specified, to
-         ! preserve behavior for existing configs. Dynamical cores that
-         ! store levels top-of-atmosphere-first (increasing with index,
-         ! e.g. FV3's PLE) must set "direction: up".
+         ! arrays. DOWN means coordinate values increase with index (e.g.
+         ! pressure edges listed top-of-atmosphere first, the GEOS
+         ! convention); UP means values decrease with index. Defaults to
+         ! DOWN if not specified.
          has_direction = esmf_HConfigIsDefined(config, keyString="direction", _RC)
          if (has_direction) then
             direction_str = esmf_HConfigAsString(config, keyString="direction", _RC)

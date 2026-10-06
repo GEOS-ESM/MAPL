@@ -65,8 +65,42 @@ contains
       
       call grid%initialize(spec)
       direction = grid%get_coordinate_direction()
-      @assertEqual("downward", direction%to_string(), 'Default coordinate direction should be downward')
+      @assertEqual("upward", direction%to_string(), 'Decreasing levels should be upward')
    end subroutine test_fixed_level_coordinate_direction_default
+
+
+   @test
+   subroutine test_fixed_level_coordinate_direction_increasing()
+      type(FixedLevelsVerticalGridSpec) :: spec
+      type(FixedLevelsVerticalGrid) :: grid
+      type(VerticalCoordinateDirection) :: direction
+
+      spec%levels = [100.0, 500.0, 1000.0]
+      spec%physical_dimension = "pressure"
+      spec%units = "Pa"
+
+      call grid%initialize(spec)
+      direction = grid%get_coordinate_direction()
+      @assertEqual("downward", direction%to_string(), 'Increasing levels should be downward')
+   end subroutine test_fixed_level_coordinate_direction_increasing
+
+
+   @test
+   subroutine test_fixed_level_non_monotonic_fails()
+      type(FixedLevelsVerticalGridSpec) :: spec
+      type(FixedLevelsVerticalGrid) :: grid
+      integer :: rc
+
+      spec%levels = [100.0, 1000.0, 500.0]
+      spec%physical_dimension = "pressure"
+      spec%units = "Pa"
+
+      call grid%initialize(spec, rc=rc)
+      @assertExceptionRaised('levels must be strictly monotonic (all increasing or all decreasing)')
+      ! _VERIFY in initialize adds a second (traceback) exception
+      @assertExceptionRaised('status=1')
+      @assertTrue(rc /= 0, 'Non-monotonic levels should fail')
+   end subroutine test_fixed_level_non_monotonic_fails
 
 
    @test
