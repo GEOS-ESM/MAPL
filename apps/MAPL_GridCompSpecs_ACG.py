@@ -162,7 +162,7 @@ def has_flags(has_all, flags, option):
     return cflags.issubset(oflags) if has_all else not cflags.isdisjoint(oflags)
 
 is_mandatory = lambda o: has_flags(has_all=True, flags=MANDATORY, option=o)
-is_printable = lambda o: not has_flags(has_all=False, flags={STORE, CONTROL}, option=o) if o else False
+is_printable = lambda o: not has_flags(has_all=False, flags={STORE, CONTROL}, option=o) if o is not None else False
 has_as_flag = lambda o: has_flags(has_all=True, flags=AS, option=o)
 
 #################################### OPTIONS ###################################
