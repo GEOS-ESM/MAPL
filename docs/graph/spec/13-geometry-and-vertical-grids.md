@@ -30,6 +30,67 @@ direction, which has no existing precedent to reuse). See that change's
 design.md for the full rationale. REQ-GEO-002a and §13.4 remain deferred/
 open as stated below.
 
+**Implementation status (Phase 4f,
+`openspec/changes/vertical-grid-graph-state-item`, landed):**
+REQ-GEO-004/004a/009 are implemented: `VerticalGrid` is a real,
+graph-visible `GraphStateItem` — a nested-state item (`variant() ==
+MAPL_STATEITEM_VERTICALGRID`) whose members are the physical-dimension
+coordinate-set items (member name = physical dimension), REQ-GEO-007a's
+dimension-overlap classification (single/incompatible/ambiguous) is
+implemented, and the association between a coordinate-set item and its
+owning component's horizontal geometry is satisfied structurally (same
+`ComponentGraph`), not via a new per-item reference. Real vertical-regrid
+execution, REQ-GEO-007b's general multi-candidate-import case, and §13.4
+remain deferred/open as stated below.
+
+**Significant deviation from the original plan, discovered
+mid-implementation (see that change's design.md Context/D0 for the full
+trace):** the original plan assumed `VerticalGrid`-item construction
+would wrap `OuterMetaComponent%get_vertical_grid()`/legacy
+`ModelVerticalGrid%get_coordinate_field()`, mirroring Phase 4e's own
+geometry hook shape. Tracing `get_coordinate_field()` found it routes
+through `StateRegistry%extend()`, which can mutate the registry (build a
+real `ESMF_GridComp` coupler) as a side effect — unsafe, and explicitly
+disallowed by project direction: **the graph solution must not use
+`StateRegistry`**; legacy's aspect/extension machinery (including its own
+already-working `find_common_physical_dimension`/`VerticalRegridTransform`)
+is at most suggestive of what capability is needed, never something the
+graph code calls into. The landed design instead reuses the already-
+shipped, zero-`StateRegistry` `composite-state-spec`/
+`CompositeStateMaterialization` mechanism: a component declares its
+vertical grid as an ordinary composite `VariableSpec`
+(`declare_member`, one member per physical dimension), tagged via a new
+`VariableSpec%state_item_variant` field (mirroring the existing
+`callback_interface_id` field's "mark the item, not a new itemType"
+precedent); `materialize_composite` gained one line to apply that tag via
+the existing `set_variant`. REQ-GEO-007a's classification lives inside
+the **existing** `VerticalGridCharacteristic` (not a new characteristic
+kind — an earlier implementation of this change added a separate
+`VerticalGridMembershipCharacteristic`, reverted after review: two
+"vertical grid" characteristics was confusing, and dimension-name-based
+matching with no identity-token fallback was a real false-positive
+risk). `VerticalGridCharacteristic` now carries an optional declared
+physical-dimension set alongside its existing opaque identity token —
+the identity-token comparison remains authoritative for ordinary Fields
+when both sides have one (unchanged behavior); dimension-set equality is
+the fallback, used only when no identity token exists at all (always
+true for a `MAPL_STATEITEM_VERTICALGRID`-tagged composite). Because
+`VerticalGrid%get_supported_physical_dimensions()` is a pure accessor
+(unlike `get_coordinate_field()`), dimensions are populated for the
+ordinary-Field path too, so REQ-GEO-007a's three-way diagnostic
+(single-overlap/incompatible/ambiguous) applies uniformly to both
+mismatch paths, not just the new composite one. Exercised through the
+*existing*, unmodified `resolve_one`/`build_characteristics`/
+`find_mismatched_characteristics`/`find_or_build_extension_chain` path —
+no new `GraphBuilder.F90` hook was needed, unlike Phase 4e's own
+`run_geometry_hook`. REQ-GEO-007's superseded-text
+"`ReferenceCharacteristic` on the coordinate-set item" wording is **not**
+implemented as such — `GraphStateItem` has no persisted characteristics
+map (that is `18-state-item-characteristics.md` REQ-CHAR-007, explicitly
+Phase 5/`[SPECULATIVE]`), so the geometry association is instead a
+structural fact (shared `ComponentGraph` ownership with Phase 4e's own
+geometry item), not a new reference mechanism.
+
 ## 13.1 Geometry as first-class GraphValue
 
 **REQ-GEO-001.** Geometry MUST become first-class, via (at minimum)

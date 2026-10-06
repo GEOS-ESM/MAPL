@@ -59,6 +59,7 @@ module mapl_VariableSpec_mod
    use mapl_VariableSpecTag_mod, only: VariableSpecTag
    use mapl_VariableSpecMemberMap_mod
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
+   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
 
    implicit none
    private
@@ -186,6 +187,28 @@ module mapl_VariableSpec_mod
       ! composite-state-spec's own "YAML/HConfig-driven builder... not
       ! built here" precedent for `members`, below).
       type(CallbackInterfaceId) :: callback_interface_id
+
+      !=====================
+      ! declared state-item variant (openspec/changes/
+      ! vertical-grid-graph-state-item)
+      !=====================
+      ! Tags a composite declaration (itemType == MAPL_STATEITEM_STATE,
+      ! `members` above) with the graph-native MAPL_StateItem_Flag
+      ! (mapl_StateItemFlag_mod) its materialized GraphStateItem should
+      ! report from variant() - e.g. MAPL_STATEITEM_VERTICALGRID for a
+      ! component's vertical grid (REQ-GEO-009, 13-geometry-and-vertical-
+      ! grids.md), whose declared members (one per physical dimension,
+      ! REQ-GEO-004a) are otherwise ordinary composite members. Default
+      ! unallocated for an ordinary (non-tagged) composite or leaf -
+      ! mapl_CompositeStateMaterialization_mod only calls set_variant()
+      ! when this is allocated, so every existing composite declaration
+      ! is unaffected. Mirrors `callback_interface_id`'s own precedent
+      ! exactly: "mark the item, not a new itemType," set via plain field
+      ! assignment only, no make_VariableSpec keyword (design.md D2) -
+      ! chosen over a polymorphic role-class hierarchy since no second
+      ! composite role is anticipated yet and MAPL_StateItem_Flag already
+      ! provides the needed vocabulary.
+      type(MAPL_StateItem_Flag), allocatable :: state_item_variant
 
    contains
       procedure :: make_virtualPt

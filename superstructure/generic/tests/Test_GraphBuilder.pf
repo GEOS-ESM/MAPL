@@ -43,6 +43,9 @@ module Test_GraphBuilder
    use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
    use mapl_AccessSpec_mod, only: MAPL_ACCESS_IN, MAPL_ACCESS_OUT, MAPL_ACCESS_INOUT
    use mapl_StateItemFlag_mod, only: MAPL_VARIANT_FIELDBUNDLE => MAPL_STATEITEM_FIELDBUNDLE
+   ! -- openspec/changes/vertical-grid-graph-state-item ---------------------
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID
+   ! ------------------------------------------------------------------------
    ! ------------------------------------------------------------------------
    use mapl_NodeLabel_mod, only: NodeLabel
    use mapl_GraphExport_mod, only: export_graph_dot, export_graph_json
@@ -955,7 +958,20 @@ contains
       ! pFUnit's own exception mechanism and must be consumed here,
       ! matching this suite's test_freeze_fails_and_leaves_graph_unfrozen_on_conflict
       ! precedent for a propagated internal _FAIL/_ASSERT.
-      @assertExceptionRaised('VerticalGridCharacteristic: no vertical-regrid Transform is implemented yet')
+      !
+      ! openspec/changes/vertical-grid-graph-state-item: VerticalGridCharacteristic
+      ! now also carries each side's declared physical dimensions
+      ! (var_spec%vertical_grid%get_supported_physical_dimensions(), a
+      ! pure accessor - GraphBuilder.F90's build_characteristics), so a
+      ! mismatch's build_transform failure is now REQ-GEO-007a's
+      ! three-way classification rather than one flat message.
+      ! mapl_BasicVerticalGrid%get_supported_physical_dimensions()
+      ! (BasicVerticalGrid.F90) always reports exactly one dimension,
+      ! the literal "<unknown>" - both sides here report that same
+      ! single dimension, so this is the "exactly one overlap" case.
+      @assertExceptionRaised('VerticalGridCharacteristic: single overlapping physical ' // &
+           'dimension "<unknown>" identified as the adaptation candidate, but no real ' // &
+           'vertical-regrid Transform is implemented yet')
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
@@ -1341,6 +1357,399 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_ordinary_connection_wires_matching_composite
+
+   ! -- openspec/changes/vertical-grid-graph-state-item ---------------------
+
+   ! Task 1.3 / spec "A vertical grid is carried as a nested-state item
+   ! with per-dimension coordinate-set members": a composite VariableSpec
+   ! tagged state_item_variant = MAPL_STATEITEM_VERTICALGRID materializes
+   ! (via the EXISTING, unmodified composite-state-spec path) as a
+   ! StateItemNode whose GraphStateItem%variant() reports VERTICALGRID
+   ! (design.md D2), with each declared physical dimension retrievable as
+   ! an independently node-identified member.
+   @test(npes=[0])
+   subroutine test_vertical_grid_composite_tags_variant(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpec) :: vgrid
+      type(NodeId), pointer :: top_id
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: payload
+      type(StateItemMemberMap) :: members
+      type(NodeId), pointer :: pressure_id, height_id
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_vgrid_variant', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+
+      vgrid = make_var(ESMF_STATEINTENT_EXPORT, 'MY_VGRID')
+      vgrid%itemType = MAPL_STATEITEM_STATE
+      vgrid%state_item_variant = MAPL_STATEITEM_VERTICALGRID
+      call vgrid%declare_member('pressure', make_var(ESMF_STATEINTENT_EXPORT, 'PLE', units='Pa'), rc=status)
+      @assert_that(status, is(0))
+      call vgrid%declare_member('height', make_var(ESMF_STATEINTENT_EXPORT, 'ZLE', units='m'), rc=status)
+      @assert_that(status, is(0))
+      call comp_spec%add_var_spec(vgrid)
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      top_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'MY_VGRID'))
+      @assert_that(associated(top_id), is(true()))
+
+      node => graph%get_node(top_id)
+      select type (node)
+      class is (StateItemNode)
+         payload = node%get_payload()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assertTrue(payload%variant(rc=status) == MAPL_STATEITEM_VERTICALGRID)
+      @assert_that(status, is(0))
+
+      members = payload%state_members()
+      pressure_id => members%at('pressure')
+      height_id => members%at('height')
+      @assert_that(associated(pressure_id), is(true()))
+      @assert_that(associated(height_id), is(true()))
+      @assert_that(graph%owns_node(pressure_id), is(true()))
+      @assert_that(graph%owns_node(height_id), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_vertical_grid_composite_tags_variant
+
+   ! Regression companion to the test above: an ordinary composite that
+   ! does NOT set state_item_variant (every composite declared before
+   ! this change, and any future one that is not a vertical grid) keeps
+   ! reporting the plain STATE variant - materialize_composite's new
+   ! tagging step (design.md D2) is additive, gated on
+   ! allocated(var_spec%state_item_variant).
+   @test(npes=[0])
+   subroutine test_untagged_composite_keeps_plain_state_variant(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpec) :: composite
+      type(NodeId), pointer :: top_id
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: payload
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_untagged_composite', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+
+      composite = make_var(ESMF_STATEINTENT_EXPORT, 'ORDINARY_STATE')
+      composite%itemType = MAPL_STATEITEM_STATE
+      ! state_item_variant deliberately left unallocated.
+      call composite%declare_member('member', make_var(ESMF_STATEINTENT_EXPORT, 'member'), rc=status)
+      @assert_that(status, is(0))
+      call comp_spec%add_var_spec(composite)
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      top_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'ORDINARY_STATE'))
+      node => graph%get_node(top_id)
+      select type (node)
+      class is (StateItemNode)
+         payload = node%get_payload()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assertFalse(payload%variant(rc=status) == MAPL_STATEITEM_VERTICALGRID)
+      @assert_that(status, is(0))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_untagged_composite_keeps_plain_state_variant
+
+   ! Task 3.2 / design.md D3: exercises the EXISTING, unmodified
+   ! resolve_match_connection/resolve_one/build_characteristics/
+   ! find_mismatched_characteristics path - no new GraphBuilder hook -
+   ! with two child components each advertising a
+   ! MAPL_STATEITEM_VERTICALGRID-tagged composite under the same
+   ! short_name. Identical declared physical-dimension sets wire a
+   ! direct dependency edge (no extension chain), mirroring
+   ! test_ordinary_connection_wires_matching_composite's own shape.
+   @test(npes=[0])
+   subroutine test_vertical_grid_composites_match_wires_directly(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph
+      type(MatchConnection) :: conn
+      type(StringVector) :: unresolved, unsupported
+      type(VariableSpec) :: export_vgrid, import_vgrid
+      type(NodeId), pointer :: export_proxy, import_proxy
+      type(DependencyNetwork), pointer :: net
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_parent_vgrid_match', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      export_vgrid = make_var(ESMF_STATEINTENT_EXPORT, 'MY_VGRID')
+      export_vgrid%itemType = MAPL_STATEITEM_STATE
+      export_vgrid%state_item_variant = MAPL_STATEITEM_VERTICALGRID
+      call export_vgrid%declare_member('pressure', make_var(ESMF_STATEINTENT_EXPORT, 'PLE'), rc=status)
+      @assert_that(status, is(0))
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_vgrid)
+
+      import_vgrid = make_var(ESMF_STATEINTENT_IMPORT, 'MY_VGRID')
+      import_vgrid%itemType = MAPL_STATEITEM_STATE
+      import_vgrid%state_item_variant = MAPL_STATEITEM_VERTICALGRID
+      call import_vgrid%declare_member('pressure', make_var(ESMF_STATEINTENT_IMPORT, 'PLE'), rc=status)
+      @assert_that(status, is(0))
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(import_vgrid)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      @assertEqual(0, unsupported%size())
+
+      parent_graph => parent_meta%get_component_graph()
+      export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'MY_VGRID'))
+      import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'MY_VGRID'))
+      @assert_that(associated(export_proxy), is(true()))
+      @assert_that(associated(import_proxy), is(true()))
+
+      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      @assert_that(net%contains_dependency(export_proxy, import_proxy), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_vertical_grid_composites_match_wires_directly
+
+   ! Task 3.2: differing dimension sets with exactly one overlap -
+   ! delegates to find_or_build_extension_chain (unmodified dispatch),
+   ! which fails explicitly via the SAME VerticalGridCharacteristic used
+   ! for ordinary Field-level vertical-grid matching
+   ! (test_materialize_extensions_vgrid_mismatch_unaffected, above) - its
+   ! build_transform's REQ-GEO-007a "single dimension identified"
+   ! message, reported as an "unsupported" entry under this composite's
+   ! own short_name.
+   @test(npes=[0])
+   subroutine test_vertical_grid_composites_single_overlap_fails_explicitly(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(MatchConnection) :: conn
+      type(StringVector) :: unresolved, unsupported
+      type(VariableSpec) :: export_vgrid, import_vgrid
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_parent_vgrid_single_overlap', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      export_vgrid = make_var(ESMF_STATEINTENT_EXPORT, 'MY_VGRID')
+      export_vgrid%itemType = MAPL_STATEITEM_STATE
+      export_vgrid%state_item_variant = MAPL_STATEITEM_VERTICALGRID
+      call export_vgrid%declare_member('pressure', make_var(ESMF_STATEINTENT_EXPORT, 'PLE'), rc=status)
+      @assert_that(status, is(0))
+      call export_vgrid%declare_member('height', make_var(ESMF_STATEINTENT_EXPORT, 'ZLE'), rc=status)
+      @assert_that(status, is(0))
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_vgrid)
+
+      import_vgrid = make_var(ESMF_STATEINTENT_IMPORT, 'MY_VGRID')
+      import_vgrid%itemType = MAPL_STATEITEM_STATE
+      import_vgrid%state_item_variant = MAPL_STATEITEM_VERTICALGRID
+      call import_vgrid%declare_member('pressure', make_var(ESMF_STATEINTENT_IMPORT, 'PLE'), rc=status)
+      @assert_that(status, is(0))
+      call import_vgrid%declare_member('depth', make_var(ESMF_STATEINTENT_IMPORT, 'DEPTH'), rc=status)
+      @assert_that(status, is(0))
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(import_vgrid)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assertExceptionRaised('VerticalGridCharacteristic: single overlapping physical ' // &
+           'dimension "pressure" identified as the adaptation candidate, but no real ' // &
+           'vertical-regrid Transform is implemented yet')
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      @assertEqual(1, unsupported%size())
+      @assert_that(unsupported%at(1, status), is(equal_to('child_dst:MY_VGRID:VERTICAL_GRID')))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_vertical_grid_composites_single_overlap_fails_explicitly
+
+   ! Shared fixture for the remaining REQ-GEO-007a connection-path
+   ! outcomes. The single-overlap case above uses an explicit fixture so
+   ! its expected diagnostic remains especially clear.
+   subroutine resolve_vertical_grid_membership_mismatch(export_dimensions, import_dimensions, &
+         unresolved, unsupported, rc)
+      character(*), intent(in) :: export_dimensions(:)
+      character(*), intent(in) :: import_dimensions(:)
+      type(StringVector), intent(out) :: unresolved
+      type(StringVector), intent(out) :: unsupported
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(MatchConnection) :: conn
+      type(VariableSpec) :: export_vgrid, import_vgrid, member
+      integer :: status, i
+      character(:), allocatable :: dimension
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_parent_vgrid_overlap_case', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      export_vgrid = make_var(ESMF_STATEINTENT_EXPORT, 'MY_VGRID')
+      export_vgrid%itemType = MAPL_STATEITEM_STATE
+      export_vgrid%state_item_variant = MAPL_STATEITEM_VERTICALGRID
+      do i = 1, size(export_dimensions)
+         dimension = trim(export_dimensions(i))
+         member = make_var(ESMF_STATEINTENT_EXPORT, dimension)
+         call export_vgrid%declare_member(dimension, member, _RC)
+      end do
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_vgrid)
+
+      import_vgrid = make_var(ESMF_STATEINTENT_IMPORT, 'MY_VGRID')
+      import_vgrid%itemType = MAPL_STATEITEM_STATE
+      import_vgrid%state_item_variant = MAPL_STATEITEM_VERTICALGRID
+      do i = 1, size(import_dimensions)
+         dimension = trim(import_dimensions(i))
+         member = make_var(ESMF_STATEINTENT_IMPORT, dimension)
+         call import_vgrid%declare_member(dimension, member, _RC)
+      end do
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(import_vgrid)
+
+      call gb%advertise(src_meta, _RC)
+      call gb%advertise(dst_meta, _RC)
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+
+      if (present(rc)) rc = status
+   end subroutine resolve_vertical_grid_membership_mismatch
+
+   @test(npes=[0])
+   subroutine test_vertical_grid_composites_zero_overlap_fails_incompatible(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(StringVector) :: unresolved, unsupported
+      integer :: status
+
+      call resolve_vertical_grid_membership_mismatch([character(8) :: 'pressure'], [character(8) :: 'height'], &
+           unresolved, unsupported, status)
+      @assertExceptionRaised('VerticalGridCharacteristic: incompatible - no common ' // &
+           'physical dimension between export and import vertical grids')
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      @assertEqual(1, unsupported%size())
+      @assert_that(unsupported%at(1, status), is(equal_to('child_dst:MY_VGRID:VERTICAL_GRID')))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_vertical_grid_composites_zero_overlap_fails_incompatible
+
+   @test(npes=[0])
+   subroutine test_vertical_grid_composites_multiple_overlap_fails_ambiguous(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(StringVector) :: unresolved, unsupported
+      integer :: status
+
+      call resolve_vertical_grid_membership_mismatch([character(8) :: 'pressure', 'height'], &
+           [character(8) :: 'height', 'pressure', 'depth'], &
+           unresolved, unsupported, status)
+      @assertExceptionRaised('VerticalGridCharacteristic: ambiguous - more than one ' // &
+           'common physical dimension between export and import vertical grids (height,pressure)')
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      @assertEqual(1, unsupported%size())
+      @assert_that(unsupported%at(1, status), is(equal_to('child_dst:MY_VGRID:VERTICAL_GRID')))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_vertical_grid_composites_multiple_overlap_fails_ambiguous
 
    ! -- openspec/changes/callback-wiring ------------------------------------
 
