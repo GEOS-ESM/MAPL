@@ -8,10 +8,20 @@ module mapl_OpenMP_Support_mod
     use mapl_Subgrid_mod, only: Interval, make_subgrids, find_bounds
     use mapl_StateAddMethod_mod, only: CallbackMap, CallbackMapIterator, CallbackMethodWrapper, get_callbacks
     use mapl_StateAddMethod_mod, only: operator(/=)
+    use mapl_EntryPointVector_mod, only: entryPointVector
     !$ use omp_lib
 
     implicit none(type,external)
     private
+
+    ! Run entry points to be registered on the mini gridcomps created by
+    ! make_subgridcomps.  Only defined for the duration of that call.
+    ! This is module data (rather than host association from an internal
+    ! procedure) because passing an internal procedure that references
+    ! host variables as a callback requires a compiler-generated
+    ! trampoline in executable memory, which fails on hardened systems.
+    ! make_subgridcomps is never called from within a parallel region.
+    type(entryPointVector), allocatable, target :: subgridcomp_run_entry_points
 
     public :: Interval
     public :: make_subgrids
@@ -383,8 +393,6 @@ module mapl_OpenMP_Support_mod
     ! component) is _not_ copied here - the caller is responsible for
     ! attaching whatever private state the mini gridcomps require.
     function make_subgridcomps(GridComp, run_entry_points, num_grids, unusable, rc) result(subgridcomps)
-        use mapl_RunEntryPoint_mod
-        use mapl_EntryPointVector_mod
         type(ESMF_GridComp), allocatable :: subgridcomps(:)
         type(ESMF_GridComp), intent(in)  :: GridComp
         type(entryPointVector), intent(in) :: run_entry_points
@@ -395,8 +403,6 @@ module mapl_OpenMP_Support_mod
         integer :: status, user_status
         type(ESMF_VM) :: vm
         integer :: myPet, i
-        type(runEntryPoint), pointer :: run_entry_point
-        procedure(), pointer :: user_method => null()
 
         character(len=ESMF_MAXSTR) :: comp_name
 
@@ -408,36 +414,43 @@ module mapl_OpenMP_Support_mod
 
         call ESMF_GridCompGet(GridComp, name=comp_name, _RC)
 
+        subgridcomp_run_entry_points = run_entry_points
         do i = 1, num_grids
           associate (gc => subgridcomps(i) )
             gc = ESMF_GridCompCreate(name=trim(comp_name), petlist=[myPet], &
                  & contextflag=ESMF_CONTEXT_OWN_VM, _RC)
-            call ESMF_GridCompSetServices(gc, set_services, userrc=user_status, _RC)
+            call ESMF_GridCompSetServices(gc, set_subgridcomp_services, userrc=user_status, _RC)
             _VERIFY(user_status)
           end associate
         end do
+        deallocate(subgridcomp_run_entry_points)
 
         _RETURN(ESMF_SUCCESS)
         _UNUSED_DUMMY(unusable)
-
-        contains
-
-        subroutine set_services(gc, rc)
-           type(ESMF_GridComp) :: gc
-           integer, intent(out):: rc
-           integer :: status
-           integer :: phase
-            do phase = 1, run_entry_points%size()
-               run_entry_point => run_entry_points%of(phase)
-               if(associated(run_entry_point%run_entry_point)) then
-                  user_method => run_entry_point%run_entry_point
-                  call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, phase=phase, userroutine=user_method, _RC)
-                end if
-            end do
-           _RETURN(ESMF_SUCCESS)
-        end subroutine set_services
-
     end function make_subgridcomps
+
+    ! SetServices for the mini gridcomps created by make_subgridcomps:
+    ! registers the user's run entry points (from module data).
+    subroutine set_subgridcomp_services(gc, rc)
+        use mapl_RunEntryPoint_mod, only: runEntryPoint
+        type(ESMF_GridComp) :: gc
+        integer, intent(out):: rc
+
+        integer :: status
+        integer :: phase
+        type(runEntryPoint), pointer :: run_entry_point
+        procedure(), pointer :: user_method
+
+        _ASSERT(allocated(subgridcomp_run_entry_points), 'run entry points for sub gridcomps are not set')
+        do phase = 1, subgridcomp_run_entry_points%size()
+           run_entry_point => subgridcomp_run_entry_points%of(phase)
+           if (associated(run_entry_point%run_entry_point)) then
+              user_method => run_entry_point%run_entry_point
+              call ESMF_GridCompSetEntryPoint(gc, ESMF_METHOD_RUN, phase=phase, userroutine=user_method, _RC)
+           end if
+        end do
+        _RETURN(ESMF_SUCCESS)
+    end subroutine set_subgridcomp_services
 
     subroutine copy_callbacks(state, multi_states, rc)
        type(ESMF_State), intent(inout) :: state

@@ -51,6 +51,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: has_inner_meta
       type(ESMF_GridComp) :: outer_gc
       type(OuterMetaComponent), pointer :: outer_meta
       type(GriddedComponentDriver), pointer :: user_driver
@@ -62,13 +63,17 @@ contains
 
       type(InnerMetaWrapper) :: w
 
-      ! Probe for an inner meta component via a direct ESMF call.
-      ! A failure means gc has no inner meta; return it unchanged.
-      call ESMF_InternalStateGet(gc, internalState=w, label=INNER_META_LABEL, rc=status)
-      if (status /= ESMF_SUCCESS) then
+      ! Probe for an inner meta component.  The label list is checked first
+      ! (a non-failing query) rather than relying on a failed
+      ! ESMF_InternalStateGet: ESMF logs every failure, and ESMF logging is
+      ! not thread safe.  This function is called from user code running
+      ! concurrently on OpenMP threads (mini gridcomps).
+      has_inner_meta = has_internal_state_label(gc, INNER_META_LABEL, _RC)
+      if (.not. has_inner_meta) then
          owner = gc
          _RETURN(_SUCCESS)
       end if
+      call ESMF_InternalStateGet(gc, internalState=w, label=INNER_META_LABEL, _RC)
 
       ! Walk: inner meta -> outer_gc (the outer meta gridcomp, self_gridcomp).
       outer_gc = w%ptr%get_outer_gridcomp()
@@ -94,5 +99,27 @@ contains
 
       _RETURN(_SUCCESS)
    end function mapl_get_owning_gridcomp
+
+   ! True if gc carries an ESMF internal state with the given label.
+   ! Unlike a failed ESMF_InternalStateGet, this does not log an error.
+   logical function has_internal_state_label(gc, label, rc) result(found)
+      type(ESMF_GridComp), intent(inout) :: gc
+      character(*), intent(in) :: label
+      integer, optional, intent(out) :: rc
+
+      integer :: status, i
+      character(len=:), allocatable :: label_list(:)
+
+      found = .false.
+      call ESMF_InternalStateGet(gc, labelList=label_list, _RC)
+      do i = 1, size(label_list)
+         if (trim(label_list(i)) == label) then
+            found = .true.
+            exit
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+   end function has_internal_state_label
 
 end module mapl_OwningGridComp_mod

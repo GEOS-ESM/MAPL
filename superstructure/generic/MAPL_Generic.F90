@@ -46,7 +46,7 @@ module mapl_Generic_mod
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
    use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
-   use esmf, only: ESMF_Info, ESMF_InfoIsSet, ESMF_InfoGet, ESMF_InfoGetFromHost
+   use esmf, only: ESMF_Info, ESMF_InfoIsSet, ESMF_InfoGet, ESMF_InfoGetFromHost, ESMF_InfoIsPresent
    use esmf, only: ESMF_GridComp, ESMF_GridCompGet
    use esmf, only: ESMF_Geom, ESMF_GeomCreate, ESMF_GeomGet
    use esmf, only: ESMF_Grid, ESMF_Mesh, ESMF_Xgrid, ESMF_LocStream
@@ -1140,10 +1140,18 @@ contains
 
       integer :: status
       type(ESMF_Info) :: info
+      logical :: has_key
+      character(*), parameter :: KEY_IS_GENERIC = 'MAPL/GRIDCOMP_IS_GENERIC'
+
       gridcomp_is_generic = .false.
       call ESMF_InfoGetFromHost(gridcomp, info, _RC)
-      call ESMF_InfoGet(info, key='MAPL/GRIDCOMP_IS_GENERIC', value=gridcomp_is_generic, rc=status)
-      if (status /= 0) gridcomp_is_generic = .false.
+      ! Check for the key before reading it: a failed ESMF_InfoGet is
+      ! logged by ESMF, and ESMF logging is not thread safe.  This function
+      ! is called from user code running on OpenMP threads (mini gridcomps).
+      has_key = ESMF_InfoIsPresent(info, key=KEY_IS_GENERIC, _RC)
+      if (has_key) then
+         call ESMF_InfoGet(info, key=KEY_IS_GENERIC, value=gridcomp_is_generic, _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end function gridcomp_is_generic
