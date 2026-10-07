@@ -690,12 +690,12 @@ Also exports module-level variable: `debug_unit` (integer, save).
 
 | Entity | Kind |
 |---|---|
-| `MAPL_BalanceWork` | subroutine |
-| `MAPL_BalanceCreate` | subroutine |
-| `MAPL_BalanceDestroy` | subroutine |
-| `MAPL_BalanceGet` | subroutine |
-| `MAPL_Distribute` | parameter (integer = 1) |
-| `MAPL_Retrieve` | parameter (integer = 2) |
+| `MAPL_LoadBalanceRun` | subroutine |
+| `MAPL_LoadBalanceCreate` | subroutine |
+| `MAPL_LoadBalanceDestroy` | subroutine |
+| `MAPL_LoadBalanceGet` | subroutine |
+| `MAPL_LOADBALANCE_DISTRIBUTE` | parameter (integer = 1) |
+| `MAPL_LOADBALANCE_RETRIEVE` | parameter (integer = 2) |
 
 ---
 

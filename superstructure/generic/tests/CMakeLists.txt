@@ -130,6 +130,7 @@ set(aspects_test_srcs
   Test_ConservationAspect.pf
   Test_NormalizationAspect.pf
   Test_ExpressionClassAspect.pf
+  Test_VerticalGridAspect_NoneMatch.pf
 )
 
 add_pfunit_ctest(

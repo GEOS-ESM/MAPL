@@ -36,10 +36,12 @@ module mapl_mp_utils_api
    use mapl_Shmem_mod, only: MAPL_MyNodeNum
    use mapl_Shmem_mod, only: MAPL_AmNodeRoot
    use mapl_Shmem_mod, only: MAPL_ShmInitialized
-   use mapl_LoadBalance_mod, only: MAPL_BalanceWork => BalanceWork, &
-                                   MAPL_BalanceCreate => BalanceCreate, &
-                                   MAPL_BalanceDestroy => BalanceDestroy, &
-                                   MAPL_BalanceGet => BalanceGet
+   use mapl_LoadBalance_mod, only: MAPL_LoadBalanceRun => LoadBalanceRun, &
+                                   MAPL_LoadBalanceCreate => LoadBalanceCreate, &
+                                   MAPL_LoadBalanceDestroy => LoadBalanceDestroy, &
+                                   MAPL_LoadBalanceGet => LoadBalanceGet, &
+                                   MAPL_LOADBALANCE_DISTRIBUTE => LOADBALANCE_DISTRIBUTE, &
+                                   MAPL_LOADBALANCE_RETRIEVE => LOADBALANCE_RETRIEVE
    implicit none
    private
 
@@ -62,18 +64,18 @@ module mapl_mp_utils_api
 
    public :: mapl_fill_grads_template
    public :: mapl_fill_grads_template_esmf
-   
+
    public :: MAPL_GetNodeInfo
    public :: MAPL_CoresPerNodeGet
    public :: MAPL_InitializeShmem
    public :: MAPL_FinalizeShmem
-   
+
    public :: MAPL_AllocNodeArray
    public :: MAPL_DeAllocNodeArray
    public :: MAPL_ShmemAmOnFirstNode
    public :: MAPL_SyncSharedMemory
    public :: MAPL_BroadcastToNodes
-   
+
    public :: MAPL_AllocateShared
    public :: MAPL_GetSharedMemory
    public :: MAPL_ReleaseSharedMemory
@@ -85,9 +87,11 @@ module mapl_mp_utils_api
    public :: MAPL_AmNodeRoot
    public :: MAPL_ShmInitialized
 
-   public :: MAPL_BalanceWork
-   public :: MAPL_BalanceCreate
-   public :: MAPL_BalanceDestroy
-   public :: MAPL_BalanceGet
+   public :: MAPL_LoadBalanceRun
+   public :: MAPL_LoadBalanceCreate
+   public :: MAPL_LoadBalanceDestroy
+   public :: MAPL_LoadBalanceGet
+   public :: MAPL_LOADBALANCE_DISTRIBUTE
+   public :: MAPL_LOADBALANCE_RETRIEVE
 
 end module mapl_mp_utils_api

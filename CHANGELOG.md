@@ -9,7 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Changed
+
+- Renamed the load-balance public API and exported the direction constants through the
+  `mp_utils` umbrella, which previously omitted them and forced clients to `use
+  mapl_LoadBalance_mod` directly: `MAPL_BalanceCreate`/`MAPL_BalanceGet`/`MAPL_BalanceWork`/
+  `MAPL_BalanceDestroy` are now `MAPL_LoadBalanceCreate`/`MAPL_LoadBalanceGet`/
+  `MAPL_LoadBalanceRun`/`MAPL_LoadBalanceDestroy`, and `MAPL_Distribute`/`MAPL_Retrieve` are
+  now `MAPL_LOADBALANCE_DISTRIBUTE`/`MAPL_LOADBALANCE_RETRIEVE`. The old names are gone
+
 ### Fixed
+
+- Fixed a crash in `RestartHandler` when a state's restart-eligible bundle ends up empty
+  after filtering (e.g. a component whose exports are all unallocated because nothing is
+  connected downstream and `activate_all_exports` is off). The state's non-zero item count
+  passed the existing guard, but `MAPL_FieldBundleGetGeom` on the empty bundle returned an
+  uninitialized geom and `ESMF_InfoGetFromHost` then failed in `GeomGetId`. `write_bundle_`
+  and `read_bundle_` now return early when the bundle holds no fields, resolving a
+  pre-existing TODO
 
 - Fixed `LatLonDecomposition`'s topology constructor to pack out zero-extent bins returned
   by `mapl_GetPartition()` when a LatLon grid is too coarse to be decomposed onto the
@@ -56,6 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   shared across threads and are not thread safe, a component that is run from
   within a threaded ancestor's parallel region must not have couplers, and this
   is reported as an error rather than silently racing.
+- Added ability to output on a set of fixed pressure or height levels in History3G
 
 ### Changed
 
