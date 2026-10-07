@@ -27,10 +27,6 @@ module mapl_LoadBalance_mod
   integer, public, parameter :: LOADBALANCE_DISTRIBUTE = 1
   integer, public, parameter :: LOADBALANCE_RETRIEVE = 2
 
-  ! deprecated: clients that bypass the MAPL umbrella still name these directly
-  integer, public, parameter :: MAPL_Distribute = LOADBALANCE_DISTRIBUTE
-  integer, public, parameter :: MAPL_Retrieve = LOADBALANCE_RETRIEVE
-
   type TBalanceStrategy
      integer :: UNBALANCED_LENGTH=-1
      integer :: BALANCED_LENGTH  =-1

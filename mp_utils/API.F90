@@ -42,12 +42,6 @@ module mapl_mp_utils_api
                                    MAPL_LoadBalanceGet => LoadBalanceGet, &
                                    MAPL_LOADBALANCE_DISTRIBUTE => LOADBALANCE_DISTRIBUTE, &
                                    MAPL_LOADBALANCE_RETRIEVE => LOADBALANCE_RETRIEVE
-   ! deprecated aliases for callers not yet migrated to the names above
-   use mapl_LoadBalance_mod, only: MAPL_BalanceWork => LoadBalanceRun, &
-                                   MAPL_BalanceCreate => LoadBalanceCreate, &
-                                   MAPL_BalanceDestroy => LoadBalanceDestroy, &
-                                   MAPL_BalanceGet => LoadBalanceGet, &
-                                   MAPL_Distribute, MAPL_Retrieve
    implicit none
    private
 
@@ -99,13 +93,5 @@ module mapl_mp_utils_api
    public :: MAPL_LoadBalanceGet
    public :: MAPL_LOADBALANCE_DISTRIBUTE
    public :: MAPL_LOADBALANCE_RETRIEVE
-
-   ! deprecated aliases for the load-balance entities above; slated for removal
-   public :: MAPL_BalanceWork
-   public :: MAPL_BalanceCreate
-   public :: MAPL_BalanceDestroy
-   public :: MAPL_BalanceGet
-   public :: MAPL_Distribute
-   public :: MAPL_Retrieve
 
 end module mapl_mp_utils_api
