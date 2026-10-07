@@ -1,0 +1,111 @@
+#include "MAPL_TestErr.h"
+
+! Verify that EsmfRegridderParam (including its dynamic mask) survives
+! serialization to ESMF_Info and reconstruction.  ExtData passes the param
+! to the field bundle as ESMF_Info, so a dropped mask silently disables
+! e.g. FRACTION/VOTE regridding.
+module Test_EsmfRegridderParam
+   use pfunit
+   use mapl_regridder_mgr
+   use mapl_regridder_mgr_api
+   use mapl_EsmfRegridder_mod, only: EsmfRegridderParam, make_EsmfRegridderParam
+   use esmf_TestMethod_mod ! mapl
+   use esmf
+   implicit none(type,external)
+
+contains
+
+   function round_trip(param, rc) result(rebuilt)
+      type(EsmfRegridderParam) :: rebuilt
+      type(EsmfRegridderParam), intent(in) :: param
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: info
+
+      info = param%make_info(_RC)
+      rebuilt = make_EsmfRegridderParam(info, _RC)
+      call ESMF_InfoDestroy(info, _RC)
+
+      _RETURN(_SUCCESS)
+   end function round_trip
+
+   subroutine check_round_trip(method, typekind, rc)
+      integer, intent(in) :: method
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(EsmfRegridderParam) :: param, rebuilt
+
+      param = mapl_generate_esmf_regrid_param(method, typekind, _RC)
+      rebuilt = round_trip(param, _RC)
+      @assertTrue(param == rebuilt)
+
+      _RETURN(_SUCCESS)
+   end subroutine check_round_trip
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_fraction_mask_r4(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      call check_round_trip(MAPL_REGRID_METHOD_FRACTION, ESMF_TYPEKIND_R4, _RC)
+   end subroutine test_fraction_mask_r4
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_fraction_mask_r8(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      call check_round_trip(MAPL_REGRID_METHOD_FRACTION, ESMF_TYPEKIND_R8, _RC)
+   end subroutine test_fraction_mask_r8
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_vote_mask(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      call check_round_trip(MAPL_REGRID_METHOD_VOTE, ESMF_TYPEKIND_R4, _RC)
+   end subroutine test_vote_mask
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_monotonic_mask(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      call check_round_trip(MAPL_REGRID_METHOD_CONSERVE_MONOTONIC, ESMF_TYPEKIND_R4, _RC)
+      call check_round_trip(MAPL_REGRID_METHOD_BILINEAR_MONOTONIC, ESMF_TYPEKIND_R8, _RC)
+   end subroutine test_monotonic_mask
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_missing_value_mask(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      call check_round_trip(MAPL_REGRID_METHOD_BILINEAR, ESMF_TYPEKIND_R4, _RC)
+      call check_round_trip(MAPL_REGRID_METHOD_CONSERVE, ESMF_TYPEKIND_R8, _RC)
+   end subroutine test_missing_value_mask
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Different mask types must remain distinguishable after the round trip.
+   subroutine test_mask_type_preserved(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      type(EsmfRegridderParam) :: fraction, vote, rebuilt
+
+      fraction = mapl_generate_esmf_regrid_param(MAPL_REGRID_METHOD_FRACTION, ESMF_TYPEKIND_R4, _RC)
+      vote = mapl_generate_esmf_regrid_param(MAPL_REGRID_METHOD_VOTE, ESMF_TYPEKIND_R4, _RC)
+
+      rebuilt = round_trip(fraction, _RC)
+      @assertFalse(rebuilt == vote)
+   end subroutine test_mask_type_preserved
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! A param without a mask must not acquire one.
+   subroutine test_no_mask_stays_no_mask(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      type(EsmfRegridderParam) :: param, rebuilt
+
+      param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      rebuilt = round_trip(param, _RC)
+      @assertTrue(param == rebuilt)
+   end subroutine test_no_mask_stays_no_mask
+
+end module Test_EsmfRegridderParam
