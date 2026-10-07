@@ -57,9 +57,14 @@ these fail without the fix.
 - Behavior change: ExtData regrids that previously ignored their mask now apply
   it, so outputs/baselines for those cases may change (correctly).
 
-## Known related gap (not addressed)
-`RoutehandleParam` `make_info` / `make_rh_param_from_info` only support
-bilinear and conserve; PATCH and NEAREST_STOD `_FAIL` if serialized.
+## Related gap (fixed)
+`RoutehandleParam` `make_info` / `make_rh_param_from_info` originally only
+supported bilinear and conserve, so PATCH and NEAREST_STOD hard-failed with
+`_FAIL` when ExtData serialized them. Added `conserve_2nd` / `patch` / `nearest_stod` strings and
+branches in both directions (RoutehandleParam.F90), plus
+`test_conserve_2nd_patch_nearest_stod` in Test_EsmfRegridderParam.pf. Also: `generate_esmf_regrid_param` mapped CONSERVE_2ND to
+plain `ESMF_REGRIDMETHOD_CONSERVE`; it now uses `ESMF_REGRIDMETHOD_CONSERVE_2ND`
+(behavior change: second-order weights are now actually used). Built and full ctest passes (user-verified).
 
 ## Remaining
 - Add CHANGELOG entry; commit per github-workflow skill.

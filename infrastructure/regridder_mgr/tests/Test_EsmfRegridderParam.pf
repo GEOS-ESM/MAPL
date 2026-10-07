@@ -83,6 +83,15 @@ contains
    end subroutine test_missing_value_mask
 
    @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_conserve_2nd_patch_nearest_stod(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      call check_round_trip(MAPL_REGRID_METHOD_CONSERVE_2ND, ESMF_TYPEKIND_R4, _RC)
+      call check_round_trip(MAPL_REGRID_METHOD_PATCH, ESMF_TYPEKIND_R4, _RC)
+      call check_round_trip(MAPL_REGRID_METHOD_NEAREST_STOD, ESMF_TYPEKIND_R8, _RC)
+   end subroutine test_conserve_2nd_patch_nearest_stod
+
+   @test(type=ESMF_TestMethod, npes=[1])
    ! Different mask types must remain distinguishable after the round trip.
    subroutine test_mask_type_preserved(this)
       class(ESMF_TestMethod), intent(inout) :: this

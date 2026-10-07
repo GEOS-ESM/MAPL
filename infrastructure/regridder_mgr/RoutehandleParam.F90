@@ -63,6 +63,9 @@ module mapl_RoutehandleParam_mod
 
    character(*), parameter :: BILINEAR = 'bilinear'
    character(*), parameter :: CONSERVE = 'conserve'
+   character(*), parameter :: CONSERVE_2ND = 'conserve_2nd'
+   character(*), parameter :: PATCH = 'patch'
+   character(*), parameter :: NEAREST_STOD = 'nearest_stod'
    character(*), parameter :: KEY_REGRID_METHOD = 'regrid_method'
 
 contains
@@ -286,7 +289,13 @@ contains
          case(BILINEAR)
             regrid_method = ESMF_REGRIDMETHOD_BILINEAR
          case (CONSERVE)
-            regrid_method = ESMF_REGRIDMETHOD_CONSERVE
+             regrid_method = ESMF_REGRIDMETHOD_CONSERVE
+         case (CONSERVE_2ND)
+            regrid_method = ESMF_REGRIDMETHOD_CONSERVE_2ND
+         case (PATCH)
+            regrid_method = ESMF_REGRIDMETHOD_PATCH
+         case (NEAREST_STOD)
+            regrid_method = ESMF_REGRIDMETHOD_NEAREST_STOD
          case default
             _FAIL('unsupported regrid method:: ' // regrid_method_str)
          end select
@@ -309,6 +318,12 @@ contains
          regrid_method_str = BILINEAR
       else if (this%regridMethod == ESMF_REGRIDMETHOD_CONSERVE) then
          regrid_method_str = CONSERVE
+      else if (this%regridMethod == ESMF_REGRIDMETHOD_CONSERVE_2ND) then
+         regrid_method_str = CONSERVE_2ND
+      else if (this%regridMethod == ESMF_REGRIDMETHOD_PATCH) then
+         regrid_method_str = PATCH
+      else if (this%regridMethod == ESMF_REGRIDMETHOD_NEAREST_STOD) then
+         regrid_method_str = NEAREST_STOD
       else
          _FAIL('unsupported esmf regrid method')
       end if
