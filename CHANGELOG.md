@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   now `MAPL_LOADBALANCE_DISTRIBUTE`/`MAPL_LOADBALANCE_RETRIEVE`. The old names are gone
 
 ### Fixed
+- Fixed bug prevents regridding methods that require dynamic masking from executing the dynamic mask in ExtData
 
 - Fixed a crash in `RestartHandler` when a state's restart-eligible bundle ends up empty
   after filtering (e.g. a component whose exports are all unallocated because nothing is
