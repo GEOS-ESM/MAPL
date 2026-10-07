@@ -42,6 +42,13 @@ module mapl_mp_utils_api
                                    MAPL_LoadBalancerGet => LoadBalancerGet, &
                                    MAPL_LOADBALANCER_DISTRIBUTE => LOADBALANCER_DISTRIBUTE, &
                                    MAPL_LOADBALANCER_RETRIEVE => LOADBALANCER_RETRIEVE
+   ! Temporary pre-LoadBalancer aliases, to be removed once clients are updated.
+   use mapl_LoadBalancer_mod, only: MAPL_LoadBalanceRun => LoadBalancerRun, &
+                                   MAPL_LoadBalanceCreate => LoadBalancerCreate, &
+                                   MAPL_LoadBalanceDestroy => LoadBalancerDestroy, &
+                                   MAPL_LoadBalanceGet => LoadBalancerGet, &
+                                   MAPL_LOADBALANCE_DISTRIBUTE => LOADBALANCER_DISTRIBUTE, &
+                                   MAPL_LOADBALANCE_RETRIEVE => LOADBALANCER_RETRIEVE
    implicit none
    private
 
@@ -93,5 +100,13 @@ module mapl_mp_utils_api
    public :: MAPL_LoadBalancerGet
    public :: MAPL_LOADBALANCER_DISTRIBUTE
    public :: MAPL_LOADBALANCER_RETRIEVE
+
+   ! Temporary aliases
+   public :: MAPL_LoadBalanceRun
+   public :: MAPL_LoadBalanceCreate
+   public :: MAPL_LoadBalanceDestroy
+   public :: MAPL_LoadBalanceGet
+   public :: MAPL_LOADBALANCE_DISTRIBUTE
+   public :: MAPL_LOADBALANCE_RETRIEVE
 
 end module mapl_mp_utils_api
