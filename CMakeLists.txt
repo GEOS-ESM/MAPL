@@ -168,6 +168,28 @@ if (COMMAND esma)
   endforeach ()
 endif ()
 
+# Thread safety: MAPL procedures are called concurrently from user code
+# running on OpenMP threads (see superstructure/generic/run_user_threaded).
+# Without OpenMP or an explicit flag, some compilers (notably Intel ifort/ifx)
+# place non-SAVE local variables that are not intrinsic scalars (derived
+# types, arrays) in static storage, so every thread shares them.  Force all
+# local variables onto the stack in every MAPL library, regardless of whether
+# the target links OpenMP.  This does not change semantics for serial code.
+set (MAPL_RECURSIVE_FLAG "")
+if (CMAKE_Fortran_COMPILER_ID MATCHES "^Intel")       # Intel and IntelLLVM
+  set (MAPL_RECURSIVE_FLAG "-recursive")
+elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+  set (MAPL_RECURSIVE_FLAG "-frecursive")
+elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
+  set (MAPL_RECURSIVE_FLAG "-recursive")
+elseif (CMAKE_Fortran_COMPILER_ID MATCHES "^(NVHPC|PGI)$")
+  set (MAPL_RECURSIVE_FLAG "-Mrecursive")
+endif ()
+if (MAPL_RECURSIVE_FLAG)
+  message (STATUS "MAPL: compiling Fortran with ${MAPL_RECURSIVE_FLAG} for thread-safe local variables")
+  add_compile_options ("$<$<COMPILE_LANGUAGE:Fortran>:${MAPL_RECURSIVE_FLAG}>")
+endif ()
+
 if (BUILD_WITH_PFLOGGER)
   add_definitions(-DBUILD_WITH_PFLOGGER)
 else ()
