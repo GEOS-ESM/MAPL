@@ -236,7 +236,7 @@ contains
    ! replaces an already-registered one.
    subroutine graph_register_node(this, node, rc)
       class(ComponentGraph), intent(inout) :: this
-      class(GraphNode), intent(in) :: node
+      class(GraphNode), target, intent(in) :: node
       integer, optional, intent(out) :: rc
 
       type(NodeId) :: id
