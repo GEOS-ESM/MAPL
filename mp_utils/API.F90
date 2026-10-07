@@ -36,12 +36,12 @@ module mapl_mp_utils_api
    use mapl_Shmem_mod, only: MAPL_MyNodeNum
    use mapl_Shmem_mod, only: MAPL_AmNodeRoot
    use mapl_Shmem_mod, only: MAPL_ShmInitialized
-   use mapl_LoadBalance_mod, only: MAPL_LoadBalanceRun => LoadBalanceRun, &
-                                   MAPL_LoadBalanceCreate => LoadBalanceCreate, &
-                                   MAPL_LoadBalanceDestroy => LoadBalanceDestroy, &
-                                   MAPL_LoadBalanceGet => LoadBalanceGet, &
-                                   MAPL_LOADBALANCE_DISTRIBUTE => LOADBALANCE_DISTRIBUTE, &
-                                   MAPL_LOADBALANCE_RETRIEVE => LOADBALANCE_RETRIEVE
+   use mapl_LoadBalancer_mod, only: MAPL_LoadBalancerRun => LoadBalancerRun, &
+                                   MAPL_LoadBalancerCreate => LoadBalancerCreate, &
+                                   MAPL_LoadBalancerDestroy => LoadBalancerDestroy, &
+                                   MAPL_LoadBalancerGet => LoadBalancerGet, &
+                                   MAPL_LOADBALANCER_DISTRIBUTE => LOADBALANCER_DISTRIBUTE, &
+                                   MAPL_LOADBALANCER_RETRIEVE => LOADBALANCER_RETRIEVE
    implicit none
    private
 
@@ -87,11 +87,11 @@ module mapl_mp_utils_api
    public :: MAPL_AmNodeRoot
    public :: MAPL_ShmInitialized
 
-   public :: MAPL_LoadBalanceRun
-   public :: MAPL_LoadBalanceCreate
-   public :: MAPL_LoadBalanceDestroy
-   public :: MAPL_LoadBalanceGet
-   public :: MAPL_LOADBALANCE_DISTRIBUTE
-   public :: MAPL_LOADBALANCE_RETRIEVE
+   public :: MAPL_LoadBalancerRun
+   public :: MAPL_LoadBalancerCreate
+   public :: MAPL_LoadBalancerDestroy
+   public :: MAPL_LoadBalancerGet
+   public :: MAPL_LOADBALANCER_DISTRIBUTE
+   public :: MAPL_LOADBALANCER_RETRIEVE
 
 end module mapl_mp_utils_api

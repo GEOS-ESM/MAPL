@@ -14,9 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed the load-balance public API and exported the direction constants through the
   `mp_utils` umbrella, which previously omitted them and forced clients to `use
   mapl_LoadBalance_mod` directly: `MAPL_BalanceCreate`/`MAPL_BalanceGet`/`MAPL_BalanceWork`/
-  `MAPL_BalanceDestroy` are now `MAPL_LoadBalanceCreate`/`MAPL_LoadBalanceGet`/
-  `MAPL_LoadBalanceRun`/`MAPL_LoadBalanceDestroy`, and `MAPL_Distribute`/`MAPL_Retrieve` are
-  now `MAPL_LOADBALANCE_DISTRIBUTE`/`MAPL_LOADBALANCE_RETRIEVE`. The old names are gone
+  `MAPL_BalanceDestroy` are now `MAPL_LoadBalancerCreate`/`MAPL_LoadBalancerGet`/
+  `MAPL_LoadBalancerRun`/`MAPL_LoadBalancerDestroy`, and `MAPL_Distribute`/`MAPL_Retrieve` are
+  now `MAPL_LOADBALANCER_DISTRIBUTE`/`MAPL_LOADBALANCER_RETRIEVE`. The old names are gone.
+  The module and its file were renamed to match: `mapl_LoadBalance_mod` in
+  `mp_utils/MAPL_LoadBalance.F90` is now `mapl_LoadBalancer_mod` in
+  `mp_utils/MAPL_LoadBalancer.F90`
 
 ### Fixed
 
