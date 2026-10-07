@@ -344,7 +344,7 @@ contains
    end subroutine graphbuilder_advertise
 
    subroutine advertise_one(graph, var_spec, rc)
-      type(ComponentGraph), intent(inout) :: graph
+      type(ComponentGraph), target, intent(inout) :: graph
       type(VariableSpec), intent(in) :: var_spec
       integer, optional, intent(out) :: rc
 
