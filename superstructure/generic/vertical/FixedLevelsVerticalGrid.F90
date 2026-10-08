@@ -12,6 +12,7 @@ module mapl_FixedLevelsVerticalGrid_mod
    use esmf, only: esmf_Field, esmf_Geom, esmf_TypeKind_Flag
    use esmf, only: ESMF_KIND_R4, ESMF_TYPEKIND_R4
    use mapl_VerticalStaggerLoc_mod
+   use mapl_VerticalCoordinateDirection_mod
    use gftl2_StringVector, only: StringVector
    use mapl_ErrorHandling_mod
    implicit none(type,external)
@@ -73,13 +74,46 @@ contains
       spec%units = units
    end function new_FixedLevelsVerticalGridSpec
 
+   ! The vertical direction is not supplied by the user; it is derived from
+   ! the levels, which must be strictly monotonic:
+   !   increasing values -> VCOORD_DIRECTION_DOWN
+   !   decreasing values -> VCOORD_DIRECTION_UP
+   !   a single level    -> VCOORD_DIRECTION_UNSPECIFIED
+   function derive_direction(levels, rc) result(direction)
+      type(VerticalCoordinateDirection) :: direction
+      real, intent(in) :: levels(:)
+      integer, optional, intent(out) :: rc
 
-   subroutine initialize(this, spec)
+      integer :: n
+
+      n = size(levels)
+      direction = VCOORD_DIRECTION_UNSPECIFIED
+      if (n > 1) then
+         if (all(levels(2:n) > levels(1:n-1))) then
+            direction = VCOORD_DIRECTION_DOWN
+         else if (all(levels(2:n) < levels(1:n-1))) then
+            direction = VCOORD_DIRECTION_UP
+         else
+            _FAIL('levels must be strictly monotonic (all increasing or all decreasing)')
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+   end function derive_direction
+
+   subroutine initialize(this, spec, rc)
       class(FixedLevelsVerticalGrid), intent(inout) :: this
       type(FixedLevelsVerticalGridSpec), intent(in) :: spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
 
       this%spec = spec
-      ! Default coordinate direction is already set to VCOORD_DIRECTION_DOWN in VerticalGrid
+      ! VerticalGrid's own coordinate_direction defaults to DOWN; override it
+      ! with the direction derived from the levels.
+      call this%set_coordinate_direction(derive_direction(spec%levels, rc=status))
+      _VERIFY(STATUS)
+      _RETURN(_SUCCESS)
    end subroutine initialize
 
    function get_levels(this) result(levels)
@@ -256,6 +290,7 @@ contains
       integer, intent(out), optional :: rc
       
       type(FixedLevelsVerticalGridSpec) :: local_spec
+      type(VerticalCoordinateDirection) :: direction
       integer :: status
       
       _ASSERT(this%supports(config), 'FixedLevelsVerticalGridFactory does not support this configuration')
@@ -275,7 +310,11 @@ contains
       else
          local_spec%units = get_default_units(local_spec%physical_dimension)
       end if
-      
+
+      ! Direction is derived from levels; validate monotonicity here.
+      _ASSERT(.not. esmf_HConfigIsDefined(config, keyString="direction"), "'direction' is not allowed for fixed_levels vertical_grid; it is derived from levels")
+      direction = derive_direction(local_spec%levels, _RC)
+
       ! Use polymorphic allocation
       allocate(spec, source=local_spec)
       
@@ -305,10 +344,11 @@ contains
       integer, intent(out), optional :: rc
       
       type(FixedLevelsVerticalGrid) :: local_grid
+      integer :: status
       
       select type (spec)
       type is (FixedLevelsVerticalGridSpec)
-         call local_grid%initialize(spec)
+         call local_grid%initialize(spec, _RC)
          allocate(grid, source=local_grid)
       class default
          _RETURN(_FAILURE)
