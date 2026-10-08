@@ -319,10 +319,8 @@ contains
       integer :: status
       type(esmf_Info) :: rh_info
       type(RouteHandleParam) :: rh_param
-      type(DynamicMask) :: dyn_mask
-      character(:), allocatable :: mask_type, mask_kind
-      logical :: is_present, handle_all, has_dst
-      real(ESMF_KIND_R8) :: src_r8, dst_r8
+      type(DynamicMask), allocatable :: dyn_mask
+      logical :: is_present
 
       rh_info = esmf_InfoCreate(info, key=KEY_ROUTEHANDLE, _RC)
       rh_param = make_RouteHandleParam(rh_info, _RC)
@@ -330,33 +328,49 @@ contains
 
       is_present = esmf_InfoIsPresent(info, key=KEY_MASK_TYPE, _RC)
       if (is_present) then
-         call esmf_InfoGetCharAlloc(info, key=KEY_MASK_TYPE, value=mask_type, _RC)
-         call esmf_InfoGet(info, key=KEY_MASK_ALL, value=handle_all, _RC)
-         call esmf_InfoGetCharAlloc(info, key=KEY_MASK_KIND, value=mask_kind, _RC)
-         call esmf_InfoGet(info, key=KEY_MASK_SRC, value=src_r8, _RC)
-         has_dst = esmf_InfoIsPresent(info, key=KEY_MASK_DST, _RC)
-         if (has_dst) call esmf_InfoGet(info, key=KEY_MASK_DST, value=dst_r8, _RC)
-         if (mask_kind == 'r4') then
-            if (has_dst) then
-               dyn_mask = DynamicMask(mask_type, real(src_r8, ESMF_KIND_R4), &
-                    dst_mask_value=real(dst_r8, ESMF_KIND_R4), handleAllElements=handle_all, _RC)
-            else
-               dyn_mask = DynamicMask(mask_type, real(src_r8, ESMF_KIND_R4), handleAllElements=handle_all, _RC)
-            end if
-         else
-            if (has_dst) then
-               dyn_mask = DynamicMask(mask_type, src_r8, dst_mask_value=dst_r8, handleAllElements=handle_all, _RC)
-            else
-               dyn_mask = DynamicMask(mask_type, src_r8, handleAllElements=handle_all, _RC)
-            end if
-         end if
-         regridder_param = EsmfRegridderParam(rh_param, dyn_mask=dyn_mask)
-      else
-         regridder_param = EsmfRegridderParam(rh_param)
+         dyn_mask = make_dyn_mask_from_info(info, _RC)
       end if
 
-       _RETURN(_SUCCESS)
-    end function make_regridder_param_from_info
+      ! An unallocated dyn_mask is treated as an absent optional argument.
+      regridder_param = EsmfRegridderParam(rh_param, dyn_mask=dyn_mask)
+
+      _RETURN(_SUCCESS)
+   end function make_regridder_param_from_info
+
+   function make_dyn_mask_from_info(info, rc) result(dyn_mask)
+      type(DynamicMask) :: dyn_mask
+      type(esmf_Info), intent(in) :: info
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: mask_type, mask_kind
+      logical :: handle_all, has_dst
+      real(ESMF_KIND_R8) :: src_r8, dst_r8
+
+      call esmf_InfoGetCharAlloc(info, key=KEY_MASK_TYPE, value=mask_type, _RC)
+      call esmf_InfoGet(info, key=KEY_MASK_ALL, value=handle_all, _RC)
+      call esmf_InfoGetCharAlloc(info, key=KEY_MASK_KIND, value=mask_kind, _RC)
+      call esmf_InfoGet(info, key=KEY_MASK_SRC, value=src_r8, _RC)
+      has_dst = esmf_InfoIsPresent(info, key=KEY_MASK_DST, _RC)
+      if (has_dst) call esmf_InfoGet(info, key=KEY_MASK_DST, value=dst_r8, _RC)
+
+      if (mask_kind == 'r4') then
+         if (has_dst) then
+            dyn_mask = DynamicMask(mask_type, real(src_r8, ESMF_KIND_R4), &
+                 dst_mask_value=real(dst_r8, ESMF_KIND_R4), handleAllElements=handle_all, _RC)
+         else
+            dyn_mask = DynamicMask(mask_type, real(src_r8, ESMF_KIND_R4), handleAllElements=handle_all, _RC)
+         end if
+      else
+         if (has_dst) then
+            dyn_mask = DynamicMask(mask_type, src_r8, dst_mask_value=dst_r8, handleAllElements=handle_all, _RC)
+         else
+            dyn_mask = DynamicMask(mask_type, src_r8, handleAllElements=handle_all, _RC)
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+   end function make_dyn_mask_from_info
 
     logical function is_conservative(this)
        class(EsmfRegridderParam), intent(in) :: this
