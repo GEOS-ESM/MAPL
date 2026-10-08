@@ -290,21 +290,21 @@ contains
       call esmf_InfoSet(info, key=KEY_ROUTEHANDLE, value=rh_info, _RC)
       call esmf_InfoDestroy(rh_info, _RC)
 
-      if (allocated(this%dyn_mask%mask_type)) then
-         call esmf_InfoSet(info, key=KEY_MASK_TYPE, value=this%dyn_mask%mask_type, _RC)
-         call esmf_InfoSet(info, key=KEY_MASK_ALL, value=this%dyn_mask%handleAllElements, _RC)
-         if (allocated(this%dyn_mask%mask_r4)) then
-            call esmf_InfoSet(info, key=KEY_MASK_KIND, value='r4', _RC)
-            call esmf_InfoSet(info, key=KEY_MASK_SRC, value=real(this%dyn_mask%mask_r4%src_mask_value, ESMF_KIND_R8), _RC)
-            if (allocated(this%dyn_mask%mask_r4%dst_mask_value)) then
-               call esmf_InfoSet(info, key=KEY_MASK_DST, value=real(this%dyn_mask%mask_r4%dst_mask_value, ESMF_KIND_R8), _RC)
-            end if
-         else if (allocated(this%dyn_mask%mask_r8)) then
-            call esmf_InfoSet(info, key=KEY_MASK_KIND, value='r8', _RC)
-            call esmf_InfoSet(info, key=KEY_MASK_SRC, value=this%dyn_mask%mask_r8%src_mask_value, _RC)
-            if (allocated(this%dyn_mask%mask_r8%dst_mask_value)) then
-               call esmf_InfoSet(info, key=KEY_MASK_DST, value=this%dyn_mask%mask_r8%dst_mask_value, _RC)
-            end if
+      _RETURN_UNLESS(allocated(this%dyn_mask%mask_type))
+      
+     call esmf_InfoSet(info, key=KEY_MASK_TYPE, value=this%dyn_mask%mask_type, _RC)
+     call esmf_InfoSet(info, key=KEY_MASK_ALL, value=this%dyn_mask%handleAllElements, _RC)
+      if (allocated(this%dyn_mask%mask_r4)) then
+         call esmf_InfoSet(info, key=KEY_MASK_KIND, value='r4', _RC)
+         call esmf_InfoSet(info, key=KEY_MASK_SRC, value=real(this%dyn_mask%mask_r4%src_mask_value, ESMF_KIND_R8), _RC)
+         if (allocated(this%dyn_mask%mask_r4%dst_mask_value)) then
+             call esmf_InfoSet(info, key=KEY_MASK_DST, value=real(this%dyn_mask%mask_r4%dst_mask_value, ESMF_KIND_R8), _RC)
+         end if
+     else if (allocated(this%dyn_mask%mask_r8)) then
+         call esmf_InfoSet(info, key=KEY_MASK_KIND, value='r8', _RC)
+         call esmf_InfoSet(info, key=KEY_MASK_SRC, value=this%dyn_mask%mask_r8%src_mask_value, _RC)
+         if (allocated(this%dyn_mask%mask_r8%dst_mask_value)) then
+            call esmf_InfoSet(info, key=KEY_MASK_DST, value=this%dyn_mask%mask_r8%dst_mask_value, _RC)
          end if
       end if
 
