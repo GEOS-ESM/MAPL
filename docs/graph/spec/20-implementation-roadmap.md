@@ -301,6 +301,15 @@ drop its own "blocked until legacy is retired" follow-up elsewhere:**
   not yet represented in graph's vocabulary at all. Do not attempt this
   consolidation before `ClassAspect`'s own dispatch is itself retired or
   graph-natively replaced.
+- Reconcile overlapping regrid-store settings in
+  `superstructure/generic/graph/RouteHandleKey.F90` and
+  `infrastructure/regridder_mgr/RoutehandleParam.F90`: evaluate extracting
+  shared value representation/defaults or another reuse mechanism to prevent
+  field drift, while preserving `RouteHandleKey`'s semantic-key rendering and
+  `RouteHandleParam`'s execution role. A graph dependency on infrastructure is
+  acceptable; graph code must not depend on `superstructure/generic/registry/`
+  or otherwise use registry-layer APIs. Follow-up to Phase 4g, not a reason to
+  block current implementation.
 
 ### 20.4.3 Phase 4 sub-sequencing
 
@@ -533,12 +542,13 @@ composite structure); is a real prerequisite for 4c/4d below.
   `MAPL_VerticalGrids` materialization, REQ-GEO-007b's general
   multi-candidate-import case, real vertical-regrid execution, and §13.4
   remain explicit deferrals.
-- **4g. RouteHandleValue/Key** (`14`) — `RouteHandleKey` structure
-  (REQ-RH-002/003), the `RouteHandleKey -> NodeId` semantic index for
-  reuse (REQ-RH-004/005). **Explicit deferral, to be stated in this
-  sub-change's own proposal.md:** §14.4 time-dependent renewal is out of
-  scope — reuse-of-existing-handle case only. Depends on 4e (needs
-  geometry identity to populate `RouteHandleKey`).
+- **4g. RouteHandleValue/Key** (`14`) — **landed:** `RouteHandleKey`
+  structure (REQ-RH-002/003) and reuse through the existing generic semantic
+  index (REQ-RH-004/005), rather than a dedicated gFTL map. No
+  `RegridTransform` or `GraphBuilder.F90` wiring was added; real regrid
+  execution remains future work. **Explicit deferral:** §14.4 time-dependent
+  renewal remains out of scope — reuse-of-existing-handle case only. Depends
+  on 4e (needs geometry identity to populate `RouteHandleKey`).
 
 **Repo/tooling note (extends §20.4.1's own note).** Phase 4 code lives
 in the MAPL repo/checkout, same as Phase 3, for the same reason: real

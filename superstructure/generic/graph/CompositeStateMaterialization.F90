@@ -51,7 +51,7 @@ contains
    ! the moment it is registered - avoids ever needing to fetch the node
    ! back out of the graph to mutate its payload after registration.
    recursive function materialize_composite(graph, var_spec, rc) result(node_id)
-      class(ComponentGraph), intent(inout) :: graph
+      class(ComponentGraph), target, intent(inout) :: graph
       type(VariableSpec), intent(in) :: var_spec
       integer, optional, intent(out) :: rc
       type(NodeId) :: node_id
@@ -99,7 +99,7 @@ contains
    ! get_member_names() (design.md Decisions - "a composite declaration
    ! is a VariableSpec... no wrapper type").
    recursive function materialize_member(graph, var_spec, rc) result(node_id)
-      class(ComponentGraph), intent(inout) :: graph
+      class(ComponentGraph), target, intent(inout) :: graph
       type(VariableSpec), intent(in) :: var_spec
       integer, optional, intent(out) :: rc
       type(NodeId) :: node_id
