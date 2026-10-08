@@ -81,6 +81,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update `components.yaml`
+  - ESMA_cmake v4.51.0
+    - Make ESMA_cmake reentrant
+    - Fix issue with quad precision detection test
+    - Fixes for Flang and NVIDIA compilers
+
 ### Removed
 
 - Removed obsolete `BUILD_SHARED_MAPL` CMake option and unused
