@@ -729,7 +729,118 @@ class TestTypes(unittest.TestCase):
             with self.subTest(value=value, test=test, msg=msg):
                 test(value, msg)
 
-test_cases = (TestMappings, TestHelpers, TestColumns, TestTypes)
+class TestVerticalStagger(unittest.TestCase):
+    """Tests for defaulting and validating VLOC (vertical_stagger) against DIMS."""
+
+    def make_spec(self, dims, vstagger=None):
+        """Build a minimal valid spec. Omit vstagger entirely when it is None."""
+        spec = {
+            acg3.SHORT_NAME: 'TEST_FIELD',
+            acg3.STATE: 'import',
+            acg3.STATE_INTENT: 'ESMF_STATEINTENT_IMPORT',
+            acg3.STANDARD_NAME: 'test_standard_name',
+            acg3.DIMS: dims,
+        }
+        if vstagger is not None:
+            spec[acg3.VSTAGGER] = vstagger
+        return [spec]
+
+    def test_default_vstagger_defaults_xy_only(self):
+        """A blank vertical stagger defaults to NONE only for 2D (xy) variables."""
+        # default_vstagger operates on mapped values, hence DIMS_XY rather than 'xy'.
+        test_cases = (
+            (acg3.DIMS_XY, acg3.MAPL_VERTICAL_STAGGER_NONE,
+             'blank vstagger should default to NONE for xy'),
+            (acg3.DIMS_XYZ, None, 'blank vstagger should not be defaulted for xyz'),
+            (acg3.DIMS_Z, None, 'blank vstagger should not be defaulted for z'),
+        )
+
+        for dims, expected, msg in test_cases:
+            with self.subTest(dims=dims):
+                self.assertEqual(expected, acg3.default_vstagger(None, dims), msg)
+
+    def test_default_vstagger_preserves_explicit_value(self):
+        """An explicit vertical stagger is never overridden by the default."""
+        staggers = (acg3.MAPL_VERTICAL_STAGGER_CENTER,
+                    acg3.MAPL_VERTICAL_STAGGER_EDGE,
+                    acg3.MAPL_VERTICAL_STAGGER_NONE)
+        dims = (acg3.DIMS_Z, acg3.DIMS_XY, acg3.DIMS_XYZ)
+
+        for d, vstagger in product(dims, staggers):
+            with self.subTest(dims=d, vstagger=vstagger):
+                self.assertEqual(vstagger, acg3.default_vstagger(vstagger, d),
+                                 general_msg('vertical_stagger', vstagger))
+
+    def test_blank_vstagger_defaulted_in_values(self):
+        """A blank VLOC on an xy spec yields an explicit NONE and is not reported missing."""
+        # Absent, empty and whitespace-only all reach default_vstagger as None.
+        for vstagger in (None, '', '   '):
+            with self.subTest(vstagger=repr(vstagger)):
+                values, results = acg3.get_values(self.make_spec('xy', vstagger),
+                                                  acg3.get_options({}))
+                self.assertEqual(acg3.MAPL_VERTICAL_STAGGER_NONE,
+                                 values[0].get(acg3.VSTAGGER),
+                                 'blank VLOC on an xy spec should default to NONE')
+                self.assertNotIn(acg3.VSTAGGER, results[0][acg3.MISSING_MANDATORY],
+                                 'defaulted vertical_stagger should not be reported missing')
+
+    def test_blank_vstagger_still_mandatory_for_xyz(self):
+        """A blank VLOC is still reported missing for 3D variables."""
+        values, results = acg3.get_values(self.make_spec('xyz'), acg3.get_options({}))
+
+        self.assertNotIn(acg3.VSTAGGER, values[0],
+                         'blank VLOC on an xyz spec should not be defaulted')
+        self.assertIn(acg3.VSTAGGER, results[0][acg3.MISSING_MANDATORY],
+                      'vertical_stagger should be mandatory for xyz')
+
+    def test_validate_vstagger_rejects_inconsistent_dims(self):
+        """A layered stagger on a 2D variable, or NONE on a 3D variable, is an error."""
+        test_cases = (
+            (acg3.DIMS_XY, acg3.MAPL_VERTICAL_STAGGER_CENTER, 'C should be rejected for xy'),
+            (acg3.DIMS_XY, acg3.MAPL_VERTICAL_STAGGER_EDGE, 'E should be rejected for xy'),
+            (acg3.DIMS_XYZ, acg3.MAPL_VERTICAL_STAGGER_NONE, 'N should be rejected for xyz'),
+        )
+
+        for dims, vstagger, msg in test_cases:
+            with self.subTest(dims=dims, vstagger=vstagger):
+                values = {acg3.DIMS: dims, acg3.VSTAGGER: vstagger}
+                self.assertIsNotNone(acg3.validate_vstagger(values), msg)
+
+    def test_validate_vstagger_accepts_consistent_dims(self):
+        """Consistent dims/stagger combinations produce no error."""
+        valid = (
+            (acg3.DIMS_XY, acg3.MAPL_VERTICAL_STAGGER_NONE),
+            (acg3.DIMS_XYZ, acg3.MAPL_VERTICAL_STAGGER_CENTER),
+            (acg3.DIMS_XYZ, acg3.MAPL_VERTICAL_STAGGER_EDGE),
+            (acg3.DIMS_Z, acg3.MAPL_VERTICAL_STAGGER_CENTER),
+            (acg3.DIMS_Z, acg3.MAPL_VERTICAL_STAGGER_EDGE),
+        )
+
+        for dims, vstagger in valid:
+            with self.subTest(dims=dims, vstagger=vstagger):
+                values = {acg3.DIMS: dims, acg3.VSTAGGER: vstagger}
+                self.assertIsNone(acg3.validate_vstagger(values),
+                                  f'{vstagger} should be valid for {dims}')
+
+    def test_invalid_values_reported_in_results(self):
+        """An inconsistent spec is reported through INVALID_VALUES."""
+        for dims, vstagger in (('xy', 'C'), ('xy', 'E'), ('xyz', 'N')):
+            with self.subTest(dims=dims, vstagger=vstagger):
+                _, results = acg3.get_values(self.make_spec(dims, vstagger),
+                                             acg3.get_options({}))
+                self.assertTrue(results[0][acg3.INVALID_VALUES],
+                                f'{dims} with VLOC={vstagger} should be reported invalid')
+
+    def test_no_invalid_values_for_consistent_spec(self):
+        """A consistent spec reports no validation errors."""
+        for dims, vstagger in (('xy', 'N'), ('xy', None), ('xyz', 'C'), ('xyz', 'E')):
+            with self.subTest(dims=dims, vstagger=vstagger):
+                _, results = acg3.get_values(self.make_spec(dims, vstagger),
+                                             acg3.get_options({}))
+                self.assertFalse(results[0][acg3.INVALID_VALUES],
+                                 f'{dims} with VLOC={vstagger} should be valid')
+
+test_cases = (TestMappings, TestHelpers, TestColumns, TestTypes, TestVerticalStagger)
 
 def load_tests(loader, tests, pattern):
     suite = unittest.TestSuite()
