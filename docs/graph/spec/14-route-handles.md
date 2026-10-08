@@ -4,6 +4,12 @@ Status: `[SETTLED]` key structure and sharing model; `[OPEN]` renewal
 mechanics under freeze (§14.4, shared with `13-geometry-and-vertical-grids.md`
 §13.4).
 
+Implementation status (Phase 4g, landed): REQ-RH-002/003 are satisfied by
+`RouteHandleKey` (`superstructure/generic/graph/RouteHandleKey.F90`).
+REQ-RH-004/005 use `ComponentGraph`'s existing
+`resource_index`/`add_resource_index`/`get_resource_index` mechanism; no new
+`ComponentGraph` API was added. REQ-RH-006/§14.4 remain `[OPEN]` and deferred.
+
 ## 14.1 RouteHandleValue
 
 **REQ-RH-001.** `RouteHandleValue` represents a shared `ESMF_RouteHandle`

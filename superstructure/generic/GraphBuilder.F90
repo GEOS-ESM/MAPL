@@ -344,7 +344,7 @@ contains
    end subroutine graphbuilder_advertise
 
    subroutine advertise_one(graph, var_spec, rc)
-      type(ComponentGraph), intent(inout) :: graph
+      type(ComponentGraph), target, intent(inout) :: graph
       type(VariableSpec), intent(in) :: var_spec
       integer, optional, intent(out) :: rc
 
@@ -1633,7 +1633,17 @@ contains
             ! array constructor result back onto one of its own operands.
             n = size(entries)
             allocate(grown_entries(n + 1))
-            grown_entries(1:n) = entries
+            ! NAG (observed 7.2.41, -O0 Debug): a zero-extent array-section
+            ! assignment (grown_entries(1:0) = entries, n==0) of this
+            ! derived type - QualifiedExportEntry nests a VariableSpec,
+            ! which nests a VariableSpecMemberMap (polymorphic, deep_copy
+            ! defined assignment, recursively self-referential) - triggers
+            ! a real bus error (invalid address alignment) in the
+            ! compiler-generated whole-array defined-assignment dispatch,
+            ! even though the assigned section has no elements. Guarding
+            ! the n==0 case (nothing to copy) avoids the bad codegen path
+            ! entirely; functionally a no-op either way.
+            if (n > 0) grown_entries(1:n) = entries
             grown_entries(n + 1) = entry
             call move_alloc(grown_entries, entries)
          end do

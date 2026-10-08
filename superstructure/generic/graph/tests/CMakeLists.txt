@@ -34,6 +34,7 @@ set(test_srcs
   Test_ComponentGraph_Enumeration.pf
   Test_TransformGraphNode.pf
   Test_ComponentGraph_PortBindings.pf
+  Test_RouteHandleKey.pf
   Test_DemandDrivenUpdate.pf
   Test_AccessSpec.pf
   Test_ArgumentSpec.pf
