@@ -23,6 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed a NAG compile-time error in `EsmfRegridder.F90`
+  ("Redeclaration of symbol EQUAL_TO from USEd module MAPL_DYNAMICMASK_MOD"),
+  surfaced by a recent extension of `mapl_DynamicMask_mod` that grew a
+  module-private `equal_to` specific procedure behind its `operator(==)`
+  interface. The bare `use mapl_DynamicMask_mod` collided with
+  `EsmfRegridderParam`'s own `equal_to` type-bound-procedure target name.
+  Restricted to `use mapl_DynamicMask_mod, only: DynamicMask,
+  operator(/=)` - the only two entities this file actually uses.
 - Fixed a crash in `RestartHandler` when a state's restart-eligible bundle ends up empty
   after filtering (e.g. a component whose exports are all unallocated because nothing is
   connected downstream and `activate_all_exports` is off). The state's non-zero item count
