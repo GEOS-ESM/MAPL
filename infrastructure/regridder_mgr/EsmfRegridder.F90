@@ -115,51 +115,15 @@ contains
       if (present(typekind_out)) regriddr%typekind_out = typekind_out
    end function new_EsmfRegridder
 
-   subroutine regrid_field(this, f_in, f_out, rc)
-      class(EsmfRegridder), intent(inout) :: this
-      type(ESMF_Field), intent(inout) :: f_in, f_out
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      logical :: has_ungridded_dims
-      logical :: has_dynamic_mask
-      integer :: ub(ESMF_MAXDIM)
-      type(ESMF_TypeKind_Flag) :: typekind_in, typekind_out
-      type(ESMF_DynamicMask), allocatable :: mask
-
-      call ESMF_FieldGet(f_in,  typekind=typekind_in,  _RC)
-      call ESMF_FieldGet(f_out, typekind=typekind_out, _RC)
-      _ASSERT(typekind_in  == this%typekind_in,  'f_in typekind does not match route handle; set typekind_in in RegridderSpec')
-      _ASSERT(typekind_out == this%typekind_out, 'f_out typekind does not match route handle; set typekind_out in RegridderSpec')
-
-      call ESMF_FieldGet(f_in, ungriddedUBound=ub, _RC)
-      has_ungridded_dims = any(ub > 1)
-
-        associate(param => this%regridder_param)
-        if (typekind_in == ESMF_TYPEKIND_R4) then
-           has_dynamic_mask = allocated(param%dyn_mask%mask_r4)
-           if (has_dynamic_mask) mask = param%dyn_mask%mask_r4%esmf_mask
-        elseif (typekind_in == ESMF_TYPEKIND_R8) then
-           has_dynamic_mask = allocated(param%dyn_mask%mask_r8)
-           if (has_dynamic_mask) mask = param%dyn_mask%mask_r8%esmf_mask
-        end if
-
-        if (has_dynamic_mask .and. has_ungridded_dims) then
-           call regrid_ungridded(this, mask, f_in, f_out, n=product(max(ub,1)), _RC)
-           _RETURN(_SUCCESS)
-        end if
-
-        call ESMF_FieldRegrid(f_in, f_out, &
-             routehandle=this%routehandle, &
-             termorderflag=param%termorder, &
-             zeroregion=param%zeroregion, &
-             checkflag=param%checkflag, &
-             dynamicMask=mask, &
-             _RC)
-      end associate
-      _RETURN(_SUCCESS)
-   end subroutine regrid_field
-
+   ! NOTE: regrid_ungridded is defined ahead of regrid_field (which calls it)
+   ! to work around a NAG 7.2.53 compiler panic ("Unknown proc class for
+   ! REGRID_UNGRIDDED" / "Internal Error -- please report this bug").
+   ! Forward-referencing a module procedure defined later in this file
+   ! triggers the panic as soon as mapl_DynamicMask_mod is use-associated
+   ! here (regardless of argument form, keyword vs. positional, or macro
+   ! usage). See NAG issue report / local reproducer for details. Remove
+   ! this ordering workaround once NAG ships a fix and this is confirmed
+   ! to build cleanly with forward references restored.
    subroutine regrid_ungridded(this, mask, f_in, f_out, n, rc)
 
       class(EsmfRegridder), intent(inout) :: this
@@ -243,6 +207,51 @@ contains
       end function get_slice
 
    end subroutine regrid_ungridded
+
+   subroutine regrid_field(this, f_in, f_out, rc)
+      class(EsmfRegridder), intent(inout) :: this
+      type(ESMF_Field), intent(inout) :: f_in, f_out
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: has_ungridded_dims
+      logical :: has_dynamic_mask
+      integer :: ub(ESMF_MAXDIM)
+      type(ESMF_TypeKind_Flag) :: typekind_in, typekind_out
+      type(ESMF_DynamicMask), allocatable :: mask
+
+      call ESMF_FieldGet(f_in,  typekind=typekind_in,  _RC)
+      call ESMF_FieldGet(f_out, typekind=typekind_out, _RC)
+      _ASSERT(typekind_in  == this%typekind_in,  'f_in typekind does not match route handle; set typekind_in in RegridderSpec')
+      _ASSERT(typekind_out == this%typekind_out, 'f_out typekind does not match route handle; set typekind_out in RegridderSpec')
+
+      call ESMF_FieldGet(f_in, ungriddedUBound=ub, _RC)
+      has_ungridded_dims = any(ub > 1)
+
+        associate(param => this%regridder_param)
+        if (typekind_in == ESMF_TYPEKIND_R4) then
+           has_dynamic_mask = allocated(param%dyn_mask%mask_r4)
+           if (has_dynamic_mask) mask = param%dyn_mask%mask_r4%esmf_mask
+        elseif (typekind_in == ESMF_TYPEKIND_R8) then
+           has_dynamic_mask = allocated(param%dyn_mask%mask_r8)
+           if (has_dynamic_mask) mask = param%dyn_mask%mask_r8%esmf_mask
+        end if
+
+        if (has_dynamic_mask .and. has_ungridded_dims) then
+           call regrid_ungridded(this, mask, f_in, f_out, n=product(max(ub,1)), _RC)
+           _RETURN(_SUCCESS)
+        end if
+
+        call ESMF_FieldRegrid(f_in, f_out, &
+             routehandle=this%routehandle, &
+             termorderflag=param%termorder, &
+             zeroregion=param%zeroregion, &
+             checkflag=param%checkflag, &
+             dynamicMask=mask, &
+             _RC)
+      end associate
+      _RETURN(_SUCCESS)
+   end subroutine regrid_field
 
    logical function equal_to(this, other)
       class(EsmfRegridderParam), intent(in) :: this
