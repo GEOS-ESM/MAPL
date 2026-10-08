@@ -5,6 +5,7 @@ submodule (mapl_VerticalGridAspect_mod) make_transform_smod
    use mapl_ModelVerticalGrid_mod, only: ModelVerticalGrid
    use mapl_ComponentDriver_mod
    use mapl_StandardNameAspect_mod, only: StandardNameAspect
+   use mapl_FieldClassAspect_mod, only: fieldClassAspect
 
    implicit none(type,external)
 
@@ -65,9 +66,15 @@ contains
       ! convention violation (in STRICT mode) whenever the payload's
       ! standard_name differs from the coordinate field's own (the normal
       ! case - e.g. payload "air_temperature" vs coordinate "air_pressure").
+      ! Likewise, the payload's CLASS aspect (e.g. a VectorBracketClassAspect
+      ! for a "[U,V]"-style bracketed/vector variable) must not be imposed on
+      ! the coordinate field, which is always a plain scalar field; use a
+      ! WildcardClassAspect so it matches whatever concrete FieldClassAspect
+      ! the coordinate field export actually has.
       coord_aspects = other_aspects
       call coord_aspects%insert(UNITS_ASPECT_ID, UnitsAspect(units))
       call coord_aspects%insert(STANDARD_NAME_ASPECT_ID, StandardNameAspect())
+      call coord_aspects%insert(CLASS_ASPECT_ID, FieldClassAspect())
 
       v_in_field = src%vertical_grid%get_coordinate_field(physical_dimension, coord_aspects, _RC)
       select type (vg => src%vertical_grid)

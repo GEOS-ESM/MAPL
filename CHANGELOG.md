@@ -9,7 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
+### Changed
+
+- Renamed the load-balance public API and exported the direction constants through the
+  `mp_utils` umbrella, which previously omitted them and forced clients to `use
+  mapl_LoadBalance_mod` directly: `MAPL_BalanceCreate`/`MAPL_BalanceGet`/`MAPL_BalanceWork`/
+  `MAPL_BalanceDestroy` are now `MAPL_LoadBalancerCreate`/`MAPL_LoadBalancerGet`/
+  `MAPL_LoadBalancerRun`/`MAPL_LoadBalancerDestroy`, and `MAPL_Distribute`/`MAPL_Retrieve` are
+  now `MAPL_LOADBALANCER_DISTRIBUTE`/`MAPL_LOADBALANCER_RETRIEVE`. The old names are gone.
+  The module and its file were renamed to match: `mapl_LoadBalance_mod` in
+  `mp_utils/MAPL_LoadBalance.F90` is now `mapl_LoadBalancer_mod` in
+  `mp_utils/MAPL_LoadBalancer.F90`
+
 ### Fixed
+- Fixed bug prevents regridding methods that require dynamic masking from executing the dynamic mask in ExtData.
+  `EsmfRegridderParam%make_info` serialized only the routehandle param, so the dynamic mask
+  was dropped when ExtData passed the param to the field bundle as `ESMF_Info`; the mask
+  (type, `handleAllElements`, kind, src/dst values) is now round-tripped. `RoutehandleParam`
+  serialization also now supports `CONSERVE_2ND`, `PATCH` and `NEAREST_STOD`, which
+  previously failed. `CONSERVE_2ND` now maps to `ESMF_REGRIDMETHOD_CONSERVE_2ND` instead of
+  plain `ESMF_REGRIDMETHOD_CONSERVE`, so ExtData outputs for masked regrids and `CONSERVE_2ND`
+  may change. Added `Test_EsmfRegridderParam.pf`
+
+- Fixed a crash in `RestartHandler` when a state's restart-eligible bundle ends up empty
+  after filtering (e.g. a component whose exports are all unallocated because nothing is
+  connected downstream and `activate_all_exports` is off). The state's non-zero item count
+  passed the existing guard, but `MAPL_FieldBundleGetGeom` on the empty bundle returned an
+  uninitialized geom and `ESMF_InfoGetFromHost` then failed in `GeomGetId`. `write_bundle_`
+  and `read_bundle_` now return early when the bundle holds no fields, resolving a
+  pre-existing TODO
 
 - Fixed `LatLonDecomposition`'s topology constructor to pack out zero-extent bins returned
   by `mapl_GetPartition()` when a LatLon grid is too coarse to be decomposed onto the
@@ -39,6 +67,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   first coverage at all for `FieldSet`/`FieldIsConstant`).
 
 ### Added
+
+- Added ability to output on a set of fixed pressure or height levels in History3G
 
 ### Changed
 
