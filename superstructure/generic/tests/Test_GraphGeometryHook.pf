@@ -21,6 +21,14 @@
 ! lifecycle phases, since the hook under test only ever reads
 ! this%get_geom()/this%has_geom() - it does not re-derive GeometrySpec's
 ! own resolution.
+!
+! type=ESMF_TestMethod, npes=[1] on every test here (Test_GraphBuilder.pf's
+! own test_materialize_extensions_enabled_creates_real_field precedent):
+! make_test_geom calls real, collective ESMF entry points
+! (ESMF_GridCreateNoPeriDim/ESMF_GeomCreate) - a plain MpiTestMethod
+! sub-communicator does not reconfigure ESMF's own default VM, so those
+! calls would synchronize against this suite's full ambient multi-PE
+! test world and deadlock without ESMF_TestMethod's per-test VM scoping.
 module Test_GraphGeometryHook
    use mapl_OuterMetaComponent_mod
    use mapl_GraphBuilder_mod
@@ -129,9 +137,9 @@ contains
    ! REQ-GEO-002 "a component providing its own geometry": no import
    ! resolution needed - the geometry item is available directly after
    ! advertise_geometry, tagged with the GEOM variant.
-   @test(npes=[0])
+   @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_own_geometry_needs_no_resolution(this)
-      class(MpiTestMethod), intent(inout) :: this
+      class(ESMF_TestMethod), intent(inout) :: this
 
       type(ESMF_GridComp) :: gc
       type(OuterMetaComponent), pointer :: meta
@@ -171,9 +179,9 @@ contains
    ! REQ-GEO-002 "a component receiving geometry from an ancestor"
    ! (GEOMETRY_FROM_PARENT, the default GeometrySpec kind): the parent
    ! pushes a proxy + dependency edge into the child's own graph.
-   @test(npes=[0])
+   @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_child_receives_geometry_from_parent(this)
-      class(MpiTestMethod), intent(inout) :: this
+      class(ESMF_TestMethod), intent(inout) :: this
 
       type(ESMF_GridComp) :: parent_gc
       type(OuterMetaComponent), pointer :: parent_meta, child_meta
@@ -241,9 +249,9 @@ contains
    ! parent-local proxy, structurally identical to an ordinary
    ! cross-boundary MatchConnection (get_or_make_local_node_id reused
    ! unmodified).
-   @test(npes=[0])
+   @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_parent_receives_geometry_from_child(this)
-      class(MpiTestMethod), intent(inout) :: this
+      class(ESMF_TestMethod), intent(inout) :: this
 
       type(ESMF_GridComp) :: parent_gc
       type(OuterMetaComponent), pointer :: parent_meta, child_meta
@@ -306,9 +314,9 @@ contains
    ! different geoms - the "should be unreachable given GeometrySpec's
    ! own exclusive resolution" defensive case) is reported, not silently
    ! wired and not a crash: no dependency edge is added.
-   @test(npes=[0])
+   @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_mismatched_geometry_from_child_is_not_wired(this)
-      class(MpiTestMethod), intent(inout) :: this
+      class(ESMF_TestMethod), intent(inout) :: this
 
       type(ESMF_GridComp) :: parent_gc
       type(OuterMetaComponent), pointer :: parent_meta, child_meta
@@ -383,9 +391,9 @@ contains
    ! The toggle itself: run_geometry_hook is a documented no-op when
    ! graph-native mode is not enabled - the default for every real
    ! production run today.
-   @test(npes=[0])
+   @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_hook_is_noop_when_graph_native_disabled(this)
-      class(MpiTestMethod), intent(inout) :: this
+      class(ESMF_TestMethod), intent(inout) :: this
 
       type(ESMF_GridComp) :: gc
       type(OuterMetaComponent), pointer :: meta
@@ -420,9 +428,9 @@ contains
    ! per-item reference mechanism. No new production code is exercised
    ! here beyond what groups 1-3 already added - this test is
    ! verification only.
-   @test(npes=[0])
+   @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_vertical_grid_member_shares_graph_with_geometry(this)
-      class(MpiTestMethod), intent(inout) :: this
+      class(ESMF_TestMethod), intent(inout) :: this
 
       type(ESMF_GridComp) :: gc
       type(OuterMetaComponent), pointer :: meta

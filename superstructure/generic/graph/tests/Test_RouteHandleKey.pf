@@ -1,0 +1,128 @@
+module Test_RouteHandleKey
+   use mapl_RouteHandleKey_mod, only: RouteHandleKey, operator(==)
+   use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use ESMF, only: ESMF_REGRIDMETHOD_CONSERVE, ESMF_REGRIDMETHOD_PATCH, ESMF_REGRIDMETHOD_NEAREST_DTOS
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_defaults_and_accessors()
+      type(NodeIdGenerator) :: generator
+      type(NodeId) :: source, destination
+      type(RouteHandleKey) :: key
+      real :: exponent
+      integer :: status
+
+      source = generator%next()
+      destination = generator%next()
+      key = RouteHandleKey(source, destination)
+
+      @assertTrue(key%get_source_geometry() == source)
+      @assertTrue(key%get_destination_geometry() == destination)
+      @assertTrue(key%to_string(status) /= '')
+      @assertEqual(0, status)
+      @assertEqual(8, key%get_extrapNumSrcPnts())
+      exponent = key%get_extrapDistExponent()
+      @assertEqual(2.0, exponent)
+      @assertFalse(key%get_ignoreDegenerate())
+      @assertTrue(index(key%to_string(), ':U:U:NONE:') > 0)
+   end subroutine test_defaults_and_accessors
+
+   @test
+   subroutine test_settings_distinguish_keys()
+      type(NodeIdGenerator) :: generator
+      type(NodeId) :: source, destination
+      type(RouteHandleKey) :: bilinear, conserve, masked
+      integer :: status
+      integer :: masks(1)
+
+      source = generator%next()
+      destination = generator%next()
+      masks = 7
+      bilinear = RouteHandleKey(source, destination)
+      conserve = RouteHandleKey(source, destination, regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      masked = RouteHandleKey(source, destination, srcMaskValues=masks)
+
+      @assertFalse(bilinear == conserve)
+      @assertFalse(bilinear == masked)
+      @assertTrue(bilinear%to_string(status) /= conserve%to_string(status))
+      @assertEqual(0, status)
+   end subroutine test_settings_distinguish_keys
+
+   @test
+   subroutine test_identical_keys_equal()
+      type(NodeIdGenerator) :: generator
+      type(NodeId) :: source, destination
+      type(RouteHandleKey) :: first, second
+
+      source = generator%next()
+      destination = generator%next()
+      first = RouteHandleKey(source, destination, regridmethod=ESMF_REGRIDMETHOD_PATCH)
+      second = RouteHandleKey(source, destination, regridmethod=ESMF_REGRIDMETHOD_PATCH)
+      @assertTrue(first == second)
+      @assertEqual(first%to_string(), second%to_string())
+   end subroutine test_identical_keys_equal
+
+   @test
+   subroutine test_unsupported_regrid_method_reports_failure()
+      type(NodeIdGenerator) :: generator
+      type(NodeId) :: source, destination
+      type(RouteHandleKey) :: key
+      character(:), allocatable :: rendering
+      integer :: status
+
+      source = generator%next()
+      destination = generator%next()
+      key = RouteHandleKey(source, destination, regridmethod=ESMF_REGRIDMETHOD_NEAREST_DTOS)
+      rendering = key%to_string(status)
+      @assertEqual(1, status)
+      @assertEqual('', rendering)
+   end subroutine test_unsupported_regrid_method_reports_failure
+
+   @test
+   subroutine test_resource_index_reuse()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: source, destination, first_resource, second_resource
+      type(RouteHandleKey) :: first_key, second_key, missing_key
+      type(StateItemNode) :: source_node, destination_node, first_node, second_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(NodeId), pointer :: found
+      integer :: status
+
+      graph = ComponentGraph()
+      source = graph%next_node_id(rc=status)
+      destination = graph%next_node_id(rc=status)
+      first_resource = graph%next_node_id(rc=status)
+      second_resource = graph%next_node_id(rc=status)
+      source_node = StateItemNode(source, payload, revision)
+      destination_node = StateItemNode(destination, payload, revision)
+      first_node = StateItemNode(first_resource, payload, revision)
+      second_node = StateItemNode(second_resource, payload, revision)
+      call graph%register_node(source_node, rc=status)
+      call graph%register_node(destination_node, rc=status)
+      call graph%register_node(first_node, rc=status)
+      call graph%register_node(second_node, rc=status)
+      first_key = RouteHandleKey(source, destination)
+      second_key = RouteHandleKey(source, destination, regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      missing_key = RouteHandleKey(source, destination, regridmethod=ESMF_REGRIDMETHOD_PATCH)
+      call graph%add_resource_index(first_key%to_string(), first_resource, rc=status)
+      call graph%add_resource_index(second_key%to_string(), second_resource, rc=status)
+      @assertEqual(0, status)
+      found => graph%get_resource_index(first_key%to_string())
+      @assertTrue(associated(found))
+      @assertTrue(found == first_resource)
+      found => graph%get_resource_index(second_key%to_string())
+      @assertTrue(associated(found))
+      @assertTrue(found == second_resource)
+      found => graph%get_resource_index(missing_key%to_string())
+      @assertFalse(associated(found))
+   end subroutine test_resource_index_reuse
+
+end module Test_RouteHandleKey
