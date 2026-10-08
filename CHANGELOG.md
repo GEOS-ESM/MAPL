@@ -22,6 +22,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `mp_utils/MAPL_LoadBalancer.F90`
 
 ### Fixed
+- Fixed bug prevents regridding methods that require dynamic masking from executing the dynamic mask in ExtData.
+  `EsmfRegridderParam%make_info` serialized only the routehandle param, so the dynamic mask
+  was dropped when ExtData passed the param to the field bundle as `ESMF_Info`; the mask
+  (type, `handleAllElements`, kind, src/dst values) is now round-tripped. `RoutehandleParam`
+  serialization also now supports `CONSERVE_2ND`, `PATCH` and `NEAREST_STOD`, which
+  previously failed. `CONSERVE_2ND` now maps to `ESMF_REGRIDMETHOD_CONSERVE_2ND` instead of
+  plain `ESMF_REGRIDMETHOD_CONSERVE`, so ExtData outputs for masked regrids and `CONSERVE_2ND`
+  may change. Added `Test_EsmfRegridderParam.pf`
 
 - Fixed a crash in `RestartHandler` when a state's restart-eligible bundle ends up empty
   after filtering (e.g. a component whose exports are all unallocated because nothing is
