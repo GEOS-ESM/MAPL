@@ -120,7 +120,8 @@ context by construction — no repo-separation saving available here:
   starts.
 - **Phase 5 (speculative/deferred, do not block on these)** — `18`
   StateItemCharacteristic hierarchy, `16` ordinary inout items, Q9
-  compiled-execution optimization.
+  compiled-execution optimization. See §20.4.4 for the sub-sequencing
+  this phase needs before implementation starts.
 - **Phase 6 (cleanup, growable — see §20.4.2)** — retire legacy
   `StateRegistry`/`ExtensionFamily`/aspect-based coupling once the
   graph-native paths above are the actual default, plus a running list
@@ -554,6 +555,105 @@ composite structure); is a real prerequisite for 4c/4d below.
 in the MAPL repo/checkout, same as Phase 3, for the same reason: real
 `GriddedComponentDriver`/`OuterComponent`/ESMF context is required from
 4b onward regardless of repo layout.
+
+### 20.4.4 Phase 5 sub-sequencing
+
+Phase 5, like Phase 3 (§20.4.1) and Phase 4 (§20.4.3), does not fit a
+single spec-driven change proposal without an unreasonable context/cost
+footprint — it bundles three genuinely independent, speculative/deferred
+items (`18` StateItemCharacteristic hierarchy, `16` ordinary inout items,
+Q9 compiled-execution optimization), each carrying its own explicit
+"do not implement without further design" caveat. Split into sub-changes
+as follows, rather than filing one proposal spanning all three.
+
+- **5a. StateItemCharacteristic hierarchy** (`18` §18.2–§18.8) — ready to
+  scope now. `18`'s header caveat was tied to Q11, which
+  `17-open-questions.md` already records as resolved; what remains are
+  ordinary `[OPEN]` naming/mechanism points, not a precondition on the
+  order of `16`'s REQ-INOUT-002. This sub-change's own design.md MUST
+  resolve, as a planned, up-front design decision before implementation
+  starts (same discipline Phase 4's 4b followed for REQ-MTH-011 step (c)):
+  `CharacteristicStatus` naming (§18.3), `CharacteristicType` naming
+  (§18.4), the ordering-delegation mechanism for chaining mismatch
+  Transforms (§18.6, Q13), and the absent-key-vs-`INVALID`
+  `characteristics`-map representation (§18.5). Depends only on Phases
+  1–3 (`GraphStateItem`, `09-extension-reuse.md`'s existing
+  chain-building machinery) — no dependency on `16` or Q9.
+- **5b. Ordinary inout, direct-alias case** (`16` REQ-INOUT-001 only) —
+  ready to scope now. The direct-alias case (owner and borrower share the
+  same underlying ESMF payload, no grid/units/precision mismatch) is
+  already fully settled and requires no new Transform in either
+  direction, following directly from REQ-EXT-003's no-op principle.
+  REQ-INOUT-002's design-addendum gate applies only to "non-trivial
+  (non-direct-alias)" support, so it does not block this narrow slice.
+  Independent of 5a and 5c; no ordering dependency either way.
+- **5b2. Ordinary inout, general case** — **BLOCKED**, not ready to
+  scope. REQ-INOUT-002 explicitly requires an explicit design addendum
+  resolving four named open points before any non-trivial inout support
+  may be implemented: revision authority under two producers (an inout
+  owner value is both a forward-network source and a return-network
+  target — which write wins is unresolved), lazy direction selection,
+  recursion when a borrower is itself an owner, and authority rules in
+  general for who may initiate a forward/return cycle. Numbering mirrors
+  the project's existing precedent for a closely related follow-up
+  sub-change (3b/3b2, 4b/4b2) — but note the distinction explicitly:
+  those were follow-ups *discovered* during their parent's own
+  implementation, whereas `5b2` is a *pre-existing*, spec-declared
+  blocker, known before `5b` is even filed. Do not file `5b2`'s own
+  `openspec` proposal until the REQ-INOUT-002 addendum exists.
+- **5c. Compiled-execution optimization** (Q9) — ready to scope now,
+  following Q9's own recommended approach: walk a *frozen*
+  `ComponentGraph`, emit a direct call sequence per `DependencyNetwork`
+  equivalent to the interpreted `update()` traversal (REQ-REV-006),
+  exploiting the stated low fan-out (0–3) to avoid dynamic
+  dispatch/lookup at runtime, and keep the interpreted path alive as a
+  reference oracle (REQ-REV-009) rather than deleting it once compilation
+  exists. Q9's own gate — "the reference (interpreted) implementation
+  being correct and validated first" — is already satisfied: the
+  interpreted implementation Q9 would compile (frozen `ComponentGraph`,
+  `DependencyNetwork` walk, demand-driven `update()` from Phase 1–2;
+  `MethodGraphNode` invocation, callback wiring, route handles from Phase
+  3–4) is landed and exercised by each sub-change's own pFUnit suite.
+  REQ-REV-009's "validated" does not require the stronger Phase 6 entry
+  bar (legacy `StateRegistry` retired at production scale) — Q9 only
+  needs the interpreted path to be the trusted oracle, which this
+  document's own Phase 6 framing (§20.4.2) already assumes stays alive
+  indefinitely, not something gated on legacy removal. Independent of
+  `16`/`18` in principle — it compiles whatever `DependencyNetwork`/
+  `TransformGraphNode` structure exists at freeze time, generically — but
+  sequence it **after 5a**: if `18` lands first, its characteristic-driven
+  `TransformGraphNode`s (`ConvertUnitsTransform`, the precision-conversion
+  transform, `RegridTransform`) are already part of what 5c needs to
+  compile correctly, avoiding a revisit once 5a's new Transform chains
+  exist. `5b`'s direct-alias case adds no new Transform, so 5c has no
+  ordering dependency on `5b`.
+
+**Resulting order and independence:**
+
+```
+Phase 1-4 (landed)
+   |
+   +--> 5a  StateItemCharacteristic hierarchy        (ready now)
+   |       |
+   |       v
+   +--> 5c  Compiled-execution optimization          (ready now, after 5a)
+   |
+   +--> 5b  Ordinary inout, direct-alias case         (ready now, independent)
+             |
+             v
+         5b2 Ordinary inout, general case             (BLOCKED: needs REQ-INOUT-002 addendum)
+```
+
+`5a` and `5b` have no dependency on each other and MAY be filed in either
+order or in parallel. `5c` should follow `5a`. `5b2` is not filed until
+its design addendum exists.
+
+**Repo/tooling note (extends §20.4.1's/§20.4.3's own notes).** Phase 5
+code, for whichever sub-change is filed, lives in the MAPL repo/checkout,
+same as Phase 3 and Phase 4: `5a`/`5b`/`5c` all build on landed Phase 1–4
+MAPL-repo code (`GraphStateItem`, `ComponentGraph`, `DependencyNetwork`,
+`MethodGraphNode`, callback wiring, route handles), so no
+repo-separation saving (§20.2) applies here either.
 
 ## 20.5 Cross-reference
 
