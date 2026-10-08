@@ -4,7 +4,10 @@
 
 [![DOI](https://zenodo.org/badge/195083467.svg)](https://zenodo.org/badge/latestdoi/195083467)
 
+<!-- For some reason, these links have issues resolving with mlc -->
+<!-- mlc-disable -->
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/GEOS-ESM/MAPL)
+<!-- mlc-enable -->
 
 MAPL (Modeling Analysis and Prediction Layer) is a foundation layer of the GEOS architecture, whose original purpose is to supplement the Earth System Modeling Framework (ESMF).   MAPL fills in missing capabilities of ESMF, provides higher-level interfaces for common boiler-plate logic, and enforces various componentization conventions across ESMF gridded components within GEOS.
 
