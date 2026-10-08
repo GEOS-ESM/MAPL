@@ -686,16 +686,16 @@ Also exports module-level variable: `debug_unit` (integer, save).
 
 ---
 
-### `mapl_LoadBalance_mod` — `mp_utils/MAPL_LoadBalance.F90`
+### `mapl_LoadBalancer_mod` — `mp_utils/MAPL_LoadBalancer.F90`
 
 | Entity | Kind |
 |---|---|
-| `MAPL_LoadBalanceRun` | subroutine |
-| `MAPL_LoadBalanceCreate` | subroutine |
-| `MAPL_LoadBalanceDestroy` | subroutine |
-| `MAPL_LoadBalanceGet` | subroutine |
-| `MAPL_LOADBALANCE_DISTRIBUTE` | parameter (integer = 1) |
-| `MAPL_LOADBALANCE_RETRIEVE` | parameter (integer = 2) |
+| `MAPL_LoadBalancerRun` | subroutine |
+| `MAPL_LoadBalancerCreate` | subroutine |
+| `MAPL_LoadBalancerDestroy` | subroutine |
+| `MAPL_LoadBalancerGet` | subroutine |
+| `MAPL_LOADBALANCER_DISTRIBUTE` | parameter (integer = 1) |
+| `MAPL_LOADBALANCER_RETRIEVE` | parameter (integer = 2) |
 
 ---
 
