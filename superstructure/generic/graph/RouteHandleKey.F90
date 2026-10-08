@@ -75,12 +75,18 @@ contains
       integer :: status
 
       code = ''
-      if (value == ESMF_REGRIDMETHOD_BILINEAR) then; code='BILINEAR'
-      else if (value == ESMF_REGRIDMETHOD_CONSERVE) then; code='CONSERVE'
-      else if (value == ESMF_REGRIDMETHOD_CONSERVE_2ND) then; code='CONSERVE_2ND'
-      else if (value == ESMF_REGRIDMETHOD_PATCH) then; code='PATCH'
-      else if (value == ESMF_REGRIDMETHOD_NEAREST_STOD) then; code='NEAREST_STOD'
-      else; _FAIL('RouteHandleKey: unsupported regrid method')
+      if (value == ESMF_REGRIDMETHOD_BILINEAR) then
+         code = 'BILINEAR'
+      else if (value == ESMF_REGRIDMETHOD_CONSERVE) then
+         code = 'CONSERVE'
+      else if (value == ESMF_REGRIDMETHOD_CONSERVE_2ND) then
+         code = 'CONSERVE_2ND'
+      else if (value == ESMF_REGRIDMETHOD_PATCH) then
+         code = 'PATCH'
+      else if (value == ESMF_REGRIDMETHOD_NEAREST_STOD) then
+         code = 'NEAREST_STOD'
+      else
+         _FAIL('RouteHandleKey: unsupported regrid method')
       end if
       _RETURN(_SUCCESS)
    end function regrid_code
@@ -92,8 +98,10 @@ contains
       integer :: status
 
       code = ''
-      if (value == ESMF_EXTRAPMETHOD_NONE) then; code='NONE'
-      else; _FAIL('RouteHandleKey: unsupported extrapolation method')
+      if (value == ESMF_EXTRAPMETHOD_NONE) then
+         code = 'NONE'
+      else
+         _FAIL('RouteHandleKey: unsupported extrapolation method')
       end if
       _RETURN(_SUCCESS)
    end function extrap_code
@@ -105,8 +113,10 @@ contains
       integer :: status
 
       code = ''
-      if (value == ESMF_NORMTYPE_DSTAREA) then; code='DSTAREA'
-      else; _FAIL('RouteHandleKey: unsupported normalization type')
+      if (value == ESMF_NORMTYPE_DSTAREA) then
+         code = 'DSTAREA'
+      else
+         _FAIL('RouteHandleKey: unsupported normalization type')
       end if
       _RETURN(_SUCCESS)
    end function norm_code
@@ -118,9 +128,12 @@ contains
       integer :: status
 
       code = ''
-      if (value == ESMF_POLEMETHOD_ALLAVG) then; code='ALLAVG'
-      else if (value == ESMF_POLEMETHOD_NONE) then; code='NONE'
-      else; _FAIL('RouteHandleKey: unsupported pole method')
+      if (value == ESMF_POLEMETHOD_ALLAVG) then
+         code = 'ALLAVG'
+      else if (value == ESMF_POLEMETHOD_NONE) then
+         code = 'NONE'
+      else
+         _FAIL('RouteHandleKey: unsupported pole method')
       end if
       _RETURN(_SUCCESS)
    end function pole_code
@@ -132,8 +145,10 @@ contains
       integer :: status
 
       code = ''
-      if (value == ESMF_LINETYPE_GREAT_CIRCLE) then; code='GREAT_CIRCLE'
-      else; _FAIL('RouteHandleKey: unsupported line type')
+      if (value == ESMF_LINETYPE_GREAT_CIRCLE) then
+         code = 'GREAT_CIRCLE'
+      else
+         _FAIL('RouteHandleKey: unsupported line type')
       end if
       _RETURN(_SUCCESS)
    end function line_code
@@ -145,9 +160,12 @@ contains
       integer :: status
 
       code = ''
-      if (value == ESMF_UNMAPPEDACTION_ERROR) then; code='ERROR'
-      else if (value == ESMF_UNMAPPEDACTION_IGNORE) then; code='IGNORE'
-      else; _FAIL('RouteHandleKey: unsupported unmapped action')
+      if (value == ESMF_UNMAPPEDACTION_ERROR) then
+         code = 'ERROR'
+      else if (value == ESMF_UNMAPPEDACTION_IGNORE) then
+         code = 'IGNORE'
+      else
+         _FAIL('RouteHandleKey: unsupported unmapped action')
       end if
       _RETURN(_SUCCESS)
    end function unmapped_code
@@ -234,29 +252,48 @@ contains
 
    function int_value(value) result(text)
       integer, intent(in) :: value
-      character(:), allocatable :: text; character(32) :: buffer
-      write(buffer, '(I0)') value; text=trim(buffer)
+      character(:), allocatable :: text
+      character(32) :: buffer
+
+      write(buffer, '(I0)') value
+      text = trim(buffer)
    end function int_value
 
    function real_value(value) result(text)
       real(ESMF_KIND_R4), intent(in) :: value
-      character(:), allocatable :: text; character(64) :: buffer
-      write(buffer, '(ES24.16E3)') value; text=trim(adjustl(buffer))
+      character(:), allocatable :: text
+      character(64) :: buffer
+
+      write(buffer, '(ES24.16E3)') value
+      text = trim(adjustl(buffer))
    end function real_value
 
    function scalar_alloc(value) result(text)
       integer, allocatable, intent(in) :: value
       character(:), allocatable :: text
-      if (allocated(value)) then; text='A' // int_value(value); else; text='U'; end if
+
+      if (allocated(value)) then
+         text = 'A' // int_value(value)
+      else
+         text = 'U'
+      end if
    end function scalar_alloc
 
    function int_list(value) result(text)
       integer, allocatable, intent(in) :: value(:)
-      character(:), allocatable :: text; integer :: i
-      if (.not. allocated(value)) then; text='U'; return; end if
-      text='A'
+      character(:), allocatable :: text
+      integer :: i
+
+      if (.not. allocated(value)) then
+         text = 'U'
+         return
+      end if
+      text = 'A'
       if (size(value) == 0) return
-      text='A' // int_value(value(1)); do i=2,size(value); text=text//','//int_value(value(i)); end do
+      text = 'A' // int_value(value(1))
+      do i = 2, size(value)
+         text = text // ',' // int_value(value(i))
+      end do
    end function int_list
 
    logical function key_equal(left, right)
@@ -291,15 +328,55 @@ contains
       if (allocated(this%dstMaskValues)) value = this%dstMaskValues
    end function key_get_dstMaskValues
 
-   function key_get_extrapmethod(this) result(value); class(RouteHandleKey), intent(in) :: this; type(ESMF_ExtrapMethod_Flag) :: value; value=this%extrapmethod; end function
-   function key_get_extrapNumSrcPnts(this) result(value); class(RouteHandleKey), intent(in) :: this; integer :: value; value=this%extrapNumSrcPnts; end function
-   function key_get_extrapDistExponent(this) result(value); class(RouteHandleKey), intent(in) :: this; real(ESMF_KIND_R4) :: value; value=this%extrapDistExponent; end function
-   function key_get_extrapNumLevels(this) result(value); class(RouteHandleKey), intent(in) :: this; integer, allocatable :: value; if (allocated(this%extrapNumLevels)) value=this%extrapNumLevels; end function
-   function key_get_normtype(this) result(value); class(RouteHandleKey), intent(in) :: this; type(ESMF_NormType_Flag) :: value; value=this%normtype; end function
-   function key_get_polemethod(this) result(value); class(RouteHandleKey), intent(in) :: this; type(ESMF_PoleMethod_Flag) :: value; value=this%polemethod; end function
-   function key_get_regridPoleNPnts(this) result(value); class(RouteHandleKey), intent(in) :: this; integer, allocatable :: value; if (allocated(this%regridPoleNPnts)) value=this%regridPoleNPnts; end function
-   function key_get_linetype(this) result(value); class(RouteHandleKey), intent(in) :: this; type(ESMF_LineType_Flag) :: value; value=this%linetype; end function
-   function key_get_unmappedaction(this) result(value); class(RouteHandleKey), intent(in) :: this; type(ESMF_UnmappedAction_Flag) :: value; value=this%unmappedaction; end function
-   function key_get_ignoreDegenerate(this) result(value); class(RouteHandleKey), intent(in) :: this; logical :: value; value=this%ignoreDegenerate; end function
+   function key_get_extrapmethod(this) result(value)
+      class(RouteHandleKey), intent(in) :: this
+      type(ESMF_ExtrapMethod_Flag) :: value
+      value = this%extrapmethod
+   end function key_get_extrapmethod
+   function key_get_extrapNumSrcPnts(this) result(value)
+      class(RouteHandleKey), intent(in) :: this
+      integer :: value
+      value = this%extrapNumSrcPnts
+   end function key_get_extrapNumSrcPnts
+   function key_get_extrapDistExponent(this) result(value)
+      class(RouteHandleKey), intent(in) :: this
+      real(ESMF_KIND_R4) :: value
+      value = this%extrapDistExponent
+   end function key_get_extrapDistExponent
+   function key_get_extrapNumLevels(this) result(value)
+      class(RouteHandleKey), intent(in) :: this
+      integer, allocatable :: value
+      if (allocated(this%extrapNumLevels)) value = this%extrapNumLevels
+   end function key_get_extrapNumLevels
+   function key_get_normtype(this) result(value)
+      class(RouteHandleKey), intent(in) :: this
+      type(ESMF_NormType_Flag) :: value
+      value = this%normtype
+   end function key_get_normtype
+   function key_get_polemethod(this) result(value)
+      class(RouteHandleKey), intent(in) :: this
+      type(ESMF_PoleMethod_Flag) :: value
+      value = this%polemethod
+   end function key_get_polemethod
+   function key_get_regridPoleNPnts(this) result(value)
+      class(RouteHandleKey), intent(in) :: this
+      integer, allocatable :: value
+      if (allocated(this%regridPoleNPnts)) value = this%regridPoleNPnts
+   end function key_get_regridPoleNPnts
+   function key_get_linetype(this) result(value)
+      class(RouteHandleKey), intent(in) :: this
+      type(ESMF_LineType_Flag) :: value
+      value = this%linetype
+   end function key_get_linetype
+   function key_get_unmappedaction(this) result(value)
+      class(RouteHandleKey), intent(in) :: this
+      type(ESMF_UnmappedAction_Flag) :: value
+      value = this%unmappedaction
+   end function key_get_unmappedaction
+   function key_get_ignoreDegenerate(this) result(value)
+      class(RouteHandleKey), intent(in) :: this
+      logical :: value
+      value = this%ignoreDegenerate
+   end function key_get_ignoreDegenerate
 
 end module mapl_RouteHandleKey_mod
