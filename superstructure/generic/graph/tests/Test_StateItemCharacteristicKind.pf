@@ -1,0 +1,66 @@
+! openspec/changes/state-item-characteristics, task 7.1: stable,
+! distinct StateItemCharacteristicKind values and to_string(), and
+! CharacteristicStatus default/invalid construction, each named value
+! distinct, to_string().
+module Test_StateItemCharacteristicKind
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), operator(/=), &
+                                                    PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+                                                    TYPE_KIND_CHARACTERISTIC_KIND, &
+                                                    GEOMETRY_CHARACTERISTIC_KIND, &
+                                                    INVALID_CHARACTERISTIC_KIND
+   use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), operator(/=), &
+                                             CHARACTERISTIC_STATUS_INVALID, &
+                                             CHARACTERISTIC_STATUS_SPECIFIED, &
+                                             CHARACTERISTIC_STATUS_MIRRORED, &
+                                             CHARACTERISTIC_STATUS_UNCHECKED, &
+                                             CHARACTERISTIC_STATUS_DEFERRED
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_kind_constants_are_stable_and_distinct()
+      @assertTrue(PHYSICAL_UNITS_CHARACTERISTIC_KIND == PHYSICAL_UNITS_CHARACTERISTIC_KIND)
+      @assertTrue(PHYSICAL_UNITS_CHARACTERISTIC_KIND /= TYPE_KIND_CHARACTERISTIC_KIND)
+      @assertTrue(PHYSICAL_UNITS_CHARACTERISTIC_KIND /= GEOMETRY_CHARACTERISTIC_KIND)
+      @assertTrue(TYPE_KIND_CHARACTERISTIC_KIND /= GEOMETRY_CHARACTERISTIC_KIND)
+      @assertTrue(PHYSICAL_UNITS_CHARACTERISTIC_KIND /= INVALID_CHARACTERISTIC_KIND)
+   end subroutine test_kind_constants_are_stable_and_distinct
+
+   @test
+   subroutine test_kind_to_string()
+      @assertEqual('PHYSICAL_UNITS', PHYSICAL_UNITS_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('TYPE_KIND', TYPE_KIND_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('GEOMETRY', GEOMETRY_CHARACTERISTIC_KIND%to_string())
+   end subroutine test_kind_to_string
+
+   ! design.md D1: the type's own default field initializer (0) is the
+   ! INVALID value, so a default-constructed CharacteristicStatus() is
+   ! invalid with no explicit constructor call.
+   @test
+   subroutine test_status_default_is_invalid()
+      type(CharacteristicStatus) :: status
+
+      @assertTrue(status == CHARACTERISTIC_STATUS_INVALID)
+   end subroutine test_status_default_is_invalid
+
+   @test
+   subroutine test_status_values_are_distinct()
+      @assertTrue(CHARACTERISTIC_STATUS_INVALID /= CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(CHARACTERISTIC_STATUS_SPECIFIED /= CHARACTERISTIC_STATUS_MIRRORED)
+      @assertTrue(CHARACTERISTIC_STATUS_MIRRORED /= CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertTrue(CHARACTERISTIC_STATUS_UNCHECKED /= CHARACTERISTIC_STATUS_DEFERRED)
+      @assertTrue(CHARACTERISTIC_STATUS_DEFERRED /= CHARACTERISTIC_STATUS_INVALID)
+   end subroutine test_status_values_are_distinct
+
+   @test
+   subroutine test_status_to_string()
+      @assertEqual('INVALID', CHARACTERISTIC_STATUS_INVALID%to_string())
+      @assertEqual('SPECIFIED', CHARACTERISTIC_STATUS_SPECIFIED%to_string())
+      @assertEqual('MIRRORED', CHARACTERISTIC_STATUS_MIRRORED%to_string())
+      @assertEqual('UNCHECKED', CHARACTERISTIC_STATUS_UNCHECKED%to_string())
+      @assertEqual('DEFERRED', CHARACTERISTIC_STATUS_DEFERRED%to_string())
+   end subroutine test_status_to_string
+
+end module Test_StateItemCharacteristicKind

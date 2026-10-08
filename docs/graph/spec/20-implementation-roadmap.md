@@ -579,6 +579,66 @@ as follows, rather than filing one proposal spanning all three.
   `characteristics`-map representation (§18.5). Depends only on Phases
   1–3 (`GraphStateItem`, `09-extension-reuse.md`'s existing
   chain-building machinery) — no dependency on `16` or Q9.
+- **5a2. Remaining StateItemCharacteristic subclasses** — discovered
+  during 5a's own code review (`openspec/changes/
+  state-item-characteristics`), not scoped by 5a itself: REQ-CHAR-001's
+  table lists only three subclasses and explicitly says so ("almost
+  certainly incomplete... treat the list as a starting point, not a
+  closed set"), and 5a implemented exactly those three
+  (`PhysicalUnitsCharacteristic`, `TypeKindCharacteristic`,
+  `GeometryCharacteristic`). But legacy's own `StateItemAspect` hierarchy
+  (`superstructure/generic/specs/*Aspect.F90`, `AspectId.F90`) already
+  has ten concrete mismatch-detectable axes, not three — `GeomAspect`,
+  `UnitsAspect`, `TypekindAspect` (5a's three analogs) plus seven more:
+  `VerticalGridAspect`, `AttributesAspect`, `UngriddedDimsAspect`,
+  `QuantityTypeAspect`, `ConservationAspect`, `NormalizationAspect`,
+  `StandardNameAspect`. Per this document's own "roughly 1-to-1
+  correspondence, with exceptions" expectation (confirmed during 5a's
+  review), each of those seven needs a `StateItemCharacteristic` analog
+  before the graph-native path can claim parity with legacy's own
+  mismatch-detection surface — not attempted by 5a, which deliberately
+  scoped to the three REQ-CHAR-001 names only. Numbering mirrors this
+  project's own established precedent for a review/implementation-
+  discovered, required-completion follow-up (3b/3b2, 4b/4b2) — note the
+  same distinction already drawn for `5b2`: this is a *parity gap*
+  discovered against an existing legacy surface, not a brand-new
+  requirement.
+
+  **Scope, one new type per legacy `*Aspect` (name chosen to avoid
+  colliding with `graph/extension-reuse`'s own, deliberately independent
+  `Characteristic` family — the `GeometryCharacteristic`-not-
+  `GeomCharacteristic` precedent, 5a design.md D3 — applies again here
+  wherever a name would otherwise collide):**
+
+  | Legacy `AspectId` | Legacy `*Aspect` | New `StateItemCharacteristic` |
+  |---|---|---|
+  | `VERTICAL_GRID_ASPECT_ID` | `VerticalGridAspect` | a vertical-grid `ReferenceCharacteristic` (name TBD at design time; `graph/extension-reuse` already has an unrelated `VerticalGridCharacteristic` — collision, needs a different name) — REQ-CHAR-012's own text already anticipates this one as "expected to be common," alongside `GeomCharacteristic` |
+  | `ATTRIBUTES_ASPECT_ID` | `AttributesAspect` | `AttributesCharacteristic` (`ValueCharacteristic`) |
+  | `UNGRIDDED_DIMS_ASPECT_ID` | `UngriddedDimsAspect` | `UngriddedDimsCharacteristic` (`ValueCharacteristic`) |
+  | `QUANTITY_TYPE_ASPECT_ID` | `QuantityTypeAspect` | `QuantityTypeCharacteristic` (`ValueCharacteristic`) |
+  | `CONSERVATION_ASPECT_ID` | `ConservationAspect` | `ConservationCharacteristic` (`ValueCharacteristic`) — legacy's own `make_transform` is an unconditional `_FAIL("should not be called")`, i.e. this axis is detected but never itself adapted; the graph-native analog's `build_transform` MAY do the same |
+  | `NORMALIZATION_ASPECT_ID` | `NormalizationAspect` | `NormalizationCharacteristic` (`ValueCharacteristic`) |
+  | `STANDARD_NAME_ASPECT_ID` | `StandardNameAspect` | `StandardNameCharacteristic` (`ValueCharacteristic`) |
+
+  Explicitly out of scope for 5a2, same as 5a: no `GraphBuilder` rewire
+  (these remain additive, standalone types exercised by synthetic-node
+  pFUnit coverage only, mirroring 5a's own design.md D6); real
+  `build_transform` implementations beyond whatever each legacy
+  `*Aspect%make_transform` already does unconditionally (most either
+  fail explicitly or have no real adaptation logic today — only
+  `UnitsAspect`/`GeomAspect`/`TypekindAspect`, 5a's own three, have any
+  real executing transform in legacy either, via
+  `superstructure/generic/transforms/`). Legacy's `AspectStatus` has a
+  sixth value, `FROM_COMP`, that `CharacteristicStatus` (5a, REQ-CHAR-003)
+  does not — 5a2's own design.md MUST decide, as a planned, up-front
+  decision, whether that is a real gap to close or a legacy-only
+  distinction with no graph-native equivalent needed, rather than
+  discovering it mid-implementation.
+
+  Depends on 5a (the `StateItemCharacteristic`/`ValueCharacteristic`/
+  `ReferenceCharacteristic` hierarchy, `CharacteristicStatus`,
+  `StateItemCharacteristicKind`, the sparse map on `GraphStateItem`) —
+  not on `16` or Q9. MAY be filed any time after 5a lands.
 - **5b. Ordinary inout, direct-alias case** (`16` REQ-INOUT-001 only) —
   ready to scope now. The direct-alias case (owner and borrower share the
   same underlying ESMF payload, no grid/units/precision mismatch) is
@@ -635,6 +695,8 @@ Phase 1-4 (landed)
    |
    +--> 5a  StateItemCharacteristic hierarchy        (ready now)
    |       |
+   |       +--> 5a2  Remaining Characteristic subclasses  (ready now, after 5a)
+   |       |
    |       v
    +--> 5c  Compiled-execution optimization          (ready now, after 5a)
    |
@@ -645,8 +707,12 @@ Phase 1-4 (landed)
 ```
 
 `5a` and `5b` have no dependency on each other and MAY be filed in either
-order or in parallel. `5c` should follow `5a`. `5b2` is not filed until
-its design addendum exists.
+order or in parallel. `5a2` depends only on `5a` (not on `5c`/`5b`/`5b2`)
+and MAY be filed any time after `5a` lands, independently of `5c`. `5c`
+should follow `5a` (not `5a2` — `5c` compiles whatever Transform chains
+exist at freeze time, generically, so it has no ordering dependency on
+`5a2`'s own, mostly-non-executing `build_transform`s either way).
+`5b2` is not filed until its design addendum exists.
 
 **Repo/tooling note (extends §20.4.1's/§20.4.3's own notes).** Phase 5
 code, for whichever sub-change is filed, lives in the MAPL repo/checkout,

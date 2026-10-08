@@ -33,12 +33,18 @@ module mapl_GraphStateItem_mod
    use ESMF, only: ESMF_MAXSTR
    use ESMF, only: operator(==)
    use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag, &
-                                     MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, &
-                                     MAPL_STATEITEM_STATE, MAPL_STATEITEM_ROUTEHANDLE, &
-                                     MAPL_STATEITEM_NOTFOUND, operator(==), operator(/=)
+                                      MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, &
+                                      MAPL_STATEITEM_STATE, MAPL_STATEITEM_ROUTEHANDLE, &
+                                      MAPL_STATEITEM_NOTFOUND, MAPL_STATEITEM_GEOM, &
+                                      operator(==), operator(/=)
    use mapl_StateItemVariantInfo_mod, only: get_variant
    use mapl_NodeId_mod, only: NodeId
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap, StateItemMemberMapIterator
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), &
+                                                    PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+                                                    TYPE_KIND_CHARACTERISTIC_KIND, &
+                                                    GEOMETRY_CHARACTERISTIC_KIND
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -68,6 +74,15 @@ module mapl_GraphStateItem_mod
       type(ESMF_State), allocatable :: esmf_state
       type(StateItemMemberMap) :: field_bundle_members_map
       type(StateItemMemberMap) :: state_members_map
+      ! REQ-CHAR-007/008 (docs/graph/spec/18-state-item-characteristics.md,
+      ! openspec/changes/state-item-characteristics): sparse map, keyed by
+      ! StateItemCharacteristicKind, of this item's established/deferred
+      ! mismatch-relevant characteristics. Independent of which of the
+      ! three handle components above is allocated - clear_components()
+      ! (below) does NOT reset this map, since a characteristic's meaning
+      ! (e.g. declared units) is not tied to which ESMF component
+      ! currently backs the item.
+      type(StateItemCharacteristicMap) :: characteristics
    contains
       procedure :: itemType => stateitem_itemType
       procedure :: variant => stateitem_variant
@@ -85,6 +100,17 @@ module mapl_GraphStateItem_mod
       procedure :: state_members => stateitem_state_members
       procedure :: add_field_bundle_member => stateitem_add_field_bundle_member
       procedure :: add_state_member => stateitem_add_state_member
+      ! -- characteristics (REQ-CHAR-007/008/009/010) -----------------------
+      procedure :: has_characteristic => stateitem_has_characteristic
+      procedure :: get_characteristic => stateitem_get_characteristic
+      procedure :: set_characteristic => stateitem_set_characteristic
+      ! Returns a copy of the full characteristics map (REQ-CHAR-009:
+      ! enumerable so a detection algorithm can iterate every entry
+      ! through the common StateItemCharacteristic interface only) -
+      ! mirrors field_bundle_members()/state_members()'s own
+      ! return-a-copy convention.
+      procedure :: get_characteristics => stateitem_get_characteristics
+      procedure :: ordering => stateitem_ordering
       ! Test-only backdoor: deliberately violates the at-most-one-
       ! allocated invariant, bypassing the `set` choke point, so the
       ! checked-defect path (REQ-SI-004) can be exercised. Not part of
@@ -406,6 +432,138 @@ contains
       _RETURN(_SUCCESS)
    end subroutine stateitem_add_state_member
 
+   ! -- characteristics (REQ-CHAR-007/008/010) --------------------------
+
+   logical function stateitem_has_characteristic(this, kind) result(has)
+      class(GraphStateItem), intent(in) :: this
+      type(StateItemCharacteristicKind), intent(in) :: kind
+
+      has = this%characteristics%count(kind) > 0
+   end function stateitem_has_characteristic
+
+   ! REQ-CHAR-008/design.md D4: absent key is canonical for "never
+   ! established" - fails explicitly rather than returning an
+   ! INVALID-status placeholder, so a caller cannot silently confuse the
+   ! two (spec "Established characteristic is retrievable by its type
+   ! tag"). A subroutine with an intent(out) allocatable dummy, not a
+   ! function returning class(...), allocatable - this codebase's own
+   ! established convention for a polymorphic allocatable result
+   ! (mirrors Characteristic%build_transform's own
+   ! intent(out) transformer shape) avoids returning an unallocated
+   ! polymorphic function result on the early-return failure path, which
+   ! a Fortran compiler is not reliably required to leave in a universally
+   ! safe (caller-assignable) state.
+   subroutine stateitem_get_characteristic(this, kind, characteristic, rc)
+      class(GraphStateItem), target, intent(in) :: this
+      type(StateItemCharacteristicKind), intent(in) :: kind
+      class(StateItemCharacteristic), allocatable, intent(out) :: characteristic
+      integer, optional, intent(out) :: rc
+
+      class(StateItemCharacteristic), pointer :: found
+      integer :: status
+
+      found => this%characteristics%at(kind, rc=status)
+      _ASSERT(status == _SUCCESS, 'GraphStateItem: get_characteristic - no characteristic established for this kind')
+      allocate(characteristic, source=found)
+
+      _RETURN(_SUCCESS)
+   end subroutine stateitem_get_characteristic
+
+   ! Inserts or replaces the entry under `kind` (REQ-CHAR-007) - this is
+   ! the one explicit-replace operation; no other GraphStateItem operation
+   ! removes or replaces a characteristics-map entry as a side effect
+   ! (design.md D4).
+   !
+   ! REQ-CHAR-006/009 invariant: `characteristic%get_kind()` MUST equal
+   ! `kind` - a characteristic is never stored under a key other than its
+   ! own. This is the enforcement point that keeps
+   ! find_mismatched_state_item_characteristics's per-key pairing honest:
+   ! it looks two items' entries up by the SAME map key and assumes both
+   ! sides' dynamic types therefore match, so each concrete
+   ! needs_extension_for's `goal` is guaranteed the same concrete type as
+   ! `this` by construction (not merely by caller convention) - a real
+   ! kind mismatch (e.g. storing a GeometryCharacteristic under
+   ! PHYSICAL_UNITS_CHARACTERISTIC_KIND) is caught explicitly, here, at
+   ! the moment it would otherwise be introduced, rather than silently
+   ! deferred to whatever later happens to compare it (design.md D5a).
+   subroutine stateitem_set_characteristic(this, kind, characteristic, rc)
+      class(GraphStateItem), intent(inout) :: this
+      type(StateItemCharacteristicKind), intent(in) :: kind
+      class(StateItemCharacteristic), intent(in) :: characteristic
+      integer, optional, intent(out) :: rc
+
+      integer :: n_erased
+
+      _ASSERT(characteristic%get_kind() == kind, 'GraphStateItem: set_characteristic - characteristic%get_kind() does not match kind')
+
+      n_erased = int(this%characteristics%erase(kind))
+      call this%characteristics%insert(kind, characteristic)
+
+      _RETURN(_SUCCESS)
+   end subroutine stateitem_set_characteristic
+
+   function stateitem_get_characteristics(this) result(characteristics)
+      class(GraphStateItem), intent(in) :: this
+      type(StateItemCharacteristicMap) :: characteristics
+
+      characteristics = this%characteristics
+   end function stateitem_get_characteristics
+
+   ! REQ-CHAR-010/011 (design.md D5, resolving Q13's recommendation):
+   ! delegates to a static per-variant strategy table
+   ! (characteristic_ordering_table below). `mismatched_kinds` is the
+   ! caller-supplied set of kinds found mismatched by a detection
+   ! algorithm (graph/state-item-characteristics); this method reorders
+   ! (never adds/removes) that set according to this item's own variant.
+   ! A variant with no table entry falls back to the input's own order,
+   ! unchanged (stable, non-crashing default - design.md D5).
+   function stateitem_ordering(this, mismatched_kinds, rc) result(order)
+      class(GraphStateItem), intent(in) :: this
+      type(StateItemCharacteristicKind), intent(in) :: mismatched_kinds(:)
+      integer, optional, intent(out) :: rc
+      type(StateItemCharacteristicKind), allocatable :: order(:)
+
+      integer :: status
+      type(MAPL_StateItem_Flag) :: variant_flag
+      type(StateItemCharacteristicKind), allocatable :: canonical(:)
+      integer :: i, j, n
+
+      variant_flag = this%variant(_RC)
+      canonical = characteristic_ordering_table(variant_flag)
+
+      allocate(order(0))
+      if (size(canonical) == 0) then
+         ! No table entry for this variant - stable fallback: the input's
+         ! own order, unchanged (design.md D5).
+         order = mismatched_kinds
+         _RETURN(_SUCCESS)
+      end if
+
+      ! Canonical-first: every mismatched kind the table orders, in the
+      ! table's own order.
+      do i = 1, size(canonical)
+         do j = 1, size(mismatched_kinds)
+            if (mismatched_kinds(j) == canonical(i)) then
+               order = [order, mismatched_kinds(j)]
+               exit
+            end if
+         end do
+      end do
+
+      ! Then any mismatched kind the table has no opinion on, preserving
+      ! its original relative order - completeness without requiring
+      ! every table to be exhaustive (REQ-CHAR-001's own "not exhaustive"
+      ! note).
+      n = size(mismatched_kinds)
+      do j = 1, n
+         if (.not. kind_in_list(mismatched_kinds(j), canonical)) then
+            order = [order, mismatched_kinds(j)]
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+   end function stateitem_ordering
+
    ! Test-only: forces esmf_field and esmf_field_bundle both allocated at
    ! once, bypassing the `set` choke point, so the checked-defect path
    ! in check_invariant()/itemType() can be exercised.
@@ -423,5 +581,54 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine stateitem_debug_force_double_allocate
+
+   ! -- characteristic-ordering strategy table (design.md D5) -----------
+
+   logical function kind_in_list(k, list) result(found)
+      type(StateItemCharacteristicKind), intent(in) :: k
+      type(StateItemCharacteristicKind), intent(in) :: list(:)
+
+      integer :: i
+
+      found = .false.
+      do i = 1, size(list)
+         if (list(i) == k) then
+            found = .true.
+            return
+         end if
+      end do
+   end function kind_in_list
+
+   ! Static per-variant strategy table (design.md D5, Q13's own
+   ! recommendation: "a small per-kind strategy lookup... over a method
+   ! living on one designated 'primary' characteristic"). Illustrative,
+   ! not validated against a concrete end-to-end comparison use case
+   ! (Q13's own confidence is "medium") - deliberately kept simple and
+   ! easy to extend as real configurations are worked through; a variant
+   ! with no entry here (the `case default`) returns a zero-size array,
+   ! which stateitem_ordering() above treats as "no opinion, use input
+   ! order" rather than an error.
+   function characteristic_ordering_table(variant_flag) result(order)
+      type(MAPL_StateItem_Flag), intent(in) :: variant_flag
+      type(StateItemCharacteristicKind), allocatable :: order(:)
+
+      if (variant_flag == MAPL_STATEITEM_FIELD) then
+         ! Ordinary field: reconcile units first (cheap, element-wise),
+         ! then precision, then geometry last (regrid is typically the
+         ! most expensive step and benefits from operating on
+         ! already-unit-correct, already-precision-correct data).
+         order = [PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, &
+                  GEOMETRY_CHARACTERISTIC_KIND]
+      else if (variant_flag == MAPL_STATEITEM_GEOM) then
+         ! A geometry-tagged field: geometry identity is the field's own
+         ! defining characteristic - reconcile it first, before any
+         ! unit/precision adjustment that would otherwise operate on
+         ! still-wrong-shape storage.
+         order = [GEOMETRY_CHARACTERISTIC_KIND, PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+                  TYPE_KIND_CHARACTERISTIC_KIND]
+      else
+         allocate(order(0))
+      end if
+   end function characteristic_ordering_table
 
 end module mapl_GraphStateItem_mod
