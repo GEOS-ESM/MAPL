@@ -289,7 +289,7 @@ contains
          case(BILINEAR)
             regrid_method = ESMF_REGRIDMETHOD_BILINEAR
          case (CONSERVE)
-             regrid_method = ESMF_REGRIDMETHOD_CONSERVE
+            regrid_method = ESMF_REGRIDMETHOD_CONSERVE
          case (CONSERVE_2ND)
             regrid_method = ESMF_REGRIDMETHOD_CONSERVE_2ND
          case (PATCH)
