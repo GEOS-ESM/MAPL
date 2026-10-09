@@ -37,6 +37,7 @@ module Test_GraphBuilderEquivalence
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem, operator(==)
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
+   use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_BOTH, GRAPH_MODE_REGISTRY
    use mapl_FieldGet_mod, only: FieldGet
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_Generic_api, only: mapl_GridCompCreate, mapl_GenericSetServices
@@ -153,6 +154,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(src_meta)
    end subroutine test_ordinary_resolution_matches_legacy_coupler
+
 
    ! openspec/changes/extension-reuse (roadmap sub-change 3c), task group
    ! 7: side-by-side equivalence check on a real (DSO-backed) mismatched
@@ -298,4 +300,125 @@ contains
       _UNUSED_DUMMY(src_meta)
    end subroutine test_units_mismatch_resolution_matches_legacy_coupler
 
+   ! openspec/changes/phase-10a-state-materialization, task 4.4: the
+   ! same real (DSO-backed) exact-match fixture as
+   ! test_ordinary_resolution_matches_legacy_coupler above, run with the
+   ! graph mode selected as GRAPH_MODE_BOTH instead of the default
+   ! GRAPH_MODE_REGISTRY. Two things must both be true (spec "Both
+   ! producers can be compared without a name collision" / "Graph-
+   ! materialized value is readable out of band"):
+   ! (a) legacy's own real ESMF_State still contains exactly the entries
+   !     it would in GRAPH_MODE_REGISTRY - no additional or duplicate
+   !     entry leaks in from graph-native materialization;
+   ! (b) the export's own proxy node now reports a real, correctly-
+   !     shaped field (decision parity with the legacy oracle), readable
+   !     directly from the node's own payload, independent of the
+   !     shared ESMF_State.
+   @test(npes=[0])
+   subroutine test_both_mode_materializes_without_legacy_collision(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: config
+      type(ESMF_Config) :: config_cf
+      type(ESMF_GridComp) :: cap_gc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: t0, t1
+      type(ESMF_TimeInterval) :: dt
+      integer :: status, user_status, i
+
+      type(OuterMetaComponent), pointer :: cap_meta, src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(GriddedComponentDriver) :: dst_user_driver
+      type(MultiState) :: dst_user_states
+      type(ESMF_State) :: dst_import_state
+      type(ESMF_Field) :: field
+      integer :: item_count
+
+      type(ComponentGraph), pointer :: cap_graph
+      type(NodeId), pointer :: t_export_proxy, t_import_proxy
+      type(DependencyNetwork), pointer :: net
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: export_payload
+      type(ESMF_Field) :: export_field
+      type(ESMF_TypeKind_Flag) :: got_typekind
+      character(:), allocatable :: got_units
+
+      call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
+
+      config = ESMF_HConfigCreate(filename='./scenarios/graphbuilder_equivalence/cap.yaml', _RC)
+      config_cf = ESMF_ConfigCreate(hconfig=config, _RC)
+      cap_gc = ESMF_GridCompCreate(name='CAP_BOTH_MODE', config=config_cf, _RC)
+      call ESMF_GridCompSetServices(cap_gc, mapl_GenericSetservices, userRC=user_status, _RC)
+      @assert_that(user_status, is(0))
+
+      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
+      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
+
+      importState = ESMF_StateCreate(_RC)
+      exportState = ESMF_StateCreate(_RC)
+
+      call set_graph_mode(GRAPH_MODE_BOTH)
+      do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
+         associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
+            call ESMF_GridCompInitialize(cap_gc, &
+                 importState=importState, exportState=exportState, clock=clock, &
+                 phase=phase, userRC=user_status, _RC)
+            @assert_that(user_status, is(0))
+         end associate
+      end do
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+
+      ! --- (a) Legacy-coupler oracle, unaffected: same single real
+      ! entry on comp_dst's own import state as GRAPH_MODE_REGISTRY
+      ! would produce - no graph-native leak into the shared state. ---
+      cap_meta => get_outer_meta(cap_gc, _RC)
+      dst_driver = cap_meta%get_child('comp_dst', _RC)
+      dst_gc = dst_driver%get_gridcomp()
+      dst_meta => get_outer_meta(dst_gc, _RC)
+      dst_user_driver = dst_meta%get_user_gc_driver()
+      dst_user_states = dst_user_driver%get_states()
+      call dst_user_states%get_state(dst_import_state, 'import', _RC)
+      call ESMF_StateGet(dst_import_state, 'T', field, _RC)
+      @assert_that(ESMF_FieldIsCreated(field), is(true()))
+      call ESMF_StateGet(dst_import_state, itemCount=item_count, _RC)
+      @assertEqual(1, item_count)
+
+      ! --- (b) Graph-native materialization, readable out of band: the
+      ! export's own proxy node has a real, correctly-shaped field. ---
+      src_driver = cap_meta%get_child('comp_src', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+
+      cap_graph => cap_meta%get_component_graph()
+      t_export_proxy => cap_graph%get_resource_index(proxy_key('comp_src', ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_proxy => cap_graph%get_resource_index(proxy_key('comp_dst', ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_proxy), is(true()))
+      @assert_that(associated(t_import_proxy), is(true()))
+
+      net => cap_graph%get_network(cap_graph%get_default_network_id())
+      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(true()))
+
+      node => cap_graph%get_node(t_export_proxy)
+      select type (node)
+      class is (StateItemNode)
+         export_payload = node%get_payload()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assertTrue(export_payload%itemType(rc=status) == ESMF_STATEITEM_FIELD)
+
+      export_field = export_payload%get_field(rc=status)
+      @assertEqual(0, status)
+      call FieldGet(export_field, typekind=got_typekind, units=got_units, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(got_typekind == ESMF_TYPEKIND_R4)
+      @assertEqual('barn', got_units)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_meta)
+   end subroutine test_both_mode_materializes_without_legacy_collision
 end module Test_GraphBuilderEquivalence

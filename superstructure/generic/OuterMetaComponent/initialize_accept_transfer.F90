@@ -8,6 +8,7 @@ submodule (mapl_OuterMetaComponent_mod) initialize_accept_transfer_smod
    use mapl_ConnectionVector_mod, only: ConnectionVectorIterator
    use mapl_ConnectionVector_mod, only: operator(/=)
    use mapl_GraphBuilder_mod, only: GraphBuilder
+   use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_GRAPH
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 
@@ -48,10 +49,27 @@ contains
 
       user_states = this%user_gc_driver%get_states()
       tmp_states = MultiState(importState=user_states%importState)
-      call this%registry%add_to_states(tmp_states, mode='user', _RC)
+      ! openspec/changes/phase-10a-state-materialization, graph-mode
+      ! spec "graph mode makes graph-native population the real
+      ! producer": in GRAPH_MODE_GRAPH, graph-native population
+      ! (immediately below) is the sole real producer for this
+      ! component - legacy's own add_to_states is skipped entirely
+      ! rather than running alongside it (never GRAPH_MODE_BOTH, which
+      ! runs graph-native materialization but never touches a shared
+      ! ESMF_State - design.md "both mode's no-collision guarantee is
+      ! structural"). Not exercised end-to-end by any fixture in this
+      ! phase (proposal.md/design.md's own explicit "demonstrate before
+      ! replace" deferral) - verified only via graph_mode()'s own direct
+      ! unit coverage and code-level inspection.
+      if (graph_mode() /= GRAPH_MODE_GRAPH) then
+         call this%registry%add_to_states(tmp_states, mode='user', _RC)
+      end if
+      call gb%run_populate_state_hook(this, tmp_states)
 
       outer_states = MultiState(importState=importState, exportState=exportState)
-      call this%registry%add_to_states(outer_states, mode='outer', _RC)
+      if (graph_mode() /= GRAPH_MODE_GRAPH) then
+         call this%registry%add_to_states(outer_states, mode='outer', _RC)
+      end if
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(importState)

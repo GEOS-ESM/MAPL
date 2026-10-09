@@ -49,8 +49,17 @@ contains
    ! is on, the underlying item is Field-typed, and geom has been
    ! resolved (design.md Decisions) before calling this - this module
    ! performs none of those checks itself.
+   !
+   ! openspec/changes/phase-10a-state-materialization: optional `name`,
+   ! passed through to FieldCreate(name=name, ...) - needed so a
+   ! materialized item is findable by short name once graph-native state
+   ! population really inserts it into an ESMF_State (ESMF_StateGet's
+   ! own by-name contract). Omitted (today's unnamed-field behavior) by
+   ! the existing mismatch-branch call site, which never inserts its
+   ! result into a real ESMF_State - backward compatible, no existing
+   ! caller's behavior changes.
    subroutine materialize_field_extension(graph, node_id, geom, typekind, units, &
-        ungridded_dims, vgrid, vert_staggerloc, rc)
+        ungridded_dims, vgrid, vert_staggerloc, name, rc)
       class(ComponentGraph), target, intent(inout) :: graph
       type(NodeId), intent(in) :: node_id
       type(ESMF_Geom), intent(in) :: geom
@@ -59,6 +68,7 @@ contains
       type(UngriddedDims), optional, intent(in) :: ungridded_dims
       class(mapl_VerticalGrid), optional, intent(in) :: vgrid
       type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
+      character(*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -80,7 +90,7 @@ contains
          end if
 
          field = FieldCreate(geom=geom, typekind=typekind, ungridded_dims=ungridded_dims, &
-              vgrid=vgrid, vert_staggerloc=vert_staggerloc, units=units, _RC)
+              vgrid=vgrid, vert_staggerloc=vert_staggerloc, units=units, name=name, _RC)
 
          call payload%set(field, _RC)
          call node%set_payload(payload)
