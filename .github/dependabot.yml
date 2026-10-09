@@ -5,24 +5,40 @@
 
 version: 2
 updates:
-  # Enable daily updates for GitHub Actions (main)
+  # Enable weekly updates for GitHub Actions (main)
   - package-ecosystem: "github-actions"
     directory: "/" # Dependabot knows to look in .github/workflows for GitHub Actions
     schedule:
-      interval: "daily"
+      interval: "weekly"
     target-branch: "main"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "devops-infra/action-pull-request"
+        update-types:
+          - "version-update:semver-patch"
     labels:
       - "dependencies"
       - "github_actions"
       - "Changelog Skip"
       - "0 Diff"
 
-  # Enable daily updates for GitHub Actions (develop)
+  # Enable weekly updates for GitHub Actions (main)
   - package-ecosystem: "github-actions"
     directory: "/" # Dependabot knows to look in .github/workflows for GitHub Actions
     schedule:
-      interval: "daily"
+      interval: "weekly"
     target-branch: "develop"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "devops-infra/action-pull-request"
+        update-types:
+          - "version-update:semver-patch"
     labels:
       - "dependencies"
       - "github_actions"

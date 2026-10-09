@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and `read_bundle_` now return early when the bundle holds no fields, resolving a
   pre-existing TODO
 
+- Fixed `MAPL_LocStreamGet` accessing unassociated geometry when requesting
+  `tilelons` or `tilelats` with GNU Fortran.
 - Fixed `LatLonDecomposition`'s topology constructor to pack out zero-extent bins returned
   by `mapl_GetPartition()` when a LatLon grid is too coarse to be decomposed onto the
   requested `nx`/`ny` topology given ESMF's `min_extent=2` constraint, and updated
