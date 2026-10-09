@@ -156,12 +156,25 @@ context by construction — no repo-separation saving available here:
   a keyword argument, and both bypass `ComponentSpec%add_var_spec()`
   entirely (pushing directly into `var_specs`), so there is also no
   single already-existing call-through point every construction path
-  shares. `ordinary-inout-direct-alias`'s own mutual-exclusion guard
+  shares.   `ordinary-inout-direct-alias`'s own mutual-exclusion guard
   (`callback_interface_id%is_valid() .and. is_inout_borrower`) was
   necessarily placed in `GraphBuilder.F90`'s `resolve_one` instead - it
   only fires when a connection happens to resolve against the item, not
   at declaration time, and is reachable from production code even less
   than the fields it guards. See §20.4.6 for scope.
+- **Phase 9 (`GraphResolutionEntry` record type — discovered gap, not
+  previously tracked by any phase above)** — **landed**
+  (`openspec/changes/graphbuilder-resolution-entry`): `GraphBuilder.F90`'s
+  `unresolved_imports`/`unsupported_characteristics` resolution reports
+  used a `StringVector` of colon-concatenated
+  `component_name:short_name[:reason]` strings; replaced with a real
+  `GraphResolutionEntry` record (`component_name`/`short_name`/`reason`
+  fields) plus a generated `GraphResolutionEntryVector`, mirroring
+  `QualifiedExportEntry`'s own precedent for this exact problem shape
+  earlier in the same file. Flagged in review discussion before this
+  change was filed, but no roadmap entry was ever written for it at the
+  time, so the gap was effectively lost until this phase's own review
+  caught the omission. See §20.4.7 for scope.
 
 ### 20.4.1 Phase 3 sub-sequencing
 
@@ -991,6 +1004,51 @@ against it sails through completely unchecked today.
 **Not blocking anything above or already landed** - this is independent
 cleanup/hardening work on construction-time correctness, not new graph
 capability; it can be picked up at any time.
+
+### 20.4.7 Phase 9 scope: `GraphResolutionEntry` record type
+
+**Discovered gap, not previously tracked by any phase above.** Flagged
+in review discussion prior to this phase, the same way `QualifiedExportEntry`
+(`GraphBuilder.F90` ~line 297) replaced an earlier string-keyed
+representation for the qualified-export namespace — the reviewer
+discussion at the time noted the two resolution-report collections
+(`unresolved_imports`, `unsupported_characteristics`) should eventually
+get the same treatment, but no `openspec` change or roadmap entry was
+ever filed to track it. The gap was effectively lost until this phase's
+own review caught the omission — exactly the kind of drift §20's own
+header asks this document to guard against.
+
+**What existed:** `graphbuilder_check_unsatisfied_imports` and
+`graphbuilder_resolve_connections` populated `type(StringVector)`
+out-arguments by concatenating `component_name // ':' // short_name`
+(plus, for `unsupported_characteristics`, one more `':' // reason`
+segment) at ~10 call sites. The field count varied by call site (plain
+`component:short_name` for some `unsupported` cases, a third `:reason`
+segment for others), nothing prevented `short_name`/`reason` themselves
+from containing a literal `:`, and any caller wanting the identity
+(rather than a log-ready string) had to split on `:` itself.
+
+**Landed** (`openspec/changes/graphbuilder-resolution-entry`):
+`GraphResolutionEntry` (`component_name`/`short_name`/`reason`, all
+`character(:), allocatable`, `reason` set to `''` where not applicable)
+plus a generated `GraphResolutionEntryVector`/
+`GraphResolutionEntryVectorIterator` (gFTL2 vector template
+instantiation, mirroring `mapl_VariableSpecVector_mod`'s own
+`VariableSpec`/`VariableSpecVector.F90` split), in two new files
+(`GraphResolutionEntry.F90`, `GraphResolutionEntryVector.F90`). Both
+`GraphBuilder.F90` output-argument types and every push-back call site
+were converted; the two logging hooks
+(`graphbuilder_run_activate_hook`/`graphbuilder_run_connect_hook`) read
+the three fields directly instead of logging the opaque joined string;
+`Test_GraphBuilder.pf`'s ~15 string-literal assertions became per-field
+comparisons. Pure internal representation change — no requirement or
+scenario in `openspec/specs/graph/graph-builder/spec.md` changed
+(`skip_specs: true`), and no production caller outside
+`GraphBuilder.F90`'s own two hooks existed to begin with (confirmed by
+repo-wide search before landing).
+
+**Not blocking anything above or already landed** - independent
+internal-quality hardening, not new graph capability.
 
 ## 20.5 Cross-reference
 

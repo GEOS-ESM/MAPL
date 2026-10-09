@@ -151,6 +151,11 @@ module mapl_GraphBuilder_mod
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use gFTL2_StringVector, only: StringVector
+   ! openspec/changes/graphbuilder-resolution-entry: replaces the
+   ! colon-concatenated StringVector encoding previously used for
+   ! unresolved-import / unsupported-characteristic resolution reports.
+   use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
+   use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
    use mapl_Characteristic_mod, only: CharacteristicMap
    use mapl_CharacteristicId_mod, only: CharacteristicId, UNITS_CHARACTERISTIC_ID, VERTICAL_GRID_CHARACTERISTIC_ID, &
         GEOM_CHARACTERISTIC_ID
@@ -457,14 +462,14 @@ contains
    subroutine graphbuilder_check_unsatisfied_imports(this, unusable, unresolved_imports, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
-      type(StringVector), optional, intent(out) :: unresolved_imports
+      type(GraphResolutionEntryVector), optional, intent(out) :: unresolved_imports
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ComponentSpec), pointer :: comp_spec
       type(ConnectionVectorIterator) :: iter
       class(Connection), pointer :: c
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unresolved
 
       comp_spec => this%get_component_spec()
 
@@ -529,7 +534,7 @@ contains
    subroutine check_match_connection_unsatisfied(this, conn, unresolved, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(MatchConnection), intent(in) :: conn
-      type(StringVector), intent(inout) :: unresolved
+      type(GraphResolutionEntryVector), intent(inout) :: unresolved
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -563,14 +568,14 @@ contains
          if (var_spec%callback_interface_id%is_valid()) then
             callback_matches = resolve_callback_import(this, src_pt, var_spec, rc=rc)
             if (size(callback_matches) == 0) then
-               call unresolved%push_back(dst_pt%component_name // ':' // var_spec%short_name)
+               call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name))
             end if
             _RETURN(_SUCCESS)
          end if
 
          has_export = associated(find_export_var_spec(src_spec, var_spec%short_name))
          if (.not. has_export) then
-            call unresolved%push_back(dst_pt%component_name // ':' // var_spec%short_name)
+            call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name))
          end if
 
          _RETURN(_SUCCESS)
@@ -601,13 +606,13 @@ contains
          unsupported_characteristics, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
-      type(StringVector), optional, intent(out) :: unresolved_imports
+      type(GraphResolutionEntryVector), optional, intent(out) :: unresolved_imports
       ! REQ scenario "Unregistered characteristic fails loudly": a
       ! distinguishable report, separate from unresolved_imports (which
       ! means "no export at all"), for a matched export/import pair whose
       ! mismatch has no registered extension provider
       ! (mapl_ExtensionResolution_mod).
-      type(StringVector), optional, intent(out) :: unsupported_characteristics
+      type(GraphResolutionEntryVector), optional, intent(out) :: unsupported_characteristics
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -615,8 +620,8 @@ contains
       type(ComponentGraph), pointer :: graph
       type(ConnectionVectorIterator) :: iter
       class(Connection), pointer :: c
-      type(StringVector) :: unresolved
-      type(StringVector) :: unsupported
+      type(GraphResolutionEntryVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unsupported
 
       graph => this%get_component_graph()
       if (graph%is_frozen()) then
@@ -663,8 +668,8 @@ contains
    subroutine resolve_match_connection(this, conn, unresolved, unsupported, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(MatchConnection), intent(in) :: conn
-      type(StringVector), intent(inout) :: unresolved
-      type(StringVector), intent(inout) :: unsupported
+      type(GraphResolutionEntryVector), intent(inout) :: unresolved
+      type(GraphResolutionEntryVector), intent(inout) :: unsupported
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -712,8 +717,8 @@ contains
          ! Rejected explicitly, checked before either branch, so neither
          ! one ever silently wins.
          if (var_spec%callback_interface_id%is_valid() .and. var_spec%is_inout_borrower) then
-            call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
-                 ':declares both an expected callback interface and inout borrower intent (mutually exclusive)')
+            call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+                 'declares both an expected callback interface and inout borrower intent (mutually exclusive)'))
             _RETURN(_SUCCESS)
          end if
 
@@ -728,8 +733,8 @@ contains
              call resolve_callback_destination(this, src_pt, dst_pt, var_spec, callback_rejected, _RC)
              do j = 1, callback_rejected%size()
                 rejected_item => callback_rejected%of(j)
-                call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
-                     ':' // rejected_item)
+                call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+                     rejected_item))
              end do
              _RETURN(_SUCCESS)
           end if
@@ -754,7 +759,7 @@ contains
          if (.not. has_export) then
             ! REQ scenario "Import with no matching export is left
             ! unresolved" - reported, not silently dropped.
-            call unresolved%push_back(dst_pt%component_name // ':' // var_spec%short_name)
+            call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name))
             _RETURN(_SUCCESS)
          end if
 
@@ -778,8 +783,8 @@ contains
          if (unsupported_characteristic /= '') then
             ! spec "Unregistered characteristic fails loudly" -
             ! distinguishable from "import has no matching export."
-            call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
-                 ':' // unsupported_characteristic)
+            call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+                 unsupported_characteristic))
             _RETURN(_SUCCESS)
          end if
 
@@ -796,8 +801,8 @@ contains
                ! Distinguishable from both "no matching export" and
                ! "unregistered characteristic fails loudly" above (spec
                ! "A non-field item class fails explicitly").
-               call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
-                    ':' // materialization_failure)
+               call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+                    materialization_failure))
                _RETURN(_SUCCESS)
             end if
          end if
@@ -915,7 +920,7 @@ contains
       type(ConnectionPt), intent(in) :: src_pt
       type(ConnectionPt), intent(in) :: dst_pt
       type(VariableSpec), intent(in) :: var_spec
-      type(StringVector), intent(inout) :: unsupported
+      type(GraphResolutionEntryVector), intent(inout) :: unsupported
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -941,8 +946,8 @@ contains
          ! spec "A borrower declaration with no identifiable owner is
          ! rejected" - reported, never silently treated as an ordinary
          ! import.
-         call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
-              ':inout borrower has no identifiable owner')
+         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+              'inout borrower has no identifiable owner'))
          _RETURN(_SUCCESS)
       end if
 
@@ -958,8 +963,8 @@ contains
       ! borrowed by its own owning component.
       owner_comp_spec => component_spec_for(this, src_pt%component_name, _RC)
       if (associated(find_inout_borrower_var_spec(owner_comp_spec, var_spec%short_name))) then
-         call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
-              ':inout borrower owner is itself a declared inout borrower (chained borrowing)')
+         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+              'inout borrower owner is itself a declared inout borrower (chained borrowing)'))
          _RETURN(_SUCCESS)
       end if
 
@@ -972,8 +977,8 @@ contains
          ! chained" - REQ-INOUT-002 reserves the non-direct-alias case;
          ! this capability MUST NOT delegate to extension-chain
          ! construction the way ordinary (non-inout) resolution does.
-         call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
-              ':inout borrower payload does not exactly match its owner (non-direct-alias case not supported)')
+         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+              'inout borrower payload does not exactly match its owner (non-direct-alias case not supported)'))
          _RETURN(_SUCCESS)
       end if
 
@@ -2533,9 +2538,9 @@ contains
       class(OuterMetaComponent), target, intent(inout) :: this
 
       integer :: status
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unresolved
       integer :: i
-      character(:), pointer :: unresolved_item
+      type(GraphResolutionEntry), pointer :: entry
       class(Logger), pointer :: lgr
 
       call graphbuilder_check_unsatisfied_imports(this, unresolved_imports=unresolved, rc=status)
@@ -2543,9 +2548,10 @@ contains
 
       lgr => this%get_logger()
       do i = 1, unresolved%size()
-         unresolved_item => unresolved%of(i)
+         entry => unresolved%of(i)
          call lgr%warning( &
-              'GraphBuilder: no ordinary-match export found for unresolved import %a', unresolved_item)
+              'GraphBuilder: no ordinary-match export found for unresolved import %a:%a', &
+              entry%component_name, entry%short_name)
       end do
    end subroutine graphbuilder_run_activate_hook
 
@@ -2570,10 +2576,10 @@ contains
       class(OuterMetaComponent), target, intent(inout) :: this
 
       integer :: status
-      type(StringVector) :: unsupported
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unsupported
+      type(GraphResolutionEntryVector) :: unresolved
       integer :: i
-      character(:), pointer :: unsupported_item
+      type(GraphResolutionEntry), pointer :: entry
       class(Logger), pointer :: lgr
 
       call graphbuilder_resolve_connections(this, unsupported_characteristics=unsupported, rc=status)
@@ -2581,10 +2587,10 @@ contains
 
       lgr => this%get_logger()
       do i = 1, unsupported%size()
-         unsupported_item => unsupported%of(i)
+         entry => unsupported%of(i)
          call lgr%warning( &
-              'GraphBuilder: no registered extension provider for mismatched characteristic %a', &
-              unsupported_item)
+              'GraphBuilder: no registered extension provider for mismatched characteristic %a:%a:%a', &
+              entry%component_name, entry%short_name, entry%reason)
       end do
 
       call graphbuilder_freeze(this, status)
@@ -2605,7 +2611,7 @@ contains
    ! every other step in that hook already uses, rather than an inline
    ! _ASSERT with no rc of its own to propagate.
    subroutine assert_converged(unresolved, rc)
-      type(StringVector), intent(in) :: unresolved
+      type(GraphResolutionEntryVector), intent(in) :: unresolved
       integer, optional, intent(out) :: rc
 
       character(:), allocatable :: msg

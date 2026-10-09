@@ -53,6 +53,8 @@ module Test_GraphBuilder
    use mapl_FieldGet_mod, only: FieldGet
    use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid
    use gFTL2_StringVector, only: StringVector
+   use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
+   use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
    use ESMF_TestMethod_mod
    use esmf
    use pfunit
@@ -213,7 +215,8 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph, src_graph, dst_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unresolved
+      type(GraphResolutionEntry), pointer :: entry
       type(NodeId), pointer :: t_export_proxy, t_import_proxy, q_import_proxy
       type(NodeId), pointer :: t_export_native, t_import_native
       type(DependencyNetwork), pointer :: net
@@ -261,7 +264,9 @@ contains
       @assert_that(status, is(0))
 
       @assertEqual(1, unresolved%size())
-      @assert_that(unresolved%at(1, status), is(equal_to('child_dst:Q')))
+      entry => unresolved%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('Q', entry%short_name)
 
       parent_graph => parent_meta%get_component_graph()
       t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
@@ -326,7 +331,7 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
       type(NodeId), pointer :: t_export_proxy, t_import_proxy
       type(DependencyNetwork), pointer :: net
       type(DependencyNetworkId) :: net_id
@@ -418,7 +423,7 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
       type(VariableSpec) :: borrower_spec
       type(NodeId), pointer :: t_export_proxy, t_import_proxy
       type(DependencyNetwork), pointer :: net, candidate_net
@@ -530,7 +535,8 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
       type(VariableSpec) :: borrower_spec
       type(NodeId), pointer :: t_export_proxy, t_import_proxy
       type(DependencyNetwork), pointer :: net
@@ -576,8 +582,11 @@ contains
 
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
-      @assert_that(unsupported%at(1, status), is(equal_to( &
-           'child_dst:T:inout borrower payload does not exactly match its owner (non-direct-alias case not supported)')))
+      entry => unsupported%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('T', entry%short_name)
+      @assertEqual('inout borrower payload does not exactly match its owner (non-direct-alias case not supported)', &
+           entry%reason)
 
       ! No extension chain, no direct edge either - the pairing is
       ! rejected outright (contrast with the ordinary mismatch test,
@@ -613,7 +622,8 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, dst_spec
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
       type(VariableSpec) :: borrower_spec
       integer :: status
       type(GraphBuilder) :: gb
@@ -655,8 +665,10 @@ contains
 
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
-      @assert_that(unsupported%at(1, status), is(equal_to( &
-           'child_dst:T:inout borrower has no identifiable owner')))
+      entry => unsupported%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('T', entry%short_name)
+      @assertEqual('inout borrower has no identifiable owner', entry%reason)
 
       _UNUSED_DUMMY(this)
    end subroutine test_inout_borrower_with_no_owner_is_rejected
@@ -677,7 +689,8 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, a_spec, b_spec, c_spec
       type(MatchConnection) :: conn_ab, conn_bc
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
       type(VariableSpec) :: borrower_spec
       integer :: status
       type(GraphBuilder) :: gb
@@ -749,8 +762,10 @@ contains
       ! borrower, i.e. chained borrowing).
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
-      @assert_that(unsupported%at(1, status), is(equal_to( &
-           'comp_c:T:inout borrower owner is itself a declared inout borrower (chained borrowing)')))
+      entry => unsupported%at(1, status)
+      @assertEqual('comp_c', entry%component_name)
+      @assertEqual('T', entry%short_name)
+      @assertEqual('inout borrower owner is itself a declared inout borrower (chained borrowing)', entry%reason)
 
       _UNUSED_DUMMY(this)
    end subroutine test_inout_chained_borrowing_is_rejected
@@ -775,7 +790,8 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unresolved
+      type(GraphResolutionEntry), pointer :: entry
       type(NodeId), pointer :: t_export_proxy, t_import_proxy, q_import_proxy
       type(NodeIdSet) :: parent_ids
       integer :: status
@@ -821,7 +837,9 @@ contains
 
       ! Same unresolved report as the real (connect-time) resolution.
       @assertEqual(1, unresolved%size())
-      @assert_that(unresolved%at(1, status), is(equal_to('child_dst:Q')))
+      entry => unresolved%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('Q', entry%short_name)
 
       ! No graph mutation: no proxy nodes created, node count unchanged.
       t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
@@ -851,7 +869,7 @@ contains
       type(ComponentSpec), pointer :: comp_spec
       type(ComponentGraph), pointer :: graph
       type(SimpleConnection) :: conn
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unresolved
       type(NodeId), pointer :: t_export, t_import
       type(DependencyNetwork), pointer :: net
       integer :: status
@@ -1002,7 +1020,7 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
       type(NodeId), pointer :: t_import_proxy
       type(NodeId) :: extension_id
       type(DependencyNetwork), pointer :: net
@@ -1095,7 +1113,7 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
       type(NodeId), pointer :: t_import_proxy
       type(NodeId) :: extension_id
       type(DependencyNetwork), pointer :: net
@@ -1202,7 +1220,8 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
       type(VariableSpec) :: export_var_spec, import_var_spec
       integer :: status
       type(GraphBuilder) :: gb
@@ -1248,7 +1267,10 @@ contains
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
-      @assert_that(unsupported%at(1, status), is(equal_to('child_dst:T:unsupported_item_class:VECTOR')))
+      entry => unsupported%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('T', entry%short_name)
+      @assertEqual('unsupported_item_class:VECTOR', entry%reason)
 
       _UNUSED_DUMMY(this)
    end subroutine test_materialize_extensions_reports_unsupported_item_class
@@ -1269,7 +1291,8 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
       type(VariableSpec) :: export_var_spec, import_var_spec
       type(mapl_BasicVerticalGrid) :: export_vgrid, import_vgrid
       integer :: status
@@ -1340,7 +1363,10 @@ contains
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
-      @assert_that(unsupported%at(1, status), is(equal_to('child_dst:T:VERTICAL_GRID')))
+      entry => unsupported%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('T', entry%short_name)
+      @assertEqual('VERTICAL_GRID', entry%reason)
 
       _UNUSED_DUMMY(this)
    end subroutine test_materialize_extensions_vgrid_mismatch_unaffected
@@ -1406,7 +1432,7 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unresolved
       type(NodeIdLabelMap) :: label_map
       character(:), allocatable :: dot_text, json_text
       integer :: status
@@ -1656,7 +1682,7 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unresolved
       type(VariableSpec) :: export_composite, import_composite
       type(NodeId), pointer :: export_proxy, import_proxy
       type(DependencyNetwork), pointer :: net
@@ -1859,7 +1885,7 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
       type(VariableSpec) :: export_vgrid, import_vgrid
       type(NodeId), pointer :: export_proxy, import_proxy
       type(DependencyNetwork), pointer :: net
@@ -1944,7 +1970,8 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
       type(VariableSpec) :: export_vgrid, import_vgrid
       integer :: status
       type(GraphBuilder) :: gb
@@ -2001,7 +2028,10 @@ contains
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
-      @assert_that(unsupported%at(1, status), is(equal_to('child_dst:MY_VGRID:VERTICAL_GRID')))
+      entry => unsupported%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('MY_VGRID', entry%short_name)
+      @assertEqual('VERTICAL_GRID', entry%reason)
 
       _UNUSED_DUMMY(this)
    end subroutine test_vertical_grid_composites_single_overlap_fails_explicitly
@@ -2013,8 +2043,8 @@ contains
          unresolved, unsupported, rc)
       character(*), intent(in) :: export_dimensions(:)
       character(*), intent(in) :: import_dimensions(:)
-      type(StringVector), intent(out) :: unresolved
-      type(StringVector), intent(out) :: unsupported
+      type(GraphResolutionEntryVector), intent(out) :: unresolved
+      type(GraphResolutionEntryVector), intent(out) :: unsupported
       integer, optional, intent(out) :: rc
 
       type(ESMF_GridComp) :: parent_gc
@@ -2082,7 +2112,8 @@ contains
    @test(npes=[0])
    subroutine test_vertical_grid_composites_zero_overlap_fails_incompatible(this)
       class(MpiTestMethod), intent(inout) :: this
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
       integer :: status
 
       call resolve_vertical_grid_membership_mismatch([character(8) :: 'pressure'], [character(8) :: 'height'], &
@@ -2092,7 +2123,10 @@ contains
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
-      @assert_that(unsupported%at(1, status), is(equal_to('child_dst:MY_VGRID:VERTICAL_GRID')))
+      entry => unsupported%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('MY_VGRID', entry%short_name)
+      @assertEqual('VERTICAL_GRID', entry%reason)
 
       _UNUSED_DUMMY(this)
    end subroutine test_vertical_grid_composites_zero_overlap_fails_incompatible
@@ -2100,7 +2134,8 @@ contains
    @test(npes=[0])
    subroutine test_vertical_grid_composites_multiple_overlap_fails_ambiguous(this)
       class(MpiTestMethod), intent(inout) :: this
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
       integer :: status
 
       call resolve_vertical_grid_membership_mismatch([character(8) :: 'pressure', 'height'], &
@@ -2111,7 +2146,10 @@ contains
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
-      @assert_that(unsupported%at(1, status), is(equal_to('child_dst:MY_VGRID:VERTICAL_GRID')))
+      entry => unsupported%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('MY_VGRID', entry%short_name)
+      @assertEqual('VERTICAL_GRID', entry%reason)
 
       _UNUSED_DUMMY(this)
    end subroutine test_vertical_grid_composites_multiple_overlap_fails_ambiguous
@@ -2397,7 +2435,7 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unresolved
       type(NodeId), pointer :: t_export_proxy, t_import_proxy
       type(DependencyNetwork), pointer :: net
       type(VariableSpec) :: import_var_spec
@@ -2564,7 +2602,7 @@ contains
       type(ComponentSpec), pointer :: root_spec, dyn_spec
       type(VariableSpec) :: dyn_import
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unresolved
       type(ComponentGraph), pointer :: root_graph
       type(NodeId), pointer :: import_id
       type(DependencyNetwork), pointer :: net
