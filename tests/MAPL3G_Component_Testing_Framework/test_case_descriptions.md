@@ -13,6 +13,7 @@ Note all test cases are in a numbered directory caseX, where a X is an integer a
 9. Single time file, persisted at all times
 10. Interpolation outside of data set (Harvard mode), make a multi year dataset. Define as not a climatology and ask for data after dataset time range
 11. Interpolation outside of data set (Harvard mode), make a multi year dataset. Define as not a climatology and ask for data before datset time range
+12. so called coarse grid, no DE case
 13. Testing that we can take a climatology for a non-leap year and interpolate to a leap year. 12 files each with the midmonth value for 2007 (non-leap year). Interpolate to 02/29/2008 (leap year)
 14. Testing that we can take a climatology for a non-leap year and interpolate to a leap year. Daily files each with 1 value for 2007 (non-leap year). Interpolate to 02/29/2008 (leap year)
 15. Testing that we can take a climatology for a non-leap year and interpolate to a non-leap year. Daily files each with 1 value for 2007 (non-leap year). Interpolate to 03/29/2006 (leap year)
@@ -31,3 +32,4 @@ Note all test cases are in a numbered directory caseX, where a X is an integer a
 42. Test of Historys ability to output monthly and djf averages
 43. Test of Historys ability to output daily averge and modify on a per-variable basis the units, averaging type, and precision
 44. Test ExtData file-read logging: enable log_files_read in extdata config, run a 2-step case where step 1 generates and writes files and step 2 reads them with logging enabled, then compare the generated log against a golden reference file
+45. Test vertical regridding from "model" levels to fixed pressure levels
