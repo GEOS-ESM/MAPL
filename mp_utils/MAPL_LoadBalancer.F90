@@ -4,9 +4,9 @@
 #include "MAPL.h"
 !------------------------------------------------------------------------------
 !>
-!### MODULE: `MAPL_LoadBalanceMod`
+!### MODULE: `MAPL_LoadBalancerMod`
 !
-module mapl_LoadBalance_mod
+module mapl_LoadBalancer_mod
 
   use MAPL_Constants, only : MAPL_R8
   use mapl_Sort_mod
@@ -15,17 +15,17 @@ module mapl_LoadBalance_mod
   implicit none
   private
 
-  public LoadBalanceRun
-  public LoadBalanceCreate
-  public LoadBalanceDestroy
-  public LoadBalanceGet
+  public LoadBalancerRun
+  public LoadBalancerCreate
+  public LoadBalancerDestroy
+  public LoadBalancerGet
 
-  interface LoadBalanceRun
-     module procedure LoadBalanceRun4
-     module procedure LoadBalanceRun8
-  end interface LoadBalanceRun
-  integer, public, parameter :: LOADBALANCE_DISTRIBUTE = 1
-  integer, public, parameter :: LOADBALANCE_RETRIEVE = 2
+  interface LoadBalancerRun
+     module procedure LoadBalancerRun4
+     module procedure LoadBalancerRun8
+  end interface LoadBalancerRun
+  integer, public, parameter :: LOADBALANCER_DISTRIBUTE = 1
+  integer, public, parameter :: LOADBALANCER_RETRIEVE = 2
 
   type TBalanceStrategy
      integer :: UNBALANCED_LENGTH=-1
@@ -48,7 +48,7 @@ module mapl_LoadBalance_mod
 !      LOGICAL MASK(IM,JM)
 !      ...
 !      LENGTH = COUNT(MASK)
-!      IRUN   = LoadBalanceCreate(LENGTH)
+!      IRUN   = LoadBalancerCreate(LENGTH)
 !      IDIM   = max(length,irun)
 !
 !      allocate(AT(IDIM,LM),BT(IDIM),CT(IDIM,LM)
@@ -61,8 +61,8 @@ module mapl_LoadBalance_mod
 !
 !!! DISTRIBUTE THE INPUTS
 !
-!      CALL LoadBalanceRun(AT,IDIM,LM,Direction=LOADBALANCE_DISTRIBUTE)
-!      CALL LoadBalanceRun(BT,IDIM,1 ,Direction=LOADBALANCE_DISTRIBUTE)
+!      CALL LoadBalancerRun(AT,IDIM,LM,Direction=LOADBALANCER_DISTRIBUTE)
+!      CALL LoadBalancerRun(BT,IDIM,1 ,Direction=LOADBALANCER_DISTRIBUTE)
 !
 !!! PLUG COMPATIBLE ROUTINE AT(IN), BT(INOUT), CT(OUT)
 !
@@ -70,8 +70,8 @@ module mapl_LoadBalance_mod
 !
 !!! RETRIEVE THE OUTPUTS
 !
-!      CALL LoadBalanceRun(CT,IDIM,LM,Direction=LOADBALANCE_RETRIEVE)
-!      CALL LoadBalanceRun(BT,IDIM, 1,Direction=LOADBALANCE_RETRIEVE)
+!      CALL LoadBalancerRun(CT,IDIM,LM,Direction=LOADBALANCER_RETRIEVE)
+!      CALL LoadBalancerRun(BT,IDIM, 1,Direction=LOADBALANCER_RETRIEVE)
 !
 !      B = UNPACK(BT(1:LENGTH),MASK,B)
 !
@@ -88,17 +88,17 @@ contains
 !>
 ! Depending on the argument "Direction", this performs the actual distribution
 ! of work or the gathering of results for a given strategy. The strategy has to
-! have been predefined by a call to LoadBalanceCreate. A strategy "Handle"
+! have been predefined by a call to LoadBalancerCreate. A strategy "Handle"
 ! obtained from that call can be optionally used to specify the strategy. Otherwise,
-! a default strategy is assumed (see LoadBalanceCreate for details).
+! a default strategy is assumed (see LoadBalancerCreate for details).
 ! Work (Results) is distributed (retrieved) using the buffer A, which is assumed
 ! to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.
 ! The blocksize of A (Idim) must be at least as large as the BufLen associated
 ! with the strategy. This size can be obtained by quering the strategy using
-! its handle or be saving it from the LoadBalanceCreate call. Again, see
-! LoadBalanceCreate for details.
+! its handle or be saving it from the LoadBalancerCreate call. Again, see
+! LoadBalancerCreate for details.
 
-  subroutine LoadBalanceRun4(A, Idim, Direction, Handle, rc)
+  subroutine LoadBalancerRun4(A, Idim, Direction, Handle, rc)
     real,              intent(INOUT) :: A(:)
     integer,           intent(IN   ) :: Idim, Direction
     integer, optional, intent(IN   ) :: Handle
@@ -126,7 +126,7 @@ contains
 ! Initialize CURSOR, which is the location in the first block of A where
 ! the next read or write is to occur. K1 and K2 are the limits
 
-       if (Direction==LOADBALANCE_DISTRIBUTE) then
+       if (Direction==LOADBALANCER_DISTRIBUTE) then
           CURSOR = THE_STRATEGIES(ISTRAT)%UnBALANCED_LENGTH + 1
           k1=1
           k2=THE_STRATEGIES(ISTRAT)%PASSES
@@ -145,7 +145,7 @@ contains
        COMM =  THE_STRATEGIES(ISTRAT)%COMM
 
        do PASS=K1,K2,K3
-          if(Direction==LOADBALANCE_DISTRIBUTE) then
+          if(Direction==LOADBALANCER_DISTRIBUTE) then
              SEND   = NOP(1,PASS)>0
              RECV   = NOP(1,PASS)<0
           else
@@ -189,23 +189,23 @@ contains
     end if
 
     _RETURN(LDB_SUCCESS)
-  end subroutine LoadBalanceRun4
+  end subroutine LoadBalancerRun4
 
 !---------------------------------------------------------------------------
 !>
 ! Depending on the argument "Direction", this performs the actual distribution
 ! of work or the gathering of results for a given strategy. The strategy has to
-! have been predefined by a call to LoadBalanceCreate. A strategy "Handle"
+! have been predefined by a call to LoadBalancerCreate. A strategy "Handle"
 ! obtained from that call can be optionally used to specify the strategy. Otherwise,
-! a default strategy is assumed (see LoadBalanceCreate for details).
+! a default strategy is assumed (see LoadBalancerCreate for details).
 ! Work (Results) is distributed (retrieved) using the buffer A, which is assumed
 ! to consist of Jdim contiguous blocks of size Idim. Of course, Jdim can be 1.
 ! The blocksize of A (Idim) must be at least as large as the BufLen associated
 ! with the strategy. This size can be obtained by quering the strategy using
-! its handle or be saving it from the LoadBalanceCreate call. Again, see
-! LoadBalanceCreate for details.
+! its handle or be saving it from the LoadBalancerCreate call. Again, see
+! LoadBalancerCreate for details.
 
-  subroutine LoadBalanceRun8(A, Idim, Direction, Handle, rc)
+  subroutine LoadBalancerRun8(A, Idim, Direction, Handle, rc)
     real(kind=MAPL_R8), intent(INOUT) :: A(:)
     integer,            intent(IN   ) :: Idim, Direction
     integer, optional,  intent(IN   ) :: Handle
@@ -233,7 +233,7 @@ contains
 ! Initialize CURSOR, which is the location in the first block of A where
 ! the next read or write is to occur. K1 and K2 are the limits
 
-       if (Direction==LOADBALANCE_DISTRIBUTE) then
+       if (Direction==LOADBALANCER_DISTRIBUTE) then
           CURSOR = THE_STRATEGIES(ISTRAT)%UnBALANCED_LENGTH + 1
           k1=1
           k2=THE_STRATEGIES(ISTRAT)%PASSES
@@ -252,7 +252,7 @@ contains
        COMM =  THE_STRATEGIES(ISTRAT)%COMM
 
        do PASS=K1,K2,K3
-          if(Direction==LOADBALANCE_DISTRIBUTE) then
+          if(Direction==LOADBALANCER_DISTRIBUTE) then
              SEND   = NOP(1,PASS)>0
              RECV   = NOP(1,PASS)<0
           else
@@ -296,7 +296,7 @@ contains
     end if
 
     _RETURN(LDB_SUCCESS)
-  end subroutine LoadBalanceRun8
+  end subroutine LoadBalancerRun8
 
 !---------------------------------------------------------------------------
 !>
@@ -313,7 +313,7 @@ contains
 ! will most likely be the communicator from the ESMF VM.
 !@endnote
 !
-  subroutine LoadBalanceCreate(OrgLen, Comm, MaxPasses, BalCond, &
+  subroutine LoadBalancerCreate(OrgLen, Comm, MaxPasses, BalCond, &
                                 Handle, BalLen, BufLen, rc)
 
     integer,           intent(IN)  :: OrgLen
@@ -484,11 +484,11 @@ contains
 
     end subroutine CreateStrategy
 
-  end subroutine LoadBalanceCreate
+  end subroutine LoadBalancerCreate
 
 !---------------------------------------------------------------------------
 
-  subroutine LoadBalanceDestroy(Handle, rc)
+  subroutine LoadBalancerDestroy(Handle, rc)
     integer, optional, intent(IN ) :: Handle
     integer, optional, intent(OUT) :: rc
 
@@ -516,11 +516,11 @@ contains
     THE_STRATEGIES(Handle_)%COMM              =-1
 
     _RETURN(LDB_SUCCESS)
-  end subroutine LoadBalanceDestroy
+  end subroutine LoadBalancerDestroy
 
 !---------------------------------------------------------------------------
 
-  subroutine LoadBalanceGet(Handle, BalLen, BufLen, Passes, Comm, rc)
+  subroutine LoadBalancerGet(Handle, BalLen, BufLen, Passes, Comm, rc)
     integer,           intent(IN ) :: Handle
     integer, optional, intent(OUT) :: BalLen, BufLen, Passes, Comm
     integer, optional, intent(OUT) :: rc
@@ -540,6 +540,6 @@ contains
          Comm   = THE_STRATEGIES(Handle)%COMM
 
     _RETURN(LDB_SUCCESS)
-  end subroutine LoadBalanceGet
+  end subroutine LoadBalancerGet
 
-end module mapl_LoadBalance_mod
+end module mapl_LoadBalancer_mod
