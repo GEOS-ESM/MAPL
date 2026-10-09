@@ -210,6 +210,28 @@ module mapl_VariableSpec_mod
       ! provides the needed vocabulary.
       type(MAPL_StateItem_Flag), allocatable :: state_item_variant
 
+      !=====================
+      ! ordinary inout borrower (openspec/changes/
+      ! ordinary-inout-direct-alias)
+      !=====================
+      ! Marks an import as an ordinary inout borrower (16-inout-items.md
+      ! REQ-INOUT-001, direct-alias case only): the import's payload is
+      ! expected to be the same underlying payload as the matched export
+      ! it borrows from, with GraphBuilder additionally wiring a
+      ! borrower-to-owner return-network edge so the owner's node
+      ! reflects the borrower's result after the borrower executes
+      ! (design.md Decisions 1-3). Default .false. for an ordinary
+      ! (non-inout) import - GraphBuilder branches on this field, not on
+      ! itemType, mirroring `callback_interface_id`'s own "mark the item,
+      ! not a new itemType" precedent exactly. The owner this borrower
+      ! pairs with is identified through the existing `MatchConnection`
+      ! mechanism already used for ordinary connections - no owner
+      ! reference is stored on the borrower's own VariableSpec (design.md
+      ! Decision 1). Set via plain field assignment only, no
+      ! make_VariableSpec keyword, same as `callback_interface_id`/
+      ! `state_item_variant`.
+      logical :: is_inout_borrower = .false.
+
    contains
       procedure :: make_virtualPt
       procedure :: make_dependencies

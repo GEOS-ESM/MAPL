@@ -35,6 +35,24 @@ underlying ESMF payload via `ESMF_NamedAlias`, no grid/units/precision
 mismatch) requires no transforms in either direction. This degenerate case
 is settled and follows directly from REQ-EXT-003's no-op principle.
 
+**Implemented** (`openspec/changes/archive/ordinary-inout-direct-alias`,
+roadmap 5b): a destination item may be declared an ordinary inout borrower
+(`VariableSpec%is_inout_borrower`); `GraphBuilder` wires the forward edge
+(owner -> borrower) exactly as the ordinary REQ-EXT-003 no-op case already
+does, plus a return edge (borrower -> owner) in a fresh per-pairing
+`DependencyNetwork` - no transform either direction, matching this
+requirement exactly. Every shape REQ-INOUT-002 reserves (mismatched
+payload, no identifiable owner, chained/recursive borrowing) is rejected
+explicitly rather than silently extension-chained. **Not yet implemented**
+as part of this: the runtime return-edge propagation trigger (§16.1's
+"after borrower execution" step) - `ComponentGraph`'s demand-driven
+`update()` only does active work for `TransformGraphNode`s, and the real
+trigger event (the borrower's own GridComp run completing) has no
+invocation-completion hook in the codebase yet for ordinary (non-callback)
+components. This change lands the forward/return graph *structure* only;
+the runtime trigger is explicit follow-up work once Phase 4's invocation-
+lifecycle hook exists, tracked in that change's own design.md.
+
 ## 16.3 What is explicitly NOT settled
 
 The following are open and MUST NOT be assumed resolved:

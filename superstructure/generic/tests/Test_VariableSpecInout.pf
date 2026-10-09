@@ -1,0 +1,36 @@
+#include "MAPL_TestErr.h"
+
+! openspec/changes/ordinary-inout-direct-alias, tasks.md 1.3: VariableSpec's
+! own is_inout_borrower field (design.md Decision 1) - default .false. for
+! an ordinary item, explicitly settable/retrievable for a declared inout
+! borrower. Mirrors Test_VariableSpecCallback.pf's own shape exactly.
+module Test_VariableSpecInout
+   use pfunit
+   use mapl_VariableSpec_mod, only: VariableSpec
+   use esmf, only: ESMF_STATEINTENT_IMPORT
+   implicit none(type, external)
+
+contains
+
+   @test
+   subroutine test_ordinary_item_is_not_inout_borrower()
+      type(VariableSpec) :: var_spec
+
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%short_name = 'T'
+
+      @assertFalse(var_spec%is_inout_borrower)
+   end subroutine test_ordinary_item_is_not_inout_borrower
+
+   @test
+   subroutine test_declared_item_reports_as_inout_borrower()
+      type(VariableSpec) :: var_spec
+
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%short_name = 'T'
+      var_spec%is_inout_borrower = .true.
+
+      @assertTrue(var_spec%is_inout_borrower)
+   end subroutine test_declared_item_reports_as_inout_borrower
+
+end module Test_VariableSpecInout
