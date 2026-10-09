@@ -127,7 +127,8 @@ context by construction — no repo-separation saving available here:
   graph-native paths above are the actual default, plus a running list
   of small, otherwise-easy-to-lose follow-ups that are blocked on that
   retirement (e.g. 3c's own `UnitsConverterTransform` ->
-  `ConvertUnitsTransform` rename).
+  `ConvertUnitsTransform` rename). Entry criterion ("validated, not
+  merely built") is Phase 10's own job to satisfy — see §20.4.8.
 - **Phase 7 (shape-changing connection dispatch — discovered gap, not
   previously tracked by any phase above)** — legacy `ClassAspect`'s own
   shape-dispatch role (`09-extension-reuse.md`'s existing
@@ -175,6 +176,19 @@ context by construction — no repo-separation saving available here:
   change was filed, but no roadmap entry was ever written for it at the
   time, so the gap was effectively lost until this phase's own review
   caught the omission. See §20.4.7 for scope.
+- **Phase 10 (graph-native `Test_Scenarios` validation suite —
+  discovered gap, not previously tracked by any phase above)** — Phase
+  6's own entry criterion requires every production path's graph-native
+  replacement to be *validated*, not merely built, before legacy
+  retirement starts; no such validation suite exists yet. Four strictly
+  ordered sub-changes: state materialization + a 3-mode
+  (`registry`/`graph`/`both`) toggle, a generalized equivalence harness
+  on new flat fixtures, a real two-characteristic (`units`+`typekind`)
+  extension chain, and (new mechanism, sequenced last) real
+  `MethodGraphNode` construction for an ordinary run phase with runtime
+  re-invalidation. See §20.4.8 for the sub-sequencing this phase needs
+  before implementation starts, and why it is a prerequisite for this
+  bullet's own Phase 6, not a renumbering of it.
 
 ### 20.4.1 Phase 3 sub-sequencing
 
@@ -1049,6 +1063,189 @@ repo-wide search before landing).
 
 **Not blocking anything above or already landed** - independent
 internal-quality hardening, not new graph capability.
+
+### 20.4.8 Phase 10 sub-sequencing
+
+**Discovered gap, not previously tracked by any phase above.** Surfaced
+2026-10-09 during planning review (`openspec/changes/
+phase-10-sub-sequencing`): §20.4.2's own Phase 6 entry criterion ("do not
+retire `StateRegistry`/`ExtensionFamily`/the aspect system until every
+real production code path... has a graph-native replacement that has
+been *validated*, not merely built, as the default behavior") has no
+concrete validation suite to point to. Direct inspection of landed
+Phase 3-5 code shows the gap is not cosmetic: ordinary (exact-match)
+`StateItemNode`s are never materialized with a real `ESMF_Field`
+(`advertise_one()` leaves the payload default; `resolve_one()`'s
+exact-match branch only adds a dependency edge; real `FieldCreate` via
+`materialize_field_extension()` fires only on the mismatch/extension
+branch, gated off by default); nothing populates a real `ESMF_State`
+from graph-side `StateItemNode`s (the only thing
+`superstructure/generic/tests/Test_Scenarios.pf` — the ~30-fixture,
+real-YAML-configured regression suite this project treats as realistic
+client-code coverage — ever inspects is the `ESMF_State` tree legacy's
+own `StateRegistry%add_to_states` populates); `TypeKindCharacteristic`
+(Phase 5a) is never inserted by `GraphBuilder.F90`'s own
+`build_characteristics()`, so a real precision-only mismatch is
+currently invisible to `resolve_one`'s mismatch detection; no fixture
+exercises a genuine two-characteristic extension chain on one edge with
+clean, hand-checkable naming; and nothing constructs a real
+`MethodGraphNode` for an ordinary component's own `GENERIC_RUN_USER`
+phase (the only real construction site, `build_callback_method_binding`,
+is the deliberately narrower callback-wiring path — Phase 4b's own
+proposal.md named ordinary-phase construction an explicit, not-required
+deferral).
+
+Like Phase 3 (§20.4.1), Phase 4 (§20.4.3), and Phase 5 (§20.4.4), this
+does not fit a single spec-driven change proposal without an
+unreasonable context/cost footprint. Unlike those three, this phase's
+four sub-changes are **not** independent tracks — they are a strict
+dependency chain, each needing the previous one's result to have
+anything to validate against. Split into four ordered sub-changes
+accordingly, rather than filing one proposal spanning all four.
+
+**This phase is a prerequisite for §20.4.2's own entry criterion, not a
+renumbering of it.** Phase 6 (legacy retirement) is unchanged by this
+section; §20.4.8 is the validation suite Phase 6's own "validated, not
+merely built" language already presupposes but never named. Numbering
+follows this document's own established precedent (Phases 7/8/9): a
+newly-discovered phase gets the next free forward number, not a
+reordering of existing phase numbers to match dependency order.
+
+- **10a. State materialization + 3-mode toggle** — ordinary
+  (exact-match, non-mismatched) `StateItemNode`s get a real
+  `FieldCreate()`'d payload at `GENERIC_INIT_ACCEPT_TRANSFER` time,
+  removing today's restriction of real materialization to the
+  mismatch/extension branch only; a new graph-side equivalent of
+  `StateRegistry%add_to_states` walks a component's `ComponentGraph`
+  `StateItemNode`s and, in `graph` mode only, populates the real
+  `ESMF_State`; `mapl_GraphMode_mod` gains a 3-way selector
+  (`registry` / `graph` / `both`) in place of today's binary
+  `graph_native_enabled()`. **No `ESMF_State` name collision by
+  construction**: `both` mode never inserts graph-materialized data
+  into the shared `ESMF_State` that `check()`-style assertions
+  observe — it is compared out-of-band, reading the `StateItemNode`'s
+  own payload directly (`node%get_payload()%get_field()`), exactly as
+  `Test_GraphBuilderEquivalence.pf` already does today for its two
+  existing tests. `registry` mode (today's default) and `graph` mode
+  (true replacement — legacy's own `add_to_states`/`process_connections`
+  skipped entirely for that component) are mutually exclusive by
+  construction: only one producer ever inserts a given name into one
+  `ESMF_State`. `graph` mode is not attempted by this sub-change or any
+  other 10a-10d sub-change; it remains available as a later mode once
+  `both` mode has run clean across the fixture set this phase builds —
+  "demonstrate before replace." Depends only on landed Phase 1-3
+  (`ComponentGraph`, `StateItemNode`, `GraphBuilder`'s existing
+  `advertise_one`/`resolve_one`) — no dependency on 3c's extension
+  machinery beyond what already exists.
+- **10b. Generalized equivalence harness, "both" mode, flat fixtures**
+  — a parameterized pFUnit suite shaped like `Test_Scenarios.pf`'s own
+  `ScenarioDescription`/testParameter machinery, generalizing
+  `Test_GraphBuilderEquivalence.pf`'s existing (two-test) pattern:
+  each fixture runs through `graphbuilder_run_*_hook` in `both` mode,
+  asserting legacy's real `ESMF_State` and graph's shadow
+  `StateItemNode` payload agree (existence, typekind, units, geom,
+  shape; value once a run phase has executed). New, clean fixtures —
+  deliberately not a reuse of existing `scenario_1`/`scenario_2`-style
+  naming, since that naming emerged organically rather than being
+  designed for this purpose — each covering one orthogonal
+  no-transform capability (plain field, bundle/vector field, 3D field,
+  ungridded dims). Depends on 10a.
+- **10c. `TypeKindCharacteristic` wired into real resolution + a real
+  precision-cast transform** — `GraphBuilder.F90`'s own
+  `build_characteristics()` gains a `TYPE_KIND_CHARACTERISTIC_ID` entry
+  whenever a `VariableSpec%typekind` is declared, mirroring the
+  existing `units`/`vertical_grid` entries; `CopyTransform`
+  (`18-state-item-characteristics.md`'s own placeholder name, flagged
+  there as poor and in need of a better one before implementation —
+  this sub-change's own design.md picks the real name, checked against
+  `superstructure/generic/transforms/` and `superstructure/generic/graph/`
+  for a collision first, following the precedent `UnitsConverterTransform`/
+  `ConvertUnitsTransform`'s own existing collision already set) gets a
+  genuine R4<->R8 cast implementation, mirroring `UnitsConverterTransform`'s
+  shape (`FieldPointerUtilities`-based, no legacy coupling); one new,
+  clean two-characteristic fixture — a single edge whose export and
+  import mismatch on BOTH `units` and `typekind` simultaneously (e.g. a
+  `hPa`/`R4` producer feeding a `Pa`/`R8` consumer), with
+  hand-checkable values. `ExtensionResolution.F90`'s own `build_chain`
+  loop already walks an arbitrary-length `mismatched_kinds(:)` array
+  generically (confirmed by reading it directly) — no chain-building
+  code changes are needed; this sub-change only supplies the second
+  characteristic's own detection and transform. **Replaces, does not
+  reuse, the existing `invalidate/` fixture** for this specific
+  capability: `invalidate/` already exercises a genuine
+  `units`+`typekind` chain (confirmed by its own `description.md`:
+  "we use units and precision change as the two couplers as their
+  consequences are easy to compute directly"), but bundles that with
+  `numsteps: 2`/`run:` runtime re-invalidation semantics and
+  non-obvious `A`/`B`/`T`/`T(1)`/`T(2)` naming in one fixture — 10c's
+  own new fixture isolates the structural (chain exists, correct values
+  once) half with clear naming; 10d below extends this same new
+  fixture, not a second one, to add the runtime-re-invalidation half,
+  deliberately rebuilding what `invalidate/` already combined but as
+  the two separately-landable pieces this phase's own sub-sequencing
+  requires. Depends on 10a/10b (uses the same harness, extended to
+  assert the chain's intermediate materialized values, not just the
+  final one).
+- **10d. Ordinary-phase `MethodGraphNode` construction + real run-loop
+  wiring** — `GraphBuilder` constructs exactly one `MethodGraphNode`
+  per component, wrapping that component's own `GENERIC_RUN_USER`
+  phase through the already-real, already-landed
+  `GridCompDriverPhaseInvoker` (Phase 4b) — no new invoker/adapter
+  type, only a new construction call-site following
+  `build_callback_method_binding`'s own established
+  `declare_argument`/`bind_argument`/`register_node` pattern, keyed to
+  the component's own advertised ports instead of a
+  `CallbackInterface`'s declared arguments. A new call site — likely
+  `OuterMetaComponent`'s own `run_user.F90`, mirroring how
+  `gb%run_connect_hook` already sits alongside legacy's `connect()` at
+  `ACCEPT_TRANSFER` — invokes this `MethodGraphNode` (triggering
+  `update()`/`advance()` per REQ-MTH-003a's existing discipline)
+  alongside legacy's own run call, respecting the same 3-mode toggle
+  10a introduced. Extends 10c's own fixture (reused, not a new one) to
+  additionally exercise the chain re-propagating correctly when the
+  producer's exported value changes across a second timestep.
+  **Sequenced strictly after 10a-10c, not alongside them**: 10a-10c
+  close gaps in already-landed Phase 3-5 code; 10d is new mechanism (no
+  prior real construction site for an ordinary-phase `MethodGraphNode`
+  exists anywhere in the codebase), deliberately held until the
+  lower-risk sub-changes are demonstrably working first. Depends on
+  10a-10c; depends on Phase 4a/4b's already-landed `MethodGraphNode`/
+  `GridCompDriverPhaseInvoker`/`DriverResolver` and Phase 2's
+  `NodeRevision`/`ComponentGraph%update()` — no new dependency beyond
+  what Phase 1-4 already provide. Does not depend on and does not
+  reopen 4b2's driver-map unification (evaluated and declined, §20.4.3)
+  or Q9/5c's compiled-execution optimization — 10d invokes the existing
+  interpreted path only.
+
+**Explicitly out of scope, named as prerequisites rather than
+reopened.** Two gaps this phase's own fixture set deliberately does not
+attempt to unblock, each already named elsewhere in this document:
+
+- **Cross-component unresolved-import propagation (3b2)** — named a
+  required, committed follow-up in §20.4.1 but never actually filed as
+  its own `openspec` change; `graphbuilder_check_unsatisfied_imports()`'s
+  own activate-time result is still only logged and discarded today.
+  Every scenario fixture of the "propagated" shape (`statistics`,
+  `statistics_real`, `history_1`, `history_wildcard`, `extdata_1` — the
+  real connected item lives on a grandchild, surfaced only through
+  `StateRegistry`'s `propagate_exports`/`propagate_unsatisfied_imports`)
+  remains unreachable by `GraphBuilder` until 3b2 lands. 10a-10d's own
+  fixture set stays flat (non-propagated) throughout for this reason.
+- **Wildcard/Service pattern-based multi-source fan-in (Phase 7c,
+  §20.4.5)** — already recorded there as "hardest and least
+  understood." Fixtures of this shape (`history_wildcard`,
+  `service_service`, `service_with_options`) are additionally expected
+  to have no long-term graph-native analog at all: Service-style
+  fan-in is intended to be replaced by callbacks (Phase 4c/4d), not
+  reproduced structurally — not every legacy `Test_Scenarios` fixture
+  needs or will get a graph-native counterpart.
+
+**Repo/tooling note (extends §20.4.1's/§20.4.3's/§20.4.4's own notes).**
+Phase 10 code, for whichever sub-change is filed, lives in the MAPL
+repo/checkout, same as Phase 3-5: `10a`-`10d` all build on landed
+Phase 1-5 MAPL-repo code (`GraphStateItem`, `ComponentGraph`,
+`DependencyNetwork`, `MethodGraphNode`, `GridCompDriverPhaseInvoker`),
+so no repo-separation saving (§20.2) applies here either.
 
 ## 20.5 Cross-reference
 
