@@ -48,6 +48,11 @@ set(test_srcs
   Test_ExtensionResolution.pf
   Test_ExtensionMaterialization.pf
   Test_UnitsConverterTransform.pf
+  Test_StateItemCharacteristicKind.pf
+  Test_StateItemCharacteristic.pf
+  Test_StateItemCharacteristicSubclasses.pf
+  Test_StateItemCharacteristicDetection.pf
+  Test_SetSharedCharacteristic.pf
   Test_CallbackArgumentSpec.pf
   Test_CallbackMethodSpec.pf
   Test_CallbackInterface.pf

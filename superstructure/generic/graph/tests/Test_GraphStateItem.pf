@@ -12,6 +12,14 @@ module Test_GraphStateItem
                    ESMF_RouteHandleIsCreated
    use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE, &
                    ESMF_STATEITEM_STATE, ESMF_STATEITEM_NOTFOUND
+   ! openspec/changes/state-item-characteristics, task 7.3/7.5.
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), &
+                                                    PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+                                                    TYPE_KIND_CHARACTERISTIC_KIND, &
+                                                    GEOMETRY_CHARACTERISTIC_KIND
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
+   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use funit
    implicit none
 
@@ -367,5 +375,163 @@ contains
       @assertTrue(item%itemType(rc=status) == ESMF_STATEITEM_FIELD)
       @assertTrue(item%variant(rc=status) == MAPL_STATEITEM_GEOM)
    end subroutine test_geometry_has_no_dedicated_payload_kind
+
+   ! -- characteristics map (openspec/changes/state-item-characteristics,
+   ! task 7.3, spec/graph/state-item "GraphStateItem carries a sparse
+   ! characteristics map") --------------------------------------------
+
+   @test
+   subroutine test_characteristics_map_starts_empty()
+      type(GraphStateItem) :: item
+
+      @assertFalse(item%has_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND))
+   end subroutine test_characteristics_map_starts_empty
+
+   ! Spec "Established characteristic is retrievable by its type tag":
+   ! round-trips through set_characteristic/get_characteristic/
+   ! has_characteristic, and a never-established kind stays absent
+   ! (design.md D4) rather than reporting some INVALID placeholder.
+   @test
+   subroutine test_set_get_characteristic_roundtrip()
+      type(GraphStateItem) :: item
+      class(StateItemCharacteristic), allocatable :: found
+      integer :: status
+
+      @assertFalse(item%has_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND))
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'), rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(item%has_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND))
+      @assertFalse(item%has_characteristic(GEOMETRY_CHARACTERISTIC_KIND))
+
+      call item%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, found, rc=status)
+      @assertEqual(0, status)
+      select type (found)
+      class is (PhysicalUnitsCharacteristic)
+         @assertEqual('m', found%get_units())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_set_get_characteristic_roundtrip
+
+   @test
+   subroutine test_get_characteristic_absent_fails_explicitly()
+      type(GraphStateItem) :: item
+      class(StateItemCharacteristic), allocatable :: found
+      integer :: status
+
+      call item%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, found, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_get_characteristic_absent_fails_explicitly
+
+   @test
+   subroutine test_set_characteristic_replaces_existing_entry()
+      type(GraphStateItem) :: item
+      class(StateItemCharacteristic), allocatable :: found
+      integer :: status
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'), rc=status)
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'), rc=status)
+      @assertEqual(0, status)
+
+      call item%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, found, rc=status)
+      select type (found)
+      class is (PhysicalUnitsCharacteristic)
+         @assertEqual('km', found%get_units())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_set_characteristic_replaces_existing_entry
+
+   ! REQ-CHAR-006/009 invariant: a characteristic may only be stored
+   ! under its own kind's key - set_characteristic rejects a mismatched
+   ! pairing explicitly rather than silently accepting it (which would
+   ! otherwise let find_mismatched_state_item_characteristics pair a
+   ! GeometryCharacteristic against a PhysicalUnitsCharacteristic goal
+   ! later, a defect no reconciling Transform could ever resolve).
+   @test
+   subroutine test_set_characteristic_rejects_kind_mismatch()
+      type(GraphStateItem) :: item
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: id
+      integer :: status
+
+      id = gen%next()
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, GeometryCharacteristic(id), rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(item%has_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND))
+   end subroutine test_set_characteristic_rejects_kind_mismatch
+
+   ! -- ordering (openspec/changes/state-item-characteristics, task 7.5,
+   ! design.md D5) -------------------------------------------------------
+
+   ! Ordinary FIELD variant's table entry: PHYSICAL_UNITS, TYPE_KIND,
+   ! GEOMETRY. Given a mismatched set in the opposite order, the method
+   ! returns the table's own order, not the input's.
+   @test
+   subroutine test_ordering_field_variant_uses_table_order()
+      type(GraphStateItem) :: item
+      type(ESMF_Field) :: field
+      type(StateItemCharacteristicKind) :: mismatched(2), order(2)
+      integer :: status
+
+      field = make_test_field('t_field', rc=status)
+      @assertEqual(0, status)
+      call item%set(field, rc=status)
+      @assertEqual(0, status)
+
+      mismatched = [GEOMETRY_CHARACTERISTIC_KIND, PHYSICAL_UNITS_CHARACTERISTIC_KIND]
+      order = item%ordering(mismatched, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(order(1) == PHYSICAL_UNITS_CHARACTERISTIC_KIND)
+      @assertTrue(order(2) == GEOMETRY_CHARACTERISTIC_KIND)
+   end subroutine test_ordering_field_variant_uses_table_order
+
+   ! GEOM variant's table entry orders the same two kinds the opposite
+   ! way (spec "Two different kinds may order the same pair of
+   ! characteristics differently").
+   @test
+   subroutine test_ordering_geom_variant_differs_from_field_variant()
+      type(GraphStateItem) :: item
+      type(ESMF_Field) :: field
+      type(StateItemCharacteristicKind) :: mismatched(2), order(2)
+      integer :: status
+
+      field = make_test_field('t_geom_field', rc=status)
+      @assertEqual(0, status)
+      call set_variant(field, MAPL_STATEITEM_GEOM, rc=status)
+      @assertEqual(0, status)
+      call item%set(field, rc=status)
+      @assertEqual(0, status)
+
+      mismatched = [PHYSICAL_UNITS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND]
+      order = item%ordering(mismatched, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(order(1) == GEOMETRY_CHARACTERISTIC_KIND)
+      @assertTrue(order(2) == PHYSICAL_UNITS_CHARACTERISTIC_KIND)
+   end subroutine test_ordering_geom_variant_differs_from_field_variant
+
+   ! A variant with no table entry (plain field bundle) falls back to
+   ! the input's own order, unchanged (design.md D5's non-crashing
+   ! default).
+   @test
+   subroutine test_ordering_falls_back_to_input_order_for_unknown_variant()
+      type(GraphStateItem) :: item
+      type(ESMF_FieldBundle) :: bundle
+      type(StateItemCharacteristicKind) :: mismatched(2), order(2)
+      integer :: status
+
+      bundle = make_test_field_bundle(rc=status)
+      @assertEqual(0, status)
+      call item%set(bundle, rc=status)
+      @assertEqual(0, status)
+
+      mismatched = [GEOMETRY_CHARACTERISTIC_KIND, PHYSICAL_UNITS_CHARACTERISTIC_KIND]
+      order = item%ordering(mismatched, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(order(1) == GEOMETRY_CHARACTERISTIC_KIND)
+      @assertTrue(order(2) == PHYSICAL_UNITS_CHARACTERISTIC_KIND)
+   end subroutine test_ordering_falls_back_to_input_order_for_unknown_variant
 
 end module Test_GraphStateItem

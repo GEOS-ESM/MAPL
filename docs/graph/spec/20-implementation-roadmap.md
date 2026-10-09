@@ -120,13 +120,27 @@ context by construction — no repo-separation saving available here:
   starts.
 - **Phase 5 (speculative/deferred, do not block on these)** — `18`
   StateItemCharacteristic hierarchy, `16` ordinary inout items, Q9
-  compiled-execution optimization.
+  compiled-execution optimization. See §20.4.4 for the sub-sequencing
+  this phase needs before implementation starts.
 - **Phase 6 (cleanup, growable — see §20.4.2)** — retire legacy
   `StateRegistry`/`ExtensionFamily`/aspect-based coupling once the
   graph-native paths above are the actual default, plus a running list
   of small, otherwise-easy-to-lose follow-ups that are blocked on that
   retirement (e.g. 3c's own `UnitsConverterTransform` ->
   `ConvertUnitsTransform` rename).
+- **Phase 7 (shape-changing connection dispatch — discovered gap, not
+  previously tracked by any phase above)** — legacy `ClassAspect`'s own
+  shape-dispatch role (`09-extension-reuse.md`'s existing
+  `Characteristic`/`CharacteristicMap` family has no analog of it yet):
+  Bracket/VectorBracket -> Field/Vector time-interpolation conversion,
+  Expression -> Field N-ary evaluation, and Wildcard/Service
+  pattern-based multi-source fan-in. Directly relevant to eventually
+  running `Test_Scenarios` against the graph-native path instead of
+  `StateRegistry`, which is the intended strong end-to-end signal that
+  all necessary capabilities have been migrated. See §20.4.5 for the
+  sub-sequencing this phase needs before implementation starts, and why
+  none of it belongs in Phase 5's `StateItemCharacteristic` family
+  despite the naming similarity.
 
 ### 20.4.1 Phase 3 sub-sequencing
 
@@ -554,6 +568,315 @@ composite structure); is a real prerequisite for 4c/4d below.
 in the MAPL repo/checkout, same as Phase 3, for the same reason: real
 `GriddedComponentDriver`/`OuterComponent`/ESMF context is required from
 4b onward regardless of repo layout.
+
+### 20.4.4 Phase 5 sub-sequencing
+
+Phase 5, like Phase 3 (§20.4.1) and Phase 4 (§20.4.3), does not fit a
+single spec-driven change proposal without an unreasonable context/cost
+footprint — it bundles three genuinely independent, speculative/deferred
+items (`18` StateItemCharacteristic hierarchy, `16` ordinary inout items,
+Q9 compiled-execution optimization), each carrying its own explicit
+"do not implement without further design" caveat. Split into sub-changes
+as follows, rather than filing one proposal spanning all three.
+
+- **5a. StateItemCharacteristic hierarchy** (`18` §18.2–§18.8) — ready to
+  scope now. `18`'s header caveat was tied to Q11, which
+  `17-open-questions.md` already records as resolved; what remains are
+  ordinary `[OPEN]` naming/mechanism points, not a precondition on the
+  order of `16`'s REQ-INOUT-002. This sub-change's own design.md MUST
+  resolve, as a planned, up-front design decision before implementation
+  starts (same discipline Phase 4's 4b followed for REQ-MTH-011 step (c)):
+  `CharacteristicStatus` naming (§18.3), `CharacteristicType` naming
+  (§18.4), the ordering-delegation mechanism for chaining mismatch
+  Transforms (§18.6, Q13), and the absent-key-vs-`INVALID`
+  `characteristics`-map representation (§18.5). Depends only on Phases
+  1–3 (`GraphStateItem`, `09-extension-reuse.md`'s existing
+  chain-building machinery) — no dependency on `16` or Q9.
+- **5a2. Remaining StateItemCharacteristic subclasses** — discovered
+  during 5a's own code review (`openspec/changes/
+  state-item-characteristics`), not scoped by 5a itself: REQ-CHAR-001's
+  table lists only three subclasses and explicitly says so ("almost
+  certainly incomplete... treat the list as a starting point, not a
+  closed set"), and 5a implemented exactly those three
+  (`PhysicalUnitsCharacteristic`, `TypeKindCharacteristic`,
+  `GeometryCharacteristic`). But legacy's own `StateItemAspect` hierarchy
+  (`superstructure/generic/specs/*Aspect.F90`, `AspectId.F90`) already
+  has ten concrete mismatch-detectable axes, not three — `GeomAspect`,
+  `UnitsAspect`, `TypekindAspect` (5a's three analogs) plus seven more:
+  `VerticalGridAspect`, `AttributesAspect`, `UngriddedDimsAspect`,
+  `QuantityTypeAspect`, `ConservationAspect`, `NormalizationAspect`,
+  `StandardNameAspect`. Per this document's own "roughly 1-to-1
+  correspondence, with exceptions" expectation (confirmed during 5a's
+  review), each of those seven needs a `StateItemCharacteristic` analog
+  before the graph-native path can claim parity with legacy's own
+  mismatch-detection surface — not attempted by 5a, which deliberately
+  scoped to the three REQ-CHAR-001 names only. Numbering mirrors this
+  project's own established precedent for a review/implementation-
+  discovered, required-completion follow-up (3b/3b2, 4b/4b2) — note the
+  same distinction already drawn for `5b2`: this is a *parity gap*
+  discovered against an existing legacy surface, not a brand-new
+  requirement.
+
+  **Scope, one new type per legacy `*Aspect` (name chosen to avoid
+  colliding with `graph/extension-reuse`'s own, deliberately independent
+  `Characteristic` family — the `GeometryCharacteristic`-not-
+  `GeomCharacteristic` precedent, 5a design.md D3 — applies again here
+  wherever a name would otherwise collide):**
+
+  | Legacy `AspectId` | Legacy `*Aspect` | New `StateItemCharacteristic` |
+  |---|---|---|
+  | `VERTICAL_GRID_ASPECT_ID` | `VerticalGridAspect` | a vertical-grid `ReferenceCharacteristic` (name TBD at design time; `graph/extension-reuse` already has an unrelated `VerticalGridCharacteristic` — collision, needs a different name) — REQ-CHAR-012's own text already anticipates this one as "expected to be common," alongside `GeomCharacteristic` |
+  | `ATTRIBUTES_ASPECT_ID` | `AttributesAspect` | `AttributesCharacteristic` (`ValueCharacteristic`) |
+  | `UNGRIDDED_DIMS_ASPECT_ID` | `UngriddedDimsAspect` | `UngriddedDimsCharacteristic` (`ValueCharacteristic`) |
+  | `QUANTITY_TYPE_ASPECT_ID` | `QuantityTypeAspect` | `QuantityTypeCharacteristic` (`ValueCharacteristic`) |
+  | `CONSERVATION_ASPECT_ID` | `ConservationAspect` | `ConservationCharacteristic` (`ValueCharacteristic`) — legacy's own `make_transform` is an unconditional `_FAIL("should not be called")`, i.e. this axis is detected but never itself adapted; the graph-native analog's `build_transform` MAY do the same |
+  | `NORMALIZATION_ASPECT_ID` | `NormalizationAspect` | `NormalizationCharacteristic` (`ValueCharacteristic`) |
+  | `STANDARD_NAME_ASPECT_ID` | `StandardNameAspect` | `StandardNameCharacteristic` (`ValueCharacteristic`) |
+
+  Explicitly out of scope for 5a2, same as 5a: no `GraphBuilder` rewire
+  (these remain additive, standalone types exercised by synthetic-node
+  pFUnit coverage only, mirroring 5a's own design.md D6); real
+  `build_transform` implementations beyond whatever each legacy
+  `*Aspect%make_transform` already does unconditionally (most either
+  fail explicitly or have no real adaptation logic today — only
+  `UnitsAspect`/`GeomAspect`/`TypekindAspect`, 5a's own three, have any
+  real executing transform in legacy either, via
+  `superstructure/generic/transforms/`). Legacy's `AspectStatus` has a
+  sixth value, `FROM_COMP`, that `CharacteristicStatus` (5a, REQ-CHAR-003)
+  does not — 5a2's own design.md MUST decide, as a planned, up-front
+  decision, whether that is a real gap to close or a legacy-only
+  distinction with no graph-native equivalent needed, rather than
+  discovering it mid-implementation.
+
+  Depends on 5a (the `StateItemCharacteristic`/`ValueCharacteristic`/
+  `ReferenceCharacteristic` hierarchy, `CharacteristicStatus`,
+  `StateItemCharacteristicKind`, the sparse map on `GraphStateItem`) —
+  not on `16` or Q9. MAY be filed any time after 5a lands.
+- **5b. Ordinary inout, direct-alias case** (`16` REQ-INOUT-001 only) —
+  ready to scope now. The direct-alias case (owner and borrower share the
+  same underlying ESMF payload, no grid/units/precision mismatch) is
+  already fully settled and requires no new Transform in either
+  direction, following directly from REQ-EXT-003's no-op principle.
+  REQ-INOUT-002's design-addendum gate applies only to "non-trivial
+  (non-direct-alias)" support, so it does not block this narrow slice.
+  Independent of 5a and 5c; no ordering dependency either way.
+- **5b2. Ordinary inout, general case** — **BLOCKED**, not ready to
+  scope. REQ-INOUT-002 explicitly requires an explicit design addendum
+  resolving four named open points before any non-trivial inout support
+  may be implemented: revision authority under two producers (an inout
+  owner value is both a forward-network source and a return-network
+  target — which write wins is unresolved), lazy direction selection,
+  recursion when a borrower is itself an owner, and authority rules in
+  general for who may initiate a forward/return cycle. Numbering mirrors
+  the project's existing precedent for a closely related follow-up
+  sub-change (3b/3b2, 4b/4b2) — but note the distinction explicitly:
+  those were follow-ups *discovered* during their parent's own
+  implementation, whereas `5b2` is a *pre-existing*, spec-declared
+  blocker, known before `5b` is even filed. Do not file `5b2`'s own
+  `openspec` proposal until the REQ-INOUT-002 addendum exists.
+- **5c. Compiled-execution optimization** (Q9) — ready to scope now,
+  following Q9's own recommended approach: walk a *frozen*
+  `ComponentGraph`, emit a direct call sequence per `DependencyNetwork`
+  equivalent to the interpreted `update()` traversal (REQ-REV-006),
+  exploiting the stated low fan-out (0–3) to avoid dynamic
+  dispatch/lookup at runtime, and keep the interpreted path alive as a
+  reference oracle (REQ-REV-009) rather than deleting it once compilation
+  exists. Q9's own gate — "the reference (interpreted) implementation
+  being correct and validated first" — is already satisfied: the
+  interpreted implementation Q9 would compile (frozen `ComponentGraph`,
+  `DependencyNetwork` walk, demand-driven `update()` from Phase 1–2;
+  `MethodGraphNode` invocation, callback wiring, route handles from Phase
+  3–4) is landed and exercised by each sub-change's own pFUnit suite.
+  REQ-REV-009's "validated" does not require the stronger Phase 6 entry
+  bar (legacy `StateRegistry` retired at production scale) — Q9 only
+  needs the interpreted path to be the trusted oracle, which this
+  document's own Phase 6 framing (§20.4.2) already assumes stays alive
+  indefinitely, not something gated on legacy removal. Independent of
+  `16`/`18` in principle — it compiles whatever `DependencyNetwork`/
+  `TransformGraphNode` structure exists at freeze time, generically — but
+  sequence it **after 5a**: if `18` lands first, its characteristic-driven
+  `TransformGraphNode`s (`ConvertUnitsTransform`, the precision-conversion
+  transform, `RegridTransform`) are already part of what 5c needs to
+  compile correctly, avoiding a revisit once 5a's new Transform chains
+  exist. `5b`'s direct-alias case adds no new Transform, so 5c has no
+  ordering dependency on `5b`.
+
+**Resulting order and independence:**
+
+```
+Phase 1-4 (landed)
+   |
+   +--> 5a  StateItemCharacteristic hierarchy        (ready now)
+   |       |
+   |       +--> 5a2  Remaining Characteristic subclasses  (ready now, after 5a)
+   |       |
+   |       v
+   +--> 5c  Compiled-execution optimization          (ready now, after 5a)
+   |
+   +--> 5b  Ordinary inout, direct-alias case         (ready now, independent)
+             |
+             v
+         5b2 Ordinary inout, general case             (BLOCKED: needs REQ-INOUT-002 addendum)
+```
+
+`5a` and `5b` have no dependency on each other and MAY be filed in either
+order or in parallel. `5a2` depends only on `5a` (not on `5c`/`5b`/`5b2`)
+and MAY be filed any time after `5a` lands, independently of `5c`. `5c`
+should follow `5a` (not `5a2` — `5c` compiles whatever Transform chains
+exist at freeze time, generically, so it has no ordering dependency on
+`5a2`'s own, mostly-non-executing `build_transform`s either way).
+`5b2` is not filed until its design addendum exists.
+
+**Repo/tooling note (extends §20.4.1's/§20.4.3's own notes).** Phase 5
+code, for whichever sub-change is filed, lives in the MAPL repo/checkout,
+same as Phase 3 and Phase 4: `5a`/`5b`/`5c` all build on landed Phase 1–4
+MAPL-repo code (`GraphStateItem`, `ComponentGraph`, `DependencyNetwork`,
+`MethodGraphNode`, callback wiring, route handles), so no
+repo-separation saving (§20.2) applies here either.
+
+### 20.4.5 Phase 7 sub-sequencing
+
+**Discovered gap, not previously tracked by any phase above.** Surfaced
+2026-10-08 during review of `5a2`
+(`openspec/changes/state-item-characteristic-subclasses`): legacy
+`ClassAspect` (`superstructure/generic/specs/ClassAspect.F90`) is the
+*shape*-dispatch slot in `VariableSpec`'s `AspectMap` — orthogonal to
+every per-characteristic aspect (units, geometry, vertical grid, ...)
+`5a`/`5a2` already have graph-native analogs for. `ClassAspect` decides
+which other aspects are even relevant (`get_aspect_order`), owns the
+actual ESMF payload (`create`/`activate`/`allocate`/`destroy`), and — for
+three concrete subclasses — performs a real *shape-changing* conversion
+via `make_transform`, something no other legacy aspect does and nothing
+in the graph architecture has any analog of today:
+
+| Legacy pair | Transform | Cardinality |
+|---|---|---|
+| `BracketClassAspect` -> `FieldClassAspect` | `TimeInterpolateTransform` | 1:1 |
+| `VectorBracketClassAspect` -> `VectorClassAspect` | `TimeInterpolateTransform` | 1:1 |
+| `ExpressionClassAspect` -> `FieldClassAspect` | `EvalTransform` | N:1 (named refs) |
+
+A fourth and fifth legacy mechanism — `WildcardClassAspect` and
+`ServiceClassAspect`'s own accumulation role — are *not* shape-conversion
+at all and do not belong in that table: both have dead/unreachable
+`make_transform` (`matches`/`supports_conversion_*` hard-`.false.`) and
+are resolved through a `connect_to_export` side-channel fed by
+`MatchConnection` regex-expanding one import pattern against the
+flattened sibling export namespace *before* any `AspectMap`-level
+dispatch runs — legacy itself does not treat these two uniformly with
+the rest of `StateItemAspect`, so graph needing separate machinery for
+them is not a new asymmetry; it is the same one legacy already has.
+
+`GraphBuilder.F90` already has an explicit, pre-existing scope boundary
+for the pattern-based case: "Wildcard/callback/reexport/simple
+connections: out of scope for this slice — deliberately skipped." This
+was never promoted to a tracked roadmap gap; this phase is that
+promotion, done accurately (§20.4.2's own Phase 6 cleanup list names
+`WILDCARD`/`EXPRESSION`/`SERVICE` as missing graph-native *itemType
+values* but says nothing about missing *dispatch behavior*, and does not
+mention `BRACKET`/`VECTOR`/`VECTORBRACKET` at all — that list entry is
+itself incomplete, left as-is rather than rewritten, per this document's
+own "append, don't silently drop" discipline for growable lists).
+
+**Does not belong in Phase 5's `StateItemCharacteristic` family
+(`5a`/`5a2`)**, despite the naming proximity — two reasons: (1) `5a`
+design.md D6 deliberately keeps that whole hierarchy independent of
+`GraphBuilder.F90`'s real connection-resolution path, exercised only by
+synthetic-node pFUnit tests; shape-dispatch, to be useful, MUST be wired
+into real resolution. (2) The architecturally correct home is the
+*other*, already-live graph-native characteristic family —
+`09-extension-reuse.md`'s `Characteristic`/`CharacteristicMap`/
+`CharacteristicId` (3c), already consulted by `GraphBuilder.F90`'s real
+`resolve_one`/`ExtensionResolution.F90` chain-building
+(`find_mismatched_characteristics`/`build_chain`) for Units and
+VerticalGrid today. A new `CharacteristicId` whose `needs_extension_for`
+checks `GraphStateItem%variant()` compatibility and whose
+`build_transform` returns the Bracket/VectorBracket-equivalent
+`TransformGraphNode` would be walked by the *same* `build_chain` loop,
+uniformly with Units — preserving exactly the uniformity property
+legacy's own `can_connect_to`/`make_extension` loop has for `ClassAspect`.
+`variant()` is already a first-class `GraphStateItem` property
+(REQ-SI-002b), not a sparse-map characteristic entry, which if anything
+mirrors `ClassAspect`'s own privileged (decides-aspect-order,
+owns-the-payload) role in legacy more faithfully than modeling shape as
+an ordinary characteristic would.
+
+**Three genuinely distinct mechanisms, not one** — do not file a single
+change spanning all three:
+
+- **7a. Shape-changing 1:1 dispatch** (`Bracket`->`Field`,
+  `VectorBracket`->`Vector`) — mechanically the simplest: a new
+  `CharacteristicId`/`Characteristic` subclass in the live
+  `graph/extension-reuse` family, triggered by `variant()` mismatch
+  instead of a value comparison, dispatched by the existing `build_chain`
+  loop exactly like `UnitsCharacteristic` is today. **Lowest urgency**:
+  zero `Test_Scenarios` fixtures exercise `BRACKET`/`VECTORBRACKET` end
+  to end (`Test_BracketClassAspect.pf`/`Test_VectorBracketClassAspect.pf`
+  are unit-level only, `MAPL.generic.aspects`) — nothing currently forces
+  this before the other two.
+- **7b. Expression -> Field, N:1** — needs `EXPRESSION` added to the
+  graph-native `MAPL_StateItem_Flag` vocabulary (currently absent, unlike
+  `BRACKET`/`VECTOR`/`VECTORBRACKET` which already have flag values) and
+  a `GraphBuilder`-level hook resolving N named references —
+  `build_transform`'s two-item `(src, dst)` signature cannot do this
+  alone, mirroring legacy's own exception for
+  `ExpressionClassAspect%make_transform` (it already reaches outside
+  normal scope via `registry%extend()` per referenced variable). Likely
+  shaped as a dedicated hook analogous to `4e`'s own `run_geometry_hook`
+  precedent (graph-wide resolution, not an ordinary two-item
+  `Characteristic`) rather than an extension of 7a's mechanism.
+  **Working hypothesis, not yet designed**: an Expression item is likely
+  best modeled as a composite `StateItemNode` (reusing the already-shipped
+  `composite-state-spec` `declare_member` mechanism — the same mechanism
+  `4c`'s `CallbackStateBinding` and `4f`'s `VerticalGrid` already reuse
+  for "a state item needs independently-addressable sub-structure" — one
+  member per referenced variable), with `TransformGraphNode`'s existing
+  N-input port support (already generic since Phase 2,
+  `10-transforms-and-ports.md`) doing the N:1 fan-in from those members.
+  Needs real design work before implementation, not assumed solved here.
+  `Test_Scenarios` evidence: 3 fixtures (`expression`, `expression_match`,
+  `expression_defer_geom`) — a real forcing function.
+- **7c. Wildcard/Service pattern-based multi-source fan-in** — hardest
+  and least understood. Not a `Characteristic`/shape-dispatch problem at
+  all: legacy's own mechanism is connection-*topology* discovery (regex
+  against the flattened sibling export namespace,
+  `VirtualConnectionPt%matches`/`MatchConnection`) happening *before* any
+  per-item dispatch, followed by N-way accumulation into one persistent
+  destination instance (`WildcardClassAspect%matched_items`).
+  `DependencyNetwork%validate()` already explicitly rejects multiple
+  producers writing one state item in the same network — that invariant
+  is almost certainly correct and should not be weakened to accommodate
+  this. Working hypothesis: model each pattern match as its own
+  independently-produced composite *member* (reusing
+  `composite-state-spec` again) rather than true multi-producer
+  semantics — not yet validated against the real sharing/identity
+  mechanics `18-state-item-characteristics.md` §18.7 already uses for
+  Geom/VerticalGrid. Further complicated by cross-level export
+  visibility: `openspec/changes/archive/
+  2026-09-16-graphbuilder-advertising-connections`'s own
+  `Test_GraphBuilderEquivalence.pf` already tried and rejected porting
+  `statistics`/`history_1`/`history_wildcard`/`extdata_1` as equivalence
+  targets, specifically because those scenarios need `StateRegistry`'s
+  cross-level `propagate_exports`/`propagate_unsatisfied_imports`
+  machinery that `GraphBuilder` does not consult beyond `3b2`'s single-
+  import upward bubbling — a second, only-partially-solved prerequisite,
+  not something 7c can assume away. `Test_Scenarios` evidence: 1 fixture
+  for Wildcard (`history_wildcard`), 2 (+1 unused) for Service — real but
+  entangled forcing functions.
+
+**Recommended pilot, if/when this phase is picked up**: `vector_1`
+(`VectorClassAspect`, same-shape, no conversion needed at all —
+`matches` with per-component `standard_name` comparison only) as a smoke
+test of whether `GraphBuilder`'s existing extension-chain model already
+generalizes to a second characteristic cleanly, *before* attempting
+`7a`'s genuine shape-conversion case or `7c`'s harder topology problem.
+`Vector` itself needs no new mechanism beyond what `3c`/`5a2` already
+provide — it is scoping/validation work, not new architecture, and tests
+the ground floor before building the harder floors on top of it.
+
+**Repo/tooling note (extends §20.4.1's/§20.4.3's/§20.4.4's own notes).**
+Phase 7 lives in the MAPL repo/checkout, same as Phases 3-5: all three
+sub-mechanisms build on landed `GraphBuilder.F90`/`graph/extension-reuse`/
+`composite-state-spec` MAPL-repo code.
 
 ## 20.5 Cross-reference
 

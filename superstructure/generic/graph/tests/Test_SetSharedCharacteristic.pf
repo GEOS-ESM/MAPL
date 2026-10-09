@@ -1,0 +1,428 @@
+! openspec/changes/state-item-characteristics, tasks 7.6/7.7/7.8/7.10:
+! sharing a GeometryCharacteristic across two GraphStateItems, the
+! set_shared_characteristic() eager-structural/lazy-content mutator
+! (design.md D7), and its composition with the already-shipped
+! REQ-REV-011 pre-invocation pull (MethodInvocation.F90's
+! invoke_on_default_network - design.md D8, Context's correction note).
+!
+! Synthetic ComponentGraph/StateItemNode/TransformGraphNode/
+! MethodGraphNode only - no ESMF component/GridComp/StateRegistry
+! involved anywhere, matching Test_DemandDrivenUpdate.pf/
+! Test_MethodInvocation.pf's own posture.
+module Test_SetSharedCharacteristic
+   use mapl_SetSharedCharacteristic_mod, only: set_shared_characteristic
+   use mapl_MethodInvocation_mod, only: invoke_on_default_network
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_NodeRevision_mod, only: NodeRevision, operator(/=)
+   use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_Transform_mod, only: Transform
+   use mapl_MethodGraphNode_mod, only: MethodGraphNode
+   use mapl_MethodInvocationAdapter_mod, only: MethodInvocationAdapter
+   use mapl_ArgumentSpecMap_mod, only: ArgumentSpecMap
+   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
+   use mapl_AccessSpec_mod, only: MAPL_ACCESS_IN
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
+   use mapl_StateItemCharacteristicKind_mod, only: GEOMETRY_CHARACTERISTIC_KIND
+   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use ESMF, only: ESMF_Clock
+   use funit
+   implicit none
+
+   ! Counting Transform double (Test_DemandDrivenUpdate.pf's own
+   ! precedent): proves whether/how-many-times the content-producing
+   ! chain actually executed.
+   type, extends(Transform) :: CountingCompute
+      integer, pointer :: run_count => null()
+   contains
+      procedure :: compute => counting_compute
+   end type CountingCompute
+
+   ! RecordingAdapter (Test_MethodInvocation.pf's own precedent):
+   ! snapshots run_count at the exact moment invoke() fires, proving
+   ! pull-before-invoke ordering.
+   type, extends(MethodInvocationAdapter) :: RecordingAdapter
+      integer, pointer :: call_count => null()
+      integer, pointer :: run_count_source => null()
+      integer, pointer :: run_count_at_invoke => null()
+   contains
+      procedure :: invoke => recording_adapter_invoke
+   end type RecordingAdapter
+
+contains
+
+   subroutine counting_compute(this, rc)
+      class(CountingCompute), intent(inout) :: this
+      integer, intent(out) :: rc
+
+      if (associated(this%run_count)) this%run_count = this%run_count + 1
+      rc = 0
+   end subroutine counting_compute
+
+   subroutine recording_adapter_invoke(this, arguments, bindings, clock, rc)
+      class(RecordingAdapter), intent(inout) :: this
+      type(ArgumentSpecMap), intent(in) :: arguments
+      type(StateItemMemberMap), intent(in) :: bindings
+      type(ESMF_Clock), optional, intent(in) :: clock
+      integer, optional, intent(out) :: rc
+
+      if (associated(this%call_count)) this%call_count = this%call_count + 1
+      if (associated(this%run_count_at_invoke) .and. associated(this%run_count_source)) &
+           this%run_count_at_invoke = this%run_count_source
+      if (present(rc)) rc = 0
+   end subroutine recording_adapter_invoke
+
+   ! -- sharing (task 7.6, REQ-CHAR-012/014) ----------------------------
+
+   ! Spec "Two state items share one geometry reference": no new
+   ! identity mechanism required - both GraphStateItems' GeometryCharacteristic
+   ! entries simply hold the same NodeId.
+   @test
+   subroutine test_two_state_items_share_one_geometry_reference()
+      type(GraphStateItem) :: item_a, item_b
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: shared_id
+      class(StateItemCharacteristic), allocatable :: found_a, found_b
+      integer :: status
+
+      shared_id = gen%next()
+      call item_a%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(shared_id), rc=status)
+      call item_b%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(shared_id), rc=status)
+
+      call item_a%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, found_a, rc=status)
+      call item_b%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, found_b, rc=status)
+
+      select type (found_a)
+      class is (GeometryCharacteristic)
+         select type (found_b)
+         class is (GeometryCharacteristic)
+            @assertTrue(found_a%get_referenced_node_id() == found_b%get_referenced_node_id())
+            @assertTrue(found_a%get_referenced_node_id() == shared_id)
+         class default
+            @assertTrue(.false.)
+         end select
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_two_state_items_share_one_geometry_reference
+
+   ! -- mutator: eager structural reset (task 7.7) ----------------------
+
+   ! Spec "Dependents are reset within the same call" / "Mutator never
+   ! invokes a method node": a shared node with two direct StateItemNode
+   ! successors (plain structural edges, no TransformGraphNode between
+   ! them - REQ-CHAR-016's own "as opposed to TransformGraphNodes, which
+   ! are left to the lazy path"). After the call: both successors'
+   ! revisions are invalid, the shared node's own revision has advanced,
+   ! and nothing else in the graph has executed (there is nothing to
+   ! execute - no TransformGraphNode/MethodGraphNode reachable from the
+   ! walk at all in this fixture, which is itself part of the proof).
+   @test
+   subroutine test_dependents_reset_and_shared_revision_advances()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: shared_id, dep1_id, dep2_id
+      type(StateItemNode) :: shared_node, dep1_node, dep2_node
+      type(GraphStateItem) :: payload, new_payload
+      type(NodeRevision) :: revision
+      type(DependencyNetworkId) :: default_id
+      class(GraphNode), pointer :: retrieved
+      type(NodeRevision) :: shared_revision_before, shared_revision_after
+      integer :: status
+
+      graph = ComponentGraph()
+      default_id = graph%get_default_network_id()
+
+      shared_id = graph%next_node_id(rc=status)
+      shared_node = StateItemNode(shared_id, payload, revision)
+      call graph%register_node(shared_node, rc=status)
+      @assertEqual(0, status)
+
+      dep1_id = graph%next_node_id(rc=status)
+      dep1_node = StateItemNode(dep1_id, payload, revision)
+      call graph%register_node(dep1_node, rc=status)
+
+      dep2_id = graph%next_node_id(rc=status)
+      dep2_node = StateItemNode(dep2_id, payload, revision)
+      call graph%register_node(dep2_node, rc=status)
+
+      call graph%add_dependency(default_id, shared_id, dep1_id, rc=status)
+      @assertEqual(0, status)
+      call graph%add_dependency(default_id, shared_id, dep2_id, rc=status)
+      @assertEqual(0, status)
+
+      retrieved => graph%get_node(shared_id)
+      select type (retrieved)
+      class is (StateItemNode)
+         shared_revision_before = retrieved%get_revision()
+      end select
+
+      call set_shared_characteristic(graph, shared_id, new_payload, rc=status)
+      @assertEqual(0, status)
+
+      retrieved => graph%get_node(dep1_id)
+      select type (retrieved)
+      class is (StateItemNode)
+         revision = retrieved%get_revision()
+         @assertFalse(revision%is_valid())
+      class default
+         @assertTrue(.false.)
+      end select
+
+      retrieved => graph%get_node(dep2_id)
+      select type (retrieved)
+      class is (StateItemNode)
+         revision = retrieved%get_revision()
+         @assertFalse(revision%is_valid())
+      class default
+         @assertTrue(.false.)
+      end select
+
+      retrieved => graph%get_node(shared_id)
+      select type (retrieved)
+      class is (StateItemNode)
+         shared_revision_after = retrieved%get_revision()
+         @assertTrue(shared_revision_after%is_valid())
+         @assertTrue(shared_revision_after /= shared_revision_before)
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_dependents_reset_and_shared_revision_advances
+
+   ! Spec "Mutator never invokes a method node": a MethodGraphNode
+   ! registered but NOT wired as a successor of the shared node must
+   ! never be invoked by the mutator's walk (it is unreachable from
+   ! get_successors(shared_id) in the first place - this test confirms
+   ! that registering one elsewhere in the same graph has no effect on
+   ! the mutator at all, mirroring Test_DemandDrivenUpdate.pf's own
+   ! "never scheduled" precedent).
+   @test
+   subroutine test_mutator_never_invokes_a_registered_method_node()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: shared_id, dep_id, method_id
+      type(StateItemNode) :: shared_node, dep_node
+      type(GraphStateItem) :: payload, new_payload
+      type(NodeRevision) :: revision
+      type(DependencyNetworkId) :: default_id
+      type(MethodGraphNode) :: method_node
+      type(RecordingAdapter) :: adapter
+      integer, target :: call_count
+      integer :: status
+
+      graph = ComponentGraph()
+      default_id = graph%get_default_network_id()
+
+      shared_id = graph%next_node_id(rc=status)
+      shared_node = StateItemNode(shared_id, payload, revision)
+      call graph%register_node(shared_node, rc=status)
+
+      dep_id = graph%next_node_id(rc=status)
+      dep_node = StateItemNode(dep_id, payload, revision)
+      call graph%register_node(dep_node, rc=status)
+
+      call graph%add_dependency(default_id, shared_id, dep_id, rc=status)
+
+      call_count = 0
+      adapter%call_count => call_count
+      method_id = graph%next_node_id(rc=status)
+      method_node = MethodGraphNode(method_id, adapter)
+      call graph%register_node(method_node, rc=status)
+
+      call set_shared_characteristic(graph, shared_id, new_payload, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, call_count)
+   end subroutine test_mutator_never_invokes_a_registered_method_node
+
+   ! -- content-side laziness (task 7.8, REQ-CHAR-018) ------------------
+
+   ! Spec "Content is not recomputed by the mutator call itself" /
+   ! "Next demand-driven request produces correct content": shared_id's
+   ! direct structural dependent (dep_id) also feeds an ordinary
+   ! TransformGraphNode producing final_id. After the mutator resets
+   ! dep_id, no recompute has happened yet; a subsequent
+   ! ComponentGraph%update() request on final_id recognizes dep_id's
+   ! revision as stale (REQ-REV-006, unchanged) and re-executes exactly
+   ! once.
+   @test
+   subroutine test_content_recompute_is_lazy_after_structural_reset()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: shared_id, dep_id, transform_id, final_id
+      type(StateItemNode) :: shared_node, dep_node, final_node
+      type(GraphStateItem) :: payload, new_payload
+      type(NodeRevision) :: revision
+      type(DependencyNetworkId) :: default_id
+      type(TransformGraphNode) :: transform
+      type(CountingCompute) :: strategy
+      class(GraphNode), pointer :: retrieved
+      integer, target :: run_count
+      integer :: status
+
+      graph = ComponentGraph()
+      default_id = graph%get_default_network_id()
+
+      shared_id = graph%next_node_id(rc=status)
+      shared_node = StateItemNode(shared_id, payload, revision)
+      call graph%register_node(shared_node, rc=status)
+
+      dep_id = graph%next_node_id(rc=status)
+      dep_node = StateItemNode(dep_id, payload, revision)
+      call graph%register_node(dep_node, rc=status)
+      call graph%add_dependency(default_id, shared_id, dep_id, rc=status)
+
+      ! dep_id starts with no producer of its own (a bare structural
+      ! dependent, per REQ-CHAR-016's own model) - give it a real,
+      ! advanced revision before priming, simulating "this dependent
+      ! already has real content," so the mutator's later reset-to-
+      ! invalid is an actual change the demand-driven algorithm can
+      ! detect (comparing against a default-invalid baseline either way
+      ! would never show a difference).
+      retrieved => graph%get_node(dep_id)
+      select type (retrieved)
+      class is (StateItemNode)
+         call retrieved%advance_revision(rc=status)
+      end select
+
+      run_count = 0
+      strategy%run_count => run_count
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('in', rc=status)
+      call transform%declare_output_port('out', rc=status)
+      call graph%register_node(transform, rc=status)
+
+      final_id = graph%next_node_id(rc=status)
+      final_node = StateItemNode(final_id, payload, revision)
+      call graph%register_node(final_node, rc=status)
+
+      call graph%add_dependency(default_id, dep_id, transform_id, rc=status)
+      call graph%add_dependency(default_id, transform_id, final_id, rc=status)
+      call graph%bind_port(default_id, transform_id, 'in', dep_id, rc=status)
+      call graph%bind_port(default_id, transform_id, 'out', final_id, rc=status)
+
+      ! Prime the chain: first demand-driven request executes the
+      ! transform once.
+      call graph%update(default_id, final_id, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, run_count)
+
+      ! Mid-"Run" structural reset.
+      call set_shared_characteristic(graph, shared_id, new_payload, rc=status)
+      @assertEqual(0, status)
+
+      ! Spec "Content is not recomputed by the mutator call itself":
+      ! the mutator call above did not execute the transform again.
+      @assertEqual(1, run_count)
+
+      ! Spec "Next demand-driven request produces correct content": the
+      ! transform's recorded baseline for 'in' (dep_id) no longer
+      ! matches dep_id's now-invalid revision, so it re-executes.
+      call graph%update(default_id, final_id, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, run_count)
+   end subroutine test_content_recompute_is_lazy_after_structural_reset
+
+   ! -- composition with the existing REQ-REV-011 pull (task 7.10) -----
+
+   ! Spec "Pre-invocation pull reflects a prior mid-Run structural
+   ! reset": a mid-"Run" structural reset via set_shared_characteristic
+   ! on shared_id, followed by invoke_on_default_network on a
+   ! MethodGraphNode whose bound IN argument is final_id (the output of
+   ! an ordinary TransformGraphNode chain rooted at shared_id's direct
+   ! dependent dep_id), confirms the ALREADY-SHIPPED pre-invocation pull
+   ! (MethodInvocation.F90's pull_bound_inputs, REQ-REV-011) resolves the
+   ! staleness introduced by the new mutator, with zero special-cased
+   ! interaction coded between the two (design.md D8).
+   @test
+   subroutine test_pre_invocation_pull_reflects_prior_structural_reset()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: shared_id, dep_id, transform_id, final_id, method_id
+      type(StateItemNode) :: shared_node, dep_node, final_node
+      type(GraphStateItem) :: payload, new_payload
+      type(NodeRevision) :: revision
+      type(DependencyNetworkId) :: default_id
+      type(TransformGraphNode) :: transform
+      type(CountingCompute) :: strategy
+      type(MethodGraphNode) :: method_node
+      type(RecordingAdapter) :: adapter
+      class(GraphNode), pointer :: retrieved
+      integer, target :: run_count
+      integer, target :: call_count
+      integer, target :: run_count_at_invoke
+      integer :: status
+
+      graph = ComponentGraph()
+      default_id = graph%get_default_network_id()
+
+      shared_id = graph%next_node_id(rc=status)
+      shared_node = StateItemNode(shared_id, payload, revision)
+      call graph%register_node(shared_node, rc=status)
+
+      dep_id = graph%next_node_id(rc=status)
+      dep_node = StateItemNode(dep_id, payload, revision)
+      call graph%register_node(dep_node, rc=status)
+      call graph%add_dependency(default_id, shared_id, dep_id, rc=status)
+
+      ! See test_content_recompute_is_lazy_after_structural_reset's own
+      ! comment: dep_id needs a real, advanced revision before priming
+      ! so the mutator's later reset-to-invalid is an actual change.
+      retrieved => graph%get_node(dep_id)
+      select type (retrieved)
+      class is (StateItemNode)
+         call retrieved%advance_revision(rc=status)
+      end select
+
+      run_count = 0
+      strategy%run_count => run_count
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('in', rc=status)
+      call transform%declare_output_port('out', rc=status)
+      call graph%register_node(transform, rc=status)
+
+      final_id = graph%next_node_id(rc=status)
+      final_node = StateItemNode(final_id, payload, revision)
+      call graph%register_node(final_node, rc=status)
+
+      call graph%add_dependency(default_id, dep_id, transform_id, rc=status)
+      call graph%add_dependency(default_id, transform_id, final_id, rc=status)
+      call graph%bind_port(default_id, transform_id, 'in', dep_id, rc=status)
+      call graph%bind_port(default_id, transform_id, 'out', final_id, rc=status)
+
+      ! Prime the chain.
+      call graph%update(default_id, final_id, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, run_count)
+
+      ! A method node whose one bound IN argument is final_id.
+      run_count_at_invoke = -1
+      call_count = 0
+      adapter%run_count_source => run_count
+      adapter%call_count => call_count
+      adapter%run_count_at_invoke => run_count_at_invoke
+      method_id = graph%next_node_id(rc=status)
+      method_node = MethodGraphNode(method_id, adapter)
+      call method_node%declare_argument('x_in', MAPL_ACCESS_IN, rc=status)
+      call method_node%bind_argument('x_in', final_id, rc=status)
+      call graph%register_node(method_node, rc=status)
+
+      ! Mid-"Run" structural reset on the shared node, upstream of
+      ! final_id through dep_id/transform_id.
+      call set_shared_characteristic(graph, shared_id, new_payload, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, run_count)
+
+      ! Invoking the method node triggers the EXISTING pre-invocation
+      ! pull (REQ-REV-011) over its bound IN argument (final_id), which
+      ! recognizes dep_id's now-invalid revision and re-executes the
+      ! transform chain BEFORE the adapter's own invoke() is called.
+      call invoke_on_default_network(graph, method_id, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, call_count)
+      @assertEqual(2, run_count)
+      @assertEqual(2, run_count_at_invoke)
+   end subroutine test_pre_invocation_pull_reflects_prior_structural_reset
+
+end module Test_SetSharedCharacteristic

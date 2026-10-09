@@ -1,0 +1,121 @@
+! openspec/changes/state-item-characteristics, task 7.4:
+! find_mismatched_state_item_characteristics() - REQ-CHAR-009's detection
+! algorithm, operating on GraphStateItem.characteristics directly. A new,
+! standalone algorithm (design.md D6) - no GraphBuilder involvement here.
+module Test_StateItemCharacteristicDetection
+   use mapl_StateItemCharacteristicDetection_mod, only: find_mismatched_state_item_characteristics
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), &
+                                                    PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+                                                    TYPE_KIND_CHARACTERISTIC_KIND, &
+                                                    GEOMETRY_CHARACTERISTIC_KIND
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
+   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_NodeId_mod, only: NodeId, NodeIdGenerator
+   use funit
+   implicit none
+
+contains
+
+   logical function kind_in(k, list) result(found)
+      type(StateItemCharacteristicKind), intent(in) :: k
+      type(StateItemCharacteristicKind), intent(in) :: list(:)
+      integer :: i
+
+      found = .false.
+      do i = 1, size(list)
+         if (list(i) == k) then
+            found = .true.
+            return
+         end if
+      end do
+   end function kind_in
+
+   @test
+   subroutine test_identical_characteristics_report_no_mismatch()
+      type(GraphStateItem) :: a, b
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      integer :: status
+
+      call a%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'), rc=status)
+      call b%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'), rc=status)
+
+      mismatched = find_mismatched_state_item_characteristics(a, b)
+      @assertEqual(0, size(mismatched))
+   end subroutine test_identical_characteristics_report_no_mismatch
+
+   @test
+   subroutine test_units_only_mismatch_is_detected()
+      type(GraphStateItem) :: a, b
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      integer :: status
+
+      call a%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'), rc=status)
+      call b%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'), rc=status)
+
+      mismatched = find_mismatched_state_item_characteristics(a, b)
+      @assertEqual(1, size(mismatched))
+      @assertTrue(mismatched(1) == PHYSICAL_UNITS_CHARACTERISTIC_KIND)
+   end subroutine test_units_only_mismatch_is_detected
+
+   ! Spec "Detection does not special-case kind": a units (value) and a
+   ! geometry (reference) mismatch are both found through the same
+   ! interface, in one comparison.
+   @test
+   subroutine test_mismatch_on_both_value_and_reference_kinds()
+      type(GraphStateItem) :: a, b
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: geom_a, geom_b
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      integer :: status
+
+      geom_a = gen%next()
+      geom_b = gen%next()
+
+      call a%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'), rc=status)
+      call a%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_a), rc=status)
+      call b%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'), rc=status)
+      call b%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_b), rc=status)
+
+      mismatched = find_mismatched_state_item_characteristics(a, b)
+      @assertEqual(2, size(mismatched))
+      @assertTrue(kind_in(PHYSICAL_UNITS_CHARACTERISTIC_KIND, mismatched))
+      @assertTrue(kind_in(GEOMETRY_CHARACTERISTIC_KIND, mismatched))
+   end subroutine test_mismatch_on_both_value_and_reference_kinds
+
+   ! A units+type-kind difference reports both.
+   @test
+   subroutine test_units_and_type_kind_mismatch_reports_both()
+      type(GraphStateItem) :: a, b
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      integer :: status
+
+      call a%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'), rc=status)
+      call a%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R4'), rc=status)
+      call b%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'), rc=status)
+      call b%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), rc=status)
+
+      mismatched = find_mismatched_state_item_characteristics(a, b)
+      @assertEqual(2, size(mismatched))
+      @assertTrue(kind_in(PHYSICAL_UNITS_CHARACTERISTIC_KIND, mismatched))
+      @assertTrue(kind_in(TYPE_KIND_CHARACTERISTIC_KIND, mismatched))
+   end subroutine test_units_and_type_kind_mismatch_reports_both
+
+   ! A kind present on only one side is reported as mismatched too -
+   ! this module's own, slightly broader contract (task 5.1's own
+   ! header comment).
+   @test
+   subroutine test_kind_present_on_only_one_side_is_mismatched()
+      type(GraphStateItem) :: a, b
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      integer :: status
+
+      call a%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'), rc=status)
+
+      mismatched = find_mismatched_state_item_characteristics(a, b)
+      @assertEqual(1, size(mismatched))
+      @assertTrue(mismatched(1) == PHYSICAL_UNITS_CHARACTERISTIC_KIND)
+   end subroutine test_kind_present_on_only_one_side_is_mismatched
+
+end module Test_StateItemCharacteristicDetection
