@@ -7,6 +7,13 @@ module Test_StateItemCharacteristicKind
                                                     PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
                                                     TYPE_KIND_CHARACTERISTIC_KIND, &
                                                     GEOMETRY_CHARACTERISTIC_KIND, &
+                                                    VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
+                                                    ATTRIBUTES_CHARACTERISTIC_KIND, &
+                                                    UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
+                                                    QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+                                                    CONSERVATION_CHARACTERISTIC_KIND, &
+                                                    NORMALIZATION_CHARACTERISTIC_KIND, &
+                                                    STANDARD_NAME_CHARACTERISTIC_KIND, &
                                                     INVALID_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), operator(/=), &
                                              CHARACTERISTIC_STATUS_INVALID, &
@@ -34,6 +41,40 @@ contains
       @assertEqual('TYPE_KIND', TYPE_KIND_CHARACTERISTIC_KIND%to_string())
       @assertEqual('GEOMETRY', GEOMETRY_CHARACTERISTIC_KIND%to_string())
    end subroutine test_kind_to_string
+
+   ! openspec/changes/state-item-characteristic-subclasses, task 1.2:
+   ! seven new kinds (design.md D7, values 4-10) are each stable, distinct
+   ! from one another and from the three 5a already registered, and have
+   ! a correct to_string().
+   @test
+   subroutine test_new_kind_constants_are_stable_and_distinct()
+      @assertTrue(VERTICAL_COORDINATE_CHARACTERISTIC_KIND == VERTICAL_COORDINATE_CHARACTERISTIC_KIND)
+      @assertTrue(VERTICAL_COORDINATE_CHARACTERISTIC_KIND /= ATTRIBUTES_CHARACTERISTIC_KIND)
+      @assertTrue(ATTRIBUTES_CHARACTERISTIC_KIND /= UNGRIDDED_DIMS_CHARACTERISTIC_KIND)
+      @assertTrue(UNGRIDDED_DIMS_CHARACTERISTIC_KIND /= QUANTITY_TYPE_CHARACTERISTIC_KIND)
+      @assertTrue(QUANTITY_TYPE_CHARACTERISTIC_KIND /= CONSERVATION_CHARACTERISTIC_KIND)
+      @assertTrue(CONSERVATION_CHARACTERISTIC_KIND /= NORMALIZATION_CHARACTERISTIC_KIND)
+      @assertTrue(NORMALIZATION_CHARACTERISTIC_KIND /= STANDARD_NAME_CHARACTERISTIC_KIND)
+      @assertTrue(STANDARD_NAME_CHARACTERISTIC_KIND /= VERTICAL_COORDINATE_CHARACTERISTIC_KIND)
+      ! Distinct from the three 5a already registered.
+      @assertTrue(VERTICAL_COORDINATE_CHARACTERISTIC_KIND /= PHYSICAL_UNITS_CHARACTERISTIC_KIND)
+      @assertTrue(VERTICAL_COORDINATE_CHARACTERISTIC_KIND /= TYPE_KIND_CHARACTERISTIC_KIND)
+      @assertTrue(VERTICAL_COORDINATE_CHARACTERISTIC_KIND /= GEOMETRY_CHARACTERISTIC_KIND)
+      @assertTrue(ATTRIBUTES_CHARACTERISTIC_KIND /= GEOMETRY_CHARACTERISTIC_KIND)
+      ! Distinct from INVALID.
+      @assertTrue(STANDARD_NAME_CHARACTERISTIC_KIND /= INVALID_CHARACTERISTIC_KIND)
+   end subroutine test_new_kind_constants_are_stable_and_distinct
+
+   @test
+   subroutine test_new_kind_to_string()
+      @assertEqual('VERTICAL_COORDINATE', VERTICAL_COORDINATE_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('ATTRIBUTES', ATTRIBUTES_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('UNGRIDDED_DIMS', UNGRIDDED_DIMS_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('QUANTITY_TYPE', QUANTITY_TYPE_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('CONSERVATION', CONSERVATION_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('NORMALIZATION', NORMALIZATION_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('STANDARD_NAME', STANDARD_NAME_CHARACTERISTIC_KIND%to_string())
+   end subroutine test_new_kind_to_string
 
    ! design.md D1: the type's own default field initializer (0) is the
    ! INVALID value, so a default-constructed CharacteristicStatus() is

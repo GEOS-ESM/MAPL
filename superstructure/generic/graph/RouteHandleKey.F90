@@ -264,7 +264,7 @@ contains
       character(:), allocatable :: text
       character(64) :: buffer
 
-      write(buffer, '(ES24.16E3)') value
+      write(buffer, '(g0)') value
       text = trim(adjustl(buffer))
    end function real_value
 

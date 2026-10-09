@@ -128,6 +128,19 @@ context by construction — no repo-separation saving available here:
   of small, otherwise-easy-to-lose follow-ups that are blocked on that
   retirement (e.g. 3c's own `UnitsConverterTransform` ->
   `ConvertUnitsTransform` rename).
+- **Phase 7 (shape-changing connection dispatch — discovered gap, not
+  previously tracked by any phase above)** — legacy `ClassAspect`'s own
+  shape-dispatch role (`09-extension-reuse.md`'s existing
+  `Characteristic`/`CharacteristicMap` family has no analog of it yet):
+  Bracket/VectorBracket -> Field/Vector time-interpolation conversion,
+  Expression -> Field N-ary evaluation, and Wildcard/Service
+  pattern-based multi-source fan-in. Directly relevant to eventually
+  running `Test_Scenarios` against the graph-native path instead of
+  `StateRegistry`, which is the intended strong end-to-end signal that
+  all necessary capabilities have been migrated. See §20.4.5 for the
+  sub-sequencing this phase needs before implementation starts, and why
+  none of it belongs in Phase 5's `StateItemCharacteristic` family
+  despite the naming similarity.
 
 ### 20.4.1 Phase 3 sub-sequencing
 
@@ -720,6 +733,150 @@ same as Phase 3 and Phase 4: `5a`/`5b`/`5c` all build on landed Phase 1–4
 MAPL-repo code (`GraphStateItem`, `ComponentGraph`, `DependencyNetwork`,
 `MethodGraphNode`, callback wiring, route handles), so no
 repo-separation saving (§20.2) applies here either.
+
+### 20.4.5 Phase 7 sub-sequencing
+
+**Discovered gap, not previously tracked by any phase above.** Surfaced
+2026-10-08 during review of `5a2`
+(`openspec/changes/state-item-characteristic-subclasses`): legacy
+`ClassAspect` (`superstructure/generic/specs/ClassAspect.F90`) is the
+*shape*-dispatch slot in `VariableSpec`'s `AspectMap` — orthogonal to
+every per-characteristic aspect (units, geometry, vertical grid, ...)
+`5a`/`5a2` already have graph-native analogs for. `ClassAspect` decides
+which other aspects are even relevant (`get_aspect_order`), owns the
+actual ESMF payload (`create`/`activate`/`allocate`/`destroy`), and — for
+three concrete subclasses — performs a real *shape-changing* conversion
+via `make_transform`, something no other legacy aspect does and nothing
+in the graph architecture has any analog of today:
+
+| Legacy pair | Transform | Cardinality |
+|---|---|---|
+| `BracketClassAspect` -> `FieldClassAspect` | `TimeInterpolateTransform` | 1:1 |
+| `VectorBracketClassAspect` -> `VectorClassAspect` | `TimeInterpolateTransform` | 1:1 |
+| `ExpressionClassAspect` -> `FieldClassAspect` | `EvalTransform` | N:1 (named refs) |
+
+A fourth and fifth legacy mechanism — `WildcardClassAspect` and
+`ServiceClassAspect`'s own accumulation role — are *not* shape-conversion
+at all and do not belong in that table: both have dead/unreachable
+`make_transform` (`matches`/`supports_conversion_*` hard-`.false.`) and
+are resolved through a `connect_to_export` side-channel fed by
+`MatchConnection` regex-expanding one import pattern against the
+flattened sibling export namespace *before* any `AspectMap`-level
+dispatch runs — legacy itself does not treat these two uniformly with
+the rest of `StateItemAspect`, so graph needing separate machinery for
+them is not a new asymmetry; it is the same one legacy already has.
+
+`GraphBuilder.F90` already has an explicit, pre-existing scope boundary
+for the pattern-based case: "Wildcard/callback/reexport/simple
+connections: out of scope for this slice — deliberately skipped." This
+was never promoted to a tracked roadmap gap; this phase is that
+promotion, done accurately (§20.4.2's own Phase 6 cleanup list names
+`WILDCARD`/`EXPRESSION`/`SERVICE` as missing graph-native *itemType
+values* but says nothing about missing *dispatch behavior*, and does not
+mention `BRACKET`/`VECTOR`/`VECTORBRACKET` at all — that list entry is
+itself incomplete, left as-is rather than rewritten, per this document's
+own "append, don't silently drop" discipline for growable lists).
+
+**Does not belong in Phase 5's `StateItemCharacteristic` family
+(`5a`/`5a2`)**, despite the naming proximity — two reasons: (1) `5a`
+design.md D6 deliberately keeps that whole hierarchy independent of
+`GraphBuilder.F90`'s real connection-resolution path, exercised only by
+synthetic-node pFUnit tests; shape-dispatch, to be useful, MUST be wired
+into real resolution. (2) The architecturally correct home is the
+*other*, already-live graph-native characteristic family —
+`09-extension-reuse.md`'s `Characteristic`/`CharacteristicMap`/
+`CharacteristicId` (3c), already consulted by `GraphBuilder.F90`'s real
+`resolve_one`/`ExtensionResolution.F90` chain-building
+(`find_mismatched_characteristics`/`build_chain`) for Units and
+VerticalGrid today. A new `CharacteristicId` whose `needs_extension_for`
+checks `GraphStateItem%variant()` compatibility and whose
+`build_transform` returns the Bracket/VectorBracket-equivalent
+`TransformGraphNode` would be walked by the *same* `build_chain` loop,
+uniformly with Units — preserving exactly the uniformity property
+legacy's own `can_connect_to`/`make_extension` loop has for `ClassAspect`.
+`variant()` is already a first-class `GraphStateItem` property
+(REQ-SI-002b), not a sparse-map characteristic entry, which if anything
+mirrors `ClassAspect`'s own privileged (decides-aspect-order,
+owns-the-payload) role in legacy more faithfully than modeling shape as
+an ordinary characteristic would.
+
+**Three genuinely distinct mechanisms, not one** — do not file a single
+change spanning all three:
+
+- **7a. Shape-changing 1:1 dispatch** (`Bracket`->`Field`,
+  `VectorBracket`->`Vector`) — mechanically the simplest: a new
+  `CharacteristicId`/`Characteristic` subclass in the live
+  `graph/extension-reuse` family, triggered by `variant()` mismatch
+  instead of a value comparison, dispatched by the existing `build_chain`
+  loop exactly like `UnitsCharacteristic` is today. **Lowest urgency**:
+  zero `Test_Scenarios` fixtures exercise `BRACKET`/`VECTORBRACKET` end
+  to end (`Test_BracketClassAspect.pf`/`Test_VectorBracketClassAspect.pf`
+  are unit-level only, `MAPL.generic.aspects`) — nothing currently forces
+  this before the other two.
+- **7b. Expression -> Field, N:1** — needs `EXPRESSION` added to the
+  graph-native `MAPL_StateItem_Flag` vocabulary (currently absent, unlike
+  `BRACKET`/`VECTOR`/`VECTORBRACKET` which already have flag values) and
+  a `GraphBuilder`-level hook resolving N named references —
+  `build_transform`'s two-item `(src, dst)` signature cannot do this
+  alone, mirroring legacy's own exception for
+  `ExpressionClassAspect%make_transform` (it already reaches outside
+  normal scope via `registry%extend()` per referenced variable). Likely
+  shaped as a dedicated hook analogous to `4e`'s own `run_geometry_hook`
+  precedent (graph-wide resolution, not an ordinary two-item
+  `Characteristic`) rather than an extension of 7a's mechanism.
+  **Working hypothesis, not yet designed**: an Expression item is likely
+  best modeled as a composite `StateItemNode` (reusing the already-shipped
+  `composite-state-spec` `declare_member` mechanism — the same mechanism
+  `4c`'s `CallbackStateBinding` and `4f`'s `VerticalGrid` already reuse
+  for "a state item needs independently-addressable sub-structure" — one
+  member per referenced variable), with `TransformGraphNode`'s existing
+  N-input port support (already generic since Phase 2,
+  `10-transforms-and-ports.md`) doing the N:1 fan-in from those members.
+  Needs real design work before implementation, not assumed solved here.
+  `Test_Scenarios` evidence: 3 fixtures (`expression`, `expression_match`,
+  `expression_defer_geom`) — a real forcing function.
+- **7c. Wildcard/Service pattern-based multi-source fan-in** — hardest
+  and least understood. Not a `Characteristic`/shape-dispatch problem at
+  all: legacy's own mechanism is connection-*topology* discovery (regex
+  against the flattened sibling export namespace,
+  `VirtualConnectionPt%matches`/`MatchConnection`) happening *before* any
+  per-item dispatch, followed by N-way accumulation into one persistent
+  destination instance (`WildcardClassAspect%matched_items`).
+  `DependencyNetwork%validate()` already explicitly rejects multiple
+  producers writing one state item in the same network — that invariant
+  is almost certainly correct and should not be weakened to accommodate
+  this. Working hypothesis: model each pattern match as its own
+  independently-produced composite *member* (reusing
+  `composite-state-spec` again) rather than true multi-producer
+  semantics — not yet validated against the real sharing/identity
+  mechanics `18-state-item-characteristics.md` §18.7 already uses for
+  Geom/VerticalGrid. Further complicated by cross-level export
+  visibility: `openspec/changes/archive/
+  2026-09-16-graphbuilder-advertising-connections`'s own
+  `Test_GraphBuilderEquivalence.pf` already tried and rejected porting
+  `statistics`/`history_1`/`history_wildcard`/`extdata_1` as equivalence
+  targets, specifically because those scenarios need `StateRegistry`'s
+  cross-level `propagate_exports`/`propagate_unsatisfied_imports`
+  machinery that `GraphBuilder` does not consult beyond `3b2`'s single-
+  import upward bubbling — a second, only-partially-solved prerequisite,
+  not something 7c can assume away. `Test_Scenarios` evidence: 1 fixture
+  for Wildcard (`history_wildcard`), 2 (+1 unused) for Service — real but
+  entangled forcing functions.
+
+**Recommended pilot, if/when this phase is picked up**: `vector_1`
+(`VectorClassAspect`, same-shape, no conversion needed at all —
+`matches` with per-component `standard_name` comparison only) as a smoke
+test of whether `GraphBuilder`'s existing extension-chain model already
+generalizes to a second characteristic cleanly, *before* attempting
+`7a`'s genuine shape-conversion case or `7c`'s harder topology problem.
+`Vector` itself needs no new mechanism beyond what `3c`/`5a2` already
+provide — it is scoping/validation work, not new architecture, and tests
+the ground floor before building the harder floors on top of it.
+
+**Repo/tooling note (extends §20.4.1's/§20.4.3's/§20.4.4's own notes).**
+Phase 7 lives in the MAPL repo/checkout, same as Phases 3-5: all three
+sub-mechanisms build on landed `GraphBuilder.F90`/`graph/extension-reuse`/
+`composite-state-spec` MAPL-repo code.
 
 ## 20.5 Cross-reference
 

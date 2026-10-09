@@ -73,6 +73,13 @@ target_sources(MAPL.generic PRIVATE
   GeometryCharacteristic.F90
   StateItemCharacteristicDetection.F90
   SetSharedCharacteristic.F90
+  VerticalCoordinateCharacteristic.F90
+  UngriddedDimsCharacteristic.F90
+  ConservationCharacteristic.F90
+  NormalizationCharacteristic.F90
+  QuantityTypeCharacteristic.F90
+  AttributesCharacteristic.F90
+  StandardNameCharacteristic.F90
 
   CallbackArgumentSpec.F90
   containers/CallbackArgumentSpecMap.F90

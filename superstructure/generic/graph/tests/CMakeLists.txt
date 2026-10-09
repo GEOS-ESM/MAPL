@@ -50,6 +50,7 @@ set(test_srcs
   Test_UnitsConverterTransform.pf
   Test_StateItemCharacteristicKind.pf
   Test_StateItemCharacteristic.pf
+  Test_StateItemCharacteristicSubclasses.pf
   Test_StateItemCharacteristicDetection.pf
   Test_SetSharedCharacteristic.pf
   Test_CallbackArgumentSpec.pf

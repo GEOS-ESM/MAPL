@@ -38,6 +38,15 @@ module mapl_StateItemCharacteristicKind_mod
    public :: PHYSICAL_UNITS_CHARACTERISTIC_KIND
    public :: TYPE_KIND_CHARACTERISTIC_KIND
    public :: GEOMETRY_CHARACTERISTIC_KIND
+   ! Registered by openspec/changes/state-item-characteristic-subclasses
+   ! (design.md D7) - values 4-10, in the proposal's own table order.
+   public :: VERTICAL_COORDINATE_CHARACTERISTIC_KIND
+   public :: ATTRIBUTES_CHARACTERISTIC_KIND
+   public :: UNGRIDDED_DIMS_CHARACTERISTIC_KIND
+   public :: QUANTITY_TYPE_CHARACTERISTIC_KIND
+   public :: CONSERVATION_CHARACTERISTIC_KIND
+   public :: NORMALIZATION_CHARACTERISTIC_KIND
+   public :: STANDARD_NAME_CHARACTERISTIC_KIND
    public :: MOCK_CHARACTERISTIC_KIND
 
    type :: StateItemCharacteristicKind
@@ -51,6 +60,17 @@ module mapl_StateItemCharacteristicKind_mod
    type(StateItemCharacteristicKind), parameter :: PHYSICAL_UNITS_CHARACTERISTIC_KIND = StateItemCharacteristicKind(1)
    type(StateItemCharacteristicKind), parameter :: TYPE_KIND_CHARACTERISTIC_KIND      = StateItemCharacteristicKind(2)
    type(StateItemCharacteristicKind), parameter :: GEOMETRY_CHARACTERISTIC_KIND       = StateItemCharacteristicKind(3)
+
+   ! openspec/changes/state-item-characteristic-subclasses (design.md D7):
+   ! values 4-10, one per remaining legacy *Aspect axis, in the proposal's
+   ! own table order - arbitrary but stable once assigned (REQ-CHAR-006).
+   type(StateItemCharacteristicKind), parameter :: VERTICAL_COORDINATE_CHARACTERISTIC_KIND = StateItemCharacteristicKind(4)
+   type(StateItemCharacteristicKind), parameter :: ATTRIBUTES_CHARACTERISTIC_KIND          = StateItemCharacteristicKind(5)
+   type(StateItemCharacteristicKind), parameter :: UNGRIDDED_DIMS_CHARACTERISTIC_KIND      = StateItemCharacteristicKind(6)
+   type(StateItemCharacteristicKind), parameter :: QUANTITY_TYPE_CHARACTERISTIC_KIND       = StateItemCharacteristicKind(7)
+   type(StateItemCharacteristicKind), parameter :: CONSERVATION_CHARACTERISTIC_KIND        = StateItemCharacteristicKind(8)
+   type(StateItemCharacteristicKind), parameter :: NORMALIZATION_CHARACTERISTIC_KIND       = StateItemCharacteristicKind(9)
+   type(StateItemCharacteristicKind), parameter :: STANDARD_NAME_CHARACTERISTIC_KIND       = StateItemCharacteristicKind(10)
 
    ! Test-only, mirrors CharacteristicId.F90's own MOCK_CHARACTERISTIC_ID
    ! precedent - lets a test define a fake StateItemCharacteristic
@@ -82,6 +102,20 @@ contains
          s = "TYPE_KIND"
       case (GEOMETRY_CHARACTERISTIC_KIND%value)
          s = "GEOMETRY"
+      case (VERTICAL_COORDINATE_CHARACTERISTIC_KIND%value)
+         s = "VERTICAL_COORDINATE"
+      case (ATTRIBUTES_CHARACTERISTIC_KIND%value)
+         s = "ATTRIBUTES"
+      case (UNGRIDDED_DIMS_CHARACTERISTIC_KIND%value)
+         s = "UNGRIDDED_DIMS"
+      case (QUANTITY_TYPE_CHARACTERISTIC_KIND%value)
+         s = "QUANTITY_TYPE"
+      case (CONSERVATION_CHARACTERISTIC_KIND%value)
+         s = "CONSERVATION"
+      case (NORMALIZATION_CHARACTERISTIC_KIND%value)
+         s = "NORMALIZATION"
+      case (STANDARD_NAME_CHARACTERISTIC_KIND%value)
+         s = "STANDARD_NAME"
       case (MOCK_CHARACTERISTIC_KIND%value)
          s = "MOCK"
       case default

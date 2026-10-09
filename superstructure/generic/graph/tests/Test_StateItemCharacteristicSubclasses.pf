@@ -1,0 +1,332 @@
+! openspec/changes/state-item-characteristic-subclasses, tasks 2.3/3.5/4.3/
+! 5.3/6.3: the seven new concrete StateItemCharacteristic subclasses -
+! correct Value/Reference classification, correct get_kind(), and
+! needs_extension_for() comparison semantics (design.md D1-D5).
+module Test_StateItemCharacteristicSubclasses
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic, &
+                                                ReferenceCharacteristic
+   use mapl_StateItemCharacteristicKind_mod, only: operator(==), &
+                                                    VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
+                                                    ATTRIBUTES_CHARACTERISTIC_KIND, &
+                                                    UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
+                                                    QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+                                                    CONSERVATION_CHARACTERISTIC_KIND, &
+                                                    NORMALIZATION_CHARACTERISTIC_KIND, &
+                                                    STANDARD_NAME_CHARACTERISTIC_KIND
+   use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED
+
+   use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
+   use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
+   use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
+   use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
+   use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
+   use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
+
+   use mapl_UngriddedDims_mod, only: UngriddedDims
+   use mapl_QuantityType_mod, only: QUANTITY_MIXING_RATIO, QUANTITY_TEMPERATURE, QUANTITY_UNKNOWN, &
+                                     BASIS_WET_MASS, BASIS_DRY_MASS, BASIS_NONE
+   use mapl_ConservationMetadata_mod, only: ConservationMetadata, new_ConservationMetadata_mirror
+   use mapl_ConservationType_mod, only: CONSERVE_MASS, CONSERVE_ENERGY
+   use mapl_NormalizationMetadata_mod, only: NormalizationMetadata
+   use mapl_NormalizationType_mod, only: NORMALIZE_DELP, NORMALIZE_DZ
+
+   use gFTL2_StringVector, only: StringVector
+
+   use funit
+   implicit none
+
+contains
+
+   ! --- 2.3: VerticalCoordinateCharacteristic (ReferenceCharacteristic) ---
+
+   @test
+   subroutine test_vertical_coordinate_is_a_reference_characteristic()
+      class(ReferenceCharacteristic), allocatable :: r
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: id
+
+      id = gen%next()
+      allocate(r, source=VerticalCoordinateCharacteristic(id))
+
+      @assertTrue(r%get_kind() == VERTICAL_COORDINATE_CHARACTERISTIC_KIND)
+      @assertTrue(r%get_referenced_node_id() == id)
+   end subroutine test_vertical_coordinate_is_a_reference_characteristic
+
+   @test
+   subroutine test_vcoord_needs_extension_compares_node_id()
+      type(VerticalCoordinateCharacteristic) :: a, same_as_a, b
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: id_a, id_b
+
+      id_a = gen%next()
+      id_b = gen%next()
+      a = VerticalCoordinateCharacteristic(id_a)
+      same_as_a = VerticalCoordinateCharacteristic(id_a)
+      b = VerticalCoordinateCharacteristic(id_b)
+
+      @assertFalse(a%needs_extension_for(same_as_a))
+      @assertTrue(a%needs_extension_for(b))
+   end subroutine test_vcoord_needs_extension_compares_node_id
+
+   ! --- 3.5: UngriddedDimsCharacteristic ---
+
+   @test
+   subroutine test_ungridded_dims_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=UngriddedDimsCharacteristic(UngriddedDims([5])))
+      @assertTrue(v%get_kind() == UNGRIDDED_DIMS_CHARACTERISTIC_KIND)
+   end subroutine test_ungridded_dims_is_a_value_characteristic
+
+   @test
+   subroutine test_ungridded_dims_needs_extension_for()
+      type(UngriddedDimsCharacteristic) :: a, same_as_a, b
+
+      a = UngriddedDimsCharacteristic(UngriddedDims([5]))
+      same_as_a = UngriddedDimsCharacteristic(UngriddedDims([5]))
+      b = UngriddedDimsCharacteristic(UngriddedDims([3]))
+
+      @assertFalse(a%needs_extension_for(same_as_a))
+      @assertTrue(a%needs_extension_for(b))
+   end subroutine test_ungridded_dims_needs_extension_for
+
+   ! --- 3.5: ConservationCharacteristic (reused mirror-aware operator(==)) ---
+
+   @test
+   subroutine test_conservation_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS)))
+      @assertTrue(v%get_kind() == CONSERVATION_CHARACTERISTIC_KIND)
+   end subroutine test_conservation_is_a_value_characteristic
+
+   @test
+   subroutine test_conservation_needs_extension_for()
+      type(ConservationCharacteristic) :: a, same_as_a, b
+
+      a = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+      same_as_a = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+      b = ConservationCharacteristic(ConservationMetadata(CONSERVE_ENERGY))
+
+      @assertFalse(a%needs_extension_for(same_as_a))
+      @assertTrue(a%needs_extension_for(b))
+   end subroutine test_conservation_needs_extension_for
+
+   ! Exercises ConservationMetadata's own mirror-aware operator(==)
+   ! ("both-mirror compares equal unconditionally") through this new
+   ! subclass - design.md D3.
+   @test
+   subroutine test_conservation_mirror_instances_do_not_need_extension()
+      type(ConservationCharacteristic) :: mirror_a, mirror_b
+
+      mirror_a = ConservationCharacteristic(new_ConservationMetadata_mirror())
+      mirror_b = ConservationCharacteristic(new_ConservationMetadata_mirror())
+
+      @assertFalse(mirror_a%needs_extension_for(mirror_b))
+   end subroutine test_conservation_mirror_instances_do_not_need_extension
+
+   ! --- 3.5: NormalizationCharacteristic (reused mirror-aware operator(==)) ---
+
+   @test
+   subroutine test_normalization_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP)))
+      @assertTrue(v%get_kind() == NORMALIZATION_CHARACTERISTIC_KIND)
+   end subroutine test_normalization_is_a_value_characteristic
+
+   @test
+   subroutine test_normalization_needs_extension_for()
+      type(NormalizationCharacteristic) :: a, same_as_a, b
+
+      a = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+      same_as_a = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+      b = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DZ))
+
+      @assertFalse(a%needs_extension_for(same_as_a))
+      @assertTrue(a%needs_extension_for(b))
+   end subroutine test_normalization_needs_extension_for
+
+   @test
+   subroutine test_normalization_mirror_instances_do_not_need_extension()
+      type(NormalizationCharacteristic) :: mirror_a, mirror_b
+
+      mirror_a = NormalizationCharacteristic(NormalizationMetadata())
+      mirror_b = NormalizationCharacteristic(NormalizationMetadata())
+
+      @assertFalse(mirror_a%needs_extension_for(mirror_b))
+   end subroutine test_normalization_mirror_instances_do_not_need_extension
+
+   ! --- 4.3: QuantityTypeCharacteristic ---
+
+   @test
+   subroutine test_quantity_type_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS))
+      @assertTrue(v%get_kind() == QUANTITY_TYPE_CHARACTERISTIC_KIND)
+   end subroutine test_quantity_type_is_a_value_characteristic
+
+   @test
+   subroutine test_quantity_type_matching_does_not_need_extension()
+      type(QuantityTypeCharacteristic) :: a, same_as_a
+
+      a = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      same_as_a = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+
+      @assertFalse(a%needs_extension_for(same_as_a))
+   end subroutine test_quantity_type_matching_does_not_need_extension
+
+   @test
+   subroutine test_quantity_type_either_side_unknown_does_not_need_extension()
+      type(QuantityTypeCharacteristic) :: known, unknown
+
+      known = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      unknown = QuantityTypeCharacteristic(QUANTITY_UNKNOWN, BASIS_WET_MASS)
+
+      @assertFalse(known%needs_extension_for(unknown))
+      @assertFalse(unknown%needs_extension_for(known))
+   end subroutine test_quantity_type_either_side_unknown_does_not_need_extension
+
+   @test
+   subroutine test_quantity_type_basis_none_no_extension()
+      type(QuantityTypeCharacteristic) :: with_basis, no_basis
+
+      with_basis = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      no_basis = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_NONE)
+
+      @assertFalse(with_basis%needs_extension_for(no_basis))
+      @assertFalse(no_basis%needs_extension_for(with_basis))
+   end subroutine test_quantity_type_basis_none_no_extension
+
+   ! Genuine quantity_type mismatch, neither side UNKNOWN: needs extension.
+   @test
+   subroutine test_quantity_type_mismatch_needs_extension()
+      type(QuantityTypeCharacteristic) :: mixing_ratio, temperature
+
+      mixing_ratio = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_NONE)
+      temperature = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_NONE)
+
+      @assertTrue(mixing_ratio%needs_extension_for(temperature))
+   end subroutine test_quantity_type_mismatch_needs_extension
+
+   ! Genuine basis mismatch, neither side NONE: needs extension.
+   @test
+   subroutine test_quantity_type_genuine_basis_mismatch_needs_extension()
+      type(QuantityTypeCharacteristic) :: wet_mass, dry_mass
+
+      wet_mass = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      dry_mass = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_DRY_MASS)
+
+      @assertTrue(wet_mass%needs_extension_for(dry_mass))
+   end subroutine test_quantity_type_genuine_basis_mismatch_needs_extension
+
+   ! --- 5.3: AttributesCharacteristic (asymmetric) ---
+
+   @test
+   subroutine test_attributes_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+      type(StringVector) :: names
+
+      call names%push_back('units')
+      allocate(v, source=AttributesCharacteristic(names))
+      @assertTrue(v%get_kind() == ATTRIBUTES_CHARACTERISTIC_KIND)
+   end subroutine test_attributes_is_a_value_characteristic
+
+   @test
+   subroutine test_attributes_provides_superset_does_not_need_extension()
+      type(AttributesCharacteristic) :: provides, requires
+      type(StringVector) :: provided_names, required_names
+
+      call provided_names%push_back('units')
+      call provided_names%push_back('long_name')
+      call provided_names%push_back('standard_name')
+      call required_names%push_back('units')
+      call required_names%push_back('long_name')
+
+      provides = AttributesCharacteristic(provided_names)
+      requires = AttributesCharacteristic(required_names)
+
+      @assertFalse(provides%needs_extension_for(requires))
+   end subroutine test_attributes_provides_superset_does_not_need_extension
+
+   @test
+   subroutine test_attributes_missing_required_name_needs_extension()
+      type(AttributesCharacteristic) :: provides, requires
+      type(StringVector) :: provided_names, required_names
+
+      call provided_names%push_back('units')
+      call required_names%push_back('units')
+      call required_names%push_back('standard_name')
+
+      provides = AttributesCharacteristic(provided_names)
+      requires = AttributesCharacteristic(required_names)
+
+      @assertTrue(provides%needs_extension_for(requires))
+   end subroutine test_attributes_missing_required_name_needs_extension
+
+   ! Swapping this/goal for the same two non-equal sets produces the
+   ! opposite result, making the asymmetry visible (design.md Risks).
+   @test
+   subroutine test_attributes_needs_extension_for_is_asymmetric()
+      type(AttributesCharacteristic) :: larger, smaller
+      type(StringVector) :: larger_names, smaller_names
+
+      call larger_names%push_back('units')
+      call larger_names%push_back('long_name')
+      call smaller_names%push_back('units')
+
+      larger = AttributesCharacteristic(larger_names)
+      smaller = AttributesCharacteristic(smaller_names)
+
+      ! larger provides everything smaller requires.
+      @assertFalse(larger%needs_extension_for(smaller))
+      ! smaller does not provide everything larger requires.
+      @assertTrue(smaller%needs_extension_for(larger))
+   end subroutine test_attributes_needs_extension_for_is_asymmetric
+
+   ! --- 6.3: StandardNameCharacteristic (status-based escape) ---
+
+   @test
+   subroutine test_standard_name_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=StandardNameCharacteristic('air_temperature'))
+      @assertTrue(v%get_kind() == STANDARD_NAME_CHARACTERISTIC_KIND)
+   end subroutine test_standard_name_is_a_value_characteristic
+
+   @test
+   subroutine test_standard_name_equal_names_do_not_need_extension()
+      type(StandardNameCharacteristic) :: a, same_as_a
+
+      a = StandardNameCharacteristic('air_temperature')
+      same_as_a = StandardNameCharacteristic('air_temperature')
+
+      @assertFalse(a%needs_extension_for(same_as_a))
+   end subroutine test_standard_name_equal_names_do_not_need_extension
+
+   @test
+   subroutine test_standard_name_unequal_names_need_extension()
+      type(StandardNameCharacteristic) :: a, b
+
+      a = StandardNameCharacteristic('air_temperature')
+      b = StandardNameCharacteristic('surface_pressure')
+
+      @assertTrue(a%needs_extension_for(b))
+   end subroutine test_standard_name_unequal_names_need_extension
+
+   @test
+   subroutine test_standard_name_unchecked_status_does_not_need_extension()
+      type(StandardNameCharacteristic) :: a, b
+
+      a = StandardNameCharacteristic('air_temperature')
+      b = StandardNameCharacteristic('surface_pressure')
+      call a%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+
+      @assertFalse(a%needs_extension_for(b))
+      @assertFalse(b%needs_extension_for(a))
+   end subroutine test_standard_name_unchecked_status_does_not_need_extension
+
+end module Test_StateItemCharacteristicSubclasses
