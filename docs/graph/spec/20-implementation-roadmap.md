@@ -141,6 +141,40 @@ context by construction — no repo-separation saving available here:
   sub-sequencing this phase needs before implementation starts, and why
   none of it belongs in Phase 5's `StateItemCharacteristic` family
   despite the naming similarity.
+- **Phase 8 (add support for `VariableSpec` validation — discovered
+  gap, not previously tracked by any phase above)** — `verify_variable_spec`
+  (`superstructure/generic/specs/VariableSpec.F90`) already exists but is
+  dead code: module-private, not re-exported, and called from nowhere,
+  not even `make_VariableSpec` itself. Three already-landed graph-native
+  "mark the item" fields (`callback_interface_id` - callback-wiring,
+  `state_item_variant` - vertical-grid-graph-state-item,
+  `is_inout_borrower` - ordinary-inout-direct-alias) are consequently
+  reachable only from synthetic test code: neither real production
+  construction path (`MAPL_GridCompAddSpec`/`gridcomp_add_spec`,
+  `MAPL_Generic.F90`, or YAML parsing,
+  `ComponentSpecParser/parse_var_specs.F90`) exposes any of the three as
+  a keyword argument, and both bypass `ComponentSpec%add_var_spec()`
+  entirely (pushing directly into `var_specs`), so there is also no
+  single already-existing call-through point every construction path
+  shares.   `ordinary-inout-direct-alias`'s own mutual-exclusion guard
+  (`callback_interface_id%is_valid() .and. is_inout_borrower`) was
+  necessarily placed in `GraphBuilder.F90`'s `resolve_one` instead - it
+  only fires when a connection happens to resolve against the item, not
+  at declaration time, and is reachable from production code even less
+  than the fields it guards. See §20.4.6 for scope.
+- **Phase 9 (`GraphResolutionEntry` record type — discovered gap, not
+  previously tracked by any phase above)** — **landed**
+  (`openspec/changes/graphbuilder-resolution-entry`): `GraphBuilder.F90`'s
+  `unresolved_imports`/`unsupported_characteristics` resolution reports
+  used a `StringVector` of colon-concatenated
+  `component_name:short_name[:reason]` strings; replaced with a real
+  `GraphResolutionEntry` record (`component_name`/`short_name`/`reason`
+  fields) plus a generated `GraphResolutionEntryVector`, mirroring
+  `QualifiedExportEntry`'s own precedent for this exact problem shape
+  earlier in the same file. Flagged in review discussion before this
+  change was filed, but no roadmap entry was ever written for it at the
+  time, so the gap was effectively lost until this phase's own review
+  caught the omission. See §20.4.7 for scope.
 
 ### 20.4.1 Phase 3 sub-sequencing
 
@@ -653,13 +687,29 @@ as follows, rather than filing one proposal spanning all three.
   `StateItemCharacteristicKind`, the sparse map on `GraphStateItem`) —
   not on `16` or Q9. MAY be filed any time after 5a lands.
 - **5b. Ordinary inout, direct-alias case** (`16` REQ-INOUT-001 only) —
-  ready to scope now. The direct-alias case (owner and borrower share the
-  same underlying ESMF payload, no grid/units/precision mismatch) is
-  already fully settled and requires no new Transform in either
-  direction, following directly from REQ-EXT-003's no-op principle.
-  REQ-INOUT-002's design-addendum gate applies only to "non-trivial
-  (non-direct-alias)" support, so it does not block this narrow slice.
-  Independent of 5a and 5c; no ordering dependency either way.
+  **landed** (`openspec/changes/archive/ordinary-inout-direct-alias`): a
+  destination item declared an ordinary inout borrower
+  (`VariableSpec%is_inout_borrower`) is wired by `GraphBuilder` through
+  the same REQ-EXT-003 no-op comparison the ordinary (non-inout) path
+  already uses for the forward edge (owner -> borrower), plus a return
+  edge (borrower -> owner) in a fresh per-pairing `DependencyNetwork` -
+  no new Transform in either direction, as REQ-INOUT-001 requires.
+  Mismatched payload, a borrower with no identifiable owner, and
+  chained/recursive borrowing are all rejected explicitly (reported, not
+  silently extension-chained) rather than attempting anything
+  REQ-INOUT-002 reserves. **Explicit deferral, as stated in this
+  sub-change's own design.md:** the runtime return-edge propagation
+  trigger (§16.1's "after borrower execution" step) is not implemented -
+  `ComponentGraph`'s demand-driven `update()` only does active work for a
+  `TransformGraphNode` frame (confirmed by reading
+  `ComponentGraph_DemandDrivenUpdate.F90` directly), and the real trigger
+  event (the borrower's own GridComp run / `MethodGraphNode` invocation
+  completing) has no invocation-completion hook in the codebase yet for
+  ordinary (non-callback) components - building one is Phase 4
+  invocation-lifecycle work, surfaced but not attempted by this narrow
+  sub-change. This change lands the forward/return graph structure only,
+  mirroring 4e/4g's own "structure now, real execution later" precedent.
+  Depended on Phases 1-3 only, as planned; independent of 5a/5c.
 - **5b2. Ordinary inout, general case** — **BLOCKED**, not ready to
   scope. REQ-INOUT-002 explicitly requires an explicit design addendum
   resolving four named open points before any non-trivial inout support
@@ -713,7 +763,7 @@ Phase 1-4 (landed)
    |       v
    +--> 5c  Compiled-execution optimization          (ready now, after 5a)
    |
-   +--> 5b  Ordinary inout, direct-alias case         (ready now, independent)
+   +--> 5b  Ordinary inout, direct-alias case         (landed, independent)
              |
              v
          5b2 Ordinary inout, general case             (BLOCKED: needs REQ-INOUT-002 addendum)
@@ -877,6 +927,128 @@ the ground floor before building the harder floors on top of it.
 Phase 7 lives in the MAPL repo/checkout, same as Phases 3-5: all three
 sub-mechanisms build on landed `GraphBuilder.F90`/`graph/extension-reuse`/
 `composite-state-spec` MAPL-repo code.
+
+### 20.4.6 Phase 8 scope: `VariableSpec` validation
+
+**Discovered gap, not previously tracked by any phase above.** Surfaced
+2026-10-09 during post-archive review of `ordinary-inout-direct-alias`
+(`openspec/changes/archive/2026-10-09-ordinary-inout-direct-alias`): a
+reviewer asked where the new callback+inout mutual-exclusion guard
+"should" live, and tracing the actual call graph showed every
+`VariableSpec` consistency concern — not just this one — has nowhere
+principled to live today.
+
+**What exists:**
+- `verify_variable_spec` (`VariableSpec.F90`) already checks
+  `state_intent`/`short_name`/`regrid` consistency via
+  `VariableSpec_private.F90`'s `verify_state_intent`/`verify_short_name`/
+  `verify_regrid` - a real, if incomplete, validation scaffold.
+- It is module-`private`, absent from `mapl_VariableSpec_mod`'s own
+  `public ::` list, and has zero call sites anywhere in the repo,
+  including from `make_VariableSpec` itself. Dead code since it was
+  written.
+
+**What this means for the three already-landed marker fields:**
+`callback_interface_id`, `state_item_variant`, and `is_inout_borrower`
+each followed the same precedent ("mark the item, not a new itemType,"
+set via plain post-construction field assignment, no `make_VariableSpec`
+keyword, explicitly deferring YAML/SetServices exposure as out of scope
+in each one's own design.md). Confirmed by direct search: every
+assignment of any of the three, anywhere in the repo, is in a pFUnit test
+file (`Test_VariableSpecCallback.pf`, `Test_GraphGeometryHook.pf`,
+`Test_GraphBuilder.pf`, `Test_VariableSpecInout.pf`). Neither real
+production construction path exposes them:
+- `MAPL_GridCompAddSpec`/`gridcomp_add_spec` (`MAPL_Generic.F90`) - the
+  public macro real GEOS components call (`gridcomps/statistics/*.F90`
+  and others) - builds a `VariableSpec` from its own keyword-argument
+  list, which does not include any of the three, then pushes directly
+  into `component_spec%var_specs` (bypassing `ComponentSpec%add_var_spec`).
+- YAML parsing (`ComponentSpecParser/parse_var_specs.F90`) - same shape:
+  builds via `make_VariableSpec(...)` with its own keyword list (also
+  missing all three), pushes directly into the vector.
+
+Each deferral was individually deliberate and documented at the time -
+this phase is the first point anyone asked whether the accumulation of
+three such deferrals, with no shared validation or exposure mechanism
+among them, is itself a gap. It is: `ordinary-inout-direct-alias`'s own
+mutual-exclusion guard is reachable only from `GraphBuilder.F90`'s
+connection-resolution path, meaning a component that declares the
+nonsensical combination but never gets a matching connection resolved
+against it sails through completely unchecked today.
+
+**Scope for this phase:**
+1. Make `verify_variable_spec` real: export it (or an equivalent single
+   choke point), and have it also check the cross-field consistency
+   rules current code only checks piecemeal or not at all (starting with
+   `ordinary-inout-direct-alias`'s callback+inout mutual exclusion -
+   `GraphBuilder.F90`'s own copy should be removed once this lands, not
+   kept as a redundant second check).
+2. Decide, as a planned up-front design decision (same discipline this
+   document already asks of other open points, e.g. Phase 4's 4b for
+   REQ-MTH-011(c)): does validation run at `make_VariableSpec`'s own
+   construction time (requires migrating `callback_interface_id`/
+   `state_item_variant`/`is_inout_borrower` from post-construction plain
+   assignment to real constructor keyword arguments - the more invasive,
+   more principled option), or at both real production choke points
+   (`gridcomp_add_spec` and `parse_var_specs.F90`'s per-item construction
+   loop - less invasive, but two call sites to keep in sync, and still
+   does nothing for construction via direct field assignment in test or
+   future code that does not go through either)?
+3. Whichever mechanism is chosen, decide whether `callback_interface_id`/
+   `state_item_variant`/`is_inout_borrower` should finally get real
+   production exposure (keyword args on `MAPL_GridCompAddSpec` and/or new
+   YAML fields) as part of this phase, or whether validation should ship
+   first while production exposure for each field remains its own,
+   separately-scoped follow-up per capability.
+
+**Not blocking anything above or already landed** - this is independent
+cleanup/hardening work on construction-time correctness, not new graph
+capability; it can be picked up at any time.
+
+### 20.4.7 Phase 9 scope: `GraphResolutionEntry` record type
+
+**Discovered gap, not previously tracked by any phase above.** Flagged
+in review discussion prior to this phase, the same way `QualifiedExportEntry`
+(`GraphBuilder.F90` ~line 297) replaced an earlier string-keyed
+representation for the qualified-export namespace — the reviewer
+discussion at the time noted the two resolution-report collections
+(`unresolved_imports`, `unsupported_characteristics`) should eventually
+get the same treatment, but no `openspec` change or roadmap entry was
+ever filed to track it. The gap was effectively lost until this phase's
+own review caught the omission — exactly the kind of drift §20's own
+header asks this document to guard against.
+
+**What existed:** `graphbuilder_check_unsatisfied_imports` and
+`graphbuilder_resolve_connections` populated `type(StringVector)`
+out-arguments by concatenating `component_name // ':' // short_name`
+(plus, for `unsupported_characteristics`, one more `':' // reason`
+segment) at ~10 call sites. The field count varied by call site (plain
+`component:short_name` for some `unsupported` cases, a third `:reason`
+segment for others), nothing prevented `short_name`/`reason` themselves
+from containing a literal `:`, and any caller wanting the identity
+(rather than a log-ready string) had to split on `:` itself.
+
+**Landed** (`openspec/changes/graphbuilder-resolution-entry`):
+`GraphResolutionEntry` (`component_name`/`short_name`/`reason`, all
+`character(:), allocatable`, `reason` set to `''` where not applicable)
+plus a generated `GraphResolutionEntryVector`/
+`GraphResolutionEntryVectorIterator` (gFTL2 vector template
+instantiation, mirroring `mapl_VariableSpecVector_mod`'s own
+`VariableSpec`/`VariableSpecVector.F90` split), in two new files
+(`GraphResolutionEntry.F90`, `GraphResolutionEntryVector.F90`). Both
+`GraphBuilder.F90` output-argument types and every push-back call site
+were converted; the two logging hooks
+(`graphbuilder_run_activate_hook`/`graphbuilder_run_connect_hook`) read
+the three fields directly instead of logging the opaque joined string;
+`Test_GraphBuilder.pf`'s ~15 string-literal assertions became per-field
+comparisons. Pure internal representation change — no requirement or
+scenario in `openspec/specs/graph/graph-builder/spec.md` changed
+(`skip_specs: true`), and no production caller outside
+`GraphBuilder.F90`'s own two hooks existed to begin with (confirmed by
+repo-wide search before landing).
+
+**Not blocking anything above or already landed** - independent
+internal-quality hardening, not new graph capability.
 
 ## 20.5 Cross-reference
 

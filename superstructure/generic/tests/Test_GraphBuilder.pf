@@ -17,7 +17,8 @@ module Test_GraphBuilder
    use mapl_GraphBuilder_mod
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
-   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId, operator(==)
+   use mapl_DependencyNetworkIdSet_mod, only: DependencyNetworkIdSet, DependencyNetworkIdSetIterator, operator(/=)
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_ChildSpec_mod, only: ChildSpec
    use mapl_ComponentSpec_mod, only: ComponentSpec
@@ -52,6 +53,8 @@ module Test_GraphBuilder
    use mapl_FieldGet_mod, only: FieldGet
    use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid
    use gFTL2_StringVector, only: StringVector
+   use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
+   use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
    use ESMF_TestMethod_mod
    use esmf
    use pfunit
@@ -212,7 +215,8 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph, src_graph, dst_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unresolved
+      type(GraphResolutionEntry), pointer :: entry
       type(NodeId), pointer :: t_export_proxy, t_import_proxy, q_import_proxy
       type(NodeId), pointer :: t_export_native, t_import_native
       type(DependencyNetwork), pointer :: net
@@ -260,7 +264,9 @@ contains
       @assert_that(status, is(0))
 
       @assertEqual(1, unresolved%size())
-      @assert_that(unresolved%at(1, status), is(equal_to('child_dst:Q')))
+      entry => unresolved%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('Q', entry%short_name)
 
       parent_graph => parent_meta%get_component_graph()
       t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
@@ -325,7 +331,7 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
       type(NodeId), pointer :: t_export_proxy, t_import_proxy
       type(DependencyNetwork), pointer :: net
       type(DependencyNetworkId) :: net_id
@@ -390,6 +396,380 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_ordinary_connection_units_mismatch_creates_chain
 
+   ! openspec/changes/ordinary-inout-direct-alias - REQ-INOUT-001 direct-
+   ! alias case: a destination item declared an ordinary inout borrower
+   ! (VariableSpec%is_inout_borrower) wires a forward edge (owner ->
+   ! borrower) in the default network - identical wiring shape to the
+   ! ordinary REQ-EXT-003 no-op case above, so owner/borrower payload
+   ! sharing is inherited from that same materialization path (not
+   ! independently testable at this synthetic-node layer - neither this
+   ! test nor the ordinary no-op test above exercises real ESMF Field
+   ! materialization, which happens outside GraphBuilder/ComponentGraph
+   ! entirely) - plus a return edge (borrower -> owner) in a second,
+   ! distinct per-pairing network (design.md Decision 2, revised).
+   ! ComponentGraph%validate() (REQ-DEP-008a's cross-network check)
+   ! succeeds since the two edges write two different NodeIds - no
+   ! special-case validation code needed (design.md Risk 2).
+   @test(npes=[0])
+   subroutine test_inout_direct_alias_wires_forward_and_return_edges(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(VariableSpec) :: borrower_spec
+      type(NodeId), pointer :: t_export_proxy, t_import_proxy
+      type(DependencyNetwork), pointer :: net, candidate_net
+      type(DependencyNetworkId) :: net_id
+      type(DependencyNetworkId), pointer :: candidate_id
+      type(DependencyNetworkIdSet), target :: all_net_ids
+      type(DependencyNetworkIdSetIterator) :: net_iter
+      logical :: found_return_edge
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_parent_inout', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      dst_spec => dst_meta%get_component_spec()
+      borrower_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T')
+      borrower_spec%is_inout_borrower = .true.
+      call dst_spec%add_var_spec(borrower_spec)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+
+      ! spec "A borrower whose required payload exactly matches its
+      ! owner's is wired with no transform in either direction" - not
+      ! reported as unresolved or unsupported.
+      @assertEqual(0, unresolved%size())
+      @assertEqual(0, unsupported%size())
+
+      parent_graph => parent_meta%get_component_graph()
+      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_proxy), is(true()))
+      @assert_that(associated(t_import_proxy), is(true()))
+
+      ! Forward edge: owner -> borrower, in the default network -
+      ! identical wiring shape to the ordinary REQ-EXT-003 no-op case.
+      net_id = parent_graph%get_default_network_id()
+      net => parent_graph%get_network(net_id)
+      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(true()))
+
+      ! Return edge: borrower -> owner, in a DIFFERENT network from the
+      ! default one (design.md Decision 2, revised: a fresh per-pairing
+      ! network, not the default network, not the same one as forward).
+      found_return_edge = .false.
+      all_net_ids = parent_graph%get_network_ids()
+      net_iter = all_net_ids%ftn_begin()
+      do while (net_iter /= all_net_ids%ftn_end())
+         call net_iter%next()
+         candidate_id => net_iter%of()
+         if (candidate_id == net_id) cycle
+         candidate_net => parent_graph%get_network(candidate_id)
+         if (candidate_net%contains_dependency(t_import_proxy, t_export_proxy)) then
+            found_return_edge = .true.
+         end if
+      end do
+      @assert_that(found_return_edge, is(true()))
+
+      ! REQ-DEP-008a: the forward edge writes the borrower's NodeId, the
+      ! return edge writes the owner's NodeId - two different ids, so
+      ! cross-network validation succeeds with no special-case code.
+      call parent_graph%validate(status)
+      @assert_that(status, is(0))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_inout_direct_alias_wires_forward_and_return_edges
+
+   ! spec "A mismatched pairing is rejected rather than silently chained"
+   ! - REQ-INOUT-002 reserves the non-direct-alias case; an inout
+   ! borrower whose payload does not exactly match its owner's is
+   ! reported via unsupported_characteristics, and MUST NOT get an
+   ! extension chain the way an ordinary (non-inout) mismatch does
+   ! (contrast with test_ordinary_connection_units_mismatch_creates_chain
+   ! above).
+   @test(npes=[0])
+   subroutine test_inout_mismatch_is_rejected_not_chained(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
+      type(VariableSpec) :: borrower_spec
+      type(NodeId), pointer :: t_export_proxy, t_import_proxy
+      type(DependencyNetwork), pointer :: net
+      type(DependencyNetworkId) :: net_id
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_parent_inout_mismatch', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m'))
+
+      dst_spec => dst_meta%get_component_spec()
+      borrower_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T', units='km')
+      borrower_spec%is_inout_borrower = .true.
+      call dst_spec%add_var_spec(borrower_spec)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+
+      @assertEqual(0, unresolved%size())
+      @assertEqual(1, unsupported%size())
+      entry => unsupported%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('T', entry%short_name)
+      @assertEqual('inout borrower payload does not exactly match its owner (non-direct-alias case not supported)', &
+           entry%reason)
+
+      ! No extension chain, no direct edge either - the pairing is
+      ! rejected outright (contrast with the ordinary mismatch test,
+      ! where a TransformGraphNode is interposed).
+      parent_graph => parent_meta%get_component_graph()
+      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_proxy), is(true()))
+      @assert_that(associated(t_import_proxy), is(true()))
+
+      net_id = parent_graph%get_default_network_id()
+      net => parent_graph%get_network(net_id)
+      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(false()))
+      @assert_that(net%has_successors(t_export_proxy), is(false()))
+      @assert_that(net%has_predecessors(t_import_proxy), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_inout_mismatch_is_rejected_not_chained
+
+   ! spec "A borrower declaration with no identifiable owner is rejected"
+   ! - no export of the same short name exists at all; reported via
+   ! unsupported, never silently treated as an ordinary unresolved
+   ! import.
+   @test(npes=[0])
+   subroutine test_inout_borrower_with_no_owner_is_rejected(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, dst_spec
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
+      type(VariableSpec) :: borrower_spec
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_parent_inout_no_owner', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      ! No export declared on child_src at all.
+
+      dst_spec => dst_meta%get_component_spec()
+      borrower_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T')
+      borrower_spec%is_inout_borrower = .true.
+      call dst_spec%add_var_spec(borrower_spec)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+
+      @assertEqual(0, unresolved%size())
+      @assertEqual(1, unsupported%size())
+      entry => unsupported%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('T', entry%short_name)
+      @assertEqual('inout borrower has no identifiable owner', entry%reason)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_inout_borrower_with_no_owner_is_rejected
+
+   ! spec "A borrower-of-a-borrower pairing is rejected" - the owner item
+   ! is itself declared as an inout borrower in another pairing; chained
+   ! (recursive) borrowing is unspecified behavior reserved for a future
+   ! design addendum (REQ-INOUT-002), same as the general case.
+   @test(npes=[0])
+   subroutine test_inout_chained_borrowing_is_rejected(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: a_meta, b_meta, c_meta
+      type(GriddedComponentDriver) :: a_driver, b_driver, c_driver
+      type(ESMF_GridComp) :: a_gc, b_gc, c_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, a_spec, b_spec, c_spec
+      type(MatchConnection) :: conn_ab, conn_bc
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
+      type(VariableSpec) :: borrower_spec
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      ! Chain: comp_a (owner, export T) -> comp_b (borrows from comp_a,
+      ! also declares T an inout borrower) -> comp_c (tries to borrow
+      ! from comp_b, which is itself a declared borrower - rejected).
+      call make_outer_meta('comp_parent_inout_chain', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('comp_a', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('comp_b', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('comp_c', child_spec, _RC)
+
+      a_driver = parent_meta%get_child('comp_a', _RC)
+      b_driver = parent_meta%get_child('comp_b', _RC)
+      c_driver = parent_meta%get_child('comp_c', _RC)
+      a_gc = a_driver%get_gridcomp()
+      b_gc = b_driver%get_gridcomp()
+      c_gc = c_driver%get_gridcomp()
+      a_meta => get_outer_meta(a_gc, _RC)
+      b_meta => get_outer_meta(b_gc, _RC)
+      c_meta => get_outer_meta(c_gc, _RC)
+
+      a_spec => a_meta%get_component_spec()
+      call a_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      b_spec => b_meta%get_component_spec()
+      borrower_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T')
+      borrower_spec%is_inout_borrower = .true.
+      call b_spec%add_var_spec(borrower_spec)
+      ! comp_b also exports T (so comp_c can attempt to borrow from it) -
+      ! the exported VariableSpec is a separate declaration from the
+      ! imported (borrower) one above, matching how an ordinary component
+      ! declares distinct import/export VariableSpecs for the same
+      ! short_name.
+      call b_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      c_spec => c_meta%get_component_spec()
+      borrower_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T')
+      borrower_spec%is_inout_borrower = .true.
+      call c_spec%add_var_spec(borrower_spec)
+
+      call gb%advertise(a_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(b_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(c_meta, status)
+      @assert_that(status, is(0))
+
+      conn_ab = MatchConnection( &
+           ConnectionPt('comp_a', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('comp_b', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      conn_bc = MatchConnection( &
+           ConnectionPt('comp_b', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('comp_c', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn_ab)
+      call parent_spec%add_connection(conn_bc)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+
+      ! comp_a -> comp_b resolves fine (comp_a's export T is not itself a
+      ! declared borrower); comp_b -> comp_c is rejected (comp_b's
+      ! exported T belongs to a component that also declares T an inout
+      ! borrower, i.e. chained borrowing).
+      @assertEqual(0, unresolved%size())
+      @assertEqual(1, unsupported%size())
+      entry => unsupported%at(1, status)
+      @assertEqual('comp_c', entry%component_name)
+      @assertEqual('T', entry%short_name)
+      @assertEqual('inout borrower owner is itself a declared inout borrower (chained borrowing)', entry%reason)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_inout_chained_borrowing_is_rejected
+
    ! Two-phase timing correction (GraphBuilder.F90 module header):
    ! graphbuilder_check_unsatisfied_imports() is the GENERIC_INIT_ADVERTISE
    ! -time (Connection%activate()) analog - it must report the same
@@ -410,7 +790,8 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unresolved
+      type(GraphResolutionEntry), pointer :: entry
       type(NodeId), pointer :: t_export_proxy, t_import_proxy, q_import_proxy
       type(NodeIdSet) :: parent_ids
       integer :: status
@@ -456,7 +837,9 @@ contains
 
       ! Same unresolved report as the real (connect-time) resolution.
       @assertEqual(1, unresolved%size())
-      @assert_that(unresolved%at(1, status), is(equal_to('child_dst:Q')))
+      entry => unresolved%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('Q', entry%short_name)
 
       ! No graph mutation: no proxy nodes created, node count unchanged.
       t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
@@ -486,7 +869,7 @@ contains
       type(ComponentSpec), pointer :: comp_spec
       type(ComponentGraph), pointer :: graph
       type(SimpleConnection) :: conn
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unresolved
       type(NodeId), pointer :: t_export, t_import
       type(DependencyNetwork), pointer :: net
       integer :: status
@@ -637,7 +1020,7 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
       type(NodeId), pointer :: t_import_proxy
       type(NodeId) :: extension_id
       type(DependencyNetwork), pointer :: net
@@ -730,7 +1113,7 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
       type(NodeId), pointer :: t_import_proxy
       type(NodeId) :: extension_id
       type(DependencyNetwork), pointer :: net
@@ -837,7 +1220,8 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
       type(VariableSpec) :: export_var_spec, import_var_spec
       integer :: status
       type(GraphBuilder) :: gb
@@ -883,7 +1267,10 @@ contains
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
-      @assert_that(unsupported%at(1, status), is(equal_to('child_dst:T:unsupported_item_class:VECTOR')))
+      entry => unsupported%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('T', entry%short_name)
+      @assertEqual('unsupported_item_class:VECTOR', entry%reason)
 
       _UNUSED_DUMMY(this)
    end subroutine test_materialize_extensions_reports_unsupported_item_class
@@ -904,7 +1291,8 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
       type(VariableSpec) :: export_var_spec, import_var_spec
       type(mapl_BasicVerticalGrid) :: export_vgrid, import_vgrid
       integer :: status
@@ -975,7 +1363,10 @@ contains
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
-      @assert_that(unsupported%at(1, status), is(equal_to('child_dst:T:VERTICAL_GRID')))
+      entry => unsupported%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('T', entry%short_name)
+      @assertEqual('VERTICAL_GRID', entry%reason)
 
       _UNUSED_DUMMY(this)
    end subroutine test_materialize_extensions_vgrid_mismatch_unaffected
@@ -1041,7 +1432,7 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unresolved
       type(NodeIdLabelMap) :: label_map
       character(:), allocatable :: dot_text, json_text
       integer :: status
@@ -1291,7 +1682,7 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unresolved
       type(VariableSpec) :: export_composite, import_composite
       type(NodeId), pointer :: export_proxy, import_proxy
       type(DependencyNetwork), pointer :: net
@@ -1494,7 +1885,7 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
       type(VariableSpec) :: export_vgrid, import_vgrid
       type(NodeId), pointer :: export_proxy, import_proxy
       type(DependencyNetwork), pointer :: net
@@ -1579,7 +1970,8 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
       type(VariableSpec) :: export_vgrid, import_vgrid
       integer :: status
       type(GraphBuilder) :: gb
@@ -1636,7 +2028,10 @@ contains
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
-      @assert_that(unsupported%at(1, status), is(equal_to('child_dst:MY_VGRID:VERTICAL_GRID')))
+      entry => unsupported%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('MY_VGRID', entry%short_name)
+      @assertEqual('VERTICAL_GRID', entry%reason)
 
       _UNUSED_DUMMY(this)
    end subroutine test_vertical_grid_composites_single_overlap_fails_explicitly
@@ -1648,8 +2043,8 @@ contains
          unresolved, unsupported, rc)
       character(*), intent(in) :: export_dimensions(:)
       character(*), intent(in) :: import_dimensions(:)
-      type(StringVector), intent(out) :: unresolved
-      type(StringVector), intent(out) :: unsupported
+      type(GraphResolutionEntryVector), intent(out) :: unresolved
+      type(GraphResolutionEntryVector), intent(out) :: unsupported
       integer, optional, intent(out) :: rc
 
       type(ESMF_GridComp) :: parent_gc
@@ -1717,7 +2112,8 @@ contains
    @test(npes=[0])
    subroutine test_vertical_grid_composites_zero_overlap_fails_incompatible(this)
       class(MpiTestMethod), intent(inout) :: this
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
       integer :: status
 
       call resolve_vertical_grid_membership_mismatch([character(8) :: 'pressure'], [character(8) :: 'height'], &
@@ -1727,7 +2123,10 @@ contains
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
-      @assert_that(unsupported%at(1, status), is(equal_to('child_dst:MY_VGRID:VERTICAL_GRID')))
+      entry => unsupported%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('MY_VGRID', entry%short_name)
+      @assertEqual('VERTICAL_GRID', entry%reason)
 
       _UNUSED_DUMMY(this)
    end subroutine test_vertical_grid_composites_zero_overlap_fails_incompatible
@@ -1735,7 +2134,8 @@ contains
    @test(npes=[0])
    subroutine test_vertical_grid_composites_multiple_overlap_fails_ambiguous(this)
       class(MpiTestMethod), intent(inout) :: this
-      type(StringVector) :: unresolved, unsupported
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
       integer :: status
 
       call resolve_vertical_grid_membership_mismatch([character(8) :: 'pressure', 'height'], &
@@ -1746,7 +2146,10 @@ contains
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
-      @assert_that(unsupported%at(1, status), is(equal_to('child_dst:MY_VGRID:VERTICAL_GRID')))
+      entry => unsupported%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('MY_VGRID', entry%short_name)
+      @assertEqual('VERTICAL_GRID', entry%reason)
 
       _UNUSED_DUMMY(this)
    end subroutine test_vertical_grid_composites_multiple_overlap_fails_ambiguous
@@ -2032,7 +2435,7 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unresolved
       type(NodeId), pointer :: t_export_proxy, t_import_proxy
       type(DependencyNetwork), pointer :: net
       type(VariableSpec) :: import_var_spec
@@ -2199,7 +2602,7 @@ contains
       type(ComponentSpec), pointer :: root_spec, dyn_spec
       type(VariableSpec) :: dyn_import
       type(MatchConnection) :: conn
-      type(StringVector) :: unresolved
+      type(GraphResolutionEntryVector) :: unresolved
       type(ComponentGraph), pointer :: root_graph
       type(NodeId), pointer :: import_id
       type(DependencyNetwork), pointer :: net
