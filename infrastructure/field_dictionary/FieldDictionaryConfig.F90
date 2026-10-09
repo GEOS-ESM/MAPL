@@ -29,9 +29,11 @@ module mapl_FieldDictionaryConfig_mod
       private
       character(:), allocatable :: dictionary_path
       type(MAPL_ValidationMode) :: validation_mode
+      logical :: suppress_standard_name_warnings = .false.
    contains
       procedure :: get_dictionary_path
       procedure :: get_validation_mode
+      procedure :: suppress_standard_name_warnings_flag
       procedure :: has_dictionary_path
       procedure :: is_exempt
    end type FieldDictionaryConfig
@@ -123,6 +125,11 @@ contains
          config%validation_mode = MAPL_ValidationMode(temp_string)
       end if
 
+      if (ESMF_HConfigIsDefined(node, keyString='suppress_standard_name_warnings')) then
+         config%suppress_standard_name_warnings = &
+              ESMF_HConfigAsLogical(node, keyString='suppress_standard_name_warnings', _RC)
+      end if
+
       _RETURN(_SUCCESS)
    end function new_from_hconfig
 
@@ -158,6 +165,11 @@ contains
       class(FieldDictionaryConfig), intent(in) :: this
       mode = this%validation_mode
    end function get_validation_mode
+
+   pure logical function suppress_standard_name_warnings_flag(this)
+      class(FieldDictionaryConfig), intent(in) :: this
+      suppress_standard_name_warnings_flag = this%suppress_standard_name_warnings
+   end function suppress_standard_name_warnings_flag
 
    pure logical function has_dictionary_path(this)
       class(FieldDictionaryConfig), intent(in) :: this

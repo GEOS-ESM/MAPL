@@ -333,9 +333,11 @@ contains
          if (fd_config%get_validation_mode() == MAPL_VALIDATION_MODE_STRICT) then
             _FAIL('standard_name "' // standard_name // '" not found in field dictionary (strict mode).')
          else
-            call lgr%warning('standard_name "' // standard_name // &
-                 '" not found in field dictionary; ' // &
-                 'units and long_name defaults will not be applied.')
+            if (.not. fd_config%suppress_standard_name_warnings_flag()) then
+               call lgr%warning('standard_name "' // standard_name // &
+                    '" not found in field dictionary; ' // &
+                    'units and long_name defaults will not be applied.')
+            end if
          end if
       end if
 
