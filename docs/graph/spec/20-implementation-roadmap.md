@@ -1151,10 +1151,40 @@ reordering of existing phase numbers to match dependency order.
   no-transform capability (plain field, bundle/vector field, 3D field,
   ungridded dims). Depends on 10a.
 - **10c. `TypeKindCharacteristic` wired into real resolution + a real
-  precision-cast transform** — `GraphBuilder.F90`'s own
-  `build_characteristics()` gains a `TYPE_KIND_CHARACTERISTIC_ID` entry
-  whenever a `VariableSpec%typekind` is declared, mirroring the
-  existing `units`/`vertical_grid` entries; `CopyTransform`
+  precision-cast transform** — **amended by
+  `openspec/changes/phase-10c-typekind-unification`**: builds on the
+  existing, already-shipped `TypeKindCharacteristic`
+  (`ValueCharacteristic`-based,
+  `superstructure/generic/graph/TypeKindCharacteristic.F90`, landed by
+  the archived `state-item-characteristics` change) via an
+  adapter/bridge at `GraphBuilder.F90`'s own
+  `build_characteristics()`/`CharacteristicMap` insertion point, giving
+  that existing type a real adaptation capability (a
+  `build_transform`-equivalent) — **not** a second,
+  `Characteristic`-extending `TypeKindCharacteristic` mirroring the
+  existing `units`/`vertical_grid` entries, as this entry originally
+  read. That original wording would have collided outright — same
+  module name `mapl_TypeKindCharacteristic_mod`, same type name
+  `TypeKindCharacteristic` — with the already-shipped type: a literal
+  compile-time collision, unlike the conceptual-only overlap the
+  `Units`/`PhysicalUnits`, `Geom`/`Geometry`, and
+  `VerticalGrid`/`VerticalCoordinate` pairs already have (each of those
+  resolved by renaming the newer side; 10c is the first case where the
+  *older* hierarchy's own planned growth is what lands on an
+  already-taken name). Whether the bridge is an optional adaptation
+  method added to `StateItemCharacteristic`/`ValueCharacteristic`
+  itself, or a `Characteristic`-side wrapper holding a
+  `TypeKindCharacteristic` by composition, is left to 10c's own future
+  design.md to pick once its real implementation constraints are in
+  hand (`phase-10c-typekind-unification`'s own design.md, Decisions).
+  Framed as the first narrowly-scoped pilot for reconciling
+  `graph/extension-reuse`'s `Characteristic` family with
+  `graph/state-item-characteristics`'s `StateItemCharacteristic` family
+  one axis at a time — not a mandate to migrate `Units`/`VerticalGrid`/
+  `Geom` too, and not a reopening of either family's own prior
+  deliberate-independence decisions (`state-item-characteristics`
+  design.md D6; `state-item-characteristic-subclasses` design.md
+  D1/D3). `CopyTransform`
   (`18-state-item-characteristics.md`'s own placeholder name, flagged
   there as poor and in need of a better one before implementation —
   this sub-change's own design.md picks the real name, checked against

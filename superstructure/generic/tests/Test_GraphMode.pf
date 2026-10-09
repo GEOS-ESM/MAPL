@@ -1,0 +1,62 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! openspec/changes/phase-10a-state-materialization, tasks.md 4.3:
+! mapl_GraphMode_mod's own 3-way selector (registry/graph/both),
+! replacing the module's earlier binary flag - default value, observable
+! round-trip for each of the three named values, and explicit rejection
+! of anything else.
+module Test_GraphMode
+   use mapl_GraphMode_mod, only: set_graph_mode, graph_mode, &
+        GRAPH_MODE_REGISTRY, GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH
+   use pfunit
+   implicit none(type, external)
+
+contains
+
+   ! Spec "Default mode preserves today's behavior": before any test in
+   ! this suite has ever called set_graph_mode, the selector reports
+   ! GRAPH_MODE_REGISTRY. Run first and resets to GRAPH_MODE_REGISTRY at
+   ! the end so later tests/suites observe the same default regardless
+   ! of pFUnit's own test ordering.
+   @test
+   subroutine test_default_mode_is_registry()
+      @assertEqual(GRAPH_MODE_REGISTRY, graph_mode())
+   end subroutine test_default_mode_is_registry
+
+   ! Spec "Selecting a mode is observable": each of the three named
+   ! values round-trips through set_graph_mode/graph_mode.
+   @test
+   subroutine test_set_graph_mode_round_trips_all_three_values()
+      integer :: status
+
+      call set_graph_mode(GRAPH_MODE_GRAPH, status)
+      @assertEqual(0, status)
+      @assertEqual(GRAPH_MODE_GRAPH, graph_mode())
+
+      call set_graph_mode(GRAPH_MODE_BOTH, status)
+      @assertEqual(0, status)
+      @assertEqual(GRAPH_MODE_BOTH, graph_mode())
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY, status)
+      @assertEqual(0, status)
+      @assertEqual(GRAPH_MODE_REGISTRY, graph_mode())
+   end subroutine test_set_graph_mode_round_trips_all_three_values
+
+   ! An invalid mode is a caller defect, reported rather than silently
+   ! normalized to a default (mapl_GraphMode_mod's own module header).
+   @test
+   subroutine test_set_graph_mode_rejects_invalid_value()
+      integer :: status
+
+      call set_graph_mode('bogus', status)
+      @assertExceptionRaised( &
+           'mapl_GraphMode_mod: invalid graph mode <bogus> - must be one of '// &
+           '"registry", "graph", "both"')
+      @assertEqual(1, status)
+
+      ! Rejected setter call must not have changed the selector.
+      @assertEqual(GRAPH_MODE_REGISTRY, graph_mode())
+   end subroutine test_set_graph_mode_rejects_invalid_value
+
+end module Test_GraphMode

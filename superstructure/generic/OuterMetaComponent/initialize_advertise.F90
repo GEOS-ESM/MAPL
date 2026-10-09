@@ -52,14 +52,22 @@ contains
       ! "Invocation point" decision. run_advertise_hook() never
       ! propagates failure into this routine's own error path.
       call gb%run_advertise_hook(this)
-      ! openspec/changes/horizontal-geometry-graph-state-item (Phase
-      ! 4e): gated behind mapl_GraphMode_mod%graph_native_enabled(), a
-      ! no-op today. Must run after run_advertise_hook above (needs
-      ! nothing from it directly, but keeps geometry's own advertise
-      ! step alongside ordinary items') and relies on recurse() above
-      ! having already completed every child's own INIT_ADVERTISE
-      ! (including their own run_geometry_hook) bottom-up.
-      call gb%run_geometry_hook(this)
+      ! openspec/changes/phase-10a-state-materialization: moved to
+      ! initialize_geom_b.F90 (see that file's own comment) - a
+      ! pre-existing timing bug, found while writing this sub-change's
+      ! own pFUnit coverage against a real (DSO-backed) fixture: this
+      ! component's own this%has_geom() is not yet true at
+      ! GENERIC_INIT_ADVERTISE time for a GEOMETRY_PROVIDER component
+      ! (GenericPhases.F90's own GENERIC_INIT_PHASE_SEQUENCE runs
+      ! GEOM_A/GEOM_B strictly AFTER ADVERTISE, not before it, contrary
+      ! to this module's own now-corrected header comment) - calling the
+      ! geometry hook here left graphbuilder_advertise_geometry() a
+      ! silent no-op and push_geometry_to_child() hitting its own
+      ! "called before this component advertised its own geometry"
+      ! assertion for any FROM_PARENT child. Never caught before because
+      ! every existing geometry-hook test (Test_GraphGeometryHook.pf) is
+      ! synthetic - it calls set_geom() directly, bypassing the real
+      ! lifecycle's own GEOM_A/GEOM_B timing entirely.
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 
       call process_connections(this, _RC)

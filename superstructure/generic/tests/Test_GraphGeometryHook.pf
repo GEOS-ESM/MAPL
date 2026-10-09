@@ -7,9 +7,10 @@
 ! push_geometry_to_child), covering REQ-GEO-002's three single-source
 ! cases and the mismatch-fails-loudly path.
 !
-! Entirely gated behind mapl_GraphMode_mod%graph_native_enabled() -
-! every test here explicitly enables it (set_graph_native_enabled(.true.))
-! and restores it to .false. afterward, mirroring
+! Entirely gated behind mapl_GraphMode_mod%graph_mode() reporting
+! something other than GRAPH_MODE_REGISTRY - every test here explicitly
+! selects GRAPH_MODE_GRAPH (set_graph_mode(GRAPH_MODE_GRAPH)) and
+! restores GRAPH_MODE_REGISTRY afterward, mirroring
 ! mapl_ExtensionResolution_mod%set_materialize_extensions's own
 ! test-only-setter precedent.
 !
@@ -32,7 +33,7 @@
 module Test_GraphGeometryHook
    use mapl_OuterMetaComponent_mod
    use mapl_GraphBuilder_mod
-   use mapl_GraphMode_mod, only: set_graph_native_enabled
+   use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_GRAPH, GRAPH_MODE_REGISTRY
    use mapl_GeometrySpec_mod, only: GeometrySpec, GEOMETRY_FROM_PARENT, GEOMETRY_FROM_CHILD
    use mapl_GeomId_mod, only: GeomId, GeomIdManager, get_geom_id_manager
    use mapl_GeomUtilities_mod, only: GeomSetId
@@ -151,7 +152,7 @@ contains
       integer :: status
       type(GraphBuilder) :: gb
 
-      call set_graph_native_enabled(.true.)
+      call set_graph_mode(GRAPH_MODE_GRAPH)
 
       call make_outer_meta('geom_own', gc, meta, _RC)
       geom = make_test_geom(_RC)
@@ -172,7 +173,7 @@ contains
       end select
       @assert_that(payload%variant(rc=status) == MAPL_STATEITEM_GEOM, is(true()))
 
-      call set_graph_native_enabled(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
       _UNUSED_DUMMY(this)
    end subroutine test_own_geometry_needs_no_resolution
 
@@ -197,7 +198,7 @@ contains
       integer :: status
       type(GraphBuilder) :: gb
 
-      call set_graph_native_enabled(.true.)
+      call set_graph_mode(GRAPH_MODE_GRAPH)
 
       call make_outer_meta('geom_parent', parent_gc, parent_meta, _RC)
       child_spec = ChildSpec()
@@ -240,7 +241,7 @@ contains
       net => child_graph%get_network(net_id)
       @assert_that(net%contains_dependency(parent_proxy_id, child_own_id), is(true()))
 
-      call set_graph_native_enabled(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
       _UNUSED_DUMMY(this)
    end subroutine test_child_receives_geometry_from_parent
 
@@ -267,7 +268,7 @@ contains
       integer :: status
       type(GraphBuilder) :: gb
 
-      call set_graph_native_enabled(.true.)
+      call set_graph_mode(GRAPH_MODE_GRAPH)
 
       call make_outer_meta('geom_parent2', parent_gc, parent_meta, _RC)
       child_spec = ChildSpec()
@@ -306,7 +307,7 @@ contains
       net => parent_graph%get_network(net_id)
       @assert_that(net%contains_dependency(child_proxy_id, parent_own_id), is(true()))
 
-      call set_graph_native_enabled(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
       _UNUSED_DUMMY(this)
    end subroutine test_parent_receives_geometry_from_child
 
@@ -332,7 +333,7 @@ contains
       integer :: status
       type(GraphBuilder) :: gb
 
-      call set_graph_native_enabled(.true.)
+      call set_graph_mode(GRAPH_MODE_GRAPH)
 
       call make_outer_meta('geom_parent3', parent_gc, parent_meta, _RC)
       child_spec = ChildSpec()
@@ -384,7 +385,7 @@ contains
       net => parent_graph%get_network(net_id)
       @assert_that(net%contains_dependency(child_proxy_id, parent_own_id), is(false()))
 
-      call set_graph_native_enabled(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
       _UNUSED_DUMMY(this)
    end subroutine test_mismatched_geometry_from_child_is_not_wired
 
@@ -403,7 +404,7 @@ contains
       integer :: status
       type(GraphBuilder) :: gb
 
-      call set_graph_native_enabled(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
 
       call make_outer_meta('geom_disabled', gc, meta, _RC)
       geom = make_test_geom(_RC)
@@ -447,7 +448,7 @@ contains
       integer :: status
       type(GraphBuilder) :: gb
 
-      call set_graph_native_enabled(.true.)
+      call set_graph_mode(GRAPH_MODE_GRAPH)
 
       call make_outer_meta('geom_and_vgrid', gc, meta, _RC)
       geom = make_test_geom(_RC)
@@ -497,7 +498,7 @@ contains
       @assert_that(graph%owns_node(geom_node_id), is(true()))
       @assert_that(graph%owns_node(pressure_id), is(true()))
 
-      call set_graph_native_enabled(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
       _UNUSED_DUMMY(this)
    end subroutine test_vertical_grid_member_shares_graph_with_geometry
 

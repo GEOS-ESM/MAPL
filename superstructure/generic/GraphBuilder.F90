@@ -84,10 +84,18 @@
 ! (superstructure/generic/specs/GeometrySpec.F90) already fully resolves
 ! which geometry a component ends up with (GEOMETRY_PROVIDER/
 ! GEOMETRY_FROM_PARENT/GEOMETRY_FROM_CHILD), via initialize_geom_a.F90/
-! initialize_geom_b.F90, in phases 3-4 of GenericPhases.F90's fixed
-! sequence - entirely before GENERIC_INIT_ADVERTISE (phase 5), and
-! across the WHOLE hierarchy before any component reaches ADVERTISE.
-! graphbuilder_run_geometry_hook does not re-resolve that decision; it
+! initialize_geom_b.F90 - GENERIC_INIT_PHASE_SEQUENCE
+! (enums/GenericPhases.F90) runs GEOM_A/GEOM_B strictly AFTER ADVERTISE,
+! not before it (openspec/changes/phase-10a-state-materialization found
+! and corrected this header's own earlier, wrong claim of the reverse
+! order - this%has_geom() is not yet true at ADVERTISE time for a
+! GEOMETRY_PROVIDER component in a real lifecycle). The geometry hook
+! below is therefore called from initialize_geom_b.F90, not
+! initialize_advertise.F90 - see that file's own comment for the full
+! story - so that, across the whole hierarchy, every component's own
+! geom (own-provider or inherited-from-parent) is already real by the
+! time the hook runs. graphbuilder_run_geometry_hook does not re-resolve
+! that decision; it
 ! gives it graph-native STRUCTURE, once it is already known:
 !   - graphbuilder_advertise_geometry(): if this%has_geom(), wraps
 !     this%get_geom() as a geometry-proxy GraphStateItem
@@ -119,9 +127,12 @@
 !     mismatch here would mean GeometrySpec's own resolution and the
 !     graph's independently-read this%get_geom_id() disagree, which
 !     should be unreachable; it is asserted, not silently trusted.
-!   - Entirely gated behind mapl_GraphMode_mod%graph_native_enabled()
-!     (design.md Decision D6): a no-op for every real production run
-!     today. Bottom-up call ordering (initialize_advertise.F90 recurses
+!   - Entirely gated behind mapl_GraphMode_mod%graph_mode() reporting
+!     something other than GRAPH_MODE_REGISTRY (design.md Decision D6;
+!     openspec/changes/phase-10a-state-materialization, "3-way selector
+!     replaces, rather than wraps, the old binary API"): a no-op for
+!     every real production run today. Bottom-up call ordering
+!     (initialize_geom_b.F90 recurses
 !     into children before running this hook on itself) guarantees that
 !     by the time a parent's own hook runs, every child already has its
 !     own geometry node registered - required for both the pull and the
@@ -168,7 +179,7 @@ module mapl_GraphBuilder_mod
    ! -- horizontal geometry (openspec/changes/
    ! horizontal-geometry-graph-state-item, Phase 4e) -----------------
    use mapl_GeomProxyField_mod, only: new_geom_proxy_item
-   use mapl_GraphMode_mod, only: graph_native_enabled
+   use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_REGISTRY, GRAPH_MODE_GRAPH
    use mapl_GeometrySpec_mod, only: GEOMETRY_FROM_PARENT, GEOMETRY_FROM_CHILD
    use mapl_GeomId_mod, only: GeomId
    use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, &
@@ -197,9 +208,18 @@ module mapl_GraphBuilder_mod
    use pflogger, only: Logger
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_IMPORT, &
         ESMF_STATEINTENT_EXPORT
-   use esmf, only: ESMF_Geom, ESMF_StateItem_Flag
-   use esmf, only: ESMF_State, ESMF_StateCreate
+   use esmf, only: ESMF_Geom, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
+   use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateAdd
+   use esmf, only: ESMF_Field
    use esmf, only: operator(==)
+   ! openspec/changes/phase-10a-state-materialization: graph-native
+   ! state population's own dependencies - the default network's
+   ! predecessor-walk (DependencyNetwork/NodeIdSet) and the real
+   ! ESMF_State pair a caller passes in (MultiState, same type legacy's
+   ! own StateRegistry%add_to_states already takes).
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
+   use mapl_MultiState_mod, only: MultiState
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -247,10 +267,22 @@ module mapl_GraphBuilder_mod
       procedure, nopass :: run_activate_hook => graphbuilder_run_activate_hook
       procedure, nopass :: run_connect_hook => graphbuilder_run_connect_hook
       ! openspec/changes/horizontal-geometry-graph-state-item (Phase 4e):
-      ! gated entirely behind mapl_GraphMode_mod%graph_native_enabled()
-      ! (design.md Decision D6) - a no-op for every real production run
-      ! unless a test explicitly enables graph-native mode.
+      ! gated entirely behind mapl_GraphMode_mod%graph_mode() reporting
+      ! something other than GRAPH_MODE_REGISTRY (design.md Decision D6)
+      ! - a no-op for every real production run unless a test explicitly
+      ! selects a non-registry graph mode.
       procedure, nopass :: run_geometry_hook => graphbuilder_run_geometry_hook
+      ! openspec/changes/phase-10a-state-materialization: graph-native
+      ! equivalent of StateRegistry%add_to_states - inserts each
+      ! resolved, field-typed advertised item's real materialized field
+      ! into a real ESMF_State under its own short name. Only a real
+      ! producer when graph_mode() == GRAPH_MODE_GRAPH; a no-op
+      ! otherwise (design.md "Graph-native state population"). Directly
+      ! rc-returning (like advertise/resolve_connections above), for
+      ! direct pFUnit coverage; run_populate_state_hook below is what
+      ! the real GENERIC_INIT_ACCEPT_TRANSFER call site actually uses.
+      procedure, nopass :: populate_state => graphbuilder_populate_state
+      procedure, nopass :: run_populate_state_hook => graphbuilder_run_populate_state_hook
    end type GraphBuilder
 
    ! Matches StateRegistry_Hierarchy_smod's own SELF sentinel
@@ -770,6 +802,31 @@ contains
          if (size(mismatched) == 0) then
             ! REQ-EXT-003 no-op case: matches exactly, wire directly.
             call this_graph%add_dependency(net_id, export_node_id, import_node_id, _RC)
+
+            ! openspec/changes/phase-10a-state-materialization: give the
+            ! export's own node a real, allocated field - the same
+            ! Field-only/geom/vgrid resolution the mismatch branch below
+            ! already uses via try_materialize_field_extension, reused
+            ! as-is (design.md "Reuse, don't duplicate the mismatch
+            ! branch's own geom/vgrid resolution"), gated on this
+            ! sub-change's own mode selector (not
+            ! materialize_extensions_enabled() - a different, orthogonal
+            ! gate owned by the extension-reuse capability). No-op (zero
+            ! behavior change) in GRAPH_MODE_REGISTRY, this sub-change's
+            ! default.
+            if (graph_mode() /= GRAPH_MODE_REGISTRY) then
+               call try_materialize_field_extension(this, src_pt%component_name, export_var_spec, var_spec, &
+                    this_graph, export_node_id, materialization_failure, name=export_var_spec%short_name, _RC)
+               if (materialization_failure /= '') then
+                  ! Same distinguishable-failure reporting the mismatch
+                  ! branch below already uses - the edge above still
+                  ! exists (wiring succeeded; only payload materialization
+                  ! did not).
+                  call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+                       materialization_failure))
+               end if
+            end if
+
             _RETURN(_SUCCESS)
          end if
 
@@ -1123,8 +1180,15 @@ contains
    ! for - a non-Field item class on either side (design.md Decisions
    ! "Scope limited to Field-typed items"), or an unresolvable geom
    ! (design.md Decisions "Geom/vgrid resolution order" case (c)).
+   ! openspec/changes/phase-10a-state-materialization: optional `name`,
+   ! passed through unmodified to materialize_field_extension()'s own
+   ! new `name` argument - omitted by the mismatch-branch call site
+   ! (unchanged, unnamed-field behavior), supplied by the new exact-
+   ! match-branch call site (the export's own short_name) so graph-
+   ! native state population can find it by name once inserted into a
+   ! real ESMF_State.
    subroutine try_materialize_field_extension(this, export_comp_name, export_var_spec, import_var_spec, &
-        graph, node_id, failure_reason, rc)
+        graph, node_id, failure_reason, name, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: export_comp_name
       type(VariableSpec), intent(in) :: export_var_spec
@@ -1132,6 +1196,7 @@ contains
       type(ComponentGraph), target, intent(inout) :: graph
       type(NodeId), intent(in) :: node_id
       character(:), allocatable, intent(out) :: failure_reason
+      character(*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -1179,10 +1244,10 @@ contains
 
          call materialize_field_extension(graph, node_id, geom=geom, typekind=export_var_spec%typekind, &
               units=import_var_spec%units, ungridded_dims=export_var_spec%ungridded_dims, &
-              vgrid=vgrid, vert_staggerloc=vert_staggerloc, _RC)
+              vgrid=vgrid, vert_staggerloc=vert_staggerloc, name=name, _RC)
       else
          call materialize_field_extension(graph, node_id, geom=geom, typekind=export_var_spec%typekind, &
-              units=import_var_spec%units, ungridded_dims=export_var_spec%ungridded_dims, _RC)
+              units=import_var_spec%units, ungridded_dims=export_var_spec%ungridded_dims, name=name, _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -1353,7 +1418,7 @@ contains
 
       integer :: status
 
-      if (.not. graph_native_enabled()) return
+      if (graph_mode() == GRAPH_MODE_REGISTRY) return
 
       call graphbuilder_advertise_geometry(this, status)
       call report_if_failed(this, 'advertise_geometry', status)
@@ -1630,6 +1695,281 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine graphbuilder_freeze
+
+   ! ============================================================
+   ! openspec/changes/phase-10a-state-materialization: graph-native
+   ! state population - the graph-side equivalent of
+   ! StateRegistry%add_to_states.
+   ! ============================================================
+
+   ! Design correction (found while writing this sub-change's own pFUnit
+   ! coverage, before any task was marked complete): the original
+   ! decision - walk `this`'s own `ComponentSpec%var_specs` via
+   ! `item_key`, mirroring `advertise_one` - only ever finds a
+   ! materialized node for a connection declared and resolved entirely
+   ! within one component, which no real fixture uses. For the ordinary
+   ! cross-component case (a parent declares a `MatchConnection` between
+   ! two of its own children - the only shape
+   ! `Test_GraphBuilderEquivalence.pf`'s own fixture family uses),
+   ! `get_or_make_local_node_id` (used by both `add_dependency`'s own
+   ! endpoints and this sub-change's new materialization call) ALWAYS
+   ! returns a PARENT-local proxy for any non-'<self>' `comp_name` -
+   ! never either child's own native `StateItemNode`. So for that
+   ! realistic case, the dependency edge and the materialized payload
+   ! both live ONLY in the PARENT's own graph, on the PARENT's own two
+   ! proxies; neither child's own native export/import node is ever
+   ! touched. Walking `this`'s own `var_specs` + `item_key` alone would
+   ! therefore find nothing whenever `this` is one of the two connected
+   ! children (which is exactly when `initialize_accept_transfer.F90`
+   ! calls this on each of them, once per component in the recursive
+   ! tree).
+   !
+   ! Fixed by also walking each of `this`'s own declared children's
+   ! VariableSpecs (`get_num_children`/`get_child_name`/
+   ! `get_child_component_spec` - same enumeration
+   ! `graphbuilder_resolve_geometry`'s own push-direction loop already
+   ! uses), looking each one up via `proxy_key(child_name, ...)` in
+   ! `this`'s OWN graph instead of `item_key` - exactly the same
+   ! resource-index convention `get_or_make_local_node_id` itself uses
+   ! to create that same proxy in the first place. A proxy only exists
+   ! if some connection `this` declared actually referenced that child
+   ! item, so an item with no proxy (never connected) is silently
+   ! skipped, same as an unresolved import. The same-component
+   ! (`item_key`-based) walk is kept as the degenerate case for an item
+   ! `this` advertises and connects entirely to itself, if that ever
+   ! occurs.
+   !
+   ! Only a real producer when the graph mode is GRAPH_MODE_GRAPH
+   ! (design.md "Graph-native state population is a new procedure"). A
+   ! no-op (inserts nothing) in GRAPH_MODE_REGISTRY or GRAPH_MODE_BOTH -
+   ! design.md's "both mode's no-collision guarantee is structural"
+   ! decision: this is the ONLY gate on the real ESMF_StateAdd call
+   ! below, so `both` mode can never reach it.
+   !
+   ! An export's own field is whatever is on its own node (materialized
+   ! by resolve_one's no-mismatch branch above, or by the mismatch
+   ! branch's existing try_materialize_field_extension). An import's
+   ! real field is resolved by walking the default network's own
+   ! predecessor edge back to the first node with a real field payload
+   ! (find_materialized_predecessor below) - collapsing correctly for
+   ! both the direct exact-match case (single hop) and an extension
+   ! chain (walks through one or more transform nodes to the chain's own
+   ! final node), with no special-casing between the two. INTERNAL items
+   ! and non-Field items are skipped (same Field-only scope
+   ! materialization itself already has); an import with no resolved
+   ! predecessor (unresolved) is skipped silently, not an error (spec
+   ! "Unresolved import is not populated").
+   subroutine graphbuilder_populate_state(this, multi_state, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(MultiState), intent(inout) :: multi_state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentSpec), pointer :: this_spec, child_spec
+      type(ComponentGraph), pointer :: graph
+      type(DependencyNetwork), pointer :: net
+      type(VariableSpecVectorIterator) :: iter
+      type(VariableSpec), pointer :: var_spec
+      type(NodeId), pointer :: id_ptr
+      character(:), allocatable :: child_name
+      integer :: n, i
+
+      _RETURN_IF(graph_mode() /= GRAPH_MODE_GRAPH)
+
+      graph => this%get_component_graph()
+      net => graph%get_network(graph%get_default_network_id())
+
+      ! Degenerate same-component case: an item `this` advertises and
+      ! connects entirely to itself - item_key, this's own native node.
+      this_spec => this%get_component_spec()
+      associate (e => this_spec%var_specs%ftn_end())
+         iter = this_spec%var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT .or. &
+                 var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) cycle
+            id_ptr => graph%get_resource_index(item_key(var_spec%state_intent, var_spec%short_name))
+            call populate_one(graph, net, multi_state, id_ptr, var_spec%state_intent, _RC)
+         end do
+      end associate
+
+      ! Ordinary cross-component case: each declared child's own
+      ! advertised import/export item may have a parent-local proxy in
+      ! `this`'s own graph (proxy_key) - the only place real structure
+      ! exists for a connection `this` declared between its children.
+      n = this%get_num_children()
+      do i = 1, n
+         child_name = this%get_child_name(i, _RC)
+         child_spec => this%get_child_component_spec(child_name, _RC)
+         associate (e => child_spec%var_specs%ftn_end())
+            iter = child_spec%var_specs%ftn_begin()
+            do while (iter /= e)
+               call iter%next()
+               var_spec => iter%of()
+               if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT .or. &
+                    var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) cycle
+               id_ptr => graph%get_resource_index(proxy_key(child_name, var_spec%state_intent, var_spec%short_name))
+               call populate_one(graph, net, multi_state, id_ptr, var_spec%state_intent, _RC)
+            end do
+         end associate
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine graphbuilder_populate_state
+
+   ! Shared by both walks in graphbuilder_populate_state above: resolves
+   ! id_ptr's own real field (export: direct; import: predecessor walk)
+   ! and, if found, inserts it into multi_state's own real ESMF_State
+   ! (per state_intent). No `name=` argument to ESMF_StateAdd (it has
+   ! none - a Field's name, once set at FieldCreate time, is what an
+   ! ESMF_State inserts it under): the field is findable by its own
+   ! short_name only because it was already created with that name via
+   ! materialize_field_extension's own `name` argument (resolve_one's
+   ! exact-match branch passes the export's own short_name; for an
+   ! exact match, import and export share one short_name by definition,
+   ! so this is correct for every fixture this phase exercises - the
+   ! mismatch branch's own extension items remain unnamed, same
+   ! Non-Goal as 10c's own future characteristic-chain work).
+   subroutine populate_one(graph, net, multi_state, id_ptr, state_intent, rc)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(DependencyNetwork), intent(in) :: net
+      type(MultiState), intent(inout) :: multi_state
+      type(NodeId), pointer, intent(in) :: id_ptr
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(NodeId) :: item_id, field_node_id
+      logical :: found
+      type(ESMF_Field) :: field
+      type(ESMF_State) :: state
+
+      if (.not. associated(id_ptr)) then
+         _RETURN(_SUCCESS)
+      end if
+      item_id = id_ptr
+
+      if (state_intent == ESMF_STATEINTENT_EXPORT) then
+         call get_field_if_materialized(graph, item_id, field, found, _RC)
+      else
+         field_node_id = find_materialized_predecessor(graph, net, item_id, found)
+         ! Bug found while debugging this sub-change's own pFUnit
+         ! coverage: a single-statement conditional guarding a call
+         ! whose trailing argument is the error-handling macro does NOT
+         ! guard that macro's own trailing verify-status check (a
+         ! textually separate statement after the semicolon it expands
+         ! to) - when found is false, the call itself is skipped but the
+         ! verify check still runs unconditionally against an
+         ! uninitialized status value, producing a spurious failure. A
+         ! real if-then-end-if block keeps the whole macro expansion
+         ! inside the conditional.
+         if (found) then
+            call get_field_if_materialized(graph, field_node_id, field, found, _RC)
+         end if
+      end if
+      if (.not. found) then
+         _RETURN(_SUCCESS)
+      end if
+
+      call multi_state%get_state(state, state_intent, _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine populate_one
+
+   ! Field-only, no-op-if-not-materialized accessor shared by
+   ! graphbuilder_populate_state's export and (resolved) import cases.
+   subroutine get_field_if_materialized(graph, node_id, field, found, rc)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: node_id
+      type(ESMF_Field), intent(out) :: field
+      logical, intent(out) :: found
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: payload
+      type(ESMF_StateItem_Flag) :: kind_flag
+
+      found = .false.
+      node => graph%get_node(node_id)
+      if (.not. associated(node)) then
+         _RETURN(_SUCCESS)
+      end if
+
+      select type (node)
+      class is (StateItemNode)
+         payload = node%get_payload()
+         kind_flag = payload%itemType(_RC)
+         if (kind_flag == ESMF_STATEITEM_FIELD) then
+            field = payload%get_field(_RC)
+            found = .true.
+         end if
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine get_field_if_materialized
+
+   ! Walks network's own predecessor adjacency from start_id, one hop at
+   ! a time, until a node whose own payload is a real, allocated field is
+   ! reached (design.md "State-population import resolution walks the
+   ! dependency network's own predecessor edge, not a parallel
+   ! bookkeeping structure"). Collapses to a single hop for a direct
+   ! exact-match wiring (start_id's own predecessor IS the materialized
+   ! export) and walks through an arbitrary-length extension chain the
+   ! same way, with no special-casing between the two cases. Takes the
+   ! FIRST predecessor at each hop - safe because add_dependency/
+   ! graphbuilder_freeze's own existing "two producers for the same
+   ! item" validation already guarantees single-predecessor by
+   ! construction for any import this procedure is ever called on
+   ! (design.md Risks). Returns found=.false. (not an error) if no
+   ! predecessor exists at all (an unresolved import) or the walk
+   ! exhausts a defensive hop limit without finding a real field.
+   function find_materialized_predecessor(graph, net, start_id, found) result(field_node_id)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(DependencyNetwork), intent(in) :: net
+      type(NodeId), intent(in) :: start_id
+      logical, intent(out) :: found
+      type(NodeId) :: field_node_id
+
+      integer, parameter :: MAX_CHAIN_HOPS = 64
+      type(NodeId) :: current
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: payload
+      type(ESMF_StateItem_Flag) :: kind_flag
+      ! target required: ftn_begin()'s own returned iterator holds a
+      ! pointer into preds' internals (single_predecessor's own
+      ! precedent, Test_GraphBuilderEquivalence.pf).
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: pred_iter
+      integer :: hop, status
+
+      found = .false.
+      current = start_id
+
+      do hop = 1, MAX_CHAIN_HOPS
+         node => graph%get_node(current)
+         if (.not. associated(node)) exit
+
+         select type (node)
+         class is (StateItemNode)
+            payload = node%get_payload()
+            kind_flag = payload%itemType(rc=status)
+            if (status == 0 .and. kind_flag == ESMF_STATEITEM_FIELD) then
+               field_node_id = current
+               found = .true.
+               return
+            end if
+         end select
+
+         if (.not. net%has_predecessors(current)) exit
+         preds = net%get_predecessors(current)
+         pred_iter = preds%ftn_begin()
+         call pred_iter%next()
+         current = pred_iter%of()
+      end do
+   end function find_materialized_predecessor
 
    ! ============================================================
    ! Task 6: Visualization enrichment (visualization-enrichment-layer
@@ -2605,6 +2945,22 @@ contains
          end if
       end if
    end subroutine graphbuilder_run_connect_hook
+
+   ! openspec/changes/phase-10a-state-materialization: the real
+   ! GENERIC_INIT_ACCEPT_TRANSFER call site's own entry point into
+   ! graphbuilder_populate_state - same report_if_failed convention
+   ! every other hook above already uses, so a GraphBuilder defect here
+   ! can never break real component initialization (design.md Risks;
+   ! tasks.md 3.4).
+   subroutine graphbuilder_run_populate_state_hook(this, multi_state)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(MultiState), intent(inout) :: multi_state
+
+      integer :: status
+
+      call graphbuilder_populate_state(this, multi_state, status)
+      call report_if_failed(this, 'populate_state', status)
+   end subroutine graphbuilder_run_populate_state_hook
 
    ! Split out from graphbuilder_run_connect_hook so this check has its
    ! own real rc to report through the same report_if_failed convention
