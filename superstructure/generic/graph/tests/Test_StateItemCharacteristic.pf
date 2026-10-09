@@ -1,0 +1,132 @@
+! openspec/changes/state-item-characteristics, task 7.2:
+! StateItemCharacteristic's Value/Reference split (REQ-CHAR-002a/002b) and
+! each concrete subclass's needs_extension_for()/get_kind().
+module Test_StateItemCharacteristic
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic, &
+                                                ReferenceCharacteristic
+   use mapl_StateItemCharacteristicKind_mod, only: operator(==), &
+                                                    PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+                                                    TYPE_KIND_CHARACTERISTIC_KIND, &
+                                                    GEOMETRY_CHARACTERISTIC_KIND
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
+   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_INVALID, &
+                                             CHARACTERISTIC_STATUS_SPECIFIED, operator(==)
+   use funit
+   implicit none
+
+contains
+
+   ! Spec "A units or type-kind characteristic is a value characteristic".
+   ! Allocating the concrete instance into a class(ValueCharacteristic)
+   ! container is itself the "is a value characteristic" check (would
+   ! fail to compile/allocate otherwise); the select type downcast then
+   ! confirms the inline value survives the round trip.
+   @test
+   subroutine test_physical_units_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=PhysicalUnitsCharacteristic('m'))
+      @assertTrue(v%get_kind() == PHYSICAL_UNITS_CHARACTERISTIC_KIND)
+      select type (v)
+      class is (PhysicalUnitsCharacteristic)
+         @assertEqual('m', v%get_units())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_physical_units_is_a_value_characteristic
+
+   @test
+   subroutine test_type_kind_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=TypeKindCharacteristic('R4'))
+      @assertTrue(v%get_kind() == TYPE_KIND_CHARACTERISTIC_KIND)
+      select type (v)
+      class is (TypeKindCharacteristic)
+         @assertEqual('R4', v%get_type_kind())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_type_kind_is_a_value_characteristic
+
+   ! Spec "A geometry characteristic is a reference characteristic" /
+   ! "Reference characteristic references a node with real identity".
+   @test
+   subroutine test_geometry_is_a_reference_characteristic()
+      class(ReferenceCharacteristic), allocatable :: r
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: id
+
+      id = gen%next()
+      allocate(r, source=GeometryCharacteristic(id))
+
+      @assertTrue(r%get_kind() == GEOMETRY_CHARACTERISTIC_KIND)
+      @assertTrue(r%get_referenced_node_id() == id)
+   end subroutine test_geometry_is_a_reference_characteristic
+
+   @test
+   subroutine test_physical_units_needs_extension_for()
+      type(PhysicalUnitsCharacteristic) :: m, also_m, km
+
+      m = PhysicalUnitsCharacteristic('m')
+      also_m = PhysicalUnitsCharacteristic('m')
+      km = PhysicalUnitsCharacteristic('km')
+
+      @assertFalse(m%needs_extension_for(also_m))
+      @assertTrue(m%needs_extension_for(km))
+   end subroutine test_physical_units_needs_extension_for
+
+   @test
+   subroutine test_type_kind_needs_extension_for()
+      type(TypeKindCharacteristic) :: r4, also_r4, r8
+
+      r4 = TypeKindCharacteristic('R4')
+      also_r4 = TypeKindCharacteristic('R4')
+      r8 = TypeKindCharacteristic('R8')
+
+      @assertFalse(r4%needs_extension_for(also_r4))
+      @assertTrue(r4%needs_extension_for(r8))
+   end subroutine test_type_kind_needs_extension_for
+
+   ! REQ-CHAR-012/014: two GeometryCharacteristics referencing the same
+   ! NodeId are a match - "sharing is nothing more than two map entries
+   ! holding the same NodeId" (also exercised at the GraphStateItem
+   ! level, task 7.6).
+   @test
+   subroutine test_geometry_needs_extension_for_compares_referenced_node_id()
+      type(GeometryCharacteristic) :: a, same_as_a, b
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: id_a, id_b
+
+      id_a = gen%next()
+      id_b = gen%next()
+      a = GeometryCharacteristic(id_a)
+      same_as_a = GeometryCharacteristic(id_a)
+      b = GeometryCharacteristic(id_b)
+
+      @assertFalse(a%needs_extension_for(same_as_a))
+      @assertTrue(a%needs_extension_for(b))
+   end subroutine test_geometry_needs_extension_for_compares_referenced_node_id
+
+   ! Spec "Newly constructed characteristic is invalid" (REQ-CHAR-003).
+   @test
+   subroutine test_newly_constructed_characteristic_is_invalid_status()
+      type(PhysicalUnitsCharacteristic) :: units
+
+      units = PhysicalUnitsCharacteristic('m')
+      @assertTrue(units%get_status() == CHARACTERISTIC_STATUS_INVALID)
+   end subroutine test_newly_constructed_characteristic_is_invalid_status
+
+   @test
+   subroutine test_set_status_round_trips()
+      type(PhysicalUnitsCharacteristic) :: units
+
+      units = PhysicalUnitsCharacteristic('m')
+      call units%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(units%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+   end subroutine test_set_status_round_trips
+
+end module Test_StateItemCharacteristic

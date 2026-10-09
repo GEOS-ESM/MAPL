@@ -4,7 +4,18 @@
 ! to enable equality checking between instances.
 
 module mapl_DynamicMask_mod
-   use esmf
+   ! NAG 7.2.53 workaround: restrict to just the entities this module
+   ! actually needs. ESMF's umbrella module brings in ~160 operator(==)/
+   ! operator(/=) specifics across dozens of submodules (for its various
+   ! Flag/handle types); merging that with another module's independent
+   ! operator(==)/operator(/=) generics (as declared below) triggers a
+   ! NAG front-end bug when both are visible to a third module that
+   ! compares values of both kinds of types. This module never compares
+   ! any ESMF type with == or /=, so it doesn't need ESMF's operators at
+   ! all -- only these specific types/procedures.
+   use esmf, only: ESMF_DynamicMask, ESMF_DynamicMaskElementR4R8R4V, &
+        ESMF_DynamicMaskElementR8R8R8V, ESMF_DynamicMaskSetR4R8R4V, &
+        ESMF_DynamicMaskSetR8R8R8V, ESMF_KIND_R4, ESMF_KIND_R8
    use mapl_ErrorHandling_mod
    implicit none
    private
@@ -36,16 +47,24 @@ module mapl_DynamicMask_mod
       type(DynamicMask_R8), allocatable :: mask_r8
    end type DynamicMask
 
+   ! NAG 7.2.53 workaround: equal_to_r4/equal_to_r8 (and the now-removed
+   ! not_equal_to_r4/not_equal_to_r8) are only ever needed internally,
+   ! called directly by name from equal_to below -- no code outside this
+   ! module compares bare DynamicMask_R4/DynamicMask_R8 values. Keeping
+   ! them as specifics of these PUBLIC generic operator interfaces
+   ! triggers a NAG front-end bug: once this module is combined with
+   ! another module that defines a type-bound generic operator(==) on
+   ! an abstract type extended elsewhere (as mapl_RegridderParam_mod
+   ! does), external resolution of operator(==)/operator(/=) for plain
+   ! DynamicMask breaks, ranging from "No specific match for reference
+   ! to operator .NE." to an outright Internal Error. Reported to NAG
+   ! with a standalone reproducer; revert once fixed upstream.
    interface operator(==)
       procedure :: equal_to
-      procedure :: equal_to_r4
-      procedure :: equal_to_r8
    end interface operator(==)
 
    interface operator(/=)
       procedure :: not_equal_to
-      procedure :: not_equal_to_r4
-      procedure :: not_equal_to_r8
    end interface operator(/=)
 
    interface match
@@ -559,14 +578,14 @@ contains
       equal_to = allocated(a%mask_r4) .eqv. allocated(b%mask_r4)
       if (.not. equal_to) return
       if (allocated(a%mask_r4)) then
-         equal_to = a%mask_r4 == b%mask_r4
+         equal_to = equal_to_r4(a%mask_r4, b%mask_r4)
          if (.not. equal_to) return
       end if
 
       equal_to = allocated(a%mask_r8) .eqv. allocated(b%mask_r8)
       if (.not. equal_to) return
       if (allocated(a%mask_r8)) then
-         equal_to = a%mask_r8 == b%mask_r8
+         equal_to = equal_to_r8(a%mask_r8, b%mask_r8)
       end if
 
    end function equal_to
@@ -592,13 +611,6 @@ contains
       end if
    end function equal_to_r4
 
-   logical function not_equal_to_r4(a, b) result(not_equal_to)
-      type(DynamicMask_R4), intent(in) :: a
-      type(DynamicMask_R4), intent(in) :: b
-
-      not_equal_to = .not. (a == b)
-   end function not_equal_to_r4
-
    logical function equal_to_r8(a, b) result(equal_to)
       type(DynamicMask_R8), intent(in) :: a
       type(DynamicMask_R8), intent(in) :: b
@@ -612,13 +624,6 @@ contains
          equal_to = a%dst_mask_value == b%dst_mask_value
       end if
    end function equal_to_r8
-
-   logical function not_equal_to_r8(a, b) result(not_equal_to)
-      type(DynamicMask_R8), intent(in) :: a
-      type(DynamicMask_R8), intent(in) :: b
-
-      not_equal_to = .not. (a == b)
-   end function not_equal_to_r8
 
    logical function match_r4(missing, b)
       real(kind=ESMF_KIND_R4), intent(in), optional :: missing
