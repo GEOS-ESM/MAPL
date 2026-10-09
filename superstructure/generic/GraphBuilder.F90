@@ -702,6 +702,21 @@ contains
          character(:), pointer :: rejected_item
          integer :: j
 
+         ! openspec/changes/ordinary-inout-direct-alias: a destination
+         ! declaring BOTH an expected callback interface and ordinary
+         ! inout borrower intent is a nonsensical combination - two
+         ! separate, mutually exclusive resolution paths exist below
+         ! (callback-interface branch, then inout-borrower branch), and
+         ! resolving via whichever branch happens to run first would
+         ! silently ignore the other declaration rather than honoring it.
+         ! Rejected explicitly, checked before either branch, so neither
+         ! one ever silently wins.
+         if (var_spec%callback_interface_id%is_valid() .and. var_spec%is_inout_borrower) then
+            call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
+                 ':declares both an expected callback interface and inout borrower intent (mutually exclusive)')
+            _RETURN(_SUCCESS)
+         end if
+
          ! openspec/changes/callback-wiring, design.md Decision 0: a
          ! destination declaring an expected callback interface is
          ! resolved against the flattened namespace, materialized into
@@ -709,17 +724,28 @@ contains
          ! add_dependency edge (resolve_callback_destination) - instead
          ! of the exact-name/extension-chain logic below, which never
          ! runs for this var_spec.
-         if (var_spec%callback_interface_id%is_valid()) then
-            call resolve_callback_destination(this, src_pt, dst_pt, var_spec, callback_rejected, _RC)
-            do j = 1, callback_rejected%size()
-               rejected_item => callback_rejected%of(j)
-               call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
-                    ':' // rejected_item)
-            end do
-            _RETURN(_SUCCESS)
-         end if
+          if (var_spec%callback_interface_id%is_valid()) then
+             call resolve_callback_destination(this, src_pt, dst_pt, var_spec, callback_rejected, _RC)
+             do j = 1, callback_rejected%size()
+                rejected_item => callback_rejected%of(j)
+                call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
+                     ':' // rejected_item)
+             end do
+             _RETURN(_SUCCESS)
+          end if
 
-         import_node_id = get_or_make_local_node_id(this, dst_pt%component_name, &
+          ! openspec/changes/ordinary-inout-direct-alias, design.md
+          ! Decisions 1/4: a destination declared as an ordinary inout
+          ! borrower is resolved by resolve_inout_destination instead of
+          ! the exact-name/extension-chain logic below, which never runs
+          ! for this var_spec - mirrors the callback-interface branch
+          ! immediately above exactly.
+          if (var_spec%is_inout_borrower) then
+             call resolve_inout_destination(this, src_pt, dst_pt, var_spec, unsupported, _RC)
+             _RETURN(_SUCCESS)
+          end if
+
+          import_node_id = get_or_make_local_node_id(this, dst_pt%component_name, &
               ESMF_STATEINTENT_IMPORT, var_spec%short_name, _RC)
 
          has_export = find_export_node_id(this, src_pt%component_name, var_spec%short_name, &
@@ -863,6 +889,106 @@ contains
       _RETURN(_SUCCESS)
    end function find_export_node_id
 
+   ! openspec/changes/ordinary-inout-direct-alias, design.md Decisions
+   ! 1-4: resolves a destination item declared an ordinary inout borrower
+   ! (16-inout-items.md REQ-INOUT-001, direct-alias case only). Reuses
+   ! find_export_node_id/build_characteristics/
+   ! find_mismatched_characteristics exactly as resolve_one's own
+   ! ordinary (non-inout) path does for the REQ-EXT-003 no-op comparison
+   ! - owner and borrower come to share one underlying payload through
+   ! the same materialization path ordinary no-op connections already
+   ! use, since the forward edge below is wired identically. On an exact
+   ! match, also adds a return-network edge (borrower -> owner) in a
+   ! fresh per-pairing network (Decision 2, revised - mirrors callback
+   ! wiring's own per-binding create_network() precedent) so the pairing
+   ! satisfies REQ-DEP-008a by construction (forward writes the
+   ! borrower's NodeId, return writes the owner's NodeId - two different
+   ! ids, never the same network). Every shape REQ-INOUT-002 reserves for
+   ! a future design addendum (mismatched payload, no identifiable owner,
+   ! chained/recursive borrowing) is rejected here and reported via
+   ! `unsupported`, never delegated to extension-chain construction.
+   ! Decision 3 (revised): this subroutine lands graph structure only -
+   ! the runtime return-edge propagation trigger is explicitly deferred
+   ! (no borrower-execution-completion hook exists yet to attach it to).
+   subroutine resolve_inout_destination(this, src_pt, dst_pt, var_spec, unsupported, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(ConnectionPt), intent(in) :: src_pt
+      type(ConnectionPt), intent(in) :: dst_pt
+      type(VariableSpec), intent(in) :: var_spec
+      type(StringVector), intent(inout) :: unsupported
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentGraph), pointer :: graph
+      type(DependencyNetworkId) :: net_id, return_net_id
+      type(NodeId) :: import_node_id, owner_node_id
+      logical :: has_owner
+      type(VariableSpec), pointer :: owner_var_spec
+      type(ComponentSpec), pointer :: owner_comp_spec
+      type(CharacteristicMap), target :: owner_characteristics, borrower_characteristics
+      type(CharacteristicId), allocatable :: mismatched(:)
+
+      graph => this%get_component_graph()
+      net_id = graph%get_default_network_id()
+
+      import_node_id = get_or_make_local_node_id(this, dst_pt%component_name, &
+           ESMF_STATEINTENT_IMPORT, var_spec%short_name, _RC)
+
+      has_owner = find_export_node_id(this, src_pt%component_name, var_spec%short_name, &
+           owner_node_id, owner_var_spec, _RC)
+
+      if (.not. has_owner) then
+         ! spec "A borrower declaration with no identifiable owner is
+         ! rejected" - reported, never silently treated as an ordinary
+         ! import.
+         call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
+              ':inout borrower has no identifiable owner')
+         _RETURN(_SUCCESS)
+      end if
+
+      ! spec "A chained borrowing pairing is rejected": `owner_var_spec`
+      ! (found above via find_export_node_id) is always the EXPORT-intent
+      ! declaration on the source component - `is_inout_borrower` is only
+      ! ever set on an IMPORT declaration (a borrower marks itself, not
+      ! whoever re-exports its value), so checking
+      ! `owner_var_spec%is_inout_borrower` directly would never detect
+      ! chaining. Instead, check whether the source component itself
+      ! separately declares a same-short-name IMPORT marked as an inout
+      ! borrower - i.e. the value this destination would borrow is itself
+      ! borrowed by its own owning component.
+      owner_comp_spec => component_spec_for(this, src_pt%component_name, _RC)
+      if (associated(find_inout_borrower_var_spec(owner_comp_spec, var_spec%short_name))) then
+         call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
+              ':inout borrower owner is itself a declared inout borrower (chained borrowing)')
+         _RETURN(_SUCCESS)
+      end if
+
+      owner_characteristics = build_characteristics(owner_var_spec, _RC)
+      borrower_characteristics = build_characteristics(var_spec, _RC)
+      mismatched = find_mismatched_characteristics(owner_characteristics, borrower_characteristics)
+
+      if (size(mismatched) /= 0) then
+         ! spec "A mismatched pairing is rejected rather than silently
+         ! chained" - REQ-INOUT-002 reserves the non-direct-alias case;
+         ! this capability MUST NOT delegate to extension-chain
+         ! construction the way ordinary (non-inout) resolution does.
+         call unsupported%push_back(dst_pt%component_name // ':' // var_spec%short_name // &
+              ':inout borrower payload does not exactly match its owner (non-direct-alias case not supported)')
+         _RETURN(_SUCCESS)
+      end if
+
+      ! REQ-INOUT-001 direct-alias case: forward edge in the default
+      ! network (identical wiring to the ordinary REQ-EXT-003 no-op
+      ! case), plus a return edge in a fresh per-pairing network - no
+      ! TransformGraphNode for either edge.
+      call graph%add_dependency(net_id, owner_node_id, import_node_id, _RC)
+
+      return_net_id = graph%create_network(_RC)
+      call graph%add_dependency(return_net_id, import_node_id, owner_node_id, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine resolve_inout_destination
+
    function find_export_var_spec(comp_spec, short_name) result(export_var_spec)
       type(ComponentSpec), target, intent(in) :: comp_spec
       character(*), intent(in) :: short_name
@@ -884,6 +1010,35 @@ contains
          end do
       end associate
    end function find_export_var_spec
+
+   ! openspec/changes/ordinary-inout-direct-alias: finds a same-short-name
+   ! IMPORT-intent VariableSpec on comp_spec that is itself declared an
+   ! ordinary inout borrower (VariableSpec%is_inout_borrower) - used by
+   ! resolve_inout_destination's chained-borrowing check (spec "A chained
+   ! borrowing pairing is rejected"). Mirrors find_export_var_spec's own
+   ! shape exactly, filtering IMPORT+is_inout_borrower instead of EXPORT.
+   function find_inout_borrower_var_spec(comp_spec, short_name) result(borrower_var_spec)
+      type(ComponentSpec), target, intent(in) :: comp_spec
+      character(*), intent(in) :: short_name
+      type(VariableSpec), pointer :: borrower_var_spec
+
+      type(VariableSpecVectorIterator) :: iter
+      type(VariableSpec), pointer :: var_spec
+
+      borrower_var_spec => null()
+      associate (e => comp_spec%var_specs%ftn_end())
+         iter = comp_spec%var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT .and. var_spec%short_name == short_name &
+                 .and. var_spec%is_inout_borrower) then
+               borrower_var_spec => var_spec
+               return
+            end if
+         end do
+      end associate
+   end function find_inout_borrower_var_spec
 
    ! ============================================================
    ! Task 4: Public ports and child proxies
