@@ -7,6 +7,7 @@ module mapl_PfioServerGridComp_mod
    use pFIO_MultiGroupServerMod,     only: MultiGroupServer
    use pFIO_BaseServerMod,           only: BaseServer
    use mapl_ErrorHandling_mod
+   use mapl_OwningGridComp_mod, only: mapl_get_owning_gridcomp
    use esmf
    implicit none
    private

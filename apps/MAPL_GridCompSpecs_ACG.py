@@ -142,15 +142,14 @@ BRACKET_RE = compile('[][]')
 ##################################### FLAGS ####################################
 def get_set(o):
     """Get a set from an object depending on type."""
-    match o:
-        case set() as s:
-            return s
-        case str():
-            return {o}
-        case None:
-            return set()
-        case _:
-            return set(o)
+    if isinstance(o, set):
+        return o
+    elif isinstance(o, str):
+        return {o}
+    elif o is None:
+        return set()
+    else:
+        return set(o)
 
 def has_flags(has_all, flags, option):
     """Check to see if flags are present in option."""
@@ -325,13 +324,12 @@ def make_state_filter(*states):
 
 def state_filter(states=None):
     """Create a filter on state."""
-    match states:
-        case str() as state:
-            return lambda s: s[STATE] == state
-        case list() | tuple():
-            return lambda s: s[STATE] in states
-        case _:
-            return lambda s: True
+    if isinstance(states, str):
+        return lambda s: s[STATE] == states
+    elif isinstance(states, (list, tuple)):
+        return lambda s: s[STATE] in states
+    else:
+        return lambda s: True
 
 def emit_specs(specs, options, states=None):
     """Emit an Iteranble of spec (dict) instances."""
@@ -404,7 +402,8 @@ def emit_get_pointer(spec):
     f = spec[MAKE_BLOCK]
     # subroutine call parts
     parts = [f'{CALL} {GETPOINTER}({spec[STATE]}', spec[INTERNAL_NAME], spec[SHORT_NAME], TERMINATOR]
-    if alloc := convert_to_bool(spec.get(ALLOC)):
+    alloc = convert_to_bool(spec.get(ALLOC))
+    if alloc:
         parts.insert(-1, f'{ALLOC}={convert_to_logical(alloc)}')
     # apply function
     return f(DELIMITER.join(parts), make_else_block(spec[INTERNAL_NAME]))
@@ -497,23 +496,24 @@ def read_specs(specs_filename):
 
 def get_from_keys(option):
     """Get the FROM keys for an Option for mapping."""
-    match option.get(FROM):
-        case str() as k:
-            return (k,)
-        case tuple() | list() as s:
-            return s
+    from_value = option.get(FROM)
+    if isinstance(from_value, str):
+        return (from_value,)
+    elif isinstance(from_value, (tuple, list)):
+        return from_value
+    else:
+        return None
 
 def get_from_values(keys, values, args):
     """Get values of FROM options."""
     get_from_value = lambda k: values.get(k, args.get(k))
-    match keys:
-        case str() as key:
-            value = get_from_value(key)
-            return (value,)
-        case tuple():
-            return tuple(get_from_value(key) for key in keys)
-        case _:
-            raise RuntimeError('Option is not a supported type')
+    if isinstance(keys, str):
+        value = get_from_value(keys)
+        return (value,)
+    elif isinstance(keys, tuple):
+        return tuple(get_from_value(key) for key in keys)
+    else:
+        raise RuntimeError('Option is not a supported type')
 
 def digest_spec(spec, options):
     """Process an individual spec."""
@@ -601,11 +601,12 @@ def get_values(specs, options):
 
 def flatten_specs(specs):
     """If specs is a dict, remove top level (without keys). Otherwise, make a list from specs. """
-    match specs:
-        case Sequence():
-            flat_specs = list(specs)
-        case dict():
-            flat_specs = reduce(concat, specs.values(), [])
+    if isinstance(specs, Sequence):
+        flat_specs = list(specs)
+    elif isinstance(specs, dict):
+        flat_specs = reduce(concat, specs.values(), [])
+    else:
+        flat_specs = list(specs)
     return flat_specs
 
 def flatten_options(o):
@@ -812,36 +813,35 @@ def make_mapping(m, func_sequence=None, func_dict=None, flags=UNIT):
         return ID
     f = m
     # Otherwise
-    match f:
-        # Retrieve mapping by key if there is a func_dict.
-        case str() if func_dict:
-            f = func_dict.get(m)
-        # Make a function from a dict.
-        case dict():
-            f = lambda k: m.get(k, k if k in m.values() else None)
-        # Fetch mapping based on index if there is a sequence of functions.
-        case int() if valid_index(func_sequence, m):
-            f = func_sequence[n]
-        # Return None if m is empty list or tuple.
-        case list() | tuple() if len(m) == 0:
+    # Retrieve mapping by key if there is a func_dict.
+    if isinstance(f, str) and func_dict:
+        f = func_dict.get(m)
+    # Make a function from a dict.
+    elif isinstance(f, dict):
+        f = lambda k: m.get(k, k if k in m.values() else None)
+    # Fetch mapping based on index if there is a sequence of functions.
+    elif isinstance(f, int) and valid_index(func_sequence, m):
+        f = func_sequence[m]
+    # Return None if m is empty list or tuple.
+    elif isinstance(f, (list, tuple)) and len(m) == 0:
+        return None
+    # Return a composition of functions for a single value.
+    elif isinstance(f, (tuple, list)) and COMPOSE in flags:
+        # Since a composition of functions is applied right to left, reverse the order.
+        funcs = tuple(make_mapping(sm, func_sequence=func_sequence, func_dict=func_dict, flags=flags) for sm in m[::-1])
+        def inner(*args):
+            return reduce(lambda a, c: c(a), funcs, *args)
+        f = inner
+    # Return a mapping of multiple values with a sequence of functions. The number of args should match the number of mappings.
+    elif isinstance(f, (tuple, list)):
+        funcs = tuple(make_mapping(sm, func_sequence=None, func_dict=None, flags=flags) for sm in m)
+        def inner(*args):
+            for func, arg in zip(funcs, args):
+                if arg is None:
+                    continue
+                return func(arg)
             return None
-        # Return a composition of functions for a single value.
-        case tuple() | list() if COMPOSE in flags:
-            # Since a composition of functions is applied right to left, reverse the order.
-            funcs = tuple(make_mapping(sm, func_sequence=func_sequence, func_dict=func_dict, flags=flags) for sm in m[::-1])
-            def inner(*args):
-                return reduce(lambda a, c: c(a), funcs, *args)
-            f = inner
-        # Return a mapping of multiple values with a sequence of functions. The number of args should match the number of mappings.
-        case tuple() | list():
-            funcs = tuple(make_mapping(sm, func_sequence=None, func_dict=None, flags=flags) for sm in m)
-            def inner(*args):
-                for f, arg in zip(funcs, args):
-                    if arg is None:
-                        continue
-                    return f(arg)
-                return None
-            f = inner
+        f = inner
     return f
 
 # Main Procedure (Added to facilitate testing.)

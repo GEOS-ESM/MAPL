@@ -43,9 +43,11 @@ module mapl_generic_api
        MAPL_GridCompIsGeneric => GridCompIsGeneric, &
        MAPL_GridCompIsUser => GridCompIsUser
 
+   use mapl_OwningGridComp_mod, only: mapl_get_owning_gridcomp
+
    use mapl_GenericGridComp_mod,  &
-       mapl_GridCompCreate => GridCompCreate, &
-       mapl_GenericSetServices => GenericSetServices
+        mapl_GridCompCreate => GridCompCreate, &
+        mapl_GenericSetServices => GenericSetServices
 
     use mapl_VariableSpec_mod
     use mapl_ComponentSpec_mod
@@ -112,6 +114,8 @@ module mapl_generic_api
    public :: mapl_find_bounds
    public :: mapl_get_num_threads
    public :: mapl_get_current_thread
+
+   public :: mapl_get_owning_gridcomp
 
    public :: mapl_GridCompCreate
    public :: mapl_GenericSetServices
