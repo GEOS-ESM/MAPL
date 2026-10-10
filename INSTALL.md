@@ -130,10 +130,6 @@ default to `gfortran` which might not be what you want.
 - `USE_F2PY` (default: `ON`, recommended: `OFF`)
   - If `ON`, will build an f2py-based interface to MAPL. This is not recommended
     for general use, as f2py + CMake can be a challenge.
-- `BUILD_SHARED_MAPL` (default: `ON`, recommended: `ON`)
-  - If `ON`, will build MAPL as a shared library. If `OFF`, will build MAPL as
-    a static library. Note: unlike many packages, the `ON` option does not build
-    *both* a shared and static library. It builds *only* a shared library.
 - `BUILD_WITH_FARGPARSE` (default: `ON`, recommended: `ON`)
   - If `ON`, will build MAPL with the `fArgParse` library. Much of MAPL's
     utilities use `fArgParse` for command-line argument parsing.
