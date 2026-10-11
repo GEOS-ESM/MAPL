@@ -1301,6 +1301,88 @@ Phase 1-5 MAPL-repo code (`GraphStateItem`, `ComponentGraph`,
 `DependencyNetwork`, `MethodGraphNode`, `GridCompDriverPhaseInvoker`),
 so no repo-separation saving (§20.2) applies here either.
 
+### 20.4.9 Phase 11 (real run-phase value propagation through an extension
+chain — discovered gap, not previously tracked by any phase above)
+
+**Landed** (`openspec/changes/graph-child-state-population`): the
+confirmed `GRAPH_MODE_GRAPH`-alone cross-component population gap
+§20.4.8's own "Explicitly out of scope" list named (`ESMF_RC_ARG_INCOMP`
+at `ESMF_StateAdd`, 10b's own direct experiment) is fixed —
+`graphbuilder_populate_state`'s cross-component loop now inserts each
+sibling's own resolved field into *that sibling's own* real
+`ESMF_State` (reached via the existing one-way `get_child_outer_meta`
+parent-to-child accessor, never the reverse), using a
+`MAPL_NamedAlias`-under-stable-name + `ESMF_StateAddReplace` pair
+(matching legacy's own `FieldClassAspect%add_to_state` precedent) so
+the insertion is safe across `GENERIC_INIT_PHASE_SEQUENCE`'s own fixed
+two-pass `GENERIC_INIT_ACCEPT_TRANSFER` schedule. A new, narrowly-scoped
+`graphbuilder_run_pull_hook` (called from `run_user.F90`, gated on
+`GRAPH_MODE_GRAPH`) re-triggers any sibling connection's own
+extension-chain transform via a plain `ComponentGraph%update()` pull —
+architecturally guaranteed by `method-graph-node`'s own REQ-NODE-007 to
+never invoke a `MethodGraphNode` or a second `GriddedComponentDriver%
+run()`, so none of Phase 10d's own double-invocation hazard applies.
+Also fixed in the same change: `resolve_one`'s own mismatch branch
+never materialized the chain's own INPUT node (`export_node_id`) at
+all — only the exact-match branch and the chain's final node were ever
+materialized — now fixed by also calling `try_materialize_field_extension`
+on `export_node_id`, using the export's own typekind/units (not the
+import's).
+
+**Explicitly out of scope, discovered during that same change's own
+end-to-end demonstration attempt (`units_and_typekind_mismatch` under a
+real `GENERIC_RUN_USER` phase) — the actual goal (a changing run-phase
+value provably propagating through a real extension chain into a
+sibling's own real state) remains unmet. Two further, separate gaps,
+each confirmed by direct code reading, stand between here and that
+goal:**
+
+- **Multi-hop extension chains have no materialized intermediate
+  nodes.** `ExtensionResolution.F90`'s own `build_chain` leaves every
+  link's payload "unallocated — not yet realized" by design; only the
+  chain's own FINAL node is ever materialized
+  (`try_materialize_field_extension`, `GraphBuilder.F90`). Harmless as
+  long as nothing ever executes the chain's own `compute()` for real
+  (true for every fixture before this phase); a real two-characteristic
+  chain (e.g. `units_and_typekind_mismatch`'s own `UnitsConverterTransform`
+  → `TypeKindConverterTransform`) fails outright
+  (`UnitsConverterTransform%compute()`'s own `output_item%get_field()`
+  call, `GraphStateItem: esmf_field is not allocated`) the first time
+  anything actually pulls on it. Fixing this needs
+  `ExtensionResolution.F90`'s own `find_or_build_extension_chain`/
+  `build_chain` to expose every intermediate `NodeId` (not only the
+  final one) so each link can be materialized with its own correctly-
+  evolved typekind/units/geom (the state after characteristic 1's own
+  conversion has notionally applied, before characteristic 2's own
+  conversion runs) — a real change to that module's own public
+  interface, deliberately not attempted in
+  `graph-child-state-population` (narrowed to a single-characteristic
+  fixture, `units_mismatch_run_phase`, to avoid needing this).
+- **A sibling connection's export-side proxy is never aliased to the
+  real export field a run phase actually writes.** Even with the
+  export-node materialization fix above, the materialized field is an
+  *independent* `FieldCreate` — never a `MAPL_NamedAlias` of `comp_src`'s
+  own real export field (the one `ConfigurableGridComp%run()` actually
+  writes the YAML-configured `run:` value into). A real run phase's
+  changed value therefore never reaches the proxy, confirmed by a
+  resulting `NaN` (not a crash) when
+  `graph-child-state-population`'s own demonstration test attempted to
+  assert the real converted value after a real run phase. Fixing this
+  needs the same "always alias, never duplicate" treatment D1-D6 of
+  that change already applied to the *import* (sibling-receiving) side,
+  mirrored onto the *export* (sibling-producing) side — not attempted
+  there; that change's own demonstration test was narrowed to assert
+  only static, init-time structural correctness (item count, typekind,
+  units, real-field-allocated) rather than a propagated numeric value.
+
+Not yet sequenced relative to Phase 6/7/8/9's own existing numbering
+(this is the next free forward number, matching this document's own
+established precedent for a newly-discovered phase); likely a
+prerequisite for Phase 6's own entry criterion to ever be claimed for
+any run-phase-bearing, extension-chain-mediated production code path,
+alongside Phase 10d's own still-unresolved double-invocation hazard
+(§20.4.8's own "Explicitly out of scope," unaffected by this phase).
+
 ## 20.5 Cross-reference
 
 This roadmap does not restate or supersede any requirement in `01`–`19`;

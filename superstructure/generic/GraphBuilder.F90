@@ -140,6 +140,11 @@
 !------------------------------------------------------------------------------
 module mapl_GraphBuilder_mod
    use mapl_OuterMetaComponent_mod, only: OuterMetaComponent
+   ! openspec/changes/graph-child-state-population: GriddedComponentDriver
+   ! is needed to reach a child's own real MultiState (get_states())
+   ! for graphbuilder_populate_state's cross-component loop - design.md
+   ! D3.
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_ComponentSpec_mod, only: ComponentSpec
    use mapl_VariableSpec_mod, only: VariableSpec
@@ -221,9 +226,10 @@ module mapl_GraphBuilder_mod
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_IMPORT, &
         ESMF_STATEINTENT_EXPORT
    use esmf, only: ESMF_Geom, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
-   use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateAdd
+   use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateAddReplace
    use esmf, only: ESMF_Field
    use esmf, only: operator(==)
+   use mapl_FieldNamedAlias_mod, only: MAPL_NamedAlias
    ! openspec/changes/phase-10a-state-materialization: graph-native
    ! state population's own dependencies - the default network's
    ! predecessor-walk (DependencyNetwork/NodeIdSet) and the real
@@ -300,6 +306,14 @@ module mapl_GraphBuilder_mod
       ! header comment. No invocation hook exists; do not add one
       ! without first resolving the blockers that comment names.
       procedure, nopass :: build_run_phase_node => graphbuilder_build_run_phase_node
+      ! openspec/changes/graph-child-state-population, design.md D7:
+      ! re-propagates a sibling connection's extension-chain transform
+      ! after a run phase completes, via a plain ComponentGraph%update()
+      ! pull - never a MethodGraphNode, never a second driver%run()
+      ! call (REQ-NODE-007's own architectural guarantee). Called from
+      ! run_user.F90, immediately after the legacy run call. A no-op
+      ! outside GRAPH_MODE_GRAPH.
+      procedure, nopass :: run_pull_hook => graphbuilder_run_pull_hook
    end type GraphBuilder
 
    ! Matches StateRegistry_Hierarchy_smod's own SELF sentinel
@@ -860,6 +874,40 @@ contains
             call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
                  unsupported_characteristic))
             _RETURN(_SUCCESS)
+         end if
+
+         ! openspec/changes/graph-child-state-population, found during
+         ! implementation (this change's own YAML-configured
+         ! demonstration scenario): the mismatch branch's own
+         ! export_node_id (the chain's own INPUT) was never materialized
+         ! by anything - only the exact-match branch above (line ~849)
+         ! and the chain's own FINAL node (below) ever call
+         ! try_materialize_field_extension. Harmless as long as nothing
+         ! ever executes the chain's own compute() for real (no fixture
+         ! did, before this change's own run-phase pull, design.md D7);
+         ! UnitsConverterTransform%compute()'s own
+         ! `input_field = input_item%get_field(_RC)` call fails outright
+         ! on an unallocated input otherwise. Fixed by materializing
+         ! export_node_id here too, using the EXPORT's own typekind/units/
+         ! geom/vgrid - NOT the import's (passing export_var_spec for
+         ! BOTH the export_var_spec and import_var_spec arguments is what
+         ! makes try_materialize_field_extension's own "always use the
+         ! second VariableSpec argument's typekind/units" contract
+         ! resolve to the export's own values here, correct for the
+         ! chain's own input node, as opposed to the chain's final node
+         ! below, which correctly keeps using the import's own values).
+         ! Gated the same way the exact-match branch's own materialization
+         ! already is (graph_mode() /= GRAPH_MODE_REGISTRY) - a no-op in
+         ! GRAPH_MODE_REGISTRY, matching every other new code path this
+         ! change adds.
+         if (graph_mode() /= GRAPH_MODE_REGISTRY) then
+            call try_materialize_field_extension(this, src_pt%component_name, export_var_spec, export_var_spec, &
+                 this_graph, export_node_id, materialization_failure, name=export_var_spec%short_name, _RC)
+            if (materialization_failure /= '') then
+               call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+                    materialization_failure))
+               _RETURN(_SUCCESS)
+            end if
          end if
 
          ! extension-registry-visibility change, task groups 1-3: chain
@@ -1811,6 +1859,9 @@ contains
       type(NodeId), pointer :: id_ptr
       character(:), allocatable :: child_name
       integer :: n, i
+      type(OuterMetaComponent), pointer :: child_meta
+      type(GriddedComponentDriver), pointer :: child_driver
+      type(MultiState) :: child_states
 
       _RETURN_IF(graph_mode() /= GRAPH_MODE_GRAPH)
 
@@ -1828,7 +1879,7 @@ contains
             if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT .or. &
                  var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) cycle
             id_ptr => graph%get_resource_index(item_key(var_spec%state_intent, var_spec%short_name))
-            call populate_one(graph, net, multi_state, id_ptr, var_spec%state_intent, _RC)
+            call populate_one(graph, net, multi_state, id_ptr, var_spec%state_intent, var_spec%short_name, _RC)
          end do
       end associate
 
@@ -1836,10 +1887,28 @@ contains
       ! advertised import/export item may have a parent-local proxy in
       ! `this`'s own graph (proxy_key) - the only place real structure
       ! exists for a connection `this` declared between its children.
+      !
+      ! openspec/changes/graph-child-state-population, design.md D1:
+      ! unlike the degenerate same-component branch above (which keeps
+      ! using the procedure's own `multi_state` argument - that one IS
+      ! this component's own real state), the resolved item here
+      ! belongs to a CHILD this component merely connected, never to
+      ! `this` itself - `this` (the parent) has no stake in the real
+      ! ESMF_State the item is populated into. Each iteration therefore
+      ! looks up that child's own OuterMetaComponent (the one-way
+      ! parent-to-child reach `get_child_component_graph`/
+      ! `get_child_component_spec` already establish elsewhere in this
+      ! module) and populates INTO THE CHILD'S OWN real MultiState -
+      ! never into `this`'s own `multi_state` argument. The child's own
+      ! graph/component code requires no awareness of its parent for
+      ! this to happen; only the parent reaches down.
       n = this%get_num_children()
       do i = 1, n
          child_name = this%get_child_name(i, _RC)
          child_spec => this%get_child_component_spec(child_name, _RC)
+         child_meta => this%get_child_outer_meta(child_name, _RC)
+         child_driver => child_meta%get_user_gc_driver()
+         child_states = child_driver%get_states()
          associate (e => child_spec%var_specs%ftn_end())
             iter = child_spec%var_specs%ftn_begin()
             do while (iter /= e)
@@ -1848,7 +1917,7 @@ contains
                if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT .or. &
                     var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) cycle
                id_ptr => graph%get_resource_index(proxy_key(child_name, var_spec%state_intent, var_spec%short_name))
-               call populate_one(graph, net, multi_state, id_ptr, var_spec%state_intent, _RC)
+               call populate_one(graph, net, child_states, id_ptr, var_spec%state_intent, var_spec%short_name, _RC)
             end do
          end associate
       end do
@@ -1858,29 +1927,53 @@ contains
 
    ! Shared by both walks in graphbuilder_populate_state above: resolves
    ! id_ptr's own real field (export: direct; import: predecessor walk)
-   ! and, if found, inserts it into multi_state's own real ESMF_State
-   ! (per state_intent). No `name=` argument to ESMF_StateAdd (it has
-   ! none - a Field's name, once set at FieldCreate time, is what an
-   ! ESMF_State inserts it under): the field is findable by its own
-   ! short_name only because it was already created with that name via
-   ! materialize_field_extension's own `name` argument (resolve_one's
-   ! exact-match branch passes the export's own short_name; for an
-   ! exact match, import and export share one short_name by definition,
-   ! so this is correct for every fixture this phase exercises - the
-   ! mismatch branch's own extension items remain unnamed, same
-   ! Non-Goal as 10c's own future characteristic-chain work).
-   subroutine populate_one(graph, net, multi_state, id_ptr, state_intent, rc)
+   ! and, if found, inserts a NAMED ALIAS of it (not the raw field
+   ! itself) into multi_state's own real ESMF_State (per state_intent),
+   ! under short_name.
+   !
+   ! openspec/changes/graph-child-state-population, found during
+   ! implementation (ESMF_StateAddReplace matches purely by name - see
+   ! this procedure's own earlier revision's header comment, now
+   ! corrected below): the chain's final item (a mismatch/extension
+   ! case) is created with NO explicit name
+   ! (try_materialize_field_extension's own mismatch-branch call site
+   ! never passes `name=`, confirmed by reading GraphBuilder.F90's
+   ! own resolve_one) - ESMF assigns such a field some internal default
+   ! name of its own. Inserting that raw, unnamed field directly meant
+   ! GENERIC_INIT_PHASE_SEQUENCE's second GENERIC_INIT_ACCEPT_TRANSFER
+   ! pass (enums/GenericPhases.F90's own documented fixed two-pass
+   ! schedule) could not reliably re-match its own first-pass insertion
+   ! by name, producing a real duplicate entry rather than a replace -
+   ! ESMF objects are shallow and the underlying field is genuinely the
+   ! same handle both times (materialize_field_extension's own "already
+   ! materialized - no-op" guard, confirmed unmodified), but the STATE
+   ! ENTRY identity ESMF tracks is name-based, not object-identity-based.
+   ! Legacy's own FieldClassAspect%add_to_state
+   ! (superstructure/generic/specs/FieldClassAspect.F90) already solves
+   ! this exact problem the correct way: never add the raw field -
+   ! always add a MAPL_NamedAlias of it (infrastructure/field/
+   ! FieldNamedAlias.F90), under the item's own known short_name, so
+   ! every insertion of the same underlying item - first pass, second
+   ! pass, or any later re-entrant call - produces an alias with the
+   ! identical, stable name ESMF_StateAddReplace can always match
+   ! against. Reused here verbatim, not reinvented: short_name is now
+   ! threaded through from each call site's own already-available
+   ! var_spec%short_name (both graphbuilder_populate_state loops above
+   ! already have it in scope).
+   subroutine populate_one(graph, net, multi_state, id_ptr, state_intent, short_name, rc)
       type(ComponentGraph), target, intent(in) :: graph
       type(DependencyNetwork), intent(in) :: net
       type(MultiState), intent(inout) :: multi_state
       type(NodeId), pointer, intent(in) :: id_ptr
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      character(*), intent(in) :: short_name
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(NodeId) :: item_id, field_node_id
       logical :: found
       type(ESMF_Field) :: field
+      type(ESMF_Field) :: alias
       type(ESMF_State) :: state
 
       if (.not. associated(id_ptr)) then
@@ -1911,7 +2004,15 @@ contains
       end if
 
       call multi_state%get_state(state, state_intent, _RC)
-      call ESMF_StateAdd(state, [field], _RC)
+
+      ! Named alias under short_name, then add-or-replace by that same
+      ! stable name - idempotent on re-entry (GENERIC_INIT_ACCEPT_TRANSFER's
+      ! own two-pass schedule) because the alias's own name never
+      ! changes across calls, regardless of whether the underlying
+      ! field itself was ever given an explicit name at FieldCreate
+      ! time (design.md's own update records this correction).
+      alias = MAPL_NamedAlias(field, name=short_name, _RC)
+      call ESMF_StateAddReplace(state, [alias], _RC)
 
       _RETURN(_SUCCESS)
    end subroutine populate_one
@@ -2008,6 +2109,74 @@ contains
          current = pred_iter%of()
       end do
    end function find_materialized_predecessor
+
+   ! ============================================================
+   ! openspec/changes/graph-child-state-population, design.md D7:
+   ! re-propagation pull after a run phase.
+   ! ============================================================
+
+   ! Found during implementation of this change's own YAML-configured
+   ! demonstration scenario (proposal.md Why; design.md D7):
+   ! graphbuilder_populate_state only ever runs once, at
+   ! GENERIC_INIT_ACCEPT_TRANSFER (init time) - nothing re-populates a
+   ! child's own real import state after a later run phase changes the
+   ! value feeding an extension-chain transform. This hook closes that
+   ! gap WITHOUT reopening Phase 10d's own double-invocation hazard: it
+   ! calls `ComponentGraph%update()` directly on each of `this`
+   ! component's own declared children's import proxies - the SAME
+   ! demand-driven update entry point the equivalence harness/callback
+   ! wiring already use - never constructing or invoking a
+   ! MethodGraphNode, never calling a GriddedComponentDriver%run() a
+   ! second time. method-graph-node capability's own REQ-NODE-007
+   ! ("Method node execution is never scheduled by demand-driven
+   ! update") already guarantees graph%update()'s own dispatch
+   ! (ComponentGraph_DemandDrivenUpdate.F90's class default branch)
+   ! skips anything that is not a StateItemNode/TransformGraphNode - a
+   ! MethodGraphNode is categorically unreachable from this call, by
+   ! construction, not merely by convention.
+   !
+   ! A no-op outside GRAPH_MODE_GRAPH, matching every other new code
+   ! path this change adds. MUST be called only from run_user.F90's
+   ! own GENERIC::RUN_USER-phase body, immediately after the existing
+   ! legacy run call - mirrors graphbuilder_build_run_phase_node's own
+   ! header-comment convention for documenting its one intended call
+   ! site.
+   subroutine graphbuilder_run_pull_hook(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentGraph), pointer :: graph
+      type(ComponentSpec), pointer :: child_spec
+      type(VariableSpecVectorIterator) :: iter
+      type(VariableSpec), pointer :: var_spec
+      type(NodeId), pointer :: proxy_id
+      character(:), allocatable :: child_name
+      integer :: n, i
+
+      _RETURN_IF(graph_mode() /= GRAPH_MODE_GRAPH)
+
+      graph => this%get_component_graph()
+
+      n = this%get_num_children()
+      do i = 1, n
+         child_name = this%get_child_name(i, _RC)
+         child_spec => this%get_child_component_spec(child_name, _RC)
+         associate (e => child_spec%var_specs%ftn_end())
+            iter = child_spec%var_specs%ftn_begin()
+            do while (iter /= e)
+               call iter%next()
+               var_spec => iter%of()
+               if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT)) cycle
+               proxy_id => graph%get_resource_index(proxy_key(child_name, ESMF_STATEINTENT_IMPORT, var_spec%short_name))
+               if (.not. associated(proxy_id)) cycle
+               call graph%update(graph%get_default_network_id(), proxy_id, _RC)
+            end do
+         end associate
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine graphbuilder_run_pull_hook
 
    ! ============================================================
    ! Task 6: Visualization enrichment (visualization-enrichment-layer

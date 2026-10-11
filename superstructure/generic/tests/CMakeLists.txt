@@ -64,6 +64,7 @@ set(scenarios_test_srcs
   Test_MemoryCheckpoint.pf
   Test_GraphBuilderEquivalence.pf
   Test_GraphEquivalenceHarness.pf
+  Test_GraphModeDemonstration.pf
 )
 
 add_pfunit_ctest(

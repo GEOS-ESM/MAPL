@@ -5,6 +5,7 @@ submodule (mapl_OuterMetaComponent_mod) run_user_smod
    use mapl_ComponentDriver_mod
    use mapl_ComponentDriverPtrVector_mod
    use mapl_enums_api, only: MAPL_GENERIC_COUPLER_INVALIDATE, MAPL_GENERIC_COUPLER_UPDATE
+   use mapl_GraphBuilder_mod, only: GraphBuilder
    use mapl_ErrorHandling_mod
    use pflogger, only: logger_t => logger
 
@@ -24,6 +25,7 @@ contains
       logical :: found
       class(logger_t), pointer :: logger
       integer :: phase, status
+      type(GraphBuilder) :: gb
 
       type(ComponentDriverPtrVector) :: export_Couplers
       type(ComponentDriverPtrVector) :: import_Couplers
@@ -53,6 +55,17 @@ contains
       call logger%info(phase_name//": starting...")
       call this%start_timer(phase_name)
       call this%user_gc_driver%run(phase_idx=phase, _RC)
+      ! openspec/changes/graph-child-state-population, design.md D7:
+      ! re-propagates any sibling connection's extension-chain
+      ! transform now that this component's own children have just
+      ! run (ConfigurableGridComp's own run_children_phases_ already
+      ! ran every declared child by the time user_gc_driver%run()
+      ! above returns, for a component built that way; harmless no-op
+      ! for a leaf component with no children). A plain
+      ! ComponentGraph%update() pull - never a MethodGraphNode, never
+      ! a second driver%run() call (graphbuilder_run_pull_hook's own
+      ! header comment). A no-op outside GRAPH_MODE_GRAPH.
+      call gb%run_pull_hook(this, _RC)
       call this%stop_timer(phase_name)
       call logger%info(phase_name//": ...completed")
 

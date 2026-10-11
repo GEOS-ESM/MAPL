@@ -1589,6 +1589,18 @@ contains
    ! via FieldsAreAliased, not just typekind/units equality) and spec
    ! "Unresolved import is not populated" (Q, declared but never
    ! connected, produces no entry and no error) in one fixture.
+   !
+   ! openspec/changes/graph-child-state-population: this test's own
+   ! assertions were updated here. The field this test checks for is a
+   ! sibling-to-sibling (cross-component) connection's own resolved
+   ! item - per that change's own fix, it now lands in child_dst's own
+   ! real ESMF_State (get_user_gc_driver()%get_states()), never in the
+   ! parent-supplied `multi_state` this test still passes into
+   ! populate_state (which remains correct for the parent's own
+   ! same-component/degenerate case, untouched by that fix). The
+   ! parent-supplied `multi_state` is now explicitly asserted to
+   ! receive NEITHER field, confirming the fix rather than merely
+   ! happening to still pass.
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_populate_state_aliases_export_and_skips_unresolved(this)
       class(ESMF_TestMethod), intent(inout) :: this
@@ -1611,7 +1623,10 @@ contains
       type(ESMF_Geom) :: geom
       type(ESMF_Field) :: export_field, import_state_field
       type(ESMF_State) :: real_import_state, real_export_state
+      type(ESMF_State) :: dst_own_import_state
       type(MultiState) :: multi_state
+      type(MultiState) :: dst_own_states
+      type(GriddedComponentDriver), pointer :: dst_own_driver
       integer :: item_count
       integer :: status
       type(GraphBuilder) :: gb
@@ -1688,21 +1703,162 @@ contains
       export_field = export_payload%get_field(rc=status)
       @assertEqual(0, status)
 
-      ! child_dst's own real import field, as actually inserted into the
-      ! real ESMF_State by populate_state, is the SAME field object -
-      ! not merely an equally-shaped copy.
-      call ESMF_StateGet(real_import_state, 'T', import_state_field, rc=status)
+      ! openspec/changes/graph-child-state-population: a sibling
+      ! connection's resolved import field now lands in child_dst's OWN
+      ! real ESMF_State (reached via get_user_gc_driver()%get_states()),
+      ! never in the parent-supplied `multi_state` above - the field is
+      ! still the SAME field object child_src's own export proxy
+      ! materialized, not merely an equally-shaped copy.
+      dst_own_driver => dst_meta%get_user_gc_driver()
+      dst_own_states = dst_own_driver%get_states()
+      dst_own_import_state = dst_own_states%importState
+      call ESMF_StateGet(dst_own_import_state, 'T', import_state_field, rc=status)
       @assertEqual(0, status)
       @assertTrue(FieldsAreAliased(export_field, import_state_field))
 
       ! Q was never connected (no proxy exists for it at all) - no
-      ! entry, no error.
-      call ESMF_StateGet(real_import_state, itemCount=item_count, rc=status)
+      ! entry, no error, on child_dst's own state.
+      call ESMF_StateGet(dst_own_import_state, itemCount=item_count, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, item_count)
 
+      ! The parent's own `multi_state` (passed into populate_state)
+      ! receives NEITHER field - confirms the fix, not merely that
+      ! population happened somewhere.
+      call ESMF_StateGet(real_import_state, itemCount=item_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, item_count)
+      call ESMF_StateGet(real_export_state, itemCount=item_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, item_count)
+
       _UNUSED_DUMMY(this)
    end subroutine test_populate_state_aliases_export_and_skips_unresolved
+
+   ! openspec/changes/graph-child-state-population, tasks.md 2.1/2.2:
+   ! direct coverage of the fix itself - child_src's own real EXPORT
+   ! state and child_dst's own real IMPORT state each receive the
+   ! resolved field under its own short name, the two states hold the
+   ! SAME field object (FieldsAreAliased), and the parent's own
+   ! multi_state is confirmed empty - the one assertion
+   ! test_populate_state_aliases_export_and_skips_unresolved above does
+   ! not make (it checks child_dst's own import state and the Q
+   ! unresolved-import case, but not child_src's own export state
+   ! explicitly).
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_state_reaches_each_childs_own_state(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(VariableSpec) :: export_var_spec
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: parent_import_state, parent_export_state
+      type(ESMF_State) :: src_own_export_state, dst_own_import_state
+      type(MultiState) :: parent_multi_state
+      type(MultiState) :: src_own_states, dst_own_states
+      type(GriddedComponentDriver), pointer :: src_own_driver, dst_own_driver
+      type(ESMF_Field) :: src_field, dst_field
+      integer :: src_item_count, dst_item_count, parent_import_count, parent_export_count
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+
+      call make_outer_meta('comp_parent_populate_children', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
+      export_var_spec%geom = geom
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_var_spec)
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T', units='m'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+
+      parent_import_state = ESMF_StateCreate(name='import', rc=status)
+      @assertEqual(0, status)
+      parent_export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      parent_multi_state = MultiState(importState=parent_import_state, exportState=parent_export_state)
+
+      call gb%populate_state(parent_meta, parent_multi_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assert_that(status, is(0))
+
+      ! child_src's own real EXPORT state (design.md D4 - the export
+      ! side is touched symmetrically with the import side).
+      src_own_driver => src_meta%get_user_gc_driver()
+      src_own_states = src_own_driver%get_states()
+      src_own_export_state = src_own_states%exportState
+      call ESMF_StateGet(src_own_export_state, 'T', src_field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(src_own_export_state, itemCount=src_item_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, src_item_count)
+
+      ! child_dst's own real IMPORT state.
+      dst_own_driver => dst_meta%get_user_gc_driver()
+      dst_own_states = dst_own_driver%get_states()
+      dst_own_import_state = dst_own_states%importState
+      call ESMF_StateGet(dst_own_import_state, 'T', dst_field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(dst_own_import_state, itemCount=dst_item_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, dst_item_count)
+
+      ! Same field object on both sides - not two independently
+      ! materialized fields that happen to compare equal.
+      @assertTrue(FieldsAreAliased(src_field, dst_field))
+
+      ! Neither child's own field reaches the parent's own multi_state.
+      call ESMF_StateGet(parent_import_state, itemCount=parent_import_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, parent_import_count)
+      call ESMF_StateGet(parent_export_state, itemCount=parent_export_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, parent_export_count)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_populate_state_reaches_each_childs_own_state
 
    ! openspec/changes/phase-10a-state-materialization, spec "Graph mode
    ! governs whether population touches the real state": in both
