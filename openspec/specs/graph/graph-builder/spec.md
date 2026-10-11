@@ -276,6 +276,15 @@ child component SHALL NOT be required to have, or exercise, any
 awareness of its parent for this insertion to occur; the parent alone
 is responsible for reaching into each child's own state.
 
+A sibling connection's export-side resolved payload SHALL be the same
+real `ESMF_Field` the export child's own run phase writes a changed
+value into, rather than an independent copy - established by aliasing,
+never by duplicating, the export child's own real materialized field.
+A run-phase value change on the export side SHALL therefore be
+observable, through this same resolved structure, on the import side -
+whether the import is wired directly to the export or through one or
+more extension-chain transform nodes.
+
 #### Scenario: An exact-match import's real field is found via its export
 - **WHEN** graph-native state population runs for a component whose
   import is wired by a direct dependency edge to a matching export's
@@ -311,6 +320,23 @@ is responsible for reaching into each child's own state.
 - **THEN** that insertion requires no accessor, lookup, or other
   reference from the child's own graph or component state back to its
   parent
+
+#### Scenario: A sibling connection's export-side payload is a real alias, not a copy
+- **WHEN** a sibling-to-sibling connection's export-side proxy is
+  resolved and the export child's own real field has already been
+  realized
+- **THEN** the proxy's own payload is a named alias of that same real
+  `ESMF_Field` object - not a separately allocated field with equal
+  attributes
+
+#### Scenario: A run-phase value change on the export side reaches the import side
+- **WHEN** the export child's own run phase writes a new value into its
+  real export field, and the resolved connection's import side is then
+  read (directly, or through an extension-chain transform's
+  re-evaluation)
+- **THEN** the value observed on the import side reflects the export
+  child's own newly written value, converted by any transform the
+  connection's extension chain applies
 
 ### Requirement: A sibling connection's extension chain is re-evaluated after a run phase
 After a component's own run phase completes, for each of that

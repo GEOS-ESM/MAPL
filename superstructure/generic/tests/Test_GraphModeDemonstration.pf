@@ -34,30 +34,30 @@
 !      branch now also calls try_materialize_field_extension on
 !      export_node_id, using the EXPORT's own typekind/units (not the
 !      import's).
-!   3. Even with (2) fixed, the export proxy's own materialized field is
-!      an INDEPENDENT FieldCreate - never aliased to comp_src's own real
-!      export field (the one ConfigurableGridComp%run() actually writes
-!      the YAML-configured run-phase value into). A real run phase's
-!      changed value therefore never reaches the proxy, let alone the
-!      chain - confirmed by the resulting NaN, not a crash. Fixing this
-!      needs the export proxy's own field to be a MAPL_NamedAlias of
-!      comp_src's own real export field (mirroring D1-D6's own "always
-!      alias, never duplicate" fix for the sibling-import side) - real,
-!      separate work, not attempted here.
+!   3. CLOSED by openspec/changes/phase-11a-export-field-aliasing: the
+!      export proxy's own materialized field used to be an INDEPENDENT
+!      FieldCreate - never aliased to comp_src's own real export field
+!      (the one ConfigurableGridComp%run() actually writes the
+!      YAML-configured run-phase value into). A real run phase's
+!      changed value therefore never reached the proxy, let alone the
+!      chain - confirmed by the resulting NaN, not a crash. Fixed by
+!      making the export proxy's own field a MAPL_NamedAlias of
+!      comp_src's own real export field (try_alias_export_field,
+!      GraphBuilder.F90, mirroring D1-D6's own "always alias, never
+!      duplicate" fix for the sibling-import side) - this test now
+!      asserts the real, converted value below.
 !
-! All three are tracked as roadmap work items
+! Gaps (1)/(2) are still tracked as roadmap work items
 ! (docs/graph/spec/20-implementation-roadmap.md §20.4.8's own "work
-! items" list) rather than attempted in this change. This test
-! demonstrates what IS proven today: structural, init-time population
+! items" list). This test demonstrates structural, init-time population
 ! of a sibling's own real state through a real (statically-correct)
-! extension-chain transform, entirely without StateRegistry - gap (3)
-! means it does not yet demonstrate a changing run-phase value
-! propagating through that chain end-to-end; design.md D7's own pull
-! hook (graphbuilder_run_pull_hook/graph%update(), called from
-! run_user.F90) is exercised by this test (no crash, confirming its own
-! architectural safety - REQ-NODE-007, never invokes a MethodGraphNode
-! or a second driver%run()) but its own observable effect on a changing
-! value is not yet assertable until gap (3) closes.
+! extension-chain transform, entirely without StateRegistry, AND (gap
+! (3) now closed) a real GENERIC_RUN_USER phase's changed value
+! actually propagating through that chain end-to-end to comp_dst's own
+! real import state; design.md D7's own pull hook
+! (graphbuilder_run_pull_hook/graph%update(), called from run_user.F90)
+! is exercised by this test and its observable effect (the converted
+! numeric value) is now asserted.
 module Test_GraphModeDemonstration
 
    use mapl_Generic_mod
@@ -104,6 +104,7 @@ contains
       type(ESMF_Field) :: result_field, chain_input_field
       type(ESMF_TypeKind_Flag) :: result_typekind
       character(:), allocatable :: result_units
+      real(ESMF_KIND_R4), pointer :: result_data(:,:)
       type(ComponentGraph), pointer :: cap_graph
       type(NodeId), pointer :: export_proxy_id
       class(GraphNode), pointer :: export_proxy_node
@@ -142,6 +143,28 @@ contains
       end do
       call set_materialize_extensions(.false.)
       call set_graph_mode(GRAPH_MODE_REGISTRY)
+
+      ! openspec/changes/phase-11a-export-field-aliasing, design.md D6:
+      ! a real GENERIC_RUN_USER phase invocation - mirroring
+      ! Test_GraphEquivalenceHarness.pf's own equivalence_fixture_setup
+      ! precedent for the identical call shape (same ordering: run AFTER
+      ! graph_mode is reset to GRAPH_MODE_REGISTRY, since the real alias
+      ! established at GENERIC_INIT_ACCEPT_TRANSFER time, not graph_mode
+      ! at run time, is what makes comp_dst's own import field see
+      ! comp_src's own real run()-written value - the two ESMF_Field
+      ! handles are shallow aliases of the SAME underlying field by
+      ! this point). comp_src's own 'run:' section (comp_src.yaml,
+      ! units_mismatch_run_phase/description.md) sets T to 10. hPa;
+      ! run_children_phases_ (ConfigurableGridComp) propagates
+      ! GENERIC_RUN_USER down to comp_dst as well, so comp_dst's own
+      ! driver%run() also executes (D7's own pull hook,
+      ! graphbuilder_run_pull_hook/graph%update(), fires there - no
+      ! crash, and now also has an observable numeric effect, asserted
+      ! below).
+      call ESMF_GridCompRun(cap_gc, &
+           importState=importState, exportState=exportState, clock=clock, &
+           phase=GENERIC_RUN_USER, userRC=user_status, _RC)
+      _VERIFY(user_status)
 
       cap_meta => get_outer_meta(cap_gc, _RC)
 
@@ -182,15 +205,22 @@ contains
       @assertEqual(0, status, 'export proxy has a real, allocated field (gap 2 fix)')
       @assert_that('export proxy field is a real ESMF_Field', ESMF_FieldIsCreated(chain_input_field), is(true()))
 
-      ! NOT asserted here (gap 3, design.md D8): that result_field's own
-      ! numeric value equals the fixture's run-phase value converted
-      ! through the chain. The export proxy's own field (just confirmed
-      ! allocated above) is an independent FieldCreate, never aliased to
-      ! comp_src's own real export field that ConfigurableGridComp%run()
-      ! actually writes the YAML-configured value into - so a real run
-      ! phase's changed value does not yet reach this proxy, and
-      ! consequently never reaches the chain or comp_dst's own state.
-      ! Tracked as a roadmap work item, not attempted in this change.
+      ! openspec/changes/phase-11a-export-field-aliasing, design.md D6
+      ! (closes gap 3 above): the export proxy's own field is now a
+      ! real MAPL_NamedAlias of comp_src's own real export field (not
+      ! an independent FieldCreate), so comp_src's own real run()
+      ! (comp_src.yaml's 'run: {T: [10]}') writing 10. hPa into its own
+      ! real export field is observed here, through this same resolved
+      ! structure, converted by the chain's own UnitsConverterTransform
+      ! (hPa -> Pa, factor 100) into 1000. Pa - the fixture's own
+      ! hand-checked value (units_mismatch_run_phase/description.md).
+      ! result_field is 2D (vertical_dim_spec: NONE, no ungridded dims)
+      ! R4 (already asserted above) - farrayPtr accessor matches
+      ! Test_3DConservativeMixingRatio.pf/Test_CopyTransform.pf's own
+      ! real-numeric-assertion precedent.
+      call ESMF_FieldGet(result_field, farrayPtr=result_data, _RC)
+      @assertEqual(1000._ESMF_KIND_R4, result_data, tolerance=1.0e-4_ESMF_KIND_R4, &
+           message='comp_dst own import field reflects comp_src''s own run-phase value, converted hPa->Pa (gap 3 fix)')
 
       _UNUSED_DUMMY(this)
    end subroutine test_graph_mode_populates_sibling_states
