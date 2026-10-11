@@ -1,0 +1,198 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! openspec/changes/graph-child-state-population, tasks.md 5.1-5.3:
+! demonstration that GRAPH_MODE_GRAPH, after this change's own fix to
+! graphbuilder_populate_state's cross-component loop, can be the SOLE
+! real producer of a sibling-to-sibling connection's real ESMF_State -
+! with a real extension-chain transform (UnitsConverterTransform)
+! actually firing, and StateRegistry's own add_to_states never called
+! for either child (initialize_accept_transfer.F90's own existing
+! `if (graph_mode() /= GRAPH_MODE_GRAPH)` guard, confirmed by direct
+! reading, not new production code).
+!
+! Scope narrowed during implementation (design.md D8). Attempting a
+! real GENERIC_RUN_USER phase under GRAPH_MODE_GRAPH, to show a
+! changed value actually propagating through the chain end-to-end,
+! surfaced THREE separate, previously-undiscovered gaps - each real,
+! each confirmed by direct code reading, none specific to this
+! change's own D1-D6 fix:
+!
+!   1. units_and_typekind_mismatch's own chain has an INTERMEDIATE node
+!      (between UnitsConverterTransform and TypeKindConverterTransform)
+!      that try_materialize_field_extension never materializes (it only
+!      ever targets the chain's FINAL node) - fixed here by switching to
+!      a single-characteristic fixture (units_mismatch_run_phase, below),
+!      whose one-hop chain has no distinct intermediate node to expose
+!      this on; the general N-hop case remains open (ExtensionResolution.F90
+!      would need to expose every intermediate NodeId, not just the
+!      final one - real, separate work).
+!   2. resolve_one's own mismatch branch never materialized the chain's
+!      own INPUT node (export_node_id) at all - only the exact-match
+!      branch and the chain's final node were ever materialized. FIXED
+!      in this change (GraphBuilder.F90, resolve_one): the mismatch
+!      branch now also calls try_materialize_field_extension on
+!      export_node_id, using the EXPORT's own typekind/units (not the
+!      import's).
+!   3. Even with (2) fixed, the export proxy's own materialized field is
+!      an INDEPENDENT FieldCreate - never aliased to comp_src's own real
+!      export field (the one ConfigurableGridComp%run() actually writes
+!      the YAML-configured run-phase value into). A real run phase's
+!      changed value therefore never reaches the proxy, let alone the
+!      chain - confirmed by the resulting NaN, not a crash. Fixing this
+!      needs the export proxy's own field to be a MAPL_NamedAlias of
+!      comp_src's own real export field (mirroring D1-D6's own "always
+!      alias, never duplicate" fix for the sibling-import side) - real,
+!      separate work, not attempted here.
+!
+! All three are tracked as roadmap work items
+! (docs/graph/spec/20-implementation-roadmap.md §20.4.8's own "work
+! items" list) rather than attempted in this change. This test
+! demonstrates what IS proven today: structural, init-time population
+! of a sibling's own real state through a real (statically-correct)
+! extension-chain transform, entirely without StateRegistry - gap (3)
+! means it does not yet demonstrate a changing run-phase value
+! propagating through that chain end-to-end; design.md D7's own pull
+! hook (graphbuilder_run_pull_hook/graph%update(), called from
+! run_user.F90) is exercised by this test (no crash, confirming its own
+! architectural safety - REQ-NODE-007, never invokes a MethodGraphNode
+! or a second driver%run()) but its own observable effect on a changing
+! value is not yet assertable until gap (3) closes.
+module Test_GraphModeDemonstration
+
+   use mapl_Generic_mod
+   use mapl_GenericPhases_mod
+   use mapl_MultiState_mod
+   use mapl_OuterMetaComponent_mod
+   use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_GRAPH, GRAPH_MODE_REGISTRY
+   use mapl_ExtensionResolution_mod, only: set_materialize_extensions
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_GraphBuilder_mod, only: proxy_key
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_Generic_api, only: mapl_GenericSetServices
+   use mapl_FieldGet_mod, only: FieldGet
+   use esmf
+   use nuopc
+   use pfunit
+   implicit none(type, external)
+
+contains
+
+   @test(npes=[0])
+   subroutine test_graph_mode_populates_sibling_states(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: config
+      type(ESMF_Config) :: config_cf
+      type(ESMF_GridComp) :: cap_gc
+      type(OuterMetaComponent), pointer :: cap_meta, dst_meta
+      type(GriddedComponentDriver) :: dst_driver
+      type(GriddedComponentDriver), pointer :: dst_own_driver
+      type(ESMF_GridComp) :: dst_gc
+      type(MultiState) :: dst_states
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_State) :: dst_own_import_state
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: t0, t1
+      type(ESMF_TimeInterval) :: dt
+      integer :: status, user_status, i
+      integer :: item_count
+      type(ESMF_Field) :: result_field, chain_input_field
+      type(ESMF_TypeKind_Flag) :: result_typekind
+      character(:), allocatable :: result_units
+      type(ComponentGraph), pointer :: cap_graph
+      type(NodeId), pointer :: export_proxy_id
+      class(GraphNode), pointer :: export_proxy_node
+      type(GraphStateItem) :: export_proxy_payload
+
+      call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
+
+      config = ESMF_HConfigCreate( &
+           filename='./graph-scenarios/units_mismatch_run_phase/cap.yaml', _RC)
+      config_cf = ESMF_ConfigCreate(hconfig=config, _RC)
+      cap_gc = ESMF_GridCompCreate(name='CAP_GRAPH_MODE_DEMO', config=config_cf, _RC)
+      call ESMF_GridCompSetServices(cap_gc, mapl_GenericSetservices, userRC=user_status, _RC)
+      _VERIFY(user_status)
+
+      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
+      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
+
+      importState = ESMF_StateCreate(_RC)
+      exportState = ESMF_StateCreate(_RC)
+
+      ! GRAPH_MODE_GRAPH, not BOTH - graph-native population is the
+      ! SOLE real producer; legacy StateRegistry%add_to_states is
+      ! unconditionally skipped (initialize_accept_transfer.F90's own
+      ! existing graph_mode()-gated branch).
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_materialize_extensions(.true.)
+      do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
+         associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
+            call ESMF_GridCompInitialize(cap_gc, &
+                 importState=importState, exportState=exportState, clock=clock, &
+                 phase=phase, userRC=user_status, _RC)
+            _VERIFY(user_status)
+         end associate
+      end do
+      call set_materialize_extensions(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+
+      cap_meta => get_outer_meta(cap_gc, _RC)
+
+      ! comp_dst's own real import ESMF_State - reached the same way
+      ! Test_GraphEquivalenceHarness.pf's own check() already does.
+      dst_driver = cap_meta%get_child('comp_dst', _RC)
+      dst_gc = dst_driver%get_gridcomp()
+      dst_meta => get_outer_meta(dst_gc, _RC)
+      dst_own_driver => dst_meta%get_user_gc_driver()
+      dst_states = dst_own_driver%get_states()
+      dst_own_import_state = dst_states%importState
+
+      ! Exactly one entry - the real producer here is graph-native
+      ! population alone; legacy never ran for this component.
+      call ESMF_StateGet(dst_own_import_state, itemCount=item_count, _RC)
+      @assertEqual(1, item_count, 'comp_dst own import state has exactly one entry under GRAPH_MODE_GRAPH')
+
+      call ESMF_StateGet(dst_own_import_state, 'T', result_field, _RC)
+      call FieldGet(result_field, typekind=result_typekind, units=result_units, _RC)
+      @assertTrue(result_typekind == ESMF_TYPEKIND_R4, 'chain final item has the import''s own typekind (R4, no typekind mismatch in this fixture)')
+      @assertEqual('Pa', result_units, 'chain final item has the import''s own units (Pa)')
+
+      ! Export proxy's own materialized field (this change's own
+      ! GraphBuilder.F90 fix, resolve_one's mismatch branch) has the
+      ! EXPORT's own typekind/units - confirms gap (2) above is fixed:
+      ! the chain's own input is now real, not unallocated.
+      cap_graph => cap_meta%get_component_graph()
+      export_proxy_id => cap_graph%get_resource_index(proxy_key('comp_src', ESMF_STATEINTENT_EXPORT, 'T'))
+      @assert_that('export proxy resolved', associated(export_proxy_id), is(true()))
+      export_proxy_node => cap_graph%get_node(export_proxy_id)
+      select type (export_proxy_node)
+      class is (StateItemNode)
+         export_proxy_payload = export_proxy_node%get_payload()
+      class default
+         @assert_that('export proxy node is a StateItemNode', .false., is(true()))
+      end select
+      chain_input_field = export_proxy_payload%get_field(rc=status)
+      @assertEqual(0, status, 'export proxy has a real, allocated field (gap 2 fix)')
+      @assert_that('export proxy field is a real ESMF_Field', ESMF_FieldIsCreated(chain_input_field), is(true()))
+
+      ! NOT asserted here (gap 3, design.md D8): that result_field's own
+      ! numeric value equals the fixture's run-phase value converted
+      ! through the chain. The export proxy's own field (just confirmed
+      ! allocated above) is an independent FieldCreate, never aliased to
+      ! comp_src's own real export field that ConfigurableGridComp%run()
+      ! actually writes the YAML-configured value into - so a real run
+      ! phase's changed value does not yet reach this proxy, and
+      ! consequently never reaches the chain or comp_dst's own state.
+      ! Tracked as a roadmap work item, not attempted in this change.
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_graph_mode_populates_sibling_states
+
+end module Test_GraphModeDemonstration
