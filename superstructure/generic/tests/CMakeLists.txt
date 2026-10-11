@@ -13,6 +13,18 @@ add_custom_target(copy_scenarios ALL
   VERBATIM
 )
 
+# Copy graph-scenarios directory to build directory at build time
+# (sibling to scenarios/, graph-mode-equivalence fixtures only - see
+# openspec/changes/phase-10b-equivalence-harness proposal.md "New fixture
+# root"). Mirrors copy_scenarios above.
+add_custom_target(copy_graph_scenarios ALL
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/graph-scenarios
+    ${CMAKE_CURRENT_BINARY_DIR}/graph-scenarios
+  COMMENT "Copying graph-scenarios directory to build directory"
+  VERBATIM
+)
+
 # Copy field_dictionary_test.yaml to the binary dir so tests that call
 # load_field_dictionary can find it by relative path at runtime.
 configure_file(field_dictionary_test.yaml field_dictionary_test.yaml COPYONLY)
@@ -51,6 +63,7 @@ set(scenarios_test_srcs
   Test_Scenarios.pf
   Test_MemoryCheckpoint.pf
   Test_GraphBuilderEquivalence.pf
+  Test_GraphEquivalenceHarness.pf
 )
 
 add_pfunit_ctest(
@@ -66,7 +79,7 @@ add_pfunit_ctest(
 # directories distinct so Ninja has only one producer for each .mod file.
 set_target_properties(MAPL.generic.scenarios PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/scenarios")
 set_tests_properties(MAPL.generic.scenarios PROPERTIES LABELS "ESSENTIAL")
-add_dependencies(MAPL.generic.scenarios proto_extdata_gc proto_stat_gc copy_scenarios)
+add_dependencies(MAPL.generic.scenarios proto_extdata_gc proto_stat_gc copy_scenarios copy_graph_scenarios)
 
 # 2. MAPL.generic.transforms - Data transformation tests
 set(transforms_test_srcs

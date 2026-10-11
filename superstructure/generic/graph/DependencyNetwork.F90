@@ -240,9 +240,7 @@ contains
       type(NodeId), pointer :: node, other
       type(NodeIdSet), pointer :: neighbor_set, reverse_set
 
-      _HERE
       all_ids = collect_referenced_ids(this)
-      _HERE
       ! REQ-DEP-007 item 2: all referenced ids are owned by the graph.
       if (present(valid_ids)) then
          set_iter = all_ids%ftn_begin()
@@ -253,7 +251,6 @@ contains
             _ASSERT(valid_ids%count(node) > 0, 'DependencyNetwork: validate found a NodeId not owned by the graph')
          end do
       end if
-      _HERE
 
       ! REQ-DEP-007 item 3: no self-dependencies.
       map_iter = this%successors_map%ftn_begin()
@@ -265,7 +262,6 @@ contains
          _ASSERT(neighbor_set%count(node) == 0, 'DependencyNetwork: validate found a self-dependency')
       end do
 
-      _HERE
       ! REQ-DEP-007 item 1: predecessor/successor symmetry, both directions.
       map_iter = this%successors_map%ftn_begin()
       do while (map_iter /= this%successors_map%ftn_end())
@@ -284,7 +280,6 @@ contains
          end do
       end do
 
-      _HERE
       map_iter = this%predecessors_map%ftn_begin()
       do while (map_iter /= this%predecessors_map%ftn_end())
          call map_iter%next()
@@ -302,25 +297,16 @@ contains
          end do
       end do
 
-      _HERE, all_ids%size()
       ! REQ-DEP-007 item 4: acyclicity of the whole network.
       set_iter = all_ids%ftn_begin()
-      _HERE
       do while (set_iter /= all_ids%ftn_end())
-         _HERE
          call set_iter%next()
-         _HERE
          node => set_iter%of()
-         _HERE
-         _HERE, associated(node)
          _ASSERT(associated(node), 'DependencyNetwork: validate - iterator%of() unassociated')
-         _HERE
          if (visited%count(node) == 0) then
-            _HERE
             block
               logical :: flag
               flag = has_cycle_from(this, node, visiting, visited)
-              _HERE, flag
               ! has_cycle_from mutates visiting/visited - a second call
               ! for the same node would always short-circuit false via
               ! the visited%count(start_node) > 0 early-return, not
@@ -328,12 +314,9 @@ contains
               ! result instead of calling it again.
               _ASSERT(.not. flag, 'DependencyNetwork: validate found a cycle')
             end block
-            _HERE
          end if
-         _HERE
       end do
 
-      _HERE, present(producer_ids), present(state_item_ids)
       ! REQ-DEP-007 item 5 / REQ-DEP-008: at most one producer per state item.
       if (present(producer_ids) .and. present(state_item_ids)) then
          call validate_producer_counts(this, producer_ids, state_item_ids, rc=rc)
@@ -341,7 +324,6 @@ contains
             if (rc /= _SUCCESS) return
          end if
       end if
-      _HERE
 
       _RETURN(_SUCCESS)
    end subroutine network_validate

@@ -1,0 +1,309 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! openspec/changes/phase-10b-equivalence-harness: generalized,
+! fixture-driven both-mode equivalence harness. A parameterized pFUnit
+! suite - shaped like Test_Scenarios.pf's own
+! ScenarioDescription/testParameter machinery - that runs each covered
+! fixture once through the standard MAPL init-phase sequence under
+! GRAPH_MODE_BOTH and asserts both equivalence checks generically
+! (design.md "One parameterized pFUnit test case ... performs both
+! equivalence checks ... generically, driven by a per-fixture
+! description"), rather than one hand-written subroutine per fixture
+! (the pattern Test_GraphBuilderEquivalence.pf's own two existing
+! @test(npes=[0]) subroutines use).
+!
+! Deliberately a separate file/module from Test_GraphBuilderEquivalence.pf
+! - a deviation from design.md's own "New @testParameter/@testCase pair
+! in Test_GraphBuilderEquivalence.pf itself, not a new file" wording,
+! recorded here rather than silently worked around. pFUnit's preprocessor
+! generates exactly one testcase-wrapper type per module, keyed off
+! whichever @testCase type that module declares; adding EquivalenceFixture
+! as a second @testCase alongside the existing @test(npes=[0])
+! MpiTestMethod-based subroutines in the same file causes the generated
+! driver to force EquivalenceFixture as the `this` argument into those
+! existing subroutines too, which expect MpiTestMethod - a real compile
+! error (NAG), not a design-time guess. A new, dedicated file is the only
+! option that satisfies both of design.md's own constraints at once: "No
+! change to the two existing hand-written tests" and the new testParameter/
+! testCase type living in a .pf file scoped to this harness. Both files
+! build into the same MAPL.generic.scenarios pFUnit executable (CMakeLists.txt),
+! share one WORKING_DIRECTORY, and this file's own fixtures continue to
+! live under graph-scenarios/ exactly as design.md/proposal.md specify.
+module Test_GraphEquivalenceHarness
+
+   use mapl_Generic_mod
+   use mapl_GenericPhases_mod
+   use mapl_MultiState_mod
+   use mapl_OuterMetaComponent_mod
+   use mapl_GraphBuilder_mod, only: proxy_key
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_BOTH, GRAPH_MODE_REGISTRY
+   use mapl_FieldGet_mod, only: FieldGet
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_Generic_api, only: mapl_GenericSetServices
+   use esmf
+   use nuopc
+   ! ESMF_TestCase/ESMF_TestParameter machinery (Test_Scenarios.pf's own
+   ! ScenarioDescription/Scenario shape) - this file's sole @testCase.
+   use ESMF_TestCase_mod
+   use ESMF_TestParameter_mod
+   use funit
+   implicit none(type, external)
+
+   ! graph-scenarios/ is reserved for fixtures exercised under
+   ! GRAPH_MODE_BOTH that assert graph-side payload parity against the
+   ! legacy (registry-mode) oracle. Every other fixture (including the
+   ! two pre-existing graphbuilder_equivalence* ones used by
+   ! Test_GraphBuilderEquivalence.pf's own two @test(npes=[0])
+   ! subroutines) stays under scenarios/ instead - proposal.md "New
+   ! fixture root, separate from scenarios/".
+
+   @testParameter
+   type, extends(ESMF_TestParameter) :: EquivalenceFixtureDescription
+      character(:), allocatable :: name
+      character(:), allocatable :: root
+      character(:), allocatable :: connection_short_name
+      logical :: has_run_phase
+   contains
+      procedure :: tostring => tostring_equivalence_fixture_description
+   end type EquivalenceFixtureDescription
+
+   @testCase(constructor=new_EquivalenceFixture, testParameters={get_equivalence_fixtures()})
+   type, extends(ESMF_TestCase) :: EquivalenceFixture
+      character(:), allocatable :: fixture_name
+      character(:), allocatable :: fixture_root
+      character(:), allocatable :: connection_short_name
+      logical :: has_run_phase
+
+      type(ESMF_GridComp) :: cap_gc
+      type(OuterMetaComponent), pointer :: cap_meta
+   contains
+      procedure :: setup => equivalence_fixture_setup
+      procedure :: tearDown => equivalence_fixture_teardown
+   end type EquivalenceFixture
+
+   interface EquivalenceFixtureDescription
+      procedure :: new_EquivalenceFixtureDescription
+   end interface EquivalenceFixtureDescription
+
+contains
+
+   function new_EquivalenceFixtureDescription(name, root, connection_short_name, has_run_phase) result(d)
+      type(EquivalenceFixtureDescription) :: d
+      character(*), intent(in) :: name
+      character(*), intent(in) :: root
+      character(*), intent(in) :: connection_short_name
+      logical, intent(in) :: has_run_phase
+
+      d%name = name
+      d%root = root
+      d%connection_short_name = connection_short_name
+      d%has_run_phase = has_run_phase
+
+      call d%setNumPETsRequested(0)
+   end function new_EquivalenceFixtureDescription
+
+   function tostring_equivalence_fixture_description(this) result(s)
+      character(:), allocatable :: s
+      class(EquivalenceFixtureDescription), intent(in) :: this
+
+      s = this%name
+   end function tostring_equivalence_fixture_description
+
+   function new_EquivalenceFixture(desc) result(f)
+      type(EquivalenceFixtureDescription), intent(in) :: desc
+      type(EquivalenceFixture) :: f
+
+      f%fixture_name = desc%name
+      f%fixture_root = desc%root
+      f%connection_short_name = desc%connection_short_name
+      f%has_run_phase = desc%has_run_phase
+   end function new_EquivalenceFixture
+
+   ! Task 3.3: the three covered fixtures from Task 1 - plain_field
+   ! (has_run_phase=.true., the only fixture whose data value is compared
+   ! after a run phase - design.md "Run-phase value comparison is scoped
+   ! to the plain_field fixture only"), vertical_field and ungridded_dims
+   ! (both has_run_phase=.false., static init-phase-only fixtures).
+   function get_equivalence_fixtures() result(params)
+      type(EquivalenceFixtureDescription), allocatable :: params(:)
+
+      params = [ &
+           EquivalenceFixtureDescription('plain_field',    'cap.yaml', 'T', .true.),  &
+           EquivalenceFixtureDescription('vertical_field', 'cap.yaml', 'T', .false.), &
+           EquivalenceFixtureDescription('ungridded_dims', 'cap.yaml', 'T', .false.)  &
+           ]
+   end function get_equivalence_fixtures
+
+   ! Task 4.1: setup lifted directly from
+   ! Test_GraphBuilderEquivalence.pf's own
+   ! test_both_mode_materializes_without_legacy_collision working body
+   ! (design.md Risks mitigation), parameterized on
+   ! this%fixture_name/this%fixture_root (-> './graph-scenarios/' //
+   ! name // '/' // root, the new, separate fixture root - proposal.md
+   ! "New fixture root") instead of a fixed
+   ! './scenarios/graphbuilder_equivalence/cap.yaml' path. GRAPH_MODE_BOTH
+   ! is reset to GRAPH_MODE_REGISTRY unconditionally right after the
+   ! init-phase loop, before any assertion runs - same ordering as that
+   ! existing hand-written test.
+   subroutine equivalence_fixture_setup(this)
+      class(EquivalenceFixture), intent(inout) :: this
+
+      type(ESMF_HConfig) :: config
+      type(ESMF_Config) :: config_cf
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: t0, t1
+      type(ESMF_TimeInterval) :: dt
+      integer :: status, user_status, i
+      character(:), allocatable :: file_name
+
+      call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
+
+      file_name = './graph-scenarios/' // this%fixture_name // '/' // this%fixture_root
+      config = ESMF_HConfigCreate(filename=file_name, _RC)
+      config_cf = ESMF_ConfigCreate(hconfig=config, _RC)
+      this%cap_gc = ESMF_GridCompCreate(name='CAP_EQUIVALENCE_' // this%fixture_name, config=config_cf, _RC)
+      call ESMF_GridCompSetServices(this%cap_gc, mapl_GenericSetservices, userRC=user_status, _RC)
+      _VERIFY(user_status)
+
+      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
+      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
+
+      importState = ESMF_StateCreate(_RC)
+      exportState = ESMF_StateCreate(_RC)
+
+      call set_graph_mode(GRAPH_MODE_BOTH)
+      do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
+         associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
+            call ESMF_GridCompInitialize(this%cap_gc, &
+                 importState=importState, exportState=exportState, clock=clock, &
+                 phase=phase, userRC=user_status, _RC)
+            _VERIFY(user_status)
+         end associate
+      end do
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+
+      ! Run the fixture's own GENERIC_RUN_USER phase only when
+      ! has_run_phase is true (plain_field only) - comp_src's own 'run:'
+      ! section sets the known data value this harness later compares
+      ! (Task 4.5), and run_children_phases_ (ConfigurableGridComp)
+      ! propagates GENERIC_RUN_USER down to comp_dst as well.
+      if (this%has_run_phase) then
+         call ESMF_GridCompRun(this%cap_gc, &
+              importState=importState, exportState=exportState, clock=clock, &
+              phase=GENERIC_RUN_USER, userRC=user_status, _RC)
+         _VERIFY(user_status)
+      end if
+
+      this%cap_meta => get_outer_meta(this%cap_gc, _RC)
+   end subroutine equivalence_fixture_setup
+
+   subroutine equivalence_fixture_teardown(this)
+      class(EquivalenceFixture), intent(inout) :: this
+
+      ! Mirrors Test_Scenarios.pf's own teardown (ESMF object destruction
+      ! intentionally deferred - see that file's own comment).
+      _UNUSED_DUMMY(this)
+   end subroutine equivalence_fixture_teardown
+
+   ! Task 4.2-4.4: the one generic @test subroutine, driven entirely by
+   ! this%fixture_name/this%connection_short_name - no per-check-type
+   ! branching (design.md "Both equivalence checks ... run
+   ! unconditionally inside this one subroutine for every parameter
+   ! value"). Data-value comparison after a run phase (originally task
+   ! 4.5) was dropped during implementation - both mode structurally
+   ! never writes a run phase's output into the graph-native field (see
+   ! design.md "Run-phase value comparison was dropped from this
+   ! sub-change's own scope"; spec.md no longer requires it). This
+   ! subroutine no longer reads this%has_run_phase at all (only the
+   ! dropped branch did); plain_field's own run phase still executes in
+   ! equivalence_fixture_setup above regardless, so the fixture itself
+   ! stays valid, reusable coverage for a future graph-mode-alone
+   ! sub-change.
+   @test
+   subroutine check(this)
+      class(EquivalenceFixture), intent(inout) :: this
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: dst_meta
+      type(GriddedComponentDriver) :: dst_driver, dst_user_driver
+      type(ESMF_GridComp) :: dst_gc
+      type(MultiState) :: dst_user_states
+      type(ESMF_State) :: dst_import_state
+      type(ESMF_Field) :: legacy_field, graph_field
+      integer :: item_count
+
+      type(ComponentGraph), pointer :: cap_graph
+      type(NodeId), pointer :: export_proxy
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: export_payload
+
+      type(ESMF_TypeKind_Flag) :: legacy_typekind, graph_typekind
+      character(:), allocatable :: legacy_units, graph_units
+      type(ESMF_Geom), allocatable :: legacy_geom, graph_geom
+      integer :: legacy_rank, graph_rank
+
+      associate (name => this%connection_short_name)
+
+      ! --- Task 4.2: no-leak check. Legacy's own real import ESMF_State
+      ! on comp_dst still contains exactly one entry (same as
+      ! GRAPH_MODE_REGISTRY would produce) - no additional or duplicate
+      ! entry contributed by graph-native materialization. ---
+      dst_driver = this%cap_meta%get_child('comp_dst', _RC)
+      dst_gc = dst_driver%get_gridcomp()
+      dst_meta => get_outer_meta(dst_gc, _RC)
+      dst_user_driver = dst_meta%get_user_gc_driver()
+      dst_user_states = dst_user_driver%get_states()
+      call dst_user_states%get_state(dst_import_state, 'import', _RC)
+      call ESMF_StateGet(dst_import_state, name, legacy_field, _RC)
+      @assert_that(this%fixture_name // ' :: legacy field exists', &
+           ESMF_FieldIsCreated(legacy_field), is(true()))
+      call ESMF_StateGet(dst_import_state, itemCount=item_count, _RC)
+      @assertEqual(1, item_count, this%fixture_name // ' :: no leaked state entry')
+
+      ! --- Task 4.3: payload-parity check. Resolve the export's own
+      ! graph-native proxy node and compare its materialized payload's
+      ! typekind/units/geom against the legacy oracle field above. ---
+      cap_graph => this%cap_meta%get_component_graph()
+      export_proxy => cap_graph%get_resource_index(proxy_key('comp_src', ESMF_STATEINTENT_EXPORT, name))
+      @assert_that(this%fixture_name // ' :: export proxy resolved', associated(export_proxy), is(true()))
+
+      node => cap_graph%get_node(export_proxy)
+      select type (node)
+      class is (StateItemNode)
+         export_payload = node%get_payload()
+      class default
+         @assert_that(this%fixture_name // ' :: export node is a StateItemNode', .false., is(true()))
+      end select
+      @assertTrue(export_payload%itemType(rc=status) == ESMF_STATEITEM_FIELD)
+      @assertEqual(0, status)
+
+      graph_field = export_payload%get_field(rc=status)
+      @assertEqual(0, status)
+
+      call FieldGet(legacy_field, typekind=legacy_typekind, units=legacy_units, geom=legacy_geom, _RC)
+      call FieldGet(graph_field, typekind=graph_typekind, units=graph_units, geom=graph_geom, _RC)
+      @assertTrue(legacy_typekind == graph_typekind, this%fixture_name // ' :: typekind parity')
+      @assertEqual(legacy_units, graph_units, this%fixture_name // ' :: units parity')
+      @assert_that(this%fixture_name // ' :: geom parity', legacy_geom == graph_geom, is(true()))
+
+      ! --- Task 4.4: rank/shape comparison via plain ESMF_FieldGet
+      ! (FieldGet does not report shape directly - design.md "Shape/value
+      ! parity is read via FieldGet, not raw ESMF_FieldGet" + a second,
+      ! ordinary ESMF_FieldGet call). ---
+      call ESMF_FieldGet(legacy_field, rank=legacy_rank, _RC)
+      call ESMF_FieldGet(graph_field, rank=graph_rank, _RC)
+      @assertEqual(legacy_rank, graph_rank, this%fixture_name // ' :: rank parity')
+
+      end associate
+   end subroutine check
+
+end module Test_GraphEquivalenceHarness
