@@ -1248,9 +1248,33 @@ reordering of existing phase numbers to match dependency order.
   interpreted path only.
 
 **Explicitly out of scope, named as prerequisites rather than
-reopened.** Two gaps this phase's own fixture set deliberately does not
-attempt to unblock, each already named elsewhere in this document:
+reopened.** Three gaps this phase's own fixture set deliberately does not
+attempt to unblock, each already named elsewhere in this document (the
+third discovered, not merely deferred, during 10b's own implementation):
 
+- **`graph`-mode-alone cross-component population is not yet
+  implemented, confirmed by direct experiment during 10b.** 10a's own
+  "demonstrate before replace" framing (10a entry above) assumes `both`
+  mode validates the materialization/comparison logic before anyone
+  switches a fixture's selector to `GRAPH_MODE_GRAPH` alone. Attempting
+  exactly that switch on 10b's own flat two-sibling `plain_field`
+  fixture (`comp_src`/`comp_dst`, no re-export at the `cap` level) fails
+  immediately at `ESMF_StateAdd` (`ESMF_RC_ARG_INCOMP`,
+  `GraphBuilder.F90` `populate_one`): `graphbuilder_populate_state()`'s
+  "ordinary cross-component case" only ever inserts a resolved field
+  into the *parent*'s own `tmp_states`/`outer_states` (the states
+  `initialize_accept_transfer.F90` builds for `cap` itself), never into
+  either sibling's own real export/import `ESMF_State` — correct only
+  for an actual re-export the parent itself declares, which this loop
+  does not check for before inserting. No code path exists today that
+  populates a sibling-to-sibling connection's own real `ESMF_State`
+  under `GRAPH_MODE_GRAPH`. Not filed as its own `openspec` change yet;
+  blocks any future sub-change (10c/10d or Phase 6 itself) from
+  actually flipping a fixture to `graph`-mode-alone until a real fix
+  lands in `graphbuilder_populate_state()`/`populate_one` — the same
+  "validated, not merely built" bar §20.4.2's own Phase 6 entry
+  criterion already requires, now with a concrete, reproducible failure
+  to point to instead of an unverified assumption.
 - **Cross-component unresolved-import propagation (3b2)** — named a
   required, committed follow-up in §20.4.1 but never actually filed as
   its own `openspec` change; `graphbuilder_check_unsatisfied_imports()`'s
