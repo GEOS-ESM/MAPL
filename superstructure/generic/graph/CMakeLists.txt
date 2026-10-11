@@ -60,6 +60,8 @@ target_sources(MAPL.generic PRIVATE
   VerticalGridCharacteristic.F90
   GeomCharacteristic.F90
   UnitsConverterTransform.F90
+  TypeKindConverterTransform.F90
+  TypeKindCharacteristicAdapter.F90
   ExtensionResolution.F90
   ExtensionMaterialization.F90
 

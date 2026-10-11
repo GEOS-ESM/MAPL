@@ -169,10 +169,11 @@ module mapl_GraphBuilder_mod
    use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
    use mapl_Characteristic_mod, only: CharacteristicMap
    use mapl_CharacteristicId_mod, only: CharacteristicId, UNITS_CHARACTERISTIC_ID, VERTICAL_GRID_CHARACTERISTIC_ID, &
-        GEOM_CHARACTERISTIC_ID
+        GEOM_CHARACTERISTIC_ID, TYPE_KIND_CHARACTERISTIC_ID
    use mapl_UnitsCharacteristic_mod, only: UnitsCharacteristic
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
    use mapl_GeomCharacteristic_mod, only: GeomCharacteristic
+   use mapl_TypeKindCharacteristicAdapter_mod, only: TypeKindCharacteristicAdapter
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain, &
         materialize_extensions_enabled
    use mapl_ExtensionMaterialization_mod, only: materialize_field_extension
@@ -889,6 +890,17 @@ contains
       if (allocated(var_spec%units)) then
          call characteristics%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic(var_spec%units))
       end if
+      ! openspec/changes/phase-10c-typekind-characteristic, design.md D3:
+      ! unlike units, VariableSpec%typekind is a non-allocatable field
+      ! with a default (ESMF_TYPEKIND_R4) - every VariableSpec always
+      ! has SOME typekind, so there is no "not declared" state to gate
+      ! on the way `allocated(var_spec%units)` gates the branch above.
+      ! Inserted unconditionally; see design.md D3 for the regression
+      ! argument (an exact-match connection's two sides already agree by
+      ! construction in every existing fixture, so this adds a real but
+      ! always-no-op comparison for them, changing no existing resolved
+      ! result).
+      call characteristics%insert(TYPE_KIND_CHARACTERISTIC_ID, TypeKindCharacteristicAdapter(var_spec%typekind))
       if (allocated(var_spec%vertical_grid)) then
          ! VerticalGrid%get_id() returns an integer identity token;
          ! VerticalGridCharacteristic compares an opaque string
@@ -1242,11 +1254,21 @@ contains
          vert_staggerloc = VERTICAL_STAGGER_CENTER
          if (allocated(export_var_spec%vertical_stagger)) vert_staggerloc = export_var_spec%vertical_stagger
 
-         call materialize_field_extension(graph, node_id, geom=geom, typekind=export_var_spec%typekind, &
+         ! openspec/changes/phase-10c-typekind-characteristic, design.md
+         ! D4: typekind=import_var_spec%typekind (not export_var_spec%),
+         ! matching the existing units=import_var_spec%units precedent
+         ! immediately below - the materialized item's real payload must
+         ! match what the IMPORT requires, not what the export happened
+         ! to produce. Fixes a latent bug: before this change, a
+         ! mismatch-chain's final extension item was materialized with
+         ! the export's own typekind, defeating the cast the chain was
+         ! built to perform (no fixture ever exercised this path before
+         ! typekind had a registered extension provider).
+         call materialize_field_extension(graph, node_id, geom=geom, typekind=import_var_spec%typekind, &
               units=import_var_spec%units, ungridded_dims=export_var_spec%ungridded_dims, &
               vgrid=vgrid, vert_staggerloc=vert_staggerloc, name=name, _RC)
       else
-         call materialize_field_extension(graph, node_id, geom=geom, typekind=export_var_spec%typekind, &
+         call materialize_field_extension(graph, node_id, geom=geom, typekind=import_var_spec%typekind, &
               units=import_var_spec%units, ungridded_dims=export_var_spec%ungridded_dims, name=name, _RC)
       end if
 

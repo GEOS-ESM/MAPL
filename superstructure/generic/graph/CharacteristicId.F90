@@ -22,6 +22,7 @@ module mapl_CharacteristicId_mod
    public :: UNITS_CHARACTERISTIC_ID
    public :: VERTICAL_GRID_CHARACTERISTIC_ID
    public :: GEOM_CHARACTERISTIC_ID
+   public :: TYPE_KIND_CHARACTERISTIC_ID
    public :: INVALID_CHARACTERISTIC_ID
    public :: MOCK_CHARACTERISTIC_ID
 
@@ -36,6 +37,7 @@ module mapl_CharacteristicId_mod
    type(CharacteristicId), parameter :: UNITS_CHARACTERISTIC_ID = CharacteristicId(1)
    type(CharacteristicId), parameter :: VERTICAL_GRID_CHARACTERISTIC_ID = CharacteristicId(2)
    type(CharacteristicId), parameter :: GEOM_CHARACTERISTIC_ID = CharacteristicId(3)
+   type(CharacteristicId), parameter :: TYPE_KIND_CHARACTERISTIC_ID = CharacteristicId(4)
 
    ! Test-only, mirrors AspectId.F90's own MOCK_ASPECT_ID precedent -
    ! lets a test define a fake Characteristic subclass without
@@ -67,6 +69,8 @@ contains
          s = "VERTICAL_GRID"
       case (GEOM_CHARACTERISTIC_ID%id)
          s = "GEOM"
+      case (TYPE_KIND_CHARACTERISTIC_ID%id)
+         s = "TYPE_KIND"
       case (MOCK_CHARACTERISTIC_ID%id)
          s = "MOCK"
       case default

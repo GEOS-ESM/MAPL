@@ -38,11 +38,14 @@ module Test_GraphEquivalenceHarness
    use mapl_OuterMetaComponent_mod
    use mapl_GraphBuilder_mod, only: proxy_key
    use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
    use mapl_NodeId_mod, only: NodeId
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_BOTH, GRAPH_MODE_REGISTRY
+   use mapl_ExtensionResolution_mod, only: set_materialize_extensions
    use mapl_FieldGet_mod, only: FieldGet
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_Generic_api, only: mapl_GenericSetServices
@@ -125,18 +128,25 @@ contains
       f%has_run_phase = desc%has_run_phase
    end function new_EquivalenceFixture
 
-   ! Task 3.3: the three covered fixtures from Task 1 - plain_field
+   ! Task 3.3: the four covered fixtures from Task 1 - plain_field
    ! (has_run_phase=.true., the only fixture whose data value is compared
    ! after a run phase - design.md "Run-phase value comparison is scoped
    ! to the plain_field fixture only"), vertical_field and ungridded_dims
    ! (both has_run_phase=.false., static init-phase-only fixtures).
+   ! units_and_typekind_mismatch (openspec/changes/
+   ! phase-10c-typekind-characteristic) adds a fourth, also
+   ! has_run_phase=.false. (static), fixture whose connection is resolved
+   ! through a real two-characteristic extension chain rather than
+   ! directly - check() below gates one additional assertion block on
+   ! this fixture's own name (design.md D6).
    function get_equivalence_fixtures() result(params)
       type(EquivalenceFixtureDescription), allocatable :: params(:)
 
       params = [ &
            EquivalenceFixtureDescription('plain_field',    'cap.yaml', 'T', .true.),  &
            EquivalenceFixtureDescription('vertical_field', 'cap.yaml', 'T', .false.), &
-           EquivalenceFixtureDescription('ungridded_dims', 'cap.yaml', 'T', .false.)  &
+           EquivalenceFixtureDescription('ungridded_dims', 'cap.yaml', 'T', .false.), &
+           EquivalenceFixtureDescription('units_and_typekind_mismatch', 'cap.yaml', 'T', .false.) &
            ]
    end function get_equivalence_fixtures
 
@@ -181,6 +191,17 @@ contains
       exportState = ESMF_StateCreate(_RC)
 
       call set_graph_mode(GRAPH_MODE_BOTH)
+      ! openspec/changes/phase-10c-typekind-characteristic, design.md D6
+      ! (second correction): without this, resolve_one's mismatch
+      ! branch (GraphBuilder.F90) never materializes a real payload for
+      ! units_and_typekind_mismatch's own connection - neither the
+      ! export (that's the exact-match branch's own job, gated on
+      ! graph_mode() alone) nor the chain's final item (gated on this
+      ! flag too). Mirrors Test_GraphBuilderEquivalence.pf's own
+      ! existing set_materialize_extensions usage; harmless for the
+      ! three existing exact-match fixtures, which never take the
+      ! mismatch branch this flag gates.
+      call set_materialize_extensions(.true.)
       do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
          associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
             call ESMF_GridCompInitialize(this%cap_gc, &
@@ -189,6 +210,7 @@ contains
             _VERIFY(user_status)
          end associate
       end do
+      call set_materialize_extensions(.false.)
       call set_graph_mode(GRAPH_MODE_REGISTRY)
 
       ! Run the fixture's own GENERIC_RUN_USER phase only when
@@ -271,39 +293,113 @@ contains
 
       ! --- Task 4.3: payload-parity check. Resolve the export's own
       ! graph-native proxy node and compare its materialized payload's
-      ! typekind/units/geom against the legacy oracle field above. ---
+      ! typekind/units/geom against the legacy oracle field above.
+      ! openspec/changes/phase-10c-typekind-characteristic, design.md D6
+      ! (second correction): this whole block is scoped to an
+      ! exact-match connection (per this change's own
+      ! graph/equivalence-harness spec delta, "Static attributes agree
+      ! before any run phase" is an exact-match-connection scenario) -
+      ! for units_and_typekind_mismatch, resolve_one's mismatch branch
+      ! (GraphBuilder.F90) never materializes the export's own node at
+      ! all (only the chain's final item is materialized, checked
+      ! separately below), so export_payload%itemType() has nothing
+      ! real to query. ---
       cap_graph => this%cap_meta%get_component_graph()
-      export_proxy => cap_graph%get_resource_index(proxy_key('comp_src', ESMF_STATEINTENT_EXPORT, name))
-      @assert_that(this%fixture_name // ' :: export proxy resolved', associated(export_proxy), is(true()))
+      if (this%fixture_name /= 'units_and_typekind_mismatch') then
+         export_proxy => cap_graph%get_resource_index(proxy_key('comp_src', ESMF_STATEINTENT_EXPORT, name))
+         @assert_that(this%fixture_name // ' :: export proxy resolved', associated(export_proxy), is(true()))
 
-      node => cap_graph%get_node(export_proxy)
-      select type (node)
-      class is (StateItemNode)
-         export_payload = node%get_payload()
-      class default
-         @assert_that(this%fixture_name // ' :: export node is a StateItemNode', .false., is(true()))
-      end select
-      @assertTrue(export_payload%itemType(rc=status) == ESMF_STATEITEM_FIELD)
-      @assertEqual(0, status)
+         node => cap_graph%get_node(export_proxy)
+         select type (node)
+         class is (StateItemNode)
+            export_payload = node%get_payload()
+         class default
+            @assert_that(this%fixture_name // ' :: export node is a StateItemNode', .false., is(true()))
+         end select
+         @assertTrue(export_payload%itemType(rc=status) == ESMF_STATEITEM_FIELD)
+         @assertEqual(0, status)
 
-      graph_field = export_payload%get_field(rc=status)
-      @assertEqual(0, status)
+         graph_field = export_payload%get_field(rc=status)
+         @assertEqual(0, status)
 
-      call FieldGet(legacy_field, typekind=legacy_typekind, units=legacy_units, geom=legacy_geom, _RC)
-      call FieldGet(graph_field, typekind=graph_typekind, units=graph_units, geom=graph_geom, _RC)
-      @assertTrue(legacy_typekind == graph_typekind, this%fixture_name // ' :: typekind parity')
-      @assertEqual(legacy_units, graph_units, this%fixture_name // ' :: units parity')
-      @assert_that(this%fixture_name // ' :: geom parity', legacy_geom == graph_geom, is(true()))
+         call FieldGet(legacy_field, typekind=legacy_typekind, units=legacy_units, geom=legacy_geom, _RC)
+         call FieldGet(graph_field, typekind=graph_typekind, units=graph_units, geom=graph_geom, _RC)
+         @assertTrue(legacy_typekind == graph_typekind, this%fixture_name // ' :: typekind parity')
+         @assertEqual(legacy_units, graph_units, this%fixture_name // ' :: units parity')
+         @assert_that(this%fixture_name // ' :: geom parity', legacy_geom == graph_geom, is(true()))
 
-      ! --- Task 4.4: rank/shape comparison via plain ESMF_FieldGet
-      ! (FieldGet does not report shape directly - design.md "Shape/value
-      ! parity is read via FieldGet, not raw ESMF_FieldGet" + a second,
-      ! ordinary ESMF_FieldGet call). ---
-      call ESMF_FieldGet(legacy_field, rank=legacy_rank, _RC)
-      call ESMF_FieldGet(graph_field, rank=graph_rank, _RC)
-      @assertEqual(legacy_rank, graph_rank, this%fixture_name // ' :: rank parity')
+         ! --- Task 4.4: rank/shape comparison via plain ESMF_FieldGet
+         ! (FieldGet does not report shape directly - design.md "Shape/value
+         ! parity is read via FieldGet, not raw ESMF_FieldGet" + a second,
+         ! ordinary ESMF_FieldGet call). ---
+         call ESMF_FieldGet(legacy_field, rank=legacy_rank, _RC)
+         call ESMF_FieldGet(graph_field, rank=graph_rank, _RC)
+         @assertEqual(legacy_rank, graph_rank, this%fixture_name // ' :: rank parity')
+      end if
+
+      ! --- openspec/changes/phase-10c-typekind-characteristic, design.md
+      ! D6: for the one fixture whose connection is resolved through a
+      ! real two-characteristic extension chain, additionally verify the
+      ! chain's FINAL item - not merely the original export - has the
+      ! typekind/units the import actually declared. Resolved via
+      ! proxy_key on the import side (a general proxy/local-item lookup,
+      ! not export-specific) plus the import node's sole predecessor in
+      ! the graph's default DependencyNetwork - the same
+      ! get_predecessors-on-the-default-network pattern
+      ! Test_GraphBuilder.pf already uses to walk a resolved
+      ! connection's own chain. ---
+      if (this%fixture_name == 'units_and_typekind_mismatch') then
+         call check_chain_final_item(this, cap_graph, name, _RC)
+      end if
 
       end associate
    end subroutine check
+
+   ! openspec/changes/phase-10c-typekind-characteristic, design.md D6.
+   subroutine check_chain_final_item(this, cap_graph, name, rc)
+      class(EquivalenceFixture), intent(in) :: this
+      type(ComponentGraph), pointer, intent(in) :: cap_graph
+      character(*), intent(in) :: name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(NodeId), pointer :: import_node_id
+      type(DependencyNetwork), pointer :: net
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: pred_iter
+      type(NodeId) :: chain_final_id
+      class(GraphNode), pointer :: chain_final_node
+      type(GraphStateItem) :: chain_final_payload
+      type(ESMF_Field) :: chain_final_field
+      type(ESMF_TypeKind_Flag) :: chain_final_typekind
+      character(:), allocatable :: chain_final_units
+
+      import_node_id => cap_graph%get_resource_index(proxy_key('comp_dst', ESMF_STATEINTENT_IMPORT, name))
+      @assert_that(this%fixture_name // ' :: import proxy resolved', associated(import_node_id), is(true()))
+
+      net => cap_graph%get_network(cap_graph%get_default_network_id())
+      preds = net%get_predecessors(import_node_id)
+      @assertEqual(1, preds%size(), this%fixture_name // ' :: import has exactly one predecessor (the chain''s final item)')
+      pred_iter = preds%ftn_begin()
+      call pred_iter%next()
+      chain_final_id = pred_iter%of()
+
+      chain_final_node => cap_graph%get_node(chain_final_id)
+      select type (chain_final_node)
+      class is (StateItemNode)
+         chain_final_payload = chain_final_node%get_payload()
+      class default
+         @assert_that(this%fixture_name // ' :: chain final node is a StateItemNode', .false., is(true()))
+      end select
+
+      chain_final_field = chain_final_payload%get_field(rc=status)
+      @assertEqual(0, status)
+      call FieldGet(chain_final_field, typekind=chain_final_typekind, units=chain_final_units, _RC)
+      @assertTrue(chain_final_typekind == ESMF_TYPEKIND_R8, &
+           this%fixture_name // ' :: chain final item has the import''s own typekind (R8)')
+      @assertEqual('Pa', chain_final_units, this%fixture_name // ' :: chain final item has the import''s own units (Pa)')
+
+      _RETURN(_SUCCESS)
+   end subroutine check_chain_final_item
 
 end module Test_GraphEquivalenceHarness
