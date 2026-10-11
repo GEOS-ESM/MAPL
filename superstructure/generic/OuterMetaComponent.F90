@@ -16,6 +16,7 @@ module mapl_OuterMetaComponent_mod
    use mapl_GriddedComponentDriverMap_mod, only: GriddedComponentDriverMap
    use mapl_GriddedComponentDriverMap_mod, only: operator(/=)
    use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_NodeId_mod, only: NodeId, INVALID_NodeId
    use mapl_VerticalGrid_mod
    use mapl_SimpleAlarm_mod
    use gFTL2_StringVector
@@ -64,6 +65,23 @@ module mapl_OuterMetaComponent_mod
       ! §20.4.1).
       type(ComponentGraph) :: local_graph
 
+      ! openspec/changes/phase-10d-ordinary-phase-method-node: the
+      ! NodeId of the one run-phase MethodGraphNode GraphBuilder
+      ! constructs for this component (design.md D1/D2) - populated
+      ! once, under a non-registry graph mode, by
+      ! GraphBuilder%build_run_phase_node (called from
+      ! run_connect_hook). Nothing in this change ever invokes the
+      ! node this id identifies - construction only (proposal.md
+      ! Non-Goals). A NodeId is a tiny value type with its own
+      ! built-in "unset" sentinel (INVALID_NodeId/is_valid(),
+      ! BaseGraphNode.F90's own default-initialization precedent) -
+      ! never allocatable/pointer (CallbackMethodBinding%
+      ! get_method_node_id's own "return a plain NodeId by value"
+      ! precedent, not get_vertical_grid's pointer-to-a-polymorphic-
+      ! field precedent, which solves a different problem that does
+      ! not apply to a four-byte id).
+      type(NodeId) :: run_phase_method_node_id = INVALID_NodeId
+
       class(Logger), pointer :: lgr  => null() ! "MAPL.Generic" // name
 
       type(ComponentSpec)                         :: component_spec
@@ -86,6 +104,14 @@ module mapl_OuterMetaComponent_mod
       procedure :: get_geom_id
       procedure :: get_registry
       procedure :: get_component_graph
+      ! openspec/changes/phase-10d-ordinary-phase-method-node: accessor/
+      ! setter pair for the run-phase MethodGraphNode's own NodeId
+      ! (design.md D1) - setter used only by GraphBuilder.F90's own
+      ! construction step (graphbuilder_build_run_phase_node). Not
+      ! currently read by any invocation call site - construction only
+      ! (proposal.md Non-Goals).
+      procedure :: get_run_phase_method_node_id
+      procedure :: set_run_phase_method_node_id
       procedure :: get_logger
       procedure :: set_misc
       procedure :: set_checkpoint_controls_flags
@@ -556,6 +582,24 @@ module mapl_OuterMetaComponent_mod
          type(ComponentGraph), pointer :: local_graph
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_component_graph
+
+      ! openspec/changes/phase-10d-ordinary-phase-method-node: see
+      ! field-declaration comment above (run_phase_method_node_id).
+      ! Returns by value, not a pointer - a NodeId is a tiny value
+      ! type, not something worth guarding against the target
+      ! changing underneath a held pointer (CallbackMethodBinding%
+      ! get_method_node_id's own precedent). "Unset" is reported via
+      ! NodeId%is_valid(), not an association test.
+      module function get_run_phase_method_node_id(this) result(node_id)
+         type(NodeId) :: node_id
+         class(OuterMetaComponent), intent(in) :: this
+      end function get_run_phase_method_node_id
+
+      module subroutine set_run_phase_method_node_id(this, node_id, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         type(NodeId), intent(in) :: node_id
+         integer, optional, intent(out) :: rc
+      end subroutine set_run_phase_method_node_id
 
       module function get_component_spec(this) result(component_spec)
          type(ComponentSpec), pointer :: component_spec
