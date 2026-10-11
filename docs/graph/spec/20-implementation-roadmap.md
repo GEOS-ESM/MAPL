@@ -1383,6 +1383,83 @@ any run-phase-bearing, extension-chain-mediated production code path,
 alongside Phase 10d's own still-unresolved double-invocation hazard
 (§20.4.8's own "Explicitly out of scope," unaffected by this phase).
 
+### 20.4.10 Phase 11 sub-sequencing
+
+Phase 11, as recorded in §20.4.9 above, is a flat two-item list with no
+stated ordering, dependency relationship, or scope boundary between its
+two gaps — the same "too heterogeneous for one spec-driven change"
+problem Phase 3 (§20.4.1), Phase 4 (§20.4.3), Phase 5 (§20.4.4), and
+Phase 10 (§20.4.8) each hit before implementation started on them. This
+section extends §20.4.9's own gap inventory with that boundary; it does
+not renumber or restate §20.4.9's own gap descriptions, only names each
+gap's own sub-change scope, dependencies, and recommended order. See
+`openspec/changes/phase-11-sub-sequencing/proposal.md` - Why for the
+full rationale.
+
+Split into two sub-changes, confirmed independent of each other (neither
+needs the other's code to land first):
+
+- **11a. Export-side field aliasing** — closes §20.4.9's own second gap
+  (export-side proxy never aliased to the real export field a run phase
+  writes). Scope: give `try_materialize_field_extension`'s own
+  `export_node_id` call site (`GraphBuilder.F90`) the same "always alias
+  by name, never duplicate" treatment `populate_one` already applies on
+  the import side — a real `MAPL_NamedAlias` of the field a run phase
+  actually writes into, under the export item's own known `short_name`,
+  rather than today's independent `materialize_field_extension`
+  `FieldCreate`. Demonstrable immediately against the already-landed
+  `units_mismatch_run_phase` fixture (one-hop chain, so §20.4.9's own
+  first gap does not block it) — once landed, this alone completes
+  Phase 11's own stated goal (a real propagated run-phase value) for the
+  single-characteristic case. Depends only on landed
+  `graph-child-state-population` work (its own D1-D6 alias pattern, D7
+  pull hook, and the export-node materialization call site this
+  sub-change modifies) — no dependency on 11b.
+- **11b. Multi-hop extension-chain intermediate materialization** —
+  closes §20.4.9's own first gap (no materialized intermediate nodes).
+  Scope: change `find_or_build_extension_chain`'s own public interface
+  (`ExtensionResolution.F90`) to also return every intermediate `NodeId`
+  `build_chain` computes internally (not only `final_node_id`), and have
+  each of `GraphBuilder.F90`'s own four call sites materialize each
+  intermediate node with its own correctly-evolved typekind/units/geom —
+  mirroring `try_materialize_field_extension`'s existing per-node
+  materialization call. Needed before any two-or-more-characteristic
+  chain (e.g. `units_and_typekind_mismatch`) can execute `compute()` for
+  real without hitting `GraphStateItem: esmf_field is not allocated`.
+  Depends only on landed Phase 1-5/10 work (`ExtensionResolution.F90`,
+  `try_materialize_field_extension`) — no dependency on 11a's own code
+  path (a different call site in the same procedure).
+
+**Recommended order: 11a before 11b, but not a hard gate.** The two
+sub-changes touch disjoint code and neither's own correctness depends on
+the other having landed. The recommendation is about payoff order, not a
+technical dependency: 11a alone already completes Phase 11's own goal
+for the single-characteristic case, at zero chain-interface risk; 11b
+alone, without 11a, would let a multi-hop chain materialize cleanly but
+still could not demonstrate a *real* propagated value end-to-end,
+because the chain's own export-facing input would still be the
+independent, un-aliased `FieldCreate` 11a is scoped to fix. Both landing
+is what unlocks a real `units_and_typekind_mismatch`-style
+two-characteristic run-phase demonstration — the recommended order
+reaches that goal via the lower-interface-risk path first.
+
+**Neither sub-change reopens Phase 10d's own double-invocation hazard.**
+Both are state-materialization/aliasing concerns (what a `NodeId`'s own
+payload points to), not invocation-count concerns (how many times a
+`MethodGraphNode` or `GriddedComponentDriver%run()` fires) — unaffected
+by, and not re-litigating, `graph-child-state-population`'s own D7
+architectural-safety argument. Neither sub-change touches 3b2's
+cross-component unresolved-import propagation or Phase 7c's
+pattern-based fan-in either — both remain exactly as recorded in
+§20.4.8/§20.4.5, unrelated fixture families.
+
+**Repo/tooling note (extends §20.4.1's/§20.4.3's/§20.4.4's/§20.4.8's own
+notes).** Phase 11 code, for either sub-change, lives in the MAPL
+repo/checkout, same as Phase 3-5/10: both 11a and 11b build on landed
+Phase 1-5/10 MAPL-repo code (`GraphBuilder.F90`,
+`ExtensionResolution.F90`, `graph-child-state-population`'s own alias
+pattern), so no repo-separation saving (§20.2) applies here either.
+
 ## 20.5 Cross-reference
 
 This roadmap does not restate or supersede any requirement in `01`–`19`;
