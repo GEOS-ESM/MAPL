@@ -226,7 +226,8 @@ module mapl_GraphBuilder_mod
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_IMPORT, &
         ESMF_STATEINTENT_EXPORT
    use esmf, only: ESMF_Geom, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
-   use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateAddReplace
+   use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateAddReplace, ESMF_StateGet
+   use esmf, only: ESMF_STATEITEM_NOTFOUND
    use esmf, only: ESMF_Field
    use esmf, only: operator(==)
    use mapl_FieldNamedAlias_mod, only: MAPL_NamedAlias
@@ -761,6 +762,13 @@ contains
          integer :: status
          type(NodeId) :: import_node_id, export_node_id, final_node_id
          logical :: has_export
+         ! openspec/changes/phase-11a-export-field-aliasing: set by
+         ! try_alias_export_field at both of this procedure's own
+         ! export_node_id materialization call sites below - when
+         ! true, the alias already gives export_node_id a real field,
+         ! so the existing try_materialize_field_extension call at that
+         ! same site is skipped (D4).
+         logical :: alias_found
          type(VariableSpec), pointer :: export_var_spec
          type(CharacteristicMap), target :: export_characteristics, import_characteristics
          type(CharacteristicId), allocatable :: mismatched(:)
@@ -846,15 +854,34 @@ contains
             ! behavior change) in GRAPH_MODE_REGISTRY, this sub-change's
             ! default.
             if (graph_mode() /= GRAPH_MODE_REGISTRY) then
-               call try_materialize_field_extension(this, src_pt%component_name, export_var_spec, var_spec, &
-                    this_graph, export_node_id, materialization_failure, name=export_var_spec%short_name, _RC)
-               if (materialization_failure /= '') then
-                  ! Same distinguishable-failure reporting the mismatch
-                  ! branch below already uses - the edge above still
-                  ! exists (wiring succeeded; only payload materialization
-                  ! did not).
-                  call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
-                       materialization_failure))
+               ! openspec/changes/phase-11a-export-field-aliasing: try
+               ! the real alias first (D4) - if it succeeds, the node
+               ! already has a real field, same as comp_src's own real
+               ! export field; try_materialize_field_extension's own
+               ! FieldCreate path below is skipped entirely (calling it
+               ! afterward would silently overwrite the alias, defeating
+               ! the whole point). Observed (not just statically traced,
+               ! tasks.md 3.1), running Test_GraphModeDemonstration.pf's
+               ! own units_mismatch_run_phase fixture under a temporary
+               ! diagnostic print removed before this comment was
+               ! written: try_alias_export_field succeeds (found=.true.)
+               ! on every call for this fixture, including the FIRST
+               ! GENERIC_INIT_ACCEPT_TRANSFER pass - confirming design.md
+               ! D2's static trace; the FieldCreate fallback below is
+               ! never actually exercised for this fixture.
+               call try_alias_export_field(this, src_pt%component_name, export_var_spec, &
+                    this_graph, export_node_id, alias_found, _RC)
+               if (.not. alias_found) then
+                  call try_materialize_field_extension(this, src_pt%component_name, export_var_spec, var_spec, &
+                       this_graph, export_node_id, materialization_failure, name=export_var_spec%short_name, _RC)
+                  if (materialization_failure /= '') then
+                     ! Same distinguishable-failure reporting the mismatch
+                     ! branch below already uses - the edge above still
+                     ! exists (wiring succeeded; only payload materialization
+                     ! did not).
+                     call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+                          materialization_failure))
+                  end if
                end if
             end if
 
@@ -901,12 +928,24 @@ contains
          ! GRAPH_MODE_REGISTRY, matching every other new code path this
          ! change adds.
          if (graph_mode() /= GRAPH_MODE_REGISTRY) then
-            call try_materialize_field_extension(this, src_pt%component_name, export_var_spec, export_var_spec, &
-                 this_graph, export_node_id, materialization_failure, name=export_var_spec%short_name, _RC)
-            if (materialization_failure /= '') then
-               call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
-                    materialization_failure))
-               _RETURN(_SUCCESS)
+            ! openspec/changes/phase-11a-export-field-aliasing: same
+            ! guard, same skip-when-found treatment as the exact-match
+            ! branch above (D4) - no divergence between the two call
+            ! sites. export_var_spec is passed for both the "which
+            ! component/item to alias" argument and (unchanged, in the
+            ! fallback below) the typekind/units source - the chain's
+            ! own input node correctly uses the export's own values,
+            ! same as before this change.
+            call try_alias_export_field(this, src_pt%component_name, export_var_spec, &
+                 this_graph, export_node_id, alias_found, _RC)
+            if (.not. alias_found) then
+               call try_materialize_field_extension(this, src_pt%component_name, export_var_spec, export_var_spec, &
+                    this_graph, export_node_id, materialization_failure, name=export_var_spec%short_name, _RC)
+               if (materialization_failure /= '') then
+                  call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+                       materialization_failure))
+                  _RETURN(_SUCCESS)
+               end if
             end if
          end if
 
@@ -1338,6 +1377,80 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine try_materialize_field_extension
+
+   ! openspec/changes/phase-11a-export-field-aliasing, design.md D1/D2/
+   ! D3/D4/D5: materializes node_id's StateItemNode payload as a real
+   ! MAPL_NamedAlias of the export component's own real, already-
+   ! realized field - read directly off that component's own real
+   ! export ESMF_State via a plain ESMF_StateGet (no StateRegistry
+   ! involvement, D1) - instead of calling try_materialize_field_extension's
+   ! own FieldCreate path. Tried BEFORE try_materialize_field_extension at
+   ! both of resolve_one's own export_node_id call sites (D4): if
+   ! found is true here, the caller skips try_materialize_field_extension
+   ! entirely (the alias already gives the node a real field). If
+   ! found is false (the export's own real field is not yet available
+   ! by name - D2), this returns success, not an error, and the caller
+   ! falls back to today's unchanged try_materialize_field_extension
+   ! call.
+   subroutine try_alias_export_field(this, export_comp_name, export_var_spec, &
+        graph, node_id, found, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: export_comp_name
+      type(VariableSpec), intent(in) :: export_var_spec
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(NodeId), intent(in) :: node_id
+      logical, intent(out) :: found
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(OuterMetaComponent), pointer :: export_meta
+      type(GriddedComponentDriver), pointer :: export_driver
+      type(MultiState) :: export_states
+      type(ESMF_State) :: export_state
+      type(ESMF_StateItem_Flag) :: item_kind
+      type(ESMF_Field) :: field
+      type(ESMF_Field) :: alias
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: payload
+
+      found = .false.
+
+      export_meta => component_for(this, export_comp_name, _RC)
+      export_driver => export_meta%get_user_gc_driver()
+      export_states = export_driver%get_states()
+      call export_states%get_state(export_state, ESMF_STATEINTENT_EXPORT, _RC)
+
+      ! D1: plain ESMF-level by-name read - not a hard failure if the
+      ! item is not yet present (D2's two-pass timing concern); checked
+      ! via itemType, the same "present/absent" idiom
+      ! FieldClassAspect%add_to_state already uses, rather than trusting
+      ! ESMF_StateGet's own rc to distinguish "absent" from "present."
+      call ESMF_StateGet(export_state, itemName=export_var_spec%short_name, itemType=item_kind, _RC)
+      if (item_kind == ESMF_STATEITEM_NOTFOUND) then
+         _RETURN(_SUCCESS)
+      end if
+
+      call ESMF_StateGet(export_state, itemName=export_var_spec%short_name, field=field, _RC)
+
+      ! D5: MAPL_NamedAlias, not a hand-rolled ESMF_NamedAlias - carries
+      ! MAPL's own per-alias-id metadata (standard_name/long_name/
+      ! restart_mode), same as populate_one's own precedent.
+      alias = MAPL_NamedAlias(field, name=export_var_spec%short_name, _RC)
+
+      node => graph%get_node(node_id)
+      _ASSERT(associated(node), 'GraphBuilder: try_alias_export_field - NodeId not found in graph')
+      select type (node)
+      class is (StateItemNode)
+         call payload%set(alias, _RC)
+         call node%set_payload(payload)
+      class default
+         _FAIL('GraphBuilder: try_alias_export_field - NodeId does not refer to a StateItemNode')
+      end select
+
+      found = .true.
+
+      _RETURN(_SUCCESS)
+   end subroutine try_alias_export_field
 
    ! design.md Decisions "Geom/vgrid resolution order": (a) the export's
    ! own VariableSpec%geom if explicitly allocated (HistoryCollection-

@@ -1399,22 +1399,24 @@ full rationale.
 Split into two sub-changes, confirmed independent of each other (neither
 needs the other's code to land first):
 
-- **11a. Export-side field aliasing** — closes §20.4.9's own second gap
-  (export-side proxy never aliased to the real export field a run phase
-  writes). Scope: give `try_materialize_field_extension`'s own
+- **11a. Export-side field aliasing** — **landed**
+  (`openspec/changes/phase-11a-export-field-aliasing`): closes §20.4.9's
+  own second gap (export-side proxy never aliased to the real export
+  field a run phase writes). Scope: give `try_materialize_field_extension`'s own
   `export_node_id` call site (`GraphBuilder.F90`) the same "always alias
   by name, never duplicate" treatment `populate_one` already applies on
   the import side — a real `MAPL_NamedAlias` of the field a run phase
   actually writes into, under the export item's own known `short_name`,
   rather than today's independent `materialize_field_extension`
-  `FieldCreate`. Demonstrable immediately against the already-landed
+  `FieldCreate`. Demonstrated against the already-landed
   `units_mismatch_run_phase` fixture (one-hop chain, so §20.4.9's own
-  first gap does not block it) — once landed, this alone completes
-  Phase 11's own stated goal (a real propagated run-phase value) for the
-  single-characteristic case. Depends only on landed
-  `graph-child-state-population` work (its own D1-D6 alias pattern, D7
-  pull hook, and the export-node materialization call site this
-  sub-change modifies) — no dependency on 11b.
+  first gap does not block it) — `Test_GraphModeDemonstration.pf` now
+  asserts the real, converted run-phase value (`10.` hPa -> `1000.`
+  Pa) reaches `comp_dst`'s own real import state end-to-end, completing
+  Phase 11's own stated goal for the single-characteristic case.
+  Depended only on landed `graph-child-state-population` work (its own
+  D1-D6 alias pattern, D7 pull hook, and the export-node materialization
+  call site this sub-change modified) — no dependency on 11b.
 - **11b. Multi-hop extension-chain intermediate materialization** —
   closes §20.4.9's own first gap (no materialized intermediate nodes).
   Scope: change `find_or_build_extension_chain`'s own public interface
