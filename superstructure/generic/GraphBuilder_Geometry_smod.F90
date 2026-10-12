@@ -132,6 +132,7 @@ contains
       type(NodeId) :: this_own_id
       type(NodeId) :: child_proxy_id
       type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
       type(OuterMetaComponent), pointer :: child_meta
       type(CharacteristicMap), target :: this_map, child_map
       type(CharacteristicId), allocatable :: mismatched(:)
@@ -176,11 +177,20 @@ contains
       end if
 
       call find_or_build_extension_chain(this_graph, net_id, child_proxy_id, &
-           child_map, this_map, mismatched, final_id, unsupported, _RC)
+           child_map, this_map, mismatched, final_id, intermediate_ids, unsupported, _RC)
       assertion_message = 'GraphBuilder: geometry from child ' // provider_name // &
             ' does not match the receiving component own resolved geometry (unsupported: ' // &
             unsupported // ') - should be unreachable given GeometrySpec own exclusive resolution'
       _ASSERT(unsupported == '', assertion_message)
+      ! openspec/changes/phase-11b-chain-intermediate-materialization:
+      ! intentionally no materialize_extension_chain call here - this
+      ! branch is asserted unreachable immediately above
+      ! (GeomCharacteristic%build_transform always fails, so unsupported
+      ! is never '' in practice; the assertion exists for the case where
+      ! that stops being true without this call site being revisited).
+      ! No real horizontal-regrid Transform exists yet (Phase 13,
+      ! REQ-GEO-002a) - adding real materialization here is deferred to
+      ! that future capability, not attempted by this change.
 
       call this_graph%add_dependency(net_id, final_id, this_own_id, _RC)
 
@@ -205,6 +215,7 @@ contains
       type(NodeId) :: child_own_id
       type(NodeId) :: parent_proxy_id
       type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: pkey
       type(OuterMetaComponent), pointer :: child_meta
       type(CharacteristicMap), target :: this_map, child_map
@@ -270,11 +281,15 @@ contains
       end if
 
       call find_or_build_extension_chain(child_graph, child_net_id, parent_proxy_id, &
-           this_map, child_map, mismatched, final_id, unsupported, _RC)
+           this_map, child_map, mismatched, final_id, intermediate_ids, unsupported, _RC)
       assertion_message = 'GraphBuilder: parent geometry does not match child ' // child_name // &
             ' own resolved geometry (unsupported: ' // unsupported // &
             ') - should be unreachable given GeometrySpec own exclusive resolution'
       _ASSERT(unsupported == '', assertion_message)
+      ! openspec/changes/phase-11b-chain-intermediate-materialization:
+      ! same as resolve_geometry_from_child's own note above - this
+      ! branch is asserted unreachable; no real materialization added
+      ! here, deferred to a future horizontal-regrid capability.
 
       call child_graph%add_dependency(child_net_id, final_id, child_own_id, _RC)
 

@@ -125,6 +125,7 @@ contains
 
          integer :: status
          type(NodeId) :: import_node_id, export_node_id, final_node_id
+         type(NodeId), allocatable :: intermediate_node_ids(:)
          logical :: has_export
          ! openspec/changes/phase-11a-export-field-aliasing: set by
          ! try_alias_export_field at both of this procedure's own
@@ -257,7 +258,7 @@ contains
          ! the mismatched pair directly.
          call find_or_build_extension_chain(this_graph, net_id, export_node_id, &
               export_characteristics, import_characteristics, mismatched, &
-              final_node_id, unsupported_characteristic, _RC)
+              final_node_id, intermediate_node_ids, unsupported_characteristic, _RC)
 
          if (unsupported_characteristic /= '') then
             ! spec "Unregistered characteristic fails loudly" -
@@ -319,9 +320,19 @@ contains
          ! payload materialization step is gated. Off (the default): the
          ! extension item keeps 3c's own unallocated placeholder payload,
          ! zero behavior change from today.
+         !
+         ! openspec/changes/phase-11b-chain-intermediate-materialization,
+         ! design.md D3/D4: replaces the old single final-node
+         ! try_materialize_field_extension call with
+         ! materialize_extension_chain, which materializes every entry
+         ! of intermediate_node_ids (every link, not only the chain's
+         ! own final node) with each link's own correctly-evolved
+         ! typekind/units. Reduces to the old single-call behavior for a
+         ! single-characteristic mismatch (intermediate_node_ids has
+         ! length 1, equal to final_node_id).
          if (materialize_extensions_enabled()) then
-            call try_materialize_field_extension(this, src_pt%component_name, export_var_spec, var_spec, &
-                 this_graph, final_node_id, materialization_failure, _RC)
+            call materialize_extension_chain(this, src_pt%component_name, export_var_spec, var_spec, &
+                 mismatched, intermediate_node_ids, this_graph, materialization_failure, _RC)
             if (materialization_failure /= '') then
                ! Distinguishable from both "no matching export" and
                ! "unregistered characteristic fails loudly" above (spec

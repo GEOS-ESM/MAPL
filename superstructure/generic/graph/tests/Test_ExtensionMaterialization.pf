@@ -64,6 +64,7 @@ contains
       type(NodeRevision) :: revision
       type(CharacteristicMap) :: export_map, import_map
       type(CharacteristicId), allocatable :: mismatched(:)
+      type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: unsupported
       type(ESMF_Grid) :: grid
       type(ESMF_Geom) :: geom
@@ -91,7 +92,7 @@ contains
       mismatched = find_mismatched_characteristics(export_map, import_map)
 
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
-           mismatched, final_id, unsupported, rc=status)
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
       @assertEqual(0, status)
       @assertEqual('', unsupported)
 
@@ -143,6 +144,7 @@ contains
       type(NodeRevision) :: revision
       type(CharacteristicMap) :: export_map, import_map
       type(CharacteristicId), allocatable :: mismatched(:)
+      type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: unsupported
       type(ESMF_Grid) :: grid
       type(ESMF_Geom) :: geom
@@ -167,7 +169,7 @@ contains
       mismatched = find_mismatched_characteristics(export_map, import_map)
 
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
-           mismatched, final_id, unsupported, rc=status)
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
 
       call set_materialize_extensions(.true.)
 
@@ -212,6 +214,7 @@ contains
       type(NodeRevision) :: revision
       type(CharacteristicMap) :: export_map, import_map
       type(CharacteristicId), allocatable :: mismatched(:)
+      type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: unsupported
       type(ESMF_Grid) :: grid
       type(ESMF_Geom) :: geom
@@ -236,7 +239,7 @@ contains
       mismatched = find_mismatched_characteristics(export_map, import_map)
 
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
-           mismatched, final_id, unsupported, rc=status)
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
       @assertEqual(0, status)
 
       ! Simulate the export item already having a real, populated field -

@@ -534,6 +534,7 @@ contains
       type(CharacteristicMap), target :: empty_characteristics
       type(CharacteristicId), allocatable :: mismatched(:)
       type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: unsupported
 
       mismatched = find_mismatched_characteristics(empty_characteristics, empty_characteristics)
@@ -544,7 +545,16 @@ contains
       end if
 
       call find_or_build_extension_chain(graph, network_id, source_id, &
-           empty_characteristics, empty_characteristics, mismatched, final_id, unsupported, _RC)
+           empty_characteristics, empty_characteristics, mismatched, final_id, intermediate_ids, unsupported, _RC)
+      ! openspec/changes/phase-11b-chain-intermediate-materialization:
+      ! intentionally no materialize_extension_chain call here -
+      ! empty_characteristics means mismatched is always zero-length
+      ! above, so this branch is never entered by any real caller today
+      ! (no CallbackArgumentSpec declares units/typekind/vertical_grid
+      ! yet). No VariableSpec exists at this call site either, so
+      ! materialize_extension_chain's own signature could not be called
+      ! here even if this branch were reachable - deferred to whenever
+      ! CallbackArgumentSpec gains real characteristics.
       _ASSERT(unsupported == '', 'GraphBuilder: wire_callback_argument - unsupported characteristic: ' // unsupported)
 
       call graph%add_dependency(network_id, final_id, target_id, _RC)

@@ -135,9 +135,23 @@ contains
    ! remain in the graph, simply unreferenced by any import - acceptable,
    ! not incorrect). `rc` reports a genuine error (e.g. graph mutation
    ! failure) separately from this "unsupported" report.
+   !
+   ! openspec/changes/phase-11b-chain-intermediate-materialization,
+   ! design.md D1: intermediate_node_ids(:) is parallel in order to
+   ! mismatched_kinds - entry i is the NodeId holding the state after
+   ! mismatched_kinds(i)'s own conversion has been applied, so entry
+   ! size(mismatched_kinds) always equals final_node_id (returned
+   ! separately for backward compatibility with existing callers, not a
+   ! second copy of the array). Returned as a zero-size array on the
+   ! reuse-hit path below (an existing chain's own links were already
+   ! materialized by whichever call first built it - no re-materialization
+   ! work is ever needed for a reuse) and truncated to only the links
+   ! actually built on an early unsupported_characteristic exit from
+   ! build_chain (the failed step's own orphaned extension node is
+   ! deliberately excluded).
    subroutine find_or_build_extension_chain(graph, network_id, export_node_id, &
         export_map, import_map, mismatched_kinds, &
-        final_node_id, unsupported_characteristic, rc)
+        final_node_id, intermediate_node_ids, unsupported_characteristic, rc)
       class(ComponentGraph), target, intent(inout) :: graph
       type(DependencyNetworkId), intent(in) :: network_id
       type(NodeId), intent(in) :: export_node_id
@@ -145,6 +159,7 @@ contains
       type(CharacteristicMap), target, intent(in) :: import_map
       type(CharacteristicId), intent(in) :: mismatched_kinds(:)
       type(NodeId), intent(out) :: final_node_id
+      type(NodeId), allocatable, intent(out) :: intermediate_node_ids(:)
       character(:), allocatable, intent(out) :: unsupported_characteristic
       integer, optional, intent(out) :: rc
 
@@ -158,11 +173,12 @@ contains
       existing => graph%get_resource_index(reuse_key)
       if (associated(existing)) then
          final_node_id = existing
+         allocate(intermediate_node_ids(0))
          _RETURN(_SUCCESS)
       end if
 
       call build_chain(graph, network_id, export_node_id, export_map, import_map, &
-           mismatched_kinds, final_node_id, unsupported_characteristic, _RC)
+           mismatched_kinds, final_node_id, intermediate_node_ids, unsupported_characteristic, _RC)
 
       if (unsupported_characteristic /= '') then
          _RETURN(_SUCCESS)
@@ -190,7 +206,7 @@ contains
    end function chain_key
 
    subroutine build_chain(graph, network_id, export_node_id, export_map, import_map, &
-        mismatched_kinds, final_node_id, unsupported_characteristic, rc)
+        mismatched_kinds, final_node_id, intermediate_node_ids, unsupported_characteristic, rc)
       class(ComponentGraph), target, intent(inout) :: graph
       type(DependencyNetworkId), intent(in) :: network_id
       type(NodeId), intent(in) :: export_node_id
@@ -198,11 +214,13 @@ contains
       type(CharacteristicMap), target, intent(in) :: import_map
       type(CharacteristicId), intent(in) :: mismatched_kinds(:)
       type(NodeId), intent(out) :: final_node_id
+      type(NodeId), allocatable, intent(out) :: intermediate_node_ids(:)
       character(:), allocatable, intent(out) :: unsupported_characteristic
       integer, optional, intent(out) :: rc
 
       integer :: status
       integer :: i
+      integer :: num_built
       class(Characteristic), pointer :: export_characteristic, import_characteristic
       class(Transform), allocatable :: transformer
       type(NodeId) :: current_node_id
@@ -213,6 +231,8 @@ contains
       type(NodeRevision) :: empty_revision
       type(TransformGraphNode) :: transform_node
 
+      allocate(intermediate_node_ids(size(mismatched_kinds)))
+      num_built = 0
       current_node_id = export_node_id
 
       do i = 1, size(mismatched_kinds)
@@ -231,6 +251,12 @@ contains
               import_characteristic, transformer, status)
          if (status /= 0) then
             unsupported_characteristic = mismatched_kinds(i)%to_string()
+            ! openspec/changes/phase-11b-chain-intermediate-materialization,
+            ! design.md D1: truncate to only the links successfully
+            ! built before this failure - this failed step's own
+            ! orphaned extension_node_id (created above, never wired)
+            ! is deliberately excluded.
+            intermediate_node_ids = intermediate_node_ids(1:num_built)
             _RETURN(_SUCCESS)
          end if
 
@@ -243,6 +269,9 @@ contains
 
          call graph%add_dependency(network_id, current_node_id, transform_node_id, _RC)
          call graph%add_dependency(network_id, transform_node_id, extension_node_id, _RC)
+
+         num_built = num_built + 1
+         intermediate_node_ids(num_built) = extension_node_id
 
          current_node_id = extension_node_id
       end do
