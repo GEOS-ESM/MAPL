@@ -39,12 +39,21 @@ contains
       integer :: status
       type(ConnectionPt) :: src_pt, dst_pt
       type(ComponentSpec), pointer :: dst_spec, src_spec
+      type(OuterMetaComponent), pointer :: dst_meta, src_meta
 
       src_pt = conn%get_source()
       dst_pt = conn%get_destination()
 
-      dst_spec => component_spec_for(this, dst_pt%component_name, _RC)
-      src_spec => component_spec_for(this, src_pt%component_name, _RC)
+      ! openspec/changes/graph-builder-resolution-index: resolved via
+      ! resolve_qualified_component (reaching any descendant, not only
+      ! "<self>" or a direct child) rather than component_spec_for's own
+      ! single-level dispatch - see
+      ! GraphBuilder_ConnectionResolution_smod.F90's module header for
+      ! this capability's scope.
+      dst_meta => resolve_qualified_component(this, dst_pt%component_name, _RC)
+      dst_spec => dst_meta%get_component_spec()
+      src_meta => resolve_qualified_component(this, src_pt%component_name, _RC)
+      src_spec => src_meta%get_component_spec()
 
       call for_each_matching_import(dst_spec, dst_pt, check_one, _RC)
 
@@ -103,13 +112,19 @@ contains
       integer :: status
       type(ConnectionPt) :: src_pt, dst_pt
       type(ComponentSpec), pointer :: dst_spec
+      type(OuterMetaComponent), pointer :: dst_meta
       type(ComponentGraph), pointer :: this_graph
       type(DependencyNetworkId) :: net_id
 
       src_pt = conn%get_source()
       dst_pt = conn%get_destination()
 
-      dst_spec => component_spec_for(this, dst_pt%component_name, _RC)
+      ! openspec/changes/graph-builder-resolution-index: see
+      ! check_match_connection_unsatisfied's own identical replacement
+      ! above - resolve_qualified_component in place of
+      ! component_spec_for's own single-level dispatch.
+      dst_meta => resolve_qualified_component(this, dst_pt%component_name, _RC)
+      dst_spec => dst_meta%get_component_spec()
 
       this_graph => this%get_component_graph()
       net_id = this_graph%get_default_network_id()
@@ -575,9 +590,17 @@ contains
 
       integer :: status
       type(ComponentSpec), pointer :: src_spec
+      type(OuterMetaComponent), pointer :: src_meta
 
       export_var_spec => null()
-      src_spec => component_spec_for(this, comp_name, _RC)
+      ! openspec/changes/graph-builder-resolution-index: see
+      ! check_match_connection_unsatisfied's own identical replacement
+      ! above - resolve_qualified_component in place of
+      ! component_spec_for's own single-level dispatch. The export's
+      ! real NodeId (get_or_make_local_node_id below) already reaches
+      ! any descendant level via the same primitive, same change.
+      src_meta => resolve_qualified_component(this, comp_name, _RC)
+      src_spec => src_meta%get_component_spec()
       export_var_spec => find_export_var_spec(src_spec, short_name)
       found = associated(export_var_spec)
       if (.not. found) then

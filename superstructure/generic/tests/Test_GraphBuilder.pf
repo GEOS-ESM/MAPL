@@ -3550,4 +3550,180 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_build_run_phase_node_is_idempotent
 
+   ! openspec/changes/graph-builder-resolution-index, task 4.1 /
+   ! design.md Risks "the fixed gap": a single-segment path equal to
+   ! the calling component's own name resolves to that component
+   ! itself, not a child lookup attempt - resolve_descendant's own
+   ! prior behavior (before this change relocated it as
+   ! resolve_qualified_component) always called get_child_outer_meta
+   ! unconditionally on the first segment, so this regresses without
+   ! the is_self short-circuit this change adds.
+   @test(npes=[0])
+   subroutine test_resolve_qualified_component_single_segment_self(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta
+      type(OuterMetaComponent), pointer :: resolved
+      character(:), allocatable :: own_name
+      integer :: status
+
+      call make_outer_meta('comp_resolve_self', root_gc, root_meta, _RC)
+      own_name = root_meta%get_name(_RC)
+
+      resolved => resolve_qualified_component(root_meta, own_name, status)
+      @assert_that(status, is(0))
+      @assert_that(associated(resolved, root_meta), is(true()))
+
+      resolved => resolve_qualified_component(root_meta, '<self>', status)
+      @assert_that(status, is(0))
+      @assert_that(associated(resolved, root_meta), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_qualified_component_single_segment_self
+
+   ! openspec/changes/graph-builder-resolution-index, task 4.2: a
+   ! three-level synthetic hierarchy (parent/child/grandchild); a
+   ! two-segment path ('child/grandchild') resolves to the grandchild's
+   ! own OuterMetaComponent.
+   @test(npes=[0])
+   subroutine test_resolve_qualified_component_multi_level(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: child_driver, grandchild_driver
+      type(ESMF_GridComp) :: child_gc, grandchild_gc
+      type(OuterMetaComponent), pointer :: child_meta, grandchild_meta
+      type(OuterMetaComponent), pointer :: resolved
+      integer :: status
+
+      call make_outer_meta('comp_resolve_multilevel_root', root_gc, root_meta, _RC)
+      child_spec = ChildSpec()
+      call root_meta%add_child('MID', child_spec, _RC)
+      child_driver = root_meta%get_child('MID', _RC)
+      child_gc = child_driver%get_gridcomp()
+      child_meta => get_outer_meta(child_gc, _RC)
+
+      child_spec = ChildSpec()
+      call child_meta%add_child('LEAF', child_spec, _RC)
+      grandchild_driver = child_meta%get_child('LEAF', _RC)
+      grandchild_gc = grandchild_driver%get_gridcomp()
+      grandchild_meta => get_outer_meta(grandchild_gc, _RC)
+
+      resolved => resolve_qualified_component(root_meta, 'MID/LEAF', status)
+      @assert_that(status, is(0))
+      @assert_that(associated(resolved, grandchild_meta), is(true()))
+
+      ! Single-segment path to a direct child continues to resolve
+      ! exactly as component_for's own "<self>"/direct-child dispatch
+      ! already does (design.md "A connection naming a direct child or
+      ! self is unaffected").
+      resolved => resolve_qualified_component(root_meta, 'MID', status)
+      @assert_that(status, is(0))
+      @assert_that(associated(resolved, child_meta), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_qualified_component_multi_level
+
+   ! openspec/changes/graph-builder-resolution-index, task 4.3 / spec
+   ! "A connection naming a multi-level-distant component resolves
+   ! correctly": a MatchConnection naming a parent-level child
+   ! ('SRC_PARENT') and a sibling child ('DST_PARENT'), where the real
+   ! export/import items are advertised on a grandchild beneath each
+   ! named endpoint ('SRC_PARENT/SRC_LEAF', 'DST_PARENT/DST_LEAF') - the
+   ! shape every real connect_all fixture already has (proposal.md
+   ! "Why"). Under the old single-level component_spec_for dispatch,
+   ! this would fail to find anything (SRC_PARENT/DST_PARENT's own
+   ! var_specs are empty); resolve_qualified_component now walks down to
+   ! the leaf that actually owns the item.
+   @test(npes=[0])
+   subroutine test_ordinary_connection_resolves_through_multi_level_names(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: src_parent_driver, dst_parent_driver
+      type(GriddedComponentDriver) :: src_leaf_driver, dst_leaf_driver
+      type(ESMF_GridComp) :: src_parent_gc, dst_parent_gc, src_leaf_gc, dst_leaf_gc
+      type(OuterMetaComponent), pointer :: src_parent_meta, dst_parent_meta
+      type(OuterMetaComponent), pointer :: src_leaf_meta, dst_leaf_meta
+      type(ComponentSpec), pointer :: parent_spec, src_leaf_spec, dst_leaf_spec
+      type(ComponentGraph), pointer :: parent_graph
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved
+      type(NodeId), pointer :: t_export_proxy, t_import_proxy
+      type(DependencyNetwork), pointer :: net
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_multilevel_parent', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('SRC_PARENT', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('DST_PARENT', child_spec, _RC)
+
+      src_parent_driver = parent_meta%get_child('SRC_PARENT', _RC)
+      dst_parent_driver = parent_meta%get_child('DST_PARENT', _RC)
+      src_parent_gc = src_parent_driver%get_gridcomp()
+      dst_parent_gc = dst_parent_driver%get_gridcomp()
+      src_parent_meta => get_outer_meta(src_parent_gc, _RC)
+      dst_parent_meta => get_outer_meta(dst_parent_gc, _RC)
+
+      child_spec = ChildSpec()
+      call src_parent_meta%add_child('SRC_LEAF', child_spec, _RC)
+      child_spec = ChildSpec()
+      call dst_parent_meta%add_child('DST_LEAF', child_spec, _RC)
+
+      src_leaf_driver = src_parent_meta%get_child('SRC_LEAF', _RC)
+      dst_leaf_driver = dst_parent_meta%get_child('DST_LEAF', _RC)
+      src_leaf_gc = src_leaf_driver%get_gridcomp()
+      dst_leaf_gc = dst_leaf_driver%get_gridcomp()
+      src_leaf_meta => get_outer_meta(src_leaf_gc, _RC)
+      dst_leaf_meta => get_outer_meta(dst_leaf_gc, _RC)
+
+      src_leaf_spec => src_leaf_meta%get_component_spec()
+      call src_leaf_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      dst_leaf_spec => dst_leaf_meta%get_component_spec()
+      call dst_leaf_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      ! Children advertise before parents - deepest-first, mirroring
+      ! real recursion order (OuterMetaComponent/initialize_advertise.F90).
+      call gb%advertise(src_leaf_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_leaf_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(src_parent_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_parent_meta, status)
+      @assert_that(status, is(0))
+
+      ! The connection names SRC_PARENT/DST_PARENT - neither of which
+      ! advertises 'T' directly (it lives on their own grandchild,
+      ! SRC_LEAF/DST_LEAF).
+      conn = MatchConnection( &
+           ConnectionPt('SRC_PARENT/SRC_LEAF', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('DST_PARENT/DST_LEAF', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+
+      parent_graph => parent_meta%get_component_graph()
+      t_export_proxy => parent_graph%get_resource_index(proxy_key('SRC_PARENT/SRC_LEAF', ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_proxy => parent_graph%get_resource_index(proxy_key('DST_PARENT/DST_LEAF', ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_proxy), is(true()))
+      @assert_that(associated(t_import_proxy), is(true()))
+
+      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_ordinary_connection_resolves_through_multi_level_names
+
 end module Test_GraphBuilder
