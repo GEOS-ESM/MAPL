@@ -372,6 +372,47 @@ drop its own "blocked until legacy is retired" follow-up elsewhere:**
   acceptable; graph code must not depend on `superstructure/generic/registry/`
   or otherwise use registry-layer APIs. Follow-up to Phase 4g, not a reason to
   block current implementation.
+- `write_formatted`'s dead debug-dump machinery
+  (`StateRegistry.F90:85-86,120-127`,
+  `StateRegistry_Lifecycle_smod.F90:42-125`) — confirmed zero production
+  callers; delete with the rest of Phase 6a-3 (§20.4.11), no separate
+  migration needed. Originates from §20.4.11's own research pass.
+- `ModelVerticalGrid%get_coordinate_field()`'s own second, independent
+  `registry%extend()` call site (`ModelVerticalGrid.F90:273`) — already
+  known to this document as 4f's own design rationale above but never
+  tracked as its own "second call site to retire" checklist item.
+  Confirm no remaining caller needs this path's side effect before
+  deleting it in Phase 6a-3 (§20.4.11).
+- `gridcomp_set_geometry`'s own direct single-item bypass of
+  `StateRegistry%set_geometry` (`MAPL_Generic.F90:1150-1183`) — a
+  second, independently-maintained geometry-setting call chain, easy to
+  miss if a future retirement pass only searches for
+  `registry%set_geometry(` calls (this one never calls that method
+  name). See §20.4.11.
+- Dead/disabled `propagate_exports`/`add_to_states` lines in
+  `initialize_modify_advertised.F90:31,36` — already commented out;
+  delete as part of general cleanup, no behavior change. See §20.4.11.
+- The coupler-lifecycle call sites in
+  `OuterMetaComponent/run_user.F90:48,72` and
+  `initialize_user.F90:29` (`get_import_couplers`/
+  `get_export_couplers`) — confirm `graphbuilder_run_pull_hook`
+  (`GraphBuilder_RunPhasePull_smod.F90:44-79`) already covers every real
+  re-propagation case these calls exist for, before deleting; do not
+  assume coverage without checking, since the two mechanisms differ
+  (coupler phases are a fixed three-phase ESMF lifecycle; the pull hook
+  is a single demand-driven `update()` call). See §20.4.11.
+- Service's own retirement — confirm every real production
+  `SERVICE`/`SERVICE_PROVIDER`/`SERVICE_SUBSCRIBER` declaration has a
+  landed callback-based replacement, then delete
+  `ServiceClassAspect.F90` and the three `SERVICE*` itemType values —
+  an audit-and-delete item, not a structural rebuild, unlike Wildcard
+  (Phase 7c, narrowed — see §20.4.5/§20.4.11).
+- Pre-removal compatibility check on `MAPL_GridCompGetRegistry`
+  (`API.F90:42`) — public, exported, zero in-tree callers outside a
+  test fixture (`superstructure/generic/tests/gridcomps/
+  ProtoExtDataGC.F90:10,85,146`), but a real external-compatibility risk
+  if any out-of-tree GEOS component calls it. Check against a real
+  GEOSgcm checkout before deleting the symbol in Phase 6a-3 (§20.4.11).
 
 ### 20.4.3 Phase 4 sub-sequencing
 
@@ -926,6 +967,19 @@ change spanning all three:
   not something 7c can assume away. `Test_Scenarios` evidence: 1 fixture
   for Wildcard (`history_wildcard`), 2 (+1 unused) for Service — real but
   entangled forcing functions.
+
+  **Scope narrowing, recorded in §20.4.11.** Per explicit project
+  direction, Service is removed from this phase's own scope: it is
+  retired outright, replaced by callbacks
+  (`CallbackInterface`/`CallbackInterfaceRegistry`, Phase 4c/4d, already
+  landed), not migrated to a graph-native structural analog the way
+  Wildcard is. This phase's own future `openspec` change scopes to
+  Wildcard-only; Service's own retirement is tracked as a Phase 6b
+  audit-and-delete growable-list item (§20.4.2/§20.4.11) instead. The
+  Wildcard/Service joint-problem description above is left otherwise
+  unmodified — it remains an accurate description of why the two were
+  originally bundled, even though the disposition decision has since
+  diverged.
 
 **Recommended pilot, if/when this phase is picked up**: `vector_1`
 (`VectorClassAspect`, same-shape, no conversion needed at all —
@@ -1507,6 +1561,240 @@ repo/checkout, same as Phase 3-5/10: both 11a and 11b build on landed
 Phase 1-5/10 MAPL-repo code (`GraphBuilder.F90`,
 `ExtensionResolution.F90`, `graph-child-state-population`'s own alias
 pattern), so no repo-separation saving (§20.2) applies here either.
+
+### 20.4.11 Phase 6 sub-sequencing
+
+Phase 6 (§20.4.2), like Phase 3 (§20.4.1), Phase 4 (§20.4.3), Phase 5
+(§20.4.4), Phase 10 (§20.4.8), and Phase 11 (§20.4.10), does not fit a
+single spec-driven change proposal without an unreasonable context/cost
+footprint — §20.4.2's own entry criterion ("validated, not merely
+built") and growable list bundle a dependency-ordered prerequisite set,
+a three-step retirement sequence, and an open-ended cleanup list into
+one undifferentiated phase, with no filed sub-change against any of it.
+This section gives it the same ordered-sub-change treatment the other
+five phases already received before their own implementation started.
+It replaces §20.4.2's own single-sentence "(a) retire... once validated"
+with a named, dependency-ordered prerequisite set and three concrete
+sub-steps; §20.4.2's own "Purpose"/"Entry criterion" text stays in
+place, unmodified — this section makes it concrete, it does not restate
+or renumber it.
+
+**Prerequisite set — Phase 6a (the actual retirement work) MUST NOT be
+filed as its own `openspec` change until all of the following have
+landed:**
+
+1. **3b2** (cross-component unresolved-import propagation, named in
+   §20.4.1, never filed — confirmed by direct search of
+   `openspec/changes/archive`: no change directory is itself named for
+   this gap, and no archived `design.md`/`proposal.md` records it as
+   landed, only as repeatedly owed — see proposal.md - Why for the full
+   fourteen-citation inventory) — without it, every "propagated"
+   fixture (`statistics`,
+   `statistics_real`, `history_1`, `history_wildcard`, `extdata_1`)
+   stays permanently out of reach for any `GRAPH_MODE_BOTH` parity run,
+   making 6a-1's own full-fixture pass impossible to attempt honestly.
+2. **Phase 7a** (Bracket/VectorBracket 1:1 shape dispatch) and
+   **Phase 7b** (Expression N:1) — `VariableSpec` construction itself
+   depends on `StateRegistry` through exactly this dispatch path
+   (`make_StateItemSpec`/`make_aspects`/`make_ClassAspect`,
+   `VariableSpec.F90:568,590,813`, each taking a live `StateRegistry`
+   pointer; `ExpressionClassAspect.F90:353` calls `registry%extend()`
+   from inside construction). `StateRegistry` cannot be deleted while
+   any construction path still calls into it structurally, independent
+   of whether a given real configuration happens to use
+   Bracket/Expression.
+3. **Phase 7c, narrowed to Wildcard only** — see the scope-narrowing
+   paragraph below. Needed for the same structural reason as 7a/7b:
+   `WildcardClassAspect` is still a live `ClassAspect` subclass
+   dispatched from `VariableSpec` construction until replaced.
+4. **Phase 12** (new, §20.4.12 below) — 5a2's seven subclasses wired
+   into real dispatch. Without this, a real production mismatch on any
+   of those seven axes is invisible to graph-native resolution, so
+   6a-1's parity run cannot claim coverage of legacy's own
+   mismatch-detection surface, only three of its ten axes.
+5. **Phase 13** (new, §20.4.13 below) — restart compatibility. Without
+   this, flipping any component's materialization to graph-native
+   (6a-2) silently breaks restart for that component, with no test in
+   today's suite that would catch it (`RestartMode` metadata is simply
+   absent, not wrong, so no assertion currently fails on it).
+
+**Phase 6a, split into three ordered sub-steps** (replacing §20.4.2's
+own single sentence with the sub-steps it always presupposed but never
+named):
+
+- **6a-1. Full-fixture `GRAPH_MODE_BOTH` parity run.** Extend the
+  `graph/equivalence-harness` capability's own parameterized suite
+  (Phase 10b's own `ScenarioDescription`/testParameter machinery) to
+  cover every fixture in `superstructure/generic/tests/scenarios/` and
+  `superstructure/generic/tests/graph-scenarios/` — not only the flat,
+  non-propagated fixtures Phase 10b itself was deliberately scoped to
+  (10b's own "no nested fixture — out of scope until 3b2 lands" note).
+  Exit criterion: every fixture passes under `GRAPH_MODE_BOTH`,
+  confirming legacy and graph-native agree before any default-mode
+  decision is made. This is the "validated, not merely built" bar
+  §20.4.2 already named, made concrete. Cannot be attempted honestly
+  until the prerequisite set above has landed.
+- **6a-2. Flip the default mode; retire the toggle.** Once 6a-1 is
+  clean, change `mapl_GraphMode_mod`'s own default from
+  `GRAPH_MODE_REGISTRY`/`GRAPH_MODE_BOTH` (whichever is current) to
+  `GRAPH_MODE_GRAPH`, and begin removing the three-way selector itself
+  (collapsing to graph-native-only). Explicitly gated on Phase 10d's own
+  double-invocation hazard (§20.4.8's "Explicitly out of scope") being
+  resolved by whichever future change resolves it — not assumed solved
+  by this document.
+- **6a-3. Delete legacy source.** `superstructure/generic/registry/`
+  (`StateRegistry*.F90`), `superstructure/generic/specs/*Aspect*.F90`
+  and `AspectId.F90`, `ExtensionFamily` and its own supporting types,
+  `superstructure/generic/connection/*.F90`
+  (`Connection`/`SimpleConnection`/`MatchConnection`/
+  `ReexportConnection`), and the coupler-GridComp mechanism
+  (`superstructure/generic/transforms/GenericCoupler.F90`,
+  `CouplerMetaComponent.F90`, `superstructure/generic/couplers/`) — once
+  6a-2's own flip has run clean in production for whatever burn-in
+  period that sub-change's own design.md decides.
+
+**Phase 7c scope narrowing — Service removed.** §20.4.5's own existing
+text bundles Wildcard and Service together as "Wildcard/Service
+pattern-based multi-source fan-in." Per explicit project direction:
+Service is retired outright, replaced by callbacks
+(`CallbackInterface`/`CallbackInterfaceRegistry`, Phase 4c/4d, already
+landed) — it does NOT get a graph-native structural analog the way
+Wildcard does. 7c's own future `openspec` change scopes to Wildcard
+only. Service's own `ClassAspect`/`AspectId` retirement moves to the
+Phase 6b growable list below as an audit-and-delete item, not a
+structural rebuild.
+
+**Phase 6b's growable list — new entries appended** (the existing three
+entries above are left unmodified, per this document's own "append,
+don't drop" discipline):
+
+- `write_formatted`'s dead debug-dump machinery
+  (`StateRegistry.F90:85-86,120-127`,
+  `StateRegistry_Lifecycle_smod.F90:42-125`) — confirmed zero
+  production callers; delete with the rest of 6a-3, no separate
+  migration needed.
+- `ModelVerticalGrid%get_coordinate_field()`'s own second, independent
+  `registry%extend()` call site (`ModelVerticalGrid.F90:273`) — already
+  known to this document as 4f's own design rationale (why 4f took a
+  different design path, §20.4.3's own 4f entry above) but never
+  tracked as its own "second call site to retire" checklist item.
+  Confirm no remaining caller needs this path's side effect before
+  deleting it in 6a-3.
+- `gridcomp_set_geometry`'s own direct single-item bypass of
+  `StateRegistry%set_geometry` (`MAPL_Generic.F90:1150-1183`) — a
+  second, independently-maintained geometry-setting call chain, easy to
+  miss if a future retirement pass only searches for
+  `registry%set_geometry(` calls (this one never calls that method
+  name).
+- Dead/disabled `propagate_exports`/`add_to_states` lines in
+  `initialize_modify_advertised.F90:31,36` — already commented out;
+  delete as part of general cleanup, no behavior change.
+- The coupler-lifecycle call sites in
+  `OuterMetaComponent/run_user.F90:48,72` and
+  `initialize_user.F90:29` (`get_import_couplers`/
+  `get_export_couplers`) — confirm `graphbuilder_run_pull_hook`
+  (`GraphBuilder_RunPhasePull_smod.F90:44-79`) already covers every
+  real re-propagation case these calls exist for, before deleting; do
+  not assume coverage without checking, since the two mechanisms differ
+  (coupler phases are a fixed three-phase ESMF lifecycle; the pull hook
+  is a single demand-driven `update()` call).
+- Service's own retirement — confirm every real production
+  `SERVICE`/`SERVICE_PROVIDER`/`SERVICE_SUBSCRIBER` declaration has a
+  landed callback-based replacement (none found in-tree as of this
+  writing — a search for `itemType:.*SERVICE` across all `*.yaml`/`*.yml`
+  outside `tests/` returned zero matches), then delete
+  `ServiceClassAspect.F90` and the three `SERVICE*` itemType values — an
+  audit-and-delete item, not a structural rebuild, unlike Wildcard.
+- Pre-removal compatibility check on `MAPL_GridCompGetRegistry`
+  (`API.F90:42`) — public, exported, zero in-tree callers outside a test
+  fixture (`superstructure/generic/tests/gridcomps/
+  ProtoExtDataGC.F90:10,85,146`), but a real external-compatibility risk
+  if any out-of-tree GEOS component calls it. Check against a real
+  GEOSgcm checkout before deleting the symbol in 6a-3.
+
+**Repo/tooling note (extends §20.4.1's/§20.4.3's/§20.4.4's/§20.4.8's/
+§20.4.10's own notes).** Phase 6 code, for whichever sub-change is
+filed, lives in the MAPL repo/checkout, same as every prior phase: 6a's
+own retirement work and 6b's own cleanup items all build on, and
+remove, landed MAPL-repo code — no repo-separation saving (§20.2)
+applies here either.
+
+### 20.4.12 Phase 12 scope: wire 5a2's remaining `StateItemCharacteristic` subclasses into real dispatch
+
+**Discovered gap, not previously tracked by any phase above.** 5a2
+(`openspec/changes/archive/
+2026-10-08-state-item-characteristic-subclasses`) landed seven
+additional `StateItemCharacteristic` subclasses
+(`AttributesCharacteristic`/`UngriddedDimsCharacteristic`/
+`QuantityTypeCharacteristic`/`ConservationCharacteristic`/
+`NormalizationCharacteristic`/`StandardNameCharacteristic`/a
+vertical-grid-adjacent `ReferenceCharacteristic` analog), by that
+change's own explicit, deliberate scope: "standalone types exercised by
+synthetic-node pFUnit coverage only," no `GraphBuilder` rewire. This
+phase is that rewire.
+
+**Scope:** wire all seven into `GraphBuilder.F90`'s own real
+`build_characteristics()`/`CharacteristicMap` insertion point —
+mirroring how `UnitsCharacteristic`/`VerticalGridCharacteristic` already
+are — so a real production mismatch on any of these seven axes becomes
+visible to `resolve_one`'s existing mismatch detection and
+`ExtensionResolution.F90`'s existing `build_chain` loop (confirmed
+generic over an arbitrary-length `mismatched_kinds(:)` array by 10c's
+own prior confirmation — no chain-building code changes needed, only
+detection). Real `build_transform` adaptation logic is explicitly NOT
+required for every axis — 5a2's own design.md already noted most legacy
+`*Aspect%make_transform` implementations either fail explicitly or have
+no real adaptation logic today (only Units/Geom/Typekind have one in
+legacy either). This phase's job is detection-wiring; a mismatch with no
+adaptation available should surface as an explicit, reported failure
+(matching legacy's own behavior for e.g.
+`ConservationAspect%make_transform`'s unconditional `_FAIL`), not a
+silent pass-through.
+
+**Not blocking anything above or already landed on its own merits** —
+but named in §20.4.11 as a required Phase 6a prerequisite: without it,
+Phase 6a-1's own parity run cannot claim coverage of legacy's own
+ten-axis mismatch-detection surface, only the three axes 5a already
+wired. Depends on Phase 5a/5a2 (landed) only — independent of 3b2, Phase
+7, and Phase 13.
+
+### 20.4.13 Phase 13 scope: restart compatibility under graph-native field materialization
+
+**Discovered gap, not previously tracked by any phase above.**
+`RestartHandler.F90`'s own field-selection predicates
+(`predicate_skip_restart_`/`predicate_incomplete_`,
+`RestartHandler.F90:189-204`) key off `RestartMode` field metadata set
+via `FieldInfoSetInternal` — set only by legacy
+`FieldClassAspect.F90:498`. No graph-native field-materialization call
+site (`try_materialize_field_extension`/`materialize_field_extension`,
+`GraphBuilder.F90`) sets this metadata anywhere in the codebase today
+(confirmed: a search for `RestartMode` across every file under
+`superstructure/generic/graph/` returns zero hits). A
+graph-materialized field is silently invisible to, or mishandled by,
+restart today.
+
+**Scope:** decide, as a planned up-front design decision (same
+discipline this document already asks of other open points — Phase 4's
+4b for REQ-MTH-011(c), Phase 5's 5a for `CharacteristicStatus` naming),
+how a graph-materialized field's `RestartMode` is populated — likely by
+threading `VariableSpec%restart_mode` (already a stored field,
+`VariableSpec.F90:99`) through to whichever graph-native materialization
+call site creates the real `ESMF_Field`, mirroring
+`FieldClassAspect.F90:119-120`'s own construction-time assignment — and
+confirm `RestartHandler.F90`'s own predicates behave correctly against a
+graph-materialized field under `GRAPH_MODE_GRAPH`, not only under
+`GRAPH_MODE_BOTH`/`GRAPH_MODE_REGISTRY` where legacy's own
+materialization already sets this metadata regardless. A real
+read/write round-trip test against at least one graph-materialized
+field is the exit criterion, not merely "the field carries the
+metadata."
+
+**Not blocking anything above or already landed on its own merits** —
+but named in §20.4.11 as a required Phase 6a prerequisite: without it,
+flipping a component's default mode (6a-2) silently breaks restart for
+that component with no test today that would catch it. Depends on Phase
+10a (landed state-materialization call sites) only — independent of
+3b2, Phase 7, and Phase 12.
 
 ## 20.5 Cross-reference
 
