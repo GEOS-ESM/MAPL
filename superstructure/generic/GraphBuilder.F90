@@ -139,106 +139,38 @@
 !     push direction above.
 !------------------------------------------------------------------------------
 module mapl_GraphBuilder_mod
-   use mapl_OuterMetaComponent_mod, only: OuterMetaComponent
-   ! openspec/changes/graph-child-state-population: GriddedComponentDriver
-   ! is needed to reach a child's own real MultiState (get_states())
-   ! for graphbuilder_populate_state's cross-component loop - design.md
-   ! D3.
-   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use esmf, only: ESMF_Field, ESMF_Geom, ESMF_STATEINTENT_EXPORT, ESMF_StateIntent_Flag, ESMF_STATEINTENT_IMPORT, ESMF_StateItem_Flag, operator(==)
+   use gFTL2_StringVector, only: StringVector
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
+   use mapl_CallbackInterfaceRegistry_mod, only: get_callback_interface
+   use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
+   use mapl_CallbackStateBinding_mod, only: CallbackStateBinding
+   use mapl_Characteristic_mod, only: CharacteristicMap
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_ComponentSpec_mod, only: ComponentSpec
-   use mapl_VariableSpec_mod, only: VariableSpec
-   use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator
-   use mapl_VariableSpecVector_mod, only: operator(/=)
-   use mapl_CompositeStateMaterialization_mod, only: materialize_composite
    use mapl_Connection_mod, only: Connection
-   use mapl_ConnectionVector_mod, only: ConnectionVectorIterator
-   use mapl_ConnectionVector_mod, only: operator(/=)
-   use mapl_MatchConnection_mod, only: MatchConnection
    use mapl_ConnectionPt_mod, only: ConnectionPt
-   use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
-   use mapl_StateItemNode_mod, only: StateItemNode
-   use mapl_GraphStateItem_mod, only: GraphStateItem
-   use mapl_NodeRevision_mod, only: NodeRevision
-   use mapl_NodeId_mod, only: NodeId
-   use mapl_NodeLabel_mod, only: NodeLabel
-   use mapl_NodeIdLabelMap_mod, only: NodeIdLabelMap
-   use mapl_PortId_mod, only: PortId
-   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
-   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
-   use gFTL2_StringVector, only: StringVector
-   ! openspec/changes/graphbuilder-resolution-entry: replaces the
-   ! colon-concatenated StringVector encoding previously used for
-   ! unresolved-import / unsupported-characteristic resolution reports.
-   use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
-   use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
-   use mapl_Characteristic_mod, only: CharacteristicMap
-   use mapl_CharacteristicId_mod, only: CharacteristicId, UNITS_CHARACTERISTIC_ID, VERTICAL_GRID_CHARACTERISTIC_ID, &
-        GEOM_CHARACTERISTIC_ID, TYPE_KIND_CHARACTERISTIC_ID
-   use mapl_UnitsCharacteristic_mod, only: UnitsCharacteristic
-   use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
-   use mapl_GeomCharacteristic_mod, only: GeomCharacteristic
-   use mapl_TypeKindCharacteristicAdapter_mod, only: TypeKindCharacteristicAdapter
-   use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain, &
-        materialize_extensions_enabled
-   use mapl_ExtensionMaterialization_mod, only: materialize_field_extension
-   ! -- horizontal geometry (openspec/changes/
-   ! horizontal-geometry-graph-state-item, Phase 4e) -----------------
-   use mapl_GeomProxyField_mod, only: new_geom_proxy_item
-   use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_REGISTRY, GRAPH_MODE_GRAPH
-   use mapl_GeometrySpec_mod, only: GEOMETRY_FROM_PARENT, GEOMETRY_FROM_CHILD
-   use mapl_GeomId_mod, only: GeomId
-   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, &
-        MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_BRACKET, &
-        MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_EXPRESSION
-   use mapl_VerticalGrid_mod, only: VerticalGrid
-   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_CENTER, &
-        VERTICAL_STAGGER_NONE, operator(==)
-   ! -- callback wiring (openspec/changes/callback-wiring, Phase 4d) -----
-   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
-   use mapl_CallbackInterface_mod, only: CallbackInterface
-   use mapl_CallbackInterfaceRegistry_mod, only: get_callback_interface
-   use mapl_CallbackArgumentSpec_mod, only: CallbackArgumentSpec
-   use mapl_CallbackArgumentSpecMap_mod, only: CallbackArgumentSpecMap, CallbackArgumentSpecMapIterator, operator(/=)
-   use mapl_CallbackMethodSpec_mod, only: CallbackMethodSpec
-   use mapl_CallbackStateBinding_mod, only: CallbackStateBinding
-   use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
-   use mapl_MethodGraphNode_mod, only: MethodGraphNode
-   use mapl_StateMethodInvocation_mod, only: StateMethodInvocation
-   use mapl_AccessSpec_mod, only: AccessSpec, operator(==), MAPL_ACCESS_IN, MAPL_ACCESS_OUT, MAPL_ACCESS_INOUT
-   use mapl_AccessSpecMap_mod, only: AccessSpecMap, AccessSpecMapIterator, operator(/=)
-   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag, MAPL_STATEITEM_VERTICALGRID, operator(==)
-   use mapl_GraphNode_mod, only: GraphNode
-   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap, StateItemMemberMapIterator, operator(/=)
-   ! ----------------------------------------------------------------------
-   ! openspec/changes/phase-10d-ordinary-phase-method-node: ordinary-
-   ! phase MethodGraphNode construction (construction only - this
-   ! change never invokes the constructed node; see
-   ! graphbuilder_build_run_phase_node's own header comment). Reuses
-   ! the real GridCompPhaseInvoker/DriverResolver implementations
-   ! (Phase 4b) unmodified to build the node's attached adapter.
-   use mapl_GridCompDriverPhaseInvoker_mod, only: GridCompDriverPhaseInvoker
-   use mapl_OuterMetaComponentDriverResolver_mod, only: OuterMetaComponentDriverResolver
-   use mapl_GridCompMethodInvocation_mod, only: GridCompMethodInvocation
-   use ESMF, only: ESMF_METHOD_RUN
-   ! ----------------------------------------------------------------------
-   use pflogger, only: Logger
-   use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_IMPORT, &
-        ESMF_STATEINTENT_EXPORT
-   use esmf, only: ESMF_Geom, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
-   use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateAddReplace, ESMF_StateGet
-   use esmf, only: ESMF_STATEITEM_NOTFOUND
-   use esmf, only: ESMF_Field
-   use esmf, only: operator(==)
-   use mapl_FieldNamedAlias_mod, only: MAPL_NamedAlias
-   ! openspec/changes/phase-10a-state-materialization: graph-native
-   ! state population's own dependencies - the default network's
-   ! predecessor-walk (DependencyNetwork/NodeIdSet) and the real
-   ! ESMF_State pair a caller passes in (MultiState, same type legacy's
-   ! own StateRegistry%add_to_states already takes).
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
-   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
+   use mapl_ExtensionMaterialization_mod, only: materialize_field_extension
+   use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
+   use mapl_MatchConnection_mod, only: MatchConnection
    use mapl_MultiState_mod, only: MultiState
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_NodeIdLabelMap_mod, only: NodeIdLabelMap
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_OuterMetaComponent_mod, only: OuterMetaComponent
+   use mapl_PortId_mod, only: PortId
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_STATE, MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET
+   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_VerticalGrid_mod, only: VerticalGrid
+   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_CENTER, VerticalStaggerLoc
+   use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -246,6 +178,23 @@ module mapl_GraphBuilder_mod
    public :: GraphBuilder
    public :: item_key
    public :: proxy_key
+   ! openspec/changes/graphbuilder-submodule-split: made public (same
+   ! reasoning as item_key/proxy_key above) because a gfortran-specific
+   ! linkage limitation emits an ordinary (non-`module`) procedure
+   ! defined directly in a private-by-default module's own CONTAINS
+   ! with internal/static linkage when nothing marks it public - a
+   ! submodule's own, separately-compiled .o cannot then link against
+   ! it, even though F2008+ host-association rules say it should be
+   ! reachable (NAG does not have this limitation; gfortran does).
+   ! Each of these six is called from at least one submodule, so each
+   ! needed this fix once gfortran's own build was run against the
+   ! split (tasks.md 9.4).
+   public :: component_for
+   public :: component_spec_for
+   public :: get_or_make_local_node_id
+   public :: is_self
+   public :: itemtype_name
+   public :: try_materialize_field_extension
    ! openspec/changes/horizontal-geometry-graph-state-item (Phase 4e):
    ! exposed the same way item_key/proxy_key already are, so tests (and
    ! any future code with legitimate reason to identify a geometry node
@@ -373,104 +322,363 @@ module mapl_GraphBuilder_mod
    ! mapl_MethodInvocation_mod's own MAX_ARGUMENT_NAME_LEN precedent.
    integer, parameter :: MAX_CALLBACK_ARGUMENT_NAME_LEN = 128
 
-contains
+   ! ---- Interface block: one module function/subroutine declaration
+   ! per procedure whose body moved to a submodule (design.md D1/D3) ----
 
-   ! ============================================================
-   ! Task 2: Advertising
-   ! ============================================================
+   interface
 
-   ! REQ-GB-003 "Advertising state items" / "Creating StateItemNodes":
-   ! one StateItemNode per advertised import/export/internal item, plus
-   ! (task 4.1) import/export items are recorded as public ports - MAPL's
-   ! existing coupling semantics already treat every import/export as
-   ! externally addressable (any sibling's connect_all can reach it by
-   ! name) while internal items are component-private, so that existing
-   ! distinction is reused here as "declared a public port" rather than
-   ! inventing a new marker on VariableSpec/ComponentSpec.
-   subroutine graphbuilder_advertise(this, rc)
+      ! Advertising procedures (GraphBuilder_Advertising_smod.F90)
+   module subroutine graphbuilder_advertise(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(ComponentSpec), pointer :: comp_spec
-      type(ComponentGraph), pointer :: graph
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-
-      comp_spec => this%get_component_spec()
-      graph => this%get_component_graph()
-
-      associate (e => comp_spec%var_specs%ftn_end())
-         iter = comp_spec%var_specs%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            var_spec => iter%of()
-            call advertise_one(graph, var_spec, _RC)
-         end do
-      end associate
-
-      _RETURN(_SUCCESS)
    end subroutine graphbuilder_advertise
-
-   subroutine advertise_one(graph, var_spec, rc)
+   module subroutine advertise_one(graph, var_spec, rc)
       type(ComponentGraph), target, intent(inout) :: graph
       type(VariableSpec), intent(in) :: var_spec
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      character(:), allocatable :: key
-      type(NodeId), pointer :: existing
-      type(NodeId) :: id
-      type(StateItemNode) :: node
-      type(GraphStateItem) :: payload
-      type(NodeRevision) :: revision
-      type(PortId) :: port_id
-      type(StringVector) :: member_names
-
-      key = item_key(var_spec%state_intent, var_spec%short_name)
-
-      ! Idempotent re-advertisement (spec scenario "Re-advertising the
-      ! same item does not duplicate its node"): if this identity is
-      ! already indexed, this item already has a node - nothing to do.
-      existing => graph%get_resource_index(key)
-      if (associated(existing)) then
-         _RETURN(_SUCCESS)
-      end if
-
-      ! openspec/changes/composite-state-spec: a VariableSpec with
-      ! declared members is a composite - build its real, individually
-      ! addressable node tree (mapl_CompositeStateMaterialization_mod)
-      ! instead of the flat, unallocated-payload node below. No other
-      ! branch of this procedure changes: the same identity key,
-      ! resource-index registration, and port registration apply
-      ! uniformly to both cases (design.md Decisions).
-      member_names = var_spec%get_member_names()
-      if (member_names%size() > 0) then
-         id = materialize_composite(graph, var_spec, _RC)
-      else
-         id = graph%next_node_id(_RC)
-
-         ! payload/revision are left default-initialized (no ESMF handle
-         ! allocated, NodeRevision invalid): this item is advertised, not
-         ! yet realized - REALIZE happens in a later init phase this
-         ! slice does not touch (design.md Non-Goals).
-         node = StateItemNode(id, payload, revision)
-         call graph%register_node(node, _RC)
-      end if
-      call graph%add_resource_index(key, id, _RC)
-
-      if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT) then
-         port_id = graph%next_port_id(_RC)
-         call graph%add_import_port(port_id, id, _RC)
-      else if (var_spec%state_intent == ESMF_STATEINTENT_EXPORT) then
-         port_id = graph%next_port_id(_RC)
-         call graph%add_export_port(port_id, id, _RC)
-      end if
-      ! INTERNAL items get neither: they are not visible outside the
-      ! component (task 4.1's "declared a public port" does not apply).
-
-      _RETURN(_SUCCESS)
    end subroutine advertise_one
+
+      ! Ordinary connection resolution procedures (GraphBuilder_ConnectionResolution_smod.F90)
+   module subroutine graphbuilder_check_unsatisfied_imports(this, unusable, unresolved_imports, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      class(KE), optional, intent(in) :: unusable
+      type(GraphResolutionEntryVector), optional, intent(out) :: unresolved_imports
+      integer, optional, intent(out) :: rc
+
+   end subroutine graphbuilder_check_unsatisfied_imports
+   module subroutine for_each_matching_import(dst_spec, dst_pt, op, rc)
+      type(ComponentSpec), intent(in) :: dst_spec
+      type(ConnectionPt), intent(in) :: dst_pt
+      procedure(I_match_op) :: op
+      integer, optional, intent(out) :: rc
+
+   end subroutine for_each_matching_import
+   module subroutine check_match_connection_unsatisfied(this, conn, unresolved, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(MatchConnection), intent(in) :: conn
+      type(GraphResolutionEntryVector), intent(inout) :: unresolved
+      integer, optional, intent(out) :: rc
+
+   end subroutine check_match_connection_unsatisfied
+    module subroutine graphbuilder_resolve_connections(this, unusable, unresolved_imports, &
+         unsupported_characteristics, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      class(KE), optional, intent(in) :: unusable
+      type(GraphResolutionEntryVector), optional, intent(out) :: unresolved_imports
+      ! REQ scenario "Unregistered characteristic fails loudly": a
+      ! distinguishable report, separate from unresolved_imports (which
+      ! means "no export at all"), for a matched export/import pair whose
+      ! mismatch has no registered extension provider
+      ! (mapl_ExtensionResolution_mod).
+      type(GraphResolutionEntryVector), optional, intent(out) :: unsupported_characteristics
+      integer, optional, intent(out) :: rc
+
+    end subroutine graphbuilder_resolve_connections
+   module subroutine resolve_match_connection(this, conn, unresolved, unsupported, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(MatchConnection), intent(in) :: conn
+      type(GraphResolutionEntryVector), intent(inout) :: unresolved
+      type(GraphResolutionEntryVector), intent(inout) :: unsupported
+      integer, optional, intent(out) :: rc
+
+   end subroutine resolve_match_connection
+    module function build_characteristics(var_spec, rc) result(characteristics)
+      type(VariableSpec), intent(in) :: var_spec
+      integer, optional, intent(out) :: rc
+      type(CharacteristicMap) :: characteristics
+
+    end function build_characteristics
+   logical module function find_export_node_id(this, comp_name, short_name, export_node_id, export_var_spec, rc) result(found)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: comp_name
+      character(*), intent(in) :: short_name
+      type(NodeId), intent(out) :: export_node_id
+      type(VariableSpec), pointer, intent(out) :: export_var_spec
+      integer, optional, intent(out) :: rc
+
+   end function find_export_node_id
+   module subroutine resolve_inout_destination(this, src_pt, dst_pt, var_spec, unsupported, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(ConnectionPt), intent(in) :: src_pt
+      type(ConnectionPt), intent(in) :: dst_pt
+      type(VariableSpec), intent(in) :: var_spec
+      type(GraphResolutionEntryVector), intent(inout) :: unsupported
+      integer, optional, intent(out) :: rc
+
+   end subroutine resolve_inout_destination
+   module function find_export_var_spec(comp_spec, short_name) result(export_var_spec)
+      type(ComponentSpec), target, intent(in) :: comp_spec
+      character(*), intent(in) :: short_name
+      type(VariableSpec), pointer :: export_var_spec
+
+   end function find_export_var_spec
+   module function find_inout_borrower_var_spec(comp_spec, short_name) result(borrower_var_spec)
+      type(ComponentSpec), target, intent(in) :: comp_spec
+      character(*), intent(in) :: short_name
+      type(VariableSpec), pointer :: borrower_var_spec
+
+   end function find_inout_borrower_var_spec
+   module subroutine try_alias_export_field(this, export_comp_name, export_var_spec, &
+        graph, node_id, found, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: export_comp_name
+      type(VariableSpec), intent(in) :: export_var_spec
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(NodeId), intent(in) :: node_id
+      logical, intent(out) :: found
+      integer, optional, intent(out) :: rc
+
+   end subroutine try_alias_export_field
+
+      ! Public ports and child proxies procedures (GraphBuilder_PortsAndProxies_smod.F90)
+   module subroutine resolve_export_geom(var_spec, owner, geom, found, rc)
+      type(VariableSpec), intent(in) :: var_spec
+      class(OuterMetaComponent), target, intent(inout) :: owner
+      type(ESMF_Geom), intent(out) :: geom
+      logical, intent(out) :: found
+      integer, optional, intent(out) :: rc
+
+   end subroutine resolve_export_geom
+   module subroutine resolve_export_vgrid(var_spec, owner, vgrid)
+      type(VariableSpec), intent(in) :: var_spec
+      class(OuterMetaComponent), target, intent(inout) :: owner
+      class(VerticalGrid), allocatable, intent(out) :: vgrid
+
+   end subroutine resolve_export_vgrid
+
+      ! Horizontal geometry procedures (GraphBuilder_Geometry_smod.F90)
+   module subroutine graphbuilder_run_geometry_hook(this)
+      class(OuterMetaComponent), target, intent(inout) :: this
+
+   end subroutine graphbuilder_run_geometry_hook
+   module subroutine graphbuilder_advertise_geometry(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+   end subroutine graphbuilder_advertise_geometry
+   module function parent_geometry_proxy_key() result(key)
+      character(:), allocatable :: key
+
+   end function parent_geometry_proxy_key
+   module subroutine graphbuilder_resolve_geometry(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+   end subroutine graphbuilder_resolve_geometry
+   module subroutine resolve_geometry_from_child(this, provider_name, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: provider_name
+      integer, optional, intent(out) :: rc
+
+   end subroutine resolve_geometry_from_child
+   module subroutine push_geometry_to_child(this, child_name, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: child_name
+      integer, optional, intent(out) :: rc
+
+   end subroutine push_geometry_to_child
+
+      ! Validate and freeze procedures (GraphBuilder_Freeze_smod.F90)
+   module subroutine graphbuilder_freeze(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+   end subroutine graphbuilder_freeze
+
+      ! Graph-native state population procedures (GraphBuilder_StatePopulation_smod.F90)
+   module subroutine graphbuilder_populate_state(this, multi_state, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(MultiState), intent(inout) :: multi_state
+      integer, optional, intent(out) :: rc
+
+   end subroutine graphbuilder_populate_state
+   module subroutine populate_one(graph, net, multi_state, id_ptr, state_intent, short_name, rc)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(DependencyNetwork), intent(in) :: net
+      type(MultiState), intent(inout) :: multi_state
+      type(NodeId), pointer, intent(in) :: id_ptr
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      character(*), intent(in) :: short_name
+      integer, optional, intent(out) :: rc
+
+   end subroutine populate_one
+   module subroutine get_field_if_materialized(graph, node_id, field, found, rc)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: node_id
+      type(ESMF_Field), intent(out) :: field
+      logical, intent(out) :: found
+      integer, optional, intent(out) :: rc
+
+   end subroutine get_field_if_materialized
+   module function find_materialized_predecessor(graph, net, start_id, found) result(field_node_id)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(DependencyNetwork), intent(in) :: net
+      type(NodeId), intent(in) :: start_id
+      logical, intent(out) :: found
+      type(NodeId) :: field_node_id
+
+   end function find_materialized_predecessor
+
+      ! Re-propagation pull procedures (GraphBuilder_RunPhasePull_smod.F90)
+   module subroutine graphbuilder_run_pull_hook(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+   end subroutine graphbuilder_run_pull_hook
+
+      ! Visualization enrichment procedures (GraphBuilder_Visualization_smod.F90)
+   module function graphbuilder_build_label_map(this, rc) result(label_map)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+      type(NodeIdLabelMap) :: label_map
+
+   end function graphbuilder_build_label_map
+
+      ! Callback wiring procedures (GraphBuilder_CallbackWiring_smod.F90)
+   module function build_qualified_export_namespace(root, rc) result(entries)
+      class(OuterMetaComponent), target, intent(inout) :: root
+      integer, optional, intent(out) :: rc
+      type(QualifiedExportEntry), allocatable :: entries(:)
+
+   end function build_qualified_export_namespace
+   recursive module subroutine collect_qualified_exports(owner, path_prefix, entries, rc)
+      class(OuterMetaComponent), target, intent(inout) :: owner
+      character(*), intent(in) :: path_prefix
+      type(QualifiedExportEntry), allocatable, intent(inout) :: entries(:)
+      integer, optional, intent(out) :: rc
+
+   end subroutine collect_qualified_exports
+   module function resolve_descendant(root, comp_path, rc) result(meta)
+      class(OuterMetaComponent), target, intent(inout) :: root
+      character(*), intent(in) :: comp_path
+      integer, optional, intent(out) :: rc
+      type(OuterMetaComponent), pointer :: meta
+
+   end function resolve_descendant
+   module function resolve_qualified_export_node_id(this, src_component_name, entry, rc) result(node_id)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: src_component_name
+      type(QualifiedExportEntry), intent(in) :: entry
+      integer, optional, intent(out) :: rc
+      type(NodeId) :: node_id
+
+   end function resolve_qualified_export_node_id
+   module function export_conforms_to_interface(var_spec, expected_iface, reason) result(conforms)
+      type(VariableSpec), target, intent(in) :: var_spec
+      type(CallbackInterface), target, intent(in) :: expected_iface
+      character(:), allocatable, intent(out) :: reason
+      logical :: conforms
+
+   end function export_conforms_to_interface
+   module function materialize_callback_collection(this, src_pt, matches, rc) result(collection_id)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(ConnectionPt), intent(in) :: src_pt
+      type(QualifiedExportEntry), intent(in) :: matches(:)
+      integer, optional, intent(out) :: rc
+      type(NodeId) :: collection_id
+
+   end function materialize_callback_collection
+   module function build_callback_state_binding(this, src_component_name, entry, expected_interface_id, &
+        expected_iface, rc) result(binding)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: src_component_name
+      type(QualifiedExportEntry), intent(in) :: entry
+      type(CallbackInterfaceId), intent(in) :: expected_interface_id
+      type(CallbackInterface), intent(in) :: expected_iface
+      integer, optional, intent(out) :: rc
+      type(CallbackStateBinding) :: binding
+
+   end function build_callback_state_binding
+   module function build_callback_method_binding(this, iface, method_name, state_binding, &
+        provider_get_ids, provider_put_ids, rc) result(binding)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(CallbackInterface), intent(in) :: iface
+      character(*), intent(in) :: method_name
+      type(CallbackStateBinding), target, intent(in) :: state_binding
+      type(StateItemMemberMap), intent(in) :: provider_get_ids
+      type(StateItemMemberMap), intent(in) :: provider_put_ids
+      integer, optional, intent(out) :: rc
+      type(CallbackMethodBinding) :: binding
+
+   end function build_callback_method_binding
+   module subroutine wire_callback_argument(graph, network_id, source_id, target_id, rc)
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(DependencyNetworkId), intent(in) :: network_id
+      type(NodeId), intent(in) :: source_id
+      type(NodeId), intent(in) :: target_id
+      integer, optional, intent(out) :: rc
+
+   end subroutine wire_callback_argument
+   module subroutine invoke_callback_method(graph, binding, rc)
+      class(ComponentGraph), target, intent(inout) :: graph
+      type(CallbackMethodBinding), target, intent(in) :: binding
+      integer, optional, intent(out) :: rc
+
+   end subroutine invoke_callback_method
+   module subroutine pull_callback_get_arguments(graph, network_id, get_bindings, rc)
+      class(ComponentGraph), target, intent(in) :: graph
+      type(DependencyNetworkId), intent(in) :: network_id
+      type(StateItemMemberMap), target, intent(in) :: get_bindings
+      integer, optional, intent(out) :: rc
+
+   end subroutine pull_callback_get_arguments
+   module subroutine advance_callback_put_arguments(graph, put_bindings, rc)
+      class(ComponentGraph), target, intent(in) :: graph
+      type(StateItemMemberMap), target, intent(in) :: put_bindings
+      integer, optional, intent(out) :: rc
+
+   end subroutine advance_callback_put_arguments
+
+      ! Ordinary-phase MethodGraphNode construction procedures (GraphBuilder_RunPhaseNode_smod.F90)
+   module subroutine graphbuilder_build_run_phase_node(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+   end subroutine graphbuilder_build_run_phase_node
+
+      ! Lifecycle-hook wrapper procedures (GraphBuilder_LifecycleHooks_smod.F90)
+   module subroutine graphbuilder_run_advertise_hook(this)
+      class(OuterMetaComponent), target, intent(inout) :: this
+
+   end subroutine graphbuilder_run_advertise_hook
+   module subroutine graphbuilder_run_activate_hook(this)
+      class(OuterMetaComponent), target, intent(inout) :: this
+
+   end subroutine graphbuilder_run_activate_hook
+    module subroutine graphbuilder_run_connect_hook(this)
+      class(OuterMetaComponent), target, intent(inout) :: this
+
+    end subroutine graphbuilder_run_connect_hook
+   module subroutine graphbuilder_run_populate_state_hook(this, multi_state)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(MultiState), intent(inout) :: multi_state
+
+   end subroutine graphbuilder_run_populate_state_hook
+   module subroutine assert_converged(unresolved, rc)
+      type(GraphResolutionEntryVector), intent(in) :: unresolved
+      integer, optional, intent(out) :: rc
+
+   end subroutine assert_converged
+   module subroutine report_if_failed(this, step_name, status)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: step_name
+      integer, intent(in) :: status
+
+   end subroutine report_if_failed
+
+   end interface
+
+   ! ---- Shared helpers, used across more than one submodule ----
+   ! (openspec/changes/graphbuilder-submodule-split, design.md D2: every
+   ! procedure below is called from more than one of the eleven
+   ! GraphBuilder_*_smod.F90 submodules, so it stays directly
+   ! CONTAINS-ed in this module, visible to every submodule via
+   ! ordinary host association - same role StateRegistry.F90's own
+   ! SELF parameter plays for its own submodule split.)
+
+contains
 
    ! Advertised-item identity key: state intent + short name, unique
    ! within one component (spec "Advertising creates graph state-item
@@ -509,720 +717,6 @@ contains
 
       key = 'PROXY:' // comp_name // ':' // item_key(state_intent, short_name)
    end function proxy_key
-
-   ! ============================================================
-   ! Task 3: Ordinary connection resolution
-   ! ============================================================
-
-   ! GENERIC_INIT_ADVERTISE-time analog of legacy Connection%activate()
-   ! (module header - "Two-phase timing"): for each MatchConnection,
-   ! determine which ordinary-match destination imports have a matching
-   ! source export, WITHOUT creating any graph structure (no proxy
-   ! nodes, no dependency edges - those are graphbuilder_resolve_connections'
-   ! job, at connect() time). Read-only with respect to the graph;
-   ! purely populates the unresolved-imports report, which is what
-   ! legacy's own propagate_unsatisfied_imports() decision (bubble an
-   ! unsatisfied import to the parent) is based on at this same phase.
-   subroutine graphbuilder_check_unsatisfied_imports(this, unusable, unresolved_imports, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      class(KE), optional, intent(in) :: unusable
-      type(GraphResolutionEntryVector), optional, intent(out) :: unresolved_imports
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ComponentSpec), pointer :: comp_spec
-      type(ConnectionVectorIterator) :: iter
-      class(Connection), pointer :: c
-      type(GraphResolutionEntryVector) :: unresolved
-
-      comp_spec => this%get_component_spec()
-
-      associate (e => comp_spec%connections%ftn_end())
-         iter = comp_spec%connections%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            c => iter%of()
-            select type (c)
-            class is (MatchConnection)
-               call check_match_connection_unsatisfied(this, c, unresolved, _RC)
-            class default
-               ! Wildcard/callback/reexport/simple connections: out of
-               ! scope for this slice - deliberately skipped.
-            end select
-         end do
-      end associate
-
-      if (present(unresolved_imports)) unresolved_imports = unresolved
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine graphbuilder_check_unsatisfied_imports
-
-   ! Shared by check_match_connection_unsatisfied() and
-   ! resolve_match_connection() below: both used to independently repeat
-   ! this same "which of dst_spec's imports does dst_pt's declared
-   ! pattern match" do/if/if scan (module header - "same destination-
-   ! import filtering"). Owns the loop and both guard clauses; each
-   ! caller supplies only the per-match step, as an internal procedure so
-   ! it can host-associate whatever extra context it needs (this,
-   ! src_pt, unresolved, ...) - same style as OuterMetaComponent's own
-   ! apply_to_children_custom()/I_child_op.
-   subroutine for_each_matching_import(dst_spec, dst_pt, op, rc)
-      type(ComponentSpec), intent(in) :: dst_spec
-      type(ConnectionPt), intent(in) :: dst_pt
-      procedure(I_match_op) :: op
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-
-      associate (e => dst_spec%var_specs%ftn_end())
-         iter = dst_spec%var_specs%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            var_spec => iter%of()
-            if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT)) cycle
-            if (.not. dst_pt%v_pt%matches(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, var_spec%short_name))) cycle
-            call op(var_spec, _RC)
-         end do
-      end associate
-
-      _RETURN(_SUCCESS)
-   end subroutine for_each_matching_import
-
-   ! Read-only counterpart of resolve_match_connection() below: same
-   ! destination-import filtering and same-name export existence check,
-   ! but never calls get_or_make_local_node_id() or add_dependency() -
-   ! no proxy node or dependency edge is created here.
-   subroutine check_match_connection_unsatisfied(this, conn, unresolved, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      type(MatchConnection), intent(in) :: conn
-      type(GraphResolutionEntryVector), intent(inout) :: unresolved
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ConnectionPt) :: src_pt, dst_pt
-      type(ComponentSpec), pointer :: dst_spec, src_spec
-
-      src_pt = conn%get_source()
-      dst_pt = conn%get_destination()
-
-      dst_spec => component_spec_for(this, dst_pt%component_name, _RC)
-      src_spec => component_spec_for(this, src_pt%component_name, _RC)
-
-      call for_each_matching_import(dst_spec, dst_pt, check_one, _RC)
-
-      _RETURN(_SUCCESS)
-   contains
-
-      subroutine check_one(var_spec, rc)
-         type(VariableSpec), intent(in) :: var_spec
-         integer, optional, intent(out) :: rc
-
-         logical :: has_export
-         type(QualifiedExportEntry), allocatable :: callback_matches(:)
-
-         ! openspec/changes/callback-wiring, design.md Decision 0: a
-         ! destination declaring an expected callback interface is
-         ! resolved against the flattened namespace instead of exact-
-         ! name matching - read-only here (resolve_callback_import never
-         ! mutates the graph), matching this procedure's own activate-
-         ! time contract.
-         if (var_spec%callback_interface_id%is_valid()) then
-            callback_matches = resolve_callback_import(this, src_pt, var_spec, rc=rc)
-            if (size(callback_matches) == 0) then
-               call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name))
-            end if
-            _RETURN(_SUCCESS)
-         end if
-
-         has_export = associated(find_export_var_spec(src_spec, var_spec%short_name))
-         if (.not. has_export) then
-            call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name))
-         end if
-
-         _RETURN(_SUCCESS)
-      end subroutine check_one
-
-   end subroutine check_match_connection_unsatisfied
-
-   ! GENERIC_INIT_ACCEPT_TRANSFER-time analog of legacy
-   ! Connection%connect() (module header - "Two-phase timing"): the real
-   ! graph mutation - proxy nodes and dependency edges - restricted to
-   ! MatchConnection (see module header). Any other declared Connection
-   ! subtype (SimpleConnection, ReexportConnection, ...) is left
-   ! untouched - out of scope for this slice, not an oversight
-   ! (proposal.md "Explicitly out of scope"). REQ-GB-003 "Resolving
-   ! connections" / "Creating dependency networks".
-   !
-   ! Idempotency: ESMF's Provide/Accept/Realize transfer negotiation can
-   ! invoke GENERIC_INIT_ACCEPT_TRANSFER (and hence this) more than once
-   ! per component within a single Initialize sequence - legacy's own
-   ! MatchConnection%connect()/SimpleConnection%connect()
-   ! (superstructure/generic/connection/ *.F90) guard against exactly this
-   ! with a per-connection `consumed` flag. GraphBuilder has no equivalent
-   ! per-connection state to reuse, so it guards at the graph level
-   ! instead: once this component's graph is frozen, every ordinary
-   ! connection it declares has already been resolved, so a repeat call
-   ! is a safe no-op rather than an attempt to mutate a frozen graph.
-    subroutine graphbuilder_resolve_connections(this, unusable, unresolved_imports, &
-         unsupported_characteristics, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      class(KE), optional, intent(in) :: unusable
-      type(GraphResolutionEntryVector), optional, intent(out) :: unresolved_imports
-      ! REQ scenario "Unregistered characteristic fails loudly": a
-      ! distinguishable report, separate from unresolved_imports (which
-      ! means "no export at all"), for a matched export/import pair whose
-      ! mismatch has no registered extension provider
-      ! (mapl_ExtensionResolution_mod).
-      type(GraphResolutionEntryVector), optional, intent(out) :: unsupported_characteristics
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ComponentSpec), pointer :: comp_spec
-      type(ComponentGraph), pointer :: graph
-      type(ConnectionVectorIterator) :: iter
-      class(Connection), pointer :: c
-      type(GraphResolutionEntryVector) :: unresolved
-      type(GraphResolutionEntryVector) :: unsupported
-
-      graph => this%get_component_graph()
-      if (graph%is_frozen()) then
-         if (present(unresolved_imports)) unresolved_imports = unresolved
-         if (present(unsupported_characteristics)) unsupported_characteristics = unsupported
-         _RETURN(_SUCCESS)
-      end if
-
-      comp_spec => this%get_component_spec()
-
-      associate (e => comp_spec%connections%ftn_end())
-         iter = comp_spec%connections%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            c => iter%of()
-            select type (c)
-            class is (MatchConnection)
-               call resolve_match_connection(this, c, unresolved, unsupported, _RC)
-            class default
-               ! Wildcard/callback/reexport/simple connections: out of
-               ! scope for this slice - deliberately skipped.
-            end select
-         end do
-      end associate
-
-      if (present(unresolved_imports)) unresolved_imports = unresolved
-      if (present(unsupported_characteristics)) unsupported_characteristics = unsupported
-
-      _RETURN(_SUCCESS)
-      _UNUSED_DUMMY(unusable)
-   end subroutine graphbuilder_resolve_connections
-
-   ! Mirrors MatchConnection%activate()'s own two-step structure
-   ! (superstructure/generic/connection/MatchConnection.F90) - filter the
-   ! destination's imports against the declared destination pattern, then
-   ! for each match require an EXACT-name export on the source side -
-   ! but recomputes it directly against ComponentSpec%var_specs
-   ! (design.md Decisions: "reuses MatchConnection's semantics, not its
-   ! implementation") rather than going through StateRegistry's
-   ! subregistry/family machinery. VirtualConnectionPt%matches() and the
-   ! ConnectionPt/VirtualConnectionPt read-only accessors are ordinary
-   ! public query methods on the Connection's own declared data, not part
-   ! of that execution machinery, and are used here as-is.
-   subroutine resolve_match_connection(this, conn, unresolved, unsupported, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      type(MatchConnection), intent(in) :: conn
-      type(GraphResolutionEntryVector), intent(inout) :: unresolved
-      type(GraphResolutionEntryVector), intent(inout) :: unsupported
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ConnectionPt) :: src_pt, dst_pt
-      type(ComponentSpec), pointer :: dst_spec
-      type(ComponentGraph), pointer :: this_graph
-      type(DependencyNetworkId) :: net_id
-
-      src_pt = conn%get_source()
-      dst_pt = conn%get_destination()
-
-      dst_spec => component_spec_for(this, dst_pt%component_name, _RC)
-
-      this_graph => this%get_component_graph()
-      net_id = this_graph%get_default_network_id()
-
-      call for_each_matching_import(dst_spec, dst_pt, resolve_one, _RC)
-
-      _RETURN(_SUCCESS)
-   contains
-
-      subroutine resolve_one(var_spec, rc)
-         type(VariableSpec), intent(in) :: var_spec
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-         type(NodeId) :: import_node_id, export_node_id, final_node_id
-         logical :: has_export
-         ! openspec/changes/phase-11a-export-field-aliasing: set by
-         ! try_alias_export_field at both of this procedure's own
-         ! export_node_id materialization call sites below - when
-         ! true, the alias already gives export_node_id a real field,
-         ! so the existing try_materialize_field_extension call at that
-         ! same site is skipped (D4).
-         logical :: alias_found
-         type(VariableSpec), pointer :: export_var_spec
-         type(CharacteristicMap), target :: export_characteristics, import_characteristics
-         type(CharacteristicId), allocatable :: mismatched(:)
-         character(:), allocatable :: unsupported_characteristic
-         character(:), allocatable :: materialization_failure
-         type(StringVector) :: callback_rejected
-         character(:), pointer :: rejected_item
-         integer :: j
-
-         ! openspec/changes/ordinary-inout-direct-alias: a destination
-         ! declaring BOTH an expected callback interface and ordinary
-         ! inout borrower intent is a nonsensical combination - two
-         ! separate, mutually exclusive resolution paths exist below
-         ! (callback-interface branch, then inout-borrower branch), and
-         ! resolving via whichever branch happens to run first would
-         ! silently ignore the other declaration rather than honoring it.
-         ! Rejected explicitly, checked before either branch, so neither
-         ! one ever silently wins.
-         if (var_spec%callback_interface_id%is_valid() .and. var_spec%is_inout_borrower) then
-            call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
-                 'declares both an expected callback interface and inout borrower intent (mutually exclusive)'))
-            _RETURN(_SUCCESS)
-         end if
-
-         ! openspec/changes/callback-wiring, design.md Decision 0: a
-         ! destination declaring an expected callback interface is
-         ! resolved against the flattened namespace, materialized into
-         ! its own collection, and wired to the import via an ordinary
-         ! add_dependency edge (resolve_callback_destination) - instead
-         ! of the exact-name/extension-chain logic below, which never
-         ! runs for this var_spec.
-          if (var_spec%callback_interface_id%is_valid()) then
-             call resolve_callback_destination(this, src_pt, dst_pt, var_spec, callback_rejected, _RC)
-             do j = 1, callback_rejected%size()
-                rejected_item => callback_rejected%of(j)
-                call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
-                     rejected_item))
-             end do
-             _RETURN(_SUCCESS)
-          end if
-
-          ! openspec/changes/ordinary-inout-direct-alias, design.md
-          ! Decisions 1/4: a destination declared as an ordinary inout
-          ! borrower is resolved by resolve_inout_destination instead of
-          ! the exact-name/extension-chain logic below, which never runs
-          ! for this var_spec - mirrors the callback-interface branch
-          ! immediately above exactly.
-          if (var_spec%is_inout_borrower) then
-             call resolve_inout_destination(this, src_pt, dst_pt, var_spec, unsupported, _RC)
-             _RETURN(_SUCCESS)
-          end if
-
-          import_node_id = get_or_make_local_node_id(this, dst_pt%component_name, &
-              ESMF_STATEINTENT_IMPORT, var_spec%short_name, _RC)
-
-         has_export = find_export_node_id(this, src_pt%component_name, var_spec%short_name, &
-              export_node_id, export_var_spec, _RC)
-
-         if (.not. has_export) then
-            ! REQ scenario "Import with no matching export is left
-            ! unresolved" - reported, not silently dropped.
-            call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name))
-            _RETURN(_SUCCESS)
-         end if
-
-         export_characteristics = build_characteristics(export_var_spec, _RC)
-         import_characteristics = build_characteristics(var_spec, _RC)
-         mismatched = find_mismatched_characteristics(export_characteristics, import_characteristics)
-
-         if (size(mismatched) == 0) then
-            ! REQ-EXT-003 no-op case: matches exactly, wire directly.
-            call this_graph%add_dependency(net_id, export_node_id, import_node_id, _RC)
-
-            ! openspec/changes/phase-10a-state-materialization: give the
-            ! export's own node a real, allocated field - the same
-            ! Field-only/geom/vgrid resolution the mismatch branch below
-            ! already uses via try_materialize_field_extension, reused
-            ! as-is (design.md "Reuse, don't duplicate the mismatch
-            ! branch's own geom/vgrid resolution"), gated on this
-            ! sub-change's own mode selector (not
-            ! materialize_extensions_enabled() - a different, orthogonal
-            ! gate owned by the extension-reuse capability). No-op (zero
-            ! behavior change) in GRAPH_MODE_REGISTRY, this sub-change's
-            ! default.
-            if (graph_mode() /= GRAPH_MODE_REGISTRY) then
-               ! openspec/changes/phase-11a-export-field-aliasing: try
-               ! the real alias first (D4) - if it succeeds, the node
-               ! already has a real field, same as comp_src's own real
-               ! export field; try_materialize_field_extension's own
-               ! FieldCreate path below is skipped entirely (calling it
-               ! afterward would silently overwrite the alias, defeating
-               ! the whole point). Observed (not just statically traced,
-               ! tasks.md 3.1), running Test_GraphModeDemonstration.pf's
-               ! own units_mismatch_run_phase fixture under a temporary
-               ! diagnostic print removed before this comment was
-               ! written: try_alias_export_field succeeds (found=.true.)
-               ! on every call for this fixture, including the FIRST
-               ! GENERIC_INIT_ACCEPT_TRANSFER pass - confirming design.md
-               ! D2's static trace; the FieldCreate fallback below is
-               ! never actually exercised for this fixture.
-               call try_alias_export_field(this, src_pt%component_name, export_var_spec, &
-                    this_graph, export_node_id, alias_found, _RC)
-               if (.not. alias_found) then
-                  call try_materialize_field_extension(this, src_pt%component_name, export_var_spec, var_spec, &
-                       this_graph, export_node_id, materialization_failure, name=export_var_spec%short_name, _RC)
-                  if (materialization_failure /= '') then
-                     ! Same distinguishable-failure reporting the mismatch
-                     ! branch below already uses - the edge above still
-                     ! exists (wiring succeeded; only payload materialization
-                     ! did not).
-                     call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
-                          materialization_failure))
-                  end if
-               end if
-            end if
-
-            _RETURN(_SUCCESS)
-         end if
-
-         ! REQ-EXT-001/005: mismatch - delegate to the extension-reuse
-         ! capability (mapl_ExtensionResolution_mod) rather than wiring
-         ! the mismatched pair directly.
-         call find_or_build_extension_chain(this_graph, net_id, export_node_id, &
-              export_characteristics, import_characteristics, mismatched, &
-              final_node_id, unsupported_characteristic, _RC)
-
-         if (unsupported_characteristic /= '') then
-            ! spec "Unregistered characteristic fails loudly" -
-            ! distinguishable from "import has no matching export."
-            call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
-                 unsupported_characteristic))
-            _RETURN(_SUCCESS)
-         end if
-
-         ! openspec/changes/graph-child-state-population, found during
-         ! implementation (this change's own YAML-configured
-         ! demonstration scenario): the mismatch branch's own
-         ! export_node_id (the chain's own INPUT) was never materialized
-         ! by anything - only the exact-match branch above (line ~849)
-         ! and the chain's own FINAL node (below) ever call
-         ! try_materialize_field_extension. Harmless as long as nothing
-         ! ever executes the chain's own compute() for real (no fixture
-         ! did, before this change's own run-phase pull, design.md D7);
-         ! UnitsConverterTransform%compute()'s own
-         ! `input_field = input_item%get_field(_RC)` call fails outright
-         ! on an unallocated input otherwise. Fixed by materializing
-         ! export_node_id here too, using the EXPORT's own typekind/units/
-         ! geom/vgrid - NOT the import's (passing export_var_spec for
-         ! BOTH the export_var_spec and import_var_spec arguments is what
-         ! makes try_materialize_field_extension's own "always use the
-         ! second VariableSpec argument's typekind/units" contract
-         ! resolve to the export's own values here, correct for the
-         ! chain's own input node, as opposed to the chain's final node
-         ! below, which correctly keeps using the import's own values).
-         ! Gated the same way the exact-match branch's own materialization
-         ! already is (graph_mode() /= GRAPH_MODE_REGISTRY) - a no-op in
-         ! GRAPH_MODE_REGISTRY, matching every other new code path this
-         ! change adds.
-         if (graph_mode() /= GRAPH_MODE_REGISTRY) then
-            ! openspec/changes/phase-11a-export-field-aliasing: same
-            ! guard, same skip-when-found treatment as the exact-match
-            ! branch above (D4) - no divergence between the two call
-            ! sites. export_var_spec is passed for both the "which
-            ! component/item to alias" argument and (unchanged, in the
-            ! fallback below) the typekind/units source - the chain's
-            ! own input node correctly uses the export's own values,
-            ! same as before this change.
-            call try_alias_export_field(this, src_pt%component_name, export_var_spec, &
-                 this_graph, export_node_id, alias_found, _RC)
-            if (.not. alias_found) then
-               call try_materialize_field_extension(this, src_pt%component_name, export_var_spec, export_var_spec, &
-                    this_graph, export_node_id, materialization_failure, name=export_var_spec%short_name, _RC)
-               if (materialization_failure /= '') then
-                  call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
-                       materialization_failure))
-                  _RETURN(_SUCCESS)
-               end if
-            end if
-         end if
-
-         ! extension-registry-visibility change, task groups 1-3: chain
-         ! *structure* above is unconditional (unaffected by the gate,
-         ! exactly as 3c left it) - only the real FieldCreate-based
-         ! payload materialization step is gated. Off (the default): the
-         ! extension item keeps 3c's own unallocated placeholder payload,
-         ! zero behavior change from today.
-         if (materialize_extensions_enabled()) then
-            call try_materialize_field_extension(this, src_pt%component_name, export_var_spec, var_spec, &
-                 this_graph, final_node_id, materialization_failure, _RC)
-            if (materialization_failure /= '') then
-               ! Distinguishable from both "no matching export" and
-               ! "unregistered characteristic fails loudly" above (spec
-               ! "A non-field item class fails explicitly").
-               call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
-                    materialization_failure))
-               _RETURN(_SUCCESS)
-            end if
-         end if
-
-         call this_graph%add_dependency(net_id, final_node_id, import_node_id, _RC)
-
-         _RETURN(_SUCCESS)
-      end subroutine resolve_one
-
-   end subroutine resolve_match_connection
-
-   ! Builds the CharacteristicMap for one VariableSpec directly from its
-   ! own declared fields - deliberately not via
-   ! VariableSpec%make_StateitemSpec/make_aspects (design.md Decisions:
-   ! "Characteristic is the graph's own name for what legacy calls an
-   ! Aspect, and is a deliberately independent design, not a reskin").
-   ! A kind is included only when the underlying field is actually
-   ! populated, mirroring "aspect present" gating.
-    function build_characteristics(var_spec, rc) result(characteristics)
-      type(VariableSpec), intent(in) :: var_spec
-      integer, optional, intent(out) :: rc
-      type(CharacteristicMap) :: characteristics
-
-      integer :: status
-      character(20) :: grid_id_buffer
-
-      if (allocated(var_spec%units)) then
-         call characteristics%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic(var_spec%units))
-      end if
-      ! openspec/changes/phase-10c-typekind-characteristic, design.md D3:
-      ! unlike units, VariableSpec%typekind is a non-allocatable field
-      ! with a default (ESMF_TYPEKIND_R4) - every VariableSpec always
-      ! has SOME typekind, so there is no "not declared" state to gate
-      ! on the way `allocated(var_spec%units)` gates the branch above.
-      ! Inserted unconditionally; see design.md D3 for the regression
-      ! argument (an exact-match connection's two sides already agree by
-      ! construction in every existing fixture, so this adds a real but
-      ! always-no-op comparison for them, changing no existing resolved
-      ! result).
-      call characteristics%insert(TYPE_KIND_CHARACTERISTIC_ID, TypeKindCharacteristicAdapter(var_spec%typekind))
-      if (allocated(var_spec%vertical_grid)) then
-         ! VerticalGrid%get_id() returns an integer identity token;
-         ! VerticalGridCharacteristic compares an opaque string
-         ! signature (Characteristic.F90 get_signature contract), so it
-         ! is rendered to text here rather than changing
-         ! VerticalGridCharacteristic's own constructor to know about
-         ! integer ids specifically. get_supported_physical_dimensions()
-         ! is a pure accessor (no StateRegistry involvement, unlike
-         ! get_coordinate_field()) - also supplied here so a mismatched
-         ! identity gets REQ-GEO-007a's dimension-overlap classification
-         ! (openspec/changes/vertical-grid-graph-state-item) rather than
-         ! an undifferentiated failure.
-         write(grid_id_buffer, '(I0)') var_spec%vertical_grid%get_id()
-         call characteristics%insert(VERTICAL_GRID_CHARACTERISTIC_ID, &
-              VerticalGridCharacteristic(grid_id=trim(grid_id_buffer), &
-                   dimensions=var_spec%vertical_grid%get_supported_physical_dimensions()))
-      end if
-      ! openspec/changes/vertical-grid-graph-state-item: a composite
-      ! VariableSpec tagged state_item_variant == MAPL_STATEITEM_VERTICALGRID
-      ! (REQ-GEO-009) has no legacy VerticalGrid object to pull an
-      ! identity token from - only its own declared member names
-      ! (REQ-GEO-004a: member name = physical dimension, so
-      ! get_member_names() already IS the dimension set). Uses the SAME
-      ! VerticalGridCharacteristic/VERTICAL_GRID_CHARACTERISTIC_ID as the
-      ! branch above (not a separate characteristic kind) - with no
-      ! identity token supplied, needs_extension_for falls back to
-      ! dimension-set comparison (VerticalGridCharacteristic.F90's own
-      ! module header).
-      if (allocated(var_spec%state_item_variant)) then
-         if (var_spec%state_item_variant == MAPL_STATEITEM_VERTICALGRID) then
-            call characteristics%insert(VERTICAL_GRID_CHARACTERISTIC_ID, &
-                 VerticalGridCharacteristic(dimensions=var_spec%get_member_names()))
-         end if
-      end if
-
-      _RETURN(_SUCCESS)
-   end function build_characteristics
-
-   logical function find_export_node_id(this, comp_name, short_name, export_node_id, export_var_spec, rc) result(found)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      character(*), intent(in) :: comp_name
-      character(*), intent(in) :: short_name
-      type(NodeId), intent(out) :: export_node_id
-      type(VariableSpec), pointer, intent(out) :: export_var_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ComponentSpec), pointer :: src_spec
-
-      export_var_spec => null()
-      src_spec => component_spec_for(this, comp_name, _RC)
-      export_var_spec => find_export_var_spec(src_spec, short_name)
-      found = associated(export_var_spec)
-      if (.not. found) then
-         _RETURN(_SUCCESS)
-      end if
-
-      export_node_id = get_or_make_local_node_id(this, comp_name, ESMF_STATEINTENT_EXPORT, short_name, _RC)
-
-      _RETURN(_SUCCESS)
-   end function find_export_node_id
-
-   ! openspec/changes/ordinary-inout-direct-alias, design.md Decisions
-   ! 1-4: resolves a destination item declared an ordinary inout borrower
-   ! (16-inout-items.md REQ-INOUT-001, direct-alias case only). Reuses
-   ! find_export_node_id/build_characteristics/
-   ! find_mismatched_characteristics exactly as resolve_one's own
-   ! ordinary (non-inout) path does for the REQ-EXT-003 no-op comparison
-   ! - owner and borrower come to share one underlying payload through
-   ! the same materialization path ordinary no-op connections already
-   ! use, since the forward edge below is wired identically. On an exact
-   ! match, also adds a return-network edge (borrower -> owner) in a
-   ! fresh per-pairing network (Decision 2, revised - mirrors callback
-   ! wiring's own per-binding create_network() precedent) so the pairing
-   ! satisfies REQ-DEP-008a by construction (forward writes the
-   ! borrower's NodeId, return writes the owner's NodeId - two different
-   ! ids, never the same network). Every shape REQ-INOUT-002 reserves for
-   ! a future design addendum (mismatched payload, no identifiable owner,
-   ! chained/recursive borrowing) is rejected here and reported via
-   ! `unsupported`, never delegated to extension-chain construction.
-   ! Decision 3 (revised): this subroutine lands graph structure only -
-   ! the runtime return-edge propagation trigger is explicitly deferred
-   ! (no borrower-execution-completion hook exists yet to attach it to).
-   subroutine resolve_inout_destination(this, src_pt, dst_pt, var_spec, unsupported, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      type(ConnectionPt), intent(in) :: src_pt
-      type(ConnectionPt), intent(in) :: dst_pt
-      type(VariableSpec), intent(in) :: var_spec
-      type(GraphResolutionEntryVector), intent(inout) :: unsupported
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ComponentGraph), pointer :: graph
-      type(DependencyNetworkId) :: net_id, return_net_id
-      type(NodeId) :: import_node_id, owner_node_id
-      logical :: has_owner
-      type(VariableSpec), pointer :: owner_var_spec
-      type(ComponentSpec), pointer :: owner_comp_spec
-      type(CharacteristicMap), target :: owner_characteristics, borrower_characteristics
-      type(CharacteristicId), allocatable :: mismatched(:)
-
-      graph => this%get_component_graph()
-      net_id = graph%get_default_network_id()
-
-      import_node_id = get_or_make_local_node_id(this, dst_pt%component_name, &
-           ESMF_STATEINTENT_IMPORT, var_spec%short_name, _RC)
-
-      has_owner = find_export_node_id(this, src_pt%component_name, var_spec%short_name, &
-           owner_node_id, owner_var_spec, _RC)
-
-      if (.not. has_owner) then
-         ! spec "A borrower declaration with no identifiable owner is
-         ! rejected" - reported, never silently treated as an ordinary
-         ! import.
-         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
-              'inout borrower has no identifiable owner'))
-         _RETURN(_SUCCESS)
-      end if
-
-      ! spec "A chained borrowing pairing is rejected": `owner_var_spec`
-      ! (found above via find_export_node_id) is always the EXPORT-intent
-      ! declaration on the source component - `is_inout_borrower` is only
-      ! ever set on an IMPORT declaration (a borrower marks itself, not
-      ! whoever re-exports its value), so checking
-      ! `owner_var_spec%is_inout_borrower` directly would never detect
-      ! chaining. Instead, check whether the source component itself
-      ! separately declares a same-short-name IMPORT marked as an inout
-      ! borrower - i.e. the value this destination would borrow is itself
-      ! borrowed by its own owning component.
-      owner_comp_spec => component_spec_for(this, src_pt%component_name, _RC)
-      if (associated(find_inout_borrower_var_spec(owner_comp_spec, var_spec%short_name))) then
-         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
-              'inout borrower owner is itself a declared inout borrower (chained borrowing)'))
-         _RETURN(_SUCCESS)
-      end if
-
-      owner_characteristics = build_characteristics(owner_var_spec, _RC)
-      borrower_characteristics = build_characteristics(var_spec, _RC)
-      mismatched = find_mismatched_characteristics(owner_characteristics, borrower_characteristics)
-
-      if (size(mismatched) /= 0) then
-         ! spec "A mismatched pairing is rejected rather than silently
-         ! chained" - REQ-INOUT-002 reserves the non-direct-alias case;
-         ! this capability MUST NOT delegate to extension-chain
-         ! construction the way ordinary (non-inout) resolution does.
-         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
-              'inout borrower payload does not exactly match its owner (non-direct-alias case not supported)'))
-         _RETURN(_SUCCESS)
-      end if
-
-      ! REQ-INOUT-001 direct-alias case: forward edge in the default
-      ! network (identical wiring to the ordinary REQ-EXT-003 no-op
-      ! case), plus a return edge in a fresh per-pairing network - no
-      ! TransformGraphNode for either edge.
-      call graph%add_dependency(net_id, owner_node_id, import_node_id, _RC)
-
-      return_net_id = graph%create_network(_RC)
-      call graph%add_dependency(return_net_id, import_node_id, owner_node_id, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine resolve_inout_destination
-
-   function find_export_var_spec(comp_spec, short_name) result(export_var_spec)
-      type(ComponentSpec), target, intent(in) :: comp_spec
-      character(*), intent(in) :: short_name
-      type(VariableSpec), pointer :: export_var_spec
-
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-
-      export_var_spec => null()
-      associate (e => comp_spec%var_specs%ftn_end())
-         iter = comp_spec%var_specs%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            var_spec => iter%of()
-            if (var_spec%state_intent == ESMF_STATEINTENT_EXPORT .and. var_spec%short_name == short_name) then
-               export_var_spec => var_spec
-               return
-            end if
-         end do
-      end associate
-   end function find_export_var_spec
-
-   ! openspec/changes/ordinary-inout-direct-alias: finds a same-short-name
-   ! IMPORT-intent VariableSpec on comp_spec that is itself declared an
-   ! ordinary inout borrower (VariableSpec%is_inout_borrower) - used by
-   ! resolve_inout_destination's chained-borrowing check (spec "A chained
-   ! borrowing pairing is rejected"). Mirrors find_export_var_spec's own
-   ! shape exactly, filtering IMPORT+is_inout_borrower instead of EXPORT.
-   function find_inout_borrower_var_spec(comp_spec, short_name) result(borrower_var_spec)
-      type(ComponentSpec), target, intent(in) :: comp_spec
-      character(*), intent(in) :: short_name
-      type(VariableSpec), pointer :: borrower_var_spec
-
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-
-      borrower_var_spec => null()
-      associate (e => comp_spec%var_specs%ftn_end())
-         iter = comp_spec%var_specs%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            var_spec => iter%of()
-            if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT .and. var_spec%short_name == short_name &
-                 .and. var_spec%is_inout_borrower) then
-               borrower_var_spec => var_spec
-               return
-            end if
-         end do
-      end associate
-   end function find_inout_borrower_var_spec
-
-   ! ============================================================
-   ! Task 4: Public ports and child proxies
-   ! ============================================================
-   ! (Public-port recording for this component's OWN items happens in
-   ! advertise_one() above - task 4.1. This section is the child-proxy
-   ! half of task 4, task 4.2, needed by connection resolution above.)
 
    logical function is_self(this, comp_name) result(self_ref)
       class(OuterMetaComponent), intent(in) :: this
@@ -1378,142 +872,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine try_materialize_field_extension
 
-   ! openspec/changes/phase-11a-export-field-aliasing, design.md D1/D2/
-   ! D3/D4/D5: materializes node_id's StateItemNode payload as a real
-   ! MAPL_NamedAlias of the export component's own real, already-
-   ! realized field - read directly off that component's own real
-   ! export ESMF_State via a plain ESMF_StateGet (no StateRegistry
-   ! involvement, D1) - instead of calling try_materialize_field_extension's
-   ! own FieldCreate path. Tried BEFORE try_materialize_field_extension at
-   ! both of resolve_one's own export_node_id call sites (D4): if
-   ! found is true here, the caller skips try_materialize_field_extension
-   ! entirely (the alias already gives the node a real field). If
-   ! found is false (the export's own real field is not yet available
-   ! by name - D2), this returns success, not an error, and the caller
-   ! falls back to today's unchanged try_materialize_field_extension
-   ! call.
-   subroutine try_alias_export_field(this, export_comp_name, export_var_spec, &
-        graph, node_id, found, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      character(*), intent(in) :: export_comp_name
-      type(VariableSpec), intent(in) :: export_var_spec
-      type(ComponentGraph), target, intent(inout) :: graph
-      type(NodeId), intent(in) :: node_id
-      logical, intent(out) :: found
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      class(OuterMetaComponent), pointer :: export_meta
-      type(GriddedComponentDriver), pointer :: export_driver
-      type(MultiState) :: export_states
-      type(ESMF_State) :: export_state
-      type(ESMF_StateItem_Flag) :: item_kind
-      type(ESMF_Field) :: field
-      type(ESMF_Field) :: alias
-      class(GraphNode), pointer :: node
-      type(GraphStateItem) :: payload
-
-      found = .false.
-
-      export_meta => component_for(this, export_comp_name, _RC)
-      export_driver => export_meta%get_user_gc_driver()
-      export_states = export_driver%get_states()
-      call export_states%get_state(export_state, ESMF_STATEINTENT_EXPORT, _RC)
-
-      ! D1: plain ESMF-level by-name read - not a hard failure if the
-      ! item is not yet present (D2's two-pass timing concern); checked
-      ! via itemType, the same "present/absent" idiom
-      ! FieldClassAspect%add_to_state already uses, rather than trusting
-      ! ESMF_StateGet's own rc to distinguish "absent" from "present."
-      call ESMF_StateGet(export_state, itemName=export_var_spec%short_name, itemType=item_kind, _RC)
-      if (item_kind == ESMF_STATEITEM_NOTFOUND) then
-         _RETURN(_SUCCESS)
-      end if
-
-      call ESMF_StateGet(export_state, itemName=export_var_spec%short_name, field=field, _RC)
-
-      ! D5: MAPL_NamedAlias, not a hand-rolled ESMF_NamedAlias - carries
-      ! MAPL's own per-alias-id metadata (standard_name/long_name/
-      ! restart_mode), same as populate_one's own precedent.
-      alias = MAPL_NamedAlias(field, name=export_var_spec%short_name, _RC)
-
-      node => graph%get_node(node_id)
-      _ASSERT(associated(node), 'GraphBuilder: try_alias_export_field - NodeId not found in graph')
-      select type (node)
-      class is (StateItemNode)
-         call payload%set(alias, _RC)
-         call node%set_payload(payload)
-      class default
-         _FAIL('GraphBuilder: try_alias_export_field - NodeId does not refer to a StateItemNode')
-      end select
-
-      found = .true.
-
-      _RETURN(_SUCCESS)
-   end subroutine try_alias_export_field
-
-   ! design.md Decisions "Geom/vgrid resolution order": (a) the export's
-   ! own VariableSpec%geom if explicitly allocated (HistoryCollection-
-   ! style explicit override), else (b) the owning OuterMetaComponent's
-   ! component-wide default via its existing public has_geom()/get_geom()
-   ! accessors (the same fallback advertise_variable.F90 already applies
-   ! to every VariableSpec), else (c) not found - no cross-component
-   ! mirror propagation (that remains a distinct, future capability).
-   subroutine resolve_export_geom(var_spec, owner, geom, found, rc)
-      type(VariableSpec), intent(in) :: var_spec
-      class(OuterMetaComponent), target, intent(inout) :: owner
-      type(ESMF_Geom), intent(out) :: geom
-      logical, intent(out) :: found
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      found = .false.
-
-      if (allocated(var_spec%geom)) then
-         geom = var_spec%geom
-         found = .true.
-         _RETURN(_SUCCESS)
-      end if
-
-      if (owner%has_geom()) then
-         geom = owner%get_geom(_RC)
-         found = .true.
-      end if
-
-      _RETURN(_SUCCESS)
-   end subroutine resolve_export_geom
-
-   ! Same priority order as resolve_export_geom() above, for the
-   ! vertical grid - but unlike geom, "not found" here means "no vertical
-   ! dimension" (a legitimate 2D field), not a failure; see
-   ! try_materialize_field_extension()'s own comment. An explicit
-   ! `vertical_stagger == VERTICAL_STAGGER_NONE` (the parser's own
-   ! `vertical_dim_spec: NONE`, VariableSpec.F90) is this VariableSpec's
-   ! own explicit declaration that the field has no vertical dimension
-   ! at all - honored ahead of the component-wide default so a 2D field
-   ! declared inside an otherwise-3D-capable component is not
-   ! mistakenly given that component's own vertical grid.
-   subroutine resolve_export_vgrid(var_spec, owner, vgrid)
-      type(VariableSpec), intent(in) :: var_spec
-      class(OuterMetaComponent), target, intent(inout) :: owner
-      class(VerticalGrid), allocatable, intent(out) :: vgrid
-
-      class(VerticalGrid), pointer :: component_vgrid
-
-      if (allocated(var_spec%vertical_stagger)) then
-         if (var_spec%vertical_stagger == VERTICAL_STAGGER_NONE) return
-      end if
-
-      if (allocated(var_spec%vertical_grid)) then
-         vgrid = var_spec%vertical_grid
-         return
-      end if
-
-      component_vgrid => owner%get_vertical_grid()
-      if (associated(component_vgrid)) vgrid = component_vgrid
-   end subroutine resolve_export_vgrid
-
    ! Human-readable item-class name for an unsupported-item-class failure
    ! message (design.md Decisions "Scope limited to Field-typed items")
    ! - distinguishes which non-Field class was encountered, mirroring
@@ -1606,1052 +964,6 @@ contains
       _RETURN(_SUCCESS)
    end function get_or_make_local_node_id
 
-   ! ============================================================
-   ! Horizontal geometry (openspec/changes/
-   ! horizontal-geometry-graph-state-item, Phase 4e) - see module header
-   ! "Horizontal geometry" note above for the overall design.
-   ! ============================================================
-
-   subroutine graphbuilder_run_geometry_hook(this)
-      class(OuterMetaComponent), target, intent(inout) :: this
-
-      integer :: status
-
-      if (graph_mode() == GRAPH_MODE_REGISTRY) return
-
-      call graphbuilder_advertise_geometry(this, status)
-      call report_if_failed(this, 'advertise_geometry', status)
-
-      call graphbuilder_resolve_geometry(this, status)
-      call report_if_failed(this, 'resolve_geometry', status)
-   end subroutine graphbuilder_run_geometry_hook
-
-   ! Wraps this%get_geom() (already resolved by GeometrySpec/
-   ! initialize_geom_a.F90/initialize_geom_b.F90, long before this ever
-   ! runs) as an ordinary StateItemNode in this component's own local
-   ! graph. Idempotent, mirroring advertise_one's own re-advertisement
-   ! guard.
-   subroutine graphbuilder_advertise_geometry(this, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ComponentGraph), pointer :: graph
-      character(:), allocatable :: key
-      type(NodeId), pointer :: existing
-      type(NodeId) :: id
-      type(ESMF_Geom) :: geom
-      type(GraphStateItem) :: payload
-      type(NodeRevision) :: revision
-      type(StateItemNode) :: node
-
-      _RETURN_UNLESS(this%has_geom())
-
-      graph => this%get_component_graph()
-      key = item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME)
-
-      existing => graph%get_resource_index(key)
-      if (associated(existing)) then
-         _RETURN(_SUCCESS)
-      end if
-
-      geom = this%get_geom(_RC)
-      payload = new_geom_proxy_item(geom, _RC)
-      id = graph%next_node_id(_RC)
-      node = StateItemNode(id, payload, revision)
-      call graph%register_node(node, _RC)
-      call graph%add_resource_index(key, id, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine graphbuilder_advertise_geometry
-
-   ! Reserved key for the proxy, in a child's own local graph, standing
-   ! in for that child's parent's geometry item - the push-direction
-   ! mirror of proxy_key()'s own pull-direction convention.
-   function parent_geometry_proxy_key() result(key)
-      character(:), allocatable :: key
-
-      key = 'PROXY:' // PARENT_PROXY_NAME // ':' // item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME)
-   end function parent_geometry_proxy_key
-
-   ! Gives the already-resolved parent/child geometry relationship (per
-   ! this%get_component_spec()%geometry_spec%kind) real graph structure:
-   ! a dependency edge from whichever side provides to whichever side
-   ! receives. Does not re-decide own/from_parent/from_child - that
-   ! decision is GeometrySpec's, already made in phases 3-4.
-   subroutine graphbuilder_resolve_geometry(this, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      integer :: i, n
-      character(:), allocatable :: child_name
-      type(ComponentSpec), pointer :: this_spec
-      type(ComponentSpec), pointer :: child_spec
-
-      this_spec => this%get_component_spec()
-
-      ! -- pull: this component receives geometry from a named child --
-      if (this_spec%geometry_spec%kind == GEOMETRY_FROM_CHILD) then
-         call resolve_geometry_from_child(this, this_spec%geometry_spec%provider, _RC)
-      end if
-
-      ! -- push: for each of this component's own children that wants
-      ! geometry from its parent (this) --
-      n = this%get_num_children()
-      do i = 1, n
-         child_name = this%get_child_name(i, _RC)
-         child_spec => this%get_child_component_spec(child_name, _RC)
-         if (child_spec%geometry_spec%kind == GEOMETRY_FROM_PARENT) then
-            call push_geometry_to_child(this, child_name, _RC)
-         end if
-      end do
-
-      _RETURN(_SUCCESS)
-   end subroutine graphbuilder_resolve_geometry
-
-   ! Pull direction: reuses get_or_make_local_node_id() unmodified -
-   ! structurally identical to an ordinary cross-boundary MatchConnection
-   ! pulling a named child's item into this component's own graph.
-   subroutine resolve_geometry_from_child(this, provider_name, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      character(*), intent(in) :: provider_name
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ComponentGraph), pointer :: this_graph
-      type(DependencyNetworkId) :: net_id
-      type(NodeId), pointer :: existing
-      type(NodeId) :: this_own_id
-      type(NodeId) :: child_proxy_id
-      type(NodeId) :: final_id
-      type(OuterMetaComponent), pointer :: child_meta
-      type(CharacteristicMap), target :: this_map, child_map
-      type(CharacteristicId), allocatable :: mismatched(:)
-      character(20) :: id_buffer
-      character(:), allocatable :: unsupported
-      character(:), allocatable :: assertion_message
-      type(GeomId) :: this_own_geom_id
-      type(GeomId) :: provider_geom_id
-
-      this_graph => this%get_component_graph()
-      net_id = this_graph%get_default_network_id()
-      existing => this_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
-      _ASSERT(associated(existing), 'GraphBuilder: resolve_geometry_from_child called before this component advertised its own geometry')
-      this_own_id = existing
-
-      child_proxy_id = get_or_make_local_node_id(this, provider_name, ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME, _RC)
-
-      child_meta => this%get_child_outer_meta(provider_name, _RC)
-
-      ! Fortran does not permit invoking a type-bound procedure directly
-      ! on the (non-pointer, non-variable) result of another type-bound
-      ! function call - `this%get_geom_id()%get_value()` is not a valid
-      ! designator. Bind each intermediate result to a named variable
-      ! first instead (confirmed by bisection against NAG's rejection).
-      this_own_geom_id = this%get_geom_id()
-      provider_geom_id = child_meta%get_geom_id()
-      write(id_buffer, '(I0)') provider_geom_id%get_value()
-      call child_map%insert(GEOM_CHARACTERISTIC_ID, GeomCharacteristic(trim(id_buffer)))
-      write(id_buffer, '(I0)') this_own_geom_id%get_value()
-      call this_map%insert(GEOM_CHARACTERISTIC_ID, GeomCharacteristic(trim(id_buffer)))
-
-      ! Same dispatch shape as resolve_one's own REQ-EXT-001/003/005
-      ! handling (mirrored, not duplicated as a bespoke check): no-op on
-      ! exact match, else delegate to extension-reuse rather than wiring
-      ! the mismatched pair directly - here expected to be unreachable
-      ! given GeometrySpec's own exclusive resolution (design.md D4), but
-      ! handled through the real path rather than assumed away.
-      mismatched = find_mismatched_characteristics(child_map, this_map)
-      if (size(mismatched) == 0) then
-         call this_graph%add_dependency(net_id, child_proxy_id, this_own_id, _RC)
-         _RETURN(_SUCCESS)
-      end if
-
-      call find_or_build_extension_chain(this_graph, net_id, child_proxy_id, &
-           child_map, this_map, mismatched, final_id, unsupported, _RC)
-      assertion_message = 'GraphBuilder: geometry from child ' // provider_name // &
-            ' does not match the receiving component own resolved geometry (unsupported: ' // &
-            unsupported // ') - should be unreachable given GeometrySpec own exclusive resolution'
-      _ASSERT(unsupported == '', assertion_message)
-
-      call this_graph%add_dependency(net_id, final_id, this_own_id, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine resolve_geometry_from_child
-
-   ! Push direction: get_or_make_local_node_id() cannot express this (it
-   ! only pulls a NAMED CHILD's item into the CALLER's own graph) - this
-   ! is the symmetric case, injecting a proxy for the PARENT (this) into
-   ! the CHILD's own graph, using the same framework-internal
-   ! get_child_component_graph() carve-out (REQ-GB-002).
-   subroutine push_geometry_to_child(this, child_name, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      character(*), intent(in) :: child_name
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ComponentGraph), pointer :: this_graph
-      type(ComponentGraph), pointer :: child_graph
-      type(DependencyNetworkId) :: child_net_id
-      type(NodeId), pointer :: existing
-      type(NodeId) :: child_own_id
-      type(NodeId) :: parent_proxy_id
-      type(NodeId) :: final_id
-      character(:), allocatable :: pkey
-      type(OuterMetaComponent), pointer :: child_meta
-      type(CharacteristicMap), target :: this_map, child_map
-      type(CharacteristicId), allocatable :: mismatched(:)
-      character(20) :: id_buffer
-      type(StateItemNode) :: proxy_node
-      type(GraphStateItem) :: payload
-      type(NodeRevision) :: revision
-      character(:), allocatable :: unsupported
-      character(:), allocatable :: assertion_message
-      type(GeomId) :: this_geom_id
-      type(GeomId) :: child_geom_id
-
-      this_graph => this%get_component_graph()
-      existing => this_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
-      _ASSERT(associated(existing), 'GraphBuilder: push_geometry_to_child called before this component advertised its own geometry')
-      ! Existence is all that matters here (this component must have
-      ! already advertised its own geometry before it can push it into a
-      ! child) - unlike resolve_geometry_from_child, this component's own
-      ! NodeId is not itself an endpoint of the dependency edge added
-      ! below, so it is not retained past this check.
-
-      child_graph => this%get_child_component_graph(child_name, _RC)
-      child_meta => this%get_child_outer_meta(child_name, _RC)
-
-      existing => child_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
-      assertion_message = 'GraphBuilder: child "' // child_name // &
-            '" has no geometry to receive into - has it run its own advertise_geometry yet?'
-      _ASSERT(associated(existing), assertion_message)
-      child_own_id = existing
-
-      pkey = parent_geometry_proxy_key()
-      existing => child_graph%get_resource_index(pkey)
-      if (associated(existing)) then
-         parent_proxy_id = existing
-      else
-         parent_proxy_id = child_graph%next_node_id(_RC)
-         proxy_node = StateItemNode(parent_proxy_id, payload, revision)
-         call child_graph%register_node(proxy_node, _RC)
-         call child_graph%add_resource_index(pkey, parent_proxy_id, _RC)
-      end if
-
-      ! See resolve_geometry_from_child's own comment above - same
-      ! not-a-valid-designator reason for binding each intermediate
-      ! result to a named variable first.
-      this_geom_id = this%get_geom_id()
-      child_geom_id = child_meta%get_geom_id()
-      write(id_buffer, '(I0)') this_geom_id%get_value()
-      call this_map%insert(GEOM_CHARACTERISTIC_ID, GeomCharacteristic(trim(id_buffer)))
-      write(id_buffer, '(I0)') child_geom_id%get_value()
-      call child_map%insert(GEOM_CHARACTERISTIC_ID, GeomCharacteristic(trim(id_buffer)))
-
-      ! Same dispatch shape as resolve_one's own REQ-EXT-001/003/005
-      ! handling, and as resolve_geometry_from_child's own pull-direction
-      ! mirror above - the edge (and, if mismatched, any extension chain)
-      ! lives in the CHILD's own graph/network, since both its endpoints
-      ! (parent_proxy_id, child_own_id) are child_graph nodes.
-      child_net_id = child_graph%get_default_network_id()
-      mismatched = find_mismatched_characteristics(this_map, child_map)
-      if (size(mismatched) == 0) then
-         call child_graph%add_dependency(child_net_id, parent_proxy_id, child_own_id, _RC)
-         _RETURN(_SUCCESS)
-      end if
-
-      call find_or_build_extension_chain(child_graph, child_net_id, parent_proxy_id, &
-           this_map, child_map, mismatched, final_id, unsupported, _RC)
-      assertion_message = 'GraphBuilder: parent geometry does not match child ' // child_name // &
-            ' own resolved geometry (unsupported: ' // unsupported // &
-            ') - should be unreachable given GeometrySpec own exclusive resolution'
-      _ASSERT(unsupported == '', assertion_message)
-
-      call child_graph%add_dependency(child_net_id, final_id, child_own_id, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine push_geometry_to_child
-
-   ! ============================================================
-   ! Task 5: Validate and freeze
-   ! ============================================================
-
-   ! ComponentGraph%freeze() already validates before transitioning
-   ! lifecycle state (ComponentGraph.F90 graph_freeze: validate() is
-   ! called first, and the frozen flag is only set on success) - this is
-   ! a thin, directly-testable wrapper, not a reimplementation.
-   subroutine graphbuilder_freeze(this, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ComponentGraph), pointer :: graph
-
-      graph => this%get_component_graph()
-      call graph%freeze(_RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine graphbuilder_freeze
-
-   ! ============================================================
-   ! openspec/changes/phase-10a-state-materialization: graph-native
-   ! state population - the graph-side equivalent of
-   ! StateRegistry%add_to_states.
-   ! ============================================================
-
-   ! Design correction (found while writing this sub-change's own pFUnit
-   ! coverage, before any task was marked complete): the original
-   ! decision - walk `this`'s own `ComponentSpec%var_specs` via
-   ! `item_key`, mirroring `advertise_one` - only ever finds a
-   ! materialized node for a connection declared and resolved entirely
-   ! within one component, which no real fixture uses. For the ordinary
-   ! cross-component case (a parent declares a `MatchConnection` between
-   ! two of its own children - the only shape
-   ! `Test_GraphBuilderEquivalence.pf`'s own fixture family uses),
-   ! `get_or_make_local_node_id` (used by both `add_dependency`'s own
-   ! endpoints and this sub-change's new materialization call) ALWAYS
-   ! returns a PARENT-local proxy for any non-'<self>' `comp_name` -
-   ! never either child's own native `StateItemNode`. So for that
-   ! realistic case, the dependency edge and the materialized payload
-   ! both live ONLY in the PARENT's own graph, on the PARENT's own two
-   ! proxies; neither child's own native export/import node is ever
-   ! touched. Walking `this`'s own `var_specs` + `item_key` alone would
-   ! therefore find nothing whenever `this` is one of the two connected
-   ! children (which is exactly when `initialize_accept_transfer.F90`
-   ! calls this on each of them, once per component in the recursive
-   ! tree).
-   !
-   ! Fixed by also walking each of `this`'s own declared children's
-   ! VariableSpecs (`get_num_children`/`get_child_name`/
-   ! `get_child_component_spec` - same enumeration
-   ! `graphbuilder_resolve_geometry`'s own push-direction loop already
-   ! uses), looking each one up via `proxy_key(child_name, ...)` in
-   ! `this`'s OWN graph instead of `item_key` - exactly the same
-   ! resource-index convention `get_or_make_local_node_id` itself uses
-   ! to create that same proxy in the first place. A proxy only exists
-   ! if some connection `this` declared actually referenced that child
-   ! item, so an item with no proxy (never connected) is silently
-   ! skipped, same as an unresolved import. The same-component
-   ! (`item_key`-based) walk is kept as the degenerate case for an item
-   ! `this` advertises and connects entirely to itself, if that ever
-   ! occurs.
-   !
-   ! Only a real producer when the graph mode is GRAPH_MODE_GRAPH
-   ! (design.md "Graph-native state population is a new procedure"). A
-   ! no-op (inserts nothing) in GRAPH_MODE_REGISTRY or GRAPH_MODE_BOTH -
-   ! design.md's "both mode's no-collision guarantee is structural"
-   ! decision: this is the ONLY gate on the real ESMF_StateAdd call
-   ! below, so `both` mode can never reach it.
-   !
-   ! An export's own field is whatever is on its own node (materialized
-   ! by resolve_one's no-mismatch branch above, or by the mismatch
-   ! branch's existing try_materialize_field_extension). An import's
-   ! real field is resolved by walking the default network's own
-   ! predecessor edge back to the first node with a real field payload
-   ! (find_materialized_predecessor below) - collapsing correctly for
-   ! both the direct exact-match case (single hop) and an extension
-   ! chain (walks through one or more transform nodes to the chain's own
-   ! final node), with no special-casing between the two. INTERNAL items
-   ! and non-Field items are skipped (same Field-only scope
-   ! materialization itself already has); an import with no resolved
-   ! predecessor (unresolved) is skipped silently, not an error (spec
-   ! "Unresolved import is not populated").
-   subroutine graphbuilder_populate_state(this, multi_state, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      type(MultiState), intent(inout) :: multi_state
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ComponentSpec), pointer :: this_spec, child_spec
-      type(ComponentGraph), pointer :: graph
-      type(DependencyNetwork), pointer :: net
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-      type(NodeId), pointer :: id_ptr
-      character(:), allocatable :: child_name
-      integer :: n, i
-      type(OuterMetaComponent), pointer :: child_meta
-      type(GriddedComponentDriver), pointer :: child_driver
-      type(MultiState) :: child_states
-
-      _RETURN_IF(graph_mode() /= GRAPH_MODE_GRAPH)
-
-      graph => this%get_component_graph()
-      net => graph%get_network(graph%get_default_network_id())
-
-      ! Degenerate same-component case: an item `this` advertises and
-      ! connects entirely to itself - item_key, this's own native node.
-      this_spec => this%get_component_spec()
-      associate (e => this_spec%var_specs%ftn_end())
-         iter = this_spec%var_specs%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            var_spec => iter%of()
-            if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT .or. &
-                 var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) cycle
-            id_ptr => graph%get_resource_index(item_key(var_spec%state_intent, var_spec%short_name))
-            call populate_one(graph, net, multi_state, id_ptr, var_spec%state_intent, var_spec%short_name, _RC)
-         end do
-      end associate
-
-      ! Ordinary cross-component case: each declared child's own
-      ! advertised import/export item may have a parent-local proxy in
-      ! `this`'s own graph (proxy_key) - the only place real structure
-      ! exists for a connection `this` declared between its children.
-      !
-      ! openspec/changes/graph-child-state-population, design.md D1:
-      ! unlike the degenerate same-component branch above (which keeps
-      ! using the procedure's own `multi_state` argument - that one IS
-      ! this component's own real state), the resolved item here
-      ! belongs to a CHILD this component merely connected, never to
-      ! `this` itself - `this` (the parent) has no stake in the real
-      ! ESMF_State the item is populated into. Each iteration therefore
-      ! looks up that child's own OuterMetaComponent (the one-way
-      ! parent-to-child reach `get_child_component_graph`/
-      ! `get_child_component_spec` already establish elsewhere in this
-      ! module) and populates INTO THE CHILD'S OWN real MultiState -
-      ! never into `this`'s own `multi_state` argument. The child's own
-      ! graph/component code requires no awareness of its parent for
-      ! this to happen; only the parent reaches down.
-      n = this%get_num_children()
-      do i = 1, n
-         child_name = this%get_child_name(i, _RC)
-         child_spec => this%get_child_component_spec(child_name, _RC)
-         child_meta => this%get_child_outer_meta(child_name, _RC)
-         child_driver => child_meta%get_user_gc_driver()
-         child_states = child_driver%get_states()
-         associate (e => child_spec%var_specs%ftn_end())
-            iter = child_spec%var_specs%ftn_begin()
-            do while (iter /= e)
-               call iter%next()
-               var_spec => iter%of()
-               if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT .or. &
-                    var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) cycle
-               id_ptr => graph%get_resource_index(proxy_key(child_name, var_spec%state_intent, var_spec%short_name))
-               call populate_one(graph, net, child_states, id_ptr, var_spec%state_intent, var_spec%short_name, _RC)
-            end do
-         end associate
-      end do
-
-      _RETURN(_SUCCESS)
-   end subroutine graphbuilder_populate_state
-
-   ! Shared by both walks in graphbuilder_populate_state above: resolves
-   ! id_ptr's own real field (export: direct; import: predecessor walk)
-   ! and, if found, inserts a NAMED ALIAS of it (not the raw field
-   ! itself) into multi_state's own real ESMF_State (per state_intent),
-   ! under short_name.
-   !
-   ! openspec/changes/graph-child-state-population, found during
-   ! implementation (ESMF_StateAddReplace matches purely by name - see
-   ! this procedure's own earlier revision's header comment, now
-   ! corrected below): the chain's final item (a mismatch/extension
-   ! case) is created with NO explicit name
-   ! (try_materialize_field_extension's own mismatch-branch call site
-   ! never passes `name=`, confirmed by reading GraphBuilder.F90's
-   ! own resolve_one) - ESMF assigns such a field some internal default
-   ! name of its own. Inserting that raw, unnamed field directly meant
-   ! GENERIC_INIT_PHASE_SEQUENCE's second GENERIC_INIT_ACCEPT_TRANSFER
-   ! pass (enums/GenericPhases.F90's own documented fixed two-pass
-   ! schedule) could not reliably re-match its own first-pass insertion
-   ! by name, producing a real duplicate entry rather than a replace -
-   ! ESMF objects are shallow and the underlying field is genuinely the
-   ! same handle both times (materialize_field_extension's own "already
-   ! materialized - no-op" guard, confirmed unmodified), but the STATE
-   ! ENTRY identity ESMF tracks is name-based, not object-identity-based.
-   ! Legacy's own FieldClassAspect%add_to_state
-   ! (superstructure/generic/specs/FieldClassAspect.F90) already solves
-   ! this exact problem the correct way: never add the raw field -
-   ! always add a MAPL_NamedAlias of it (infrastructure/field/
-   ! FieldNamedAlias.F90), under the item's own known short_name, so
-   ! every insertion of the same underlying item - first pass, second
-   ! pass, or any later re-entrant call - produces an alias with the
-   ! identical, stable name ESMF_StateAddReplace can always match
-   ! against. Reused here verbatim, not reinvented: short_name is now
-   ! threaded through from each call site's own already-available
-   ! var_spec%short_name (both graphbuilder_populate_state loops above
-   ! already have it in scope).
-   subroutine populate_one(graph, net, multi_state, id_ptr, state_intent, short_name, rc)
-      type(ComponentGraph), target, intent(in) :: graph
-      type(DependencyNetwork), intent(in) :: net
-      type(MultiState), intent(inout) :: multi_state
-      type(NodeId), pointer, intent(in) :: id_ptr
-      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
-      character(*), intent(in) :: short_name
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(NodeId) :: item_id, field_node_id
-      logical :: found
-      type(ESMF_Field) :: field
-      type(ESMF_Field) :: alias
-      type(ESMF_State) :: state
-
-      if (.not. associated(id_ptr)) then
-         _RETURN(_SUCCESS)
-      end if
-      item_id = id_ptr
-
-      if (state_intent == ESMF_STATEINTENT_EXPORT) then
-         call get_field_if_materialized(graph, item_id, field, found, _RC)
-      else
-         field_node_id = find_materialized_predecessor(graph, net, item_id, found)
-         ! Bug found while debugging this sub-change's own pFUnit
-         ! coverage: a single-statement conditional guarding a call
-         ! whose trailing argument is the error-handling macro does NOT
-         ! guard that macro's own trailing verify-status check (a
-         ! textually separate statement after the semicolon it expands
-         ! to) - when found is false, the call itself is skipped but the
-         ! verify check still runs unconditionally against an
-         ! uninitialized status value, producing a spurious failure. A
-         ! real if-then-end-if block keeps the whole macro expansion
-         ! inside the conditional.
-         if (found) then
-            call get_field_if_materialized(graph, field_node_id, field, found, _RC)
-         end if
-      end if
-      if (.not. found) then
-         _RETURN(_SUCCESS)
-      end if
-
-      call multi_state%get_state(state, state_intent, _RC)
-
-      ! Named alias under short_name, then add-or-replace by that same
-      ! stable name - idempotent on re-entry (GENERIC_INIT_ACCEPT_TRANSFER's
-      ! own two-pass schedule) because the alias's own name never
-      ! changes across calls, regardless of whether the underlying
-      ! field itself was ever given an explicit name at FieldCreate
-      ! time (design.md's own update records this correction).
-      alias = MAPL_NamedAlias(field, name=short_name, _RC)
-      call ESMF_StateAddReplace(state, [alias], _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine populate_one
-
-   ! Field-only, no-op-if-not-materialized accessor shared by
-   ! graphbuilder_populate_state's export and (resolved) import cases.
-   subroutine get_field_if_materialized(graph, node_id, field, found, rc)
-      type(ComponentGraph), target, intent(in) :: graph
-      type(NodeId), intent(in) :: node_id
-      type(ESMF_Field), intent(out) :: field
-      logical, intent(out) :: found
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      class(GraphNode), pointer :: node
-      type(GraphStateItem) :: payload
-      type(ESMF_StateItem_Flag) :: kind_flag
-
-      found = .false.
-      node => graph%get_node(node_id)
-      if (.not. associated(node)) then
-         _RETURN(_SUCCESS)
-      end if
-
-      select type (node)
-      class is (StateItemNode)
-         payload = node%get_payload()
-         kind_flag = payload%itemType(_RC)
-         if (kind_flag == ESMF_STATEITEM_FIELD) then
-            field = payload%get_field(_RC)
-            found = .true.
-         end if
-      end select
-
-      _RETURN(_SUCCESS)
-   end subroutine get_field_if_materialized
-
-   ! Walks network's own predecessor adjacency from start_id, one hop at
-   ! a time, until a node whose own payload is a real, allocated field is
-   ! reached (design.md "State-population import resolution walks the
-   ! dependency network's own predecessor edge, not a parallel
-   ! bookkeeping structure"). Collapses to a single hop for a direct
-   ! exact-match wiring (start_id's own predecessor IS the materialized
-   ! export) and walks through an arbitrary-length extension chain the
-   ! same way, with no special-casing between the two cases. Takes the
-   ! FIRST predecessor at each hop - safe because add_dependency/
-   ! graphbuilder_freeze's own existing "two producers for the same
-   ! item" validation already guarantees single-predecessor by
-   ! construction for any import this procedure is ever called on
-   ! (design.md Risks). Returns found=.false. (not an error) if no
-   ! predecessor exists at all (an unresolved import) or the walk
-   ! exhausts a defensive hop limit without finding a real field.
-   function find_materialized_predecessor(graph, net, start_id, found) result(field_node_id)
-      type(ComponentGraph), target, intent(in) :: graph
-      type(DependencyNetwork), intent(in) :: net
-      type(NodeId), intent(in) :: start_id
-      logical, intent(out) :: found
-      type(NodeId) :: field_node_id
-
-      integer, parameter :: MAX_CHAIN_HOPS = 64
-      type(NodeId) :: current
-      class(GraphNode), pointer :: node
-      type(GraphStateItem) :: payload
-      type(ESMF_StateItem_Flag) :: kind_flag
-      ! target required: ftn_begin()'s own returned iterator holds a
-      ! pointer into preds' internals (single_predecessor's own
-      ! precedent, Test_GraphBuilderEquivalence.pf).
-      type(NodeIdSet), target :: preds
-      type(NodeIdSetIterator) :: pred_iter
-      integer :: hop, status
-
-      found = .false.
-      current = start_id
-
-      do hop = 1, MAX_CHAIN_HOPS
-         node => graph%get_node(current)
-         if (.not. associated(node)) exit
-
-         select type (node)
-         class is (StateItemNode)
-            payload = node%get_payload()
-            kind_flag = payload%itemType(rc=status)
-            if (status == 0 .and. kind_flag == ESMF_STATEITEM_FIELD) then
-               field_node_id = current
-               found = .true.
-               return
-            end if
-         end select
-
-         if (.not. net%has_predecessors(current)) exit
-         preds = net%get_predecessors(current)
-         pred_iter = preds%ftn_begin()
-         call pred_iter%next()
-         current = pred_iter%of()
-      end do
-   end function find_materialized_predecessor
-
-   ! ============================================================
-   ! openspec/changes/graph-child-state-population, design.md D7:
-   ! re-propagation pull after a run phase.
-   ! ============================================================
-
-   ! Found during implementation of this change's own YAML-configured
-   ! demonstration scenario (proposal.md Why; design.md D7):
-   ! graphbuilder_populate_state only ever runs once, at
-   ! GENERIC_INIT_ACCEPT_TRANSFER (init time) - nothing re-populates a
-   ! child's own real import state after a later run phase changes the
-   ! value feeding an extension-chain transform. This hook closes that
-   ! gap WITHOUT reopening Phase 10d's own double-invocation hazard: it
-   ! calls `ComponentGraph%update()` directly on each of `this`
-   ! component's own declared children's import proxies - the SAME
-   ! demand-driven update entry point the equivalence harness/callback
-   ! wiring already use - never constructing or invoking a
-   ! MethodGraphNode, never calling a GriddedComponentDriver%run() a
-   ! second time. method-graph-node capability's own REQ-NODE-007
-   ! ("Method node execution is never scheduled by demand-driven
-   ! update") already guarantees graph%update()'s own dispatch
-   ! (ComponentGraph_DemandDrivenUpdate.F90's class default branch)
-   ! skips anything that is not a StateItemNode/TransformGraphNode - a
-   ! MethodGraphNode is categorically unreachable from this call, by
-   ! construction, not merely by convention.
-   !
-   ! A no-op outside GRAPH_MODE_GRAPH, matching every other new code
-   ! path this change adds. MUST be called only from run_user.F90's
-   ! own GENERIC::RUN_USER-phase body, immediately after the existing
-   ! legacy run call - mirrors graphbuilder_build_run_phase_node's own
-   ! header-comment convention for documenting its one intended call
-   ! site.
-   subroutine graphbuilder_run_pull_hook(this, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ComponentGraph), pointer :: graph
-      type(ComponentSpec), pointer :: child_spec
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-      type(NodeId), pointer :: proxy_id
-      character(:), allocatable :: child_name
-      integer :: n, i
-
-      _RETURN_IF(graph_mode() /= GRAPH_MODE_GRAPH)
-
-      graph => this%get_component_graph()
-
-      n = this%get_num_children()
-      do i = 1, n
-         child_name = this%get_child_name(i, _RC)
-         child_spec => this%get_child_component_spec(child_name, _RC)
-         associate (e => child_spec%var_specs%ftn_end())
-            iter = child_spec%var_specs%ftn_begin()
-            do while (iter /= e)
-               call iter%next()
-               var_spec => iter%of()
-               if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT)) cycle
-               proxy_id => graph%get_resource_index(proxy_key(child_name, ESMF_STATEINTENT_IMPORT, var_spec%short_name))
-               if (.not. associated(proxy_id)) cycle
-               call graph%update(graph%get_default_network_id(), proxy_id, _RC)
-            end do
-         end associate
-      end do
-
-      _RETURN(_SUCCESS)
-   end subroutine graphbuilder_run_pull_hook
-
-   ! ============================================================
-   ! Task 6: Visualization enrichment (visualization-enrichment-layer
-   ! change, REQ-VIZ-004/015)
-   ! ============================================================
-
-   ! Builds a NodeId -> label lookup for THIS component's own local
-   ! graph only (design.md Goals/Non-Goals): a component's own
-   ! advertised items are labeled by their own short_name (read from
-   ! ComponentSpec%var_specs, the same iteration graphbuilder_advertise
-   ! already performs); each cached child-proxy node in this
-   ! component's own graph is labeled "<child_name>:<short_name>" and
-   ! marked as a proxy, read from that child's own already-published
-   ! ComponentSpec%var_specs (the same framework-internal carve-out
-   ! get_or_make_local_node_id already uses, REQ-GB-002) - never the
-   ! child's own graph/NodeId/DependencyNetwork. A child item never
-   ! actually connected has no cached proxy, so
-   ! graph%get_resource_index(proxy_key(...)) simply returns
-   ! unassociated and that item is left out of the map - not an error
-   ! (design.md Decisions, "Enrichment builds the map by walking
-   ! var_specs").
-   function graphbuilder_build_label_map(this, rc) result(label_map)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      integer, optional, intent(out) :: rc
-      type(NodeIdLabelMap) :: label_map
-
-      integer :: status
-      integer :: i, num_children
-      type(ComponentGraph), pointer :: graph
-      type(ComponentSpec), pointer :: comp_spec, child_spec
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-      character(:), allocatable :: child_name
-      character(:), allocatable :: key
-      type(NodeId), pointer :: found_id
-
-      graph => this%get_component_graph()
-      comp_spec => this%get_component_spec()
-
-      ! This component's own advertised items (design.md - "walking
-      ! var_specs", not reversing the resource index).
-      associate (e => comp_spec%var_specs%ftn_end())
-         iter = comp_spec%var_specs%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            var_spec => iter%of()
-            key = item_key(var_spec%state_intent, var_spec%short_name)
-            found_id => graph%get_resource_index(key)
-            if (associated(found_id)) then
-               call label_map%insert(found_id, NodeLabel(var_spec%short_name, is_proxy=.false.))
-            end if
-         end do
-      end associate
-
-      ! Each child's cached proxy nodes, if any, in THIS component's
-      ! own graph (never the child's own graph - design.md "Enrichment
-      ! layer does not cross into a child's own graph").
-      num_children = this%get_num_children()
-      do i = 1, num_children
-         child_name = this%get_child_name(i, _RC)
-         child_spec => this%get_child_component_spec(child_name, _RC)
-
-         associate (ce => child_spec%var_specs%ftn_end())
-            iter = child_spec%var_specs%ftn_begin()
-            do while (iter /= ce)
-               call iter%next()
-               var_spec => iter%of()
-               key = proxy_key(child_name, var_spec%state_intent, var_spec%short_name)
-               found_id => graph%get_resource_index(key)
-               if (associated(found_id)) then
-                  call label_map%insert(found_id, &
-                       NodeLabel(child_name // ':' // var_spec%short_name, is_proxy=.true.))
-               end if
-            end do
-         end associate
-      end do
-
-      _RETURN(_SUCCESS)
-   end function graphbuilder_build_label_map
-
-   ! ============================================================
-   ! Task: Callback wiring (openspec/changes/callback-wiring,
-   ! docs/graph/spec/15-callbacks.md sec 15.9-15.10, roadmap Phase 4d)
-   ! ============================================================
-   !
-   ! Triggered from inside the existing MatchConnection dispatch above
-   ! (check_match_connection_unsatisfied/resolve_match_connection's own
-   ! check_one/resolve_one) whenever a matched destination import's own
-   ! VariableSpec declares callback_interface_id%is_valid() (design.md
-   ! Decision 0) - no new Connection subtype. Resolves the connection's
-   ! own declared source pattern against a flattened, hierarchy-wide
-   ! qualified-export namespace (REQ-CB-013/014), validates each match
-   ! against the destination's expected CallbackInterface (REQ-CB-016),
-   ! materializes a flat callback collection for the destination
-   ! (REQ-CB-016), builds a real CallbackStateBinding per matched
-   ! callback state (Phase 4c), and provides CallbackMethodBinding/
-   ! per-method get-put network construction plus the invoke-once-after-
-   ! all-ready discipline (REQ-CB-018/019/020). See design.md Decisions
-   ! 0-7.
-
-   ! REQ-CB-013/014: builds root's own flattened qualified-export
-   ! namespace by recursing across every descendant level (design.md
-   ! Decision 1 - a fresh, uncached snapshot at resolution time; REQ-CB-016's
-   ! own "currently-known" phrasing). root's own exports are keyed by
-   ! their own short name; a descendant's export is additionally keyed
-   ! by comp_path/short_name, composing one segment per hierarchy level.
-   function build_qualified_export_namespace(root, rc) result(entries)
-      class(OuterMetaComponent), target, intent(inout) :: root
-      integer, optional, intent(out) :: rc
-      type(QualifiedExportEntry), allocatable :: entries(:)
-
-      integer :: status
-
-      allocate(entries(0))
-      call collect_qualified_exports(root, '', entries, _RC)
-
-      _RETURN(_SUCCESS)
-   end function build_qualified_export_namespace
-
-   recursive subroutine collect_qualified_exports(owner, path_prefix, entries, rc)
-      class(OuterMetaComponent), target, intent(inout) :: owner
-      character(*), intent(in) :: path_prefix
-      type(QualifiedExportEntry), allocatable, intent(inout) :: entries(:)
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      integer :: i, num_children
-      type(ComponentSpec), pointer :: comp_spec
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-      character(:), allocatable :: child_name, child_path
-      type(OuterMetaComponent), pointer :: child_meta
-      type(QualifiedExportEntry) :: entry
-      type(QualifiedExportEntry), allocatable :: grown_entries(:)
-      integer :: n
-
-      comp_spec => owner%get_component_spec()
-
-      associate (e => comp_spec%var_specs%ftn_end())
-         iter = comp_spec%var_specs%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            var_spec => iter%of()
-            if (.not. (var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) cycle
-            entry%comp_path = path_prefix
-            if (len(path_prefix) == 0) then
-               entry%qualified_name = var_spec%short_name
-            else
-               entry%qualified_name = path_prefix // '/' // var_spec%short_name
-            end if
-            entry%var_spec = var_spec
-            ! Classic ifort (2021.13, -O0) segfaults compiling the more
-            ! natural self-referencing array-constructor growth
-            ! `entries = [entries, entry]` here, where entries is an
-            ! allocatable array of a derived type (QualifiedExportEntry)
-            ! with a nested allocatable-component type (VariableSpec) -
-            ! bisected against this file's own ICE (gfortran, NAG, and
-            ! ifx all accept the array-constructor form without issue).
-            ! Grow via an explicit fresh temporary and move_alloc
-            ! instead - functionally identical, but never assigns the
-            ! array constructor result back onto one of its own operands.
-            n = size(entries)
-            allocate(grown_entries(n + 1))
-            ! NAG (observed 7.2.41, -O0 Debug): a zero-extent array-section
-            ! assignment (grown_entries(1:0) = entries, n==0) of this
-            ! derived type - QualifiedExportEntry nests a VariableSpec,
-            ! which nests a VariableSpecMemberMap (polymorphic, deep_copy
-            ! defined assignment, recursively self-referential) - triggers
-            ! a real bus error (invalid address alignment) in the
-            ! compiler-generated whole-array defined-assignment dispatch,
-            ! even though the assigned section has no elements. Guarding
-            ! the n==0 case (nothing to copy) avoids the bad codegen path
-            ! entirely; functionally a no-op either way.
-            if (n > 0) grown_entries(1:n) = entries
-            grown_entries(n + 1) = entry
-            call move_alloc(grown_entries, entries)
-         end do
-      end associate
-
-      num_children = owner%get_num_children()
-      do i = 1, num_children
-         child_name = owner%get_child_name(i, _RC)
-         child_meta => owner%get_child_outer_meta(child_name, _RC)
-         if (len(path_prefix) == 0) then
-            child_path = child_name
-         else
-            child_path = path_prefix // '/' // child_name
-         end if
-         call collect_qualified_exports(child_meta, child_path, entries, _RC)
-      end do
-
-      _RETURN(_SUCCESS)
-   end subroutine collect_qualified_exports
-
-   ! Walks comp_path's '/'-separated segments via get_child_outer_meta,
-   ! one hop per segment, from `root` to the OuterMetaComponent that
-   ! actually owns comp_path's own graph (design.md Decision 1 -
-   ! generalizes the single-hop child lookup ordinary connection
-   ! resolution already uses, get_or_make_local_node_id, to arbitrary
-   ! depth). comp_path MUST be non-empty - callers guard this; an empty
-   ! comp_path means "root itself," never routed here.
-   function resolve_descendant(root, comp_path, rc) result(meta)
-      class(OuterMetaComponent), target, intent(inout) :: root
-      character(*), intent(in) :: comp_path
-      integer, optional, intent(out) :: rc
-      type(OuterMetaComponent), pointer :: meta
-
-      integer :: status
-      character(:), allocatable :: remaining, segment
-      integer :: slash_pos
-
-      remaining = comp_path
-
-      slash_pos = index(remaining, '/')
-      if (slash_pos == 0) then
-         segment = remaining
-         remaining = ''
-      else
-         segment = remaining(1:slash_pos - 1)
-         remaining = remaining(slash_pos + 1:)
-      end if
-      meta => root%get_child_outer_meta(segment, _RC)
-
-      do while (len(remaining) > 0)
-         slash_pos = index(remaining, '/')
-         if (slash_pos == 0) then
-            segment = remaining
-            remaining = ''
-         else
-            segment = remaining(1:slash_pos - 1)
-            remaining = remaining(slash_pos + 1:)
-         end if
-         meta => meta%get_child_outer_meta(segment, _RC)
-      end do
-
-      _RETURN(_SUCCESS)
-   end function resolve_descendant
-
-   ! Resolves entry (found under a namespace rooted at src_component_name,
-   ! relative to `this`) to a NodeId usable directly in `this`'s own
-   ! graph: `this`'s own export with no further descendant path resolves
-   ! to its already-advertised NodeId directly; every other case resolves
-   ! through a cached-or-newly-created parent-local proxy StateItemNode
-   ! (REQ-HIER-006), generalizing get_or_make_local_node_id's own
-   ! single-level proxy shape to the full path from `this` down to the
-   ! real owner (src_component_name, then entry%comp_path's own further
-   ! segments).
-   function resolve_qualified_export_node_id(this, src_component_name, entry, rc) result(node_id)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      character(*), intent(in) :: src_component_name
-      type(QualifiedExportEntry), intent(in) :: entry
-      integer, optional, intent(out) :: rc
-      type(NodeId) :: node_id
-
-      integer :: status
-      character(:), allocatable :: full_path
-      type(ComponentGraph), pointer :: this_graph, owner_graph
-      character(:), allocatable :: pkey
-      type(NodeId), pointer :: existing
-      type(NodeId), pointer :: owner_item_id
-      type(OuterMetaComponent), pointer :: owner_meta
-      type(StateItemNode) :: proxy_node
-      type(GraphStateItem) :: payload
-      type(NodeRevision) :: revision
-      type(PortId) :: port_id
-
-      this_graph => this%get_component_graph()
-
-      if (is_self(this, src_component_name) .and. len(entry%comp_path) == 0) then
-         existing => this_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, entry%var_spec%short_name))
-         _ASSERT(associated(existing), 'GraphBuilder: callback wiring references an export this component never advertised: ' // entry%var_spec%short_name)
-         node_id = existing
-         _RETURN(_SUCCESS)
-      end if
-
-      if (is_self(this, src_component_name)) then
-         full_path = entry%comp_path
-      else if (len(entry%comp_path) == 0) then
-         full_path = src_component_name
-      else
-         full_path = src_component_name // '/' // entry%comp_path
-      end if
-
-      pkey = 'CALLBACK_PROXY:' // full_path // ':' // item_key(ESMF_STATEINTENT_EXPORT, entry%var_spec%short_name)
-      existing => this_graph%get_resource_index(pkey)
-      if (associated(existing)) then
-         node_id = existing
-         _RETURN(_SUCCESS)
-      end if
-
-      owner_meta => resolve_descendant(this, full_path, _RC)
-      owner_graph => owner_meta%get_component_graph()
-      owner_item_id => owner_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, entry%var_spec%short_name))
-      _ASSERT(associated(owner_item_id), 'GraphBuilder: callback wiring references an export never advertised at path ' // full_path)
-
-      node_id = this_graph%next_node_id(_RC)
-      proxy_node = StateItemNode(node_id, payload, revision)
-      call this_graph%register_node(proxy_node, _RC)
-      call this_graph%add_resource_index(pkey, node_id, _RC)
-
-      port_id = this_graph%next_port_id(_RC)
-      call this_graph%add_child_port_binding(port_id, node_id, _RC)
-
-      _RETURN(_SUCCESS)
-   end function resolve_qualified_export_node_id
-
-   ! design.md Decision 4: an export "implements" expected_iface when its
-   ! own declared composite members (composite-state-spec's
-   ! declare_member tree) cover every argument name expected_iface
-   ! declares, with each member's own itemType matching that argument's
-   ! expected_kind (compared by name - MAPL_StateItem_Flag's variant-flag
-   ! vocabulary and itemtype_name()'s existing ESMF-domain vocabulary
-   ! already agree on FIELD/FIELDBUNDLE/STATE for the base kinds this
-   ! check needs). Method presence (get/put, ...) is not checked here -
-   ! CallbackStateBinding%bind_method already reports a missing method
-   ! attachment explicitly at binding time (design.md Risks).
-   function export_conforms_to_interface(var_spec, expected_iface, reason) result(conforms)
-      type(VariableSpec), target, intent(in) :: var_spec
-      type(CallbackInterface), target, intent(in) :: expected_iface
-      character(:), allocatable, intent(out) :: reason
-      logical :: conforms
-
-      type(CallbackArgumentSpecMap), target :: arguments
-      type(CallbackArgumentSpecMapIterator) :: iter
-      character(:), allocatable :: argument_name
-      type(CallbackArgumentSpec) :: arg_spec
-      type(MAPL_StateItem_Flag) :: expected_kind
-      type(VariableSpec) :: member
-      integer :: status
-
-      conforms = .true.
-      reason = ''
-
-      arguments = expected_iface%get_arguments()
-      iter = arguments%ftn_begin()
-      do while (iter /= arguments%ftn_end())
-         call iter%next()
-         argument_name = iter%first()
-         arg_spec = iter%second()
-
-         if (.not. var_spec%has_member(argument_name)) then
-            conforms = .false.
-            reason = 'missing_member:' // argument_name
-            return
-         end if
-
-         member = var_spec%get_member(argument_name, rc=status)
-         if (status /= 0) then
-            conforms = .false.
-            reason = 'unreadable_member:' // argument_name
-            return
-         end if
-
-         expected_kind = arg_spec%get_expected_kind()
-         if (itemtype_name(member%itemType) /= expected_kind%to_string()) then
-            conforms = .false.
-            reason = 'kind_mismatch:' // argument_name
-            return
-         end if
-      end do
-   end function export_conforms_to_interface
-
    ! REQ-CB-016: expands the connection's own declared source pattern
    ! (src_pt%v_pt) against the flattened qualified-export namespace
    ! rooted at src_pt%component_name (design.md Decision 1), keeping
@@ -2714,49 +1026,6 @@ contains
       _RETURN(_SUCCESS)
    end function resolve_callback_import
 
-   ! REQ-CB-016 "materialize a flat callback collection": builds one new
-   ! StateItemNode (a real, structurally-empty ESMF_State, mirroring
-   ! composite-state-spec's own nested-level materialization, design.md
-   ! Decision 5) in this's own graph whose state_members map has one
-   ! entry per resolved match, keyed by that match's own qualified name
-   ! (unique within one resolution by construction) mapping to that
-   ! match's own destination-local NodeId
-   ! (resolve_qualified_export_node_id above). Built directly, not
-   ! routed through CompositeStateMaterialization's VariableSpec-tree
-   ! walk (design.md Decision 5's own rationale).
-   function materialize_callback_collection(this, src_pt, matches, rc) result(collection_id)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      type(ConnectionPt), intent(in) :: src_pt
-      type(QualifiedExportEntry), intent(in) :: matches(:)
-      integer, optional, intent(out) :: rc
-      type(NodeId) :: collection_id
-
-      integer :: status
-      type(ComponentGraph), pointer :: graph
-      type(ESMF_State) :: state
-      type(GraphStateItem) :: payload
-      type(NodeRevision) :: revision
-      type(StateItemNode) :: node
-      type(NodeId) :: member_id
-      integer :: i
-
-      graph => this%get_component_graph()
-
-      state = ESMF_StateCreate(_RC)
-      call payload%set(state, _RC)
-
-      do i = 1, size(matches)
-         member_id = resolve_qualified_export_node_id(this, src_pt%component_name, matches(i), _RC)
-         call payload%add_state_member(matches(i)%qualified_name, member_id, _RC)
-      end do
-
-      collection_id = graph%next_node_id(_RC)
-      node = StateItemNode(collection_id, payload, revision)
-      call graph%register_node(node, _RC)
-
-      _RETURN(_SUCCESS)
-   end function materialize_callback_collection
-
    ! Orchestrates one callback-declaring destination's full resolution:
    ! wildcard match + interface conformance (resolve_callback_import
    ! above), materialization (materialize_callback_collection above),
@@ -2809,649 +1078,5 @@ contains
       _RETURN(_SUCCESS)
    end subroutine resolve_callback_destination
 
-   ! Task 6 / design.md Context: the first real, non-test caller of
-   ! CallbackStateBinding%bind_argument, using the matched callback
-   ! state's own already-materialized composite member NodeIds - read
-   ! directly from its owning component's own graph via
-   ! GraphStateItem%state_members(), not re-derived from VariableSpec
-   ! and not caller-supplied stand-ins.
-   function build_callback_state_binding(this, src_component_name, entry, expected_interface_id, &
-        expected_iface, rc) result(binding)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      character(*), intent(in) :: src_component_name
-      type(QualifiedExportEntry), intent(in) :: entry
-      type(CallbackInterfaceId), intent(in) :: expected_interface_id
-      type(CallbackInterface), intent(in) :: expected_iface
-      integer, optional, intent(out) :: rc
-      type(CallbackStateBinding) :: binding
-
-      integer :: status
-      character(:), allocatable :: full_path
-      class(OuterMetaComponent), pointer :: owner_meta
-      type(ComponentGraph), pointer :: owner_graph
-      type(NodeId), pointer :: state_node_id_ptr
-      type(NodeId) :: state_node_id
-      class(GraphNode), pointer :: state_node
-      type(GraphStateItem) :: state_payload
-      type(StateItemMemberMap) :: members
-      type(CallbackArgumentSpecMap), target :: arguments
-      type(CallbackArgumentSpecMapIterator) :: iter
-      character(:), allocatable :: argument_name
-      type(NodeId), pointer :: member_node_id
-
-      if (is_self(this, src_component_name)) then
-         full_path = entry%comp_path
-      else if (len(entry%comp_path) == 0) then
-         full_path = src_component_name
-      else
-         full_path = src_component_name // '/' // entry%comp_path
-      end if
-
-      if (len(full_path) == 0) then
-         owner_meta => this
-      else
-         owner_meta => resolve_descendant(this, full_path, _RC)
-      end if
-      owner_graph => owner_meta%get_component_graph()
-
-      state_node_id_ptr => owner_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, entry%var_spec%short_name))
-      _ASSERT(associated(state_node_id_ptr), 'GraphBuilder: callback state binding - export was never advertised: ' // entry%qualified_name)
-      state_node_id = state_node_id_ptr
-
-      state_node => owner_graph%get_node(state_node_id)
-      _ASSERT(associated(state_node), 'GraphBuilder: callback state binding - state node not found')
-      select type (state_node)
-      class is (StateItemNode)
-         state_payload = state_node%get_payload()
-      class default
-         _ASSERT(.false., 'GraphBuilder: callback state binding - state node is not a StateItemNode')
-      end select
-      members = state_payload%state_members()
-
-      binding = CallbackStateBinding(expected_interface_id, expected_iface, state_node_id)
-
-      arguments = expected_iface%get_arguments()
-      iter = arguments%ftn_begin()
-      do while (iter /= arguments%ftn_end())
-         call iter%next()
-         argument_name = iter%first()
-
-         member_node_id => members%at(argument_name)
-         _ASSERT(associated(member_node_id), 'GraphBuilder: callback state binding - member not found for argument: ' // argument_name)
-         call binding%bind_argument(argument_name, member_node_id, _RC)
-      end do
-
-      _RETURN(_SUCCESS)
-   end function build_callback_state_binding
-
-   ! REQ-CB-018/019: builds one CallbackMethodBinding for method_name on
-   ! state_binding (a CallbackStateBinding already bound to a real
-   ! callback state via build_callback_state_binding, task 6) - registers
-   ! a MethodGraphNode (holding the StateMethodInvocation attachment
-   ! CallbackStateBinding%bind_method already produced) in this's own
-   ! graph, creates a get network and a put network via
-   ! ComponentGraph%create_network(), and wires each declared argument's
-   ! dependency edge into the appropriate network by access mode,
-   ! reusing find_mismatched_characteristics/find_or_build_extension_chain
-   ! exactly like ordinary connection resolution (design.md Decisions) -
-   ! both sides' CharacteristicMaps are always empty at this data-model
-   ! tier (CallbackArgumentSpec has no units/vgrid declaration yet), so
-   ! this always takes the exact-match direct-edge branch today; the
-   ! transform-chain branch remains available for a future
-   ! characteristics-aware CallbackArgumentSpec.
-   function build_callback_method_binding(this, iface, method_name, state_binding, &
-        provider_get_ids, provider_put_ids, rc) result(binding)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      type(CallbackInterface), intent(in) :: iface
-      character(*), intent(in) :: method_name
-      type(CallbackStateBinding), target, intent(in) :: state_binding
-      type(StateItemMemberMap), intent(in) :: provider_get_ids
-      type(StateItemMemberMap), intent(in) :: provider_put_ids
-      integer, optional, intent(out) :: rc
-      type(CallbackMethodBinding) :: binding
-
-      integer :: status
-      type(ComponentGraph), pointer :: graph
-      type(DependencyNetworkId) :: get_net_id, put_net_id
-      type(StateMethodInvocation), pointer :: attachment
-      type(NodeId) :: method_node_id
-      type(MethodGraphNode) :: method_node
-      type(CallbackMethodSpec) :: method_spec
-      type(AccessSpecMap), target :: accesses
-      type(AccessSpecMapIterator) :: iter
-      character(:), allocatable :: argument_name
-      type(AccessSpec) :: access
-      type(CallbackArgumentSpec) :: arg_spec
-      type(MAPL_StateItem_Flag) :: expected_kind
-      type(NodeId), pointer :: member_id
-      type(NodeId), pointer :: provider_id
-
-      graph => this%get_component_graph()
-
-      attachment => state_binding%get_method_attachment(method_name)
-      _ASSERT(associated(attachment), 'GraphBuilder: build_callback_method_binding - method not bound on state binding')
-
-      method_node_id = graph%next_node_id(_RC)
-      ! Not registered yet - node_declare_argument/node_bind_argument
-      ! (below) must run on this local value before it is handed to
-      ! register_node(), which copies it into the graph's own node map;
-      ! mutating a fetched-back pointer would work too (the pattern
-      ! finish_transform/extension materialization already use) but
-      ! populating before the one-shot registration is simpler here
-      ! since nothing else needs this node's identity in between.
-      method_node = MethodGraphNode(method_node_id, attachment)
-
-      get_net_id = graph%create_network(_RC)
-      put_net_id = graph%create_network(_RC)
-
-      binding = CallbackMethodBinding(method_node_id, get_net_id, put_net_id)
-
-      method_spec = iface%get_method(method_name, _RC)
-      accesses = method_spec%get_argument_accesses()
-
-      iter = accesses%ftn_begin()
-      do while (iter /= accesses%ftn_end())
-         call iter%next()
-         argument_name = iter%first()
-         access = iter%second()
-
-         member_id => state_binding%get_argument_binding(argument_name)
-         _ASSERT(associated(member_id), 'GraphBuilder: build_callback_method_binding - argument not bound on state binding: ' // argument_name)
-
-         ! Populates the MethodGraphNode's own declared-argument/binding
-         ! storage (REQ-MTH-002) with exactly the same argument name,
-         ! access mode, and bound member NodeId CallbackStateBinding's
-         ! own invoke_method() would otherwise materialize fresh per
-         ! call (CallbackStateBinding.F90's build_arguments_for_method) -
-         ! so this method_node's own invoke() (called from
-         ! invoke_callback_method, task 8) is self-sufficient and needs
-         ! no separate call back into state_binding.
-         arg_spec = iface%get_argument(argument_name, _RC)
-         expected_kind = arg_spec%get_expected_kind()
-         call method_node%declare_argument(argument_name, access, expected_kind=expected_kind, rc=status)
-         _VERIFY(status)
-         call method_node%bind_argument(argument_name, member_id, actual_kind=expected_kind, rc=status)
-         _VERIFY(status)
-
-         if (access == MAPL_ACCESS_IN .or. access == MAPL_ACCESS_INOUT) then
-            provider_id => provider_get_ids%at(argument_name)
-            _ASSERT(associated(provider_id), 'GraphBuilder: build_callback_method_binding - no get-side provider for argument: ' // argument_name)
-            call wire_callback_argument(graph, get_net_id, provider_id, member_id, _RC)
-            call binding%bind_get_argument(argument_name, provider_id, _RC)
-         end if
-
-         if (access == MAPL_ACCESS_OUT .or. access == MAPL_ACCESS_INOUT) then
-            provider_id => provider_put_ids%at(argument_name)
-            _ASSERT(associated(provider_id), 'GraphBuilder: build_callback_method_binding - no put-side provider for argument: ' // argument_name)
-            call wire_callback_argument(graph, put_net_id, member_id, provider_id, _RC)
-            call binding%bind_put_argument(argument_name, provider_id, _RC)
-         end if
-      end do
-
-      call graph%register_node(method_node, _RC)
-
-      _RETURN(_SUCCESS)
-   end function build_callback_method_binding
-
-   ! Wires one argument's data flow edge into network_id, reusing
-   ! find_mismatched_characteristics/find_or_build_extension_chain
-   ! exactly like ordinary connection resolution (design.md Decisions) -
-   ! both source_characteristics/target_characteristics are empty
-   ! CharacteristicMaps at this data-model tier, so this always takes
-   ! the exact-match direct-edge branch today; the transform-chain
-   ! branch remains available for a future characteristics-aware
-   ! CallbackArgumentSpec.
-   subroutine wire_callback_argument(graph, network_id, source_id, target_id, rc)
-      type(ComponentGraph), target, intent(inout) :: graph
-      type(DependencyNetworkId), intent(in) :: network_id
-      type(NodeId), intent(in) :: source_id
-      type(NodeId), intent(in) :: target_id
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(CharacteristicMap), target :: empty_characteristics
-      type(CharacteristicId), allocatable :: mismatched(:)
-      type(NodeId) :: final_id
-      character(:), allocatable :: unsupported
-
-      mismatched = find_mismatched_characteristics(empty_characteristics, empty_characteristics)
-
-      if (size(mismatched) == 0) then
-         call graph%add_dependency(network_id, source_id, target_id, _RC)
-         _RETURN(_SUCCESS)
-      end if
-
-      call find_or_build_extension_chain(graph, network_id, source_id, &
-           empty_characteristics, empty_characteristics, mismatched, final_id, unsupported, _RC)
-      _ASSERT(unsupported == '', 'GraphBuilder: wire_callback_argument - unsupported characteristic: ' // unsupported)
-
-      call graph%add_dependency(network_id, final_id, target_id, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine wire_callback_argument
-
-   ! REQ-CB-020: invoke-once-after-all-args-ready discipline, mirroring
-   ! mapl_MethodInvocation_mod%invoke_on_default_network's exact
-   ! three-phase shape (design.md Decision 7) but parameterized by
-   ! binding's own get/put networks instead of the default network.
-   ! Never registers the callback MethodGraphNode into demand-driven
-   ! update's own dispatch - only its get-network predecessor(s) are
-   ! pulled current via the ordinary graph%update() entry point, and
-   ! only its put-network target(s) are advanced, both by this
-   ! procedure's own explicit request.
-   subroutine invoke_callback_method(graph, binding, rc)
-      class(ComponentGraph), target, intent(inout) :: graph
-      type(CallbackMethodBinding), target, intent(in) :: binding
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(StateItemMemberMap) :: get_bindings, put_bindings
-      class(GraphNode), pointer :: generic_node
-      class(MethodGraphNode), pointer :: method_node
-      type(DependencyNetworkId) :: get_net_id
-
-      ! put_bindings' own revisions are advanced directly by NodeId
-      ! (advance_callback_put_arguments below, mirroring
-      ! mapl_MethodInvocation_mod%advance_bound_outputs' own precedent) -
-      ! no per-network traversal is needed for "advance," so the put
-      ! network's own id is not read here.
-      get_net_id = binding%get_get_network_id()
-      get_bindings = binding%get_get_bindings()
-      put_bindings = binding%get_put_bindings()
-
-      generic_node => graph%get_node(binding%get_method_node_id())
-      _ASSERT(associated(generic_node), 'GraphBuilder: invoke_callback_method - method node not found')
-      select type (generic_node)
-      class is (MethodGraphNode)
-         method_node => generic_node
-      class default
-         _ASSERT(.false., 'GraphBuilder: invoke_callback_method - node_id does not identify a MethodGraphNode')
-      end select
-
-      call pull_callback_get_arguments(graph, get_net_id, get_bindings, _RC)
-
-      call method_node%invoke(_RC)
-
-      call advance_callback_put_arguments(graph, put_bindings, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine invoke_callback_method
-
-   ! REQ-REV-011's "pull-all-before", applied to binding's own get
-   ! network (mapl_MethodInvocation_mod%pull_bound_inputs' own
-   ! collect-then-process shape, design.md Decision 7 - no map iterator
-   ! live across the graph%update() call).
-   subroutine pull_callback_get_arguments(graph, network_id, get_bindings, rc)
-      class(ComponentGraph), target, intent(in) :: graph
-      type(DependencyNetworkId), intent(in) :: network_id
-      type(StateItemMemberMap), target, intent(in) :: get_bindings
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(StateItemMemberMapIterator) :: iter
-      character(:), allocatable :: names(:)
-      integer :: n, i
-      type(NodeId), pointer :: provider_id
-
-      allocate(character(MAX_CALLBACK_ARGUMENT_NAME_LEN) :: names(get_bindings%size()))
-      n = 0
-      iter = get_bindings%ftn_begin()
-      do while (iter /= get_bindings%ftn_end())
-         call iter%next()
-         n = n + 1
-         names(n) = iter%first()
-      end do
-
-      do i = 1, n
-         provider_id => get_bindings%at(trim(names(i)))
-         _ASSERT(associated(provider_id), 'GraphBuilder: pull_callback_get_arguments - bound name not found')
-         call graph%update(network_id, provider_id, _RC)
-      end do
-
-      _RETURN(_SUCCESS)
-   end subroutine pull_callback_get_arguments
-
-   ! REQ-REV-011's "advance-all-after", applied to binding's own put
-   ! network - only reached once invoke() has already succeeded
-   ! (invoke_callback_method's own "_RC"-checked call above returns early
-   ! otherwise, spec scenario "Failed invocation does not advance bound
-   ! outputs").
-   subroutine advance_callback_put_arguments(graph, put_bindings, rc)
-      class(ComponentGraph), target, intent(in) :: graph
-      type(StateItemMemberMap), target, intent(in) :: put_bindings
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(StateItemMemberMapIterator) :: iter
-      character(:), allocatable :: names(:)
-      integer :: n, i
-      type(NodeId), pointer :: target_id
-      class(GraphNode), pointer :: generic_node
-
-      allocate(character(MAX_CALLBACK_ARGUMENT_NAME_LEN) :: names(put_bindings%size()))
-      n = 0
-      iter = put_bindings%ftn_begin()
-      do while (iter /= put_bindings%ftn_end())
-         call iter%next()
-         n = n + 1
-         names(n) = iter%first()
-      end do
-
-      do i = 1, n
-         target_id => put_bindings%at(trim(names(i)))
-         _ASSERT(associated(target_id), 'GraphBuilder: advance_callback_put_arguments - bound name not found')
-         generic_node => graph%get_node(target_id)
-         _ASSERT(associated(generic_node), 'GraphBuilder: advance_callback_put_arguments - bound NodeId not found in graph')
-         select type (generic_node)
-         class is (StateItemNode)
-            call generic_node%advance_revision(_RC)
-         class default
-            _ASSERT(.false., 'GraphBuilder: advance_callback_put_arguments - bound NodeId is not a StateItemNode')
-         end select
-      end do
-
-      _RETURN(_SUCCESS)
-   end subroutine advance_callback_put_arguments
-
-   ! ============================================================
-   ! openspec/changes/phase-10d-ordinary-phase-method-node: ordinary-
-   ! phase MethodGraphNode construction.
-   ! ============================================================
-   !
-   ! CONSTRUCTION ONLY - this procedure never invokes the node it
-   ! builds, and no other code in this repo does either. A real,
-   ! driver-targeting adapter is attached (design.md D4) so the node is
-   ! not permanently uninvocable, but calling invoke()/
-   ! invoke_on_default_network() on it today would execute the user's
-   ! own GridComp run phase a SECOND time, back-to-back with
-   ! run_user.F90's own existing legacy call on the same driver, same
-   ! phase - a real double-invocation of production user code, not
-   ! inert bookkeeping (proposal.md Why). Making that safe requires (a)
-   ! a legacy-run-call skip mechanism (mirroring
-   ! initialize_accept_transfer.F90's own GRAPH_MODE_GRAPH skip for
-   ! add_to_states, but for the run call - does not exist yet) and (b)
-   ! GRAPH_MODE_GRAPH-alone population actually working end-to-end
-   ! (confirmed broken today, roadmap §20.4.8's own "Explicitly out of
-   ! scope"). Do not add an invocation call site against this node
-   ! without resolving both first.
-   !
-   ! Builds exactly one run-phase MethodGraphNode for `this` component,
-   ! wrapping its own GENERIC::RUN_USER phase, and stores the
-   ! constructed node's NodeId on `this` (OuterMetaComponent%
-   ! set_run_phase_method_node_id). Keyed to the component's own
-   ! advertised import/export VariableSpecs (design.md D3), not a
-   ! CallbackInterface's declared arguments - mirrors
-   ! build_callback_method_binding's own declare_argument/bind_argument/
-   ! register_node construction shape, differing only in where the
-   ! argument list comes from. A no-op under the default (registry)
-   ! graph mode, and idempotent (re-running after a NodeId is already
-   ! stored does nothing further) - matches advertise_one's own
-   ! re-advertisement guard, since graphbuilder_run_connect_hook may run
-   ! more than once per the fixed two-pass init schedule
-   ! (GENERIC_INIT_PHASE_SEQUENCE).
-   subroutine graphbuilder_build_run_phase_node(this, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ComponentGraph), pointer :: graph
-      type(NodeId) :: existing_node_id
-      type(ComponentSpec), pointer :: comp_spec
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-      type(NodeId) :: method_node_id
-      type(MethodGraphNode) :: method_node
-      type(OuterMetaComponentDriverResolver) :: resolver
-      type(GridCompDriverPhaseInvoker) :: invoker
-      type(NodeId), pointer :: member_id
-
-      _RETURN_IF(graph_mode() == GRAPH_MODE_REGISTRY)
-
-      ! Idempotent: graphbuilder_run_connect_hook (this procedure's own
-      ! caller) may run more than once per the fixed two-pass
-      ! GENERIC_INIT_PHASE_SEQUENCE schedule - a NodeId already stored
-      ! from an earlier pass means this component's run-phase node
-      ! already exists, matching advertise_one's own "already indexed -
-      ! nothing to do" guard. NodeId%is_valid() (not association) is
-      ! the correct "already set" test - get_run_phase_method_node_id
-      ! returns by value (OuterMetaComponent.F90's own field-declaration
-      ! comment: a NodeId is a tiny value type, not something worth a
-      ! pointer-and-null-check accessor).
-      existing_node_id = this%get_run_phase_method_node_id()
-      if (existing_node_id%is_valid()) then
-         _RETURN(_SUCCESS)
-      end if
-
-      graph => this%get_component_graph()
-      comp_spec => this%get_component_spec()
-
-      method_node_id = graph%next_node_id(_RC)
-      resolver = OuterMetaComponentDriverResolver(this)
-      invoker = GridCompDriverPhaseInvoker(resolver, ESMF_METHOD_RUN)
-      ! driver_key = SELF_COMPONENT_NAME: this node always targets
-      ! `this` component's own driver (never a child's) - phase_idx = 1,
-      ! the fixed GENERIC::RUN_USER lifecycle-phase index every
-      ! configuration in this repo's own fixture set uses today. A real
-      ! adapter is attached so the node is not permanently uninvocable
-      ! (design.md D4) - see this procedure's own header comment for
-      ! why nothing calls invoke() on it yet.
-      method_node = MethodGraphNode(method_node_id, &
-           GridCompMethodInvocation(SELF_COMPONENT_NAME, 1, invoker))
-
-      ! Not registered yet (same ordering build_callback_method_binding
-      ! itself follows): declare_argument/bind_argument run on this
-      ! local value before it is handed to register_node(), which
-      ! copies it into the graph's own node map.
-      associate (e => comp_spec%var_specs%ftn_end())
-         iter = comp_spec%var_specs%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            var_spec => iter%of()
-
-            if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT) then
-               member_id => graph%get_resource_index(item_key(var_spec%state_intent, var_spec%short_name))
-               _ASSERT(associated(member_id), &
-                    'GraphBuilder: build_run_phase_node - advertised import has no resolved NodeId: ' // var_spec%short_name)
-               call method_node%declare_argument(var_spec%short_name, MAPL_ACCESS_IN, rc=status)
-               _VERIFY(status)
-               call method_node%bind_argument(var_spec%short_name, member_id, rc=status)
-               _VERIFY(status)
-            else if (var_spec%state_intent == ESMF_STATEINTENT_EXPORT) then
-               member_id => graph%get_resource_index(item_key(var_spec%state_intent, var_spec%short_name))
-               _ASSERT(associated(member_id), &
-                    'GraphBuilder: build_run_phase_node - advertised export has no resolved NodeId: ' // var_spec%short_name)
-               call method_node%declare_argument(var_spec%short_name, MAPL_ACCESS_OUT, rc=status)
-               _VERIFY(status)
-               call method_node%bind_argument(var_spec%short_name, member_id, rc=status)
-               _VERIFY(status)
-            end if
-            ! INTERNAL items: skipped (neither IN nor OUT at the
-            ! component boundary - mirrors advertise_one's own
-            ! "INTERNAL items get neither [port]" treatment).
-         end do
-      end associate
-
-      call graph%register_node(method_node, _RC)
-      call this%set_run_phase_method_node_id(method_node_id, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine graphbuilder_build_run_phase_node
-
-   ! ============================================================
-   ! Lifecycle-hook wrappers (task 2.3 / 3.4)
-   ! ============================================================
-   !
-   ! design.md Decisions ("Invocation point"): GraphBuilder calls are
-   ! ADDITIONAL to the existing legacy advertise/connect calls, never a
-   ! replacement, and MUST NOT alter initialize_advertise.F90's or
-   ! initialize_accept_transfer.F90's own error propagation. The
-   ! procedures above use the normal MAPL rc/status-check convention (so
-   ! they remain directly unit-testable, task 6, with ordinary pass/fail
-   ! semantics); these three wrappers are what actually get called from
-   ! those lifecycle hooks - they catch any GraphBuilder-internal failure
-   ! locally and report it through the component's own logger rather than
-   ! propagating it, so a GraphBuilder defect can never break existing
-   ! MAPL component initialization (design.md Risks/Trade-offs).
-   !
-   ! These three are reached from their call sites only via the public
-   ! GraphBuilder type's bindings of the same name minus the
-   ! graphbuilder_ prefix (graphbuilder-code-quality-cleanup change),
-   ! e.g. `type(GraphBuilder) :: gb; call gb%run_advertise_hook(this)`.
-   !
-   ! Called from initialize_advertise.F90 (GENERIC_INIT_ADVERTISE, mirrors
-   ! self_advertise() + activate()):
-   !   graphbuilder_run_advertise_hook -> gb%run_advertise_hook - creates
-   !     StateItemNodes
-   !   graphbuilder_run_activate_hook -> gb%run_activate_hook -
-   !     unresolved-imports report only
-   ! Called from initialize_accept_transfer.F90 (GENERIC_INIT_ACCEPT_TRANSFER,
-   ! mirrors connect()):
-   !   graphbuilder_run_connect_hook -> gb%run_connect_hook - real
-   !     proxies/edges, then freeze
-
-   subroutine graphbuilder_run_advertise_hook(this)
-      class(OuterMetaComponent), target, intent(inout) :: this
-
-      integer :: status
-
-      call graphbuilder_advertise(this, status)
-      call report_if_failed(this, 'advertise', status)
-   end subroutine graphbuilder_run_advertise_hook
-
-   subroutine graphbuilder_run_activate_hook(this)
-      class(OuterMetaComponent), target, intent(inout) :: this
-
-      integer :: status
-      type(GraphResolutionEntryVector) :: unresolved
-      integer :: i
-      type(GraphResolutionEntry), pointer :: entry
-      class(Logger), pointer :: lgr
-
-      call graphbuilder_check_unsatisfied_imports(this, unresolved_imports=unresolved, rc=status)
-      call report_if_failed(this, 'check_unsatisfied_imports', status)
-
-      lgr => this%get_logger()
-      do i = 1, unresolved%size()
-         entry => unresolved%of(i)
-         call lgr%warning( &
-              'GraphBuilder: no ordinary-match export found for unresolved import %a:%a', &
-              entry%component_name, entry%short_name)
-      end do
-   end subroutine graphbuilder_run_activate_hook
-
-   ! griddedcomponentdriver-integration-lifecycle design.md Decisions
-   ! ("REQ-MTH-011 step (c) convergence: match the existing fixed
-   ! two-pass schedule; add one missing hard-error check"): once this
-   ! call's own graphbuilder_freeze succeeds - i.e. once no further
-   ! ACCEPT_TRANSFER pass can ever change anything further, per
-   ! GENERIC_INIT_PHASE_SEQUENCE's fixed two-pass schedule
-   ! (enums/GenericPhases.F90) - re-run the same
-   ! graphbuilder_check_unsatisfied_imports() check
-   ! graphbuilder_run_activate_hook already runs (at GENERIC_INIT_ADVERTISE
-   ! time, before either real pass), but this time escalate a non-empty
-   ! result to an explicit failure instead of only a logged warning.
-   ! Still caught and downgraded to a logged failure by this hook's own
-   ! existing report_if_failed convention below - this is a hard error
-   ! only within graphbuilder_resolve_connections/
-   ! check_unsatisfied_imports' own directly-tested API, never a new way
-   ! for a GraphBuilder defect to break real component initialization
-   ! (design.md Risks).
-    subroutine graphbuilder_run_connect_hook(this)
-      class(OuterMetaComponent), target, intent(inout) :: this
-
-      integer :: status
-      type(GraphResolutionEntryVector) :: unsupported
-      type(GraphResolutionEntryVector) :: unresolved
-      integer :: i
-      type(GraphResolutionEntry), pointer :: entry
-      class(Logger), pointer :: lgr
-
-      call graphbuilder_resolve_connections(this, unsupported_characteristics=unsupported, rc=status)
-      call report_if_failed(this, 'resolve_connections', status)
-
-      lgr => this%get_logger()
-      do i = 1, unsupported%size()
-         entry => unsupported%of(i)
-         call lgr%warning( &
-              'GraphBuilder: no registered extension provider for mismatched characteristic %a:%a:%a', &
-              entry%component_name, entry%short_name, entry%reason)
-      end do
-
-      ! openspec/changes/phase-10d-ordinary-phase-method-node, design.md
-      ! D2: constructed here, BEFORE freeze below - not after. This
-      ! node's own argument bindings are sourced only from this
-      ! component's own advertised import/export items (already
-      ! resolved at GENERIC_INIT_ADVERTISE time, design.md D3), never
-      ! from a resolved connection, so there is no reason to wait for
-      ! freeze - and ComponentGraph%register_node/next_node_id both
-      ! unconditionally reject a call once the graph is frozen
-      ! (ComponentGraph.F90), so placing this after freeze would hard-
-      ! fail unconditionally rather than merely in some edge case.
-      ! Construction only - see graphbuilder_build_run_phase_node's own
-      ! header comment for why nothing here invokes the constructed
-      ! node.
-      call graphbuilder_build_run_phase_node(this, status)
-      call report_if_failed(this, 'build_run_phase_node', status)
-
-      call graphbuilder_freeze(this, status)
-      call report_if_failed(this, 'freeze', status)
-
-      if (status == 0) then
-         call graphbuilder_check_unsatisfied_imports(this, unresolved_imports=unresolved, rc=status)
-         call report_if_failed(this, 'check_unsatisfied_imports', status)
-         if (status == 0) then
-            call assert_converged(unresolved, status)
-            call report_if_failed(this, 'convergence_check', status)
-         end if
-      end if
-   end subroutine graphbuilder_run_connect_hook
-
-   ! openspec/changes/phase-10a-state-materialization: the real
-   ! GENERIC_INIT_ACCEPT_TRANSFER call site's own entry point into
-   ! graphbuilder_populate_state - same report_if_failed convention
-   ! every other hook above already uses, so a GraphBuilder defect here
-   ! can never break real component initialization (design.md Risks;
-   ! tasks.md 3.4).
-   subroutine graphbuilder_run_populate_state_hook(this, multi_state)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      type(MultiState), intent(inout) :: multi_state
-
-      integer :: status
-
-      call graphbuilder_populate_state(this, multi_state, status)
-      call report_if_failed(this, 'populate_state', status)
-   end subroutine graphbuilder_run_populate_state_hook
-
-   ! Split out from graphbuilder_run_connect_hook so this check has its
-   ! own real rc to report through the same report_if_failed convention
-   ! every other step in that hook already uses, rather than an inline
-   ! _ASSERT with no rc of its own to propagate.
-   subroutine assert_converged(unresolved, rc)
-      type(GraphResolutionEntryVector), intent(in) :: unresolved
-      integer, optional, intent(out) :: rc
-
-      character(:), allocatable :: msg
-
-      _RETURN_IF(unresolved%size() == 0)
-
-      msg = 'GraphBuilder: unresolved required import(s) remain once the fixed realize/accept/realize '// &
-           'schedule ends (griddedcomponentdriver-integration-lifecycle design.md "REQ-MTH-011 step (c) convergence")'
-      _FAIL(msg)
-   end subroutine assert_converged
-
-   subroutine report_if_failed(this, step_name, status)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      character(*), intent(in) :: step_name
-      integer, intent(in) :: status
-
-      class(Logger), pointer :: lgr
-
-      if (status /= 0) then
-         lgr => this%get_logger()
-         call lgr%warning( &
-              'GraphBuilder: %a step failed with rc=%i0 - continuing without graph representation for this step', &
-              step_name, status)
-      end if
-   end subroutine report_if_failed
 
 end module mapl_GraphBuilder_mod

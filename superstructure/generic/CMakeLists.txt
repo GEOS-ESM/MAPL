@@ -16,6 +16,17 @@ set(srcs
   GraphResolutionEntry.F90
   GraphResolutionEntryVector.F90
   GraphBuilder.F90
+  GraphBuilder_Advertising_smod.F90
+  GraphBuilder_ConnectionResolution_smod.F90
+  GraphBuilder_PortsAndProxies_smod.F90
+  GraphBuilder_Geometry_smod.F90
+  GraphBuilder_Freeze_smod.F90
+  GraphBuilder_StatePopulation_smod.F90
+  GraphBuilder_RunPhasePull_smod.F90
+  GraphBuilder_Visualization_smod.F90
+  GraphBuilder_CallbackWiring_smod.F90
+  GraphBuilder_RunPhaseNode_smod.F90
+  GraphBuilder_LifecycleHooks_smod.F90
   OuterMetaComponentDriverResolver.F90
   GenericGridComp.F90
 

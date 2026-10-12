@@ -75,9 +75,13 @@ contains
       character(*), intent(in) :: mode
       integer, optional, intent(out) :: rc
 
-      _ASSERT(any([mode == GRAPH_MODE_REGISTRY, mode == GRAPH_MODE_GRAPH, mode == GRAPH_MODE_BOTH]), &
-           'mapl_GraphMode_mod: invalid graph mode <'//mode//'> - must be one of '// &
-           '"'//GRAPH_MODE_REGISTRY//'", "'//GRAPH_MODE_GRAPH//'", "'//GRAPH_MODE_BOTH//'"')
+      logical :: is_valid_mode
+      character(:), allocatable :: msg
+
+      is_valid_mode = any([mode == GRAPH_MODE_REGISTRY, mode == GRAPH_MODE_GRAPH, mode == GRAPH_MODE_BOTH])
+      msg = 'mapl_GraphMode_mod: invalid graph mode <'//mode//'> - must be one of "'// &
+           GRAPH_MODE_REGISTRY//'", "'//GRAPH_MODE_GRAPH//'", "'//GRAPH_MODE_BOTH//'"'
+      _ASSERT(is_valid_mode, msg)
 
       current_mode = mode
 
