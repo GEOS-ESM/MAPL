@@ -120,13 +120,15 @@ contains
       _RETURN(_SUCCESS)
    end subroutine collect_qualified_exports
 
-   ! Walks comp_path's '/'-separated segments via get_child_outer_meta,
-   ! one hop per segment, from `root` to the OuterMetaComponent that
-   ! actually owns comp_path's own graph (design.md Decision 1 -
-   ! generalizes the single-hop child lookup ordinary connection
-   ! resolution already uses, get_or_make_local_node_id, to arbitrary
-   ! depth). comp_path MUST be non-empty - callers guard this; an empty
-   ! comp_path means "root itself," never routed here.
+   ! openspec/changes/graph-builder-resolution-index, design.md Decisions
+   ! "resolve_qualified_component is resolve_descendant, relocated and
+   ! renamed, with no algorithm change": a one-line forward to the
+   ! shared primitive now living in GraphBuilder.F90's own
+   ! shared-helpers section - this entry point itself is kept so every
+   ! existing call site in this submodule
+   ! (materialize_callback_collection/build_callback_state_binding) needs
+   ! no further change. comp_path MUST be non-empty - callers guard
+   ! this; an empty comp_path means "root itself," never routed here.
    module function resolve_descendant(root, comp_path, rc) result(meta)
       class(OuterMetaComponent), target, intent(inout) :: root
       character(*), intent(in) :: comp_path
@@ -134,32 +136,8 @@ contains
       type(OuterMetaComponent), pointer :: meta
 
       integer :: status
-      character(:), allocatable :: remaining, segment
-      integer :: slash_pos
 
-      remaining = comp_path
-
-      slash_pos = index(remaining, '/')
-      if (slash_pos == 0) then
-         segment = remaining
-         remaining = ''
-      else
-         segment = remaining(1:slash_pos - 1)
-         remaining = remaining(slash_pos + 1:)
-      end if
-      meta => root%get_child_outer_meta(segment, _RC)
-
-      do while (len(remaining) > 0)
-         slash_pos = index(remaining, '/')
-         if (slash_pos == 0) then
-            segment = remaining
-            remaining = ''
-         else
-            segment = remaining(1:slash_pos - 1)
-            remaining = remaining(slash_pos + 1:)
-         end if
-         meta => meta%get_child_outer_meta(segment, _RC)
-      end do
+      meta => resolve_qualified_component(root, comp_path, _RC)
 
       _RETURN(_SUCCESS)
    end function resolve_descendant

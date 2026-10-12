@@ -170,6 +170,7 @@ module mapl_GraphBuilder_mod
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
    use mapl_VerticalGrid_mod, only: VerticalGrid
    use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_CENTER, VerticalStaggerLoc
    use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
@@ -225,6 +226,16 @@ module mapl_GraphBuilder_mod
    public :: build_callback_state_binding
    public :: build_callback_method_binding
    public :: invoke_callback_method
+
+   ! openspec/changes/graph-builder-resolution-index: a shared,
+   ! multi-level qualified-path resolution primitive, generalizing
+   ! resolve_descendant (above, callback-wiring-only) for use by
+   ! ordinary connection resolution too (proposal.md "What Changes").
+   ! Public for the same gfortran cross-submodule-linkage reason as
+   ! component_for/is_self above - not part of any user-facing API.
+   public :: resolve_qualified_component
+   public :: enumerate_qualified_exports
+   public :: QualifiedExportIndexEntry
 
    ! Stateless-per-call by design (design.md Decisions): GraphBuilder
    ! carries no state of its own - every bound procedure still takes the
@@ -326,6 +337,23 @@ module mapl_GraphBuilder_mod
       character(:), allocatable :: comp_path
       type(VariableSpec) :: var_spec
    end type QualifiedExportEntry
+
+   ! openspec/changes/graph-builder-resolution-index, design.md Decisions
+   ! "enumerate_qualified_exports generalizes collect_qualified_exports's
+   ! own recursion": one entry in enumerate_qualified_exports's own
+   ! flattened result - a (qualified_path, owner, node_id) tuple,
+   ! deliberately NOT carrying a VariableSpec/var_spec reference (unlike
+   ! QualifiedExportEntry above), since this primitive's whole point is
+   ! to NOT re-introduce a var_spec dependency into resolution's own
+   ! vocabulary (design.md Decisions). qualified_path is '' for the
+   ! enumeration root's own export, else the '/'-joined descendant path
+   ! the export was found under - same convention as
+   ! QualifiedExportEntry%qualified_name above.
+   type :: QualifiedExportIndexEntry
+      character(:), allocatable :: qualified_path
+      type(OuterMetaComponent), pointer :: owner => null()
+      type(NodeId) :: node_id
+   end type QualifiedExportIndexEntry
 
    ! Argument names are short, framework-declared identifiers - matches
    ! mapl_MethodInvocation_mod's own MAX_ARGUMENT_NAME_LEN precedent.
@@ -788,6 +816,160 @@ contains
       _RETURN(_SUCCESS)
    end function component_for
 
+   ! openspec/changes/graph-builder-resolution-index, design.md
+   ! Decisions "resolve_qualified_component is resolve_descendant,
+   ! relocated and renamed, with no algorithm change": walks path's own
+   ! '/'-separated segments via get_child_outer_meta, one hop per
+   ! segment, from root to the OuterMetaComponent the path's final
+   ! segment names - generalizing component_for's own single-level
+   ! "<self>"/direct-child dispatch to arbitrary depth. path's first
+   ! segment is special-cased against is_self(root, segment) (mirroring
+   ! component_for's own is_self short-circuit) before falling through
+   ! to get_child_outer_meta, so a single-segment path equal to
+   ! root%get_name() (or "<self>") resolves to root itself rather than
+   ! attempting a child lookup for a child literally named that
+   ! (design.md Decisions/Risks - the fixed gap versus
+   ! resolve_descendant's own prior behavior, which always called
+   ! get_child_outer_meta unconditionally on the first segment). path
+   ! MUST be non-empty - "root itself" is reached by the is_self
+   ! short-circuit on a single-segment path naming root, not by an
+   ! empty path (same convention resolve_descendant's own callers
+   ! already observe).
+   function resolve_qualified_component(root, path, rc) result(meta)
+      class(OuterMetaComponent), target, intent(inout) :: root
+      character(*), intent(in) :: path
+      integer, optional, intent(out) :: rc
+      type(OuterMetaComponent), pointer :: meta
+
+      integer :: status
+      character(:), allocatable :: remaining, segment
+      integer :: slash_pos
+
+      remaining = path
+
+      slash_pos = index(remaining, '/')
+      if (slash_pos == 0) then
+         segment = remaining
+         remaining = ''
+      else
+         segment = remaining(1:slash_pos - 1)
+         remaining = remaining(slash_pos + 1:)
+      end if
+
+      if (is_self(root, segment)) then
+         meta => root
+      else
+         meta => root%get_child_outer_meta(segment, _RC)
+      end if
+
+      do while (len(remaining) > 0)
+         slash_pos = index(remaining, '/')
+         if (slash_pos == 0) then
+            segment = remaining
+            remaining = ''
+         else
+            segment = remaining(1:slash_pos - 1)
+            remaining = remaining(slash_pos + 1:)
+         end if
+         meta => meta%get_child_outer_meta(segment, _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end function resolve_qualified_component
+
+   ! openspec/changes/graph-builder-resolution-index, design.md
+   ! Decisions "enumerate_qualified_exports generalizes
+   ! collect_qualified_exports's own recursion": builds root's own
+   ! flattened, qualified-path-indexed export enumeration by recursing
+   ! across every descendant level - same traversal/path-composition
+   ! shape as build_qualified_export_namespace/collect_qualified_exports
+   ! (GraphBuilder_CallbackWiring_smod.F90), but returning a plain
+   ! (qualified_path, owner, node_id) tuple per export (resolved via the
+   ! owner's own ComponentGraph%get_resource_index(item_key(...)), once
+   ! advertised) instead of QualifiedExportEntry's own
+   ! var_spec-carrying shape - decoupled from callback-wiring's own
+   ! record type (proposal.md "What Changes"). A fresh, uncached
+   ! snapshot at resolution time, same contract as
+   ! collect_qualified_exports (design.md Non-Goals).
+   function enumerate_qualified_exports(root, rc) result(entries)
+      class(OuterMetaComponent), target, intent(inout) :: root
+      integer, optional, intent(out) :: rc
+      type(QualifiedExportIndexEntry), allocatable :: entries(:)
+
+      integer :: status
+
+      allocate(entries(0))
+      call collect_qualified_export_index(root, '', entries, _RC)
+
+      _RETURN(_SUCCESS)
+   end function enumerate_qualified_exports
+
+   recursive subroutine collect_qualified_export_index(owner, path_prefix, entries, rc)
+      class(OuterMetaComponent), target, intent(inout) :: owner
+      character(*), intent(in) :: path_prefix
+      type(QualifiedExportIndexEntry), allocatable, intent(inout) :: entries(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i, num_children
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: owner_graph
+      type(VariableSpecVectorIterator) :: iter
+      type(VariableSpec), pointer :: var_spec
+      character(:), allocatable :: child_name, child_path
+      type(OuterMetaComponent), pointer :: child_meta
+      type(QualifiedExportIndexEntry) :: entry
+      type(QualifiedExportIndexEntry), allocatable :: grown_entries(:)
+      type(NodeId), pointer :: resolved_id
+      integer :: n
+
+      comp_spec => owner%get_component_spec()
+      owner_graph => owner%get_component_graph()
+
+      associate (e => comp_spec%var_specs%ftn_end())
+         iter = comp_spec%var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            if (.not. (var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) cycle
+
+            resolved_id => owner_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, var_spec%short_name))
+            if (.not. associated(resolved_id)) cycle
+
+            if (len(path_prefix) == 0) then
+               entry%qualified_path = var_spec%short_name
+            else
+               entry%qualified_path = path_prefix // '/' // var_spec%short_name
+            end if
+            entry%owner => owner
+            entry%node_id = resolved_id
+
+            ! Same classic-ifort self-referencing array-constructor ICE
+            ! as collect_qualified_exports (GraphBuilder_CallbackWiring_smod.F90)
+            ! - grow via an explicit fresh temporary and move_alloc.
+            n = size(entries)
+            allocate(grown_entries(n + 1))
+            if (n > 0) grown_entries(1:n) = entries
+            grown_entries(n + 1) = entry
+            call move_alloc(grown_entries, entries)
+         end do
+      end associate
+
+      num_children = owner%get_num_children()
+      do i = 1, num_children
+         child_name = owner%get_child_name(i, _RC)
+         child_meta => owner%get_child_outer_meta(child_name, _RC)
+         if (len(path_prefix) == 0) then
+            child_path = child_name
+         else
+            child_path = path_prefix // '/' // child_name
+         end if
+         call collect_qualified_export_index(child_meta, child_path, entries, _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine collect_qualified_export_index
+
    ! extension-registry-visibility change, task groups 2/3: when the
    ! materialization gate (mapl_ExtensionResolution_mod) is enabled,
    ! give a resolved units-mismatch extension chain's final item a real,
@@ -1052,11 +1234,24 @@ contains
    ! THIS component's own graph:
    !  - "<self>"/this's own name: the item's own NodeId (must already
    !    have been advertised - graphbuilder_advertise() runs first).
-   !  - a named child: a cached-or-newly-created parent-local proxy
+   !  - a named descendant (direct child or, openspec/changes/
+   !    graph-builder-resolution-index, any further-qualified
+   !    `/`-separated path): a cached-or-newly-created parent-local proxy
    !    StateItemNode (REQ-HIER-006), reusing one already created for the
-   !    same child+item via the same resource-index mechanism used for
-   !    advertised-item identity (module header - "Cross-component
-   !    (parent/child) connections").
+   !    same descendant+item via the same resource-index mechanism used
+   !    for advertised-item identity (module header - "Cross-component
+   !    (parent/child) connections"). The descendant's own
+   !    ComponentGraph is reached via resolve_qualified_component (not
+   !    the single-hop get_child_component_graph this function used
+   !    before this change) so a MatchConnection naming a component
+   !    several levels down the hierarchy (every real connect_all
+   !    fixture's own shape, proposal.md "Why") resolves correctly here
+   !    too, not only at the ComponentSpec-lookup call sites
+   !    (check_match_connection_unsatisfied/resolve_match_connection/
+   !    find_export_node_id) - a single-segment comp_name continues to
+   !    resolve exactly as before (resolve_qualified_component with a
+   !    single-segment path is behaviorally identical to
+   !    get_child_component_graph for a direct child).
    function get_or_make_local_node_id(this, comp_name, state_intent, short_name, rc) result(node_id)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: comp_name
@@ -1071,6 +1266,7 @@ contains
       character(:), allocatable :: pkey
       type(NodeId), pointer :: existing
       type(NodeId), pointer :: child_item_id
+      type(OuterMetaComponent), pointer :: descendant_meta
       type(ComponentGraph), pointer :: child_graph
       type(StateItemNode) :: proxy_node
       type(GraphStateItem) :: payload
@@ -1094,9 +1290,10 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      child_graph => this%get_child_component_graph(comp_name, _RC)
+      descendant_meta => resolve_qualified_component(this, comp_name, _RC)
+      child_graph => descendant_meta%get_component_graph()
       child_item_id => child_graph%get_resource_index(item_id_key)
-      _ASSERT(associated(child_item_id), 'GraphBuilder: connection references an item child "' // comp_name // '" never advertised: ' // short_name)
+      _ASSERT(associated(child_item_id), 'GraphBuilder: connection references an item descendant "' // comp_name // '" never advertised: ' // short_name)
 
       node_id = this_graph%next_node_id(_RC)
       proxy_node = StateItemNode(node_id, payload, revision)
