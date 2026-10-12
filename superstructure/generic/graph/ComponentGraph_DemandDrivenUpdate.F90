@@ -64,6 +64,7 @@ submodule (mapl_ComponentGraph_mod) mapl_ComponentGraph_DemandDrivenUpdate_smod
    use mapl_TransformGraphNode_mod, only: TransformGraphNode, operator(==), operator(/=)
    use mapl_PortSpecMap_mod, only: PortSpecMap, PortSpecMapIterator
    use mapl_PortNameRevisionMap_mod, only: PortNameRevisionMap
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_NodeIdSet_mod
    use mapl_ErrorHandling_mod
@@ -237,6 +238,7 @@ contains
       integer, optional, intent(out) :: rc
 
       type(PortNameRevisionMap), target :: current_input_revisions
+      type(PortNameGraphStateItemMap), target :: input_items, output_items
       type(PortSpecMap), target :: input_ports, output_ports
       type(PortSpecMapIterator) :: port_iter
       character(:), pointer :: port_name
@@ -246,7 +248,10 @@ contains
       integer :: status
 
       ! Steps 2-3: assemble the current declared-input revision snapshot
-      ! via the external port-binding table (REQ-XFORM-005).
+      ! via the external port-binding table (REQ-XFORM-005), and (in the
+      ! same loop, openspec/changes/decouple-transform-from-graph) each
+      ! bound input port's own GraphStateItem value, to pass into
+      ! compute() if execution turns out to be needed below.
       input_ports = transform_node%get_input_ports()
       port_iter = input_ports%ftn_begin()
       do while (port_iter /= input_ports%ftn_end())
@@ -263,6 +268,7 @@ contains
          select type (bound_node)
          class is (StateItemNode)
             bound_revision = bound_node%get_revision()
+            call input_items%insert(port_name, bound_node%get_payload())
          class default
             _ASSERT(.false., 'ComponentGraph: update - bound input NodeId is not a StateItemNode')
          end select
@@ -272,11 +278,38 @@ contains
 
       ! Step 4: execute only if never run, or if stale.
       if (transform_node%needs_execution(current_input_revisions)) then
-         call transform_node%execute(_RC)
+
+         ! A second, new loop over declared output ports (parallel to,
+         ! but run *before*, the existing post-execution output-port
+         ! loop below), resolving each one's bound GraphStateItem value
+         ! to pass into compute() - openspec/changes/decouple-transform
+         ! -from-graph. Not a modification of the existing post
+         ! -execution loop (which still advances revisions, unchanged).
+         output_ports = transform_node%get_output_ports()
+         port_iter = output_ports%ftn_begin()
+         do while (port_iter /= output_ports%ftn_end())
+            call port_iter%next()
+            port_name => port_iter%first()
+            _ASSERT(associated(port_name), 'ComponentGraph: update - iterator%first() unassociated')
+
+            bound_id => graph%get_port_binding(network_id, transform_id, port_name)
+            _ASSERT(associated(bound_id), 'ComponentGraph: update - declared output port has no binding')
+
+            bound_node => graph%get_node(bound_id)
+            _ASSERT(associated(bound_node), 'ComponentGraph: update - bound output NodeId does not exist')
+
+            select type (bound_node)
+            class is (StateItemNode)
+               call output_items%insert(port_name, bound_node%get_payload())
+            class default
+               _ASSERT(.false., 'ComponentGraph: update - bound output NodeId is not a StateItemNode')
+            end select
+         end do
+
+         call transform_node%execute(input_items, output_items, _RC)
 
          ! Step 5: advance every declared output together (REQ-REV-007:
          ! all-or-nothing, never partial).
-         output_ports = transform_node%get_output_ports()
          port_iter = output_ports%ftn_begin()
          do while (port_iter /= output_ports%ftn_end())
             call port_iter%next()

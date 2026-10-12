@@ -21,6 +21,7 @@ module Test_SetSharedCharacteristic
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
    use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use mapl_Transform_mod, only: Transform
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
    use mapl_MethodGraphNode_mod, only: MethodGraphNode
    use mapl_MethodInvocationAdapter_mod, only: MethodInvocationAdapter
    use mapl_ArgumentSpecMap_mod, only: ArgumentSpecMap
@@ -55,8 +56,10 @@ module Test_SetSharedCharacteristic
 
 contains
 
-   subroutine counting_compute(this, rc)
+   subroutine counting_compute(this, inputs, outputs, rc)
       class(CountingCompute), intent(inout) :: this
+      type(PortNameGraphStateItemMap), intent(in) :: inputs
+      type(PortNameGraphStateItemMap), intent(in) :: outputs
       integer, intent(out) :: rc
 
       if (associated(this%run_count)) this%run_count = this%run_count + 1

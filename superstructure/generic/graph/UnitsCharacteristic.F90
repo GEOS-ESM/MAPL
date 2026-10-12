@@ -16,8 +16,6 @@
 module mapl_UnitsCharacteristic_mod
    use mapl_Characteristic_mod, only: Characteristic
    use mapl_CharacteristicId_mod, only: CharacteristicId, UNITS_CHARACTERISTIC_ID
-   use mapl_ComponentGraph_mod, only: ComponentGraph
-   use mapl_NodeId_mod, only: NodeId
    use mapl_Transform_mod, only: Transform
    use mapl_UnitsConverterTransform_mod, only: UnitsConverterTransform
    use mapl_ErrorHandling_mod
@@ -82,19 +80,15 @@ contains
       end select
    end function units_needs_extension_for
 
-   subroutine units_build_transform(this, graph, input_node_id, output_node_id, goal, transformer, rc)
+   subroutine units_build_transform(this, goal, transformer, rc)
       class(UnitsCharacteristic), intent(in) :: this
-      class(ComponentGraph), target, intent(in) :: graph
-      type(NodeId), intent(in) :: input_node_id
-      type(NodeId), intent(in) :: output_node_id
       class(Characteristic), intent(in) :: goal
       class(Transform), allocatable, intent(out) :: transformer
       integer, optional, intent(out) :: rc
 
       select type (goal)
       class is (UnitsCharacteristic)
-         allocate(transformer, source=UnitsConverterTransform(graph, input_node_id, output_node_id, &
-              this%units, goal%units))
+         allocate(transformer, source=UnitsConverterTransform(this%units, goal%units))
       class default
          _FAIL('UnitsCharacteristic: build_transform called with a non-units goal')
       end select

@@ -45,8 +45,6 @@
 module mapl_VerticalGridCharacteristic_mod
    use mapl_Characteristic_mod, only: Characteristic
    use mapl_CharacteristicId_mod, only: CharacteristicId, VERTICAL_GRID_CHARACTERISTIC_ID
-   use mapl_ComponentGraph_mod, only: ComponentGraph
-   use mapl_NodeId_mod, only: NodeId
    use mapl_Transform_mod, only: Transform
    use gFTL2_StringVector, only: StringVector
    use mapl_ErrorHandling_mod
@@ -158,11 +156,8 @@ contains
    ! Transform is implemented by this capability in any of the three
    ! cases - each _FAIL message is distinguishable so the outcome is
    ! diagnosable rather than one undifferentiated mismatch.
-   subroutine vgrid_build_transform(this, graph, input_node_id, output_node_id, goal, transformer, rc)
+   subroutine vgrid_build_transform(this, goal, transformer, rc)
       class(VerticalGridCharacteristic), intent(in) :: this
-      class(ComponentGraph), target, intent(in) :: graph
-      type(NodeId), intent(in) :: input_node_id
-      type(NodeId), intent(in) :: output_node_id
       class(Characteristic), intent(in) :: goal
       class(Transform), allocatable, intent(out) :: transformer
       integer, optional, intent(out) :: rc
@@ -172,10 +167,6 @@ contains
       character(:), allocatable :: overlap_name
       character(:), allocatable :: overlap_list
       character(:), allocatable :: failure_message
-
-      _UNUSED_DUMMY(graph)
-      _UNUSED_DUMMY(input_node_id)
-      _UNUSED_DUMMY(output_node_id)
 
       select type (goal)
       class is (VerticalGridCharacteristic)

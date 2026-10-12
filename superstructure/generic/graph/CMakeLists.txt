@@ -20,6 +20,7 @@ target_sources(MAPL.generic PRIVATE
   PortSpec.F90
   containers/PortSpecMap.F90
   containers/PortNameRevisionMap.F90
+  containers/PortNameGraphStateItemMap.F90
   Transform.F90
   TransformGraphNode.F90
 

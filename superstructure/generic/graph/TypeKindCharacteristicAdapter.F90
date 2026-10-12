@@ -20,8 +20,6 @@
 module mapl_TypeKindCharacteristicAdapter_mod
    use mapl_Characteristic_mod, only: Characteristic
    use mapl_CharacteristicId_mod, only: CharacteristicId, TYPE_KIND_CHARACTERISTIC_ID
-   use mapl_ComponentGraph_mod, only: ComponentGraph
-   use mapl_NodeId_mod, only: NodeId
    use mapl_Transform_mod, only: Transform
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_TypeKindConverterTransform_mod, only: TypeKindConverterTransform
@@ -130,18 +128,15 @@ contains
       end select
    end function adapter_needs_extension_for
 
-   subroutine adapter_build_transform(this, graph, input_node_id, output_node_id, goal, transformer, rc)
+   subroutine adapter_build_transform(this, goal, transformer, rc)
       class(TypeKindCharacteristicAdapter), intent(in) :: this
-      class(ComponentGraph), target, intent(in) :: graph
-      type(NodeId), intent(in) :: input_node_id
-      type(NodeId), intent(in) :: output_node_id
       class(Characteristic), intent(in) :: goal
       class(Transform), allocatable, intent(out) :: transformer
       integer, optional, intent(out) :: rc
 
       select type (goal)
       class is (TypeKindCharacteristicAdapter)
-         allocate(transformer, source=TypeKindConverterTransform(graph, input_node_id, output_node_id, &
+         allocate(transformer, source=TypeKindConverterTransform( &
               label_to_typekind(this%inner%get_type_kind()), label_to_typekind(goal%inner%get_type_kind())))
       class default
          _FAIL('TypeKindCharacteristicAdapter: build_transform called with a non-typekind goal')

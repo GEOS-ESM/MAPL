@@ -32,8 +32,6 @@
 module mapl_Characteristic_mod
    use iso_fortran_env, only: INT64
    use mapl_CharacteristicId_mod, only: CharacteristicId, operator(<)
-   use mapl_ComponentGraph_mod, only: ComponentGraph
-   use mapl_NodeId_mod, only: NodeId
    use mapl_Transform_mod, only: Transform
    use mapl_ErrorHandling_mod
 
@@ -88,20 +86,18 @@ module mapl_Characteristic_mod
 
       ! Analogous to (never calls) StateItemAspect%make_transform: build
       ! a Transform (mapl_Transform_mod) resolving `this` (the export's
-      ! value) into `goal` (the import's requirement), wired to read the
-      ! bound input_node_id/output_node_id from `graph` at compute()
-      ! time (TransformGraphNode%execute() -> Transform%compute() takes
-      ! no arguments - a concrete Transform must hold whatever
-      ! references it needs itself, set here at construction time). A
-      ! subclass with no real conversion implemented yet MUST fail
-      ! explicitly (rc /= 0) rather than allocate a no-op/stub Transform
-      ! (spec "Unregistered characteristic fails loudly").
-      subroutine I_build_transform(this, graph, input_node_id, output_node_id, goal, transformer, rc)
-         import Characteristic, ComponentGraph, NodeId, Transform
+      ! value) into `goal` (the import's requirement) - a pure
+      ! value-to-strategy constructor, with no graph/NodeId concept
+      ! involved (openspec/changes/decouple-transform-from-graph: the
+      ! built Transform receives its own bound input/output values from
+      ! its caller, at compute() time, not self-fetched via a stored
+      ! ComponentGraph/NodeId reference). A subclass with no real
+      ! conversion implemented yet MUST fail explicitly (rc /= 0) rather
+      ! than allocate a no-op/stub Transform (spec "Unregistered
+      ! characteristic fails loudly").
+      subroutine I_build_transform(this, goal, transformer, rc)
+         import Characteristic, Transform
          class(Characteristic), intent(in) :: this
-         class(ComponentGraph), target, intent(in) :: graph
-         type(NodeId), intent(in) :: input_node_id
-         type(NodeId), intent(in) :: output_node_id
          class(Characteristic), intent(in) :: goal
          class(Transform), allocatable, intent(out) :: transformer
          integer, optional, intent(out) :: rc

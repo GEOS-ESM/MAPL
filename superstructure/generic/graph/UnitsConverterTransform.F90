@@ -8,12 +8,11 @@
 ! independent of legacy's ExtensionTransform interface (initialize/
 ! update(this, importState, exportState, clock, rc),
 ! superstructure/generic/transforms/ExtensionTransform.F90):
-! TransformGraphNode%execute() calls Transform%compute(this, rc) with no
-! other arguments (see mapl_ComponentGraph_DemandDrivenUpdate_smod), so
-! this type holds the owning ComponentGraph plus the input/output NodeId
-! itself, set at construction time by whoever builds the chain
-! (UnitsCharacteristic%build_transform), and fetches both bound
-! GraphStateItems' ESMF_Fields directly at compute() time.
+! TransformGraphNode%execute() calls Transform%compute(this, inputs,
+! outputs, rc), passing this transform's own already-resolved, bound
+! input/output GraphStateItem values (one per declared port name,
+! openspec/changes/decouple-transform-from-graph) - no stored
+! ComponentGraph/NodeId of its own.
 !
 ! Named UnitsConverterTransform, not ConvertUnitsTransform, because
 ! `mapl_ConvertUnitsTransform_mod`/`ConvertUnitsTransform`
@@ -35,10 +34,7 @@
 !------------------------------------------------------------------------------
 module mapl_UnitsConverterTransform_mod
    use mapl_Transform_mod, only: Transform
-   use mapl_ComponentGraph_mod, only: ComponentGraph
-   use mapl_NodeId_mod, only: NodeId
-   use mapl_GraphNode_mod, only: GraphNode
-   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_FieldPointerUtilities_mod, only: assign_fptr
    use udunits2f, only: UDUNITS_Converter => Converter
@@ -55,9 +51,6 @@ module mapl_UnitsConverterTransform_mod
 
    type, extends(Transform) :: UnitsConverterTransform
       private
-      class(ComponentGraph), pointer :: graph => null()
-      type(NodeId) :: input_node_id
-      type(NodeId) :: output_node_id
       character(:), allocatable :: src_units
       character(:), allocatable :: dst_units
       type(UDUNITS_Converter) :: converter
@@ -75,20 +68,13 @@ module mapl_UnitsConverterTransform_mod
 
 contains
 
-   function new_UnitsConverterTransform(graph, input_node_id, output_node_id, &
-        src_units, dst_units) result(transform)
-      class(ComponentGraph), target, intent(in) :: graph
-      type(NodeId), intent(in) :: input_node_id
-      type(NodeId), intent(in) :: output_node_id
+   function new_UnitsConverterTransform(src_units, dst_units) result(transform)
       character(*), intent(in) :: src_units
       character(*), intent(in) :: dst_units
       type(UnitsConverterTransform) :: transform
 
       integer :: status
 
-      transform%graph => graph
-      transform%input_node_id = input_node_id
-      transform%output_node_id = output_node_id
       transform%src_units = src_units
       transform%dst_units = dst_units
 
@@ -96,13 +82,14 @@ contains
       call transform%declare_output_port(OUTPUT_PORT_NAME, rc=status)
    end function new_UnitsConverterTransform
 
-   subroutine units_compute(this, rc)
+   subroutine units_compute(this, inputs, outputs, rc)
       class(UnitsConverterTransform), intent(inout) :: this
+      type(PortNameGraphStateItemMap), intent(in) :: inputs
+      type(PortNameGraphStateItemMap), intent(in) :: outputs
       integer, intent(out) :: rc
 
       integer :: status
-      class(GraphNode), pointer :: input_node, output_node
-      type(GraphStateItem) :: input_item, output_item
+      type(GraphStateItem), pointer :: input_item, output_item
       type(ESMF_Field) :: input_field, output_field
       type(ESMF_TypeKind_Flag) :: typekind
 
@@ -111,24 +98,10 @@ contains
          this%converter_ready = .true.
       end if
 
-      input_node => this%graph%get_node(this%input_node_id)
-      _ASSERT(associated(input_node), 'UnitsConverterTransform: input NodeId not found in graph')
-      output_node => this%graph%get_node(this%output_node_id)
-      _ASSERT(associated(output_node), 'UnitsConverterTransform: output NodeId not found in graph')
-
-      select type (input_node)
-      class is (StateItemNode)
-         input_item = input_node%get_payload()
-      class default
-         _FAIL('UnitsConverterTransform: input NodeId does not refer to a StateItemNode')
-      end select
-
-      select type (output_node)
-      class is (StateItemNode)
-         output_item = output_node%get_payload()
-      class default
-         _FAIL('UnitsConverterTransform: output NodeId does not refer to a StateItemNode')
-      end select
+      input_item => inputs%at(INPUT_PORT_NAME)
+      _ASSERT(associated(input_item), 'UnitsConverterTransform: input port not found in inputs')
+      output_item => outputs%at(OUTPUT_PORT_NAME)
+      _ASSERT(associated(output_item), 'UnitsConverterTransform: output port not found in outputs')
 
       input_field = input_item%get_field(_RC)
       output_field = output_item%get_field(_RC)

@@ -3,12 +3,15 @@
 !------------------------------------------------------------------------------
 ! Transform: abstract computation descriptor - named, multi-input/multi-
 ! output port declarations (REQ-XFORM-002/003/004) plus a deferred
-! compute(this, rc) - with no graph/revision/NodeId concept of its own,
-! matching how GraphStateItem (StateItemNode's payload) carries no revision
-! concept either: both are the "value/behavior" half of their respective
-! node kind, deliberately independent of graph plumbing, so each is
-! usable/testable in complete isolation from ComponentGraph/
-! DependencyNetwork/NodeRevision.
+! compute(this, inputs, outputs, rc), where inputs/outputs are the
+! transform's own already-resolved, caller-supplied bound values (one
+! GraphStateItem per declared port name) - with no graph/revision/NodeId
+! concept of its own, matching how GraphStateItem (StateItemNode's
+! payload) carries no revision concept either: both are the
+! "value/behavior" half of their respective node kind, deliberately
+! independent of graph plumbing, so each is usable/testable in complete
+! isolation from ComponentGraph/DependencyNetwork/NodeRevision
+! (openspec/changes/decouple-transform-from-graph).
 !
 ! A real Transform (Phase 3/4, in MAPL - e.g. ConvertUnitsTransform)
 ! extends this directly, declaring its own fixed port shape (via
@@ -25,6 +28,7 @@
 module mapl_Transform_mod
    use mapl_PortSpec_mod, only: PortSpec
    use mapl_PortSpecMap_mod
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
    use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -60,9 +64,11 @@ module mapl_Transform_mod
    end type Transform
 
    abstract interface
-      subroutine transform_compute_interface(this, rc)
-         import :: Transform
+      subroutine transform_compute_interface(this, inputs, outputs, rc)
+         import :: Transform, PortNameGraphStateItemMap
          class(Transform), intent(inout) :: this
+         type(PortNameGraphStateItemMap), intent(in) :: inputs
+         type(PortNameGraphStateItemMap), intent(in) :: outputs
          integer, intent(out) :: rc
       end subroutine transform_compute_interface
    end interface

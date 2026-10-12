@@ -6,10 +6,10 @@
 ! (TypeKindCharacteristicAdapter.F90; openspec/changes/
 ! phase-10c-typekind-characteristic design.md D2) - a pure numeric R4<->R8
 ! kind cast, structurally mirroring UnitsConverterTransform.F90 line for
-! line (TransformGraphNode%execute() calls Transform%compute(this, rc)
-! with no other arguments, so this type holds the owning ComponentGraph
-! plus the input/output NodeId itself, set at construction time by
-! whoever builds the chain).
+! line (TransformGraphNode%execute() calls Transform%compute(this, inputs,
+! outputs, rc), passing this transform's own already-resolved, bound
+! input/output GraphStateItem values - no stored ComponentGraph/NodeId of
+! its own, openspec/changes/decouple-transform-from-graph).
 !
 ! Named TypeKindConverterTransform, not CopyTransform: that name is
 ! already taken by the legacy, ExtensionTransform-based type
@@ -29,10 +29,7 @@
 !------------------------------------------------------------------------------
 module mapl_TypeKindConverterTransform_mod
    use mapl_Transform_mod, only: Transform
-   use mapl_ComponentGraph_mod, only: ComponentGraph
-   use mapl_NodeId_mod, only: NodeId
-   use mapl_GraphNode_mod, only: GraphNode
-   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_FieldPointerUtilities_mod, only: assign_fptr
    use ESMF, only: ESMF_Field, ESMF_TypeKind_Flag
@@ -47,9 +44,6 @@ module mapl_TypeKindConverterTransform_mod
 
    type, extends(Transform) :: TypeKindConverterTransform
       private
-      class(ComponentGraph), pointer :: graph => null()
-      type(NodeId) :: input_node_id
-      type(NodeId) :: output_node_id
       type(ESMF_TypeKind_Flag) :: src_typekind
       type(ESMF_TypeKind_Flag) :: dst_typekind
    contains
@@ -65,20 +59,13 @@ module mapl_TypeKindConverterTransform_mod
 
 contains
 
-   function new_TypeKindConverterTransform(graph, input_node_id, output_node_id, &
-        src_typekind, dst_typekind) result(transform)
-      class(ComponentGraph), target, intent(in) :: graph
-      type(NodeId), intent(in) :: input_node_id
-      type(NodeId), intent(in) :: output_node_id
+   function new_TypeKindConverterTransform(src_typekind, dst_typekind) result(transform)
       type(ESMF_TypeKind_Flag), intent(in) :: src_typekind
       type(ESMF_TypeKind_Flag), intent(in) :: dst_typekind
       type(TypeKindConverterTransform) :: transform
 
       integer :: status
 
-      transform%graph => graph
-      transform%input_node_id = input_node_id
-      transform%output_node_id = output_node_id
       transform%src_typekind = src_typekind
       transform%dst_typekind = dst_typekind
 
@@ -86,33 +73,20 @@ contains
       call transform%declare_output_port(OUTPUT_PORT_NAME, rc=status)
    end function new_TypeKindConverterTransform
 
-   subroutine typekind_compute(this, rc)
+   subroutine typekind_compute(this, inputs, outputs, rc)
       class(TypeKindConverterTransform), intent(inout) :: this
+      type(PortNameGraphStateItemMap), intent(in) :: inputs
+      type(PortNameGraphStateItemMap), intent(in) :: outputs
       integer, intent(out) :: rc
 
       integer :: status
-      class(GraphNode), pointer :: input_node, output_node
-      type(GraphStateItem) :: input_item, output_item
+      type(GraphStateItem), pointer :: input_item, output_item
       type(ESMF_Field) :: input_field, output_field
 
-      input_node => this%graph%get_node(this%input_node_id)
-      _ASSERT(associated(input_node), 'TypeKindConverterTransform: input NodeId not found in graph')
-      output_node => this%graph%get_node(this%output_node_id)
-      _ASSERT(associated(output_node), 'TypeKindConverterTransform: output NodeId not found in graph')
-
-      select type (input_node)
-      class is (StateItemNode)
-         input_item = input_node%get_payload()
-      class default
-         _FAIL('TypeKindConverterTransform: input NodeId does not refer to a StateItemNode')
-      end select
-
-      select type (output_node)
-      class is (StateItemNode)
-         output_item = output_node%get_payload()
-      class default
-         _FAIL('TypeKindConverterTransform: output NodeId does not refer to a StateItemNode')
-      end select
+      input_item => inputs%at(INPUT_PORT_NAME)
+      _ASSERT(associated(input_item), 'TypeKindConverterTransform: input port not found in inputs')
+      output_item => outputs%at(OUTPUT_PORT_NAME)
+      _ASSERT(associated(output_item), 'TypeKindConverterTransform: output port not found in outputs')
 
       input_field = input_item%get_field(_RC)
       output_field = output_item%get_field(_RC)
