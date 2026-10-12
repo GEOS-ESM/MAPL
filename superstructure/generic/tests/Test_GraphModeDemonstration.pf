@@ -68,6 +68,8 @@ module Test_GraphModeDemonstration
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
    use mapl_GraphBuilder_mod, only: proxy_key
    use mapl_NodeId_mod, only: NodeId
    use mapl_GraphNode_mod, only: GraphNode
@@ -224,5 +226,193 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_graph_mode_populates_sibling_states
+
+   ! openspec/changes/phase-11b-chain-intermediate-materialization,
+   ! design.md D5/tasks.md 4.2/4.3: real two-characteristic
+   ! (units + typekind) run-phase demonstration - the goal §20.4.9/
+   ! §20.4.10 named as unmet before this change (a chain of two or more
+   ! links executing compute() end to end, with a real propagated
+   ! value). Mirrors test_graph_mode_populates_sibling_states above
+   ! exactly in shape, substituting units_and_typekind_mismatch for
+   ! units_mismatch_run_phase - that fixture's own comp_src.yaml already
+   ! declares a real `run: {T: [10]}` section (unlike
+   ! Test_GraphEquivalenceHarness.pf's own has_run_phase=.false. use of
+   ! this same fixture, which never executes a run phase or compute()).
+   @test(npes=[0])
+   subroutine test_graph_mode_propagates_through_two_characteristic_chain(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: config
+      type(ESMF_Config) :: config_cf
+      type(ESMF_GridComp) :: cap_gc
+      type(OuterMetaComponent), pointer :: cap_meta, dst_meta
+      type(GriddedComponentDriver) :: dst_driver
+      type(GriddedComponentDriver), pointer :: dst_own_driver
+      type(ESMF_GridComp) :: dst_gc
+      type(MultiState) :: dst_states
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_State) :: dst_own_import_state
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: t0, t1
+      type(ESMF_TimeInterval) :: dt
+      integer :: status, user_status, i
+      integer :: item_count
+      type(ESMF_Field) :: result_field, chain_input_field, chain_intermediate_field
+      type(ESMF_TypeKind_Flag) :: result_typekind
+      character(:), allocatable :: result_units
+      real(ESMF_KIND_R8), pointer :: result_data(:,:)
+      type(ComponentGraph), pointer :: cap_graph
+      type(DependencyNetwork), pointer :: net
+      type(NodeId), pointer :: export_proxy_id
+      type(NodeId), pointer :: import_proxy_id
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: pred_iter
+      type(NodeId) :: chain_intermediate_id
+      class(GraphNode), pointer :: export_proxy_node
+      class(GraphNode), pointer :: chain_intermediate_node
+      type(GraphStateItem) :: export_proxy_payload
+      type(GraphStateItem) :: chain_intermediate_payload
+
+      call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
+
+      config = ESMF_HConfigCreate( &
+           filename='./graph-scenarios/units_and_typekind_mismatch/cap.yaml', _RC)
+      config_cf = ESMF_ConfigCreate(hconfig=config, _RC)
+      cap_gc = ESMF_GridCompCreate(name='CAP_GRAPH_MODE_DEMO_2CHAR', config=config_cf, _RC)
+      call ESMF_GridCompSetServices(cap_gc, mapl_GenericSetservices, userRC=user_status, _RC)
+      _VERIFY(user_status)
+
+      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
+      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
+
+      importState = ESMF_StateCreate(_RC)
+      exportState = ESMF_StateCreate(_RC)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_materialize_extensions(.true.)
+      do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
+         associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
+            call ESMF_GridCompInitialize(cap_gc, &
+                 importState=importState, exportState=exportState, clock=clock, &
+                 phase=phase, userRC=user_status, _RC)
+            _VERIFY(user_status)
+         end associate
+      end do
+      call set_materialize_extensions(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+
+      cap_meta => get_outer_meta(cap_gc, _RC)
+      cap_graph => cap_meta%get_component_graph()
+
+      ! openspec/changes/phase-11b-chain-intermediate-materialization:
+      ! BEFORE any run phase executes, confirm every link of this
+      ! two-characteristic chain already has a real, allocated payload -
+      ! the chain's own INPUT (export proxy, 11a's own scope) and its
+      ! own INTERMEDIATE node (between UnitsConverterTransform and
+      ! TypeKindConverterTransform - this change's own scope, closing
+      ! §20.4.9's first gap). The chain's own structure alternates
+      ! StateItemNode -> TransformGraphNode -> StateItemNode -> ...
+      ! (build_chain, ExtensionResolution.F90): walking back from the
+      ! import's sole predecessor (the chain's FINAL StateItemNode)
+      ! needs TWO more predecessor hops (through
+      ! TypeKindConverterTransform's own TransformGraphNode) to reach
+      ! the chain's INTERMEDIATE StateItemNode, not one.
+      export_proxy_id => cap_graph%get_resource_index(proxy_key('comp_src', ESMF_STATEINTENT_EXPORT, 'T'))
+      @assert_that('export proxy resolved', associated(export_proxy_id), is(true()))
+      export_proxy_node => cap_graph%get_node(export_proxy_id)
+      select type (export_proxy_node)
+      class is (StateItemNode)
+         export_proxy_payload = export_proxy_node%get_payload()
+      class default
+         @assert_that('export proxy node is a StateItemNode', .false., is(true()))
+      end select
+      chain_input_field = export_proxy_payload%get_field(rc=status)
+      @assertEqual(0, status, 'export proxy (chain input) has a real, allocated field')
+      @assert_that('export proxy field is a real ESMF_Field', ESMF_FieldIsCreated(chain_input_field), is(true()))
+
+      import_proxy_id => cap_graph%get_resource_index(proxy_key('comp_dst', ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that('import proxy resolved', associated(import_proxy_id), is(true()))
+      net => cap_graph%get_network(cap_graph%get_default_network_id())
+      preds = net%get_predecessors(import_proxy_id)
+      @assertEqual(1, preds%size(), 'import has exactly one predecessor (the chain''s final item)')
+      pred_iter = preds%ftn_begin()
+      call pred_iter%next()
+      ! pred_iter%of() is the chain's FINAL StateItemNode
+      ! (TypeKindConverterTransform's own output - wired directly to
+      ! the import via add_dependency, resolve_one's own final step).
+      ! That node's own predecessor is TypeKindConverterTransform's own
+      ! TransformGraphNode (build_chain wires
+      ! transform_node_id -> extension_node_id), not another
+      ! StateItemNode - walk one more hop past that TransformGraphNode
+      ! to reach its own predecessor, the chain's INTERMEDIATE
+      ! StateItemNode (UnitsConverterTransform's own output,
+      ! TypeKindConverterTransform's own input).
+      preds = net%get_predecessors(pred_iter%of())
+      @assertEqual(1, preds%size(), 'chain final item has exactly one predecessor (TypeKindConverterTransform''s own TransformGraphNode)')
+      pred_iter = preds%ftn_begin()
+      call pred_iter%next()
+      preds = net%get_predecessors(pred_iter%of())
+      @assertEqual(1, preds%size(), 'TypeKindConverterTransform''s own TransformGraphNode has exactly one predecessor (the chain''s intermediate item)')
+      pred_iter = preds%ftn_begin()
+      call pred_iter%next()
+      chain_intermediate_id = pred_iter%of()
+
+      chain_intermediate_node => cap_graph%get_node(chain_intermediate_id)
+      select type (chain_intermediate_node)
+      class is (StateItemNode)
+         chain_intermediate_payload = chain_intermediate_node%get_payload()
+      class default
+         @assert_that('chain intermediate node is a StateItemNode', .false., is(true()))
+      end select
+      chain_intermediate_field = chain_intermediate_payload%get_field(rc=status)
+      @assertEqual(0, status, 'chain intermediate item has a real, allocated field (this change''s own scope)')
+      @assert_that('chain intermediate field is a real ESMF_Field', ESMF_FieldIsCreated(chain_intermediate_field), is(true()))
+
+      ! A real GENERIC_RUN_USER phase - mirroring
+      ! test_graph_mode_populates_sibling_states above exactly.
+      ! comp_src.yaml's own `run: {T: [10]}` sets T to 10. hPa/R4;
+      ! run_children_phases_ propagates GENERIC_RUN_USER down to
+      ! comp_dst, whose own driver%run() triggers D7's own pull hook
+      ! (graphbuilder_run_pull_hook/graph%update()) - which, for this
+      ! fixture, now pulls through BOTH chain links (units, then
+      ! typekind), each with a real payload to read from and write to
+      ! (confirmed above), rather than failing on the intermediate
+      ! link's own previously-unallocated payload.
+      call ESMF_GridCompRun(cap_gc, &
+           importState=importState, exportState=exportState, clock=clock, &
+           phase=GENERIC_RUN_USER, userRC=user_status, _RC)
+      _VERIFY(user_status)
+
+      ! comp_dst's own real import ESMF_State.
+      dst_driver = cap_meta%get_child('comp_dst', _RC)
+      dst_gc = dst_driver%get_gridcomp()
+      dst_meta => get_outer_meta(dst_gc, _RC)
+      dst_own_driver => dst_meta%get_user_gc_driver()
+      dst_states = dst_own_driver%get_states()
+      dst_own_import_state = dst_states%importState
+
+      call ESMF_StateGet(dst_own_import_state, itemCount=item_count, _RC)
+      @assertEqual(1, item_count, 'comp_dst own import state has exactly one entry under GRAPH_MODE_GRAPH')
+
+      call ESMF_StateGet(dst_own_import_state, 'T', result_field, _RC)
+      call FieldGet(result_field, typekind=result_typekind, units=result_units, _RC)
+      @assertTrue(result_typekind == ESMF_TYPEKIND_R8, 'chain final item has the import''s own typekind (R8)')
+      @assertEqual('Pa', result_units, 'chain final item has the import''s own units (Pa)')
+
+      ! Hand-checked value (units_and_typekind_mismatch/description.md):
+      ! 10. hPa -(units, factor 100)-> 1000. Pa -(typekind, R4->R8)->
+      ! 1000.d0 Pa. Both conversions composed correctly end to end -
+      ! the real goal this change (11b) and 11a together unlock, per
+      ! §20.4.10's own "Both landing is what unlocks a real
+      ! units_and_typekind_mismatch-style two-characteristic run-phase
+      ! demonstration."
+      call ESMF_FieldGet(result_field, farrayPtr=result_data, _RC)
+      @assertEqual(1000._ESMF_KIND_R8, result_data, tolerance=1.0e-4_ESMF_KIND_R8, &
+           message='comp_dst own import field reflects comp_src''s own run-phase value, converted hPa->Pa and R4->R8')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_graph_mode_propagates_through_two_characteristic_chain
 
 end module Test_GraphModeDemonstration

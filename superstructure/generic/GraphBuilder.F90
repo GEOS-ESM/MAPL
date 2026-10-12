@@ -147,6 +147,8 @@ module mapl_GraphBuilder_mod
    use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
    use mapl_CallbackStateBinding_mod, only: CallbackStateBinding
    use mapl_Characteristic_mod, only: CharacteristicMap
+   use mapl_CharacteristicId_mod, only: CharacteristicId, UNITS_CHARACTERISTIC_ID, &
+        TYPE_KIND_CHARACTERISTIC_ID, VERTICAL_GRID_CHARACTERISTIC_ID, operator(==)
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_ComponentSpec_mod, only: ComponentSpec
    use mapl_Connection_mod, only: Connection
@@ -195,6 +197,13 @@ module mapl_GraphBuilder_mod
    public :: is_self
    public :: itemtype_name
    public :: try_materialize_field_extension
+   ! openspec/changes/phase-11b-chain-intermediate-materialization: new
+   ! per-link materialization helper replacing each of the four
+   ! find_or_build_extension_chain call sites' own single final-node
+   ! try_materialize_field_extension call (design.md D3/D4) - exposed
+   ! the same way try_materialize_field_extension already is, for direct
+   ! test coverage and submodule call-site use.
+   public :: materialize_extension_chain
    ! openspec/changes/horizontal-geometry-graph-state-item (Phase 4e):
    ! exposed the same way item_key/proxy_key already are, so tests (and
    ! any future code with legitimate reason to identify a geometry node
@@ -871,6 +880,142 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine try_materialize_field_extension
+
+   ! openspec/changes/phase-11b-chain-intermediate-materialization,
+   ! design.md D4: materializes every entry of intermediate_node_ids (in
+   ! order) with that link's own correctly-evolved typekind/units/
+   ! vertical_grid (merged_var_spec_for_link, D2 below) - replacing each
+   ! of the four find_or_build_extension_chain call sites' own single
+   ! final-node try_materialize_field_extension call. Resolves geom/vgrid
+   ! once (resolve_export_geom/resolve_export_vgrid, unchanged) and
+   ! reuses it for every link, since GEOM_CHARACTERISTIC_ID never appears
+   ! in build_characteristics' own mismatch set (design.md Context).
+   ! Stops at the first link whose materialization fails, returning the
+   ! same distinguishable failure_reason try_materialize_field_extension
+   ! itself already produces - callers' own existing failure-reporting is
+   ! unchanged. mismatched_kinds MUST be the same array
+   ! find_or_build_extension_chain was called with (the resolution order
+   ! intermediate_node_ids is parallel to).
+   subroutine materialize_extension_chain(this, export_comp_name, export_var_spec, import_var_spec, &
+        mismatched_kinds, intermediate_node_ids, graph, failure_reason, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: export_comp_name
+      type(VariableSpec), intent(in) :: export_var_spec
+      type(VariableSpec), intent(in) :: import_var_spec
+      type(CharacteristicId), intent(in) :: mismatched_kinds(:)
+      type(NodeId), intent(in) :: intermediate_node_ids(:)
+      type(ComponentGraph), target, intent(inout) :: graph
+      character(:), allocatable, intent(out) :: failure_reason
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i
+      class(OuterMetaComponent), pointer :: export_meta
+      type(ESMF_Geom) :: geom
+      logical :: has_geom
+      class(VerticalGrid), allocatable :: vgrid
+      type(VerticalStaggerLoc) :: vert_staggerloc
+      type(VariableSpec) :: link_spec
+
+      failure_reason = ''
+
+      if (.not. (export_var_spec%itemType == MAPL_STATEITEM_FIELD)) then
+         failure_reason = 'unsupported_item_class:' // itemtype_name(export_var_spec%itemType)
+         _RETURN(_SUCCESS)
+      end if
+      if (.not. (import_var_spec%itemType == MAPL_STATEITEM_FIELD)) then
+         failure_reason = 'unsupported_item_class:' // itemtype_name(import_var_spec%itemType)
+         _RETURN(_SUCCESS)
+      end if
+      _ASSERT(allocated(import_var_spec%units), 'GraphBuilder: materialize_extension_chain reached with no import units - internal inconsistency')
+
+      export_meta => component_for(this, export_comp_name, _RC)
+
+      call resolve_export_geom(export_var_spec, export_meta, geom, has_geom, _RC)
+      if (.not. has_geom) then
+         failure_reason = 'unresolved_geom'
+         _RETURN(_SUCCESS)
+      end if
+
+      call resolve_export_vgrid(export_var_spec, export_meta, vgrid)
+      if (allocated(vgrid)) then
+         vert_staggerloc = VERTICAL_STAGGER_CENTER
+         if (allocated(export_var_spec%vertical_stagger)) vert_staggerloc = export_var_spec%vertical_stagger
+      end if
+
+      do i = 1, size(intermediate_node_ids)
+         link_spec = merged_var_spec_for_link(export_var_spec, import_var_spec, mismatched_kinds, i, _RC)
+
+         if (allocated(vgrid)) then
+            call materialize_field_extension(graph, intermediate_node_ids(i), geom=geom, &
+                 typekind=link_spec%typekind, units=link_spec%units, &
+                 ungridded_dims=export_var_spec%ungridded_dims, &
+                 vgrid=vgrid, vert_staggerloc=vert_staggerloc, _RC)
+         else
+            call materialize_field_extension(graph, intermediate_node_ids(i), geom=geom, &
+                 typekind=link_spec%typekind, units=link_spec%units, &
+                 ungridded_dims=export_var_spec%ungridded_dims, _RC)
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine materialize_extension_chain
+
+   ! openspec/changes/phase-11b-chain-intermediate-materialization,
+   ! design.md D2: link i's own materialized typekind/units is
+   ! import_var_spec's own value for every CharacteristicId in
+   ! mismatched_kinds(1:i) (already "converted" by that point in the
+   ! chain) and export_var_spec's own value otherwise. At
+   ! i == size(mismatched_kinds) this exactly reduces to
+   ! try_materialize_field_extension's own existing final-node formula
+   ! (every mismatched kind has import's value) - no behavior change for
+   ! the single-characteristic case. _FAIL explicitly for any
+   ! CharacteristicId outside the three this helper knows how to
+   ! translate into a VariableSpec field ("unregistered characteristic
+   ! fails loudly" applies to this translation step too).
+   function merged_var_spec_for_link(export_var_spec, import_var_spec, mismatched_kinds, i, rc) result(link_spec)
+      type(VariableSpec), intent(in) :: export_var_spec
+      type(VariableSpec), intent(in) :: import_var_spec
+      type(CharacteristicId), intent(in) :: mismatched_kinds(:)
+      integer, intent(in) :: i
+      integer, optional, intent(out) :: rc
+      type(VariableSpec) :: link_spec
+
+      integer :: j
+      logical :: units_converted
+      logical :: typekind_converted
+      character(:), allocatable :: assertion_message
+
+      link_spec = export_var_spec
+      units_converted = .false.
+      typekind_converted = .false.
+
+      do j = 1, i
+         if (mismatched_kinds(j) == UNITS_CHARACTERISTIC_ID) then
+            units_converted = .true.
+         else if (mismatched_kinds(j) == TYPE_KIND_CHARACTERISTIC_ID) then
+            typekind_converted = .true.
+         else if (mismatched_kinds(j) == VERTICAL_GRID_CHARACTERISTIC_ID) then
+            ! Vertical grid has no concrete field-materialization
+            ! parameter today (materialize_field_extension's own vgrid/
+            ! vert_staggerloc are resolved once from export_var_spec,
+            ! outside this per-link loop, by materialize_extension_chain
+            ! itself - unaffected by this helper). Nothing to merge here;
+            ! VerticalGridCharacteristic%build_transform always fails, so
+            ! this branch is unreachable in practice, but is enumerated
+            ! explicitly rather than falling into the _FAIL default below.
+         else
+            assertion_message = 'GraphBuilder: merged_var_spec_for_link - unrecognized CharacteristicId: ' // &
+                 mismatched_kinds(j)%to_string()
+            _FAIL(assertion_message)
+         end if
+      end do
+
+      if (units_converted) link_spec%units = import_var_spec%units
+      if (typekind_converted) link_spec%typekind = import_var_spec%typekind
+
+      _RETURN(_SUCCESS)
+   end function merged_var_spec_for_link
 
    ! Human-readable item-class name for an unsupported-item-class failure
    ! message (design.md Decisions "Scope limited to Field-typed items")

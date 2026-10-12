@@ -161,6 +161,7 @@ contains
       type(CharacteristicMap) :: export_map, import_map
       type(CharacteristicId), allocatable :: mismatched(:)
       type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: unsupported
       integer :: status
 
@@ -176,11 +177,16 @@ contains
       mismatched = find_mismatched_characteristics(export_map, import_map)
 
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
-           mismatched, final_id, unsupported, rc=status)
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
 
       @assertEqual(0, status)
       @assertEqual('', unsupported)
       @assertFalse(final_id == export_id)
+      ! openspec/changes/phase-11b-chain-intermediate-materialization:
+      ! a single-characteristic chain's own intermediate_ids array has
+      ! length 1, and that one entry is the chain's own final node.
+      @assertEqual(1, size(intermediate_ids))
+      @assertTrue(intermediate_ids(1) == final_id)
    end subroutine test_single_step_chain_creates_one_transform
 
    @test
@@ -194,6 +200,7 @@ contains
       type(CharacteristicMap) :: export_map, import_map
       type(CharacteristicId), allocatable :: mismatched(:)
       type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: unsupported
       integer :: status
 
@@ -212,11 +219,19 @@ contains
       @assertEqual(2, size(mismatched))
 
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
-           mismatched, final_id, unsupported, rc=status)
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
 
       @assertEqual(0, status)
       @assertEqual('', unsupported)
       @assertFalse(final_id == export_id)
+      ! openspec/changes/phase-11b-chain-intermediate-materialization,
+      ! design.md D1/D5: a two-characteristic chain's own
+      ! intermediate_ids array has length 2, its last entry equals
+      ! final_node_id, and both entries are distinct NodeIds.
+      @assertEqual(2, size(intermediate_ids))
+      @assertTrue(intermediate_ids(2) == final_id)
+      @assertFalse(intermediate_ids(1) == intermediate_ids(2))
+      @assertFalse(intermediate_ids(1) == export_id)
    end subroutine test_multi_step_chain_with_fake_characteristic
 
    @test
@@ -248,6 +263,7 @@ contains
       type(CharacteristicMap) :: export_map, import_map
       type(CharacteristicId), allocatable :: mismatched(:)
       type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: unsupported
       integer :: status
 
@@ -265,7 +281,7 @@ contains
       ! VerticalGridCharacteristic%build_transform always fails - no
       ! real vertical-regrid Transform exists yet.
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
-           mismatched, final_id, unsupported, rc=status)
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
 
       @assertEqual(0, status)
       @assertEqual('VERTICAL_GRID', unsupported)
@@ -284,6 +300,7 @@ contains
       type(CharacteristicMap) :: export_map, import_map
       type(CharacteristicId), allocatable :: mismatched(:)
       type(NodeId) :: final_id1, final_id2
+      type(NodeId), allocatable :: intermediate_ids1(:), intermediate_ids2(:)
       character(:), allocatable :: unsupported
       integer :: status
 
@@ -299,14 +316,21 @@ contains
       mismatched = find_mismatched_characteristics(export_map, import_map)
 
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
-           mismatched, final_id1, unsupported, rc=status)
+           mismatched, final_id1, intermediate_ids1, unsupported, rc=status)
       @assertEqual(0, status)
+      @assertEqual(1, size(intermediate_ids1))
 
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
-           mismatched, final_id2, unsupported, rc=status)
+           mismatched, final_id2, intermediate_ids2, unsupported, rc=status)
       @assertEqual(0, status)
 
       @assertTrue(final_id1 == final_id2)
+      ! openspec/changes/phase-11b-chain-intermediate-materialization,
+      ! design.md D1: the reuse-hit path returns a zero-size
+      ! intermediate_node_ids array - a reused chain's own links were
+      ! already materialized by the first call, no re-materialization
+      ! work is ever needed.
+      @assertEqual(0, size(intermediate_ids2))
    end subroutine test_reuse_second_import_same_variant
 
    @test
@@ -320,6 +344,7 @@ contains
       type(CharacteristicMap) :: export_map, import_map1, import_map2
       type(CharacteristicId), allocatable :: mismatched1(:), mismatched2(:)
       type(NodeId) :: final_id1, final_id2
+      type(NodeId), allocatable :: intermediate_ids1(:), intermediate_ids2(:)
       character(:), allocatable :: unsupported
       integer :: status
 
@@ -338,14 +363,15 @@ contains
       mismatched2 = find_mismatched_characteristics(export_map, import_map2)
 
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map1, &
-           mismatched1, final_id1, unsupported, rc=status)
+           mismatched1, final_id1, intermediate_ids1, unsupported, rc=status)
       @assertEqual(0, status)
 
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map2, &
-           mismatched2, final_id2, unsupported, rc=status)
+           mismatched2, final_id2, intermediate_ids2, unsupported, rc=status)
       @assertEqual(0, status)
 
       @assertFalse(final_id1 == final_id2)
+      @assertEqual(1, size(intermediate_ids2))
    end subroutine test_different_variant_creates_new_extension
 
 end module Test_ExtensionResolution

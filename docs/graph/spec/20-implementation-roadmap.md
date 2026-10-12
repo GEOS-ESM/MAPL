@@ -1418,19 +1418,64 @@ needs the other's code to land first):
   D1-D6 alias pattern, D7 pull hook, and the export-node materialization
   call site this sub-change modified) — no dependency on 11b.
 - **11b. Multi-hop extension-chain intermediate materialization** —
+  **landed** (`openspec/changes/phase-11b-chain-intermediate-materialization`):
   closes §20.4.9's own first gap (no materialized intermediate nodes).
-  Scope: change `find_or_build_extension_chain`'s own public interface
-  (`ExtensionResolution.F90`) to also return every intermediate `NodeId`
-  `build_chain` computes internally (not only `final_node_id`), and have
-  each of `GraphBuilder.F90`'s own four call sites materialize each
-  intermediate node with its own correctly-evolved typekind/units/geom —
-  mirroring `try_materialize_field_extension`'s existing per-node
-  materialization call. Needed before any two-or-more-characteristic
-  chain (e.g. `units_and_typekind_mismatch`) can execute `compute()` for
-  real without hitting `GraphStateItem: esmf_field is not allocated`.
-  Depends only on landed Phase 1-5/10 work (`ExtensionResolution.F90`,
-  `try_materialize_field_extension`) — no dependency on 11a's own code
-  path (a different call site in the same procedure).
+  `find_or_build_extension_chain`'s own public interface
+  (`ExtensionResolution.F90`) now also returns every intermediate
+  `NodeId` `build_chain` computes internally (not only `final_node_id`)
+  — a zero-size array on the reuse-hit path, truncated to only the
+  links actually built on an early unsupported-characteristic exit. A
+  new `GraphBuilder.F90` procedure, `materialize_extension_chain`,
+  replaces each of the four `find_or_build_extension_chain` call
+  sites' own prior single-final-node materialization with a loop over
+  every returned intermediate `NodeId`, each materialized with its own
+  correctly-evolved typekind/units (import's own value for every
+  characteristic already resolved by that point in the chain,
+  export's own value otherwise — reducing exactly to the prior
+  single-node formula at the chain's own final link). Demonstrated
+  against the already-landed `units_and_typekind_mismatch` fixture: a
+  new `Test_GraphModeDemonstration.pf` case
+  (`test_graph_mode_propagates_through_two_characteristic_chain`) runs
+  a real `GENERIC_RUN_USER` phase and asserts the real converted value
+  (`10.` hPa/R4 -> `1000.` Pa/R8, both unit and typekind conversion
+  composed) reaches `comp_dst`'s own real import state end to end —
+  fully achieving, not merely attempting, the stretch goal §20.4.10
+  itself named.
+  **Scope correction, discovered during implementation (recorded here
+  per this document's own 3b/3b2, 4b/4b2 discipline for a
+  review/implementation-discovered gap):** this entry's own original
+  wording ("mirroring `try_materialize_field_extension`'s existing
+  per-node materialization call" at "each of `GraphBuilder.F90`'s own
+  four call sites") assumed all four call sites already called
+  `try_materialize_field_extension` for a chain's own final node.
+  Confirmed false for three of the four by direct code reading:
+  `resolve_geometry_from_child`/`push_geometry_to_child`
+  (`GraphBuilder_Geometry_smod.F90`) and `wire_callback_argument`
+  (`GraphBuilder_CallbackWiring_smod.F90`) each call
+  `find_or_build_extension_chain` and go straight to `add_dependency`
+  — no materialization call ever existed there to extend. Per explicit
+  user decision during implementation (expand scope rather than narrow
+  it, but add no fabricated materialization against data that cannot
+  support it): all four call sites were updated to compile against the
+  new `intermediate_node_ids` output, but `materialize_extension_chain`
+  was deliberately NOT wired into the three geometry/callback sites —
+  `GeomCharacteristic%build_transform` always fails explicitly (no
+  real horizontal-regrid Transform exists, Phase 13/REQ-GEO-002a) so
+  the geometry mismatch branch is unreachable in practice (already
+  guarded by an `_ASSERT`), and `wire_callback_argument`'s own
+  `CharacteristicMap`s are always empty today (no real
+  `CallbackArgumentSpec` declares units/typekind/vertical_grid yet) so
+  its mismatch branch is never entered — neither site has a
+  `VariableSpec` available even if it were reachable, which
+  `materialize_extension_chain`'s own signature requires. Real
+  materialization at these three sites is deferred to whichever future
+  capability gives them one (a real horizontal-regrid Transform for
+  geometry; a characteristics-aware `CallbackArgumentSpec` for
+  callback wiring) — explicitly not attempted here.
+  Depended only on landed Phase 1-5/10 work
+  (`ExtensionResolution.F90`, `try_materialize_field_extension`) — no
+  dependency on 11a's own code path (a different call site in the
+  same procedure), confirmed independent as planned.
 
 **Recommended order: 11a before 11b, but not a hard gate.** The two
 sub-changes touch disjoint code and neither's own correctness depends on
@@ -1440,10 +1485,11 @@ for the single-characteristic case, at zero chain-interface risk; 11b
 alone, without 11a, would let a multi-hop chain materialize cleanly but
 still could not demonstrate a *real* propagated value end-to-end,
 because the chain's own export-facing input would still be the
-independent, un-aliased `FieldCreate` 11a is scoped to fix. Both landing
-is what unlocks a real `units_and_typekind_mismatch`-style
-two-characteristic run-phase demonstration — the recommended order
-reaches that goal via the lower-interface-risk path first.
+independent, un-aliased `FieldCreate` 11a is scoped to fix. **Both have
+now landed, in the recommended order, confirming this prediction
+directly**: 11b's own demonstration test is the real
+`units_and_typekind_mismatch`-style two-characteristic run-phase case
+this paragraph anticipated.
 
 **Neither sub-change reopens Phase 10d's own double-invocation hazard.**
 Both are state-materialization/aliasing concerns (what a `NodeId`'s own

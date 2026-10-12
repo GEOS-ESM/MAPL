@@ -64,10 +64,13 @@ export's node to the matching import's node, and SHALL materialize a
 real field payload on the export's node when the graph mode (see the
 graph-mode capability) is `graph` or `both`. If it does not match, the
 system SHALL delegate to the extension-reuse capability to interpose a
-transform chain rather than wiring the mismatched pair directly. This is
-the real-wiring step and SHALL occur only once graph mutation is
-appropriate (see design.md for the exact lifecycle point) - not merely
-once activity/need has been determined.
+transform chain rather than wiring the mismatched pair directly, and
+SHALL rely on that capability to materialize every link of the
+resulting chain - intermediate as well as final - when payload
+materialization is enabled, rather than materializing only the chain's
+final node itself. This is the real-wiring step and SHALL occur only
+once graph mutation is appropriate (see design.md for the exact
+lifecycle point) - not merely once activity/need has been determined.
 
 #### Scenario: Matching export and import are wired
 - **WHEN** a destination component's import has the same short name as
@@ -102,6 +105,17 @@ once activity/need has been determined.
 - **THEN** this capability delegates to the extension-reuse capability
   rather than adding a dependency edge directly from the export's node
   to the import's node
+
+#### Scenario: A multi-step mismatch chain's intermediate links are materialized through the same delegation
+- **WHEN** a destination component's import has the same short name as
+  a source component's export, an ordinary connection between the two
+  components is declared, the export's payload mismatches the import on
+  two or more characteristics, and payload materialization is enabled
+- **THEN** this capability's delegation to the extension-reuse
+  capability results in every intermediate link of the resulting chain
+  having a real, allocated payload - not only the chain's own final
+  node - without this capability itself needing to materialize any
+  intermediate link directly
 
 #### Scenario: Import with no matching export is left unresolved
 - **WHEN** a destination component's import has no export of the same
