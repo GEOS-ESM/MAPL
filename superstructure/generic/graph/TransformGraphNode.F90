@@ -34,6 +34,7 @@ module mapl_TransformGraphNode_mod
    use mapl_PortSpec_mod, only: PortSpec
    use mapl_PortSpecMap_mod, only: PortSpecMap, PortSpecMapIterator
    use mapl_PortNameRevisionMap_mod
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
    use mapl_NodeRevision_mod, only: NodeRevision, operator(==), operator(/=)
    use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
    use mapl_ErrorHandling_mod
@@ -218,19 +219,28 @@ contains
       _RETURN(_SUCCESS)
    end subroutine node_record_run
 
-   ! REQ-XFORM-001: invokes the held Transform. Does not itself touch any
-   ! input/output NodeId or advance any revision - that orchestration is
-   ! ComponentGraph%update()'s job (mapl_ComponentGraph_DemandDrivenUpdate_smod),
-   ! which calls this only after needs_execution() reports true and
-   ! advances outputs / records the baseline only after this succeeds.
-   subroutine node_execute(this, rc)
+   ! REQ-XFORM-001: invokes the held Transform, forwarding its own
+   ! caller-supplied, already-resolved bound input/output values
+   ! (openspec/changes/decouple-transform-from-graph) unchanged into
+   ! compute(). Does not itself touch any input/output NodeId or advance
+   ! any revision - that orchestration is ComponentGraph%update()'s job
+   ! (mapl_ComponentGraph_DemandDrivenUpdate_smod), which calls this only
+   ! after needs_execution() reports true and advances outputs / records
+   ! the baseline only after this succeeds. `inputs`/`outputs` are
+   ! supplied by that same caller, exactly as `needs_execution`/
+   ! `record_run` already receive externally-assembled
+   ! `PortNameRevisionMap` arguments on this same type - no stored
+   ! `ComponentGraph`/`NodeId` reference is added here.
+   subroutine node_execute(this, inputs, outputs, rc)
       class(TransformGraphNode), intent(inout) :: this
+      type(PortNameGraphStateItemMap), intent(in) :: inputs
+      type(PortNameGraphStateItemMap), intent(in) :: outputs
       integer, optional, intent(out) :: rc
 
       integer :: status
 
       _ASSERT(allocated(this%transformer), 'TransformGraphNode: execute called with no Transform attached')
-      call this%transformer%compute(_RC)
+      call this%transformer%compute(inputs, outputs, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine node_execute

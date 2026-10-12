@@ -5,6 +5,7 @@ module Test_TransformGraphNode
    use mapl_Transform_mod, only: Transform
    use mapl_PortSpecMap_mod, only: PortSpecMap
    use mapl_PortNameRevisionMap_mod, only: PortNameRevisionMap
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
    use mapl_PortSpec_mod, only: PortSpec
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELD, operator(==)
    use mapl_NodeRevision_mod, only: NodeRevision
@@ -41,8 +42,10 @@ module Test_TransformGraphNode
 
 contains
 
-   subroutine counting_compute(this, rc)
+   subroutine counting_compute(this, inputs, outputs, rc)
       class(CountingCompute), intent(inout) :: this
+      type(PortNameGraphStateItemMap), intent(in) :: inputs
+      type(PortNameGraphStateItemMap), intent(in) :: outputs
       integer, intent(out) :: rc
 
       if (associated(this%run_count)) this%run_count = this%run_count + 1
@@ -60,8 +63,10 @@ contains
       call xform%declare_output_port('destination_field', rc=status)
    end function new_SelfDescribingTransform
 
-   subroutine self_describing_compute(this, rc)
+   subroutine self_describing_compute(this, inputs, outputs, rc)
       class(SelfDescribingTransform), intent(inout) :: this
+      type(PortNameGraphStateItemMap), intent(in) :: inputs
+      type(PortNameGraphStateItemMap), intent(in) :: outputs
       integer, intent(out) :: rc
 
       rc = 0
@@ -110,6 +115,7 @@ contains
       type(NodeIdGenerator) :: gen
       type(TransformGraphNode) :: node
       type(SelfDescribingTransform) :: xform
+      type(PortNameGraphStateItemMap) :: empty_items
       integer :: status
 
       xform = SelfDescribingTransform()
@@ -119,7 +125,7 @@ contains
       @assertTrue(node%is_output_port('destination_field'))
       @assertFalse(node%is_input_port('destination_field'))
 
-      call node%execute(rc=status)
+      call node%execute(empty_items, empty_items, rc=status)
       @assertEqual(0, status)
    end subroutine test_ports_are_intrinsic_to_the_transform_subclass
 
@@ -250,16 +256,17 @@ contains
       type(CountingCompute) :: strategy
       integer, target :: counter
       integer :: status
+      type(PortNameGraphStateItemMap) :: empty_items
 
       counter = 0
       strategy%run_count => counter
       node = TransformGraphNode(gen%next(), strategy)
 
-      call node%execute(rc=status)
+      call node%execute(empty_items, empty_items, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, counter)
 
-      call node%execute(rc=status)
+      call node%execute(empty_items, empty_items, rc=status)
       @assertEqual(0, status)
       @assertEqual(2, counter)
    end subroutine test_execute_invokes_strategy
@@ -271,11 +278,12 @@ contains
       type(TransformGraphNode) :: node
       type(CountingCompute) :: strategy
       integer :: status
+      type(PortNameGraphStateItemMap) :: empty_items
 
       strategy%fail = .true.
       node = TransformGraphNode(gen%next(), strategy)
 
-      call node%execute(rc=status)
+      call node%execute(empty_items, empty_items, rc=status)
       @assertTrue(status /= 0)
    end subroutine test_execute_propagates_strategy_failure
 

@@ -21,8 +21,6 @@
 module mapl_GeomCharacteristic_mod
    use mapl_Characteristic_mod, only: Characteristic
    use mapl_CharacteristicId_mod, only: CharacteristicId, GEOM_CHARACTERISTIC_ID
-   use mapl_ComponentGraph_mod, only: ComponentGraph
-   use mapl_NodeId_mod, only: NodeId
    use mapl_Transform_mod, only: Transform
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -93,19 +91,13 @@ contains
    ! (spec "A geometry mismatch is reported through extension-chain
    ! delegation, not silently mis-wired") rather than allocating a
    ! no-op/stub Transform.
-   subroutine geom_build_transform(this, graph, input_node_id, output_node_id, goal, transformer, rc)
+   subroutine geom_build_transform(this, goal, transformer, rc)
       class(GeomCharacteristic), intent(in) :: this
-      class(ComponentGraph), target, intent(in) :: graph
-      type(NodeId), intent(in) :: input_node_id
-      type(NodeId), intent(in) :: output_node_id
       class(Characteristic), intent(in) :: goal
       class(Transform), allocatable, intent(out) :: transformer
       integer, optional, intent(out) :: rc
 
       _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(graph)
-      _UNUSED_DUMMY(input_node_id)
-      _UNUSED_DUMMY(output_node_id)
       _UNUSED_DUMMY(goal)
 
       _FAIL('GeomCharacteristic: no horizontal-regrid Transform is implemented yet')

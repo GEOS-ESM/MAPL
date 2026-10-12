@@ -247,8 +247,7 @@ contains
          extension_node = StateItemNode(extension_node_id, empty_payload, empty_revision)
          call graph%register_node(extension_node, _RC)
 
-         call export_characteristic%build_transform(graph, current_node_id, extension_node_id, &
-              import_characteristic, transformer, status)
+         call export_characteristic%build_transform(import_characteristic, transformer, status)
          if (status /= 0) then
             unsupported_characteristic = mismatched_kinds(i)%to_string()
             ! openspec/changes/phase-11b-chain-intermediate-materialization,

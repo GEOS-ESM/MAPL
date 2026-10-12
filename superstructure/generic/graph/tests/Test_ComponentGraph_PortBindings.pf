@@ -8,6 +8,7 @@ module Test_ComponentGraph_PortBindings
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use mapl_Transform_mod, only: Transform
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_NodeRevision_mod, only: NodeRevision
@@ -26,8 +27,10 @@ module Test_ComponentGraph_PortBindings
 
 contains
 
-   subroutine noop_compute(this, rc)
+   subroutine noop_compute(this, inputs, outputs, rc)
       class(NoOpCompute), intent(inout) :: this
+      type(PortNameGraphStateItemMap), intent(in) :: inputs
+      type(PortNameGraphStateItemMap), intent(in) :: outputs
       integer, intent(out) :: rc
 
       rc = 0

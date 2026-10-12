@@ -17,6 +17,7 @@ module Test_ExtensionResolution
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_Transform_mod, only: Transform
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
    use mapl_Characteristic_mod, only: Characteristic, CharacteristicMap
    use mapl_CharacteristicId_mod, only: CharacteristicId, UNITS_CHARACTERISTIC_ID, &
         VERTICAL_GRID_CHARACTERISTIC_ID, MOCK_CHARACTERISTIC_ID, operator(==)
@@ -81,11 +82,8 @@ contains
       end select
    end function fake_needs_extension_for
 
-   subroutine fake_build_transform(this, graph, input_node_id, output_node_id, goal, transformer, rc)
+   subroutine fake_build_transform(this, goal, transformer, rc)
       class(FakeCharacteristic), intent(in) :: this
-      class(ComponentGraph), target, intent(in) :: graph
-      type(NodeId), intent(in) :: input_node_id
-      type(NodeId), intent(in) :: output_node_id
       class(Characteristic), intent(in) :: goal
       class(Transform), allocatable, intent(out) :: transformer
       integer, optional, intent(out) :: rc
@@ -100,8 +98,10 @@ contains
       if (present(rc)) rc = 0
    end subroutine fake_build_transform
 
-   subroutine fake_compute(this, rc)
+   subroutine fake_compute(this, inputs, outputs, rc)
       class(FakeCompute), intent(inout) :: this
+      type(PortNameGraphStateItemMap), intent(in) :: inputs
+      type(PortNameGraphStateItemMap), intent(in) :: outputs
       integer, intent(out) :: rc
 
       rc = 0

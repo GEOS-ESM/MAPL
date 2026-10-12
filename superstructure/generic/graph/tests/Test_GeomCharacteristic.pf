@@ -13,8 +13,6 @@ module Test_GeomCharacteristic
    use mapl_CharacteristicId_mod, only: CharacteristicId, GEOM_CHARACTERISTIC_ID, &
         MOCK_CHARACTERISTIC_ID, operator(==)
    use mapl_GeomCharacteristic_mod, only: GeomCharacteristic
-   use mapl_ComponentGraph_mod, only: ComponentGraph
-   use mapl_NodeId_mod, only: NodeId
    use mapl_Transform_mod, only: Transform
    use mapl_ErrorHandling_mod
    use funit
@@ -76,18 +74,13 @@ contains
    @test
    subroutine test_geom_characteristic_build_transform_fails_explicitly()
       type(GeomCharacteristic) :: geom_a, geom_b
-      type(ComponentGraph), target :: graph
-      type(NodeId) :: input_id, output_id
       class(Transform), allocatable :: transformer
       integer :: status
 
       geom_a = GeomCharacteristic('1')
       geom_b = GeomCharacteristic('2')
-      graph = ComponentGraph()
-      input_id = graph%next_node_id(rc=status)
-      output_id = graph%next_node_id(rc=status)
 
-      call geom_a%build_transform(graph, input_id, output_id, geom_b, transformer, rc=status)
+      call geom_a%build_transform(geom_b, transformer, rc=status)
 
       ! Matches this test target's own established convention
       ! (Test_ExtensionResolution.pf's "fails loudly" tests): check the
@@ -114,11 +107,8 @@ contains
       needs_extension = .true.
    end function fake_needs_extension_for
 
-   subroutine fake_build_transform(this, graph, input_node_id, output_node_id, goal, transformer, rc)
+   subroutine fake_build_transform(this, goal, transformer, rc)
       class(FakeOtherCharacteristic), intent(in) :: this
-      class(ComponentGraph), target, intent(in) :: graph
-      type(NodeId), intent(in) :: input_node_id
-      type(NodeId), intent(in) :: output_node_id
       class(Characteristic), intent(in) :: goal
       class(Transform), allocatable, intent(out) :: transformer
       integer, optional, intent(out) :: rc
