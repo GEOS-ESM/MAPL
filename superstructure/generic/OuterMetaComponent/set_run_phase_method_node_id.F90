@@ -20,8 +20,10 @@ contains
       type(NodeId), intent(in) :: node_id
       integer, optional, intent(out) :: rc
 
-      _ASSERT(.not. this%run_phase_method_node_id%is_valid(), &
-           'OuterMetaComponent: set_run_phase_method_node_id - already set')
+      logical :: not_already_set
+
+      not_already_set = .not. this%run_phase_method_node_id%is_valid()
+      _ASSERT(not_already_set, 'OuterMetaComponent: set_run_phase_method_node_id - already set')
 
       this%run_phase_method_node_id = node_id
 
