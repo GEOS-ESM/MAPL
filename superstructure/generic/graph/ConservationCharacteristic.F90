@@ -11,15 +11,21 @@
 ! needs_extension_for is a single `/=` call - no hand-written comparison
 ! logic.
 !
-! No build_transform/adaptation method exists at this layer (REQ-CHAR-002);
-! legacy ConservationAspect%make_transform unconditionally _FAILs ("should
+! A `build_transform` is required by the common interface but fails
+! explicitly here - no real provider exists for this axis
+! (openspec/changes/merge-characteristic-families): legacy
+! ConservationAspect%make_transform unconditionally _FAILs ("should
 ! not be called") - this axis is detected but never adapted, graph-native
-! or legacy.
+! or legacy. `get_signature` derives a stable string from `metadata`'s
+! own `conservation_type%to_string()`.
 !------------------------------------------------------------------------------
 module mapl_ConservationCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, CONSERVATION_CHARACTERISTIC_KIND
    use mapl_ConservationMetadata_mod, only: ConservationMetadata, operator(==), operator(/=)
+   use mapl_ConservationType_mod, only: ConservationType
+   use mapl_TransformBase_mod, only: TransformBase
+   use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
 
@@ -31,6 +37,8 @@ module mapl_ConservationCharacteristic_mod
    contains
       procedure, nopass :: get_kind => conservation_get_kind
       procedure :: needs_extension_for => conservation_needs_extension_for
+      procedure :: build_transform => conservation_build_transform
+      procedure :: get_signature => conservation_get_signature
       procedure :: get_metadata
    end type ConservationCharacteristic
 
@@ -74,5 +82,40 @@ contains
 
       metadata = this%metadata
    end function get_metadata
+
+   ! merge-characteristic-families task 3.2: no real adaptation exists
+   ! for this axis, graph-native or legacy (module header) - fails
+   ! explicitly.
+   subroutine conservation_build_transform(this, goal, transformer, rc)
+      class(ConservationCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      class(TransformBase), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(goal)
+
+      _FAIL('ConservationCharacteristic: build_transform - no real provider exists for this axis')
+   end subroutine conservation_build_transform
+
+   ! merge-characteristic-families task 3.2: a stable, value-
+   ! distinguishing signature derived from this subclass's own stored
+   ! value (design.md Risks: a small, mechanical derivation).
+   function conservation_get_signature(this) result(signature)
+      class(ConservationCharacteristic), intent(in) :: this
+      character(:), allocatable :: signature
+
+      type(ConservationType) :: ctype
+
+      if (this%metadata%is_mirror()) then
+         signature = 'conservation=<mirror>'
+      else
+         ctype = this%metadata%get_conservation_type()
+         signature = 'conservation=' // ctype%to_string()
+         if (this%metadata%get_is_conservable()) then
+            signature = signature // ';conservable'
+         end if
+      end if
+   end function conservation_get_signature
 
 end module mapl_ConservationCharacteristic_mod

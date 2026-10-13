@@ -120,9 +120,10 @@
 !     framework-internal get_child_component_graph() carve-out
 !     REQ-GB-002 already establishes) for the "provides to a child"
 !     direction, which pull-direction machinery cannot express. Both
-!     directions build their CharacteristicMap from GeomCharacteristic
-!     (mirroring UnitsCharacteristic/VerticalGridCharacteristic exactly)
-!     and go through find_mismatched_characteristics/
+!     directions build their StateItemCharacteristicMap from
+!     GeometryCharacteristic (mirroring PhysicalUnitsCharacteristic/
+!     VerticalCoordinateCharacteristic exactly) and go through
+!     find_mismatched_characteristics/
 !     find_or_build_extension_chain like any other connection - a
 !     mismatch here would mean GeometrySpec's own resolution and the
 !     graph's independently-read this%get_geom_id() disagree, which
@@ -146,9 +147,9 @@ module mapl_GraphBuilder_mod
    use mapl_CallbackInterfaceRegistry_mod, only: get_callback_interface
    use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
    use mapl_CallbackStateBinding_mod, only: CallbackStateBinding
-   use mapl_Characteristic_mod, only: CharacteristicMap
-   use mapl_CharacteristicId_mod, only: CharacteristicId, UNITS_CHARACTERISTIC_ID, &
-        TYPE_KIND_CHARACTERISTIC_ID, VERTICAL_GRID_CHARACTERISTIC_ID, operator(==)
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristicMap
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+        TYPE_KIND_CHARACTERISTIC_KIND, VERTICAL_COORDINATE_CHARACTERISTIC_KIND, operator(==)
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_ComponentSpec_mod, only: ComponentSpec
    use mapl_Connection_mod, only: Connection
@@ -424,7 +425,7 @@ module mapl_GraphBuilder_mod
     module function build_characteristics(var_spec, rc) result(characteristics)
       type(VariableSpec), intent(in) :: var_spec
       integer, optional, intent(out) :: rc
-      type(CharacteristicMap) :: characteristics
+      type(StateItemCharacteristicMap) :: characteristics
 
     end function build_characteristics
    logical module function find_export_node_id(this, comp_name, short_name, export_node_id, export_var_spec, rc) result(found)
@@ -1084,7 +1085,7 @@ contains
       character(*), intent(in) :: export_comp_name
       type(VariableSpec), intent(in) :: export_var_spec
       type(VariableSpec), intent(in) :: import_var_spec
-      type(CharacteristicId), intent(in) :: mismatched_kinds(:)
+      type(StateItemCharacteristicKind), intent(in) :: mismatched_kinds(:)
       type(NodeId), intent(in) :: intermediate_node_ids(:)
       type(ComponentGraph), target, intent(inout) :: graph
       character(:), allocatable, intent(out) :: failure_reason
@@ -1145,20 +1146,20 @@ contains
 
    ! openspec/changes/phase-11b-chain-intermediate-materialization,
    ! design.md D2: link i's own materialized typekind/units is
-   ! import_var_spec's own value for every CharacteristicId in
+   ! import_var_spec's own value for every StateItemCharacteristicKind in
    ! mismatched_kinds(1:i) (already "converted" by that point in the
    ! chain) and export_var_spec's own value otherwise. At
    ! i == size(mismatched_kinds) this exactly reduces to
    ! try_materialize_field_extension's own existing final-node formula
    ! (every mismatched kind has import's value) - no behavior change for
    ! the single-characteristic case. _FAIL explicitly for any
-   ! CharacteristicId outside the three this helper knows how to
-   ! translate into a VariableSpec field ("unregistered characteristic
+   ! StateItemCharacteristicKind outside the three this helper knows how
+   ! to translate into a VariableSpec field ("unregistered characteristic
    ! fails loudly" applies to this translation step too).
    function merged_var_spec_for_link(export_var_spec, import_var_spec, mismatched_kinds, i, rc) result(link_spec)
       type(VariableSpec), intent(in) :: export_var_spec
       type(VariableSpec), intent(in) :: import_var_spec
-      type(CharacteristicId), intent(in) :: mismatched_kinds(:)
+      type(StateItemCharacteristicKind), intent(in) :: mismatched_kinds(:)
       integer, intent(in) :: i
       integer, optional, intent(out) :: rc
       type(VariableSpec) :: link_spec
@@ -1173,21 +1174,22 @@ contains
       typekind_converted = .false.
 
       do j = 1, i
-         if (mismatched_kinds(j) == UNITS_CHARACTERISTIC_ID) then
+         if (mismatched_kinds(j) == PHYSICAL_UNITS_CHARACTERISTIC_KIND) then
             units_converted = .true.
-         else if (mismatched_kinds(j) == TYPE_KIND_CHARACTERISTIC_ID) then
+         else if (mismatched_kinds(j) == TYPE_KIND_CHARACTERISTIC_KIND) then
             typekind_converted = .true.
-         else if (mismatched_kinds(j) == VERTICAL_GRID_CHARACTERISTIC_ID) then
+         else if (mismatched_kinds(j) == VERTICAL_COORDINATE_CHARACTERISTIC_KIND) then
             ! Vertical grid has no concrete field-materialization
             ! parameter today (materialize_field_extension's own vgrid/
             ! vert_staggerloc are resolved once from export_var_spec,
             ! outside this per-link loop, by materialize_extension_chain
             ! itself - unaffected by this helper). Nothing to merge here;
-            ! VerticalGridCharacteristic%build_transform always fails, so
-            ! this branch is unreachable in practice, but is enumerated
-            ! explicitly rather than falling into the _FAIL default below.
+            ! VerticalCoordinateCharacteristic%build_transform always
+            ! fails, so this branch is unreachable in practice, but is
+            ! enumerated explicitly rather than falling into the _FAIL
+            ! default below.
          else
-            assertion_message = 'GraphBuilder: merged_var_spec_for_link - unrecognized CharacteristicId: ' // &
+            assertion_message = 'GraphBuilder: merged_var_spec_for_link - unrecognized StateItemCharacteristicKind: ' // &
                  mismatched_kinds(j)%to_string()
             _FAIL(assertion_message)
          end if

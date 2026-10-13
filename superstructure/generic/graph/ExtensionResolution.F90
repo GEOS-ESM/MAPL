@@ -4,20 +4,42 @@
 ! ExtensionResolution: mismatch detection, extension-chain creation, and
 ! reuse lookup for graph/extension-reuse (docs/graph/spec/09-extension-
 ! reuse.md REQ-EXT-001/002/003/005; extension-reuse change design.md
-! Decisions). Graph-neutral: depends only on Characteristic/
-! CharacteristicMap/CharacteristicId, ComponentGraph/DependencyNetworkId/
-! NodeId, and TransformGraphNode/Transform - not on OuterMetaComponent/
-! StateRegistry/VariableSpec. GraphBuilder.F90 builds each side's
-! CharacteristicMap from its own VariableSpec data and calls into this
-! module with the resulting maps.
+! Decisions). Graph-neutral: depends only on StateItemCharacteristic/
+! StateItemCharacteristicMap/StateItemCharacteristicKind, ComponentGraph/
+! DependencyNetworkId/NodeId, and TransformGraphNode/Transform - not on
+! OuterMetaComponent/StateRegistry/VariableSpec. GraphBuilder.F90 builds
+! each side's StateItemCharacteristicMap from its own VariableSpec data
+! and calls into this module with the resulting maps.
+!
+! openspec/changes/merge-characteristic-families: re-typed from the
+! retired mapl_Characteristic_mod/mapl_CharacteristicId_mod onto the
+! surviving mapl_StateItemCharacteristic_mod/
+! mapl_StateItemCharacteristicKind_mod family - mechanical, the
+! chain-building algorithm itself (reuse-key lookup, per-link
+! build_transform call, TransformGraphNode registration/port-binding) is
+! unchanged, only its map/key types.
+!
+! find_mismatched_characteristics' own body is kept exactly as it was
+! pre-merge (only kinds present on BOTH maps are compared; a kind
+! declared by only one side is not reported as a mismatch) - NOT
+! forwarded to mapl_StateItemCharacteristicDetection_mod's
+! find_mismatched_state_item_characteristics, which has broader,
+! deliberately different one-sided-kind-is-mismatched semantics
+! (that module's own header comment). GraphBuilder's own
+! build_characteristics() genuinely produces one-sided maps in practice
+! (e.g. UNITS/VERTICAL_GRID are only inserted when the corresponding
+! VariableSpec field is allocated) - forwarding would silently change
+! real resolved outcomes for those call sites and risks a downstream
+! lookup failure in build_chain/chain_key (import_map%at() on a key
+! never inserted).
 !
 ! Chain-building calls each mismatched characteristic's own
-! Characteristic%build_transform - an ordinary deferred method (mirrors
-! StateItemAspect%make_transform), not a separate provider registry.
-! "Unregistered characteristic fails loudly" (spec) falls directly out
-! of a subclass's own build_transform failing explicitly (rc /= 0) when
-! it has no real conversion implemented (e.g.
-! VerticalGridCharacteristic) - there is no registry lookup to "miss."
+! StateItemCharacteristic%build_transform - an ordinary deferred method
+! (mirrors StateItemAspect%make_transform), not a separate provider
+! registry. "Unregistered characteristic fails loudly" (spec) falls
+! directly out of a subclass's own build_transform failing explicitly
+! (rc /= 0) when it has no real conversion implemented (e.g.
+! AttributesCharacteristic) - there is no registry lookup to "miss."
 !
 ! Reuse search (find_or_build_extension_chain): per design.md Decisions
 ! ("Reuse search uses ComponentGraph's resource index... corrected
@@ -40,9 +62,9 @@
 ! mismatch.
 !------------------------------------------------------------------------------
 module mapl_ExtensionResolution_mod
-   use mapl_Characteristic_mod, only: Characteristic, CharacteristicMap, CharacteristicMapIterator, &
-        operator(==), operator(/=)
-   use mapl_CharacteristicId_mod, only: CharacteristicId
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap, &
+        StateItemCharacteristicMapIterator, operator(==), operator(/=)
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
    use mapl_NodeId_mod, only: NodeId
@@ -51,6 +73,7 @@ module mapl_ExtensionResolution_mod
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use mapl_Transform_mod, only: Transform
+   use mapl_TransformBase_mod, only: TransformBase
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -93,15 +116,19 @@ contains
    ! declare that the import also declares, with different values? A
    ! kind declared by only one side is not a "mismatch" by this entry
    ! point's contract - GraphBuilder's own advertised-item checks (item
-   ! existence, etc.) are a separate concern.
+   ! existence, etc.) are a separate concern. Kept exactly as it was
+   ! pre-merge (module header) - NOT forwarded to
+   ! find_mismatched_state_item_characteristics, whose broader one-
+   ! sided-kind-is-mismatched semantics would change real resolved
+   ! outcomes for GraphBuilder's own call sites.
    function find_mismatched_characteristics(export_map, import_map) result(mismatched)
-      type(CharacteristicMap), target, intent(in) :: export_map
-      type(CharacteristicMap), target, intent(in) :: import_map
-      type(CharacteristicId), allocatable :: mismatched(:)
+      type(StateItemCharacteristicMap), target, intent(in) :: export_map
+      type(StateItemCharacteristicMap), target, intent(in) :: import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
 
-      type(CharacteristicMapIterator) :: iter
-      type(CharacteristicId) :: kind_id
-      class(Characteristic), pointer :: export_characteristic, import_characteristic
+      type(StateItemCharacteristicMapIterator) :: iter
+      type(StateItemCharacteristicKind) :: kind_id
+      class(StateItemCharacteristic), pointer :: export_characteristic, import_characteristic
       integer :: status
 
       allocate(mismatched(0))
@@ -155,9 +182,9 @@ contains
       class(ComponentGraph), target, intent(inout) :: graph
       type(DependencyNetworkId), intent(in) :: network_id
       type(NodeId), intent(in) :: export_node_id
-      type(CharacteristicMap), target, intent(in) :: export_map
-      type(CharacteristicMap), target, intent(in) :: import_map
-      type(CharacteristicId), intent(in) :: mismatched_kinds(:)
+      type(StateItemCharacteristicMap), target, intent(in) :: export_map
+      type(StateItemCharacteristicMap), target, intent(in) :: import_map
+      type(StateItemCharacteristicKind), intent(in) :: mismatched_kinds(:)
       type(NodeId), intent(out) :: final_node_id
       type(NodeId), allocatable, intent(out) :: intermediate_node_ids(:)
       character(:), allocatable, intent(out) :: unsupported_characteristic
@@ -191,12 +218,12 @@ contains
 
    function chain_key(export_node_id, mismatched_kinds, import_map) result(key)
       type(NodeId), intent(in) :: export_node_id
-      type(CharacteristicId), intent(in) :: mismatched_kinds(:)
-      type(CharacteristicMap), target, intent(in) :: import_map
+      type(StateItemCharacteristicKind), intent(in) :: mismatched_kinds(:)
+      type(StateItemCharacteristicMap), target, intent(in) :: import_map
       character(:), allocatable :: key
 
       integer :: i, status
-      class(Characteristic), pointer :: goal
+      class(StateItemCharacteristic), pointer :: goal
 
       key = 'EXTCHAIN:' // export_node_id%to_string()
       do i = 1, size(mismatched_kinds)
@@ -210,9 +237,9 @@ contains
       class(ComponentGraph), target, intent(inout) :: graph
       type(DependencyNetworkId), intent(in) :: network_id
       type(NodeId), intent(in) :: export_node_id
-      type(CharacteristicMap), target, intent(in) :: export_map
-      type(CharacteristicMap), target, intent(in) :: import_map
-      type(CharacteristicId), intent(in) :: mismatched_kinds(:)
+      type(StateItemCharacteristicMap), target, intent(in) :: export_map
+      type(StateItemCharacteristicMap), target, intent(in) :: import_map
+      type(StateItemCharacteristicKind), intent(in) :: mismatched_kinds(:)
       type(NodeId), intent(out) :: final_node_id
       type(NodeId), allocatable, intent(out) :: intermediate_node_ids(:)
       character(:), allocatable, intent(out) :: unsupported_characteristic
@@ -221,8 +248,17 @@ contains
       integer :: status
       integer :: i
       integer :: num_built
-      class(Characteristic), pointer :: export_characteristic, import_characteristic
-      class(Transform), allocatable :: transformer
+      class(StateItemCharacteristic), pointer :: export_characteristic, import_characteristic
+      ! TransformBase-declared (not Transform) - build_transform's own
+      ! interface declares its `transformer` dummy as TransformBase
+      ! (StateItemCharacteristic.F90's own header comment: avoids a
+      ! circular module dependency through PortNameGraphStateItemMap ->
+      ! GraphStateItem). Narrowed to a real Transform via the `select
+      ! type` block below before being handed to TransformGraphNode,
+      ! which genuinely needs the full compute()-bearing interface - no
+      ! implicit downcast exists for a polymorphic allocatable, so this
+      ! is a real re-establishment, not a formality.
+      class(TransformBase), allocatable :: transformer
       type(NodeId) :: current_node_id
       type(NodeId) :: extension_node_id
       type(NodeId) :: transform_node_id
@@ -260,7 +296,20 @@ contains
          end if
 
          transform_node_id = graph%next_node_id(_RC)
-         transform_node = TransformGraphNode(transform_node_id, transformer)
+         ! `transformer` is TransformBase-declared but every real
+         ! build_transform success path (the only way status == 0 is
+         ! reached) allocates a genuine Transform subclass into it
+         ! (PhysicalUnitsCharacteristic/TypeKindCharacteristic's own
+         ! bodies) - TransformGraphNode's own constructor requires the
+         ! full compute()-bearing Transform interface, so it is
+         ! re-established here via select type (no implicit downcast
+         ! exists for a polymorphic allocatable).
+         select type (transformer)
+         class is (Transform)
+            transform_node = TransformGraphNode(transform_node_id, transformer)
+         class default
+            _FAIL('ExtensionResolution: build_transform allocated a non-Transform TransformBase - internal inconsistency')
+         end select
          call graph%register_node(transform_node, _RC)
 
          call graph%bind_port(network_id, transform_node_id, INPUT_PORT_NAME, current_node_id, _RC)

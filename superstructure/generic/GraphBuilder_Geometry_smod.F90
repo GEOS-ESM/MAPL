@@ -7,9 +7,9 @@
 ! change's design.md D1 for the full section-to-file mapping.)
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_Geometry_smod
-   use mapl_CharacteristicId_mod, only: CharacteristicId, GEOM_CHARACTERISTIC_ID
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, GEOMETRY_CHARACTERISTIC_KIND
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain
-   use mapl_GeomCharacteristic_mod, only: GeomCharacteristic
+   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_GeometrySpec_mod, only: GEOMETRY_FROM_CHILD, GEOMETRY_FROM_PARENT
    use mapl_GeomId_mod, only: GeomId
    use mapl_GeomProxyField_mod, only: new_geom_proxy_item
@@ -134,8 +134,8 @@ contains
       type(NodeId) :: final_id
       type(NodeId), allocatable :: intermediate_ids(:)
       type(OuterMetaComponent), pointer :: child_meta
-      type(CharacteristicMap), target :: this_map, child_map
-      type(CharacteristicId), allocatable :: mismatched(:)
+      type(StateItemCharacteristicMap), target :: this_map, child_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
       character(20) :: id_buffer
       character(:), allocatable :: unsupported
       character(:), allocatable :: assertion_message
@@ -160,9 +160,9 @@ contains
       this_own_geom_id = this%get_geom_id()
       provider_geom_id = child_meta%get_geom_id()
       write(id_buffer, '(I0)') provider_geom_id%get_value()
-      call child_map%insert(GEOM_CHARACTERISTIC_ID, GeomCharacteristic(trim(id_buffer)))
+      call child_map%insert(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_id=trim(id_buffer)))
       write(id_buffer, '(I0)') this_own_geom_id%get_value()
-      call this_map%insert(GEOM_CHARACTERISTIC_ID, GeomCharacteristic(trim(id_buffer)))
+      call this_map%insert(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_id=trim(id_buffer)))
 
       ! Same dispatch shape as resolve_one's own REQ-EXT-001/003/005
       ! handling (mirrored, not duplicated as a bespoke check): no-op on
@@ -218,8 +218,8 @@ contains
       type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: pkey
       type(OuterMetaComponent), pointer :: child_meta
-      type(CharacteristicMap), target :: this_map, child_map
-      type(CharacteristicId), allocatable :: mismatched(:)
+      type(StateItemCharacteristicMap), target :: this_map, child_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
       character(20) :: id_buffer
       type(StateItemNode) :: proxy_node
       type(GraphStateItem) :: payload
@@ -264,9 +264,9 @@ contains
       this_geom_id = this%get_geom_id()
       child_geom_id = child_meta%get_geom_id()
       write(id_buffer, '(I0)') this_geom_id%get_value()
-      call this_map%insert(GEOM_CHARACTERISTIC_ID, GeomCharacteristic(trim(id_buffer)))
+      call this_map%insert(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_id=trim(id_buffer)))
       write(id_buffer, '(I0)') child_geom_id%get_value()
-      call child_map%insert(GEOM_CHARACTERISTIC_ID, GeomCharacteristic(trim(id_buffer)))
+      call child_map%insert(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_id=trim(id_buffer)))
 
       ! Same dispatch shape as resolve_one's own REQ-EXT-001/003/005
       ! handling, and as resolve_geometry_from_child's own pull-direction

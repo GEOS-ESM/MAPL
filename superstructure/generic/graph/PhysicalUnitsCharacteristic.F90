@@ -14,14 +14,19 @@
 ! colliding with graph/extension-reuse's existing, unrelated
 ! mapl_UnitsCharacteristic_mod type.
 !
-! No build_transform/adaptation method exists at this layer (REQ-CHAR-002:
-! a StateItemCharacteristic describes, it does not adapt) - the
-! associated Transform (ConvertUnitsTransform per REQ-CHAR-001's table) is
-! graph/extension-reuse's existing, separate concern.
+! openspec/changes/merge-characteristic-families: build_transform/
+! get_signature moved verbatim from the now-retired
+! mapl_UnitsCharacteristic_mod's own units_build_transform/
+! units_get_signature (that module's own real adaptation provider),
+! reading this%get_units()/goal%get_units() in place of the original's
+! private-component access.
 !------------------------------------------------------------------------------
 module mapl_PhysicalUnitsCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, PHYSICAL_UNITS_CHARACTERISTIC_KIND
+   use mapl_TransformBase_mod, only: TransformBase
+   use mapl_UnitsConverterTransform_mod, only: UnitsConverterTransform
+   use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
 
@@ -33,6 +38,8 @@ module mapl_PhysicalUnitsCharacteristic_mod
    contains
       procedure, nopass :: get_kind => units_get_kind
       procedure :: needs_extension_for => units_needs_extension_for
+      procedure :: build_transform => units_build_transform
+      procedure :: get_signature => units_get_signature
       procedure :: get_units
    end type PhysicalUnitsCharacteristic
 
@@ -83,5 +90,38 @@ contains
 
       units = this%units
    end function get_units
+
+   ! Moved verbatim from the retired mapl_UnitsCharacteristic_mod's own
+   ! units_build_transform - UnitsConverterTransform(this%units,
+   ! goal%units), reading through the get_units() accessor (already
+   ! existed) rather than private-component access, since this%units/
+   ! goal%units are private within this module to any OTHER module's
+   ! subclass, but accessible here, within THIS module, directly - the
+   ! accessor form is kept anyway for symmetry with get_signature below
+   ! and to make the parallel with the original explicit.
+   subroutine units_build_transform(this, goal, transformer, rc)
+      class(PhysicalUnitsCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      class(TransformBase), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
+      select type (goal)
+      class is (PhysicalUnitsCharacteristic)
+         allocate(transformer, source=UnitsConverterTransform(this%get_units(), goal%get_units()))
+      class default
+         _FAIL('PhysicalUnitsCharacteristic: build_transform called with a non-units goal')
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine units_build_transform
+
+   ! Moved verbatim from the retired mapl_UnitsCharacteristic_mod's own
+   ! units_get_signature.
+   function units_get_signature(this) result(signature)
+      class(PhysicalUnitsCharacteristic), intent(in) :: this
+      character(:), allocatable :: signature
+
+      signature = 'units=' // this%units
+   end function units_get_signature
 
 end module mapl_PhysicalUnitsCharacteristic_mod

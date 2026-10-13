@@ -15,17 +15,21 @@
 !
 ! REQ-CHAR-009's detection-completeness requirement ("iterate every entry
 ! through the common StateItemCharacteristic interface only, never
-! branching on Value-vs-Reference kind") is why the only two deferred
-! methods below (get_kind/needs_extension_for) are declared on this
-! common ancestor, not duplicated per kind.
+! branching on Value-vs-Reference kind") is why the deferred methods
+! below (get_kind/needs_extension_for/build_transform/get_signature) are
+! declared on this common ancestor, not duplicated per kind.
 !
-! Deliberately independent of graph/extension-reuse's own
-! mapl_Characteristic_mod (Characteristic.F90) - see that module's own
-! header comment and openspec/changes/state-item-characteristics
-! design.md Decision D6. The two hierarchies share a similar shape
-! (abstract base, nopass get_kind()/get_id(), needs_extension_for()) by
-! deliberate convergent design, not by reuse - neither module uses the
-! other.
+! openspec/changes/merge-characteristic-families: build_transform/
+! get_signature were added by that change, absorbing the role
+! graph/extension-reuse's own, now-retired mapl_Characteristic_mod
+! (Characteristic.F90) previously played independently (per
+! openspec/changes/state-item-characteristics design.md Decision D6,
+! which kept the two hierarchies apart only because build_transform then
+! required a ComponentGraph/NodeId argument - decouple-transform-from-
+! graph removed that blocker, and merge-characteristic-families removed
+! the resulting duplication). A concrete subclass with no real provider
+! implemented yet (e.g. AttributesCharacteristic) fails build_transform
+! explicitly rather than returning a no-op/stub Transform.
 !
 ! status (CharacteristicStatus, CharacteristicStatus.F90) and, for
 ! ReferenceCharacteristic, the referenced NodeId are exposed only through
@@ -50,6 +54,7 @@ module mapl_StateItemCharacteristic_mod
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, CHARACTERISTIC_STATUS_INVALID
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(<)
    use mapl_NodeId_mod, only: NodeId
+   use mapl_TransformBase_mod, only: TransformBase
    ! No explicit `implicit none` here - map/header.inc (below) already
    ! supplies one; mapl_Characteristic_mod/mapl_StateItemAspect_mod (the
    ! same gFTL2 map-instantiation pattern) follow the same convention.
@@ -76,6 +81,8 @@ module mapl_StateItemCharacteristic_mod
    contains
       procedure(I_get_kind), deferred, nopass :: get_kind
       procedure(I_needs_extension_for), deferred :: needs_extension_for
+      procedure(I_build_transform), deferred :: build_transform
+      procedure(I_get_signature), deferred :: get_signature
       procedure :: get_status => char_get_status
       procedure :: set_status => char_set_status
    end type StateItemCharacteristic
@@ -135,6 +142,48 @@ module mapl_StateItemCharacteristic_mod
          class(StateItemCharacteristic), intent(in) :: this
          class(StateItemCharacteristic), intent(in) :: goal
       end function I_needs_extension_for
+
+      ! merge-characteristic-families: build a Transform (declared here
+      ! as its own TransformBase ancestor - mapl_TransformBase_mod - not
+      ! mapl_Transform_mod directly, to avoid a circular module
+      ! dependency: Transform's own compute() interface reaches
+      ! GraphStateItem via PortNameGraphStateItemMap, and GraphStateItem
+      ! itself uses this module for its characteristics map; TransformBase
+      ! carries none of that chain, only the port-declaration machinery
+      ! every real Transform subclass still inherits unchanged - see
+      ! TransformBase.F90's own header comment for the full rationale)
+      ! resolving `this` (the established value) into `goal` (the goal
+      ! value) - a pure value-to-strategy constructor, with no graph/
+      ! NodeId concept involved (post-decouple-transform-from-graph). A
+      ! subclass with no real conversion implemented yet MUST fail
+      ! explicitly (rc /= 0) rather than allocate a no-op/stub Transform.
+      ! `goal` is guaranteed the same dynamic type as `this` for the real
+      ! call chain this method is used in (same guarantee documented on
+      ! needs_extension_for above). Every concrete override still
+      ! allocates a real, full Transform subclass (e.g.
+      ! UnitsConverterTransform) into this TransformBase-declared
+      ! `transformer` - allocating a more-derived type into a less-
+      ! derived polymorphic container is always legal; only the dummy
+      ! argument's own declared type is TransformBase, not what gets
+      ! allocated into it.
+      subroutine I_build_transform(this, goal, transformer, rc)
+         import StateItemCharacteristic, TransformBase
+         class(StateItemCharacteristic), intent(in) :: this
+         class(StateItemCharacteristic), intent(in) :: goal
+         class(TransformBase), allocatable, intent(out) :: transformer
+         integer, optional, intent(out) :: rc
+      end subroutine I_build_transform
+
+      ! merge-characteristic-families: a human-readable, value-
+      ! distinguishing signature (e.g. "units=m/s") - used by
+      ! mapl_ExtensionResolution_mod's reuse-search cache key to
+      ! distinguish two mismatches of the same kind but different
+      ! values.
+      function I_get_signature(this) result(signature)
+         import StateItemCharacteristic
+         class(StateItemCharacteristic), intent(in) :: this
+         character(:), allocatable :: signature
+      end function I_get_signature
 
    end interface
 

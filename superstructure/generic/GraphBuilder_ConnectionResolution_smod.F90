@@ -8,7 +8,8 @@
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use esmf, only: ESMF_State, ESMF_StateGet, ESMF_STATEITEM_NOTFOUND, operator(==)
-   use mapl_CharacteristicId_mod, only: CharacteristicId, TYPE_KIND_CHARACTERISTIC_ID, UNITS_CHARACTERISTIC_ID, VERTICAL_GRID_CHARACTERISTIC_ID
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, TYPE_KIND_CHARACTERISTIC_KIND, &
+        PHYSICAL_UNITS_CHARACTERISTIC_KIND, VERTICAL_COORDINATE_CHARACTERISTIC_KIND
    use mapl_ConnectionVector_mod, only: ConnectionVectorIterator, operator(/=)
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain, materialize_extensions_enabled
    use mapl_FieldNamedAlias_mod, only: MAPL_NamedAlias
@@ -17,10 +18,10 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
-   use mapl_TypeKindCharacteristicAdapter_mod, only: TypeKindCharacteristicAdapter
-   use mapl_UnitsCharacteristic_mod, only: UnitsCharacteristic
+   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
-   use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
+   use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -150,8 +151,8 @@ contains
          ! same site is skipped (D4).
          logical :: alias_found
          type(VariableSpec), pointer :: export_var_spec
-         type(CharacteristicMap), target :: export_characteristics, import_characteristics
-         type(CharacteristicId), allocatable :: mismatched(:)
+         type(StateItemCharacteristicMap), target :: export_characteristics, import_characteristics
+         type(StateItemCharacteristicKind), allocatable :: mismatched(:)
          character(:), allocatable :: unsupported_characteristic
          character(:), allocatable :: materialization_failure
          type(StringVector) :: callback_rejected
@@ -513,8 +514,8 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine graphbuilder_resolve_connections
 
-   ! Builds the CharacteristicMap for one VariableSpec directly from its
-   ! own declared fields - deliberately not via
+   ! Builds the StateItemCharacteristicMap for one VariableSpec directly
+   ! from its own declared fields - deliberately not via
    ! VariableSpec%make_StateitemSpec/make_aspects (design.md Decisions:
    ! "Characteristic is the graph's own name for what legacy calls an
    ! Aspect, and is a deliberately independent design, not a reskin").
@@ -523,13 +524,13 @@ contains
     module function build_characteristics(var_spec, rc) result(characteristics)
       type(VariableSpec), intent(in) :: var_spec
       integer, optional, intent(out) :: rc
-      type(CharacteristicMap) :: characteristics
+      type(StateItemCharacteristicMap) :: characteristics
 
       integer :: status
       character(20) :: grid_id_buffer
 
       if (allocated(var_spec%units)) then
-         call characteristics%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic(var_spec%units))
+         call characteristics%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic(var_spec%units))
       end if
       ! openspec/changes/phase-10c-typekind-characteristic, design.md D3:
       ! unlike units, VariableSpec%typekind is a non-allocatable field
@@ -541,22 +542,26 @@ contains
       ! construction in every existing fixture, so this adds a real but
       ! always-no-op comparison for them, changing no existing resolved
       ! result).
-      call characteristics%insert(TYPE_KIND_CHARACTERISTIC_ID, TypeKindCharacteristicAdapter(var_spec%typekind))
+      call characteristics%insert(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic(var_spec%typekind))
       if (allocated(var_spec%vertical_grid)) then
          ! VerticalGrid%get_id() returns an integer identity token;
-         ! VerticalGridCharacteristic compares an opaque string
-         ! signature (Characteristic.F90 get_signature contract), so it
-         ! is rendered to text here rather than changing
-         ! VerticalGridCharacteristic's own constructor to know about
-         ! integer ids specifically. get_supported_physical_dimensions()
-         ! is a pure accessor (no StateRegistry involvement, unlike
-         ! get_coordinate_field()) - also supplied here so a mismatched
-         ! identity gets REQ-GEO-007a's dimension-overlap classification
+         ! VerticalCoordinateCharacteristic compares an opaque string
+         ! signature (get_signature contract), so it is rendered to text
+         ! here rather than changing VerticalCoordinateCharacteristic's
+         ! own constructor to know about integer ids specifically.
+         ! get_supported_physical_dimensions() is a pure accessor (no
+         ! StateRegistry involvement, unlike get_coordinate_field()) -
+         ! also supplied here so a mismatched identity gets
+         ! REQ-GEO-007a's dimension-overlap classification
          ! (openspec/changes/vertical-grid-graph-state-item) rather than
-         ! an undifferentiated failure.
+         ! an undifferentiated failure. No referenced_node_id supplied
+         ! here (GraphBuilder's own production call site has no NodeId
+         ! to give it) - needs_extension_for's hybrid comparison
+         ! (VerticalCoordinateCharacteristic.F90's own module header)
+         ! falls back to the identity-token/dimension-set comparison.
          write(grid_id_buffer, '(I0)') var_spec%vertical_grid%get_id()
-         call characteristics%insert(VERTICAL_GRID_CHARACTERISTIC_ID, &
-              VerticalGridCharacteristic(grid_id=trim(grid_id_buffer), &
+         call characteristics%insert(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
+              VerticalCoordinateCharacteristic(grid_id=trim(grid_id_buffer), &
                    dimensions=var_spec%vertical_grid%get_supported_physical_dimensions()))
       end if
       ! openspec/changes/vertical-grid-graph-state-item: a composite
@@ -565,15 +570,15 @@ contains
       ! identity token from - only its own declared member names
       ! (REQ-GEO-004a: member name = physical dimension, so
       ! get_member_names() already IS the dimension set). Uses the SAME
-      ! VerticalGridCharacteristic/VERTICAL_GRID_CHARACTERISTIC_ID as the
-      ! branch above (not a separate characteristic kind) - with no
-      ! identity token supplied, needs_extension_for falls back to
-      ! dimension-set comparison (VerticalGridCharacteristic.F90's own
-      ! module header).
+      ! VerticalCoordinateCharacteristic/VERTICAL_COORDINATE_CHARACTERISTIC_KIND
+      ! as the branch above (not a separate characteristic kind) - with
+      ! no identity token supplied, needs_extension_for falls back to
+      ! dimension-set comparison (VerticalCoordinateCharacteristic.F90's
+      ! own module header).
       if (allocated(var_spec%state_item_variant)) then
          if (var_spec%state_item_variant == MAPL_STATEITEM_VERTICALGRID) then
-            call characteristics%insert(VERTICAL_GRID_CHARACTERISTIC_ID, &
-                 VerticalGridCharacteristic(dimensions=var_spec%get_member_names()))
+            call characteristics%insert(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
+                 VerticalCoordinateCharacteristic(dimensions=var_spec%get_member_names()))
          end if
       end if
 
@@ -648,8 +653,8 @@ contains
       logical :: has_owner
       type(VariableSpec), pointer :: owner_var_spec
       type(ComponentSpec), pointer :: owner_comp_spec
-      type(CharacteristicMap), target :: owner_characteristics, borrower_characteristics
-      type(CharacteristicId), allocatable :: mismatched(:)
+      type(StateItemCharacteristicMap), target :: owner_characteristics, borrower_characteristics
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
 
       graph => this%get_component_graph()
       net_id = graph%get_default_network_id()

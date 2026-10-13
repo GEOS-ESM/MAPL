@@ -16,9 +16,12 @@
 ! either side is QUANTITY_UNKNOWN, AND basis is equal or either side is
 ! BASIS_NONE.
 !
-! No build_transform/adaptation method exists at this layer (REQ-CHAR-002);
-! legacy QuantityTypeAspect%make_transform always returns NullTransform
-! ("metadata-only, returns NullTransform").
+! A `build_transform` is required by the common interface but fails
+! explicitly here - no real provider exists for this axis
+! (openspec/changes/merge-characteristic-families): legacy
+! QuantityTypeAspect%make_transform always returns NullTransform
+! ("metadata-only, returns NullTransform"). `get_signature` derives a
+! stable string from `quantity_type`/`basis`.
 !------------------------------------------------------------------------------
 module mapl_QuantityTypeCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
@@ -26,6 +29,8 @@ module mapl_QuantityTypeCharacteristic_mod
    use mapl_QuantityType_mod, only: QuantityType, MixingRatioBasis, &
                                      QUANTITY_UNKNOWN, BASIS_NONE, &
                                      operator(==)
+   use mapl_TransformBase_mod, only: TransformBase
+   use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
 
@@ -38,6 +43,8 @@ module mapl_QuantityTypeCharacteristic_mod
    contains
       procedure, nopass :: get_kind => quantity_type_get_kind
       procedure :: needs_extension_for => quantity_type_needs_extension_for
+      procedure :: build_transform => quantity_type_build_transform
+      procedure :: get_signature => quantity_type_get_signature
       procedure :: get_quantity_type
       procedure :: get_basis
    end type QuantityTypeCharacteristic
@@ -99,5 +106,31 @@ contains
 
       basis = this%basis
    end function get_basis
+
+   ! merge-characteristic-families task 3.4: no real adaptation exists
+   ! for this axis, graph-native or legacy (module header) - fails
+   ! explicitly.
+   subroutine quantity_type_build_transform(this, goal, transformer, rc)
+      class(QuantityTypeCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      class(TransformBase), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(goal)
+
+      _FAIL('QuantityTypeCharacteristic: build_transform - no real provider exists for this axis')
+   end subroutine quantity_type_build_transform
+
+   ! merge-characteristic-families task 3.4: a stable, value-
+   ! distinguishing signature derived from this subclass's own stored
+   ! value (design.md Risks: a small, mechanical derivation).
+   function quantity_type_get_signature(this) result(signature)
+      class(QuantityTypeCharacteristic), intent(in) :: this
+      character(:), allocatable :: signature
+
+      signature = 'quantity_type=' // this%quantity_type%to_string() // &
+           ';basis=' // this%basis%to_string()
+   end function quantity_type_get_signature
 
 end module mapl_QuantityTypeCharacteristic_mod
