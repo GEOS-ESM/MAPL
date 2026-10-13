@@ -14,25 +14,31 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_PortsAndProxies_smod
 contains
 
    ! design.md Decisions "Geom/vgrid resolution order": (a) the export's
-   ! own VariableSpec%geom if explicitly allocated (HistoryCollection-
-   ! style explicit override), else (b) the owning OuterMetaComponent's
-   ! component-wide default via its existing public has_geom()/get_geom()
-   ! accessors (the same fallback advertise_variable.F90 already applies
-   ! to every VariableSpec), else (c) not found - no cross-component
-   ! mirror propagation (that remains a distinct, future capability).
-   module subroutine resolve_export_geom(var_spec, owner, geom, found, rc)
-      type(VariableSpec), intent(in) :: var_spec
+   ! own GraphStateItem%declared_geom if explicitly set at advertise time
+   ! (HistoryCollection-style explicit override, captured once from
+   ! var_spec%geom by advertise_one - design.md correction), else (b) the
+   ! owning OuterMetaComponent's component-wide default via its existing
+   ! public has_geom()/get_geom() accessors (the same fallback
+   ! advertise_variable.F90 already applies to every VariableSpec), else
+   ! (c) not found - no cross-component mirror propagation (that remains
+   ! a distinct, future capability). export_item is read-only here (the
+   ! export's own already-advertised GraphStateItem, by value - no
+   ! VariableSpec reference needed, proposal.md's core claim).
+   module subroutine resolve_export_geom(export_item, owner, geom, found, rc)
+      type(GraphStateItem), intent(in) :: export_item
       class(OuterMetaComponent), target, intent(inout) :: owner
       type(ESMF_Geom), intent(out) :: geom
       logical, intent(out) :: found
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_Geom), allocatable :: declared_geom
 
       found = .false.
 
-      if (allocated(var_spec%geom)) then
-         geom = var_spec%geom
+      call export_item%get_declared_geom(declared_geom)
+      if (allocated(declared_geom)) then
+         geom = declared_geom
          found = .true.
          _RETURN(_SUCCESS)
       end if
@@ -50,24 +56,29 @@ contains
    ! dimension" (a legitimate 2D field), not a failure; see
    ! try_materialize_field_extension()'s own comment. An explicit
    ! `vertical_stagger == VERTICAL_STAGGER_NONE` (the parser's own
-   ! `vertical_dim_spec: NONE`, VariableSpec.F90) is this VariableSpec's
-   ! own explicit declaration that the field has no vertical dimension
-   ! at all - honored ahead of the component-wide default so a 2D field
-   ! declared inside an otherwise-3D-capable component is not
+   ! `vertical_dim_spec: NONE`, VariableSpec.F90, captured on
+   ! export_item%get_vertical_stagger() at advertise time) is this
+   ! item's own explicit declaration that the field has no vertical
+   ! dimension at all - honored ahead of the component-wide default so a
+   ! 2D field declared inside an otherwise-3D-capable component is not
    ! mistakenly given that component's own vertical grid.
-   module subroutine resolve_export_vgrid(var_spec, owner, vgrid)
-      type(VariableSpec), intent(in) :: var_spec
+   module subroutine resolve_export_vgrid(export_item, owner, vgrid)
+      type(GraphStateItem), intent(in) :: export_item
       class(OuterMetaComponent), target, intent(inout) :: owner
       class(VerticalGrid), allocatable, intent(out) :: vgrid
 
       class(VerticalGrid), pointer :: component_vgrid
+      type(VerticalStaggerLoc), allocatable :: declared_vertical_stagger
+      class(VerticalGrid), allocatable :: declared_vertical_grid
 
-      if (allocated(var_spec%vertical_stagger)) then
-         if (var_spec%vertical_stagger == VERTICAL_STAGGER_NONE) return
+      call export_item%get_vertical_stagger(declared_vertical_stagger)
+      if (allocated(declared_vertical_stagger)) then
+         if (declared_vertical_stagger == VERTICAL_STAGGER_NONE) return
       end if
 
-      if (allocated(var_spec%vertical_grid)) then
-         vgrid = var_spec%vertical_grid
+      call export_item%get_declared_vertical_grid(declared_vertical_grid)
+      if (allocated(declared_vertical_grid)) then
+         vgrid = declared_vertical_grid
          return
       end if
 

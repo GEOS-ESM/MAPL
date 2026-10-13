@@ -442,8 +442,8 @@ contains
       type(NodeId), pointer :: vgrid_top_id
       type(NodeId), pointer :: pressure_id
       class(GraphNode), pointer :: node
-      type(GraphStateItem) :: payload
-      type(StateItemMemberMap) :: members
+      type(GraphStateItem), pointer :: payload
+      type(StateItemMemberMap), pointer :: members
       type(VariableSpec) :: vgrid
       integer :: status
       type(GraphBuilder) :: gb
@@ -482,11 +482,11 @@ contains
       node => graph%get_node(vgrid_top_id)
       select type (node)
       class is (StateItemNode)
-         payload = node%get_payload()
+         payload => node%get_payload_ptr()
       class default
          @assert_that(.false., is(true()))
       end select
-      members = payload%state_members()
+      members => payload%state_members_ptr()
       pressure_id => members%at('pressure')
       @assert_that(associated(pressure_id), is(true()))
 

@@ -45,6 +45,10 @@ module mapl_GraphStateItem_mod
                                                     PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
                                                     TYPE_KIND_CHARACTERISTIC_KIND, &
                                                     GEOMETRY_CHARACTERISTIC_KIND
+   use mapl_UngriddedDims_mod, only: UngriddedDims
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc
+   use mapl_VerticalGrid_mod, only: VerticalGrid
+   use ESMF, only: ESMF_Geom
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -83,6 +87,41 @@ module mapl_GraphStateItem_mod
       ! (e.g. declared units) is not tied to which ESMF component
       ! currently backs the item.
       type(StateItemCharacteristicMap) :: characteristics
+      ! openspec/changes/graph-builder-stateitem-resolution, tasks.md
+      ! 1.2: materialization inputs, populated by advertise_one
+      ! alongside characteristics (design.md Decisions) - read directly
+      ! off the export's own node by try_materialize_field_extension/
+      ! materialize_extension_chain, replacing the single-level
+      ! component_for/ComponentSpec/var_spec reach those two procedures
+      ! used before this change. Same "independent of which handle
+      ! component is allocated" contract as characteristics above - not
+      ! reset by clear_components(). ungridded_dims is always-present
+      ! (mirrors VariableSpec%ungridded_dims's own non-allocatable,
+      ! always-default-constructed field); vertical_stagger is
+      ! allocatable (mirrors VariableSpec%vertical_stagger exactly - a
+      ! field legitimately has no vertical stagger, e.g. a 2D field).
+      type(UngriddedDims) :: ungridded_dims
+      type(VerticalStaggerLoc), allocatable :: vertical_stagger
+      ! openspec/changes/graph-builder-stateitem-resolution, design.md
+      ! correction (surfaced during implementation, not in the
+      ! original tasks.md): the originating VariableSpec's own
+      ! per-item EXPLICIT overrides for geom/vertical_grid (as opposed
+      ! to the owning component's own component-wide defaults, which
+      ! remain read live via OuterMetaComponent%has_geom()/get_geom()/
+      ! get_vertical_grid() in GraphBuilder_PortsAndProxies_smod.F90 -
+      ! those are not VariableSpec data and have no "set once at
+      ! advertise time" alternative, since GEOM_B genuinely runs after
+      ! ADVERTISE) and the item's own declared classification
+      ! (var_spec%itemType) - populated once by advertise_one alongside
+      ! characteristics/ungridded_dims/vertical_stagger above, so
+      ! try_materialize_field_extension/materialize_extension_chain and
+      ! resolve_export_geom/resolve_export_vgrid need no VariableSpec
+      ! reference at all once an item is advertised (proposal.md's core
+      ! claim, extended to cover these three inputs the original
+      ! tasks.md 1.2/5.1 did not anticipate).
+      type(ESMF_Geom), allocatable :: declared_geom
+      class(VerticalGrid), allocatable :: declared_vertical_grid
+      type(ESMF_StateItem_Flag) :: declared_item_type = ESMF_STATEITEM_FIELD
    contains
       procedure :: itemType => stateitem_itemType
       procedure :: variant => stateitem_variant
@@ -97,7 +136,9 @@ module mapl_GraphStateItem_mod
       procedure :: get_state => stateitem_get_state
       procedure :: get_route_handle => stateitem_get_route_handle
       procedure :: field_bundle_members => stateitem_field_bundle_members
+      procedure :: field_bundle_members_ptr => stateitem_field_bundle_members_ptr
       procedure :: state_members => stateitem_state_members
+      procedure :: state_members_ptr => stateitem_state_members_ptr
       procedure :: add_field_bundle_member => stateitem_add_field_bundle_member
       procedure :: add_state_member => stateitem_add_state_member
       ! -- characteristics (REQ-CHAR-007/008/009/010) -----------------------
@@ -111,6 +152,18 @@ module mapl_GraphStateItem_mod
       ! return-a-copy convention.
       procedure :: get_characteristics => stateitem_get_characteristics
       procedure :: ordering => stateitem_ordering
+      ! -- materialization inputs (tasks.md 1.2) ---------------------------
+      procedure :: get_ungridded_dims => stateitem_get_ungridded_dims
+      procedure :: set_ungridded_dims => stateitem_set_ungridded_dims
+      procedure :: get_vertical_stagger => stateitem_get_vertical_stagger
+      procedure :: set_vertical_stagger => stateitem_set_vertical_stagger
+      ! -- declared geom/vgrid/item-class (design.md correction) ----------
+      procedure :: get_declared_geom => stateitem_get_declared_geom
+      procedure :: set_declared_geom => stateitem_set_declared_geom
+      procedure :: get_declared_vertical_grid => stateitem_get_declared_vertical_grid
+      procedure :: set_declared_vertical_grid => stateitem_set_declared_vertical_grid
+      procedure :: get_declared_item_type => stateitem_get_declared_item_type
+      procedure :: set_declared_item_type => stateitem_set_declared_item_type
       ! Test-only backdoor: deliberately violates the at-most-one-
       ! allocated invariant, bypassing the `set` choke point, so the
       ! checked-defect path (REQ-SI-004) can be exercised. Not part of
@@ -384,12 +437,43 @@ contains
       members = this%field_bundle_members_map
    end function stateitem_field_bundle_members
 
+   ! openspec/changes/graph-builder-stateitem-resolution: pointer
+   ! accessor into this item's own stored member map, deliberately NOT
+   ! going through an intrinsic assignment the way
+   ! field_bundle_members()'s own `members = this%field_bundle_members_map`
+   ! does - a populated StateItemMemberMap (a gFTL2 map with its own
+   ! defined-assignment deep_copy) is not safe to copy this way under
+   ! every compiler (observed: gfortran nondeterministically segfaults
+   ! inside the map's own deep_copy for a non-empty map - NAG does not
+   ! reproduce it; same known-hard class of Fortran compiler bug around
+   ! nested defined-assignment already worked around for get_payload_ptr
+   ! above, one container level deeper). Callers that only need to read
+   ! the map (never replace it wholesale) should prefer this over
+   ! field_bundle_members(). `this` must be a target.
+   function stateitem_field_bundle_members_ptr(this) result(members)
+      class(GraphStateItem), target, intent(in) :: this
+      type(StateItemMemberMap), pointer :: members
+
+      members => this%field_bundle_members_map
+   end function stateitem_field_bundle_members_ptr
+
    function stateitem_state_members(this) result(members)
       class(GraphStateItem), intent(in) :: this
       type(StateItemMemberMap) :: members
 
       members = this%state_members_map
    end function stateitem_state_members
+
+   ! Same pointer-accessor fix as field_bundle_members_ptr above, same
+   ! reason - this is the one implicated in the observed crash
+   ! signature (state_members() called on a composite/multi-member
+   ! item's own populated state_members_map).
+   function stateitem_state_members_ptr(this) result(members)
+      class(GraphStateItem), target, intent(in) :: this
+      type(StateItemMemberMap), pointer :: members
+
+      members => this%state_members_map
+   end function stateitem_state_members_ptr
 
    subroutine stateitem_add_field_bundle_member(this, name, id, rc)
       class(GraphStateItem), intent(inout) :: this
@@ -508,6 +592,113 @@ contains
 
       characteristics = this%characteristics
    end function stateitem_get_characteristics
+
+   ! -- materialization inputs (tasks.md 1.2) ------------------------------
+
+   function stateitem_get_ungridded_dims(this) result(ungridded_dims)
+      class(GraphStateItem), intent(in) :: this
+      type(UngriddedDims) :: ungridded_dims
+
+      ungridded_dims = this%ungridded_dims
+   end function stateitem_get_ungridded_dims
+
+   subroutine stateitem_set_ungridded_dims(this, ungridded_dims)
+      class(GraphStateItem), intent(inout) :: this
+      type(UngriddedDims), intent(in) :: ungridded_dims
+
+      this%ungridded_dims = ungridded_dims
+   end subroutine stateitem_set_ungridded_dims
+
+   ! REQ-CHAR-008/design.md D4 precedent (see get_characteristic's own
+   ! comment above): a subroutine with an intent(out) allocatable
+   ! dummy, not a function returning type(...), allocatable - avoids
+   ! ever assigning directly from a possibly-unallocated allocatable
+   ! function result at the call site (gfortran codegen bug, surfaced
+   ! during gfortran portability testing of this change: a direct
+   ! `x = item%get_vertical_stagger()` assignment crashed with a NULL
+   ! dereference when the item's own vertical_stagger was unallocated -
+   ! NAG tolerated the same code; the Fortran standard does not
+   ! guarantee an unallocated allocatable function result is safe to
+   ! assign from directly, so this is a real bug fix, not a workaround
+   ! for a compiler quirk).
+   subroutine stateitem_get_vertical_stagger(this, vertical_stagger)
+      class(GraphStateItem), intent(in) :: this
+      type(VerticalStaggerLoc), allocatable, intent(out) :: vertical_stagger
+
+      if (allocated(this%vertical_stagger)) vertical_stagger = this%vertical_stagger
+   end subroutine stateitem_get_vertical_stagger
+
+   ! openspec/changes/graph-builder-stateitem-resolution: explicit
+   ! deallocate+allocate(..., source=...) instead of plain `=`
+   ! assignment into an allocatable component - same gfortran
+   ! realloc-on-assignment memory-corruption class as
+   ! StateItemNode%short_name (see StateItemNode.F90's constructor
+   ! comment), not specific to character components.
+   subroutine stateitem_set_vertical_stagger(this, vertical_stagger)
+      class(GraphStateItem), intent(inout) :: this
+      type(VerticalStaggerLoc), intent(in) :: vertical_stagger
+
+      if (allocated(this%vertical_stagger)) deallocate(this%vertical_stagger)
+      allocate(this%vertical_stagger, source=vertical_stagger)
+   end subroutine stateitem_set_vertical_stagger
+
+   ! -- declared geom/vgrid/item-class (design.md correction) --------------
+
+   ! Same subroutine-with-intent(out)-allocatable-dummy fix as
+   ! get_vertical_stagger above, same reason.
+   subroutine stateitem_get_declared_geom(this, geom)
+      class(GraphStateItem), intent(in) :: this
+      type(ESMF_Geom), allocatable, intent(out) :: geom
+
+      if (allocated(this%declared_geom)) geom = this%declared_geom
+   end subroutine stateitem_get_declared_geom
+
+   ! Same deallocate+allocate(..., source=...) fix as
+   ! set_vertical_stagger above, same reason.
+   subroutine stateitem_set_declared_geom(this, geom)
+      class(GraphStateItem), intent(inout) :: this
+      type(ESMF_Geom), intent(in) :: geom
+
+      if (allocated(this%declared_geom)) deallocate(this%declared_geom)
+      allocate(this%declared_geom, source=geom)
+   end subroutine stateitem_set_declared_geom
+
+   ! Same subroutine-with-intent(out)-allocatable-dummy fix as
+   ! get_vertical_stagger above, same reason.
+   subroutine stateitem_get_declared_vertical_grid(this, vertical_grid)
+      class(GraphStateItem), intent(in) :: this
+      class(VerticalGrid), allocatable, intent(out) :: vertical_grid
+
+      if (allocated(this%declared_vertical_grid)) vertical_grid = this%declared_vertical_grid
+   end subroutine stateitem_get_declared_vertical_grid
+
+   ! Same deallocate+allocate(..., source=...) fix as
+   ! set_vertical_stagger above, same reason. Polymorphic component -
+   ! allocate(..., source=...) also sidesteps relying on the compiler's
+   ! own intrinsic-assignment dynamic-type dispatch for a CLASS
+   ! allocatable, which is exactly the kind of generated-assignment
+   ! code path implicated elsewhere in this bug class.
+   subroutine stateitem_set_declared_vertical_grid(this, vertical_grid)
+      class(GraphStateItem), intent(inout) :: this
+      class(VerticalGrid), intent(in) :: vertical_grid
+
+      if (allocated(this%declared_vertical_grid)) deallocate(this%declared_vertical_grid)
+      allocate(this%declared_vertical_grid, source=vertical_grid)
+   end subroutine stateitem_set_declared_vertical_grid
+
+   function stateitem_get_declared_item_type(this) result(item_type)
+      class(GraphStateItem), intent(in) :: this
+      type(ESMF_StateItem_Flag) :: item_type
+
+      item_type = this%declared_item_type
+   end function stateitem_get_declared_item_type
+
+   subroutine stateitem_set_declared_item_type(this, item_type)
+      class(GraphStateItem), intent(inout) :: this
+      type(ESMF_StateItem_Flag), intent(in) :: item_type
+
+      this%declared_item_type = item_type
+   end subroutine stateitem_set_declared_item_type
 
    ! REQ-CHAR-010/011 (design.md D5, resolving Q13's recommendation):
    ! delegates to a static per-variant strategy table

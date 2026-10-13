@@ -21,13 +21,24 @@ module mapl_TypeKindCharacteristic_mod
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, TYPE_KIND_CHARACTERISTIC_KIND
    use mapl_TransformBase_mod, only: TransformBase
    use mapl_TypeKindConverterTransform_mod, only: TypeKindConverterTransform
-   use ESMF, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8
+   use ESMF, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8, &
+        ESMF_TYPEKIND_I4, ESMF_TYPEKIND_I8, ESMF_TYPEKIND_LOGICAL
    use ESMF, only: operator(==)
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
 
    public :: TypeKindCharacteristic
+   ! openspec/changes/graph-builder-stateitem-resolution: exposed so a
+   ! materialization call site (GraphBuilder.F90's
+   ! try_materialize_field_extension/materialize_extension_chain) can
+   ! recover the real ESMF_TypeKind_Flag this characteristic's own label
+   ! was converted from, once that call site no longer has a
+   ! VariableSpec reference to read %typekind off directly (proposal.md
+   ! "nothing downstream should need to walk back to the originating
+   ! VariableSpec") - the inverse of new_TypeKindCharacteristic_flag's
+   ! own conversion, previously private to this module.
+   public :: label_to_typekind
 
    type, extends(ValueCharacteristic) :: TypeKindCharacteristic
       private
@@ -51,7 +62,12 @@ contains
       character(*), intent(in) :: type_kind
       type(TypeKindCharacteristic) :: characteristic
 
-      characteristic%type_kind = type_kind
+      ! openspec/changes/graph-builder-stateitem-resolution: explicit
+      ! allocate(..., source=...) instead of plain `=` assignment into
+      ! a deferred-length character component - same gfortran
+      ! realloc-on-assignment memory-corruption class documented in
+      ! StateItemNode.F90's constructor.
+      allocate(characteristic%type_kind, source=type_kind)
    end function new_TypeKindCharacteristic
 
    ! Convenience form - real ESMF_TypeKind_Flag, converted to the plain
@@ -64,7 +80,10 @@ contains
       type(ESMF_TypeKind_Flag), intent(in) :: type_kind
       type(TypeKindCharacteristic) :: characteristic
 
-      characteristic%type_kind = typekind_to_label(type_kind)
+      ! Same allocate(..., source=...) fix as new_TypeKindCharacteristic
+      ! above, same reason - typekind_to_label() returns a
+      ! character(:), allocatable function result.
+      allocate(characteristic%type_kind, source=typekind_to_label(type_kind))
    end function new_TypeKindCharacteristic_flag
 
    function typekind_get_kind() result(kind)
@@ -99,7 +118,10 @@ contains
       class(TypeKindCharacteristic), intent(in) :: this
       character(:), allocatable :: type_kind
 
-      type_kind = this%type_kind
+      ! Same allocate(..., source=...) fix as new_TypeKindCharacteristic
+      ! above, same reason - this%type_kind is itself a character(:),
+      ! allocatable component.
+      allocate(type_kind, source=this%type_kind)
    end function get_type_kind
 
    ! Moved from the retired mapl_TypeKindCharacteristicAdapter_mod's own
@@ -134,6 +156,23 @@ contains
    ! Moved from the retired mapl_TypeKindCharacteristicAdapter_mod - no
    ! other module needs these once the adapter is removed (confirmed by
    ! grep, task 6.1).
+   !
+   ! openspec/changes/graph-builder-stateitem-resolution: extended
+   ! beyond R4/R8 (I4/I8/LOGICAL, mirroring mapl_FieldInfo_mod's own
+   ! to_string/to_typekind precedent exactly - infrastructure/field/
+   ! FieldInfo.F90) - defensive broadening to the full set of
+   ! ESMF_TypeKind_Flag values MAPL fields actually use, now that
+   ! advertise_one calls this unconditionally for every advertised
+   ! item (task 2.2), not only ones actually reached through a
+   ! MatchConnection. MAPL_TYPEKIND_MIRROR (infrastructure/esmf/
+   ! TypeKind.F90, a declared "inherit the matched export's kind"
+   ! placeholder - not a real ESMF_TypeKind_Flag at all) is handled
+   ! separately, by not calling this function in the first place
+   ! (GraphBuilder_Advertising_smod.F90's populate_characteristics,
+   ! design.md correction) - that is the actual case this change's own
+   ! implementation surfaced (StatisticsGridComp.F90's mirrored
+   ! imports), not a missing I4/I8/LOGICAL label as initially
+   ! suspected.
    function typekind_to_label(type_kind) result(label)
       type(ESMF_TypeKind_Flag), intent(in) :: type_kind
       character(:), allocatable :: label
@@ -142,6 +181,12 @@ contains
          label = 'R4'
       else if (type_kind == ESMF_TYPEKIND_R8) then
          label = 'R8'
+      else if (type_kind == ESMF_TYPEKIND_I4) then
+         label = 'I4'
+      else if (type_kind == ESMF_TYPEKIND_I8) then
+         label = 'I8'
+      else if (type_kind == ESMF_TYPEKIND_LOGICAL) then
+         label = 'LOGICAL'
       else
          error stop 'TypeKindCharacteristic: unsupported ESMF_TypeKind_Flag'
       end if
@@ -155,6 +200,12 @@ contains
          type_kind = ESMF_TYPEKIND_R4
       else if (label == 'R8') then
          type_kind = ESMF_TYPEKIND_R8
+      else if (label == 'I4') then
+         type_kind = ESMF_TYPEKIND_I4
+      else if (label == 'I8') then
+         type_kind = ESMF_TYPEKIND_I8
+      else if (label == 'LOGICAL') then
+         type_kind = ESMF_TYPEKIND_LOGICAL
       else
          error stop 'TypeKindCharacteristic: unsupported type-kind label'
       end if

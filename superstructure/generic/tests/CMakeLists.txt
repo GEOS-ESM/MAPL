@@ -173,6 +173,7 @@ set(components_test_srcs
   Test_ExtensionFamily.pf
   Test_ComponentHierarchyGraph.pf
   Test_GraphBuilder.pf
+  Test_GraphBuilderMaterializeGate.pf
   Test_GraphGeometryHook.pf
   Test_GraphMode.pf
   Test_OuterMetaComponentDriverResolver.pf
