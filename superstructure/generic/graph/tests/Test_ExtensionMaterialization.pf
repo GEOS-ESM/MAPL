@@ -19,9 +19,9 @@ module Test_ExtensionMaterialization
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem, operator(==)
    use mapl_NodeRevision_mod, only: NodeRevision
-   use mapl_Characteristic_mod, only: CharacteristicMap
-   use mapl_CharacteristicId_mod, only: CharacteristicId, UNITS_CHARACTERISTIC_ID
-   use mapl_UnitsCharacteristic_mod, only: UnitsCharacteristic
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristicMap
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, PHYSICAL_UNITS_CHARACTERISTIC_KIND
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain, &
         set_materialize_extensions, materialize_extensions_enabled
    use mapl_ExtensionMaterialization_mod, only: materialize_field_extension
@@ -62,8 +62,8 @@ contains
       type(StateItemNode) :: export_node
       type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
-      type(CharacteristicMap) :: export_map, import_map
-      type(CharacteristicId), allocatable :: mismatched(:)
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
       type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: unsupported
       type(ESMF_Grid) :: grid
@@ -87,8 +87,8 @@ contains
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)
 
-      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
-      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'))
       mismatched = find_mismatched_characteristics(export_map, import_map)
 
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
@@ -142,8 +142,8 @@ contains
       type(StateItemNode) :: export_node
       type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
-      type(CharacteristicMap) :: export_map, import_map
-      type(CharacteristicId), allocatable :: mismatched(:)
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
       type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: unsupported
       type(ESMF_Grid) :: grid
@@ -164,8 +164,8 @@ contains
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)
 
-      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
-      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'))
       mismatched = find_mismatched_characteristics(export_map, import_map)
 
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
@@ -212,8 +212,8 @@ contains
       type(StateItemNode) :: export_node
       type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
-      type(CharacteristicMap) :: export_map, import_map
-      type(CharacteristicId), allocatable :: mismatched(:)
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
       type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: unsupported
       type(ESMF_Grid) :: grid
@@ -234,8 +234,8 @@ contains
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)
 
-      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
-      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'))
       mismatched = find_mismatched_characteristics(export_map, import_map)
 
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &

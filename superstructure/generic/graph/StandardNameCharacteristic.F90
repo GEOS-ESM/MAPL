@@ -18,13 +18,18 @@
 ! exactly matching UNCHECKED's own documented meaning. Otherwise, plain
 ! string equality - no warning, no ValidationMode, no logging.
 !
-! No build_transform/adaptation method exists at this layer (REQ-CHAR-002);
-! legacy StandardNameAspect%make_transform always returns NullTransform.
+! A `build_transform` is required by the common interface but fails
+! explicitly here - no real provider exists for this axis
+! (openspec/changes/merge-characteristic-families): legacy
+! StandardNameAspect%make_transform always returns NullTransform.
+! `get_signature` derives a stable string from `standard_name`.
 !------------------------------------------------------------------------------
 module mapl_StandardNameCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, STANDARD_NAME_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, operator(==)
+   use mapl_TransformBase_mod, only: TransformBase
+   use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
 
@@ -36,6 +41,8 @@ module mapl_StandardNameCharacteristic_mod
    contains
       procedure, nopass :: get_kind => standard_name_get_kind
       procedure :: needs_extension_for => standard_name_needs_extension_for
+      procedure :: build_transform => standard_name_build_transform
+      procedure :: get_signature => standard_name_get_signature
       procedure :: get_standard_name
    end type StandardNameCharacteristic
 
@@ -86,5 +93,30 @@ contains
 
       standard_name = this%standard_name
    end function get_standard_name
+
+   ! merge-characteristic-families task 3.5: no real adaptation exists
+   ! for this axis, graph-native or legacy (module header) - fails
+   ! explicitly.
+   subroutine standard_name_build_transform(this, goal, transformer, rc)
+      class(StandardNameCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      class(TransformBase), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(goal)
+
+      _FAIL('StandardNameCharacteristic: build_transform - no real provider exists for this axis')
+   end subroutine standard_name_build_transform
+
+   ! merge-characteristic-families task 3.5: a stable, value-
+   ! distinguishing signature derived from this subclass's own stored
+   ! value (design.md Risks: a small, mechanical derivation).
+   function standard_name_get_signature(this) result(signature)
+      class(StandardNameCharacteristic), intent(in) :: this
+      character(:), allocatable :: signature
+
+      signature = 'standard_name=' // this%standard_name
+   end function standard_name_get_signature
 
 end module mapl_StandardNameCharacteristic_mod

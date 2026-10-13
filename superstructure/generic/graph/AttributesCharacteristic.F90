@@ -20,14 +20,21 @@
 ! callers must pass provides-side as `this`, requires-side as `goal`, same
 ! direction convention as legacy's own matches(src, dst).
 !
-! No build_transform/adaptation method exists at this layer (REQ-CHAR-002);
-! legacy AttributesAspect%make_transform always returns NullTransform (no
-! real adaptation exists anywhere for this axis, graph-native or legacy).
+! A `build_transform` is required by the common interface but fails
+! explicitly here - no real provider exists for this axis
+! (openspec/changes/merge-characteristic-families): legacy
+! AttributesAspect%make_transform always returns NullTransform (no real
+! adaptation exists anywhere for this axis, graph-native or legacy).
+! `get_signature` derives a stable, value-distinguishing string from
+! `attribute_names` (sorted, comma-joined) for
+! mapl_ExtensionResolution_mod's reuse-search cache key.
 !------------------------------------------------------------------------------
 module mapl_AttributesCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, ATTRIBUTES_CHARACTERISTIC_KIND
    use gFTL2_StringVector, only: StringVector
+   use mapl_TransformBase_mod, only: TransformBase
+   use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
 
@@ -39,6 +46,8 @@ module mapl_AttributesCharacteristic_mod
    contains
       procedure, nopass :: get_kind => attributes_get_kind
       procedure :: needs_extension_for => attributes_needs_extension_for
+      procedure :: build_transform => attributes_build_transform
+      procedure :: get_signature => attributes_get_signature
       procedure :: get_attribute_names
    end type AttributesCharacteristic
 
@@ -104,5 +113,81 @@ contains
 
       attribute_names = this%attribute_names
    end function get_attribute_names
+
+   ! merge-characteristic-families task 3.1: no real adaptation exists
+   ! for this axis, graph-native or legacy (module header) - fails
+   ! explicitly, mirroring GeometryCharacteristic's/
+   ! VerticalCoordinateCharacteristic's own "no real provider yet" _FAIL
+   ! shape.
+   subroutine attributes_build_transform(this, goal, transformer, rc)
+      class(AttributesCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      class(TransformBase), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(goal)
+
+      _FAIL('AttributesCharacteristic: build_transform - no real provider exists for this axis')
+   end subroutine attributes_build_transform
+
+   ! merge-characteristic-families task 3.1: a stable, value-
+   ! distinguishing signature derived from this subclass's own stored
+   ! value - a sorted, comma-joined list of attribute_names (design.md
+   ! Risks: a small, mechanical derivation, no new comparison logic).
+   function attributes_get_signature(this) result(signature)
+      class(AttributesCharacteristic), intent(in) :: this
+      character(:), allocatable :: signature
+
+      signature = 'attributes=' // join(sorted_names(this%attribute_names))
+   end function attributes_get_signature
+
+   ! Simple insertion sort - mirrors
+   ! VerticalCoordinateCharacteristic.F90's own sorted_names helper
+   ! (same small, local, non-performance-sensitive use), reimplemented
+   ! here rather than shared since that module's own copy is private.
+   function sorted_names(names) result(sorted)
+      type(StringVector), intent(in) :: names
+      character(:), allocatable :: sorted(:)
+
+      integer :: i, j, n
+      character(:), allocatable :: key
+      integer :: maxlen
+
+      n = names%size()
+      maxlen = 0
+      do i = 1, n
+         maxlen = max(maxlen, len(names%of(i)))
+      end do
+      allocate(character(len=maxlen) :: sorted(n))
+      do i = 1, n
+         sorted(i) = names%of(i)
+      end do
+
+      do i = 2, n
+         key = trim(sorted(i))
+         j = i - 1
+         do while (j >= 1)
+            if (trim(sorted(j)) <= key) exit
+            sorted(j + 1) = sorted(j)
+            j = j - 1
+         end do
+         sorted(j + 1) = key
+      end do
+   end function sorted_names
+
+   function join(names) result(joined)
+      character(*), intent(in) :: names(:)
+      character(:), allocatable :: joined
+
+      integer :: i, n
+
+      n = size(names)
+      joined = ''
+      do i = 1, n
+         if (i > 1) joined = joined // ','
+         joined = joined // trim(names(i))
+      end do
+   end function join
 
 end module mapl_AttributesCharacteristic_mod

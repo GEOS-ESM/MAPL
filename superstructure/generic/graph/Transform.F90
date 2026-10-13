@@ -1,65 +1,57 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! Transform: abstract computation descriptor - named, multi-input/multi-
-! output port declarations (REQ-XFORM-002/003/004) plus a deferred
-! compute(this, inputs, outputs, rc), where inputs/outputs are the
-! transform's own already-resolved, caller-supplied bound values (one
-! GraphStateItem per declared port name) - with no graph/revision/NodeId
-! concept of its own, matching how GraphStateItem (StateItemNode's
-! payload) carries no revision concept either: both are the
-! "value/behavior" half of their respective node kind, deliberately
-! independent of graph plumbing, so each is usable/testable in complete
-! isolation from ComponentGraph/DependencyNetwork/NodeRevision
-! (openspec/changes/decouple-transform-from-graph).
+! Transform: abstract computation descriptor - extends TransformBase
+! (mapl_TransformBase_mod, port-declaration machinery only) adding
+! exactly one thing: the deferred compute(this, inputs, outputs, rc),
+! where inputs/outputs are the transform's own already-resolved, caller-
+! supplied bound values (one GraphStateItem per declared port name) -
+! with no graph/revision/NodeId concept of its own, matching how
+! GraphStateItem (StateItemNode's payload) carries no revision concept
+! either: both are the "value/behavior" half of their respective node
+! kind, deliberately independent of graph plumbing, so each is usable/
+! testable in complete isolation from ComponentGraph/DependencyNetwork/
+! NodeRevision (openspec/changes/decouple-transform-from-graph).
+!
+! Split from TransformBase (openspec/changes/merge-characteristic-
+! families): compute()'s own PortNameGraphStateItemMap arguments are
+! exactly what gives this module a dependency chain reaching
+! mapl_GraphStateItem_mod (via mapl_PortNameGraphStateItemMap_mod) -
+! TransformBase.F90's own header comment has the full rationale for why
+! that dependency had to be isolated to this tier specifically, not the
+! common ancestor.
 !
 ! A real Transform (Phase 3/4, in MAPL - e.g. ConvertUnitsTransform)
 ! extends this directly, declaring its own fixed port shape (via
-! declare_input_port()/declare_output_port()) in its own constructor -
-! port shape is intrinsic per-subclass domain knowledge, not something
-! rediscovered or duplicated by whatever code later wires an instance
-! into a graph. TransformGraphNode (see mapl_TransformGraphNode_mod)
-! holds one Transform (component name "transformer") and delegates its
-! own port-query methods to it, adding only what IS a graph-plumbing
-! concern on top: NodeId/lifecycle (inherited via OperationGraphNode/
+! declare_input_port()/declare_output_port(), inherited from
+! TransformBase) in its own constructor - port shape is intrinsic
+! per-subclass domain knowledge, not something rediscovered or
+! duplicated by whatever code later wires an instance into a graph.
+! TransformGraphNode (see mapl_TransformGraphNode_mod) holds one
+! Transform (component name "transformer") and delegates its own
+! port-query methods to it, adding only what IS a graph-plumbing concern
+! on top: NodeId/lifecycle (inherited via OperationGraphNode/
 ! BaseGraphNode) and revision/staleness bookkeeping
 ! (spec/11-revision-and-update.md REQ-REV-005..007).
 !------------------------------------------------------------------------------
 module mapl_Transform_mod
-   use mapl_PortSpec_mod, only: PortSpec
-   use mapl_PortSpecMap_mod
+   use mapl_TransformBase_mod, only: TransformBase, operator(==), operator(/=)
    use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
-   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
 
    public :: Transform
-   ! operator(==)/operator(/=) re-export: the one legitimate exception -
-   ! see mapl_GraphStateItem_mod's identical rationale. PortSpec/
-   ! PortSpecMap/PortSpecMapIterator were previously re-exported here
-   ! too (plain names, not the operator-merge case) - Intel's compiler
-   ! correctly rejects that for a client that also reaches the same
-   ! entity through its true defining module (icc/ifx error #6405).
-   ! Removed; mapl_TransformGraphNode_mod (this module's one consumer of
-   ! those names) now imports them directly from mapl_PortSpec_mod/
-   ! mapl_PortSpecMap_mod instead.
+   ! operator(==)/operator(/=) re-export: PortSpecMapIterator's own
+   ! comparison operators, reached via TransformBase's own identical
+   ! re-export (mapl_TransformBase_mod's own header comment) - the one
+   ! legitimate exception, see mapl_GraphStateItem_mod's identical
+   ! rationale.
    public :: operator(==)
    public :: operator(/=)
 
-   type, abstract :: Transform
-      private
-      type(PortSpecMap) :: input_ports
-      type(PortSpecMap) :: output_ports
+   type, abstract, extends(TransformBase) :: Transform
    contains
-      procedure :: declare_input_port => transform_declare_input_port
-      procedure :: declare_output_port => transform_declare_output_port
-      procedure :: is_input_port => transform_is_input_port
-      procedure :: is_output_port => transform_is_output_port
-      procedure :: get_input_port => transform_get_input_port
-      procedure :: get_output_port => transform_get_output_port
-      procedure :: get_input_ports => transform_get_input_ports
-      procedure :: get_output_ports => transform_get_output_ports
       procedure(transform_compute_interface), deferred :: compute
    end type Transform
 
@@ -72,107 +64,5 @@ module mapl_Transform_mod
          integer, intent(out) :: rc
       end subroutine transform_compute_interface
    end interface
-
-contains
-
-   ! -- port declarations (REQ-XFORM-002/003/004) -------------------------
-
-   subroutine transform_declare_input_port(this, name, rc, expected_kind)
-      class(Transform), intent(inout) :: this
-      character(*), intent(in) :: name
-      integer, optional, intent(out) :: rc
-      type(MAPL_StateItem_Flag), optional, intent(in) :: expected_kind
-
-      type(PortSpec) :: spec
-
-      _ASSERT(this%input_ports%count(name) == 0, 'Transform: input port name already declared')
-
-      if (present(expected_kind)) then
-         spec = PortSpec(name, expected_kind)
-      else
-         spec = PortSpec(name)
-      end if
-      call this%input_ports%insert(name, spec)
-
-      _RETURN(_SUCCESS)
-   end subroutine transform_declare_input_port
-
-   subroutine transform_declare_output_port(this, name, rc, expected_kind)
-      class(Transform), intent(inout) :: this
-      character(*), intent(in) :: name
-      integer, optional, intent(out) :: rc
-      type(MAPL_StateItem_Flag), optional, intent(in) :: expected_kind
-
-      type(PortSpec) :: spec
-
-      _ASSERT(this%output_ports%count(name) == 0, 'Transform: output port name already declared')
-
-      if (present(expected_kind)) then
-         spec = PortSpec(name, expected_kind)
-      else
-         spec = PortSpec(name)
-      end if
-      call this%output_ports%insert(name, spec)
-
-      _RETURN(_SUCCESS)
-   end subroutine transform_declare_output_port
-
-   logical function transform_is_input_port(this, name) result(is_port)
-      class(Transform), intent(in) :: this
-      character(*), intent(in) :: name
-
-      is_port = this%input_ports%count(name) > 0
-   end function transform_is_input_port
-
-   logical function transform_is_output_port(this, name) result(is_port)
-      class(Transform), intent(in) :: this
-      character(*), intent(in) :: name
-
-      is_port = this%output_ports%count(name) > 0
-   end function transform_is_output_port
-
-   function transform_get_input_port(this, name, rc) result(spec)
-      class(Transform), target, intent(in) :: this
-      character(*), intent(in) :: name
-      integer, optional, intent(out) :: rc
-      type(PortSpec) :: spec
-
-      type(PortSpec), pointer :: found
-
-      found => this%input_ports%at(name)
-      _ASSERT(associated(found), 'Transform: input port not declared')
-      spec = found
-
-      _RETURN(_SUCCESS)
-   end function transform_get_input_port
-
-   function transform_get_output_port(this, name, rc) result(spec)
-      class(Transform), target, intent(in) :: this
-      character(*), intent(in) :: name
-      integer, optional, intent(out) :: rc
-      type(PortSpec) :: spec
-
-      type(PortSpec), pointer :: found
-
-      found => this%output_ports%at(name)
-      _ASSERT(associated(found), 'Transform: output port not declared')
-      spec = found
-
-      _RETURN(_SUCCESS)
-   end function transform_get_output_port
-
-   function transform_get_input_ports(this) result(ports)
-      class(Transform), intent(in) :: this
-      type(PortSpecMap) :: ports
-
-      ports = this%input_ports
-   end function transform_get_input_ports
-
-   function transform_get_output_ports(this) result(ports)
-      class(Transform), intent(in) :: this
-      type(PortSpecMap) :: ports
-
-      ports = this%output_ports
-   end function transform_get_output_ports
 
 end module mapl_Transform_mod

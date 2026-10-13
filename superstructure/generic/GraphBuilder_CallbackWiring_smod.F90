@@ -13,7 +13,8 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_CallbackWiring_smod
    use mapl_CallbackArgumentSpec_mod, only: CallbackArgumentSpec
    use mapl_CallbackArgumentSpecMap_mod, only: CallbackArgumentSpecMap, CallbackArgumentSpecMapIterator, operator(/=)
    use mapl_CallbackMethodSpec_mod, only: CallbackMethodSpec
-   use mapl_CharacteristicId_mod, only: CharacteristicId
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristicMap
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_MethodGraphNode_mod, only: MethodGraphNode
@@ -497,8 +498,8 @@ contains
    ! find_mismatched_characteristics/find_or_build_extension_chain
    ! exactly like ordinary connection resolution (design.md Decisions) -
    ! both source_characteristics/target_characteristics are empty
-   ! CharacteristicMaps at this data-model tier, so this always takes
-   ! the exact-match direct-edge branch today; the transform-chain
+   ! StateItemCharacteristicMaps at this data-model tier, so this always
+   ! takes the exact-match direct-edge branch today; the transform-chain
    ! branch remains available for a future characteristics-aware
    ! CallbackArgumentSpec.
    module subroutine wire_callback_argument(graph, network_id, source_id, target_id, rc)
@@ -509,8 +510,8 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(CharacteristicMap), target :: empty_characteristics
-      type(CharacteristicId), allocatable :: mismatched(:)
+      type(StateItemCharacteristicMap), target :: empty_characteristics
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
       type(NodeId) :: final_id
       type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: unsupported

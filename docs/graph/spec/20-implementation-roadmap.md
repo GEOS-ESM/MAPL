@@ -1796,6 +1796,67 @@ that component with no test today that would catch it. Depends on Phase
 10a (landed state-materialization call sites) only — independent of
 3b2, Phase 7, and Phase 12.
 
+### 20.4.14 Phase 14 scope: sentinel-first-assignment convention for polymorphic allocatable function results
+
+**Discovered gap, not previously tracked by any phase above.** A
+function returning `class(...), allocatable` whose only normal
+construction path runs after one or more early-failure returns (the
+`_FAIL`/`_RETURN` macros, which expand to a bare `return` on failure —
+`include/MAPL_ErrLog.h`) can return with its result unassigned on any
+such failure path. The Fortran standard does not reliably guarantee an
+unallocated polymorphic function result is left in a universally safe,
+caller-assignable state across compilers. This is why
+`Characteristic%build_transform`/`StateItemCharacteristic%build_transform`
+and `GraphStateItem%get_characteristic` are deliberately subroutines
+with an `intent(out), allocatable` dummy argument rather than functions
+(`GraphStateItem.F90`'s own comment at the latter's declaration states
+this explicitly) — `intent(out)` guarantees the dummy starts
+unallocated and stays caller-safe on every return path, with no
+workaround needed. Legacy already hit the same hazard the other way:
+`UnitsAspect%make_transform` (`UnitsAspect.F90:119-135`) *is* a function
+returning `class(ExtensionTransform), allocatable`, and defensively
+allocates a `NullTransform()` placeholder immediately before every
+`_FAIL` call on its own failure branch, specifically so the function
+result is never left unallocated — a tax paid on every failure branch,
+in every such function, with no general convention naming the pattern
+or its rationale anywhere in this codebase today.
+
+**Scope:** document (and, where a function-returning-polymorphic
+-allocatable shape is actually the right choice for other reasons —
+e.g. an existing public API this project does not want to break into a
+subroutine) apply a named convention: assign the function result to a
+simple, trivial placeholder value as the very first executable
+statement, before any possible early-return failure path, so every
+return — success or failure — leaves the result in an assigned,
+caller-safe state. For a `class(Transform)`-shaped result this means
+constructing (or reusing) a trivial no-op `Transform` subclass for
+exactly this purpose, mirroring legacy's own `NullTransform` precedent
+but adopted as a documented, intentional idiom rather than a one-off
+workaround discovered independently at each call site. This phase is
+documentation/convention work (likely the `fortran-style` skill's own
+"Error Handling" section, which already discusses the
+subroutine-vs-function tradeoff for fallible procedures and already
+flags "some procedures best expressed as functions — discuss with
+team") plus, optionally, applying the convention retroactively to
+`UnitsAspect%make_transform`'s own existing `NullTransform()` workaround
+so it reads as an instance of a named pattern rather than an isolated
+fix. No graph-layer code is required to change for this phase to be
+complete — `build_transform`'s own subroutine shape (post-Phase 5a/this
+roadmap's merge-characteristic-families change) already sidesteps the
+hazard by construction; this phase exists so the *next* polymorphic
+-allocatable-returning function anywhere in the codebase has a named
+convention to follow instead of re-discovering the hazard, or missing
+it, independently.
+
+**Not blocking anything above or already landed on its own merits** —
+raised during review of `graph-builder-stateitem-resolution`'s own
+precursor work (the `Characteristic`/`StateItemCharacteristic`
+`build_transform` signature) but applies to the whole codebase, not
+only the graph layer; tracked here because this is where comparable
+discovered-gap backlog items already accumulate (§20.4.12, §20.4.13).
+Depends on nothing landed or planned above — independent of Phase 12,
+Phase 13, 3b2, and Phase 7.
+
 ## 20.5 Cross-reference
 
 This roadmap does not restate or supersede any requirement in `01`–`19`;

@@ -1,14 +1,25 @@
 ! openspec/changes/extension-reuse - task group 6 (unit tests for
-! mapl_Characteristic_mod / mapl_ExtensionResolution_mod).
+! mapl_StateItemCharacteristic_mod / mapl_ExtensionResolution_mod).
 !
 ! Uses only synthetic graph nodes (StateItemNode/TransformGraphNode) - no
 ! OuterComponent/StateRegistry/GraphBuilder type is referenced anywhere,
 ! matching Test_ComponentGraph_PortBindings.pf's existing style. The
 ! multi-step chain test uses a test-only FakeCharacteristic
-! (MOCK_CHARACTERISTIC_ID, mirroring AspectId.F90's own MOCK_ASPECT_ID
+! (MOCK_CHARACTERISTIC_KIND, mirroring AspectId.F90's own MOCK_ASPECT_ID
 ! precedent) so the chain-building loop can be exercised with two links
 ! without needing a second real, executing characteristic (extension-
 ! reuse change design.md Decisions).
+!
+! openspec/changes/merge-characteristic-families, task 6.4: re-typed from
+! the retired mapl_Characteristic_mod/mapl_CharacteristicId_mod onto the
+! surviving mapl_StateItemCharacteristic_mod/
+! mapl_StateItemCharacteristicKind_mod family. FakeCharacteristic now
+! extends StateItemCharacteristic (nopass get_kind, four-argument
+! build_transform, no graph/NodeId argument - already the shape
+! post-decouple-transform-from-graph) and gains a new get_signature
+! implementation (task 1.1's new deferred method) - a simple
+! 'mock=' // this%value mirrors its existing get_signature-style naming
+! already used elsewhere in this hierarchy.
 module Test_ExtensionResolution
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
@@ -17,12 +28,13 @@ module Test_ExtensionResolution
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_Transform_mod, only: Transform
+   use mapl_TransformBase_mod, only: TransformBase
    use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
-   use mapl_Characteristic_mod, only: Characteristic, CharacteristicMap
-   use mapl_CharacteristicId_mod, only: CharacteristicId, UNITS_CHARACTERISTIC_ID, &
-        VERTICAL_GRID_CHARACTERISTIC_ID, MOCK_CHARACTERISTIC_ID, operator(==)
-   use mapl_UnitsCharacteristic_mod, only: UnitsCharacteristic
-   use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+        VERTICAL_COORDINATE_CHARACTERISTIC_KIND, MOCK_CHARACTERISTIC_KIND, operator(==)
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
+   use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain
    use funit
    implicit none
@@ -33,12 +45,12 @@ module Test_ExtensionResolution
       procedure :: compute => fake_compute
    end type FakeCompute
 
-   ! Test-only Characteristic - see module header.
-   type, extends(Characteristic) :: FakeCharacteristic
+   ! Test-only StateItemCharacteristic - see module header.
+   type, extends(StateItemCharacteristic) :: FakeCharacteristic
       private
       character(:), allocatable :: value
    contains
-      procedure, nopass :: get_id => fake_get_id
+      procedure, nopass :: get_kind => fake_get_kind
       procedure :: get_signature => fake_get_signature
       procedure :: needs_extension_for => fake_needs_extension_for
       procedure :: build_transform => fake_build_transform
@@ -57,11 +69,11 @@ contains
       characteristic%value = value
    end function new_FakeCharacteristic
 
-   function fake_get_id() result(id)
-      type(CharacteristicId) :: id
+   function fake_get_kind() result(kind)
+      type(StateItemCharacteristicKind) :: kind
 
-      id = MOCK_CHARACTERISTIC_ID
-   end function fake_get_id
+      kind = MOCK_CHARACTERISTIC_KIND
+   end function fake_get_kind
 
    function fake_get_signature(this) result(signature)
       class(FakeCharacteristic), intent(in) :: this
@@ -72,7 +84,7 @@ contains
 
    logical function fake_needs_extension_for(this, goal) result(needs_extension)
       class(FakeCharacteristic), intent(in) :: this
-      class(Characteristic), intent(in) :: goal
+      class(StateItemCharacteristic), intent(in) :: goal
 
       select type (goal)
       class is (FakeCharacteristic)
@@ -84,8 +96,8 @@ contains
 
    subroutine fake_build_transform(this, goal, transformer, rc)
       class(FakeCharacteristic), intent(in) :: this
-      class(Characteristic), intent(in) :: goal
-      class(Transform), allocatable, intent(out) :: transformer
+      class(StateItemCharacteristic), intent(in) :: goal
+      class(TransformBase), allocatable, intent(out) :: transformer
       integer, optional, intent(out) :: rc
 
       type(FakeCompute) :: strategy
@@ -111,11 +123,11 @@ contains
 
    @test
    subroutine test_no_mismatch_reports_empty()
-      type(CharacteristicMap) :: export_map, import_map
-      type(CharacteristicId), allocatable :: mismatched(:)
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
 
-      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
-      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
 
       mismatched = find_mismatched_characteristics(export_map, import_map)
       @assertEqual(0, size(mismatched))
@@ -123,26 +135,26 @@ contains
 
    @test
    subroutine test_units_mismatch_detected()
-      type(CharacteristicMap) :: export_map, import_map
-      type(CharacteristicId), allocatable :: mismatched(:)
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
 
-      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
-      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'))
 
       mismatched = find_mismatched_characteristics(export_map, import_map)
       @assertEqual(1, size(mismatched))
-      @assertTrue(mismatched(1) == UNITS_CHARACTERISTIC_ID)
+      @assertTrue(mismatched(1) == PHYSICAL_UNITS_CHARACTERISTIC_KIND)
    end subroutine test_units_mismatch_detected
 
    @test
    subroutine test_units_and_vertical_grid_mismatch_detected()
-      type(CharacteristicMap) :: export_map, import_map
-      type(CharacteristicId), allocatable :: mismatched(:)
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
 
-      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
-      call export_map%insert(VERTICAL_GRID_CHARACTERISTIC_ID, VerticalGridCharacteristic('gridA'))
-      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
-      call import_map%insert(VERTICAL_GRID_CHARACTERISTIC_ID, VerticalGridCharacteristic('gridB'))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call export_map%insert(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, VerticalCoordinateCharacteristic(grid_id='gridA'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'))
+      call import_map%insert(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, VerticalCoordinateCharacteristic(grid_id='gridB'))
 
       mismatched = find_mismatched_characteristics(export_map, import_map)
       @assertEqual(2, size(mismatched))
@@ -158,8 +170,8 @@ contains
       type(StateItemNode) :: export_node
       type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
-      type(CharacteristicMap) :: export_map, import_map
-      type(CharacteristicId), allocatable :: mismatched(:)
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
       type(NodeId) :: final_id
       type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: unsupported
@@ -172,8 +184,8 @@ contains
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)
 
-      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
-      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'))
       mismatched = find_mismatched_characteristics(export_map, import_map)
 
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
@@ -197,8 +209,8 @@ contains
       type(StateItemNode) :: export_node
       type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
-      type(CharacteristicMap) :: export_map, import_map
-      type(CharacteristicId), allocatable :: mismatched(:)
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
       type(NodeId) :: final_id
       type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: unsupported
@@ -211,10 +223,10 @@ contains
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)
 
-      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
-      call export_map%insert(MOCK_CHARACTERISTIC_ID, FakeCharacteristic('a'))
-      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
-      call import_map%insert(MOCK_CHARACTERISTIC_ID, FakeCharacteristic('b'))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call export_map%insert(MOCK_CHARACTERISTIC_KIND, FakeCharacteristic('a'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'))
+      call import_map%insert(MOCK_CHARACTERISTIC_KIND, FakeCharacteristic('b'))
       mismatched = find_mismatched_characteristics(export_map, import_map)
       @assertEqual(2, size(mismatched))
 
@@ -236,11 +248,11 @@ contains
 
    @test
    subroutine test_no_mismatch_case_creates_nothing()
-      type(CharacteristicMap) :: export_map, import_map
-      type(CharacteristicId), allocatable :: mismatched(:)
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
 
-      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
-      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
       mismatched = find_mismatched_characteristics(export_map, import_map)
 
       ! spec "No-op case creates nothing": nothing to chain-build - the
@@ -260,8 +272,8 @@ contains
       type(StateItemNode) :: export_node
       type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
-      type(CharacteristicMap) :: export_map, import_map
-      type(CharacteristicId), allocatable :: mismatched(:)
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
       type(NodeId) :: final_id
       type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: unsupported
@@ -274,17 +286,17 @@ contains
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)
 
-      call export_map%insert(VERTICAL_GRID_CHARACTERISTIC_ID, VerticalGridCharacteristic('gridA'))
-      call import_map%insert(VERTICAL_GRID_CHARACTERISTIC_ID, VerticalGridCharacteristic('gridB'))
+      call export_map%insert(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, VerticalCoordinateCharacteristic(grid_id='gridA'))
+      call import_map%insert(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, VerticalCoordinateCharacteristic(grid_id='gridB'))
       mismatched = find_mismatched_characteristics(export_map, import_map)
 
-      ! VerticalGridCharacteristic%build_transform always fails - no
-      ! real vertical-regrid Transform exists yet.
+      ! VerticalCoordinateCharacteristic%build_transform always fails -
+      ! no real vertical-regrid Transform exists yet.
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
            mismatched, final_id, intermediate_ids, unsupported, rc=status)
 
       @assertEqual(0, status)
-      @assertEqual('VERTICAL_GRID', unsupported)
+      @assertEqual('VERTICAL_COORDINATE', unsupported)
    end subroutine test_unregistered_characteristic_fails_loudly
 
    ! -- reuse -------------------------------------------------------------
@@ -297,8 +309,8 @@ contains
       type(StateItemNode) :: export_node
       type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
-      type(CharacteristicMap) :: export_map, import_map
-      type(CharacteristicId), allocatable :: mismatched(:)
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
       type(NodeId) :: final_id1, final_id2
       type(NodeId), allocatable :: intermediate_ids1(:), intermediate_ids2(:)
       character(:), allocatable :: unsupported
@@ -311,8 +323,8 @@ contains
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)
 
-      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
-      call import_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'))
       mismatched = find_mismatched_characteristics(export_map, import_map)
 
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
@@ -341,8 +353,8 @@ contains
       type(StateItemNode) :: export_node
       type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
-      type(CharacteristicMap) :: export_map, import_map1, import_map2
-      type(CharacteristicId), allocatable :: mismatched1(:), mismatched2(:)
+      type(StateItemCharacteristicMap) :: export_map, import_map1, import_map2
+      type(StateItemCharacteristicKind), allocatable :: mismatched1(:), mismatched2(:)
       type(NodeId) :: final_id1, final_id2
       type(NodeId), allocatable :: intermediate_ids1(:), intermediate_ids2(:)
       character(:), allocatable :: unsupported
@@ -355,9 +367,9 @@ contains
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)
 
-      call export_map%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('m'))
-      call import_map1%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('km'))
-      call import_map2%insert(UNITS_CHARACTERISTIC_ID, UnitsCharacteristic('cm'))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map1%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'))
+      call import_map2%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('cm'))
 
       mismatched1 = find_mismatched_characteristics(export_map, import_map1)
       mismatched2 = find_mismatched_characteristics(export_map, import_map2)

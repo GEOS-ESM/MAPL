@@ -2,6 +2,16 @@
 ! 5.3/6.3: the seven new concrete StateItemCharacteristic subclasses -
 ! correct Value/Reference classification, correct get_kind(), and
 ! needs_extension_for() comparison semantics (design.md D1-D5).
+!
+! openspec/changes/merge-characteristic-families, tasks 7.1/7.2/7.3:
+! build_transform/get_signature coverage - explicit-failure for the six
+! provider-less subclasses (mirrors Test_GeomCharacteristic.pf's own
+! test_geom_characteristic_build_transform_fails_explicitly precedent,
+! before that file's deletion), and the four real, moved
+! implementations (PhysicalUnitsCharacteristic/TypeKindCharacteristic/
+! VerticalCoordinateCharacteristic/GeometryCharacteristic) producing the
+! same outcomes Test_Characteristic.pf/Test_GeomCharacteristic.pf
+! already asserted (ported, not just a smoke test).
 module Test_StateItemCharacteristicSubclasses
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic, &
                                                 ReferenceCharacteristic
@@ -15,6 +25,7 @@ module Test_StateItemCharacteristicSubclasses
                                                     STANDARD_NAME_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED
+   use mapl_TransformBase_mod, only: TransformBase
 
    use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
@@ -23,6 +34,9 @@ module Test_StateItemCharacteristicSubclasses
    use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
    use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
+   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
 
    use mapl_UngriddedDims_mod, only: UngriddedDims
    use mapl_QuantityType_mod, only: QUANTITY_MIXING_RATIO, QUANTITY_TEMPERATURE, QUANTITY_UNKNOWN, &
@@ -328,5 +342,288 @@ contains
       @assertFalse(a%needs_extension_for(b))
       @assertFalse(b%needs_extension_for(a))
    end subroutine test_standard_name_unchecked_status_does_not_need_extension
+
+   ! --- merge-characteristic-families task 7.1: build_transform fails
+   ! explicitly for the six provider-less subclasses ---
+
+   @test
+   subroutine test_attributes_build_transform_fails_explicitly()
+      type(AttributesCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = AttributesCharacteristic()
+      b = AttributesCharacteristic()
+
+      call a%build_transform(b, transformer, rc=status)
+
+      @assertTrue(status /= 0)
+      @assertFalse(allocated(transformer))
+   end subroutine test_attributes_build_transform_fails_explicitly
+
+   @test
+   subroutine test_conservation_build_transform_fails_explicitly()
+      type(ConservationCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+      b = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+
+      call a%build_transform(b, transformer, rc=status)
+
+      @assertTrue(status /= 0)
+      @assertFalse(allocated(transformer))
+   end subroutine test_conservation_build_transform_fails_explicitly
+
+   @test
+   subroutine test_normalization_build_transform_fails_explicitly()
+      type(NormalizationCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+      b = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+
+      call a%build_transform(b, transformer, rc=status)
+
+      @assertTrue(status /= 0)
+      @assertFalse(allocated(transformer))
+   end subroutine test_normalization_build_transform_fails_explicitly
+
+   @test
+   subroutine test_quantity_type_build_transform_fails_explicitly()
+      type(QuantityTypeCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      b = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+
+      call a%build_transform(b, transformer, rc=status)
+
+      @assertTrue(status /= 0)
+      @assertFalse(allocated(transformer))
+   end subroutine test_quantity_type_build_transform_fails_explicitly
+
+   @test
+   subroutine test_standard_name_build_transform_fails_explicitly()
+      type(StandardNameCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = StandardNameCharacteristic('air_temperature')
+      b = StandardNameCharacteristic('air_temperature')
+
+      call a%build_transform(b, transformer, rc=status)
+
+      @assertTrue(status /= 0)
+      @assertFalse(allocated(transformer))
+   end subroutine test_standard_name_build_transform_fails_explicitly
+
+   @test
+   subroutine test_ungridded_dims_build_transform_fails_explicitly()
+      type(UngriddedDimsCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = UngriddedDimsCharacteristic(UngriddedDims([5]))
+      b = UngriddedDimsCharacteristic(UngriddedDims([5]))
+
+      call a%build_transform(b, transformer, rc=status)
+
+      @assertTrue(status /= 0)
+      @assertFalse(allocated(transformer))
+   end subroutine test_ungridded_dims_build_transform_fails_explicitly
+
+   ! --- merge-characteristic-families task 7.2: get_signature for the
+   ! six provider-less subclasses - two equal-value instances produce
+   ! identical signatures, two different-value instances produce
+   ! different ones (design.md Risks - sufficient for reuse-key
+   ! correctness) ---
+
+   @test
+   subroutine test_attributes_get_signature_distinguishes_values()
+      type(AttributesCharacteristic) :: a, same_as_a, b
+      type(StringVector) :: names_a, names_b
+
+      call names_a%push_back('units')
+      call names_b%push_back('long_name')
+
+      a = AttributesCharacteristic(names_a)
+      same_as_a = AttributesCharacteristic(names_a)
+      b = AttributesCharacteristic(names_b)
+
+      @assertEqual(a%get_signature(), same_as_a%get_signature())
+      @assertTrue(a%get_signature() /= b%get_signature())
+   end subroutine test_attributes_get_signature_distinguishes_values
+
+   @test
+   subroutine test_conservation_get_signature_distinguishes_values()
+      type(ConservationCharacteristic) :: a, same_as_a, b
+
+      a = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+      same_as_a = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+      b = ConservationCharacteristic(ConservationMetadata(CONSERVE_ENERGY))
+
+      @assertEqual(a%get_signature(), same_as_a%get_signature())
+      @assertTrue(a%get_signature() /= b%get_signature())
+   end subroutine test_conservation_get_signature_distinguishes_values
+
+   @test
+   subroutine test_normalization_get_signature_distinguishes_values()
+      type(NormalizationCharacteristic) :: a, same_as_a, b
+
+      a = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+      same_as_a = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+      b = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DZ))
+
+      @assertEqual(a%get_signature(), same_as_a%get_signature())
+      @assertTrue(a%get_signature() /= b%get_signature())
+   end subroutine test_normalization_get_signature_distinguishes_values
+
+   @test
+   subroutine test_quantity_type_get_signature_distinguishes_values()
+      type(QuantityTypeCharacteristic) :: a, same_as_a, b
+
+      a = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      same_as_a = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      b = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_WET_MASS)
+
+      @assertEqual(a%get_signature(), same_as_a%get_signature())
+      @assertTrue(a%get_signature() /= b%get_signature())
+   end subroutine test_quantity_type_get_signature_distinguishes_values
+
+   @test
+   subroutine test_standard_name_get_signature_distinguishes_values()
+      type(StandardNameCharacteristic) :: a, same_as_a, b
+
+      a = StandardNameCharacteristic('air_temperature')
+      same_as_a = StandardNameCharacteristic('air_temperature')
+      b = StandardNameCharacteristic('surface_pressure')
+
+      @assertEqual(a%get_signature(), same_as_a%get_signature())
+      @assertTrue(a%get_signature() /= b%get_signature())
+   end subroutine test_standard_name_get_signature_distinguishes_values
+
+   @test
+   subroutine test_ungridded_dims_get_signature_distinguishes_values()
+      type(UngriddedDimsCharacteristic) :: a, same_as_a, b
+
+      a = UngriddedDimsCharacteristic(UngriddedDims([5]))
+      same_as_a = UngriddedDimsCharacteristic(UngriddedDims([5]))
+      b = UngriddedDimsCharacteristic(UngriddedDims([3]))
+
+      @assertEqual(a%get_signature(), same_as_a%get_signature())
+      @assertTrue(a%get_signature() /= b%get_signature())
+   end subroutine test_ungridded_dims_get_signature_distinguishes_values
+
+   ! --- merge-characteristic-families task 7.3: build_transform/
+   ! get_signature for the four real, moved implementations - ports
+   ! Test_Characteristic.pf's/Test_GeomCharacteristic.pf's own
+   ! assertions onto the surviving StateItemCharacteristic-side types ---
+
+   @test
+   subroutine test_physical_units_build_transform_succeeds()
+      type(PhysicalUnitsCharacteristic) :: m, km
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      m = PhysicalUnitsCharacteristic('m')
+      km = PhysicalUnitsCharacteristic('km')
+
+      call m%build_transform(km, transformer, rc=status)
+
+      @assertEqual(0, status)
+      @assertTrue(allocated(transformer))
+   end subroutine test_physical_units_build_transform_succeeds
+
+   @test
+   subroutine test_physical_units_get_signature()
+      type(PhysicalUnitsCharacteristic) :: units
+
+      units = PhysicalUnitsCharacteristic('m')
+
+      @assertEqual('units=m', units%get_signature())
+   end subroutine test_physical_units_get_signature
+
+   @test
+   subroutine test_type_kind_build_transform_succeeds()
+      type(TypeKindCharacteristic) :: r4, r8
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      r4 = TypeKindCharacteristic('R4')
+      r8 = TypeKindCharacteristic('R8')
+
+      call r4%build_transform(r8, transformer, rc=status)
+
+      @assertEqual(0, status)
+      @assertTrue(allocated(transformer))
+   end subroutine test_type_kind_build_transform_succeeds
+
+   @test
+   subroutine test_type_kind_get_signature()
+      type(TypeKindCharacteristic) :: r4
+
+      r4 = TypeKindCharacteristic('R4')
+
+      @assertEqual('typekind=R4', r4%get_signature())
+   end subroutine test_type_kind_get_signature
+
+   ! VerticalCoordinateCharacteristic's own build_transform always
+   ! fails (no real vertical-regrid Transform exists yet) - mirrors the
+   ! retired VerticalGridCharacteristic's own precedent exactly.
+   @test
+   subroutine test_vertical_coordinate_build_transform_fails_explicitly()
+      type(VerticalCoordinateCharacteristic) :: grid_a, grid_b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      grid_a = VerticalCoordinateCharacteristic(grid_id='gridA')
+      grid_b = VerticalCoordinateCharacteristic(grid_id='gridB')
+
+      call grid_a%build_transform(grid_b, transformer, rc=status)
+
+      @assertTrue(status /= 0)
+      @assertFalse(allocated(transformer))
+   end subroutine test_vertical_coordinate_build_transform_fails_explicitly
+
+   @test
+   subroutine test_vertical_coordinate_get_signature()
+      type(VerticalCoordinateCharacteristic) :: grid
+
+      grid = VerticalCoordinateCharacteristic(grid_id='gridA')
+
+      @assertEqual('vertical_grid=gridA', grid%get_signature())
+   end subroutine test_vertical_coordinate_get_signature
+
+   ! GeometryCharacteristic's own build_transform always fails (no real
+   ! horizontal-regrid provider exists yet) - mirrors the retired
+   ! GeomCharacteristic's own precedent exactly
+   ! (test_geom_characteristic_build_transform_fails_explicitly).
+   @test
+   subroutine test_geometry_build_transform_fails_explicitly()
+      type(GeometryCharacteristic) :: geom_a, geom_b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      geom_a = GeometryCharacteristic(geom_id='1')
+      geom_b = GeometryCharacteristic(geom_id='2')
+
+      call geom_a%build_transform(geom_b, transformer, rc=status)
+
+      @assertTrue(status /= 0)
+      @assertFalse(allocated(transformer))
+   end subroutine test_geometry_build_transform_fails_explicitly
+
+   @test
+   subroutine test_geometry_get_signature()
+      type(GeometryCharacteristic) :: geom
+
+      geom = GeometryCharacteristic(geom_id='1')
+
+      @assertEqual('geom=1', geom%get_signature())
+   end subroutine test_geometry_get_signature
 
 end module Test_StateItemCharacteristicSubclasses

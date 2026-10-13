@@ -10,15 +10,21 @@
 ! UngriddedDimsAspect%matches() uses (plain equality). needs_extension_for
 ! is a single `/=` call - no hand-written comparison logic.
 !
-! No build_transform/adaptation method exists at this layer (REQ-CHAR-002);
-! legacy UngriddedDimsAspect%make_transform always returns NullTransform
-! (no real adaptation exists anywhere for this axis, graph-native or
-! legacy).
+! A `build_transform` is required by the common interface but fails
+! explicitly here - no real provider exists for this axis
+! (openspec/changes/merge-characteristic-families): legacy
+! UngriddedDimsAspect%make_transform always returns NullTransform (no
+! real adaptation exists anywhere for this axis, graph-native or
+! legacy). `get_signature` derives a stable string from
+! `ungridded_dims`'s own per-dimension name/extent pairs.
 !------------------------------------------------------------------------------
 module mapl_UngriddedDimsCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, UNGRIDDED_DIMS_CHARACTERISTIC_KIND
    use mapl_UngriddedDims_mod, only: UngriddedDims, operator(==), operator(/=)
+   use mapl_UngriddedDim_mod, only: UngriddedDim
+   use mapl_TransformBase_mod, only: TransformBase
+   use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
 
@@ -30,6 +36,8 @@ module mapl_UngriddedDimsCharacteristic_mod
    contains
       procedure, nopass :: get_kind => ungridded_dims_get_kind
       procedure :: needs_extension_for => ungridded_dims_needs_extension_for
+      procedure :: build_transform => ungridded_dims_build_transform
+      procedure :: get_signature => ungridded_dims_get_signature
       procedure :: get_ungridded_dims
    end type UngriddedDimsCharacteristic
 
@@ -73,5 +81,42 @@ contains
 
       ungridded_dims = this%ungridded_dims
    end function get_ungridded_dims
+
+   ! merge-characteristic-families task 3.6: no real adaptation exists
+   ! for this axis, graph-native or legacy (module header) - fails
+   ! explicitly.
+   subroutine ungridded_dims_build_transform(this, goal, transformer, rc)
+      class(UngriddedDimsCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      class(TransformBase), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(goal)
+
+      _FAIL('UngriddedDimsCharacteristic: build_transform - no real provider exists for this axis')
+   end subroutine ungridded_dims_build_transform
+
+   ! merge-characteristic-families task 3.6: a stable, value-
+   ! distinguishing signature derived from this subclass's own stored
+   ! value - each dimension's own name/extent, in declaration order
+   ! (design.md Risks: a small, mechanical derivation).
+   function ungridded_dims_get_signature(this) result(signature)
+      class(UngriddedDimsCharacteristic), intent(in) :: this
+      character(:), allocatable :: signature
+
+      integer :: i, n
+      type(UngriddedDim), pointer :: dim_spec
+      character(32) :: extent_buffer
+
+      signature = 'ungridded_dims='
+      n = this%ungridded_dims%get_num_ungridded()
+      do i = 1, n
+         dim_spec => this%ungridded_dims%get_ith_dim_spec(i)
+         write(extent_buffer, '(I0)') dim_spec%get_extent()
+         if (i > 1) signature = signature // ','
+         signature = signature // dim_spec%get_name() // ':' // trim(adjustl(extent_buffer))
+      end do
+   end function ungridded_dims_get_signature
 
 end module mapl_UngriddedDimsCharacteristic_mod

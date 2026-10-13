@@ -21,6 +21,7 @@ target_sources(MAPL.generic PRIVATE
   containers/PortSpecMap.F90
   containers/PortNameRevisionMap.F90
   containers/PortNameGraphStateItemMap.F90
+  TransformBase.F90
   Transform.F90
   TransformGraphNode.F90
 
@@ -55,14 +56,8 @@ target_sources(MAPL.generic PRIVATE
   ComponentGraph_DemandDrivenUpdate.F90
   GraphExport.F90
 
-  CharacteristicId.F90
-  Characteristic.F90
-  UnitsCharacteristic.F90
-  VerticalGridCharacteristic.F90
-  GeomCharacteristic.F90
   UnitsConverterTransform.F90
   TypeKindConverterTransform.F90
-  TypeKindCharacteristicAdapter.F90
   ExtensionResolution.F90
   ExtensionMaterialization.F90
 
