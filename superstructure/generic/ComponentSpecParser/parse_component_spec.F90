@@ -60,18 +60,20 @@ contains
       _RETURN_UNLESS(has_misc_section)
       misc_cfg = ESMF_HConfigCreateAt(hconfig, keyString=COMPONENT_MISC_SECTION, _RC)
 
-      call parse_item(misc_cfg, key=COMPONENT_ACTIVATE_ALL_EXPORTS, value=misc%activate_all_exports, _RC)
-      call parse_item(misc_cfg, key=COMPONENT_ACTIVATE_ALL_IMPORTS, value=misc%activate_all_imports, _RC)
-      call parse_item(misc_cfg, key=COMPONENT_USE_THREADS, value=misc%use_threads, _RC)
+       call parse_item(misc_cfg, key=COMPONENT_ACTIVATE_ALL_EXPORTS, value=misc%activate_all_exports, _RC)
+       call parse_item(misc_cfg, key=COMPONENT_ACTIVATE_ALL_IMPORTS, value=misc%activate_all_imports, _RC)
+       call parse_item(misc_cfg, key=COMPONENT_USE_THREADS, value=misc%use_threads, _RC)
 
-      ! An explicit number of threads always wins.  Otherwise a component
-      ! that requests threading uses all threads available to the process.
-      has_num_threads = ESMF_HConfigIsDefined(misc_cfg, keyString=COMPONENT_NUM_THREADS, _RC)
-      misc%num_threads = get_num_threads()
-      if (has_num_threads) then
-         misc%num_threads = ESMF_HConfigAsI4(misc_cfg, keyString=COMPONENT_NUM_THREADS, _RC)
-         _ASSERT(misc%num_threads >= 1, 'num_threads must be at least 1')
-      end if
+       ! An explicit number of threads always wins.  Otherwise a component
+       ! that requests threading uses all threads available to the process.
+       ! When threading is disabled, num_threads defaults to 1.
+       has_num_threads = ESMF_HConfigIsDefined(misc_cfg, keyString=COMPONENT_NUM_THREADS, _RC)
+       if (has_num_threads) then
+          misc%num_threads = ESMF_HConfigAsI4(misc_cfg, keyString=COMPONENT_NUM_THREADS, _RC)
+          _ASSERT(misc%num_threads >= 1, 'num_threads must be at least 1')
+       else if (misc%use_threads) then
+          misc%num_threads = get_num_threads()
+       end if
 
       misc%checkpoint_controls = parse_checkpoint_controls(misc_cfg, key=COMPONENT_CHECKPOINT, _RC)
       misc%restart_controls = parse_checkpoint_controls(misc_cfg, key=COMPONENT_RESTART, _RC)
