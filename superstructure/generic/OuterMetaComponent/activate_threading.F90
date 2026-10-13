@@ -56,14 +56,14 @@ contains
 
       this%threading_active = .true.
 
-      associate (e => this%children%end())
-        iter = this%children%begin()
+      associate (e => this%children%ftn_end())
+        iter = this%children%ftn_begin()
         do while (iter /= e)
+           call iter%next()
            child => iter%second()
            child_outer_gc = child%get_gridcomp()
            child_meta => get_outer_meta(child_outer_gc, _RC)
            call child_meta%activate_threading(num_threads, _RC)
-           call iter%next()
         end do
       end associate
 
