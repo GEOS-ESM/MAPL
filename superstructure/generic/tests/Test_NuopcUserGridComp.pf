@@ -1,0 +1,134 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! Tests the NUOPC dispatch in MAPL_Generic for a user GridComp whose outer
+! GridComp is a NUOPC model (NuopcMetaModel) rather than an OuterMetaComponent.
+module Test_NuopcUserGridComp
+
+   use esmf
+   use pfunit
+   use mapl_Generic_api, only: mapl_GridCompGet, mapl_GridCompTimerStart
+   use mapl_Generic_api, only: mapl_GridCompGetChildName, mapl_GridCompGetRegistry
+   use mapl_NuopcMetaModel_mod, only: NuopcMetaModel, attach_meta_model, get_meta_model
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_InnerMetaComponent_mod, only: attach_inner_meta
+   use mapl_StateRegistry_mod, only: StateRegistry
+
+   implicit none
+
+   character(*), parameter :: NUOPC_MODEL_NAME = 'nuopc_model'
+   character(*), parameter :: USER_GC_NAME = 'user_gc'
+   character(*), parameter :: CONTENT = '{a: 3}'
+
+contains
+
+   ! Builds a NUOPC-style model with an attached NuopcMetaModel and a user
+   ! GridComp whose inner meta points at that model.
+   subroutine make_nuopc_user_gc(model, user_gc, hconfig, rc)
+      type(ESMF_GridComp), intent(out) :: model
+      type(ESMF_GridComp), intent(out) :: user_gc
+      type(ESMF_HConfig), intent(out) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: info
+      type(NuopcMetaModel), pointer :: meta_model
+
+      model = ESMF_GridCompCreate(name=NUOPC_MODEL_NAME, _RC)
+      user_gc = ESMF_GridCompCreate(name=USER_GC_NAME, _RC)
+
+      ! The user GridComp is not generic (dispatch checks this flag).
+      call ESMF_InfoGetFromHost(user_gc, info, _RC)
+      call ESMF_InfoSet(info, key='MAPL/GRIDCOMP_IS_GENERIC', value=.false., _RC)
+
+      call attach_inner_meta(user_gc, model, _RC)
+      call attach_meta_model(model, _RC)
+      hconfig = ESMF_HConfigCreate(content=CONTENT, _RC)
+
+      meta_model => get_meta_model(model, _RC)
+      meta_model = NuopcMetaModel(model, GriddedComponentDriver(user_gc), hconfig)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_nuopc_user_gc
+
+   @test(npes=[0])
+   subroutine test_get_hconfig_is_routed(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_GridComp) :: model, user_gc
+      type(ESMF_HConfig) :: hconfig, got
+      integer :: status, value
+      logical :: found
+
+      call make_nuopc_user_gc(model, user_gc, hconfig, _RC)
+      call mapl_GridCompGet(user_gc, hconfig=got, _RC)
+      value = ESMF_HConfigAsI4(got, keyString='a', asOkay=found, _RC)
+      @assert_that(found, is(true()))
+      @assert_that(value, is(3))
+      call ESMF_HConfigDestroy(hconfig, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_get_hconfig_is_routed
+
+   @test(npes=[0])
+   subroutine test_get_registry_is_routed(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_GridComp) :: model, user_gc
+      type(ESMF_HConfig) :: hconfig
+      type(StateRegistry), pointer :: registry
+      integer :: status
+
+      call make_nuopc_user_gc(model, user_gc, hconfig, _RC)
+      call mapl_GridCompGetRegistry(user_gc, registry=registry, _RC)
+      @assert_that(associated(registry), is(true()))
+      call ESMF_HConfigDestroy(hconfig, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_get_registry_is_routed
+
+   ! Each MAPL error is raised by _ASSERT and re-raised by every _VERIFY
+   ! frame above it, so each layer is unwound with its own expectation
+   ! (innermost first), as in Test_MemoryCheckpoint.pf.
+   @test(npes=[0])
+   subroutine test_timer_is_unsupported(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_GridComp) :: model, user_gc
+      type(ESMF_HConfig) :: hconfig
+      integer :: status
+
+      call make_nuopc_user_gc(model, user_gc, hconfig, _RC)
+      call mapl_GridCompTimerStart(user_gc, 'timer', rc=status)
+      @assertExceptionRaised('gridcomp_timer_start is not supported for a NUOPC user GridComp.')
+      @assertExceptionRaised('status=1')
+      call ESMF_HConfigDestroy(hconfig, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_timer_is_unsupported
+
+   @test(npes=[0])
+   subroutine test_child_name_is_unsupported(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_GridComp) :: model, user_gc
+      type(ESMF_HConfig) :: hconfig
+      character(:), allocatable :: child_name
+      integer :: status
+
+      call make_nuopc_user_gc(model, user_gc, hconfig, _RC)
+      child_name = mapl_GridCompGetChildName(user_gc, 1, rc=status)
+      @assertExceptionRaised('gridcomp_get_child_name_by_index is not supported for a NUOPC user GridComp.')
+      @assertExceptionRaised('status=1')
+      call ESMF_HConfigDestroy(hconfig, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_child_name_is_unsupported
+
+   @test(npes=[0])
+   subroutine test_num_children_is_unsupported(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_GridComp) :: model, user_gc
+      type(ESMF_HConfig) :: hconfig
+      integer :: num_children, status
+
+      call make_nuopc_user_gc(model, user_gc, hconfig, _RC)
+      call mapl_GridCompGet(user_gc, num_children=num_children, rc=status)
+      @assertExceptionRaised('NUOPC user GridComp: only hconfig and name are supported by gridcomp_get.')
+      call ESMF_HConfigDestroy(hconfig, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_num_children_is_unsupported
+
+end module Test_NuopcUserGridComp

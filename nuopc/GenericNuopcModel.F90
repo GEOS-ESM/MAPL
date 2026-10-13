@@ -1,11 +1,17 @@
 #include "MAPL.h"
 
+#  ifdef _RC
+#    undef _RC
+#  endif
+#  define _RC rc=rc
+
 ! Move NUOPC methods here.
 ! Will field mirroring work/help here?
 ! Set metadata
 ! Could NUOPC_Mediator be useful here instead of NUOPC_Model
 module mapl_GenericNuopcModel_mod
    use :: mapl_NuopcMetaModel_mod
+   use :: mapl_InnerMetaComponent_mod, only: attach_inner_meta
    use :: mapl_GriddedComponentDriver_mod
    use esmf
    use nuopc
@@ -40,6 +46,7 @@ contains
       user_gridcomp = ESMF_GridCompCreate(name=trim(name), _RC)
       call set_is_generic(user_gridcomp, flag=.FALSE., _RC)
       call set_subclass(user_gridcomp,subclass='user_gridcomp', _RC)
+      call attach_inner_meta(user_gridcomp, model, _RC)
       user_gc_driver = GriddedComponentDriver(user_gridcomp)
       call set_is_generic(model, _RC)
       call attach_meta_model(model, _RC)
@@ -56,7 +63,9 @@ contains
 #endif
 !      call meta_model%init_user_gc(_RC) !wdb fixme deleteme Should be internal to NuopcMetaModel
       call meta_model%setServices(_RC)
+      if(rc /= ESMF_SUCCESS) return
       call set_entry_points(model, _RC)
+      if(rc /= ESMF_SUCCESS) return
 
       _RETURN(ESMF_SUCCESS)
 
@@ -82,13 +91,9 @@ contains
          call NUOPC_CompSpecialize(model, specLabel=label_AdvanceClock, specRoutine=AdvanceClock, _RC)
          ! specPhaseLabel='GENERIC::WRITE_RESTART'
          call NUOPC_CompSpecialize(model, specLabel=label_Advance, specRoutine=write_restart, _RC)
-         ! User phases
-         associate (phases => meta_model%get_phases(ESMF_METHOD_RUN))
-           do phase_idx = 1, phases%size()
-             phase_label => phases%of(phase_idx)
-             call NUOPC_CompSpecialize(model, specLabel=label_Advance, specRoutine=Advance, specPhaseLabel=phase_label, _RC)
-           end do
-         end associate
+         ! User phases: Advance dispatches on the phase index internally
+         ! (NuopcMetaModel::advance_), so one specialization is enough.
+         call NUOPC_CompSpecialize(model, specLabel=label_Advance, specRoutine=Advance, _RC)
 
          ! Finalize specs
          call NUOPC_CompSpecialize(model, specLabel=label_Finalize, specRoutine=Finalize, _RC)
@@ -144,7 +149,7 @@ contains
          & exportState=exportState, _RC)
 
       meta_model => get_meta_model(model, _RC)
-      !call meta_model%realize_accept(importState, exportState, _RC)
+      call meta_model%realize_accept(importState, exportState, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine RealizeAccept

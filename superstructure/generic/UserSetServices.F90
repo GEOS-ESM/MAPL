@@ -159,12 +159,22 @@ contains
 
       integer :: status, user_status
       logical :: found
+      character(len=80) :: adjusted
 
+      adjusted = adjust_dso_name(this%sharedObj)
       _ASSERT(is_supported_dso_name(this%sharedObj), 'unsupported dso name:: <'//this%sharedObj//'>')
-      call ESMF_GridCompSetServices(gridcomp, sharedObj=adjust_dso_name(this%sharedObj), &
-           userRoutine=this%userRoutine, userRoutinefound=found, _USERRC)
+!      call ESMF_GridCompSetServices(gridcomp, sharedObj=adjust_dso_name(this%sharedObj), &
+!           userRoutine=this%userRoutine, userRoutinefound=found, _USERRC)
+      call ESMF_GridCompSetServices(gridcomp, sharedObj=trim(adjusted), &
+           userRoutine=this%userRoutine, userRoutinefound=found, userRC=user_status, rc=status)
+      if(.not.(found)) then
+         write(*, '(A)') 'User routine: "' // this%userRoutine // '" not found.'
+         write(*, '(A,G0,A,G0,A)') 'userRC=', user_status, ', rc=', status, '.'
+      end if
+      _ASSERT(user_status == 0, 'user_status is nonzero. [USER]')
+      _ASSERT(status == 0, 'status is nonzero. [ESMF]')
       
-      _RETURN(ESMF_SUCCESS)
+       _RETURN(ESMF_SUCCESS)
    end subroutine run_DsoSetServices
 
    subroutine write_formatted_dso(this, unit, iotype, v_list, iostat, iomsg)

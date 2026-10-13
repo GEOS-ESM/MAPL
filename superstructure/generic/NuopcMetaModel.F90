@@ -3,17 +3,20 @@
 module mapl_NuopcMetaModel_mod
    use esmf
    use NUOPC, only: NUOPC_Advertise, NUOPC_GetStateMemberLists
+   use NUOPC, only: NUOPC_SetTimestamp, NUOPC_CompAttributeSet
    use NUOPC, only: NUOPC_CompSearchRevPhaseMap, NUOPC_Realize
    use NUOPC_Model, only: NUOPC_ModelGet
    use mapl_MethodPhasesMap_mod
    use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
    use mapl_ErrorHandling_mod
    use mapl_InnerMetaComponent_mod
+   use mapl_geom_api, only: mapl_GeomManager, mapl_get_geom_manager, mapl_MaplGeom
    use mapl_GriddedComponentDriver_mod
    use mapl_GriddedComponentDriverVector_mod
    use mapl_GriddedComponentDriverMap_mod
    use mapl_ComponentSpec_mod
    use mapl_UserSetServices_mod
+   use mapl_ESMF_Interfaces_mod, only: I_Run
    use mapl_VariableSpec_mod
    use mapl_VariableSpecVector_mod
    use mapl_MultiState_mod
@@ -48,6 +51,7 @@ module mapl_NuopcMetaModel_mod
    public :: NuopcMetaModel
    public :: attach_meta_model
    public :: get_meta_model
+   public :: find_meta_model
    public :: UserField
 
    type NuopcMetaModel
@@ -65,6 +69,10 @@ module mapl_NuopcMetaModel_mod
       logical :: run_if_alarm_rings_next = .FALSE.
    contains
       procedure :: get_user_gc_driver
+      procedure :: get_registry
+      procedure :: get_component_spec
+      procedure :: set_entry_point
+      procedure :: get_hconfig
       procedure :: has_geom
       procedure :: get_phases
       procedure :: setServices => setServices_
@@ -86,6 +94,7 @@ module mapl_NuopcMetaModel_mod
       procedure :: modify_advertise
       ! label_RealizeAccept
       procedure :: realize_accept
+      procedure, private :: realize_imports
       ! label_RealizeProvided
       procedure :: realize_provided
       ! label_DataInitialize
@@ -146,8 +155,7 @@ contains
       integer :: status
       character(len=:), allocatable :: user_gc_name
 
-      user_gc_name = this%user_gc_driver%get_name(_RC)
-      this%registry = StateRegistry(user_gc_name)
+      ! Registry is created in setServices_ (before specs are parsed).
       !wdb fixme deleteme Do we set the logger?
       _RETURN(_SUCCESS)
 
@@ -161,6 +169,7 @@ contains
       type(ESMF_GridComp) :: user_gridcomp
 
       user_name = this%user_gc_driver%get_name()
+      this%registry = StateRegistry(user_name)
       this%component_spec = parse_component_spec(this%hconfig, this%registry, user_name, _RC)
       _ASSERT(allocated(this%component_spec%setservices), 'User_setservices is not allocated.')
       if(allocated(this%user_setservices)) deallocate(this%user_setservices)
@@ -177,15 +186,21 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_ADVERTISE'
+      type(MultiState) :: user_states
 
       ! Extra MAPL phases
       ! call this%set_clock !wdb fixme deleteme 
-      call this%advertise_geom_a()
-      call this%advertise_geom_b()
-      
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_ADVERTISE, _RC)
+      ! Specs must exist before geometry is applied: set_geometry only
+      ! updates registered primaries.
       call self_advertise(this, _RC)
+      call this%advertise_geom_a(_RC)
+      call this%advertise_geom_b(_RC)
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
+
+      ! Create user-side items in the user GridComp states (mirrors OuterMetaComponent)
+      user_states = this%user_gc_driver%get_states()
+      call this%registry%add_to_states(user_states, mode='user', _RC)
 
       !wdb fixme deleteme Do I need these?
 !      call process_connections(this, _RC)
@@ -203,20 +218,34 @@ contains
       type(ESMF_StateIntent_Flag), intent(in) :: stateIntent
       integer, optional, intent(out) :: rc
       integer :: status
-      type(ESMF_State) :: innerState, outerState, importState, exportState
-      character(len=:), allocatable :: names(:)
+      type(ESMF_State) :: importState, exportState, outerState
       character(len=:), allocatable :: standardName, units
-      integer :: i
+      type(VariableSpecVectorIterator) :: iter
+      type(VariableSpec), pointer :: var_spec
 
       call NUOPC_ModelGet(this%self_model, importState=importState, exportState=exportState, _RC)
       outerState = importState
       if(stateIntent == ESMF_STATEINTENT_EXPORT) outerState=exportState
-      innerState = this%get_state(stateIntent, _RC)
-      names = get_field_names(innerState, _RC)
-      do i=1, size(names)
-         call MAPL_StateGet(innerState, names(i), standard_name=standardName, units=units, _RC)
-         call NUOPC_Advertise(outerState, StandardName=standardName, Units=units, name=names(i), _RC)
-      end do
+
+      ! Metadata comes from the variable specs: field metadata is only
+      ! attached to the ESMF fields during registry allocation, which is
+      ! after advertise.
+      associate (e => this%component_spec%var_specs%end())
+        iter = this%component_spec%var_specs%begin()
+        do while (iter /= e)
+           var_spec => iter%of()
+           if (var_spec%state_intent == stateIntent .and. var_spec%itemType == ESMF_STATEITEM_FIELD) then
+              standardName = var_spec%short_name
+              if (allocated(var_spec%standard_name)) standardName = var_spec%standard_name
+              units = ''
+              if (allocated(var_spec%units)) units = var_spec%units
+              call NUOPC_Advertise(outerState, StandardName=standardName, Units=units, &
+                   name=var_spec%short_name, _RC)
+           end if
+           call iter%next()
+        end do
+      end associate
+
       _RETURN(_SUCCESS)
 
    end subroutine advertise_outer
@@ -360,12 +389,36 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(ESMF_Clock) :: modelClock, internalClock
+      type(GriddedComponentDriver), pointer :: driver
+      type(ESMF_State) :: exportState
+      type(ESMF_Field), pointer :: exportFields(:)
+      integer :: i
+
+      ! The user GridComp has no OuterMetaComponent to set its clock, so
+      ! hand it the NUOPC model clock here.
+      call NUOPC_ModelGet(this%self_model, modelClock=modelClock, _RC)
+      driver => this%get_user_gc_driver()
+      call driver%set_clock(modelClock)
 
       ! Extra MAPL phases
       call this%read_restart(_RC)
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_ADVERTISE, _RC)
       call this%init_user_gc(_RC)
- 
+
+      ! Same as NUOPC_ModelBase default DataInitialize: stamp exports as
+      ! updated and report data initialization complete, so the driver's
+      ! dependency loop can make progress.
+      call NUOPC_ModelGet(this%self_model, exportState=exportState, _RC)
+      call ESMF_GridCompGet(this%self_model, clock=internalClock, _RC)
+      exportFields => null()
+      call NUOPC_GetStateMemberLists(exportState, fieldList=exportFields, _RC)
+      if (associated(exportFields)) then
+         call NUOPC_SetTimestamp(exportFields, internalClock, _RC)
+      end if
+      call NUOPC_CompAttributeSet(this%self_model, name="InitializeDataComplete", &
+           value="true", _RC)
+
       _RETURN(_SUCCESS)
    end subroutine data_initialize
 
@@ -489,11 +542,87 @@ contains
 
    end function get_meta_model_from_generic_model
 
+   ! Non-asserting lookup: found is .false. when the model has no NuopcMetaModel
+   ! state (e.g., an OuterMetaComponent model). Used by MAPL_Generic to dispatch.
+   subroutine find_meta_model(model, meta_model, found, rc)
+      type(ESMF_GridComp), intent(inout) :: model
+      class(NuopcMetaModel), pointer, intent(out) :: meta_model
+      logical, intent(out) :: found
+      integer, optional, intent(out) :: rc
+      integer :: status
+
+      _DECLARE_WRAPPER(NuopcMetaModel)
+      type(PrivateWrapper) :: w
+
+      nullify(meta_model)
+      found = .false.
+      call ESMF_InternalStateGet(model, internalState=w, label=META_MODEL_PRIVATE_STATE, rc=status)
+      if (status == ESMF_SUCCESS) then
+         meta_model => w%ptr
+         found = .true.
+      end if
+      _RETURN(_SUCCESS)
+
+   end subroutine find_meta_model
+
+   ! Same contract as OuterMetaComponent%set_entry_point, applied to the
+   ! NUOPC user GridComp through this model's phases map.
+   subroutine set_entry_point(this, method_flag, userProcedure, unusable, phase_name, rc)
+      class(NuopcMetaModel), intent(inout) :: this
+      type(ESMF_Method_Flag), intent(in) :: method_flag
+      procedure(I_Run) :: userProcedure
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=*), optional, intent(in) :: phase_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: phase_name_
+      type(ESMF_GridComp) :: user_gridcomp
+      logical :: found
+
+      if (present(phase_name)) then
+         phase_name_ = phase_name
+      else
+         phase_name_ = get_default_phase_name(method_flag)
+      end if
+      call add_phase(this%user_phases_map, method_flag=method_flag, phase_name=phase_name_, _RC)
+
+      associate (phase_idx => get_phase_index(this%user_phases_map%of(method_flag), phase_name=phase_name_, found=found))
+         _ASSERT(found, "run phase: <"//phase_name_//"> not found.")
+         user_gridcomp = this%user_gc_driver%get_gridcomp()
+         call ESMF_GridCompSetEntryPoint(user_gridcomp, method_flag, userProcedure, phase=phase_idx, _RC)
+      end associate
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine set_entry_point
+
+   subroutine get_hconfig(this, hconfig, rc)
+      class(NuopcMetaModel), intent(in) :: this
+      type(ESMF_HConfig), intent(out) :: hconfig
+      integer, optional, intent(out) :: rc
+
+      hconfig = this%hconfig
+      _RETURN(_SUCCESS)
+   end subroutine get_hconfig
+
    !wdb fixme deleteme Not implemented
    subroutine advertise_geom_a(this, rc)
       class(NuopcMetaModel), intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: status
+      type(mapl_GeomManager), pointer :: geom_mgr
+      type(mapl_MaplGeom), pointer :: mapl_geom
+
+      ! Only the component's own geometry is supported here (no provider/child).
+      associate (geometry_spec => this%component_spec%geometry_spec)
+         if (allocated(geometry_spec%geom_spec)) then
+            geom_mgr => mapl_get_geom_manager()
+            mapl_geom => geom_mgr%get_mapl_geom(geometry_spec%geom_spec, _RC)
+            this%geom = mapl_geom%get_geom()
+            call this%registry%set_geometry(geom=this%geom, _RC)
+         end if
+      end associate
 
       _RETURN(_SUCCESS)
 
@@ -523,7 +652,7 @@ contains
    !wdb fixme deleteme Not implemented
    subroutine realize_accept(this, importState, exportState, rc)
       class(NuopcMetaModel), intent(inout) :: this
-      type(ESMF_State), intent(in) :: importState
+      type(ESMF_State), intent(inout) :: importState
       type(ESMF_State), intent(in) :: exportState
       integer, optional, intent(out) :: rc
       integer :: status
@@ -537,16 +666,42 @@ contains
       user_states = this%user_gc_driver%get_states()
       tmp_states = MultiState(importState=user_states%importState)
       call this%registry%add_to_states(tmp_states, mode='user', _RC)
-      outer_states = MultiState(importState=importState, exportState=exportState)
-      call this%registry%add_to_states(outer_states, mode='outer', _RC)
       call this%registry%allocate(_RC)
 
+      ! The NUOPC states are populated by NUOPC_Realize on the inner fields.
+      ! Adding MAPL aliases into them here would replace the NUOPC
+      ! placeholders and drop the NUOPC attributes connectors need.
+      call this%realize_imports(importState, _RC)
+
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
-      !wdb fixme deleteme Do I need to call NUOPC_Realize here?
 
       _RETURN(_SUCCESS)
 
    end subroutine realize_accept
+
+   ! NUOPC_Realize every import field so connectors can read its attributes.
+   subroutine realize_imports(this, importState, rc)
+      class(NuopcMetaModel), intent(inout) :: this
+      type(ESMF_State), intent(inout) :: importState
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_State) :: innerState
+      type(ESMF_Field) :: innerField
+      character(len=ESMF_MAXSTR), pointer :: itemNameList(:)
+      integer :: i
+
+      innerState = this%get_state(ESMF_STATEINTENT_IMPORT, _RC)
+      itemNameList => null()
+      call NUOPC_GetStateMemberLists(importState, itemNameList=itemNameList, _RC)
+      if (.not. associated(itemNameList)) then
+         _RETURN(_SUCCESS)
+      end if
+      do i=1, size(itemNameList)
+         call MAPL_StateGet(innerState, itemNameList(i), field=innerField, _RC)
+         call NUOPC_Realize(importState, innerField, _RC)
+      end do
+      _RETURN(_SUCCESS)
+   end subroutine realize_imports
 
    !wdb fixme deleteme Not implemented
    subroutine realize_provided(this, rc)
@@ -564,11 +719,11 @@ contains
       ! MAPL_GENERIC_INIT_READ_RESTART
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_REALIZE_PROVIDED, _RC)
 
+      call NUOPC_ModelGet(this%self_model, importState=importState, exportState=exportState, _RC)
+
       user_states = this%user_gc_driver%get_states()
       tmp_states = MultiState(importState=user_states%importState)
       call this%registry%add_to_states(tmp_states, mode='user', _RC)
-      outer_states = MultiState(importState=importState, exportState=exportState)
-      call this%registry%add_to_states(outer_states, mode='outer', _RC)
       call this%registry%allocate(_RC)
 
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
@@ -630,6 +785,18 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine run_custom
+
+   function get_registry(this) result(ptr)
+      type(StateRegistry), pointer :: ptr
+      class(NuopcMetaModel), target, intent(inout) :: this
+      ptr => this%registry
+   end function get_registry
+
+   function get_component_spec(this) result(ptr)
+      type(ComponentSpec), pointer :: ptr
+      class(NuopcMetaModel), target, intent(inout) :: this
+      ptr => this%component_spec
+   end function get_component_spec
 
    function get_user_gc_driver(this) result(ptr)
       type(GriddedComponentDriver), pointer :: ptr
@@ -708,17 +875,22 @@ contains
       call ESMF_StateGet(state, itemCount=itemCount, _RC)
       allocate(character(len=ESMF_MAXSTR) :: itemNames(itemCount))
       allocate(itemTypes(itemCount))
-      call ESMF_StateGet(state, itemTypeList=itemTypes, itemNameList=names, _RC)
+      call ESMF_StateGet(state, itemTypeList=itemTypes, itemNameList=itemNames, _RC)
       names = pack(itemNames, itemTypes == ESMF_STATEITEM_FIELD)
       _RETURN(_SUCCESS)
 
    end function get_field_names
          
+   ! NUOPC requires every advertised item to be realized, so activate all
+   ! items.  Otherwise unconnected imports are never allocated and connectors
+   ! fail on empty fields.
    subroutine set_default_activation(itemSpec, stateIntent, rc) 
       type(StateItemSpec), pointer :: itemSpec
       type(ESMF_StateIntent_Flag), intent(in) :: stateIntent
       integer, optional, intent(out) :: rc
       integer :: status
+
+      call itemSpec%activate(_RC)
 
       _RETURN(_SUCCESS)
 

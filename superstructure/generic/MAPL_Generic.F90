@@ -21,6 +21,7 @@ module mapl_Generic_mod
    use mapl_InnerMetaComponent_mod, only: get_inner_meta
    use mapl_OuterMetaComponent_mod, only: OuterMetaComponent
    use mapl_OuterMetaComponent_mod, only: get_outer_meta
+   use mapl_NuopcMetaModel_mod, only: NuopcMetaModel, find_meta_model
    use mapl_ChildSpec_mod, only: ChildSpec
    use mapl_ComponentSpec_mod, only: ComponentSpec
    use mapl_CheckpointControls_mod, only: CheckpointControls
@@ -255,6 +256,49 @@ module mapl_Generic_mod
 
 contains
 
+   ! Hard error for MAPL operations that have no NUOPC equivalent yet.
+   subroutine fail_if_nuopc_user_gc_(gridcomp, name, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      character(*), intent(in) :: name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(NuopcMetaModel), pointer :: nuopc_meta
+      logical :: found
+
+      call get_nuopc_meta_for_user_gc_(gridcomp, nuopc_meta, found, _RC)
+      _ASSERT(.not. found, name // ' is not supported for a NUOPC user GridComp.')
+
+      _RETURN(_SUCCESS)
+   end subroutine fail_if_nuopc_user_gc_
+
+   ! Finds the NUOPC model (NuopcMetaModel) that owns a user GridComp, if any.
+   ! found is .false. for generic GCs and for user GCs under an OuterMetaComponent.
+   subroutine get_nuopc_meta_for_user_gc_(gridcomp, meta_model, found, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      class(NuopcMetaModel), pointer, intent(out) :: meta_model
+      logical, intent(out) :: found
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: is_generic
+      type(ESMF_GridComp) :: outer_gc
+      type(InnerMetaComponent), pointer :: inner_meta
+
+      nullify(meta_model)
+      found = .false.
+      is_generic = GridCompIsGeneric(gridcomp, _RC)
+      if (is_generic) then
+         _RETURN(_SUCCESS)
+      end if
+
+      inner_meta => get_inner_meta(gridcomp, _RC)
+      outer_gc = inner_meta%get_outer_gridcomp()
+      call find_meta_model(outer_gc, meta_model, found, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_nuopc_meta_for_user_gc_
+
    recursive subroutine gridcomp_get_outer_meta(gridcomp, outer_meta, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(OuterMetaComponent), pointer, intent(out) :: outer_meta
@@ -301,6 +345,14 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
+      class(NuopcMetaModel), pointer :: nuopc_meta
+      logical :: found
+
+      call get_nuopc_meta_for_user_gc_(gridcomp, nuopc_meta, found, _RC)
+      if (found) then
+         registry => nuopc_meta%get_registry()
+         _RETURN(_SUCCESS)
+      end if
 
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       registry => outer_meta%get_registry()
@@ -333,6 +385,19 @@ contains
       type(ESMF_Geom), allocatable :: geom_
       class(VerticalGrid), pointer :: vertical_grid_
       character(ESMF_MAXSTR) :: buffer
+      class(NuopcMetaModel), pointer :: nuopc_meta
+      logical :: found
+
+      call get_nuopc_meta_for_user_gc_(gridcomp, nuopc_meta, found, _RC)
+      if (found) then
+         _ASSERT(.not. (present(logger) .or. present(geom) .or. present(grid) .or. present(num_levels) .or. present(num_children)), "NUOPC user GridComp: only hconfig and name are supported by gridcomp_get.")
+         if (present(hconfig)) call nuopc_meta%get_hconfig(hconfig, _RC)
+         if (present(name)) then
+            call esmf_GridCompGet(gridcomp, name=buffer, _RC)
+            name = trim(buffer)
+         end if
+         _RETURN(_SUCCESS)
+      end if
 
       call GridCompGetOuterMeta(gridcomp, outer_meta_, _RC)
 
@@ -376,6 +441,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_set', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%set_misc( &
            activate_all_exports=activate_all_exports, &
@@ -398,6 +464,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_set_checkpoint_controls', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       
       ! Call the new method on outer_meta to set checkpoint controls
@@ -418,6 +485,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      call fail_if_nuopc_user_gc_(gridcomp, 'get_internal_state', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       internal_state = outer_meta%get_internal_state()
 
@@ -528,6 +596,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_add_child_by_spec', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%add_child(child_name, child_spec, _RC)
 
@@ -546,6 +615,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_run_child_by_name', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%run_child(child_name, phase_name=phase_name, _RC)
 
@@ -562,6 +632,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_run_children', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%run_children(phase_name=phase_name, _RC)
 
@@ -578,6 +649,10 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      ! Always allocate the result, even on the error path, so callers never
+      ! see an unallocated string.
+      name = ''
+      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_get_child_name_by_index', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       name = outer_meta%get_child_name(index, _RC)
 
@@ -594,6 +669,14 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
+      class(NuopcMetaModel), pointer :: nuopc_meta
+      logical :: found
+
+      call get_nuopc_meta_for_user_gc_(gridcomp, nuopc_meta, found, _RC)
+      if (found) then
+         call nuopc_meta%set_entry_point(method_flag, userProcedure, phase_name=phase_name, _RC)
+         _RETURN(_SUCCESS)
+      end if
 
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%set_entry_point(method_flag, userProcedure, phase_name=phase_name, _RC)
@@ -611,6 +694,15 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
+      class(NuopcMetaModel), pointer :: nuopc_meta
+      logical :: found
+
+      call get_nuopc_meta_for_user_gc_(gridcomp, nuopc_meta, found, _RC)
+      if (found) then
+         component_spec => nuopc_meta%get_component_spec()
+         call component_spec%var_specs%push_back(variable_spec)
+         _RETURN(_SUCCESS)
+      end if
 
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
@@ -688,6 +780,8 @@ contains
       type(ComponentSpec), pointer :: component_spec
       type(HorizontalDimsSpec) :: horizontal_dims_spec_
       type(UngriddedDims), allocatable :: dim_specs_vec
+      class(NuopcMetaModel), pointer :: nuopc_meta
+      logical :: found
       integer :: status
 
       _FAIL_IF(present(dims) .and. present(horizontal_dims_spec), "dims and horizontal_dims_spec passed")
@@ -736,8 +830,13 @@ contains
               restart_mode=restart_mode, &
               _RC)
 
-      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
-      component_spec => outer_meta%get_component_spec()
+      call get_nuopc_meta_for_user_gc_(gridcomp, nuopc_meta, found, _RC)
+      if (found) then
+         component_spec => nuopc_meta%get_component_spec()
+      else
+         call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+         component_spec => outer_meta%get_component_spec()
+      end if
       call component_spec%var_specs%push_back(var_spec)
 
       if (present(add_to_export)) then
@@ -764,6 +863,14 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
+      class(NuopcMetaModel), pointer :: nuopc_meta
+      logical :: found
+
+      call get_nuopc_meta_for_user_gc_(gridcomp, nuopc_meta, found, _RC)
+      if (found) then
+         call nuopc_meta%advertise_variable(var_spec, _RC)
+         _RETURN(_SUCCESS)
+      end if
 
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%advertise_variable(var_spec, _RC)
@@ -779,6 +886,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      call fail_if_nuopc_user_gc_(gridcomp, 'GridCompSetVerticalGrid', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%set_vertical_grid(vertical_grid)
 
@@ -793,6 +901,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      call fail_if_nuopc_user_gc_(gridcomp, 'GridCompSetGeom', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%set_geom(geom)
 
@@ -866,6 +975,7 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_connect_all', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%connect_all(src_comp, dst_comp, _RC)
 
@@ -1197,6 +1307,7 @@ contains
       integer :: status
 
       call GridCompGet(gridcomp, hconfig=hconfig, name=component_name, _RC)
+      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_set_geometry_from_hconfig', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
       call GridCompGetRegistry(gridcomp, registry=registry, _RC)
@@ -1220,6 +1331,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
 
+      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_add_simple_connection', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
       call component_spec%add_connection(src_comp=src_comp, src_names=src_names, dst_comp=dst_comp, dst_names=dst_names, _RC)
@@ -1241,6 +1353,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: component_spec
 
+      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_reexport', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       component_spec => outer_meta%get_component_spec()
       call component_spec%reexport(src_comp=src_comp, src_name=src_name, src_intent=src_intent, &
@@ -1258,6 +1371,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: status
 
+      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_timer_start', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%start_timer(name, _RC)
 
@@ -1272,6 +1386,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: status
 
+      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_timer_stop', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       call outer_meta%stop_timer(name, _RC)
 
@@ -1289,6 +1404,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: status
 
+      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_get_checkpoint_dir', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       dir = outer_meta%get_checkpoint_dir(current_time, is_private=is_private, _RC)
 
