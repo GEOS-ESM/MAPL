@@ -7,9 +7,17 @@
 ! change's design.md D1 for the full section-to-file mapping.)
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
-   use esmf, only: operator(==)
+   use esmf, only: operator(==), operator(/=)
    use mapl_CompositeStateMaterialization_mod, only: materialize_composite
+   use mapl_GraphNode_mod, only: GraphNode
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
+   use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+        TYPE_KIND_CHARACTERISTIC_KIND, VERTICAL_COORDINATE_CHARACTERISTIC_KIND
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
+   use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
+   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -62,6 +70,7 @@ contains
       type(NodeRevision) :: revision
       type(PortId) :: port_id
       type(StringVector) :: member_names
+      class(GraphNode), pointer :: registered_node
 
       key = item_key(var_spec%state_intent, var_spec%short_name)
 
@@ -90,10 +99,58 @@ contains
          ! allocated, NodeRevision invalid): this item is advertised, not
          ! yet realized - REALIZE happens in a later init phase this
          ! slice does not touch (design.md Non-Goals).
-         node = StateItemNode(id, payload, revision)
+         !
+         ! openspec/changes/graph-builder-stateitem-resolution, tasks.md
+         ! 2.1: identity/resolution-mode fields (short_name/state_intent/
+         ! is_inout_borrower/callback_interface_id) are set once here,
+         ! from the advertised var_spec, so every later resolution step
+         ! reads them off the node instead of re-deriving them from this
+         ! var_spec by component name.
+         node = StateItemNode(id, payload, revision, short_name=var_spec%short_name, &
+              state_intent=var_spec%state_intent, is_inout_borrower=var_spec%is_inout_borrower, &
+              callback_interface_id=var_spec%callback_interface_id)
          call graph%register_node(node, _RC)
       end if
       call graph%add_resource_index(key, id, _RC)
+
+      ! openspec/changes/graph-builder-stateitem-resolution, tasks.md
+      ! 2.2/2.3: populates the newly-registered node's own
+      ! GraphStateItem%characteristics/ungridded_dims/vertical_stagger
+      ! from this var_spec's own declared fields - the same
+      ! field-to-characteristic mapping the now-removed
+      ! build_characteristics used, moved here to run once at advertise
+      ! time instead of being rebuilt on every resolution call. Applies
+      ! uniformly to both the flat and composite branches above (a
+      ! composite tagged MAPL_STATEITEM_VERTICALGRID needs its own
+      ! VERTICAL_COORDINATE_CHARACTERISTIC_KIND entry just as much as a
+      ! flat item does - materialize_composite itself has no var_spec-
+      ! independent way to populate this, so it is done here, on the
+      ! node materialize_composite already registered, by id). Guarded
+      ! by the idempotent re-advertisement check above - never run for
+      ! an already-existing identity.
+      !
+      ! design.md correction: also sets identity/resolution-mode fields
+      ! (short_name/state_intent/is_inout_borrower/callback_interface_id,
+      ! task 2.1) on the composite branch's own top-level node, via the
+      ! setters StateItemNode.F90 exposes for exactly this reason -
+      ! materialize_composite constructs that node with no identity args
+      ! at all (its own signature has no var_spec-identity parameters),
+      ! so a composite IMPORT/EXPORT would otherwise be invisible to
+      ! for_each_matching_import's node-based filter. A no-op re-set for
+      ! the flat branch (already set via the constructor above) -
+      ! harmless, not worth branching around.
+      registered_node => graph%get_node(id)
+      _ASSERT(associated(registered_node), 'GraphBuilder: advertise_one - newly-registered node not found')
+      select type (registered_node)
+      class is (StateItemNode)
+         call registered_node%set_short_name(var_spec%short_name)
+         call registered_node%set_state_intent(var_spec%state_intent)
+         call registered_node%set_is_inout_borrower(var_spec%is_inout_borrower)
+         call registered_node%set_callback_interface_id(var_spec%callback_interface_id)
+         call populate_characteristics(registered_node, var_spec, _RC)
+      class default
+         _FAIL('GraphBuilder: advertise_one - newly-registered node is not a StateItemNode')
+      end select
 
       if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT) then
          port_id = graph%next_port_id(_RC)
@@ -107,5 +164,123 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine advertise_one
+
+   ! openspec/changes/graph-builder-stateitem-resolution, tasks.md 2.2/
+   ! 2.3: field-to-characteristic mapping moved verbatim from the
+   ! now-removed build_characteristics (GraphBuilder_ConnectionResolution_
+   ! smod.F90), writing into node's own GraphStateItem%characteristics
+   ! via set_characteristic instead of building an ephemeral,
+   ! never-stored CharacteristicMap on every resolution call. Also
+   ! populates the new ungridded_dims/vertical_stagger fields (task 1.2)
+   ! from the same var_spec, alongside characteristics.
+   subroutine populate_characteristics(node, var_spec, rc)
+      class(StateItemNode), target, intent(inout) :: node
+      type(VariableSpec), intent(in) :: var_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(GraphStateItem), pointer :: payload
+      character(20) :: grid_id_buffer
+
+      ! openspec/changes/graph-builder-stateitem-resolution: mutates
+      ! node's own stored payload IN PLACE via a pointer
+      ! (get_payload_ptr, StateItemNode.F90), never through a
+      ! get_payload()/set_payload() copy-out/copy-back round trip - a
+      ! composite node's own GraphStateItem carries a populated
+      ! StateItemMemberMap, and an intrinsic assignment of that type
+      ! (what get_payload()'s own `payload = this%payload` does)
+      ! invokes gFTL2's own deep_copy, which a real compiler bug
+      ! (observed under gfortran -fcheck=all, not NAG - a known-hard
+      ! class of Fortran compiler bug around nested defined-assignment,
+      ! not a logic error in gFTL2's own design) can corrupt
+      ! nondeterministically for a non-trivial (populated) member map.
+      payload => node%get_payload_ptr()
+
+      if (allocated(var_spec%units)) then
+         call payload%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+              PhysicalUnitsCharacteristic(var_spec%units), _RC)
+      end if
+      ! openspec/changes/phase-10c-typekind-characteristic, design.md D3:
+      ! unlike units, VariableSpec%typekind is a non-allocatable field
+      ! with a default (ESMF_TYPEKIND_R4) - every VariableSpec always
+      ! has SOME typekind, so there is no "not declared" state to gate
+      ! on the way `allocated(var_spec%units)` gates the branch above.
+      !
+      ! openspec/changes/graph-builder-stateitem-resolution, design.md
+      ! correction (surfaced during implementation):
+      ! MAPL_TYPEKIND_MIRROR (infrastructure/esmf/TypeKind.F90) is the
+      ! one real exception - a declared "inherit whatever the matched
+      ! export turns out to be" placeholder (e.g.
+      ! StatisticsGridComp.F90's own mirrored imports), not a real
+      ! ESMF_TypeKind_Flag TypeKindCharacteristic's label mapping
+      ! understands (nor should it try to - the whole point of MIRROR
+      ! is "not yet known"). The now-removed build_characteristics
+      ! never actually hit this case in practice (it ran on-demand
+      ! inside resolve_one, by which point MAPL's own mirroring
+      ! machinery - TypekindAspect, a different, independent mechanism
+      ! - had already resolved the real kind elsewhere); moving this
+      ! call to advertise time means it now runs before any such
+      ! resolution could have happened, so the gate is added here,
+      ! mirroring allocated(var_spec%units)'s own "not established"
+      ! treatment immediately above - a mirrored item simply gets no
+      ! TYPE_KIND_CHARACTERISTIC_KIND entry at advertise time.
+      if (var_spec%typekind /= MAPL_TYPEKIND_MIRROR) then
+         call payload%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
+              TypeKindCharacteristic(var_spec%typekind), _RC)
+      end if
+      if (allocated(var_spec%vertical_grid)) then
+         ! VerticalGrid%get_id() returns an integer identity token;
+         ! VerticalCoordinateCharacteristic compares an opaque string
+         ! signature (get_signature contract), so it is rendered to text
+         ! here rather than changing VerticalCoordinateCharacteristic's
+         ! own constructor to know about integer ids specifically.
+         write(grid_id_buffer, '(I0)') var_spec%vertical_grid%get_id()
+         call payload%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
+              VerticalCoordinateCharacteristic(grid_id=trim(grid_id_buffer), &
+                   dimensions=var_spec%vertical_grid%get_supported_physical_dimensions()), _RC)
+      end if
+      ! openspec/changes/vertical-grid-graph-state-item: a composite
+      ! VariableSpec tagged state_item_variant == MAPL_STATEITEM_VERTICALGRID
+      ! (REQ-GEO-009) has no legacy VerticalGrid object to pull an
+      ! identity token from - only its own declared member names
+      ! (REQ-GEO-004a: member name = physical dimension, so
+      ! get_member_names() already IS the dimension set). Uses the SAME
+      ! VerticalCoordinateCharacteristic/VERTICAL_COORDINATE_CHARACTERISTIC_KIND
+      ! as the branch above (not a separate characteristic kind) - with
+      ! no identity token supplied, needs_extension_for falls back to
+      ! dimension-set comparison (VerticalCoordinateCharacteristic.F90's
+      ! own module header).
+      if (allocated(var_spec%state_item_variant)) then
+         if (var_spec%state_item_variant == MAPL_STATEITEM_VERTICALGRID) then
+            call payload%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
+                 VerticalCoordinateCharacteristic(dimensions=var_spec%get_member_names()), _RC)
+         end if
+      end if
+
+      ! tasks.md 2.3: ungridded_dims/vertical_stagger, alongside
+      ! characteristics.
+      call payload%set_ungridded_dims(var_spec%ungridded_dims)
+      if (allocated(var_spec%vertical_stagger)) then
+         call payload%set_vertical_stagger(var_spec%vertical_stagger)
+      end if
+
+      ! design.md correction (surfaced during implementation): the
+      ! originating var_spec's own per-item EXPLICIT geom/vertical_grid
+      ! overrides and declared item classification, so
+      ! try_materialize_field_extension/materialize_extension_chain and
+      ! resolve_export_geom/resolve_export_vgrid need no VariableSpec
+      ! reference at all once this item is advertised. The owning
+      ! component's own component-wide geom/vgrid DEFAULTS are
+      ! deliberately NOT captured here - those remain read live via
+      ! OuterMetaComponent%has_geom()/get_geom()/get_vertical_grid() in
+      ! GraphBuilder_PortsAndProxies_smod.F90 (GEOM_B genuinely runs
+      ! after ADVERTISE, so there is no "once at advertise time" value
+      ! to capture for that fallback case).
+      if (allocated(var_spec%geom)) call payload%set_declared_geom(var_spec%geom)
+      if (allocated(var_spec%vertical_grid)) call payload%set_declared_vertical_grid(var_spec%vertical_grid)
+      call payload%set_declared_item_type(var_spec%itemType)
+
+      _RETURN(_SUCCESS)
+   end subroutine populate_characteristics
 
 end submodule GraphBuilder_Advertising_smod

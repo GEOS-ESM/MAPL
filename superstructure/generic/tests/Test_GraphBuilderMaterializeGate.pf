@@ -1,0 +1,756 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! openspec/changes/graph-builder-stateitem-resolution, found during
+! gfortran/NAG portability testing: split out of Test_GraphBuilder.pf -
+! this file holds all five of Test_GraphBuilder.pf's own
+! ESMF_TestMethod tests (type=ESMF_TestMethod, npes=[1] - each calls
+! FieldCreate/populate_state on a real ESMF_Geom, needing a real
+! per-test ESMF VM that a plain MpiTestMethod sub-communicator does not
+! provide).
+!
+! The direct trigger: mapl_ExtensionResolution_mod's
+! materialize-extensions gate is MODULE-LEVEL GLOBAL state
+! (set_materialize_extensions/materialize_extensions_enabled). A test
+! that calls set_materialize_extensions(.true.) and then
+! fails/aborts/raises before reaching its own closing
+! set_materialize_extensions(.false.) call leaks .true. into every
+! subsequent test in the same process - corrupting unrelated later
+! tests' own materialization behavior nondeterministically (observed
+! under gfortran: a later, unrelated test segfaulted, with the exact
+! test varying by MPI rank/process scheduling). Fixed via a suite-level
+! @before/@after pair that unconditionally resets the gate to .false.
+! before and after every test in this file - restored even when a test
+! fails.
+!
+! Why all five tests, not just the one that touches the flag: pFUnit's
+! @before/@after is NOT disambiguated by the @test subroutine's own
+! dummy-argument type - confirmed via NAG's own compile error (far
+! clearer than gfortran's, which silently miscompiled instead of
+! rejecting the mismatch): "Actual procedure RESET_MATERIALIZE_
+! EXTENSIONS_GATE argument 1 data type MPITESTMETHOD differs from
+! dummy procedure SETUP argument data type ESMF_TESTMETHOD". A
+! @before/@after pair declared anywhere in a .pf file is applied to
+! EVERY @test in that file regardless of its own declared type. Since
+! Test_GraphBuilder.pf's own fix needed an MpiTestMethod-typed pair for
+! its 3 MpiTestMethod tests that touch the flag, every ESMF_TestMethod
+! test in that same file would have been force-fed the wrong-typed
+! pair - so all five had to move here, where this file's own
+! ESMF_TestMethod-typed pair applies uniformly to everything in it (the
+! four that never touch the flag get a harmless no-op reset/restore).
+module Test_GraphBuilderMaterializeGate
+   use mapl_OuterMetaComponent_mod
+   use mapl_GraphBuilder_mod
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_ChildSpec_mod, only: ChildSpec
+   use mapl_ComponentSpec_mod, only: ComponentSpec
+   use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_ConnectionPt_mod, only: ConnectionPt
+   use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
+   use mapl_MatchConnection_mod, only: MatchConnection
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem, operator(==)
+   use mapl_ExtensionResolution_mod, only: set_materialize_extensions
+   use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_REGISTRY, GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH
+   use mapl_MultiState_mod, only: MultiState
+   use mapl_FieldCreate_mod, only: FieldsAreAliased
+   use mapl_FieldGet_mod, only: FieldGet
+   use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
+   use ESMF_TestMethod_mod
+   use esmf
+   use pfunit
+   implicit none(type, external)
+
+contains
+
+   @before
+   subroutine reset_materialize_extensions_gate(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call set_materialize_extensions(.false.)
+      _UNUSED_DUMMY(this)
+   end subroutine reset_materialize_extensions_gate
+
+   @after
+   subroutine restore_materialize_extensions_gate(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call set_materialize_extensions(.false.)
+      _UNUSED_DUMMY(this)
+   end subroutine restore_materialize_extensions_gate
+
+   ! Mirrors Test_GraphBuilder.pf's own make_outer_meta exactly - kept
+   ! as a local copy rather than shared, so this file's own test is
+   ! fully self-contained (same rationale as single_predecessor below).
+   subroutine make_outer_meta(name, outer_gc, outer_meta, rc)
+      character(*), intent(in) :: name
+      type(ESMF_GridComp), intent(out) :: outer_gc
+      type(OuterMetaComponent), pointer, intent(out) :: outer_meta
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_GridComp) :: user_gc
+      type(GriddedComponentDriver) :: user_gc_driver
+      type(ESMF_HConfig) :: hconfig
+
+      hconfig = ESMF_HConfigCreate(content='{}', _RC)
+      outer_gc = ESMF_GridCompCreate(name='['//trim(name)//']', _RC)
+      user_gc = ESMF_GridCompCreate(name=name, _RC)
+      user_gc_driver = GriddedComponentDriver(user_gc)
+
+      call attach_outer_meta(outer_gc, _RC)
+      outer_meta => get_outer_meta(outer_gc, _RC)
+#ifndef __GFORTRAN__
+      outer_meta = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
+#else
+      block
+         type(OuterMetaComponent) :: tmp
+         tmp = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
+         outer_meta = tmp
+      end block
+#endif
+      call outer_meta%init_meta(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_outer_meta
+
+   function make_var(state_intent, short_name, units) result(var_spec)
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      character(*), intent(in) :: short_name
+      character(*), optional, intent(in) :: units
+      type(VariableSpec) :: var_spec
+
+      var_spec%state_intent = state_intent
+      var_spec%short_name = short_name
+      if (present(units)) var_spec%units = units
+   end function make_var
+
+   function single_predecessor(net, node) result(pred_id)
+      type(DependencyNetwork), intent(in) :: net
+      type(NodeId), intent(in) :: node
+      type(NodeId) :: pred_id
+
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: iter
+
+      preds = net%get_predecessors(node)
+      iter = preds%ftn_begin()
+      call iter%next()
+      pred_id = iter%of()
+   end function single_predecessor
+
+   ! Task 6.2/6.4 / spec "Resolved extension has a real payload" +
+   ! "Resolved extension remains discoverable" + "Reused extension is
+   ! not re-materialized": with the gate explicitly enabled, the
+   ! extension chain's final item gets a real, correctly-shaped
+   ! ESMF_Field, still discoverable via the same proxy/predecessor
+   ! query, and calling resolve_connections a second time does not
+   ! replace it.
+   ! type=ESMF_TestMethod, npes=[1] (unlike Test_GraphBuilder.pf's other
+   ! tests, Test_GeomAspect.pf's own precedent for real-geom pFUnit
+   ! tests): this test calls FieldCreate on a real ESMF_Geom - a plain
+   ! MpiTestMethod sub-communicator does not reconfigure ESMF's own
+   ! default VM, so a real ESMF collective call still synchronizes
+   ! against this suite's full ambient multi-PE test world and would
+   ! deadlock without ESMF_TestMethod's proper per-test VM scoping.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_materialize_extensions_enabled_creates_real_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(NodeId), pointer :: t_import_proxy
+      type(NodeId) :: extension_id
+      type(DependencyNetwork), pointer :: net
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: extension_payload
+      type(VariableSpec) :: export_var_spec
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: result_field
+      type(ESMF_TypeKind_Flag) :: got_typekind
+      character(:), allocatable :: got_units
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+
+      call make_outer_meta('comp_parent_gate_on', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      ! Explicit-override geom (design.md Decisions "Geom/vgrid
+      ! resolution order" case (a), the HistoryCollection-style case) -
+      ! this synthetic OuterMetaComponent never runs initialize_geom_a/b,
+      ! so it has no component-wide default of its own.
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
+      export_var_spec%geom = geom
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_var_spec)
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T', units='km'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call set_materialize_extensions(.true.)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      call set_materialize_extensions(.false.)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      @assertEqual(0, unsupported%size())
+
+      parent_graph => parent_meta%get_component_graph()
+      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_import_proxy), is(true()))
+
+      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      extension_id = single_predecessor(net, t_import_proxy)
+
+      node => parent_graph%get_node(extension_id)
+      select type (node)
+      class is (StateItemNode)
+         extension_payload = node%get_payload()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assertTrue(extension_payload%itemType(rc=status) == ESMF_STATEITEM_FIELD)
+
+      result_field = extension_payload%get_field(rc=status)
+      @assertEqual(0, status)
+      call FieldGet(result_field, typekind=got_typekind, units=got_units, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(got_typekind == ESMF_TYPEKIND_R4)
+      @assertEqual('km', got_units)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_materialize_extensions_enabled_creates_real_field
+
+   ! openspec/changes/phase-10a-state-materialization, spec "Matching
+   ! export is materialized with a real field": with the graph mode
+   ! selected as GRAPH_MODE_GRAPH (GRAPH_MODE_BOTH behaves identically
+   ! for this call - both are "not GRAPH_MODE_REGISTRY"), resolve_one's
+   ! no-mismatch branch gives the export's own node (here, the parent's
+   ! own proxy standing in for child_src's export - no separate
+   ! extension node exists for an exact match) a real, allocated field,
+   ! reusing the same geom/vgrid resolution
+   ! test_materialize_extensions_enabled_creates_real_field already
+   ! exercises for the mismatch branch.
+   ! type=ESMF_TestMethod, npes=[1]: same real-ESMF-geom precedent as
+   ! that test.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_exact_match_materializes_field_in_graph_mode(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(NodeId), pointer :: t_export_proxy, t_import_proxy
+      type(DependencyNetwork), pointer :: net
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: export_payload
+      type(VariableSpec) :: export_var_spec
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: result_field
+      type(ESMF_TypeKind_Flag) :: got_typekind
+      character(:), allocatable :: got_units
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+
+      call make_outer_meta('comp_parent_mode_graph', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      ! Explicit-override geom (same precedent as
+      ! test_materialize_extensions_enabled_creates_real_field) - this
+      ! synthetic OuterMetaComponent never runs initialize_geom_a/b.
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
+      export_var_spec%geom = geom
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_var_spec)
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T', units='m'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      @assertEqual(0, unsupported%size())
+
+      parent_graph => parent_meta%get_component_graph()
+      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_proxy), is(true()))
+      @assert_that(associated(t_import_proxy), is(true()))
+
+      ! No extension chain for an exact match - still a direct edge
+      ! (spec "Matching export and import are wired" is unaffected by
+      ! this sub-change).
+      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(true()))
+
+      node => parent_graph%get_node(t_export_proxy)
+      select type (node)
+      class is (StateItemNode)
+         export_payload = node%get_payload()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assertTrue(export_payload%itemType(rc=status) == ESMF_STATEITEM_FIELD)
+
+      result_field = export_payload%get_field(rc=status)
+      @assertEqual(0, status)
+      call FieldGet(result_field, typekind=got_typekind, units=got_units, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(got_typekind == ESMF_TYPEKIND_R4)
+      @assertEqual('m', got_units)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_exact_match_materializes_field_in_graph_mode
+
+   ! openspec/changes/phase-10a-state-materialization, task 4.2: direct
+   ! coverage of graphbuilder_populate_state, called the way design.md's
+   ! own correction prescribes - on the PARENT (the component that
+   ! declared the MatchConnection), not either connected child. Covers
+   ! spec "An exact-match import's real field is found via its export"
+   ! (child_dst's own real import field, once inserted, is the SAME
+   ! field object materialized on child_src's own export proxy - checked
+   ! via FieldsAreAliased, not just typekind/units equality) and spec
+   ! "Unresolved import is not populated" (Q, declared but never
+   ! connected, produces no entry and no error) in one fixture.
+   !
+   ! openspec/changes/graph-child-state-population: this test's own
+   ! assertions were updated here. The field this test checks for is a
+   ! sibling-to-sibling (cross-component) connection's own resolved
+   ! item - per that change's own fix, it now lands in child_dst's own
+   ! real ESMF_State (get_user_gc_driver()%get_states()), never in the
+   ! parent-supplied `multi_state` this test still passes into
+   ! populate_state (which remains correct for the parent's own
+   ! same-component/degenerate case, untouched by that fix). The
+   ! parent-supplied `multi_state` is now explicitly asserted to
+   ! receive NEITHER field, confirming the fix rather than merely
+   ! happening to still pass.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_state_aliases_export_and_skips_unresolved(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(NodeId), pointer :: t_export_proxy
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: export_payload
+      type(VariableSpec) :: export_var_spec
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: export_field, import_state_field
+      type(ESMF_State) :: real_import_state, real_export_state
+      type(ESMF_State) :: dst_own_import_state
+      type(MultiState) :: multi_state
+      type(MultiState) :: dst_own_states
+      type(GriddedComponentDriver), pointer :: dst_own_driver
+      integer :: item_count
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+
+      call make_outer_meta('comp_parent_populate', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
+      export_var_spec%geom = geom
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_var_spec)
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T', units='m'))
+      ! Declared but never connected - must be silently skipped, not an
+      ! error (spec "Unresolved import is not populated").
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'Q', units='m'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+      ! Q, declared but never connected, has no matching export.
+      @assertEqual(1, unresolved%size())
+
+      real_import_state = ESMF_StateCreate(name='import', rc=status)
+      @assertEqual(0, status)
+      real_export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      multi_state = MultiState(importState=real_import_state, exportState=real_export_state)
+
+      call gb%populate_state(parent_meta, multi_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assert_that(status, is(0))
+
+      ! The export's own real field, fetched directly from the proxy
+      ! node resolve_one materialized (same node task 4.1 checks).
+      parent_graph => parent_meta%get_component_graph()
+      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
+      @assert_that(associated(t_export_proxy), is(true()))
+      node => parent_graph%get_node(t_export_proxy)
+      select type (node)
+      class is (StateItemNode)
+         export_payload = node%get_payload()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      export_field = export_payload%get_field(rc=status)
+      @assertEqual(0, status)
+
+      ! openspec/changes/graph-child-state-population: a sibling
+      ! connection's resolved import field now lands in child_dst's OWN
+      ! real ESMF_State (reached via get_user_gc_driver()%get_states()),
+      ! never in the parent-supplied `multi_state` above - the field is
+      ! still the SAME field object child_src's own export proxy
+      ! materialized, not merely an equally-shaped copy.
+      dst_own_driver => dst_meta%get_user_gc_driver()
+      dst_own_states = dst_own_driver%get_states()
+      dst_own_import_state = dst_own_states%importState
+      call ESMF_StateGet(dst_own_import_state, 'T', import_state_field, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(FieldsAreAliased(export_field, import_state_field))
+
+      ! Q was never connected (no proxy exists for it at all) - no
+      ! entry, no error, on child_dst's own state.
+      call ESMF_StateGet(dst_own_import_state, itemCount=item_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, item_count)
+
+      ! The parent's own `multi_state` (passed into populate_state)
+      ! receives NEITHER field - confirms the fix, not merely that
+      ! population happened somewhere.
+      call ESMF_StateGet(real_import_state, itemCount=item_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, item_count)
+      call ESMF_StateGet(real_export_state, itemCount=item_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, item_count)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_populate_state_aliases_export_and_skips_unresolved
+
+   ! openspec/changes/graph-child-state-population, tasks.md 2.1/2.2:
+   ! direct coverage of the fix itself - child_src's own real EXPORT
+   ! state and child_dst's own real IMPORT state each receive the
+   ! resolved field under its own short name, the two states hold the
+   ! SAME field object (FieldsAreAliased), and the parent's own
+   ! multi_state is confirmed empty - the one assertion
+   ! test_populate_state_aliases_export_and_skips_unresolved above does
+   ! not make (it checks child_dst's own import state and the Q
+   ! unresolved-import case, but not child_src's own export state
+   ! explicitly).
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_state_reaches_each_childs_own_state(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(VariableSpec) :: export_var_spec
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: parent_import_state, parent_export_state
+      type(ESMF_State) :: src_own_export_state, dst_own_import_state
+      type(MultiState) :: parent_multi_state
+      type(MultiState) :: src_own_states, dst_own_states
+      type(GriddedComponentDriver), pointer :: src_own_driver, dst_own_driver
+      type(ESMF_Field) :: src_field, dst_field
+      integer :: src_item_count, dst_item_count, parent_import_count, parent_export_count
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+
+      call make_outer_meta('comp_parent_populate_children', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
+      export_var_spec%geom = geom
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_var_spec)
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T', units='m'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+
+      parent_import_state = ESMF_StateCreate(name='import', rc=status)
+      @assertEqual(0, status)
+      parent_export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      parent_multi_state = MultiState(importState=parent_import_state, exportState=parent_export_state)
+
+      call gb%populate_state(parent_meta, parent_multi_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assert_that(status, is(0))
+
+      ! child_src's own real EXPORT state (design.md D4 - the export
+      ! side is touched symmetrically with the import side).
+      src_own_driver => src_meta%get_user_gc_driver()
+      src_own_states = src_own_driver%get_states()
+      src_own_export_state = src_own_states%exportState
+      call ESMF_StateGet(src_own_export_state, 'T', src_field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(src_own_export_state, itemCount=src_item_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, src_item_count)
+
+      ! child_dst's own real IMPORT state.
+      dst_own_driver => dst_meta%get_user_gc_driver()
+      dst_own_states = dst_own_driver%get_states()
+      dst_own_import_state = dst_own_states%importState
+      call ESMF_StateGet(dst_own_import_state, 'T', dst_field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(dst_own_import_state, itemCount=dst_item_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, dst_item_count)
+
+      ! Same field object on both sides - not two independently
+      ! materialized fields that happen to compare equal.
+      @assertTrue(FieldsAreAliased(src_field, dst_field))
+
+      ! Neither child's own field reaches the parent's own multi_state.
+      call ESMF_StateGet(parent_import_state, itemCount=parent_import_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, parent_import_count)
+      call ESMF_StateGet(parent_export_state, itemCount=parent_export_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, parent_export_count)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_populate_state_reaches_each_childs_own_state
+
+   ! openspec/changes/phase-10a-state-materialization, spec "Graph mode
+   ! governs whether population touches the real state": in both
+   ! GRAPH_MODE_REGISTRY and GRAPH_MODE_BOTH, graphbuilder_populate_state
+   ! inserts nothing into a real ESMF_State, even though
+   ! GRAPH_MODE_BOTH's own materialization step above still gives the
+   ! export's own node a real field (checked directly, out of band, same
+   ! as test_exact_match_materializes_field_in_graph_mode already does
+   ! for GRAPH_MODE_GRAPH - GRAPH_MODE_BOTH behaves identically there,
+   ! "not GRAPH_MODE_REGISTRY").
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_state_no_insert_in_registry_or_both_mode(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(VariableSpec) :: export_var_spec
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: real_import_state, real_export_state
+      type(MultiState) :: multi_state
+      integer :: item_count
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+
+      call make_outer_meta('comp_parent_populate_both', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
+      export_var_spec%geom = geom
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_var_spec)
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T', units='m'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='T')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='T')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call set_graph_mode(GRAPH_MODE_BOTH)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+
+      real_import_state = ESMF_StateCreate(name='import', rc=status)
+      @assertEqual(0, status)
+      real_export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      multi_state = MultiState(importState=real_import_state, exportState=real_export_state)
+
+      call gb%populate_state(parent_meta, multi_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assert_that(status, is(0))
+
+      call ESMF_StateGet(real_import_state, itemCount=item_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, item_count)
+      call ESMF_StateGet(real_export_state, itemCount=item_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, item_count)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_populate_state_no_insert_in_registry_or_both_mode
+
+end module Test_GraphBuilderMaterializeGate

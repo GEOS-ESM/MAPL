@@ -180,12 +180,17 @@ contains
          _RETURN(_SUCCESS)
       end if
 
+      ! openspec/changes/graph-builder-stateitem-resolution: explicit
+      ! allocate(..., source=...) instead of plain `=` assignment into
+      ! a deferred-length character variable - same gfortran
+      ! realloc-on-assignment memory-corruption class documented in
+      ! StateItemNode.F90's constructor.
       if (is_self(this, src_component_name)) then
-         full_path = entry%comp_path
+         allocate(full_path, source=entry%comp_path)
       else if (len(entry%comp_path) == 0) then
-         full_path = src_component_name
+         allocate(full_path, source=src_component_name)
       else
-         full_path = src_component_name // '/' // entry%comp_path
+         allocate(full_path, source=src_component_name // '/' // entry%comp_path)
       end if
 
       pkey = 'CALLBACK_PROXY:' // full_path // ':' // item_key(ESMF_STATEINTENT_EXPORT, entry%var_spec%short_name)
@@ -242,7 +247,13 @@ contains
       iter = arguments%ftn_begin()
       do while (iter /= arguments%ftn_end())
          call iter%next()
-         argument_name = iter%first()
+         ! openspec/changes/graph-builder-stateitem-resolution: explicit
+         ! deallocate+allocate(..., source=...) instead of plain `=`
+         ! reassignment of an allocatable character variable inside a
+         ! loop - same gfortran realloc-on-assignment memory-corruption
+         ! class documented in StateItemNode.F90's constructor.
+         if (allocated(argument_name)) deallocate(argument_name)
+         allocate(argument_name, source=iter%first())
          arg_spec = iter%second()
 
          if (.not. var_spec%has_member(argument_name)) then
@@ -333,19 +344,21 @@ contains
       type(NodeId), pointer :: state_node_id_ptr
       type(NodeId) :: state_node_id
       class(GraphNode), pointer :: state_node
-      type(GraphStateItem) :: state_payload
-      type(StateItemMemberMap) :: members
+      type(GraphStateItem), pointer :: state_payload
+      type(StateItemMemberMap), pointer :: members
       type(CallbackArgumentSpecMap), target :: arguments
       type(CallbackArgumentSpecMapIterator) :: iter
       character(:), allocatable :: argument_name
       type(NodeId), pointer :: member_node_id
 
+      ! Same allocate(..., source=...) fix as
+      ! resolve_qualified_export_node_id above, same reason.
       if (is_self(this, src_component_name)) then
-         full_path = entry%comp_path
+         allocate(full_path, source=entry%comp_path)
       else if (len(entry%comp_path) == 0) then
-         full_path = src_component_name
+         allocate(full_path, source=src_component_name)
       else
-         full_path = src_component_name // '/' // entry%comp_path
+         allocate(full_path, source=src_component_name // '/' // entry%comp_path)
       end if
 
       if (len(full_path) == 0) then
@@ -363,11 +376,11 @@ contains
       _ASSERT(associated(state_node), 'GraphBuilder: callback state binding - state node not found')
       select type (state_node)
       class is (StateItemNode)
-         state_payload = state_node%get_payload()
+         state_payload => state_node%get_payload_ptr()
       class default
          _ASSERT(.false., 'GraphBuilder: callback state binding - state node is not a StateItemNode')
       end select
-      members = state_payload%state_members()
+      members => state_payload%state_members_ptr()
 
       binding = CallbackStateBinding(expected_interface_id, expected_iface, state_node_id)
 
@@ -375,7 +388,13 @@ contains
       iter = arguments%ftn_begin()
       do while (iter /= arguments%ftn_end())
          call iter%next()
-         argument_name = iter%first()
+         ! openspec/changes/graph-builder-stateitem-resolution: explicit
+         ! deallocate+allocate(..., source=...) instead of plain `=`
+         ! reassignment of an allocatable character variable inside a
+         ! loop - same gfortran realloc-on-assignment memory-corruption
+         ! class documented in StateItemNode.F90's constructor.
+         if (allocated(argument_name)) deallocate(argument_name)
+         allocate(argument_name, source=iter%first())
 
          member_node_id => members%at(argument_name)
          _ASSERT(associated(member_node_id), 'GraphBuilder: callback state binding - member not found for argument: ' // argument_name)
@@ -453,7 +472,13 @@ contains
       iter = accesses%ftn_begin()
       do while (iter /= accesses%ftn_end())
          call iter%next()
-         argument_name = iter%first()
+         ! openspec/changes/graph-builder-stateitem-resolution: explicit
+         ! deallocate+allocate(..., source=...) instead of plain `=`
+         ! reassignment of an allocatable character variable inside a
+         ! loop - same gfortran realloc-on-assignment memory-corruption
+         ! class documented in StateItemNode.F90's constructor.
+         if (allocated(argument_name)) deallocate(argument_name)
+         allocate(argument_name, source=iter%first())
          access = iter%second()
 
          member_id => state_binding%get_argument_binding(argument_name)

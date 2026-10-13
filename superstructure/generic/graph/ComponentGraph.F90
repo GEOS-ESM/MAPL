@@ -132,6 +132,15 @@ module mapl_ComponentGraph_mod
       procedure :: get_import_port => graph_get_import_port
       procedure :: get_export_port => graph_get_export_port
       procedure :: get_child_port_binding => graph_get_child_port_binding
+      ! openspec/changes/graph-builder-stateitem-resolution, tasks.md
+      ! 3.1: full-table enumeration counterparts of the single-key
+      ! lookups above - for_each_matching_import's replacement body
+      ! needs to walk every bound import port of a destination
+      ! ComponentGraph, not just look up one by a caller-supplied PortId
+      ! (which it never has in hand before the match). Same "return a
+      ! copy, empty once finalized" contract as get_node_ids() below.
+      procedure :: get_import_ports => graph_get_import_ports
+      procedure :: get_export_ports => graph_get_export_ports
       ! -- transform port bindings (REQ-XFORM-005) --------------------------
       procedure :: bind_port => graph_bind_port
       procedure :: get_port_binding => graph_get_port_binding
@@ -443,6 +452,27 @@ contains
       if (this%is_finalized()) return
       node_id => this%ports%child_bindings%at(port_id)
    end function graph_get_child_port_binding
+
+   ! openspec/changes/graph-builder-stateitem-resolution, tasks.md 3.1:
+   ! full import-port table, by value (same "return a copy" convention
+   ! as get_node_ids()/field_bundle_members()/state_members() elsewhere
+   ! in this codebase) - empty once finalized, matching every other
+   ! post-finalize accessor in this type.
+   function graph_get_import_ports(this) result(ports)
+      class(ComponentGraph), target, intent(in) :: this
+      type(PortIdNodeIdMap) :: ports
+
+      if (this%is_finalized()) return
+      ports = this%ports%import_ports
+   end function graph_get_import_ports
+
+   function graph_get_export_ports(this) result(ports)
+      class(ComponentGraph), target, intent(in) :: this
+      type(PortIdNodeIdMap) :: ports
+
+      if (this%is_finalized()) return
+      ports = this%ports%export_ports
+   end function graph_get_export_ports
 
    ! -- transform port bindings (spec/10-transforms-and-ports.md REQ-XFORM-005) --
 

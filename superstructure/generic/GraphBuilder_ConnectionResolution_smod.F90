@@ -5,11 +5,22 @@
 ! here verbatim from GraphBuilder.F90, mechanical subroutine->module
 ! subroutine / function->module function change only - see that
 ! change's design.md D1 for the full section-to-file mapping.)
-
+!
+! openspec/changes/graph-builder-stateitem-resolution: identity
+! (short_name/state_intent/is_inout_borrower/callback_interface_id) and
+! mismatch-characteristics (units/typekind/vertical_coordinate) are read
+! directly off each already-advertised StateItemNode/GraphStateItem
+! (set once by advertise_one, GraphBuilder_Advertising_smod.F90), never
+! by re-reading a VariableSpec reached by component name -
+! for_each_matching_import iterates the destination ComponentGraph's own
+! import-port table (not dst_spec%var_specs); build_characteristics is
+! removed (every call site reads GraphStateItem%get_characteristics()
+! off the resolved NodeId's own node); find_export_var_spec/
+! find_inout_borrower_var_spec are removed (both become an ordinary
+! port-table scan over nodes' own short_name/is_inout_borrower fields).
 submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use esmf, only: ESMF_State, ESMF_StateGet, ESMF_STATEITEM_NOTFOUND, operator(==)
-   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, TYPE_KIND_CHARACTERISTIC_KIND, &
-        PHYSICAL_UNITS_CHARACTERISTIC_KIND, VERTICAL_COORDINATE_CHARACTERISTIC_KIND
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
    use mapl_ConnectionVector_mod, only: ConnectionVectorIterator, operator(/=)
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain, materialize_extensions_enabled
    use mapl_FieldNamedAlias_mod, only: MAPL_NamedAlias
@@ -17,11 +28,7 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
-   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
-   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
-   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
-   use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
-   use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
+   use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -39,8 +46,8 @@ contains
 
       integer :: status
       type(ConnectionPt) :: src_pt, dst_pt
-      type(ComponentSpec), pointer :: dst_spec, src_spec
       type(OuterMetaComponent), pointer :: dst_meta, src_meta
+      type(ComponentGraph), pointer :: dst_graph
 
       src_pt = conn%get_source()
       dst_pt = conn%get_destination()
@@ -52,20 +59,21 @@ contains
       ! GraphBuilder_ConnectionResolution_smod.F90's module header for
       ! this capability's scope.
       dst_meta => resolve_qualified_component(this, dst_pt%component_name, _RC)
-      dst_spec => dst_meta%get_component_spec()
+      dst_graph => dst_meta%get_component_graph()
       src_meta => resolve_qualified_component(this, src_pt%component_name, _RC)
-      src_spec => src_meta%get_component_spec()
 
-      call for_each_matching_import(dst_spec, dst_pt, check_one, _RC)
+      call for_each_matching_import(dst_graph, dst_pt, check_one, _RC)
 
       _RETURN(_SUCCESS)
    contains
 
-      subroutine check_one(var_spec, rc)
-         type(VariableSpec), intent(in) :: var_spec
+      subroutine check_one(node, rc)
+         class(StateItemNode), target, intent(in) :: node
          integer, optional, intent(out) :: rc
 
+         integer :: status
          logical :: has_export
+         type(CallbackInterfaceId) :: callback_interface_id
          type(QualifiedExportEntry), allocatable :: callback_matches(:)
 
          ! openspec/changes/callback-wiring, design.md Decision 0: a
@@ -74,17 +82,23 @@ contains
          ! name matching - read-only here (resolve_callback_import never
          ! mutates the graph), matching this procedure's own activate-
          ! time contract.
-         if (var_spec%callback_interface_id%is_valid()) then
-            callback_matches = resolve_callback_import(this, src_pt, var_spec, rc=rc)
+         !
+         ! NAG rejects chaining a method call directly on another
+         ! function call's own result (`f()%method()`) - a local
+         ! temporary is required (same throughout this file).
+         callback_interface_id = node%get_callback_interface_id()
+         if (callback_interface_id%is_valid()) then
+            callback_matches = resolve_callback_import(this, src_pt, callback_interface_id, rc=status)
+            _VERIFY(status)
             if (size(callback_matches) == 0) then
-               call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name))
+               call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, node%get_short_name()))
             end if
             _RETURN(_SUCCESS)
          end if
 
-         has_export = associated(find_export_var_spec(src_spec, var_spec%short_name))
+         has_export = associated(find_export_node(src_meta, node%get_short_name()))
          if (.not. has_export) then
-            call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name))
+            call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, node%get_short_name()))
          end if
 
          _RETURN(_SUCCESS)
@@ -96,13 +110,14 @@ contains
    ! (superstructure/generic/connection/MatchConnection.F90) - filter the
    ! destination's imports against the declared destination pattern, then
    ! for each match require an EXACT-name export on the source side -
-   ! but recomputes it directly against ComponentSpec%var_specs
-   ! (design.md Decisions: "reuses MatchConnection's semantics, not its
-   ! implementation") rather than going through StateRegistry's
-   ! subregistry/family machinery. VirtualConnectionPt%matches() and the
-   ! ConnectionPt/VirtualConnectionPt read-only accessors are ordinary
-   ! public query methods on the Connection's own declared data, not part
-   ! of that execution machinery, and are used here as-is.
+   ! but recomputes it directly against the destination's own
+   ! ComponentGraph import-port table (design.md Decisions: "reuses
+   ! MatchConnection's semantics, not its implementation") rather than
+   ! going through StateRegistry's subregistry/family machinery.
+   ! VirtualConnectionPt%matches() and the ConnectionPt/
+   ! VirtualConnectionPt read-only accessors are ordinary public query
+   ! methods on the Connection's own declared data, not part of that
+   ! execution machinery, and are used here as-is.
    module subroutine resolve_match_connection(this, conn, unresolved, unsupported, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(MatchConnection), intent(in) :: conn
@@ -112,8 +127,8 @@ contains
 
       integer :: status
       type(ConnectionPt) :: src_pt, dst_pt
-      type(ComponentSpec), pointer :: dst_spec
       type(OuterMetaComponent), pointer :: dst_meta
+      type(ComponentGraph), pointer :: dst_graph
       type(ComponentGraph), pointer :: this_graph
       type(DependencyNetworkId) :: net_id
 
@@ -125,18 +140,18 @@ contains
       ! above - resolve_qualified_component in place of
       ! component_spec_for's own single-level dispatch.
       dst_meta => resolve_qualified_component(this, dst_pt%component_name, _RC)
-      dst_spec => dst_meta%get_component_spec()
+      dst_graph => dst_meta%get_component_graph()
 
       this_graph => this%get_component_graph()
       net_id = this_graph%get_default_network_id()
 
-      call for_each_matching_import(dst_spec, dst_pt, resolve_one, _RC)
+      call for_each_matching_import(dst_graph, dst_pt, resolve_one, _RC)
 
       _RETURN(_SUCCESS)
    contains
 
-      subroutine resolve_one(var_spec, rc)
-         type(VariableSpec), intent(in) :: var_spec
+      subroutine resolve_one(dst_node, rc)
+         class(StateItemNode), target, intent(in) :: dst_node
          integer, optional, intent(out) :: rc
 
          integer :: status
@@ -150,14 +165,15 @@ contains
          ! so the existing try_materialize_field_extension call at that
          ! same site is skipped (D4).
          logical :: alias_found
-         type(VariableSpec), pointer :: export_var_spec
-         type(StateItemCharacteristicMap), target :: export_characteristics, import_characteristics
+         class(StateItemNode), pointer :: export_node
+         type(GraphStateItem), pointer :: export_item, import_item
          type(StateItemCharacteristicKind), allocatable :: mismatched(:)
          character(:), allocatable :: unsupported_characteristic
          character(:), allocatable :: materialization_failure
          type(StringVector) :: callback_rejected
          character(:), pointer :: rejected_item
          integer :: j
+         type(CallbackInterfaceId) :: callback_interface_id
 
          ! openspec/changes/ordinary-inout-direct-alias: a destination
          ! declaring BOTH an expected callback interface and ordinary
@@ -168,8 +184,9 @@ contains
          ! silently ignore the other declaration rather than honoring it.
          ! Rejected explicitly, checked before either branch, so neither
          ! one ever silently wins.
-         if (var_spec%callback_interface_id%is_valid() .and. var_spec%is_inout_borrower) then
-            call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+         callback_interface_id = dst_node%get_callback_interface_id()
+         if (callback_interface_id%is_valid() .and. dst_node%is_inout_borrower()) then
+            call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
                  'declares both an expected callback interface and inout borrower intent (mutually exclusive)'))
             _RETURN(_SUCCESS)
          end if
@@ -180,12 +197,13 @@ contains
          ! its own collection, and wired to the import via an ordinary
          ! add_dependency edge (resolve_callback_destination) - instead
          ! of the exact-name/extension-chain logic below, which never
-         ! runs for this var_spec.
-          if (var_spec%callback_interface_id%is_valid()) then
-             call resolve_callback_destination(this, src_pt, dst_pt, var_spec, callback_rejected, _RC)
+         ! runs for this item.
+          if (callback_interface_id%is_valid()) then
+             call resolve_callback_destination(this, src_pt, dst_pt, dst_node%get_short_name(), &
+                  callback_interface_id, callback_rejected, _RC)
              do j = 1, callback_rejected%size()
                 rejected_item => callback_rejected%of(j)
-                call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+                call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
                      rejected_item))
              end do
              _RETURN(_SUCCESS)
@@ -195,29 +213,29 @@ contains
           ! Decisions 1/4: a destination declared as an ordinary inout
           ! borrower is resolved by resolve_inout_destination instead of
           ! the exact-name/extension-chain logic below, which never runs
-          ! for this var_spec - mirrors the callback-interface branch
+          ! for this item - mirrors the callback-interface branch
           ! immediately above exactly.
-          if (var_spec%is_inout_borrower) then
-             call resolve_inout_destination(this, src_pt, dst_pt, var_spec, unsupported, _RC)
+          if (dst_node%is_inout_borrower()) then
+             call resolve_inout_destination(this, src_pt, dst_pt, dst_node, unsupported, _RC)
              _RETURN(_SUCCESS)
           end if
 
           import_node_id = get_or_make_local_node_id(this, dst_pt%component_name, &
-              ESMF_STATEINTENT_IMPORT, var_spec%short_name, _RC)
+              ESMF_STATEINTENT_IMPORT, dst_node%get_short_name(), _RC)
 
-         has_export = find_export_node_id(this, src_pt%component_name, var_spec%short_name, &
-              export_node_id, export_var_spec, _RC)
+         has_export = find_export_node_id(this, src_pt%component_name, dst_node%get_short_name(), &
+              export_node_id, export_node, _RC)
 
          if (.not. has_export) then
             ! REQ scenario "Import with no matching export is left
             ! unresolved" - reported, not silently dropped.
-            call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name))
+            call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name()))
             _RETURN(_SUCCESS)
          end if
 
-         export_characteristics = build_characteristics(export_var_spec, _RC)
-         import_characteristics = build_characteristics(var_spec, _RC)
-         mismatched = find_mismatched_characteristics(export_characteristics, import_characteristics)
+         export_item => export_node%get_payload_ptr()
+         import_item => dst_node%get_payload_ptr()
+         mismatched = find_mismatched_characteristics(export_item%get_characteristics(), import_item%get_characteristics())
 
          if (size(mismatched) == 0) then
             ! REQ-EXT-003 no-op case: matches exactly, wire directly.
@@ -241,26 +259,18 @@ contains
                ! export field; try_materialize_field_extension's own
                ! FieldCreate path below is skipped entirely (calling it
                ! afterward would silently overwrite the alias, defeating
-               ! the whole point). Observed (not just statically traced,
-               ! tasks.md 3.1), running Test_GraphModeDemonstration.pf's
-               ! own units_mismatch_run_phase fixture under a temporary
-               ! diagnostic print removed before this comment was
-               ! written: try_alias_export_field succeeds (found=.true.)
-               ! on every call for this fixture, including the FIRST
-               ! GENERIC_INIT_ACCEPT_TRANSFER pass - confirming design.md
-               ! D2's static trace; the FieldCreate fallback below is
-               ! never actually exercised for this fixture.
-               call try_alias_export_field(this, src_pt%component_name, export_var_spec, &
+               ! the whole point).
+               call try_alias_export_field(this, src_pt%component_name, export_node%get_short_name(), &
                     this_graph, export_node_id, alias_found, _RC)
                if (.not. alias_found) then
-                  call try_materialize_field_extension(this, src_pt%component_name, export_var_spec, var_spec, &
-                       this_graph, export_node_id, materialization_failure, name=export_var_spec%short_name, _RC)
+                  call try_materialize_field_extension(this, src_pt%component_name, export_item, import_item, &
+                       this_graph, export_node_id, materialization_failure, name=export_node%get_short_name(), _RC)
                   if (materialization_failure /= '') then
                      ! Same distinguishable-failure reporting the mismatch
                      ! branch below already uses - the edge above still
                      ! exists (wiring succeeded; only payload materialization
                      ! did not).
-                     call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+                     call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
                           materialization_failure))
                   end if
                end if
@@ -273,13 +283,13 @@ contains
          ! capability (mapl_ExtensionResolution_mod) rather than wiring
          ! the mismatched pair directly.
          call find_or_build_extension_chain(this_graph, net_id, export_node_id, &
-              export_characteristics, import_characteristics, mismatched, &
+              export_item%get_characteristics(), import_item%get_characteristics(), mismatched, &
               final_node_id, intermediate_node_ids, unsupported_characteristic, _RC)
 
          if (unsupported_characteristic /= '') then
             ! spec "Unregistered characteristic fails loudly" -
             ! distinguishable from "import has no matching export."
-            call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+            call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
                  unsupported_characteristic))
             _RETURN(_SUCCESS)
          end if
@@ -288,8 +298,8 @@ contains
          ! implementation (this change's own YAML-configured
          ! demonstration scenario): the mismatch branch's own
          ! export_node_id (the chain's own INPUT) was never materialized
-         ! by anything - only the exact-match branch above (line ~849)
-         ! and the chain's own FINAL node (below) ever call
+         ! by anything - only the exact-match branch above and the
+         ! chain's own FINAL node (below) ever call
          ! try_materialize_field_extension. Harmless as long as nothing
          ! ever executes the chain's own compute() for real (no fixture
          ! did, before this change's own run-phase pull, design.md D7);
@@ -297,33 +307,29 @@ contains
          ! `input_field = input_item%get_field(_RC)` call fails outright
          ! on an unallocated input otherwise. Fixed by materializing
          ! export_node_id here too, using the EXPORT's own typekind/units/
-         ! geom/vgrid - NOT the import's (passing export_var_spec for
-         ! BOTH the export_var_spec and import_var_spec arguments is what
-         ! makes try_materialize_field_extension's own "always use the
-         ! second VariableSpec argument's typekind/units" contract
-         ! resolve to the export's own values here, correct for the
-         ! chain's own input node, as opposed to the chain's final node
-         ! below, which correctly keeps using the import's own values).
-         ! Gated the same way the exact-match branch's own materialization
-         ! already is (graph_mode() /= GRAPH_MODE_REGISTRY) - a no-op in
+         ! geom/vgrid - NOT the import's (passing export_item for BOTH
+         ! the export and import arguments is what makes
+         ! try_materialize_field_extension's own "always use the second
+         ! argument's typekind/units" contract resolve to the export's
+         ! own values here, correct for the chain's own input node, as
+         ! opposed to the chain's final node below, which correctly
+         ! keeps using the import's own values). Gated the same way the
+         ! exact-match branch's own materialization already is
+         ! (graph_mode() /= GRAPH_MODE_REGISTRY) - a no-op in
          ! GRAPH_MODE_REGISTRY, matching every other new code path this
          ! change adds.
          if (graph_mode() /= GRAPH_MODE_REGISTRY) then
             ! openspec/changes/phase-11a-export-field-aliasing: same
             ! guard, same skip-when-found treatment as the exact-match
             ! branch above (D4) - no divergence between the two call
-            ! sites. export_var_spec is passed for both the "which
-            ! component/item to alias" argument and (unchanged, in the
-            ! fallback below) the typekind/units source - the chain's
-            ! own input node correctly uses the export's own values,
-            ! same as before this change.
-            call try_alias_export_field(this, src_pt%component_name, export_var_spec, &
+            ! sites.
+            call try_alias_export_field(this, src_pt%component_name, export_node%get_short_name(), &
                  this_graph, export_node_id, alias_found, _RC)
             if (.not. alias_found) then
-               call try_materialize_field_extension(this, src_pt%component_name, export_var_spec, export_var_spec, &
-                    this_graph, export_node_id, materialization_failure, name=export_var_spec%short_name, _RC)
+               call try_materialize_field_extension(this, src_pt%component_name, export_item, export_item, &
+                    this_graph, export_node_id, materialization_failure, name=export_node%get_short_name(), _RC)
                if (materialization_failure /= '') then
-                  call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+                  call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
                        materialization_failure))
                   _RETURN(_SUCCESS)
                end if
@@ -347,13 +353,13 @@ contains
          ! single-characteristic mismatch (intermediate_node_ids has
          ! length 1, equal to final_node_id).
          if (materialize_extensions_enabled()) then
-            call materialize_extension_chain(this, src_pt%component_name, export_var_spec, var_spec, &
+            call materialize_extension_chain(this, src_pt%component_name, export_item, import_item, &
                  mismatched, intermediate_node_ids, this_graph, materialization_failure, _RC)
             if (materialization_failure /= '') then
                ! Distinguishable from both "no matching export" and
                ! "unregistered characteristic fails loudly" above (spec
                ! "A non-field item class fails explicitly").
-               call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+               call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
                     materialization_failure))
                _RETURN(_SUCCESS)
             end if
@@ -412,31 +418,53 @@ contains
 
    ! Shared by check_match_connection_unsatisfied() and
    ! resolve_match_connection() below: both used to independently repeat
-   ! this same "which of dst_spec's imports does dst_pt's declared
-   ! pattern match" do/if/if scan (module header - "same destination-
-   ! import filtering"). Owns the loop and both guard clauses; each
-   ! caller supplies only the per-match step, as an internal procedure so
-   ! it can host-associate whatever extra context it needs (this,
-   ! src_pt, unresolved, ...) - same style as OuterMetaComponent's own
+   ! this same "which of dst_graph's import ports does dst_pt's declared
+   ! pattern match" scan (module header - "same destination-import
+   ! filtering"). Owns the loop and both guard clauses; each caller
+   ! supplies only the per-match step, as an internal procedure so it can
+   ! host-associate whatever extra context it needs (this, src_pt,
+   ! unresolved, ...) - same style as OuterMetaComponent's own
    ! apply_to_children_custom()/I_child_op.
-   module subroutine for_each_matching_import(dst_spec, dst_pt, op, rc)
-      type(ComponentSpec), intent(in) :: dst_spec
+   !
+   ! openspec/changes/graph-builder-stateitem-resolution, design.md
+   ! Decisions: iterates dst_graph's own import-port table
+   ! (ComponentGraph%get_import_ports(), new - tasks.md 3.1 design.md
+   ! correction) instead of dst_spec%var_specs - for each bound import
+   ! PortId, the corresponding StateItemNode is retrieved
+   ! (graph%get_node(node_id), already public) and its own
+   ! get_short_name()/get_state_intent() fields (new, task 1.1) are used
+   ! for the dst_pt%v_pt%matches(...) filter - structurally the same
+   ! filter condition as before, just sourced from the node instead of a
+   ! var_spec. op's own signature is `subroutine(node, rc)` (task 3.1).
+   module subroutine for_each_matching_import(dst_graph, dst_pt, op, rc)
+      type(ComponentGraph), target, intent(in) :: dst_graph
       type(ConnectionPt), intent(in) :: dst_pt
       procedure(I_match_op) :: op
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
+      type(PortIdNodeIdMap), target :: import_ports
+      type(PortIdNodeIdMapIterator) :: iter
+      type(NodeId) :: node_id
+      class(GraphNode), pointer :: generic_node
 
-      associate (e => dst_spec%var_specs%ftn_end())
-         iter = dst_spec%var_specs%ftn_begin()
+      import_ports = dst_graph%get_import_ports()
+
+      associate (e => import_ports%ftn_end())
+         iter = import_ports%ftn_begin()
          do while (iter /= e)
             call iter%next()
-            var_spec => iter%of()
-            if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT)) cycle
-            if (.not. dst_pt%v_pt%matches(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, var_spec%short_name))) cycle
-            call op(var_spec, _RC)
+            node_id = iter%second()
+            generic_node => dst_graph%get_node(node_id)
+            _ASSERT(associated(generic_node), 'GraphBuilder: for_each_matching_import - import port NodeId not found')
+            select type (generic_node)
+            class is (StateItemNode)
+               if (.not. (generic_node%get_state_intent() == ESMF_STATEINTENT_IMPORT)) cycle
+               if (.not. dst_pt%v_pt%matches(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, generic_node%get_short_name()))) cycle
+               call op(generic_node, _RC)
+            class default
+               _FAIL('GraphBuilder: for_each_matching_import - import port NodeId is not a StateItemNode')
+            end select
          end do
       end associate
 
@@ -514,90 +542,72 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine graphbuilder_resolve_connections
 
-   ! Builds the StateItemCharacteristicMap for one VariableSpec directly
-   ! from its own declared fields - deliberately not via
-   ! VariableSpec%make_StateitemSpec/make_aspects (design.md Decisions:
-   ! "Characteristic is the graph's own name for what legacy calls an
-   ! Aspect, and is a deliberately independent design, not a reskin").
-   ! A kind is included only when the underlying field is actually
-   ! populated, mirroring "aspect present" gating.
-    module function build_characteristics(var_spec, rc) result(characteristics)
-      type(VariableSpec), intent(in) :: var_spec
-      integer, optional, intent(out) :: rc
-      type(StateItemCharacteristicMap) :: characteristics
+   ! openspec/changes/graph-builder-stateitem-resolution, tasks.md 4.2:
+   ! finds the export's own NodeId/StateItemNode by scanning the source
+   ! ComponentGraph's own export-port table for a node whose
+   ! get_short_name() matches, instead of scanning src_spec%var_specs
+   ! (the now-removed find_export_var_spec's own job) - the single
+   ! replacement for both find_export_var_spec and the NodeId half this
+   ! function already performed. export_node is an output argument
+   ! (StateItemNode, by pointer) instead of a VariableSpec, since callers
+   ! need the node's fields now, not a var_spec's.
+   ! openspec/changes/graph-builder-stateitem-resolution, tasks.md 4.2:
+   ! read-only scan of src_meta's own ComponentGraph export-port table
+   ! for a node whose get_short_name() matches - the direct node-based
+   ! replacement for the now-removed find_export_var_spec, used by
+   ! find_export_node_id below (which additionally mutates the graph via
+   ! get_or_make_local_node_id) AND by check_match_connection_unsatisfied's
+   ! own check_one (which must NOT create graph structure - this
+   ! procedure's own module-header "activate()-time analog" contract).
+   function find_export_node(src_meta, short_name) result(export_node)
+      class(OuterMetaComponent), target, intent(inout) :: src_meta
+      character(*), intent(in) :: short_name
+      class(StateItemNode), pointer :: export_node
 
-      integer :: status
-      character(20) :: grid_id_buffer
+      type(ComponentGraph), pointer :: src_graph
+      type(PortIdNodeIdMap), target :: export_ports
+      type(PortIdNodeIdMapIterator) :: iter
+      type(NodeId) :: candidate_id
+      class(GraphNode), pointer :: candidate_node
 
-      if (allocated(var_spec%units)) then
-         call characteristics%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic(var_spec%units))
-      end if
-      ! openspec/changes/phase-10c-typekind-characteristic, design.md D3:
-      ! unlike units, VariableSpec%typekind is a non-allocatable field
-      ! with a default (ESMF_TYPEKIND_R4) - every VariableSpec always
-      ! has SOME typekind, so there is no "not declared" state to gate
-      ! on the way `allocated(var_spec%units)` gates the branch above.
-      ! Inserted unconditionally; see design.md D3 for the regression
-      ! argument (an exact-match connection's two sides already agree by
-      ! construction in every existing fixture, so this adds a real but
-      ! always-no-op comparison for them, changing no existing resolved
-      ! result).
-      call characteristics%insert(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic(var_spec%typekind))
-      if (allocated(var_spec%vertical_grid)) then
-         ! VerticalGrid%get_id() returns an integer identity token;
-         ! VerticalCoordinateCharacteristic compares an opaque string
-         ! signature (get_signature contract), so it is rendered to text
-         ! here rather than changing VerticalCoordinateCharacteristic's
-         ! own constructor to know about integer ids specifically.
-         ! get_supported_physical_dimensions() is a pure accessor (no
-         ! StateRegistry involvement, unlike get_coordinate_field()) -
-         ! also supplied here so a mismatched identity gets
-         ! REQ-GEO-007a's dimension-overlap classification
-         ! (openspec/changes/vertical-grid-graph-state-item) rather than
-         ! an undifferentiated failure. No referenced_node_id supplied
-         ! here (GraphBuilder's own production call site has no NodeId
-         ! to give it) - needs_extension_for's hybrid comparison
-         ! (VerticalCoordinateCharacteristic.F90's own module header)
-         ! falls back to the identity-token/dimension-set comparison.
-         write(grid_id_buffer, '(I0)') var_spec%vertical_grid%get_id()
-         call characteristics%insert(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
-              VerticalCoordinateCharacteristic(grid_id=trim(grid_id_buffer), &
-                   dimensions=var_spec%vertical_grid%get_supported_physical_dimensions()))
-      end if
-      ! openspec/changes/vertical-grid-graph-state-item: a composite
-      ! VariableSpec tagged state_item_variant == MAPL_STATEITEM_VERTICALGRID
-      ! (REQ-GEO-009) has no legacy VerticalGrid object to pull an
-      ! identity token from - only its own declared member names
-      ! (REQ-GEO-004a: member name = physical dimension, so
-      ! get_member_names() already IS the dimension set). Uses the SAME
-      ! VerticalCoordinateCharacteristic/VERTICAL_COORDINATE_CHARACTERISTIC_KIND
-      ! as the branch above (not a separate characteristic kind) - with
-      ! no identity token supplied, needs_extension_for falls back to
-      ! dimension-set comparison (VerticalCoordinateCharacteristic.F90's
-      ! own module header).
-      if (allocated(var_spec%state_item_variant)) then
-         if (var_spec%state_item_variant == MAPL_STATEITEM_VERTICALGRID) then
-            call characteristics%insert(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
-                 VerticalCoordinateCharacteristic(dimensions=var_spec%get_member_names()))
-         end if
-      end if
+      export_node => null()
 
-      _RETURN(_SUCCESS)
-   end function build_characteristics
+      src_graph => src_meta%get_component_graph()
+      export_ports = src_graph%get_export_ports()
 
-   logical module function find_export_node_id(this, comp_name, short_name, export_node_id, export_var_spec, rc) result(found)
+      associate (e => export_ports%ftn_end())
+         iter = export_ports%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            candidate_id = iter%second()
+            candidate_node => src_graph%get_node(candidate_id)
+            if (.not. associated(candidate_node)) cycle
+            select type (candidate_node)
+            class is (StateItemNode)
+               if (candidate_node%get_short_name() == short_name) then
+                  export_node => candidate_node
+                  return
+               end if
+            class default
+               ! Not a StateItemNode (e.g. a different GraphNode kind
+               ! co-owned by this graph) - not an export candidate,
+               ! skipped rather than failing.
+            end select
+         end do
+      end associate
+   end function find_export_node
+
+   logical module function find_export_node_id(this, comp_name, short_name, export_node_id, export_node, rc) result(found)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: comp_name
       character(*), intent(in) :: short_name
       type(NodeId), intent(out) :: export_node_id
-      type(VariableSpec), pointer, intent(out) :: export_var_spec
+      class(StateItemNode), pointer, intent(out) :: export_node
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ComponentSpec), pointer :: src_spec
       type(OuterMetaComponent), pointer :: src_meta
 
-      export_var_spec => null()
       ! openspec/changes/graph-builder-resolution-index: see
       ! check_match_connection_unsatisfied's own identical replacement
       ! above - resolve_qualified_component in place of
@@ -605,9 +615,9 @@ contains
       ! real NodeId (get_or_make_local_node_id below) already reaches
       ! any descendant level via the same primitive, same change.
       src_meta => resolve_qualified_component(this, comp_name, _RC)
-      src_spec => src_meta%get_component_spec()
-      export_var_spec => find_export_var_spec(src_spec, short_name)
-      found = associated(export_var_spec)
+      export_node => find_export_node(src_meta, short_name)
+      found = associated(export_node)
+
       if (.not. found) then
          _RETURN(_SUCCESS)
       end if
@@ -620,29 +630,33 @@ contains
    ! openspec/changes/ordinary-inout-direct-alias, design.md Decisions
    ! 1-4: resolves a destination item declared an ordinary inout borrower
    ! (16-inout-items.md REQ-INOUT-001, direct-alias case only). Reuses
-   ! find_export_node_id/build_characteristics/
-   ! find_mismatched_characteristics exactly as resolve_one's own
-   ! ordinary (non-inout) path does for the REQ-EXT-003 no-op comparison
-   ! - owner and borrower come to share one underlying payload through
-   ! the same materialization path ordinary no-op connections already
-   ! use, since the forward edge below is wired identically. On an exact
-   ! match, also adds a return-network edge (borrower -> owner) in a
-   ! fresh per-pairing network (Decision 2, revised - mirrors callback
-   ! wiring's own per-binding create_network() precedent) so the pairing
-   ! satisfies REQ-DEP-008a by construction (forward writes the
-   ! borrower's NodeId, return writes the owner's NodeId - two different
-   ! ids, never the same network). Every shape REQ-INOUT-002 reserves for
-   ! a future design addendum (mismatched payload, no identifiable owner,
-   ! chained/recursive borrowing) is rejected here and reported via
-   ! `unsupported`, never delegated to extension-chain construction.
-   ! Decision 3 (revised): this subroutine lands graph structure only -
-   ! the runtime return-edge propagation trigger is explicitly deferred
-   ! (no borrower-execution-completion hook exists yet to attach it to).
-   module subroutine resolve_inout_destination(this, src_pt, dst_pt, var_spec, unsupported, rc)
+   ! find_export_node_id/find_mismatched_characteristics exactly as
+   ! resolve_one's own ordinary (non-inout) path does for the REQ-EXT-003
+   ! no-op comparison - owner and borrower come to share one underlying
+   ! payload through the same materialization path ordinary no-op
+   ! connections already use, since the forward edge below is wired
+   ! identically. On an exact match, also adds a return-network edge
+   ! (borrower -> owner) in a fresh per-pairing network (Decision 2,
+   ! revised - mirrors callback wiring's own per-binding
+   ! create_network() precedent) so the pairing satisfies REQ-DEP-008a by
+   ! construction (forward writes the borrower's NodeId, return writes
+   ! the owner's NodeId - two different ids, never the same network).
+   ! Every shape REQ-INOUT-002 reserves for a future design addendum
+   ! (mismatched payload, no identifiable owner, chained/recursive
+   ! borrowing) is rejected here and reported via `unsupported`, never
+   ! delegated to extension-chain construction. Decision 3 (revised):
+   ! this subroutine lands graph structure only - the runtime return-edge
+   ! propagation trigger is explicitly deferred (no borrower-execution-
+   ! completion hook exists yet to attach it to).
+   !
+   ! openspec/changes/graph-builder-stateitem-resolution: dst_node (the
+   ! borrower's own already-advertised StateItemNode) replaces the
+   ! borrower's var_spec throughout.
+   module subroutine resolve_inout_destination(this, src_pt, dst_pt, dst_node, unsupported, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ConnectionPt), intent(in) :: src_pt
       type(ConnectionPt), intent(in) :: dst_pt
-      type(VariableSpec), intent(in) :: var_spec
+      class(StateItemNode), target, intent(in) :: dst_node
       type(GraphResolutionEntryVector), intent(inout) :: unsupported
       integer, optional, intent(out) :: rc
 
@@ -651,56 +665,86 @@ contains
       type(DependencyNetworkId) :: net_id, return_net_id
       type(NodeId) :: import_node_id, owner_node_id
       logical :: has_owner
-      type(VariableSpec), pointer :: owner_var_spec
-      type(ComponentSpec), pointer :: owner_comp_spec
-      type(StateItemCharacteristicMap), target :: owner_characteristics, borrower_characteristics
+      class(StateItemNode), pointer :: owner_node
+      type(ComponentGraph), pointer :: owner_graph
+      type(OuterMetaComponent), pointer :: owner_meta
+      type(PortIdNodeIdMap), target :: owner_import_ports
+      type(PortIdNodeIdMapIterator) :: iter
+      type(NodeId) :: candidate_id
+      class(GraphNode), pointer :: candidate_node
+      logical :: owner_is_chained
+      type(GraphStateItem), pointer :: owner_item, borrower_item
       type(StateItemCharacteristicKind), allocatable :: mismatched(:)
 
       graph => this%get_component_graph()
       net_id = graph%get_default_network_id()
 
       import_node_id = get_or_make_local_node_id(this, dst_pt%component_name, &
-           ESMF_STATEINTENT_IMPORT, var_spec%short_name, _RC)
+           ESMF_STATEINTENT_IMPORT, dst_node%get_short_name(), _RC)
 
-      has_owner = find_export_node_id(this, src_pt%component_name, var_spec%short_name, &
-           owner_node_id, owner_var_spec, _RC)
+      has_owner = find_export_node_id(this, src_pt%component_name, dst_node%get_short_name(), &
+           owner_node_id, owner_node, _RC)
 
       if (.not. has_owner) then
          ! spec "A borrower declaration with no identifiable owner is
          ! rejected" - reported, never silently treated as an ordinary
          ! import.
-         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
               'inout borrower has no identifiable owner'))
          _RETURN(_SUCCESS)
       end if
 
-      ! spec "A chained borrowing pairing is rejected": `owner_var_spec`
+      ! spec "A chained borrowing pairing is rejected": owner_node
       ! (found above via find_export_node_id) is always the EXPORT-intent
-      ! declaration on the source component - `is_inout_borrower` is only
-      ! ever set on an IMPORT declaration (a borrower marks itself, not
+      ! node on the source component - is_inout_borrower() is only ever
+      ! true on an IMPORT-intent node (a borrower marks itself, not
       ! whoever re-exports its value), so checking
-      ! `owner_var_spec%is_inout_borrower` directly would never detect
+      ! owner_node%is_inout_borrower() directly would never detect
       ! chaining. Instead, check whether the source component itself
-      ! separately declares a same-short-name IMPORT marked as an inout
-      ! borrower - i.e. the value this destination would borrow is itself
-      ! borrowed by its own owning component.
-      owner_comp_spec => component_spec_for(this, src_pt%component_name, _RC)
-      if (associated(find_inout_borrower_var_spec(owner_comp_spec, var_spec%short_name))) then
-         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+      ! separately declares a same-short-name IMPORT node marked an
+      ! inout borrower - i.e. the value this destination would borrow is
+      ! itself borrowed by its own owning component - via a scan over
+      ! the owner's own import ports (the node-based replacement for the
+      ! now-removed find_inout_borrower_var_spec, tasks.md 4.3).
+      owner_meta => resolve_qualified_component(this, src_pt%component_name, _RC)
+      owner_graph => owner_meta%get_component_graph()
+      owner_import_ports = owner_graph%get_import_ports()
+      owner_is_chained = .false.
+      associate (e => owner_import_ports%ftn_end())
+         iter = owner_import_ports%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            candidate_id = iter%second()
+            candidate_node => owner_graph%get_node(candidate_id)
+            _ASSERT(associated(candidate_node), 'GraphBuilder: resolve_inout_destination - import port NodeId not found')
+            select type (candidate_node)
+            class is (StateItemNode)
+               if (candidate_node%get_short_name() == dst_node%get_short_name() .and. &
+                    candidate_node%is_inout_borrower()) then
+                  owner_is_chained = .true.
+                  exit
+               end if
+            class default
+               _FAIL('GraphBuilder: resolve_inout_destination - import port NodeId is not a StateItemNode')
+            end select
+         end do
+      end associate
+      if (owner_is_chained) then
+         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
               'inout borrower owner is itself a declared inout borrower (chained borrowing)'))
          _RETURN(_SUCCESS)
       end if
 
-      owner_characteristics = build_characteristics(owner_var_spec, _RC)
-      borrower_characteristics = build_characteristics(var_spec, _RC)
-      mismatched = find_mismatched_characteristics(owner_characteristics, borrower_characteristics)
+      owner_item => owner_node%get_payload_ptr()
+      borrower_item => dst_node%get_payload_ptr()
+      mismatched = find_mismatched_characteristics(owner_item%get_characteristics(), borrower_item%get_characteristics())
 
       if (size(mismatched) /= 0) then
          ! spec "A mismatched pairing is rejected rather than silently
          ! chained" - REQ-INOUT-002 reserves the non-direct-alias case;
          ! this capability MUST NOT delegate to extension-chain
          ! construction the way ordinary (non-inout) resolution does.
-         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, var_spec%short_name, &
+         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
               'inout borrower payload does not exactly match its owner (non-direct-alias case not supported)'))
          _RETURN(_SUCCESS)
       end if
@@ -717,57 +761,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine resolve_inout_destination
 
-   module function find_export_var_spec(comp_spec, short_name) result(export_var_spec)
-      type(ComponentSpec), target, intent(in) :: comp_spec
-      character(*), intent(in) :: short_name
-      type(VariableSpec), pointer :: export_var_spec
-
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-
-      export_var_spec => null()
-      associate (e => comp_spec%var_specs%ftn_end())
-         iter = comp_spec%var_specs%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            var_spec => iter%of()
-            if (var_spec%state_intent == ESMF_STATEINTENT_EXPORT .and. var_spec%short_name == short_name) then
-               export_var_spec => var_spec
-               return
-            end if
-         end do
-      end associate
-   end function find_export_var_spec
-
-   ! openspec/changes/ordinary-inout-direct-alias: finds a same-short-name
-   ! IMPORT-intent VariableSpec on comp_spec that is itself declared an
-   ! ordinary inout borrower (VariableSpec%is_inout_borrower) - used by
-   ! resolve_inout_destination's chained-borrowing check (spec "A chained
-   ! borrowing pairing is rejected"). Mirrors find_export_var_spec's own
-   ! shape exactly, filtering IMPORT+is_inout_borrower instead of EXPORT.
-   module function find_inout_borrower_var_spec(comp_spec, short_name) result(borrower_var_spec)
-      type(ComponentSpec), target, intent(in) :: comp_spec
-      character(*), intent(in) :: short_name
-      type(VariableSpec), pointer :: borrower_var_spec
-
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-
-      borrower_var_spec => null()
-      associate (e => comp_spec%var_specs%ftn_end())
-         iter = comp_spec%var_specs%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            var_spec => iter%of()
-            if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT .and. var_spec%short_name == short_name &
-                 .and. var_spec%is_inout_borrower) then
-               borrower_var_spec => var_spec
-               return
-            end if
-         end do
-      end associate
-   end function find_inout_borrower_var_spec
-
    ! openspec/changes/phase-11a-export-field-aliasing, design.md D1/D2/
    ! D3/D4/D5: materializes node_id's StateItemNode payload as a real
    ! MAPL_NamedAlias of the export component's own real, already-
@@ -782,11 +775,15 @@ contains
    ! by name - D2), this returns success, not an error, and the caller
    ! falls back to today's unchanged try_materialize_field_extension
    ! call.
-   module subroutine try_alias_export_field(this, export_comp_name, export_var_spec, &
+   !
+   ! openspec/changes/graph-builder-stateitem-resolution: export_var_spec
+   ! replaced by export_short_name (a plain character argument) - this
+   ! procedure only ever read %short_name off it, never any other field.
+   module subroutine try_alias_export_field(this, export_comp_name, export_short_name, &
         graph, node_id, found, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: export_comp_name
-      type(VariableSpec), intent(in) :: export_var_spec
+      character(*), intent(in) :: export_short_name
       type(ComponentGraph), target, intent(inout) :: graph
       type(NodeId), intent(in) :: node_id
       logical, intent(out) :: found
@@ -815,17 +812,17 @@ contains
       ! via itemType, the same "present/absent" idiom
       ! FieldClassAspect%add_to_state already uses, rather than trusting
       ! ESMF_StateGet's own rc to distinguish "absent" from "present."
-      call ESMF_StateGet(export_state, itemName=export_var_spec%short_name, itemType=item_kind, _RC)
+      call ESMF_StateGet(export_state, itemName=export_short_name, itemType=item_kind, _RC)
       if (item_kind == ESMF_STATEITEM_NOTFOUND) then
          _RETURN(_SUCCESS)
       end if
 
-      call ESMF_StateGet(export_state, itemName=export_var_spec%short_name, field=field, _RC)
+      call ESMF_StateGet(export_state, itemName=export_short_name, field=field, _RC)
 
       ! D5: MAPL_NamedAlias, not a hand-rolled ESMF_NamedAlias - carries
       ! MAPL's own per-alias-id metadata (standard_name/long_name/
       ! restart_mode), same as populate_one's own precedent.
-      alias = MAPL_NamedAlias(field, name=export_var_spec%short_name, _RC)
+      alias = MAPL_NamedAlias(field, name=export_short_name, _RC)
 
       node => graph%get_node(node_id)
       _ASSERT(associated(node), 'GraphBuilder: try_alias_export_field - NodeId not found in graph')

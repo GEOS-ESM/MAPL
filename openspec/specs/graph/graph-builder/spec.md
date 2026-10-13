@@ -58,7 +58,10 @@ followed by a later step that performs the real wiring.
 For each ordinary (exact short-name match, non-wildcard, non-callback)
 import/export connection declared between two components, the system
 SHALL determine whether the export's payload matches what the import
-requires. If it matches, the system SHALL add a dependency edge, in the
+requires, using only each state item's own already-established
+identity and characteristics (set once when that item was advertised),
+never by looking up a `VariableSpec` on a different component by name.
+If it matches, the system SHALL add a dependency edge, in the
 consuming component's default dependency network, directly from the
 export's node to the matching import's node, and SHALL materialize a
 real field payload on the export's node when the graph mode (see the
@@ -129,6 +132,25 @@ lifecycle point) - not merely once activity/need has been determined.
 - **THEN** this capability does not create a dependency edge for that
   connection and does not report it as an ordinary-connection failure —
   such connections remain the responsibility of a later resolution step
+
+#### Scenario: Resolution succeeds when the originating declaration is no longer reachable
+- **WHEN** an ordinary connection's destination import and source export
+  were each advertised from a declaration this capability has no way to
+  look up again by component name at resolution time (for example, the
+  declaration belonged to a component several hierarchy levels away from
+  where resolution is running)
+- **THEN** resolution still correctly determines whether the two match or
+  mismatch, using only the two items' own already-established identity
+  and characteristics - resolution's correctness never depends on being
+  able to re-reach either side's originating declaration
+
+#### Scenario: Mismatch determination uses each item's own established characteristics
+- **WHEN** this capability determines whether a matched export/import
+  pair's payloads mismatch
+- **THEN** that determination compares the two items' own already-
+  established characteristics (set once when each item was advertised),
+  not a freshly recomputed value derived from re-reading either
+  component's own declaration
 
 ### Requirement: Resolution creates or reuses the default dependency network
 Ordinary connection resolution for a component SHALL occur in that

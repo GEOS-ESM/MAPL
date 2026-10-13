@@ -273,11 +273,11 @@ contains
    ! field-bundle kind; state member map stays empty.
    @test
    subroutine test_field_bundle_member_map_gated_by_kind()
-      type(GraphStateItem) :: item
+      type(GraphStateItem), target :: item
       type(ESMF_FieldBundle) :: bundle
       type(NodeIdGenerator) :: gen
       type(NodeId) :: id
-      type(StateItemMemberMap) :: fb_members, s_members
+      type(StateItemMemberMap), pointer :: fb_members, s_members
       integer :: status
 
       bundle = make_test_field_bundle(rc=status)
@@ -289,19 +289,19 @@ contains
       call item%add_field_bundle_member('member_1', id, rc=status)
       @assertEqual(0, status)
 
-      fb_members = item%field_bundle_members()
-      s_members = item%state_members()
+      fb_members => item%field_bundle_members_ptr()
+      s_members => item%state_members_ptr()
       @assertTrue(fb_members%count('member_1') > 0)
       @assertEqual(0, s_members%size())
    end subroutine test_field_bundle_member_map_gated_by_kind
 
    @test
    subroutine test_state_member_map_gated_by_kind()
-      type(GraphStateItem) :: item
+      type(GraphStateItem), target :: item
       type(ESMF_State) :: state
       type(NodeIdGenerator) :: gen
       type(NodeId) :: id
-      type(StateItemMemberMap) :: fb_members, s_members
+      type(StateItemMemberMap), pointer :: fb_members, s_members
       integer :: status
 
       state = make_test_state(rc=status)
@@ -313,17 +313,17 @@ contains
       call item%add_state_member('member_1', id, rc=status)
       @assertEqual(0, status)
 
-      fb_members = item%field_bundle_members()
-      s_members = item%state_members()
+      fb_members => item%field_bundle_members_ptr()
+      s_members => item%state_members_ptr()
       @assertTrue(s_members%count('member_1') > 0)
       @assertEqual(0, fb_members%size())
    end subroutine test_state_member_map_gated_by_kind
 
    @test
    subroutine test_both_member_maps_empty_for_field_kind()
-      type(GraphStateItem) :: item
+      type(GraphStateItem), target :: item
       type(ESMF_Field) :: field
-      type(StateItemMemberMap) :: fb_members, s_members
+      type(StateItemMemberMap), pointer :: fb_members, s_members
       integer :: status
 
       field = make_test_field('t_field', rc=status)
@@ -331,17 +331,17 @@ contains
       call item%set(field, rc=status)
       @assertEqual(0, status)
 
-      fb_members = item%field_bundle_members()
-      s_members = item%state_members()
+      fb_members => item%field_bundle_members_ptr()
+      s_members => item%state_members_ptr()
       @assertEqual(0, fb_members%size())
       @assertEqual(0, s_members%size())
    end subroutine test_both_member_maps_empty_for_field_kind
 
    @test
    subroutine test_both_member_maps_empty_for_route_handle_kind()
-      type(GraphStateItem) :: item
+      type(GraphStateItem), target :: item
       type(ESMF_RouteHandle) :: rh
-      type(StateItemMemberMap) :: fb_members, s_members
+      type(StateItemMemberMap), pointer :: fb_members, s_members
       integer :: status
 
       rh = make_test_route_handle(rc=status)
@@ -349,8 +349,8 @@ contains
       call item%set(rh, rc=status)
       @assertEqual(0, status)
 
-      fb_members = item%field_bundle_members()
-      s_members = item%state_members()
+      fb_members => item%field_bundle_members_ptr()
+      s_members => item%state_members_ptr()
       @assertEqual(0, fb_members%size())
       @assertEqual(0, s_members%size())
    end subroutine test_both_member_maps_empty_for_route_handle_kind
