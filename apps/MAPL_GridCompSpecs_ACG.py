@@ -244,6 +244,7 @@ def get_options(args):
         'name': SHORT_NAME,
         'vloc': VSTAGGER,
         'vlocation': VSTAGGER,
+        'vstagger': VSTAGGER,
         'restart': RESTART,
         'add2export': ADD_TO_EXPORT,
         'field dictionary': USE_FIELD_DICTIONARY,
