@@ -168,7 +168,7 @@ module mapl_RegridderMethods_mod
              mapl_dyn_mask = DynamicMask('missing_value', MAPL_UNDEFINED_REAL64, &
                              handleAllElements=.true., _RC)
           end if
-          regrid_param = EsmfRegridderParam(regridMethod=ESMF_REGRIDMETHOD_CONSERVE, dyn_mask=mapl_dyn_mask)
+          regrid_param = EsmfRegridderParam(regridMethod=ESMF_REGRIDMETHOD_CONSERVE_2ND, dyn_mask=mapl_dyn_mask)
       case (REGRID_METHOD_PATCH)
           if (typekind == ESMF_TYPEKIND_R4) then
              mapl_dyn_mask = DynamicMask('missing_value', MAPL_UNDEFINED_REAL, &

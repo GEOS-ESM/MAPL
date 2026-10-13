@@ -6,6 +6,7 @@ target_sources(MAPL.geom PRIVATE
   get_extent.F90
   get_centers.F90
   get_corners.F90
+  get_tolerance.F90
   is_periodic.F90
   get_dim_name.F90
   get_coordinates_dim.F90

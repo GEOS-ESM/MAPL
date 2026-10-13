@@ -518,6 +518,137 @@ contains
    end subroutine test_config_not_exempt_field_types
 
    ! ---------------------------------------------------------------
+   ! FieldDictionaryConfig construction from a mapl/field_dictionary
+   ! HConfig mapping (generic/standard-name-enforcement,
+   ! GEOS-ESM/MAPL#5413: mapl/MaplFramework.F90:initialize_field_dictionary).
+   ! ---------------------------------------------------------------
+
+   @test
+   ! Mapping form with both path and validation_mode given.
+   subroutine test_config_from_hconfig_full()
+      type(ESMF_HConfig) :: node
+      type(FieldDictionaryConfig) :: config
+      integer :: status
+
+      node = ESMF_HConfigCreate( &
+           content='{path: my_dict.yaml, validation_mode: strict}', _RC)
+
+      config = FieldDictionaryConfig(node, _RC)
+      @assert_that(status, is(0))
+
+      @assertEqual('my_dict.yaml', config%get_dictionary_path())
+      @assertTrue(config%get_validation_mode() == VALIDATION_MODE_STRICT)
+
+   end subroutine test_config_from_hconfig_full
+
+   @test
+   ! Mapping form with only validation_mode given - path falls back to the
+   ! generic default ('field_dictionary.yaml'), distinct from
+   ! MaplFramework's own 'geos_field_dictionary.yaml' fallback used only
+   ! when the field_dictionary key is absent entirely.
+   subroutine test_config_from_hconfig_mode_only()
+      type(ESMF_HConfig) :: node
+      type(FieldDictionaryConfig) :: config
+      integer :: status
+
+      node = ESMF_HConfigCreate(content='{validation_mode: strict}', _RC)
+
+      config = FieldDictionaryConfig(node, _RC)
+      @assert_that(status, is(0))
+
+      @assertEqual('field_dictionary.yaml', config%get_dictionary_path())
+      @assertTrue(config%get_validation_mode() == VALIDATION_MODE_STRICT)
+
+   end subroutine test_config_from_hconfig_mode_only
+
+   @test
+   ! Mapping form with only path given - mode falls back to permissive.
+   subroutine test_config_from_hconfig_path_only()
+      type(ESMF_HConfig) :: node
+      type(FieldDictionaryConfig) :: config
+      integer :: status
+
+      node = ESMF_HConfigCreate(content='{path: my_dict.yaml}', _RC)
+
+      config = FieldDictionaryConfig(node, _RC)
+      @assert_that(status, is(0))
+
+      @assertEqual('my_dict.yaml', config%get_dictionary_path())
+      @assertTrue(config%get_validation_mode() == VALIDATION_MODE_PERMISSIVE)
+
+   end subroutine test_config_from_hconfig_path_only
+
+   @test
+   ! Bare-string form (pre-#5413 cap.yaml files: field_dictionary: <path>) -
+   ! new_from_path: path only, mode defaults to permissive.
+   subroutine test_config_from_path()
+      type(FieldDictionaryConfig) :: config
+
+      config = FieldDictionaryConfig('geos_field_dictionary.yaml')
+
+      @assertEqual('geos_field_dictionary.yaml', config%get_dictionary_path())
+      @assertTrue(config%get_validation_mode() == VALIDATION_MODE_PERMISSIVE)
+
+   end subroutine test_config_from_path
+
+   ! ---------------------------------------------------------------
+   ! FieldDictionaryConfig module-level singleton (get_field_dictionary_config/
+   ! set_field_dictionary_config) - generic/standard-name-enforcement.
+   ! StandardNameAspect and VariableSpec both read the active mode/exemptions
+   ! through this singleton rather than having it threaded through every
+   ! call site.
+   ! ---------------------------------------------------------------
+
+   @test
+   ! set_field_dictionary_config followed by get_field_dictionary_config
+   ! returns the same values that were set.
+   subroutine test_singleton_set_then_get()
+      type(FieldDictionaryConfig) :: config
+      type(FieldDictionaryConfig), pointer :: retrieved
+
+      config = FieldDictionaryConfig('singleton_test.yaml')
+      call set_field_dictionary_config(config)
+
+      retrieved => get_field_dictionary_config()
+      @assertEqual('singleton_test.yaml', retrieved%get_dictionary_path())
+      @assertTrue(retrieved%get_validation_mode() == VALIDATION_MODE_PERMISSIVE)
+
+      ! Reset to strict and confirm the singleton reflects the new value
+      ! (not a stale copy from the first set_field_dictionary_config call).
+      config = FieldDictionaryConfig(ESMF_HConfigCreate( &
+           content='{path: singleton_test2.yaml, validation_mode: strict}'))
+      call set_field_dictionary_config(config)
+
+      retrieved => get_field_dictionary_config()
+      @assertEqual('singleton_test2.yaml', retrieved%get_dictionary_path())
+      @assertTrue(retrieved%get_validation_mode() == VALIDATION_MODE_STRICT)
+
+   end subroutine test_singleton_set_then_get
+
+   @test
+   ! get_field_dictionary_config, called before any
+   ! set_field_dictionary_config in this process, lazily defaults to a
+   ! permissive FieldDictionaryConfig() rather than returning an undefined/
+   ! uninitialized value. (This test intentionally does not call
+   ! set_field_dictionary_config first - it documents the lazy-default
+   ! behavior a fresh process/unit test would see; if an earlier test in
+   ! this same process already called set_field_dictionary_config, this
+   ! merely confirms get_field_dictionary_config still returns *a* valid,
+   ! well-defined config rather than crashing.)
+   subroutine test_singleton_get_returns_valid_config_when_never_set()
+      type(FieldDictionaryConfig), pointer :: retrieved
+
+      retrieved => get_field_dictionary_config()
+
+      ! Whatever the mode is, it must be one of the two well-defined values
+      ! (never an invalid/garbage enum state).
+      @assertTrue(retrieved%get_validation_mode() == VALIDATION_MODE_PERMISSIVE .or. &
+           retrieved%get_validation_mode() == VALIDATION_MODE_STRICT)
+      @assertTrue(len(retrieved%get_dictionary_path()) > 0)
+
+   end subroutine test_singleton_get_returns_valid_config_when_never_set
+
+   ! ---------------------------------------------------------------
    ! Full round-trip through test YAML file
    ! ---------------------------------------------------------------
 

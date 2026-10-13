@@ -247,9 +247,6 @@ contains
       ! Verify mass conservation (conservative regridding should preserve mass for uniform mixing ratio)
       @assertTrue(mass_in > 0.0_ESMF_KIND_R8, 'Input mass should be positive')
       rel_error = abs(mass_out - mass_in) / mass_in
-      _HERE, mass_out
-      _HERE, mass_in
-      _HERE, rel_error, TOLERANCE_LOOSE
       @assertTrue(rel_error < TOLERANCE_LOOSE, 'Mass not conserved in horizontal conservative regrid')
       
       ! Verify output is non-zero (regridding worked)

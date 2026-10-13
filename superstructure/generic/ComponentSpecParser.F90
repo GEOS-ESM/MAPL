@@ -55,6 +55,7 @@ module mapl_ComponentSpecParser_mod
    character(*), parameter :: COMPONENT_INTERNAL_STATE_SECTION = 'internal'
    character(*), parameter :: COMPONENT_CONNECTIONS_SECTION = 'connections'
    character(*), parameter :: COMPONENT_CHILDREN_SECTION = 'children'
+   character(*), parameter :: COMPONENT_SETSERVICES_SECTION = 'setServices'
    character(*), parameter :: COMPONENT_MISC_SECTION = 'misc'
    character(*), parameter :: COMPONENT_ACTIVATE_ALL_EXPORTS = 'activate_all_exports'
    character(*), parameter :: COMPONENT_ACTIVATE_ALL_IMPORTS = 'activate_all_imports'
@@ -110,7 +111,7 @@ module mapl_ComponentSpecParser_mod
       end function parse_connections
 
       module function parse_setservices(config, rc) result(user_ss)
-         type(DSOSetServices) :: user_ss
+         type(DsoSetServices) :: user_ss
          type(ESMF_HConfig), target, intent(in) :: config
          integer, optional, intent(out) :: rc
       end function parse_setservices

@@ -4,11 +4,14 @@ mapl:
       A/E_A.*:
         class: wildcard
         vertical_dim_spec: MIRROR
+      # standard_name declaration removed (was an undocumented, unrelated
+      # placeholder 'huh1' that disagreed with the connected Export's
+      # 'E_B2 standard name' under STRICT ValidationMode) - inherits from
+      # the connected Export instead, matching the pattern already used
+      # elsewhere in this file (A/E_A.* wildcard).
       B/E_B2:
-        standard_name: 'huh1'
         units: 'm'
         vertical_dim_spec: MIRROR
 
   setServices:
     sharedObj: libconfigurable_gridcomp
-    userRoutine: setservices_

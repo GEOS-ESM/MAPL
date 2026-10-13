@@ -3,6 +3,7 @@
 module mapl_VerticalGridAspect_mod
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod
+   use mapl_AspectStatus_mod
    use mapl_field_api
    use mapl_field_bundle_api
    use mapl_StateItemAspect_mod
@@ -88,21 +89,25 @@ module mapl_VerticalGridAspect_mod
 
 contains
 
-   function new_VerticalGridAspect_specific(vertical_grid, regrid_method, vertical_stagger, vertical_alignment, geom, typekind, time_dependent) result(aspect)
-      type(VerticalGridAspect) :: aspect
-      class(VerticalGrid), optional, intent(in) :: vertical_grid
-      type(VerticalRegridMethod), optional, intent(in) :: regrid_method
-      type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
-      type(VerticalAlignment), optional, intent(in) :: vertical_alignment
-      type(ESMF_Geom), optional, intent(in) :: geom
-      type(ESMF_Typekind_Flag), optional, intent(in) :: typekind
-      logical, optional, intent(in) :: time_dependent
+    function new_VerticalGridAspect_specific(vertical_grid, regrid_method, vertical_stagger, vertical_alignment, geom, typekind, time_dependent, aspect_status) result(aspect)
+       type(VerticalGridAspect) :: aspect
+       class(VerticalGrid), optional, intent(in) :: vertical_grid
+       type(VerticalRegridMethod), optional, intent(in) :: regrid_method
+       type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
+       type(VerticalAlignment), optional, intent(in) :: vertical_alignment
+       type(ESMF_Geom), optional, intent(in) :: geom
+       type(ESMF_Typekind_Flag), optional, intent(in) :: typekind
+       logical, optional, intent(in) :: time_dependent
+       type(AspectStatus), optional, intent(in) :: aspect_status
 
-      call aspect%set_mirror(.true.)
-      if (present(vertical_grid)) then
-         aspect%vertical_grid = vertical_grid
-         call aspect%set_mirror(.false.)
-      end if
+       call aspect%set_characteristic_state(ASPECT_STATUS_MIRRORED)
+       if (present(aspect_status)) then
+          call aspect%set_characteristic_state(aspect_status)
+       end if
+       if (present(vertical_grid)) then
+          aspect%vertical_grid = vertical_grid
+          call aspect%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
+       end if
 
       if (present(regrid_method)) then
          aspect%regrid_method = regrid_method
@@ -124,11 +129,11 @@ contains
       _UNUSED_DUMMY(typekind)
    end function new_VerticalGridAspect_specific
 
-   function new_VerticalGridAspect_mirror() result(aspect)
-      type(VerticalGridAspect) :: aspect
+    function new_VerticalGridAspect_mirror() result(aspect)
+       type(VerticalGridAspect) :: aspect
 
-      call aspect%set_mirror(.true.)
-   end function new_VerticalGridAspect_mirror
+       call aspect%set_characteristic_state(ASPECT_STATUS_MIRRORED)
+    end function new_VerticalGridAspect_mirror
 
    logical function supports_conversion_general(src)
       class(VerticalGridAspect), intent(in) :: src
@@ -195,9 +200,57 @@ contains
          return
       end if
 
-      if (any([src%vertical_stagger,dst%vertical_stagger] == VERTICAL_STAGGER_NONE)) then
-         ! both must be 2D
-         matches = src%vertical_stagger == dst%vertical_stagger
+      ! VERTICAL_STAGGER_NONE is never a silent/implicit default anywhere in
+      ! the codebase (an omitted vertical_dim_spec becomes CENTER - see this
+      ! module's own constructor default below - or INVALID via
+      ! ComponentSpecParser, but never NONE), so seeing it here always means
+      ! a producer or consumer explicitly declared "no vertical dimension"
+      ! for this item.
+      !
+      ! If the source (src, the already-connected/producer side - see
+      ! StateItemSpec::make_extension) is NONE, there is nothing to
+      ! vertically regrid, full stop - regardless of what dst nominally
+      ! requests. dst's vertical_stagger/vertical_grid may only reflect a
+      ! component-wide default vertical grid unconditionally stamped onto
+      ! every registered item by MAPL_GridCompSetVerticalGrid (see
+      ! StateItemSpec::target_set_geom), not a genuine per-variable request -
+      ! e.g. a History collection's `vertical_grid:` applies to every
+      ! variable in its var_list by default, including ones (like a plain
+      ! 2D diagnostic) that were never meant to be vertically regridded.
+      !
+      ! Note: these use VerticalStaggerLoc::is_none(), NOT
+      ! `== VERTICAL_STAGGER_NONE`. The latter goes through
+      ! VerticalStaggerLoc's overloaded operator(==), which has special
+      ! "MIRROR matches anything" wildcard semantics - it would spuriously
+      ! return .true. whenever either side is VERTICAL_STAGGER_MIRROR (e.g. a
+      ! History import declared `vertical_dim_spec: MIRROR`), incorrectly
+      ! routing genuinely mirror-staggered items through this NONE-specific
+      ! logic instead of the ordinary grid-matching below.
+      if (src%vertical_stagger%is_none()) then
+         matches = .true.
+         return
+      end if
+
+      ! dst genuinely declared NONE (see above - never a silent default) but
+      ! src has real vertical structure: a genuine mismatch, not something to
+      ! silently truncate.
+      if (dst%vertical_stagger%is_none()) then
+         matches = .false.
+         return
+      end if
+
+      ! VERTICAL_STAGGER_MIRROR is an explicit, deliberate "matches any real
+      ! stagger" wildcard declaration (see VerticalStaggerLoc::are_equal) -
+      ! e.g. a History import declared `vertical_dim_spec: MIRROR` to accept
+      ! whatever vertical structure its connected export happens to have.
+      ! Honor that directly here (now that the NONE checks above use exact
+      ! is_none() rather than the wildcard-aware operator(==)) - a
+      ! MIRROR-staggered item is not required to carry an allocated
+      ! vertical_grid of its own, so falling through to the grid-id
+      ! comparison below would crash on an unallocated dst%vertical_grid (or
+      ! src%vertical_grid).
+      if (src%vertical_stagger%is_mirror() .or. dst%vertical_stagger%is_mirror()) then
+         matches = .true.
          return
       end if
 
@@ -222,20 +275,19 @@ contains
 
 
    subroutine set_vertical_grid(self, vertical_grid)
-      class(VerticalGridAspect), intent(inout) :: self
-      class(VerticalGrid), intent(in) :: vertical_grid
+       class(VerticalGridAspect), intent(inout) :: self
+       class(VerticalGrid), intent(in) :: vertical_grid
 
-      self%vertical_grid = vertical_grid
-      call self%set_mirror(.false.)
-   end subroutine set_vertical_grid
+       self%vertical_grid = vertical_grid
+       call self%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
+    end subroutine set_vertical_grid
 
    subroutine set_vertical_stagger(self, vertical_stagger)
-      class(VerticalGridAspect), intent(inout) :: self
-      class(VerticalStaggerLoc), intent(in) :: vertical_stagger
+       class(VerticalGridAspect), intent(inout) :: self
+       class(VerticalStaggerLoc), intent(in) :: vertical_stagger
 
-      self%vertical_stagger = vertical_stagger
-      call self%set_mirror(.false.)
-   end subroutine set_vertical_stagger
+       self%vertical_stagger = vertical_stagger
+    end subroutine set_vertical_stagger
 
    subroutine connect_to_export(this, export, actual_pt, rc)
       class(VerticalGridAspect), intent(inout) :: this
@@ -246,9 +298,15 @@ contains
       type(VerticalGridAspect) :: export_
       integer :: status
 
-      export_ = to_VerticalGridAspect(export, _RC)
-      !wdb fixme deleteme Should this use set_vertical_grid to set mirror?
-      this%vertical_grid = export_%vertical_grid
+       export_ = to_VerticalGridAspect(export, _RC)
+       if (allocated(export_%vertical_grid)) then
+          this%vertical_grid = export_%vertical_grid
+       else if (allocated(this%vertical_grid)) then
+          deallocate(this%vertical_grid)
+       end if
+       this%vertical_stagger = export_%vertical_stagger
+       this%vertical_alignment = export_%vertical_alignment
+       call this%set_characteristic_state(export_%get_characteristic_state())
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(actual_pt)
@@ -373,17 +431,22 @@ contains
       end if
 
       is_mirror = .not. allocated(this%vertical_stagger)
-      if (.not. is_mirror) then
-         if (this%vertical_stagger /= VERTICAL_STAGGER_NONE) then
-            is_mirror = .not. associated(vgrid)
-         end if
-      end if
-      call this%set_mirror(is_mirror)
+       if (.not. is_mirror) then
+          if (this%vertical_stagger /= VERTICAL_STAGGER_NONE) then
+             is_mirror = .not. associated(vgrid)
+          end if
+       end if
 
-      if (allocated(this%vertical_grid)) deallocate(this%vertical_grid)
-      if (associated(vgrid)) then
-         this%vertical_grid = vgrid
-      end if
+       if (allocated(this%vertical_grid)) deallocate(this%vertical_grid)
+       if (associated(vgrid)) then
+          this%vertical_grid = vgrid
+       end if
+
+       if (is_mirror) then
+          call this%set_characteristic_state(ASPECT_STATUS_MIRRORED)
+       else
+          call this%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
+       end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(state)

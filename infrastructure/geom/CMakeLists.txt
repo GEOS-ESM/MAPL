@@ -1,6 +1,7 @@
 set (this MAPL.geom)
 
 set(srcs
+  GeomId.F90
   GeomUtilities.F90
 
   GeomSpec.F90

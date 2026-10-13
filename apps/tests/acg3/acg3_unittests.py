@@ -577,6 +577,17 @@ class TestHelpers(unittest.TestCase):
         spec = {acg3.TYPEKIND: 'X4', acg3.INTERNAL_NAME: 'GX', acg3.RANK: 4}
         self.assertRaises(RuntimeError, acg3.emit_declare_pointer, spec)
 
+    def test_pointer_filename(self):
+        test_params = (
+            ('Comp_DeclarePointer___.h', None, 'declare', None),
+            ('Comp_DeclarePointer_Import___.h', None, 'declare', 'import'),
+            ('declares.h', 'declares.h', 'declare', None),
+            ('declares_Export.h', 'declares.h', 'declare', 'export'),
+        )
+        for expected, filename, name, state in test_params:
+            with self.subTest(expected=expected, filename=filename, state=state):
+                self.assertEqual(expected, acg3.pointer_filename('Comp', filename, name, state))
+
     def test_emit_declare_pointers(self):
         ITEMTYPE = acg3.ITEMTYPE
         options = acg3.get_options({})

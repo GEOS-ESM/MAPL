@@ -170,7 +170,7 @@ def has_flags(has_all, flags, option):
     return cflags.issubset(oflags) if has_all else not cflags.isdisjoint(oflags)
 
 is_mandatory = lambda o: has_flags(has_all=True, flags=MANDATORY, option=o)
-is_printable = lambda o: not has_flags(has_all=False, flags={STORE, CONTROL}, option=o) if o else False
+is_printable = lambda o: not has_flags(has_all=False, flags={STORE, CONTROL}, option=o) if o is not None else False
 has_as_flag = lambda o: has_flags(has_all=True, flags=AS, option=o)
 
 #################################### OPTIONS ###################################
@@ -405,7 +405,7 @@ def emit_get_pointers(specs, states=None):
     """Emit pointer get statements from an Iterable of spec instances."""
     f = make_field_state_filter(states)
 
-    return GET, reduce(concat, (emit_get_pointer(spec) for spec in specs if f(spec)))
+    return GET, reduce(concat, (emit_get_pointer(spec) for spec in specs if f(spec)), [])
 
 def emit_get_pointer(spec):
     """Emit individual pointer statement from a spec instance."""
@@ -630,6 +630,19 @@ def open_file(component, filename, name, suffix=''):
     fname = filename if filename else f"{component}_{name.capitalize()}{suffix.capitalize()}___.h"
     return open_with_header(fname)
 
+def pointer_filename(component, filename, name, state=None):
+    """Construct a combined or state-specific pointer header filename."""
+    if state is None:
+        return filename if filename else f'{component}_{name.capitalize()}Pointer___.h'
+    if filename:
+        base, extension = splitext(filename)
+        return f'{base}_{state.capitalize()}{extension}'
+    return f'{component}_{name.capitalize()}Pointer_{state.capitalize()}___.h'
+
+def open_pointer_file(component, filename, name, state=None):
+    """Open a pointer header, optionally adding a state-specific suffix."""
+    return open_with_header(pointer_filename(component, filename, name, state))
+
 def emit_values(specs, options):
     """Emit spec results using options."""
 
@@ -660,8 +673,12 @@ def emit_values(specs, options):
             _, emitted = emitters[key](specs, states)
         except Exception as ex:
             raise RuntimeError
-        with open_file(component, args[key], key, 'pointer') as f:
+        with open_pointer_file(component, args[key], key) as f:
             f.writelines(add_newlines(emitted))
+        for state in states:
+            _, emitted = emitters[key](specs, {state})
+            with open_pointer_file(component, args[key], key, state) as f:
+                f.writelines(add_newlines(emitted))
 
     return SUCCESS
 

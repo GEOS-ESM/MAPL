@@ -30,6 +30,7 @@ module Test_ModelVerticalGrid
    use mapl_GeomAspect_mod
    use mapl_TypekindAspect_mod
    use mapl_UnitsAspect_mod
+   use mapl_StandardNameAspect_mod
    use mapl_UngriddedDimsAspect_mod
    use mapl_UngriddedDims_mod
    use mapl_AttributesAspect_mod
@@ -205,7 +206,7 @@ contains
       call setup(geom, vgrid, _RC)
 
       ! Build aspect map with required aspects
-      call aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(standard_name='', long_name=''))
+      call aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(long_name=''))
       call aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect())
       call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(UngriddedDims()))
       call aspects%insert(QUANTITY_TYPE_ASPECT_ID, QuantityTypeAspect())
@@ -214,6 +215,7 @@ contains
       call aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom))
       call aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(ESMF_TYPEKIND_R4))
       call aspects%insert(UNITS_ASPECT_ID, UnitsAspect("hPa"))
+      call aspects%insert(STANDARD_NAME_ASPECT_ID, StandardNameAspect())
 
        select type (vgrid)
       type is (ModelVerticalGrid)
@@ -254,7 +256,7 @@ contains
       call setup(geom, vgrid, _RC)
 
       ! Build aspect map with required aspects
-      call aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(standard_name='', long_name=''))
+      call aspects%insert(CLASS_ASPECT_ID, FieldClassAspect(long_name=''))
       call aspects%insert(ATTRIBUTES_ASPECT_ID, AttributesAspect())
       call aspects%insert(UNGRIDDED_DIMS_ASPECT_ID, UngriddedDimsAspect(UngriddedDims()))
       call aspects%insert(QUANTITY_TYPE_ASPECT_ID, QuantityTypeAspect())
@@ -263,6 +265,7 @@ contains
       call aspects%insert(GEOM_ASPECT_ID, GeomAspect(geom))
       call aspects%insert(TYPEKIND_ASPECT_ID, TypekindAspect(ESMF_TYPEKIND_R4))
       call aspects%insert(UNITS_ASPECT_ID, UnitsAspect("Pa"))
+      call aspects%insert(STANDARD_NAME_ASPECT_ID, StandardNameAspect())
 
       select type (vgrid)
       type is (ModelVerticalGrid)

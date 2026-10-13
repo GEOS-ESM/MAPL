@@ -48,7 +48,7 @@ contains
       call ESMF_TimeIntervalSet(dt, h=1)
       clock = ESMF_ClockCreate(dt, t)
 
-      outer_gc = MAPL_GridCompCreate('P', user_setservices('libconfigurable_gridcomp'), config, _RC)
+      outer_gc = MAPL_GridCompCreate('P', DsoSetServices('libconfigurable_gridcomp'), config, _RC)
       call ESMF_GridCompSetServices(outer_gc, mapl_GenericSetServices, userRC=userRC, _RC)
       _VERIFY(userRC)
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], name='I_AM_GROOT', _RC)

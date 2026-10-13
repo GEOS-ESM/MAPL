@@ -48,6 +48,7 @@ contains
       character(len=:), allocatable :: tempc
       type(ExtDataSample) :: ts
       logical :: usable_multi_rule
+      character(len=:), allocatable :: vector_vars(:)
       _UNUSED_DUMMY(unusable)
 
       if (present(multi_rule)) then
@@ -67,8 +68,15 @@ contains
          _ASSERT(variable_present,"no variable present in ExtData export")
       end if
       if (variable_present) then
-         tempc = ESMF_HConfigAsString(config,keyString="variable",_RC)
-         rule%file_vars = split_file_var(tempc)
+         if (ESMF_HConfigIsScalar(config,keyString="variable")) then
+            tempc = ESMF_HConfigAsString(config,keyString="variable",_RC)
+            call rule%file_vars%push_back(tempc)
+         else if (ESMF_HConfigIsSequence(config,keyString="variable")) then
+            vector_vars=ESMF_HConfigAsStringSeq(config,ESMF_MAXSTR,keyString="variable",_RC)
+            _ASSERT(size(vector_vars)==2, "Variables for a vector item must of map of size 2")
+            call rule%file_vars%push_back(trim(vector_vars(1)))
+            call rule%file_vars%push_back(trim(vector_vars(2)))
+         end if      
       else
          call rule%file_vars%push_back('null')
       end if
@@ -138,19 +146,5 @@ contains
       this%regrid_method='BILINEAR'
       _RETURN(_SUCCESS)
    end subroutine set_defaults
-
-   function split_file_var(original_string) result(file_vars)
-      type(StringVector) :: file_vars
-      character(len=*), intent(in) :: original_string
-      integer :: semi_pos
-
-      semi_pos = index(original_string, ';')
-      if (semi_pos > 0) then
-         call file_vars%push_back(original_string(1:semi_pos-1))
-         call file_vars%push_back(original_string(semi_pos+1:))
-      else
-         call file_vars%push_back(original_string)
-      end if
-   end function
 
 end module mapl_ExtDataRule_mod

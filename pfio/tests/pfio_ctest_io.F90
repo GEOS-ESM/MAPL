@@ -410,7 +410,7 @@ contains
             end do
          enddo
 
-         call ocPtr%done_collective_stage()
+         call ocPtr%done_collective_stage(_RC)
          call ocPtr%wait_all()
          !call this%o_c%done()
          !do md_id = 1, collection_num

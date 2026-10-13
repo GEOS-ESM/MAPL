@@ -4,7 +4,7 @@ module mapl_FieldPointerUtilities_mod
 
    use ESMF
    use mapl_ErrorHandling_mod
-   use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc, c_associated
+   use, intrinsic :: iso_c_binding, only: c_ptr, c_f_pointer, c_loc, c_associated, c_null_ptr, C_INT8_T
 
    implicit none
    private
@@ -23,6 +23,12 @@ module mapl_FieldPointerUtilities_mod
    public :: MAPL_FieldDestroy
    public :: FieldCopyBroadcast
    public :: FieldSameData
+   public :: field_has_de
+
+   ! Dummy, never-dereferenced target used as the base address for a
+   ! zero-size c_f_pointer() result on a rank with no local DE (see
+   ! get_cptr() below for why C_NULL_PTR itself is not used for this).
+   integer(kind=C_INT8_T), target, save :: no_de_dummy_target = 0_C_INT8_T
 
    interface GetFieldsUndef
       module procedure GetFieldsUndef_r4
@@ -212,6 +218,31 @@ contains
 
       integer :: status
       type(ESMF_TypeKind_Flag) :: tk_x
+      logical :: has_de
+
+      ! A rank with no local decomposition element for this field has no
+      ! local data to point to. Every caller of assign_fptr()/FieldGetCptr()
+      ! derives its c_f_pointer() shape from FieldGetLocalElementCount() (or
+      ! FieldGetLocalSize()), both of which are already safe for this case
+      ! and yield a zero-size shape, so any valid (non-null) base address is
+      ! acceptable here -- no bytes are ever actually read/written since the
+      ! resulting pointer has zero elements.
+      !
+      ! NOTE: we deliberately do NOT use C_NULL_PTR here. Per the Fortran
+      ! standard, c_f_pointer(C_NULL_PTR, fptr, shape) is legal when every
+      ! element of shape is zero, but NAG's runtime treats the resulting
+      ! Fortran pointer as fully disassociated in that case, and aborts
+      ! ("Reference to disassociated POINTER") on any subsequent reference
+      ! to it (even e.g. SIZE()) -- which downstream callers (elementwise
+      ! BLAS-like operations, etc.) routinely do. Pointing at a real, if
+      ! unused, static target avoids that false positive while remaining
+      ! standard-compliant (a valid, if otherwise meaningless, address is
+      ! always an acceptable basis for a zero-size c_f_pointer() result).
+      has_de = field_has_de(x, _RC)
+      if (.not. has_de) then
+         cptr = c_loc(no_de_dummy_target)
+         _RETURN(_SUCCESS)
+      end if
 
       call ESMF_FieldGet(x, typekind=tk_x, _RC)
 
@@ -389,12 +420,20 @@ contains
 
       integer :: status
       integer :: rank
+      logical :: has_de
 
       element_count = [integer :: ] ! must allocate even under failure
       call ESMF_FieldGet(x, rank=rank, _RC)
 
       deallocate(element_count)
       allocate(element_count(rank))
+
+      has_de = field_has_de(x, _RC)
+      if (.not.has_de) then
+         element_count = 0
+         _RETURN(_SUCCESS)
+      end if
+
       ! ESMF has a big fat bug with multi tile grids and loal element count
       !call ESMF_FieldGet(x, localElementCount=element_count, _RC)
       ! until it is fixed we must kluge :(
@@ -428,29 +467,23 @@ contains
 
       character(len=*), parameter :: CLONE_TAG = '_clone'
       !type(ESMF_ArraySpec) :: arrayspec
-      type(ESMF_Grid) :: grid
-      type(ESMF_StaggerLoc) :: staggerloc
+      type(ESMF_Geom) :: geom
       integer, allocatable :: gridToFieldMap(:)
       integer, allocatable :: ungriddedLBound(:)
       integer, allocatable :: ungriddedUBound(:)
       type(ESMF_TypeKind_Flag) :: tk
       character(len=ESMF_MAXSTR) :: clone_name
       integer :: status
-      integer :: field_rank, grid_rank,ungrid_size
-      type(ESMF_Index_Flag) :: index_flag
-      real(kind=ESMF_KIND_R4), pointer      :: VR4_1D(:), VR4_2D(:,:), VR4_3D(:,:,:), VR4_4D(:,:,:,:)
-      real(kind=ESMF_KIND_R8), pointer      :: VR8_1D(:), VR8_2D(:,:), VR8_3D(:,:,:), VR8_4D(:,:,:,:)
-      integer, allocatable :: lc(:)
+      integer :: field_rank, geom_rank, ungrid_size
       type(ESMF_Info) :: x_info, y_info
 
-      call ESMF_FieldGet(x,grid=grid,rank=field_rank,_RC)
-      lc = get_local_element_count(x,_RC)
-      call ESMF_GridGet(grid,dimCount=grid_rank,indexFlag=index_flag,_RC)
-      ungrid_size = field_rank-grid_rank
-      allocate(gridToFieldMap(grid_rank))
+      call ESMF_FieldGet(x, geom=geom, rank=field_rank, _RC)
+      call ESMF_GeomGet(geom, dimCount=geom_rank, _RC)
+      ungrid_size = field_rank - geom_rank
+      allocate(gridToFieldMap(geom_rank))
       allocate(ungriddedLBound(ungrid_size),ungriddedUBound(ungrid_size))
       call ESMF_FieldGet(x, typekind=tk, name=clone_name, &
-         staggerloc=staggerloc, gridToFieldMap=gridToFieldMap, &
+         gridToFieldMap=gridToFieldMap, &
          ungriddedLBound=ungriddedLBound, ungriddedUBound=ungriddedUBound,  _RC)
 
       if (present(name)) then
@@ -459,39 +492,9 @@ contains
          clone_name = trim(clone_name) // CLONE_TAG
       end if
 
-      if (index_flag == ESMF_INDEX_USER) then
-         if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 1) then
-            allocate(VR4_1d(lc(1)),_STAT)
-            y = ESMF_FieldCreate(grid,VR4_1d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
-         else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 1) then
-            allocate(VR8_1d(lc(1)),_STAT)
-            y = ESMF_FieldCreate(grid,VR8_1d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
-         else if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 2) then
-            allocate(VR4_2d(lc(1),lc(2)),_STAT)
-            y = ESMF_FieldCreate(grid,VR4_2d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
-         else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 2) then
-            allocate(VR8_2d(lc(1),lc(2)),_STAT)
-            y = ESMF_FieldCreate(grid,VR8_2d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
-         else if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 3) then
-            allocate(VR4_3d(lc(1),lc(2),lc(3)),_STAT)
-            y = ESMF_FieldCreate(grid,VR4_3d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
-         else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 3) then
-            allocate(VR8_3d(lc(1),lc(2),lc(3)),_STAT)
-            y = ESMF_FieldCreate(grid,VR8_3d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
-         else if (tk == ESMF_TYPEKIND_R4 .and. field_rank == 4) then
-            allocate(VR4_4d(lc(1),lc(2),lc(3),lc(4)),_STAT)
-            y = ESMF_FieldCreate(grid,VR4_4d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
-         else if (tk == ESMF_TYPEKIND_R8 .and. field_rank == 4) then
-            allocate(VR8_4d(lc(1),lc(2),lc(3),lc(4)),_STAT)
-            y = ESMF_FieldCreate(grid,VR8_4d,gridToFieldMap=gridToFieldMap,name=clone_name,_RC)
-         else
-            _FAIL( 'unsupported typekind+field_rank')
-         end if
-      else
-         y = ESMF_FieldCreate(grid, tk, staggerloc=staggerloc, &
-            gridToFieldMap=gridToFieldMap, ungriddedLBound=ungriddedLBound, &
-            ungriddedUBound=ungriddedUBound, name=clone_name, _RC)
-      end if
+      y = ESMF_FieldCreate(geom, typekind=tk, &
+         gridToFieldMap=gridToFieldMap, ungriddedLBound=ungriddedLBound, &
+         ungriddedUBound=ungriddedUBound, name=clone_name, _RC)
 
       ! clone metadata
       call ESMF_InfoGetFromHost(x, x_info, _RC)
@@ -800,7 +803,16 @@ contains
       logical :: conformable
       logical :: x_is_double
       logical :: y_is_double
+      logical :: has_de
       character(len=*), parameter :: UNSUPPORTED_TK = 'Unsupported typekind in FieldCOPY() for '
+
+      ! This is a purely local memory copy (no MPI/collective communication
+      ! involved), so a rank with no local DE for these fields has nothing
+      ! to copy and can simply skip it.
+      has_de = field_has_de(x, _RC)
+      if (.not. has_de) then
+         _RETURN(_SUCCESS)
+      end if
 
       conformable = FieldsAreConformable(x, y)
       !wdb fixme need to pass RC
@@ -1174,5 +1186,24 @@ contains
 
       _RETURN(_SUCCESS)
    end function same_data
+
+   logical function field_has_de(field, rc)
+      type(ESMF_Field), intent(in) :: field
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Grid) :: grid
+      type(ESMF_DistGrid) :: distGrid
+      type(ESMF_DeLayout) :: layout
+      integer :: localDECount
+
+      call ESMF_FieldGet(field, grid=grid, _RC)
+      call esmf_GridGet(grid, distGrid=distGrid, _RC)
+      call ESMF_DistGridGet(distGrid, delayout=layout, _RC)
+      call ESMF_DELayoutGet(layout, localDECount=localDECount, _RC)
+      field_has_de = (localDECount /=0)
+
+      _RETURN(_SUCCESS)
+
+   end function field_has_de
 
 end module mapl_FieldPointerUtilities_mod

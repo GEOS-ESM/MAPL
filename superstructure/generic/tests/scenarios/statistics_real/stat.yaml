@@ -1,3 +1,7 @@
+mapl:
+  setServices:
+    sharedObj: libMAPL.statistics
+
 # anchors for recurring cases
 monthly: &monthly
   period: P1M
@@ -39,4 +43,72 @@ stats:
   - name: A/PS
     action: max
     itemtype: field
+    <<: *daily
+  - name: A/QV_MIN
+    action: min
+    itemtype: field
+    <<: *daily
+  - name: A/SLP_ACCUM
+    action: accumulate
+    itemtype: field
+    <<: *daily
+  - name: A/UV
+    action: average
+    itemtype: vector
+    <<: *daily
+  - name: A/UV_MIN
+    action: min
+    itemtype: vector
+    <<: *daily
+  - name: A/UV_MAX
+    action: max
+    itemtype: vector
+    <<: *daily
+  - name: A/UV_ACCUM
+    action: accumulate
+    itemtype: vector
+    <<: *daily
+  - name: A/TS_VAR_W
+    action: variance
+    algorithm: welford
+    itemtype: field
+    <<: *daily
+  - name: A/TS_VAR_S
+    action: variance
+    algorithm: shifted
+    itemtype: field
+    <<: *daily
+  - name: A/UV_VAR_W
+    action: variance
+    algorithm: welford
+    itemtype: vector
+    <<: *daily
+  - name: A/UV_VAR_S
+    action: variance
+    algorithm: shifted
+    itemtype: vector
+    <<: *daily
+  - name: A/TS_VAR_W_BIASED
+    action: variance
+    algorithm: welford
+    biased: true
+    itemtype: field
+    <<: *daily
+  - name: A/TS_VAR_S_BIASED
+    action: variance
+    algorithm: shifted
+    biased: true
+    itemtype: field
+    <<: *daily
+  - name: A/UV_VAR_W_BIASED
+    action: variance
+    algorithm: welford
+    biased: true
+    itemtype: vector
+    <<: *daily
+  - name: A/UV_VAR_S_BIASED
+    action: variance
+    algorithm: shifted
+    biased: true
+    itemtype: vector
     <<: *daily

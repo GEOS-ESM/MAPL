@@ -14,18 +14,23 @@ contains
 
       class(GeomFactory), pointer :: factory
       integer :: status
-      
+      integer :: i
+      logical :: found
+
       geom_spec = NULL_GEOM_SPEC
-      factory => find_factory(this%factories, supports_hconfig, _RC)
+      found = .false.
+      do i = 1, this%factories%size()
+         factory => this%factories%of(i)
+         if (factory%supports(hconfig)) then
+            found = .true.
+            exit
+         end if
+      end do
+      _ASSERT(found, 'No factory supports hconfig.')
       deallocate(geom_spec)
       geom_spec = factory%make_spec(hconfig, _RC)
-      
+
       _RETURN(_SUCCESS)
-   contains
-      logical function supports_hconfig(factory)
-         class(GeomFactory), intent(in) :: factory
-         supports_hconfig = factory%supports(hconfig)
-      end function supports_hconfig
    end function make_geom_spec_from_hconfig
 
 end submodule make_geom_spec_from_hconfig_smod

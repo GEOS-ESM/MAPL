@@ -5,7 +5,7 @@ set (srcs
   MaplServerUtilities.F90
   MaplFramework.F90
   PfioServerGridComp.F90
-  Cap.F90
+  CapDriver.F90
   )
 
 esma_add_library (${this}

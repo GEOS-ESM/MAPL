@@ -35,6 +35,8 @@ module mapl_VerticalStaggerLoc_mod
        procedure :: get_dimension_name
        procedure :: get_num_levels
        procedure :: get_num_layers
+       procedure :: is_none
+       procedure :: is_mirror
     end type VerticalStaggerLoc
 
    interface VerticalStaggerLoc
@@ -111,6 +113,28 @@ contains
       type(VerticalStaggerLoc), intent(in) :: that
       are_not_equal = .not. (this == that)
    end function are_not_equal
+
+   ! Exact identity check for VERTICAL_STAGGER_NONE that deliberately bypasses
+   ! are_equal()'s "MIRROR matches anything" wildcard semantics above. Callers
+   ! that need to know "is this literally NONE" (as opposed to "does this
+   ! match NONE under the wildcard-aware operator(==)") must use this instead
+   ! of `this == VERTICAL_STAGGER_NONE`, since that expression spuriously
+   ! returns .true. whenever `this` is VERTICAL_STAGGER_MIRROR.
+   elemental logical function is_none(this)
+      class(VerticalStaggerLoc), intent(in) :: this
+      is_none = (this%id == NONE)
+   end function is_none
+
+   ! Exact identity check for VERTICAL_STAGGER_MIRROR, for callers that need
+   ! to explicitly honor its "matches any real stagger" wildcard semantics
+   ! (see are_equal() above) without going through operator(==) itself - e.g.
+   ! when the caller has already special-cased NONE via is_none() and must
+   ! not fall through into logic that assumes a concrete, allocated vertical
+   ! grid, which a MIRROR-staggered item need not have.
+   elemental logical function is_mirror(this)
+      class(VerticalStaggerLoc), intent(in) :: this
+      is_mirror = (this%id == MIRROR)
+   end function is_mirror
 
    function get_dimension_name(this) result(dim_name)
       character(:), allocatable :: dim_name

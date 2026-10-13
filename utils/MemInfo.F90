@@ -80,6 +80,12 @@ contains
       integer, intent(in) :: comm
       integer, optional, intent(out) :: rc
 
+#ifdef sysDarwin
+      ! Process memory is collected from Linux /proc files below.
+      this%hwm = 0.0
+      this%rss = 0.0
+      _RETURN(_SUCCESS)
+#else
 
       character(len=*), parameter :: process_mem_file = '/proc/self/status'
       character(len=32) :: line
@@ -106,6 +112,7 @@ contains
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
+#endif
    end subroutine get_process_mem
 
    ! This routine returns the memory usage on Linux system
@@ -114,6 +121,14 @@ contains
       integer, intent(in) :: comm
       integer, optional, intent(out) :: rc
 
+#ifdef sysDarwin
+      ! System memory is collected from Linux /proc files below.
+      this%mem_used = 0.0
+      this%swap_used = 0.0
+      this%commit_limit = 0.0
+      this%committed_as = 0.0
+      _RETURN(_SUCCESS)
+#else
       ! This routine returns the memory usage on Linux systems.
       ! It does this by querying a system file (file_name below).
 
@@ -164,6 +179,7 @@ contains
       _VERIFY(status)
 
       _RETURN(_SUCCESS)
+#endif
    end subroutine get_system_mem
 
    subroutine write(this, logger, text)
