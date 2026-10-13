@@ -44,8 +44,7 @@ contains
          ! Subcomponents already exist: verify that no private state has been
          ! added to the user gridcomp since they were created.
          user_gridcomp = this%user_gc_driver%get_gridcomp()
-         call ESMF_InternalStateGet(user_gridcomp, labelList=label_list, rc=status)
-         _VERIFY(status)
+         call ESMF_InternalStateGet(user_gridcomp, labelList=label_list, _RC)
          current_label_count = size(label_list)
          _ASSERT(current_label_count == this%user_gc_label_count, &
               'Private state was added to a user component after the first threaded run. ' // &
