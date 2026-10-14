@@ -1,4 +1,5 @@
 from sysconfig import get_config_var
+
 import cffi
 
 TMPFILEBASE = "mapl_fortan_python_cffi_bridge"
@@ -6,8 +7,8 @@ TMPFILEBASE = "mapl_fortan_python_cffi_bridge"
 ffi = cffi.FFI()
 
 
-source = """
-from {} import ffi
+source = f"""
+from {TMPFILEBASE} import ffi
 from datetime import datetime
 import MAPL_PythonBridge
 import traceback
@@ -74,7 +75,7 @@ def mapl_fortran_python_bridge_user_finalize_PyHook(name, mapl_state, import_sta
         print(traceback.format_exc())
         return -1
     return 0
-""".format(TMPFILEBASE)
+"""
 
 with open("fortran_python_bridge.h") as f:
     data = "".join([line for line in f if not line.startswith("#")])
