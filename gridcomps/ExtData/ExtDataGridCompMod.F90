@@ -4149,6 +4149,8 @@ CONTAINS
      type(ESMF_Config)         :: cflocal
      real :: stretch_factor, target_lat_degrees, target_lon_degrees
      logical :: isPresent
+     class (AbstractGridFactory), pointer :: factory
+     integer :: factory_id
 
      IAM = "MAPL_ExtDataGridChangeLev"
 
@@ -4203,18 +4205,18 @@ CONTAINS
            call MAPL_ConfigSetAttribute(cflocal,value=target_lat_degrees, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"TARGET_LAT:",rc=status)
            _VERIFY(status)
         endif
+        newgrid = grid_manager%make_grid(cflocal, prefix=trim(COMP_Name)//".", rc=status)
+        _VERIFY(status)
      else
-        call MAPL_ConfigSetAttribute(cflocal,value=counts(1), label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"IM_WORLD:",rc=status)
-        _VERIFY(status)
-        call MAPL_ConfigSetAttribute(cflocal,value=counts(2), label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"JM_WORLD:",rc=status)
-        _VERIFY(status)
-        call MAPL_ConfigSetAttribute(cflocal,value=ny, label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"NY:",rc=status)
-        _VERIFY(status)
-        call MAPL_ConfigSetAttribute(cflocal,value=trim(gname), label=trim(COMP_Name)//MAPL_CF_COMPONENT_SEPARATOR//"GRIDNAME:",rc=status)
-        _VERIFY(status)
+        ! Any other grid (XY, lat-lon): a copy of the same grid from its own
+        ! factory, with lm levels, as ExtData2G does. The config route above
+        ! needs a GRID_TYPE and the grid's own keys, which only the cube has.
+        factory => get_factory(grid, _RC)
+        newgrid = factory%make_grid(force_new_grid=.true., _RC)
+        call ESMF_AttributeSet(newgrid, name='GRID_LM', value=lm, _RC)
+        call ESMF_AttributeGet(grid, name=factory_id_attribute_public, value=factory_id, _RC)
+        call ESMF_AttributeSet(newgrid, name=factory_id_attribute_public, value=factory_id, _RC)
      end if
-     newgrid = grid_manager%make_grid(cflocal, prefix=trim(COMP_Name)//".", rc=status)
-     _VERIFY(status)
 
      _RETURN(ESMF_SUCCESS)
 
