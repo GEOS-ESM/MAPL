@@ -15,13 +15,13 @@
 ! * After the threaded run the test verifies:
 !   (a) every slot has been written (reachability), and
 !   (b) all slots are visible through the primary user gridcomp's private
-!       state (sharing: mapl_get_owning_gridcomp redirected all mini-gc
+!       state (sharing: MAPL_InternalStateGet redirected all mini-gc
 !       accesses to the same object).
 
 module ThreadedPrivateStateGC
-   use mapl_OwningGridComp_mod, only: mapl_get_owning_gridcomp
    use mapl_ErrorHandling_mod
-   use mapl_Generic_api, only: mapl_GridCompSetEntryPoint, mapl_get_current_thread
+   use mapl_Generic_api, only: mapl_GridCompSetEntryPoint, mapl_get_current_thread, &
+      MAPL_InternalStateGet
    use esmf
    implicit none(type,external)
    private
@@ -78,7 +78,7 @@ contains
       thread = mapl_get_current_thread()
 
       ! This call may receive a mini gridcomp (gc) during a threaded run.
-      ! mapl_get_owning_gridcomp (invoked inside the macro) redirects to
+      ! MAPL_InternalStateGet (invoked inside the macro) redirects to
       ! the primary user gridcomp so all threads share one state object.
       _GET_NAMED_PRIVATE_STATE(gc, ThreadedPrivateState, PRIVATE_STATE_LABEL, state)
 

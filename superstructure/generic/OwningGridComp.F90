@@ -25,9 +25,30 @@ module mapl_OwningGridComp_mod
    implicit none(type,external)
    private
 
-   public :: mapl_get_owning_gridcomp
+   public :: MAPL_InternalStateGet
 
 contains
+
+   ! Accessor subroutine that wraps ESMF internal state retrieval after
+   ! resolving the owning gridcomp.
+   subroutine MAPL_InternalStateGet(gridcomp, internalState, label, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      type(*) :: internalState
+      character(*), optional, intent(in) :: label
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_GridComp) :: owner
+
+      owner = mapl_get_owning_gridcomp(gridcomp, _RC)
+      if (present(label)) then
+         call ESMF_InternalStateGet(owner, internalState=internalState, label=label, _RC)
+      else
+         call ESMF_InternalStateGet(owner, internalState=internalState, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine MAPL_InternalStateGet
 
    ! Return the primary user gridcomp that owns user-visible private state.
    !
