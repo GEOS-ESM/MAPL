@@ -5086,7 +5086,7 @@ contains
    end function create_flipped_field
 
    ! Serial version - reads the file without MPI
-   subroutine MAPL_ReadTilingNC4_serial(File, GridName, im, jm, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR,rc)
+   subroutine MAPL_ReadTilingNC4_serial(File, GridName, im, jm, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR, LakeType,rc)
       character(*),                             intent(IN)  :: File
       character(*), optional,                   intent(out) :: GridName(:)
       integer,      optional,                   intent(out) :: IM(:), JM(:)
@@ -5095,6 +5095,7 @@ contains
       real(kind=REAL64), optional, allocatable, intent(out) :: rTable(:,:)
       integer,      optional,              intent(out) :: N_PfafCat
       real,         optional, pointer,     intent(out) :: AVR(:,:)      ! used by GEOSgcm
+      integer,      optional, allocatable,      intent(out) :: LakeType(:)
       integer,      optional,              intent(out) :: rc
 
       type (Attribute), pointer     :: ref
@@ -5283,11 +5284,16 @@ contains
            where ( rTable(:,3+ll) /=0.0 ) rTable(:,3+ll) = rTable(:,3)/rTable(:,3+ll)
         enddo
       endif
+
+      if (present(LakeType)) then
+         allocate(LakeType(ntile))
+         call formatter%get_var('lake_type', LakeType(:), rc=status)
+      endif
       _RETURN(_SUCCESS)
    end subroutine MAPL_ReadTilingNC4_serial
 
    ! Parallel version - root calls serial version then broadcasts to all processes
-   subroutine MAPL_ReadTilingNC4_par(layout, File, GridName, im, jm, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR,rc)
+   subroutine MAPL_ReadTilingNC4_par(layout, File, GridName, im, jm, nx, ny, n_Grids, n_tiles, iTable, rTable, N_PfafCat, AVR, LakeType, rc)
       type(ESMF_DELayout),                      intent(IN)  :: layout
       character(*),                             intent(IN)  :: File
       character(*), optional,                   intent(out) :: GridName(:)
@@ -5297,6 +5303,7 @@ contains
       real(kind=REAL64), optional, allocatable, intent(out) :: rTable(:,:)
       integer,      optional,              intent(out) :: N_PfafCat
       real,         optional, pointer,     intent(out) :: AVR(:,:)      ! used by GEOSgcm
+      integer,      optional, allocatable, intent(out) :: LakeType(:)
       integer,      optional,              intent(out) :: rc
 
       integer :: status, ll, ng, ntile, NumCol
@@ -5304,7 +5311,7 @@ contains
       ! Root process calls the serial version
       if (MAPL_AM_I_ROOT(layout)) then
          call MAPL_ReadTilingNC4_serial(File, GridName, IM, JM, nx, ny, n_Grids, n_tiles, &
-                                        iTable, rTable, N_PfafCat, AVR, rc=status)
+                                        iTable, rTable, N_PfafCat, AVR, LakeType=LakeType, rc=status)
          _VERIFY(status)
          ! Get ng and ntile for broadcasts
          if (present(n_Grids)) then
@@ -5414,19 +5421,27 @@ contains
          _VERIFY(status)
       endif
 
+      if (present(LakeType)) then
+         if (.not. MAPL_AM_I_ROOT(layout)) then
+            allocate(LakeType(ntile))
+         endif
+         call MAPL_CommsBcast(layout, LakeType, ntile, MAPL_Root, status)
+      endif
+
       _RETURN(_SUCCESS)
    end subroutine MAPL_ReadTilingNC4_par
 
-   subroutine MAPL_WriteTilingNC4(File, GridName, im, jm, nx, ny, iTable, rTable, N_PfafCat, rc)
+   subroutine MAPL_WriteTilingNC4(File, GridName, im, jm, nx, ny, iTable, rTable, N_PfafCat, LakeType, rc)
 
      character(*),      intent(IN) :: File
      character(*),      intent(IN) :: GridName(:)
      integer,           intent(IN) :: IM(:), JM(:)
      integer,           intent(IN) :: nx, ny
-     integer,           intent(IN) :: iTable(:,0:)
-     real(REAL64),      intent(IN) :: rTable(:,:)
-     integer, optional, intent(in) :: N_PfafCat
-     integer, optional, intent(out):: rc
+      integer,           intent(IN) :: iTable(:,0:)
+      real(REAL64),      intent(IN) :: rTable(:,:)
+      integer, optional, intent(in) :: N_PfafCat
+      integer, optional, intent(in) :: LakeType(:)
+      integer, optional, intent(out):: rc
 
      integer                       :: k, ll, ng, ip, status, n_pfafcat_
 
@@ -5584,12 +5599,29 @@ contains
      call v%set_deflation(DEFLATE_LEVEL)
      call metadata%add_variable('max_lat', v)
 
-     v = Variable(type=PFIO_REAL64, dimensions='tile')
-     call v%add_attribute('units', 'm')
-     call v%add_attribute('long_name', 'tile_mean_elevation')
-     call v%add_attribute("missing_value", UNDEF_REAL64)
-     call v%set_deflation(DEFLATE_LEVEL)
-     call metadata%add_variable('elev', v)
+      v = Variable(type=PFIO_REAL64, dimensions='tile')
+      call v%add_attribute('units', 'm')
+      call v%add_attribute('long_name', 'tile_mean_elevation')
+      call v%add_attribute("missing_value", UNDEF_REAL64)
+      call v%set_deflation(DEFLATE_LEVEL)
+      call metadata%add_variable('elev', v)
+
+      if (present(LakeType)) then
+         v = Variable(type=PFIO_INT32, dimensions='tile')
+         call v%add_attribute('units', '1')
+         call v%add_attribute('long_name', &
+              'flag identifying intersection of water-type tile with lake polygon and/or reach line from LakeTopoCat v1.1 data')
+         call v%add_attribute('missing_value', MAPL_UNDEFINED_INTEGER)
+         call v%add_attribute('_FillValue', MAPL_UNDEFINED_INTEGER)
+         call v%add_attribute('flag_values', &
+              (/ MAPL_UNDEFINED_INTEGER, 0, 1, 2, 3 /))
+         call v%add_attribute('flag_meanings', &
+              'undefined, no_lake_or_reach_intersection, lake_intersection_only, reach_intersection_only, lake_and_reach_intersection')
+         call v%add_attribute('comment', &
+              'Defined for typ==0 (ocean) and typ==19 (lake); set to MAPL_UNDEFINED_INTEGER otherwise (land or landice).')
+         call v%set_deflation(DEFLATE_LEVEL)
+         call metadata%add_variable('lake_type', v)
+      endif
 
      ! -------------------------------------------------------------------
      !
@@ -5661,9 +5693,11 @@ contains
      call formatter%put_var('max_lon', rTable(:, 7), rc=status)
      call formatter%put_var('min_lat', rTable(:, 8), rc=status)
      call formatter%put_var('max_lat', rTable(:, 9), rc=status)
-     call formatter%put_var('elev',    rTable(:,10), rc=status)
+      call formatter%put_var('elev',    rTable(:,10), rc=status)
 
-     call formatter%close(rc=status)
+      if (present(LakeType)) call formatter%put_var('lake_type', LakeType, rc=status)
+
+      call formatter%close(rc=status)
      _RETURN(_SUCCESS)
    end subroutine MAPL_WriteTilingNC4
 
