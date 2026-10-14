@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **WIP, DO NOT MERGE** (#5426): `MAPL_EQsat` specific-humidity guard/clamp now matches `GEOS_QSAT` (guard `PP > es`, clamp 1.0 instead of 0.5)
+
 ### Added
 
 ### Changed

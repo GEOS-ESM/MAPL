@@ -8,7 +8,9 @@ else
 end if
 
 EF = 1.0-ESFAC
+PFAC = MINPFAC_QS
 if (MXRT) EF = 1.0
+if (MXRT) PFAC = MINPFAC
 
 if (UTBL) then ! Use table
 
@@ -26,7 +28,7 @@ if (UTBL) then ! Use table
 ! Compute saturation specific humidity
 
    if (present(PL)) then
-      if (PP > MINPFAC*EX) then
+      if (PP > PFAC*EX) then
          DD  = 1.0/(PP - EF*EX)
          EX  = ESFAC*EX*DD
          DDQ = ESFAC*PP*DD*DD*DDQ
@@ -62,7 +64,7 @@ else  ! Use exact formulation
 ! Compute saturation specific humidity
 
    if (present(PL)) then
-      if (PP > MINPFAC*EX) then
+      if (PP > PFAC*EX) then
          DD  = 1.0/(PP - EF*EX)
          EX  = ESFAC*EX*DD
          DDQ = ESFAC*PP*DD*DD*DDQ
