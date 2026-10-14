@@ -62,8 +62,7 @@ contains
       integer :: status
 
       call ESMF_InternalStateGet(gc, internalState=w, label=INNER_META_LABEL, rc=status)
-      _ASSERT(status == ESMF_SUCCESS, &
-           "Private state with name <" // INNER_META_LABEL // "> not found for this gridcomp.")
+      _ASSERT(status == ESMF_SUCCESS, "Private state with name <" // INNER_META_LABEL // "> not found for this gridcomp.")
       _RETURN(_SUCCESS)
    end subroutine get_inner_meta_wrapper_
 

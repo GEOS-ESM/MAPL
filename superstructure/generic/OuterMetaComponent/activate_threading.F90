@@ -46,10 +46,7 @@ contains
          user_gridcomp = this%user_gc_driver%get_gridcomp()
          call ESMF_InternalStateGet(user_gridcomp, labelList=label_list, _RC)
          current_label_count = size(label_list)
-         _ASSERT(current_label_count == this%user_gc_label_count, &
-              'Private state was added to a user component after the first threaded run. ' // &
-              'Private state must be registered in SetServices, before any threaded run occurs. ' // &
-              'New labels will not be visible to mini gridcomps and _GET_NAMED_PRIVATE_STATE will fail.')
+         _ASSERT(current_label_count == this%user_gc_label_count,  'Private state was added to a user component after the first threaded run. ' //  'Private state must be registered in SetServices, before any threaded run occurs. ' //  'New labels will not be visible to mini gridcomps and _GET_NAMED_PRIVATE_STATE will fail.')
       end if
       _ASSERT(size(this%subcomponents) == num_threads, 'sub objects were created for a different number of threads')
 

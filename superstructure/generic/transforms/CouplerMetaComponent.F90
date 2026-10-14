@@ -503,9 +503,7 @@ contains
       end block
       call ESMF_InternalStateGet(gridcomp, internalState=w, &
            label=COUPLER_META_PRIVATE_STATE, rc=status)
-      _ASSERT(status == ESMF_SUCCESS, &
-           "Private state with name <" // COUPLER_META_PRIVATE_STATE // &
-           "> not found for this gridcomp.")
+      _ASSERT(status == ESMF_SUCCESS, "Private state with name <" // COUPLER_META_PRIVATE_STATE // "> not found for this gridcomp.")
       meta => w%ptr
 
       _RETURN(_SUCCESS)
@@ -536,9 +534,7 @@ contains
 
       call ESMF_InternalStateGet(gridcomp, internalState=w, &
            label=COUPLER_META_PRIVATE_STATE, rc=status)
-      _ASSERT(status == ESMF_SUCCESS, &
-           "Private state with name <" // COUPLER_META_PRIVATE_STATE // &
-           "> not found for this gridcomp.")
+      _ASSERT(status == ESMF_SUCCESS, "Private state with name <" // COUPLER_META_PRIVATE_STATE // "> not found for this gridcomp.")
       ! Pointer available via w%ptr; caller responsible for cleanup.
 
       _RETURN(_SUCCESS)

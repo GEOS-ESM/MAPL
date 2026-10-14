@@ -50,8 +50,7 @@ contains
          ! thread local "mini" component may run here.
          import_couplers = this%registry%get_import_couplers()
          export_couplers = this%registry%get_export_couplers()
-         _ASSERT(import_couplers%size() == 0 .and. export_couplers%size() == 0, &
-              'component <'//this%get_name()//'> has couplers and cannot be run by a threaded ancestor')
+         _ASSERT(import_couplers%size() == 0 .and. export_couplers%size() == 0,  'component <'//this%get_name()//'> has couplers and cannot be run by a threaded ancestor')
          call run_thread_local(this, phase, _RC)
          _RETURN(ESMF_SUCCESS)
       end if
