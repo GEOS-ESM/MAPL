@@ -8,7 +8,7 @@ endif ()
 
 project (
   MAPL
-  VERSION 2.68.0
+  VERSION 2.72.0
   LANGUAGES Fortran CXX C)  # Note - CXX is required for ESMF
 
 # Set the possible values of build type for cmake-gui
@@ -76,21 +76,6 @@ else ()
 endif()
 message (STATUS "Building MAPL as ${MAPL_LIBRARY_TYPE} libraries")
 
-# MAPL_SUPPORT_MAPL3: reduce MAPL2 to a support library for use alongside MAPL3.
-# When ON, disables the generic layer, gridcomps, and renames targets to MAPL2.*.
-# The name MAPL_SUPPORT_MAPL3 is a placeholder pending team agreement.
-# The prefix variable MAPL_TARGET_PREFIX is the single place to change the prefix.
-option(MAPL_SUPPORT_MAPL3
-    "Reduce MAPL2 to a support library for use alongside MAPL3. Disables the generic layer, gridcomps, and renames targets to MAPL2.*"
-    OFF)
-
-if (MAPL_SUPPORT_MAPL3)
-    add_compile_definitions(MAPL_SUPPORT_MAPL3)
-    set(MAPL_TARGET_PREFIX "MAPL2")
-    message(STATUS "MAPL_SUPPORT_MAPL3=ON: building as support library with target prefix '${MAPL_TARGET_PREFIX}'")
-else()
-    set(MAPL_TARGET_PREFIX "MAPL")
-endif()
 
 # Some users of MAPL build GFE libraries inline with their application
 # using an add_subdirectory() call rather than as a pre-build library.
@@ -156,34 +141,6 @@ endif ()
 
 ecbuild_declare_project()
 
-if (NOT Baselibs_FOUND)
-  set(MPI_DETERMINE_LIBRARY_VERSION TRUE)
-  find_package(MPI)
-
-  find_package(NetCDF REQUIRED C Fortran)
-  add_definitions(-DHAS_NETCDF4)
-  add_definitions(-DHAS_NETCDF3)
-  add_definitions(-DNETCDF_NEED_NF_MPIIO)
-  add_definitions(-DHAS_NETCDF3)
-
-  find_package(HDF5 REQUIRED)
-  if(HDF5_IS_PARALLEL)
-     add_definitions(-DH5_HAVE_PARALLEL)
-  endif()
-
-  if (NOT TARGET ESMF::ESMF)
-    find_package(ESMF 8.6.1 MODULE REQUIRED)
-    target_link_libraries(ESMF::ESMF INTERFACE MPI::MPI_Fortran)
-  endif ()
-else ()
-  # This is an ESMF version test when using Baselibs which doesn't use the
-  # same find_package internally in ESMA_cmake as used above (with a version
-  # number) so this lets us at least trap use of old Baselibs here.
-  if (ESMF_VERSION VERSION_LESS 8.6.1)
-    message(FATAL_ERROR "ESMF must be at least 8.6.1")
-  endif ()
-endif ()
-
 # We wish to add extra flags when compiling as Debug. We should only
 # do this if we are using esma_cmake since the flags are defined
 # there. Note that some flags like STANDARD_F18 might be available on
@@ -222,9 +179,7 @@ add_definitions(-Dsys${CMAKE_SYSTEM_NAME})
 # Support for automated code generation
 include(mapl_acg)
 include(mapl_create_stub_component)
-if (NOT MAPL_SUPPORT_MAPL3)
-  add_subdirectory (Apps)
-endif ()
+add_subdirectory (Apps)
 
 # Special case - MAPL_cfio is built twice with two different precisions.
 add_subdirectory (MAPL_cfio MAPL_cfio_r4)
@@ -246,9 +201,7 @@ endif()
 add_subdirectory (udunits2f)
 add_subdirectory (pfio)
 add_subdirectory (profiler)
-if (NOT MAPL_SUPPORT_MAPL3)
-  add_subdirectory (generic)
-endif ()
+add_subdirectory (generic)
 add_subdirectory (field_utils)
 add_subdirectory (state)
 add_subdirectory (oomph) # temporary - will rename to generic when done
@@ -256,27 +209,21 @@ add_subdirectory (shared)
 add_subdirectory (include)
 add_subdirectory (base)
 add_subdirectory (MAPL)
-if (NOT MAPL_SUPPORT_MAPL3)
-  add_subdirectory (gridcomps)
-endif ()
+add_subdirectory (gridcomps)
 add_subdirectory (griddedio)
 add_subdirectory (vertical)
-if (BUILD_WITH_FARGPARSE AND NOT MAPL_SUPPORT_MAPL3)
+if (BUILD_WITH_FARGPARSE)
    add_subdirectory (docs)
    add_subdirectory (benchmarks)
 endif()
-if (NOT MAPL_SUPPORT_MAPL3)
-  add_subdirectory(Python)
-endif ()
+add_subdirectory(Python)
 
 if (PFUNIT_FOUND)
   include (add_pfunit_ctest)
   add_subdirectory (pfunit EXCLUDE_FROM_ALL)
 endif ()
 
-if (NOT MAPL_SUPPORT_MAPL3)
-  add_subdirectory (Tests)
-endif ()
+add_subdirectory (Tests)
 
 # @env will exist here if MAPL is built as itself but not as part of, say, GEOSgcm
 esma_add_subdirectory (ESMA_env FOUND ESMA_env_FOUND)

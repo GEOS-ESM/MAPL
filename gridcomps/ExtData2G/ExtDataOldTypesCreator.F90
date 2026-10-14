@@ -20,6 +20,7 @@ module MAPL_ExtDataOldTypesCreator
    use MAPL_ExtDataClimFileHandler
    use MAPL_ExtDataTimeSample
    use MAPL_ExtDataTimeSampleMap
+   use MAPL_ExtDataConstants
    use MAPL_StateUtils
    implicit none
 
@@ -77,11 +78,13 @@ module MAPL_ExtDataOldTypesCreator
 
       _UNUSED_DUMMY(unusable)
       rule => this%rule_map%at(trim(item_name))
-      time_sample => this%sample_map%at(rule%sample_key)
 
-      if(.not.associated(time_sample)) then
-        call default_time_sample%set_defaults()
-        time_sample=>default_time_sample
+      if(rule%sample_key==sample_not_provided) then
+         call default_time_sample%set_defaults()
+         time_sample=>default_time_sample
+      else
+         time_sample => this%sample_map%at(rule%sample_key)
+         _ASSERT(ASSOCIATED(time_sample), 'sample_key provided for '//trim(item_name)//" does not exist")
       end if
       primary_item%vartype = MAPL_FieldItem
       if (allocated(rule%vector_partner)) primary_item%vartype = MAPL_VectorField

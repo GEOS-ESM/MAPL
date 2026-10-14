@@ -1,4 +1,4 @@
-esma_set_this (OVERRIDE ${MAPL_TARGET_PREFIX}.state_utils)
+esma_set_this (OVERRIDE MAPL.state_utils)
 
 set(srcs
   StateUtils.F90
@@ -14,7 +14,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES ${MAPL_TARGET_PREFIX}.base ${MAPL_TARGET_PREFIX}.shared PFLOGGER::pflogger
+  DEPENDENCIES MAPL.base MAPL.shared PFLOGGER::pflogger
   TYPE ${MAPL_LIBRARY_TYPE}
   )
 

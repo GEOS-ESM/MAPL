@@ -754,13 +754,16 @@ MODULE ExtDataUtRoot_GridCompMod
 
       integer :: status
       integer                             :: i
-      real, pointer                       :: ptr1(:)
-      real, pointer                       :: ptr2(:)
+      real(ESMF_KIND_R4), pointer         :: ptr1_r4(:)
+      real(ESMF_KIND_R4), pointer         :: ptr2_r4(:)
+      real(ESMF_KIND_R8), pointer         :: ptr1_r8(:)
+      real(ESMF_KIND_R8), pointer         :: ptr2_r8(:)
       integer :: itemcount,rank1,rank2
       character(len=ESMF_MAXSTR), allocatable :: NameList(:)
       logical, allocatable :: foundDiff(:)
       type(ESMF_Field) :: Field1,Field2
       logical :: all_undef1, all_undef2
+      type(ESMF_TypeKind_Flag) :: typekind1, typekind2
 
       call ESMF_StateGet(State1,itemcount=itemCount,_RC)
          allocate(NameList(itemCount),stat=status)
@@ -770,25 +773,57 @@ MODULE ExtDataUtRoot_GridCompMod
          call ESMF_StateGet(State1,itemNameList=NameList,_RC)
          do i=1,itemCount
             if (trim(nameList(i)) == 'PLE') cycle
+            
+            ! Get fields from both states
             call ESMF_StateGet(State1,trim(nameList(i)),field1,_RC)
             call ESMF_StateGet(State2,trim(nameList(i)),field2,_RC)
+            
+            ! Get ranks and verify they match
             call ESMF_FieldGet(field1,rank=rank1,_RC)
             call ESMF_FieldGet(field2,rank=rank2,_RC)
+            _ASSERT(rank1==rank2,'Field ranks must match: '//trim(nameList(i)))
+            
+            ! Check for UNDEF fields
             all_undef1 = FieldIsConstant(field1,MAPL_UNDEF,_RC)
             all_undef2 = FieldIsConstant(field2,MAPL_UNDEF,_RC)
             if (all_undef1 .or. all_undef2) then
                exit
             end if
-            _ASSERT(rank1==rank2,'needs informative message')
-            call assign_fptr(field1, ptr1, _RC)
-            call assign_fptr(field2, ptr2, _RC)
-            _ASSERT(size(ptr1)==size(ptr2),'needs informative message')
-            foundDiff(i)=.false.
-            if (any(abs(ptr1-ptr2) > tol)) then
-                foundDiff(i) = .true.
+            
+            ! Get typekind for both fields
+            call ESMF_FieldGet(field1, typekind=typekind1, _RC)
+            call ESMF_FieldGet(field2, typekind=typekind2, _RC)
+            
+            ! Require same precision
+            if (typekind1 /= typekind2) then
+               _FAIL('Fields must have same precision for comparison: '//trim(nameList(i)))
             end if
+            
+            ! Handle based on precision
+            foundDiff(i) = .false.
+            
+            if (typekind1 == ESMF_TYPEKIND_R4) then
+               ! R4 comparison
+               call assign_fptr(field1, ptr1_r4, _RC)
+               call assign_fptr(field2, ptr2_r4, _RC)
+               _ASSERT(size(ptr1_r4)==size(ptr2_r4),'Field sizes must match: '//trim(nameList(i)))
+               if (any(abs(ptr1_r4 - ptr2_r4) > tol)) then
+                  foundDiff(i) = .true.
+               end if
+            else if (typekind1 == ESMF_TYPEKIND_R8) then
+               ! R8 comparison
+               call assign_fptr(field1, ptr1_r8, _RC)
+               call assign_fptr(field2, ptr2_r8, _RC)
+               _ASSERT(size(ptr1_r8)==size(ptr2_r8),'Field sizes must match: '//trim(nameList(i)))
+               if (any(abs(ptr1_r8 - ptr2_r8) > real(tol,ESMF_KIND_R8))) then
+                  foundDiff(i) = .true.
+               end if
+            else
+               _FAIL('Unsupported field precision: '//trim(nameList(i)))
+            end if
+            
             if (foundDiff(i)) then
-               _FAIL('found difference when compare state')
+               _FAIL('found difference when compare state: '//trim(nameList(i)))
             end if
          enddo
 
