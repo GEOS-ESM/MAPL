@@ -18,11 +18,9 @@ contains
       type(ESMF_HConfig) :: mapl_cfg
       type(ESMF_HConfig) :: setservices_cfg
 
-      call ESMF_HConfigLog(hconfig, prefix='hconfig: ', _RC)
       has_mapl_section = ESMF_HConfigIsDefined(hconfig, keyString=MAPL_SECTION, _RC)
       _RETURN_UNLESS(has_mapl_section)
       mapl_cfg = ESMF_HConfigCreateAt(hconfig, keyString=MAPL_SECTION, _RC)
-      call ESMF_HConfigLog(mapl_cfg, prefix='mapl_cfg: ', _RC)
 
       spec%geometry_spec = parse_geometry_spec(mapl_cfg, registry, component_name, _RC)
       spec%var_specs = parse_var_specs(mapl_cfg, registry, component_name, _RC)
