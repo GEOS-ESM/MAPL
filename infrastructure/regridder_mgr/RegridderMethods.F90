@@ -127,19 +127,19 @@ module mapl_RegridderMethods_mod
       case (REGRID_METHOD_BILINEAR)
           if (typekind == ESMF_TYPEKIND_R4) then
              mapl_dyn_mask = DynamicMask('missing_value', MAPL_UNDEFINED_REAL, &
-                             handleAllElements=.true., _RC)
+                             handleAllElements=.false., _RC)
           else if (typekind == ESMF_TYPEKIND_R8) then
              mapl_dyn_mask = DynamicMask('missing_value', MAPL_UNDEFINED_REAL64, &
-                             handleAllElements=.true., _RC)
+                             handleAllElements=.false., _RC)
           end if
           regrid_param = EsmfRegridderParam(regridMethod=ESMF_REGRIDMETHOD_BILINEAR, dyn_mask=mapl_dyn_mask)
       case (REGRID_METHOD_CONSERVE)
           if (typekind == ESMF_TYPEKIND_R4) then
              mapl_dyn_mask = DynamicMask('missing_value', MAPL_UNDEFINED_REAL, &
-                             handleAllElements=.true., _RC)
+                             handleAllElements=.false., _RC)
           else if (typekind == ESMF_TYPEKIND_R8) then
              mapl_dyn_mask = DynamicMask('missing_value', MAPL_UNDEFINED_REAL64, &
-                             handleAllElements=.true., _RC)
+                             handleAllElements=.false., _RC)
           end if
           regrid_param = EsmfRegridderParam(regridMethod=ESMF_REGRIDMETHOD_CONSERVE, dyn_mask=mapl_dyn_mask)
       case (REGRID_METHOD_VOTE)
@@ -163,19 +163,19 @@ module mapl_RegridderMethods_mod
       case (REGRID_METHOD_CONSERVE_2ND)
           if (typekind == ESMF_TYPEKIND_R4) then
              mapl_dyn_mask = DynamicMask('missing_value', MAPL_UNDEFINED_REAL, &
-                             handleAllElements=.true., _RC)
+                             handleAllElements=.false., _RC)
           else if (typekind == ESMF_TYPEKIND_R8) then
              mapl_dyn_mask = DynamicMask('missing_value', MAPL_UNDEFINED_REAL64, &
-                             handleAllElements=.true., _RC)
+                             handleAllElements=.false., _RC)
           end if
           regrid_param = EsmfRegridderParam(regridMethod=ESMF_REGRIDMETHOD_CONSERVE_2ND, dyn_mask=mapl_dyn_mask)
       case (REGRID_METHOD_PATCH)
           if (typekind == ESMF_TYPEKIND_R4) then
              mapl_dyn_mask = DynamicMask('missing_value', MAPL_UNDEFINED_REAL, &
-                             handleAllElements=.true., _RC)
+                             handleAllElements=.false., _RC)
           else if (typekind == ESMF_TYPEKIND_R8) then
              mapl_dyn_mask = DynamicMask('missing_value', MAPL_UNDEFINED_REAL64, &
-                             handleAllElements=.true., _RC)
+                             handleAllElements=.false., _RC)
           end if
           regrid_param = EsmfRegridderParam(regridMethod=ESMF_REGRIDMETHOD_PATCH, dyn_mask=mapl_dyn_mask)
       case (REGRID_METHOD_CONSERVE_MONOTONIC)

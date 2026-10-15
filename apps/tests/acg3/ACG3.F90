@@ -3,6 +3,7 @@
 #define _SUCCESS ESMF_SUCCESS
 #define _FAILURE _SUCCESS-1
 module mapl_acg3_mod
+   use mapl
    use mapl_Generic_api, only: MAPL_GridCompAddSpec
    use mapl_UngriddedDim_mod, only: UngriddedDim
    use mapl_state_api, only: MAPL_StateGetPointer
