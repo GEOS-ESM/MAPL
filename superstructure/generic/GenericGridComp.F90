@@ -147,13 +147,26 @@ contains
 
 
    recursive type(ESMF_GridComp) function create_grid_comp_primary( &
-        name, set_services, config, unusable, petlist, rc) result(gridcomp)
+        name, set_services, config, unusable, hierarchy_id, petlist, rc) result(gridcomp)
       use :: mapl_UserSetServices_mod, only: UserSetServices
+      use :: mapl_HierarchyId_mod, only: HierarchyId
 
       character(*), intent(in) :: name
       class(UserSetServices), optional, intent(in) :: set_services
       type(ESMF_HConfig), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      ! openspec/changes/hierarchy-wide-component-graph, design.md D1:
+      ! framework-internal keyword, not part of this entry point's
+      ! user-facing contract - absent (the default) for every ordinary
+      ! top-level mapl_GridCompCreate call, which gets a fresh hierarchy
+      ! of its own exactly as before this change. Supplied only by
+      ! add_child_by_spec.F90's own internal call, for a child
+      ! component that declares its own user_setservices (and is
+      ! therefore constructed through this same entry point used to
+      ! create a brand-new hierarchy's root) - passing the parent's own
+      ! hierarchy_id here keeps that child in the parent's hierarchy
+      ! instead of starting a new one.
+      type(HierarchyId), optional, intent(in) :: hierarchy_id
       integer, optional, intent(in) :: petlist(:)
       integer, optional, intent(out) :: rc
 
@@ -196,7 +209,7 @@ contains
          call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gc_driver, hconfig=config))
       end if
 #endif
-      call outer_meta%init_meta(_RC)
+      call outer_meta%init_meta(hierarchy_id=hierarchy_id, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)

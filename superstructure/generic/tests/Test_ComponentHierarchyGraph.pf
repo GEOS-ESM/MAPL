@@ -253,4 +253,94 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_parent_reaches_child_only_through_driver
 
+   ! openspec/changes/hierarchy-wide-component-graph, graph/component-
+   ! hierarchy delta spec "Component names are unique across the entire
+   ! hierarchy" scenario "Adding a child with a name already used
+   ! elsewhere in the hierarchy fails" - the sibling-level case: two
+   ! children of the same parent, same name. (Already covered
+   ! implicitly today by add_child_by_spec's own sibling-count assert -
+   ! this test exercises it directly, for the first time, rather than
+   ! leaving it untested.)
+   @test(npes=[0])
+   subroutine test_add_child_rejects_sibling_name_collision(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(ChildSpec) :: child_spec
+      integer :: status
+
+      call make_outer_meta('comp_e', parent_gc, parent_meta, _RC)
+
+      child_spec = ChildSpec()
+      call parent_meta%add_child('dup_name', child_spec, _RC)
+      @assert_that(status, is(0))
+
+      child_spec = ChildSpec()
+      call parent_meta%add_child('dup_name', child_spec, rc=status)
+      ! add_child_by_spec's own _ASSERT raises an exception rather than
+      ! returning a nonzero status for the caller to inspect directly -
+      ! same multi-frame-unwind pattern Test_GraphBuilder.pf's own
+      ! test_freeze_fails_and_leaves_graph_unfrozen_on_conflict and
+      ! Test_OuterMetaComponentDriverResolver.pf's
+      ! test_unknown_key_fails_loudly document: the raised exception
+      ! must be consumed via @assertExceptionRaised before status is
+      ! meaningful.
+      @assertExceptionRaised('duplicate child name: <dup_name>.')
+      @assert_that(status, is(not(equal_to(0))))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_add_child_rejects_sibling_name_collision
+
+   ! graph/component-hierarchy delta spec scenario "Sibling-unique but
+   ! hierarchy-duplicate names are rejected": a name that does not
+   ! collide with any of its own siblings, but does collide with a
+   ! component's name elsewhere in the hierarchy (a cousin, several
+   ! levels removed) - the new coverage this task adds. Hierarchy shape:
+   !   root
+   !   +-- branch_a
+   !   |     +-- cousin   (added first)
+   !   +-- branch_b
+   !         +-- cousin   (must be rejected: not branch_b's own sibling,
+   !                       but still a hierarchy-wide collision)
+   @test(npes=[0])
+   subroutine test_add_child_rejects_cross_branch_cousin_collision(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta
+      type(OuterMetaComponent), pointer :: branch_a_meta, branch_b_meta
+      type(GriddedComponentDriver) :: branch_a_driver, branch_b_driver
+      type(ESMF_GridComp) :: branch_a_gc, branch_b_gc
+      type(ChildSpec) :: child_spec
+      integer :: status
+
+      call make_outer_meta('comp_f', root_gc, root_meta, _RC)
+
+      child_spec = ChildSpec()
+      call root_meta%add_child('branch_a', child_spec, _RC)
+      child_spec = ChildSpec()
+      call root_meta%add_child('branch_b', child_spec, _RC)
+
+      branch_a_driver = root_meta%get_child('branch_a', _RC)
+      branch_b_driver = root_meta%get_child('branch_b', _RC)
+      branch_a_gc = branch_a_driver%get_gridcomp()
+      branch_b_gc = branch_b_driver%get_gridcomp()
+      branch_a_meta => get_outer_meta(branch_a_gc, _RC)
+      branch_b_meta => get_outer_meta(branch_b_gc, _RC)
+
+      ! "cousin" is not a sibling of anything under branch_b - no
+      ! sibling-level collision exists at the point this call is made.
+      child_spec = ChildSpec()
+      call branch_a_meta%add_child('cousin', child_spec, _RC)
+      @assert_that(status, is(0))
+
+      child_spec = ChildSpec()
+      call branch_b_meta%add_child('cousin', child_spec, rc=status)
+      @assertExceptionRaised('duplicate component name elsewhere in the hierarchy: <cousin>.')
+      @assert_that(status, is(not(equal_to(0))))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_add_child_rejects_cross_branch_cousin_collision
+
 end module Test_ComponentHierarchyGraph

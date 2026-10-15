@@ -52,6 +52,12 @@ target_sources(MAPL.generic PRIVATE
   DependencyNetwork.F90
   containers/DependencyNetworkIdNetworkMap.F90
 
+  HierarchyId.F90
+  HierarchyGraph.F90
+  HierarchyResources.F90
+  containers/HierarchyIdHierarchyResourcesMap.F90
+  HierarchyRegistry.F90
+
   ComponentGraph.F90
   ComponentGraph_DemandDrivenUpdate.F90
   GraphExport.F90

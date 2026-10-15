@@ -1857,6 +1857,64 @@ discovered-gap backlog items already accumulate (§20.4.12, §20.4.13).
 Depends on nothing landed or planned above — independent of Phase 12,
 Phase 13, 3b2, and Phase 7.
 
+### 20.4.15 Phase 15 scope: `Hierarchy`-as-factory redesign of component construction
+
+**Discovered gap, deferred during `hierarchy-wide-component-graph`'s
+own design, not previously tracked by any phase above.** That change
+introduces `HierarchyId`/`HierarchyResources` (a private,
+`HierarchyId`-keyed registry owning the hierarchy-wide `NodeId`/
+`DependencyNetworkId` storage every `ComponentGraph` instance now
+shares — see that change's design.md D1) specifically so threading a
+hierarchy-wide reference down through construction never requires a
+pointer, a module-level bare singleton, or a public-signature change to
+`mapl_GridCompCreate`. A materially larger alternative was raised
+during that change's own design discussion and explicitly deferred,
+not folded in: a user-visible `Hierarchy` type, constructed once per
+application, whose own factory method (rather than the free function
+`mapl_GridCompCreate` is today) creates every `OuterComponent` in that
+hierarchy — root and descendant alike — and which eventually also owns
+other hierarchy-wide shared resources beyond the graph (e.g. a geometry
+registry, so two components needing "the same" geometry do not each
+independently construct an equal-but-distinct one).
+
+**Why deferred rather than folded into `hierarchy-wide-component-graph`
+directly:** `mapl_GridCompCreate` is a long-established, widely-used
+public entry point (re-exported from `API.F90`), not an internal
+implementation detail — redesigning its own calling convention into a
+factory-method-on-an-object shape is a cross-cutting change to every
+existing call site across the GEOS/MAPL codebase, not merely the
+`superstructure/generic` files `hierarchy-wide-component-graph`'s own
+proposal.md names as its Impact. A `Hierarchy` object owning a pointer
+and threaded down through `OuterMetaComponent`'s constructor was also
+considered and rejected on narrower grounds: a child component that
+declares its own `user_setservices` is constructed through that same
+public entry point used to create a brand-new hierarchy's root
+(`GenericGridComp.F90`'s `create_grid_comp_primary`), and introducing a
+pointer-shaped dependency from `ComponentGraph`/`OuterMetaComponent`
+toward a new `Hierarchy` type risked a circular module dependency if
+`Hierarchy` itself ever needed to reference either of those types back
+(e.g. to expose a `get_component_graph`-style accessor of its own).
+
+**Scope:** redesign `mapl_GridCompCreate`'s calling convention around a
+`Hierarchy` type (construction, lifetime, and how an existing
+`HierarchyId` 's registry entry relates to it — likely `Hierarchy`
+becomes a thin, user-facing wrapper around one `HierarchyResources`
+entry, reached by its own `HierarchyId`, rather than a competing
+storage mechanism); audit and update every existing
+`mapl_GridCompCreate`/`GridCompCreate` call site across the codebase
+for the new calling convention; extend `HierarchyResources` to carry
+whatever additional shared resources (geometry registry named above,
+and any others identified by then) motivated the redesign in the first
+place.
+
+**Not blocking anything above** — `hierarchy-wide-component-graph`'s own
+`HierarchyId`/`HierarchyResources` mechanism is designed to compose with
+this later redesign (a `Hierarchy` type can be layered on top of an
+existing registry entry) without requiring that change's own storage
+mechanism to be reworked first, so this phase can land independently,
+whenever a second hierarchy-wide shared resource (motivating the
+"doesn't repeat the threading problem" rationale) actually materializes.
+
 ## 20.5 Cross-reference
 
 This roadmap does not restate or supersede any requirement in `01`–`19`;
