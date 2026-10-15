@@ -124,7 +124,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `__GFORTRAN__`-guarded workaround subroutines for direct assignment to
   derived-type actual results (previously needed due to a gfortran bug) were
   removed from `GenericGridComp.F90`, `StateRegistry_Extensions_smod.F90`,
-  `GenericCoupler.F90`, and `add_child_by_spec.F90` in favor of plain assignment
+  `GenericCoupler.F90`, and `add_child_by_spec.F90` in favor of plain assignment;
+  also re-enabled the DTIO `write(formatted)` code in `MultiState.F90` and the
+  `Test_WriteYaml.pf` tests, which were previously disabled for gfortran
 - Updated `components.yaml`
   - ESMA_cmake v4.51.0
     - Make ESMA_cmake reentrant
