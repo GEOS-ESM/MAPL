@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Conserve, bilinear, patch, and conserve_2nd will now have their masks created with handleAllElements = .false. to match MAPL2
 - Activated `superstructure/generic/tests/field_dictionary_test.yaml` (a
   checked-in fixture that had never actually been loaded by anything) as
   the default-path `FieldDictionary` for all six of
