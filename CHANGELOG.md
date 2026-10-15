@@ -192,6 +192,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   error. Expressions with no referenced variables (e.g. a literal/constant
   expression) are unaffected and still require an explicit `vertical_dim_spec`.
 - Fixed omission of setting FieldBundle allocation status in create() for ServiceClassAspect
+- Fixed bug with ACG caused by validation of vertical stagger
 =======
 ### Changed
 
