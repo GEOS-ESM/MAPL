@@ -3,6 +3,7 @@
 #define _SUCCESS ESMF_SUCCESS
 #define _FAILURE _SUCCESS-1
 module mapl_acg3_mod
+   use mapl
    use mapl_Generic_api, only: MAPL_GridCompAddSpec
    use mapl_UngriddedDim_mod, only: UngriddedDim
    use mapl_state_api, only: MAPL_StateGetPointer
@@ -11,7 +12,7 @@ module mapl_acg3_mod
    use esmf, only: ESMF_STATEITEM_FIELD, ESMF_SUCCESS, ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_INTERNAL
    use esmf, only: ESMF_State, ESMF_GridComp, Esmf_StateIntent_Flag, ESMF_Field
    use esmf, only: ESMF_KIND_R4, ESMF_KIND_R8
-   use mapl_VerticalStaggerLoc_mod
+   use mapl_enums_api
    use, intrinsic :: iso_fortran_env, only: R64 => real64, R32 => real32
    implicit none(type, external) 
 

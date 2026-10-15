@@ -64,18 +64,16 @@
     _ASSERT(status==ESMF_SUCCESS, "Private state with name <" //name// "> already created for this gridcomp?"); \
   end block
 
-#define MAPL_InternalStateGet(gc, T, name, private_state)  \
-  block;                                                    \
+#define _GET_PRIVATE_STATE(gc, T, private_state) _GET_NAMED_PRIVATE_STATE(gc, T, "private state", private_state)
+
+#define _GET_NAMED_PRIVATE_STATE(gc, T, name, private_state)  \
+  block;                                                      \
     _DECLARE_WRAPPER(T);                                      \
     type(PrivateWrapper) :: w;                                \
     call MAPL_InternalStateGet(gc, internalState=w, label=name, rc=status); \
     _ASSERT(status==ESMF_SUCCESS, "Private state with name <" //name// "> not found for this gridcomp."); \
     private_state => w%ptr;                                   \
   end block
-
-#define _GET_PRIVATE_STATE(gc, T, private_state) _GET_NAMED_PRIVATE_STATE(gc, T, "private state", private_state)
-
-#define _GET_NAMED_PRIVATE_STATE(gc, T, name, private_state) MAPL_InternalStateGet(gc, T, name, private_state)
 
 #define _FREE_PRIVATE_STATE(gc, T, private_state) _FREE_NAMED_PRIVATE_STATE(gc, T, "private state", private_state)
 
