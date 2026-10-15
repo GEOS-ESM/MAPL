@@ -74,7 +74,8 @@ contains
          call ESMF_GridCompGet(gridcomp, name=name, _RC)
          call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
 
-         user_gridcomp = ESMF_GridCompCreate(name=trim(name), _RC)
+         user_gridcomp = ESMF_GridCompCreate(name=trim(name), &
+               contextFlag=ESMF_CONTEXT_PARENT_VM, _RC)
          call set_is_generic(user_gridcomp, .false., _RC)
          user_gc_driver = GriddedComponentDriver(user_gridcomp)
          call set_is_generic(gridcomp, _RC)
@@ -113,7 +114,9 @@ contains
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_GEOM_B, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_ADVERTISE, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_MODIFY_ADVERTISED, _RC)
-         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE_PROVIDED, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_ACCEPT_TRANSFER, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE_ACCEPTED, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_READ_RESTART, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_USER, _RC)
 
@@ -128,6 +131,12 @@ contains
 
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_FINALIZE,     finalize,      _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_WRITERESTART, write_restart, _RC)
+
+         ! Internal (in-memory) checkpoint phases.  These are registered
+         ! directly against ESMF_METHOD_READRESTART/WRITERESTART and are
+         ! intentionally NOT part of GENERIC_INIT_PHASE_SEQUENCE.
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_READRESTART,  read_restart,  phase=GENERIC_INTERNAL_READ_RESTART, _RC)
+         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_WRITERESTART, write_restart, phase=GENERIC_INTERNAL_WRITE_RESTART, _RC)
 
          _RETURN(ESMF_SUCCESS)
       end subroutine set_entry_points
@@ -226,13 +235,17 @@ contains
       case (GENERIC_INIT_GEOM_B)
          call outer_meta%initialize_geom_b(_RC)
       case (GENERIC_INIT_ADVERTISE)
-         call outer_meta%initialize_advertise(_RC)
-      case (GENERIC_INIT_MODIFY_ADVERTISED)
-         call outer_meta%initialize_modify_advertised(importState, exportState, clock, _RC)
-      case (GENERIC_INIT_REALIZE)
-         call outer_meta%initialize_realize(importState, exportState, clock, _RC)
-      case (GENERIC_INIT_READ_RESTART)
-         call outer_meta%initialize_read_restart(_RC)
+         call outer_meta%initialize_advertise(importState, exportState, clock, _RC)
+       case (GENERIC_INIT_MODIFY_ADVERTISED)
+          call outer_meta%initialize_modify_advertised(importState, exportState, clock, _RC)
+       case (GENERIC_INIT_REALIZE_PROVIDED)
+          call outer_meta%initialize_realize_provided(importState, exportState, clock, _RC)
+       case (GENERIC_INIT_ACCEPT_TRANSFER)
+          call outer_meta%initialize_accept_transfer(importState, exportState, clock, _RC)
+       case (GENERIC_INIT_REALIZE_ACCEPTED)
+          call outer_meta%initialize_realize_accepted(importState, exportState, clock, _RC)
+       case (GENERIC_INIT_READ_RESTART)
+          call outer_meta%initialize_read_restart(_RC)
       case (GENERIC_INIT_USER)
          call outer_meta%initialize_user(_RC)
       case default
@@ -308,6 +321,27 @@ contains
 
       _RETURN(ESMF_SUCCESS)
    end subroutine write_restart
+
+   ! Dedicated ESMF_METHOD_READRESTART entry point.  Unlike write_restart,
+   ! no prior outer-level READRESTART entry point existed: existing netCDF
+   ! restart reads run under ESMF_METHOD_INITIALIZE phase
+   ! GENERIC_INIT_READ_RESTART via initialize_read_restart, which this
+   ! procedure does not touch or replace.
+   recursive subroutine read_restart(gridcomp, importState, exportState, clock, rc)
+      type(ESMF_GridComp) :: gridcomp
+      type(ESMF_State) :: importState
+      type(ESMF_State) :: exportState
+      type(ESMF_Clock) :: clock
+      integer, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      outer_meta => get_outer_meta(gridcomp, _RC)
+      call outer_meta%read_restart(importState, exportState, clock, _RC)
+
+      _RETURN(ESMF_SUCCESS)
+   end subroutine read_restart
 
    ! Parent components name their children, but such names should
    ! apply to the (inner) user grid comp.  The MAPL wrapper gridcomp,

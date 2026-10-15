@@ -12,16 +12,21 @@ mapl:
       fields: {pressure: PLE}
       num_levels: 4
 
+  # PLE/T_DYN converged onto field_dictionary_test.yaml's 'air_pressure'/
+  # 'air_temperature' entries (previously distinctly-suffixed
+  # 'air_pressure_dyn_center'/'temperature_dyn_center', which disagreed
+  # with their connected Imports in C.yaml/PHYS.yaml) - see openspec
+  # change use-field-dictionary-in-scenario-tests.
   states:
     import: {}
     export:
       PLE:
-        standard_name: air_pressure_dyn_center
+        standard_name: air_pressure
         units: hPa
         default_vertical_profile: [50., 40., 30., 20., 10.]
         vertical_dim_spec: edge
       T_DYN:
-        standard_name: temperature_dyn_center
+        standard_name: air_temperature
         units: K
         default_vertical_profile: [40., 20., 10., 5.]
         vertical_dim_spec: center

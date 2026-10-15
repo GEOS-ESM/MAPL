@@ -5,6 +5,7 @@ module field_utils_setup
    use ESMF
    use funit
    use mapl_ErrorHandling_mod
+   use mapl_FieldPointerUtilities_mod, only: assign_fptr, FieldGetLocalElementCount, field_has_de
 
    implicit none
 
@@ -72,13 +73,18 @@ contains
 
       type(ESMF_Field) :: field
       real(kind=ESMF_KIND_R4), dimension(:,:), pointer :: ptr
+      integer, allocatable :: element_count(:)
+      logical :: has_de
 
       integer :: status
 
       field = mk_field_common(tk = ESMF_TYPEKIND_R4, name = name, _RC)
-      call ESMF_FieldGet(field, farrayPtr = ptr, _RC)
-
-      ptr = farray
+      has_de = field_has_de(field, _RC)
+      if (has_de) then
+         element_count = FieldGetLocalElementCount(field, _RC)
+         call assign_fptr(field, int(element_count, kind=ESMF_KIND_I8), ptr, _RC)
+         ptr = farray
+      end if
 
       _RETURN(_SUCCESS)
    end function mk_field_r4_2d
@@ -90,12 +96,18 @@ contains
 
       type(ESMF_Field) :: field
       real(kind=ESMF_KIND_R8), dimension(:,:), pointer :: ptr
+      integer, allocatable :: element_count(:)
+      logical :: has_de
 
       integer :: status
 
       field = mk_field_common(tk = ESMF_TYPEKIND_R8, name = name, _RC)
-      call ESMF_FieldGet(field, farrayPtr = ptr, _RC)
-      ptr = farray
+      has_de = field_has_de(field, _RC)
+      if (has_de) then
+         element_count = FieldGetLocalElementCount(field, _RC)
+         call assign_fptr(field, int(element_count, kind=ESMF_KIND_I8), ptr, _RC)
+         ptr = farray
+      end if
 
       _RETURN(_SUCCESS)
    end function mk_field_r8_2d

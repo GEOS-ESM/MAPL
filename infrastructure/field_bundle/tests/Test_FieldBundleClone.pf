@@ -1,0 +1,160 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_FieldBundleClone
+
+   use mapl_field_bundle_api, only: MAPL_FieldBundleClone
+   use esmf
+   use funit
+   use ESMF_TestMethod_mod
+
+   implicit none(type, external)
+
+   integer, parameter :: IM = 4, JM = 4
+
+contains
+
+   ! Helper: build a simple 2-D R4 field on a small grid with given fill value
+   function make_field(grid, name, fill_value) result(field)
+      type(ESMF_Grid), intent(in) :: grid
+      character(len=*), intent(in) :: name
+      real, intent(in) :: fill_value
+      type(ESMF_Field) :: field
+
+      real, pointer :: ptr(:,:)
+      integer :: status
+
+      field = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name=name, _RC)
+      call ESMF_FieldGet(field, farrayPtr=ptr, _RC)
+      ptr = fill_value
+   end function make_field
+
+   ! Cloned bundle has same field count and names as the source
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_clone_preserves_count_and_names(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: fa, fb
+      type(ESMF_FieldBundle) :: bundle_in, bundle_out
+      integer :: field_count_in, field_count_out, status
+      character(len=ESMF_MAXSTR), allocatable :: names_in(:), names_out(:)
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, JM], _RC)
+      fa = make_field(grid, 'alpha', 1.0)
+      fb = make_field(grid, 'beta', 2.0)
+      bundle_in = ESMF_FieldBundleCreate(_RC)
+      call ESMF_FieldBundleAdd(bundle_in, [fa, fb], _RC)
+
+      call MAPL_FieldBundleClone(bundle_in, bundle_out, _RC)
+
+      call ESMF_FieldBundleGet(bundle_in, fieldCount=field_count_in, _RC)
+      call ESMF_FieldBundleGet(bundle_out, fieldCount=field_count_out, _RC)
+      @assert_that(field_count_out, is(equal_to(field_count_in)))
+
+      allocate(names_in(field_count_in))
+      allocate(names_out(field_count_out))
+      call ESMF_FieldBundleGet(bundle_in, itemorderflag=ESMF_ITEMORDER_ABC, fieldNameList=names_in, _RC)
+      call ESMF_FieldBundleGet(bundle_out, itemorderflag=ESMF_ITEMORDER_ABC, fieldNameList=names_out, _RC)
+      @assert_that(all(names_in == names_out), is(true()))
+
+      call ESMF_FieldBundleDestroy(bundle_in, _RC)
+      call ESMF_FieldBundleDestroy(bundle_out, _RC)
+      call ESMF_FieldDestroy(fa, _RC)
+      call ESMF_FieldDestroy(fb, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+   end subroutine test_clone_preserves_count_and_names
+
+   ! Cloned fields have same typekind and shape as source fields
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_clone_preserves_typekind_and_shape(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: fa
+      type(ESMF_Field) :: field_in, field_out
+      type(ESMF_FieldBundle) :: bundle_in, bundle_out
+      type(ESMF_TypeKind_Flag) :: tk_in, tk_out
+      real, pointer :: ptr_in(:,:), ptr_out(:,:)
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, JM], _RC)
+      fa = make_field(grid, 'alpha', 1.0)
+      bundle_in = ESMF_FieldBundleCreate(_RC)
+      call ESMF_FieldBundleAdd(bundle_in, [fa], _RC)
+
+      call MAPL_FieldBundleClone(bundle_in, bundle_out, _RC)
+
+      call ESMF_FieldBundleGet(bundle_in, 'alpha', field=field_in, _RC)
+      call ESMF_FieldBundleGet(bundle_out, 'alpha', field=field_out, _RC)
+
+      call ESMF_FieldGet(field_in, typekind=tk_in, _RC)
+      call ESMF_FieldGet(field_out, typekind=tk_out, _RC)
+      @assert_that(tk_out == tk_in, is(true()))
+
+      call ESMF_FieldGet(field_in, farrayPtr=ptr_in, _RC)
+      call ESMF_FieldGet(field_out, farrayPtr=ptr_out, _RC)
+      @assert_that(all(shape(ptr_in) == shape(ptr_out)), is(true()))
+
+      call ESMF_FieldBundleDestroy(bundle_in, _RC)
+      call ESMF_FieldBundleDestroy(bundle_out, _RC)
+      call ESMF_FieldDestroy(fa, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+   end subroutine test_clone_preserves_typekind_and_shape
+
+   ! Cloned fields are independently allocated: mutating the source
+   ! field's data does not alter the clone's data.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_clone_is_independently_allocated(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: fa
+      type(ESMF_Field) :: field_out
+      type(ESMF_FieldBundle) :: bundle_in, bundle_out
+      real, pointer :: ptr_in(:,:), ptr_out(:,:)
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, JM], _RC)
+      fa = make_field(grid, 'alpha', 1.0)
+      bundle_in = ESMF_FieldBundleCreate(_RC)
+      call ESMF_FieldBundleAdd(bundle_in, [fa], _RC)
+
+      call MAPL_FieldBundleClone(bundle_in, bundle_out, _RC)
+
+      call ESMF_FieldBundleGet(bundle_out, 'alpha', field=field_out, _RC)
+      call ESMF_FieldGet(field_out, farrayPtr=ptr_out, _RC)
+      ptr_out = 0.0 ! clone starts as freshly-allocated, uninitialized-by-clone memory
+
+      call ESMF_FieldGet(fa, farrayPtr=ptr_in, _RC)
+      ptr_in = 99.0 ! mutate source after clone
+
+      @assert_that(all(ptr_out == 0.0), is(true()))
+      @assert_that(.not. any(ptr_out == 99.0), is(true()))
+
+      call ESMF_FieldBundleDestroy(bundle_in, _RC)
+      call ESMF_FieldBundleDestroy(bundle_out, _RC)
+      call ESMF_FieldDestroy(fa, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+   end subroutine test_clone_is_independently_allocated
+
+   ! Cloning an empty bundle produces an empty bundle
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_clone_empty_bundle(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_FieldBundle) :: bundle_in, bundle_out
+      integer :: field_count, status
+
+      bundle_in = ESMF_FieldBundleCreate(_RC)
+
+      call MAPL_FieldBundleClone(bundle_in, bundle_out, _RC)
+
+      call ESMF_FieldBundleGet(bundle_out, fieldCount=field_count, _RC)
+      @assert_that(field_count, is(equal_to(0)))
+
+      call ESMF_FieldBundleDestroy(bundle_in, _RC)
+      call ESMF_FieldBundleDestroy(bundle_out, _RC)
+   end subroutine test_clone_empty_bundle
+
+end module Test_FieldBundleClone

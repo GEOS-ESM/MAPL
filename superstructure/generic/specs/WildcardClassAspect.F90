@@ -31,6 +31,7 @@ module mapl_WildcardClassAspect_mod
       procedure :: connect_to_export
 
       procedure :: get_aspect_order
+      procedure :: get_mandatory_aspect_ids
       procedure :: create
       procedure :: activate
       procedure :: allocate
@@ -239,7 +240,16 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
- 
+
+   ! Can never be an export
+   function get_mandatory_aspect_ids(this) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(WildcardClassAspect), intent(in) :: this
+
+      aspect_ids = [AspectId :: ] ! empty
+   end function get_mandatory_aspect_ids
+
+
    subroutine get_payload(this, unusable, field, bundle, state, rc)
       class(WildcardClassAspect), intent(in) :: this
       class(KeywordEnforcer), optional, intent(out) :: unusable

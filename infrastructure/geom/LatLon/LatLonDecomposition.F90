@@ -140,9 +140,12 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, intent(in) :: topology(2)
 
-      decomp%lon_distribution = mapl_GetPartition(dims(1), k=topology(1), min_extent=2)
-      decomp%lat_distribution = mapl_GetPartition(dims(2), k=topology(2), min_extent=2)
+      integer, allocatable :: temp_lon(:), temp_lat(:)
 
+      temp_lon = mapl_GetPartition(dims(1), k=topology(1), min_extent=2)
+      temp_lat = mapl_GetPartition(dims(2), k=topology(2), min_extent=2)
+      decomp%lon_distribution = pack(temp_lon, temp_lon /= 0) 
+      decomp%lat_distribution = pack(temp_lat, temp_lat /= 0) 
       _UNUSED_DUMMY(unusable)
    end function new_LatLonDecomposition_topo
 

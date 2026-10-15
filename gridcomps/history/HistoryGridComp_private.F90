@@ -97,7 +97,7 @@ contains
        integer :: status
        type(ESMF_HConfig) :: time_hconfig, stats_hconfig, var_list, var_hconfig
        logical :: has_mode, has_frequency, has_ref_datetime, has_var_mode
-       character(len=:), allocatable :: mode, effective_mode, var_mode, ref_datetime, frequency, short_name, name_in_comp
+       character(len=:), allocatable :: mode, effective_mode, var_mode, ref_datetime, frequency, short_name, name_in_comp, alias
       type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
       type(ESMF_HConfig) :: stat_item, stats_list
 
@@ -127,7 +127,7 @@ contains
       iter = iter_begin
        do while (ESMF_HConfigIterLoop(iter,iter_begin,iter_end,rc=status))
           _VERIFY(status)
-          call parse_item(iter, short_name=short_name, name_in_comp=name_in_comp, _RC)
+          call parse_item(iter, short_name=short_name, name_in_comp=name_in_comp, alias=alias, _RC)
 
           ! Check for a per-variable mode override in the var_list entry.
           ! Because we only reach this code path when the collection mode is
@@ -142,7 +142,7 @@ contains
           end if
           call ESMF_HConfigDestroy(var_hconfig, _RC)
 
-          stat_item = create_stats_entry(short_name, effective_mode, frequency, ref_datetime, _RC)
+          stat_item = create_stats_entry(short_name, effective_mode, frequency, ref_datetime, alias, _RC)
           call ESMF_HConfigAdd(stats_list, stat_item, _RC)
           call MAPL_GridCompAddConnection(gridcomp, src_comp='stats_'//child_name, src_names=short_name, dst_comp=child_name, dst_names=name_in_comp, _RC)
        enddo
@@ -153,21 +153,28 @@ contains
 
    end subroutine add_stats_gc
 
-   function create_stats_entry(name, action, period, ref_datetime, rc) result(stat_item)
+   function create_stats_entry(name, action, period, ref_datetime, alias, rc) result(stat_item)
        type(ESMF_HConfig) :: stat_item
        ! Input arguments
        character(len=*), intent(in) :: name
        character(len=*), intent(in) :: action
        character(len=*), intent(in) :: period
        character(len=*), intent(in) :: ref_datetime
+       character(len=*), intent(in) :: alias
 
        integer, intent(out), optional :: rc
        integer :: status
+       logical :: is_vector
 
+       is_vector = is_vector_item(alias) 
        stat_item = ESMF_HConfigCreate(_RC)
-
-           ! Add fields to this stat item
+       ! Add fields to this stat item
        call ESMF_HConfigAdd(stat_item, trim(name), AddKeyString="name", _RC)
+       if (is_vector) then
+          call ESMF_HConfigAdd(stat_item, "vector", AddKeyString="itemtype", _RC)
+       else
+          call ESMF_HConfigAdd(stat_item, "field", AddKeyString="itemtype", _RC)
+       end if
        call ESMF_HConfigAdd(stat_item, trim(action), AddkeyString="action", _RC)
        call ESMF_HConfigAdd(stat_item, trim(period), AddKeyString="period", _RC)
        call ESMF_HConfigAdd(stat_item, trim(ref_datetime), AddKeyString="ref_datetime", _RC)

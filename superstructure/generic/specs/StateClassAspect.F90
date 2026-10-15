@@ -3,6 +3,7 @@
 module mapl_StateClassAspect_mod
 
    use mapl_ActualConnectionPt_mod
+   use mapl_field_api, only: MAPL_NamedAlias
    use mapl_AspectId_mod
    use mapl_StateItemAspect_mod
    use mapl_ClassAspect_mod
@@ -26,10 +27,10 @@ module mapl_StateClassAspect_mod
       logical :: is_created = .false.
       type(ESMF_State) :: payload
       type(ESMF_StateIntent_Flag) :: state_intent
-      character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
    contains
       procedure :: get_aspect_order
+      procedure :: get_mandatory_aspect_ids
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: make_transform
@@ -52,17 +53,12 @@ module mapl_StateClassAspect_mod
 
 contains
 
-   function new_StateClassAspect(state_intent, standard_name, long_name) result(aspect)
+   function new_StateClassAspect(state_intent, long_name) result(aspect)
       type(StateClassAspect) :: aspect
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
-      character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
 
       aspect%state_intent = state_intent
-      aspect%standard_name = "unknown"
-      if (present(standard_name)) then
-         aspect%standard_name = standard_name
-      end if
       aspect%long_name = "unknown"
       if (present(long_name)) then
          aspect%long_name = long_name
@@ -89,6 +85,13 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal_aspects)
    end function get_aspect_order
+
+   function get_mandatory_aspect_ids(this) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(StateClassAspect), intent(in) :: this
+
+      aspect_ids = [AspectId :: ] ! empty
+   end function get_mandatory_aspect_ids
 
    subroutine create(this, other_aspects, rc)
       class(StateClassAspect), intent(inout) :: this
@@ -245,7 +248,7 @@ contains
       call get_substate(state, full_name(:idx-1), substate=substate, _RC)
       inner_name = full_name(idx+1:)
 
-      alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
+      alias = MAPL_NamedAlias(this%payload, name=inner_name, _RC)
       call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
       if (itemType /= ESMF_STATEITEM_NOTFOUND) then
          if (intent /= "import") then

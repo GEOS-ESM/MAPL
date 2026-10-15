@@ -44,7 +44,6 @@ module mapl_esmf_info_keys_mod
    public :: KEY_ATTRIBUTES
    public :: DELIMITER
    public :: KEY_FILL_VALUE
-   public :: KEY_HAS_DEFERRED_ASPECTS
    public :: KEY_HORIZONTAL_DIMS_SPEC
    public :: KEY_MISSING_VALUE
    public :: KEY_REGRIDDER_PARAM
@@ -109,7 +108,6 @@ module mapl_esmf_info_keys_mod
    character(len=*), parameter :: KEY_ATTRIBUTES = '/attributes'
    character(len=*), parameter :: DELIMITER = '/'
    character(len=*), parameter :: KEY_FILL_VALUE = '/_FillValue'
-   character(len=*), parameter :: KEY_HAS_DEFERRED_ASPECTS = '/has_deferred_aspects'
    character(len=*), parameter :: KEY_HORIZONTAL_DIMS_SPEC = '/horizontal_dims_spec'
    character(len=*), parameter :: KEY_MISSING_VALUE = '/missing_value'
    character(len=*), parameter :: KEY_REGRIDDER_PARAM = '/EsmfRegridderParam'

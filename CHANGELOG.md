@@ -9,125 +9,369 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 <!-- mlc-enable -->
 
-### Fixed
+### Added
 
-- Fixed documentation workflows so manual runs publish only from trusted branches and v2 and MAPL3 documentation deployments preserve each other's output
-- Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
-- Dangling pointer in ExtDataFileReader due to a missing target attribute on ExtDataReader
+- Enforced the `standard_name` convention between a connected Import and
+  Export (GEOS-ESM/MAPL#5413). A new `StandardNameAspect`
+  (`superstructure/generic/specs/StandardNameAspect.F90`), modeled directly
+  on `UnitsAspect`, checks agreement via the standard `AspectMap`
+  connection-resolution `matches()` machinery: equal values connect
+  silently; an Import may declare a wildcard/unset `standard_name` to
+  accept any Export; an Export with no declared `standard_name` warns but
+  still connects (never a fatal error); a genuine disagreement is a fatal
+  error in the new `STRICT` `ValidationMode` and a warning (Export's value
+  wins) in the default `PERMISSIVE` mode. `standard_name` is now a single,
+  unaliased, field-wide value (like `units`) rather than the per-connection-
+  endpoint value it briefly became; `long_name` is unaffected and keeps its
+  existing per-alias/inheritance behavior. For a `Vector` item, whose
+  `standard_name` is a compound `"(name1,name2)"` encoding of two
+  independent component names, agreement is checked per component.
+  `FieldDictionary`-driven `long_name`/`units` defaulting from a declared
+  `standard_name` (`VariableSpec`) is now unconditional - the
+  `use_field_dictionary` opt-in flag has been removed (**BREAKING**: any
+  code passing `use_field_dictionary=` to `make_VariableSpec`/
+  `MAPL_GridCompAddSpec` will need to drop the argument); a `standard_name`
+  absent from the dictionary is likewise a fatal error in strict mode. The
+  previously-unused `ValidationMode`/`FieldDictionaryConfig`
+  (`infrastructure/field_dictionary/`) are now wired into
+  `MaplFramework%initialize_field_dictionary`, which accepts either the
+  existing bare-string `field_dictionary: <path>` cap.yaml key or a new
+  mapping form, `field_dictionary: {path: ..., validation_mode: strict|permissive}`.
+  Default mode is permissive, so existing configurations are unaffected
+  until a run opts into strict mode.
+- Added CI verification step to `.github/actions/ci-build-and-test-mapl/action.yml`
+  that checks for and fails if any static libraries (`*.a`) are installed in
+  standalone MAPL builds.
+- Added ability to output on a set of fixed pressure or height levels in History3G
+- Extended History and StatisticsGridComp so one can take the average, min, max, accumulation, and variance of vectors
 
 ### Changed
 
-- For vector items in ExtData change variables separted by `;` to a sequence of variables like History
-- Moved DSO-backed child `setServices` ownership into child configurations and added support for raw `ESMF_GridCompCreate` followed by `ESMF_GridCompSetServices` startup.
-- Refactored `UserSetServices.F90` to remove the `user_setservices` interface, rename `AbstractUserSetServices` to `UserSetServices`, and giving `ProcSetServices` and `DSOSetServices` their own constructors
-- `Regrid_Util.x` now uses the fargparse library for command line argument parsing instead
-  of raw Fortran intrinsics. Multi-character options that previously used a single-dash prefix
-  (e.g. `-ogrid`, `-nx`, `-ny`, `-method`, `-tp_in`, `-tp_out`, `-lon_range`, `-lat_range`,
-  `-stretch_factor`, `-deflate`, `-shave`, `-quantize_algorithm`, `-quantize_level`,
-  `-zstandard_level`, `-file_weights`, `-vars`, `-t`) now require a double-dash prefix
-  (e.g. `--ogrid`, `--nx`). The short forms `-i` and `-o` are preserved. The `--help` flag
-  is now handled automatically by fargparse and prints a formatted usage summary.
-### Added
+- Conserve, bilinear, patch, and conserve_2nd regridding now create their masks with `handleAllElements = .false.` to match MAPL2
+- Activated `superstructure/generic/tests/field_dictionary_test.yaml` (a
+  checked-in fixture that had never actually been loaded by anything) as
+  the default-path `FieldDictionary` for all six of
+  `superstructure/generic/tests/`'s pFUnit binaries
+  (`MAPL.generic.scenarios/.transforms/.vertical/.aspects/.components/.core`),
+  so MAPL's own test suite - especially the YAML-driven scenario tests -
+  finally exercises `FieldDictionary`-driven `long_name`/`units` defaulting
+  and `standard_name` enforcement against real data. Converged every one of
+  `MAPL.generic.scenarios`'s scenario directories onto the dictionary and
+  switched that binary from the default permissive `ValidationMode` to
+  `STRICT` (via a new `Initialize_strict()` entry point alongside the
+  existing `Initialize()` in `mapl_pFUnit_Initialize_mod`,
+  `pfunit/MAPL_Initialize.F90` - no other pFUnit binary is affected). This
+  is the first MAPL test coverage that genuinely exercises `STRICT`
+  enforcement end-to-end against realistic scenario fixtures (previously
+  only isolated `Test_Aspects.pf`/`Test_FieldDictionary.pf` unit tests
+  exercised `STRICT` in isolation).
 
-- Added `log_files_read` option to ExtData2G to easily log all files read during a run
-- Added `MAPL_FieldApplyUserRoutine`/`MAPL_FieldBundleApplyUserRoutine` to apply a user routine to each slice of a field (or every field in a bundle) with ungridded/vertical dimensions, plus `MAPL_FieldGetPointerToSlice` (overloaded for R4 and R8) for typed per-slice access. Slices are 2D by default, or 3D when the field has exactly three non-ungridded (grid + vertical) dimensions (for example a 4D field whose fourth dimension is the ungridded dimension). The slice-routine interface is unlimited-polymorphic and assumed-rank, so a single user routine handles R4/R8 and 2D/3D slices via `select rank`/`select type`
-- `update_restart` in `Cap.F90` now supports a `skip_restart_write` boolean flag in the
-  `ESMF_HConfig`. When present and `true`, the routine returns immediately without writing
-  the restart file. Default behavior (key absent or `false`) is unchanged.
-
-- `Regrid_Util.x` now has the option to be drive via a yaml file passed on the command line rather than
-   a whole list of command line arguments.
-
-- Modified ExtData tests to get path to test data from environment variable `LOCAL_REGRESSION_DATA_DIR`
-
-- Added regression test for Regrid\_Util.x
-
-- External pfio server GridComp and ctest: new `mapl_PfioServerGridComp_mod` provides
-  an ESMF GridComp whose `run` phase creates and starts an `MpiServer` or
-  `MultiGroupServer`; `MaplFramework` gains `mapl_connect_to_server`,
-  `mapl_publish_server`, module-level external-client registry, and
-  `finalize_servers` shutdown (sends `terminate` to each external client before
-  freeing `DirectoryService` resources); `HistoryGridComp` connects to an external
-  server in `GENERIC::INIT_REALIZE`; `MaplServerUtilities` fixed two
-  `ESMF_HConfigCreateAt` → `ESMF_HConfigCreateAtMapVal` iterator bugs; added
-  2-PET ctest `pfio_server_captest` under `gridcomps/cap/tests/`; fixed multiple
-  missing `TARGET` attributes in `pfio` exposed by NAG Fortran debug mode
-
-- Added tests to check the use of ESMF_CALKIND_NOLEAP as the default calendar
-- Named default pfio server constants (#5242): new module `mapl_DefaultServerNames_mod`
-  exports `MAPL_DEFAULT_INPUT_SERVER` and `MAPL_DEFAULT_OUTPUT_SERVER`; all hardcoded
-  `'i_client'`/`'o_client'`/`'i_server'`/`'o_server'` string literals replaced with these
-  constants throughout `MaplFramework`, `RestartHandler`, `GeomPFIO`, `GridPFIO`,
-  `FieldBundleRead`, `FieldBundleWrite`, `HistoryGridComp`, `ExtDataFileReader`, and
-  `PrimaryExport`; fixed `MAX_LEN_PORT_NAME` (16 → 64) to support longer port names
-- Added `MAPL_StateMerge` to combine two `ESMF_State` objects into one without allocating new field memory
-- MAPL3 initialization lifecycle (#5231): new 6-call application lifecycle
-  (`MAPL_Initialize`, `MAPL_CreateServers`, `MAPL_CapCreate`, `MAPL_RunServers`,
-  `MAPL_CapRun`, `MAPL_Finalize`) with explicit driver/server arguments and
-  fast-fail resource validation; wildcard `'*'` support for `num_nodes` in the
-  last server entry; `pfunit` bootstrap updated to call `MAPL_CreateServers`
-
-
-- Refactor local IO server management (#5239): added `pFIO_StringServerMapMod`
-  (`StringServerMap`) for polymorphic server storage; replaced raw `o_server`/
-  `i_server` pointers in `MaplFramework` with `local_server_map`; renamed
-  `initialize_simple_servers` → `initialize_local_servers` with an
-  `add_local_server` helper to eliminate duplication; local servers are now
-  always created for model PETs regardless of whether a remote `servers:`
-  section is present; `finalize_servers` now clears the map instead of no-op.
-
-- Refactored `pFIO_ClientManagerMod` (#5234): replaced module-level `i_client`/`o_client`
-  variables with a `StringClientThreadMap` (public, PROTECTED, TARGET) and a
-  `get_client_thread(name)` accessor; updated all call sites in MAPL to use the
-  accessor; exposed `mapl_get_client_thread` through `mapl_pfio_api`.
-- Added ability to specify per-variable units, precision, averaging type, and regridding method for fields in a history collection
-- Changed default to false for run_extdata and run_history in CapGridComp, and modified the necessary yaml files for all tests to pass
-- unit tests for server initialization logic (#5214)
-- Refactored server initialization (#5214)
-  - added tests
-- Refactored `pFIO_ClientManagerMod`: replaced `ClientThreadVector` pool with a
-  single `class(ClientThread), allocatable` member; removed multi-client cycling
-  logic (`next`, `set_current`, `size`, `set_optimal_server`, `split_server_pools`,
-  `set_server_size`) and server-pool fields; renamed module-level singletons
-  `i_Clients`/`o_Clients` to `i_Client`/`o_Client` and the corresponding
-  `mapl_pfio_api` aliases to `mapl_i_client`/`mapl_o_client`.
-- Replaced MAPL_UserComp[Set , Get]InternalState with ESMF_InternalState[Set , Get]
-- Changed "use esmf" to "import <specifi ESMF objects>" in GeomPFI abstract interfaces
-- Added PythonBridge to MAPL interface
-- Moved configurable test from superstructure/generic
-- Consolidated MAPL ESMF_Info keys into mapl_esmf_info_keys_mod
-- Update `components.yaml`
-  - ESMA_env v5.24.0
-    - Update to GEOSpyD 26.3.2 Python 3.14
-    - Update GEOSgcm to use Baselibs 8.32.0
-    - Move NAS runs to use Intel MPI by default
-  - ESMA_cmake v4.40.0
-    - Update ifx and NVHPC flags
-    - Better detect FMS/yaml support (needed for spack)
-    - Add new `color_message` function
-    - Add helper script for regression test work
-- For ACG, only declare pointer and get_pointer for MAPL_STATEITEM_FIELD
-- For ACG, add spec_filters to generalize testing specs
+  Reaching full coverage required resolving several classes of pre-existing
+  issue that permissive mode's warn-and-continue behavior had always
+  masked, none of them dictionary gaps as such:
+  - Genuinely inconsistent naming: human-sentence `standard_name`s in
+    `statistics`/`statistics_real` converged to proper CF `snake_case`
+    identifiers (`surface_temperature`, `surface_air_pressure`,
+    `specific_humidity`, `air_pressure_at_sea_level`; also fixed a
+    stray-whitespace bug in a vector field's compound-encoded name), and
+    several distinctly-suffixed synthetic names in `vertical_regridding_2`/
+    `_3` (`air_pressure_ple_edge`/`air_pressure_c_center`/
+    `air_pressure_dyn_center`, `temperature_dyn_center`/
+    `temperature_phys_center`) consolidated onto plain `air_pressure`/
+    `air_temperature`.
+  - Incidental Import/Export `standard_name` placeholder mismatches with no
+    dependent test behavior - each side had simply been given its own
+    independent auto-generated name rather than the value it actually
+    receives over the connection - fixed by making the Import side match
+    its connected Export across: the `I_A1`/`E_A1`/`Z_A1` family
+    (`scenario_1`, `scenario_2`, `propagate_geom`); the `A1`/`A3`/`B2`
+    family shared by `3d_specs`, `precision_extension`,
+    `precision_extension_3d`, and `ungridded_dims`; the `E_A`/`I_B` pair
+    shared by `vertical_regridding` and all three `vertical_alignment_*`
+    scenarios; `export_dependency`'s `E1`/`I1` pair; and
+    `history_wildcard`'s undocumented `huh1` override (removed, now
+    inherits from its connection instead).
+  - Two scenarios (`names_1`, `expression`) had deliberately declared a
+    disagreeing `standard_name` specifically to exercise permissive-mode's
+    "warn but connect anyway, Export's value wins" behavior. Per
+    maintainer direction that behavior was not worth preserving as a
+    dedicated scenario, so both were changed to agree instead (the
+    *observed* `standard_name` was already the Export's value either way,
+    so no `expectations.yaml` changes were needed) and their explanatory
+    comments updated accordingly.
+  - `superstructure/generic/tests/gridcomps/ProtoStatGridComp.F90` hardcoded
+    `standard_name='<unknown>'` (`StandardNameAspect`'s own "not set"
+    sentinel) as if it were a real declared name - fixed by omitting the
+    argument.
+  - Two real framework bugs, both a "goal spec built by copying an
+    unrelated field's `AspectMap` wholesale, overriding some aspects but
+    not `StandardNameAspect`" - see `### Fixed`
+    (`VerticalGridAspect%make_transform`, `ExpressionClassAspect%make_transform`).
+  - `field_dictionary_test.yaml` gained dictionary entries for every
+    remaining `standard_name` used anywhere in `superstructure/generic/tests/scenarios/`.
+- Renamed the load-balance public API and exported the direction constants through the
+  `mp_utils` umbrella, which previously omitted them and forced clients to `use
+  mapl_LoadBalance_mod` directly: `MAPL_BalanceCreate`/`MAPL_BalanceGet`/`MAPL_BalanceWork`/
+  `MAPL_BalanceDestroy` are now `MAPL_LoadBalancerCreate`/`MAPL_LoadBalancerGet`/
+  `MAPL_LoadBalancerRun`/`MAPL_LoadBalancerDestroy`, and `MAPL_Distribute`/`MAPL_Retrieve` are
+  now `MAPL_LOADBALANCER_DISTRIBUTE`/`MAPL_LOADBALANCER_RETRIEVE`. The old names are gone.
+  The module and its file were renamed to match: `mapl_LoadBalance_mod` in
+  `mp_utils/MAPL_LoadBalance.F90` is now `mapl_LoadBalancer_mod` in
+  `mp_utils/MAPL_LoadBalancer.F90`
+- Updated `components.yaml`
+  - ESMA_cmake v4.51.0
+    - Make ESMA_cmake reentrant
+    - Fix issue with quad precision detection test
+    - Fixes for Flang and NVIDIA compilers
 
 ### Fixed
 
-- Fixed restart handler so checkpoints have data in the coordinate variables.
-- Fixed the unreliable feedback from Python bridge failures
-- Improved `SimpleConnection` assertion messages for unknown virtual connection points
-- Fixed bug in FieldBundleRead when file grid and output bundle grid are different grid classes
-- Buggy logic in server initialization (#5214)
-- Missing call to initialize error handling in MPI context
-- Fixed bug that prevented R8 exports from being written in R8 in History
-- Fix locality of symbols for Python -> Fortran call in MAPLPy
+- Fixed locality of symbols for Python -> Fortran call in MAPLPy
+- Fixed a spurious `standard_name` convention violation raised while
+  resolving a vertical regrid between two mismatched vertical grids
+  (`VerticalGridAspect%make_transform`, GEOS-ESM/MAPL#5413). Building the
+  criteria for looking up/extending the vertical coordinate field (e.g.
+  `PLE`/`ZLE`) copied the *payload* field's entire `AspectMap` wholesale and
+  then overrode only `UnitsAspect` with the coordinate field's own units;
+  `StandardNameAspect` was not similarly overridden, so the coordinate
+  field's lookup incorrectly inherited the payload's `standard_name` as a
+  match requirement. Since the coordinate field is a different physical
+  quantity than the payload (e.g. payload `air_temperature` vs. coordinate
+  `air_pressure`), this failed in `STRICT` `ValidationMode` (and warned
+  spuriously in the default permissive mode) for essentially every
+  cross-vertical-grid connection with a real, distinct `standard_name` on
+  each side. The coordinate-field aspect map now also overrides
+  `StandardNameAspect` (to unchecked), matching the existing treatment of
+  `UnitsAspect`.
+- Fixed the same class of bug as above in a second location:
+  `ExpressionClassAspect%make_transform` builds a `goal_spec` to look
+  up/extend each of an `expression:` field's referenced variables (e.g. `A`,
+  `B` in `E_sum: {expression: A + B}`) by copying the expression's own
+  `AspectMap` wholesale and overriding only `CLASS_ASPECT_ID`; a referenced
+  variable's own `standard_name` (e.g. `A`'s) was therefore spuriously
+  compared against the expression's unrelated declared `standard_name`
+  (e.g. `E_sum`'s), which is fatal under `STRICT` (and warns spuriously
+  under permissive) essentially any time an expression declares its own
+  `standard_name` and differs from any of its operands - the normal case,
+  since an expression's result is a different quantity than any single
+  operand. The `goal_spec`'s `StandardNameAspect` is now also overridden (to
+  unchecked), matching the existing `CLASS_ASPECT_ID` treatment.
+- Fixed two `standard_name`-enforcement bugs found while wiring MAPL's own
+  test suite up to a real `FieldDictionary` (see `### Changed` above).
+  (1) `VariableSpec`'s `MAPL_STATEITEM_VECTOR` case defaulted a Vector's two
+  split component names to the literal string `'unknown'` when no
+  `standard_name` was declared at all, instead of leaving them unset;
+  `StandardNameAspect` only treats its own `'<unknown>'` sentinel as a
+  wildcard, so the literal `'unknown'` was treated as a real, specified
+  name and produced spurious "standard_name convention violation" warnings
+  for every such Vector (e.g. the statistics gridcomp's internal vector
+  accumulators) connecting to any vector with a real name. (2)
+  `StandardNameAspect%connect_to_export` unconditionally copied the
+  export's (possibly unallocated) `standard_name` onto the import side,
+  which both crashed with an "ALLOCATABLE ... is not currently allocated"
+  runtime error once (1) was fixed and stopped masking it, and would have
+  incorrectly discarded the import's own declared name whenever the export
+  side legitimately declared none.
+- Avoided passing the HConfig geometry-factory predicate as an internal
+  procedure callback, fixing a Flang 23 crash on hardened macOS systems; see
+  [LLVM #223705](https://github.com/llvm/llvm-project/issues/223705).
+- Avoided passing the file-metadata geometry-factory predicate as an internal
+  procedure callback, preventing the same Flang 23 crash in metadata-based
+  geometry creation; see [LLVM #223705](https://github.com/llvm/llvm-project/issues/223705).
+- Fixed Generic components created through direct SetServices to inherit their parent VM, preventing communicator-context exhaustion during repeated setup.
+- Fixed corrupted cubed-sphere coordinate endpoints in NAG-generated output
+- Fixed detection of NetCDF quantization and Zstandard support when using Spack
+- Fixed documentation workflows so manual runs publish only from trusted branches and v2 and MAPL3 documentation deployments preserve each other's output
+- Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
+- Fixed a dangling pointer in `ExtDataFileReader` caused by a missing `target` attribute on `ExtDataReader`
+- Fixed `expression` state items (`expression: (A + B)/C`) requiring an explicit
+  `vertical_dim_spec` even when it references at least one variable. The
+  omitted-key case previously left `VerticalGridAspect`'s vertical stagger at an
+  invalid sentinel while `VariableSpec::make_VerticalGridAspect` could still mark
+  the aspect resolved purely because a component-level vertical grid resource was
+  available, failing with "BasicVerticalGrid should have been connected to a
+  different subclass before this is called." An initial fix that forced a
+  genuinely mirrored state in `create()` (relying on the same
+  mirror-from-connection/`ExtendTransform` mechanism `GeomAspect` already uses)
+  did not hold up: a component-level vertical grid resource
+  (`MAPL_GridCompSetVerticalGrid`) unconditionally overwrites *every* item's
+  `VerticalGridAspect` status to resolved once declared, regardless of what
+  `create()` set it to, silently undoing the forced mirror before the item is
+  ever connected. `ExpressionClassAspect` now instead directly resolves its own
+  vertical stagger (and vertical grid, if applicable) from whichever of its
+  referenced variables are already resolved at the time - first on a best-effort
+  basis in `create()`, and again (more reliably, since by then referenced
+  variables and any component-level override have had a chance to settle) at
+  actual connection time in `make_transform`. The same logic also validates
+  consistency: if the expression's own vertical stagger is (or resolves to) a
+  concrete value and any of its resolved referenced variables disagree, that is
+  a hard error naming the conflicting items, rather than allowing arithmetic on
+  dimensionally incompatible operands. A referenced variable that is not yet
+  resolved - or not yet even registered - is skipped rather than treated as an
+  error. Expressions with no referenced variables (e.g. a literal/constant
+  expression) are unaffected and still require an explicit `vertical_dim_spec`.
+- Fixed `ServiceClassAspect` `create()` omitting to set the FieldBundle allocation status
+- Fixed a bug with ACG caused by validation of vertical stagger
+- Fixed a bug that prevented regridding methods that require dynamic masking from applying the dynamic mask in ExtData.
+  `EsmfRegridderParam%make_info` serialized only the routehandle param, so the dynamic mask
+  was dropped when ExtData passed the param to the field bundle as `ESMF_Info`; the mask
+  (type, `handleAllElements`, kind, src/dst values) is now round-tripped. `RoutehandleParam`
+  serialization also now supports `CONSERVE_2ND`, `PATCH` and `NEAREST_STOD`, which
+  previously failed. `CONSERVE_2ND` now maps to `ESMF_REGRIDMETHOD_CONSERVE_2ND` instead of
+  plain `ESMF_REGRIDMETHOD_CONSERVE`, so ExtData outputs for masked regrids and `CONSERVE_2ND`
+  may change. Added `Test_EsmfRegridderParam.pf`
+
+- Fixed a crash in `RestartHandler` when a state's restart-eligible bundle ends up empty
+  after filtering (e.g. a component whose exports are all unallocated because nothing is
+  connected downstream and `activate_all_exports` is off). The state's non-zero item count
+  passed the existing guard, but `MAPL_FieldBundleGetGeom` on the empty bundle returned an
+  uninitialized geom and `ESMF_InfoGetFromHost` then failed in `GeomGetId`. `write_bundle_`
+  and `read_bundle_` now return early when the bundle holds no fields, resolving a
+  pre-existing TODO
+
+- Fixed `LatLonDecomposition`'s topology constructor to pack out zero-extent bins returned
+  by `mapl_GetPartition()` when a LatLon grid is too coarse to be decomposed onto the
+  requested `nx`/`ny` topology given ESMF's `min_extent=2` constraint, and updated
+  `LatLonGeomFactory`'s `fill_coordinates` to use `grid_has_de`/`grid_get_interior` so PETs
+  that legitimately own no DE in that case are skipped instead of crashing; added
+  `Test_LatLonZeroDE.pf` and a `LatLonDecomposition` unit test covering this case
+- Fixed several crashes affecting ranks with no local decomposition element (DE)
+  for a field's grid (the "coarse grid, extra PET" scenario), continuing the
+  `LatLonDecomposition`/`LatLonGeomFactory` fix above: `pFIOServerBounds` gained
+  a `has_de` argument so a no-DE rank still reports the true, shared
+  `global_start`/`global_count` (required since pfio's server sizes its shared
+  read/write buffer from one arbitrary representative message per collective
+  `request_id`), zeroing only its own local `file_shape`; `ExtDataFileReader`
+  and `GridPFIO` (History/Restart read+write, plus coordinate writing) now call
+  their collective pfio requests unconditionally on every rank instead of
+  skipping no-DE ranks, since `ClientThread`'s `request_id` counter is local
+  and unsynchronized and skipping it on some ranks desyncs which request a
+  given rank's data belongs to; and `FieldGetCptr`/`assign_fptr`'s common
+  `get_cptr` now returns a zero-size result instead of crashing for a no-DE
+  field, transparently fixing `FieldCopy`, `FieldBLAS`, `FieldUtilities`,
+  and `FieldCondensedArray`.
+- Added regression test coverage for the no-local-DE fixes above: new
+  `Test_FieldPointerUtilities.pf` and `Test_pFIOServerBounds.pf` exercise
+  `FieldGetCptr`/`assign_fptr`/`FieldCopy` and `pFIOServerBounds` directly on
+  no-DE ranks/inputs, and existing `Test_FieldBLAS.pf`/`Test_FieldArithmetic.pf`/
+  `Test_FieldCondensedArray_private.pf` gained no-DE variants (also adding the
+  first coverage at all for `FieldSet`/`FieldIsConstant`).
+
+- Ensured all libraries created by MAPL are built as shared libraries by
+  adding `TYPE SHARED` to `MAPL.raster_to_mesh` in
+  `infrastructure/geom/Mesh/raster_to_mesh/CMakeLists.txt` and `SHARED` to
+  `MAPL.Apps.tests.acg3` in `apps/tests/acg3/CMakeLists.txt`, and replaced
+  the stale `MAPL.shared` dependency with `MAPL.utils` and `MAPL.enums`.
 
 ### Removed
 
-- Removed `ESMF_HCONFIGSET_HAS_INTENT_INOUT` preprocessor conditionals now that
-  ESMF 9.0.0 is required (≥ 8.9.0, where `ESMF_HConfigSet` gained `intent(inout)`).
-  The `intent(inout)` declarations in `HConfigUtilities.F90`, `OuterMetaComponent.F90`,
-  `add_child_by_spec.F90`, and `MAPL_Generic.F90` are now unconditional.
-  Updated `INSTALL.md` to reflect the ESMF 9.0.0 minimum requirement.
-  Closes [#3477](https://github.com/GEOS-ESM/MAPL/issues/3477).
+- Removed obsolete `BUILD_SHARED_MAPL` CMake option and unused
+  `MAPL_LIBRARY_TYPE` variable from root `CMakeLists.txt` and `INSTALL.md`, as
+  MAPL3 exclusively builds shared libraries.
+
+### Deprecated
+
+<!-- mlc-disable -->
+## [v3.0.0-alpha.3] - 2026-09-25
+<!-- mlc-enable -->
+
+### Added
+
+- Enforced `standard_name` agreement across connected Imports and Exports
+  (GEOS-ESM/MAPL#5413). Unset Import names accept any Export; an unnamed
+  Export warns but connects. Mismatches warn and use the Export name by default,
+  or fail in strict mode. Vector component names are checked individually.
+  Configure strict mode with
+  `field_dictionary: {path: ..., validation_mode: strict}`; the existing
+  `field_dictionary: <path>` form remains valid and defaults to permissive.
+- Added optional `coordinate_tolerance` for comparing file-based LatLon grids
+  (GEOS-ESM/MAPL#5385). It is a fraction of the new grid's spacing; ExtData
+  collections default to `0.1` (10%) and can specify `0` for exact comparison.
+  Other geom clients default to exact comparison.
+- Added in-memory checkpoint/restart support.
+- Added vector statistics (average, min, max, accumulation, and variance) in
+  History and StatisticsGridComp.
+- Added `MAPL_FieldApplyUserRoutine`/`MAPL_FieldBundleApplyUserRoutine` and
+  `MAPL_FieldGetPointerToSlice` for applying a routine to R4/R8 field slices.
+- Added `MAPL_StateMerge` to combine states without allocating new field memory,
+  and `StateGetPointer` overloads for paired vector-field pointers.
+- Added per-variable units, precision, averaging type, and regridding method
+  for History collections.
+- Added `extdata_dryrun_check.py` to predict ExtData input files, optionally
+  checking file existence and narrowing by NetCDF time axes; added
+  `log_files_read` to record files actually read.
+- Added `latlon_to_face.py` for converting cubed-sphere NetCDF files to the
+  MAPL/GEOS face layout.
+- Added `skip_restart_write` to the CapDriver HConfig to suppress restart-file
+  writes when set to `true`.
+- Added an external pfio server GridComp and server lifecycle support for
+  History; added named default input/output server constants.
+- Added PythonBridge to the MAPL interface.
+
+### Changed
+
+- Declared `standard_name`s now always supply FieldDictionary
+  defaults for `long_name` and `units`. Remove `use_field_dictionary=` from
+  `make_VariableSpec`/`MAPL_GridCompAddSpec` calls; strict mode also rejects
+  names missing from the dictionary.
+- Split `cap.yaml` into `mapl.yaml`, `cap_driver.yaml`, and
+  `cap_gridcomp.yaml`; `mapl.yaml` points to the driver config, which points
+  to the gridcomp config. Renamed `model_petcount`/`has_model_petcount` to
+  `app_petcount`/`has_app_petcount`, and `mapl_Cap_mod` to
+  `mapl_CapDriver_mod`.
+- `Regrid_Util.x` now uses fargparse: multi-character options
+  require `--` (e.g. `--ogrid` instead of `-ogrid`); `-i` and `-o` remain.
+  It can also read options from a YAML file.
+- ExtData vector-variable lists now use YAML sequences instead of
+  semicolon-separated strings.
+- The default RouteHandle line type is now `LINETYPE_GREAT_CIRCLE` for all
+  methods.
+- MAPL applications now follow an explicit six-call lifecycle
+  (`MAPL_Initialize`, `MAPL_CreateServers`, `MAPL_CapCreate`,
+  `MAPL_RunServers`, `MAPL_CapRun`, `MAPL_Finalize`). Server ownership and
+  initialization were refactored; local servers are created for model PETs
+  even when remote servers are configured. The last server's `num_nodes`
+  accepts `'*'`.
+- DSO-backed child `setServices` ownership moved into child configurations;
+  startup via `ESMF_GridCompCreate`/`ESMF_GridCompSetServices` is supported.
+- `UserSetServices` replaces `AbstractUserSetServices`; the `user_setservices`
+  interface was removed in favor of `ProcSetServices`/`DSOSetServices`
+  constructors. Use `ESMF_InternalStateSet`/`ESMF_InternalStateGet` in place of
+  the MAPL user-component internal-state wrappers.
+- ACG Writer accepts AddSpec arguments in any order.
+- `run_extdata` and `run_history` now default to false in CapGridComp.
+- `MAPL_Initialize` can return the parsed app config to Cap create/run, so
+  `cap_driver.yaml` is read only once.
+- ESMF 9.0.0 is now the minimum supported version; the build uses
+  `ESMA_cmake`'s dependency targets and version checks.
+- MAPL phases now align more closely with NUOPC phases.
+- The Discover NAG CI workflow skips fork PRs unless a maintainer reruns it;
+  PR jobs now use read-only tokens without deployment or build-cache credentials.
+
+### Fixed
+
+- Corrected `standard_name` matching in vertical-grid and expression
+  transforms: coordinate fields and expression operands no longer inherit
+  unrelated names from the field being transformed. Unnamed vector components
+  and unnamed Exports no longer cause spurious mismatches or crashes.
+- Fixed a Flang 23 crash in HConfig and file-metadata geometry creation on
+  hardened macOS systems ([LLVM #223705](https://github.com/llvm/llvm-project/issues/223705)).
+- Generic components created with direct SetServices now inherit their parent's
+  VM, preventing communicator-context exhaustion.
+- Fixed cubed-sphere coordinate endpoints with NAG, and NetCDF quantization
+  and Zstandard detection with Spack.
+- Fixed ExtDataFileReader's dangling pointer, History's R8 exports and
+  cubed-sphere corner longitudes, and missing restart coordinate data.
+- Fixed FieldBundleRead when input and output grid classes differ.
+- Documentation deployments for v2 and MAPL3 no longer overwrite each other.
+- Expression fields with referenced variables can infer their vertical stagger
+  and grid without `vertical_dim_spec`; conflicting operand staggers now fail
+  explicitly. Constant expressions still require `vertical_dim_spec`.
+- LatLon grids with zero-extent decomposition bins no longer crash on PETs
+  without a DE.
+- Field-wide `standard_name` and per-alias `long_name` now survive connections,
+  re-exports, expression fields, bundles, History copies, and state-to-bundle
+  conversion. `restart_mode` is also preserved when fields are re-aliased.
 
 <!-- mlc-disable -->
 ## [v3.0.0-alpha.2] - 2026-06-12
@@ -157,6 +401,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Re-export `PackedDateCreate`, `PackedTimeCreate`, `PackedDateTimeCreate`, and
   `StrTemplate` through the top-level `MAPL` umbrella module.
 - `to_string` (`integer_to_string`) added to `mapl_StringUtilities`.
+- Added ACG option to leave vstagger entry blank for 2D fields
 
 ### Changed
 

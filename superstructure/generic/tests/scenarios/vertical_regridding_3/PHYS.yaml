@@ -13,10 +13,15 @@ mapl:
       units: hPa
       levels: [35., 25.]
 
+  # T_PHYS previously declared its own suffixed standard_name
+  # ('temperature_phys_center'), disagreeing with its connected Export
+  # (DYN's T_DYN, 'temperature_dyn_center' at the time). Declaring none
+  # here lets it correctly report as a wildcard/unchecked Import; DYN's
+  # T_DYN (now plain 'air_temperature') wins. See openspec change
+  # use-field-dictionary-in-scenario-tests.
   states:
     import:
       T_PHYS:
-        standard_name: temperature_phys_center
         units: K
         vertical_dim_spec: center
 
