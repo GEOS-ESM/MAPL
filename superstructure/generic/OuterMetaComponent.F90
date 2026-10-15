@@ -16,6 +16,7 @@ module mapl_OuterMetaComponent_mod
    use mapl_GriddedComponentDriverMap_mod, only: GriddedComponentDriverMap
    use mapl_GriddedComponentDriverMap_mod, only: operator(/=)
    use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_HierarchyId_mod, only: HierarchyId
    use mapl_NodeId_mod, only: NodeId, INVALID_NodeId
    use mapl_VerticalGrid_mod
    use mapl_SimpleAlarm_mod
@@ -57,6 +58,15 @@ module mapl_OuterMetaComponent_mod
 ! Hierarchy
       type(GriddedComponentDriverMap)             :: children
       type(StateRegistry) :: registry
+      ! openspec/changes/hierarchy-wide-component-graph, design.md D1:
+      ! which hierarchy-wide HierarchyResources registry entry this
+      ! component's own ComponentGraph (below) resolves against - a
+      ! plain value, not a pointer. The root of a hierarchy requests a
+      ! fresh HierarchyId (init_meta.F90); every descendant receives its
+      ! parent's own hierarchy_id at construction time
+      ! (add_child_by_spec.F90), so every ComponentGraph anywhere in one
+      ! hierarchy shares the same HierarchyGraph.
+      type(HierarchyId) :: hierarchy_id
       ! Graph-neutral core (docs/graph/spec/02-component-hierarchy.md
       ! REQ-HIER-002/004): exactly one local ComponentGraph per
       ! OuterComponent. Constructed in init_meta (see init_meta.F90);
@@ -226,8 +236,16 @@ module mapl_OuterMetaComponent_mod
           type(ESMF_HConfig), intent(in) :: hconfig
        end function new_outer_meta
 
-      module subroutine init_meta(this, rc)
+      ! openspec/changes/hierarchy-wide-component-graph, design.md D1:
+      ! hierarchy_id is optional here so a root component (no caller
+      ! supplies one) requests a fresh hierarchy for itself; a
+      ! descendant (add_child_by_spec.F90) always passes its parent's
+      ! own hierarchy_id explicitly, so every component in one
+      ! hierarchy's own local_graph resolves against the same shared
+      ! HierarchyGraph.
+      module subroutine init_meta(this, hierarchy_id, rc)
          class(OuterMetaComponent), intent(inout) :: this
+         type(HierarchyId), optional, intent(in) :: hierarchy_id
          integer, optional, intent(out) :: rc
       end subroutine init_meta
 
