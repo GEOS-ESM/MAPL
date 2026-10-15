@@ -184,21 +184,24 @@ module mapl_GraphBuilder_mod
 
    public :: GraphBuilder
    public :: item_key
-   public :: proxy_key
    ! openspec/changes/graphbuilder-submodule-split: made public (same
-   ! reasoning as item_key/proxy_key above) because a gfortran-specific
+   ! reasoning as item_key above) because a gfortran-specific
    ! linkage limitation emits an ordinary (non-`module`) procedure
    ! defined directly in a private-by-default module's own CONTAINS
    ! with internal/static linkage when nothing marks it public - a
    ! submodule's own, separately-compiled .o cannot then link against
    ! it, even though F2008+ host-association rules say it should be
    ! reachable (NAG does not have this limitation; gfortran does).
-   ! Each of these six is called from at least one submodule, so each
+   ! Each of these is called from at least one submodule, so each
    ! needed this fix once gfortran's own build was run against the
    ! split (tasks.md 9.4).
    public :: component_for
    public :: component_spec_for
-   public :: get_or_make_local_node_id
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.1/3.2:
+   ! replaces get_or_make_local_node_id (removed along with proxy_key -
+   ! no parent-local stand-in node is created anymore; this resolves
+   ! directly to the real owning component's own real NodeId).
+   public :: resolve_local_node_id
    public :: is_self
    public :: itemtype_name
    public :: try_materialize_field_extension
@@ -210,12 +213,10 @@ module mapl_GraphBuilder_mod
    ! test coverage and submodule call-site use.
    public :: materialize_extension_chain
    ! openspec/changes/horizontal-geometry-graph-state-item (Phase 4e):
-   ! exposed the same way item_key/proxy_key already are, so tests (and
-   ! any future code with legitimate reason to identify a geometry node
-   ! or its cross-graph proxy) do not need to duplicate this module's
-   ! key format.
+   ! exposed the same way item_key already was, so tests (and
+   ! any future code with legitimate reason to identify a geometry node)
+   ! do not need to duplicate this module's key format.
    public :: GEOMETRY_ITEM_NAME
-   public :: parent_geometry_proxy_key
 
    ! openspec/changes/callback-wiring: exposed (like item_key/proxy_key
    ! above) so tests exercising this capability's own internal
@@ -305,13 +306,6 @@ module mapl_GraphBuilder_mod
    ! StateRegistry%add_to_states and cannot leak into user-facing states
    ! (REQ-GEO-003).
    character(*), parameter :: GEOMETRY_ITEM_NAME = 'MAPL_Geometry'
-
-   ! Reserved sentinel for "the proxy, in a child's own local graph,
-   ! standing in for that child's parent" - the push-direction mirror of
-   ! proxy_key()'s own pull-direction convention above (a child has
-   ! exactly one parent, so no per-name variation is needed the way
-   ! proxy_key's comp_name parameter provides for the pull direction).
-   character(*), parameter :: PARENT_PROXY_NAME = '<parent>'
 
    ! Per-match callback signature for for_each_matching_import() below -
    ! same shape/precedent as OuterMetaComponent's own I_child_op
@@ -490,10 +484,6 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine graphbuilder_advertise_geometry
-   module function parent_geometry_proxy_key() result(key)
-      character(:), allocatable :: key
-
-   end function parent_geometry_proxy_key
    module subroutine graphbuilder_resolve_geometry(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -734,21 +724,6 @@ contains
       end if
       key = intent_str // ':' // short_name
    end function item_key
-
-   ! Resource-index key for a parent-local proxy node standing in for a
-   ! named child's item (module header - "Cross-component (parent/child)
-   ! connections"). Exposed (like item_key above) so callers with
-   ! legitimate reason to identify a cached proxy - tests, or a later
-   ! sub-change (3c) needing to find/reuse the same proxy - do not need
-   ! to duplicate this module's private key format.
-   function proxy_key(comp_name, state_intent, short_name) result(key)
-      character(*), intent(in) :: comp_name
-      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
-      character(*), intent(in) :: short_name
-      character(:), allocatable :: key
-
-      key = 'PROXY:' // comp_name // ':' // item_key(state_intent, short_name)
-   end function proxy_key
 
    logical function is_self(this, comp_name) result(self_ref)
       class(OuterMetaComponent), intent(in) :: this
@@ -1309,29 +1284,30 @@ contains
       end select
    end function itemtype_name
 
-   ! Resolves a (component, intent, short_name) reference to a NodeId in
-   ! THIS component's own graph:
-   !  - "<self>"/this's own name: the item's own NodeId (must already
-   !    have been advertised - graphbuilder_advertise() runs first).
-   !  - a named descendant (direct child or, openspec/changes/
-   !    graph-builder-resolution-index, any further-qualified
-   !    `/`-separated path): a cached-or-newly-created parent-local proxy
-   !    StateItemNode (REQ-HIER-006), reusing one already created for the
-   !    same descendant+item via the same resource-index mechanism used
-   !    for advertised-item identity (module header - "Cross-component
-   !    (parent/child) connections"). The descendant's own
-   !    ComponentGraph is reached via resolve_qualified_component (not
-   !    the single-hop get_child_component_graph this function used
-   !    before this change) so a MatchConnection naming a component
-   !    several levels down the hierarchy (every real connect_all
-   !    fixture's own shape, proposal.md "Why") resolves correctly here
-   !    too, not only at the ComponentSpec-lookup call sites
-   !    (check_match_connection_unsatisfied/resolve_match_connection/
-   !    find_export_node_id) - a single-segment comp_name continues to
-   !    resolve exactly as before (resolve_qualified_component with a
-   !    single-segment path is behaviorally identical to
-   !    get_child_component_graph for a direct child).
-   function get_or_make_local_node_id(this, comp_name, state_intent, short_name, rc) result(node_id)
+   ! Resolves a (component, intent, short_name) reference to the item's
+   ! own real NodeId, wherever it actually lives in the hierarchy:
+   !  - "<self>"/this's own name: the item's own NodeId, in THIS
+   !    component's own graph (must already have been advertised -
+   !    graphbuilder_advertise() runs first).
+   !  - a named descendant (direct child or any further-qualified
+   !    `/`-separated path): the descendant's own real NodeId, read
+   !    directly from that descendant's own ComponentGraph via
+   !    resolve_qualified_component's existing one-directional tree walk
+   !    (never resolves upward past `this`, per graph/component-
+   !    hierarchy's "Connection endpoint resolution never resolves
+   !    upward past its declaring component" requirement - the walk
+   !    itself has no "go to my parent" code path to begin with, so this
+   !    is structural, not merely checked).
+   !
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.1/3.2:
+   ! replaces get_or_make_local_node_id's own proxy-creation branch -
+   ! with node/network storage shared hierarchy-wide (graph/component-
+   ! hierarchy's "One shared hierarchy-wide graph store" requirement), a
+   ! descendant's own real NodeId is already a valid edge endpoint from
+   ! any calling component's own ComponentGraph%add_dependency() (see
+   ! that method's own header comment in ComponentGraph.F90); no
+   ! parent-local stand-in node is created, cached, or returned.
+   function resolve_local_node_id(this, comp_name, state_intent, short_name, rc) result(node_id)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: comp_name
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
@@ -1340,50 +1316,22 @@ contains
       type(NodeId) :: node_id
 
       integer :: status
-      type(ComponentGraph), pointer :: this_graph
       character(:), allocatable :: item_id_key
-      character(:), allocatable :: pkey
+      type(ComponentGraph), pointer :: owner_graph
       type(NodeId), pointer :: existing
-      type(NodeId), pointer :: child_item_id
-      type(OuterMetaComponent), pointer :: descendant_meta
-      type(ComponentGraph), pointer :: child_graph
-      type(StateItemNode) :: proxy_node
-      type(GraphStateItem) :: payload
-      type(NodeRevision) :: revision
-      type(PortId) :: port_id
+      type(OuterMetaComponent), pointer :: owner_meta
 
-      this_graph => this%get_component_graph()
       item_id_key = item_key(state_intent, short_name)
 
-      if (is_self(this, comp_name)) then
-         existing => this_graph%get_resource_index(item_id_key)
-         _ASSERT(associated(existing), 'GraphBuilder: connection references an item this component never advertised: ' // short_name)
-         node_id = existing
-         _RETURN(_SUCCESS)
-      end if
-
-      pkey = proxy_key(comp_name, state_intent, short_name)
-      existing => this_graph%get_resource_index(pkey)
-      if (associated(existing)) then
-         node_id = existing
-         _RETURN(_SUCCESS)
-      end if
-
-      descendant_meta => resolve_qualified_component(this, comp_name, _RC)
-      child_graph => descendant_meta%get_component_graph()
-      child_item_id => child_graph%get_resource_index(item_id_key)
-      _ASSERT(associated(child_item_id), 'GraphBuilder: connection references an item descendant "' // comp_name // '" never advertised: ' // short_name)
-
-      node_id = this_graph%next_node_id(_RC)
-      proxy_node = StateItemNode(node_id, payload, revision)
-      call this_graph%register_node(proxy_node, _RC)
-      call this_graph%add_resource_index(pkey, node_id, _RC)
-
-      port_id = this_graph%next_port_id(_RC)
-      call this_graph%add_child_port_binding(port_id, node_id, _RC)
+      owner_meta => resolve_qualified_component(this, comp_name, _RC)
+      owner_graph => owner_meta%get_component_graph()
+      existing => owner_graph%get_resource_index(item_id_key)
+      _ASSERT(associated(existing), 'GraphBuilder: connection references an item "' // comp_name //
+           '" never advertised: ' // short_name)
+      node_id = existing
 
       _RETURN(_SUCCESS)
-   end function get_or_make_local_node_id
+   end function resolve_local_node_id
 
    ! REQ-CB-016: expands the connection's own declared source pattern
    ! (src_pt%v_pt) against the flattened qualified-export namespace
@@ -1493,7 +1441,7 @@ contains
 
       graph => this%get_component_graph()
 
-      import_id = get_or_make_local_node_id(this, dst_pt%component_name, ESMF_STATEINTENT_IMPORT, dst_short_name, _RC)
+      import_id = resolve_local_node_id(this, dst_pt%component_name, ESMF_STATEINTENT_IMPORT, dst_short_name, _RC)
 
       collection_key = 'CALLBACK_COLLECTION:' // import_id%to_string()
       existing_collection => graph%get_resource_index(collection_key)

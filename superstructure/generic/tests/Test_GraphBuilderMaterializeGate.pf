@@ -170,9 +170,10 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
+      type(ComponentGraph), pointer :: dst_graph
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved, unsupported
-      type(NodeId), pointer :: t_import_proxy
+      type(NodeId), pointer :: t_import_id
       type(NodeId) :: extension_id
       type(DependencyNetwork), pointer :: net
       class(GraphNode), pointer :: node
@@ -236,11 +237,12 @@ contains
       @assertEqual(0, unsupported%size())
 
       parent_graph => parent_meta%get_component_graph()
-      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
-      @assert_that(associated(t_import_proxy), is(true()))
+      dst_graph => dst_meta%get_component_graph()
+      t_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_import_id), is(true()))
 
       net => parent_graph%get_network(parent_graph%get_default_network_id())
-      extension_id = single_predecessor(net, t_import_proxy)
+      extension_id = single_predecessor(net, t_import_id)
 
       node => parent_graph%get_node(extension_id)
       select type (node)
@@ -285,9 +287,10 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
+      type(ComponentGraph), pointer :: src_graph, dst_graph
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved, unsupported
-      type(NodeId), pointer :: t_export_proxy, t_import_proxy
+      type(NodeId), pointer :: t_export_id, t_import_id
       type(DependencyNetwork), pointer :: net
       class(GraphNode), pointer :: node
       type(GraphStateItem) :: export_payload
@@ -349,18 +352,20 @@ contains
       @assertEqual(0, unsupported%size())
 
       parent_graph => parent_meta%get_component_graph()
-      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
-      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
-      @assert_that(associated(t_export_proxy), is(true()))
-      @assert_that(associated(t_import_proxy), is(true()))
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_id), is(true()))
+      @assert_that(associated(t_import_id), is(true()))
 
       ! No extension chain for an exact match - still a direct edge
       ! (spec "Matching export and import are wired" is unaffected by
       ! this sub-change).
       net => parent_graph%get_network(parent_graph%get_default_network_id())
-      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(true()))
+      @assert_that(net%contains_dependency(t_export_id, t_import_id), is(true()))
 
-      node => parent_graph%get_node(t_export_proxy)
+      node => src_graph%get_node(t_export_id)
       select type (node)
       class is (StateItemNode)
          export_payload = node%get_payload()
@@ -412,10 +417,10 @@ contains
       type(ESMF_GridComp) :: src_gc, dst_gc
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
-      type(ComponentGraph), pointer :: parent_graph
+      type(ComponentGraph), pointer :: src_graph
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved, unsupported
-      type(NodeId), pointer :: t_export_proxy
+      type(NodeId), pointer :: t_export_id
       class(GraphNode), pointer :: node
       type(GraphStateItem) :: export_payload
       type(VariableSpec) :: export_var_spec
@@ -488,12 +493,14 @@ contains
       call set_graph_mode(GRAPH_MODE_REGISTRY)
       @assert_that(status, is(0))
 
-      ! The export's own real field, fetched directly from the proxy
-      ! node resolve_one materialized (same node task 4.1 checks).
-      parent_graph => parent_meta%get_component_graph()
-      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
-      @assert_that(associated(t_export_proxy), is(true()))
-      node => parent_graph%get_node(t_export_proxy)
+      ! The export's own real field, fetched directly from child_src's
+      ! own real NodeId (same node task 4.1 checks) - no parent-local
+      ! proxy exists anymore (openspec/changes/hierarchy-wide-component-
+      ! graph, tasks.md 3.4).
+      src_graph => src_meta%get_component_graph()
+      t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      @assert_that(associated(t_export_id), is(true()))
+      node => src_graph%get_node(t_export_id)
       select type (node)
       class is (StateItemNode)
          export_payload = node%get_payload()
@@ -516,7 +523,7 @@ contains
       @assertEqual(0, status)
       @assertTrue(FieldsAreAliased(export_field, import_state_field))
 
-      ! Q was never connected (no proxy exists for it at all) - no
+      ! Q was never connected (never wired, never populated) - no
       ! entry, no error, on child_dst's own state.
       call ESMF_StateGet(dst_own_import_state, itemCount=item_count, rc=status)
       @assertEqual(0, status)

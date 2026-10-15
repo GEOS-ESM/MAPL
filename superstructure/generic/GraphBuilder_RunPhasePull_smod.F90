@@ -47,10 +47,11 @@ contains
 
       integer :: status
       type(ComponentGraph), pointer :: graph
+      type(ComponentGraph), pointer :: child_graph
       type(ComponentSpec), pointer :: child_spec
       type(VariableSpecVectorIterator) :: iter
       type(VariableSpec), pointer :: var_spec
-      type(NodeId), pointer :: proxy_id
+      type(NodeId), pointer :: import_id
       character(:), allocatable :: child_name
       integer :: n, i
 
@@ -62,15 +63,26 @@ contains
       do i = 1, n
          child_name = this%get_child_name(i, _RC)
          child_spec => this%get_child_component_spec(child_name, _RC)
+         ! openspec/changes/hierarchy-wide-component-graph, tasks.md
+         ! 3.1/3.2: the child's own real import NodeId, in the child's
+         ! own graph - no parent-local proxy exists anymore. The
+         ! dependency edge feeding it still lives in `this`'s own
+         ! default network (graph%update's own network_id argument,
+         ! below), since `this` is the component that declared the
+         ! connection; graph%update() finds that edge correctly
+         ! regardless of which ComponentGraph instance's own
+         ! get_resource_index() resolved the starting NodeId, because
+         ! node/network storage is shared hierarchy-wide.
+         child_graph => this%get_child_component_graph(child_name, _RC)
          associate (e => child_spec%var_specs%ftn_end())
             iter = child_spec%var_specs%ftn_begin()
             do while (iter /= e)
                call iter%next()
                var_spec => iter%of()
                if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT)) cycle
-               proxy_id => graph%get_resource_index(proxy_key(child_name, ESMF_STATEINTENT_IMPORT, var_spec%short_name))
-               if (.not. associated(proxy_id)) cycle
-               call graph%update(graph%get_default_network_id(), proxy_id, _RC)
+               import_id => child_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, var_spec%short_name))
+               if (.not. associated(import_id)) cycle
+               call graph%update(graph%get_default_network_id(), import_id, _RC)
             end do
          end associate
       end do

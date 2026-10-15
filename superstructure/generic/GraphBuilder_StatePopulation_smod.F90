@@ -27,34 +27,38 @@ contains
    ! within one component, which no real fixture uses. For the ordinary
    ! cross-component case (a parent declares a `MatchConnection` between
    ! two of its own children - the only shape
-   ! `Test_GraphBuilderEquivalence.pf`'s own fixture family uses),
-   ! `get_or_make_local_node_id` (used by both `add_dependency`'s own
-   ! endpoints and this sub-change's new materialization call) ALWAYS
-   ! returns a PARENT-local proxy for any non-'<self>' `comp_name` -
-   ! never either child's own native `StateItemNode`. So for that
-   ! realistic case, the dependency edge and the materialized payload
-   ! both live ONLY in the PARENT's own graph, on the PARENT's own two
-   ! proxies; neither child's own native export/import node is ever
-   ! touched. Walking `this`'s own `var_specs` + `item_key` alone would
-   ! therefore find nothing whenever `this` is one of the two connected
-   ! children (which is exactly when `initialize_accept_transfer.F90`
-   ! calls this on each of them, once per component in the recursive
-   ! tree).
+   ! `Test_GraphBuilderEquivalence.pf`'s own fixture family uses), the
+   ! resolved item is each child's own real `StateItemNode`, in that
+   ! child's own graph (openspec/changes/hierarchy-wide-component-graph:
+   ! no parent-local proxy exists anymore, tasks.md 3.1/3.2) - never a
+   ! node in the PARENT's own graph. Walking `this`'s own `var_specs` +
+   ! `item_key` alone would therefore find nothing whenever `this` is
+   ! one of the two connected children (which is exactly when
+   ! `initialize_accept_transfer.F90` calls this on each of them, once
+   ! per component in the recursive tree).
    !
    ! Fixed by also walking each of `this`'s own declared children's
    ! VariableSpecs (`get_num_children`/`get_child_name`/
    ! `get_child_component_spec` - same enumeration
    ! `graphbuilder_resolve_geometry`'s own push-direction loop already
-   ! uses), looking each one up via `proxy_key(child_name, ...)` in
-   ! `this`'s OWN graph instead of `item_key` - exactly the same
-   ! resource-index convention `get_or_make_local_node_id` itself uses
-   ! to create that same proxy in the first place. A proxy only exists
-   ! if some connection `this` declared actually referenced that child
-   ! item, so an item with no proxy (never connected) is silently
-   ! skipped, same as an unresolved import. The same-component
-   ! (`item_key`-based) walk is kept as the degenerate case for an item
-   ! `this` advertises and connects entirely to itself, if that ever
-   ! occurs.
+   ! uses), looking each one up via `item_key` in THAT CHILD's OWN
+   ! graph (`get_child_component_graph`) - the child's own real NodeId,
+   ! never a parent-local stand-in. The dependency EDGE itself still
+   ! lives in `this`'s own default network (`net`, below) - that part
+   ! is unaffected by this change, since `this` is still the component
+   ! that declared the connection (design.md Non-Goals: "which network
+   ! a declared connection populates stays exactly as declaration-
+   ! scoped as before"). Node lookup (`graph%get_node()`) works
+   ! correctly from ANY ComponentGraph instance within the same
+   ! hierarchy regardless of which one is passed, since node storage is
+   ! shared hierarchy-wide - so `populate_one` below is called exactly
+   ! as before (passing `graph`/`net`, both this's own), only `id_ptr`
+   ! now comes from the child's own graph instead of a `this`-local
+   ! proxy lookup. An item with no resolved real NodeId (never
+   ! connected) is silently skipped, same as an unresolved import. The
+   ! same-component (`item_key`-based) walk is kept as the degenerate
+   ! case for an item `this` advertises and connects entirely to
+   ! itself, if that ever occurs.
    !
    ! Only a real producer when the graph mode is GRAPH_MODE_GRAPH
    ! (design.md "Graph-native state population is a new procedure"). A
@@ -84,6 +88,7 @@ contains
       integer :: status
       type(ComponentSpec), pointer :: this_spec, child_spec
       type(ComponentGraph), pointer :: graph
+      type(ComponentGraph), pointer :: child_graph
       type(DependencyNetwork), pointer :: net
       type(VariableSpecVectorIterator) :: iter
       type(VariableSpec), pointer :: var_spec
@@ -115,9 +120,11 @@ contains
       end associate
 
       ! Ordinary cross-component case: each declared child's own
-      ! advertised import/export item may have a parent-local proxy in
-      ! `this`'s own graph (proxy_key) - the only place real structure
-      ! exists for a connection `this` declared between its children.
+      ! advertised import/export item is resolved against THAT CHILD'S
+      ! OWN graph (item_key) - its own real NodeId, no parent-local
+      ! proxy. The dependency edge connecting it to its counterpart
+      ! still lives in `this`'s own default network (`net`, above),
+      ! since `this` is the component that declared the connection.
       !
       ! openspec/changes/graph-child-state-population, design.md D1:
       ! unlike the degenerate same-component branch above (which keeps
@@ -137,6 +144,7 @@ contains
       do i = 1, n
          child_name = this%get_child_name(i, _RC)
          child_spec => this%get_child_component_spec(child_name, _RC)
+         child_graph => this%get_child_component_graph(child_name, _RC)
          child_meta => this%get_child_outer_meta(child_name, _RC)
          child_driver => child_meta%get_user_gc_driver()
          child_states = child_driver%get_states()
@@ -147,7 +155,7 @@ contains
                var_spec => iter%of()
                if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT .or. &
                     var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) cycle
-               id_ptr => graph%get_resource_index(proxy_key(child_name, var_spec%state_intent, var_spec%short_name))
+               id_ptr => child_graph%get_resource_index(item_key(var_spec%state_intent, var_spec%short_name))
                call populate_one(graph, net, child_states, id_ptr, var_spec%state_intent, var_spec%short_name, _RC)
             end do
          end associate

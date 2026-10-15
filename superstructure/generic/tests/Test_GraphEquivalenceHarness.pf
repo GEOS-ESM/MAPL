@@ -36,7 +36,7 @@ module Test_GraphEquivalenceHarness
    use mapl_GenericPhases_mod
    use mapl_MultiState_mod
    use mapl_OuterMetaComponent_mod
-   use mapl_GraphBuilder_mod, only: proxy_key
+   use mapl_GraphBuilder_mod, only: item_key
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
    use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
@@ -255,7 +255,7 @@ contains
       class(EquivalenceFixture), intent(inout) :: this
 
       integer :: status
-      type(OuterMetaComponent), pointer :: dst_meta
+      type(OuterMetaComponent), pointer :: dst_meta, src_meta
       type(GriddedComponentDriver) :: dst_driver, dst_user_driver
       type(ESMF_GridComp) :: dst_gc
       type(MultiState) :: dst_user_states
@@ -263,7 +263,7 @@ contains
       type(ESMF_Field) :: legacy_field, graph_field
       integer :: item_count
 
-      type(ComponentGraph), pointer :: cap_graph
+      type(ComponentGraph), pointer :: src_graph, dst_graph
       type(NodeId), pointer :: export_proxy
       class(GraphNode), pointer :: node
       type(GraphStateItem) :: export_payload
@@ -292,8 +292,10 @@ contains
       @assertEqual(1, item_count, this%fixture_name // ' :: no leaked state entry')
 
       ! --- Task 4.3: payload-parity check. Resolve the export's own
-      ! graph-native proxy node and compare its materialized payload's
-      ! typekind/units/geom against the legacy oracle field above.
+      ! real node (comp_src's own graph - openspec/changes/hierarchy-
+      ! wide-component-graph, tasks.md 3.4: no parent-local proxy exists
+      ! anymore) and compare its materialized payload's typekind/units/
+      ! geom against the legacy oracle field above.
       ! openspec/changes/phase-10c-typekind-characteristic, design.md D6
       ! (second correction): this whole block is scoped to an
       ! exact-match connection (per this change's own
@@ -304,12 +306,13 @@ contains
       ! all (only the chain's final item is materialized, checked
       ! separately below), so export_payload%itemType() has nothing
       ! real to query. ---
-      cap_graph => this%cap_meta%get_component_graph()
       if (this%fixture_name /= 'units_and_typekind_mismatch') then
-         export_proxy => cap_graph%get_resource_index(proxy_key('comp_src', ESMF_STATEINTENT_EXPORT, name))
-         @assert_that(this%fixture_name // ' :: export proxy resolved', associated(export_proxy), is(true()))
+         src_meta => this%cap_meta%get_child_outer_meta('comp_src', _RC)
+         src_graph => src_meta%get_component_graph()
+         export_proxy => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, name))
+         @assert_that(this%fixture_name // ' :: export item resolved', associated(export_proxy), is(true()))
 
-         node => cap_graph%get_node(export_proxy)
+         node => src_graph%get_node(export_proxy)
          select type (node)
          class is (StateItemNode)
             export_payload = node%get_payload()
@@ -341,24 +344,28 @@ contains
       ! D6: for the one fixture whose connection is resolved through a
       ! real two-characteristic extension chain, additionally verify the
       ! chain's FINAL item - not merely the original export - has the
-      ! typekind/units the import actually declared. Resolved via
-      ! proxy_key on the import side (a general proxy/local-item lookup,
-      ! not export-specific) plus the import node's sole predecessor in
-      ! the graph's default DependencyNetwork - the same
-      ! get_predecessors-on-the-default-network pattern
-      ! Test_GraphBuilder.pf already uses to walk a resolved
-      ! connection's own chain. ---
+      ! typekind/units the import actually declared. The import's own
+      ! real NodeId now lives in comp_dst's own graph (openspec/changes/
+      ! hierarchy-wide-component-graph, tasks.md 3.4), but the chain's
+      ! own TransformGraphNodes/intermediate items remain registered in
+      ! cap's own graph (find_or_build_extension_chain is called with
+      ! cap's own default network, since cap is the component that
+      ! declared the connection) - this%cap_meta%get_component_graph()
+      ! is still the right graph to walk predecessors in. ---
       if (this%fixture_name == 'units_and_typekind_mismatch') then
-         call check_chain_final_item(this, cap_graph, name, _RC)
+         dst_meta => this%cap_meta%get_child_outer_meta('comp_dst', _RC)
+         dst_graph => dst_meta%get_component_graph()
+         call check_chain_final_item(this, this%cap_meta%get_component_graph(), dst_graph, name, _RC)
       end if
 
       end associate
    end subroutine check
 
    ! openspec/changes/phase-10c-typekind-characteristic, design.md D6.
-   subroutine check_chain_final_item(this, cap_graph, name, rc)
+   subroutine check_chain_final_item(this, cap_graph, dst_graph, name, rc)
       class(EquivalenceFixture), intent(in) :: this
       type(ComponentGraph), pointer, intent(in) :: cap_graph
+      type(ComponentGraph), pointer, intent(in) :: dst_graph
       character(*), intent(in) :: name
       integer, optional, intent(out) :: rc
 
@@ -374,8 +381,17 @@ contains
       type(ESMF_TypeKind_Flag) :: chain_final_typekind
       character(:), allocatable :: chain_final_units
 
-      import_node_id => cap_graph%get_resource_index(proxy_key('comp_dst', ESMF_STATEINTENT_IMPORT, name))
-      @assert_that(this%fixture_name // ' :: import proxy resolved', associated(import_node_id), is(true()))
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.4:
+      ! the import's own real NodeId lives in comp_dst's own graph (no
+      ! parent-local proxy exists anymore), but the chain's own
+      ! TransformGraphNodes/intermediate items remain registered in
+      ! cap's own graph/default network (find_or_build_extension_chain
+      ! was called with cap's own ComponentGraph, since cap is the
+      ! component that declared the connection) - walk predecessors
+      ! there, starting from the real import NodeId resolved from
+      ! comp_dst's own graph.
+      import_node_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, name))
+      @assert_that(this%fixture_name // ' :: import item resolved', associated(import_node_id), is(true()))
 
       net => cap_graph%get_network(cap_graph%get_default_network_id())
       preds = net%get_predecessors(import_node_id)

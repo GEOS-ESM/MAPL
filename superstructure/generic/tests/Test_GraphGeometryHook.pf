@@ -179,7 +179,10 @@ contains
 
    ! REQ-GEO-002 "a component receiving geometry from an ancestor"
    ! (GEOMETRY_FROM_PARENT, the default GeometrySpec kind): the parent
-   ! pushes a proxy + dependency edge into the child's own graph.
+   ! wires a direct dependency edge from its own real geometry NodeId to
+   ! the child's own real geometry NodeId, in the CHILD's own graph (no
+   ! proxy on either side - openspec/changes/hierarchy-wide-component-
+   ! graph, tasks.md 4.1/4.2).
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_child_receives_geometry_from_parent(this)
       class(ESMF_TestMethod), intent(inout) :: this
@@ -191,10 +194,9 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentGraph), pointer :: parent_graph, child_graph
       type(ESMF_Geom) :: geom
-      type(NodeId), pointer :: parent_own_id, child_own_id, parent_proxy_id
+      type(NodeId), pointer :: parent_own_id, child_own_id
       type(DependencyNetwork), pointer :: net
       type(DependencyNetworkId) :: net_id
-      character(:), allocatable :: pkey
       integer :: status
       type(GraphBuilder) :: gb
 
@@ -231,25 +233,23 @@ contains
       @assert_that(associated(parent_own_id), is(true()))
       @assert_that(associated(child_own_id), is(true()))
 
-      pkey = parent_geometry_proxy_key()
-      parent_proxy_id => child_graph%get_resource_index(pkey)
-      @assert_that(associated(parent_proxy_id), is(true()))
-      ! The proxy lives in the CHILD's own graph, not the parent's.
-      @assert_that(child_graph%owns_node(parent_proxy_id), is(true()))
-
+      ! The edge lives in the CHILD's own graph/network, connecting the
+      ! parent's own real NodeId directly to the child's own real
+      ! NodeId - no proxy, in either direction.
       net_id = child_graph%get_default_network_id()
       net => child_graph%get_network(net_id)
-      @assert_that(net%contains_dependency(parent_proxy_id, child_own_id), is(true()))
+      @assert_that(net%contains_dependency(parent_own_id, child_own_id), is(true()))
 
       call set_graph_mode(GRAPH_MODE_REGISTRY)
       _UNUSED_DUMMY(this)
    end subroutine test_child_receives_geometry_from_parent
 
    ! REQ-GEO-002 "a component receiving geometry from a child"
-   ! (GEOMETRY_FROM_CHILD): the parent pulls the child's own item into a
-   ! parent-local proxy, structurally identical to an ordinary
-   ! cross-boundary MatchConnection (get_or_make_local_node_id reused
-   ! unmodified).
+   ! (GEOMETRY_FROM_CHILD): the parent wires a direct dependency edge
+   ! from the child's own real geometry NodeId to its own real geometry
+   ! NodeId, in the PARENT's own graph - structurally identical to an
+   ! ordinary cross-boundary MatchConnection's own direct-edge wiring
+   ! (openspec/changes/hierarchy-wide-component-graph, Group 3).
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_parent_receives_geometry_from_child(this)
       class(ESMF_TestMethod), intent(inout) :: this
@@ -262,7 +262,7 @@ contains
       type(ComponentSpec), pointer :: parent_spec
       type(ComponentGraph), pointer :: parent_graph, child_graph
       type(ESMF_Geom) :: geom
-      type(NodeId), pointer :: parent_own_id, child_own_id, child_proxy_id
+      type(NodeId), pointer :: parent_own_id, child_own_id
       type(DependencyNetwork), pointer :: net
       type(DependencyNetworkId) :: net_id
       integer :: status
@@ -299,13 +299,9 @@ contains
       @assert_that(associated(parent_own_id), is(true()))
       @assert_that(associated(child_own_id), is(true()))
 
-      child_proxy_id => parent_graph%get_resource_index(proxy_key('geom_provider', ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
-      @assert_that(associated(child_proxy_id), is(true()))
-      @assert_that(parent_graph%owns_node(child_proxy_id), is(true()))
-
       net_id = parent_graph%get_default_network_id()
       net => parent_graph%get_network(net_id)
-      @assert_that(net%contains_dependency(child_proxy_id, parent_own_id), is(true()))
+      @assert_that(net%contains_dependency(child_own_id, parent_own_id), is(true()))
 
       call set_graph_mode(GRAPH_MODE_REGISTRY)
       _UNUSED_DUMMY(this)
@@ -325,9 +321,9 @@ contains
       type(ESMF_GridComp) :: child_gc
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec
-      type(ComponentGraph), pointer :: parent_graph
+      type(ComponentGraph), pointer :: parent_graph, child_graph
       type(ESMF_Geom) :: parent_geom, child_geom
-      type(NodeId), pointer :: parent_own_id, child_proxy_id
+      type(NodeId), pointer :: parent_own_id, child_own_id
       type(DependencyNetwork), pointer :: net
       type(DependencyNetworkId) :: net_id
       integer :: status
@@ -375,15 +371,16 @@ contains
       @assertExceptionRaised('status=1')
 
       parent_graph => parent_meta%get_component_graph()
+      child_graph => child_meta%get_component_graph()
       parent_own_id => parent_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
       @assert_that(associated(parent_own_id), is(true()))
 
-      child_proxy_id => parent_graph%get_resource_index(proxy_key('geom_provider2', ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
-      @assert_that(associated(child_proxy_id), is(true()))
+      child_own_id => child_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
+      @assert_that(associated(child_own_id), is(true()))
 
       net_id = parent_graph%get_default_network_id()
       net => parent_graph%get_network(net_id)
-      @assert_that(net%contains_dependency(child_proxy_id, parent_own_id), is(false()))
+      @assert_that(net%contains_dependency(child_own_id, parent_own_id), is(false()))
 
       call set_graph_mode(GRAPH_MODE_REGISTRY)
       _UNUSED_DUMMY(this)

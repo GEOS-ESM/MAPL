@@ -72,15 +72,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine graphbuilder_advertise_geometry
 
-   ! Reserved key for the proxy, in a child's own local graph, standing
-   ! in for that child's parent's geometry item - the push-direction
-   ! mirror of proxy_key()'s own pull-direction convention.
-   module function parent_geometry_proxy_key() result(key)
-      character(:), allocatable :: key
-
-      key = 'PROXY:' // PARENT_PROXY_NAME // ':' // item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME)
-   end function parent_geometry_proxy_key
-
    ! Gives the already-resolved parent/child geometry relationship (per
    ! this%get_component_spec()%geometry_spec%kind) real graph structure:
    ! a dependency edge from whichever side provides to whichever side
@@ -117,9 +108,11 @@ contains
       _RETURN(_SUCCESS)
    end subroutine graphbuilder_resolve_geometry
 
-   ! Pull direction: reuses get_or_make_local_node_id() unmodified -
-   ! structurally identical to an ordinary cross-boundary MatchConnection
-   ! pulling a named child's item into this component's own graph.
+   ! Pull direction: resolves the named child's own real geometry NodeId
+   ! directly (openspec/changes/hierarchy-wide-component-graph, tasks.md
+   ! 4.1/4.2: no parent-local proxy exists anymore - structurally
+   ! identical to an ordinary cross-boundary MatchConnection's own
+   ! direct-edge wiring, Group 3).
    module subroutine resolve_geometry_from_child(this, provider_name, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: provider_name
@@ -127,10 +120,11 @@ contains
 
       integer :: status
       type(ComponentGraph), pointer :: this_graph
+      type(ComponentGraph), pointer :: child_graph
       type(DependencyNetworkId) :: net_id
       type(NodeId), pointer :: existing
       type(NodeId) :: this_own_id
-      type(NodeId) :: child_proxy_id
+      type(NodeId) :: child_own_id
       type(NodeId) :: final_id
       type(NodeId), allocatable :: intermediate_ids(:)
       type(OuterMetaComponent), pointer :: child_meta
@@ -148,9 +142,12 @@ contains
       _ASSERT(associated(existing), 'GraphBuilder: resolve_geometry_from_child called before this component advertised its own geometry')
       this_own_id = existing
 
-      child_proxy_id = get_or_make_local_node_id(this, provider_name, ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME, _RC)
-
       child_meta => this%get_child_outer_meta(provider_name, _RC)
+      child_graph => child_meta%get_component_graph()
+      existing => child_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
+      _ASSERT(associated(existing), 'GraphBuilder: resolve_geometry_from_child - child "' // provider_name //
+           '" has not advertised its own geometry yet')
+      child_own_id = existing
 
       ! Fortran does not permit invoking a type-bound procedure directly
       ! on the (non-pointer, non-variable) result of another type-bound
@@ -172,11 +169,11 @@ contains
       ! handled through the real path rather than assumed away.
       mismatched = find_mismatched_characteristics(child_map, this_map)
       if (size(mismatched) == 0) then
-         call this_graph%add_dependency(net_id, child_proxy_id, this_own_id, _RC)
+         call this_graph%add_dependency(net_id, child_own_id, this_own_id, _RC)
          _RETURN(_SUCCESS)
       end if
 
-      call find_or_build_extension_chain(this_graph, net_id, child_proxy_id, &
+      call find_or_build_extension_chain(this_graph, net_id, child_own_id, &
            child_map, this_map, mismatched, final_id, intermediate_ids, unsupported, _RC)
       assertion_message = 'GraphBuilder: geometry from child ' // provider_name // &
             ' does not match the receiving component own resolved geometry (unsupported: ' // &
@@ -197,11 +194,13 @@ contains
       _RETURN(_SUCCESS)
    end subroutine resolve_geometry_from_child
 
-   ! Push direction: get_or_make_local_node_id() cannot express this (it
-   ! only pulls a NAMED CHILD's item into the CALLER's own graph) - this
-   ! is the symmetric case, injecting a proxy for the PARENT (this) into
-   ! the CHILD's own graph, using the same framework-internal
-   ! get_child_component_graph() carve-out (REQ-GB-002).
+   ! Push direction: injects a dependency edge directly between this
+   ! (parent)'s own real geometry NodeId and the named child's own real
+   ! geometry NodeId, in the CHILD's own graph/network (both endpoints
+   ! are already real, no proxy on either side -
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 4.1/4.2),
+   ! using the same framework-internal get_child_component_graph()
+   ! carve-out (REQ-GB-002).
    module subroutine push_geometry_to_child(this, child_name, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: child_name
@@ -212,18 +211,14 @@ contains
       type(ComponentGraph), pointer :: child_graph
       type(DependencyNetworkId) :: child_net_id
       type(NodeId), pointer :: existing
+      type(NodeId) :: this_own_id
       type(NodeId) :: child_own_id
-      type(NodeId) :: parent_proxy_id
       type(NodeId) :: final_id
       type(NodeId), allocatable :: intermediate_ids(:)
-      character(:), allocatable :: pkey
       type(OuterMetaComponent), pointer :: child_meta
       type(StateItemCharacteristicMap), target :: this_map, child_map
       type(StateItemCharacteristicKind), allocatable :: mismatched(:)
       character(20) :: id_buffer
-      type(StateItemNode) :: proxy_node
-      type(GraphStateItem) :: payload
-      type(NodeRevision) :: revision
       character(:), allocatable :: unsupported
       character(:), allocatable :: assertion_message
       type(GeomId) :: this_geom_id
@@ -232,11 +227,7 @@ contains
       this_graph => this%get_component_graph()
       existing => this_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
       _ASSERT(associated(existing), 'GraphBuilder: push_geometry_to_child called before this component advertised its own geometry')
-      ! Existence is all that matters here (this component must have
-      ! already advertised its own geometry before it can push it into a
-      ! child) - unlike resolve_geometry_from_child, this component's own
-      ! NodeId is not itself an endpoint of the dependency edge added
-      ! below, so it is not retained past this check.
+      this_own_id = existing
 
       child_graph => this%get_child_component_graph(child_name, _RC)
       child_meta => this%get_child_outer_meta(child_name, _RC)
@@ -246,17 +237,6 @@ contains
             '" has no geometry to receive into - has it run its own advertise_geometry yet?'
       _ASSERT(associated(existing), assertion_message)
       child_own_id = existing
-
-      pkey = parent_geometry_proxy_key()
-      existing => child_graph%get_resource_index(pkey)
-      if (associated(existing)) then
-         parent_proxy_id = existing
-      else
-         parent_proxy_id = child_graph%next_node_id(_RC)
-         proxy_node = StateItemNode(parent_proxy_id, payload, revision)
-         call child_graph%register_node(proxy_node, _RC)
-         call child_graph%add_resource_index(pkey, parent_proxy_id, _RC)
-      end if
 
       ! See resolve_geometry_from_child's own comment above - same
       ! not-a-valid-designator reason for binding each intermediate
@@ -271,16 +251,20 @@ contains
       ! Same dispatch shape as resolve_one's own REQ-EXT-001/003/005
       ! handling, and as resolve_geometry_from_child's own pull-direction
       ! mirror above - the edge (and, if mismatched, any extension chain)
-      ! lives in the CHILD's own graph/network, since both its endpoints
-      ! (parent_proxy_id, child_own_id) are child_graph nodes.
+      ! lives in the CHILD's own graph/network, since the receiving side
+      ! (child_own_id) is a child_graph node; this's own real
+      ! this_own_id is admitted as a cross-component edge endpoint the
+      ! same way any other resolved descendant's real NodeId is
+      ! (ComponentGraph%add_dependency's own relaxed ownership check,
+      ! ComponentGraph.F90).
       child_net_id = child_graph%get_default_network_id()
       mismatched = find_mismatched_characteristics(this_map, child_map)
       if (size(mismatched) == 0) then
-         call child_graph%add_dependency(child_net_id, parent_proxy_id, child_own_id, _RC)
+         call child_graph%add_dependency(child_net_id, this_own_id, child_own_id, _RC)
          _RETURN(_SUCCESS)
       end if
 
-      call find_or_build_extension_chain(child_graph, child_net_id, parent_proxy_id, &
+      call find_or_build_extension_chain(child_graph, child_net_id, this_own_id, &
            this_map, child_map, mismatched, final_id, intermediate_ids, unsupported, _RC)
       assertion_message = 'GraphBuilder: parent geometry does not match child ' // child_name // &
             ' own resolved geometry (unsupported: ' // unsupported // &

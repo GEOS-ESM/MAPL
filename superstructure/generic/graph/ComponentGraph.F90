@@ -131,6 +131,12 @@ module mapl_ComponentGraph_mod
       procedure :: register_node => graph_register_node
       procedure :: get_node => graph_get_node
       procedure :: owns_node => graph_owns_node
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.2:
+      ! "registered somewhere in this hierarchy, not necessarily by this
+      ! instance" - see graph_add_dependency's own header comment for
+      ! why this is distinct from, and strictly narrower than, "anything
+      ! goes."
+      procedure :: allowed_foreign_node => graph_allowed_foreign_node
       ! -- network registry ------------------------------------------------
       procedure :: get_default_network_id => graph_get_default_network_id
       procedure :: create_network => graph_create_network
@@ -392,14 +398,32 @@ contains
    end function graph_owns_network
 
    ! Convenience wrapper: forwards to DependencyNetwork%add_dependency()
-   ! with this instance's own explicit owned-node-id set, so callers get
-   ! the REQ-CG-004's "Invalid foreign node is rejected" scenario for
-   ! free. network_id must be owned by THIS instance (REQ-CG-001: which
-   ! network a declared connection populates stays exactly as
-   ! declaration-scoped as before shared storage - proposal.md
+   ! with an allowed-id set built fresh for this one call (never cached),
+   ! so callers get the REQ-CG-004 "Invalid foreign node is rejected"
+   ! scenario for free. network_id must be owned by THIS instance
+   ! (REQ-CG-001: which network a declared connection populates stays
+   ! exactly as declaration-scoped as before shared storage - proposal.md
    ! Non-Goals) - an explicit check, since the shared HierarchyGraph
    ! would otherwise resolve ANY component's network_id, not only this
    ! instance's own.
+   !
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.2: with
+   ! proxy nodes retired, source/target MAY now be a different
+   ! component's own real NodeId (resolved via GraphBuilder's
+   ! resolve_qualified_component, whose one-directional tree walk is the
+   ! actual enforcement of "never resolves upward past the declaring
+   ! component" - graph/component-hierarchy's own requirement; see that
+   ! requirement's own text for why ComponentGraph itself, which cannot
+   ! depend on OuterComponent/the hierarchy tree per REQ-CG-002, is not
+   ! the layer that re-derives that invariant). This instance's own
+   ! own_node_ids remains the primary allowed set; a source/target this
+   ! instance does not itself own is additionally permitted ONLY if it is
+   ! genuinely registered somewhere in this exact hierarchy (allowed_foreign_node,
+   ! below) - which only ever holds for an id some ComponentGraph in this
+   ! hierarchy legitimately obtained via next_node_id()/register_node(),
+   ! never an arbitrary or garbage value. This is deliberately NOT "any
+   ! id in the shared store is unconditionally valid" - a truly foreign
+   ! id (never registered anywhere in this hierarchy) is still rejected.
    subroutine graph_add_dependency(this, network_id, source, target, rc)
       class(ComponentGraph), target, intent(inout) :: this
       type(DependencyNetworkId), intent(in) :: network_id
@@ -408,6 +432,7 @@ contains
       integer, optional, intent(out) :: rc
 
       type(DependencyNetwork), pointer :: network
+      type(NodeIdSet) :: allowed_ids
 
       _ASSERT(.not. this%is_finalized(), 'ComponentGraph: add_dependency called after finalize')
       _ASSERT(.not. this%is_frozen(), 'ComponentGraph: add_dependency called on a frozen graph')
@@ -416,8 +441,36 @@ contains
       network => this%get_network(network_id)
       _ASSERT(associated(network), 'ComponentGraph: add_dependency - unknown DependencyNetworkId')
 
-      call network%add_dependency(source, target, rc=rc, valid_ids=this%own_node_ids)
+      allowed_ids = this%own_node_ids
+      if (.not. this%owns_node(source)) then
+         _ASSERT(this%allowed_foreign_node(source), 'ComponentGraph: add_dependency - source NodeId is not registered anywhere in this hierarchy')
+         call allowed_ids%insert(source)
+      end if
+      if (.not. this%owns_node(target)) then
+         _ASSERT(this%allowed_foreign_node(target), 'ComponentGraph: add_dependency - target NodeId is not registered anywhere in this hierarchy')
+         call allowed_ids%insert(target)
+      end if
+
+      call network%add_dependency(source, target, rc=rc, valid_ids=allowed_ids)
    end subroutine graph_add_dependency
+
+   ! True iff id is registered in this hierarchy's shared HierarchyGraph
+   ! (by ANY component), regardless of whether THIS instance owns it.
+   ! Used only to admit an already-resolved cross-component edge endpoint
+   ! (tasks.md 3.2) - never to answer "is this mine" (owns_node() already
+   ! answers that) and never to re-derive the component-tree-shaped
+   ! "descendant only" invariant, which resolve_qualified_component alone
+   ! enforces (graph/component-hierarchy's "Connection endpoint
+   ! resolution never resolves upward past its declaring component").
+   logical function graph_allowed_foreign_node(this, id) result(allowed)
+      class(ComponentGraph), target, intent(in) :: this
+      type(NodeId), intent(in) :: id
+
+      class(GraphNode), pointer :: node
+
+      node => this%get_node(id)
+      allowed = associated(node)
+   end function graph_allowed_foreign_node
 
    ! -- ports / bindings / resource index ---------------------------------
 
@@ -553,6 +606,15 @@ contains
    ! target_id is a StateItemNode, its GraphStateItem%variant() matches
    ! the declared expectation. Delegates the actual no-silent-replace
    ! storage to PortBindingTable%bind().
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.2: a
+   ! port's bound target_id MAY now be a different component's own
+   ! real NodeId (e.g. find_or_build_extension_chain's own first
+   ! INPUT_PORT_NAME binding, when export_node_id is a resolved
+   ! descendant's own real export) - same "registered somewhere in
+   ! this hierarchy, not necessarily owned by this instance" admission
+   ! graph_add_dependency already applies (see that procedure's own
+   ! header comment); node_id (the TransformGraphNode itself) is always
+   ! this instance's own, unaffected.
    subroutine graph_bind_port(this, network_id, node_id, port_name, target_id, rc)
       class(ComponentGraph), target, intent(inout) :: this
       type(DependencyNetworkId), intent(in) :: network_id
@@ -572,7 +634,9 @@ contains
       _ASSERT(.not. this%is_frozen(), 'ComponentGraph: bind_port called on a frozen graph')
       _ASSERT(this%owns_network(network_id), 'ComponentGraph: bind_port - unknown DependencyNetworkId')
       _ASSERT(this%owns_node(node_id), 'ComponentGraph: bind_port - transform NodeId is not owned by this graph')
-      _ASSERT(this%owns_node(target_id), 'ComponentGraph: bind_port - target NodeId is not owned by this graph')
+      if (.not. this%owns_node(target_id)) then
+         _ASSERT(this%allowed_foreign_node(target_id), 'ComponentGraph: bind_port - target NodeId is not registered anywhere in this hierarchy')
+      end if
 
       node => this%get_node(node_id)
       select type (node)
@@ -666,11 +730,25 @@ contains
    ! instance owns (passing this instance's own ownership/producer/
    ! state-item classification sets down to DependencyNetwork%validate()),
    ! then checks REQ-DEP-008a across all of this instance's own networks.
+   !
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.2: each
+   ! owned network's own allowed-id set is own_node_ids plus whichever of
+   ! that one network's own referenced ids are genuinely registered
+   ! elsewhere in this hierarchy (graph_allowed_foreign_node) - same
+   ! "registered somewhere in this hierarchy, not merely owned by this
+   ! instance" admission graph_add_dependency already applies at wiring
+   ! time, re-derived here (not cached) since validate() may run standalone
+   ! (e.g. a synthetic test with no GraphBuilder/add_dependency call
+   ! sequence at all).
    subroutine graph_validate(this, rc)
       class(ComponentGraph), target, intent(in) :: this
       integer, optional, intent(out) :: rc
 
       type(NodeIdSet) :: producer_ids, state_item_ids
+      type(NodeIdSet) :: allowed_ids
+      type(NodeIdSet), target :: referenced_ids
+      type(NodeIdSetIterator) :: ref_iter
+      type(NodeId) :: ref_id
       type(DependencyNetworkIdSetIterator) :: net_iter
       type(DependencyNetworkId) :: net_id
       type(DependencyNetwork), pointer :: network
@@ -686,7 +764,19 @@ contains
          net_id = net_iter%of()
          network => this%get_network(net_id)
          _ASSERT(associated(network), 'ComponentGraph: validate - owned DependencyNetworkId not found')
-         call network%validate(valid_ids=this%own_node_ids, producer_ids=producer_ids, &
+
+         allowed_ids = this%own_node_ids
+         referenced_ids = network%get_referenced_ids()
+         ref_iter = referenced_ids%ftn_begin()
+         do while (ref_iter /= referenced_ids%ftn_end())
+            call ref_iter%next()
+            ref_id = ref_iter%of()
+            if (this%owns_node(ref_id)) cycle
+            _ASSERT(this%allowed_foreign_node(ref_id), 'ComponentGraph: validate - referenced NodeId is not registered anywhere in this hierarchy')
+            call allowed_ids%insert(ref_id)
+         end do
+
+         call network%validate(valid_ids=allowed_ids, producer_ids=producer_ids, &
                                  state_item_ids=state_item_ids, _RC)
       end do
 

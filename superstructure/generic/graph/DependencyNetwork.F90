@@ -48,6 +48,14 @@ module mapl_DependencyNetwork_mod
       procedure :: freeze => network_freeze
       procedure :: is_frozen => network_is_frozen
       procedure :: clear => network_clear
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.1/3.2:
+      ! exposes collect_referenced_ids() (below) publicly so
+      ! ComponentGraph%validate() can build its own per-call "ownership
+      ! or legitimately-known-elsewhere-in-this-hierarchy" allowance set
+      ! for THIS network's own referenced ids, without this type needing
+      ! to know anything about hierarchy-wide storage itself (REQ-CG-002
+      ! layering - this module stays graph-neutral).
+      procedure :: get_referenced_ids => network_get_referenced_ids
    end type DependencyNetwork
 
    ! One explicit-stack DFS frame for has_cycle_from's iterative rewrite
@@ -147,6 +155,19 @@ contains
 
       frozen = this%frozen
    end function network_is_frozen
+
+   ! Public wrapper over collect_referenced_ids() (below), used by
+   ! ComponentGraph%validate() (ComponentGraph.F90) to find every NodeId
+   ! this one network references, so it can be checked against ids this
+   ! instance is permitted to reference (its own, or a direct child's -
+   ! openspec/changes/hierarchy-wide-component-graph tasks.md 3.1/3.2)
+   ! without this type itself needing any hierarchy-wide knowledge.
+   function network_get_referenced_ids(this) result(ids)
+      class(DependencyNetwork), target, intent(in) :: this
+      type(NodeIdSet) :: ids
+
+      ids = collect_referenced_ids(this)
+   end function network_get_referenced_ids
 
    logical function network_contains_dependency(this, source, target) result(found)
       class(DependencyNetwork), intent(in) :: this
