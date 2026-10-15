@@ -39,10 +39,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   mapping form, `field_dictionary: {path: ..., validation_mode: strict|permissive}`.
   Default mode is permissive, so existing configurations are unaffected
   until a run opts into strict mode.
+- Added CI verification step to `.github/actions/ci-build-and-test-mapl/action.yml`
+  that checks for and fails if any static libraries (`*.a`) are installed in
+  standalone MAPL builds.
+- Added ability to output on a set of fixed pressure or height levels in History3G
+- Extended History and StatisticsGridComp so one can take the average, min, max, accumulation, and variance of vectors
 
 ### Changed
 
-- Conserve, bilinear, patch, and conserve_2nd will now have their masks created with handleAllElements = .false. to match MAPL2
+- Conserve, bilinear, patch, and conserve_2nd regridding now create their masks with `handleAllElements = .false.` to match MAPL2
 - Activated `superstructure/generic/tests/field_dictionary_test.yaml` (a
   checked-in fixture that had never actually been loaded by anything) as
   the default-path `FieldDictionary` for all six of
@@ -104,6 +109,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     (`VerticalGridAspect%make_transform`, `ExpressionClassAspect%make_transform`).
   - `field_dictionary_test.yaml` gained dictionary entries for every
     remaining `standard_name` used anywhere in `superstructure/generic/tests/scenarios/`.
+- Renamed the load-balance public API and exported the direction constants through the
+  `mp_utils` umbrella, which previously omitted them and forced clients to `use
+  mapl_LoadBalance_mod` directly: `MAPL_BalanceCreate`/`MAPL_BalanceGet`/`MAPL_BalanceWork`/
+  `MAPL_BalanceDestroy` are now `MAPL_LoadBalancerCreate`/`MAPL_LoadBalancerGet`/
+  `MAPL_LoadBalancerRun`/`MAPL_LoadBalancerDestroy`, and `MAPL_Distribute`/`MAPL_Retrieve` are
+  now `MAPL_LOADBALANCER_DISTRIBUTE`/`MAPL_LOADBALANCER_RETRIEVE`. The old names are gone.
+  The module and its file were renamed to match: `mapl_LoadBalance_mod` in
+  `mp_utils/MAPL_LoadBalance.F90` is now `mapl_LoadBalancer_mod` in
+  `mp_utils/MAPL_LoadBalancer.F90`
+- Updated `components.yaml`
+  - ESMA_cmake v4.51.0
+    - Make ESMA_cmake reentrant
+    - Fix issue with quad precision detection test
+    - Fixes for Flang and NVIDIA compilers
 
 ### Fixed
 
@@ -158,13 +177,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Avoided passing the file-metadata geometry-factory predicate as an internal
   procedure callback, preventing the same Flang 23 crash in metadata-based
   geometry creation; see [LLVM #223705](https://github.com/llvm/llvm-project/issues/223705).
-- Extended History and StatisticsGridComp so one can take average, min, max, accumulation, and variance for vectors
 - Fixed Generic components created through direct SetServices to inherit their parent VM, preventing communicator-context exhaustion during repeated setup.
 - Fixed corrupted cubed-sphere coordinate endpoints in NAG-generated output
 - Fixed detection of NetCDF quantization and Zstandard support when using Spack
 - Fixed documentation workflows so manual runs publish only from trusted branches and v2 and MAPL3 documentation deployments preserve each other's output
 - Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
-- Dangling pointer in ExtDataFileReader due to a missing target attribute on ExtDataReader
+- Fixed a dangling pointer in `ExtDataFileReader` caused by a missing `target` attribute on `ExtDataReader`
 - Fixed `expression` state items (`expression: (A + B)/C`) requiring an explicit
   `vertical_dim_spec` even when it references at least one variable. The
   omitted-key case previously left `VerticalGridAspect`'s vertical stagger at an
@@ -191,23 +209,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   resolved - or not yet even registered - is skipped rather than treated as an
   error. Expressions with no referenced variables (e.g. a literal/constant
   expression) are unaffected and still require an explicit `vertical_dim_spec`.
-- Fixed omission of setting FieldBundle allocation status in create() for ServiceClassAspect
-- Fixed bug with ACG caused by validation of vertical stagger
-=======
-### Changed
-
-- Renamed the load-balance public API and exported the direction constants through the
-  `mp_utils` umbrella, which previously omitted them and forced clients to `use
-  mapl_LoadBalance_mod` directly: `MAPL_BalanceCreate`/`MAPL_BalanceGet`/`MAPL_BalanceWork`/
-  `MAPL_BalanceDestroy` are now `MAPL_LoadBalancerCreate`/`MAPL_LoadBalancerGet`/
-  `MAPL_LoadBalancerRun`/`MAPL_LoadBalancerDestroy`, and `MAPL_Distribute`/`MAPL_Retrieve` are
-  now `MAPL_LOADBALANCER_DISTRIBUTE`/`MAPL_LOADBALANCER_RETRIEVE`. The old names are gone.
-  The module and its file were renamed to match: `mapl_LoadBalance_mod` in
-  `mp_utils/MAPL_LoadBalance.F90` is now `mapl_LoadBalancer_mod` in
-  `mp_utils/MAPL_LoadBalancer.F90`
-
-### Fixed
-- Fixed bug prevents regridding methods that require dynamic masking from executing the dynamic mask in ExtData.
+- Fixed `ServiceClassAspect` `create()` omitting to set the FieldBundle allocation status
+- Fixed a bug with ACG caused by validation of vertical stagger
+- Fixed a bug that prevented regridding methods that require dynamic masking from applying the dynamic mask in ExtData.
   `EsmfRegridderParam%make_info` serialized only the routehandle param, so the dynamic mask
   was dropped when ExtData passed the param to the field bundle as `ESMF_Info`; the mask
   (type, `handleAllElements`, kind, src/dst values) is now round-tripped. `RoutehandleParam`
@@ -246,6 +250,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   given rank's data belongs to; and `FieldGetCptr`/`assign_fptr`'s common
   `get_cptr` now returns a zero-size result instead of crashing for a no-DE
   field, transparently fixing `FieldCopy`, `FieldBLAS`, `FieldUtilities`,
+  and `FieldCondensedArray`.
 - Added regression test coverage for the no-local-DE fixes above: new
   `Test_FieldPointerUtilities.pf` and `Test_pFIOServerBounds.pf` exercise
   `FieldGetCptr`/`assign_fptr`/`FieldCopy` and `pFIOServerBounds` directly on
@@ -258,21 +263,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `infrastructure/geom/Mesh/raster_to_mesh/CMakeLists.txt` and `SHARED` to
   `MAPL.Apps.tests.acg3` in `apps/tests/acg3/CMakeLists.txt`, and replaced
   the stale `MAPL.shared` dependency with `MAPL.utils` and `MAPL.enums`.
-
-### Added
-
-- Added CI verification step to `.github/actions/ci-build-and-test-mapl/action.yml`
-  that checks for and fails if any static libraries (`*.a`) are installed in
-  standalone MAPL builds.
-- Added ability to output on a set of fixed pressure or height levels in History3G
-
-### Changed
-
-- Update `components.yaml`
-  - ESMA_cmake v4.51.0
-    - Make ESMA_cmake reentrant
-    - Fix issue with quad precision detection test
-    - Fixes for Flang and NVIDIA compilers
 
 ### Removed
 
