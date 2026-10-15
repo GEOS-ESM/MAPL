@@ -43,7 +43,7 @@ module mapl_generic_api
        MAPL_GridCompIsGeneric => GridCompIsGeneric, &
        MAPL_GridCompIsUser => GridCompIsUser
 
-   use mapl_OwningGridComp_mod, only: mapl_get_owning_gridcomp
+   use mapl_OwningGridComp_mod, only: MAPL_InternalStateGet
 
    use mapl_GenericGridComp_mod,  &
         mapl_GridCompCreate => GridCompCreate, &
@@ -115,7 +115,7 @@ module mapl_generic_api
    public :: mapl_get_num_threads
    public :: mapl_get_current_thread
 
-   public :: mapl_get_owning_gridcomp
+   public :: MAPL_InternalStateGet
 
    public :: mapl_GridCompCreate
    public :: mapl_GenericSetServices

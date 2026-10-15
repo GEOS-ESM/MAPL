@@ -4,7 +4,7 @@
 ! OpenMP threading note
 ! ---------------------
 ! _GET_NAMED_PRIVATE_STATE and _FREE_NAMED_PRIVATE_STATE redirect their
-! lookup through mapl_get_owning_gridcomp before calling ESMF.  For a
+! lookup through MAPL_InternalStateGet before calling ESMF.  For a
 ! normal (non-threaded) gridcomp the function is a no-op.  For a "mini"
 ! gridcomp created by the threading layer, it walks back to the primary
 ! user gridcomp that carries the user-visible private state.  This makes
@@ -64,21 +64,16 @@
     _ASSERT(status==ESMF_SUCCESS, "Private state with name <" //name// "> already created for this gridcomp?"); \
   end block
 
-#define MAPL_InternalStateGet(gc, T, name, private_state)  \
-  block;                                                    \
+#define _GET_PRIVATE_STATE(gc, T, private_state) _GET_NAMED_PRIVATE_STATE(gc, T, "private state", private_state)
+
+#define _GET_NAMED_PRIVATE_STATE(gc, T, name, private_state)  \
+  block;                                                      \
     _DECLARE_WRAPPER(T);                                      \
     type(PrivateWrapper) :: w;                                \
-    type(ESMF_GridComp) :: owner_gc_;                         \
-    owner_gc_ = mapl_get_owning_gridcomp(gc, rc=status);      \
-    _ASSERT(status==ESMF_SUCCESS, "mapl_get_owning_gridcomp failed for private state <" //name// ">"); \
-    call ESMF_InternalStateGet(owner_gc_, internalState=w, label=name, rc=status); \
+    call MAPL_InternalStateGet(gc, internalState=w, label=name, rc=status); \
     _ASSERT(status==ESMF_SUCCESS, "Private state with name <" //name// "> not found for this gridcomp."); \
     private_state => w%ptr;                                   \
   end block
-
-#define _GET_PRIVATE_STATE(gc, T, private_state) _GET_NAMED_PRIVATE_STATE(gc, T, "private state", private_state)
-
-#define _GET_NAMED_PRIVATE_STATE(gc, T, name, private_state) MAPL_InternalStateGet(gc, T, name, private_state)
 
 #define _FREE_PRIVATE_STATE(gc, T, private_state) _FREE_NAMED_PRIVATE_STATE(gc, T, "private state", private_state)
 
@@ -86,10 +81,7 @@
   block;                                                       \
     _DECLARE_WRAPPER(T);                                         \
     type(PrivateWrapper) :: w;                                   \
-    type(ESMF_GridComp) :: owner_gc_;                           \
-    owner_gc_ = mapl_get_owning_gridcomp(gc, rc=status);       \
-    _ASSERT(status==ESMF_SUCCESS, "mapl_get_owning_gridcomp failed for private state <" //name// ">"); \
-    call ESMF_InternalStateGet(owner_gc_, internalState=w, label=name, rc=status); \
+    call MAPL_InternalStateGet(gc, internalState=w, label=name, rc=status); \
     _ASSERT(status==ESMF_SUCCESS, "Private state with name <" //name// "> not found for this gridcomp."); \
     private_state => w%ptr; \
   end block
