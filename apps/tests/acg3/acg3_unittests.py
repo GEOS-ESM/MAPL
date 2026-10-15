@@ -840,6 +840,52 @@ class TestVerticalStagger(unittest.TestCase):
                 self.assertFalse(results[0][acg3.INVALID_VALUES],
                                  f'{dims} with VLOC={vstagger} should be valid')
 
+    def test_vstagger_aliases(self):
+        """vstagger, vloc, and vlocation aliases map correctly and satisfy mandatory check."""
+        for alias in ('vstagger', 'vloc', 'vlocation'):
+            with self.subTest(alias=alias):
+                spec = {
+                    acg3.SHORT_NAME: 'TEST_FIELD',
+                    acg3.STATE: 'import',
+                    acg3.STATE_INTENT: 'ESMF_STATEINTENT_IMPORT',
+                    acg3.STANDARD_NAME: 'test_standard_name',
+                    acg3.DIMS: 'xyz',
+                    alias: 'C',
+                }
+                values, results = acg3.get_values([spec], acg3.get_options({}))
+                self.assertEqual(acg3.MAPL_VERTICAL_STAGGER_CENTER, values[0].get(acg3.VSTAGGER))
+                self.assertNotIn(acg3.VSTAGGER, results[0][acg3.MISSING_MANDATORY])
+                self.assertFalse(results[0][acg3.INVALID_VALUES])
+
+    def test_ungridded_dims_alias(self):
+        """ungridded_dims, ungrid, and ungridded aliases map to ungridded_dim_array."""
+        for alias in ('ungridded_dims', 'ungrid', 'ungridded'):
+            with self.subTest(alias=alias):
+                spec = {
+                    acg3.SHORT_NAME: 'TEST_FIELD',
+                    acg3.STATE: 'import',
+                    acg3.STATE_INTENT: 'ESMF_STATEINTENT_IMPORT',
+                    acg3.STANDARD_NAME: 'test_standard_name',
+                    acg3.DIMS: 'z',
+                    'vstagger': 'E',
+                    alias: 'ungrd_1',
+                }
+                values, results = acg3.get_values([spec], acg3.get_options({}))
+                self.assertEqual('[ ungrd_1]', values[0].get(acg3.UNGRIDDED_DIMS))
+                self.assertEqual(2, values[0].get(acg3.RANK))
+
+    def test_compile_test_acg_specs(self):
+        """compile_test.acg specs parse and validate without errors or missing mandatory keys."""
+        import os
+        acg_path = os.path.join(os.path.dirname(__file__), 'compile_test.acg')
+        parsed = acg3.read_specs(acg_path)
+        values, results = acg3.get_values(parsed, acg3.get_options({}))
+        for r in results:
+            self.assertFalse(r[acg3.MISSING_MANDATORY],
+                             f"missing mandatory keys for {r[acg3.SPEC].get('short_name')}: {r[acg3.MISSING_MANDATORY]}")
+            self.assertFalse(r[acg3.INVALID_VALUES],
+                             f"invalid values for {r[acg3.SPEC].get('short_name')}: {r[acg3.INVALID_VALUES]}")
+
 test_cases = (TestMappings, TestHelpers, TestColumns, TestTypes, TestVerticalStagger)
 
 def load_tests(loader, tests, pattern):
