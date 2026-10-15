@@ -268,8 +268,7 @@ contains
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved
       type(GraphResolutionEntry), pointer :: entry
-      type(NodeId), pointer :: t_export_proxy, t_import_proxy, q_import_proxy
-      type(NodeId), pointer :: t_export_native, t_import_native
+      type(NodeId), pointer :: t_export_id, t_import_id, q_import_id
       type(DependencyNetwork), pointer :: net
       type(DependencyNetworkId) :: net_id
       integer :: status
@@ -319,46 +318,39 @@ contains
       @assertEqual('child_dst', entry%component_name)
       @assertEqual('Q', entry%short_name)
 
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.1/3.4:
+      ! no parent-local proxy exists anymore - the edge below connects
+      ! each child's own real NodeId directly (graph/component-hierarchy
+      ! "Cross-component dependency wiring uses real node identities
+      ! directly").
       parent_graph => parent_meta%get_component_graph()
-      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
-      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
-      q_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'Q'))
-      @assert_that(associated(t_export_proxy), is(true()))
-      @assert_that(associated(t_import_proxy), is(true()))
-      @assert_that(associated(q_import_proxy), is(true()))
-
-      ! Sanity: the children's own native items still exist in their own
-      ! graphs (untouched by the parent's proxy creation).
       src_graph => src_meta%get_component_graph()
       dst_graph => dst_meta%get_component_graph()
-      t_export_native => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
-      t_import_native => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
-      @assert_that(associated(t_export_native), is(true()))
-      @assert_that(associated(t_import_native), is(true()))
+      t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      q_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'Q'))
+      @assert_that(associated(t_export_id), is(true()))
+      @assert_that(associated(t_import_id), is(true()))
+      @assert_that(associated(q_import_id), is(true()))
 
-      ! The proxy is owned by the parent's own graph.
-      @assert_that(parent_graph%owns_node(t_export_proxy), is(true()))
-      @assert_that(parent_graph%owns_node(t_import_proxy), is(true()))
+      ! Each child's own real NodeId is owned by that child's OWN graph,
+      ! not the parent's - no proxy, no parent-side ownership record for
+      ! either side (graph/component-hierarchy "No proxy node is created
+      ! for a cross-component edge").
+      @assert_that(src_graph%owns_node(t_export_id), is(true()))
+      @assert_that(dst_graph%owns_node(t_import_id), is(true()))
+      @assert_that(parent_graph%owns_node(t_export_id), is(false()))
+      @assert_that(parent_graph%owns_node(t_import_id), is(false()))
 
-      ! REQ-HIER-005 ("no reference to the child's internal NodeId"):
-      ! NodeId values are graph-scoped sequence numbers, not globally
-      ! unique, so a runtime cross-graph value/ownership comparison is
-      ! not a meaningful way to test this (two independently-generated
-      ! small id sequences will coincidentally collide, exactly as
-      ! Test_ComponentHierarchyGraph.pf's own encapsulation test
-      ! documents for a related case). This is instead a
-      ! code-review-verifiable property of get_or_make_local_node_id()
-      ! (GraphBuilder.F90): the child branch's returned node_id always
-      ! comes from this_graph%next_node_id() - the child's own
-      ! child_item_id is used only as a read-only existence check, never
-      ! returned or stored as the resolved identity.
-
+      ! The edge itself lives in the PARENT's own default network (the
+      ! declaring component's network), connecting the two children's
+      ! own real NodeIds directly.
       net_id = parent_graph%get_default_network_id()
       net => parent_graph%get_network(net_id)
-      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(true()))
-      @assert_that(net%has_predecessors(q_import_proxy), is(false()))
-      @assert_that(net%has_successors(t_export_proxy), is(true()))
-      @assert_that(net%has_predecessors(t_export_proxy), is(false()))
+      @assert_that(net%contains_dependency(t_export_id, t_import_id), is(true()))
+      @assert_that(net%has_predecessors(q_import_id), is(false()))
+      @assert_that(net%has_successors(t_export_id), is(true()))
+      @assert_that(net%has_predecessors(t_export_id), is(false()))
 
       _UNUSED_DUMMY(this)
    end subroutine test_ordinary_connection_wires_matching_and_reports_unresolved
@@ -381,9 +373,10 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
+      type(ComponentGraph), pointer :: src_graph, dst_graph
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved, unsupported
-      type(NodeId), pointer :: t_export_proxy, t_import_proxy
+      type(NodeId), pointer :: t_export_id, t_import_id
       type(DependencyNetwork), pointer :: net
       type(DependencyNetworkId) :: net_id
       integer :: status
@@ -429,20 +422,25 @@ contains
       @assertEqual(0, unresolved%size())
       @assertEqual(0, unsupported%size())
 
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.4:
+      ! each child's own real NodeId, in its own graph - no parent-local
+      ! proxy exists anymore.
       parent_graph => parent_meta%get_component_graph()
-      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
-      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
-      @assert_that(associated(t_export_proxy), is(true()))
-      @assert_that(associated(t_import_proxy), is(true()))
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_id), is(true()))
+      @assert_that(associated(t_import_id), is(true()))
 
       net_id = parent_graph%get_default_network_id()
       net => parent_graph%get_network(net_id)
 
       ! Not a direct edge (spec "Mismatched export and import are wired
       ! through an extension chain") - a transform node is interposed.
-      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(false()))
-      @assert_that(net%has_successors(t_export_proxy), is(true()))
-      @assert_that(net%has_predecessors(t_import_proxy), is(true()))
+      @assert_that(net%contains_dependency(t_export_id, t_import_id), is(false()))
+      @assert_that(net%has_successors(t_export_id), is(true()))
+      @assert_that(net%has_predecessors(t_import_id), is(true()))
 
       _UNUSED_DUMMY(this)
    end subroutine test_ordinary_connection_units_mismatch_creates_chain
@@ -473,10 +471,11 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
+      type(ComponentGraph), pointer :: src_graph, dst_graph
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved, unsupported
       type(VariableSpec) :: borrower_spec
-      type(NodeId), pointer :: t_export_proxy, t_import_proxy
+      type(NodeId), pointer :: t_export_id, t_import_id
       type(DependencyNetwork), pointer :: net, candidate_net
       type(DependencyNetworkId) :: net_id
       type(DependencyNetworkId), pointer :: candidate_id
@@ -528,17 +527,21 @@ contains
       @assertEqual(0, unresolved%size())
       @assertEqual(0, unsupported%size())
 
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.4:
+      ! each child's own real NodeId, in its own graph.
       parent_graph => parent_meta%get_component_graph()
-      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
-      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
-      @assert_that(associated(t_export_proxy), is(true()))
-      @assert_that(associated(t_import_proxy), is(true()))
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_id), is(true()))
+      @assert_that(associated(t_import_id), is(true()))
 
       ! Forward edge: owner -> borrower, in the default network -
       ! identical wiring shape to the ordinary REQ-EXT-003 no-op case.
       net_id = parent_graph%get_default_network_id()
       net => parent_graph%get_network(net_id)
-      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(true()))
+      @assert_that(net%contains_dependency(t_export_id, t_import_id), is(true()))
 
       ! Return edge: borrower -> owner, in a DIFFERENT network from the
       ! default one (design.md Decision 2, revised: a fresh per-pairing
@@ -551,7 +554,7 @@ contains
          candidate_id => net_iter%of()
          if (candidate_id == net_id) cycle
          candidate_net => parent_graph%get_network(candidate_id)
-         if (candidate_net%contains_dependency(t_import_proxy, t_export_proxy)) then
+         if (candidate_net%contains_dependency(t_import_id, t_export_id)) then
             found_return_edge = .true.
          end if
       end do
@@ -585,11 +588,12 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
+      type(ComponentGraph), pointer :: src_graph, dst_graph
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved, unsupported
       type(GraphResolutionEntry), pointer :: entry
       type(VariableSpec) :: borrower_spec
-      type(NodeId), pointer :: t_export_proxy, t_import_proxy
+      type(NodeId), pointer :: t_export_id, t_import_id
       type(DependencyNetwork), pointer :: net
       type(DependencyNetworkId) :: net_id
       integer :: status
@@ -641,18 +645,22 @@ contains
 
       ! No extension chain, no direct edge either - the pairing is
       ! rejected outright (contrast with the ordinary mismatch test,
-      ! where a TransformGraphNode is interposed).
+      ! where a TransformGraphNode is interposed). Each child's own
+      ! real NodeId, in its own graph (tasks.md 3.4 - no parent-local
+      ! proxy exists anymore).
       parent_graph => parent_meta%get_component_graph()
-      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
-      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
-      @assert_that(associated(t_export_proxy), is(true()))
-      @assert_that(associated(t_import_proxy), is(true()))
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_id), is(true()))
+      @assert_that(associated(t_import_id), is(true()))
 
       net_id = parent_graph%get_default_network_id()
       net => parent_graph%get_network(net_id)
-      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(false()))
-      @assert_that(net%has_successors(t_export_proxy), is(false()))
-      @assert_that(net%has_predecessors(t_import_proxy), is(false()))
+      @assert_that(net%contains_dependency(t_export_id, t_import_id), is(false()))
+      @assert_that(net%has_successors(t_export_id), is(false()))
+      @assert_that(net%has_predecessors(t_import_id), is(false()))
 
       _UNUSED_DUMMY(this)
    end subroutine test_inout_mismatch_is_rejected_not_chained
@@ -843,7 +851,6 @@ contains
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved
       type(GraphResolutionEntry), pointer :: entry
-      type(NodeId), pointer :: t_export_proxy, t_import_proxy, q_import_proxy
       type(NodeIdSet) :: parent_ids
       integer :: status
       type(GraphBuilder) :: gb
@@ -892,14 +899,11 @@ contains
       @assertEqual('child_dst', entry%component_name)
       @assertEqual('Q', entry%short_name)
 
-      ! No graph mutation: no proxy nodes created, node count unchanged.
-      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
-      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
-      q_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'Q'))
-      @assert_that(associated(t_export_proxy), is(false()))
-      @assert_that(associated(t_import_proxy), is(false()))
-      @assert_that(associated(q_import_proxy), is(false()))
-
+      ! No graph mutation: the parent's own graph still has zero nodes
+      ! of its own (openspec/changes/hierarchy-wide-component-graph,
+      ! tasks.md 3.4: there is no parent-local proxy mechanism left to
+      ! check "did not get created" - the stronger, still-correct
+      ! check is that the parent's own node count stayed at zero).
       parent_ids = parent_graph%get_node_ids()
       @assertEqual(0, parent_ids%size())
       @assert_that(parent_graph%is_frozen(), is(false()))
@@ -1070,9 +1074,10 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
+      type(ComponentGraph), pointer :: dst_graph
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved, unsupported
-      type(NodeId), pointer :: t_import_proxy
+      type(NodeId), pointer :: t_import_id
       type(NodeId) :: extension_id
       type(DependencyNetwork), pointer :: net
       class(GraphNode), pointer :: node
@@ -1119,11 +1124,12 @@ contains
       @assertEqual(0, unsupported%size())
 
       parent_graph => parent_meta%get_component_graph()
-      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
-      @assert_that(associated(t_import_proxy), is(true()))
+      dst_graph => dst_meta%get_component_graph()
+      t_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_import_id), is(true()))
 
       net => parent_graph%get_network(parent_graph%get_default_network_id())
-      extension_id = single_predecessor(net, t_import_proxy)
+      extension_id = single_predecessor(net, t_import_id)
 
       node => parent_graph%get_node(extension_id)
       select type (node)
@@ -1332,9 +1338,10 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
+      type(ComponentGraph), pointer :: src_graph
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved, unsupported
-      type(NodeId), pointer :: t_export_proxy
+      type(NodeId), pointer :: t_export_id
       class(GraphNode), pointer :: node
       type(GraphStateItem), pointer :: export_payload
       integer :: status
@@ -1378,10 +1385,11 @@ contains
       @assertEqual(0, unsupported%size())
 
       parent_graph => parent_meta%get_component_graph()
-      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
-      @assert_that(associated(t_export_proxy), is(true()))
+      src_graph => src_meta%get_component_graph()
+      t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      @assert_that(associated(t_export_id), is(true()))
 
-      node => parent_graph%get_node(t_export_proxy)
+      node => src_graph%get_node(t_export_id)
       select type (node)
       class is (StateItemNode)
          export_payload => node%get_payload_ptr()
@@ -1391,6 +1399,7 @@ contains
       @assertTrue(export_payload%itemType(rc=status) == ESMF_STATEITEM_NOTFOUND)
 
       _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(parent_graph)
    end subroutine test_exact_match_not_materialized_in_registry_mode
 
    ! openspec/changes/graph-builder-stateitem-resolution: four more
@@ -1462,82 +1471,15 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_build_label_map_labels_own_advertised_items
 
-   ! Task 3.3/4.2: a cached child-proxy node is labeled
-   ! "<child_name>:<short_name>" and marked as a proxy.
-   @test(npes=[0])
-   subroutine test_build_label_map_labels_child_proxy(this)
-      class(MpiTestMethod), intent(inout) :: this
-
-      type(ESMF_GridComp) :: parent_gc
-      type(OuterMetaComponent), pointer :: parent_meta
-      type(OuterMetaComponent), pointer :: src_meta, dst_meta
-      type(GriddedComponentDriver) :: src_driver, dst_driver
-      type(ESMF_GridComp) :: src_gc, dst_gc
-      type(ChildSpec) :: child_spec
-      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
-      type(MatchConnection) :: conn
-      type(GraphResolutionEntryVector) :: unresolved
-      type(NodeIdLabelMap) :: label_map
-      character(:), allocatable :: dot_text, json_text
-      integer :: status
-      type(GraphBuilder) :: gb
-
-      call make_outer_meta('comp_label_parent', parent_gc, parent_meta, _RC)
-      child_spec = ChildSpec()
-      call parent_meta%add_child('child_src', child_spec, _RC)
-      child_spec = ChildSpec()
-      call parent_meta%add_child('child_dst', child_spec, _RC)
-
-      src_driver = parent_meta%get_child('child_src', _RC)
-      dst_driver = parent_meta%get_child('child_dst', _RC)
-      src_gc = src_driver%get_gridcomp()
-      dst_gc = dst_driver%get_gridcomp()
-      src_meta => get_outer_meta(src_gc, _RC)
-      dst_meta => get_outer_meta(dst_gc, _RC)
-
-      src_spec => src_meta%get_component_spec()
-      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
-
-      dst_spec => dst_meta%get_component_spec()
-      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
-      ! Never referenced by any connection below - task 3.4's "no
-      ! cached proxy" case: must produce no map entry, not an error.
-      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'R'))
-
-      call gb%advertise(src_meta, status)
-      @assert_that(status, is(0))
-      call gb%advertise(dst_meta, status)
-      @assert_that(status, is(0))
-
-      conn = MatchConnection( &
-           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
-           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='T')))
-      parent_spec => parent_meta%get_component_spec()
-      call parent_spec%add_connection(conn)
-
-      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, rc=status)
-      @assert_that(status, is(0))
-      @assertEqual(0, unresolved%size())
-
-      label_map = gb%build_label_map(parent_meta, status)
-      @assert_that(status, is(0))
-
-      dot_text = export_graph_dot(parent_meta%get_component_graph(), rc=status, label_map=label_map)
-      @assert_that(status, is(0))
-      @assertTrue(index(dot_text, 'label="child_src:T", kind="StateItemNode", payload="NOTFOUND", shape="doublecircle"') > 0)
-      @assertTrue(index(dot_text, 'label="child_dst:T", kind="StateItemNode", payload="NOTFOUND", shape="doublecircle"') > 0)
-      ! child_dst:R was never referenced by the connection - no cached
-      ! proxy exists for it at all, so no label mentions it.
-      @assertFalse(index(dot_text, 'child_dst:R') > 0)
-
-      json_text = export_graph_json(parent_meta%get_component_graph(), rc=status, label_map=label_map)
-      @assert_that(status, is(0))
-      @assertTrue(index(json_text, '"label": "child_src:T", "proxy": true') > 0)
-      @assertTrue(index(json_text, '"label": "child_dst:T", "proxy": true') > 0)
-      @assertFalse(index(json_text, 'child_dst:R') > 0)
-
-      _UNUSED_DUMMY(this)
-   end subroutine test_build_label_map_labels_child_proxy
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.4:
+   ! retires the former "a cached child-proxy node is labeled
+   ! <child_name>:<short_name> and marked as a proxy" coverage -
+   ! build_label_map no longer labels any child-proxy node (removed
+   ! along with proxy_key/get_or_make_local_node_id; a cross-component
+   ! edge now references the child's own real NodeId directly, in the
+   ! child's own graph, never a stand-in in this component's own graph).
+   ! test_build_label_map_labels_own_advertised_items above already
+   ! covers this function's remaining (own-advertised-item) behavior.
 
    ! -- openspec/changes/composite-state-spec ------------------------------
 
@@ -1725,10 +1667,11 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
+      type(ComponentGraph), pointer :: src_graph, dst_graph
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved
       type(VariableSpec) :: export_composite, import_composite
-      type(NodeId), pointer :: export_proxy, import_proxy
+      type(NodeId), pointer :: export_id, import_id
       type(DependencyNetwork), pointer :: net
       integer :: status
       type(GraphBuilder) :: gb
@@ -1779,16 +1722,18 @@ contains
       @assertEqual(0, unresolved%size())
 
       parent_graph => parent_meta%get_component_graph()
-      export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'PHYS_STATE'))
-      import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'PHYS_STATE'))
-      @assert_that(associated(export_proxy), is(true()))
-      @assert_that(associated(import_proxy), is(true()))
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'PHYS_STATE'))
+      import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'PHYS_STATE'))
+      @assert_that(associated(export_id), is(true()))
+      @assert_that(associated(import_id), is(true()))
 
       net => parent_graph%get_network(parent_graph%get_default_network_id())
       ! Direct wire (spec "Matching export and import are wired"), not an
       ! extension chain - the composite items carry no units/vertical_grid
       ! of their own, so find_mismatched_characteristics reports none.
-      @assert_that(net%contains_dependency(export_proxy, import_proxy), is(true()))
+      @assert_that(net%contains_dependency(export_id, import_id), is(true()))
 
       _UNUSED_DUMMY(this)
    end subroutine test_ordinary_connection_wires_matching_composite
@@ -1928,10 +1873,11 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
+      type(ComponentGraph), pointer :: src_graph, dst_graph
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved, unsupported
       type(VariableSpec) :: export_vgrid, import_vgrid
-      type(NodeId), pointer :: export_proxy, import_proxy
+      type(NodeId), pointer :: export_id, import_id
       type(DependencyNetwork), pointer :: net
       integer :: status
       type(GraphBuilder) :: gb
@@ -1983,13 +1929,15 @@ contains
       @assertEqual(0, unsupported%size())
 
       parent_graph => parent_meta%get_component_graph()
-      export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'MY_VGRID'))
-      import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'MY_VGRID'))
-      @assert_that(associated(export_proxy), is(true()))
-      @assert_that(associated(import_proxy), is(true()))
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'MY_VGRID'))
+      import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'MY_VGRID'))
+      @assert_that(associated(export_id), is(true()))
+      @assert_that(associated(import_id), is(true()))
 
       net => parent_graph%get_network(parent_graph%get_default_network_id())
-      @assert_that(net%contains_dependency(export_proxy, import_proxy), is(true()))
+      @assert_that(net%contains_dependency(export_id, import_id), is(true()))
 
       _UNUSED_DUMMY(this)
    end subroutine test_vertical_grid_composites_match_wires_directly
@@ -2478,9 +2426,10 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
+      type(ComponentGraph), pointer :: src_graph, dst_graph
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved
-      type(NodeId), pointer :: t_export_proxy, t_import_proxy
+      type(NodeId), pointer :: t_export_id, t_import_id
       type(DependencyNetwork), pointer :: net
       type(VariableSpec) :: import_var_spec
       integer :: status
@@ -2523,13 +2472,15 @@ contains
       @assertEqual(0, unresolved%size())
 
       parent_graph => parent_meta%get_component_graph()
-      t_export_proxy => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
-      t_import_proxy => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
-      @assert_that(associated(t_export_proxy), is(true()))
-      @assert_that(associated(t_import_proxy), is(true()))
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_id), is(true()))
+      @assert_that(associated(t_import_id), is(true()))
 
       net => parent_graph%get_network(parent_graph%get_default_network_id())
-      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(true()))
+      @assert_that(net%contains_dependency(t_export_id, t_import_id), is(true()))
 
       _UNUSED_DUMMY(this)
    end subroutine test_non_callback_destination_unaffected
@@ -2640,6 +2591,7 @@ contains
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved
       type(ComponentGraph), pointer :: root_graph
+      type(ComponentGraph), pointer :: dyn_graph
       type(NodeId), pointer :: import_id
       type(DependencyNetwork), pointer :: net
       type(NodeIdSet), target :: preds
@@ -2672,7 +2624,11 @@ contains
       @assertEqual(0, unresolved%size())
 
       root_graph => root_meta%get_component_graph()
-      import_id => root_graph%get_resource_index(proxy_key('DYN', ESMF_STATEINTENT_IMPORT, 'tracers'))
+      dyn_graph => dyn_meta%get_component_graph()
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 5.4:
+      ! DYN's own real import NodeId, in DYN's own graph - no parent-
+      ! local proxy exists anymore.
+      import_id => dyn_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'tracers'))
       @assert_that(associated(import_id), is(true()))
 
       net => root_graph%get_network(root_graph%get_default_network_id())
@@ -3078,6 +3034,62 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_resolve_qualified_component_multi_level
 
+   ! openspec/changes/hierarchy-wide-component-graph, graph/component-
+   ! hierarchy delta spec "Connection endpoint resolution never resolves
+   ! upward past its declaring component" - scenario "A connection
+   ! cannot name an ancestor": resolve_qualified_component, called with
+   ! MID as root, has no code path that can reach ROOT (MID's own
+   ! parent) or a name that is neither MID itself nor one of its
+   ! descendants - get_child_outer_meta only ever looks up MID's OWN
+   ! children map (OuterMetaComponent/get_child_by_name.F90), with no
+   ! "get_parent" accessor anywhere in OuterMetaComponent to begin with
+   ! (design.md D6 - "the walk has no 'look at my own parent' code path
+   ! to begin with"). Naming ROOT (the ancestor) or SIBLING (neither
+   ! MID nor a descendant of MID) therefore fails to resolve, exactly
+   ! like naming any other nonexistent child would - this is a
+   ! structural property of the walk, not a special-cased check.
+   @test(npes=[0])
+   subroutine test_resolve_qualified_component_cannot_name_ancestor(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: mid_driver
+      type(ESMF_GridComp) :: mid_gc
+      type(OuterMetaComponent), pointer :: mid_meta
+      type(OuterMetaComponent), pointer :: resolved
+      integer :: status
+
+      call make_outer_meta('comp_resolve_ancestor_root', root_gc, root_meta, _RC)
+      child_spec = ChildSpec()
+      call root_meta%add_child('MID', child_spec, _RC)
+      child_spec = ChildSpec()
+      call root_meta%add_child('SIBLING', child_spec, _RC)
+      mid_driver = root_meta%get_child('MID', _RC)
+      mid_gc = mid_driver%get_gridcomp()
+      mid_meta => get_outer_meta(mid_gc, _RC)
+
+      ! Naming the ancestor (ROOT's own name) starting from MID fails -
+      ! MID has no child literally named after its own parent.
+      resolved => resolve_qualified_component(mid_meta, 'comp_resolve_ancestor_root', status)
+      @assertExceptionRaised('Child not found: <comp_resolve_ancestor_root>.')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assert_that(status, is(not(equal_to(0))))
+
+      ! Naming a sibling (SIBLING - neither MID itself nor a descendant
+      ! of MID) starting from MID also fails, for the same reason.
+      resolved => resolve_qualified_component(mid_meta, 'SIBLING', status)
+      @assertExceptionRaised('Child not found: <SIBLING>.')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assert_that(status, is(not(equal_to(0))))
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(resolved)
+   end subroutine test_resolve_qualified_component_cannot_name_ancestor
+
    ! openspec/changes/graph-builder-resolution-index, task 4.3 / spec
    ! "A connection naming a multi-level-distant component resolves
    ! correctly": a MatchConnection naming a parent-level child
@@ -3103,9 +3115,10 @@ contains
       type(OuterMetaComponent), pointer :: src_leaf_meta, dst_leaf_meta
       type(ComponentSpec), pointer :: parent_spec, src_leaf_spec, dst_leaf_spec
       type(ComponentGraph), pointer :: parent_graph
+      type(ComponentGraph), pointer :: src_leaf_graph, dst_leaf_graph
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved
-      type(NodeId), pointer :: t_export_proxy, t_import_proxy
+      type(NodeId), pointer :: t_export_id, t_import_id
       type(DependencyNetwork), pointer :: net
       integer :: status
       type(GraphBuilder) :: gb
@@ -3165,14 +3178,19 @@ contains
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
 
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.4:
+      ! the grandchildren's own real NodeIds, each in its own graph -
+      ! wired directly, regardless of how many levels down they live.
       parent_graph => parent_meta%get_component_graph()
-      t_export_proxy => parent_graph%get_resource_index(proxy_key('SRC_PARENT/SRC_LEAF', ESMF_STATEINTENT_EXPORT, 'T'))
-      t_import_proxy => parent_graph%get_resource_index(proxy_key('DST_PARENT/DST_LEAF', ESMF_STATEINTENT_IMPORT, 'T'))
-      @assert_that(associated(t_export_proxy), is(true()))
-      @assert_that(associated(t_import_proxy), is(true()))
+      src_leaf_graph => src_leaf_meta%get_component_graph()
+      dst_leaf_graph => dst_leaf_meta%get_component_graph()
+      t_export_id => src_leaf_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_id => dst_leaf_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_id), is(true()))
+      @assert_that(associated(t_import_id), is(true()))
 
       net => parent_graph%get_network(parent_graph%get_default_network_id())
-      @assert_that(net%contains_dependency(t_export_proxy, t_import_proxy), is(true()))
+      @assert_that(net%contains_dependency(t_export_id, t_import_id), is(true()))
 
       _UNUSED_DUMMY(this)
    end subroutine test_ordinary_connection_resolves_through_multi_level_names
@@ -3204,6 +3222,7 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(ComponentGraph), pointer :: parent_graph
+      type(ComponentGraph), pointer :: src_graph, dst_graph
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved
       type(GraphResolutionEntryVector) :: unsupported
@@ -3260,8 +3279,10 @@ contains
       @assertEqual(0, unsupported%size())
 
       parent_graph => parent_meta%get_component_graph()
-      t_export_id => parent_graph%get_resource_index(proxy_key('child_src', ESMF_STATEINTENT_EXPORT, 'T'))
-      t_import_id => parent_graph%get_resource_index(proxy_key('child_dst', ESMF_STATEINTENT_IMPORT, 'T'))
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
       @assert_that(associated(t_export_id), is(true()))
       @assert_that(associated(t_import_id), is(true()))
 

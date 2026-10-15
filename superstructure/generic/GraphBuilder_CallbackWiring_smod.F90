@@ -144,14 +144,17 @@ contains
    end function resolve_descendant
 
    ! Resolves entry (found under a namespace rooted at src_component_name,
-   ! relative to `this`) to a NodeId usable directly in `this`'s own
-   ! graph: `this`'s own export with no further descendant path resolves
-   ! to its already-advertised NodeId directly; every other case resolves
-   ! through a cached-or-newly-created parent-local proxy StateItemNode
-   ! (REQ-HIER-006), generalizing get_or_make_local_node_id's own
-   ! single-level proxy shape to the full path from `this` down to the
-   ! real owner (src_component_name, then entry%comp_path's own further
-   ! segments).
+   ! relative to `this`) to the matched export's own real NodeId, found
+   ! via its owning component's own local resource index.
+   !
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 5.1: this
+   ! used to additionally cache a parent-local proxy StateItemNode for
+   ! every case except `this`'s own direct export (REQ-HIER-006,
+   ! generalizing get_or_make_local_node_id's own single-level proxy
+   ! shape to the full path from `this` down to the real owner) - with
+   ! node storage shared hierarchy-wide, the owner's own real NodeId is
+   ! already a valid member identity directly; no proxy is created,
+   ! cached, or returned.
    module function resolve_qualified_export_node_id(this, src_component_name, entry, rc) result(node_id)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: src_component_name
@@ -161,24 +164,9 @@ contains
 
       integer :: status
       character(:), allocatable :: full_path
-      type(ComponentGraph), pointer :: this_graph, owner_graph
-      character(:), allocatable :: pkey
-      type(NodeId), pointer :: existing
+      type(ComponentGraph), pointer :: owner_graph
       type(NodeId), pointer :: owner_item_id
       type(OuterMetaComponent), pointer :: owner_meta
-      type(StateItemNode) :: proxy_node
-      type(GraphStateItem) :: payload
-      type(NodeRevision) :: revision
-      type(PortId) :: port_id
-
-      this_graph => this%get_component_graph()
-
-      if (is_self(this, src_component_name) .and. len(entry%comp_path) == 0) then
-         existing => this_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, entry%var_spec%short_name))
-         _ASSERT(associated(existing), 'GraphBuilder: callback wiring references an export this component never advertised: ' // entry%var_spec%short_name)
-         node_id = existing
-         _RETURN(_SUCCESS)
-      end if
 
       ! openspec/changes/graph-builder-stateitem-resolution: explicit
       ! allocate(..., source=...) instead of plain `=` assignment into
@@ -193,25 +181,15 @@ contains
          allocate(full_path, source=src_component_name // '/' // entry%comp_path)
       end if
 
-      pkey = 'CALLBACK_PROXY:' // full_path // ':' // item_key(ESMF_STATEINTENT_EXPORT, entry%var_spec%short_name)
-      existing => this_graph%get_resource_index(pkey)
-      if (associated(existing)) then
-         node_id = existing
-         _RETURN(_SUCCESS)
+      if (len(full_path) == 0) then
+         owner_meta => this
+      else
+         owner_meta => resolve_descendant(this, full_path, _RC)
       end if
-
-      owner_meta => resolve_descendant(this, full_path, _RC)
       owner_graph => owner_meta%get_component_graph()
       owner_item_id => owner_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, entry%var_spec%short_name))
       _ASSERT(associated(owner_item_id), 'GraphBuilder: callback wiring references an export never advertised at path ' // full_path)
-
-      node_id = this_graph%next_node_id(_RC)
-      proxy_node = StateItemNode(node_id, payload, revision)
-      call this_graph%register_node(proxy_node, _RC)
-      call this_graph%add_resource_index(pkey, node_id, _RC)
-
-      port_id = this_graph%next_port_id(_RC)
-      call this_graph%add_child_port_binding(port_id, node_id, _RC)
+      node_id = owner_item_id
 
       _RETURN(_SUCCESS)
    end function resolve_qualified_export_node_id

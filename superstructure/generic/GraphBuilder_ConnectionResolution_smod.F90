@@ -36,7 +36,7 @@ contains
 
    ! Read-only counterpart of resolve_match_connection() below: same
    ! destination-import filtering and same-name export existence check,
-   ! but never calls get_or_make_local_node_id() or add_dependency() -
+   ! but never calls resolve_local_node_id() or add_dependency() -
    ! no proxy node or dependency edge is created here.
    module subroutine check_match_connection_unsatisfied(this, conn, unresolved, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
@@ -220,7 +220,7 @@ contains
              _RETURN(_SUCCESS)
           end if
 
-          import_node_id = get_or_make_local_node_id(this, dst_pt%component_name, &
+          import_node_id = resolve_local_node_id(this, dst_pt%component_name, &
               ESMF_STATEINTENT_IMPORT, dst_node%get_short_name(), _RC)
 
          has_export = find_export_node_id(this, src_pt%component_name, dst_node%get_short_name(), &
@@ -556,7 +556,7 @@ contains
    ! for a node whose get_short_name() matches - the direct node-based
    ! replacement for the now-removed find_export_var_spec, used by
    ! find_export_node_id below (which additionally mutates the graph via
-   ! get_or_make_local_node_id) AND by check_match_connection_unsatisfied's
+   ! resolve_local_node_id) AND by check_match_connection_unsatisfied's
    ! own check_one (which must NOT create graph structure - this
    ! procedure's own module-header "activate()-time analog" contract).
    function find_export_node(src_meta, short_name) result(export_node)
@@ -612,7 +612,7 @@ contains
       ! check_match_connection_unsatisfied's own identical replacement
       ! above - resolve_qualified_component in place of
       ! component_spec_for's own single-level dispatch. The export's
-      ! real NodeId (get_or_make_local_node_id below) already reaches
+      ! real NodeId (resolve_local_node_id below) already reaches
       ! any descendant level via the same primitive, same change.
       src_meta => resolve_qualified_component(this, comp_name, _RC)
       export_node => find_export_node(src_meta, short_name)
@@ -622,7 +622,7 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      export_node_id = get_or_make_local_node_id(this, comp_name, ESMF_STATEINTENT_EXPORT, short_name, _RC)
+      export_node_id = resolve_local_node_id(this, comp_name, ESMF_STATEINTENT_EXPORT, short_name, _RC)
 
       _RETURN(_SUCCESS)
    end function find_export_node_id
@@ -679,7 +679,7 @@ contains
       graph => this%get_component_graph()
       net_id = graph%get_default_network_id()
 
-      import_node_id = get_or_make_local_node_id(this, dst_pt%component_name, &
+      import_node_id = resolve_local_node_id(this, dst_pt%component_name, &
            ESMF_STATEINTENT_IMPORT, dst_node%get_short_name(), _RC)
 
       has_owner = find_export_node_id(this, src_pt%component_name, dst_node%get_short_name(), &
@@ -798,7 +798,7 @@ contains
       type(ESMF_Field) :: field
       type(ESMF_Field) :: alias
       class(GraphNode), pointer :: node
-      type(GraphStateItem) :: payload
+      type(GraphStateItem), pointer :: payload
 
       found = .false.
 
@@ -828,8 +828,20 @@ contains
       _ASSERT(associated(node), 'GraphBuilder: try_alias_export_field - NodeId not found in graph')
       select type (node)
       class is (StateItemNode)
+         ! openspec/changes/hierarchy-wide-component-graph, found during
+         ! implementation: with proxy nodes retired, node_id is now the
+         ! real, already-advertised export node (characteristics already
+         ! established by advertise_one), not a freshly-created,
+         ! always-empty parent-local proxy. A wholesale set_payload()
+         ! call here would discard that node's own established
+         ! characteristics (typekind/units, read later by
+         ! get_item_typekind/get_item_units) along with its payload -
+         ! mutate the existing payload IN PLACE via get_payload_ptr()
+         ! instead (same idiom populate_characteristics,
+         ! GraphBuilder_Advertising_smod.F90, already uses for exactly
+         ! this reason), so only the field handle changes.
+         payload => node%get_payload_ptr()
          call payload%set(alias, _RC)
-         call node%set_payload(payload)
       class default
          _FAIL('GraphBuilder: try_alias_export_field - NodeId does not refer to a StateItemNode')
       end select

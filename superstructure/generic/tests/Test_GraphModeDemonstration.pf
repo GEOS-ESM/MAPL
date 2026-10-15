@@ -70,7 +70,7 @@ module Test_GraphModeDemonstration
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
    use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
-   use mapl_GraphBuilder_mod, only: proxy_key
+   use mapl_GraphBuilder_mod, only: item_key
    use mapl_NodeId_mod, only: NodeId
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
@@ -91,7 +91,7 @@ contains
       type(ESMF_HConfig) :: config
       type(ESMF_Config) :: config_cf
       type(ESMF_GridComp) :: cap_gc
-      type(OuterMetaComponent), pointer :: cap_meta, dst_meta
+      type(OuterMetaComponent), pointer :: cap_meta, dst_meta, src_meta
       type(GriddedComponentDriver) :: dst_driver
       type(GriddedComponentDriver), pointer :: dst_own_driver
       type(ESMF_GridComp) :: dst_gc
@@ -107,7 +107,7 @@ contains
       type(ESMF_TypeKind_Flag) :: result_typekind
       character(:), allocatable :: result_units
       real(ESMF_KIND_R4), pointer :: result_data(:,:)
-      type(ComponentGraph), pointer :: cap_graph
+      type(ComponentGraph), pointer :: src_graph
       type(NodeId), pointer :: export_proxy_id
       class(GraphNode), pointer :: export_proxy_node
       type(GraphStateItem) :: export_proxy_payload
@@ -189,26 +189,31 @@ contains
       @assertTrue(result_typekind == ESMF_TYPEKIND_R4, 'chain final item has the import''s own typekind (R4, no typekind mismatch in this fixture)')
       @assertEqual('Pa', result_units, 'chain final item has the import''s own units (Pa)')
 
-      ! Export proxy's own materialized field (this change's own
-      ! GraphBuilder.F90 fix, resolve_one's mismatch branch) has the
-      ! EXPORT's own typekind/units - confirms gap (2) above is fixed:
-      ! the chain's own input is now real, not unallocated.
-      cap_graph => cap_meta%get_component_graph()
-      export_proxy_id => cap_graph%get_resource_index(proxy_key('comp_src', ESMF_STATEINTENT_EXPORT, 'T'))
-      @assert_that('export proxy resolved', associated(export_proxy_id), is(true()))
-      export_proxy_node => cap_graph%get_node(export_proxy_id)
+      ! Export's own real field (openspec/changes/hierarchy-wide-
+      ! component-graph, tasks.md 3.4: no parent-local proxy exists
+      ! anymore - the chain's own input is comp_src's own real NodeId
+      ! directly, in comp_src's own graph) has the EXPORT's own
+      ! typekind/units - confirms gap (2) above is fixed: the chain's
+      ! own input is now real, not unallocated.
+      dst_driver = cap_meta%get_child('comp_src', _RC)
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(dst_gc, _RC)
+      src_graph => src_meta%get_component_graph()
+      export_proxy_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      @assert_that('export item resolved', associated(export_proxy_id), is(true()))
+      export_proxy_node => src_graph%get_node(export_proxy_id)
       select type (export_proxy_node)
       class is (StateItemNode)
          export_proxy_payload = export_proxy_node%get_payload()
       class default
-         @assert_that('export proxy node is a StateItemNode', .false., is(true()))
+         @assert_that('export node is a StateItemNode', .false., is(true()))
       end select
       chain_input_field = export_proxy_payload%get_field(rc=status)
-      @assertEqual(0, status, 'export proxy has a real, allocated field (gap 2 fix)')
-      @assert_that('export proxy field is a real ESMF_Field', ESMF_FieldIsCreated(chain_input_field), is(true()))
+      @assertEqual(0, status, 'export item has a real, allocated field (gap 2 fix)')
+      @assert_that('export field is a real ESMF_Field', ESMF_FieldIsCreated(chain_input_field), is(true()))
 
       ! openspec/changes/phase-11a-export-field-aliasing, design.md D6
-      ! (closes gap 3 above): the export proxy's own field is now a
+      ! (closes gap 3 above): the export's own field is now a
       ! real MAPL_NamedAlias of comp_src's own real export field (not
       ! an independent FieldCreate), so comp_src's own real run()
       ! (comp_src.yaml's 'run: {T: [10]}') writing 10. hPa into its own
@@ -245,7 +250,7 @@ contains
       type(ESMF_HConfig) :: config
       type(ESMF_Config) :: config_cf
       type(ESMF_GridComp) :: cap_gc
-      type(OuterMetaComponent), pointer :: cap_meta, dst_meta
+      type(OuterMetaComponent), pointer :: cap_meta, dst_meta, src_meta
       type(GriddedComponentDriver) :: dst_driver
       type(GriddedComponentDriver), pointer :: dst_own_driver
       type(ESMF_GridComp) :: dst_gc
@@ -261,7 +266,7 @@ contains
       type(ESMF_TypeKind_Flag) :: result_typekind
       character(:), allocatable :: result_units
       real(ESMF_KIND_R8), pointer :: result_data(:,:)
-      type(ComponentGraph), pointer :: cap_graph
+      type(ComponentGraph), pointer :: cap_graph, src_graph, dst_graph
       type(DependencyNetwork), pointer :: net
       type(NodeId), pointer :: export_proxy_id
       type(NodeId), pointer :: import_proxy_id
@@ -309,31 +314,47 @@ contains
       ! openspec/changes/phase-11b-chain-intermediate-materialization:
       ! BEFORE any run phase executes, confirm every link of this
       ! two-characteristic chain already has a real, allocated payload -
-      ! the chain's own INPUT (export proxy, 11a's own scope) and its
-      ! own INTERMEDIATE node (between UnitsConverterTransform and
-      ! TypeKindConverterTransform - this change's own scope, closing
-      ! §20.4.9's first gap). The chain's own structure alternates
+      ! the chain's own INPUT (comp_src's own real export NodeId, in
+      ! comp_src's own graph - openspec/changes/hierarchy-wide-
+      ! component-graph tasks.md 3.4: no parent-local proxy exists
+      ! anymore) and its own INTERMEDIATE node (between
+      ! UnitsConverterTransform and TypeKindConverterTransform - this
+      ! change's own scope, closing §20.4.9's first gap). The
+      ! TransformGraphNodes and intermediate StateItemNode are still
+      ! registered in cap's own graph (find_or_build_extension_chain is
+      ! called with cap's own ComponentGraph/default network, since cap
+      ! is the component that declared the connection) - only the
+      ! chain's two real endpoints (export/import) now live in each
+      ! child's own graph. The chain's own structure alternates
       ! StateItemNode -> TransformGraphNode -> StateItemNode -> ...
       ! (build_chain, ExtensionResolution.F90): walking back from the
       ! import's sole predecessor (the chain's FINAL StateItemNode)
       ! needs TWO more predecessor hops (through
       ! TypeKindConverterTransform's own TransformGraphNode) to reach
       ! the chain's INTERMEDIATE StateItemNode, not one.
-      export_proxy_id => cap_graph%get_resource_index(proxy_key('comp_src', ESMF_STATEINTENT_EXPORT, 'T'))
-      @assert_that('export proxy resolved', associated(export_proxy_id), is(true()))
-      export_proxy_node => cap_graph%get_node(export_proxy_id)
+      dst_driver = cap_meta%get_child('comp_src', _RC)
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(dst_gc, _RC)
+      src_graph => src_meta%get_component_graph()
+      export_proxy_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      @assert_that('export item resolved', associated(export_proxy_id), is(true()))
+      export_proxy_node => src_graph%get_node(export_proxy_id)
       select type (export_proxy_node)
       class is (StateItemNode)
          export_proxy_payload = export_proxy_node%get_payload()
       class default
-         @assert_that('export proxy node is a StateItemNode', .false., is(true()))
+         @assert_that('export node is a StateItemNode', .false., is(true()))
       end select
       chain_input_field = export_proxy_payload%get_field(rc=status)
-      @assertEqual(0, status, 'export proxy (chain input) has a real, allocated field')
-      @assert_that('export proxy field is a real ESMF_Field', ESMF_FieldIsCreated(chain_input_field), is(true()))
+      @assertEqual(0, status, 'export item (chain input) has a real, allocated field')
+      @assert_that('export field is a real ESMF_Field', ESMF_FieldIsCreated(chain_input_field), is(true()))
 
-      import_proxy_id => cap_graph%get_resource_index(proxy_key('comp_dst', ESMF_STATEINTENT_IMPORT, 'T'))
-      @assert_that('import proxy resolved', associated(import_proxy_id), is(true()))
+      dst_driver = cap_meta%get_child('comp_dst', _RC)
+      dst_gc = dst_driver%get_gridcomp()
+      dst_meta => get_outer_meta(dst_gc, _RC)
+      dst_graph => dst_meta%get_component_graph()
+      import_proxy_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that('import item resolved', associated(import_proxy_id), is(true()))
       net => cap_graph%get_network(cap_graph%get_default_network_id())
       preds = net%get_predecessors(import_proxy_id)
       @assertEqual(1, preds%size(), 'import has exactly one predecessor (the chain''s final item)')
