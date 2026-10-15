@@ -2,6 +2,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.extdata.tests")
 
 set (test_srcs
   Test_ExtDataNodeBracket.pf
+  Test_ExtDataCollection.pf
   )
 
 if (DEFINED ENV{LOCAL_REGRESSION_DATA_DIR} AND IS_DIRECTORY "$ENV{LOCAL_REGRESSION_DATA_DIR}")

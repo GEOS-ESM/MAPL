@@ -11,8 +11,8 @@ MAPL3 introduces explicit control over vertical coordinate alignment for fields 
 It's important to distinguish between two concepts:
 
 1. **Coordinate Direction** (`coordinate_direction`): Describes the physical interpretation of vertical coordinates
-   - `downward`: Coordinates increase moving down (e.g., pressure increasing with depth)
-   - `upward`: Coordinates increase moving up (e.g., height increasing with altitude)
+   - `downward`: Coordinate values increase with index (e.g., `[1, 2, 3]`; pressure increasing toward the surface)
+   - `upward`: Coordinate values decrease with index (e.g., `[3, 2, 1]`)
 
 2. **Vertical Alignment** (`vertical_alignment`): Describes how data is stored in memory
    - `downward`: Data stored with first element at top/start of coordinate system
@@ -46,7 +46,7 @@ mapl:
       levels: [1000., 850., 500., 250., 100.]  # hPa
       units: hPa
       physical_dimension: pressure
-      coordinate_direction: downward           # Physical interpretation
+      coordinate_direction: upward             # Decreasing levels (derived)
 
   states:
     export:
@@ -69,7 +69,7 @@ Data alignment follows the grid's `coordinate_direction`. This is the default be
 ```yaml
 vertical_grid:
   levels: [1000., 850., 500., 250., 100.]
-  coordinate_direction: downward
+  coordinate_direction: upward  # decreasing levels
 
 export:
   temperature:
@@ -86,7 +86,7 @@ Data is always stored with the first coordinate value first, regardless of coord
 ```yaml
 vertical_grid:
   levels: [1000., 850., 500., 250., 100.]
-  coordinate_direction: downward
+  coordinate_direction: upward  # decreasing levels
 
 export:
   temperature:
@@ -103,7 +103,7 @@ Data is always stored with the last coordinate value first (reversed order).
 ```yaml
 vertical_grid:
   levels: [1000., 850., 500., 250., 100.]
-  coordinate_direction: downward
+  coordinate_direction: upward  # decreasing levels
 
 export:
   temperature:
@@ -124,7 +124,7 @@ When source and destination use the same vertical grid but different alignments,
 ```yaml
 vertical_grid:
   levels: [1000., 850., 500.]
-  coordinate_direction: downward
+  coordinate_direction: upward  # decreasing levels
 
 export:
   temperature:
@@ -135,7 +135,7 @@ export:
 ```yaml
 vertical_grid:
   levels: [1000., 850., 500.]  # Same grid!
-  coordinate_direction: downward
+  coordinate_direction: upward  # decreasing levels
 
 import:
   temperature:
@@ -152,7 +152,7 @@ When grids differ, MAPL3 performs vertical regridding while respecting alignment
 ```yaml
 vertical_grid:
   levels: [1000., 850., 500., 250., 100.]
-  coordinate_direction: downward
+  coordinate_direction: upward  # decreasing levels
 
 export:
   temperature:
@@ -163,7 +163,7 @@ export:
 ```yaml
 vertical_grid:
   levels: [900., 700., 400., 200.]
-  coordinate_direction: downward
+  coordinate_direction: upward  # decreasing levels
 
 import:
   temperature:
@@ -171,7 +171,7 @@ import:
 ```
 
 **Transformation:**
-1. Align source data to monotonic decreasing order for regridding
+1. Align source data to a common orientation (decreasing values, i.e. upward) for regridding
 2. Perform vertical linear interpolation
 3. Apply destination alignment transformation
 
@@ -230,7 +230,7 @@ Two atmospheric components using different vertical storage conventions:
 ```yaml
 vertical_grid:
   levels: [1000., 850., 700., 500., 300., 100.]
-  coordinate_direction: downward
+  coordinate_direction: upward  # decreasing levels
 export:
   U:
     vertical_alignment: upward  # Bottom-to-top storage
@@ -240,7 +240,7 @@ export:
 ```yaml
 vertical_grid:
   levels: [1000., 850., 700., 500., 300., 100.]  # Same grid
-  coordinate_direction: downward
+  coordinate_direction: upward  # decreasing levels
 import:
   U:
     vertical_alignment: downward  # Top-to-bottom storage
@@ -257,7 +257,7 @@ Coupling atmospheric and ocean models with different coordinate systems:
 vertical_grid:
   levels: [1000., 925., 850., 700., 500., 300., 100.]
   units: hPa
-  coordinate_direction: downward
+  coordinate_direction: upward  # decreasing levels
   physical_dimension: pressure
 export:
   air_temp:
@@ -269,7 +269,7 @@ export:
 vertical_grid:
   levels: [0., 10., 50., 150., 500., 1500.]
   units: m
-  coordinate_direction: downward
+  coordinate_direction: downward  # increasing levels
   physical_dimension: depth
 import:
   sea_surface_temp:
@@ -286,7 +286,7 @@ Reading external data and regridding to component's vertical grid:
 ```yaml
 vertical_grid:
   levels: [1000., 850., 700., 500., 300., 100.]
-  coordinate_direction: downward
+  coordinate_direction: upward  # decreasing levels
 import:
   ozone:
     vertical_alignment: downward

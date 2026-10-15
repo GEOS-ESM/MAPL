@@ -7,6 +7,8 @@ endif()
 
 file(STRINGS "test_cases/cases.txt" TEST_CASES)
 
+set(cutoff "7")
+
 message(STATUS "Processing ${TEST_CASES}")
 
 # Parse test case descriptions from test_case_descriptions.md
@@ -58,6 +60,11 @@ foreach(TEST_CASE ${TEST_CASES})
       -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}
       -P ${CMAKE_CURRENT_SOURCE_DIR}/run_comp_tester.cmake
   )
-  set_tests_properties ("MAPL3G_Comp_Test_${TEST_CASE}" PROPERTIES LABELS "ESSENTIAL")
-  set_tests_properties ("MAPL3G_Comp_Test_${TEST_CASE}" PROPERTIES ENVIRONMENT "${TEST_ENV}")
+  if (${num_procs} GREATER ${cutoff}) 
+     set_tests_properties ("MAPL3G_Comp_Test_${TEST_CASE}" PROPERTIES LABELS "COMP_TESTS_BIG")
+     set_tests_properties ("MAPL3G_Comp_Test_${TEST_CASE}" PROPERTIES ENVIRONMENT "${TEST_ENV}")
+  else()
+     set_tests_properties ("MAPL3G_Comp_Test_${TEST_CASE}" PROPERTIES LABELS "ESSENTIAL")
+     set_tests_properties ("MAPL3G_Comp_Test_${TEST_CASE}" PROPERTIES ENVIRONMENT "${TEST_ENV}")
+  endif()
 endforeach()

@@ -47,6 +47,41 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_get_units
 
+   ! Regression test: standard_name/long_name are per-NamedAlias-id metadata
+   ! (see generic/field-name-propagation).  MAPL_FieldCreate/FieldEmptyComplete
+   ! must record these under this (unaliased) field's own alias id (0), not a
+   ! flat/unnamespaced key, so MAPL_FieldGet - which always resolves via
+   ! ESMF_NamedAliasGet - can find them again.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_get_standard_and_long_name(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Field) :: field
+      type(ESMF_Geom) :: geom
+      type(ESMF_Grid) :: grid
+      character(*), parameter :: EXPECTED_STANDARD_NAME = 'expected standard name'
+      character(*), parameter :: EXPECTED_LONG_NAME = 'expected long name'
+      character(:), allocatable :: standard_name
+      character(:), allocatable :: long_name
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4,4], _RC)
+      geom = ESMF_GeomCreate(grid, _RC)
+
+      field = MAPL_FieldCreate(geom, typekind=ESMF_TYPEKIND_R4, &
+           standard_name=EXPECTED_STANDARD_NAME, long_name=EXPECTED_LONG_NAME, _RC)
+
+      call MAPL_FieldGet(field, standard_name=standard_name, long_name=long_name, _RC)
+      @assertEqual(standard_name, EXPECTED_STANDARD_NAME)
+      @assertEqual(long_name, EXPECTED_LONG_NAME)
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+      call ESMF_GeomDestroy(geom, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_get_standard_and_long_name
+
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_field_create_vert_only(this)
        class(ESMF_TestMethod), intent(inout) :: this

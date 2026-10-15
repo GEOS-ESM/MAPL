@@ -2,6 +2,7 @@
 
 module MockAspect_mod
    use mapl_AspectId_mod
+   use mapl_AspectStatus_mod, only: ASPECT_STATUS_SPECIFIED
    use mapl_VariableSpec_mod
    use mapl_ActualConnectionPt_mod
    use mapl_AspectId_mod
@@ -42,6 +43,7 @@ module MockAspect_mod
       procedure :: supports_conversion_general => supports_conversion_general_class
       procedure :: supports_conversion_specific => supports_conversion_specific_class
       procedure :: get_aspect_order => get_aspect_order_class
+      procedure :: get_mandatory_aspect_ids
       procedure :: create => create_class
       procedure :: activate => activate_class
       procedure :: allocate => allocate_class
@@ -123,9 +125,11 @@ contains
       aspects => mock_spec%get_aspects()
 
       mock_class_aspect = MockClassAspect(typekind, units_)
+      call mock_class_aspect%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
       call aspects%insert(CLASS_ASPECT_ID, mock_class_aspect)
 
       mock_aspect = MockAspect(value, mirror_, time_dependent_, supports_conversion_)
+      if (.not. mirror_) call mock_aspect%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
       call aspects%insert(MOCK_ASPECT_ID, mock_aspect)
 
       call mock_spec%create()
@@ -152,8 +156,10 @@ contains
       logical, intent(in) :: time_dependent
       logical, intent(in) :: supports_conversion
 
-      call aspect%set_mirror(mirror)
-      call aspect%set_time_dependent(time_dependent)
+       call aspect%set_mirror(mirror)
+       call aspect%set_time_dependent(time_dependent)
+
+       if (.not. mirror) call aspect%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
 
       aspect%value = value
       aspect%supports_conversion_ = supports_conversion
@@ -344,6 +350,14 @@ contains
       
       _RETURN(_SUCCESS)
    end function get_aspect_order_class
+
+   function get_mandatory_aspect_ids(this) result(aspect_ids)
+      type(AspectId), allocatable :: aspect_ids(:)
+      class(MockClassAspect), intent(in) :: this
+
+      aspect_ids = [CLASS_ASPECT_ID, TYPEKIND_ASPECT_ID, UNITS_ASPECT_ID, MOCK_ASPECT_ID]
+      
+   end function get_mandatory_aspect_ids
 
    subroutine create_class(this, other_aspects, rc)
       class(MockClassAspect), intent(inout) :: this

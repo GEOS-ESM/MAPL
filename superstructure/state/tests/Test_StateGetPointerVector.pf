@@ -1,0 +1,286 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_StateGetPointerVector
+
+   use mapl_StateGetPointer_mod, only: StateGetPointer
+   use mapl_enums_api, only: MAPL_FIELDBUNDLETYPE_VECTOR, MAPL_FIELDBUNDLETYPE_BASIC
+   use mapl_field_bundle_api, only: MAPL_FieldBundleCreate
+   use esmf
+   use funit
+   use ESMF_TestMethod_mod
+
+   implicit none(type, external)
+
+   integer, parameter :: IM = 4
+
+contains
+
+   ! ------------------------------------------------------------------
+   ! 3D vector cases
+   ! ------------------------------------------------------------------
+
+   ! A connected (2-field) vector fieldbundle: pointers should be
+   ! associated, isPresent should be true, and data should round-trip.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_3d_vector_connected(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: fu, fv
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_State) :: state
+      real(kind=ESMF_KIND_R4), pointer :: u(:,:,:), v(:,:,:)
+      logical :: is_present
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      fu = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='U', ungriddedLBound=[1], ungriddedUBound=[2], _RC)
+      fv = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='V', ungriddedLBound=[1], ungriddedUBound=[2], _RC)
+
+      bundle = MAPL_FieldBundleCreate(name='UV', fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTOR, _RC)
+      call ESMF_FieldBundleAdd(bundle, [fu, fv], _RC)
+
+      state = ESMF_StateCreate(_RC)
+      call ESMF_StateAdd(state, fieldbundleList=[bundle], _RC)
+
+      call StateGetPointer(state, 'UV', farrayPtr_1=u, farrayPtr_2=v, isPresent=is_present, _RC)
+
+      @assert_that(is_present, is(true()))
+      @assert_that(associated(u), is(true()))
+      @assert_that(associated(v), is(true()))
+
+      u = 3.0
+      v = 4.0
+      @assertEqual(3.0, u(1,1,1))
+      @assertEqual(4.0, v(1,1,1))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_StateDestroy(state, _RC)
+      call ESMF_FieldDestroy(fu, _RC)
+      call ESMF_FieldDestroy(fv, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_3d_vector_connected
+
+   ! An unconnected (0-field) vector fieldbundle: pointers should
+   ! remain unassociated and isPresent should be false.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_3d_vector_not_connected(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_State) :: state
+      real(kind=ESMF_KIND_R4), pointer :: u(:,:,:), v(:,:,:)
+      logical :: is_present
+      integer :: status
+
+      bundle = MAPL_FieldBundleCreate(name='UV', fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTOR, _RC)
+
+      state = ESMF_StateCreate(_RC)
+      call ESMF_StateAdd(state, fieldbundleList=[bundle], _RC)
+
+      call StateGetPointer(state, 'UV', farrayPtr_1=u, farrayPtr_2=v, isPresent=is_present, _RC)
+
+      @assert_that(is_present, is(false()))
+      @assert_that(associated(u), is(false()))
+      @assert_that(associated(v), is(false()))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_3d_vector_not_connected
+
+   ! A basic (non-vector) fieldbundle should trigger an assertion failure.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_3d_wrong_bundle_type(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: fu, fv
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_State) :: state
+      real(kind=ESMF_KIND_R4), pointer :: u(:,:,:), v(:,:,:)
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      fu = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='U', ungriddedLBound=[1], ungriddedUBound=[2], _RC)
+      fv = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='V', ungriddedLBound=[1], ungriddedUBound=[2], _RC)
+
+      bundle = MAPL_FieldBundleCreate(name='UV', fieldBundleType=MAPL_FIELDBUNDLETYPE_BASIC, _RC)
+      call ESMF_FieldBundleAdd(bundle, [fu, fv], _RC)
+
+      state = ESMF_StateCreate(_RC)
+      call ESMF_StateAdd(state, fieldbundleList=[bundle], _RC)
+
+      call StateGetPointer(state, 'UV', farrayPtr_1=u, farrayPtr_2=v, rc=status)
+      @assertExceptionRaised('expected vector fieldBundleType for shortname: <UV>')
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_StateDestroy(state, _RC)
+      call ESMF_FieldDestroy(fu, _RC)
+      call ESMF_FieldDestroy(fv, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_3d_wrong_bundle_type
+
+   ! A plain field (not a fieldbundle) under itemName should trigger
+   ! an assertion failure.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_3d_wrong_item_type(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: fscalar
+      type(ESMF_State) :: state
+      real(kind=ESMF_KIND_R4), pointer :: u(:,:,:), v(:,:,:)
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      fscalar = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='UV', _RC)
+      state = ESMF_StateCreate(fieldList=[fscalar], _RC)
+
+      call StateGetPointer(state, 'UV', farrayPtr_1=u, farrayPtr_2=v, rc=status)
+      @assertExceptionRaised('expected vector (fieldBundle) for shortname: <UV>')
+
+      call ESMF_StateDestroy(state, _RC)
+      call ESMF_FieldDestroy(fscalar, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_3d_wrong_item_type
+
+   ! ------------------------------------------------------------------
+   ! 2D vector cases
+   ! ------------------------------------------------------------------
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_2d_vector_connected(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: fu, fv
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_State) :: state
+      real(kind=ESMF_KIND_R4), pointer :: u(:,:), v(:,:)
+      logical :: is_present
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      fu = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='U', _RC)
+      fv = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='V', _RC)
+
+      bundle = MAPL_FieldBundleCreate(name='UV', fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTOR, _RC)
+      call ESMF_FieldBundleAdd(bundle, [fu, fv], _RC)
+
+      state = ESMF_StateCreate(_RC)
+      call ESMF_StateAdd(state, fieldbundleList=[bundle], _RC)
+
+      call StateGetPointer(state, 'UV', farrayPtr_1=u, farrayPtr_2=v, isPresent=is_present, _RC)
+
+      @assert_that(is_present, is(true()))
+      @assert_that(associated(u), is(true()))
+      @assert_that(associated(v), is(true()))
+
+      u = 1.0
+      v = 2.0
+      @assertEqual(1.0, u(1,1))
+      @assertEqual(2.0, v(1,1))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_StateDestroy(state, _RC)
+      call ESMF_FieldDestroy(fu, _RC)
+      call ESMF_FieldDestroy(fv, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_2d_vector_connected
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_2d_vector_not_connected(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_State) :: state
+      real(kind=ESMF_KIND_R4), pointer :: u(:,:), v(:,:)
+      logical :: is_present
+      integer :: status
+
+      bundle = MAPL_FieldBundleCreate(name='UV', fieldBundleType=MAPL_FIELDBUNDLETYPE_VECTOR, _RC)
+
+      state = ESMF_StateCreate(_RC)
+      call ESMF_StateAdd(state, fieldbundleList=[bundle], _RC)
+
+      call StateGetPointer(state, 'UV', farrayPtr_1=u, farrayPtr_2=v, isPresent=is_present, _RC)
+
+      @assert_that(is_present, is(false()))
+      @assert_that(associated(u), is(false()))
+      @assert_that(associated(v), is(false()))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_StateDestroy(state, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_2d_vector_not_connected
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_2d_wrong_bundle_type(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: fu, fv
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_State) :: state
+      real(kind=ESMF_KIND_R4), pointer :: u(:,:), v(:,:)
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      fu = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='U', _RC)
+      fv = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='V', _RC)
+
+      bundle = MAPL_FieldBundleCreate(name='UV', fieldBundleType=MAPL_FIELDBUNDLETYPE_BASIC, _RC)
+      call ESMF_FieldBundleAdd(bundle, [fu, fv], _RC)
+
+      state = ESMF_StateCreate(_RC)
+      call ESMF_StateAdd(state, fieldbundleList=[bundle], _RC)
+
+      call StateGetPointer(state, 'UV', farrayPtr_1=u, farrayPtr_2=v, rc=status)
+      @assertExceptionRaised('expected vector fieldBundleType for shortname: <UV>')
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_StateDestroy(state, _RC)
+      call ESMF_FieldDestroy(fu, _RC)
+      call ESMF_FieldDestroy(fv, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_2d_wrong_bundle_type
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_2d_wrong_item_type(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: fscalar
+      type(ESMF_State) :: state
+      real(kind=ESMF_KIND_R4), pointer :: u(:,:), v(:,:)
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[IM, IM], _RC)
+      fscalar = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='UV', _RC)
+      state = ESMF_StateCreate(fieldList=[fscalar], _RC)
+
+      call StateGetPointer(state, 'UV', farrayPtr_1=u, farrayPtr_2=v, rc=status)
+      @assertExceptionRaised('expected vector (fieldBundle) for shortname: <UV>')
+
+      call ESMF_StateDestroy(state, _RC)
+      call ESMF_FieldDestroy(fscalar, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_2d_wrong_item_type
+
+end module Test_StateGetPointerVector

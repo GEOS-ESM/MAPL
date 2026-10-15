@@ -1,5 +1,6 @@
 target_sources(MAPL.generic PRIVATE
   AspectId.F90
+  AspectStatus.F90
   StateItemAspect.F90
   ClassAspect.F90
 
@@ -22,6 +23,7 @@ target_sources(MAPL.generic PRIVATE
   VerticalGridAspect.F90
   UngriddedDimsAspect.F90
   UnitsAspect.F90
+  StandardNameAspect.F90
   QuantityTypeAspect.F90
   ConservationAspect.F90
   NormalizationAspect.F90

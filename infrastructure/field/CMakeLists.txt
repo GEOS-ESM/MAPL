@@ -17,6 +17,7 @@ set (srcs
     FieldGet.F90
     FieldSet.F90
     FieldInfo.F90
+    FieldNamedAlias.F90
     RestartModes.F90
     API.F90
 )
