@@ -132,8 +132,11 @@ contains
          if (src%is_unchecked()) then
             matches = .true.
             lgr => logging%get_logger('mapl.generic')
-            call lgr%warning('standard_name convention: Import declares standard_name "' // &
-                 dst%standard_name // '" but the connected Export declares none.')
+            fd_config => get_field_dictionary_config()
+            if (.not. fd_config%suppress_standard_name_warnings_flag()) then
+               call lgr%warning('standard_name convention: Import declares standard_name "' // &
+                    dst%standard_name // '" but the connected Export declares none.')
+            end if
             return
          end if
 
@@ -153,9 +156,11 @@ contains
                  dst%standard_name // '". These must agree.')
          else
             matches = .true.
-            call lgr%warning('standard_name convention violation (permissive mode): Export declares ' // &
-                 'standard_name "' // src%standard_name // '" but connected Import declares "' // &
-                 dst%standard_name // '". Connecting anyway; the Export value wins.')
+            if (.not. fd_config%suppress_standard_name_warnings_flag()) then
+               call lgr%warning('standard_name convention violation (permissive mode): Export declares ' // &
+                    'standard_name "' // src%standard_name // '" but connected Import declares "' // &
+                    dst%standard_name // '". Connecting anyway; the Export value wins.')
+            end if
          end if
 
       class default

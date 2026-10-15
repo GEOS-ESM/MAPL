@@ -58,6 +58,18 @@ runs:
         cmake --build build --parallel 4
         cmake --install build
 
+    - name: Verify No Static Libraries Installed
+      shell: bash
+      run: |
+        echo "Checking for unexpected static libraries in install/..."
+        static_libs=$(find install -type f -name "*.a")
+        if [[ -n "$static_libs" ]]; then
+          echo "::error::Found static libraries installed in MAPL standalone build:"
+          echo "$static_libs"
+          exit 1
+        fi
+        echo "Check passed: all installed libraries are shared."
+
     - name: Run MAPL Tests
       if: inputs.skip-tests != 'true'
       shell: bash
