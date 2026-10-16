@@ -126,6 +126,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed logging of resource values that contain `%` (e.g. file-name templates
+  such as `%y4%m2%d2`): the HConfig value loggers passed the message to
+  pFlogger as its format string, which then failed with "not enough position
+  arguments". The message is now passed as an argument (`'%a', message`).
+
 - The MAPL3G Component Testing Framework tests that use `dryrun.rc`
   (which run `extdata_dryrun_check.py`) now use `Python3_EXECUTABLE`
   instead of a bare `python3`, and are skipped with a CMake warning when
