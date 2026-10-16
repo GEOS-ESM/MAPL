@@ -165,12 +165,12 @@ module mapl_GraphBuilder_mod
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use mapl_MatchConnection_mod, only: MatchConnection
    use mapl_MultiState_mod, only: MultiState
-   use mapl_NodeId_mod, only: NodeId
+   use mapl_NodeId_mod, only: NodeId, operator(==)
    use mapl_NodeIdLabelMap_mod, only: NodeIdLabelMap
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_OuterMetaComponent_mod, only: OuterMetaComponent
    use mapl_PortId_mod, only: PortId
-   use mapl_StateItem_mod, only: MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_STATE, MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_STATE, MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_WILDCARD
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_VariableSpec_mod, only: VariableSpec
@@ -204,6 +204,14 @@ module mapl_GraphBuilder_mod
    public :: resolve_local_node_id
    public :: is_self
    public :: itemtype_name
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8:
+   ! called from GraphBuilder_ConnectionResolution_smod.F90, a separate
+   ! compilation unit - gfortran (unlike NAG) requires an explicit
+   ! `public` on a plain module procedure for cross-TU linkage even
+   ! when the only real caller is a submodule (host association alone
+   ! was not sufficient to satisfy the gfortran linker, found via a
+   ! real build failure: "Undefined symbols ... is_ordinary_resolvable_import").
+   public :: is_ordinary_resolvable_import
    public :: try_materialize_field_extension
    ! openspec/changes/phase-11b-chain-intermediate-materialization: new
    ! per-link materialization helper replacing each of the four
@@ -242,6 +250,15 @@ module mapl_GraphBuilder_mod
    public :: enumerate_qualified_exports
    public :: QualifiedExportIndexEntry
 
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1: same
+   ! gfortran cross-submodule-linkage reason as component_for/is_self
+   ! above - called from GraphBuilder_LifecycleHooks_smod.F90, defined
+   ! in GraphBuilder_ConnectionResolution_smod.F90.
+   public :: UnresolvedImportEntry
+   public :: graphbuilder_unresolved_import_node_ids
+   public :: graphbuilder_run_propagate_hook
+   public :: graphbuilder_run_export_propagate_hook
+
    ! Stateless-per-call by design (design.md Decisions): GraphBuilder
    ! carries no state of its own - every bound procedure still takes the
    ! OuterMetaComponent it operates on as an explicit argument, exactly
@@ -257,6 +274,25 @@ module mapl_GraphBuilder_mod
       procedure, nopass :: freeze => graphbuilder_freeze
       procedure, nopass :: build_label_map => graphbuilder_build_label_map
       procedure, nopass :: run_advertise_hook => graphbuilder_run_advertise_hook
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1/
+      ! 6.2, design.md D3: for each direct child, mirrors any of that
+      ! child's own still-unresolved imports into THIS component's own
+      ! import-port table - the corrected replacement for 3b2 (no
+      ! search, no proxy, no composite wrapper; see design.md D3 for
+      ! the full reasoning and the two counts on which an earlier,
+      ! superseded "search the subtree" draft was wrong). Called from
+      ! initialize_advertise.F90, immediately after recurse() returns
+      ! and before this component's own run_activate_hook.
+      procedure, nopass :: run_propagate_hook => graphbuilder_run_propagate_hook
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8:
+      ! export propagation, symmetric to run_propagate_hook above but
+      ! for exports instead of imports - unconditional (no "already
+      ! resolved" gate, unlike import propagation: a direct child's own
+      ! export is always propagated up, matching legacy's own
+      ! propagate_exports_subregistry, which has no analogous gate
+      ! either). Called from initialize_advertise.F90, at the same
+      ! point legacy's own registry%propagate_exports call sits.
+      procedure, nopass :: run_export_propagate_hook => graphbuilder_run_export_propagate_hook
       procedure, nopass :: run_activate_hook => graphbuilder_run_activate_hook
       procedure, nopass :: run_connect_hook => graphbuilder_run_connect_hook
       ! openspec/changes/horizontal-geometry-graph-state-item (Phase 4e):
@@ -362,6 +398,18 @@ module mapl_GraphBuilder_mod
       type(NodeId) :: node_id
    end type QualifiedExportIndexEntry
 
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1,
+   ! design.md D3: one entry in
+   ! graphbuilder_unresolved_import_node_ids's own structural scan
+   ! result - a component's own still-unresolved import, identified by
+   ! short_name (for GraphResolutionEntry-shaped reporting elsewhere)
+   ! and its own already-real node_id (what graphbuilder_run_propagate_hook
+   ! actually mirrors - the same NodeId, no copy).
+   type :: UnresolvedImportEntry
+      character(:), allocatable :: short_name
+      type(NodeId) :: node_id
+   end type UnresolvedImportEntry
+
    ! Argument names are short, framework-declared identifiers - matches
    ! mapl_MethodInvocation_mod's own MAX_ARGUMENT_NAME_LEN precedent.
    integer, parameter :: MAX_CALLBACK_ARGUMENT_NAME_LEN = 128
@@ -392,6 +440,90 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine graphbuilder_check_unsatisfied_imports
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1,
+   ! design.md D3 (corrected twice during implementation - see both
+   ! correction notes in tasks.md 6.1 and this function's own body
+   ! comment, GraphBuilder_ConnectionResolution_smod.F90, for the full
+   ! history): "resolved" cannot be read off dependency-edge wiring
+   ! (no edge exists anywhere, for any component, at the ADVERTISE-time
+   ! point this runs - edges are only added later, at ACCEPT_TRANSFER,
+   ! by graphbuilder_resolve_connections) nor off
+   ! graphbuilder_check_unsatisfied_imports(C) alone (that procedure
+   ! only ever inspects connections C itself declares - a direct
+   ! parent's OWN ordinary connection naming C directly, the single
+   ! most common connection shape in the whole codebase, is invisible
+   ! to it, which would silently mirror an already-resolved import and
+   ! risk a real REQ-DEP-008a two-producer violation once some
+   ! ancestor's own connection also names `this_parent` directly for
+   ! the same short name). An import in `child_meta`'s own import-port
+   ! table counts as unresolved iff NEITHER (a) a MatchConnection
+   ! declared on `child_meta` itself, whose destination resolves (via
+   ! resolve_qualified_component) back to `child_meta` itself, NOR (b)
+   ! a MatchConnection declared on `this_parent` itself, whose
+   ! destination resolves directly to `child_meta` - finds a matching
+   ! source export for it (the same per-item check
+   ! check_match_connection_unsatisfied's own check_one already makes,
+   ! reused here as a POSITIVE match collector instead of a negative
+   ! one). `child_meta` MUST be one of `this_parent`'s own direct
+   ! children. Read-only; creates no graph structure.
+   module function graphbuilder_unresolved_import_node_ids(this_parent, child_meta, rc) result(unresolved)
+      class(OuterMetaComponent), target, intent(inout) :: this_parent
+      class(OuterMetaComponent), target, intent(inout) :: child_meta
+      integer, optional, intent(out) :: rc
+      type(UnresolvedImportEntry), allocatable :: unresolved(:)
+
+   end function graphbuilder_unresolved_import_node_ids
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1/6.2,
+   ! design.md D3: for each direct child C of `this` (unconditionally -
+   ! no connection naming C is required), mirrors each of C's own
+   ! still-unresolved imports (graphbuilder_unresolved_import_node_ids,
+   ! above, invoked on C's behalf - the same "parent reaches into
+   ! child" framework-internal carve-out get_child_component_graph/
+   ! get_child_component_spec already document) into `this`'s own
+   ! import-port table, under C's own already-real NodeId - no new
+   ! node, no proxy, no composite wrapper. Called from
+   ! initialize_advertise.F90, immediately after run_activate_hook (not
+   ! before - legacy's own propagate_unsatisfied_imports call site sits
+   ! after process_connections/activate() for the same reason: a
+   ! child's own is_active()-equivalent state must already reflect that
+   ! child's own just-completed activate-time resolution before this
+   ! component's own mirroring step reads it, or every import resolved
+   ! at the child's own level would be needlessly mirrored upward too).
+    module subroutine graphbuilder_run_propagate_hook(this)
+       class(OuterMetaComponent), target, intent(inout) :: this
+
+    end subroutine graphbuilder_run_propagate_hook
+    ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8
+    ! (discovered as a required completion of 6.1/6.2 while chasing a
+    ! real-lifecycle regression in history_1/history_wildcard/
+    ! statistics_real - see this subroutine's own body comment,
+    ! GraphBuilder_ConnectionResolution_smod.F90, for the full
+    ! postmortem): for each direct child C of `this` (unconditionally),
+    ! propagates each of C's own export-port entries into `this`'s own
+    ! export-port table, under C's own already-real NodeId - no new
+    ! node, exactly like run_propagate_hook's import-side mirroring.
+    ! Unlike import propagation, the propagated entry's own effective
+    ! NAME is additionally qualified with C's own name
+    ! (C_name/short_name) - the exact pattern legacy's own
+    ! propagate_exports_virtual_pt already establishes
+    ! (StateRegistry_Propagation_smod.F90: "comp_name == ''" -> qualify
+    ! with the immediate child's own name; already-qualified -> pass
+    ! through UNCHANGED at every further ancestor level, per the user's
+    ! own confirmation: "Export E from component A becomes export A/E
+    ! in the parent component P, but stays A/E in the grandparent
+    ! component"). This qualified name is NEVER written onto the
+    ! underlying StateItemNode's own short_name (that identity field
+    ! belongs to the component that actually advertised it, and is
+    ! never rewritten) - it is recorded only in `this`'s own
+    ! export-port table (ComponentGraph%add_export_port's own
+    ! qualified_name argument, GraphPortRegistry's own header comment),
+    ! which is exactly what find_export_node (ordinary resolution's own
+    ! read path) now matches against instead of the node's own real
+    ! short_name directly.
+    module subroutine graphbuilder_run_export_propagate_hook(this)
+       class(OuterMetaComponent), target, intent(inout) :: this
+
+    end subroutine graphbuilder_run_export_propagate_hook
    module subroutine for_each_matching_import(dst_graph, dst_pt, op, rc)
       type(ComponentGraph), target, intent(in) :: dst_graph
       type(ConnectionPt), intent(in) :: dst_pt
@@ -1320,18 +1452,61 @@ contains
       type(ComponentGraph), pointer :: owner_graph
       type(NodeId), pointer :: existing
       type(OuterMetaComponent), pointer :: owner_meta
+      character(:), allocatable :: assertion_message
 
       item_id_key = item_key(state_intent, short_name)
 
       owner_meta => resolve_qualified_component(this, comp_name, _RC)
       owner_graph => owner_meta%get_component_graph()
       existing => owner_graph%get_resource_index(item_id_key)
-      _ASSERT(associated(existing), 'GraphBuilder: connection references an item "' // comp_name //
-           '" never advertised: ' // short_name)
+      assertion_message = 'GraphBuilder: connection references an item "' // comp_name // &
+           '" never advertised: ' // short_name
+      _ASSERT(associated(existing), assertion_message)
       node_id = existing
 
       _RETURN(_SUCCESS)
    end function resolve_local_node_id
+
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8
+   ! (regression fix, found while verifying export propagation against
+   ! real-lifecycle fixtures history_wildcard/statistics_real): an
+   ! import advertised with a non-ordinary declared item type -
+   ! MAPL_STATEITEM_WILDCARD (resolved by legacy's own regex-matching
+   ! ExtensionFamily machinery, StateRegistry_Propagation_smod.F90),
+   ! MAPL_STATEITEM_SERVICE, or MAPL_STATEITEM_EXPRESSION - has no
+   ! graph-native resolution path at all (GraphBuilder.F90's own module
+   ! header, "Explicitly NOT in scope here: ... wildcard/callback
+   ! resolution"). graphbuilder_unresolved_import_node_ids (import
+   ! propagation's own source scan) must exclude such an import BEFORE
+   ! considering it unresolved-and-propagatable - propagating it
+   ! upward would expose it to an ordinary ancestor connection
+   ! (e.g. all_unsatisfied) that can never resolve it either, since the
+   ! item's own real resolution mechanism lives entirely in
+   ! StateRegistry, never in ComponentGraph's import-port table at
+   ! all. Before this change's own import propagation existed, such an
+   ! import simply never reached any ancestor's own import-port table
+   ! (no mechanism moved it there), so this exclusion is restoring a
+   ! pre-existing invisibility, not introducing a new one.
+   !
+   ! MAPL_STATEITEM_VECTOR/MAPL_STATEITEM_BRACKET are deliberately NOT
+   ! excluded here: a composite's own real resolution (each flattened
+   ! member resolved individually by advertise_one/materialize_composite's
+   ! own member nodes) IS ordinary graph-native resolution - task 6.8
+   ! does not need to special-case either.
+   logical function is_ordinary_resolvable_import(node) result(is_ordinary)
+      class(StateItemNode), intent(in) :: node
+
+      type(GraphStateItem) :: payload
+      type(ESMF_StateItem_Flag) :: declared_type
+
+      payload = node%get_payload()
+      declared_type = payload%get_declared_item_type()
+
+      is_ordinary = .not. ( &
+           declared_type == MAPL_STATEITEM_WILDCARD .or. &
+           declared_type == MAPL_STATEITEM_SERVICE .or. &
+           declared_type == MAPL_STATEITEM_EXPRESSION)
+   end function is_ordinary_resolvable_import
 
    ! REQ-CB-016: expands the connection's own declared source pattern
    ! (src_pt%v_pt) against the flattened qualified-export namespace

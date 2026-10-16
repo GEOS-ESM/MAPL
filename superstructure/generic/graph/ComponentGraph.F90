@@ -85,6 +85,7 @@ module mapl_ComponentGraph_mod
    use mapl_NodeIdSet_mod
    use mapl_DependencyNetworkIdSet_mod, only: DependencyNetworkIdSet, DependencyNetworkIdSetIterator, operator(/=)
    use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap
+   use mapl_PortIdStringMap_mod, only: PortIdStringMap
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_PortBindingTable_mod, only: PortBindingTable
    use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag, operator(==)
@@ -101,10 +102,25 @@ module mapl_ComponentGraph_mod
    ! Private aggregation of the three PortId -> NodeId lookup tables
    ! (REQ-CG-001: public import ports, public export ports, child-port
    ! bindings) - module-internal, not part of the public API.
+   !
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8
+   ! (export propagation, symmetric to task 6.1's import propagation -
+   ! see graph_add_export_port's own header comment for the full
+   ! rationale): export_port_names is a SPARSE side-table, PortId ->
+   ! an overriding qualified name, populated ONLY for an export-port
+   ! entry created by graphbuilder_run_export_propagate_hook, never for
+   ! one created by direct advertisement (advertise_one). A
+   ! directly-advertised export's own matching name is always its real
+   ! StateItemNode's own short_name (unqualified) - that identity field
+   ! is never qualified, never written to, and never read from this
+   ! side-table. find_export_node (GraphBuilder_ConnectionResolution_
+   ! smod.F90) is this side-table's sole reader, via
+   ! graph_get_export_port_name below.
    type :: GraphPortRegistry
       private
       type(PortIdNodeIdMap) :: import_ports
       type(PortIdNodeIdMap) :: export_ports
+      type(PortIdStringMap) :: export_port_names
       type(PortIdNodeIdMap) :: child_bindings
    end type GraphPortRegistry
 
@@ -150,6 +166,13 @@ module mapl_ComponentGraph_mod
       procedure :: add_child_port_binding => graph_add_child_port_binding
       procedure :: get_import_port => graph_get_import_port
       procedure :: get_export_port => graph_get_export_port
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8:
+      ! the qualified-name counterpart of get_export_port - returns the
+      ! export-propagation override when one exists for port_id, else
+      ! the node's own real, unqualified short_name. See
+      ! GraphPortRegistry's own header comment above for the full
+      ! rationale.
+      procedure :: get_export_port_name => graph_get_export_port_name
       procedure :: get_child_port_binding => graph_get_child_port_binding
       ! openspec/changes/graph-builder-stateitem-resolution, tasks.md
       ! 3.1: full-table enumeration counterparts of the single-key
@@ -494,8 +517,17 @@ contains
    ! already bound (no silent replace), node_id owned by this instance
    ! (design.md D2 - owns_node(), not mere presence in the shared
    ! HierarchyGraph).
+   !
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1,
+   ! design.md D3: a MIRRORED import port's own node_id is a different
+   ! component's (a child's) own real NodeId, not this instance's own -
+   ! the exact same "foreign-but-registered-somewhere-in-this-hierarchy"
+   ! admission add_dependency/bind_port already apply (D2 correction,
+   ! Groups 3-5), extended here to this table too, since task 6.1 is the
+   ! first caller that needs a foreign id as an import-port VALUE rather
+   ! than only as a dependency-edge endpoint.
    subroutine graph_add_import_port(this, port_id, node_id, rc)
-      class(ComponentGraph), intent(inout) :: this
+      class(ComponentGraph), target, intent(inout) :: this
       type(PortId), intent(in) :: port_id
       type(NodeId), intent(in) :: node_id
       integer, optional, intent(out) :: rc
@@ -504,26 +536,44 @@ contains
       _ASSERT(.not. this%is_frozen(), 'ComponentGraph: add_import_port called on a frozen graph')
       _ASSERT(port_id%is_valid(), 'ComponentGraph: add_import_port requires a PortId obtained via next_port_id()')
       _ASSERT(this%ports%import_ports%count(port_id) == 0, 'ComponentGraph: add_import_port - PortId is already bound')
-      _ASSERT(this%owns_node(node_id), 'ComponentGraph: add_import_port - NodeId is not owned by this graph')
+      if (.not. this%owns_node(node_id)) then
+         _ASSERT(this%allowed_foreign_node(node_id), 'ComponentGraph: add_import_port - NodeId is not registered anywhere in this hierarchy')
+      end if
 
       call this%ports%import_ports%insert(port_id, node_id)
 
       _RETURN(_SUCCESS)
    end subroutine graph_add_import_port
 
-   subroutine graph_add_export_port(this, port_id, node_id, rc)
-      class(ComponentGraph), intent(inout) :: this
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8:
+   ! optional qualified_name records an export-propagation override
+   ! (see GraphPortRegistry's own header comment) - absent for a
+   ! directly-advertised export (advertise_one's own call site never
+   ! passes it), present for a propagated one
+   ! (graphbuilder_run_export_propagate_hook). Same "owned OR
+   ! allowed_foreign_node" admission task 6.1 already established for
+   ! add_import_port, extended here: a propagated export's own node_id
+   ! is, by construction, a DESCENDANT's own real NodeId (the
+   ! component that actually advertised it), never this instance's own.
+   subroutine graph_add_export_port(this, port_id, node_id, rc, qualified_name)
+      class(ComponentGraph), target, intent(inout) :: this
       type(PortId), intent(in) :: port_id
       type(NodeId), intent(in) :: node_id
       integer, optional, intent(out) :: rc
+      character(*), optional, intent(in) :: qualified_name
 
       _ASSERT(.not. this%is_finalized(), 'ComponentGraph: add_export_port called after finalize')
       _ASSERT(.not. this%is_frozen(), 'ComponentGraph: add_export_port called on a frozen graph')
       _ASSERT(port_id%is_valid(), 'ComponentGraph: add_export_port requires a PortId obtained via next_port_id()')
       _ASSERT(this%ports%export_ports%count(port_id) == 0, 'ComponentGraph: add_export_port - PortId is already bound')
-      _ASSERT(this%owns_node(node_id), 'ComponentGraph: add_export_port - NodeId is not owned by this graph')
+      if (.not. this%owns_node(node_id)) then
+         _ASSERT(this%allowed_foreign_node(node_id), 'ComponentGraph: add_export_port - NodeId is not registered anywhere in this hierarchy')
+      end if
 
       call this%ports%export_ports%insert(port_id, node_id)
+      if (present(qualified_name)) then
+         call this%ports%export_port_names%insert(port_id, qualified_name)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine graph_add_export_port
@@ -564,6 +614,43 @@ contains
       if (this%is_finalized()) return
       node_id => this%ports%export_ports%at(port_id)
    end function graph_get_export_port
+
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8: the
+   ! name an exact-match connection should match this export port
+   ! against. Returns the export-propagation override (export_port_names,
+   ! GraphPortRegistry's own header comment) when one was recorded for
+   ! port_id; otherwise falls back to the underlying node's own real,
+   ! unqualified short_name - the identical name a directly-advertised
+   ! export has always matched against. Returns an unallocated string
+   ! (never an empty one) if port_id is unbound or does not resolve to
+   ! a StateItemNode, mirroring find_export_node's own existing
+   ! "not an export candidate, skipped" treatment of that case.
+   function graph_get_export_port_name(this, port_id) result(name)
+      class(ComponentGraph), target, intent(in) :: this
+      type(PortId), intent(in) :: port_id
+      character(:), allocatable :: name
+
+      character(:), pointer :: override
+      type(NodeId), pointer :: node_id
+      class(GraphNode), pointer :: generic_node
+
+      if (this%is_finalized()) return
+
+      override => this%ports%export_port_names%at(port_id)
+      if (associated(override)) then
+         name = override
+         return
+      end if
+
+      node_id => this%ports%export_ports%at(port_id)
+      if (.not. associated(node_id)) return
+      generic_node => this%get_node(node_id)
+      if (.not. associated(generic_node)) return
+      select type (generic_node)
+      class is (StateItemNode)
+         name = generic_node%get_short_name()
+      end select
+   end function graph_get_export_port_name
 
    function graph_get_child_port_binding(this, port_id) result(node_id)
       class(ComponentGraph), target, intent(in) :: this

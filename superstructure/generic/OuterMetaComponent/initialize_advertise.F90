@@ -80,7 +80,36 @@ contains
       ! make, without creating any graph structure (see
       ! mapl_GraphBuilder_mod module header, "Two-phase timing").
       call gb%run_activate_hook(this)
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.2,
+      ! design.md D3: the graph-native mirroring analog of legacy's own
+      ! registry%propagate_unsatisfied_imports() call immediately
+      ! below - placed at the SAME point in this same file, right after
+      ! run_activate_hook, for the same reason legacy's own call sits
+      ! after process_connections()/activate(): a child's own
+      ! is_active()-equivalent state (here, graphbuilder_check_
+      ! unsatisfied_imports/add_dependency wiring) must already reflect
+      ! that child's own just-completed activate-time resolution before
+      ! this component's own mirroring step reads it - mirroring BEFORE
+      ! activate would needlessly bubble every import resolved at the
+      ! child's own level too. Never propagates failure into this
+      ! routine's own error path (same convention as run_advertise_hook/
+      ! run_activate_hook above - see graphbuilder_run_propagate_hook's
+      ! own report_if_failed calls).
+      call gb%run_propagate_hook(this)
       call this%registry%propagate_unsatisfied_imports(_RC)
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8:
+      ! the graph-native export-propagation analog of legacy's own
+      ! registry%propagate_exports() call immediately below - same
+      ! "parent reaches into child" shape as run_propagate_hook above,
+      ! but unconditional for exports (no "already resolved" gate - see
+      ! graphbuilder_run_export_propagate_hook's own header comment,
+      ! GraphBuilder_ConnectionResolution_smod.F90). No ordering
+      ! dependency on run_activate_hook/run_propagate_hook (export
+      ! propagation only reads child export-port tables, populated
+      ! unconditionally at advertise_one time - no activate()-style
+      ! "was this resolved yet" state to wait for); placed here, next
+      ! to legacy's own analogous call, purely for readability.
+      call gb%run_export_propagate_hook(this)
       call this%registry%propagate_exports(_RC)
 
       user_states = this%user_gc_driver%get_states()

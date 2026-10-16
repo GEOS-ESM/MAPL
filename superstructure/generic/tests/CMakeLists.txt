@@ -178,6 +178,7 @@ set(components_test_srcs
   Test_GraphMode.pf
   Test_OuterMetaComponentDriverResolver.pf
   Test_GraphBuilder_ConvergenceCheck.pf
+  Test_GraphBuilderPropagation.pf
   Test_GridCompDriverPhaseInvoker.pf
 )
 

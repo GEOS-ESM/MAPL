@@ -61,7 +61,7 @@ macro(run_case CASE DESCRIPTION)
         endforeach()
         message(STATUS "${CASE} (${DESCRIPTION}): Running extdata dry run verification ...")
         execute_process(
-            COMMAND python3
+            COMMAND ${Python3_EXECUTABLE}
                 ${MY_BINARY_DIR}/extdata_dryrun_check.py
                 --config          ${dryrun_extdata_config}
                 --run_start       ${dryrun_run_start}
