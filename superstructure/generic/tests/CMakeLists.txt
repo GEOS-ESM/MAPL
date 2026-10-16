@@ -153,6 +153,7 @@ set(components_test_srcs
   Test_ComponentSpecParser.pf
   Test_WriteYaml.pf
   Test_ExtensionFamily.pf
+  Test_Threading.pf
 )
 
 add_pfunit_ctest(
@@ -166,7 +167,7 @@ add_pfunit_ctest(
 )
 set_target_properties(MAPL.generic.components PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/components")
 set_tests_properties(MAPL.generic.components PROPERTIES LABELS "ESSENTIAL")
-add_dependencies(MAPL.generic.components proto_extdata_gc proto_stat_gc)
+add_dependencies(MAPL.generic.components proto_extdata_gc proto_stat_gc threaded_private_state_gc)
 
 # 6. MAPL.generic.core - Core functionality tests
 set(core_test_srcs

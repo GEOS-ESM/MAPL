@@ -238,6 +238,7 @@ def get_options(args):
     options[SPEC_ALIASES] = {
         'ungrid': UNGRIDDED_DIMS,
         'ungridded': UNGRIDDED_DIMS,
+        'ungridded_dims': UNGRIDDED_DIMS,
         'cond': CONDITION,
         'long name': STANDARD_NAME,
         'long_name': STANDARD_NAME,

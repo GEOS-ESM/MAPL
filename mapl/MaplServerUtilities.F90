@@ -3,6 +3,7 @@
 module mapl_MaplServerUtilities_mod
 
    use mapl_ErrorHandling_mod
+   use mapl_OwningGridComp_mod, only: MAPL_InternalStateGet
    use esmf
    use mpi
 

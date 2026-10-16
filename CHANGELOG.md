@@ -267,6 +267,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `MAPL.Apps.tests.acg3` in `apps/tests/acg3/CMakeLists.txt`, and replaced
   the stale `MAPL.shared` dependency with `MAPL.utils` and `MAPL.enums`.
 
+### Added
+
+- Added  OpenMP threading support for generic gridded components. A component
+  can now request that its user component be replicated into a set of "mini"
+  components - each with its own sub-geometry, sub-states and sub-gridcomp -
+  that are run concurrently on OpenMP threads within a single PET. Threading is
+  configured per component through the `mapl: misc:` section of its HConfig
+  (`use_threads: true` and an optional `num_threads: <n>`; `num_threads`
+  defaults to the number of threads available to the process), or
+  programmatically via `MAPL_GridCompSet(gridcomp, use_threads=, num_threads=)`.
+  While threading is active, `MAPL_GridCompGet(gridcomp, geom=)` and
+  `MAPL_GridCompGetInternalState` return the thread-local geometry and internal
+  state, so user code that already uses the MAPL accessors works unchanged.
+  Children of a threaded component are decomposed as well and run their own
+  thread-local "mini" component; because couplers, timers and loggers are
+  shared across threads and are not thread safe, a component that is run from
+  within a threaded ancestor's parallel region must not have couplers, and this
+  is reported as an error rather than silently racing.
+- Added CI verification step to `.github/actions/ci-build-and-test-mapl/action.yml`
+  that checks for and fails if any static libraries (`*.a`) are installed in
+  standalone MAPL builds.
+- Added ability to output on a set of fixed pressure or height levels in History3G
+
+### Changed
+
+- Update `components.yaml`
+  - ESMA_cmake v4.51.0
+    - Make ESMA_cmake reentrant
+    - Fix issue with quad precision detection test
+    - Fixes for Flang and NVIDIA compilers
+
 ### Removed
 
 - Removed obsolete `BUILD_SHARED_MAPL` CMake option and unused
