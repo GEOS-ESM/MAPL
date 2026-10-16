@@ -118,6 +118,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The module and its file were renamed to match: `mapl_LoadBalance_mod` in
   `mp_utils/MAPL_LoadBalance.F90` is now `mapl_LoadBalancer_mod` in
   `mp_utils/MAPL_LoadBalancer.F90`
+- Enforced minimum supported gfortran versions (14.4, 15.2, 16.1) in `CMakeLists.txt`
+  via a `CMAKE_Fortran_COMPILER_VERSION` check that fails the configure step with
+  `FATAL_ERROR` on older, buggy compiler releases; with this floor in place, the
+  `__GFORTRAN__`-guarded workaround subroutines for direct assignment to
+  derived-type actual results (previously needed due to a gfortran bug) were
+  removed from `GenericGridComp.F90`, `StateRegistry_Extensions_smod.F90`,
+  `GenericCoupler.F90`, and `add_child_by_spec.F90` in favor of plain assignment;
+  also re-enabled the DTIO `write(formatted)` code in `MultiState.F90` and the
+  `Test_WriteYaml.pf` tests, which were previously disabled for gfortran
 - Updated `components.yaml`
   - ESMA_cmake v4.51.0
     - Make ESMA_cmake reentrant

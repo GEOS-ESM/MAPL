@@ -38,27 +38,13 @@ contains
       coupler_gridcomp = ESMF_GridCompCreate(name=name, contextFlag=ESMF_CONTEXT_PARENT_VM, _RC)
       call attach_coupler_meta(coupler_gridcomp, _RC)
       coupler_meta => get_coupler_meta(coupler_gridcomp, _RC)
-#ifndef __GFORTRAN__
       coupler_meta = CouplerMetaComponent(transform, source)
-#else
-      call ridiculous(coupler_meta, CouplerMetaComponent(transform,source))
-#endif
       call ESMF_GridCompSetServices(coupler_gridComp, setServices, _RC)
 
       _RETURN(_SUCCESS)
 
-   contains
-
-#ifdef __GFORTRAN__
-      subroutine ridiculous(a, b)
-         type(CouplerMetaComponent), intent(out) :: a
-         type(CouplerMetaComponent), intent(in) :: b
-         a = b
-      end subroutine ridiculous
-#endif
-
    end function make_coupler
-   
+
    subroutine setServices(gridcomp, rc)
       type(ESMF_GridComp) :: gridcomp
       integer, intent(out) :: rc
@@ -81,7 +67,7 @@ contains
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
-      
+
       integer :: status
       type(CouplerMetaComponent), pointer :: meta
 
@@ -98,7 +84,7 @@ contains
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
-      
+
       integer :: status
       type(CouplerMetaComponent), pointer :: meta
 
@@ -109,14 +95,14 @@ contains
       _RETURN(_SUCCESS)
    end subroutine update
 
-   
+
    recursive subroutine invalidate(gridcomp, importState, exportState, clock, rc)
       type(ESMF_GridComp) :: gridcomp
       type(ESMF_State) :: importState
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
-      
+
       integer :: status
       type(CouplerMetaComponent), pointer :: meta
 
@@ -134,16 +120,16 @@ contains
       type(ESMF_State) :: exportState
       type(ESMF_Clock) :: clock
       integer, intent(out) :: rc
-      
+
       integer :: status
       type(CouplerMetaComponent), pointer :: coupler_meta
-      
+
       coupler_meta => get_coupler_meta(gridcomp)
       call coupler_meta%clock_advance(importState, exportState, clock, _RC)
 
       ! TBD: is this where it belongs?
       call ESMF_ClockAdvance(clock, _RC)
-     
+
       _RETURN(_SUCCESS)
    end subroutine clock_advance
 
