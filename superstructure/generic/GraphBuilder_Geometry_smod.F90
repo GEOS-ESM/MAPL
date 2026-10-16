@@ -145,8 +145,9 @@ contains
       child_meta => this%get_child_outer_meta(provider_name, _RC)
       child_graph => child_meta%get_component_graph()
       existing => child_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
-      _ASSERT(associated(existing), 'GraphBuilder: resolve_geometry_from_child - child "' // provider_name //
-           '" has not advertised its own geometry yet')
+      assertion_message = 'GraphBuilder: resolve_geometry_from_child - child "' // provider_name // &
+           '" has not advertised its own geometry yet'
+      _ASSERT(associated(existing), assertion_message)
       child_own_id = existing
 
       ! Fortran does not permit invoking a type-bound procedure directly

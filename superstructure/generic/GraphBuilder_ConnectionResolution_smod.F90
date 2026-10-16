@@ -29,6 +29,7 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
+   use mapl_PortId_mod, only: PortId
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -220,8 +221,31 @@ contains
              _RETURN(_SUCCESS)
           end if
 
-          import_node_id = resolve_local_node_id(this, dst_pt%component_name, &
-              ESMF_STATEINTENT_IMPORT, dst_node%get_short_name(), _RC)
+          ! openspec/changes/hierarchy-wide-component-graph, tasks.md
+          ! 6.3 (correction, discovered during that task): dst_node is
+          ! already the exact match for_each_matching_import found by
+          ! walking dst_graph's own import-port table - its own real
+          ! NodeId (get_node_id(), BaseGraphNode's own accessor) is
+          ! used directly instead of re-deriving the same id via
+          ! resolve_local_node_id's own resource_index lookup.
+          ! resource_index is populated only for a DIRECTLY-advertised
+          ! item (advertise_one's own add_resource_index call); a
+          ! MIRRORED import (graphbuilder_run_propagate_hook,
+          ! GraphBuilder_ConnectionResolution_smod.F90 - task 6.1) is
+          ! deliberately NOT given a resource_index entry (design.md
+          ! D3's own text only calls add_import_port, never
+          ! add_resource_index), so the old
+          ! resolve_local_node_id(dst_pt%component_name, ...) call
+          ! would hard-fail resolve_one's own "connection references an
+          ! item never advertised" assertion for any mirrored import -
+          ! contradicting the ADDED requirement's own stated scenario
+          ! "An ordinary connection resolves a mirrored import exactly
+          ! as it would an item advertised directly." Using dst_node's
+          ! own id directly is strictly equivalent to the old lookup
+          ! for every directly-advertised import too (both resolve to
+          ! the same NodeId), so this is behavior-preserving, not a new
+          ! resolution path.
+          import_node_id = dst_node%get_node_id()
 
          has_export = find_export_node_id(this, src_pt%component_name, dst_node%get_short_name(), &
               export_node_id, export_node, _RC)
@@ -416,6 +440,466 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine graphbuilder_check_unsatisfied_imports
 
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1,
+   ! design.md D3 (corrected twice during implementation; see tasks.md
+   ! 6.1's own correction note for the full history). "Resolved" cannot
+   ! be read off dependency-edge wiring (no edge exists anywhere, for
+   ! any component, at the ADVERTISE-time point this runs - edges are
+   ! only added later, at ACCEPT_TRANSFER, by
+   ! graphbuilder_resolve_connections) nor off
+   ! graphbuilder_check_unsatisfied_imports(child_meta) alone (that
+   ! procedure only ever inspects connections child_meta ITSELF
+   ! declares; a connection declared on child_meta's own DIRECT PARENT
+   ! naming child_meta directly - the single most common connection
+   ! shape, e.g. an ordinary two-child connect_all - is invisible to
+   ! it, which would wrongly report an already-resolved import as
+   ! unresolved and risk a real two-producer REQ-DEP-008a violation
+   ! once mirrored and later also independently resolved by some
+   ! further ancestor's own connection naming this_parent). An import
+   ! in child_meta's own import-port table counts as unresolved iff
+   ! NEITHER (a) some MatchConnection declared ON child_meta itself,
+   ! whose destination resolves (resolve_qualified_component) back to
+   ! child_meta itself, NOR (b) some MatchConnection declared ON
+   ! this_parent itself, whose destination resolves directly to
+   ! child_meta - finds a matching source export for it (the same
+   ! per-item positive check check_match_connection_unsatisfied's own
+   ! check_one already makes - see connection_resolves_import below,
+   ! shared by both cases). child_meta MUST be one of this_parent's own
+   ! direct children. Read-only; creates no graph structure.
+   module function graphbuilder_unresolved_import_node_ids(this_parent, child_meta, rc) result(unresolved)
+      class(OuterMetaComponent), target, intent(inout) :: this_parent
+      class(OuterMetaComponent), target, intent(inout) :: child_meta
+      integer, optional, intent(out) :: rc
+      type(UnresolvedImportEntry), allocatable :: unresolved(:)
+
+      integer :: status
+      type(ComponentGraph), pointer :: child_graph
+      type(PortIdNodeIdMap), target :: import_ports
+      type(PortIdNodeIdMapIterator) :: port_iter
+      type(NodeId) :: node_id
+      class(GraphNode), pointer :: generic_node
+      logical :: resolved
+      type(UnresolvedImportEntry) :: entry
+      type(UnresolvedImportEntry), allocatable :: grown(:)
+      integer :: n
+
+      allocate(unresolved(0))
+      child_graph => child_meta%get_component_graph()
+      import_ports = child_graph%get_import_ports()
+
+      associate (e => import_ports%ftn_end())
+         port_iter = import_ports%ftn_begin()
+         do while (port_iter /= e)
+            call port_iter%next()
+            node_id = port_iter%second()
+            generic_node => child_graph%get_node(node_id)
+            _ASSERT(associated(generic_node), 'GraphBuilder: unresolved_import_node_ids - import port NodeId not found')
+            select type (generic_node)
+            class is (StateItemNode)
+               if (.not. (generic_node%get_state_intent() == ESMF_STATEINTENT_IMPORT)) cycle
+               ! openspec/changes/hierarchy-wide-component-graph, tasks.md
+               ! 6.8 (regression fix): an import with no graph-native
+               ! resolution path at all (WILDCARD/SERVICE/EXPRESSION -
+               ! see is_ordinary_resolvable_import's own header comment,
+               ! GraphBuilder.F90) is excluded from propagation entirely
+               ! - it is never "unresolved-and-propagatable" in the
+               ! sense this scan means, since no ordinary ancestor
+               ! connection could ever resolve it even once propagated.
+               if (.not. is_ordinary_resolvable_import(generic_node)) cycle
+
+               ! (a) resolved at child_meta's own level or below.
+               resolved = connection_resolves_import(child_meta, child_meta, generic_node, _RC)
+               ! (b) resolved by this_parent's own direct connection
+               ! naming child_meta (the ordinary connect_all shape).
+               if (.not. resolved) then
+                  resolved = connection_resolves_import(this_parent, child_meta, generic_node, _RC)
+               end if
+
+               if (.not. resolved) then
+                  entry%short_name = generic_node%get_short_name()
+                  entry%node_id = node_id
+
+                  ! Same self-referencing array-constructor ICE
+                  ! precedent as collect_qualified_exports/
+                  ! collect_qualified_export_index (growing via an
+                  ! explicit fresh temporary + move_alloc).
+                  n = size(unresolved)
+                  allocate(grown(n + 1))
+                  if (n > 0) grown(1:n) = unresolved
+                  grown(n + 1) = entry
+                  call move_alloc(grown, unresolved)
+               end if
+            class default
+               _FAIL('GraphBuilder: unresolved_import_node_ids - import port NodeId is not a StateItemNode')
+            end select
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end function graphbuilder_unresolved_import_node_ids
+
+   ! Shared by graphbuilder_unresolved_import_node_ids above (both
+   ! case (a) and case (b)): does some MatchConnection declared on
+   ! `owner`, whose destination resolves (resolve_qualified_component)
+   ! to `target_meta` exactly, match `node`'s own short name AND find a
+   ! real source export for it? Same per-item positive check
+   ! check_match_connection_unsatisfied's own check_one already makes
+   ! (callback-interface branch via resolve_callback_import, ordinary
+   ! branch via find_export_node) - reused here as a POSITIVE match
+   ! collector (returns as soon as one resolving connection is found)
+   ! instead of a negative "report every miss" one. Read-only.
+   function connection_resolves_import(owner, target_meta, node, rc) result(resolved)
+      class(OuterMetaComponent), target, intent(inout) :: owner
+      class(OuterMetaComponent), target, intent(in) :: target_meta
+      class(StateItemNode), target, intent(in) :: node
+      integer, optional, intent(out) :: rc
+      logical :: resolved
+
+      integer :: status
+      type(ComponentSpec), pointer :: owner_spec
+      type(ConnectionVectorIterator) :: iter
+      class(Connection), pointer :: c
+      type(ConnectionPt) :: src_pt, dst_pt
+      type(OuterMetaComponent), pointer :: dst_meta, src_meta
+      type(CallbackInterfaceId) :: callback_interface_id
+      type(QualifiedExportEntry), allocatable :: callback_matches(:)
+      logical :: has_export
+
+      resolved = .false.
+      owner_spec => owner%get_component_spec()
+
+      associate (e => owner_spec%connections%ftn_end())
+         iter = owner_spec%connections%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            c => iter%of()
+            select type (c)
+            class is (MatchConnection)
+               src_pt = c%get_source()
+               dst_pt = c%get_destination()
+
+               dst_meta => resolve_qualified_component(owner, dst_pt%component_name, _RC)
+               if (.not. associated(dst_meta, target_meta)) cycle
+               if (.not. dst_pt%v_pt%matches(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, node%get_short_name()))) cycle
+
+               callback_interface_id = node%get_callback_interface_id()
+               if (callback_interface_id%is_valid()) then
+                  callback_matches = resolve_callback_import(owner, src_pt, callback_interface_id, rc=status)
+                  _VERIFY(status)
+                  if (size(callback_matches) > 0) then
+                     resolved = .true.
+                     exit
+                  end if
+                  cycle
+               end if
+
+               src_meta => resolve_qualified_component(owner, src_pt%component_name, _RC)
+               has_export = associated(find_export_node(src_meta, node%get_short_name()))
+               if (has_export) then
+                  resolved = .true.
+                  exit
+               end if
+            class default
+               ! openspec/changes/hierarchy-wide-component-graph, tasks.md
+               ! 6.8 (regression fix, second gap - distinct from the
+               ! item-type exclusion above): a SimpleConnection/
+               ! ReexportConnection declared on `owner`, whose
+               ! destination names `target_meta` directly by its own
+               ! EXACT (non-regex) short name, is StateRegistry's own
+               ! real resolver for this import - never visible to
+               ! graph-native resolution at all (GraphBuilder.F90's own
+               ! module header: "Explicitly NOT in scope here: Simple
+               ! Connection/ReexportConnection"), but genuinely
+               ! resolved nonetheless (legacy's own is_active() gate
+               ! does not discriminate by connection class either -
+               ! SimpleConnection%activate(), StateRegistry/
+               ! SimpleConnection.F90, calls spec%activate() exactly
+               ! like MatchConnection's own analog). Treating "named by
+               ! this connection, exactly" as sufficient here (no
+               ! find_export_node call - this import's own real
+               ! producer is resolved entirely within StateRegistry,
+               ! which this procedure has no business re-verifying)
+               ! prevents propagation from needlessly bubbling an
+               ! import that already has a real, declared resolver one
+               ! level up.
+               dst_pt = c%get_destination()
+               dst_meta => resolve_qualified_component(owner, dst_pt%component_name, _RC)
+               if (.not. associated(dst_meta, target_meta)) cycle
+               if (dst_pt%get_esmf_name() /= node%get_short_name()) cycle
+               resolved = .true.
+               exit
+            end select
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end function connection_resolves_import
+
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1/6.2,
+   ! design.md D3: see this function's own interface-block comment
+   ! (GraphBuilder.F90) for invocation-point reasoning. For each direct
+   ! child C of `this`, obtains C's own still-unresolved imports
+   ! (graphbuilder_unresolved_import_node_ids, above, invoked on C's
+   ! behalf through the framework-internal get_child_component_graph
+   ! carve-out - REQ-GB-002) and mirrors each one into `this`'s own
+   ! import-port table under C's own already-real NodeId. No new node,
+   ! no proxy, no composite wrapper (design.md D3) - the mirrored
+   ! entry's own NodeId is additionally reachable through `this`'s own
+   ! import ports, in addition to C's own, so for_each_matching_import
+   ! (unmodified) finds it exactly as it would any import `this`
+   ! advertised directly.
+   !
+   ! Idempotency (found during real-lifecycle testing, both NAG and
+   ! gfortran - a hang under gfortran, repeat-logged field-dictionary
+   ! warnings growing without bound under both): ESMF's own
+   ! Provide/Accept/Realize transfer negotiation can invoke
+   ! GENERIC_INIT_ADVERTISE (and hence this hook) more than once per
+   ! component within a single Initialize sequence - the same
+   ! "idempotency" concern graphbuilder_resolve_connections' own header
+   ! comment already documents for the connect()-time analog. Unlike
+   ! that procedure (guarded by frozen-graph state, not yet reached at
+   ! ADVERTISE time), this hook has no such state to check - guarded
+   ! instead by skipping any NodeId already present as a VALUE
+   ! somewhere in `this`'s own import-port table (already_mirrored,
+   ! below): a repeat call re-derives the exact same unresolved-entry
+   ! set from C's own (unchanged) graph state, so "already a value
+   ! here" is both necessary and sufficient to detect "already mirrored
+   ! by an earlier call," with no additional bookkeeping needed.
+   module subroutine graphbuilder_run_propagate_hook(this)
+      class(OuterMetaComponent), target, intent(inout) :: this
+
+      integer :: status
+      integer :: i, num_children
+      character(:), allocatable :: child_name
+      type(OuterMetaComponent), pointer :: child_meta
+      type(ComponentGraph), pointer :: this_graph
+      type(UnresolvedImportEntry), allocatable :: unresolved(:)
+      type(PortId) :: port_id
+      integer :: j
+
+      this_graph => this%get_component_graph()
+      num_children = this%get_num_children()
+
+      do i = 1, num_children
+         child_name = this%get_child_name(i, status)
+         call report_if_failed(this, 'run_propagate_hook:get_child_name', status)
+         if (status /= 0) cycle
+
+         child_meta => this%get_child_outer_meta(child_name, status)
+         call report_if_failed(this, 'run_propagate_hook:get_child_outer_meta', status)
+         if (status /= 0) cycle
+
+         unresolved = graphbuilder_unresolved_import_node_ids(this, child_meta, status)
+         call report_if_failed(this, 'run_propagate_hook:unresolved_import_node_ids', status)
+         if (status /= 0) cycle
+
+         do j = 1, size(unresolved)
+            if (already_mirrored(this_graph, unresolved(j)%node_id)) cycle
+
+            port_id = this_graph%next_port_id(status)
+            call report_if_failed(this, 'run_propagate_hook:next_port_id', status)
+            if (status /= 0) cycle
+            call this_graph%add_import_port(port_id, unresolved(j)%node_id, status)
+            call report_if_failed(this, 'run_propagate_hook:add_import_port', status)
+         end do
+      end do
+   end subroutine graphbuilder_run_propagate_hook
+
+   ! Idempotency helper for graphbuilder_run_propagate_hook above: does
+   ! graph's own import-port table already contain target_id as a
+   ! VALUE (not a key - PortId keys are always freshly minted, so a key
+   ! check would never match)? A plain linear scan - this table is
+   ! bounded by one component's own import count, not hierarchy-wide.
+   function already_mirrored(graph, target_id) result(found)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: target_id
+      logical :: found
+
+      type(PortIdNodeIdMap), target :: import_ports
+      type(PortIdNodeIdMapIterator) :: iter
+      type(NodeId) :: candidate
+
+      found = .false.
+      import_ports = graph%get_import_ports()
+      associate (e => import_ports%ftn_end())
+         iter = import_ports%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            candidate = iter%second()
+            if (candidate == target_id) then
+               found = .true.
+               return
+            end if
+         end do
+      end associate
+   end function already_mirrored
+
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8: see
+   ! this subroutine's own interface-block comment (GraphBuilder.F90)
+   ! for the full rationale. For each direct child C of `this`,
+   ! propagates every one of C's own export-port entries into `this`'s
+   ! own export-port table, under C's own already-real NodeId, with an
+   ! effective qualified name computed by qualify_exported_name below.
+   ! Unconditional - unlike import propagation, there is no "already
+   ! resolved" gate (legacy's own propagate_exports_subregistry has
+   ! none either; an export's own usefulness is determined entirely by
+   ! whether some descendant's import ultimately matches it, which is
+   ! not knowable, and not needed, at the point export propagation
+   ! itself runs).
+   module subroutine graphbuilder_run_export_propagate_hook(this)
+      class(OuterMetaComponent), target, intent(inout) :: this
+
+      integer :: status
+      integer :: i, num_children
+      character(:), allocatable :: child_name
+      type(OuterMetaComponent), pointer :: child_meta
+      type(ComponentGraph), pointer :: this_graph
+      type(ComponentGraph), pointer :: child_graph
+      type(PortIdNodeIdMap), target :: child_export_ports
+      type(PortIdNodeIdMapIterator) :: iter
+      type(PortId) :: child_port_id
+      type(NodeId) :: export_node_id
+      character(:), allocatable :: qualified_name
+      type(PortId) :: new_port_id
+
+      this_graph => this%get_component_graph()
+      num_children = this%get_num_children()
+
+      do i = 1, num_children
+         child_name = this%get_child_name(i, status)
+         call report_if_failed(this, 'run_export_propagate_hook:get_child_name', status)
+         if (status /= 0) cycle
+
+         child_meta => this%get_child_outer_meta(child_name, status)
+         call report_if_failed(this, 'run_export_propagate_hook:get_child_outer_meta', status)
+         if (status /= 0) cycle
+
+         child_graph => child_meta%get_component_graph()
+         child_export_ports = child_graph%get_export_ports()
+
+         associate (e => child_export_ports%ftn_end())
+            iter = child_export_ports%ftn_begin()
+            do while (iter /= e)
+               call iter%next()
+               child_port_id = iter%first()
+               export_node_id = iter%second()
+
+               qualified_name = qualify_exported_name(child_graph, child_port_id, child_name)
+               if (.not. allocated(qualified_name)) cycle
+
+               if (already_exported(this_graph, export_node_id, qualified_name)) cycle
+
+               new_port_id = this_graph%next_port_id(status)
+               call report_if_failed(this, 'run_export_propagate_hook:next_port_id', status)
+               if (status /= 0) cycle
+               call this_graph%add_export_port(new_port_id, export_node_id, status, &
+                    qualified_name=qualified_name)
+               call report_if_failed(this, 'run_export_propagate_hook:add_export_port', status)
+            end do
+         end associate
+      end do
+   end subroutine graphbuilder_run_export_propagate_hook
+
+   ! Shared helper for graphbuilder_run_export_propagate_hook above:
+   ! computes the qualified name a child's own export-port entry
+   ! (child_port_id, in child_graph) should carry once propagated into
+   ! the PARENT's own export-port table, given the child's own name
+   ! (child_name). Per the user's own confirmation of legacy's exact
+   ! rule (propagate_exports_virtual_pt, StateRegistry_Propagation_
+   ! smod.F90: "comp_name == ''" -> qualify with comp_name=subregistry_name;
+   ! already non-empty -> passed through UNCHANGED, never re-qualified
+   ! at any further ancestor level):
+   !   - if child_graph's own get_export_port_name(child_port_id)
+   !     already carries an override (this entry was ITSELF propagated
+   !     up from a grandchild, at an earlier level) - the override is
+   !     already fully qualified (e.g. "A/E") - returned UNCHANGED, no
+   !     further qualification added.
+   !   - otherwise (child_port_id is the child's OWN direct export,
+   !     with no override yet) - qualified as child_name // '/' //
+   !     the underlying node's own real short_name.
+   function qualify_exported_name(child_graph, child_port_id, child_name) result(qualified_name)
+      type(ComponentGraph), target, intent(in) :: child_graph
+      type(PortId), intent(in) :: child_port_id
+      character(*), intent(in) :: child_name
+      character(:), allocatable :: qualified_name
+
+      character(:), allocatable :: own_name
+
+      own_name = child_graph%get_export_port_name(child_port_id)
+      if (.not. allocated(own_name)) return
+
+      ! own_name already equals the node's own real short_name (no
+      ! override present) iff child_port_id has no recorded override -
+      ! distinguished here not by string content (a short_name could
+      ! coincidentally contain '/') but by re-deriving the SAME
+      ! "override present?" check get_export_port_name itself makes
+      ! internally. Since that check is not separately exposed, the
+      ! equivalent, correct distinction is: an override-carrying name
+      ! was placed there by THIS SAME propagation step at an earlier
+      ! ancestor level, which only ever happens for an entry this
+      ! child's own export-port table received via ITS OWN
+      ! run_export_propagate_hook call (i.e. the child is itself an
+      ! intermediate level with a further descendant) - own_name
+      ! containing '/' is the correct, sufficient signal in that case,
+      ! since a grandchild-propagated name is always
+      ! "descendant_name/short_name" by construction, and MAPL child
+      ! names are themselves plain identifiers (no '/' of their own -
+      ! REQ-HIER, component-name uniqueness/validity), so a directly-
+      ! advertised export's own real short_name containing '/' would
+      ! itself be a pre-existing, unrelated naming oddity, not a false
+      ! positive this logic introduces.
+      if (index(own_name, '/') > 0) then
+         qualified_name = own_name
+      else
+         qualified_name = child_name // '/' // own_name
+      end if
+   end function qualify_exported_name
+
+   ! Idempotency helper for graphbuilder_run_export_propagate_hook
+   ! above, symmetric to already_mirrored: does `graph`'s own
+   ! export-port table already contain an entry whose VALUE is
+   ! target_id AND whose own effective name (get_export_port_name)
+   ! equals target_name? Checking both (not node_id alone, as
+   ! already_mirrored does for imports) is necessary here because a
+   ! single export NodeId can legitimately appear under more than one
+   ! qualified name at different ancestor levels during the SAME
+   ! propagation pass in a diamond-shaped hierarchy - task 6.8 does not
+   ! need to guard against that (unlike task 6.1's own single-name-per-
+   ! import invariant), only against re-adding the IDENTICAL
+   ! (node_id, name) pair on a repeat ADVERTISE call (the same ESMF
+   ! Provide/Accept/Realize re-entrancy concern already_mirrored's own
+   ! header comment documents).
+   function already_exported(graph, target_id, target_name) result(found)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: target_id
+      character(*), intent(in) :: target_name
+      logical :: found
+
+      type(PortIdNodeIdMap), target :: export_ports
+      type(PortIdNodeIdMapIterator) :: iter
+      type(PortId) :: candidate_port_id
+      type(NodeId) :: candidate_id
+      character(:), allocatable :: candidate_name
+
+      found = .false.
+      export_ports = graph%get_export_ports()
+      associate (e => export_ports%ftn_end())
+         iter = export_ports%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            candidate_port_id = iter%first()
+            candidate_id = iter%second()
+            if (.not. (candidate_id == target_id)) cycle
+            candidate_name = graph%get_export_port_name(candidate_port_id)
+            if (.not. allocated(candidate_name)) cycle
+            if (candidate_name == target_name) then
+               found = .true.
+               return
+            end if
+         end do
+      end associate
+   end function already_exported
+
    ! Shared by check_match_connection_unsatisfied() and
    ! resolve_match_connection() below: both used to independently repeat
    ! this same "which of dst_graph's import ports does dst_pt's declared
@@ -559,6 +1043,18 @@ contains
    ! resolve_local_node_id) AND by check_match_connection_unsatisfied's
    ! own check_one (which must NOT create graph structure - this
    ! procedure's own module-header "activate()-time analog" contract).
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8:
+   ! matches against each export port's own effective NAME
+   ! (ComponentGraph%get_export_port_name - the export-propagation
+   ! override when one exists, else the node's own real short_name),
+   ! not the node's own short_name directly - a propagated export's
+   ! own real StateItemNode%short_name stays unqualified (it is a
+   ! different component's own identity, never rewritten), while this
+   ! graph's own export-port TABLE entry for it carries the ancestor-
+   ! qualified name (`child_name/short_name`) ordinary name matching
+   ! must compare against, exactly mirroring legacy's own
+   ! propagate_exports_virtual_pt comp_name-qualification (StateRegistry_
+   ! Propagation_smod.F90).
    function find_export_node(src_meta, short_name) result(export_node)
       class(OuterMetaComponent), target, intent(inout) :: src_meta
       character(*), intent(in) :: short_name
@@ -567,8 +1063,10 @@ contains
       type(ComponentGraph), pointer :: src_graph
       type(PortIdNodeIdMap), target :: export_ports
       type(PortIdNodeIdMapIterator) :: iter
+      type(PortId) :: candidate_port_id
       type(NodeId) :: candidate_id
       class(GraphNode), pointer :: candidate_node
+      character(:), allocatable :: candidate_name
 
       export_node => null()
 
@@ -579,12 +1077,15 @@ contains
          iter = export_ports%ftn_begin()
          do while (iter /= e)
             call iter%next()
+            candidate_port_id = iter%first()
             candidate_id = iter%second()
             candidate_node => src_graph%get_node(candidate_id)
             if (.not. associated(candidate_node)) cycle
             select type (candidate_node)
             class is (StateItemNode)
-               if (candidate_node%get_short_name() == short_name) then
+               candidate_name = src_graph%get_export_port_name(candidate_port_id)
+               if (.not. allocated(candidate_name)) cycle
+               if (candidate_name == short_name) then
                   export_node => candidate_node
                   return
                end if
@@ -597,6 +1098,25 @@ contains
       end associate
    end function find_export_node
 
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8
+   ! (same correction task 6.3 already made for the import side, found
+   ! again here on the export side while fixing history_1's own real
+   ! regression): export_node is already the exact match find_export_node
+   ! found by walking src_meta's own export-port table - its own real
+   ! NodeId (get_node_id(), BaseGraphNode's own accessor) is used
+   ! directly instead of re-deriving the same id via a SEPARATE
+   ! resolve_local_node_id resource-index lookup keyed by `short_name`.
+   ! That old lookup is wrong for a PROPAGATED export (task 6.8): the
+   ! resource index on src_meta (comp_name's own resolved component)
+   ! only ever has an entry under the item's own real, UNQUALIFIED
+   ! short_name (advertise_one's own add_resource_index call) - never
+   ! under the qualified name (`child_name/short_name`)
+   ! find_export_node now matches against (find_export_node's own
+   ! header comment, this same file). Using export_node's own id
+   ! directly is strictly equivalent to the old lookup for every
+   ! directly-advertised export too (both resolve to the same NodeId),
+   ! so this is behavior-preserving for every pre-existing caller, not
+   ! a new resolution path.
    logical module function find_export_node_id(this, comp_name, short_name, export_node_id, export_node, rc) result(found)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: comp_name
@@ -608,12 +1128,6 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: src_meta
 
-      ! openspec/changes/graph-builder-resolution-index: see
-      ! check_match_connection_unsatisfied's own identical replacement
-      ! above - resolve_qualified_component in place of
-      ! component_spec_for's own single-level dispatch. The export's
-      ! real NodeId (resolve_local_node_id below) already reaches
-      ! any descendant level via the same primitive, same change.
       src_meta => resolve_qualified_component(this, comp_name, _RC)
       export_node => find_export_node(src_meta, short_name)
       found = associated(export_node)
@@ -622,7 +1136,7 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      export_node_id = resolve_local_node_id(this, comp_name, ESMF_STATEINTENT_EXPORT, short_name, _RC)
+      export_node_id = export_node%get_node_id()
 
       _RETURN(_SUCCESS)
    end function find_export_node_id

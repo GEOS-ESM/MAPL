@@ -44,6 +44,7 @@ target_sources(MAPL.generic PRIVATE
   containers/NodeId_NodeIdSet_Map.F90
   containers/NodeIdGraphNodeMap.F90
   containers/PortIdNodeIdMap.F90
+  containers/PortIdStringMap.F90
 
   NodeLabel.F90
   containers/NodeIdLabelMap.F90

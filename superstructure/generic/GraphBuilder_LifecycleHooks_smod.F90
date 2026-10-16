@@ -32,6 +32,7 @@ contains
       integer :: i
       type(GraphResolutionEntry), pointer :: entry
       class(Logger), pointer :: lgr
+      character(:), allocatable :: msg
 
       call graphbuilder_check_unsatisfied_imports(this, unresolved_imports=unresolved, rc=status)
       call report_if_failed(this, 'check_unsatisfied_imports', status)
@@ -39,9 +40,20 @@ contains
       lgr => this%get_logger()
       do i = 1, unresolved%size()
          entry => unresolved%of(i)
-         call lgr%warning( &
-              'GraphBuilder: no ordinary-match export found for unresolved import %a:%a', &
-              entry%component_name, entry%short_name)
+         ! openspec/changes/hierarchy-wide-component-graph, found while
+         ! chasing a real (nondeterministic hang/corruption) gfortran
+         ! failure in Group 6's own real-lifecycle testing: pflogger's
+         ! own class(*) variadic %a substitution is unreliable under
+         ! gfortran for allocatable-character actual arguments (a known
+         ! gfortran/pflogger issue, not specific to this call site) -
+         ! fixed by concatenating into one plain character string
+         ! first and passing that single string, never a variadic %a
+         ! substitution, matching the safer convention this fix
+         ! establishes for every other %a:%a call site this change
+         ! touches.
+         msg = 'GraphBuilder: no ordinary-match export found for unresolved import ' // &
+              entry%component_name // ':' // entry%short_name
+         call lgr%warning(msg)
       end do
    end subroutine graphbuilder_run_activate_hook
 
@@ -71,6 +83,7 @@ contains
       integer :: i
       type(GraphResolutionEntry), pointer :: entry
       class(Logger), pointer :: lgr
+      character(:), allocatable :: msg
 
       call graphbuilder_resolve_connections(this, unsupported_characteristics=unsupported, rc=status)
       call report_if_failed(this, 'resolve_connections', status)
@@ -78,9 +91,13 @@ contains
       lgr => this%get_logger()
       do i = 1, unsupported%size()
          entry => unsupported%of(i)
-         call lgr%warning( &
-              'GraphBuilder: no registered extension provider for mismatched characteristic %a:%a:%a', &
-              entry%component_name, entry%short_name, entry%reason)
+         ! openspec/changes/hierarchy-wide-component-graph: same %a
+         ! variadic-string fix as graphbuilder_run_activate_hook above
+         ! - see that call site's own comment for the full gfortran/
+         ! pflogger explanation.
+         msg = 'GraphBuilder: no registered extension provider for mismatched characteristic ' // &
+              entry%component_name // ':' // entry%short_name // ':' // entry%reason
+         call lgr%warning(msg)
       end do
 
       ! openspec/changes/phase-10d-ordinary-phase-method-node, design.md

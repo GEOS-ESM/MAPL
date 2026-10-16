@@ -71,12 +71,13 @@ module Test_GraphModeDemonstration
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
    use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
    use mapl_GraphBuilder_mod, only: item_key
-   use mapl_NodeId_mod, only: NodeId
+   use mapl_NodeId_mod, only: NodeId, operator(==)
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_Generic_api, only: mapl_GenericSetServices
    use mapl_FieldGet_mod, only: FieldGet
+   use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
    use esmf
    use nuopc
    use pfunit
@@ -435,5 +436,165 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_graph_mode_propagates_through_two_characteristic_chain
+
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.5,
+   ! design.md D3: resurrects the abandoned
+   ! `scenarios/graphbuilder_propagation/` fixture (cap -> comp_mid ->
+   ! comp_dst, comp_mid declares no connection of its own) as a real
+   ! pFUnit scenario exercising the corrected recursive mirroring
+   ! end-to-end, through a real GENERIC_INIT_PHASE_SEQUENCE run (not
+   ! Test_GraphBuilderPropagation.pf's own direct, synthetic
+   ! gb%run_propagate_hook/gb%advertise unit-level calls).
+   !
+   ! cap's own connection names comp_mid - NOT comp_dst - as its
+   ! destination (graph-scenarios/graphbuilder_propagation/cap.yaml):
+   ! exactly the shape design.md D3's own postmortem says a rejected
+   ! "search the subtree" alternative could not reproduce (nothing at
+   ! cap's level names comp_dst specifically). For this connection to
+   ! resolve at all, comp_mid's own GENERIC_INIT_ADVERTISE-phase
+   ! run_propagate_hook call must already have mirrored comp_dst's own
+   ! unresolved import 'T' into comp_mid's own import-port table,
+   ! before cap's own advertise-phase work (and its own
+   ! run_propagate_hook/run_activate_hook pass over comp_mid) resumes -
+   ! the real lifecycle ordering confirmed by direct reading
+   ! (initialize_advertise.F90), not re-derived here.
+   @test(npes=[0])
+   subroutine test_graph_mode_mirrors_grandchild_import_recursively(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: config
+      type(ESMF_Config) :: config_cf
+      type(ESMF_GridComp) :: cap_gc
+      type(OuterMetaComponent), pointer :: cap_meta, mid_meta, src_meta, dst_meta
+      type(GriddedComponentDriver) :: child_driver
+      type(ESMF_GridComp) :: child_gc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: t0, t1
+      type(ESMF_TimeInterval) :: dt
+      integer :: status, user_status, i
+      type(ComponentGraph), pointer :: cap_graph, mid_graph, src_graph, dst_graph
+      type(DependencyNetwork), pointer :: cap_net
+      type(NodeId), pointer :: src_export_id, dst_import_id
+      type(PortIdNodeIdMap) :: mid_import_ports
+      logical :: mirrored_into_mid
+
+      call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
+
+      config = ESMF_HConfigCreate( &
+           filename='./graph-scenarios/graphbuilder_propagation/cap.yaml', _RC)
+      config_cf = ESMF_ConfigCreate(hconfig=config, _RC)
+      cap_gc = ESMF_GridCompCreate(name='CAP_GRAPH_MODE_PROPAGATION_DEMO', config=config_cf, _RC)
+      call ESMF_GridCompSetServices(cap_gc, mapl_GenericSetservices, userRC=user_status, _RC)
+      _VERIFY(user_status)
+
+      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
+      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
+
+      importState = ESMF_StateCreate(_RC)
+      exportState = ESMF_StateCreate(_RC)
+
+      ! GRAPH_MODE_GRAPH: run_propagate_hook/run_activate_hook/
+      ! run_advertise_hook are unconditional hooks (always run,
+      ! regardless of graph_mode - see initialize_advertise.F90), but
+      ! GRAPH_MODE_GRAPH is used here for consistency with this file's
+      ! other real-lifecycle tests above; this test's own assertions
+      ! are purely graph-side (resource index, import ports, dependency
+      ! edges), never touching a real ESMF_State value - task 6.7's own
+      ! "no backing var_spec" gap means a mirrored import is not yet
+      ! inserted into any real ESMF_State under a child-qualified name,
+      ! so GRAPH_MODE_REGISTRY vs GRAPH_MODE_GRAPH makes no observable
+      ! difference to what this test checks.
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
+         associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
+            call ESMF_GridCompInitialize(cap_gc, &
+                 importState=importState, exportState=exportState, clock=clock, &
+                 phase=phase, userRC=user_status, _RC)
+            _VERIFY(user_status)
+         end associate
+      end do
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+
+      cap_meta => get_outer_meta(cap_gc, _RC)
+      cap_graph => cap_meta%get_component_graph()
+
+      child_driver = cap_meta%get_child('comp_src', _RC)
+      child_gc = child_driver%get_gridcomp()
+      src_meta => get_outer_meta(child_gc, _RC)
+      src_graph => src_meta%get_component_graph()
+
+      child_driver = cap_meta%get_child('comp_mid', _RC)
+      child_gc = child_driver%get_gridcomp()
+      mid_meta => get_outer_meta(child_gc, _RC)
+      mid_graph => mid_meta%get_component_graph()
+
+      child_driver = mid_meta%get_child('comp_dst', _RC)
+      child_gc = child_driver%get_gridcomp()
+      dst_meta => get_outer_meta(child_gc, _RC)
+      dst_graph => dst_meta%get_component_graph()
+
+      ! comp_dst's own import 'T' is a real resource-index entry in
+      ! comp_dst's own graph (it advertised it directly) - comp_mid
+      ! never advertises 'T' itself, so comp_mid's own resource index
+      ! has no entry for it (mirroring populates the import-PORT table
+      ! only, never the resource index - §2.3/design.md D3).
+      dst_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that('comp_dst own resource index has T', associated(dst_import_id), is(true()))
+      @assert_that('comp_mid own resource index has NO entry for T (never advertised directly)', &
+           .not. associated(mid_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))), is(true()))
+
+      ! comp_mid's own run_propagate_hook call (GENERIC_INIT_ADVERTISE,
+      ! comp_mid's own level) mirrored comp_dst's own unresolved import
+      ! into comp_mid's own IMPORT-PORT table - the same real NodeId,
+      ! additionally reachable through comp_mid, with no new node.
+      mid_import_ports = mid_graph%get_import_ports()
+      mirrored_into_mid = port_map_contains_value(mid_import_ports, dst_import_id)
+      @assert_that('comp_dst own import T is mirrored into comp_mid own import-port table', &
+           mirrored_into_mid, is(true()))
+
+      ! cap's own connection (src_comp: comp_src, dst_comp: comp_mid)
+      ! resolved against the MIRRORED port exactly as it would an item
+      ! comp_mid advertised directly - the dependency edge connects the
+      ! two REAL endpoints (comp_src's own export NodeId, comp_dst's
+      ! own import NodeId) directly, with no proxy at any level, living
+      ! in cap's own default network (the component that declared this
+      ! connection).
+      src_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      @assert_that('comp_src own export T resolved', associated(src_export_id), is(true()))
+
+      cap_net => cap_graph%get_network(cap_graph%get_default_network_id())
+      @assert_that('cap own default network wires comp_src export directly to comp_dst import, no proxy', &
+           cap_net%contains_dependency(src_export_id, dst_import_id), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_graph_mode_mirrors_grandchild_import_recursively
+
+   ! Local helper: does a PortIdNodeIdMap contain `target` as a VALUE
+   ! (not a key)? Shared pattern with
+   ! Test_GraphBuilderPropagation.pf's own identical helper - this
+   ! file's own @testCase precludes importing that one directly
+   ! (separate pFUnit-generated driver per module).
+   logical function port_map_contains_value(ports, target) result(found)
+      type(PortIdNodeIdMap), target, intent(in) :: ports
+      type(NodeId), pointer, intent(in) :: target
+      type(PortIdNodeIdMapIterator) :: iter
+      type(NodeId) :: candidate
+
+      found = .false.
+      associate (e => ports%ftn_end())
+         iter = ports%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            candidate = iter%second()
+            if (candidate == target) then
+               found = .true.
+               return
+            end if
+         end do
+      end associate
+   end function port_map_contains_value
 
 end module Test_GraphModeDemonstration

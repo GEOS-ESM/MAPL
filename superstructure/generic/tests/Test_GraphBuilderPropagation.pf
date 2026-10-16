@@ -1,0 +1,979 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1/6.3/6.4
+! (design.md D3): recursive import mirroring - 3b2's replacement.
+! `graphbuilder_run_propagate_hook` mirrors each direct child's own
+! still-unresolved imports into the calling component's own
+! import-port table, unconditionally (no connection needs to name that
+! child); an ordinary connection declared against the ancestor then
+! resolves the mirrored port exactly as it would an item advertised
+! directly, through the EXISTING, UNMODIFIED
+! `for_each_matching_import`/`resolve_one` machinery.
+!
+! Test-only OuterMetaComponent instances are built the same way
+! Test_GraphBuilder.pf does (bypassing SetServices/DSO machinery).
+module Test_GraphBuilderPropagation
+   use mapl_OuterMetaComponent_mod
+   use mapl_GraphBuilder_mod
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_ChildSpec_mod, only: ChildSpec
+   use mapl_ComponentSpec_mod, only: ComponentSpec
+   use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_ConnectionPt_mod, only: ConnectionPt
+   use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
+   use mapl_MatchConnection_mod, only: MatchConnection
+   use mapl_NodeId_mod, only: NodeId, operator(==)
+   use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
+   use mapl_PortId_mod, only: PortId
+   use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
+   use esmf
+   use pfunit
+   implicit none(type, external)
+
+contains
+
+   ! Directly builds a top-level OuterMetaComponent, bypassing
+   ! SetServices/DSO machinery - same helper as Test_GraphBuilder.pf.
+   subroutine make_outer_meta(name, outer_gc, outer_meta, rc)
+      character(*), intent(in) :: name
+      type(ESMF_GridComp), intent(out) :: outer_gc
+      type(OuterMetaComponent), pointer, intent(out) :: outer_meta
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_GridComp) :: user_gc
+      type(GriddedComponentDriver) :: user_gc_driver
+      type(ESMF_HConfig) :: hconfig
+
+      hconfig = ESMF_HConfigCreate(content='{}', _RC)
+      outer_gc = ESMF_GridCompCreate(name='['//trim(name)//']', _RC)
+      user_gc = ESMF_GridCompCreate(name=name, _RC)
+      user_gc_driver = GriddedComponentDriver(user_gc)
+
+      call attach_outer_meta(outer_gc, _RC)
+      outer_meta => get_outer_meta(outer_gc, _RC)
+#ifndef __GFORTRAN__
+      outer_meta = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
+#else
+      block
+         type(OuterMetaComponent) :: tmp
+         tmp = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
+         outer_meta = tmp
+      end block
+#endif
+      call outer_meta%init_meta(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_outer_meta
+
+   function make_var(state_intent, short_name) result(var_spec)
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      character(*), intent(in) :: short_name
+      type(VariableSpec) :: var_spec
+
+      var_spec%state_intent = state_intent
+      var_spec%short_name = short_name
+   end function make_var
+
+   ! Task 6.1 (unit-level): a child with an advertised, unresolved
+   ! import is reported by the new structural scan
+   ! graphbuilder_unresolved_import_node_ids - including when the
+   ! child declares NO connection of its own (the motivating fixture's
+   ! own shape: a component whose import's resolution is entirely the
+   ! responsibility of some ancestor, not itself). The parent argument
+   ! is child_meta's own real parent (comp_propagate_undeclared_parent)
+   ! - propagation always runs with a direct parent/child pair, never a
+   ! standalone component with no parent at all.
+   @test(npes=[0])
+   subroutine test_unresolved_import_node_ids_reports_undeclared_import(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: child_meta
+      type(GriddedComponentDriver) :: child_driver
+      type(ESMF_GridComp) :: child_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: child_spec_obj
+      type(ComponentGraph), pointer :: child_graph
+      type(NodeId), pointer :: expected_id
+      type(UnresolvedImportEntry), allocatable :: unresolved(:)
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_propagate_undeclared_parent', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+      child_driver = parent_meta%get_child('child_dst', _RC)
+      child_gc = child_driver%get_gridcomp()
+      child_meta => get_outer_meta(child_gc, _RC)
+
+      child_spec_obj => child_meta%get_component_spec()
+      call child_spec_obj%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      ! No connection declared anywhere - neither child_meta's own nor
+      ! parent_meta's own component_spec has any connection, so the new
+      ! two-level positive-match check finds nothing resolving this
+      ! import at either level.
+      call gb%advertise(child_meta, status)
+      @assert_that(status, is(0))
+
+      unresolved = graphbuilder_unresolved_import_node_ids(parent_meta, child_meta, status)
+      @assert_that(status, is(0))
+      @assertEqual(1, size(unresolved))
+      @assertEqual('T', unresolved(1)%short_name)
+
+      child_graph => child_meta%get_component_graph()
+      expected_id => child_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(expected_id), is(true()))
+      @assert_that(unresolved(1)%node_id == expected_id, is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_unresolved_import_node_ids_reports_undeclared_import
+
+   ! Task 6.1 (unit-level) / spec "An already-resolved import is not
+   ! mirrored": once an ordinary MatchConnection declared on the
+   ! PARENT itself (the common connect_all shape) names child_dst as
+   ! its own destination and finds a matching source export, the new
+   ! two-level positive-match check (case (b): a connection declared on
+   ! the parent, resolving directly to the child) reports it resolved -
+   ! this is exactly the common-pattern correctness fix (discovered
+   ! during this task): a structural dependency-edge check would always
+   ! read "unresolved" here, since no edge exists anywhere yet at the
+   ! point propagation actually runs (ADVERTISE time, strictly before
+   ! graphbuilder_resolve_connections ever adds one) - only a positive
+   ! connection-match check, not graph wiring, can answer this
+   ! correctly at that phase.
+   @test(npes=[0])
+   subroutine test_unresolved_import_node_ids_excludes_resolved_import(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(MatchConnection) :: conn
+      type(UnresolvedImportEntry), allocatable :: unresolved(:)
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_propagate_resolved_parent', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      ! An ordinary connection declared AT THE PARENT'S OWN LEVEL,
+      ! naming child_dst directly - the common connect_all shape. NO
+      ! resolve_connections call here: the point of this test is that
+      ! the CHECK ITSELF (not graph wiring) recognizes this as
+      ! resolved, exactly as it would be at the real ADVERTISE-time
+      ! call site, before any dependency edge exists.
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      unresolved = graphbuilder_unresolved_import_node_ids(parent_meta, dst_meta, status)
+      @assert_that(status, is(0))
+      @assertEqual(0, size(unresolved))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_unresolved_import_node_ids_excludes_resolved_import
+
+   ! Task 6.1/6.2 (direct hook test) / spec "A child's unresolved
+   ! import becomes visible in the parent's own import-port table":
+   ! graphbuilder_run_propagate_hook(parent) mirrors child_dst's own
+   ! unresolved import 'T' into the PARENT's own import-port table,
+   ! under the same real NodeId - no new node.
+   @test(npes=[0])
+   subroutine test_run_propagate_hook_mirrors_unresolved_import(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: dst_meta
+      type(GriddedComponentDriver) :: dst_driver
+      type(ESMF_GridComp) :: dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: dst_spec
+      type(ComponentGraph), pointer :: parent_graph, dst_graph
+      type(NodeId), pointer :: dst_import_id
+      type(PortIdNodeIdMap) :: parent_import_ports
+      integer :: status
+      type(GraphBuilder) :: gb
+      logical :: found
+
+      call make_outer_meta('comp_propagate_mirror_parent', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      dst_gc = dst_driver%get_gridcomp()
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      dst_graph => dst_meta%get_component_graph()
+      dst_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(dst_import_id), is(true()))
+
+      call gb%run_propagate_hook(parent_meta)
+
+      parent_graph => parent_meta%get_component_graph()
+      parent_import_ports = parent_graph%get_import_ports()
+      found = port_map_contains_value(parent_import_ports, dst_import_id)
+      @assert_that(found, is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_run_propagate_hook_mirrors_unresolved_import
+
+   ! Task 6.1/6.2 / spec "Mirroring requires no connection naming the
+   ! child": the motivating fixture's own shape - child_dst declares no
+   ! connection naming itself, no connection anywhere names child_dst
+   ! for propagation's purpose, yet its own unresolved import is still
+   ! mirrored into the parent.
+   @test(npes=[0])
+   subroutine test_run_propagate_hook_unconditional_no_connection_needed(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: dst_meta
+      type(GriddedComponentDriver) :: dst_driver
+      type(ESMF_GridComp) :: dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph, dst_graph
+      type(NodeId), pointer :: dst_import_id
+      type(PortIdNodeIdMap) :: parent_import_ports
+      integer :: status
+      type(GraphBuilder) :: gb
+      logical :: found
+
+      call make_outer_meta('comp_propagate_unconditional_parent', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      dst_gc = dst_driver%get_gridcomp()
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      ! Confirm, explicitly, that the parent's own component_spec has
+      ! NO connection at all - propagation must not depend on one.
+      parent_spec => parent_meta%get_component_spec()
+      @assertEqual(0, parent_spec%connections%size())
+
+      dst_graph => dst_meta%get_component_graph()
+      dst_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      call gb%run_propagate_hook(parent_meta)
+
+      parent_graph => parent_meta%get_component_graph()
+      parent_import_ports = parent_graph%get_import_ports()
+      found = port_map_contains_value(parent_import_ports, dst_import_id)
+      @assert_that(found, is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_run_propagate_hook_unconditional_no_connection_needed
+
+   ! Task 6.1 / spec "An already-resolved import is not mirrored": a
+   ! child's own import, resolved by a connection declared AT OR BELOW
+   ! that child's own level (per the delta spec's own precise scoping),
+   ! is NOT mirrored into the parent. Three-level fixture: PARENT ->
+   ! MID (declares a sibling connection naming its own two children) ->
+   ! {leaf_src, leaf_dst} - MID's own import 'T' (leaf_dst's) is
+   ! resolved entirely within MID's own subtree, below MID's own level,
+   ! before PARENT's own mirroring step (run against MID) ever runs.
+   !
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1
+   ! (scope note, discovered while writing this test): an import
+   ! resolved by some ANCESTOR's own direct multi-level connection
+   ! (declared ABOVE the child, not at-or-below it) is explicitly OUT
+   ! OF SCOPE for this "not mirrored" guarantee - the delta spec's own
+   ! wording ("at or below the child's own level") deliberately
+   ! excludes that case; mirroring it anyway is a harmless redundant
+   ! import-port entry, not a correctness violation, and is not what
+   ! this test exercises (see graphbuilder_unresolved_import_node_ids's
+   ! own header comment, GraphBuilder_ConnectionResolution_smod.F90,
+   ! for the full reasoning, including why no dependency edge exists
+   ! anywhere yet at the real ADVERTISE-time call site to check
+   ! against in the first place).
+   @test(npes=[0])
+   subroutine test_run_propagate_hook_does_not_mirror_resolved_import(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: top_gc
+      type(OuterMetaComponent), pointer :: top_meta
+      type(OuterMetaComponent), pointer :: mid_meta, leaf_src_meta, leaf_dst_meta
+      type(GriddedComponentDriver) :: mid_driver, leaf_src_driver, leaf_dst_driver
+      type(ESMF_GridComp) :: mid_gc, leaf_src_gc, leaf_dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: mid_spec, leaf_src_spec, leaf_dst_spec
+      type(ComponentGraph), pointer :: top_graph, leaf_dst_graph
+      type(NodeId), pointer :: leaf_dst_import_id
+      type(PortIdNodeIdMap) :: top_import_ports
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved_report
+      integer :: status
+      type(GraphBuilder) :: gb
+      logical :: found
+
+      call make_outer_meta('comp_propagate_resolved_top', top_gc, top_meta, _RC)
+      child_spec = ChildSpec()
+      call top_meta%add_child('MID', child_spec, _RC)
+      mid_driver = top_meta%get_child('MID', _RC)
+      mid_gc = mid_driver%get_gridcomp()
+      mid_meta => get_outer_meta(mid_gc, _RC)
+
+      child_spec = ChildSpec()
+      call mid_meta%add_child('leaf_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call mid_meta%add_child('leaf_dst', child_spec, _RC)
+
+      leaf_src_driver = mid_meta%get_child('leaf_src', _RC)
+      leaf_dst_driver = mid_meta%get_child('leaf_dst', _RC)
+      leaf_src_gc = leaf_src_driver%get_gridcomp()
+      leaf_dst_gc = leaf_dst_driver%get_gridcomp()
+      leaf_src_meta => get_outer_meta(leaf_src_gc, _RC)
+      leaf_dst_meta => get_outer_meta(leaf_dst_gc, _RC)
+
+      leaf_src_spec => leaf_src_meta%get_component_spec()
+      call leaf_src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      leaf_dst_spec => leaf_dst_meta%get_component_spec()
+      call leaf_dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      call gb%advertise(leaf_src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(leaf_dst_meta, status)
+      @assert_that(status, is(0))
+
+      ! MID's own sibling connection, declared AT MID's OWN LEVEL
+      ! (naming its own two direct children) - resolution happens
+      ! strictly AT MID's own level, satisfying the delta spec's own
+      ! "at or below" scoping exactly.
+      conn = MatchConnection( &
+           ConnectionPt('leaf_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('leaf_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      mid_spec => mid_meta%get_component_spec()
+      call mid_spec%add_connection(conn)
+
+      call gb%resolve_connections(mid_meta, unresolved_imports=unresolved_report, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved_report%size())
+
+      leaf_dst_graph => leaf_dst_meta%get_component_graph()
+      leaf_dst_import_id => leaf_dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      ! TOP's own mirroring step, run against MID: MID itself has no
+      ! import ports of its own (it never advertised any import
+      ! directly) and leaf_dst's own import was already resolved AT
+      ! MID's own level above - nothing should be mirrored into TOP.
+      call gb%run_propagate_hook(top_meta)
+
+      top_graph => top_meta%get_component_graph()
+      top_import_ports = top_graph%get_import_ports()
+      found = port_map_contains_value(top_import_ports, leaf_dst_import_id)
+      @assert_that(found, is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_run_propagate_hook_does_not_mirror_resolved_import
+
+   ! Task 6.3: once a child's import is mirrored into the parent's own
+   ! import-port table, an ORDINARY connection declared at the parent
+   ! naming "<self>" as its own destination (the mirrored port is now
+   ! reachable through `this`'s own import ports, exactly like a
+   ! directly-advertised import) resolves it via the EXISTING,
+   ! UNMODIFIED for_each_matching_import/resolve_one - confirmation,
+   ! not new resolution logic. three-level fixture: GRANDPARENT ->
+   ! PARENT (no connection of its own) -> comp_dst (declares the
+   ! unresolved import 'T', no connection of its own either) - mirrors
+   ! the motivating cap/comp_mid/comp_dst shape, with the grandparent's
+   ! own connection supplying the resolving export directly.
+   @test(npes=[0])
+   subroutine test_mirrored_import_resolves_via_unmodified_resolution(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: grandparent_gc
+      type(OuterMetaComponent), pointer :: grandparent_meta
+      type(OuterMetaComponent), pointer :: src_meta, parent_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, parent_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, parent_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: grandparent_spec, src_spec, parent_spec, dst_spec
+      type(ComponentGraph), pointer :: grandparent_graph, dst_graph, src_graph
+      type(NodeId), pointer :: dst_import_id, src_export_id
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved_report
+      type(DependencyNetwork), pointer :: net
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_mirror_resolve_grandparent', grandparent_gc, grandparent_meta, _RC)
+      child_spec = ChildSpec()
+      call grandparent_meta%add_child('SRC', child_spec, _RC)
+      child_spec = ChildSpec()
+      call grandparent_meta%add_child('MID', child_spec, _RC)
+
+      src_driver = grandparent_meta%get_child('SRC', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+
+      parent_driver = grandparent_meta%get_child('MID', _RC)
+      parent_gc = parent_driver%get_gridcomp()
+      parent_meta => get_outer_meta(parent_gc, _RC)
+
+      child_spec = ChildSpec()
+      call parent_meta%add_child('comp_dst', child_spec, _RC)
+      dst_driver = parent_meta%get_child('comp_dst', _RC)
+      dst_gc = dst_driver%get_gridcomp()
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      ! comp_mid ('MID', = parent_meta) declares NO connection of its
+      ! own - deliberately, matching the fixture's own "comp_mid
+      ! declares no connection" shape (design.md D3).
+      parent_spec => parent_meta%get_component_spec()
+      @assertEqual(0, parent_spec%connections%size())
+
+      ! Deepest-first advertise, mirroring real recursion order.
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(parent_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(src_meta, status) ! idempotent re-advertise, harmless
+      @assert_that(status, is(0))
+
+      ! comp_dst's own import never resolves at its own level (no
+      ! connection names it) - mirror it into MID (parent_meta), the
+      ! corrected 6.1/6.2 behavior.
+      call gb%run_propagate_hook(parent_meta)
+
+      ! GRANDPARENT's own ordinary connection names MID directly as its
+      ! destination ("<self>"-equivalent at MID's own level once
+      ! resolved) - MID's own import-port table now has an entry for
+      ! 'T' (the mirrored one), so this connection resolves it exactly
+      ! as it would an item MID advertised directly.
+      conn = MatchConnection( &
+           ConnectionPt('SRC', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('MID', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      grandparent_spec => grandparent_meta%get_component_spec()
+      call grandparent_spec%add_connection(conn)
+
+      call gb%resolve_connections(grandparent_meta, unresolved_imports=unresolved_report, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved_report%size())
+
+      ! The edge wired is between the two REAL endpoints - SRC's own
+      ! export NodeId and comp_dst's own import NodeId directly (no
+      ! proxy, no copy) - living in the GRANDPARENT's own default
+      ! network, since that is the component that declared this
+      ! connection.
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      src_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      dst_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(src_export_id), is(true()))
+      @assert_that(associated(dst_import_id), is(true()))
+
+      grandparent_graph => grandparent_meta%get_component_graph()
+      net => grandparent_graph%get_network(grandparent_graph%get_default_network_id())
+      @assert_that(net%contains_dependency(src_export_id, dst_import_id), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_mirrored_import_resolves_via_unmodified_resolution
+
+   ! Task 6.4 / spec "Multiple distinct descendants bubbling the same
+   ! short name are each independently resolvable": two distinct
+   ! children (child_a, child_b) each advertise their own unresolved
+   ! import 'T', each mirrored into the same parent; an ordinary
+   ! connection naming the parent as destination resolves BOTH
+   ! independently (for_each_matching_import's own existing multi-match
+   ! iteration, resolve_one's own existing per-match handling - no new
+   ! code).
+   @test(npes=[0])
+   subroutine test_multiple_descendants_bubble_same_name(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: grandparent_gc
+      type(OuterMetaComponent), pointer :: grandparent_meta
+      type(OuterMetaComponent), pointer :: src_meta, parent_meta, child_a_meta, child_b_meta
+      type(GriddedComponentDriver) :: src_driver, parent_driver, child_a_driver, child_b_driver
+      type(ESMF_GridComp) :: src_gc, parent_gc, child_a_gc, child_b_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: grandparent_spec, src_spec, child_a_spec, child_b_spec
+      type(ComponentGraph), pointer :: grandparent_graph, src_graph, child_a_graph, child_b_graph
+      type(NodeId), pointer :: src_export_id, child_a_import_id, child_b_import_id
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved_report
+      type(DependencyNetwork), pointer :: net
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_multi_bubble_grandparent', grandparent_gc, grandparent_meta, _RC)
+      child_spec = ChildSpec()
+      call grandparent_meta%add_child('SRC', child_spec, _RC)
+      child_spec = ChildSpec()
+      call grandparent_meta%add_child('MID', child_spec, _RC)
+
+      src_driver = grandparent_meta%get_child('SRC', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+
+      parent_driver = grandparent_meta%get_child('MID', _RC)
+      parent_gc = parent_driver%get_gridcomp()
+      parent_meta => get_outer_meta(parent_gc, _RC)
+
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_a', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_b', child_spec, _RC)
+
+      child_a_driver = parent_meta%get_child('child_a', _RC)
+      child_a_gc = child_a_driver%get_gridcomp()
+      child_a_meta => get_outer_meta(child_a_gc, _RC)
+
+      child_b_driver = parent_meta%get_child('child_b', _RC)
+      child_b_gc = child_b_driver%get_gridcomp()
+      child_b_meta => get_outer_meta(child_b_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      child_a_spec => child_a_meta%get_component_spec()
+      call child_a_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      child_b_spec => child_b_meta%get_component_spec()
+      call child_b_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(child_a_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(child_b_meta, status)
+      @assert_that(status, is(0))
+
+      ! MID's own mirroring step pulls BOTH child_a's and child_b's own
+      ! unresolved 'T' import into its own import-port table - two
+      ! distinct PortId entries, two distinct real NodeIds, same short
+      ! name.
+      call gb%run_propagate_hook(parent_meta)
+
+      conn = MatchConnection( &
+           ConnectionPt('SRC', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('MID', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      grandparent_spec => grandparent_meta%get_component_spec()
+      call grandparent_spec%add_connection(conn)
+
+      call gb%resolve_connections(grandparent_meta, unresolved_imports=unresolved_report, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved_report%size())
+
+      src_graph => src_meta%get_component_graph()
+      child_a_graph => child_a_meta%get_component_graph()
+      child_b_graph => child_b_meta%get_component_graph()
+      src_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      child_a_import_id => child_a_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      child_b_import_id => child_b_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(src_export_id), is(true()))
+      @assert_that(associated(child_a_import_id), is(true()))
+      @assert_that(associated(child_b_import_id), is(true()))
+
+      ! Both independently resolved against the SAME source export -
+      ! two distinct dependency edges, both in the GRANDPARENT's own
+      ! default network (the component that declared this connection).
+      grandparent_graph => grandparent_meta%get_component_graph()
+      net => grandparent_graph%get_network(grandparent_graph%get_default_network_id())
+      @assert_that(net%contains_dependency(src_export_id, child_a_import_id), is(true()))
+      @assert_that(net%contains_dependency(src_export_id, child_b_import_id), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_multiple_descendants_bubble_same_name
+
+   ! Local helper: does a PortIdNodeIdMap contain `target` as a VALUE
+   ! (not a key)? Walks every entry - there is no existing "value
+   ! membership" query on this gFTL map type, and this test module's
+   ! whole point is to check mirroring's own effect on the VALUE side
+   ! of the parent's import-port table.
+   logical function port_map_contains_value(ports, target) result(found)
+      type(PortIdNodeIdMap), target, intent(in) :: ports
+      type(NodeId), pointer, intent(in) :: target
+      type(PortIdNodeIdMapIterator) :: iter
+      type(NodeId) :: candidate
+
+      found = .false.
+      associate (e => ports%ftn_end())
+         iter = ports%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            candidate = iter%second()
+            if (candidate == target) then
+               found = .true.
+               return
+            end if
+         end do
+      end associate
+   end function port_map_contains_value
+
+   ! Task 6.8 / spec "Export E from component A becomes export A/E in
+   ! the parent component P": a single level of export propagation.
+   ! comp_src ('A') advertises export 'T' directly; parent's own
+   ! run_export_propagate_hook call propagates it into parent's own
+   ! export-port table under the qualified name 'comp_src/T' - the
+   ! SAME real NodeId, additionally reachable under a different name.
+   @test(npes=[0])
+   subroutine test_run_export_propagate_hook_qualifies_one_level(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta
+      type(GriddedComponentDriver) :: src_driver
+      type(ESMF_GridComp) :: src_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: src_spec
+      type(ComponentGraph), pointer :: parent_graph, src_graph
+      type(NodeId), pointer :: src_export_id
+      character(:), allocatable :: resolved_name
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_export_propagate_parent', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('comp_src', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('comp_src', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+
+      src_graph => src_meta%get_component_graph()
+      src_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      @assert_that(associated(src_export_id), is(true()))
+
+      call gb%run_export_propagate_hook(parent_meta)
+
+      ! The real NodeId reaches PARENT's own export-port table too (not
+      ! only comp_src's own) - this is what find_export_node (ordinary
+      ! resolution's own read path) walks.
+      parent_graph => parent_meta%get_component_graph()
+      resolved_name = find_export_name_in_graph(parent_graph, src_export_id)
+      @assert_that('export is reachable from parent, under the qualified name', &
+           allocated(resolved_name), is(true()))
+      @assertEqual('comp_src/T', resolved_name)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_run_export_propagate_hook_qualifies_one_level
+
+   ! Task 6.8 / spec "...but stays A/E in the grandparent component":
+   ! two levels of export propagation. comp_src ('A', child of MID)
+   ! advertises 'T' directly; MID's own run_export_propagate_hook call
+   ! qualifies it to 'comp_src/T' in MID's own export-port table (same
+   ! as the one-level test above); GRANDPARENT's own
+   ! run_export_propagate_hook call, run against MID, propagates
+   ! MID's own ALREADY-QUALIFIED 'comp_src/T' entry UNCHANGED - never
+   ! re-qualified to 'MID/comp_src/T' - per the user's own confirmation
+   ! of legacy's exact rule (propagate_exports_virtual_pt,
+   ! StateRegistry_Propagation_smod.F90).
+   @test(npes=[0])
+   subroutine test_run_export_propagate_hook_passthrough_second_level(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: grandparent_gc
+      type(OuterMetaComponent), pointer :: grandparent_meta
+      type(OuterMetaComponent), pointer :: mid_meta, src_meta
+      type(GriddedComponentDriver) :: mid_driver, src_driver
+      type(ESMF_GridComp) :: mid_gc, src_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: src_spec
+      type(ComponentGraph), pointer :: grandparent_graph, src_graph
+      type(NodeId), pointer :: src_export_id
+      character(:), allocatable :: resolved_name
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_export_propagate_grandparent', grandparent_gc, grandparent_meta, _RC)
+      child_spec = ChildSpec()
+      call grandparent_meta%add_child('MID', child_spec, _RC)
+
+      mid_driver = grandparent_meta%get_child('MID', _RC)
+      mid_gc = mid_driver%get_gridcomp()
+      mid_meta => get_outer_meta(mid_gc, _RC)
+
+      child_spec = ChildSpec()
+      call mid_meta%add_child('comp_src', child_spec, _RC)
+      src_driver = mid_meta%get_child('comp_src', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+
+      src_graph => src_meta%get_component_graph()
+      src_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      @assert_that(associated(src_export_id), is(true()))
+
+      ! First level - exactly the one-level test above.
+      call gb%run_export_propagate_hook(mid_meta)
+
+      ! Second level - propagates MID's own ALREADY-qualified entry.
+      call gb%run_export_propagate_hook(grandparent_meta)
+
+      grandparent_graph => grandparent_meta%get_component_graph()
+      resolved_name = find_export_name_in_graph(grandparent_graph, src_export_id)
+      @assert_that('export is reachable from grandparent, name UNCHANGED (not re-qualified)', &
+           allocated(resolved_name), is(true()))
+      @assertEqual('comp_src/T', resolved_name)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_run_export_propagate_hook_passthrough_second_level
+
+   ! Task 6.8 / idempotency: a repeat run_export_propagate_hook call
+   ! (ESMF's own Provide/Accept/Realize re-entrancy, same concern
+   ! already_mirrored's own header comment documents for the import
+   ! side) must not add a second, duplicate (node_id, qualified_name)
+   ! entry.
+   @test(npes=[0])
+   subroutine test_run_export_propagate_hook_is_idempotent(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta
+      type(GriddedComponentDriver) :: src_driver
+      type(ESMF_GridComp) :: src_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: src_spec
+      type(ComponentGraph), pointer :: parent_graph
+      type(PortIdNodeIdMap) :: parent_export_ports
+      integer :: status
+      type(GraphBuilder) :: gb
+      integer :: count_matching
+
+      call make_outer_meta('comp_export_propagate_idempotent_parent', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('comp_src', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('comp_src', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+
+      call gb%run_export_propagate_hook(parent_meta)
+      call gb%run_export_propagate_hook(parent_meta) ! repeat call - idempotency
+
+      parent_graph => parent_meta%get_component_graph()
+      parent_export_ports = parent_graph%get_export_ports()
+      count_matching = count_entries_named(parent_graph, parent_export_ports, 'comp_src/T')
+      @assertEqual(1, count_matching, 'export-port table has exactly ONE entry named comp_src/T, not two')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_run_export_propagate_hook_is_idempotent
+
+   ! Task 6.8 end-to-end / spec "An ordinary connection resolves a
+   ! propagated export exactly as it would an item advertised
+   ! directly": mirrors the motivating history_1 fixture's own shape
+   ! (cap -> {comp_src with child A, comp_dst} where comp_dst's own
+   ! import is a qualified name 'A/T') at unit-test scale - confirms
+   ! graphbuilder_resolve_connections (unmodified) resolves a
+   ! wildcard-style connection against the propagated, qualified export
+   ! name with no new resolution code.
+   @test(npes=[0])
+   subroutine test_propagated_export_resolves_via_unmodified_resolution(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: cap_gc
+      type(OuterMetaComponent), pointer :: cap_meta
+      type(OuterMetaComponent), pointer :: root_meta, a_meta, dst_meta
+      type(GriddedComponentDriver) :: root_driver, a_driver, dst_driver
+      type(ESMF_GridComp) :: root_gc, a_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: cap_spec, a_spec, dst_spec
+      type(ComponentGraph), pointer :: cap_graph, a_graph, dst_graph
+      type(NodeId), pointer :: a_export_id, dst_import_id
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved_report
+      type(DependencyNetwork), pointer :: net
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_export_propagate_cap', cap_gc, cap_meta, _RC)
+      child_spec = ChildSpec()
+      call cap_meta%add_child('root', child_spec, _RC)
+      child_spec = ChildSpec()
+      call cap_meta%add_child('dst', child_spec, _RC)
+
+      root_driver = cap_meta%get_child('root', _RC)
+      root_gc = root_driver%get_gridcomp()
+      root_meta => get_outer_meta(root_gc, _RC)
+
+      child_spec = ChildSpec()
+      call root_meta%add_child('A', child_spec, _RC)
+      a_driver = root_meta%get_child('A', _RC)
+      a_gc = a_driver%get_gridcomp()
+      a_meta => get_outer_meta(a_gc, _RC)
+
+      dst_driver = cap_meta%get_child('dst', _RC)
+      dst_gc = dst_driver%get_gridcomp()
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      a_spec => a_meta%get_component_spec()
+      call a_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'A/T'))
+
+      call gb%advertise(a_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      ! root's own export propagation step - mirrors
+      ! initialize_advertise.F90's own real call site, run manually
+      ! here since this test bypasses the real lifecycle entirely.
+      call gb%run_export_propagate_hook(root_meta)
+
+      ! cap's own ordinary connection, naming root as source and dst as
+      ! destination - the all_unsatisfied wildcard shape every real
+      ! fixture (history_1 etc.) actually uses.
+      conn = MatchConnection( &
+           ConnectionPt('root', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      cap_spec => cap_meta%get_component_spec()
+      call cap_spec%add_connection(conn)
+
+      call gb%resolve_connections(cap_meta, unresolved_imports=unresolved_report, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved_report%size())
+
+      a_graph => a_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      a_export_id => a_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      dst_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'A/T'))
+      @assert_that(associated(a_export_id), is(true()))
+      @assert_that(associated(dst_import_id), is(true()))
+
+      ! The real edge wired is between the two REAL endpoints directly -
+      ! A's own export NodeId and dst's own import NodeId - no proxy at
+      ! any level, in cap's own default network.
+      cap_graph => cap_meta%get_component_graph()
+      net => cap_graph%get_network(cap_graph%get_default_network_id())
+      @assert_that(net%contains_dependency(a_export_id, dst_import_id), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_propagated_export_resolves_via_unmodified_resolution
+
+   ! Local helper shared by the four tests above: finds target_id's own
+   ! effective name (get_export_port_name) in graph's own export-port
+   ! table, by walking every entry and matching on VALUE (not key) -
+   ! same "no existing value-membership query" rationale as
+   ! port_map_contains_value above.
+   function find_export_name_in_graph(graph, target_id) result(name)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), pointer, intent(in) :: target_id
+      character(:), allocatable :: name
+
+      type(PortIdNodeIdMap), target :: export_ports
+      type(PortIdNodeIdMapIterator) :: iter
+      type(PortId) :: candidate_port_id
+      type(NodeId) :: candidate_id
+
+      export_ports = graph%get_export_ports()
+      associate (e => export_ports%ftn_end())
+         iter = export_ports%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            candidate_port_id = iter%first()
+            candidate_id = iter%second()
+            if (candidate_id == target_id) then
+               name = graph%get_export_port_name(candidate_port_id)
+               return
+            end if
+         end do
+      end associate
+   end function find_export_name_in_graph
+
+   ! Local helper for the idempotency test above: counts how many
+   ! export-port entries in `ports` (graph's own table) have an
+   ! effective name (get_export_port_name) equal to target_name.
+   function count_entries_named(graph, ports, target_name) result(n)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(PortIdNodeIdMap), target, intent(in) :: ports
+      character(*), intent(in) :: target_name
+      integer :: n
+
+      type(PortIdNodeIdMapIterator) :: iter
+      type(PortId) :: candidate_port_id
+      character(:), allocatable :: candidate_name
+
+      n = 0
+      associate (e => ports%ftn_end())
+         iter = ports%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            candidate_port_id = iter%first()
+            candidate_name = graph%get_export_port_name(candidate_port_id)
+            if (allocated(candidate_name)) then
+               if (candidate_name == target_name) n = n + 1
+            end if
+         end do
+      end associate
+   end function count_entries_named
+
+end module Test_GraphBuilderPropagation
