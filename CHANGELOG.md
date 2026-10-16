@@ -269,7 +269,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added OpenMP threading support for generic gridded components. A component
+- Added  OpenMP threading support for generic gridded components. A component
   can now request that its user component be replicated into a set of "mini"
   components - each with its own sub-geometry, sub-states and sub-gridcomp -
   that are run concurrently on OpenMP threads within a single PET. Threading is
