@@ -126,6 +126,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The MAPL3G Component Testing Framework tests that use `dryrun.rc`
+  (which run `extdata_dryrun_check.py`) now use `Python3_EXECUTABLE`
+  instead of a bare `python3`, and are skipped with a CMake warning when
+  the Python `netCDF4` package is not available
 - Fixed locality of symbols for Python -> Fortran call in MAPLPy
 - Fixed a spurious `standard_name` convention violation raised while
   resolving a vertical regrid between two mismatched vertical grids
