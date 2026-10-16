@@ -249,6 +249,15 @@ module mapl_GraphBuilder_mod
    public :: resolve_qualified_component
    public :: enumerate_qualified_exports
    public :: QualifiedExportIndexEntry
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 7.1,
+   ! design.md D4: the History-support query - "given a qualified
+   ! component path, return that component's own local resource index
+   ! entries directly" - no push/propagation step. Composes
+   ! resolve_qualified_component (path -> OuterMetaComponent) with the
+   ! same resolved-through-resource_index, no-proxy per-item scan
+   ! enumerate_qualified_exports already proves correct, scoped to the
+   ! one resolved component itself (no recursion into its children).
+   public :: query_component_exports
 
    ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1: same
    ! gfortran cross-submodule-linkage reason as component_for/is_self
@@ -1014,12 +1023,47 @@ contains
 
       integer :: status
       integer :: i, num_children
+      character(:), allocatable :: child_name, child_path
+      type(OuterMetaComponent), pointer :: child_meta
+
+      call append_own_export_index_entries(owner, path_prefix, entries, _RC)
+
+      num_children = owner%get_num_children()
+      do i = 1, num_children
+         child_name = owner%get_child_name(i, _RC)
+         child_meta => owner%get_child_outer_meta(child_name, _RC)
+         if (len(path_prefix) == 0) then
+            child_path = child_name
+         else
+            child_path = path_prefix // '/' // child_name
+         end if
+         call collect_qualified_export_index(child_meta, child_path, entries, _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine collect_qualified_export_index
+
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 7.1,
+   ! design.md D4: the single-level body collect_qualified_export_index
+   ! above already performed inline - factored out, with no behavior
+   ! change, so query_component_exports (below) can reuse the exact same
+   ! "resolved-through-resource_index, no proxy" per-item scan for ONE
+   ! component without also pulling in collect_qualified_export_index's
+   ! own recursion into children. Appends owner's own resolved exports
+   ! (one entry per declared export already present in owner's own
+   ! resource index - an export never advertised, or advertised but not
+   ! yet resolved, contributes no entry) to entries, in place.
+   subroutine append_own_export_index_entries(owner, path_prefix, entries, rc)
+      class(OuterMetaComponent), target, intent(inout) :: owner
+      character(*), intent(in) :: path_prefix
+      type(QualifiedExportIndexEntry), allocatable, intent(inout) :: entries(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status
       type(ComponentSpec), pointer :: comp_spec
       type(ComponentGraph), pointer :: owner_graph
       type(VariableSpecVectorIterator) :: iter
       type(VariableSpec), pointer :: var_spec
-      character(:), allocatable :: child_name, child_path
-      type(OuterMetaComponent), pointer :: child_meta
       type(QualifiedExportIndexEntry) :: entry
       type(QualifiedExportIndexEntry), allocatable :: grown_entries(:)
       type(NodeId), pointer :: resolved_id
@@ -1057,20 +1101,47 @@ contains
          end do
       end associate
 
-      num_children = owner%get_num_children()
-      do i = 1, num_children
-         child_name = owner%get_child_name(i, _RC)
-         child_meta => owner%get_child_outer_meta(child_name, _RC)
-         if (len(path_prefix) == 0) then
-            child_path = child_name
-         else
-            child_path = path_prefix // '/' // child_name
-         end if
-         call collect_qualified_export_index(child_meta, child_path, entries, _RC)
-      end do
+      _RETURN(_SUCCESS)
+   end subroutine append_own_export_index_entries
+
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 7.1,
+   ! design.md D4 ("Export visibility (History) is a query, not a
+   ! push"): given a qualified component path, resolve that component
+   ! (resolve_qualified_component, unmodified - the same descendant-only
+   ! tree walk ordinary connection resolution already uses) and return
+   ! ONLY that component's own local resource-index entries - no
+   ! recursion into its children (unlike enumerate_qualified_exports,
+   ! which flattens an entire subtree), and no push/propagation step of
+   ! any kind. A hierarchy-wide consumer (e.g. History) walks the
+   ! OuterMetaComponent tree itself, calling this once per component path
+   ! it wants to inspect, exactly as D4 describes - this primitive does
+   ! not do that walk on the consumer's behalf, since resolve_qualified_
+   ! component already starts from an explicit root and a caller wanting
+   ! every component's exports already has enumerate_qualified_exports
+   ! for that whole-subtree case.
+   !
+   ! root is the hierarchy root resolve_qualified_component resolves
+   ! path against (same convention/argument shape as that function and
+   ! as enumerate_qualified_exports); path follows resolve_qualified_
+   ! component's own single-segment-or-"/"-separated-multi-segment
+   ! convention, including resolving to root itself via is_self's
+   ! "<self>"/root-name short-circuit.
+   function query_component_exports(root, path, rc) result(entries)
+      class(OuterMetaComponent), target, intent(inout) :: root
+      character(*), intent(in) :: path
+      integer, optional, intent(out) :: rc
+      type(QualifiedExportIndexEntry), allocatable :: entries(:)
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: target_meta
+
+      target_meta => resolve_qualified_component(root, path, _RC)
+
+      allocate(entries(0))
+      call append_own_export_index_entries(target_meta, '', entries, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine collect_qualified_export_index
+   end function query_component_exports
 
    ! extension-registry-visibility change, task groups 2/3: when the
    ! materialization gate (mapl_ExtensionResolution_mod) is enabled,
