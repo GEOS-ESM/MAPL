@@ -24,6 +24,7 @@ contains
 
       thread = get_current_thread()
       _ASSERT(thread < size(this%subcomponents), 'thread id exceeds number of sub components')
+! Note that it is illegal for a Fortran function to return without providing a value to the result variable.
       states = this%subcomponents(thread+1)%states
 
       _RETURN(_SUCCESS)
@@ -45,6 +46,7 @@ contains
 
       thread = get_current_thread()
       _ASSERT(thread < size(this%subcomponents), 'thread id exceeds number of sub components')
+! Note that it is illegal for a Fortran function to return without providing a value to the result variable.
       gridcomp = this%subcomponents(thread+1)%gridcomp
 
       _RETURN(_SUCCESS)
