@@ -63,6 +63,7 @@ module Test_GraphBuilder
    use gFTL2_StringVector, only: StringVector
    use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
+   use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
    use esmf
    use pfunit
    implicit none(type, external)
@@ -1737,6 +1738,176 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_ordinary_connection_wires_matching_composite
+
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 8.1 /
+   ! graph/component-hierarchy delta spec "Composite member items are not
+   ! independently nameable in a connection": confirms, with zero code
+   ! change (design.md D6 - "already confirmed to hold structurally"),
+   ! that a composite's internal member never becomes independently
+   ! addressable. advertise_one only ever calls add_resource_index/
+   ! add_import_port/add_export_port for the top-level composite
+   ! identity itself (GraphBuilder_Advertising_smod.F90) -
+   ! materialize_composite/materialize_member (CompositeStateMaterialization.F90)
+   ! register each member's own StateItemNode but never call any of
+   ! those three port/index-population procedures for it. Consequence:
+   ! the member's own node is reachable only via the top-level node's own
+   ! GraphStateItem%state_members map (already covered by
+   ! test_composite_advertise_creates_node_tree above) - never via the
+   ! component's own resource index or import/export-port tables, which
+   ! is exactly what a connection endpoint lookup (resolve_local_node_id,
+   ! for_each_matching_import, find_export_node) consults - confirmed
+   ! here directly, by checking the member's own NodeId is absent from
+   ! both port tables, and indirectly, by observing that an ordinary
+   ! connection naming the member by its own short_name resolves nothing
+   ! at all (no match, no unresolved report either - 'tracers' was never
+   ! a declared import to begin with).
+   @test(npes=[0])
+   subroutine test_composite_member_not_independently_addressable(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: src_graph, dst_graph
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(VariableSpec) :: export_composite, import_composite
+      type(NodeId), pointer :: top_export_id, top_import_id
+      type(NodeId), pointer :: export_member_id, import_member_id
+      class(GraphNode), pointer :: generic_node
+      type(GraphStateItem), pointer :: payload
+      type(StateItemMemberMap), pointer :: members
+      type(PortIdNodeIdMap) :: src_export_ports, dst_import_ports
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_parent_composite_member', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      export_composite = make_var(ESMF_STATEINTENT_EXPORT, 'PHYS_STATE')
+      export_composite%itemType = MAPL_STATEITEM_STATE
+      call export_composite%declare_member('tracers', make_var(ESMF_STATEINTENT_EXPORT, 'tracers'), rc=status)
+      @assert_that(status, is(0))
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_composite)
+
+      import_composite = make_var(ESMF_STATEINTENT_IMPORT, 'PHYS_STATE')
+      import_composite%itemType = MAPL_STATEITEM_STATE
+      call import_composite%declare_member('tracers', make_var(ESMF_STATEINTENT_IMPORT, 'tracers'), rc=status)
+      @assert_that(status, is(0))
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(import_composite)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+
+      ! Member is NOT in either component's own resource index, under
+      ! either state intent - only the top-level composite's own
+      ! identity key ('PHYS_STATE') is registered there.
+      @assert_that(associated(src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'tracers'))), is(false()))
+      @assert_that(associated(dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'tracers'))), is(false()))
+
+      ! Find each member's own real NodeId the only way it IS reachable
+      ! - through its own top-level node's state_members map (same path
+      ! test_composite_advertise_creates_node_tree already confirms).
+      top_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'PHYS_STATE'))
+      @assert_that(associated(top_export_id), is(true()))
+      generic_node => src_graph%get_node(top_export_id)
+      select type (generic_node)
+      class is (StateItemNode)
+         payload => generic_node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      members => payload%state_members_ptr()
+      export_member_id => members%at('tracers')
+      @assert_that(associated(export_member_id), is(true()))
+
+      top_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'PHYS_STATE'))
+      @assert_that(associated(top_import_id), is(true()))
+      generic_node => dst_graph%get_node(top_import_id)
+      select type (generic_node)
+      class is (StateItemNode)
+         payload => generic_node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      members => payload%state_members_ptr()
+      import_member_id => members%at('tracers')
+      @assert_that(associated(import_member_id), is(true()))
+
+      ! Member's own real NodeId is NOT a value anywhere in either
+      ! component's own public import/export-port table - only the
+      ! top-level composite's own NodeId is.
+      src_export_ports = src_graph%get_export_ports()
+      @assert_that(port_map_contains_value(src_export_ports, export_member_id), is(false()))
+      @assert_that(port_map_contains_value(src_export_ports, top_export_id), is(true()))
+
+      dst_import_ports = dst_graph%get_import_ports()
+      @assert_that(port_map_contains_value(dst_import_ports, import_member_id), is(false()))
+      @assert_that(port_map_contains_value(dst_import_ports, top_import_id), is(true()))
+
+      ! An ordinary connection naming the member directly by its own
+      ! short_name ('tracers') therefore cannot resolve it:
+      ! for_each_matching_import (which drives resolve_match_connection
+      ! below) only ever iterates dst_graph's own import-port table,
+      ! which has no entry for 'tracers' - the connection's own pattern
+      ! matches nothing at all. Left silently unmatched, not reported as
+      ! unresolved either: unsatisfied-import reporting only covers
+      ! DECLARED (import-port-table) items, and 'tracers' is not one.
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='tracers')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='tracers')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      @assertEqual(0, unsupported%size())
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_composite_member_not_independently_addressable
+
+   logical function port_map_contains_value(ports, target) result(found)
+      type(PortIdNodeIdMap), target, intent(in) :: ports
+      type(NodeId), pointer, intent(in) :: target
+      type(PortIdNodeIdMapIterator) :: iter
+      type(NodeId) :: candidate
+
+      found = .false.
+      associate (e => ports%ftn_end())
+         iter = ports%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            candidate = iter%second()
+            if (candidate == target) then
+               found = .true.
+               return
+            end if
+         end do
+      end associate
+   end function port_map_contains_value
 
    ! -- openspec/changes/vertical-grid-graph-state-item ---------------------
 
