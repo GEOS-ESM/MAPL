@@ -2411,6 +2411,141 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_qualified_name_matches_virtualconnectionpt_convention
 
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 7.1,
+   ! design.md D4: query_component_exports(root, path) returns ONLY the
+   ! path-resolved component's own resolved exports - no recursion into
+   ! its children (unlike enumerate_qualified_exports/
+   ! build_qualified_export_namespace, which flatten a whole subtree).
+   @test(npes=[0])
+   subroutine test_query_component_exports_scoped_to_resolved_component(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: chem_driver, du_driver
+      type(ESMF_GridComp) :: chem_gc, du_gc
+      type(OuterMetaComponent), pointer :: chem_meta, du_meta
+      type(ComponentSpec), pointer :: chem_spec, du_spec
+      type(QualifiedExportIndexEntry), allocatable :: entries(:)
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('qce_root', root_gc, root_meta, _RC)
+      child_spec = ChildSpec()
+      call root_meta%add_child('CHEM', child_spec, _RC)
+      chem_driver = root_meta%get_child('CHEM', _RC)
+      chem_gc = chem_driver%get_gridcomp()
+      chem_meta => get_outer_meta(chem_gc, _RC)
+      chem_spec => chem_meta%get_component_spec()
+      call chem_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'Y'))
+
+      child_spec = ChildSpec()
+      call chem_meta%add_child('DU', child_spec, _RC)
+      du_driver = chem_meta%get_child('DU', _RC)
+      du_gc = du_driver%get_gridcomp()
+      du_meta => get_outer_meta(du_gc, _RC)
+      du_spec => du_meta%get_component_spec()
+      call du_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'X'))
+
+      call gb%advertise(du_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(chem_meta, status)
+      @assert_that(status, is(0))
+
+      ! Querying CHEM returns only CHEM's own 'Y' - DU's own 'X' is NOT
+      ! included, because this query does not recurse into children
+      ! (contrast with build_qualified_export_namespace, which would
+      ! return both under 'Y' and 'DU/X').
+      entries = query_component_exports(root_meta, 'CHEM', status)
+      @assert_that(status, is(0))
+      @assertEqual(1, size(entries))
+      @assertEqual('Y', entries(1)%qualified_path)
+      @assert_that(associated(entries(1)%owner, chem_meta), is(true()))
+
+      ! Querying DU directly (two-segment path through CHEM) returns
+      ! DU's own 'X' alone.
+      entries = query_component_exports(root_meta, 'CHEM/DU', status)
+      @assert_that(status, is(0))
+      @assertEqual(1, size(entries))
+      @assertEqual('X', entries(1)%qualified_path)
+      @assert_that(associated(entries(1)%owner, du_meta), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_query_component_exports_scoped_to_resolved_component
+
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 7.2,
+   ! design.md D4: History-style deep-hierarchy export visibility - a
+   ! 3+-level nested fixture (root -> MID -> LEAF), resolved correctly
+   ! through query_component_exports's path-resolution + local-index
+   ! read, with NO propagation/mirroring step involved at any level
+   ! (LEAF's own export is never mirrored into MID or root's own
+   ! import/export-port tables; it is found purely by resolving the
+   ! qualified path and reading LEAF's own resource index directly).
+   @test(npes=[0])
+   subroutine test_query_component_exports_deep_hierarchy_no_propagation(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: mid_driver, leaf_driver
+      type(ESMF_GridComp) :: mid_gc, leaf_gc
+      type(OuterMetaComponent), pointer :: mid_meta, leaf_meta
+      type(ComponentSpec), pointer :: leaf_spec
+      type(QualifiedExportIndexEntry), allocatable :: entries(:)
+      type(NodeId), pointer :: leaf_own_node_id
+      type(ComponentGraph), pointer :: leaf_graph
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('qce_deep_root', root_gc, root_meta, _RC)
+      child_spec = ChildSpec()
+      call root_meta%add_child('MID', child_spec, _RC)
+      mid_driver = root_meta%get_child('MID', _RC)
+      mid_gc = mid_driver%get_gridcomp()
+      mid_meta => get_outer_meta(mid_gc, _RC)
+
+      child_spec = ChildSpec()
+      call mid_meta%add_child('LEAF', child_spec, _RC)
+      leaf_driver = mid_meta%get_child('LEAF', _RC)
+      leaf_gc = leaf_driver%get_gridcomp()
+      leaf_meta => get_outer_meta(leaf_gc, _RC)
+      leaf_spec => leaf_meta%get_component_spec()
+      call leaf_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'DEEP'))
+
+      call gb%advertise(leaf_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(mid_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(root_meta, status)
+      @assert_that(status, is(0))
+      ! Deliberately no run_propagate_hook/run_export_propagate_hook
+      ! call anywhere in this test - the whole point of D4 is that this
+      ! query needs none of that machinery.
+
+      entries = query_component_exports(root_meta, 'MID/LEAF', status)
+      @assert_that(status, is(0))
+      @assertEqual(1, size(entries))
+      @assertEqual('DEEP', entries(1)%qualified_path)
+      @assert_that(associated(entries(1)%owner, leaf_meta), is(true()))
+
+      leaf_graph => leaf_meta%get_component_graph()
+      leaf_own_node_id => leaf_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'DEEP'))
+      @assert_that(associated(leaf_own_node_id), is(true()))
+      @assert_that(entries(1)%node_id == leaf_own_node_id, is(true()))
+
+      ! root's own query (path '<self>') has no entries of its own at
+      ! all - root never declared any export, and this query performs
+      ! no recursion that could otherwise surface LEAF's export under
+      ! root.
+      entries = query_component_exports(root_meta, '<self>', status)
+      @assert_that(status, is(0))
+      @assertEqual(0, size(entries))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_query_component_exports_deep_hierarchy_no_propagation
+
    ! Task 3.2 / spec "A destination with no declared callback interface
    ! is unaffected": ordinary resolution, unchanged, for a var_spec
    ! whose callback_interface_id is left at its default (unset) value.
