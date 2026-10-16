@@ -35,7 +35,29 @@ else()
 endif()
 set(TEST_ENV "${LD_PATH}=$<TARGET_FILE_DIR:configurable_gridcomp>:$<TARGET_FILE_DIR:MAPL.componentDriverGridComp>:${CMAKE_CURRENT_BINARY_DIR}/gridcomps:${CMAKE_BINARY_DIR}/lib:$ENV{${LD_PATH}};UDUNITS2_XML_PATH=${udunits_XML_PATH}")
 
+# Tests with a dryrun.rc run extdata_dryrun_check.py, which needs python netCDF4
+find_package(Python3 COMPONENTS Interpreter QUIET)
+set(NETCDF4_PY_RESULT 1)
+if (Python3_EXECUTABLE)
+  execute_process(
+    COMMAND ${Python3_EXECUTABLE} -c "import netCDF4"
+    RESULT_VARIABLE NETCDF4_PY_RESULT
+    OUTPUT_QUIET ERROR_QUIET
+  )
+endif()
+if (NETCDF4_PY_RESULT EQUAL 0)
+  set(HAVE_PYTHON_NETCDF4 TRUE)
+else()
+  set(HAVE_PYTHON_NETCDF4 FALSE)
+endif()
+set(SKIPPED_DRYRUN_CASES "")
+
 foreach(TEST_CASE ${TEST_CASES})
+
+  if (NOT HAVE_PYTHON_NETCDF4 AND EXISTS ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/dryrun.rc)
+    list(APPEND SKIPPED_DRYRUN_CASES ${TEST_CASE})
+    continue()
+  endif()
 
   if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/nproc.rc)
     file(READ ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/nproc.rc num_procs)
@@ -55,6 +77,7 @@ foreach(TEST_CASE ${TEST_CASES})
       -DTEST_CASE=${TEST_CASE}
       "-DTEST_DESCRIPTION=${test_description}"
       -DMPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE}
+      -DPython3_EXECUTABLE=${Python3_EXECUTABLE}
       -DMPIEXEC_NUMPROC_FLAG=${MPIEXEC_NUMPROC_FLAG}
       -DMY_BINARY_DIR=${CMAKE_BINARY_DIR}/bin
       -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}
@@ -68,3 +91,9 @@ foreach(TEST_CASE ${TEST_CASES})
      set_tests_properties ("MAPL3G_Comp_Test_${TEST_CASE}" PROPERTIES ENVIRONMENT "${TEST_ENV}")
   endif()
 endforeach()
+
+if (SKIPPED_DRYRUN_CASES)
+  list(JOIN SKIPPED_DRYRUN_CASES ", " _skipped)
+  message(WARNING
+    "Python3 netCDF4 package not found: SKIPPING MAPL3G component tests that require it (${_skipped}). Install netCDF4 for the Python3 interpreter to enable them.")
+endif()
