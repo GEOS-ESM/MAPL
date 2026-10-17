@@ -64,6 +64,7 @@ module Test_GraphBuilder
    use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
    use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
+   use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
    use esmf
    use pfunit
    implicit none(type, external)
@@ -115,50 +116,9 @@ contains
    end subroutine restore_materialize_extensions_gate
 
    ! Directly builds a top-level OuterMetaComponent, bypassing
-   ! SetServices/DSO machinery - same helper as
-   ! Test_ComponentHierarchyGraph.pf.
-   subroutine make_outer_meta(name, outer_gc, outer_meta, rc)
-      character(*), intent(in) :: name
-      type(ESMF_GridComp), intent(out) :: outer_gc
-      type(OuterMetaComponent), pointer, intent(out) :: outer_meta
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ESMF_GridComp) :: user_gc
-      type(GriddedComponentDriver) :: user_gc_driver
-      type(ESMF_HConfig) :: hconfig
-
-      hconfig = ESMF_HConfigCreate(content='{}', _RC)
-      outer_gc = ESMF_GridCompCreate(name='['//trim(name)//']', _RC)
-      user_gc = ESMF_GridCompCreate(name=name, _RC)
-      user_gc_driver = GriddedComponentDriver(user_gc)
-
-      call attach_outer_meta(outer_gc, _RC)
-      outer_meta => get_outer_meta(outer_gc, _RC)
-#ifndef __GFORTRAN__
-      outer_meta = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
-#else
-      block
-         type(OuterMetaComponent) :: tmp
-         tmp = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
-         outer_meta = tmp
-      end block
-#endif
-      call outer_meta%init_meta(_RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine make_outer_meta
-
-   function make_var(state_intent, short_name, units) result(var_spec)
-      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
-      character(*), intent(in) :: short_name
-      character(*), optional, intent(in) :: units
-      type(VariableSpec) :: var_spec
-
-      var_spec%state_intent = state_intent
-      var_spec%short_name = short_name
-      if (present(units)) var_spec%units = units
-   end function make_var
+   ! SetServices/DSO machinery, and builds a VariableSpec - shared
+   ! helpers, see GraphBuilderTestSupport_mod (docs/graph/spec/
+   ! 20-implementation-roadmap.md sec 20.4.17, sub-step 17-1).
 
    ! Task 6.1 / spec "Advertising creates graph state-item nodes":
    ! advertised import/export/internal each produce exactly one

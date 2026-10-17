@@ -704,6 +704,15 @@ at once rather than being built twice.
 **Confidence:** medium. Depends on how often cross-component wiring bugs
 turn out to be the actual pain point in practice — not yet known.
 
+**Cross-reference, added without resolving this question.** A
+standalone, per-component (not hierarchy-stitched) export driver is
+tracked as `20-implementation-roadmap.md` §20.4.21 (Phase 21) —
+automating the "debugging use case within one component's own wiring"
+this entry's own recommendation already identifies as the more common
+failure mode. It does not attempt, and does not resolve, this
+question's own harder hierarchy-wide-composition problem, which
+remains open exactly as recorded above.
+
 ---
 
 ## Summary: settled vs. speculative vs. open, at a glance

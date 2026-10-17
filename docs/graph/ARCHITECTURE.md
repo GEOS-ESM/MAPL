@@ -655,4 +655,30 @@ numbering), Phase 13 (restart compatibility).
 **Do not start Phase 6a (legacy `StateRegistry` retirement) until the
 five-item prerequisite list in roadmap §20.4.11 has landed** — this
 includes 3b2 (the Group-6 work this branch is mid-implementing).
-</content>
+
+**New, planning-only phases added this session (no code changed; see
+roadmap §20.4.17-§20.4.21 for full scope/sub-sequencing of each) —
+Phases 17-21, an independent cleanup/infrastructure/diagnostics lane,
+confirmed to proceed in parallel with Phase 6a's own prerequisite list
+and Phases 7/12/13 except where explicitly noted:** Phase 17
+(`GraphBuilder.F90`/`Test_GraphBuilder.pf` size — characterize before
+splitting; first session-sized step is dedup of two duplicated test
+fixture helpers), Phase 18 (subdirectory reorganization of
+`superstructure/generic/graph/` into `characteristics/`/`transforms/`/
+`callback/`/`id_types/` — **sequencing-gated on Phase 12 for the
+`characteristics/` move specifically**, not an independent lane
+without qualification), Phase 19 (dedup two near-identical
+`sorted_names` helpers — the backlog's original "`StringVector`
+instead of fixed-width arrays" framing did not survive verification;
+no genuine growable-character-array instance was found in the graph
+codebase), Phase 20 (test-suite log noise — recorded for
+traceability per explicit request, but judged NOT to be
+graph-architecture roadmap work in its "field dictionary" half; kept
+short, pointing at source rather than restating it), Phase 21
+(standalone per-component graph-to-image/JSON diagnostic driver —
+reframed from low-priority dev convenience to real diagnostic
+tooling for debugging graph structure once Phase 12/7a-c land;
+recommended to be sequenced BEFORE those phases, not after, despite
+the backlog's own original "last priority" framing).
+
+
