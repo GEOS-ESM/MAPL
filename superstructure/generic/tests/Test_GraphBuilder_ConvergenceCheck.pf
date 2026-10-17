@@ -4,10 +4,17 @@
 ! Tasks 5.2/5.3 (spec/12-methods-and-drivers.md REQ-MTH-011 step (c),
 ! griddedcomponentdriver-integration-lifecycle spec.md "The realize/
 ! accept/realize initialization cycle terminates on defined convergence
-! or fails explicitly"). graphbuilder_run_connect_hook's new hard-error
-! check for an unresolved required import once the graph is frozen -
-! promoted from graphbuilder_run_activate_hook's existing warning-only
-! report (design.md Decisions).
+! or fails explicitly"). Originally graphbuilder_run_connect_hook's own
+! hard-error check for an unresolved required import once that
+! component's own graph froze; openspec/changes/hierarchy-wide-
+! component-graph, tasks.md Group 9 (design.md D7) moved both freezing
+! and this convergence check to a single, hierarchy-wide call -
+! GraphBuilder%run_graph_freeze_hook, the GENERIC_INIT_GRAPH_FREEZE
+! phase's own entry point (OuterMetaComponent/
+! initialize_graph_freeze.F90) - run exactly once, at the hierarchy
+! root, after every component's own connections are resolved
+! (run_connect_hook, which no longer freezes or checks convergence
+! itself). Rewritten against that new call site (tasks.md task 9.4).
 !
 ! Test-only OuterMetaComponent instances are built the same way
 ! Test_GraphBuilder.pf does (bypassing SetServices/DSO machinery).
@@ -15,6 +22,7 @@ module Test_GraphBuilder_ConvergenceCheck
    use mapl_OuterMetaComponent_mod
    use mapl_GraphBuilder_mod
    use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_NodeId_mod, only: NodeId
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_ChildSpec_mod, only: ChildSpec
    use mapl_ComponentSpec_mod, only: ComponentSpec
@@ -31,6 +39,12 @@ contains
 
    ! Directly builds a top-level OuterMetaComponent, bypassing
    ! SetServices/DSO machinery - same helper as Test_GraphBuilder.pf.
+   ! No hierarchy_id argument is passed to init_meta - matching every
+   ! real top-level/cap component, this makes `outer_meta` the true
+   ! root of its own one-component hierarchy
+   ! (OuterMetaComponent.F90's own is_hierarchy_root field-declaration
+   ! comment) - required for run_graph_freeze_hook below to be anything
+   ! other than a no-op when called on it.
    subroutine make_outer_meta(name, outer_gc, outer_meta, rc)
       character(*), intent(in) :: name
       type(ESMF_GridComp), intent(out) :: outer_gc
@@ -76,6 +90,11 @@ contains
    ! Test_GraphBuilder.pf's own connect_all-style MatchConnection shape.
    ! When leave_unresolved is .true., child_dst additionally declares an
    ! import ('Q') with no matching export - the never-resolvable case.
+   ! Resolves connections on both children (run_connect_hook) but does
+   ! NOT freeze or check convergence - callers do that explicitly via
+   ! run_graph_freeze_hook, called once on parent_meta (the hierarchy
+   ! root), matching the real lifecycle's own GENERIC_INIT_GRAPH_FREEZE
+   ! phase ordering (resolve everywhere first, freeze+check once, after).
    subroutine make_two_child_fixture(parent_meta, leave_unresolved, rc)
       type(OuterMetaComponent), pointer, intent(out) :: parent_meta
       logical, intent(in) :: leave_unresolved
@@ -122,16 +141,27 @@ contains
       parent_spec => parent_meta%get_component_spec()
       call parent_spec%add_connection(conn)
 
+      ! connect()-time resolution on every component (matches the real
+      ! lifecycle's own per-component GENERIC_INIT_ACCEPT_TRANSFER call,
+      ! which no longer freezes - tasks.md Group 9). parent_meta itself
+      ! declares no imports of its own, so this call on it is a no-op
+      ! other than resolving the MatchConnection it declares between its
+      ! two children.
+      call gb%run_connect_hook(src_meta)
+      call gb%run_connect_hook(dst_meta)
+      call gb%run_connect_hook(parent_meta)
+
       _RETURN(_SUCCESS)
    end subroutine make_two_child_fixture
 
    ! Spec scenario "Cycle reaching the iteration limit without
    ! convergence fails explicitly": an import that can never be
-   ! resolved is still unresolved once the graph is frozen (the fixed
-   ! schedule has run out) - the new check raises an explicit failure
-   ! rather than only logging a warning, but freeze itself already
-   ! succeeded (component initialization is not aborted - design.md
-   ! Risks "still caught... downgraded to a logged failure").
+   ! resolved is still unresolved once the whole hierarchy is frozen
+   ! (the fixed schedule has run out) - the hard error check raises an
+   ! explicit failure rather than only logging a warning, but freezing
+   ! itself already succeeded for every component (component
+   ! initialization is not aborted - design.md Risks "still caught...
+   ! downgraded to a logged failure").
    @test(npes=[0])
    subroutine test_unresolved_import_after_freeze_fails_explicitly(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -143,13 +173,14 @@ contains
 
       call make_two_child_fixture(parent_meta, leave_unresolved=.true., _RC)
 
-      call gb%run_connect_hook(parent_meta)
+      call gb%run_graph_freeze_hook(parent_meta)
       @assertExceptionRaised( &
            'GraphBuilder: unresolved required import(s) remain once the fixed realize/accept/realize '// &
            'schedule ends (griddedcomponentdriver-integration-lifecycle design.md "REQ-MTH-011 step (c) convergence")')
 
-      ! freeze() itself already succeeded before the new check ran -
-      ! the hard error does not roll that back.
+      ! freeze() itself already succeeded (for every component in the
+      ! hierarchy) before the new check ran - the hard error does not
+      ! roll that back.
       parent_graph => parent_meta%get_component_graph()
       @assert_that(parent_graph%is_frozen(), is(true()))
 
@@ -157,34 +188,100 @@ contains
    end subroutine test_unresolved_import_after_freeze_fails_explicitly
 
    ! Spec scenario "Cycle converging within the iteration limit proceeds
-   ! normally": every declared import resolves by the time the graph
-   ! freezes - no exception, ordinary success.
+   ! normally": every declared import resolves by the time the whole
+   ! hierarchy freezes - no exception, ordinary success.
+   !
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 9.2/9.3:
+   ! also directly confirms the hierarchy-wide property itself - every
+   ! component in the hierarchy (both children, not merely the root
+   ! parent_meta on which run_graph_freeze_hook was called) reports
+   ! frozen afterward. A single run_graph_freeze_hook(parent_meta) call
+   ! walking only parent_meta's own graph (the old, per-component
+   ! behavior) would leave src_meta/dst_meta's own graphs unfrozen -
+   ! this assertion is what distinguishes "hierarchy-wide" from
+   ! "per-component, called once more."
    @test(npes=[0])
    subroutine test_fully_resolved_proceeds_without_error(this)
       class(MpiTestMethod), intent(inout) :: this
 
       type(OuterMetaComponent), pointer :: parent_meta
-      type(ComponentGraph), pointer :: parent_graph
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ComponentGraph), pointer :: parent_graph, src_graph, dst_graph
       type(GraphBuilder) :: gb
       integer :: status
 
       call make_two_child_fixture(parent_meta, leave_unresolved=.false., _RC)
 
-      call gb%run_connect_hook(parent_meta)
+      call gb%run_graph_freeze_hook(parent_meta)
 
       parent_graph => parent_meta%get_component_graph()
       @assert_that(parent_graph%is_frozen(), is(true()))
 
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      @assert_that(src_graph%is_frozen(), is(true()))
+      @assert_that(dst_graph%is_frozen(), is(true()))
+
       _UNUSED_DUMMY(this)
    end subroutine test_fully_resolved_proceeds_without_error
 
-   ! Task 5.3 (regression): a second call to run_connect_hook on an
-   ! already-frozen, fully-resolved graph is a safe no-op - it must not
-   ! re-raise the hard-error check with stale/inconsistent state, and
-   ! must not attempt to mutate the frozen graph (spec scenario "Cycle
-   ! stops once an iteration makes no further progress"), matching the
-   ! real ESMF-driven double GENERIC_INIT_ACCEPT_TRANSFER invocation
-   ! graphbuilder_resolve_connections' own header comment documents.
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 9.3
+   ! ("Update frozen-structure-rejects-mutation test coverage to
+   ! exercise attempted mutation from an arbitrary component anywhere
+   ! in an already-frozen hierarchy, not only the component that issued
+   ! the freeze call"): a non-root child's own graph - never the
+   ! component run_graph_freeze_hook was directly called on - rejects a
+   ! mutation attempt once the hierarchy-wide freeze has run, exactly as
+   ! graph/component-hierarchy's own "Frozen structure rejects mutation"
+   ! scenario requires.
+   @test(npes=[0])
+   subroutine test_mutation_rejected_from_arbitrary_hierarchy_component(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta
+      type(GriddedComponentDriver) :: src_driver
+      type(ESMF_GridComp) :: src_gc
+      type(ComponentGraph), pointer :: src_graph
+      type(NodeId) :: bogus_id
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call make_two_child_fixture(parent_meta, leave_unresolved=.false., _RC)
+      call gb%run_graph_freeze_hook(parent_meta)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      src_graph => src_meta%get_component_graph()
+      @assert_that(src_graph%is_frozen(), is(true()))
+
+      ! child_src never itself called run_graph_freeze_hook (only
+      ! parent_meta, the hierarchy root, did) - its own graph is frozen
+      ! purely as a consequence of the hierarchy-wide walk. Attempting
+      ! to register a fresh node on it now must fail, exactly as it
+      ! would for the root.
+      bogus_id = src_graph%next_node_id(rc=status)
+      @assertExceptionRaised('ComponentGraph: next_node_id called on a frozen graph')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_mutation_rejected_from_arbitrary_hierarchy_component
+
+   ! Task 5.3 (regression), updated for tasks.md Group 9's new call
+   ! site: a second call to run_graph_freeze_hook on an already-frozen,
+   ! fully-resolved hierarchy is a safe no-op - it must not re-raise the
+   ! hard-error check with stale/inconsistent state, and must not
+   ! attempt to mutate the already-frozen graph (ComponentGraph%freeze()
+   ! is itself idempotent, ComponentGraph.F90 graph_freeze - "Idempotent
+   ! if already frozen").
    @test(npes=[0])
    subroutine test_second_call_on_frozen_graph_is_noop(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -196,12 +293,12 @@ contains
 
       call make_two_child_fixture(parent_meta, leave_unresolved=.false., _RC)
 
-      call gb%run_connect_hook(parent_meta)
+      call gb%run_graph_freeze_hook(parent_meta)
       parent_graph => parent_meta%get_component_graph()
       @assert_that(parent_graph%is_frozen(), is(true()))
 
       ! Second invocation - no exception expected, graph remains frozen.
-      call gb%run_connect_hook(parent_meta)
+      call gb%run_graph_freeze_hook(parent_meta)
       @assert_that(parent_graph%is_frozen(), is(true()))
 
       _UNUSED_DUMMY(this)

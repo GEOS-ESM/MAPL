@@ -36,6 +36,13 @@ contains
          this%hierarchy_id = hierarchy_id
       else
          this%hierarchy_id = request_new_hierarchy()
+         ! openspec/changes/hierarchy-wide-component-graph, tasks.md
+         ! Group 9 (design.md D7): this branch means `this` requested a
+         ! brand-new hierarchy of its own rather than joining a caller-
+         ! supplied one - i.e. `this` is the true root of its own
+         ! hierarchy. See OuterMetaComponent.F90's own is_hierarchy_root
+         ! field-declaration comment for its sole consumer.
+         this%is_hierarchy_root = .true.
          ! graph/component-hierarchy delta spec "Component names are
          ! unique across the entire hierarchy": this component is the
          ! hierarchy's own root - no add_child_by_spec call ever runs

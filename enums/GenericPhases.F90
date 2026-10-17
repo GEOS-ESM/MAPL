@@ -17,6 +17,7 @@ module mapl_GenericPhases_mod
    public :: GENERIC_INIT_REALIZE_PROVIDED
    public :: GENERIC_INIT_ACCEPT_TRANSFER
    public :: GENERIC_INIT_REALIZE_ACCEPTED
+   public :: GENERIC_INIT_GRAPH_FREEZE
    public :: GENERIC_INIT_READ_RESTART
    public :: GENERIC_INIT_USER
 
@@ -46,6 +47,25 @@ module mapl_GenericPhases_mod
       enumerator :: GENERIC_INIT_REALIZE_PROVIDED
       enumerator :: GENERIC_INIT_ACCEPT_TRANSFER
       enumerator :: GENERIC_INIT_REALIZE_ACCEPTED
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group 9
+      ! (design.md D7, "Freeze becomes one hierarchy-wide call"): a
+      ! dedicated, explicitly NON-RECURSIVE phase - the handler
+      ! (OuterMetaComponent%initialize_graph_freeze) does not call
+      ! recurse() the way every other init phase does; it is a no-op for
+      ! any non-root component and, only at the true hierarchy root,
+      ! performs its own single explicit whole-tree walk
+      ! (GraphBuilder%freeze_hierarchy) that freezes every component's
+      ! ComponentGraph exactly once. Appears exactly ONCE in
+      ! GENERIC_INIT_PHASE_SEQUENCE below (unlike GENERIC_INIT_
+      ! ACCEPT_TRANSFER, which appears twice for the realize/accept/
+      ! realize two-pass schedule) - this single occurrence is what makes
+      ! "freeze once, after everything else is done" require no
+      ! additional idempotency guard at this call site. Placed after the
+      ! second GENERIC_INIT_REALIZE_ACCEPTED (the last point any graph
+      ! structure is still being mutated) and before GENERIC_INIT_
+      ! READ_RESTART (which only reads graph-adjacent state, never
+      ! mutates structure).
+      enumerator :: GENERIC_INIT_GRAPH_FREEZE
       enumerator :: GENERIC_INIT_READ_RESTART
    end enum
 
@@ -103,7 +123,14 @@ module mapl_GenericPhases_mod
         GENERIC_INIT_REALIZE_PROVIDED, & ! 9
         GENERIC_INIT_ACCEPT_TRANSFER, &  ! 10
         GENERIC_INIT_REALIZE_ACCEPTED, & ! 11
-        
+
+        ! openspec/changes/hierarchy-wide-component-graph, tasks.md
+        ! Group 9: exactly one occurrence, after the second (and last)
+        ! GENERIC_INIT_REALIZE_ACCEPTED above - see this phase's own
+        ! enumerator comment above for why it needs no idempotency
+        ! guard the way GENERIC_INIT_ACCEPT_TRANSFER's own two
+        ! occurrences do.
+        GENERIC_INIT_GRAPH_FREEZE, &     ! 12
 
         ! label_DataInitialize
         GENERIC_INIT_READ_RESTART, & ! IMPORTANT: Goes before INIT_USER

@@ -116,8 +116,9 @@ contains
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_MODIFY_ADVERTISED, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE_PROVIDED, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_ACCEPT_TRANSFER, _RC)
-         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE_ACCEPTED, _RC)
-         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_READ_RESTART, _RC)
+        call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE_ACCEPTED, _RC)
+        call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_GRAPH_FREEZE, _RC)
+        call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_READ_RESTART, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_USER, _RC)
 
          ! Run phases, including mandatory
@@ -257,6 +258,8 @@ contains
           call outer_meta%initialize_accept_transfer(importState, exportState, clock, _RC)
        case (GENERIC_INIT_REALIZE_ACCEPTED)
           call outer_meta%initialize_realize_accepted(importState, exportState, clock, _RC)
+       case (GENERIC_INIT_GRAPH_FREEZE)
+          call outer_meta%initialize_graph_freeze(_RC)
        case (GENERIC_INIT_READ_RESTART)
           call outer_meta%initialize_read_restart(_RC)
       case (GENERIC_INIT_USER)

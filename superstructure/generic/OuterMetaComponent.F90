@@ -67,6 +67,22 @@ module mapl_OuterMetaComponent_mod
       ! (add_child_by_spec.F90), so every ComponentGraph anywhere in one
       ! hierarchy shares the same HierarchyGraph.
       type(HierarchyId) :: hierarchy_id
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group
+      ! 9 (design.md D7): set once, in init_meta.F90, to .true. iff this
+      ! component requested a FRESH HierarchyId (the no-hierarchy_id-
+      ! argument branch there) - i.e. this component is the true root
+      ! of its own hierarchy, never a descendant (every descendant is
+      ! always constructed with its parent's own hierarchy_id passed
+      ! explicitly, add_child_by_spec.F90). The sole consumer is
+      ! initialize_graph_freeze.F90's own GENERIC_INIT_GRAPH_FREEZE
+      ! handler, which must perform its one-shot whole-hierarchy freeze
+      ! walk only once, at the true root, and be a no-op everywhere
+      ! else - this flag is the cheapest, already-available way to make
+      ! that distinction (no new "get_parent" accessor is introduced;
+      ! REQ-HIER-003/005 encapsulation is unaffected, this is a private
+      ! field read only by this component's own initialize_graph_freeze
+      ! method).
+      logical :: is_hierarchy_root = .false.
       ! Graph-neutral core (docs/graph/spec/02-component-hierarchy.md
       ! REQ-HIER-002/004): exactly one local ComponentGraph per
       ! OuterComponent. Constructed in init_meta (see init_meta.F90);
@@ -91,6 +107,26 @@ module mapl_OuterMetaComponent_mod
       ! field precedent, which solves a different problem that does
       ! not apply to a four-byte id).
       type(NodeId) :: run_phase_method_node_id = INVALID_NodeId
+
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group
+      ! 9 (design.md D7): graphbuilder_resolve_connections's own
+      ! idempotency gate - set once that procedure completes real
+      ! resolution for this component. Replaces the former
+      ! graph%is_frozen() gate (GraphBuilder_ConnectionResolution_
+      ! smod.F90's own prior header comment), which stopped being a
+      ! valid "has this component's own connect()-time resolution
+      ! already run" signal once freeze moved off the per-component
+      ! GENERIC_INIT_ACCEPT_TRANSFER call site entirely (freeze now
+      ! happens once, hierarchy-wide, at the new, later
+      ! GENERIC_INIT_GRAPH_FREEZE phase - this component's own graph is
+      ! therefore still MUTABLE across both GENERIC_INIT_ACCEPT_TRANSFER
+      ! passes of the fixed realize/accept/realize schedule,
+      ! GenericPhases.F90, so `is_frozen()` can never again serve as this
+      ! guard). A plain, private boolean (not a NodeId-shaped sentinel
+      ! like run_phase_method_node_id above) because there is no
+      ! existing value this procedure produces whose own "unset" state
+      ! could double as the flag.
+      logical :: connections_resolved = .false.
 
       class(Logger), pointer :: lgr  => null() ! "MAPL.Generic" // name
 
@@ -122,6 +158,12 @@ module mapl_OuterMetaComponent_mod
       ! (proposal.md Non-Goals).
       procedure :: get_run_phase_method_node_id
       procedure :: set_run_phase_method_node_id
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group
+      ! 9: accessor/mark-done pair for connections_resolved above - used
+      ! only by graphbuilder_resolve_connections's own replacement
+      ! idempotency gate (GraphBuilder_ConnectionResolution_smod.F90).
+      procedure :: connections_already_resolved
+      procedure :: mark_connections_resolved
       procedure :: get_logger
       procedure :: set_misc
       procedure :: set_checkpoint_controls_flags
@@ -144,6 +186,15 @@ module mapl_OuterMetaComponent_mod
       procedure :: initialize_realize_provided
       procedure :: initialize_accept_transfer
       procedure :: initialize_realize_accepted
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group
+      ! 9 (design.md D7): the GENERIC_INIT_GRAPH_FREEZE handler - see
+      ! enums/GenericPhases.F90's own enumerator comment and
+      ! OuterMetaComponent/initialize_graph_freeze.F90's module header
+      ! for the full "why a new phase, why non-recursive" rationale.
+      ! Deliberately NOT given a `recursive` qualifier the way every
+      ! other initialize_* phase handler here is - see that file for
+      ! why.
+      procedure :: initialize_graph_freeze
       procedure :: initialize_read_restart
 
       procedure :: run_user
@@ -415,6 +466,16 @@ module mapl_OuterMetaComponent_mod
           integer, optional, intent(out) :: rc
       end subroutine initialize_realize_accepted
 
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group
+      ! 9: NOT `recursive` - see initialize_graph_freeze.F90's own
+      ! module header for why this phase handler must not call
+      ! recurse() the way every other init-phase handler in this
+      ! interface block does.
+      module subroutine initialize_graph_freeze(this, rc)
+          class(OuterMetaComponent), target, intent(inout) :: this
+          integer, optional, intent(out) :: rc
+      end subroutine initialize_graph_freeze
+
       module recursive subroutine initialize_read_restart(this, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          ! optional arguments
@@ -618,6 +679,18 @@ module mapl_OuterMetaComponent_mod
          type(NodeId), intent(in) :: node_id
          integer, optional, intent(out) :: rc
       end subroutine set_run_phase_method_node_id
+
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group
+      ! 9: see connections_resolved's own field-declaration comment
+      ! above.
+      module function connections_already_resolved(this) result(resolved)
+         logical :: resolved
+         class(OuterMetaComponent), intent(in) :: this
+      end function connections_already_resolved
+
+      module subroutine mark_connections_resolved(this)
+         class(OuterMetaComponent), intent(inout) :: this
+      end subroutine mark_connections_resolved
 
       module function get_component_spec(this) result(component_spec)
          type(ComponentSpec), pointer :: component_spec

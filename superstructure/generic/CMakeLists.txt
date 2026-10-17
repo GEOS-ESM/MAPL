@@ -104,7 +104,8 @@ esma_add_fortran_submodules(
           get_outer_meta_from_outer_gc.F90 attach_outer_meta.F90 free_outer_meta.F90
           get_phases.F90 set_hconfig.F90 get_hconfig.F90 has_geom.F90 get_geom.F90 get_geom_id.F90
 	        advertise_variable.F90 initialize_advertise.F90 initialize_modify_advertised.F90
-          initialize_realize_provided.F90 initialize_accept_transfer.F90 initialize_realize_accepted.F90 initialize_read_restart.F90 recurse.F90
+          initialize_realize_provided.F90 initialize_accept_transfer.F90 initialize_realize_accepted.F90
+          initialize_graph_freeze.F90 initialize_read_restart.F90 recurse.F90
 	        apply_to_children_custom.F90
           initialize_user.F90 run_custom.F90 run_user.F90
 	        initialize_set_clock.F90 run_clock_advance.F90
@@ -113,7 +114,7 @@ esma_add_fortran_submodules(
           set_geom.F90 propagate_geom_to_children.F90 set_vertical_grid.F90 get_vertical_grid.F90 get_registry.F90
           get_component_spec.F90 get_internal_state.F90 get_logger.F90
           get_component_graph.F90
-          get_run_phase_method_node_id.F90 set_run_phase_method_node_id.F90
+          get_run_phase_method_node_id.F90 set_run_phase_method_node_id.F90 connections_resolved.F90
           get_child_component_spec.F90 get_child_component_graph.F90 get_child_outer_meta.F90
           get_user_gc_driver.F90 get_child_driver.F90 connect_all.F90 set_entry_point.F90
           finalize.F90 start_timer.F90 stop_timer.F90 get_checkpoint_dir.F90
