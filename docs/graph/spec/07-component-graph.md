@@ -2,26 +2,49 @@
 
 Status: `[SETTLED]` ownership and lifecycle, including the re-evaluated
 structure-constructor position (§7.2) and the shallow-copy-identity
-requirement (§7.4, REQ-CG-009/010); `[OPEN]` future fine-grained
-per-method networks (§7.1, no design yet), convergence mechanics for
-REQ-MTH-011c.
+requirement (§7.4, REQ-CG-009/010); `[RE-EVALUATED]` §7.1 ownership
+(node/network storage is now hierarchy-wide, not per-instance) and
+§7.3 freeze (now a single hierarchy-wide operation, not per-instance)
+per the landed `hierarchy-wide-component-graph` change — see
+`openspec/specs/graph/component-graph/spec.md` for the authoritative
+current requirements; `[OPEN]` future fine-grained per-method networks
+(§7.1, no design yet), convergence mechanics for REQ-MTH-011c.
 
 ## 7.1 Ownership
 
-**REQ-CG-001.** `ComponentGraph` MUST own:
+**REQ-CG-001 `[re-evaluated]`.** The original position — `ComponentGraph`
+owns the `NodeId → GraphNode` map, the `DependencyNetworkId →
+DependencyNetwork` map, and the `NodeIdGenerator`/
+`DependencyNetworkIdGenerator` pair, all per-instance — is superseded by
+the landed `hierarchy-wide-component-graph` change
+(`openspec/specs/graph/component-graph/spec.md`, "ComponentGraph owns
+graph structure and identity generation"). Those three items are now
+shared across every `ComponentGraph` instance within one hierarchy,
+held by `HierarchyGraph`/`HierarchyResources`
+(`superstructure/generic/graph/HierarchyGraph.F90`) and reached by each
+`ComponentGraph` instance through a `HierarchyId` value it holds (not a
+pointer), resolved via `get_hierarchy_resources(this%hierarchy_id)`
+wherever the shared maps/generators are needed. `ComponentGraph` MUST
+still own, exactly as component-local as before:
 
-- `NodeId → GraphNode` map (polymorphic)
-- `DependencyNetworkId → DependencyNetwork` map
-- `NodeIdGenerator`
-- `DependencyNetworkIdGenerator`
-- `PortIdGenerator`
-- a default `DependencyNetworkId`
+- `PortIdGenerator` (port identities remain scoped to the single
+  component that declares them — unaffected by this change)
+- a default `DependencyNetworkId` (per-instance, but itself drawn from
+  the now-shared `DependencyNetworkIdGenerator`)
 - public import ports
 - public export ports
+- a `TransformGraphNode` port-binding table keyed by
+  `(DependencyNetworkId, NodeId)`
 - child-port bindings
 - semantic resource indexes (e.g., `RouteHandleKey → NodeId`; see
   `14-route-handles.md`)
-- initialized/frozen lifecycle state
+- initialized/frozen lifecycle state (though "frozen" is now a
+  hierarchy-wide fact once set — see §7.3)
+- an explicit, private `NodeIdSet`/`DependencyNetworkIdSet` recording
+  which ids *this instance itself* registered (`owned_node_ids()`) —
+  new in this change, since "owned" can no longer be inferred from
+  per-instance map membership (`05-identities.md` §5.3,
+  `openspec/changes/hierarchy-wide-component-graph/design.md` D2)
 
 **REQ-CG-001a.** Initially, every `MethodGraphNode` representing a GridComp
 initialize/run phase MUST use the single default `DependencyNetwork`. In
@@ -93,7 +116,7 @@ Its `DependencyNetworkId` MUST be an instance property (read at runtime),
 not a global/module constant — different `ComponentGraph` instances have
 different default network IDs.
 
-## 7.3 Lifecycle: mutable → frozen
+## 7.3 Lifecycle: mutable → frozen `[RE-EVALUATED]`
 
 **REQ-CG-005.** A `ComponentGraph` is mutable during initialization and
 wiring (nodes and dependencies may be added, ports created, etc.).
@@ -108,10 +131,30 @@ complete, the graph MUST be frozen. After `freeze()`:
 - Runtime values and revisions MAY still change (payload data updates,
   `NodeRevision.advance()`)
 
-**REQ-CG-007.** Freeze is a `ComponentGraph`-level operation. It SHOULD
-freeze the graph's own `DependencyNetwork`s (`DependencyNetwork.freeze()`)
-as part of the same call, so that "the graph is frozen" implies "all of its
-networks are frozen" — these must not be allowed to drift out of sync.
+**REQ-CG-007 `[re-evaluated]`.** The original position — "freeze is a
+`ComponentGraph`-level operation" — is superseded by the landed
+`hierarchy-wide-component-graph` change
+(`openspec/specs/graph/component-graph/spec.md`, "Freeze transitions
+graph from mutable to runtime-updateable";
+`openspec/specs/graph/component-hierarchy/spec.md`, "Freeze is a single
+hierarchy-wide operation"). Freezing is now one operation, invoked once
+at the true hierarchy root, that freezes every component's own
+`ComponentGraph` across the entire hierarchy in a single explicit pass
+— not an operation each `OuterComponent` invokes independently for its
+own local graph. Implemented via composition rather than by changing
+`graph_freeze`'s own body: the single-instance `freeze()` call itself
+is unchanged (still freezes only that one instance's own owned
+networks); the hierarchy-wide property comes from a new,
+non-recursive-from-the-component's-own-perspective driver one level up
+(`GraphBuilder_Freeze_smod.F90`'s `freeze_subtree_` helper, invoked by
+the `GENERIC_INIT_GRAPH_FREEZE` init phase, dispatched only at the
+hierarchy root) that calls `graph%freeze()` on every component's own
+instance in the whole tree, exactly once. "The graph is frozen" still
+implies "all of its own networks are frozen," per instance
+(`DependencyNetwork.freeze()` as part of the same per-instance call,
+unchanged) — and, additionally now, implies every *other* component's
+graph in the same hierarchy is also frozen, since the hierarchy-wide
+driver visits all of them in the same pass before returning.
 
 ## 7.4 Time-dependent resources vs. frozen structure
 
