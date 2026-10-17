@@ -970,10 +970,28 @@ contains
    ! MatchConnection%connect()/SimpleConnection%connect()
    ! (superstructure/generic/connection/ *.F90) guard against exactly this
    ! with a per-connection `consumed` flag. GraphBuilder has no equivalent
-   ! per-connection state to reuse, so it guards at the graph level
-   ! instead: once this component's graph is frozen, every ordinary
-   ! connection it declares has already been resolved, so a repeat call
-   ! is a safe no-op rather than an attempt to mutate a frozen graph.
+   ! per-connection state to reuse, so it guards via
+   ! this%connections_already_resolved()/mark_connections_resolved()
+   ! instead - a repeat call is a safe no-op rather than an attempt to
+   ! re-resolve (and, worse, mint fresh duplicate graph structure for)
+   ! connections already resolved on an earlier pass.
+   !
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group 9
+   ! (design.md D7): this guard was previously graph%is_frozen() - valid
+   ! only because freeze used to happen at THIS SAME call site
+   ! (graphbuilder_run_connect_hook), immediately after the first
+   ! ACCEPT_TRANSFER pass's own resolution completed, so by the time the
+   ! fixed schedule's SECOND ACCEPT_TRANSFER pass reached this
+   ! procedure, the graph was already frozen and this check correctly
+   ! short-circuited. Freeze now happens exactly once, hierarchy-wide,
+   ! at a later, dedicated GENERIC_INIT_GRAPH_FREEZE phase - this
+   ! component's own graph is therefore still MUTABLE across BOTH
+   ! ACCEPT_TRANSFER passes, so is_frozen() can never again distinguish
+   ! "already resolved, once" from "not yet resolved" at this call site
+   ! (tasks.md Group 9's own header note documents this exact blocker,
+   ! found before any code was written against the group's original,
+   ! insufficient "just relocate the freeze call" wording). This new,
+   ! explicit per-component flag is the direct replacement.
     module subroutine graphbuilder_resolve_connections(this, unusable, unresolved_imports, &
          unsupported_characteristics, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
@@ -989,14 +1007,12 @@ contains
 
       integer :: status
       type(ComponentSpec), pointer :: comp_spec
-      type(ComponentGraph), pointer :: graph
       type(ConnectionVectorIterator) :: iter
       class(Connection), pointer :: c
       type(GraphResolutionEntryVector) :: unresolved
       type(GraphResolutionEntryVector) :: unsupported
 
-      graph => this%get_component_graph()
-      if (graph%is_frozen()) then
+      if (this%connections_already_resolved()) then
          if (present(unresolved_imports)) unresolved_imports = unresolved
          if (present(unsupported_characteristics)) unsupported_characteristics = unsupported
          _RETURN(_SUCCESS)
@@ -1019,12 +1035,15 @@ contains
          end do
       end associate
 
+      call this%mark_connections_resolved()
+
       if (present(unresolved_imports)) unresolved_imports = unresolved
       if (present(unsupported_characteristics)) unsupported_characteristics = unsupported
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine graphbuilder_resolve_connections
+
 
    ! openspec/changes/graph-builder-stateitem-resolution, tasks.md 4.2:
    ! finds the export's own NodeId/StateItemNode by scanning the source

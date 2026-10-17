@@ -304,6 +304,21 @@ module mapl_GraphBuilder_mod
       procedure, nopass :: run_export_propagate_hook => graphbuilder_run_export_propagate_hook
       procedure, nopass :: run_activate_hook => graphbuilder_run_activate_hook
       procedure, nopass :: run_connect_hook => graphbuilder_run_connect_hook
+      ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group
+      ! 9 (design.md D7): the GENERIC_INIT_GRAPH_FREEZE handler's own
+      ! entry point (OuterMetaComponent/initialize_graph_freeze.F90) -
+      ! called exactly once, only on the true hierarchy root (that
+      ! file's own is_hierarchy_root check), performs ONE explicit,
+      ! non-ESMF-recursive walk of the whole component tree, freezing
+      ! every component's own ComponentGraph exactly once, THEN runs
+      ! the hierarchy-wide convergence check (every remaining
+      ! unresolved required import, anywhere in the hierarchy, is a
+      ! hard failure - the same check graphbuilder_run_connect_hook used
+      ! to run per-component immediately after its own per-component
+      ! freeze call, now run exactly once, hierarchy-wide, after every
+      ! component is frozen). graphbuilder_run_connect_hook itself no
+      ! longer calls freeze - see that procedure's own header comment.
+      procedure, nopass :: run_graph_freeze_hook => graphbuilder_run_graph_freeze_hook
       ! openspec/changes/horizontal-geometry-graph-state-item (Phase 4e):
       ! gated entirely behind mapl_GraphMode_mod%graph_mode() reporting
       ! something other than GRAPH_MODE_REGISTRY (design.md Decision D6)
@@ -649,6 +664,12 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine graphbuilder_freeze
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group 9:
+   ! see the type-bound procedure's own declaration-site comment above.
+   module subroutine graphbuilder_run_graph_freeze_hook(this)
+      class(OuterMetaComponent), target, intent(inout) :: this
+
+   end subroutine graphbuilder_run_graph_freeze_hook
 
       ! Graph-native state population procedures (GraphBuilder_StatePopulation_smod.F90)
    module subroutine graphbuilder_populate_state(this, multi_state, rc)

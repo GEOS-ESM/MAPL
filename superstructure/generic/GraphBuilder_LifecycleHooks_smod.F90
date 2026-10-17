@@ -59,27 +59,26 @@ contains
 
    ! griddedcomponentdriver-integration-lifecycle design.md Decisions
    ! ("REQ-MTH-011 step (c) convergence: match the existing fixed
-   ! two-pass schedule; add one missing hard-error check"): once this
-   ! call's own graphbuilder_freeze succeeds - i.e. once no further
-   ! ACCEPT_TRANSFER pass can ever change anything further, per
-   ! GENERIC_INIT_PHASE_SEQUENCE's fixed two-pass schedule
-   ! (enums/GenericPhases.F90) - re-run the same
-   ! graphbuilder_check_unsatisfied_imports() check
-   ! graphbuilder_run_activate_hook already runs (at GENERIC_INIT_ADVERTISE
-   ! time, before either real pass), but this time escalate a non-empty
-   ! result to an explicit failure instead of only a logged warning.
-   ! Still caught and downgraded to a logged failure by this hook's own
-   ! existing report_if_failed convention below - this is a hard error
-   ! only within graphbuilder_resolve_connections/
-   ! check_unsatisfied_imports' own directly-tested API, never a new way
-   ! for a GraphBuilder defect to break real component initialization
-   ! (design.md Risks).
+   ! two-pass schedule; add one missing hard-error check"): the
+   ! connect()-time analog of legacy's own two-pass resolution.
+   !
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group 9
+   ! (design.md D7): this hook no longer calls graphbuilder_freeze nor
+   ! runs the unresolved-import convergence check itself - both moved
+   ! to graphbuilder_run_graph_freeze_hook below, which runs the check
+   ! exactly once, hierarchy-wide, after every component's own graph is
+   ! frozen (not per-component, immediately after each component's own
+   ! freeze, as this hook used to do). Freezing per-component here was
+   ! never actually safe to begin with once imports/exports can be
+   ! mirrored from a child that has not yet itself been visited by this
+   ! same GENERIC_INIT_ACCEPT_TRANSFER pass - see tasks.md Group 9's own
+   ! header note for the full blocker analysis that motivated moving
+   ! freeze to its own, later, one-shot phase.
     module subroutine graphbuilder_run_connect_hook(this)
       class(OuterMetaComponent), target, intent(inout) :: this
 
       integer :: status
       type(GraphResolutionEntryVector) :: unsupported
-      type(GraphResolutionEntryVector) :: unresolved
       integer :: i
       type(GraphResolutionEntry), pointer :: entry
       class(Logger), pointer :: lgr
@@ -101,33 +100,18 @@ contains
       end do
 
       ! openspec/changes/phase-10d-ordinary-phase-method-node, design.md
-      ! D2: constructed here, BEFORE freeze below - not after. This
-      ! node's own argument bindings are sourced only from this
-      ! component's own advertised import/export items (already
-      ! resolved at GENERIC_INIT_ADVERTISE time, design.md D3), never
-      ! from a resolved connection, so there is no reason to wait for
-      ! freeze - and ComponentGraph%register_node/next_node_id both
-      ! unconditionally reject a call once the graph is frozen
-      ! (ComponentGraph.F90), so placing this after freeze would hard-
-      ! fail unconditionally rather than merely in some edge case.
-      ! Construction only - see graphbuilder_build_run_phase_node's own
-      ! header comment for why nothing here invokes the constructed
-      ! node.
+      ! D2: constructed here. This node's own argument bindings are
+      ! sourced only from this component's own advertised import/export
+      ! items (already resolved at GENERIC_INIT_ADVERTISE time, design.md
+      ! D3), never from a resolved connection, so there is no ordering
+      ! dependency on freeze (which no longer happens in this hook at
+      ! all, tasks.md Group 9). Construction only - see
+      ! graphbuilder_build_run_phase_node's own header comment for why
+      ! nothing here invokes the constructed node.
       call graphbuilder_build_run_phase_node(this, status)
       call report_if_failed(this, 'build_run_phase_node', status)
-
-      call graphbuilder_freeze(this, status)
-      call report_if_failed(this, 'freeze', status)
-
-      if (status == 0) then
-         call graphbuilder_check_unsatisfied_imports(this, unresolved_imports=unresolved, rc=status)
-         call report_if_failed(this, 'check_unsatisfied_imports', status)
-         if (status == 0) then
-            call assert_converged(unresolved, status)
-            call report_if_failed(this, 'convergence_check', status)
-         end if
-      end if
    end subroutine graphbuilder_run_connect_hook
+
 
    ! openspec/changes/phase-10a-state-materialization: the real
    ! GENERIC_INIT_ACCEPT_TRANSFER call site's own entry point into
