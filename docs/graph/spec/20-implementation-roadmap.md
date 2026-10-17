@@ -2011,6 +2011,869 @@ not anticipate 3b2's companion export-propagation requirement (task
 freeze-relocation hazard (task 9's own blocker) requiring a new
 explicit idempotency mechanism rather than a one-line call-site move.
 
+### 20.4.17 Phase 17 scope: `GraphBuilder.F90`/`Test_GraphBuilder.pf` size — characterize before splitting
+
+**Discovered gap, not previously tracked by any phase above.** Raised
+directly by the codebase owner (not surfaced during an openspec
+change's own review, unlike Phases 7-16): agents spend too much time
+processing `GraphBuilder.F90` and its submodules, and the test file is
+"also enormous." Before scoping a split, this phase's own first job is
+to characterize *why* the files are the size they are — this document's
+own established "measure, don't assume" discipline (§2's own citation
+culture) applies as much to a refactor's justification as to a
+feature's.
+
+**Measured, this session (not the secondhand figures a prior informal
+pass reported — see the discrepancies named below):**
+
+| File | Lines |
+|---|---|
+| `GraphBuilder.F90` | 1732 |
+| `GraphBuilder_ConnectionResolution_smod.F90` | 1387 |
+| `GraphBuilder_CallbackWiring_smod.F90` | 670 |
+| `GraphBuilder_StatePopulation_smod.F90` | 352 |
+| `GraphBuilder_Advertising_smod.F90` | 286 |
+| `GraphBuilder_Geometry_smod.F90` | 284 |
+| `GraphBuilder_RunPhaseNode_smod.F90` | 149 |
+| `GraphBuilder_Freeze_smod.F90` | 168 |
+| `GraphBuilder_LifecycleHooks_smod.F90` | 164 |
+| `GraphBuilder_RunPhasePull_smod.F90` | 93 |
+| `GraphBuilder_PortsAndProxies_smod.F90` | 89 |
+| `GraphBuilder_Visualization_smod.F90` | 68 |
+| **Total (11 submodules + parent)** | **5442** |
+
+Confirms the prior session's own `5442`-line total (commit `15a50ec5`)
+and the `4585`-line pre-`hierarchy-wide-component-graph` baseline both
+hold up (§20.4.16's own "Did not land as predicted" accounting) — those
+two aggregate figures were correct. What was NOT independently
+verified before (and is corrected here): `Test_GraphBuilder.pf` is
+**3607** lines (confirmed, matches), but the combined-suite figure
+needs its own file list spelled out, not just a sum — see below.
+
+**Why `GraphBuilder.F90` (the parent module, 1732 lines) cannot simply
+be split further into submodules, even after this phase runs:** Fortran
+`submodule` bodies may call a plain (non-`module`-interface) procedure
+declared in their ancestor module, but a plain procedure can only live
+in ONE place — the parent module or exactly one submodule — not be
+shared verbatim across multiple submodules without either duplicating
+it or promoting it to a `module interface` (adding, not removing,
+boilerplate). `GraphBuilder.F90` carries 16 such plain shared helpers
+(`item_key`, `component_for`, `resolve_qualified_component`,
+`try_materialize_field_extension`, `materialize_extension_chain`,
+`resolve_local_node_id`, `resolve_callback_import`,
+`resolve_callback_destination`, and 8 more) — `item_key` alone is
+called from 7 of the 11 submodules (confirmed by direct grep), so it
+cannot move into any one of them without either a second copy or a new
+module-interface entry. These 16 procedures plus the full
+type-bound-procedure interface table account for 865 of the file's 1732
+lines (`contains` at line 865) — the remaining 867 lines are the plain
+procedure bodies themselves. This is a genuine, structural reason a
+sixth split cannot shrink the parent module much further by moving
+code sideways alone — any further reduction has to come from either
+(a) deleting something (the proxy-removal precedent, which already
+happened once and produced only an 81-line net reduction against this
+phase's own +707/+160-line additions, §20.4.16) or (b) a real design
+change to how cross-submodule helpers are shared, not a mechanical
+file-boundary move.
+
+**`Test_GraphBuilder.pf` (3607 lines): measured contributor breakdown.**
+Direct `git show <commit>:...` line counts across the Group 6-9 span
+(`9ce2ecd5` → `15a50ec5`, the span the backlog item's own secondhand
+"Groups 6-9" framing names) show this file grew only **327 lines**
+(3280 → 3607) in that span — Group-6-9 is NOT the dominant growth
+driver the secondhand report implied; most of the file's bulk predates
+that work. The file carries 52 `@test` annotations across 46 distinct
+test subroutines (a few parameterized cases share one subroutine body)
+spanning at least 10 orthogonal sub-topics with no shared setup beyond
+two fixture
+helpers (advertising, ordinary-connection resolution, inout, freeze,
+materialize-extensions gating, composite/vertical-grid composite
+wiring, qualified-export namespace/`query_component_exports`, callback
+resolution/binding, run-phase-node construction, qualified-component
+path resolution) — this is "genuinely many bundled concerns," not one
+verbose concern repeated.
+
+**Confirmed, measurable duplication exists, separately from file
+size — wider than first measured in this session, corrected here.**
+`make_outer_meta` (31 lines) is duplicated **byte-identical** (confirmed
+via checksum) across **7** files, not 4 as first reported: the 4
+`Test_GraphBuilder*.pf`/`Test_GraphBuilder_ConvergenceCheck.pf` files
+named below, PLUS `Test_ComponentHierarchyGraph.pf`,
+`Test_GraphGeometryHook.pf`, and
+`Test_OuterMetaComponentDriverResolver.pf` — all 7 missed on first pass
+by searching only the `Test_GraphBuilder*`-prefixed files; a plain
+`grep -rl "subroutine make_outer_meta"` across the test directory
+finds the other 3. `make_var` (8-10 lines) is duplicated across only
+**4** of those 7 (`Test_GraphBuilder.pf`,
+`Test_GraphBuilderPropagation.pf`, `Test_GraphBuilderMaterializeGate.pf`,
+`Test_GraphBuilder_ConvergenceCheck.pf` — the other 3 `make_outer_meta`-
+only files have no `make_var` of their own) — only
+`Test_GraphBuilderEquivalence.pf` among the generic-components suite
+has neither. **`make_var` is not byte-identical across its 4 copies**:
+`Test_GraphBuilder.pf` and `Test_GraphBuilderMaterializeGate.pf` declare
+a 3-argument form with an `optional, intent(in) :: units` parameter;
+`Test_GraphBuilder_ConvergenceCheck.pf` and
+`Test_GraphBuilderPropagation.pf` declare a 2-argument form with no
+`units` parameter at all — a real signature difference, not drift. The
+3-argument form is a strict superset (every real call site across all
+4 files passes only `state_intent`/`short_name` positionally; none
+passes `units`), so **the extracted shared helper must keep `units`
+optional** — forcing the two 2-argument call sites to start passing a
+dummy `units` value would be a behavior-irrelevant but unnecessary
+call-site change this dedup does not need to make. Roughly 150-180
+lines of pure, mechanical duplication from `make_outer_meta` alone (7
+copies × 31 lines, after accounting for the one canonical copy) plus a
+smaller amount from `make_var`'s 4 copies, not counting any other
+shared fixture logic not yet audited.
+Combined with `Test_GraphBuilderPropagation.pf` (979),
+`Test_GraphBuilderMaterializeGate.pf` (763), and
+`Test_GraphBuilder_ConvergenceCheck.pf` (307), the five-file combined
+total is **5663** lines (confirmed by direct `wc -l`, not the backlog
+item's own secondhand "~5700" figure, which also omitted
+`Test_GraphBuilder_ConvergenceCheck.pf` from its own two-file
+addition — the combined total needs all five files named, not two).
+
+**Scope for this phase — characterize, then decide, in this order:**
+
+1. **Dedup the fixture helpers first** (`make_outer_meta` across all
+   7 confirmed call sites; `make_var` across its 4, preserving the
+   optional `units` parameter) — a mechanical, low-risk
+   extraction into a shared test-support module (mirroring
+   `superstructure/generic/graph/tests/IdGeneratorTestSupport.F90`'s
+   own precedent for exactly this shape: test-only helper code shared
+   across multiple `.pf` files in the same directory, not production
+   code). This alone removes real, measured duplication regardless of
+   what the characterization below concludes about the rest of the
+   file.
+2. **Characterize `GraphBuilder.F90`'s own 867 lines of plain shared
+   helpers**: for each of the 16, confirm (by the same cross-submodule
+   call-count method used above for `item_key`) whether it is
+   genuinely shared (stays in the parent module, correctly) or
+   actually only used by one submodule today (a candidate to move,
+   or to promote to a `module interface` if a second caller is
+   expected soon). Do not assume all 16 are correctly placed just
+   because `item_key` is.
+3. **Characterize `Test_GraphBuilder.pf`'s own ~20 finer-grained
+   sub-topics** (a finer split of the 10 coarse groups named above —
+   e.g. "vertical-grid composite wiring" alone covers 6 distinct test
+   subroutines on its own): for
+   each, confirm whether it is testing `GraphBuilder.F90`'s own shared
+   logic (stays, by the same "shared code colocated with its test"
+   reasoning) or a single submodule's logic exclusively (a genuine
+   split-into-`Test_GraphBuilder_<Submodule>.pf` candidate, mirroring
+   this directory's own existing precedent —
+   `Test_GraphBuilder_ConvergenceCheck.pf` is already exactly this
+   shape, split out from the monolith for the freeze/convergence
+   check specifically). **Only after this characterization** decide
+   split-further vs. leave-as-is per sub-topic — do not split
+   mechanically by line count alone.
+4. **Decide whether `GraphBuilder.F90`'s own 16 shared helpers that
+   turn out to be genuinely cross-cutting (most, per the `item_key`
+   evidence) justify a *second* parent-level file** (e.g. a
+   `GraphBuilder_SharedHelpers.F90` plain module `GraphBuilder.F90`
+   itself and every submodule can `use`, rather than every submodule
+   reaching through host association into one large parent) — this is
+   the one structural option that could meaningfully shrink
+   `GraphBuilder.F90` itself without duplicating code or reopening the
+   module-interface boilerplate tradeoff named above. Not pre-decided
+   here; this phase's own design.md should evaluate it against the
+   module-interface alternative before committing to either.
+
+**Discrepancies found versus the prior informal pass's secondhand
+report — corrected here, not silently:**
+- `GraphBuilder.F90` + 11 submodules total (5442) and the pre-change
+  baseline (4585) both confirmed accurate.
+- `Test_GraphBuilder.pf` (3607) confirmed accurate.
+- The claimed "~5700 lines of test code for one capability" combining
+  only `Test_GraphBuilder.pf` + `Test_GraphBuilderPropagation.pf` (979)
+  + `Test_GraphBuilderMaterializeGate.pf` (763) omitted
+  `Test_GraphBuilder_ConvergenceCheck.pf` (307) from the same directory
+  testing the same capability — the real combined total across all
+  five related files is 5663, not ~5700 from three files understating
+  a fifth.
+- The claim that Group 6-9 work is what made these files large does
+  not hold for `Test_GraphBuilder.pf` specifically (+327 of 3607 lines,
+  ~9%, attributable to that span) — most of this file's size predates
+  Group 6-9 and reflects the ~20 bundled sub-topics named above, not
+  recent growth.
+
+**Not blocking anything above or already landed** — this is
+independent code-organization/test-infrastructure work, not new graph
+capability. **Dependency note (explicit, per this phase's own
+requirement to check rather than assume):** confirmed independent of
+Phase 6a's own five-item prerequisite list (§20.4.11), Phases 7a/7b/7c,
+12, and 13 — none of those touch `GraphBuilder.F90`'s own plain-helper
+section or `Test_GraphBuilder.pf`'s own fixture duplication; this can
+proceed in parallel. **Does interact with Phase 18 (§20.4.18) below**:
+whatever file layout this phase settles on for `GraphBuilder.F90`
+itself should land, or at minimum be designed, before Phase 18's own
+directory move touches the adjacent `superstructure/generic/graph/`
+tree, to avoid two independent reorganizations colliding on the same
+review pass — see §20.4.18's own sequencing note.
+
+**Sub-sequencing, in recommended order:**
+
+- **17-1. DONE.** Dedup `make_outer_meta` (7 call sites) and `make_var` (4
+  call sites, preserving the optional `units` parameter) across the
+  seven files that duplicate `make_outer_meta`. Sized for one
+  session: mechanical extraction, no production code touched. Exit
+  criterion: a single shared test-support source (new file under
+  `superstructure/generic/tests/`, naming TBD at implementation time)
+  defines `make_outer_meta` once and `make_var` once (3-argument form,
+  `units` optional); all seven files that had their own
+  `make_outer_meta` (`Test_GraphBuilder.pf`,
+  `Test_GraphBuilderPropagation.pf`, `Test_GraphBuilderMaterializeGate.pf`,
+  `Test_GraphBuilder_ConvergenceCheck.pf`, `Test_ComponentHierarchyGraph.pf`,
+  `Test_GraphGeometryHook.pf`, `Test_OuterMetaComponentDriverResolver.pf`)
+  `use` the shared version instead of their own copy, and the four
+  that also had their own `make_var` do the same for it; `ctest -L
+  ESSENTIAL` passes with 0 new failures and identical pass/fail
+  results to before. All seven files compile into the single
+  `MAPL.generic.components` ctest target (confirmed via
+  `superstructure/generic/tests/CMakeLists.txt` — there is no separate
+  per-file suite), so verification is one target run, not seven:
+  `ctest -L ESSENTIAL -R MAPL.generic.components`.
+
+  **Implemented this session.** All 7 files' own `make_outer_meta`
+  bodies re-verified byte-identical (md5, 31 lines each) and both
+  `make_var` signatures re-verified exactly as described (3-argument
+  `units`-optional form in `Test_GraphBuilder.pf`/
+  `Test_GraphBuilderMaterializeGate.pf`; 2-argument form in
+  `Test_GraphBuilderPropagation.pf`/`Test_GraphBuilder_ConvergenceCheck.pf`)
+  before any edit — no drift from this section's own planning-time
+  measurement. New shared module:
+  `superstructure/generic/tests/GraphBuilderTestSupport.F90`
+  (`GraphBuilderTestSupport_mod`, mirroring
+  `IdGeneratorTestSupport.F90`'s own shape: plain Fortran module, not
+  a `.pf` file), built into the existing `MAPL.generic.test_common`
+  shared library (`superstructure/generic/tests/CMakeLists.txt`) that
+  already backs all 6 of this directory's pFUnit targets, including
+  `MAPL.generic.components` — no new CMake target needed, one line
+  added to an existing `add_library` source list. All 7 `.pf` files'
+  own local copies removed entirely (not commented out) and replaced
+  with `use GraphBuilderTestSupport_mod, only: make_outer_meta[, make_var]`;
+  the 2-argument call sites needed no changes, confirming this
+  section's own "strict superset" claim. Net: 280 lines removed across
+  the 7 files, 85 lines added (1 new module + `use` lines + removal
+  comments); diff stat per file:
+  `Test_ComponentHierarchyGraph.pf` +4/-33,
+  `Test_GraphBuilder.pf` +4/-44,
+  `Test_GraphBuilderMaterializeGate.pf` +4/-45,
+  `Test_GraphBuilderPropagation.pf` +1/-43,
+  `Test_GraphBuilder_ConvergenceCheck.pf` +9/-48,
+  `Test_GraphGeometryHook.pf` +4/-32,
+  `Test_OuterMetaComponentDriverResolver.pf` +4/-34. Verified both
+  compilers: NAG (`nag-stack/7.2.41`) and gfortran
+  (`gfortran-stack`), `cmake --build <dir> --target build-tests`
+  clean on both (zero new warnings/errors), `ctest --test-dir <dir> -L
+  ESSENTIAL -R MAPL.generic.components` 1/1 pass on both, matching a
+  pre-change baseline run captured via `git stash` before touching any
+  file (also 1/1 pass, identical). Full `ctest -L ESSENTIAL` (64
+  tests) also run on both compilers post-change as a wider regression
+  check beyond this step's own exit criterion: 64/64 pass on both,
+  matching §4's own documented baseline exactly.
+- **17-2. Characterize `GraphBuilder.F90`'s 16 shared-helper
+  procedures' real call-site counts** (the `item_key`-style audit,
+  item 2 above) and write up the findings — no code change in this
+  step, a design-input document only. Sized for one session.
+- **17-3. Characterize `Test_GraphBuilder.pf`'s ~20 sub-topics against
+  the submodule they each actually exercise** (item 3 above) — also a
+  design-input document, no code change. Sized for one session; MAY
+  run in parallel with 17-2 (disjoint files).
+- **17-4. Decide and implement (or explicitly decline) the shared-
+  helpers-module split (item 4 above), informed by 17-2's findings.**
+  Not sized here — depends on what 17-2 finds; could be anywhere from
+  "no change justified" (if most of the 16 turn out single-caller) to
+  a real multi-file restructuring. Defer sizing to this step's own
+  design.md once 17-2 lands.
+- **17-5. Split `Test_GraphBuilder.pf` per 17-3's findings, where
+  justified.** Same caveat as 17-4 — sizing depends on 17-3's own
+  output; likely several sessions if a genuine per-submodule split is
+  warranted across ~20 sub-topics, one session if 17-3 concludes most
+  sub-topics are legitimately testing shared cross-submodule behavior
+  and should stay put.
+
+### 20.4.18 Phase 18 scope: subdirectory reorganization of `superstructure/generic/graph/`
+
+**Discovered gap, not previously tracked by any phase above.** Raised
+directly by the codebase owner: large families of related files in
+`superstructure/generic/graph/` are hard for a human to see the
+structure of, flat in one directory. Requested subdirectories:
+`characteristics/`, `transforms/`, `callback/`, `id_types/` (folding
+`include/` into it).
+
+**Measured family membership, this session (corrects the prior
+informal pass's own secondhand counts in two places, named below):**
+
+- **`characteristics/`** — 15 files, confirmed:
+  `AttributesCharacteristic.F90`, `CharacteristicStatus.F90`,
+  `ConservationCharacteristic.F90`, `GeometryCharacteristic.F90`,
+  `NormalizationCharacteristic.F90`, `PhysicalUnitsCharacteristic.F90`,
+  `QuantityTypeCharacteristic.F90`, `SetSharedCharacteristic.F90`,
+  `StandardNameCharacteristic.F90`, `StateItemCharacteristic.F90`,
+  `StateItemCharacteristicDetection.F90`,
+  `StateItemCharacteristicKind.F90`, `TypeKindCharacteristic.F90`,
+  `UngriddedDimsCharacteristic.F90`,
+  `VerticalCoordinateCharacteristic.F90`. Matches the prior pass's own
+  count (15).
+- **`transforms/`** — 5 files, confirmed: `Transform.F90`,
+  `TransformBase.F90`, `TransformGraphNode.F90`,
+  `TypeKindConverterTransform.F90`, `UnitsConverterTransform.F90`.
+  Matches.
+- **`callback/`** — **7 files at the top level**, not the prior pass's
+  reported figure (which conflated top-level files with
+  `containers/*Callback*.F90` gFTL map instantiations):
+  `CallbackArgumentSpec.F90`, `CallbackInterface.F90`, `CallbackInterfaceId.F90`,
+  `CallbackInterfaceRegistry.F90`, `CallbackMethodBinding.F90`,
+  `CallbackMethodSpec.F90`, `CallbackStateBinding.F90`. The five
+  `containers/Callback*Map.F90` gFTL instantiations
+  (`CallbackArgumentSpecMap.F90`,
+  `CallbackInterfaceIdInterfaceMap.F90`,
+  `CallbackMethodAttachmentMap.F90`, `CallbackMethodSpecMap.F90`,
+  `CallbackServiceNameIdMap.F90`) already live under `containers/` — a
+  separate, pre-existing convention this phase's own design.md should
+  decide whether to fold into `callback/containers/` (consistent with
+  the family-subdirectory idea) or leave under the shared top-level
+  `containers/` (consistent with every OTHER family's own map
+  instantiations staying there too, e.g.
+  `PortIdStringMap.F90`/`NodeIdGraphNodeMap.F90` are not characteristic-
+  or transform-specific either) — **recommend the latter**, to avoid
+  this phase inventing a per-family `containers/` convention nothing
+  else in the directory follows.
+- **`id_types/`** — 5 real Id-type files use the template via a
+  genuine `#include` (confirmed by grepping for the literal
+  `#include "IdTemplate.inc"` directive, not just a comment mentioning
+  it): `NodeId.F90`, `DependencyNetworkId.F90`, `PortId.F90`,
+  `CallbackInterfaceId.F90`, `HierarchyId.F90`. **Correction to the
+  prior pass's own count of 6**: `CallbackInterfaceRegistry.F90` and
+  `superstructure/generic/graph/tests/IdGeneratorTestSupport.F90` each
+  only *mention* `IdTemplate.inc` in a comment — neither has a real
+  `#include` directive. The true count is 5, not 6; `CallbackInterfaceRegistry.F90`
+  stays in `callback/` either way (it is not an Id type
+  itself), so this correction does not change the "does
+  `CallbackInterfaceRegistry.F90` move with the Id types or stay in
+  `callback/`" open question's own framing, only the file count cited
+  in support of it — recommend it stays in `callback/`, since it is a
+  registry *of* callback interfaces, not an identity type.
+  `include/IdTemplate.inc` (one file, 111 lines, confirmed) folds into
+  `id_types/` directly, matching the backlog item's own suggested
+  disposition; `target_include_directories(MAPL.generic PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include)` in
+  `superstructure/generic/graph/CMakeLists.txt` must be updated to
+  point at `id_types/` (or removed if every `#include` site switches
+  to a relative/full path instead) as part of this move.
+
+**`CMakeLists.txt` mechanics, confirmed trivial as the backlog item
+expected**: `target_sources(MAPL.generic PRIVATE ...)` is a flat list
+of 85 relative path strings
+(`superstructure/generic/graph/CMakeLists.txt`, confirmed by direct
+read) — a directory move is a
+path-string edit per relocated file, no CMake-structural change
+(no new `add_subdirectory`, no new target).
+`superstructure/generic/graph/tests/CMakeLists.txt` likely needs the
+same per-file path-string
+treatment for every relocated production file's own test counterpart;
+not separately audited here but expected to be the same mechanical
+shape.
+
+**Real dependency found and documented explicitly, per this phase's
+own requirement not to leave a silent landmine:** Phase 12
+(§20.4.12, wiring 5a2's seven remaining `StateItemCharacteristic`
+subclasses into real dispatch) directly edits
+`build_characteristics()`'s own insertion point in `GraphBuilder.F90`
+and is expected to touch some subset of the same seven
+`characteristics/`-bound files this phase would relocate
+(`AttributesCharacteristic.F90`, `UngriddedDimsCharacteristic.F90`,
+`ConservationCharacteristic.F90`, `NormalizationCharacteristic.F90`,
+`QuantityTypeCharacteristic.F90`, `StandardNameCharacteristic.F90`,
+and the vertical-grid-adjacent `ReferenceCharacteristic` analog).
+Phase 7a (§20.4.5, Bracket/VectorBracket 1:1 shape dispatch) is
+expected to add a NEW file to this same `characteristics/` family (a
+`variant()`-mismatch-triggered `CharacteristicId`/`Characteristic`
+subclass) and likely a new file to `transforms/` too
+(`TimeInterpolateTransform`, per that phase's own table) — though 7a
+is explicitly named "lowest urgency" there, so less time-pressured
+than Phase 12. A directory move that lands WHILE either is in flight
+forces that work to resolve a rename/move conflict on every file it
+touches, on top of its own real work — pure git-mechanics tax, not a
+design conflict, but a real one. **This phase should NOT be sequenced
+as "third on a list of five," simply because it was listed third in
+the backlog** — it should be sequenced either (a) last among items
+1/2/3 (this item, 17, and the log-noise item), after Phase 12 has
+landed, or (b) explicitly timed into the specific gap after Phase 12
+lands and before Phase 7a starts (if that gap is real and not merely
+assumed) — whichever the next planning pass finds actually open. Do
+not schedule this phase to start while Phase 12 is in flight.
+
+**Scope — four independent moves, each a pure `git mv` + CMake
+path-string update + import-statement audit (nothing in this phase
+changes any module's own public interface or behavior):**
+
+1. Move the 15 `characteristics/` files.
+2. Move the 5 `transforms/` files.
+3. Move the 7 top-level `callback/` files (leaving
+   `containers/Callback*Map.F90` where every other family's own map
+   instantiations already live, per the recommendation above).
+4. Move the 5 `id_types/` files plus `include/IdTemplate.inc`; update
+   the `#include` directive in each of the 5 moved files (relative
+   path, likely unchanged if `IdTemplate.inc` moves to the same new
+   directory) and the `target_include_directories` CMake entry.
+
+**Not blocking anything above or already landed on its own technical
+merits** — pure file reorganization, zero behavior change by
+construction. **Dependency note (explicit):** confirmed independent of
+Phase 6a's prerequisite list (§20.4.11) and Phase 13 — neither touches
+these files. **Real, documented dependency on timing relative to Phase
+12 and (lower-urgency) Phase 7a**, as described above — this is the
+one item in this backlog where "independent lane, proceeds in
+parallel" does NOT hold without qualification; the qualification is
+sequencing, not a technical blocker in either direction.
+
+**Sub-sequencing, in recommended order (sequencing-gated, not
+session-size-gated — each move below is small on its own):**
+
+- **18-1. Move `transforms/` (5 files).** Smallest family, no
+  Phase-12 overlap at all (Phase 12 does not touch any of the 5
+  transform files). Sized for one session, including the CMake
+  path-string edits and a full-suite `ctest -L ESSENTIAL` rerun to
+  confirm the move alone changed nothing. Safe to do anytime,
+  independent of Phase 12/7a timing.
+- **18-2. Move `id_types/` + fold in `include/`.** Also no Phase-12
+  overlap. Sized for one session: 5 tiny files (12-16 lines each) plus
+  the template; the only real risk is the `target_include_directories`
+  path update and confirming every `#include "IdTemplate.inc"` site
+  still resolves. Exit criterion: `cmake --build <dir> --target
+  build-tests` succeeds with no "file not found" error on any of the 5
+  `#include` sites, and `ctest -L ESSENTIAL` passes with 0 new
+  failures.
+- **18-3. Move `callback/` (7 top-level files).** No Phase-12 overlap
+  (Phase 12 does not touch the callback family). Sized for one
+  session.
+- **18-4. Move `characteristics/` (15 files) — sequence AFTER Phase 12
+  lands, not before, per the real dependency documented above.** Not
+  sized as "one session" here deliberately — restate at the time this
+  step is actually picked up, once it is confirmed Phase 12 (and, if
+  still pending, Phase 7a) has landed or is confirmed not concurrently
+  touching these files. If Phase 12 is confirmed to have landed by the
+  time this step starts, this is likely also a one-session mechanical
+  move; the caveat is entirely about timing, not mechanical
+  complexity.
+
+### 20.4.19 Phase 19 scope: deduplicate the two `sorted_names` helpers (item 5, narrowed)
+
+**Discovered gap, not previously tracked by any phase above — scope
+corrected mid-investigation, recorded here per this document's own
+3b/3b2 discipline for a planning-session-discovered correction.** The
+backlog's own original item 5 ("some growable arrays of strings should
+be `StringVector` instead of raw fixed-width character arrays") named
+four candidate call sites
+(`GraphBuilder_CallbackWiring_smod.F90:606,640` and
+`AttributesCharacteristic.F90`/`VerticalCoordinateCharacteristic.F90`'s
+own `sorted_names` helpers). **Direct verification during this planning
+session found none of the four are `StringVector` candidates by the
+backlog owner's own stated criterion** (known size at allocation time
+stays a plain array): all four `allocate(character(LEN) ::
+name_array(known_size))` at a size already known from a map's own
+`%size()` call before the loop runs — nothing grows unboundedly here.
+Corrected line numbers while verifying, as a secondary finding: the two
+`GraphBuilder_CallbackWiring_smod.F90` call sites are at lines **610
+and 645** (`allocate(character(MAX_CALLBACK_ARGUMENT_NAME_LEN) ::
+names(...))`), not 606/640 as originally reported — those two line
+numbers are the `character(:), allocatable :: names(:)` DECLARATIONS,
+two lines above each real `allocate` call.
+
+**The real, actionable issue at these four sites is a different one
+than the backlog described: duplication, not typing.**
+`AttributesCharacteristic.F90`'s own `sorted_names` (lines 149-177) and
+`VerticalCoordinateCharacteristic.F90`'s own `sorted_names` (lines
+329-357) are near-identical insertion-sort implementations over a
+`StringVector` input — the former's own comment admits this directly:
+"reimplemented here... since that module's own copy is private."
+Scope: extract one shared `sorted_names(names) result(sorted)` helper
+(signature `type(StringVector), intent(in) :: names` ->
+`character(:), allocatable :: sorted(:)`, exactly matching both
+existing copies) into a small, new or existing shared utility module
+under `superstructure/generic/graph/` (exact home TBD at
+implementation time — a new `StringSortUtilities.F90`, or added to an
+existing general-utility module if one already fits), and have both
+`characteristics/`-family call sites `use` it instead of each keeping
+its own copy. The two `GraphBuilder_CallbackWiring_smod.F90` call
+sites are unrelated to this dedup (different problem shape — iterating
+a `StateItemMemberMap`'s keys into a plain array for an ordinary
+indexed loop, not sorting) and need no change under this phase.
+
+**The genuine growable-fixed-width-character-array-grown-in-loop
+pattern this backlog item's criterion describes was searched for
+exhaustively across `superstructure/generic/` (the graph/generic
+codebase) and NOT FOUND.** Every `character(...), allocatable ::
+name(:)`-shaped declaration in that tree (44 total matches across the
+repo, enumerated and individually checked) is either (a) sized once
+from a known count before any loop runs (the four backlog-named sites;
+`GraphStateItem.F90`/`MethodInvocation.F90`/`OpenMP_Support.F90`'s own
+ESMF-item-query patterns, same shape), or (b) a scalar character
+buffer, not an array. The one real repo-wide instance of the pattern
+item 5's criterion actually describes — a character array
+`allocate`d, then explicitly grown one element at a time via a
+`deallocate`+bigger-`allocate`+copy sequence —
+is `mp_utils/profiler/reporting/CsvProfileReporter.F90:add_column`'s
+own `column_names` growth (confirmed by direct read, lines 128-139),
+which is **outside the graph/generic codebase entirely** (profiler
+reporting infrastructure, unrelated capability, not touched by any
+graph-architecture work). **Recommendation: do not scope a Phase 19
+code change against this file** — it is a real instance of the
+anti-pattern the backlog's criterion names, but converting it is
+general code-quality work in an unrelated subsystem, not graph-roadmap
+work, and should be tracked (if at all) wherever that subsystem's own
+maintenance backlog lives, not here. See §20.4.20 below for where this
+distinction (graph-roadmap vs. general-codebase cleanup) is discussed
+more fully for item 2's log-noise case, which raises the identical
+scoping question.
+
+**Not blocking anything above or already landed.** Independent of
+Phase 6a's prerequisite list, Phases 7/12/13, and Phases 17/18 above
+(disjoint files: the two `characteristics/` files this phase touches
+are read-only for Phase 12's own purposes — Phase 12 adds dispatch
+wiring in `GraphBuilder.F90`, not inside either `sorted_names`
+helper).
+
+**Sub-sequencing:** single step, sized for well under one session —
+extract one shared function, update two call sites, re-run the
+existing `Test_StateItemCharacteristicSubclasses.pf`/
+`Test_StateItemCharacteristic.pf` coverage (whichever already exercises
+`AttributesCharacteristic%get_signature`/
+`VerticalCoordinateCharacteristic%get_signature`, the two call paths
+that reach `sorted_names`) with 0 new failures as the exit criterion.
+Small enough to fold into Phase 18's own `characteristics/` move
+(18-4) as a drive-by cleanup if convenient, but does not require
+waiting for that move — may land independently, anytime.
+
+### 20.4.20 Phase 20 scope: test-suite log noise — placement decision, not a code-change phase
+
+**Discovered gap, not previously tracked by any phase above — raised
+directly by the codebase owner.** Two distinct, compounding noise
+sources were named: (a) "field dictionary not found"-style warnings
+fired by nearly every test fixture that does not load one, and (b)
+`GraphBuilder: <step> step failed with rc=N - continuing without graph
+representation for this step`, fired even by tests deliberately
+exercising a failure path (e.g.
+`test_unresolved_import_after_freeze_fails_explicitly`,
+`superstructure/generic/tests/Test_GraphBuilder_ConvergenceCheck.pf`),
+making "intentional negative-path test" indistinguishable from
+"something actually broke" in a scan of the log.
+
+**Verified, source-level, this session (log-volume claims from a prior
+informal pass could not be independently re-verified against a live
+`ctest -V` run — this planning session's own explicit non-goals
+exclude running builds/tests; what follows is confirmed from source
+and from existing, already-present log files only, with the gap
+between those two named honestly):**
+
+- **(a) is confirmed real and NOT graph-specific.** The warning text
+  ("short_name/standard_name ... not found in field dictionary ...")
+  originates in `superstructure/generic/specs/VariableSpec.F90`'s own
+  `apply_field_dictionary_defaults_` (lines 411-430), called from
+  ordinary `VariableSpec` construction — this fires for ANY test
+  fixture using a `short_name`/`standard_name` the loaded field
+  dictionary (or no field dictionary at all) does not recognize,
+  completely independent of graph-native vs. legacy code paths. A
+  pre-existing, already-present log file predating all
+  `hierarchy-wide-component-graph` work (`nag/ctest-full.log`, dated
+  Oct 15, confirmed via `git log` to predate the Oct 17 `b86eb4dc`
+  commit that
+  landed that whole change) already shows 61 occurrences of "field
+  dictionary" and 74 total `WARNING` lines in a single `ctest`
+  run — this noise source predates and is unrelated to the graph
+  architecture work this roadmap otherwise tracks.
+- **(b) is confirmed real, graph-specific, and reproduced from an
+  existing log** (`nag/ctest-generic2.log`, a `-V`-style per-test
+  console-output capture from an earlier working-tree state before
+  Group 9's freeze relocation): 31 occurrences of `GraphBuilder: ...
+  step failed with rc=` in that one log, several in immediate
+  back-to-back triplets/quadruplets (e.g. three consecutive
+  `resolve_connections step failed` lines against one
+  `CAP_EQUIVALENCE` test) — confirming the "indistinguishable from a
+  real failure in a casual scan" complaint directly, not just in
+  principle. **Caveat, stated honestly rather than extrapolated:**
+  this log predates Group 9's rename of several `report_if_failed`
+  step-name arguments (e.g. `convergence_check` in that log is now
+  `graph_freeze:convergence_check`, confirmed by reading
+  `GraphBuilder_Freeze_smod.F90` directly) — the specific step-name
+  strings in a fresh run would differ, but the underlying mechanism
+  (`report_if_failed`, `GraphBuilder_LifecycleHooks_smod.F90:148-160`)
+  and its 25 real call sites across
+  `GraphBuilder_ConnectionResolution_smod.F90`,
+  `GraphBuilder_Freeze_smod.F90`, `GraphBuilder_Geometry_smod.F90`,
+  and `GraphBuilder_LifecycleHooks_smod.F90` are unchanged, so the
+  volume/ambiguity
+  problem itself is still live. **The prior informal pass's own
+  "~830 warning-level log lines in one `ctest -L ESSENTIAL -V` run"
+  figure was NOT independently reproduced this session** (no current
+  `-V` run was performed, per this session's own non-goals) — it is
+  plausible given the two confirmed-real sources above, but is
+  reported here as unverified, not as a number this roadmap entry
+  relies on.
+
+**Judgment call, made explicitly rather than silently (per this task's
+own instruction): does this belong in `20-implementation-roadmap.md`
+as a numbered phase, or elsewhere?** This document's own §1 states its
+purpose is "the phased implementation approach" for "the graph-native
+architecture" specifically. Source (a) above is confirmed NOT
+graph-specific — it is a pre-existing `VariableSpec`/field-dictionary
+interaction that would exist with zero graph-architecture code in the
+tree at all. Source (b) IS graph-specific (`GraphBuilder.F90`'s own
+`report_if_failed` convention), but its fix is a pure log-hygiene
+change (e.g. demoting routine/expected `report_if_failed` calls from
+`warning` to a lower level, or having negative-path tests themselves
+suppress/expect the warning rather than changing the production code
+path) — it does not sequence against, block, or get blocked by any
+other phase in this document, unlike every other discovered-gap phase
+above (7-18), each of which is tied to a real graph-architecture
+capability or cleanup milestone. **Checked, as instructed, whether a
+general code-quality/maintenance backlog document already exists
+elsewhere under `docs/` for this kind of cross-cutting item: it does
+not** (`docs/` contains only `Ford/`, `mapl3/`, `graph/`, `user_guide/`
+— no `backlog.md`/`maintenance.md`/`quality.md` or equivalent, confirmed
+by directory listing). **Decision: record this phase number and scope
+here, for traceability (the backlog owner explicitly asked for it to
+be "worked into the roadmap"), but keep the entry itself short and
+treat the actual fix as a one-line pointer to source (b)'s own
+mechanism rather than a graph-sequencing problem** — mirroring this
+document's own convention (used throughout §20.4) of a short pointer
+in one document to detail that properly lives in the source/code
+itself, not a duplicate restatement. If a general cross-cutting
+maintenance backlog document is ever created under `docs/` (it is not,
+as of this writing), source (a) above belongs there instead of here,
+since it has nothing to do with the graph architecture; source (b)
+would still arguably belong in a graph-specific document like this
+one, since the mechanism it concerns (`report_if_failed`) is
+graph-specific even though the complaint (log noise) is a generic
+test-hygiene concern.
+
+**Scope, if/when picked up:**
+1. Source (b) only (in-scope for this document): decide, as a planned
+   design decision, whether `report_if_failed`'s own `lgr%warning`
+   call should become `lgr%info` or `lgr%debug` for the specific case
+   where the caller already knows the failure is an expected
+   negative-path outcome (not generally true — most callers legitimately
+   want a warning for a real unexpected failure) — likely requiring a
+   new optional `expected` flag on `report_if_failed` itself, set only
+   by call sites that are themselves part of an explicitly-tested
+   negative path, rather than a blanket severity change that would
+   also silence genuinely unexpected failures.
+2. Source (a) (out of scope for this document per the judgment call
+   above): no action recommended here; flag for whoever owns
+   `VariableSpec.F90`/field-dictionary test fixture setup generally,
+   independent of any graph-architecture work.
+
+**Not blocking anything above or already landed — independent of every
+other phase in this section**, including Phases 17-19 immediately
+above (disjoint concern: logging severity, not file organization or
+type choice).
+
+### 20.4.21 Phase 21 scope: standalone hierarchy-wide graph diagnostic app
+
+**Discovered gap, not previously tracked by any phase above — raised
+directly by the codebase owner, reframed during this planning session
+from a low-priority dev convenience into a diagnostic-tooling need.**
+Original backlog wording: "a standalone app that takes a top-level
+component's YAML, builds the full graph, and renders it as a picture in
+a file — one diagram per scenario." **Reframing, per explicit
+clarification during this session:** this is not a one-off developer
+script. Two concrete drivers: (1) GEOS today mostly relies on default
+characteristic matching with regridding confined to I/O — no system has
+yet operated at the complexity graph-native mode actually supports, so
+there is no accumulated human intuition for what a real, non-trivial
+graph looks like; a way to actually SEE the resulting graph has
+diagnostic value no amount of source-reading substitutes for. (2) the
+intended audience includes a human debugging a failing/complex scenario
+test *alongside an agent*, not only a developer running a script
+locally — output needs to be usable both ways: a human looking at a
+rendered image, and an agent parsing structured data (the existing JSON
+output, REQ-VIZ-009) to reason about the same graph programmatically in
+the same session.
+
+**Checked against Q18/REQ-VIZ-005 and Phase 3d's own scope note before
+scoping this as a new phase, per this session's own required
+check:** Q18 (`docs/graph/spec/17-open-questions.md`) is about whether
+a HIERARCHY-WIDE (multi-`ComponentGraph`, composed-at-proxy-boundaries)
+*export* is needed for v1.0, versus per-component export alone being
+sufficient — it recommends deferring hierarchy-wide composition "until
+the global graph view... is itself undertaken." Phase 3d
+(§20.4.1) landed only the per-component enrichment layer
+(`graphbuilder_build_label_map`, confirmed read directly,
+`GraphBuilder_Visualization_smod.F90`) — its own header comment states
+plainly: "`GraphExport.F90` itself remains single-ComponentGraph-scoped
+(REQ-VIZ-005 hierarchy-wide export is still not implemented)." **This
+phase is NOT simply "the thing that unblocks Q18"** — it does not
+require solving the general hierarchy-wide stitching-at-proxy-
+boundaries problem Q18 defers (proxy nodes no longer exist at all,
+post-`hierarchy-wide-component-graph` — Q18's own "stitched at proxy-
+node boundaries" framing is itself now stale text, not something this
+phase should resurrect). What this phase actually needs is simpler and
+different in kind: a driver program that walks the real
+`OuterMetaComponent` tree (already-real, already-landed:
+`get_num_children`/`get_child_name`/`get_child_outer_meta`,
+confirmed used by `GraphBuilder_Freeze_smod.F90`'s own
+`freeze_subtree_` for exactly this kind of whole-tree walk) and calls
+the EXISTING per-component `export_graph_dot`/`export_graph_json`
+(`GraphExport.F90`, confirmed landed) once per component in that tree,
+emitting one `.dot`/`.json` file per component (not one stitched
+hierarchy-wide graph) — closer to "automate what a human would do by
+hand, once per component, across a whole real configuration" than to
+Q18's own harder "compose into one combined graph" question.
+**Recommendation: do not create a new roadmap phase purporting to
+resolve Q18 itself** (that remains open, correctly, pending the actual
+global-graph-view work named in §2.4) — **this phase instead supplies
+the missing driver/orchestration layer that lets per-component export
+(already landed) be exercised against a real multi-component
+configuration without hand-writing a test fixture for each one**, which
+is a smaller, already-unblocked problem. Cross-reference added to Q18's
+own entry (`17-open-questions.md`) below, rather than describing the
+same work twice.
+
+**What already exists, confirmed, that this phase builds on rather than
+duplicates:**
+- `GraphExport.F90` — per-`ComponentGraph` DOT/JSON export, landed,
+  schema-versioned (`GRAPH_EXPORT_SCHEMA_VERSION`, confirmed read
+  directly).
+- `GraphBuilder_Visualization_smod.F90`'s own
+  `graphbuilder_build_label_map` — per-component `NodeId -> label`
+  enrichment, landed (Phase 3d).
+- `tools/graph_visualization/render_graph.py` — standalone,
+  stdlib-only Python script that shells out to Graphviz `dot` to turn
+  a `.dot` file into an image (confirmed implemented, matching
+  `openspec/specs/graph/visualization-render-script/spec.md`
+  verbatim). **This already covers the "renders it as a picture in a
+  file" half of the original backlog wording** — it is NOT something
+  this phase needs to build.
+- `superstructure/generic/tests/Test_Scenarios.pf`'s own `setup()` —
+  the exact bootstrap sequence (`ESMF_GridCompCreate` from a YAML-
+  backed `ESMF_Config`, `ESMF_GridCompSetServices`, then
+  `GENERIC_INIT_PHASE_SEQUENCE`'s own ordered phase loop) a standalone
+  app needs to reproduce to go from "a YAML file" to "a real, fully
+  advertised-and-connected `OuterMetaComponent` tree, graph populated"
+  — confirmed this exact sequence already exists and works, just
+  embedded in a pFUnit test fixture rather than exposed as a reusable
+  driver.
+- `superstructure/generic/tests/graph-scenarios/` (6 existing fixture
+  directories: `plain_field`, `ungridded_dims`, `vertical_field`,
+  `units_mismatch_run_phase`, `units_and_typekind_mismatch`,
+  `graphbuilder_propagation`) and
+  `superstructure/generic/tests/scenarios/` (36 existing directories)
+  — the "one diagram per scenario" half of the original wording maps
+  directly onto running this phase's own new driver against each of
+  these already-existing fixture directories; no new fixtures need to
+  be authored to get initial diagnostic value.
+
+**What this phase actually needs to build:**
+1. A standalone driver (Fortran app under `apps/`, mirroring
+   `apps/`'s own existing mix of Fortran/Python standalone tools, or a
+   thin wrapper reusing `Test_Scenarios.pf`'s own `setup()` logic
+   factored out of the test file into a reusable, non-pFUnit-coupled
+   subroutine) that: takes a path to a top-level YAML config, builds
+   the real `OuterMetaComponent` tree through the real
+   `GENERIC_INIT_PHASE_SEQUENCE` (same as `Test_Scenarios.pf` does
+   today), then walks the resulting tree and calls
+   `graphbuilder_build_label_map` + `export_graph_dot` +
+   `export_graph_json` once per component, writing one `.dot`+`.json`
+   pair per component to a caller-specified output directory (naming
+   convention TBD at design time — e.g. `<output_dir>/<component_path>
+   .dot`, mirroring the qualified-component-path naming
+   `resolve_qualified_component`/`enumerate_qualified_exports` already
+   use elsewhere in `GraphBuilder.F90`).
+2. Wiring to `tools/graph_visualization/render_graph.py` so a single
+   invocation (or a thin shell/Python wrapper calling both the
+   Fortran driver and the render script in sequence) produces actual
+   image files, not just `.dot` text — closing the loop from "YAML in"
+   to "picture out" the original backlog wording asked for.
+3. **Audience-driven output requirement (per this session's
+   reframing):** the JSON output (already schema-versioned,
+   `GraphExport.F90`) must remain a first-class output of this driver,
+   not an afterthought behind the image — an agent debugging alongside
+   a human needs the structured form to reason about programmatically
+   in the same session a human is looking at the rendered picture.
+   Both outputs come from the same two already-landed Fortran export
+   calls (`export_graph_dot`/`export_graph_json`), so this is a
+   near-zero-marginal-cost requirement given item 1's work above, not
+   a second implementation effort — flagging it as a requirement here
+   specifically so a future implementer does not drop the JSON output
+   as "redundant with the image."
+
+**Sequencing recommendation — weigh against scenario-test complexity
+increasing soon, per this session's reframing.** The original backlog
+explicitly marked this item low-priority/last. Given the diagnostic-
+value reframing above, and specifically that Phase 12 (five more
+`StateItemCharacteristic` axes wired into real dispatch) and Phases
+7a/7b/7c (shape-changing dispatch, Expression, Wildcard) are all
+currently unimplemented, next-in-line pieces of exactly the kind of
+non-trivial graph structure (multi-characteristic extension chains,
+shape conversion, pattern-based fan-in) that has no accumulated
+operating experience yet — **recommend sequencing this phase's own
+first step (item 1 above, the driver) BEFORE Phase 12/7a-c land, not
+after**, so whoever implements those phases has a working diagnostic
+tool available while debugging their own new, unfamiliar graph shapes,
+rather than building the diagnostic tool only after the fact once the
+debugging need has already passed. This reverses the backlog's own
+original "do this last" framing deliberately, with the reasoning
+stated explicitly rather than silently reordered.
+
+**Not blocking anything above.** Confirmed independent of Phase 6a's
+own prerequisite list (§20.4.11): this phase only reads already-landed
+`GraphExport.F90`/`graphbuilder_build_label_map`/`OuterMetaComponent`
+tree-walk accessors, writes no new production graph-core code, and
+Phase 6a's own prerequisites (3b2, 7a/7b, 7c-Wildcard, 12, 13) do not
+depend on this phase in return. **Soft dependency, not a blocker:**
+most diagnostic value for Phase 12/7a-c's own debugging accrues if this
+phase's driver lands before those phases' implementation sessions
+start — see the sequencing recommendation above — but nothing prevents
+filing this phase's own `openspec` change independently of that timing
+if a future session judges otherwise.
+
+**Sub-sequencing:**
+
+- **21-1. Factor `Test_Scenarios.pf`'s own `setup()` bootstrap into a
+  reusable, non-pFUnit-coupled subroutine** (YAML path in, a
+  constructed+fully-initialized `OuterMetaComponent` tree out) that
+  both the existing test and the new standalone driver can call.
+  Sized for one session: mechanical extraction, the test's own
+  existing behavior is the regression check (same scenario fixtures,
+  same expectations, now calling the extracted subroutine instead of
+  inline code). Exit criterion: `MAPL.generic.scenarios` ctest target
+  still passes 100%, identical to its pre-extraction baseline.
+- **21-2. Build the standalone driver app** (item 1 above: walk the
+  tree, call `graphbuilder_build_label_map`+`export_graph_dot`+
+  `export_graph_json` once per component, write per-component output
+  files) using 21-1's extracted bootstrap. Sized for one session
+  given 21-1 is done first. Exit criterion: running the driver against
+  at least 2 of the existing `graph-scenarios/` fixtures produces one
+  valid `.dot`+`.json` pair per component in each fixture's tree, with
+  no Fortran runtime error, and the JSON output round-trips through a
+  plain `json.loads()` (or equivalent) with no parse error.
+- **21-3. Wire `render_graph.py` end-to-end and confirm "YAML in,
+  picture out" for at least one real scenario fixture.** Sized for
+  well under one session (both halves already work independently;
+  this step is only the glue + a smoke-test confirmation). Exit
+  criterion: a single documented invocation sequence (driver, then
+  render script) run against one real fixture produces a viewable
+  image file.
+- **21-4 (optional, size TBD, not required for diagnostic value):**
+  extend the driver to batch-process every fixture under
+  `graph-scenarios/`/`scenarios/` in one invocation, producing a full
+  per-scenario image gallery — explicitly optional polish, not needed
+  for the core diagnostic use case (a human/agent debugging ONE
+  specific failing scenario, not browsing all of them).
+
+**Cross-reference to add to `docs/graph/spec/17-open-questions.md` Q18
+(not duplicating this phase's own text there — a pointer only, per
+this document's own "short pointer, not a replacement" convention):**
+note that a standalone, per-component (not hierarchy-stitched) export
+driver now exists/is planned as Phase 21
+(`20-implementation-roadmap.md` §20.4.21), satisfying the "debugging
+use case within one component's own wiring" Q18 itself already
+identifies as the more common failure mode — without resolving, and
+not attempting to resolve, Q18's own harder hierarchy-wide-composition
+question, which remains open exactly as recorded.
+
 ## 20.5 Cross-reference
 
 This roadmap does not restate or supersede any requirement in `01`–`19`;

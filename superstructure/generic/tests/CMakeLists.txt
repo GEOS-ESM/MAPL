@@ -43,6 +43,7 @@ configure_file(field_dictionary_test.yaml geos_field_dictionary.yaml COPYONLY)
 add_library(MAPL.generic.test_common SHARED
   MockUserGridComp.F90
   MockAspect.F90
+  GraphBuilderTestSupport.F90
 )
 target_link_libraries(MAPL.generic.test_common PUBLIC MAPL.generic MAPL.utils MAPL.pfunit)
 set_target_properties(MAPL.generic.test_common PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
