@@ -1915,6 +1915,102 @@ mechanism to be reworked first, so this phase can land independently,
 whenever a second hierarchy-wide shared resource (motivating the
 "doesn't repeat the threading problem" rationale) actually materializes.
 
+### 20.4.16 Phase 16: `hierarchy-wide-component-graph` — architecture revision, node/network storage made hierarchy-wide
+
+**Architecture-revision phase, not a feature phase** — recorded here
+per this document's own "discovered gap, not previously tracked"
+precedent (Phases 7/10/14/15 above), landed as
+`openspec/changes/hierarchy-wide-component-graph` (Task Groups 1-10,
+all `[x]` except 6.7, an explicitly out-of-scope follow-up). Unlike
+Phases 7/10/14/15, this phase was not discovered mid-flight during
+unrelated work — it was proposed directly, in response to four
+independent cross-component features (3a/3b ordinary connections, 4e
+geometry push/pull, 4c/4d callback wiring's flattened export
+namespace, and 3b2's own abandoned, never-settled unresolved-import
+propagation attempt) each having invented an incompatible, one-off
+mechanism to reference a node belonging to a different
+`ComponentGraph` instance, because `NodeId` was only valid within the
+instance that issued it (`proposal.md` "Why").
+
+**What this phase changed** (see `02-component-hierarchy.md` §2.2/§2.3,
+`05-identities.md` §5.1-§5.3, `07-component-graph.md` §7.1/§7.3,
+`08-graph-builder.md` §8.2 — all `[RE-EVALUATED]` by this phase):
+
+- `NodeId → GraphNode` and `DependencyNetworkId → DependencyNetwork`
+  storage, plus the `NodeIdGenerator`/`DependencyNetworkIdGenerator`
+  pair, moved from per-`ComponentGraph` to one shared instance per
+  component hierarchy (`HierarchyId`/`HierarchyGraph`/
+  `HierarchyResources`, a private `HierarchyId`-keyed registry — not a
+  bare module-level singleton, not threaded pointers; design.md D1).
+  Every other `ComponentGraph` responsibility (resource index, ports,
+  child-port bindings, lifecycle state) remained exactly as
+  component-local as before.
+- Every proxy-node mechanism built to work around per-component graph
+  storage was retired, now structurally unnecessary: `proxy_key`/
+  `get_or_make_local_node_id`'s cross-graph branch (ordinary
+  connections), `parent_geometry_proxy_key`/`push_geometry_to_child`
+  (geometry push/pull), and `resolve_qualified_export_node_id`'s
+  proxy-creation half (callback wiring). A cross-component dependency
+  edge now connects two real `NodeId`s directly.
+- 3b2's abandoned cross-component unresolved-import propagation was
+  replaced by a corrected design (design.md D3, after an initial
+  "search the subtree" draft was rejected before any code was written
+  against it): a recursive, one-level-at-a-time import-mirroring hook,
+  reusing the existing unmodified single-level resolution machinery
+  with no new search or materialized-copy mechanism — plus a required,
+  initially-unscoped companion (export-side propagation, discovered as
+  a real regression during this phase's own verification, not optional
+  polish; see tasks.md task 6.8's own three-bug postmortem).
+- Freeze became a single hierarchy-wide operation (one new,
+  non-recursive-dispatch init phase, `GENERIC_INIT_GRAPH_FREEZE`,
+  invoked once at the true hierarchy root), replacing the former
+  per-component freeze call riding a phase
+  (`GENERIC_INIT_ACCEPT_TRANSFER`) that was not actually one-shot — a
+  real, found-not-assumed hazard (duplicate graph mutation on that
+  phase's second pass), fixed by a new explicit
+  `connections_already_resolved()` idempotency flag rather than
+  continuing to rely on `is_frozen()` for that purpose.
+- Component-name uniqueness, previously an unenforced convention
+  History relied on informally, became a checked, hierarchy-wide
+  invariant.
+- History's own deep-hierarchy export-visibility need was given a
+  direct, non-propagating query (`query_component_exports`) rather
+  than a sixth ad hoc crossing mechanism.
+
+**Verification (this session, Task Group 10):** full regression pass —
+`ctest -L ESSENTIAL` (64 tests) 100% passing under both NAG and
+gfortran; full top-level `ctest` (75 tests) 71/75 passing under both
+compilers, the only 4 failures being the pre-existing, unrelated
+`ll-ll`/`cs-cs`/`cs-ll`/`ll-cs` Regrid_Util regression-data tests
+(missing `LOCAL_REGRESSION_DATA_DIR`, nothing to do with graph work —
+confirmed identical failure set on both compilers). No regression
+found in `superstructure/generic/tests/scenarios/` or `graph-scenarios/`
+under any of the three `graph_mode()` values (`registry`/`graph`/
+`both`) exercised by the existing test suite.
+
+**Did not land as predicted:** `proposal.md`'s own stated expectation
+("most of the reduction comes from deleted proxy mechanisms rather
+than new code") did not hold once the full phase landed. `GraphBuilder.F90`
+plus its submodules measured 4585 total lines at this phase's own
+baseline (`proposal.md`'s own figure, confirmed against commit
+`224f5a1d`) and 5442 lines at this phase's completion (commit
+`15a50ec5`) — a net increase of 857 lines (+19%), not a decrease.
+Proxy removal alone (Task Groups 3-5, commit `f629872a`) did shrink the
+total by 81 lines as predicted; Task Group 6 (import/export
+propagation, commit `9fdea0fd`, +707 lines) and Task Group 9
+(hierarchy-wide freeze, commit `15a50ec5`, +160 lines) each added
+substantial new, necessarily-scoped functionality — recursive
+mirroring in both directions plus a required idempotency-flag fix, and
+a new one-shot init phase plus a hierarchy-wide freeze/convergence
+walk, respectively — that outweighed the removal (Task Group 7's
+export-visibility query, commit `bc51fc9c`, added a further +71 lines;
+Task Group 8 added no lines, test-only). The prediction was reasonable
+at proposal time (proxy mechanisms were real, measurable bulk) but did
+not anticipate 3b2's companion export-propagation requirement (task
+6.8) being discovered as load-bearing rather than optional, nor the
+freeze-relocation hazard (task 9's own blocker) requiring a new
+explicit idempotency mechanism rather than a one-line call-site move.
+
 ## 20.5 Cross-reference
 
 This roadmap does not restate or supersede any requirement in `01`–`19`;

@@ -21,7 +21,10 @@ dependency architecture in this MAPL3 checkout.
   file may lag.
 
 All facts below were verified by reading the actual source tree and
-`git log`/`git diff` output on 2026-10-16, unless marked **[ASSUMPTION]**.
+`git log`/`git diff` output on 2026-10-16, unless marked
+**[ASSUMPTION]**. Task Group 10 (full regression pass + spec-doc
+updates) was performed and verified on 2026-10-17 (see §2.2, §3's
+header note, and §6 for what changed in this pass).
 
 ## 1. Module map (`superstructure/generic/`)
 
@@ -96,16 +99,23 @@ GraphBuilder
     AND OuterMetaComponent / StateRegistry.             (08-graph-builder.md §8.3)
 ```
 
-### 2.2 `NodeId` scope — recently changed, verify before assuming either shape
+### 2.2 `NodeId` scope — settled; spec docs now updated to match (Task 10.2)
 
-As of commit `9ce2ecd5` ("Introduce Hierarchy") and `f629872a` ("Groups
-3-5"), already landed on this branch:
+**[UPDATED, this session — Task Group 10]** `docs/graph/spec/02-component-hierarchy.md`,
+`05-identities.md`, `07-component-graph.md`, and `08-graph-builder.md`
+have now all been updated in place (`[RE-EVALUATED]` sections,
+following `07`'s own REQ-CG-003 precedent) to match the landed design
+described below — task 10.2 is done; the narrative spec no longer
+diverges from implementation on this point. Read those files directly
+for the authoritative current wording; this section remains as a
+navigational summary only.
+
+As of commit `9ce2ecd5` ("Introduce Hierarchy"), `f629872a` ("Groups
+3-5"), and `15a50ec5` ("Task group 9", hierarchy-wide freeze — all
+landed on this branch):
 
 - `NodeId`/`DependencyNetworkId` are valid **hierarchy-wide**, not
-  scoped to one `ComponentGraph` instance (contrast with the original
-  `07-component-graph.md` REQ-CG-001 text, which predates this change —
-  that section is marked for `[RE-EVALUATED]` update per task 10.2,
-  **not yet done** on this branch).
+  scoped to one `ComponentGraph` instance.
 - A `ComponentGraph` instance holds a `HierarchyId` value (not a
   pointer) and resolves `get_hierarchy_resources(this%hierarchy_id)`
   internally wherever the shared maps/generators are needed.
@@ -124,30 +134,23 @@ As of commit `9ce2ecd5` ("Introduce Hierarchy") and `f629872a` ("Groups
   proxy-creation half of `resolve_qualified_export_node_id`) have
   **already been removed** (Groups 3-5). Cross-component dependency
   edges now connect two real `NodeId`s directly.
-
-**[OPEN / IN PROGRESS, this working tree]** `freeze()` is still
-per-`ComponentGraph` (Group 9, hierarchy-wide freeze, not started on
-this branch — see §3 below). Do not assume a single hierarchy-wide
-freeze call exists yet.
-
-**[BLOCKER FOUND, 2026-10-16, Group 9 not yet started]** Group 9 is
-not a simple "relocate the freeze call" change — see
-`openspec/changes/hierarchy-wide-component-graph/tasks.md` Group 9's
-own header note for the full detail. Summary: today's single freeze
-call site (`graphbuilder_run_connect_hook`, invoked from
-`initialize_accept_transfer.F90` at `GENERIC_INIT_ACCEPT_TRANSFER`)
-also doubles as `graphbuilder_resolve_connections`'s own idempotency
-gate (`graph%is_frozen()`) for that phase's SECOND pass
-(`GENERIC_INIT_ACCEPT_TRANSFER` appears twice in
-`GENERIC_INIT_PHASE_SEQUENCE`, `enums/GenericPhases.F90`). Moving
-freeze later with no replacement guard would let the second pass
-re-run real connection-resolution mutation (fresh `NodeId`s, duplicate
-node registration) while still unfrozen. Resolution direction, per
-user: move freeze to a later, one-shot phase — either
-`GENERIC_INIT_READ_RESTART`-or-later (appears exactly once in the
-sequence, no new guard needed) or a brand-new, explicitly
-non-recursive `GENERIC_INIT_GRAPH_FREEZE` phase invoked once at the
-hierarchy root. Neither implemented nor tested yet.
+- `freeze()` is now a **single hierarchy-wide operation** (Group 9,
+  landed, commit `15a50ec5`): a new, explicitly non-recursive
+  `GENERIC_INIT_GRAPH_FREEZE` phase, dispatched once at the true
+  hierarchy root, drives `GraphBuilder_Freeze_smod.F90`'s
+  `freeze_subtree_` helper, which recursively calls `graph%freeze()`
+  on every component's own `ComponentGraph` instance in the whole
+  tree. `graphbuilder_resolve_connections`'s own second-pass
+  idempotency gate no longer relies on `is_frozen()` (which would have
+  stayed unfrozen too long once freeze moved off the per-component
+  `ACCEPT_TRANSFER` call site) — it uses a new, explicit
+  `this%connections_already_resolved()`/`mark_connections_resolved()`
+  flag instead (`OuterMetaComponent/connections_resolved.F90`),
+  confirmed necessary by a real regression
+  (`MAPL3G_Comp_Test_case42`) the naive version produced. See §3 below
+  (now archived/historical — Group 9 is landed, not in progress) and
+  `docs/graph/spec/07-component-graph.md` §7.3 for the current
+  authoritative requirement text.
 
 ### 2.3 Import-port table vs. resource index — load-bearing distinction
 
@@ -190,7 +193,21 @@ child state, or it would be needlessly re-mirrored upward (confirmed by
 a correction recorded in `tasks.md` task 6.2 of the active change —
 the original task wording had this backwards).
 
-## 3. Current working-tree state (uncommitted) — Task Group 6, complete except 6.7
+## 3. Task Group 6 narrative (historical — now fully committed)
+
+**[UPDATED, this session]** This section originally described
+*uncommitted* working-tree state. Group 6 (including task 6.8) has
+since been committed as `9fdea0fd`; Groups 7, 8, and 9 followed as
+`bc51fc9c`, `1ea0fdc1`, and `15a50ec5` respectively — all landed on
+this branch, confirmed clean by `git status` at the start of this
+session. The narrative below (the regression-discovery story for task
+6.8, in particular) is preserved as-is for its debugging-methodology
+value; treat every "uncommitted"/"this working tree" reference in it
+as historical, not current. Current branch state as of this session:
+Task Groups 1-9 complete and committed; Task Group 10 (full regression
+pass + spec-doc updates) is the one this session performed — see §2.2
+above (updated spec docs) and §6 below (current phase-status summary)
+for its outcome.
 
 **Verified via `git status`/`git diff` and a real NAG build+test run on
 2026-10-16 (this update, revised after discovering and fixing a real
@@ -310,13 +327,17 @@ Verified by reading the checklist directly:
     debugging narrative.
 - **Groups 7–8: `[x]` complete** (commit `bc51fc9c`, 7.1/7.2 — note:
   this commit's own message says "Group 8" but its content is tasks
-  7.1/7.2, i.e. Group 7; fixed post-hoc, see history — and this
-  session's own uncommitted 8.1 test addition). **Groups 9–10: `[ ]`
-  unchecked** — hierarchy-wide freeze, full regression pass +
-  spec-doc updates (`02`/`05`/`07`/`08` need `[RE-EVALUATED]`
-  amendment per task 10.2 — **not yet done**, meaning those four spec
-  files currently describe the *pre-hierarchy-wide* per-component-graph
-  ownership model and are stale relative to the landed Group 1–5 code).
+  7.1/7.2, i.e. Group 7; fixed post-hoc, see history — and Group 8's
+  own 8.1 test addition, committed as `1ea0fdc1`). **[UPDATED, this
+  session] Group 9: `[x]` complete** (commit `15a50ec5`,
+  hierarchy-wide freeze). **Group 10: `[x]` complete** (this session —
+  full regression pass under both NAG and gfortran, zero regression;
+  spec-doc updates to `02`/`05`/`07`/`08` done, all four now carry
+  `[RE-EVALUATED]` sections matching the landed design; new Phase 16
+  entry added to `20-implementation-roadmap.md`; task 10.4's line-count
+  check performed — found an *increase*, not the predicted decrease,
+  recorded honestly rather than silently closed — see
+  `tasks.md` task 10.4 and roadmap §20.4.16 for the full accounting).
   - Group 7 (`query_component_exports`, D4): confirmed landed,
     `Test_GraphBuilder.pf::test_query_component_exports_scoped_to_
     resolved_component` /
@@ -504,6 +525,43 @@ logs are `MAPL.generic.graph`, `MAPL.generic.scenarios`,
 Use the real target names above, not the skill's `generic3g` examples,
 on this branch/repo state.
 
+### 4.5 Task Group 10 full regression pass (this session, 2026-10-17)
+
+Working tree was clean (Groups 1-9 fully committed through `15a50ec5`)
+at the start of this pass — no production code was changed; this is a
+pure verification run against already-landed code, plus the doc-only
+changes recorded in §2.2/§6.
+
+```bash
+module load nag-stack/7.2.41
+cmake --build nag --target build-tests -j 8
+ctest --test-dir nag -L ESSENTIAL --output-on-failure -j 4   # 64/64 pass
+ctest --test-dir nag --output-on-failure -j 4                # 71/75 pass
+
+module load gfortran-stack
+cmake --build gfortran --target build-tests -j 8
+ctest --test-dir gfortran -L ESSENTIAL --output-on-failure -j 4   # 64/64 pass
+ctest --test-dir gfortran --output-on-failure -j 4                # 71/75 pass
+```
+
+**Result, both compilers, identical:** `ESSENTIAL` label 100%
+(64/64); full suite 71/75, the only 4 failures being the long-standing
+`ll-ll`/`cs-cs`/`cs-ll`/`ll-cs` `apps/tests/Regrid_Util/`
+regression-data tests (`CMake Error ... regression data directory not
+found ... Is LOCAL_REGRESSION_DATA_DIR set correctly?`) — a missing
+local-data-directory environment issue, not a graph defect, matching
+every prior session's documentation of exactly these same 4 tests
+(§4.1 above). No build warnings or errors beyond the pre-existing
+`ld: warning: ignoring duplicate libraries`/macOS-SDK-version linker
+noise already present before this session. **Zero regression found in
+`superstructure/generic/tests/scenarios/` or `graph-scenarios/` under
+any of the three `graph_mode()` values** (`MAPL.generic.scenarios`,
+`MAPL.generic.components`, and `MAPL.generic.graph` all passed on both
+compilers — these three targets together exercise `GRAPH_MODE_REGISTRY`,
+`GRAPH_MODE_GRAPH`, and `GRAPH_MODE_BOTH`, per `Test_GraphMode.pf`/
+`Test_GraphModeDemonstration.pf`/`Test_GraphBuilderMaterializeGate.pf`/
+`Test_GraphBuilderEquivalence.pf`/`Test_GraphEquivalenceHarness.pf`).
+
 ## 5. Previous architectural decisions (summarized; see design.md for full reasoning)
 
 Source: `openspec/changes/hierarchy-wide-component-graph/design.md`
@@ -573,10 +631,15 @@ alias) + 5c (compiled-execution groundwork), Phase 9
 (`GraphResolutionEntry`), Phase 10 a–d (state materialization +
 3-mode toggle, equivalence harness, typekind unification, ordinary-phase
 `MethodGraphNode`), Phase 11 a/b (export-field aliasing, multi-hop chain
-materialization). **Current active change** (this working tree):
-`hierarchy-wide-component-graph`, Groups 1–5 committed, Group 6
-complete except 6.7, Group 7 committed (`bc51fc9c`), Group 8 (8.1)
-complete this session (uncommitted), Groups 9–10 not started.
+materialization), **Phase 16 (`hierarchy-wide-component-graph`,
+architecture revision — recorded as a new roadmap phase this session,
+`20-implementation-roadmap.md` §20.4.16): all 10 Task Groups complete
+and committed** (`9ce2ecd5`, `f629872a`, `9fdea0fd`, `bc51fc9c`,
+`1ea0fdc1`, `15a50ec5`, plus this session's Task Group 10 work —
+regression pass + spec-doc updates, no production code change). Only
+task 6.7 (bubbled-import insertion into the real `ESMF_State`, explicit
+out-of-scope follow-up) remains unimplemented within this phase, filed
+as a named follow-up rather than silently left undone.
 
 **Explicitly blocked / not ready to scope:** Phase 5b2 (ordinary inout,
 general case — needs a design addendum resolving four named open
