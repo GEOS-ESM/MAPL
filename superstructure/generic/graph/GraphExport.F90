@@ -58,6 +58,18 @@
 ! single-graph, graph-neutral core), REQ-VIZ-007a/009a exact
 ! repeated-call/schema-freezing guarantees (Q15/Q16,
 ! spec/17-open-questions.md).
+!
+! NOTE (Phase 21 bug fix, docs/graph/spec/20-implementation-roadmap.md
+! sec 20.4.21): the above is about a DIFFERENT, harder problem than "a
+! cross-component edge declared at THIS component, both endpoints
+! owned by children." That latter case is single-ComponentGraph data
+! (this component's own DependencyNetwork legitimately stores it,
+! ComponentGraph.F90's own allowed_foreign_node admits it) and IS
+! exported correctly as of this fix - see export_graph_dot's own
+! header comment for the full writeup. Do not conflate "foreign id
+! referenced by one of my own networks" (handled here) with "stitch
+! together two separate ComponentGraph instances" (REQ-VIZ-005, still
+! not implemented).
 !------------------------------------------------------------------------------
 module mapl_GraphExport_mod
    use mapl_ComponentGraph_mod, only: ComponentGraph
@@ -122,7 +134,40 @@ contains
       dot_text = dot_text // '  // schema_version=' // int_to_string(GRAPH_EXPORT_SCHEMA_VERSION) // NEW_LINE('a')
       dot_text = dot_text // '  rankdir=LR;' // NEW_LINE('a')
 
+      network_ids = graph%get_network_ids()
+
+      ! Bug fix (found exercising a real multi-component fixture
+      ! through the Phase 21 standalone diagnostic driver,
+      ! docs/graph/spec/20-implementation-roadmap.md sec 20.4.21): a
+      ! cross-component connection declared at THIS component (e.g. a
+      ! parent naming two children's own export/import by qualified
+      ! path) legitimately calls add_dependency() on THIS component's
+      ! own DependencyNetwork with both endpoints being ids this
+      ! component does not itself own (ComponentGraph.F90's own
+      ! allowed_foreign_node admits exactly this case, hierarchy-wide-
+      ! component-graph design.md D2's "cross-component edges are
+      ! legitimate" decision) - the edge is real, single-
+      ! ComponentGraph-scoped data (NOT a Q18 cross-ComponentGraph-
+      ! stitching case), but was previously invisible to this exporter:
+      ! the node/edge walk below used to iterate only graph%get_node_ids()
+      ! (this component's own advertised items), so a foreign source id
+      ! was never even checked via has_successors(). Fixed by unioning
+      ! in each network's own get_referenced_ids() (DependencyNetwork.F90,
+      ! already landed for exactly this "what ids does this network
+      ! actually mention" need, hierarchy-wide-component-graph tasks.md
+      ! 3.1/3.2) before declaring nodes or walking edges, so every
+      ! endpoint this component's own networks actually reference is
+      ! both declared (even if unlabeled - REQ-VIZ-014's existing
+      ! fallback applies) and reachable by the edge walk.
       node_ids = graph%get_node_ids()
+      net_iter = network_ids%ftn_begin()
+      do while (net_iter /= network_ids%ftn_end())
+         call net_iter%next()
+         network_id = net_iter%of()
+         network => graph%get_network(network_id)
+         _ASSERT(associated(network), 'GraphExport: enumerated DependencyNetworkId is not retrievable')
+         call union_into(node_ids, network%get_referenced_ids())
+      end do
 
       node_iter = node_ids%ftn_begin()
       do while (node_iter /= node_ids%ftn_end())
@@ -143,8 +188,6 @@ contains
 
          dot_text = dot_text // '  "' // dot_escape(id%to_string()) // '" [' // attrs // '];' // NEW_LINE('a')
       end do
-
-      network_ids = graph%get_network_ids()
 
       net_iter = network_ids%ftn_begin()
       do while (net_iter /= network_ids%ftn_end())
@@ -214,7 +257,24 @@ contains
       json_text = json_text // '  "schema_version": ' // int_to_string(GRAPH_EXPORT_SCHEMA_VERSION) // ',' // NEW_LINE('a')
       json_text = json_text // '  "nodes": [' // NEW_LINE('a')
 
+      network_ids = graph%get_network_ids()
+
+      ! Same fix as export_graph_dot above (see that function's own
+      ! header comment for the full bug writeup) - union in every
+      ! network's own get_referenced_ids() so a foreign-but-referenced
+      ! endpoint (a real cross-component edge declared at THIS
+      ! component, both endpoints owned elsewhere) is both declared
+      ! here and reachable by the edge walk below, instead of silently
+      ! dropped.
       node_ids = graph%get_node_ids()
+      net_iter = network_ids%ftn_begin()
+      do while (net_iter /= network_ids%ftn_end())
+         call net_iter%next()
+         network_id = net_iter%of()
+         network => graph%get_network(network_id)
+         _ASSERT(associated(network), 'GraphExport: enumerated DependencyNetworkId is not retrievable')
+         call union_into(node_ids, network%get_referenced_ids())
+      end do
 
       first_entry = .true.
       node_iter = node_ids%ftn_begin()
@@ -243,8 +303,6 @@ contains
 
       json_text = json_text // NEW_LINE('a') // '  ],' // NEW_LINE('a')
       json_text = json_text // '  "edges": [' // NEW_LINE('a')
-
-      network_ids = graph%get_network_ids()
 
       first_entry = .true.
       net_iter = network_ids%ftn_begin()
@@ -443,6 +501,30 @@ contains
          end if
       end do
    end function reverse_find_name
+
+   ! -- node-id set union (bug fix support, see export_graph_dot's own
+   ! header comment) --------------------------------------------------------
+
+   ! Inserts every element of `addend` into `target_set` that it does
+   ! not already contain. Plain gFTL NodeIdSet has no built-in union
+   ! operation; `insert` is itself already idempotent (re-inserting an
+   ! id already present is a no-op, same as every other ownership set
+   ! in this codebase, e.g. ComponentGraph.F90's own own_node_ids%insert
+   ! call sites), so this is just a loop.
+   subroutine union_into(target_set, addend)
+      type(NodeIdSet), intent(inout) :: target_set
+      type(NodeIdSet), target, intent(in) :: addend
+
+      type(NodeIdSetIterator) :: iter
+      type(NodeId) :: id
+
+      iter = addend%ftn_begin()
+      do while (iter /= addend%ftn_end())
+         call iter%next()
+         id = iter%of()
+         call target_set%insert(id)
+      end do
+   end subroutine union_into
 
    ! -- text formatting helpers ---------------------------------------------
 

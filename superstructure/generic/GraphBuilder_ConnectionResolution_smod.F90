@@ -35,13 +35,66 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
 
 contains
 
+   ! openspec/changes/simpleconnection-graph-resolution: the ONE place
+   ! either concrete Connection subtype's own dynamic type is
+   ! inspected in this file's resolution logic. Computes the per-match
+   ! EXACT source short name a declared SimpleConnection would have,
+   ! for a given matched destination node:
+   !  - SimpleConnection: already exact - its own declared source name
+   !    is used as-is, independent of the destination's own name
+   !    (SimpleConnection's whole point is allowing src_name/=dst_name,
+   !    e.g. scenarios/names_1's 'E_A1'->'I_B1').
+   !  - MatchConnection (class default): mirrors legacy's own per-match
+   !    SimpleConnection construction inside MatchConnection%activate()/
+   !    connect() (connection/MatchConnection.F90:91-92,148-149), which
+   !    forces the matched source's name equal to the matched
+   !    destination's own name - MatchConnection's defining same-name
+   !    wildcard semantic, not an implementation accident. Returning
+   !    dst_node%get_short_name() here is therefore byte-for-byte what
+   !    every call site already computed before this change, so
+   !    MatchConnection's own resolution outcome is unchanged.
+   ! Every other line of resolve_one/check_one/connection_pt_pair_resolves
+   ! is connection-subtype-agnostic; this helper is what makes that true
+   ! for a SimpleConnection too, instead of merely assuming it.
+   function effective_source_name(conn, dst_node) result(name)
+      class(Connection), intent(in) :: conn
+      class(StateItemNode), intent(in) :: dst_node
+      character(:), allocatable :: name
+
+      type(ConnectionPt) :: source_pt
+
+      select type (conn)
+      class is (SimpleConnection)
+         ! NAG rejects chaining a method call directly on another
+         ! function call's own result (`f()%method()`) - a local
+         ! temporary is required (same convention this file's other
+         ! procedures already follow).
+         source_pt = conn%get_source()
+         name = source_pt%get_esmf_name()
+      class default
+         name = dst_node%get_short_name()
+      end select
+   end function effective_source_name
+
    ! Read-only counterpart of resolve_match_connection() below: same
    ! destination-import filtering and same-name export existence check,
    ! but never calls resolve_local_node_id() or add_dependency() -
    ! no proxy node or dependency edge is created here.
+   !
+   ! openspec/changes/simpleconnection-graph-resolution: dummy argument
+   ! widened from type(MatchConnection) to class(Connection) - this
+   ! body's own destination-side filtering (for_each_matching_import,
+   ! via conn%get_destination()) is unaffected by which concrete
+   ! Connection subtype conn is; the one place subtype DOES matter -
+   ! what the source's own effective short name is for the export
+   ! lookup below - is isolated entirely in effective_source_name
+   ! (above), not scattered through this body. See that function's
+   ! own header comment for why a SimpleConnection's declared source
+   ! name and a MatchConnection match's own (destination-derived) name
+   ! must be computed differently.
    module subroutine check_match_connection_unsatisfied(this, conn, unresolved, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
-      type(MatchConnection), intent(in) :: conn
+      class(Connection), intent(in) :: conn
       type(GraphResolutionEntryVector), intent(inout) :: unresolved
       integer, optional, intent(out) :: rc
 
@@ -97,7 +150,7 @@ contains
             _RETURN(_SUCCESS)
          end if
 
-         has_export = associated(find_export_node(src_meta, node%get_short_name()))
+         has_export = associated(find_export_node(src_meta, effective_source_name(conn, node)))
          if (.not. has_export) then
             call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, node%get_short_name()))
          end if
@@ -119,9 +172,18 @@ contains
    ! VirtualConnectionPt read-only accessors are ordinary public query
    ! methods on the Connection's own declared data, not part of that
    ! execution machinery, and are used here as-is.
+   !
+   ! openspec/changes/simpleconnection-graph-resolution: dummy argument
+   ! widened from type(MatchConnection) to class(Connection), same
+   ! reasoning as check_match_connection_unsatisfied above - this body
+   ! resolves a declared SimpleConnection exactly as it would a single
+   ! matched pair from a MatchConnection's own regex expansion, with no
+   ! separate code path. MatchConnection is, by design, the pattern-
+   ! expanding generalization over this same exact-match resolution;
+   ! SimpleConnection IS that exact-match case, declared directly.
    module subroutine resolve_match_connection(this, conn, unresolved, unsupported, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
-      type(MatchConnection), intent(in) :: conn
+      class(Connection), intent(in) :: conn
       type(GraphResolutionEntryVector), intent(inout) :: unresolved
       type(GraphResolutionEntryVector), intent(inout) :: unsupported
       integer, optional, intent(out) :: rc
@@ -216,8 +278,14 @@ contains
           ! the exact-name/extension-chain logic below, which never runs
           ! for this item - mirrors the callback-interface branch
           ! immediately above exactly.
+          !
+          ! openspec/changes/simpleconnection-graph-resolution: passes
+          ! the precomputed effective_source_name(conn, dst_node) -
+          ! same reasoning as the exact-match export lookup below; a
+          ! SimpleConnection's own declared source name may differ
+          ! from dst_node's own short name.
           if (dst_node%is_inout_borrower()) then
-             call resolve_inout_destination(this, src_pt, dst_pt, dst_node, unsupported, _RC)
+             call resolve_inout_destination(this, src_pt, dst_pt, dst_node, effective_source_name(conn, dst_node), unsupported, _RC)
              _RETURN(_SUCCESS)
           end if
 
@@ -247,8 +315,18 @@ contains
           ! resolution path.
           import_node_id = dst_node%get_node_id()
 
-         has_export = find_export_node_id(this, src_pt%component_name, dst_node%get_short_name(), &
-              export_node_id, export_node, _RC)
+          ! openspec/changes/simpleconnection-graph-resolution: source
+          ! lookup key is the connection's own EFFECTIVE source name
+          ! (effective_source_name, above) - a SimpleConnection's own
+          ! declared source name, which may legitimately differ from
+          ! dst_node's own short name (scenarios/names_1's
+          ! 'E_A1'->'I_B1'), not dst_node%get_short_name() directly.
+          ! For a MatchConnection match, effective_source_name returns
+          ! exactly dst_node%get_short_name() (legacy's own same-name
+          ! wildcard rule), so this is unchanged for every existing
+          ! MatchConnection caller.
+          has_export = find_export_node_id(this, src_pt%component_name, effective_source_name(conn, dst_node), &
+               export_node_id, export_node, _RC)
 
          if (.not. has_export) then
             ! REQ scenario "Import with no matching export is left
@@ -427,8 +505,17 @@ contains
             select type (c)
             class is (MatchConnection)
                call check_match_connection_unsatisfied(this, c, unresolved, _RC)
+            class is (SimpleConnection)
+               ! openspec/changes/simpleconnection-graph-resolution:
+               ! same call as the MatchConnection arm above -
+               ! check_match_connection_unsatisfied only ever touches
+               ! conn via Connection-base accessors, so a declared
+               ! SimpleConnection's own exact destination is checked
+               ! identically to a MatchConnection match's own single
+               ! destination.
+               call check_match_connection_unsatisfied(this, c, unresolved, _RC)
             class default
-               ! Wildcard/callback/reexport/simple connections: out of
+               ! Wildcard/callback/reexport connections: out of
                ! scope for this slice - deliberately skipped.
             end select
          end do
@@ -548,6 +635,21 @@ contains
    ! branch via find_export_node) - reused here as a POSITIVE match
    ! collector (returns as soon as one resolving connection is found)
    ! instead of a negative "report every miss" one. Read-only.
+   !
+   ! openspec/changes/simpleconnection-graph-resolution: the per-
+   ! connection check below (connection_pt_pair_resolves) is shared by
+   ! BOTH a MatchConnection and a SimpleConnection - design.md D3's
+   ! correction. The old class default branch's own destination-name
+   ! heuristic (treating "a non-MatchConnection connection names this
+   ! destination, exactly" as sufficient, with no check that the
+   ! source side actually resolves) is REMOVED: it was a false-
+   ! negative risk (a SimpleConnection naming a destination whose
+   ! source does not actually exist was wrongly treated as "resolved,"
+   ! suppressing mirroring - see proposal.md). ReexportConnection (and
+   ! any other out-of-scope Connection subtype) now correctly falls
+   ! through class default with resolved left .false. - still
+   ! mirrored, which is correct: this change gives ReexportConnection
+   ! no resolution path of its own.
    function connection_resolves_import(owner, target_meta, node, rc) result(resolved)
       class(OuterMetaComponent), target, intent(inout) :: owner
       class(OuterMetaComponent), target, intent(in) :: target_meta
@@ -559,11 +661,6 @@ contains
       type(ComponentSpec), pointer :: owner_spec
       type(ConnectionVectorIterator) :: iter
       class(Connection), pointer :: c
-      type(ConnectionPt) :: src_pt, dst_pt
-      type(OuterMetaComponent), pointer :: dst_meta, src_meta
-      type(CallbackInterfaceId) :: callback_interface_id
-      type(QualifiedExportEntry), allocatable :: callback_matches(:)
-      logical :: has_export
 
       resolved = .false.
       owner_spec => owner%get_component_spec()
@@ -575,65 +672,77 @@ contains
             c => iter%of()
             select type (c)
             class is (MatchConnection)
-               src_pt = c%get_source()
-               dst_pt = c%get_destination()
-
-               dst_meta => resolve_qualified_component(owner, dst_pt%component_name, _RC)
-               if (.not. associated(dst_meta, target_meta)) cycle
-               if (.not. dst_pt%v_pt%matches(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, node%get_short_name()))) cycle
-
-               callback_interface_id = node%get_callback_interface_id()
-               if (callback_interface_id%is_valid()) then
-                  callback_matches = resolve_callback_import(owner, src_pt, callback_interface_id, rc=status)
-                  _VERIFY(status)
-                  if (size(callback_matches) > 0) then
-                     resolved = .true.
-                     exit
-                  end if
-                  cycle
-               end if
-
-               src_meta => resolve_qualified_component(owner, src_pt%component_name, _RC)
-               has_export = associated(find_export_node(src_meta, node%get_short_name()))
-               if (has_export) then
-                  resolved = .true.
-                  exit
-               end if
+               resolved = connection_pt_pair_resolves(owner, target_meta, node, c, _RC)
+            class is (SimpleConnection)
+               ! A SimpleConnection's own destination is an exact
+               ! (non-regex) VirtualConnectionPt - the same structural
+               ! "does this connection's own declared source/
+               ! destination resolve this import" check a
+               ! MatchConnection match already gets, via the same
+               ! shared function - not a separately maintained check.
+               resolved = connection_pt_pair_resolves(owner, target_meta, node, c, _RC)
             class default
-               ! openspec/changes/hierarchy-wide-component-graph, tasks.md
-               ! 6.8 (regression fix, second gap - distinct from the
-               ! item-type exclusion above): a SimpleConnection/
-               ! ReexportConnection declared on `owner`, whose
-               ! destination names `target_meta` directly by its own
-               ! EXACT (non-regex) short name, is StateRegistry's own
-               ! real resolver for this import - never visible to
-               ! graph-native resolution at all (GraphBuilder.F90's own
-               ! module header: "Explicitly NOT in scope here: Simple
-               ! Connection/ReexportConnection"), but genuinely
-               ! resolved nonetheless (legacy's own is_active() gate
-               ! does not discriminate by connection class either -
-               ! SimpleConnection%activate(), StateRegistry/
-               ! SimpleConnection.F90, calls spec%activate() exactly
-               ! like MatchConnection's own analog). Treating "named by
-               ! this connection, exactly" as sufficient here (no
-               ! find_export_node call - this import's own real
-               ! producer is resolved entirely within StateRegistry,
-               ! which this procedure has no business re-verifying)
-               ! prevents propagation from needlessly bubbling an
-               ! import that already has a real, declared resolver one
-               ! level up.
-               dst_pt = c%get_destination()
-               dst_meta => resolve_qualified_component(owner, dst_pt%component_name, _RC)
-               if (.not. associated(dst_meta, target_meta)) cycle
-               if (dst_pt%get_esmf_name() /= node%get_short_name()) cycle
-               resolved = .true.
-               exit
+               ! ReexportConnection and any other out-of-scope
+               ! Connection subtype: not resolved by this capability -
+               ! correctly still mirrored (resolved stays .false.).
             end select
+            if (resolved) exit
          end do
       end associate
 
       _RETURN(_SUCCESS)
    end function connection_resolves_import
+
+   ! openspec/changes/simpleconnection-graph-resolution: extracted
+   ! verbatim from connection_resolves_import's own former
+   ! class is (MatchConnection) branch (design.md D3), with one fix:
+   ! the source-export lookup now uses effective_source_name(c, node)
+   ! instead of node%get_short_name() directly - a SimpleConnection's
+   ! own declared source name may differ from node's own (destination-
+   ! side) short name, the same correction D1 applies to resolve_one/
+   ! check_one.
+   function connection_pt_pair_resolves(owner, target_meta, node, c, rc) result(resolved)
+      class(OuterMetaComponent), target, intent(inout) :: owner
+      class(OuterMetaComponent), target, intent(in) :: target_meta
+      class(StateItemNode), target, intent(in) :: node
+      class(Connection), intent(in) :: c
+      integer, optional, intent(out) :: rc
+      logical :: resolved
+
+      integer :: status
+      type(ConnectionPt) :: src_pt, dst_pt
+      type(OuterMetaComponent), pointer :: dst_meta, src_meta
+      type(CallbackInterfaceId) :: callback_interface_id
+      type(QualifiedExportEntry), allocatable :: callback_matches(:)
+      logical :: has_export
+
+      resolved = .false.
+
+      src_pt = c%get_source()
+      dst_pt = c%get_destination()
+
+      dst_meta => resolve_qualified_component(owner, dst_pt%component_name, _RC)
+      if (.not. associated(dst_meta, target_meta)) then
+         _RETURN(_SUCCESS)
+      end if
+      if (.not. dst_pt%v_pt%matches(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, node%get_short_name()))) then
+         _RETURN(_SUCCESS)
+      end if
+
+      callback_interface_id = node%get_callback_interface_id()
+      if (callback_interface_id%is_valid()) then
+         callback_matches = resolve_callback_import(owner, src_pt, callback_interface_id, rc=status)
+         _VERIFY(status)
+         resolved = (size(callback_matches) > 0)
+         _RETURN(_SUCCESS)
+      end if
+
+      src_meta => resolve_qualified_component(owner, src_pt%component_name, _RC)
+      has_export = associated(find_export_node(src_meta, effective_source_name(c, node)))
+      resolved = has_export
+
+      _RETURN(_SUCCESS)
+   end function connection_pt_pair_resolves
 
    ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1/6.2,
    ! design.md D3: see this function's own interface-block comment
@@ -1028,8 +1137,17 @@ contains
             select type (c)
             class is (MatchConnection)
                call resolve_match_connection(this, c, unresolved, unsupported, _RC)
+            class is (SimpleConnection)
+               ! openspec/changes/simpleconnection-graph-resolution:
+               ! same call as the MatchConnection arm above -
+               ! resolve_match_connection only ever touches conn via
+               ! Connection-base accessors, so a declared
+               ! SimpleConnection is wired into the dependency network
+               ! exactly as a MatchConnection's own single matched
+               ! pair would be - no separate resolution path.
+               call resolve_match_connection(this, c, unresolved, unsupported, _RC)
             class default
-               ! Wildcard/callback/reexport/simple connections: out of
+               ! Wildcard/callback/reexport connections: out of
                ! scope for this slice - deliberately skipped.
             end select
          end do
@@ -1185,11 +1303,12 @@ contains
    ! openspec/changes/graph-builder-stateitem-resolution: dst_node (the
    ! borrower's own already-advertised StateItemNode) replaces the
    ! borrower's var_spec throughout.
-   module subroutine resolve_inout_destination(this, src_pt, dst_pt, dst_node, unsupported, rc)
+   module subroutine resolve_inout_destination(this, src_pt, dst_pt, dst_node, effective_src_name, unsupported, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ConnectionPt), intent(in) :: src_pt
       type(ConnectionPt), intent(in) :: dst_pt
       class(StateItemNode), target, intent(in) :: dst_node
+      character(*), intent(in) :: effective_src_name
       type(GraphResolutionEntryVector), intent(inout) :: unsupported
       integer, optional, intent(out) :: rc
 
@@ -1215,7 +1334,13 @@ contains
       import_node_id = resolve_local_node_id(this, dst_pt%component_name, &
            ESMF_STATEINTENT_IMPORT, dst_node%get_short_name(), _RC)
 
-      has_owner = find_export_node_id(this, src_pt%component_name, dst_node%get_short_name(), &
+      ! openspec/changes/simpleconnection-graph-resolution: source
+      ! lookup key is the connection's own EFFECTIVE source name
+      ! (effective_src_name, computed by the caller via
+      ! effective_source_name) - same reasoning as resolve_one's own
+      ! exact-match export lookup; a SimpleConnection's own declared
+      ! source name may differ from dst_node's own short name.
+      has_owner = find_export_node_id(this, src_pt%component_name, effective_src_name, &
            owner_node_id, owner_node, _RC)
 
       if (.not. has_owner) then
@@ -1239,6 +1364,16 @@ contains
       ! itself borrowed by its own owning component - via a scan over
       ! the owner's own import ports (the node-based replacement for the
       ! now-removed find_inout_borrower_var_spec, tasks.md 4.3).
+      !
+      ! openspec/changes/simpleconnection-graph-resolution: "same short
+      ! name" means the OWNER's own short name (owner_node's, already
+      ! correctly resolved above via effective_src_name) - not
+      ! dst_node's own (destination-side) short name, which may differ
+      ! for a SimpleConnection with src_name/=dst_name. Comparing
+      ! against dst_node%get_short_name() here was the identical
+      ! substitution bug one level down: it would check the OWNER's
+      ! import ports for a name that only matches by coincidence when
+      ! src_name==dst_name.
       owner_meta => resolve_qualified_component(this, src_pt%component_name, _RC)
       owner_graph => owner_meta%get_component_graph()
       owner_import_ports = owner_graph%get_import_ports()
@@ -1252,7 +1387,7 @@ contains
             _ASSERT(associated(candidate_node), 'GraphBuilder: resolve_inout_destination - import port NodeId not found')
             select type (candidate_node)
             class is (StateItemNode)
-               if (candidate_node%get_short_name() == dst_node%get_short_name() .and. &
+               if (candidate_node%get_short_name() == owner_node%get_short_name() .and. &
                     candidate_node%is_inout_borrower()) then
                   owner_is_chained = .true.
                   exit
