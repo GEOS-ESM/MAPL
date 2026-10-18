@@ -86,18 +86,18 @@ target_sources(MAPL.generic PRIVATE
   AttributesCharacteristic.F90
   StandardNameCharacteristic.F90
 
-  CallbackArgumentSpec.F90
+  callback/CallbackArgumentSpec.F90
   containers/CallbackArgumentSpecMap.F90
   containers/AccessSpecMap.F90
-  CallbackMethodSpec.F90
+  callback/CallbackMethodSpec.F90
   containers/CallbackMethodSpecMap.F90
-  CallbackInterface.F90
+  callback/CallbackInterface.F90
   containers/CallbackInterfaceIdInterfaceMap.F90
   containers/CallbackServiceNameIdMap.F90
-  CallbackInterfaceRegistry.F90
+  callback/CallbackInterfaceRegistry.F90
   containers/CallbackMethodAttachmentMap.F90
-  CallbackStateBinding.F90
-  CallbackMethodBinding.F90
+  callback/CallbackStateBinding.F90
+  callback/CallbackMethodBinding.F90
 )
 
 target_include_directories(MAPL.generic PRIVATE
