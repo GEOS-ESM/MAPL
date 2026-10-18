@@ -43,6 +43,7 @@ module mapl_VerticalCoordinateCharacteristic_mod
    use mapl_NodeId_mod, only: NodeId, operator(==), operator(/=)
    use mapl_TransformBase_mod, only: TransformBase
    use gFTL2_StringVector, only: StringVector
+   use mapl_StringSortUtilities_mod, only: sorted_names
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -321,40 +322,6 @@ contains
          end if
       end do
    end function same_set
-
-   ! Simple insertion sort - dimension counts are expected to be small
-   ! (a handful of physical dimensions per vertical grid), so this is
-   ! not performance-sensitive; chosen over pulling in a generic sort
-   ! algorithm for one small, local use.
-   function sorted_names(names) result(sorted)
-      type(StringVector), intent(in) :: names
-      character(:), allocatable :: sorted(:)
-
-      integer :: i, j, n
-      character(:), allocatable :: key
-      integer :: maxlen
-
-      n = names%size()
-      maxlen = 0
-      do i = 1, n
-         maxlen = max(maxlen, len(names%of(i)))
-      end do
-      allocate(character(len=maxlen) :: sorted(n))
-      do i = 1, n
-         sorted(i) = names%of(i)
-      end do
-
-      do i = 2, n
-         key = trim(sorted(i))
-         j = i - 1
-         do while (j >= 1)
-            if (trim(sorted(j)) <= key) exit
-            sorted(j + 1) = sorted(j)
-            j = j - 1
-         end do
-         sorted(j + 1) = key
-      end do
-   end function sorted_names
 
    function join(names) result(joined)
       character(*), intent(in) :: names(:)
