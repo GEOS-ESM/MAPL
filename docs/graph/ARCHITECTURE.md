@@ -32,12 +32,19 @@ header note, and §6 for what changed in this pass).
 
 No dependency on `OuterComponent`/`StateRegistry` (hard rule,
 `07-component-graph.md` REQ-CG-002). ~40 files; most relevant for
-current work:
+current work. **[UPDATED, Phase 18]** As of
+`docs/graph/spec/20-implementation-roadmap.md` §20.4.18, four families
+now live in their own subdirectories rather than flat at this level:
+`characteristics/` (15 files), `transforms/` (5 files), `callback/`
+(6 files), `id_types/` (5 files + `IdTemplate.inc`, folding the former
+`include/` directory). The table below gives each file's subdirectory
+explicitly where it has moved; everything else listed remains at the
+flat top level.
 
 | File | Responsibility |
 |---|---|
-| `NodeId.F90`, `DependencyNetworkId.F90`, `PortId.F90` | Generated identity types (`IdTemplate.inc` instantiations) |
-| `HierarchyId.F90` | Identity type for a whole component hierarchy (landed by `hierarchy-wide-component-graph`, Group 1) |
+| `id_types/NodeId.F90`, `id_types/DependencyNetworkId.F90`, `id_types/PortId.F90` | Generated identity types (`id_types/IdTemplate.inc` instantiations) |
+| `id_types/HierarchyId.F90` | Identity type for a whole component hierarchy (landed by `hierarchy-wide-component-graph`, Group 1) |
 | `HierarchyGraph.F90` | The actual hierarchy-wide `NodeId→GraphNode` and `DependencyNetworkId→DependencyNetwork` maps + the one shared id-generator pair |
 | `HierarchyResources.F90` | Container holding one `HierarchyGraph`, shaped to hold future shared resources |
 | (private registry, inside `HierarchyGraph`/`HierarchyResources` module code) | `request_new_hierarchy()` / `get_hierarchy_resources(id)` / `release_hierarchy(id)` — keyed by `HierarchyId`, not a bare singleton (see design.md D1 in the active change) |
@@ -45,12 +52,12 @@ current work:
 | `GraphStateItem.F90` | Concrete payload type (Field/FieldBundle/State, at most one allocated) |
 | `DependencyNetwork.F90` | Acyclic adjacency-list dependency storage |
 | `ComponentGraph.F90` | Per-`OuterComponent` owner of resource index, ports, child-port bindings, lifecycle state — **node/network storage itself now lives in `HierarchyGraph`, reached via a stored `HierarchyId`** (post Group-1 refactor) |
-| `TransformGraphNode.F90`, `Transform.F90`, `TransformBase.F90` | Transform nodes + named ports |
+| `transforms/TransformGraphNode.F90`, `transforms/Transform.F90`, `transforms/TransformBase.F90` | Transform nodes + named ports |
 | `NodeRevision.F90`, `ComponentGraph_DemandDrivenUpdate.F90` | Revision stamps + demand-driven `update()` |
 | `MethodGraphNode.F90`, `MethodInvocation*.F90`, `GridCompMethodInvocation.F90`, `StateMethodInvocation.F90`, `GridCompDriverPhaseInvoker.F90` | Method invocation layer |
-| `CallbackInterface*.F90`, `CallbackMethodSpec.F90`, `CallbackStateBinding.F90`, `CallbackMethodBinding.F90` | Callback data model |
-| `*Characteristic.F90` (Units, TypeKind, Geometry, Attributes, UngriddedDims, QuantityType, Conservation, Normalization, StandardName, VerticalCoordinate) + `CharacteristicStatus.F90`, `StateItemCharacteristicKind.F90` | Mismatch-detection/extension-chain axes |
-| `UnitsConverterTransform.F90`, `TypeKindConverterTransform.F90` | Real executing transforms (only two axes with real conversion so far) |
+| `callback/CallbackInterface*.F90` (except `CallbackInterfaceId.F90`, which lives in `id_types/` — a real `#include "IdTemplate.inc"` site, not a comment mention), `callback/CallbackMethodSpec.F90`, `callback/CallbackStateBinding.F90`, `callback/CallbackMethodBinding.F90` | Callback data model |
+| `characteristics/*Characteristic.F90` (Units, TypeKind, Geometry, Attributes, UngriddedDims, QuantityType, Conservation, Normalization, StandardName, VerticalCoordinate) + `characteristics/CharacteristicStatus.F90`, `characteristics/StateItemCharacteristicKind.F90` | Mismatch-detection/extension-chain axes |
+| `transforms/UnitsConverterTransform.F90`, `transforms/TypeKindConverterTransform.F90` | Real executing transforms (only two axes with real conversion so far) |
 | `RouteHandleKey.F90` | Semantic key for route-handle reuse |
 | `CompositeStateMaterialization.F90` | Applies composite-member/variant tagging during materialization |
 | `GraphMode.F90` | `registry` / `graph` / `both` 3-way selector (`mapl_GraphMode_mod`) |
@@ -79,7 +86,7 @@ authoritative name-to-concept mapping; do not re-derive it independently.
 Key correspondence for this project's current focus:
 
 - `03-graph-node-hierarchy.md` ↔ `graph/GraphNode.F90` family
-- `05-identities.md` ↔ `graph/NodeId.F90`, `graph/HierarchyId.F90`, `graph/include/IdTemplate.inc`
+- `05-identities.md` ↔ `graph/id_types/NodeId.F90`, `graph/id_types/HierarchyId.F90`, `graph/id_types/IdTemplate.inc`
 - `06-dependency-network.md` ↔ `graph/DependencyNetwork.F90`
 - `07-component-graph.md` ↔ `graph/ComponentGraph.F90`
 - `08-graph-builder.md` ↔ `GraphBuilder.F90` + its submodules
