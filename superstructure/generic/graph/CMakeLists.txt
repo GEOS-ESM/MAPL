@@ -1,4 +1,6 @@
 target_sources(MAPL.generic PRIVATE
+  StringSortUtilities.F90
+
   id_types/NodeId.F90
   id_types/DependencyNetworkId.F90
   id_types/PortId.F90
