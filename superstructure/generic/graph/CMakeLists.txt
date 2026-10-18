@@ -21,9 +21,9 @@ target_sources(MAPL.generic PRIVATE
   containers/PortSpecMap.F90
   containers/PortNameRevisionMap.F90
   containers/PortNameGraphStateItemMap.F90
-  TransformBase.F90
-  Transform.F90
-  TransformGraphNode.F90
+  transforms/TransformBase.F90
+  transforms/Transform.F90
+  transforms/TransformGraphNode.F90
 
   AccessSpec.F90
   ArgumentSpec.F90
@@ -63,8 +63,8 @@ target_sources(MAPL.generic PRIVATE
   ComponentGraph_DemandDrivenUpdate.F90
   GraphExport.F90
 
-  UnitsConverterTransform.F90
-  TypeKindConverterTransform.F90
+  transforms/UnitsConverterTransform.F90
+  transforms/TypeKindConverterTransform.F90
   ExtensionResolution.F90
   ExtensionMaterialization.F90
 
