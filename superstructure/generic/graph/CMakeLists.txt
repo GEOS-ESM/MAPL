@@ -70,21 +70,21 @@ target_sources(MAPL.generic PRIVATE
 
   CompositeStateMaterialization.F90
 
-  CharacteristicStatus.F90
-  StateItemCharacteristicKind.F90
-  StateItemCharacteristic.F90
-  PhysicalUnitsCharacteristic.F90
-  TypeKindCharacteristic.F90
-  GeometryCharacteristic.F90
-  StateItemCharacteristicDetection.F90
-  SetSharedCharacteristic.F90
-  VerticalCoordinateCharacteristic.F90
-  UngriddedDimsCharacteristic.F90
-  ConservationCharacteristic.F90
-  NormalizationCharacteristic.F90
-  QuantityTypeCharacteristic.F90
-  AttributesCharacteristic.F90
-  StandardNameCharacteristic.F90
+  characteristics/CharacteristicStatus.F90
+  characteristics/StateItemCharacteristicKind.F90
+  characteristics/StateItemCharacteristic.F90
+  characteristics/PhysicalUnitsCharacteristic.F90
+  characteristics/TypeKindCharacteristic.F90
+  characteristics/GeometryCharacteristic.F90
+  characteristics/StateItemCharacteristicDetection.F90
+  characteristics/SetSharedCharacteristic.F90
+  characteristics/VerticalCoordinateCharacteristic.F90
+  characteristics/UngriddedDimsCharacteristic.F90
+  characteristics/ConservationCharacteristic.F90
+  characteristics/NormalizationCharacteristic.F90
+  characteristics/QuantityTypeCharacteristic.F90
+  characteristics/AttributesCharacteristic.F90
+  characteristics/StandardNameCharacteristic.F90
 
   callback/CallbackArgumentSpec.F90
   containers/CallbackArgumentSpecMap.F90
