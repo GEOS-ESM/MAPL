@@ -2296,26 +2296,329 @@ review pass — see §20.4.18's own sequencing note.
   tests) also run on both compilers post-change as a wider regression
   check beyond this step's own exit criterion: 64/64 pass on both,
   matching §4's own documented baseline exactly.
-- **17-2. Characterize `GraphBuilder.F90`'s 16 shared-helper
-  procedures' real call-site counts** (the `item_key`-style audit,
-  item 2 above) and write up the findings — no code change in this
-  step, a design-input document only. Sized for one session.
-- **17-3. Characterize `Test_GraphBuilder.pf`'s ~20 sub-topics against
-  the submodule they each actually exercise** (item 3 above) — also a
-  design-input document, no code change. Sized for one session; MAY
-  run in parallel with 17-2 (disjoint files).
+- **17-2. DONE.** 19 of 16-estimated helpers found (3 missed by the
+  prior informal count): 5 genuinely cross-cutting, 7 single-caller
+  clean move candidates, 4 single-caller-but-plausible-second-caller
+  promote candidates, and 3 with ZERO real callers anywhere — dead
+  code, a category the roadmap's own framing did not anticipate. See
+  table below.
+- **17-3. DONE.** 51 `@test`/51 distinct subroutines confirmed (not
+  "52/46" — both prior figures were off, in opposite directions: this
+  session's own repo state is one commit (Phase 21) past the `3607`-
+  line/`46`-subroutine snapshot §20.4.17's own measurement section
+  above cites, which itself predates 17-1's dedup). Of 23 finer-
+  grained sub-topic buckets, 19 are clean split-into-their-own-file
+  candidates (one submodule exercised exclusively), 2 stay (shared-
+  logic colocation), 2 are ambiguous (one of the 2 is structural, not
+  a logic question). See table below.
+
+  **Implemented this session** (characterization only — no code
+  touched in `GraphBuilder.F90`, any `_smod.F90`, or any `.pf` file;
+  verified via `git status` showing zero modified source/test files
+  before and after this session).
+
+  **17-2 method (repeatable):** for each plain procedure appearing
+  between `contains` (line 867) and `end module` (line 1734) in
+  `superstructure/generic/GraphBuilder.F90`, ran
+  `grep -nE '\bNAME\s*\(' GraphBuilder.F90 GraphBuilder_*_smod.F90`
+  (11 submodule files, listed in ARCHITECTURE.md §1.2) and manually
+  excluded matches inside `!`-comments (a small number of helpers are
+  referenced-in-prose by other helpers' own header comments without
+  being called — `component_spec_for`/`enumerate_qualified_exports`
+  specifically, see below) and the declaration/`public ::` lines
+  themselves. Cross-checked against the whole-repo `.pf`/`.F90` tree
+  (`grep -rn NAME --include="*.F90" --include="*.pf" .`, excluding
+  `build/`/`gfortran/`/`nag/` generated-copy directories) to catch any
+  caller outside the 11 submodules (none found calling any of the 19
+  from outside `GraphBuilder.F90`'s own family, aside from tests,
+  which do not count as "submodule callers" for this audit's purpose
+  — a test calling a helper directly is evidence for 17-3, not 17-2).
+
+  **First correction — the count is 19, not 16.** The roadmap's own
+  "16... and 8 more" estimate (the passage directly above this one,
+  "Why `GraphBuilder.F90`... cannot simply be split further") named 8
+  explicitly and asserted 8 more without enumerating them. Reading the
+  file directly (`contains` at 867 through `end module` at 1734) finds
+  19 plain procedures total: the 8 named
+  (`item_key`, `component_for`, `resolve_qualified_component`,
+  `try_materialize_field_extension`, `materialize_extension_chain`,
+  `resolve_local_node_id`, `resolve_callback_import`,
+  `resolve_callback_destination`) plus 11, not 8, more: `is_self`,
+  `component_spec_for`, `enumerate_qualified_exports`,
+  `collect_qualified_export_index`, `append_own_export_index_entries`,
+  `query_component_exports`, `get_item_units`, `get_item_typekind`,
+  `merged_item_for_link`, `itemtype_name`,
+  `is_ordinary_resolvable_import`. The "16" figure undercounted by 3 —
+  a plausible explanation, not confirmed: `get_item_units`/
+  `get_item_typekind`/`merged_item_for_link` are all small (23/21/47
+  lines), un-exported-sounding, and physically adjacent to
+  `try_materialize_field_extension`/`materialize_extension_chain`
+  (one of which IS in the named-8 list) — an informal pass skimming
+  for "helper-shaped" procedures near the named ones could plausibly
+  have folded these three into the ones they directly support instead
+  of counting them separately. This is the session's own best guess
+  at the discrepancy's origin, not a verified fact — flagged as such.
+
+  | Helper | Body lines | Parent self-calls | Calling submodule(s) (count) | Classification |
+  |---|---|---|---|---|
+  | `item_key` | 16 | 2 | Advertising(1), CallbackWiring(2), Geometry(5), RunPhaseNode(2), RunPhasePull(1), StatePopulation(2), Visualization(1) — **7 submodules** | (a) cross-cutting |
+  | `is_self` | 6 | 3 | CallbackWiring(2) — **1 submodule** | (b) single-caller — candidate to move into CallbackWiring |
+  | `component_spec_for` | 16 | 0 | **none anywhere** (only referenced in two comments, `GraphBuilder_ConnectionResolution_smod.F90:111,204`, explaining why a *different* function, `resolve_qualified_component`, replaced it) | **dead code** — zero real callers in production or test code; candidate for deletion, not move/promote |
+  | `component_for` | 19 | 3 | ConnectionResolution(1) — **1 submodule** | (c) single-caller, but see note below — the `public ::` comment at line 199 documents it as needed for "gfortran cross-submodule linkage" precedent already paid; a genuine future-caller signal exists in CallbackWiring's own header reasoning (`resolve_callback_import` calls it, and CallbackWiring is architecturally the module most likely to gain a second qualified-lookup need) — promote-candidate, not move-candidate, though weakly evidenced |
+  | `resolve_qualified_component` | 41 | 2 | CallbackWiring(1), ConnectionResolution(7) — **2 submodules** | (a) cross-cutting |
+  | `enumerate_qualified_exports` | 12 | 0 | **none anywhere** — zero real callers; only `QualifiedExportIndexEntry` (its result type) appears in `Test_GraphBuilder.pf`, declared but the function itself is never invoked by any test or submodule. `query_component_exports` (below) uses the same result type but calls `append_own_export_index_entries` directly, not `enumerate_qualified_exports` | **dead code** — zero real callers; candidate for deletion. Note: `openspec/changes/archive/2026-10-12-graph-builder-resolution-index/tasks.md` task 1.2 added it specifically to generalize `collect_qualified_exports`, but no consumer was ever wired to it — task 2.2 of that same change explicitly deferred migrating `collect_qualified_exports`'s own callers onto it as "optional polish... do it only if low-risk" and that migration apparently never happened |
+  | `collect_qualified_export_index` | 27 | 2 (self-recursive + called once from `enumerate_qualified_exports`) | **none** — only reachable through `enumerate_qualified_exports`, itself dead | **dead code** (transitively — see `enumerate_qualified_exports` above) |
+  | `append_own_export_index_entries` | 50 | 2 (`collect_qualified_export_index`, `query_component_exports`) | **none** — both its own callers are parent-module-internal | (a) cross-cutting *within the parent's own dead/live split* — stays regardless, since `query_component_exports` (live, see below) depends on it directly |
+  | `query_component_exports` | 16 | 0 | **none from submodules** — called only from `Test_GraphBuilder.pf` (5 call sites, all in the two `test_query_component_exports_*` tests) and documented in tasks.md 7.1 as the History-support query primitive (a real, named future consumer: History itself, not yet wired as of this session) | (c) single-caller-today (tests only) but a strong, named, non-speculative future caller (History) exists per design.md D4/tasks.md 7.1 — promote-candidate is moot since it is already `public` for the gfortran-linkage reason; the real open question is "unused in production yet" rather than placement |
+  | `try_materialize_field_extension` | 78 | 0 | ConnectionResolution(2) — **1 submodule** | (b) single-caller — candidate to move into ConnectionResolution, BUT see note: calls `get_item_units`/`get_item_typekind`/`component_for`/`resolve_export_geom`/`resolve_export_vgrid`, several of which are themselves parent-only-called (circular shared-helper dependency — moving this one alone would also drag `get_item_units`/`get_item_typekind` along or leave them as a 2-line residual parent section) |
+  | `get_item_units` | 23 | 4 (`try_materialize_field_extension` x1, `materialize_extension_chain` x1, `merged_item_for_link` x2) | **none** — called only by the other 18 shared helpers themselves, never directly by a submodule | (a) cross-cutting-among-the-helpers-themselves — a second-tier shared helper, not a submodule-facing one; stays with whichever of `try_materialize_field_extension`/`materialize_extension_chain`/`merged_item_for_link` ends up where, or stays parent-level if those three stay split across different destinations |
+  | `get_item_typekind` | 21 | 2 (`try_materialize_field_extension` x1, `merged_item_for_link` x1) | **none** — same second-tier pattern as `get_item_units` | (a) cross-cutting-among-the-helpers-themselves, same caveat |
+  | `materialize_extension_chain` | 69 | 0 | ConnectionResolution(1) — **1 submodule** | (b) single-caller — candidate to move, same circular-dependency caveat as `try_materialize_field_extension` (shares `get_item_units`/`get_item_typekind`/`merged_item_for_link`/`component_for`/`resolve_export_geom`/`resolve_export_vgrid`) |
+  | `merged_item_for_link` | 47 | 1 (`materialize_extension_chain`) | **none** — called only by `materialize_extension_chain` | (b) single-caller (transitively, through `materialize_extension_chain`) — same move-candidate caveat; would move together with `materialize_extension_chain` if that one moves |
+  | `itemtype_name` | 25 | 4 | CallbackWiring(1) — **1 submodule** | (c) single-caller-in-submodules but 4 parent-internal self-calls (`try_materialize_field_extension` x2, `materialize_extension_chain` x2) make this a true second-tier shared helper like `get_item_units` — cannot move without also considering those two call sites; if `try_materialize_field_extension`/`materialize_extension_chain` both move to ConnectionResolution, `itemtype_name` would need either duplication (cheap — 25 lines, pure/stateless) or a module interface (since CallbackWiring would still need it) |
+  | `resolve_local_node_id` | 27 | 1 | ConnectionResolution(1) — **1 submodule** | (b) single-caller — candidate to move into ConnectionResolution; no second-tier dependency issue (self-contained) |
+  | `is_ordinary_resolvable_import` | 14 | 0 | ConnectionResolution(1) — **1 submodule** | (b) single-caller — candidate to move; already needed an explicit `public ::` fix for gfortran linkage (tasks.md 6.8 postmortem, §20.4.17's own module header note) specifically BECAUSE it is submodule-only-called, which is direct, documented evidence this one was placed in the parent for no architectural reason — a clean move candidate |
+  | `resolve_callback_import` | 50 | 1 | ConnectionResolution(2) — **1 submodule** | (b) single-caller-among-submodules, but see `component_for`'s own note above: CallbackWiring's own test-direct-call precedent (`test_resolve_callback_import_matches_and_rejects`/`test_resolve_callback_import_no_match_is_empty` call it directly, not through `gb%resolve_connections`) suggests this was designed be called from multiple sites including possibly CallbackWiring itself someday — weak promote signal, not strong enough to override the "move" default without a named concrete second caller |
+  | `resolve_callback_destination` | 39 | 0 | ConnectionResolution(1) — **1 submodule** | (b) single-caller — candidate to move; self-contained (calls `resolve_local_node_id`, `resolve_callback_import`, `materialize_callback_collection`, all either moving together or already in the submodule) |
+
+  **17-2 classification summary:** 19 total. (a) genuinely
+  cross-cutting: `item_key`, `resolve_qualified_component`,
+  `append_own_export_index_entries`, `get_item_units`,
+  `get_item_typekind` — **5**, plus `itemtype_name` is a borderline
+  (a)/(c) case counted once below, **6** if `itemtype_name` is folded
+  in. (b) single-caller, clean move candidate: `is_self`,
+  `try_materialize_field_extension`, `materialize_extension_chain`,
+  `merged_item_for_link`, `resolve_local_node_id`,
+  `is_ordinary_resolvable_import`, `resolve_callback_destination` —
+  **7**. (c) single-caller-but-plausible-second-caller (promote
+  candidate): `component_for`, `query_component_exports`,
+  `itemtype_name`, `resolve_callback_import` — **4**. **Dead code**
+  (zero real callers anywhere, a category the roadmap's own item 2
+  framing did not anticipate): `component_spec_for`,
+  `enumerate_qualified_exports`, `collect_qualified_export_index` —
+  **3** (the third is transitively dead through the second). 5+7+4+3 =
+  19. Headline: unlike `item_key`'s own single, clean cross-cutting
+  example, the 16-shared-helpers section is NOT "mostly correctly
+  placed" — only 5-6 of 19 (26-32%) are unambiguously cross-cutting;
+  7 (37%) are clean move candidates; and a previously-unmeasured 3
+  (16%) are dead code the roadmap's own characterization request did
+  not anticipate finding. The "second-tier shared helper" pattern
+  (`get_item_units`/`get_item_typekind` called only by other parent
+  helpers, never directly by a submodule) is also a structural wrinkle
+  17-4's own design.md needs to address explicitly — these two are
+  cross-cutting in the narrow sense of "called from more than one
+  place" but that "more than one place" is entirely other parent-level
+  helpers, not submodules, which the roadmap's own item 4 framing
+  (`GraphBuilder_SharedHelpers.F90` for helpers "every submodule can
+  use") did not contemplate.
+
+  **17-3 method (repeatable):** `grep -n '^\s*subroutine test_'
+  Test_GraphBuilder.pf` (51 matches) cross-checked against `grep -c
+  '@test(' Test_GraphBuilder.pf` (51 matches, confirming no
+  parameterized case shares a body in THIS file post-Phase-21 — the
+  roadmap's own "52 `@test`/46 subroutines" figure cited above was
+  accurate for the `15a50ec5` snapshot it was measured against, one
+  commit before 17-1's own dedup commit `06c583f5`; Phase 21
+  (`8577a802`, landed between 17-1 and this session, per `git log
+  --oneline -5`) added 5 more test subroutines with no parameterized
+  sharing, which is why this session's own count differs from both
+  prior figures in both directions — not a contradiction, two
+  different points in time). For each test, read the actual body (not
+  just the name/comment) to find which `gb%<method>` type-bound call
+  it drives, or — for 9 tests with no `gb%` call at all — which
+  specific shared-helper or submodule-internal procedure it calls
+  directly by name (confirmed via a per-test `grep 'gb%\w*\(' <test
+  body line range>` plus a manual read of each zero-`gb%`-match test).
+  Submodule attribution for each `gb%<method>`/direct-call target was
+  cross-checked against the interface-block comments in
+  `GraphBuilder.F90` (e.g. "! Ordinary connection resolution procedures
+  (GraphBuilder_ConnectionResolution_smod.F90)" at line 460) and
+  ARCHITECTURE.md §1.2's own module map — both agree.
+
+  **Second correction — fixture/support subroutines exist that are not
+  tests.** Beyond the 51 `@test` subroutines, the file also contains
+  3 plain (non-`@test`) subroutines/functions used as shared
+  per-sub-topic test support, found by the same `contains`-section
+  read: `single_predecessor` (13 lines, line 1376 — used once, inside
+  the materialize-extensions-gating bucket), `build_tracer_hierarchy`
+  (64 lines, line 2718 — used 4 times, across the callback-wiring
+  bucket's own 4 tests that need a multi-level tracer fixture), and
+  `resolve_vertical_grid_membership_mismatch` (69 lines, line 2533 —
+  used twice, inside the vertical-grid-composite-overlap bucket). None
+  of these is `make_outer_meta`/`make_var` (17-1's own scope, already
+  deduped) — they are sub-topic-LOCAL fixture builders, each used only
+  within their own single bucket, so (unlike `make_outer_meta`) they
+  present no cross-bucket dependency risk for 17-5's own splitting —
+  each would move cleanly with its one bucket into a new file.
+
+  | # | Sub-topic bucket | Test subroutines | Submodule(s) actually exercised | Classification | Shared-fixture note |
+  |---|---|---|---|---|---|
+  | 1 | Advertising: basic create/reachable/idempotent | `test_advertise_creates_state_item_nodes`, `test_public_port_recorded_and_reachable_by_name` | Advertising (`graphbuilder_advertise`→`advertise_one`) exclusively | (b) split candidate | none beyond `make_outer_meta`/`make_var` |
+  | 2 | Ordinary (`MatchConnection`) resolution: match/unresolved | `test_ordinary_connection_wires_matching_and_reports_unresolved`, `test_ordinary_connection_units_mismatch_creates_chain` | ConnectionResolution (`resolve_match_connection`) exclusively | (b) split candidate | none |
+  | 3 | Inout borrowing (direct-alias/mismatch/no-owner/chained) | `test_inout_direct_alias_wires_forward_and_return_edges`, `test_inout_mismatch_is_rejected_not_chained`, `test_inout_borrower_with_no_owner_is_rejected`, `test_inout_chained_borrowing_is_rejected` | ConnectionResolution (`resolve_inout_destination`) exclusively | (b) split candidate | none |
+  | 4 | Activate-time unsatisfied-import check (two-phase timing) | `test_check_unsatisfied_imports_reports_without_mutating_graph` | ConnectionResolution (`graphbuilder_check_unsatisfied_imports`/`check_match_connection_unsatisfied`) exclusively | (b) split candidate (1-test bucket — marginal value alone, see 17-5 recommendation) | none |
+  | 5 | `SimpleConnection` resolution (exact/renamed/chain/unresolved/idempotent/inout) | `test_simple_connection_resolves_exact_match`, `test_simple_connection_resolves_with_different_src_dst_names`, `test_simple_connection_resolves_through_extension_chain`, `test_simple_connection_unresolved_import_is_reported`, `test_simple_connection_resolution_is_idempotent`, `test_simple_connection_resolves_inout_different_names` | ConnectionResolution (`resolve_match_connection`'s `class(Connection)` dispatch, `effective_source_name` per ARCHITECTURE.md §1.2) exclusively | (b) split candidate | none |
+  | 6 | Freeze (success/conflict) | `test_freeze_succeeds_when_valid`, `test_freeze_fails_and_leaves_graph_unfrozen_on_conflict` | Freeze (`graphbuilder_freeze`) exclusively | (b) split candidate — mirrors `Test_GraphBuilder_ConvergenceCheck.pf`'s own precedent almost exactly (that file already split out the hierarchy-wide convergence/freeze-adjacent check; this bucket is the per-component freeze call itself, a sibling concern, not yet split) | none |
+  | 7 | Materialize-extensions gating (disabled/unsupported-class/vgrid-mismatch/registry-mode) | `test_materialize_extensions_disabled_leaves_placeholder`, `test_materialize_extensions_reports_unsupported_item_class`, `test_materialize_extensions_vgrid_mismatch_unaffected`, `test_exact_match_not_materialized_in_registry_mode` | ConnectionResolution (`resolve_match_connection`→`try_materialize_field_extension`, a parent-helper call from inside ConnectionResolution) | (b) split candidate — tests ConnectionResolution's own call-site behavior around the gate, not the parent helper's internals directly (no test here calls `try_materialize_field_extension` by name) | uses `single_predecessor` (local to this bucket) |
+  | 8 | Visualization label map | `test_build_label_map_labels_own_advertised_items` | Visualization (`graphbuilder_build_label_map`) exclusively | (b) split candidate (1-test bucket) | none |
+  | 9 | Composite advertise/readvertise (tree structure) | `test_composite_advertise_creates_node_tree`, `test_composite_advertise_multi_level`, `test_composite_readvertise_does_not_duplicate` | Advertising (`advertise_one`'s composite-member recursion) exclusively | (b) split candidate — same submodule as bucket 1, a strong argument for merging buckets 1+9 into ONE `Test_GraphBuilder_Advertising.pf` rather than two separate new files (see 17-5 recommendation) | none |
+  | 10 | Composite connection wiring (whole-composite match, member non-addressability) | `test_ordinary_connection_wires_matching_composite`, `test_composite_member_not_independently_addressable` | ConnectionResolution (`for_each_matching_import` against composite member nodes) exclusively | (b) split candidate — same submodule as buckets 2/3/4/5/7, another strong merge-not-separate-file argument (see 17-5 recommendation) | none |
+  | 11 | Vertical-grid composite tagging (variant selection) | `test_vertical_grid_composite_tags_variant`, `test_untagged_composite_keeps_plain_state_variant` | Advertising (`advertise_one`'s `state_item_variant` tagging) exclusively | (b) split candidate — same submodule as buckets 1/9 | none |
+  | 12 | Vertical-grid composite overlap resolution (match/single/zero/multiple) | `test_vertical_grid_composites_match_wires_directly`, `test_vertical_grid_composites_single_overlap_fails_explicitly`, `test_vertical_grid_composites_zero_overlap_fails_incompatible`, `test_vertical_grid_composites_multiple_overlap_fails_ambiguous` | ConnectionResolution (`resolve_match_connection`→`find_mismatched_characteristics`/`VerticalCoordinateCharacteristic`, confirmed via `grep VerticalCoordinateCharacteristic GraphBuilder_ConnectionResolution_smod.F90`) exclusively | (b) split candidate — same submodule as bucket 10 | uses `resolve_vertical_grid_membership_mismatch` (local to this bucket) |
+  | 13 | Qualified-export namespace building | `test_build_qualified_export_namespace_multilevel`, `test_qualified_name_matches_virtualconnectionpt_convention` | CallbackWiring (`build_qualified_export_namespace`/`collect_qualified_exports`) exclusively | (b) split candidate | none |
+  | 14 | `query_component_exports` (History-support query) | `test_query_component_exports_scoped_to_resolved_component`, `test_query_component_exports_deep_hierarchy_no_propagation` | **Neither CallbackWiring nor ConnectionResolution** — calls the parent-module shared helper `query_component_exports` directly, never through any `gb%` type-bound method | (a) tests `GraphBuilder.F90`'s own shared logic — stays, same "shared code colocated with its test" reasoning as `item_key`'s own tests. Note: this bucket is currently physically adjacent to bucket 13 (CallbackWiring) in the file, which is why the roadmap's own coarse-group list above lumped it under "qualified-export namespace/`query_component_exports`" as one group — characterization shows these are two DIFFERENT sub-topics, one submodule-specific (13) and one parent-shared (14) |
+  | 15 | Non-callback destination unaffected (negative control) | `test_non_callback_destination_unaffected` | ConnectionResolution (ordinary `resolve_match_connection` path, confirming callback dispatch is NOT triggered) | (b) split candidate, but see ambiguity note: this test exists specifically to prove ConnectionResolution and CallbackWiring do NOT interact for this input — a split that separates ConnectionResolution tests from CallbackWiring tests needs this test to stay with ConnectionResolution (it tests ConnectionResolution's own dispatch decision), not move to a hypothetical CallbackWiring file, even though its name/comment reads as "callback-adjacent" |
+  | 16 | `resolve_callback_import` (direct, matches/empty) | `test_resolve_callback_import_matches_and_rejects`, `test_resolve_callback_import_no_match_is_empty` | **Parent-module shared helper**, called directly (not through `gb%`) — but `resolve_callback_import` itself is classified 17-2(c) as CallbackWiring-leaning (its only non-test caller is ConnectionResolution, yet it exists to serve callback resolution conceptually) | (c) ambiguous — tests a parent-level helper whose own 17-2 classification is itself ambiguous (single-caller-in-ConnectionResolution but conceptually CallbackWiring's own domain); splitting this bucket requires 17-4 to first decide where `resolve_callback_import` itself lives, so 17-5 cannot resolve this bucket independently of 17-4's own outcome | none |
+  | 17 | Callback collection materialization + wiring (full pipeline) | `test_callback_collection_materializes_and_wires_import` | ConnectionResolution (`resolve_callback_destination`, called via `gb%resolve_connections`) | (b) split candidate — despite "callback" in the name, this test drives the full pipeline through ConnectionResolution's own `graphbuilder_resolve_connections` entry point, exercising CallbackWiring only transitively (`resolve_callback_destination` itself lives in ConnectionResolution per 17-2's own finding, calling into CallbackWiring's `materialize_callback_collection`) — belongs with bucket 2/3/4/5/7/10/12/15 (ConnectionResolution), not bucket 13/16 (CallbackWiring), a genuine "test named for a user-facing behavior actually exercises a different submodule" case the task prompt's own framing anticipated |
+  | 18 | Callback state/method binding construction (direct) | `test_build_callback_state_binding_uses_real_member_nodeids`, `test_callback_method_binding_builds_get_put_networks` | CallbackWiring (`build_callback_state_binding`/`build_callback_method_binding`, both called directly, not through `gb%`) exclusively | (b) split candidate | none |
+  | 19 | Run-phase-node construction (build/idempotent/registry-mode-noop) | `test_build_run_phase_node_constructs_node_from_ports`, `test_build_run_phase_node_is_noop_in_registry_mode`, `test_build_run_phase_node_is_idempotent` | RunPhaseNode (`graphbuilder_build_run_phase_node`) exclusively | (b) split candidate | none |
+  | 20 | `resolve_qualified_component` (direct path resolution) | `test_resolve_qualified_component_single_segment_self`, `test_resolve_qualified_component_multi_level`, `test_resolve_qualified_component_cannot_name_ancestor` | **Parent-module shared helper**, called directly — 17-2(a) genuinely cross-cutting (CallbackWiring + ConnectionResolution both call it) | (a) tests `GraphBuilder.F90`'s own shared logic — stays, same reasoning as bucket 14 |
+  | 21 | Multi-level qualified-component connection resolution (end-to-end) | `test_ordinary_connection_resolves_through_multi_level_names` | ConnectionResolution (`resolve_match_connection`, exercising `resolve_qualified_component` transitively through the real connection-resolution path, not directly) | (b) split candidate — contrast with bucket 20: this test calls `gb%resolve_connections`, never `resolve_qualified_component` directly, so it is testing ConnectionResolution's OWN use of the shared primitive, not the primitive itself — a real example of "a test exercising a shared helper's logic indirectly through one specific submodule's call site," distinct from bucket 20's direct-call shape |
+  | 22 | Node-identity-based resolution (no live `VariableSpec` dependency) | `test_resolution_succeeds_with_no_live_var_spec_reference` | ConnectionResolution (`resolve_match_connection`) exclusively | (b) split candidate (1-test bucket); could merge into bucket 2 (both exercise `resolve_match_connection`'s ordinary path, this one as a regression-style single test) | none |
+  | 23 | Materialize-extensions-gate `@before`/`@after` fixture plumbing | (not a test — the `reset_materialize_extensions_gate`/`restore_materialize_extensions_gate` pair, lines 102-116) | N/A — pFUnit lifecycle hooks, not production-submodule logic | (c) ambiguous/file-structural, not submodule-attributable — but load-bearing for 17-5: per this file's own header comment (lines 74-101), pFUnit's `@before`/`@after` typing is NOT disambiguated per-test, so EVERY `@test` in whatever file ends up containing bucket 7 (materialize-extensions gating) MUST be `MpiTestMethod`-typed like this pair — this is exactly the constraint that already forced 5 `ESMF_TestMethod` tests out to `Test_GraphBuilderMaterializeGate.pf` (its own separate file, already landed) for the SAME reason; 17-5 splitting bucket 7 into its own file needs to either carry this exact `@before`/`@after` pair along or confirm every other test remaining in `Test_GraphBuilder.pf` is still MpiTestMethod-typed after the split |
+
+  **17-3 classification summary:** 23 buckets covering all 51 tests
+  (bucket sizes: 2,2,4,1,6,2,4,1,3,2,2,4,2,2,1,2,1,2,3,3,1,1,0-tests/
+  structural — sums to 51 across the 22 test-bearing buckets). (a)
+  stays — tests `GraphBuilder.F90`'s own shared logic: buckets 14, 20
+  — **2 buckets, 5 tests**. (b) clean split candidate — tests exactly
+  one submodule exclusively: buckets 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+  12, 13, 15, 17, 18, 19, 21, 22 — **19 buckets, 44 tests** (correcting
+  the prompt's own "~20 sub-topics" framing — the real finer-grained
+  count is 23 total buckets, 19 of which are clean splits, slightly
+  MORE than "~20" implied as the ceiling if read as "most will stay";
+  note bucket 15 is counted here, not in (c), despite its
+  "callback"-sounding name — its own table row's "ambiguity" is about
+  WHERE it is placed relative to CallbackWiring, not whether its own
+  logic is cleanly single-submodule, which it is). (c) ambiguous:
+  buckets 16, 23 — **2 buckets** (16 is ambiguous because its target
+  helper's own 17-2 placement is undecided; 23 is structural, not a
+  logic question, but gates how 17-5 must execute any split touching
+  bucket 7). Headline: the roadmap's own expectation going into this
+  phase — "genuinely many bundled concerns... not one verbose concern
+  repeated" — is confirmed, but the FINER conclusion is sharper than
+  "~20 sub-topics, split where justified" suggested: a strong majority
+  (19 of 23, ~83%) are clean, single-submodule split candidates,
+  concentrated overwhelmingly in ConnectionResolution (buckets
+  2,3,4,5,7,10,12,15,17,21,22 — 11 of 19 clean-split buckets, 27 of 44
+  clean-split tests, ~2486 lines by this session's own per-test line
+  counts above, summed directly from the per-test line-count table
+  earlier in this characterization) — meaning a
+  `Test_GraphBuilder_ConnectionResolution.pf` extraction alone would
+  move 27 tests and roughly 2500 lines out of the parent file, by far
+  the single largest available reduction, dwarfing every other
+  submodule's own share (the next largest, Advertising, covers only 3
+  buckets/7 tests).
+
 - **17-4. Decide and implement (or explicitly decline) the shared-
   helpers-module split (item 4 above), informed by 17-2's findings.**
   Not sized here — depends on what 17-2 finds; could be anywhere from
   "no change justified" (if most of the 16 turn out single-caller) to
   a real multi-file restructuring. Defer sizing to this step's own
-  design.md once 17-2 lands.
+  design.md once 17-2 lands. **17-2's own actual finding (this
+  session):** NOT "most are single-caller" (only 7/19, 37%) and NOT
+  "most are correctly-placed-shared" either (5-6/19, 26-32%) — the
+  real distribution is split three ways with a nontrivial dead-code
+  slice (3/19, 16%) the original framing did not anticipate. 17-4's
+  own first task, before any design.md split-vs-no-split decision, is
+  therefore deleting the 3 confirmed-dead helpers
+  (`component_spec_for`, `enumerate_qualified_exports`,
+  `collect_qualified_export_index`) — a strict net-reduction with no
+  design tradeoff at all, independent of whatever 17-4 decides for the
+  remaining 16. For the remaining 16: 7 clean moves, but NOT all to
+  the same destination — `is_self` (6 lines) moves to
+  `GraphBuilder_CallbackWiring_smod.F90` (its one caller lives there);
+  the other 6 (`try_materialize_field_extension` 78,
+  `materialize_extension_chain` 69, `merged_item_for_link` 47,
+  `resolve_local_node_id` 27, `is_ordinary_resolvable_import` 14,
+  `resolve_callback_destination` 39 — 274 lines) move to
+  `GraphBuilder_ConnectionResolution_smod.F90` (every one of their
+  single callers lives there) — a real, sizeable (274 + 6 = 280 line)
+  reduction with NO module-interface tradeoff, since none of the 7 has
+  a second caller anywhere. The 4 promote-candidates
+  (`component_for`, `query_component_exports`, `itemtype_name`,
+  `resolve_callback_import`) are weaker evidence each (see 17-2 table
+  notes) — 17-4's own design.md should treat these as "leave in parent
+  for now, revisit if/when History actually calls `query_component_exports`
+  or CallbackWiring actually grows a second `component_for`/
+  `itemtype_name`/`resolve_callback_import` call site" rather than
+  preemptively promoting to module interfaces on speculative evidence
+  alone. The remaining 5-6 genuinely cross-cutting helpers
+  (`item_key`, `resolve_qualified_component`,
+  `append_own_export_index_entries`, `get_item_units`,
+  `get_item_typekind`, borderline `itemtype_name`) are the real
+  `GraphBuilder_SharedHelpers.F90` candidates IF 17-4 decides that
+  structural option is worth it — but note `get_item_units`/
+  `get_item_typekind` are only cross-cutting AMONG THE OTHER SHARED
+  HELPERS, never called by a submodule directly; if the 7 clean-move
+  helpers above all move to ConnectionResolution, `get_item_units`/
+  `get_item_typekind`/`merged_item_for_link`'s own caller set changes
+  (their only callers would then live in ConnectionResolution too) and
+  they could plausibly move along with the group rather than staying
+  parent-level or getting a dedicated shared-helpers file — 17-4's own
+  design.md needs to re-derive this dependency chain AFTER deciding
+  the 7-helper move, not independently of it.
 - **17-5. Split `Test_GraphBuilder.pf` per 17-3's findings, where
   justified.** Same caveat as 17-4 — sizing depends on 17-3's own
   output; likely several sessions if a genuine per-submodule split is
   warranted across ~20 sub-topics, one session if 17-3 concludes most
   sub-topics are legitimately testing shared cross-submodule behavior
-  and should stay put.
+  and should stay put. **17-3's own actual finding (this session):**
+  19 of 23 buckets (44 of 51 tests) are clean single-submodule split
+  candidates, concentrated heavily in ConnectionResolution (11 buckets,
+  27 tests) — 17-5's own design.md should NOT create one new file per
+  bucket (19 tiny files would be worse than one large one); instead,
+  group clean-split buckets BY SUBMODULE, mirroring
+  `Test_GraphBuilder_ConvergenceCheck.pf`'s own one-file-per-submodule-
+  concern precedent:
+  `Test_GraphBuilder_ConnectionResolution.pf` (buckets 2,3,4,5,7,10,12,
+  15,17,21,22 — 11 buckets/27 tests/~2500 lines, by far the largest
+  extraction and the one that actually shrinks the parent file
+  meaningfully),
+  `Test_GraphBuilder_Advertising.pf` (buckets 1,9,11 — 3 buckets/7
+  tests, all already same-submodule per the merge note in the table),
+  `Test_GraphBuilder_CallbackWiring.pf` (buckets 13,18 — 2 buckets/4
+  tests; buckets 16 deferred — see below),
+  `Test_GraphBuilder_Freeze.pf` (bucket 6 — 2 tests; small, but a
+  direct sibling of the already-split `Test_GraphBuilder_ConvergenceCheck.pf`,
+  so splitting it maintains that file's own precedent rather than
+  leaving an inconsistent "freeze is split here but not there" shape),
+  `Test_GraphBuilder_RunPhaseNode.pf` (bucket 19 — 3 tests),
+  `Test_GraphBuilder_Visualization.pf` (bucket 8 — 1 test; marginal
+  value for a 1-test file — 17-5's own design.md should explicitly
+  decide whether a 1-test file is worth the overhead or whether bucket
+  8 stays in whatever remains of the parent file as a deliberate
+  exception). The 2 parent-shared buckets (14, 20 — `query_component_exports`/
+  `resolve_qualified_component` direct tests) stay in
+  `Test_GraphBuilder.pf` itself, alongside bucket 23's own `@before`/
+  `@after` pair (which must travel with whichever tests still need
+  MpiTestMethod typing — likely most of what remains after the
+  ConnectionResolution extraction, since bucket 7's materialize-
+  extensions-gating tests are themselves moving to the new
+  ConnectionResolution file and would need to carry this exact pair
+  with them, confirmed by this file's own header comment explaining
+  why the ESMF_TestMethod tests already had to move OUT for the
+  opposite reason). Bucket 16 (`resolve_callback_import` direct tests)
+  is explicitly NOT assigned to a destination file by this
+  characterization — 17-4 must first settle `resolve_callback_import`'s
+  own placement (parent vs. move vs. promote) before 17-5 can decide
+  whether bucket 16 travels with it or stays put; sequencing 17-5
+  strictly after at least the `resolve_callback_import`-specific part
+  of 17-4 avoids rework. Bucket 15 (`test_non_callback_destination_unaffected`)
+  goes to `Test_GraphBuilder_ConnectionResolution.pf` despite its
+  "callback"-sounding name, per the table's own note — a concrete
+  instance of the task prompt's own warned-about trap ("a test named
+  for a user-facing behavior may actually be exercising one specific
+  submodule's procedure"). Estimated net effect if this grouping is
+  followed in full: `Test_GraphBuilder.pf` itself shrinks from 3935
+  lines to roughly 5 tests' worth of real content (buckets 14+20, 5
+  tests, ~270 lines by this session's own measured test-body-line
+  counts above) plus shared module-level fixtures/`@before`/`@after`/
+  `use` statements (currently ~130 lines of file header before the
+  first test) — call it ~400 lines remaining, a ~90% reduction in
+  this one file's own size, with the removed content redistributed
+  across 6 new submodule-specific files rather than deleted. This is
+  advisory sizing input for 17-5's own design.md, not a commitment.
 
 ### 20.4.18 Phase 18 scope: subdirectory reorganization of `superstructure/generic/graph/`
 
