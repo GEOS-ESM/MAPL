@@ -1,8 +1,8 @@
 target_sources(MAPL.generic PRIVATE
-  NodeId.F90
-  DependencyNetworkId.F90
-  PortId.F90
-  CallbackInterfaceId.F90
+  id_types/NodeId.F90
+  id_types/DependencyNetworkId.F90
+  id_types/PortId.F90
+  id_types/CallbackInterfaceId.F90
 
   GraphNode.F90
   BaseGraphNode.F90
@@ -53,7 +53,7 @@ target_sources(MAPL.generic PRIVATE
   DependencyNetwork.F90
   containers/DependencyNetworkIdNetworkMap.F90
 
-  HierarchyId.F90
+  id_types/HierarchyId.F90
   HierarchyGraph.F90
   HierarchyResources.F90
   containers/HierarchyIdHierarchyResourcesMap.F90
@@ -101,7 +101,7 @@ target_sources(MAPL.generic PRIVATE
 )
 
 target_include_directories(MAPL.generic PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/id_types
 )
 
 if (PFUNIT_FOUND)
