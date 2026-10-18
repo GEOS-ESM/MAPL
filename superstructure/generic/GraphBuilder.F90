@@ -164,6 +164,7 @@ module mapl_GraphBuilder_mod
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use mapl_MatchConnection_mod, only: MatchConnection
+   use mapl_SimpleConnection_mod, only: SimpleConnection
    use mapl_MultiState_mod, only: MultiState
    use mapl_NodeId_mod, only: NodeId, operator(==)
    use mapl_NodeIdLabelMap_mod, only: NodeIdLabelMap
@@ -557,7 +558,7 @@ module mapl_GraphBuilder_mod
    end subroutine for_each_matching_import
    module subroutine check_match_connection_unsatisfied(this, conn, unresolved, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
-      type(MatchConnection), intent(in) :: conn
+      class(Connection), intent(in) :: conn
       type(GraphResolutionEntryVector), intent(inout) :: unresolved
       integer, optional, intent(out) :: rc
 
@@ -578,7 +579,7 @@ module mapl_GraphBuilder_mod
     end subroutine graphbuilder_resolve_connections
    module subroutine resolve_match_connection(this, conn, unresolved, unsupported, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
-      type(MatchConnection), intent(in) :: conn
+      class(Connection), intent(in) :: conn
       type(GraphResolutionEntryVector), intent(inout) :: unresolved
       type(GraphResolutionEntryVector), intent(inout) :: unsupported
       integer, optional, intent(out) :: rc
@@ -593,11 +594,12 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end function find_export_node_id
-   module subroutine resolve_inout_destination(this, src_pt, dst_pt, dst_node, unsupported, rc)
+   module subroutine resolve_inout_destination(this, src_pt, dst_pt, dst_node, effective_src_name, unsupported, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ConnectionPt), intent(in) :: src_pt
       type(ConnectionPt), intent(in) :: dst_pt
       class(StateItemNode), target, intent(in) :: dst_node
+      character(*), intent(in) :: effective_src_name
       type(GraphResolutionEntryVector), intent(inout) :: unsupported
       integer, optional, intent(out) :: rc
 

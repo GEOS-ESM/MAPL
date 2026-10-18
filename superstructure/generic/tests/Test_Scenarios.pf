@@ -11,6 +11,7 @@ module Test_Scenarios
    use mapl_GenericPhases_mod
    use mapl_MultiState_mod
    use mapl_OuterMetaComponent_mod
+   use mapl_GraphScenarioBootstrap_mod, only: build_scenario_tree
    use mapl_GriddedComponentDriver_mod
    use mapl_Generic_api, only: mapl_GridCompCreate, &
                                mapl_GenericSetServices !, &
@@ -173,14 +174,11 @@ contains
       class(Scenario), intent(inout) :: this
 
       type(ESMF_HConfig) :: config
-      type(ESMF_Config) :: config_cf
       integer :: status, user_status
-      integer :: i
       type(ESMF_State) :: importState, exportState
       character(:), allocatable :: file_name
-      type(ESMF_Time) :: t0, t1
-      type(ESMF_TimeInterval) :: dt
       type(ESMF_Clock) :: clock
+      type(OuterMetaComponent), pointer :: outer_meta
       integer :: n, numsteps
       logical :: has_numsteps
 
@@ -191,28 +189,18 @@ contains
 
       associate (outer_gc => this%outer_gc, outer_states => this%outer_states, grid => this%grid)
 
-        call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
-        call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
-        call ESMF_TimeIntervalSet(dt, h=1)
-        clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
+        ! docs/graph/spec/20-implementation-roadmap.md sec 20.4.21,
+        ! sub-step 21-1: this test's own bootstrap sequence (ESMF_Config
+        ! -> ESMF_GridCompCreate -> SetServices ->
+        ! GENERIC_INIT_PHASE_SEQUENCE) has been factored into
+        ! build_scenario_tree, shared with the new standalone graph
+        ! diagnostic driver (apps/graph_diagnostic/). This test is the
+        ! regression check for that extraction: everything below this
+        ! call (the run-phase loop, expectations loading) is unchanged.
+        call build_scenario_tree(file_name, outer_gc, outer_meta, &
+             clock=clock, importState=importState, exportState=exportState, _RC)
 
-        config_cf = ESMF_ConfigCreate(hconfig=config, _RC)
-        outer_gc = ESMF_GridCompCreate(name='ROOT', config=config_cf, contextFlag=ESMF_CONTEXT_PARENT_VM, _RC)
-        call ESMF_GridCompSetServices(outer_gc, mapl_GenericSetservices, userRC=user_status, _RC)
-        _VERIFY(user_status)
-
-        importState = ESMF_StateCreate(_RC)
-        exportState = ESMF_StateCreate(_RC)
         outer_states = MultiState(importState=importState, exportState=exportState)
-
-        do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
-           associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
-             call ESMF_GridCompInitialize(outer_gc, &
-                  importState=importState, exportState=exportState, clock=clock, &
-                  phase=phase, userRC=user_status, _RC)
-             _VERIFY(user_status)
-           end associate
-        end do
 
         numsteps = 1
         has_numsteps = esmf_HConfigIsDefined(config, keystring='numsteps', _RC)

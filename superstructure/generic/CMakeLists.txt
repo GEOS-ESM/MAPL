@@ -13,6 +13,7 @@ set(srcs
 
   InnerMetaComponent.F90
   OuterMetaComponent.F90
+  GraphScenarioBootstrap.F90
   GraphResolutionEntry.F90
   GraphResolutionEntryVector.F90
   GraphBuilder.F90

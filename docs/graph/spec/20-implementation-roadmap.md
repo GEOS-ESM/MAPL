@@ -1653,6 +1653,30 @@ named):
   6a-2's own flip has run clean in production for whatever burn-in
   period that sub-change's own design.md decides.
 
+  **[UPDATED, `simpleconnection-graph-resolution`]** This bullet's own
+  framing of `connection/*.F90` as purely legacy source needing
+  wholesale deletion is now incomplete: `GraphBuilder`'s own
+  graph-native resolution (`GraphBuilder_ConnectionResolution_smod.F90`)
+  dispatches on `SimpleConnection`/`MatchConnection`'s own declared
+  types directly (`select type`/`class is`, reading each one's
+  `get_source()`/`get_destination()` accessors) — it does not merely
+  read these types' data through a copy or an abstraction; it depends
+  on the type declarations themselves persisting. `ReexportConnection`
+  remains purely legacy (still unresolved by `GraphBuilder`, correctly
+  falls to `class default` — see `openspec/specs/graph/graph-builder/
+  spec.md`'s "Non-exact-match cases are not resolved by this
+  capability" requirement). A future 6a-3 implementation must therefore
+  either (a) keep `Connection`/`SimpleConnection`/`MatchConnection`
+  (and their shared `ConnectionPt`/`VirtualConnectionPt` support types)
+  as a small, retained data-model module independent of
+  `StateRegistry`, deleting only the legacy `activate()`/`connect()`
+  execution methods and `ReexportConnection` itself, or (b) migrate
+  `GraphBuilder`'s own dispatch to a different, graph-native connection
+  representation before this deletion can proceed — this bullet's own
+  "once 6a-2's flip has run clean" gate is necessary but no longer
+  sufficient; whichever sub-change attempts 6a-3 must resolve this
+  dependency explicitly, not discover it mid-deletion.
+
 **Phase 7c scope narrowing — Service removed.** §20.4.5's own existing
 text bundles Wildcard and Service together as "Wildcard/Service
 pattern-based multi-source fan-in." Per explicit project direction:

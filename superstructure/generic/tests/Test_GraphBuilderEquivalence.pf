@@ -41,6 +41,7 @@ module Test_GraphBuilderEquivalence
    use mapl_FieldGet_mod, only: FieldGet
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_Generic_api, only: mapl_GridCompCreate, mapl_GenericSetServices
+   use mapl_GraphScenarioBootstrap_mod, only: build_scenario_tree
    use esmf
    use nuopc
    use pfunit
@@ -435,4 +436,108 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(src_meta)
    end subroutine test_both_mode_materializes_without_legacy_collision
+
+   ! openspec/changes/simpleconnection-graph-resolution, design.md D4:
+   ! the real, pre-existing scenarios/statistics_real/ fixture - the
+   ! fixture this module's own header comment names as "GraphBuilder
+   ! does not see those" (a limitation discovered while attempting
+   ! Task 7's own original equivalence work, which is why a synthetic
+   ! fixture was invented instead, above). That limitation description
+   ! is about the CAP-LEVEL connection only (root -> history,
+   ! all_unsatisfied: true, a cross-level MatchConnection whose real
+   ! items live on a grandchild - 3b2 propagation territory, still out
+   ! of scope here). The HISTORY-LEVEL connections (stat -> collection_1,
+   ! history.yaml's own 16 SimpleConnections, each with src_name /=
+   ! dst_name, e.g. 'A/TS' -> 'TS_avg') are flat, direct-sibling
+   ! SimpleConnections - exactly the shape this change gives GraphBuilder
+   ! real resolution for. This test checks history's own local graph,
+   ! not cap's, for that reason.
+   @test(npes=[0])
+   subroutine test_statistics_real_simple_connections_match_legacy_coupler(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: cap_gc
+      type(OuterMetaComponent), pointer :: cap_meta, history_meta, stat_meta, collection_meta
+      type(GriddedComponentDriver) :: history_driver, stat_driver, collection_driver
+      type(ESMF_GridComp) :: history_gc, stat_gc, collection_gc
+      type(GriddedComponentDriver) :: collection_user_driver
+      type(MultiState) :: collection_user_states
+      type(ESMF_State) :: collection_import_state
+      type(ESMF_Field) :: field
+
+      type(ComponentGraph), pointer :: history_graph, stat_graph, collection_graph
+      type(NodeId), pointer :: export_id, import_id
+      type(DependencyNetwork), pointer :: net
+      integer :: status
+
+      call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
+
+      ! openspec/changes/simpleconnection-graph-resolution: GRAPH_MODE_BOTH
+      ! was tried first (matching design.md D4's original wording) but
+      ! triggers an unrelated, pre-existing crash:
+      ! collection_1.yaml's own imports (e.g. TS_avg) declare no
+      ! `units:` at all - legacy tolerates this (its own coupler does
+      ! not require declared units up front), but GRAPH_MODE_BOTH's
+      ! additional materialization step (try_materialize_field_extension,
+      ! GraphBuilder.F90:1230) hard-_ASSERTs non-empty import units -
+      ! an internal-consistency check that is CORRECT for a config
+      ! declaring units, but wrong to apply to one that never declared
+      ! any ("no import units" is a legitimate, legacy-tolerated case
+      ! here, not a real inconsistency). This is a materialization-
+      ! layer gap, unrelated to connection-type dispatch (it would hit
+      ! ANY connection type wiring into a units-less import under
+      ! GRAPH_MODE_BOTH) - filed as a separate follow-up, not fixed
+      ! here. Dropped to the default GRAPH_MODE_REGISTRY instead,
+      ! matching test_ordinary_resolution_matches_legacy_coupler's own
+      ! pattern above: add_dependency (the claim this test actually
+      ! needs to prove) happens unconditionally in resolve_one,
+      ! regardless of graph mode - only the materialization calls are
+      ! gated behind graph_mode() /= GRAPH_MODE_REGISTRY, so this test
+      ! needs no mode change at all to prove SimpleConnection wiring
+      ! parity.
+      call build_scenario_tree('./scenarios/statistics_real/cap.yaml', cap_gc, cap_meta, _RC)
+
+      ! --- Legacy-coupler oracle: collection_1's own real ESMF import
+      ! state actually contains field "TS_avg", proving the existing
+      ! imperative coupler (SimpleConnection%connect_sibling ->
+      ! StateRegistry%extend) resolved history.yaml's own
+      ! 'A/TS'->'TS_avg' SimpleConnection. ---
+      history_driver = cap_meta%get_child('history', _RC)
+      history_gc = history_driver%get_gridcomp()
+      history_meta => get_outer_meta(history_gc, _RC)
+
+      collection_driver = history_meta%get_child('collection_1', _RC)
+      collection_gc = collection_driver%get_gridcomp()
+      collection_meta => get_outer_meta(collection_gc, _RC)
+      collection_user_driver = collection_meta%get_user_gc_driver()
+      collection_user_states = collection_user_driver%get_states()
+      call collection_user_states%get_state(collection_import_state, 'import', _RC)
+      call ESMF_StateGet(collection_import_state, 'TS_avg', field, _RC)
+      @assert_that(ESMF_FieldIsCreated(field), is(true()))
+
+      ! --- GraphBuilder's own resolution reaches the same conclusion:
+      ! a dependency edge exists, in history's own default network,
+      ! directly between stat's own real export NodeId ('A/TS') and
+      ! collection_1's own real import NodeId ('TS_avg') - no proxy,
+      ! src_name /= dst_name resolved correctly (design.md D1's own
+      ! correction - the bug this exact fixture caught during
+      ! implementation). ---
+      stat_driver = history_meta%get_child('stat', _RC)
+      stat_gc = stat_driver%get_gridcomp()
+      stat_meta => get_outer_meta(stat_gc, _RC)
+
+      history_graph => history_meta%get_component_graph()
+      stat_graph => stat_meta%get_component_graph()
+      collection_graph => collection_meta%get_component_graph()
+      export_id => stat_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'A/TS'))
+      import_id => collection_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'TS_avg'))
+      @assert_that(associated(export_id), is(true()))
+      @assert_that(associated(import_id), is(true()))
+
+      net => history_graph%get_network(history_graph%get_default_network_id())
+      @assert_that(net%contains_dependency(export_id, import_id), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_statistics_real_simple_connections_match_legacy_coupler
+
 end module Test_GraphBuilderEquivalence

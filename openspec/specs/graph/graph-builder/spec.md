@@ -55,25 +55,38 @@ followed by a later step that performs the real wiring.
 - **THEN** both steps agree on which imports are unresolved
 
 ### Requirement: Ordinary connections are resolved into dependency edges
-For each ordinary (exact short-name match, non-wildcard, non-callback)
-import/export connection declared between two components, the system
-SHALL determine whether the export's payload matches what the import
-requires, using only each state item's own already-established
-identity and characteristics (set once when that item was advertised),
-never by looking up a `VariableSpec` on a different component by name.
-If it matches, the system SHALL add a dependency edge, in the
-consuming component's default dependency network, directly from the
-export's node to the matching import's node, and SHALL materialize a
-real field payload on the export's node when the graph mode (see the
-graph-mode capability) is `graph` or `both`. If it does not match, the
-system SHALL delegate to the extension-reuse capability to interpose a
-transform chain rather than wiring the mismatched pair directly, and
-SHALL rely on that capability to materialize every link of the
-resulting chain - intermediate as well as final - when payload
-materialization is enabled, rather than materializing only the chain's
-final node itself. This is the real-wiring step and SHALL occur only
-once graph mutation is appropriate (see design.md for the exact
-lifecycle point) - not merely once activity/need has been determined.
+For each ordinary (exact short-name match) import/export connection
+declared between two components — whether declared directly as a
+`SimpleConnection` or produced by expanding a `MatchConnection`'s
+regex pattern against the destination's own import-port table, one
+exact-name pair at a time — the system SHALL determine whether the
+export's payload matches what the import requires, using only each
+state item's own already-established identity and characteristics
+(set once when that item was advertised), never by looking up a
+`VariableSpec` on a different component by name. If it matches, the
+system SHALL add a dependency edge, in the consuming component's
+default dependency network, directly from the export's node to the
+matching import's node, and SHALL materialize a real field payload on
+the export's node when the graph mode (see the graph-mode capability)
+is `graph` or `both`. If it does not match, the system SHALL delegate
+to the extension-reuse capability to interpose a transform chain
+rather than wiring the mismatched pair directly, and SHALL rely on
+that capability to materialize every link of the resulting chain -
+intermediate as well as final - when payload materialization is
+enabled, rather than materializing only the chain's final node itself.
+This is the real-wiring step and SHALL occur only once graph mutation
+is appropriate (see design.md for the exact lifecycle point) - not
+merely once activity/need has been determined.
+
+A declared `SimpleConnection` is resolved by this same determination
+and wiring logic as a `MatchConnection`'s own single matched pair —
+there is no separate resolution path, no separate dependency-edge
+construction, and no separate materialization/extension-chain
+treatment for one versus the other. `MatchConnection` is the
+pattern-matching generalization over `SimpleConnection`'s exact-match
+primitive: expanding a regex against the destination's import-port
+table reduces each match to the same exact-name resolution a declared
+`SimpleConnection` already exercises directly.
 
 #### Scenario: Matching export and import are wired
 - **WHEN** a destination component's import has the same short name as
@@ -126,12 +139,25 @@ lifecycle point) - not merely once activity/need has been determined.
 - **THEN** no dependency edge is created for that import, and the
   unresolved import is reported rather than silently ignored
 
+#### Scenario: A declared SimpleConnection is resolved exactly as an equivalent MatchConnection match would be
+- **WHEN** a `SimpleConnection` is declared naming an exact source and
+  destination, and a `MatchConnection` whose pattern matches only that
+  same exact pair is declared instead, for the same destination's
+  import
+- **THEN** both produce the same dependency-edge-or-unresolved outcome,
+  the same materialization behavior, and the same extension-chain
+  delegation when the export and import mismatch - no distinguishing
+  behavior exists between the two declaration forms once each resolves
+  to the same single exact-name pair
+
 #### Scenario: Non-exact-match cases are not resolved by this capability
 - **WHEN** a connection requires wildcard expansion or callback-style
-  binding between export and import
+  binding between export and import, or is a `ReexportConnection`
+  (export-to-export passthrough, not an import/export pairing)
 - **THEN** this capability does not create a dependency edge for that
   connection and does not report it as an ordinary-connection failure —
   such connections remain the responsibility of a later resolution step
+  or a separate capability not covered here
 
 #### Scenario: Resolution succeeds when the originating declaration is no longer reachable
 - **WHEN** an ordinary connection's destination import and source export
@@ -337,6 +363,16 @@ already fully mirrored into itself (including any further-propagated
 grandchild imports) by the time its own parent's mirroring step runs
 against it.
 
+Whether a child's import counts as "already resolved" (and therefore
+not mirrored) SHALL be determined by a real structural check — does a
+declared connection's own source actually resolve to a matching
+export — never by the mere presence of a `SimpleConnection` or other
+declared connection naming the import's destination by exact name,
+independent of whether that connection's own source side actually
+resolves to a real export. A declared connection naming a destination
+that has no real matching export SHALL NOT, on that basis alone, be
+treated as having resolved the import.
+
 #### Scenario: A child's unresolved import becomes visible in the parent's own import-port table
 - **WHEN** a child component has an advertised import with no matching
   export at the point the child's own advertise-phase work completes
@@ -358,6 +394,15 @@ against it.
   level) at the point the child's own advertise-phase work completes
 - **THEN** that import is not mirrored into the parent's own
   import-port table
+
+#### Scenario: A SimpleConnection naming a destination with no real matching export does not suppress mirroring
+- **WHEN** a `SimpleConnection` is declared naming a child's import as
+  its destination by exact name, but the connection's declared source
+  does not actually resolve to a matching export
+- **THEN** that import is still treated as unresolved and is still
+  mirrored into the parent's own import-port table — the mere presence
+  of a connection naming the destination is not, by itself, sufficient
+  to treat the import as resolved
 
 #### Scenario: A grandchild's unresolved import reaches a grandparent through two mirroring steps, not one search
 - **WHEN** a grandchild component has an unresolved import, and neither

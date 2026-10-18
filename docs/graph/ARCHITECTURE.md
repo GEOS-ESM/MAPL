@@ -61,7 +61,7 @@ current work:
 |---|---|
 | `GraphBuilder.F90` | Public interface module for the whole integration layer. Declares the `GraphBuilder` type-bound-procedure table (stateless-per-call; every method takes the `OuterMetaComponent` explicitly) and all cross-submodule interfaces. **1550 lines** (grew during Group 6 work on this branch; proposal.md's stated goal is net reduction once proxy removal fully lands). |
 | `GraphBuilder_Advertising_smod.F90` | Advertising phase: creates `StateItemNode`s from `VariableSpec`, recurses into composite members |
-| `GraphBuilder_ConnectionResolution_smod.F90` | Ordinary connection resolution (`resolve_one`, `for_each_matching_import`), unsatisfied-import checks, and (new, this branch) `graphbuilder_unresolved_import_node_ids` / `graphbuilder_run_propagate_hook` — **1137 lines** |
+| `GraphBuilder_ConnectionResolution_smod.F90` | Ordinary connection resolution (`resolve_one`, `for_each_matching_import`), unsatisfied-import checks, and (new, this branch) `graphbuilder_unresolved_import_node_ids` / `graphbuilder_run_propagate_hook` — **1137 lines**. **[UPDATED, `simpleconnection-graph-resolution`]** Resolution now dispatches on `SimpleConnection` as well as `MatchConnection` — both call the same `resolve_match_connection`/`check_match_connection_unsatisfied`/`connection_pt_pair_resolves` bodies via a `class(Connection)`-typed dummy argument, with the one place a `SimpleConnection`'s own declared source name differs from a `MatchConnection` match's (destination-derived) name isolated in a single helper, `effective_source_name`. The `connection_resolves_import` `class default` branch described below (§3.2) as "recognizing `SimpleConnection`/`ReexportConnection` as 'spoken for'" is REMOVED — see that section's own correction note. |
 | `GraphBuilder_Geometry_smod.F90` | Geometry push/pull hook (`run_geometry_hook`) |
 | `GraphBuilder_CallbackWiring_smod.F90` | Wildcard/regex callback-argument wiring against the flattened qualified-export namespace |
 | `GraphBuilder_LifecycleHooks_smod.F90` | Thin wrappers invoked from `OuterMetaComponent` lifecycle call sites (`run_advertise_hook`, `run_activate_hook`, `run_connect_hook`, `run_propagate_hook`) that log `GraphResolutionEntry`/`UnresolvedImportEntry` results |
@@ -208,6 +208,22 @@ Task Groups 1-9 complete and committed; Task Group 10 (full regression
 pass + spec-doc updates) is the one this session performed — see §2.2
 above (updated spec docs) and §6 below (current phase-status summary)
 for its outcome.
+
+**[UPDATED, `openspec/changes/simpleconnection-graph-resolution`]**
+§3.2's own table entry for `GraphBuilder_ConnectionResolution_smod.F90`
+below describes `connection_resolves_import`'s `class default` branch
+as "recognizing `SimpleConnection`/`ReexportConnection` as 'spoken
+for'" (task 6.8's own fix for a propagation false-negative). That
+branch is **removed** by `simpleconnection-graph-resolution`:
+`SimpleConnection` now has its own `class is (SimpleConnection)` arm
+calling the same shared `connection_pt_pair_resolves` function
+`MatchConnection` uses (a real structural check — does the source
+actually resolve — not a name-match heuristic); only
+`ReexportConnection` (and other genuinely out-of-scope subtypes) still
+falls to `class default`. The §3.2 table entry below is left as-is
+(historical record of task 6.8's own state at the time), per this
+file's own stated practice above of preserving prior narrative
+verbatim rather than silently rewriting it.
 
 **Verified via `git status`/`git diff` and a real NAG build+test run on
 2026-10-16 (this update, revised after discovering and fixing a real
