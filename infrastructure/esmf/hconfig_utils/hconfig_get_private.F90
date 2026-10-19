@@ -277,11 +277,8 @@ contains
 
       escaped = ''
       do i = 1, len(str)
-         if (str(i:i) == '%') then
-            escaped = escaped // '%%'
-         else
-            escaped = escaped // str(i:i)
-         end if
+         escaped = escaped // str(i:i)
+         if (str(i:i) == '%') escaped = escaped // '%'
       end do
    end function escape_percent
 
