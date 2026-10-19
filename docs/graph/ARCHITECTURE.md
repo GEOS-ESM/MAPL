@@ -679,29 +679,39 @@ numbering), Phase 13 (restart compatibility).
 five-item prerequisite list in roadmap §20.4.11 has landed** — this
 includes 3b2 (the Group-6 work this branch is mid-implementing).
 
-**New, planning-only phases added this session (no code changed; see
-roadmap §20.4.17-§20.4.21 for full scope/sub-sequencing of each) —
-Phases 17-21, an independent cleanup/infrastructure/diagnostics lane,
-confirmed to proceed in parallel with Phase 6a's own prerequisite list
-and Phases 7/12/13 except where explicitly noted:** Phase 17
-(`GraphBuilder.F90`/`Test_GraphBuilder.pf` size — characterize before
-splitting; first session-sized step is dedup of two duplicated test
-fixture helpers), Phase 18 (subdirectory reorganization of
-`superstructure/generic/graph/` into `characteristics/`/`transforms/`/
-`callback/`/`id_types/` — **sequencing-gated on Phase 12 for the
-`characteristics/` move specifically**, not an independent lane
-without qualification), Phase 19 (dedup two near-identical
-`sorted_names` helpers — the backlog's original "`StringVector`
-instead of fixed-width arrays" framing did not survive verification;
-no genuine growable-character-array instance was found in the graph
-codebase), Phase 20 (test-suite log noise — recorded for
-traceability per explicit request, but judged NOT to be
-graph-architecture roadmap work in its "field dictionary" half; kept
-short, pointing at source rather than restating it), Phase 21
-(standalone per-component graph-to-image/JSON diagnostic driver —
-reframed from low-priority dev convenience to real diagnostic
-tooling for debugging graph structure once Phase 12/7a-c land;
-recommended to be sequenced BEFORE those phases, not after, despite
-the backlog's own original "last priority" framing).
+**Phases 17-21 — the independent cleanup/infrastructure/diagnostics
+lane (see roadmap §20.4.17-§20.4.21 for full scope/sub-sequencing of
+each), confirmed to proceed in parallel with Phase 6a's own
+prerequisite list and Phases 7/12/13 except where explicitly noted.
+Status, updated this session (2026-10-19) — most of this lane has
+since landed, not merely been planned:**
+- **Phase 17 — DONE** (all of 17-1 through 17-5): dedup of two
+  duplicated test fixture helpers, dead-helper deletion, `Test_GraphBuilder.pf`
+  split into five submodule-scoped files
+  (`Test_GraphBuilder_{Advertising,Freeze,ConnectionResolution,CallbackWiring,RunPhaseNode}.pf`).
+- **Phase 18 — DONE** (18-1 through 18-4, including the
+  `characteristics/` move, confirmed clear of any Phase-12 conflict
+  at the time it ran since no Phase-12 change existed yet):
+  `superstructure/generic/graph/` reorganized into `characteristics/`,
+  `transforms/`, `callback/`, `id_types/` subdirectories.
+- **Phase 19 — DONE**: two near-identical `sorted_names` helpers
+  deduplicated into `StringSortUtilities.F90`.
+- **Phase 20 — still open**, by design (a placement/severity decision,
+  not yet picked up): test-suite log noise, not graph-architecture
+  roadmap work in its "field dictionary" half.
+- **Phase 21 — 21-1/21-2/21-3 DONE** (`GraphScenarioBootstrap.F90`
+  extraction, `apps/graph_diagnostic/graph_diagnostic.x` driver,
+  `render_graph.py` wiring — re-verified working end-to-end this
+  session: YAML in, `.dot`+`.json` out, `.dot`→`.png` via
+  `render_graph.py`); **21-4 (optional batch-mode) not built**, and
+  the roadmap marks it optional/non-blocking.
+
+Phase 12 (5a2 subclasses wired into real dispatch) and Phases 7a/7b/7c
+have NOT landed — confirmed by source inspection (no
+`ATTRIBUTES_CHARACTERISTIC_KIND`-style dispatch outside the
+`characteristics/` module itself) — so Phase 18's own `characteristics/`
+move landing ahead of Phase 12 was a genuine ordering choice, not an
+error; it was allowed because no Phase-12 change was in flight to
+conflict with at the time.
 
 
