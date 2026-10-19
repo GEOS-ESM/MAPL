@@ -1,0 +1,400 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! Phase 17-5b (docs/graph/spec/20-implementation-roadmap.md sec
+! 20.4.17, 17-5): split out of Test_GraphBuilder.pf - holds the
+! Advertising-exclusive buckets (1, 9, 11): basic advertise/public-
+! port recording, composite advertise/readvertise (tree structure),
+! and vertical-grid composite variant tagging. All three buckets
+! exercise `advertise_one`'s own recursion/tagging exclusively (per
+! 17-3's own characterization, buckets 1/9/11 are the same submodule,
+! so they are merged into this ONE file rather than three separate
+! ones - see the roadmap's own 17-5 recommendation).
+!
+! Test-only OuterMetaComponent instances are built the same way
+! Test_GraphBuilder.pf's own fixtures are (bypassing SetServices/DSO
+! machinery) - see GraphBuilderTestSupport_mod.
+module Test_GraphBuilder_Advertising
+   use mapl_OuterMetaComponent_mod
+   use mapl_GraphBuilder_mod
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_ComponentSpec_mod, only: ComponentSpec
+   use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_NodeIdSet_mod, only: NodeIdSet
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_STATE
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
+   use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
+   use esmf
+   use pfunit
+   implicit none(type, external)
+
+contains
+
+   @test(npes=[0])
+   subroutine test_advertise_creates_state_item_nodes(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: import_id, export_id, internal_id
+      type(NodeIdSet) :: ids
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_advertise', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'Q'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_INTERNAL, 'INTERN'))
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+
+      import_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      export_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'Q'))
+      internal_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_INTERNAL, 'INTERN'))
+      @assert_that(associated(import_id), is(true()))
+      @assert_that(associated(export_id), is(true()))
+      @assert_that(associated(internal_id), is(true()))
+      @assert_that(graph%owns_node(import_id), is(true()))
+      @assert_that(graph%owns_node(export_id), is(true()))
+      @assert_that(graph%owns_node(internal_id), is(true()))
+
+      ids = graph%get_node_ids()
+      @assertEqual(3, ids%size())
+
+      ! Re-advertising (e.g. a second init pass) does not duplicate.
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+      ids = graph%get_node_ids()
+      @assertEqual(3, ids%size())
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_advertise_creates_state_item_nodes
+
+   ! Task 6.4 (public-port half) / spec "Declared public port is
+   ! recorded": an advertised import/export item's identity is
+   ! retrievable by name (resource index), and graphbuilder_advertise()
+   ! reports success - which it would not if the internal
+   ! add_import_port/add_export_port calls (REQ-HIER-002 "public ports")
+   ! had failed, since those are guarded by ordinary rc/status checks.
+   ! An internal item gets neither port kind.
+   @test(npes=[0])
+   subroutine test_public_port_recorded_and_reachable_by_name(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: import_id, export_id
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_ports', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'Q'))
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      import_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      export_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'Q'))
+      @assert_that(associated(import_id), is(true()))
+      @assert_that(associated(export_id), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_public_port_recorded_and_reachable_by_name
+
+   ! -- openspec/changes/composite-state-spec ------------------------------
+
+   ! Task 4.2 / spec "Composite top-level item is represented like an
+   ! ordinary advertised item" + "Leaf member of a composite is
+   ! represented in the graph": advertising a VariableSpec with declared
+   ! members builds a top-level node plus one node per member, each
+   ! reachable via the top-level node's own GraphStateItem%state_members
+   ! map.
+   @test(npes=[0])
+   subroutine test_composite_advertise_creates_node_tree(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpec) :: composite
+      type(NodeId), pointer :: top_id
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: payload
+      type(StateItemMemberMap), pointer :: members
+      type(NodeId), pointer :: tracer_id
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_composite_advertise', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+
+      composite = make_var(ESMF_STATEINTENT_EXPORT, 'PHYS_STATE')
+      composite%itemType = MAPL_STATEITEM_STATE
+      call composite%declare_member('tracers', make_var(ESMF_STATEINTENT_EXPORT, 'tracers'), rc=status)
+      @assert_that(status, is(0))
+      call comp_spec%add_var_spec(composite)
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      top_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'PHYS_STATE'))
+      @assert_that(associated(top_id), is(true()))
+
+      node => graph%get_node(top_id)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assertTrue(payload%itemType(rc=status) == ESMF_STATEITEM_STATE)
+
+      members => payload%state_members_ptr()
+      tracer_id => members%at('tracers')
+      @assert_that(associated(tracer_id), is(true()))
+      @assert_that(graph%owns_node(tracer_id), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_composite_advertise_creates_node_tree
+
+   ! Task 4.2 / spec "Nested member of a composite is represented in the
+   ! graph": a two-level-deep composite produces the full tree.
+   @test(npes=[0])
+   subroutine test_composite_advertise_multi_level(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpec) :: composite, inner
+      type(NodeId), pointer :: top_id, inner_id, leaf_id
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: top_payload, inner_payload
+      type(StateItemMemberMap), pointer :: top_members, inner_members
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_composite_multilevel', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+
+      inner = make_var(ESMF_STATEINTENT_EXPORT, 'inner_ignored')
+      inner%itemType = MAPL_STATEITEM_STATE
+      call inner%declare_member('leaf', make_var(ESMF_STATEINTENT_EXPORT, 'leaf'), rc=status)
+      @assert_that(status, is(0))
+
+      composite = make_var(ESMF_STATEINTENT_EXPORT, 'TOP')
+      composite%itemType = MAPL_STATEITEM_STATE
+      call composite%declare_member('inner_state', inner, rc=status)
+      @assert_that(status, is(0))
+      call comp_spec%add_var_spec(composite)
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      top_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'TOP'))
+      @assert_that(associated(top_id), is(true()))
+
+      node => graph%get_node(top_id)
+      select type (node)
+      class is (StateItemNode)
+         top_payload => node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      top_members => top_payload%state_members_ptr()
+      inner_id => top_members%at('inner_state')
+      @assert_that(associated(inner_id), is(true()))
+
+      node => graph%get_node(inner_id)
+      select type (node)
+      class is (StateItemNode)
+         inner_payload => node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assertTrue(inner_payload%itemType(rc=status) == ESMF_STATEITEM_STATE)
+      inner_members => inner_payload%state_members_ptr()
+      leaf_id => inner_members%at('leaf')
+      @assert_that(associated(leaf_id), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_composite_advertise_multi_level
+
+   ! Task 4.2 / spec "Re-advertising the same composite declaration does
+   ! not duplicate its node tree".
+   @test(npes=[0])
+   subroutine test_composite_readvertise_does_not_duplicate(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpec) :: composite
+      type(NodeIdSet) :: ids
+      integer :: status
+      integer :: count_after_first
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_composite_readvertise', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+
+      composite = make_var(ESMF_STATEINTENT_EXPORT, 'PHYS_STATE')
+      composite%itemType = MAPL_STATEITEM_STATE
+      call composite%declare_member('tracers', make_var(ESMF_STATEINTENT_EXPORT, 'tracers'), rc=status)
+      @assert_that(status, is(0))
+      call comp_spec%add_var_spec(composite)
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      ids = graph%get_node_ids()
+      count_after_first = ids%size()
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      ids = graph%get_node_ids()
+      @assertEqual(count_after_first, ids%size())
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_composite_readvertise_does_not_duplicate
+
+   ! -- openspec/changes/vertical-grid-graph-state-item ---------------------
+
+   ! Task 1.3 / spec "A vertical grid is carried as a nested-state item
+   ! with per-dimension coordinate-set members": a composite VariableSpec
+   ! tagged state_item_variant = MAPL_STATEITEM_VERTICALGRID materializes
+   ! (via the EXISTING, unmodified composite-state-spec path) as a
+   ! StateItemNode whose GraphStateItem%variant() reports VERTICALGRID
+   ! (design.md D2), with each declared physical dimension retrievable as
+   ! an independently node-identified member.
+   @test(npes=[0])
+   subroutine test_vertical_grid_composite_tags_variant(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpec) :: vgrid
+      type(NodeId), pointer :: top_id
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: payload
+      type(StateItemMemberMap), pointer :: members
+      type(NodeId), pointer :: pressure_id, height_id
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_vgrid_variant', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+
+      vgrid = make_var(ESMF_STATEINTENT_EXPORT, 'MY_VGRID')
+      vgrid%itemType = MAPL_STATEITEM_STATE
+      vgrid%state_item_variant = MAPL_STATEITEM_VERTICALGRID
+      call vgrid%declare_member('pressure', make_var(ESMF_STATEINTENT_EXPORT, 'PLE', units='Pa'), rc=status)
+      @assert_that(status, is(0))
+      call vgrid%declare_member('height', make_var(ESMF_STATEINTENT_EXPORT, 'ZLE', units='m'), rc=status)
+      @assert_that(status, is(0))
+      call comp_spec%add_var_spec(vgrid)
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      top_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'MY_VGRID'))
+      @assert_that(associated(top_id), is(true()))
+
+      node => graph%get_node(top_id)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assertTrue(payload%variant(rc=status) == MAPL_STATEITEM_VERTICALGRID)
+      @assert_that(status, is(0))
+
+      members => payload%state_members_ptr()
+      pressure_id => members%at('pressure')
+      height_id => members%at('height')
+      @assert_that(associated(pressure_id), is(true()))
+      @assert_that(associated(height_id), is(true()))
+      @assert_that(graph%owns_node(pressure_id), is(true()))
+      @assert_that(graph%owns_node(height_id), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_vertical_grid_composite_tags_variant
+
+   ! Regression companion to the test above: an ordinary composite that
+   ! does NOT set state_item_variant (every composite declared before
+   ! this change, and any future one that is not a vertical grid) keeps
+   ! reporting the plain STATE variant - materialize_composite's new
+   ! tagging step (design.md D2) is additive, gated on
+   ! allocated(var_spec%state_item_variant).
+   @test(npes=[0])
+   subroutine test_untagged_composite_keeps_plain_state_variant(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpec) :: composite
+      type(NodeId), pointer :: top_id
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: payload
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_untagged_composite', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+
+      composite = make_var(ESMF_STATEINTENT_EXPORT, 'ORDINARY_STATE')
+      composite%itemType = MAPL_STATEITEM_STATE
+      ! state_item_variant deliberately left unallocated.
+      call composite%declare_member('member', make_var(ESMF_STATEINTENT_EXPORT, 'member'), rc=status)
+      @assert_that(status, is(0))
+      call comp_spec%add_var_spec(composite)
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      top_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'ORDINARY_STATE'))
+      node => graph%get_node(top_id)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assertFalse(payload%variant(rc=status) == MAPL_STATEITEM_VERTICALGRID)
+      @assert_that(status, is(0))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_untagged_composite_keeps_plain_state_variant
+
+end module Test_GraphBuilder_Advertising
