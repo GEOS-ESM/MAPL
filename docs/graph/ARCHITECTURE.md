@@ -674,7 +674,7 @@ legacy retirement:** Phase 7a/7b (Bracket/Expression shape dispatch),
 Phase 7c narrowed to Wildcard (Service is being retired outright, not
 migrated), Phase 12 (5a2 subclasses wired into real dispatch — roadmap
 reference, read `20-implementation-roadmap.md` directly for current
-numbering), Phase 13 (restart compatibility).
+numbering).
 
 **Do not start Phase 6a (legacy `StateRegistry` retirement) until the
 five-item prerequisite list in roadmap §20.4.11 has landed** — this
@@ -728,6 +728,22 @@ shape-dispatch code outside the `characteristics/` module itself).
 Phase 18's own `characteristics/` move landed ahead of Phase 12 as a
 genuine ordering choice (no Phase-12 change was in flight to conflict
 with at the time), not an error.
+
+**Phase 13 — DONE** (commits `73dff9b6`, `09064494`): restart
+compatibility under graph-native field materialization.
+`GraphStateItem` gained `declared_restart_mode` + accessors;
+`populate_characteristics` captures `VariableSpec%restart_mode` at
+advertise time; `populate_one` calls `FieldInfoSetInternal` on the
+alias, mirroring `FieldClassAspect.F90:493-498`. Two tests added
+(`test_restart_mode_captured_at_advertise_time` in
+`Test_GraphBuilder_Advertising.pf`;
+`test_graph_mode_sets_restart_metadata_on_materialized_field` in
+`Test_GraphModeDemonstration.pf`). A latent `standard_name` mismatch
+in `gridcomps/configurable/tests/scenarios/scenario_1/child_B.yaml`
+was also corrected (was silently accepted by legacy
+`StandardNameAspect` permissive mode; correctly detected by Phase
+12's wired `StandardNameCharacteristic`). NAG: `ctest -L ESSENTIAL`
+65/65 clean.
 
 ## 7. Phase 12 narrative — six `StateItemCharacteristic` axes wired into real dispatch
 
