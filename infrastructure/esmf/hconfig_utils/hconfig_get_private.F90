@@ -267,4 +267,22 @@ contains
 
 #include "mapl_hconfig_macros_undef.h"
 
+   ! pFlogger parses every message as a format string, even with no
+   ! arguments, so a literal '%' in a value to be logged (e.g. in a
+   ! file-name template such as %y4%m2%d2) must be written as '%%'.
+   function escape_percent(str) result(escaped)
+      character(len=:), allocatable :: escaped
+      character(len=*), intent(in) :: str
+      integer :: i
+
+      escaped = ''
+      do i = 1, len(str)
+         if (str(i:i) == '%') then
+            escaped = escaped // '%%'
+         else
+            escaped = escaped // str(i:i)
+         end if
+      end do
+   end function escape_percent
+
 end module mapl_hconfig_get_private_mod

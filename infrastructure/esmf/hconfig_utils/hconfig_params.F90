@@ -56,7 +56,7 @@ contains
 
       _ASSERT(this%has_logger(), 'There is no logger.')
       message = typestring //' '// this%label //' = '// valuestring
-      call this%logger%info('%a', message)
+      call this%logger%info(message)
 
       _RETURN(_SUCCESS)
    end subroutine log_message
