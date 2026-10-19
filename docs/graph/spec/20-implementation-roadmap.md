@@ -2591,6 +2591,80 @@ review pass — see §20.4.18's own sequencing note.
   parent-level or getting a dedicated shared-helpers file — 17-4's own
   design.md needs to re-derive this dependency chain AFTER deciding
   the 7-helper move, not independently of it.
+
+  - **17-4b. DONE, with one correction to this section's own plan
+    above.** `is_self` does NOT move — re-verifying call sites before
+    moving (as this section's own "Re-verification" discipline
+    requires) found 2 real callers inside `GraphBuilder.F90` itself
+    (`component_for` line 923, `resolve_qualified_component` line
+    973 — both staying in the parent, neither in the move set), in
+    addition to the 2 real callers in
+    `GraphBuilder_CallbackWiring_smod.F90` this section's plan above
+    already knew about. This matches 17-2's own characterization
+    table value ("Parent self-calls: 3" for `is_self`) that this
+    section's own "its one caller lives there" summary line
+    contradicted — the summary line was wrong, the table was right.
+    `is_self` stays in `GraphBuilder.F90`, unchanged, still `public`
+    for the same reason it already was. The other 6 named helpers
+    (`try_materialize_field_extension`, `materialize_extension_chain`,
+    `merged_item_for_link`, `resolve_local_node_id`,
+    `is_ordinary_resolvable_import`, `resolve_callback_destination`)
+    re-verified single-caller exactly as characterized, with zero
+    parent-internal self-calls among them, and moved cleanly to
+    `GraphBuilder_ConnectionResolution_smod.F90` (every one of their
+    real callers already lived there) — no module-interface tradeoff
+    needed, no call-site changes needed on either side.
+    `resolve_callback_import` left untouched, as scoped (weak
+    promote-candidate, not a clean move; placement decision still
+    deferred).
+
+    **`get_item_units`/`get_item_typekind` decision:** moved along
+    with the group into `GraphBuilder_ConnectionResolution_smod.F90`
+    rather than staying in the parent. Re-verified zero callers
+    anywhere outside the 3 moving helpers
+    (`try_materialize_field_extension`, `materialize_extension_chain`,
+    `merged_item_for_link`) before moving — confirmed via whole-repo
+    grep, no `.pf` file or other submodule calls either name. Moving
+    them avoids adding a brand-new `public ::` declaration to the
+    parent purely for gfortran cross-TU linkage (the
+    `is_ordinary_resolvable_import`-precedent cost this section's own
+    design-decision prompt flagged as the alternative) — net new
+    public surface would have been added, not reduced, which runs
+    against this phase's own cleanup intent. This expands the
+    session's realized line-count delta beyond the 280-line figure
+    the characterization's own 7-helper estimate counted (see actual
+    totals below).
+
+    `GraphBuilder.F90`: 1654 -> 1170 lines (**-484**).
+    `GraphBuilder_ConnectionResolution_smod.F90`: 1521 -> 1981 lines
+    (**+460**). `GraphBuilder_CallbackWiring_smod.F90`: 670 -> 670
+    lines (unchanged — confirms `is_self` correctly did not move
+    here). Net repo-wide: -24 lines (484 removed, 460 added — the
+    24-line gap is header-comment boilerplate that did not need to
+    travel with the moved bodies, e.g. a few `openspec/changes/...`
+    attribution comments collapsed at the new call sites). The
+    484-line removal from the parent is larger than the planned
+    280-line figure because (a) `get_item_units`/`get_item_typekind`
+    (23 + 21 = 44 lines) moved too, per the design decision above,
+    and (b) the characterization's own 280-line estimate undercounted
+    each helper's own header-comment block, which moved with its body.
+
+    Verified on both compilers, each against a freshly-captured
+    pre-change baseline (not reused from 17-4a's session):
+    `module load nag-stack/7.2.41 && cmake --build nag --target
+    build-tests -j 8 && ctest --test-dir nag -L ESSENTIAL
+    --output-on-failure`, and the gfortran equivalent
+    (`module load gfortran-stack`). NAG baseline and post-change both
+    62/64, identical two pre-existing failures reproduced exactly
+    (`MAPL.GeomIO.tests`, `MAPL.Apps.tests.acg3.compile`) — matching
+    17-4a's own documented baseline exactly, confirming it has not
+    drifted. gfortran baseline and post-change both 63/64, identical
+    one pre-existing failure (`MAPL.GeomIO.tests`) — same match. Zero
+    new failures, zero newly-passing tests, on either compiler.
+    `resolve_callback_import` confirmed untouched (not moved, no
+    interface added, no call-site change) — the explicit non-goal
+    this section's own scope named.
+
 - **17-5. Split `Test_GraphBuilder.pf` per 17-3's findings, where
   justified.** Same caveat as 17-4 — sizing depends on 17-3's own
   output; likely several sessions if a genuine per-submodule split is

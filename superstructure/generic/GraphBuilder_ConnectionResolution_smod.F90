@@ -1518,4 +1518,464 @@ contains
       _RETURN(_SUCCESS)
    end subroutine try_alias_export_field
 
+   ! extension-registry-visibility change, task groups 2/3: when the
+   ! materialization gate (mapl_ExtensionResolution_mod) is enabled,
+   ! give a resolved units-mismatch extension chain's final item a real,
+   ! allocated ESMF_Field for a Field-typed export/import pair (design.md
+   ! Decisions - "Materialize a real Field natively via FieldCreate"), or
+   ! report an explicit, distinguishable failure_reason (empty string on
+   ! success) for anything this capability cannot materialize a payload
+   ! for - a non-Field item class on either side (design.md Decisions
+   ! "Scope limited to Field-typed items"), or an unresolvable geom
+   ! (design.md Decisions "Geom/vgrid resolution order" case (c)).
+   ! openspec/changes/phase-10a-state-materialization: optional `name`,
+   ! passed through unmodified to materialize_field_extension()'s own
+   ! new `name` argument - omitted by the mismatch-branch call site
+   ! (unchanged, unnamed-field behavior), supplied by the new exact-
+   ! match-branch call site (the export's own short_name) so graph-
+   ! native state population can find it by name once inserted into a
+   ! real ESMF_State.
+   !
+   ! openspec/changes/graph-builder-stateitem-resolution, design.md
+   ! correction: export_item/import_item are the two already-resolved
+   ! sides' own GraphStateItem payloads (read directly off their
+   ! StateItemNodes by the caller) - no VariableSpec reference needed
+   ! (proposal.md "nothing downstream should need to walk back to the
+   ! originating VariableSpec"). itemType/units/typekind/ungridded_dims/
+   ! vertical_stagger are all read from export_item/import_item's own
+   ! declared_item_type/characteristics/ungridded_dims/vertical_stagger
+   ! fields (populated once by advertise_one, task 2.2/2.3 and the
+   ! design.md correction extending it).
+   subroutine try_materialize_field_extension(this, export_comp_name, export_item, import_item, &
+        graph, node_id, failure_reason, name, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: export_comp_name
+      type(GraphStateItem), intent(in) :: export_item
+      type(GraphStateItem), intent(in) :: import_item
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(NodeId), intent(in) :: node_id
+      character(:), allocatable, intent(out) :: failure_reason
+      character(*), optional, intent(in) :: name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(OuterMetaComponent), pointer :: export_meta
+      type(ESMF_Geom) :: geom
+      logical :: has_geom
+      class(VerticalGrid), allocatable :: vgrid
+      type(VerticalStaggerLoc) :: vert_staggerloc
+      type(VerticalStaggerLoc), allocatable :: declared_vertical_stagger
+      type(ESMF_TypeKind_Flag) :: import_typekind
+      character(:), allocatable :: import_units
+
+      failure_reason = ''
+
+      if (.not. (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD)) then
+         failure_reason = 'unsupported_item_class:' // itemtype_name(export_item%get_declared_item_type())
+         _RETURN(_SUCCESS)
+      end if
+      if (.not. (import_item%get_declared_item_type() == MAPL_STATEITEM_FIELD)) then
+         failure_reason = 'unsupported_item_class:' // itemtype_name(import_item%get_declared_item_type())
+         _RETURN(_SUCCESS)
+      end if
+      import_units = get_item_units(import_item, _RC)
+      _ASSERT(import_units /= '', 'GraphBuilder: materialization reached with no import units - internal inconsistency')
+
+      export_meta => component_for(this, export_comp_name, _RC)
+
+      call resolve_export_geom(export_item, export_meta, geom, has_geom, _RC)
+      if (.not. has_geom) then
+         ! design.md Decisions "Geom/vgrid resolution order" case (c):
+         ! neither the export's own declared geom nor the owning
+         ! OuterMetaComponent has a concrete geom - distinguishable from
+         ! both the "unsupported item class" case above and 3c's own
+         ! "unregistered characteristic fails loudly."
+         failure_reason = 'unresolved_geom'
+         _RETURN(_SUCCESS)
+      end if
+
+      ! Vertical grid is optional (a 2D field legitimately has none,
+      ! same as FieldCreate's own optional vgrid argument) - unlike geom,
+      ! its absence is not a failure. When present, a vert_staggerloc is
+      ! required alongside it (FieldCreate's own contract); default to
+      ! CENTER when the export's own declared vertical_stagger does not
+      ! say otherwise (VariableSpec.F90's own make_VerticalGridAspect
+      ! precedent).
+      call resolve_export_vgrid(export_item, export_meta, vgrid)
+      import_typekind = get_item_typekind(import_item, _RC)
+      if (allocated(vgrid)) then
+         vert_staggerloc = VERTICAL_STAGGER_CENTER
+         call export_item%get_vertical_stagger(declared_vertical_stagger)
+         if (allocated(declared_vertical_stagger)) vert_staggerloc = declared_vertical_stagger
+
+         ! openspec/changes/phase-10c-typekind-characteristic, design.md
+         ! D4: typekind/units are the IMPORT's own values (not the
+         ! export's), matching this procedure's own pre-existing
+         ! precedent - the materialized item's real payload must match
+         ! what the IMPORT requires, not what the export happened to
+         ! produce.
+         call materialize_field_extension(graph, node_id, geom=geom, typekind=import_typekind, &
+              units=import_units, ungridded_dims=export_item%get_ungridded_dims(), &
+              vgrid=vgrid, vert_staggerloc=vert_staggerloc, name=name, _RC)
+      else
+         call materialize_field_extension(graph, node_id, geom=geom, typekind=import_typekind, &
+              units=import_units, ungridded_dims=export_item%get_ungridded_dims(), name=name, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine try_materialize_field_extension
+
+   ! openspec/changes/graph-builder-stateitem-resolution, design.md
+   ! correction: recovers a GraphStateItem's own established
+   ! PHYSICAL_UNITS_CHARACTERISTIC_KIND entry (populated once by
+   ! advertise_one, task 2.2) as a plain string - the node-based
+   ! equivalent of reading var_spec%units directly. Returns '' if the
+   ! characteristic was never established (mirrors
+   ! `allocated(var_spec%units)`'s own "not declared" gate - an item
+   ! advertised with no explicit units never gets this characteristic
+   ! kind inserted, build_characteristics' own prior behavior, moved
+   ! verbatim).
+   function get_item_units(item, rc) result(units)
+      type(GraphStateItem), intent(in) :: item
+      integer, optional, intent(out) :: rc
+      character(:), allocatable :: units
+
+      integer :: status
+      class(StateItemCharacteristic), allocatable :: characteristic
+
+      units = ''
+      if (.not. item%has_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND)) then
+         _RETURN(_SUCCESS)
+      end if
+
+      call item%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, characteristic, _RC)
+      select type (characteristic)
+      class is (PhysicalUnitsCharacteristic)
+         units = characteristic%get_units()
+      class default
+         _FAIL('GraphBuilder: get_item_units - characteristic is not a PhysicalUnitsCharacteristic')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_item_units
+
+   ! Same role as get_item_units() above, for
+   ! TYPE_KIND_CHARACTERISTIC_KIND - always established (advertise_one
+   ! inserts it unconditionally, task 2.2, mirroring
+   ! build_characteristics' own prior unconditional insert), so this
+   ! never hits the "not established" case in production.
+   function get_item_typekind(item, rc) result(type_kind)
+      type(GraphStateItem), intent(in) :: item
+      integer, optional, intent(out) :: rc
+      type(ESMF_TypeKind_Flag) :: type_kind
+
+      integer :: status
+      class(StateItemCharacteristic), allocatable :: characteristic
+
+      type_kind = ESMF_TYPEKIND_R4
+      _ASSERT(item%has_characteristic(TYPE_KIND_CHARACTERISTIC_KIND), 'GraphBuilder: get_item_typekind - no TYPE_KIND_CHARACTERISTIC_KIND established')
+
+      call item%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, characteristic, _RC)
+      select type (characteristic)
+      class is (TypeKindCharacteristic)
+         type_kind = label_to_typekind(characteristic%get_type_kind())
+      class default
+         _FAIL('GraphBuilder: get_item_typekind - characteristic is not a TypeKindCharacteristic')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_item_typekind
+
+   ! openspec/changes/phase-11b-chain-intermediate-materialization,
+   ! design.md D4: materializes every entry of intermediate_node_ids (in
+   ! order) with that link's own correctly-evolved typekind/units
+   ! (merged_item_for_link, D2 below) - replacing each of the four
+   ! find_or_build_extension_chain call sites' own single final-node
+   ! try_materialize_field_extension call. Resolves geom/vgrid once
+   ! (resolve_export_geom/resolve_export_vgrid, unchanged) and reuses it
+   ! for every link, since GEOM_CHARACTERISTIC_ID never appears in
+   ! build_characteristics' own mismatch set (design.md Context).
+   ! Stops at the first link whose materialization fails, returning the
+   ! same distinguishable failure_reason try_materialize_field_extension
+   ! itself already produces - callers' own existing failure-reporting is
+   ! unchanged. mismatched_kinds MUST be the same array
+   ! find_or_build_extension_chain was called with (the resolution order
+   ! intermediate_node_ids is parallel to).
+   subroutine materialize_extension_chain(this, export_comp_name, export_item, import_item, &
+        mismatched_kinds, intermediate_node_ids, graph, failure_reason, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: export_comp_name
+      type(GraphStateItem), intent(in) :: export_item
+      type(GraphStateItem), intent(in) :: import_item
+      type(StateItemCharacteristicKind), intent(in) :: mismatched_kinds(:)
+      type(NodeId), intent(in) :: intermediate_node_ids(:)
+      type(ComponentGraph), target, intent(inout) :: graph
+      character(:), allocatable, intent(out) :: failure_reason
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i
+      class(OuterMetaComponent), pointer :: export_meta
+      type(ESMF_Geom) :: geom
+      logical :: has_geom
+      class(VerticalGrid), allocatable :: vgrid
+      type(VerticalStaggerLoc) :: vert_staggerloc
+      type(VerticalStaggerLoc), allocatable :: declared_vertical_stagger
+      character(:), allocatable :: link_units
+      type(ESMF_TypeKind_Flag) :: link_typekind
+      character(:), allocatable :: import_units
+
+      failure_reason = ''
+
+      if (.not. (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD)) then
+         failure_reason = 'unsupported_item_class:' // itemtype_name(export_item%get_declared_item_type())
+         _RETURN(_SUCCESS)
+      end if
+      if (.not. (import_item%get_declared_item_type() == MAPL_STATEITEM_FIELD)) then
+         failure_reason = 'unsupported_item_class:' // itemtype_name(import_item%get_declared_item_type())
+         _RETURN(_SUCCESS)
+      end if
+      import_units = get_item_units(import_item, _RC)
+      _ASSERT(import_units /= '', 'GraphBuilder: materialize_extension_chain reached with no import units - internal inconsistency')
+
+      export_meta => component_for(this, export_comp_name, _RC)
+
+      call resolve_export_geom(export_item, export_meta, geom, has_geom, _RC)
+      if (.not. has_geom) then
+          failure_reason = 'unresolved_geom'
+         _RETURN(_SUCCESS)
+      end if
+
+      call resolve_export_vgrid(export_item, export_meta, vgrid)
+      if (allocated(vgrid)) then
+         vert_staggerloc = VERTICAL_STAGGER_CENTER
+         call export_item%get_vertical_stagger(declared_vertical_stagger)
+         if (allocated(declared_vertical_stagger)) vert_staggerloc = declared_vertical_stagger
+      end if
+
+      do i = 1, size(intermediate_node_ids)
+         call merged_item_for_link(export_item, import_item, mismatched_kinds, i, link_units, link_typekind, _RC)
+
+         if (allocated(vgrid)) then
+            call materialize_field_extension(graph, intermediate_node_ids(i), geom=geom, &
+                 typekind=link_typekind, units=link_units, &
+                 ungridded_dims=export_item%get_ungridded_dims(), &
+                 vgrid=vgrid, vert_staggerloc=vert_staggerloc, _RC)
+         else
+            call materialize_field_extension(graph, intermediate_node_ids(i), geom=geom, &
+                 typekind=link_typekind, units=link_units, &
+                 ungridded_dims=export_item%get_ungridded_dims(), _RC)
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine materialize_extension_chain
+
+   ! openspec/changes/phase-11b-chain-intermediate-materialization,
+   ! design.md D2 (node-based, design.md correction): link i's own
+   ! materialized typekind/units is the IMPORT item's own value for
+   ! every StateItemCharacteristicKind in mismatched_kinds(1:i) (already
+   ! "converted" by that point in the chain) and the EXPORT item's own
+   ! value otherwise. At i == size(mismatched_kinds) this exactly
+   ! reduces to try_materialize_field_extension's own existing
+   ! final-node formula (every mismatched kind has import's value) - no
+   ! behavior change for the single-characteristic case. _FAIL
+   ! explicitly for any StateItemCharacteristicKind outside the three
+   ! this helper knows how to translate ("unregistered characteristic
+   ! fails loudly" applies to this translation step too).
+   subroutine merged_item_for_link(export_item, import_item, mismatched_kinds, i, units, type_kind, rc)
+      type(GraphStateItem), intent(in) :: export_item
+      type(GraphStateItem), intent(in) :: import_item
+      type(StateItemCharacteristicKind), intent(in) :: mismatched_kinds(:)
+      integer, intent(in) :: i
+      character(:), allocatable, intent(out) :: units
+      type(ESMF_TypeKind_Flag), intent(out) :: type_kind
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: j
+      logical :: units_converted
+      logical :: typekind_converted
+      character(:), allocatable :: assertion_message
+
+      units = get_item_units(export_item, _RC)
+      type_kind = get_item_typekind(export_item, _RC)
+      units_converted = .false.
+      typekind_converted = .false.
+
+      do j = 1, i
+         if (mismatched_kinds(j) == PHYSICAL_UNITS_CHARACTERISTIC_KIND) then
+            units_converted = .true.
+         else if (mismatched_kinds(j) == TYPE_KIND_CHARACTERISTIC_KIND) then
+            typekind_converted = .true.
+         else if (mismatched_kinds(j) == VERTICAL_COORDINATE_CHARACTERISTIC_KIND) then
+            ! Vertical grid has no concrete field-materialization
+            ! parameter today (materialize_field_extension's own vgrid/
+            ! vert_staggerloc are resolved once from export_item, outside
+            ! this per-link loop, by materialize_extension_chain itself -
+            ! unaffected by this helper). Nothing to merge here;
+            ! VerticalCoordinateCharacteristic%build_transform always
+            ! fails, so this branch is unreachable in practice, but is
+            ! enumerated explicitly rather than falling into the _FAIL
+            ! default below.
+         else
+            assertion_message = 'GraphBuilder: merged_item_for_link - unrecognized StateItemCharacteristicKind: ' // &
+                 mismatched_kinds(j)%to_string()
+            _FAIL(assertion_message)
+         end if
+      end do
+
+      if (units_converted) units = get_item_units(import_item, _RC)
+      if (typekind_converted) type_kind = get_item_typekind(import_item, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine merged_item_for_link
+   ! Resolves a (component, intent, short_name) reference to the item's
+   ! own real NodeId, wherever it actually lives in the hierarchy:
+   !  - "<self>"/this's own name: the item's own NodeId, in THIS
+   !    component's own graph (must already have been advertised -
+   !    graphbuilder_advertise() runs first).
+   !  - a named descendant (direct child or any further-qualified
+   !    `/`-separated path): the descendant's own real NodeId, read
+   !    directly from that descendant's own ComponentGraph via
+   !    resolve_qualified_component's existing one-directional tree walk
+   !    (never resolves upward past `this`, per graph/component-
+   !    hierarchy's "Connection endpoint resolution never resolves
+   !    upward past its declaring component" requirement - the walk
+   !    itself has no "go to my parent" code path to begin with, so this
+   !    is structural, not merely checked).
+   !
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.1/3.2:
+   ! replaces get_or_make_local_node_id's own proxy-creation branch -
+   ! with node/network storage shared hierarchy-wide (graph/component-
+   ! hierarchy's "One shared hierarchy-wide graph store" requirement), a
+   ! descendant's own real NodeId is already a valid edge endpoint from
+   ! any calling component's own ComponentGraph%add_dependency() (see
+   ! that method's own header comment in ComponentGraph.F90); no
+   ! parent-local stand-in node is created, cached, or returned.
+   function resolve_local_node_id(this, comp_name, state_intent, short_name, rc) result(node_id)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: comp_name
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      character(*), intent(in) :: short_name
+      integer, optional, intent(out) :: rc
+      type(NodeId) :: node_id
+
+      integer :: status
+      character(:), allocatable :: item_id_key
+      type(ComponentGraph), pointer :: owner_graph
+      type(NodeId), pointer :: existing
+      type(OuterMetaComponent), pointer :: owner_meta
+      character(:), allocatable :: assertion_message
+
+      item_id_key = item_key(state_intent, short_name)
+
+      owner_meta => resolve_qualified_component(this, comp_name, _RC)
+      owner_graph => owner_meta%get_component_graph()
+      existing => owner_graph%get_resource_index(item_id_key)
+      assertion_message = 'GraphBuilder: connection references an item "' // comp_name // &
+           '" never advertised: ' // short_name
+      _ASSERT(associated(existing), assertion_message)
+      node_id = existing
+
+      _RETURN(_SUCCESS)
+   end function resolve_local_node_id
+   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8
+   ! (regression fix, found while verifying export propagation against
+   ! real-lifecycle fixtures history_wildcard/statistics_real): an
+   ! import advertised with a non-ordinary declared item type -
+   ! MAPL_STATEITEM_WILDCARD (resolved by legacy's own regex-matching
+   ! ExtensionFamily machinery, StateRegistry_Propagation_smod.F90),
+   ! MAPL_STATEITEM_SERVICE, or MAPL_STATEITEM_EXPRESSION - has no
+   ! graph-native resolution path at all (GraphBuilder.F90's own module
+   ! header, "Explicitly NOT in scope here: ... wildcard/callback
+   ! resolution"). graphbuilder_unresolved_import_node_ids (import
+   ! propagation's own source scan) must exclude such an import BEFORE
+   ! considering it unresolved-and-propagatable - propagating it
+   ! upward would expose it to an ordinary ancestor connection
+   ! (e.g. all_unsatisfied) that can never resolve it either, since the
+   ! item's own real resolution mechanism lives entirely in
+   ! StateRegistry, never in ComponentGraph's import-port table at
+   ! all. Before this change's own import propagation existed, such an
+   ! import simply never reached any ancestor's own import-port table
+   ! (no mechanism moved it there), so this exclusion is restoring a
+   ! pre-existing invisibility, not introducing a new one.
+   !
+   ! MAPL_STATEITEM_VECTOR/MAPL_STATEITEM_BRACKET are deliberately NOT
+   ! excluded here: a composite's own real resolution (each flattened
+   ! member resolved individually by advertise_one/materialize_composite's
+   ! own member nodes) IS ordinary graph-native resolution - task 6.8
+   ! does not need to special-case either.
+   logical function is_ordinary_resolvable_import(node) result(is_ordinary)
+      class(StateItemNode), intent(in) :: node
+
+      type(GraphStateItem) :: payload
+      type(ESMF_StateItem_Flag) :: declared_type
+
+      payload = node%get_payload()
+      declared_type = payload%get_declared_item_type()
+
+      is_ordinary = .not. ( &
+           declared_type == MAPL_STATEITEM_WILDCARD .or. &
+           declared_type == MAPL_STATEITEM_SERVICE .or. &
+           declared_type == MAPL_STATEITEM_EXPRESSION)
+   end function is_ordinary_resolvable_import
+   ! Orchestrates one callback-declaring destination's full resolution:
+   ! wildcard match + interface conformance (resolve_callback_import
+   ! above), materialization (materialize_callback_collection above),
+   ! wiring to the already-advertised destination import via an ordinary
+   ! add_dependency edge (design.md Decision 5 - the same "producer node
+   ! feeds a consumer import" shape ordinary/extension-chain resolution
+   ! already uses), and per-match CallbackStateBinding construction
+   ! (build_callback_state_binding, below). Idempotent: a resource-index
+   ! key derived from the destination import's own NodeId is checked
+   ! before rebuilding (mirrors find_or_build_extension_chain's own
+   ! chain_key reuse idiom) - a repeat resolve_connections() call is
+   ! then a no-op (spec scenario "Re-resolving the same connection does
+   ! not duplicate collection members").
+   !
+   ! openspec/changes/graph-builder-stateitem-resolution: var_spec
+   ! replaced by dst_short_name/expected_interface_id (plain arguments) -
+   ! this procedure only ever read %short_name/%callback_interface_id
+   ! off it.
+   subroutine resolve_callback_destination(this, src_pt, dst_pt, dst_short_name, expected_interface_id, rejected, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(ConnectionPt), intent(in) :: src_pt
+      type(ConnectionPt), intent(in) :: dst_pt
+      character(*), intent(in) :: dst_short_name
+      type(CallbackInterfaceId), intent(in) :: expected_interface_id
+      type(StringVector), optional, intent(out) :: rejected
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentGraph), pointer :: graph
+      type(NodeId) :: import_id
+      character(:), allocatable :: collection_key
+      type(NodeId), pointer :: existing_collection
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(NodeId) :: collection_id
+      type(DependencyNetworkId) :: net_id
+
+      graph => this%get_component_graph()
+
+      import_id = resolve_local_node_id(this, dst_pt%component_name, ESMF_STATEINTENT_IMPORT, dst_short_name, _RC)
+
+      collection_key = 'CALLBACK_COLLECTION:' // import_id%to_string()
+      existing_collection => graph%get_resource_index(collection_key)
+      if (associated(existing_collection)) then
+         if (present(rejected)) rejected = StringVector()
+         _RETURN(_SUCCESS)
+      end if
+
+      matches = resolve_callback_import(this, src_pt, expected_interface_id, rejected, _RC)
+
+      collection_id = materialize_callback_collection(this, src_pt, matches, _RC)
+      call graph%add_resource_index(collection_key, collection_id, _RC)
+
+      net_id = graph%get_default_network_id()
+      call graph%add_dependency(net_id, collection_id, import_id, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine resolve_callback_destination
+
 end submodule GraphBuilder_ConnectionResolution_smod
