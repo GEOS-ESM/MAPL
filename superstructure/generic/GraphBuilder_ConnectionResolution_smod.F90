@@ -1818,6 +1818,24 @@ contains
             ! fails, so this branch is unreachable in practice, but is
             ! enumerated explicitly rather than falling into the _FAIL
             ! default below.
+         else if (mismatched_kinds(j) == ATTRIBUTES_CHARACTERISTIC_KIND .or. &
+                  mismatched_kinds(j) == UNGRIDDED_DIMS_CHARACTERISTIC_KIND .or. &
+                  mismatched_kinds(j) == STANDARD_NAME_CHARACTERISTIC_KIND .or. &
+                  mismatched_kinds(j) == QUANTITY_TYPE_CHARACTERISTIC_KIND .or. &
+                  mismatched_kinds(j) == CONSERVATION_CHARACTERISTIC_KIND .or. &
+                  mismatched_kinds(j) == NORMALIZATION_CHARACTERISTIC_KIND) then
+            ! openspec/changes/phase-12-characteristic-dispatch-wiring,
+            ! design.md D3: none of these six axes has a real
+            ! build_transform (every one _FAILs explicitly, by 5a2's own
+            ! design), so none can actually appear here in practice -
+            ! build_chain would already have _FAILed, with the correct
+            ! "unsupported characteristic" message, before
+            ! merged_item_for_link is ever reached for a chain containing
+            ! one of these kinds. Enumerated explicitly, mirroring the
+            ! vertical-coordinate branch immediately above, so that a
+            ! genuine mismatch on one of these axes fails with THAT
+            ! message rather than this helper's own unrelated
+            ! "unrecognized StateItemCharacteristicKind" assertion below.
          else
             assertion_message = 'GraphBuilder: merged_item_for_link - unrecognized StateItemCharacteristicKind: ' // &
                  mismatched_kinds(j)%to_string()

@@ -299,6 +299,112 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_ordinary_connection_units_mismatch_creates_chain
 
+   ! openspec/changes/phase-12-characteristic-dispatch-wiring, design.md
+   ! D3/D4: a mismatch on one of the six newly-wired axes (standard_name,
+   ! here) is detected (find_mismatched_characteristics) exactly like
+   ! units/typekind above, but - unlike units/typekind -
+   ! StandardNameCharacteristic has no real build_transform provider
+   ! (its own module header), so find_or_build_extension_chain's first
+   ! chain-build attempt fails explicitly and the connection is reported
+   ! through unsupported_characteristics with reason 'STANDARD_NAME',
+   ! not wired through any chain. Mirrors
+   ! test_vertical_grid_composites_single_overlap_fails_explicitly's own
+   ! unsupported-characteristic assertion shape, for a plain (non-
+   ! composite) field this time.
+   @test(npes=[0])
+   subroutine test_standard_name_mismatch_fails_explicitly(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph
+      type(ComponentGraph), pointer :: src_graph, dst_graph
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
+      type(VariableSpec) :: export_var_spec, import_var_spec
+      type(NodeId), pointer :: t_export_id, t_import_id
+      type(DependencyNetwork), pointer :: net
+      type(DependencyNetworkId) :: net_id
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_parent_standard_name', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='K')
+      export_var_spec%standard_name = 'air_temperature'
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_var_spec)
+
+      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T', units='K')
+      import_var_spec%standard_name = 'surface_temperature'
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(import_var_spec)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      ! StandardNameCharacteristic%build_transform _FAILs explicitly (no
+      ! real provider exists for this axis) - same pFUnit exception-
+      ! consumption requirement as
+      ! test_vertical_grid_composites_single_overlap_fails_explicitly's
+      ! own VerticalCoordinateCharacteristic%build_transform call.
+      @assertExceptionRaised('StandardNameCharacteristic: build_transform - no real provider exists for this axis')
+      @assert_that(status, is(0))
+
+      ! Not reported as unresolved (a matching export DOES exist - it
+      ! just cannot be adapted) - reported as unsupported instead, naming
+      ! the mismatched kind.
+      @assertEqual(0, unresolved%size())
+      @assertEqual(1, unsupported%size())
+      entry => unsupported%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('T', entry%short_name)
+      @assertEqual('STANDARD_NAME', entry%reason)
+
+      ! No chain was wired - the export and import remain unconnected.
+      parent_graph => parent_meta%get_component_graph()
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_id), is(true()))
+      @assert_that(associated(t_import_id), is(true()))
+
+      net_id = parent_graph%get_default_network_id()
+      net => parent_graph%get_network(net_id)
+      @assert_that(net%contains_dependency(t_export_id, t_import_id), is(false()))
+      @assert_that(net%has_predecessors(t_import_id), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_standard_name_mismatch_fails_explicitly
+
    ! openspec/changes/ordinary-inout-direct-alias - REQ-INOUT-001 direct-
    ! alias case: a destination item declared an ordinary inout borrower
    ! (VariableSpec%is_inout_borrower) wires a forward edge (owner ->

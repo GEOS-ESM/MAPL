@@ -30,7 +30,10 @@ module mapl_VariableSpec_mod
    use mapl_ConservationAspect_mod
    use mapl_NormalizationAspect_mod
    use mapl_enums_api, only: MAPL_NormalizationType, MAPL_NORMALIZE_NONE, &
-        MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS
+        MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS, &
+        MAPL_QuantityType, MAPL_QUANTITY_UNKNOWN
+   use mapl_ConservationMetadata_mod, only: ConservationMetadata
+   use mapl_NormalizationMetadata_mod, only: NormalizationMetadata
    use mapl_UngriddedDims_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_HorizontalDimsSpec_mod
@@ -231,6 +234,31 @@ module mapl_VariableSpec_mod
       ! make_VariableSpec keyword, same as `callback_interface_id`/
       ! `state_item_variant`.
       logical :: is_inout_borrower = .false.
+
+      !=====================
+      ! declared quantity-type/conservation/normalization
+      ! (openspec/changes/phase-12-characteristic-dispatch-wiring)
+      !=====================
+      ! Lets a caller declare a non-default quantity-type, conservation, or
+      ! normalization value for this item, so GraphBuilder's own
+      ! populate_characteristics (graph/graph-builder) has a real,
+      ! settable value to read for QuantityTypeCharacteristic/
+      ! ConservationCharacteristic/NormalizationCharacteristic - the three
+      ! StateItemCharacteristic subclasses these axes feed (5a2,
+      ! openspec/changes/archive/2026-10-08-state-item-characteristic-
+      ! subclasses). Before this, every real construction path
+      ! (make_QuantityTypeAspect/make_ConservationAspect/
+      ! make_NormalizationAspect, below) unconditionally built the same
+      ! default/mirror-inferred value regardless of input - these three
+      ! fields exist so that default is no longer the only reachable
+      ! value. Set via plain field assignment only, no make_VariableSpec
+      ! keyword, same as `callback_interface_id`/`state_item_variant`/
+      ! `is_inout_borrower` above - no ComponentSpecParser/YAML or
+      ! SetServices-convenience entry point exists yet (design.md D2,
+      ! explicit deferral).
+      type(MAPL_QuantityType) :: quantity_type = MAPL_QUANTITY_UNKNOWN
+      type(ConservationMetadata) :: conservation
+      type(NormalizationMetadata) :: normalization
 
    contains
       procedure :: make_virtualPt

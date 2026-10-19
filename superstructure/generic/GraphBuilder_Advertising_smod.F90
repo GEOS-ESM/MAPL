@@ -12,12 +12,27 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
-        TYPE_KIND_CHARACTERISTIC_KIND, VERTICAL_COORDINATE_CHARACTERISTIC_KIND
+        TYPE_KIND_CHARACTERISTIC_KIND, VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
+        ATTRIBUTES_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
+        STANDARD_NAME_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+        CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
    use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
+   ! openspec/changes/phase-12-characteristic-dispatch-wiring: the six
+   ! axes 5a2 (state-item-characteristic-subclasses) landed subclasses
+   ! for but never wired into a real GraphStateItem's characteristics
+   ! map - see that change's proposal.md for the roadmap correction
+   ! (vertical-coordinate, above, was already wired; only these six were
+   ! not).
+   use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
+   use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
+   use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
+   use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
+   use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -256,6 +271,46 @@ contains
                  VerticalCoordinateCharacteristic(dimensions=var_spec%get_member_names()), _RC)
          end if
       end if
+
+      ! openspec/changes/phase-12-characteristic-dispatch-wiring,
+      ! design.md D1: six more axes, each gated to match its own
+      ! VariableSpec field's actual "unset" representation rather than
+      ! one uniform rule.
+      !
+      ! StandardNameCharacteristic: allocatable, no default - same
+      ! `allocated()` gate as units above.
+      if (allocated(var_spec%standard_name)) then
+         call payload%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, &
+              StandardNameCharacteristic(var_spec%standard_name), _RC)
+      end if
+      ! AttributesCharacteristic: non-allocatable StringVector, default
+      ! empty - inserted only when non-empty, to avoid a characteristic
+      ! map entry for the overwhelmingly common "no declared shared
+      ! attributes" case (design.md D1 - the empty case is vacuously
+      ! non-mismatching either way, so this gate is an optimization, not
+      ! a correctness requirement).
+      if (var_spec%attributes%size() > 0) then
+         call payload%set_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND, &
+              AttributesCharacteristic(var_spec%attributes), _RC)
+      end if
+      ! UngriddedDimsCharacteristic: non-allocatable, default "no
+      ! ungridded dims" - unconditional insert, mirroring typekind's own
+      ! "the default is itself a meaningful, comparable value" precedent
+      ! above.
+      call payload%set_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
+           UngriddedDimsCharacteristic(var_spec%ungridded_dims), _RC)
+      ! QuantityTypeCharacteristic/ConservationCharacteristic/
+      ! NormalizationCharacteristic: the three new VariableSpec fields
+      ! added by this change (proposal.md - Why) - unconditional insert,
+      ! same typekind precedent; each field's own default is itself a
+      ! valid, already-tested "matches anything"/structurally-compared
+      ! value per that characteristic's own needs_extension_for.
+      call payload%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+           QuantityTypeCharacteristic(quantity_type=var_spec%quantity_type), _RC)
+      call payload%set_characteristic(CONSERVATION_CHARACTERISTIC_KIND, &
+           ConservationCharacteristic(var_spec%conservation), _RC)
+      call payload%set_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, &
+           NormalizationCharacteristic(var_spec%normalization), _RC)
 
       ! tasks.md 2.3: ungridded_dims/vertical_stagger, alongside
       ! characteristics.
