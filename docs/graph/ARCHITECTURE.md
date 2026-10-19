@@ -696,9 +696,20 @@ since landed, not merely been planned:**
   `transforms/`, `callback/`, `id_types/` subdirectories.
 - **Phase 19 — DONE**: two near-identical `sorted_names` helpers
   deduplicated into `StringSortUtilities.F90`.
-- **Phase 20 — still open**, by design (a placement/severity decision,
-  not yet picked up): test-suite log noise, not graph-architecture
-  roadmap work in its "field dictionary" half.
+- **Phase 20 — DONE** (split-suite fix, not a `report_if_failed`
+  severity change): the only two real call sites of
+  `GraphBuilder: ... step failed` across the whole `MAPL.generic.*`
+  suite (both deliberate negative-path tests, in
+  `Test_GraphGeometryHook.pf`/`Test_GraphBuilder_ConvergenceCheck.pf`)
+  were split out of `MAPL.generic.components` into a new sibling
+  `MAPL.generic.components.quiet` executable, run at `--level ERROR`
+  via pFUnit's `COMMAND_LINE_ARGS` (a mechanism from upstream pFUnit
+  PR #585, manually backported into this tree's installed pFUnit by
+  the codebase owner this session). Verified end-to-end on both NAG
+  and gfortran (65/65 `ctest -L ESSENTIAL` tests passing, zero
+  `GraphBuilder:` warning lines from the new suite). Source (a)
+  (field-dictionary noise) remains deliberately untouched/out of
+  scope — unrelated to the graph architecture.
 - **Phase 21 — 21-1/21-2/21-3 DONE** (`GraphScenarioBootstrap.F90`
   extraction, `apps/graph_diagnostic/graph_diagnostic.x` driver,
   `render_graph.py` wiring — re-verified working end-to-end this

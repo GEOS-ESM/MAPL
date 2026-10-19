@@ -180,10 +180,8 @@ set(components_test_srcs
   Test_GraphBuilder_CallbackWiring.pf
   Test_GraphBuilder_RunPhaseNode.pf
   Test_GraphBuilderMaterializeGate.pf
-  Test_GraphGeometryHook.pf
   Test_GraphMode.pf
   Test_OuterMetaComponentDriverResolver.pf
-  Test_GraphBuilder_ConvergenceCheck.pf
   Test_GraphBuilderPropagation.pf
   Test_GridCompDriverPhaseInvoker.pf
 )
@@ -200,6 +198,49 @@ add_pfunit_ctest(
 set_target_properties(MAPL.generic.components PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/components")
 set_tests_properties(MAPL.generic.components PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.components proto_extdata_gc proto_stat_gc)
+
+# 5b. MAPL.generic.components.quiet - same as MAPL.generic.components above,
+# but holds the two .pf files whose tests deliberately drive a GraphBuilder
+# hook down a negative path that is expected to log a warning via
+# report_if_failed (docs/graph/spec/20-implementation-roadmap.md sec
+# 20.4.20, Phase 20: "field dictionary not found"-style noise is source
+# (a), out of scope here; this is source (b)). Rather than changing
+# report_if_failed's own severity (which would also silence genuinely
+# unexpected failures elsewhere), this suite is run with --level ERROR
+# (passed through via pFUnit's COMMAND_LINE_ARGS, https://github.com/
+# Goddard-Fortran-Ecosystem/pFUnit/pull/585) so the console handler never
+# prints WARNING-level messages here, while every other suite keeps the
+# default level and still surfaces real warnings. Split out, not just
+# filtered, because ValidationMode/logging level are both process-wide
+# singletons set once at EXTRA_INITIALIZE time (same constraint documented
+# for MAPL.generic.scenarios/.strict in openspec change
+# use-field-dictionary-in-scenario-tests) - they cannot vary per-test
+# within one executable.
+#
+# MAX_PES 1 (not the usual 4): default_initialize_pflogger
+# (mapl/MaplFramework.F90) only honors --level on MPI rank 0 - every other
+# rank's console handler is hardcoded to WARNING regardless of --level, so
+# with more than one rank the warning would still print on ranks 1-3. Both
+# .pf files here only ever declare npes=[0]/npes=[1] tests, so MAX_PES 1
+# costs nothing and keeps every rank the (suppressed) root rank.
+set(components_quiet_test_srcs
+  Test_GraphGeometryHook.pf
+  Test_GraphBuilder_ConvergenceCheck.pf
+)
+
+add_pfunit_ctest(
+  MAPL.generic.components.quiet
+  TEST_SOURCES ${components_quiet_test_srcs}
+  LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
+  EXTRA_INITIALIZE Initialize
+  EXTRA_USE mapl_pFUnit_Initialize_mod
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  MAX_PES 1
+  COMMAND_LINE_ARGS --level ERROR
+)
+set_target_properties(MAPL.generic.components.quiet PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/components_quiet")
+set_tests_properties(MAPL.generic.components.quiet PROPERTIES LABELS "ESSENTIAL")
+add_dependencies(MAPL.generic.components.quiet proto_extdata_gc proto_stat_gc)
 
 # 6. MAPL.generic.core - Core functionality tests
 set(core_test_srcs
@@ -255,6 +296,7 @@ set_tests_properties(MAPL.generic.transforms PROPERTIES ENVIRONMENT "${TEST_ENV}
 set_tests_properties(MAPL.generic.vertical PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.aspects PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.components PROPERTIES ENVIRONMENT "${TEST_ENV}")
+set_tests_properties(MAPL.generic.components.quiet PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.core PROPERTIES ENVIRONMENT "${TEST_ENV}")
 
 # Add all test suites to build-tests target
@@ -264,5 +306,6 @@ add_dependencies(build-tests
   MAPL.generic.vertical
   MAPL.generic.aspects
   MAPL.generic.components
+  MAPL.generic.components.quiet
   MAPL.generic.core
 )
