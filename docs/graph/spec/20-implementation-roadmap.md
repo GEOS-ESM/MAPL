@@ -2525,7 +2525,40 @@ review pass — see §20.4.18's own sequencing note.
   (`component_spec_for`, `enumerate_qualified_exports`,
   `collect_qualified_export_index`) — a strict net-reduction with no
   design tradeoff at all, independent of whatever 17-4 decides for the
-  remaining 16. For the remaining 16: 7 clean moves, but NOT all to
+  remaining 16.
+
+  - **17-4a. DONE.** Deleted the 3 confirmed-dead helpers
+    (`component_spec_for`, `enumerate_qualified_exports`,
+    `collect_qualified_export_index`) from `GraphBuilder.F90`, plus
+    their two `public ::` declarations and the comments in
+    `GraphBuilder.F90`/`GraphBuilder_ConnectionResolution_smod.F90`
+    that referenced them purely as historical "why we didn't use the
+    old approach" prose (rewritten to preserve the surviving design
+    rationale without naming a deleted procedure).
+    Independently re-verified zero real callers for all three (whole-
+    repo grep, excluding generated build dirs) before deleting —
+    confirms 17-2's own finding exactly, including that Phase 21's
+    `apps/graph_diagnostic/graph_diagnostic.F90` (which landed after
+    17-2's characterization session) added no new call, only a
+    comment referencing `enumerate_qualified_exports` as a naming-
+    convention precedent (left untouched, per scope).
+    `GraphBuilder.F90`: 1734 -> 1654 lines (**-80**, within the
+    characterization's own estimated 70-90 line range). `ctest -L
+    ESSENTIAL` on both NAG (`nag-stack/7.2.41`) and gfortran
+    (`gfortran-stack`): 0 new failures versus a pre-change baseline
+    captured on each compiler before any edit (NAG 62/64, gfortran
+    63/64 — both baselines carry 2 and 1 respectively pre-existing,
+    graph-unrelated failures: `MAPL.GeomIO.tests` on both compilers,
+    plus `MAPL.Apps.tests.acg3.compile` on NAG only, a missing-
+    license-file build error, confirmed via per-test rerun to be
+    environmental, not caused by this change). `openspec/changes/
+    graphbuilder-delete-dead-helpers/` carries this sub-step's full
+    task breakdown and verification record. 17-4b (moving the 7 clean
+    single-caller helpers) and 17-4c (the shared-helpers-module
+    design question) remain open, deliberately deferred to separate
+    sessions per this bullet's own sub-sequencing.
+
+  For the remaining 16: 7 clean moves, but NOT all to
   the same destination — `is_self` (6 lines) moves to
   `GraphBuilder_CallbackWiring_smod.F90` (its one caller lives there);
   the other 6 (`try_materialize_field_extension` 78,

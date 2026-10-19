@@ -108,8 +108,7 @@ contains
 
       ! openspec/changes/graph-builder-resolution-index: resolved via
       ! resolve_qualified_component (reaching any descendant, not only
-      ! "<self>" or a direct child) rather than component_spec_for's own
-      ! single-level dispatch - see
+      ! "<self>" or a direct child) - see
       ! GraphBuilder_ConnectionResolution_smod.F90's module header for
       ! this capability's scope.
       dst_meta => resolve_qualified_component(this, dst_pt%component_name, _RC)
@@ -200,8 +199,8 @@ contains
 
       ! openspec/changes/graph-builder-resolution-index: see
       ! check_match_connection_unsatisfied's own identical replacement
-      ! above - resolve_qualified_component in place of
-      ! component_spec_for's own single-level dispatch.
+      ! above - resolve_qualified_component in place of the old
+      ! single-level dispatch.
       dst_meta => resolve_qualified_component(this, dst_pt%component_name, _RC)
       dst_graph => dst_meta%get_component_graph()
 
@@ -607,8 +606,8 @@ contains
                   entry%node_id = node_id
 
                   ! Same self-referencing array-constructor ICE
-                  ! precedent as collect_qualified_exports/
-                  ! collect_qualified_export_index (growing via an
+                  ! precedent as collect_qualified_exports
+                  ! (growing via an
                   ! explicit fresh temporary + move_alloc).
                   n = size(unresolved)
                   allocate(grown(n + 1))

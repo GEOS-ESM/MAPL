@@ -197,7 +197,6 @@ module mapl_GraphBuilder_mod
    ! needed this fix once gfortran's own build was run against the
    ! split (tasks.md 9.4).
    public :: component_for
-   public :: component_spec_for
    ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.1/3.2:
    ! replaces get_or_make_local_node_id (removed along with proxy_key -
    ! no parent-local stand-in node is created anymore; this resolves
@@ -248,15 +247,14 @@ module mapl_GraphBuilder_mod
    ! Public for the same gfortran cross-submodule-linkage reason as
    ! component_for/is_self above - not part of any user-facing API.
    public :: resolve_qualified_component
-   public :: enumerate_qualified_exports
    public :: QualifiedExportIndexEntry
    ! openspec/changes/hierarchy-wide-component-graph, tasks.md 7.1,
    ! design.md D4: the History-support query - "given a qualified
    ! component path, return that component's own local resource index
    ! entries directly" - no push/propagation step. Composes
    ! resolve_qualified_component (path -> OuterMetaComponent) with the
-   ! same resolved-through-resource_index, no-proxy per-item scan
-   ! enumerate_qualified_exports already proves correct, scoped to the
+   ! same resolved-through-resource_index, no-proxy per-item scan used
+   ! by append_own_export_index_entries (below), scoped to the
    ! one resolved component itself (no recursion into its children).
    public :: query_component_exports
 
@@ -406,9 +404,8 @@ module mapl_GraphBuilder_mod
       type(VariableSpec) :: var_spec
    end type QualifiedExportEntry
 
-   ! openspec/changes/graph-builder-resolution-index, design.md Decisions
-   ! "enumerate_qualified_exports generalizes collect_qualified_exports's
-   ! own recursion": one entry in enumerate_qualified_exports's own
+   ! openspec/changes/graph-builder-resolution-index, design.md Decisions:
+   ! one entry in a resolved-export scan's own
    ! flattened result - a (qualified_path, owner, node_id) tuple,
    ! deliberately NOT carrying a VariableSpec/var_spec reference (unlike
    ! QualifiedExportEntry above), since this primitive's whole point is
@@ -902,26 +899,9 @@ contains
    ! get_child_component_spec()/get_child_component_graph()'s own
    ! interface comment in OuterMetaComponent.F90 for the visibility
    ! rationale.
-   function component_spec_for(this, comp_name, rc) result(comp_spec)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      character(*), intent(in) :: comp_name
-      integer, optional, intent(out) :: rc
-      type(ComponentSpec), pointer :: comp_spec
-
-      integer :: status
-
-      if (is_self(this, comp_name)) then
-         comp_spec => this%get_component_spec()
-      else
-         comp_spec => this%get_child_component_spec(comp_name, _RC)
-      end if
-
-      _RETURN(_SUCCESS)
-   end function component_spec_for
-
    ! extension-registry-visibility change (design.md Finding 5/Decisions
-   ! "Geom/vgrid resolution order"): same is_self()-gated shape as
-   ! component_spec_for() above, but returning the owning
+   ! "Geom/vgrid resolution order"): is_self()-gated reach into a named
+   ! component, returning the owning
    ! OuterMetaComponent object itself (not just its ComponentSpec) - the
    ! geom/vertical_grid component-wide defaults
    ! (has_geom()/get_geom()/get_vertical_grid()) live on OuterMetaComponent,
@@ -1011,68 +991,12 @@ contains
       _RETURN(_SUCCESS)
    end function resolve_qualified_component
 
-   ! openspec/changes/graph-builder-resolution-index, design.md
-   ! Decisions "enumerate_qualified_exports generalizes
-   ! collect_qualified_exports's own recursion": builds root's own
-   ! flattened, qualified-path-indexed export enumeration by recursing
-   ! across every descendant level - same traversal/path-composition
-   ! shape as build_qualified_export_namespace/collect_qualified_exports
-   ! (GraphBuilder_CallbackWiring_smod.F90), but returning a plain
-   ! (qualified_path, owner, node_id) tuple per export (resolved via the
-   ! owner's own ComponentGraph%get_resource_index(item_key(...)), once
-   ! advertised) instead of QualifiedExportEntry's own
-   ! var_spec-carrying shape - decoupled from callback-wiring's own
-   ! record type (proposal.md "What Changes"). A fresh, uncached
-   ! snapshot at resolution time, same contract as
-   ! collect_qualified_exports (design.md Non-Goals).
-   function enumerate_qualified_exports(root, rc) result(entries)
-      class(OuterMetaComponent), target, intent(inout) :: root
-      integer, optional, intent(out) :: rc
-      type(QualifiedExportIndexEntry), allocatable :: entries(:)
-
-      integer :: status
-
-      allocate(entries(0))
-      call collect_qualified_export_index(root, '', entries, _RC)
-
-      _RETURN(_SUCCESS)
-   end function enumerate_qualified_exports
-
-   recursive subroutine collect_qualified_export_index(owner, path_prefix, entries, rc)
-      class(OuterMetaComponent), target, intent(inout) :: owner
-      character(*), intent(in) :: path_prefix
-      type(QualifiedExportIndexEntry), allocatable, intent(inout) :: entries(:)
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      integer :: i, num_children
-      character(:), allocatable :: child_name, child_path
-      type(OuterMetaComponent), pointer :: child_meta
-
-      call append_own_export_index_entries(owner, path_prefix, entries, _RC)
-
-      num_children = owner%get_num_children()
-      do i = 1, num_children
-         child_name = owner%get_child_name(i, _RC)
-         child_meta => owner%get_child_outer_meta(child_name, _RC)
-         if (len(path_prefix) == 0) then
-            child_path = child_name
-         else
-            child_path = path_prefix // '/' // child_name
-         end if
-         call collect_qualified_export_index(child_meta, child_path, entries, _RC)
-      end do
-
-      _RETURN(_SUCCESS)
-   end subroutine collect_qualified_export_index
-
    ! openspec/changes/hierarchy-wide-component-graph, tasks.md 7.1,
-   ! design.md D4: the single-level body collect_qualified_export_index
-   ! above already performed inline - factored out, with no behavior
-   ! change, so query_component_exports (below) can reuse the exact same
-   ! "resolved-through-resource_index, no proxy" per-item scan for ONE
-   ! component without also pulling in collect_qualified_export_index's
-   ! own recursion into children. Appends owner's own resolved exports
+   ! design.md D4: the per-item resolved-export scan factored out as its
+   ! own primitive so query_component_exports (below) can reuse the exact
+   ! same "resolved-through-resource_index, no proxy" scan for ONE
+   ! component without pulling in any recursion into children.
+   ! Appends owner's own resolved exports
    ! (one entry per declared export already present in owner's own
    ! resource index - an export never advertised, or advertised but not
    ! yet resolved, contributes no entry) to entries, in place.
@@ -1133,19 +1057,15 @@ contains
    ! (resolve_qualified_component, unmodified - the same descendant-only
    ! tree walk ordinary connection resolution already uses) and return
    ! ONLY that component's own local resource-index entries - no
-   ! recursion into its children (unlike enumerate_qualified_exports,
-   ! which flattens an entire subtree), and no push/propagation step of
+   ! recursion into its children, and no push/propagation step of
    ! any kind. A hierarchy-wide consumer (e.g. History) walks the
    ! OuterMetaComponent tree itself, calling this once per component path
    ! it wants to inspect, exactly as D4 describes - this primitive does
-   ! not do that walk on the consumer's behalf, since resolve_qualified_
-   ! component already starts from an explicit root and a caller wanting
-   ! every component's exports already has enumerate_qualified_exports
-   ! for that whole-subtree case.
+   ! not do that walk on the consumer's behalf.
    !
    ! root is the hierarchy root resolve_qualified_component resolves
-   ! path against (same convention/argument shape as that function and
-   ! as enumerate_qualified_exports); path follows resolve_qualified_
+   ! path against (same convention/argument shape as that function);
+   ! path follows resolve_qualified_
    ! component's own single-segment-or-"/"-separated-multi-segment
    ! convention, including resolving to root itself via is_self's
    ! "<self>"/root-name short-circuit.
