@@ -1784,6 +1784,29 @@ wired. Depends on Phase 5a/5a2 (landed) only — independent of 3b2, Phase
 
 ### 20.4.13 Phase 13 scope: restart compatibility under graph-native field materialization
 
+**[UPDATED — Phase 13 is now DONE.]** Landed in commits `73dff9b6`
+(implementation) and `09064494` (fixture fix): `GraphStateItem` gained
+a `declared_restart_mode` field + `get`/`set` procedures;
+`GraphBuilder_Advertising_smod.F90`'s `populate_characteristics`
+captures `VariableSpec%restart_mode` into the payload at advertise
+time; `GraphBuilder_StatePopulation_smod.F90`'s `populate_one` reads it
+back and calls `FieldInfoSetInternal` on the alias, mirroring
+`FieldClassAspect.F90:493-498` exactly. Two tests added:
+`Test_GraphBuilder_Advertising.pf::test_restart_mode_captured_at_advertise_time`
+(synthetic unit test — `RESTART_SKIP` captured at advertise time) and
+`Test_GraphModeDemonstration.pf::test_graph_mode_sets_restart_metadata_on_materialized_field`
+(lifecycle round-trip under `GRAPH_MODE_GRAPH` — `get_restart_bundle`
+returns correct count for default `RESTART_REQUIRED` field). The
+`gridcomps/configurable/tests/scenarios/scenario_1/child_B.yaml`
+fixture was also corrected: its `I_B1` `standard_name` was mismatched
+with the connected export (`I_B1 standard name` vs `E_A1 standard
+name`), silently accepted by legacy `StandardNameAspect` in permissive
+mode but correctly detected as a mismatch by Phase 12's newly-wired
+`StandardNameCharacteristic`; aligned to match the already-correct
+`superstructure/generic/tests/scenarios/scenario_1` copy. NAG:
+`ctest -L ESSENTIAL` 65/65 clean. The rest of this section is left
+as-is below as the historical scoping record.
+
 **Discovered gap, not previously tracked by any phase above.**
 `RestartHandler.F90`'s own field-selection predicates
 (`predicate_skip_restart_`/`predicate_incomplete_`,
