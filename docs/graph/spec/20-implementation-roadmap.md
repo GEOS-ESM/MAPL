@@ -2665,6 +2665,122 @@ review pass — see §20.4.18's own sequencing note.
     interface added, no call-site change) — the explicit non-goal
     this section's own scope named.
 
+  - **17-4c. DONE — decline the shared-helpers-module split.**
+    Re-ran 17-2's own method fresh against `GraphBuilder.F90` as it
+    exists post-17-4b (`contains` at line 842, `end module` at line
+    1170; 8 plain procedures remain, not the 16/19 the original
+    characterization measured — 11 already moved in 17-4b, 3 already
+    deleted in 17-4a). Per-helper re-count (grep against
+    `GraphBuilder.F90` + all 11 `_smod.F90` files, cross-checked
+    against the whole-repo `.pf`/`.F90` tree excluding generated
+    build dirs, same method as 17-2):
+
+    | Helper | Lines (incl. header comment) | Parent self-calls | Submodule callers (count) | Classification |
+    |---|---|---|---|---|
+    | `item_key` | 22 | 1 (`append_own_export_index_entries`) | Advertising(1), CallbackWiring(2), Geometry(5), RunPhaseNode(2), RunPhasePull(1), StatePopulation(2), Visualization(1) — **7 submodules** | (a) cross-cutting, unchanged from 17-2 |
+    | `is_self` | 6 | 2 (`component_for`, `resolve_qualified_component`) | CallbackWiring(2) — **1 submodule** | parent-resident, unchanged from 17-4b's own correction — NOT a shared-module candidate |
+    | `component_for` | 19 | 1 (`resolve_callback_import`) | ConnectionResolution(3) — **1 submodule** | (c) weak-promote, deferred — re-verified, no new caller found, unchanged |
+    | `resolve_qualified_component` | 56 | 1 (`query_component_exports`) | CallbackWiring(1), ConnectionResolution(7) — **2 submodules** | (a) cross-cutting, unchanged from 17-2 |
+    | `append_own_export_index_entries` | 50 | 0 | **0 submodules** — only called from `query_component_exports` (parent-internal) | (a) cross-cutting-among-parent-helpers-only, unchanged from 17-2 |
+    | `query_component_exports` | 16 | 0 | **0 submodules** — called only from `Test_GraphBuilder.pf` (5 call sites); named future caller (History) still not wired | (c) single-caller-today (tests only), unchanged from 17-2 |
+    | `itemtype_name` | 30 | **0 (RECLASSIFIED)** | CallbackWiring(1), ConnectionResolution(4, across 2 procedures) — **2 submodules** | **(a) cross-cutting — NEW finding, see below** |
+    | `resolve_callback_import` | 69 | 0 | ConnectionResolution(3, across 2 procedures); also called directly by 3 tests | (c) weak-promote, deferred — re-verified, no new caller found, unchanged |
+
+    **New finding not anticipated by 17-2's own characterization:**
+    `itemtype_name`'s 4 parent-internal self-calls (from
+    `try_materialize_field_extension`/`materialize_extension_chain`)
+    that made it "borderline (a)/(c)" in 17-2 are gone — both calling
+    procedures moved to `GraphBuilder_ConnectionResolution_smod.F90`
+    in 17-4b. `itemtype_name` is now called from 2 submodules
+    (CallbackWiring directly, ConnectionResolution directly — not
+    through the procedures that moved) and has zero parent-internal
+    callers. This resolves 17-2's own "borderline" classification
+    unambiguously to (a) cross-cutting — a side effect of 17-4b's own
+    move that 17-4b's own writeup did not flag, since it was scoped to
+    the 7 moving helpers, not to `itemtype_name`'s own caller-count
+    change.
+
+    **Real candidate set for a `GraphBuilder_SharedHelpers.F90`,
+    therefore: 4 helpers, 158 lines** (`item_key` 22, `resolve_qualified_component`
+    56, `append_own_export_index_entries` 50, `itemtype_name` 30) —
+    smaller than the roadmap's original "5-6 helpers" estimate, since
+    `get_item_units`/`get_item_typekind` (closed, moved in 17-4b) are
+    off the table and `is_self` (confirmed parent-resident) never
+    belonged on it despite 17-2's original single-caller
+    classification. `query_component_exports` (16 more lines) is
+    explicitly NOT part of this set — it has zero submodule callers
+    today (test-only), so moving it serves no submodule's host-
+    association need; it would ride along only if a bigger "move
+    everything public-for-gfortran-linkage" split were chosen, which
+    this decision rejects.
+
+    **Decision: decline the split.** Three independent reasons, each
+    sufficient alone:
+
+    1. **A real circular-module-dependency blocker, not just a
+       style question.** `resolve_qualified_component` (candidate for
+       the move) calls `is_self` (confirmed parent-resident,
+       non-movable, line 951). If `resolve_qualified_component` moved
+       to a new sibling module `GraphBuilder.F90` itself `use`s, that
+       sibling would need `use mapl_GraphBuilder_mod, only: is_self`
+       to reach it — while `GraphBuilder.F90` simultaneously `use`s
+       the sibling for `resolve_qualified_component`. That is a
+       circular module dependency, illegal in Fortran (`USE`
+       dependency graphs must be acyclic). The only ways around it are
+       (a) also move `is_self` into the shared module — but `is_self`
+       has 2 parent-internal callers (`component_for`,
+       `resolve_qualified_component` itself) that are themselves NOT
+       moving, re-creating the same cycle one level down since
+       `component_for` would then need to reach into the shared module
+       too — or (b) duplicate `is_self`'s 6-line body into the shared
+       module — a real, if small, piece of duplicated logic the
+       roadmap's own item-4 framing explicitly wanted to avoid
+       ("without duplicating code," §20.4.17 item 4). Every clean
+       member of the 4-helper candidate set is downstream of this
+       chain (`item_key` is called by `append_own_export_index_entries`,
+       which is called by `query_component_exports`, which calls
+       `resolve_qualified_component`, which calls `is_self`) — there
+       is no way to split the set that avoids touching the `is_self`
+       dependency without either (a) or (b) above.
+    2. **158 lines is a small fraction of a 1170-line file** (13.5%)
+       — not the "meaningfully shrink `GraphBuilder.F90`" outcome
+       §20.4.17 item 4 was evaluating. Compare to 17-4b's own 484-line
+       reduction (41% of the pre-17-4b 1170+484=1654-line file) for
+       the 7 clean-move helpers — this split's available yield is
+       roughly a third of that, for a split that (per finding 1) is
+       not even cleanly achievable without extra cost.
+    3. **No test or submodule `use` statement needs to change either
+       way.** `Test_GraphBuilder.pf` (`use mapl_GraphBuilder_mod`,
+       line 17, unqualified) and every submodule (implicit host
+       association, no `use` at all — submodules automatically see
+       their parent's public/private entities) already reach all 4
+       candidate helpers through `GraphBuilder.F90` today. Declining
+       the split costs nothing on this axis; accepting it would add
+       one new file to the "where do I find X" mental model (already
+       12 sibling files per §20.4.17's own framing of the question)
+       for a 158-line, not-cleanly-separable payoff.
+
+    `GraphBuilder.F90`'s own role as "the public interface module
+    every submodule and all tests `use`" is better served, for this
+    specific 4-helper set, by today's host-association shape than by
+    a sibling module — the `is_self` dependency chain is the
+    deciding factor, not a close call resolved by preference.
+
+    **No code changed this session.** `git status --short` before and
+    after this session's analysis shows zero modified files (confirmed
+    both at session start and immediately before this writeup) — no
+    build or test run was needed or performed, per this phase's own
+    "a declined split with clear written reasoning is a complete,
+    valid outcome" allowance.
+
+    **17-4 is now fully closed: 17-4a (DONE, dead-helper deletion),
+    17-4b (DONE, 7-helper move + `get_item_units`/`get_item_typekind`
+    relocation, with the `is_self` correction), 17-4c (DONE, this
+    session — shared-helpers-module split declined with reasoning).**
+    Nothing remains open under 17-4. Phase 17 overall: 17-1 through
+    17-4 are DONE; 17-5 (`Test_GraphBuilder.pf` split per 17-3's
+    findings) remains open, unaffected by this session's decision.
+
 - **17-5. Split `Test_GraphBuilder.pf` per 17-3's findings, where
   justified.** Same caveat as 17-4 — sizing depends on 17-3's own
   output; likely several sessions if a genuine per-submodule split is
