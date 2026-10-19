@@ -2037,6 +2037,19 @@ explicit idempotency mechanism rather than a one-line call-site move.
 
 ### 20.4.17 Phase 17 scope: `GraphBuilder.F90`/`Test_GraphBuilder.pf` size — characterize before splitting
 
+**[UPDATED — Phase 17 is now fully DONE.]** All five sub-steps landed:
+17-1 (dedup `make_outer_meta`/`make_var`, commit `06c583f5`), 17-2/17-3
+(characterization, recorded below), 17-4a/17-4b/17-4c (dead-helper
+deletion, 7-helper relocation, decline shared-helpers-module split —
+commits `bc9bd295` and others cited inline below), and 17-5 (the
+`Test_GraphBuilder.pf` split itself: `Test_GraphBuilder_Advertising.pf`,
+`Test_GraphBuilder_Freeze.pf`, `Test_GraphBuilder_ConnectionResolution.pf`,
+`Test_GraphBuilder_CallbackWiring.pf`, `Test_GraphBuilder_RunPhaseNode.pf`
+all created, verified NAG+gfortran, test-count conservation confirmed
+— commits `2bf48e89`, `d3a3395e`). Nothing remains open under Phase
+17. The rest of this section is left as-is below as the historical
+planning/characterization record.
+
 **Discovered gap, not previously tracked by any phase above.** Raised
 directly by the codebase owner (not surfaced during an openspec
 change's own review, unlike Phases 7-16): agents spend too much time
@@ -2781,8 +2794,8 @@ review pass — see §20.4.18's own sequencing note.
     17-4 are DONE; 17-5 (`Test_GraphBuilder.pf` split per 17-3's
     findings) remains open, unaffected by this session's decision.
 
-- **17-5. Split `Test_GraphBuilder.pf` per 17-3's findings, where
-  justified.** Same caveat as 17-4 — sizing depends on 17-3's own
+- **17-5. DONE.** Split `Test_GraphBuilder.pf` per 17-3's findings, where
+  justified. Same caveat as 17-4 — sizing depends on 17-3's own
   output; likely several sessions if a genuine per-submodule split is
   warranted across ~20 sub-topics, one session if 17-3 concludes most
   sub-topics are legitimately testing shared cross-submodule behavior
@@ -2844,6 +2857,18 @@ review pass — see §20.4.18's own sequencing note.
   advisory sizing input for 17-5's own design.md, not a commitment.
 
 ### 20.4.18 Phase 18 scope: subdirectory reorganization of `superstructure/generic/graph/`
+
+**[UPDATED — Phase 18 is now fully DONE.]** All four sub-steps landed
+and are archived as `openspec/changes/archive/2026-10-18-phase-18-graph-subdirectory-reorg`:
+18-1 (`transforms/`, commit `08c1fae8`), 18-2 (`id_types/` +
+`include/` fold-in, commit `184b631b`), 18-3 (`callback/`, commit
+`c024e41f`), and 18-4 (`characteristics/`, commit `375d475b`) —
+including 18-4's own gated preflight check (tasks.md 5.1), which
+confirmed at the time no Phase-12 openspec change existed yet, so the
+sequencing caveat below did not block the move. Verified NAG+gfortran
+`ctest -L ESSENTIAL` 64/64 both compilers, matching pre-move baseline.
+The rest of this section is left as-is below as the historical
+planning record (including the now-resolved 18-4 sequencing caveat).
 
 **Discovered gap, not previously tracked by any phase above.** Raised
 directly by the codebase owner: large families of related files in
@@ -3010,6 +3035,16 @@ session-size-gated — each move below is small on its own):**
   complexity.
 
 ### 20.4.19 Phase 19 scope: deduplicate the two `sorted_names` helpers (item 5, narrowed)
+
+**[UPDATED — Phase 19 is now fully DONE.]** Landed as
+`openspec/changes/archive/2026-10-18-dedup-characteristic-sorted-names`
+(commit `6df133e3`): new `superstructure/generic/graph/StringSortUtilities.F90`
+holds the shared `sorted_names` helper; `AttributesCharacteristic.F90`
+and `VerticalCoordinateCharacteristic.F90` both now `use` it instead of
+keeping a private copy. Verified via the existing
+`StateItemCharacteristic`-subclass test coverage plus a full
+`ctest -L ESSENTIAL` regression, 0 new failures. The rest of this
+section is left as-is below as the historical scoping record.
 
 **Discovered gap, not previously tracked by any phase above — scope
 corrected mid-investigation, recorded here per this document's own
@@ -3221,6 +3256,34 @@ above (disjoint concern: logging severity, not file organization or
 type choice).
 
 ### 20.4.21 Phase 21 scope: standalone hierarchy-wide graph diagnostic app
+
+**[UPDATED — Phase 21's required scope (21-1/21-2/21-3) is now fully
+DONE; 21-4 (explicitly optional batch-mode polish) was not built and
+remains open if ever wanted.]** Landed in commit `8577a802`:
+`superstructure/generic/GraphScenarioBootstrap.F90` (21-1, bootstrap
+extracted from `Test_Scenarios.pf`'s own `setup()`), `apps/graph_diagnostic/graph_diagnostic.F90`
++ `apps/CMakeLists.txt` wiring (21-2, standalone `graph_diagnostic.x`
+driver: YAML path + output dir in, one `.dot`/`.json` pair per
+component out). Re-verified directly this session, not just by
+reading the commit: built `graph_diagnostic.x` (already present in
+the NAG build dir), ran it against
+`superstructure/generic/tests/graph-scenarios/plain_field/cap.yaml`
+— wrote valid `root`/`comp_src`/`comp_dst` `.dot`+`.json` pairs
+(JSON round-tripped through `json.loads()` with no parse error, per
+21-2's own exit criterion), then fed `root.dot` through
+`tools/graph_visualization/render_graph.py` and confirmed a real
+`.png` was produced (21-3's own "YAML in, picture out" exit
+criterion). One pre-existing, non-blocking rough edge noted during
+this verification: the driver aborts with an MPI `MPI_Type_free`
+error during `MAPL_Finalize()` *after* all output files are already
+written and the success message already printed — cosmetic exit-path
+noise, not a data-correctness problem, and out of scope for this
+phase's own stated exit criteria to fix. 21-4 (optional: batch-process
+every fixture under `graph-scenarios/`/`scenarios/` in one invocation)
+was not implemented — confirmed by source inspection, no batch/loop
+logic in `graph_diagnostic.F90` — and the roadmap's own text already
+marks it optional/not required for diagnostic value, so this is not a
+gap against this phase's own done-ness.
 
 **Discovered gap, not previously tracked by any phase above — raised
 directly by the codebase owner, reframed during this planning session
