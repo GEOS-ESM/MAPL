@@ -335,6 +335,15 @@ contains
       if (allocated(var_spec%vertical_grid)) call payload%set_declared_vertical_grid(var_spec%vertical_grid)
       call payload%set_declared_item_type(var_spec%itemType)
 
+      ! openspec/changes/phase-13-restart-compatibility (docs/graph/spec/
+      ! 20-implementation-roadmap.md sec 20.4.13): capture the
+      ! originating VariableSpec's own declared restart_mode, same
+      ! "materialization input, set once at advertise time" pattern as
+      ! declared_geom/declared_vertical_grid above - populate_one
+      ! (GraphBuilder_StatePopulation_smod.F90) reads this back when it
+      ! creates the real MAPL_NamedAlias.
+      if (allocated(var_spec%restart_mode)) call payload%set_declared_restart_mode(var_spec%restart_mode)
+
       _RETURN(_SUCCESS)
    end subroutine populate_characteristics
 

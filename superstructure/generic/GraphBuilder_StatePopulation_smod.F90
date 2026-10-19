@@ -8,7 +8,10 @@
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_StatePopulation_smod
    use esmf, only: ESMF_State, ESMF_StateAddReplace, ESMF_STATEITEM_FIELD, operator(==)
+   use esmf, only: ESMF_Info, ESMF_NamedAliasGet, ESMF_InfoGetFromHost
    use mapl_FieldNamedAlias_mod, only: MAPL_NamedAlias
+   use mapl_FieldInfo_mod, only: FieldInfoSetInternal
+   use mapl_RestartModes_mod, only: RestartMode
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_GRAPH
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
@@ -214,6 +217,9 @@ contains
       type(ESMF_Field) :: field
       type(ESMF_Field) :: alias
       type(ESMF_State) :: state
+      type(RestartMode), allocatable :: restart_mode
+      type(ESMF_Info) :: info
+      integer :: alias_id
 
       if (.not. associated(id_ptr)) then
          _RETURN(_SUCCESS)
@@ -253,6 +259,25 @@ contains
       alias = MAPL_NamedAlias(field, name=short_name, _RC)
       call ESMF_StateAddReplace(state, [alias], _RC)
 
+      ! openspec/changes/phase-13-restart-compatibility (docs/graph/spec/
+      ! 20-implementation-roadmap.md sec 20.4.13): restart_mode is
+      ! per-connection-endpoint metadata, keyed by THIS alias's own id -
+      ! same FieldInfoSetInternal mechanism and alias-id keying as
+      ! legacy's FieldClassAspect%add_to_state
+      ! (FieldClassAspect.F90:493-498). Read off item_id's OWN declared
+      ! payload (the import's or export's own item - whichever id_ptr
+      ! is), never field_node_id's: mirrors legacy's own
+      ! connect_to_export, which does NOT mirror restart_mode from the
+      ! export side onto an import's FieldClassAspect (only long_name/
+      ! fill_value are mirrored there) - each declared item keeps its
+      ! own restart_mode, independent of which real field backs it.
+      call get_declared_restart_mode(graph, item_id, restart_mode)
+      if (allocated(restart_mode)) then
+         call ESMF_NamedAliasGet(alias, id=alias_id, _RC)
+         call ESMF_InfoGetFromHost(alias, info, _RC)
+         call FieldInfoSetInternal(info, alias_id, restart_mode, _RC)
+      end if
+
       _RETURN(_SUCCESS)
    end subroutine populate_one
 
@@ -288,6 +313,32 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine get_field_if_materialized
+
+   ! openspec/changes/phase-13-restart-compatibility: populate_one's own
+   ! helper - reads node_id's own StateItemNode payload's declared
+   ! restart_mode (set at advertise time by populate_characteristics,
+   ! GraphBuilder_Advertising_smod.F90), if any. Not a module procedure
+   ! (no GraphBuilder.F90 interface declaration): private to this
+   ! submodule, used only by populate_one above.
+   subroutine get_declared_restart_mode(graph, node_id, restart_mode)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: node_id
+      type(RestartMode), allocatable, intent(out) :: restart_mode
+
+      class(GraphNode), pointer :: node
+
+      node => graph%get_node(node_id)
+      if (.not. associated(node)) return
+
+      select type (node)
+      class is (StateItemNode)
+         block
+            type(GraphStateItem) :: payload
+            payload = node%get_payload()
+            call payload%get_declared_restart_mode(restart_mode)
+         end block
+      end select
+   end subroutine get_declared_restart_mode
 
    ! Walks network's own predecessor adjacency from start_id, one hop at
    ! a time, until a node whose own payload is a real, allocated field is

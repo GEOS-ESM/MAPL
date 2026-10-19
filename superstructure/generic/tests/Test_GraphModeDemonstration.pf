@@ -80,6 +80,7 @@ module Test_GraphModeDemonstration
    use mapl_Generic_api, only: mapl_GenericSetServices
    use mapl_FieldGet_mod, only: FieldGet
    use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
+   use mapl_RestartHandler_mod, only: get_restart_bundle
    use esmf
    use nuopc
    use pfunit
@@ -692,6 +693,99 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_graph_mode_leaves_newly_wired_axis_mismatch_unwired
+
+   ! openspec/changes/phase-13-restart-compatibility (docs/graph/spec/
+   ! 20-implementation-roadmap.md sec 20.4.13): verify that populate_one
+   ! (GraphBuilder_StatePopulation_smod.F90) correctly sets RestartMode
+   ! metadata on a graph-materialized alias so RestartHandler's
+   ! get_restart_bundle (predicate_skip_restart_) sees the right value
+   ! under GRAPH_MODE_GRAPH.
+   !
+   ! Uses the plain_field fixture (T export/import, no restart_mode in
+   ! YAML -> allocatable not set -> FieldInfoSetInternal never called ->
+   ! FieldInfoGetInternal returns the default RESTART_REQUIRED). Under
+   ! GRAPH_MODE_GRAPH the field is graph-materialized (not by legacy
+   ! FieldClassAspect%add_to_state), so this test confirms the default
+   ! path works without regression. Exit criterion per roadmap: a real
+   ! round-trip - get_restart_bundle on the import state succeeds and
+   ! returns the expected bundle count (1: T is not skipped).
+   @test(npes=[0])
+   subroutine test_graph_mode_sets_restart_metadata_on_materialized_field(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: config
+      type(ESMF_Config) :: config_cf
+      type(ESMF_GridComp) :: cap_gc
+      type(OuterMetaComponent), pointer :: cap_meta
+      type(GriddedComponentDriver) :: dst_driver
+      type(GriddedComponentDriver), pointer :: dst_own_driver
+      type(ESMF_GridComp) :: dst_gc
+      type(OuterMetaComponent), pointer :: dst_meta
+      type(MultiState) :: dst_states
+      type(ESMF_State) :: dst_own_import_state
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_FieldBundle) :: restart_bundle
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: t0, t1
+      type(ESMF_TimeInterval) :: dt
+      integer :: status, user_status, i
+      integer :: bundle_count
+
+      call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
+
+      config = ESMF_HConfigCreate( &
+           filename='./graph-scenarios/plain_field/cap.yaml', _RC)
+      config_cf = ESMF_ConfigCreate(hconfig=config, _RC)
+      cap_gc = ESMF_GridCompCreate(name='CAP_RESTART_META_TEST', config=config_cf, _RC)
+      call ESMF_GridCompSetServices(cap_gc, mapl_GenericSetservices, userRC=user_status, _RC)
+      _VERIFY(user_status)
+
+      call ESMF_TimeSet(t0, timeString='2000-04-03T21:00:00', _RC)
+      call ESMF_TimeSet(t1, timeString='2000-04-03T22:00:00', _RC)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
+
+      ! GRAPH_MODE_GRAPH: graph-native materialization is the sole real
+      ! producer; legacy FieldClassAspect%add_to_state (which sets
+      ! RestartMode metadata in the legacy path) is skipped entirely.
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_materialize_extensions(.true.)
+      importState = ESMF_StateCreate(_RC)
+      exportState = ESMF_StateCreate(_RC)
+      do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
+         associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
+            call ESMF_GridCompInitialize(cap_gc, &
+                 importState=importState, exportState=exportState, &
+                 clock=clock, phase=phase, userRC=user_status, _RC)
+            _VERIFY(user_status)
+         end associate
+      end do
+      call set_materialize_extensions(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+
+      cap_meta => get_outer_meta(cap_gc, _RC)
+      dst_driver = cap_meta%get_child('comp_dst', _RC)
+      dst_gc = dst_driver%get_gridcomp()
+      dst_meta => get_outer_meta(dst_gc, _RC)
+      dst_own_driver => dst_meta%get_user_gc_driver()
+      dst_states = dst_own_driver%get_states()
+      dst_own_import_state = dst_states%importState
+
+      ! get_restart_bundle with is_write=.false. applies
+      ! predicate_skip_restart_ which reads RestartMode metadata via
+      ! FieldInfoGetInternal. T has no restart_mode declared in YAML so
+      ! declared_restart_mode is not allocated, FieldInfoSetInternal is
+      ! never called, and FieldInfoGetInternal returns the default
+      ! RESTART_REQUIRED - so T is NOT filtered out. Bundle count must
+      ! be 1 (T present, not skipped).
+      call get_restart_bundle(dst_own_import_state, is_write=.false., &
+           bundle=restart_bundle, _RC)
+      call ESMF_FieldBundleGet(restart_bundle, fieldCount=bundle_count, _RC)
+      @assertEqual(1, bundle_count, &
+           'graph-materialized T field (RESTART_REQUIRED default) is present in restart bundle')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_graph_mode_sets_restart_metadata_on_materialized_field
 
    ! Local helper: does a PortIdNodeIdMap contain `target` as a VALUE
    ! (not a key)? Shared pattern with

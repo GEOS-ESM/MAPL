@@ -29,6 +29,7 @@ module Test_GraphBuilder_Advertising
    use mapl_StateItem_mod, only: MAPL_STATEITEM_STATE
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
    use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
+   use mapl_RestartModes_mod, only: RestartMode, RESTART_SKIP, operator(==)
    ! openspec/changes/phase-12-characteristic-dispatch-wiring, tasks.md
    ! Section 6: direct coverage of populate_characteristics's six
    ! newly-wired axes.
@@ -590,5 +591,63 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_attributes_characteristic_asymmetric_comparison
+
+   ! openspec/changes/phase-13-restart-compatibility (docs/graph/spec/
+   ! 20-implementation-roadmap.md sec 20.4.13): verify that advertise_one
+   ! captures VariableSpec%restart_mode into the StateItemNode's own
+   ! GraphStateItem payload at advertise time, so populate_one
+   ! (GraphBuilder_StatePopulation_smod.F90) can read it back when
+   ! creating the real ESMF alias.
+   @test(npes=[0])
+   subroutine test_restart_mode_captured_at_advertise_time(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(GraphBuilder) :: gb
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: node_id
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: payload
+      type(VariableSpec) :: var_skip
+      type(RestartMode), allocatable :: captured_mode
+      integer :: status
+
+      call make_outer_meta('comp_restart_mode', outer_gc, outer_meta, rc=status)
+      @assertEqual(0, status)
+
+      ! VariableSpec with restart_mode=RESTART_SKIP - set directly as
+      ! populate_characteristics's own caller does (plain field assignment,
+      ! the same shape as callback_interface_id/state_item_variant in the
+      ! existing tests - no make_VariableSpec keyword for restart_mode yet,
+      ! per Phase 8's own "YAML-unreachable" note in the roadmap).
+      var_skip = make_var(ESMF_STATEINTENT_EXPORT, 'T_SKIP')
+      var_skip%restart_mode = RESTART_SKIP
+
+      comp_spec => outer_meta%get_component_spec()
+      call comp_spec%add_var_spec(var_skip)
+
+      call gb%run_advertise_hook(outer_meta)
+      status = 0
+
+      graph => outer_meta%get_component_graph()
+      node_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T_SKIP'))
+      @assert_that('T_SKIP node exists', associated(node_id), is(true()))
+
+      node => graph%get_node(node_id)
+      select type (node)
+      class is (StateItemNode)
+         payload = node%get_payload()
+      class default
+         @assert_that('T_SKIP node is a StateItemNode', .false., is(true()))
+      end select
+
+      call payload%get_declared_restart_mode(captured_mode)
+      @assert_that('restart_mode captured at advertise time', allocated(captured_mode), is(true()))
+      @assertTrue(captured_mode == RESTART_SKIP, 'captured restart_mode is RESTART_SKIP')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_restart_mode_captured_at_advertise_time
 
 end module Test_GraphBuilder_Advertising
