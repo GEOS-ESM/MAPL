@@ -1,0 +1,112 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! Phase 17-5c (docs/graph/spec/20-implementation-roadmap.md sec
+! 20.4.17, 17-5): split out of Test_GraphBuilder.pf - holds bucket 6
+! (Freeze), exercising `graphbuilder_freeze` exclusively: successful
+! freeze, and a cross-network-write conflict that fails validation and
+! leaves the graph unfrozen. A direct sibling of the already-split
+! Test_GraphBuilder_ConvergenceCheck.pf (which covers the hierarchy-
+! wide freeze/convergence-check call site, run once at the hierarchy
+! root) - this file covers the per-component freeze call itself.
+!
+! Test-only OuterMetaComponent instances are built the same way
+! Test_GraphBuilder.pf's own fixtures are (bypassing SetServices/DSO
+! machinery) - see GraphBuilderTestSupport_mod.
+module Test_GraphBuilder_Freeze
+   use mapl_OuterMetaComponent_mod
+   use mapl_GraphBuilder_mod
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
+   use mapl_ComponentSpec_mod, only: ComponentSpec
+   use mapl_NodeId_mod, only: NodeId
+   use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
+   use esmf
+   use pfunit
+   implicit none(type, external)
+
+contains
+
+   ! Task 6.5 / spec "Successful resolution is followed by freeze" and
+   ! "Validation failure prevents freeze".
+   @test(npes=[0])
+   subroutine test_freeze_succeeds_when_valid(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_freeze_ok', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      call gb%freeze(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      @assert_that(graph%is_frozen(), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_freeze_succeeds_when_valid
+
+   @test(npes=[0])
+   subroutine test_freeze_fails_and_leaves_graph_unfrozen_on_conflict(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: a_id, b_id, t_id
+      type(DependencyNetworkId) :: default_net_id, second_net_id
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_freeze_conflict', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'A'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'B'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      a_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'A'))
+      b_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'B'))
+      t_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      default_net_id = graph%get_default_network_id()
+      second_net_id = graph%create_network(_RC)
+
+      ! REQ-DEP-008a: T written (has a predecessor) in two different
+      ! networks within what would be one update pass - construction-time
+      ! validation must reject this, not just at runtime.
+      call graph%add_dependency(default_net_id, a_id, t_id, _RC)
+      call graph%add_dependency(second_net_id, b_id, t_id, _RC)
+
+      call gb%freeze(outer_meta, status)
+      ! Four propagated frames to unwind, innermost first: the
+      ! descriptive message from validate_cross_network_writes()
+      ! (ComponentGraph.F90), then three bare "status=1" propagation
+      ! frames (graph_validate -> graph_freeze -> graphbuilder_freeze) -
+      ! same pattern as Test_MemoryCheckpoint.pf's multi-frame unwind.
+      @assertExceptionRaised( &
+           'ComponentGraph: validate found a state item written in more than one network within the same update pass')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assert_that(status, is(not(equal_to(0))))
+      @assert_that(graph%is_frozen(), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_freeze_fails_and_leaves_graph_unfrozen_on_conflict
+
+end module Test_GraphBuilder_Freeze
