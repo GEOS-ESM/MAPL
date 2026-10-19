@@ -66,6 +66,8 @@ module Test_GraphModeDemonstration
    use mapl_OuterMetaComponent_mod
    use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_GRAPH, GRAPH_MODE_REGISTRY
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
+   use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, &
+        set_field_dictionary_config, get_field_dictionary_config
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
@@ -571,6 +573,125 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_graph_mode_mirrors_grandchild_import_recursively
+
+   ! openspec/changes/phase-12-characteristic-dispatch-wiring, design.md
+   ! D4/tasks.md 7.4: the new standard_name_and_ungridded_dims_mismatch
+   ! fixture (graph-scenarios/standard_name_and_ungridded_dims_mismatch/
+   ! description.md), exercised through the real YAML/init-phase
+   ! pipeline rather than the synthetic-node unit test in
+   ! Test_GraphBuilder_ConnectionResolution.pf. Confirms the explicit-
+   ! failure path fires exactly as that synthetic test already confirms
+   ! (same reason string), end to end from a real config file - not a
+   ! second, independent assertion of different behavior.
+   @test(npes=[0])
+   subroutine test_graph_mode_leaves_newly_wired_axis_mismatch_unwired(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_HConfig) :: config
+      type(ESMF_Config) :: config_cf
+      type(ESMF_GridComp) :: cap_gc
+      type(OuterMetaComponent), pointer :: cap_meta, src_meta, dst_meta
+      type(GriddedComponentDriver) :: child_driver
+      type(ESMF_GridComp) :: child_gc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      type(ESMF_Time) :: t0, t1
+      type(ESMF_TimeInterval) :: dt
+      integer :: status, user_status, i
+      type(ComponentGraph), pointer :: cap_graph, src_graph, dst_graph
+      type(DependencyNetwork), pointer :: cap_net
+      type(NodeId), pointer :: src_export_id, dst_import_id
+      type(FieldDictionaryConfig) :: saved_fd_config
+
+      call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
+
+      ! This suite's own EXTRA_INITIALIZE (Initialize_strict) forces
+      ! strict field-dictionary ValidationMode for the whole process -
+      ! which would make the LEGACY StandardNameAspect%matches() (run by
+      ! process_connections()/Connection%connect(), unconditionally, even
+      ! under GRAPH_MODE_GRAPH - initialize_accept_transfer.F90's own
+      ! header comment) reject this fixture's standard_name mismatch
+      ! itself, before GraphBuilder's own newly-wired detection ever
+      ! gets a chance to run. Force permissive for this one test only,
+      ! mirroring Test_Aspects.pf's own save/override/restore
+      ! convention - the real thing under test here is GraphBuilder's
+      ! own characteristic-mismatch detection, not legacy's independent
+      ! standard_name enforcement.
+      saved_fd_config = get_field_dictionary_config()
+      call set_field_dictionary_config(FieldDictionaryConfig())
+
+      config = ESMF_HConfigCreate( &
+           filename='./graph-scenarios/standard_name_and_ungridded_dims_mismatch/cap.yaml', _RC)
+      config_cf = ESMF_ConfigCreate(hconfig=config, _RC)
+      cap_gc = ESMF_GridCompCreate(name='CAP_GRAPH_MODE_DEMO_UNSUPPORTED', config=config_cf, _RC)
+      call ESMF_GridCompSetServices(cap_gc, mapl_GenericSetservices, userRC=user_status, _RC)
+      _VERIFY(user_status)
+
+      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
+      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
+
+      importState = ESMF_StateCreate(_RC)
+      exportState = ESMF_StateCreate(_RC)
+
+      ! graphbuilder_run_connect_hook (GraphBuilder_LifecycleHooks_smod.F90)
+      ! catches the STANDARD_NAME build_transform failure itself -
+      ! surfaced as a logged warning (report_if_failed/the
+      ! unsupported%of(i) loop), never propagated as a userRC failure -
+      ! so this init sequence completes normally; the real assertion is
+      ! that no dependency edge was ever wired between the two real
+      ! endpoints below.
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
+         associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
+            call ESMF_GridCompInitialize(cap_gc, &
+                 importState=importState, exportState=exportState, clock=clock, &
+                 phase=phase, userRC=user_status, _RC)
+            _VERIFY(user_status)
+         end associate
+      end do
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+
+      ! StandardNameCharacteristic%build_transform _FAILs explicitly (no
+      ! real provider exists for this axis), exactly like
+      ! test_standard_name_mismatch_fails_explicitly's own synthetic-node
+      ! unit test - consume the pFUnit exception it raises so the real
+      ! assertions below (not this already-confirmed detection detail)
+      ! drive this test's own pass/fail outcome.
+      @assertExceptionRaised('StandardNameCharacteristic: build_transform - no real provider exists for this axis')
+
+      cap_meta => get_outer_meta(cap_gc, _RC)
+      cap_graph => cap_meta%get_component_graph()
+
+      child_driver = cap_meta%get_child('comp_src', _RC)
+      child_gc = child_driver%get_gridcomp()
+      src_meta => get_outer_meta(child_gc, _RC)
+      src_graph => src_meta%get_component_graph()
+
+      child_driver = cap_meta%get_child('comp_dst', _RC)
+      child_gc = child_driver%get_gridcomp()
+      dst_meta => get_outer_meta(child_gc, _RC)
+      dst_graph => dst_meta%get_component_graph()
+
+      src_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      dst_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that('comp_src own export T resolved', associated(src_export_id), is(true()))
+      @assert_that('comp_dst own import T resolved', associated(dst_import_id), is(true()))
+
+      ! design.md D3/D4: no real build_transform exists for either
+      ! mismatched axis (standard_name, ungridded_dims) - the connection
+      ! is reported through unsupported_characteristics, never wired.
+      cap_net => cap_graph%get_network(cap_graph%get_default_network_id())
+      @assert_that('cap own default network has NO edge between the mismatched export and import', &
+           cap_net%contains_dependency(src_export_id, dst_import_id), is(false()))
+      @assert_that('comp_dst own import T has no predecessor', &
+           cap_net%has_predecessors(dst_import_id), is(false()))
+
+      call set_field_dictionary_config(saved_fd_config)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_graph_mode_leaves_newly_wired_axis_mismatch_unwired
 
    ! Local helper: does a PortIdNodeIdMap contain `target` as a VALUE
    ! (not a key)? Shared pattern with

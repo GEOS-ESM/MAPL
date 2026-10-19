@@ -29,6 +29,27 @@ module Test_GraphBuilder_Advertising
    use mapl_StateItem_mod, only: MAPL_STATEITEM_STATE
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
    use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
+   ! openspec/changes/phase-12-characteristic-dispatch-wiring, tasks.md
+   ! Section 6: direct coverage of populate_characteristics's six
+   ! newly-wired axes.
+   use mapl_StateItemCharacteristicKind_mod, only: ATTRIBUTES_CHARACTERISTIC_KIND, &
+        UNGRIDDED_DIMS_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, &
+        QUANTITY_TYPE_CHARACTERISTIC_KIND, CONSERVATION_CHARACTERISTIC_KIND, &
+        NORMALIZATION_CHARACTERISTIC_KIND
+   use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
+   use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
+   use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
+   use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
+   use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
+   use mapl_UngriddedDims_mod, only: UngriddedDims
+   use mapl_ConservationMetadata_mod, only: ConservationMetadata
+   use mapl_NormalizationMetadata_mod, only: NormalizationMetadata
+   use mapl_QuantityType_mod, only: QUANTITY_TEMPERATURE
+   use mapl_ConservationType_mod, only: CONSERVE_MASS
+   use mapl_NormalizationType_mod, only: NORMALIZE_DELP
+   use gFTL2_StringVector, only: StringVector
    use esmf
    use pfunit
    implicit none(type, external)
@@ -396,5 +417,178 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_untagged_composite_keeps_plain_state_variant
+
+   ! -- openspec/changes/phase-12-characteristic-dispatch-wiring ----------
+
+   ! Tasks 6.1/6.2: populate_characteristics (GraphBuilder_Advertising_smod)
+   ! establishes all six newly-wired characteristics on an advertised
+   ! export item, each readable back off the real StateItemNode/
+   ! GraphStateItem it populated - not merely "no error", but the actual
+   ! stored value matches what was declared.
+   @test(npes=[0])
+   subroutine test_advertise_establishes_six_new_characteristics(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpec) :: var_spec
+      type(NodeId), pointer :: export_id
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: payload
+      class(StateItemCharacteristic), allocatable :: found
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_six_axes', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'SIX_AXES')
+      var_spec%standard_name = 'air_temperature'
+      call var_spec%attributes%push_back('shared_attr')
+      var_spec%ungridded_dims = UngriddedDims([5])
+      var_spec%quantity_type = QUANTITY_TEMPERATURE
+      var_spec%conservation = ConservationMetadata(CONSERVE_MASS, is_conservable=.true.)
+      var_spec%normalization = NormalizationMetadata(NORMALIZE_DELP, normalization_scale=2.0)
+      call comp_spec%add_var_spec(var_spec)
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      export_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'SIX_AXES'))
+      @assert_that(associated(export_id), is(true()))
+
+      node => graph%get_node(export_id)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      @assert_that(payload%has_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(payload%has_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(payload%has_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(payload%has_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(payload%has_characteristic(CONSERVATION_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(payload%has_characteristic(NORMALIZATION_CHARACTERISTIC_KIND), is(true()))
+
+      call payload%get_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, found, _RC)
+      select type (found)
+      class is (StandardNameCharacteristic)
+         @assertFalse(found%needs_extension_for(StandardNameCharacteristic('air_temperature')))
+         @assertTrue(found%needs_extension_for(StandardNameCharacteristic('other_name')))
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      call payload%get_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, found, _RC)
+      select type (found)
+      class is (QuantityTypeCharacteristic)
+         @assertFalse(found%needs_extension_for(QuantityTypeCharacteristic(quantity_type=QUANTITY_TEMPERATURE)))
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      call payload%get_characteristic(CONSERVATION_CHARACTERISTIC_KIND, found, _RC)
+      select type (found)
+      class is (ConservationCharacteristic)
+         @assertFalse(found%needs_extension_for( &
+              ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS, is_conservable=.true.))))
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      call payload%get_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, found, _RC)
+      select type (found)
+      class is (NormalizationCharacteristic)
+         @assertFalse(found%needs_extension_for( &
+              NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP, normalization_scale=2.0))))
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_advertise_establishes_six_new_characteristics
+
+   ! Task 6.2 (regression companion): an item with none of the optional
+   ! newly-wired fields set (default VariableSpec, no attributes/standard_
+   ! name declared) still advertises successfully - StandardNameCharacteristic/
+   ! AttributesCharacteristic are correctly absent (both gated on
+   ! "declared"), while UngriddedDimsCharacteristic/QuantityTypeCharacteristic/
+   ! ConservationCharacteristic/NormalizationCharacteristic (unconditional
+   ! inserts, design.md D1) are still present, at their own default values.
+   @test(npes=[0])
+   subroutine test_advertise_default_var_spec_no_spurious_characteristics(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpec) :: var_spec
+      type(NodeId), pointer :: export_id
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: payload
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_default_var_spec', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'DEFAULT_ITEM')
+      ! standard_name/attributes deliberately left unset.
+      call comp_spec%add_var_spec(var_spec)
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      export_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'DEFAULT_ITEM'))
+      node => graph%get_node(export_id)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      @assertFalse(payload%has_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND))
+      @assertFalse(payload%has_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND))
+      @assert_that(payload%has_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(payload%has_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(payload%has_characteristic(CONSERVATION_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(payload%has_characteristic(NORMALIZATION_CHARACTERISTIC_KIND), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_advertise_default_var_spec_no_spurious_characteristics
+
+   ! Task 6.3: AttributesCharacteristic's own asymmetric comparison
+   ! (module header, AttributesCharacteristic.F90) - an export declaring a
+   ! superset of the import's required attributes does not mismatch; an
+   ! export missing one of the import's required attributes does.
+   @test(npes=[0])
+   subroutine test_attributes_characteristic_asymmetric_comparison(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(StringVector) :: export_superset, import_required, export_missing_one
+      type(AttributesCharacteristic) :: export_characteristic, import_characteristic
+
+      call export_superset%push_back('a')
+      call export_superset%push_back('b')
+      call import_required%push_back('a')
+
+      export_characteristic = AttributesCharacteristic(export_superset)
+      import_characteristic = AttributesCharacteristic(import_required)
+      @assertFalse(export_characteristic%needs_extension_for(import_characteristic))
+
+      call export_missing_one%push_back('b')
+      export_characteristic = AttributesCharacteristic(export_missing_one)
+      @assertTrue(export_characteristic%needs_extension_for(import_characteristic))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_attributes_characteristic_asymmetric_comparison
 
 end module Test_GraphBuilder_Advertising

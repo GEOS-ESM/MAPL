@@ -58,6 +58,7 @@ flat top level.
 | `callback/CallbackInterface*.F90` (except `CallbackInterfaceId.F90`, which lives in `id_types/` — a real `#include "IdTemplate.inc"` site, not a comment mention), `callback/CallbackMethodSpec.F90`, `callback/CallbackStateBinding.F90`, `callback/CallbackMethodBinding.F90` | Callback data model |
 | `characteristics/*Characteristic.F90` (Units, TypeKind, Geometry, Attributes, UngriddedDims, QuantityType, Conservation, Normalization, StandardName, VerticalCoordinate) + `characteristics/CharacteristicStatus.F90`, `characteristics/StateItemCharacteristicKind.F90` | Mismatch-detection/extension-chain axes |
 | `transforms/UnitsConverterTransform.F90`, `transforms/TypeKindConverterTransform.F90` | Real executing transforms (only two axes with real conversion so far) |
+| `characteristics/*Characteristic.F90`'s `build_transform` for every OTHER kind (Geometry, Attributes, UngriddedDims, QuantityType, Conservation, Normalization, StandardName, VerticalCoordinate) | **No real adaptation logic — each one unconditionally `_FAIL`s.** Confirmed empirically (not just by reading 5a2's own design.md note) while writing `phase-12-characteristic-dispatch-wiring`'s tests: a genuine mismatch on any of these axes surfaces as the generic `'<CharacteristicName>: build_transform - no real provider exists for this axis'` exception, not a converted value. Any pFUnit test that deliberately provokes a mismatch on one of these axes must consume that exception first, e.g. `@assertExceptionRaised('StandardNameCharacteristic: build_transform - no real provider exists for this axis')`, before asserting anything else — the mismatch itself is real and detected; only the repair step is a stub. See §6's Phase 12 entry. |
 | `RouteHandleKey.F90` | Semantic key for route-handle reuse |
 | `CompositeStateMaterialization.F90` | Applies composite-member/variant tagging during materialization |
 | `GraphMode.F90` | `registry` / `graph` / `both` 3-way selector (`mapl_GraphMode_mod`) |
@@ -717,12 +718,132 @@ since landed, not merely been planned:**
   `render_graph.py`); **21-4 (optional batch-mode) not built**, and
   the roadmap marks it optional/non-blocking.
 
-Phase 12 (5a2 subclasses wired into real dispatch) and Phases 7a/7b/7c
-have NOT landed — confirmed by source inspection (no
-`ATTRIBUTES_CHARACTERISTIC_KIND`-style dispatch outside the
-`characteristics/` module itself) — so Phase 18's own `characteristics/`
-move landing ahead of Phase 12 was a genuine ordering choice, not an
-error; it was allowed because no Phase-12 change was in flight to
-conflict with at the time.
+**[UPDATED, this session, 2026-10-19] Phase 12 — DONE** (all 7 Task
+Groups of `openspec/changes/phase-12-characteristic-dispatch-wiring`
+complete, `tasks.md` 30/30 checked, `openspec validate --strict`
+valid; pending archive-move and a separate source commit — see §7
+below for the full account). Phases 7a/7b/7c have NOT landed —
+confirmed by source inspection (no `WILDCARD`/`BRACKET`/`EXPRESSION`
+shape-dispatch code outside the `characteristics/` module itself).
+Phase 18's own `characteristics/` move landed ahead of Phase 12 as a
+genuine ordering choice (no Phase-12 change was in flight to conflict
+with at the time), not an error.
+
+## 7. Phase 12 narrative — six `StateItemCharacteristic` axes wired into real dispatch
+
+**Verified this session (2026-10-19) by implementing the change
+directly**, not merely read from a prior pass — kept as a narrative
+section (like §3's Task-Group-6 account) because the two surprises
+below cost real build/test cycles and are exactly the kind of thing a
+future pass through this axis family should know up front.
+
+**Scope.** `openspec/changes/phase-12-characteristic-dispatch-wiring`
+wires six of 5a2's seven standalone `StateItemCharacteristic`
+subclasses — `AttributesCharacteristic`, `UngriddedDimsCharacteristic`,
+`StandardNameCharacteristic`, `QuantityTypeCharacteristic`,
+`ConservationCharacteristic`, `NormalizationCharacteristic` — into
+`GraphBuilder_Advertising_smod.F90`'s `populate_characteristics`
+insertion point, mirroring the existing `PhysicalUnitsCharacteristic`/
+`TypeKindCharacteristic`/`VerticalCoordinateCharacteristic` precedent
+(`VerticalCoordinateCharacteristic` was already wired before this
+phase, hence six axes here, not seven as the roadmap's original
+`5a2`-subclass count implied).
+
+**What changed (uncommitted at the time of this writing — see below):**
+- `superstructure/generic/specs/VariableSpec.F90`: three new fields —
+  `quantity_type`, `conservation`, `normalization` — plain field
+  assignment only (no `make_VariableSpec` keyword, no YAML/parser
+  wiring; `quantity_type` in particular is YAML-unreachable today,
+  same as `ConservationCharacteristic`/`NormalizationCharacteristic`'s
+  own metadata types).
+- `GraphBuilder_Advertising_smod.F90`'s `populate_characteristics`:
+  six insertion branches, each gated per design.md D1 to match its own
+  field's "unset" representation — `allocated()` gate for
+  `standard_name` (same shape as `units`'s existing gate);
+  `%size() > 0` gate for `attributes` (skips the empty/common case as
+  an optimization, not a correctness requirement); unconditional
+  insert for the other four (same shape as `typekind`'s existing
+  unconditional insert — each field's own default is itself a
+  meaningful, comparable value).
+- `GraphBuilder.F90`'s host `use mapl_StateItemCharacteristicKind_mod`
+  line extended with the six new kind constants (no separate
+  submodule `use` needed — submodules reach them via host
+  association).
+- `GraphBuilder_ConnectionResolution_smod.F90`'s
+  `merged_item_for_link`: one combined, comment-only `else if` branch
+  added for all six kinds, documenting that none can actually reach
+  this point in practice (see surprise #1 below) — enumerated
+  explicitly so a genuine mismatch fails with ITS OWN message, not
+  this helper's unrelated "unrecognized StateItemCharacteristicKind"
+  fallback.
+
+**Surprise #1 — none of the six axes has a real `build_transform`,
+confirmed empirically rather than planned around up front.** This
+document's own §1.1 (now corrected above) already stated this as a
+known fact before this phase started; it was re-discovered the hard
+way instead of being read first (see the self-assessment this session
+also produced, referenced below). Every mismatch on these six axes
+surfaces as `'<Name>Characteristic: build_transform - no real
+provider exists for this axis'`, via the generic `_FAIL` default
+every `*Characteristic%build_transform` stub shares — not a silent
+pass, not a converted value. Both the synthetic unit test
+(`test_standard_name_mismatch_fails_explicitly`,
+`Test_GraphBuilder_ConnectionResolution.pf`) and the real-pipeline
+scenario test
+(`test_graph_mode_leaves_newly_wired_axis_mismatch_unwired`,
+`Test_GraphModeDemonstration.pf`) need
+`@assertExceptionRaised('StandardNameCharacteristic: build_transform
+- no real provider exists for this axis')` to consume that exception
+before their own assertions run. **Lesson for future work on any
+newly-wired-but-not-yet-converted axis:** write the
+`@assertExceptionRaised` expectation first, before running the test
+once to "discover" it — reading §1.1/§7 here would have made this
+the first draft, not the second.
+
+**Surprise #2 — legacy's `UngriddedDimsAspect%can_connect_to` rejects
+any ungridded-dims disagreement unconditionally, independent of
+`ValidationMode`, unlike `StandardNameAspect%matches()` which is only
+strict under strict `ValidationMode`.** This asymmetry killed the
+fixture's first draft (`standard_name_and_quantity_type_mismatch`,
+renamed to `standard_name_and_ungridded_dims_mismatch` after
+`quantity_type` turned out to be YAML-unreachable) when it also tried
+to mismatch `ungridded_dims`: legacy's own `process_connections()`
+hard-failed before `GraphBuilder`'s own resolution ever ran, regardless
+of mode. The final fixture
+(`superstructure/generic/tests/graph-scenarios/
+standard_name_and_ungridded_dims_mismatch/`) mismatches only
+`standard_name` (`air_temperature` vs. `surface_temperature`) and
+deliberately MATCHES `ungridded_dims` (`foo1`/extent 3 both sides),
+and its scenario test overrides `FieldDictionaryConfig` to permissive
+for its own duration (save/restore, mirroring `Test_Aspects.pf`'s own
+convention) — `MAPL.generic.scenarios` otherwise forces strict mode
+process-wide via `Initialize_strict`, and legacy's
+`StandardNameAspect%matches()` runs unconditionally alongside
+`GraphBuilder`'s own resolution even under `GRAPH_MODE_GRAPH`.
+**Lesson:** when picking which axis pairs to co-mismatch in a new
+fixture, check each legacy `*Aspect%can_connect_to`/`matches()` for a
+`ValidationMode` gate (or its absence) before writing the YAML, not
+after a hard failure in `process_connections()` explains it.
+
+**Verification (NAG only this session; gfortran not re-run for this
+phase):** all six Task Groups' own tests pass
+(`Test_GraphBuilder_Advertising.pf` new cases,
+`Test_GraphBuilder_ConnectionResolution.pf`'s
+`test_standard_name_mismatch_fails_explicitly`,
+`Test_GraphModeDemonstration.pf`'s
+`test_graph_mode_leaves_newly_wired_axis_mismatch_unwired`); full
+`ctest -R "^MAPL.generic"` 8/8 suites passing; `openspec validate
+phase-12-characteristic-dispatch-wiring --strict` valid.
+
+**State as of this writing:** all source changes above are
+**uncommitted** in the working tree; the OpenSpec change itself is
+mid-archive (artifact/task completeness confirmed, delta-spec sync
+decision pending). A separate source commit is still needed once
+archiving completes. A companion self-assessment this session
+concluded `ARCHITECTURE.md` (this file) was NOT actually consulted
+during implementation despite §1.1 already containing the exact fact
+that would have preempted surprise #1 — recorded here as the fix for
+that gap, and as a concrete argument for reading this file before,
+not after, writing characteristic-mismatch tests on any future axis.
 
 
