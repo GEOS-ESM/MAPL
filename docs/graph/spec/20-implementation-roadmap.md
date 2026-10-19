@@ -3134,6 +3134,48 @@ waiting for that move — may land independently, anytime.
 
 ### 20.4.20 Phase 20 scope: test-suite log noise — placement decision, not a code-change phase
 
+**[UPDATED — source (b) is now DONE; source (a) remains explicitly
+out of scope, unchanged from the original judgment call below.]**
+Rather than changing `report_if_failed`'s own severity (the original
+"scope, if/when picked up" item 1 below) — which would also have
+silenced genuinely unexpected failures at every one of its other ~23
+call sites — the fix taken was the codebase owner's own suggested
+approach: group the tests that deliberately trigger the warning into
+a separate suite and run that suite at a higher log level. Concretely:
+live `ctest -V` reproduction (not just source-reading) confirmed only
+two real call sites fire across the entire `MAPL.generic.*` suite
+today (`test_mismatched_geometry_from_child_is_not_wired` in
+`Test_GraphGeometryHook.pf`, `test_unresolved_import_after_freeze_fails_explicitly`
+in `Test_GraphBuilder_ConvergenceCheck.pf` — both intentional
+negative-path tests, both previously living in
+`MAPL.generic.components`). Both files were split out into a new
+sibling pFUnit executable, `MAPL.generic.components.quiet`
+(`superstructure/generic/tests/CMakeLists.txt`), run with
+`--level ERROR` via pFUnit's `COMMAND_LINE_ARGS` keyword on
+`add_pfunit_ctest` — a mechanism added upstream by
+[pFUnit PR #585](https://github.com/Goddard-Fortran-Ecosystem/pFUnit/pull/585)
+that did not exist in this tree's installed pFUnit (4.19.0) until the
+codebase owner manually backported the macro change into the local
+install for both the NAG and gfortran baselibs trees this session.
+`do_initialize()` (`pfunit/MAPL_Initialize.F90`) already supported a
+`--level`/`-l` command-line option; the missing piece was purely
+`ctest`'s inability to pass it through, now resolved. One subtlety
+discovered and handled: `default_initialize_pflogger`
+(`mapl/MaplFramework.F90`) only honors `--level` on MPI rank 0 — every
+other rank's console handler is hardcoded to `WARNING` — so the new
+suite also uses `MAX_PES 1` (both moved `.pf` files only ever declare
+`npes=[0]`/`npes=[1]` tests, so this costs nothing) rather than the
+usual `MAX_PES 4`, ensuring every rank is the suppressed root rank.
+Verified end-to-end on both compilers: `ctest -R
+"MAPL.generic.components(.quiet)?" -V` shows zero `GraphBuilder: ...
+step failed` lines from the new suite while all of its tests still
+pass, and a full `ctest -L ESSENTIAL` run (65/65 tests) passes on both
+NAG and gfortran with no regressions. Source (a) (field-dictionary
+noise) was deliberately left untouched per the judgment call already
+recorded below — it is unrelated to the graph architecture and remains
+flagged for whoever owns `VariableSpec.F90`/field-dictionary test
+fixtures generally.
+
 **Discovered gap, not previously tracked by any phase above — raised
 directly by the codebase owner.** Two distinct, compounding noise
 sources were named: (a) "field dictionary not found"-style warnings
