@@ -48,6 +48,7 @@ module mapl_GraphStateItem_mod
    use mapl_UngriddedDims_mod, only: UngriddedDims
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc
    use mapl_VerticalGrid_mod, only: VerticalGrid
+   use mapl_RestartModes_mod, only: RestartMode
    use ESMF, only: ESMF_Geom
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -122,6 +123,23 @@ module mapl_GraphStateItem_mod
       type(ESMF_Geom), allocatable :: declared_geom
       class(VerticalGrid), allocatable :: declared_vertical_grid
       type(ESMF_StateItem_Flag) :: declared_item_type = ESMF_STATEITEM_FIELD
+      ! openspec/changes/phase-13-restart-compatibility (docs/graph/spec/
+      ! 20-implementation-roadmap.md sec 20.4.13): the originating
+      ! VariableSpec's own declared restart_mode (VariableSpec.F90:102),
+      ! captured at advertise time alongside declared_geom/
+      ! declared_vertical_grid above, same "materialization input"
+      ! rationale - populate_one (GraphBuilder_StatePopulation_smod.F90)
+      ! reads this back when it creates the real MAPL_NamedAlias, so
+      ! RestartHandler.F90's predicate_skip_restart_ sees correct
+      ! metadata for a graph-materialized field under GRAPH_MODE_GRAPH,
+      ! mirroring FieldClassAspect%add_to_state's own
+      ! FieldInfoSetInternal call (FieldClassAspect.F90:493-498).
+      ! Allocatable, no default: absent means "not explicitly declared",
+      ! same allocatable-no-default shape as VariableSpec%restart_mode
+      ! itself - RestartHandler's own RESTART_REQUIRED default already
+      ! applies when FieldInfoSetInternal is never called for an alias
+      ! id (field_info_get_internal_restart_mode's own default).
+      type(RestartMode), allocatable :: declared_restart_mode
    contains
       procedure :: itemType => stateitem_itemType
       procedure :: variant => stateitem_variant
@@ -164,6 +182,8 @@ module mapl_GraphStateItem_mod
       procedure :: set_declared_vertical_grid => stateitem_set_declared_vertical_grid
       procedure :: get_declared_item_type => stateitem_get_declared_item_type
       procedure :: set_declared_item_type => stateitem_set_declared_item_type
+      procedure :: get_declared_restart_mode => stateitem_get_declared_restart_mode
+      procedure :: set_declared_restart_mode => stateitem_set_declared_restart_mode
       ! Test-only backdoor: deliberately violates the at-most-one-
       ! allocated invariant, bypassing the `set` choke point, so the
       ! checked-defect path (REQ-SI-004) can be exercised. Not part of
@@ -699,6 +719,28 @@ contains
 
       this%declared_item_type = item_type
    end subroutine stateitem_set_declared_item_type
+
+   ! openspec/changes/phase-13-restart-compatibility: same
+   ! subroutine-with-intent(out)-allocatable-dummy shape as
+   ! get_declared_geom/get_vertical_stagger above, same reason (an
+   ! unallocated allocatable function result is not reliably safe to
+   ! assign from directly across compilers).
+   subroutine stateitem_get_declared_restart_mode(this, restart_mode)
+      class(GraphStateItem), intent(in) :: this
+      type(RestartMode), allocatable, intent(out) :: restart_mode
+
+      if (allocated(this%declared_restart_mode)) restart_mode = this%declared_restart_mode
+   end subroutine stateitem_get_declared_restart_mode
+
+   ! Same deallocate+allocate(..., source=...) shape as
+   ! set_declared_geom above, same reason.
+   subroutine stateitem_set_declared_restart_mode(this, restart_mode)
+      class(GraphStateItem), intent(inout) :: this
+      type(RestartMode), intent(in) :: restart_mode
+
+      if (allocated(this%declared_restart_mode)) deallocate(this%declared_restart_mode)
+      allocate(this%declared_restart_mode, source=restart_mode)
+   end subroutine stateitem_set_declared_restart_mode
 
    ! REQ-CHAR-010/011 (design.md D5, resolving Q13's recommendation):
    ! delegates to a static per-variant strategy table
