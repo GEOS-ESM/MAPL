@@ -3,18 +3,23 @@ name: "Build MAPL3 Documentation"
 on:
   push:
     branches:
-      - release/MAPL-v3
+      - develop
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: mapl3-documentation-deployment-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy-mapl3-docs:
+    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           filter: blob:none
           persist-credentials: false
@@ -29,6 +34,7 @@ jobs:
           ford-input: mapl3docs-with-remote-esmf.md
           doc-folder: docs/Ford/mapl3-doc
           target-folder: mapl3-doc
+          publish: ${{ github.ref == 'refs/heads/develop' }}
           deploy-token: ${{ secrets.DOCS_DEPLOY_PAT }}
 
   ##############################################################################
@@ -36,7 +42,7 @@ jobs:
   #   runs-on: ubuntu-latest                                                   #
   #   steps:                                                                   #
   #     - name: Checkout                                                       #
-  #       uses: actions/checkout@v6                                            #
+  #       uses: actions/checkout@v7                                            #
   #       with:                                                                #
   #         fetch-depth: 0                                                     #
   #         filter: blob:none                                                  #

@@ -13,6 +13,24 @@ module mapl_python_fortran_bridge
 
     implicit NONE
     
+    public :: MAPLPy_ESMF_AttributeGet_1D_int
+    public :: MAPLpy_GetPointer_via_ESMFAttr
+    public :: MAPLpy_GetPointer_2D
+    public :: MAPLpy_GetPointer_2D_associated
+    public :: MAPLpy_GetPointer_3D
+    public :: MAPLpy_GetPointer_associated
+    public :: MAPLpy_GetResource_Float
+    public :: MAPLpy_GetResource_Double
+    public :: MAPLpy_GetResource_Bool
+    public :: MAPLpy_GetResource_Int32
+    public :: MAPLpy_ESMF_TimeIntervalGet
+    public :: MAPLpy_ESMF_GridCompGetName
+    public :: MAPLPy_MAPL_GetIM
+    public :: MAPLPy_MAPL_GetJM
+    public :: MAPLPy_MAPL_GetLM
+    public :: MAPLPy_MAPL_GetNX
+    public :: MAPLPy_MAPL_GetNY
+
     private
     
     character(len=ESMF_MAXSTR) :: IAm
@@ -239,6 +257,32 @@ module mapl_python_fortran_bridge
         result = local_r
     end function
 
+    function MAPLpy_GetResource_Double(state_c_ptr, name_c_ptr, name_len, default) result(result) bind(c, name="MAPLpy_GetResource_Double")
+        ! Read in STATE
+        type(c_ptr), intent(in), value :: state_c_ptr
+        type(MAPL_MetaComp), pointer :: state
+
+        ! Read in name
+        type(c_ptr), intent(in), value :: name_c_ptr
+        integer(c_int), intent(in), value :: name_len
+        character(len=name_len,kind=c_char), pointer :: name
+        real(c_double), intent(in), value :: default
+
+        ! Results & local
+        real(c_double) :: result
+        real(kind=8) :: local_r, local_d
+
+        ! Make pointer & string fortran from C
+        call c_f_pointer(name_c_ptr, name)
+        call c_f_pointer(state_c_ptr, state)        
+
+        ! Use fortran type & cast back to C types
+        local_d = default
+        call MAPL_GetResource(state, local_r, label=trim(name), default=local_d, RC=STATUS)
+        VERIFY_(STATUS)
+        result = local_r
+    end function
+
     function MAPLpy_GetResource_Bool(mapl_metacomp_c_ptr, name_c_ptr, name_len, default) result(result) bind(c, name="MAPLpy_GetResource_Bool")
         ! Read in STATE
         type(c_ptr), intent(in), value :: mapl_metacomp_c_ptr
@@ -293,29 +337,30 @@ module mapl_python_fortran_bridge
     
     end function
 
-    ! function MAPLpy_GetResource_Int64(state_c_ptr, name_c_ptr, name_len, default) result(result) bind(c, name="MAPLpy_GetResource_Int64")
-    !     ! Read in STATE
-    !     type(c_ptr), intent(in), value :: state_c_ptr
-    !     type(ESMF_State), pointer :: state
+    function MAPLpy_GetResource_Int64(state_c_ptr, name_c_ptr, name_len, default) result(result) bind(c, name="MAPLpy_GetResource_Int64")
+        ! Read in STATE
+        type(c_ptr), intent(in), value :: state_c_ptr
+        type(MAPL_MetaComp), pointer :: state
 
-    !     ! Read in name
-    !     type(c_ptr), intent(in), value :: name_c_ptr
-    !     integer(c_int), intent(in), value :: name_len
-    !     character(len=name_len,kind=c_char), pointer :: name
-    !     logical(c_bool), intent(in), value :: default
+        ! Read in name
+        type(c_ptr), intent(in), value :: name_c_ptr
+        integer(c_int), intent(in), value :: name_len
+        character(len=name_len,kind=c_char), pointer :: name
+        integer(C_INT64_T), intent(in), value :: default
 
-    !     ! Results
-    !     integer(C_INT64_T) :: result
+        ! Results
+        integer(C_INT64_T) :: result
+        integer(kind=8) :: local_r, local_d
 
-    !     ! Turn the C string into a Fortran string
-    !     call c_f_pointer(name_c_ptr, name)
+        ! Make pointer & string fortran from C
+        call c_f_pointer(name_c_ptr, name)
+        call c_f_pointer(state_c_ptr, state)              
 
-    !     ! Turn the ESMF State C pointer to a Fortran pointer
-    !     call c_f_pointer(state_c_ptr, state)        
-
-    !     call MAPL_GetResource(state, result, label=trim(name), default=logical(default))
-    
-    ! end function
+        local_d = default
+        call MAPL_GetResource(state, local_r, label=trim(name), default=local_d, RC=STATUS)
+        VERIFY_(STATUS)
+        result = local_r
+    end function
 
     ! function MAPLpy_GetResource_Double(state_c_ptr, name_c_ptr, name_len, default) result(result) bind(c, name="MAPLpy_GetResource_Double")
     !     ! Read in STATE
@@ -463,6 +508,15 @@ module mapl_python_fortran_bridge
         VERIFY_(STATUS)
         result = local_r
     
+    end function
+
+    function MAPLPy_Get_Comm() result(comm) bind(c, name="MAPLPy_Get_Comm")
+        type(ESMF_VM) :: vm
+        integer :: comm
+        integer :: status
+        
+        call ESMF_VMGetCurrent(vm, rc=status)
+        call ESMF_VMGet(vm, mpiCommunicator=comm)
     end function
 
 end module mapl_python_fortran_bridge

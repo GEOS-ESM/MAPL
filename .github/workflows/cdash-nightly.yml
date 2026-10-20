@@ -10,7 +10,7 @@ on:
       branch:
         description: 'Branch to test'
         required: false
-        default: 'release/MAPL-v3'
+        default: 'develop'
         type: string
       build_type:
         description: 'CMake build type (workflow_dispatch only; ignored for gfortran-15-coverage)'
@@ -59,26 +59,26 @@ jobs:
         include:
           - compiler: gfortran-15
             cmake-build-type: ${{ inputs.build_type || 'Debug' }}
-            image: gmao/ubuntu24-geos-env-mkl:v8.27.0-openmpi_5.0.5-gcc_15.2.0
+            image: gmao/ubuntu24-geos-env-mkl:v8.33.0-openmpi_5.0.5-gcc_15.2.0
             fc: gfortran
             extra-cmake-args: >-
               -DUSE_F2PY=OFF
               -DMPIEXEC_PREFLAGS=--oversubscribe
           - compiler: gfortran-15-coverage
             cmake-build-type: Coverage
-            image: gmao/ubuntu24-geos-env-mkl:v8.27.0-openmpi_5.0.5-gcc_15.2.0
+            image: gmao/ubuntu24-geos-env-mkl:v8.33.0-openmpi_5.0.5-gcc_15.2.0
             fc: gfortran
             extra-cmake-args: >-
               -DUSE_F2PY=OFF
               -DMPIEXEC_PREFLAGS=--oversubscribe
           - compiler: ifort
             cmake-build-type: ${{ inputs.build_type || 'Debug' }}
-            image: gmao/ubuntu24-geos-env:v8.27.0-intelmpi_2021.13-ifort_2021.13
+            image: gmao/ubuntu24-geos-env:v8.33.0-intelmpi_2021.13-ifort_2021.13
             fc: ifort
             extra-cmake-args: -DUSE_F2PY=OFF
           - compiler: ifx
             cmake-build-type: ${{ inputs.build_type || 'Debug' }}
-            image: gmao/ubuntu24-geos-env:v8.27.0-intelmpi_2021.17-ifx_2025.3
+            image: gmao/ubuntu24-geos-env:v8.33.0-intelmpi_2021.17-ifx_2025.3
             fc: ifx
             extra-cmake-args: -DUSE_F2PY=OFF
     env:
@@ -95,9 +95,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
-          ref: ${{ inputs.branch || 'release/MAPL-v3' }}
+          ref: ${{ inputs.branch || 'develop' }}
           fetch-depth: 0
           filter: blob:none
 
@@ -125,7 +125,7 @@ jobs:
         shell: bash
         env:
           CDASH_AUTH_TOKEN: ${{ secrets.CDASH_AUTH_TOKEN }}
-          TESTED_BRANCH: ${{ inputs.branch || 'release/MAPL-v3' }}
+          TESTED_BRANCH: ${{ inputs.branch || 'develop' }}
         run: |
           # Replace slashes with dashes to ensure the CDash build name is safe/clean
           SAFE_BRANCH=$(echo "${TESTED_BRANCH}" | tr '/' '-')

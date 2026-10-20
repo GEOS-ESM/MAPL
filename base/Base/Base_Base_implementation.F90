@@ -1412,7 +1412,8 @@ contains
        allocate(var_1d(lbound(vr8_1d,1):ubound(vr8_1d,1)), _STAT)
        var_1d=vr8_1d
        f = MAPL_FieldCreateEmpty(name=fieldNAME, grid=grid, _RC)
-       call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_1D,    &
+       call ESMF_FieldEmptyComplete(F, farray=VAR_1D,    &
+                  indexflag=ESMF_INDEX_DELOCAL, &
             gridToFieldMap=gridToFieldMap,                      &
             datacopyFlag = datacopy,             &
             _RC)
@@ -1423,7 +1424,8 @@ contains
             _STAT)
        var_2d=vr8_2d
        f = MAPL_FieldCreateEmpty(name=fieldNAME, grid=grid, _RC)
-       call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_2D,    &
+       call ESMF_FieldEmptyComplete(F, farray=VAR_2D,    &
+                  indexflag=ESMF_INDEX_DELOCAL, &
             gridToFieldMap=gridToFieldMap,                      &
             datacopyFlag = datacopy,             &
             _RC)
@@ -1435,7 +1437,8 @@ contains
             _STAT)
        var_3d=vr8_3d
        f = MAPL_FieldCreateEmpty(name=fieldNAME, grid=grid, _RC)
-       call ESMF_FieldEmptyComplete(F, farrayPtr=VAR_3D,    &
+       call ESMF_FieldEmptyComplete(F, farray=VAR_3D,    &
+                  indexflag=ESMF_INDEX_DELOCAL, &
             gridToFieldMap=gridToFieldMap,                      &
             datacopyFlag = datacopy,             &
             _RC)

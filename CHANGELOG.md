@@ -13,9 +13,117 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update `components.yaml`
+  - ESMA_cmake v4.51.0
+    - Make ESMA_cmake reentrant
+    - Fix issue with quad precision detection test
+    - Fixes for Flang and NVIDIA compilers
+- MAPLPy: add a method to retrieve the Fortran MPI communicator (as a flat `Fint`)
+- MAPLPy: add a `GetResource_Int64` alongside the 32bit one
+
 ### Removed
 
 ### Deprecated
+
+## [2.72.0] - 2026-09-23
+
+### Fixed
+
+- Fixed documentation workflows so manual runs publish only from trusted branches and v2 and MAPL3 documentation deployments preserve each other's output
+- Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
+- Added `log_files_read` option to ExtData2G to easily log all files read during a run. The argument to `log_files_read` is the name of file to save the output
+- Fix locality of symbols for Python -> Fortran call in MAPLPy
+- Fixed detection of NetCDF quantization and Zstandard support when using Spack
+- Fixed NAG OpenMP initialization in profiler constructors and meters
+
+### Added
+
+- Added DIMS entries for tile dimensions in ACG (2)
+
+### Changed
+
+- Update `components.yaml`
+  - ESMA_env v5.26.0
+    - Update to ESMA-Baselibs v8.33.0
+      - ESMF v9.0.0b17 (for Flang on macOS support)
+  - ESMA_cmake v4.48.0
+    - Make GNU FPE trap flags opt-in
+  - ESMA_cmake v4.47.0
+    - Update GNU and NAG Flags, fixes for Baselibs ESMF on macOS
+  - ESMA_cmake v4.46.0
+    - Updated `ifx` flags
+    - Better support for LLVM Flang on macOS
+    - Updates for MAPL3 work
+- Update CI to use Baselibs 8.33.0 and add `gfortran-16`
+
+## [2.71.0] - 2026-08-18
+
+### Fixed
+
+- Fixed the unreliable feedback from Python bridge failures
+- Fixed bug that allowed ExtData2G to proceed if an invalid sampling key was provided
+
+### Added
+
+- `field_bundle_read` can now fill an empty bundle from a file that has both edge and center 3D fields (forward port of MAPL 2.57.2 fix)
+
+### Changed
+
+- MAPL_GridGet will now return 0 instead of 1 if the grid was never set with the "LM" attribute for the vertical grid size
+- Removed the manual `find_package(MPI)`/`find_package(NetCDF)`/`find_package(HDF5)`/`find_package(ESMF)` block (and the Baselibs-only ESMF version guard) from the top-level `CMakeLists.txt`. As of ESMA_cmake v4.43.0, `esma.cmake` automatically `include()`s `ConfigureBaselibs.cmake` or `ConfigureExternalLibraries.cmake` based on `Baselibs_FOUND` right after `include(FindBaselibs)`, creating all of these dependency targets for us, including enforcing a minimum ESMF version of 8.6.1 for both Baselibs and Spack/non-Baselibs builds
+- Update `components.yaml`
+  - ESMA_cmake v4.44.0
+    - Support for `ESMFConfig.cmake`
+  - ESMA_cmake v4.43.0
+    - Split dependency-target creation (NetCDF, HDF5, ESMF, FMS, etc.) out of `FindBaselibs.cmake` into `ConfigureBaselibs.cmake` and `ConfigureExternalLibraries.cmake`; `esma.cmake` now `include()`s the appropriate one automatically based on `Baselibs_FOUND`
+    - Guard the historical `ZLIB::zlib` alias creation with `if(NOT TARGET ZLIB::zlib)`
+    - Only look for FMS via `find_package` when `FV_PRECISION` is defined, so projects like MAPL that don't use FMS no longer require it
+    - Enforce a minimum ESMF version for Baselibs builds (previously only enforced for Spack/non-Baselibs builds)
+    - Added an `ESMA_ESMF_MIN_VERSION` variable, settable before `include(esma)`, to control the minimum ESMF version enforced for both Baselibs and Spack builds (defaults to `8.6.1`)
+    - Suppress compiler `-save-temps` in Debug builds generated with Ninja to prevent parallel compile collisions for shared source basenames
+    - Keep ESMF wrapper link options in `INTERFACE_LINK_OPTIONS` rather than treating them as libraries in `FindESMF.cmake`
+    - Added `copy_restarts()` helper function to `esma_regression_run_helpers.cmake` for regression test restart handling
+    - Update GitHub Actions workflow dependencies (`actions/checkout`, `actions/upload-artifact`) to current major versions
+  - ESMA_cmake v4.42.0
+    - Fix CMake 4.0 `CMP0219` policy warning in `esma_generate_gocart_code` macro
+    - Fix `f2py` and `f2py3` NetCDF-Fortran builds and post-build Python import tests when dependencies are supplied by Spack
+  - ESMA_cmake v4.41.0
+    - Add new `esma_install_manifest.cmake` to create a manifest of installed files
+    - Added `esma_add_regression_tests()` macro to centralise the CMake boilerplate for registering GEOS component regression tests
+    - Added `esma_sync_aws_s3_data.cmake` and `esma_regression_run_helpers.cmake` to support S3-based regression test data
+    - Switch macOS RPATH in `osx_extras.cmake` from absolute to relative (`@loader_path/../lib`) so experiment-local install trees resolve GEOS/MAPL shared libraries correctly
+
+## [2.70.0] - 2026-07-06
+
+### Fixed
+
+- Fix typo in `allreducesum.H`
+- Fixed bug that prevented R8 exports being written as R4 output in History
+
+### Added
+
+- Add release guide (`docs/releasing.md`) documenting the MAPL release process
+
+### Changed
+
+- Update ExtData to not initialize primary items in multi rule case when the use this rule range does not overlap execution range
+- Update CI to use Baselibs 8.32.0 and circleci-tools orb v5
+- Update `components.yaml`
+  - ESMA_env v5.24.0
+    - Update to GEOSpyD 26.3.2 Python 3.14
+    - Update GEOSgcm to use Baselibs 8.32.0
+    - Move NAS runs to use Intel MPI by default
+  - ESMA_cmake v4.40.0
+    - Update ifx and NVHPC flags
+    - Better detect FMS/yaml support (needed for spack)
+    - Add new `color_message` function
+    - Add helper script for regression test work
+
+## [2.69.1] - 2026-05-19
+
+### Fixed
+
+- Check before assigning tilelons and tilelats in `MAPL_Locstreamget`
 
 ## [2.69.0] - 2026-05-15
 
@@ -344,6 +452,12 @@ make using Fortran-allocated memory transparent.
 
 - Added RC for Timer call in `MAPL_Generic.F90`
 - Adds the wall clock date and time to the GCM stdout log so we can more readily diagnose slow periods of performance during the run
+
+## [2.57.2] - 2026-07-23
+
+### Added
+
+- `field_bundle_read` can now fill an empty bundle from a file that has both edge and center 3D fields
 
 ## [2.57.1] - 2026-01-16
 
