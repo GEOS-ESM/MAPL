@@ -1,0 +1,223 @@
+! openspec/changes/phase-7a-shape-dispatch-wiring, task 8:
+! BracketTimeInterpolationTransform numerical correctness (real
+! ESMF_FieldBundle/ESMF_Field data, no legacy
+! ExtensionTransform/ESMF_State involvement) - exercised directly via
+! compute(), the same "exercise the Transform directly" idiom
+! Test_UnitsConverterTransform.pf already uses (design.md D7).
+module Test_BracketTimeInterpolationTransform
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
+   use mapl_BracketTimeInterpolationTransform_mod, only: BracketTimeInterpolationTransform
+   use mapl_FieldPointerUtilities_mod, only: assign_fptr
+   use mapl_field_bundle_api, only: MAPL_FieldBundleSet
+   use MAPL_Constants, only: MAPL_UNDEFINED_REAL, MAPL_UNDEFINED_REAL64
+   use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_FieldEmptyCreate, ESMF_FieldEmptySet, &
+        ESMF_FieldEmptyComplete, ESMF_FieldDestroy, ESMF_FieldBundleCreate, ESMF_FieldBundleDestroy
+   use ESMF, only: ESMF_Grid, ESMF_GridCreateNoPeriDim, ESMF_GridDestroy
+   use ESMF, only: ESMF_Geom, ESMF_GeomCreate, ESMF_GeomDestroy
+   use ESMF, only: ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8, ESMF_KIND_R4, ESMF_KIND_R8
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_bracket_time_interpolation_midway_r4()
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: b(2), f
+      type(ESMF_FieldBundle) :: bracket
+      type(GraphStateItem) :: input_payload, output_payload
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(BracketTimeInterpolationTransform) :: transform
+      real(kind=ESMF_KIND_R4), pointer :: x(:)
+      integer :: status, i
+
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[2], countsPerDeDim2=[2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+
+      do i = 1, 2
+         b(i) = ESMF_FieldEmptyCreate(name='b', rc=status)
+         @assertEqual(0, status)
+         call ESMF_FieldEmptySet(b(i), geom=geom, rc=status)
+         @assertEqual(0, status)
+         call ESMF_FieldEmptyComplete(b(i), typekind=ESMF_TYPEKIND_R4, rc=status)
+         @assertEqual(0, status)
+         call assign_fptr(b(i), x, rc=status)
+         @assertEqual(0, status)
+         x = 2.0 * i
+      end do
+
+      bracket = ESMF_FieldBundleCreate(multiflag=.true., fieldList=b, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(bracket, interpolation_weights=[1.0, 0.5, 0.5], rc=status)
+      @assertEqual(0, status)
+
+      f = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldEmptySet(f, geom=geom, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldEmptyComplete(f, typekind=ESMF_TYPEKIND_R4, rc=status)
+      @assertEqual(0, status)
+
+      call input_payload%set(bracket, rc=status)
+      @assertEqual(0, status)
+      call output_payload%set(f, rc=status)
+      @assertEqual(0, status)
+      call inputs%insert('source_field', input_payload)
+      call outputs%insert('destination_field', output_payload)
+
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call assign_fptr(f, x, rc=status)
+      @assertEqual(0, status)
+      ! 1. + (0.5 * 2) + (0.5 * 4) = 4.
+      @assertEqual(4.0, x(1), tolerance=1.0e-5)
+
+      call ESMF_FieldDestroy(f, rc=status)
+      call ESMF_FieldDestroy(b(1), rc=status)
+      call ESMF_FieldDestroy(b(2), rc=status)
+      call ESMF_FieldBundleDestroy(bracket, rc=status)
+      call ESMF_GridDestroy(grid, rc=status)
+      call ESMF_GeomDestroy(geom, rc=status)
+   end subroutine test_bracket_time_interpolation_midway_r4
+
+   @test
+   subroutine test_bracket_time_interpolation_midway_r8()
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: b(2), f
+      type(ESMF_FieldBundle) :: bracket
+      type(GraphStateItem) :: input_payload, output_payload
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(BracketTimeInterpolationTransform) :: transform
+      real(kind=ESMF_KIND_R8), pointer :: x(:)
+      integer :: status, i
+
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[2], countsPerDeDim2=[2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+
+      do i = 1, 2
+         b(i) = ESMF_FieldEmptyCreate(name='b', rc=status)
+         @assertEqual(0, status)
+         call ESMF_FieldEmptySet(b(i), geom=geom, rc=status)
+         @assertEqual(0, status)
+         call ESMF_FieldEmptyComplete(b(i), typekind=ESMF_TYPEKIND_R8, rc=status)
+         @assertEqual(0, status)
+         call assign_fptr(b(i), x, rc=status)
+         @assertEqual(0, status)
+         x = 2.0_ESMF_KIND_R8 * i
+      end do
+
+      bracket = ESMF_FieldBundleCreate(multiflag=.true., fieldList=b, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(bracket, interpolation_weights=[1.0, 0.5, 0.5], rc=status)
+      @assertEqual(0, status)
+
+      f = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldEmptySet(f, geom=geom, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldEmptyComplete(f, typekind=ESMF_TYPEKIND_R8, rc=status)
+      @assertEqual(0, status)
+
+      call input_payload%set(bracket, rc=status)
+      @assertEqual(0, status)
+      call output_payload%set(f, rc=status)
+      @assertEqual(0, status)
+      call inputs%insert('source_field', input_payload)
+      call outputs%insert('destination_field', output_payload)
+
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call assign_fptr(f, x, rc=status)
+      @assertEqual(0, status)
+      ! 1. + (0.5 * 2) + (0.5 * 4) = 4.
+      @assertEqual(4.0_ESMF_KIND_R8, x(1), tolerance=1.0e-10_ESMF_KIND_R8)
+
+      call ESMF_FieldDestroy(f, rc=status)
+      call ESMF_FieldDestroy(b(1), rc=status)
+      call ESMF_FieldDestroy(b(2), rc=status)
+      call ESMF_FieldBundleDestroy(bracket, rc=status)
+      call ESMF_GridDestroy(grid, rc=status)
+      call ESMF_GeomDestroy(geom, rc=status)
+   end subroutine test_bracket_time_interpolation_midway_r8
+
+   ! MAPL UNDEF at an isolated point propagates through as undefined
+   ! in the output - masking behavior matches
+   ! TimeInterpolateTransform.F90's own where/elsewhere precedent
+   ! (Test_TimeInterpolateTransform.pf's own test_mapl_undef).
+   @test
+   subroutine test_bracket_time_interpolation_respects_mapl_undef()
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: b(2), f
+      type(ESMF_FieldBundle) :: bracket
+      type(GraphStateItem) :: input_payload, output_payload
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(BracketTimeInterpolationTransform) :: transform
+      real(kind=ESMF_KIND_R4), pointer :: x(:)
+      integer :: status, i
+
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[2], countsPerDeDim2=[2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+
+      do i = 1, 2
+         b(i) = ESMF_FieldEmptyCreate(name='b', rc=status)
+         @assertEqual(0, status)
+         call ESMF_FieldEmptySet(b(i), geom=geom, rc=status)
+         @assertEqual(0, status)
+         call ESMF_FieldEmptyComplete(b(i), typekind=ESMF_TYPEKIND_R4, rc=status)
+         @assertEqual(0, status)
+         call assign_fptr(b(i), x, rc=status)
+         @assertEqual(0, status)
+         x = 2.0 * i
+      end do
+      call assign_fptr(b(1), x, rc=status)
+      @assertEqual(0, status)
+      x(2) = MAPL_UNDEFINED_REAL
+
+      bracket = ESMF_FieldBundleCreate(multiflag=.true., fieldList=b, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(bracket, interpolation_weights=[1.0, 0.5, 0.5], rc=status)
+      @assertEqual(0, status)
+
+      f = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldEmptySet(f, geom=geom, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldEmptyComplete(f, typekind=ESMF_TYPEKIND_R4, rc=status)
+      @assertEqual(0, status)
+
+      call input_payload%set(bracket, rc=status)
+      @assertEqual(0, status)
+      call output_payload%set(f, rc=status)
+      @assertEqual(0, status)
+      call inputs%insert('source_field', input_payload)
+      call outputs%insert('destination_field', output_payload)
+
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call assign_fptr(f, x, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(4.0, x(1), tolerance=1.0e-5)
+      @assertEqual(MAPL_UNDEFINED_REAL, x(2))
+
+      call ESMF_FieldDestroy(f, rc=status)
+      call ESMF_FieldDestroy(b(1), rc=status)
+      call ESMF_FieldDestroy(b(2), rc=status)
+      call ESMF_FieldBundleDestroy(bracket, rc=status)
+      call ESMF_GridDestroy(grid, rc=status)
+      call ESMF_GeomDestroy(geom, rc=status)
+   end subroutine test_bracket_time_interpolation_respects_mapl_undef
+
+end module Test_BracketTimeInterpolationTransform

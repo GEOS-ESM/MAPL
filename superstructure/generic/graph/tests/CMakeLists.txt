@@ -46,6 +46,7 @@ set(test_srcs
   Test_ExtensionResolution.pf
   Test_ExtensionMaterialization.pf
   Test_UnitsConverterTransform.pf
+  Test_BracketTimeInterpolationTransform.pf
   Test_StateItemCharacteristicKind.pf
   Test_StateItemCharacteristic.pf
   Test_StateItemCharacteristicSubclasses.pf

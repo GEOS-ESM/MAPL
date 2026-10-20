@@ -36,6 +36,12 @@ module Test_ExtensionResolution
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
    use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain
+   ! openspec/changes/phase-7a-shape-dispatch-wiring, task 9.2/9.3:
+   ! ITEM_SHAPE_CHARACTERISTIC_KIND walked by this same, uniform
+   ! find_mismatched_characteristics/build_chain machinery.
+   use mapl_StateItemCharacteristicKind_mod, only: ITEM_SHAPE_CHARACTERISTIC_KIND
+   use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET
    use funit
    implicit none
 
@@ -385,5 +391,57 @@ contains
       @assertFalse(final_id1 == final_id2)
       @assertEqual(1, size(intermediate_ids2))
    end subroutine test_different_variant_creates_new_extension
+
+   ! -- openspec/changes/phase-7a-shape-dispatch-wiring, task 9.2/9.3:
+   ! a genuine BRACKET (export) -> FIELD (import) mismatch is reported
+   ! by find_mismatched_characteristics and successfully chain-built -
+   ! no unsupported_characteristic - producing one
+   ! BracketTimeInterpolationTransform-backed extension node (design.md
+   ! D7(a), structure-only - find_mismatched_characteristics/build_chain
+   ! exercised directly, exactly as every other characteristic above,
+   ! with no GraphBuilder/OuterMetaComponent involved). ------------------
+
+   @test
+   subroutine test_bracket_to_field_mismatch_builds_interpolation_chain()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      ! Units/typekind deliberately matched on both sides - isolating
+      ! the shape axis (task 9.2's own stated intent).
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call export_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, ItemShapeCharacteristic(MAPL_STATEITEM_BRACKET))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, ItemShapeCharacteristic(MAPL_STATEITEM_FIELD))
+
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(1, size(mismatched))
+      @assertTrue(mismatched(1) == ITEM_SHAPE_CHARACTERISTIC_KIND)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
+
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertFalse(final_id == export_id)
+      @assertEqual(1, size(intermediate_ids))
+      @assertTrue(intermediate_ids(1) == final_id)
+   end subroutine test_bracket_to_field_mismatch_builds_interpolation_chain
 
 end module Test_ExtensionResolution

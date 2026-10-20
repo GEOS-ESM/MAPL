@@ -47,6 +47,9 @@ module mapl_StateItemCharacteristicKind_mod
    public :: CONSERVATION_CHARACTERISTIC_KIND
    public :: NORMALIZATION_CHARACTERISTIC_KIND
    public :: STANDARD_NAME_CHARACTERISTIC_KIND
+   ! Registered by openspec/changes/phase-7a-shape-dispatch-wiring
+   ! (design.md D1) - value 11, the item-class/shape axis.
+   public :: ITEM_SHAPE_CHARACTERISTIC_KIND
    public :: MOCK_CHARACTERISTIC_KIND
 
    type :: StateItemCharacteristicKind
@@ -71,6 +74,11 @@ module mapl_StateItemCharacteristicKind_mod
    type(StateItemCharacteristicKind), parameter :: CONSERVATION_CHARACTERISTIC_KIND        = StateItemCharacteristicKind(8)
    type(StateItemCharacteristicKind), parameter :: NORMALIZATION_CHARACTERISTIC_KIND       = StateItemCharacteristicKind(9)
    type(StateItemCharacteristicKind), parameter :: STANDARD_NAME_CHARACTERISTIC_KIND       = StateItemCharacteristicKind(10)
+
+   ! openspec/changes/phase-7a-shape-dispatch-wiring (design.md D1):
+   ! value 11, the next unused value after the 4-10 block above - the
+   ! item-class/shape axis (ItemShapeCharacteristic.F90).
+   type(StateItemCharacteristicKind), parameter :: ITEM_SHAPE_CHARACTERISTIC_KIND          = StateItemCharacteristicKind(11)
 
    ! Test-only, mirrors CharacteristicId.F90's own MOCK_CHARACTERISTIC_ID
    ! precedent - lets a test define a fake StateItemCharacteristic
@@ -116,6 +124,8 @@ contains
          s = "NORMALIZATION"
       case (STANDARD_NAME_CHARACTERISTIC_KIND%value)
          s = "STANDARD_NAME"
+      case (ITEM_SHAPE_CHARACTERISTIC_KIND%value)
+         s = "ITEM_SHAPE"
       case (MOCK_CHARACTERISTIC_KIND%value)
          s = "MOCK"
       case default
