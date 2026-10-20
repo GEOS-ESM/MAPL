@@ -650,18 +650,19 @@ contains
    end subroutine recurse
 
    !wdb fixme deleteme Not implemented
-   subroutine realize_accept(this, importState, exportState, rc)
+   subroutine realize_accept(this, rc)
       class(NuopcMetaModel), intent(inout) :: this
-      type(ESMF_State), intent(inout) :: importState
-      type(ESMF_State), intent(in) :: exportState
       integer, optional, intent(out) :: rc
       integer :: status
+      type(ESMF_State) :: importState, exportState
       character(*), parameter :: PHASE_NAME = 'GENERIC::INIT_REALIZE'
       type(MultiState) :: outer_states, user_states, tmp_states
 
       ! MAPL_GENERIC_INIT_REALIZE_ACCEPTED
       ! MAPL_GENERIC_INIT_READ_RESTART
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_REALIZE_ACCEPTED, _RC)
+      call NUOPC_ModelGet(this%self_model, importState=importState, &
+         & exportState=exportState, _RC)
 
       user_states = this%user_gc_driver%get_states()
       tmp_states = MultiState(importState=user_states%importState)

@@ -145,11 +145,8 @@ contains
       type(NuopcMetaModel), pointer :: meta_model
       type(ESMF_State) :: importState, exportState
 
-      call NUOPC_ModelGet(model, importState=importState, &
-         & exportState=exportState, _RC)
-
       meta_model => get_meta_model(model, _RC)
-      call meta_model%realize_accept(importState, exportState, _RC)
+      call meta_model%realize_accept(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine RealizeAccept
