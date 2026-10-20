@@ -15,7 +15,8 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
         TYPE_KIND_CHARACTERISTIC_KIND, VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
         ATTRIBUTES_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
         STANDARD_NAME_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND, &
-        CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND
+        CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND, &
+        ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
    use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
@@ -33,6 +34,9 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
    use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
    use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
+   ! openspec/changes/phase-7a-shape-dispatch-wiring: the item-class/
+   ! shape axis (design.md D1).
+   use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -334,6 +338,38 @@ contains
       if (allocated(var_spec%geom)) call payload%set_declared_geom(var_spec%geom)
       if (allocated(var_spec%vertical_grid)) call payload%set_declared_vertical_grid(var_spec%vertical_grid)
       call payload%set_declared_item_type(var_spec%itemType)
+      ! openspec/changes/phase-7a-shape-dispatch-wiring, design.md D1:
+      ! ItemShapeCharacteristic holds a deliberate, narrow duplicate of
+      ! the same var_spec%itemType value set_declared_item_type just
+      ! captured above - visually adjacent so a future reader changing
+      ! one is very likely to see the other in the same diff context.
+      !
+      ! Regression fix (found running the full MAPL.generic suite after
+      ! this change's own implementation): inserted ONLY for the
+      ! "ordinary", shape-comparable item types this axis is actually
+      ! about (FIELD/BRACKET/VECTOR/VECTORBRACKET) - NOT unconditionally
+      ! for every itemType as originally written. A non-ordinary
+      ! declared item type (EXPRESSION/WILDCARD/SERVICE/STATE/
+      ! FIELDBUNDLE/...) is resolved through its own, entirely separate
+      ! mechanism (e.g. ExpressionClassAspect%make_transform/
+      ! EvalTransform for EXPRESSION, legacy StateRegistry-based, not
+      ! find_mismatched_characteristics/build_chain at all) - mirrors
+      ! is_ordinary_resolvable_import's own identical "non-ordinary
+      ! declared item type has no graph-native resolution path"
+      ! precedent (GraphBuilder_ConnectionResolution_smod.F90, task
+      ! 6.8). Inserting this characteristic unconditionally made every
+      ! EXPRESSION export connected to a FIELD import report a spurious
+      ! ITEM_SHAPE mismatch (EXPRESSION /= FIELD, D2's own "any
+      ! inequality" rule) that build_transform correctly, but
+      ! unhelpfully, _FAILs (D3) - breaking the expression/
+      ! expression_match/expression_defer_geom scenarios, a real,
+      ! previously-working connection pattern entirely outside this
+      ! change's scope (proposal.md's own Bracket->Field focus).
+      if (var_spec%itemType == MAPL_STATEITEM_FIELD .or. var_spec%itemType == MAPL_STATEITEM_BRACKET &
+           .or. var_spec%itemType == MAPL_STATEITEM_VECTOR .or. var_spec%itemType == MAPL_STATEITEM_VECTORBRACKET) then
+         call payload%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+              ItemShapeCharacteristic(var_spec%itemType), _RC)
+      end if
 
       ! openspec/changes/phase-13-restart-compatibility (docs/graph/spec/
       ! 20-implementation-roadmap.md sec 20.4.13): capture the

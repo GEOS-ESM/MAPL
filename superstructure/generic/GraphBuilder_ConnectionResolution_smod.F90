@@ -427,12 +427,30 @@ contains
             call try_alias_export_field(this, src_pt%component_name, export_node%get_short_name(), &
                  this_graph, export_node_id, alias_found, _RC)
             if (.not. alias_found) then
-               call try_materialize_field_extension(this, src_pt%component_name, export_item, export_item, &
-                    this_graph, export_node_id, materialization_failure, name=export_node%get_short_name(), _RC)
-               if (materialization_failure /= '') then
-                  call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
-                       materialization_failure))
-                  _RETURN(_SUCCESS)
+               ! openspec/changes/phase-7a-shape-dispatch-wiring,
+               ! design.md D6: this call site passes export_item as
+               ! BOTH the export AND import argument to
+               ! try_materialize_field_extension, so loosening the
+               ! export-side gate alone (D5) would make this call reach
+               ! the IMPORT-side check next - deliberately left
+               ! FIELD-only (D5) - and still fail, now abandoning the
+               ! whole connection before the chain's own real
+               ! wiring/materialization below ever runs. There is no
+               ! real field-shaped version of the bracket's own INPUT
+               ! node to materialize here (the bracket IS the input;
+               ! materialize_field_extension only ever builds a plain
+               ! Field - Non-Goals), so a non-FIELD export is skipped
+               ! entirely here - no call, no failure - continuing to
+               ! the chain's own real materialization below, rather
+               ! than fabricating a synthetic FIELD-typed stand-in.
+               if (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD) then
+                  call try_materialize_field_extension(this, src_pt%component_name, export_item, export_item, &
+                       this_graph, export_node_id, materialization_failure, name=export_node%get_short_name(), _RC)
+                  if (materialization_failure /= '') then
+                     call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
+                          materialization_failure))
+                     _RETURN(_SUCCESS)
+                  end if
                end if
             end if
          end if
@@ -1570,7 +1588,19 @@ contains
 
       failure_reason = ''
 
-      if (.not. (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD)) then
+      ! openspec/changes/phase-7a-shape-dispatch-wiring, design.md D5:
+      ! the EXPORT-side check admits BRACKET alongside FIELD - a
+      ! bracket export resolving a mismatch through
+      ! ItemShapeCharacteristic's chain into a field import is
+      ! materialized via this same, unmodified FieldCreate path below
+      ! (materialize_field_extension only ever builds a plain Field,
+      ! never a bracket - Non-Goals). The IMPORT-side check stays
+      ! FIELD-only - a bracket is never a valid import shape, matching
+      ! legacy BracketClassAspect%connect_to_export's own
+      ! unconditional "cannot be an import" precedent (design.md
+      ! Context).
+      if (.not. (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
+           .or. export_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET)) then
          failure_reason = 'unsupported_item_class:' // itemtype_name(export_item%get_declared_item_type())
          _RETURN(_SUCCESS)
       end if
@@ -1727,7 +1757,11 @@ contains
 
       failure_reason = ''
 
-      if (.not. (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD)) then
+      ! openspec/changes/phase-7a-shape-dispatch-wiring, design.md D5:
+      ! identical export-side admission as try_materialize_field_
+      ! extension above - the import-side check stays FIELD-only.
+      if (.not. (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
+           .or. export_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET)) then
          failure_reason = 'unsupported_item_class:' // itemtype_name(export_item%get_declared_item_type())
          _RETURN(_SUCCESS)
       end if
@@ -1818,6 +1852,18 @@ contains
             ! fails, so this branch is unreachable in practice, but is
             ! enumerated explicitly rather than falling into the _FAIL
             ! default below.
+         else if (mismatched_kinds(j) == ITEM_SHAPE_CHARACTERISTIC_KIND) then
+            ! openspec/changes/phase-7a-shape-dispatch-wiring,
+            ! design.md D5: nothing for this helper to merge - the
+            ! materialized node's own shape is always a plain Field,
+            ! decided unconditionally by materialize_field_extension's
+            ! own FieldCreate call (never by anything this helper
+            ! computes). Enumerated explicitly so a genuine
+            ! BRACKET->FIELD mismatch that somehow does not reach a
+            ! real Transform fails with build_chain's own correct
+            ! unsupported_characteristic message, rather than this
+            ! helper's own unrelated "unrecognized
+            ! StateItemCharacteristicKind" assertion below.
          else if (mismatched_kinds(j) == ATTRIBUTES_CHARACTERISTIC_KIND .or. &
                   mismatched_kinds(j) == UNGRIDDED_DIMS_CHARACTERISTIC_KIND .or. &
                   mismatched_kinds(j) == STANDARD_NAME_CHARACTERISTIC_KIND .or. &

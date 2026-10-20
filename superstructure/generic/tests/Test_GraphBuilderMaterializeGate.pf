@@ -56,6 +56,7 @@ module Test_GraphBuilderMaterializeGate
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem, operator(==)
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_FIELD
    use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_REGISTRY, GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH
    use mapl_MultiState_mod, only: MultiState
    use mapl_FieldCreate_mod, only: FieldsAreAliased
@@ -221,6 +222,108 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_materialize_extensions_enabled_creates_real_field
+
+   ! openspec/changes/phase-7a-shape-dispatch-wiring, task 9.4: a
+   ! BRACKET export -> FIELD import pairing reaches the narrowed
+   ! export-side gate (Section 5/design.md D5) and is NOT reported as
+   ! unsupported_item_class - unlike
+   ! Test_GraphBuilder_ConnectionResolution.pf's own
+   ! test_materialize_extensions_reports_unsupported_item_class
+   ! (VECTOR->VECTOR), which still correctly fails (shape mismatch with
+   ! no build_transform support). Units/typekind match on both sides,
+   ! isolating the shape axis exactly as 9.2/9.3's synthetic-node test
+   ! does. Lives in THIS file, not
+   ! Test_GraphBuilder_ConnectionResolution.pf, because
+   ! materialize_extension_chain (where the Section 5.2 gate actually
+   ! lives) calls resolve_export_geom, which needs a real geom - the
+   ! same type=ESMF_TestMethod, npes=[1] real-ESMF-geom precedent as
+   ! test_materialize_extensions_enabled_creates_real_field just above
+   ! (a plain MpiTestMethod sub-communicator cannot run the real
+   ! ESMF_GridCreateNoPeriDim/GeomCreate collective calls this test
+   ! needs).
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_materialize_extensions_bracket_export_narrowed_gate(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(VariableSpec) :: export_var_spec, import_var_spec
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+
+      call make_outer_meta('comp_parent_bracket_shape_gate', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      ! Explicit-override geom (same precedent as
+      ! test_materialize_extensions_enabled_creates_real_field above) -
+      ! this synthetic OuterMetaComponent never runs
+      ! initialize_geom_a/b, so it has no component-wide default of its
+      ! own; without this, the shape gate would pass but
+      ! resolve_export_geom would then fail with 'unresolved_geom',
+      ! masking whether the shape gate itself actually passed.
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
+      export_var_spec%itemType = MAPL_STATEITEM_BRACKET
+      export_var_spec%geom = geom
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_var_spec)
+
+      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T', units='m')
+      import_var_spec%itemType = MAPL_STATEITEM_FIELD
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(import_var_spec)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call set_materialize_extensions(.true.)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      call set_materialize_extensions(.false.)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      ! The whole point of design.md D5's narrowed gate: a BRACKET
+      ! export reaching try_materialize_field_extension/
+      ! materialize_extension_chain is no longer rejected outright -
+      ! it is the ITEM_SHAPE mismatch's own build_transform
+      ! (ItemShapeCharacteristic -> BracketTimeInterpolationTransform)
+      ! that resolves this pairing, not the export-side
+      ! unsupported_item_class check this task narrows.
+      @assertEqual(0, unsupported%size())
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_materialize_extensions_bracket_export_narrowed_gate
 
    ! openspec/changes/phase-10a-state-materialization, spec "Matching
    ! export is materialized with a real field": with the graph mode

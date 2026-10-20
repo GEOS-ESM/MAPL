@@ -67,6 +67,7 @@ target_sources(MAPL.generic PRIVATE
 
   transforms/UnitsConverterTransform.F90
   transforms/TypeKindConverterTransform.F90
+  transforms/BracketTimeInterpolationTransform.F90
   ExtensionResolution.F90
   ExtensionMaterialization.F90
 
@@ -87,6 +88,7 @@ target_sources(MAPL.generic PRIVATE
   characteristics/QuantityTypeCharacteristic.F90
   characteristics/AttributesCharacteristic.F90
   characteristics/StandardNameCharacteristic.F90
+  characteristics/ItemShapeCharacteristic.F90
 
   callback/CallbackArgumentSpec.F90
   containers/CallbackArgumentSpecMap.F90

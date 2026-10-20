@@ -22,7 +22,8 @@ module Test_StateItemCharacteristicSubclasses
                                                     QUANTITY_TYPE_CHARACTERISTIC_KIND, &
                                                     CONSERVATION_CHARACTERISTIC_KIND, &
                                                     NORMALIZATION_CHARACTERISTIC_KIND, &
-                                                    STANDARD_NAME_CHARACTERISTIC_KIND
+                                                    STANDARD_NAME_CHARACTERISTIC_KIND, &
+                                                    ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED
    use mapl_TransformBase_mod, only: TransformBase
@@ -37,6 +38,11 @@ module Test_StateItemCharacteristicSubclasses
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   ! openspec/changes/phase-7a-shape-dispatch-wiring
+   use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
+   use mapl_BracketTimeInterpolationTransform_mod, only: BracketTimeInterpolationTransform
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, &
+                                  MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET
 
    use mapl_UngriddedDims_mod, only: UngriddedDims
    use mapl_QuantityType_mod, only: QUANTITY_MIXING_RATIO, QUANTITY_TEMPERATURE, QUANTITY_UNKNOWN, &
@@ -625,5 +631,90 @@ contains
 
       @assertEqual('geom=1', geom%get_signature())
    end subroutine test_geometry_get_signature
+
+   ! --- openspec/changes/phase-7a-shape-dispatch-wiring, task 7:
+   ! ItemShapeCharacteristic (design.md D1-D3) ---
+
+   @test
+   subroutine test_item_shape_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=ItemShapeCharacteristic(MAPL_STATEITEM_FIELD))
+      @assertTrue(v%get_kind() == ITEM_SHAPE_CHARACTERISTIC_KIND)
+   end subroutine test_item_shape_is_a_value_characteristic
+
+   @test
+   subroutine test_item_shape_matching_field_does_not_need_extension()
+      type(ItemShapeCharacteristic) :: a, same_as_a
+
+      a = ItemShapeCharacteristic(MAPL_STATEITEM_FIELD)
+      same_as_a = ItemShapeCharacteristic(MAPL_STATEITEM_FIELD)
+
+      @assertFalse(a%needs_extension_for(same_as_a))
+   end subroutine test_item_shape_matching_field_does_not_need_extension
+
+   @test
+   subroutine test_item_shape_bracket_vs_field_needs_extension()
+      type(ItemShapeCharacteristic) :: bracket, field
+
+      bracket = ItemShapeCharacteristic(MAPL_STATEITEM_BRACKET)
+      field = ItemShapeCharacteristic(MAPL_STATEITEM_FIELD)
+
+      @assertTrue(bracket%needs_extension_for(field))
+   end subroutine test_item_shape_bracket_vs_field_needs_extension
+
+   ! Mismatch correctly detected even though no Transform exists for
+   ! this particular pairing (design.md Non-Goals).
+   @test
+   subroutine test_item_shape_vectorbracket_vs_vector_needs_extension()
+      type(ItemShapeCharacteristic) :: vectorbracket, vector
+
+      vectorbracket = ItemShapeCharacteristic(MAPL_STATEITEM_VECTORBRACKET)
+      vector = ItemShapeCharacteristic(MAPL_STATEITEM_VECTOR)
+
+      @assertTrue(vectorbracket%needs_extension_for(vector))
+   end subroutine test_item_shape_vectorbracket_vs_vector_needs_extension
+
+   @test
+   subroutine test_item_shape_build_transform_bracket_to_field_succeeds()
+      type(ItemShapeCharacteristic) :: bracket, field
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      bracket = ItemShapeCharacteristic(MAPL_STATEITEM_BRACKET)
+      field = ItemShapeCharacteristic(MAPL_STATEITEM_FIELD)
+
+      call bracket%build_transform(field, transformer, rc=status)
+
+      @assertEqual(0, status)
+      @assertTrue(allocated(transformer))
+      select type (transformer)
+      type is (BracketTimeInterpolationTransform)
+         ! expected concrete type
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_item_shape_build_transform_bracket_to_field_succeeds
+
+   ! Every other pairing fails explicitly, not a stub Transform.
+   @test
+   subroutine test_item_shape_build_transform_other_pairings_fail_explicitly()
+      type(ItemShapeCharacteristic) :: vectorbracket, vector, field, vector_shape
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      vectorbracket = ItemShapeCharacteristic(MAPL_STATEITEM_VECTORBRACKET)
+      vector = ItemShapeCharacteristic(MAPL_STATEITEM_VECTOR)
+      field = ItemShapeCharacteristic(MAPL_STATEITEM_FIELD)
+      vector_shape = ItemShapeCharacteristic(MAPL_STATEITEM_VECTOR)
+
+      call vectorbracket%build_transform(vector, transformer, rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(allocated(transformer))
+
+      call field%build_transform(vector_shape, transformer, rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(allocated(transformer))
+   end subroutine test_item_shape_build_transform_other_pairings_fail_explicitly
 
 end module Test_StateItemCharacteristicSubclasses
