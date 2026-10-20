@@ -2594,6 +2594,7 @@ contains
     real(ESMF_KIND_R8), allocatable :: tmp_lons(:),tmp_lats(:)
     type(ESMF_CoordSys_Flag) :: coordSys
     character(len=ESMF_MAXSTR) :: grid_type
+    logical :: isPresent
 
     ! if the grid is present then we can just get the prestored edges and the dimensions of the grid
     ! this also means we are running on a distributed grid
@@ -2620,7 +2621,18 @@ contains
        tmp_lats = latR8
     end if
 
-    if (im_world*6==jm_world) then
+    grid_type = ''
+    if (present(Grid)) then
+       call ESMF_AttributeGet(grid, name='GridType', isPresent=isPresent, _RC)
+       if (isPresent) call ESMF_AttributeGet(grid, name='GridType', value=grid_type, _RC)
+    end if
+
+    if (trim(grid_type) == 'XY') then
+
+       _ASSERT(localSearch, "IJ search on an XY grid needs the grid")
+       call xy_ij_search(grid, im, jm, npts, tmp_lons, tmp_lats, II, JJ, _RC)
+
+    else if (im_world*6==jm_world) then
 
       call MAPL_GetGlobalHorzIJIndex(npts, II, JJ, lon=lon, lat=lat, lonR8=lonR8, latR8=latR8, Grid=Grid, _RC)
 
@@ -2716,6 +2728,86 @@ contains
          end do
       endif
     end function ijsearch
+
+    !> Point-in-cell search on a curvilinear (XY) grid. A point is in cell
+    !! (i,j) if it is on the inner side of the cell's four great-circle edges;
+    !! south and west edges belong to the cell, north and east edges to its
+    !! neighbours. Each edge's test value is computed once per point, with one
+    !! fixed orientation (along i: west->east; along j: south->north), and both
+    !! cells sharing the edge use that same value with opposite inequalities,
+    !! so a point on a shared edge belongs to exactly one cell and one PE,
+    !! whatever the rounding (and with FMA). A point equal to an edge's end
+    !! point gets 0, so a shared corner belongs to the cell north-east of it.
+    subroutine xy_ij_search(grid, im, jm, npts, plon, plat, II, JJ, rc)
+      type(ESMF_Grid),    intent(inout) :: grid
+      integer,            intent(in)    :: im, jm, npts
+      real(ESMF_KIND_R8), intent(in)    :: plon(npts), plat(npts)
+      integer,            intent(inout) :: II(npts), JJ(npts)
+      integer, optional,  intent(out)   :: rc
+      integer :: status, n, i, j
+      real(ESMF_KIND_R8), allocatable :: clon(:,:), clat(:,:), c(:,:,:), hs(:,:), vs(:,:)
+      real(ESMF_KIND_R8) :: p(3)
+
+      allocate(clon(im+1,jm+1), clat(im+1,jm+1), c(3,im+1,jm+1), _STAT)
+      allocate(hs(im,jm+1), vs(im+1,jm), _STAT)
+      call MAPL_GridGetCorners(grid, clon, clat, _RC)
+      do j = 1, jm+1
+         do i = 1, im+1
+            c(:,i,j) = unit_xyz(clon(i,j), clat(i,j))
+         end do
+      end do
+      do n = 1, npts
+         p = unit_xyz(plon(n), plat(n))
+         do j = 1, jm+1
+            do i = 1, im
+               hs(i,j) = edge_side(c(:,i,j), c(:,i+1,j), p)
+            end do
+         end do
+         do j = 1, jm
+            do i = 1, im+1
+               vs(i,j) = edge_side(c(:,i,j), c(:,i,j+1), p)
+            end do
+         end do
+         II(n) = -1
+         JJ(n) = -1
+         search: do j = 1, jm
+            do i = 1, im
+               if (hs(i,j) >= 0 .and. hs(i,j+1) < 0 .and. vs(i,j) <= 0 .and. vs(i+1,j) > 0) then
+                  II(n) = i
+                  JJ(n) = j
+                  exit search
+               end if
+            end do
+         end do search
+      end do
+      _RETURN(_SUCCESS)
+    end subroutine xy_ij_search
+
+    !> Not inlined, so that every point and corner, on every PE, goes through
+    !! the same scalar code: inlined into a loop, cos/sin get vectorized
+    !! (libmvec), which differs from scalar cos/sin in the last bits, and a
+    !! corner shared by two PEs (or a point equal to a corner) would then get
+    !! different unit vectors.
+    pure function unit_xyz(lon, lat) result(v)
+      !GCC$ ATTRIBUTES NOINLINE :: unit_xyz
+      !DIR$ ATTRIBUTES NOINLINE :: unit_xyz
+      real(ESMF_KIND_R8), intent(in) :: lon, lat
+      real(ESMF_KIND_R8) :: v(3)
+      v = [cos(lat)*cos(lon), cos(lat)*sin(lon), sin(lat)]
+    end function unit_xyz
+
+    !> (a x b) . p: > 0 if p is left of the great circle a->b; 0 if p is a or b
+    pure real(ESMF_KIND_R8) function edge_side(a, b, p)
+      !GCC$ ATTRIBUTES NOINLINE :: edge_side
+      !DIR$ ATTRIBUTES NOINLINE :: edge_side
+      real(ESMF_KIND_R8), intent(in) :: a(3), b(3), p(3)
+      if (all(p == a) .or. all(p == b)) then
+         edge_side = 0.0d0
+      else
+         edge_side = (a(2)*b(3) - a(3)*b(2))*p(1) + (a(3)*b(1) - a(1)*b(3))*p(2) &
+                   + (a(1)*b(2) - a(2)*b(1))*p(3)
+      end if
+    end function edge_side
 
   end subroutine MAPL_GetHorzIJIndex
 
