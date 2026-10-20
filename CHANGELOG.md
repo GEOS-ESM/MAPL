@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Remove/Stub
+
+- Stub out `gridcomps/History/Sampler/MAPL_MaskMod.F90` for ifort 2021.6 testing with old GEOSadas
+
 ### Fixed
 
 - Fixed bug in WireComponent affecting TerminateImport

@@ -230,187 +230,28 @@ module MaskSamplerMod
 
   contains
 
-    ! These subroutines are not in the submodule due to an
-    ! odd interaction with the NVHPC nvfortran compiler
+    ! WARNING: STUBBED OUT. The original bodies of alphabatize_variables and
+    ! create_metadata triggered an internal compiler error (segfault) in
+    ! ifort 2021.6.0. The mask sampler is not expected to be used in this
+    ! build. These are no-ops that report failure if ever called.
+    ! Restore from git history when building with a newer compiler.
 
     subroutine alphabatize_variables(this,nfixedVars,rc)
       class (MaskSampler), intent(inout) :: this
       integer, intent(in) :: nFixedVars
       integer, optional, intent(out) :: rc
 
-     type(StringVector) :: order
-     type(StringVector) :: newOrder
-     character(len=:), pointer :: v1
-     character(len=ESMF_MAXSTR) :: c1,c2
-     character(len=ESMF_MAXSTR), allocatable :: temp(:)
-     logical :: swapped
-     integer :: n,i
-     integer :: status
-
-     order = this%metadata%get_order(rc=status)
-     _VERIFY(status)
-     n = Order%size()
-     allocate(temp(nFixedVars+1:n))
-     do i=1,n
-        v1 => order%at(i)
-        if ( i > nFixedVars) temp(i)=trim(v1)
-     enddo
-
-     swapped = .true.
-     do while(swapped)
-        swapped = .false.
-        do i=nFixedVars+1,n-1
-           c1 = temp(i)
-           c2 = temp(i+1)
-           if (c1 > c2) then
-              temp(i+1)=c1
-              temp(i)=c2
-              swapped =.true.
-           end if
-        enddo
-     enddo
-
-     do i=1,nFixedVars
-        v1 => Order%at(i)
-        call newOrder%push_back(v1)
-     enddo
-     do i=nFixedVars+1,n
-        call newOrder%push_back(trim(temp(i)))
-     enddo
-     call this%metadata%set_order(newOrder,rc=status)
-     _VERIFY(status)
-     deallocate(temp)
-
-     _RETURN(_SUCCESS)
+      if (present(rc)) rc = -1
+      print *, 'ERROR: MaskSampler%alphabatize_variables is stubbed out in this build'
     end subroutine alphabatize_variables
 
-     subroutine  create_metadata(this,global_attributes,rc)
-       class(MaskSampler), intent(inout) :: this
-       type(StringStringMap), target, intent(in) :: global_attributes
-       integer, optional, intent(out)          :: rc
+    subroutine create_metadata(this,global_attributes,rc)
+      class(MaskSampler), intent(inout) :: this
+      type(StringStringMap), target, intent(in) :: global_attributes
+      integer, optional, intent(out)          :: rc
 
-    type(variable)   :: v
-    type(ESMF_Field) :: field
-    integer          :: fieldCount
-    integer          :: field_rank
-    integer          :: nstation
-    logical          :: is_present
-    integer          :: ub(ESMF_MAXDIM)
-    integer          :: lb(ESMF_MAXDIM)
-    logical          :: do_vertical_regrid
-    integer          :: status
-    integer          :: i
-
-    character(len=ESMF_MAXSTR), allocatable ::  fieldNameList(:)
-    character(len=ESMF_MAXSTR) :: var_name, long_name, units, vdims
-    character(len=40) :: datetime_units
-
-    type(StringStringMapIterator) :: s_iter
-    type(StringVector) :: order
-    integer :: metadataVarsSize
-    character(len=:), pointer :: attr_name, attr_val
-
-    !__ 1. metadata add_dimension,
-    !     add_variable for time, mask_points, latlon,
-    !
-
-    if ( allocated (this%metadata) ) deallocate(this%metadata)
-    allocate(this%metadata)
-
-    call this%metadata%add_dimension('mask_index', this%npt_mask_tot)
-    !- add time dimension to metadata
-    call this%timeinfo%add_time_to_metadata(this%metadata,_RC)
-
-    v = Variable(type=pFIO_REAL32, dimensions='mask_index')
-    call v%add_attribute('long_name','longitude')
-    call v%add_attribute('unit','degree_east')
-    call this%metadata%add_variable('longitude',v)
-
-    v = Variable(type=pFIO_REAL32, dimensions='mask_index')
-    call v%add_attribute('long_name','latitude')
-    call v%add_attribute('unit','degree_north')
-    call this%metadata%add_variable('latitude',v)
-
-    call this%vdata%append_vertical_metadata(this%metadata,this%bundle,_RC) ! specify lev in fmd
-
-    order = this%metadata%get_order(rc=status)
-    _VERIFY(status)
-    metadataVarsSize = order%size()
-
-
-    !__ 2. filemetadata: extract field from bundle, add_variable to metadata
-    !
-    call ESMF_FieldBundleGet(this%bundle, fieldCount=fieldCount, _RC)
-    allocate (fieldNameList(fieldCount), _STAT)
-    call ESMF_FieldBundleGet(this%bundle, fieldNameList=fieldNameList, _RC)
-    do i=1, fieldCount
-       var_name=trim(fieldNameList(i))
-       call ESMF_FieldBundleGet(this%bundle,var_name,field=field,_RC)
-       call ESMF_FieldGet(field,rank=field_rank,_RC)
-       call ESMF_AttributeGet(field,name="LONG_NAME",isPresent=is_present,_RC)
-       if ( is_present ) then
-          call ESMF_AttributeGet(field, NAME="LONG_NAME",VALUE=long_name, _RC)
-       else
-          long_name = var_name
-       endif
-       call ESMF_AttributeGet(field,name="UNITS",isPresent=is_present,_RC)
-       if ( is_present ) then
-          call ESMF_AttributeGet(field, NAME="UNITS",VALUE=units, _RC)
-       else
-          units = 'unknown'
-       endif
-
-       if (field_rank==2) then
-          vdims = "mask_index"
-          v = variable(type=pfio_REAL32,dimensions=trim(vdims))
-       else if (field_rank==3) then
-          if (this%write_lev_first) then
-             vdims = "lev,mask_index"
-          else
-             vdims = "mask_index,lev"
-          end if
-          v = variable(type=pfio_REAL32,dimensions=trim(vdims))
-       end if
-
-       call v%add_attribute('units',         trim(units))
-       call v%add_attribute('long_name',     trim(long_name))
-       call v%add_attribute('missing_value', MAPL_UNDEF)
-       call v%add_attribute('_FillValue',    MAPL_UNDEF)
-       call v%add_attribute('valid_range',   (/-MAPL_UNDEF,MAPL_UNDEF/))
-       call this%metadata%add_variable(trim(var_name),v,_RC)
-    end do
-    deallocate (fieldNameList, _STAT)
-
-
-    if (this%itemOrderAlphabetical) then
-       call this%alphabatize_variables(metadataVarsSize,rc=status)
-       _VERIFY(status)
-    end if
-
-    s_iter = global_attributes%begin()
-    do while(s_iter /= global_attributes%end())
-       attr_name => s_iter%key()
-       attr_val => s_iter%value()
-       call this%metadata%add_attribute(attr_name,attr_val,_RC)
-       call s_iter%next()
-    enddo
-
-    ! To be added when values are available
-    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
-    !call v%add_attribute('long_name','The Cubed Sphere Global Face ID')
-    !call this%metadata%add_variable('mask_CS_Face_ID',v)
-    !
-    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
-    !call v%add_attribute('long_name','The Cubed Sphere Global Index I')
-    !call this%metadata%add_variable('mask_CS_global_index_I',v)
-    !
-    !v = Variable(type=pFIO_INT32, dimensions='mask_index')
-    !call v%add_attribute('long_name','The Cubed Sphere Global Index J')
-    !call this%metadata%add_variable('mask_CS_global_index_J',v)
-
-
-    _RETURN(_SUCCESS)
-
-     end subroutine create_metadata
+      if (present(rc)) rc = -1
+      print *, 'ERROR: MaskSampler%create_metadata is stubbed out in this build'
+    end subroutine create_metadata
 
 end module MaskSamplerMod
