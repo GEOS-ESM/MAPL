@@ -49,6 +49,20 @@ disagrees with any of these:**
    named explicitly in `ARCHITECTURE.md` §2.2/§5)
 5. `docs/graph/ARCHITECTURE.md` (this summary)
 
+## Generic layer work (`docs/generic/`, `superstructure/generic/` excluding `graph/`)
+
+If your task touches `superstructure/generic/` but **not**
+`superstructure/generic/graph/` — e.g. `OuterMetaComponent`,
+`StateRegistry`, `Connection`/`SimpleConnection`/`MatchConnection`, the
+`specs/` spec/aspect hierarchy (`ComponentSpec`, `VariableSpec`,
+`StateItemSpec`, `ClassAspect`, `StateItemAspect`),
+`ComponentSpecParser`, `transforms/`, or `vertical/` — **read
+`superstructure/generic/AGENTS.md` and `docs/generic/ARCHITECTURE.md`
+first.** That doc set is scoped to this legacy component-hierarchy/
+coupler layer and the integration seam with the graph-native layer
+above; it is distinct from, and complements, this file and
+`docs/graph/`.
+
 ## General build/test
 
 See `.opencode/skills/mapl-build`, `.opencode/skills/mapl-testing`, and
