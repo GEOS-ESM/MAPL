@@ -51,7 +51,7 @@
       if(present(valuestring)) valuestring = valuestring_
 
       _RETURN_UNLESS(params%has_logger())
-      call params%log_message(typestring, valuestring_, _RC)
+      call params%log_message(typestring, escape_percent(valuestring_), _RC)
       
       _RETURN(_SUCCESS)
 
