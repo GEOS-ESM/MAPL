@@ -373,8 +373,8 @@ replicate an unreviewed template across B3.x.
 
 A0 -> A1 -> A2a -> A3; A0 -> A4 -> {B1, D1};
 A0 -> B0 -> B1 -> B2 -> B3.x -> {B4, B5};
-B4 -> C1, D1 -> D2; A1 -> C2.x. A4 can run in parallel with A1-A3 and B0
-(they touch tests/docs, A4 touches production comments).
+B4 -> C1, D1 -> D2; A1 -> C2.x. A4 is independent of A1-A3 and B0 (they touch tests/docs, A4 touches
+production comments), so their order is free; still one task at a time.
 
 ## Open questions (resolve in B0)
 - UNCHECKED Info representation.
