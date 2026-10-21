@@ -273,7 +273,7 @@ whether `haiku` may author Fortran):
 If `sonnet` passes the debugging replay cleanly, the "sonnet?" entries
 below move from opus to sonnet. If `haiku` passes the mechanical replay,
 it may author D1/D3/B5 with sonnet review.
-- **Status:** not started (prompt: `docs/graph/plans/calibration-prompt.md`)
+- **Status:** not started (benchmark kept outside the repo, so candidates can't see the answer key: `~/.opencode/plan/calibration/README.md`)
 
 | Task | Author | Reviewer | Notes |
 |---|---|---|---|
