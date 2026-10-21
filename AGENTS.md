@@ -25,6 +25,9 @@ Repo-level instructions for coding agents working in this MAPL3 checkout.
   older docs. If a wrapper is not on PATH (other machines), put the
   load and the command in the same call:
   `source $(brew --prefix lmod)/init/bash; module load nag-stack/7.2.41; <cmd>`.
+- NAG must be exactly 7.2.41 (`nag-stack/7.2.41`). The unversioned
+  `nag`/`nag-stack` defaults are newer and hit a NAG compiler bug that
+  breaks MAPL (reported to NAG, not yet fixed).
 - Run builds and ctest yourself; do not delegate them. Send the full
   output to a log in the build dir and show only the end, e.g.
   `with-nag cmake --build nag -j 10 --target build-tests > nag/build.log 2>&1; tail -3 nag/build.log`

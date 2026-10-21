@@ -8,8 +8,10 @@ compatibility: opencode
 > so `module load` does not persist between calls.** Use the wrappers
 > `with-nag <cmd>` / `with-gfortran <cmd>` (e.g. `with-nag cmake --build
 > nag -j 10 --target build-tests`) instead of the `module load ...` lines
-> below. The module names below may also be outdated; the wrappers load
-> `nag-stack/7.2.41` and `gfortran-stack`.
+> below. The wrappers load `nag-stack/7.2.41` and `gfortran-stack`.
+> **NAG must be 7.2.41**: newer NAG (default `nag` = 7.2.54,
+> `nag-stack` = 7.2.53) has a compiler bug that breaks MAPL. Never load
+> an unversioned `nag` or `nag-stack`.
 
 ## What I Do
 
