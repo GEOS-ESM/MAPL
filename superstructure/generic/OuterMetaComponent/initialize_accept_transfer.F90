@@ -45,6 +45,16 @@ contains
       ! accept-transfer step (real edges + freeze) by this point, making
       ! cross-boundary proxy/lookup reads well-defined.
       call gb%run_connect_hook(this)
+      ! openspec/changes/phase-7b-expression-dispatch-wiring, design.md
+      ! D7: after run_connect_hook (every same-component sibling export
+      ! is guaranteed already advertised by this point - connect_hook's
+      ! own ordinary wiring has already run) and before propagate_exports
+      ! (an EXPRESSION item's own resolution is same-component-local,
+      ! design.md D2 step 3 - it has no dependency on anything
+      ! propagate_exports does). Not placed in initialize_advertise.F90:
+      ! that phase runs before sibling exports exist at all, too early
+      ! for find_export_node_id to see them.
+      call gb%run_expression_hook(this)
       call this%registry%propagate_exports(_RC)
 
       user_states = this%user_gc_driver%get_states()

@@ -68,6 +68,7 @@ target_sources(MAPL.generic PRIVATE
   transforms/UnitsConverterTransform.F90
   transforms/TypeKindConverterTransform.F90
   transforms/BracketTimeInterpolationTransform.F90
+  transforms/ExpressionTransform.F90
   ExtensionResolution.F90
   ExtensionMaterialization.F90
 

@@ -22,14 +22,19 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use esmf, only: ESMF_State, ESMF_StateGet, ESMF_STATEITEM_NOTFOUND, operator(==)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
    use mapl_ConnectionVector_mod, only: ConnectionVectorIterator, operator(/=)
+   use mapl_ExpressionTransform_mod, only: ExpressionTransform
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain, materialize_extensions_enabled
    use mapl_FieldNamedAlias_mod, only: MAPL_NamedAlias
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_REGISTRY
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
    use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
    use mapl_PortId_mod, only: PortId
+   use mapl_StateArithmeticParser_mod, only: parser_variables_in_expression
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use gFTL2_StringVector, only: StringVectorIterator, operator(/=)
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -1949,11 +1954,14 @@ contains
    ! real-lifecycle fixtures history_wildcard/statistics_real): an
    ! import advertised with a non-ordinary declared item type -
    ! MAPL_STATEITEM_WILDCARD (resolved by legacy's own regex-matching
-   ! ExtensionFamily machinery, StateRegistry_Propagation_smod.F90),
-   ! MAPL_STATEITEM_SERVICE, or MAPL_STATEITEM_EXPRESSION - has no
-   ! graph-native resolution path at all (GraphBuilder.F90's own module
-   ! header, "Explicitly NOT in scope here: ... wildcard/callback
-   ! resolution"). graphbuilder_unresolved_import_node_ids (import
+   ! ExtensionFamily machinery, StateRegistry_Propagation_smod.F90) or
+   ! MAPL_STATEITEM_SERVICE - has no graph-native resolution path at
+   ! all (GraphBuilder.F90's own module header, "Explicitly NOT in
+   ! scope here: ... wildcard/callback resolution"). (openspec/changes/
+   ! phase-7b-expression-dispatch-wiring, design.md D6: MAPL_STATEITEM_
+   ! EXPRESSION is no longer part of this group - see
+   ! graphbuilder_run_expression_hook/is_ordinary_resolvable_import's
+   ! own updated header comment below.) graphbuilder_unresolved_import_node_ids (import
    ! propagation's own source scan) must exclude such an import BEFORE
    ! considering it unresolved-and-propagatable - propagating it
    ! upward would expose it to an ordinary ancestor connection
@@ -1970,6 +1978,14 @@ contains
    ! member resolved individually by advertise_one/materialize_composite's
    ! own member nodes) IS ordinary graph-native resolution - task 6.8
    ! does not need to special-case either.
+   !
+   ! openspec/changes/phase-7b-expression-dispatch-wiring, design.md D6:
+   ! MAPL_STATEITEM_EXPRESSION's own exclusion arm is removed - unlike
+   ! WILDCARD/SERVICE (still genuinely unmaterializable here -
+   ! Phase 7c), a real graph-native resolution mechanism now exists for
+   ! EXPRESSION (graphbuilder_run_expression_hook above), so it no
+   ! longer belongs in this "never treat as unresolved-and-
+   ! propagatable" exclusion list.
    logical function is_ordinary_resolvable_import(node) result(is_ordinary)
       class(StateItemNode), intent(in) :: node
 
@@ -1981,9 +1997,174 @@ contains
 
       is_ordinary = .not. ( &
            declared_type == MAPL_STATEITEM_WILDCARD .or. &
-           declared_type == MAPL_STATEITEM_SERVICE .or. &
-           declared_type == MAPL_STATEITEM_EXPRESSION)
+           declared_type == MAPL_STATEITEM_SERVICE)
    end function is_ordinary_resolvable_import
+   ! openspec/changes/phase-7b-expression-dispatch-wiring, design.md D2:
+   ! for each of `this`'s own advertised StateItemNodes whose
+   ! get_declared_item_type() == MAPL_STATEITEM_EXPRESSION, resolves its
+   ! N named variable references against already-advertised sibling
+   ! exports and builds the real ExpressionTransform wiring - a
+   ! dedicated hook, not an extension of resolve_one (pairwise, no
+   ! destination/import side exists for this resolution at all) or
+   ! ExtensionResolution.F90's build_chain (fixed 1:1 this/goal
+   ! interface, cannot grow to N - see design.md D2's own rejected
+   ! alternatives). Idempotent: guarded by an 'EXPRHOOK:' resource-index
+   ! entry keyed off each expression item's own NodeId (D2 step 6),
+   ! mirroring resolve_callback_destination's own idempotency idiom
+   ! immediately below.
+   module subroutine graphbuilder_run_expression_hook(this, unusable, unresolved, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      class(KE), optional, intent(in) :: unusable
+      type(GraphResolutionEntryVector), optional, intent(out) :: unresolved
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentGraph), pointer :: graph
+      type(NodeIdSet), target :: node_ids
+      type(NodeIdSetIterator) :: node_iter
+      type(NodeId) :: node_id
+      class(GraphNode), pointer :: generic_node
+      type(GraphResolutionEntryVector) :: local_unresolved
+      type(GraphStateItem) :: payload
+
+      graph => this%get_component_graph()
+      node_ids = graph%get_node_ids()
+
+      node_iter = node_ids%ftn_begin()
+      do while (node_iter /= node_ids%ftn_end())
+         call node_iter%next()
+         node_id = node_iter%of()
+         generic_node => graph%get_node(node_id)
+         if (.not. associated(generic_node)) cycle
+         select type (generic_node)
+         class is (StateItemNode)
+            ! NAG rejects chaining a method call directly on another
+            ! function call's own result (`f()%method()`) - a local
+            ! temporary is required (same convention this file's other
+            ! procedures already follow).
+            payload = generic_node%get_payload()
+            if (.not. (payload%get_declared_item_type() == MAPL_STATEITEM_EXPRESSION)) cycle
+            call resolve_expression_item(this, graph, generic_node, local_unresolved, _RC)
+         end select
+      end do
+
+      if (present(unresolved)) unresolved = local_unresolved
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine graphbuilder_run_expression_hook
+
+   ! Per-item worker for graphbuilder_run_expression_hook above
+   ! (design.md D2 steps 1-6). node is one already-advertised
+   ! EXPRESSION-typed StateItemNode owned by this's own graph.
+   subroutine resolve_expression_item(this, graph, node, unresolved, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(ComponentGraph), target, intent(inout) :: graph
+      class(StateItemNode), target, intent(in) :: node
+      type(GraphResolutionEntryVector), intent(inout) :: unresolved
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(NodeId) :: node_id
+      character(:), allocatable :: hook_key
+      type(NodeId), pointer :: existing
+      type(GraphStateItem) :: payload
+      character(:), allocatable :: expression
+      type(StringVector) :: referenced_names
+      type(StringVectorIterator) :: iter
+      character(:), pointer :: name
+      type(NodeId), allocatable :: source_ids(:)
+      ! design.md D2 step 4: gfortran rejects growing a deferred-length
+      ! CHARACTER array via an array constructor whose elements have
+      ! different lengths ([source_names, name], "Different CHARACTER
+      ! lengths in array constructor") - a StringVector (already used
+      ! for referenced_names above) carries elements of differing
+      ! length natively, so port names are accumulated there instead,
+      ! in the same order as source_ids.
+      type(StringVector) :: source_names
+      type(StringVectorIterator) :: source_names_iter
+      character(:), pointer :: source_name
+      type(NodeId) :: export_node_id
+      class(StateItemNode), pointer :: export_node
+      logical :: found
+      logical :: all_resolved
+      type(ExpressionTransform) :: transformer
+      type(NodeId) :: transform_id
+      type(DependencyNetworkId) :: net_id
+      integer :: i
+      character(:), allocatable :: this_name
+
+      node_id = node%get_node_id()
+
+      ! design.md D2 step 6: idempotency guard.
+      hook_key = 'EXPRHOOK:' // node_id%to_string()
+      existing => graph%get_resource_index(hook_key)
+      if (associated(existing)) then
+         _RETURN(_SUCCESS)
+      end if
+
+      ! NAG rejects chaining a method call directly on another
+      ! function call's own result (`f()%method()`) - a local
+      ! temporary is required (same convention this file's other
+      ! procedures already follow).
+      payload = node%get_payload()
+      call payload%get_declared_expression(expression)
+      referenced_names = parser_variables_in_expression(expression, _RC)
+      this_name = this%get_name(_RC)
+
+      allocate(source_ids(0))
+      all_resolved = .true.
+
+      associate (b => referenced_names%begin(), e => referenced_names%end())
+         iter = b
+         do while (iter /= e)
+            name => iter%of()
+
+            found = find_export_node_id(this, SELF_COMPONENT_NAME, name, export_node_id, export_node, _RC)
+            if (.not. found) then
+               all_resolved = .false.
+               call unresolved%push_back(GraphResolutionEntry(this_name, name))
+            else
+               source_ids = [source_ids, export_node_id]
+               call source_names%push_back(name)
+            end if
+
+            call iter%next()
+         end do
+      end associate
+
+      ! design.md D2 step 3: a referenced name with no matching sibling
+      ! export is reported (above) and the transform is simply not
+      ! built for this item - not a hard failure.
+      if (.not. all_resolved) then
+         _RETURN(_SUCCESS)
+      end if
+
+      ! design.md D2 steps 4-5.
+      transformer = ExpressionTransform(expression, _RC)
+      transform_id = graph%next_node_id(_RC)
+      call graph%register_node(TransformGraphNode(transform_id, transformer), _RC)
+
+      net_id = graph%get_default_network_id()
+      i = 0
+      associate (b => source_names%begin(), e => source_names%end())
+         source_names_iter = b
+         do while (source_names_iter /= e)
+            source_name => source_names_iter%of()
+            i = i + 1
+            call graph%bind_port(net_id, transform_id, source_name, source_ids(i), _RC)
+            call graph%add_dependency(net_id, source_ids(i), transform_id, _RC)
+            call source_names_iter%next()
+         end do
+      end associate
+      call graph%bind_port(net_id, transform_id, 'destination_field', node_id, _RC)
+      call graph%add_dependency(net_id, transform_id, node_id, _RC)
+
+      call graph%add_resource_index(hook_key, transform_id, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine resolve_expression_item
+
    ! Orchestrates one callback-declaring destination's full resolution:
    ! wildcard match + interface conformance (resolve_callback_import
    ! above), materialization (materialize_callback_collection above),

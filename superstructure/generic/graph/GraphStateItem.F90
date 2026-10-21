@@ -140,6 +140,17 @@ module mapl_GraphStateItem_mod
       ! applies when FieldInfoSetInternal is never called for an alias
       ! id (field_info_get_internal_restart_mode's own default).
       type(RestartMode), allocatable :: declared_restart_mode
+      ! openspec/changes/phase-7b-expression-dispatch-wiring (design.md
+      ! D3): the originating VariableSpec's own expression string
+      ! (VariableSpec%expression), captured at advertise time alongside
+      ! declared_restart_mode above - same "materialization input, set
+      ! once at advertise time" rationale. Allocatable, no default:
+      ! absent for every non-EXPRESSION item, same "absent means not
+      ! applicable" convention declared_restart_mode/declared_vertical_
+      ! stagger already use. Read directly by
+      ! graphbuilder_run_expression_hook (D2); never compared for
+      ! mismatch - there is no ExpressionCharacteristic (D3).
+      character(:), allocatable :: declared_expression
    contains
       procedure :: itemType => stateitem_itemType
       procedure :: variant => stateitem_variant
@@ -184,6 +195,9 @@ module mapl_GraphStateItem_mod
       procedure :: set_declared_item_type => stateitem_set_declared_item_type
       procedure :: get_declared_restart_mode => stateitem_get_declared_restart_mode
       procedure :: set_declared_restart_mode => stateitem_set_declared_restart_mode
+      ! openspec/changes/phase-7b-expression-dispatch-wiring (design.md D3).
+      procedure :: get_declared_expression => stateitem_get_declared_expression
+      procedure :: set_declared_expression => stateitem_set_declared_expression
       ! Test-only backdoor: deliberately violates the at-most-one-
       ! allocated invariant, bypassing the `set` choke point, so the
       ! checked-defect path (REQ-SI-004) can be exercised. Not part of
@@ -741,6 +755,29 @@ contains
       if (allocated(this%declared_restart_mode)) deallocate(this%declared_restart_mode)
       allocate(this%declared_restart_mode, source=restart_mode)
    end subroutine stateitem_set_declared_restart_mode
+
+   ! openspec/changes/phase-7b-expression-dispatch-wiring (design.md D3):
+   ! same subroutine-with-intent(out)-allocatable-dummy shape as
+   ! get_declared_restart_mode above, same reason.
+   subroutine stateitem_get_declared_expression(this, expression)
+      class(GraphStateItem), intent(in) :: this
+      character(:), allocatable, intent(out) :: expression
+
+      if (allocated(this%declared_expression)) expression = this%declared_expression
+   end subroutine stateitem_get_declared_expression
+
+   ! Same deallocate+allocate(..., source=...) shape as
+   ! set_declared_restart_mode above, same reason (gfortran
+   ! realloc-on-assignment memory-corruption class, not specific to
+   ! character components - see StateItemNode%short_name's own
+   ! constructor comment).
+   subroutine stateitem_set_declared_expression(this, expression)
+      class(GraphStateItem), intent(inout) :: this
+      character(*), intent(in) :: expression
+
+      if (allocated(this%declared_expression)) deallocate(this%declared_expression)
+      allocate(this%declared_expression, source=expression)
+   end subroutine stateitem_set_declared_expression
 
    ! REQ-CHAR-010/011 (design.md D5, resolving Q13's recommendation):
    ! delegates to a static per-variant strategy table

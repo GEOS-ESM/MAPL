@@ -380,6 +380,16 @@ contains
       ! creates the real MAPL_NamedAlias.
       if (allocated(var_spec%restart_mode)) call payload%set_declared_restart_mode(var_spec%restart_mode)
 
+      ! openspec/changes/phase-7b-expression-dispatch-wiring, design.md
+      ! D3: capture the originating VariableSpec's own declared
+      ! expression string, same "materialization input, set once at
+      ! advertise time" pattern as declared_restart_mode above -
+      ! graphbuilder_run_expression_hook (GraphBuilder_
+      ! ConnectionResolution_smod.F90) reads this back.
+      if (var_spec%itemType == MAPL_STATEITEM_EXPRESSION .and. allocated(var_spec%expression)) then
+         call payload%set_declared_expression(var_spec%expression)
+      end if
+
       _RETURN(_SUCCESS)
    end subroutine populate_characteristics
 

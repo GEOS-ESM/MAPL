@@ -285,6 +285,20 @@ module mapl_GraphBuilder_mod
       procedure, nopass :: run_export_propagate_hook => graphbuilder_run_export_propagate_hook
       procedure, nopass :: run_activate_hook => graphbuilder_run_activate_hook
       procedure, nopass :: run_connect_hook => graphbuilder_run_connect_hook
+      ! openspec/changes/phase-7b-expression-dispatch-wiring, design.md
+      ! D2/D7: per-component, graph-wide resolution step for an
+      ! EXPRESSION-typed advertised item - resolves its N named
+      ! variable references against already-advertised sibling
+      ! exports (D2), builds the ExpressionTransform's own
+      ! TransformGraphNode and wires it in, and is idempotent against a
+      ! repeat call (resource-index guard, D2 step 6). Does NOT touch
+      ! resolve_one's own pairwise connection loop or
+      ! ExtensionResolution.F90's build_chain - a dedicated hook, not an
+      ! extension of either (D2's own rejected-alternatives). Called
+      ! from initialize_accept_transfer.F90, immediately after
+      ! run_connect_hook (D7 - every same-component sibling export is
+      ! guaranteed already advertised by that point).
+      procedure, nopass :: run_expression_hook => graphbuilder_run_expression_hook
       ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group
       ! 9 (design.md D7): the GENERIC_INIT_GRAPH_FREEZE handler's own
       ! entry point (OuterMetaComponent/initialize_graph_freeze.F90) -
@@ -616,6 +630,24 @@ module mapl_GraphBuilder_mod
       class(OuterMetaComponent), target, intent(inout) :: this
 
    end subroutine graphbuilder_run_geometry_hook
+   ! openspec/changes/phase-7b-expression-dispatch-wiring, design.md D2:
+   ! implemented in GraphBuilder_ConnectionResolution_smod.F90 (not
+   ! GraphBuilder_Geometry_smod.F90 - this interface body sits here only
+   ! to follow run_geometry_hook's own per-hook interface-block
+   ! grouping, matching that hook's module-procedure interface placement
+   ! convention, not its submodule). unresolved (optional) reports an
+   ! expression's own referenced name with no matching sibling export,
+   ! same GraphResolutionEntryVector-shaped convention
+   ! graphbuilder_check_unsatisfied_imports/graphbuilder_resolve_connections
+   ! already use - a miss is reported, not a hard failure (design.md D2
+   ! step 3).
+   module subroutine graphbuilder_run_expression_hook(this, unusable, unresolved, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      class(KE), optional, intent(in) :: unusable
+      type(GraphResolutionEntryVector), optional, intent(out) :: unresolved
+      integer, optional, intent(out) :: rc
+
+   end subroutine graphbuilder_run_expression_hook
    module subroutine graphbuilder_advertise_geometry(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc

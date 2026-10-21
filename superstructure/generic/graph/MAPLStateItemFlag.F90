@@ -48,6 +48,9 @@ module mapl_StateItemFlag_mod
    public :: MAPL_STATEITEM_BRACKET
    public :: MAPL_STATEITEM_VECTORBRACKET
    public :: MAPL_STATEITEM_VERTICALGRID
+   ! openspec/changes/phase-7b-expression-dispatch-wiring: EXPRESSION
+   ! item class (N:1 expression evaluation) - see design.md D1/D3.
+   public :: MAPL_STATEITEM_EXPRESSION
 
    type :: MAPL_StateItem_Flag
       private
@@ -69,6 +72,10 @@ module mapl_StateItemFlag_mod
    type(MAPL_StateItem_Flag), parameter :: MAPL_STATEITEM_BRACKET       = MAPL_StateItem_Flag(12)
    type(MAPL_StateItem_Flag), parameter :: MAPL_STATEITEM_VECTORBRACKET = MAPL_StateItem_Flag(13)
    type(MAPL_StateItem_Flag), parameter :: MAPL_STATEITEM_VERTICALGRID  = MAPL_StateItem_Flag(14)
+   ! openspec/changes/phase-7b-expression-dispatch-wiring: EXPRESSION
+   ! item class - next unused value after VERTICALGRID (design.md
+   ! Context/D1).
+   type(MAPL_StateItem_Flag), parameter :: MAPL_STATEITEM_EXPRESSION    = MAPL_StateItem_Flag(15)
 
    interface operator(==)
       module procedure flag_equal
@@ -107,6 +114,7 @@ contains
       case (12); name = 'BRACKET'
       case (13); name = 'VECTORBRACKET'
       case (14); name = 'VERTICALGRID'
+      case (15); name = 'EXPRESSION'
       case default; name = 'UNKNOWN'
       end select
    end function flag_to_string
@@ -126,6 +134,7 @@ contains
       case ('BRACKET');       flag = MAPL_STATEITEM_BRACKET
       case ('VECTORBRACKET'); flag = MAPL_STATEITEM_VECTORBRACKET
       case ('VERTICALGRID');  flag = MAPL_STATEITEM_VERTICALGRID
+      case ('EXPRESSION');    flag = MAPL_STATEITEM_EXPRESSION
       case default
          flag%value = -1
       end select
