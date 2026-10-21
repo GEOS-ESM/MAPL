@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.69.1+ifort2021.6.fbr] - 2026-10-21
+
+### Changed
+
+- Backport `FieldBundleRead.F90` fixes from v2.57.2 (also in v2.71.0): add reading of files with both center and edge variables
+- Otherwise identical to `v2.69.1+ifort2021.6`, including the stubbed-out `MaskSamplerMod` (see below)
+
 ## [2.69.1+ifort2021.6] - 2026-10-21
 
 ### Changed
