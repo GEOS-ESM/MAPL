@@ -293,7 +293,7 @@ whether `haiku` may author Fortran):
 If `sonnet` passes the debugging replay cleanly, the "sonnet?" entries
 below move from opus to sonnet. If `haiku` passes the mechanical replay,
 it may author D1/A4/B5 with sonnet review.
-- **Status:** not started (benchmark kept outside the repo, so candidates can't see the answer key: `~/.opencode/plan/calibration/README.md`)
+- **Status:** debugging replay done: `sonnet` (claude-sonnet-5-5) passed, so the `(sonnet?)` rows moved to sonnet, with opus kept as reviewer. Mechanical replay (haiku) not run yet. Benchmark kept outside the repo, so candidates can't see the answer key: `~/.opencode/plan/calibration/README.md`.
 
 | Task | Author | Reviewer | Notes |
 |---|---|---|---|
@@ -308,16 +308,16 @@ it may author D1/A4/B5 with sonnet review.
 | B1 | sonnet | opus | escalate any compiler/gFTL crash |
 | B2 | opus | gemini/gpt-sol | core semantics |
 | B3 Units | opus | owner | template + adding-a-characteristic.md |
-| B3 Geometry | opus (sonnet?) | opus if sonnet | geom-as-node, Info id |
+| B3 Geometry | sonnet | opus | geom-as-node, Info id |
 | B3 ItemShape | opus | - | D4 ordering, Bracket rule |
-| B3 others | sonnet | opus (sonnet? self-review if calibrated) | parallel after B3 Units lands |
-| B4 | opus (sonnet?) | opus | materialization regressions likely |
+| B3 others | sonnet | sonnet (self-review) | parallel after B3 Units lands |
+| B4 | sonnet | opus | materialization regressions likely |
 | B5 | sonnet (haiku?) | sonnet if haiku | |
 | C1 | opus | - | ESMF regrid/route handles |
 | C2 triage | opus | - | assign each cause a tier |
 | C2.x fixes | per triage | opus | |
 | D1 | sonnet (haiku?) | sonnet if haiku | `public ::` rule |
-| D2 | opus (sonnet?) | opus if sonnet | lifecycle-phase ordering |
+| D2 | sonnet | opus | lifecycle-phase ordering |
 
 `(sonnet?)`/`(haiku?)` = move to that model only if it passes calibration.
 Always opus regardless: B0, B2, B3 Units, B3 ItemShape, A1 diagnosis,
