@@ -155,7 +155,17 @@ check (grep in a ctest).
   VirtualConnectionPt->NodeId/PortId, ExtensionFamily->ExtensionResolution,
   ClassAspect->ItemShapeCharacteristic, ...).
 - Docs only. No code.
-- **Status:** not started
+- **Status:** done (commit trailer `Plan-Task: A0`). Deviations:
+  `docs/graph/ARCHITECTURE.md` rewritten to current state only (old
+  §3/§4.x/§7 narrative moved verbatim to
+  `docs/graph/history/2026-10-session-narratives.md`; its section
+  numbers changed, cross-references in `docs/generic/` updated).
+  `docs/generic/ARCHITECTURE.md`/`README.md` got targeted fixes (7b/7c
+  landed, counts, dead cross-references), not a rewrite. Found and not
+  fixed (source change, out of scope): stray copy not in the build
+  `superstructure/generic/to_itemtype.F90` differs from the compiled
+  `ComponentSpecParser/to_itemtype.F90` (the former parses
+  `'vector_bracket'`, the latter does not).
 
 **A1. Legacy scenarios under graph mode, gated.**
 - Parameterize `tests/Test_Scenarios.pf` by graph mode

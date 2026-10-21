@@ -49,7 +49,7 @@ doc in the same change.
 | §3 | `CMakeLists.txt` structure, `esma_add_fortran_submodules` mechanism |
 | §4 | Verified build/test commands, the seven `MAPL.generic.*` ctest targets |
 | §5 | Previous architectural decisions (standard-name enforcement, field-dictionary strict mode, expression vertical-dim/field-name propagation, extension-registry visibility, internal/memory checkpoint, griddedcomponentdriver integration lifecycle, grid blurring, component-hierarchy foundation) |
-| §6 | Completed phases / outstanding work — this layer is stable; the only live "work" is graph-side prerequisites (Phase 6a retirement gate, Phase 7a landed/7b-7c pending) |
+| §6 | Completed phases / outstanding work — this layer is stable; the only live "work" is graph-side prerequisites (Phase 6a retirement gate, Phases 7a/7b/7c landed) |
 
 ## Source layout at a glance
 
@@ -57,12 +57,12 @@ doc in the same change.
   points, umbrella modules, and the `GraphBuilder*.F90`/
   `OuterMetaComponent.F90` integration seam (seam internals documented
   in `docs/graph/`, not here).
-- `OuterMetaComponent/` (64 files, 3079 lines) — lifecycle submodules.
-- `registry/` (19 files, 1638 lines) — legacy `StateRegistry`.
+- `OuterMetaComponent/` (64 files, 3089 lines) — lifecycle submodules.
+- `registry/` (20 files, 1638 lines) — legacy `StateRegistry`.
 - `connection/` (10 files, 1256 lines) — `Connection` family.
 - `ComponentSpecParser/` (9 files, 1034 lines) — YAML parsing.
-- `specs/` (44 files, 10,658 lines) — spec/aspect type hierarchy.
-- `transforms/` (14 files + `notes.md`, 3211 lines) — data converters
+- `specs/` (42 `.F90` files, 10,971 lines) — spec/aspect type hierarchy.
+- `transforms/` (15 files + `notes.md`, 3211 lines) — data converters
   (absorbed `couplers/`, now empty).
 - `vertical/` (2 files, 905 lines) — layer-specific vertical grids.
 - `graph/` — **out of scope here**, see `docs/graph/`.

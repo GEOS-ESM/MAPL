@@ -43,48 +43,43 @@ Repo-level instructions for coding agents working in this MAPL3 checkout.
 
 If your task touches the explicit dependency-graph architecture
 (`ComponentGraph`, `GraphBuilder`, `NodeId`, `StateItemNode`,
-`HierarchyGraph`, `superstructure/generic/graph/`, or anything under
-`openspec/changes/hierarchy-wide-component-graph/`), **read
-`docs/graph/ARCHITECTURE.md` first.** It is a verified, up-to-date
-navigational summary covering:
+`HierarchyGraph`, `StateItemCharacteristic`, or
+`superstructure/generic/graph/`), **read `docs/graph/ARCHITECTURE.md`
+and `docs/graph/CONVENTIONS.md` first.** `docs/graph/GLOSSARY.md` maps
+legacy terms (Aspect, StateRegistry, ExtensionTransform, ...) to graph
+terms. ARCHITECTURE.md describes the current tree only and covers:
 
 - which module owns what, and the hard layering rule
   (`ComponentGraph` must never depend on `OuterComponent`/
   `StateRegistry`)
-- the current, just-landed `NodeId` hierarchy-wide-scoping change and
-  what it broke/fixed (proxy removal, foreign-node admission)
-- the exact state of the active, uncommitted work (Task Group 6 of
-  `openspec/changes/hierarchy-wide-component-graph/tasks.md`:
-  import-mirroring propagation plus task 6.8, export propagation
-  (discovered as a required completion, not optional) — tasks
-  6.1-6.6/6.8 implemented and tested, full suite passing with zero
-  regressions; 6.7 (explicit follow-up) and Groups 7-10 not yet
-  started)
-- verified build/test commands and results (NAG and gfortran: both
-  confirmed, full suite passing with zero graph-related regressions)
-- a correction to the generic `mapl-build`/`mapl-testing` skills' path
-  names: this repo uses `superstructure/generic/` and
-  `MAPL.generic.*` targets, not `generic3g`/`MAPL.generic3g.*`
+- `NodeId` hierarchy-wide scoping, import mirroring and export
+  propagation, and the lifecycle call-site order in `OuterMetaComponent/`
+- which characteristics have a real `build_transform` and which are
+  stubs, and which item classes (Bracket, Expression, Wildcard, ...)
+  the graph path resolves
+- known limitations (no geometry or vertical regrid `Transform`)
+- build/test commands and the `MAPL.generic.*` ctest target names
+  (this repo uses `superstructure/generic/`, not `generic3g`)
 
-Do not re-derive this context from scratch by reading the full
-`docs/graph/spec/` tree (20 files) or the full `GraphBuilder.F90` +
-11 submodules (6000+ lines) unless `ARCHITECTURE.md` is insufficient
-or you suspect it has drifted from the source — it is a summary, not a
-replacement for the primary sources it cites, and it explicitly flags
-its own `[ASSUMPTION]`s versus directly-verified facts.
+`openspec/changes/` currently holds only `archive/`; there is no active
+in-flight change. Planned refactoring is in
+`docs/graph/plans/separation-of-concerns.md`. Session narratives are in
+`docs/graph/history/`.
+
+Do not re-derive this context by reading all of `docs/graph/spec/` (20
+files) or all of `GraphBuilder.F90` and its 11 submodules (about 6,200
+lines) unless ARCHITECTURE.md is insufficient or has drifted from the
+source.
 
 **Source of truth, in order of authority, if `ARCHITECTURE.md`
 disagrees with any of these:**
 1. The actual source files (`superstructure/generic/`,
    `superstructure/generic/graph/`)
-2. `openspec/changes/hierarchy-wide-component-graph/{design.md,tasks.md,proposal.md}`
-   (the active, in-flight change — current task-completion state)
-3. `openspec/specs/graph/*/spec.md` (landed, machine-checkable
+2. `openspec/specs/graph/*/spec.md` (landed, machine-checkable
    requirement/scenario specs)
-4. `docs/graph/spec/*.md` (the narrative design specification — can
-   lag implementation; sections needing a `[RE-EVALUATED]` pass are
-   named explicitly in `ARCHITECTURE.md` §2.2/§5)
-5. `docs/graph/ARCHITECTURE.md` (this summary)
+3. `docs/graph/spec/*.md` (narrative design specification; can lag
+   implementation, `[RE-EVALUATED]` marks amended sections)
+4. `docs/graph/ARCHITECTURE.md` (this summary)
 
 ## Generic layer work (`docs/generic/`, `superstructure/generic/` excluding `graph/`)
 
@@ -103,7 +98,8 @@ above; it is distinct from, and complements, this file and
 ## General build/test
 
 See `.opencode/skills/mapl-build`, `.opencode/skills/mapl-testing`, and
-`.opencode/skills/compiler-switching` — but for graph-related work
-specifically, prefer the verified commands in
+`.opencode/skills/compiler-switching` — but prefer the commands in
 `docs/graph/ARCHITECTURE.md` §4, since the generic skills reference a
-`generic3g` directory name that does not exist in this checkout.
+`generic3g` directory name that does not exist in this checkout and
+older `module load` instructions that the `with-nag`/`with-gfortran`
+wrappers replace.

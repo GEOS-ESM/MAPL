@@ -9,12 +9,13 @@ This file is distinct from the repo-root `AGENTS.md` and from
 
 - If your task touches `superstructure/generic/graph/`,
   `ComponentGraph`, `GraphBuilder`, `NodeId`, `StateItemNode`,
-  `HierarchyGraph`, `StateItemCharacteristic`, or anything under
-  `openspec/changes/.../hierarchy-wide-component-graph/` — **stop, and
-  read the repo-root `AGENTS.md`'s "Graph architecture work" section
-  and `docs/graph/ARCHITECTURE.md` instead.** That is a separately
+  `HierarchyGraph`, `StateItemCharacteristic`, or any `GraphBuilder*.F90`
+  file — **stop, and read the repo-root `AGENTS.md`'s "Graph
+  architecture work" section, `docs/graph/ARCHITECTURE.md`, and
+  `docs/graph/CONVENTIONS.md` instead.** That is a separately
   maintained, actively-evolving doc set; do not use this file for that
-  work.
+  work. `docs/graph/GLOSSARY.md` maps the legacy names in this tree to
+  their graph counterparts.
 - Otherwise — for `OuterMetaComponent`, `StateRegistry`, `Connection`/
   `SimpleConnection`/`MatchConnection`, the `specs/` spec/aspect
   hierarchy (`ComponentSpec`, `VariableSpec`, `StateItemSpec`,
@@ -60,7 +61,8 @@ ARCHITECTURE.md` disagrees with any of these:**
 
 See `.opencode/skills/mapl-build`, `.opencode/skills/mapl-testing`, and
 `.opencode/skills/compiler-switching` — but note the same correction
-`docs/graph/ARCHITECTURE.md` §4.4 already records: this repo uses
+`docs/graph/ARCHITECTURE.md` §4 records: this repo uses
 `superstructure/generic/` and `MAPL.generic.*` ctest target names, not
-`generic3g`/`MAPL.generic3g.*`. `docs/generic/ARCHITECTURE.md` §4.2
-lists the seven real target names and what each one tests.
+`generic3g`/`MAPL.generic3g.*`, and uses the `with-nag`/`with-gfortran`
+wrappers described in the root `AGENTS.md`. `docs/generic/ARCHITECTURE.md`
+§4.2 lists the seven real target names and what each one tests.

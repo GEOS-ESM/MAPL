@@ -3,863 +3,331 @@
 **Audience:** coding agents and developers working on the graph-native
 dependency architecture in this MAPL3 checkout.
 
-**Relationship to other docs:**
-- `docs/graph/spec/` — the design *specification* (README, numbered
-  sections `01`-`20`). Normative, mostly stable, occasionally amended
-  (`[RE-EVALUATED]`) when implementation reveals a design error.
-- `openspec/specs/graph/` — machine-checkable requirement/scenario specs
-  derived from the design spec, one directory per capability. Treat as
-  the authoritative statement of *current, landed* behavior per
-  capability.
-- `openspec/changes/` — proposals for work not yet merged into
-  `openspec/specs/`. `archive/` holds landed-and-folded-in changes;
-  top-level entries (currently one: `hierarchy-wide-component-graph`)
-  are active/in-flight.
-- **This file** — a navigational layer on top of the above, written for
-  quick orientation without re-reading the full spec tree. Where this
-  file and the spec/openspec sources disagree, the sources win — this
-  file may lag.
+**Scope of this file:** the tree as it is now. Session narratives,
+debugging stories, and per-change task accounting live in
+`docs/graph/history/`. Conventions live in `docs/graph/CONVENTIONS.md`;
+legacy-to-graph vocabulary in `docs/graph/GLOSSARY.md`.
 
-All facts below were verified by reading the actual source tree and
-`git log`/`git diff` output on 2026-10-16, unless marked
-**[ASSUMPTION]**. Task Group 10 (full regression pass + spec-doc
-updates) was performed and verified on 2026-10-17 (see §2.2, §3's
-header note, and §6 for what changed in this pass).
+**Relationship to other docs (authority order if they disagree):**
+1. The source (`superstructure/generic/`, `superstructure/generic/graph/`).
+2. `openspec/specs/graph/*/spec.md` — landed, machine-checkable
+   requirement/scenario specs, one directory per capability.
+3. `docs/graph/spec/` — the narrative design specification (`01`-`20`).
+   Can lag; `[RE-EVALUATED]` marks sections amended after implementation.
+4. `docs/graph/*.md` topic files (see `docs/graph/README.md`).
+5. **This file** — a navigational summary.
+
+`openspec/changes/` currently contains only `archive/`; there is no
+in-flight openspec change. Landed changes (including
+`hierarchy-wide-component-graph`, phases 7a/7b/7c and 12) are under
+`openspec/changes/archive/<date>-<name>/`. Active refactoring is planned
+in `docs/graph/plans/separation-of-concerns.md`.
+
+Facts below were verified against the tree on 2026-10-21 unless marked
+**[ASSUMPTION]**.
 
 ## 1. Module map (`superstructure/generic/`)
 
 ### 1.1 Graph-neutral core (`superstructure/generic/graph/`)
 
-No dependency on `OuterComponent`/`StateRegistry` (hard rule,
-`07-component-graph.md` REQ-CG-002). ~40 files; most relevant for
-current work. **[UPDATED, Phase 18]** As of
-`docs/graph/spec/20-implementation-roadmap.md` §20.4.18, four families
-now live in their own subdirectories rather than flat at this level:
-`characteristics/` (15 files), `transforms/` (5 files), `callback/`
-(6 files), `id_types/` (5 files + `IdTemplate.inc`, folding the former
-`include/` directory). The table below gives each file's subdirectory
-explicitly where it has moved; everything else listed remains at the
-flat top level.
+89 non-test `.F90` files, about 12,300 lines (plus `graph/tests/`, 40
+`.pf` files). No dependency on `OuterComponent`/`StateRegistry`
+(REQ-CG-002). Layout: 34 files at the top level, and subdirectories
+`characteristics/` (16), `transforms/` (7), `callback/` (6), `id_types/`
+(5 + `IdTemplate.inc`), `containers/` (21 gFTL instantiations).
 
 | File | Responsibility |
 |---|---|
-| `id_types/NodeId.F90`, `id_types/DependencyNetworkId.F90`, `id_types/PortId.F90` | Generated identity types (`id_types/IdTemplate.inc` instantiations) |
-| `id_types/HierarchyId.F90` | Identity type for a whole component hierarchy (landed by `hierarchy-wide-component-graph`, Group 1) |
-| `HierarchyGraph.F90` | The actual hierarchy-wide `NodeId→GraphNode` and `DependencyNetworkId→DependencyNetwork` maps + the one shared id-generator pair |
-| `HierarchyResources.F90` | Container holding one `HierarchyGraph`, shaped to hold future shared resources |
-| (private registry, inside `HierarchyGraph`/`HierarchyResources` module code) | `request_new_hierarchy()` / `get_hierarchy_resources(id)` / `release_hierarchy(id)` — keyed by `HierarchyId`, not a bare singleton (see design.md D1 in the active change) |
-| `GraphNode.F90`, `BaseGraphNode.F90`, `StateItemNode.F90`, `OperationGraphNode.F90` | Node hierarchy |
-| `GraphStateItem.F90` | Concrete payload type (Field/FieldBundle/State, at most one allocated) |
-| `DependencyNetwork.F90` | Acyclic adjacency-list dependency storage |
-| `ComponentGraph.F90` | Per-`OuterComponent` owner of resource index, ports, child-port bindings, lifecycle state — **node/network storage itself now lives in `HierarchyGraph`, reached via a stored `HierarchyId`** (post Group-1 refactor) |
-| `transforms/TransformGraphNode.F90`, `transforms/Transform.F90`, `transforms/TransformBase.F90` | Transform nodes + named ports |
-| `NodeRevision.F90`, `ComponentGraph_DemandDrivenUpdate.F90` | Revision stamps + demand-driven `update()` |
-| `MethodGraphNode.F90`, `MethodInvocation*.F90`, `GridCompMethodInvocation.F90`, `StateMethodInvocation.F90`, `GridCompDriverPhaseInvoker.F90` | Method invocation layer |
-| `callback/CallbackInterface*.F90` (except `CallbackInterfaceId.F90`, which lives in `id_types/` — a real `#include "IdTemplate.inc"` site, not a comment mention), `callback/CallbackMethodSpec.F90`, `callback/CallbackStateBinding.F90`, `callback/CallbackMethodBinding.F90` | Callback data model |
-| `characteristics/*Characteristic.F90` (Units, TypeKind, Geometry, Attributes, UngriddedDims, QuantityType, Conservation, Normalization, StandardName, VerticalCoordinate) + `characteristics/CharacteristicStatus.F90`, `characteristics/StateItemCharacteristicKind.F90` | Mismatch-detection/extension-chain axes |
-| `transforms/UnitsConverterTransform.F90`, `transforms/TypeKindConverterTransform.F90` | Real executing transforms (only two axes with real conversion so far) |
-| `characteristics/*Characteristic.F90`'s `build_transform` for every OTHER kind (Geometry, Attributes, UngriddedDims, QuantityType, Conservation, Normalization, StandardName, VerticalCoordinate) | **No real adaptation logic — each one unconditionally `_FAIL`s.** Confirmed empirically (not just by reading 5a2's own design.md note) while writing `phase-12-characteristic-dispatch-wiring`'s tests: a genuine mismatch on any of these axes surfaces as the generic `'<CharacteristicName>: build_transform - no real provider exists for this axis'` exception, not a converted value. Any pFUnit test that deliberately provokes a mismatch on one of these axes must consume that exception first, e.g. `@assertExceptionRaised('StandardNameCharacteristic: build_transform - no real provider exists for this axis')`, before asserting anything else — the mismatch itself is real and detected; only the repair step is a stub. See §6's Phase 12 entry. |
+| `id_types/NodeId.F90`, `DependencyNetworkId.F90`, `PortId.F90`, `HierarchyId.F90`, `CallbackInterfaceId.F90` | Identity types generated from `id_types/IdTemplate.inc` |
+| `HierarchyGraph.F90` | Hierarchy-wide `NodeId→GraphNode` and `DependencyNetworkId→DependencyNetwork` maps plus the shared id generators |
+| `HierarchyResources.F90`, `HierarchyRegistry.F90` | Container for one `HierarchyGraph`; process-wide registry keyed by `HierarchyId` (`request_new_hierarchy`, `get_hierarchy_resources`, `release_hierarchy`) |
+| `GraphNode.F90`, `BaseGraphNode.F90`, `StateItemNode.F90`, `OperationGraphNode.F90`, `MethodGraphNode.F90` | Node hierarchy |
+| `GraphStateItem.F90`, `MAPLStateItemFlag.F90`, `StateItemVariantInfo.F90` | Payload of a `StateItemNode`: Field/FieldBundle/State handle (at most one allocated) **plus**, today, the characteristics map and the `declared_*`, `ungridded_dims`, `vertical_stagger` materialization inputs. Variant tag and its ESMF Info key. |
+| `DependencyNetwork.F90` | Acyclic adjacency-list storage |
+| `ComponentGraph.F90`, `ComponentGraph_DemandDrivenUpdate.F90` | Per-`OuterComponent` owner of resource index, import/export port tables, child-port bindings, lifecycle state; demand-driven `update()`. Node/network storage is in `HierarchyGraph`, reached via a stored `HierarchyId`. |
+| `NodeRevision.F90`, `NodeLabel.F90` | Revision stamps; visualization labels |
+| `PortSpec.F90`, `PortBindingKey.F90`, `PortBindingTable.F90`, `ArgumentSpec.F90`, `AccessSpec.F90` | Transform port declarations and external port-binding table; method argument specs |
+| `ExtensionResolution.F90` | Mismatch detection (`find_mismatched_characteristics`), extension-chain build (`find_or_build_extension_chain`), reuse lookup |
+| `ExtensionMaterialization.F90`, `CompositeStateMaterialization.F90`, `GeomProxyField.F90` | Real ESMF object creation for extension nodes, composite members, geometry nodes |
+| `MethodInvocation*.F90`, `GridCompMethodInvocation.F90`, `StateMethodInvocation.F90`, `GridCompDriverPhaseInvoker.F90` | Method invocation layer |
+| `callback/*` | Callback interface/method/state-binding data model and registry |
 | `RouteHandleKey.F90` | Semantic key for route-handle reuse |
-| `CompositeStateMaterialization.F90` | Applies composite-member/variant tagging during materialization |
-| `GraphMode.F90` | `registry` / `graph` / `both` 3-way selector (`mapl_GraphMode_mod`) |
+| `GraphExport.F90` | Graph-neutral DOT/JSON topology export |
+| `GraphMode.F90` | `registry` / `graph` / `both` selector (`mapl_GraphMode_mod`) |
+| `StringSortUtilities.F90` | Shared `sorted_names` helper |
+
+#### Characteristics (`graph/characteristics/`)
+
+Description axes of a state item, compared for mismatch detection and
+(where a provider exists) repaired by a `Transform`.
+`StateItemCharacteristic` (abstract; `ValueCharacteristic` and
+`ReferenceCharacteristic` subtypes) has deferred `get_kind`,
+`needs_extension_for`, `build_transform`, `get_signature`, and a
+`CharacteristicStatus` (`INVALID`, `SPECIFIED`, `MIRRORED`, `UNCHECKED`,
+`DEFERRED`).
+
+| Characteristic | Kind constant | `build_transform` today |
+|---|---|---|
+| `PhysicalUnits` | `PHYSICAL_UNITS_CHARACTERISTIC_KIND` | Real: `UnitsConverterTransform` |
+| `TypeKind` | `TYPE_KIND_…` | Real: `TypeKindConverterTransform` |
+| `ItemShape` | `ITEM_SHAPE_…` | Real for `BRACKET`→`FIELD` only (`BracketTimeInterpolationTransform`); other pairings `_FAIL` naming both classes |
+| `Geometry` | `GEOMETRY_…` | `_FAIL` — no horizontal-regrid `Transform` exists yet |
+| `VerticalCoordinate` | `VERTICAL_COORDINATE_…` | `_FAIL` with three distinguishable messages (dimension-overlap outcomes); no vertical-regrid `Transform` yet |
+| `Attributes`, `UngriddedDims`, `StandardName`, `QuantityType`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | `_FAIL` `'<Name>Characteristic: build_transform - no real provider exists for this axis'` — mismatch is detected, repair is a stub |
+
+Other files: `CharacteristicStatus.F90`, `StateItemCharacteristicKind.F90`
+(also `MOCK_CHARACTERISTIC_KIND`), `StateItemCharacteristicDetection.F90`,
+`SetSharedCharacteristic.F90`.
+
+A test that deliberately provokes a mismatch on a stub axis must consume
+the exception first, e.g.
+`@assertExceptionRaised('StandardNameCharacteristic: build_transform - no real provider exists for this axis')`.
+
+#### Transforms (`graph/transforms/`)
+
+`TransformBase`, `Transform` (abstract; `Transform` adds the compute
+interface over named ports), `TransformGraphNode`, and four concrete
+transforms: `UnitsConverterTransform`, `TypeKindConverterTransform`,
+`BracketTimeInterpolationTransform` (built by
+`ItemShapeCharacteristic%build_transform`), `ExpressionTransform` (built
+by `graphbuilder_run_expression_hook`, not by a characteristic). No
+horizontal-regrid or vertical-regrid `Transform` exists; geometry and
+vertical-coordinate mismatches therefore fail in graph mode.
 
 ### 1.2 Integration layer (`superstructure/generic/`, top level)
 
-| File | Responsibility |
-|---|---|
-| `GraphBuilder.F90` | Public interface module for the whole integration layer. Declares the `GraphBuilder` type-bound-procedure table (stateless-per-call; every method takes the `OuterMetaComponent` explicitly) and all cross-submodule interfaces. **1550 lines** (grew during Group 6 work on this branch; proposal.md's stated goal is net reduction once proxy removal fully lands). |
-| `GraphBuilder_Advertising_smod.F90` | Advertising phase: creates `StateItemNode`s from `VariableSpec`, recurses into composite members |
-| `GraphBuilder_ConnectionResolution_smod.F90` | Ordinary connection resolution (`resolve_one`, `for_each_matching_import`), unsatisfied-import checks, and (new, this branch) `graphbuilder_unresolved_import_node_ids` / `graphbuilder_run_propagate_hook` — **1137 lines**. **[UPDATED, `simpleconnection-graph-resolution`]** Resolution now dispatches on `SimpleConnection` as well as `MatchConnection` — both call the same `resolve_match_connection`/`check_match_connection_unsatisfied`/`connection_pt_pair_resolves` bodies via a `class(Connection)`-typed dummy argument, with the one place a `SimpleConnection`'s own declared source name differs from a `MatchConnection` match's (destination-derived) name isolated in a single helper, `effective_source_name`. The `connection_resolves_import` `class default` branch described below (§3.2) as "recognizing `SimpleConnection`/`ReexportConnection` as 'spoken for'" is REMOVED — see that section's own correction note. |
-| `GraphBuilder_Geometry_smod.F90` | Geometry push/pull hook (`run_geometry_hook`) |
-| `GraphBuilder_CallbackWiring_smod.F90` | Wildcard/regex callback-argument wiring against the flattened qualified-export namespace |
-| `GraphBuilder_LifecycleHooks_smod.F90` | Thin wrappers invoked from `OuterMetaComponent` lifecycle call sites (`run_advertise_hook`, `run_activate_hook`, `run_connect_hook`, `run_propagate_hook`) that log `GraphResolutionEntry`/`UnresolvedImportEntry` results |
-| `GraphBuilder_PortsAndProxies_smod.F90` | Port-table helpers (proxy-creation code **already removed**, per Groups 3-5) |
-| `GraphBuilder_RunPhaseNode_smod.F90`, `GraphBuilder_RunPhasePull_smod.F90` | `MethodGraphNode` construction + demand-driven pull re-trigger for a run phase |
-| `GraphBuilder_StatePopulation_smod.F90` | Populates the real `ESMF_State` from graph-side `StateItemNode`s (`graph`/`both` mode only) |
-| `GraphBuilder_Visualization_smod.F90` | DOT/JSON topology export |
-| `GraphResolutionEntry.F90`, `GraphResolutionEntryVector.F90` | Structured resolution-report record type (replaces an earlier colon-concatenated-string convention) |
-| `OuterMetaComponent.F90` + `OuterMetaComponent/*.F90` (62 files) | `OuterComponent`'s private-state type: owns a `HierarchyId`, a local `ComponentGraph`, child drivers, the legacy `StateRegistry`. `OuterMetaComponent/initialize_advertise.F90` is the lifecycle call site that sequences `run_advertise_hook → run_activate_hook → run_propagate_hook (new) → registry%propagate_unsatisfied_imports → registry%propagate_exports → recurse()`. |
+`GraphBuilder.F90` (1206 lines) is the public module: the `GraphBuilder`
+type (stateless; every method is `nopass` and takes the
+`OuterMetaComponent`) and cross-submodule interfaces. Eleven submodules
+(about 5,000 lines together):
+
+| File | Lines | Responsibility |
+|---|---|---|
+| `GraphBuilder_Advertising_smod.F90` | 396 | `advertise_one` creates `StateItemNode`s from `VariableSpec`; `populate_characteristics` fills the characteristics map and `declared_*` fields |
+| `GraphBuilder_ConnectionResolution_smod.F90` | 2532 | Ordinary/Simple/Match connection resolution (`resolve_one`, `for_each_matching_import`); extension-chain use; import mirroring (`run_propagate_hook`) and export propagation (`run_export_propagate_hook`); Expression hook (`run_expression_hook`); Wildcard fan-in (`resolve_wildcard_destination`); unsatisfied-import checks; qualified-name resolution |
+| `GraphBuilder_Freeze_smod.F90` | 168 | Hierarchy-wide freeze and convergence check (`run_graph_freeze_hook`) |
+| `GraphBuilder_Geometry_smod.F90` | 284 | Geometry push/pull (`run_geometry_hook`) |
+| `GraphBuilder_CallbackWiring_smod.F90` | 670 | Wildcard/regex callback-argument wiring against the flattened qualified-export namespace |
+| `GraphBuilder_LifecycleHooks_smod.F90` | 164 | Wrappers called from `OuterMetaComponent` lifecycle sites: advertise, activate, connect, populate-state hooks; logs `GraphResolutionEntry` results |
+| `GraphBuilder_PortsAndProxies_smod.F90` | 89 | Export geom/vgrid resolution helpers (`resolve_export_geom`, `resolve_export_vgrid`). The name is historical: no proxy code remains. |
+| `GraphBuilder_RunPhaseNode_smod.F90`, `GraphBuilder_RunPhasePull_smod.F90` | 149, 93 | `MethodGraphNode` construction; demand-driven pull for a run phase |
+| `GraphBuilder_StatePopulation_smod.F90` | 403 | Populates the real `ESMF_State` from graph nodes (`graph`/`both` modes) |
+| `GraphBuilder_Visualization_smod.F90` | 68 | DOT/JSON enrichment |
+
+Also: `GraphResolutionEntry*.F90` (structured resolution report),
+`GraphScenarioBootstrap.F90` (YAML-driven fixture setup used by scenario
+tests and `apps/graph_diagnostic`), `OuterMetaComponent.F90` +
+`OuterMetaComponent/` (64 submodule files; owns a `HierarchyId`, a
+`ComponentGraph`, child drivers, and the legacy `StateRegistry`).
+
+`superstructure/generic/tests/` holds `Test_GraphBuilder_*.pf` (one per
+submodule area), `Test_GraphBuilderPropagation.pf`,
+`Test_GraphBuilderEquivalence.pf`, `Test_GraphEquivalenceHarness.pf`,
+`Test_GraphModeDemonstration.pf`, `Test_GraphMode.pf`,
+`Test_GraphBuilderMaterializeGate.pf`, `Test_GraphGeometryHook.pf`, and
+the fixtures `tests/scenarios/` (legacy YAML scenarios) and
+`tests/graph-scenarios/` (graph-mode fixtures).
 
 ### 1.3 Specification-to-source correspondence
 
-`docs/graph/spec/README.md`'s own glossary and document-map table is the
-authoritative name-to-concept mapping; do not re-derive it independently.
-Key correspondence for this project's current focus:
-
-- `03-graph-node-hierarchy.md` ↔ `graph/GraphNode.F90` family
-- `05-identities.md` ↔ `graph/id_types/NodeId.F90`, `graph/id_types/HierarchyId.F90`, `graph/id_types/IdTemplate.inc`
-- `06-dependency-network.md` ↔ `graph/DependencyNetwork.F90`
-- `07-component-graph.md` ↔ `graph/ComponentGraph.F90`
-- `08-graph-builder.md` ↔ `GraphBuilder.F90` + its submodules
-- `02-component-hierarchy.md` ↔ `OuterMetaComponent.F90`/`OuterMetaComponent/`
+`docs/graph/spec/README.md` has the authoritative document map. Key
+pairs: `03` ↔ `GraphNode` family; `05` ↔ `id_types/`; `06` ↔
+`DependencyNetwork.F90`; `07` ↔ `ComponentGraph.F90`; `08` ↔
+`GraphBuilder*.F90`; `02` ↔ `OuterMetaComponent`; `18` ↔
+`characteristics/`.
 
 ## 2. Important interfaces and dependencies
 
-### 2.1 Layering rule (hard, enforced by review not by compiler)
+### 2.1 Layering rule (hard; enforced by review, not by the compiler)
 
 ```
 ComponentGraph / DependencyNetwork / GraphNode* / GraphStateItem
     MUST NOT depend on OuterComponent, StateRegistry, or any
-    component-hierarchy implementation type.          (REQ-CG-002)
+    component-hierarchy implementation type.            (REQ-CG-002)
 
 GraphBuilder
     is the ONLY layer permitted to depend on both the graph core
     AND OuterMetaComponent / StateRegistry.             (08-graph-builder.md §8.3)
 ```
 
-### 2.2 `NodeId` scope — settled; spec docs now updated to match (Task 10.2)
+Graph code also must not call into the legacy `specs/*Aspect`,
+`registry/`, or `transforms/` layers; see `CONVENTIONS.md`.
 
-**[UPDATED, this session — Task Group 10]** `docs/graph/spec/02-component-hierarchy.md`,
-`05-identities.md`, `07-component-graph.md`, and `08-graph-builder.md`
-have now all been updated in place (`[RE-EVALUATED]` sections,
-following `07`'s own REQ-CG-003 precedent) to match the landed design
-described below — task 10.2 is done; the narrative spec no longer
-diverges from implementation on this point. Read those files directly
-for the authoritative current wording; this section remains as a
-navigational summary only.
+### 2.2 `NodeId` scope
 
-As of commit `9ce2ecd5` ("Introduce Hierarchy"), `f629872a` ("Groups
-3-5"), and `15a50ec5` ("Task group 9", hierarchy-wide freeze — all
-landed on this branch):
+- `NodeId`/`DependencyNetworkId` are valid **hierarchy-wide**.
+- A `ComponentGraph` holds a `HierarchyId` (value, not pointer) and
+  resolves shared maps via `get_hierarchy_resources`.
+- Each `ComponentGraph` keeps a private set of the ids it registered
+  (`owned_node_ids()`).
+- Cross-component edges connect two real `NodeId`s directly:
+  `add_dependency`/`validate`/`bind_port`/`add_import_port`/
+  `add_export_port` accept an id owned by `this` **or** registered
+  anywhere in the hierarchy (`allowed_foreign_node`, checked via
+  `get_node(id)` being associated; never by reverse lookup).
+- There are no proxy nodes. `proxy_key`, `get_or_make_local_node_id`,
+  `parent_geometry_proxy_key`, and `push_geometry_to_child` no longer
+  exist.
+- `freeze()` is one hierarchy-wide operation: the
+  `GENERIC_INIT_GRAPH_FREEZE` phase runs once at the true hierarchy
+  root and `GraphBuilder_Freeze_smod.F90` freezes every component's
+  `ComponentGraph`, then runs the hierarchy-wide convergence check
+  (any remaining unresolved required import is a hard failure).
+  `graphbuilder_resolve_connections` is made idempotent by
+  `connections_already_resolved()`/`mark_connections_resolved()`
+  (`OuterMetaComponent/connections_resolved.F90`), not by `is_frozen()`.
 
-- `NodeId`/`DependencyNetworkId` are valid **hierarchy-wide**, not
-  scoped to one `ComponentGraph` instance.
-- A `ComponentGraph` instance holds a `HierarchyId` value (not a
-  pointer) and resolves `get_hierarchy_resources(this%hierarchy_id)`
-  internally wherever the shared maps/generators are needed.
-- Each `ComponentGraph` instance keeps an explicit, private
-  `NodeIdSet`/`DependencyNetworkIdSet` of ids it itself registered
-  (`owned_node_ids()`), used by `add_dependency`/`validate`.
-- Cross-component edges are legitimate: `add_dependency`/`validate`/
-  `bind_port`/`add_import_port` accept an id if it is EITHER owned by
-  `this` instance OR registered anywhere in the hierarchy
-  (`allowed_foreign_node`, checked via `get_node(id)` being
-  associated — never via a reverse lookup; see design.md D2 in the
-  active change for the full reasoning, including a documented,
-  rejected "reverse map" alternative).
-- Proxy-node mechanisms (`proxy_key`, `get_or_make_local_node_id`,
-  `parent_geometry_proxy_key`, `push_geometry_to_child`, the
-  proxy-creation half of `resolve_qualified_export_node_id`) have
-  **already been removed** (Groups 3-5). Cross-component dependency
-  edges now connect two real `NodeId`s directly.
-- `freeze()` is now a **single hierarchy-wide operation** (Group 9,
-  landed, commit `15a50ec5`): a new, explicitly non-recursive
-  `GENERIC_INIT_GRAPH_FREEZE` phase, dispatched once at the true
-  hierarchy root, drives `GraphBuilder_Freeze_smod.F90`'s
-  `freeze_subtree_` helper, which recursively calls `graph%freeze()`
-  on every component's own `ComponentGraph` instance in the whole
-  tree. `graphbuilder_resolve_connections`'s own second-pass
-  idempotency gate no longer relies on `is_frozen()` (which would have
-  stayed unfrozen too long once freeze moved off the per-component
-  `ACCEPT_TRANSFER` call site) — it uses a new, explicit
-  `this%connections_already_resolved()`/`mark_connections_resolved()`
-  flag instead (`OuterMetaComponent/connections_resolved.F90`),
-  confirmed necessary by a real regression
-  (`MAPL3G_Comp_Test_case42`) the naive version produced. See §3 below
-  (now archived/historical — Group 9 is landed, not in progress) and
-  `docs/graph/spec/07-component-graph.md` §7.3 for the current
-  authoritative requirement text.
-
-### 2.3 Import-port table vs. resource index — load-bearing distinction
+### 2.3 Import-port table vs. resource index
 
 - **Resource index** (`ComponentGraph%get_resource_index`): populated
-  only for a *directly-advertised* item (`advertise_one`'s
-  `add_resource_index` call).
-- **Import-port table** (`ComponentGraph%get_import_ports` /
-  `add_import_port`): includes both directly-advertised imports and
-  (new, this branch, Group 6) *mirrored* imports bubbled up from a
-  child. A mirrored entry is deliberately **not** given a
-  resource-index entry.
-- `for_each_matching_import` walks the import-port table, so it finds a
-  mirrored import exactly as it would a direct one — this is the
-  mechanism Group 6 relies on, with zero changes to
-  `for_each_matching_import`/`resolve_one` themselves.
-- Consequence (fixed on this branch, see §3): any resolution code that
-  used to re-derive a destination's `NodeId` via
-  `resolve_local_node_id(...)` (a resource-index lookup) must instead
-  use the already-found `StateItemNode`'s own `get_node_id()` directly,
-  or it will hard-fail on a mirrored import. `resolve_one` was updated
-  for this; audit any *other* caller of `resolve_local_node_id` for the
-  destination side before trusting it against a mirrored import.
+  only for a directly advertised item (`advertise_one`).
+- **Import-port table** (`get_import_ports`/`add_import_port`): directly
+  advertised imports **and** imports mirrored up from a child. A mirrored
+  entry deliberately has no resource-index entry.
+- **Export-port table**: directly advertised exports and propagated
+  exports. A propagated export's `StateItemNode%short_name` is never
+  rewritten; `ComponentGraph%get_export_port_name()` (a sparse
+  `PortId→qualified_name` side map) carries the ancestor-qualified name
+  `child_name/short_name`, qualified once, at the immediate parent.
+- `for_each_matching_import` walks the import-port table, so it finds
+  mirrored imports like direct ones. Never re-derive a destination's
+  `NodeId` with `resolve_local_node_id` (resource-index lookup); use the
+  found `StateItemNode%get_node_id()`. Same for `find_export_node_id`.
+- Composite members are not independently addressable: they appear in no
+  resource index or port table.
 
-### 2.4 Lifecycle call-site ordering (verified in `initialize_advertise.F90`)
+### 2.4 Lifecycle call sites (all in `OuterMetaComponent/`)
 
-```
-recurse()                              ! bottom-up: every child's own full
-                                        ! advertise pass already finished
-run_advertise_hook(this)
-run_activate_hook(this)                ! must run BEFORE propagate (see below)
-run_propagate_hook(this)               ! NEW on this branch — see §3
-registry%propagate_unsatisfied_imports ! legacy, unchanged, still runs in parallel
-registry%propagate_exports             ! legacy, unchanged
-```
-
-`run_propagate_hook` MUST run after `run_activate_hook`, not before —
-an import resolved by a connection declared at the current level must
-already be reflected before this level's own mirroring step reads
-child state, or it would be needlessly re-mirrored upward (confirmed by
-a correction recorded in `tasks.md` task 6.2 of the active change —
-the original task wording had this backwards).
-
-## 3. Task Group 6 narrative (historical — now fully committed)
-
-**[UPDATED, this session]** This section originally described
-*uncommitted* working-tree state. Group 6 (including task 6.8) has
-since been committed as `9fdea0fd`; Groups 7, 8, and 9 followed as
-`bc51fc9c`, `1ea0fdc1`, and `15a50ec5` respectively — all landed on
-this branch, confirmed clean by `git status` at the start of this
-session. The narrative below (the regression-discovery story for task
-6.8, in particular) is preserved as-is for its debugging-methodology
-value; treat every "uncommitted"/"this working tree" reference in it
-as historical, not current. Current branch state as of this session:
-Task Groups 1-9 complete and committed; Task Group 10 (full regression
-pass + spec-doc updates) is the one this session performed — see §2.2
-above (updated spec docs) and §6 below (current phase-status summary)
-for its outcome.
-
-**[UPDATED, `openspec/changes/simpleconnection-graph-resolution`]**
-§3.2's own table entry for `GraphBuilder_ConnectionResolution_smod.F90`
-below describes `connection_resolves_import`'s `class default` branch
-as "recognizing `SimpleConnection`/`ReexportConnection` as 'spoken
-for'" (task 6.8's own fix for a propagation false-negative). That
-branch is **removed** by `simpleconnection-graph-resolution`:
-`SimpleConnection` now has its own `class is (SimpleConnection)` arm
-calling the same shared `connection_pt_pair_resolves` function
-`MatchConnection` uses (a real structural check — does the source
-actually resolve — not a name-match heuristic); only
-`ReexportConnection` (and other genuinely out-of-scope subtypes) still
-falls to `class default`. The §3.2 table entry below is left as-is
-(historical record of task 6.8's own state at the time), per this
-file's own stated practice above of preserving prior narrative
-verbatim rather than silently rewriting it.
-
-**Verified via `git status`/`git diff` and a real NAG build+test run on
-2026-10-16 (this update, revised after discovering and fixing a real
-regression — see §3.4).** This section describes code that is
-*modified but not yet committed*, implementing Task Group 6 of
-`openspec/changes/hierarchy-wide-component-graph/tasks.md` ("Replace
-3b2 with recursive import mirroring") — tasks 6.1-6.6 and 6.8 (new,
-discovered mid-task) are now done; only 6.7 (explicit follow-up, out
-of scope) remains.
-
-**[CORRECTION, important]** An earlier revision of this file (and this
-same session's own first-pass completion claim for task 6.5) asserted
-`ctest -R MAPL.generic.scenarios`'s own 40-48 failing cases were
-"pre-existing and unrelated to this change." **That was wrong.** It
-was checked by reverting only the new *test file*, not the production
-`GraphBuilder*.F90`/`initialize_advertise.F90` diff tasks 6.1/6.2 had
-already landed — which proved nothing about whether that diff itself
-was the regression's source. Rebuilding against true `HEAD`
-(`f629872a`) in an isolated `git worktree` (plus only the two
-unrelated, trivial NAG-portability fixes already listed in §3.2 below)
-showed `MAPL.generic.scenarios` passing 100%, zero failures. The
-failures were a real regression in task 6.1/6.2's own import
-propagation, root-caused and fixed as task 6.8 (§3.2/§3.4 below). If
-you are verifying a claim like this yourself: always diff against a
-real, independently-buildable commit (a `git worktree` of `HEAD`, not
-a stash-juggled working tree), never just "with my own latest addition
-reverted."
-
-### 3.1 What Group 6 replaces
-
-Legacy's `StateRegistry%propagate_unsatisfied_imports()` bubbles an
-unresolved import up one level, unconditionally, independent of any
-connection naming the propagating component. The graph-native path had
-no analog (`3b2`, named but never implemented — see roadmap §20.4.1).
-An earlier design draft ("search the subtree") was tried and
-**rejected during design review before code was written against it**
-(two flaws: requires a connection to trigger; never materializes
-anything at the intermediate level) — see design.md D3 in the active
-change for the full postmortem. The corrected design mirrors one level
-at a time, reusing existing single-level machinery unchanged.
-
-Task 6.8 (new, discovered mid-task — see §3.4) adds the symmetric
-EXPORT-side propagation legacy's own `propagate_exports_subregistry`
-already does and graph-native resolution did not: a propagated
-export's own name is qualified with its immediate child's own name
-(`child_name/short_name`), and left UNCHANGED at every further
-ancestor level — never re-qualified a second time.
-
-### 3.2 What is implemented (modified files, not committed)
-
-| File | Change |
+| File | Sequence |
 |---|---|
-| `GraphBuilder.F90` | New public interface block for `graphbuilder_unresolved_import_node_ids`, `graphbuilder_run_propagate_hook`, `graphbuilder_run_export_propagate_hook` (task 6.8), new `UnresolvedImportEntry` type; new `run_propagate_hook`/`run_export_propagate_hook` type-bound procedures; new `is_ordinary_resolvable_import` filter (task 6.8, excludes `MAPL_STATEITEM_WILDCARD`/`SERVICE`/`EXPRESSION` from import propagation); unrelated NAG-portability fix (long `_ASSERT` string split into a local variable at two call sites) |
-| `GraphBuilder_ConnectionResolution_smod.F90` | New `graphbuilder_unresolved_import_node_ids` (structural scan, now gated by `is_ordinary_resolvable_import`), new `connection_resolves_import` helper (now with a `class default` branch recognizing `SimpleConnection`/`ReexportConnection` as "spoken for," task 6.8), new `graphbuilder_run_propagate_hook`/`graphbuilder_run_export_propagate_hook` (task 6.8: for each direct child, propagate its export-port entries into `this`'s own export-port table under a qualified name — `qualify_exported_name`/`already_exported` helpers), new `already_mirrored` idempotency guard, the `resolve_one` fix noted in §2.3, and (task 6.8) `find_export_node`/`find_export_node_id` fixed to match/resolve against each export port's own EFFECTIVE qualified name instead of the node's own real `short_name` directly (`find_export_node_id`'s own fix is the same class of bug task 6.3 already fixed on the import side: use the already-found node's own real `NodeId` directly, never re-derive via a resource-index lookup keyed by the wrong name) |
-| `GraphBuilder_Geometry_smod.F90` | Unrelated NAG-portability fix (same long-`_ASSERT`-string pattern as above) |
-| `GraphBuilder_LifecycleHooks_smod.F90` | Changed two `lgr%warning(...)` calls from pflogger's variadic `%a:%a` substitution to pre-concatenated plain strings — **found via a real nondeterministic gfortran hang/corruption during Group 6 testing**; pflogger's `%a` substitution is unreliable under gfortran for allocatable-character actuals (a gfortran/pflogger interaction, not specific to this change) |
-| `OuterMetaComponent/initialize_advertise.F90` | Inserts `call gb%run_propagate_hook(this)` immediately after `run_activate_hook`, before the legacy `registry%propagate_unsatisfied_imports` call; (task 6.8) `call gb%run_export_propagate_hook(this)` next to legacy's own `registry%propagate_exports` call |
-| `graph/ComponentGraph.F90` | `graph_add_import_port` relaxed to accept a value `NodeId` that is either owned by `this` or `allowed_foreign_node` (previously required `owns_node` only) — needed because a mirrored import's value is, by construction, a different component's own real `NodeId`; (task 6.8) `graph_add_export_port` relaxed identically, plus a new sparse `PortId -> qualified_name` side-map (`GraphPortRegistry%export_port_names`, `PortIdStringMap`) and `get_export_port_name()` accessor — a propagated export's own real `StateItemNode%short_name` is NEVER rewritten; only this side-table carries the ancestor-qualified name |
-| `graph/containers/PortIdStringMap.F90` (new) | gFTL `PortId -> character(:)` map instantiation (`T __CHARACTER_DEFERRED`, following `StateItemSpecMap.F90`'s own precedent for a deferred-character gFTL parameter), backing the side-map above |
-| `superstructure/generic/tests/CMakeLists.txt` | Registers new `Test_GraphBuilderPropagation.pf` |
-| `superstructure/generic/tests/Test_GraphBuilderPropagation.pf` (new, untracked) | pFUnit suite covering tasks 6.1/6.3/6.4/6.8 (unit-level, direct `gb%advertise`/`gb%run_propagate_hook`/`gb%run_export_propagate_hook` calls, no real lifecycle) |
-| `superstructure/generic/tests/Test_GraphModeDemonstration.pf` | New test `test_graph_mode_mirrors_grandchild_import_recursively` (task 6.5) — real `GENERIC_INIT_PHASE_SEQUENCE` lifecycle run against the resurrected fixture below |
-| `superstructure/generic/tests/graph-scenarios/graphbuilder_propagation/` (new, untracked: `cap.yaml`, `comp_src.yaml`, `comp_mid.yaml`, `comp_dst.yaml`, `description.md`) | Resurrected cap→comp_mid→comp_dst fixture (task 6.5) — cap's own connection names `comp_mid`, not `comp_dst`, as destination; comp_mid declares no connection of its own |
+| `initialize_advertise.F90` | `recurse()` (children first) → `self_advertise` → `gb%run_advertise_hook` → legacy `process_connections` → `gb%run_activate_hook` → `gb%run_propagate_hook` → `registry%propagate_unsatisfied_imports` → `gb%run_export_propagate_hook` → `registry%propagate_exports` → `registry%add_to_states` |
+| `initialize_accept_transfer.F90` | `gb%run_connect_hook`, then `gb%run_expression_hook`, then `gb%run_populate_state_hook` |
+| `initialize_geom_b.F90` | `gb%run_geometry_hook` |
+| `initialize_graph_freeze.F90` | `gb%run_graph_freeze_hook` (root only) |
+| `run_user.F90` | `gb%run_pull_hook` |
 
-### 3.3 Task-list status (`openspec/changes/hierarchy-wide-component-graph/tasks.md`)
+`run_propagate_hook` must follow `run_activate_hook`: an import resolved
+by a connection declared at this level must be reflected before this
+level's mirroring step reads child state, or it is needlessly mirrored
+upward. Legacy registry calls and graph hooks both run unconditionally;
+`graph_mode()` only gates whether the graph result feeds the real
+`ESMF_State` (see `docs/generic/ARCHITECTURE.md` §2.3).
 
-Verified by reading the checklist directly:
+### 2.5 `GraphBuilder.F90` and submodules: `public ::` rule
 
-- **Groups 1–5: `[x]` all checked** — shared storage foundation,
-  name-uniqueness enforcement, proxy removal (ordinary connections,
-  geometry, callback wiring). Corresponds to commits `9ce2ecd5` and
-  `f629872a`.
-- **Group 6 (import mirroring + task 6.8 export propagation): `[x]`
-  all checked except 6.7.**
-  - `[x]` 6.1, 6.2 — implemented, as in §3.2 above.
-  - `[x]` 6.3 — confirmed by
-    `Test_GraphBuilderPropagation.pf::test_mirrored_import_resolves_via_unmodified_resolution`
-    (three-level GRANDPARENT→MID→comp_dst, MID declares no connection;
-    GRANDPARENT's own connection names MID and resolves against the
-    mirrored port with zero changes to
-    `for_each_matching_import`/`resolve_one`).
-  - `[x]` 6.4 — confirmed by
-    `Test_GraphBuilderPropagation.pf::test_multiple_descendants_bubble_same_name`
-    (two distinct children, same short name 'T', both independently
-    resolved via `for_each_matching_import`'s existing multi-match
-    iteration).
-  - `[x]` 6.5 — resurrected as
-    `superstructure/generic/tests/graph-scenarios/graphbuilder_propagation/`
-    + `Test_GraphModeDemonstration.pf::test_graph_mode_mirrors_grandchild_import_recursively`,
-    exercised through the real init-phase lifecycle (not the direct,
-    synthetic `gb%` calls `Test_GraphBuilderPropagation.pf` uses). This
-    task is also where the real regression (task 6.8) was found,
-    while verifying it — see the correction note above.
-  - `[x]` 6.6 — **confirmed as a no-op, not a removal**: there is no
-    `## REMOVED Requirements` section in this change's own
-    `graph-builder` delta spec (checked directly — only `MODIFIED`/
-    `ADDED` exist), and the two-phase check/resolve split is not
-    superseded — `graphbuilder_check_unsatisfied_imports` is a direct,
-    load-bearing dependency of `graphbuilder_run_propagate_hook`
-    (task 6.1) and of `graphbuilder_run_connect_hook`'s own post-freeze
-    convergence check, in addition to `run_activate_hook`'s own
-    pre-existing use. tasks.md's own note (quoted below) correctly
-    anticipated this outcome; no code or spec text was removed. See
-    tasks.md task 6.6 itself for the full three-point justification.
-  - `[ ]` 6.7 — explicitly out-of-scope follow-up (bubbled-import
-    insertion into the real `ESMF_State` under a child-qualified name)
-    — tracked, not attempted.
-  - `[x]` 6.8 — **new task, not in the original tasks.md** — export
-    propagation (symmetric to 6.1's import propagation) plus three
-    independently-discovered, required bug fixes. See tasks.md task
-    6.8 itself for the full five-point breakdown (export propagation
-    + qualification; `find_export_node`'s own read-path fix;
-    `find_export_node_id`'s own 6.3-style re-derivation bug;
-    `is_ordinary_resolvable_import` filter for WILDCARD/SERVICE/
-    EXPRESSION; `SimpleConnection`/`ReexportConnection` recognition in
-    `connection_resolves_import`) and §3.4 immediately below for the
-    debugging narrative.
-- **Groups 7–8: `[x]` complete** (commit `bc51fc9c`, 7.1/7.2 — note:
-  this commit's own message says "Group 8" but its content is tasks
-  7.1/7.2, i.e. Group 7; fixed post-hoc, see history — and Group 8's
-  own 8.1 test addition, committed as `1ea0fdc1`). **[UPDATED, this
-  session] Group 9: `[x]` complete** (commit `15a50ec5`,
-  hierarchy-wide freeze). **Group 10: `[x]` complete** (this session —
-  full regression pass under both NAG and gfortran, zero regression;
-  spec-doc updates to `02`/`05`/`07`/`08` done, all four now carry
-  `[RE-EVALUATED]` sections matching the landed design; new Phase 16
-  entry added to `20-implementation-roadmap.md`; task 10.4's line-count
-  check performed — found an *increase*, not the predicted decrease,
-  recorded honestly rather than silently closed — see
-  `tasks.md` task 10.4 and roadmap §20.4.16 for the full accounting).
-  - Group 7 (`query_component_exports`, D4): confirmed landed,
-    `Test_GraphBuilder.pf::test_query_component_exports_scoped_to_
-    resolved_component` /
-    `test_query_component_exports_deep_hierarchy_no_propagation`.
-  - Group 8 (8.1, composite-member non-addressability): confirmed, with
-    zero code change (D6's own prediction) — `advertise_one` only ever
-    populates the resource index / import-port / export-port tables for
-    a composite's own top-level identity; `materialize_composite`/
-    `materialize_member` never call any of those three for a member.
-    New test, `Test_GraphBuilder.pf::
-    test_composite_member_not_independently_addressable` (this
-    session, uncommitted): asserts the member's own `NodeId` is absent
-    from both the resource index and the import/export-port tables of
-    either component, and that an ordinary `MatchConnection` naming the
-    member directly by its own short_name resolves nothing (zero
-    `unresolved`/`unsupported` entries — `for_each_matching_import`
-    never finds a port-table entry to match against). Passes under NAG
-    and gfortran; full `ctest -L ESSENTIAL` (64 tests) 100% on both,
-    verified this session.
+Any plain (non-`module` interface) helper declared in `GraphBuilder.F90`
+and called from a submodule needs an explicit `public ::` line. NAG
+accepts a missing one; gfortran fails at link with `Undefined symbols`.
 
-### 3.4 Debugging narrative for task 6.8 (how the regression was found and root-caused)
+### 2.6 Resolution coverage by item class
 
-Kept here, not just in tasks.md, because the METHOD matters as much as
-the fix for anyone resuming this work:
+| Item class | Graph-mode path |
+|---|---|
+| FIELD, FIELDBUNDLE, STATE | Ordinary resolution + characteristic extension chain |
+| BRACKET → FIELD | `ItemShapeCharacteristic` + `BracketTimeInterpolationTransform` |
+| VECTORBRACKET | Not handled: legacy only. `to_itemtype` in the compiled parser does not parse `'vector_bracket'`. |
+| EXPRESSION | `graphbuilder_run_expression_hook` + `ExpressionTransform` (N:1) |
+| WILDCARD | `resolve_wildcard_destination` (fan-in of every matching producer as composite members) |
+| SERVICE | Excluded from graph resolution (`is_ordinary_resolvable_import`); being retired in favor of callbacks |
+| Callback arguments | `GraphBuilder_CallbackWiring_smod.F90` |
 
-1. A plausible-looking "pre-existing and unrelated" claim was made
-   without actually comparing against a real, independently-buildable
-   baseline — only against "my own latest addition reverted," which
-   does not isolate anything about the rest of the diff.
-2. Challenged, the correct check was to build true `HEAD` in an
-   isolated `git worktree` (`git worktree add /tmp/... HEAD`) — this
-   immediately revealed `HEAD` itself does not compile under NAG at
-   all (`GraphBuilder.F90:1329`, an `_ASSERT` macro call split across
-   two physical lines with no `&` continuation — introduced by an
-   earlier, NAG-untested gfortran portability fix the user described
-   separately). Adding back only that one two-line fix (already
-   present in the uncommitted diff, unrelated to Group 6's own logic)
-   made true `HEAD` buildable and `MAPL.generic.scenarios` passed
-   100%.
-3. Re-adding the uncommitted Group 6 files one at a time to that same
-   clean worktree isolated the regression to
-   `OuterMetaComponent/initialize_advertise.F90`'s own wiring (i.e.
-   `run_propagate_hook` actually running in the real lifecycle, not
-   merely existing as unreachable code) combined with
-   `ComponentGraph.F90`'s own `add_import_port` relaxation.
-4. Tracing the actual failing assertions (not just the logged
-   `report_if_failed` warning text, which is swallowed and does NOT
-   itself fail the test — the REAL failure is `MAPL_throw_exception`
-   firing deep inside `_ASSERT`/`_FAIL`, registered with pFUnit's own
-   exception mechanism regardless of whether the caller checks `rc`)
-   led through `A/E_A1`-shaped import names to the ESMF sub-state-
-   nesting semantics correction, then to legacy's own
-   `propagate_exports_virtual_pt` qualification rule, then to the
-   `WILDCARD`-item-type gap (`history_wildcard`), then to the
-   `SimpleConnection` gap (`statistics_real`) — three independent,
-   compounding causes, found one at a time by fixing the first,
-   re-running, and reading the NEXT distinct failure message rather
-   than assuming one fix would resolve everything.
+## 3. Known limitations (current)
 
-**[ASSUMPTION]** The untracked `Test_GraphBuilderPropagation.pf` file
-and the `CMakeLists.txt` registration were almost certainly authored
-together as part of the same in-progress Group 6 work; not independently
-re-verified beyond reading their content.
+- No geometry (horizontal regrid) or vertical-regrid `Transform`;
+  `GeometryCharacteristic` and `VerticalCoordinateCharacteristic`
+  mismatches `_FAIL`. This is the main reason legacy `regrid*` and
+  `propagate_geom` scenarios cannot run under graph mode.
+- Six characteristic axes detect mismatch but have no repair (see §1.1).
+- A mirrored (propagated) import is not inserted into the real
+  `ESMF_State` under a child-qualified name (archived task 6.7 of
+  `hierarchy-wide-component-graph`; needs a new branch in
+  `graphbuilder_populate_state`).
+- Ordinary inout in the general case (Phase 5b2) is blocked on a design
+  addendum (`spec/20-implementation-roadmap.md`).
+- `GraphStateItem` mixes the ESMF handle with description data;
+  `ordering` / `characteristic_ordering_table` is variant-keyed with no
+  legacy counterpart. Both are targeted by
+  `docs/graph/plans/separation-of-concerns.md` (B1, B3, B4).
+- Legacy retirement (`registry/`, `specs/*Aspect`, legacy `transforms/`)
+  is not started. Its graph-side prerequisites in roadmap §20.4.11 (3b2,
+  7a, 7b, 7c, 12, 13) have all landed.
 
-## 4. Verified build and test commands
+## 4. Build and test
 
-All verified by inspecting actual log files already present in this
-checkout (`nag/*.log`, `gfortran/ctest-task6.log`) — **not re-run by
-this documentation pass**. Treat as evidence of a prior run, not a
-live guarantee; re-run before relying on them for new work.
-
-### 4.1 NAG (verified clean run exists)
+Each shell call is a fresh shell. Use the wrappers (`with-nag` loads
+`nag-stack/7.2.41`, `with-gfortran` loads `gfortran-stack`). NAG must be
+exactly 7.2.41. Send logs to files; show only the tail.
 
 ```bash
-module load nag-stack/7.2.41 && cmake --build nag -j 8 --target build-tests
-module load nag-stack/7.2.41 && ctest --test-dir nag --output-on-failure
+with-nag cmake --build nag -j 10 --target build-tests > nag/build.log 2>&1; tail -3 nag/build.log
+with-nag ctest --test-dir nag -L ESSENTIAL -j 6 > nag/ctest.log 2>&1; tail -15 nag/ctest.log
+
+with-gfortran cmake --build gfortran -j 10 --target build-tests > gfortran/build.log 2>&1; tail -3 gfortran/build.log
+with-gfortran ctest --test-dir gfortran -L ESSENTIAL -j 6 > gfortran/ctest.log 2>&1; tail -15 gfortran/ctest.log
 ```
 
-(`module load nag mpi baselibs` from an earlier revision of this file
-does not resolve on this host's Lmod setup — `nag-stack/7.2.41` is the
-correct meta-module matching this checkout's actual configured
-toolchain, clang-17.0/nag-7.2.41/openmpi-5.0, confirmed by reading
-`nag/CMakeCache.txt`'s own `BASEDIR` value.)
+Verified 2026-10-21 on this tree: `ctest -L ESSENTIAL` passes 65/65 on
+both NAG 7.2.41 and gfortran. A full unlabeled `ctest` additionally runs
+four `apps/tests/Regrid_Util/` regression tests (`ll-ll`, `cs-cs`,
+`cs-ll`, `ll-cs`) that need `LOCAL_REGRESSION_DATA_DIR`; they fail
+without it and are outside `ESSENTIAL`.
 
-- `nag/ctest-task6-final.log` (full top-level ctest, this working
-  tree's Group-6 state, predating 6.3-6.6): **91% passed, 7 failed out
-  of 78** — the **same 7 failures, same count**, as
-  `nag/ctest-baseline.log` (a run predating this branch's Group 6
-  changes). The 7 failures are unrelated to the graph work:
-  `ll-ll`/`cs-cs`/`cs-ll`/`ll-cs` (app regression tests) and
-  `MAPL3G_Comp_Test_case02`/`case11`/`case23` (an EXTDATA dry-run check
-  failing on `--narrow requires the netCDF4 Python package, which
-  could not be imported` — an environment/Python dependency issue, not
-  a graph defect).
-- `MAPL.generic.components` (the ctest target containing
-  `Test_GraphBuilderPropagation`, tasks 6.1-6.4/6.8) — **Passed**
-  (verified this session, `ctest --test-dir nag -R MAPL.generic.components`),
-  all 11 propagation tests (7 import-side + 4 new export-side, task
-  6.8) individually confirmed passing via `-v`.
-- `MAPL.generic.scenarios` — **Passed 100%, 0 failures** (verified
-  this session, 3 consecutive runs via
-  `ctest --test-dir nag -R MAPL.generic.scenarios`), including
-  `history_1`/`history_wildcard`/`statistics_real`, which an earlier
-  revision of this file wrongly reported as "pre-existing and
-  unrelated" — see §3's own correction note for the full story. That
-  claim was never actually checked against a real `HEAD` build; it was
-  checked by reverting only this session's own new test file, which
-  does not isolate the production diff at all. Root-caused and fixed
-  as task 6.8 (export propagation + three independently-discovered
-  bugs).
-- Full top-level `ctest --test-dir nag` (75 tests, confirmed 2x this
-  session): **71/75 pass (95%)**. The 4 failures —
-  `ll-ll`/`cs-cs`/`cs-ll`/`ll-cs` — are `apps/tests/Regrid_Util/` app-
-  regression tests, confirmed pre-existing by building true `HEAD` in
-  an isolated `git worktree` (plus only the two trivial, unrelated NAG-
-  portability `_ASSERT`-split fixes already in §3.2) and reproducing
-  the same 4 failures there, with none of Group 6's own code present
-  at all.
-- `nag/build-tests-task6.log` confirms
-  `Test_GraphBuilderPropagation.F90.o` compiled and linked into
-  `MAPL.generic.components` with no errors (only pre-existing unused-
-  variable warnings in unrelated files).
+This checkout uses `superstructure/generic/` and `MAPL.generic.*` target
+names, not the `generic3g`/`MAPL.generic3g.*` names in the generic
+`mapl-build`/`mapl-testing` skills. Graph-relevant ctest targets:
 
-**Conclusion: on NAG, Group 6's current code (tasks 6.1–6.6, 6.8)
-builds and passes, with ZERO regression anywhere in the suite relative
-to true `HEAD` (confirmed via an isolated `git worktree` comparison,
-not just "my own addition reverted"). The only 4 remaining ctest
-failures are pre-existing, unrelated app-regression tests, confirmed
-by reproducing them on `HEAD` alone.**
+| Target | Covers |
+|---|---|
+| `MAPL.generic.graph` | `graph/tests/` (core, characteristics, transforms, callbacks) |
+| `MAPL.generic.components` | `Test_GraphBuilder*.pf`, propagation, mode tests, spec/parser tests |
+| `MAPL.generic.components.quiet` | Two deliberate negative-path hook tests, run at `--level ERROR` |
+| `MAPL.generic.scenarios` | `Test_Scenarios.pf`, equivalence harness, graph-mode demonstration (strict field dictionary) |
+| `MAPL.generic.core`, `.aspects`, `.transforms`, `.vertical` | Legacy layer; see `docs/generic/ARCHITECTURE.md` §4.2 |
 
-### 4.2 gfortran (verified clean, this session)
+Fast path: `with-nag ctest --test-dir nag -R MAPL.generic.components --output-on-failure`.
 
-```bash
-module load gfortran-stack && cmake --build gfortran -j 8 --target build-tests
-module load gfortran-stack && ctest --test-dir gfortran --output-on-failure
-```
+## 5. Architectural decisions still in force
 
-**Build initially failed** on this session's own task 6.8 code:
-`is_ordinary_resolvable_import` (new helper, `GraphBuilder.F90`) was
-declared without `public`. NAG tolerates this (the only caller,
-`GraphBuilder_ConnectionResolution_smod.F90`, is a submodule of the
-same parent module — NAG resolves it via host association regardless
-of visibility); gfortran's linker requires the symbol to be exported
-from the compiled `.o` for a separate-file submodule to link against
-it: `Undefined symbols ... is_ordinary_resolvable_import`. Fixed by
-adding `public :: is_ordinary_resolvable_import` alongside this
-module's existing `resolve_local_node_id`/`is_self`/`itemtype_name`
-public declarations — same pattern every other submodule-shared
-helper in this file already follows; this one new helper had simply
-been missed. **Lesson for future work in this file:** any new plain
-(non-`module`-interface) procedure added to `GraphBuilder.F90` that a
-submodule calls needs an explicit `public ::` line — NAG will not
-catch a missing one; only gfortran's separate-TU linking will.
+Primary records are under `openspec/changes/archive/`; read the relevant
+`design.md` before changing the area.
 
-**After that one-line fix:** `build-tests` succeeds cleanly, zero
-errors. `ctest --test-dir gfortran -R "MAPL.generic.components|MAPL.generic.scenarios"`
-— both pass. Full `ctest --test-dir gfortran` (75 tests): **71/75
-pass (95%)** — the identical 4 failures as NAG
-(`ll-ll`/`cs-cs`/`cs-ll`/`ll-cs`, `apps/tests/Regrid_Util/`, confirmed
-pre-existing and unrelated to graph work in §3's own correction note),
-no gfortran-specific regression beyond the one `public` fix above.
-**Group 6 (tasks 6.1-6.6, 6.8) is confirmed portable across both
-compilers**, superseding the earlier "INCONCLUSIVE" status this
-section previously carried.
+- **Shared storage keyed by `HierarchyId`** (`2026-10-17-hierarchy-wide-component-graph`,
+  D1): not threaded pointers, not a bare singleton.
+- **Explicit ownership sets, no reverse `NodeId→owner` map** (D2).
+- **Propagation is one recursive mirror step per level** (D3). An
+  earlier "search the subtree" design was rejected: it needed a
+  connection to trigger and materialized nothing at intermediate levels.
+- **Export visibility is a query, not a push** (D4,
+  `query_component_exports`).
+- **Qualified-path resolution stays a tree walk** (D5).
+- **Composite-member non-addressability and connection direction are
+  explicit, test-covered requirements** (D6).
+- **Freeze is one hierarchy-wide call** (D7).
+- **Geometry is a graph node** (incomplete `ESMF_Field` tagged
+  `MAPL_STATEITEM_GEOM`), so a component may derive its geom from
+  children.
+- **Graph shape dispatch is independent of legacy** (phases 7a/7b/7c):
+  `ItemShapeCharacteristic`, `ExpressionTransform`, and wildcard
+  fan-in duplicate rather than call `ClassAspect`/`ExtensionTransform`.
+- **Characteristic dispatch** (phase 12,
+  `2026-10-19-phase-12-characteristic-dispatch-wiring`): six further
+  axes (Attributes, UngriddedDims, StandardName, QuantityType,
+  Conservation, Normalization) wired into `populate_characteristics`
+  alongside Units, TypeKind, and VerticalCoordinate; ItemShape was
+  added by 7a.
+- **Restart compatibility** (phase 13): `declared_restart_mode` is
+  captured at advertise and written to ESMF Info by `populate_one`,
+  mirroring `FieldClassAspect%add_to_state`.
 
-### 4.3 How to re-run just the graph-relevant suite (fast path)
+## 6. Roadmap pointer
 
-Verified directory exists in this checkout's NAG build tree
-(`nag/superstructure/generic/tests`):
-
-```bash
-cd nag/superstructure/generic/tests
-module load nag mpi baselibs && make 2>&1 | tee build.log
-module load nag mpi baselibs && ctest -R MAPL.generic.components --output-on-failure
-```
-
-### 4.4 Correction to the generic `mapl-testing`/`mapl-build` skills
-
-Those skills reference a `generic3g/tests` build subdirectory and
-`MAPL.generic3g.*` ctest target names. **This checkout uses
-`superstructure/generic/` and `MAPL.generic.*` target names** (verified:
-`find . -iname generic3g` returns nothing; actual targets observed in
-logs are `MAPL.generic.graph`, `MAPL.generic.scenarios`,
-`MAPL.generic.components`, `MAPL.generic.core`, `MAPL.generic.aspects`).
-Use the real target names above, not the skill's `generic3g` examples,
-on this branch/repo state.
-
-### 4.5 Task Group 10 full regression pass (this session, 2026-10-17)
-
-Working tree was clean (Groups 1-9 fully committed through `15a50ec5`)
-at the start of this pass — no production code was changed; this is a
-pure verification run against already-landed code, plus the doc-only
-changes recorded in §2.2/§6.
-
-```bash
-module load nag-stack/7.2.41
-cmake --build nag --target build-tests -j 8
-ctest --test-dir nag -L ESSENTIAL --output-on-failure -j 4   # 64/64 pass
-ctest --test-dir nag --output-on-failure -j 4                # 71/75 pass
-
-module load gfortran-stack
-cmake --build gfortran --target build-tests -j 8
-ctest --test-dir gfortran -L ESSENTIAL --output-on-failure -j 4   # 64/64 pass
-ctest --test-dir gfortran --output-on-failure -j 4                # 71/75 pass
-```
-
-**Result, both compilers, identical:** `ESSENTIAL` label 100%
-(64/64); full suite 71/75, the only 4 failures being the long-standing
-`ll-ll`/`cs-cs`/`cs-ll`/`ll-cs` `apps/tests/Regrid_Util/`
-regression-data tests (`CMake Error ... regression data directory not
-found ... Is LOCAL_REGRESSION_DATA_DIR set correctly?`) — a missing
-local-data-directory environment issue, not a graph defect, matching
-every prior session's documentation of exactly these same 4 tests
-(§4.1 above). No build warnings or errors beyond the pre-existing
-`ld: warning: ignoring duplicate libraries`/macOS-SDK-version linker
-noise already present before this session. **Zero regression found in
-`superstructure/generic/tests/scenarios/` or `graph-scenarios/` under
-any of the three `graph_mode()` values** (`MAPL.generic.scenarios`,
-`MAPL.generic.components`, and `MAPL.generic.graph` all passed on both
-compilers — these three targets together exercise `GRAPH_MODE_REGISTRY`,
-`GRAPH_MODE_GRAPH`, and `GRAPH_MODE_BOTH`, per `Test_GraphMode.pf`/
-`Test_GraphModeDemonstration.pf`/`Test_GraphBuilderMaterializeGate.pf`/
-`Test_GraphBuilderEquivalence.pf`/`Test_GraphEquivalenceHarness.pf`).
-
-## 5. Previous architectural decisions (summarized; see design.md for full reasoning)
-
-Source: `openspec/changes/hierarchy-wide-component-graph/design.md`
-(the active, in-flight change). Only the already-landed-or-in-progress
-decisions are summarized here; read the source file directly before
-making a change that touches any of these.
-
-- **D1 — Shared storage via `HierarchyId`-keyed registry, not threaded
-  pointers, not a bare singleton.** Rejected a `SharedGraphStorage`
-  pointer threaded through `OuterMetaComponent` construction (would
-  have grown a public, user-facing `mapl_GridCompCreate` signature with
-  a plumbing concern, and risked a future circular dependency). Rejected
-  a bare module-level singleton (`CallbackInterfaceRegistry`'s own
-  precedent) because node/network storage is mutated far more heavily,
-  earlier, and by more independent test fixtures than callback-interface
-  registration — cross-test state bleed would be a real risk, not
-  theoretical.
-- **D2 — Ownership is explicit (`own_node_ids` set), not inferred from
-  storage locality; no reverse `NodeId → owner` map.** Every real
-  caller identified only ever needs "is this mine" (forward), never
-  "whose is this" (reverse). **Correction recorded mid-implementation**
-  (Groups 3-5): `add_dependency`/`validate`/`bind_port`/
-  `add_import_port` relaxed to accept either an owned id or any id
-  registered anywhere in the hierarchy (`allowed_foreign_node`) — a
-  cross-component edge's two endpoints are legitimately two different
-  components' own ids, neither "owned" by the instance adding the edge.
-- **D3 — Propagation is one recursive mirror step per level** (see §3.1
-  above for the full postmortem of the rejected "search the subtree"
-  alternative). Explicitly notes a genuinely open follow-up (task 6.7):
-  inserting a mirrored import into the real `ESMF_State` under a
-  child-qualified name still needs a new branch in
-  `graphbuilder_populate_state`, not yet implemented.
-- **D4 — Export visibility (History) is a query, not a push.** No
-  analog of legacy's unconditional export-push into a nested substate
-  tree; a hierarchy-wide consumer walks the `OuterMetaComponent` tree
-  once and reads each component's own local resource index directly.
-  **Implemented** (Group 7, `query_component_exports`, commit
-  `bc51fc9c`).
-- **D5 — Qualified-path resolution stays a tree walk; only the
-  proxy-creation step at the end was removed.** Component-name
-  resolution (`resolve_qualified_component`) is unaffected; only what
-  happens after a successful resolution changed.
-- **D6 — Composite-member non-addressability and the
-  connection-direction invariant are promoted from "incidentally true"
-  to explicitly stated, test-covered requirements** — confirmed to
-  already hold structurally; no implementation change needed, only new
-  test coverage. **Confirmed and test-covered** (Group 8, task 8.1,
-  this session, uncommitted — `test_composite_member_not_
-  independently_addressable`).
-- **D7 — Freeze becomes one hierarchy-wide call** (not yet implemented;
-  Group 9, unchecked). Per-component freeze-ordering reasoning (phases
-  11a/11b) becomes moot once this lands.
-
-## 6. Completed phases and outstanding work (cross-reference)
-
-See `docs/graph/spec/20-implementation-roadmap.md` for the authoritative,
-much longer version of this list (§20.4 and its many sub-sections). This
-is a short pointer, not a replacement:
-
-**Landed (confirmed by roadmap text + archived openspec changes):**
-Phases 1–4 core (identities, node hierarchy, dependency network,
-component graph, transforms, revision/update, GraphBuilder integration,
-extension reuse, methods/drivers, callbacks, horizontal geometry 4e,
-vertical grid 4f, route handles 4g), Phase 5a (StateItemCharacteristic
-hierarchy) + 5a2 (seven more subclasses) + 5b (ordinary inout, direct
-alias) + 5c (compiled-execution groundwork), Phase 9
-(`GraphResolutionEntry`), Phase 10 a–d (state materialization +
-3-mode toggle, equivalence harness, typekind unification, ordinary-phase
-`MethodGraphNode`), Phase 11 a/b (export-field aliasing, multi-hop chain
-materialization), **Phase 16 (`hierarchy-wide-component-graph`,
-architecture revision — recorded as a new roadmap phase this session,
-`20-implementation-roadmap.md` §20.4.16): all 10 Task Groups complete
-and committed** (`9ce2ecd5`, `f629872a`, `9fdea0fd`, `bc51fc9c`,
-`1ea0fdc1`, `15a50ec5`, plus this session's Task Group 10 work —
-regression pass + spec-doc updates, no production code change). Only
-task 6.7 (bubbled-import insertion into the real `ESMF_State`, explicit
-out-of-scope follow-up) remains unimplemented within this phase, filed
-as a named follow-up rather than silently left undone.
-
-**Explicitly blocked / not ready to scope:** Phase 5b2 (ordinary inout,
-general case — needs a design addendum resolving four named open
-points before any code may be written).
-
-**Not yet filed as their own change, named as prerequisites for Phase 6
-legacy retirement:** Phase 7a/7b (Bracket/Expression shape dispatch),
-Phase 7c narrowed to Wildcard (Service is being retired outright, not
-migrated), Phase 12 (5a2 subclasses wired into real dispatch — roadmap
-reference, read `20-implementation-roadmap.md` directly for current
-numbering).
-
-**Do not start Phase 6a (legacy `StateRegistry` retirement) until the
-five-item prerequisite list in roadmap §20.4.11 has landed** — this
-includes 3b2 (the Group-6 work this branch is mid-implementing).
-
-**Phases 17-21 — the independent cleanup/infrastructure/diagnostics
-lane (see roadmap §20.4.17-§20.4.21 for full scope/sub-sequencing of
-each), confirmed to proceed in parallel with Phase 6a's own
-prerequisite list and Phases 7/12/13 except where explicitly noted.
-Status, updated this session (2026-10-19) — most of this lane has
-since landed, not merely been planned:**
-- **Phase 17 — DONE** (all of 17-1 through 17-5): dedup of two
-  duplicated test fixture helpers, dead-helper deletion, `Test_GraphBuilder.pf`
-  split into five submodule-scoped files
-  (`Test_GraphBuilder_{Advertising,Freeze,ConnectionResolution,CallbackWiring,RunPhaseNode}.pf`).
-- **Phase 18 — DONE** (18-1 through 18-4, including the
-  `characteristics/` move, confirmed clear of any Phase-12 conflict
-  at the time it ran since no Phase-12 change existed yet):
-  `superstructure/generic/graph/` reorganized into `characteristics/`,
-  `transforms/`, `callback/`, `id_types/` subdirectories.
-- **Phase 19 — DONE**: two near-identical `sorted_names` helpers
-  deduplicated into `StringSortUtilities.F90`.
-- **Phase 20 — DONE** (split-suite fix, not a `report_if_failed`
-  severity change): the only two real call sites of
-  `GraphBuilder: ... step failed` across the whole `MAPL.generic.*`
-  suite (both deliberate negative-path tests, in
-  `Test_GraphGeometryHook.pf`/`Test_GraphBuilder_ConvergenceCheck.pf`)
-  were split out of `MAPL.generic.components` into a new sibling
-  `MAPL.generic.components.quiet` executable, run at `--level ERROR`
-  via pFUnit's `COMMAND_LINE_ARGS` (a mechanism from upstream pFUnit
-  PR #585, manually backported into this tree's installed pFUnit by
-  the codebase owner this session). Verified end-to-end on both NAG
-  and gfortran (65/65 `ctest -L ESSENTIAL` tests passing, zero
-  `GraphBuilder:` warning lines from the new suite). Source (a)
-  (field-dictionary noise) remains deliberately untouched/out of
-  scope — unrelated to the graph architecture.
-- **Phase 21 — 21-1/21-2/21-3 DONE** (`GraphScenarioBootstrap.F90`
-  extraction, `apps/graph_diagnostic/graph_diagnostic.x` driver,
-  `render_graph.py` wiring — re-verified working end-to-end this
-  session: YAML in, `.dot`+`.json` out, `.dot`→`.png` via
-  `render_graph.py`); **21-4 (optional batch-mode) not built**, and
-  the roadmap marks it optional/non-blocking.
-
-**[UPDATED, this session, 2026-10-19] Phase 12 — DONE** (all 7 Task
-Groups of `openspec/changes/phase-12-characteristic-dispatch-wiring`
-complete, `tasks.md` 30/30 checked, `openspec validate --strict`
-valid; pending archive-move and a separate source commit — see §7
-below for the full account). Phases 7a/7b/7c have NOT landed —
-confirmed by source inspection (no `WILDCARD`/`BRACKET`/`EXPRESSION`
-shape-dispatch code outside the `characteristics/` module itself).
-Phase 18's own `characteristics/` move landed ahead of Phase 12 as a
-genuine ordering choice (no Phase-12 change was in flight to conflict
-with at the time), not an error.
-
-**Phase 13 — DONE** (commits `73dff9b6`, `09064494`): restart
-compatibility under graph-native field materialization.
-`GraphStateItem` gained `declared_restart_mode` + accessors;
-`populate_characteristics` captures `VariableSpec%restart_mode` at
-advertise time; `populate_one` calls `FieldInfoSetInternal` on the
-alias, mirroring `FieldClassAspect.F90:493-498`. Two tests added
-(`test_restart_mode_captured_at_advertise_time` in
-`Test_GraphBuilder_Advertising.pf`;
-`test_graph_mode_sets_restart_metadata_on_materialized_field` in
-`Test_GraphModeDemonstration.pf`). A latent `standard_name` mismatch
-in `gridcomps/configurable/tests/scenarios/scenario_1/child_B.yaml`
-was also corrected (was silently accepted by legacy
-`StandardNameAspect` permissive mode; correctly detected by Phase
-12's wired `StandardNameCharacteristic`). NAG: `ctest -L ESSENTIAL`
-65/65 clean.
-
-## 7. Phase 12 narrative — six `StateItemCharacteristic` axes wired into real dispatch
-
-**Verified this session (2026-10-19) by implementing the change
-directly**, not merely read from a prior pass — kept as a narrative
-section (like §3's Task-Group-6 account) because the two surprises
-below cost real build/test cycles and are exactly the kind of thing a
-future pass through this axis family should know up front.
-
-**Scope.** `openspec/changes/phase-12-characteristic-dispatch-wiring`
-wires six of 5a2's seven standalone `StateItemCharacteristic`
-subclasses — `AttributesCharacteristic`, `UngriddedDimsCharacteristic`,
-`StandardNameCharacteristic`, `QuantityTypeCharacteristic`,
-`ConservationCharacteristic`, `NormalizationCharacteristic` — into
-`GraphBuilder_Advertising_smod.F90`'s `populate_characteristics`
-insertion point, mirroring the existing `PhysicalUnitsCharacteristic`/
-`TypeKindCharacteristic`/`VerticalCoordinateCharacteristic` precedent
-(`VerticalCoordinateCharacteristic` was already wired before this
-phase, hence six axes here, not seven as the roadmap's original
-`5a2`-subclass count implied).
-
-**What changed (uncommitted at the time of this writing — see below):**
-- `superstructure/generic/specs/VariableSpec.F90`: three new fields —
-  `quantity_type`, `conservation`, `normalization` — plain field
-  assignment only (no `make_VariableSpec` keyword, no YAML/parser
-  wiring; `quantity_type` in particular is YAML-unreachable today,
-  same as `ConservationCharacteristic`/`NormalizationCharacteristic`'s
-  own metadata types).
-- `GraphBuilder_Advertising_smod.F90`'s `populate_characteristics`:
-  six insertion branches, each gated per design.md D1 to match its own
-  field's "unset" representation — `allocated()` gate for
-  `standard_name` (same shape as `units`'s existing gate);
-  `%size() > 0` gate for `attributes` (skips the empty/common case as
-  an optimization, not a correctness requirement); unconditional
-  insert for the other four (same shape as `typekind`'s existing
-  unconditional insert — each field's own default is itself a
-  meaningful, comparable value).
-- `GraphBuilder.F90`'s host `use mapl_StateItemCharacteristicKind_mod`
-  line extended with the six new kind constants (no separate
-  submodule `use` needed — submodules reach them via host
-  association).
-- `GraphBuilder_ConnectionResolution_smod.F90`'s
-  `merged_item_for_link`: one combined, comment-only `else if` branch
-  added for all six kinds, documenting that none can actually reach
-  this point in practice (see surprise #1 below) — enumerated
-  explicitly so a genuine mismatch fails with ITS OWN message, not
-  this helper's unrelated "unrecognized StateItemCharacteristicKind"
-  fallback.
-
-**Surprise #1 — none of the six axes has a real `build_transform`,
-confirmed empirically rather than planned around up front.** This
-document's own §1.1 (now corrected above) already stated this as a
-known fact before this phase started; it was re-discovered the hard
-way instead of being read first (see the self-assessment this session
-also produced, referenced below). Every mismatch on these six axes
-surfaces as `'<Name>Characteristic: build_transform - no real
-provider exists for this axis'`, via the generic `_FAIL` default
-every `*Characteristic%build_transform` stub shares — not a silent
-pass, not a converted value. Both the synthetic unit test
-(`test_standard_name_mismatch_fails_explicitly`,
-`Test_GraphBuilder_ConnectionResolution.pf`) and the real-pipeline
-scenario test
-(`test_graph_mode_leaves_newly_wired_axis_mismatch_unwired`,
-`Test_GraphModeDemonstration.pf`) need
-`@assertExceptionRaised('StandardNameCharacteristic: build_transform
-- no real provider exists for this axis')` to consume that exception
-before their own assertions run. **Lesson for future work on any
-newly-wired-but-not-yet-converted axis:** write the
-`@assertExceptionRaised` expectation first, before running the test
-once to "discover" it — reading §1.1/§7 here would have made this
-the first draft, not the second.
-
-**Surprise #2 — legacy's `UngriddedDimsAspect%can_connect_to` rejects
-any ungridded-dims disagreement unconditionally, independent of
-`ValidationMode`, unlike `StandardNameAspect%matches()` which is only
-strict under strict `ValidationMode`.** This asymmetry killed the
-fixture's first draft (`standard_name_and_quantity_type_mismatch`,
-renamed to `standard_name_and_ungridded_dims_mismatch` after
-`quantity_type` turned out to be YAML-unreachable) when it also tried
-to mismatch `ungridded_dims`: legacy's own `process_connections()`
-hard-failed before `GraphBuilder`'s own resolution ever ran, regardless
-of mode. The final fixture
-(`superstructure/generic/tests/graph-scenarios/
-standard_name_and_ungridded_dims_mismatch/`) mismatches only
-`standard_name` (`air_temperature` vs. `surface_temperature`) and
-deliberately MATCHES `ungridded_dims` (`foo1`/extent 3 both sides),
-and its scenario test overrides `FieldDictionaryConfig` to permissive
-for its own duration (save/restore, mirroring `Test_Aspects.pf`'s own
-convention) — `MAPL.generic.scenarios` otherwise forces strict mode
-process-wide via `Initialize_strict`, and legacy's
-`StandardNameAspect%matches()` runs unconditionally alongside
-`GraphBuilder`'s own resolution even under `GRAPH_MODE_GRAPH`.
-**Lesson:** when picking which axis pairs to co-mismatch in a new
-fixture, check each legacy `*Aspect%can_connect_to`/`matches()` for a
-`ValidationMode` gate (or its absence) before writing the YAML, not
-after a hard failure in `process_connections()` explains it.
-
-**Verification (NAG only this session; gfortran not re-run for this
-phase):** all six Task Groups' own tests pass
-(`Test_GraphBuilder_Advertising.pf` new cases,
-`Test_GraphBuilder_ConnectionResolution.pf`'s
-`test_standard_name_mismatch_fails_explicitly`,
-`Test_GraphModeDemonstration.pf`'s
-`test_graph_mode_leaves_newly_wired_axis_mismatch_unwired`); full
-`ctest -R "^MAPL.generic"` 8/8 suites passing; `openspec validate
-phase-12-characteristic-dispatch-wiring --strict` valid.
-
-**State as of this writing:** all source changes above are
-**uncommitted** in the working tree; the OpenSpec change itself is
-mid-archive (artifact/task completeness confirmed, delta-spec sync
-decision pending). A separate source commit is still needed once
-archiving completes. A companion self-assessment this session
-concluded `ARCHITECTURE.md` (this file) was NOT actually consulted
-during implementation despite §1.1 already containing the exact fact
-that would have preempted surprise #1 — recorded here as the fix for
-that gap, and as a concrete argument for reading this file before,
-not after, writing characteristic-mismatch tests on any future axis.
-
-
+Each landed phase has an archived change under
+`openspec/changes/archive/`: 5a/5a2 (characteristics), 5b (ordinary
+inout, direct alias), 7a, 7b, 7c (Wildcard only), 9, 10a-d, 11a/b, 12,
+16 (`hierarchy-wide-component-graph`), 17-19. Phase 13 (restart) and
+phases 20-21 (`MAPL.generic.components.quiet`, `apps/graph_diagnostic`
+21-1..21-3) landed as commits without an archived change of that name.
+Not built: 5b2 (general inout), 5c (compiled execution), 21-4
+(optional batch mode), 6a (legacy retirement). The authoritative list
+is `docs/graph/spec/20-implementation-roadmap.md` §20.4; verify an
+individual phase against `git log` before relying on this summary.

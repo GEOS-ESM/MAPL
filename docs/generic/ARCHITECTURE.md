@@ -28,11 +28,10 @@ re-described.
   sources win — this file may lag.
 
 All facts below were verified by reading the actual source tree,
-`CMakeLists.txt` files, and `git log`/`git show` output on 2026-10-20,
-unless marked **[ASSUMPTION]**. This pass did not re-run the build or
-test suite; §4's commands are carried over, lightly corrected, from
-`docs/graph/ARCHITECTURE.md` §4 (verified there on 2026-10-16/17/19) —
-treat them as a known-working recipe, not a fresh verification.
+`CMakeLists.txt` files, and `git log`/`git show` output on 2026-10-21,
+unless marked **[ASSUMPTION]**. On 2026-10-21 `ctest -L ESSENTIAL` passed
+65/65 on NAG 7.2.41 and on gfortran; §4's commands use the
+`with-nag`/`with-gfortran` wrappers described in the root `AGENTS.md`.
 
 ## 0. What is "the generic layer," and what is out of scope here
 
@@ -53,8 +52,7 @@ library that implements:
   converters (units, typekind, regrid, time-interpolate, normalize,
   conservative-regrid),
 - vertical-grid support (`ModelVerticalGrid`, `FixedLevelsVerticalGrid`),
-- and, as of the in-flight `hierarchy-wide-component-graph` work, the
-  **integration points** (`GraphBuilder*.F90`) that let a parallel,
+- and the **integration points** (`GraphBuilder*.F90`) that let a parallel,
   explicit-dependency-graph implementation (`superstructure/generic/
   graph/`) run alongside or in place of the legacy path, selected by
   `mapl_GraphMode_mod`'s 3-way switch.
@@ -62,8 +60,8 @@ library that implements:
 **Out of scope for this file:** everything under
 `superstructure/generic/graph/` itself (graph-neutral core:
 `GraphNode`/`ComponentGraph`/`DependencyNetwork`/`StateItemCharacteristic`/
-`Transform` (graph-native) /callbacks/route handles — ~70 modules,
-~12,000 lines). Fully documented in `docs/graph/`. This file documents
+`Transform` (graph-native) /callbacks/route handles — 89 non-test files,
+~12,300 lines). Fully documented in `docs/graph/`. This file documents
 only the *rest* of `superstructure/generic/`, plus the handful of
 integration files (`GraphBuilder*.F90`, `OuterMetaComponent*`) that sit
 at the seam between the two and are needed to understand how legacy
@@ -95,11 +93,11 @@ generic/vertical/`).
 | `UserSetServices.F90` | `mapl_UserSetServices_mod` | 238 | Wraps a user's own `SetServices` procedure pointer/interface so `OuterMetaComponent` can invoke it uniformly. |
 | `MethodPhasesMap.F90` | `mapl_MethodPhasesMap_private_mod` | 191 | Maps ESMF phase names/indices for init/run methods. |
 | `InnerMetaComponent.F90` | `mapl_InnerMetaComponent_mod` | 84 | The *inner* gridcomp's private state (distinct from `OuterMetaComponent`, the wrapping component MAPL itself creates). Holds the user's own `GridComp`, its own `Clock`, and a pointer back to the owning `OuterMetaComponent`. |
-| `OuterMetaComponent.F90` + `OuterMetaComponent/` (64 files, 3079 lines) | `mapl_OuterMetaComponent_mod` | 857 (+ submodules) | The central component-hierarchy type. See §1.2. |
+| `OuterMetaComponent.F90` + `OuterMetaComponent/` (64 files, 3089 lines) | `mapl_OuterMetaComponent_mod` | 857 (+ submodules) | The central component-hierarchy type. See §1.2. |
 | `OuterMetaComponentDriverResolver.F90` | `mapl_OuterMetaComponentDriverResolver_mod` | 84 | Small helper resolving a child's `GriddedComponentDriver` from an `OuterMetaComponent`. |
 | `GraphScenarioBootstrap.F90` | `mapl_GraphScenarioBootstrap_mod` | 135 | Test/scenario-harness bootstrap helper (YAML-driven fixture setup for scenario tests and the `graph_diagnostic` app). |
 | `GraphResolutionEntry.F90`, `GraphResolutionEntryVector.F90` | `mapl_GraphResolutionEntry_mod`, `...Vector_mod` | 42, 14 | Structured resolution-report record type used by `GraphBuilder`'s lifecycle hooks (shared with the graph layer; documented in depth in `docs/graph/ARCHITECTURE.md`). |
-| `GraphBuilder.F90` + ten `GraphBuilder_*_smod.F90` | `mapl_GraphBuilder_mod` | 1174 (+ ~10 submodules) | The graph integration layer. **Documented in `docs/graph/ARCHITECTURE.md` §1.2** — listed here only because the files live in this directory; this doc does not re-describe their internals. |
+| `GraphBuilder.F90` + eleven `GraphBuilder_*_smod.F90` | `mapl_GraphBuilder_mod` | 1206 (+ 11 submodules) | The graph integration layer. **Documented in `docs/graph/ARCHITECTURE.md` §1.2** — listed here only because the files live in this directory; this doc does not re-describe their internals. |
 | `MAPL3_Deprecated.F90` | `mapl_Deprecated_mod` | 13 | Marker module for deprecated-symbol bookkeeping. |
 | `RestartHandler.F90` | `mapl_RestartHandler_mod` | 220 | Read/write-restart orchestration helper used by `OuterMetaComponent/write_restart.F90` / `read_restart.F90`. |
 | `RunEntryPoint.F90`, `EntryPointVector.F90` | `mapl_RunEntryPoint_mod`, `mapl_EntryPointVector_mod` | 11, 15 | Tiny supporting types for registering custom run-phase entry points (`set_entry_point.F90`). |
@@ -110,7 +108,7 @@ generic/vertical/`).
 `OuterMetaComponent.F90` (857 lines) declares the type's full private
 state and every type-bound-procedure interface; the 64 files in
 `OuterMetaComponent/` are its submodules (one procedure or tightly
-related group per file), totaling 3079 lines. This is the largest
+related group per file), totaling 3089 lines. This is the largest
 single type in the generic layer by procedure count.
 
 Key state owned by `OuterMetaComponent` (from its own `use` list and
@@ -144,7 +142,7 @@ Representative submodule groupings (not exhaustive — see
 | Graph-layer attachment | `get_component_graph.F90`, `get_child_component_graph.F90`, `get_run_phase_method_node_id.F90`, `set_run_phase_method_node_id.F90`, `connections_resolved.F90` | Accessors `GraphBuilder*.F90` uses; documented from the graph side in `docs/graph/ARCHITECTURE.md`. |
 | Misc accessors | `get_name.F90`, `get_gridcomp.F90`, `get_hconfig.F90`, `set_hconfig.F90`, `get_phases.F90`, `get_internal_state.F90`, `get_logger.F90`, `get_registry.F90`, `get_component_spec.F90`, `get_user_gc_driver.F90`, `set_entry_point.F90`, `start_timer.F90`, `stop_timer.F90`, `finalize.F90` | Plain field accessors and small utility procedures. |
 
-### 1.3 `registry/` — legacy `StateRegistry` and extension bookkeeping (11 files, 1638 lines)
+### 1.3 `registry/` — legacy `StateRegistry` and extension bookkeeping (20 files, 1638 lines)
 
 | File | Responsibility |
 |---|---|
@@ -202,7 +200,7 @@ path and the graph integration layer depend on directly.
 | `parse_timespec.F90` | Parses run-phase timestep/alarm configuration. |
 | `to_itemtype.F90` | Classifies a variable's declared item type (`field`/`expression`/`vector`/`service`/`wildcard`/`bracket`/`vector_bracket`) from its YAML `class:`/`expression:` keys. **This is the file actually compiled** — see the top-level duplicate's note in §1.1. |
 
-### 1.6 `specs/` — the `ComponentSpec`/`VariableSpec`/aspect type hierarchy (44 files, 10,658 lines — largest subdirectory)
+### 1.6 `specs/` — the `ComponentSpec`/`VariableSpec`/aspect type hierarchy (42 `.F90` files, 10,971 lines incl. `GeomAspect/`, `VerticalGridAspect/` — largest subdirectory)
 
 This is the metadata model the legacy coupler (and, for a handful of
 axes, the parser) dispatches on. Three loosely-layered families:
@@ -295,8 +293,8 @@ reimplementations** of largely the same axis list (units, typekind,
 geometry, ungridded dims, standard name, quantity type, conservation,
 normalization, item-shape/bracket). This parallel-reimplementation
 relationship is stated directly in multiple places already read this
-session (`docs/graph/ARCHITECTURE.md` §1.1's characteristics row,
-Phase 12's narrative in §7, and the Phase 7a proposal's "No change to
+session (`docs/graph/ARCHITECTURE.md` §1.1's characteristics table,
+`docs/graph/GLOSSARY.md`, and the Phase 7a proposal's "No change to
 legacy `ClassAspect`" impact note) — treated as verified, not an
 assumption of this pass, but flagged because no single file states "these
 two hierarchies are intentionally kept separate forever"; the roadmap's
@@ -304,7 +302,7 @@ own framing is that the graph-native side is being built up to
 eventually make the `specs/` aspect side removable (Phase 6a), not that
 the two will coexist indefinitely.
 
-### 1.7 `transforms/` — concrete data converters, legacy `ExtensionTransform` family (14 files + 1 note, 3211 lines)
+### 1.7 `transforms/` — concrete data converters, legacy `ExtensionTransform` family (15 files + 1 note, 3211 lines)
 
 | File | Responsibility |
 |---|---|
@@ -415,7 +413,7 @@ documents and the graph-native path `docs/graph/` documents:
 |---|---|
 | `GRAPH_MODE_REGISTRY` (default) | Only `StateRegistry`/`transforms/` populate the real `ESMF_State`. Zero behavior change from before the graph layer existed. This is what every real production run uses today — nothing sets `set_graph_mode()` outside test code. |
 | `GRAPH_MODE_BOTH` | Graph-native materialization runs *alongside* the legacy coupler, but never inserts into the same `ESMF_State` — readable only out of band, directly from the graph node's own payload. Used to compare the two paths with no collision risk. |
-| `GRAPH_MODE_GRAPH` | Graph-native state population is the *sole* producer; the legacy coupler's population step is skipped for that component. Not yet exercised end-to-end against any real fixture by design (`docs/graph/ARCHITECTURE.md` §6's "demonstrate before replace" note) — unit-testable regardless. |
+| `GRAPH_MODE_GRAPH` | Graph-native state population is the *sole* producer; the legacy coupler's population step is skipped for that component. Not yet exercised end-to-end against any real fixture by design (`docs/graph/spec/20-implementation-roadmap.md` "demonstrate before replace") — unit-testable regardless. |
 
 This file's own subdirectories (`specs/`, `connection/`, `registry/`,
 `transforms/`) run **unconditionally** regardless of `graph_mode()` —
@@ -427,8 +425,8 @@ by a legacy aspect's own `can_connect_to`/`matches` (e.g.
 `UngriddedDimsAspect`, which rejects disagreement unconditionally,
 independent of `ValidationMode`) can hard-fail `process_connections()`
 *before* `GraphBuilder`'s own resolution ever runs, regardless of
-`graph_mode()` — a real, previously-encountered gotcha documented from
-the graph side in `docs/graph/ARCHITECTURE.md` §7's "Surprise #2."
+`graph_mode()` — a real, previously-encountered gotcha recorded in
+`docs/graph/history/2026-10-session-narratives.md` (Phase 12 narrative, second surprise).
 
 ### 2.4 Lifecycle call sites where this layer calls into the graph layer
 
@@ -456,8 +454,8 @@ gating whether the graph-native result ends up in the real `ESMF_State`
 - `initialize_accept_transfer.F90` — `run_connect_hook`
   (post-connection-resolution convergence check).
 - `initialize_graph_freeze.F90` — the hierarchy-wide `freeze()` call
-  (see `docs/graph/ARCHITECTURE.md` §2.2's "single hierarchy-wide
-  operation" account).
+  (see `docs/graph/ARCHITECTURE.md` §2.2's "freeze() is one
+  hierarchy-wide operation" account).
 - `connect_all.F90` — drives legacy `Connection`/`StateRegistry`
   resolution; does not itself call `GraphBuilder` (confirmed by
   reading the file in this pass; graph-native connection resolution
@@ -519,9 +517,8 @@ library (`esma_set_this (OVERRIDE MAPL.generic)`) with:
 
 ## 4. Verified build and test commands
 
-Carried over from `docs/graph/ARCHITECTURE.md` §4 (verified there on
-2026-10-16/17/19 against this same checkout's `nag`/`gfortran` build
-trees) — **not independently re-run for this pass**. The ctest target
+Same commands as `docs/graph/ARCHITECTURE.md` §4 (re-run 2026-10-21 on
+this checkout's `nag`/`gfortran` build trees). The ctest target
 names below are the authoritative, non-`graph`-specific suites this
 file's subdirectories feed into; `docs/graph/ARCHITECTURE.md` §4
 documents the same commands with `MAPL.generic.components`/
@@ -574,7 +571,7 @@ Those skills reference a `generic3g/tests` build subdirectory and
 `superstructure/generic/` and `MAPL.generic.*` target names** —
 confirmed by reading both `superstructure/generic/CMakeLists.txt` and
 `superstructure/generic/tests/CMakeLists.txt` directly, and already
-documented from the graph side in `docs/graph/ARCHITECTURE.md` §4.4.
+documented from the graph side in `docs/graph/ARCHITECTURE.md` §4.
 Use the seven real target names in §4.2 above, not the skill's
 `generic3g` examples, on this branch/repo state.
 
@@ -596,7 +593,7 @@ a restatement of the reasoning.
   `StandardNameAspect.F90`'s `matches()`; the graph-native
   `StandardNameCharacteristic` (landed Phase 12, `graph/
   characteristics/`) implements the equivalent detection but — per
-  `docs/graph/ARCHITECTURE.md` §7's "Surprise #1" — has no real
+  `docs/graph/ARCHITECTURE.md` §1.1 — has no real
   `build_transform` repair step yet (any genuine mismatch on this axis
   fails loudly rather than converting).
 - **Field-dictionary use in scenario tests**
@@ -665,8 +662,9 @@ legacy, and still load-bearing** — it is not itself undergoing active
 phase-based development the way `graph/` is. The relevant "work" from
 this file's perspective is tracked entirely on the *graph* side, as
 prerequisites for eventually retiring parts of this layer. See
-`docs/graph/ARCHITECTURE.md` §6 for the authoritative, actively
-maintained phase list. The two facts from that list most relevant to
+`docs/graph/ARCHITECTURE.md` §6 for a roadmap pointer and
+`docs/graph/spec/20-implementation-roadmap.md` §20.4 for the
+authoritative phase list. The two facts from that list most relevant to
 this file:
 
 - **Phase 6a (legacy `StateRegistry` retirement) has an explicit,
@@ -676,19 +674,18 @@ this file:
   `registry/`, `connection/`, or `specs/`'s aspect hierarchy as
   deprecated or scheduled for near-term removal. There is no removal
   date; only a prerequisite list, still in progress on the graph side.
-- **Phase 7a (Bracket→Field shape dispatch) is landed** (confirmed
-  this session by reading HEAD commit `8960f8ba`'s diff and
-  `openspec/changes/archive/2026-10-20-phase-7a-shape-dispatch-wiring/`'s
-  own `tasks.md`, 47/47 checked) — the graph-native path can now
-  resolve a `BRACKET`-declared export into a `FIELD`-declared import
-  without routing through this layer's own `BracketClassAspect`/
-  `TimeInterpolateTransform`. **Phase 7b (Expression) and 7c
-  (Wildcard) remain unimplemented** — `ExpressionClassAspect.F90` and
-  `WildcardClassAspect.F90` (and their `transforms/EvalTransform.F90`/
-  legacy wildcard-matching counterparts) are still the only working
-  implementation of those two item classes. `VectorBracketClassAspect`
-  (vector-shaped bracket→vector) is explicitly out of scope for Phase
-  7a too (proposal.md's own "Why" section) and remains legacy-only.
+- **Phases 7a (Bracket→Field), 7b (Expression), and 7c (Wildcard) are
+  landed** (archived under `openspec/changes/archive/2026-10-20-…`/
+  `2026-10-21-…`). The graph-native path resolves those item classes
+  without routing through this layer's `BracketClassAspect`,
+  `ExpressionClassAspect`/`EvalTransform`, or `WildcardClassAspect`;
+  those classes remain here as the legacy implementation. Service is
+  excluded from graph resolution (being retired in favor of callbacks).
+  `VectorBracketClassAspect` (vector-shaped bracket→vector) has no graph
+  counterpart and remains legacy-only; the compiled `to_itemtype` in
+  `ComponentSpecParser/` does not parse `'vector_bracket'`, though a
+  stray `superstructure/generic/to_itemtype.F90` copy (not in the build)
+  does.
 
 No other outstanding work specific to this file's directories was
 found in this pass's `openspec/changes/` survey — every other archived
