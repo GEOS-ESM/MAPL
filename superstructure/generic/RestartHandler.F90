@@ -124,7 +124,7 @@ contains
       call writer%stage_data_to_file(bundle, filename, 1, _RC)
        o_client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
       call o_client%done_collective_stage(_RC)
-      call o_client%post_wait_all()
+      call o_client%post_wait_all(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine write_bundle_
@@ -155,8 +155,8 @@ contains
       call reader%initialize(filename, geom, _RC)
       call reader%request_data_from_file(filename, bundle, _RC)
        i_client => get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
-      call i_client%done_collective_prefetch()
-      call i_client%wait_all()
+      call i_client%done_collective_prefetch(_RC)
+      call i_client%wait_all(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine read_bundle_

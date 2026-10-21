@@ -34,10 +34,12 @@ contains
       type(ESMF_Field), allocatable :: field_list(:)
       character(len=ESMF_MAXSTR) :: field_name
       integer :: idx, status
+      logical :: remove
 
       call FieldBundleGet(bundle, fieldList=field_list, _RC) ! addorder
       do idx = 1, size(field_list)
-         if (predicate(field_list(idx))) then
+         remove = predicate(field_list(idx), _RC)
+         if (remove) then
             call ESMF_FieldGet(field_list(idx), name=field_name, _RC)
             call ESMF_FieldBundleRemove(bundle, [field_name], _RC)
          end if
