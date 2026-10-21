@@ -34,15 +34,16 @@ do not fix. Never edit files or change git state.
 
 Inputs: the build directory (`nag/` or `gfortran/`), and the failing tests
 or a log. If neither is given, run
-`ctest --test-dir <dir> -L ESSENTIAL -j 6` and start from its summary.
+`with-nag ctest --test-dir <dir> -L ESSENTIAL -j 6` and start from its summary.
 
-The environment needs a compiler module. If commands fail for that reason,
-run them through `source $(brew --prefix lmod)/init/bash; module load
-nag-stack/7.2.41` (or `gfortran-stack`).
+Each shell call is a fresh shell; `module load` does not persist.
+Prefix every ctest/cmake command with `with-nag` (for `nag/`) or
+`with-gfortran` (for `gfortran/`), e.g.
+`with-nag ctest --test-dir nag -R '^MAPL.generic.scenarios$' --output-on-failure`.
 
 Method:
 1. Rerun each failing suite on its own with
-   `ctest --test-dir <dir> -R '^<name>$' --output-on-failure`.
+   `with-nag ctest --test-dir <dir> -R '^<name>$' --output-on-failure`.
    For pFUnit suites, collect the `Failure in <...>` lines.
 2. Group failures by symptom. Several failures with a shared symptom
    (same scenario, same assertion text) count as one problem.

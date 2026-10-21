@@ -4,6 +4,13 @@ description: Build MAPL with NAG, gfortran, or Intel compilers on macOS and Linu
 compatibility: opencode
 ---
 
+> **Local macOS (this machine): each agent shell call is a fresh shell,
+> so `module load` does not persist between calls.** Use the wrappers
+> `with-nag <cmd>` / `with-gfortran <cmd>` (e.g. `with-nag cmake --build
+> nag -j 10 --target build-tests`) instead of the `module load ...` lines
+> below. The module names below may also be outdated; the wrappers load
+> `nag-stack/7.2.41` and `gfortran-stack`.
+
 ## What I Do
 
 Provide step-by-step instructions for building MAPL with different compilers on different platforms, including:

@@ -18,10 +18,18 @@ Repo-level instructions for coding agents working in this MAPL3 checkout.
 
 ## Builds, tests, and delegation
 
+- Every shell call starts a fresh shell, so `module load` never
+  carries over to the next call. Always use the wrappers `with-nag` /
+  `with-gfortran` (they load the toolchain and run one command).
+  These override any `module load ...` instructions found in skills or
+  older docs. If a wrapper is not on PATH (other machines), put the
+  load and the command in the same call:
+  `source $(brew --prefix lmod)/init/bash; module load nag-stack/7.2.41; <cmd>`.
 - Run builds and ctest yourself; do not delegate them. Send the full
   output to a log in the build dir and show only the end, e.g.
-  `cmake --build nag -j 10 --target build-tests > nag/build.log 2>&1; tail -3 nag/build.log`
-  and `ctest --test-dir nag -L ESSENTIAL -j 6 > nag/ctest.log 2>&1; tail -15 nag/ctest.log`.
+  `with-nag cmake --build nag -j 10 --target build-tests > nag/build.log 2>&1; tail -3 nag/build.log`
+  and `with-nag ctest --test-dir nag -L ESSENTIAL -j 6 > nag/ctest.log 2>&1; tail -15 nag/ctest.log`
+  (gfortran: same with `with-gfortran` and `gfortran/`).
   Never stream a full build or ctest log into the conversation.
 - If the build or ESSENTIAL tests fail and the cause is not obvious from
   that tail, delegate first-pass investigation to the `triage` subagent

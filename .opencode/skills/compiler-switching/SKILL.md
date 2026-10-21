@@ -4,6 +4,13 @@ description: Safely switch between NAG, gfortran, and Intel compilers when build
 compatibility: opencode
 ---
 
+> **Local macOS (this machine): each agent shell call is a fresh shell,
+> so `module load` does not persist between calls.** Use the wrappers
+> `with-nag <cmd>` / `with-gfortran <cmd>` (e.g. `with-nag cmake --build
+> nag -j 10 --target build-tests`) instead of the `module load ...` lines
+> below. The module names below may also be outdated; the wrappers load
+> `nag-stack/7.2.41` and `gfortran-stack`.
+
 # Compiler Switching
 
 This skill guides you through safely switching between different Fortran compilers (NAG, gfortran, Intel) when building MAPL. Proper compiler switching prevents build errors, runtime failures, and mysterious bugs.

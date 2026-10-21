@@ -29,16 +29,16 @@ iterating build -> diagnose -> fix.
 Environment:
 - Source root: the current working directory.
 - Build directory: given in the request (default `nag/`).
-- Shell commands need the compiler module:
-  `source $(brew --prefix lmod)/init/bash; module load nag-stack/7.2.41`.
+- Each shell call is a fresh shell; `module load` does not persist.
+  Prefix every cmake/ctest/compiler command with `with-nag`.
 - If the build directory has no CMakeCache.txt, configure it first:
-  `cmake -B <dir> -DCMAKE_BUILD_TYPE=Debug -DMPI_STACK=openmpi > <dir>/cmake-config.log 2>&1`
+  `with-nag cmake -B <dir> -DCMAKE_BUILD_TYPE=Debug -DMPI_STACK=openmpi > <dir>/cmake-config.log 2>&1`
   (BASEDIR may also be needed; copy it from an existing NAG build's
   CMakeCache.txt if configure fails).
 
 Loop:
 1. Build, logging to a file and showing only the tail:
-   `cmake --build <dir> -j 10 --target build-tests > <dir>/build.log 2>&1; echo rc=$?; tail -3 <dir>/build.log`
+   `with-nag cmake --build <dir> -j 10 --target build-tests > <dir>/build.log 2>&1; echo rc=$?; tail -3 <dir>/build.log`
 2. If it failed, find the first error, not later errors that follow from it:
    `grep -n -m5 -E "^(Error|Fatal Error|Panic)|error:" <dir>/build.log`
    and read the surrounding lines plus the source.

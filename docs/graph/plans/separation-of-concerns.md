@@ -49,8 +49,9 @@ toggles, never by red tests.
 - gFTL containers: prefer pointer access over copying populated
   containers (deep defined-assignment can break compilers). Problems
   should be exceptional - do not add workarounds speculatively.
-- Build: `module load nag-stack/7.2.41`; `cmake --build nag -j 8 --target build-tests`;
-  `ctest --test-dir nag -L ESSENTIAL`. Then same with `gfortran-stack` / `gfortran`.
+- Build: `with-nag cmake --build nag -j 10 --target build-tests`;
+  `with-nag ctest --test-dir nag -L ESSENTIAL`. Then same with `with-gfortran` / `gfortran/`.
+  (`module load` does not persist between agent shell calls; always use the wrappers.)
 - Any plain helper in `GraphBuilder.F90` called from a submodule needs
   `public ::` (NAG won't catch it; gfortran link will).
 
