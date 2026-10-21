@@ -1,14 +1,31 @@
 # Plan: Graph layer separation-of-concerns cleanup
 
 > Canonical copy: `docs/graph/plans/separation-of-concerns.md` (in repo).
-> Every task PR MUST update its own **Status** line (commit hash,
-> deviations from this plan). Artifacts produced by earlier tasks
+> Every task MUST update its own **Status** line (done/partial, and any
+> deviations from this plan) in the same commit as the work. Artifacts produced by earlier tasks
 > (`docs/graph/CONVENTIONS.md`, `docs/graph/scenario-parity.md`, the B0
 > openspec design, `docs/graph/adding-a-characteristic.md`, ...)
 > **take precedence over this plan's summaries** once they exist. If the
 > plan and the source disagree, stop and report rather than guess.
 
-Status: agreed in discussion with tclune, 2026-10-21. Each task = one PR.
+Status: agreed in discussion with tclune, 2026-10-21.
+
+**Workflow: no PRs.** Agents commit directly on the owner's integration
+branch (currently `feature/#5286-graph-phase-5`); one task = one commit,
+or a short series of commits. The integration branch goes to `develop` as
+one final PR, followed by a walkthrough with the senior developers.
+Every task commit ends with a git trailer naming its task:
+
+```
+Plan-Task: B3-Units
+```
+
+Labels are the task ids below (`A0`, `A2a`, `B3-Units`, `B3-TypeKind`,
+`C2-<short-name>`, ...). Find a task's work with
+`git log --grep='^Plan-Task: B3-Units' -p`. Do not record commit hashes
+in this plan (they change if the branch is rebased); the trailer is the
+reference. Agents commit locally only: never push, never rebase or
+amend commits that are not their own task's.
 **Every task must leave all ctests passing** (NAG first, then gfortran;
 `ctest -L ESSENTIAL`). Pending/expected-fail work is gated by explicit
 toggles, never by red tests.
@@ -150,11 +167,11 @@ check (grep in a ctest).
   flag is how later tasks show progress.
 - **Status:** not started
 
-**A2a..A2n. Graph-native scenario ports (~5 scenarios/PR).**
+**A2a..A2n. Graph-native scenario ports (~5 scenarios/task).**
 - Port legacy scenarios to `tests/graph-scenarios/` with improved
-  import/export/standard names and full `expectations.yaml`. First PR:
+  import/export/standard names and full `expectations.yaml`. First task (A2a):
   the existing 7 graph-scenarios (add `expectations.yaml`) + write
-  `docs/graph/scenario-naming.md`. Later PRs follow it.
+  `docs/graph/scenario-naming.md`. Later tasks follow it.
 - Each scenario gets `description.md` (what it exercises).
 - **Status:** not started
 
@@ -166,8 +183,8 @@ check (grep in a ctest).
   assertions now covered.
 - **Status:** not started
 
-**A4. Comment hygiene (before Phase B).** One PR per directory/file
-group, in this order: `GraphBuilder*.F90`; `graph/`;
+**A4. Comment hygiene (before Phase B).** One task per directory/file
+group (labels A4a, A4b, ...), in this order: `GraphBuilder*.F90`; `graph/`;
 `graph/characteristics/`; remaining `superstructure/generic/` files with
 `openspec/changes` references. Rationale: ~33% of graph-layer lines
 are comments (40-52% in `GraphBuilder*`), 277 dead `openspec/changes/...`
@@ -182,9 +199,9 @@ consumes context.
   `openspec/specs/` (e.g. `REQ-INOUT-001`), never a change path.
 - Comment-only: no code, no whitespace reflow of code lines. Verify by
   stripping `!` comments and blank lines from old and new versions of
-  each file; the result must be identical (attach the script output to the PR).
+  each file; the result must be identical (put the script output in the commit message body).
 - Done also requires `grep -rn "openspec/changes" --include=*.F90` to be
-  empty for the PR's directory.
+  empty for the task's directory.
 - Must land before B1 and D1 (both rewrite these files).
 - **Status:** not started
 
@@ -216,14 +233,15 @@ allowlist). Convert TypeKind first (only real MIRROR user today:
 StatisticsGridComp). Unit tests for every cell of the D2 table.
 - **Status:** not started
 
-**B3.x. One PR per characteristic.** For each: move to generic status,
+**B3.x. One task per characteristic.** For each: move to generic status,
 implement `write_info`, add VariableSpec factory, remove its block from
 `populate_characteristics`, remove any GraphBuilder references to it.
-List: PhysicalUnits, TypeKind (finish), UngriddedDims, VerticalCoordinate,
+Label `B3-<Name>` with the name as listed (exception: PhysicalUnits is
+`B3-Units`). List: PhysicalUnits, TypeKind (finish), UngriddedDims, VerticalCoordinate,
 VerticalStagger (new), Geometry, ItemShape (incl. D4 ordering),
 StandardName, Attributes, QuantityType, Conservation, Normalization,
 RestartMode (new), Expression (new), SetShared (check whether still needed).
-Can run in parallel after B2. Produce `docs/graph/adding-a-characteristic.md`
+Run one at a time after B2 (direct commits; no parallel agents). Produce `docs/graph/adding-a-characteristic.md`
 in the first one; later ones refine it.
 - **Status:** not started
 
@@ -244,7 +262,7 @@ advertise calls `VariableSpec%make_characteristics`.
 `regrid*`/`propagate_geom` to ready in A1's table.
 - **Status:** not started
 
-**C2.x. One PR per remaining root cause** from A1's parity table.
+**C2.x. One task per remaining root cause** (label `C2-<short-name>`) from A1's parity table.
 - **Status:** not started
 
 ### Phase D - structure
@@ -262,8 +280,10 @@ files) to lifecycle hooks only.
 
 ## Model assignment
 
-Author = writes the PR. Reviewer = reviews diff against this plan / B0
-design before merge. Short names (update here when models change):
+Author = writes and commits the task. Reviewer = a separate session
+(model below) that reviews the task's diff against this plan / B0 design
+before the commit; the owner spot-checks. Human review happens once, at
+the final PR to `develop`. Short names (update here when models change):
 
 - `opus` = `nasa_litellm/claude-opus-5.5`
 - `sonnet` = `nasa_litellm/claude-sonnet-5-5` (fallbacks:
@@ -307,10 +327,10 @@ it may author D1/A4/B5 with sonnet review.
 | B0 | opus | owner + gemini/gpt-sol | cross-family review: "what did this miss vs. legacy aspects?" |
 | B1 | sonnet | opus | escalate any compiler/gFTL crash |
 | B2 | opus | gemini/gpt-sol | core semantics |
-| B3 Units | opus | owner | template + adding-a-characteristic.md |
-| B3 Geometry | sonnet | opus | geom-as-node, Info id |
-| B3 ItemShape | opus | - | D4 ordering, Bracket rule |
-| B3 others | sonnet | sonnet (self-review) | parallel after B3 Units lands |
+| B3-Units | opus | owner | template + adding-a-characteristic.md |
+| B3-Geometry | sonnet | opus | geom-as-node, Info id |
+| B3-ItemShape | opus | - | D4 ordering, Bracket rule |
+| B3 others | sonnet | sonnet (self-review) | one at a time, after B3-Units lands |
 | B4 | sonnet | opus | materialization regressions likely |
 | B5 | sonnet (haiku?) | sonnet if haiku | |
 | C1 | opus | - | ESMF regrid/route handles |
@@ -320,7 +340,7 @@ it may author D1/A4/B5 with sonnet review.
 | D2 | sonnet | opus | lifecycle-phase ordering |
 
 `(sonnet?)`/`(haiku?)` = move to that model only if it passes calibration.
-Always opus regardless: B0, B2, B3 Units, B3 ItemShape, A1 diagnosis,
+Always opus regardless: B0, B2, B3-Units, B3-ItemShape, A1 diagnosis,
 A2a, C1 - errors there are replicated by every later task.
 
 Light models (`haiku` until calibrated, `gemini-3.5-flash`,
@@ -329,14 +349,15 @@ models for Fortran authoring: trial first on D1 or one A4 directory
 before promoting.
 
 Quota strategy: run A0 + A1 harness (sonnet) now; reserve opus for B0.
-If opus is scarce, stop after B2 + B3 Units - do not let sonnet
+If opus is scarce, stop after B2 + B3-Units - do not let sonnet
 replicate an unreviewed template across B3.x.
 
 ### Rules for every agent prompt
 1. Never call a failure "pre-existing" without reproducing it on a
-   clean `git worktree` of HEAD.
-2. Build/test NAG then gfortran; paste both `ctest -L ESSENTIAL`
-   summary lines in the PR.
+   clean baseline (a temporary `git worktree` of HEAD, removed
+   afterward with `git worktree remove`).
+2. Build/test NAG then gfortran; put both `ctest -L ESSENTIAL`
+   summary lines in the commit message body.
 3. On ICE, nondeterministic segfault, or gFTL copy crash: stop and
    report; do not invent workarounds.
 4. Do not modify files outside the task's stated scope without asking.
@@ -344,6 +365,9 @@ replicate an unreviewed template across B3.x.
 6. Source comments: no `openspec/changes` paths, task numbers, or change
    history. Comments explain why, not when. Put change names in the
    commit message.
+7. Commit directly on the integration branch with a `Plan-Task:`
+   trailer. Never push, never rewrite earlier commits. Do not commit
+   anything outside the task (e.g. untracked files you didn't create).
 
 ## Dependency summary
 
@@ -369,15 +393,18 @@ include", "Rules for every agent prompt", and your task's section; then
 any artifact your task depends on (these take precedence over the
 plan's summary).
 
-Branch/worktree: <name>. Scope: <optional narrowing / extra constraints>.
+Scope: <optional narrowing / extra constraints>.
 
 Done means:
-- ctest -L ESSENTIAL green on NAG and gfortran (paste both summary lines)
-- this task's Status line in the plan updated (commit, deviations)
+- ctest -L ESSENTIAL green on NAG and gfortran
+- this task's Status line in the plan updated (done/partial, deviations)
 - any doc your task owns created/updated
+- committed on the current branch (no push), message ending with
+  `Plan-Task: <label>`, body containing both ctest summary lines
 Stop and report rather than guess if the plan and source disagree.
 ```
 
 For open-ended tasks (B0, A1 diagnosis) add a sentence of owner intent.
-After B3 Units lands, B3.x prompts may add: "Follow
-docs/graph/adding-a-characteristic.md; use the B3 Units PR as exemplar."
+After B3-Units lands, B3.x prompts may add: "Follow
+docs/graph/adding-a-characteristic.md; use the commits from
+`git log --grep='^Plan-Task: B3-Units' -p` as the exemplar."
