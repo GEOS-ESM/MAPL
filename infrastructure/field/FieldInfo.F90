@@ -11,7 +11,7 @@ module mapl_FieldInfo_mod
       & KEY_ALLOCATION_STATUS, KEY_QUANTITY_TYPE_METADATA, &
       & KEY_NORMALIZATION_METADATA, KEY_CONSERVATION_METADATA, &
       & KEY_REGRIDDER_PARAM,  KEY_UNDEF_VALUE, KEY_MISSING_VALUE, &
-      & KEY_FILL_VALUE, KEY_RESTART_MODE, DELIMITER
+      & KEY_FILL_VALUE, KEY_RESTART_MODE, KEY_BOOTSTRAPPED, DELIMITER
    use mapl_InfoUtilities_mod
    use mapl_vertical_grid_api, only: mapl_VerticalGrid, MAPL_VERTICAL_GRID_NOT_FOUND, mapl_VerticalGridManager, mapl_get_vertical_grid_manager
    use mapl_UngriddedDims_mod
@@ -76,6 +76,7 @@ contains
          named_alias_id, &
          allocation_status, &
          regridder_param_info, &
+         bootstrapped, &
          rc)
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -101,6 +102,9 @@ contains
       integer, optional, intent(in) :: named_alias_id
       type(MAPL_StateItemAllocation), optional, intent(in) :: allocation_status
       type(esmf_info), optional, intent(in) :: regridder_param_info
+      ! bootstrapped: field-wide, like units. Set by the restart read when the
+      ! field was not restarted and keeps its initial value.
+      logical, optional, intent(in) :: bootstrapped
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -189,6 +193,10 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_ALLOCATION_STATUS, allocation_status%to_string(), _RC)
       end if
 
+      if (present(bootstrapped)) then
+         call MAPL_InfoSet(info, namespace_ // KEY_BOOTSTRAPPED, bootstrapped, _RC)
+      end if
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_set_internal
@@ -207,6 +215,7 @@ contains
         conservation_metadata, &
         allocation_status, &
         regridder_param_info, &
+        bootstrapped, &
         rc)
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -232,6 +241,7 @@ contains
       type(ConservationMetadata), optional, intent(out) :: conservation_metadata
       type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
       type(esmf_Info), allocatable, optional, intent(out) :: regridder_param_info
+      logical, optional, intent(out) :: bootstrapped
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -373,6 +383,14 @@ contains
       if (present(allocation_status)) then
          call MAPL_InfoGet(info, namespace_ // KEY_ALLOCATION_STATUS, allocation_status_str, _RC)
          allocation_status = MAPL_StateItemAllocation(allocation_status_str)
+      end if
+
+      ! .false. unless the restart read marked the field as bootstrapped.
+      if (present(bootstrapped)) then
+         bootstrapped = .false.
+         key = namespace_ // KEY_BOOTSTRAPPED
+         key_is_present = ESMF_InfoIsPresent(info, key=key, _RC)
+         if (key_is_present) call MAPL_InfoGet(info, key, bootstrapped, _RC)
       end if
 
      _RETURN(_SUCCESS)

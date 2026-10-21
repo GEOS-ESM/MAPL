@@ -1,0 +1,247 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! Tests RestartHandler%read for fields missing from a restart file
+! (GEOS-ESM/MAPL#5459).
+!
+! Each test builds a component from COMPONENT_CONFIG, whose internal state
+! has Z_A1 and Z_B1, and calls RestartHandler directly (COMPONENT_CONFIG has
+! no restart section, so initialize reads no restart):
+!  - a file missing Z_B1, bootstrap on: Z_A1 is read, Z_B1 keeps its value
+!    and is marked as bootstrapped (MAPL_FieldGet(field, bootstrapped=...));
+!  - a file missing Z_B1, bootstrap off: the read fails;
+!  - no file, bootstrap on: both fields are bootstrapped.
+module Test_RestartBootstrap
+
+   use mapl_GenericPhases_mod, only: GENERIC_INIT_PHASE_SEQUENCE
+   use mapl_Generic_api, only: mapl_GenericSetservices, mapl_GridCompCreate, mapl_GridCompGetInternalState
+   use mapl_RestartHandler_mod, only: RestartHandler
+   use mapl_state_api, only: MAPL_StateGetPointer
+   use mapl_field_api, only: MAPL_FieldGet
+   use esmf
+   use pfunit
+
+   implicit none(type,external)
+
+   ! No standard_name, so the specs do not depend on the field dictionary.
+   character(*), parameter :: COMPONENT_CONFIG = &
+        '{mapl: {' // &
+        'geometry: {' // &
+        'esmf_geom: {class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}, ' // &
+        'vertical_grid: {class: basic, num_levels: 1}}, ' // &
+        'states: {internal: {' // &
+        'Z_A1: {long_name: Z_A1 long name, units: m, fill_value: 1, vertical_dim_spec: NONE}, ' // &
+        'Z_B1: {long_name: Z_B1 long name, units: m, fill_value: 1, vertical_dim_spec: NONE}}}, ' // &
+        'setServices: {sharedObj: libconfigurable_gridcomp}}}'
+
+contains
+
+   ! Build and initialize a ROOT GenericGridComp from COMPONENT_CONFIG,
+   ! returning its clock and its internal state.
+   subroutine build_root(gc_name, clock, internal_state, rc)
+      character(*), intent(in) :: gc_name
+      type(ESMF_Clock), intent(out) :: clock
+      type(ESMF_State), intent(out) :: internal_state
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_GridComp) :: outer_gc
+      type(ESMF_HConfig) :: config
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Time) :: t0, t1
+      type(ESMF_TimeInterval) :: dt
+      integer :: status, user_status, i
+
+      config = ESMF_HConfigCreate(content=COMPONENT_CONFIG, _RC)
+
+      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
+      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
+
+      outer_gc = mapl_GridCompCreate(gc_name, config=config, _RC)
+      call ESMF_GridCompSetServices(outer_gc, mapl_GenericSetservices, userRC=user_status, _RC)
+      _VERIFY(user_status)
+
+      importState = ESMF_StateCreate(_RC)
+      exportState = ESMF_StateCreate(_RC)
+      do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
+         associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
+           call ESMF_GridCompInitialize(outer_gc, &
+                importState=importState, exportState=exportState, clock=clock, &
+                phase=phase, userRC=user_status, _RC)
+           _VERIFY(user_status)
+         end associate
+      end do
+
+      call mapl_GridCompGetInternalState(outer_gc, internal_state, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine build_root
+
+   ! Set Z_A1 and Z_B1, write a restart file holding only Z_A1, then
+   ! change both values so that a read is visible.
+   subroutine write_restart_without_z_b1(internal_state, handler, filename, rc)
+      type(ESMF_State), intent(inout) :: internal_state
+      type(RestartHandler), intent(inout) :: handler
+      character(*), intent(in) :: filename
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_State) :: restart_state
+      type(ESMF_Field) :: field
+      integer :: status
+
+      call set_field_value(internal_state, 'Z_A1', 2.0, _RC)
+      call ESMF_StateGet(internal_state, itemName='Z_A1', field=field, _RC)
+      restart_state = ESMF_StateCreate(_RC)
+      call ESMF_StateAdd(restart_state, [field], _RC)
+      call handler%write(restart_state, filename, _RC)
+
+      call set_field_value(internal_state, 'Z_A1', 200.0, _RC)
+      call set_field_value(internal_state, 'Z_B1', 5.0, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine write_restart_without_z_b1
+
+   subroutine set_field_value(state, item_name, value, rc)
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: item_name
+      real, intent(in) :: value
+      integer, optional, intent(out) :: rc
+
+      real, pointer :: ptr(:,:)
+      integer :: status
+
+      call MAPL_StateGetPointer(state, ptr, item_name, _RC)
+      ptr = value
+
+      _RETURN(_SUCCESS)
+   end subroutine set_field_value
+
+   function get_field_value(state, item_name, rc) result(value)
+      real :: value
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: item_name
+      integer, optional, intent(out) :: rc
+
+      real, pointer :: ptr(:,:)
+      integer :: status
+
+      call MAPL_StateGetPointer(state, ptr, item_name, _RC)
+      value = ptr(1,1)
+
+      _RETURN(_SUCCESS)
+   end function get_field_value
+
+   function is_bootstrapped(state, item_name, rc) result(bootstrapped)
+      logical :: bootstrapped
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: item_name
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Field) :: field
+      integer :: status
+
+      call ESMF_StateGet(state, itemName=item_name, field=field, _RC)
+      call MAPL_FieldGet(field, bootstrapped=bootstrapped, _RC)
+
+      _RETURN(_SUCCESS)
+   end function is_bootstrapped
+
+   ! With bootstrap on, a field missing from the file keeps its value and is
+   ! marked as bootstrapped; the fields in the file are read as usual.
+   @test(npes=[0])
+   subroutine test_missing_field_is_bootstrapped(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      character(*), parameter :: FILENAME = 'restart_bootstrap_missing_field.nc4'
+      type(ESMF_Clock) :: clock
+      type(ESMF_State) :: internal_state
+      type(ESMF_Time) :: current_time
+      type(RestartHandler) :: handler
+      integer :: status
+      real :: z_a1, z_b1
+      logical :: z_a1_bootstrapped, z_b1_bootstrapped
+
+      call build_root('ROOT_missing_field', clock, internal_state, _RC)
+      call ESMF_ClockGet(clock, currTime=current_time, _RC)
+      handler = RestartHandler(current_time)
+      call write_restart_without_z_b1(internal_state, handler, FILENAME, _RC)
+
+      call handler%read(internal_state, FILENAME, bootstrap=.true., _RC)
+
+      z_a1 = get_field_value(internal_state, 'Z_A1', _RC)
+      z_b1 = get_field_value(internal_state, 'Z_B1', _RC)
+      z_a1_bootstrapped = is_bootstrapped(internal_state, 'Z_A1', _RC)
+      z_b1_bootstrapped = is_bootstrapped(internal_state, 'Z_B1', _RC)
+      @assert_that(z_a1, is(equal_to(2.0)))
+      @assert_that(z_b1, is(equal_to(5.0)))
+      @assertFalse(z_a1_bootstrapped)
+      @assertTrue(z_b1_bootstrapped)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_missing_field_is_bootstrapped
+
+   ! With bootstrap off, a field missing from the file is an error.
+   @test(npes=[0])
+   subroutine test_missing_field_without_bootstrap_fails(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      character(*), parameter :: FILENAME = 'restart_bootstrap_no_bootstrap.nc4'
+      type(ESMF_Clock) :: clock
+      type(ESMF_State) :: internal_state
+      type(ESMF_Time) :: current_time
+      type(RestartHandler) :: handler
+      integer :: status
+
+      call build_root('ROOT_no_bootstrap', clock, internal_state, _RC)
+      call ESMF_ClockGet(clock, currTime=current_time, _RC)
+      handler = RestartHandler(current_time)
+      call write_restart_without_z_b1(internal_state, handler, FILENAME, _RC)
+
+      call handler%read(internal_state, FILENAME, bootstrap=.false., rc=status)
+
+      @assertExceptionRaised('Variable Z_B1 not found in restart file ' // FILENAME)
+      ! Drop the _VERIFY propagation of the error through the callers.
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_missing_field_without_bootstrap_fails
+
+   ! With bootstrap on and no restart file, every field keeps its value and
+   ! is marked as bootstrapped.
+   @test(npes=[0])
+   subroutine test_missing_file_bootstraps_all_fields(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      character(*), parameter :: FILENAME = 'restart_bootstrap_does_not_exist.nc4'
+      type(ESMF_Clock) :: clock
+      type(ESMF_State) :: internal_state
+      type(ESMF_Time) :: current_time
+      type(RestartHandler) :: handler
+      integer :: status
+      real :: z_a1, z_b1
+      logical :: z_a1_bootstrapped, z_b1_bootstrapped
+
+      call build_root('ROOT_missing_file', clock, internal_state, _RC)
+      call ESMF_ClockGet(clock, currTime=current_time, _RC)
+      handler = RestartHandler(current_time)
+      call set_field_value(internal_state, 'Z_A1', 3.0, _RC)
+      call set_field_value(internal_state, 'Z_B1', 4.0, _RC)
+
+      call handler%read(internal_state, FILENAME, bootstrap=.true., _RC)
+
+      z_a1 = get_field_value(internal_state, 'Z_A1', _RC)
+      z_b1 = get_field_value(internal_state, 'Z_B1', _RC)
+      z_a1_bootstrapped = is_bootstrapped(internal_state, 'Z_A1', _RC)
+      z_b1_bootstrapped = is_bootstrapped(internal_state, 'Z_B1', _RC)
+      @assert_that(z_a1, is(equal_to(3.0)))
+      @assert_that(z_b1, is(equal_to(4.0)))
+      @assertTrue(z_a1_bootstrapped)
+      @assertTrue(z_b1_bootstrapped)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_missing_file_bootstraps_all_fields
+
+end module Test_RestartBootstrap

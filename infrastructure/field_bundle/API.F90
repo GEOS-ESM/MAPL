@@ -15,6 +15,7 @@ module mapl_field_bundle_api
    use mapl_FieldBundleMatch_mod, only: MAPL_FieldBundleSameData => FieldBundleSameData
    use mapl_FieldBundleSet_mod, only: MAPL_FieldBundleSet => FieldBundleSet
    use mapl_FieldBundleFilter_mod, only: MAPL_FieldBundleFilter => FieldBundleFilter
+   use mapl_FieldBundleFilter_mod, only: MAPL_FieldPredicate => FieldPredicate
    use mapl_FieldBundleApplyUserRoutine_mod, only: MAPL_FieldBundleApplyUserRoutine => FieldBundleApplyUserRoutine
    use mapl_FieldBundleGetGeom_mod, only: MAPL_FieldBundleGetGeom => FieldBundleGetGeom
 
@@ -35,6 +36,7 @@ module mapl_field_bundle_api
    public :: MAPL_FieldBundlesAreAliased
    public :: MAPL_FieldBundleSet
    public :: MAPL_FieldBundleFilter
+   public :: MAPL_FieldPredicate
    public :: MAPL_FieldBundleApplyUserRoutine
    public :: MAPL_FieldBundleGetGeom
 

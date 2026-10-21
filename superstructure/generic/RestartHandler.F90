@@ -7,10 +7,10 @@ module mapl_RestartHandler_mod
    use mapl_SharedIO_mod, only: bundle_to_metadata
    use mapl_GeomPFIO_mod, only: GeomPFIO
    use mapl_GeomCategorizer_mod, only: make_geom_pfio
-   use mapl_FieldInfo_mod, only: FieldInfoGetInternal
+   use mapl_FieldInfo_mod, only: FieldInfoGetInternal, FieldInfoSetInternal
     use mapl_RestartModes_mod, only: RestartMode, operator(==), RESTART_SKIP
     use mapl_state_api, only: MAPL_StateGet
-    use mapl_field_bundle_api, only: MAPL_FieldBundleFilter, MAPL_FieldBundleGetGeom
+    use mapl_field_bundle_api, only: MAPL_FieldBundleFilter, MAPL_FieldBundleGetGeom, MAPL_FieldPredicate
     use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER
     use pFIO, only: PFIO_READ, FileMetaData, NetCDF4_FileFormatter
     use pFIO, only: get_client, ClientThread
@@ -30,7 +30,31 @@ module mapl_RestartHandler_mod
       procedure, public :: read
       procedure, private :: write_bundle_
       procedure, private :: read_bundle_
+      procedure, private :: bootstrap_missing_fields_
    end type RestartHandler
+
+   ! Filter predicates for get_restart_bundle: on read, remove fields marked
+   ! RESTART_SKIP; on write, remove fields that are not complete.
+   type, extends(MAPL_FieldPredicate) :: SkipRestartPredicate
+   contains
+      procedure :: remove => remove_skip_restart_
+   end type SkipRestartPredicate
+
+   type, extends(MAPL_FieldPredicate) :: IncompletePredicate
+   contains
+      procedure :: remove => remove_incomplete_
+   end type IncompletePredicate
+
+   ! Filter predicate for bootstrap_missing_fields_: removes (and marks as
+   ! bootstrapped) a field that is not in the restart file.
+   type, extends(MAPL_FieldPredicate) :: MissingFieldPredicate
+      type(FileMetaData) :: metadata
+      character(:), allocatable :: filename
+      logical :: bootstrap
+      class(logger), pointer :: lgr => null()
+   contains
+      procedure :: remove => remove_missing_field_
+   end type MissingFieldPredicate
 
    ! Selects which fields of state are eligible for a given restart
    ! operation ('write' or 'read'), and returns them flattened into a
@@ -82,17 +106,27 @@ contains
 
       logical :: file_exists
       type(ESMF_FieldBundle) :: bundle
+      type(NetCDF4_FileFormatter) :: file_formatter
+      type(FileMetaData) :: metadata
       integer :: item_count, status
 
       call ESMF_StateGet(state, itemCount=item_count, _RC)
       _RETURN_UNLESS(item_count>0)
 
       inquire(file=filename, exist=file_exists)
-      _RETURN_IF(bootstrap .and. (.not. file_exists))
-      _ASSERT(file_exists, "Restart file " // trim(filename) // " does not exist")
+      _ASSERT(bootstrap .or. file_exists, "Restart file " // trim(filename) // " does not exist")
+      if (file_exists) then
+         call file_formatter%open(filename, PFIO_READ, _RC)
+         metadata = file_formatter%read(_RC)
+         call file_formatter%close(_RC)
+      else
+         ! Empty metadata: every field is missing, and is bootstrapped.
+         call this%lgr%warning("Restart file %a does not exist; bootstrapping its fields", trim(filename))
+      end if
 
       call get_restart_bundle(state, is_write=.false., bundle=bundle, _RC)
-      call this%read_bundle_(filename, bundle, _RC)
+      call this%bootstrap_missing_fields_(bundle, filename, metadata, bootstrap, _RC)
+      call this%read_bundle_(filename, metadata, bundle, _RC) ! no-op if metadata is empty
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
       _RETURN(_SUCCESS)
@@ -122,21 +156,20 @@ contains
       call writer%update_time_on_server(this%current_time, _RC)
       call writer%stage_coordinates_to_file(filename, _RC)
       call writer%stage_data_to_file(bundle, filename, 1, _RC)
-       o_client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
+      o_client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
       call o_client%done_collective_stage(_RC)
       call o_client%post_wait_all(_RC)
 
       _RETURN(_SUCCESS)
    end subroutine write_bundle_
 
-   subroutine read_bundle_(this, filename, bundle, rc)
+   subroutine read_bundle_(this, filename, metadata, bundle, rc)
       class(RestartHandler), intent(in) :: this
       character(len=*), intent(in) :: filename
+      type(FileMetaData), intent(in) :: metadata
       type(ESMF_FieldBundle), intent(inout) :: bundle
       integer, optional, intent(out) :: rc
 
-      type(NetCDF4_FileFormatter) :: file_formatter
-      type(FileMetaData) :: metadata
       class(GeomPFIO), allocatable :: reader
       type(ESMF_Geom) :: geom
       integer :: field_count, status
@@ -147,14 +180,11 @@ contains
       _RETURN_UNLESS(field_count>0)
 
       call this%lgr%info("Reading restart: %a", trim(filename))
-      call file_formatter%open(filename, PFIO_READ, _RC)
-      metadata = file_formatter%read(_RC)
-      call file_formatter%close(_RC)
       geom = MAPL_FieldBundleGetGeom(bundle, _RC)
       allocate(reader, source=make_geom_pfio(metadata), _STAT)
       call reader%initialize(filename, geom, _RC)
       call reader%request_data_from_file(filename, bundle, _RC)
-       i_client => get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
+      i_client => get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
       call i_client%done_collective_prefetch(_RC)
       call i_client%wait_all(_RC)
 
@@ -178,15 +208,62 @@ contains
 
       call MAPL_StateGet(state, bundle, _RC)
       if (is_write) then
-         call MAPL_FieldBundleFilter(bundle, predicate_incomplete_, _RC)
+         call MAPL_FieldBundleFilter(bundle, IncompletePredicate(), _RC)
       else
-         call MAPL_FieldBundleFilter(bundle, predicate_skip_restart_, _RC)
+         call MAPL_FieldBundleFilter(bundle, SkipRestartPredicate(), _RC)
       end if
 
       _RETURN(_SUCCESS)
    end subroutine get_restart_bundle
 
-   function predicate_skip_restart_(field, rc) result(remove)
+
+   ! Mark the fields missing from the file (metadata) as bootstrapped (not
+   ! restarted; they keep their initial values) and remove them from the read
+   ! bundle. A missing field is an error unless bootstrap is set.
+   subroutine bootstrap_missing_fields_(this, bundle, filename, metadata, bootstrap, rc)
+      class(RestartHandler), intent(in) :: this
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      character(len=*), intent(in) :: filename
+      type(FileMetaData), intent(in) :: metadata
+      logical, intent(in) :: bootstrap
+      integer, optional, intent(out) :: rc
+
+      type(MissingFieldPredicate) :: predicate
+      integer :: status
+
+      predicate%metadata = metadata
+      predicate%filename = filename
+      predicate%bootstrap = bootstrap
+      predicate%lgr => this%lgr
+      call MAPL_FieldBundleFilter(bundle, predicate, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine bootstrap_missing_fields_
+
+   function remove_missing_field_(this, field, rc) result(remove)
+      class(MissingFieldPredicate), intent(in) :: this
+      type(ESMF_Field), intent(in) :: field
+      integer, optional, intent(out) :: rc
+      logical :: remove
+
+      character(len=ESMF_MAXSTR) :: field_name
+      type(ESMF_Info) :: info
+      integer :: status
+
+      call ESMF_FieldGet(field, name=field_name, _RC)
+      remove = .not. this%metadata%has_variable(trim(field_name), _RC)
+      _RETURN_UNLESS(remove)
+
+      _ASSERT(this%bootstrap, "Variable " // trim(field_name) // " not found in restart file " // this%filename)
+      call this%lgr%warning("Bootstrapping %a: not found in restart file %a", trim(field_name), this%filename)
+      call ESMF_InfoGetFromHost(field, info, _RC)
+      call FieldInfoSetInternal(info, bootstrapped=.true., _RC)
+
+      _RETURN(_SUCCESS)
+   end function remove_missing_field_
+
+   function remove_skip_restart_(this, field, rc) result(remove)
+      class(SkipRestartPredicate), intent(in) :: this
       type(ESMF_Field), intent(in) :: field
       integer, optional, intent(out) :: rc
       logical :: remove
@@ -201,9 +278,11 @@ contains
       remove = (restart_mode == RESTART_SKIP)
 
       _RETURN(_SUCCESS)
-   end function predicate_skip_restart_
+      _UNUSED_DUMMY(this)
+   end function remove_skip_restart_
 
-   function predicate_incomplete_(field, rc) result(remove)
+   function remove_incomplete_(this, field, rc) result(remove)
+      class(IncompletePredicate), intent(in) :: this
       type(ESMF_Field), intent(in) :: field
       integer, optional, intent(out) :: rc
       logical :: remove
@@ -215,6 +294,7 @@ contains
       remove = (field_status /= ESMF_FIELDSTATUS_COMPLETE)
 
       _RETURN(_SUCCESS)
-   end function predicate_incomplete_
+      _UNUSED_DUMMY(this)
+   end function remove_incomplete_
 
 end module mapl_RestartHandler_mod

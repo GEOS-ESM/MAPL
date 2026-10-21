@@ -3,6 +3,7 @@
 module Test_FieldInfo
    use pfunit
    use mapl_FieldInfo_mod
+   use mapl_FieldGet_mod, only: FieldGet
    use esmf
    implicit none(type,external)
 
@@ -29,5 +30,25 @@ contains
       @assert_that(ib, is(2))
 
    end subroutine test_copy_shared_field
+
+   @test
+   subroutine test_bootstrapped()
+      type(ESMF_Field) :: f
+      type(ESMF_Info) :: info
+      integer :: status
+      logical :: bootstrapped
+
+      f = ESMF_FieldEmptyCreate(name='f', _RC)
+
+      call FieldGet(f, bootstrapped=bootstrapped, _RC)
+      @assertFalse(bootstrapped)
+
+      call ESMF_InfoGetFromHost(f, info, _RC)
+      call FieldInfoSetInternal(info, bootstrapped=.true., _RC)
+      call FieldGet(f, bootstrapped=bootstrapped, _RC)
+      @assertTrue(bootstrapped)
+
+      call ESMF_FieldDestroy(f, _RC)
+   end subroutine test_bootstrapped
 
 end module Test_FieldInfo
