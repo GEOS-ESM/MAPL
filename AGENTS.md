@@ -2,6 +2,20 @@
 
 Repo-level instructions for coding agents working in this MAPL3 checkout.
 
+## Source comments
+
+- Do not put `openspec/changes/...` paths, task/decision numbers, or
+  change history ("previously", "now-removed", "Phase N added") in
+  source comments. Put the change name in the commit message instead;
+  git history and `openspec/changes/archive/` keep the rest.
+- Comments explain *why* (non-obvious constraints, ordering, compiler
+  workarounds) in 1-2 lines, not *what* or *when*.
+- A spec reference is allowed only as a stable requirement ID from
+  `openspec/specs/`.
+- Existing violations are being removed (task A4 in
+  `docs/graph/plans/separation-of-concerns.md`); do not copy their
+  style, and do not add to them.
+
 ## Graph architecture work (`docs/graph/`, `openspec/`)
 
 If your task touches the explicit dependency-graph architecture

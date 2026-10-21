@@ -127,8 +127,9 @@ check (grep in a ctest).
 - Move session narrative (§3, §3.4, §7 and similar) to
   `docs/graph/history/`; ARCHITECTURE.md describes current state only.
 - Create `docs/graph/CONVENTIONS.md`: comment policy (no
-  `openspec/changes/...` history in source; workaround comments one
-  line, why only), gFTL pointer-not-copy, `public ::` submodule rule,
+  `openspec/changes/...` history in source; comments explain why, not
+  when; stable `openspec/specs` requirement IDs allowed; workaround
+  comments one line), gFTL pointer-not-copy, `public ::` submodule rule,
   D6 rule, duplicate-don't-delegate rule.
 - Create `docs/graph/GLOSSARY.md`: legacy -> graph mapping
   (Aspect->Characteristic, AspectStatus->CharacteristicStatus,
@@ -163,6 +164,28 @@ check (grep in a ctest).
   same checkers as `Test_Scenarios.pf`; add graph-specific checks
   (node count, transform chain kinds/order). Remove hand-written
   assertions now covered.
+- **Status:** not started
+
+**A4. Comment hygiene (before Phase B).** One PR per directory/file
+group, in this order: `GraphBuilder*.F90`; `graph/`;
+`graph/characteristics/`; remaining `superstructure/generic/` files with
+`openspec/changes` references. Rationale: ~33% of graph-layer lines
+are comments (40-52% in `GraphBuilder*`), 277 dead `openspec/changes/...`
+paths (now under `archive/`), many describing removed code. Every
+Phase B/D task reads these files; stale narrative misleads agents and
+consumes context.
+- Delete change history, task/decision citations, and descriptions of
+  removed or prior code. Git log + `openspec/changes/archive/` keep it.
+- Keep non-obvious "why" constraints (ordering, must-not-mutate,
+  compiler workarounds), cut to 1-2 lines.
+- A spec link is allowed only as a stable requirement ID that exists in
+  `openspec/specs/` (e.g. `REQ-INOUT-001`), never a change path.
+- Comment-only: no code, no whitespace reflow of code lines. Verify by
+  stripping `!` comments and blank lines from old and new versions of
+  each file; the result must be identical (attach the script output to the PR).
+- Done also requires `grep -rn "openspec/changes" --include=*.F90` to be
+  empty for the PR's directory.
+- Must land before B1 and D1 (both rewrite these files).
 - **Status:** not started
 
 ### Phase B - characteristic architecture
@@ -236,9 +259,6 @@ behavior change.
 files) to lifecycle hooks only.
 - **Status:** not started
 
-**D3. Comment hygiene,** one PR per directory, per CONVENTIONS.md.
-Schedule after B/D1 to avoid merge conflicts.
-- **Status:** not started
 
 ## Model assignment
 
@@ -272,7 +292,7 @@ whether `haiku` may author Fortran):
   Score: builds on both compilers, no scope creep.
 If `sonnet` passes the debugging replay cleanly, the "sonnet?" entries
 below move from opus to sonnet. If `haiku` passes the mechanical replay,
-it may author D1/D3/B5 with sonnet review.
+it may author D1/A4/B5 with sonnet review.
 - **Status:** not started (benchmark kept outside the repo, so candidates can't see the answer key: `~/.opencode/plan/calibration/README.md`)
 
 | Task | Author | Reviewer | Notes |
@@ -283,6 +303,7 @@ it may author D1/D3/B5 with sonnet review.
 | A2a | opus | owner | sets naming conventions |
 | A2b..n | sonnet | - | follow scenario-naming.md |
 | A3 | sonnet | - | |
+| A4 | sonnet | diff review always | judgment on which "why" to keep; haiku only after calibration |
 | B0 | opus | owner + gemini/gpt-sol | cross-family review: "what did this miss vs. legacy aspects?" |
 | B1 | sonnet | opus | escalate any compiler/gFTL crash |
 | B2 | opus | gemini/gpt-sol | core semantics |
@@ -297,7 +318,6 @@ it may author D1/D3/B5 with sonnet review.
 | C2.x fixes | per triage | opus | |
 | D1 | sonnet (haiku?) | sonnet if haiku | `public ::` rule |
 | D2 | opus (sonnet?) | opus if sonnet | lifecycle-phase ordering |
-| D3 | sonnet (haiku?) | diff review always | |
 
 `(sonnet?)`/`(haiku?)` = move to that model only if it passes calibration.
 Always opus regardless: B0, B2, B3 Units, B3 ItemShape, A1 diagnosis,
@@ -305,7 +325,7 @@ A2a, C1 - errors there are replicated by every later task.
 
 Light models (`haiku` until calibrated, `gemini-3.5-flash`,
 `gpt-5.6-luna`): log triage / ctest summarization only. Non-Claude
-models for Fortran authoring: trial first on D1 or one D3 directory
+models for Fortran authoring: trial first on D1 or one A4 directory
 before promoting.
 
 Quota strategy: run A0 + A1 harness (sonnet) now; reserve opus for B0.
@@ -321,11 +341,16 @@ replicate an unreviewed template across B3.x.
    report; do not invent workarounds.
 4. Do not modify files outside the task's stated scope without asking.
 5. Follow `docs/graph/CONVENTIONS.md` (after A0).
+6. Source comments: no `openspec/changes` paths, task numbers, or change
+   history. Comments explain why, not when. Put change names in the
+   commit message.
 
 ## Dependency summary
 
-A0 -> A1 -> A2a -> A3; A0 -> B0 -> B1 -> B2 -> B3.x -> {B4, B5};
-B4 -> C1, D1 -> D2; A1 -> C2.x; D3 last.
+A0 -> A1 -> A2a -> A3; A0 -> A4 -> {B1, D1};
+A0 -> B0 -> B1 -> B2 -> B3.x -> {B4, B5};
+B4 -> C1, D1 -> D2; A1 -> C2.x. A4 can run in parallel with A1-A3 and B0
+(they touch tests/docs, A4 touches production comments).
 
 ## Open questions (resolve in B0)
 - UNCHECKED Info representation.
