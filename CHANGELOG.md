@@ -19,23 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.69.1+ifort2021.6] - 2026-10-21
 
-Special-purpose build of v2.69.1 for users who cannot move off ifort 2021.6.0
-(for example, GEOSadas, which lags behind MAPL due to long testing cycles).
-This is NOT a regular release; users on ifort 2021.13 or newer should use a
-standard release (v2.69.1 or later).
+### Changed
 
-### Fixed
-
-- Work around an internal compiler error (segmentation violation) in ifort 2021.6.0
-  when compiling `gridcomps/History/Sampler/MAPL_MaskMod.F90`. The same source
-  compiles with ifort 2021.13.0. The crash occurs at `-O0` as well as `-O3`, so it is
-  not flag dependent.
-
-### Removed
-
-- `MaskSamplerMod`: `create_metadata` and `alphabatize_variables` are stubbed out.
-  They set `rc = -1` and print an error if called, so History collections with
-  `sampler_type: mask` will FAIL at initialization with this tag.
+- Special-purpose build of v2.69.1 for users who cannot move off ifort 2021.6.0 (e.g., GEOSadas). Not a regular release; use v2.69.1 or later with ifort 2021.13 or newer if possible
+- Stub out `create_metadata` and `alphabatize_variables` in `gridcomps/History/Sampler/MAPL_MaskMod.F90` to work around an internal compiler error (segfault) in ifort 2021.6.0, which occurs at `-O0` as well as `-O3`
+  - History collections with `sampler_type: mask` will **fail** at initialization with this tag
 
 ## [2.69.1] - 2026-05-19
 
