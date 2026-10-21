@@ -36,6 +36,7 @@ module Test_GraphBuilderEquivalence
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem, operator(==)
+   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
    use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_BOTH, GRAPH_MODE_REGISTRY
    use mapl_FieldGet_mod, only: FieldGet
@@ -539,5 +540,117 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_statistics_real_simple_connections_match_legacy_coupler
+
+   ! openspec/changes/phase-7c-wildcard-dispatch-wiring, tasks.md 4.1/4.2:
+   ! task 4.1's own finding - history_wildcard, unlike this module's
+   ! other grandchild-nested fixtures (statistics_real above), IS
+   ! reachable under GRAPH_MODE_BOTH, confirmed empirically (not
+   ! assumed): cap's own all_unsatisfied connection names root/history
+   ! directly (not a grandchild of either), and history's own single
+   ! child collection_1 is where the WILDCARD import is actually
+   ! advertised - one level of nesting, the exact shape graphbuilder_
+   ! run_propagate_hook's own cross-level mirroring (Group 6/6.8,
+   ! landed) already handles, and (after this change's own
+   ! connection_pt_pair_resolves/find_owning_component_graph regression
+   ! fixes - GraphBuilder_ConnectionResolution_smod.F90) resolve_one's
+   ! new WILDCARD branch now reaches correctly even when the governing
+   ! connection is declared on 'cap', two levels above collection_1's
+   ! own advertised import. Unlike test_statistics_real_simple_
+   ! connections_match_legacy_coupler above, no units-less-import crash
+   ! applies here (collection_1.yaml's own 'A/E_A.*' declares no units
+   ! either, but WILDCARD's own add_dependency-free resolution path
+   ! never calls try_materialize_field_extension at all - design.md
+   ! D1/D3's own "composite-member fan-in, not a DependencyNetwork
+   ! problem" - so GRAPH_MODE_BOTH is safe to use directly here.
+   @test(npes=[0])
+   subroutine test_history_wildcard_composite_matches_legacy_coupler(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: cap_gc
+      type(OuterMetaComponent), pointer :: cap_meta, history_meta, collection_meta
+      type(GriddedComponentDriver) :: history_driver, collection_driver
+      type(ESMF_GridComp) :: history_gc, collection_gc
+      type(GriddedComponentDriver) :: collection_user_driver
+      type(MultiState) :: collection_user_states
+      type(ESMF_State) :: collection_import_state
+      type(ESMF_Field) :: field
+
+      type(ComponentGraph), pointer :: collection_graph
+      type(NodeId), pointer :: import_id
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: payload
+      type(StateItemMemberMap), pointer :: members
+      type(NodeId), pointer :: member_id
+      integer :: status
+
+      call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
+
+      ! Task 4.1's own empirical probe confirmed GRAPH_MODE_BOTH builds
+      ! this fixture cleanly end-to-end (no analog of test_statistics_
+      ! real_simple_connections_match_legacy_coupler's own units-less-
+      ! import crash - see that test's own comment; WILDCARD's own
+      ! resolution path never calls try_materialize_field_extension).
+      call set_graph_mode(GRAPH_MODE_BOTH)
+      call build_scenario_tree('./scenarios/history_wildcard/cap.yaml', cap_gc, cap_meta, _RC)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+
+      ! --- Legacy-coupler oracle: collection_1's own real ESMF import
+      ! state actually contains fields "A/E_A1" and "A/E_A2" (the
+      ! WildcardClassAspect's own add_to_state, matched_items populated
+      ! by connect_all's own legacy WILDCARD dispatch), alongside the
+      ! ordinary "B/E_B2" import - expectations.yaml's own documented
+      ! complete/gridset shape. ---
+      history_driver = cap_meta%get_child('history', _RC)
+      history_gc = history_driver%get_gridcomp()
+      history_meta => get_outer_meta(history_gc, _RC)
+
+      collection_driver = history_meta%get_child('collection_1', _RC)
+      collection_gc = collection_driver%get_gridcomp()
+      collection_meta => get_outer_meta(collection_gc, _RC)
+      collection_user_driver = collection_meta%get_user_gc_driver()
+      collection_user_states = collection_user_driver%get_states()
+      call collection_user_states%get_state(collection_import_state, 'import', _RC)
+
+      call ESMF_StateGet(collection_import_state, 'A/E_A1', field, _RC)
+      @assert_that(ESMF_FieldIsCreated(field), is(true()))
+      call ESMF_StateGet(collection_import_state, 'A/E_A2', field, _RC)
+      @assert_that(ESMF_FieldIsCreated(field), is(true()))
+      call ESMF_StateGet(collection_import_state, 'B/E_B2', field, _RC)
+      @assert_that(ESMF_FieldIsCreated(field), is(true()))
+
+      ! --- GraphBuilder's own resolution reaches the same conclusion:
+      ! the WILDCARD import's own already-advertised NodeId now reports
+      ! itemType() == ESMF_STATEITEM_STATE, with exactly one composite
+      ! member per legacy-coupler-matched export, bound to that
+      ! export's own real NodeId (resolve_wildcard_destination, design.
+      ! md D1-D5) - one-for-one with the legacy oracle's own two
+      ! matched-wildcard fields above (B/E_B2 is an ordinary import, not
+      ! part of the wildcard's own composite membership - not asserted
+      ! here). ---
+      collection_graph => collection_meta%get_component_graph()
+      import_id => collection_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'A/E_A.*'))
+      @assert_that(associated(import_id), is(true()))
+
+      node => collection_graph%get_node(import_id)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      @assertTrue(payload%itemType(rc=status) == ESMF_STATEITEM_STATE)
+      @assert_that(status, is(0))
+
+      members => payload%state_members_ptr()
+      @assertEqual(2, members%size())
+
+      member_id => members%at('A/E_A1')
+      @assert_that(associated(member_id), is(true()))
+      member_id => members%at('A/E_A2')
+      @assert_that(associated(member_id), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_history_wildcard_composite_matches_legacy_coupler
 
 end module Test_GraphBuilderEquivalence

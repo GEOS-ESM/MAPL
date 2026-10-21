@@ -19,7 +19,7 @@
 ! find_inout_borrower_var_spec are removed (both become an ordinary
 ! port-table scan over nodes' own short_name/is_inout_borrower fields).
 submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
-   use esmf, only: ESMF_State, ESMF_StateGet, ESMF_STATEITEM_NOTFOUND, operator(==)
+   use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateGet, ESMF_STATEITEM_NOTFOUND, operator(==)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
    use mapl_ConnectionVector_mod, only: ConnectionVectorIterator, operator(/=)
    use mapl_ExpressionTransform_mod, only: ExpressionTransform
@@ -81,6 +81,60 @@ contains
       end select
    end function effective_source_name
 
+   ! openspec/changes/phase-7c-wildcard-dispatch-wiring (regression
+   ! fix, found via the history_wildcard real-lifecycle scenario, not
+   ! the Task Group 3 unit tests): read-only counterpart of
+   ! resolve_wildcard_destination's own D2 matching loop, shared by
+   ! both of this file's "is this import already resolved?" read-only
+   ! checks (check_one below, connection_pt_pair_resolves further
+   ! down) - neither of those checks' own fallback exact-name export
+   ! lookup (find_export_node(src_meta, node%get_short_name())) can
+   ! ever succeed for a WILDCARD import: node%get_short_name() IS the
+   ! regex pattern itself (e.g. 'A/E_A.*'), never a real export name.
+   ! Before resolve_wildcard_destination gave WILDCARD a real
+   ! resolution path, this was moot (is_ordinary_resolvable_import
+   ! excluded WILDCARD outright, so these checks never even saw one);
+   ! D6's narrowed gate now lets a WILDCARD import reach these checks,
+   ! so they must be able to recognize a real match the same way
+   ! resolve_one's new branch does, or graphbuilder_check_unsatisfied_
+   ! imports/graphbuilder_unresolved_import_node_ids both wrongly
+   ! report "unresolved" for an import resolve_one itself just
+   ! resolved, eventually failing assert_converged's own hierarchy-
+   ! wide convergence check. Mirrors resolve_wildcard_destination's
+   ! own D2 comment for why the regex-bearing operand is node's own
+   ! declared pattern (EXPORT-intent, rebuilt here), never src_pt%v_pt
+   ! or dst_pt%v_pt directly.
+   function wildcard_import_has_match(owner, src_component_name, node, rc) result(has_match)
+      class(OuterMetaComponent), target, intent(inout) :: owner
+      character(*), intent(in) :: src_component_name
+      class(StateItemNode), intent(in) :: node
+      integer, optional, intent(out) :: rc
+      logical :: has_match
+
+      integer :: status
+      class(OuterMetaComponent), pointer :: root_meta
+      type(QualifiedExportEntry), allocatable :: namespace(:)
+      type(VirtualConnectionPt) :: wildcard_v_pt
+      type(VirtualConnectionPt) :: candidate_v_pt
+      integer :: i
+
+      has_match = .false.
+
+      wildcard_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, node%get_short_name())
+
+      root_meta => component_for(owner, src_component_name, _RC)
+      namespace = build_qualified_export_namespace(root_meta, _RC)
+
+      do i = 1, size(namespace)
+         candidate_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, namespace(i)%qualified_name)
+         if (.not. wildcard_v_pt%matches(candidate_v_pt)) cycle
+         has_match = .true.
+         exit
+      end do
+
+      _RETURN(_SUCCESS)
+   end function wildcard_import_has_match
+
    ! Read-only counterpart of resolve_match_connection() below: same
    ! destination-import filtering and same-name export existence check,
    ! but never calls resolve_local_node_id() or add_dependency() -
@@ -131,8 +185,10 @@ contains
 
          integer :: status
          logical :: has_export
+         logical :: has_match
          type(CallbackInterfaceId) :: callback_interface_id
          type(QualifiedExportEntry), allocatable :: callback_matches(:)
+         type(GraphStateItem) :: node_payload
 
          ! openspec/changes/callback-wiring, design.md Decision 0: a
          ! destination declaring an expected callback interface is
@@ -149,6 +205,21 @@ contains
             callback_matches = resolve_callback_import(this, src_pt, callback_interface_id, rc=status)
             _VERIFY(status)
             if (size(callback_matches) == 0) then
+               call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, node%get_short_name()))
+            end if
+            _RETURN(_SUCCESS)
+         end if
+
+         ! openspec/changes/phase-7c-wildcard-dispatch-wiring
+         ! (regression fix): a WILDCARD-typed destination is checked
+         ! via wildcard_import_has_match (above), not the exact-name
+         ! find_export_node fallback below - see that function's own
+         ! header comment for why the fallback can never match a
+         ! WILDCARD import's own regex short_name.
+         node_payload = node%get_payload()
+         if (node_payload%get_declared_item_type() == MAPL_STATEITEM_WILDCARD) then
+            has_match = wildcard_import_has_match(this, src_pt%component_name, node, _RC)
+            if (.not. has_match) then
                call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, node%get_short_name()))
             end if
             _RETURN(_SUCCESS)
@@ -241,6 +312,7 @@ contains
          character(:), pointer :: rejected_item
          integer :: j
          type(CallbackInterfaceId) :: callback_interface_id
+         type(GraphStateItem) :: dst_payload
 
          ! openspec/changes/ordinary-inout-direct-alias: a destination
          ! declaring BOTH an expected callback interface and ordinary
@@ -290,6 +362,25 @@ contains
           ! from dst_node's own short name.
           if (dst_node%is_inout_borrower()) then
              call resolve_inout_destination(this, src_pt, dst_pt, dst_node, effective_source_name(conn, dst_node), unsupported, _RC)
+             _RETURN(_SUCCESS)
+          end if
+
+          ! openspec/changes/phase-7c-wildcard-dispatch-wiring, design.md
+          ! D1-D5: a WILDCARD-typed destination (declared with a regex
+          ! as its own short name, never meant to match exactly one
+          ! export) is resolved by re-running that same regex against
+          ! the connection's own source export namespace and fanning
+          ! the result out into one composite member per match, bound
+          ! onto this import's own already-advertised NodeId in place -
+          ! a composite-member fan-in problem (proposal.md), not a
+          ! multi-producer DependencyNetwork problem: zero
+          ! add_dependency edges are added by this branch (D1, Context's
+          ! DependencyNetwork paragraph) - mirrors the callback-interface
+          ! branch above exactly, substituting resolve_wildcard_
+          ! destination for resolve_callback_destination.
+          dst_payload = dst_node%get_payload()
+          if (dst_payload%get_declared_item_type() == MAPL_STATEITEM_WILDCARD) then
+             call resolve_wildcard_destination(this, src_pt, dst_pt, dst_node, unresolved, _RC)
              _RETURN(_SUCCESS)
           end if
 
@@ -737,6 +828,7 @@ contains
       type(CallbackInterfaceId) :: callback_interface_id
       type(QualifiedExportEntry), allocatable :: callback_matches(:)
       logical :: has_export
+      type(GraphStateItem) :: node_payload
 
       resolved = .false.
 
@@ -756,6 +848,17 @@ contains
          callback_matches = resolve_callback_import(owner, src_pt, callback_interface_id, rc=status)
          _VERIFY(status)
          resolved = (size(callback_matches) > 0)
+         _RETURN(_SUCCESS)
+      end if
+
+      ! openspec/changes/phase-7c-wildcard-dispatch-wiring (regression
+      ! fix): same wildcard_import_has_match substitution check_one
+      ! (above) makes, for connection_resolves_import's own two
+      ! callers (graphbuilder_unresolved_import_node_ids's (a)/(b)
+      ! cases) - see that function's own header comment.
+      node_payload = node%get_payload()
+      if (node_payload%get_declared_item_type() == MAPL_STATEITEM_WILDCARD) then
+         resolved = wildcard_import_has_match(owner, src_pt%component_name, node, _RC)
          _RETURN(_SUCCESS)
       end if
 
@@ -1953,15 +2056,19 @@ contains
    ! (regression fix, found while verifying export propagation against
    ! real-lifecycle fixtures history_wildcard/statistics_real): an
    ! import advertised with a non-ordinary declared item type -
-   ! MAPL_STATEITEM_WILDCARD (resolved by legacy's own regex-matching
-   ! ExtensionFamily machinery, StateRegistry_Propagation_smod.F90) or
    ! MAPL_STATEITEM_SERVICE - has no graph-native resolution path at
    ! all (GraphBuilder.F90's own module header, "Explicitly NOT in
    ! scope here: ... wildcard/callback resolution"). (openspec/changes/
    ! phase-7b-expression-dispatch-wiring, design.md D6: MAPL_STATEITEM_
    ! EXPRESSION is no longer part of this group - see
    ! graphbuilder_run_expression_hook/is_ordinary_resolvable_import's
-   ! own updated header comment below.) graphbuilder_unresolved_import_node_ids (import
+   ! own updated header comment below.) (openspec/changes/
+   ! phase-7c-wildcard-dispatch-wiring, design.md D6: MAPL_STATEITEM_
+   ! WILDCARD is also no longer part of this group - resolve_one's own
+   ! new branch, resolve_wildcard_destination above, now gives it a
+   ! real graph-native resolution path; MAPL_STATEITEM_SERVICE remains
+   ! excluded, unchanged - Phase 6b's own retire-via-callbacks concern,
+   ! out of scope here.) graphbuilder_unresolved_import_node_ids (import
    ! propagation's own source scan) must exclude such an import BEFORE
    ! considering it unresolved-and-propagatable - propagating it
    ! upward would expose it to an ordinary ancestor connection
@@ -1986,6 +2093,14 @@ contains
    ! EXPRESSION (graphbuilder_run_expression_hook above), so it no
    ! longer belongs in this "never treat as unresolved-and-
    ! propagatable" exclusion list.
+   !
+   ! openspec/changes/phase-7c-wildcard-dispatch-wiring, design.md D6:
+   ! MAPL_STATEITEM_WILDCARD's own exclusion arm is removed by this same
+   ! reasoning, one line - resolve_one's new branch
+   ! (resolve_wildcard_destination) now gives it a real graph-native
+   ! resolution path too. MAPL_STATEITEM_SERVICE remains excluded,
+   ! unchanged (Phase 6b's own retire-via-callbacks concern, out of
+   ! scope here).
    logical function is_ordinary_resolvable_import(node) result(is_ordinary)
       class(StateItemNode), intent(in) :: node
 
@@ -1995,9 +2110,7 @@ contains
       payload = node%get_payload()
       declared_type = payload%get_declared_item_type()
 
-      is_ordinary = .not. ( &
-           declared_type == MAPL_STATEITEM_WILDCARD .or. &
-           declared_type == MAPL_STATEITEM_SERVICE)
+      is_ordinary = .not. (declared_type == MAPL_STATEITEM_SERVICE)
    end function is_ordinary_resolvable_import
    ! openspec/changes/phase-7b-expression-dispatch-wiring, design.md D2:
    ! for each of `this`'s own advertised StateItemNodes whose
@@ -2222,5 +2335,198 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine resolve_callback_destination
+
+   ! openspec/changes/phase-7c-wildcard-dispatch-wiring (regression
+   ! fix, found via the history_wildcard real-lifecycle scenario):
+   ! dst's own ComponentGraph (resolve_qualified_component(this, dst_pt%
+   ! component_name)'s graph) does NOT necessarily own dst_node's own
+   ! NodeId - graphbuilder_run_propagate_hook (above) mirrors an
+   ! unresolved import UPWARD into every ancestor's own import-port
+   ! table by VALUE (add_import_port), never changing which
+   ! ComponentGraph's own own_node_ids record actually owns that NodeId
+   ! (design.md D3's own "no proxy, no new identity" contract) - so for
+   ! an all_unsatisfied-style connection declared several levels above
+   ! the import's real advertiser (history_wildcard: declared on 'cap'
+   ! for dst_comp='history', but the WILDCARD import is actually
+   ! advertised by history's own descendant 'collection_1'), dst_meta's
+   ! own graph (history's) does not own it - only collection_1's own
+   ! graph does. add_resource_index asserts owns_node() (ComponentGraph.
+   ! F90 line 795), so the resource-index guard/write must go through
+   ! whichever ComponentGraph in dst_meta's own subtree actually owns
+   ! dst_node_id - found by find_owning_component_graph, below -
+   ! instead of assuming dst_meta's own graph is always the owner the
+   ! way resolve_local_node_id's callers safely can for every OTHER
+   ! branch in this file (none of them is reached through a mirrored,
+   ! not-directly-advertised import the way an all_unsatisfied-style
+   ! WILDCARD resolution can be).
+   recursive function find_owning_component_graph(meta, node_id, rc) result(owning_graph)
+      class(OuterMetaComponent), target, intent(inout) :: meta
+      type(NodeId), intent(in) :: node_id
+      integer, optional, intent(out) :: rc
+      type(ComponentGraph), pointer :: owning_graph
+
+      integer :: status
+      type(ComponentGraph), pointer :: own_graph
+      integer :: i, num_children
+      character(:), allocatable :: child_name
+      type(OuterMetaComponent), pointer :: child_meta
+
+      owning_graph => null()
+
+      own_graph => meta%get_component_graph()
+      if (own_graph%owns_node(node_id)) then
+         owning_graph => own_graph
+         _RETURN(_SUCCESS)
+      end if
+
+      num_children = meta%get_num_children()
+      do i = 1, num_children
+         child_name = meta%get_child_name(i, status)
+         if (status /= 0) cycle
+         child_meta => meta%get_child_outer_meta(child_name, status)
+         if (status /= 0) cycle
+         owning_graph => find_owning_component_graph(child_meta, node_id, status)
+         if (associated(owning_graph)) then
+            _RETURN(_SUCCESS)
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+   end function find_owning_component_graph
+
+   ! openspec/changes/phase-7c-wildcard-dispatch-wiring, design.md
+   ! D1-D5: resolves one WILDCARD-typed destination import by re-running
+   ! its own already-matched pattern (dst_pt%v_pt - the SAME regex
+   ! for_each_matching_import already used to find dst_node as a
+   ! destination) against the connection's own source export namespace
+   ! (build_qualified_export_namespace, callback-wiring's own cross-
+   ! level-qualified namespace primitive, reused as-is), and fanning the
+   ! result out into one composite member per match - bound onto
+   ! dst_node's own already-advertised NodeId in place (D1), not a
+   ! freshly-synthesized collection node the way materialize_callback_
+   ! collection mints one. Proposal.md's own "why this is a composite-
+   ! member fan-in problem, not a multi-producer DependencyNetwork
+   ! problem": every match is bound via add_state_member (pure
+   ! reference binding), never add_dependency - a WILDCARD import never
+   ! gains an edge in any DependencyNetwork through this path, exactly
+   ! like materialize_callback_collection's own per-match loop body
+   ! (D1/D3, reused unmodified).
+   subroutine resolve_wildcard_destination(this, src_pt, dst_pt, dst_node, unresolved, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(ConnectionPt), intent(in) :: src_pt
+      type(ConnectionPt), intent(in) :: dst_pt
+      class(StateItemNode), target, intent(in) :: dst_node
+      type(GraphResolutionEntryVector), intent(inout) :: unresolved
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentGraph), pointer :: graph
+      character(:), allocatable :: collection_key
+      type(NodeId), pointer :: existing_collection
+      class(OuterMetaComponent), pointer :: root_meta
+      class(OuterMetaComponent), pointer :: dst_meta
+      type(QualifiedExportEntry), allocatable :: namespace(:)
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(QualifiedExportEntry), allocatable :: grown_matches(:)
+      type(VirtualConnectionPt) :: wildcard_v_pt
+      type(VirtualConnectionPt) :: candidate_v_pt
+      type(GraphStateItem), pointer :: payload
+      type(ESMF_State) :: state
+      type(NodeId) :: member_id
+      type(NodeId) :: dst_node_id
+      integer :: i, n
+
+      ! dst_node's own NodeId belongs to dst's own ComponentGraph OR to
+      ! some descendant of dst's (regression fix - see find_owning_
+      ! component_graph's own header comment above for the mirrored-
+      ! import case this handles: an all_unsatisfied-style connection
+      ! declared several levels above the import's real advertiser).
+      ! ComponentGraph%add_resource_index asserts owns_node(), so the
+      ! resource-index guard/write below must go through whichever
+      ! graph actually owns dst_node_id, not assumed to be dst_meta's
+      ! own graph directly the way resolve_local_node_id's callers
+      ! safely can for every OTHER branch in this file (D1 - unlike
+      ! resolve_callback_destination's own analogous guard, whose
+      ! collection_id is freshly minted on this's own graph via next_
+      ! node_id() and therefore never has this problem).
+      dst_meta => resolve_qualified_component(this, dst_pt%component_name, _RC)
+      dst_node_id = dst_node%get_node_id()
+      graph => find_owning_component_graph(dst_meta, dst_node_id, _RC)
+      _ASSERT(associated(graph), 'GraphBuilder: resolve_wildcard_destination - no ComponentGraph in dst subtree owns this import NodeId')
+
+      ! D4: idempotency, keyed off the import's own NodeId (not the
+      ! matched connection) - the same resource-index guard
+      ! resolve_callback_destination uses, substituting this import's
+      ! own already-real NodeId for a freshly-minted collection id.
+      collection_key = 'WILDCARD_COLLECTION:' // dst_node_id%to_string()
+      existing_collection => graph%get_resource_index(collection_key)
+      if (associated(existing_collection)) then
+         _RETURN(_SUCCESS)
+      end if
+
+      ! D2: same source-side scan resolve_callback_import already
+      ! drives, substituting the EXPORT-side candidate for the
+      ! IMPORT-side one. The regex-bearing operand is NOT dst_pt%v_pt -
+      ! for an all_unsatisfied-style MatchConnection, dst_pt%v_pt is the
+      ! CONNECTION's own declared destination pattern (e.g. IMPORT,
+      ! '^.*$'), not the wildcard import's own declared pattern, and
+      ! VirtualConnectionPt%matches() compares state_intent first
+      ! (connection/VirtualConnectionPt.F90 line 240) - an IMPORT-
+      ! intent v_pt can never match an EXPORT-intent candidate,
+      ! regardless of its regex, so using dst_pt%v_pt directly here
+      ! would silently find zero matches for every wildcard import,
+      ! always. The wildcard import's own declared pattern lives on
+      ! dst_node itself (dst_node%get_short_name(), exactly as
+      ! for_each_matching_import already used it to find dst_node as a
+      ! destination in the first place) - rebuilt here with EXPORT
+      ! intent as the regex-bearing operand instead.
+      allocate(matches(0))
+
+      wildcard_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, dst_node%get_short_name())
+
+      root_meta => component_for(this, src_pt%component_name, _RC)
+      namespace = build_qualified_export_namespace(root_meta, _RC)
+
+      do i = 1, size(namespace)
+         candidate_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, namespace(i)%qualified_name)
+         if (.not. wildcard_v_pt%matches(candidate_v_pt)) cycle
+
+         ! Same classic-ifort self-referencing-array-constructor ICE
+         ! precedent documented throughout this file - grow via a fresh
+         ! temporary and move_alloc instead of `matches = [matches,
+         ! namespace(i)]`.
+         n = size(matches)
+         allocate(grown_matches(n + 1))
+         grown_matches(1:n) = matches
+         grown_matches(n + 1) = namespace(i)
+         call move_alloc(grown_matches, matches)
+      end do
+
+      if (size(matches) == 0) then
+         ! D5: zero matches is a resolution failure, reported through
+         ! the "no producer found at all" channel - no resource-index
+         ! entry (so a later real connection, if one ever supplies a
+         ! match, is not blocked by a stale "already resolved" guard).
+         call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name()))
+         _RETURN(_SUCCESS)
+      end if
+
+      ! D1/D3: materialize in place - dst_node's own already-advertised
+      ! payload, not a fresh local GraphStateItem - then one
+      ! add_state_member per match, both calls reused verbatim from
+      ! materialize_callback_collection's own per-match loop body.
+      payload => dst_node%get_payload_ptr()
+      state = ESMF_StateCreate(_RC)
+      call payload%set(state, _RC)
+
+      do i = 1, size(matches)
+         member_id = resolve_qualified_export_node_id(this, src_pt%component_name, matches(i), _RC)
+         call payload%add_state_member(matches(i)%qualified_name, member_id, _RC)
+      end do
+
+      call graph%add_resource_index(collection_key, dst_node_id, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine resolve_wildcard_destination
 
 end submodule GraphBuilder_ConnectionResolution_smod
