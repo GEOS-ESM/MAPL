@@ -16,6 +16,18 @@ Repo-level instructions for coding agents working in this MAPL3 checkout.
   `docs/graph/plans/separation-of-concerns.md`); do not copy their
   style, and do not add to them.
 
+## Builds, tests, and delegation
+
+- Run builds and ctest yourself; do not delegate them. Send the full
+  output to a log in the build dir and show only the end, e.g.
+  `cmake --build nag -j 10 --target build-tests > nag/build.log 2>&1; tail -3 nag/build.log`
+  and `ctest --test-dir nag -L ESSENTIAL -j 6 > nag/ctest.log 2>&1; tail -15 nag/ctest.log`.
+  Never stream a full build or ctest log into the conversation.
+- If the build or ESSENTIAL tests fail and the cause is not obvious from
+  that tail, delegate first-pass investigation to the `triage` subagent
+  (give it the build dir and the failing test names), then fix based on
+  its report. Verify its "suspected" causes before acting on them.
+
 ## Graph architecture work (`docs/graph/`, `openspec/`)
 
 If your task touches the explicit dependency-graph architecture
