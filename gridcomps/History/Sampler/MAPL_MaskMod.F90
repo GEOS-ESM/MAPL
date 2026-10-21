@@ -230,11 +230,12 @@ module MaskSamplerMod
 
   contains
 
-    ! WARNING: STUBBED OUT. The original bodies of alphabatize_variables and
-    ! create_metadata triggered an internal compiler error (segfault) in
-    ! ifort 2021.6.0. The mask sampler is not expected to be used in this
-    ! build. These are no-ops that report failure if ever called.
-    ! Restore from git history when building with a newer compiler.
+    ! WARNING: STUBBED OUT (tag v2.69.1+ifort2021.6 only; see CHANGELOG.md).
+    ! The original bodies of alphabatize_variables and create_metadata trigger an
+    ! internal compiler error (segfault) in ifort 2021.6.0, even at -O0. The same
+    ! source compiles with ifort 2021.13.0. These are no-ops that return rc = -1
+    ! and print an error if called, so 'sampler_type: mask' History collections
+    ! will fail. Use a standard MAPL release with ifort 2021.13 or newer instead.
 
     subroutine alphabatize_variables(this,nfixedVars,rc)
       class (MaskSampler), intent(inout) :: this
