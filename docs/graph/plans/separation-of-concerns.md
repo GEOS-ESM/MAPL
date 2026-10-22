@@ -32,6 +32,36 @@ reference. Never push; never rebase or amend existing commits.
 `ctest -L ESSENTIAL`). Pending/expected-fail work is gated by explicit
 toggles, never by red tests.
 
+## Working with the owner (for planning/meta sessions)
+
+Preferences stated in discussion, not obvious from the rest of the plan:
+- Ask about legacy MAPL, gFTL, pFUnit and ESMF design intent rather than
+  guessing; the owner knows the history.
+- No make-work: no benchmarks, scaffolding or process steps without a
+  concrete payoff. Prefer trying things on real tasks.
+- No permanent tests for things code must *not* contain (grep guards,
+  lint-style ctests) unless the risk is subtle or dangerous. Check such
+  rules once in a task's Done condition; document the rule once the
+  source satisfies it; review enforces it afterwards.
+- One task at a time: no parallel task agents or worktrees, and no plan
+  edits while a task has uncommitted work that touches the plan (wait
+  for its commit, then edit).
+- Fix-as-needed beats speculative completeness (e.g. `MAPL_StateSet` is
+  extended when a task needs it); no speculative compiler workarounds.
+- Prefer overloading existing MAPL generic names (`MAPL_FieldGet`,
+  `MAPL_StateGet`, ...) to inventing new procedure names, when the
+  compilers accept the overload.
+- Meta sessions do not author tasks. After each plan edit, copy the plan
+  to `~/.opencode/plan/graph-separation-of-concerns.md` and commit only
+  the files changed, with trailer `Plan-Task: plan-maintenance`. Never
+  commit or delete the owner's untracked files
+  (`.opencode/skills/mapl-implementation/`, `ordering.md`).
+- After a task lands: check its commit (trailer, both ctest lines,
+  Status line, scope), delete a stale `.git/PLAN_TASK_MSG`, then fold
+  its findings into later tasks.
+- Tooling lives outside the plan: `.opencode/README.md` (agents,
+  commands, `with-*` wrappers, `model-for` tiers).
+
 ## Context every task prompt should include
 
 - Read root `AGENTS.md`, `docs/graph/ARCHITECTURE.md`,
