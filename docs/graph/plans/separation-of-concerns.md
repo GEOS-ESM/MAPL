@@ -315,7 +315,11 @@ consumes context.
   `openspec/changes` references, comment-only verified; the stale
   `GraphBuilder.F90` module header was rewritten from the current call
   sites, since it described removed proxy nodes and a nonexistent
-  `get_or_make_local_node_id`). A4c-A4e not started.
+  `get_or_make_local_node_id`). A4c done (`graph/*.F90`, 33 files: 0
+  `openspec/changes` references, comment-only verified; `spec/NN-*.md` paths
+  dropped, REQ IDs kept; stale ComponentGraph/MethodInvocationAdapter/
+  GraphExport headers rewritten from current code; no deviations). A4d-A4e
+  not started.
 
 **A5. Centralize graph-layer Info access.** Code change. After A4d
 (A4c/A4d edit comments in the same files). Before B3 (B3 write methods

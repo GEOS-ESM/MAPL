@@ -1,25 +1,20 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! GridCompDriverPhaseInvoker: the real GridCompPhaseInvoker implementation
-! (MethodInvocationAdapter.F90), backed by the existing
-! GriddedComponentDriver (superstructure/component/
-! GriddedComponentDriver.F90)'s own initialize/run/finalize entry
-! points - griddedcomponentdriver-integration-lifecycle design.md
-! Decisions ("A new DriverResolver abstraction decouples the real
-! GridCompPhaseInvoker from OuterMetaComponent").
+! GridCompDriverPhaseInvoker: the GridCompPhaseInvoker implementation
+! (MethodInvocationAdapter.F90) backed by GriddedComponentDriver
+! (superstructure/component/GriddedComponentDriver.F90)'s initialize/run/
+! finalize entry points. A DriverResolver decouples it from
+! OuterMetaComponent.
 !
 ! Holds which of initialize/run/finalize this instance calls (one
-! ESMF_Method_Flag, fixed at construction) and a DriverResolver used to
-! turn a driver_key into the concrete driver to call it on. invoke_phase()
-! does exactly: resolve, dispatch to the one driver call matching the
-! held method flag, propagate rc - nothing else touches arguments/
-! bindings/clock, satisfying REQ-MTH-003 ("must not duplicate invocation
-! logic already in GriddedComponentDriver") by construction. clock is
-! unused here: GriddedComponentDriver's own clock member (set at
-! construction/via set_clock) is what run/initialize/finalize actually
-! use internally - a second clock threaded through this call would be
-! redundant, not authoritative.
+! ESMF_Method_Flag, fixed at construction) and a DriverResolver used to turn
+! a driver_key into the concrete driver. invoke_phase() resolves, dispatches
+! to the one matching driver call, and propagates rc; nothing else touches
+! arguments/bindings/clock, satisfying REQ-MTH-003 by construction. clock is
+! unused: GriddedComponentDriver's own clock member (set at construction or
+! via set_clock) is what initialize/run/finalize use, so a second clock
+! threaded through this call would be redundant, not authoritative.
 !------------------------------------------------------------------------------
 module mapl_GridCompDriverPhaseInvoker_mod
    use mapl_MethodInvocationAdapter_mod, only: GridCompPhaseInvoker, DriverResolver

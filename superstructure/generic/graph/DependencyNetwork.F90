@@ -2,8 +2,7 @@
 
 !------------------------------------------------------------------------------
 ! DependencyNetwork: graph-neutral dependency wiring with direct
-! predecessor/successor adjacency, keyed by NodeId (spec/06-dependency-
-! network.md REQ-DEP-001/002). No first-class edge objects: a dependency is
+! predecessor/successor adjacency, keyed by NodeId (REQ-DEP-001/002). No first-class edge objects: a dependency is
 ! addressed only by its (source, target) NodeId pair.
 !
 ! Two synchronized gFTL maps (NodeId -> NodeIdSet) hold successor and
@@ -48,22 +47,15 @@ module mapl_DependencyNetwork_mod
       procedure :: freeze => network_freeze
       procedure :: is_frozen => network_is_frozen
       procedure :: clear => network_clear
-      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.1/3.2:
-      ! exposes collect_referenced_ids() (below) publicly so
-      ! ComponentGraph%validate() can build its own per-call "ownership
-      ! or legitimately-known-elsewhere-in-this-hierarchy" allowance set
-      ! for THIS network's own referenced ids, without this type needing
-      ! to know anything about hierarchy-wide storage itself (REQ-CG-002
-      ! layering - this module stays graph-neutral).
+      ! exposes collect_referenced_ids() so ComponentGraph%validate() can build a
+      ! per-call allowed-id set for this network's referenced ids without this
+      ! type knowing about hierarchy-wide storage (REQ-CG-002)
       procedure :: get_referenced_ids => network_get_referenced_ids
    end type DependencyNetwork
 
-   ! One explicit-stack DFS frame for has_cycle_from's iterative rewrite
-   ! (see that function's own header comment for why it is no longer a
-   ! recursive Fortran function) - remembers which node this frame is
-   ! exploring and where its own successor iteration had gotten to, so
-   ! resuming it after "descending" into a child no longer needs a real
-   ! call-stack frame.
+   ! One explicit-stack DFS frame for has_cycle_from: the node being explored
+   ! and where its successor iteration has got to, so resuming after
+   ! "descending" into a child needs no call-stack frame.
    type :: DfsFrame
       type(NodeId) :: node
       type(NodeIdSetIterator) :: iter
@@ -156,12 +148,10 @@ contains
       frozen = this%frozen
    end function network_is_frozen
 
-   ! Public wrapper over collect_referenced_ids() (below), used by
-   ! ComponentGraph%validate() (ComponentGraph.F90) to find every NodeId
-   ! this one network references, so it can be checked against ids this
-   ! instance is permitted to reference (its own, or a direct child's -
-   ! openspec/changes/hierarchy-wide-component-graph tasks.md 3.1/3.2)
-   ! without this type itself needing any hierarchy-wide knowledge.
+   ! Public wrapper over collect_referenced_ids(), used by
+   ! ComponentGraph%validate() to check every NodeId this network references
+   ! against the ids that instance may reference (its own, or registered
+   ! elsewhere in the hierarchy), without hierarchy-wide knowledge here.
    function network_get_referenced_ids(this) result(ids)
       class(DependencyNetwork), target, intent(in) :: this
       type(NodeIdSet) :: ids
@@ -396,16 +386,10 @@ contains
    end subroutine ensure_entry
 
    ! Is `needle` reachable from `start` by following successor adjacency?
-   ! Explicit-worklist (non-recursive) search - a Fortran recursive
-   ! function here reliably corrupted its own local variables on return
-   ! from a deeper call under gfortran (confirmed via
-   ! -fmax-stack-var-size testing; not reproducible under NAG) -
-   ! sidestepping Fortran call-stack recursion entirely removes the
-   ! dependency on whatever gfortran storage behavior was at fault,
-   ! regardless of compiler flags. No per-frame resumable iteration
-   ! state is needed here (unlike has_cycle_from below) since plain
-   ! reachability only needs one `visited` set, not a pop-when-done-
-   ! exploring discipline.
+   ! Explicit-worklist (non-recursive) search: a recursive Fortran function
+   ! here corrupted its local variables on return from a deeper call under
+   ! gfortran (not reproducible under NAG). Plain reachability needs only one
+   ! `visited` set, no resumable iteration state.
    function node_reachable(this, start, needle, visited) result(found)
       class(DependencyNetwork), target, intent(in) :: this
       type(NodeId), intent(in) :: start
@@ -451,19 +435,10 @@ contains
 
    ! Classic white/gray/black DFS cycle detection: `visiting` holds nodes
    ! currently on the (now explicit) DFS stack, `visited` holds
-   ! fully-explored nodes. Explicit-stack (non-recursive) rewrite - a
-   ! Fortran recursive function here reliably corrupted its own local
-   ! `successors` pointer on return from a deeper recursive call under
-   ! gfortran (confirmed via -fmax-stack-var-size testing; NAG never
-   ! reproduced it) - not something any source-level fix inside a truly
-   ! recursive Fortran function resolved, so recursion itself is
-   ! removed. Each DfsFrame remembers which node it is exploring and
-   ! where its own successor iteration had gotten to, so "descending"
-   ! into a child and later resuming the parent's iteration no longer
-   ! needs a real call-stack frame - `NodeIdSetIterator` is a plain
-   ! value type designed to be copied/stored/resumed (that is its whole
-   ! purpose), so storing one per stack frame is not a new kind of
-   ! usage.
+   ! Explicit-stack (non-recursive) DFS: a recursive function corrupted its
+   ! local `successors` pointer on return from a deeper call under gfortran
+   ! (not reproducible under NAG). Each DfsFrame holds its node and a stored
+   ! NodeIdSetIterator so the parent's iteration can resume after "descending".
    function has_cycle_from(this, start_node, visiting, visited) result(found)
       class(DependencyNetwork), target, intent(in) :: this
       type(NodeId), intent(in) :: start_node
@@ -488,14 +463,9 @@ contains
       allocate(stack(0))
       stack = [stack, make_dfs_frame(this, start_node)]
 
-      ! Fidelity note: the original recursive version always unwound
-      ! every frame on the way back up (erase from `visiting`, insert
-      ! into `visited`) regardless of whether a cycle was found deeper
-      ! in the recursion - only the eventual boolean result differed.
-      ! `found` gates further exploration below once set, but every
-      ! frame still gets popped/unwound the same way either way -
-      ! preserving that same "always fully unwind" contract rather than
-      ! returning early with `visiting` left dirty.
+      ! Every frame is always unwound (erase from `visiting`, insert into
+      ! `visited`), even once `found` is set, so `visiting` is never left dirty;
+      ! `found` only gates further exploration.
       do while (size(stack) > 0)
          top = size(stack)
          descended = .false.
@@ -533,10 +503,8 @@ contains
       end do
    end function has_cycle_from
 
-   ! Builds one has_cycle_from DFS stack frame for `node`: its successor
-   ! set (if any) and a fresh iterator positioned before its first
-   ! element, ready for the same "call %next() before first use"
-   ! discipline this file's own header comment already establishes.
+   ! Builds one has_cycle_from DFS stack frame for `node`: its successor set
+   ! (if any) and an iterator positioned before its first element.
    function make_dfs_frame(this, node) result(frame)
       class(DependencyNetwork), target, intent(in) :: this
       type(NodeId), intent(in) :: node
@@ -558,13 +526,9 @@ contains
       type(NodeIdSet), pointer :: neighbor_set
       type(NodeId), pointer :: node, member
 
-      ! Note: this function has no `rc` argument, so the usual _ASSERT
-      ! macro (which hardcodes a reference to a variable named `rc`)
-      ! cannot be used here - the established ftn_begin/next/of()
-      ! iteration discipline (call %next() before the first use of the
-      ! iterator) already guarantees of()/first()/second() are called
-      ! only on a valid, non-end position, per this file's own header
-      ! comment.
+      ! No `rc` argument here, so the assert macro (which references `rc`) cannot be
+      ! used; the ftn_begin/next/of() discipline keeps of()/first()/second() on
+      ! valid positions.
       map_iter = this%successors_map%ftn_begin()
       do while (map_iter /= this%successors_map%ftn_end())
          call map_iter%next()

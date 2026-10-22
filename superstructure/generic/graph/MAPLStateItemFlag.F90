@@ -1,30 +1,26 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! MAPL_StateItem_Flag: new, open-ended "variant" classification for
-! GraphStateItem (spec/04-graph-value-hierarchy.md REQ-SI-002b), distinct from
-! ESMF's own native ESMF_StateItem_Flag classification but mirroring its
-! vocabulary as the "vanilla" default for each native kind: FIELD,
-! FIELDBUNDLE, STATE, ROUTEHANDLE, NOTFOUND. On top of that vanilla set,
-! finer-grained roles refine a single native kind:
+! MAPL_StateItem_Flag: open-ended "variant" classification for
+! GraphStateItem (REQ-SI-002b), distinct from ESMF's native
+! ESMF_StateItem_Flag but mirroring its vocabulary as the "vanilla" default
+! for each native kind: FIELD, FIELDBUNDLE, STATE, ROUTEHANDLE, NOTFOUND.
+! Finer-grained roles refine a single native kind:
 !   - FIELD refines to: GEOM
 !   - FIELDBUNDLE refines to: VECTOR, BRACKET, VECTORBRACKET
 !   - STATE refines to: VERTICALGRID
 !   - ROUTEHANDLE has no finer refinement (already fully distinguished at
 !     the native esmf_kind()/itemType() tier).
 !
-! Follows ESMF's own flag-type style (a small derived type wrapping an
-! integer code, compared via operator(==)/operator(/=)) rather than a
-! plain integer, so new variants can be added later without disturbing
-! client code that only compares against named constants.
+! Follows ESMF's flag-type style (a small derived type wrapping an integer
+! code, compared via operator(==)/operator(/=)) so new variants can be added
+! without disturbing client code that compares against named constants.
 !
-! This module also owns the ESMF_Info attachment/read-back for its own
-! values (MAPL_StateItemFlag_set_info/get_info), storing the flag's
-! to_string() name rather than a raw internal integer code, so no other
-! module needs access to (or knowledge of) this type's internal
-! representation - mapl_StateItemVariantInfo_mod only owns the reserved key
-! name and which host object's Info to use, and delegates the actual
-! read/write of the value to this module.
+! This module also owns the ESMF_Info attachment/read-back for its values
+! (MAPL_StateItemFlag_set_info/get_info), storing the flag's to_string() name
+! rather than the internal integer code. mapl_StateItemVariantInfo_mod owns
+! only the reserved key name and which host object's Info to use, and
+! delegates the read/write of the value to this module.
 !------------------------------------------------------------------------------
 module mapl_StateItemFlag_mod
    use ESMF, only: ESMF_Info, ESMF_InfoSet, ESMF_InfoGetCharAlloc
@@ -48,8 +44,7 @@ module mapl_StateItemFlag_mod
    public :: MAPL_STATEITEM_BRACKET
    public :: MAPL_STATEITEM_VECTORBRACKET
    public :: MAPL_STATEITEM_VERTICALGRID
-   ! openspec/changes/phase-7b-expression-dispatch-wiring: EXPRESSION
-   ! item class (N:1 expression evaluation) - see design.md D1/D3.
+   ! EXPRESSION item class (N:1 expression evaluation)
    public :: MAPL_STATEITEM_EXPRESSION
 
    type :: MAPL_StateItem_Flag
@@ -72,9 +67,7 @@ module mapl_StateItemFlag_mod
    type(MAPL_StateItem_Flag), parameter :: MAPL_STATEITEM_BRACKET       = MAPL_StateItem_Flag(12)
    type(MAPL_StateItem_Flag), parameter :: MAPL_STATEITEM_VECTORBRACKET = MAPL_StateItem_Flag(13)
    type(MAPL_StateItem_Flag), parameter :: MAPL_STATEITEM_VERTICALGRID  = MAPL_StateItem_Flag(14)
-   ! openspec/changes/phase-7b-expression-dispatch-wiring: EXPRESSION
-   ! item class - next unused value after VERTICALGRID (design.md
-   ! Context/D1).
+   ! EXPRESSION item class: next unused value after VERTICALGRID
    type(MAPL_StateItem_Flag), parameter :: MAPL_STATEITEM_EXPRESSION    = MAPL_StateItem_Flag(15)
 
    interface operator(==)

@@ -2,53 +2,32 @@
 
 !------------------------------------------------------------------------------
 ! MethodInvocation: REQ-MTH-003a's trigger/advance discipline around a
-! MethodGraphNode invocation on the default DependencyNetwork
-! (spec/12-methods-and-drivers.md sec 12.2, spec/11-revision-and-update.md
-! REQ-REV-011) - griddedcomponentdriver-integration-lifecycle design.md
-! Decisions ("REQ-MTH-003a's trigger/advance discipline is one new
-! graph-neutral procedure, not an OuterMetaComponent method").
+! MethodGraphNode invocation on the default DependencyNetwork (REQ-REV-011),
+! as one graph-neutral procedure rather than an OuterMetaComponent method.
 !
-! invoke_on_default_network() does exactly REQ-REV-011's default-network
-! rule, unconditionally/all-or-nothing:
-!   1. Before invocation: ComponentGraph%update() (REQ-REV-006) over
-!      every one of the method node's bound IN/INOUT arguments.
+! invoke_on_default_network() applies REQ-REV-011's default-network rule,
+! unconditionally and all-or-nothing:
+!   1. Before invocation: ComponentGraph%update() (REQ-REV-006) over every
+!      one of the method node's bound IN/INOUT arguments.
 !   2. Invoke the node.
-!   3. Only if invocation succeeds: advance the NodeRevision of every
-!      one of the method node's bound OUT/INOUT arguments.
+!   3. Only if invocation succeeds: advance the NodeRevision of every one of
+!      the method node's bound OUT/INOUT arguments.
 !
-! REQ-REV-011a: this discipline is "controlled by the OuterMetaComponent
-! layer" through *who calls* this procedure (an OuterMetaComponent call
-! site, once one exists), not by the mechanism living inside
-! OuterMetaComponent itself - this procedure needs only
-! ComponentGraph/MethodGraphNode/NodeRevision, exactly Phase 1-3's
-! existing synthetic-graph-testable shape, no OuterMetaComponent, no
-! ESMF component.
+! REQ-REV-011a: the discipline is "controlled by the OuterMetaComponent
+! layer" through who calls this procedure, not by the mechanism living inside
+! OuterMetaComponent; it needs only ComponentGraph/MethodGraphNode/
+! NodeRevision, so it is testable on a synthetic graph.
 !
-! Explicit-worklist (collect-then-process), not a single combined loop -
-! same gfortran-safety posture already established in this module
-! family (ComponentGraph_DemandDrivenUpdate.F90's own explicit-stack
-! rewrite, DependencyNetwork.F90's own explicit-worklist search): both
-! document "a recursive Fortran procedure reliably corrupted its own
-! local [state] on return from a deeper recursive call under gfortran."
-! collect_bound_names() below keeps the StateItemMemberMap
-! iterator (%ftn_begin/%ftn_end/%next/%first) loop doing nothing but
-! iteration and plain array-element assignment - no call to any other
-! user-defined procedure while the iterator is live - then hands off to
-! two ordinary indexed loops (pull_bound_inputs/advance_bound_outputs)
-! that do the real per-argument work (get_argument, graph%update,
-! advance_revision) with no map iterator involved at all. This was
-! defensive hardening applied while chasing a real gfortran test
-! failure in this area; the failure's actual root cause turned out to
-! be unrelated to this file (a shared test-fixture helper returning a
-! freshly-built ComponentGraph through an intent(out) dummy argument -
-! see Test_MethodInvocation.pf's own header comment) - but the
-! collect-then-process shape here is kept regardless, both because it
-! matches this module family's own established precedent and because a
-! map iterator that must stay valid across several potentially-complex
-! intervening calls (ComponentGraph%update() in particular, which walks
-! the whole DependencyNetwork) is worth insulating from on general
-! principle, not only for this one now-understood failure.
-!------------------------------------------------------------------------------
+! Collect-then-process, not one combined loop (same gfortran-safety posture
+! as ComponentGraph_DemandDrivenUpdate.F90 and DependencyNetwork.F90, where
+! recursive procedures corrupted locals under gfortran).
+! collect_bound_names() keeps the StateItemMemberMap iterator loop to
+! iteration and plain array-element assignment, with no call to any other
+! user-defined procedure while the iterator is live. Two indexed loops
+! (pull_bound_inputs/advance_bound_outputs) then do the per-argument work
+! (get_argument, graph%update, advance_revision) with no map iterator
+! involved. This also insulates the iterator from ComponentGraph%update(),
+! which walks the whole DependencyNetwork.
 module mapl_MethodInvocation_mod
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_GraphNode_mod, only: GraphNode
@@ -66,10 +45,8 @@ module mapl_MethodInvocation_mod
 
    public :: invoke_on_default_network
 
-   ! Argument names are short, framework-declared identifiers (unlike
-   ! e.g. a component's own advertised item short_name) - 128 is a
-   ! generous bound, matching this module's own test fixtures ('x_in'
-   ! etc.) and MethodGraphNode's own callback-argument-name use case.
+   ! Argument names are short, framework-declared identifiers (unlike a
+   ! component's advertised item short_name); 128 is a generous bound.
    integer, parameter :: MAX_ARGUMENT_NAME_LEN = 128
 
 contains
@@ -109,11 +86,9 @@ contains
       _RETURN(_SUCCESS)
    end subroutine invoke_on_default_network
 
-   ! One clean, uninterrupted iteration pass - nothing but the
-   ! iterator's own methods and plain array-element assignment happen
-   ! in this loop (module header - why this must stay separate from the
-   ! per-name work below, and why it avoids even a container call like
-   ! StringVector%push_back()).
+   ! One uninterrupted iteration pass: only the iterator's own methods and
+   ! plain array-element assignment (not even a container call like
+   ! StringVector%push_back()); see the module header.
    subroutine collect_bound_names(bindings, names)
       type(StateItemMemberMap), target, intent(in) :: bindings
       character(MAX_ARGUMENT_NAME_LEN), allocatable, intent(out) :: names(:)
@@ -132,9 +107,9 @@ contains
       end do
    end subroutine collect_bound_names
 
-   ! REQ-REV-011's "pull-all-before": ComponentGraph%update() over every
-   ! bound IN/INOUT argument, on the default network. Ordinary indexed
-   ! loop over the pre-collected name list - no map iterator here.
+   ! REQ-REV-011's "pull-all-before": ComponentGraph%update() over every bound
+   ! IN/INOUT argument, on the default network. Indexed loop over the
+   ! pre-collected name list; no map iterator.
    subroutine pull_bound_inputs(graph, method_node, bindings, names, rc)
       class(ComponentGraph), target, intent(in) :: graph
       class(MethodGraphNode), intent(in) :: method_node
@@ -165,12 +140,9 @@ contains
       _RETURN(_SUCCESS)
    end subroutine pull_bound_inputs
 
-   ! REQ-REV-011's "advance-all-after": NodeRevision%advance() on every
-   ! bound OUT/INOUT argument - only reached once invoke() has already
-   ! succeeded (invoke_on_default_network's own _VERIFY above returns
-   ! early otherwise, spec scenario "Failed invocation does not advance
-   ! bound outputs"). Ordinary indexed loop, same reason as
-   ! pull_bound_inputs above.
+   ! REQ-REV-011's "advance-all-after": NodeRevision%advance() on every bound
+   ! OUT/INOUT argument, reached only once invoke() has succeeded (the verify macro
+   ! above returns early otherwise). Indexed loop, as in pull_bound_inputs.
    subroutine advance_bound_outputs(graph, method_node, bindings, names, rc)
       class(ComponentGraph), target, intent(in) :: graph
       class(MethodGraphNode), intent(in) :: method_node

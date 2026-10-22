@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------
 ! GraphNode: abstract, data-free interface at the root of the GraphNode
-! hierarchy (spec/03-graph-node-hierarchy.md REQ-NODE-001).
+! hierarchy (REQ-NODE-001).
 !
 ! Declares identity/dispatch contracts only - no stored data component of
 ! any kind. BaseGraphNode is the first descendant to add state (NodeId,

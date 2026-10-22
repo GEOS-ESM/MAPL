@@ -2,65 +2,41 @@
 
 !------------------------------------------------------------------------------
 ! ExtensionResolution: mismatch detection, extension-chain creation, and
-! reuse lookup for graph/extension-reuse (docs/graph/spec/09-extension-
-! reuse.md REQ-EXT-001/002/003/005; extension-reuse change design.md
-! Decisions). Graph-neutral: depends only on StateItemCharacteristic/
-! StateItemCharacteristicMap/StateItemCharacteristicKind, ComponentGraph/
-! DependencyNetworkId/NodeId, and TransformGraphNode/Transform - not on
-! OuterMetaComponent/StateRegistry/VariableSpec. GraphBuilder.F90 builds
-! each side's StateItemCharacteristicMap from its own VariableSpec data
-! and calls into this module with the resulting maps.
+! reuse lookup (REQ-EXT-001/003). Graph-neutral: depends only on
+! StateItemCharacteristic/StateItemCharacteristicMap/
+! StateItemCharacteristicKind, ComponentGraph/DependencyNetworkId/NodeId, and
+! TransformGraphNode/Transform - not on OuterMetaComponent/StateRegistry/
+! VariableSpec. GraphBuilder.F90 builds each side's StateItemCharacteristicMap
+! from its own VariableSpec data and calls in with the resulting maps.
 !
-! openspec/changes/merge-characteristic-families: re-typed from the
-! retired mapl_Characteristic_mod/mapl_CharacteristicId_mod onto the
-! surviving mapl_StateItemCharacteristic_mod/
-! mapl_StateItemCharacteristicKind_mod family - mechanical, the
-! chain-building algorithm itself (reuse-key lookup, per-link
-! build_transform call, TransformGraphNode registration/port-binding) is
-! unchanged, only its map/key types.
-!
-! find_mismatched_characteristics' own body is kept exactly as it was
-! pre-merge (only kinds present on BOTH maps are compared; a kind
-! declared by only one side is not reported as a mismatch) - NOT
+! find_mismatched_characteristics compares only kinds present on BOTH maps; a
+! kind declared by only one side is not a mismatch. It is deliberately NOT
 ! forwarded to mapl_StateItemCharacteristicDetection_mod's
-! find_mismatched_state_item_characteristics, which has broader,
-! deliberately different one-sided-kind-is-mismatched semantics
-! (that module's own header comment). GraphBuilder's own
-! build_characteristics() genuinely produces one-sided maps in practice
-! (e.g. UNITS/VERTICAL_GRID are only inserted when the corresponding
-! VariableSpec field is allocated) - forwarding would silently change
-! real resolved outcomes for those call sites and risks a downstream
-! lookup failure in build_chain/chain_key (import_map%at() on a key
-! never inserted).
+! find_mismatched_state_item_characteristics, which treats a one-sided kind
+! as a mismatch. GraphBuilder's build_characteristics() produces one-sided
+! maps in practice (e.g. UNITS/VERTICAL_GRID are inserted only when the
+! VariableSpec field is allocated), and forwarding would change resolved
+! outcomes and risk import_map%at() on a never-inserted key in
+! build_chain/chain_key.
 !
 ! Chain-building calls each mismatched characteristic's own
-! StateItemCharacteristic%build_transform - an ordinary deferred method
-! (mirrors StateItemAspect%make_transform), not a separate provider
-! registry. "Unregistered characteristic fails loudly" (spec) falls
-! directly out of a subclass's own build_transform failing explicitly
-! (rc /= 0) when it has no real conversion implemented (e.g.
-! AttributesCharacteristic) - there is no registry lookup to "miss."
+! StateItemCharacteristic%build_transform, an ordinary deferred method with
+! no provider registry. An unsupported characteristic fails loudly because
+! its build_transform fails (rc /= 0) when it has no real conversion
+! (e.g. AttributesCharacteristic).
 !
-! Reuse search (find_or_build_extension_chain): per design.md Decisions
-! ("Reuse search uses ComponentGraph's resource index... corrected
-! mid-implementation"), keyed via ComponentGraph%add_resource_index/
-! get_resource_index (REQ-CG-001) - the same mechanism 3b already
-! established for item_key/proxy_key - rather than a live
+! Reuse search (find_or_build_extension_chain) is keyed through
+! ComponentGraph%add_resource_index/get_resource_index (REQ-CG-001), not a
 ! DependencyNetwork%get_successors walk: TransformGraphNode holds its
-! bound Transform in a private component with no accessor, so a
-! structural walk cannot recover which characteristic value an existing
-! chain's output represents.
+! Transform in a private component with no accessor, so a structural walk
+! cannot recover which characteristic value an existing chain's output
+! represents.
 !
-! Scope simplification (this change only): each mismatched characteristic
-! is resolved independently against the ORIGINAL export's own declared
-! value for that characteristic - a chain link for one characteristic
-! does not evolve what a later, different-kind link is compared against.
-! This differs from legacy's fully general incremental
-! ExtensionFamily%find_closest_spec search, but is sufficient for this
-! change's scope (units the only real provider) and does not change the
-! required equivalence check's outcome for any single-characteristic
-! mismatch.
-!------------------------------------------------------------------------------
+! Each mismatched characteristic is resolved independently against the
+! ORIGINAL export's declared value; a chain link for one characteristic does
+! not change what a later link of a different kind is compared against. This
+! is narrower than legacy's incremental ExtensionFamily%find_closest_spec
+! search and gives the same outcome for any single-characteristic mismatch.
 module mapl_ExtensionResolution_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap, &
         StateItemCharacteristicMapIterator, operator(==), operator(/=)
@@ -86,22 +62,15 @@ module mapl_ExtensionResolution_mod
    character(*), parameter :: INPUT_PORT_NAME = 'source_field'
    character(*), parameter :: OUTPUT_PORT_NAME = 'destination_field'
 
-   ! extension-registry-visibility change (design.md Decisions, "Gate
-   ! real materialization behind a simple, global, default-off, internal
-   ! switch"): guards only whether GraphBuilder.F90 performs the real
-   ! FieldCreate-based materialization step (mapl_ExtensionMaterialization_mod)
-   ! for a resolved extension chain - chain *structure* built by this
-   ! module (NodeIds, edges, resource-index entries, above) is unaffected
-   ! and runs unconditionally regardless of this flag, exactly as 3c left
-   ! it. Off (.false.) is the state of every real production run unless a
-   ! test explicitly calls set_materialize_extensions(.true.) - no
-   ! production initialization code does.
+   ! Gates only whether GraphBuilder.F90 performs the real FieldCreate-based
+   ! materialization (mapl_ExtensionMaterialization_mod) for a resolved chain;
+   ! chain structure built here (NodeIds, edges, resource-index entries) is
+   ! unaffected. Off by default; only tests call set_materialize_extensions.
    logical, save :: materialize_extensions = .false.
 
 contains
 
-   ! Test-only (and future equivalence-fixture-only) setter - see the
-   ! module-level flag comment above. No production code calls this.
+   ! Test-only setter for the flag above; no production code calls it.
    subroutine set_materialize_extensions(enabled)
       logical, intent(in) :: enabled
 
@@ -113,14 +82,9 @@ contains
    end function materialize_extensions_enabled
 
    ! REQ-EXT-003/REQ-EXT-001: which characteristic kinds does the export
-   ! declare that the import also declares, with different values? A
-   ! kind declared by only one side is not a "mismatch" by this entry
-   ! point's contract - GraphBuilder's own advertised-item checks (item
-   ! existence, etc.) are a separate concern. Kept exactly as it was
-   ! pre-merge (module header) - NOT forwarded to
-   ! find_mismatched_state_item_characteristics, whose broader one-
-   ! sided-kind-is-mismatched semantics would change real resolved
-   ! outcomes for GraphBuilder's own call sites.
+   ! declare that the import also declares, with different values? A kind
+   ! declared by only one side is not a mismatch (see the module header for
+   ! why this does not forward to find_mismatched_state_item_characteristics).
    function find_mismatched_characteristics(export_map, import_map) result(mismatched)
       type(StateItemCharacteristicMap), target, intent(in) :: export_map
       type(StateItemCharacteristicMap), target, intent(in) :: import_map
@@ -149,33 +113,22 @@ contains
       end associate
    end function find_mismatched_characteristics
 
-   ! REQ-EXT-001/002/005: resolve export_node_id -> (chain of transform
-   ! steps and extension items, one per entry in mismatched_kinds) ->
-   ! final_node_id, reusing an existing chain for the same export + same
-   ! combined mismatch signature when one already exists. Reports
-   ! "unsupported" explicitly (unsupported_characteristic set to a
-   ! non-empty name, rc still a success code - this is a structured, expected
-   ! outcome for the caller to check, not an exceptional error) the
-   ! first time a mismatched kind's own Characteristic%build_transform
-   ! fails - no wiring to the import is done by this routine in that
-   ! case (any chain nodes already created for earlier, supported kinds
-   ! remain in the graph, simply unreferenced by any import - acceptable,
-   ! not incorrect). `rc` reports a genuine error (e.g. graph mutation
-   ! failure) separately from this "unsupported" report.
+   ! REQ-EXT-001: resolve export_node_id -> (chain of transform steps and
+   ! extension items, one per entry in mismatched_kinds) -> final_node_id,
+   ! reusing an existing chain for the same export and combined mismatch
+   ! signature when one exists. Reports "unsupported" via
+   ! unsupported_characteristic (non-empty name, rc still success - an expected
+   ! outcome, not an error) the first time a mismatched kind's build_transform
+   ! fails; nothing is wired to the import in that case, and any chain nodes
+   ! already created for earlier kinds stay in the graph unreferenced. `rc`
+   ! reports genuine errors (e.g. graph mutation failure) separately.
    !
-   ! openspec/changes/phase-11b-chain-intermediate-materialization,
-   ! design.md D1: intermediate_node_ids(:) is parallel in order to
-   ! mismatched_kinds - entry i is the NodeId holding the state after
-   ! mismatched_kinds(i)'s own conversion has been applied, so entry
-   ! size(mismatched_kinds) always equals final_node_id (returned
-   ! separately for backward compatibility with existing callers, not a
-   ! second copy of the array). Returned as a zero-size array on the
-   ! reuse-hit path below (an existing chain's own links were already
-   ! materialized by whichever call first built it - no re-materialization
-   ! work is ever needed for a reuse) and truncated to only the links
-   ! actually built on an early unsupported_characteristic exit from
-   ! build_chain (the failed step's own orphaned extension node is
-   ! deliberately excluded).
+   ! intermediate_node_ids(:) is parallel to mismatched_kinds: entry i is the
+   ! NodeId holding the state after mismatched_kinds(i)'s conversion, so entry
+   ! size(mismatched_kinds) equals final_node_id. It is zero-size on the reuse
+   ! path (the first call already materialized the links) and truncated to the
+   ! links actually built on an early unsupported exit (the failed step's
+   ! orphaned extension node is excluded).
    subroutine find_or_build_extension_chain(graph, network_id, export_node_id, &
         export_map, import_map, mismatched_kinds, &
         final_node_id, intermediate_node_ids, unsupported_characteristic, rc)
@@ -249,15 +202,11 @@ contains
       integer :: i
       integer :: num_built
       class(StateItemCharacteristic), pointer :: export_characteristic, import_characteristic
-      ! TransformBase-declared (not Transform) - build_transform's own
-      ! interface declares its `transformer` dummy as TransformBase
-      ! (StateItemCharacteristic.F90's own header comment: avoids a
-      ! circular module dependency through PortNameGraphStateItemMap ->
-      ! GraphStateItem). Narrowed to a real Transform via the `select
-      ! type` block below before being handed to TransformGraphNode,
-      ! which genuinely needs the full compute()-bearing interface - no
-      ! implicit downcast exists for a polymorphic allocatable, so this
-      ! is a real re-establishment, not a formality.
+      ! TransformBase-declared, not Transform: build_transform's `transformer`
+      ! dummy is TransformBase to avoid a circular module dependency through
+      ! PortNameGraphStateItemMap -> GraphStateItem. Narrowed to Transform by the
+      ! `select type` below; there is no implicit downcast of a polymorphic
+      ! allocatable.
       class(TransformBase), allocatable :: transformer
       type(NodeId) :: current_node_id
       type(NodeId) :: extension_node_id
@@ -275,10 +224,8 @@ contains
          export_characteristic => export_map%at(mismatched_kinds(i), rc=status)
          import_characteristic => import_map%at(mismatched_kinds(i), rc=status)
 
-         ! Extension StateItemNode: payload left unallocated - not yet
-         ! realized, matching advertise_one's own precedent
-         ! (GraphBuilder.F90) for advertised items at this point in the
-         ! lifecycle.
+         ! Extension StateItemNode: payload left unallocated ("not yet realized"),
+         ! as advertise_one does.
          extension_node_id = graph%next_node_id(_RC)
          extension_node = StateItemNode(extension_node_id, empty_payload, empty_revision)
          call graph%register_node(extension_node, _RC)
@@ -286,24 +233,16 @@ contains
          call export_characteristic%build_transform(import_characteristic, transformer, status)
          if (status /= 0) then
             unsupported_characteristic = mismatched_kinds(i)%to_string()
-            ! openspec/changes/phase-11b-chain-intermediate-materialization,
-            ! design.md D1: truncate to only the links successfully
-            ! built before this failure - this failed step's own
-            ! orphaned extension_node_id (created above, never wired)
-            ! is deliberately excluded.
+            ! Truncate to the links built before this failure; this step's orphaned
+            ! extension_node_id (created above, never wired) is excluded.
             intermediate_node_ids = intermediate_node_ids(1:num_built)
             _RETURN(_SUCCESS)
          end if
 
          transform_node_id = graph%next_node_id(_RC)
-         ! `transformer` is TransformBase-declared but every real
-         ! build_transform success path (the only way status == 0 is
-         ! reached) allocates a genuine Transform subclass into it
-         ! (PhysicalUnitsCharacteristic/TypeKindCharacteristic's own
-         ! bodies) - TransformGraphNode's own constructor requires the
-         ! full compute()-bearing Transform interface, so it is
-         ! re-established here via select type (no implicit downcast
-         ! exists for a polymorphic allocatable).
+         ! Every build_transform success path allocates a genuine Transform
+         ! subclass, but TransformGraphNode needs the full Transform interface, so
+         ! narrow via select type.
          select type (transformer)
          class is (Transform)
             transform_node = TransformGraphNode(transform_node_id, transformer)

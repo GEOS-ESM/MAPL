@@ -2,13 +2,11 @@
 
 !------------------------------------------------------------------------------
 ! AccessSpec: general-purpose argument access-mode classification
-! (spec/15-callbacks.md REQ-CB-005: "a general MAPL concept, not
-! callback-specific"), introduced by MethodGraphNode's own named
-! argument declarations (spec/12-methods-and-drivers.md REQ-MTH-002,
-! which restates spec/15-callbacks.md §15.4's AccessSpec at the graph
-! level) ahead of that capability's own CallbackMethodSpec (REQ-CB-004,
-! "argument name -> AccessSpec") so the latter can reuse this type
-! unchanged rather than duplicating it.
+! (REQ-CB-005: "a general MAPL concept, not callback-specific"),
+! introduced by MethodGraphNode's named argument declarations (REQ-MTH-002,
+! which restates the callback AccessSpec at the graph level) so that
+! CallbackMethodSpec (REQ-CB-004, "argument name -> AccessSpec") can reuse
+! this type rather than duplicate it.
 !
 ! Follows MAPL_StateItem_Flag's exact style (MAPLStateItemFlag.F90): a
 ! small derived type wrapping a private integer code, compared via

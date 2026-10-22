@@ -2,22 +2,19 @@
 
 !------------------------------------------------------------------------------
 ! HierarchyGraph: the hierarchy-wide owner of the polymorphic
-! NodeId -> GraphNode map, the DependencyNetworkId -> DependencyNetwork
-! map, and the one NodeIdGenerator/DependencyNetworkIdGenerator pair that
-! issues fresh ids for the entire hierarchy
-! (openspec/changes/hierarchy-wide-component-graph, design.md D1).
+! NodeId -> GraphNode map, the DependencyNetworkId -> DependencyNetwork map,
+! and the one NodeIdGenerator/DependencyNetworkIdGenerator pair that issues
+! fresh ids for the entire hierarchy.
 !
-! Exactly one instance of this type exists per component hierarchy, held
-! inside that hierarchy's own HierarchyResources entry in the private
-! registry (mapl_HierarchyRegistry_mod) - never constructed or held
-! directly by ComponentGraph or OuterMetaComponent, which instead resolve
-! it, fresh, on every access, via get_hierarchy_resources(hierarchy_id).
+! Exactly one instance exists per component hierarchy, held inside that
+! hierarchy's HierarchyResources entry in the private registry
+! (mapl_HierarchyRegistry_mod). ComponentGraph and OuterMetaComponent never
+! construct or hold it; they resolve it on every access via
+! get_hierarchy_resources(hierarchy_id).
 !
-! Deliberately holds ONLY the two map/generator pairs that move per
-! design.md's scope (proposal.md "What Changes"); PortId generation,
-! resource indexes, ports, child-port bindings, and lifecycle state all
-! remain exactly as component-local as before, owned by ComponentGraph
-! itself, not here.
+! It holds only those two map/generator pairs. PortId generation, resource
+! indexes, ports, child-port bindings, and lifecycle state stay
+! component-local in ComponentGraph.
 !------------------------------------------------------------------------------
 module mapl_HierarchyGraph_mod
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator
@@ -49,9 +46,8 @@ module mapl_HierarchyGraph_mod
 
 contains
 
-   ! One counter for the entire hierarchy (design.md D1): the only way two
-   ! different components could ever be issued the same NodeId is if two
-   ! different generators existed - this type guarantees exactly one does.
+   ! One counter for the whole hierarchy: two components can only be issued the
+   ! same NodeId if two generators exist, and this type guarantees one.
    function hgraph_next_node_id(this, rc) result(id)
       class(HierarchyGraph), intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -65,9 +61,8 @@ contains
       _RETURN(_SUCCESS)
    end function hgraph_next_node_id
 
-   ! No second node silently replaces one already registered under the same
-   ! NodeId - this invariant is now hierarchy-wide (any component's node),
-   ! not merely per-ComponentGraph.
+   ! No second node silently replaces one registered under the same NodeId,
+   ! anywhere in the hierarchy.
    subroutine hgraph_register_node(this, node, rc)
       class(HierarchyGraph), intent(inout) :: this
       class(GraphNode), target, intent(in) :: node
@@ -84,10 +79,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine hgraph_register_node
 
-   ! Any node anywhere in the hierarchy is retrievable by its NodeId, by
-   ! design (graph/component-hierarchy's "Two components' nodes live in one
-   ! shared store" scenario) - no ownership check here; ComponentGraph's own
-   ! owns_node() is the ownership-scoped query.
+   ! Any node in the hierarchy is retrievable by NodeId, with no ownership
+   ! check; ComponentGraph's owns_node() is the ownership-scoped query.
    function hgraph_get_node(this, id) result(node)
       class(HierarchyGraph), target, intent(in) :: this
       type(NodeId), intent(in) :: id

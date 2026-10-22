@@ -4,69 +4,41 @@
 ! ComponentGraph: graph-neutral owner of a component's own public import/
 ! export ports, child-port bindings, transform port-binding table, semantic
 ! resource index, port-identity generation, and mutable/frozen/finalized
-! lifecycle state (spec/07-component-graph.md REQ-CG-001).
+! lifecycle state (REQ-CG-001).
 !
-! openspec/changes/hierarchy-wide-component-graph: the polymorphic node map
-! (NodeId -> GraphNode) and dependency-network map (DependencyNetworkId ->
-! DependencyNetwork), together with the node/network identity generators,
-! are NOT owned here any longer - they live in one HierarchyGraph instance
-! per hierarchy, held in the private HierarchyId-keyed registry
-! (mapl_HierarchyRegistry_mod). This type holds only a HierarchyId (a
-! plain value, not a pointer) and resolves the shared storage via
-! get_hierarchy_resources(this%hierarchy_id) wherever it is needed,
-! rather than caching any reference to it as a stored component -
-! design.md D1. Each instance additionally keeps its own explicit,
-! private NodeIdSet/DependencyNetworkIdSet recording which ids it itself
-! registered (design.md D2) - "owned" now means "recorded in this
-! instance's own explicit set," not "present in a shared map," since
-! every component's ids live together in the one shared HierarchyGraph.
+! The polymorphic node map (NodeId -> GraphNode), the dependency-network
+! map (DependencyNetworkId -> DependencyNetwork) and the node/network id
+! generators live in one HierarchyGraph per hierarchy, held in the
+! HierarchyId-keyed registry (mapl_HierarchyRegistry_mod). This type holds
+! only a HierarchyId and resolves the shared storage through
+! get_hierarchy_resources() wherever needed, never caching a reference.
+! Each instance also keeps explicit NodeIdSet/DependencyNetworkIdSet
+! records of the ids it registered itself: "owned" means "recorded in this
+! instance's set", since every component's ids share the one HierarchyGraph.
 !
 ! MUST NOT depend on OuterComponent, StateRegistry, GriddedComponentDriver,
-! GraphBuilder, or any component-hierarchy type (REQ-CG-002) - this module
-! only uses NodeId/DependencyNetworkId/PortId/HierarchyId, the GraphNode
-! hierarchy, and DependencyNetwork, all of which are already graph-neutral.
+! GraphBuilder, or any component-hierarchy type (REQ-CG-002).
 !
-! Public import/export/child-port storage is a bare PortId/String -> NodeId
-! lookup with lifecycle-aware add/get. Named-argument transform-port
-! semantics (REQ-XFORM-004/005) are a separate concern, added on top: port
-! *declarations* live on TransformGraphNode itself (graph-neutral, no
-! ComponentGraph involvement); ComponentGraph additionally owns the
-! external port *binding* table (bind_port()/get_port_binding()/
-! get_port_bindings(), keyed by (DependencyNetworkId, NodeId) -> port name
-! -> NodeId, mapl_PortBindingTable_mod) - REQ-XFORM-005 settles this as external
-! storage, never on-node.
+! Transform-port declarations live on TransformGraphNode; the external
+! port binding table (bind_port()/get_port_binding()/get_port_bindings(),
+! keyed (DependencyNetworkId, NodeId) -> port name -> NodeId) is owned here
+! (REQ-XFORM-004/005: external storage, never on-node).
 !
-! update() (spec/11-revision-and-update.md REQ-REV-005..007/009) is a
-! type-bound procedure here rather than a free subroutine in its own
-! module: it is, in every observable sense, "a ComponentGraph operation"
-! (exactly like validate()/freeze()), and giving it that home matches
-! this type's existing API style rather than introducing an external
-! module whose only reason to exist would be file-size management - see
-! ComponentGraph_DemandDrivenUpdate.F90 (a genuine Fortran submodule) for
-! why file size is handled that way instead. This is a deliberate
-! contrast with mapl_GraphExport_mod (spec/19-visualization-export.md
-! REQ-VIZ-003), which stays a genuinely separate module on purpose: a
-! submodule has full access to this type's private components (the
-! standard does not treat a submodule as an additional encapsulation
-! boundary), so folding the exporter in the same way would silently
-! remove the "depends only on the public query API" guarantee REQ-VIZ-003
-! asks for - update() has no such external requirement to satisfy.
+! update() (REQ-REV-005..007/009) is type-bound here but implemented in the
+! submodule ComponentGraph_DemandDrivenUpdate.F90 purely for file size.
+! mapl_GraphExport_mod, by contrast, is deliberately a separate module: a
+! submodule can reach private components, which would void the "depends only
+! on the public query API" guarantee of REQ-VIZ-003.
 !
-! Port identities (PortId) are the only remaining per-instance generator
-! (ports were never hierarchy-wide); the three PortId -> NodeId lookup
-! tables (REQ-CG-001: public import ports, public export ports, child-port
-! bindings) are bundled into GraphPortRegistry, a private, module-internal
-! aggregation type (not part of the public API; ownership is unaffected
-! since it is still transitively owned by ComponentGraph). The two
-! independent frozen/finalized booleans are likewise collapsed into a
-! single lifecycle_status, since a ComponentGraph only ever occupies one
-! of three mutually exclusive states (mutable/frozen/finalized) - see
-! graph_freeze() and graph_finalize() below for the only two transitions.
+! PortId is the only per-instance generator. The three PortId -> NodeId
+! tables (import ports, export ports, child-port bindings) are bundled in
+! the private GraphPortRegistry. lifecycle_status is a single
+! mutable/frozen/finalized state; see graph_freeze() and graph_finalize()
+! for the only two transitions.
 !
-! Iteration convention: every gFTL walk here uses ftn_begin()/ftn_end() with
-! the %next() call at the top of the loop body (iter = c%ftn_begin() sits
-! one position before the first element; next() must run before the first
-! use of iter).
+! Iteration convention: gFTL walks use ftn_begin()/ftn_end() with the
+! %next() call at the top of the loop body (iter starts one position before
+! the first element).
 !------------------------------------------------------------------------------
 module mapl_ComponentGraph_mod
    use mapl_NodeId_mod
@@ -100,22 +72,13 @@ module mapl_ComponentGraph_mod
    integer, parameter :: GRAPH_LIFECYCLE_FINALIZED = 3
 
    ! Private aggregation of the three PortId -> NodeId lookup tables
-   ! (REQ-CG-001: public import ports, public export ports, child-port
-   ! bindings) - module-internal, not part of the public API.
+   ! (REQ-CG-001: import ports, export ports, child-port bindings).
    !
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8
-   ! (export propagation, symmetric to task 6.1's import propagation -
-   ! see graph_add_export_port's own header comment for the full
-   ! rationale): export_port_names is a SPARSE side-table, PortId ->
-   ! an overriding qualified name, populated ONLY for an export-port
-   ! entry created by graphbuilder_run_export_propagate_hook, never for
-   ! one created by direct advertisement (advertise_one). A
-   ! directly-advertised export's own matching name is always its real
-   ! StateItemNode's own short_name (unqualified) - that identity field
-   ! is never qualified, never written to, and never read from this
-   ! side-table. find_export_node (GraphBuilder_ConnectionResolution_
-   ! smod.F90) is this side-table's sole reader, via
-   ! graph_get_export_port_name below.
+   ! export_port_names is a sparse side-table, PortId -> overriding qualified
+   ! name, populated only for export ports created by export propagation, never
+   ! for directly advertised ones (those match on the node's own unqualified
+   ! short_name). find_export_node (GraphBuilder_ConnectionResolution_smod.F90)
+   ! is its sole reader, via graph_get_export_port_name.
    type :: GraphPortRegistry
       private
       type(PortIdNodeIdMap) :: import_ports
@@ -127,12 +90,10 @@ module mapl_ComponentGraph_mod
    type :: ComponentGraph
       private
       type(HierarchyId) :: hierarchy_id
-      ! design.md D2: explicit, per-instance "which ids are mine" record -
-      ! a forward record, never a reverse hierarchy-wide lookup. Populated
-      ! at the same point a node/network is registered (graph_register_node/
-      ! graph_create_network below); consulted by owns_node()/owns_network()
-      ! and by validate()/add_dependency() in place of the per-instance map
-      ! membership this type used to have before shared storage.
+      ! Explicit record of which ids this instance registered itself (not a
+      ! reverse hierarchy-wide lookup); filled by graph_register_node/
+      ! graph_create_network, read by owns_node()/owns_network() and by
+      ! validate()/add_dependency().
       type(NodeIdSet) :: own_node_ids
       type(DependencyNetworkIdSet) :: own_network_ids
       type(PortIdGenerator) :: port_generator
@@ -147,11 +108,8 @@ module mapl_ComponentGraph_mod
       procedure :: register_node => graph_register_node
       procedure :: get_node => graph_get_node
       procedure :: owns_node => graph_owns_node
-      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.2:
-      ! "registered somewhere in this hierarchy, not necessarily by this
-      ! instance" - see graph_add_dependency's own header comment for
-      ! why this is distinct from, and strictly narrower than, "anything
-      ! goes."
+      ! registered somewhere in this hierarchy, not necessarily by this
+      ! instance (see graph_add_dependency)
       procedure :: allowed_foreign_node => graph_allowed_foreign_node
       ! -- network registry ------------------------------------------------
       procedure :: get_default_network_id => graph_get_default_network_id
@@ -166,21 +124,12 @@ module mapl_ComponentGraph_mod
       procedure :: add_child_port_binding => graph_add_child_port_binding
       procedure :: get_import_port => graph_get_import_port
       procedure :: get_export_port => graph_get_export_port
-      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8:
-      ! the qualified-name counterpart of get_export_port - returns the
-      ! export-propagation override when one exists for port_id, else
-      ! the node's own real, unqualified short_name. See
-      ! GraphPortRegistry's own header comment above for the full
-      ! rationale.
+      ! qualified-name counterpart of get_export_port: the export-propagation
+      ! override if one exists, else the node's own unqualified short_name
       procedure :: get_export_port_name => graph_get_export_port_name
       procedure :: get_child_port_binding => graph_get_child_port_binding
-      ! openspec/changes/graph-builder-stateitem-resolution, tasks.md
-      ! 3.1: full-table enumeration counterparts of the single-key
-      ! lookups above - for_each_matching_import's replacement body
-      ! needs to walk every bound import port of a destination
-      ! ComponentGraph, not just look up one by a caller-supplied PortId
-      ! (which it never has in hand before the match). Same "return a
-      ! copy, empty once finalized" contract as get_node_ids() below.
+      ! full-table enumeration counterparts of the single-key lookups above;
+      ! same "return a copy, empty once finalized" contract as get_node_ids()
       procedure :: get_import_ports => graph_get_import_ports
       procedure :: get_export_ports => graph_get_export_ports
       ! -- transform port bindings (REQ-XFORM-005) --------------------------
@@ -192,7 +141,7 @@ module mapl_ComponentGraph_mod
       ! -- full-graph enumeration (for exporters / full-graph walks) --------
       procedure :: get_node_ids => graph_get_node_ids
       procedure :: get_network_ids => graph_get_network_ids
-      ! -- demand-driven update (spec/11-revision-and-update.md REQ-REV-005..007) --
+      ! -- demand-driven update (REQ-REV-005..007) --
       procedure :: update => graph_update
       ! -- validation / lifecycle -------------------------------------------
       procedure :: validate => graph_validate
@@ -208,21 +157,10 @@ module mapl_ComponentGraph_mod
       module procedure new_ComponentGraph
    end interface ComponentGraph
 
-   ! One explicit-stack frame for graph_update's iterative traversal
-   ! (mapl_ComponentGraph_DemandDrivenUpdate_smod, below) - not itself
-   ! part of ComponentGraph's own public API. Deliberately declared here
-   ! in the ancestor module rather than inside that submodule: this is
-   ! the only submodule anywhere in this codebase that would otherwise
-   ! declare its own module-level derived type, and doing so triggered a
-   ! shared-library symbol-versioning gap under ifx (the auto-generated
-   ! .so version script had no entry for the type's compiler-generated
-   ! descriptor symbol, whose name encodes both the ancestor module and
-   ! submodule - `ld: version node not found for symbol ...@..._UPDATEFRAME`).
-   ! Every other submodule in the codebase only implements interface
-   ! bodies, never declares its own types - matching that established,
-   ! universally-working pattern here avoids relying on an apparently
-   ! untested corner of the toolchain, rather than chasing the exact
-   ! root cause in ifx/CMake's version-script generation.
+   ! One explicit-stack frame for graph_update's iterative traversal; not
+   ! part of the public API. Declared here rather than in the submodule because
+   ! a submodule-local derived type broke the ifx shared-library version script
+   ! (`version node not found for symbol ...@..._UPDATEFRAME`).
    type :: UpdateFrame
       type(NodeId) :: node_id
       class(GraphNode), pointer :: node => null()
@@ -230,16 +168,9 @@ module mapl_ComponentGraph_mod
       integer :: next_index = 1
    end type UpdateFrame
 
-   ! update()'s implementation (post-order dependency-graph traversal,
-   ! REQ-REV-005..007 - explicit-stack, not literal Fortran recursion;
-   ! see that submodule's own header comment) lives in a separate
-   ! file/submodule
-   ! (mapl_ComponentGraph_DemandDrivenUpdate_smod,
-   ! ComponentGraph_DemandDrivenUpdate.F90) rather than inline below,
-   ! purely to keep this already-large file from growing further - a
-   ! submodule is still "the same module" for every visibility/API
-   ! purpose (callers see an ordinary `graph%update(...)` type-bound
-   ! call; there is no separate public interface to maintain).
+   ! update() is implemented in mapl_ComponentGraph_DemandDrivenUpdate_smod
+   ! (ComponentGraph_DemandDrivenUpdate.F90) to keep this file from growing;
+   ! callers see an ordinary graph%update(...) type-bound call.
    interface
       module subroutine graph_update(this, network_id, node_id, rc)
          class(ComponentGraph), target, intent(in) :: this
@@ -251,21 +182,15 @@ module mapl_ComponentGraph_mod
 
 contains
 
-   ! REQ-CG-003a/004: structure constructor performs the unconditional
-   ! bootstrap (the default network's id is the first DependencyNetworkId
-   ! issued by this hierarchy's own shared generator and cannot hit
-   ! exhaustion this early).
+   ! REQ-CG-003a/004: the constructor performs the unconditional bootstrap
+   ! (the default network id is the first one issued by this hierarchy's
+   ! shared generator, so it cannot hit exhaustion).
    !
-   ! openspec/changes/hierarchy-wide-component-graph, design.md D1: when
-   ! hierarchy_id is omitted (today's existing ~40 standalone-synthetic-
-   ! graph test call shape, `graph = ComponentGraph()`), this constructor
-   ! requests a fresh hierarchy of its own via request_new_hierarchy() -
-   ! every existing no-argument test call site keeps working unchanged,
-   ! each one implicitly becoming the root of its own one-component
-   ! "hierarchy." A real OuterMetaComponent always supplies its own
-   ! hierarchy_id explicitly (threaded down from the hierarchy's root at
-   ! construction time - see OuterMetaComponent/init_meta.F90), so every
-   ! ComponentGraph in a real hierarchy shares the same HierarchyGraph.
+   ! When hierarchy_id is omitted (standalone synthetic graphs in tests), a
+   ! fresh hierarchy is requested and this graph becomes its root. A real
+   ! OuterMetaComponent always passes the hierarchy's hierarchy_id (see
+   ! OuterMetaComponent/init_meta.F90), so all its ComponentGraphs share one
+   ! HierarchyGraph.
    function new_ComponentGraph(hierarchy_id) result(graph)
       type(HierarchyId), optional, intent(in) :: hierarchy_id
       type(ComponentGraph) :: graph
@@ -306,11 +231,9 @@ contains
    end function graph_next_node_id
 
    ! REQ-CG-001/REQ-ID-005: the shared HierarchyGraph is authoritative; a
-   ! node cannot make itself a member by claiming an id, and no second
-   ! node silently replaces an already-registered one, anywhere in the
-   ! hierarchy. own_node_ids additionally records that THIS instance is
-   ! the one that registered id (design.md D2) - the explicit ownership
-   ! fact that used to be implicit from private-map membership.
+   ! node cannot make itself a member by claiming an id, and no second node
+   ! silently replaces a registered one anywhere in the hierarchy.
+   ! own_node_ids records that THIS instance registered id.
    subroutine graph_register_node(this, node, rc)
       class(ComponentGraph), intent(inout) :: this
       class(GraphNode), target, intent(in) :: node
@@ -335,10 +258,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine graph_register_node
 
-   ! Any node anywhere in the hierarchy is retrievable by its NodeId
-   ! (graph/component-hierarchy's "Two components' nodes live in one
-   ! shared store" scenario) - no ownership filtering here; owns_node()
-   ! below is the ownership-scoped query.
+   ! Any node in the hierarchy is retrievable by NodeId, with no ownership
+   ! filtering; owns_node() is the ownership-scoped query.
    function graph_get_node(this, id) result(node)
       class(ComponentGraph), target, intent(in) :: this
       type(NodeId), intent(in) :: id
@@ -352,9 +273,8 @@ contains
       node => resources%graph%get_node(id)
    end function graph_get_node
 
-   ! design.md D2: ownership is explicit (this instance's own
-   ! own_node_ids record), not inferred from presence in the shared
-   ! HierarchyGraph - every component's nodes are present there.
+   ! Ownership is the explicit own_node_ids record, not presence in the
+   ! shared HierarchyGraph (every component's nodes are present there).
    logical function graph_owns_node(this, id) result(owns)
       class(ComponentGraph), intent(in) :: this
       type(NodeId), intent(in) :: id
@@ -396,9 +316,8 @@ contains
       _RETURN(_SUCCESS)
    end function graph_create_network
 
-   ! Any network anywhere in the hierarchy is retrievable by its
-   ! DependencyNetworkId - no ownership filtering here; owns_network()
-   ! below is the ownership-scoped query.
+   ! Any network in the hierarchy is retrievable by id, with no ownership
+   ! filtering; owns_network() is the ownership-scoped query.
    function graph_get_network(this, id) result(network)
       class(ComponentGraph), target, intent(in) :: this
       type(DependencyNetworkId), intent(in) :: id
@@ -412,7 +331,7 @@ contains
       network => resources%graph%get_network(id)
    end function graph_get_network
 
-   ! design.md D2: same explicit-ownership treatment as owns_node() above.
+   ! Same explicit-ownership rule as owns_node().
    logical function graph_owns_network(this, id) result(owns)
       class(ComponentGraph), intent(in) :: this
       type(DependencyNetworkId), intent(in) :: id
@@ -420,33 +339,18 @@ contains
       owns = (.not. this%is_finalized()) .and. (this%own_network_ids%count(id) > 0)
    end function graph_owns_network
 
-   ! Convenience wrapper: forwards to DependencyNetwork%add_dependency()
-   ! with an allowed-id set built fresh for this one call (never cached),
-   ! so callers get the REQ-CG-004 "Invalid foreign node is rejected"
-   ! scenario for free. network_id must be owned by THIS instance
-   ! (REQ-CG-001: which network a declared connection populates stays
-   ! exactly as declaration-scoped as before shared storage - proposal.md
-   ! Non-Goals) - an explicit check, since the shared HierarchyGraph
-   ! would otherwise resolve ANY component's network_id, not only this
-   ! instance's own.
+   ! Forwards to DependencyNetwork%add_dependency() with an allowed-id set
+   ! built fresh for this call (never cached), giving REQ-CG-004 "Invalid
+   ! foreign node is rejected". network_id must be owned by THIS instance
+   ! (explicit check: the shared HierarchyGraph would resolve any component's
+   ! network id).
    !
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.2: with
-   ! proxy nodes retired, source/target MAY now be a different
-   ! component's own real NodeId (resolved via GraphBuilder's
-   ! resolve_qualified_component, whose one-directional tree walk is the
-   ! actual enforcement of "never resolves upward past the declaring
-   ! component" - graph/component-hierarchy's own requirement; see that
-   ! requirement's own text for why ComponentGraph itself, which cannot
-   ! depend on OuterComponent/the hierarchy tree per REQ-CG-002, is not
-   ! the layer that re-derives that invariant). This instance's own
-   ! own_node_ids remains the primary allowed set; a source/target this
-   ! instance does not itself own is additionally permitted ONLY if it is
-   ! genuinely registered somewhere in this exact hierarchy (allowed_foreign_node,
-   ! below) - which only ever holds for an id some ComponentGraph in this
-   ! hierarchy legitimately obtained via next_node_id()/register_node(),
-   ! never an arbitrary or garbage value. This is deliberately NOT "any
-   ! id in the shared store is unconditionally valid" - a truly foreign
-   ! id (never registered anywhere in this hierarchy) is still rejected.
+   ! source/target may be another component's real NodeId (resolved by
+   ! GraphBuilder's resolve_qualified_component, whose one-directional tree walk
+   ! is what prevents resolving upward past the declaring component; this layer
+   ! cannot know the component tree, REQ-CG-002). A node this instance does not
+   ! own is admitted only if registered somewhere in this hierarchy
+   ! (allowed_foreign_node); an id never registered anywhere is rejected.
    subroutine graph_add_dependency(this, network_id, source, target, rc)
       class(ComponentGraph), target, intent(inout) :: this
       type(DependencyNetworkId), intent(in) :: network_id
@@ -477,14 +381,10 @@ contains
       call network%add_dependency(source, target, rc=rc, valid_ids=allowed_ids)
    end subroutine graph_add_dependency
 
-   ! True iff id is registered in this hierarchy's shared HierarchyGraph
-   ! (by ANY component), regardless of whether THIS instance owns it.
-   ! Used only to admit an already-resolved cross-component edge endpoint
-   ! (tasks.md 3.2) - never to answer "is this mine" (owns_node() already
-   ! answers that) and never to re-derive the component-tree-shaped
-   ! "descendant only" invariant, which resolve_qualified_component alone
-   ! enforces (graph/component-hierarchy's "Connection endpoint
-   ! resolution never resolves upward past its declaring component").
+   ! True iff id is registered in this hierarchy's shared HierarchyGraph by
+   ! ANY component. Admits already-resolved cross-component edge endpoints;
+   ! it does not answer "is this mine" (owns_node()) and does not enforce the
+   ! "descendant only" rule (resolve_qualified_component does).
    logical function graph_allowed_foreign_node(this, id) result(allowed)
       class(ComponentGraph), target, intent(in) :: this
       type(NodeId), intent(in) :: id
@@ -514,18 +414,10 @@ contains
    end function graph_next_port_id
 
    ! REQ-CG-001/005/006: not finalized, not frozen, port_id valid and not
-   ! already bound (no silent replace), node_id owned by this instance
-   ! (design.md D2 - owns_node(), not mere presence in the shared
-   ! HierarchyGraph).
-   !
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1,
-   ! design.md D3: a MIRRORED import port's own node_id is a different
-   ! component's (a child's) own real NodeId, not this instance's own -
-   ! the exact same "foreign-but-registered-somewhere-in-this-hierarchy"
-   ! admission add_dependency/bind_port already apply (D2 correction,
-   ! Groups 3-5), extended here to this table too, since task 6.1 is the
-   ! first caller that needs a foreign id as an import-port VALUE rather
-   ! than only as a dependency-edge endpoint.
+   ! already bound (no silent replace). node_id must be owned by this
+   ! instance (owns_node(), not mere presence in the shared HierarchyGraph),
+   ! or be a node registered elsewhere in this hierarchy: a mirrored import
+   ! port's node is a child component's real NodeId.
    subroutine graph_add_import_port(this, port_id, node_id, rc)
       class(ComponentGraph), target, intent(inout) :: this
       type(PortId), intent(in) :: port_id
@@ -545,16 +437,10 @@ contains
       _RETURN(_SUCCESS)
    end subroutine graph_add_import_port
 
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8:
-   ! optional qualified_name records an export-propagation override
-   ! (see GraphPortRegistry's own header comment) - absent for a
-   ! directly-advertised export (advertise_one's own call site never
-   ! passes it), present for a propagated one
-   ! (graphbuilder_run_export_propagate_hook). Same "owned OR
-   ! allowed_foreign_node" admission task 6.1 already established for
-   ! add_import_port, extended here: a propagated export's own node_id
-   ! is, by construction, a DESCENDANT's own real NodeId (the
-   ! component that actually advertised it), never this instance's own.
+   ! Optional qualified_name records an export-propagation override (see
+   ! GraphPortRegistry); absent for a directly advertised export, present for
+   ! a propagated one. As for import ports, a foreign node registered in this
+   ! hierarchy is admitted: a propagated export's node is a descendant's.
    subroutine graph_add_export_port(this, port_id, node_id, rc, qualified_name)
       class(ComponentGraph), target, intent(inout) :: this
       type(PortId), intent(in) :: port_id
@@ -615,16 +501,10 @@ contains
       node_id => this%ports%export_ports%at(port_id)
    end function graph_get_export_port
 
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8: the
-   ! name an exact-match connection should match this export port
-   ! against. Returns the export-propagation override (export_port_names,
-   ! GraphPortRegistry's own header comment) when one was recorded for
-   ! port_id; otherwise falls back to the underlying node's own real,
-   ! unqualified short_name - the identical name a directly-advertised
-   ! export has always matched against. Returns an unallocated string
-   ! (never an empty one) if port_id is unbound or does not resolve to
-   ! a StateItemNode, mirroring find_export_node's own existing
-   ! "not an export candidate, skipped" treatment of that case.
+   ! The name an exact-match connection matches this export port against:
+   ! the export-propagation override if one was recorded for port_id, else
+   ! the node's own unqualified short_name. Returns an unallocated string if
+   ! port_id is unbound or not a StateItemNode (not an export candidate).
    function graph_get_export_port_name(this, port_id) result(name)
       class(ComponentGraph), target, intent(in) :: this
       type(PortId), intent(in) :: port_id
@@ -662,11 +542,8 @@ contains
       node_id => this%ports%child_bindings%at(port_id)
    end function graph_get_child_port_binding
 
-   ! openspec/changes/graph-builder-stateitem-resolution, tasks.md 3.1:
-   ! full import-port table, by value (same "return a copy" convention
-   ! as get_node_ids()/field_bundle_members()/state_members() elsewhere
-   ! in this codebase) - empty once finalized, matching every other
-   ! post-finalize accessor in this type.
+   ! Full import-port table, returned by value; empty once finalized like
+   ! every other post-finalize accessor.
    function graph_get_import_ports(this) result(ports)
       class(ComponentGraph), target, intent(in) :: this
       type(PortIdNodeIdMap) :: ports
@@ -683,25 +560,15 @@ contains
       ports = this%ports%export_ports
    end function graph_get_export_ports
 
-   ! -- transform port bindings (spec/10-transforms-and-ports.md REQ-XFORM-005) --
+   ! -- transform port bindings (REQ-XFORM-005) --
 
-   ! Validates: graph not finalized/frozen; network_id and both node ids
-   ! owned by this instance (design.md D2); node_id refers to a
-   ! TransformGraphNode that has actually declared port_name (as either
-   ! an input or output - REQ-XFORM-004's "binding requires a matching
-   ! declaration"); if that declaration is kind-constrained and
-   ! target_id is a StateItemNode, its GraphStateItem%variant() matches
-   ! the declared expectation. Delegates the actual no-silent-replace
-   ! storage to PortBindingTable%bind().
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.2: a
-   ! port's bound target_id MAY now be a different component's own
-   ! real NodeId (e.g. find_or_build_extension_chain's own first
-   ! INPUT_PORT_NAME binding, when export_node_id is a resolved
-   ! descendant's own real export) - same "registered somewhere in
-   ! this hierarchy, not necessarily owned by this instance" admission
-   ! graph_add_dependency already applies (see that procedure's own
-   ! header comment); node_id (the TransformGraphNode itself) is always
-   ! this instance's own, unaffected.
+   ! Validates: graph not finalized/frozen; network_id and node_id owned by
+   ! this instance; node_id is a TransformGraphNode that declared port_name
+   ! (REQ-XFORM-004); if that declaration is kind-constrained and target_id is
+   ! a StateItemNode, its GraphStateItem%variant() matches. Storage (no silent
+   ! replace) is delegated to PortBindingTable%bind().
+   ! target_id may be a different component's real NodeId (same admission as
+   ! graph_add_dependency); node_id is always this instance's own.
    subroutine graph_bind_port(this, network_id, node_id, port_name, target_id, rc)
       class(ComponentGraph), target, intent(inout) :: this
       type(DependencyNetworkId), intent(in) :: network_id
@@ -810,23 +677,16 @@ contains
       node_id => this%resource_index%at(key)
    end function graph_get_resource_index
 
-   ! -- validation / lifecycle -----------------------------------------------
+   ! -- validation / lifecycle --
 
-   ! REQ-CG-004 scenario "Invalid foreign node is rejected" and "Same-pass
-   ! cross-network write is rejected": validates every network this
-   ! instance owns (passing this instance's own ownership/producer/
-   ! state-item classification sets down to DependencyNetwork%validate()),
-   ! then checks REQ-DEP-008a across all of this instance's own networks.
+   ! REQ-CG-004 "Invalid foreign node is rejected" and "Same-pass
+   ! cross-network write is rejected": validates every owned network, passing
+   ! this instance's producer/state-item classification to
+   ! DependencyNetwork%validate(), then checks REQ-DEP-008a across them.
    !
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.2: each
-   ! owned network's own allowed-id set is own_node_ids plus whichever of
-   ! that one network's own referenced ids are genuinely registered
-   ! elsewhere in this hierarchy (graph_allowed_foreign_node) - same
-   ! "registered somewhere in this hierarchy, not merely owned by this
-   ! instance" admission graph_add_dependency already applies at wiring
-   ! time, re-derived here (not cached) since validate() may run standalone
-   ! (e.g. a synthetic test with no GraphBuilder/add_dependency call
-   ! sequence at all).
+   ! Each network's allowed-id set is own_node_ids plus those of its referenced
+   ! ids registered elsewhere in this hierarchy, recomputed here (not cached)
+   ! because validate() may run standalone, without add_dependency calls.
    subroutine graph_validate(this, rc)
       class(ComponentGraph), target, intent(in) :: this
       integer, optional, intent(out) :: rc
@@ -970,12 +830,11 @@ contains
    end function graph_is_finalized
 
    ! -- full-graph enumeration (public; needed by the graph-neutral --------
-   ! -- exporter, spec/19-visualization-export.md REQ-VIZ-003, and any -----
-   ! -- other caller that must walk the whole graph via public API only) ---
+   ! -- exporter (REQ-VIZ-003) and any other caller that must walk the -----
+   ! -- whole graph via public API only) -----------------------------------
 
-   ! Returns a copy of this instance's own explicit ownership record
-   ! (design.md D2), empty (rather than erroring) once finalized, matching
-   ! every other post-finalize accessor in this type.
+   ! Copy of this instance's own_node_ids record; empty once finalized like
+   ! every other post-finalize accessor.
    function graph_get_node_ids(this) result(ids)
       class(ComponentGraph), target, intent(in) :: this
       type(NodeIdSet) :: ids
@@ -994,12 +853,9 @@ contains
 
    ! -- private helpers --------------------------------------------------------
 
-   ! Classifies owned nodes for producer/state-item purposes (REQ-DEP-008):
-   ! an OperationGraphNode descendant is a producer-capable node; a
-   ! StateItemNode is subject to the one-producer-per-state-item check.
-   ! Walks this instance's own explicit own_node_ids record (design.md
-   ! D2), fetching each node from the shared HierarchyGraph via the
-   ! public get_node() accessor.
+   ! Classifies owned nodes (REQ-DEP-008): an OperationGraphNode descendant
+   ! is producer-capable; a StateItemNode is subject to the one-producer-per-
+   ! state-item check. Walks own_node_ids, fetching nodes via get_node().
    subroutine graph_classify_owned_nodes(this, producer_ids, state_item_ids)
       class(ComponentGraph), target, intent(in) :: this
       type(NodeIdSet), intent(out) :: producer_ids

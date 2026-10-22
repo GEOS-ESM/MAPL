@@ -2,10 +2,8 @@
 
 !------------------------------------------------------------------------------
 ! StateItemNode: concrete GraphNode holding exactly one GraphStateItem payload
-! and one NodeRevision (spec/03-graph-node-hierarchy.md REQ-NODE-003a,
-! spec/04-graph-value-hierarchy.md REQ-SI-005), in addition to the NodeId
-! and lifecycle-status properties inherited from BaseGraphNode. No
-! adjacency.
+! and one NodeRevision (REQ-NODE-003a, REQ-SI-005), in addition to the NodeId
+! and lifecycle status inherited from BaseGraphNode. No adjacency.
 !------------------------------------------------------------------------------
 module mapl_StateItemNode_mod
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_INVALID
@@ -20,31 +18,24 @@ module mapl_StateItemNode_mod
 
    public :: StateItemNode
 
-   ! openspec/changes/graph-builder-stateitem-resolution, design.md
-   ! Decisions: four new fields, set exactly once by advertise_one
-   ! (GraphBuilder_Advertising_smod.F90), via either the constructor
-   ! (the flat-item path) or the setters below (the composite-item path,
-   ! design.md correction surfaced during implementation -
-   ! materialize_composite/CompositeStateMaterialization.F90 constructs
-   ! a composite's own top-level node with no identity args at all, so
-   ! advertise_one sets identity on it afterward, via graph%get_node(),
-   ! the same post-construction pattern it already uses to populate
-   ! characteristics). Setters are deliberately NOT private - callable
-   ! from advertise_one (a different module) for exactly this reason -
-   ! but are documented framework-internal, same precedent as
-   ! set_payload/set_revision above. Identity
-   ! (short_name/state_intent, mirroring what item_key() already encodes
-   ! as a string) and resolution-mode metadata
-   ! (is_inout_borrower/callback_interface_id, plain copies of the
-   ! identically-named VariableSpec fields), read directly off the node
-   ! by every later resolution step instead of re-derived from a
-   ! VariableSpec reached by component name. short_name is unallocated
-   ! and state_intent is ESMF_STATEINTENT_INVALID for a node never given
-   ! an identity (e.g. a cross-component proxy or callback-collection
-   ! node, which have no originating VariableSpec at all) - callers that
-   ! care check get_short_name()'s allocation status / get_state_intent()
-   ! against ESMF_STATEINTENT_INVALID, same as any other "not set" case
-   ! in this codebase.
+   ! Identity (short_name/state_intent, mirroring what item_key() encodes as a
+   ! string) and resolution-mode metadata (is_inout_borrower/
+   ! callback_interface_id, copies of the VariableSpec fields of the same
+   ! names), set once by advertise_one (GraphBuilder_Advertising_smod.F90) and
+   ! read directly off the node by later resolution steps instead of being
+   ! re-derived from a VariableSpec looked up by component name.
+   !
+   ! They are set via the constructor (flat-item path) or the setters below
+   ! (composite path: materialize_composite constructs a composite's top-level
+   ! node with no identity args, so advertise_one sets identity afterward via
+   ! graph%get_node()). The setters are public because advertise_one is in a
+   ! different module; they are framework-internal, like set_payload/
+   ! set_revision.
+   !
+   ! short_name is unallocated and state_intent is ESMF_STATEINTENT_INVALID for
+   ! a node never given an identity (e.g. a cross-component proxy or
+   ! callback-collection node, with no originating VariableSpec); callers check
+   ! get_short_name()'s allocation status / get_state_intent().
    type, extends(BaseGraphNode) :: StateItemNode
       private
       type(GraphStateItem) :: payload
@@ -77,10 +68,9 @@ module mapl_StateItemNode_mod
 contains
 
    ! short_name/state_intent/is_inout_borrower/callback_interface_id are
-   ! all optional, defaulted so every existing call site (synthetic test
-   ! nodes, cross-component proxies, callback-collection nodes - none of
-   ! which have an originating VariableSpec identity) compiles and
-   ! behaves unchanged (tasks.md 1.1).
+   ! optional and defaulted, so nodes without a VariableSpec identity (synthetic
+   ! test nodes, cross-component proxies, callback-collection nodes) compile and
+   ! behave unchanged.
    function new_StateItemNode(id, payload, revision, short_name, state_intent, &
         is_inout_borrower, callback_interface_id) result(node)
       type(NodeId), intent(in) :: id
@@ -95,14 +85,9 @@ contains
       node%BaseGraphNode = BaseGraphNode(id)
       node%payload = payload
       node%revision = revision
-      ! openspec/changes/graph-builder-stateitem-resolution: explicit
-      ! allocate(..., source=...) instead of plain `=` assignment into
-      ! a deferred-length character component - gfortran has known
-      ! memory-corruption bugs on the realloc-on-assignment path for
-      ! allocatable character components (user-identified during
-      ! gfortran portability testing of this change), not reliably
-      ! reproducible run-to-run, consistent with heap corruption rather
-      ! than a deterministic logic error.
+      ! Explicit allocate(..., source=...) instead of `=` into a deferred-length
+      ! character component: gfortran's realloc-on-assignment path for allocatable
+      ! character components corrupts the heap (not reproducible run-to-run).
       if (present(short_name)) then
          if (allocated(node%short_name)) deallocate(node%short_name)
          allocate(node%short_name, source=short_name)
@@ -177,26 +162,14 @@ contains
       payload = this%payload
    end function stateitemnode_get_payload
 
-   ! openspec/changes/graph-builder-stateitem-resolution: pointer
-   ! accessor into this node's own stored payload, deliberately NOT
-   ! going through an intrinsic assignment the way get_payload()'s own
-   ! `payload = this%payload` does - a defined-assignment-bearing
-   ! derived type (GraphStateItem's own StateItemMemberMap component,
-   ! for a composite item, invokes gFTL2's own deep_copy) is not safe to
-   ! copy this way under every compiler for every payload shape
-   ! (observed: gfortran -fcheck=all -finit-real=snan nondeterministically
-   ! segfaults inside StateItemMemberMap's own deep_copy when the member
-   ! map is actually populated - a composite item's own case - NAG does
-   ! not reproduce it, consistent with a known-hard class of Fortran
-   ! compiler bug around nested defined-assignment, not a logic error in
-   ! this codebase's own gFTL2 usage). Callers that only need to read or
-   ! mutate the payload IN PLACE (never replace it wholesale) should
-   ! prefer this over get_payload()/set_payload() - advertise_one's own
-   ! populate_characteristics is the first such caller
-   ! (GraphBuilder_Advertising_smod.F90) and the direct motivation for
-   ! adding this accessor. `this` must be a target - callers hold node
-   ! via a class(StateItemNode), pointer already (graph%get_node()'s own
-   ! contract), so this is never a new requirement in practice.
+   ! Pointer accessor into the stored payload, deliberately not the
+   ! intrinsic assignment get_payload() uses (`payload = this%payload`): copying
+   ! a populated StateItemMemberMap (gFTL2 defined-assignment deep_copy, in a
+   ! composite item) segfaults nondeterministically under gfortran, not under
+   ! NAG. Callers that only read or mutate the payload in place should prefer
+   ! this over get_payload()/set_payload() (e.g. populate_characteristics in
+   ! GraphBuilder_Advertising_smod.F90). `this` must be a target; callers
+   ! already hold the node via a class(StateItemNode), pointer.
    function stateitemnode_get_payload_ptr(this) result(payload)
       class(StateItemNode), target, intent(in) :: this
       type(GraphStateItem), pointer :: payload
@@ -218,11 +191,9 @@ contains
       revision = this%revision
    end function stateitemnode_get_revision
 
-   ! Raw revision assignment - retained from Phase 1 for construction-time
-   ! setup (existing tests/callers depend on it). REQ-REV-002/003's
-   ! "only advance, never assign an arbitrary value to mean 'changed'"
-   ! path is advance_revision() below; that is what the demand-driven
-   ! update engine (spec/11-revision-and-update.md) uses.
+   ! Raw revision assignment, for construction-time setup. The REQ-REV-002/003
+   ! path ("only advance, never assign an arbitrary value to mean 'changed'")
+   ! is advance_revision() below, which the demand-driven update uses.
    subroutine stateitemnode_set_revision(this, revision)
       class(StateItemNode), intent(inout) :: this
       type(NodeRevision), intent(in) :: revision

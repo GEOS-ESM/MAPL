@@ -2,26 +2,20 @@
 
 !------------------------------------------------------------------------------
 ! GraphStateItem: concrete, non-polymorphic node payload type
-! (spec/04-graph-value-hierarchy.md REQ-SI-001/002). Three allocatable
-! ESMF handle components - a field, a field bundle, and a state - of
-! which at most one may be allocated at any time (REQ-SI-004). No
-! separate route-handle component: a route handle is represented by
-! allocating the state component in a persistent wrapper role, holding
-! exactly one ESMF_RouteHandle member (REQ-SI-002a).
+! (REQ-SI-001/002). Three allocatable ESMF handle components - a field, a
+! field bundle, and a state - of which at most one may be allocated at any
+! time (REQ-SI-004). A route handle is represented by allocating the state
+! component in a persistent wrapper role holding exactly one ESMF_RouteHandle
+! member (REQ-SI-002a).
 !
-! Exposes a two-tier classification: itemType() (native ESMF
-! classification - FIELD/FIELDBUNDLE/STATE/NOTFOUND, matching ESMF's
-! own naming convention for this kind of query - purely "which
-! component is allocated," for further retrieval via get_field()/
-! get_field_bundle()/get_state()) and variant() (new, extensible
-! MAPL_StateItem_Flag, Info-backed; REQ-SI-002b/002c - "which
-! subclass/role this instance plays," including the route-handle-
-! wrapper role as a refinement of STATE, parallel to how
-! MAPL_STATEITEM_VERTICALGRID also refines STATE). All allocation goes
-! through the single generic `set` binding below, which enforces the
-! at-most-one-allocated invariant and the membership-map gating
-! (REQ-SI-006) at a single choke point; raw component access is
-! private.
+! Two-tier classification: itemType() is the native ESMF classification
+! (FIELD/FIELDBUNDLE/STATE/NOTFOUND: purely which component is allocated, for
+! retrieval via get_field()/get_field_bundle()/get_state()); variant() is the
+! extensible, Info-backed MAPL_StateItem_Flag (REQ-SI-002b/002c) saying which
+! role the instance plays, including the route-handle wrapper as a refinement
+! of STATE, like MAPL_STATEITEM_VERTICALGRID. All allocation goes through the
+! single generic `set`, which enforces the at-most-one-allocated invariant and
+! the membership-map gating (REQ-SI-006); raw component access is private.
 !------------------------------------------------------------------------------
 module mapl_GraphStateItem_mod
    use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_State, ESMF_RouteHandle
@@ -55,20 +49,12 @@ module mapl_GraphStateItem_mod
    private
 
    public :: GraphStateItem
-   ! operator(==)/operator(/=) are the one legitimate exception to "don't
-   ! re-export a use-associated name": they are Fortran's own idiom for
-   ! merging a generic across module boundaries, and every consumer that
-   ! needs to compare an MAPL_StateItem_Flag/ESMF_StateItem_Flag reached
-   ! through this module needs the merged generic, not just this
-   ! module's own (nonexistent) specific procedure. Every other name
-   ! below was previously re-exported too (ESMF_StateItem_Flag/
-   ! ESMF_STATEITEM_*, MAPL_StateItem_Flag, StateItemMemberMap*) - real
-   ! plain-name re-exports of another module's own entity, not an
-   ! operator-merge case, and Intel's compiler correctly rejects that
-   ! when a client also reaches the same entity through its true
-   ! defining module (icc/ifx error #6405). Removed; callers now import
-   ! those directly from ESMF/mapl_StateItemFlag_mod/
-   ! mapl_StateItemMemberMap_mod instead.
+   ! operator(==)/operator(/=) are re-exported because that is how Fortran merges
+   ! a generic across module boundaries, and consumers comparing a
+   ! MAPL_StateItem_Flag/ESMF_StateItem_Flag reached through this module need
+   ! the merged generic. Do not re-export other use-associated names: Intel
+   ! rejects it when a client also reaches the entity through its defining
+   ! module (icc/ifx error #6405).
    public :: operator(==)
    public :: operator(/=)
 
@@ -79,77 +65,44 @@ module mapl_GraphStateItem_mod
       type(ESMF_State), allocatable :: esmf_state
       type(StateItemMemberMap) :: field_bundle_members_map
       type(StateItemMemberMap) :: state_members_map
-      ! REQ-CHAR-007/008 (docs/graph/spec/18-state-item-characteristics.md,
-      ! openspec/changes/state-item-characteristics): sparse map, keyed by
-      ! StateItemCharacteristicKind, of this item's established/deferred
-      ! mismatch-relevant characteristics. Independent of which of the
-      ! three handle components above is allocated - clear_components()
-      ! (below) does NOT reset this map, since a characteristic's meaning
-      ! (e.g. declared units) is not tied to which ESMF component
-      ! currently backs the item.
+      ! REQ-CHAR-007/008: sparse map, keyed by StateItemCharacteristicKind, of
+      ! this item's established/deferred mismatch-relevant characteristics.
+      ! Independent of which handle component is allocated: clear_components()
+      ! does NOT reset it, since e.g. declared units are not tied to the ESMF
+      ! component currently backing the item.
       type(StateItemCharacteristicMap) :: characteristics
-      ! openspec/changes/graph-builder-stateitem-resolution, tasks.md
-      ! 1.2: materialization inputs, populated by advertise_one
-      ! alongside characteristics (design.md Decisions) - read directly
-      ! off the export's own node by try_materialize_field_extension/
-      ! materialize_extension_chain, replacing the single-level
-      ! component_for/ComponentSpec/var_spec reach those two procedures
-      ! used before this change. Same "independent of which handle
-      ! component is allocated" contract as characteristics above - not
-      ! reset by clear_components(). ungridded_dims is always-present
-      ! (mirrors VariableSpec%ungridded_dims's own non-allocatable,
-      ! always-default-constructed field); vertical_stagger is
-      ! allocatable (mirrors VariableSpec%vertical_stagger exactly - a
-      ! field legitimately has no vertical stagger, e.g. a 2D field).
+      ! Materialization inputs, populated by advertise_one alongside
+      ! characteristics and read directly off the export's node by
+      ! try_materialize_field_extension/materialize_extension_chain. Same
+      ! "independent of the handle component" contract: not reset by
+      ! clear_components(). ungridded_dims is always present (like
+      ! VariableSpec%ungridded_dims); vertical_stagger is allocatable (a 2D field
+      ! has none).
       type(UngriddedDims) :: ungridded_dims
       type(VerticalStaggerLoc), allocatable :: vertical_stagger
-      ! openspec/changes/graph-builder-stateitem-resolution, design.md
-      ! correction (surfaced during implementation, not in the
-      ! original tasks.md): the originating VariableSpec's own
-      ! per-item EXPLICIT overrides for geom/vertical_grid (as opposed
-      ! to the owning component's own component-wide defaults, which
-      ! remain read live via OuterMetaComponent%has_geom()/get_geom()/
-      ! get_vertical_grid() in GraphBuilder_PortsAndProxies_smod.F90 -
-      ! those are not VariableSpec data and have no "set once at
-      ! advertise time" alternative, since GEOM_B genuinely runs after
-      ! ADVERTISE) and the item's own declared classification
-      ! (var_spec%itemType) - populated once by advertise_one alongside
-      ! characteristics/ungridded_dims/vertical_stagger above, so
-      ! try_materialize_field_extension/materialize_extension_chain and
-      ! resolve_export_geom/resolve_export_vgrid need no VariableSpec
-      ! reference at all once an item is advertised (proposal.md's core
-      ! claim, extended to cover these three inputs the original
-      ! tasks.md 1.2/5.1 did not anticipate).
+      ! The originating VariableSpec's per-item EXPLICIT overrides for
+      ! geom/vertical_grid, and its declared classification (var_spec%itemType),
+      ! set once by advertise_one so that try_materialize_field_extension/
+      ! materialize_extension_chain and resolve_export_geom/resolve_export_vgrid
+      ! need no VariableSpec reference. The owning component's component-wide
+      ! defaults are not stored here: they are read live via
+      ! OuterMetaComponent%has_geom()/get_geom()/get_vertical_grid()
+      ! (GraphBuilder_PortsAndProxies_smod.F90) because GEOM_B runs after
+      ! ADVERTISE.
       type(ESMF_Geom), allocatable :: declared_geom
       class(VerticalGrid), allocatable :: declared_vertical_grid
       type(ESMF_StateItem_Flag) :: declared_item_type = ESMF_STATEITEM_FIELD
-      ! openspec/changes/phase-13-restart-compatibility (docs/graph/spec/
-      ! 20-implementation-roadmap.md sec 20.4.13): the originating
-      ! VariableSpec's own declared restart_mode (VariableSpec.F90:102),
-      ! captured at advertise time alongside declared_geom/
-      ! declared_vertical_grid above, same "materialization input"
-      ! rationale - populate_one (GraphBuilder_StatePopulation_smod.F90)
-      ! reads this back when it creates the real MAPL_NamedAlias, so
-      ! RestartHandler.F90's predicate_skip_restart_ sees correct
-      ! metadata for a graph-materialized field under GRAPH_MODE_GRAPH,
-      ! mirroring FieldClassAspect%add_to_state's own
-      ! FieldInfoSetInternal call (FieldClassAspect.F90:493-498).
-      ! Allocatable, no default: absent means "not explicitly declared",
-      ! same allocatable-no-default shape as VariableSpec%restart_mode
-      ! itself - RestartHandler's own RESTART_REQUIRED default already
-      ! applies when FieldInfoSetInternal is never called for an alias
-      ! id (field_info_get_internal_restart_mode's own default).
+      ! The VariableSpec's declared restart_mode, captured at advertise time like
+      ! declared_geom above. populate_one (GraphBuilder_StatePopulation_smod.F90)
+      ! reads it back when creating the MAPL_NamedAlias so RestartHandler sees
+      ! correct metadata for a graph-materialized field. Allocatable, no default:
+      ! absent means "not explicitly declared", and RestartHandler's
+      ! RESTART_REQUIRED default applies.
       type(RestartMode), allocatable :: declared_restart_mode
-      ! openspec/changes/phase-7b-expression-dispatch-wiring (design.md
-      ! D3): the originating VariableSpec's own expression string
-      ! (VariableSpec%expression), captured at advertise time alongside
-      ! declared_restart_mode above - same "materialization input, set
-      ! once at advertise time" rationale. Allocatable, no default:
-      ! absent for every non-EXPRESSION item, same "absent means not
-      ! applicable" convention declared_restart_mode/declared_vertical_
-      ! stagger already use. Read directly by
-      ! graphbuilder_run_expression_hook (D2); never compared for
-      ! mismatch - there is no ExpressionCharacteristic (D3).
+      ! The VariableSpec's expression string, captured at advertise time like
+      ! declared_restart_mode. Allocatable, no default: absent for every
+      ! non-EXPRESSION item. Read by graphbuilder_run_expression_hook; never
+      ! compared for mismatch (there is no ExpressionCharacteristic).
       character(:), allocatable :: declared_expression
    contains
       procedure :: itemType => stateitem_itemType
@@ -174,19 +127,18 @@ module mapl_GraphStateItem_mod
       procedure :: has_characteristic => stateitem_has_characteristic
       procedure :: get_characteristic => stateitem_get_characteristic
       procedure :: set_characteristic => stateitem_set_characteristic
-      ! Returns a copy of the full characteristics map (REQ-CHAR-009:
-      ! enumerable so a detection algorithm can iterate every entry
-      ! through the common StateItemCharacteristic interface only) -
-      ! mirrors field_bundle_members()/state_members()'s own
-      ! return-a-copy convention.
+      ! Copy of the full characteristics map (REQ-CHAR-009: enumerable so
+      ! detection can iterate every entry through the common
+      ! StateItemCharacteristic interface); returns a copy like
+      ! field_bundle_members()/state_members().
       procedure :: get_characteristics => stateitem_get_characteristics
       procedure :: ordering => stateitem_ordering
-      ! -- materialization inputs (tasks.md 1.2) ---------------------------
+      ! -- materialization inputs --
       procedure :: get_ungridded_dims => stateitem_get_ungridded_dims
       procedure :: set_ungridded_dims => stateitem_set_ungridded_dims
       procedure :: get_vertical_stagger => stateitem_get_vertical_stagger
       procedure :: set_vertical_stagger => stateitem_set_vertical_stagger
-      ! -- declared geom/vgrid/item-class (design.md correction) ----------
+      ! -- declared geom/vgrid/item-class --
       procedure :: get_declared_geom => stateitem_get_declared_geom
       procedure :: set_declared_geom => stateitem_set_declared_geom
       procedure :: get_declared_vertical_grid => stateitem_get_declared_vertical_grid
@@ -195,13 +147,11 @@ module mapl_GraphStateItem_mod
       procedure :: set_declared_item_type => stateitem_set_declared_item_type
       procedure :: get_declared_restart_mode => stateitem_get_declared_restart_mode
       procedure :: set_declared_restart_mode => stateitem_set_declared_restart_mode
-      ! openspec/changes/phase-7b-expression-dispatch-wiring (design.md D3).
       procedure :: get_declared_expression => stateitem_get_declared_expression
       procedure :: set_declared_expression => stateitem_set_declared_expression
-      ! Test-only backdoor: deliberately violates the at-most-one-
-      ! allocated invariant, bypassing the `set` choke point, so the
-      ! checked-defect path (REQ-SI-004) can be exercised. Not part of
-      ! the type's intended usage; production code MUST NOT call this.
+      ! Test-only backdoor: deliberately violates the at-most-one-allocated
+      ! invariant, bypassing the `set` choke point, so the checked-defect path
+      ! (REQ-SI-004) can be exercised. Production code MUST NOT call this.
       procedure :: debug_force_double_allocate_for_test => stateitem_debug_force_double_allocate
    end type GraphStateItem
 
@@ -209,10 +159,9 @@ contains
 
    ! -- classification -------------------------------------------------
 
-   ! Purely "which of the three components is allocated" - no
-   ! route-handle-wrapper special-casing here (that distinction is
-   ! variant()'s job, since it's a role/subclass question, not a "which
-   ! ESMF type do I retrieve" question).
+   ! Purely "which of the three components is allocated"; the route-handle
+   ! wrapper distinction is variant()'s job (a role question, not which ESMF
+   ! type to retrieve).
    function stateitem_itemType(this, rc) result(kind_flag)
       class(GraphStateItem), intent(in) :: this
       integer, optional, intent(out) :: rc
@@ -240,16 +189,12 @@ contains
       _RETURN(_SUCCESS)
    end function stateitem_itemType
 
-   ! Vanilla default per native kind (FIELD/FIELDBUNDLE/STATE/NOTFOUND,
-   ! mirroring itemType()'s own vocabulary) when no finer-grained
-   ! variant tag has been attached; otherwise the tagged refinement
-   ! (e.g. GEOM, VECTOR, BRACKET, VECTORBRACKET, VERTICALGRID) read
-   ! back via mapl_StateItemVariantInfo_mod. The route-handle-wrapper role
-   ! is reported here (MAPL_STATEITEM_ROUTEHANDLE, a refinement of
-   ! STATE, never queried from Info) rather than at the itemType()
-   ! tier, since "is this state actually a route-handle wrapper" is a
-   ! role question, exactly like "is this state actually a vertical
-   ! grid."
+   ! The vanilla default per native kind when no finer-grained variant tag has
+   ! been attached; otherwise the tagged refinement (GEOM, VECTOR, BRACKET,
+   ! VECTORBRACKET, VERTICALGRID) read back via mapl_StateItemVariantInfo_mod.
+   ! The route-handle wrapper (MAPL_STATEITEM_ROUTEHANDLE, a refinement of
+   ! STATE) is reported here, never queried from Info, since it is a role
+   ! question like "is this state a vertical grid".
    function stateitem_variant(this, rc) result(variant_flag)
       class(GraphStateItem), intent(in) :: this
       integer, optional, intent(out) :: rc
@@ -287,14 +232,11 @@ contains
       _RETURN(_SUCCESS)
    end function stateitem_variant
 
-   ! Inspects the sole member of an allocated esmf_state via
-   ! ESMF_StateGet and reports whether it is itself a route handle -
-   ! the one place this module still consults ESMF's native
-   ! classification below the GraphStateItem/itemType() tier. When it is,
-   ! also returns the member's actual item name (assigned internally by
-   ! ESMF_StateAdd - there is no way to choose it, so callers that need
-   ! to retrieve the member back out must use whatever name ESMF gave
-   ! it, not an assumed fixed constant).
+   ! Inspects the sole member of an allocated esmf_state via ESMF_StateGet and
+   ! reports whether it is a route handle - the one place this module consults
+   ! ESMF's native classification below the itemType() tier. If so, also
+   ! returns the member's item name; ESMF_StateAdd assigns it and it cannot be
+   ! chosen, so callers must use the returned name.
    logical function state_is_route_handle_wrapper(this, rc, member_name) result(is_wrapper)
       class(GraphStateItem), intent(in) :: this
       integer, optional, intent(out) :: rc
@@ -370,15 +312,11 @@ contains
       _RETURN(_SUCCESS)
    end subroutine stateitem_set_state
 
-   ! Convenience overload of `set` for the route-handle-wrapper role:
-   ! builds a small ESMF_State containing exactly one ESMF_RouteHandle
-   ! member and installs it via set_state, so the wrapper's creation
-   ! goes through the same choke point as any other state
-   ! (REQ-SI-002a). Renewal (destroying/recreating the underlying route
-   ! handle) should replace the member on the existing wrapper state
-   ! directly via ESMF_State calls on get_state()'s result, rather than
-   ! calling this a second time - the wrapper state object itself is
-   ! not destroyed/recreated.
+   ! Convenience overload of `set` for the route-handle-wrapper role: builds a
+   ! small ESMF_State holding exactly one ESMF_RouteHandle and installs it via
+   ! set_state, keeping creation behind the same choke point (REQ-SI-002a).
+   ! Renewal should replace the member on the existing wrapper state via
+   ! ESMF_State calls on get_state()'s result, not call this again.
    subroutine stateitem_set_route_handle(this, route_handle, rc)
       class(GraphStateItem), intent(inout) :: this
       type(ESMF_RouteHandle), intent(in) :: route_handle
@@ -439,13 +377,10 @@ contains
       _RETURN(_SUCCESS)
    end function stateitem_get_state
 
-   ! Resolves the route handle out of the wrapper's sole member, rather
-   ! than exposing a bare stored route-handle field (REQ-SI-002a).
-   ! Gated on variant() (the role/subclass question), not itemType()
-   ! (which reports plain STATE for a route-handle-wrapper esmf_state,
-   ! same as any other state - see the module header). Looks up the
-   ! member by whatever name ESMF_StateAdd actually assigned it (there
-   ! is no way to choose that name at add time).
+   ! Resolves the route handle out of the wrapper's sole member rather than
+   ! exposing a bare stored component (REQ-SI-002a). Gated on variant(), not
+   ! itemType() (which reports plain STATE for a wrapper; see the module
+   ! header). Looks the member up by the name ESMF_StateAdd assigned.
    function stateitem_get_route_handle(this, rc) result(route_handle)
       class(GraphStateItem), intent(in) :: this
       integer, optional, intent(out) :: rc
@@ -471,19 +406,11 @@ contains
       members = this%field_bundle_members_map
    end function stateitem_field_bundle_members
 
-   ! openspec/changes/graph-builder-stateitem-resolution: pointer
-   ! accessor into this item's own stored member map, deliberately NOT
-   ! going through an intrinsic assignment the way
-   ! field_bundle_members()'s own `members = this%field_bundle_members_map`
-   ! does - a populated StateItemMemberMap (a gFTL2 map with its own
-   ! defined-assignment deep_copy) is not safe to copy this way under
-   ! every compiler (observed: gfortran nondeterministically segfaults
-   ! inside the map's own deep_copy for a non-empty map - NAG does not
-   ! reproduce it; same known-hard class of Fortran compiler bug around
-   ! nested defined-assignment already worked around for get_payload_ptr
-   ! above, one container level deeper). Callers that only need to read
-   ! the map (never replace it wholesale) should prefer this over
-   ! field_bundle_members(). `this` must be a target.
+   ! Pointer accessor into the stored member map, deliberately not an
+   ! intrinsic assignment like field_bundle_members(): copying a populated
+   ! StateItemMemberMap (gFTL2 defined-assignment deep_copy) segfaults
+   ! nondeterministically under gfortran, not under NAG. Callers that only read
+   ! the map should prefer this. `this` must be a target.
    function stateitem_field_bundle_members_ptr(this) result(members)
       class(GraphStateItem), target, intent(in) :: this
       type(StateItemMemberMap), pointer :: members
@@ -498,10 +425,8 @@ contains
       members = this%state_members_map
    end function stateitem_state_members
 
-   ! Same pointer-accessor fix as field_bundle_members_ptr above, same
-   ! reason - this is the one implicated in the observed crash
-   ! signature (state_members() called on a composite/multi-member
-   ! item's own populated state_members_map).
+   ! Same pointer-accessor fix as field_bundle_members_ptr; this is the one
+   ! implicated in the crash (state_members() on a composite/multi-member item).
    function stateitem_state_members_ptr(this) result(members)
       class(GraphStateItem), target, intent(in) :: this
       type(StateItemMemberMap), pointer :: members
@@ -526,10 +451,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine stateitem_add_field_bundle_member
 
-   ! Gated on itemType()==STATE (which of the three components) *and*
-   ! variant()/=ROUTEHANDLE (excludes the route-handle-wrapper role,
-   ! whose sole member is not a graph-visible, node-identity-
-   ! addressable item - REQ-SI-006).
+   ! Gated on itemType()==STATE and variant()/=ROUTEHANDLE (the wrapper's sole
+   ! member is not a graph-visible, node-identity-addressable item - REQ-SI-006).
    subroutine stateitem_add_state_member(this, name, id, rc)
       class(GraphStateItem), intent(inout) :: this
       character(*), intent(in) :: name
@@ -550,7 +473,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine stateitem_add_state_member
 
-   ! -- characteristics (REQ-CHAR-007/008/010) --------------------------
+   ! -- characteristics (REQ-CHAR-007/008/010) --
 
    logical function stateitem_has_characteristic(this, kind) result(has)
       class(GraphStateItem), intent(in) :: this
@@ -559,18 +482,12 @@ contains
       has = this%characteristics%count(kind) > 0
    end function stateitem_has_characteristic
 
-   ! REQ-CHAR-008/design.md D4: absent key is canonical for "never
-   ! established" - fails explicitly rather than returning an
-   ! INVALID-status placeholder, so a caller cannot silently confuse the
-   ! two (spec "Established characteristic is retrievable by its type
-   ! tag"). A subroutine with an intent(out) allocatable dummy, not a
-   ! function returning class(...), allocatable - this codebase's own
-   ! established convention for a polymorphic allocatable result
-   ! (mirrors Characteristic%build_transform's own
-   ! intent(out) transformer shape) avoids returning an unallocated
-   ! polymorphic function result on the early-return failure path, which
-   ! a Fortran compiler is not reliably required to leave in a universally
-   ! safe (caller-assignable) state.
+   ! REQ-CHAR-008: an absent key means "never established" and fails
+   ! explicitly rather than returning an INVALID-status placeholder. A
+   ! subroutine with an intent(out) allocatable dummy, not a function returning
+   ! a polymorphic allocatable (as Characteristic%build_transform does): an
+   ! unallocated polymorphic function result on the failure path is not
+   ! reliably safe for the caller to assign.
    subroutine stateitem_get_characteristic(this, kind, characteristic, rc)
       class(GraphStateItem), target, intent(in) :: this
       type(StateItemCharacteristicKind), intent(in) :: kind
@@ -587,23 +504,16 @@ contains
       _RETURN(_SUCCESS)
    end subroutine stateitem_get_characteristic
 
-   ! Inserts or replaces the entry under `kind` (REQ-CHAR-007) - this is
-   ! the one explicit-replace operation; no other GraphStateItem operation
-   ! removes or replaces a characteristics-map entry as a side effect
-   ! (design.md D4).
+   ! Inserts or replaces the entry under `kind` (REQ-CHAR-007); the one
+   ! explicit-replace operation, no other operation removes or replaces an entry
+   ! as a side effect.
    !
-   ! REQ-CHAR-006/009 invariant: `characteristic%get_kind()` MUST equal
-   ! `kind` - a characteristic is never stored under a key other than its
-   ! own. This is the enforcement point that keeps
-   ! find_mismatched_state_item_characteristics's per-key pairing honest:
-   ! it looks two items' entries up by the SAME map key and assumes both
-   ! sides' dynamic types therefore match, so each concrete
-   ! needs_extension_for's `goal` is guaranteed the same concrete type as
-   ! `this` by construction (not merely by caller convention) - a real
-   ! kind mismatch (e.g. storing a GeometryCharacteristic under
-   ! PHYSICAL_UNITS_CHARACTERISTIC_KIND) is caught explicitly, here, at
-   ! the moment it would otherwise be introduced, rather than silently
-   ! deferred to whatever later happens to compare it (design.md D5a).
+   ! REQ-CHAR-006/009 invariant: characteristic%get_kind() MUST equal `kind`.
+   ! find_mismatched_state_item_characteristics pairs two items' entries by the
+   ! same key and assumes both dynamic types match, so each needs_extension_for
+   ! `goal` is the same concrete type as `this` by construction. A mismatch
+   ! (e.g. a GeometryCharacteristic under PHYSICAL_UNITS_CHARACTERISTIC_KIND) is
+   ! caught here, where it would be introduced.
    subroutine stateitem_set_characteristic(this, kind, characteristic, rc)
       class(GraphStateItem), intent(inout) :: this
       type(StateItemCharacteristicKind), intent(in) :: kind
@@ -627,7 +537,7 @@ contains
       characteristics = this%characteristics
    end function stateitem_get_characteristics
 
-   ! -- materialization inputs (tasks.md 1.2) ------------------------------
+   ! -- materialization inputs --
 
    function stateitem_get_ungridded_dims(this) result(ungridded_dims)
       class(GraphStateItem), intent(in) :: this
@@ -643,18 +553,11 @@ contains
       this%ungridded_dims = ungridded_dims
    end subroutine stateitem_set_ungridded_dims
 
-   ! REQ-CHAR-008/design.md D4 precedent (see get_characteristic's own
-   ! comment above): a subroutine with an intent(out) allocatable
-   ! dummy, not a function returning type(...), allocatable - avoids
-   ! ever assigning directly from a possibly-unallocated allocatable
-   ! function result at the call site (gfortran codegen bug, surfaced
-   ! during gfortran portability testing of this change: a direct
-   ! `x = item%get_vertical_stagger()` assignment crashed with a NULL
-   ! dereference when the item's own vertical_stagger was unallocated -
-   ! NAG tolerated the same code; the Fortran standard does not
-   ! guarantee an unallocated allocatable function result is safe to
-   ! assign from directly, so this is a real bug fix, not a workaround
-   ! for a compiler quirk).
+   ! A subroutine with an intent(out) allocatable dummy, as for
+   ! get_characteristic: a direct `x = item%get_vertical_stagger()` from an
+   ! unallocated allocatable function result crashed with a NULL dereference
+   ! under gfortran (NAG tolerated it); the standard does not guarantee it is
+   ! safe.
    subroutine stateitem_get_vertical_stagger(this, vertical_stagger)
       class(GraphStateItem), intent(in) :: this
       type(VerticalStaggerLoc), allocatable, intent(out) :: vertical_stagger
@@ -662,12 +565,9 @@ contains
       if (allocated(this%vertical_stagger)) vertical_stagger = this%vertical_stagger
    end subroutine stateitem_get_vertical_stagger
 
-   ! openspec/changes/graph-builder-stateitem-resolution: explicit
-   ! deallocate+allocate(..., source=...) instead of plain `=`
-   ! assignment into an allocatable component - same gfortran
-   ! realloc-on-assignment memory-corruption class as
-   ! StateItemNode%short_name (see StateItemNode.F90's constructor
-   ! comment), not specific to character components.
+   ! Explicit deallocate+allocate(..., source=...) instead of `=` into an
+   ! allocatable component: avoids the gfortran realloc-on-assignment memory
+   ! corruption also seen in StateItemNode%short_name.
    subroutine stateitem_set_vertical_stagger(this, vertical_stagger)
       class(GraphStateItem), intent(inout) :: this
       type(VerticalStaggerLoc), intent(in) :: vertical_stagger
@@ -676,10 +576,10 @@ contains
       allocate(this%vertical_stagger, source=vertical_stagger)
    end subroutine stateitem_set_vertical_stagger
 
-   ! -- declared geom/vgrid/item-class (design.md correction) --------------
+   ! -- declared geom/vgrid/item-class --
 
-   ! Same subroutine-with-intent(out)-allocatable-dummy fix as
-   ! get_vertical_stagger above, same reason.
+   ! Subroutine with an intent(out) allocatable dummy, as for
+   ! get_vertical_stagger.
    subroutine stateitem_get_declared_geom(this, geom)
       class(GraphStateItem), intent(in) :: this
       type(ESMF_Geom), allocatable, intent(out) :: geom
@@ -687,8 +587,8 @@ contains
       if (allocated(this%declared_geom)) geom = this%declared_geom
    end subroutine stateitem_get_declared_geom
 
-   ! Same deallocate+allocate(..., source=...) fix as
-   ! set_vertical_stagger above, same reason.
+   ! Explicit deallocate+allocate(..., source=...), as for
+   ! set_vertical_stagger.
    subroutine stateitem_set_declared_geom(this, geom)
       class(GraphStateItem), intent(inout) :: this
       type(ESMF_Geom), intent(in) :: geom
@@ -697,8 +597,8 @@ contains
       allocate(this%declared_geom, source=geom)
    end subroutine stateitem_set_declared_geom
 
-   ! Same subroutine-with-intent(out)-allocatable-dummy fix as
-   ! get_vertical_stagger above, same reason.
+   ! Subroutine with an intent(out) allocatable dummy, as for
+   ! get_vertical_stagger.
    subroutine stateitem_get_declared_vertical_grid(this, vertical_grid)
       class(GraphStateItem), intent(in) :: this
       class(VerticalGrid), allocatable, intent(out) :: vertical_grid
@@ -706,12 +606,10 @@ contains
       if (allocated(this%declared_vertical_grid)) vertical_grid = this%declared_vertical_grid
    end subroutine stateitem_get_declared_vertical_grid
 
-   ! Same deallocate+allocate(..., source=...) fix as
-   ! set_vertical_stagger above, same reason. Polymorphic component -
-   ! allocate(..., source=...) also sidesteps relying on the compiler's
-   ! own intrinsic-assignment dynamic-type dispatch for a CLASS
-   ! allocatable, which is exactly the kind of generated-assignment
-   ! code path implicated elsewhere in this bug class.
+   ! Explicit deallocate+allocate(..., source=...), as for
+   ! set_vertical_stagger. For a polymorphic component this also avoids relying
+   ! on the compiler's intrinsic-assignment dynamic-type dispatch for a CLASS
+   ! allocatable.
    subroutine stateitem_set_declared_vertical_grid(this, vertical_grid)
       class(GraphStateItem), intent(inout) :: this
       class(VerticalGrid), intent(in) :: vertical_grid
@@ -734,11 +632,8 @@ contains
       this%declared_item_type = item_type
    end subroutine stateitem_set_declared_item_type
 
-   ! openspec/changes/phase-13-restart-compatibility: same
-   ! subroutine-with-intent(out)-allocatable-dummy shape as
-   ! get_declared_geom/get_vertical_stagger above, same reason (an
-   ! unallocated allocatable function result is not reliably safe to
-   ! assign from directly across compilers).
+   ! Subroutine with an intent(out) allocatable dummy, as for
+   ! get_vertical_stagger.
    subroutine stateitem_get_declared_restart_mode(this, restart_mode)
       class(GraphStateItem), intent(in) :: this
       type(RestartMode), allocatable, intent(out) :: restart_mode
@@ -746,8 +641,7 @@ contains
       if (allocated(this%declared_restart_mode)) restart_mode = this%declared_restart_mode
    end subroutine stateitem_get_declared_restart_mode
 
-   ! Same deallocate+allocate(..., source=...) shape as
-   ! set_declared_geom above, same reason.
+   ! Explicit deallocate+allocate(..., source=...), as for set_declared_geom.
    subroutine stateitem_set_declared_restart_mode(this, restart_mode)
       class(GraphStateItem), intent(inout) :: this
       type(RestartMode), intent(in) :: restart_mode
@@ -756,9 +650,8 @@ contains
       allocate(this%declared_restart_mode, source=restart_mode)
    end subroutine stateitem_set_declared_restart_mode
 
-   ! openspec/changes/phase-7b-expression-dispatch-wiring (design.md D3):
-   ! same subroutine-with-intent(out)-allocatable-dummy shape as
-   ! get_declared_restart_mode above, same reason.
+   ! Subroutine with an intent(out) allocatable dummy, as for
+   ! get_declared_restart_mode.
    subroutine stateitem_get_declared_expression(this, expression)
       class(GraphStateItem), intent(in) :: this
       character(:), allocatable, intent(out) :: expression
@@ -766,11 +659,8 @@ contains
       if (allocated(this%declared_expression)) expression = this%declared_expression
    end subroutine stateitem_get_declared_expression
 
-   ! Same deallocate+allocate(..., source=...) shape as
-   ! set_declared_restart_mode above, same reason (gfortran
-   ! realloc-on-assignment memory-corruption class, not specific to
-   ! character components - see StateItemNode%short_name's own
-   ! constructor comment).
+   ! Explicit deallocate+allocate(..., source=...), as for
+   ! set_declared_restart_mode.
    subroutine stateitem_set_declared_expression(this, expression)
       class(GraphStateItem), intent(inout) :: this
       character(*), intent(in) :: expression
@@ -779,14 +669,11 @@ contains
       allocate(this%declared_expression, source=expression)
    end subroutine stateitem_set_declared_expression
 
-   ! REQ-CHAR-010/011 (design.md D5, resolving Q13's recommendation):
-   ! delegates to a static per-variant strategy table
-   ! (characteristic_ordering_table below). `mismatched_kinds` is the
-   ! caller-supplied set of kinds found mismatched by a detection
-   ! algorithm (graph/state-item-characteristics); this method reorders
-   ! (never adds/removes) that set according to this item's own variant.
-   ! A variant with no table entry falls back to the input's own order,
-   ! unchanged (stable, non-crashing default - design.md D5).
+   ! REQ-CHAR-010/011: delegates to the static per-variant table
+   ! characteristic_ordering_table (below). `mismatched_kinds` is the set of
+   ! kinds a detection algorithm found mismatched; this reorders it (never adds
+   ! or removes) according to this item's variant. A variant with no table
+   ! entry keeps the input order.
    function stateitem_ordering(this, mismatched_kinds, rc) result(order)
       class(GraphStateItem), intent(in) :: this
       type(StateItemCharacteristicKind), intent(in) :: mismatched_kinds(:)
@@ -803,14 +690,12 @@ contains
 
       allocate(order(0))
       if (size(canonical) == 0) then
-         ! No table entry for this variant - stable fallback: the input's
-         ! own order, unchanged (design.md D5).
+         ! No table entry for this variant: keep the input order.
          order = mismatched_kinds
          _RETURN(_SUCCESS)
       end if
 
-      ! Canonical-first: every mismatched kind the table orders, in the
-      ! table's own order.
+      ! Canonical-first: every mismatched kind the table orders, in table order.
       do i = 1, size(canonical)
          do j = 1, size(mismatched_kinds)
             if (mismatched_kinds(j) == canonical(i)) then
@@ -820,10 +705,8 @@ contains
          end do
       end do
 
-      ! Then any mismatched kind the table has no opinion on, preserving
-      ! its original relative order - completeness without requiring
-      ! every table to be exhaustive (REQ-CHAR-001's own "not exhaustive"
-      ! note).
+      ! Then any mismatched kind the table has no opinion on, in its original
+      ! relative order, so tables need not be exhaustive (REQ-CHAR-001).
       n = size(mismatched_kinds)
       do j = 1, n
          if (.not. kind_in_list(mismatched_kinds(j), canonical)) then
@@ -852,7 +735,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine stateitem_debug_force_double_allocate
 
-   ! -- characteristic-ordering strategy table (design.md D5) -----------
+   ! -- characteristic-ordering strategy table --
 
    logical function kind_in_list(k, list) result(found)
       type(StateItemCharacteristicKind), intent(in) :: k
@@ -869,31 +752,24 @@ contains
       end do
    end function kind_in_list
 
-   ! Static per-variant strategy table (design.md D5, Q13's own
-   ! recommendation: "a small per-kind strategy lookup... over a method
-   ! living on one designated 'primary' characteristic"). Illustrative,
-   ! not validated against a concrete end-to-end comparison use case
-   ! (Q13's own confidence is "medium") - deliberately kept simple and
-   ! easy to extend as real configurations are worked through; a variant
-   ! with no entry here (the `case default`) returns a zero-size array,
-   ! which stateitem_ordering() above treats as "no opinion, use input
-   ! order" rather than an error.
+   ! Static per-variant ordering table. Illustrative, not validated against an
+   ! end-to-end comparison use case; kept simple and easy to extend. A variant
+   ! with no entry (`case default`) returns a zero-size array, which
+   ! stateitem_ordering() treats as "no opinion, use input order".
    function characteristic_ordering_table(variant_flag) result(order)
       type(MAPL_StateItem_Flag), intent(in) :: variant_flag
       type(StateItemCharacteristicKind), allocatable :: order(:)
 
       if (variant_flag == MAPL_STATEITEM_FIELD) then
-         ! Ordinary field: reconcile units first (cheap, element-wise),
-         ! then precision, then geometry last (regrid is typically the
-         ! most expensive step and benefits from operating on
-         ! already-unit-correct, already-precision-correct data).
+         ! Ordinary field: reconcile units first (cheap, element-wise), then
+         ! precision, then geometry last (regrid is the most expensive step and is
+         ! best done on already-corrected data).
          order = [PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, &
                   GEOMETRY_CHARACTERISTIC_KIND]
       else if (variant_flag == MAPL_STATEITEM_GEOM) then
-         ! A geometry-tagged field: geometry identity is the field's own
-         ! defining characteristic - reconcile it first, before any
-         ! unit/precision adjustment that would otherwise operate on
-         ! still-wrong-shape storage.
+         ! A geometry-tagged field: geometry identity is its defining
+         ! characteristic, so reconcile it before unit/precision adjustments that
+         ! would otherwise operate on wrong-shape storage.
          order = [GEOMETRY_CHARACTERISTIC_KIND, PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
                   TYPE_KIND_CHARACTERISTIC_KIND]
       else

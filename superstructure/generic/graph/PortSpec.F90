@@ -2,8 +2,7 @@
 
 !------------------------------------------------------------------------------
 ! PortSpec: a TransformGraphNode's declared named-argument specification
-! for one input or output port (spec/10-transforms-and-ports.md
-! REQ-XFORM-002/003/004) - a name plus an optional expected GraphStateItem
+! for one input or output port (REQ-XFORM-002/003/004) - a name plus an optional expected GraphStateItem
 ! kind constraint. Declaration-only: this type never holds a bound
 ! NodeId (that is the external port-binding table's job,
 ! REQ-XFORM-005 - see mapl_PortBindingTable_mod).
@@ -46,8 +45,7 @@ contains
 
    ! Kind-constrained port: REQ-XFORM-003's "expected GraphValue kind",
    ! expressed here as an expected MAPL_StateItem_Flag (the concrete
-   ! payload's own two-tier classification, spec/04-graph-value-
-   ! hierarchy.md REQ-SI-002b), checked by ComponentGraph%bind_port()
+   ! payload's own two-tier classification, REQ-SI-002b), checked by ComponentGraph%bind_port()
    ! against the bound target's GraphStateItem%variant() when the target is
    ! a StateItemNode.
    function new_PortSpec_with_kind(name, expected_kind) result(spec)

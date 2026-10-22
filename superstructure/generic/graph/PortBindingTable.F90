@@ -2,8 +2,7 @@
 
 !------------------------------------------------------------------------------
 ! PortBindingTable: the external (DependencyNetworkId, NodeId) -> port
-! name -> NodeId table settled by spec/10-transforms-and-ports.md
-! REQ-XFORM-005. Wraps a gFTL map of PortBindingKey ->
+! name -> NodeId table settled by REQ-XFORM-005. Wraps a gFTL map of PortBindingKey ->
 ! StateItemMemberMap, enforcing "no silent replace" for both the
 ! per-(network,node) entry and individual port-name bindings within it,
 ! matching every other registration API in this repo (ComponentGraph's

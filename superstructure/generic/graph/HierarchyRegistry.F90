@@ -2,39 +2,28 @@
 
 !------------------------------------------------------------------------------
 ! HierarchyRegistry: the one shared, cross-ComponentGraph lookup point for
-! HierarchyResources values (openspec/changes/hierarchy-wide-component-
-! graph, design.md D1). Mirrors mapl_CallbackInterfaceRegistry_mod's own
-! wrapper-procedure convention (REQ-CB-010's "narrower wrapper procedures
-! that hide the singleton"), but keyed by HierarchyId rather than being a
-! bare singleton - this is what lets multiple independent hierarchies
-! (e.g. separate pFUnit test fixtures constructed in the same process,
-! which pFUnit already does routinely) each get their own distinct
-! HierarchyResources entry, with no accidental cross-hierarchy state
-! bleed, while still avoiding any pointer threaded through
-! OuterMetaComponent's own constructor/init_meta argument lists.
+! HierarchyResources values. Follows mapl_CallbackInterfaceRegistry_mod's
+! wrapper-procedure convention (REQ-CB-010: narrower wrapper procedures that
+! hide the singleton), but keyed by HierarchyId rather than a bare
+! singleton. That gives independent hierarchies (e.g. separate pFUnit
+! fixtures in one process) distinct HierarchyResources entries with no
+! cross-hierarchy state bleed, and avoids threading a pointer through
+! OuterMetaComponent's constructor/init_meta argument lists.
 !
-! A private module-level HierarchyIdHierarchyResourcesMap holds every
-! live hierarchy's own resources. Three public entry points:
+! A private module-level HierarchyIdHierarchyResourcesMap holds every live
+! hierarchy's resources. Three public entry points:
 !   - request_new_hierarchy(): mints a fresh HierarchyId, allocates a
-!     fresh (default-initialized) HierarchyResources entry, returns the
-!     id. Called once by a hierarchy's root OuterMetaComponent at
-!     construction, and once by ComponentGraph's own no-argument
-!     constructor (today's ~40 existing standalone-synthetic-graph test
-!     call shape, `graph = ComponentGraph()`), making that standalone
-!     graph implicitly the root of a one-component "hierarchy" of its
-!     own.
-!   - get_hierarchy_resources(id): looked up fresh on every call - never
-!     cached by any caller across statements - returning a pointer valid
-!     until the next structural change to the registry's own backing
-!     map (ordinary gFTL map pointer-validity contract, same as every
-!     other `%at()`-returning accessor in this codebase).
-!   - release_hierarchy(id): erases that one entry. Safe to call while
-!     other hierarchies' entries remain live in the same registry - the
-!     backing gFTL map is deep-copy-on-move, so erasing one entry does
-!     not invalidate a pointer held into a different entry returned by
-!     an earlier get_hierarchy_resources call; only a pointer into the
-!     released entry itself becomes stale, exactly as erase()'s ordinary
-!     contract already implies.
+!     default-initialized HierarchyResources entry, returns the id. Called
+!     once by a hierarchy's root OuterMetaComponent at construction, and by
+!     ComponentGraph's no-argument constructor (a standalone graph becomes
+!     the root of its own one-component hierarchy).
+!   - get_hierarchy_resources(id): looked up on every call, never cached by
+!     callers across statements; the returned pointer is valid until the
+!     next structural change to the registry's backing map (the usual gFTL
+!     pointer-validity contract).
+!   - release_hierarchy(id): erases that one entry. Safe while other
+!     hierarchies are live: the backing gFTL map is deep-copy-on-move, so
+!     only a pointer into the released entry becomes stale.
 !------------------------------------------------------------------------------
 module mapl_HierarchyRegistry_mod
    use mapl_HierarchyId_mod, only: HierarchyId, HierarchyIdGenerator

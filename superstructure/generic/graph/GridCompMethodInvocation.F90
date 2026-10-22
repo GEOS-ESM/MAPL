@@ -1,34 +1,26 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! GridCompMethodInvocation: MethodInvocationAdapter concrete subtype
-! modeling a GridComp initialize/run phase invocation
-! (spec/12-methods-and-drivers.md REQ-MTH-001). Carries a stable driver
-! identifier (character key, REQ-MTH-009's "stable local identifier,
-! never a raw pointer to the driver" shape) and a phase_idx; delegates
-! to an injected GridCompPhaseInvoker rather than calling anything
-! ESMF-specific itself, satisfying REQ-MTH-003 by construction.
+! GridCompMethodInvocation: MethodInvocationAdapter concrete subtype modeling
+! a GridComp initialize/run phase invocation (REQ-MTH-001). Carries a stable
+! driver identifier (character key, REQ-MTH-009's "stable local identifier,
+! never a raw pointer to the driver" shape) and a phase_idx; delegates to an
+! injected GridCompPhaseInvoker rather than calling anything ESMF-specific
+! itself, satisfying REQ-MTH-003 by construction.
 !
-! phase_idx (integer), not a phase name: matches the real call this
-! must eventually reach, GriddedComponentDriver%run/initialize/finalize
+! phase_idx (integer), not a phase name: it matches
+! GriddedComponentDriver%run/initialize/finalize
 ! (superstructure/component/GriddedComponentDriver.F90), which take
-! phase_idx : integer, never a name -
-! griddedcomponentdriver-integration-lifecycle design.md Decisions
-! ("GridCompMethodInvocation gains phase_idx in place of phase_name") -
-! fixing a mismatch Phase 4a's own design.md flagged in its Risks
-! section but did not fix there. Translating a human-readable phase
-! name to phase_idx (via MethodPhasesMap%get_phase_index, the same way
-! OuterMetaComponent/run_child_by_name.F90 already does) is the job of
-! whichever later change constructs a GridCompMethodInvocation for a
-! real GridComp phase - not this module's concern.
+! phase_idx. Translating a phase name to phase_idx (via
+! MethodPhasesMap%get_phase_index, as OuterMetaComponent/run_child_by_name.F90
+! does) is the job of whoever constructs a GridCompMethodInvocation, not this
+! module.
 !
-! Phase 4a supplied only a synthetic test-double GridCompPhaseInvoker
-! (superstructure/generic/graph/tests/Test_GridCompMethodInvocation.pf).
-! griddedcomponentdriver-integration-lifecycle supplies the real one,
-! GridCompDriverPhaseInvoker.F90, backed by the existing
-! GriddedComponentDriver's own initialize/run/finalize entry points,
-! plus the real driver_key -> GriddedComponentDriver resolution
-! mechanism (DriverResolver, MethodInvocationAdapter.F90).
+! The real invoker is GridCompDriverPhaseInvoker.F90, backed by
+! GriddedComponentDriver, with driver_key -> GriddedComponentDriver
+! resolution by DriverResolver (MethodInvocationAdapter.F90). Tests use a
+! synthetic double (superstructure/generic/graph/tests/
+! Test_GridCompMethodInvocation.pf).
 !------------------------------------------------------------------------------
 module mapl_GridCompMethodInvocation_mod
    use mapl_MethodInvocationAdapter_mod, only: MethodInvocationAdapter, GridCompPhaseInvoker
@@ -58,10 +50,9 @@ module mapl_GridCompMethodInvocation_mod
 
 contains
 
-   ! invoker is optional so a caller (or a test exercising the
-   ! not-yet-attached case) MAY construct an adapter with no invoker
-   ! attached yet; invoke() then fails loudly (below) rather than
-   ! silently doing nothing.
+   ! invoker is optional so a caller (or a test of the not-yet-attached case)
+   ! MAY construct an adapter with none attached; invoke() then fails loudly
+   ! (below) rather than silently doing nothing.
    function new_GridCompMethodInvocation(driver_key, phase_idx, invoker) result(adapter)
       character(*), intent(in) :: driver_key
       integer, intent(in) :: phase_idx

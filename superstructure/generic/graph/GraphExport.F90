@@ -1,23 +1,20 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! GraphExport: graph-neutral topology exporter (spec/19-visualization-
-! export.md §19.2, REQ-VIZ-001..003, REQ-VIZ-006..012, REQ-VIZ-014,
-! REQ-VIZ-016/016a, REQ-VIZ-017). Depends only on ComponentGraph's and
-! DependencyNetwork's public query API and NodeId%to_string() - no
-! OuterComponent/StateRegistry/connection-point type is referenced.
-! Nodes are labeled only by NodeId%to_string() at this layer (REQ-VIZ-
-! 003/014); a future GraphBuilder-level enrichment layer (REQ-VIZ-004,
-! Phase 3, out of scope here) would wrap this module's output with
-! human-readable names, not modify it.
+! GraphExport: graph-neutral topology exporter (REQ-VIZ-001..003,
+! REQ-VIZ-006..012, REQ-VIZ-014, REQ-VIZ-016/016a, REQ-VIZ-017). Depends only
+! on ComponentGraph's and DependencyNetwork's public query API and
+! NodeId%to_string(); no OuterComponent/StateRegistry/connection-point type
+! is referenced. Nodes are labeled by NodeId%to_string() unless the caller
+! supplies a label map (REQ-VIZ-003/014; see below).
 !
 ! Read-only: never executes a TransformGraphNode, never advances a
-! NodeRevision (REQ-VIZ-002/016a) - only get_node()/get_network()/
-! get_predecessors()/get_successors()/get_port_bindings()/get_revision()
-! are called, all pre-existing read accessors.
+! NodeRevision (REQ-VIZ-002/016a); only read accessors are called
+! (get_node()/get_network()/get_predecessors()/get_successors()/
+! get_port_bindings()/get_revision()).
 !
-! Output schema (REQ-VIZ-009a: intentionally not fixed in the spec text,
-! documented here instead, versioned via GRAPH_EXPORT_SCHEMA_VERSION):
+! Output schema (REQ-VIZ-009a: not fixed in the spec text, documented here,
+! versioned via GRAPH_EXPORT_SCHEMA_VERSION):
 !
 !   DOT:  digraph ComponentGraph {
 !           "<NodeId>" [label="<NodeId or supplied label>", kind="<kind>",
@@ -38,38 +35,25 @@
 ! ("?" marks optional fields, present only when applicable/requested.)
 ! DOT and JSON carry the same node/edge/metadata content (REQ-VIZ-009).
 !
-! Label/proxy enrichment (REQ-VIZ-004/015, visualization-enrichment-layer
-! change): both exporters take an optional, caller-supplied NodeIdLabelMap
-! (NodeId -> NodeLabel). When present and an entry exists for a node,
-! its label text replaces NodeId%to_string() in DOT's existing label="..."
-! attribute, and is emitted as a new "label" field in JSON (JSON has no
-! prior "label" field to overload, so this is purely additive - omitted
-! entirely when no label_map argument is supplied, preserving prior
-! output byte-for-byte). An entry's is_proxy flag adds a
-! shape="doublecircle" DOT attribute and a "proxy": true JSON field; a
-! node with no entry, or no label_map at all, carries neither. This
-! module still resolves nothing itself (REQ-VIZ-003 unchanged) - the
-! caller (GraphBuilder.F90's build_label_map, Phase 3) is responsible
-! for building the lookup.
+! Label/proxy enrichment (REQ-VIZ-004/015): both exporters take an optional,
+! caller-supplied NodeIdLabelMap (NodeId -> NodeLabel). When an entry exists
+! for a node, its label replaces NodeId%to_string() in DOT's label="..."
+! attribute and is emitted as a "label" field in JSON (omitted entirely with
+! no label_map). An entry's is_proxy flag adds shape="doublecircle" in DOT
+! and "proxy": true in JSON. This module resolves nothing itself
+! (REQ-VIZ-003); the caller (GraphBuilder's build_label_map) builds the
+! lookup.
 !
-! Not implemented here (Phase 3 / open questions, see design.md):
-! REQ-VIZ-005/013 (hierarchy-wide export, component clustering - both
-! require multi-ComponentGraph composition absent from this
-! single-graph, graph-neutral core), REQ-VIZ-007a/009a exact
-! repeated-call/schema-freezing guarantees (Q15/Q16,
-! spec/17-open-questions.md).
+! Not implemented: REQ-VIZ-005/013 (hierarchy-wide export, component
+! clustering), which need multi-ComponentGraph composition absent from this
+! single-graph core, and the exact repeated-call/schema-freezing guarantees
+! of REQ-VIZ-007a/009a.
 !
-! NOTE (Phase 21 bug fix, docs/graph/spec/20-implementation-roadmap.md
-! sec 20.4.21): the above is about a DIFFERENT, harder problem than "a
-! cross-component edge declared at THIS component, both endpoints
-! owned by children." That latter case is single-ComponentGraph data
-! (this component's own DependencyNetwork legitimately stores it,
-! ComponentGraph.F90's own allowed_foreign_node admits it) and IS
-! exported correctly as of this fix - see export_graph_dot's own
-! header comment for the full writeup. Do not conflate "foreign id
-! referenced by one of my own networks" (handled here) with "stitch
-! together two separate ComponentGraph instances" (REQ-VIZ-005, still
-! not implemented).
+! A cross-component edge declared at THIS component (both endpoints owned by
+! children) is single-ComponentGraph data: this component's DependencyNetwork
+! stores it (ComponentGraph's allowed_foreign_node admits it) and it is
+! exported; see export_graph_dot. That is distinct from stitching two
+! separate ComponentGraph instances (REQ-VIZ-005), which is not implemented.
 !------------------------------------------------------------------------------
 module mapl_GraphExport_mod
    use mapl_ComponentGraph_mod, only: ComponentGraph
@@ -136,29 +120,14 @@ contains
 
       network_ids = graph%get_network_ids()
 
-      ! Bug fix (found exercising a real multi-component fixture
-      ! through the Phase 21 standalone diagnostic driver,
-      ! docs/graph/spec/20-implementation-roadmap.md sec 20.4.21): a
-      ! cross-component connection declared at THIS component (e.g. a
-      ! parent naming two children's own export/import by qualified
-      ! path) legitimately calls add_dependency() on THIS component's
-      ! own DependencyNetwork with both endpoints being ids this
-      ! component does not itself own (ComponentGraph.F90's own
-      ! allowed_foreign_node admits exactly this case, hierarchy-wide-
-      ! component-graph design.md D2's "cross-component edges are
-      ! legitimate" decision) - the edge is real, single-
-      ! ComponentGraph-scoped data (NOT a Q18 cross-ComponentGraph-
-      ! stitching case), but was previously invisible to this exporter:
-      ! the node/edge walk below used to iterate only graph%get_node_ids()
-      ! (this component's own advertised items), so a foreign source id
-      ! was never even checked via has_successors(). Fixed by unioning
-      ! in each network's own get_referenced_ids() (DependencyNetwork.F90,
-      ! already landed for exactly this "what ids does this network
-      ! actually mention" need, hierarchy-wide-component-graph tasks.md
-      ! 3.1/3.2) before declaring nodes or walking edges, so every
-      ! endpoint this component's own networks actually reference is
-      ! both declared (even if unlabeled - REQ-VIZ-014's existing
-      ! fallback applies) and reachable by the edge walk.
+      ! A cross-component connection declared at THIS component (e.g. a parent
+      ! naming two children's exports/imports by qualified path) calls
+      ! add_dependency() on this component's network with endpoints this component
+      ! does not own. Walking only graph%get_node_ids() would never declare those
+      ! foreign ids or check them via has_successors(). So union in each network's
+      ! get_referenced_ids() before declaring nodes and walking edges; every
+      ! referenced endpoint is then declared (unlabeled if need be, REQ-VIZ-014's
+      ! fallback) and reachable by the edge walk.
       node_ids = graph%get_node_ids()
       net_iter = network_ids%ftn_begin()
       do while (net_iter /= network_ids%ftn_end())
@@ -259,13 +228,9 @@ contains
 
       network_ids = graph%get_network_ids()
 
-      ! Same fix as export_graph_dot above (see that function's own
-      ! header comment for the full bug writeup) - union in every
-      ! network's own get_referenced_ids() so a foreign-but-referenced
-      ! endpoint (a real cross-component edge declared at THIS
-      ! component, both endpoints owned elsewhere) is both declared
-      ! here and reachable by the edge walk below, instead of silently
-      ! dropped.
+      ! As in export_graph_dot: union in every network's get_referenced_ids() so
+      ! foreign-but-referenced endpoints are declared and reachable by the edge
+      ! walk instead of silently dropped.
       node_ids = graph%get_node_ids()
       net_iter = network_ids%ftn_begin()
       do while (net_iter /= network_ids%ftn_end())
@@ -345,13 +310,12 @@ contains
       _RETURN(_SUCCESS)
    end function export_graph_json
 
-   ! -- per-node-kind metadata (REQ-VIZ-010/010a's requested isolation) -----
+   ! -- per-node-kind metadata (REQ-VIZ-010/010a) --
 
-   ! One seam for "how do I describe this node kind for visualization" -
-   ! resolving the still-open payload representation question
-   ! (REQ-VIZ-010a, 17-open-questions.md Q11 - already resolved for
-   ! GraphStateItem, per 03-graph-node-hierarchy.md REQ-NODE-003a) would only
-   ! require updating this one function, not the exporters above.
+   ! One seam for "how do I describe this node kind for visualization": a
+   ! change to the payload representation (REQ-VIZ-010a, resolved for
+   ! GraphStateItem by REQ-NODE-003a) would touch only this function, not the
+   ! exporters.
    subroutine describe_node(node, kind_label, has_payload_kind, payload_kind_label, &
                               has_revision, revision_label, rc)
       class(GraphNode), intent(in) :: node
@@ -387,30 +351,26 @@ contains
          has_revision = revision%is_valid()
          if (has_revision) revision_label = revision%to_string()
       class is (OperationGraphNode)
-         ! Any OperationGraphNode descendant besides TransformGraphNode
-         ! (e.g. a future MethodGraphNode) - generic label, no
-         ! payload/revision (it does not carry either).
+         ! Any OperationGraphNode other than TransformGraphNode (e.g.
+         ! MethodGraphNode): generic label, no payload/revision.
          kind_label = 'OperationGraphNode'
       class default
-         ! A bare BaseGraphNode with no more specific role, or any
-         ! future GraphNode kind not yet known to this exporter -
-         ! reported generically rather than failing (REQ-VIZ-014's
-         ! "never fail the export" spirit extended to node kind, not
-         ! just to name resolution).
+         ! A bare BaseGraphNode, or a GraphNode kind this exporter does not know:
+         ! reported generically rather than failing (REQ-VIZ-014's "never fail the
+         ! export" spirit, extended to node kind).
          kind_label = 'GraphNode'
       end select
 
       _RETURN(_SUCCESS)
    end subroutine describe_node
 
-   ! -- optional node-label enrichment (REQ-VIZ-004/015) --------------------
+   ! -- optional node-label enrichment (REQ-VIZ-004/015) --
 
-   ! Resolves one node's display label and proxy status against an
-   ! optional, caller-supplied NodeIdLabelMap. Absent a label_map, or a
-   ! node with no entry in it, label falls back to id%to_string() and
-   ! is_proxy is .false. - REQ-VIZ-014's existing fallback, unchanged.
-   ! This exporter never resolves a label on its own (REQ-VIZ-003) -
-   ! it only ever looks up an entry the caller already built.
+   ! Resolves one node's display label and proxy status against an optional,
+   ! caller-supplied NodeIdLabelMap. With no label_map, or no entry for the node,
+   ! label falls back to id%to_string() and is_proxy is .false. (REQ-VIZ-014).
+   ! This exporter never resolves a label itself (REQ-VIZ-003); it only looks up
+   ! an entry the caller built.
    subroutine resolve_node_label(label_map, id, label, is_proxy)
       type(NodeIdLabelMap), optional, target, intent(in) :: label_map
       type(NodeId), intent(in) :: id
@@ -502,15 +462,10 @@ contains
       end do
    end function reverse_find_name
 
-   ! -- node-id set union (bug fix support, see export_graph_dot's own
-   ! header comment) --------------------------------------------------------
+   ! -- node-id set union --
 
-   ! Inserts every element of `addend` into `target_set` that it does
-   ! not already contain. Plain gFTL NodeIdSet has no built-in union
-   ! operation; `insert` is itself already idempotent (re-inserting an
-   ! id already present is a no-op, same as every other ownership set
-   ! in this codebase, e.g. ComponentGraph.F90's own own_node_ids%insert
-   ! call sites), so this is just a loop.
+   ! Inserts every element of `addend` into `target_set`. gFTL NodeIdSet has no
+   ! built-in union, and `insert` is idempotent, so this is just a loop.
    subroutine union_into(target_set, addend)
       type(NodeIdSet), intent(inout) :: target_set
       type(NodeIdSet), target, intent(in) :: addend

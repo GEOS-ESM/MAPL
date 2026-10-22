@@ -1,36 +1,31 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! MethodGraphNode: concrete OperationGraphNode descendant representing
-! an explicitly invoked method - either a GridComp initialize/run phase
-! or an attached ESMF State callback method - through one node type
-! (spec/03-graph-node-hierarchy.md REQ-NODE-006, spec/12-methods-and-
-! drivers.md REQ-MTH-001/002/004/005/006).
+! MethodGraphNode: concrete OperationGraphNode descendant representing an
+! explicitly invoked method - a GridComp initialize/run phase or an attached
+! ESMF State callback method - through one node type (REQ-NODE-006,
+! REQ-MTH-001/002/004/005/006).
 !
 ! Holds exactly one MethodInvocationAdapter (mapl_MethodInvocationAdapter_mod)
-! and delegates invocation to it unchanged - the node itself never
-! branches on, or otherwise needs to know, which concrete adapter kind
-! is attached (REQ-MTH-002). Mirrors TransformGraphNode holding one
-! Transform (TransformGraphNode.F90): NodeId/lifecycle come from
-! OperationGraphNode/BaseGraphNode, and this type adds exactly the
-! plumbing its payload does not carry - named argument declarations
-! (ArgumentSpecMap, REQ-MTH-002) and argument bindings.
+! and delegates invocation to it unchanged; the node never branches on, or
+! needs to know, which concrete adapter kind is attached (REQ-MTH-002). Like
+! TransformGraphNode holding one Transform, NodeId/lifecycle come from
+! OperationGraphNode/BaseGraphNode, and this type adds the plumbing the
+! payload does not carry: named argument declarations (ArgumentSpecMap) and
+! argument bindings.
 !
-! Argument bindings (name -> bound NodeId) are stored on-node, reusing
-! the existing StateItemMemberMap type unchanged, rather than routed
-! through the external PortBindingTable/ComponentGraph%bind_port()
-! mechanism TransformGraphNode's port bindings use (REQ-XFORM-005):
-! MethodGraphNode is permanently excluded from ComponentGraph's
-! demand-driven dispatch (REQ-NODE-007, already a no-op class default
-! branch in mapl_ComponentGraph_DemandDrivenUpdate_smod), so there is no
-! shared traversal code that would otherwise need a per-node-kind
-! binding-storage branch (design.md Decisions).
+! Argument bindings (name -> bound NodeId) are stored on-node in a
+! StateItemMemberMap, not in the external PortBindingTable /
+! ComponentGraph%bind_port() used for TransformGraphNode ports
+! (REQ-XFORM-005): MethodGraphNode is permanently excluded from
+! ComponentGraph's demand-driven dispatch (REQ-NODE-007; a no-op class
+! default branch in mapl_ComponentGraph_DemandDrivenUpdate_smod), so no shared
+! traversal code needs a per-node-kind binding-storage branch.
 !
-! REQ-MTH-004 (import/export as one conceptual method-argument state)
-! and REQ-MTH-005/REQ-NODE-008 (no separate "component" node) are
-! satisfied by absence: arguments/bindings are a single flat map each,
-! with no import/export substructure, and no component-level node type
-! is introduced anywhere in this module.
+! REQ-MTH-004 (import/export as one conceptual method-argument state) and
+! REQ-MTH-005/REQ-NODE-008 (no separate "component" node) hold by absence:
+! arguments/bindings are one flat map each, with no import/export
+! substructure and no component-level node type in this module.
 !------------------------------------------------------------------------------
 module mapl_MethodGraphNode_mod
    use mapl_OperationGraphNode_mod, only: OperationGraphNode
@@ -71,10 +66,9 @@ module mapl_MethodGraphNode_mod
 
 contains
 
-   ! adapter is optional so a MethodGraphNode MAY be constructed with no
-   ! invocation adapter attached yet - invoke() then fails loudly
-   ! (below) rather than silently doing nothing (spec scenario "No
-   ! adapter attached is not invocable").
+   ! adapter is optional so a MethodGraphNode MAY be constructed with none
+   ! attached; invoke() then fails loudly (below) rather than silently doing
+   ! nothing.
    function new_MethodGraphNode(id, adapter) result(node)
       type(NodeId), intent(in) :: id
       class(MethodInvocationAdapter), optional, intent(in) :: adapter
@@ -84,10 +78,9 @@ contains
       if (present(adapter)) allocate(node%adapter, source=adapter)
    end function new_MethodGraphNode
 
-   ! REQ-MTH-002: named argument declaration, with access mode and
-   ! optional expected-kind constraint. Rejects a duplicate name,
-   ! leaving the existing declaration unchanged (spec scenario
-   ! "Duplicate argument name is rejected").
+   ! REQ-MTH-002: named argument declaration, with access mode and optional
+   ! expected-kind constraint. Rejects a duplicate name, leaving the existing
+   ! declaration unchanged.
    subroutine node_declare_argument(this, name, access, rc, expected_kind)
       class(MethodGraphNode), intent(inout) :: this
       character(*), intent(in) :: name
@@ -138,18 +131,13 @@ contains
       arguments = this%arguments
    end function node_get_arguments
 
-   ! REQ-MTH-002: binds a previously-declared argument to a concrete
-   ! value identity. Requires the argument to already be declared (spec
-   ! scenario "Binding an undeclared argument is rejected"); rejects
-   ! rebinding an already-bound name, matching every other
-   ! no-silent-replace registration API in this repo (ComponentGraph
-   ! node/port registration, GraphStateItem membership maps,
-   ! PortBindingTable). If the declaration is kind-constrained,
-   ! actual_kind MUST be supplied and MUST match (spec scenarios
-   ! "Kind-constrained argument accepts/rejects a ... binding") -
-   ! MethodGraphNode has no ComponentGraph reference of its own, so the
-   ! actual kind is supplied directly by the caller rather than looked
-   ! up (design.md Decisions).
+   ! REQ-MTH-002: binds a previously-declared argument to a concrete value
+   ! identity. The argument must already be declared; rebinding an
+   ! already-bound name is rejected, like every other no-silent-replace
+   ! registration API in this repo (ComponentGraph node/port registration,
+   ! GraphStateItem membership maps, PortBindingTable). If the declaration is
+   ! kind-constrained, actual_kind MUST be supplied and match; MethodGraphNode
+   ! has no ComponentGraph reference, so the caller supplies it.
    subroutine node_bind_argument(this, name, target_id, rc, actual_kind)
       class(MethodGraphNode), intent(inout) :: this
       character(*), intent(in) :: name
@@ -191,12 +179,11 @@ contains
       bindings = this%bindings
    end function node_get_argument_bindings
 
-   ! REQ-MTH-002/003: gathers the node's current argument declarations
-   ! and bindings and calls the attached adapter's own invoke() - no
-   ! other logic, no branching on the adapter's dynamic type. Fails
-   ! loudly if no adapter is attached (spec scenario "No adapter
-   ! attached is not invocable"). clock (REQ-MTH-006) is passed through
-   ! unchanged, never stored as a NodeId or other graph-visible entity.
+   ! REQ-MTH-002/003: gathers the node's current argument declarations and
+   ! bindings and calls the attached adapter's invoke(), with no branching on the
+   ! adapter's dynamic type. Fails loudly if no adapter is attached. clock
+   ! (REQ-MTH-006) is passed through unchanged, never stored as a NodeId or other
+   ! graph-visible entity.
    subroutine node_invoke(this, rc, clock)
       class(MethodGraphNode), intent(inout) :: this
       integer, optional, intent(out) :: rc

@@ -2,22 +2,15 @@
 
 !------------------------------------------------------------------------------
 ! mapl_GeomProxyField_mod: builds the geometry-proxy GraphStateItem
-! (docs/graph/spec/13-geometry-and-vertical-grids.md REQ-GEO-001/003) -
-! an incomplete ESMF_Field (ESMF_FIELDSTATUS_GRIDSET: grid assigned, no
-! data array allocated) tagged with the MAPL_STATEITEM_GEOM variant,
-! wrapped as an ordinary GraphStateItem.
+! (REQ-GEO-001): an incomplete ESMF_Field (ESMF_FIELDSTATUS_GRIDSET: grid
+! assigned, no data array allocated) tagged with the MAPL_STATEITEM_GEOM
+! variant, wrapped as an ordinary GraphStateItem.
 !
-! Deliberately does not touch geometry identity (GeomId) at all: unlike
-! legacy GeomAspect, which reads/writes an ESMF_Info-attached GeomId
-! directly on the geom object, this module's only job is wrapping the
-! Field. Geometry identity for graph connection-matching purposes flows
-! separately, from OuterMetaComponent%get_geom_id() straight into
-! GraphBuilder.F90's build_characteristics (mirroring exactly how
-! var_spec%vertical_grid%get_id() already flows into
-! VerticalGridCharacteristic there) - not through this constructor and
-! not through the proxy Field's own Info
-! (openspec/changes/horizontal-geometry-graph-state-item, design.md
-! Decision D1).
+! Deliberately does not touch geometry identity (GeomId). Identity for
+! connection matching flows from OuterMetaComponent%get_geom_id() into
+! GraphBuilder.F90's build_characteristics (as var_spec%vertical_grid%get_id()
+! does for VerticalGridCharacteristic), not through this constructor or the
+! proxy Field's Info.
 !------------------------------------------------------------------------------
 module mapl_GeomProxyField_mod
    use ESMF, only: ESMF_Geom, ESMF_Field

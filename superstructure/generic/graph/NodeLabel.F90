@@ -1,13 +1,11 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! NodeLabel: a Data-only enrichment entry - a human-readable label plus
-! an is_proxy flag - mapped one-per-NodeId by the NodeIdLabelMap
-! container (visualization-enrichment-layer change, design.md
-! Decisions "Proxy marking travels alongside the label"). Built by
-! GraphBuilder's enrichment procedure (GraphBuilder.F90's
-! build_label_map) and consumed, read-only, by GraphExport.F90's
-! export_graph_dot/export_graph_json.
+! NodeLabel: a data-only enrichment entry - a human-readable label plus an
+! is_proxy flag - mapped one-per-NodeId by the NodeIdLabelMap container. The
+! proxy mark travels with the label. Built by GraphBuilder's enrichment
+! procedure (build_label_map in GraphBuilder.F90) and consumed, read-only, by
+! GraphExport.F90's export_graph_dot/export_graph_json.
 !------------------------------------------------------------------------------
 module mapl_NodeLabel_mod
    implicit none(type, external)

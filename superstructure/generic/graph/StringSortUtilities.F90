@@ -1,13 +1,9 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! StringSortUtilities: one shared `sorted_names` helper, extracted from
-! two near-identical private copies that had each been independently
-! reimplemented (AttributesCharacteristic.F90, VerticalCoordinateCharacteristic.F90)
-! because each file's own copy was private to its own module
-! (docs/graph/spec/20-implementation-roadmap.md §20.4.19, Phase 19).
-! Both call sites use this verbatim in place of their own former private
-! copy - no behavior change.
+! StringSortUtilities: one shared `sorted_names` helper, used by
+! AttributesCharacteristic.F90 and VerticalCoordinateCharacteristic.F90 so
+! each does not need its own private copy.
 !------------------------------------------------------------------------------
 module mapl_StringSortUtilities_mod
    use gFTL2_StringVector, only: StringVector
@@ -18,10 +14,9 @@ module mapl_StringSortUtilities_mod
 
 contains
 
-   ! Simple insertion sort - these call sites' own name counts are
-   ! expected to be small (a handful of attribute/dimension names per
-   ! item), so this is not performance-sensitive; chosen over pulling in
-   ! a generic sort algorithm for this small, local use.
+   ! Simple insertion sort: name counts at these call sites are small (a
+   ! handful of attribute/dimension names per item), so it is not
+   ! performance-sensitive and a generic sort algorithm is not worth pulling in.
    function sorted_names(names) result(sorted)
       type(StringVector), intent(in) :: names
       character(:), allocatable :: sorted(:)

@@ -1,21 +1,18 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! StateMethodInvocation: MethodInvocationAdapter concrete subtype
-! modeling an attached ESMF State callback method invocation
-! (spec/12-methods-and-drivers.md REQ-MTH-001, spec/15-callbacks.md
-! REQ-CB-001). Carries the callback State's NodeId and a method name;
-! delegates to an injected StateMethodInvoker rather than calling
-! anything ESMF-specific itself, satisfying REQ-MTH-003 by construction.
+! StateMethodInvocation: MethodInvocationAdapter concrete subtype modeling an
+! attached ESMF State callback method invocation (REQ-MTH-001, REQ-CB-001).
+! Carries the callback State's NodeId and a method name; delegates to an
+! injected StateMethodInvoker rather than calling anything ESMF-specific
+! itself, satisfying REQ-MTH-003 by construction.
 !
-! This change supplies only a synthetic test-double StateMethodInvoker
-! (superstructure/generic/graph/tests/Test_StateMethodInvocation.pf).
-! Phase 4c/4d supply the real ESMF_MethodExecute-backed implementation
-! once CallbackInterfaceRegistry/CallbackStateBinding exist - not built
-! here (design.md Decisions).
+! No ESMF_MethodExecute-backed StateMethodInvoker exists yet; tests use a
+! synthetic double (superstructure/generic/graph/tests/
+! Test_StateMethodInvocation.pf).
 !
 ! invoke() accepts a clock argument for interface uniformity with
-! MethodInvocationAdapter, but ignores it - REQ-CB-001's attached State
+! MethodInvocationAdapter but ignores it: REQ-CB-001's attached State
 ! callback methods have no clock parameter, so StateMethodInvoker%
 ! invoke_method() has none either.
 !------------------------------------------------------------------------------
@@ -48,10 +45,9 @@ module mapl_StateMethodInvocation_mod
 
 contains
 
-   ! invoker is optional so a caller (or a test exercising the
-   ! not-yet-attached case) MAY construct an adapter with no invoker
-   ! attached yet; invoke() then fails loudly (below) rather than
-   ! silently doing nothing.
+   ! invoker is optional so a caller (or a test of the not-yet-attached case)
+   ! MAY construct an adapter with none attached; invoke() then fails loudly
+   ! (below) rather than silently doing nothing.
    function new_StateMethodInvocation(state_node_id, method_name, invoker) result(adapter)
       type(NodeId), intent(in) :: state_node_id
       character(*), intent(in) :: method_name

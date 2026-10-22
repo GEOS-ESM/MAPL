@@ -2,22 +2,16 @@
 
 !------------------------------------------------------------------------------
 ! ExtensionMaterialization: real ESMF_Field materialization for a
-! framework-created extension StateItemNode (extension-registry-
-! visibility change, proposal.md/design.md). Graph-layer only - depends
-! on ComponentGraph/NodeId/StateItemNode/GraphStateItem (this
-! capability's own item-node plumbing) plus the general-purpose,
-! StateRegistry-independent mapl_FieldCreate_mod::FieldCreate
-! (infrastructure/field/FieldCreate.F90) - never StateRegistry/
-! StateItemSpec/VariableSpec/OuterMetaComponent (design.md Context/
-! Non-Goals). Callers (GraphBuilder.F90) are responsible for extracting
-! the plain geom/typekind/ungridded_dims/vgrid/units values this module
-! needs from their own VariableSpec/OuterMetaComponent data (design.md
-! Finding 3/Decisions) - this module never reads those types itself.
+! framework-created extension StateItemNode. Graph-layer only: depends on
+! ComponentGraph/NodeId/StateItemNode/GraphStateItem and the
+! StateRegistry-independent mapl_FieldCreate_mod::FieldCreate, never on
+! StateRegistry/StateItemSpec/VariableSpec/OuterMetaComponent. Callers
+! (GraphBuilder.F90) extract the plain geom/typekind/ungridded_dims/vgrid/
+! units values from their own data; this module never reads those types.
 !
-! Idempotent by construction (spec.md "Reused extension is not
-! re-materialized"): if the target StateItemNode's payload already has an
-! allocated ESMF_Field (a previous call already materialized it, e.g. a
-! reused extension chain), materialize_field_extension() is a no-op.
+! Idempotent: if the target StateItemNode's payload already has an
+! allocated ESMF_Field (e.g. a reused extension chain),
+! materialize_field_extension() is a no-op.
 !------------------------------------------------------------------------------
 module mapl_ExtensionMaterialization_mod
    use mapl_ComponentGraph_mod, only: ComponentGraph
@@ -40,24 +34,16 @@ module mapl_ExtensionMaterialization_mod
 contains
 
    ! Materializes node_id's StateItemNode payload as a real, allocated
-   ! ESMF_Field via FieldCreate (design.md Decisions - "Materialize a
-   ! real Field natively via mapl_FieldCreate_mod::FieldCreate") - a
-   ! no-op if the payload already has a real field (idempotent reuse,
-   ! spec.md "Reused extension is not re-materialized"). Callers must
-   ! have already confirmed the materialization gate
-   ! (mapl_ExtensionResolution_mod's materialize_extensions_enabled())
-   ! is on, the underlying item is Field-typed, and geom has been
-   ! resolved (design.md Decisions) before calling this - this module
-   ! performs none of those checks itself.
+   ! ESMF_Field via FieldCreate; a no-op if it already has one. Callers must
+   ! already have confirmed the materialization gate
+   ! (mapl_ExtensionResolution_mod's materialize_extensions_enabled()) is on,
+   ! the item is Field-typed, and geom is resolved; this module checks none of
+   ! that.
    !
-   ! openspec/changes/phase-10a-state-materialization: optional `name`,
-   ! passed through to FieldCreate(name=name, ...) - needed so a
-   ! materialized item is findable by short name once graph-native state
-   ! population really inserts it into an ESMF_State (ESMF_StateGet's
-   ! own by-name contract). Omitted (today's unnamed-field behavior) by
-   ! the existing mismatch-branch call site, which never inserts its
-   ! result into a real ESMF_State - backward compatible, no existing
-   ! caller's behavior changes.
+   ! Optional `name` is passed to FieldCreate(name=name, ...) so a materialized
+   ! item is findable by short name once inserted into an ESMF_State
+   ! (ESMF_StateGet is by name). Omitted by the mismatch-branch call site,
+   ! which never inserts its result into a real ESMF_State.
    subroutine materialize_field_extension(graph, node_id, geom, typekind, units, &
         ungridded_dims, vgrid, vert_staggerloc, name, rc)
       class(ComponentGraph), target, intent(inout) :: graph

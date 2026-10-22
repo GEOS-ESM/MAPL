@@ -1,61 +1,41 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! Submodule implementing ComponentGraph%update() - the runtime-
-! interpreted demand-driven update algorithm (spec/11-revision-and-
-! update.md REQ-REV-005..007, REQ-REV-009). Split into its own file
-! purely for size (ComponentGraph.F90 is already the largest file in
-! this repo); a submodule is still "the same module" as far as callers
-! and the public API are concerned - see ComponentGraph.F90's module
-! header for why this is a submodule (full ComponentGraph-internal
-! access, ordinary type-bound call) rather than mapl_GraphExport_mod's
-! approach (a genuinely separate module, deliberately unable to reach
-! ComponentGraph's private components - see that module's header).
+! Submodule implementing ComponentGraph%update(), the runtime-interpreted
+! demand-driven update algorithm (REQ-REV-005..007, REQ-REV-009). It is a
+! submodule (not a separate module) so it can use ComponentGraph's private
+! components; see ComponentGraph.F90's header for the contrast with
+! mapl_GraphExport_mod.
 !
-! update(this, network_id, node_id, rc): "ensure this node's value is
-! current, within this network, by whatever demand-driven work that
-! requires." Dispatches on the node's dynamic kind:
+! update(this, network_id, node_id, rc): ensure this node's value is current
+! within this network. Dispatches on the node's dynamic kind:
 !
-!   - StateItemNode: find its sole producer (predecessor) in this
-!     network. Zero predecessors means externally supplied - nothing to
-!     do. More than one predecessor is a defensive assert (REQ-DEP-008
-!     validation should already forbid this). If the sole predecessor is
-!     a TransformGraphNode, recurse into it.
-!   - TransformGraphNode: recursively update every DependencyNetwork
-!     predecessor first (REQ-REV-006 step 1) - by spec/10 §10.3's own
-!     framing, adjacency and the port-binding table describe the same
-!     edges from two angles, so this is exactly the transform's declared
-!     input set. Then assemble the current declared-input revision
-!     snapshot via the external port-binding table
-!     (get_port_binding(), REQ-XFORM-005), ask the transform whether it
-!     needs to execute (REQ-REV-006 steps 2-4), execute if so, advance
-!     every declared output's revision together (REQ-REV-007), and
-!     record the new baseline (REQ-REV-006 step 6).
-!   - any other GraphNode kind (e.g. a future MethodGraphNode): not
-!     demand-driven per REQ-NODE-007 - intentionally not scheduled here,
-!     documented via an explicit class default branch.
+!   - StateItemNode: find its sole producer (predecessor) in this network.
+!     Zero predecessors means externally supplied - nothing to do. More than
+!     one is a defensive assert (REQ-DEP-008 validation already forbids it).
+!     If the sole predecessor is a TransformGraphNode, update it first.
+!   - TransformGraphNode: update every DependencyNetwork predecessor first
+!     (REQ-REV-006 step 1; adjacency and the port-binding table describe the
+!     same edges, so these are exactly the declared inputs). Then assemble
+!     the current input-revision snapshot via get_port_binding()
+!     (REQ-XFORM-005), ask the transform whether it needs to execute
+!     (REQ-REV-006 steps 2-4), execute if so, advance every declared output's
+!     revision together (REQ-REV-007) and record the new baseline
+!     (REQ-REV-006 step 6).
+!   - any other GraphNode kind (e.g. MethodGraphNode): not demand-driven
+!     (REQ-NODE-007), deliberately not scheduled here.
 !
-! No cycle/visited-set bookkeeping is added: acyclicity is already a
-! graph invariant enforced by DependencyNetwork%validate()/
-! ComponentGraph%freeze(), and re-visiting an already-current node
-! through a diamond dependency is redundant work, not incorrect (a
-! second needs_execution() check against an unchanged baseline
-! correctly reports "not stale"). Optimizing repeated-visit cost is
-! exactly what a future compiled form (spec/11 §11.5, Q9) would address,
-! not this runtime-interpreted reference implementation.
+! No cycle/visited-set bookkeeping: acyclicity is enforced by
+! DependencyNetwork%validate()/ComponentGraph%freeze(), and re-visiting a
+! node through a diamond dependency is redundant, not incorrect (a second
+! needs_execution() check against an unchanged baseline reports "not stale").
 !
-! Iteration convention: every gFTL walk here uses ftn_begin()/ftn_end()
-! with the %next() call at the top of the loop body, matching
-! DependencyNetwork/ComponentGraph. Every local gFTL container iterated
-! this way (or subject to %at()) is declared TARGET, since the pointer/
-! iterator association it produces must remain valid across the whole
-! loop, not merely for the duration of the call that produced it.
+! Iteration convention: gFTL walks use ftn_begin()/ftn_end() with %next() at
+! the top of the loop body. Local gFTL containers that are iterated or
+! subject to %at() are TARGET so the pointers/iterators stay valid across the
+! whole loop.
 !
-! Implementation note: the description above is written in terms of the
-! conceptual traversal (predecessors updated before the node that needs
-! them); the actual implementation (graph_update below) is an
-! explicit-stack, non-recursive traversal, not literal Fortran
-! recursion - see graph_update's own header comment for why.
+! The traversal is explicit-stack, not Fortran recursion; see graph_update.
 !------------------------------------------------------------------------------
 submodule (mapl_ComponentGraph_mod) mapl_ComponentGraph_DemandDrivenUpdate_smod
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
@@ -70,33 +50,21 @@ submodule (mapl_ComponentGraph_mod) mapl_ComponentGraph_DemandDrivenUpdate_smod
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
-   ! UpdateFrame (the explicit-stack frame graph_update's iterative
-   ! rewrite below needs) is declared in the ancestor module
-   ! (mapl_ComponentGraph_mod, ComponentGraph.F90) rather than here -
-   ! see that declaration's own comment for why a submodule-local type
-   ! is deliberately avoided.
+   ! UpdateFrame is declared in the ancestor module (ComponentGraph.F90), not
+   ! here; see the comment there.
 
 contains
 
-   ! Public entry point (ComponentGraph%update()): ensures node_id's
-   ! value is current within network_id, by whatever demand-driven work
-   ! that requires. Explicit-stack (non-recursive) rewrite - the
-   ! original mutually-recursive graph_update/update_state_item/
-   ! ensure_transform_current trio reliably corrupted local variables on
-   ! return from a deeper recursive call under gfortran (same failure
-   ! signature confirmed in mapl_DependencyNetwork_mod's has_cycle_from;
-   ! never reproduced under NAG) - removing Fortran call-stack
-   ! recursion entirely sidesteps it regardless of compiler flags.
+   ! Public entry point (ComponentGraph%update()): ensures node_id's value is
+   ! current within network_id.
    !
-   ! The original three-procedure split decomposed cleanly into two
-   ! phases with no other cross-phase state: "make sure every
-   ! predecessor is current first" (the only genuinely recursive part -
-   ! a plain post-order DFS over the predecessor DAG, dispatch-by-kind
-   ! only affects *which* predecessors a node has) and "now do this
-   ! node's own work" (entirely self-contained per node - never itself
-   ! recurses). Those become make_update_frame() (predecessor discovery)
-   ! and finish_update_frame()/finish_transform() (the old steps 2-6,
-   ! moved verbatim, non-recursive already) below.
+   ! Explicit-stack (non-recursive) traversal: mutually recursive update
+   ! procedures corrupted local variables on return from a deeper call under
+   ! gfortran (same signature as DependencyNetwork's has_cycle_from; never seen
+   ! under NAG). The work splits into two phases with no other shared state:
+   ! a post-order DFS over the predecessor DAG (make_update_frame() discovers
+   ! predecessors) and each node's own non-recursive work
+   ! (finish_update_frame()/finish_transform()).
    module subroutine graph_update(this, network_id, node_id, rc)
       class(ComponentGraph), target, intent(in) :: this
       type(DependencyNetworkId), intent(in) :: network_id
@@ -109,11 +77,8 @@ contains
       integer :: top
       integer :: status
 
-      ! The error-handling convenience macro used below cannot be used
-      ! inside another expression such as an array constructor - it
-      ! expands to more than one statement - so each make_update_frame
-      ! call is its own statement here, with the result assigned to a
-      ! plain local before being folded into the stack array below.
+      ! The error-handling macro expands to more than one statement, so it
+      ! cannot appear inside an array constructor; assign to a local first.
       new_frame = make_update_frame(this, network_id, node_id, _RC)
       stack = [new_frame]
 
@@ -133,22 +98,15 @@ contains
       _RETURN(_SUCCESS)
    end subroutine graph_update
 
-   ! Builds one graph_update stack frame for `node_id`: the node itself
-   ! (dispatch target for finish_update_frame below) and the full list
-   ! of predecessor NodeIds that must be current before this node's own
-   ! work can run.
+   ! Builds one graph_update stack frame for node_id: the node itself and the
+   ! list of predecessor NodeIds that must be current before its own work runs.
    !
-   ! REQ-REV-006 step 1 (the StateItemNode side of it): a value with no
-   ! producer in this network is externally supplied - nothing to
-   ! demand-drive, an empty predecessor list. A value with exactly one
-   ! producer depends on it (REQ-DEP-008 already forbids more than one
-   ! within a single network; the count<=1 assert below is a defensive
-   ! check, not new validation logic). A TransformGraphNode depends on
-   ! every declared input (spec/10 §10.3's "adjacency and bindings
-   ! describe the same edges" framing). Any other GraphNode kind (e.g. a
-   ! future MethodGraphNode) is not demand-driven per REQ-NODE-007 - an
-   ! empty predecessor list and a no-op in finish_update_frame,
-   ! intentionally, not an oversight.
+   ! REQ-REV-006 step 1: a StateItemNode with no producer in this network is
+   ! externally supplied (empty predecessor list); with one producer it depends
+   ! on it (the n <= 1 assert is defensive, REQ-DEP-008 already forbids more). A
+   ! TransformGraphNode depends on every declared input. Any other GraphNode
+   ! kind (e.g. MethodGraphNode) is not demand-driven (REQ-NODE-007): empty
+   ! predecessor list, and a no-op in finish_update_frame.
    function make_update_frame(this, network_id, node_id, rc) result(frame)
       class(ComponentGraph), target, intent(in) :: this
       type(DependencyNetworkId), intent(in) :: network_id
@@ -203,8 +161,8 @@ contains
       _RETURN(_SUCCESS)
    end function make_update_frame
 
-   ! Dispatches a frame's own (non-recursive) work, once every
-   ! predecessor it declared is already current.
+   ! Dispatches a frame's own (non-recursive) work, once every predecessor it
+   ! declared is current.
    subroutine finish_update_frame(graph, network_id, frame, rc)
       class(ComponentGraph), target, intent(in) :: graph
       type(DependencyNetworkId), intent(in) :: network_id
@@ -225,11 +183,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine finish_update_frame
 
-   ! REQ-REV-006 steps 2-6 (the TransformGraphNode side) - unchanged
-   ! from the original ensure_transform_current except for its own step
-   ! 1 (recursing into predecessors), which is now
-   ! make_update_frame()'s job above; this part of the original was
-   ! never itself recursive.
+   ! REQ-REV-006 steps 2-6 (the TransformGraphNode side). Predecessor
+   ! updates (step 1) are done by the caller via make_update_frame().
    subroutine finish_transform(graph, network_id, transform_id, transform_node, rc)
       class(ComponentGraph), target, intent(in) :: graph
       type(DependencyNetworkId), intent(in) :: network_id
@@ -247,11 +202,9 @@ contains
       type(NodeRevision) :: bound_revision
       integer :: status
 
-      ! Steps 2-3: assemble the current declared-input revision snapshot
-      ! via the external port-binding table (REQ-XFORM-005), and (in the
-      ! same loop, openspec/changes/decouple-transform-from-graph) each
-      ! bound input port's own GraphStateItem value, to pass into
-      ! compute() if execution turns out to be needed below.
+      ! Steps 2-3: assemble the current declared-input revision snapshot via the
+      ! external port-binding table (REQ-XFORM-005) and, in the same loop, each
+      ! bound input port's GraphStateItem value, to pass into execute() if needed.
       input_ports = transform_node%get_input_ports()
       port_iter = input_ports%ftn_begin()
       do while (port_iter /= input_ports%ftn_end())
@@ -279,12 +232,9 @@ contains
       ! Step 4: execute only if never run, or if stale.
       if (transform_node%needs_execution(current_input_revisions)) then
 
-         ! A second, new loop over declared output ports (parallel to,
-         ! but run *before*, the existing post-execution output-port
-         ! loop below), resolving each one's bound GraphStateItem value
-         ! to pass into compute() - openspec/changes/decouple-transform
-         ! -from-graph. Not a modification of the existing post
-         ! -execution loop (which still advances revisions, unchanged).
+         ! Resolve each declared output port's bound GraphStateItem value to pass
+         ! into execute(); a separate loop from the post-execution one below, which
+         ! advances revisions.
          output_ports = transform_node%get_output_ports()
          port_iter = output_ports%ftn_begin()
          do while (port_iter /= output_ports%ftn_end())

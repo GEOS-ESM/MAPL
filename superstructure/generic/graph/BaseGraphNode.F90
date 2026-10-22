@@ -2,18 +2,17 @@
 
 !------------------------------------------------------------------------------
 ! BaseGraphNode: the common-property layer of the GraphNode hierarchy
-! (spec/03-graph-node-hierarchy.md REQ-NODE-002/002a).
+! (REQ-NODE-002/002a).
 !
 ! Contains exactly the properties common to every graph node: a
 ! lifecycle-status value and its own NodeId. No adjacency (predecessors/
-! successors) is stored here or anywhere in this hierarchy - adjacency is
-! DependencyNetwork's job (spec/06-dependency-network.md).
+! successors) is stored here or anywhere in this hierarchy; that is
+! DependencyNetwork's job.
 !
 ! NodeId is set once, at construction, via the BaseGraphNode(id) structure
-! constructor. There is no public mutator: encapsulation is enforced by
-! keeping the component private and offering only the constructor and the
-! get_node_id() accessor as public entry points, matching REQ-NODE-002a's
-! "set once ... never mutated afterward."
+! constructor. There is no public mutator: the component is private and only
+! the constructor and get_node_id() are public (REQ-NODE-002a: "set once ...
+! never mutated afterward").
 !------------------------------------------------------------------------------
 module mapl_BaseGraphNode_mod
    use mapl_GraphNode_mod, only: GraphNode
@@ -23,17 +22,9 @@ module mapl_BaseGraphNode_mod
 
    public :: BaseGraphNode
 
-   ! Placeholder lifecycle vocabulary. The spec (spec/03) only requires
-   ! that BaseGraphNode carry *a* lifecycle-status property - it does
-   ! not define what values or transitions are meaningful (that is
-   ! owned by whatever later change gives lifecycle status real
-   ! semantics, e.g. ComponentGraph's mutable/frozen state, spec/07
-   ! §7.3, or a node-level analogue). CREATED/ACTIVE/RETIRED here are
-   ! bare-minimum stand-ins so the component exists and is settable;
-   ! nothing in this change branches on their values. Likely to become
-   ! its own small flag type (matching MAPL_StateItem_Flag's style)
-   ! once real semantics are defined - not done now to avoid inventing
-   ! semantics the spec doesn't ask for.
+   ! Placeholder lifecycle vocabulary: the spec requires only that a lifecycle-
+   ! status property exist, not what values or transitions mean. CREATED/ACTIVE/
+   ! RETIRED are bare-minimum stand-ins; nothing branches on their values.
    integer, parameter, public :: NODE_LIFECYCLE_CREATED = 1
    integer, parameter, public :: NODE_LIFECYCLE_ACTIVE = 2
    integer, parameter, public :: NODE_LIFECYCLE_RETIRED = 3

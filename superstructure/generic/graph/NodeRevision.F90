@@ -2,30 +2,21 @@
 
 !------------------------------------------------------------------------------
 ! NodeRevision: 64-bit monotonically-advancing version stamp on a
-! StateItemNode's logical value (spec/03-graph-node-hierarchy.md
-! REQ-NODE-003a, spec/11-revision-and-update.md REQ-REV-001..003).
+! StateItemNode's logical value (REQ-NODE-003a, REQ-REV-001..003).
 !
 ! The internal integer is private (REQ-REV-001: "no client reads the raw
-! integer"); the default-constructed value is a distinct INVALID_VALUE,
-! not an ordinary-looking revision - is_valid() is how a caller
-! distinguishes "never produced" from "produced at least once."
-! advance() transitions invalid -> first valid, and valid -> next valid,
-! detecting overflow *before* wrapping (REQ-REV-001) rather than letting
-! the internal value silently wrap to an earlier-looking one.
-!
-! Changing the previous stub's default value (0, which behaved like an
-! ordinary-looking revision) to this distinct invalid sentinel does not
-! change the observable behavior of any existing Phase 1 caller: every
-! Phase 1 use only ever compares two default-constructed instances for
-! equality, and both sides are equally invalid under either scheme.
+! integer"); the default-constructed value is a distinct INVALID_VALUE, not an
+! ordinary-looking revision, and is_valid() is how a caller distinguishes
+! "never produced" from "produced at least once". advance() transitions
+! invalid -> first valid and valid -> next valid, detecting overflow *before*
+! wrapping (REQ-REV-001) rather than letting the value wrap to an
+! earlier-looking one.
 !
 ! to_string() is a diagnostic-only accessor (used by the graph-neutral
-! exporter, spec/19-visualization-export.md REQ-VIZ-016/016a), mirroring
-! the same precedent already set by NodeId%to_string() - an encapsulated
-! identity type that still exposes a formatted, one-way string for
-! display purposes without that constituting "reading the raw value" in
-! the sense REQ-REV-001/NodeId's own encapsulation note is guarding
-! against (arithmetic on it, reconstructing a revision from it, etc.).
+! exporter, REQ-VIZ-016/016a), like NodeId%to_string(): a one-way formatted
+! string for display is not "reading the raw value" in the sense
+! REQ-REV-001's encapsulation guards against (arithmetic on it,
+! reconstructing a revision from it).
 !------------------------------------------------------------------------------
 module mapl_NodeRevision_mod
    use, intrinsic :: iso_fortran_env, only: INT64

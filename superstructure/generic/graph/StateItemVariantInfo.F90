@@ -3,8 +3,7 @@
 !------------------------------------------------------------------------------
 ! mapl_StateItemVariantInfo_mod: single choke point for the reserved ESMF_Info
 ! key used to attach/read a MAPL_StateItem_Flag ("variant") on a Field's/
-! FieldBundle's/State's own Info object (spec/04-graph-value-hierarchy.md
-! REQ-SI-002c). No other module constructs the raw key string.
+! FieldBundle's/State's own Info object (REQ-SI-002c). No other module constructs the raw key string.
 !
 ! Purely mechanical: reads/writes whatever MAPL_StateItem_Flag is given,
 ! and reports via `found` whether a tag was present at all. Deciding the

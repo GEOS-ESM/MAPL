@@ -2,17 +2,14 @@
 
 !------------------------------------------------------------------------------
 ! ArgumentSpec: a MethodGraphNode's declared named-argument specification
-! (spec/12-methods-and-drivers.md REQ-MTH-002) - a name plus an
-! AccessSpec plus an optional expected GraphStateItem kind constraint.
-! Mirrors PortSpec's shape exactly (PortSpec.F90), adding exactly one
-! field (AccessSpec) on top of it - AccessSpec already encodes
-! direction (including the INOUT/UNSPECIFIED cases a two-map input/
-! output split cannot represent), so one map keyed by name, each entry
-! carrying its own AccessSpec, is sufficient (design.md Decisions).
+! (REQ-MTH-002): a name plus an AccessSpec plus an optional expected
+! GraphStateItem kind constraint. Mirrors PortSpec's shape (PortSpec.F90) with
+! one added field (AccessSpec). AccessSpec encodes direction, including the
+! INOUT/UNSPECIFIED cases a two-map input/output split cannot represent, so
+! one map keyed by name suffices.
 !
-! Declaration-only: this type never holds a bound NodeId (that is
-! MethodGraphNode's own on-node StateItemMemberMap binding storage -
-! see mapl_MethodGraphNode_mod).
+! Declaration-only: never holds a bound NodeId (that is MethodGraphNode's
+! on-node StateItemMemberMap binding storage; see mapl_MethodGraphNode_mod).
 !------------------------------------------------------------------------------
 module mapl_ArgumentSpec_mod
    use mapl_AccessSpec_mod, only: AccessSpec
@@ -55,9 +52,9 @@ contains
       spec%kind_constrained = .false.
    end function new_ArgumentSpec_any
 
-   ! Kind-constrained argument: checked against the actual bound value's
-   ! kind by whoever calls bind_argument() (MethodGraphNode has no
-   ! ComponentGraph reference of its own - design.md Decisions).
+   ! Kind-constrained argument: checked against the actual bound value's kind
+   ! by whoever calls bind_argument() (MethodGraphNode has no ComponentGraph
+   ! reference of its own).
    function new_ArgumentSpec_with_kind(name, access, expected_kind) result(spec)
       character(*), intent(in) :: name
       type(AccessSpec), intent(in) :: access

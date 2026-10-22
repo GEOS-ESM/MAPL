@@ -2,29 +2,20 @@
 
 !------------------------------------------------------------------------------
 ! CompositeStateMaterialization: recursive walk that turns a VariableSpec
-! with declared members (superstructure/generic/specs/VariableSpec.F90,
-! openspec/changes/composite-state-spec) into real graph structure - one
-! StateItemNode per tree node (leaves and nested-state levels alike),
-! with each nested level's GraphStateItem state_members map
-! (spec/04-graph-value-hierarchy.md REQ-SI-006) populated with its
-! declared children's NodeIds. Mirrors the existing
-! ExtensionResolution/ExtensionMaterialization separation GraphBuilder.F90
-! already depends on for a different concern (module header,
-! GraphBuilder.F90:1-79) - a dedicated module GraphBuilder.F90 calls into,
-! not inlined there.
+! with declared members (specs/VariableSpec.F90) into graph structure: one
+! StateItemNode per tree node (leaves and nested-state levels alike), with
+! each nested level's GraphStateItem state_members map (REQ-SI-006)
+! populated with its declared children's NodeIds. A separate module that
+! GraphBuilder calls into, like ExtensionResolution/ExtensionMaterialization.
 !
-! A "leaf" is a VariableSpec with no declared members - gets the exact
-! same unallocated "advertised, not yet realized" GraphStateItem payload
-! advertise_one already gives flat items (GraphBuilder.F90:207-252). A
-! "nested" member is a VariableSpec with declared members - gets a real,
-! structurally empty ESMF_State (design.md Decisions "Nested-state
-! materialization allocates a real, structurally-empty ESMF_State") -
-! enough to satisfy GraphStateItem's own esmf_kind()==STATE gate on
-! state_members, not a realization of the state's real ESMF membership.
-! Which role a given VariableSpec plays is read directly from whether it
-! has declared members (get_member_names()) - no wrapper type, no
-! itemType branch needed here (declare_member already enforces
-! itemType==MAPL_STATEITEM_STATE at declaration time).
+! A "leaf" is a VariableSpec with no declared members; it gets the same
+! unallocated "advertised, not yet realized" GraphStateItem payload that
+! advertise_one gives flat items. A "nested" member (has declared members)
+! gets a real, structurally empty ESMF_State, enough to satisfy
+! GraphStateItem's esmf_kind()==STATE gate on state_members; it does not
+! realize the state's ESMF membership. The role is read from
+! get_member_names(); declare_member already enforces
+! itemType==MAPL_STATEITEM_STATE at declaration time.
 !------------------------------------------------------------------------------
 module mapl_CompositeStateMaterialization_mod
    use ESMF, only: ESMF_State, ESMF_StateCreate
@@ -45,11 +36,10 @@ module mapl_CompositeStateMaterialization_mod
 
 contains
 
-   ! Builds a StateItemNode for var_spec's own top-level identity,
-   ! recursing into every declared member first so the returned node's
-   ! GraphStateItem is fully populated (state_members map complete) at
-   ! the moment it is registered - avoids ever needing to fetch the node
-   ! back out of the graph to mutate its payload after registration.
+   ! Builds a StateItemNode for var_spec's top-level identity, recursing into
+   ! every declared member first so the node's GraphStateItem is fully populated
+   ! (state_members complete) when registered, with no fetch-and-mutate after
+   ! registration.
    recursive function materialize_composite(graph, var_spec, rc) result(node_id)
       class(ComponentGraph), target, intent(inout) :: graph
       type(VariableSpec), intent(in) :: var_spec
@@ -68,12 +58,10 @@ contains
       type(NodeId) :: child_id
 
       state = ESMF_StateCreate(_RC)
-      ! openspec/changes/vertical-grid-graph-state-item, design.md D2:
-      ! a composite tagged via VariableSpec%state_item_variant (e.g.
+      ! A composite tagged via VariableSpec%state_item_variant (e.g.
       ! MAPL_STATEITEM_VERTICALGRID) gets that variant attached to its
-      ! materialized ESMF_State before wrapping - untagged composites
-      ! (the default, unallocated) are unaffected and keep reporting the
-      ! plain STATE variant (GraphStateItem.F90's own existing fallback).
+      ! ESMF_State before wrapping; untagged composites keep reporting the plain
+      ! STATE variant.
       if (allocated(var_spec%state_item_variant)) then
          call set_variant(state, var_spec%state_item_variant, _RC)
       end if
@@ -94,10 +82,8 @@ contains
       _RETURN(_SUCCESS)
    end function materialize_composite
 
-   ! One declared member - a leaf (no members of its own) or a nested
-   ! composite (has members), determined directly from var_spec%
-   ! get_member_names() (design.md Decisions - "a composite declaration
-   ! is a VariableSpec... no wrapper type").
+   ! One declared member: a leaf (no members) or a nested composite, decided
+   ! by var_spec%get_member_names().
    recursive function materialize_member(graph, var_spec, rc) result(node_id)
       class(ComponentGraph), target, intent(inout) :: graph
       type(VariableSpec), intent(in) :: var_spec
@@ -114,11 +100,8 @@ contains
       if (names%size() > 0) then
          node_id = materialize_composite(graph, var_spec, _RC)
       else
-         ! Unallocated payload/default revision - "advertised, not yet
-         ! realized", exactly mirroring advertise_one for a flat item
-         ! (GraphBuilder.F90:207-252). The leaf's own remaining fields
-         ! are not needed here: realization is out of scope (design.md
-         ! Non-Goals).
+         ! Unallocated payload/default revision: "advertised, not yet realized",
+         ! as advertise_one does for a flat item. Realization is out of scope here.
          node_id = graph%next_node_id(_RC)
          node = StateItemNode(node_id, payload, revision)
          call graph%register_node(node, _RC)
