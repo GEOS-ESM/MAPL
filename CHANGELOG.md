@@ -49,7 +49,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   existing restart file keeps its initial value and is marked as bootstrapped,
   and the rest of the file is read normally; with `bootstrap: false`, a missing
   field is an error naming the field and the file. When the restart file
-  itself is missing, every non-SKIP field is marked as bootstrapped.
+  itself is missing, every non-SKIP field is marked as bootstrapped; a state
+  whose fields are all SKIP reads nothing, so its file may be missing even
+  with `bootstrap: false`.
   Components can query the mark with `MAPL_FieldGet(field, bootstrapped=...)`
 
 ### Changed

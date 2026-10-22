@@ -10,7 +10,9 @@
 !  - a file missing Z_B1, bootstrap on: Z_A1 is read, Z_B1 keeps its value
 !    and is marked as bootstrapped (MAPL_FieldGet(field, bootstrapped=...));
 !  - a file missing Z_B1, bootstrap off: the read fails;
-!  - no file, bootstrap on: both fields are bootstrapped.
+!  - no file, bootstrap on: both fields are bootstrapped;
+!  - no file, bootstrap off, every field RESTART_SKIP: the read succeeds
+!    and changes nothing.
 module Test_RestartBootstrap
 
    use mapl_GenericPhases_mod, only: GENERIC_INIT_PHASE_SEQUENCE
@@ -18,6 +20,8 @@ module Test_RestartBootstrap
    use mapl_RestartHandler_mod, only: RestartHandler
    use mapl_state_api, only: MAPL_StateGetPointer
    use mapl_field_api, only: MAPL_FieldGet
+   use mapl_FieldInfo_mod, only: FieldInfoSetInternal
+   use mapl_RestartModes_mod, only: RESTART_SKIP
    use esmf
    use pfunit
 
@@ -132,6 +136,25 @@ contains
       _RETURN(_SUCCESS)
    end function get_field_value
 
+   ! Mark a field RESTART_SKIP, as MAPL_GridCompAddSpec(restart_mode=) does
+   ! (the YAML specs cannot set a restart mode).
+   subroutine set_restart_skip(state, item_name, rc)
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: item_name
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Field) :: field
+      type(ESMF_Info) :: info
+      integer :: alias_id, status
+
+      call ESMF_StateGet(state, itemName=item_name, field=field, _RC)
+      call ESMF_NamedAliasGet(field, id=alias_id, _RC)
+      call ESMF_InfoGetFromHost(field, info, _RC)
+      call FieldInfoSetInternal(info, alias_id, RESTART_SKIP, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine set_restart_skip
+
    function is_bootstrapped(state, item_name, rc) result(bootstrapped)
       logical :: bootstrapped
       type(ESMF_State), intent(inout) :: state
@@ -243,5 +266,42 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_missing_file_bootstraps_all_fields
+
+   ! With every field RESTART_SKIP there is nothing to read, so a missing
+   ! file is not an error even with bootstrap off; no field is touched.
+   @test(npes=[0])
+   subroutine test_missing_file_all_skip_succeeds(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      character(*), parameter :: FILENAME = 'restart_bootstrap_all_skip.nc4'
+      type(ESMF_Clock) :: clock
+      type(ESMF_State) :: internal_state
+      type(ESMF_Time) :: current_time
+      type(RestartHandler) :: handler
+      integer :: status
+      real :: z_a1, z_b1
+      logical :: z_a1_bootstrapped, z_b1_bootstrapped
+
+      call build_root('ROOT_all_skip', clock, internal_state, _RC)
+      call ESMF_ClockGet(clock, currTime=current_time, _RC)
+      handler = RestartHandler(current_time)
+      call set_restart_skip(internal_state, 'Z_A1', _RC)
+      call set_restart_skip(internal_state, 'Z_B1', _RC)
+      call set_field_value(internal_state, 'Z_A1', 3.0, _RC)
+      call set_field_value(internal_state, 'Z_B1', 4.0, _RC)
+
+      call handler%read(internal_state, FILENAME, bootstrap=.false., _RC)
+
+      z_a1 = get_field_value(internal_state, 'Z_A1', _RC)
+      z_b1 = get_field_value(internal_state, 'Z_B1', _RC)
+      z_a1_bootstrapped = is_bootstrapped(internal_state, 'Z_A1', _RC)
+      z_b1_bootstrapped = is_bootstrapped(internal_state, 'Z_B1', _RC)
+      @assert_that(z_a1, is(equal_to(3.0)))
+      @assert_that(z_b1, is(equal_to(4.0)))
+      @assertFalse(z_a1_bootstrapped)
+      @assertFalse(z_b1_bootstrapped)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_missing_file_all_skip_succeeds
 
 end module Test_RestartBootstrap

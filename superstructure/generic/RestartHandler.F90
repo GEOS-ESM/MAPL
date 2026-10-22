@@ -108,10 +108,18 @@ contains
       type(ESMF_FieldBundle) :: bundle
       type(NetCDF4_FileFormatter) :: file_formatter
       type(FileMetaData) :: metadata
-      integer :: item_count, status
+      integer :: item_count, field_count, status
 
       call ESMF_StateGet(state, itemCount=item_count, _RC)
       _RETURN_UNLESS(item_count>0)
+
+      ! Drop the RESTART_SKIP fields. If none left, there is nothing to read
+      call get_restart_bundle(state, is_write=.false., bundle=bundle, _RC)
+      call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+      if (field_count == 0) then
+         call ESMF_FieldBundleDestroy(bundle, _RC)
+         _RETURN(_SUCCESS)
+      end if
 
       inquire(file=filename, exist=file_exists)
       if (file_exists) then
@@ -124,7 +132,6 @@ contains
          call this%lgr%warning("Restart file %a does not exist; bootstrapping its fields", trim(filename))
       end if
 
-      call get_restart_bundle(state, is_write=.false., bundle=bundle, _RC)
       call this%bootstrap_missing_fields_(bundle, filename, metadata, bootstrap, _RC)
       call this%read_bundle_(filename, metadata, bundle, _RC) ! no-op if metadata is empty
       call ESMF_FieldBundleDestroy(bundle, _RC)
