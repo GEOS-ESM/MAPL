@@ -291,10 +291,13 @@ files) to lifecycle hooks only.
 
 ## Model assignment
 
-Author = writes and commits the task. Reviewer = a separate session
-(model below) that reviews the task's diff against this plan / B0 design
-before the commit; the owner spot-checks. Human review happens once, at
-the final PR to `develop`. Short names (update here when models change):
+Author = writes and commits the task. Reviewer = the read-only
+`reviewer` subagent (`.opencode/agents/reviewer.md`), run **after** the
+commit: `/review-task <label> [opus|gemini|gpt-sol|<provider/model>]`
+(default opus). It reads the task's commits itself via the Plan-Task
+trailer; never hand it the author's summary. Fixes from review go in a
+follow-up commit with the same `Plan-Task:` trailer. The owner
+spot-checks. Human review happens once, at the final PR to `develop`. Short names (update here when models change):
 
 - `opus` = `nasa_litellm/claude-opus-5.5`
 - `sonnet` = `nasa_litellm/claude-sonnet-5-5` (fallbacks:
