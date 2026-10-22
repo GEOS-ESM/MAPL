@@ -67,9 +67,10 @@ with plan task B4.
   container, because deep defined-assignment can break compilers. Treat
   problems as exceptional; do not add speculative workarounds.
 - **Long `_ASSERT`/`_FAIL` messages.** Build the message in a local
-  `character(:), allocatable` variable first. Splitting a macro call over
-  physical lines without `&` fails under NAG, and gfortran's
-  preprocessor mishandles long inline strings.
+  `character(:), allocatable` variable first. A macro argument cannot be
+  split across lines: gfortran's preprocessor does not accept `&`
+  continuation inside a macro argument list, and a split without `&`
+  fails under NAG.
 - **pflogger `%a` substitution** is unreliable under gfortran for
   allocatable-character actuals; pre-concatenate the string.
 - **gFTL iteration:** `iter = c%ftn_begin()`, and call `iter%next()` at

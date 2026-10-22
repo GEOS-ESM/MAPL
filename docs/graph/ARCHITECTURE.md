@@ -159,15 +159,16 @@ Graph code also must not call into the legacy `specs/*Aspect`,
 - A `ComponentGraph` holds a `HierarchyId` (value, not pointer) and
   resolves shared maps via `get_hierarchy_resources`.
 - Each `ComponentGraph` keeps a private set of the ids it registered
-  (`owned_node_ids()`).
+  (`own_node_ids`, queried with `owns_node()`).
 - Cross-component edges connect two real `NodeId`s directly:
   `add_dependency`/`validate`/`bind_port`/`add_import_port`/
   `add_export_port` accept an id owned by `this` **or** registered
   anywhere in the hierarchy (`allowed_foreign_node`, checked via
   `get_node(id)` being associated; never by reverse lookup).
-- There are no proxy nodes. `proxy_key`, `get_or_make_local_node_id`,
-  `parent_geometry_proxy_key`, and `push_geometry_to_child` no longer
-  exist.
+- There are no proxy nodes. `get_or_make_local_node_id` and
+  `parent_geometry_proxy_key` no longer exist. `push_geometry_to_child`
+  (`GraphBuilder_Geometry_smod.F90`) remains, but connects the parent's
+  and child's real geometry nodes rather than creating a proxy.
 - `freeze()` is one hierarchy-wide operation: the
   `GENERIC_INIT_GRAPH_FREEZE` phase runs once at the true hierarchy
   root and `GraphBuilder_Freeze_smod.F90` freezes every component's
