@@ -1,7 +1,7 @@
 #include "MAPL_TestErr.h"
 
 module Test_StateVariant
-   use mapl_state_api, only: MAPL_StateSetVariant, MAPL_StateGetVariant
+   use mapl_state_api, only: MAPL_StateSet, MAPL_StateGet
    use mapl_StateItemFlag_mod
    use pfunit
    use esmf
@@ -17,11 +17,11 @@ contains
 
       state = ESMF_StateCreate(name='s', _RC)
 
-      variant = MAPL_StateGetVariant(state, _RC)
+      call MAPL_StateGet(state, state_item_variant=variant, _RC)
       @assert_that(variant == MAPL_STATEITEM_INVALID, is(.true.))
 
-      call MAPL_StateSetVariant(state, MAPL_STATEITEM_VERTICALGRID, _RC)
-      variant = MAPL_StateGetVariant(state, _RC)
+      call MAPL_StateSet(state, state_item_variant=MAPL_STATEITEM_VERTICALGRID, _RC)
+      call MAPL_StateGet(state, state_item_variant=variant, _RC)
       @assert_that(variant == MAPL_STATEITEM_VERTICALGRID, is(.true.))
    end subroutine test_state_variant_round_trip
 

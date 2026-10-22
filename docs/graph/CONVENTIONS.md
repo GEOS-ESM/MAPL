@@ -85,7 +85,7 @@ remaining ones.
 Graph code (`graph/`, `GraphBuilder*.F90`) never calls `ESMF_Info*`,
 `MAPL_Info*`, `FieldInfo*` or `FieldBundleInfo*`. It reads and writes
 framework-managed Info only through `MAPL_FieldSet/Get`,
-`MAPL_FieldBundleSet/Get` and `MAPL_StateSetVariant/GetVariant`; key
+`MAPL_FieldBundleSet/Get` and `MAPL_StateSet/Get`; key
 strings live in `utils/MAPL_ESMF_InfoKeys.F90` and the infrastructure Info
 modules. Not enforced by a test; fix violations when noticed. A
 missing setter argument is added to the setter, not worked around with raw

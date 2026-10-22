@@ -615,7 +615,7 @@ composite structure); is a real prerequisite for 4c/4d below.
   `VariableSpec%state_item_variant` field (mirrors the existing
   `callback_interface_id` field's "mark the item, not a new itemType"
   precedent); `CompositeStateMaterialization` gained one line to apply
-  the tag via the existing `MAPL_StateSetVariant`. REQ-GEO-007a's classification
+  the tag via the existing `MAPL_StateSet(state_item_variant=)`. REQ-GEO-007a's classification
   lives inside the **existing** `VerticalGridCharacteristic` (not a new
   characteristic kind — a first implementation added a separate
   `VerticalGridMembershipCharacteristic`, reverted after review: two

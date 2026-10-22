@@ -34,7 +34,7 @@ module mapl_GraphStateItem_mod
                                       operator(==), operator(/=)
    use mapl_field_api, only: MAPL_FieldGet
    use mapl_field_bundle_api, only: MAPL_FieldBundleGet
-   use mapl_state_api, only: MAPL_StateGetVariant
+   use mapl_state_api, only: MAPL_StateGet
    use mapl_NodeId_mod, only: NodeId
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap, StateItemMemberMapIterator
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap
@@ -225,7 +225,7 @@ contains
             variant_flag = MAPL_STATEITEM_ROUTEHANDLE
             _RETURN(_SUCCESS)
          end if
-         variant_flag = MAPL_StateGetVariant(this%esmf_state, _RC)
+         call MAPL_StateGet(this%esmf_state, state_item_variant=variant_flag, _RC)
          if (variant_flag == MAPL_STATEITEM_INVALID) variant_flag = MAPL_STATEITEM_STATE
          _RETURN(_SUCCESS)
       end if

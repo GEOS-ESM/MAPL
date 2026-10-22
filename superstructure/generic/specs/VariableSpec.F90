@@ -197,7 +197,7 @@ module mapl_VariableSpec_mod
       ! grids.md), whose declared members (one per physical dimension,
       ! REQ-GEO-004a) are otherwise ordinary composite members. Default
       ! unallocated for an ordinary (non-tagged) composite or leaf -
-      ! mapl_CompositeStateMaterialization_mod only calls MAPL_StateSetVariant()
+      ! mapl_CompositeStateMaterialization_mod only calls MAPL_StateSet(state_item_variant=)
       ! when this is allocated, so every existing composite declaration
       ! is unaffected. Mirrors `callback_interface_id`'s own precedent
       ! exactly: "mark the item, not a new itemType," set via plain field

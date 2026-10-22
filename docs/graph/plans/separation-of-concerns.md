@@ -394,7 +394,11 @@ and report; do not rename. Also:
   `Test_StateVariant.pf`) and the docs A5 touched.
 - Out of scope: the callback map in `StateAddMethod.F90` (wait for
   CallbackState work).
-- **Status:** not started
+- **Status:** done (commit trailer `Plan-Task: A5b`). Deviations: none;
+  NAG and gfortran both accept the overloads (`state_get_own`,
+  `state_set_own`). `StateVariant.F90` / `mapl_StateVariant_mod` deleted.
+  `state_set`'s dummies are now `intent(in)` (`units` is
+  `character(len=*)`), and its `intenT` typo is fixed.
 
 ### Phase B - characteristic architecture
 

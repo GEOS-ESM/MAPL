@@ -47,7 +47,7 @@ there is no way around `set`/`get_*` from outside this module.
   Purely mechanical, no role interpretation.
 - **`variant()`** (`:219`) — extensible `MAPL_StateItem_Flag`, backed
   by `ESMF_Info` on the underlying handle, read through
-  `MAPL_FieldGet` / `MAPL_FieldBundleGet` / `MAPL_StateGetVariant`
+  `MAPL_FieldGet` / `MAPL_FieldBundleGet` / `MAPL_StateGet`
   (`state_item_variant`; `MAPL_STATEITEM_INVALID` when untagged). Answers "which *role/subclass*", e.g.:
   - a `FIELD` with no tag → `MAPL_STATEITEM_FIELD`; tagged → `GEOM`
     (a geometry proxy field, `ESMF_FIELDSTATUS_GRIDSET`, see

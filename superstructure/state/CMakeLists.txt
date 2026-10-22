@@ -3,7 +3,6 @@ esma_set_this (OVERRIDE MAPL.state)
 set (srcs
     StateGet.F90
     StateSet.F90
-    StateVariant.F90
     StateGetPointer.F90
     StateGetGeom.F90
     StateAddMethod.F90

@@ -63,7 +63,7 @@ vertical grid as an ordinary composite `VariableSpec`
 `VariableSpec%state_item_variant` field (mirroring the existing
 `callback_interface_id` field's "mark the item, not a new itemType"
 precedent); `materialize_composite` gained one line to apply that tag via
-the existing `MAPL_StateSetVariant`. REQ-GEO-007a's classification lives inside
+the existing `MAPL_StateSet(state_item_variant=)`. REQ-GEO-007a's classification lives inside
 the **existing** `VerticalGridCharacteristic` (not a new characteristic
 kind — an earlier implementation of this change added a separate
 `VerticalGridMembershipCharacteristic`, reverted after review: two
