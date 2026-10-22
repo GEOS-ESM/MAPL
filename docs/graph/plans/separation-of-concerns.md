@@ -196,7 +196,19 @@ check (grep in a ctest).
   Follow-up: parity doc now records which ready scenarios depend on
   legacy `add_to_states` (experiment with the calls skipped in graph mode;
   not committed).
-- **Status (diagnosis, `Plan-Task: A1-diagnosis`):** not started.
+- **Status (diagnosis, `Plan-Task: A1-diagnosis`):** done. Every cause
+  confirmed by a reverted source experiment (NAG; failure signatures
+  identical on gfortran); see "Verified root causes" in
+  `docs/graph/scenario-parity.md`. Corrections to first-pass: the
+  "no import units" failure is a symptom of export aliasing looking in
+  the wrong component for propagated exports (R1); SERVICE items are not
+  excluded from graph resolution, aliasing assumes a Field (R2). The
+  masked passes are confirmed: the graph never sees a geometry mismatch
+  (M1, no item-level characteristic) or a vertical-grid mismatch (M2,
+  component `vertical_grid` is not copied to items, so C1 does not
+  cover `vertical_*`). Proposed C2 split recorded in the parity doc;
+  `C2-runphase-args` (P1): method-node arguments must be keyed by
+  (intent, short name), not short name alone.
 
 **A2a..A2n. Graph-native scenario ports (~5 scenarios/task).**
 - Port legacy scenarios to `tests/graph-scenarios/` with improved
