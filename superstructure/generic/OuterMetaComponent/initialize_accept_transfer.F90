@@ -45,7 +45,6 @@ contains
       ! accept-transfer step (real edges + freeze) by this point, making
       ! cross-boundary proxy/lookup reads well-defined.
       call gb%run_connect_hook(this)
-      ! openspec/changes/phase-7b-expression-dispatch-wiring, design.md
       ! D7: after run_connect_hook (every same-component sibling export
       ! is guaranteed already advertised by this point - connect_hook's
       ! own ordinary wiring has already run) and before propagate_exports
@@ -59,7 +58,6 @@ contains
 
       user_states = this%user_gc_driver%get_states()
       tmp_states = MultiState(importState=user_states%importState)
-      ! openspec/changes/phase-10a-state-materialization, graph-mode
       ! spec "graph mode makes graph-native population the real
       ! producer": in GRAPH_MODE_GRAPH, graph-native population
       ! (immediately below) is the sole real producer for this

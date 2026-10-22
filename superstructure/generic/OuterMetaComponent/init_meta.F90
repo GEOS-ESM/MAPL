@@ -25,23 +25,12 @@ contains
       user_gc_name = this%user_gc_driver%get_name(_RC)
       this%registry = StateRegistry(user_gc_name)
 
-      ! openspec/changes/hierarchy-wide-component-graph, design.md D1:
-      ! a root component (no hierarchy_id supplied by its caller)
-      ! requests a fresh hierarchy of its own; a descendant
-      ! (add_child_by_spec.F90) always supplies its parent's own
-      ! hierarchy_id, so this%local_graph below resolves against the
-      ! same shared HierarchyGraph as every other component in the
-      ! hierarchy.
+      ! Root component requests fresh hierarchy; descendant joins parent's (REQ-HIER-002/004).
       if (present(hierarchy_id)) then
          this%hierarchy_id = hierarchy_id
       else
          this%hierarchy_id = request_new_hierarchy()
-         ! openspec/changes/hierarchy-wide-component-graph, tasks.md
-         ! Group 9 (design.md D7): this branch means `this` requested a
-         ! brand-new hierarchy of its own rather than joining a caller-
-         ! supplied one - i.e. `this` is the true root of its own
-         ! hierarchy. See OuterMetaComponent.F90's own is_hierarchy_root
-         ! field-declaration comment for its sole consumer.
+         ! True hierarchy root: only root registers its own name in hierarchy registry.
          this%is_hierarchy_root = .true.
          ! graph/component-hierarchy delta spec "Component names are
          ! unique across the entire hierarchy": this component is the

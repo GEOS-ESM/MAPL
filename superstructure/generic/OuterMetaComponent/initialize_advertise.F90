@@ -52,7 +52,6 @@ contains
       ! "Invocation point" decision. run_advertise_hook() never
       ! propagates failure into this routine's own error path.
       call gb%run_advertise_hook(this)
-      ! openspec/changes/phase-10a-state-materialization: moved to
       ! initialize_geom_b.F90 (see that file's own comment) - a
       ! pre-existing timing bug, found while writing this sub-change's
       ! own pFUnit coverage against a real (DSO-backed) fixture: this
@@ -80,8 +79,6 @@ contains
       ! make, without creating any graph structure (see
       ! mapl_GraphBuilder_mod module header, "Two-phase timing").
       call gb%run_activate_hook(this)
-      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.2,
-      ! design.md D3: the graph-native mirroring analog of legacy's own
       ! registry%propagate_unsatisfied_imports() call immediately
       ! below - placed at the SAME point in this same file, right after
       ! run_activate_hook, for the same reason legacy's own call sits
@@ -97,7 +94,6 @@ contains
       ! own report_if_failed calls).
       call gb%run_propagate_hook(this)
       call this%registry%propagate_unsatisfied_imports(_RC)
-      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8:
       ! the graph-native export-propagation analog of legacy's own
       ! registry%propagate_exports() call immediately below - same
       ! "parent reaches into child" shape as run_propagate_hook above,

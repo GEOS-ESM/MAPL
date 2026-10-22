@@ -37,27 +37,14 @@ contains
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
-      ! openspec/changes/hierarchy-wide-component-graph, graph/component-
-      ! hierarchy delta spec "Component names are unique across the
-      ! entire hierarchy": sibling-level uniqueness alone (the assert
-      ! above) is not sufficient - a name must not collide with any
-      ! other component's name anywhere in this hierarchy, including a
-      ! cousin several levels removed. The sibling check above still
-      ! runs first, for a more specific error message in that common
-      ! case.
+      ! Hierarchy-wide name uniqueness (REQ-HIER-002/004). Sibling check above
+      ! is not sufficient; names must be unique across the entire hierarchy.
       resources => get_hierarchy_resources(this%hierarchy_id)
       _ASSERT(resources%component_names%count(child_name) == 0, 'duplicate component name elsewhere in the hierarchy: <'//child_name//'>.')
 
       total_hconfig = merge_hconfig(this%hconfig, child_spec%hconfig, _RC)
       if (allocated(child_spec%user_setservices)) then
-         ! openspec/changes/hierarchy-wide-component-graph, design.md D1:
-         ! this child is constructed through the same public
-         ! MAPL_GridCompCreate entry point ordinary user code calls to
-         ! create a brand-new hierarchy's own root - passing this%
-         ! hierarchy_id explicitly here is what keeps it in THIS
-         ! hierarchy rather than letting it request a fresh one of its
-         ! own (create_grid_comp_primary's own default when the
-         ! argument is absent).
+         ! Pass parent's hierarchy_id to keep child in this hierarchy.
          child_outer_gc = MAPL_GridCompCreate(child_name, child_spec%user_setservices, total_hconfig, &
               hierarchy_id=this%hierarchy_id, rc=status)
          _VERIFY(status)

@@ -58,30 +58,12 @@ module mapl_OuterMetaComponent_mod
 ! Hierarchy
       type(GriddedComponentDriverMap)             :: children
       type(StateRegistry) :: registry
-      ! openspec/changes/hierarchy-wide-component-graph, design.md D1:
-      ! which hierarchy-wide HierarchyResources registry entry this
-      ! component's own ComponentGraph (below) resolves against - a
-      ! plain value, not a pointer. The root of a hierarchy requests a
-      ! fresh HierarchyId (init_meta.F90); every descendant receives its
-      ! parent's own hierarchy_id at construction time
-      ! (add_child_by_spec.F90), so every ComponentGraph anywhere in one
-      ! hierarchy shares the same HierarchyGraph.
+      ! hierarchy-wide HierarchyResources registry entry (REQ-HIER-002/004).
+      ! All ComponentGraphs in one hierarchy share the same HierarchyGraph.
       type(HierarchyId) :: hierarchy_id
-      ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group
-      ! 9 (design.md D7): set once, in init_meta.F90, to .true. iff this
-      ! component requested a FRESH HierarchyId (the no-hierarchy_id-
-      ! argument branch there) - i.e. this component is the true root
-      ! of its own hierarchy, never a descendant (every descendant is
-      ! always constructed with its parent's own hierarchy_id passed
-      ! explicitly, add_child_by_spec.F90). The sole consumer is
-      ! initialize_graph_freeze.F90's own GENERIC_INIT_GRAPH_FREEZE
-      ! handler, which must perform its one-shot whole-hierarchy freeze
-      ! walk only once, at the true root, and be a no-op everywhere
-      ! else - this flag is the cheapest, already-available way to make
-      ! that distinction (no new "get_parent" accessor is introduced;
-      ! REQ-HIER-003/005 encapsulation is unaffected, this is a private
-      ! field read only by this component's own initialize_graph_freeze
-      ! method).
+      ! Distinguishes true hierarchy roots from descendants (REQ-HIER-003/005).
+      ! Used only by initialize_graph_freeze to perform the whole-hierarchy freeze
+      ! walk once, at the root, and be a no-op elsewhere.
       logical :: is_hierarchy_root = .false.
       ! Graph-neutral core (docs/graph/spec/02-component-hierarchy.md
       ! REQ-HIER-002/004): exactly one local ComponentGraph per
@@ -91,25 +73,11 @@ module mapl_OuterMetaComponent_mod
       ! §20.4.1).
       type(ComponentGraph) :: local_graph
 
-      ! openspec/changes/phase-10d-ordinary-phase-method-node: the
-      ! NodeId of the one run-phase MethodGraphNode GraphBuilder
-      ! constructs for this component (design.md D1/D2) - populated
-      ! once, under a non-registry graph mode, by
-      ! GraphBuilder%build_run_phase_node (called from
-      ! run_connect_hook). Nothing in this change ever invokes the
-      ! node this id identifies - construction only (proposal.md
-      ! Non-Goals). A NodeId is a tiny value type with its own
-      ! built-in "unset" sentinel (INVALID_NodeId/is_valid(),
-      ! BaseGraphNode.F90's own default-initialization precedent) -
-      ! never allocatable/pointer (CallbackMethodBinding%
-      ! get_method_node_id's own "return a plain NodeId by value"
-      ! precedent, not get_vertical_grid's pointer-to-a-polymorphic-
-      ! field precedent, which solves a different problem that does
-      ! not apply to a four-byte id).
+      ! NodeId for the one run-phase MethodGraphNode constructed by GraphBuilder.
+      ! A NodeId has its own "unset" sentinel (INVALID_NodeId/is_valid());
+      ! returned as a plain value, never allocatable/pointer.
       type(NodeId) :: run_phase_method_node_id = INVALID_NodeId
 
-      ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group
-      ! 9 (design.md D7): graphbuilder_resolve_connections's own
       ! idempotency gate - set once that procedure completes real
       ! resolution for this component. Replaces the former
       ! graph%is_frozen() gate (GraphBuilder_ConnectionResolution_
@@ -125,6 +93,7 @@ module mapl_OuterMetaComponent_mod
       ! guard). A plain, private boolean (not a NodeId-shaped sentinel
       ! like run_phase_method_node_id above) because there is no
       ! existing value this procedure produces whose own "unset" state
+      ! could double as the flag.
       ! could double as the flag.
       logical :: connections_resolved = .false.
 
@@ -150,17 +119,17 @@ module mapl_OuterMetaComponent_mod
       procedure :: get_geom_id
       procedure :: get_registry
       procedure :: get_component_graph
-      ! openspec/changes/phase-10d-ordinary-phase-method-node: accessor/
       ! setter pair for the run-phase MethodGraphNode's own NodeId
       ! (design.md D1) - setter used only by GraphBuilder.F90's own
       ! construction step (graphbuilder_build_run_phase_node). Not
       ! currently read by any invocation call site - construction only
       ! (proposal.md Non-Goals).
+      ! (proposal.md Non-Goals).
       procedure :: get_run_phase_method_node_id
       procedure :: set_run_phase_method_node_id
-      ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group
       ! 9: accessor/mark-done pair for connections_resolved above - used
       ! only by graphbuilder_resolve_connections's own replacement
+      ! idempotency gate (GraphBuilder_ConnectionResolution_smod.F90).
       ! idempotency gate (GraphBuilder_ConnectionResolution_smod.F90).
       procedure :: connections_already_resolved
       procedure :: mark_connections_resolved
@@ -186,13 +155,12 @@ module mapl_OuterMetaComponent_mod
       procedure :: initialize_realize_provided
       procedure :: initialize_accept_transfer
       procedure :: initialize_realize_accepted
-      ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group
-      ! 9 (design.md D7): the GENERIC_INIT_GRAPH_FREEZE handler - see
       ! enums/GenericPhases.F90's own enumerator comment and
       ! OuterMetaComponent/initialize_graph_freeze.F90's module header
       ! for the full "why a new phase, why non-recursive" rationale.
       ! Deliberately NOT given a `recursive` qualifier the way every
       ! other initialize_* phase handler here is - see that file for
+      ! why.
       ! why.
       procedure :: initialize_graph_freeze
       procedure :: initialize_read_restart
@@ -287,12 +255,12 @@ module mapl_OuterMetaComponent_mod
           type(ESMF_HConfig), intent(in) :: hconfig
        end function new_outer_meta
 
-      ! openspec/changes/hierarchy-wide-component-graph, design.md D1:
       ! hierarchy_id is optional here so a root component (no caller
       ! supplies one) requests a fresh hierarchy for itself; a
       ! descendant (add_child_by_spec.F90) always passes its parent's
       ! own hierarchy_id explicitly, so every component in one
       ! hierarchy's own local_graph resolves against the same shared
+      ! HierarchyGraph.
       ! HierarchyGraph.
       module subroutine init_meta(this, hierarchy_id, rc)
          class(OuterMetaComponent), intent(inout) :: this
@@ -377,12 +345,12 @@ module mapl_OuterMetaComponent_mod
          integer, intent(out), optional :: rc
       end function get_geom
 
-      ! openspec/changes/horizontal-geometry-graph-state-item (Phase 4e):
       ! GraphBuilder.F90's geometry hook needs this component's own
       ! resolved GeomId directly (mirroring how UnitsCharacteristic/
       ! VerticalGridCharacteristic's own callers already read
       ! var_spec%units/vertical_grid%get_id() - this is the geometry
       ! analog, sourced from OuterMetaComponent since geometry, unlike
+      ! units/vertical_grid, has no per-item VariableSpec of its own).
       ! units/vertical_grid, has no per-item VariableSpec of its own).
       module function get_geom_id(this) result(geom_id)
          type(GeomId) :: geom_id
@@ -466,10 +434,10 @@ module mapl_OuterMetaComponent_mod
           integer, optional, intent(out) :: rc
       end subroutine initialize_realize_accepted
 
-      ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group
       ! 9: NOT `recursive` - see initialize_graph_freeze.F90's own
       ! module header for why this phase handler must not call
       ! recurse() the way every other init-phase handler in this
+      ! interface block does.
       ! interface block does.
       module subroutine initialize_graph_freeze(this, rc)
           class(OuterMetaComponent), target, intent(inout) :: this
@@ -662,12 +630,12 @@ module mapl_OuterMetaComponent_mod
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_component_graph
 
-      ! openspec/changes/phase-10d-ordinary-phase-method-node: see
       ! field-declaration comment above (run_phase_method_node_id).
       ! Returns by value, not a pointer - a NodeId is a tiny value
       ! type, not something worth guarding against the target
       ! changing underneath a held pointer (CallbackMethodBinding%
       ! get_method_node_id's own precedent). "Unset" is reported via
+      ! NodeId%is_valid(), not an association test.
       ! NodeId%is_valid(), not an association test.
       module function get_run_phase_method_node_id(this) result(node_id)
          type(NodeId) :: node_id
@@ -680,8 +648,8 @@ module mapl_OuterMetaComponent_mod
          integer, optional, intent(out) :: rc
       end subroutine set_run_phase_method_node_id
 
-      ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group
       ! 9: see connections_resolved's own field-declaration comment
+      ! above.
       ! above.
       module function connections_already_resolved(this) result(resolved)
          logical :: resolved

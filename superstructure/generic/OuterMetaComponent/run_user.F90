@@ -55,7 +55,6 @@ contains
       call logger%info(phase_name//": starting...")
       call this%start_timer(phase_name)
       call this%user_gc_driver%run(phase_idx=phase, _RC)
-      ! openspec/changes/graph-child-state-population, design.md D7:
       ! re-propagates any sibling connection's extension-chain
       ! transform now that this component's own children have just
       ! run (ConfigurableGridComp's own run_children_phases_ already

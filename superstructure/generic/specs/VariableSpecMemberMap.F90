@@ -1,7 +1,6 @@
 !------------------------------------------------------------------------------
 ! VariableSpecMemberMap: gFTL map (string -> polymorphic VariableSpecTag),
 ! used by VariableSpec for its own declared-member storage
-! (openspec/changes/composite-state-spec). T is polymorphic purely to let
 ! VariableSpec contain a map of itself without a circular module
 ! dependency (design.md Decisions) - not for open extensibility
 ! (VariableSpec is the only concrete extension of VariableSpecTag that

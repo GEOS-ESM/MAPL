@@ -1,12 +1,7 @@
 #include "MAPL.h"
 
-! openspec/changes/hierarchy-wide-component-graph, tasks.md Group 9: see
-! OuterMetaComponent.F90's own connections_resolved field-declaration
-! comment for the full rationale - this replaces
-! graphbuilder_resolve_connections's former graph%is_frozen() idempotency
-! gate (GraphBuilder_ConnectionResolution_smod.F90), which stopped being
-! valid once freeze moved off the per-component GENERIC_INIT_
-! ACCEPT_TRANSFER call site.
+! Gate for graphbuilder_resolve_connections idempotency. Replaces former
+! graph%is_frozen() check which became invalid when freeze moved to whole-hierarchy level.
 submodule (mapl_OuterMetaComponent_mod) connections_resolved_smod
    implicit none(type, external)
 

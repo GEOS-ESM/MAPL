@@ -1,10 +1,5 @@
-! openspec/changes/graphbuilder-resolution-entry: a small record type
-! replacing the ad hoc `component_name // ':' // short_name [// ':' //
-! reason]` string encoding `GraphBuilder.F90` previously used for its
-! unresolved-import and unsupported-characteristic resolution reports.
-! `reason` is set to '' for entries where no reason beyond the
-! collection's own meaning ("no matching export") applies - i.e. every
-! unresolved-import entry, by construction (design.md Decision 1).
+! Record type for unresolved-import and unsupported-characteristic reports.
+! `reason` is empty for entries where the collection's meaning alone applies.
 module mapl_GraphResolutionEntry_mod
    implicit none(type, external)
    private

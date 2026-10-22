@@ -6,7 +6,6 @@
 ! agreement, checked via the standard AspectMap matches()/connection-resolution
 ! machinery, with a single unaliased field-wide value (like units) rather than
 ! the per-alias storage generic/field-name-propagation gave standard_name
-! before this aspect existed. See openspec/changes/enforce-standard-name-
 ! convention (or, once archived, specs/generic/standard-name-enforcement).
 module mapl_StandardNameAspect_mod
 

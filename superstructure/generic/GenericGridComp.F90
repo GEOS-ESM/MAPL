@@ -156,17 +156,9 @@ contains
       class(UserSetServices), optional, intent(in) :: set_services
       type(ESMF_HConfig), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      ! openspec/changes/hierarchy-wide-component-graph, design.md D1:
-      ! framework-internal keyword, not part of this entry point's
-      ! user-facing contract - absent (the default) for every ordinary
-      ! top-level mapl_GridCompCreate call, which gets a fresh hierarchy
-      ! of its own exactly as before this change. Supplied only by
-      ! add_child_by_spec.F90's own internal call, for a child
-      ! component that declares its own user_setservices (and is
-      ! therefore constructed through this same entry point used to
-      ! create a brand-new hierarchy's root) - passing the parent's own
-      ! hierarchy_id here keeps that child in the parent's hierarchy
-      ! instead of starting a new one.
+      ! framework-internal keyword (REQ-HIER-002/004). When absent,
+      ! the component gets a fresh hierarchy. When supplied (internal use
+      ! only), the child joins the parent's hierarchy instead of starting a new one.
       type(HierarchyId), optional, intent(in) :: hierarchy_id
       integer, optional, intent(in) :: petlist(:)
       integer, optional, intent(out) :: rc

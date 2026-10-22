@@ -1,6 +1,5 @@
 #include "MAPL.h"
 
-! openspec/changes/phase-10d-ordinary-phase-method-node: see
 ! OuterMetaComponent.F90's run_phase_method_node_id field-declaration
 ! comment. Rejects a second call (no silent replace) - matches this
 ! repo's established no-silent-replace registration convention

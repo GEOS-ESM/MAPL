@@ -290,7 +290,7 @@ reference counts as of A3):
 - `A4d`: `graph/characteristics/`, `graph/transforms/`,
   `graph/containers/`, `graph/id_types/`, `graph/callback/` (48 refs)
 - `A4e`: everything else with references: remaining top-level `*.F90`,
-  `OuterMetaComponent/`, `specs/` (about 30 refs)
+  `OuterMetaComponent/`, `specs/` (about 41 refs)
  Rationale: ~33% of graph-layer lines
 are comments (40-52% in `GraphBuilder*`), 277 dead `openspec/changes/...`
 paths (now under `archive/`), many describing removed code. Every
@@ -322,7 +322,12 @@ consumes context.
   (`graph/characteristics/`, `graph/transforms/`, `graph/containers/`,
   `graph/id_types/`, `graph/callback/`; 27 files: 0 `openspec/changes`
   references, comment-only verified; all history paths deleted, "why"
-  constraints preserved as 1-2 lines per CONVENTIONS.md §1). A4e not started.
+  constraints preserved as 1-2 lines per CONVENTIONS.md §1). A4e done
+  (17 files: `GenericGridComp.F90`, `GraphResolutionEntry.F90`,
+  `OuterMetaComponent.F90`, 13 files under `OuterMetaComponent/`, 4 files
+  under `specs/`; 0 `openspec/changes` references, comment-only verified;
+  stale history compressed, REQ-IDs (REQ-HIER-002/003/004/005) retained,
+  "why" constraints 1-2 lines; no deviations).
 
 **A5. Centralize graph-layer Info access.** Code change. After A4d
 (A4c/A4d edit comments in the same files). Before B3 (B3 write methods

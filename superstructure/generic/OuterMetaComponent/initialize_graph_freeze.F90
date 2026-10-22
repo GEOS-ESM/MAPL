@@ -1,7 +1,5 @@
 #include "MAPL.h"
 
-! openspec/changes/hierarchy-wide-component-graph, tasks.md Group 9
-! (design.md D7, "Freeze becomes one hierarchy-wide call"):
 ! GENERIC_INIT_GRAPH_FREEZE's own handler.
 !
 ! Deliberately does NOT call recurse() the way every other init-phase

@@ -22,7 +22,6 @@ contains
        call this%propagate_geom_to_children(_RC)
        call recurse(this, phase_idx=MAPL_GENERIC_INIT_GEOM_B, _RC)
 
-       ! openspec/changes/phase-10a-state-materialization: moved here
        ! from initialize_advertise.F90 (a pre-existing timing bug found
        ! while writing this sub-change's own pFUnit coverage - see that
        ! file's own comment at the old call site for the full story).

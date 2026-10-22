@@ -75,14 +75,9 @@ module mapl_VariableSpec_mod
    ! also allows us to defer interpretation until after user
    ! setservices() have run.
    !
-   ! extends(VariableSpecTag): openspec/changes/composite-state-spec,
-   ! design.md Decisions - lets `members` below be a map of VariableSpec
-   ! itself (a composite declaration IS a VariableSpec with itemType ==
-   ! MAPL_STATEITEM_STATE and declared members, each itself an ordinary
-   ! VariableSpec - no separate wrapper type) without a circular module
-   ! dependency. VariableSpecTag is a bare, empty abstract marker with no
-   ! components/deferred procedures - purely additive, no existing
-   ! type(VariableSpec) usage anywhere is affected.
+   ! extends(VariableSpecTag): allows `members` below to be a map of VariableSpec
+   ! itself (composite is a VariableSpec with itemType == MAPL_STATEITEM_STATE
+   ! and declared members) without circular module dependency. VariableSpecTag is
    type, extends(VariableSpecTag) :: VariableSpec
       ! TODO: delete - move to StateItemSpec
 
@@ -161,7 +156,7 @@ module mapl_VariableSpec_mod
       type(StringVector) :: dependencies ! default empty
 
       !=====================
-      ! composite members (openspec/changes/composite-state-spec)
+      ! Composite members
       !=====================
       ! Plain (not allocatable), always present, empty unless populated -
       ! mirrors GraphStateItem's own state_members_map component shape.
@@ -172,7 +167,7 @@ module mapl_VariableSpec_mod
       type(VariableSpecMemberMap) :: members
 
       !=====================
-      ! callback interface (openspec/changes/callback-wiring)
+      ! Callback interface
       !=====================
       ! Marks an import as a callback consumer expecting to satisfy the
       ! given CallbackInterface, e.g. a `tracers` import expecting the
@@ -192,7 +187,6 @@ module mapl_VariableSpec_mod
       type(CallbackInterfaceId) :: callback_interface_id
 
       !=====================
-      ! declared state-item variant (openspec/changes/
       ! vertical-grid-graph-state-item)
       !=====================
       ! Tags a composite declaration (itemType == MAPL_STATEITEM_STATE,
@@ -214,7 +208,6 @@ module mapl_VariableSpec_mod
       type(MAPL_StateItem_Flag), allocatable :: state_item_variant
 
       !=====================
-      ! ordinary inout borrower (openspec/changes/
       ! ordinary-inout-direct-alias)
       !=====================
       ! Marks an import as an ordinary inout borrower (16-inout-items.md
@@ -237,7 +230,6 @@ module mapl_VariableSpec_mod
 
       !=====================
       ! declared quantity-type/conservation/normalization
-      ! (openspec/changes/phase-12-characteristic-dispatch-wiring)
       !=====================
       ! Lets a caller declare a non-default quantity-type, conservation, or
       ! normalization value for this item, so GraphBuilder's own
@@ -245,7 +237,6 @@ module mapl_VariableSpec_mod
       ! settable value to read for QuantityTypeCharacteristic/
       ! ConservationCharacteristic/NormalizationCharacteristic - the three
       ! StateItemCharacteristic subclasses these axes feed (5a2,
-      ! openspec/changes/archive/2026-10-08-state-item-characteristic-
       ! subclasses). Before this, every real construction path
       ! (make_QuantityTypeAspect/make_ConservationAspect/
       ! make_NormalizationAspect, below) unconditionally built the same
@@ -920,7 +911,6 @@ contains
    end function make_ClassAspect
 
    ! ========================================================================
-   ! Composite member declaration (openspec/changes/composite-state-spec)
    ! ========================================================================
 
    ! Asserts this%itemType is already MAPL_STATEITEM_STATE (fails loudly
