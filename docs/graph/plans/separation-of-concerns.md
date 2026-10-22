@@ -155,8 +155,14 @@ Statuses: `SPECIFIED`, `MIRROR`, `UNCHECKED`, `DEFERRED` (transient).
 
 ### D6. GraphBuilder is characteristic-agnostic
 GraphBuilder and its submodules must not name any `*_CHARACTERISTIC_KIND`
-constant or concrete `*Characteristic` type. Enforced by a scripted
-check (grep in a ctest).
+constant or concrete `*Characteristic` type. Rationale: this is the
+separation of concerns the plan exists for. If GraphBuilder names
+kinds, every new characteristic means editing GraphBuilder's dispatch
+chains (`merged_item_for_link`, `get_item_units`, ...), and behavior for
+one characteristic is split between its class and GraphBuilder. With
+the rule, adding a characteristic touches only its class, its factory,
+and `ItemShapeCharacteristic`'s ordering. Checked by B4's Done condition
+(a one-off grep) and by review, not a permanent test (owner decision).
 
 ## Tasks
 
@@ -349,8 +355,6 @@ Known direct access to convert:
   it through the setters/getters. There is no setter today for a
   State's own Info (`MAPL_StateSet` takes an item name); propose the
   interface and ask the owner before adding one.
-- Add a grep ctest (like D6) failing if `ESMF_Info*` calls appear under
-  `graph/` or in `GraphBuilder*.F90`.
 - Out of scope: Info on non-item objects in `OuterMetaComponent/`
   (memory-checkpoint flag, `MAPL/GRIDCOMP_IS_GENERIC`).
 - **Status:** done (commit trailer `Plan-Task: A5`). Deviations:
@@ -372,6 +376,25 @@ Known direct access to convert:
   names. No grep ctest was kept (owner decision: such rules are fixed
   when noticed, or belong in a future general linter).
   `MAPL_StateSet`'s `intent(out)` bug is untouched (not needed here).
+
+**A5b. Overload `MAPL_StateGet`/`MAPL_StateSet` for a State's own
+properties.** Owner preference: overloads, if the compilers accept
+them. Replace `MAPL_StateGetVariant`/`MAPL_StateSetVariant` with
+specifics `MAPL_StateGet(state, unusable, state_item_variant, rc)` /
+`MAPL_StateSet(...)` in the existing generic interfaces. Keep the
+existing item specifics (`state_get(state, itemName, ...)`, which has a
+required `character` second argument). The new specifics must have no
+`itemName` dummy and must put `class(KeywordEnforcer) unusable` second,
+so they are distinguishable (F2018 15.4.3.4.5). Note `StateGet` already
+has `state_get_bundle(state, bundle, rc)`: check the new specific is
+distinguishable from it too. If NAG or gfortran reports ambiguity, stop
+and report; do not rename. Also:
+- Fix `state_set`'s `intent(out)` value dummies (should be `intent(in)`).
+- Update callers (`GraphStateItem.F90`, `CompositeStateMaterialization.F90`,
+  `Test_StateVariant.pf`) and the docs A5 touched.
+- Out of scope: the callback map in `StateAddMethod.F90` (wait for
+  CallbackState work).
+- **Status:** not started
 
 ### Phase B - characteristic architecture
 
@@ -427,7 +450,10 @@ in the first one; later ones refine it.
 **B4. Remove manual dispatch.** Delete `merged_item_for_link`'s kind
 chain, `get_item_units`/`get_item_typekind`, scalar args of
 `materialize_field_extension` (create from goal descriptor + chain
-step instead), `GraphStateItem%ordering`/table. Add the D6 grep ctest.
+step instead), `GraphStateItem%ordering`/table. Done also requires
+`grep -nE '_CHARACTERISTIC_KIND|[A-Za-z]+Characteristic\b' GraphBuilder*.F90`
+to show no kind constants or concrete characteristic types (base-class
+and interface names are fine); report its output in the commit body.
 - Also parity finding M3: the graph does not materialize EXPRESSION,
   VECTOR or SERVICE items (logs `unsupported_item_class:<shape>` and
   leaves them to legacy `add_to_states`). Until the graph materializes
@@ -534,6 +560,7 @@ it may author D1/A4/B5 with sonnet review.
 | A3 | sonnet | - | |
 | A4 | sonnet | diff review always | judgment on which "why" to keep; haiku only after calibration |
 | A5 | sonnet | opus | touches infrastructure field/bundle/state APIs |
+| A5b | sonnet | - | small; compilers verify distinguishability |
 | B0 | opus | owner + gemini/gpt-sol | cross-family review: "what did this miss vs. legacy aspects?" |
 | B1 | sonnet | opus | escalate any compiler/gFTL crash |
 | B2 | opus | gemini/gpt-sol | core semantics |
@@ -588,7 +615,7 @@ replicate an unreviewed template across B3.x.
 ## Dependency summary
 
 A0 -> A1 (harness) -> A2a -> A3; A1 (harness) -> A1-diagnosis -> C2.x;
-A0 -> A4 -> {B1, D1}; A4d -> A5 -> B3.x; A0 -> B0 -> B1 -> B2 -> B3.x -> {B4, B5};
+A0 -> A4 -> {B1, D1}; A4d -> A5 -> A5b -> B3.x; A0 -> B0 -> B1 -> B2 -> B3.x -> {B4, B5};
 B4 -> C1, B3-VerticalCoordinate -> C1 (vertical part), D1 -> D2;
 C2-alias-owner -> C2-alias-nonfield. The C2 tasks need only A1-diagnosis
 and may run before Phase B. A4 is independent of A1-A3 and B0 (they touch tests/docs, A4 touches

@@ -53,8 +53,8 @@ characteristic-specific behavior belongs in the characteristic. This is
 the target (plan decision D6) and **is not true of the current code**:
 `GraphBuilder_Advertising_smod.F90`, `GraphBuilder_Geometry_smod.F90`,
 `GraphBuilder_ConnectionResolution_smod.F90`, and `GraphBuilder.F90`
-still name kinds. Do not add new references. A scripted check is planned
-with plan task B4.
+still name kinds. Do not add new references. Plan task B4 removes the
+remaining ones.
 
 ## 5. Fortran and compiler pitfalls
 
