@@ -17,5 +17,8 @@ not pick a model yourself.
 Pass the reviewer only the label and any extra focus given here: "$3".
 Do not summarize the work for it; it reads the commits itself.
 
-When it returns, show me its report unchanged, then state which model
-actually ran. Do not act on the findings until I say so.
+When it returns, copy its full report verbatim into your reply (minus
+the `<subagent ...>` wrapper lines). I cannot see subagent output unless
+you repeat it; do not summarize, shorten, or say "see above". After the
+report add one line: `Reviewer model requested: <id>`. Do not act on
+the findings until I say so.
