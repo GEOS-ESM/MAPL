@@ -236,7 +236,24 @@ check (grep in a ctest).
   same checkers as `Test_Scenarios.pf`; add graph-specific checks
   (node count, transform chain kinds/order). Remove hand-written
   assertions now covered.
-- **Status:** not started
+- **Status:** done (commit trailer `Plan-Task: A3`). Deviations: no new
+  driver module; `Test_Scenarios.pf` itself runs the 7 graph-scenarios
+  (added to `scenario_table()`) and gained a `units` checker and a
+  `check_graph` step driven by a `graph:` key on the `<root>` entry of
+  `expectations.yaml` (format in `docs/graph/scenario-naming.md` §8).
+  `ScenarioEntry` gained `permissive` and `expected_exception`, which
+  handle the `standard_name_and_ungridded_dims_mismatch` issues from A2a.
+  `Test_GraphModeDemonstration.pf` lost
+  `test_graph_mode_leaves_newly_wired_axis_mismatch_unwired` and the
+  structure/typekind/units/value assertions in the two units tests and
+  the grandchild-mirroring test (edge check only). Still hand-written:
+  item_count, the run phase itself, import-port mirroring, restart
+  metadata. `Test_GraphEquivalenceHarness.pf` is unchanged: its
+  legacy-vs-graph parity checks have no `expectations.yaml` equivalent.
+  `graph:` also takes an optional `nodes:` count (nodes owned by the
+  root's graph). Chain step kinds are inferred from units/typekind either side of each
+  transform; only `units` and `typekind` are recognized (others report
+  `unknown`).
 
 **A4. Comment hygiene (before Phase B).** One task per directory/file
 group (labels A4a, A4b, ...), in this order: `GraphBuilder*.F90`; `graph/`;

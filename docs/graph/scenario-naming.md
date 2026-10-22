@@ -130,10 +130,34 @@ Same format as the legacy scenarios, consumed by the same checkers as
   how the chain order and intermediate values are recorded.
 - A short trailing `# comment` on a line explains a non-obvious
   expectation (`# hPa --> Pa`).
-- Graph-only facts (an edge that must not exist, an exception that must
-  be raised, node counts) do not fit this format; task A3 adds graph
-  checks. Until then they stay in `Test_GraphModeDemonstration.pf`, and
-  `description.md` says so.
+- Add `units` (checked against the field's units) on items whose units
+  matter, notably extension outputs.
+- Graph structure goes under a `graph:` key on the `<root>` entry:
+
+  ```yaml
+  - component: <root>
+    export: {...}
+    graph:
+      nodes: 6
+      connections:
+        - {export: comp_src/T, import: comp_dst/T, chain: [units, typekind]}
+        - {export: comp_src/T, import: comp_dst/T, wired: false}
+  ```
+
+  `nodes` (optional) is the number of nodes the root's own graph owns;
+  record the value after checking it by hand against the scenario.
+  Paths are `<component path>/<item>`, relative to the root. Each
+  connection must be one the root declares, since chains live in the
+  root's graph.
+  `chain` lists the extension steps from export to import (`units`,
+  `typekind`; `[]` means a direct edge). `wired: false` asserts there is
+  no edge and no predecessor on the import. Checked in graph and both
+  modes only.
+- A scenario that must raise a pFUnit exception, or must run with a
+  permissive field dictionary, says so in its `scenario_table()` entry in
+  `Test_Scenarios.pf` (`expected_exception`, `permissive`), not in
+  `expectations.yaml`. A scenario with `expected_exception` runs in graph
+  and both modes only.
 
 ## 9. Status of existing fixtures
 
@@ -148,15 +172,8 @@ renamed: tests refer to their directory names and item names
 Their placeholder standard name (`A1 standard name`) and the history in
 some `description.md` files are known deviations from §5 and §7.
 
-Until task A3 lands, nothing in the test suite reads these
-`expectations.yaml` files. They were checked by temporarily adding the
-fixtures to `Test_Scenarios.pf`'s `scenario_table()` (scenario name
-`../graph-scenarios/<name>`) and running them in the `registry`, `graph`
-and `both` modes. Six of seven pass cleanly, and a deliberately wrong
-`value` fails as it should. The seventh,
-`standard_name_and_ungridded_dims_mismatch`, passes every state check but
-needs the permissive field-dictionary override (§5) and leaves the
-`StandardNameCharacteristic` build_transform exception unconsumed, which
-`Test_Scenarios.pf` reports as a failure. A3 must handle that
-(an `expected_exception` entry or an equivalent) before this fixture
-joins a shared driver.
+All seven fixtures are in `Test_Scenarios.pf`'s `scenario_table()`
+(scenario name `../graph-scenarios/<name>`, `graph_ready` true) and run
+in `registry`, `graph` and `both` modes.
+`standard_name_and_ungridded_dims_mismatch` uses `permissive` and
+`expected_exception`.

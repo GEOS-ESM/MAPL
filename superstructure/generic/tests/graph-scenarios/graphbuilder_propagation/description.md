@@ -24,17 +24,20 @@ advertise-phase work resumes) is what performs that mirroring step,
 reusing the existing, unmodified `for_each_matching_import`/
 `resolve_one` machinery - no search, no proxy.
 
-Expected structural outcome, confirmed by
-Test_GraphModeDemonstration.pf's own
-`test_graph_mode_mirrors_grandchild_import_recursively`:
-- `comp_mid`'s own graph never registers a resource-index entry for
-  `T` (it never advertised one directly) - only an IMPORT-PORT entry,
-  populated by mirroring, pointing at `comp_dst`'s own real `NodeId`.
+Expected structural outcome:
 - The dependency edge `cap`'s own connection creates lives in `cap`'s
   own default network, directly between `comp_src`'s own real export
   `NodeId` and `comp_dst`'s own real import `NodeId` - the same two
   real endpoints a direct (non-mirrored) connection would use, with no
-  proxy node standing in for either side at any level.
+  proxy node standing in for either side at any level. This is the
+  `graph: connections:` entry in `expectations.yaml` (empty `chain`),
+  checked by `Test_Scenarios.pf`.
+- `comp_mid`'s own graph never registers a resource-index entry for
+  `T` (it never advertised one directly) - only an IMPORT-PORT entry,
+  populated by mirroring, pointing at `comp_dst`'s own real `NodeId`.
+  Not expressible in `expectations.yaml`; checked by
+  `Test_GraphModeDemonstration.pf`'s own
+  `test_graph_mode_mirrors_grandchild_import_recursively`.
 
 Task 6.7 (explicitly out of scope here, per design.md D3's own
 "genuinely open" note): inserting the mirrored import into

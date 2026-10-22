@@ -15,6 +15,18 @@ module Test_Scenarios
    use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_REGISTRY, GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
    use mapl_GriddedComponentDriver_mod
+   use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, &
+        set_field_dictionary_config, get_field_dictionary_config
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
+   use mapl_NodeId_mod, only: NodeId, operator(==)
+   use mapl_GraphBuilder_mod, only: item_key
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_FieldGet_mod, only: FieldGet
    use mapl_Generic_api, only: mapl_GridCompCreate, &
                                mapl_GenericSetServices !, &
                                !mapl_GridCompSetEntryPoint, &
@@ -51,6 +63,13 @@ module Test_Scenarios
       character(:), allocatable :: name
       character(:), allocatable :: root
       logical :: graph_ready
+      ! permissive: run with a PERMISSIVE field dictionary (the fixture
+      ! deliberately mismatches standard names, which STRICT rejects in the
+      ! legacy path before the graph sees it).
+      logical :: permissive = .false.
+      ! Exception text the graph path raises during initialization. Such a
+      ! scenario runs in graph and both modes only.
+      character(:), allocatable :: expected_exception
    end type ScenarioEntry
 
    @testParameter
@@ -59,6 +78,8 @@ module Test_Scenarios
       character(:), allocatable :: root
       character(:), allocatable :: graph_mode
       character(:), allocatable :: check_name
+      logical :: permissive = .false.
+      character(:), allocatable :: expected_exception
       procedure(I_check_stateitem), nopass, pointer :: check_stateitem
    contains
       procedure :: tostring => tostring_description
@@ -70,6 +91,9 @@ module Test_Scenarios
       character(:), allocatable :: scenario_root
       character(:), allocatable :: graph_mode
       character(:), allocatable :: check_name
+      logical :: permissive = .false.
+      character(:), allocatable :: expected_exception
+      type(FieldDictionaryConfig) :: saved_fd_config
       procedure(I_check_stateitem), nopass, pointer :: check_stateitem
 
       type(ESMF_HConfig), allocatable :: expectations
@@ -98,21 +122,28 @@ contains
       s%scenario_root = desc%root
       s%graph_mode = desc%graph_mode
       s%check_name = desc%check_name
+      s%permissive = desc%permissive
+      if (allocated(desc%expected_exception)) s%expected_exception = desc%expected_exception
       s%check_stateitem => desc%check_stateitem
    end function new_Scenario
 
-   function new_ScenarioDescription(name, root, graph_mode, check_name, check_stateitem) result(s)
+   function new_ScenarioDescription(name, root, graph_mode, check_name, check_stateitem, &
+        permissive, expected_exception) result(s)
       type(ScenarioDescription) :: s
       character(*), intent(in) :: name
       character(*), intent(in) :: root
       character(*), intent(in) :: graph_mode
       character(*), intent(in) :: check_name
       procedure(I_check_stateitem) :: check_stateitem
+      logical, optional, intent(in) :: permissive
+      character(*), optional, intent(in) :: expected_exception
       s%name = name
       s%root = root
       s%graph_mode = graph_mode
       s%check_name = check_name
       s%check_stateitem => check_stateitem
+      if (present(permissive)) s%permissive = permissive
+      if (present(expected_exception)) s%expected_exception = expected_exception
 
       call s%setNumPETsRequested(1)
    end function new_ScenarioDescription
@@ -151,7 +182,16 @@ contains
            ScenarioEntry('history_wildcard',        'cap.yaml',         .true.), &
            ScenarioEntry('extdata_1',               'cap.yaml',         .true.), &
            ScenarioEntry('names_1',                 'parent.yaml',      .true.), &
-           ScenarioEntry('expression',              'parent.yaml',      .true.) &
+           ScenarioEntry('expression',              'parent.yaml',      .true.), &
+           ScenarioEntry('../graph-scenarios/plain_field',                  'cap.yaml', .true.), &
+           ScenarioEntry('../graph-scenarios/vertical_field',               'cap.yaml', .true.), &
+           ScenarioEntry('../graph-scenarios/ungridded_dims',               'cap.yaml', .true.), &
+           ScenarioEntry('../graph-scenarios/units_mismatch_run_phase',     'cap.yaml', .true.), &
+           ScenarioEntry('../graph-scenarios/units_and_typekind_mismatch',  'cap.yaml', .true.), &
+           ScenarioEntry('../graph-scenarios/graphbuilder_propagation',     'cap.yaml', .true.), &
+           ScenarioEntry('../graph-scenarios/standard_name_and_ungridded_dims_mismatch', 'cap.yaml', .true., &
+                permissive=.true., &
+                expected_exception='StandardNameCharacteristic: build_transform - no real provider exists for this axis') &
            ]
    end function scenario_table
 
@@ -187,7 +227,9 @@ contains
             modes = [character(len=8) :: GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH]
          end if
       else
-         if (entry%graph_ready) then
+         if (entry%graph_ready .and. allocated(entry%expected_exception)) then
+            modes = [character(len=8) :: GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH]
+         else if (entry%graph_ready) then
             modes = [character(len=8) :: GRAPH_MODE_REGISTRY, GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH]
          else
             modes = [character(len=8) :: GRAPH_MODE_REGISTRY]
@@ -217,6 +259,7 @@ contains
       params = [params, add_params('exists', check_field_exists)]
       params = [params, add_params('status', check_field_status)]
       params = [params, add_params('typekind', check_field_typekind)]
+      params = [params, add_params('units', check_field_units)]
       params = [params, add_params('rank', check_field_rank)]
       params = [params, add_params('geom_name', check_field_geom_name)]
       params = [params, add_params('standard_name', check_field_standard_name)]
@@ -249,8 +292,13 @@ contains
             end if
             modes = modes_for(table(i), pending_only)
             do j = 1, size(modes)
-               params = [params, ScenarioDescription(table(i)%name, table(i)%root, trim(modes(j)), &
-                    check_name, check_stateitem)]
+               if (allocated(table(i)%expected_exception)) then
+                  params = [params, ScenarioDescription(table(i)%name, table(i)%root, trim(modes(j)), &
+                       check_name, check_stateitem, table(i)%permissive, table(i)%expected_exception)]
+               else
+                  params = [params, ScenarioDescription(table(i)%name, table(i)%root, trim(modes(j)), &
+                       check_name, check_stateitem, table(i)%permissive)]
+               end if
             end do
          end do
       end function add_params
@@ -272,6 +320,9 @@ contains
       call set_graph_mode(this%graph_mode, _RC)
       call set_materialize_extensions(this%graph_mode /= GRAPH_MODE_REGISTRY)
 
+      this%saved_fd_config = get_field_dictionary_config()
+      if (this%permissive) call set_field_dictionary_config(FieldDictionaryConfig())
+
       file_name = './scenarios/' // this%scenario_name // '/' // this%scenario_root
       config = ESMF_HConfigCreate(filename=file_name, _RC)
 
@@ -291,6 +342,10 @@ contains
              clock=clock, importState=importState, exportState=exportState, _RC)
 
         outer_states = MultiState(importState=importState, exportState=exportState)
+
+        if (allocated(this%expected_exception)) then
+           @assertExceptionRaised(this%expected_exception)
+        end if
 
         numsteps = 1
         has_numsteps = esmf_HConfigIsDefined(config, keystring='numsteps', _RC)
@@ -327,6 +382,7 @@ contains
 
       call set_materialize_extensions(.false.)
       call set_graph_mode(GRAPH_MODE_REGISTRY, _RC)
+      call set_field_dictionary_config(this%saved_fd_config)
 
       !# call ESMF_GridCompDestroy(this%outer_gc, _RC)
 
@@ -359,6 +415,8 @@ contains
          call check_items_in_state('export', _RC)
          call check_items_in_state('internal', _RC)
       end do components
+
+      call check_graph(this, _RC)
 
    contains
 
@@ -403,6 +461,272 @@ contains
       end subroutine check_items_in_state
 
    end subroutine check
+
+   ! Graph-structure checks, driven by an optional `graph:` key on the
+   ! <root> entry of expectations.yaml:
+   !   graph:
+   !     nodes: 5          (optional: nodes owned by the root's own graph)
+   !     connections:
+   !       - {export: comp_src/T, import: comp_dst/T, chain: [units, typekind]}
+   !       - {export: comp_src/T, import: comp_dst/T, wired: false}
+   ! `chain` lists the extension steps in order from export to import; an empty
+   ! list means a direct edge. Step kinds are inferred from the units and
+   ! typekind of the items either side of each transform. Paths are relative
+   ! to the root component, and each connection is one the root declared
+   ! (chains live in the root's graph). Registry mode has no graph, so it is skipped; the
+   ! checks run once per scenario and mode, under the 'item type' parameter.
+   subroutine check_graph(this, rc)
+      class(Scenario), intent(inout) :: this
+      integer, intent(out) :: rc
+
+      integer :: status, i, j, expected_nodes
+      type(NodeIdSet), target :: node_ids
+      type(OuterMetaComponent), pointer :: root_meta
+      type(ComponentGraph), pointer :: root_graph
+      type(DependencyNetwork), pointer :: net
+      type(ESMF_HConfig) :: comp_expectations, graph_expectations, connections, connection
+      character(:), allocatable :: comp_path
+
+      rc = 0
+      if (this%graph_mode == GRAPH_MODE_REGISTRY) return
+      if (this%check_name /= 'item type') return
+
+      root_meta => get_outer_meta(this%outer_gc, _RC)
+      root_graph => root_meta%get_component_graph()
+      net => root_graph%get_network(root_graph%get_default_network_id())
+
+      do i = 1, ESMF_HConfigGetSize(this%expectations)
+         comp_expectations = ESMF_HConfigCreateAt(this%expectations, index=i, _RC)
+         if (.not. ESMF_HConfigIsDefined(comp_expectations, keyString='graph')) cycle
+         comp_path = ESMF_HConfigAsString(comp_expectations, keyString='component', _RC)
+         @assertEqual('<root>', comp_path, 'graph expectations belong on the <root> entry')
+
+         graph_expectations = ESMF_HConfigCreateAt(comp_expectations, keyString='graph', _RC)
+         if (ESMF_HConfigIsDefined(graph_expectations, keyString='nodes')) then
+            expected_nodes = ESMF_HConfigAsI4(graph_expectations, keyString='nodes', _RC)
+            node_ids = root_graph%get_node_ids()
+            @assertEqual(expected_nodes, node_ids%size(), 'graph :: node count owned by the root graph')
+         end if
+         connections = ESMF_HConfigCreateAt(graph_expectations, keyString='connections', _RC)
+         do j = 1, ESMF_HConfigGetSize(connections)
+            connection = ESMF_HConfigCreateAt(connections, index=j, _RC)
+            call check_connection(connection, _RC)
+         end do
+      end do
+      rc = 0
+
+   contains
+
+      subroutine check_connection(connection, rc)
+         type(ESMF_HConfig), intent(in) :: connection
+         integer, intent(out) :: rc
+
+         integer :: status, k
+         character(:), allocatable :: export_path, import_path, msg
+         type(NodeId), pointer :: export_id, import_id
+         type(NodeId) :: cur, prev, transform_id
+         character(len=16), allocatable :: found(:), expected(:)
+         type(ESMF_HConfig) :: chain, step
+         character(len=16) :: kind
+         logical :: wired, ok
+         integer, parameter :: MAX_CHAIN = 16
+
+         rc = 0
+         export_path = ESMF_HConfigAsString(connection, keyString='export', _RC)
+         import_path = ESMF_HConfigAsString(connection, keyString='import', _RC)
+         msg = 'graph :: ' // export_path // ' -> ' // import_path
+
+         export_id => resolve(export_path, ESMF_STATEINTENT_EXPORT, _RC)
+         import_id => resolve(import_path, ESMF_STATEINTENT_IMPORT, _RC)
+         @assert_that(msg // ' :: export resolved', associated(export_id), is(true()))
+         @assert_that(msg // ' :: import resolved', associated(import_id), is(true()))
+         if (.not. (associated(export_id) .and. associated(import_id))) then
+            rc = 0
+            return
+         end if
+
+         wired = .true.
+         if (ESMF_HConfigIsDefined(connection, keyString='wired')) then
+            wired = ESMF_HConfigAsLogical(connection, keyString='wired', _RC)
+         end if
+
+         if (.not. wired) then
+            @assert_that(msg // ' :: no edge', net%contains_dependency(export_id, import_id), is(false()))
+            @assert_that(msg // ' :: import has no predecessor', net%has_predecessors(import_id), is(false()))
+            rc = 0
+            return
+         end if
+
+         allocate(expected(0))
+         if (ESMF_HConfigIsDefined(connection, keyString='chain')) then
+            chain = ESMF_HConfigCreateAt(connection, keyString='chain', _RC)
+            deallocate(expected)
+            allocate(expected(ESMF_HConfigGetSize(chain)))
+            do k = 1, size(expected)
+               step = ESMF_HConfigCreateAt(chain, index=k, _RC)
+               expected(k) = ESMF_HConfigAsString(step, _RC)
+            end do
+         end if
+
+         allocate(found(0))
+         if (.not. net%contains_dependency(export_id, import_id)) then
+            ! import <- final item <- transform <- item ... <- export
+            cur = import_id
+            prev = sole_predecessor(cur, ok)
+            @assert_that(msg // ' :: import has exactly one predecessor', ok, is(true()))
+            if (.not. ok) then
+               rc = 0
+               return
+            end if
+            cur = prev
+            do while (.not. cur == export_id)
+               transform_id = sole_predecessor(cur, ok)
+               @assert_that(msg // ' :: chain item has exactly one predecessor', ok, is(true()))
+               if (.not. ok) exit
+               @assert_that(msg // ' :: predecessor is a transform', is_transform(transform_id), is(true()))
+               if (.not. is_transform(transform_id)) exit
+               prev = sole_predecessor(transform_id, ok)
+               @assert_that(msg // ' :: transform has exactly one input', ok, is(true()))
+               if (.not. ok) exit
+               kind = step_kind(prev, cur, _RC)
+               found = [kind, found]
+               cur = prev
+               @assert_that(msg // ' :: chain longer than MAX_CHAIN (cycle?)', size(found) <= MAX_CHAIN, is(true()))
+               if (size(found) > MAX_CHAIN) exit
+            end do
+            @assert_that(msg // ' :: chain reaches the export', cur == export_id, is(true()))
+         end if
+
+         @assertEqual(size(expected), size(found), msg // ' :: chain length')
+         if (size(expected) == size(found)) then
+            do k = 1, size(expected)
+               @assertEqual(trim(expected(k)), trim(found(k)), msg // ' :: chain step ' // int_to_string(k))
+            end do
+         end if
+         rc = 0
+      end subroutine check_connection
+
+      function resolve(path, intent, rc) result(id)
+         type(NodeId), pointer :: id
+         character(*), intent(in) :: path
+         type(ESMF_StateIntent_Flag), intent(in) :: intent
+         integer, intent(out) :: rc
+
+         integer :: status, idx
+         type(OuterMetaComponent), pointer :: meta
+         type(ComponentGraph), pointer :: graph
+         character(:), allocatable :: rest, child_name
+
+         rc = 0
+         id => null()
+         idx = index(path, '/', back=.true.)
+         @assertTrue(idx > 1, 'graph expectation path needs a component and an item: ' // path)
+         if (idx <= 1) then
+            rc = 0
+            return
+         end if
+         meta => root_meta
+         rest = path(:idx-1)
+         do while (len(rest) > 0)
+            idx = index(rest, '/')
+            if (idx == 0) then
+               child_name = rest
+               rest = ''
+            else
+               child_name = rest(:idx-1)
+               rest = rest(idx+1:)
+            end if
+            meta => meta%get_child_outer_meta(child_name, _RC)
+         end do
+         graph => meta%get_component_graph()
+         idx = index(path, '/', back=.true.)
+         id => graph%get_resource_index(item_key(intent, path(idx+1:)))
+         rc = 0
+      end function resolve
+
+      function sole_predecessor(id, ok) result(pred)
+         type(NodeId) :: pred
+         type(NodeId), intent(in) :: id
+         logical, intent(out) :: ok
+
+         type(NodeIdSet), target :: preds
+         type(NodeIdSetIterator) :: iter
+
+         preds = net%get_predecessors(id)
+         ok = (preds%size() == 1)
+         if (.not. ok) return
+         iter = preds%ftn_begin()
+         call iter%next()
+         pred = iter%of()
+      end function sole_predecessor
+
+      logical function is_transform(id)
+         type(NodeId), intent(in) :: id
+         class(GraphNode), pointer :: node
+
+         node => root_graph%get_node(id)
+         is_transform = .false.
+         if (.not. associated(node)) return
+         select type (node)
+         class is (TransformGraphNode)
+            is_transform = .true.
+         end select
+      end function is_transform
+
+      function step_kind(in_id, out_id, rc) result(kind)
+         character(len=16) :: kind
+         type(NodeId), intent(in) :: in_id, out_id
+         integer, intent(out) :: rc
+
+         integer :: status
+         character(:), allocatable :: in_units, out_units
+         type(ESMF_TypeKind_Flag) :: in_tk, out_tk
+         type(ESMF_Field) :: in_field, out_field
+
+         rc = 0
+         kind = 'unknown'
+         in_field = item_field(in_id, _RC)
+         out_field = item_field(out_id, _RC)
+         call FieldGet(in_field, units=in_units, typekind=in_tk, _RC)
+         call FieldGet(out_field, units=out_units, typekind=out_tk, _RC)
+
+         if (in_units /= out_units .and. in_tk == out_tk) kind = 'units'
+         if (in_units == out_units .and. in_tk /= out_tk) kind = 'typekind'
+         rc = 0
+      end function step_kind
+
+      function item_field(id, rc) result(field)
+         type(ESMF_Field) :: field
+         type(NodeId), intent(in) :: id
+         integer, intent(out) :: rc
+
+         integer :: status
+         class(GraphNode), pointer :: node
+         type(GraphStateItem), pointer :: payload
+
+         rc = 0
+         node => root_graph%get_node(id)
+         select type (node)
+         class is (StateItemNode)
+            payload => node%get_payload_ptr()
+         class default
+            @assertTrue(.false., 'graph chain item is not a StateItemNode')
+            return
+         end select
+         field = payload%get_field(_RC)
+         @assertTrue(ESMF_FieldIsCreated(field), 'graph chain item has a real, created field')
+      end function item_field
+
+      function int_to_string(n) result(str)
+         character(:), allocatable :: str
+         integer, intent(in) :: n
+         character(len=12) :: buffer
+
+         write(buffer, '(i0)') n
+         str = trim(buffer)
+      end function int_to_string
+
+   end subroutine check_graph
 
    function get_itemtype(state, short_name, rc) result(itemtype)
       type(ESMF_StateItem_Flag) :: itemtype
@@ -656,6 +980,38 @@ contains
          end if
       end function typekind_to_string
    end subroutine check_field_typekind
+
+   subroutine check_field_units(expectations, state, short_name, description, rc)
+      type(ESMF_HConfig), intent(in) :: expectations
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: short_name
+      character(*), intent(in) :: description
+      integer, intent(out) :: rc
+
+      character(len=:), allocatable :: expected_units, found_units
+      type(ESMF_StateItem_Flag) :: itemtype
+      type(ESMF_Field) :: field
+      integer :: status
+
+      itemtype = get_itemtype(state, short_name, _RC)
+      if (itemtype /= ESMF_STATEITEM_FIELD) then ! that's ok
+         rc = 0
+         return
+      end if
+
+      if (.not. ESMF_HConfigIsDefined(expectations,keyString='units')) then
+         rc = 0
+         return
+      end if
+
+      expected_units = ESMF_HConfigAsString(expectations,keyString='units',_RC)
+      call ESMF_StateGet(state, short_name, field, _RC)
+      call FieldGet(field, units=found_units, _RC)
+      @assert_that(description // ' :: expected=' // expected_units // ', found=' // found_units, &
+           found_units == expected_units, is(true()))
+
+      rc = 0
+   end subroutine check_field_units
 
    subroutine check_field_value(expectations, state, short_name, description, rc)
       type(ESMF_HConfig), intent(in) :: expectations

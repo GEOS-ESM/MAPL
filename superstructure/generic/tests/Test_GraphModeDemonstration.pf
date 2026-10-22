@@ -44,8 +44,9 @@
 !      making the export proxy's own field a MAPL_NamedAlias of
 !      comp_src's own real export field (try_alias_export_field,
 !      GraphBuilder.F90, mirroring D1-D6's own "always alias, never
-!      duplicate" fix for the sibling-import side) - this test now
-!      asserts the real, converted value below.
+!      duplicate" fix for the sibling-import side). The converted
+!      value is checked by Test_Scenarios.pf (units_mismatch_run_phase,
+!      units_and_typekind_mismatch).
 !
 ! Gaps (1)/(2) are still tracked as roadmap work items
 ! (docs/graph/spec/20-implementation-roadmap.md §20.4.8's own "work
@@ -56,8 +57,8 @@
 ! actually propagating through that chain end-to-end to comp_dst's own
 ! real import state; design.md D7's own pull hook
 ! (graphbuilder_run_pull_hook/graph%update(), called from run_user.F90)
-! is exercised by this test and its observable effect (the converted
-! numeric value) is now asserted.
+! is exercised by the run phase here, and its numeric effect is
+! checked by Test_Scenarios.pf.
 module Test_GraphModeDemonstration
 
    use mapl_Generic_mod
@@ -66,19 +67,11 @@ module Test_GraphModeDemonstration
    use mapl_OuterMetaComponent_mod
    use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_GRAPH, GRAPH_MODE_REGISTRY
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
-   use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, &
-        set_field_dictionary_config, get_field_dictionary_config
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_ComponentGraph_mod, only: ComponentGraph
-   use mapl_DependencyNetwork_mod, only: DependencyNetwork
-   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
    use mapl_GraphBuilder_mod, only: item_key
    use mapl_NodeId_mod, only: NodeId, operator(==)
-   use mapl_GraphNode_mod, only: GraphNode
-   use mapl_StateItemNode_mod, only: StateItemNode
-   use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_Generic_api, only: mapl_GenericSetServices
-   use mapl_FieldGet_mod, only: FieldGet
    use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
    use mapl_RestartHandler_mod, only: get_restart_bundle
    use esmf
@@ -95,7 +88,7 @@ contains
       type(ESMF_HConfig) :: config
       type(ESMF_Config) :: config_cf
       type(ESMF_GridComp) :: cap_gc
-      type(OuterMetaComponent), pointer :: cap_meta, dst_meta, src_meta
+      type(OuterMetaComponent), pointer :: cap_meta, dst_meta
       type(GriddedComponentDriver) :: dst_driver
       type(GriddedComponentDriver), pointer :: dst_own_driver
       type(ESMF_GridComp) :: dst_gc
@@ -107,14 +100,6 @@ contains
       type(ESMF_TimeInterval) :: dt
       integer :: status, user_status, i
       integer :: item_count
-      type(ESMF_Field) :: result_field, chain_input_field
-      type(ESMF_TypeKind_Flag) :: result_typekind
-      character(:), allocatable :: result_units
-      real(ESMF_KIND_R4), pointer :: result_data(:,:)
-      type(ComponentGraph), pointer :: src_graph
-      type(NodeId), pointer :: export_proxy_id
-      class(GraphNode), pointer :: export_proxy_node
-      type(GraphStateItem) :: export_proxy_payload
 
       call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
 
@@ -165,8 +150,7 @@ contains
       ! GENERIC_RUN_USER down to comp_dst as well, so comp_dst's own
       ! driver%run() also executes (D7's own pull hook,
       ! graphbuilder_run_pull_hook/graph%update(), fires there - no
-      ! crash, and now also has an observable numeric effect, asserted
-      ! below).
+      ! crash; its numeric effect is checked by Test_Scenarios.pf).
       call ESMF_GridCompRun(cap_gc, &
            importState=importState, exportState=exportState, clock=clock, &
            phase=GENERIC_RUN_USER, userRC=user_status, _RC)
@@ -187,51 +171,6 @@ contains
       ! population alone; legacy never ran for this component.
       call ESMF_StateGet(dst_own_import_state, itemCount=item_count, _RC)
       @assertEqual(1, item_count, 'comp_dst own import state has exactly one entry under GRAPH_MODE_GRAPH')
-
-      call ESMF_StateGet(dst_own_import_state, 'T', result_field, _RC)
-      call FieldGet(result_field, typekind=result_typekind, units=result_units, _RC)
-      @assertTrue(result_typekind == ESMF_TYPEKIND_R4, 'chain final item has the import''s own typekind (R4, no typekind mismatch in this fixture)')
-      @assertEqual('Pa', result_units, 'chain final item has the import''s own units (Pa)')
-
-      ! Export's own real field (openspec/changes/hierarchy-wide-
-      ! component-graph, tasks.md 3.4: no parent-local proxy exists
-      ! anymore - the chain's own input is comp_src's own real NodeId
-      ! directly, in comp_src's own graph) has the EXPORT's own
-      ! typekind/units - confirms gap (2) above is fixed: the chain's
-      ! own input is now real, not unallocated.
-      dst_driver = cap_meta%get_child('comp_src', _RC)
-      dst_gc = dst_driver%get_gridcomp()
-      src_meta => get_outer_meta(dst_gc, _RC)
-      src_graph => src_meta%get_component_graph()
-      export_proxy_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
-      @assert_that('export item resolved', associated(export_proxy_id), is(true()))
-      export_proxy_node => src_graph%get_node(export_proxy_id)
-      select type (export_proxy_node)
-      class is (StateItemNode)
-         export_proxy_payload = export_proxy_node%get_payload()
-      class default
-         @assert_that('export node is a StateItemNode', .false., is(true()))
-      end select
-      chain_input_field = export_proxy_payload%get_field(rc=status)
-      @assertEqual(0, status, 'export item has a real, allocated field (gap 2 fix)')
-      @assert_that('export field is a real ESMF_Field', ESMF_FieldIsCreated(chain_input_field), is(true()))
-
-      ! openspec/changes/phase-11a-export-field-aliasing, design.md D6
-      ! (closes gap 3 above): the export's own field is now a
-      ! real MAPL_NamedAlias of comp_src's own real export field (not
-      ! an independent FieldCreate), so comp_src's own real run()
-      ! (comp_src.yaml's 'run: {T: [10]}') writing 10. hPa into its own
-      ! real export field is observed here, through this same resolved
-      ! structure, converted by the chain's own UnitsConverterTransform
-      ! (hPa -> Pa, factor 100) into 1000. Pa - the fixture's own
-      ! hand-checked value (units_mismatch_run_phase/description.md).
-      ! result_field is 2D (vertical_dim_spec: NONE, no ungridded dims)
-      ! R4 (already asserted above) - farrayPtr accessor matches
-      ! Test_3DConservativeMixingRatio.pf/Test_CopyTransform.pf's own
-      ! real-numeric-assertion precedent.
-      call ESMF_FieldGet(result_field, farrayPtr=result_data, _RC)
-      @assertEqual(1000._ESMF_KIND_R4, result_data, tolerance=1.0e-4_ESMF_KIND_R4, &
-           message='comp_dst own import field reflects comp_src''s own run-phase value, converted hPa->Pa (gap 3 fix)')
 
       _UNUSED_DUMMY(this)
    end subroutine test_graph_mode_populates_sibling_states
@@ -254,7 +193,7 @@ contains
       type(ESMF_HConfig) :: config
       type(ESMF_Config) :: config_cf
       type(ESMF_GridComp) :: cap_gc
-      type(OuterMetaComponent), pointer :: cap_meta, dst_meta, src_meta
+      type(OuterMetaComponent), pointer :: cap_meta, dst_meta
       type(GriddedComponentDriver) :: dst_driver
       type(GriddedComponentDriver), pointer :: dst_own_driver
       type(ESMF_GridComp) :: dst_gc
@@ -266,21 +205,6 @@ contains
       type(ESMF_TimeInterval) :: dt
       integer :: status, user_status, i
       integer :: item_count
-      type(ESMF_Field) :: result_field, chain_input_field, chain_intermediate_field
-      type(ESMF_TypeKind_Flag) :: result_typekind
-      character(:), allocatable :: result_units
-      real(ESMF_KIND_R8), pointer :: result_data(:,:)
-      type(ComponentGraph), pointer :: cap_graph, src_graph, dst_graph
-      type(DependencyNetwork), pointer :: net
-      type(NodeId), pointer :: export_proxy_id
-      type(NodeId), pointer :: import_proxy_id
-      type(NodeIdSet), target :: preds
-      type(NodeIdSetIterator) :: pred_iter
-      type(NodeId) :: chain_intermediate_id
-      class(GraphNode), pointer :: export_proxy_node
-      class(GraphNode), pointer :: chain_intermediate_node
-      type(GraphStateItem) :: export_proxy_payload
-      type(GraphStateItem) :: chain_intermediate_payload
 
       call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
 
@@ -313,98 +237,7 @@ contains
       call set_graph_mode(GRAPH_MODE_REGISTRY)
 
       cap_meta => get_outer_meta(cap_gc, _RC)
-      cap_graph => cap_meta%get_component_graph()
 
-      ! openspec/changes/phase-11b-chain-intermediate-materialization:
-      ! BEFORE any run phase executes, confirm every link of this
-      ! two-characteristic chain already has a real, allocated payload -
-      ! the chain's own INPUT (comp_src's own real export NodeId, in
-      ! comp_src's own graph - openspec/changes/hierarchy-wide-
-      ! component-graph tasks.md 3.4: no parent-local proxy exists
-      ! anymore) and its own INTERMEDIATE node (between
-      ! UnitsConverterTransform and TypeKindConverterTransform - this
-      ! change's own scope, closing §20.4.9's first gap). The
-      ! TransformGraphNodes and intermediate StateItemNode are still
-      ! registered in cap's own graph (find_or_build_extension_chain is
-      ! called with cap's own ComponentGraph/default network, since cap
-      ! is the component that declared the connection) - only the
-      ! chain's two real endpoints (export/import) now live in each
-      ! child's own graph. The chain's own structure alternates
-      ! StateItemNode -> TransformGraphNode -> StateItemNode -> ...
-      ! (build_chain, ExtensionResolution.F90): walking back from the
-      ! import's sole predecessor (the chain's FINAL StateItemNode)
-      ! needs TWO more predecessor hops (through
-      ! TypeKindConverterTransform's own TransformGraphNode) to reach
-      ! the chain's INTERMEDIATE StateItemNode, not one.
-      dst_driver = cap_meta%get_child('comp_src', _RC)
-      dst_gc = dst_driver%get_gridcomp()
-      src_meta => get_outer_meta(dst_gc, _RC)
-      src_graph => src_meta%get_component_graph()
-      export_proxy_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
-      @assert_that('export item resolved', associated(export_proxy_id), is(true()))
-      export_proxy_node => src_graph%get_node(export_proxy_id)
-      select type (export_proxy_node)
-      class is (StateItemNode)
-         export_proxy_payload = export_proxy_node%get_payload()
-      class default
-         @assert_that('export node is a StateItemNode', .false., is(true()))
-      end select
-      chain_input_field = export_proxy_payload%get_field(rc=status)
-      @assertEqual(0, status, 'export item (chain input) has a real, allocated field')
-      @assert_that('export field is a real ESMF_Field', ESMF_FieldIsCreated(chain_input_field), is(true()))
-
-      dst_driver = cap_meta%get_child('comp_dst', _RC)
-      dst_gc = dst_driver%get_gridcomp()
-      dst_meta => get_outer_meta(dst_gc, _RC)
-      dst_graph => dst_meta%get_component_graph()
-      import_proxy_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
-      @assert_that('import item resolved', associated(import_proxy_id), is(true()))
-      net => cap_graph%get_network(cap_graph%get_default_network_id())
-      preds = net%get_predecessors(import_proxy_id)
-      @assertEqual(1, preds%size(), 'import has exactly one predecessor (the chain''s final item)')
-      pred_iter = preds%ftn_begin()
-      call pred_iter%next()
-      ! pred_iter%of() is the chain's FINAL StateItemNode
-      ! (TypeKindConverterTransform's own output - wired directly to
-      ! the import via add_dependency, resolve_one's own final step).
-      ! That node's own predecessor is TypeKindConverterTransform's own
-      ! TransformGraphNode (build_chain wires
-      ! transform_node_id -> extension_node_id), not another
-      ! StateItemNode - walk one more hop past that TransformGraphNode
-      ! to reach its own predecessor, the chain's INTERMEDIATE
-      ! StateItemNode (UnitsConverterTransform's own output,
-      ! TypeKindConverterTransform's own input).
-      preds = net%get_predecessors(pred_iter%of())
-      @assertEqual(1, preds%size(), 'chain final item has exactly one predecessor (TypeKindConverterTransform''s own TransformGraphNode)')
-      pred_iter = preds%ftn_begin()
-      call pred_iter%next()
-      preds = net%get_predecessors(pred_iter%of())
-      @assertEqual(1, preds%size(), 'TypeKindConverterTransform''s own TransformGraphNode has exactly one predecessor (the chain''s intermediate item)')
-      pred_iter = preds%ftn_begin()
-      call pred_iter%next()
-      chain_intermediate_id = pred_iter%of()
-
-      chain_intermediate_node => cap_graph%get_node(chain_intermediate_id)
-      select type (chain_intermediate_node)
-      class is (StateItemNode)
-         chain_intermediate_payload = chain_intermediate_node%get_payload()
-      class default
-         @assert_that('chain intermediate node is a StateItemNode', .false., is(true()))
-      end select
-      chain_intermediate_field = chain_intermediate_payload%get_field(rc=status)
-      @assertEqual(0, status, 'chain intermediate item has a real, allocated field (this change''s own scope)')
-      @assert_that('chain intermediate field is a real ESMF_Field', ESMF_FieldIsCreated(chain_intermediate_field), is(true()))
-
-      ! A real GENERIC_RUN_USER phase - mirroring
-      ! test_graph_mode_populates_sibling_states above exactly.
-      ! comp_src.yaml's own `run: {T: [10]}` sets T to 10. hPa/R4;
-      ! run_children_phases_ propagates GENERIC_RUN_USER down to
-      ! comp_dst, whose own driver%run() triggers D7's own pull hook
-      ! (graphbuilder_run_pull_hook/graph%update()) - which, for this
-      ! fixture, now pulls through BOTH chain links (units, then
-      ! typekind), each with a real payload to read from and write to
-      ! (confirmed above), rather than failing on the intermediate
-      ! link's own previously-unallocated payload.
       call ESMF_GridCompRun(cap_gc, &
            importState=importState, exportState=exportState, clock=clock, &
            phase=GENERIC_RUN_USER, userRC=user_status, _RC)
@@ -420,22 +253,6 @@ contains
 
       call ESMF_StateGet(dst_own_import_state, itemCount=item_count, _RC)
       @assertEqual(1, item_count, 'comp_dst own import state has exactly one entry under GRAPH_MODE_GRAPH')
-
-      call ESMF_StateGet(dst_own_import_state, 'T', result_field, _RC)
-      call FieldGet(result_field, typekind=result_typekind, units=result_units, _RC)
-      @assertTrue(result_typekind == ESMF_TYPEKIND_R8, 'chain final item has the import''s own typekind (R8)')
-      @assertEqual('Pa', result_units, 'chain final item has the import''s own units (Pa)')
-
-      ! Hand-checked value (units_and_typekind_mismatch/description.md):
-      ! 10. hPa -(units, factor 100)-> 1000. Pa -(typekind, R4->R8)->
-      ! 1000.d0 Pa. Both conversions composed correctly end to end -
-      ! the real goal this change (11b) and 11a together unlock, per
-      ! §20.4.10's own "Both landing is what unlocks a real
-      ! units_and_typekind_mismatch-style two-characteristic run-phase
-      ! demonstration."
-      call ESMF_FieldGet(result_field, farrayPtr=result_data, _RC)
-      @assertEqual(1000._ESMF_KIND_R8, result_data, tolerance=1.0e-4_ESMF_KIND_R8, &
-           message='comp_dst own import field reflects comp_src''s own run-phase value, converted hPa->Pa and R4->R8')
 
       _UNUSED_DUMMY(this)
    end subroutine test_graph_mode_propagates_through_two_characteristic_chain
@@ -468,7 +285,7 @@ contains
       type(ESMF_HConfig) :: config
       type(ESMF_Config) :: config_cf
       type(ESMF_GridComp) :: cap_gc
-      type(OuterMetaComponent), pointer :: cap_meta, mid_meta, src_meta, dst_meta
+      type(OuterMetaComponent), pointer :: cap_meta, mid_meta, dst_meta
       type(GriddedComponentDriver) :: child_driver
       type(ESMF_GridComp) :: child_gc
       type(ESMF_State) :: importState, exportState
@@ -476,9 +293,8 @@ contains
       type(ESMF_Time) :: t0, t1
       type(ESMF_TimeInterval) :: dt
       integer :: status, user_status, i
-      type(ComponentGraph), pointer :: cap_graph, mid_graph, src_graph, dst_graph
-      type(DependencyNetwork), pointer :: cap_net
-      type(NodeId), pointer :: src_export_id, dst_import_id
+      type(ComponentGraph), pointer :: mid_graph, dst_graph
+      type(NodeId), pointer :: dst_import_id
       type(PortIdNodeIdMap) :: mid_import_ports
       logical :: mirrored_into_mid
 
@@ -522,12 +338,6 @@ contains
       call set_graph_mode(GRAPH_MODE_REGISTRY)
 
       cap_meta => get_outer_meta(cap_gc, _RC)
-      cap_graph => cap_meta%get_component_graph()
-
-      child_driver = cap_meta%get_child('comp_src', _RC)
-      child_gc = child_driver%get_gridcomp()
-      src_meta => get_outer_meta(child_gc, _RC)
-      src_graph => src_meta%get_component_graph()
 
       child_driver = cap_meta%get_child('comp_mid', _RC)
       child_gc = child_driver%get_gridcomp()
@@ -558,141 +368,8 @@ contains
       @assert_that('comp_dst own import T is mirrored into comp_mid own import-port table', &
            mirrored_into_mid, is(true()))
 
-      ! cap's own connection (src_comp: comp_src, dst_comp: comp_mid)
-      ! resolved against the MIRRORED port exactly as it would an item
-      ! comp_mid advertised directly - the dependency edge connects the
-      ! two REAL endpoints (comp_src's own export NodeId, comp_dst's
-      ! own import NodeId) directly, with no proxy at any level, living
-      ! in cap's own default network (the component that declared this
-      ! connection).
-      src_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
-      @assert_that('comp_src own export T resolved', associated(src_export_id), is(true()))
-
-      cap_net => cap_graph%get_network(cap_graph%get_default_network_id())
-      @assert_that('cap own default network wires comp_src export directly to comp_dst import, no proxy', &
-           cap_net%contains_dependency(src_export_id, dst_import_id), is(true()))
-
       _UNUSED_DUMMY(this)
    end subroutine test_graph_mode_mirrors_grandchild_import_recursively
-
-   ! openspec/changes/phase-12-characteristic-dispatch-wiring, design.md
-   ! D4/tasks.md 7.4: the new standard_name_and_ungridded_dims_mismatch
-   ! fixture (graph-scenarios/standard_name_and_ungridded_dims_mismatch/
-   ! description.md), exercised through the real YAML/init-phase
-   ! pipeline rather than the synthetic-node unit test in
-   ! Test_GraphBuilder_ConnectionResolution.pf. Confirms the explicit-
-   ! failure path fires exactly as that synthetic test already confirms
-   ! (same reason string), end to end from a real config file - not a
-   ! second, independent assertion of different behavior.
-   @test(npes=[0])
-   subroutine test_graph_mode_leaves_newly_wired_axis_mismatch_unwired(this)
-      class(MpiTestMethod), intent(inout) :: this
-
-      type(ESMF_HConfig) :: config
-      type(ESMF_Config) :: config_cf
-      type(ESMF_GridComp) :: cap_gc
-      type(OuterMetaComponent), pointer :: cap_meta, src_meta, dst_meta
-      type(GriddedComponentDriver) :: child_driver
-      type(ESMF_GridComp) :: child_gc
-      type(ESMF_State) :: importState, exportState
-      type(ESMF_Clock) :: clock
-      type(ESMF_Time) :: t0, t1
-      type(ESMF_TimeInterval) :: dt
-      integer :: status, user_status, i
-      type(ComponentGraph), pointer :: cap_graph, src_graph, dst_graph
-      type(DependencyNetwork), pointer :: cap_net
-      type(NodeId), pointer :: src_export_id, dst_import_id
-      type(FieldDictionaryConfig) :: saved_fd_config
-
-      call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
-
-      ! This suite's own EXTRA_INITIALIZE (Initialize_strict) forces
-      ! strict field-dictionary ValidationMode for the whole process -
-      ! which would make the LEGACY StandardNameAspect%matches() (run by
-      ! process_connections()/Connection%connect(), unconditionally, even
-      ! under GRAPH_MODE_GRAPH - initialize_accept_transfer.F90's own
-      ! header comment) reject this fixture's standard_name mismatch
-      ! itself, before GraphBuilder's own newly-wired detection ever
-      ! gets a chance to run. Force permissive for this one test only,
-      ! mirroring Test_Aspects.pf's own save/override/restore
-      ! convention - the real thing under test here is GraphBuilder's
-      ! own characteristic-mismatch detection, not legacy's independent
-      ! standard_name enforcement.
-      saved_fd_config = get_field_dictionary_config()
-      call set_field_dictionary_config(FieldDictionaryConfig())
-
-      config = ESMF_HConfigCreate( &
-           filename='./graph-scenarios/standard_name_and_ungridded_dims_mismatch/cap.yaml', _RC)
-      config_cf = ESMF_ConfigCreate(hconfig=config, _RC)
-      cap_gc = ESMF_GridCompCreate(name='CAP_GRAPH_MODE_DEMO_UNSUPPORTED', config=config_cf, _RC)
-      call ESMF_GridCompSetServices(cap_gc, mapl_GenericSetservices, userRC=user_status, _RC)
-      _VERIFY(user_status)
-
-      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
-      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
-      call ESMF_TimeIntervalSet(dt, h=1)
-      clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
-
-      importState = ESMF_StateCreate(_RC)
-      exportState = ESMF_StateCreate(_RC)
-
-      ! graphbuilder_run_connect_hook (GraphBuilder_LifecycleHooks_smod.F90)
-      ! catches the STANDARD_NAME build_transform failure itself -
-      ! surfaced as a logged warning (report_if_failed/the
-      ! unsupported%of(i) loop), never propagated as a userRC failure -
-      ! so this init sequence completes normally; the real assertion is
-      ! that no dependency edge was ever wired between the two real
-      ! endpoints below.
-      call set_graph_mode(GRAPH_MODE_GRAPH)
-      do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
-         associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
-            call ESMF_GridCompInitialize(cap_gc, &
-                 importState=importState, exportState=exportState, clock=clock, &
-                 phase=phase, userRC=user_status, _RC)
-            _VERIFY(user_status)
-         end associate
-      end do
-      call set_graph_mode(GRAPH_MODE_REGISTRY)
-
-      ! StandardNameCharacteristic%build_transform _FAILs explicitly (no
-      ! real provider exists for this axis), exactly like
-      ! test_standard_name_mismatch_fails_explicitly's own synthetic-node
-      ! unit test - consume the pFUnit exception it raises so the real
-      ! assertions below (not this already-confirmed detection detail)
-      ! drive this test's own pass/fail outcome.
-      @assertExceptionRaised('StandardNameCharacteristic: build_transform - no real provider exists for this axis')
-
-      cap_meta => get_outer_meta(cap_gc, _RC)
-      cap_graph => cap_meta%get_component_graph()
-
-      child_driver = cap_meta%get_child('comp_src', _RC)
-      child_gc = child_driver%get_gridcomp()
-      src_meta => get_outer_meta(child_gc, _RC)
-      src_graph => src_meta%get_component_graph()
-
-      child_driver = cap_meta%get_child('comp_dst', _RC)
-      child_gc = child_driver%get_gridcomp()
-      dst_meta => get_outer_meta(child_gc, _RC)
-      dst_graph => dst_meta%get_component_graph()
-
-      src_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
-      dst_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
-      @assert_that('comp_src own export T resolved', associated(src_export_id), is(true()))
-      @assert_that('comp_dst own import T resolved', associated(dst_import_id), is(true()))
-
-      ! design.md D3/D4: no real build_transform exists for either
-      ! mismatched axis (standard_name, ungridded_dims) - the connection
-      ! is reported through unsupported_characteristics, never wired.
-      cap_net => cap_graph%get_network(cap_graph%get_default_network_id())
-      @assert_that('cap own default network has NO edge between the mismatched export and import', &
-           cap_net%contains_dependency(src_export_id, dst_import_id), is(false()))
-      @assert_that('comp_dst own import T has no predecessor', &
-           cap_net%has_predecessors(dst_import_id), is(false()))
-
-      call set_field_dictionary_config(saved_fd_config)
-
-      _UNUSED_DUMMY(this)
-   end subroutine test_graph_mode_leaves_newly_wired_axis_mismatch_unwired
 
    ! openspec/changes/phase-13-restart-compatibility (docs/graph/spec/
    ! 20-implementation-roadmap.md sec 20.4.13): verify that populate_one

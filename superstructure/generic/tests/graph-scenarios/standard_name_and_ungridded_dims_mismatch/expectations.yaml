@@ -1,7 +1,6 @@
-# State expectations only. The unwired graph edge and the expected
-# StandardNameCharacteristic exception are checked by
-# Test_GraphModeDemonstration.pf, not here.
-# Permissive field-dictionary mode: the export's standard_name wins.
+# Runs with a permissive field dictionary and an expected
+# StandardNameCharacteristic exception (both set in Test_Scenarios.pf's
+# scenario_table()). The export's standard_name wins.
 - component: comp_src/<user>
   export:
     T: {status: complete, typekind: R4, rank: 3, standard_name: 'air_temperature'}
@@ -26,3 +25,7 @@
 - component: <root>
   export:
     comp_src/T: {status: complete, typekind: R4, rank: 3, standard_name: 'air_temperature'}
+  graph:
+    nodes: 3
+    connections:
+      - {export: comp_src/T, import: comp_dst/T, wired: false}

@@ -5,16 +5,16 @@
 
 - component: comp_src
   export:
-    T: {status: complete, typekind: R4, rank: 2, value: 10.}
-    T(1): {status: complete, typekind: R4, rank: 2, value: 1000.}  # hPa --> Pa
+    T: {status: complete, typekind: R4, rank: 2, units: 'hPa', value: 10.}
+    T(1): {status: complete, typekind: R4, rank: 2, units: 'Pa', value: 1000.}  # hPa --> Pa
 
 - component: comp_dst/<user>
   import:
-    T: {status: complete, typekind: R4, rank: 2, value: 1000.}
+    T: {status: complete, typekind: R4, rank: 2, units: 'Pa', value: 1000.}
 
 - component: comp_dst
   import:
-    T: {status: complete, typekind: R4, rank: 2, value: 1000.}
+    T: {status: complete, typekind: R4, rank: 2, units: 'Pa', value: 1000.}
 
 - component: <user>
   import: {}
@@ -24,4 +24,8 @@
 - component: <root>
   export:
     comp_src/T: {status: complete, typekind: R4, rank: 2, value: 10.}
-    comp_src/T(1): {status: complete, typekind: R4, rank: 2, value: 1000.}
+    comp_src/T(1): {status: complete, typekind: R4, rank: 2, units: 'Pa', value: 1000.}
+  graph:
+    nodes: 4
+    connections:
+      - {export: comp_src/T, import: comp_dst/T, chain: [units]}

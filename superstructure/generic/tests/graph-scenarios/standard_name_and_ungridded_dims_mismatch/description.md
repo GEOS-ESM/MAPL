@@ -52,10 +52,14 @@ convention) - so legacy accepts the connection (with its own warning)
 and `GraphBuilder`'s own, independent detection is what is actually
 under test here.
 
+This fixture runs in `Test_Scenarios.pf` with a permissive
+field-dictionary override and an expected-exception entry in
+`scenario_table()` (the `StandardNameCharacteristic` build_transform
+failure, consumed during setup). The `graph: connections:` entry in
+`expectations.yaml` (`wired: false`) asserts that no edge and no
+predecessor exists between the two endpoints.
+
 See `Test_GraphBuilder_ConnectionResolution.pf`'s own
 `test_standard_name_mismatch_fails_explicitly` for the synthetic-node
 unit-level version of this same detection path (asserting the exact
-`unsupported_characteristics` reason string), and
-`Test_GraphModeDemonstration.pf`'s own
-`test_graph_mode_leaves_newly_wired_axis_mismatch_unwired` for this
-fixture exercised through the real YAML/init-phase pipeline.
+`unsupported_characteristics` reason string).
