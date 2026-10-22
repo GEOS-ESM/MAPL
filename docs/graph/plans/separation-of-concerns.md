@@ -87,13 +87,37 @@ Statuses: `SPECIFIED`, `MIRROR`, `UNCHECKED`, `DEFERRED` (transient).
 - MIRROR resolution is generic: `allocate(c, source=partner_c)` + set
   SPECIFIED. No per-subclass MIRROR sentinels anywhere in the map.
 - Subclass methods (`needs_extension_for`, `build_transform`,
-  `write_info`, ...) are only ever called with both sides SPECIFIED; the
+  the D3 write method, ...) are only ever called with both sides SPECIFIED; the
   base/descriptor enforces this.
 - "Absent from map" means only "not applicable to this item's shape".
 
 ### D3. ESMF Info facade
-- Every characteristic implements deferred `write_info(info, rc)`
-  (reference characteristics write a node/registry id).
+- Every characteristic implements a deferred write method (reference
+  characteristics write a node/registry id).
+- **Write through the existing MAPL setters, not raw `ESMF_Info`:**
+  `MAPL_FieldSet` / `MAPL_FieldGet`, `MAPL_FieldBundleSet` /
+  `MAPL_FieldBundleGet`, `MAPL_StateSet` / `MAPL_StateGet`. They already
+  own the Info keys and layout (`mapl_FieldInfo_mod`,
+  `mapl_FieldBundleInfo_mod`), so keys match legacy automatically.
+  Bypass them only for a stated, very good reason (record it in the B0
+  design), e.g. data no setter takes yet; then prefer adding the
+  argument to the setter over raw `ESMF_InfoSet`. Consequences for B0:
+  - The write method takes the item's ESMF handle (Field, FieldBundle,
+    or State item), not a bare `ESMF_Info`; B0 decides how a
+    characteristic dispatches over handle kinds (e.g. each provides the
+    keyword value and the descriptor makes one `MAPL_*Set` call per
+    handle kind).
+  - `MAPL_FieldSet` on a COMPLETE field is not Info-only: `geom`,
+    `typekind`, `units`, `num_levels` go through `FieldDelta` and can
+    modify the field. B0 must confirm that calling it with values equal
+    to the field's own is a no-op, or restrict which keywords
+    `sync_to_info` passes after materialization.
+  - Existing direct writes in the graph layer are B0 inventory items to
+    convert: `FieldInfoSetInternal` in
+    `GraphBuilder_StatePopulation_smod.F90`, `ESMF_InfoSet` in
+    `graph/MAPLStateItemFlag.F90`, and `graph/StateItemVariantInfo.F90`.
+  - `superstructure/state/StateSet.F90` `state_set` has `intent(out)`
+    dummies (it looks copied from `StateGet`); fix it before relying on it.
 - `StateItemDescriptor%sync_to_info(handle, rc)`: one loop, called at
   materialization and whenever a DEFERRED value becomes SPECIFIED.
 - Info is **write-only** during init: no graph code reads Info back.
@@ -297,6 +321,9 @@ D1-D6. Must specifically study and document:
 - Legacy `get_aspect_order` for every ClassAspect -> table of required
   shape orders.
 - Legacy Info consumers -> UNCHECKED Info policy.
+- D3 setter mapping: for each characteristic, the `MAPL_FieldSet` /
+  `MAPL_FieldBundleSet` / `MAPL_StateSet` keyword it writes through, or
+  the reason it cannot (and which setter argument to add instead).
 - Inventory of every current `GraphStateItem` component and every
   `populate_characteristics` block -> target characteristic for each.
 Review with owner before B1.
@@ -315,7 +342,7 @@ StatisticsGridComp). Unit tests for every cell of the D2 table.
 - **Status:** not started
 
 **B3.x. One task per characteristic.** For each: move to generic status,
-implement `write_info`, add VariableSpec factory, remove its block from
+implement its D3 write method (through `MAPL_*Set`), add VariableSpec factory, remove its block from
 `populate_characteristics`, remove any GraphBuilder references to it.
 Label `B3-<Name>` with the name as listed (exception: PhysicalUnits is
 `B3-Units`). List: PhysicalUnits, TypeKind (finish), UngriddedDims, VerticalCoordinate,
