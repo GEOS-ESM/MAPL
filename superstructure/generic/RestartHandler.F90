@@ -216,7 +216,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_restart_bundle
 
-
    ! Mark the fields missing from the file (metadata) as bootstrapped (not
    ! restarted; they keep their initial values) and remove them from the read
    ! bundle. A missing field is an error unless bootstrap is set.
