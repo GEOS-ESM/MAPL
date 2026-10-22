@@ -115,6 +115,11 @@ Statuses: `SPECIFIED`, `MIRROR`, `UNCHECKED`, `DEFERRED` (transient).
     how `sync_to_info` avoids the `FieldDelta` path (e.g. only Info-only
     keywords after materialization).
   - Existing direct Info access in the graph layer is removed by A5.
+  - State items carry essentially no characteristics of their own (no
+    geometry, typekind, units, ...): those belong to the members of the
+    composite. A State's own Info holds only framework data such as its
+    variant tag (ItemShape) and, later, the callback map. B0 should not
+    give State-shaped items characteristic slots they cannot have.
   - `MAPL_StateSet` is incomplete and probably broken (`intent(out)`
     dummies, three keywords). Rare today; CallbackState is the main
     motivating State use. Fix and extend it as tasks need it, rather
@@ -527,9 +532,11 @@ summary.
 2. Owner reviews the working tree (e.g. magit status), optionally after
    `/review-task <label>` in a separate session.
 3. Fixes go into the working tree (owner asks the author session).
-4. Owner commits: `git commit -aF .git/PLAN_TASK_MSG`, then
-   `rm .git/PLAN_TASK_MSG`; or tells the author session "commit". (`-a`
-   takes every modified tracked file, so check `git status` first.)
+4. Owner commits: `git commit -aF .git/PLAN_TASK_MSG`, or tells the
+   author session "commit". (`-a` takes every modified tracked file, so
+   check `git status` first.) Whoever commits then deletes
+   `.git/PLAN_TASK_MSG`; a stale one would be mistaken for the next
+   task's message.
 5. Problems found after commit go in a follow-up commit with the same
    `Plan-Task:` trailer.
 Senior-developer review happens once, at the final PR to `develop`.
@@ -615,7 +622,8 @@ replicate an unreviewed template across B3.x.
    untracked, and write the proposed
    commit message (ending with the `Plan-Task:` trailer) to
    `.git/PLAN_TASK_MSG`. Commit only when the owner says so, and then
-   only the task's files (never untracked files you didn't create).
+   only the task's files (never untracked files you didn't create);
+   after committing, delete `.git/PLAN_TASK_MSG`.
    Never push, never rewrite earlier commits.
 
 ## Dependency summary
@@ -653,7 +661,8 @@ Done means:
 - NOT committed or staged: changes left in the working tree (new
   files untracked), proposed commit message in `.git/PLAN_TASK_MSG`
   ending with `Plan-Task: <label>`, body containing both ctest summary
-  lines and listing new files. Commit only when the owner says "commit".
+  lines and listing new files. Commit only when the owner says "commit";
+  after committing, delete `.git/PLAN_TASK_MSG`.
 Stop and report rather than guess if the plan and source disagree.
 ```
 
