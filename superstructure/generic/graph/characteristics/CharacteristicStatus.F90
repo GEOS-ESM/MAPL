@@ -1,8 +1,7 @@
 !------------------------------------------------------------------------------
 ! CharacteristicStatus: status value every StateItemCharacteristic
 ! (StateItemCharacteristic.F90) carries (docs/graph/spec/18-state-item-
-! characteristics.md REQ-CHAR-003/004, openspec/changes/
-! state-item-characteristics design.md D1). Keeps the spec's own working
+! characteristics.md REQ-CHAR-003/004). Keeps the spec's own working
 ! name - no collision, no better alternative was proposed.
 !
 ! Five values only (REQ-CHAR-003): INVALID (no meaningful value yet, the

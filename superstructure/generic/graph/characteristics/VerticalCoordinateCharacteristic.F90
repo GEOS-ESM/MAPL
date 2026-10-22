@@ -2,7 +2,6 @@
 
 !------------------------------------------------------------------------------
 ! VerticalCoordinateCharacteristic: the "vertical grid" StateItemCharacteristic
-! (openspec/changes/state-item-characteristic-subclasses, design.md D1) - a
 ! ReferenceCharacteristic, same shape as GeometryCharacteristic.F90: holds a
 ! NodeId referencing a shared graph node, not a value of its own.
 !
@@ -12,13 +11,11 @@
 ! names share one global namespace). Same collision-avoidance discipline
 ! already applied for GeometryCharacteristic vs. legacy GeomCharacteristic.
 !
-! openspec/changes/merge-characteristic-families: absorbs the retired
-! mapl_VerticalGridCharacteristic_mod's own grid_id/dimensions value data
-! and its real build_transform (dimension-overlap classification)/
-! get_signature, in addition to this type's own pre-existing NodeId-
-! sharing role. needs_extension_for is therefore now a HYBRID comparison
-! (design.md Risks - "a deliberate, narrow exception specific to this one
-! subclass"):
+! Absorbs the retired mapl_VerticalGridCharacteristic_mod's own grid_id/dimensions
+! value data and its real build_transform (dimension-overlap classification)/
+! get_signature, in addition to this type's own pre-existing NodeId-sharing role.
+! needs_extension_for is therefore now a HYBRID comparison (design.md Risks -
+! "a deliberate, narrow exception specific to this one subclass"):
 !   - when a real referenced_node_id has been set on BOTH sides (the
 !     GraphStateItem-sharing use case, REQ-CHAR-012: sharing is nothing
 !     more than two map entries holding the same NodeId), that identity

@@ -2,8 +2,7 @@
 
 !------------------------------------------------------------------------------
 ! ItemShapeCharacteristic: the "item-class/shape" StateItemCharacteristic
-! (openspec/changes/phase-7a-shape-dispatch-wiring, docs/graph/spec/
-! 20-implementation-roadmap.md Sec 20.4.5) - a ValueCharacteristic
+! (docs/graph/spec/20-implementation-roadmap.md Sec 20.4.5) - a ValueCharacteristic
 ! (design.md D1): holds its own copy of the declared item class
 ! (type(ESMF_StateItem_Flag): FIELD/VECTOR/BRACKET/VECTORBRACKET/...)
 ! inline, rather than teaching find_mismatched_characteristics/build_chain

@@ -3,16 +3,14 @@
 !------------------------------------------------------------------------------
 ! BracketTimeInterpolationTransform: the real Transform (mapl_Transform_mod)
 ! built by ItemShapeCharacteristic%build_transform for the BRACKET->FIELD
-! pairing (ItemShapeCharacteristic.F90; openspec/changes/
-! phase-7a-shape-dispatch-wiring design.md D3/D4). Deliberately independent
+! pairing (ItemShapeCharacteristic.F90). Deliberately independent
 ! of legacy's TimeInterpolateTransform/ExtensionTransform interface
 ! (initialize/update(this, importState, exportState, clock, rc),
 ! superstructure/generic/transforms/TimeInterpolateTransform.F90):
 ! TransformGraphNode%execute() calls Transform%compute(this, inputs,
 ! outputs, rc), passing this transform's own already-resolved, bound
-! input/output GraphStateItem values (one per declared port name,
-! openspec/changes/decouple-transform-from-graph) - no stored
-! ComponentGraph/NodeId/ESMF_State of its own.
+! input/output GraphStateItem values (one per declared port name) - no
+! stored ComponentGraph/NodeId/ESMF_State of its own.
 !
 ! Mirrors UnitsConverterTransform's own precedent exactly (that module's
 ! own header comment: "Deliberately independent of legacy's

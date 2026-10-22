@@ -3,9 +3,8 @@
 ! Used by ComponentGraph_DemandDrivenUpdate_smod's finish_transform to
 ! assemble a transform's own bound input/output values (one per declared
 ! port name) immediately before calling TransformGraphNode%execute(), and
-! passed through unchanged into Transform%compute() - see
-! openspec/changes/decouple-transform-from-graph design.md Decisions.
-! Mirrors PortNameRevisionMap.F90 exactly, substituting GraphStateItem for
+! passed through unchanged into Transform%compute(). Mirrors
+! PortNameRevisionMap.F90 exactly, substituting GraphStateItem for
 ! NodeRevision as the mapped type.
 !------------------------------------------------------------------------------
 module mapl_PortNameGraphStateItemMap_mod

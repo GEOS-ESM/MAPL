@@ -3,11 +3,10 @@
 !------------------------------------------------------------------------------
 ! CallbackMethodBinding: the method-level binding record connecting one
 ! callback method's invocation to the graph structure it operates on
-! (spec/15-callbacks.md REQ-CB-018/019, openspec/changes/callback-wiring
-! design.md Decision 6) - completing 15-callbacks.md sec 15.2's metadata-
-! concept list (CallbackMethodAttachment was already resolved by Phase 4c
-! as "reuse StateMethodInvocation, no new type"; this is the other
-! concept 4c explicitly left to this change).
+! (spec/15-callbacks.md REQ-CB-018/019, design.md Decision 6) - completing
+! 15-callbacks.md sec 15.2's metadata-concept list (CallbackMethodAttachment
+! was already resolved by Phase 4c as "reuse StateMethodInvocation, no new
+! type"; this is the other concept 4c explicitly left to this change).
 !
 ! Stores the invoked MethodGraphNode's own NodeId (REQ-CB-019 - the
 ! caller is responsible for having registered that node, with a

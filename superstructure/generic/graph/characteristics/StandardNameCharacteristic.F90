@@ -2,7 +2,6 @@
 
 !------------------------------------------------------------------------------
 ! StandardNameCharacteristic: the "standard name" StateItemCharacteristic
-! (openspec/changes/state-item-characteristic-subclasses, design.md D5) - a
 ! ValueCharacteristic storing a plain standard_name string.
 !
 ! SCOPE BOUNDARY (design.md D5): legacy StandardNameAspect%matches() layers
@@ -19,8 +18,7 @@
 ! string equality - no warning, no ValidationMode, no logging.
 !
 ! A `build_transform` is required by the common interface but fails
-! explicitly here - no real provider exists for this axis
-! (openspec/changes/merge-characteristic-families): legacy
+! explicitly here - no real provider exists for this axis. Legacy
 ! StandardNameAspect%make_transform always returns NullTransform.
 ! `get_signature` derives a stable string from `standard_name`.
 !------------------------------------------------------------------------------

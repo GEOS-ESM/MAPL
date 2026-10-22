@@ -3,13 +3,12 @@
 !------------------------------------------------------------------------------
 ! TypeKindConverterTransform: the real Transform (mapl_Transform_mod) built
 ! by TypeKindCharacteristicAdapter%build_transform
-! (TypeKindCharacteristicAdapter.F90; openspec/changes/
-! phase-10c-typekind-characteristic design.md D2) - a pure numeric R4<->R8
+! (TypeKindCharacteristicAdapter.F90) - a pure numeric R4<->R8
 ! kind cast, structurally mirroring UnitsConverterTransform.F90 line for
 ! line (TransformGraphNode%execute() calls Transform%compute(this, inputs,
 ! outputs, rc), passing this transform's own already-resolved, bound
 ! input/output GraphStateItem values - no stored ComponentGraph/NodeId of
-! its own, openspec/changes/decouple-transform-from-graph).
+! its own).
 !
 ! Named TypeKindConverterTransform, not CopyTransform: that name is
 ! already taken by the legacy, ExtensionTransform-based type

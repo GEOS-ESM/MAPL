@@ -11,10 +11,10 @@
 ! either: both are the "value/behavior" half of their respective node
 ! kind, deliberately independent of graph plumbing, so each is usable/
 ! testable in complete isolation from ComponentGraph/DependencyNetwork/
-! NodeRevision (openspec/changes/decouple-transform-from-graph).
+! NodeRevision.
 !
-! Split from TransformBase (openspec/changes/merge-characteristic-
-! families): compute()'s own PortNameGraphStateItemMap arguments are
+! Split from TransformBase (merge-characteristic-families change):
+! compute()'s own PortNameGraphStateItemMap arguments are
 ! exactly what gives this module a dependency chain reaching
 ! mapl_GraphStateItem_mod (via mapl_PortNameGraphStateItemMap_mod) -
 ! TransformBase.F90's own header comment has the full rationale for why

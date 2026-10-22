@@ -2,7 +2,6 @@
 
 !------------------------------------------------------------------------------
 ! QuantityTypeCharacteristic: the "quantity type" StateItemCharacteristic
-! (openspec/changes/state-item-characteristic-subclasses, design.md D4) - a
 ! ValueCharacteristic storing only the two fields legacy
 ! QuantityTypeAspect%matches() itself uses: quantity_type and basis (both
 ! mapl_QuantityType_mod enum types, no StateRegistry coupling).
@@ -17,8 +16,7 @@
 ! BASIS_NONE.
 !
 ! A `build_transform` is required by the common interface but fails
-! explicitly here - no real provider exists for this axis
-! (openspec/changes/merge-characteristic-families): legacy
+! explicitly here - no real provider exists for this axis. Legacy
 ! QuantityTypeAspect%make_transform always returns NullTransform
 ! ("metadata-only, returns NullTransform"). `get_signature` derives a
 ! stable string from `quantity_type`/`basis`.

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 ! HierarchyId: encapsulated identity type distinguishing one component
 ! hierarchy from another, used to key the private hierarchy-resources
-! registry (openspec/changes/hierarchy-wide-component-graph, design.md D1).
+! registry.
 !
 ! Generated from the authoritative template spec/templates/IdTemplate.inc,
 ! exactly like NodeId/DependencyNetworkId - a leaf value type with no

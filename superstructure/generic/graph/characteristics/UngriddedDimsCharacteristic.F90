@@ -2,7 +2,6 @@
 
 !------------------------------------------------------------------------------
 ! UngriddedDimsCharacteristic: the "ungridded dims" StateItemCharacteristic
-! (openspec/changes/state-item-characteristic-subclasses, design.md D3) - a
 ! ValueCharacteristic wrapping the existing, already-decoupled UngriddedDims
 ! value type (infrastructure/esmf/UngriddedDims.F90) directly: no
 ! StateRegistry/VariableSpec coupling, and UngriddedDims already defines
@@ -11,8 +10,7 @@
 ! is a single `/=` call - no hand-written comparison logic.
 !
 ! A `build_transform` is required by the common interface but fails
-! explicitly here - no real provider exists for this axis
-! (openspec/changes/merge-characteristic-families): legacy
+! explicitly here - no real provider exists for this axis. Legacy
 ! UngriddedDimsAspect%make_transform always returns NullTransform (no
 ! real adaptation exists anywhere for this axis, graph-native or
 ! legacy). `get_signature` derives a stable string from

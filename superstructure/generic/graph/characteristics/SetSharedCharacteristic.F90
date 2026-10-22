@@ -4,8 +4,7 @@
 ! mapl_SetSharedCharacteristic_mod: the dedicated, synchronous mutator
 ! entry point REQ-CHAR-016 requires for changing a shared
 ! ReferenceCharacteristic's underlying value (docs/graph/spec/
-! 18-state-item-characteristics.md §18.8, openspec/changes/
-! state-item-characteristics design.md D7) - "a MAPL_SetGeom-style
+! 18-state-item-characteristics.md §18.8) - "a MAPL_SetGeom-style
 ! wrapper" in shape, though this change wires no real call site to it
 ! (design.md Non-Goals).
 !

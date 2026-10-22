@@ -3,16 +3,14 @@
 !------------------------------------------------------------------------------
 ! ExpressionTransform: the real Transform (mapl_Transform_mod) built by
 ! graphbuilder_run_expression_hook for an EXPRESSION-typed item's own N:1
-! resolution (openspec/changes/phase-7b-expression-dispatch-wiring,
-! design.md D1/D2/D4/D5). Deliberately independent of legacy's
+! resolution (design.md D1/D2/D4/D5). Deliberately independent of legacy's
 ! EvalTransform/ExtensionTransform interface (initialize/update(this,
 ! importState, exportState, clock, rc),
 ! superstructure/generic/transforms/EvalTransform.F90):
 ! TransformGraphNode%execute() calls Transform%compute(this, inputs,
 ! outputs, rc), passing this transform's own already-resolved, bound
-! input/output GraphStateItem values (one per declared port name,
-! openspec/changes/decouple-transform-from-graph) - no stored
-! ComponentGraph/NodeId/StateRegistry of its own.
+! input/output GraphStateItem values (one per declared port name) - no
+! stored ComponentGraph/NodeId/StateRegistry of its own.
 !
 ! Mirrors UnitsConverterTransform's/BracketTimeInterpolationTransform's
 ! own precedent exactly ("Deliberately independent of legacy's...

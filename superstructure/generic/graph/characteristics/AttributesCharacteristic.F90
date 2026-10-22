@@ -2,7 +2,6 @@
 
 !------------------------------------------------------------------------------
 ! AttributesCharacteristic: the "attributes" StateItemCharacteristic
-! (openspec/changes/state-item-characteristic-subclasses, design.md D2) - a
 ! ValueCharacteristic storing a StringVector of attribute names, ported from
 ! legacy AttributesAspect (superstructure/generic/specs/AttributesAspect.F90).
 !
@@ -21,8 +20,7 @@
 ! direction convention as legacy's own matches(src, dst).
 !
 ! A `build_transform` is required by the common interface but fails
-! explicitly here - no real provider exists for this axis
-! (openspec/changes/merge-characteristic-families): legacy
+! explicitly here - no real provider exists for this axis. Legacy
 ! AttributesAspect%make_transform always returns NullTransform (no real
 ! adaptation exists anywhere for this axis, graph-native or legacy).
 ! `get_signature` derives a stable, value-distinguishing string from

@@ -2,7 +2,6 @@
 
 !------------------------------------------------------------------------------
 ! NormalizationCharacteristic: the "normalization" StateItemCharacteristic
-! (openspec/changes/state-item-characteristic-subclasses, design.md D3) - a
 ! ValueCharacteristic wrapping the existing, already-decoupled
 ! NormalizationMetadata value type (enums/NormalizationMetadata.F90)
 ! directly: no StateRegistry coupling, and NormalizationMetadata already
@@ -12,8 +11,7 @@
 ! no hand-written comparison logic.
 !
 ! A `build_transform` is required by the common interface but fails
-! explicitly here - no real provider exists for this axis
-! (openspec/changes/merge-characteristic-families): legacy
+! explicitly here - no real provider exists for this axis. Legacy
 ! NormalizationAspect%make_transform always returns NullTransform
 ! (no real adaptation exists anywhere for this axis, graph-native or
 ! legacy). `get_signature` derives a stable string from `metadata`'s

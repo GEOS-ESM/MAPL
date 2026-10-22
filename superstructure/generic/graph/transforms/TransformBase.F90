@@ -6,13 +6,13 @@
 ! no compute()/PortNameGraphStateItemMap/GraphStateItem dependency of any
 ! kind.
 !
-! Split out of mapl_Transform_mod (openspec/changes/merge-
-! characteristic-families, task: break a circular module dependency)
-! specifically so mapl_StateItemCharacteristic_mod's build_transform
-! deferred method could declare its own `transformer` dummy argument's
-! type without pulling in mapl_PortNameGraphStateItemMap_mod ->
-! mapl_GraphStateItem_mod -> mapl_StateItemCharacteristic_mod (a genuine
-! cycle, not present before that change gave StateItemCharacteristic a
+! Split out of mapl_Transform_mod (merge-characteristic-families change,
+! task: break a circular module dependency) specifically so
+! mapl_StateItemCharacteristic_mod's build_transform deferred method could
+! declare its own `transformer` dummy argument's type without pulling in
+! mapl_PortNameGraphStateItemMap_mod -> mapl_GraphStateItem_mod ->
+! mapl_StateItemCharacteristic_mod (a genuine cycle, not present before
+! merge-characteristic-families gave StateItemCharacteristic a
 ! Transform-returning build_transform): GraphStateItem is the one type
 ! StateItemCharacteristic.F90 is itself used by (its own characteristics
 ! map), so anything StateItemCharacteristic.F90 uses, directly or

@@ -2,24 +2,10 @@
 
 !------------------------------------------------------------------------------
 ! PhysicalUnitsCharacteristic: the "physical units" StateItemCharacteristic
-! (docs/graph/spec/18-state-item-characteristics.md REQ-CHAR-001 table) -
-! a ValueCharacteristic (REQ-CHAR-002a: holds its value inline, never
-! shared). needs_extension_for is a plain string-inequality check,
-! mirroring (never calling) graph/extension-reuse's own
-! UnitsCharacteristic%needs_extension_for - deliberately independent per
-! openspec/changes/state-item-characteristics design.md D6.
-!
-! Named PhysicalUnitsCharacteristic (the spec's own suggested name, kept
-! as-is - design.md D3) rather than "UnitsCharacteristic", to avoid
-! colliding with graph/extension-reuse's existing, unrelated
+! (REQ-CHAR-001, REQ-CHAR-002a). ValueCharacteristic holds its value
+! inline, never shared. needs_extension_for checks string inequality.
+! Named to avoid collision with graph/extension-reuse's unrelated
 ! mapl_UnitsCharacteristic_mod type.
-!
-! openspec/changes/merge-characteristic-families: build_transform/
-! get_signature moved verbatim from the now-retired
-! mapl_UnitsCharacteristic_mod's own units_build_transform/
-! units_get_signature (that module's own real adaptation provider),
-! reading this%get_units()/goal%get_units() in place of the original's
-! private-component access.
 !------------------------------------------------------------------------------
 module mapl_PhysicalUnitsCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
@@ -91,14 +77,7 @@ contains
       units = this%units
    end function get_units
 
-   ! Moved verbatim from the retired mapl_UnitsCharacteristic_mod's own
-   ! units_build_transform - UnitsConverterTransform(this%units,
-   ! goal%units), reading through the get_units() accessor (already
-   ! existed) rather than private-component access, since this%units/
-   ! goal%units are private within this module to any OTHER module's
-   ! subclass, but accessible here, within THIS module, directly - the
-   ! accessor form is kept anyway for symmetry with get_signature below
-   ! and to make the parallel with the original explicit.
+   ! Read through accessor for symmetry with get_signature.
    subroutine units_build_transform(this, goal, transformer, rc)
       class(PhysicalUnitsCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -115,8 +94,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine units_build_transform
 
-   ! Moved verbatim from the retired mapl_UnitsCharacteristic_mod's own
-   ! units_get_signature.
+   ! (Moved from retired mapl_UnitsCharacteristic_mod)
    function units_get_signature(this) result(signature)
       class(PhysicalUnitsCharacteristic), intent(in) :: this
       character(:), allocatable :: signature

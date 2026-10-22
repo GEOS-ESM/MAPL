@@ -4,8 +4,7 @@
 ! export port's own qualified name override, when one was assigned by
 ! export propagation (graphbuilder_run_export_propagate_hook) rather than
 ! by direct advertisement - see ComponentGraph.F90's own
-! graph_get_export_port_name header comment for the full rationale
-! (openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8).
+! graph_get_export_port_name header comment for the full rationale.
 !------------------------------------------------------------------------------
 module mapl_PortIdStringMap_mod
    use mapl_PortId_mod, only: PortId, operator(<)

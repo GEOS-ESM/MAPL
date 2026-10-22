@@ -7,8 +7,7 @@
 ! graph/extension-reuse's existing mapl_ExtensionResolution_mod
 ! find_mismatched_characteristics (which continues to operate on its own,
 ! deliberately independent Characteristic/CharacteristicMap, built from
-! VariableSpec - openspec/changes/state-item-characteristics design.md
-! Decision D6). Shaped similarly to that module's own function by
+! VariableSpec). Shaped similarly to that module's own function by
 ! deliberate convergent design (same problem, same natural algorithm), not
 ! by reuse - neither module uses the other.
 !

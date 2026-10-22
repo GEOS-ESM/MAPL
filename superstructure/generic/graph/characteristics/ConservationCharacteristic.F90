@@ -2,7 +2,6 @@
 
 !------------------------------------------------------------------------------
 ! ConservationCharacteristic: the "conservation" StateItemCharacteristic
-! (openspec/changes/state-item-characteristic-subclasses, design.md D3) - a
 ! ValueCharacteristic wrapping the existing, already-decoupled
 ! ConservationMetadata value type (enums/ConservationMetadata.F90) directly:
 ! no StateRegistry coupling, and ConservationMetadata already defines
@@ -12,8 +11,7 @@
 ! logic.
 !
 ! A `build_transform` is required by the common interface but fails
-! explicitly here - no real provider exists for this axis
-! (openspec/changes/merge-characteristic-families): legacy
+! explicitly here - no real provider exists for this axis. Legacy
 ! ConservationAspect%make_transform unconditionally _FAILs ("should
 ! not be called") - this axis is detected but never adapted, graph-native
 ! or legacy. `get_signature` derives a stable string from `metadata`'s

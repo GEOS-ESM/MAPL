@@ -221,8 +221,7 @@ contains
 
    ! REQ-XFORM-001: invokes the held Transform, forwarding its own
    ! caller-supplied, already-resolved bound input/output values
-   ! (openspec/changes/decouple-transform-from-graph) unchanged into
-   ! compute(). Does not itself touch any input/output NodeId or advance
+   ! unchanged into compute(). Does not itself touch any input/output NodeId or advance
    ! any revision - that orchestration is ComponentGraph%update()'s job
    ! (mapl_ComponentGraph_DemandDrivenUpdate_smod), which calls this only
    ! after needs_execution() reports true and advances outputs / records

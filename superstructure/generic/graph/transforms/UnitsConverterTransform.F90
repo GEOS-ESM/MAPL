@@ -10,9 +10,8 @@
 ! superstructure/generic/transforms/ExtensionTransform.F90):
 ! TransformGraphNode%execute() calls Transform%compute(this, inputs,
 ! outputs, rc), passing this transform's own already-resolved, bound
-! input/output GraphStateItem values (one per declared port name,
-! openspec/changes/decouple-transform-from-graph) - no stored
-! ComponentGraph/NodeId of its own.
+! input/output GraphStateItem values (one per declared port name) - no
+! stored ComponentGraph/NodeId of its own.
 !
 ! Named UnitsConverterTransform, not ConvertUnitsTransform, because
 ! `mapl_ConvertUnitsTransform_mod`/`ConvertUnitsTransform`

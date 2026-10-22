@@ -1,8 +1,8 @@
 !------------------------------------------------------------------------------
 ! StateItemCharacteristic: abstract per-characteristic model attached to a
 ! GraphStateItem (docs/graph/spec/18-state-item-characteristics.md
-! REQ-CHAR-001/002, openspec/changes/state-item-characteristics). Branches
-! into two abstract intermediate kinds (REQ-CHAR-002a):
+! REQ-CHAR-001/002). Branches into two abstract intermediate kinds
+! (REQ-CHAR-002a):
 !
 !   - ValueCharacteristic: holds its value inline, no identity beyond its
 !     owning GraphStateItem, never shared (PhysicalUnitsCharacteristic.F90,
@@ -19,17 +19,10 @@
 ! below (get_kind/needs_extension_for/build_transform/get_signature) are
 ! declared on this common ancestor, not duplicated per kind.
 !
-! openspec/changes/merge-characteristic-families: build_transform/
-! get_signature were added by that change, absorbing the role
-! graph/extension-reuse's own, now-retired mapl_Characteristic_mod
-! (Characteristic.F90) previously played independently (per
-! openspec/changes/state-item-characteristics design.md Decision D6,
-! which kept the two hierarchies apart only because build_transform then
-! required a ComponentGraph/NodeId argument - decouple-transform-from-
-! graph removed that blocker, and merge-characteristic-families removed
-! the resulting duplication). A concrete subclass with no real provider
+! build_transform / get_signature here absorb an independent role from
+! graph/extension-reuse. A concrete subclass with no real provider
 ! implemented yet (e.g. AttributesCharacteristic) fails build_transform
-! explicitly rather than returning a no-op/stub Transform.
+! explicitly rather than returning a stub.
 !
 ! status (CharacteristicStatus, CharacteristicStatus.F90) and, for
 ! ReferenceCharacteristic, the referenced NodeId are exposed only through

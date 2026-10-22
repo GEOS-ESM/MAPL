@@ -7,14 +7,8 @@
 ! shared). Holds a plain label (e.g. 'R4'/'R8') rather than an ESMF
 ! typekind handle directly.
 !
-! openspec/changes/merge-characteristic-families: build_transform/
-! get_signature moved from the now-retired
-! mapl_TypeKindCharacteristicAdapter_mod's own adapter_build_transform/
-! adapter_get_signature (that module's own real adaptation provider,
-! previously bridged onto this type by composition purely to reach
-! Characteristic's own build_transform interface) - the
-! label_to_typekind/typekind_to_label helper pair moves here with it,
-! since no other module needs them once the adapter is removed.
+! build_transform / get_signature, and helpers label_to_typekind /
+! typekind_to_label, moved from the retired mapl_TypeKindCharacteristicAdapter_mod.
 !------------------------------------------------------------------------------
 module mapl_TypeKindCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
@@ -29,8 +23,7 @@ module mapl_TypeKindCharacteristic_mod
    private
 
    public :: TypeKindCharacteristic
-   ! openspec/changes/graph-builder-stateitem-resolution: exposed so a
-   ! materialization call site (GraphBuilder.F90's
+   ! Exposed so a materialization call site (GraphBuilder.F90's
    ! try_materialize_field_extension/materialize_extension_chain) can
    ! recover the real ESMF_TypeKind_Flag this characteristic's own label
    ! was converted from, once that call site no longer has a
@@ -62,11 +55,8 @@ contains
       character(*), intent(in) :: type_kind
       type(TypeKindCharacteristic) :: characteristic
 
-      ! openspec/changes/graph-builder-stateitem-resolution: explicit
-      ! allocate(..., source=...) instead of plain `=` assignment into
-      ! a deferred-length character component - same gfortran
-      ! realloc-on-assignment memory-corruption class documented in
-      ! StateItemNode.F90's constructor.
+      ! allocate(..., source=...) not plain `=` assignment (gfortran
+      ! realloc-on-assignment memory-corruption, documented in StateItemNode.F90).
       allocate(characteristic%type_kind, source=type_kind)
    end function new_TypeKindCharacteristic
 
@@ -157,17 +147,8 @@ contains
    ! other module needs these once the adapter is removed (confirmed by
    ! grep, task 6.1).
    !
-   ! openspec/changes/graph-builder-stateitem-resolution: extended
-   ! beyond R4/R8 (I4/I8/LOGICAL, mirroring mapl_FieldInfo_mod's own
-   ! to_string/to_typekind precedent exactly - infrastructure/field/
-   ! FieldInfo.F90) - defensive broadening to the full set of
-   ! ESMF_TypeKind_Flag values MAPL fields actually use, now that
-   ! advertise_one calls this unconditionally for every advertised
-   ! item (task 2.2), not only ones actually reached through a
-   ! MatchConnection. MAPL_TYPEKIND_MIRROR (infrastructure/esmf/
-   ! TypeKind.F90, a declared "inherit the matched export's kind"
-   ! placeholder - not a real ESMF_TypeKind_Flag at all) is handled
-   ! separately, by not calling this function in the first place
+   ! Extended to I4/I8/LOGICAL (mirrors mapl_FieldInfo_mod's to_string/to_typekind).
+   ! Defensive broadening for the full set of ESMF_TypeKind_Flag values in use.
    ! (GraphBuilder_Advertising_smod.F90's populate_characteristics,
    ! design.md correction) - that is the actual case this change's own
    ! implementation surfaced (StatisticsGridComp.F90's mirrored

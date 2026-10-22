@@ -14,10 +14,9 @@
 ! collision-avoidance discipline already applied once in this codebase
 ! for UnitsConverterTransform vs. legacy ConvertUnitsTransform.
 !
-! openspec/changes/merge-characteristic-families: absorbs the retired
-! mapl_GeomCharacteristic_mod's own opaque geom_id string-token identity
-! and its (always-failing) build_transform/get_signature, in addition to
-! this type's own pre-existing NodeId-sharing role - same HYBRID
+! Absorbs the retired mapl_GeomCharacteristic_mod's own opaque geom_id
+! string-token identity and its (always-failing) build_transform/get_signature,
+! in addition to this type's own pre-existing NodeId-sharing role - same HYBRID
 ! needs_extension_for pattern as VerticalCoordinateCharacteristic.F90
 ! (see that module's own header comment for the full rationale): a real
 ! referenced_node_id set on both sides (the GraphStateItem-sharing use
