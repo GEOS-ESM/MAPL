@@ -233,7 +233,8 @@ and `ItemShapeCharacteristic`'s ordering. Checked by B4's Done condition
   fixed (source change, out of scope): stray copy not in the build
   `superstructure/generic/to_itemtype.F90` differs from the compiled
   `ComponentSpecParser/to_itemtype.F90` (the former parses
-  `'vector_bracket'`, the latter does not).
+  `'vector_bracket'`, the latter does not). Deletion is listed under
+  D3-cleanup.
 
 **A1. Legacy scenarios under graph mode, gated.**
 - Parameterize `tests/Test_Scenarios.pf` by graph mode
@@ -545,6 +546,20 @@ behavior change.
 files) to lifecycle hooks only.
 - **Status:** not started
 
+**D3. Small cleanups (accumulating).** A list of small, unrelated
+fixes found by other tasks and owned by none. Meta sessions add items
+here instead of creating one-item tasks. It has no dependencies, so it
+can run whenever the list is worth one session; anything added after
+it runs goes in a follow-up commit with the same trailer. Label
+`D3-cleanup`.
+- Delete the stray `superstructure/generic/to_itemtype.F90`. It is not
+  in the build (CMake compiles `ComponentSpecParser/to_itemtype.F90`).
+  It differs from the compiled copy only by a `'vector_bracket'` case
+  mapping to `MAPL_STATEITEM_VECTORBRACKET`. Before deleting, check
+  whether any YAML/test needs `'vector_bracket'` to parse; if one does,
+  ask the owner whether to move that case into the compiled copy.
+- **Status:** not started
+
 
 ## Model assignment
 
@@ -620,6 +635,7 @@ it may author D1/A4/B5 with sonnet review.
 | C2-runphase-args | sonnet | opus | changes method-node keying |
 | D1 | sonnet (haiku?) | sonnet if haiku | `public ::` rule |
 | D2 | sonnet | opus | lifecycle-phase ordering |
+| D3-cleanup | sonnet | - | items are small and independent |
 
 `(sonnet?)`/`(haiku?)` = move to that model only if it passes calibration.
 Always opus regardless: B0, B2, B3-Units, B3-ItemShape, A1-diagnosis,
@@ -664,6 +680,11 @@ B4 -> C1, B3-VerticalCoordinate -> C1 (vertical part), D1 -> D2;
 C2-alias-owner -> C2-alias-nonfield. The C2 tasks need only A1-diagnosis
 and may run before Phase B. A4 is independent of A1-A3 and B0 (they touch tests/docs, A4 touches
 production comments), so their order is free; still one task at a time.
+D3-cleanup has no dependencies.
+
+**Run order (owner decision, after A5b):** B0 next, then remaining
+tasks in dictionary order of label, except where a dependency above
+requires otherwise.
 
 ## Open questions (resolve in B0)
 - UNCHECKED Info representation.
