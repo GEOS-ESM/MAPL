@@ -315,12 +315,25 @@ StandardName, Attributes, QuantityType, Conservation, Normalization,
 RestartMode (new), Expression (new), SetShared (check whether still needed).
 Run one at a time after B2 (direct commits; no parallel agents). Produce `docs/graph/adding-a-characteristic.md`
 in the first one; later ones refine it.
+- Each task whose characteristic has a Transform teaches
+  `check_graph` in `Test_Scenarios.pf` to recognize that step kind
+  (today only `units` and `typekind`; others report `unknown`).
+- B3-VerticalCoordinate also covers parity finding M2: the component's
+  `geometry: vertical_grid:` must reach each item's characteristic
+  (today only an item-level `geometry:` block sets it), so the graph can
+  see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
+  that needs C1's vertical regrid Transform.
 - **Status:** not started
 
 **B4. Remove manual dispatch.** Delete `merged_item_for_link`'s kind
 chain, `get_item_units`/`get_item_typekind`, scalar args of
 `materialize_field_extension` (create from goal descriptor + chain
 step instead), `GraphStateItem%ordering`/table. Add the D6 grep ctest.
+- Also parity finding M3: the graph does not materialize EXPRESSION,
+  VECTOR or SERVICE items (logs `unsupported_item_class:<shape>` and
+  leaves them to legacy `add_to_states`). Until the graph materializes
+  a shape, scenarios using it stay `graph_ready = .false.` even if they
+  pass (masked).
 - **Status:** not started
 
 **B5. Translation in place.** `populate_characteristics` deleted;
@@ -329,12 +342,29 @@ advertise calls `VariableSpec%make_characteristics`.
 
 ### Phase C - missing capability
 
-**C1. Geometry/regrid transform** on the graph `Transform` interface
-(duplicate legacy `RegridTransform` logic; don't delegate). Flip
-`regrid*`/`propagate_geom` to ready in A1's table.
+**C1. Geometry/regrid and vertical regrid transforms** on the graph
+`Transform` interface (duplicate legacy `RegridTransform` and vertical
+regrid logic; don't delegate). Flip `regrid*`/`propagate_geom` to ready
+in A1's table; flip `vertical_*` once B3-VerticalCoordinate (M2) has
+landed. Flip only scenarios the graph actually populates (see "What
+ready means today" in `scenario-parity.md`). May be split into
+`C1-geom` and `C1-vertical` if large.
 - **Status:** not started
 
-**C2.x. One task per remaining root cause** (label `C2-<short-name>`) from A1's parity table.
+**C2.x. One task per remaining root cause** (label `C2-<short-name>`),
+from "Verified root causes" in `docs/graph/scenario-parity.md`. Each task
+starts from that diagnosis, fixes production source, and flips the
+affected scenarios to ready (unless masked: M3).
+- `C2-geom-push` (G1): geometry pushed to children from a parent with
+  no geometry.
+- `C2-alias-owner` (R1): export aliasing searches the wrong component's
+  state for propagated (qualified) exports.
+- `C2-alias-nonfield` (R2): export aliasing assumes a Field; VECTOR and
+  SERVICE return rc=13. After `C2-alias-owner` (same procedure).
+- `C2-runphase-args` (P1): run-phase method-node arguments keyed by
+  short name collide when an import and export share a name; key by
+  (intent, short name). The diagnosis's name-mangling experiment broke
+  `Test_GraphBuilder_RunPhaseNode`; don't repeat it.
 - **Status:** not started
 
 ### Phase D - structure
@@ -414,13 +444,15 @@ it may author D1/A4/B5 with sonnet review.
 | B4 | sonnet | opus | materialization regressions likely |
 | B5 | sonnet (haiku?) | sonnet if haiku | |
 | C1 | opus | - | ESMF regrid/route handles |
-| C2 triage | opus | - | assign each cause a tier |
-| C2.x fixes | per triage | opus | |
+| C2-geom-push | sonnet | opus | |
+| C2-alias-owner | sonnet | opus | |
+| C2-alias-nonfield | sonnet | opus | after C2-alias-owner |
+| C2-runphase-args | sonnet | opus | changes method-node keying |
 | D1 | sonnet (haiku?) | sonnet if haiku | `public ::` rule |
 | D2 | sonnet | opus | lifecycle-phase ordering |
 
 `(sonnet?)`/`(haiku?)` = move to that model only if it passes calibration.
-Always opus regardless: B0, B2, B3-Units, B3-ItemShape, A1 diagnosis,
+Always opus regardless: B0, B2, B3-Units, B3-ItemShape, A1-diagnosis,
 A2a, C1 - errors there are replicated by every later task.
 
 Light models (`haiku` until calibrated, `gemini-flash`,
@@ -457,7 +489,9 @@ replicate an unreviewed template across B3.x.
 
 A0 -> A1 (harness) -> A2a -> A3; A1 (harness) -> A1-diagnosis -> C2.x;
 A0 -> A4 -> {B1, D1}; A0 -> B0 -> B1 -> B2 -> B3.x -> {B4, B5};
-B4 -> C1, D1 -> D2. A4 is independent of A1-A3 and B0 (they touch tests/docs, A4 touches
+B4 -> C1, B3-VerticalCoordinate -> C1 (vertical part), D1 -> D2;
+C2-alias-owner -> C2-alias-nonfield. The C2 tasks need only A1-diagnosis
+and may run before Phase B. A4 is independent of A1-A3 and B0 (they touch tests/docs, A4 touches
 production comments), so their order is free; still one task at a time.
 
 ## Open questions (resolve in B0)
