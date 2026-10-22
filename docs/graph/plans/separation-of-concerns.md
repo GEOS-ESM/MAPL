@@ -310,7 +310,11 @@ consumes context.
 - Must land before B1 and D1 (both rewrite these files).
 - **Status:** A4a done (`GraphBuilder_ConnectionResolution_smod.F90`: 2532 -> 1880
   lines, 0 `openspec/changes` references, comment-only verified; no
-  deviations). A4b-A4e not started.
+  deviations). A4b done (the other 11 `GraphBuilder*.F90` files: 0
+  `openspec/changes` references, comment-only verified; the stale
+  `GraphBuilder.F90` module header was rewritten from the current call
+  sites, since it described removed proxy nodes and a nonexistent
+  `get_or_make_local_node_id`). A4c-A4e not started.
 
 ### Phase B - characteristic architecture
 

@@ -1,10 +1,6 @@
 #include "MAPL.h"
 
-! Callback wiring (openspec/changes/callback-wiring, Phase 4d)
-! (openspec/changes/graphbuilder-submodule-split: procedure bodies moved
-! here verbatim from GraphBuilder.F90, mechanical subroutine->module
-! subroutine / function->module function change only - see that
-! change's design.md D1 for the full section-to-file mapping.)
+! Callback wiring: callback states, method nodes and their get/put networks.
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_CallbackWiring_smod
    use esmf, only: ESMF_State, ESMF_StateCreate
@@ -27,12 +23,10 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_CallbackWiring_smod
 
 contains
 
-   ! REQ-CB-013/014: builds root's own flattened qualified-export
-   ! namespace by recursing across every descendant level (design.md
-   ! Decision 1 - a fresh, uncached snapshot at resolution time; REQ-CB-016's
-   ! own "currently-known" phrasing). root's own exports are keyed by
-   ! their own short name; a descendant's export is additionally keyed
-   ! by comp_path/short_name, composing one segment per hierarchy level.
+   ! REQ-CB-013/014: builds root's flattened qualified-export namespace
+   ! by recursing over every descendant. A fresh, uncached snapshot
+   ! (REQ-CB-016 "currently-known"). root's exports are keyed by short
+   ! name; a descendant's by comp_path/short_name.
    module function build_qualified_export_namespace(root, rc) result(entries)
       class(OuterMetaComponent), target, intent(inout) :: root
       integer, optional, intent(out) :: rc
@@ -78,28 +72,13 @@ contains
                entry%qualified_name = path_prefix // '/' // var_spec%short_name
             end if
             entry%var_spec = var_spec
-            ! Classic ifort (2021.13, -O0) segfaults compiling the more
-            ! natural self-referencing array-constructor growth
-            ! `entries = [entries, entry]` here, where entries is an
-            ! allocatable array of a derived type (QualifiedExportEntry)
-            ! with a nested allocatable-component type (VariableSpec) -
-            ! bisected against this file's own ICE (gfortran, NAG, and
-            ! ifx all accept the array-constructor form without issue).
-            ! Grow via an explicit fresh temporary and move_alloc
-            ! instead - functionally identical, but never assigns the
-            ! array constructor result back onto one of its own operands.
+            ! Classic ifort 2021.13 -O0 segfaults on `entries = [entries, entry]`
+            ! for this nested-allocatable type; grow via move_alloc.
             n = size(entries)
             allocate(grown_entries(n + 1))
-            ! NAG (observed 7.2.41, -O0 Debug): a zero-extent array-section
-            ! assignment (grown_entries(1:0) = entries, n==0) of this
-            ! derived type - QualifiedExportEntry nests a VariableSpec,
-            ! which nests a VariableSpecMemberMap (polymorphic, deep_copy
-            ! defined assignment, recursively self-referential) - triggers
-            ! a real bus error (invalid address alignment) in the
-            ! compiler-generated whole-array defined-assignment dispatch,
-            ! even though the assigned section has no elements. Guarding
-            ! the n==0 case (nothing to copy) avoids the bad codegen path
-            ! entirely; functionally a no-op either way.
+            ! NAG 7.2.41 -O0: the zero-extent section assignment
+            ! grown_entries(1:0) = entries (n==0) hits a bus error in the
+            ! generated defined-assignment dispatch; hence the guard.
             if (n > 0) grown_entries(1:n) = entries
             grown_entries(n + 1) = entry
             call move_alloc(grown_entries, entries)
@@ -121,15 +100,10 @@ contains
       _RETURN(_SUCCESS)
    end subroutine collect_qualified_exports
 
-   ! openspec/changes/graph-builder-resolution-index, design.md Decisions
-   ! "resolve_qualified_component is resolve_descendant, relocated and
-   ! renamed, with no algorithm change": a one-line forward to the
-   ! shared primitive now living in GraphBuilder.F90's own
-   ! shared-helpers section - this entry point itself is kept so every
-   ! existing call site in this submodule
-   ! (materialize_callback_collection/build_callback_state_binding) needs
-   ! no further change. comp_path MUST be non-empty - callers guard
-   ! this; an empty comp_path means "root itself," never routed here.
+   ! Forwards to resolve_qualified_component in GraphBuilder.F90's
+   ! shared helpers, so callers in this submodule need no change.
+   ! comp_path MUST be non-empty; an empty path means root itself and
+   ! callers guard it.
    module function resolve_descendant(root, comp_path, rc) result(meta)
       class(OuterMetaComponent), target, intent(inout) :: root
       character(*), intent(in) :: comp_path
@@ -144,17 +118,10 @@ contains
    end function resolve_descendant
 
    ! Resolves entry (found under a namespace rooted at src_component_name,
-   ! relative to `this`) to the matched export's own real NodeId, found
-   ! via its owning component's own local resource index.
-   !
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 5.1: this
-   ! used to additionally cache a parent-local proxy StateItemNode for
-   ! every case except `this`'s own direct export (REQ-HIER-006,
-   ! generalizing get_or_make_local_node_id's own single-level proxy
-   ! shape to the full path from `this` down to the real owner) - with
-   ! node storage shared hierarchy-wide, the owner's own real NodeId is
-   ! already a valid member identity directly; no proxy is created,
-   ! cached, or returned.
+   ! relative to `this`) to the matched export's real NodeId, found via
+   ! its owning component's resource index. Node storage is shared
+   ! hierarchy-wide, so the owner's own NodeId is used directly and no
+   ! parent-local proxy is created (REQ-HIER-006).
    module function resolve_qualified_export_node_id(this, src_component_name, entry, rc) result(node_id)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: src_component_name
@@ -168,11 +135,9 @@ contains
       type(NodeId), pointer :: owner_item_id
       type(OuterMetaComponent), pointer :: owner_meta
 
-      ! openspec/changes/graph-builder-stateitem-resolution: explicit
-      ! allocate(..., source=...) instead of plain `=` assignment into
-      ! a deferred-length character variable - same gfortran
-      ! realloc-on-assignment memory-corruption class documented in
-      ! StateItemNode.F90's constructor.
+      ! allocate(source=) rather than `=` into a deferred-length
+      ! character: gfortran realloc-on-assignment memory corruption (see
+      ! StateItemNode.F90's constructor).
       if (is_self(this, src_component_name)) then
          allocate(full_path, source=entry%comp_path)
       else if (len(entry%comp_path) == 0) then
@@ -194,16 +159,11 @@ contains
       _RETURN(_SUCCESS)
    end function resolve_qualified_export_node_id
 
-   ! design.md Decision 4: an export "implements" expected_iface when its
-   ! own declared composite members (composite-state-spec's
-   ! declare_member tree) cover every argument name expected_iface
-   ! declares, with each member's own itemType matching that argument's
-   ! expected_kind (compared by name - MAPL_StateItem_Flag's variant-flag
-   ! vocabulary and itemtype_name()'s existing ESMF-domain vocabulary
-   ! already agree on FIELD/FIELDBUNDLE/STATE for the base kinds this
-   ! check needs). Method presence (get/put, ...) is not checked here -
-   ! CallbackStateBinding%bind_method already reports a missing method
-   ! attachment explicitly at binding time (design.md Risks).
+   ! An export "implements" expected_iface when its declared composite
+   ! members cover every argument name expected_iface declares, each with
+   ! a matching itemType (compared by name). Method presence is not
+   ! checked here; CallbackStateBinding%bind_method reports a missing
+   ! method attachment at binding time.
    module function export_conforms_to_interface(var_spec, expected_iface, reason) result(conforms)
       type(VariableSpec), target, intent(in) :: var_spec
       type(CallbackInterface), target, intent(in) :: expected_iface
@@ -225,11 +185,9 @@ contains
       iter = arguments%ftn_begin()
       do while (iter /= arguments%ftn_end())
          call iter%next()
-         ! openspec/changes/graph-builder-stateitem-resolution: explicit
-         ! deallocate+allocate(..., source=...) instead of plain `=`
-         ! reassignment of an allocatable character variable inside a
-         ! loop - same gfortran realloc-on-assignment memory-corruption
-         ! class documented in StateItemNode.F90's constructor.
+         ! deallocate+allocate(source=) rather than `=` in a loop: gfortran
+         ! realloc-on-assignment memory corruption (see StateItemNode.F90's
+         ! constructor).
          if (allocated(argument_name)) deallocate(argument_name)
          allocate(argument_name, source=iter%first())
          arg_spec = iter%second()
@@ -256,16 +214,13 @@ contains
       end do
    end function export_conforms_to_interface
 
-   ! REQ-CB-016 "materialize a flat callback collection": builds one new
-   ! StateItemNode (a real, structurally-empty ESMF_State, mirroring
-   ! composite-state-spec's own nested-level materialization, design.md
-   ! Decision 5) in this's own graph whose state_members map has one
-   ! entry per resolved match, keyed by that match's own qualified name
-   ! (unique within one resolution by construction) mapping to that
-   ! match's own destination-local NodeId
-   ! (resolve_qualified_export_node_id above). Built directly, not
-   ! routed through CompositeStateMaterialization's VariableSpec-tree
-   ! walk (design.md Decision 5's own rationale).
+   ! REQ-CB-016 "materialize a flat callback collection": builds one
+   ! StateItemNode (a real, structurally empty ESMF_State) in this's
+   ! graph whose state_members map has one entry per resolved match,
+   ! keyed by its qualified name (unique within one resolution) and
+   ! mapping to the match's NodeId
+   ! (resolve_qualified_export_node_id). Built directly rather than via
+   ! CompositeStateMaterialization's VariableSpec-tree walk.
    module function materialize_callback_collection(this, src_pt, matches, rc) result(collection_id)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ConnectionPt), intent(in) :: src_pt
@@ -299,12 +254,10 @@ contains
       _RETURN(_SUCCESS)
    end function materialize_callback_collection
 
-   ! Task 6 / design.md Context: the first real, non-test caller of
-   ! CallbackStateBinding%bind_argument, using the matched callback
-   ! state's own already-materialized composite member NodeIds - read
-   ! directly from its owning component's own graph via
-   ! GraphStateItem%state_members(), not re-derived from VariableSpec
-   ! and not caller-supplied stand-ins.
+   ! Builds a CallbackStateBinding using the matched callback state's
+   ! already-materialized composite member NodeIds, read from its owning
+   ! component's graph via GraphStateItem%state_members(), not
+   ! re-derived from VariableSpec.
    module function build_callback_state_binding(this, src_component_name, entry, expected_interface_id, &
         expected_iface, rc) result(binding)
       class(OuterMetaComponent), target, intent(inout) :: this
@@ -329,8 +282,7 @@ contains
       character(:), allocatable :: argument_name
       type(NodeId), pointer :: member_node_id
 
-      ! Same allocate(..., source=...) fix as
-      ! resolve_qualified_export_node_id above, same reason.
+      ! allocate(source=): see resolve_qualified_export_node_id.
       if (is_self(this, src_component_name)) then
          allocate(full_path, source=entry%comp_path)
       else if (len(entry%comp_path) == 0) then
@@ -366,11 +318,9 @@ contains
       iter = arguments%ftn_begin()
       do while (iter /= arguments%ftn_end())
          call iter%next()
-         ! openspec/changes/graph-builder-stateitem-resolution: explicit
-         ! deallocate+allocate(..., source=...) instead of plain `=`
-         ! reassignment of an allocatable character variable inside a
-         ! loop - same gfortran realloc-on-assignment memory-corruption
-         ! class documented in StateItemNode.F90's constructor.
+         ! deallocate+allocate(source=) rather than `=` in a loop: gfortran
+         ! realloc-on-assignment memory corruption (see StateItemNode.F90's
+         ! constructor).
          if (allocated(argument_name)) deallocate(argument_name)
          allocate(argument_name, source=iter%first())
 
@@ -383,20 +333,14 @@ contains
    end function build_callback_state_binding
 
    ! REQ-CB-018/019: builds one CallbackMethodBinding for method_name on
-   ! state_binding (a CallbackStateBinding already bound to a real
-   ! callback state via build_callback_state_binding, task 6) - registers
-   ! a MethodGraphNode (holding the StateMethodInvocation attachment
-   ! CallbackStateBinding%bind_method already produced) in this's own
-   ! graph, creates a get network and a put network via
-   ! ComponentGraph%create_network(), and wires each declared argument's
-   ! dependency edge into the appropriate network by access mode,
-   ! reusing find_mismatched_characteristics/find_or_build_extension_chain
-   ! exactly like ordinary connection resolution (design.md Decisions) -
-   ! both sides' CharacteristicMaps are always empty at this data-model
-   ! tier (CallbackArgumentSpec has no units/vgrid declaration yet), so
-   ! this always takes the exact-match direct-edge branch today; the
-   ! transform-chain branch remains available for a future
-   ! characteristics-aware CallbackArgumentSpec.
+   ! state_binding. Registers a MethodGraphNode (holding the attachment
+   ! from CallbackStateBinding%bind_method) in this's graph, creates a
+   ! get and a put network, and wires each argument's dependency edge
+   ! into the network for its access mode, reusing
+   ! find_mismatched_characteristics/find_or_build_extension_chain as
+   ! ordinary connection resolution does. CallbackArgumentSpec declares
+   ! no characteristics yet, so the exact-match direct-edge branch is
+   ! always taken today.
    module function build_callback_method_binding(this, iface, method_name, state_binding, &
         provider_get_ids, provider_put_ids, rc) result(binding)
       class(OuterMetaComponent), target, intent(inout) :: this
@@ -430,13 +374,8 @@ contains
       _ASSERT(associated(attachment), 'GraphBuilder: build_callback_method_binding - method not bound on state binding')
 
       method_node_id = graph%next_node_id(_RC)
-      ! Not registered yet - node_declare_argument/node_bind_argument
-      ! (below) must run on this local value before it is handed to
-      ! register_node(), which copies it into the graph's own node map;
-      ! mutating a fetched-back pointer would work too (the pattern
-      ! finish_transform/extension materialization already use) but
-      ! populating before the one-shot registration is simpler here
-      ! since nothing else needs this node's identity in between.
+      ! Declare/bind on the local value before register_node(), which
+      ! copies it into the graph's node map.
       method_node = MethodGraphNode(method_node_id, attachment)
 
       get_net_id = graph%create_network(_RC)
@@ -450,11 +389,9 @@ contains
       iter = accesses%ftn_begin()
       do while (iter /= accesses%ftn_end())
          call iter%next()
-         ! openspec/changes/graph-builder-stateitem-resolution: explicit
-         ! deallocate+allocate(..., source=...) instead of plain `=`
-         ! reassignment of an allocatable character variable inside a
-         ! loop - same gfortran realloc-on-assignment memory-corruption
-         ! class documented in StateItemNode.F90's constructor.
+         ! deallocate+allocate(source=) rather than `=` in a loop: gfortran
+         ! realloc-on-assignment memory corruption (see StateItemNode.F90's
+         ! constructor).
          if (allocated(argument_name)) deallocate(argument_name)
          allocate(argument_name, source=iter%first())
          access = iter%second()
@@ -462,14 +399,9 @@ contains
          member_id => state_binding%get_argument_binding(argument_name)
          _ASSERT(associated(member_id), 'GraphBuilder: build_callback_method_binding - argument not bound on state binding: ' // argument_name)
 
-         ! Populates the MethodGraphNode's own declared-argument/binding
-         ! storage (REQ-MTH-002) with exactly the same argument name,
-         ! access mode, and bound member NodeId CallbackStateBinding's
-         ! own invoke_method() would otherwise materialize fresh per
-         ! call (CallbackStateBinding.F90's build_arguments_for_method) -
-         ! so this method_node's own invoke() (called from
-         ! invoke_callback_method, task 8) is self-sufficient and needs
-         ! no separate call back into state_binding.
+         ! Populate the node's argument/binding storage (REQ-MTH-002) with
+         ! what CallbackStateBinding's invoke_method() would build per
+         ! call, so method_node%invoke() is self-sufficient.
          arg_spec = iface%get_argument(argument_name, _RC)
          expected_kind = arg_spec%get_expected_kind()
          call method_node%declare_argument(argument_name, access, expected_kind=expected_kind, rc=status)
@@ -497,14 +429,10 @@ contains
       _RETURN(_SUCCESS)
    end function build_callback_method_binding
 
-   ! Wires one argument's data flow edge into network_id, reusing
-   ! find_mismatched_characteristics/find_or_build_extension_chain
-   ! exactly like ordinary connection resolution (design.md Decisions) -
-   ! both source_characteristics/target_characteristics are empty
-   ! StateItemCharacteristicMaps at this data-model tier, so this always
-   ! takes the exact-match direct-edge branch today; the transform-chain
-   ! branch remains available for a future characteristics-aware
-   ! CallbackArgumentSpec.
+   ! Wires one argument's data-flow edge into network_id, as ordinary
+   ! connection resolution does. Both characteristic maps are empty today
+   ! (CallbackArgumentSpec declares none), so the exact-match
+   ! direct-edge branch is always taken.
    module subroutine wire_callback_argument(graph, network_id, source_id, target_id, rc)
       type(ComponentGraph), target, intent(inout) :: graph
       type(DependencyNetworkId), intent(in) :: network_id
@@ -528,15 +456,9 @@ contains
 
       call find_or_build_extension_chain(graph, network_id, source_id, &
            empty_characteristics, empty_characteristics, mismatched, final_id, intermediate_ids, unsupported, _RC)
-      ! openspec/changes/phase-11b-chain-intermediate-materialization:
-      ! intentionally no materialize_extension_chain call here -
-      ! empty_characteristics means mismatched is always zero-length
-      ! above, so this branch is never entered by any real caller today
-      ! (no CallbackArgumentSpec declares units/typekind/vertical_grid
-      ! yet). No VariableSpec exists at this call site either, so
-      ! materialize_extension_chain's own signature could not be called
-      ! here even if this branch were reachable - deferred to whenever
-      ! CallbackArgumentSpec gains real characteristics.
+      ! No materialize_extension_chain call: with empty characteristic
+      ! maps this branch is unreachable today, and no VariableSpec exists
+      ! here to call it with.
       _ASSERT(unsupported == '', 'GraphBuilder: wire_callback_argument - unsupported characteristic: ' // unsupported)
 
       call graph%add_dependency(network_id, final_id, target_id, _RC)
@@ -544,15 +466,12 @@ contains
       _RETURN(_SUCCESS)
    end subroutine wire_callback_argument
 
-   ! REQ-CB-020: invoke-once-after-all-args-ready discipline, mirroring
-   ! mapl_MethodInvocation_mod%invoke_on_default_network's exact
-   ! three-phase shape (design.md Decision 7) but parameterized by
-   ! binding's own get/put networks instead of the default network.
-   ! Never registers the callback MethodGraphNode into demand-driven
-   ! update's own dispatch - only its get-network predecessor(s) are
-   ! pulled current via the ordinary graph%update() entry point, and
-   ! only its put-network target(s) are advanced, both by this
-   ! procedure's own explicit request.
+   ! REQ-CB-020: invoke once after all arguments are ready, in the same
+   ! three-phase shape as mapl_MethodInvocation_mod%
+   ! invoke_on_default_network but on binding's own get/put networks.
+   ! The callback MethodGraphNode is never registered with demand-driven
+   ! update: only its get-network predecessors are pulled, and only its
+   ! put-network targets are advanced, explicitly by this procedure.
    module subroutine invoke_callback_method(graph, binding, rc)
       class(ComponentGraph), target, intent(inout) :: graph
       type(CallbackMethodBinding), target, intent(in) :: binding
@@ -564,11 +483,8 @@ contains
       class(MethodGraphNode), pointer :: method_node
       type(DependencyNetworkId) :: get_net_id
 
-      ! put_bindings' own revisions are advanced directly by NodeId
-      ! (advance_callback_put_arguments below, mirroring
-      ! mapl_MethodInvocation_mod%advance_bound_outputs' own precedent) -
-      ! no per-network traversal is needed for "advance," so the put
-      ! network's own id is not read here.
+      ! put revisions are advanced directly by NodeId (as
+      ! advance_bound_outputs does), so the put network id is not needed.
       get_net_id = binding%get_get_network_id()
       get_bindings = binding%get_get_bindings()
       put_bindings = binding%get_put_bindings()
@@ -591,10 +507,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine invoke_callback_method
 
-   ! REQ-REV-011's "pull-all-before", applied to binding's own get
-   ! network (mapl_MethodInvocation_mod%pull_bound_inputs' own
-   ! collect-then-process shape, design.md Decision 7 - no map iterator
-   ! live across the graph%update() call).
+   ! REQ-REV-011 "pull-all-before" on binding's get network. Collect
+   ! names first so no map iterator is live across graph%update().
    module subroutine pull_callback_get_arguments(graph, network_id, get_bindings, rc)
       class(ComponentGraph), target, intent(in) :: graph
       type(DependencyNetworkId), intent(in) :: network_id
@@ -625,11 +539,9 @@ contains
       _RETURN(_SUCCESS)
    end subroutine pull_callback_get_arguments
 
-   ! REQ-REV-011's "advance-all-after", applied to binding's own put
-   ! network - only reached once invoke() has already succeeded
-   ! (invoke_callback_method's own "_RC"-checked call above returns early
-   ! otherwise, spec scenario "Failed invocation does not advance bound
-   ! outputs").
+   ! REQ-REV-011 "advance-all-after" on binding's put network. Only
+   ! reached once invoke() succeeded, so a failed invocation does not
+   ! advance bound outputs.
    module subroutine advance_callback_put_arguments(graph, put_bindings, rc)
       class(ComponentGraph), target, intent(in) :: graph
       type(StateItemMemberMap), target, intent(in) :: put_bindings

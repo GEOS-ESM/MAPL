@@ -1,10 +1,6 @@
 #include "MAPL.h"
 
-! openspec/changes/phase-10d-ordinary-phase-method-node: ordinary-phase MethodGraphNode construction
-! (openspec/changes/graphbuilder-submodule-split: procedure bodies moved
-! here verbatim from GraphBuilder.F90, mechanical subroutine->module
-! subroutine / function->module function change only - see that
-! change's design.md D1 for the full section-to-file mapping.)
+! Ordinary-phase MethodGraphNode construction.
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_RunPhaseNode_smod
    use esmf, only: operator(==)
@@ -21,42 +17,18 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_RunPhaseNode_smod
 
 contains
 
-   ! ============================================================
-   ! openspec/changes/phase-10d-ordinary-phase-method-node: ordinary-
-   ! phase MethodGraphNode construction.
-   ! ============================================================
+   ! Builds one run-phase MethodGraphNode for `this`, wrapping its
+   ! GENERIC::RUN_USER phase, and stores its NodeId on `this`. Arguments
+   ! come from the component's advertised import/export VariableSpecs.
+   ! No-op in registry graph mode; idempotent, since
+   ! graphbuilder_run_connect_hook may run more than once per the
+   ! two-pass init schedule.
    !
-   ! CONSTRUCTION ONLY - this procedure never invokes the node it
-   ! builds, and no other code in this repo does either. A real,
-   ! driver-targeting adapter is attached (design.md D4) so the node is
-   ! not permanently uninvocable, but calling invoke()/
-   ! invoke_on_default_network() on it today would execute the user's
-   ! own GridComp run phase a SECOND time, back-to-back with
-   ! run_user.F90's own existing legacy call on the same driver, same
-   ! phase - a real double-invocation of production user code, not
-   ! inert bookkeeping (proposal.md Why). Making that safe requires (a)
-   ! a legacy-run-call skip mechanism (mirroring
-   ! initialize_accept_transfer.F90's own GRAPH_MODE_GRAPH skip for
-   ! add_to_states, but for the run call - does not exist yet) and (b)
-   ! GRAPH_MODE_GRAPH-alone population actually working end-to-end
-   ! (confirmed broken today, roadmap §20.4.8's own "Explicitly out of
-   ! scope"). Do not add an invocation call site against this node
-   ! without resolving both first.
-   !
-   ! Builds exactly one run-phase MethodGraphNode for `this` component,
-   ! wrapping its own GENERIC::RUN_USER phase, and stores the
-   ! constructed node's NodeId on `this` (OuterMetaComponent%
-   ! set_run_phase_method_node_id). Keyed to the component's own
-   ! advertised import/export VariableSpecs (design.md D3), not a
-   ! CallbackInterface's declared arguments - mirrors
-   ! build_callback_method_binding's own declare_argument/bind_argument/
-   ! register_node construction shape, differing only in where the
-   ! argument list comes from. A no-op under the default (registry)
-   ! graph mode, and idempotent (re-running after a NodeId is already
-   ! stored does nothing further) - matches advertise_one's own
-   ! re-advertisement guard, since graphbuilder_run_connect_hook may run
-   ! more than once per the fixed two-pass init schedule
-   ! (GENERIC_INIT_PHASE_SEQUENCE).
+   ! CONSTRUCTION ONLY: nothing may invoke this node. Doing so would run
+   ! the user's run phase a second time after run_user.F90's legacy
+   ! call. Safe invocation needs (a) a graph-mode skip of the legacy run
+   ! call and (b) graph-only population working end to end; neither
+   ! exists yet.
    module subroutine graphbuilder_build_run_phase_node(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -76,16 +48,8 @@ contains
 
       _RETURN_IF(graph_mode() == GRAPH_MODE_REGISTRY)
 
-      ! Idempotent: graphbuilder_run_connect_hook (this procedure's own
-      ! caller) may run more than once per the fixed two-pass
-      ! GENERIC_INIT_PHASE_SEQUENCE schedule - a NodeId already stored
-      ! from an earlier pass means this component's run-phase node
-      ! already exists, matching advertise_one's own "already indexed -
-      ! nothing to do" guard. NodeId%is_valid() (not association) is
-      ! the correct "already set" test - get_run_phase_method_node_id
-      ! returns by value (OuterMetaComponent.F90's own field-declaration
-      ! comment: a NodeId is a tiny value type, not something worth a
-      ! pointer-and-null-check accessor).
+      ! get_run_phase_method_node_id returns a NodeId by value, so test
+      ! is_valid(), not association.
       existing_node_id = this%get_run_phase_method_node_id()
       if (existing_node_id%is_valid()) then
          _RETURN(_SUCCESS)
@@ -97,20 +61,14 @@ contains
       method_node_id = graph%next_node_id(_RC)
       resolver = OuterMetaComponentDriverResolver(this)
       invoker = GridCompDriverPhaseInvoker(resolver, ESMF_METHOD_RUN)
-      ! driver_key = SELF_COMPONENT_NAME: this node always targets
-      ! `this` component's own driver (never a child's) - phase_idx = 1,
-      ! the fixed GENERIC::RUN_USER lifecycle-phase index every
-      ! configuration in this repo's own fixture set uses today. A real
-      ! adapter is attached so the node is not permanently uninvocable
-      ! (design.md D4) - see this procedure's own header comment for
-      ! why nothing calls invoke() on it yet.
+      ! The node always targets `this` component's own driver, never a
+      ! child's. phase_idx = 1 is the GENERIC::RUN_USER phase index used
+      ! by every configuration in the fixtures.
       method_node = MethodGraphNode(method_node_id, &
            GridCompMethodInvocation(SELF_COMPONENT_NAME, 1, invoker))
 
-      ! Not registered yet (same ordering build_callback_method_binding
-      ! itself follows): declare_argument/bind_argument run on this
-      ! local value before it is handed to register_node(), which
-      ! copies it into the graph's own node map.
+      ! Declare/bind on the local value before register_node(), which
+      ! copies it into the graph's node map.
       associate (e => comp_spec%var_specs%ftn_end())
          iter = comp_spec%var_specs%ftn_begin()
          do while (iter /= e)
@@ -134,9 +92,8 @@ contains
                call method_node%bind_argument(var_spec%short_name, member_id, rc=status)
                _VERIFY(status)
             end if
-            ! INTERNAL items: skipped (neither IN nor OUT at the
-            ! component boundary - mirrors advertise_one's own
-            ! "INTERNAL items get neither [port]" treatment).
+            ! INTERNAL items are neither IN nor OUT at the component
+            ! boundary, so they are skipped.
          end do
       end associate
 

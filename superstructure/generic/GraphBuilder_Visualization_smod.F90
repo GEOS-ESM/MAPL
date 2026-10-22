@@ -1,10 +1,6 @@
 #include "MAPL.h"
 
-! Task 6: Visualization enrichment (visualization-enrichment-layer change)
-! (openspec/changes/graphbuilder-submodule-split: procedure bodies moved
-! here verbatim from GraphBuilder.F90, mechanical subroutine->module
-! subroutine / function->module function change only - see that
-! change's design.md D1 for the full section-to-file mapping.)
+! Visualization enrichment: labels for graph export.
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_Visualization_smod
    use mapl_NodeLabel_mod, only: NodeLabel
@@ -15,23 +11,10 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Visualization_smod
 contains
 
    ! Builds a NodeId -> label lookup for THIS component's own local
-   ! graph only (design.md Goals/Non-Goals): a component's own
-   ! advertised items are labeled by their own short_name (read from
-   ! ComponentSpec%var_specs, the same iteration graphbuilder_advertise
-   ! already performs).
-   !
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.1/3.4:
-   ! this used to also label each cached child-proxy node in this
-   ! component's own graph ("<child_name>:<short_name>", marked
-   ! is_proxy) - with proxy nodes retired (no parent-local stand-in is
-   ! created anymore; a cross-component edge references the child's own
-   ! real NodeId directly, in the child's own graph), there is nothing
-   ! left for that section to label: this component's own
-   ! ComponentGraph%get_node_ids() never contains a child's NodeId.
-   ! GraphExport.F90 itself remains single-ComponentGraph-scoped
-   ! (REQ-VIZ-005 hierarchy-wide export is still not implemented), so a
-   ! child's own real node is simply outside this function's own
-   ! single-graph view - not a regression this function can address.
+   ! graph only: its own advertised items, labeled by short_name.
+   ! A child's NodeId never appears in this component's graph, and
+   ! GraphExport is single-ComponentGraph-scoped (hierarchy-wide export
+   ! is not implemented), so children are not labeled here.
    module function graphbuilder_build_label_map(this, rc) result(label_map)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -47,8 +30,7 @@ contains
       graph => this%get_component_graph()
       comp_spec => this%get_component_spec()
 
-      ! This component's own advertised items (design.md - "walking
-      ! var_specs", not reversing the resource index).
+      ! Walk var_specs rather than reversing the resource index.
       associate (e => comp_spec%var_specs%ftn_end())
          iter = comp_spec%var_specs%ftn_begin()
          do while (iter /= e)

@@ -1,10 +1,6 @@
 #include "MAPL.h"
 
-! Horizontal geometry (openspec/changes/horizontal-geometry-graph-state-item, Phase 4e)
-! (openspec/changes/graphbuilder-submodule-split: procedure bodies moved
-! here verbatim from GraphBuilder.F90, mechanical subroutine->module
-! subroutine / function->module function change only - see that
-! change's design.md D1 for the full section-to-file mapping.)
+! Horizontal geometry as a graph node, and its parent/child wiring.
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_Geometry_smod
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, GEOMETRY_CHARACTERISTIC_KIND
@@ -33,11 +29,9 @@ contains
       call report_if_failed(this, 'resolve_geometry', status)
    end subroutine graphbuilder_run_geometry_hook
 
-   ! Wraps this%get_geom() (already resolved by GeometrySpec/
-   ! initialize_geom_a.F90/initialize_geom_b.F90, long before this ever
-   ! runs) as an ordinary StateItemNode in this component's own local
-   ! graph. Idempotent, mirroring advertise_one's own re-advertisement
-   ! guard.
+   ! Wraps this%get_geom() (already resolved by GeometrySpec before this
+   ! runs) as an ordinary StateItemNode in this component's graph.
+   ! Idempotent.
    module subroutine graphbuilder_advertise_geometry(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -73,10 +67,9 @@ contains
    end subroutine graphbuilder_advertise_geometry
 
    ! Gives the already-resolved parent/child geometry relationship (per
-   ! this%get_component_spec()%geometry_spec%kind) real graph structure:
-   ! a dependency edge from whichever side provides to whichever side
-   ! receives. Does not re-decide own/from_parent/from_child - that
-   ! decision is GeometrySpec's, already made in phases 3-4.
+   ! geometry_spec%kind) graph structure: a dependency edge from the
+   ! providing side to the receiving side. Does not re-decide
+   ! own/from_parent/from_child; that is GeometrySpec's decision.
    module subroutine graphbuilder_resolve_geometry(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -108,11 +101,9 @@ contains
       _RETURN(_SUCCESS)
    end subroutine graphbuilder_resolve_geometry
 
-   ! Pull direction: resolves the named child's own real geometry NodeId
-   ! directly (openspec/changes/hierarchy-wide-component-graph, tasks.md
-   ! 4.1/4.2: no parent-local proxy exists anymore - structurally
-   ! identical to an ordinary cross-boundary MatchConnection's own
-   ! direct-edge wiring, Group 3).
+   ! Pull direction: wires the named child's real geometry NodeId
+   ! directly to this component's, like an ordinary cross-boundary
+   ! MatchConnection (no parent-local proxy).
    module subroutine resolve_geometry_from_child(this, provider_name, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: provider_name
@@ -150,11 +141,8 @@ contains
       _ASSERT(associated(existing), assertion_message)
       child_own_id = existing
 
-      ! Fortran does not permit invoking a type-bound procedure directly
-      ! on the (non-pointer, non-variable) result of another type-bound
-      ! function call - `this%get_geom_id()%get_value()` is not a valid
-      ! designator. Bind each intermediate result to a named variable
-      ! first instead (confirmed by bisection against NAG's rejection).
+      ! `this%get_geom_id()%get_value()` is not a valid designator
+      ! (NAG rejects it); bind the intermediate result first.
       this_own_geom_id = this%get_geom_id()
       provider_geom_id = child_meta%get_geom_id()
       write(id_buffer, '(I0)') provider_geom_id%get_value()
@@ -162,12 +150,10 @@ contains
       write(id_buffer, '(I0)') this_own_geom_id%get_value()
       call this_map%insert(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_id=trim(id_buffer)))
 
-      ! Same dispatch shape as resolve_one's own REQ-EXT-001/003/005
-      ! handling (mirrored, not duplicated as a bespoke check): no-op on
-      ! exact match, else delegate to extension-reuse rather than wiring
-      ! the mismatched pair directly - here expected to be unreachable
-      ! given GeometrySpec's own exclusive resolution (design.md D4), but
-      ! handled through the real path rather than assumed away.
+      ! Same dispatch shape as resolve_one (REQ-EXT-001): direct edge on
+      ! exact match, else extension chain. A mismatch should be
+      ! unreachable given GeometrySpec's exclusive resolution, but goes
+      ! through the real path rather than being assumed away.
       mismatched = find_mismatched_characteristics(child_map, this_map)
       if (size(mismatched) == 0) then
          call this_graph%add_dependency(net_id, child_own_id, this_own_id, _RC)
@@ -180,28 +166,20 @@ contains
             ' does not match the receiving component own resolved geometry (unsupported: ' // &
             unsupported // ') - should be unreachable given GeometrySpec own exclusive resolution'
       _ASSERT(unsupported == '', assertion_message)
-      ! openspec/changes/phase-11b-chain-intermediate-materialization:
-      ! intentionally no materialize_extension_chain call here - this
-      ! branch is asserted unreachable immediately above
-      ! (GeomCharacteristic%build_transform always fails, so unsupported
-      ! is never '' in practice; the assertion exists for the case where
-      ! that stops being true without this call site being revisited).
-      ! No real horizontal-regrid Transform exists yet (Phase 13,
-      ! REQ-GEO-002a) - adding real materialization here is deferred to
-      ! that future capability, not attempted by this change.
+      ! No materialize_extension_chain call: GeometryCharacteristic's
+      ! build_transform always fails (no horizontal-regrid Transform
+      ! exists), so `unsupported` is never '' in practice. The assertion
+      ! above flags this site if that changes.
 
       call this_graph%add_dependency(net_id, final_id, this_own_id, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine resolve_geometry_from_child
 
-   ! Push direction: injects a dependency edge directly between this
-   ! (parent)'s own real geometry NodeId and the named child's own real
-   ! geometry NodeId, in the CHILD's own graph/network (both endpoints
-   ! are already real, no proxy on either side -
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 4.1/4.2),
-   ! using the same framework-internal get_child_component_graph()
-   ! carve-out (REQ-GB-002).
+   ! Push direction: adds a dependency edge from this (parent)'s
+   ! geometry NodeId to the named child's, in the CHILD's graph/network,
+   ! via the framework-internal get_child_component_graph() carve-out
+   ! (REQ-GB-002).
    module subroutine push_geometry_to_child(this, child_name, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: child_name
@@ -239,9 +217,7 @@ contains
       _ASSERT(associated(existing), assertion_message)
       child_own_id = existing
 
-      ! See resolve_geometry_from_child's own comment above - same
-      ! not-a-valid-designator reason for binding each intermediate
-      ! result to a named variable first.
+      ! Bind intermediates first; see resolve_geometry_from_child.
       this_geom_id = this%get_geom_id()
       child_geom_id = child_meta%get_geom_id()
       write(id_buffer, '(I0)') this_geom_id%get_value()
@@ -249,15 +225,10 @@ contains
       write(id_buffer, '(I0)') child_geom_id%get_value()
       call child_map%insert(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_id=trim(id_buffer)))
 
-      ! Same dispatch shape as resolve_one's own REQ-EXT-001/003/005
-      ! handling, and as resolve_geometry_from_child's own pull-direction
-      ! mirror above - the edge (and, if mismatched, any extension chain)
-      ! lives in the CHILD's own graph/network, since the receiving side
-      ! (child_own_id) is a child_graph node; this's own real
-      ! this_own_id is admitted as a cross-component edge endpoint the
-      ! same way any other resolved descendant's real NodeId is
-      ! (ComponentGraph%add_dependency's own relaxed ownership check,
-      ! ComponentGraph.F90).
+      ! Same dispatch shape as resolve_geometry_from_child. The edge (and
+      ! any chain) lives in the CHILD's graph/network because the
+      ! receiving node is a child_graph node; add_dependency admits
+      ! this_own_id as a cross-component endpoint.
       child_net_id = child_graph%get_default_network_id()
       mismatched = find_mismatched_characteristics(this_map, child_map)
       if (size(mismatched) == 0) then
@@ -271,10 +242,7 @@ contains
             ' own resolved geometry (unsupported: ' // unsupported // &
             ') - should be unreachable given GeometrySpec own exclusive resolution'
       _ASSERT(unsupported == '', assertion_message)
-      ! openspec/changes/phase-11b-chain-intermediate-materialization:
-      ! same as resolve_geometry_from_child's own note above - this
-      ! branch is asserted unreachable; no real materialization added
-      ! here, deferred to a future horizontal-regrid capability.
+      ! No materialization; see resolve_geometry_from_child.
 
       call child_graph%add_dependency(child_net_id, final_id, child_own_id, _RC)
 

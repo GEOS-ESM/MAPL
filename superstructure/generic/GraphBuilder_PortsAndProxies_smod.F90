@@ -1,10 +1,6 @@
 #include "MAPL.h"
 
-! Task 4: Public ports and child proxies
-! (openspec/changes/graphbuilder-submodule-split: procedure bodies moved
-! here verbatim from GraphBuilder.F90, mechanical subroutine->module
-! subroutine / function->module function change only - see that
-! change's design.md D1 for the full section-to-file mapping.)
+! Resolution of an export's geometry and vertical grid.
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_PortsAndProxies_smod
    use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE, operator(==)
@@ -13,17 +9,11 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_PortsAndProxies_smod
 
 contains
 
-   ! design.md Decisions "Geom/vgrid resolution order": (a) the export's
-   ! own GraphStateItem%declared_geom if explicitly set at advertise time
-   ! (HistoryCollection-style explicit override, captured once from
-   ! var_spec%geom by advertise_one - design.md correction), else (b) the
-   ! owning OuterMetaComponent's component-wide default via its existing
-   ! public has_geom()/get_geom() accessors (the same fallback
-   ! advertise_variable.F90 already applies to every VariableSpec), else
-   ! (c) not found - no cross-component mirror propagation (that remains
-   ! a distinct, future capability). export_item is read-only here (the
-   ! export's own already-advertised GraphStateItem, by value - no
-   ! VariableSpec reference needed, proposal.md's core claim).
+   ! Resolution order: (a) the export's own declared_geom, if set at
+   ! advertise time (explicit override captured from var_spec%geom), else
+   ! (b) the owning component's default via has_geom()/get_geom(), else
+   ! (c) not found. No cross-component mirror propagation.
+   ! export_item is read-only.
    module subroutine resolve_export_geom(export_item, owner, geom, found, rc)
       type(GraphStateItem), intent(in) :: export_item
       class(OuterMetaComponent), target, intent(inout) :: owner
@@ -51,17 +41,12 @@ contains
       _RETURN(_SUCCESS)
    end subroutine resolve_export_geom
 
-   ! Same priority order as resolve_export_geom() above, for the
-   ! vertical grid - but unlike geom, "not found" here means "no vertical
-   ! dimension" (a legitimate 2D field), not a failure; see
-   ! try_materialize_field_extension()'s own comment. An explicit
-   ! `vertical_stagger == VERTICAL_STAGGER_NONE` (the parser's own
-   ! `vertical_dim_spec: NONE`, VariableSpec.F90, captured on
-   ! export_item%get_vertical_stagger() at advertise time) is this
-   ! item's own explicit declaration that the field has no vertical
-   ! dimension at all - honored ahead of the component-wide default so a
-   ! 2D field declared inside an otherwise-3D-capable component is not
-   ! mistakenly given that component's own vertical grid.
+   ! Same priority order as resolve_export_geom(), but "not found" means
+   ! "no vertical dimension" (a legitimate 2D field), not a failure.
+   ! An explicit vertical_stagger == VERTICAL_STAGGER_NONE (from
+   ! `vertical_dim_spec: NONE`) is honored ahead of the component-wide
+   ! default so a 2D field in a 3D-capable component does not get that
+   ! component's vertical grid.
    module subroutine resolve_export_vgrid(export_item, owner, vgrid)
       type(GraphStateItem), intent(in) :: export_item
       class(OuterMetaComponent), target, intent(inout) :: owner
