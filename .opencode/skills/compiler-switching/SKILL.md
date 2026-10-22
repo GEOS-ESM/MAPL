@@ -8,10 +8,10 @@ compatibility: opencode
 > so `module load` does not persist between calls.** Use the wrappers
 > `with-nag <cmd>` / `with-gfortran <cmd>` (e.g. `with-nag cmake --build
 > nag -j 10 --target build-tests`) instead of the `module load ...` lines
-> below. The wrappers load `nag-stack/7.2.41` and `gfortran-stack`.
-> **NAG must be 7.2.41**: newer NAG (default `nag` = 7.2.54,
-> `nag-stack` = 7.2.53) has a compiler bug that breaks MAPL. Never load
-> an unversioned `nag` or `nag-stack`.
+> below. The wrappers load the unversioned `nag-stack`,
+> `gfortran-stack`, or `ifx-stack` (bucy only); each machine's module
+> default is the version MAPL needs. Never pick a different compiler
+> version to get past an error.
 
 # Compiler Switching
 
@@ -31,7 +31,7 @@ mkdir -p nag gfortran intel
 
 # 2. Build with NAG
 cd nag
-module load nag-stack/7.2.41  # or your NAG module
+module load nag-stack  # or your NAG module
 cmake .. -DCMAKE_Fortran_COMPILER=nagfor ...
 make -j8 install
 
@@ -141,7 +141,7 @@ export INTEL_BASEDIR=$BASEDIR/ifort_18.0.3.185/Darwin
 
 ```bash
 cd nag
-module load nag-stack/7.2.41  # or your NAG module name
+module load nag-stack  # or your NAG module name
 
 cmake .. \
   -DCMAKE_Fortran_COMPILER=nagfor \
@@ -244,7 +244,7 @@ module show nag
 module purge
 
 # Load desired compiler
-module load nag-stack/7.2.41  # or gfortran, intel, etc.
+module load nag-stack  # or gfortran, intel, etc.
 
 # Verify correct compiler is loaded
 which nagfor  # or gfortran, ifort
@@ -269,7 +269,7 @@ module load gfortran
 
 **Symptom:**
 ```
-module load nag-stack/7.2.41
+module load nag-stack
 ERROR: Module 'nag' not found
 ```
 
@@ -350,7 +350,7 @@ undefined reference to `__module_MOD_function'
 rm -rf nag  # or whichever build directory
 mkdir nag
 cd nag
-module load nag-stack/7.2.41
+module load nag-stack
 cmake .. -DCMAKE_Fortran_COMPILER=nagfor ...
 make -j8 install
 ```
@@ -386,7 +386,7 @@ CMake uses different compiler than specified.
 2. Ensure correct compiler is first in PATH:
    ```bash
    module purge
-   module load nag-stack/7.2.41  # or desired compiler
+   module load nag-stack  # or desired compiler
    which nagfor  # verify
    ```
 
@@ -625,7 +625,7 @@ which nagfor  # or gfortran, ifort
 
 # Switch to NAG
 module purge
-module load nag-stack/7.2.41
+module load nag-stack
 cd nag
 cmake .. -DCMAKE_Fortran_COMPILER=nagfor -DBASEDIR=$NAG_BASEDIR
 make -j8 install

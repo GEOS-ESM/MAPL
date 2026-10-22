@@ -8,10 +8,10 @@ compatibility: opencode
 > so `module load` does not persist between calls.** Use the wrappers
 > `with-nag <cmd>` / `with-gfortran <cmd>` (e.g. `with-nag cmake --build
 > nag -j 10 --target build-tests`) instead of the `module load ...` lines
-> below. The wrappers load `nag-stack/7.2.41` and `gfortran-stack`.
-> **NAG must be 7.2.41**: newer NAG (default `nag` = 7.2.54,
-> `nag-stack` = 7.2.53) has a compiler bug that breaks MAPL. Never load
-> an unversioned `nag` or `nag-stack`.
+> below. The wrappers load the unversioned `nag-stack`,
+> `gfortran-stack`, or `ifx-stack` (bucy only); each machine's module
+> default is the version MAPL needs. Never pick a different compiler
+> version to get past an error.
 
 ## What I Do
 

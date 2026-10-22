@@ -24,10 +24,13 @@ Repo-level instructions for coding agents working in this MAPL3 checkout.
   These override any `module load ...` instructions found in skills or
   older docs. If a wrapper is not on PATH (other machines), put the
   load and the command in the same call:
-  `source $(brew --prefix lmod)/init/bash; module load nag-stack/7.2.41; <cmd>`.
-- NAG must be exactly 7.2.41 (`nag-stack/7.2.41`). The unversioned
-  `nag`/`nag-stack` defaults are newer and hit a NAG compiler bug that
-  breaks MAPL (reported to NAG, not yet fixed).
+  `source $(brew --prefix lmod)/init/bash; module load nag-stack; <cmd>`.
+- Load only the unversioned stack modules (`nag-stack`, `gfortran-stack`,
+  `ifx-stack` on bucy). Each machine's module default is set to the
+  version MAPL needs (newer NAG releases have a compiler bug that breaks
+  MAPL). Never load a different version to get past an error.
+- To fix a build, use `/build-fix [nag|gfortran|intel] [dir]` (the
+  `build-fixer` subagent).
 - Run builds and ctest yourself; do not delegate them. Send the full
   output to a log in the build dir and show only the end, e.g.
   `with-nag cmake --build nag -j 10 --target build-tests > nag/build.log 2>&1; tail -3 nag/build.log`
