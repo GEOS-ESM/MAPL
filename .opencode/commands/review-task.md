@@ -1,5 +1,5 @@
 ---
-description: "Review a committed plan task. Usage: /review-task <label> [tier|provider/model] [focus...]  (tier default: opus; see ~/.config/opencode/models.md)"
+description: "Review a plan task (uncommitted or committed). Usage: /review-task <label> [tier|provider/model] [focus...]  (tier default: opus; see ~/.config/opencode/models.md)"
 subagent: false
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: Read-only review of a committed plan task (Plan-Task trailer) against docs/graph/plans/separation-of-concerns.md and its design artifacts. Reports findings by severity. Never edits. Launch with model `model-for opus`.
+description: Read-only review of a plan task (uncommitted working tree, or commits with its Plan-Task trailer) against docs/graph/plans/separation-of-concerns.md and its design artifacts. Reports findings by severity. Never edits. Launch with model `model-for opus`.
 mode: subagent
 permissions:
   - action: edit
@@ -10,6 +10,9 @@ permissions:
     effect: deny
   - action: shell
     resource: "git commit*"
+    effect: deny
+  - action: shell
+    resource: "git add*"
     effect: deny
   - action: shell
     resource: "git reset*"
@@ -43,8 +46,13 @@ Steps:
    and the task's own section. Read any artifact the task depends on
    (`docs/graph/CONVENTIONS.md`, the B0 design, `adding-a-characteristic.md`,
    ...); these take precedence over the plan's summaries.
-2. Get the work yourself: `git log --grep='^Plan-Task: <label>' -p`.
-   Do not rely on anyone's summary of it. Read surrounding source where
+2. Get the work yourself; do not rely on anyone's summary of it.
+   - Uncommitted (the normal case): `git status --short`, `git diff HEAD`,
+     and `cat .git/PLAN_TASK_MSG` (proposed commit message). Ignore
+     untracked files the task did not create.
+   - Already committed: `git log --grep='^Plan-Task: <label>' -p`, plus
+     `git diff HEAD` if follow-up fixes are still uncommitted.
+   State which of these you reviewed. Read surrounding source where
    the diff alone is not enough to judge.
 3. Judge it against the task's stated scope and the design. Look for:
    - wrong or changed behavior; missed cases (e.g. a D2 status cell)
@@ -56,8 +64,8 @@ Steps:
    - fallbacks that keep an old path alive "just in case"
    - scope creep (edits outside the task)
    - missing or weakened tests; tests disabled instead of gated
-   - plan Status line not updated; commit body missing the NAG and
-     gfortran ctest summary lines
+   - plan Status line not updated; (proposed) commit message missing the
+     `Plan-Task:` trailer or the NAG and gfortran ctest summary lines
 4. Do not rebuild or rerun tests unless asked. If you need a fact only
    a build can give, say so as an open question.
 

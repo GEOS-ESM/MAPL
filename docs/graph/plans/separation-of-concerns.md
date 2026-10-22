@@ -2,7 +2,7 @@
 
 > Canonical copy: `docs/graph/plans/separation-of-concerns.md` (in repo).
 > Every task MUST update its own **Status** line (done/partial, and any
-> deviations from this plan) in the same commit as the work. Artifacts produced by earlier tasks
+> deviations from this plan) as part of the same change as the work. Artifacts produced by earlier tasks
 > (`docs/graph/CONVENTIONS.md`, `docs/graph/scenario-parity.md`, the B0
 > openspec design, `docs/graph/adding-a-characteristic.md`, ...)
 > **take precedence over this plan's summaries** once they exist. If the
@@ -10,9 +10,12 @@
 
 Status: agreed in discussion with tclune, 2026-10-21.
 
-**Workflow: no PRs.** Agents commit directly on the owner's integration
+**Workflow: no PRs.** Work lands directly on the owner's integration
 branch (currently `feature/#5286-graph-phase-5`); one task = one commit,
-or a short series of commits. The integration branch goes to `develop` as
+or a short series of commits. Agents **do not commit**: they leave the
+task as uncommitted changes plus a proposed message in
+`.git/PLAN_TASK_MSG`, and the owner reviews the working tree before
+committing (see "Review and commit" below). The integration branch goes to `develop` as
 one final PR, followed by a walkthrough with the senior developers.
 Every task commit ends with a git trailer naming its task:
 
@@ -24,8 +27,7 @@ Labels are the task ids below (`A0`, `A2a`, `B3-Units`, `B3-TypeKind`,
 `C2-<short-name>`, ...). Find a task's work with
 `git log --grep='^Plan-Task: B3-Units' -p`. Do not record commit hashes
 in this plan (they change if the branch is rebased); the trailer is the
-reference. Agents commit locally only: never push, never rebase or
-amend commits that are not their own task's.
+reference. Never push; never rebase or amend existing commits.
 **Every task must leave all ctests passing** (NAG first, then gfortran;
 `ctest -L ESSENTIAL`). Pending/expected-fail work is gated by explicit
 toggles, never by red tests.
@@ -301,13 +303,26 @@ files) to lifecycle hooks only.
 
 ## Model assignment
 
-Author = writes and commits the task. Reviewer = the read-only
-`reviewer` subagent (`.opencode/agents/reviewer.md`), run **after** the
-commit: `/review-task <label> [tier|provider/model] [focus]`
-(default tier opus). It reads the task's commits itself via the Plan-Task
-trailer; never hand it the author's summary. Fixes from review go in a
-follow-up commit with the same `Plan-Task:` trailer. The owner
-spot-checks. Human review happens once, at the final PR to `develop`.
+Author = writes the task and leaves it uncommitted. Reviewer = the
+read-only `reviewer` subagent (`.opencode/agents/reviewer.md`):
+`/review-task <label> [tier|provider/model] [focus]` (default tier opus).
+It reads the work itself (uncommitted diff, or the task's commits via
+the Plan-Task trailer if already committed); never hand it the author's
+summary.
+
+### Review and commit
+1. Author finishes: changes uncommitted (new files marked with
+   `git add -N` so `git diff` shows them), proposed message in
+   `.git/PLAN_TASK_MSG`.
+2. Owner reviews the working tree (e.g. magit status), optionally after
+   `/review-task <label>` in a separate session.
+3. Fixes go into the working tree (owner asks the author session).
+4. Owner commits: `git commit -aF .git/PLAN_TASK_MSG`, then
+   `rm .git/PLAN_TASK_MSG`; or tells the author session "commit". (`-a`
+   takes every modified tracked file, so check `git status` first.)
+5. Problems found after commit go in a follow-up commit with the same
+   `Plan-Task:` trailer.
+Senior-developer review happens once, at the final PR to `develop`.
 
 Tier names below (`opus`, `sonnet`, `haiku`, `gemini`, `gpt-sol`,
 `gpt-luna`, `gemini-flash`) map to concrete model IDs per provider in
@@ -373,7 +388,7 @@ replicate an unreviewed template across B3.x.
    clean baseline (a temporary `git worktree` of HEAD, removed
    afterward with `git worktree remove`).
 2. Build/test NAG then gfortran; put both `ctest -L ESSENTIAL`
-   summary lines in the commit message body.
+   summary lines in the proposed commit message body.
 3. On ICE, nondeterministic segfault, or gFTL copy crash: stop and
    report; do not invent workarounds.
 4. Do not modify files outside the task's stated scope without asking.
@@ -381,9 +396,12 @@ replicate an unreviewed template across B3.x.
 6. Source comments: no `openspec/changes` paths, task numbers, or change
    history. Comments explain why, not when. Put change names in the
    commit message.
-7. Commit directly on the integration branch with a `Plan-Task:`
-   trailer. Never push, never rewrite earlier commits. Do not commit
-   anything outside the task (e.g. untracked files you didn't create).
+7. Do not commit. Leave the task uncommitted on the integration
+   branch, mark new files with `git add -N`, and write the proposed
+   commit message (ending with the `Plan-Task:` trailer) to
+   `.git/PLAN_TASK_MSG`. Commit only when the owner says so, and then
+   only the task's files (never untracked files you didn't create).
+   Never push, never rewrite earlier commits.
 
 ## Dependency summary
 
@@ -415,8 +433,10 @@ Done means:
 - ctest -L ESSENTIAL green on NAG and gfortran
 - this task's Status line in the plan updated (done/partial, deviations)
 - any doc your task owns created/updated
-- committed on the current branch (no push), message ending with
-  `Plan-Task: <label>`, body containing both ctest summary lines
+- NOT committed: changes left in the working tree (new files marked
+  with `git add -N`), proposed commit message in `.git/PLAN_TASK_MSG`
+  ending with `Plan-Task: <label>`, body containing both ctest summary
+  lines. Commit only when the owner says "commit".
 Stop and report rather than guess if the plan and source disagree.
 ```
 

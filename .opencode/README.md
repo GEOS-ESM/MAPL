@@ -100,10 +100,12 @@ logs in the main session.
 ### `reviewer`: `/review-task <label> [tier|provider/model] [focus]`
 
 Read-only review of a task from
-`docs/graph/plans/separation-of-concerns.md`, run **after** the task is
-committed. Task commits carry a `Plan-Task: <label>` trailer, and the
-reviewer fetches them itself (`git log --grep='^Plan-Task: <label>' -p`),
-so it never sees the author's own summary of the work.
+`docs/graph/plans/separation-of-concerns.md`. Task agents leave their
+work **uncommitted**, with a proposed message in `.git/PLAN_TASK_MSG`,
+so you can review the working tree yourself (e.g. magit status). The
+reviewer reads `git diff HEAD` itself, or the task's commits (via their
+`Plan-Task: <label>` trailer) if already committed, so it never sees
+the author's own summary of the work.
 
 ```text
 /review-task B3-Units                        # opus (default)
@@ -112,8 +114,9 @@ so it never sees the author's own summary of the work.
 ```
 
 It reports a verdict (accept / accept with follow-ups / rework
-needed) and findings by severity with file:line. Fixes go in a
-follow-up commit with the same `Plan-Task:` trailer. Run reviews from
+needed) and findings by severity with file:line. Fixes go into the
+working tree; then commit with `git commit -aF .git/PLAN_TASK_MSG`
+(after `git add` for new files) or tell the author session "commit". Run reviews from
 a separate subagent like this, not by switching models in the author's
 session: the reviewer starts with no knowledge of the author's
 reasoning, and it can't edit anything by accident.
