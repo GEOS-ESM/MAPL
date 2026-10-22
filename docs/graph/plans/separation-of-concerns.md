@@ -199,7 +199,19 @@ check (grep in a ctest).
   the existing 7 graph-scenarios (add `expectations.yaml`) + write
   `docs/graph/scenario-naming.md`. Later tasks follow it.
 - Each scenario gets `description.md` (what it exercises).
-- **Status:** not started
+- **Status:** A2a done (commit trailer `Plan-Task: A2a`); A2b.. not
+  started. Deviations: the 7 existing fixtures were not renamed (tests
+  refer to their directory and item names); they gained
+  `expectations.yaml`, and `plain_field`, `vertical_field` and
+  `ungridded_dims` gained `description.md`. Naming rules are in
+  `docs/graph/scenario-naming.md`. Nothing reads the new
+  `expectations.yaml` files until A3; they were checked by temporarily
+  adding the fixtures to `Test_Scenarios.pf`'s `scenario_table()`
+  (reverted): six of seven pass in registry/graph/both modes, the
+  seventh (`standard_name_and_ungridded_dims_mismatch`) passes its state
+  checks but needs a permissive field-dictionary override and leaves the
+  expected `StandardNameCharacteristic` exception unconsumed. A3 must
+  handle both.
 
 **A3. Shared expectations driver for graph scenarios.**
 - Graph-scenario tests (`Test_GraphModeDemonstration.pf`,
