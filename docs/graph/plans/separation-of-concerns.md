@@ -255,10 +255,18 @@ check (grep in a ctest).
   transform; only `units` and `typekind` are recognized (others report
   `unknown`).
 
-**A4. Comment hygiene (before Phase B).** One task per directory/file
-group (labels A4a, A4b, ...), in this order: `GraphBuilder*.F90`; `graph/`;
-`graph/characteristics/`; remaining `superstructure/generic/` files with
-`openspec/changes` references. Rationale: ~33% of graph-layer lines
+**A4. Comment hygiene (before Phase B).** One task per file group, each
+in a fresh session (one session for all groups would compact and lose
+detail). Groups, in order (paths under `superstructure/generic/`;
+reference counts as of A3):
+- `A4a`: `GraphBuilder_ConnectionResolution_smod.F90` (2532 lines, 66 refs)
+- `A4b`: the other `GraphBuilder*.F90` (11 files, 87 refs)
+- `A4c`: `graph/*.F90` (34 files, 44 refs)
+- `A4d`: `graph/characteristics/`, `graph/transforms/`,
+  `graph/containers/`, `graph/id_types/`, `graph/callback/` (48 refs)
+- `A4e`: everything else with references: remaining top-level `*.F90`,
+  `OuterMetaComponent/`, `specs/` (about 30 refs)
+ Rationale: ~33% of graph-layer lines
 are comments (40-52% in `GraphBuilder*`), 277 dead `openspec/changes/...`
 paths (now under `archive/`), many describing removed code. Every
 Phase B/D task reads these files; stale narrative misleads agents and
@@ -269,11 +277,12 @@ consumes context.
   compiler workarounds), cut to 1-2 lines.
 - A spec link is allowed only as a stable requirement ID that exists in
   `openspec/specs/` (e.g. `REQ-INOUT-001`), never a change path.
-- Comment-only: no code, no whitespace reflow of code lines. Verify by
-  stripping `!` comments and blank lines from old and new versions of
-  each file; the result must be identical (put the script output in the commit message body).
-- Done also requires `grep -rn "openspec/changes" --include=*.F90` to be
-  empty for the task's directory.
+- Comment-only: no code, no whitespace reflow of code lines. Verify
+  with `.opencode/scripts/check-comment-only.py <paths...>` (strips `!`
+  comments and blank lines from HEAD and working tree, diffs them, and
+  counts remaining `openspec/changes` references). It must exit 0 and
+  report 0 references for the group; put its output in the commit
+  message body.
 - Must land before B1 and D1 (both rewrite these files).
 - **Status:** not started
 
