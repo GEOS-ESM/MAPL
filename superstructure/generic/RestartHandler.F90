@@ -114,12 +114,12 @@ contains
       _RETURN_UNLESS(item_count>0)
 
       inquire(file=filename, exist=file_exists)
-      _ASSERT(bootstrap .or. file_exists, "Restart file " // trim(filename) // " does not exist")
       if (file_exists) then
          call file_formatter%open(filename, PFIO_READ, _RC)
          metadata = file_formatter%read(_RC)
          call file_formatter%close(_RC)
       else
+         _ASSERT(bootstrap, "Restart file " // trim(filename) // " does not exist")
          ! Empty metadata: every field is missing, and is bootstrapped.
          call this%lgr%warning("Restart file %a does not exist; bootstrapping its fields", trim(filename))
       end if
