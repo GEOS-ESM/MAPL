@@ -109,15 +109,16 @@ Statuses: `SPECIFIED`, `MIRROR`, `UNCHECKED`, `DEFERRED` (transient).
     handle kind).
   - `MAPL_FieldSet` on a COMPLETE field is not Info-only: `geom`,
     `typekind`, `units`, `num_levels` go through `FieldDelta` and can
-    modify the field. B0 must confirm that calling it with values equal
-    to the field's own is a no-op, or restrict which keywords
-    `sync_to_info` passes after materialization.
-  - Existing direct writes in the graph layer are B0 inventory items to
-    convert: `FieldInfoSetInternal` in
-    `GraphBuilder_StatePopulation_smod.F90`, `ESMF_InfoSet` in
-    `graph/MAPLStateItemFlag.F90`, and `graph/StateItemVariantInfo.F90`.
-  - `superstructure/state/StateSet.F90` `state_set` has `intent(out)`
-    dummies (it looks copied from `StateGet`); fix it before relying on it.
+    modify the field. `FieldDelta` is slated to go away (owner): graph
+    code must not depend on that path. Changes to a field's structure
+    are graph `Transform`s/materialization, not Info writes. B0 decides
+    how `sync_to_info` avoids the `FieldDelta` path (e.g. only Info-only
+    keywords after materialization).
+  - Existing direct Info access in the graph layer is removed by A5.
+  - `MAPL_StateSet` is incomplete and probably broken (`intent(out)`
+    dummies, three keywords). Rare today; CallbackState is the main
+    motivating State use. Fix and extend it as tasks need it, rather
+    than bypassing it.
 - `StateItemDescriptor%sync_to_info(handle, rc)`: one loop, called at
   materialization and whenever a DEFERRED value becomes SPECIFIED.
 - Info is **write-only** during init: no graph code reads Info back.
@@ -316,6 +317,32 @@ consumes context.
   sites, since it described removed proxy nodes and a nonexistent
   `get_or_make_local_node_id`). A4c-A4e not started.
 
+**A5. Centralize graph-layer Info access.** Code change. After A4d
+(A4c/A4d edit comments in the same files). Before B3 (B3 write methods
+rely on it). Graph code (`superstructure/generic/graph/`,
+`GraphBuilder*.F90`) must reach framework-managed Info only through the
+`MAPL_Field*`, `MAPL_FieldBundle*`, `MAPL_State*` setters/getters; key
+strings live only in the infrastructure Info modules
+(`mapl_FieldInfo_mod`, `mapl_FieldBundleInfo_mod`, state equivalents).
+Known direct access to convert:
+- `GraphBuilder_StatePopulation_smod.F90`: `ESMF_InfoGetFromHost` +
+  `FieldInfoSetInternal(info, alias_id, restart_mode)`. Add a
+  `restart_mode` keyword to `MAPL_FieldSet` (and `MAPL_FieldGet`), which
+  already resolve the named-alias id; legacy callers of the internal
+  routine may stay for now.
+- `graph/StateItemVariantInfo.F90` and the `*_set_info`/`*_get_info`
+  procedures in `graph/MAPLStateItemFlag.F90`: the variant tag
+  (`/MAPL/GraphStateItem/variant`) on a Field, FieldBundle, or State's
+  own Info. Move the key into the infrastructure Info modules and expose
+  it through the setters/getters. There is no setter today for a
+  State's own Info (`MAPL_StateSet` takes an item name); propose the
+  interface and ask the owner before adding one.
+- Add a grep ctest (like D6) failing if `ESMF_Info*` calls appear under
+  `graph/` or in `GraphBuilder*.F90`.
+- Out of scope: Info on non-item objects in `OuterMetaComponent/`
+  (memory-checkpoint flag, `MAPL/GRIDCOMP_IS_GENERIC`).
+- **Status:** not started
+
 ### Phase B - characteristic architecture
 
 **B0. Openspec design change (no code).** Write
@@ -476,6 +503,7 @@ it may author D1/A4/B5 with sonnet review.
 | A2b..n | sonnet | - | follow scenario-naming.md |
 | A3 | sonnet | - | |
 | A4 | sonnet | diff review always | judgment on which "why" to keep; haiku only after calibration |
+| A5 | sonnet | opus | touches infrastructure field/bundle/state APIs |
 | B0 | opus | owner + gemini/gpt-sol | cross-family review: "what did this miss vs. legacy aspects?" |
 | B1 | sonnet | opus | escalate any compiler/gFTL crash |
 | B2 | opus | gemini/gpt-sol | core semantics |
@@ -530,7 +558,7 @@ replicate an unreviewed template across B3.x.
 ## Dependency summary
 
 A0 -> A1 (harness) -> A2a -> A3; A1 (harness) -> A1-diagnosis -> C2.x;
-A0 -> A4 -> {B1, D1}; A0 -> B0 -> B1 -> B2 -> B3.x -> {B4, B5};
+A0 -> A4 -> {B1, D1}; A4d -> A5 -> B3.x; A0 -> B0 -> B1 -> B2 -> B3.x -> {B4, B5};
 B4 -> C1, B3-VerticalCoordinate -> C1 (vertical part), D1 -> D2;
 C2-alias-owner -> C2-alias-nonfield. The C2 tasks need only A1-diagnosis
 and may run before Phase B. A4 is independent of A1-A3 and B0 (they touch tests/docs, A4 touches
