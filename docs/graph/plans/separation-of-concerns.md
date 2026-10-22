@@ -51,9 +51,9 @@ Preferences stated in discussion, not obvious from the rest of the plan:
 - Prefer overloading existing MAPL generic names (`MAPL_FieldGet`,
   `MAPL_StateGet`, ...) to inventing new procedure names, when the
   compilers accept the overload.
-- Meta sessions do not author tasks. After each plan edit, copy the plan
-  to `~/.opencode/plan/graph-separation-of-concerns.md` and commit only
-  the files changed, with trailer `Plan-Task: plan-maintenance`. Never
+- Meta sessions do not author tasks. Edit only this file
+  (`~/.opencode/plan/graph-separation-of-concerns.md` is a symlink to
+  it, not a copy) and commit only the files changed, with trailer `Plan-Task: plan-maintenance`. Never
   commit or delete the owner's untracked files
   (`.opencode/skills/mapl-implementation/`, `ordering.md`).
 - After a task lands: check its commit (trailer, both ctest lines,
