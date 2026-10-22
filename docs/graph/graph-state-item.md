@@ -1,8 +1,8 @@
 # GraphStateItem
 
 Source: `superstructure/generic/graph/GraphStateItem.F90` (825 lines).
-Related: `StateItemFlag.F90` → `mapl_StateItemFlag_mod`
-(`MAPL_StateItem_Flag`), `StateItemVariantInfo.F90`.
+Related: `enums/StateItemFlag.F90` → `mapl_StateItemFlag_mod`
+(`MAPL_StateItem_Flag`), `infrastructure/field/StateItemVariantInfo.F90`.
 
 ## What it is
 
@@ -46,8 +46,9 @@ there is no way around `set`/`get_*` from outside this module.
   component is allocated (`FIELD`/`FIELDBUNDLE`/`STATE`/`NOTFOUND`).
   Purely mechanical, no role interpretation.
 - **`variant()`** (`:219`) — extensible `MAPL_StateItem_Flag`, backed
-  by `ESMF_Info` on the underlying handle (`StateItemVariantInfo.F90`'s
-  `get_variant()`). Answers "which *role/subclass*", e.g.:
+  by `ESMF_Info` on the underlying handle, read through
+  `MAPL_FieldGet` / `MAPL_FieldBundleGet` / `MAPL_StateGetVariant`
+  (`state_item_variant`; `MAPL_STATEITEM_INVALID` when untagged). Answers "which *role/subclass*", e.g.:
   - a `FIELD` with no tag → `MAPL_STATEITEM_FIELD`; tagged → `GEOM`
     (a geometry proxy field, `ESMF_FIELDSTATUS_GRIDSET`, see
     `characteristics.md`), or other refinements.

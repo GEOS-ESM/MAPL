@@ -8,7 +8,7 @@
 ! CallbackMethodSpec (REQ-CB-004, "argument name -> AccessSpec") can reuse
 ! this type rather than duplicate it.
 !
-! Follows MAPL_StateItem_Flag's exact style (MAPLStateItemFlag.F90): a
+! Follows MAPL_StateItem_Flag's exact style (enums/StateItemFlag.F90): a
 ! small derived type wrapping a private integer code, compared via
 ! operator(==)/operator(/=), not a plain integer - so new access modes
 ! can be added later without disturbing client comparison call sites.

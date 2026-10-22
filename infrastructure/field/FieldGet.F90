@@ -2,6 +2,9 @@
 
 module mapl_FieldGet_mod
    use mapl_enums_api
+   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
+   use mapl_StateItemVariantInfo_mod, only: StateItemVariantInfoGet
+   use mapl_RestartModes_mod, only: RestartMode
    use mapl_vertical_grid_api
    use mapl_FieldInfo_mod
    use mapl_KeywordEnforcer_mod
@@ -33,6 +36,8 @@ contains
         allocation_status, &
         regridder_param_info, &
         bootstrapped, &
+        restart_mode, &
+        state_item_variant, &
         rc)
       type(ESMF_Field), intent(in) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -56,6 +61,9 @@ contains
       type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
       type(esmf_Info), optional, allocatable,  intent(out) :: regridder_param_info
       logical, optional, intent(out) :: bootstrapped ! field kept its initial value at restart
+      type(RestartMode), optional, intent(out) :: restart_mode
+      ! MAPL_STATEITEM_INVALID if no variant was ever attached.
+      type(MAPL_StateItem_Flag), optional, intent(out) :: state_item_variant
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -117,6 +125,14 @@ contains
            standard_name=standard_name, &
            long_name=long_name, &
            _RC)
+
+      if (present(restart_mode)) then
+         call FieldInfoGetInternal(field_info, named_alias_id, restart_mode, _RC)
+      end if
+
+      if (present(state_item_variant)) then
+         state_item_variant = StateItemVariantInfoGet(field_info, _RC)
+      end if
 
       if (present(vgrid)) then
          if (vgrid_id == MAPL_VERTICAL_GRID_NOT_FOUND) then

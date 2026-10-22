@@ -10,8 +10,6 @@ target_sources(MAPL.generic PRIVATE
   BaseGraphNode.F90
   OperationGraphNode.F90
   NodeRevision.F90
-  MAPLStateItemFlag.F90
-  StateItemVariantInfo.F90
   GraphMode.F90
 
   containers/StateItemMemberMap.F90

@@ -1,0 +1,28 @@
+#include "MAPL_TestErr.h"
+
+module Test_FieldBundleVariant
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundleSet
+   use mapl_StateItemFlag_mod
+   use pfunit
+   use esmf
+   implicit none(type,external)
+
+contains
+
+   @test
+   subroutine test_state_item_variant_round_trip()
+      type(ESMF_FieldBundle) :: bundle
+      type(MAPL_StateItem_Flag) :: variant
+      integer :: status
+
+      bundle = ESMF_FieldBundleCreate(name='b', _RC)
+
+      call MAPL_FieldBundleGet(bundle, state_item_variant=variant, _RC)
+      @assert_that(variant == MAPL_STATEITEM_INVALID, is(.true.))
+
+      call MAPL_FieldBundleSet(bundle, state_item_variant=MAPL_STATEITEM_BRACKET, _RC)
+      call MAPL_FieldBundleGet(bundle, state_item_variant=variant, _RC)
+      @assert_that(variant == MAPL_STATEITEM_BRACKET, is(.true.))
+   end subroutine test_state_item_variant_round_trip
+
+end module Test_FieldBundleVariant

@@ -5,9 +5,8 @@
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_StatePopulation_smod
    use esmf, only: ESMF_State, ESMF_StateAddReplace, ESMF_STATEITEM_FIELD, operator(==)
-   use esmf, only: ESMF_Info, ESMF_NamedAliasGet, ESMF_InfoGetFromHost
    use mapl_FieldNamedAlias_mod, only: MAPL_NamedAlias
-   use mapl_FieldInfo_mod, only: FieldInfoSetInternal
+   use mapl_field_api, only: MAPL_FieldSet
    use mapl_RestartModes_mod, only: RestartMode
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_GRAPH
    use mapl_GraphNode_mod, only: GraphNode
@@ -128,8 +127,6 @@ contains
       type(ESMF_Field) :: alias
       type(ESMF_State) :: state
       type(RestartMode), allocatable :: restart_mode
-      type(ESMF_Info) :: info
-      integer :: alias_id
 
       if (.not. associated(id_ptr)) then
          _RETURN(_SUCCESS)
@@ -164,9 +161,7 @@ contains
       ! restart_mode regardless of which field backs it.
       call get_declared_restart_mode(graph, item_id, restart_mode)
       if (allocated(restart_mode)) then
-         call ESMF_NamedAliasGet(alias, id=alias_id, _RC)
-         call ESMF_InfoGetFromHost(alias, info, _RC)
-         call FieldInfoSetInternal(info, alias_id, restart_mode, _RC)
+         call MAPL_FieldSet(alias, restart_mode=restart_mode, _RC)
       end if
 
       _RETURN(_SUCCESS)

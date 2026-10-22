@@ -30,8 +30,11 @@ module mapl_GraphStateItem_mod
                                       MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, &
                                       MAPL_STATEITEM_STATE, MAPL_STATEITEM_ROUTEHANDLE, &
                                       MAPL_STATEITEM_NOTFOUND, MAPL_STATEITEM_GEOM, &
+                                      MAPL_STATEITEM_INVALID, &
                                       operator(==), operator(/=)
-   use mapl_StateItemVariantInfo_mod, only: get_variant
+   use mapl_field_api, only: MAPL_FieldGet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet
+   use mapl_state_api, only: MAPL_StateGetVariant
    use mapl_NodeId_mod, only: NodeId
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap, StateItemMemberMapIterator
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap
@@ -191,7 +194,7 @@ contains
 
    ! The vanilla default per native kind when no finer-grained variant tag has
    ! been attached; otherwise the tagged refinement (GEOM, VECTOR, BRACKET,
-   ! VECTORBRACKET, VERTICALGRID) read back via mapl_StateItemVariantInfo_mod.
+   ! VECTORBRACKET, VERTICALGRID) read back through the MAPL_*Get accessors.
    ! The route-handle wrapper (MAPL_STATEITEM_ROUTEHANDLE, a refinement of
    ! STATE) is reported here, never queried from Info, since it is a role
    ! question like "is this state a vertical grid".
@@ -201,20 +204,19 @@ contains
       type(MAPL_StateItem_Flag) :: variant_flag
 
       integer :: status
-      logical :: found
       logical :: is_wrapper
       type(ESMF_StateItem_Flag) :: kind_flag
 
       kind_flag = this%itemType(_RC)
 
       if (kind_flag == ESMF_STATEITEM_FIELD) then
-         variant_flag = get_variant(this%esmf_field, found=found, _RC)
-         if (.not. found) variant_flag = MAPL_STATEITEM_FIELD
+         call MAPL_FieldGet(this%esmf_field, state_item_variant=variant_flag, _RC)
+         if (variant_flag == MAPL_STATEITEM_INVALID) variant_flag = MAPL_STATEITEM_FIELD
          _RETURN(_SUCCESS)
       end if
       if (kind_flag == ESMF_STATEITEM_FIELDBUNDLE) then
-         variant_flag = get_variant(this%esmf_field_bundle, found=found, _RC)
-         if (.not. found) variant_flag = MAPL_STATEITEM_FIELDBUNDLE
+         call MAPL_FieldBundleGet(this%esmf_field_bundle, state_item_variant=variant_flag, _RC)
+         if (variant_flag == MAPL_STATEITEM_INVALID) variant_flag = MAPL_STATEITEM_FIELDBUNDLE
          _RETURN(_SUCCESS)
       end if
       if (kind_flag == ESMF_STATEITEM_STATE) then
@@ -223,8 +225,8 @@ contains
             variant_flag = MAPL_STATEITEM_ROUTEHANDLE
             _RETURN(_SUCCESS)
          end if
-         variant_flag = get_variant(this%esmf_state, found=found, _RC)
-         if (.not. found) variant_flag = MAPL_STATEITEM_STATE
+         variant_flag = MAPL_StateGetVariant(this%esmf_state, _RC)
+         if (variant_flag == MAPL_STATEITEM_INVALID) variant_flag = MAPL_STATEITEM_STATE
          _RETURN(_SUCCESS)
       end if
       variant_flag = MAPL_STATEITEM_NOTFOUND

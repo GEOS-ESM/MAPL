@@ -4,7 +4,7 @@ module Test_GraphStateItem
                                      MAPL_STATEITEM_STATE, MAPL_STATEITEM_ROUTEHANDLE, &
                                      MAPL_STATEITEM_GEOM, MAPL_StateItem_Flag, operator(==)
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
-   use mapl_StateItemVariantInfo_mod, only: set_variant
+   use mapl_field_api, only: MAPL_FieldSet
    use StateItemTestSupport_mod, only: make_test_field, make_test_field_bundle, &
                                         make_test_state, make_test_route_handle
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator
@@ -179,8 +179,8 @@ contains
       @assertTrue(item%variant(rc=status) == MAPL_STATEITEM_STATE)
    end subroutine test_variant_defaults_to_vanilla_kind
 
-   ! REQ-SI-002c: variant round-trips through the ESMF Info-backed
-   ! mapl_StateItemVariantInfo_mod helpers, and travels with the field itself.
+   ! variant round-trips through the ESMF Info-backed
+   ! MAPL_FieldSet, and travels with the field itself.
    @test
    subroutine test_variant_round_trips_and_travels_with_field()
       type(GraphStateItem) :: item
@@ -190,7 +190,7 @@ contains
       field = make_test_field('t_field', rc=status)
       @assertEqual(0, status)
 
-      call set_variant(field, MAPL_STATEITEM_GEOM, rc=status)
+      call MAPL_FieldSet(field, state_item_variant=MAPL_STATEITEM_GEOM, rc=status)
       @assertEqual(0, status)
 
       call item%set(field, rc=status)
@@ -366,7 +366,7 @@ contains
 
       field = make_test_field('t_geom_field', rc=status)
       @assertEqual(0, status)
-      call set_variant(field, MAPL_STATEITEM_GEOM, rc=status)
+      call MAPL_FieldSet(field, state_item_variant=MAPL_STATEITEM_GEOM, rc=status)
       @assertEqual(0, status)
 
       call item%set(field, rc=status)
@@ -500,7 +500,7 @@ contains
 
       field = make_test_field('t_geom_field', rc=status)
       @assertEqual(0, status)
-      call set_variant(field, MAPL_STATEITEM_GEOM, rc=status)
+      call MAPL_FieldSet(field, state_item_variant=MAPL_STATEITEM_GEOM, rc=status)
       @assertEqual(0, status)
       call item%set(field, rc=status)
       @assertEqual(0, status)

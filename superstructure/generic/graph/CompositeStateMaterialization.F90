@@ -26,7 +26,7 @@ module mapl_CompositeStateMaterialization_mod
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_VariableSpec_mod, only: VariableSpec
-   use mapl_StateItemVariantInfo_mod, only: set_variant
+   use mapl_state_api, only: MAPL_StateSetVariant
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -63,7 +63,7 @@ contains
       ! ESMF_State before wrapping; untagged composites keep reporting the plain
       ! STATE variant.
       if (allocated(var_spec%state_item_variant)) then
-         call set_variant(state, var_spec%state_item_variant, _RC)
+         call MAPL_StateSetVariant(state, var_spec%state_item_variant, _RC)
       end if
       call payload%set(state, _RC)
 

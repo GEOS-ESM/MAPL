@@ -353,7 +353,25 @@ Known direct access to convert:
   `graph/` or in `GraphBuilder*.F90`.
 - Out of scope: Info on non-item objects in `OuterMetaComponent/`
   (memory-checkpoint flag, `MAPL/GRIDCOMP_IS_GENERIC`).
-- **Status:** not started
+- **Status:** done (commit trailer `Plan-Task: A5`). Deviations:
+  `restart_mode` and `state_item_variant` are new keywords of
+  `MAPL_FieldSet`/`MAPL_FieldGet`; `state_item_variant` is also on
+  `MAPL_FieldBundleSet`/`Get`. `MAPL_FieldSet` skips the `FieldDelta` path
+  when none of geom/vgrid/typekind/num_levels/units is given, so the new
+  keywords are Info-only on a complete field. Owner decisions: a State's
+  own Info is reached by new separate routines `MAPL_StateSetVariant` /
+  `MAPL_StateGetVariant` (`MAPL_StateSet`/`Get` left alone), and
+  `MAPL_StateItem_Flag` moved to `enums/StateItemFlag.F90` so the
+  setters take the typed flag (not re-exported by `mapl_enums_api`: its
+  `MAPL_STATEITEM_*` names clash with `mapl_StateItem_mod`). Untagged
+  items read back `MAPL_STATEITEM_INVALID` (replaces `found`); a tag
+  that is present but not a known name fails. The Info
+  key (`/MAPL/GraphStateItem/variant`) and stored value are unchanged,
+  now `KEY_STATE_ITEM_VARIANT` in `MAPL_ESMF_InfoKeys.F90`;
+  `StateItemVariantInfo.F90` moved to `infrastructure/field/` with new
+  names. No grep ctest was kept (owner decision: such rules are fixed
+  when noticed, or belong in a future general linter).
+  `MAPL_StateSet`'s `intent(out)` bug is untouched (not needed here).
 
 ### Phase B - characteristic architecture
 

@@ -1,8 +1,6 @@
-#include "MAPL.h"
-
 !------------------------------------------------------------------------------
 ! MAPL_StateItem_Flag: open-ended "variant" classification for
-! GraphStateItem (REQ-SI-002b), distinct from ESMF's native
+! GraphStateItem, distinct from ESMF's native
 ! ESMF_StateItem_Flag but mirroring its vocabulary as the "vanilla" default
 ! for each native kind: FIELD, FIELDBUNDLE, STATE, ROUTEHANDLE, NOTFOUND.
 ! Finer-grained roles refine a single native kind:
@@ -16,24 +14,21 @@
 ! code, compared via operator(==)/operator(/=)) so new variants can be added
 ! without disturbing client code that compares against named constants.
 !
-! This module also owns the ESMF_Info attachment/read-back for its values
-! (MAPL_StateItemFlag_set_info/get_info), storing the flag's to_string() name
-! rather than the internal integer code. mapl_StateItemVariantInfo_mod owns
-! only the reserved key name and which host object's Info to use, and
-! delegates the read/write of the value to this module.
+! The ESMF_Info representation (the flag's to_string() name) is owned by
+! mapl_StateItemVariantInfo_mod in MAPL.field. This module is deliberately
+! not re-exported by mapl_enums_api: MAPL_STATEITEM_FIELD and friends would
+! clash with the ESMF_StateItem_Flag constants of the same names in
+! mapl_StateItem_mod.
 !------------------------------------------------------------------------------
 module mapl_StateItemFlag_mod
-   use ESMF, only: ESMF_Info, ESMF_InfoSet, ESMF_InfoGetCharAlloc
-   use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
 
    public :: MAPL_StateItem_Flag
    public :: operator(==)
    public :: operator(/=)
-   public :: MAPL_StateItemFlag_set_info
-   public :: MAPL_StateItemFlag_get_info
 
+   public :: MAPL_STATEITEM_INVALID
    public :: MAPL_STATEITEM_FIELD
    public :: MAPL_STATEITEM_FIELDBUNDLE
    public :: MAPL_STATEITEM_STATE
@@ -53,6 +48,9 @@ module mapl_StateItemFlag_mod
    contains
       procedure :: to_string => flag_to_string
    end type MAPL_StateItem_Flag
+
+   ! Result of reading a variant that was never attached.
+   type(MAPL_StateItem_Flag), parameter :: MAPL_STATEITEM_INVALID     = MAPL_StateItem_Flag(-1)
 
    ! Vanilla defaults - one per native esmf_kind()/itemType() value.
    type(MAPL_StateItem_Flag), parameter :: MAPL_STATEITEM_FIELD       = MAPL_StateItem_Flag(0)
@@ -77,6 +75,10 @@ module mapl_StateItemFlag_mod
    interface operator(/=)
       module procedure flag_not_equal
    end interface operator(/=)
+
+   interface MAPL_StateItem_Flag
+      module procedure flag_from_string
+   end interface MAPL_StateItem_Flag
 
 contains
 
@@ -132,33 +134,5 @@ contains
          flag%value = -1
       end select
    end function flag_from_string
-
-   ! Attaches this flag's name to the given ESMF_Info object under key,
-   ! the sole read/write path for a MAPL_StateItem_Flag's ESMF_Info
-   ! representation - callers (mapl_StateItemVariantInfo_mod) never see the
-   ! internal integer code, only the flag value itself.
-   subroutine MAPL_StateItemFlag_set_info(info, key, flag, rc)
-      type(ESMF_Info), intent(inout) :: info
-      character(*), intent(in) :: key
-      type(MAPL_StateItem_Flag), intent(in) :: flag
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      call ESMF_InfoSet(info, key=key, value=flag%to_string(), _RC)
-   end subroutine MAPL_StateItemFlag_set_info
-
-   function MAPL_StateItemFlag_get_info(info, key, rc) result(flag)
-      type(ESMF_Info), intent(in) :: info
-      character(*), intent(in) :: key
-      integer, optional, intent(out) :: rc
-      type(MAPL_StateItem_Flag) :: flag
-
-      integer :: status
-      character(:), allocatable :: name
-
-      call ESMF_InfoGetCharAlloc(info, key=key, value=name, _RC)
-      flag = flag_from_string(name)
-   end function MAPL_StateItemFlag_get_info
 
 end module mapl_StateItemFlag_mod

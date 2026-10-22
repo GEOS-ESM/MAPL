@@ -17,7 +17,7 @@ module mapl_GeomProxyField_mod
    use ESMF, only: ESMF_FieldEmptyCreate, ESMF_FieldEmptySet
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_GEOM
-   use mapl_StateItemVariantInfo_mod, only: set_variant
+   use mapl_field_api, only: MAPL_FieldSet
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -36,7 +36,7 @@ contains
 
       field = ESMF_FieldEmptyCreate(_RC)
       call ESMF_FieldEmptySet(field, geom=geom, _RC)
-      call set_variant(field, MAPL_STATEITEM_GEOM, _RC)
+      call MAPL_FieldSet(field, state_item_variant=MAPL_STATEITEM_GEOM, _RC)
       call item%set(field, _RC)
 
       _RETURN(_SUCCESS)

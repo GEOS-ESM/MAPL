@@ -9,6 +9,7 @@ set(SRCS
   Test_FieldBundleGetByIndex.pf
   Test_FieldBundleGetPointer.pf
   Test_FieldBundleMatch.pf
+  Test_FieldBundleVariant.pf
   Test_FieldBundleApplyUserRoutine.pf
 )
 

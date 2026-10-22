@@ -7,6 +7,8 @@ module mapl_state_api
    use mapl_StateDestroy_mod, only: MAPL_StateDestroy => StateDestroy
    use mapl_StateGet_mod, only: MAPL_StateGet => StateGet
    use mapl_StateSet_mod, only: MAPL_StateSet => StateSet
+   use mapl_StateVariant_mod, only: MAPL_StateSetVariant => StateSetVariant
+   use mapl_StateVariant_mod, only: MAPL_StateGetVariant => StateGetVariant
    use mapl_StateGetGeom_mod, only: MAPL_StateGetGeom => StateGetGeom
    use mapl_StateGetPointer_mod, only: MAPL_StateGetPointer => StateGetPointer
    use mapl_StateMask_mod, only: MAPL_StateMask => StateMask
@@ -21,6 +23,8 @@ module mapl_state_api
    public :: MAPL_StateDestroy
    public :: MAPL_StateGet
    public :: MAPL_StateSet
+   public :: MAPL_StateSetVariant
+   public :: MAPL_StateGetVariant
    public :: MAPL_StateGetGeom
    public :: MAPL_StateGetPointer
    public :: mapl_StateEval

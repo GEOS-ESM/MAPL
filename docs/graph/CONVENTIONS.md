@@ -80,6 +80,17 @@ with plan task B4.
 - Mutate through named accessors, not raw component access, even inside
   the same file family.
 
+## 5a. Info access
+
+Graph code (`graph/`, `GraphBuilder*.F90`) never calls `ESMF_Info*`,
+`MAPL_Info*`, `FieldInfo*` or `FieldBundleInfo*`. It reads and writes
+framework-managed Info only through `MAPL_FieldSet/Get`,
+`MAPL_FieldBundleSet/Get` and `MAPL_StateSetVariant/GetVariant`; key
+strings live in `utils/MAPL_ESMF_InfoKeys.F90` and the infrastructure Info
+modules. Not enforced by a test; fix violations when noticed. A
+missing setter argument is added to the setter, not worked around with raw
+Info.
+
 ## 6. Tests
 
 - `ctest -L ESSENTIAL` must be green on NAG 7.2.41 and on gfortran

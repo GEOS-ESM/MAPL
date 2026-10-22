@@ -13,6 +13,8 @@ module mapl_FieldBundleSet_mod
         mapl_NormalizationMetadata, mapl_ConservationMetadata, &
         operator(==), operator(/=)
    use mapl_FieldBundleInfo_mod
+   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
+   use mapl_StateItemVariantInfo_mod, only: StateItemVariantInfoSet
    use mapl_InfoUtilities_mod
    use mapl_FieldBundleGet_mod
    use mapl_LU_Bound_mod
@@ -49,6 +51,7 @@ contains
        quantity_type_metadata, &
        normalization_metadata, &
        conservation_metadata, &
+       state_item_variant, &
        rc)
 
       type(ESMF_FieldBundle), intent(inout) :: fieldBundle
@@ -72,6 +75,7 @@ contains
       type(mapl_QuantityTypeMetadata), optional, intent(in) :: quantity_type_metadata
       type(mapl_NormalizationMetadata), optional, intent(in) :: normalization_metadata
       type(mapl_ConservationMetadata), optional, intent(in) :: conservation_metadata
+      type(MAPL_StateItem_Flag), optional, intent(in) :: state_item_variant
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -162,6 +166,10 @@ contains
            normalization_metadata=normalization_metadata, &
            conservation_metadata=conservation_metadata, &
           _RC)
+
+      if (present(state_item_variant)) then
+         call StateItemVariantInfoSet(bundle_info, state_item_variant, _RC)
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
