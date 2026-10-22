@@ -189,6 +189,9 @@ check (grep in a ctest).
   no item-level geometry characteristic), so they are held at
   `graph_ready = .false.` with the 8 real failures (owner decision).
   Root causes in the table are first-pass; A1 diagnosis confirms them.
+  Follow-up: parity doc now records which ready scenarios depend on
+  legacy `add_to_states` (experiment with the calls skipped in graph mode;
+  not committed).
 
 **A2a..A2n. Graph-native scenario ports (~5 scenarios/task).**
 - Port legacy scenarios to `tests/graph-scenarios/` with improved

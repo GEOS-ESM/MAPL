@@ -65,14 +65,39 @@ the graph path produced the item (see Caveat).
 Root causes above are first-pass readings of the failing logs and source
 lines, not diagnosed fixes; the A1 diagnosis task owns confirming them.
 
-## Caveat: passing is not proof for the geometry/vertical family
+## What "ready" means today, and how much is graph-produced
 
-Adding a bogus `geom_name` expectation to `regrid` fails with the legacy
-value (`"B"`), so the checkers do observe the state. But
-`initialize_realize_accepted` still calls `StateRegistry%add_to_states` in
-every mode (only `initialize_accept_transfer` is gated on
-`GRAPH_MODE_GRAPH`), and variable items carry no item-level
-`GeometryCharacteristic`, so a geometry mismatch is never detected on the
-graph path. These scenarios therefore likely pass on legacy output. They are
-left `graph_ready = .false.` so that C1 (geometry/regrid `Transform`) has a
-flag to flip, and so that ESSENTIAL does not gate on a probably vacuous pass.
+`initialize_advertise` and `initialize_realize_accepted` call
+`StateRegistry%add_to_states` in every graph mode (only
+`initialize_accept_transfer` is gated on `GRAPH_MODE_GRAPH`), and
+`GRAPH_MODE_BOTH` by design never writes graph output into the checked
+states. So a green graph/both run means "the graph path runs without error
+and the legacy-observed state matches", not "the graph path produced it".
+
+One-off experiment (NAG, not committed): with the two legacy
+`add_to_states` calls skipped under `GRAPH_MODE_GRAPH`, every scenario that
+is `graph_ready` fails `item type` for these items only; connected
+import/export pairs are still populated graph-natively:
+
+| Scenario | Items the graph path did not populate |
+|---|---|
+| scenario_0 | internal `Z` |
+| scenario_1, scenario_2, names_1, propagate_geom | unconnected import `child_A/I_A1` |
+| 3d_specs, ungridded_dims, precision_extension, precision_extension_3d | unconnected import `A/I_A2` |
+| export_dependency | export `child_A/E2` |
+| vertical_alignment_same_grid | export `A/E_A` (unconsumed) |
+| regrid | exports `A/E_A1`, `A/E_A1(1)` |
+| expression, expression_match | exports `A/A`, `A/B` |
+| invalidate | exports `A/T`, `T(1)`, `T(2)` |
+| history_wildcard | exports `E_A1`, `E_A2`, `E1_A0` |
+| extdata_1 | run phase fails (`status=41`), not an item-population gap |
+
+Gaps: INTERNAL items, imports and exports with no connection, and
+expression/wildcard/bracket-indexed exports (`T(1)`). Retiring the legacy
+calls is plan work (D2 and the B tasks); do not remove them in a test task.
+
+For the geometry/vertical family (`regrid*`, `propagate_geom`,
+`vertical_*`) a geometry mismatch is also never detected, because variable
+items carry no item-level `GeometryCharacteristic`. They stay
+`graph_ready = .false.` so C1 (geometry/regrid `Transform`) has a flag to
+flip.
