@@ -1,23 +1,13 @@
 #include "MAPL.h"
 
-! Task 3: Ordinary connection resolution
-! (openspec/changes/graphbuilder-submodule-split: procedure bodies moved
-! here verbatim from GraphBuilder.F90, mechanical subroutine->module
-! subroutine / function->module function change only - see that
-! change's design.md D1 for the full section-to-file mapping.)
+! Ordinary connection resolution: wires SimpleConnection/MatchConnection
+! destinations to export nodes, propagates unresolved imports and exports up
+! the hierarchy, and resolves expression, callback, wildcard and inout
+! destinations.
 !
-! openspec/changes/graph-builder-stateitem-resolution: identity
-! (short_name/state_intent/is_inout_borrower/callback_interface_id) and
-! mismatch-characteristics (units/typekind/vertical_coordinate) are read
-! directly off each already-advertised StateItemNode/GraphStateItem
-! (set once by advertise_one, GraphBuilder_Advertising_smod.F90), never
-! by re-reading a VariableSpec reached by component name -
-! for_each_matching_import iterates the destination ComponentGraph's own
-! import-port table (not dst_spec%var_specs); build_characteristics is
-! removed (every call site reads GraphStateItem%get_characteristics()
-! off the resolved NodeId's own node); find_export_var_spec/
-! find_inout_borrower_var_spec are removed (both become an ordinary
-! port-table scan over nodes' own short_name/is_inout_borrower fields).
+! Identity (short_name, intent, inout/callback markers) and the mismatch
+! characteristics are read off each already-advertised StateItemNode, never
+! re-derived from a VariableSpec.
 submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateGet, ESMF_STATEITEM_NOTFOUND, operator(==)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
@@ -40,27 +30,11 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
 
 contains
 
-   ! openspec/changes/simpleconnection-graph-resolution: the ONE place
-   ! either concrete Connection subtype's own dynamic type is
-   ! inspected in this file's resolution logic. Computes the per-match
-   ! EXACT source short name a declared SimpleConnection would have,
-   ! for a given matched destination node:
-   !  - SimpleConnection: already exact - its own declared source name
-   !    is used as-is, independent of the destination's own name
-   !    (SimpleConnection's whole point is allowing src_name/=dst_name,
-   !    e.g. scenarios/names_1's 'E_A1'->'I_B1').
-   !  - MatchConnection (class default): mirrors legacy's own per-match
-   !    SimpleConnection construction inside MatchConnection%activate()/
-   !    connect() (connection/MatchConnection.F90:91-92,148-149), which
-   !    forces the matched source's name equal to the matched
-   !    destination's own name - MatchConnection's defining same-name
-   !    wildcard semantic, not an implementation accident. Returning
-   !    dst_node%get_short_name() here is therefore byte-for-byte what
-   !    every call site already computed before this change, so
-   !    MatchConnection's own resolution outcome is unchanged.
-   ! Every other line of resolve_one/check_one/connection_pt_pair_resolves
-   ! is connection-subtype-agnostic; this helper is what makes that true
-   ! for a SimpleConnection too, instead of merely assuming it.
+   ! The one place a Connection's concrete subtype matters for resolution.
+   ! SimpleConnection: its declared source name, which may differ from the
+   ! destination's name. MatchConnection (class default): the destination's own
+   ! name (the same-name wildcard semantic of connection/MatchConnection.F90).
+   ! Callers stay subtype-agnostic by going through this function.
    function effective_source_name(conn, dst_node) result(name)
       class(Connection), intent(in) :: conn
       class(StateItemNode), intent(in) :: dst_node
@@ -70,10 +44,7 @@ contains
 
       select type (conn)
       class is (SimpleConnection)
-         ! NAG rejects chaining a method call directly on another
-         ! function call's own result (`f()%method()`) - a local
-         ! temporary is required (same convention this file's other
-         ! procedures already follow).
+         ! NAG rejects `f()%method()` on a function result; use a local temporary.
          source_pt = conn%get_source()
          name = source_pt%get_esmf_name()
       class default
@@ -81,29 +52,12 @@ contains
       end select
    end function effective_source_name
 
-   ! openspec/changes/phase-7c-wildcard-dispatch-wiring (regression
-   ! fix, found via the history_wildcard real-lifecycle scenario, not
-   ! the Task Group 3 unit tests): read-only counterpart of
-   ! resolve_wildcard_destination's own D2 matching loop, shared by
-   ! both of this file's "is this import already resolved?" read-only
-   ! checks (check_one below, connection_pt_pair_resolves further
-   ! down) - neither of those checks' own fallback exact-name export
-   ! lookup (find_export_node(src_meta, node%get_short_name())) can
-   ! ever succeed for a WILDCARD import: node%get_short_name() IS the
-   ! regex pattern itself (e.g. 'A/E_A.*'), never a real export name.
-   ! Before resolve_wildcard_destination gave WILDCARD a real
-   ! resolution path, this was moot (is_ordinary_resolvable_import
-   ! excluded WILDCARD outright, so these checks never even saw one);
-   ! D6's narrowed gate now lets a WILDCARD import reach these checks,
-   ! so they must be able to recognize a real match the same way
-   ! resolve_one's new branch does, or graphbuilder_check_unsatisfied_
-   ! imports/graphbuilder_unresolved_import_node_ids both wrongly
-   ! report "unresolved" for an import resolve_one itself just
-   ! resolved, eventually failing assert_converged's own hierarchy-
-   ! wide convergence check. Mirrors resolve_wildcard_destination's
-   ! own D2 comment for why the regex-bearing operand is node's own
-   ! declared pattern (EXPORT-intent, rebuilt here), never src_pt%v_pt
-   ! or dst_pt%v_pt directly.
+   ! Read-only counterpart of resolve_wildcard_destination's matching loop,
+   ! shared by the "already resolved?" checks (check_one,
+   ! connection_pt_pair_resolves). The exact-name export lookup cannot work
+   ! for a WILDCARD import: its short name is the regex pattern itself. The
+   ! pattern is rebuilt here with EXPORT intent because the connection's own
+   ! dst_pt%v_pt is IMPORT-intent and so never matches an export.
    function wildcard_import_has_match(owner, src_component_name, node, rc) result(has_match)
       class(OuterMetaComponent), target, intent(inout) :: owner
       character(*), intent(in) :: src_component_name
@@ -140,17 +94,8 @@ contains
    ! but never calls resolve_local_node_id() or add_dependency() -
    ! no proxy node or dependency edge is created here.
    !
-   ! openspec/changes/simpleconnection-graph-resolution: dummy argument
-   ! widened from type(MatchConnection) to class(Connection) - this
-   ! body's own destination-side filtering (for_each_matching_import,
-   ! via conn%get_destination()) is unaffected by which concrete
-   ! Connection subtype conn is; the one place subtype DOES matter -
-   ! what the source's own effective short name is for the export
-   ! lookup below - is isolated entirely in effective_source_name
-   ! (above), not scattered through this body. See that function's
-   ! own header comment for why a SimpleConnection's declared source
-   ! name and a MatchConnection match's own (destination-derived) name
-   ! must be computed differently.
+   ! Accepts any Connection subtype; the only subtype-dependent step (the
+   ! source's effective short name) is isolated in effective_source_name.
    module subroutine check_match_connection_unsatisfied(this, conn, unresolved, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(Connection), intent(in) :: conn
@@ -165,11 +110,8 @@ contains
       src_pt = conn%get_source()
       dst_pt = conn%get_destination()
 
-      ! openspec/changes/graph-builder-resolution-index: resolved via
-      ! resolve_qualified_component (reaching any descendant, not only
-      ! "<self>" or a direct child) - see
-      ! GraphBuilder_ConnectionResolution_smod.F90's module header for
-      ! this capability's scope.
+      ! resolve_qualified_component reaches any descendant, not only "<self>"
+      ! or a direct child.
       dst_meta => resolve_qualified_component(this, dst_pt%component_name, _RC)
       dst_graph => dst_meta%get_component_graph()
       src_meta => resolve_qualified_component(this, src_pt%component_name, _RC)
@@ -190,16 +132,11 @@ contains
          type(QualifiedExportEntry), allocatable :: callback_matches(:)
          type(GraphStateItem) :: node_payload
 
-         ! openspec/changes/callback-wiring, design.md Decision 0: a
-         ! destination declaring an expected callback interface is
-         ! resolved against the flattened namespace instead of exact-
-         ! name matching - read-only here (resolve_callback_import never
-         ! mutates the graph), matching this procedure's own activate-
-         ! time contract.
+         ! A destination declaring an expected callback interface is checked
+         ! against the flattened namespace, not by exact name. Read-only:
+         ! resolve_callback_import never mutates the graph.
          !
-         ! NAG rejects chaining a method call directly on another
-         ! function call's own result (`f()%method()`) - a local
-         ! temporary is required (same throughout this file).
+         ! NAG rejects `f()%method()` on a function result; use a local temporary.
          callback_interface_id = node%get_callback_interface_id()
          if (callback_interface_id%is_valid()) then
             callback_matches = resolve_callback_import(this, src_pt, callback_interface_id, rc=status)
@@ -210,12 +147,8 @@ contains
             _RETURN(_SUCCESS)
          end if
 
-         ! openspec/changes/phase-7c-wildcard-dispatch-wiring
-         ! (regression fix): a WILDCARD-typed destination is checked
-         ! via wildcard_import_has_match (above), not the exact-name
-         ! find_export_node fallback below - see that function's own
-         ! header comment for why the fallback can never match a
-         ! WILDCARD import's own regex short_name.
+         ! WILDCARD destinations use wildcard_import_has_match: the exact-name
+         ! find_export_node fallback below can never match a regex short name.
          node_payload = node%get_payload()
          if (node_payload%get_declared_item_type() == MAPL_STATEITEM_WILDCARD) then
             has_match = wildcard_import_has_match(this, src_pt%component_name, node, _RC)
@@ -235,27 +168,16 @@ contains
 
    end subroutine check_match_connection_unsatisfied
 
-   ! Mirrors MatchConnection%activate()'s own two-step structure
-   ! (superstructure/generic/connection/MatchConnection.F90) - filter the
-   ! destination's imports against the declared destination pattern, then
-   ! for each match require an EXACT-name export on the source side -
-   ! but recomputes it directly against the destination's own
-   ! ComponentGraph import-port table (design.md Decisions: "reuses
-   ! MatchConnection's semantics, not its implementation") rather than
-   ! going through StateRegistry's subregistry/family machinery.
-   ! VirtualConnectionPt%matches() and the ConnectionPt/
-   ! VirtualConnectionPt read-only accessors are ordinary public query
-   ! methods on the Connection's own declared data, not part of that
-   ! execution machinery, and are used here as-is.
+   ! Mirrors MatchConnection%activate() (connection/MatchConnection.F90):
+   ! filter the destination's imports against the declared pattern, then for
+   ! each match require an EXACT-name export on the source side. Computed
+   ! against the destination ComponentGraph's import-port table rather than
+   ! StateRegistry's subregistry machinery. VirtualConnectionPt%matches() and
+   ! the ConnectionPt/VirtualConnectionPt accessors are plain queries, used
+   ! as-is.
    !
-   ! openspec/changes/simpleconnection-graph-resolution: dummy argument
-   ! widened from type(MatchConnection) to class(Connection), same
-   ! reasoning as check_match_connection_unsatisfied above - this body
-   ! resolves a declared SimpleConnection exactly as it would a single
-   ! matched pair from a MatchConnection's own regex expansion, with no
-   ! separate code path. MatchConnection is, by design, the pattern-
-   ! expanding generalization over this same exact-match resolution;
-   ! SimpleConnection IS that exact-match case, declared directly.
+   ! Accepts any Connection subtype: a SimpleConnection is the exact-match
+   ! case of MatchConnection's pattern expansion, with no separate code path.
    module subroutine resolve_match_connection(this, conn, unresolved, unsupported, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(Connection), intent(in) :: conn
@@ -273,10 +195,8 @@ contains
       src_pt = conn%get_source()
       dst_pt = conn%get_destination()
 
-      ! openspec/changes/graph-builder-resolution-index: see
-      ! check_match_connection_unsatisfied's own identical replacement
-      ! above - resolve_qualified_component in place of the old
-      ! single-level dispatch.
+      ! See check_match_connection_unsatisfied: resolve_qualified_component
+      ! reaches any descendant.
       dst_meta => resolve_qualified_component(this, dst_pt%component_name, _RC)
       dst_graph => dst_meta%get_component_graph()
 
@@ -296,12 +216,9 @@ contains
          type(NodeId) :: import_node_id, export_node_id, final_node_id
          type(NodeId), allocatable :: intermediate_node_ids(:)
          logical :: has_export
-         ! openspec/changes/phase-11a-export-field-aliasing: set by
-         ! try_alias_export_field at both of this procedure's own
-         ! export_node_id materialization call sites below - when
-         ! true, the alias already gives export_node_id a real field,
-         ! so the existing try_materialize_field_extension call at that
-         ! same site is skipped (D4).
+         ! Set by try_alias_export_field. When true the export node already has a
+         ! real field, so try_materialize_field_extension is skipped (its
+         ! FieldCreate would overwrite the alias).
          logical :: alias_found
          class(StateItemNode), pointer :: export_node
          type(GraphStateItem), pointer :: export_item, import_item
@@ -314,15 +231,9 @@ contains
          type(CallbackInterfaceId) :: callback_interface_id
          type(GraphStateItem) :: dst_payload
 
-         ! openspec/changes/ordinary-inout-direct-alias: a destination
-         ! declaring BOTH an expected callback interface and ordinary
-         ! inout borrower intent is a nonsensical combination - two
-         ! separate, mutually exclusive resolution paths exist below
-         ! (callback-interface branch, then inout-borrower branch), and
-         ! resolving via whichever branch happens to run first would
-         ! silently ignore the other declaration rather than honoring it.
-         ! Rejected explicitly, checked before either branch, so neither
-         ! one ever silently wins.
+         ! A callback interface and inout borrower intent are mutually exclusive
+         ! resolution paths; reject the combination before either branch so
+         ! neither silently wins.
          callback_interface_id = dst_node%get_callback_interface_id()
          if (callback_interface_id%is_valid() .and. dst_node%is_inout_borrower()) then
             call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
@@ -330,13 +241,9 @@ contains
             _RETURN(_SUCCESS)
          end if
 
-         ! openspec/changes/callback-wiring, design.md Decision 0: a
-         ! destination declaring an expected callback interface is
-         ! resolved against the flattened namespace, materialized into
-         ! its own collection, and wired to the import via an ordinary
-         ! add_dependency edge (resolve_callback_destination) - instead
-         ! of the exact-name/extension-chain logic below, which never
-         ! runs for this item.
+         ! A destination declaring an expected callback interface is resolved
+         ! against the flattened namespace and wired via an ordinary add_dependency
+         ! edge; the exact-name/extension-chain logic below never runs for it.
           if (callback_interface_id%is_valid()) then
              call resolve_callback_destination(this, src_pt, dst_pt, dst_node%get_short_name(), &
                   callback_interface_id, callback_rejected, _RC)
@@ -348,84 +255,39 @@ contains
              _RETURN(_SUCCESS)
           end if
 
-          ! openspec/changes/ordinary-inout-direct-alias, design.md
-          ! Decisions 1/4: a destination declared as an ordinary inout
-          ! borrower is resolved by resolve_inout_destination instead of
-          ! the exact-name/extension-chain logic below, which never runs
-          ! for this item - mirrors the callback-interface branch
-          ! immediately above exactly.
-          !
-          ! openspec/changes/simpleconnection-graph-resolution: passes
-          ! the precomputed effective_source_name(conn, dst_node) -
-          ! same reasoning as the exact-match export lookup below; a
-          ! SimpleConnection's own declared source name may differ
-          ! from dst_node's own short name.
+          ! An inout borrower is resolved by resolve_inout_destination instead of
+          ! the exact-name/extension-chain logic below. It takes the precomputed
+          ! effective source name because a SimpleConnection's source name may
+          ! differ from dst_node's.
           if (dst_node%is_inout_borrower()) then
              call resolve_inout_destination(this, src_pt, dst_pt, dst_node, effective_source_name(conn, dst_node), unsupported, _RC)
              _RETURN(_SUCCESS)
           end if
 
-          ! openspec/changes/phase-7c-wildcard-dispatch-wiring, design.md
-          ! D1-D5: a WILDCARD-typed destination (declared with a regex
-          ! as its own short name, never meant to match exactly one
-          ! export) is resolved by re-running that same regex against
-          ! the connection's own source export namespace and fanning
-          ! the result out into one composite member per match, bound
-          ! onto this import's own already-advertised NodeId in place -
-          ! a composite-member fan-in problem (proposal.md), not a
-          ! multi-producer DependencyNetwork problem: zero
-          ! add_dependency edges are added by this branch (D1, Context's
-          ! DependencyNetwork paragraph) - mirrors the callback-interface
-          ! branch above exactly, substituting resolve_wildcard_
-          ! destination for resolve_callback_destination.
+          ! A WILDCARD destination (its short name is a regex, not one export's
+          ! name) is resolved by fanning the regex matches against the source export
+          ! namespace out into composite members of this import's own node. This
+          ! branch adds no add_dependency edges.
           dst_payload = dst_node%get_payload()
           if (dst_payload%get_declared_item_type() == MAPL_STATEITEM_WILDCARD) then
              call resolve_wildcard_destination(this, src_pt, dst_pt, dst_node, unresolved, _RC)
              _RETURN(_SUCCESS)
           end if
 
-          ! openspec/changes/hierarchy-wide-component-graph, tasks.md
-          ! 6.3 (correction, discovered during that task): dst_node is
-          ! already the exact match for_each_matching_import found by
-          ! walking dst_graph's own import-port table - its own real
-          ! NodeId (get_node_id(), BaseGraphNode's own accessor) is
-          ! used directly instead of re-deriving the same id via
-          ! resolve_local_node_id's own resource_index lookup.
-          ! resource_index is populated only for a DIRECTLY-advertised
-          ! item (advertise_one's own add_resource_index call); a
-          ! MIRRORED import (graphbuilder_run_propagate_hook,
-          ! GraphBuilder_ConnectionResolution_smod.F90 - task 6.1) is
-          ! deliberately NOT given a resource_index entry (design.md
-          ! D3's own text only calls add_import_port, never
-          ! add_resource_index), so the old
-          ! resolve_local_node_id(dst_pt%component_name, ...) call
-          ! would hard-fail resolve_one's own "connection references an
-          ! item never advertised" assertion for any mirrored import -
-          ! contradicting the ADDED requirement's own stated scenario
-          ! "An ordinary connection resolves a mirrored import exactly
-          ! as it would an item advertised directly." Using dst_node's
-          ! own id directly is strictly equivalent to the old lookup
-          ! for every directly-advertised import too (both resolve to
-          ! the same NodeId), so this is behavior-preserving, not a new
-          ! resolution path.
+          ! dst_node is already the exact match found by walking dst_graph's
+          ! import-port table; use its NodeId directly. A resource-index lookup
+          ! would fail for a MIRRORED import, which is deliberately not given a
+          ! resource-index entry.
           import_node_id = dst_node%get_node_id()
 
-          ! openspec/changes/simpleconnection-graph-resolution: source
-          ! lookup key is the connection's own EFFECTIVE source name
-          ! (effective_source_name, above) - a SimpleConnection's own
-          ! declared source name, which may legitimately differ from
-          ! dst_node's own short name (scenarios/names_1's
-          ! 'E_A1'->'I_B1'), not dst_node%get_short_name() directly.
-          ! For a MatchConnection match, effective_source_name returns
-          ! exactly dst_node%get_short_name() (legacy's own same-name
-          ! wildcard rule), so this is unchanged for every existing
-          ! MatchConnection caller.
+          ! Source lookup key is the effective source name: a SimpleConnection's
+          ! declared name may differ from dst_node's. For a MatchConnection it is
+          ! dst_node's name (same-name wildcard rule).
           has_export = find_export_node_id(this, src_pt%component_name, effective_source_name(conn, dst_node), &
                export_node_id, export_node, _RC)
 
          if (.not. has_export) then
-            ! REQ scenario "Import with no matching export is left
-            ! unresolved" - reported, not silently dropped.
+            ! Reported as unresolved, not silently dropped.
             call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name()))
             _RETURN(_SUCCESS)
          end if
@@ -435,38 +297,24 @@ contains
          mismatched = find_mismatched_characteristics(export_item%get_characteristics(), import_item%get_characteristics())
 
          if (size(mismatched) == 0) then
-            ! REQ-EXT-003 no-op case: matches exactly, wire directly.
+            ! Exact match: wire directly, no extension.
             call this_graph%add_dependency(net_id, export_node_id, import_node_id, _RC)
 
-            ! openspec/changes/phase-10a-state-materialization: give the
-            ! export's own node a real, allocated field - the same
-            ! Field-only/geom/vgrid resolution the mismatch branch below
-            ! already uses via try_materialize_field_extension, reused
-            ! as-is (design.md "Reuse, don't duplicate the mismatch
-            ! branch's own geom/vgrid resolution"), gated on this
-            ! sub-change's own mode selector (not
-            ! materialize_extensions_enabled() - a different, orthogonal
-            ! gate owned by the extension-reuse capability). No-op (zero
-            ! behavior change) in GRAPH_MODE_REGISTRY, this sub-change's
-            ! default.
+            ! Give the export node a real, allocated field using the same geom/vgrid
+            ! resolution as the mismatch branch. Gated on graph mode, not on
+            ! materialize_extensions_enabled() (an orthogonal gate); no-op in
+            ! GRAPH_MODE_REGISTRY.
             if (graph_mode() /= GRAPH_MODE_REGISTRY) then
-               ! openspec/changes/phase-11a-export-field-aliasing: try
-               ! the real alias first (D4) - if it succeeds, the node
-               ! already has a real field, same as comp_src's own real
-               ! export field; try_materialize_field_extension's own
-               ! FieldCreate path below is skipped entirely (calling it
-               ! afterward would silently overwrite the alias, defeating
-               ! the whole point).
+               ! Try aliasing the export component's real field first. If found, the
+               ! node already has a real field and try_materialize_field_extension must
+               ! be skipped: its FieldCreate would overwrite the alias.
                call try_alias_export_field(this, src_pt%component_name, export_node%get_short_name(), &
                     this_graph, export_node_id, alias_found, _RC)
                if (.not. alias_found) then
                   call try_materialize_field_extension(this, src_pt%component_name, export_item, import_item, &
                        this_graph, export_node_id, materialization_failure, name=export_node%get_short_name(), _RC)
                   if (materialization_failure /= '') then
-                     ! Same distinguishable-failure reporting the mismatch
-                     ! branch below already uses - the edge above still
-                     ! exists (wiring succeeded; only payload materialization
-                     ! did not).
+                     ! The edge above still exists; only payload materialization failed.
                      call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
                           materialization_failure))
                   end if
@@ -476,69 +324,34 @@ contains
             _RETURN(_SUCCESS)
          end if
 
-         ! REQ-EXT-001/005: mismatch - delegate to the extension-reuse
-         ! capability (mapl_ExtensionResolution_mod) rather than wiring
-         ! the mismatched pair directly.
+         ! Mismatch: delegate to extension-chain construction
+         ! (mapl_ExtensionResolution_mod) rather than wiring the pair directly.
          call find_or_build_extension_chain(this_graph, net_id, export_node_id, &
               export_item%get_characteristics(), import_item%get_characteristics(), mismatched, &
               final_node_id, intermediate_node_ids, unsupported_characteristic, _RC)
 
          if (unsupported_characteristic /= '') then
-            ! spec "Unregistered characteristic fails loudly" -
-            ! distinguishable from "import has no matching export."
+            ! Distinguishable from "import has no matching export".
             call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
                  unsupported_characteristic))
             _RETURN(_SUCCESS)
          end if
 
-         ! openspec/changes/graph-child-state-population, found during
-         ! implementation (this change's own YAML-configured
-         ! demonstration scenario): the mismatch branch's own
-         ! export_node_id (the chain's own INPUT) was never materialized
-         ! by anything - only the exact-match branch above and the
-         ! chain's own FINAL node (below) ever call
-         ! try_materialize_field_extension. Harmless as long as nothing
-         ! ever executes the chain's own compute() for real (no fixture
-         ! did, before this change's own run-phase pull, design.md D7);
-         ! UnitsConverterTransform%compute()'s own
-         ! `input_field = input_item%get_field(_RC)` call fails outright
-         ! on an unallocated input otherwise. Fixed by materializing
-         ! export_node_id here too, using the EXPORT's own typekind/units/
-         ! geom/vgrid - NOT the import's (passing export_item for BOTH
-         ! the export and import arguments is what makes
-         ! try_materialize_field_extension's own "always use the second
-         ! argument's typekind/units" contract resolve to the export's
-         ! own values here, correct for the chain's own input node, as
-         ! opposed to the chain's final node below, which correctly
-         ! keeps using the import's own values). Gated the same way the
-         ! exact-match branch's own materialization already is
-         ! (graph_mode() /= GRAPH_MODE_REGISTRY) - a no-op in
-         ! GRAPH_MODE_REGISTRY, matching every other new code path this
-         ! change adds.
+         ! The chain's input node (export_node_id) must be materialized too: the
+         ! chain's compute() fails on an unallocated input. export_item is passed
+         ! as BOTH export and import so try_materialize_field_extension uses the
+         ! export's typekind/units here (the chain's final node, below, keeps the
+         ! import's). Gated on graph_mode() like the exact-match branch.
          if (graph_mode() /= GRAPH_MODE_REGISTRY) then
-            ! openspec/changes/phase-11a-export-field-aliasing: same
-            ! guard, same skip-when-found treatment as the exact-match
-            ! branch above (D4) - no divergence between the two call
-            ! sites.
+            ! Same alias-first treatment as the exact-match branch.
             call try_alias_export_field(this, src_pt%component_name, export_node%get_short_name(), &
                  this_graph, export_node_id, alias_found, _RC)
             if (.not. alias_found) then
-               ! openspec/changes/phase-7a-shape-dispatch-wiring,
-               ! design.md D6: this call site passes export_item as
-               ! BOTH the export AND import argument to
-               ! try_materialize_field_extension, so loosening the
-               ! export-side gate alone (D5) would make this call reach
-               ! the IMPORT-side check next - deliberately left
-               ! FIELD-only (D5) - and still fail, now abandoning the
-               ! whole connection before the chain's own real
-               ! wiring/materialization below ever runs. There is no
-               ! real field-shaped version of the bracket's own INPUT
-               ! node to materialize here (the bracket IS the input;
-               ! materialize_field_extension only ever builds a plain
-               ! Field - Non-Goals), so a non-FIELD export is skipped
-               ! entirely here - no call, no failure - continuing to
-               ! the chain's own real materialization below, rather
-               ! than fabricating a synthetic FIELD-typed stand-in.
+               ! export_item is passed as both export and import, so loosening the
+               ! export-side gate would reach the FIELD-only import-side check and
+               ! abandon the connection. A non-FIELD (e.g. bracket) input has no
+               ! field-shaped version to materialize, so skip it here and let the
+               ! chain's own materialization below run.
                if (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD) then
                   call try_materialize_field_extension(this, src_pt%component_name, export_item, export_item, &
                        this_graph, export_node_id, materialization_failure, name=export_node%get_short_name(), _RC)
@@ -551,29 +364,18 @@ contains
             end if
          end if
 
-         ! extension-registry-visibility change, task groups 1-3: chain
-         ! *structure* above is unconditional (unaffected by the gate,
-         ! exactly as 3c left it) - only the real FieldCreate-based
-         ! payload materialization step is gated. Off (the default): the
-         ! extension item keeps 3c's own unallocated placeholder payload,
-         ! zero behavior change from today.
+         ! Chain *structure* above is unconditional; only the FieldCreate-based
+         ! payload materialization is gated. When off (the default), extension
+         ! items keep their unallocated placeholder payload.
          !
-         ! openspec/changes/phase-11b-chain-intermediate-materialization,
-         ! design.md D3/D4: replaces the old single final-node
-         ! try_materialize_field_extension call with
-         ! materialize_extension_chain, which materializes every entry
-         ! of intermediate_node_ids (every link, not only the chain's
-         ! own final node) with each link's own correctly-evolved
-         ! typekind/units. Reduces to the old single-call behavior for a
-         ! single-characteristic mismatch (intermediate_node_ids has
-         ! length 1, equal to final_node_id).
+         ! materialize_extension_chain materializes every link in
+         ! intermediate_node_ids with that link's own evolved typekind/units.
          if (materialize_extensions_enabled()) then
             call materialize_extension_chain(this, src_pt%component_name, export_item, import_item, &
                  mismatched, intermediate_node_ids, this_graph, materialization_failure, _RC)
             if (materialization_failure /= '') then
-               ! Distinguishable from both "no matching export" and
-               ! "unregistered characteristic fails loudly" above (spec
-               ! "A non-field item class fails explicitly").
+               ! Distinguishable from "no matching export" and "unregistered
+               ! characteristic" above.
                call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
                     materialization_failure))
                _RETURN(_SUCCESS)
@@ -588,14 +390,12 @@ contains
    end subroutine resolve_match_connection
 
    ! GENERIC_INIT_ADVERTISE-time analog of legacy Connection%activate()
-   ! (module header - "Two-phase timing"): for each MatchConnection,
-   ! determine which ordinary-match destination imports have a matching
-   ! source export, WITHOUT creating any graph structure (no proxy
-   ! nodes, no dependency edges - those are graphbuilder_resolve_connections'
-   ! job, at connect() time). Read-only with respect to the graph;
-   ! purely populates the unresolved-imports report, which is what
-   ! legacy's own propagate_unsatisfied_imports() decision (bubble an
-   ! unsatisfied import to the parent) is based on at this same phase.
+   ! (GraphBuilder.F90 module header, "Two-phase timing"): for each
+   ! Match/SimpleConnection, determine which destination imports have a
+   ! matching source export, WITHOUT creating any graph structure (edges are
+   ! graphbuilder_resolve_connections' job, at connect() time). Read-only;
+   ! purely populates the unresolved-imports report, which drives legacy's
+   ! decision to bubble an unsatisfied import to the parent.
    module subroutine graphbuilder_check_unsatisfied_imports(this, unusable, unresolved_imports, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
@@ -619,17 +419,11 @@ contains
             class is (MatchConnection)
                call check_match_connection_unsatisfied(this, c, unresolved, _RC)
             class is (SimpleConnection)
-               ! openspec/changes/simpleconnection-graph-resolution:
-               ! same call as the MatchConnection arm above -
-               ! check_match_connection_unsatisfied only ever touches
-               ! conn via Connection-base accessors, so a declared
-               ! SimpleConnection's own exact destination is checked
-               ! identically to a MatchConnection match's own single
-               ! destination.
+               ! Same call as the MatchConnection arm: check_match_connection_unsatisfied
+               ! only uses Connection-base accessors.
                call check_match_connection_unsatisfied(this, c, unresolved, _RC)
             class default
-               ! Wildcard/callback/reexport connections: out of
-               ! scope for this slice - deliberately skipped.
+               ! Other subtypes (e.g. ReexportConnection) are not resolved here.
             end select
          end do
       end associate
@@ -640,32 +434,20 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine graphbuilder_check_unsatisfied_imports
 
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1,
-   ! design.md D3 (corrected twice during implementation; see tasks.md
-   ! 6.1's own correction note for the full history). "Resolved" cannot
-   ! be read off dependency-edge wiring (no edge exists anywhere, for
-   ! any component, at the ADVERTISE-time point this runs - edges are
-   ! only added later, at ACCEPT_TRANSFER, by
-   ! graphbuilder_resolve_connections) nor off
-   ! graphbuilder_check_unsatisfied_imports(child_meta) alone (that
-   ! procedure only ever inspects connections child_meta ITSELF
-   ! declares; a connection declared on child_meta's own DIRECT PARENT
-   ! naming child_meta directly - the single most common connection
-   ! shape, e.g. an ordinary two-child connect_all - is invisible to
-   ! it, which would wrongly report an already-resolved import as
-   ! unresolved and risk a real two-producer REQ-DEP-008a violation
-   ! once mirrored and later also independently resolved by some
-   ! further ancestor's own connection naming this_parent). An import
-   ! in child_meta's own import-port table counts as unresolved iff
-   ! NEITHER (a) some MatchConnection declared ON child_meta itself,
-   ! whose destination resolves (resolve_qualified_component) back to
-   ! child_meta itself, NOR (b) some MatchConnection declared ON
-   ! this_parent itself, whose destination resolves directly to
-   ! child_meta - finds a matching source export for it (the same
-   ! per-item positive check check_match_connection_unsatisfied's own
-   ! check_one already makes - see connection_resolves_import below,
-   ! shared by both cases). child_meta MUST be one of this_parent's own
-   ! direct children. Read-only; creates no graph structure.
+   ! Returns child_meta's imports that no connection resolves yet, which
+   ! must be mirrored up into this_parent. "Resolved" cannot be read off
+   ! dependency edges (none exist at the ADVERTISE-time point this runs;
+   ! edges are added at ACCEPT_TRANSFER) nor off
+   ! graphbuilder_check_unsatisfied_imports(child_meta) alone (it sees only
+   ! connections child_meta itself declares, missing the most common shape: a
+   ! connection on the direct parent naming child_meta). So an import counts
+   ! as unresolved iff neither (a) a connection declared on child_meta whose
+   ! destination resolves to child_meta, nor (b) one declared on this_parent
+   ! whose destination resolves to child_meta, finds a source export for it
+   ! (connection_resolves_import, below). Wrongly reporting a resolved import
+   ! as unresolved would risk two producers of one NodeId once it is mirrored
+   ! and later resolved again by an ancestor.
+   ! child_meta MUST be a direct child of this_parent. Read-only.
    module function graphbuilder_unresolved_import_node_ids(this_parent, child_meta, rc) result(unresolved)
       class(OuterMetaComponent), target, intent(inout) :: this_parent
       class(OuterMetaComponent), target, intent(inout) :: child_meta
@@ -697,14 +479,9 @@ contains
             select type (generic_node)
             class is (StateItemNode)
                if (.not. (generic_node%get_state_intent() == ESMF_STATEINTENT_IMPORT)) cycle
-               ! openspec/changes/hierarchy-wide-component-graph, tasks.md
-               ! 6.8 (regression fix): an import with no graph-native
-               ! resolution path at all (WILDCARD/SERVICE/EXPRESSION -
-               ! see is_ordinary_resolvable_import's own header comment,
-               ! GraphBuilder.F90) is excluded from propagation entirely
-               ! - it is never "unresolved-and-propagatable" in the
-               ! sense this scan means, since no ordinary ancestor
-               ! connection could ever resolve it even once propagated.
+               ! An import with no graph-native resolution path (see
+               ! is_ordinary_resolvable_import) is never propagated: no ancestor
+               ! connection could resolve it.
                if (.not. is_ordinary_resolvable_import(generic_node)) cycle
 
                ! (a) resolved at child_meta's own level or below.
@@ -719,10 +496,8 @@ contains
                   entry%short_name = generic_node%get_short_name()
                   entry%node_id = node_id
 
-                  ! Same self-referencing array-constructor ICE
-                  ! precedent as collect_qualified_exports
-                  ! (growing via an
-                  ! explicit fresh temporary + move_alloc).
+                  ! Grow via a fresh temporary + move_alloc: a self-referencing array
+                  ! constructor ICEs some compilers (as in collect_qualified_exports).
                   n = size(unresolved)
                   allocate(grown(n + 1))
                   if (n > 0) grown(1:n) = unresolved
@@ -738,31 +513,17 @@ contains
       _RETURN(_SUCCESS)
    end function graphbuilder_unresolved_import_node_ids
 
-   ! Shared by graphbuilder_unresolved_import_node_ids above (both
-   ! case (a) and case (b)): does some MatchConnection declared on
-   ! `owner`, whose destination resolves (resolve_qualified_component)
-   ! to `target_meta` exactly, match `node`'s own short name AND find a
-   ! real source export for it? Same per-item positive check
-   ! check_match_connection_unsatisfied's own check_one already makes
-   ! (callback-interface branch via resolve_callback_import, ordinary
-   ! branch via find_export_node) - reused here as a POSITIVE match
-   ! collector (returns as soon as one resolving connection is found)
-   ! instead of a negative "report every miss" one. Read-only.
+   ! Shared by graphbuilder_unresolved_import_node_ids (cases (a) and (b)):
+   ! does some Match/SimpleConnection declared on `owner`, whose destination
+   ! resolves to `target_meta`, match `node`'s short name AND find a real
+   ! source export? A positive collector: returns at the first resolving
+   ! connection. Read-only.
    !
-   ! openspec/changes/simpleconnection-graph-resolution: the per-
-   ! connection check below (connection_pt_pair_resolves) is shared by
-   ! BOTH a MatchConnection and a SimpleConnection - design.md D3's
-   ! correction. The old class default branch's own destination-name
-   ! heuristic (treating "a non-MatchConnection connection names this
-   ! destination, exactly" as sufficient, with no check that the
-   ! source side actually resolves) is REMOVED: it was a false-
-   ! negative risk (a SimpleConnection naming a destination whose
-   ! source does not actually exist was wrongly treated as "resolved,"
-   ! suppressing mirroring - see proposal.md). ReexportConnection (and
-   ! any other out-of-scope Connection subtype) now correctly falls
-   ! through class default with resolved left .false. - still
-   ! mirrored, which is correct: this change gives ReexportConnection
-   ! no resolution path of its own.
+   ! The per-connection check (connection_pt_pair_resolves) is shared by both
+   ! subtypes. A connection naming a destination whose source does not exist
+   ! must NOT count as resolved, or mirroring would be wrongly suppressed.
+   ! ReexportConnection and other subtypes fall through unresolved, so the
+   ! import is still mirrored.
    function connection_resolves_import(owner, target_meta, node, rc) result(resolved)
       class(OuterMetaComponent), target, intent(inout) :: owner
       class(OuterMetaComponent), target, intent(in) :: target_meta
@@ -787,17 +548,11 @@ contains
             class is (MatchConnection)
                resolved = connection_pt_pair_resolves(owner, target_meta, node, c, _RC)
             class is (SimpleConnection)
-               ! A SimpleConnection's own destination is an exact
-               ! (non-regex) VirtualConnectionPt - the same structural
-               ! "does this connection's own declared source/
-               ! destination resolve this import" check a
-               ! MatchConnection match already gets, via the same
-               ! shared function - not a separately maintained check.
+               ! Exact (non-regex) destination; same shared check as a MatchConnection
+               ! match.
                resolved = connection_pt_pair_resolves(owner, target_meta, node, c, _RC)
             class default
-               ! ReexportConnection and any other out-of-scope
-               ! Connection subtype: not resolved by this capability -
-               ! correctly still mirrored (resolved stays .false.).
+               ! ReexportConnection and others: not resolved here, so still mirrored.
             end select
             if (resolved) exit
          end do
@@ -806,14 +561,9 @@ contains
       _RETURN(_SUCCESS)
    end function connection_resolves_import
 
-   ! openspec/changes/simpleconnection-graph-resolution: extracted
-   ! verbatim from connection_resolves_import's own former
-   ! class is (MatchConnection) branch (design.md D3), with one fix:
-   ! the source-export lookup now uses effective_source_name(c, node)
-   ! instead of node%get_short_name() directly - a SimpleConnection's
-   ! own declared source name may differ from node's own (destination-
-   ! side) short name, the same correction D1 applies to resolve_one/
-   ! check_one.
+   ! The source-export lookup uses effective_source_name: a
+   ! SimpleConnection's source name may differ from node's (destination-side)
+   ! short name.
    function connection_pt_pair_resolves(owner, target_meta, node, c, rc) result(resolved)
       class(OuterMetaComponent), target, intent(inout) :: owner
       class(OuterMetaComponent), target, intent(in) :: target_meta
@@ -851,11 +601,7 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      ! openspec/changes/phase-7c-wildcard-dispatch-wiring (regression
-      ! fix): same wildcard_import_has_match substitution check_one
-      ! (above) makes, for connection_resolves_import's own two
-      ! callers (graphbuilder_unresolved_import_node_ids's (a)/(b)
-      ! cases) - see that function's own header comment.
+      ! Same wildcard_import_has_match substitution as check_one.
       node_payload = node%get_payload()
       if (node_payload%get_declared_item_type() == MAPL_STATEITEM_WILDCARD) then
          resolved = wildcard_import_has_match(owner, src_pt%component_name, node, _RC)
@@ -869,36 +615,18 @@ contains
       _RETURN(_SUCCESS)
    end function connection_pt_pair_resolves
 
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1/6.2,
-   ! design.md D3: see this function's own interface-block comment
-   ! (GraphBuilder.F90) for invocation-point reasoning. For each direct
-   ! child C of `this`, obtains C's own still-unresolved imports
-   ! (graphbuilder_unresolved_import_node_ids, above, invoked on C's
-   ! behalf through the framework-internal get_child_component_graph
-   ! carve-out - REQ-GB-002) and mirrors each one into `this`'s own
-   ! import-port table under C's own already-real NodeId. No new node,
-   ! no proxy, no composite wrapper (design.md D3) - the mirrored
-   ! entry's own NodeId is additionally reachable through `this`'s own
-   ! import ports, in addition to C's own, so for_each_matching_import
-   ! (unmodified) finds it exactly as it would any import `this`
-   ! advertised directly.
+   ! For each direct child C of `this`, obtains C's still-unresolved imports
+   ! (graphbuilder_unresolved_import_node_ids, via the framework-internal
+   ! get_child_component_graph carve-out) and mirrors each into `this`'s
+   ! import-port table under C's own NodeId: no new node or proxy, so
+   ! for_each_matching_import finds it like any import `this` advertised.
    !
-   ! Idempotency (found during real-lifecycle testing, both NAG and
-   ! gfortran - a hang under gfortran, repeat-logged field-dictionary
-   ! warnings growing without bound under both): ESMF's own
-   ! Provide/Accept/Realize transfer negotiation can invoke
-   ! GENERIC_INIT_ADVERTISE (and hence this hook) more than once per
-   ! component within a single Initialize sequence - the same
-   ! "idempotency" concern graphbuilder_resolve_connections' own header
-   ! comment already documents for the connect()-time analog. Unlike
-   ! that procedure (guarded by frozen-graph state, not yet reached at
-   ! ADVERTISE time), this hook has no such state to check - guarded
-   ! instead by skipping any NodeId already present as a VALUE
-   ! somewhere in `this`'s own import-port table (already_mirrored,
-   ! below): a repeat call re-derives the exact same unresolved-entry
-   ! set from C's own (unchanged) graph state, so "already a value
-   ! here" is both necessary and sufficient to detect "already mirrored
-   ! by an earlier call," with no additional bookkeeping needed.
+   ! Idempotent: ESMF Provide/Accept/Realize negotiation can invoke
+   ! GENERIC_INIT_ADVERTISE (and so this hook) more than once per component;
+   ! unguarded, it hangs under gfortran and re-logs warnings. A NodeId already
+   ! present as a VALUE in this import-port table is skipped
+   ! (already_mirrored); a repeat call re-derives the same set, so that check
+   ! is sufficient.
    module subroutine graphbuilder_run_propagate_hook(this)
       class(OuterMetaComponent), target, intent(inout) :: this
 
@@ -968,18 +696,11 @@ contains
       end associate
    end function already_mirrored
 
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8: see
-   ! this subroutine's own interface-block comment (GraphBuilder.F90)
-   ! for the full rationale. For each direct child C of `this`,
-   ! propagates every one of C's own export-port entries into `this`'s
-   ! own export-port table, under C's own already-real NodeId, with an
-   ! effective qualified name computed by qualify_exported_name below.
-   ! Unconditional - unlike import propagation, there is no "already
-   ! resolved" gate (legacy's own propagate_exports_subregistry has
-   ! none either; an export's own usefulness is determined entirely by
-   ! whether some descendant's import ultimately matches it, which is
-   ! not knowable, and not needed, at the point export propagation
-   ! itself runs).
+   ! For each direct child C of `this`, propagates every export-port entry of
+   ! C into `this`'s export-port table under C's own NodeId, with the
+   ! qualified name from qualify_exported_name. Unconditional (no "already
+   ! resolved" gate): an export's usefulness depends on whether some
+   ! descendant's import matches it, which is not knowable here.
    module subroutine graphbuilder_run_export_propagate_hook(this)
       class(OuterMetaComponent), target, intent(inout) :: this
 
@@ -1034,23 +755,11 @@ contains
       end do
    end subroutine graphbuilder_run_export_propagate_hook
 
-   ! Shared helper for graphbuilder_run_export_propagate_hook above:
-   ! computes the qualified name a child's own export-port entry
-   ! (child_port_id, in child_graph) should carry once propagated into
-   ! the PARENT's own export-port table, given the child's own name
-   ! (child_name). Per the user's own confirmation of legacy's exact
-   ! rule (propagate_exports_virtual_pt, StateRegistry_Propagation_
-   ! smod.F90: "comp_name == ''" -> qualify with comp_name=subregistry_name;
-   ! already non-empty -> passed through UNCHANGED, never re-qualified
-   ! at any further ancestor level):
-   !   - if child_graph's own get_export_port_name(child_port_id)
-   !     already carries an override (this entry was ITSELF propagated
-   !     up from a grandchild, at an earlier level) - the override is
-   !     already fully qualified (e.g. "A/E") - returned UNCHANGED, no
-   !     further qualification added.
-   !   - otherwise (child_port_id is the child's OWN direct export,
-   !     with no override yet) - qualified as child_name // '/' //
-   !     the underlying node's own real short_name.
+   ! Name a child's export-port entry carries once propagated into the
+   ! parent's export-port table. Mirrors legacy propagate_exports_virtual_pt:
+   ! a name already qualified (propagated up from a grandchild) passes
+   ! through unchanged; a child's own direct export is qualified as
+   ! child_name // '/' // short_name.
    function qualify_exported_name(child_graph, child_port_id, child_name) result(qualified_name)
       type(ComponentGraph), target, intent(in) :: child_graph
       type(PortId), intent(in) :: child_port_id
@@ -1062,26 +771,10 @@ contains
       own_name = child_graph%get_export_port_name(child_port_id)
       if (.not. allocated(own_name)) return
 
-      ! own_name already equals the node's own real short_name (no
-      ! override present) iff child_port_id has no recorded override -
-      ! distinguished here not by string content (a short_name could
-      ! coincidentally contain '/') but by re-deriving the SAME
-      ! "override present?" check get_export_port_name itself makes
-      ! internally. Since that check is not separately exposed, the
-      ! equivalent, correct distinction is: an override-carrying name
-      ! was placed there by THIS SAME propagation step at an earlier
-      ! ancestor level, which only ever happens for an entry this
-      ! child's own export-port table received via ITS OWN
-      ! run_export_propagate_hook call (i.e. the child is itself an
-      ! intermediate level with a further descendant) - own_name
-      ! containing '/' is the correct, sufficient signal in that case,
-      ! since a grandchild-propagated name is always
-      ! "descendant_name/short_name" by construction, and MAPL child
-      ! names are themselves plain identifiers (no '/' of their own -
-      ! REQ-HIER, component-name uniqueness/validity), so a directly-
-      ! advertised export's own real short_name containing '/' would
-      ! itself be a pre-existing, unrelated naming oddity, not a false
-      ! positive this logic introduces.
+      ! An override-carrying name was set by an earlier propagation level and
+      ! always has the form "descendant/short_name". get_export_port_name does
+      ! not expose whether an override exists, so '/' in the name is the
+      ! signal; child names are plain identifiers with no '/'.
       if (index(own_name, '/') > 0) then
          qualified_name = own_name
       else
@@ -1089,20 +782,12 @@ contains
       end if
    end function qualify_exported_name
 
-   ! Idempotency helper for graphbuilder_run_export_propagate_hook
-   ! above, symmetric to already_mirrored: does `graph`'s own
-   ! export-port table already contain an entry whose VALUE is
-   ! target_id AND whose own effective name (get_export_port_name)
-   ! equals target_name? Checking both (not node_id alone, as
-   ! already_mirrored does for imports) is necessary here because a
-   ! single export NodeId can legitimately appear under more than one
-   ! qualified name at different ancestor levels during the SAME
-   ! propagation pass in a diamond-shaped hierarchy - task 6.8 does not
-   ! need to guard against that (unlike task 6.1's own single-name-per-
-   ! import invariant), only against re-adding the IDENTICAL
-   ! (node_id, name) pair on a repeat ADVERTISE call (the same ESMF
-   ! Provide/Accept/Realize re-entrancy concern already_mirrored's own
-   ! header comment documents).
+   ! Idempotency helper for graphbuilder_run_export_propagate_hook, symmetric
+   ! to already_mirrored: is (target_id, target_name) already present in
+   ! graph's export-port table? Both must be checked: in a diamond-shaped
+   ! hierarchy one export NodeId can legitimately appear under several
+   ! qualified names; only an identical pair indicates a repeat ADVERTISE
+   ! call.
    function already_exported(graph, target_id, target_name) result(found)
       type(ComponentGraph), target, intent(in) :: graph
       type(NodeId), intent(in) :: target_id
@@ -1135,25 +820,15 @@ contains
    end function already_exported
 
    ! Shared by check_match_connection_unsatisfied() and
-   ! resolve_match_connection() below: both used to independently repeat
-   ! this same "which of dst_graph's import ports does dst_pt's declared
-   ! pattern match" scan (module header - "same destination-import
-   ! filtering"). Owns the loop and both guard clauses; each caller
-   ! supplies only the per-match step, as an internal procedure so it can
-   ! host-associate whatever extra context it needs (this, src_pt,
-   ! unresolved, ...) - same style as OuterMetaComponent's own
-   ! apply_to_children_custom()/I_child_op.
+   ! resolve_match_connection(): which of dst_graph's import ports does
+   ! dst_pt's declared pattern match? Owns the loop and guard clauses; each
+   ! caller supplies the per-match step as an internal procedure so it can
+   ! host-associate its own context (same style as OuterMetaComponent's
+   ! apply_to_children_custom()/I_child_op).
    !
-   ! openspec/changes/graph-builder-stateitem-resolution, design.md
-   ! Decisions: iterates dst_graph's own import-port table
-   ! (ComponentGraph%get_import_ports(), new - tasks.md 3.1 design.md
-   ! correction) instead of dst_spec%var_specs - for each bound import
-   ! PortId, the corresponding StateItemNode is retrieved
-   ! (graph%get_node(node_id), already public) and its own
-   ! get_short_name()/get_state_intent() fields (new, task 1.1) are used
-   ! for the dst_pt%v_pt%matches(...) filter - structurally the same
-   ! filter condition as before, just sourced from the node instead of a
-   ! var_spec. op's own signature is `subroutine(node, rc)` (task 3.1).
+   ! Iterates dst_graph's import-port table; each StateItemNode's
+   ! short_name/state_intent feed the dst_pt%v_pt%matches filter. op has
+   ! signature `subroutine(node, rc)`.
    module subroutine for_each_matching_import(dst_graph, dst_pt, op, rc)
       type(ComponentGraph), target, intent(in) :: dst_graph
       type(ConnectionPt), intent(in) :: dst_pt
@@ -1189,53 +864,27 @@ contains
       _RETURN(_SUCCESS)
    end subroutine for_each_matching_import
 
-   ! GENERIC_INIT_ACCEPT_TRANSFER-time analog of legacy
-   ! Connection%connect() (module header - "Two-phase timing"): the real
-   ! graph mutation - proxy nodes and dependency edges - restricted to
-   ! MatchConnection (see module header). Any other declared Connection
-   ! subtype (SimpleConnection, ReexportConnection, ...) is left
-   ! untouched - out of scope for this slice, not an oversight
-   ! (proposal.md "Explicitly out of scope"). REQ-GB-003 "Resolving
-   ! connections" / "Creating dependency networks".
+   ! GENERIC_INIT_ACCEPT_TRANSFER-time analog of legacy Connection%connect()
+   ! (GraphBuilder.F90 module header, "Two-phase timing"): the real graph
+   ! mutation, i.e. dependency edges. Handles MatchConnection and
+   ! SimpleConnection; other subtypes are left untouched.
    !
-   ! Idempotency: ESMF's Provide/Accept/Realize transfer negotiation can
-   ! invoke GENERIC_INIT_ACCEPT_TRANSFER (and hence this) more than once
-   ! per component within a single Initialize sequence - legacy's own
-   ! MatchConnection%connect()/SimpleConnection%connect()
-   ! (superstructure/generic/connection/ *.F90) guard against exactly this
-   ! with a per-connection `consumed` flag. GraphBuilder has no equivalent
-   ! per-connection state to reuse, so it guards via
-   ! this%connections_already_resolved()/mark_connections_resolved()
-   ! instead - a repeat call is a safe no-op rather than an attempt to
-   ! re-resolve (and, worse, mint fresh duplicate graph structure for)
-   ! connections already resolved on an earlier pass.
-   !
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group 9
-   ! (design.md D7): this guard was previously graph%is_frozen() - valid
-   ! only because freeze used to happen at THIS SAME call site
-   ! (graphbuilder_run_connect_hook), immediately after the first
-   ! ACCEPT_TRANSFER pass's own resolution completed, so by the time the
-   ! fixed schedule's SECOND ACCEPT_TRANSFER pass reached this
-   ! procedure, the graph was already frozen and this check correctly
-   ! short-circuited. Freeze now happens exactly once, hierarchy-wide,
-   ! at a later, dedicated GENERIC_INIT_GRAPH_FREEZE phase - this
-   ! component's own graph is therefore still MUTABLE across BOTH
-   ! ACCEPT_TRANSFER passes, so is_frozen() can never again distinguish
-   ! "already resolved, once" from "not yet resolved" at this call site
-   ! (tasks.md Group 9's own header note documents this exact blocker,
-   ! found before any code was written against the group's original,
-   ! insufficient "just relocate the freeze call" wording). This new,
-   ! explicit per-component flag is the direct replacement.
+   ! Idempotent: ESMF Provide/Accept/Realize negotiation can invoke
+   ! ACCEPT_TRANSFER more than once per component. Legacy guards with a
+   ! per-connection `consumed` flag; here connections_already_resolved()/
+   ! mark_connections_resolved() make a repeat call a no-op instead of
+   ! minting duplicate graph structure. graph%is_frozen() cannot serve as the
+   ! guard: the graph is frozen once, hierarchy-wide, at the later
+   ! GRAPH_FREEZE phase, so it is still mutable across both ACCEPT_TRANSFER
+   ! passes.
     module subroutine graphbuilder_resolve_connections(this, unusable, unresolved_imports, &
          unsupported_characteristics, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
       type(GraphResolutionEntryVector), optional, intent(out) :: unresolved_imports
-      ! REQ scenario "Unregistered characteristic fails loudly": a
-      ! distinguishable report, separate from unresolved_imports (which
-      ! means "no export at all"), for a matched export/import pair whose
-      ! mismatch has no registered extension provider
-      ! (mapl_ExtensionResolution_mod).
+      ! Matched export/import pairs whose mismatch has no registered extension
+      ! provider (mapl_ExtensionResolution_mod); distinct from unresolved_imports
+      ! ("no export at all").
       type(GraphResolutionEntryVector), optional, intent(out) :: unsupported_characteristics
       integer, optional, intent(out) :: rc
 
@@ -1263,17 +912,11 @@ contains
             class is (MatchConnection)
                call resolve_match_connection(this, c, unresolved, unsupported, _RC)
             class is (SimpleConnection)
-               ! openspec/changes/simpleconnection-graph-resolution:
-               ! same call as the MatchConnection arm above -
-               ! resolve_match_connection only ever touches conn via
-               ! Connection-base accessors, so a declared
-               ! SimpleConnection is wired into the dependency network
-               ! exactly as a MatchConnection's own single matched
-               ! pair would be - no separate resolution path.
+               ! Same call as the MatchConnection arm: resolve_match_connection only
+               ! uses Connection-base accessors.
                call resolve_match_connection(this, c, unresolved, unsupported, _RC)
             class default
-               ! Wildcard/callback/reexport connections: out of
-               ! scope for this slice - deliberately skipped.
+               ! Other subtypes (e.g. ReexportConnection) are not resolved here.
             end select
          end do
       end associate
@@ -1288,35 +931,17 @@ contains
    end subroutine graphbuilder_resolve_connections
 
 
-   ! openspec/changes/graph-builder-stateitem-resolution, tasks.md 4.2:
-   ! finds the export's own NodeId/StateItemNode by scanning the source
-   ! ComponentGraph's own export-port table for a node whose
-   ! get_short_name() matches, instead of scanning src_spec%var_specs
-   ! (the now-removed find_export_var_spec's own job) - the single
-   ! replacement for both find_export_var_spec and the NodeId half this
-   ! function already performed. export_node is an output argument
-   ! (StateItemNode, by pointer) instead of a VariableSpec, since callers
-   ! need the node's fields now, not a var_spec's.
-   ! openspec/changes/graph-builder-stateitem-resolution, tasks.md 4.2:
-   ! read-only scan of src_meta's own ComponentGraph export-port table
-   ! for a node whose get_short_name() matches - the direct node-based
-   ! replacement for the now-removed find_export_var_spec, used by
-   ! find_export_node_id below (which additionally mutates the graph via
-   ! resolve_local_node_id) AND by check_match_connection_unsatisfied's
-   ! own check_one (which must NOT create graph structure - this
-   ! procedure's own module-header "activate()-time analog" contract).
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8:
-   ! matches against each export port's own effective NAME
-   ! (ComponentGraph%get_export_port_name - the export-propagation
-   ! override when one exists, else the node's own real short_name),
-   ! not the node's own short_name directly - a propagated export's
-   ! own real StateItemNode%short_name stays unqualified (it is a
-   ! different component's own identity, never rewritten), while this
-   ! graph's own export-port TABLE entry for it carries the ancestor-
-   ! qualified name (`child_name/short_name`) ordinary name matching
-   ! must compare against, exactly mirroring legacy's own
-   ! propagate_exports_virtual_pt comp_name-qualification (StateRegistry_
-   ! Propagation_smod.F90).
+   ! Read-only scan of src_meta's ComponentGraph export-port table for a node
+   ! whose effective port name matches short_name. Used by
+   ! find_export_node_id (which then mutates the graph) and by check_one,
+   ! which must NOT create graph structure.
+   !
+   ! Matches against get_export_port_name (the export-propagation override
+   ! when one exists, else the node's short_name), not the node's
+   ! short_name: a propagated export's StateItemNode%short_name stays
+   ! unqualified, while this graph's port-table entry carries the
+   ! ancestor-qualified name (`child_name/short_name`), mirroring legacy
+   ! propagate_exports_virtual_pt.
    function find_export_node(src_meta, short_name) result(export_node)
       class(OuterMetaComponent), target, intent(inout) :: src_meta
       character(*), intent(in) :: short_name
@@ -1352,33 +977,17 @@ contains
                   return
                end if
             class default
-               ! Not a StateItemNode (e.g. a different GraphNode kind
-               ! co-owned by this graph) - not an export candidate,
-               ! skipped rather than failing.
+               ! Not a StateItemNode: not an export candidate; skip.
             end select
          end do
       end associate
    end function find_export_node
 
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8
-   ! (same correction task 6.3 already made for the import side, found
-   ! again here on the export side while fixing history_1's own real
-   ! regression): export_node is already the exact match find_export_node
-   ! found by walking src_meta's own export-port table - its own real
-   ! NodeId (get_node_id(), BaseGraphNode's own accessor) is used
-   ! directly instead of re-deriving the same id via a SEPARATE
-   ! resolve_local_node_id resource-index lookup keyed by `short_name`.
-   ! That old lookup is wrong for a PROPAGATED export (task 6.8): the
-   ! resource index on src_meta (comp_name's own resolved component)
-   ! only ever has an entry under the item's own real, UNQUALIFIED
-   ! short_name (advertise_one's own add_resource_index call) - never
-   ! under the qualified name (`child_name/short_name`)
-   ! find_export_node now matches against (find_export_node's own
-   ! header comment, this same file). Using export_node's own id
-   ! directly is strictly equivalent to the old lookup for every
-   ! directly-advertised export too (both resolve to the same NodeId),
-   ! so this is behavior-preserving for every pre-existing caller, not
-   ! a new resolution path.
+   ! export_node is the exact match find_export_node found in src_meta's
+   ! export-port table; use its NodeId directly. A resource-index lookup
+   ! keyed by short_name would fail for a PROPAGATED export: the resource
+   ! index only has the unqualified short_name, never the qualified name
+   ! find_export_node matches against.
    logical module function find_export_node_id(this, comp_name, short_name, export_node_id, export_node, rc) result(found)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: comp_name
@@ -1403,31 +1012,17 @@ contains
       _RETURN(_SUCCESS)
    end function find_export_node_id
 
-   ! openspec/changes/ordinary-inout-direct-alias, design.md Decisions
-   ! 1-4: resolves a destination item declared an ordinary inout borrower
-   ! (16-inout-items.md REQ-INOUT-001, direct-alias case only). Reuses
-   ! find_export_node_id/find_mismatched_characteristics exactly as
-   ! resolve_one's own ordinary (non-inout) path does for the REQ-EXT-003
-   ! no-op comparison - owner and borrower come to share one underlying
-   ! payload through the same materialization path ordinary no-op
-   ! connections already use, since the forward edge below is wired
-   ! identically. On an exact match, also adds a return-network edge
-   ! (borrower -> owner) in a fresh per-pairing network (Decision 2,
-   ! revised - mirrors callback wiring's own per-binding
-   ! create_network() precedent) so the pairing satisfies REQ-DEP-008a by
-   ! construction (forward writes the borrower's NodeId, return writes
-   ! the owner's NodeId - two different ids, never the same network).
-   ! Every shape REQ-INOUT-002 reserves for a future design addendum
-   ! (mismatched payload, no identifiable owner, chained/recursive
-   ! borrowing) is rejected here and reported via `unsupported`, never
-   ! delegated to extension-chain construction. Decision 3 (revised):
-   ! this subroutine lands graph structure only - the runtime return-edge
-   ! propagation trigger is explicitly deferred (no borrower-execution-
-   ! completion hook exists yet to attach it to).
-   !
-   ! openspec/changes/graph-builder-stateitem-resolution: dst_node (the
-   ! borrower's own already-advertised StateItemNode) replaces the
-   ! borrower's var_spec throughout.
+   ! Resolves a destination declared an ordinary inout borrower (direct-alias
+   ! case only). Reuses find_export_node_id/find_mismatched_characteristics
+   ! as resolve_one's ordinary path does for the exact-match check. On an
+   ! exact match, adds the forward edge (owner -> borrower) in the default
+   ! network and a return edge (borrower -> owner) in a fresh per-pairing
+   ! network, so no network ever has two producers of one NodeId. Shapes
+   ! reserved for a future design (mismatched payload, no identifiable
+   ! owner, chained borrowing) are rejected via `unsupported`, never
+   ! delegated to extension-chain construction. Only graph structure is
+   ! built here; the runtime return-edge propagation trigger does not exist
+   ! yet.
    module subroutine resolve_inout_destination(this, src_pt, dst_pt, dst_node, effective_src_name, unsupported, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ConnectionPt), intent(in) :: src_pt
@@ -1459,46 +1054,25 @@ contains
       import_node_id = resolve_local_node_id(this, dst_pt%component_name, &
            ESMF_STATEINTENT_IMPORT, dst_node%get_short_name(), _RC)
 
-      ! openspec/changes/simpleconnection-graph-resolution: source
-      ! lookup key is the connection's own EFFECTIVE source name
-      ! (effective_src_name, computed by the caller via
-      ! effective_source_name) - same reasoning as resolve_one's own
-      ! exact-match export lookup; a SimpleConnection's own declared
-      ! source name may differ from dst_node's own short name.
+      ! Source lookup key is the effective source name (see resolve_one).
       has_owner = find_export_node_id(this, src_pt%component_name, effective_src_name, &
            owner_node_id, owner_node, _RC)
 
       if (.not. has_owner) then
-         ! spec "A borrower declaration with no identifiable owner is
-         ! rejected" - reported, never silently treated as an ordinary
+         ! No identifiable owner: reported, never silently treated as an ordinary
          ! import.
          call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
               'inout borrower has no identifiable owner'))
          _RETURN(_SUCCESS)
       end if
 
-      ! spec "A chained borrowing pairing is rejected": owner_node
-      ! (found above via find_export_node_id) is always the EXPORT-intent
-      ! node on the source component - is_inout_borrower() is only ever
-      ! true on an IMPORT-intent node (a borrower marks itself, not
-      ! whoever re-exports its value), so checking
-      ! owner_node%is_inout_borrower() directly would never detect
-      ! chaining. Instead, check whether the source component itself
-      ! separately declares a same-short-name IMPORT node marked an
-      ! inout borrower - i.e. the value this destination would borrow is
-      ! itself borrowed by its own owning component - via a scan over
-      ! the owner's own import ports (the node-based replacement for the
-      ! now-removed find_inout_borrower_var_spec, tasks.md 4.3).
-      !
-      ! openspec/changes/simpleconnection-graph-resolution: "same short
-      ! name" means the OWNER's own short name (owner_node's, already
-      ! correctly resolved above via effective_src_name) - not
-      ! dst_node's own (destination-side) short name, which may differ
-      ! for a SimpleConnection with src_name/=dst_name. Comparing
-      ! against dst_node%get_short_name() here was the identical
-      ! substitution bug one level down: it would check the OWNER's
-      ! import ports for a name that only matches by coincidence when
-      ! src_name==dst_name.
+      ! Chained borrowing: owner_node is the source's EXPORT-intent node, and
+      ! is_inout_borrower() is only true on IMPORT-intent nodes, so checking it
+      ! directly would never detect chaining. Instead scan the owner
+      ! component's import ports for an inout-borrower IMPORT with the owner's
+      ! short name (i.e. the value being borrowed is itself borrowed). The name
+      ! compared is the OWNER's (owner_node), not dst_node's, which may differ
+      ! for a SimpleConnection.
       owner_meta => resolve_qualified_component(this, src_pt%component_name, _RC)
       owner_graph => owner_meta%get_component_graph()
       owner_import_ports = owner_graph%get_import_ports()
@@ -1533,19 +1107,17 @@ contains
       mismatched = find_mismatched_characteristics(owner_item%get_characteristics(), borrower_item%get_characteristics())
 
       if (size(mismatched) /= 0) then
-         ! spec "A mismatched pairing is rejected rather than silently
-         ! chained" - REQ-INOUT-002 reserves the non-direct-alias case;
-         ! this capability MUST NOT delegate to extension-chain
-         ! construction the way ordinary (non-inout) resolution does.
+         ! A mismatched pairing is rejected rather than chained: the
+         ! non-direct-alias case is reserved, so extension-chain construction must
+         ! not be used.
          call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
               'inout borrower payload does not exactly match its owner (non-direct-alias case not supported)'))
          _RETURN(_SUCCESS)
       end if
 
-      ! REQ-INOUT-001 direct-alias case: forward edge in the default
-      ! network (identical wiring to the ordinary REQ-EXT-003 no-op
-      ! case), plus a return edge in a fresh per-pairing network - no
-      ! TransformGraphNode for either edge.
+      ! Direct-alias case: forward edge in the default network (as in the
+      ! ordinary exact-match case) plus a return edge in a fresh per-pairing
+      ! network. No TransformGraphNode for either.
       call graph%add_dependency(net_id, owner_node_id, import_node_id, _RC)
 
       return_net_id = graph%create_network(_RC)
@@ -1554,24 +1126,13 @@ contains
       _RETURN(_SUCCESS)
    end subroutine resolve_inout_destination
 
-   ! openspec/changes/phase-11a-export-field-aliasing, design.md D1/D2/
-   ! D3/D4/D5: materializes node_id's StateItemNode payload as a real
-   ! MAPL_NamedAlias of the export component's own real, already-
-   ! realized field - read directly off that component's own real
-   ! export ESMF_State via a plain ESMF_StateGet (no StateRegistry
-   ! involvement, D1) - instead of calling try_materialize_field_extension's
-   ! own FieldCreate path. Tried BEFORE try_materialize_field_extension at
-   ! both of resolve_one's own export_node_id call sites (D4): if
-   ! found is true here, the caller skips try_materialize_field_extension
-   ! entirely (the alias already gives the node a real field). If
-   ! found is false (the export's own real field is not yet available
-   ! by name - D2), this returns success, not an error, and the caller
-   ! falls back to today's unchanged try_materialize_field_extension
-   ! call.
-   !
-   ! openspec/changes/graph-builder-stateitem-resolution: export_var_spec
-   ! replaced by export_short_name (a plain character argument) - this
-   ! procedure only ever read %short_name off it, never any other field.
+   ! Materializes node_id's payload as a MAPL_NamedAlias of the export
+   ! component's real, already-realized field, read by name from that
+   ! component's export ESMF_State (no StateRegistry). Tried BEFORE
+   ! try_materialize_field_extension at resolve_one's export_node_id call
+   ! sites: if found, the caller skips the FieldCreate path. If the field is
+   ! not yet available by name (two-pass timing), returns success with
+   ! found = .false. and the caller falls back to FieldCreate.
    module subroutine try_alias_export_field(this, export_comp_name, export_short_name, &
         graph, node_id, found, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
@@ -1600,11 +1161,9 @@ contains
       export_states = export_driver%get_states()
       call export_states%get_state(export_state, ESMF_STATEINTENT_EXPORT, _RC)
 
-      ! D1: plain ESMF-level by-name read - not a hard failure if the
-      ! item is not yet present (D2's two-pass timing concern); checked
-      ! via itemType, the same "present/absent" idiom
-      ! FieldClassAspect%add_to_state already uses, rather than trusting
-      ! ESMF_StateGet's own rc to distinguish "absent" from "present."
+      ! Plain by-name read; an absent item is not a failure (the field may not
+      ! exist yet). Checked via itemType, as FieldClassAspect%add_to_state
+      ! does, rather than trusting ESMF_StateGet's rc.
       call ESMF_StateGet(export_state, itemName=export_short_name, itemType=item_kind, _RC)
       if (item_kind == ESMF_STATEITEM_NOTFOUND) then
          _RETURN(_SUCCESS)
@@ -1612,27 +1171,18 @@ contains
 
       call ESMF_StateGet(export_state, itemName=export_short_name, field=field, _RC)
 
-      ! D5: MAPL_NamedAlias, not a hand-rolled ESMF_NamedAlias - carries
-      ! MAPL's own per-alias-id metadata (standard_name/long_name/
-      ! restart_mode), same as populate_one's own precedent.
+      ! MAPL_NamedAlias (not a bare ESMF_NamedAlias) carries MAPL's per-alias
+      ! metadata (standard_name/long_name/restart_mode), as populate_one does.
       alias = MAPL_NamedAlias(field, name=export_short_name, _RC)
 
       node => graph%get_node(node_id)
       _ASSERT(associated(node), 'GraphBuilder: try_alias_export_field - NodeId not found in graph')
       select type (node)
       class is (StateItemNode)
-         ! openspec/changes/hierarchy-wide-component-graph, found during
-         ! implementation: with proxy nodes retired, node_id is now the
-         ! real, already-advertised export node (characteristics already
-         ! established by advertise_one), not a freshly-created,
-         ! always-empty parent-local proxy. A wholesale set_payload()
-         ! call here would discard that node's own established
-         ! characteristics (typekind/units, read later by
-         ! get_item_typekind/get_item_units) along with its payload -
-         ! mutate the existing payload IN PLACE via get_payload_ptr()
-         ! instead (same idiom populate_characteristics,
-         ! GraphBuilder_Advertising_smod.F90, already uses for exactly
-         ! this reason), so only the field handle changes.
+         ! node_id is the real, already-advertised export node. A wholesale
+         ! set_payload() would discard its established characteristics
+         ! (typekind/units); mutate the payload in place via get_payload_ptr() so
+         ! only the field handle changes (as populate_characteristics does).
          payload => node%get_payload_ptr()
          call payload%set(alias, _RC)
       class default
@@ -1644,34 +1194,17 @@ contains
       _RETURN(_SUCCESS)
    end subroutine try_alias_export_field
 
-   ! extension-registry-visibility change, task groups 2/3: when the
-   ! materialization gate (mapl_ExtensionResolution_mod) is enabled,
-   ! give a resolved units-mismatch extension chain's final item a real,
-   ! allocated ESMF_Field for a Field-typed export/import pair (design.md
-   ! Decisions - "Materialize a real Field natively via FieldCreate"), or
-   ! report an explicit, distinguishable failure_reason (empty string on
-   ! success) for anything this capability cannot materialize a payload
-   ! for - a non-Field item class on either side (design.md Decisions
-   ! "Scope limited to Field-typed items"), or an unresolvable geom
-   ! (design.md Decisions "Geom/vgrid resolution order" case (c)).
-   ! openspec/changes/phase-10a-state-materialization: optional `name`,
-   ! passed through unmodified to materialize_field_extension()'s own
-   ! new `name` argument - omitted by the mismatch-branch call site
-   ! (unchanged, unnamed-field behavior), supplied by the new exact-
-   ! match-branch call site (the export's own short_name) so graph-
-   ! native state population can find it by name once inserted into a
-   ! real ESMF_State.
+   ! Gives a resolved extension chain's final item a real ESMF_Field (via
+   ! FieldCreate) for a Field-typed export/import pair. Otherwise sets
+   ! failure_reason (empty on success): a non-Field item class on either
+   ! side, or an unresolvable geom.
+   ! Optional `name` is passed through to materialize_field_extension so
+   ! graph-native state population can find the field by name once it is
+   ! inserted into an ESMF_State.
    !
-   ! openspec/changes/graph-builder-stateitem-resolution, design.md
-   ! correction: export_item/import_item are the two already-resolved
-   ! sides' own GraphStateItem payloads (read directly off their
-   ! StateItemNodes by the caller) - no VariableSpec reference needed
-   ! (proposal.md "nothing downstream should need to walk back to the
-   ! originating VariableSpec"). itemType/units/typekind/ungridded_dims/
-   ! vertical_stagger are all read from export_item/import_item's own
-   ! declared_item_type/characteristics/ungridded_dims/vertical_stagger
-   ! fields (populated once by advertise_one, task 2.2/2.3 and the
-   ! design.md correction extending it).
+   ! export_item/import_item are the two sides' GraphStateItem payloads; item
+   ! type, units, typekind, ungridded_dims and vertical_stagger are read from
+   ! them directly, with no VariableSpec lookup.
    subroutine try_materialize_field_extension(this, export_comp_name, export_item, import_item, &
         graph, node_id, failure_reason, name, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
@@ -1696,17 +1229,10 @@ contains
 
       failure_reason = ''
 
-      ! openspec/changes/phase-7a-shape-dispatch-wiring, design.md D5:
-      ! the EXPORT-side check admits BRACKET alongside FIELD - a
-      ! bracket export resolving a mismatch through
-      ! ItemShapeCharacteristic's chain into a field import is
-      ! materialized via this same, unmodified FieldCreate path below
-      ! (materialize_field_extension only ever builds a plain Field,
-      ! never a bracket - Non-Goals). The IMPORT-side check stays
-      ! FIELD-only - a bracket is never a valid import shape, matching
-      ! legacy BracketClassAspect%connect_to_export's own
-      ! unconditional "cannot be an import" precedent (design.md
-      ! Context).
+      ! The export side admits BRACKET alongside FIELD: a bracket export
+      ! resolved through ItemShapeCharacteristic's chain into a field import is
+      ! materialized via the same FieldCreate path (always a plain Field). The
+      ! import side stays FIELD-only: a bracket is never a valid import shape.
       if (.not. (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
            .or. export_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET)) then
          failure_reason = 'unsupported_item_class:' // itemtype_name(export_item%get_declared_item_type())
@@ -1723,11 +1249,9 @@ contains
 
       call resolve_export_geom(export_item, export_meta, geom, has_geom, _RC)
       if (.not. has_geom) then
-         ! design.md Decisions "Geom/vgrid resolution order" case (c):
-         ! neither the export's own declared geom nor the owning
-         ! OuterMetaComponent has a concrete geom - distinguishable from
-         ! both the "unsupported item class" case above and 3c's own
-         ! "unregistered characteristic fails loudly."
+         ! Neither the export's declared geom nor the owning OuterMetaComponent has
+         ! a concrete geom; distinguishable from "unsupported item class" and
+         ! "unregistered characteristic".
          failure_reason = 'unresolved_geom'
          _RETURN(_SUCCESS)
       end if
@@ -1746,12 +1270,8 @@ contains
          call export_item%get_vertical_stagger(declared_vertical_stagger)
          if (allocated(declared_vertical_stagger)) vert_staggerloc = declared_vertical_stagger
 
-         ! openspec/changes/phase-10c-typekind-characteristic, design.md
-         ! D4: typekind/units are the IMPORT's own values (not the
-         ! export's), matching this procedure's own pre-existing
-         ! precedent - the materialized item's real payload must match
-         ! what the IMPORT requires, not what the export happened to
-         ! produce.
+         ! typekind/units are the IMPORT's values: the materialized payload must
+         ! match what the import requires, not what the export produced.
          call materialize_field_extension(graph, node_id, geom=geom, typekind=import_typekind, &
               units=import_units, ungridded_dims=export_item%get_ungridded_dims(), &
               vgrid=vgrid, vert_staggerloc=vert_staggerloc, name=name, _RC)
@@ -1763,16 +1283,9 @@ contains
       _RETURN(_SUCCESS)
    end subroutine try_materialize_field_extension
 
-   ! openspec/changes/graph-builder-stateitem-resolution, design.md
-   ! correction: recovers a GraphStateItem's own established
-   ! PHYSICAL_UNITS_CHARACTERISTIC_KIND entry (populated once by
-   ! advertise_one, task 2.2) as a plain string - the node-based
-   ! equivalent of reading var_spec%units directly. Returns '' if the
-   ! characteristic was never established (mirrors
-   ! `allocated(var_spec%units)`'s own "not declared" gate - an item
-   ! advertised with no explicit units never gets this characteristic
-   ! kind inserted, build_characteristics' own prior behavior, moved
-   ! verbatim).
+   ! Recovers a GraphStateItem's PHYSICAL_UNITS characteristic as a plain
+   ! string. Returns '' if never established: an item advertised with no
+   ! explicit units never gets this characteristic inserted.
    function get_item_units(item, rc) result(units)
       type(GraphStateItem), intent(in) :: item
       integer, optional, intent(out) :: rc
@@ -1797,11 +1310,8 @@ contains
       _RETURN(_SUCCESS)
    end function get_item_units
 
-   ! Same role as get_item_units() above, for
-   ! TYPE_KIND_CHARACTERISTIC_KIND - always established (advertise_one
-   ! inserts it unconditionally, task 2.2, mirroring
-   ! build_characteristics' own prior unconditional insert), so this
-   ! never hits the "not established" case in production.
+   ! Same role as get_item_units(), for TYPE_KIND_CHARACTERISTIC_KIND. Always
+   ! established (advertise_one inserts it unconditionally).
    function get_item_typekind(item, rc) result(type_kind)
       type(GraphStateItem), intent(in) :: item
       integer, optional, intent(out) :: rc
@@ -1824,21 +1334,13 @@ contains
       _RETURN(_SUCCESS)
    end function get_item_typekind
 
-   ! openspec/changes/phase-11b-chain-intermediate-materialization,
-   ! design.md D4: materializes every entry of intermediate_node_ids (in
-   ! order) with that link's own correctly-evolved typekind/units
-   ! (merged_item_for_link, D2 below) - replacing each of the four
-   ! find_or_build_extension_chain call sites' own single final-node
-   ! try_materialize_field_extension call. Resolves geom/vgrid once
-   ! (resolve_export_geom/resolve_export_vgrid, unchanged) and reuses it
-   ! for every link, since GEOM_CHARACTERISTIC_ID never appears in
-   ! build_characteristics' own mismatch set (design.md Context).
-   ! Stops at the first link whose materialization fails, returning the
-   ! same distinguishable failure_reason try_materialize_field_extension
-   ! itself already produces - callers' own existing failure-reporting is
-   ! unchanged. mismatched_kinds MUST be the same array
-   ! find_or_build_extension_chain was called with (the resolution order
-   ! intermediate_node_ids is parallel to).
+   ! Materializes every entry of intermediate_node_ids (in order) with that
+   ! link's own evolved typekind/units (merged_item_for_link). Resolves
+   ! geom/vgrid once from export_item and reuses them for every link. Stops
+   ! at the first failing link, returning try_materialize_field_extension's
+   ! failure_reason. mismatched_kinds MUST be the array
+   ! find_or_build_extension_chain was called with (intermediate_node_ids is
+   ! parallel to it).
    subroutine materialize_extension_chain(this, export_comp_name, export_item, import_item, &
         mismatched_kinds, intermediate_node_ids, graph, failure_reason, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
@@ -1865,9 +1367,8 @@ contains
 
       failure_reason = ''
 
-      ! openspec/changes/phase-7a-shape-dispatch-wiring, design.md D5:
-      ! identical export-side admission as try_materialize_field_
-      ! extension above - the import-side check stays FIELD-only.
+      ! Same export-side admission as try_materialize_field_extension; the
+      ! import side stays FIELD-only.
       if (.not. (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
            .or. export_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET)) then
          failure_reason = 'unsupported_item_class:' // itemtype_name(export_item%get_declared_item_type())
@@ -1913,18 +1414,11 @@ contains
       _RETURN(_SUCCESS)
    end subroutine materialize_extension_chain
 
-   ! openspec/changes/phase-11b-chain-intermediate-materialization,
-   ! design.md D2 (node-based, design.md correction): link i's own
-   ! materialized typekind/units is the IMPORT item's own value for
-   ! every StateItemCharacteristicKind in mismatched_kinds(1:i) (already
-   ! "converted" by that point in the chain) and the EXPORT item's own
-   ! value otherwise. At i == size(mismatched_kinds) this exactly
-   ! reduces to try_materialize_field_extension's own existing
-   ! final-node formula (every mismatched kind has import's value) - no
-   ! behavior change for the single-characteristic case. _FAIL
-   ! explicitly for any StateItemCharacteristicKind outside the three
-   ! this helper knows how to translate ("unregistered characteristic
-   ! fails loudly" applies to this translation step too).
+   ! Link i's materialized typekind/units is the IMPORT item's value for each
+   ! kind in mismatched_kinds(1:i) (already converted by that point) and the
+   ! EXPORT item's otherwise. At i == size(mismatched_kinds) this is the
+   ! final-node formula of try_materialize_field_extension. _FAILs for any
+   ! kind it cannot translate.
    subroutine merged_item_for_link(export_item, import_item, mismatched_kinds, i, units, type_kind, rc)
       type(GraphStateItem), intent(in) :: export_item
       type(GraphStateItem), intent(in) :: import_item
@@ -1951,45 +1445,26 @@ contains
          else if (mismatched_kinds(j) == TYPE_KIND_CHARACTERISTIC_KIND) then
             typekind_converted = .true.
          else if (mismatched_kinds(j) == VERTICAL_COORDINATE_CHARACTERISTIC_KIND) then
-            ! Vertical grid has no concrete field-materialization
-            ! parameter today (materialize_field_extension's own vgrid/
-            ! vert_staggerloc are resolved once from export_item, outside
-            ! this per-link loop, by materialize_extension_chain itself -
-            ! unaffected by this helper). Nothing to merge here;
-            ! VerticalCoordinateCharacteristic%build_transform always
-            ! fails, so this branch is unreachable in practice, but is
-            ! enumerated explicitly rather than falling into the _FAIL
-            ! default below.
+            ! Vertical grid is resolved once by materialize_extension_chain, not per
+            ! link; nothing to merge. build_transform for this kind always fails, so
+            ! this is unreachable in practice, but it is enumerated so a mismatch
+            ! fails with build_chain's message rather than the _FAIL below.
          else if (mismatched_kinds(j) == ITEM_SHAPE_CHARACTERISTIC_KIND) then
-            ! openspec/changes/phase-7a-shape-dispatch-wiring,
-            ! design.md D5: nothing for this helper to merge - the
-            ! materialized node's own shape is always a plain Field,
-            ! decided unconditionally by materialize_field_extension's
-            ! own FieldCreate call (never by anything this helper
-            ! computes). Enumerated explicitly so a genuine
-            ! BRACKET->FIELD mismatch that somehow does not reach a
-            ! real Transform fails with build_chain's own correct
-            ! unsupported_characteristic message, rather than this
-            ! helper's own unrelated "unrecognized
-            ! StateItemCharacteristicKind" assertion below.
+            ! Nothing to merge: the materialized node is always a plain Field,
+            ! decided by materialize_field_extension. Enumerated so a BRACKET->FIELD
+            ! mismatch that does not reach a real Transform fails with build_chain's
+            ! unsupported-characteristic message, not the "unrecognized" assertion
+            ! below.
          else if (mismatched_kinds(j) == ATTRIBUTES_CHARACTERISTIC_KIND .or. &
                   mismatched_kinds(j) == UNGRIDDED_DIMS_CHARACTERISTIC_KIND .or. &
                   mismatched_kinds(j) == STANDARD_NAME_CHARACTERISTIC_KIND .or. &
                   mismatched_kinds(j) == QUANTITY_TYPE_CHARACTERISTIC_KIND .or. &
                   mismatched_kinds(j) == CONSERVATION_CHARACTERISTIC_KIND .or. &
                   mismatched_kinds(j) == NORMALIZATION_CHARACTERISTIC_KIND) then
-            ! openspec/changes/phase-12-characteristic-dispatch-wiring,
-            ! design.md D3: none of these six axes has a real
-            ! build_transform (every one _FAILs explicitly, by 5a2's own
-            ! design), so none can actually appear here in practice -
-            ! build_chain would already have _FAILed, with the correct
-            ! "unsupported characteristic" message, before
-            ! merged_item_for_link is ever reached for a chain containing
-            ! one of these kinds. Enumerated explicitly, mirroring the
-            ! vertical-coordinate branch immediately above, so that a
-            ! genuine mismatch on one of these axes fails with THAT
-            ! message rather than this helper's own unrelated
-            ! "unrecognized StateItemCharacteristicKind" assertion below.
+            ! None of these axes has a real build_transform (each _FAILs), so
+            ! build_chain fails first and none can reach here in practice. Enumerated
+            ! so a mismatch on one fails with that message, not the "unrecognized"
+            ! assertion below.
          else
             assertion_message = 'GraphBuilder: merged_item_for_link - unrecognized StateItemCharacteristicKind: ' // &
                  mismatched_kinds(j)%to_string()
@@ -2002,29 +1477,18 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine merged_item_for_link
-   ! Resolves a (component, intent, short_name) reference to the item's
-   ! own real NodeId, wherever it actually lives in the hierarchy:
-   !  - "<self>"/this's own name: the item's own NodeId, in THIS
-   !    component's own graph (must already have been advertised -
-   !    graphbuilder_advertise() runs first).
-   !  - a named descendant (direct child or any further-qualified
-   !    `/`-separated path): the descendant's own real NodeId, read
-   !    directly from that descendant's own ComponentGraph via
-   !    resolve_qualified_component's existing one-directional tree walk
-   !    (never resolves upward past `this`, per graph/component-
-   !    hierarchy's "Connection endpoint resolution never resolves
-   !    upward past its declaring component" requirement - the walk
-   !    itself has no "go to my parent" code path to begin with, so this
-   !    is structural, not merely checked).
+   ! Resolves a (component, intent, short_name) reference to the item's real
+   ! NodeId:
+   !  - "<self>"/this's own name: this component's graph (the item must
+   !    already have been advertised - graphbuilder_advertise() runs first).
+   !  - a named descendant (direct child or `/`-separated path): the
+   !    descendant's own NodeId, read from its ComponentGraph via
+   !    resolve_qualified_component. The walk only goes downward, so a
+   !    connection endpoint never resolves upward past `this`.
    !
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.1/3.2:
-   ! replaces get_or_make_local_node_id's own proxy-creation branch -
-   ! with node/network storage shared hierarchy-wide (graph/component-
-   ! hierarchy's "One shared hierarchy-wide graph store" requirement), a
-   ! descendant's own real NodeId is already a valid edge endpoint from
-   ! any calling component's own ComponentGraph%add_dependency() (see
-   ! that method's own header comment in ComponentGraph.F90); no
-   ! parent-local stand-in node is created, cached, or returned.
+   ! Node/network storage is shared hierarchy-wide, so a descendant's NodeId
+   ! is already a valid edge endpoint for this component's
+   ! ComponentGraph%add_dependency; no parent-local stand-in node is created.
    function resolve_local_node_id(this, comp_name, state_intent, short_name, rc) result(node_id)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: comp_name
@@ -2052,55 +1516,18 @@ contains
 
       _RETURN(_SUCCESS)
    end function resolve_local_node_id
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.8
-   ! (regression fix, found while verifying export propagation against
-   ! real-lifecycle fixtures history_wildcard/statistics_real): an
-   ! import advertised with a non-ordinary declared item type -
-   ! MAPL_STATEITEM_SERVICE - has no graph-native resolution path at
-   ! all (GraphBuilder.F90's own module header, "Explicitly NOT in
-   ! scope here: ... wildcard/callback resolution"). (openspec/changes/
-   ! phase-7b-expression-dispatch-wiring, design.md D6: MAPL_STATEITEM_
-   ! EXPRESSION is no longer part of this group - see
-   ! graphbuilder_run_expression_hook/is_ordinary_resolvable_import's
-   ! own updated header comment below.) (openspec/changes/
-   ! phase-7c-wildcard-dispatch-wiring, design.md D6: MAPL_STATEITEM_
-   ! WILDCARD is also no longer part of this group - resolve_one's own
-   ! new branch, resolve_wildcard_destination above, now gives it a
-   ! real graph-native resolution path; MAPL_STATEITEM_SERVICE remains
-   ! excluded, unchanged - Phase 6b's own retire-via-callbacks concern,
-   ! out of scope here.) graphbuilder_unresolved_import_node_ids (import
-   ! propagation's own source scan) must exclude such an import BEFORE
-   ! considering it unresolved-and-propagatable - propagating it
-   ! upward would expose it to an ordinary ancestor connection
-   ! (e.g. all_unsatisfied) that can never resolve it either, since the
-   ! item's own real resolution mechanism lives entirely in
-   ! StateRegistry, never in ComponentGraph's import-port table at
-   ! all. Before this change's own import propagation existed, such an
-   ! import simply never reached any ancestor's own import-port table
-   ! (no mechanism moved it there), so this exclusion is restoring a
-   ! pre-existing invisibility, not introducing a new one.
+   ! Does this import have a graph-native resolution path? SERVICE does not:
+   ! its resolution lives entirely in StateRegistry, never in the
+   ! ComponentGraph import-port table.
+   ! graphbuilder_unresolved_import_node_ids must exclude such an import
+   ! BEFORE treating it as unresolved-and-propagatable: propagating it would
+   ! expose it to an ancestor connection (e.g. all_unsatisfied) that can
+   ! never resolve it either.
    !
-   ! MAPL_STATEITEM_VECTOR/MAPL_STATEITEM_BRACKET are deliberately NOT
-   ! excluded here: a composite's own real resolution (each flattened
-   ! member resolved individually by advertise_one/materialize_composite's
-   ! own member nodes) IS ordinary graph-native resolution - task 6.8
-   ! does not need to special-case either.
-   !
-   ! openspec/changes/phase-7b-expression-dispatch-wiring, design.md D6:
-   ! MAPL_STATEITEM_EXPRESSION's own exclusion arm is removed - unlike
-   ! WILDCARD/SERVICE (still genuinely unmaterializable here -
-   ! Phase 7c), a real graph-native resolution mechanism now exists for
-   ! EXPRESSION (graphbuilder_run_expression_hook above), so it no
-   ! longer belongs in this "never treat as unresolved-and-
-   ! propagatable" exclusion list.
-   !
-   ! openspec/changes/phase-7c-wildcard-dispatch-wiring, design.md D6:
-   ! MAPL_STATEITEM_WILDCARD's own exclusion arm is removed by this same
-   ! reasoning, one line - resolve_one's new branch
-   ! (resolve_wildcard_destination) now gives it a real graph-native
-   ! resolution path too. MAPL_STATEITEM_SERVICE remains excluded,
-   ! unchanged (Phase 6b's own retire-via-callbacks concern, out of
-   ! scope here).
+   ! VECTOR/BRACKET are not excluded: a composite's members are resolved
+   ! individually as ordinary graph nodes. EXPRESSION and WILDCARD are not
+   ! excluded either: graphbuilder_run_expression_hook and
+   ! resolve_wildcard_destination resolve them.
    logical function is_ordinary_resolvable_import(node) result(is_ordinary)
       class(StateItemNode), intent(in) :: node
 
@@ -2112,19 +1539,13 @@ contains
 
       is_ordinary = .not. (declared_type == MAPL_STATEITEM_SERVICE)
    end function is_ordinary_resolvable_import
-   ! openspec/changes/phase-7b-expression-dispatch-wiring, design.md D2:
-   ! for each of `this`'s own advertised StateItemNodes whose
-   ! get_declared_item_type() == MAPL_STATEITEM_EXPRESSION, resolves its
-   ! N named variable references against already-advertised sibling
-   ! exports and builds the real ExpressionTransform wiring - a
-   ! dedicated hook, not an extension of resolve_one (pairwise, no
-   ! destination/import side exists for this resolution at all) or
-   ! ExtensionResolution.F90's build_chain (fixed 1:1 this/goal
-   ! interface, cannot grow to N - see design.md D2's own rejected
-   ! alternatives). Idempotent: guarded by an 'EXPRHOOK:' resource-index
-   ! entry keyed off each expression item's own NodeId (D2 step 6),
-   ! mirroring resolve_callback_destination's own idempotency idiom
-   ! immediately below.
+   ! For each of `this`'s advertised StateItemNodes declared EXPRESSION,
+   ! resolves its N named variable references against already-advertised
+   ! sibling exports and builds the ExpressionTransform wiring. A dedicated
+   ! hook because the resolution is N-ary: resolve_one is pairwise and
+   ! build_chain has a fixed 1:1 interface. Idempotent: guarded by an
+   ! 'EXPRHOOK:' resource-index entry keyed off each item's NodeId, as
+   ! resolve_callback_destination does.
    module subroutine graphbuilder_run_expression_hook(this, unusable, unresolved, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
@@ -2151,10 +1572,7 @@ contains
          if (.not. associated(generic_node)) cycle
          select type (generic_node)
          class is (StateItemNode)
-            ! NAG rejects chaining a method call directly on another
-            ! function call's own result (`f()%method()`) - a local
-            ! temporary is required (same convention this file's other
-            ! procedures already follow).
+            ! NAG rejects `f()%method()` on a function result; use a local temporary.
             payload = generic_node%get_payload()
             if (.not. (payload%get_declared_item_type() == MAPL_STATEITEM_EXPRESSION)) cycle
             call resolve_expression_item(this, graph, generic_node, local_unresolved, _RC)
@@ -2167,9 +1585,9 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine graphbuilder_run_expression_hook
 
-   ! Per-item worker for graphbuilder_run_expression_hook above
-   ! (design.md D2 steps 1-6). node is one already-advertised
-   ! EXPRESSION-typed StateItemNode owned by this's own graph.
+   ! Per-item worker for graphbuilder_run_expression_hook. node is one
+   ! already-advertised EXPRESSION-typed StateItemNode owned by this's
+   ! graph.
    subroutine resolve_expression_item(this, graph, node, unresolved, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ComponentGraph), target, intent(inout) :: graph
@@ -2187,13 +1605,9 @@ contains
       type(StringVectorIterator) :: iter
       character(:), pointer :: name
       type(NodeId), allocatable :: source_ids(:)
-      ! design.md D2 step 4: gfortran rejects growing a deferred-length
-      ! CHARACTER array via an array constructor whose elements have
-      ! different lengths ([source_names, name], "Different CHARACTER
-      ! lengths in array constructor") - a StringVector (already used
-      ! for referenced_names above) carries elements of differing
-      ! length natively, so port names are accumulated there instead,
-      ! in the same order as source_ids.
+      ! gfortran rejects growing a deferred-length CHARACTER array with an array
+      ! constructor of differing lengths; accumulate port names in a
+      ! StringVector, in source_ids order.
       type(StringVector) :: source_names
       type(StringVectorIterator) :: source_names_iter
       character(:), pointer :: source_name
@@ -2209,17 +1623,14 @@ contains
 
       node_id = node%get_node_id()
 
-      ! design.md D2 step 6: idempotency guard.
+      ! Idempotency guard.
       hook_key = 'EXPRHOOK:' // node_id%to_string()
       existing => graph%get_resource_index(hook_key)
       if (associated(existing)) then
          _RETURN(_SUCCESS)
       end if
 
-      ! NAG rejects chaining a method call directly on another
-      ! function call's own result (`f()%method()`) - a local
-      ! temporary is required (same convention this file's other
-      ! procedures already follow).
+      ! NAG rejects `f()%method()` on a function result; use a local temporary.
       payload = node%get_payload()
       call payload%get_declared_expression(expression)
       referenced_names = parser_variables_in_expression(expression, _RC)
@@ -2246,14 +1657,12 @@ contains
          end do
       end associate
 
-      ! design.md D2 step 3: a referenced name with no matching sibling
-      ! export is reported (above) and the transform is simply not
-      ! built for this item - not a hard failure.
+      ! A referenced name with no matching sibling export is reported above;
+      ! the transform is not built for this item (not a hard failure).
       if (.not. all_resolved) then
          _RETURN(_SUCCESS)
       end if
 
-      ! design.md D2 steps 4-5.
       transformer = ExpressionTransform(expression, _RC)
       transform_id = graph%next_node_id(_RC)
       call graph%register_node(TransformGraphNode(transform_id, transformer), _RC)
@@ -2279,23 +1688,14 @@ contains
    end subroutine resolve_expression_item
 
    ! Orchestrates one callback-declaring destination's full resolution:
-   ! wildcard match + interface conformance (resolve_callback_import
-   ! above), materialization (materialize_callback_collection above),
-   ! wiring to the already-advertised destination import via an ordinary
-   ! add_dependency edge (design.md Decision 5 - the same "producer node
-   ! feeds a consumer import" shape ordinary/extension-chain resolution
-   ! already uses), and per-match CallbackStateBinding construction
-   ! (build_callback_state_binding, below). Idempotent: a resource-index
-   ! key derived from the destination import's own NodeId is checked
-   ! before rebuilding (mirrors find_or_build_extension_chain's own
-   ! chain_key reuse idiom) - a repeat resolve_connections() call is
-   ! then a no-op (spec scenario "Re-resolving the same connection does
-   ! not duplicate collection members").
-   !
-   ! openspec/changes/graph-builder-stateitem-resolution: var_spec
-   ! replaced by dst_short_name/expected_interface_id (plain arguments) -
-   ! this procedure only ever read %short_name/%callback_interface_id
-   ! off it.
+   ! wildcard match + interface conformance (resolve_callback_import),
+   ! materialization (materialize_callback_collection), wiring to the
+   ! advertised destination import via an ordinary add_dependency edge, and
+   ! per-match CallbackStateBinding construction
+   ! (build_callback_state_binding). Idempotent: a resource-index key derived
+   ! from the import's NodeId is checked first (as find_or_build_extension_chain's
+   ! chain_key is), so a repeat resolve_connections() call does not duplicate
+   ! collection members.
    subroutine resolve_callback_destination(this, src_pt, dst_pt, dst_short_name, expected_interface_id, rejected, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ConnectionPt), intent(in) :: src_pt
@@ -2336,29 +1736,13 @@ contains
       _RETURN(_SUCCESS)
    end subroutine resolve_callback_destination
 
-   ! openspec/changes/phase-7c-wildcard-dispatch-wiring (regression
-   ! fix, found via the history_wildcard real-lifecycle scenario):
-   ! dst's own ComponentGraph (resolve_qualified_component(this, dst_pt%
-   ! component_name)'s graph) does NOT necessarily own dst_node's own
-   ! NodeId - graphbuilder_run_propagate_hook (above) mirrors an
-   ! unresolved import UPWARD into every ancestor's own import-port
-   ! table by VALUE (add_import_port), never changing which
-   ! ComponentGraph's own own_node_ids record actually owns that NodeId
-   ! (design.md D3's own "no proxy, no new identity" contract) - so for
-   ! an all_unsatisfied-style connection declared several levels above
-   ! the import's real advertiser (history_wildcard: declared on 'cap'
-   ! for dst_comp='history', but the WILDCARD import is actually
-   ! advertised by history's own descendant 'collection_1'), dst_meta's
-   ! own graph (history's) does not own it - only collection_1's own
-   ! graph does. add_resource_index asserts owns_node() (ComponentGraph.
-   ! F90 line 795), so the resource-index guard/write must go through
-   ! whichever ComponentGraph in dst_meta's own subtree actually owns
-   ! dst_node_id - found by find_owning_component_graph, below -
-   ! instead of assuming dst_meta's own graph is always the owner the
-   ! way resolve_local_node_id's callers safely can for every OTHER
-   ! branch in this file (none of them is reached through a mirrored,
-   ! not-directly-advertised import the way an all_unsatisfied-style
-   ! WILDCARD resolution can be).
+   ! Finds the ComponentGraph in meta's subtree that owns node_id. A
+   ! destination's own graph does not necessarily own a destination import's
+   ! NodeId: graphbuilder_run_propagate_hook mirrors an unresolved import
+   ! upward into ancestors' import-port tables by VALUE, without changing
+   ! which graph owns the NodeId. For an all_unsatisfied-style connection
+   ! declared several levels above the import's advertiser, add_resource_index
+   ! (which asserts owns_node()) must therefore go through the owning graph.
    recursive function find_owning_component_graph(meta, node_id, rc) result(owning_graph)
       class(OuterMetaComponent), target, intent(inout) :: meta
       type(NodeId), intent(in) :: node_id
@@ -2394,23 +1778,13 @@ contains
       _RETURN(_SUCCESS)
    end function find_owning_component_graph
 
-   ! openspec/changes/phase-7c-wildcard-dispatch-wiring, design.md
-   ! D1-D5: resolves one WILDCARD-typed destination import by re-running
-   ! its own already-matched pattern (dst_pt%v_pt - the SAME regex
-   ! for_each_matching_import already used to find dst_node as a
-   ! destination) against the connection's own source export namespace
-   ! (build_qualified_export_namespace, callback-wiring's own cross-
-   ! level-qualified namespace primitive, reused as-is), and fanning the
-   ! result out into one composite member per match - bound onto
-   ! dst_node's own already-advertised NodeId in place (D1), not a
-   ! freshly-synthesized collection node the way materialize_callback_
-   ! collection mints one. Proposal.md's own "why this is a composite-
-   ! member fan-in problem, not a multi-producer DependencyNetwork
-   ! problem": every match is bound via add_state_member (pure
-   ! reference binding), never add_dependency - a WILDCARD import never
-   ! gains an edge in any DependencyNetwork through this path, exactly
-   ! like materialize_callback_collection's own per-match loop body
-   ! (D1/D3, reused unmodified).
+   ! Resolves one WILDCARD-typed destination import by re-running its own
+   ! declared pattern against the connection's source export namespace
+   ! (build_qualified_export_namespace) and fanning the result out into one
+   ! composite member per match, bound in place onto dst_node's own NodeId
+   ! rather than a freshly-synthesized collection node. Every match is bound
+   ! via add_state_member (pure reference binding), never add_dependency: a
+   ! WILDCARD import gains no DependencyNetwork edge through this path.
    subroutine resolve_wildcard_destination(this, src_pt, dst_pt, dst_node, unresolved, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ConnectionPt), intent(in) :: src_pt
@@ -2436,50 +1810,30 @@ contains
       type(NodeId) :: dst_node_id
       integer :: i, n
 
-      ! dst_node's own NodeId belongs to dst's own ComponentGraph OR to
-      ! some descendant of dst's (regression fix - see find_owning_
-      ! component_graph's own header comment above for the mirrored-
-      ! import case this handles: an all_unsatisfied-style connection
-      ! declared several levels above the import's real advertiser).
-      ! ComponentGraph%add_resource_index asserts owns_node(), so the
-      ! resource-index guard/write below must go through whichever
-      ! graph actually owns dst_node_id, not assumed to be dst_meta's
-      ! own graph directly the way resolve_local_node_id's callers
-      ! safely can for every OTHER branch in this file (D1 - unlike
-      ! resolve_callback_destination's own analogous guard, whose
-      ! collection_id is freshly minted on this's own graph via next_
-      ! node_id() and therefore never has this problem).
+      ! dst_node's NodeId belongs to dst's ComponentGraph or to a descendant's
+      ! (see find_owning_component_graph). add_resource_index asserts
+      ! owns_node(), so the resource-index guard/write below must use the
+      ! owning graph.
       dst_meta => resolve_qualified_component(this, dst_pt%component_name, _RC)
       dst_node_id = dst_node%get_node_id()
       graph => find_owning_component_graph(dst_meta, dst_node_id, _RC)
       _ASSERT(associated(graph), 'GraphBuilder: resolve_wildcard_destination - no ComponentGraph in dst subtree owns this import NodeId')
 
-      ! D4: idempotency, keyed off the import's own NodeId (not the
-      ! matched connection) - the same resource-index guard
-      ! resolve_callback_destination uses, substituting this import's
-      ! own already-real NodeId for a freshly-minted collection id.
+      ! Idempotency, keyed off the import's NodeId (as
+      ! resolve_callback_destination does).
       collection_key = 'WILDCARD_COLLECTION:' // dst_node_id%to_string()
       existing_collection => graph%get_resource_index(collection_key)
       if (associated(existing_collection)) then
          _RETURN(_SUCCESS)
       end if
 
-      ! D2: same source-side scan resolve_callback_import already
-      ! drives, substituting the EXPORT-side candidate for the
-      ! IMPORT-side one. The regex-bearing operand is NOT dst_pt%v_pt -
-      ! for an all_unsatisfied-style MatchConnection, dst_pt%v_pt is the
-      ! CONNECTION's own declared destination pattern (e.g. IMPORT,
-      ! '^.*$'), not the wildcard import's own declared pattern, and
-      ! VirtualConnectionPt%matches() compares state_intent first
-      ! (connection/VirtualConnectionPt.F90 line 240) - an IMPORT-
-      ! intent v_pt can never match an EXPORT-intent candidate,
-      ! regardless of its regex, so using dst_pt%v_pt directly here
-      ! would silently find zero matches for every wildcard import,
-      ! always. The wildcard import's own declared pattern lives on
-      ! dst_node itself (dst_node%get_short_name(), exactly as
-      ! for_each_matching_import already used it to find dst_node as a
-      ! destination in the first place) - rebuilt here with EXPORT
-      ! intent as the regex-bearing operand instead.
+      ! Same source-side scan resolve_callback_import drives, with the
+      ! EXPORT-side candidate. The regex-bearing operand must be the wildcard
+      ! import's own pattern (dst_node%get_short_name(), rebuilt with EXPORT
+      ! intent), NOT dst_pt%v_pt: for an all_unsatisfied-style connection that
+      ! is the connection's IMPORT-intent destination pattern, and
+      ! VirtualConnectionPt%matches() compares state_intent first, so it would
+      ! never match an EXPORT candidate.
       allocate(matches(0))
 
       wildcard_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, dst_node%get_short_name())
@@ -2491,10 +1845,8 @@ contains
          candidate_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, namespace(i)%qualified_name)
          if (.not. wildcard_v_pt%matches(candidate_v_pt)) cycle
 
-         ! Same classic-ifort self-referencing-array-constructor ICE
-         ! precedent documented throughout this file - grow via a fresh
-         ! temporary and move_alloc instead of `matches = [matches,
-         ! namespace(i)]`.
+         ! Grow via a fresh temporary + move_alloc: a self-referencing array
+         ! constructor ICEs classic ifort.
          n = size(matches)
          allocate(grown_matches(n + 1))
          grown_matches(1:n) = matches
@@ -2503,18 +1855,14 @@ contains
       end do
 
       if (size(matches) == 0) then
-         ! D5: zero matches is a resolution failure, reported through
-         ! the "no producer found at all" channel - no resource-index
-         ! entry (so a later real connection, if one ever supplies a
-         ! match, is not blocked by a stale "already resolved" guard).
+         ! Zero matches: reported as unresolved. No resource-index entry, so a
+         ! later connection that supplies a match is not blocked by a stale guard.
          call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name()))
          _RETURN(_SUCCESS)
       end if
 
-      ! D1/D3: materialize in place - dst_node's own already-advertised
-      ! payload, not a fresh local GraphStateItem - then one
-      ! add_state_member per match, both calls reused verbatim from
-      ! materialize_callback_collection's own per-match loop body.
+      ! Materialize in place on dst_node's payload, then one add_state_member
+      ! per match (as materialize_callback_collection's per-match loop does).
       payload => dst_node%get_payload_ptr()
       state = ESMF_StateCreate(_RC)
       call payload%set(state, _RC)

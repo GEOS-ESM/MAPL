@@ -308,7 +308,9 @@ consumes context.
   report 0 references for the group; put its output in the commit
   message body.
 - Must land before B1 and D1 (both rewrite these files).
-- **Status:** not started
+- **Status:** A4a done (`GraphBuilder_ConnectionResolution_smod.F90`: 2532 -> 1880
+  lines, 0 `openspec/changes` references, comment-only verified; no
+  deviations). A4b-A4e not started.
 
 ### Phase B - characteristic architecture
 
