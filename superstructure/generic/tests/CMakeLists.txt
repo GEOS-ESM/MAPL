@@ -300,6 +300,21 @@ set_tests_properties(MAPL.generic.components PROPERTIES ENVIRONMENT "${TEST_ENV}
 set_tests_properties(MAPL.generic.components.quiet PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.core PROPERTIES ENVIRONMENT "${TEST_ENV}")
 
+# Not part of ESSENTIAL: runs only the scenarios whose graph_ready flag is
+# still false (Test_Scenarios.pf), under graph and both modes. Expected to
+# fail until those scenarios are fixed; see docs/graph/scenario-parity.md.
+add_test(
+  NAME MAPL.generic.scenarios.pending
+  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} 4
+          $<TARGET_FILE:MAPL.generic.scenarios> --verbose
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(MAPL.generic.scenarios.pending PROPERTIES
+  ENVIRONMENT "${TEST_ENV};MAPL_SCENARIO_PENDING=1"
+  LABELS "PENDING"
+  FAIL_REGULAR_EXPRESSION "Encountered 1 or more failures/errors during testing"
+)
+
 # Add all test suites to build-tests target
 add_dependencies(build-tests
   MAPL.generic.scenarios

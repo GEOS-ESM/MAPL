@@ -283,6 +283,7 @@ names, not the `generic3g`/`MAPL.generic3g.*` names in the generic
 | `MAPL.generic.components` | `Test_GraphBuilder*.pf`, propagation, mode tests, spec/parser tests |
 | `MAPL.generic.components.quiet` | Two deliberate negative-path hook tests, run at `--level ERROR` |
 | `MAPL.generic.scenarios` | `Test_Scenarios.pf`, equivalence harness, graph-mode demonstration (strict field dictionary) |
+| `MAPL.generic.scenarios.pending` (label `PENDING`, not ESSENTIAL) | Scenarios not yet `graph_ready`, under graph/both; expected to fail; see `docs/graph/scenario-parity.md` |
 | `MAPL.generic.core`, `.aspects`, `.transforms`, `.vertical` | Legacy layer; see `docs/generic/ARCHITECTURE.md` §4.2 |
 
 Fast path: `with-nag ctest --test-dir nag -R MAPL.generic.components --output-on-failure`.

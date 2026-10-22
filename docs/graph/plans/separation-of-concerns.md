@@ -176,7 +176,17 @@ check (grep in a ctest).
   ready?, one-line root cause of failure. Expected causes include
   missing geometry transform (`regrid*`, `propagate_geom`). Flipping a
   flag is how later tasks show progress.
-- **Status:** not started
+- **Status:** done (commit trailer `Plan-Task: A1`). Deviations:
+  `graph_ready` lives in a `scenario_table()` in `Test_Scenarios.pf`;
+  pending scenarios run via ctest `MAPL.generic.scenarios.pending`
+  (label `PENDING`, not ESSENTIAL, env `MAPL_SCENARIO_PENDING`).
+  Measured: 23 of 31 scenarios pass under graph/both, 8 fail (see
+  `docs/graph/scenario-parity.md`). Contrary to this plan, `regrid*`,
+  `propagate_geom` and `vertical_*` pass in graph mode; judged masked
+  (legacy `add_to_states` still runs in `initialize_realize_accepted`;
+  no item-level geometry characteristic), so they are held at
+  `graph_ready = .false.` with the 8 real failures (owner decision).
+  Root causes in the table are first-pass; A1 diagnosis confirms them.
 
 **A2a..A2n. Graph-native scenario ports (~5 scenarios/task).**
 - Port legacy scenarios to `tests/graph-scenarios/` with improved
