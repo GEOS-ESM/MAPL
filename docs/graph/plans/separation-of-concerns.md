@@ -23,7 +23,7 @@ Every task commit ends with a git trailer naming its task:
 Plan-Task: B3-Units
 ```
 
-Labels are the task ids below (`A0`, `A2a`, `B3-Units`, `B3-TypeKind`,
+Labels are the task ids below (`A0`, `A1`, `A1-diagnosis`, `A2a`, `B3-Units`, `B3-TypeKind`,
 `C2-<short-name>`, ...). Find a task's work with
 `git log --grep='^Plan-Task: B3-Units' -p`. Do not record commit hashes
 in this plan (they change if the branch is rebased); the trailer is the
@@ -178,7 +178,11 @@ check (grep in a ctest).
   ready?, one-line root cause of failure. Expected causes include
   missing geometry transform (`regrid*`, `propagate_geom`). Flipping a
   flag is how later tasks show progress.
-- **Status:** done (commit trailer `Plan-Task: A1`). Deviations:
+- **Diagnosis** (separate task, label `A1-diagnosis`, opus): confirm or
+  correct each first-pass root cause in `scenario-parity.md`, so C2.x
+  tasks start from verified causes. Doc changes only; any source edits
+  for experiments are reverted.
+- **Status (harness, `Plan-Task: A1`):** done. Deviations:
   `graph_ready` lives in a `scenario_table()` in `Test_Scenarios.pf`;
   pending scenarios run via ctest `MAPL.generic.scenarios.pending`
   (label `PENDING`, not ESSENTIAL, env `MAPL_SCENARIO_PENDING`).
@@ -192,6 +196,7 @@ check (grep in a ctest).
   Follow-up: parity doc now records which ready scenarios depend on
   legacy `add_to_states` (experiment with the calls skipped in graph mode;
   not committed).
+- **Status (diagnosis, `Plan-Task: A1-diagnosis`):** not started.
 
 **A2a..A2n. Graph-native scenario ports (~5 scenarios/task).**
 - Port legacy scenarios to `tests/graph-scenarios/` with improved
@@ -326,8 +331,8 @@ the Plan-Task trailer if already committed); never hand it the author's
 summary.
 
 ### Review and commit
-1. Author finishes: changes uncommitted (new files marked with
-   `git add -N` so `git diff` shows them), proposed message in
+1. Author finishes: changes uncommitted and unstaged (new files left
+   untracked; list them in the message body), proposed message in
    `.git/PLAN_TASK_MSG`.
 2. Owner reviews the working tree (e.g. magit status), optionally after
    `/review-task <label>` in a separate session.
@@ -365,7 +370,7 @@ it may author D1/A4/B5 with sonnet review.
 |---|---|---|---|
 | A0 | sonnet | opus (spot-check) | gemini also viable (long-context audit) |
 | A1 harness | sonnet | opus | |
-| A1 diagnosis | opus | - | root-causing failing scenarios |
+| A1-diagnosis | opus | - | root-causing failing scenarios |
 | A2a | opus | owner | sets naming conventions |
 | A2b..n | sonnet | - | follow scenario-naming.md |
 | A3 | sonnet | - | |
@@ -411,8 +416,9 @@ replicate an unreviewed template across B3.x.
 6. Source comments: no `openspec/changes` paths, task numbers, or change
    history. Comments explain why, not when. Put change names in the
    commit message.
-7. Do not commit. Leave the task uncommitted on the integration
-   branch, mark new files with `git add -N`, and write the proposed
+7. Do not commit or stage anything (not even `git add -N`). Leave the
+   task in the working tree on the integration branch, new files
+   untracked, and write the proposed
    commit message (ending with the `Plan-Task:` trailer) to
    `.git/PLAN_TASK_MSG`. Commit only when the owner says so, and then
    only the task's files (never untracked files you didn't create).
@@ -420,9 +426,9 @@ replicate an unreviewed template across B3.x.
 
 ## Dependency summary
 
-A0 -> A1 -> A2a -> A3; A0 -> A4 -> {B1, D1};
-A0 -> B0 -> B1 -> B2 -> B3.x -> {B4, B5};
-B4 -> C1, D1 -> D2; A1 -> C2.x. A4 is independent of A1-A3 and B0 (they touch tests/docs, A4 touches
+A0 -> A1 (harness) -> A2a -> A3; A1 (harness) -> A1-diagnosis -> C2.x;
+A0 -> A4 -> {B1, D1}; A0 -> B0 -> B1 -> B2 -> B3.x -> {B4, B5};
+B4 -> C1, D1 -> D2. A4 is independent of A1-A3 and B0 (they touch tests/docs, A4 touches
 production comments), so their order is free; still one task at a time.
 
 ## Open questions (resolve in B0)
@@ -448,10 +454,10 @@ Done means:
 - ctest -L ESSENTIAL green on NAG and gfortran
 - this task's Status line in the plan updated (done/partial, deviations)
 - any doc your task owns created/updated
-- NOT committed: changes left in the working tree (new files marked
-  with `git add -N`), proposed commit message in `.git/PLAN_TASK_MSG`
+- NOT committed or staged: changes left in the working tree (new
+  files untracked), proposed commit message in `.git/PLAN_TASK_MSG`
   ending with `Plan-Task: <label>`, body containing both ctest summary
-  lines. Commit only when the owner says "commit".
+  lines and listing new files. Commit only when the owner says "commit".
 Stop and report rather than guess if the plan and source disagree.
 ```
 
