@@ -1,7 +1,6 @@
 ---
-description: First-pass investigation of MAPL build or ctest failures. Give it the build dir (nag/ or gfortran/) and the failing tests or log. Reads logs and code, may rerun individual tests, reports suspected root causes. Never edits files.
+description: First-pass investigation of MAPL build or ctest failures. Give it the build dir (nag/ or gfortran/) and the failing tests or log. Reads logs and code, may rerun individual tests, reports suspected root causes. Never edits files. Launch with model `model-for haiku`.
 mode: subagent
-model: nasa_litellm/claude-haiku-5-5
 permissions:
   - action: edit
     resource: "*"

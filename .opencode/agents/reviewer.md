@@ -1,7 +1,6 @@
 ---
-description: Read-only review of a committed plan task (Plan-Task trailer) against docs/graph/plans/separation-of-concerns.md and its design artifacts. Reports findings by severity. Never edits.
+description: Read-only review of a committed plan task (Plan-Task trailer) against docs/graph/plans/separation-of-concerns.md and its design artifacts. Reports findings by severity. Never edits. Launch with model `model-for opus`.
 mode: subagent
-model: nasa_litellm/claude-opus-5.5
 permissions:
   - action: edit
     resource: "*"

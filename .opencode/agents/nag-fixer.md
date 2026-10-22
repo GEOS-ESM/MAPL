@@ -1,7 +1,6 @@
 ---
-description: Iteratively builds MAPL with NAG, diagnoses compile errors, fixes source, and rebuilds until the build succeeds or no further progress can be made. Use only when asked to fix a NAG build.
+description: Iteratively builds MAPL with NAG, diagnoses compile errors, fixes source, and rebuilds until the build succeeds or no further progress can be made. Use only when asked to fix a NAG build. Launch with model `model-for sonnet`.
 mode: subagent
-model: nasa_litellm/claude-sonnet-5-5
 permissions:
   - action: subagent
     resource: "*"

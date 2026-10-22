@@ -38,6 +38,8 @@ Repo-level instructions for coding agents working in this MAPL3 checkout.
   that tail, delegate first-pass investigation to the `triage` subagent
   (give it the build dir and the failing test names), then fix based on
   its report. Verify its "suspected" causes before acting on them.
+  Launch subagents with the model tier named in their description
+  (`model-for <tier>`; see the global AGENTS.md "Model tiers").
 
 ## Graph architecture work (`docs/graph/`, `openspec/`)
 

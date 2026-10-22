@@ -293,24 +293,16 @@ files) to lifecycle hooks only.
 
 Author = writes and commits the task. Reviewer = the read-only
 `reviewer` subagent (`.opencode/agents/reviewer.md`), run **after** the
-commit: `/review-task <label> [opus|gemini|gpt-sol|<provider/model>]`
-(default opus). It reads the task's commits itself via the Plan-Task
+commit: `/review-task <label> [tier|provider/model] [focus]`
+(default tier opus). It reads the task's commits itself via the Plan-Task
 trailer; never hand it the author's summary. Fixes from review go in a
 follow-up commit with the same `Plan-Task:` trailer. The owner
-spot-checks. Human review happens once, at the final PR to `develop`. Short names (update here when models change):
+spot-checks. Human review happens once, at the final PR to `develop`.
 
-- `opus` = `nasa_litellm/claude-opus-5.5`
-- `sonnet` = `nasa_litellm/claude-sonnet-5-5` (fallbacks:
-  `claude-sonnet-5`, then `claude-sonnet-4.6` for the most mechanical
-  tasks B1/B5/D1)
-- `haiku` = `nasa_litellm/claude-haiku-5-5` (provisional - see calibration)
-- `gemini` = `nasa_litellm/gemini-3.1-pro-preview`
-- `gpt-sol` = `nasa_litellm/gpt-5.6-sol`
-
-Note: the LiteLLM proxy uses hyphenated ids for the 5.5 models
-(`claude-sonnet-5-5`, `claude-haiku-5-5`). The proxy also lists
-`gpt-6-sol/luna/astra` and `gemini-3.8-flash`; these are not
-configured in opencode yet and have not been evaluated.
+Tier names below (`opus`, `sonnet`, `haiku`, `gemini`, `gpt-sol`,
+`gpt-luna`, `gemini-flash`) map to concrete model IDs per provider in
+`~/.config/opencode/models.md`; resolve with `model-for <tier>`. Never put
+a full model ID in this plan or in an agent file.
 
 ### Calibration (before Phase B)
 
@@ -327,7 +319,7 @@ whether `haiku` may author Fortran):
 If `sonnet` passes the debugging replay cleanly, the "sonnet?" entries
 below move from opus to sonnet. If `haiku` passes the mechanical replay,
 it may author D1/A4/B5 with sonnet review.
-- **Status:** debugging replay done: `sonnet` (claude-sonnet-5-5) passed, so the `(sonnet?)` rows moved to sonnet, with opus kept as reviewer. Mechanical replay (haiku) not run yet. Benchmark kept outside the repo, so candidates can't see the answer key: `~/.opencode/plan/calibration/README.md`.
+- **Status:** debugging replay done: `sonnet` (nasa_litellm claude-sonnet-5-5) passed, so the `(sonnet?)` rows moved to sonnet, with opus kept as reviewer. haiku (nasa_litellm) also passed the debugging replay but hedged one fix (kept the old path as a fallback); mechanical replay skipped by owner decision - try haiku on real tasks with review. Benchmark kept outside the repo, so candidates can't see the answer key: `~/.opencode/plan/calibration/README.md`.
 
 | Task | Author | Reviewer | Notes |
 |---|---|---|---|
@@ -357,8 +349,8 @@ it may author D1/A4/B5 with sonnet review.
 Always opus regardless: B0, B2, B3-Units, B3-ItemShape, A1 diagnosis,
 A2a, C1 - errors there are replicated by every later task.
 
-Light models (`haiku` until calibrated, `gemini-3.5-flash`,
-`gpt-5.6-luna`): log triage / ctest summarization only. Non-Claude
+Light models (`haiku` until calibrated, `gemini-flash`,
+`gpt-luna`): log triage / ctest summarization only. Non-Claude
 models for Fortran authoring: trial first on D1 or one A4 directory
 before promoting.
 

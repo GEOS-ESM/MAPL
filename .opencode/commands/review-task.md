@@ -1,16 +1,18 @@
 ---
-description: "Review a committed plan task. Usage: /review-task <label> [opus|gemini|gpt-sol|<provider/model>] [focus...]"
+description: "Review a committed plan task. Usage: /review-task <label> [tier|provider/model] [focus...]  (tier default: opus; see ~/.config/opencode/models.md)"
 subagent: false
 ---
 
 Launch the `reviewer` subagent to review Plan-Task `$1`.
 
-Model selection (second argument: "$2"):
-- empty or `opus`: launch it with no model override (its default is Opus).
-- `gemini`: launch it with model `nasa_litellm/gemini-3.1-pro-preview`.
-- `gpt-sol`: launch it with model `nasa_litellm/gpt-5.6-sol`.
-- anything containing `/`: use it verbatim as the model.
-- anything else: stop and ask me which model I meant.
+Model to launch it with (resolved from tier "$2", default opus, on the
+active provider):
+
+!`model-for "$2" opus 2>&1`
+
+If the line above is a full `provider/model` ID, pass exactly that as the
+subagent's model. If it is an error message, stop and show it to me; do
+not pick a model yourself.
 
 Pass the reviewer only the label and any extra focus given here: "$3".
 Do not summarize the work for it; it reads the commits itself.
