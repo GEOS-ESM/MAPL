@@ -454,6 +454,8 @@ step instead), `GraphStateItem%ordering`/table. Done also requires
 `grep -nE '_CHARACTERISTIC_KIND|[A-Za-z]+Characteristic\b' GraphBuilder*.F90`
 to show no kind constants or concrete characteristic types (base-class
 and interface names are fine); report its output in the commit body.
+  Then update `docs/graph/CONVENTIONS.md` so it states the D6 rule as
+  current fact (drop the "not true of the current code" caveat).
 - Also parity finding M3: the graph does not materialize EXPRESSION,
   VECTOR or SERVICE items (logs `unsupported_item_class:<shape>` and
   leaves them to legacy `add_to_states`). Until the graph materializes
