@@ -350,7 +350,7 @@ contains
       type(ESMF_HConfig) :: servers_hconfig
       type(ESMF_HConfig), allocatable :: server_hconfigs(:)
       character(ESMF_MAXSTR), allocatable :: server_names(:)
-      integer, allocatable :: ssis_per_server(:)
+      integer, allocatable :: ssis_per_server(:), model_pets(:)
       class(Logger), pointer :: lgr
 
       has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
@@ -358,10 +358,9 @@ contains
 
       call this%get_vm_topology(ssiMap=ssiMap, ssiCount=ssiCount, world_comm=world_comm, _RC)
       model_petCount = get_model_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
-      num_model_ssis = get_num_ssis(model_petCount, ssiMap, ssiOffset=0, _RC)
-
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
       call get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, _RC)
+      call get_model_partition(server_hconfigs, model_petCount, ssiMap, model_pets, num_model_ssis, _RC)
       ssis_per_server = get_ssis_per_server(server_hconfigs, ssiCount=ssiCount, num_model_ssis=num_model_ssis, _RC)
 
       required_ssis = num_model_ssis + sum(ssis_per_server)
@@ -427,8 +426,11 @@ contains
       integer :: model_petCount
       integer :: world_group, model_group
       integer :: world_comm
-      integer :: ssiCount
-      integer, allocatable :: ssiMap(:)
+      integer :: ssiCount, num_model_ssis
+      integer, allocatable :: ssiMap(:), model_pets(:)
+      type(ESMF_HConfig) :: servers_hconfig
+      type(ESMF_HConfig), allocatable :: server_hconfigs(:)
+      character(ESMF_MAXSTR), allocatable :: server_names(:)
 
       has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
       if (.not. has_server_section) then
@@ -442,13 +444,18 @@ contains
       call this%get_vm_topology(ssiMap=ssiMap, ssiCount=ssiCount, world_comm=world_comm, _RC)
       model_petCount = get_model_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
 
+      servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
+      call get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, _RC)
+      call get_model_partition(server_hconfigs, model_petCount, ssiMap, model_pets, num_model_ssis, _RC)
+      call ESMF_HConfigDestroy(servers_hconfig, _RC)
+
       ! Free the world-spanning model_comm set in initialize_default_servers and
       ! replace it with the model-only partition.
       if (this%model_comm /= MPI_COMM_NULL) then
          call MPI_Comm_free(this%model_comm, _IERROR)
       end if
       call MPI_Comm_group(world_comm, world_group, _IERROR)
-      call MPI_Group_range_incl(world_group, 1, reshape([0, model_petCount-1, 1], [3,1]), model_group, _IERROR)
+      call MPI_Group_incl(world_group, size(model_pets), model_pets, model_group, _IERROR)
       call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
       call MPI_Group_free(model_group, _IERROR)
       call MPI_Group_free(world_group, _IERROR)
@@ -494,17 +501,15 @@ contains
       class(Logger), pointer :: lgr
       type(ServerResources) :: srv_resources
 
-      num_model_ssis = get_num_ssis(model_petCount, ssiMap, ssiOffset=0, _RC)
-
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
       call get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, _RC)
+      call get_model_partition(server_hconfigs, model_petCount, ssiMap, model_pets, num_model_ssis, _RC)
 
       ! get_ssis_per_server handles '*' wildcard for the last server.
       ! Resource validation already ran in MAPL_Initialize; this is belt-and-suspenders.
       ssis_per_server = get_ssis_per_server(server_hconfigs, ssiCount=ssiCount, num_model_ssis=num_model_ssis, _RC)
 
       call MPI_Comm_group(world_comm, world_group, _IERROR)
-      model_pets = pets_on_ssis(ssiMap, 0, num_model_ssis)
       call MPI_Group_incl(world_group, size(model_pets), model_pets, model_group, _IERROR)
       ! model_comm already created in create_servers; derive is_model_pet from it.
       if (present(is_model_pet)) is_model_pet = (this%model_comm /= MPI_COMM_NULL)

@@ -150,7 +150,8 @@ contains
                (right_node%validate(original_time) .eqv. .false.)
 
           if (time_jumped .or. both_invalid) then
-             call this%update_both_brackets_out_range_multi(bracket, target_time, original_time,  _RC)
+             call this%update_both_brackets_out_range_multi(bracket, target_time, original_time, &
+                  allow_missing=.true., _RC)
           else if (both_valid) then
              call left_node%set_update(.false.)
              call right_node%set_update(.false.)
@@ -164,10 +165,12 @@ contains
                 left_node = test_node
                 call left_node%set_update(.false.)
                 call bracket%set_parameters(left_node=left_node)
-                call this%update_node_out_of_range_multi(target_time, original_time, right_node, _RC)
+                call this%update_node_out_of_range_multi(target_time, original_time, right_node, &
+                     allow_missing=.true., _RC)
                 call bracket%set_parameters(right_node=right_node)
              else
-                call this%update_both_brackets_out_range_multi(bracket, target_time, original_time, _RC)
+                call this%update_both_brackets_out_range_multi(bracket, target_time, original_time, &
+                     allow_missing=.true., _RC)
              end if
           end if
 
@@ -222,32 +225,34 @@ contains
       _RETURN(_SUCCESS)
    end subroutine update_bracket_out_of_range_multi
 
-   subroutine update_both_brackets_out_range_multi(this, bracket, target_time, original_time, rc)
+   subroutine update_both_brackets_out_range_multi(this, bracket, target_time, original_time, rc, allow_missing)
       class(ClimDataSetFileSelector), intent(inout) :: this
       type(DataSetBracket), intent(inout) :: bracket
       type(ESMF_Time), intent(in) :: target_time
       type(ESMF_Time), intent(in) :: original_time
       integer, optional, intent(out) :: rc
+      logical, optional, intent(in) :: allow_missing
 
       type(DataSetNode) :: left_node, right_node
       integer :: status
 
       left_node = bracket%get_left_node(_RC)
       right_node = bracket%get_right_node(_RC)
-      call this%update_node_out_of_range_multi(target_time, original_time, left_node, _RC)
+      call this%update_node_out_of_range_multi(target_time, original_time, left_node, allow_missing=allow_missing, _RC)
       call bracket%set_parameters(left_node=left_node)
-      call this%update_node_out_of_range_multi(target_time, original_time, right_node, _RC)
+      call this%update_node_out_of_range_multi(target_time, original_time, right_node, allow_missing=allow_missing, _RC)
       call bracket%set_parameters(right_node=right_node)
 
       _RETURN(_SUCCESS)
    end subroutine update_both_brackets_out_range_multi
 
-   subroutine update_node_out_of_range_multi(this, current_time, original_time, node, rc)
+   subroutine update_node_out_of_range_multi(this, current_time, original_time, node, rc, allow_missing)
       class(ClimDataSetFileSelector), intent(inout) :: this
       type(ESMF_Time), intent(in) :: current_time
       type(ESMF_Time), intent(in) :: original_time
       type(DataSetNode), intent(inout) :: node
       integer, optional, intent(out) :: rc
+      logical, optional, intent(in) :: allow_missing
 
       integer :: status, local_search_stop, step,  node_side, i, shift, year
       type(ESMF_Time) :: trial_time, interp_time, local_current_time
@@ -293,6 +298,12 @@ contains
          end if
       enddo
 
+      if (present(allow_missing)) then
+         if (allow_missing) then
+            call node%invalidate()
+            _RETURN(_SUCCESS)
+         end if
+      end if
       _FAIL("Could not find a valid node")
    end subroutine update_node_out_of_range_multi
 

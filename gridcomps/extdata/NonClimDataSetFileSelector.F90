@@ -187,7 +187,7 @@ module mapl_NonClimDataSetFileSelector_mod
                       (right_node%validate(target_time) .eqv. .false.)
 
        if (time_jumped .or. both_invalid) then
-          call this%update_both_brackets(bracket, target_time, _RC)
+          call this%update_both_brackets(bracket, target_time, allow_missing=.true., _RC)
        else if (both_valid) then
           call left_node%set_update(.false.)
           call right_node%set_update(.false.)
@@ -201,10 +201,10 @@ module mapl_NonClimDataSetFileSelector_mod
              left_node = test_node
              call left_node%set_update(.false.)
              call bracket%set_parameters(left_node=left_node)
-             call this%update_node(target_time, right_node, _RC)
+             call this%update_node(target_time, right_node, allow_missing=.true., _RC)
              call bracket%set_parameters(right_node=right_node)
           else
-             call this%update_both_brackets(bracket, target_time, _RC)
+             call this%update_both_brackets(bracket, target_time, allow_missing=.true., _RC)
           end if
        end if
 
@@ -235,7 +235,7 @@ module mapl_NonClimDataSetFileSelector_mod
           call active_node%set_update(.false.)
           node_is_valid = active_node%validate(target_time)
           if (.not.node_is_valid) then
-             call this%update_node(target_time, active_node, _RC)
+             call this%update_node(target_time, active_node, allow_missing=.true., _RC)
           end if
 
           select case(node_side)
@@ -293,29 +293,31 @@ module mapl_NonClimDataSetFileSelector_mod
        _RETURN(_SUCCESS)
     end subroutine update_half_bracket
 
-    subroutine update_both_brackets(this, bracket, target_time, rc)
+    subroutine update_both_brackets(this, bracket, target_time, rc, allow_missing)
        class(NonClimDataSetFileSelector), intent(inout) :: this
        type(DataSetBracket), intent(inout) :: bracket
        type(ESMF_Time), intent(in) :: target_time
        integer, optional, intent(out) :: rc
+       logical, optional, intent(in) :: allow_missing
 
        type(DataSetNode) :: left_node, right_node
        integer :: status
 
        left_node = bracket%get_left_node(_RC)
        right_node = bracket%get_right_node(_RC)
-       call this%update_node(target_time, left_node, _RC)
+       call this%update_node(target_time, left_node, allow_missing=allow_missing, _RC)
        call bracket%set_parameters(left_node=left_node)
-       call this%update_node(target_time, right_node, _RC)
+       call this%update_node(target_time, right_node, allow_missing=allow_missing, _RC)
        call bracket%set_parameters(right_node=right_node)
        _RETURN(_SUCCESS)
     end subroutine update_both_brackets
 
-    subroutine update_node(this, current_time, node, rc)
+    subroutine update_node(this, current_time, node, rc, allow_missing)
        class(NonClimDataSetFileSelector), intent(inout) :: this
        type(ESMF_Time), intent(in) :: current_time
        type(DataSetNode), intent(inout) :: node
        integer, optional, intent(out) :: rc
+       logical, optional, intent(in) :: allow_missing
 
        integer :: status, local_search_stop, step,  node_side, i
        type(ESMF_Time) :: trial_time
@@ -343,6 +345,12 @@ module mapl_NonClimDataSetFileSelector_mod
              _RETURN_IF(valid_node)
           end if
        enddo
+       if (present(allow_missing)) then
+          if (allow_missing) then
+             call node%invalidate()
+             _RETURN(_SUCCESS)
+          end if
+       end if
        _FAIL("Could not find a valid node")
     end subroutine update_node
 

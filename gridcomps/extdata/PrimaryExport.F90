@@ -281,7 +281,7 @@ module mapl_PrimaryExport_mod
 
       type(ESMF_FieldBundle) :: bundle
       integer :: status
-       type(DataSetNode) :: node, left_node, right_node
+      type(DataSetNode) :: node
       logical :: update_file
       type(ESMF_Field), allocatable :: field_list(:)
       character(len=:), allocatable :: filename
@@ -305,9 +305,7 @@ module mapl_PrimaryExport_mod
              call reader%add_item(field_list(i), variable_name, filename, time_index, this%client_collection_id, _RC)
           enddo
        end if
-       left_node = node
        node = this%bracket%get_right_node()
-       right_node = node
        update_file = node%get_update()
        if (update_file) then
           call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
@@ -325,17 +323,6 @@ module mapl_PrimaryExport_mod
                call reader%add_item(field_list(list_start+i), variable_name, filename, time_index, &
                     this%client_collection_id, _RC)
             enddo
-        else if (this%bracket%uses_time_interpolation() .and. right_node%get_enabled() .and. &
-             (.not. (right_node == left_node))) then
-          call ESMF_StateGet(export_state, this%export_var, bundle, _RC)
-          call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
-          time_index = right_node%get_time_index()
-          call right_node%get_file(filename)
-          do i=1,this%file_vars%size()
-             variable_name => this%file_vars%at(i)
-             call reader%add_item(field_list(list_start+i), variable_name, filename, time_index, this%client_collection_id, &
-                  prefetch_only=.true., _RC)
-          enddo
        end if
 
       _RETURN(_SUCCESS)

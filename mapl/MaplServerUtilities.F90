@@ -14,6 +14,7 @@ module mapl_MaplServerUtilities_mod
    public :: pets_on_ssis
    public :: get_num_ssis
    public :: get_model_petCount
+   public :: get_model_partition
    public :: get_server_hconfigs
    public :: get_ssis_per_server
    public :: create_server_comms
@@ -157,6 +158,55 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_model_petCount
+
+   ! Reserve async reader PETs on each model SSI before assigning remote SSIs.
+   ! Return one rank list for both the model communicator and remote connections.
+   subroutine get_model_partition(server_hconfigs, pet_count, ssi_map, model_pets, num_model_ssis, rc)
+      type(ESMF_HConfig), intent(in) :: server_hconfigs(:)
+      integer, intent(in) :: pet_count, ssi_map(:)
+      integer, allocatable, intent(out) :: model_pets(:)
+      integer, intent(out) :: num_model_ssis
+      integer, optional, intent(out) :: rc
+
+      integer :: status, i, n_async, remaining, capacity, n_selected
+      integer, allocatable :: node_pets(:)
+      logical, allocatable :: selected(:)
+      logical :: is_local
+      character(:), allocatable :: subclass_name
+
+      n_async = 0
+      do i = 1, size(server_hconfigs)
+         call resolve_server_configuration(server_hconfigs(i), subclass_name, is_local, _RC)
+         if (subclass_name == 'AsyncInputServer') n_async = n_async + 1
+      end do
+      _ASSERT(n_async <= 1, 'Only one AsyncInputServer may be configured')
+      _ASSERT(pet_count > 0 .and. pet_count <= size(ssi_map), 'Invalid model PET count')
+
+      if (n_async == 0) then
+         model_pets = [(i, i = 0, pet_count-1)]
+         num_model_ssis = maxval(ssi_map(1:pet_count)) + 1
+         _RETURN(_SUCCESS)
+      end if
+
+      allocate(selected(size(ssi_map)), source=.false.)
+      remaining = pet_count
+      num_model_ssis = 0
+      do i = 0, maxval(ssi_map)
+         node_pets = pets_on_ssis(ssi_map, i, i+1)
+         ! One captain and at least one worker remain on every selected node.
+         capacity = size(node_pets) - 2
+         _ASSERT(capacity > 0, 'Each async model node requires at least three PETs')
+         n_selected = min(remaining, capacity)
+         selected(node_pets(1:n_selected)+1) = .true.
+         remaining = remaining - n_selected
+         num_model_ssis = i + 1
+         if (remaining == 0) exit
+      end do
+      _ASSERT(remaining == 0, 'Insufficient model PETs after reserving async readers on each node')
+      model_pets = pack([(i, i = 0, size(ssi_map)-1)], selected)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_model_partition
 
    subroutine get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, rc)
       type(ESMF_HConfig), intent(in) :: servers_hconfig

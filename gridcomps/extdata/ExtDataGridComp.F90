@@ -168,6 +168,8 @@ contains
       supports_cache_only_prefetch = input_client%supports_cache_only_prefetch()
       call ESMF_ClockGet(clock, currTime=current_time, timeStep=time_step, stopTime=stop_time, _RC)
       next_time = current_time + time_step
+      ! Current interpolation may need a later sample; speculative steps must
+      ! still lie inside the clock's run interval.
       can_prefetch_next = next_time < stop_time
       call reader%initialize_reader(input_server_name=extdata_gridcomp%input_server_name, _RC)
       call prefetch_left_reader%initialize_reader(input_server_name=extdata_gridcomp%input_server_name, _RC)
@@ -191,8 +193,7 @@ contains
          call export_item%update_my_bracket(bundle, current_time, weights, _RC)
          call set_weights(exportState, export_name, weights, _RC)
          call export_item%append_state_to_reader(exportState, reader, lgr, _RC)
-           if (supports_cache_only_prefetch .and. &
-                (can_prefetch_next .or. export_item%bracket%uses_time_interpolation())) then
+         if (supports_cache_only_prefetch .and. can_prefetch_next) then
             call export_item%append_future_left_to_reader(exportState, next_time, prefetch_left_reader, lgr, _RC)
             call export_item%append_future_right_to_reader(exportState, next_time, prefetch_right_reader, lgr, _RC)
          end if

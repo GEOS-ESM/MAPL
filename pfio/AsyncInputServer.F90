@@ -213,6 +213,7 @@ module pFIO_AsyncInputServerMod
       logical :: worker_role = .false.
       logical :: model_node_root_role = .false.
       type(AsyncInputTopology) :: topology
+      integer :: control_comm = MPI_COMM_NULL
       integer :: shared_win = MPI_WIN_NULL
       type(c_ptr) :: shared_base_address = c_null_ptr
       integer :: shared_mailbox_words = ASYNC_INPUT_DEFAULT_MAILBOX_WORDS
@@ -292,6 +293,8 @@ contains
       allocate (s%cache_slots(s%num_cache_slots))
 
       call s%init(comm, port_name, profiler_name=profiler_name, with_profiler=with_profiler, _RC)
+      call MPI_Comm_dup(comm, s%control_comm, status)
+      _VERIFY(status)
       call initialize_role_accounting(s, comm, model_comm, _RC)
 
       _RETURN(_SUCCESS)
@@ -410,8 +413,10 @@ contains
       _VERIFY(ierr)
 
       if (this%worker_role) then
-         call c_f_pointer(this%shared_base_address, shared_words, [segment_words])
-         shared_words = 0
+         if (segment_words > 0) then
+            call c_f_pointer(this%shared_base_address, shared_words, [segment_words])
+            shared_words = 0
+         end if
          call MPI_Win_sync(this%shared_win, ierr)
          _VERIFY(ierr)
       end if
@@ -497,7 +502,7 @@ contains
                                                 metadata%protocol_request_id, result, 0, read_status, _RC)
                   end if
                   deallocate (result)
-               else if (msize_word > 0) then
+               else if (cmd == ASYNC_INPUT_CMD_READ) then
                   call publish_shared_result(this, metadata%source_model_index, &
                                              metadata%protocol_request_id, result, msize_word, MPI_SUCCESS, _RC)
                   deallocate (result)
@@ -545,7 +550,7 @@ contains
             _VERIFY(ierr)
             call dispatch_pending_requests(this, pending, workers, ierr)
             _VERIFY(ierr)
-            call MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, this%comm, message_available, mpi_status, ierr)
+            call MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, this%control_comm, message_available, mpi_status, ierr)
             _VERIFY(ierr)
             if (.not. message_available) then
                call MAPL_Sleep(ASYNC_INPUT_POLL_INTERVAL_SECONDS)
@@ -554,14 +559,14 @@ contains
             source_service_rank = mpi_status(MPI_SOURCE)
             if (mpi_status(MPI_TAG) == ASYNC_INPUT_TAG_TERMINATE) then
                call MPI_Recv(cmd, 1, MPI_INTEGER, source_service_rank, ASYNC_INPUT_TAG_TERMINATE, &
-                             this%comm, MPI_STATUS_IGNORE, ierr)
+                             this%control_comm, MPI_STATUS_IGNORE, ierr)
                _VERIFY(ierr)
                terminating_model_rank = source_service_rank
                exit
             end if
             _ASSERT(mpi_status(MPI_TAG) == ASYNC_INPUT_TAG_REQUEST_HEADER, 'unknown captain protocol tag')
             call MPI_Recv(header_words, ASYNC_INPUT_REQUEST_HEADER_WORDS, MPI_INTEGER8, &
-                          source_service_rank, ASYNC_INPUT_TAG_REQUEST_HEADER, this%comm, MPI_STATUS_IGNORE, ierr)
+                          source_service_rank, ASYNC_INPUT_TAG_REQUEST_HEADER, this%control_comm, MPI_STATUS_IGNORE, ierr)
             _VERIFY(ierr)
             call unpack_request_metadata(header_words, metadata)
             _ASSERT(metadata%source_service_rank == source_service_rank, &
@@ -575,7 +580,7 @@ contains
             buffer_size = metadata%payload_words
             allocate (buffer(buffer_size))
             call MPI_Recv(buffer, buffer_size, MPI_INTEGER, source_service_rank, &
-                          ASYNC_INPUT_TAG_REQUEST_PAYLOAD, this%comm, MPI_STATUS_IGNORE, ierr)
+                          ASYNC_INPUT_TAG_REQUEST_PAYLOAD, this%control_comm, MPI_STATUS_IGNORE, ierr)
             _VERIFY(ierr)
             _ASSERT(cmd == ASYNC_INPUT_CMD_READ .or. cmd == ASYNC_INPUT_CMD_NEXT_PREFETCH, &
                     'unknown reader captain command')
@@ -615,7 +620,7 @@ contains
          end do
          _ASSERT(terminating_model_rank >= 0, 'reader captain has no model shutdown requester')
          call MPI_Send(ASYNC_INPUT_CMD_TERMINATE, 1, MPI_INTEGER, terminating_model_rank, &
-                       ASYNC_INPUT_TAG_TERMINATED, this%comm, ierr)
+                       ASYNC_INPUT_TAG_TERMINATED, this%control_comm, ierr)
          _VERIFY(ierr)
          deallocate (warm_records)
          deallocate (pending)
@@ -671,13 +676,19 @@ contains
          _RETURN(_SUCCESS)
       end if
 
+      ! Every model must finish submitting work before the captain stops intake.
+      if (this%topology%model_node_comm /= MPI_COMM_NULL) then
+         call MPI_Barrier(this%topology%model_node_comm, status)
+         _VERIFY(status)
+      end if
+
       if (this%model_node_root_role) then
          call MPI_Send(ASYNC_INPUT_CMD_TERMINATE, 1, MPI_INTEGER, &
                        this%topology%captain_service_rank, &
-                       ASYNC_INPUT_TAG_TERMINATE, this%comm, status)
+                       ASYNC_INPUT_TAG_TERMINATE, this%control_comm, status)
          _VERIFY(status)
          call MPI_Recv(shutdown_ack, 1, MPI_INTEGER, this%topology%captain_service_rank, &
-                       ASYNC_INPUT_TAG_TERMINATED, this%comm, MPI_STATUS_IGNORE, status)
+                       ASYNC_INPUT_TAG_TERMINATED, this%control_comm, MPI_STATUS_IGNORE, status)
          _VERIFY(status)
          _ASSERT(shutdown_ack == ASYNC_INPUT_CMD_TERMINATE, &
                  'reader captain returned an invalid shutdown acknowledgment')
@@ -908,7 +919,9 @@ contains
       if (.not. request%cache_only) then
          result_size = int(word_size(request%type_kind)*product(int(request%count, INT64)))
          allocate (result(result_size))
-         call extract_local_slice_from_slot(this, request, slot_index, result, _RC)
+         if (result_size > 0) then
+            call extract_local_slice_from_slot(this, request, slot_index, result, _RC)
+         end if
       else
          allocate (result(0))
       end if
@@ -1371,6 +1384,7 @@ contains
       type(AsyncInputRequestMetadata) :: metadata
       type(AsyncInputAssignment) :: assignment
       integer, pointer :: i_ptr(:)
+      integer, target :: empty_result(0)
       type(LocalMemReference) :: mem_data_reference
       class(AbstractRequestHandle), allocatable :: handle
 
@@ -1393,14 +1407,15 @@ contains
       metadata%payload_words = buffer_size
       call pack_request_metadata(metadata, header_words)
       call MPI_Send(header_words, ASYNC_INPUT_REQUEST_HEADER_WORDS, MPI_INTEGER8, reader_rank, &
-                    ASYNC_INPUT_TAG_REQUEST_HEADER, this%comm, ierr)
+                    ASYNC_INPUT_TAG_REQUEST_HEADER, this%control_comm, ierr)
       _VERIFY(ierr)
-      call MPI_Send(buffer, buffer_size, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_REQUEST_PAYLOAD, this%comm, ierr)
+      call MPI_Send(buffer, buffer_size, MPI_INTEGER, reader_rank, ASYNC_INPUT_TAG_REQUEST_PAYLOAD, &
+                    this%control_comm, ierr)
       _VERIFY(ierr)
       deallocate (buffer)
 
       call MPI_Recv(assignment_words, ASYNC_INPUT_ASSIGNMENT_WORDS, MPI_INTEGER8, reader_rank, &
-                    ASYNC_INPUT_TAG_ASSIGNMENT, this%comm, MPI_STATUS_IGNORE, ierr)
+                    ASYNC_INPUT_TAG_ASSIGNMENT, this%control_comm, MPI_STATUS_IGNORE, ierr)
       _VERIFY(ierr)
       call unpack_assignment(assignment_words, assignment)
       _ASSERT(assignment%protocol_request_id == metadata%protocol_request_id, &
@@ -1422,7 +1437,11 @@ contains
 
       if (deliver_to_client) then
          mem_data_reference = LocalMemReference(request%type_kind, request%count)
-         call c_f_pointer(mem_data_reference%base_address, i_ptr, [local_msize_word])
+         if (local_msize_word == 0) then
+            i_ptr => empty_result
+         else
+            call c_f_pointer(mem_data_reference%base_address, i_ptr, [local_msize_word])
+         end if
          call consume_shared_result(this, worker_rank, metadata%protocol_request_id, &
                                     i_ptr, int(local_msize_word), _RC)
 
@@ -1452,7 +1471,7 @@ contains
       assignment%status = MPI_SUCCESS
       call pack_assignment(assignment, words)
       call MPI_Send(words, ASYNC_INPUT_ASSIGNMENT_WORDS, MPI_INTEGER8, metadata%source_service_rank, &
-                    ASYNC_INPUT_TAG_ASSIGNMENT, this%comm, ierr)
+                    ASYNC_INPUT_TAG_ASSIGNMENT, this%control_comm, ierr)
    end subroutine send_assignment
 
    subroutine pack_request_metadata(metadata, words)
@@ -2082,6 +2101,10 @@ contains
          call MPI_Comm_free(this%topology%reader_comm, status)
          _VERIFY(status)
          this%topology%reader_comm = MPI_COMM_NULL
+      end if
+      if (this%control_comm /= MPI_COMM_NULL) then
+         call MPI_Comm_free(this%control_comm, status)
+         _VERIFY(status)
       end if
       if (allocated(this%topology%reader_server_ranks)) deallocate (this%topology%reader_server_ranks)
       if (allocated(this%topology%node_server_ranks)) deallocate (this%topology%node_server_ranks)
