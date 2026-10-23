@@ -438,6 +438,11 @@ and report; do not rename. Also:
 
 ### Phase B - characteristic architecture
 
+B1 through B5 each implement their section of
+`openspec/changes/characteristic-separation-of-concerns/tasks.md`, using
+its `design.md`. These take precedence over the summaries below. Each
+task ticks the checkboxes it completes.
+
 **B0. Openspec design change (no code).** Write
 `openspec/changes/characteristic-separation-of-concerns/` covering
 D1-D6. Must specifically study and document:
@@ -705,13 +710,17 @@ come after; their order is not yet decided.
 
 ## Prompt template for task agents
 
+Fill in each `<...>` before pasting: the label appears twice
+(`Task:` and `Plan-Task:`). Delete the `Scope:` line if nothing narrows
+the task.
+
 ```
 Task: <label, e.g. B3-UngriddedDims> from docs/graph/plans/separation-of-concerns.md.
 
 Read first: that plan's header, "Context every task prompt should
-include", "Rules for every agent prompt", and your task's section; then
-any artifact your task depends on (these take precedence over the
-plan's summary).
+include", "Rules for every agent prompt", your phase's introduction
+(if any) and your task's section; then any artifact your task depends
+on (these take precedence over the plan's summary).
 
 Scope: <optional narrowing / extra constraints>.
 
