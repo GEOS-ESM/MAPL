@@ -682,9 +682,10 @@ and may run before Phase B. A4 is independent of A1-A3 and B0 (they touch tests/
 production comments), so their order is free; still one task at a time.
 D3-cleanup has no dependencies.
 
-**Run order (owner decision, after A5b):** B0 next, then remaining
-tasks in dictionary order of label, except where a dependency above
-requires otherwise.
+**Run order (owner decision, after A5b):** critical path first:
+B0 -> B1 -> B2 -> B3.x -> {B4, B5} -> C1. Within B3.x, B3-Units goes
+first (template). Off-path tasks (A2b..n, C2.x, D1, D2, D3-cleanup)
+come after; their order is not yet decided.
 
 ## Open questions (resolve in B0)
 - UNCHECKED Info representation.
