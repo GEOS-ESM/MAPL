@@ -25,6 +25,7 @@ module Test_GraphBuilder_Advertising
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_StateItem_mod, only: MAPL_STATEITEM_STATE
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
@@ -437,7 +438,7 @@ contains
       type(VariableSpec) :: var_spec
       type(NodeId), pointer :: export_id
       class(GraphNode), pointer :: node
-      type(GraphStateItem), pointer :: payload
+      type(StateItemDescriptor), pointer :: descriptor
       class(StateItemCharacteristic), allocatable :: found
       integer :: status
       type(GraphBuilder) :: gb
@@ -464,19 +465,19 @@ contains
       node => graph%get_node(export_id)
       select type (node)
       class is (StateItemNode)
-         payload => node%get_payload_ptr()
+         descriptor => node%get_descriptor()
       class default
          @assert_that(.false., is(true()))
       end select
 
-      @assert_that(payload%has_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND), is(true()))
-      @assert_that(payload%has_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND), is(true()))
-      @assert_that(payload%has_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND), is(true()))
-      @assert_that(payload%has_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND), is(true()))
-      @assert_that(payload%has_characteristic(CONSERVATION_CHARACTERISTIC_KIND), is(true()))
-      @assert_that(payload%has_characteristic(NORMALIZATION_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(descriptor%has_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(descriptor%has_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(descriptor%has_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(descriptor%has_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(descriptor%has_characteristic(CONSERVATION_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(descriptor%has_characteristic(NORMALIZATION_CHARACTERISTIC_KIND), is(true()))
 
-      call payload%get_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, found, _RC)
+      call descriptor%get_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, found, _RC)
       select type (found)
       class is (StandardNameCharacteristic)
          @assertFalse(found%needs_extension_for(StandardNameCharacteristic('air_temperature')))
@@ -485,7 +486,7 @@ contains
          @assert_that(.false., is(true()))
       end select
 
-      call payload%get_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, found, _RC)
+      call descriptor%get_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, found, _RC)
       select type (found)
       class is (QuantityTypeCharacteristic)
          @assertFalse(found%needs_extension_for(QuantityTypeCharacteristic(quantity_type=QUANTITY_TEMPERATURE)))
@@ -493,7 +494,7 @@ contains
          @assert_that(.false., is(true()))
       end select
 
-      call payload%get_characteristic(CONSERVATION_CHARACTERISTIC_KIND, found, _RC)
+      call descriptor%get_characteristic(CONSERVATION_CHARACTERISTIC_KIND, found, _RC)
       select type (found)
       class is (ConservationCharacteristic)
          @assertFalse(found%needs_extension_for( &
@@ -502,7 +503,7 @@ contains
          @assert_that(.false., is(true()))
       end select
 
-      call payload%get_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, found, _RC)
+      call descriptor%get_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, found, _RC)
       select type (found)
       class is (NormalizationCharacteristic)
          @assertFalse(found%needs_extension_for( &
@@ -532,7 +533,7 @@ contains
       type(VariableSpec) :: var_spec
       type(NodeId), pointer :: export_id
       class(GraphNode), pointer :: node
-      type(GraphStateItem), pointer :: payload
+      type(StateItemDescriptor), pointer :: descriptor
       integer :: status
       type(GraphBuilder) :: gb
 
@@ -551,17 +552,17 @@ contains
       node => graph%get_node(export_id)
       select type (node)
       class is (StateItemNode)
-         payload => node%get_payload_ptr()
+         descriptor => node%get_descriptor()
       class default
          @assert_that(.false., is(true()))
       end select
 
-      @assertFalse(payload%has_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND))
-      @assertFalse(payload%has_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND))
-      @assert_that(payload%has_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND), is(true()))
-      @assert_that(payload%has_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND), is(true()))
-      @assert_that(payload%has_characteristic(CONSERVATION_CHARACTERISTIC_KIND), is(true()))
-      @assert_that(payload%has_characteristic(NORMALIZATION_CHARACTERISTIC_KIND), is(true()))
+      @assertFalse(descriptor%has_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND))
+      @assertFalse(descriptor%has_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND))
+      @assert_that(descriptor%has_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(descriptor%has_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(descriptor%has_characteristic(CONSERVATION_CHARACTERISTIC_KIND), is(true()))
+      @assert_that(descriptor%has_characteristic(NORMALIZATION_CHARACTERISTIC_KIND), is(true()))
 
       _UNUSED_DUMMY(this)
    end subroutine test_advertise_default_var_spec_no_spurious_characteristics
@@ -595,7 +596,7 @@ contains
    ! openspec/changes/phase-13-restart-compatibility (docs/graph/spec/
    ! 20-implementation-roadmap.md sec 20.4.13): verify that advertise_one
    ! captures VariableSpec%restart_mode into the StateItemNode's own
-   ! GraphStateItem payload at advertise time, so populate_one
+   ! StateItemDescriptor at advertise time, so populate_one
    ! (GraphBuilder_StatePopulation_smod.F90) can read it back when
    ! creating the real ESMF alias.
    @test(npes=[0])
@@ -609,7 +610,7 @@ contains
       type(ComponentGraph), pointer :: graph
       type(NodeId), pointer :: node_id
       class(GraphNode), pointer :: node
-      type(GraphStateItem) :: payload
+      type(StateItemDescriptor), pointer :: descriptor
       type(VariableSpec) :: var_skip
       type(RestartMode), allocatable :: captured_mode
       integer :: status
@@ -638,12 +639,12 @@ contains
       node => graph%get_node(node_id)
       select type (node)
       class is (StateItemNode)
-         payload = node%get_payload()
+         descriptor => node%get_descriptor()
       class default
          @assert_that('T_SKIP node is a StateItemNode', .false., is(true()))
       end select
 
-      call payload%get_declared_restart_mode(captured_mode)
+      call descriptor%get_declared_restart_mode(captured_mode)
       @assert_that('restart_mode captured at advertise time', allocated(captured_mode), is(true()))
       @assertTrue(captured_mode == RESTART_SKIP, 'captured restart_mode is RESTART_SKIP')
 

@@ -52,7 +52,7 @@ contains
    ! chain this method is used in: the one production caller,
    ! find_mismatched_state_item_characteristics, looks both sides up by
    ! the same StateItemCharacteristicKind key, and
-   ! GraphStateItem%set_characteristic (the only insertion path into that
+   ! StateItemDescriptor%set_characteristic (the only insertion path into that
    ! map) asserts a characteristic's own kind matches its map key before
    ! inserting (REQ-CHAR-006/009, design.md D9) - so the class default
    ! branch below should be checked by the calling procedure, matching

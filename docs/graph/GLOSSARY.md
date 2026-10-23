@@ -18,7 +18,7 @@ deprecated yet.
 | `StateItemAspect` | `StateItemCharacteristic` (`ValueCharacteristic`, `ReferenceCharacteristic`) | One metadata axis of an item. Legacy compatibility is `can_connect_to`/`matches`/`make_transform`; graph is `needs_extension_for`/`build_transform`. |
 | `AspectStatus` (`ASPECT_STATUS_INVALID`, `FROM_COMP`, `SPECIFIED`, `MIRRORED`, `DEFERRED`, `UNCHECKED`) | `CharacteristicStatus` (`INVALID`, `SPECIFIED`, `MIRRORED`, `UNCHECKED`, `DEFERRED`) | Graph has no `FROM_COMP`. The plan collapses it into `SPECIFIED` (plan D2). |
 | `AspectId` | `StateItemCharacteristicKind` | Map key identifying the axis. |
-| `AspectMap` (inside `StateItemSpec`) | `StateItemCharacteristicMap` (inside `GraphStateItem` today) | Plan D1 moves the map into a new `StateItemDescriptor`. |
+| `AspectMap` (inside `StateItemSpec`) | `StateItemCharacteristicMap` (inside `StateItemDescriptor`) | The map lives in the descriptor owned by `StateItemNode`. |
 | `ClassAspect` (`FieldClassAspect`, `BracketClassAspect`, `ExpressionClassAspect`, `WildcardClassAspect`, …) | `ItemShapeCharacteristic` | Structural class of an item. Graph handles Bracket→Field only through the characteristic; Expression and Wildcard are handled by dedicated `GraphBuilder` hooks. |
 | `ClassAspect%get_aspect_order(goal_aspects)` | `GraphStateItem%ordering` / `characteristic_ordering_table` (variant-keyed, no legacy basis) | Plan D4 replaces it with `get_extension_order` owned by the shape. |
 | `UnitsAspect` | `PhysicalUnitsCharacteristic` | |
@@ -26,7 +26,7 @@ deprecated yet.
 | `GeomAspect` | `GeometryCharacteristic` | Geometry is also a graph node (`GeomProxyField`). |
 | `VerticalGridAspect` | `VerticalCoordinateCharacteristic` | Plan adds a separate vertical-stagger characteristic. |
 | `UngriddedDimsAspect`, `StandardNameAspect`, `AttributesAspect`, `QuantityTypeAspect`, `ConservationAspect`, `NormalizationAspect` | `UngriddedDimsCharacteristic`, `StandardNameCharacteristic`, `AttributesCharacteristic`, `QuantityTypeCharacteristic`, `ConservationCharacteristic`, `NormalizationCharacteristic` | Same names minus `Aspect`. Mismatch detection works; `build_transform` is a stub (see `ARCHITECTURE.md` §1.1). |
-| `StateItemSpec` | `StateItemNode` + `GraphStateItem` | Spec = description + producer/consumer. Graph = node (identity, revision) + payload; producer/consumer are dependency edges. |
+| `StateItemSpec` | `StateItemNode` + `StateItemDescriptor` + `GraphStateItem` | Spec = description + producer/consumer. Graph = node (identity, revision) + descriptor (description) + payload (ESMF handle); producer/consumer are dependency edges. |
 | `VariableSpec` | `VariableSpec` (unchanged) | Fortran-level user declaration. Graph reads it in `advertise_one`; plan D5 adds `make_characteristics` beside `make_aspects`. |
 | `ExtensionTransform` (`ConvertUnitsTransform`, `CopyTransform`, `RegridTransform`, `VerticalRegridTransform`, `TimeInterpolateTransform`, `NormalizationTransform`, `EvalTransform`) | `Transform` / `TransformGraphNode` (`UnitsConverterTransform`, `TypeKindConverterTransform`, `BracketTimeInterpolationTransform`, `ExpressionTransform`) | Graph transforms compute over named ports. No graph regrid transform yet. |
 | `CouplerMetaComponent`, `GenericCoupler` (gridcomp wrapping a transform) | `TransformGraphNode` node in the dependency graph | |

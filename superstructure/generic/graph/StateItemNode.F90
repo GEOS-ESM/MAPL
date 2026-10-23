@@ -2,14 +2,16 @@
 
 !------------------------------------------------------------------------------
 ! StateItemNode: concrete GraphNode holding exactly one GraphStateItem payload
-! and one NodeRevision (REQ-NODE-003a, REQ-SI-005), in addition to the NodeId
-! and lifecycle status inherited from BaseGraphNode. No adjacency.
+! (the ESMF handle), one StateItemDescriptor (the item's description), and one
+! NodeRevision (REQ-NODE-003a, REQ-SI-005), in addition to the NodeId and
+! lifecycle status inherited from BaseGraphNode. No adjacency.
 !------------------------------------------------------------------------------
 module mapl_StateItemNode_mod
    use esmf, only: ESMF_StateIntent_Flag, ESMF_STATEINTENT_INVALID
    use mapl_BaseGraphNode_mod, only: BaseGraphNode
    use mapl_NodeId_mod, only: NodeId
    use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
    use mapl_ErrorHandling_mod
@@ -39,6 +41,7 @@ module mapl_StateItemNode_mod
    type, extends(BaseGraphNode) :: StateItemNode
       private
       type(GraphStateItem) :: payload
+      type(StateItemDescriptor) :: descriptor
       type(NodeRevision) :: revision
       character(:), allocatable :: short_name
       type(ESMF_StateIntent_Flag) :: state_intent = ESMF_STATEINTENT_INVALID
@@ -48,6 +51,7 @@ module mapl_StateItemNode_mod
       procedure :: get_payload => stateitemnode_get_payload
       procedure :: get_payload_ptr => stateitemnode_get_payload_ptr
       procedure :: set_payload => stateitemnode_set_payload
+      procedure :: get_descriptor => stateitemnode_get_descriptor
       procedure :: get_revision => stateitemnode_get_revision
       procedure :: set_revision => stateitemnode_set_revision
       procedure :: advance_revision => stateitemnode_advance_revision
@@ -167,8 +171,8 @@ contains
    ! a populated StateItemMemberMap (gFTL2 defined-assignment deep_copy, in a
    ! composite item) segfaults nondeterministically under gfortran, not under
    ! NAG. Callers that only read or mutate the payload in place should prefer
-   ! this over get_payload()/set_payload() (e.g. populate_characteristics in
-   ! GraphBuilder_Advertising_smod.F90). `this` must be a target; callers
+   ! this over get_payload()/set_payload() (e.g. try_alias_export_field in
+   ! GraphBuilder_ConnectionResolution_smod.F90). `this` must be a target; callers
    ! already hold the node via a class(StateItemNode), pointer.
    function stateitemnode_get_payload_ptr(this) result(payload)
       class(StateItemNode), target, intent(in) :: this
@@ -176,6 +180,16 @@ contains
 
       payload => this%payload
    end function stateitemnode_get_payload_ptr
+
+   ! Pointer accessor: the descriptor holds a populated characteristics map,
+   ! which is not safe to copy by assignment under gfortran. `this` must be a
+   ! target.
+   function stateitemnode_get_descriptor(this) result(descriptor)
+      class(StateItemNode), target, intent(in) :: this
+      type(StateItemDescriptor), pointer :: descriptor
+
+      descriptor => this%descriptor
+   end function stateitemnode_get_descriptor
 
    subroutine stateitemnode_set_payload(this, payload)
       class(StateItemNode), intent(inout) :: this

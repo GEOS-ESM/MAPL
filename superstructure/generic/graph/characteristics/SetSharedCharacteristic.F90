@@ -10,7 +10,8 @@
 !
 ! set_shared_characteristic(graph, node_id, new_payload, rc), in one
 ! synchronous call:
-!   1. Installs `new_payload` as `node_id`'s own GraphStateItem payload.
+!   1. Installs `new_payload` as `node_id`'s own GraphStateItem payload
+!      (the ESMF handle only; the node's descriptor is left unchanged).
 !   2. Walks `graph`'s default DependencyNetwork%get_successors from
 !      `node_id`, filtering to StateItemNode successors only
 !      (TransformGraphNode successors are left to the lazy,
@@ -47,6 +48,7 @@ module mapl_SetSharedCharacteristic_mod
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_NodeId_mod, only: NodeId, operator(==)
    use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
@@ -190,34 +192,32 @@ contains
    end subroutine reset_dependent_if_state_item
 
    subroutine invalidate_matching_reference_characteristics(dependent_node, shared_node_id, rc)
-      class(StateItemNode), intent(inout) :: dependent_node
+      class(StateItemNode), target, intent(inout) :: dependent_node
       type(NodeId), intent(in) :: shared_node_id
       integer, optional, intent(out) :: rc
 
-      type(GraphStateItem) :: payload
+      type(StateItemDescriptor), pointer :: descriptor
       type(StateItemCharacteristicMap) :: characteristics
       type(StateItemCharacteristicKind), allocatable :: matching_kinds(:)
       class(StateItemCharacteristic), allocatable :: characteristic
       integer :: i, status
 
-      payload = dependent_node%get_payload()
-      characteristics = payload%get_characteristics()
+      descriptor => dependent_node%get_descriptor()
+      characteristics = descriptor%get_characteristics()
 
       ! Collect-then-process (set_shared_characteristic's own comment
       ! explains why): find which kinds are matching ReferenceCharacteristic
       ! entries first, with no mutation and no other procedure call while
-      ! the map iterator is live; only then mutate payload's own map in
-      ! an ordinary indexed loop.
+      ! the map iterator is live; only then mutate the descriptor's own map
+      ! in an ordinary indexed loop.
       call collect_matching_reference_kinds(characteristics, shared_node_id, matching_kinds)
 
       do i = 1, size(matching_kinds)
-         call payload%get_characteristic(matching_kinds(i), characteristic, rc=status)
+         call descriptor%get_characteristic(matching_kinds(i), characteristic, rc=status)
          _ASSERT(status == _SUCCESS, 'set_shared_characteristic: matched kind unexpectedly absent')
          call characteristic%set_status(CHARACTERISTIC_STATUS_INVALID)
-         call payload%set_characteristic(matching_kinds(i), characteristic)
+         call descriptor%set_characteristic(matching_kinds(i), characteristic)
       end do
-
-      call dependent_node%set_payload(payload)
 
       _RETURN(_SUCCESS)
    end subroutine invalidate_matching_reference_characteristics

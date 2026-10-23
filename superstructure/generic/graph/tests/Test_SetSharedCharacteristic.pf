@@ -16,6 +16,7 @@ module Test_SetSharedCharacteristic
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_NodeRevision_mod, only: NodeRevision, operator(/=)
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
@@ -86,7 +87,7 @@ contains
    ! entries simply hold the same NodeId.
    @test
    subroutine test_two_state_items_share_one_geometry_reference()
-      type(GraphStateItem) :: item_a, item_b
+      type(StateItemDescriptor) :: item_a, item_b
       type(NodeIdGenerator) :: gen
       type(NodeId) :: shared_id
       class(StateItemCharacteristic), allocatable :: found_a, found_b

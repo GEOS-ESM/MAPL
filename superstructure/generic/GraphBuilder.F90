@@ -81,6 +81,7 @@ module mapl_GraphBuilder_mod
    use mapl_ExtensionMaterialization_mod, only: materialize_field_extension
    use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
    use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_KeywordEnforcer_mod, only: KE => KeywordEnforcer
    use mapl_MatchConnection_mod, only: MatchConnection
    use mapl_SimpleConnection_mod, only: SimpleConnection
@@ -402,7 +403,7 @@ module mapl_GraphBuilder_mod
 
       ! Public ports and child proxies procedures (GraphBuilder_PortsAndProxies_smod.F90)
    module subroutine resolve_export_geom(export_item, owner, geom, found, rc)
-      type(GraphStateItem), intent(in) :: export_item
+      type(StateItemDescriptor), intent(in) :: export_item
       class(OuterMetaComponent), target, intent(inout) :: owner
       type(ESMF_Geom), intent(out) :: geom
       logical, intent(out) :: found
@@ -410,7 +411,7 @@ module mapl_GraphBuilder_mod
 
    end subroutine resolve_export_geom
    module subroutine resolve_export_vgrid(export_item, owner, vgrid)
-      type(GraphStateItem), intent(in) :: export_item
+      type(StateItemDescriptor), intent(in) :: export_item
       class(OuterMetaComponent), target, intent(inout) :: owner
       class(VerticalGrid), allocatable, intent(out) :: vgrid
 

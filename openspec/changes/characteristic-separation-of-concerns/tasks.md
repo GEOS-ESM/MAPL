@@ -10,16 +10,16 @@
 
 ## 1. Extract StateItemDescriptor (B1, no behavior change)
 
-- [ ] 1.1 Add `graph/StateItemDescriptor.F90` holding a
+- [x] 1.1 Add `graph/StateItemDescriptor.F90` holding a
       `StateItemCharacteristicMap`, with `has/get/set_characteristic` and
       `get_characteristics`. Add it to `graph/CMakeLists.txt`.
-- [ ] 1.2 `StateItemNode` owns a descriptor, with `get_descriptor`
+- [x] 1.2 `StateItemNode` owns a descriptor, with `get_descriptor`
       (pointer) accessor.
-- [ ] 1.3 Move the characteristics map and the seven description
+- [x] 1.3 Move the characteristics map and the seven description
       components (design.md §6.1) from `GraphStateItem` to the descriptor,
       keeping their current accessors' names on the descriptor. Update
       every caller.
-- [ ] 1.4 Done when ESSENTIAL passes on NAG and gfortran and
+- [x] 1.4 Done when ESSENTIAL passes on NAG and gfortran and
       `GraphStateItem` has only the handle and member-map components.
 
 ## 2. Generic status resolution (B2)

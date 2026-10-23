@@ -15,7 +15,7 @@ contains
    ! (c) not found. No cross-component mirror propagation.
    ! export_item is read-only.
    module subroutine resolve_export_geom(export_item, owner, geom, found, rc)
-      type(GraphStateItem), intent(in) :: export_item
+      type(StateItemDescriptor), intent(in) :: export_item
       class(OuterMetaComponent), target, intent(inout) :: owner
       type(ESMF_Geom), intent(out) :: geom
       logical, intent(out) :: found
@@ -48,7 +48,7 @@ contains
    ! default so a 2D field in a 3D-capable component does not get that
    ! component's vertical grid.
    module subroutine resolve_export_vgrid(export_item, owner, vgrid)
-      type(GraphStateItem), intent(in) :: export_item
+      type(StateItemDescriptor), intent(in) :: export_item
       class(OuterMetaComponent), target, intent(inout) :: owner
       class(VerticalGrid), allocatable, intent(out) :: vgrid
 

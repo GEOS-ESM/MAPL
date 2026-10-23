@@ -130,7 +130,7 @@ contains
          logical :: has_match
          type(CallbackInterfaceId) :: callback_interface_id
          type(QualifiedExportEntry), allocatable :: callback_matches(:)
-         type(GraphStateItem) :: node_payload
+         type(StateItemDescriptor), pointer :: node_descriptor
 
          ! A destination declaring an expected callback interface is checked
          ! against the flattened namespace, not by exact name. Read-only:
@@ -149,8 +149,8 @@ contains
 
          ! WILDCARD destinations use wildcard_import_has_match: the exact-name
          ! find_export_node fallback below can never match a regex short name.
-         node_payload = node%get_payload()
-         if (node_payload%get_declared_item_type() == MAPL_STATEITEM_WILDCARD) then
+         node_descriptor => node%get_descriptor()
+         if (node_descriptor%get_declared_item_type() == MAPL_STATEITEM_WILDCARD) then
             has_match = wildcard_import_has_match(this, src_pt%component_name, node, _RC)
             if (.not. has_match) then
                call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, node%get_short_name()))
@@ -221,7 +221,7 @@ contains
          ! FieldCreate would overwrite the alias).
          logical :: alias_found
          class(StateItemNode), pointer :: export_node
-         type(GraphStateItem), pointer :: export_item, import_item
+         type(StateItemDescriptor), pointer :: export_item, import_item
          type(StateItemCharacteristicKind), allocatable :: mismatched(:)
          character(:), allocatable :: unsupported_characteristic
          character(:), allocatable :: materialization_failure
@@ -229,7 +229,7 @@ contains
          character(:), pointer :: rejected_item
          integer :: j
          type(CallbackInterfaceId) :: callback_interface_id
-         type(GraphStateItem) :: dst_payload
+         type(StateItemDescriptor), pointer :: dst_descriptor
 
          ! A callback interface and inout borrower intent are mutually exclusive
          ! resolution paths; reject the combination before either branch so
@@ -268,8 +268,8 @@ contains
           ! name) is resolved by fanning the regex matches against the source export
           ! namespace out into composite members of this import's own node. This
           ! branch adds no add_dependency edges.
-          dst_payload = dst_node%get_payload()
-          if (dst_payload%get_declared_item_type() == MAPL_STATEITEM_WILDCARD) then
+          dst_descriptor => dst_node%get_descriptor()
+          if (dst_descriptor%get_declared_item_type() == MAPL_STATEITEM_WILDCARD) then
              call resolve_wildcard_destination(this, src_pt, dst_pt, dst_node, unresolved, _RC)
              _RETURN(_SUCCESS)
           end if
@@ -292,8 +292,8 @@ contains
             _RETURN(_SUCCESS)
          end if
 
-         export_item => export_node%get_payload_ptr()
-         import_item => dst_node%get_payload_ptr()
+         export_item => export_node%get_descriptor()
+         import_item => dst_node%get_descriptor()
          mismatched = find_mismatched_characteristics(export_item%get_characteristics(), import_item%get_characteristics())
 
          if (size(mismatched) == 0) then
@@ -578,7 +578,7 @@ contains
       type(CallbackInterfaceId) :: callback_interface_id
       type(QualifiedExportEntry), allocatable :: callback_matches(:)
       logical :: has_export
-      type(GraphStateItem) :: node_payload
+      type(StateItemDescriptor), pointer :: node_descriptor
 
       resolved = .false.
 
@@ -602,8 +602,8 @@ contains
       end if
 
       ! Same wildcard_import_has_match substitution as check_one.
-      node_payload = node%get_payload()
-      if (node_payload%get_declared_item_type() == MAPL_STATEITEM_WILDCARD) then
+      node_descriptor => node%get_descriptor()
+      if (node_descriptor%get_declared_item_type() == MAPL_STATEITEM_WILDCARD) then
          resolved = wildcard_import_has_match(owner, src_pt%component_name, node, _RC)
          _RETURN(_SUCCESS)
       end if
@@ -1045,7 +1045,7 @@ contains
       type(NodeId) :: candidate_id
       class(GraphNode), pointer :: candidate_node
       logical :: owner_is_chained
-      type(GraphStateItem), pointer :: owner_item, borrower_item
+      type(StateItemDescriptor), pointer :: owner_item, borrower_item
       type(StateItemCharacteristicKind), allocatable :: mismatched(:)
 
       graph => this%get_component_graph()
@@ -1102,8 +1102,8 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      owner_item => owner_node%get_payload_ptr()
-      borrower_item => dst_node%get_payload_ptr()
+      owner_item => owner_node%get_descriptor()
+      borrower_item => dst_node%get_descriptor()
       mismatched = find_mismatched_characteristics(owner_item%get_characteristics(), borrower_item%get_characteristics())
 
       if (size(mismatched) /= 0) then
@@ -1179,10 +1179,8 @@ contains
       _ASSERT(associated(node), 'GraphBuilder: try_alias_export_field - NodeId not found in graph')
       select type (node)
       class is (StateItemNode)
-         ! node_id is the real, already-advertised export node. A wholesale
-         ! set_payload() would discard its established characteristics
-         ! (typekind/units); mutate the payload in place via get_payload_ptr() so
-         ! only the field handle changes (as populate_characteristics does).
+         ! Mutate the stored handle in place through a pointer rather than a
+         ! get_payload()/set_payload() round trip (gfortran copy hazard).
          payload => node%get_payload_ptr()
          call payload%set(alias, _RC)
       class default
@@ -1209,8 +1207,8 @@ contains
         graph, node_id, failure_reason, name, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: export_comp_name
-      type(GraphStateItem), intent(in) :: export_item
-      type(GraphStateItem), intent(in) :: import_item
+      type(StateItemDescriptor), intent(in) :: export_item
+      type(StateItemDescriptor), intent(in) :: import_item
       type(ComponentGraph), target, intent(inout) :: graph
       type(NodeId), intent(in) :: node_id
       character(:), allocatable, intent(out) :: failure_reason
@@ -1287,7 +1285,7 @@ contains
    ! string. Returns '' if never established: an item advertised with no
    ! explicit units never gets this characteristic inserted.
    function get_item_units(item, rc) result(units)
-      type(GraphStateItem), intent(in) :: item
+      type(StateItemDescriptor), intent(in) :: item
       integer, optional, intent(out) :: rc
       character(:), allocatable :: units
 
@@ -1313,7 +1311,7 @@ contains
    ! Same role as get_item_units(), for TYPE_KIND_CHARACTERISTIC_KIND. Always
    ! established (advertise_one inserts it unconditionally).
    function get_item_typekind(item, rc) result(type_kind)
-      type(GraphStateItem), intent(in) :: item
+      type(StateItemDescriptor), intent(in) :: item
       integer, optional, intent(out) :: rc
       type(ESMF_TypeKind_Flag) :: type_kind
 
@@ -1345,8 +1343,8 @@ contains
         mismatched_kinds, intermediate_node_ids, graph, failure_reason, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: export_comp_name
-      type(GraphStateItem), intent(in) :: export_item
-      type(GraphStateItem), intent(in) :: import_item
+      type(StateItemDescriptor), intent(in) :: export_item
+      type(StateItemDescriptor), intent(in) :: import_item
       type(StateItemCharacteristicKind), intent(in) :: mismatched_kinds(:)
       type(NodeId), intent(in) :: intermediate_node_ids(:)
       type(ComponentGraph), target, intent(inout) :: graph
@@ -1420,8 +1418,8 @@ contains
    ! final-node formula of try_materialize_field_extension. _FAILs for any
    ! kind it cannot translate.
    subroutine merged_item_for_link(export_item, import_item, mismatched_kinds, i, units, type_kind, rc)
-      type(GraphStateItem), intent(in) :: export_item
-      type(GraphStateItem), intent(in) :: import_item
+      type(StateItemDescriptor), intent(in) :: export_item
+      type(StateItemDescriptor), intent(in) :: import_item
       type(StateItemCharacteristicKind), intent(in) :: mismatched_kinds(:)
       integer, intent(in) :: i
       character(:), allocatable, intent(out) :: units
@@ -1529,13 +1527,13 @@ contains
    ! excluded either: graphbuilder_run_expression_hook and
    ! resolve_wildcard_destination resolve them.
    logical function is_ordinary_resolvable_import(node) result(is_ordinary)
-      class(StateItemNode), intent(in) :: node
+      class(StateItemNode), target, intent(in) :: node
 
-      type(GraphStateItem) :: payload
+      type(StateItemDescriptor), pointer :: descriptor
       type(ESMF_StateItem_Flag) :: declared_type
 
-      payload = node%get_payload()
-      declared_type = payload%get_declared_item_type()
+      descriptor => node%get_descriptor()
+      declared_type = descriptor%get_declared_item_type()
 
       is_ordinary = .not. (declared_type == MAPL_STATEITEM_SERVICE)
    end function is_ordinary_resolvable_import
@@ -1559,7 +1557,7 @@ contains
       type(NodeId) :: node_id
       class(GraphNode), pointer :: generic_node
       type(GraphResolutionEntryVector) :: local_unresolved
-      type(GraphStateItem) :: payload
+      type(StateItemDescriptor), pointer :: descriptor
 
       graph => this%get_component_graph()
       node_ids = graph%get_node_ids()
@@ -1572,9 +1570,8 @@ contains
          if (.not. associated(generic_node)) cycle
          select type (generic_node)
          class is (StateItemNode)
-            ! NAG rejects `f()%method()` on a function result; use a local temporary.
-            payload = generic_node%get_payload()
-            if (.not. (payload%get_declared_item_type() == MAPL_STATEITEM_EXPRESSION)) cycle
+            descriptor => generic_node%get_descriptor()
+            if (.not. (descriptor%get_declared_item_type() == MAPL_STATEITEM_EXPRESSION)) cycle
             call resolve_expression_item(this, graph, generic_node, local_unresolved, _RC)
          end select
       end do
@@ -1599,7 +1596,7 @@ contains
       type(NodeId) :: node_id
       character(:), allocatable :: hook_key
       type(NodeId), pointer :: existing
-      type(GraphStateItem) :: payload
+      type(StateItemDescriptor), pointer :: descriptor
       character(:), allocatable :: expression
       type(StringVector) :: referenced_names
       type(StringVectorIterator) :: iter
@@ -1630,9 +1627,8 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      ! NAG rejects `f()%method()` on a function result; use a local temporary.
-      payload = node%get_payload()
-      call payload%get_declared_expression(expression)
+      descriptor => node%get_descriptor()
+      call descriptor%get_declared_expression(expression)
       referenced_names = parser_variables_in_expression(expression, _RC)
       this_name = this%get_name(_RC)
 

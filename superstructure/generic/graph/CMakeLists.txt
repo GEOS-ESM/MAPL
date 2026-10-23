@@ -14,6 +14,7 @@ target_sources(MAPL.generic PRIVATE
 
   containers/StateItemMemberMap.F90
   GraphStateItem.F90
+  StateItemDescriptor.F90
   StateItemNode.F90
   GeomProxyField.F90
 

@@ -42,7 +42,8 @@ Facts below were verified against the tree on 2026-10-21 unless marked
 | `HierarchyGraph.F90` | Hierarchy-wide `NodeId→GraphNode` and `DependencyNetworkId→DependencyNetwork` maps plus the shared id generators |
 | `HierarchyResources.F90`, `HierarchyRegistry.F90` | Container for one `HierarchyGraph`; process-wide registry keyed by `HierarchyId` (`request_new_hierarchy`, `get_hierarchy_resources`, `release_hierarchy`) |
 | `GraphNode.F90`, `BaseGraphNode.F90`, `StateItemNode.F90`, `OperationGraphNode.F90`, `MethodGraphNode.F90` | Node hierarchy |
-| `GraphStateItem.F90` | Payload of a `StateItemNode`: Field/FieldBundle/State handle (at most one allocated) **plus**, today, the characteristics map and the `declared_*`, `ungridded_dims`, `vertical_stagger` materialization inputs. The variant tag is read and written only through `MAPL_FieldGet/Set(state_item_variant=)`, `MAPL_FieldBundleGet/Set(state_item_variant=)` and `MAPL_StateGet/Set(state_item_variant=)`; `MAPL_StateItem_Flag` lives in `enums/StateItemFlag.F90` and its Info key in `infrastructure/field/StateItemVariantInfo.F90` and `utils/MAPL_ESMF_InfoKeys.F90`. |
+| `GraphStateItem.F90` | Payload of a `StateItemNode`: Field/FieldBundle/State handle (at most one allocated) and the member maps. Still carries `ordering` / `characteristic_ordering_table` (variant-keyed; replaced by B3-ItemShape). The variant tag is read and written only through `MAPL_FieldGet/Set(state_item_variant=)`, `MAPL_FieldBundleGet/Set(state_item_variant=)` and `MAPL_StateGet/Set(state_item_variant=)`; `MAPL_StateItem_Flag` lives in `enums/StateItemFlag.F90` and its Info key in `infrastructure/field/StateItemVariantInfo.F90` and `utils/MAPL_ESMF_InfoKeys.F90`. |
+| `StateItemDescriptor.F90` | Description of a state item, owned by `StateItemNode` (`get_descriptor()` returns a pointer): the characteristics map (`has/get/set_characteristic`, `get_characteristics`) plus `ungridded_dims`, `vertical_stagger` and the `declared_*` values. Independent of any ESMF handle. |
 | `DependencyNetwork.F90` | Acyclic adjacency-list storage |
 | `ComponentGraph.F90`, `ComponentGraph_DemandDrivenUpdate.F90` | Per-`OuterComponent` owner of resource index, import/export port tables, child-port bindings, lifecycle state; demand-driven `update()`. Node/network storage is in `HierarchyGraph`, reached via a stored `HierarchyId`. |
 | `NodeRevision.F90`, `NodeLabel.F90` | Revision stamps; visualization labels |
@@ -245,10 +246,9 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
   `graphbuilder_populate_state`).
 - Ordinary inout in the general case (Phase 5b2) is blocked on a design
   addendum (`spec/20-implementation-roadmap.md`).
-- `GraphStateItem` mixes the ESMF handle with description data;
-  `ordering` / `characteristic_ordering_table` is variant-keyed with no
-  legacy counterpart. Both are targeted by
-  `docs/graph/plans/separation-of-concerns.md` (B1, B3, B4).
+- `GraphStateItem%ordering` / `characteristic_ordering_table` is
+  variant-keyed with no legacy counterpart; targeted by
+  `docs/graph/plans/separation-of-concerns.md` (B3-ItemShape, B4).
 - Legacy retirement (`registry/`, `specs/*Aspect`, legacy `transforms/`)
   is not started. Its graph-side prerequisites in roadmap §20.4.11 (3b2,
   7a, 7b, 7c, 12, 13) have all landed.

@@ -470,7 +470,17 @@ Review with owner before B1.
 characteristics map and all `declared_*`/`ungridded_dims`/
 `vertical_stagger` into a new type owned by `StateItemNode`. No
 behavior change. `GraphStateItem` left as handle only.
-- **Status:** not started
+- **Status:** done (uncommitted). `StateItemDescriptor` added
+  (`graph/StateItemDescriptor.F90`); `StateItemNode%get_descriptor()`
+  returns a pointer. Deviations: `GraphStateItem%ordering` stays on
+  `GraphStateItem` (design.md deletes it in B3-ItemShape, not B1);
+  `set_shared_characteristic` now installs only the ESMF handle and no
+  longer replaces the node's characteristics or `declared_*` values
+  (design.md §7.3 retargets it in B3-SetShared; no production caller);
+  the characteristic/description tests moved to `Test_StateItemDescriptor.pf`;
+  `find_mismatched_state_item_characteristics`,
+  `resolve_export_geom/vgrid` and the materialization helpers now take
+  `StateItemDescriptor`.
 
 **B2. Generic status resolution.** Implement D2 in base class +
 descriptor (including freeze check for DEFERRED and the EXPRESSION

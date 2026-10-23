@@ -10,10 +10,10 @@ plus one module per concrete characteristic: `PhysicalUnitsCharacteristic`,
 
 ## What a StateItemCharacteristic is
 
-An atomic, independently-adaptable aspect of a `GraphStateItem` (units,
+An atomic, independently-adaptable aspect of a state item (units,
 type/kind, geometry, ...), each reconciled by its own Transform
 (`ConvertUnitsTransform`, a regrid Transform, ...). Lives in
-`GraphStateItem%characteristics` (`StateItemCharacteristicMap`, keyed by
+`StateItemDescriptor%characteristics` (`StateItemCharacteristicMap`, keyed by
 `StateItemCharacteristicKind`), independent of which ESMF component is
 allocated.
 
@@ -92,7 +92,7 @@ design (`state-item-characteristics` design.md Decision D6):
 
 | | `StateItemCharacteristicDetection.F90` | `ExtensionResolution.F90` |
 |---|---|---|
-| Operates on | `GraphStateItem.characteristics` directly | its own `Characteristic`/`CharacteristicMap`, built from `VariableSpec` |
+| Operates on | `StateItemDescriptor` characteristics directly | its own `Characteristic`/`CharacteristicMap`, built from `VariableSpec` |
 | One-sided-kind semantics | mismatched (nothing to compare against) | **not** mismatched (only kinds present on *both* sides are compared) |
 | Caller | future characteristic-based reconciliation | `GraphBuilder`'s existing connection-resolution path (today's actual extension-chain building) |
 

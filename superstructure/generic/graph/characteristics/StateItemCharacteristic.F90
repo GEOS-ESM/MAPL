@@ -118,8 +118,8 @@ module mapl_StateItemCharacteristic_mod
       ! production caller, find_mismatched_state_item_characteristics
       ! (mapl_StateItemCharacteristicDetection_mod), looks both sides up
       ! by the SAME StateItemCharacteristicKind key out of two
-      ! GraphStateItem.characteristics maps, and the only insertion path
-      ! into that map, GraphStateItem%set_characteristic, asserts
+      ! StateItemDescriptor characteristics maps, and the only insertion path
+      ! into that map, StateItemDescriptor%set_characteristic, asserts
       ! `characteristic%get_kind() == kind` before inserting
       ! (REQ-CHAR-006/009, design.md D9) - so any entry retrievable at a
       ! given key is provably that key's own concrete type, for the

@@ -135,24 +135,23 @@ contains
    end subroutine advertise_one
 
    ! Maps the var_spec's declared fields into the node's stored
-   ! GraphStateItem characteristics, ungridded_dims and vertical_stagger.
+   ! StateItemDescriptor.
    subroutine populate_characteristics(node, var_spec, rc)
       class(StateItemNode), target, intent(inout) :: node
       type(VariableSpec), intent(in) :: var_spec
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(GraphStateItem), pointer :: payload
+      type(StateItemDescriptor), pointer :: descriptor
       character(20) :: grid_id_buffer
 
-      ! Mutate the stored payload in place through a pointer, not a
-      ! get_payload()/set_payload() round trip: copying a composite's
-      ! populated StateItemMemberMap triggers gFTL2 deep_copy, which can
-      ! corrupt nondeterministically under gfortran -fcheck=all.
-      payload => node%get_payload_ptr()
+      ! Mutate the stored descriptor in place through a pointer, not a copy:
+      ! copying a populated characteristics map can corrupt nondeterministically
+      ! under gfortran -fcheck=all.
+      descriptor => node%get_descriptor()
 
       if (allocated(var_spec%units)) then
-         call payload%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+         call descriptor%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
               PhysicalUnitsCharacteristic(var_spec%units), _RC)
       end if
       ! typekind always has a value (default ESMF_TYPEKIND_R4), so there
@@ -160,7 +159,7 @@ contains
       ! "inherit from the matched export" is not a real TypeKind label, so
       ! a mirrored item gets no TYPE_KIND entry at advertise time.
       if (var_spec%typekind /= MAPL_TYPEKIND_MIRROR) then
-         call payload%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
+         call descriptor%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
               TypeKindCharacteristic(var_spec%typekind), _RC)
       end if
       if (allocated(var_spec%vertical_grid)) then
@@ -170,7 +169,7 @@ contains
          ! here rather than changing VerticalCoordinateCharacteristic's
          ! own constructor to know about integer ids specifically.
          write(grid_id_buffer, '(I0)') var_spec%vertical_grid%get_id()
-         call payload%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
+         call descriptor%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
               VerticalCoordinateCharacteristic(grid_id=trim(grid_id_buffer), &
                    dimensions=var_spec%vertical_grid%get_supported_physical_dimensions()), _RC)
       end if
@@ -180,7 +179,7 @@ contains
       ! no identity token, needs_extension_for compares dimension sets.
       if (allocated(var_spec%state_item_variant)) then
          if (var_spec%state_item_variant == MAPL_STATEITEM_VERTICALGRID) then
-            call payload%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
+            call descriptor%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
                  VerticalCoordinateCharacteristic(dimensions=var_spec%get_member_names()), _RC)
          end if
       end if
@@ -191,31 +190,31 @@ contains
       ! StandardNameCharacteristic: allocatable, no default - same
       ! `allocated()` gate as units above.
       if (allocated(var_spec%standard_name)) then
-         call payload%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, &
+         call descriptor%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, &
               StandardNameCharacteristic(var_spec%standard_name), _RC)
       end if
       ! AttributesCharacteristic: inserted only when non-empty; an empty
       ! set never mismatches, so skipping it is just an optimization.
       if (var_spec%attributes%size() > 0) then
-         call payload%set_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND, &
+         call descriptor%set_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND, &
               AttributesCharacteristic(var_spec%attributes), _RC)
       end if
       ! UngriddedDimsCharacteristic: unconditional; the default is itself
       ! a comparable value.
-      call payload%set_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
+      call descriptor%set_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
            UngriddedDimsCharacteristic(var_spec%ungridded_dims), _RC)
       ! QuantityType/Conservation/Normalization: unconditional; each
       ! default is a valid comparable value.
-      call payload%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+      call descriptor%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
            QuantityTypeCharacteristic(quantity_type=var_spec%quantity_type), _RC)
-      call payload%set_characteristic(CONSERVATION_CHARACTERISTIC_KIND, &
+      call descriptor%set_characteristic(CONSERVATION_CHARACTERISTIC_KIND, &
            ConservationCharacteristic(var_spec%conservation), _RC)
-      call payload%set_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, &
+      call descriptor%set_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, &
            NormalizationCharacteristic(var_spec%normalization), _RC)
 
-      call payload%set_ungridded_dims(var_spec%ungridded_dims)
+      call descriptor%set_ungridded_dims(var_spec%ungridded_dims)
       if (allocated(var_spec%vertical_stagger)) then
-         call payload%set_vertical_stagger(var_spec%vertical_stagger)
+         call descriptor%set_vertical_stagger(var_spec%vertical_stagger)
       end if
 
       ! Capture the var_spec's explicit geom/vertical_grid overrides and
@@ -223,9 +222,9 @@ contains
       ! vgrid need no VariableSpec. The component-wide geom/vgrid defaults
       ! are NOT captured: GEOM_B runs after ADVERTISE, so they are read
       ! live in GraphBuilder_PortsAndProxies_smod.F90.
-      if (allocated(var_spec%geom)) call payload%set_declared_geom(var_spec%geom)
-      if (allocated(var_spec%vertical_grid)) call payload%set_declared_vertical_grid(var_spec%vertical_grid)
-      call payload%set_declared_item_type(var_spec%itemType)
+      if (allocated(var_spec%geom)) call descriptor%set_declared_geom(var_spec%geom)
+      if (allocated(var_spec%vertical_grid)) call descriptor%set_declared_vertical_grid(var_spec%vertical_grid)
+      call descriptor%set_declared_item_type(var_spec%itemType)
       ! ItemShapeCharacteristic deliberately duplicates the item type just
       ! captured above. Inserted only for shape-comparable types
       ! (FIELD/BRACKET/VECTOR/VECTORBRACKET): other types (EXPRESSION,
@@ -235,18 +234,18 @@ contains
       ! that build_transform fails.
       if (var_spec%itemType == MAPL_STATEITEM_FIELD .or. var_spec%itemType == MAPL_STATEITEM_BRACKET &
            .or. var_spec%itemType == MAPL_STATEITEM_VECTOR .or. var_spec%itemType == MAPL_STATEITEM_VECTORBRACKET) then
-         call payload%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+         call descriptor%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
               ItemShapeCharacteristic(var_spec%itemType), _RC)
       end if
 
       ! Captured at advertise time; populate_one reads it back when it
       ! creates the MAPL_NamedAlias.
-      if (allocated(var_spec%restart_mode)) call payload%set_declared_restart_mode(var_spec%restart_mode)
+      if (allocated(var_spec%restart_mode)) call descriptor%set_declared_restart_mode(var_spec%restart_mode)
 
       ! Captured at advertise time; graphbuilder_run_expression_hook reads
       ! it back.
       if (var_spec%itemType == MAPL_STATEITEM_EXPRESSION .and. allocated(var_spec%expression)) then
-         call payload%set_declared_expression(var_spec%expression)
+         call descriptor%set_declared_expression(var_spec%expression)
       end if
 
       _RETURN(_SUCCESS)

@@ -2,7 +2,7 @@
 
 !------------------------------------------------------------------------------
 ! mapl_StateItemCharacteristicDetection_mod: REQ-CHAR-009's detection
-! algorithm, operating on GraphStateItem.characteristics (graph/state-item)
+! algorithm, operating on StateItemDescriptor characteristics
 ! directly - a new, standalone algorithm, not a rewire of
 ! graph/extension-reuse's existing mapl_ExtensionResolution_mod
 ! find_mismatched_characteristics (which continues to operate on its own,
@@ -26,7 +26,7 @@ module mapl_StateItemCharacteristicDetection_mod
                                                 StateItemCharacteristicMapIterator, &
                                                 operator(==), operator(/=)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
-   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -36,8 +36,8 @@ module mapl_StateItemCharacteristicDetection_mod
 contains
 
    function find_mismatched_state_item_characteristics(item_a, item_b, rc) result(mismatched)
-      type(GraphStateItem), intent(in) :: item_a
-      type(GraphStateItem), intent(in) :: item_b
+      type(StateItemDescriptor), intent(in) :: item_a
+      type(StateItemDescriptor), intent(in) :: item_b
       integer, optional, intent(out) :: rc
       type(StateItemCharacteristicKind), allocatable :: mismatched(:)
 

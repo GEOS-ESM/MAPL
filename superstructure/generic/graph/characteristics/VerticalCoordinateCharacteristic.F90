@@ -108,7 +108,7 @@ contains
 
    ! `goal` is guaranteed a VerticalCoordinateCharacteristic for the real
    ! call chain this method is used in (same guarantee documented on
-   ! GeometryCharacteristic/PhysicalUnitsCharacteristic: GraphStateItem%
+   ! GeometryCharacteristic/PhysicalUnitsCharacteristic: StateItemDescriptor%
    ! set_characteristic asserts kind match before inserting). The class
    ! default branch below should be checked by the calling procedure.
    !

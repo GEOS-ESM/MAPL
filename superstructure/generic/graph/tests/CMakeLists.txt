@@ -27,6 +27,7 @@ set(test_srcs
   Test_NodeIdLabelMap.pf
   Test_GraphNodeHierarchy.pf
   Test_GraphStateItem.pf
+  Test_StateItemDescriptor.pf
   Test_GeomProxyField.pf
   Test_NodeRevision.pf
   Test_DependencyNetwork.pf

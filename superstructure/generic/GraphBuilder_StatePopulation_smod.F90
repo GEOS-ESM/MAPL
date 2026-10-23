@@ -208,17 +208,15 @@ contains
       type(RestartMode), allocatable, intent(out) :: restart_mode
 
       class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: descriptor
 
       node => graph%get_node(node_id)
       if (.not. associated(node)) return
 
       select type (node)
       class is (StateItemNode)
-         block
-            type(GraphStateItem) :: payload
-            payload = node%get_payload()
-            call payload%get_declared_restart_mode(restart_mode)
-         end block
+         descriptor => node%get_descriptor()
+         call descriptor%get_declared_restart_mode(restart_mode)
       end select
    end subroutine get_declared_restart_mode
 
