@@ -453,7 +453,13 @@ D1-D6. Must specifically study and document:
 - Inventory of every current `GraphStateItem` component and every
   `populate_characteristics` block -> target characteristic for each.
 Review with owner before B1.
-- **Status:** not started
+- **Status:** done. Deviations from D1-D6 are listed in the change's
+  design.md §8 (component-supplied values start DEFERRED, TypeKind R4
+  default SPECIFIED; ordering re-queried per chain tip; phase argument
+  on `sync_to_info`; Geometry writes `geom=` not an id; provisional
+  `LongName`). Owner answered Q1, Q8, Q10, Q12 (design.md "Owner
+  decisions"). The remaining questions are deferred to the B3 task named
+  beside each.
 
 **B1. Extract `StateItemDescriptor`.** Mechanical move of the
 characteristics map and all `declared_*`/`ungridded_dims`/
@@ -474,7 +480,8 @@ Label `B3-<Name>` with the name as listed (exception: PhysicalUnits is
 `B3-Units`). List: PhysicalUnits, TypeKind (finish), UngriddedDims, VerticalCoordinate,
 VerticalStagger (new), Geometry, ItemShape (incl. D4 ordering),
 StandardName, Attributes, QuantityType, Conservation, Normalization,
-RestartMode (new), Expression (new), SetShared (check whether still needed).
+RestartMode (new), Expression (new), LongName (new, provisional),
+SetShared (kept: runtime geometry change is a goal).
 Run one at a time after B2 (direct commits; no parallel agents). Produce `docs/graph/adding-a-characteristic.md`
 in the first one; later ones refine it.
 - Each task whose characteristic has a Transform teaches
