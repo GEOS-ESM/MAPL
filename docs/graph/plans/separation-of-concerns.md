@@ -470,10 +470,10 @@ Review with owner before B1.
 characteristics map and all `declared_*`/`ungridded_dims`/
 `vertical_stagger` into a new type owned by `StateItemNode`. No
 behavior change. `GraphStateItem` left as handle only.
-- **Status:** done (uncommitted). `StateItemDescriptor` added
+- **Status:** done (commit trailer `Plan-Task: B1`). `StateItemDescriptor` added
   (`graph/StateItemDescriptor.F90`); `StateItemNode%get_descriptor()`
   returns a pointer. Deviations: `GraphStateItem%ordering` stays on
-  `GraphStateItem` (design.md deletes it in B3-ItemShape, not B1);
+  `GraphStateItem` (design.md §4 and tasks.md 4.3 delete it in B4);
   `set_shared_characteristic` now installs only the ESMF handle and no
   longer replaces the node's characteristics or `declared_*` values
   (design.md §7.3 retargets it in B3-SetShared; no production caller);

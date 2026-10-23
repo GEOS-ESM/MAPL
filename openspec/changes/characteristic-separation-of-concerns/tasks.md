@@ -69,7 +69,9 @@ nothing for that kind.
       needs it)
 - [ ] 3.14 B3-SetShared: retarget `set_shared_characteristic` to mutate
       the descriptor (§7.3); check and report whether import-side
-      geometry changes (History samplers) are handled.
+      geometry changes (History samplers) are handled. Since B1 it
+      installs only the ESMF handle and leaves the descriptor unchanged,
+      so until this task it cannot change a characteristic.
 
 ## 4. Dispatch removal (B4)
 
