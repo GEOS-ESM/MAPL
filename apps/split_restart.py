@@ -26,7 +26,8 @@ n_files = comm_args['split']
 ncFid = Dataset(Input_file,mode='r')
 
 if 'tile' in ncFid.dimensions:
-   quit()
+   print('split_restart: input has a tile dimension, nothing to split', file=sys.stderr)
+   sys.exit(0)
 
 #---------------------
 # Extracting variables
@@ -46,7 +47,7 @@ Exclude_Var = ['time','edge','lev','lon','lat','AK','BK','unknown_dim1','unknown
 
 remainder = (cube_res*6)%n_files
 if remainder != 0:
-   raise ValueError('number of files my evenly divide 6 times cube size')
+   raise ValueError('number of files must evenly divide 6 times cube size')
 
 y_size = cube_res*6//n_files
 
