@@ -22,14 +22,18 @@ module mapl_FieldDictionaryConfig_mod
    private
 
    public :: FieldDictionaryConfig
+   public :: set_field_dictionary_config
+   public :: get_field_dictionary_config
 
    type :: FieldDictionaryConfig
       private
       character(:), allocatable :: dictionary_path
       type(MAPL_ValidationMode) :: validation_mode
+      logical :: suppress_standard_name_warnings = .false.
    contains
       procedure :: get_dictionary_path
       procedure :: get_validation_mode
+      procedure :: suppress_standard_name_warnings_flag
       procedure :: has_dictionary_path
       procedure :: is_exempt
    end type FieldDictionaryConfig
@@ -37,9 +41,44 @@ module mapl_FieldDictionaryConfig_mod
    interface FieldDictionaryConfig
       module procedure new_default
       module procedure new_from_hconfig
+      module procedure new_from_path
    end interface FieldDictionaryConfig
 
+   ! Module-level singleton, mirroring the_field_dictionary/get_field_dictionary
+   ! in mapl_FieldDictionary_mod: set once (typically by
+   ! MaplFramework%initialize_field_dictionary) and consulted thereafter by
+   ! StandardNameAspect and VariableSpec's dictionary-defaulting logic so
+   ! neither has to thread a FieldDictionaryConfig through every call site.
+   ! Lazily defaulted (via get_field_dictionary_config) to FieldDictionaryConfig()
+   ! (permissive) if never explicitly set, so code paths that run before/without
+   ! cap.yaml parsing (e.g. unit tests that build aspects directly) still get a
+   ! well-defined mode. (Cannot give this a non-trivial default initializer:
+   ! FieldDictionaryConfig is also this module's generic constructor name, which
+   ! shadows the intrinsic structure constructor for keyword-based initialization.)
+   type(FieldDictionaryConfig), private, target, save :: the_field_dictionary_config
+   logical, private, save :: is_config_set = .false.
+
 contains
+
+   ! Explicitly set the singleton (typically once, from
+   ! MaplFramework%initialize_field_dictionary).
+   subroutine set_field_dictionary_config(config)
+      type(FieldDictionaryConfig), intent(in) :: config
+      the_field_dictionary_config = config
+      is_config_set = .true.
+   end subroutine set_field_dictionary_config
+
+   ! Retrieve the singleton, lazily defaulting to FieldDictionaryConfig()
+   ! (permissive, default dictionary path) if set_field_dictionary_config was
+   ! never called.
+   function get_field_dictionary_config() result(ptr)
+      type(FieldDictionaryConfig), pointer :: ptr
+      if (.not. is_config_set) then
+         the_field_dictionary_config = FieldDictionaryConfig()
+         is_config_set = .true.
+      end if
+      ptr => the_field_dictionary_config
+   end function get_field_dictionary_config
 
    ! Construct with sensible defaults: permissive mode, look for
    ! 'field_dictionary.yaml' in the current working directory.
@@ -52,6 +91,17 @@ contains
       config%dictionary_path   = 'field_dictionary.yaml'
       config%validation_mode   = MAPL_VALIDATION_MODE_PERMISSIVE
    end function new_default
+
+   ! Construct from a bare path string - the pre-#5413 form of the
+   ! `field_dictionary:` cap.yaml key (a scalar, not a mapping). Mode
+   ! defaults to permissive (same as new_default), only the path differs.
+   function new_from_path(path) result(config)
+      type(FieldDictionaryConfig) :: config
+      character(*), intent(in) :: path
+
+      config = FieldDictionaryConfig()
+      config%dictionary_path = path
+   end function new_from_path
 
    ! Construct from the mapl/field_dictionary YAML mapping node
    function new_from_hconfig(node, rc) result(config)
@@ -73,6 +123,11 @@ contains
       if (ESMF_HConfigIsDefined(node, keyString='validation_mode')) then
          temp_string = ESMF_HConfigAsString(node, keyString='validation_mode', _RC)
          config%validation_mode = MAPL_ValidationMode(temp_string)
+      end if
+
+      if (ESMF_HConfigIsDefined(node, keyString='suppress_standard_name_warnings')) then
+         config%suppress_standard_name_warnings = &
+              ESMF_HConfigAsLogical(node, keyString='suppress_standard_name_warnings', _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -110,6 +165,11 @@ contains
       class(FieldDictionaryConfig), intent(in) :: this
       mode = this%validation_mode
    end function get_validation_mode
+
+   pure logical function suppress_standard_name_warnings_flag(this)
+      class(FieldDictionaryConfig), intent(in) :: this
+      suppress_standard_name_warnings_flag = this%suppress_standard_name_warnings
+   end function suppress_standard_name_warnings_flag
 
    pure logical function has_dictionary_path(this)
       class(FieldDictionaryConfig), intent(in) :: this

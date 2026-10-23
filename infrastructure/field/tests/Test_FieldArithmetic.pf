@@ -204,4 +204,142 @@ contains
       @assertEqual(x_ptr, result_array)
    end subroutine test_FieldNegR4
 
+   @Test(npes=[4])
+   subroutine test_FieldSetR4(this)
+      class(MpiTestMethod), intent(inout) :: this
+      real(kind=ESMF_KIND_R4), parameter :: constant_val = 42.0
+      type(ESMF_Field) :: x
+      real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:)
+      integer :: status, rc
+
+      x = XR4
+      call FieldSet(x, constant_val, _RC)
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+      @assertTrue(all(x_ptr == constant_val))
+   end subroutine test_FieldSetR4
+
+   @Test(npes=[4])
+   subroutine test_FieldIsConstantR4(this)
+      class(MpiTestMethod), intent(inout) :: this
+      real(kind=ESMF_KIND_R4), parameter :: constant_val = 42.0
+      type(ESMF_Field) :: x
+      real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:)
+      logical :: is_constant
+      integer :: status, rc
+
+      x = XR4
+      call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+
+      x_ptr = constant_val
+      is_constant = FieldIsConstant(x, constant_val, _RC)
+      @assertTrue(is_constant, 'field is uniformly constant_val, expected .true.')
+
+      x_ptr = constant_val
+      x_ptr(1,1) = constant_val + 1.0
+      is_constant = FieldIsConstant(x, constant_val, _RC)
+      @assertFalse(is_constant, 'field is not uniformly constant_val, expected .false.')
+   end subroutine test_FieldIsConstantR4
+
+   ! ------------------------------------------------------------------
+   ! No-DE regression tests.
+   !
+   ! mk_grid() creates a grid with exactly 4 DEs (a 2x2 decomposition).
+   ! Running with 5 PEs means PET 4 legitimately owns zero DEs for XR4/
+   ! YR4/XR8/YR8. These tests confirm FieldPow/FieldNegate/FieldSet/
+   ! FieldIsConstant no longer crash on that rank (they used to, via an
+   ! unconditional ESMF_FieldGet(..., farrayPtr=...) inside
+   ! assign_fptr()/FieldGetCptr()), and that the PETs that do own data
+   ! still get correct results.
+   ! ------------------------------------------------------------------
+
+   @Test(npes=[5])
+   subroutine test_FieldPowR4_no_DE(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_Field) :: x
+      real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:)
+      real(kind=ESMF_KIND_R4), allocatable :: result_array(:,:)
+      integer :: status, rc
+      real :: expo
+      logical :: has_de
+
+      x = XR4
+      has_de = field_has_de(x, _RC)
+      expo = 4.0
+      if (has_de) then
+         call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
+         x_ptr = 2.0
+         result_array = x_ptr
+         result_array = 2.0**expo
+      end if
+      call FieldPow(x, x, expo, _RC)
+      if (has_de) then
+         call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
+         @assertEqual(x_ptr, result_array)
+      end if
+   end subroutine test_FieldPowR4_no_DE
+
+   @Test(npes=[5])
+   subroutine test_FieldNegR4_no_DE(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_Field) :: x
+      real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:)
+      real(kind=ESMF_KIND_R4), allocatable :: result_array(:,:)
+      integer :: status, rc
+      logical :: has_de
+
+      x = XR4
+      has_de = field_has_de(x, _RC)
+      if (has_de) then
+         call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
+         x_ptr = 2.0
+         result_array = x_ptr
+         result_array = -2.0
+      end if
+      call FieldNegate(x, _RC)
+      if (has_de) then
+         call ESMF_FieldGet(x , farrayPtr = x_ptr, _RC)
+         @assertEqual(x_ptr, result_array)
+      end if
+   end subroutine test_FieldNegR4_no_DE
+
+   @Test(npes=[5])
+   subroutine test_FieldSetR4_no_DE(this)
+      class(MpiTestMethod), intent(inout) :: this
+      real(kind=ESMF_KIND_R4), parameter :: constant_val = 42.0
+      type(ESMF_Field) :: x
+      real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:)
+      integer :: status, rc
+      logical :: has_de
+
+      x = XR4
+      has_de = field_has_de(x, _RC)
+      call FieldSet(x, constant_val, _RC)
+      if (has_de) then
+         call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+         @assertTrue(all(x_ptr == constant_val))
+      end if
+   end subroutine test_FieldSetR4_no_DE
+
+   @Test(npes=[5])
+   subroutine test_FieldIsConstantR4_no_DE(this)
+      class(MpiTestMethod), intent(inout) :: this
+      real(kind=ESMF_KIND_R4), parameter :: constant_val = 42.0
+      type(ESMF_Field) :: x
+      real(kind=ESMF_KIND_R4), pointer :: x_ptr(:,:)
+      logical :: is_constant
+      logical :: has_de
+      integer :: status, rc
+
+      x = XR4
+      has_de = field_has_de(x, _RC)
+      if (has_de) then
+         call ESMF_FieldGet(x, farrayPtr = x_ptr, _RC)
+         x_ptr = constant_val
+      end if
+      is_constant = FieldIsConstant(x, constant_val, _RC)
+      ! A rank with no local elements is vacuously "constant" (all() on a
+      ! zero-size array is .true.), matching a real (non-empty) uniform field.
+      @assertTrue(is_constant, 'expected .true. (vacuously true when no local DE)')
+   end subroutine test_FieldIsConstantR4_no_DE
+
 end module Test_FieldArithmetic

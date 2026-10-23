@@ -60,9 +60,10 @@ module mapl_LatAxis_mod
          integer, optional, intent(out) :: rc
       end function make_LatAxis_from_hconfig
 
-      module function make_LatAxis_from_metadata(file_metadata, rc) result(axis)
+      module function make_LatAxis_from_metadata(file_metadata, tolerance, rc) result(axis)
          type(LatAxis) :: axis
          type(FileMetadata), intent(in) :: file_metadata
+         real(kind=R8), optional, intent(in) :: tolerance
          integer, optional, intent(out) :: rc
       end function make_LatAxis_from_metadata
 
@@ -90,11 +91,12 @@ module mapl_LatAxis_mod
    CONTAINS
 
    ! Constructor
-   pure function new_LatAxis(centers, corners) result(axis)
+   pure function new_LatAxis(centers, corners, tolerance) result(axis)
       type(LatAxis) :: axis
       real(kind=R8), intent(in) :: centers(:)
       real(kind=R8), intent(in) :: corners(:)
-      axis%CoordinateAxis = CoordinateAxis(centers, corners)
+      real(kind=R8), optional, intent(in) :: tolerance
+      axis%CoordinateAxis = CoordinateAxis(centers, corners, tolerance)
    end function new_LatAxis
 
    elemental logical function equal_to(a, b)

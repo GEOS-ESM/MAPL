@@ -1,0 +1,17 @@
+run_extdata: true
+run_history: true
+
+extdata_name: &extdata EXTDATA
+history_name: &history HIST
+root_name: &root GCM
+
+mapl:
+  setServices:
+    sharedObj: libMAPL.cap
+  children:
+    *root :
+      config_file: GCM.yaml
+    *extdata :
+      config_file: extdata.yaml
+    *history :
+      config_file: history.yaml

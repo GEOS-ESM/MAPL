@@ -8,7 +8,7 @@ module mapl_VerticalRegridTransform_mod
    use mapl_StateItem_mod
    use mapl_ExtensionTransform_mod
    use mapl_ComponentDriver_mod
-   use mapl_enums_api, only: MAPL_GENERIC_COUPLER_UPDATE
+   use mapl_enums_api, only: MAPL_GENERIC_COUPLER_UPDATE, MAPL_GENERIC_COUPLER_INITIALIZE
    use mapl_VerticalRegridMethod_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_VerticalLinearMap_mod, only: compute_linear_map
@@ -74,7 +74,7 @@ module mapl_VerticalRegridTransform_mod
    !! **Full Regridding Case:**
    !!
    !! When grids differ (is_degenerate_case = false):
-   !! 1. Canonicalizes coordinates to monotonically decreasing order for interpolation
+   !! 1. Canonicalizes coordinates to a common (decreasing, i.e. UP) orientation for interpolation
    !! 2. Computes sparse interpolation matrix
    !! 3. Applies alignment transformations before/after interpolation as needed
    !!
@@ -150,10 +150,31 @@ contains
       type(ESMF_Clock) :: clock
       integer, optional, intent(out) :: rc
 
+      integer :: status
+
       _ASSERT(this%method == VERTICAL_REGRID_LINEAR .or. this%method == VERTICAL_REGRID_CONSERVATIVE, "method must be LINEAR or CONSERVATIVE")
 
       ! Degenerate case is determined by VerticalGridAspect and passed to constructor
       ! No need to re-check here
+
+      ! v_in_coupler/v_out_coupler are the (possibly multi-step) producer
+      ! chains that populate v_in_coord/v_out_coord (e.g. units and/or
+      ! typekind conversion extensions built on top of the model's native
+      ! vertical coordinate field). These couplers are not part of the
+      ! normal registry-managed extension tree that MAPL's generic
+      ! framework walks during Initialize, so they must be explicitly
+      ! initialized here (mirroring the explicit %run() calls already done
+      ! in update()). Without this, e.g. ConvertUnitsTransform::initialize()
+      ! (which builds the UDUNITS converter) is never called, leaving any
+      ! units-conversion step in the chain operating on an uninitialized
+      ! converter and producing garbage/NaN coordinate values.
+      if (associated(this%v_in_coupler)) then
+         call this%v_in_coupler%initialize(phase_idx=MAPL_GENERIC_COUPLER_INITIALIZE, _RC)
+      end if
+
+      if (associated(this%v_out_coupler)) then
+         call this%v_out_coupler%initialize(phase_idx=MAPL_GENERIC_COUPLER_INITIALIZE, _RC)
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(importState)
@@ -335,28 +356,28 @@ contains
     !> Compute interpolation matrix for vertical regridding with alignment support.
     !!
     !! This subroutine performs alignment-aware coordinate canonicalization before
-    !! computing the interpolation matrix. The key insight is that MAPL's interpolation
-    !! algorithms assume coordinates are in a canonical DOWN orientation (traditional ESM
-    !! convention where vertical index increases downward from top-of-atmosphere).
+    !! computing the interpolation matrix. Coordinates are put in a canonical UP
+    !! orientation (coordinate values decrease with increasing index). Note that
+    !! UP means decreasing values and DOWN means increasing values.
     !!
     !! Alignment Canonicalization Algorithm:
     !! --------------------------------------
     !! 1. Adjust coordinates for stagger location (center vs. edge)
-    !! 2. Canonicalize to DOWN orientation for interpolation:
-    !!    - DOWN alignment: coordinates already in canonical form (no flip)
-    !!    - UP alignment: flip coordinates to DOWN orientation
+    !! 2. Canonicalize to UP (decreasing) orientation for interpolation:
+    !!    - UP alignment: coordinates already in canonical form (no flip)
+    !!    - DOWN alignment: flip coordinates to UP orientation
     !! 3. Compute interpolation matrix using canonicalized coordinates
     !! 4. The matrix maps from canonical source to canonical destination
     !!
     !! The output flipping (if needed) is handled separately by regrid_field_, which
-    !! applies the matrix and then flips the output if dst_alignment is UP.
+    !! applies the matrix and then flips the output if dst_alignment is DOWN.
     !!
-    !! Example: Ocean (UP) → Atmosphere (DOWN)
-    !! - Source coords (ocean): [0, 10, 20, 30] meters (depth increases down = UP)
-    !! - After flip:            [30, 20, 10, 0] meters (canonical DOWN for interpolation)
-    !! - Dest coords (atm):     [1000, 850, 500] hPa (pressure increases down = DOWN, no flip)
+    !! Example: Ocean (DOWN) → Atmosphere (UP)
+    !! - Source coords (ocean): [0, 10, 20, 30] meters (increasing = DOWN)
+    !! - After flip:            [30, 20, 10, 0] meters (canonical UP for interpolation)
+    !! - Dest coords (atm):     [1000, 850, 500] hPa (decreasing = UP, no flip)
     !! - Matrix computed using flipped ocean coords and atm coords
-    !! - regrid_field_ applies matrix (no output flip needed since dst is DOWN)
+    !! - regrid_field_ applies matrix (no output flip needed since dst is UP)
     !!
     !! @param[in]    method        Regridding method (LINEAR or CONSERVATIVE)
     !! @param[inout] v_in_coord    Source vertical coordinate field
@@ -404,13 +425,13 @@ contains
         vv_out = adjust_coords(v_out, grid_stagger, stagger_out, _RC)
         
         ! Canonicalize coordinates for interpolation
-        ! DOWN alignment = default ESM orientation (no flip needed)
-        ! UP alignment = reversed orientation (flip to DOWN for interpolation)
-        if (src_alignment == VCOORD_DIRECTION_UP) then
+        ! UP alignment (decreasing values) = canonical orientation (no flip needed)
+        ! DOWN alignment (increasing values) = flip to UP for interpolation
+        if (src_alignment == VCOORD_DIRECTION_DOWN) then
            vv_in = flip_vertical_coords(vv_in)
         end if
         
-        if (dst_alignment == VCOORD_DIRECTION_UP) then
+        if (dst_alignment == VCOORD_DIRECTION_DOWN) then
            vv_out = flip_vertical_coords(vv_out)
         end if
 
@@ -467,23 +488,23 @@ contains
     !!
     !! Data Flow:
     !! ----------
-    !! 1. Canonicalize input data to DOWN orientation (if needed)
-    !!    - DOWN alignment: use data as-is
-    !!    - UP alignment: flip vertical dimension
+    !! 1. Canonicalize input data to UP orientation (if needed)
+    !!    - UP alignment: use data as-is
+    !!    - DOWN alignment: flip vertical dimension
     !! 2. Apply interpolation matrix (operates on canonicalized data)
     !! 3. Transform output to destination alignment
-    !!    - DOWN alignment: use result as-is
-    !!    - UP alignment: flip vertical dimension
+    !!    - UP alignment: use result as-is
+    !!    - DOWN alignment: flip vertical dimension
     !!
     !! The matrix was computed using canonicalized coordinates (see compute_interpolation_matrix_),
     !! so we must ensure the data is also canonicalized before applying the matrix.
     !!
-    !! Example: Ocean (UP) → Atmosphere (DOWN)
-    !! - Input data (ocean): [T1, T2, T3, T4] aligned with UP coords
-    !! - After flip:         [T4, T3, T2, T1] (canonicalized to DOWN)
-    !! - Apply matrix:       [Ta, Tb, Tc] (interpolated result in DOWN)
-    !! - No output flip needed (dst is DOWN)
-    !! - Final output:       [Ta, Tb, Tc] aligned with DOWN coords
+    !! Example: Ocean (DOWN) → Atmosphere (UP)
+    !! - Input data (ocean): [T1, T2, T3, T4] aligned with DOWN coords
+    !! - After flip:         [T4, T3, T2, T1] (canonicalized to UP)
+    !! - Apply matrix:       [Ta, Tb, Tc] (interpolated result in UP)
+    !! - No output flip needed (dst is UP)
+    !! - Final output:       [Ta, Tb, Tc] aligned with UP coords
     !!
     !! @param[in]    matrix        Pre-computed interpolation matrix
    !! @param[in]    matrix          Sparse interpolation matrix
@@ -525,9 +546,9 @@ contains
       n_ungridded = shape_in(3)
       
       ! Canonicalize input data to match coordinate transformation
-      ! DOWN alignment = default (no flip)
-      ! UP alignment = reversed (flip to DOWN for interpolation)
-      if (src_alignment == VCOORD_DIRECTION_UP) then
+      ! UP alignment = canonical (no flip)
+      ! DOWN alignment = flip to UP for interpolation
+      if (src_alignment == VCOORD_DIRECTION_DOWN) then
          x_in_working = flip_vertical_data(x_in)
       else
          x_in_working = x_in
@@ -590,9 +611,9 @@ contains
       end if
       
       ! Transform output to destination alignment
-      ! Matrix output is in DOWN alignment
-      ! If destination is UP, flip the result
-      if (dst_alignment == VCOORD_DIRECTION_UP) then
+      ! Matrix output is in UP alignment
+      ! If destination is DOWN, flip the result
+      if (dst_alignment == VCOORD_DIRECTION_DOWN) then
          x_out = flip_vertical_data(x_out_working)
       else
          x_out = x_out_working

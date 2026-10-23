@@ -17,9 +17,17 @@ add_custom_target(copy_scenarios ALL
 # load_field_dictionary can find it by relative path at runtime.
 configure_file(field_dictionary_test.yaml field_dictionary_test.yaml COPYONLY)
 
-# Create a shared library for common test sources to avoid parallel build race conditions
-# When multiple test suites compile the same OTHER_SOURCES files to the same MODULE_DIRECTORY,
-# they can conflict during parallel builds
+# Also copy it under the default path MaplFramework%initialize_field_dictionary
+# looks for when no field_dictionary: cap.yaml key is present (which is the
+# case for every pFUnit binary here - see openspec change
+# use-field-dictionary-in-scenario-tests). This activates the fixture above
+# for all six of this directory's pFUnit executables (they share this
+# WORKING_DIRECTORY), in PERMISSIVE ValidationMode (the default).
+configure_file(field_dictionary_test.yaml geos_field_dictionary.yaml COPYONLY)
+
+# Create a shared library for common test sources to avoid parallel build race conditions.
+# Unlike each pFUnit executable below, this library intentionally writes to the
+# shared module directory because it publishes modules for every test suite.
 add_library(MAPL.generic.test_common SHARED
   MockUserGridComp.F90
   MockAspect.F90
@@ -31,20 +39,31 @@ target_include_directories(MAPL.generic.test_common PUBLIC $<BUILD_INTERFACE:${M
 # Common dependencies for all test suites
 set(COMMON_LINK_LIBRARIES MAPL.generic.test_common MAPL.pfunit MAPL.statistics)
 
-# 1. MAPL.generic.scenarios - End-to-end integration test scenarios
+# 1. MAPL.generic.scenarios - End-to-end integration test scenarios.
+# All scenarios now run under STRICT field-dictionary ValidationMode
+# (Initialize_strict, same module as the default Initialize() every other
+# pFUnit binary here still uses) - see openspec change
+# use-field-dictionary-in-scenario-tests. This was previously split into a
+# separate MAPL.generic.scenarios/.strict pair while some scenarios were
+# still being migrated; now that all of them are STRICT-clean, it is a
+# single suite again.
 set(scenarios_test_srcs
   Test_Scenarios.pf
+  Test_MemoryCheckpoint.pf
 )
 
 add_pfunit_ctest(
   MAPL.generic.scenarios
   TEST_SOURCES ${scenarios_test_srcs}
   LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
-  EXTRA_INITIALIZE Initialize
+  EXTRA_INITIALIZE Initialize_strict
   EXTRA_USE mapl_pFUnit_Initialize_mod
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
+# Each pFUnit executable generates a loader module. Keep their module output
+# directories distinct so Ninja has only one producer for each .mod file.
+set_target_properties(MAPL.generic.scenarios PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/scenarios")
 set_tests_properties(MAPL.generic.scenarios PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.scenarios proto_extdata_gc proto_stat_gc copy_scenarios)
 
@@ -71,6 +90,7 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
+set_target_properties(MAPL.generic.transforms PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/transforms")
 set_tests_properties(MAPL.generic.transforms PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.transforms proto_extdata_gc proto_stat_gc)
 
@@ -91,6 +111,7 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
+set_target_properties(MAPL.generic.vertical PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/vertical")
 set_tests_properties(MAPL.generic.vertical PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.vertical proto_extdata_gc proto_stat_gc)
 
@@ -108,6 +129,8 @@ set(aspects_test_srcs
   Test_GeomAspect.pf
   Test_ConservationAspect.pf
   Test_NormalizationAspect.pf
+  Test_ExpressionClassAspect.pf
+  Test_VerticalGridAspect_NoneMatch.pf
 )
 
 add_pfunit_ctest(
@@ -119,6 +142,7 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
+set_target_properties(MAPL.generic.aspects PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/aspects")
 set_tests_properties(MAPL.generic.aspects PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.aspects proto_extdata_gc proto_stat_gc)
 
@@ -140,6 +164,7 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
+set_target_properties(MAPL.generic.components PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/components")
 set_tests_properties(MAPL.generic.components PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.components proto_extdata_gc proto_stat_gc)
 
@@ -160,6 +185,7 @@ set(core_test_srcs
   Test_QuantityType.pf
   Test_ConservationType.pf
   Test_PolymorphicSetMirror.pf
+  Test_RestartBootstrap.pf
 )
 
 add_pfunit_ctest(
@@ -171,6 +197,7 @@ add_pfunit_ctest(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 4
 )
+set_target_properties(MAPL.generic.core PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/core")
 set_tests_properties(MAPL.generic.core PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.core proto_extdata_gc proto_stat_gc)
 

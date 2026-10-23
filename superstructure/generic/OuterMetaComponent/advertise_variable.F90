@@ -19,12 +19,12 @@ contains
       type(StateItemSpec), target :: item_spec
       type(StateItemSpec), pointer :: item_primary
       type(VirtualConnectionPt) :: virtual_pt
-      
+
       item_spec = var_spec%make_StateItemSpec(this%registry, &
-           this%geom, this%vertical_grid, _RC)
+           this%geom, this%geom_id, this%vertical_grid, _RC)
       virtual_pt = var_spec%make_virtualPt()
       call this%registry%add_primary_spec(virtual_pt, item_spec)
-      
+
       item_primary => this%registry%get_primary_spec(virtual_pt, _RC)
 
       call item_primary%create(_RC)
@@ -52,7 +52,7 @@ contains
                call item_spec%activate(_RC)
             end if
          end if
-         
+
          if (state_intent == ESMF_STATEINTENT_INTERNAL) then
             call item_spec%activate(_RC)
          end if

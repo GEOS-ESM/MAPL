@@ -7,7 +7,7 @@ module mapl_ExtDataReader_mod
     use MAPL
     use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER
     use pFlogger, only: logger
-   use, intrinsic :: iso_c_binding, only: c_ptr
+   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
    implicit none(type,external)
    private
 
@@ -106,6 +106,7 @@ module mapl_ExtDataReader_mod
       integer, pointer :: prefetch_only
       logical :: allow_cache_only_prefetch
       logical, allocatable :: submitted(:)
+      logical :: has_de
 
       call ESMF_FieldBundleGet(this%accumulated_fields, fieldCount=num_fields, _RC)
       if (num_fields == 0) then
@@ -142,14 +143,22 @@ module mapl_ExtDataReader_mod
                prefetch_only => this%prefetch_only_map%at(trim(field_name))
 
                call ESMF_FieldGet(field_list(j), grid=grid, typekind=esmf_typekind, _RC)
+               has_de = MAPL_FieldHasDE(field_list(j), _RC)
+               ! With no local DE, this returns a correctly-ranked zero shape.
                element_count = MAPL_FieldGetLocalElementCount(field_list(j), _RC)
 
-               server_bounds = mapl_pFIOServerBounds(grid, element_count, MAPL_PFIO_BOUNDS_READ, time_index=time_index, _RC)
+               server_bounds = mapl_pFIOServerBounds(grid, element_count, MAPL_PFIO_BOUNDS_READ, &
+                    time_index=time_index, has_de=has_de, _RC)
 
                global_start = server_bounds%get_global_start()
                global_count = server_bounds%get_global_count()
                local_start = server_bounds%get_local_start()
-               call MAPL_FieldGetCptr(field_list(j), address, _RC)
+               if (has_de) then
+                  call MAPL_FieldGetCptr(field_list(j), address, _RC)
+               else
+                  ! Empty ranks still submit requests with zero local element counts.
+                  address = c_null_ptr
+               end if
 
                pfio_typekind = mapl_esmf_to_pfio_type(esmf_typekind, _RC)
                new_element_count = server_bounds%get_file_shape()

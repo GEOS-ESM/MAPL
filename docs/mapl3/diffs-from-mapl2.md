@@ -403,55 +403,22 @@ In MAPL3, the time loop has been moved into `Cap` (outside
 means History correctly sees the state at the end of the completed
 timestep before the clock moves forward.
 
-The Cap is configured via a YAML file (`cap.yaml`).  A reference
-example:
+The Cap is configured via three separate YAML files: `mapl.yaml`
+(global MAPL settings, and a pointer to `cap_driver.yaml`),
+`cap_driver.yaml` (clock, restart, checkpointing, and a pointer to
+`cap_gridcomp.yaml`), and `cap_gridcomp.yaml` (root/extdata/history
+component names and the `mapl.children`/`mapl.setServices` tree). A
+reference example:
 
 ```yaml
-cap:
-  name: CAP
-  restart: cap_restart.yaml
-
-  clock:
-    start: 1891-03-01T00:00:00
-    stop:  2999-03-02T21:00:00
-    dt:    PT900S
-    segment_duration: P1H
-    # repeat_duration: P1Y   # for perpetual/spinup runs
-
-  checkpointing:
-    enabled: true
-    final:   true
-    path:    checkpoints
-    alarms:
-      - {frequency: PT6H, refTime: '1891-03-01T00:00:00'}
-      - {times:   ['1891-03-01T00:00:00']}
-      - {offsets: ['P6H']}   # relative to segment start
-
-  root_name:    &root    GCM
-  extdata_name: &extdata EXTDATA
-  history_name: &history HIST
-
-  mapl:
-    children:
-      *root:
-        dso:         libgcm_gc
-        config_file: GCM.yaml
-      *extdata:
-        dso:         libextdata_gc
-        config_file: extdata.yaml
-      *history:
-        dso:         libhistory_gc
-        config_file: history.yaml
-
-#####################################
-# Global services
+# mapl.yaml
 esmf:
   logKindFlag:      ESMF_LOGKIND_MULTI_ON_ERROR
   defaultCalKind:   ESMF_CALKIND_GREGORIAN
   logAppendFlag:    false
 
 mapl:
-  model_petcount: 1
+  app_petcount: 1
   pflogger:       pflogger.yaml
 
   servers:
@@ -459,17 +426,62 @@ mapl:
       num_nodes: 9
     model:
       num_nodes: any
+
+app:
+  config:          cap_driver.yaml
 ```
 
-The `cap.mapl.children` section is one instance of the general `mapl:`
-config mechanism — see [Declarative Component
+```yaml
+# cap_driver.yaml
+name: CAP
+restart: cap_restart.yaml
+cap_gridcomp_config: cap_gridcomp.yaml
+
+clock:
+  start: 1891-03-01T00:00:00
+  stop:  2999-03-02T21:00:00
+  dt:    PT900S
+  segment_duration: P1H
+  # repeat_duration: P1Y   # for perpetual/spinup runs
+
+checkpointing:
+  enabled: true
+  final:   true
+  path:    checkpoints
+  alarms:
+    - {frequency: PT6H, refTime: '1891-03-01T00:00:00'}
+    - {times:   ['1891-03-01T00:00:00']}
+    - {offsets: ['P6H']}   # relative to segment start
+```
+
+```yaml
+# cap_gridcomp.yaml
+root_name:    &root    GCM
+extdata_name: &extdata EXTDATA
+history_name: &history HIST
+
+mapl:
+  children:
+    *root:
+      dso:         libgcm_gc
+      config_file: GCM.yaml
+    *extdata:
+      dso:         libextdata_gc
+      config_file: extdata.yaml
+    *history:
+      dso:         libhistory_gc
+      config_file: history.yaml
+```
+
+The `mapl.children` section in `cap_gridcomp.yaml` is one instance of
+the general `mapl:` config mechanism — see [Declarative Component
 Configuration](#declarative-component-configuration-the-mapl-section)
 in Section 1 for the full description.
 
 #### The `GEOS.x` Universal Executable
 
 MAPL3 ships a single universal executable, `GEOS.x`
-(`gridcomps/cap3g/GEOS.F90`).  Through the combination of `cap.yaml`,
+(`gridcomps/cap3g/GEOS.F90`).  Through the combination of `mapl.yaml`,
 DSO loading, and ESMF's server infrastructure, `GEOS.x` can run *any*
 GEOS model configuration without recompilation.  There is no longer a
 need for separate model-specific executables such as `GEOSgcm.x`.
@@ -478,23 +490,22 @@ It is invoked with a single positional argument — the path to the
 top-level YAML config file:
 
 ```sh
-mpirun -np N GEOS.x cap.yaml
+mpirun -np N GEOS.x mapl.yaml
 ```
 
-`cap.yaml` has four top-level sections that together drive the entire
-run:
+`mapl.yaml`, `cap_driver.yaml`, and `cap_gridcomp.yaml` together drive
+the entire run:
 
-| Section | Purpose |
-|---------|---------|
-| `esmf:` | ESMF initialisation (`logKindFlag`, `defaultCalKind`, etc.) |
-| `mapl:` | Global MAPL settings: `model_petcount`, `pflogger_cfg_file`, `servers:` (I/O server node counts and DSOs) |
-| `cap:` | Clock (`start`, `stop`, `dt`, `segment_duration`), restart file, checkpointing alarms, and the root/extdata/history component names |
-| `cap.mapl.children:` | The DSO declarations that select which science components to load — this is what makes `GEOS.x` universal |
+| File | Purpose |
+|------|---------|
+| `mapl.yaml` (`esmf:`, `mapl:`, `app:`) | ESMF initialisation (`logKindFlag`, `defaultCalKind`, etc.); global MAPL settings: `app_petcount`, `pflogger_cfg_file`, `servers:` (I/O server node counts and DSOs); and `app.config` pointer to `cap_driver.yaml` |
+| `cap_driver.yaml` | Clock (`start`, `stop`, `dt`, `segment_duration`), restart file, checkpointing alarms, and the `cap_gridcomp_config` pointer to `cap_gridcomp.yaml` |
+| `cap_gridcomp.yaml` | The root/extdata/history component names and the `mapl.children:` DSO declarations that select which science components to load — this is what makes `GEOS.x` universal |
 
-By changing only `cap.yaml` — and in particular the `cap.mapl.children:`
-entries — an operator can switch between entirely different model
-configurations (atmosphere-only, coupled, aquaplanet, etc.) without
-touching a line of Fortran or rebuilding the executable.
+By changing only `cap_gridcomp.yaml` — and in particular the
+`mapl.children:` entries — an operator can switch between entirely
+different model configurations (atmosphere-only, coupled, aquaplanet,
+etc.) without touching a line of Fortran or rebuilding the executable.
 
 There is no separate generic equivalent — `GEOS.x` serves all MAPL3
 applications, GEOS and non-GEOS alike.

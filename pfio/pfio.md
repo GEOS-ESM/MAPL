@@ -201,7 +201,7 @@ The server subclass implies its required colocated shared-memory placement:
 
 ```yaml
 mapl:
-  model_petcount: 2
+  app_petcount: 2
   servers:
     async_input_server:
       subclass: AsyncInputServer

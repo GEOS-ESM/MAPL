@@ -86,55 +86,68 @@ contains
       file_shape = this%file_shape
    end function get_file_shape
 
-   function new_pFIOServerBounds_grid(grid, field_shape, read_or_write, time_index, rc) result(server_bounds)
+   function new_pFIOServerBounds_grid(grid, field_shape, read_or_write, time_index, has_de, rc) result(server_bounds)
       type(ESMF_Grid), intent(in) :: grid
       integer, intent(in) :: field_shape(:)
       integer, intent(in) :: read_or_write
       integer, intent(in), optional :: time_index
+      logical, intent(in), optional :: has_de
       integer, intent(out), optional :: rc
       type(pFIOServerBounds) :: server_bounds
 
       integer :: status
-      logical :: vert_only
+      logical :: vert_only, has_de_
+
+      has_de_ = .true.
+      if (present(has_de)) has_de_ = has_de
 
       vert_only = .false.
       if (size(field_shape) == 1) vert_only = .true.
 
       if (vert_only) then
-         server_bounds = pFIOServerBounds_vert_only_field(field_shape(1), time_index, _RC)
+         server_bounds = pFIOServerBounds_vert_only_field(field_shape(1), time_index, has_de_, _RC)
       else
-         server_bounds = pFIOServerBounds_gridded_field(grid, field_shape, read_or_write, time_index, _RC)
+         server_bounds = pFIOServerBounds_gridded_field(grid, field_shape, read_or_write, time_index, has_de_, _RC)
       end if
 
       _RETURN(_SUCCESS)
    end function new_pFIOServerBounds_grid
 
-   function pFIOServerBounds_vert_only_field(num_field_levels, time_index, rc) result(server_bounds)
+   function pFIOServerBounds_vert_only_field(num_field_levels, time_index, has_de, rc) result(server_bounds)
       integer, intent(in) :: num_field_levels
       integer, intent(in), optional :: time_index
+      logical, intent(in) :: has_de
       integer, intent(out), optional :: rc
       type(pFIOServerBounds) :: server_bounds ! result
 
       integer, parameter :: file_dims = 1
-      integer :: tm
+      integer :: tm, start_value
 
       tm = 0
       if (present(time_index)) tm = 1
 
-      allocate(server_bounds%file_shape(1), source=num_field_levels)
-      allocate(server_bounds%local_start_(1 + tm), source=1)
-      allocate(server_bounds%global_start(1 + tm), source=1)
-      allocate(server_bounds%global_count(1 + tm), source=1)
-      server_bounds%global_count(1) = num_field_levels
+      start_value = merge(1, 0, has_de)
+
+      if (has_de) then
+         allocate(server_bounds%file_shape(1), source=num_field_levels)
+      else
+         ! No local DE: this rank contributes nothing for this field.
+         allocate(server_bounds%file_shape(1), source=0)
+      end if
+      allocate(server_bounds%local_start_(1 + tm), source=start_value)
+      allocate(server_bounds%global_start(1 + tm), source=start_value)
+      allocate(server_bounds%global_count(1 + tm), source=start_value)
+      if (has_de) server_bounds%global_count(1) = num_field_levels
 
       _RETURN(_SUCCESS)
    end function pFIOServerBounds_vert_only_field
 
-   function pFIOServerBounds_gridded_field(grid, field_shape, read_or_write, time_index, rc) result(server_bounds)
+   function pFIOServerBounds_gridded_field(grid, field_shape, read_or_write, time_index, has_de, rc) result(server_bounds)
       type(ESMF_Grid), intent(in) :: grid
       integer, intent(in) :: field_shape(:)
       integer, intent(in) :: read_or_write
       integer, intent(in), optional :: time_index
+      logical, intent(in) :: has_de
       integer, intent(out), optional :: rc
       type(pFIOServerBounds) :: server_bounds ! field
 
@@ -142,13 +155,14 @@ contains
       integer :: i1, in, j1, jn, tile, extra_file_dim, file_dims, new_grid_dims
       integer, allocatable :: interior(:), global_dim(:)
 
+      ! tileCount is grid (not per-DE) metadata, so this is safe to query
+      ! even on a rank that has no local DE for this field.
       call ESMF_GridGet(grid, tileCount=tile_count, _RC)
-      call MAPL_GridGet(grid, interior=interior, _RC)
-      i1 = interior(1)
-      in = interior(2)
-      j1 = interior(3)
-      jn = interior(4)
+
+      ! Likewise, global cell counts are grid topology (not per-DE) metadata,
+      ! so this is also safe regardless of has_de.
       call mapl_GridGetGlobalCellCountPerDim(grid, globalCellCountPerDim=global_dim, _RC)
+
       n_dims = size(field_shape)
 
       tm = 0
@@ -167,6 +181,33 @@ contains
       allocate(server_bounds%corner_global_start(file_dims + tm))
       allocate(server_bounds%corner_global_count(file_dims + tm))
       allocate(server_bounds%corner_local_start(file_dims + tm))
+
+      ! Note: global_start/global_count (and corner_global_*) below describe
+      ! the true, full file-variable shape and MUST be the same on every rank
+      ! collaborating on a given collective request -- the pfio server only
+      ! looks at one (arbitrary) representative message per request_id to
+      ! size and populate its read buffer (see ServerThread.F90 read_and_share
+      ! / read_and_gather), so these must never be zeroed out for a no-DE
+      ! rank. Only this rank's own local contribution (file_shape, i.e. the
+      ! ArrayReference's shape) should be zero, which happens automatically
+      ! below since field_shape (element_count) is already all-zero when
+      ! has_de is .false.
+      if (has_de) then
+         call MAPL_GridGet(grid, interior=interior, _RC)
+         i1 = interior(1)
+         in = interior(2)
+         j1 = interior(3)
+         jn = interior(4)
+      else
+         ! No local DE: this rank's position within the global domain is
+         ! irrelevant since it contributes zero elements. Use harmless,
+         ! in-bounds placeholders instead of querying the (unavailable)
+         ! local decomposition element.
+         i1 = 1
+         in = 1
+         j1 = 1
+         jn = 1
+      end if
 
       server_bounds%file_shape(new_grid_dims + 1:file_dims) = field_shape(grid_dims + 1:n_dims)
 

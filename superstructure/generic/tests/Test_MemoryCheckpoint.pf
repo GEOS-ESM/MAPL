@@ -1,0 +1,278 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_MemoryCheckpoint
+
+   use mapl_Generic_mod
+   use mapl_GenericPhases_mod
+   use mapl_MultiState_mod
+   use mapl_Generic_api, only: mapl_GenericSetservices
+   use mapl_state_api, only: MAPL_StateGetPointer
+   use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
+   use esmf
+   use nuopc
+   use pfunit
+
+   implicit none(type,external)
+
+contains
+
+   ! Build and initialize a ROOT GenericGridComp from the given
+   ! scenario config file, returning the outer gridcomp, its clock,
+   ! the top-level import/export MultiState, and the component's
+   ! real internal state (fetched via GridCompGetInternalState, since
+   ! the MultiState constructed here only carries the outer
+   ! import/export handles - its internalState would otherwise be a
+   ! throwaway auto-created state, not the one the component actually
+   ! populates).
+   subroutine build_root(config_name, outer_gc, states, clock, internal_state, unusable, gc_name, rc)
+      character(*), intent(in) :: config_name
+      type(ESMF_GridComp), intent(out) :: outer_gc
+      type(MultiState), intent(out) :: states
+      type(ESMF_Clock), intent(out) :: clock
+      type(ESMF_State), intent(out) :: internal_state
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(*), optional, intent(in) :: gc_name
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_HConfig) :: config
+      type(ESMF_Config) :: config_cf
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Time) :: t0, t1
+      type(ESMF_TimeInterval) :: dt
+      integer :: status, user_status, i
+      character(:), allocatable :: file_name
+      character(:), allocatable :: gc_name_
+
+      gc_name_ = 'ROOT'
+      if (present(gc_name)) gc_name_ = gc_name
+
+      file_name = './scenarios/memory_checkpoint/' // config_name
+      config = ESMF_HConfigCreate(filename=file_name, _RC)
+      config_cf = ESMF_ConfigCreate(hconfig=config, _RC)
+
+      call NUOPC_FieldDictionarySetup(filename='./scenarios/FieldDictionary.yml', _RC)
+
+      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
+      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
+      call ESMF_TimeIntervalSet(dt, h=1)
+      clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
+
+      outer_gc = ESMF_GridCompCreate(name=gc_name_, config=config_cf, _RC)
+      call ESMF_GridCompSetServices(outer_gc, mapl_GenericSetservices, userRC=user_status, _RC)
+      _VERIFY(user_status)
+
+      importState = ESMF_StateCreate(_RC)
+      exportState = ESMF_StateCreate(_RC)
+      states = MultiState(importState=importState, exportState=exportState)
+
+      do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
+         associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
+           call ESMF_GridCompInitialize(outer_gc, &
+                importState=importState, exportState=exportState, clock=clock, &
+                phase=phase, userRC=user_status, _RC)
+           _VERIFY(user_status)
+         end associate
+      end do
+
+      call GridCompGetInternalState(outer_gc, internal_state, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine build_root
+
+   subroutine set_field_value(state, item_name, value, rc)
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: item_name
+      real, intent(in) :: value
+      integer, optional, intent(out) :: rc
+
+      real, pointer :: ptr(:,:)
+      integer :: status
+
+      call MAPL_StateGetPointer(state, ptr, item_name, _RC)
+      ptr = value
+
+      _RETURN(_SUCCESS)
+   end subroutine set_field_value
+
+   subroutine get_field_value(state, item_name, value, rc)
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: item_name
+      real, intent(out) :: value
+      integer, optional, intent(out) :: rc
+
+      real, pointer :: ptr(:,:)
+      integer :: status
+
+      call MAPL_StateGetPointer(state, ptr, item_name, _RC)
+      value = ptr(1,1)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_field_value
+
+   ! Write-then-read round trip: write in-memory checkpoint, mutate
+   ! live field data, read the checkpoint back, and confirm the
+   ! original (pre-mutation) values are restored.
+   @test(npes=[0])
+   subroutine test_write_then_read_round_trip(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(MultiState) :: states
+      type(ESMF_Clock) :: clock
+      type(ESMF_State) :: internal_state
+      integer :: status, user_status
+      real :: import_value, internal_value
+
+      call build_root('root.yaml', outer_gc, states, clock, internal_state, gc_name='ROOT_round_trip', _RC)
+
+      call set_field_value(states%importState, 'I_A1', 1.0, _RC)
+      call set_field_value(internal_state, 'Z_A1', 2.0, _RC)
+      call set_field_value(states%exportState, 'E_A1', 3.0, _RC)
+
+      ! In-memory checkpoint write
+      call ESMF_GridCompWriteRestart(outer_gc, &
+           importState=states%importState, exportState=states%exportState, clock=clock, &
+           phase=GENERIC_INTERNAL_WRITE_RESTART, userRC=user_status, _RC)
+      _VERIFY(user_status)
+
+      ! Mutate live data after the write
+      call set_field_value(states%importState, 'I_A1', 100.0, _RC)
+      call set_field_value(internal_state, 'Z_A1', 200.0, _RC)
+      call set_field_value(states%exportState, 'E_A1', 300.0, _RC)
+
+      ! In-memory checkpoint read
+      call ESMF_GridCompReadRestart(outer_gc, &
+           importState=states%importState, exportState=states%exportState, clock=clock, &
+           phase=GENERIC_INTERNAL_READ_RESTART, userRC=user_status, _RC)
+      _VERIFY(user_status)
+
+      call get_field_value(states%importState, 'I_A1', import_value, _RC)
+      call get_field_value(internal_state, 'Z_A1', internal_value, _RC)
+
+      @assert_that(import_value, is(equal_to(1.0)))
+      @assert_that(internal_value, is(equal_to(2.0)))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_write_then_read_round_trip
+
+   ! Reading an in-memory checkpoint for a state with no prior write
+   ! must fail with an error rather than silently leaving the live
+   ! state unmodified. The failure originates from an _ASSERT deep in
+   ! OuterMetaComponent%read_restart and propagates outward through
+   ! three additional _VERIFY-wrapped call frames (each raising its
+   ! own pFUnit exception via MAPL_throw_exception); each layer must
+   ! be unwound with its own @assertExceptionRaised.
+   @test(npes=[0])
+   subroutine test_read_with_no_prior_write_fails(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(MultiState) :: states
+      type(ESMF_Clock) :: clock
+      type(ESMF_State) :: internal_state
+      integer :: status, user_status
+
+      call build_root('root.yaml', outer_gc, states, clock, internal_state, gc_name='ROOT_no_prior_write', _RC)
+
+      ! No prior in-memory write has occurred: expect failure.
+      call ESMF_GridCompReadRestart(outer_gc, &
+           importState=states%importState, exportState=states%exportState, clock=clock, &
+           phase=GENERIC_INTERNAL_READ_RESTART, userRC=user_status, rc=status)
+
+      ! Innermost: OuterMetaComponent/read_restart.F90 copy_checkpoint_into_state_
+      @assertExceptionRaised('In-memory checkpoint read requested but no in-memory checkpoint write has occurred.')
+      ! OuterMetaComponent/read_restart.F90 read_memory_checkpoint_ (_VERIFY propagation)
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_read_with_no_prior_write_fails
+
+   ! A second in-memory write overwrites the first snapshot: a read
+   ! after two writes returns the second write's data, not the first's.
+   @test(npes=[0])
+   subroutine test_second_write_overwrites_first(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(MultiState) :: states
+      type(ESMF_Clock) :: clock
+      type(ESMF_State) :: internal_state
+      integer :: status, user_status
+      real :: internal_value
+
+      call build_root('root.yaml', outer_gc, states, clock, internal_state, gc_name='ROOT_second_write', _RC)
+
+      call set_field_value(internal_state, 'Z_A1', 10.0, _RC)
+      call ESMF_GridCompWriteRestart(outer_gc, &
+           importState=states%importState, exportState=states%exportState, clock=clock, &
+           phase=GENERIC_INTERNAL_WRITE_RESTART, userRC=user_status, _RC)
+      _VERIFY(user_status)
+
+      call set_field_value(internal_state, 'Z_A1', 20.0, _RC)
+      call ESMF_GridCompWriteRestart(outer_gc, &
+           importState=states%importState, exportState=states%exportState, clock=clock, &
+           phase=GENERIC_INTERNAL_WRITE_RESTART, userRC=user_status, _RC)
+      _VERIFY(user_status)
+
+      call set_field_value(internal_state, 'Z_A1', 999.0, _RC)
+
+      call ESMF_GridCompReadRestart(outer_gc, &
+           importState=states%importState, exportState=states%exportState, clock=clock, &
+           phase=GENERIC_INTERNAL_READ_RESTART, userRC=user_status, _RC)
+      _VERIFY(user_status)
+
+      call get_field_value(internal_state, 'Z_A1', internal_value, _RC)
+      @assert_that(internal_value, is(equal_to(20.0)))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_second_write_overwrites_first
+
+   ! States excluded by checkpoint_controls/restart_controls are
+   ! neither stored nor restored: with import checkpointing/restart
+   ! disabled, the import state's live data after a write+mutate+read
+   ! cycle reflects the mutation, not the pre-write value.
+   @test(npes=[0])
+   subroutine test_disabled_state_not_stored_or_restored(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(MultiState) :: states
+      type(ESMF_Clock) :: clock
+      type(ESMF_State) :: internal_state
+      integer :: status, user_status
+      real :: import_value, internal_value
+
+      call build_root('root_internal_only.yaml', outer_gc, states, clock, internal_state, gc_name='ROOT_disabled_state', _RC)
+
+      call set_field_value(states%importState, 'I_A1', 1.0, _RC)
+      call set_field_value(internal_state, 'Z_A1', 2.0, _RC)
+
+      call ESMF_GridCompWriteRestart(outer_gc, &
+           importState=states%importState, exportState=states%exportState, clock=clock, &
+           phase=GENERIC_INTERNAL_WRITE_RESTART, userRC=user_status, _RC)
+      _VERIFY(user_status)
+
+      call set_field_value(states%importState, 'I_A1', 100.0, _RC)
+      call set_field_value(internal_state, 'Z_A1', 200.0, _RC)
+
+      call ESMF_GridCompReadRestart(outer_gc, &
+           importState=states%importState, exportState=states%exportState, clock=clock, &
+           phase=GENERIC_INTERNAL_READ_RESTART, userRC=user_status, _RC)
+      _VERIFY(user_status)
+
+      call get_field_value(states%importState, 'I_A1', import_value, _RC)
+      call get_field_value(internal_state, 'Z_A1', internal_value, _RC)
+
+      ! import: checkpoint/restart disabled -> left as mutated
+      @assert_that(import_value, is(equal_to(100.0)))
+      ! internal: checkpoint/restart enabled -> restored
+      @assert_that(internal_value, is(equal_to(2.0)))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_disabled_state_not_stored_or_restored
+
+end module Test_MemoryCheckpoint

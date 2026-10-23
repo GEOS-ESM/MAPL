@@ -476,19 +476,13 @@ contains
       type(MAPL_NormalizationType) :: norm_type
       integer :: status
 
-      _HERE, file, line, this%is_mirror()
-      
       ! Print metadata fields
       norm_type = this%metadata%get_normalization_type()
-      _HERE, file, line, 'normalization_type:', norm_type%to_string()
-      _HERE, file, line, 'scale_factor:', this%metadata%get_normalization_scale()
-      
+
       ! Print aspect-specific fields
       if (allocated(this%source_units)) then
-         _HERE, file, line, 'source_units:', this%source_units
       end if
       if (allocated(this%target_units)) then
-         _HERE, file, line, 'target_units:', this%target_units
       end if
 
       _RETURN(_SUCCESS)

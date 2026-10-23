@@ -178,9 +178,14 @@ contains
 
       integer :: status
       character(:), allocatable :: ignore_
+      logical :: has_de
 
       ignore_ = ''
       if (present(ignore)) ignore_ = ignore
+      has_de = field_has_de(field, _RC)
+      if (.not.has_de) then
+         _RETURN(_SUCCESS)
+      end if
 
       call this%reallocate_field(field, ignore=ignore_, _RC)
 

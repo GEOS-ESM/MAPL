@@ -13,14 +13,15 @@ case_dir="$script_dir/../test_cases/pfio/case05"
 
 mkdir -p "$work_dir"
 cp -R "$case_dir/." "$work_dir/"
-cp "$script_dir/cap-mpi.yaml" "$script_dir/cap-async.yaml" "$work_dir/"
+cp "$script_dir"/cap*.yaml "$work_dir/"
 cp "$work_dir/extdata2.yaml" "$work_dir/extdata-async.yaml"
 cp "$work_dir/extdata2.yaml" "$work_dir/extdata-mpi.yaml"
 
 perl -0pi -e 's/^input_server_name: async_input_server\n//m' "$work_dir/extdata-mpi.yaml"
 perl -0pi -e 's/^log_files_read: .*\n//m' "$work_dir/extdata-mpi.yaml" "$work_dir/extdata-async.yaml"
 perl -0pi -e 's/^RUN_MODE:.*$/RUN_MODE: FillImports/m' "$work_dir/GCM2.yaml"
-perl -0pi -e 's/model_petcount: 1/model_petcount: 5/; s/start: 2004-04-14T21:00:00/start: 2004-04-16T19:45:00/; s/segment_duration: P6D/segment_duration: PT5H/; s/\n  run_times:\n(?:    - .*\n)+/\n/' "$work_dir/cap1.yaml"
+perl -0pi -e 's/app_petcount: 1/app_petcount: 5/' "$work_dir/cap1.yaml"
+perl -0pi -e 's/start: 2004-04-14T21:00:00/start: 2004-04-16T19:45:00/; s/segment_duration: P6D/segment_duration: PT5H/; s/\nrun_times:\n(?:  - .*\n)+/\n/' "$work_dir/cap_driver1.yaml"
 perl -0pi -e 's/currTime: .*/currTime: 2004-04-16T19:45:00/' "$work_dir/cap_restart1.yaml"
 perl -0pi -e 's/im_world: 13/im_world: 512/g; s/jm_world: 9/jm_world: 384/g' \
   "$work_dir/GCM1.yaml" "$work_dir/GCM2.yaml" "$work_dir/history1.yaml"

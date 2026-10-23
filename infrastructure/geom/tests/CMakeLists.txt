@@ -8,6 +8,7 @@ set (TEST_SRCS
   Test_LatAxis.pf
   Test_LatLonGeomSpec.pf
   Test_LatLonGeomFactory.pf
+  Test_LatLonZeroDE.pf
   Test_CubedSphereGeomSpec.pf
   Test_CubedSphereGeomFactory.pf
   Test_GridGet.pf
@@ -30,6 +31,7 @@ set (TEST_SRCS
 set (OTHER_SRCS
   MeshTestHelper.F90
   XYTestHelper.F90
+  LatLonTestHelper.F90
 )
 
 add_pfunit_ctest(MAPL.geom.tests
