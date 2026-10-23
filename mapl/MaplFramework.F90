@@ -24,10 +24,11 @@ module mapl_MaplFramework_mod
     use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER
      use pfio_DirectoryServiceMod, only: DirectoryService
      use pfio_ClientManagerMod, only: get_client, add_client
-    use pfio_MpiServerMod, only: MpiServer
+     use pfio_AsyncInputServerMod, only: AsyncInputServer
+     use pfio_MpiServerMod, only: MpiServer
     use pfio_MultiGroupServerMod, only: MultiGroupServer
     use pfio_BaseServerMod, only: BaseServer
-    use pfio_StringServerMapMod, only: StringServerMap
+     use pfio_StringServerMapMod, only: StringServerMap
     use pfio_ClientThreadMod, only: ClientThread
     use pfio_FastClientThreadMod, only: FastClientThread
     use pfio_AbstractDirectoryServiceMod, only: PortInfo
@@ -59,7 +60,7 @@ module mapl_MaplFramework_mod
       type(ESMF_HConfig) :: hconfig       ! full top-level hconfig
       type(ESMF_HConfig) :: mapl_hconfig  ! mapl: subsection
       type(DirectoryService) :: directory_service
-      type(StringServerMap) :: local_server_map
+       type(StringServerMap) :: local_server_map
       logical :: is_model_pet = .false.
    contains
       procedure :: initialize
@@ -76,15 +77,17 @@ module mapl_MaplFramework_mod
       procedure :: initialize_configured_local_servers
       procedure :: add_local_server
       procedure :: initialize_non_default_servers
-      procedure :: run_servers
-      procedure :: initialize_field_dictionary
-      procedure :: initialize_field_fill_defaults
+       procedure :: run_servers
+       procedure :: run_local_async_servers
+       procedure :: initialize_field_dictionary
+       procedure :: initialize_field_fill_defaults
 
-      procedure :: finalize
-      procedure :: finalize_servers
-      procedure :: finalize_profiler
-      procedure :: finalize_pflogger
-      procedure :: finalize_esmf
+       procedure :: finalize
+       procedure :: finalize_servers
+       procedure :: stop_local_async_servers
+       procedure :: finalize_profiler
+       procedure :: finalize_pflogger
+       procedure :: finalize_esmf
       procedure :: get
       procedure :: is_initialized
    end type MaplFramework
@@ -335,8 +338,7 @@ contains
       character(*), optional, intent(in) :: level_name
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      integer :: world_comm
+      integer :: status, world_comm
       logical :: has_pflogger_cfg_file
       logical :: file_exists
       character(:), allocatable :: pflogger_cfg_file
@@ -430,7 +432,7 @@ contains
       type(ESMF_HConfig) :: servers_hconfig
       type(ESMF_HConfig), allocatable :: server_hconfigs(:)
       character(ESMF_MAXSTR), allocatable :: server_names(:)
-      integer, allocatable :: ssis_per_server(:)
+      integer, allocatable :: ssis_per_server(:), model_pets(:)
       class(Logger), pointer :: lgr
 
       has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
@@ -438,10 +440,9 @@ contains
 
       call this%get_vm_topology(ssiMap=ssiMap, ssiCount=ssiCount, world_comm=world_comm, _RC)
       app_petCount = get_app_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
-      num_model_ssis = get_num_ssis(app_petCount, ssiMap, ssiOffset=0, _RC)
-
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
       call get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, _RC)
+      call get_model_partition(server_hconfigs, app_petCount, ssiMap, model_pets, num_model_ssis, _RC)
       ssis_per_server = get_ssis_per_server(server_hconfigs, ssiCount=ssiCount, num_model_ssis=num_model_ssis, _RC)
 
       required_ssis = num_model_ssis + sum(ssis_per_server)
@@ -493,7 +494,7 @@ contains
    ! Create non-default server communicators and ESMF GridComps when an explicit
    ! servers: section is present.  The default input/output servers created in
    ! initialize() remain available.  This routine re-partitions model_comm to
-   ! exclude server PETs, then adds any local: true servers from the config and
+   ! exclude server PETs, then adds any colocated servers from the config and
    ! builds ESMF GridComps for the remote servers.
    ! Returns server GridComps via servers(:); an empty array if no servers: section.
    subroutine create_servers(this, servers, unusable, rc)
@@ -507,8 +508,11 @@ contains
       integer :: app_petCount
       integer :: world_group, model_group
       integer :: world_comm
-      integer :: ssiCount
-      integer, allocatable :: ssiMap(:)
+      integer :: ssiCount, num_model_ssis
+      integer, allocatable :: ssiMap(:), model_pets(:)
+      type(ESMF_HConfig) :: servers_hconfig
+      type(ESMF_HConfig), allocatable :: server_hconfigs(:)
+      character(ESMF_MAXSTR), allocatable :: server_names(:)
 
       has_server_section = ESMF_HConfigIsDefined(this%mapl_hconfig, keystring='servers', _RC)
       if (.not. has_server_section) then
@@ -518,9 +522,14 @@ contains
       end if
 
       ! Complex path: re-partition model_comm to the model-only PETs, add any
-      ! local: true servers from config, and build remote server GridComps.
+      ! colocated servers from config, and build remote server GridComps.
       call this%get_vm_topology(ssiMap=ssiMap, ssiCount=ssiCount, world_comm=world_comm, _RC)
       app_petCount = get_app_petcount(this%mapl_vm, this%mapl_hconfig, _RC)
+
+      servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
+      call get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, _RC)
+      call get_model_partition(server_hconfigs, app_petCount, ssiMap, model_pets, num_model_ssis, _RC)
+      call ESMF_HConfigDestroy(servers_hconfig, _RC)
 
       ! Free the world-spanning model_comm set in initialize_default_servers and
       ! replace it with the model-only partition.
@@ -528,16 +537,14 @@ contains
          call MPI_Comm_free(this%model_comm, _IERROR)
       end if
       call MPI_Comm_group(world_comm, world_group, _IERROR)
-      call MPI_Group_range_incl(world_group, 1, reshape([0, app_petCount-1, 1], [3,1]), model_group, _IERROR)
+      call MPI_Group_incl(world_group, size(model_pets), model_pets, model_group, _IERROR)
       call MPI_Comm_create_group(world_comm, model_group, 0, this%model_comm, _IERROR)
       call MPI_Group_free(model_group, _IERROR)
       call MPI_Group_free(world_group, _IERROR)
       this%is_model_pet = (this%model_comm /= MPI_COMM_NULL)
 
-      ! Add any local: true servers declared in the servers: section.
-      if (this%is_model_pet) then
-         call this%initialize_configured_local_servers(_RC)
-      end if
+      ! Add any colocated servers declared in the servers: section.
+      call this%initialize_configured_local_servers(_RC)
 
       ! Build ESMF GridComps for remote (non-local) servers.
       call this%initialize_non_default_servers(servers, world_comm, app_petCount, ssiCount, ssiMap, &
@@ -566,25 +573,24 @@ contains
        integer :: server_comm, model_server_comm
        integer :: num_model_ssis
        integer :: n_servers
-       logical :: is_local, has_subclass, has_nwriter
+       logical :: is_local, has_nwriter
        integer :: ssi_0, ssi_1, i_server, i_all
        integer, allocatable :: ssis_per_server(:)
        integer, allocatable :: model_pets(:), server_pets(:)
       type(ESMF_HConfig), allocatable :: server_hconfigs(:)
       character(ESMF_MAXSTR), allocatable :: server_names(:)
+      character(:), allocatable :: subclass_name
       type(ServerResources) :: srv_resources
-
-      num_model_ssis = get_num_ssis(app_petCount, ssiMap, ssiOffset=0, _RC)
 
       servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
       call get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, _RC)
+      call get_model_partition(server_hconfigs, app_petCount, ssiMap, model_pets, num_model_ssis, _RC)
 
       ! get_ssis_per_server handles '*' wildcard for the last server.
       ! Resource validation already ran in MAPL_Initialize; this is belt-and-suspenders.
       ssis_per_server = get_ssis_per_server(server_hconfigs, ssiCount=ssiCount, num_model_ssis=num_model_ssis, _RC)
 
       call MPI_Comm_group(world_comm, world_group, _IERROR)
-      model_pets = pets_on_ssis(ssiMap, 0, num_model_ssis)
       call MPI_Group_incl(world_group, size(model_pets), model_pets, model_group, _IERROR)
       ! model_comm already created in create_servers; derive is_model_pet from it.
       if (present(is_model_pet)) is_model_pet = (this%model_comm /= MPI_COMM_NULL)
@@ -597,7 +603,7 @@ contains
       i_server = 0
       do i_all = 1, size(server_hconfigs)
          ! Skip local servers (already handled in initialize_configured_local_servers)
-         is_local = is_local_server(server_hconfigs(i_all), _RC)
+         call resolve_server_configuration(server_hconfigs(i_all), subclass_name, is_local, _RC)
          if (is_local) then
             cycle
          end if
@@ -610,10 +616,7 @@ contains
          srv_resources%world_comm = model_server_comm
          srv_resources%model_comm = this%model_comm
          srv_resources%server_comm = server_comm
-         srv_resources%subclass = 'MpiServer'
-         has_subclass = ESMF_HConfigIsDefined(server_hconfigs(i_all), keystring='subclass', _RC)
-         if (has_subclass) srv_resources%subclass = &
-              ESMF_HConfigAsString(server_hconfigs(i_all), keystring='subclass', _RC)
+         srv_resources%subclass = subclass_name
          srv_resources%nwriter_per_node = 1
          has_nwriter = ESMF_HConfigIsDefined(server_hconfigs(i_all), keystring='nwriter_per_node', _RC)
          if (has_nwriter) srv_resources%nwriter_per_node = &
@@ -632,23 +635,24 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine initialize_non_default_servers
 
-   ! Initialize servers declared with local: true in the servers: config section.
+   ! Initialize colocated servers from the servers: config section.
    ! Called from create_servers() when a servers: section is present.
    ! The two default servers (MAPL_DEFAULT_INPUT_SERVER, MAPL_DEFAULT_OUTPUT_SERVER)
    ! are NOT created here — they were already created in initialize_default_servers().
-   subroutine initialize_configured_local_servers(this, unusable, rc)
-      class(MaplFramework), target, intent(inout) :: this
-      class(KeywordEnforcer), optional, intent(in) :: unusable
-      integer, optional, intent(out) :: rc
+    subroutine initialize_configured_local_servers(this, unusable, rc)
+       class(MaplFramework), target, intent(inout) :: this
+       class(KeywordEnforcer), optional, intent(in) :: unusable
+       integer, optional, intent(out) :: rc
 
-       integer :: status
-       type(ESMF_HConfig) :: servers_hconfig
-       type(ESMF_HConfig) :: server_val
-       character(:), allocatable :: server_name
-       logical :: is_local
-       type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
+        integer :: status
+        type(ESMF_HConfig) :: servers_hconfig
+        type(ESMF_HConfig) :: server_val
+        character(:), allocatable :: server_name
+        character(:), allocatable :: subclass_name
+        logical :: is_local, is_async_local
+        type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
 
-       ! Iterate the servers: section and register any local: true entries.
+       ! Iterate the servers: section and register colocated entries.
        servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
        iter_begin = ESMF_HConfigIterBegin(servers_hconfig, _RC)
        iter_end   = ESMF_HConfigIterEnd(servers_hconfig, _RC)
@@ -657,13 +661,26 @@ contains
        do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
           server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
           server_val = ESMF_HConfigCreateAtMapVal(iter, _RC)
-          is_local = ESMF_HConfigIsDefined(server_val, keystring='local', _RC)
-          if (is_local) is_local = ESMF_HConfigAsLogical(server_val, keystring='local', _RC)
+         call resolve_server_configuration(server_val, subclass_name, is_local, _RC)
           if (is_local) then
-             call this%add_local_server(server_name, make_client_name(server_name), hconfig=server_val, _RC)
+             is_async_local = (subclass_name == 'AsyncInputServer')
+             if (is_async_local) then
+                if (this%is_model_pet) then
+                   call this%add_local_server(server_name, server_name, &
+                         subclass_name=subclass_name, register_client=.true., rc=status)
+                else
+                   call this%add_local_server(server_name, server_name, &
+                         subclass_name=subclass_name, register_client=.false., rc=status)
+                end if
+             else
+                if (this%is_model_pet) then
+                   call this%add_local_server(server_name, server_name, &
+                         subclass_name=subclass_name, rc=status)
+                end if
+              end if
           end if
           call ESMF_HConfigDestroy(server_val, _RC)
-       end do
+        end do
 
 
       call ESMF_HConfigDestroy(servers_hconfig, _RC)
@@ -675,36 +692,39 @@ contains
    ! Register one local server and connect its client in a single atomic step.
    ! server_name: key used in local_server_map and DirectoryService port registry.
    ! client_name: key used in the pfio ClientManager.
-   ! hconfig: optional — if provided, reads subclass: to dispatch server type.
-   !          If not provided, defaults to MpiServer.
+   ! subclass_name: optional resolved subclass; defaults to MpiServer.
    ! fast_client: if .true., use FastClientThread for the client; default is ClientThread.
-   subroutine add_local_server(this, server_name, client_name, hconfig, fast_client, rc)
+    subroutine add_local_server(this, server_name, client_name, subclass_name, fast_client, register_client, rc)
       class(MaplFramework), target, intent(inout) :: this
       character(*), intent(in) :: server_name
       character(*), intent(in) :: client_name
-       type(ESMF_HConfig), optional, intent(in) :: hconfig
+       character(len=*), optional, intent(in) :: subclass_name
       logical, optional, intent(in) :: fast_client
+      logical, optional, intent(in) :: register_client
       integer, optional, intent(out) :: rc
 
       integer :: status, alloc_stat
+      integer :: world_comm
       class(BaseServer), allocatable :: tmp
       class(BaseServer), pointer :: srv
       class(ClientThread), allocatable :: new_client
       class(ClientThread), pointer :: p_client
-      logical :: has_subclass, use_fast
-      character(:), allocatable :: subclass_name
+      logical :: use_fast, register_client_, supports_cache_only_prefetch
+      character(:), allocatable :: resolved_subclass_name
 
       ! Determine server subclass.
-      subclass_name = 'MpiServer'  ! default
-      if (present(hconfig)) then
-         has_subclass = ESMF_HConfigIsDefined(hconfig, keystring='subclass', _RC)
-         if (has_subclass) subclass_name = ESMF_HConfigAsString(hconfig, keystring='subclass', _RC)
-      end if
+      resolved_subclass_name = 'MpiServer'
+      if (present(subclass_name)) resolved_subclass_name = subclass_name
 
       ! Allocate appropriate server subclass.
-      select case (trim(subclass_name))
+      select case (trim(resolved_subclass_name))
       case ('MpiServer')
-         allocate(tmp, source=MpiServer(this%model_comm, server_name, rc=status), stat=alloc_stat)
+          allocate(tmp, source=MpiServer(this%model_comm, server_name, rc=status), stat=alloc_stat)
+          _VERIFY(status)
+          _VERIFY(alloc_stat)
+      case ('AsyncInputServer')
+         call ESMF_VMGet(this%mapl_vm, mpiCommunicator=world_comm, _RC)
+         allocate(tmp, source=AsyncInputServer(world_comm, server_name, model_comm=this%model_comm, rc=status), stat=alloc_stat)
          _VERIFY(status)
          _VERIFY(alloc_stat)
       case ('MultiGroupServer')
@@ -713,7 +733,7 @@ contains
          _VERIFY(status)
          _VERIFY(alloc_stat)
       case default
-         _ASSERT(.false., "Unknown server subclass: '"//trim(subclass_name)//"'")
+         _ASSERT(.false., "Unknown server subclass: '"//trim(resolved_subclass_name)//"'")
       end select
 
       ! Publish the server so connect_to_server can find it by name.
@@ -721,17 +741,26 @@ contains
       srv => this%local_server_map%at(server_name)
       call this%directory_service%publish(PortInfo(server_name, srv), srv)
 
+      register_client_ = .true.
+      if (present(register_client)) register_client_ = register_client
+      if (.not. register_client_) then
+         _RETURN(_SUCCESS)
+      end if
+
       ! Create the client, store it in the ClientManager, then connect the
       ! map-resident copy to the server.  connect_to_server stores a pointer to
       ! the client internally (SimpleSocket), so the client must be stored in
       ! stable long-lived storage (the ClientManager map) before connecting.
       use_fast = .false.
       if (present(fast_client)) use_fast = fast_client
+      supports_cache_only_prefetch = (trim(resolved_subclass_name) == 'AsyncInputServer')
 
       if (use_fast) then
-         allocate(new_client, source=FastClientThread(client_comm=this%model_comm, rc=status))
+         allocate(new_client, source=FastClientThread(client_comm=this%model_comm, &
+              supports_cache_only_prefetch=supports_cache_only_prefetch, rc=status))
       else
-         allocate(new_client, source=ClientThread(client_comm=this%model_comm, rc=status))
+         allocate(new_client, source=ClientThread(client_comm=this%model_comm, &
+              supports_cache_only_prefetch=supports_cache_only_prefetch, rc=status))
       end if
       _VERIFY(status)
 
@@ -750,13 +779,18 @@ contains
       class(KeywordEnforcer), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      integer :: i, status
+       integer :: i, status
 
-      ! Model PETs have nothing to do here.
-      _RETURN_IF(this%is_model_pet)
+       ! Model PETs have nothing to do here. On non-model PETs, start a
+       ! configured local AsyncInputServer first when this PET is a reader on
+       ! a model-containing shared-memory node. Reader start blocks until the
+       ! model shuts the service down; PETs on remote-server-only nodes skip
+       ! it and continue to their ESMF server GridComp below.
+       _RETURN_IF(this%is_model_pet)
+       call this%run_local_async_servers(_RC)
 
-       ! Server PETs run each server GridComp.
-       ! ESMF only executes on PETs in the GridComp's petList; other
+        ! Server PETs run each server GridComp.
+        ! ESMF only executes on PETs in the GridComp's petList; other
        ! server PETs silently skip GridComps they don't belong to.
        do i = 1, size(servers)
           call ESMF_GridCompRun(servers(i), _RC)
@@ -764,7 +798,52 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine run_servers
+    end subroutine run_servers
+
+    subroutine run_local_async_servers(this, rc)
+      class(MaplFramework), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_HConfig) :: servers_hconfig, server_val
+      type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
+      class(BaseServer), pointer :: server_ptr
+      character(:), allocatable :: server_name, subclass_name
+      logical :: is_local
+
+      servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
+      iter_begin = ESMF_HConfigIterBegin(servers_hconfig, _RC)
+      iter_end = ESMF_HConfigIterEnd(servers_hconfig, _RC)
+      iter = iter_begin
+      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
+         server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+         server_val = ESMF_HConfigCreateAtMapVal(iter, _RC)
+         call resolve_server_configuration(server_val, subclass_name, is_local, _RC)
+         if (is_local .and. subclass_name == 'AsyncInputServer') then
+             server_ptr => this%local_server_map%at(server_name)
+             select type (typed_server => server_ptr)
+             type is (AsyncInputServer)
+                if (typed_server%is_reader_role()) then
+                   if (typed_server%is_model_node()) then
+                      call typed_server%start(_RC)
+                   else
+                      ! This PET belongs to a remote-server-only node. It
+                      ! participated in async topology/window construction,
+                      ! so release those local resources before entering its
+                      ! remote server GridComp.
+                      call typed_server%shutdown(_RC)
+                   end if
+                end if
+            class default
+               _FAIL('registered local async server has the wrong type')
+            end select
+         end if
+         call ESMF_HConfigDestroy(server_val, _RC)
+      end do
+      call ESMF_HConfigDestroy(servers_hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+    end subroutine run_local_async_servers
 
    subroutine mapl_connect_to_server(server_name, unusable, client_name, rc)
       character(*), intent(in) :: server_name
@@ -867,12 +946,13 @@ contains
 
       ! Model PETs send terminate to each external server client so server
       ! PETs can exit server%start() and reach ESMF_Finalize collectively.
-      if (this%is_model_pet) then
-         do i = 1, n_ext_clients
-            p_client => get_client(trim(ext_client_names(i)), _RC)
-            call p_client%terminate(_RC)
-         end do
-      end if
+       if (this%is_model_pet) then
+          do i = 1, n_ext_clients
+             p_client => get_client(trim(ext_client_names(i)), _RC)
+             call p_client%terminate(_RC)
+          end do
+          call this%stop_local_async_servers(_RC)
+       end if
 
       ! local_server_map owns o_server and i_server (and any future local servers).
       ! MpiServer uses allocatable components so clearing the map triggers
@@ -881,7 +961,42 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-   end subroutine finalize_servers
+    end subroutine finalize_servers
+
+    subroutine stop_local_async_servers(this, rc)
+      class(MaplFramework), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_HConfig) :: servers_hconfig, server_val
+      type(ESMF_HConfigIter) :: iter_begin, iter_end, iter
+      class(BaseServer), pointer :: server_ptr
+      character(:), allocatable :: server_name, subclass_name
+      logical :: is_local
+
+      servers_hconfig = ESMF_HConfigCreateAt(this%mapl_hconfig, keystring='servers', _RC)
+      iter_begin = ESMF_HConfigIterBegin(servers_hconfig, _RC)
+      iter_end = ESMF_HConfigIterEnd(servers_hconfig, _RC)
+      iter = iter_begin
+      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end, rc=status))
+         server_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+         server_val = ESMF_HConfigCreateAtMapVal(iter, _RC)
+         call resolve_server_configuration(server_val, subclass_name, is_local, _RC)
+         if (is_local .and. subclass_name == 'AsyncInputServer') then
+            server_ptr => this%local_server_map%at(server_name)
+            select type (typed_server => server_ptr)
+            type is (AsyncInputServer)
+               call typed_server%shutdown(_RC)
+            class default
+               _FAIL('registered local async server has the wrong type')
+            end select
+         end if
+         call ESMF_HConfigDestroy(server_val, _RC)
+      end do
+      call ESMF_HConfigDestroy(servers_hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+    end subroutine stop_local_async_servers
 
    subroutine finalize_profiler(this, unusable, rc)
       class(MaplFramework), intent(inout) :: this
@@ -946,22 +1061,6 @@ contains
        end if
     end function make_client_name
 
-    ! Helper function to check if a server hconfig has local: true.
-    function is_local_server(server_hconfig, rc) result(is_local)
-       type(ESMF_HConfig), intent(in) :: server_hconfig
-       integer, optional, intent(out) :: rc
-       logical :: is_local
-
-       integer :: status
-
-       is_local = ESMF_HConfigIsDefined(server_hconfig, keystring='local', _RC)
-       if (is_local) then
-          is_local = ESMF_HConfigAsLogical(server_hconfig, keystring='local', _RC)
-       end if
-
-       _RETURN(_SUCCESS)
-    end function is_local_server
-
     ! Helper function to count the number of remote (non-local) server entries.
     function count_remote_servers(server_hconfigs, rc) result(count)
        type(ESMF_HConfig), intent(in) :: server_hconfigs(:)
@@ -971,10 +1070,11 @@ contains
        integer :: status
        logical :: is_local
        integer :: i_server
+       character(:), allocatable :: subclass_name
 
        count = 0
        do i_server = 1, size(server_hconfigs)
-          is_local = is_local_server(server_hconfigs(i_server), _RC) 
+          call resolve_server_configuration(server_hconfigs(i_server), subclass_name, is_local, _RC)
           if (.not. is_local) then
              count = count + 1
           end if

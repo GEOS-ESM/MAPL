@@ -2,6 +2,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.extdata.tests")
 
 set (test_srcs
   Test_ExtDataNodeBracket.pf
+  Test_DataSetPreview.pf
   Test_ExtDataCollection.pf
   )
 

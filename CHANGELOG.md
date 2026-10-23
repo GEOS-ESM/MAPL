@@ -56,6 +56,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `AsyncInputServer` now implies its required colocated shared-memory placement;
+  omitting `local` is canonical. The redundant `local: true` spelling remains
+  accepted with a deprecation warning, while `local: false` is rejected.
 - Conserve, bilinear, patch, and conserve_2nd regridding now create their masks with `handleAllElements = .false.` to match MAPL2
 - Activated `superstructure/generic/tests/field_dictionary_test.yaml` (a
   checked-in fixture that had never actually been loaded by anything) as
@@ -141,6 +144,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed `AsyncInputServer` shutdown synchronization, MPI control-traffic isolation,
+  per-node reader reservations, and empty local read completions. Multiple async
+  server instances are rejected. ExtData prefetch now honors the segment stop,
+  tolerates missing future brackets, and submits current reads before speculative
+  work without redundant unchanged-right requests.
 - Fixed logging of resource values that contain `%` (e.g. file-name templates
   such as `%y4%m2%d2`): the HConfig value loggers passed the message to
   pFlogger as its format string, which then failed with "not enough position

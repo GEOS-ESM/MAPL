@@ -32,8 +32,9 @@ module mapl_AbstractDataSetFileSelector_mod
       procedure :: detect_time_flow
       procedure :: get_dataset_metadata
       procedure :: get_file_template
-      procedure :: get_valid_range_single_file
-      procedure(I_update_file_bracket), deferred :: update_file_bracket
+       procedure :: get_valid_range_single_file
+       procedure(I_update_file_bracket), deferred :: update_file_bracket
+       procedure(I_preview_bracket), deferred :: preview_bracket
    end type AbstractDataSetFileSelector
 
    abstract interface
@@ -47,6 +48,16 @@ module mapl_AbstractDataSetFileSelector_mod
          type(DataSetBracket), intent(inout) :: bracket
          integer, optional, intent(out) :: rc
       end subroutine I_update_file_bracket
+
+      subroutine I_preview_bracket(this, current_time, bracket, rc)
+         use ESMF, only: ESMF_Time
+         use mapl_DataSetBracket_mod
+         import AbstractDataSetFileSelector
+         class(AbstractDataSetFileSelector), intent(inout) :: this
+         type(ESMF_Time), intent(in) :: current_time
+         type(DataSetBracket), intent(inout) :: bracket
+         integer, optional, intent(out) :: rc
+      end subroutine I_preview_bracket
    end interface
 
 contains

@@ -27,6 +27,8 @@ module pFIO_AbstractMessageMod
    public :: HandShake_ID
    public :: DUMMY_ID
    public :: ForwardData_ID
+   public :: NextCollectivePrefetchDone_ID
+   public :: COLLECTIVENextPrefetchData_ID
 
    enum, bind(c)
       enumerator :: TERMINATE_ID = 1
@@ -46,8 +48,10 @@ module pFIO_AbstractMessageMod
       enumerator :: ReplaceMetadata_ID
       enumerator :: HandShake_ID
       enumerator :: DUMMY_ID
-      enumerator :: ForwardData_ID 
-   end enum
+      enumerator :: ForwardData_ID
+      enumerator :: NextCollectivePrefetchDone_ID
+      enumerator :: COLLECTIVENextPrefetchData_ID
+    end enum
 
    type, abstract :: AbstractMessage
    contains

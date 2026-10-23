@@ -2,6 +2,7 @@
 
 module mapl_MaplServerUtilities_mod
 
+   use, intrinsic :: iso_fortran_env, only: error_unit
    use mapl_ErrorHandling_mod
    use esmf
    use mpi
@@ -13,10 +14,16 @@ module mapl_MaplServerUtilities_mod
    public :: pets_on_ssis
    public :: get_num_ssis
    public :: get_app_petCount
+   public :: get_model_partition
    public :: get_server_hconfigs
    public :: get_ssis_per_server
    public :: create_server_comms
    public :: make_server_gridcomp
+   public :: validate_server_configuration
+   public :: is_local_server_configuration
+   public :: resolve_server_configuration
+
+   logical, save :: warned_async_local = .false.
 
    type :: ServerResources
       integer :: world_comm
@@ -27,6 +34,73 @@ module mapl_MaplServerUtilities_mod
    end type ServerResources
 
 contains
+
+   subroutine validate_server_configuration(server_hconfig, rc)
+      type(ESMF_HConfig), intent(in) :: server_hconfig
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: is_local
+      character(:), allocatable :: subclass_name
+
+      call resolve_server_configuration(server_hconfig, subclass_name, is_local, rc=status)
+      if (status /= _SUCCESS) then
+         if (present(rc)) rc = status
+         return
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine validate_server_configuration
+
+   function is_local_server_configuration(server_hconfig, rc) result(is_local)
+      type(ESMF_HConfig), intent(in) :: server_hconfig
+      integer, optional, intent(out) :: rc
+      logical :: is_local
+
+      integer :: status
+      character(:), allocatable :: subclass_name
+
+      call resolve_server_configuration(server_hconfig, subclass_name, is_local, rc=status)
+      if (status /= _SUCCESS) then
+         if (present(rc)) rc = status
+         return
+      end if
+
+      _RETURN(_SUCCESS)
+   end function is_local_server_configuration
+
+   subroutine resolve_server_configuration(server_hconfig, subclass_name, is_local, rc)
+      type(ESMF_HConfig), intent(in) :: server_hconfig
+      character(:), allocatable, intent(out) :: subclass_name
+      logical, intent(out) :: is_local
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: has_local, has_subclass, requested_local
+
+      subclass_name = 'MpiServer'
+      has_subclass = ESMF_HConfigIsDefined(server_hconfig, keystring='subclass', _RC)
+      if (has_subclass) subclass_name = ESMF_HConfigAsString(server_hconfig, keystring='subclass', _RC)
+
+      has_local = ESMF_HConfigIsDefined(server_hconfig, keystring='local', _RC)
+      requested_local = .false.
+      if (has_local) requested_local = ESMF_HConfigAsLogical(server_hconfig, keystring='local', _RC)
+
+      if (subclass_name == 'AsyncInputServer') then
+         _ASSERT(.not. has_local .or. requested_local, &
+              'AsyncInputServer placement is fixed; omit local or set it to true')
+         is_local = .true.
+         if (has_local .and. .not. warned_async_local) then
+            write(error_unit, '(A)') &
+                 'WARNING: AsyncInputServer local: true is deprecated; omit local because placement is fixed.'
+            warned_async_local = .true.
+         end if
+      else
+         is_local = requested_local
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine resolve_server_configuration
 
    ! Return the PET indices of all PETs whose SSI index falls in [ssi_lo, ssi_hi).
    pure function pets_on_ssis(ssiMap, ssi_lo, ssi_hi) result(pets)
@@ -85,6 +159,55 @@ contains
       _RETURN(_SUCCESS)
    end function get_app_petCount
 
+   ! Reserve async reader PETs on each model SSI before assigning remote SSIs.
+   ! Return one rank list for both the model communicator and remote connections.
+   subroutine get_model_partition(server_hconfigs, pet_count, ssi_map, model_pets, num_model_ssis, rc)
+      type(ESMF_HConfig), intent(in) :: server_hconfigs(:)
+      integer, intent(in) :: pet_count, ssi_map(:)
+      integer, allocatable, intent(out) :: model_pets(:)
+      integer, intent(out) :: num_model_ssis
+      integer, optional, intent(out) :: rc
+
+      integer :: status, i, n_async, remaining, capacity, n_selected
+      integer, allocatable :: node_pets(:)
+      logical, allocatable :: selected(:)
+      logical :: is_local
+      character(:), allocatable :: subclass_name
+
+      n_async = 0
+      do i = 1, size(server_hconfigs)
+         call resolve_server_configuration(server_hconfigs(i), subclass_name, is_local, _RC)
+         if (subclass_name == 'AsyncInputServer') n_async = n_async + 1
+      end do
+      _ASSERT(n_async <= 1, 'Only one AsyncInputServer may be configured')
+      _ASSERT(pet_count > 0 .and. pet_count <= size(ssi_map), 'Invalid model PET count')
+
+      if (n_async == 0) then
+         model_pets = [(i, i = 0, pet_count-1)]
+         num_model_ssis = maxval(ssi_map(1:pet_count)) + 1
+         _RETURN(_SUCCESS)
+      end if
+
+      allocate(selected(size(ssi_map)), source=.false.)
+      remaining = pet_count
+      num_model_ssis = 0
+      do i = 0, maxval(ssi_map)
+         node_pets = pets_on_ssis(ssi_map, i, i+1)
+         ! One captain and at least one worker remain on every selected node.
+         capacity = size(node_pets) - 2
+         _ASSERT(capacity > 0, 'Each async model node requires at least three PETs')
+         n_selected = min(remaining, capacity)
+         selected(node_pets(1:n_selected)+1) = .true.
+         remaining = remaining - n_selected
+         num_model_ssis = i + 1
+         if (remaining == 0) exit
+      end do
+      _ASSERT(remaining == 0, 'Insufficient model PETs after reserving async readers on each node')
+      model_pets = pack([(i, i = 0, size(ssi_map)-1)], selected)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_model_partition
+
    subroutine get_server_hconfigs(servers_hconfig, server_hconfigs, server_names, rc)
       type(ESMF_HConfig), intent(in) :: servers_hconfig
       type(ESMF_HConfig), allocatable, intent(out) :: server_hconfigs(:)
@@ -118,7 +241,8 @@ contains
     ! wildcard value '*' to claim all remaining SSIs after model + prior servers.
     ! ssiCount and num_model_ssis are required to resolve the wildcard.
     !
-    ! Local servers (local: true) consume zero SSIs and are skipped.
+    ! Colocated servers consume zero SSIs and are skipped. AsyncInputServer
+    ! implies this placement; other classes select it with local: true.
     ! Remote servers must have num_nodes (either integer or '*' wildcard).
     !
     ! Detection strategy: ESMF_HConfigAsString casts integer YAML nodes to string
@@ -134,27 +258,21 @@ contains
        integer :: status
        integer :: i_server
        integer :: used_ssis
-       logical :: is_local, has_local
+       logical :: is_local
        logical :: has_num_nodes
-       character(:), allocatable :: num_nodes_str
+       character(:), allocatable :: num_nodes_str, subclass_name
 
        associate (n_servers => size(server_hconfigs))
           allocate(ssis_per_server(n_servers))
           used_ssis = num_model_ssis
           do i_server = 1, n_servers
-             ! Check if this is a local server.
-             has_local = ESMF_HConfigIsDefined(server_hconfigs(i_server), keystring='local', _RC)
-
-             is_local = .false. ! unless
-             if (has_local) then
-                is_local = ESMF_HConfigAsLogical(server_hconfigs(i_server), keystring='local', _RC)
-             end if
+             call resolve_server_configuration(server_hconfigs(i_server), subclass_name, is_local, _RC)
 
              if (is_local) then
                 ! Local servers consume zero extra SSIs.
-                ! Validation: local: true and num_nodes are mutually exclusive.
+                ! Colocated placement and num_nodes are mutually exclusive.
                 has_num_nodes = ESMF_HConfigIsDefined(server_hconfigs(i_server), keystring='num_nodes', _RC)
-                _ASSERT(.not. has_num_nodes, "Server entry cannot have both 'local: true' and 'num_nodes'")
+                _ASSERT(.not. has_num_nodes, 'Colocated server entry cannot specify num_nodes')
                 ssis_per_server(i_server) = 0
                 cycle
              end if

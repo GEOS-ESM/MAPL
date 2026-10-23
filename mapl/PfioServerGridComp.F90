@@ -47,6 +47,8 @@ contains
       select case (trim(resources%subclass))
       case ('MpiServer', '')
          allocate(server, source=MpiServer(resources%server_comm, trim(server_name)))
+      case ('AsyncInputServer')
+          _FAIL('AsyncInputServer cannot use the remote server GridComp path')
       case ('MultiGroupServer')
          allocate(server, source=MultiGroupServer(resources%server_comm, trim(server_name), &
               nwriter_per_node=resources%nwriter_per_node))

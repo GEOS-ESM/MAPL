@@ -28,6 +28,7 @@ module pFIO_ServerThreadMod
    use pFIO_DoneMessageMod
    use pFIO_PrefetchDoneMessageMod
    use pFIO_CollectivePrefetchDoneMessageMod
+   use pFIO_NextCollectivePrefetchDoneMessageMod
    use pFIO_StageDoneMessageMod
    use pFIO_CollectiveStageDoneMessageMod
    use pFIO_AddReadDataCollectionMessageMod
@@ -37,6 +38,7 @@ module pFIO_ServerThreadMod
    use pFIO_AddWriteDataCollectionMessageMod
    use pFIO_AbstractDataMessageMod
    use pFIO_PrefetchDataMessageMod
+   use pFIO_NextCollectivePrefetchMessageMod
    use pFIO_CollectivePrefetchDataMessageMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
@@ -87,11 +89,13 @@ module pFIO_ServerThreadMod
       procedure :: handle_Done
       procedure :: handle_Done_prefetch
       procedure :: handle_Done_collective_prefetch
+      procedure :: handle_Done_next_collective_prefetch
       procedure :: handle_Done_stage
       procedure :: handle_Done_collective_stage
       procedure :: handle_AddReadDataCollection
       procedure :: handle_AddWriteDataCollection
       procedure :: handle_PrefetchData
+      procedure :: handle_NextCollectivePrefetchData
       procedure :: handle_CollectivePrefetchData
       procedure :: handle_StageData
       procedure :: handle_CollectiveStageData
@@ -253,6 +257,9 @@ contains
          _RETURN(_SUCCESS)
       type is (CollectivePrefetchDataMessage)
          _FAIL( "please use done_collective_prefetch")
+         _RETURN(_SUCCESS)
+      type is (NextCollectivePrefetchMessage)
+         _FAIL( "please use done_next_collective_prefetch")
          _RETURN(_SUCCESS)
       type is (StageDataMessage)
          _FAIL( "please use done_stage")
@@ -569,6 +576,22 @@ contains
       _RETURN(_SUCCESS)
    end subroutine handle_CollectivePrefetchData
 
+   subroutine handle_NextCollectivePrefetchData(this, message, rc)
+      class (ServerThread), target, intent(inout) :: this
+      type (NextCollectivePrefetchMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
+
+      class(AbstractSocket),pointer :: connection
+      type (DummyMessage) :: handshake_msg
+      integer :: status
+
+      connection=>this%get_connection()
+      call connection%send(handshake_msg,_RC)
+      call this%request_backlog%push_back(message)
+
+      _RETURN(_SUCCESS)
+   end subroutine handle_NextCollectivePrefetchData
+
    subroutine handle_ModifyMetadata(this, message, rc)
       class (ServerThread), target, intent(inout) :: this
       type (ModifyMetadataMessage), intent(in) :: message
@@ -675,7 +698,6 @@ contains
 
       integer, allocatable :: start(:),count(:)
       integer :: status
-
       collection => this%ext_collections%at(message%collection_id)
       formatter => collection%find(message%file_name, _RC)
 
@@ -726,9 +748,9 @@ contains
           case default
               _FAIL( "Not supported type")
           end select
-      end select
+       end select
 
-      _RETURN(_SUCCESS)
+       _RETURN(_SUCCESS)
    end subroutine get_DataFromFile
 
    subroutine handle_StageData(this, message, rc)
@@ -854,9 +876,9 @@ contains
           case default
               _FAIL( "not supported type")
           end select
-       end select
+      end select
 
-       _RETURN(_SUCCESS)
+      _RETURN(_SUCCESS)
    end subroutine put_DataToFile
 
    subroutine receive_output_data(this, rc)
@@ -1081,6 +1103,8 @@ contains
       integer, optional, intent(out) :: rc
 
       class(AbstractDataReference),pointer :: dataRefPtr
+      class(AbstractSocket), pointer :: connection
+      logical :: handled
       integer :: status
 
       ! first time handling the "Done" message, simple return
@@ -1088,6 +1112,13 @@ contains
       if ( .not. all(this%containing_server%serverthread_done_msgs)) then
          _RETURN(_SUCCESS)
       endif
+
+      connection => this%get_connection(status)
+      _VERIFY(status)
+      call this%containing_server%service_collective_prefetch(this%request_backlog, connection, handled, _RC)
+      if (handled) then
+        _RETURN(_SUCCESS)
+      end if
 
       if( .not. multi_data_read) then
         ! each node read part of a file, then exchange
@@ -1112,6 +1143,31 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(message)
    end subroutine handle_Done_collective_prefetch
+
+   recursive subroutine handle_Done_next_collective_prefetch(this, message, rc)
+      class (ServerThread), target, intent(inout) :: this
+      type (NextCollectivePrefetchDoneMessage), intent(in) :: message
+      integer, optional, intent(out) :: rc
+
+      class(AbstractSocket), pointer :: connection
+      logical :: handled
+      integer :: status
+
+      this%containing_server%serverthread_done_msgs(this%thread_rank) = .true.
+      if ( .not. all(this%containing_server%serverthread_done_msgs)) then
+         _RETURN(_SUCCESS)
+      endif
+
+      connection => this%get_connection(status)
+      _VERIFY(status)
+      call this%containing_server%service_next_collective_prefetch(this%request_backlog, connection, handled, _RC)
+      if (handled) then
+        _RETURN(_SUCCESS)
+      end if
+
+      _FAIL('NextCollectivePrefetchDoneMessage requires async input server support')
+      _UNUSED_DUMMY(message)
+   end subroutine handle_Done_next_collective_prefetch
 
    subroutine get_DataFromMem( this, multi_data_read, rc)
       class (ServerThread), target, intent(inout) :: this

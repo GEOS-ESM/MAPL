@@ -4,6 +4,7 @@ module Test_MaplServerUtilities
    use mapl_MaplServerUtilities_mod
    use esmf
    use pfunit
+   use mpi
    implicit none
 
 contains
@@ -204,5 +205,222 @@ contains
       result = get_ssis_per_server(hcfg, ssiCount=2, num_model_ssis=2, rc=rc)
       @assertExceptionRaised("PET resources oversubscribed: no SSIs remain for wildcard server")
    end subroutine test_ssis_per_server_wildcard_oversubscribed
+
+   @test
+   subroutine test_async_input_server_implies_local()
+      type(ESMF_HConfig) :: hcfg
+      integer :: rc
+      logical :: is_local
+      character(:), allocatable :: subclass_name
+
+      hcfg = ESMF_HConfigCreate(content='subclass: AsyncInputServer', rc=rc)
+      @assertEqual(0, rc)
+      call validate_server_configuration(hcfg, rc=rc)
+      @assertEqual(0, rc)
+      @assertTrue(is_local_server_configuration(hcfg, rc=rc))
+      call resolve_server_configuration(hcfg, subclass_name, is_local, rc=rc)
+      @assertEqual('AsyncInputServer', subclass_name)
+      @assertTrue(is_local)
+      call ESMF_HConfigDestroy(hcfg, rc=rc)
+   end subroutine test_async_input_server_implies_local
+
+   @test
+   subroutine test_local_async_input_server_accepted()
+      type(ESMF_HConfig) :: hcfg
+      integer :: rc
+
+      hcfg = ESMF_HConfigCreate(content='{"local": true, "subclass": "AsyncInputServer"}', rc=rc)
+      @assertEqual(0, rc)
+      call validate_server_configuration(hcfg, rc=rc)
+      @assertEqual(0, rc)
+      @assertTrue(is_local_server_configuration(hcfg, rc=rc))
+      call ESMF_HConfigDestroy(hcfg, rc=rc)
+   end subroutine test_local_async_input_server_accepted
+
+   @test
+   subroutine test_async_input_server_rejects_local_false()
+      type(ESMF_HConfig) :: hcfg
+      integer :: rc
+
+      hcfg = ESMF_HConfigCreate(content='{"local": false, "subclass": "AsyncInputServer"}', rc=rc)
+      @assertEqual(0, rc)
+      call validate_server_configuration(hcfg, rc=rc)
+      @assertExceptionRaised('AsyncInputServer placement is fixed; omit local or set it to true')
+      call ESMF_HConfigDestroy(hcfg, rc=rc)
+   end subroutine test_async_input_server_rejects_local_false
+
+   @test
+   subroutine test_mpi_server_placement_remains_explicit()
+      type(ESMF_HConfig) :: remote_hcfg, local_hcfg
+      integer :: rc
+
+      remote_hcfg = ESMF_HConfigCreate(content='subclass: MpiServer', rc=rc)
+      @assertEqual(0, rc)
+      @assertFalse(is_local_server_configuration(remote_hcfg, rc=rc))
+
+      local_hcfg = ESMF_HConfigCreate(content='{"local": true, "subclass": "MpiServer"}', rc=rc)
+      @assertEqual(0, rc)
+      @assertTrue(is_local_server_configuration(local_hcfg, rc=rc))
+
+      call ESMF_HConfigDestroy(remote_hcfg, rc=rc)
+      call ESMF_HConfigDestroy(local_hcfg, rc=rc)
+   end subroutine test_mpi_server_placement_remains_explicit
+
+   @test
+   subroutine test_default_server_resolves_remote_mpi()
+      type(ESMF_HConfig) :: hcfg
+      character(:), allocatable :: subclass_name
+      logical :: is_local
+      integer :: rc
+
+      hcfg = ESMF_HConfigCreate(content='num_nodes: 1', rc=rc)
+      @assertEqual(0, rc)
+      call resolve_server_configuration(hcfg, subclass_name, is_local, rc=rc)
+      @assertEqual('MpiServer', subclass_name)
+      @assertFalse(is_local)
+      call ESMF_HConfigDestroy(hcfg, rc=rc)
+   end subroutine test_default_server_resolves_remote_mpi
+
+   @test
+   subroutine test_multigroup_placement_remains_explicit()
+      type(ESMF_HConfig) :: remote_hcfg, local_hcfg
+      character(:), allocatable :: subclass_name
+      logical :: is_local
+      integer :: rc
+
+      remote_hcfg = ESMF_HConfigCreate(content='subclass: MultiGroupServer', rc=rc)
+      @assertEqual(0, rc)
+      call resolve_server_configuration(remote_hcfg, subclass_name, is_local, rc=rc)
+      @assertEqual('MultiGroupServer', subclass_name)
+      @assertFalse(is_local)
+
+      local_hcfg = ESMF_HConfigCreate(content='{"local": true, "subclass": "MultiGroupServer"}', rc=rc)
+      @assertEqual(0, rc)
+      call resolve_server_configuration(local_hcfg, subclass_name, is_local, rc=rc)
+      @assertEqual('MultiGroupServer', subclass_name)
+      @assertTrue(is_local)
+
+      call ESMF_HConfigDestroy(remote_hcfg, rc=rc)
+      call ESMF_HConfigDestroy(local_hcfg, rc=rc)
+   end subroutine test_multigroup_placement_remains_explicit
+
+   @test
+   subroutine test_implied_local_async_rejects_num_nodes()
+      type(ESMF_HConfig) :: hcfg(1)
+      integer, allocatable :: result(:)
+      integer :: rc
+
+      hcfg(1) = ESMF_HConfigCreate(content='{"subclass": "AsyncInputServer", "num_nodes": 1}', rc=rc)
+      @assertEqual(0, rc)
+      result = get_ssis_per_server(hcfg, ssiCount=2, num_model_ssis=1, rc=rc)
+      @assertExceptionRaised('Colocated server entry cannot specify num_nodes')
+      call ESMF_HConfigDestroy(hcfg(1), rc=rc)
+   end subroutine test_implied_local_async_rejects_num_nodes
+
+   @test
+   subroutine test_async_model_partition_reserves_each_node()
+      type(ESMF_HConfig) :: hcfg(2)
+      integer, allocatable :: pets(:), ssis(:)
+      integer :: rc, num_ssis
+
+      hcfg(1) = ESMF_HConfigCreate(content='subclass: AsyncInputServer', rc=rc)
+      hcfg(2) = ESMF_HConfigCreate(content="num_nodes: '*'", rc=rc)
+      call get_model_partition(hcfg, 4, [0,0,0,0,1,1,1,1,2,2,2,2], pets, num_ssis, rc=rc)
+      @assertEqual(0, rc)
+      @assertEqual([0,1,4,5], pets)
+      @assertEqual(2, num_ssis)
+      ssis = get_ssis_per_server(hcfg, 3, num_ssis, rc=rc)
+      @assertEqual([0,1], ssis)
+
+      ! The same reservation works with interleaved world ranks.
+      call get_model_partition(hcfg, 3, [0,1,2,0,1,2,0,1,2,0,1,2], pets, num_ssis, rc=rc)
+      @assertEqual(0, rc)
+      @assertEqual([0,1,3], pets)
+      @assertEqual(2, num_ssis)
+      call ESMF_HConfigDestroy(hcfg(1), rc=rc)
+      call ESMF_HConfigDestroy(hcfg(2), rc=rc)
+   end subroutine test_async_model_partition_reserves_each_node
+
+   @test
+   subroutine test_model_partition_without_async_keeps_prefix()
+      type(ESMF_HConfig) :: hcfg(0)
+      integer, allocatable :: pets(:)
+      integer :: rc, num_ssis
+
+      call get_model_partition(hcfg, 3, [0,1,0,1,0,1], pets, num_ssis, rc=rc)
+      @assertEqual(0, rc)
+      @assertEqual([0,1,2], pets)
+      @assertEqual(2, num_ssis)
+   end subroutine test_model_partition_without_async_keeps_prefix
+
+   @test
+   subroutine test_async_partition_rejects_insufficient_readers()
+      type(ESMF_HConfig) :: hcfg(1)
+      integer, allocatable :: pets(:)
+      integer :: rc, num_ssis
+
+      hcfg(1) = ESMF_HConfigCreate(content='subclass: AsyncInputServer', rc=rc)
+      call get_model_partition(hcfg, 3, [0,0,0,1,1,1], pets, num_ssis, rc=rc)
+      @assertExceptionRaised('Insufficient model PETs after reserving async readers on each node')
+      call ESMF_HConfigDestroy(hcfg(1), rc=rc)
+   end subroutine test_async_partition_rejects_insufficient_readers
+
+   @test
+   subroutine test_async_partition_rejects_small_node()
+      type(ESMF_HConfig) :: hcfg(1)
+      integer, allocatable :: pets(:)
+      integer :: rc, num_ssis
+
+      hcfg(1) = ESMF_HConfigCreate(content='subclass: AsyncInputServer', rc=rc)
+      call get_model_partition(hcfg, 1, [0,0], pets, num_ssis, rc=rc)
+      @assertExceptionRaised('Each async model node requires at least three PETs')
+      call ESMF_HConfigDestroy(hcfg(1), rc=rc)
+   end subroutine test_async_partition_rejects_small_node
+
+   @test
+   subroutine test_async_partition_rejects_multiple_servers()
+      type(ESMF_HConfig) :: hcfg(2)
+      integer, allocatable :: pets(:)
+      integer :: rc, num_ssis
+
+      hcfg(1) = ESMF_HConfigCreate(content='subclass: AsyncInputServer', rc=rc)
+      hcfg(2) = ESMF_HConfigCreate(content='subclass: AsyncInputServer', rc=rc)
+      call get_model_partition(hcfg, 1, [0,0,0,0], pets, num_ssis, rc=rc)
+      @assertExceptionRaised('Only one AsyncInputServer may be configured')
+      call ESMF_HConfigDestroy(hcfg(1), rc=rc)
+      call ESMF_HConfigDestroy(hcfg(2), rc=rc)
+   end subroutine test_async_partition_rejects_multiple_servers
+
+   @test(npes=[3])
+   subroutine test_remote_comms_exclude_reserved_reader(this)
+      class(MpiTestMethod), intent(inout) :: this
+      integer :: comm, world_group, model_group, server_comm, model_server_comm
+      integer :: rank, status, comm_size
+
+      comm = this%getMpiCommunicator()
+      rank = this%getProcessRank()
+      call MPI_Comm_group(comm, world_group, status)
+      @assertEqual(MPI_SUCCESS, status)
+      call MPI_Group_incl(world_group, 1, [0], model_group, status)
+      @assertEqual(MPI_SUCCESS, status)
+      call create_server_comms(comm, world_group, model_group, [2], server_comm, model_server_comm, rc=status)
+      @assertEqual(0, status)
+      if (rank == 1) then
+         @assertEqual(MPI_COMM_NULL, model_server_comm)
+      else
+         call MPI_Comm_size(model_server_comm, comm_size, status)
+         @assertEqual(2, comm_size)
+         call MPI_Comm_free(model_server_comm, status)
+      end if
+      if (rank == 2) then
+         call MPI_Comm_size(server_comm, comm_size, status)
+         @assertEqual(1, comm_size)
+         call MPI_Comm_free(server_comm, status)
+      else
+         @assertEqual(MPI_COMM_NULL, server_comm)
+      end if
+      call MPI_Group_free(model_group, status)
+      call MPI_Group_free(world_group, status)
+   end subroutine test_remote_comms_exclude_reserved_reader
 
 end module Test_MaplServerUtilities

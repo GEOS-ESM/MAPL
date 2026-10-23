@@ -17,6 +17,7 @@ set (TEST_SRCS
     Test_Client.pf
     Test_ProtocolParser.pf
     Test_DirectoryService.pf
+    Test_AsyncInputServer.pf
   )
 
 # SRCS are mostly mocks to facilitate tests
@@ -50,9 +51,12 @@ target_include_directories(MAPL.pfio.tests PRIVATE
   ${esma_include}/MAPL.pfio)
 set_tests_properties(MAPL.pfio.tests PROPERTIES LABELS "ESSENTIAL")
 set_tests_properties(MAPL.pfio.tests PROPERTIES PROCESSORS 8)
+set_property(TEST MAPL.pfio.tests APPEND PROPERTY ENVIRONMENT
+  "MAPL_ASYNC_INPUT_SHMEM_WORDS=16")
 
 if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
-  set_tests_properties(MAPL.pfio.tests PROPERTIES ENVIRONMENT "I_MPI_OFI_PROVIDER=psm3")
+  set_property(TEST MAPL.pfio.tests APPEND PROPERTY ENVIRONMENT
+    "I_MPI_OFI_PROVIDER=psm3")
 endif()
 
 include_directories(
@@ -133,4 +137,3 @@ set_tests_properties(pFIO_tests_mpi_2group PROPERTIES PROCESSORS 18 RESOURCE_LOC
 add_dependencies(build-tests MAPL.pfio.tests)
 add_dependencies(build-tests ${TESTO})
 add_dependencies(build-tests pfio_writer.x)
-

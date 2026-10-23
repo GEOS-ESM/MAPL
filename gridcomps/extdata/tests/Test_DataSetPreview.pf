@@ -1,0 +1,99 @@
+#include "MAPL_TestErr.h"
+module Test_DataSetPreview
+   use pfunit
+   use esmf
+   use mapl_NonClimDataSetFileSelector_mod
+   use mapl_ClimDataSetFileSelector_mod
+   use mapl_DataSetBracket_mod
+   use mapl_DataSetNode_mod
+   implicit none
+
+contains
+
+   @test
+   subroutine test_nonclim_missing_preview_keeps_current_bracket()
+      type(NonClimDataSetFileSelector) :: selector
+      type(DataSetBracket) :: current, preview
+      type(ESMF_Time) :: now, future
+      type(ESMF_TimeInterval) :: dt
+      type(DataSetNode) :: node
+      integer :: status
+
+      call ESMF_TimeSet(now, yy=2004, mm=4, dd=16, h=12, _RC)
+      call ESMF_TimeIntervalSet(dt, h=1, _RC)
+      future = now + dt
+      selector%file_template = 'absent_preview_%y4%m2%d2_%h2.nc4'
+      selector%file_frequency = dt
+      selector%ref_time = now
+      selector%timeStep = dt
+      call selector%set_last_update(now, _RC)
+      call initialize_bracket(current, now, future)
+      preview = current
+      call selector%preview_bracket(future, preview, _RC)
+      node = preview%get_left_node()
+      @assertTrue(node%get_enabled())
+      @assertFalse(node%get_update())
+      node = preview%get_right_node()
+      @assertFalse(node%get_enabled())
+      @assertFalse(node%get_update())
+      @assertFalse(node%file_allocated())
+      @assertTrue(selector%last_updated == now)
+      node = current%get_right_node()
+      @assertTrue(node%get_enabled())
+      @assertTrue(node%get_update())
+
+      ! Missing required input must still fail on the normal demand path.
+      call selector%update_node(future, node, rc=status)
+      @assertExceptionRaised('Could not find a valid node')
+   end subroutine test_nonclim_missing_preview_keeps_current_bracket
+
+   @test
+   subroutine test_clim_missing_preview_keeps_current_bracket()
+      type(ClimDataSetFileSelector) :: selector
+      type(DataSetBracket) :: current, preview
+      type(ESMF_Time) :: now, future, first, last
+      type(ESMF_TimeInterval) :: dt
+      type(DataSetNode) :: node
+      integer :: status
+
+      call ESMF_TimeSet(now, yy=2004, mm=4, dd=16, h=12, _RC)
+      call ESMF_TimeSet(first, yy=2000, mm=1, dd=1, _RC)
+      call ESMF_TimeSet(last, yy=2000, mm=12, dd=31, _RC)
+      call ESMF_TimeIntervalSet(dt, h=1, _RC)
+      future = now + dt
+      selector%file_template = 'absent_clim_preview_%y4%m2%d2_%h2.nc4'
+      selector%file_frequency = dt
+      selector%ref_time = first
+      selector%valid_range = [first, last]
+      selector%timeStep = dt
+      call selector%set_last_update(now, _RC)
+      call initialize_bracket(current, now, future)
+      preview = current
+      call selector%preview_bracket(future, preview, _RC)
+      node = preview%get_left_node()
+      @assertTrue(node%get_enabled())
+      @assertFalse(node%get_update())
+      node = preview%get_right_node()
+      @assertFalse(node%get_enabled())
+      @assertFalse(node%get_update())
+      @assertFalse(node%file_allocated())
+      @assertTrue(selector%last_updated == now)
+      node = current%get_right_node()
+      @assertTrue(node%get_enabled())
+      @assertTrue(node%get_update())
+
+      call selector%update_node_out_of_range_multi(future, future, node, rc=status)
+      @assertExceptionRaised('Could not find a valid node')
+   end subroutine test_clim_missing_preview_keeps_current_bracket
+
+   subroutine initialize_bracket(bracket, left_time, right_time)
+      type(DataSetBracket), intent(out) :: bracket
+      type(ESMF_Time), intent(in) :: left_time, right_time
+
+      bracket%left_node = DataSetNode('current.nc4', 1, left_time, .true., .true.)
+      call bracket%left_node%set_node_side(NODE_LEFT)
+      bracket%right_node = DataSetNode('current.nc4', 2, right_time, .true., .true.)
+      call bracket%right_node%set_node_side(NODE_RIGHT)
+   end subroutine initialize_bracket
+
+end module Test_DataSetPreview

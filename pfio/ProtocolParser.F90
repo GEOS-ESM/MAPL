@@ -9,12 +9,14 @@ module pFIO_ProtocolParserMod
    use pFIO_DoneMessageMod
    use pFIO_PrefetchDoneMessageMod
    use pFIO_CollectivePrefetchDoneMessageMod
+   use pFIO_NextCollectivePrefetchDoneMessageMod
    use pFIO_StageDoneMessageMod
    use pFIO_CollectiveStageDoneMessageMod
    use pFIO_AddReadDataCollectionMessageMod
    use pFIO_AddWriteDataCollectionMessageMod
    use pFIO_IdMessageMod
    use pFIO_PrefetchDataMessageMod
+   use pFIO_NextCollectivePrefetchMessageMod
    use pFIO_StageDataMessageMod
    use pFIO_CollectivePrefetchDataMessageMod
    use pFIO_CollectiveStageDataMessageMod
@@ -60,12 +62,14 @@ contains
       type (DoneMessage)                   :: done
       type (PrefetchDoneMessage)           :: pdone
       type (CollectivePrefetchDoneMessage) :: cpdone
+      type (NextCollectivePrefetchDoneMessage) :: ncpdone
       type (StageDoneMessage)              :: sdone
       type (CollectiveStageDoneMessage)    :: csdone
       type (AddReadDataCollectionMessage)  :: addReadDataCollection
       type (AddWriteDataCollectionMessage) :: addWriteDataCollection
       type (IdMessage):: IDid
       type (PrefetchDataMessage)    :: PrefetchData
+      type (NextCollectivePrefetchMessage) :: NextCollectivePrefetch
       type (StageDataMessage) :: StageData
       type (CollectivePrefetchDataMessage) :: CollectivePrefetchData
       type (CollectiveStageDataMessage)    :: CollectiveStageData
@@ -81,6 +85,7 @@ contains
       call add_prototype(done)
       call add_prototype(pdone)
       call add_prototype(cpdone)
+      call add_prototype(ncpdone)
       call add_prototype(sdone)
       call add_prototype(csdone)
       call add_prototype(addReadDataCollection)
@@ -88,6 +93,7 @@ contains
       call add_prototype(addWriteDataCollection)
       call add_prototype(IDId)
       call add_prototype(PrefetchData)
+      call add_prototype(NextCollectivePrefetch)
       call add_prototype(CollectivePrefetchData)
       call add_prototype(StageData)
       call add_prototype(CollectiveStageData)

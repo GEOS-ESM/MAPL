@@ -32,10 +32,11 @@ module pFIO_FastClientThreadMod
 
 contains
 
-   function new_FastClientThread(sckt, client_comm, rc) result(c)
+   function new_FastClientThread(sckt, client_comm, rc, supports_cache_only_prefetch) result(c)
       class(AbstractSocket),optional,intent(in) :: sckt
       integer, optional, intent(in) :: client_comm
       integer, optional, intent(out) :: rc
+      logical, optional, intent(in) :: supports_cache_only_prefetch
       type (FastClientThread),target :: c
       integer :: ierror
       if (present(sckt)) call c%set_connection(sckt)
@@ -45,6 +46,8 @@ contains
       else
          if (present(rc)) rc = 0
       end if
+      if (present(supports_cache_only_prefetch)) &
+           call c%set_cache_only_prefetch_supported(supports_cache_only_prefetch)
    end function new_FastClientThread
 
    function stage_data(this, collection_id, file_name, var_name, data_reference, &

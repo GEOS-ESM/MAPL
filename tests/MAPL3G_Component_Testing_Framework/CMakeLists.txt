@@ -54,42 +54,48 @@ set(SKIPPED_DRYRUN_CASES "")
 
 foreach(TEST_CASE ${TEST_CASES})
 
+  string(REPLACE "/" "_" TEST_NAME "${TEST_CASE}")
   if (NOT HAVE_PYTHON_NETCDF4 AND EXISTS ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/dryrun.rc)
     list(APPEND SKIPPED_DRYRUN_CASES ${TEST_CASE})
     continue()
   endif()
 
   if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/nproc.rc)
-    file(READ ${CMAKE_CURRENT_LIST_DIR}/test_cases/${TEST_CASE}/nproc.rc num_procs)
+    set(TEST_CASE_PATH "test_cases/${TEST_CASE}")
+    file(READ ${CMAKE_CURRENT_LIST_DIR}/${TEST_CASE_PATH}/nproc.rc num_procs)
   else()
+    set(TEST_CASE_PATH "test_cases/${TEST_CASE}")
     set(num_procs "1")
   endif()
   
   # Get description for this test case
   set(test_description "")
-  if(DEFINED TEST_DESC_${TEST_CASE})
+  if(TEST_CASE MATCHES "^pfio/case0([1-5])$")
+    math(EXPR description_case "45 + ${CMAKE_MATCH_1}")
+    set(test_description "${TEST_DESC_case${description_case}}")
+  elseif(DEFINED TEST_DESC_${TEST_CASE})
     set(test_description "${TEST_DESC_${TEST_CASE}}")
   endif()
   
   add_test(
-    NAME "MAPL3G_Comp_Test_${TEST_CASE}"
+    NAME "MAPL3G_Comp_Test_${TEST_NAME}"
     COMMAND ${CMAKE_COMMAND}
       -DTEST_CASE=${TEST_CASE}
       "-DTEST_DESCRIPTION=${test_description}"
       -DMPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE}
       -DPython3_EXECUTABLE=${Python3_EXECUTABLE}
       -DMPIEXEC_NUMPROC_FLAG=${MPIEXEC_NUMPROC_FLAG}
-      -DMY_BINARY_DIR=${CMAKE_BINARY_DIR}/bin
-      -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}
+       -DMY_BINARY_DIR=${CMAKE_BINARY_DIR}/bin
+       -DTEST_CASE_PATH=${TEST_CASE_PATH}
+       -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS}
       -P ${CMAKE_CURRENT_SOURCE_DIR}/run_comp_tester.cmake
   )
-  if (${num_procs} GREATER ${cutoff}) 
-     set_tests_properties ("MAPL3G_Comp_Test_${TEST_CASE}" PROPERTIES LABELS "COMP_TESTS_BIG")
-     set_tests_properties ("MAPL3G_Comp_Test_${TEST_CASE}" PROPERTIES ENVIRONMENT "${TEST_ENV}")
+  if (${num_procs} GREATER ${cutoff})
+     set_tests_properties ("MAPL3G_Comp_Test_${TEST_NAME}" PROPERTIES LABELS "COMP_TESTS_BIG")
   else()
-     set_tests_properties ("MAPL3G_Comp_Test_${TEST_CASE}" PROPERTIES LABELS "ESSENTIAL")
-     set_tests_properties ("MAPL3G_Comp_Test_${TEST_CASE}" PROPERTIES ENVIRONMENT "${TEST_ENV}")
+     set_tests_properties ("MAPL3G_Comp_Test_${TEST_NAME}" PROPERTIES LABELS "ESSENTIAL")
   endif()
+  set_tests_properties ("MAPL3G_Comp_Test_${TEST_NAME}" PROPERTIES ENVIRONMENT "${TEST_ENV}")
 endforeach()
 
 if (SKIPPED_DRYRUN_CASES)
