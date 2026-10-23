@@ -66,10 +66,11 @@ terms. ARCHITECTURE.md describes the current tree only and covers:
 - build/test commands and the `MAPL.generic.*` ctest target names
   (this repo uses `superstructure/generic/`, not `generic3g`)
 
-`openspec/changes/` currently holds only `archive/`; there is no active
-in-flight change. Planned refactoring is in
-`docs/graph/plans/separation-of-concerns.md`. Session narratives are in
-`docs/graph/history/`.
+One openspec change is active:
+`openspec/changes/characteristic-separation-of-concerns/` (the B0 design
+for Phase B of `docs/graph/plans/separation-of-concerns.md`; B1-B5
+implement its `tasks.md`). Everything else is under `archive/`. Session
+narratives are in `docs/graph/history/`.
 
 Do not re-derive this context by reading all of `docs/graph/spec/` (20
 files) or all of `GraphBuilder.F90` and its 11 submodules (about 6,200

@@ -17,11 +17,13 @@ legacy-to-graph vocabulary in `docs/graph/GLOSSARY.md`.
 4. `docs/graph/*.md` topic files (see `docs/graph/README.md`).
 5. **This file** — a navigational summary.
 
-`openspec/changes/` currently contains only `archive/`; there is no
-in-flight openspec change. Landed changes (including
-`hierarchy-wide-component-graph`, phases 7a/7b/7c and 12) are under
-`openspec/changes/archive/<date>-<name>/`. Active refactoring is planned
-in `docs/graph/plans/separation-of-concerns.md`.
+One openspec change is in flight:
+`openspec/changes/characteristic-separation-of-concerns/`, which
+implements Phase B of `docs/graph/plans/separation-of-concerns.md`.
+Where this file and that change's `design.md` disagree about
+characteristics, the descriptor or status resolution, `design.md` wins.
+Landed changes (including `hierarchy-wide-component-graph`, phases
+7a/7b/7c and 12) are under `openspec/changes/archive/<date>-<name>/`.
 
 Facts below were verified against the tree on 2026-10-21 unless marked
 **[ASSUMPTION]**.
