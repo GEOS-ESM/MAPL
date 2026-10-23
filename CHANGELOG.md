@@ -141,6 +141,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed possible deadlock and memory overrun in pFIO `DirectoryService`: the
+  shared-directory mutex is now always released before error checks, a
+  duplicate `publish` reports a correct error, and directory/local-port
+  capacity (`MAX_NUM_PORTS`) is checked. `MpiMutex` and directory get/put
+  routines now propagate errors via `rc`; replaced MPI-3-removed
+  `MPI_Type_extent` with `MPI_Type_get_extent`; added `Test_MpiMutex` (#5460)
 - Fixed logging of resource values that contain `%` (e.g. file-name templates
   such as `%y4%m2%d2`): the HConfig value loggers passed the message to
   pFlogger as its format string, which then failed with "not enough position
