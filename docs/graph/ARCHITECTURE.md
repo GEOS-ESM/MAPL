@@ -80,17 +80,18 @@ unsupported connections; `INVALID` is a `_FAIL`. A kind on only one side
 is not compared. At freeze, `run_graph_freeze_hook` calls
 `StateItemDescriptor%check_resolved` on every owned `StateItemNode` and
 reports any `DEFERRED`/`INVALID` entry through `report_if_failed`.
-`MAPL_TYPEKIND_MIRROR` advertises a valueless `MIRRORED` TYPE_KIND entry.
+`MAPL_TYPEKIND_MIRROR` advertises a valueless `MIRRORED` TYPE_KIND entry
+(set by the `VariableSpec` factory, not by the characteristic constructor).
 
 Info writes: `StateItemDescriptor%sync_to_info(handle, phase)` calls
 each SPECIFIED/UNCHECKED characteristic's `write_info` (phases
 `SYNC_PHASE_STRUCTURAL`/`SYNC_PHASE_DESCRIPTIVE`; `is_structural()`
 kinds are skipped in DESCRIPTIVE). The base `write_info` fails; only
-`PhysicalUnits` overrides it so far, and no production path calls
+`PhysicalUnits` and `TypeKind` override it so far, and no production path calls
 `sync_to_info` yet (materialization adopts it in B4). Factories live in
 `specs/VariableSpec/make_characteristics.F90`: the type-bound
 `VariableSpec%make_characteristics` loops over a registry of per-kind
-factories (so far units only). Procedure: `docs/graph/adding-a-characteristic.md`.
+factories (so far units and typekind). Procedure: `docs/graph/adding-a-characteristic.md`.
 
 | Characteristic | Kind constant | `build_transform` today |
 |---|---|---|

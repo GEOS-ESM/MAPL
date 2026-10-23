@@ -3,7 +3,8 @@
 How to give a state-item description axis its target form: a
 `StateItemCharacteristic` with generic status, an Info write method, and
 a `VariableSpec` factory. PhysicalUnits (`B3-Units`) is the worked
-example; later B3 tasks refine this file.
+example; TypeKind (`B3-TypeKind`) is the worked example for a
+structural kind with a MIRRORED sentinel. Later B3 tasks refine this file.
 
 Design authority: `openspec/changes/characteristic-separation-of-concerns/design.md`
 (§2 status, §3 Info facade, §4.3 applicability, §5 factories). Rules:
@@ -24,7 +25,8 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
      component. `PhysicalUnitsCharacteristic%get_units` returns `''`.
 2. **Status at construction**
    - The value constructor (`<Name>Characteristic(value)`) sets
-     SPECIFIED.
+     SPECIFIED. It does not interpret `VariableSpec` sentinels (such as
+     `MAPL_TYPEKIND_MIRROR`); the factory does, and sets MIRRORED itself.
    - A default-initialized variable (`type(<Name>Characteristic) :: c`)
      is INVALID. INVALID fails `resolve_pair` at connect time and fails
      the freeze check (`StateItemDescriptor%check_resolved`).
@@ -63,7 +65,10 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
      only `make_characteristics` is type-bound.
    - Apply §4.3 applicability first, as an allowlist: insert only for the
      shapes the table lists for this kind and return for everything else.
-     A denylist silently covers `MAPL_STATEITEM_UNKNOWN`, the service
+     Kinds that apply to every field-carrying shape (FIELD, BRACKET,
+     VECTOR, VECTORBRACKET, FIELDBUNDLE, EXPRESSION) call the submodule's
+     `carries_field_description(spec%itemType)`; a kind with a different
+     set writes its own list. A denylist silently covers `MAPL_STATEITEM_UNKNOWN`, the service
      provider/subscriber flags, and any shape added later.
    - Apply the §5 status rule. Values the component supplies later are
      DEFERRED, not MIRRORED. MIRRORED comes only from an explicit mirror
@@ -79,7 +84,9 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
 6. **Tests**
    - `graph/tests/Test_StateItemDescriptor.pf`: `sync_to_info` writes the
      SPECIFIED and UNCHECKED values in the right phases and skips the
-     others.
+     others, on both a Field and a FieldBundle handle. An empty field
+     has no Info for a creation-input key, so a "not written" test seeds
+     the key first and checks it is unchanged.
    - `tests/Test_VariableSpecCharacteristics.pf`: factory status and
      value per input, every applicable shape, and no entry for
      non-applicable shapes (including `MAPL_STATEITEM_UNKNOWN` and the
@@ -102,3 +109,22 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
   reproduced (owner Q11): units are never MIRRORED.
 - Materialization still reads units through `get_item_units` until B4;
   an UNCHECKED import yields `''` there, as an absent entry did before.
+
+## TypeKind as implemented
+
+| Input (`VariableSpec%typekind`) | Shape | Entry |
+|---|---|---|
+| `MAPL_TYPEKIND_MIRROR` | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE, EXPRESSION | MIRRORED, no value |
+| any other flag, including the R4 default | same | SPECIFIED with the label (`'R4'`, `'R8'`, `'I4'`, `'I8'`, `'LOGICAL'`) |
+| any | every other flag | none |
+
+- Never DEFERRED: `VariableSpec%typekind` has a concrete default (design
+  §5, owner A12).
+- Legacy absent-means-mirror: `TypekindAspect()` with no argument is
+  MIRRORED, but `make_TypekindAspect` always passes `this%typekind`
+  (default R4), so no `VariableSpec` reaches it. None reproduced.
+- `is_structural()` is `.true.`; `write_info` writes `typekind=` through
+  `MAPL_FieldSet`/`MAPL_FieldBundleSet`. MIRRORED never reaches it
+  (`sync_to_info` filters), and UNCHECKED is not a TypeKind state.
+- `get_item_typekind` and `merged_item_for_link` still read the kind
+  until B4.

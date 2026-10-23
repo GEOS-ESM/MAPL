@@ -57,7 +57,9 @@ the commit message.
       `get_item_units`/`merged_item_for_link` (materialization) and the
       `GraphBuilder.F90` use list still name PHYSICAL_UNITS; they go in
       B4 (§6.3), so the per-kind grep is not yet empty.
-- [ ] 3.2 B3-TypeKind (finish)
+- [x] 3.2 B3-TypeKind (finish). `get_item_typekind`, the TYPE_KIND
+      branch of `merged_item_for_link` and the `GraphBuilder.F90` use
+      list remain for B4 (§6.3).
 - [ ] 3.3 B3-UngriddedDims (removes `GraphStateItem%ungridded_dims` duplicate)
 - [ ] 3.4 B3-VerticalCoordinate (M2: component grid / DEFERRED)
 - [ ] 3.5 B3-VerticalStagger (new kind; also add the

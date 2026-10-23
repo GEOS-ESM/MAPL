@@ -1,9 +1,11 @@
 #include "MAPL.h"
 
 submodule (mapl_VariableSpec_mod) make_characteristics_smod
-   use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND
-   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED
+   use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
+   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
    implicit none(type, external)
 
    abstract interface
@@ -30,9 +32,10 @@ contains
 
       integer :: status
       integer :: i
-      type(Factory) :: factories(1)
+      type(Factory) :: factories(2)
 
       factories(1)%make => make_units_characteristic
+      factories(2)%make => make_typekind_characteristic
 
       do i = 1, size(factories)
          call factories(i)%make(this, descriptor, _RC)
@@ -53,11 +56,7 @@ contains
       type(PhysicalUnitsCharacteristic) :: units
       logical :: declared
 
-      if (.not. (spec%itemType == MAPL_STATEITEM_FIELD .or. spec%itemType == MAPL_STATEITEM_BRACKET .or. &
-           spec%itemType == MAPL_STATEITEM_VECTOR .or. spec%itemType == MAPL_STATEITEM_VECTORBRACKET .or. &
-           spec%itemType == MAPL_STATEITEM_FIELDBUNDLE .or. spec%itemType == MAPL_STATEITEM_EXPRESSION)) then
-         _RETURN(_SUCCESS)
-      end if
+      _RETURN_UNLESS(carries_field_description(spec%itemType))
 
       declared = allocated(spec%units)
       if (declared) declared = spec%units /= UNKNOWN_UNITS
@@ -72,5 +71,39 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_units_characteristic
+
+   ! MAPL_TYPEKIND_MIRROR is MIRRORED (the import adopts the matched
+   ! export's). Anything else, including the R4 default, is SPECIFIED; it is
+   ! never DEFERRED.
+   subroutine make_typekind_characteristic(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(TypeKindCharacteristic) :: type_kind
+
+      _RETURN_UNLESS(carries_field_description(spec%itemType))
+
+      if (spec%typekind == MAPL_TYPEKIND_MIRROR) then
+         call type_kind%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      else
+         type_kind = TypeKindCharacteristic(spec%typekind)
+      end if
+
+      call descriptor%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, type_kind, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_typekind_characteristic
+
+   ! Shapes whose payload is a Field or FieldBundle (or an expression that
+   ! evaluates to one) and so carry the field-level kinds.
+   logical function carries_field_description(item_type) result(carries)
+      type(ESMF_StateItem_Flag), intent(in) :: item_type
+
+      carries = item_type == MAPL_STATEITEM_FIELD .or. item_type == MAPL_STATEITEM_BRACKET .or. &
+           item_type == MAPL_STATEITEM_VECTOR .or. item_type == MAPL_STATEITEM_VECTORBRACKET .or. &
+           item_type == MAPL_STATEITEM_FIELDBUNDLE .or. item_type == MAPL_STATEITEM_EXPRESSION
+   end function carries_field_description
 
 end submodule make_characteristics_smod

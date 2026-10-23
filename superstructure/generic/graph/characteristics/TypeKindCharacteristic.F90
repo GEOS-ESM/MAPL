@@ -5,20 +5,27 @@
 ! (docs/graph/spec/18-state-item-characteristics.md REQ-CHAR-001 table) -
 ! a ValueCharacteristic (REQ-CHAR-002a: holds its value inline, never
 ! shared). Holds a plain label (e.g. 'R4'/'R8') rather than an ESMF
-! typekind handle directly.
+! typekind handle directly. A MIRRORED instance holds no value
+! (get_type_kind returns ''). MAPL_TYPEKIND_MIRROR is not a precision and is
+! invalid input to the constructors.
 !
 ! build_transform / get_signature, and helpers label_to_typekind /
 ! typekind_to_label, moved from the retired mapl_TypeKindCharacteristicAdapter_mod.
 !------------------------------------------------------------------------------
 module mapl_TypeKindCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
-   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED
-   use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
+   use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL
+   use mapl_CharacteristicStatus_mod, only: operator(==), CHARACTERISTIC_STATUS_SPECIFIED
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_field_api, only: MAPL_FieldSet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleSet
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, TYPE_KIND_CHARACTERISTIC_KIND
    use mapl_TransformBase_mod, only: TransformBase
    use mapl_TypeKindConverterTransform_mod, only: TypeKindConverterTransform
    use ESMF, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8, &
         ESMF_TYPEKIND_I4, ESMF_TYPEKIND_I8, ESMF_TYPEKIND_LOGICAL
+   use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_StateItem_Flag, &
+        ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
    use ESMF, only: operator(==)
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -43,6 +50,8 @@ module mapl_TypeKindCharacteristic_mod
       procedure :: needs_extension_for => typekind_needs_extension_for
       procedure :: build_transform => typekind_build_transform
       procedure :: get_signature => typekind_get_signature
+      procedure :: write_info => typekind_write_info
+      procedure :: is_structural => typekind_is_structural
       procedure :: get_type_kind
    end type TypeKindCharacteristic
 
@@ -63,22 +72,12 @@ contains
       call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_TypeKindCharacteristic
 
-   ! Convenience form - real ESMF_TypeKind_Flag, converted to the plain
-   ! label internally (moved from the retired
-   ! mapl_TypeKindCharacteristicAdapter_mod's own
-   ! new_TypeKindCharacteristicAdapter_flag) - GraphBuilder.F90's
-   ! build_characteristics() uses this form directly, since
-   ! VariableSpec%typekind is a real ESMF_TypeKind_Flag.
+   ! Convenience form for a concrete ESMF_TypeKind_Flag. MAPL_TYPEKIND_MIRROR
+   ! is invalid input.
    function new_TypeKindCharacteristic_flag(type_kind) result(characteristic)
       type(ESMF_TypeKind_Flag), intent(in) :: type_kind
       type(TypeKindCharacteristic) :: characteristic
 
-      ! MAPL_TYPEKIND_MIRROR is not a real precision: no value, and the
-      ! import adopts the matched export's at connection.
-      if (type_kind == MAPL_TYPEKIND_MIRROR) then
-         call characteristic%set_status(CHARACTERISTIC_STATUS_MIRRORED)
-         return
-      end if
       ! Same allocate(..., source=...) fix as new_TypeKindCharacteristic
       ! above, same reason - typekind_to_label() returns a
       ! character(:), allocatable function result.
@@ -147,6 +146,44 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine typekind_build_transform
+
+   ! typekind= is a creation input: on a completed field it would enter
+   ! FieldDelta, so it is written only in the STRUCTURAL phase. UNCHECKED has
+   ! no Info representation for this key.
+   subroutine typekind_write_info(this, handle, phase, rc)
+      class(TypeKindCharacteristic), intent(in) :: this
+      type(GraphStateItem), intent(inout) :: handle
+      integer, intent(in) :: phase
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_StateItem_Flag) :: item_type
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+
+      _RETURN_UNLESS(phase == SYNC_PHASE_STRUCTURAL)
+      _RETURN_UNLESS(this%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+
+      item_type = handle%itemType(_RC)
+      if (item_type == ESMF_STATEITEM_FIELD) then
+         field = handle%get_field(_RC)
+         call MAPL_FieldSet(field, typekind=label_to_typekind(this%get_type_kind()), _RC)
+      else if (item_type == ESMF_STATEITEM_FIELDBUNDLE) then
+         bundle = handle%get_field_bundle(_RC)
+         call MAPL_FieldBundleSet(bundle, typekind=label_to_typekind(this%get_type_kind()), _RC)
+      else
+         _FAIL('TypeKindCharacteristic: write_info needs a Field or FieldBundle handle')
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine typekind_write_info
+
+   logical function typekind_is_structural(this) result(structural)
+      class(TypeKindCharacteristic), intent(in) :: this
+
+      structural = .true.
+      _UNUSED_DUMMY(this)
+   end function typekind_is_structural
 
    ! Moved from the retired mapl_TypeKindCharacteristicAdapter_mod's own
    ! adapter_get_signature.

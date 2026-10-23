@@ -523,8 +523,18 @@ in the first one; later ones refine it.
   (today only an item-level `geometry:` block sets it), so the graph can
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
-- **Status:** B3-Units done (commit trailer `Plan-Task: B3-Units`);
-  others not started. B3-Units deviations (owner-approved): the
+- **Status:** B3-Units and B3-TypeKind done (commit trailers
+  `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`); others not started.
+  B3-TypeKind: `TypeKindCharacteristic` gained `write_info` (typekind=
+  through `MAPL_FieldSet`/`MAPL_FieldBundleSet`) and `is_structural()
+  = .true.`; `MAPL_TYPEKIND_MIRROR` moved from the flag constructor to
+  the factory (`make_typekind_characteristic`, which also applies the
+  §4.3 allowlist, so STATE/SERVICE/WILDCARD/UNKNOWN no longer get a
+  TYPE_KIND entry); its `populate_characteristics` block is gone. Only
+  the §6.3 materialization references (`get_item_typekind`,
+  `merged_item_for_link`, the `GraphBuilder.F90` use list) remain, for
+  B4. No legacy absent-means-mirror case reaches the graph.
+  B3-Units details follow. B3-Units deviations (owner-approved): the
   materialization references (`get_item_units`, `merged_item_for_link`,
   `GraphBuilder.F90` use list) stay until B4; the factory is a
   `VariableSpec` submodule now (`specs/VariableSpec/make_characteristics.F90`,

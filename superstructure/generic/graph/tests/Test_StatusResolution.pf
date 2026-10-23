@@ -17,7 +17,6 @@ module Test_StatusResolution
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
    use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_EXPRESSION
-   use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
    use funit
    implicit none
 
@@ -168,7 +167,7 @@ contains
       type(TypeKindCharacteristic) :: mirrored
       integer :: status
 
-      mirrored = TypeKindCharacteristic(MAPL_TYPEKIND_MIRROR)
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
       call export%set_declared_item_type(MAPL_STATEITEM_EXPRESSION)
       call export%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, mirrored, rc=status)
       call import%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), rc=status)
@@ -212,7 +211,7 @@ contains
       type(TypeKindCharacteristic) :: mirrored
       integer :: status
 
-      mirrored = TypeKindCharacteristic(MAPL_TYPEKIND_MIRROR)
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
       call export%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), rc=status)
       call import%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, mirrored, rc=status)
 
@@ -301,7 +300,6 @@ contains
       type(CharacteristicStatus), intent(in) :: status
       type(TypeKindCharacteristic) :: c
 
-      c = TypeKindCharacteristic(MAPL_TYPEKIND_MIRROR)
       call c%set_status(status)
    end function typekind_with_status
 

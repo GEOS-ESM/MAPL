@@ -8,13 +8,12 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
    use mapl_StateItemCharacteristicKind_mod, only: &
-        TYPE_KIND_CHARACTERISTIC_KIND, VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
+        VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
         ATTRIBUTES_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
         STANDARD_NAME_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND, &
         CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND, &
         ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
-   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
    use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
@@ -149,9 +148,6 @@ contains
       descriptor => node%get_descriptor()
 
       call var_spec%make_characteristics(descriptor, _RC)
-      ! typekind always has a value (default ESMF_TYPEKIND_R4).
-      call descriptor%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
-           TypeKindCharacteristic(var_spec%typekind), _RC)
       if (allocated(var_spec%vertical_grid)) then
          ! VerticalGrid%get_id() returns an integer identity token;
          ! VerticalCoordinateCharacteristic compares an opaque string

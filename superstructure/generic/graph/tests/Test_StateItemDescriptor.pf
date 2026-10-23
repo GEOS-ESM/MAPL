@@ -4,14 +4,16 @@ module Test_StateItemDescriptor
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, SYNC_PHASE_STRUCTURAL, &
         SYNC_PHASE_DESCRIPTIVE
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
-        GEOMETRY_CHARACTERISTIC_KIND
-   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED
+        GEOMETRY_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED
+   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_GraphStateItem_mod, only: GraphStateItem
-   use mapl_field_api, only: MAPL_FieldGet
+   use mapl_field_api, only: MAPL_FieldGet, MAPL_FieldSet
    use mapl_field_bundle_api, only: MAPL_FieldBundleGet
    use ESMF, only: ESMF_Field, ESMF_FieldEmptyCreate, ESMF_FieldDestroy, &
+        ESMF_TypeKind_Flag, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_R4, operator(==), &
         ESMF_FieldBundle, ESMF_FieldBundleCreate, ESMF_FieldBundleDestroy
    use funit
    implicit none
@@ -167,6 +169,60 @@ contains
    end subroutine test_sync_structural_writes_units_on_bundle
 
    @test
+   subroutine test_sync_structural_writes_typekind_on_field()
+      type(StateItemDescriptor) :: item
+      type(ESMF_TypeKind_Flag) :: type_kind
+
+      call item%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'))
+      type_kind = synced_typekind(item, SYNC_PHASE_STRUCTURAL)
+      @assertTrue(type_kind == ESMF_TYPEKIND_R8)
+   end subroutine test_sync_structural_writes_typekind_on_field
+
+   ! typekind= on a completed field would enter FieldDelta.
+   @test
+   subroutine test_sync_descriptive_skips_typekind()
+      type(StateItemDescriptor) :: item
+      type(ESMF_TypeKind_Flag) :: type_kind
+
+      call item%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'))
+      type_kind = synced_typekind(item, SYNC_PHASE_DESCRIPTIVE)
+      @assertTrue(type_kind == ESMF_TYPEKIND_R4)
+   end subroutine test_sync_descriptive_skips_typekind
+
+   @test
+   subroutine test_sync_skips_mirrored_typekind()
+      type(StateItemDescriptor) :: item
+      type(TypeKindCharacteristic) :: mirrored
+      type(ESMF_TypeKind_Flag) :: type_kind
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, mirrored)
+      type_kind = synced_typekind(item, SYNC_PHASE_STRUCTURAL)
+      @assertTrue(type_kind == ESMF_TYPEKIND_R4)
+   end subroutine test_sync_skips_mirrored_typekind
+
+   @test
+   subroutine test_sync_structural_writes_typekind_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_TypeKind_Flag) :: type_kind
+      integer :: status
+
+      call item%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, typekind=type_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(type_kind == ESMF_TYPEKIND_R8)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_structural_writes_typekind_on_bundle
+
+   @test
    subroutine test_sync_fails_for_kind_without_write_info()
       type(StateItemDescriptor) :: item
       type(NodeIdGenerator) :: gen
@@ -203,5 +259,28 @@ contains
       if (.not. allocated(units)) units = '(none)'
       call ESMF_FieldDestroy(field, noGarbage=.true.)
    end function synced_units
+
+   ! The field starts as R4, so a skipped write reads back R4.
+   function synced_typekind(item, phase) result(type_kind)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(ESMF_TypeKind_Flag) :: type_kind
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, typekind=ESMF_TYPEKIND_R4, rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, typekind=type_kind, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_typekind
 
 end module Test_StateItemDescriptor
