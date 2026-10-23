@@ -662,7 +662,9 @@ replicate an unreviewed template across B3.x.
    clean baseline (a temporary `git worktree` of HEAD, removed
    afterward with `git worktree remove`).
 2. Build/test NAG then gfortran; put both `ctest -L ESSENTIAL`
-   summary lines in the proposed commit message body.
+   summary lines in the proposed commit message body. Docs-only tasks
+   (no source, CMake or test changes) write "docs only; ctest not run"
+   instead.
 3. On ICE, nondeterministic segfault, or gFTL copy crash: stop and
    report; do not invent workarounds.
 4. Do not modify files outside the task's stated scope without asking.
