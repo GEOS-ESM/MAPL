@@ -2,6 +2,7 @@
 
 module mapl_BW_Benchmark_mod
    use mapl_ErrorHandling_mod
+   use mapl_os_mod, only: RemoveFile
    use netcdf
    use, intrinsic :: iso_fortran_env, only: INT64
    implicit none
@@ -142,8 +143,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
 
-      call execute_command_line('rm '//filename, exitstat=status)
-      _VERIFY(status)
+      call RemoveFile(filename, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine delete_netcdf_file

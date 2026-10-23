@@ -161,19 +161,42 @@ contains
       logical, optional, intent(in) :: force
       integer, optional, intent(out) :: rc
 
-      ! Use execute_command_line (Fortran 2008)
-      character(:), allocatable :: command
-      integer :: status
+      logical :: parents
+      integer :: i, n
+      integer(c_int) :: status
+      character(:), allocatable :: p
+      integer(c_int), parameter :: MODE = int(o'777', c_int)
+      interface
+         function c_mkdir(path, mode) bind(C, name="mkdir") result(stat)
+            use iso_c_binding
+            character(kind=c_char), intent(in) :: path(*)
+            integer(c_int), value :: mode
+            integer(c_int) :: stat
+         end function c_mkdir
+      end interface
 
-      command = 'mkdir '
-      if (present(force)) then
-         if (force) command = command // '-p '
+      parents = .false.
+      if (present(force)) parents = force
+      p = trim(path)
+
+      if (parents) then
+         ! Equivalent of "mkdir -p": create each missing leading component.
+         n = len(p)
+         do i = 2, n
+            if (p(i:i) /= '/') cycle
+            if (p(i-1:i-1) == '/') cycle
+            if (directory_exists(p(1:i-1))) cycle
+            status = c_mkdir(p(1:i-1) // c_null_char, MODE)
+            _ASSERT(status == 0 .or. directory_exists(p(1:i-1)), 'Error creating directory: ' // p)
+         end do
+         if (directory_exists(p)) then
+            _RETURN(_SUCCESS)
+         end if
       end if
-      command = command // trim(path)
 
-      call execute_command_line(command, exitstat=status)
+      status = c_mkdir(p // c_null_char, MODE)
+      _ASSERT(status == 0, 'Error creating directory: ' // p)
 
-      _ASSERT(status==0, 'Error creating directory: ' // trim(path))
       _RETURN(_SUCCESS)
    end subroutine make_directory
 
@@ -181,14 +204,17 @@ contains
       character(len=*), intent(in) :: path
       integer, optional, intent(out) :: rc
 
-      character(:), allocatable :: command
-      integer :: status
+      integer(c_int) :: status
+      interface
+         function c_rmdir(path) bind(C, name="rmdir") result(stat)
+            use iso_c_binding
+            character(kind=c_char), intent(in) :: path(*)
+            integer(c_int) :: stat
+         end function c_rmdir
+      end interface
 
-      command = 'rmdir ' // trim(path)
-
-      call execute_command_line(command, exitstat=status)
-
-      _ASSERT(status==0, 'Error deleting directory: ' // trim(path))
+      status = c_rmdir(trim(path) // c_null_char)
+      _ASSERT(status == 0, 'Error deleting directory: ' // trim(path))
       _RETURN(_SUCCESS)
    end subroutine remove_directory
 
@@ -197,18 +223,24 @@ contains
       logical, optional, intent(in) :: force
       integer, optional, intent(out) :: rc
 
-      character(:), allocatable :: command
-      integer :: status
+      integer(c_int) :: status
+      logical :: ignore_missing
+      interface
+         function c_unlink(path) bind(C, name="unlink") result(stat)
+            use iso_c_binding
+            character(kind=c_char), intent(in) :: path(*)
+            integer(c_int) :: stat
+         end function c_unlink
+      end interface
 
-      command = 'rm '
-      if (present(force)) then
-         if (force) command = command // '-f '
+      ignore_missing = .false.
+      if (present(force)) ignore_missing = force
+
+      status = c_unlink(trim(path) // c_null_char)
+      if (status /= 0 .and. ignore_missing) then
+         if (.not. directory_exists(path)) status = 0 ! "rm -f": missing file is not an error
       end if
-      command = command // trim(path)
-
-      call execute_command_line(command, exitstat=status)
-
-      _ASSERT(status==0, 'Error deleting file: ' // trim(path))
+      _ASSERT(status == 0, 'Error deleting file: ' // trim(path))
       _RETURN(_SUCCESS)
    end subroutine remove_file
 

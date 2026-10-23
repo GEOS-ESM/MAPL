@@ -241,7 +241,11 @@ contains
       _RETURN_UNLESS(is_record_time .neqv. final)
 
       timestamp = get_timestamp(clock, _RC)
-      call make_directory(MAPL_PathJoin(checkpointing%path, timestamp), force=.true., _RC)
+      ! Only make the directory on root process.
+      if (MAPL_Am_I_Root()) then
+         call mapl_MakeDirectory(MAPL_PathJoin(checkpointing%path, timestamp), force=.true., _RC)
+      end if
+      call mapl_Barrier(_RC)
 
       ! To avoid inconsistent state under failures, we delete symlink
       ! "last" before writing new checkpoints. Then create new symlink
@@ -609,22 +613,6 @@ contains
       end function get_alarm_type
 
    end subroutine add_record_alarms
-
-   ! Only make the directory on root process.
-   subroutine make_directory(path, force, rc)
-      character(*), intent(in) :: path
-      logical, optional, intent(in) :: force
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-
-      if (MAPL_Am_I_Root()) then
-         call mapl_MakeDirectory(path, force=force, _RC)
-      end if
-      call mapl_Barrier(_RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine make_directory
 
    subroutine remove_symlink(checkpointing_path, rc)
       character(*), intent(in) :: checkpointing_path
