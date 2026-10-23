@@ -14,7 +14,6 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
         CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND, &
         ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
-   use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
@@ -154,14 +153,9 @@ contains
          call descriptor%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
               PhysicalUnitsCharacteristic(var_spec%units), _RC)
       end if
-      ! typekind always has a value (default ESMF_TYPEKIND_R4), so there
-      ! is no "not declared" state to gate on, except MAPL_TYPEKIND_MIRROR:
-      ! "inherit from the matched export" is not a real TypeKind label, so
-      ! a mirrored item gets no TYPE_KIND entry at advertise time.
-      if (var_spec%typekind /= MAPL_TYPEKIND_MIRROR) then
-         call descriptor%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
-              TypeKindCharacteristic(var_spec%typekind), _RC)
-      end if
+      ! typekind always has a value (default ESMF_TYPEKIND_R4).
+      call descriptor%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic(var_spec%typekind), _RC)
       if (allocated(var_spec%vertical_grid)) then
          ! VerticalGrid%get_id() returns an integer identity token;
          ! VerticalCoordinateCharacteristic compares an opaque string

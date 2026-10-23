@@ -6,6 +6,8 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Freeze_smod
    use mapl_ErrorHandling_mod
    use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use pflogger, only: Logger
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
+   use mapl_GraphNode_mod, only: GraphNode
    implicit none(type, external)
 
 contains
@@ -41,6 +43,9 @@ contains
 
       call freeze_subtree_(this, status)
       call report_if_failed(this, 'graph_freeze:freeze_subtree', status)
+
+      call check_characteristics_resolved_subtree_(this, status)
+      call report_if_failed(this, 'graph_freeze:characteristics_resolved', status)
 
       call collect_unresolved_subtree_(this, unresolved, status)
       call report_if_failed(this, 'graph_freeze:collect_unresolved_subtree', status)
@@ -125,6 +130,63 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine collect_unresolved_subtree_
+
+   ! Every characteristic must be resolved (no DEFERRED/INVALID entry) by
+   ! freeze. Each offending item raises its own error; one summary error
+   ! follows if any did.
+   subroutine check_characteristics_resolved_subtree_(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      logical :: failed
+
+      failed = .false.
+      call accumulate_unresolved_characteristics_(this, failed)
+      _ASSERT(.not. failed, 'GraphBuilder: characteristics unresolved at freeze')
+      _RETURN(_SUCCESS)
+   end subroutine check_characteristics_resolved_subtree_
+
+   recursive subroutine accumulate_unresolved_characteristics_(this, failed)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      logical, intent(inout) :: failed
+
+      integer :: status, i
+      type(ComponentGraph), pointer :: graph
+      type(NodeIdSet), target :: node_ids
+      type(NodeIdSetIterator) :: iter
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: descriptor
+      character(:), allocatable :: child_name, comp_name, item_name
+      type(OuterMetaComponent), pointer :: child_meta
+
+      comp_name = this%get_name()
+      graph => this%get_component_graph()
+      node_ids = graph%get_node_ids()
+      associate (e => node_ids%ftn_end())
+         iter = node_ids%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            node => graph%get_node(iter%of())
+            if (.not. associated(node)) cycle
+            select type (node)
+            class is (StateItemNode)
+               descriptor => node%get_descriptor()
+               item_name = node%get_short_name()
+               if (.not. allocated(item_name)) item_name = '<extension>'
+               call descriptor%check_resolved(comp_name // ':' // item_name, rc=status)
+               if (status /= 0) failed = .true.
+            end select
+         end do
+      end associate
+
+      do i = 1, this%get_num_children()
+         child_name = this%get_child_name(i, status)
+         if (status /= 0) cycle
+         child_meta => this%get_child_outer_meta(child_name, status)
+         if (status /= 0) cycle
+         call accumulate_unresolved_characteristics_(child_meta, failed)
+      end do
+   end subroutine accumulate_unresolved_characteristics_
 
 end submodule GraphBuilder_Freeze_smod
 

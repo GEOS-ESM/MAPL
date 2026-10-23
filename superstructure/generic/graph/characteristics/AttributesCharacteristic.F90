@@ -29,6 +29,7 @@
 !------------------------------------------------------------------------------
 module mapl_AttributesCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, ATTRIBUTES_CHARACTERISTIC_KIND
    use gFTL2_StringVector, only: StringVector
    use mapl_TransformBase_mod, only: TransformBase
@@ -61,6 +62,7 @@ contains
       type(AttributesCharacteristic) :: characteristic
 
       if (present(attribute_names)) characteristic%attribute_names = attribute_names
+      call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_AttributesCharacteristic
 
    function attributes_get_kind() result(kind)

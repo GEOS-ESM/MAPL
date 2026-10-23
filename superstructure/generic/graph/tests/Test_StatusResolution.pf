@@ -1,0 +1,308 @@
+! Generic status resolution in mapl_StateItemDescriptor_mod: every cell of
+! the export x import status table, the MIRRORED-export allowlist, MIRRORED
+! import adoption, and the freeze-time unresolved check.
+module Test_StatusResolution
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor, resolve_pair, resolve_descriptors, &
+        resolve_characteristics, is_mirrored_export_allowed, &
+        PAIR_MATCH, PAIR_EXTEND, PAIR_ADOPT, PAIR_CONFLICT, PAIR_INVALID
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), &
+        PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
+        VERTICAL_COORDINATE_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND
+   use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
+        CHARACTERISTIC_STATUS_INVALID, CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED, &
+        CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_DEFERRED
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
+   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_EXPRESSION
+   use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
+   use funit
+   implicit none
+
+contains
+
+   function units(value, status) result(c)
+      character(*), intent(in) :: value
+      type(CharacteristicStatus), intent(in) :: status
+      type(PhysicalUnitsCharacteristic) :: c
+
+      c = PhysicalUnitsCharacteristic(value)
+      call c%set_status(status)
+   end function units
+
+   integer function outcome(export_status, import_status) result(o)
+      type(CharacteristicStatus), intent(in) :: export_status, import_status
+
+      o = resolve_pair(units('m', export_status), units('m', import_status), MAPL_STATEITEM_FIELD)
+   end function outcome
+
+   ! -- export SPECIFIED row --
+
+   @test
+   subroutine test_specified_specified_equal_matches()
+      @assertEqual(PAIR_MATCH, outcome(CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_SPECIFIED))
+   end subroutine test_specified_specified_equal_matches
+
+   @test
+   subroutine test_specified_specified_different_extends()
+      @assertEqual(PAIR_EXTEND, resolve_pair(units('m', CHARACTERISTIC_STATUS_SPECIFIED), &
+           units('km', CHARACTERISTIC_STATUS_SPECIFIED), MAPL_STATEITEM_FIELD))
+   end subroutine test_specified_specified_different_extends
+
+   @test
+   subroutine test_specified_mirrored_adopts()
+      @assertEqual(PAIR_ADOPT, outcome(CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED))
+   end subroutine test_specified_mirrored_adopts
+
+   ! Values differ but UNCHECKED never compares.
+   @test
+   subroutine test_specified_unchecked_matches()
+      @assertEqual(PAIR_MATCH, resolve_pair(units('m', CHARACTERISTIC_STATUS_SPECIFIED), &
+           units('km', CHARACTERISTIC_STATUS_UNCHECKED), MAPL_STATEITEM_FIELD))
+   end subroutine test_specified_unchecked_matches
+
+   @test
+   subroutine test_specified_deferred_conflicts()
+      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_DEFERRED))
+   end subroutine test_specified_deferred_conflicts
+
+   ! -- export MIRRORED row --
+
+   @test
+   subroutine test_mirrored_specified_not_allowlisted_conflicts()
+      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_MIRRORED, CHARACTERISTIC_STATUS_SPECIFIED))
+   end subroutine test_mirrored_specified_not_allowlisted_conflicts
+
+   @test
+   subroutine test_mirrored_mirrored_conflicts()
+      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_MIRRORED, CHARACTERISTIC_STATUS_MIRRORED))
+   end subroutine test_mirrored_mirrored_conflicts
+
+   @test
+   subroutine test_mirrored_unchecked_matches()
+      @assertEqual(PAIR_MATCH, outcome(CHARACTERISTIC_STATUS_MIRRORED, CHARACTERISTIC_STATUS_UNCHECKED))
+   end subroutine test_mirrored_unchecked_matches
+
+   @test
+   subroutine test_mirrored_deferred_conflicts()
+      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_MIRRORED, CHARACTERISTIC_STATUS_DEFERRED))
+   end subroutine test_mirrored_deferred_conflicts
+
+   ! -- export UNCHECKED row --
+
+   @test
+   subroutine test_unchecked_specified_matches()
+      @assertEqual(PAIR_MATCH, resolve_pair(units('m', CHARACTERISTIC_STATUS_UNCHECKED), &
+           units('km', CHARACTERISTIC_STATUS_SPECIFIED), MAPL_STATEITEM_FIELD))
+   end subroutine test_unchecked_specified_matches
+
+   @test
+   subroutine test_unchecked_mirrored_conflicts()
+      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED))
+   end subroutine test_unchecked_mirrored_conflicts
+
+   @test
+   subroutine test_unchecked_unchecked_matches()
+      @assertEqual(PAIR_MATCH, outcome(CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_UNCHECKED))
+   end subroutine test_unchecked_unchecked_matches
+
+   @test
+   subroutine test_unchecked_deferred_conflicts()
+      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_DEFERRED))
+   end subroutine test_unchecked_deferred_conflicts
+
+   ! -- export DEFERRED row --
+
+   @test
+   subroutine test_deferred_row_always_conflicts()
+      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED))
+      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_MIRRORED))
+      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_UNCHECKED))
+      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_DEFERRED))
+   end subroutine test_deferred_row_always_conflicts
+
+   ! -- INVALID on either side --
+
+   @test
+   subroutine test_invalid_on_either_side_is_reported()
+      @assertEqual(PAIR_INVALID, outcome(CHARACTERISTIC_STATUS_INVALID, CHARACTERISTIC_STATUS_SPECIFIED))
+      @assertEqual(PAIR_INVALID, outcome(CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_INVALID))
+      @assertEqual(PAIR_INVALID, outcome(CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_INVALID))
+   end subroutine test_invalid_on_either_side_is_reported
+
+   @test
+   subroutine test_invalid_fails_resolve_characteristics()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:), adopted(:)
+      character(:), allocatable :: conflict
+      type(PhysicalUnitsCharacteristic) :: unset
+      integer :: status
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, unset)
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call resolve_characteristics(export_map, import_map, MAPL_STATEITEM_FIELD, mismatched, adopted, conflict, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_invalid_fails_resolve_characteristics
+
+   ! -- allowlist --
+
+   @test
+   subroutine test_allowlist_entries()
+      @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, GEOMETRY_CHARACTERISTIC_KIND))
+      @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, VERTICAL_COORDINATE_CHARACTERISTIC_KIND))
+      @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, TYPE_KIND_CHARACTERISTIC_KIND))
+      @assertFalse(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, PHYSICAL_UNITS_CHARACTERISTIC_KIND))
+      @assertFalse(is_mirrored_export_allowed(MAPL_STATEITEM_FIELD, GEOMETRY_CHARACTERISTIC_KIND))
+   end subroutine test_allowlist_entries
+
+   ! Allowlisted: an EXPRESSION export with MIRRORED TYPE_KIND matches a
+   ! SPECIFIED import; the export is left unmodified.
+   @test
+   subroutine test_allowlisted_mirrored_export_matches()
+      type(StateItemDescriptor) :: export, import
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      character(:), allocatable :: conflict
+      class(StateItemCharacteristic), allocatable :: found
+      type(TypeKindCharacteristic) :: mirrored
+      integer :: status
+
+      mirrored = TypeKindCharacteristic(MAPL_TYPEKIND_MIRROR)
+      call export%set_declared_item_type(MAPL_STATEITEM_EXPRESSION)
+      call export%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, mirrored, rc=status)
+      call import%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), rc=status)
+
+      call resolve_descriptors(export, import, mismatched, conflict, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', conflict)
+      @assertEqual(0, size(mismatched))
+
+      call export%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, found, rc=status)
+      @assertTrue(found%get_status() == CHARACTERISTIC_STATUS_MIRRORED)
+   end subroutine test_allowlisted_mirrored_export_matches
+
+   ! Not allowlisted: a FIELD export with MIRRORED GEOMETRY fails, naming the kind.
+   @test
+   subroutine test_non_allowlisted_mirrored_export_conflicts()
+      type(StateItemDescriptor) :: export, import
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      character(:), allocatable :: conflict
+      type(GeometryCharacteristic) :: mirrored
+      integer :: status
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call export%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, mirrored, rc=status)
+      call import%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_id='1'), rc=status)
+
+      call resolve_descriptors(export, import, mismatched, conflict, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(index(conflict, 'GEOMETRY') > 0)
+   end subroutine test_non_allowlisted_mirrored_export_conflicts
+
+   ! -- adoption --
+
+   ! Spec "Mirrored import adopts the export's value".
+   @test
+   subroutine test_mirrored_import_adopts_export_value()
+      type(StateItemDescriptor) :: export, import
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      character(:), allocatable :: conflict
+      class(StateItemCharacteristic), allocatable :: found
+      type(TypeKindCharacteristic) :: mirrored
+      integer :: status
+
+      mirrored = TypeKindCharacteristic(MAPL_TYPEKIND_MIRROR)
+      call export%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), rc=status)
+      call import%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, mirrored, rc=status)
+
+      call resolve_descriptors(export, import, mismatched, conflict, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', conflict)
+      @assertEqual(0, size(mismatched))
+
+      call import%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, found, rc=status)
+      @assertTrue(found%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (found)
+      type is (TypeKindCharacteristic)
+         @assertEqual('R8', found%get_type_kind())
+      class default
+         @assertTrue(.false., 'adopted entry is not a TypeKindCharacteristic')
+      end select
+   end subroutine test_mirrored_import_adopts_export_value
+
+   ! Bare maps cannot record an adoption, so the map form fails.
+   @test
+   subroutine test_map_form_reports_needed_adoption()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:), adopted(:)
+      character(:), allocatable :: conflict
+      integer :: status
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, units('m', CHARACTERISTIC_STATUS_SPECIFIED))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, units('m', CHARACTERISTIC_STATUS_MIRRORED))
+      call resolve_characteristics(export_map, import_map, MAPL_STATEITEM_FIELD, mismatched, adopted, conflict, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, size(adopted))
+      @assertTrue(adopted(1) == PHYSICAL_UNITS_CHARACTERISTIC_KIND)
+   end subroutine test_map_form_reports_needed_adoption
+
+   ! -- one-sided absence --
+
+   ! Spec "Bracket without standard name": absence on one side is not a mismatch.
+   @test
+   subroutine test_one_sided_kind_is_not_mismatched()
+      type(StateItemDescriptor) :: export, import
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      character(:), allocatable :: conflict
+      integer :: status
+
+      call import%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, StandardNameCharacteristic('x'), rc=status)
+      call resolve_descriptors(export, import, mismatched, conflict, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', conflict)
+      @assertEqual(0, size(mismatched))
+   end subroutine test_one_sided_kind_is_not_mismatched
+
+   ! -- freeze check --
+
+   @test
+   subroutine test_resolved_descriptor_passes_freeze_check()
+      type(StateItemDescriptor) :: item
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+      integer :: status
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, units('m', CHARACTERISTIC_STATUS_SPECIFIED), rc=status)
+      call item%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, typekind_with_status(CHARACTERISTIC_STATUS_MIRRORED), rc=status)
+      kinds = item%get_unresolved_kinds()
+      @assertEqual(0, size(kinds))
+      call item%check_resolved('COMP:X', rc=status)
+      @assertEqual(0, status)
+   end subroutine test_resolved_descriptor_passes_freeze_check
+
+   ! The message naming item and kind is checked through the real freeze
+   ! hook in Test_GraphBuilder_ConvergenceCheck.pf.
+   @test
+   subroutine test_deferred_fails_freeze_check()
+      type(StateItemDescriptor) :: item
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+      integer :: status
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, units('m', CHARACTERISTIC_STATUS_DEFERRED), rc=status)
+      kinds = item%get_unresolved_kinds()
+      @assertEqual(1, size(kinds))
+      @assertTrue(kinds(1) == PHYSICAL_UNITS_CHARACTERISTIC_KIND)
+
+      call item%check_resolved('COMP:X', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_deferred_fails_freeze_check
+
+   function typekind_with_status(status) result(c)
+      type(CharacteristicStatus), intent(in) :: status
+      type(TypeKindCharacteristic) :: c
+
+      c = TypeKindCharacteristic(MAPL_TYPEKIND_MIRROR)
+      call c%set_status(status)
+   end function typekind_with_status
+
+end module Test_StatusResolution

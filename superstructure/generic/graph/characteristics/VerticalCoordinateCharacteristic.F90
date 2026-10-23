@@ -36,6 +36,7 @@
 !------------------------------------------------------------------------------
 module mapl_VerticalCoordinateCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ReferenceCharacteristic
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, VERTICAL_COORDINATE_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, operator(==), operator(/=)
    use mapl_TransformBase_mod, only: TransformBase
@@ -98,6 +99,8 @@ contains
       if (present(referenced_node_id)) call characteristic%set_referenced_node_id(referenced_node_id)
       if (present(grid_id)) characteristic%grid_id = grid_id
       if (present(dimensions)) characteristic%dimensions = dimensions
+      if (present(referenced_node_id) .or. present(grid_id) .or. present(dimensions)) &
+           call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_VerticalCoordinateCharacteristic
 
    function vcoord_get_kind() result(kind)

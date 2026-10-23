@@ -28,6 +28,7 @@ set(test_srcs
   Test_GraphNodeHierarchy.pf
   Test_GraphStateItem.pf
   Test_StateItemDescriptor.pf
+  Test_StatusResolution.pf
   Test_GeomProxyField.pf
   Test_NodeRevision.pf
   Test_DependencyNetwork.pf
@@ -52,7 +53,6 @@ set(test_srcs
   Test_StateItemCharacteristicKind.pf
   Test_StateItemCharacteristic.pf
   Test_StateItemCharacteristicSubclasses.pf
-  Test_StateItemCharacteristicDetection.pf
   Test_SetSharedCharacteristic.pf
   Test_CallbackArgumentSpec.pf
   Test_CallbackMethodSpec.pf

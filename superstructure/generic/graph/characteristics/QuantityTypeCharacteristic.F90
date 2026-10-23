@@ -23,6 +23,7 @@
 !------------------------------------------------------------------------------
 module mapl_QuantityTypeCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, QUANTITY_TYPE_CHARACTERISTIC_KIND
    use mapl_QuantityType_mod, only: QuantityType, MixingRatioBasis, &
                                      QUANTITY_UNKNOWN, BASIS_NONE, &
@@ -60,6 +61,7 @@ contains
 
       if (present(quantity_type)) characteristic%quantity_type = quantity_type
       if (present(basis)) characteristic%basis = basis
+      call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_QuantityTypeCharacteristic
 
    function quantity_type_get_kind() result(kind)

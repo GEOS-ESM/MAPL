@@ -25,6 +25,7 @@
 !------------------------------------------------------------------------------
 module mapl_ItemShapeCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_TransformBase_mod, only: TransformBase
    use mapl_BracketTimeInterpolationTransform_mod, only: BracketTimeInterpolationTransform
@@ -61,6 +62,7 @@ contains
       type(ItemShapeCharacteristic) :: characteristic
 
       characteristic%item_class = item_class
+      call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_ItemShapeCharacteristic
 
    function item_shape_get_kind() result(kind)

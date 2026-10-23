@@ -42,6 +42,7 @@ module Test_ExtensionResolution
    use mapl_StateItemCharacteristicKind_mod, only: ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use funit
    implicit none
 
@@ -73,6 +74,7 @@ contains
       type(FakeCharacteristic) :: characteristic
 
       characteristic%value = value
+      call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_FakeCharacteristic
 
    function fake_get_kind() result(kind)

@@ -79,7 +79,6 @@ target_sources(MAPL.generic PRIVATE
   characteristics/PhysicalUnitsCharacteristic.F90
   characteristics/TypeKindCharacteristic.F90
   characteristics/GeometryCharacteristic.F90
-  characteristics/StateItemCharacteristicDetection.F90
   characteristics/SetSharedCharacteristic.F90
   characteristics/VerticalCoordinateCharacteristic.F90
   characteristics/UngriddedDimsCharacteristic.F90

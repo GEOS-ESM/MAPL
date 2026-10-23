@@ -115,8 +115,8 @@ module mapl_StateItemCharacteristic_mod
       ! graph/extension-reuse's existing, separate concern; this
       ! hierarchy's job per REQ-CHAR-002 is description, not adaptation).
       ! `goal` is guaranteed the same dynamic type as `this`: the one
-      ! production caller, find_mismatched_state_item_characteristics
-      ! (mapl_StateItemCharacteristicDetection_mod), looks both sides up
+      ! production caller, resolve_pair (mapl_StateItemDescriptor_mod),
+      ! receives both sides looked up
       ! by the SAME StateItemCharacteristicKind key out of two
       ! StateItemDescriptor characteristics maps, and the only insertion path
       ! into that map, StateItemDescriptor%set_characteristic, asserts

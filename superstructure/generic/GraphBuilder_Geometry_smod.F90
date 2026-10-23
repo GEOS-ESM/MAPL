@@ -154,7 +154,7 @@ contains
       ! exact match, else extension chain. A mismatch should be
       ! unreachable given GeometrySpec's exclusive resolution, but goes
       ! through the real path rather than being assumed away.
-      mismatched = find_mismatched_characteristics(child_map, this_map)
+      mismatched = find_mismatched_characteristics(child_map, this_map, _RC)
       if (size(mismatched) == 0) then
          call this_graph%add_dependency(net_id, child_own_id, this_own_id, _RC)
          _RETURN(_SUCCESS)
@@ -230,7 +230,7 @@ contains
       ! receiving node is a child_graph node; add_dependency admits
       ! this_own_id as a cross-component endpoint.
       child_net_id = child_graph%get_default_network_id()
-      mismatched = find_mismatched_characteristics(this_map, child_map)
+      mismatched = find_mismatched_characteristics(this_map, child_map, _RC)
       if (size(mismatched) == 0) then
          call child_graph%add_dependency(child_net_id, this_own_id, child_own_id, _RC)
          _RETURN(_SUCCESS)

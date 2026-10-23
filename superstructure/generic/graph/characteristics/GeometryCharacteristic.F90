@@ -28,6 +28,7 @@
 !------------------------------------------------------------------------------
 module mapl_GeometryCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ReferenceCharacteristic
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, GEOMETRY_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, operator(==), operator(/=)
    use mapl_TransformBase_mod, only: TransformBase
@@ -78,6 +79,7 @@ contains
 
       if (present(referenced_node_id)) call characteristic%set_referenced_node_id(referenced_node_id)
       if (present(geom_id)) characteristic%geom_id = geom_id
+      if (present(referenced_node_id) .or. present(geom_id)) call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_GeometryCharacteristic
 
    function geometry_get_kind() result(kind)

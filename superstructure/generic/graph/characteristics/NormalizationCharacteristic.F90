@@ -19,6 +19,7 @@
 !------------------------------------------------------------------------------
 module mapl_NormalizationCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, NORMALIZATION_CHARACTERISTIC_KIND
    use mapl_NormalizationMetadata_mod, only: NormalizationMetadata, operator(==), operator(/=)
    use mapl_NormalizationType_mod, only: NormalizationType
@@ -51,6 +52,7 @@ contains
       type(NormalizationCharacteristic) :: characteristic
 
       characteristic%metadata = metadata
+      call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_NormalizationCharacteristic
 
    function normalization_get_kind() result(kind)

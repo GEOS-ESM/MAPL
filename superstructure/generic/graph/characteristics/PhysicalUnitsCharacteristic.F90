@@ -9,6 +9,7 @@
 !------------------------------------------------------------------------------
 module mapl_PhysicalUnitsCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, PHYSICAL_UNITS_CHARACTERISTIC_KIND
    use mapl_TransformBase_mod, only: TransformBase
    use mapl_UnitsConverterTransform_mod, only: UnitsConverterTransform
@@ -40,6 +41,7 @@ contains
       type(PhysicalUnitsCharacteristic) :: characteristic
 
       characteristic%units = units
+      call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_PhysicalUnitsCharacteristic
 
    function units_get_kind() result(kind)

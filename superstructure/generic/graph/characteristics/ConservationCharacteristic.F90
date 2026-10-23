@@ -19,6 +19,7 @@
 !------------------------------------------------------------------------------
 module mapl_ConservationCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, CONSERVATION_CHARACTERISTIC_KIND
    use mapl_ConservationMetadata_mod, only: ConservationMetadata, operator(==), operator(/=)
    use mapl_ConservationType_mod, only: ConservationType
@@ -51,6 +52,7 @@ contains
       type(ConservationCharacteristic) :: characteristic
 
       characteristic%metadata = metadata
+      call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_ConservationCharacteristic
 
    function conservation_get_kind() result(kind)

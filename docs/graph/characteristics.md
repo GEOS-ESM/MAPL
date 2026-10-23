@@ -1,6 +1,6 @@
 # StateItemCharacteristics and extension reuse
 
-Source: `superstructure/generic/graph/{StateItemCharacteristic,CharacteristicStatus,StateItemCharacteristicKind,StateItemCharacteristicDetection,ExtensionResolution,ExtensionMaterialization}.F90`
+Source: `superstructure/generic/graph/{StateItemCharacteristic,CharacteristicStatus,StateItemCharacteristicKind,StateItemDescriptor,ExtensionResolution,ExtensionMaterialization}.F90`
 plus one module per concrete characteristic: `PhysicalUnitsCharacteristic`,
 `TypeKindCharacteristic`, `GeometryCharacteristic`,
 `VerticalCoordinateCharacteristic`, `UngriddedDimsCharacteristic`,
@@ -84,23 +84,19 @@ structural dependents" across `ComponentGraph` boundaries (within one
 graph, dispatch on `DependencyNetwork` successor kind is natural;
 cross-component is only sketched). See `open-questions.md`.
 
-## Two independent detection/reconciliation paths — do not confuse them
+## Status resolution and mismatch detection
 
-There are **two separate** mismatch-detection algorithms in this
-codebase, operating on two separate representations, by deliberate
-design (`state-item-characteristics` design.md Decision D6):
-
-| | `StateItemCharacteristicDetection.F90` | `ExtensionResolution.F90` |
-|---|---|---|
-| Operates on | `StateItemDescriptor` characteristics directly | its own `Characteristic`/`CharacteristicMap`, built from `VariableSpec` |
-| One-sided-kind semantics | mismatched (nothing to compare against) | **not** mismatched (only kinds present on *both* sides are compared) |
-| Caller | future characteristic-based reconciliation | `GraphBuilder`'s existing connection-resolution path (today's actual extension-chain building) |
-
-Both are shaped similarly because it's the same natural problem solved
-twice — neither module calls the other. If you're extending extension
-reuse for ordinary `GraphBuilder` connection resolution, you want
-`ExtensionResolution.F90` (`find_mismatched_characteristics`,
-`find_or_build_extension_chain`), not the Detection module.
+There is one detection path. `StateItemDescriptor.F90`'s `resolve_pair`
+resolves each kind present on both export and import from the two
+statuses (export x import table: SPECIFIED/SPECIFIED compares via
+`needs_extension_for`; SPECIFIED/MIRRORED adopts the export value;
+UNCHECKED matches except against MIRRORED; DEFERRED always conflicts;
+a MIRRORED export matches a SPECIFIED import only if allowlisted by
+`is_mirrored_export_allowed`). A kind on only one side is not compared.
+`resolve_descriptors` records adoptions on the import descriptor;
+`ExtensionResolution%find_mismatched_characteristics` is the map-only
+form and fails if an adoption would be needed. A `DEFERRED` or
+`INVALID` entry left at freeze fails `StateItemDescriptor%check_resolved`.
 
 ## Transform-insertion order (open)
 

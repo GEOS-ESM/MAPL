@@ -24,22 +24,22 @@
 
 ## 2. Generic status resolution (B2)
 
-- [ ] 2.1 Implement `resolve_pair` per design.md §2.2 in the descriptor
+- [x] 2.1 Implement `resolve_pair` per design.md §2.2 in the descriptor
       module; pFUnit test for every cell.
-- [ ] 2.2 Add the (shape, kind) MIRRORED-export allowlist (§2.4) as a
+- [x] 2.2 Add the (shape, kind) MIRRORED-export allowlist (§2.4) as a
       static table; tests for an allowlisted and a non-allowlisted pair.
-- [ ] 2.3 Add the DEFERRED freeze check (§2.3) in `run_graph_freeze_hook`
+- [x] 2.3 Add the DEFERRED freeze check (§2.3) in `run_graph_freeze_hook`
       through a descriptor method; test that freeze fails naming item
       and kind.
-- [ ] 2.4 Route `ExtensionResolution%find_mismatched_characteristics`
+- [x] 2.4 Route `ExtensionResolution%find_mismatched_characteristics`
       through `resolve_pair`. Keep the one-sided-absence rule (§2.6);
       align or delete `StateItemCharacteristicDetection`.
-- [ ] 2.5 Convert TypeKind first: `MAPL_TYPEKIND_MIRROR` -> MIRRORED entry
+- [x] 2.5 Convert TypeKind first: `MAPL_TYPEKIND_MIRROR` -> MIRRORED entry
       instead of omission. Verify StatisticsGridComp scenarios.
 - [ ] 2.6 Every B3 factory that maps "absent" to a status lists the
       legacy absent-means-MIRROR cases it found (design.md §5) in its
       commit message.
-- [ ] 2.7 Done when ESSENTIAL passes on NAG and gfortran.
+- [x] 2.7 Done when ESSENTIAL passes on NAG and gfortran.
 
 ## 3. One task per characteristic (B3-<Name>)
 

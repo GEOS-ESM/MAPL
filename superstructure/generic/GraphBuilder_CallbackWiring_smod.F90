@@ -447,7 +447,7 @@ contains
       type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: unsupported
 
-      mismatched = find_mismatched_characteristics(empty_characteristics, empty_characteristics)
+      mismatched = find_mismatched_characteristics(empty_characteristics, empty_characteristics, _RC)
 
       if (size(mismatched) == 0) then
          call graph%add_dependency(network_id, source_id, target_id, _RC)

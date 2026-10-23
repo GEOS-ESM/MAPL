@@ -12,6 +12,8 @@
 !------------------------------------------------------------------------------
 module mapl_TypeKindCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED
+   use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, TYPE_KIND_CHARACTERISTIC_KIND
    use mapl_TransformBase_mod, only: TransformBase
    use mapl_TypeKindConverterTransform_mod, only: TypeKindConverterTransform
@@ -58,6 +60,7 @@ contains
       ! allocate(..., source=...) not plain `=` assignment (gfortran
       ! realloc-on-assignment memory-corruption, documented in StateItemNode.F90).
       allocate(characteristic%type_kind, source=type_kind)
+      call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_TypeKindCharacteristic
 
    ! Convenience form - real ESMF_TypeKind_Flag, converted to the plain
@@ -70,10 +73,17 @@ contains
       type(ESMF_TypeKind_Flag), intent(in) :: type_kind
       type(TypeKindCharacteristic) :: characteristic
 
+      ! MAPL_TYPEKIND_MIRROR is not a real precision: no value, and the
+      ! import adopts the matched export's at connection.
+      if (type_kind == MAPL_TYPEKIND_MIRROR) then
+         call characteristic%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+         return
+      end if
       ! Same allocate(..., source=...) fix as new_TypeKindCharacteristic
       ! above, same reason - typekind_to_label() returns a
       ! character(:), allocatable function result.
       allocate(characteristic%type_kind, source=typekind_to_label(type_kind))
+      call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_TypeKindCharacteristic_flag
 
    function typekind_get_kind() result(kind)
@@ -111,6 +121,10 @@ contains
       ! Same allocate(..., source=...) fix as new_TypeKindCharacteristic
       ! above, same reason - this%type_kind is itself a character(:),
       ! allocatable component.
+      if (.not. allocated(this%type_kind)) then
+         type_kind = ''
+         return
+      end if
       allocate(type_kind, source=this%type_kind)
    end function get_type_kind
 

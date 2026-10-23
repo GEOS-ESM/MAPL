@@ -486,7 +486,23 @@ behavior change. `GraphStateItem` left as handle only.
 descriptor (including freeze check for DEFERRED and the EXPRESSION
 allowlist). Convert TypeKind first (only real MIRROR user today:
 StatisticsGridComp). Unit tests for every cell of the D2 table.
-- **Status:** not started
+- **Status:** done. Deviations: value constructors set SPECIFIED
+  (default-initialized stays INVALID; owner decision), so
+  `test_newly_constructed_characteristic_is_invalid_status` now tests a
+  default-initialized variable. Resolution lives in
+  `StateItemDescriptor.F90` (`resolve_pair`/`resolve_characteristics`/
+  `resolve_descriptors`); the map-only `find_mismatched_characteristics`
+  fails if a MIRRORED adoption would be needed. The freeze check is a
+  descriptor method reported through `report_if_failed` (like the
+  convergence check). `StateItemCharacteristicDetection` was deleted
+  (test-only; its one-sided-is-mismatch rule contradicted §2.6).
+  StatisticsGridComp scenarios remain in PENDING with the same failures
+  as before B2; ESSENTIAL `history_1` (`typekind: mirror`) passes.
+  Owner-approved gaps: the allowlist has no (EXPRESSION,
+  VERTICAL_STAGGER) entry until that kind exists (B3-VerticalStagger);
+  an allowlisted MIRRORED export only resolves as a legal match, and
+  giving each consumer its own precision/geometry stays with the
+  existing expression hook until B3-Expression.
 
 **B3.x. One task per characteristic.** For each: move to generic status,
 implement its D3 write method (through `MAPL_*Set`), add VariableSpec factory, remove its block from

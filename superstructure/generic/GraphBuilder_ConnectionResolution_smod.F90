@@ -13,7 +13,8 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
    use mapl_ConnectionVector_mod, only: ConnectionVectorIterator, operator(/=)
    use mapl_ExpressionTransform_mod, only: ExpressionTransform
-   use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain, materialize_extensions_enabled
+   use mapl_ExtensionResolution_mod, only: find_or_build_extension_chain, materialize_extensions_enabled
+   use mapl_StateItemDescriptor_mod, only: resolve_descriptors
    use mapl_FieldNamedAlias_mod, only: MAPL_NamedAlias
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_REGISTRY
    use mapl_GraphNode_mod, only: GraphNode
@@ -230,6 +231,7 @@ contains
          integer :: j
          type(CallbackInterfaceId) :: callback_interface_id
          type(StateItemDescriptor), pointer :: dst_descriptor
+         character(:), allocatable :: status_conflict
 
          ! A callback interface and inout borrower intent are mutually exclusive
          ! resolution paths; reject the combination before either branch so
@@ -293,8 +295,13 @@ contains
          end if
 
          export_item => export_node%get_descriptor()
-         import_item => dst_node%get_descriptor()
-         mismatched = find_mismatched_characteristics(export_item%get_characteristics(), import_item%get_characteristics())
+         import_item => mutable_descriptor(dst_graph, import_node_id, _RC)
+         call resolve_descriptors(export_item, import_item, mismatched, status_conflict, _RC)
+         if (status_conflict /= '') then
+            call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
+                 status_conflict))
+            _RETURN(_SUCCESS)
+         end if
 
          if (size(mismatched) == 0) then
             ! Exact match: wire directly, no extension.
@@ -1013,7 +1020,7 @@ contains
    end function find_export_node_id
 
    ! Resolves a destination declared an ordinary inout borrower (direct-alias
-   ! case only). Reuses find_export_node_id/find_mismatched_characteristics
+   ! case only). Reuses find_export_node_id/resolve_descriptors
    ! as resolve_one's ordinary path does for the exact-match check. On an
    ! exact match, adds the forward edge (owner -> borrower) in the default
    ! network and a return edge (borrower -> owner) in a fresh per-pairing
@@ -1046,6 +1053,7 @@ contains
       class(GraphNode), pointer :: candidate_node
       logical :: owner_is_chained
       type(StateItemDescriptor), pointer :: owner_item, borrower_item
+      character(:), allocatable :: status_conflict
       type(StateItemCharacteristicKind), allocatable :: mismatched(:)
 
       graph => this%get_component_graph()
@@ -1103,8 +1111,13 @@ contains
       end if
 
       owner_item => owner_node%get_descriptor()
-      borrower_item => dst_node%get_descriptor()
-      mismatched = find_mismatched_characteristics(owner_item%get_characteristics(), borrower_item%get_characteristics())
+      borrower_item => mutable_descriptor(graph, import_node_id, _RC)
+      call resolve_descriptors(owner_item, borrower_item, mismatched, status_conflict, _RC)
+      if (status_conflict /= '') then
+         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
+              status_conflict))
+         _RETURN(_SUCCESS)
+      end if
 
       if (size(mismatched) /= 0) then
          ! A mismatched pairing is rejected rather than chained: the
@@ -1872,5 +1885,28 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine resolve_wildcard_destination
+
+   ! Mutable view of a node's descriptor, reached through the graph rather
+   ! than through an intent(in) node dummy (MIRRORED adoption writes to it).
+   function mutable_descriptor(graph, node_id, rc) result(descriptor)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: node_id
+      integer, optional, intent(out) :: rc
+      type(StateItemDescriptor), pointer :: descriptor
+
+      class(GraphNode), pointer :: node
+
+      descriptor => null()
+      node => graph%get_node(node_id)
+      _ASSERT(associated(node), 'GraphBuilder: mutable_descriptor - NodeId not found')
+      select type (node)
+      class is (StateItemNode)
+         descriptor => node%get_descriptor()
+      class default
+         _FAIL('GraphBuilder: mutable_descriptor - NodeId is not a StateItemNode')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function mutable_descriptor
 
 end submodule GraphBuilder_ConnectionResolution_smod

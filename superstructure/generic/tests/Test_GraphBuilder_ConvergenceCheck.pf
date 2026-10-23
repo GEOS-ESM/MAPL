@@ -32,6 +32,13 @@ module Test_GraphBuilder_ConvergenceCheck
    use mapl_MatchConnection_mod, only: MatchConnection
    use gFTL2_StringVector, only: StringVector
    use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
+   use mapl_StateItemCharacteristicKind_mod, only: TYPE_KIND_CHARACTERISTIC_KIND
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_DEFERRED
+   use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
    use esmf
    use pfunit
    implicit none(type, external)
@@ -264,5 +271,58 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_second_call_on_frozen_graph_is_noop
+
+   ! A characteristic still DEFERRED at freeze fails the freeze hook with a
+   ! message naming the item and the kind.
+   @test(npes=[0])
+   subroutine test_deferred_characteristic_at_freeze_fails(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, dst_meta
+      type(GriddedComponentDriver) :: dst_driver
+      type(ESMF_GridComp) :: dst_gc
+      type(ComponentGraph), pointer :: dst_graph
+      type(PortIdNodeIdMap), target :: import_ports
+      type(PortIdNodeIdMapIterator) :: iter
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: descriptor
+      class(StateItemCharacteristic), allocatable :: type_kind
+      type(GraphBuilder) :: gb
+      logical :: marked
+      integer :: status
+
+      call make_two_child_fixture(parent_meta, leave_unresolved=.false., _RC)
+
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      dst_gc = dst_driver%get_gridcomp()
+      dst_meta => get_outer_meta(dst_gc, _RC)
+      dst_graph => dst_meta%get_component_graph()
+
+      marked = .false.
+      import_ports = dst_graph%get_import_ports()
+      associate (e => import_ports%ftn_end())
+         iter = import_ports%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            node => dst_graph%get_node(iter%second())
+            select type (node)
+            class is (StateItemNode)
+               if (node%get_short_name() /= 'T') cycle
+               descriptor => node%get_descriptor()
+               call descriptor%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, type_kind, _RC)
+               call type_kind%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+               call descriptor%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, type_kind, _RC)
+               marked = .true.
+            end select
+         end do
+      end associate
+      @assertTrue(marked, 'import T not found in child_dst graph')
+
+      call gb%run_graph_freeze_hook(parent_meta)
+      @assertExceptionRaised('StateItemDescriptor: item ' // dst_meta%get_name() // ':T has characteristic TYPE_KIND still DEFERRED at freeze')
+      @assertExceptionRaised('GraphBuilder: characteristics unresolved at freeze')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_deferred_characteristic_at_freeze_fails
 
 end module Test_GraphBuilder_ConvergenceCheck

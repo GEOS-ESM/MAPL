@@ -111,14 +111,22 @@ contains
       @assertTrue(a%needs_extension_for(b))
    end subroutine test_geometry_needs_extension_for_compares_referenced_node_id
 
-   ! Spec "Newly constructed characteristic is invalid" (REQ-CHAR-003).
+   ! Spec "Newly constructed characteristic is invalid" (REQ-CHAR-003): no
+   ! value established yet.
    @test
    subroutine test_newly_constructed_characteristic_is_invalid_status()
       type(PhysicalUnitsCharacteristic) :: units
 
-      units = PhysicalUnitsCharacteristic('m')
       @assertTrue(units%get_status() == CHARACTERISTIC_STATUS_INVALID)
    end subroutine test_newly_constructed_characteristic_is_invalid_status
+
+   @test
+   subroutine test_value_constructor_sets_specified()
+      type(PhysicalUnitsCharacteristic) :: units
+
+      units = PhysicalUnitsCharacteristic('m')
+      @assertTrue(units%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+   end subroutine test_value_constructor_sets_specified
 
    @test
    subroutine test_set_status_round_trips()

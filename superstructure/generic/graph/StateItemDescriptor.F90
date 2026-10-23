@@ -12,10 +12,16 @@
 ! on OuterMetaComponent, StateRegistry, or VariableSpec.
 !------------------------------------------------------------------------------
 module mapl_StateItemDescriptor_mod
-   use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
+   use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, operator(==)
    use ESMF, only: ESMF_Geom
-   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap
-   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==)
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap, &
+        StateItemCharacteristicMapIterator, operator(/=)
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), &
+        GEOMETRY_CHARACTERISTIC_KIND, VERTICAL_COORDINATE_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND
+   use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
+        CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED, &
+        CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_DEFERRED
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION
    use mapl_UngriddedDims_mod, only: UngriddedDims
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc
    use mapl_VerticalGrid_mod, only: VerticalGrid
@@ -25,6 +31,29 @@ module mapl_StateItemDescriptor_mod
    private
 
    public :: StateItemDescriptor
+   public :: resolve_pair
+   public :: resolve_characteristics
+   public :: resolve_descriptors
+   public :: is_mirrored_export_allowed
+   public :: PAIR_MATCH, PAIR_EXTEND, PAIR_ADOPT, PAIR_CONFLICT, PAIR_INVALID
+
+   ! Outcomes of resolve_pair for one kind present on both sides.
+   ! PAIR_ADOPT: the import takes a copy of the export's value.
+   ! PAIR_INVALID: an INVALID status reached resolution (programming error).
+   integer, parameter :: PAIR_MATCH = 1
+   integer, parameter :: PAIR_EXTEND = 2
+   integer, parameter :: PAIR_ADOPT = 3
+   integer, parameter :: PAIR_CONFLICT = 4
+   integer, parameter :: PAIR_INVALID = 5
+
+   ! (export item type, kind) pairs whose export may be MIRRORED. An
+   ! expression has no geometry or precision of its own; each consumer's
+   ! chain tip takes the consumer's value. Add entries only with a
+   ! demonstrated use case.
+   type :: MirroredExportAllowance
+      type(ESMF_StateItem_Flag) :: item_type
+      type(StateItemCharacteristicKind) :: kind
+   end type MirroredExportAllowance
 
    type :: StateItemDescriptor
       private
@@ -43,6 +72,8 @@ module mapl_StateItemDescriptor_mod
       procedure :: get_characteristic => descriptor_get_characteristic
       procedure :: set_characteristic => descriptor_set_characteristic
       procedure :: get_characteristics => descriptor_get_characteristics
+      procedure :: get_unresolved_kinds => descriptor_get_unresolved_kinds
+      procedure :: check_resolved => descriptor_check_resolved
       procedure :: get_ungridded_dims => descriptor_get_ungridded_dims
       procedure :: set_ungridded_dims => descriptor_set_ungridded_dims
       procedure :: get_vertical_stagger => descriptor_get_vertical_stagger
@@ -119,6 +150,193 @@ contains
 
       characteristics = this%characteristics
    end function descriptor_get_characteristics
+
+   ! -- generic status resolution --
+
+   logical function is_mirrored_export_allowed(export_item_type, kind) result(allowed)
+      type(ESMF_StateItem_Flag), intent(in) :: export_item_type
+      type(StateItemCharacteristicKind), intent(in) :: kind
+
+      type(MirroredExportAllowance), parameter :: ALLOWLIST(*) = [ &
+           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, GEOMETRY_CHARACTERISTIC_KIND), &
+           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, VERTICAL_COORDINATE_CHARACTERISTIC_KIND), &
+           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, TYPE_KIND_CHARACTERISTIC_KIND)]
+      integer :: i
+
+      allowed = .false.
+      do i = 1, size(ALLOWLIST)
+         if (ALLOWLIST(i)%item_type == export_item_type .and. ALLOWLIST(i)%kind == kind) then
+            allowed = .true.
+            return
+         end if
+      end do
+   end function is_mirrored_export_allowed
+
+   ! Resolves one kind present on both sides from the two statuses alone.
+   ! The subclass comparison runs only when both sides are SPECIFIED.
+   integer function resolve_pair(export_c, import_c, export_item_type) result(outcome)
+      class(StateItemCharacteristic), intent(in) :: export_c
+      class(StateItemCharacteristic), intent(in) :: import_c
+      type(ESMF_StateItem_Flag), intent(in) :: export_item_type
+
+      type(CharacteristicStatus) :: e, i
+
+      e = export_c%get_status()
+      i = import_c%get_status()
+
+      if (.not. (is_valid(e) .and. is_valid(i))) then
+         outcome = PAIR_INVALID
+      else if (e == CHARACTERISTIC_STATUS_DEFERRED .or. i == CHARACTERISTIC_STATUS_DEFERRED) then
+         outcome = PAIR_CONFLICT
+      else if (e == CHARACTERISTIC_STATUS_UNCHECKED .and. i == CHARACTERISTIC_STATUS_MIRRORED) then
+         outcome = PAIR_CONFLICT
+      else if (e == CHARACTERISTIC_STATUS_UNCHECKED .or. i == CHARACTERISTIC_STATUS_UNCHECKED) then
+         outcome = PAIR_MATCH
+      else if (e == CHARACTERISTIC_STATUS_MIRRORED) then
+         outcome = PAIR_CONFLICT
+         if (i == CHARACTERISTIC_STATUS_SPECIFIED .and. &
+              is_mirrored_export_allowed(export_item_type, export_c%get_kind())) outcome = PAIR_MATCH
+      else if (i == CHARACTERISTIC_STATUS_MIRRORED) then
+         outcome = PAIR_ADOPT
+      else if (export_c%needs_extension_for(import_c)) then
+         outcome = PAIR_EXTEND
+      else
+         outcome = PAIR_MATCH
+      end if
+
+   contains
+
+      logical function is_valid(s)
+         type(CharacteristicStatus), intent(in) :: s
+         is_valid = s == CHARACTERISTIC_STATUS_SPECIFIED .or. s == CHARACTERISTIC_STATUS_MIRRORED .or. &
+              s == CHARACTERISTIC_STATUS_UNCHECKED .or. s == CHARACTERISTIC_STATUS_DEFERRED
+      end function is_valid
+
+   end function resolve_pair
+
+   ! Applies resolve_pair to every kind present on both maps; a kind on only
+   ! one side is not applicable to that shape and is skipped. Stops at the
+   ! first status conflict and describes it in `conflict` ('' if none).
+   ! `adopted` lists kinds the import must copy from the export.
+   subroutine resolve_characteristics(export_map, import_map, export_item_type, mismatched, adopted, conflict, rc)
+      type(StateItemCharacteristicMap), target, intent(in) :: export_map
+      type(StateItemCharacteristicMap), target, intent(in) :: import_map
+      type(ESMF_StateItem_Flag), intent(in) :: export_item_type
+      type(StateItemCharacteristicKind), allocatable, intent(out) :: mismatched(:)
+      type(StateItemCharacteristicKind), allocatable, intent(out) :: adopted(:)
+      character(:), allocatable, intent(out) :: conflict
+      integer, optional, intent(out) :: rc
+
+      type(StateItemCharacteristicMapIterator) :: iter
+      type(StateItemCharacteristicKind) :: kind
+      class(StateItemCharacteristic), pointer :: export_c, import_c
+      type(CharacteristicStatus) :: export_status, import_status
+      integer :: status
+
+      allocate(mismatched(0), adopted(0))
+      conflict = ''
+
+      associate (e => export_map%ftn_end())
+         iter = export_map%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            kind = iter%first()
+            if (import_map%count(kind) == 0) cycle
+
+            export_c => export_map%at(kind, rc=status)
+            import_c => import_map%at(kind, rc=status)
+            select case (resolve_pair(export_c, import_c, export_item_type))
+            case (PAIR_MATCH)
+            case (PAIR_EXTEND)
+               mismatched = [mismatched, kind]
+            case (PAIR_ADOPT)
+               adopted = [adopted, kind]
+            case (PAIR_CONFLICT)
+               export_status = export_c%get_status()
+               import_status = import_c%get_status()
+               conflict = 'status conflict on ' // kind%to_string() // ': export ' // &
+                    export_status%to_string() // ', import ' // import_status%to_string()
+               exit
+            case default
+               _FAIL('StateItemDescriptor: INVALID characteristic status reached connection resolution for ' // kind%to_string())
+            end select
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine resolve_characteristics
+
+   ! Descriptor form of resolve_characteristics: uses the export's declared
+   ! item type for the allowlist and records each adoption on the import.
+   ! The export is never modified.
+   subroutine resolve_descriptors(export, import, mismatched, conflict, rc)
+      type(StateItemDescriptor), intent(in) :: export
+      type(StateItemDescriptor), intent(inout) :: import
+      type(StateItemCharacteristicKind), allocatable, intent(out) :: mismatched(:)
+      character(:), allocatable, intent(out) :: conflict
+      integer, optional, intent(out) :: rc
+
+      integer :: status, i
+      type(StateItemCharacteristicKind), allocatable :: adopted(:)
+      class(StateItemCharacteristic), allocatable :: source
+
+      call resolve_characteristics(export%characteristics, import%characteristics, export%declared_item_type, &
+           mismatched, adopted, conflict, _RC)
+      _RETURN_UNLESS(conflict == '')
+
+      do i = 1, size(adopted)
+         call export%get_characteristic(adopted(i), source, _RC)
+         call import%set_characteristic(adopted(i), source, _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine resolve_descriptors
+
+   ! Kinds whose status is DEFERRED or INVALID. MIRRORED is not listed: an
+   ! unreached mirrored import is reported as unresolved elsewhere, and an
+   ! unconsumed mirrored export is never extended.
+   function descriptor_get_unresolved_kinds(this) result(kinds)
+      class(StateItemDescriptor), target, intent(in) :: this
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+
+      type(StateItemCharacteristicMapIterator) :: iter
+      class(StateItemCharacteristic), pointer :: c
+      type(CharacteristicStatus) :: s
+
+      allocate(kinds(0))
+      associate (e => this%characteristics%ftn_end())
+         iter = this%characteristics%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            c => iter%second()
+            s = c%get_status()
+            if (s == CHARACTERISTIC_STATUS_SPECIFIED .or. s == CHARACTERISTIC_STATUS_UNCHECKED .or. &
+                 s == CHARACTERISTIC_STATUS_MIRRORED) cycle
+            kinds = [kinds, iter%first()]
+         end do
+      end associate
+   end function descriptor_get_unresolved_kinds
+
+   ! Freeze-time check: fails naming the item and the first unresolved kind.
+   subroutine descriptor_check_resolved(this, item_name, rc)
+      class(StateItemDescriptor), target, intent(in) :: this
+      character(*), intent(in) :: item_name
+      integer, optional, intent(out) :: rc
+
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+      class(StateItemCharacteristic), allocatable :: c
+      type(CharacteristicStatus) :: s
+      integer :: status
+
+      kinds = this%get_unresolved_kinds()
+      if (size(kinds) > 0) then
+         call this%get_characteristic(kinds(1), c, _RC)
+         s = c%get_status()
+         _FAIL('StateItemDescriptor: item ' // item_name // ' has characteristic ' // kinds(1)%to_string() // ' still ' // s%to_string() // ' at freeze')
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine descriptor_check_resolved
 
    ! -- materialization inputs --
 

@@ -25,7 +25,7 @@
 module mapl_StandardNameCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, STANDARD_NAME_CHARACTERISTIC_KIND
-   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, operator(==)
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_SPECIFIED, operator(==)
    use mapl_TransformBase_mod, only: TransformBase
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -55,6 +55,7 @@ contains
       type(StandardNameCharacteristic) :: characteristic
 
       characteristic%standard_name = standard_name
+      call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_StandardNameCharacteristic
 
    function standard_name_get_kind() result(kind)

@@ -10,14 +10,9 @@
 ! from its own VariableSpec data and calls in with the resulting maps.
 !
 ! find_mismatched_characteristics compares only kinds present on BOTH maps; a
-! kind declared by only one side is not a mismatch. It is deliberately NOT
-! forwarded to mapl_StateItemCharacteristicDetection_mod's
-! find_mismatched_state_item_characteristics, which treats a one-sided kind
-! as a mismatch. GraphBuilder's build_characteristics() produces one-sided
-! maps in practice (e.g. UNITS/VERTICAL_GRID are inserted only when the
-! VariableSpec field is allocated), and forwarding would change resolved
-! outcomes and risk import_map%at() on a never-inserted key in
-! build_chain/chain_key.
+! kind declared by only one side is not a mismatch (absence means "not
+! applicable to this shape"), which also keeps import_map%at() in
+! build_chain/chain_key on keys known to exist.
 !
 ! Chain-building calls each mismatched characteristic's own
 ! StateItemCharacteristic%build_transform, an ordinary deferred method with
@@ -41,6 +36,8 @@ module mapl_ExtensionResolution_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap, &
         StateItemCharacteristicMapIterator, operator(==), operator(/=)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
+   use mapl_StateItemDescriptor_mod, only: resolve_characteristics
+   use ESMF, only: ESMF_STATEITEM_FIELD
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
    use mapl_NodeId_mod, only: NodeId
@@ -82,35 +79,28 @@ contains
    end function materialize_extensions_enabled
 
    ! REQ-EXT-003/REQ-EXT-001: which characteristic kinds does the export
-   ! declare that the import also declares, with different values? A kind
-   ! declared by only one side is not a mismatch (see the module header for
-   ! why this does not forward to find_mismatched_state_item_characteristics).
-   function find_mismatched_characteristics(export_map, import_map) result(mismatched)
+   ! declare that the import also declares, needing a Transform? Status is
+   ! resolved generically (resolve_characteristics). With bare maps there is
+   ! no item type and no import to record an adoption on, so a status
+   ! conflict or a needed MIRRORED adoption fails; connection paths use
+   ! resolve_descriptors instead.
+   function find_mismatched_characteristics(export_map, import_map, rc) result(mismatched)
       type(StateItemCharacteristicMap), target, intent(in) :: export_map
       type(StateItemCharacteristicMap), target, intent(in) :: import_map
+      integer, optional, intent(out) :: rc
       type(StateItemCharacteristicKind), allocatable :: mismatched(:)
 
-      type(StateItemCharacteristicMapIterator) :: iter
-      type(StateItemCharacteristicKind) :: kind_id
-      class(StateItemCharacteristic), pointer :: export_characteristic, import_characteristic
+      type(StateItemCharacteristicKind), allocatable :: adopted(:)
+      character(:), allocatable :: conflict
       integer :: status
 
-      allocate(mismatched(0))
+      call resolve_characteristics(export_map, import_map, ESMF_STATEITEM_FIELD, mismatched, adopted, conflict, _RC)
+      _ASSERT(conflict == '', 'ExtensionResolution: ' // conflict)
+      if (size(adopted) > 0) then
+         _FAIL('ExtensionResolution: MIRRORED import needs a descriptor to adopt ' // adopted(1)%to_string())
+      end if
 
-      associate (e => export_map%ftn_end())
-         iter = export_map%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            kind_id = iter%first()
-            if (import_map%count(kind_id) == 0) cycle
-
-            export_characteristic => export_map%at(kind_id, rc=status)
-            import_characteristic => import_map%at(kind_id, rc=status)
-            if (export_characteristic%needs_extension_for(import_characteristic)) then
-               mismatched = [mismatched, kind_id]
-            end if
-         end do
-      end associate
+      _RETURN(_SUCCESS)
    end function find_mismatched_characteristics
 
    ! REQ-EXT-001: resolve export_node_id -> (chain of transform steps and

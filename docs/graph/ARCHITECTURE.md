@@ -65,7 +65,22 @@ Description axes of a state item, compared for mismatch detection and
 `ReferenceCharacteristic` subtypes) has deferred `get_kind`,
 `needs_extension_for`, `build_transform`, `get_signature`, and a
 `CharacteristicStatus` (`INVALID`, `SPECIFIED`, `MIRRORED`, `UNCHECKED`,
-`DEFERRED`).
+`DEFERRED`). Value constructors set `SPECIFIED`; a default-initialized
+characteristic is `INVALID`.
+
+Status is resolved generically in `StateItemDescriptor.F90`
+(`resolve_pair`, `resolve_characteristics`, `resolve_descriptors`) from
+the two statuses alone; `needs_extension_for` runs only when both sides
+are `SPECIFIED`. A `MIRRORED` import adopts the export's value
+(`resolve_descriptors`, used by `resolve_one` and the inout-borrower
+path); a `MIRRORED` export matches only via the (item type, kind)
+allowlist (`is_mirrored_export_allowed`: EXPRESSION x GEOMETRY /
+VERTICAL_COORDINATE / TYPE_KIND). Status conflicts are reported as
+unsupported connections; `INVALID` is a `_FAIL`. A kind on only one side
+is not compared. At freeze, `run_graph_freeze_hook` calls
+`StateItemDescriptor%check_resolved` on every owned `StateItemNode` and
+reports any `DEFERRED`/`INVALID` entry through `report_if_failed`.
+`MAPL_TYPEKIND_MIRROR` advertises a valueless `MIRRORED` TYPE_KIND entry.
 
 | Characteristic | Kind constant | `build_transform` today |
 |---|---|---|
@@ -77,8 +92,7 @@ Description axes of a state item, compared for mismatch detection and
 | `Attributes`, `UngriddedDims`, `StandardName`, `QuantityType`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | `_FAIL` `'<Name>Characteristic: build_transform - no real provider exists for this axis'` — mismatch is detected, repair is a stub |
 
 Other files: `CharacteristicStatus.F90`, `StateItemCharacteristicKind.F90`
-(also `MOCK_CHARACTERISTIC_KIND`), `StateItemCharacteristicDetection.F90`,
-`SetSharedCharacteristic.F90`.
+(also `MOCK_CHARACTERISTIC_KIND`), `SetSharedCharacteristic.F90`.
 
 A test that deliberately provokes a mismatch on a stub axis must consume
 the exception first, e.g.

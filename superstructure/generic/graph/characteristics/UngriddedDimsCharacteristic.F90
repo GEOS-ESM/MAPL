@@ -18,6 +18,7 @@
 !------------------------------------------------------------------------------
 module mapl_UngriddedDimsCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, UNGRIDDED_DIMS_CHARACTERISTIC_KIND
    use mapl_UngriddedDims_mod, only: UngriddedDims, operator(==), operator(/=)
    use mapl_UngriddedDim_mod, only: UngriddedDim
@@ -50,6 +51,7 @@ contains
       type(UngriddedDimsCharacteristic) :: characteristic
 
       characteristic%ungridded_dims = ungridded_dims
+      call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_UngriddedDimsCharacteristic
 
    function ungridded_dims_get_kind() result(kind)
