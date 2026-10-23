@@ -32,6 +32,7 @@ contains
         units, standard_name, long_name, &
         allocation_status, &
         regridder_param_info, &
+        bootstrapped, &
         rc)
       type(ESMF_Field), intent(in) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -54,6 +55,7 @@ contains
       character(len=:), optional, allocatable, intent(out) :: long_name
       type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
       type(esmf_Info), optional, allocatable,  intent(out) :: regridder_param_info
+      logical, optional, intent(out) :: bootstrapped ! field kept its initial value at restart
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -110,6 +112,7 @@ contains
            units=units, &
            allocation_status=allocation_status, &
            regridder_param_info=regridder_param_info, &
+           bootstrapped=bootstrapped, &
            named_alias_id=named_alias_id, &
            standard_name=standard_name, &
            long_name=long_name, &
