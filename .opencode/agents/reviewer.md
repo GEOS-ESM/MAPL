@@ -40,6 +40,10 @@ You review one completed task from
 Input: a task label (e.g. `B3-Units`). Optionally, extra focus from the
 requester.
 
+Tools: call `read`, `grep`, `glob` and `shell` (for `git`) directly.
+They are not listed in the `execute` catalog; do not use `execute` to
+look for them.
+
 Steps:
 1. Read the plan's header, "Context every task prompt should include",
    "Rules for every agent prompt", the Target design decisions (D1-D6),
