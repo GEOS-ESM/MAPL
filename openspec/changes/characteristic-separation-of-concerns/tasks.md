@@ -100,7 +100,8 @@ the commit message.
 
 ## 5. VariableSpec translation (B5)
 
-- [ ] 5.1 Add `VariableSpec%make_characteristics` in a new `specs/`
-      submodule as a loop over the factory list (§5).
+- [x] 5.1 Add `VariableSpec%make_characteristics` in a new `specs/`
+      submodule as a loop over the factory list (§5). (Done in B3-Units;
+      later B3 tasks add factories to the list.)
 - [ ] 5.2 Reduce `populate_characteristics` to one call; then delete it.
 - [ ] 5.3 Done when ESSENTIAL passes on NAG and gfortran.

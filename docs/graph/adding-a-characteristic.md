@@ -56,27 +56,34 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
      PhysicalUnits does this.
 4. **Factory** (`specs/VariableSpec/make_characteristics.F90`, a submodule
    of `mapl_VariableSpec_mod`)
-   - Add `module subroutine make_<name>_characteristic(this, descriptor, rc)`
-     to the interface block and type-bound list in `VariableSpec.F90`,
-     and its body to the submodule.
-   - Apply §4.3 applicability first: return without inserting for shapes
-     that do not carry the kind.
+   - Add a private `subroutine make_<name>_characteristic(spec, descriptor, rc)`
+     to the submodule, and register it in the `factories` array in
+     `make_characteristics` (size the array and add one
+     `factories(n)%make => ...` line). `VariableSpec.F90` is not edited:
+     only `make_characteristics` is type-bound.
+   - Apply §4.3 applicability first, as an allowlist: insert only for the
+     shapes the table lists for this kind and return for everything else.
+     A denylist silently covers `MAPL_STATEITEM_UNKNOWN`, the service
+     provider/subscriber flags, and any shape added later.
    - Apply the §5 status rule. Values the component supplies later are
      DEFERRED, not MIRRORED. MIRRORED comes only from an explicit mirror
      sentinel. List any legacy "absent means mirror" cases you find in
      the commit message.
-5. **Wire it in**: replace the kind's block in
-   `GraphBuilder_Advertising_smod.F90%populate_characteristics` with
-   `call var_spec%make_<name>_characteristic(descriptor, _RC)`, and drop
-   the kind constant and concrete type from that submodule's use list.
+5. **Wire it in**: delete the kind's block in
+   `GraphBuilder_Advertising_smod.F90%populate_characteristics` (the
+   `call var_spec%make_characteristics(descriptor, _RC)` already there
+   runs the registered factory), and drop the kind constant and concrete
+   type from that submodule's use list.
    Materialization references (`get_item_*`, `merged_item_for_link`) are
    removed in B4, not here.
 6. **Tests**
    - `graph/tests/Test_StateItemDescriptor.pf`: `sync_to_info` writes the
      SPECIFIED and UNCHECKED values in the right phases and skips the
      others.
-   - `tests/Test_VariableSpecCharacteristics.pf`: factory status per
-     input, and no entry for non-applicable shapes.
+   - `tests/Test_VariableSpecCharacteristics.pf`: factory status and
+     value per input, every applicable shape, and no entry for
+     non-applicable shapes (including `MAPL_STATEITEM_UNKNOWN` and the
+     service provider/subscriber flags).
    - Existing `Test_StatusResolution.pf` covers the status table; add a
      case only if the kind changes it.
 
@@ -86,7 +93,7 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
 |---|---|---|
 | allocated, not `'<unknown>'` | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE, EXPRESSION | SPECIFIED with the value |
 | unallocated or `'<unknown>'` | same | UNCHECKED, no value |
-| any | STATE, SERVICE, WILDCARD | none |
+| any | every other flag (STATE, SERVICE, WILDCARD, UNKNOWN, ...) | none |
 
 - UNCHECKED on either side matches (no conversion), which equals the
   old behavior of omitting the entry.

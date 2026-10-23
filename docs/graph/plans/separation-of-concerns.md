@@ -528,7 +528,10 @@ in the first one; later ones refine it.
   materialization references (`get_item_units`, `merged_item_for_link`,
   `GraphBuilder.F90` use list) stay until B4; the factory is a
   `VariableSpec` submodule now (`specs/VariableSpec/make_characteristics.F90`,
-  bringing B5's specs -> graph dependency forward); base `write_info`
+  bringing B5's specs -> graph dependency forward) with the D5 shape
+  already in place: type-bound `make_characteristics` loops over a
+  factory registry (B3.x tasks add an entry; B5 only deletes
+  `populate_characteristics`); base `write_info`
   is a non-deferred `_FAIL` default and `is_structural` defaults to
   `.false.` (make deferred once every kind overrides, B4); Q11
   confirmed (no MIRROR marker). §4.3 applicability applied (no units

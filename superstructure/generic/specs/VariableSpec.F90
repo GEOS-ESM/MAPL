@@ -270,7 +270,7 @@ module mapl_VariableSpec_mod
       procedure :: make_VerticalGridAspect
       procedure :: make_ClassAspect
 
-      procedure :: make_units_characteristic
+      procedure :: make_characteristics
 
       procedure :: declare_member
       procedure :: has_member
@@ -278,14 +278,12 @@ module mapl_VariableSpec_mod
       procedure :: get_member_names
    end type VariableSpec
 
-   ! Characteristic factories: translate this spec into its graph
-   ! descriptor entries, one characteristic each.
    interface
-      module subroutine make_units_characteristic(this, descriptor, rc)
+      module subroutine make_characteristics(this, descriptor, rc)
          class(VariableSpec), intent(in) :: this
          type(StateItemDescriptor), intent(inout) :: descriptor
          integer, optional, intent(out) :: rc
-      end subroutine make_units_characteristic
+      end subroutine make_characteristics
    end interface
 
 contains

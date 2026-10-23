@@ -6,7 +6,9 @@ module Test_VariableSpecCharacteristics
    use pfunit
    use mapl_VariableSpec_mod, only: VariableSpec
    use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, &
-        MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD
+        MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD, &
+        MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_UNKNOWN, &
+        MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND
@@ -39,7 +41,7 @@ contains
       class(StateItemCharacteristic), allocatable :: c
       integer :: status
 
-      call var_spec%make_units_characteristic(descriptor, _RC)
+      call var_spec%make_characteristics(descriptor, _RC)
       call descriptor%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, c, _RC)
       char_status = c%get_status()
       select type (c)
@@ -69,6 +71,7 @@ contains
 
       @assertTrue(units_status(make_spec(MAPL_STATEITEM_FIELD), units, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
       @assertEqual(0, status)
+      @assertEqual('', units)
    end subroutine test_undeclared_units_are_unchecked
 
    @test
@@ -78,6 +81,7 @@ contains
 
       @assertTrue(units_status(make_spec(MAPL_STATEITEM_EXPRESSION, UNKNOWN_UNITS), units, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
       @assertEqual(0, status)
+      @assertEqual('', units)
    end subroutine test_unknown_units_are_unchecked
 
    @test
@@ -87,19 +91,35 @@ contains
 
       @assertTrue(units_status(make_spec(MAPL_STATEITEM_FIELDBUNDLE, 'K'), units, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
       @assertEqual(0, status)
+      @assertEqual('K', units)
    end subroutine test_bundle_units_are_inserted
 
    @test
-   subroutine test_shapes_without_units_get_no_entry()
+   subroutine test_all_unit_carrying_shapes_get_specified_units()
       type(ESMF_StateItem_Flag) :: shapes(3)
+      character(:), allocatable :: units
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET]
+      do i = 1, size(shapes)
+         @assertTrue(units_status(make_spec(shapes(i), 'Pa'), units, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+         @assertEqual(0, status)
+         @assertEqual('Pa', units)
+      end do
+   end subroutine test_all_unit_carrying_shapes_get_specified_units
+
+   @test
+   subroutine test_shapes_without_units_get_no_entry()
+      type(ESMF_StateItem_Flag) :: shapes(6)
       type(StateItemDescriptor) :: descriptor
       type(VariableSpec) :: var_spec
       integer :: i, status
 
-      shapes = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD]
+      shapes = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD, &
+           MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
       do i = 1, size(shapes)
          var_spec = make_spec(shapes(i), 'm')
-         call var_spec%make_units_characteristic(descriptor, rc=status)
+         call var_spec%make_characteristics(descriptor, rc=status)
          @assertEqual(0, status)
          @assertFalse(descriptor%has_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND))
       end do

@@ -1295,8 +1295,8 @@ contains
    end subroutine try_materialize_field_extension
 
    ! Recovers a GraphStateItem's PHYSICAL_UNITS characteristic as a plain
-   ! string. Returns '' if never established: an item advertised with no
-   ! explicit units never gets this characteristic inserted.
+   ! string. Returns '' if there is no entry or the entry is UNCHECKED
+   ! (an UNCHECKED instance holds no value).
    function get_item_units(item, rc) result(units)
       type(StateItemDescriptor), intent(in) :: item
       integer, optional, intent(out) :: rc

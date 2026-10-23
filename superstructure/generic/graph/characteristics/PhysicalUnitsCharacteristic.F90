@@ -12,7 +12,7 @@
 module mapl_PhysicalUnitsCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
    use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL
-   use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
+   use mapl_CharacteristicStatus_mod, only: operator(==), &
         CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_UNCHECKED
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_field_api, only: MAPL_FieldSet
@@ -122,17 +122,14 @@ contains
 
       integer :: status
       character(:), allocatable :: units
-      type(CharacteristicStatus) :: char_status
       type(ESMF_StateItem_Flag) :: item_type
       type(ESMF_Field) :: field
       type(ESMF_FieldBundle) :: bundle
 
       _RETURN_UNLESS(phase == SYNC_PHASE_STRUCTURAL)
 
-      char_status = this%get_status()
-      _ASSERT(char_status == CHARACTERISTIC_STATUS_SPECIFIED .or. char_status == CHARACTERISTIC_STATUS_UNCHECKED, 'PhysicalUnitsCharacteristic: write_info requires SPECIFIED or UNCHECKED')
       units = this%get_units()
-      if (char_status == CHARACTERISTIC_STATUS_UNCHECKED) units = UNKNOWN_UNITS
+      if (this%get_status() == CHARACTERISTIC_STATUS_UNCHECKED) units = UNKNOWN_UNITS
 
       item_type = handle%itemType(_RC)
       if (item_type == ESMF_STATEITEM_FIELD) then

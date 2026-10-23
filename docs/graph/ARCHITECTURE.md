@@ -88,8 +88,9 @@ each SPECIFIED/UNCHECKED characteristic's `write_info` (phases
 kinds are skipped in DESCRIPTIVE). The base `write_info` fails; only
 `PhysicalUnits` overrides it so far, and no production path calls
 `sync_to_info` yet (materialization adopts it in B4). Factories live in
-`specs/VariableSpec/make_characteristics.F90` (so far
-`make_units_characteristic`). Procedure: `docs/graph/adding-a-characteristic.md`.
+`specs/VariableSpec/make_characteristics.F90`: the type-bound
+`VariableSpec%make_characteristics` loops over a registry of per-kind
+factories (so far units only). Procedure: `docs/graph/adding-a-characteristic.md`.
 
 | Characteristic | Kind constant | `build_transform` today |
 |---|---|---|

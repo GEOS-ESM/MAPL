@@ -148,7 +148,7 @@ contains
       ! under gfortran -fcheck=all.
       descriptor => node%get_descriptor()
 
-      call var_spec%make_units_characteristic(descriptor, _RC)
+      call var_spec%make_characteristics(descriptor, _RC)
       ! typekind always has a value (default ESMF_TYPEKIND_R4).
       call descriptor%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
            TypeKindCharacteristic(var_spec%typekind), _RC)
