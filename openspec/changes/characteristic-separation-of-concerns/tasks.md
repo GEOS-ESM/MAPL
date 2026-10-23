@@ -47,7 +47,10 @@ Each task: move to generic status, implement `write_info` (§3.4),
 add the VariableSpec factory (§5), remove its `populate_characteristics`
 block and GraphBuilder references (§6.2, §6.3). Done when ESSENTIAL
 passes on NAG and gfortran and `grep -n <KIND> GraphBuilder*.F90` finds
-nothing for that kind.
+nothing for that kind, except the §6.3 materialization references
+(`get_item_units`, `get_item_typekind`, `merged_item_for_link`, the
+`GraphBuilder.F90` use list), which B4 removes; list any that remain in
+the commit message.
 
 - [x] 3.1 B3-Units (template; also writes
       `docs/graph/adding-a-characteristic.md`). Owner-approved deviation:
