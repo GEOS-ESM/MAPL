@@ -1,0 +1,108 @@
+#include "MAPL_TestErr.h"
+
+! VariableSpec characteristic factories: status rule and shape
+! applicability for each characteristic a factory inserts.
+module Test_VariableSpecCharacteristics
+   use pfunit
+   use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, &
+        MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
+   use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND
+   use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
+        CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_UNCHECKED
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
+   use esmf, only: ESMF_StateItem_Flag, ESMF_STATEINTENT_EXPORT
+   implicit none(type, external)
+
+contains
+
+   function make_spec(item_type, units) result(var_spec)
+      type(ESMF_StateItem_Flag), intent(in) :: item_type
+      character(*), optional, intent(in) :: units
+      type(VariableSpec) :: var_spec
+
+      var_spec%state_intent = ESMF_STATEINTENT_EXPORT
+      var_spec%short_name = 'X'
+      var_spec%itemType = item_type
+      if (present(units)) var_spec%units = units
+   end function make_spec
+
+   function units_status(var_spec, units, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      character(:), allocatable, intent(out) :: units
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_units_characteristic(descriptor, _RC)
+      call descriptor%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, c, _RC)
+      char_status = c%get_status()
+      select type (c)
+      class is (PhysicalUnitsCharacteristic)
+         units = c%get_units()
+      class default
+         status = 1
+         _VERIFY(status)
+      end select
+      _RETURN(_SUCCESS)
+   end function units_status
+
+   @test
+   subroutine test_declared_units_are_specified()
+      character(:), allocatable :: units
+      integer :: status
+
+      @assertTrue(units_status(make_spec(MAPL_STATEITEM_FIELD, 'm'), units, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertEqual('m', units)
+   end subroutine test_declared_units_are_specified
+
+   @test
+   subroutine test_undeclared_units_are_unchecked()
+      character(:), allocatable :: units
+      integer :: status
+
+      @assertTrue(units_status(make_spec(MAPL_STATEITEM_FIELD), units, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+   end subroutine test_undeclared_units_are_unchecked
+
+   @test
+   subroutine test_unknown_units_are_unchecked()
+      character(:), allocatable :: units
+      integer :: status
+
+      @assertTrue(units_status(make_spec(MAPL_STATEITEM_EXPRESSION, UNKNOWN_UNITS), units, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+   end subroutine test_unknown_units_are_unchecked
+
+   @test
+   subroutine test_bundle_units_are_inserted()
+      character(:), allocatable :: units
+      integer :: status
+
+      @assertTrue(units_status(make_spec(MAPL_STATEITEM_FIELDBUNDLE, 'K'), units, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_bundle_units_are_inserted
+
+   @test
+   subroutine test_shapes_without_units_get_no_entry()
+      type(ESMF_StateItem_Flag) :: shapes(3)
+      type(StateItemDescriptor) :: descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD]
+      do i = 1, size(shapes)
+         var_spec = make_spec(shapes(i), 'm')
+         call var_spec%make_units_characteristic(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_shapes_without_units_get_no_entry
+
+end module Test_VariableSpecCharacteristics

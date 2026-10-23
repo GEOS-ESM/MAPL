@@ -41,6 +41,7 @@ budget fast for little marginal benefit on a typical change.
 | `transforms-and-update.md` | `Transform`/`TransformBase`/`TransformGraphNode`, port bindings, the demand-driven `update()` algorithm |
 | `methods-and-drivers.md` | `MethodGraphNode`, invocation adapters, `GriddedComponentDriver` integration |
 | `characteristics.md` | `StateItemCharacteristic` hierarchy, extension/mismatch reconciliation |
+| `adding-a-characteristic.md` | Checklist for adding or converting a characteristic (status, `write_info`, `VariableSpec` factory) |
 | `callbacks.md` | `CallbackInterface`/registry, Handler/Invoker, callback State wiring |
 | `route-handles.md` | `RouteHandleKey`, route handle sharing/representation |
 | `visualization-export.md` | `GraphExport` DOT/JSON topology export |

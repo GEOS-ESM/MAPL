@@ -7,14 +7,13 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
    use mapl_CompositeStateMaterialization_mod, only: materialize_composite
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
-   use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+   use mapl_StateItemCharacteristicKind_mod, only: &
         TYPE_KIND_CHARACTERISTIC_KIND, VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
         ATTRIBUTES_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
         STANDARD_NAME_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND, &
         CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND, &
         ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
-   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
@@ -149,10 +148,7 @@ contains
       ! under gfortran -fcheck=all.
       descriptor => node%get_descriptor()
 
-      if (allocated(var_spec%units)) then
-         call descriptor%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
-              PhysicalUnitsCharacteristic(var_spec%units), _RC)
-      end if
+      call var_spec%make_units_characteristic(descriptor, _RC)
       ! typekind always has a value (default ESMF_TYPEKIND_R4).
       call descriptor%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
            TypeKindCharacteristic(var_spec%typekind), _RC)
@@ -181,8 +177,8 @@ contains
       ! Each axis is gated to match its VariableSpec field's own "unset"
       ! representation.
       !
-      ! StandardNameCharacteristic: allocatable, no default - same
-      ! `allocated()` gate as units above.
+      ! StandardNameCharacteristic: allocatable, no default, so gated on
+      ! `allocated()`.
       if (allocated(var_spec%standard_name)) then
          call descriptor%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, &
               StandardNameCharacteristic(var_spec%standard_name), _RC)

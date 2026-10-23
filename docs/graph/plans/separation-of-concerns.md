@@ -523,7 +523,18 @@ in the first one; later ones refine it.
   (today only an item-level `geometry:` block sets it), so the graph can
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
-- **Status:** not started
+- **Status:** B3-Units done (commit trailer `Plan-Task: B3-Units`);
+  others not started. B3-Units deviations (owner-approved): the
+  materialization references (`get_item_units`, `merged_item_for_link`,
+  `GraphBuilder.F90` use list) stay until B4; the factory is a
+  `VariableSpec` submodule now (`specs/VariableSpec/make_characteristics.F90`,
+  bringing B5's specs -> graph dependency forward); base `write_info`
+  is a non-deferred `_FAIL` default and `is_structural` defaults to
+  `.false.` (make deferred once every kind overrides, B4); Q11
+  confirmed (no MIRROR marker). §4.3 applicability applied (no units
+  entry for STATE/SERVICE/WILDCARD); EXPRESSION units follow the field
+  rule, forcing UNCHECKED stays with B3-Expression (Q3). No production
+  path calls `sync_to_info` yet.
 
 **B4. Remove manual dispatch.** Delete `merged_item_for_link`'s kind
 chain, `get_item_units`/`get_item_typekind`, scalar args of

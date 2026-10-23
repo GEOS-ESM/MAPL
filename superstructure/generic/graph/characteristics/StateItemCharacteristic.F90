@@ -1,3 +1,5 @@
+#include "MAPL.h"
+
 !------------------------------------------------------------------------------
 ! StateItemCharacteristic: abstract per-characteristic model attached to a
 ! GraphStateItem (docs/graph/spec/18-state-item-characteristics.md
@@ -48,6 +50,8 @@ module mapl_StateItemCharacteristic_mod
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(<)
    use mapl_NodeId_mod, only: NodeId
    use mapl_TransformBase_mod, only: TransformBase
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_ErrorHandling_mod
    ! No explicit `implicit none` here - map/header.inc (below) already
    ! supplies one; mapl_Characteristic_mod/mapl_StateItemAspect_mod (the
    ! same gFTL2 map-instantiation pattern) follow the same convention.
@@ -67,6 +71,14 @@ module mapl_StateItemCharacteristic_mod
    public :: StateItemCharacteristic
    public :: ValueCharacteristic
    public :: ReferenceCharacteristic
+   public :: SYNC_PHASE_STRUCTURAL
+   public :: SYNC_PHASE_DESCRIPTIVE
+
+   ! Phases of StateItemDescriptor%sync_to_info. STRUCTURAL: before the field
+   ! is completed, every keyword may be written. DESCRIPTIVE: any time, so
+   ! structural keywords (and units, a FieldDelta trigger) are skipped.
+   integer, parameter :: SYNC_PHASE_STRUCTURAL = 1
+   integer, parameter :: SYNC_PHASE_DESCRIPTIVE = 2
 
    type, abstract :: StateItemCharacteristic
       private
@@ -78,6 +90,8 @@ module mapl_StateItemCharacteristic_mod
       procedure(I_get_signature), deferred :: get_signature
       procedure :: get_status => char_get_status
       procedure :: set_status => char_set_status
+      procedure :: write_info => char_write_info
+      procedure :: is_structural => char_is_structural
    end type StateItemCharacteristic
 
    ! REQ-CHAR-002a: a pure subtype-shape split - no additional deferred
@@ -202,6 +216,33 @@ contains
 
       node_id = this%referenced_node_id
    end function refchar_get_referenced_node_id
+
+   ! Writes this characteristic's own Info keywords onto the handle through
+   ! MAPL_FieldSet/MAPL_FieldBundleSet. Called only for SPECIFIED or
+   ! UNCHECKED entries. Kinds that have not been given a write method fail.
+   subroutine char_write_info(this, handle, phase, rc)
+      class(StateItemCharacteristic), intent(in) :: this
+      type(GraphStateItem), intent(inout) :: handle
+      integer, intent(in) :: phase
+      integer, optional, intent(out) :: rc
+
+      type(StateItemCharacteristicKind) :: kind
+
+      kind = this%get_kind()
+      _FAIL('StateItemCharacteristic: write_info not implemented for ' // kind%to_string())
+
+      _UNUSED_DUMMY(handle)
+      _UNUSED_DUMMY(phase)
+   end subroutine char_write_info
+
+   ! A structural characteristic is a creation input of the payload and is
+   ! never written in the DESCRIPTIVE phase.
+   logical function char_is_structural(this) result(structural)
+      class(StateItemCharacteristic), intent(in) :: this
+
+      structural = .false.
+      _UNUSED_DUMMY(this)
+   end function char_is_structural
 
    subroutine refchar_set_referenced_node_id(this, node_id)
       class(ReferenceCharacteristic), intent(inout) :: this

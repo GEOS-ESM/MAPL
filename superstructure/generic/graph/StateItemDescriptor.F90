@@ -15,7 +15,8 @@ module mapl_StateItemDescriptor_mod
    use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, operator(==)
    use ESMF, only: ESMF_Geom
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap, &
-        StateItemCharacteristicMapIterator, operator(/=)
+        StateItemCharacteristicMapIterator, operator(/=), SYNC_PHASE_STRUCTURAL, SYNC_PHASE_DESCRIPTIVE
+   use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), &
         GEOMETRY_CHARACTERISTIC_KIND, VERTICAL_COORDINATE_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
@@ -74,6 +75,7 @@ module mapl_StateItemDescriptor_mod
       procedure :: get_characteristics => descriptor_get_characteristics
       procedure :: get_unresolved_kinds => descriptor_get_unresolved_kinds
       procedure :: check_resolved => descriptor_check_resolved
+      procedure :: sync_to_info => descriptor_sync_to_info
       procedure :: get_ungridded_dims => descriptor_get_ungridded_dims
       procedure :: set_ungridded_dims => descriptor_set_ungridded_dims
       procedure :: get_vertical_stagger => descriptor_get_vertical_stagger
@@ -337,6 +339,37 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine descriptor_check_resolved
+
+   ! Writes each SPECIFIED or UNCHECKED characteristic onto the handle's Info.
+   ! The DESCRIPTIVE phase skips structural characteristics, so a completed
+   ! field is never re-created through FieldDelta.
+   subroutine descriptor_sync_to_info(this, handle, phase, rc)
+      class(StateItemDescriptor), target, intent(in) :: this
+      type(GraphStateItem), intent(inout) :: handle
+      integer, intent(in) :: phase
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StateItemCharacteristicMapIterator) :: iter
+      class(StateItemCharacteristic), pointer :: c
+      type(CharacteristicStatus) :: s
+
+      _ASSERT(phase == SYNC_PHASE_STRUCTURAL .or. phase == SYNC_PHASE_DESCRIPTIVE, 'StateItemDescriptor: sync_to_info - unknown phase')
+
+      associate (e => this%characteristics%ftn_end())
+         iter = this%characteristics%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            c => iter%second()
+            s = c%get_status()
+            if (.not. (s == CHARACTERISTIC_STATUS_SPECIFIED .or. s == CHARACTERISTIC_STATUS_UNCHECKED)) cycle
+            if (phase == SYNC_PHASE_DESCRIPTIVE .and. c%is_structural()) cycle
+            call c%write_info(handle, phase, _RC)
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine descriptor_sync_to_info
 
    ! -- materialization inputs --
 

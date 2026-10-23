@@ -628,6 +628,8 @@ Q9 (B3-QuantityType). Legacy `make_QuantityTypeAspect` ignores
     `VariableSpec%quantity_type` and writes default metadata plus a
     derived normalization that `NormalizationAspect` overwrites. The
     graph writes the declared value and only its own key. Confirm.
-Q11 (B3-Units). Legacy writes `units='/$MIRROR$'` into Info for mirrored
-    units, and no reader exists. The graph never writes a MIRROR marker.
-    Confirm.
+Q11 (B3-Units). **Answered: confirmed.** Legacy writes
+    `units='/$MIRROR$'` into Info for mirrored units, and no reader
+    exists. The graph never writes a MIRROR marker; the PhysicalUnits
+    factory never produces MIRRORED (unallocated or `'<unknown>'` units
+    are UNCHECKED), so only SPECIFIED and UNCHECKED reach `write_info`.

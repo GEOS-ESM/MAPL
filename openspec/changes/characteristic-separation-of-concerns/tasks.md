@@ -49,8 +49,11 @@ block and GraphBuilder references (§6.2, §6.3). Done when ESSENTIAL
 passes on NAG and gfortran and `grep -n <KIND> GraphBuilder*.F90` finds
 nothing for that kind.
 
-- [ ] 3.1 B3-Units (template; also writes
-      `docs/graph/adding-a-characteristic.md`)
+- [x] 3.1 B3-Units (template; also writes
+      `docs/graph/adding-a-characteristic.md`). Owner-approved deviation:
+      `get_item_units`/`merged_item_for_link` (materialization) and the
+      `GraphBuilder.F90` use list still name PHYSICAL_UNITS; they go in
+      B4 (§6.3), so the per-kind grep is not yet empty.
 - [ ] 3.2 B3-TypeKind (finish)
 - [ ] 3.3 B3-UngriddedDims (removes `GraphStateItem%ungridded_dims` duplicate)
 - [ ] 3.4 B3-VerticalCoordinate (M2: component grid / DEFERRED)

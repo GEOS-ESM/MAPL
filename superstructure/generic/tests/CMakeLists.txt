@@ -169,6 +169,7 @@ set(components_test_srcs
   Test_VariableSpecMembers.pf
   Test_VariableSpecCallback.pf
   Test_VariableSpecInout.pf
+  Test_VariableSpecCharacteristics.pf
   Test_ComponentSpecParser.pf
   Test_WriteYaml.pf
   Test_ExtensionFamily.pf

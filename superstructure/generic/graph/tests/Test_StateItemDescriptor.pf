@@ -1,11 +1,16 @@
 module Test_StateItemDescriptor
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator
-   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, SYNC_PHASE_STRUCTURAL, &
+        SYNC_PHASE_DESCRIPTIVE
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
         GEOMETRY_CHARACTERISTIC_KIND
-   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_field_api, only: MAPL_FieldGet
+   use ESMF, only: ESMF_Field, ESMF_FieldEmptyCreate, ESMF_FieldDestroy
    use funit
    implicit none
 
@@ -93,5 +98,87 @@ contains
       @assertTrue(status /= 0)
       @assertFalse(item%has_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND))
    end subroutine test_set_characteristic_rejects_kind_mismatch
+
+   @test
+   subroutine test_sync_structural_writes_specified_units()
+      type(StateItemDescriptor) :: item
+      character(:), allocatable :: units
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      units = synced_units(item, SYNC_PHASE_STRUCTURAL)
+      @assertEqual('m', units)
+   end subroutine test_sync_structural_writes_specified_units
+
+   @test
+   subroutine test_sync_structural_writes_unknown_for_unchecked_units()
+      type(StateItemDescriptor) :: item
+      type(PhysicalUnitsCharacteristic) :: unchecked
+      character(:), allocatable :: units
+
+      call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, unchecked)
+      units = synced_units(item, SYNC_PHASE_STRUCTURAL)
+      @assertEqual(UNKNOWN_UNITS, units)
+   end subroutine test_sync_structural_writes_unknown_for_unchecked_units
+
+   ! units= on a completed field would enter FieldDelta.
+   @test
+   subroutine test_sync_descriptive_skips_units()
+      type(StateItemDescriptor) :: item
+      character(:), allocatable :: units
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      units = synced_units(item, SYNC_PHASE_DESCRIPTIVE)
+      @assertEqual('(none)', units)
+   end subroutine test_sync_descriptive_skips_units
+
+   @test
+   subroutine test_sync_skips_invalid_characteristic()
+      type(StateItemDescriptor) :: item
+      type(PhysicalUnitsCharacteristic) :: invalid
+      character(:), allocatable :: units
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, invalid)
+      units = synced_units(item, SYNC_PHASE_STRUCTURAL)
+      @assertEqual('(none)', units)
+   end subroutine test_sync_skips_invalid_characteristic
+
+   @test
+   subroutine test_sync_fails_for_kind_without_write_info()
+      type(StateItemDescriptor) :: item
+      type(NodeIdGenerator) :: gen
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(gen%next()))
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field)
+      call item%sync_to_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertTrue(status /= 0)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_sync_fails_for_kind_without_write_info
+
+   function synced_units(item, phase) result(units)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      character(:), allocatable :: units
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, units=units, rc=status)
+      @assertEqual(0, status)
+      if (.not. allocated(units)) units = '(none)'
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_units
 
 end module Test_StateItemDescriptor
