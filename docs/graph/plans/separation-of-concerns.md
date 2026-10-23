@@ -486,7 +486,7 @@ behavior change. `GraphStateItem` left as handle only.
 descriptor (including freeze check for DEFERRED and the EXPRESSION
 allowlist). Convert TypeKind first (only real MIRROR user today:
 StatisticsGridComp). Unit tests for every cell of the D2 table.
-- **Status:** done. Deviations: value constructors set SPECIFIED
+- **Status:** done (commit trailer `Plan-Task: B2`). Deviations: value constructors set SPECIFIED
   (default-initialized stays INVALID; owner decision), so
   `test_newly_constructed_characteristic_is_invalid_status` now tests a
   default-initialized variable. Resolution lives in

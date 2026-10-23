@@ -54,7 +54,9 @@ nothing for that kind.
 - [ ] 3.2 B3-TypeKind (finish)
 - [ ] 3.3 B3-UngriddedDims (removes `GraphStateItem%ungridded_dims` duplicate)
 - [ ] 3.4 B3-VerticalCoordinate (M2: component grid / DEFERRED)
-- [ ] 3.5 B3-VerticalStagger (new kind)
+- [ ] 3.5 B3-VerticalStagger (new kind; also add the
+      (EXPRESSION, VERTICAL_STAGGER) entry to the §2.4 allowlist, which
+      B2 left out because the kind did not exist)
 - [ ] 3.6 B3-Geometry (M1: item-level entry; DEFERRED; moves
       `_Geometry_smod` inserts behind a helper)
 - [ ] 3.7 B3-ItemShape (all shapes; `get_extension_order` per §4.2;
@@ -64,7 +66,10 @@ nothing for that kind.
 - [ ] 3.10 B3-QuantityType, B3-Conservation, B3-Normalization
 - [ ] 3.11 B3-RestartMode (new kind; `populate_one` uses
       `sync_to_info(DESCRIPTIVE)`)
-- [ ] 3.12 B3-Expression (new kind; per-consumer semantics pending Q2)
+- [ ] 3.12 B3-Expression (new kind; per-consumer semantics pending Q2.
+      Since B2, an allowlisted MIRRORED export resolves only as a legal
+      match; this task gives each consumer its own geometry/precision,
+      §2.4)
 - [ ] 3.13 B3-LongName (provisional; drop if no graph-created field
       needs it)
 - [ ] 3.14 B3-SetShared: retarget `set_shared_characteristic` to mutate
