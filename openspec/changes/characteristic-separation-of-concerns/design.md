@@ -410,9 +410,14 @@ matrix is total.
 `VariableSpec%make_characteristics(descriptor, rc)` lives in a
 new submodule of `mapl_VariableSpec_mod` (`specs/`). It is a loop over a
 fixed array of factory procedures, one per characteristic. The graph
-already depends on `VariableSpec` (`CompositeStateMaterialization`), and
-`VariableSpec` already depends on the graph characteristics, so no layer
-rule changes. Each factory applies §4.3 applicability first.
+already depends on `VariableSpec` (`CompositeStateMaterialization`).
+`VariableSpec` does not yet depend on the graph; B5 adds a `specs/` ->
+`graph/` dependency (descriptor and characteristic modules), which is
+allowed: only graph -> `specs/*Aspect` is forbidden. The characteristic
+modules do not use `VariableSpec`, so there is no cycle, but the
+type-bound interface in `mapl_VariableSpec_mod` itself names
+`StateItemDescriptor`; B5 must confirm the descriptor module does not
+use `VariableSpec`. Each factory applies §4.3 applicability first.
 
 Defaults (owner A12): a value the item does not declare comes from the
 component, which supplies it later (GEOM_A/GEOM_B run after ADVERTISE),
