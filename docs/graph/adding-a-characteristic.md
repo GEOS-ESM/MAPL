@@ -4,7 +4,9 @@ How to give a state-item description axis its target form: a
 `StateItemCharacteristic` with generic status, an Info write method, and
 a `VariableSpec` factory. PhysicalUnits (`B3-Units`) is the worked
 example; TypeKind (`B3-TypeKind`) is the worked example for a
-structural kind with a MIRRORED sentinel. Later B3 tasks refine this file.
+structural kind with a MIRRORED sentinel; UngriddedDims
+(`B3-UngriddedDims`) adds a kind with its own shape set and a
+descriptor-side duplicate removed. Later B3 tasks refine this file.
 
 Design authority: `openspec/changes/characteristic-separation-of-concerns/design.md`
 (§2 status, §3 Info facade, §4.3 applicability, §5 factories). Rules:
@@ -128,3 +130,31 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
   (`sync_to_info` filters), and UNCHECKED is not a TypeKind state.
 - `get_item_typekind` and `merged_item_for_link` still read the kind
   until B4.
+
+## UngriddedDims as implemented
+
+| Input (`VariableSpec%ungridded_dims`) | Shape | Entry |
+|---|---|---|
+| `is_mirror()` | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE | MIRRORED, no value |
+| anything else, including the empty default | same | SPECIFIED with the dims |
+| any | every other flag, including EXPRESSION | none |
+
+- Own shape set: design §4.3 lists no UNGRIDDED_DIMS for EXPRESSION,
+  STATE, SERVICE or WILDCARD, so the factory does not use
+  `carries_field_description` alone (it excludes EXPRESSION). Before this
+  task the kind was inserted for every shape; the only difference is the
+  missing entries on those shapes.
+- Never DEFERRED: `VariableSpec%ungridded_dims` always has a value (empty
+  by default).
+- Legacy absent-means-mirror: `UngriddedDimsAspect()` with no argument is
+  mirror, but `make_UngriddedDimsAspect` always passes
+  `this%ungridded_dims` (non-mirror default), so only an explicit
+  `UngriddedDims(is_mirror=.true.)` reaches it. None reproduced.
+- The value constructor stores whatever it is given; the factory turns a
+  mirror `UngriddedDims` into MIRRORED status, so a MIRRORED instance
+  holds an empty `UngriddedDims` and never carries `is_mirror`.
+- `is_structural()` is `.true.`; `write_info` writes `ungridded_dims=`
+  through `MAPL_FieldSet`/`MAPL_FieldBundleSet`. MIRRORED never reaches it.
+- `StateItemDescriptor` no longer has an `ungridded_dims` component or
+  `get/set_ungridded_dims`. Materialization reads the value through
+  `get_item_ungridded_dims` (a B4 removal, like `get_item_units`).

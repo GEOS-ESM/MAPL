@@ -9,14 +9,13 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
    use mapl_StateItemCharacteristicKind_mod, only: &
         VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
-        ATTRIBUTES_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
+        ATTRIBUTES_CHARACTERISTIC_KIND, &
         STANDARD_NAME_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND, &
         CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND, &
         ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
    use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
-   use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
    use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
@@ -185,10 +184,6 @@ contains
          call descriptor%set_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND, &
               AttributesCharacteristic(var_spec%attributes), _RC)
       end if
-      ! UngriddedDimsCharacteristic: unconditional; the default is itself
-      ! a comparable value.
-      call descriptor%set_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
-           UngriddedDimsCharacteristic(var_spec%ungridded_dims), _RC)
       ! QuantityType/Conservation/Normalization: unconditional; each
       ! default is a valid comparable value.
       call descriptor%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
@@ -198,7 +193,6 @@ contains
       call descriptor%set_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, &
            NormalizationCharacteristic(var_spec%normalization), _RC)
 
-      call descriptor%set_ungridded_dims(var_spec%ungridded_dims)
       if (allocated(var_spec%vertical_stagger)) then
          call descriptor%set_vertical_stagger(var_spec%vertical_stagger)
       end if

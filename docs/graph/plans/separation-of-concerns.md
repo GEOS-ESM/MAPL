@@ -523,8 +523,22 @@ in the first one; later ones refine it.
   (today only an item-level `geometry:` block sets it), so the graph can
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
-- **Status:** B3-Units and B3-TypeKind done (commit trailers
-  `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`); others not started.
+- **Status:** B3-Units, B3-TypeKind and B3-UngriddedDims done (commit
+  trailers `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
+  `Plan-Task: B3-UngriddedDims`); others not started.
+  B3-UngriddedDims: `UngriddedDimsCharacteristic` gained `write_info`
+  (ungridded_dims= through `MAPL_FieldSet`/`MAPL_FieldBundleSet`) and
+  `is_structural() = .true.`; the factory
+  (`make_ungridded_dims_characteristic`) maps `is_mirror()` to MIRRORED,
+  else SPECIFIED, and inserts only for FIELD/BRACKET/VECTOR/VECTORBRACKET/
+  FIELDBUNDLE (design §4.3: not EXPRESSION/STATE/SERVICE/WILDCARD, which
+  previously got an entry). Its `populate_characteristics` block and the
+  `StateItemDescriptor%ungridded_dims` duplicate (`get/set_ungridded_dims`)
+  are gone; materialization reads the characteristic through
+  `get_item_ungridded_dims`. Remaining UNGRIDDED_DIMS references in
+  `GraphBuilder*.F90` are that getter, the `merged_item_for_link` branch
+  and the `GraphBuilder.F90` use list, all for B4. No absent-means-mirror
+  case reaches the graph.
   B3-TypeKind: `TypeKindCharacteristic` gained `write_info` (typekind=
   through `MAPL_FieldSet`/`MAPL_FieldBundleSet`) and `is_structural()
   = .true.`; `MAPL_TYPEKIND_MIRROR` moved from the flag constructor to

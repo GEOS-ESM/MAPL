@@ -60,7 +60,10 @@ the commit message.
 - [x] 3.2 B3-TypeKind (finish). `get_item_typekind`, the TYPE_KIND
       branch of `merged_item_for_link` and the `GraphBuilder.F90` use
       list remain for B4 (§6.3).
-- [ ] 3.3 B3-UngriddedDims (removes `GraphStateItem%ungridded_dims` duplicate)
+- [x] 3.3 B3-UngriddedDims (removes the `StateItemDescriptor%ungridded_dims`
+      duplicate). `get_item_ungridded_dims`, the UNGRIDDED_DIMS branch of
+      `merged_item_for_link` and the `GraphBuilder.F90` use list remain
+      for B4 (§6.3).
 - [ ] 3.4 B3-VerticalCoordinate (M2: component grid / DEFERRED)
 - [ ] 3.5 B3-VerticalStagger (new kind; also add the
       (EXPRESSION, VERTICAL_STAGGER) entry to the §2.4 allowlist, which
@@ -77,7 +80,10 @@ the commit message.
 - [ ] 3.12 B3-Expression (new kind; per-consumer semantics pending Q2.
       Since B2, an allowlisted MIRRORED export resolves only as a legal
       match; this task gives each consumer its own geometry/precision,
-      §2.4)
+      §2.4. Also address ungridded dims: B3-UngriddedDims gives
+      EXPRESSION no UNGRIDDED_DIMS entry, so an EXPRESSION export
+      silently matches a FIELD import that declares ungridded dims;
+      owner accepted this until this task)
 - [ ] 3.13 B3-LongName (provisional; drop if no graph-created field
       needs it)
 - [ ] 3.14 B3-SetShared: retarget `set_shared_characteristic` to mutate
@@ -92,7 +98,9 @@ the commit message.
       (§4.1).
 - [ ] 4.2 Materialize extension fields by empty-create +
       `sync_to_info(STRUCTURAL)` + `MAPL_FieldEmptyComplete` (§3.2.1);
-      delete `get_item_units` / `get_item_typekind`.
+      delete `get_item_units` / `get_item_typekind` /
+      `get_item_ungridded_dims` (the last two name concrete
+      `*Characteristic` types in `select type`, so 4.4 depends on this).
 - [ ] 4.3 Delete `GraphStateItem%ordering` and
       `characteristic_ordering_table`; replace their tests with golden
       `get_extension_order` tests per shape.

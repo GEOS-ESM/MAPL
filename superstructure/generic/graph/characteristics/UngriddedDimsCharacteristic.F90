@@ -15,14 +15,25 @@
 ! real adaptation exists anywhere for this axis, graph-native or
 ! legacy). `get_signature` derives a stable string from
 ! `ungridded_dims`'s own per-dimension name/extent pairs.
+!
+! A MIRRORED instance holds no value (get_ungridded_dims returns an empty
+! UngriddedDims). UngriddedDims(is_mirror=.true.) is not a value to compare:
+! the VariableSpec factory turns it into MIRRORED status.
 !------------------------------------------------------------------------------
 module mapl_UngriddedDimsCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
-   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
+   use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL
+   use mapl_CharacteristicStatus_mod, only: operator(==), CHARACTERISTIC_STATUS_SPECIFIED
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_field_api, only: MAPL_FieldSet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleSet
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, UNGRIDDED_DIMS_CHARACTERISTIC_KIND
    use mapl_UngriddedDims_mod, only: UngriddedDims, operator(==), operator(/=)
    use mapl_UngriddedDim_mod, only: UngriddedDim
    use mapl_TransformBase_mod, only: TransformBase
+   use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_StateItem_Flag, &
+        ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
+   use ESMF, only: operator(==)
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -37,6 +48,8 @@ module mapl_UngriddedDimsCharacteristic_mod
       procedure :: needs_extension_for => ungridded_dims_needs_extension_for
       procedure :: build_transform => ungridded_dims_build_transform
       procedure :: get_signature => ungridded_dims_get_signature
+      procedure :: write_info => ungridded_dims_write_info
+      procedure :: is_structural => ungridded_dims_is_structural
       procedure :: get_ungridded_dims
    end type UngriddedDimsCharacteristic
 
@@ -82,8 +95,7 @@ contains
       ungridded_dims = this%ungridded_dims
    end function get_ungridded_dims
 
-   ! merge-characteristic-families task 3.6: no real adaptation exists
-   ! for this axis, graph-native or legacy (module header) - fails
+   ! No real adaptation exists for this axis (module header): fails
    ! explicitly.
    subroutine ungridded_dims_build_transform(this, goal, transformer, rc)
       class(UngriddedDimsCharacteristic), intent(in) :: this
@@ -97,10 +109,46 @@ contains
       _FAIL('UngriddedDimsCharacteristic: build_transform - no real provider exists for this axis')
    end subroutine ungridded_dims_build_transform
 
-   ! merge-characteristic-families task 3.6: a stable, value-
-   ! distinguishing signature derived from this subclass's own stored
-   ! value - each dimension's own name/extent, in declaration order
-   ! (design.md Risks: a small, mechanical derivation).
+   ! ungridded_dims= is a creation input: on a completed field the array shape
+   ! is already fixed, so it is written only in the STRUCTURAL phase. UNCHECKED
+   ! has no Info representation for this key.
+   subroutine ungridded_dims_write_info(this, handle, phase, rc)
+      class(UngriddedDimsCharacteristic), intent(in) :: this
+      type(GraphStateItem), intent(inout) :: handle
+      integer, intent(in) :: phase
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_StateItem_Flag) :: item_type
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+
+      _RETURN_UNLESS(phase == SYNC_PHASE_STRUCTURAL)
+      _RETURN_UNLESS(this%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+
+      item_type = handle%itemType(_RC)
+      if (item_type == ESMF_STATEITEM_FIELD) then
+         field = handle%get_field(_RC)
+         call MAPL_FieldSet(field, ungridded_dims=this%ungridded_dims, _RC)
+      else if (item_type == ESMF_STATEITEM_FIELDBUNDLE) then
+         bundle = handle%get_field_bundle(_RC)
+         call MAPL_FieldBundleSet(bundle, ungridded_dims=this%ungridded_dims, _RC)
+      else
+         _FAIL('UngriddedDimsCharacteristic: write_info needs a Field or FieldBundle handle')
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine ungridded_dims_write_info
+
+   logical function ungridded_dims_is_structural(this) result(structural)
+      class(UngriddedDimsCharacteristic), intent(in) :: this
+
+      structural = .true.
+      _UNUSED_DUMMY(this)
+   end function ungridded_dims_is_structural
+
+   ! A stable, value-distinguishing signature: each dimension's own
+   ! name/extent, in declaration order.
    function ungridded_dims_get_signature(this) result(signature)
       class(UngriddedDimsCharacteristic), intent(in) :: this
       character(:), allocatable :: signature

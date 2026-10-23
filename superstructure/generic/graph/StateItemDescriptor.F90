@@ -4,7 +4,7 @@
 ! StateItemDescriptor: the description of a state item, kept apart from the
 ! ESMF handle (GraphStateItem). Holds the sparse StateItemCharacteristicMap
 ! (REQ-CHAR-007/008/009/010) plus the description values that are not yet
-! characteristics (ungridded dims, vertical stagger, declared geom / vertical
+! characteristics (vertical stagger, declared geom / vertical
 ! grid / item type / restart mode / expression).
 !
 ! Independent of any ESMF object: a StateItemNode's descriptor is populated at
@@ -23,7 +23,6 @@ module mapl_StateItemDescriptor_mod
         CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_DEFERRED
    use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION
-   use mapl_UngriddedDims_mod, only: UngriddedDims
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc
    use mapl_VerticalGrid_mod, only: VerticalGrid
    use mapl_RestartModes_mod, only: RestartMode
@@ -59,9 +58,7 @@ module mapl_StateItemDescriptor_mod
    type :: StateItemDescriptor
       private
       type(StateItemCharacteristicMap) :: characteristics
-      ! ungridded_dims is always present (like VariableSpec%ungridded_dims);
-      ! the other values are allocatable because "not declared" is meaningful.
-      type(UngriddedDims) :: ungridded_dims
+      ! Optional or defaulted values: "not declared" is meaningful.
       type(VerticalStaggerLoc), allocatable :: vertical_stagger
       type(ESMF_Geom), allocatable :: declared_geom
       class(VerticalGrid), allocatable :: declared_vertical_grid
@@ -76,8 +73,6 @@ module mapl_StateItemDescriptor_mod
       procedure :: get_unresolved_kinds => descriptor_get_unresolved_kinds
       procedure :: check_resolved => descriptor_check_resolved
       procedure :: sync_to_info => descriptor_sync_to_info
-      procedure :: get_ungridded_dims => descriptor_get_ungridded_dims
-      procedure :: set_ungridded_dims => descriptor_set_ungridded_dims
       procedure :: get_vertical_stagger => descriptor_get_vertical_stagger
       procedure :: set_vertical_stagger => descriptor_set_vertical_stagger
       procedure :: get_declared_geom => descriptor_get_declared_geom
@@ -372,20 +367,6 @@ contains
    end subroutine descriptor_sync_to_info
 
    ! -- materialization inputs --
-
-   function descriptor_get_ungridded_dims(this) result(ungridded_dims)
-      class(StateItemDescriptor), intent(in) :: this
-      type(UngriddedDims) :: ungridded_dims
-
-      ungridded_dims = this%ungridded_dims
-   end function descriptor_get_ungridded_dims
-
-   subroutine descriptor_set_ungridded_dims(this, ungridded_dims)
-      class(StateItemDescriptor), intent(inout) :: this
-      type(UngriddedDims), intent(in) :: ungridded_dims
-
-      this%ungridded_dims = ungridded_dims
-   end subroutine descriptor_set_ungridded_dims
 
    ! A subroutine with an intent(out) allocatable dummy: a direct
    ! `x = d%get_vertical_stagger()` from an unallocated allocatable function

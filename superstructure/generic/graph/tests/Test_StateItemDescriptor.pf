@@ -4,14 +4,16 @@ module Test_StateItemDescriptor
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, SYNC_PHASE_STRUCTURAL, &
         SYNC_PHASE_DESCRIPTIVE
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
-        GEOMETRY_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND
+        GEOMETRY_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
+   use mapl_UngriddedDims_mod, only: UngriddedDims, operator(==)
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_field_api, only: MAPL_FieldGet, MAPL_FieldSet
-   use mapl_field_bundle_api, only: MAPL_FieldBundleGet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundleSet
    use ESMF, only: ESMF_Field, ESMF_FieldEmptyCreate, ESMF_FieldDestroy, &
         ESMF_TypeKind_Flag, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_R4, operator(==), &
         ESMF_FieldBundle, ESMF_FieldBundleCreate, ESMF_FieldBundleDestroy
@@ -223,6 +225,60 @@ contains
    end subroutine test_sync_structural_writes_typekind_on_bundle
 
    @test
+   subroutine test_sync_structural_writes_ungridded_dims_on_field()
+      type(StateItemDescriptor) :: item
+      type(UngriddedDims) :: dims
+
+      call item%set_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND, UngriddedDimsCharacteristic(UngriddedDims([5])))
+      dims = synced_ungridded_dims(item, SYNC_PHASE_STRUCTURAL)
+      @assertTrue(dims == UngriddedDims([5]))
+   end subroutine test_sync_structural_writes_ungridded_dims_on_field
+
+   ! ungridded_dims= is a creation input: the DESCRIPTIVE phase leaves it alone.
+   @test
+   subroutine test_sync_descriptive_skips_ungridded_dims()
+      type(StateItemDescriptor) :: item
+      type(UngriddedDims) :: dims
+
+      call item%set_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND, UngriddedDimsCharacteristic(UngriddedDims([5])))
+      dims = synced_ungridded_dims(item, SYNC_PHASE_DESCRIPTIVE)
+      @assertTrue(dims == UngriddedDims([3]))
+   end subroutine test_sync_descriptive_skips_ungridded_dims
+
+   @test
+   subroutine test_sync_skips_mirrored_ungridded_dims()
+      type(StateItemDescriptor) :: item
+      type(UngriddedDimsCharacteristic) :: mirrored
+      type(UngriddedDims) :: dims
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND, mirrored)
+      dims = synced_ungridded_dims(item, SYNC_PHASE_STRUCTURAL)
+      @assertTrue(dims == UngriddedDims([3]))
+   end subroutine test_sync_skips_mirrored_ungridded_dims
+
+   @test
+   subroutine test_sync_structural_writes_ungridded_dims_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      type(UngriddedDims) :: dims
+      integer :: status
+
+      call item%set_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND, UngriddedDimsCharacteristic(UngriddedDims([5])))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, ungridded_dims=dims, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(dims == UngriddedDims([5]))
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_structural_writes_ungridded_dims_on_bundle
+
+   @test
    subroutine test_sync_fails_for_kind_without_write_info()
       type(StateItemDescriptor) :: item
       type(NodeIdGenerator) :: gen
@@ -282,5 +338,28 @@ contains
       @assertEqual(0, status)
       call ESMF_FieldDestroy(field, noGarbage=.true.)
    end function synced_typekind
+
+   ! The field starts with ungridded dims [3], so a skipped write reads back [3].
+   function synced_ungridded_dims(item, phase) result(dims)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(UngriddedDims) :: dims
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, ungridded_dims=UngriddedDims([3]), rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, ungridded_dims=dims, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_ungridded_dims
 
 end module Test_StateItemDescriptor

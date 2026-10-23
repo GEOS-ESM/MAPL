@@ -1237,6 +1237,7 @@ contains
       type(VerticalStaggerLoc), allocatable :: declared_vertical_stagger
       type(ESMF_TypeKind_Flag) :: import_typekind
       character(:), allocatable :: import_units
+      type(UngriddedDims) :: export_ungridded_dims
 
       failure_reason = ''
 
@@ -1276,6 +1277,7 @@ contains
       ! precedent).
       call resolve_export_vgrid(export_item, export_meta, vgrid)
       import_typekind = get_item_typekind(import_item, _RC)
+      export_ungridded_dims = get_item_ungridded_dims(export_item, _RC)
       if (allocated(vgrid)) then
          vert_staggerloc = VERTICAL_STAGGER_CENTER
          call export_item%get_vertical_stagger(declared_vertical_stagger)
@@ -1284,11 +1286,11 @@ contains
          ! typekind/units are the IMPORT's values: the materialized payload must
          ! match what the import requires, not what the export produced.
          call materialize_field_extension(graph, node_id, geom=geom, typekind=import_typekind, &
-              units=import_units, ungridded_dims=export_item%get_ungridded_dims(), &
+              units=import_units, ungridded_dims=export_ungridded_dims, &
               vgrid=vgrid, vert_staggerloc=vert_staggerloc, name=name, _RC)
       else
          call materialize_field_extension(graph, node_id, geom=geom, typekind=import_typekind, &
-              units=import_units, ungridded_dims=export_item%get_ungridded_dims(), name=name, _RC)
+              units=import_units, ungridded_dims=export_ungridded_dims, name=name, _RC)
       end if
 
       _RETURN(_SUCCESS)
@@ -1345,6 +1347,32 @@ contains
       _RETURN(_SUCCESS)
    end function get_item_typekind
 
+   ! Same role as get_item_units(), for UNGRIDDED_DIMS_CHARACTERISTIC_KIND.
+   ! Returns empty dims if there is no entry; a MIRRORED instance holds no
+   ! value either.
+   function get_item_ungridded_dims(item, rc) result(ungridded_dims)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, optional, intent(out) :: rc
+      type(UngriddedDims) :: ungridded_dims
+
+      integer :: status
+      class(StateItemCharacteristic), allocatable :: characteristic
+
+      if (.not. item%has_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND)) then
+         _RETURN(_SUCCESS)
+      end if
+
+      call item%get_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND, characteristic, _RC)
+      select type (characteristic)
+      class is (UngriddedDimsCharacteristic)
+         ungridded_dims = characteristic%get_ungridded_dims()
+      class default
+         _FAIL('GraphBuilder: get_item_ungridded_dims - characteristic is not an UngriddedDimsCharacteristic')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_item_ungridded_dims
+
    ! Materializes every entry of intermediate_node_ids (in order) with that
    ! link's own evolved typekind/units (merged_item_for_link). Resolves
    ! geom/vgrid once from export_item and reuses them for every link. Stops
@@ -1375,6 +1403,7 @@ contains
       character(:), allocatable :: link_units
       type(ESMF_TypeKind_Flag) :: link_typekind
       character(:), allocatable :: import_units
+      type(UngriddedDims) :: export_ungridded_dims
 
       failure_reason = ''
 
@@ -1407,18 +1436,20 @@ contains
          if (allocated(declared_vertical_stagger)) vert_staggerloc = declared_vertical_stagger
       end if
 
+      export_ungridded_dims = get_item_ungridded_dims(export_item, _RC)
+
       do i = 1, size(intermediate_node_ids)
          call merged_item_for_link(export_item, import_item, mismatched_kinds, i, link_units, link_typekind, _RC)
 
          if (allocated(vgrid)) then
             call materialize_field_extension(graph, intermediate_node_ids(i), geom=geom, &
                  typekind=link_typekind, units=link_units, &
-                 ungridded_dims=export_item%get_ungridded_dims(), &
+                 ungridded_dims=export_ungridded_dims, &
                  vgrid=vgrid, vert_staggerloc=vert_staggerloc, _RC)
          else
             call materialize_field_extension(graph, intermediate_node_ids(i), geom=geom, &
                  typekind=link_typekind, units=link_units, &
-                 ungridded_dims=export_item%get_ungridded_dims(), _RC)
+                 ungridded_dims=export_ungridded_dims, _RC)
          end if
       end do
 
