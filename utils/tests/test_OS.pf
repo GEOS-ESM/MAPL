@@ -111,5 +111,242 @@ contains
       call RemoveDirectory(SUBDIR, _RC)
       
    end subroutine test_symlink
-   
+
+   subroutine touch(path)
+      character(*), intent(in) :: path
+      integer :: unit
+      open(newunit=unit, file=path, status='replace', action='write')
+      close(unit)
+   end subroutine touch
+
+   @test
+   subroutine test_directory_exists_false()
+      @assert_that(DirectoryExists('no_such_dir_xyz'), is(false()))
+   end subroutine test_directory_exists_false
+
+   @test
+   subroutine test_make_directory_existing_fails()
+      character(*), parameter :: DIR = 'dir_exists'
+      integer :: status, status2
+
+      call MakeDirectory(DIR, _RC)
+      call MakeDirectory(DIR, rc=status2)
+      @assertExceptionRaised('Error creating directory: dir_exists')
+      @assertTrue(status2 /= 0)
+
+      call RemoveDirectory(DIR, _RC)
+   end subroutine test_make_directory_existing_fails
+
+   @test
+   subroutine test_make_directory_missing_parent_fails()
+      integer :: status
+      call MakeDirectory('no_parent_xyz/child', rc=status)
+      @assertExceptionRaised('Error creating directory: no_parent_xyz/child')
+      @assertTrue(status /= 0)
+      @assert_that(DirectoryExists('no_parent_xyz'), is(false()))
+   end subroutine test_make_directory_missing_parent_fails
+
+   @test
+   subroutine test_make_directory_force_parents()
+      character(*), parameter :: TOP = 'dir_p'
+      character(*), parameter :: LEAF = 'dir_p/b/c'
+      integer :: status
+
+      call MakeDirectory(LEAF, force=.true., _RC)
+      @assert_that(DirectoryExists(LEAF), is(true()))
+
+      ! force on an existing directory is not an error
+      call MakeDirectory(LEAF, force=.true., _RC)
+
+      ! trailing slash
+      call MakeDirectory('dir_p/d/', force=.true., _RC)
+      @assert_that(DirectoryExists('dir_p/d'), is(true()))
+
+      call RemoveDirectory('dir_p/d', _RC)
+      call RemoveDirectory(LEAF, _RC)
+      call RemoveDirectory('dir_p/b', _RC)
+      call RemoveDirectory(TOP, _RC)
+   end subroutine test_make_directory_force_parents
+
+   @test
+   subroutine test_make_directory_space_in_name()
+      character(*), parameter :: DIR = 'my run dir'
+      integer :: status
+
+      call MakeDirectory(DIR, _RC)
+      @assert_that(DirectoryExists(DIR), is(true()))
+      call RemoveDirectory(DIR, _RC)
+      @assert_that(DirectoryExists(DIR), is(false()))
+   end subroutine test_make_directory_space_in_name
+
+   @test
+   subroutine test_make_directory_no_shell_injection()
+      character(*), parameter :: DIR = 'dir_x; touch injected_marker'
+      integer :: status
+
+      call MakeDirectory(DIR, _RC)
+      @assert_that(DirectoryExists(DIR), is(true()))
+      @assert_that(DirectoryExists('injected_marker'), is(false()))
+      call RemoveDirectory(DIR, _RC)
+   end subroutine test_make_directory_no_shell_injection
+
+   @test
+   subroutine test_remove_directory_missing_fails()
+      integer :: status
+      call RemoveDirectory('no_such_dir_xyz', rc=status)
+      @assertExceptionRaised('Error deleting directory: no_such_dir_xyz')
+      @assertTrue(status /= 0)
+   end subroutine test_remove_directory_missing_fails
+
+   @test
+   subroutine test_remove_directory_nonempty_fails()
+      character(*), parameter :: DIR = 'dir_ne'
+      character(*), parameter :: FILE = 'dir_ne/f.txt'
+      integer :: status, status2
+
+      call MakeDirectory(DIR, _RC)
+      call touch(FILE)
+      call RemoveDirectory(DIR, rc=status2)
+      @assertExceptionRaised('Error deleting directory: dir_ne')
+      @assertTrue(status2 /= 0)
+
+      call RemoveFile(FILE, _RC)
+      call RemoveDirectory(DIR, _RC)
+   end subroutine test_remove_directory_nonempty_fails
+
+   @test
+   subroutine test_remove_file()
+      character(*), parameter :: FILE = 'file with space.txt'
+      integer :: status
+      logical :: exists
+
+      call touch(FILE)
+      inquire(file=FILE, exist=exists)
+      @assertTrue(exists)
+
+      call RemoveFile(FILE, _RC)
+      inquire(file=FILE, exist=exists)
+      @assertFalse(exists)
+   end subroutine test_remove_file
+
+   @test
+   subroutine test_remove_file_missing()
+      integer :: status
+
+      call RemoveFile('no_such_file_xyz', rc=status)
+      @assertExceptionRaised('Error deleting file: no_such_file_xyz')
+      @assertTrue(status /= 0)
+   end subroutine test_remove_file_missing
+
+   @test
+   subroutine test_remove_file_on_directory_fails()
+      character(*), parameter :: DIR = 'dir_rf'
+      integer :: status, status2
+
+      call MakeDirectory(DIR, _RC)
+      call RemoveFile(DIR, rc=status2)
+      @assertExceptionRaised('Error deleting file: dir_rf')
+      @assertTrue(status2 /= 0)
+      call RemoveDirectory(DIR, _RC)
+   end subroutine test_remove_file_on_directory_fails
+
+   @test
+   subroutine test_change_directory()
+      character(*), parameter :: DIR = 'dir_cd'
+      integer :: status
+      character(:), allocatable :: start, now
+
+      start = GetCurrentWorkingDirectory(_RC)
+      call MakeDirectory(DIR, _RC)
+
+      call ChangeDirectory(DIR, _RC)
+      now = GetCurrentWorkingDirectory(_RC)
+      @assertEqual(PathJoin(start, DIR), now)
+
+      call ChangeDirectory(start, _RC)
+      now = GetCurrentWorkingDirectory(_RC)
+      @assertEqual(start, now)
+
+      call RemoveDirectory(DIR, _RC)
+   end subroutine test_change_directory
+
+   @test
+   subroutine test_change_directory_missing_fails()
+      integer :: status
+      call ChangeDirectory('no_such_dir_xyz', rc=status)
+      @assertExceptionRaised('Error changing directory to: no_such_dir_xyz')
+      @assertTrue(status /= 0)
+   end subroutine test_change_directory_missing_fails
+
+   @test
+   subroutine test_pop_empty_stack_fails()
+      integer :: status
+      character(:), allocatable :: popped
+
+      call ClearDirectoryStack()
+      popped = PopDirectory(rc=status)
+      @assertExceptionRaised('No directory to pop')
+      @assertTrue(status /= 0)
+   end subroutine test_pop_empty_stack_fails
+
+   @test
+   subroutine test_clear_directory_stack()
+      character(*), parameter :: DIR = 'dir_cs'
+      integer :: status, status2
+      character(:), allocatable :: start, popped
+
+      start = GetCurrentWorkingDirectory(_RC)
+      call MakeDirectory(DIR, _RC)
+      call PushDirectory(DIR, _RC)
+      call ClearDirectoryStack()
+      popped = PopDirectory(rc=status2)
+      @assertExceptionRaised('No directory to pop')
+      @assertTrue(status2 /= 0)
+
+      call ChangeDirectory(start, _RC)
+      call RemoveDirectory(DIR, _RC)
+   end subroutine test_clear_directory_stack
+
+   @test
+   subroutine test_push_absolute_directory()
+      character(*), parameter :: DIR = 'dir_abs'
+      integer :: status
+      character(:), allocatable :: start, now
+
+      start = GetCurrentWorkingDirectory(_RC)
+      call MakeDirectory(DIR, _RC)
+
+      call PushDirectory(PathJoin(start, DIR), _RC)
+      now = GetCurrentWorkingDirectory(_RC)
+      @assertEqual(PathJoin(start, DIR), now)
+
+      now = PopDirectory(_RC)
+      @assertEqual(start, now)
+      call RemoveDirectory(DIR, _RC)
+   end subroutine test_push_absolute_directory
+
+   @test
+   subroutine test_path_join()
+      @assertEqual('a/b', PathJoin('a', 'b'))
+      @assertEqual('a', PathJoin('a', ''))
+      @assertEqual('b', PathJoin('', 'b'))
+      @assertEqual('', PathJoin('', ''))
+   end subroutine test_path_join
+
+   @test
+   subroutine test_symlink_existing_fails()
+      character(*), parameter :: SUBDIR = 'dir_a'
+      character(*), parameter :: SYMDIR = 'dir_b'
+      integer :: status, status2
+
+      call MakeDirectory(SUBDIR, _RC)
+      call MakeSymbolicLink(src_path=SUBDIR, link_path=SYMDIR, _RC)
+      call MakeSymbolicLink(src_path=SUBDIR, link_path=SYMDIR, rc=status2)
+      @assertExceptionRaised('Error creating symbolic link from: dir_a to: dir_b')
+      @assertTrue(status2 /= 0)
+
+      call RemoveFile(SYMDIR, _RC)
+      call RemoveDirectory(SUBDIR, _RC)
+   end subroutine test_symlink_existing_fails
+
 end module test_OS
