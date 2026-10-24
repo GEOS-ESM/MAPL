@@ -564,7 +564,8 @@ in the first one; later ones refine it.
   path calls `sync_to_info` yet.
 
 **B4. Remove manual dispatch.** Delete `merged_item_for_link`'s kind
-chain, `get_item_units`/`get_item_typekind`, scalar args of
+chain, the `get_item_<kind>` getters (`get_item_units`/`get_item_typekind`/
+`get_item_ungridded_dims`, plus any later B3 task adds), scalar args of
 `materialize_field_extension` (create from goal descriptor + chain
 step instead), `GraphStateItem%ordering`/table. Done also requires
 `grep -nE '_CHARACTERISTIC_KIND|[A-Za-z]+Characteristic\b' GraphBuilder*.F90`
