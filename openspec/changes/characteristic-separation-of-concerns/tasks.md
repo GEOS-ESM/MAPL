@@ -78,18 +78,22 @@ if materialization needs the value before B4; add it to 4.2's list.
       mismatch classification remain for B4 (§6.3).
 - [ ] 3.5 B3-VerticalStagger (new kind; also add the
       (EXPRESSION, VERTICAL_STAGGER) entry to the §2.4 allowlist, which
-      B2 left out because the kind did not exist). Its applicability
-      must agree with VerticalCoordinate's (3.4): `vertical_stagger ==
-      NONE` gives no VERTICAL_COORDINATE entry, and a DEFERRED one is
-      dropped at GEOM_B when the component has no vertical grid. Decide
-      with the owner, before implementing, what VerticalStagger holds in
-      both cases (§5 row says "SPECIFIED NONE when the item has no
-      vertical grid"). Test for NONE with `is_none()`:
+      B2 left out because the kind did not exist). Owner answered Q6,
+      Q7 and the 2D/mirror cases; follow design.md §5 (VerticalStagger
+      row) and Q6/Q7. In short: MIRROR is MIRRORED on imports only
+      (error on an export); `mirror_vgrid` with no stagger defaults to
+      MIRRORED; alignment is per item, in VerticalStagger; an explicit
+      NONE stays SPECIFIED NONE; a DEFERRED stagger becomes SPECIFIED
+      NONE at GEOM_B when the component has no vertical grid, otherwise
+      it is harvested, or freeze fails. Test for NONE/MIRROR with `is_none()`/`is_mirror()`:
       `VerticalStaggerLoc`'s `==` treats MIRROR as a wildcard (the NONE
       test in `resolve_export_vgrid` still uses `==`, so a MIRROR export
       stagger would read as 2D; fix it here). Replaces
       `StateItemDescriptor%vertical_stagger` and its readers
       (`resolve_export_vgrid`, two in `_ConnectionResolution_smod`).
+      Risk: many scenario items in components with a vertical grid give
+      no `vertical_dim_spec`. If harvest does not fill them and freeze
+      fails, stop and report the list; do not add a default.
 - [x] 3.6 B3-Geometry (M1: item-level entry; DEFERRED; moves
       `_Geometry_smod` inserts behind a helper). Deviations from design
       §2.2/§2.3, owner-approved: a DEFERRED side at connect time waits
