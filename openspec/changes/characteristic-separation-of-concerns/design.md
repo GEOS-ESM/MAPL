@@ -88,7 +88,7 @@ Legacy reference points (the behavior being duplicated):
 | `CLASS_ASPECT_ID` (`fill_value`, `bracket_size`, `vector_basis_kind`) | deferred to M3 | - | no | Only needed once the graph materializes those shapes (B4/M3). Owner A8. |
 | `GEOM_ASPECT_ID` | `Geometry` (`GEOMETRY`) | reference | yes, component-level only | Item-level instance added by B3-Geometry (fixes M1). Also carries `horizontal_dims_spec` and the regridder param (not compared, like legacy `GeomAspect%matches`). |
 | `VERTICAL_GRID_ASPECT_ID` (grid) | `VerticalCoordinate` (`VERTICAL_COORDINATE`) | reference | yes | Must also be set from the component vertical grid (M2). |
-| `VERTICAL_GRID_ASPECT_ID` (stagger, alignment) | `VerticalStagger` (new) | value | no | Replaces `GraphStateItem%vertical_stagger`. Alignment placement: owner Q7. |
+| `VERTICAL_GRID_ASPECT_ID` (stagger, alignment) | `VerticalStagger` (new) | value | no | Replaces `GraphStateItem%vertical_stagger`. Also holds the item's vertical alignment (owner Q7). |
 | `UNITS_ASPECT_ID` | `PhysicalUnits` (`PHYSICAL_UNITS`) | value | yes | |
 | `TYPEKIND_ASPECT_ID` | `TypeKind` (`TYPE_KIND`) | value | yes | |
 | `UNGRIDDED_DIMS_ASPECT_ID` | `UngriddedDims` (`UNGRIDDED_DIMS`) | value | yes | Replaces `GraphStateItem%ungridded_dims`. |
@@ -463,7 +463,7 @@ MIRRORED case (§2.4 allowlist).
 | TypeKind | `typekind` (defaults to R4) | `MAPL_TYPEKIND_MIRROR`: MIRRORED; else SPECIFIED. Never DEFERRED (A12). |
 | Geometry | `geom`, `geom_id`, `horizontal_dims_spec`, `regrid_param` | item geom/geom_id: SPECIFIED; `mirror_geom` or an EXPRESSION with no geom: MIRRORED; else DEFERRED (component supplies it; legacy FROM_COMP and absent-means-MIRRORED both map here, A12). Freeze fails if the component never supplies one. |
 | VerticalCoordinate | `vertical_grid`, `mirror_vgrid`, `vertical_stagger`; `state_item_variant == VERTICALGRID` (member names) | `vertical_stagger == NONE`: no entry (2D item). Item grid: SPECIFIED. `mirror_vgrid` or an EXPRESSION with no grid: MIRRORED. Else DEFERRED (component grid, M2). VERTICALGRID composite: SPECIFIED with dimensions only. A DEFERRED entry whose component has no vertical grid is dropped at GEOM_B (owner, B3-VerticalCoordinate): such an item is 2D as far as the graph can tell, and legacy distinguishes it only by the same absence. |
-| VerticalStagger | `vertical_stagger`, `vertical_alignment` | allocated real stagger: SPECIFIED; `VERTICAL_STAGGER_MIRROR`: MIRRORED (Q6); unallocated: SPECIFIED NONE when the item has no vertical grid, else DEFERRED to the grid's resolution. EXPRESSION `VERTICAL_STAGGER_INVALID`: MIRRORED. |
+| VerticalStagger | `vertical_stagger`, `vertical_alignment`, `mirror_vgrid` | Real stagger (CENTER/EDGE/NONE): SPECIFIED. `VERTICAL_STAGGER_MIRROR`: MIRRORED, imports only; on an export it is an error (A1, Q6). Unallocated with `mirror_vgrid`: MIRRORED (Q-mirror). Other unallocated (or `VERTICAL_STAGGER_INVALID`, which `parse_var_specs` passes when YAML gives no `vertical_dim_spec`): DEFERRED. At GEOM_B a DEFERRED stagger becomes SPECIFIED NONE if the component has no vertical grid (the same 2D outcome as an explicit NONE, A-2D); otherwise it stays DEFERRED until the component fills it (harvest from its realized field or bundle), and freeze fails if it never does. An explicit NONE stays SPECIFIED NONE even though VerticalCoordinate has no entry, so a 2D export still mismatches a 3D import. EXPRESSION `VERTICAL_STAGGER_INVALID`: MIRRORED. Alignment: Q7. |
 | UngriddedDims | `ungridded_dims` | `is_mirror()`: MIRRORED; else SPECIFIED |
 | Attributes | `attributes` | SPECIFIED, **always inserted, even if empty**. This fixes a parity bug: today an empty export set is omitted, so an import requiring attributes is never flagged, whereas legacy `includes([], required)` mismatches. |
 | QuantityType | `quantity_type` | SPECIFIED |
@@ -645,14 +645,23 @@ Q4 (B3-ItemShape). `BracketClassAspect`'s time-dependent-geometry
 Q5 (B3-ItemShape). `StateClassAspect` orders
     ATTRIBUTES/UNGRIDDED/GEOM/VGRID/UNITS/TYPEKIND for States. Plan D3
     says States have none. Confirm dropping them.
-Q6 (B3-VerticalStagger). `VERTICAL_STAGGER_MIRROR` is legacy's "matches
-    any stagger" (History imports), and the import also copies on
-    connect. Mapping it to MIRRORED (import adopts the export's value)
-    matches both behaviors. Confirm, and say whether it can appear on an
-    export.
-Q7 (B3-VerticalStagger). Vertical alignment: put it in `VerticalStagger`
-    (per-item value, as proposed) or in `VerticalCoordinate` (shared
-    reference)?
+Q6 (B3-VerticalStagger). **Answered: confirmed.** `VERTICAL_STAGGER_MIRROR`
+    maps to MIRRORED: the import adopts the export's stagger. It is for
+    generic components (History writing another component's field in
+    native form, where most characteristics are mirrored). It is legal on
+    imports only; on an export it is an error (A1).
+    Q-mirror (owner): `mirror_vgrid` does not replace the stagger keyword.
+    When `mirror_vgrid` is set and no stagger is given, the stagger
+    defaults to MIRRORED; an explicit stagger still wins (latent, no
+    current user).
+Q7 (B3-VerticalStagger). **Answered:** alignment is a per-item value in
+    `VerticalStagger` (almost always `with_grid`). Independent alignment per
+    coordinate has no use case; out of scope. Legacy compares the alignment
+    resolved against the grid's direction. `VerticalStagger` must not read
+    `VerticalCoordinate` when comparing (characteristics compare
+    independently). If it needs the grid direction, it resolves it once the
+    grid is known (factory for an item grid, `resolve_deferred` for the
+    component grid). If that does not work, stop and report.
 Q9 (B3-QuantityType). Legacy `make_QuantityTypeAspect` ignores
     `VariableSpec%quantity_type` and writes default metadata plus a
     derived normalization that `NormalizationAspect` overwrites. The
