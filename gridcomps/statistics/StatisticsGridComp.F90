@@ -89,7 +89,7 @@ contains
       else
          _FAIL("unsupported ESMF_StateItem_Flag requested for statisitcis GC to handle")
       end if
-      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, name, typekind=MAPL_TYPEKIND_MIRROR, mirror_geom=.true., itemtype=item_type, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, name, typekind=MAPL_TYPEKIND_MIRROR, mirror_geom=.true., mirror_vgrid=.true., itemtype=item_type, _RC)
       select case (action)
       case ('average')
          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, itemtype=item_type, _RC)

@@ -8,13 +8,11 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
    use mapl_StateItemCharacteristicKind_mod, only: &
-        VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
         ATTRIBUTES_CHARACTERISTIC_KIND, &
         STANDARD_NAME_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND, &
         CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND, &
         ITEM_SHAPE_CHARACTERISTIC_KIND
-   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
-   use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
+   use mapl_StateItemFlag_mod, only: operator(==)
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
@@ -139,7 +137,6 @@ contains
 
       integer :: status
       type(StateItemDescriptor), pointer :: descriptor
-      character(20) :: grid_id_buffer
 
       ! Mutate the stored descriptor in place through a pointer, not a copy:
       ! copying a populated characteristics map can corrupt nondeterministically
@@ -147,27 +144,6 @@ contains
       descriptor => node%get_descriptor()
 
       call var_spec%make_characteristics(descriptor, _RC)
-      if (allocated(var_spec%vertical_grid)) then
-         ! VerticalGrid%get_id() returns an integer identity token;
-         ! VerticalCoordinateCharacteristic compares an opaque string
-         ! signature (get_signature contract), so it is rendered to text
-         ! here rather than changing VerticalCoordinateCharacteristic's
-         ! own constructor to know about integer ids specifically.
-         write(grid_id_buffer, '(I0)') var_spec%vertical_grid%get_id()
-         call descriptor%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
-              VerticalCoordinateCharacteristic(grid_id=trim(grid_id_buffer), &
-                   dimensions=var_spec%vertical_grid%get_supported_physical_dimensions()), _RC)
-      end if
-      ! A composite tagged MAPL_STATEITEM_VERTICALGRID (REQ-GEO-009) has no
-      ! VerticalGrid object, only member names (member name = physical
-      ! dimension, REQ-GEO-004a). Same characteristic kind as above; with
-      ! no identity token, needs_extension_for compares dimension sets.
-      if (allocated(var_spec%state_item_variant)) then
-         if (var_spec%state_item_variant == MAPL_STATEITEM_VERTICALGRID) then
-            call descriptor%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
-                 VerticalCoordinateCharacteristic(dimensions=var_spec%get_member_names()), _RC)
-         end if
-      end if
 
       ! Each axis is gated to match its VariableSpec field's own "unset"
       ! representation.
@@ -197,13 +173,10 @@ contains
          call descriptor%set_vertical_stagger(var_spec%vertical_stagger)
       end if
 
-      ! Capture the var_spec's explicit vertical_grid override and item type
-      ! so extension materialization and resolve_export_vgrid need no
-      ! VariableSpec. The component-wide geom/vgrid defaults are NOT
-      ! captured: GEOM_B runs after ADVERTISE, so they are read live in
-      ! GraphBuilder_PortsAndProxies_smod.F90 (the geom through DEFERRED
-      ! resolution).
-      if (allocated(var_spec%vertical_grid)) call descriptor%set_declared_vertical_grid(var_spec%vertical_grid)
+      ! Capture the item type so extension materialization needs no
+      ! VariableSpec. The component-wide geom and vertical grid are not
+      ! captured: GEOM_B runs after ADVERTISE, so they arrive through
+      ! DEFERRED resolution.
       call descriptor%set_declared_item_type(var_spec%itemType)
       ! ItemShapeCharacteristic deliberately duplicates the item type just
       ! captured above. Inserted only for shape-comparable types

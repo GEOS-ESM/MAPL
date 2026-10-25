@@ -33,11 +33,24 @@
 ! extension to reconcile") - which comparison path applies is determined
 ! entirely by what data the two sides actually carry, not by a
 ! separate flag.
+!
+! An item-level instance may also hold the VerticalGrid itself (written by
+! write_info). Status: SPECIFIED when constructed with a value. DEFERRED
+! means the owning component supplies its vertical grid (resolve_deferred,
+! GEOM_B); a DEFERRED entry whose component has none is dropped
+! (drop_if_unsupplied), because the item has no vertical dimension.
 !------------------------------------------------------------------------------
 module mapl_VerticalCoordinateCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ReferenceCharacteristic
-   use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
-   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
+   use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL, report_build_transform_unsupported
+   use mapl_CharacteristicStatus_mod, only: operator(==), CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_DEFERRED
+   use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_VerticalGrid_mod, only: VerticalGrid
+   use mapl_field_api, only: MAPL_FieldSet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleSet
+   use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
+   use ESMF, only: operator(==)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, VERTICAL_COORDINATE_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, operator(==), operator(/=)
    use mapl_TransformBase_mod, only: TransformBase
@@ -66,11 +79,19 @@ module mapl_VerticalCoordinateCharacteristic_mod
       ! this one subclass).
       character(:), allocatable :: grid_id
       type(StringVector) :: dimensions
+      class(VerticalGrid), allocatable :: vgrid
    contains
       procedure, nopass :: get_kind => vcoord_get_kind
       procedure :: needs_extension_for => vcoord_needs_extension_for
       procedure :: build_transform => vcoord_build_transform
       procedure :: get_signature => vcoord_get_signature
+      procedure :: write_info => vcoord_write_info
+      procedure :: is_structural => vcoord_is_structural
+      procedure :: resolve_deferred => vcoord_resolve_deferred
+      procedure :: drop_if_unsupplied => vcoord_drop_if_unsupplied
+      procedure :: set_from_vgrid
+      procedure :: get_vgrid
+      procedure :: has_vgrid
       procedure :: get_grid_id
       procedure :: has_grid_id
       procedure :: get_dimensions
@@ -91,18 +112,34 @@ contains
    ! constructor (design.md Decisions, task 2.3): a GraphBuilder-production
    ! call site has no NodeId to supply, only grid_id/dimensions; a
    ! GraphStateItem-sharing call site supplies only referenced_node_id.
-   function new_VerticalCoordinateCharacteristic(referenced_node_id, grid_id, dimensions) result(characteristic)
+   ! A given vgrid supplies grid_id and dimensions unless they are also given.
+   function new_VerticalCoordinateCharacteristic(referenced_node_id, grid_id, dimensions, vgrid) result(characteristic)
       type(NodeId), optional, intent(in) :: referenced_node_id
       character(*), optional, intent(in) :: grid_id
       type(StringVector), optional, intent(in) :: dimensions
+      class(VerticalGrid), optional, intent(in) :: vgrid
       type(VerticalCoordinateCharacteristic) :: characteristic
 
       if (present(referenced_node_id)) call characteristic%set_referenced_node_id(referenced_node_id)
+      if (present(vgrid)) call characteristic%set_from_vgrid(vgrid)
       if (present(grid_id)) characteristic%grid_id = grid_id
       if (present(dimensions)) characteristic%dimensions = dimensions
-      if (present(referenced_node_id) .or. present(grid_id) .or. present(dimensions)) &
+      if (present(referenced_node_id) .or. present(grid_id) .or. present(dimensions) .or. present(vgrid)) &
            call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_VerticalCoordinateCharacteristic
+
+   subroutine set_from_vgrid(this, vgrid)
+      class(VerticalCoordinateCharacteristic), intent(inout) :: this
+      class(VerticalGrid), intent(in) :: vgrid
+
+      character(20) :: id_buffer
+
+      if (allocated(this%vgrid)) deallocate(this%vgrid)
+      allocate(this%vgrid, source=vgrid)
+      write(id_buffer, '(I0)') vgrid%get_id()
+      this%grid_id = trim(id_buffer)
+      this%dimensions = vgrid%get_supported_physical_dimensions()
+   end subroutine set_from_vgrid
 
    function vcoord_get_kind() result(kind)
       type(StateItemCharacteristicKind) :: kind
@@ -141,6 +178,82 @@ contains
          error stop 'VerticalCoordinateCharacteristic: needs_extension_for called with a non-VerticalCoordinateCharacteristic goal - should be checked by calling procedure'
       end select
    end function vcoord_needs_extension_for
+
+   ! Writes vgrid= (when held). Shapes with no Field or FieldBundle payload
+   ! have nothing to write.
+   subroutine vcoord_write_info(this, handle, phase, rc)
+      class(VerticalCoordinateCharacteristic), intent(in) :: this
+      type(GraphStateItem), intent(inout) :: handle
+      integer, intent(in) :: phase
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_StateItem_Flag) :: item_type
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+
+      _RETURN_UNLESS(phase == SYNC_PHASE_STRUCTURAL)
+      _RETURN_UNLESS(this%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      _RETURN_UNLESS(allocated(this%vgrid))
+
+      item_type = handle%itemType(_RC)
+      if (item_type == ESMF_STATEITEM_FIELD) then
+         field = handle%get_field(_RC)
+         call MAPL_FieldSet(field, vgrid=this%vgrid, _RC)
+      else if (item_type == ESMF_STATEITEM_FIELDBUNDLE) then
+         bundle = handle%get_field_bundle(_RC)
+         call MAPL_FieldBundleSet(bundle, vgrid=this%vgrid, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine vcoord_write_info
+
+   logical function vcoord_is_structural(this) result(structural)
+      class(VerticalCoordinateCharacteristic), intent(in) :: this
+
+      structural = .true.
+      _UNUSED_DUMMY(this)
+   end function vcoord_is_structural
+
+   ! A DEFERRED vertical coordinate becomes SPECIFIED with the component's
+   ! vertical grid when it has one; otherwise it stays DEFERRED.
+   subroutine vcoord_resolve_deferred(this, defaults, rc)
+      class(VerticalCoordinateCharacteristic), intent(inout) :: this
+      type(CharacteristicDefaults), intent(in) :: defaults
+      integer, optional, intent(out) :: rc
+
+      class(VerticalGrid), allocatable :: vgrid
+
+      _RETURN_UNLESS(this%get_status() == CHARACTERISTIC_STATUS_DEFERRED)
+      _RETURN_UNLESS(defaults%has_vgrid())
+
+      call defaults%get_vgrid(vgrid)
+      call this%set_from_vgrid(vgrid)
+      call this%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
+
+      _RETURN(_SUCCESS)
+   end subroutine vcoord_resolve_deferred
+
+   ! An item whose component has no vertical grid has no vertical dimension.
+   logical function vcoord_drop_if_unsupplied(this, defaults) result(drop)
+      class(VerticalCoordinateCharacteristic), intent(in) :: this
+      type(CharacteristicDefaults), intent(in) :: defaults
+
+      drop = this%get_status() == CHARACTERISTIC_STATUS_DEFERRED .and. .not. defaults%has_vgrid()
+   end function vcoord_drop_if_unsupplied
+
+   function get_vgrid(this) result(vgrid)
+      class(VerticalCoordinateCharacteristic), intent(in) :: this
+      class(VerticalGrid), allocatable :: vgrid
+
+      allocate(vgrid, source=this%vgrid)
+   end function get_vgrid
+
+   logical function has_vgrid(this) result(has)
+      class(VerticalCoordinateCharacteristic), intent(in) :: this
+
+      has = allocated(this%vgrid)
+   end function has_vgrid
 
    function get_grid_id(this) result(grid_id)
       class(VerticalCoordinateCharacteristic), intent(in) :: this

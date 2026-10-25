@@ -80,9 +80,11 @@ contains
       _RETURN(_SUCCESS)
    end subroutine graphbuilder_advertise_geometry
 
-   ! Offers this component's geometry to every item characteristic that is
-   ! still DEFERRED. GEOM_B is the first point at which the component's
-   ! geometry exists, so this must run before connection resolution.
+   ! Offers this component's geometry and vertical grid to every item
+   ! characteristic that is still DEFERRED, then drops those that do not
+   ! apply without a value. GEOM_B is the first point at which the
+   ! component's geometry exists, so this must run before connection
+   ! resolution.
    module subroutine graphbuilder_resolve_deferred(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -90,6 +92,7 @@ contains
       integer :: status
       type(CharacteristicDefaults) :: defaults
       type(ESMF_Geom) :: geom
+      class(VerticalGrid), pointer :: vgrid
       type(ComponentGraph), pointer :: graph
       type(NodeIdSet), target :: node_ids
       type(NodeIdSetIterator) :: iter
@@ -100,6 +103,8 @@ contains
          geom = this%get_geom(_RC)
          defaults = CharacteristicDefaults(geom=geom, geom_id=this%get_geom_id())
       end if
+      vgrid => this%get_vertical_grid()
+      if (associated(vgrid)) call defaults%set_vgrid(vgrid)
 
       graph => this%get_component_graph()
       node_ids = graph%get_node_ids()
@@ -113,6 +118,7 @@ contains
             class is (StateItemNode)
                descriptor => node%get_descriptor()
                call descriptor%resolve_deferred(defaults, _RC)
+               call descriptor%drop_unsupplied(defaults, _RC)
             end select
          end do
       end associate

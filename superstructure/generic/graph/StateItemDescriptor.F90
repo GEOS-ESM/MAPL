@@ -4,8 +4,8 @@
 ! StateItemDescriptor: the description of a state item, kept apart from the
 ! ESMF handle (GraphStateItem). Holds the sparse StateItemCharacteristicMap
 ! (REQ-CHAR-007/008/009/010) plus the description values that are not yet
-! characteristics (vertical stagger, declared vertical
-! grid / item type / restart mode / expression).
+! characteristics (vertical stagger, declared
+! item type / restart mode / expression).
 !
 ! Independent of any ESMF object: a StateItemNode's descriptor is populated at
 ! ADVERTISE, before any handle exists. Layering: graph/ only; must not depend
@@ -24,7 +24,6 @@ module mapl_StateItemDescriptor_mod
         CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_DEFERRED
    use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc
-   use mapl_VerticalGrid_mod, only: VerticalGrid
    use mapl_RestartModes_mod, only: RestartMode
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -63,7 +62,6 @@ module mapl_StateItemDescriptor_mod
       type(StateItemCharacteristicMap) :: characteristics
       ! Optional or defaulted values: "not declared" is meaningful.
       type(VerticalStaggerLoc), allocatable :: vertical_stagger
-      class(VerticalGrid), allocatable :: declared_vertical_grid
       type(ESMF_StateItem_Flag) :: declared_item_type = ESMF_STATEITEM_FIELD
       type(RestartMode), allocatable :: declared_restart_mode
       character(:), allocatable :: declared_expression
@@ -75,11 +73,10 @@ module mapl_StateItemDescriptor_mod
       procedure :: get_unresolved_kinds => descriptor_get_unresolved_kinds
       procedure :: check_resolved => descriptor_check_resolved
       procedure :: resolve_deferred => descriptor_resolve_deferred
+      procedure :: drop_unsupplied => descriptor_drop_unsupplied
       procedure :: sync_to_info => descriptor_sync_to_info
       procedure :: get_vertical_stagger => descriptor_get_vertical_stagger
       procedure :: set_vertical_stagger => descriptor_set_vertical_stagger
-      procedure :: get_declared_vertical_grid => descriptor_get_declared_vertical_grid
-      procedure :: set_declared_vertical_grid => descriptor_set_declared_vertical_grid
       procedure :: get_declared_item_type => descriptor_get_declared_item_type
       procedure :: set_declared_item_type => descriptor_set_declared_item_type
       procedure :: get_declared_restart_mode => descriptor_get_declared_restart_mode
@@ -383,6 +380,35 @@ contains
       _RETURN(_SUCCESS)
    end subroutine descriptor_resolve_deferred
 
+   ! Removes each characteristic that is still DEFERRED and that says it does
+   ! not apply without a component-supplied value. Run after resolve_deferred.
+   subroutine descriptor_drop_unsupplied(this, defaults, rc)
+      class(StateItemDescriptor), target, intent(inout) :: this
+      type(CharacteristicDefaults), intent(in) :: defaults
+      integer, optional, intent(out) :: rc
+
+      type(StateItemCharacteristicMapIterator) :: iter
+      class(StateItemCharacteristic), pointer :: c
+      type(StateItemCharacteristicKind), allocatable :: dropped(:)
+      integer :: i, n_erased
+
+      allocate(dropped(0))
+      associate (e => this%characteristics%ftn_end())
+         iter = this%characteristics%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            c => iter%second()
+            if (c%drop_if_unsupplied(defaults)) dropped = [dropped, iter%first()]
+         end do
+      end associate
+
+      do i = 1, size(dropped)
+         n_erased = int(this%characteristics%erase(dropped(i)))
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine descriptor_drop_unsupplied
+
    ! Writes each SPECIFIED or UNCHECKED characteristic onto the handle's Info.
    ! The DESCRIPTIVE phase skips structural characteristics, so a completed
    ! field is never re-created through FieldDelta.
@@ -436,24 +462,7 @@ contains
       allocate(this%vertical_stagger, source=vertical_stagger)
    end subroutine descriptor_set_vertical_stagger
 
-   ! -- declared vgrid / item type / restart mode / expression --
-
-   subroutine descriptor_get_declared_vertical_grid(this, vertical_grid)
-      class(StateItemDescriptor), intent(in) :: this
-      class(VerticalGrid), allocatable, intent(out) :: vertical_grid
-
-      if (allocated(this%declared_vertical_grid)) vertical_grid = this%declared_vertical_grid
-   end subroutine descriptor_get_declared_vertical_grid
-
-   ! allocate(source=) also avoids relying on intrinsic-assignment dynamic-type
-   ! dispatch for a CLASS allocatable component.
-   subroutine descriptor_set_declared_vertical_grid(this, vertical_grid)
-      class(StateItemDescriptor), intent(inout) :: this
-      class(VerticalGrid), intent(in) :: vertical_grid
-
-      if (allocated(this%declared_vertical_grid)) deallocate(this%declared_vertical_grid)
-      allocate(this%declared_vertical_grid, source=vertical_grid)
-   end subroutine descriptor_set_declared_vertical_grid
+   ! -- declared item type / restart mode / expression --
 
    function descriptor_get_declared_item_type(this) result(item_type)
       class(StateItemDescriptor), intent(in) :: this

@@ -5,7 +5,7 @@ module Test_StateItemDescriptor
         SYNC_PHASE_DESCRIPTIVE
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
         GEOMETRY_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
-        QUANTITY_TYPE_CHARACTERISTIC_KIND
+        QUANTITY_TYPE_CHARACTERISTIC_KIND, VERTICAL_COORDINATE_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED, CharacteristicStatus, operator(==)
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
@@ -15,6 +15,11 @@ module Test_StateItemDescriptor
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
+   use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid, mapl_BasicVerticalGridSpec, &
+        mapl_BasicVerticalGridFactory, mapl_VerticalGridManager, mapl_VerticalGridFactory, &
+        mapl_get_vertical_grid_manager
+   use mapl_VerticalGrid_mod, only: VerticalGrid
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_field_api, only: MAPL_FieldGet, MAPL_FieldSet
    use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundleSet
@@ -512,5 +517,170 @@ contains
       @assertEqual(0, status)
       @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
    end subroutine test_resolve_deferred_leaves_specified_geometry
+
+   function make_basic_vgrid() result(vgrid)
+      type(mapl_BasicVerticalGrid) :: vgrid
+
+      call vgrid%set_id(3)
+   end function make_basic_vgrid
+
+   ! A grid the manager knows, as FieldGet looks the grid up by id. The
+   ! manager is process-global, so ids depend on test order; callers must
+   ! use the id of the returned grid, not a fixed one.
+   function make_registered_vgrid(rc) result(vgrid)
+      integer, optional, intent(out) :: rc
+      class(VerticalGrid), pointer :: vgrid
+
+      type(mapl_VerticalGridManager), pointer :: mgr
+      class(mapl_VerticalGridFactory), pointer :: factory
+      integer :: status
+
+      mgr => mapl_get_vertical_grid_manager(rc=status)
+      if (status == 0) factory => mgr%find_factory(mapl_BasicVerticalGridSpec(1), rc=status)
+      if (status /= 0 .or. .not. associated(factory)) then
+         call mgr%register_factory('Basic', mapl_BasicVerticalGridFactory(), rc=status)
+      end if
+      if (status == 0) vgrid => mgr%add_grid(mapl_BasicVerticalGridSpec(num_levels=4), rc=status)
+      if (present(rc)) rc = status
+   end function make_registered_vgrid
+
+   ! True if the field has a vertical grid after the sync.
+   function synced_has_vgrid(item, phase) result(has_vgrid)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      logical :: has_vgrid
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      class(VerticalGrid), pointer :: vgrid
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      vgrid => null()
+      call MAPL_FieldGet(field, vgrid=vgrid, rc=status)
+      @assertEqual(0, status)
+      has_vgrid = associated(vgrid)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_has_vgrid
+
+   @test
+   subroutine test_sync_structural_writes_specified_vgrid()
+      type(StateItemDescriptor) :: item
+      class(VerticalGrid), pointer :: vgrid
+      integer :: status
+
+      vgrid => make_registered_vgrid(rc=status)
+      @assertEqual(0, status)
+      call item%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
+           VerticalCoordinateCharacteristic(vgrid=vgrid))
+      @assertTrue(synced_has_vgrid(item, SYNC_PHASE_STRUCTURAL))
+   end subroutine test_sync_structural_writes_specified_vgrid
+
+   @test
+   subroutine test_sync_descriptive_skips_vgrid()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
+           VerticalCoordinateCharacteristic(vgrid=make_basic_vgrid()))
+      @assertFalse(synced_has_vgrid(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_descriptive_skips_vgrid
+
+   @test
+   subroutine test_sync_skips_deferred_vgrid()
+      type(StateItemDescriptor) :: item
+      type(VerticalCoordinateCharacteristic) :: deferred
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, deferred)
+      @assertFalse(synced_has_vgrid(item, SYNC_PHASE_STRUCTURAL))
+   end subroutine test_sync_skips_deferred_vgrid
+
+   @test
+   subroutine test_resolve_deferred_fills_vertical_coordinate_from_defaults()
+      type(StateItemDescriptor) :: item
+      type(VerticalCoordinateCharacteristic) :: deferred
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, deferred)
+
+      call item%resolve_deferred(CharacteristicDefaults(vgrid=make_basic_vgrid()), rc=status)
+      @assertEqual(0, status)
+      call item%get_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (VerticalCoordinateCharacteristic)
+         @assertTrue(c%has_vgrid())
+         @assertEqual('3', c%get_grid_id())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_resolve_deferred_fills_vertical_coordinate_from_defaults
+
+   @test
+   subroutine test_resolve_deferred_without_vgrid_stays_deferred()
+      type(StateItemDescriptor) :: item
+      type(VerticalCoordinateCharacteristic) :: deferred
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, deferred)
+
+      call item%resolve_deferred(CharacteristicDefaults(), rc=status)
+      @assertEqual(0, status)
+      call item%get_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_DEFERRED)
+   end subroutine test_resolve_deferred_without_vgrid_stays_deferred
+
+   ! A DEFERRED vertical coordinate no component supplies is dropped: the
+   ! item has no vertical dimension. A DEFERRED geometry is kept.
+   @test
+   subroutine test_drop_unsupplied_removes_only_vertical_coordinate()
+      type(StateItemDescriptor) :: item
+      type(VerticalCoordinateCharacteristic) :: vertical
+      type(GeometryCharacteristic) :: geometry
+      integer :: status
+
+      call vertical%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call geometry%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, vertical)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, geometry)
+
+      call item%drop_unsupplied(CharacteristicDefaults(), rc=status)
+      @assertEqual(0, status)
+      @assertFalse(item%has_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND))
+      @assertTrue(item%has_characteristic(GEOMETRY_CHARACTERISTIC_KIND))
+   end subroutine test_drop_unsupplied_removes_only_vertical_coordinate
+
+   @test
+   subroutine test_drop_unsupplied_keeps_resolved_vertical_coordinate()
+      type(StateItemDescriptor) :: item
+      type(VerticalCoordinateCharacteristic) :: deferred, mirrored
+      type(StateItemDescriptor) :: other
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, deferred)
+      call item%resolve_deferred(CharacteristicDefaults(vgrid=make_basic_vgrid()), rc=status)
+      @assertEqual(0, status)
+      call item%drop_unsupplied(CharacteristicDefaults(), rc=status)
+      @assertEqual(0, status)
+      @assertTrue(item%has_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND))
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call other%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, mirrored)
+      call other%drop_unsupplied(CharacteristicDefaults(), rc=status)
+      @assertEqual(0, status)
+      @assertTrue(other%has_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND))
+   end subroutine test_drop_unsupplied_keeps_resolved_vertical_coordinate
 
 end module Test_StateItemDescriptor

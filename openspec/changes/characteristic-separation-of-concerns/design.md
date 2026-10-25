@@ -389,6 +389,7 @@ The factory omits kinds that are not applicable, using legacy
 | BRACKET, VECTORBRACKET | all comparing kinds except STANDARD_NAME (legacy order omits it, and the field-side tip after ITEM_SHAPE adopts the import's) |
 | VECTOR, FIELDBUNDLE | all comparing kinds except STANDARD_NAME |
 | EXPRESSION | ITEM_SHAPE, GEOMETRY, VERTICAL_COORDINATE, VERTICAL_STAGGER, TYPE_KIND, Expression, and PHYSICAL_UNITS as UNCHECKED (owner Q3) |
+| (any shape above) | VERTICAL_COORDINATE and VERTICAL_STAGGER apply only to an item with a vertical dimension: none for `vertical_stagger == NONE`, and SERVICE, STATE and WILDCARD never have them (the VERTICALGRID composite is the one STATE with a VERTICAL_COORDINATE) |
 | STATE | ITEM_SHAPE only |
 | SERVICE | ITEM_SHAPE, GEOMETRY |
 | WILDCARD | ITEM_SHAPE only |
@@ -448,7 +449,8 @@ means DEFERRED, filled later from the component default. Typical
 components rely on this and need no change. Components introduced or
 reworked in MAPL3 (Statistics, History collections without `geom:`, and
 similar) instead adopt their connected partner's value. They must say so
-explicitly (`mirror_geom` / YAML `geometry_mirror: true` for Geometry);
+explicitly (`mirror_geom` / YAML `geometry_mirror: true` for Geometry,
+`mirror_vgrid` / `vertical_grid_mirror: true` for VerticalCoordinate);
 MIRRORED is never inferred from absence. EXPRESSION is the one implicit
 MIRRORED case (§2.4 allowlist).
 
@@ -460,7 +462,7 @@ MIRRORED case (§2.4 allowlist).
 | StandardName | `standard_name` | allocated: SPECIFIED; else UNCHECKED (legacy) |
 | TypeKind | `typekind` (defaults to R4) | `MAPL_TYPEKIND_MIRROR`: MIRRORED; else SPECIFIED. Never DEFERRED (A12). |
 | Geometry | `geom`, `geom_id`, `horizontal_dims_spec`, `regrid_param` | item geom/geom_id: SPECIFIED; `mirror_geom` or an EXPRESSION with no geom: MIRRORED; else DEFERRED (component supplies it; legacy FROM_COMP and absent-means-MIRRORED both map here, A12). Freeze fails if the component never supplies one. |
-| VerticalCoordinate | `vertical_grid`; `state_item_variant == VERTICALGRID` (member names) | item grid: SPECIFIED; else DEFERRED (component grid, M2). VERTICALGRID composite: SPECIFIED with dimensions only. Items with no vertical grid at all: see B3-VerticalCoordinate (legacy distinguishes them only by stagger NONE). |
+| VerticalCoordinate | `vertical_grid`, `mirror_vgrid`, `vertical_stagger`; `state_item_variant == VERTICALGRID` (member names) | `vertical_stagger == NONE`: no entry (2D item). Item grid: SPECIFIED. `mirror_vgrid` or an EXPRESSION with no grid: MIRRORED. Else DEFERRED (component grid, M2). VERTICALGRID composite: SPECIFIED with dimensions only. A DEFERRED entry whose component has no vertical grid is dropped at GEOM_B (owner, B3-VerticalCoordinate): such an item is 2D as far as the graph can tell, and legacy distinguishes it only by the same absence. |
 | VerticalStagger | `vertical_stagger`, `vertical_alignment` | allocated real stagger: SPECIFIED; `VERTICAL_STAGGER_MIRROR`: MIRRORED (Q6); unallocated: SPECIFIED NONE when the item has no vertical grid, else DEFERRED to the grid's resolution. EXPRESSION `VERTICAL_STAGGER_INVALID`: MIRRORED. |
 | UngriddedDims | `ungridded_dims` | `is_mirror()`: MIRRORED; else SPECIFIED |
 | Attributes | `attributes` | SPECIFIED, **always inserted, even if empty**. This fixes a parity bug: today an empty export set is omitted, so an import requiring attributes is never flagged, whereas legacy `includes([], required)` mismatches. |
@@ -473,7 +475,12 @@ MIRRORED case (§2.4 allowlist).
 DEFERRED -> SPECIFIED happens through
 `StateItemDescriptor%resolve_deferred(defaults, rc)`, where `defaults` is
 a graph-layer value holding the component's geometry/geom id and
-vertical grid. Each characteristic takes what it needs from it. For
+vertical grid. Each characteristic takes what it needs from it. After
+that, `StateItemDescriptor%drop_unsupplied(defaults)` removes each
+characteristic that is still DEFERRED and says (through
+`drop_if_unsupplied`) that it does not apply without a value: today only
+VerticalCoordinate, when the component supplied no vertical grid. Other
+kinds, Geometry included, stay DEFERRED until a component fills them. For
 geometry, `run_geometry_hook` calls `graphbuilder_resolve_deferred` for
 each item in the component without naming a kind (D6), and
 `graphbuilder_harvest_deferred` fills items from a realized field or
@@ -494,7 +501,7 @@ in B3-Geometry.
 | `ungridded_dims` | `_ConnectionResolution_smod` (materialization) | `UngriddedDims` characteristic (already in the map; duplicate removed in B3-UngriddedDims) |
 | `vertical_stagger` | `_ConnectionResolution_smod`, `_PortsAndProxies_smod` | `VerticalStagger` (new, B3-VerticalStagger) |
 | `declared_geom` | `_PortsAndProxies_smod%resolve_export_geom` | `Geometry` item-level (B3-Geometry). DEFERRED replaces the "read component geom live" fallback. |
-| `declared_vertical_grid` | `_PortsAndProxies_smod` | `VerticalCoordinate` (B3-VerticalCoordinate, M2) |
+| `declared_vertical_grid` | `_PortsAndProxies_smod` | `VerticalCoordinate` (B3-VerticalCoordinate, M2); the characteristic holds the `VerticalGrid` object |
 | `declared_item_type` | `_ConnectionResolution_smod` (WILDCARD / FIELD / BRACKET gates) | `ItemShape` widened to all shapes (B3-ItemShape). The gates become `descriptor%shape()` queries on the ItemShape value, through a generic accessor that returns the `MAPL_StateItem_Flag` (no concrete type named in GraphBuilder). |
 | `declared_restart_mode` | `_StatePopulation_smod%populate_one` | `RestartMode` (new, B3-RestartMode); populate_one calls `sync_to_info(alias, DESCRIPTIVE)` |
 | `declared_expression` | `_ConnectionResolution_smod` (expression hook) | `Expression` (new, B3-Expression) |

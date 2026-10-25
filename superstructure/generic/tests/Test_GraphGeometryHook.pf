@@ -61,6 +61,10 @@ module Test_GraphGeometryHook
    use esmf, only: ESMF_GridComp, ESMF_GridCompCreate
    use esmf, only: ESMF_HConfig, ESMF_HConfigCreate
    use GraphBuilderTestSupport_mod, only: make_outer_meta
+   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE
+   use mapl_geom_api, only: mapl_new_GeomId
+   use mapl_StateItemCharacteristicKind_mod, only: VERTICAL_COORDINATE_CHARACTERISTIC_KIND
+   use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid
    use ESMF_TestMethod_mod
    use esmf
    use pfunit
@@ -502,6 +506,7 @@ contains
       call make_outer_meta('harvest_comp', gc, meta, _RC)
       var_spec%state_intent = ESMF_STATEINTENT_EXPORT
       var_spec%short_name = 'T'
+      var_spec%vertical_stagger = VERTICAL_STAGGER_NONE
       comp_spec => meta%get_component_spec()
       call comp_spec%add_var_spec(var_spec)
       call gb%advertise(meta, status)
@@ -573,6 +578,7 @@ contains
       call make_outer_meta('harvest_import_comp', gc, meta, _RC)
       var_spec%state_intent = ESMF_STATEINTENT_IMPORT
       var_spec%short_name = 'T'
+      var_spec%vertical_stagger = VERTICAL_STAGGER_NONE
       comp_spec => meta%get_component_spec()
       call comp_spec%add_var_spec(var_spec)
       call gb%advertise(meta, status)
@@ -628,8 +634,10 @@ contains
 
       plain_spec%state_intent = ESMF_STATEINTENT_IMPORT
       plain_spec%short_name = 'P'
+      plain_spec%vertical_stagger = VERTICAL_STAGGER_NONE
       mirror_spec%state_intent = ESMF_STATEINTENT_IMPORT
       mirror_spec%short_name = 'M'
+      mirror_spec%vertical_stagger = VERTICAL_STAGGER_NONE
       mirror_spec%mirror_geom = .true.
       comp_spec => meta%get_component_spec()
       call comp_spec%add_var_spec(plain_spec)
@@ -663,5 +671,89 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_geometry_hook_resolves_deferred_imports_from_own_geom
+
+   ! At GEOM_B a component's vertical grid fills an item's DEFERRED vertical
+   ! coordinate. Without one the entry is dropped (the item has no vertical
+   ! dimension), and a mirrored entry survives either way.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_geometry_hook_resolves_or_drops_vertical_coordinate(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc_with, gc_without
+      type(OuterMetaComponent), pointer :: meta_with, meta_without
+      type(mapl_BasicVerticalGrid) :: vgrid
+      integer :: status
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+
+      call vgrid%set_id(9)
+      call make_outer_meta('vgrid_comp', gc_with, meta_with, _RC)
+      call meta_with%set_vertical_grid(vgrid, _RC)
+      call advertise_and_hook(meta_with, _RC)
+      call check_item(meta_with, 'D', is_present=.true., _RC)
+      call check_item(meta_with, 'M', is_present=.true., _RC)
+
+      call make_outer_meta('no_vgrid_comp', gc_without, meta_without, _RC)
+      call advertise_and_hook(meta_without, _RC)
+      call check_item(meta_without, 'D', is_present=.false., _RC)
+      call check_item(meta_without, 'M', is_present=.true., _RC)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+
+   contains
+
+      subroutine advertise_and_hook(meta, rc)
+         type(OuterMetaComponent), pointer, intent(inout) :: meta
+         integer, optional, intent(out) :: rc
+
+         type(ComponentSpec), pointer :: comp_spec
+         type(VariableSpec) :: deferred_spec, mirror_spec
+         type(GraphBuilder) :: gb
+         integer :: status
+
+         deferred_spec%state_intent = ESMF_STATEINTENT_EXPORT
+         deferred_spec%short_name = 'D'
+         deferred_spec%geom_id = mapl_new_GeomId(1)
+         mirror_spec%state_intent = ESMF_STATEINTENT_EXPORT
+         mirror_spec%short_name = 'M'
+         mirror_spec%geom_id = mapl_new_GeomId(1)
+         mirror_spec%mirror_vgrid = .true.
+         comp_spec => meta%get_component_spec()
+         call comp_spec%add_var_spec(deferred_spec)
+         call comp_spec%add_var_spec(mirror_spec)
+         call gb%advertise(meta, _RC)
+         call gb%run_geometry_hook(meta)
+         _RETURN(_SUCCESS)
+      end subroutine advertise_and_hook
+
+      subroutine check_item(meta, name, is_present, rc)
+         type(OuterMetaComponent), pointer, intent(inout) :: meta
+         character(*), intent(in) :: name
+         logical, intent(in) :: is_present
+         integer, optional, intent(out) :: rc
+
+         type(ComponentGraph), pointer :: graph
+         type(NodeId), pointer :: id
+         class(GraphNode), pointer :: node
+         type(StateItemDescriptor), pointer :: descriptor
+         integer :: status
+
+         graph => meta%get_component_graph()
+         id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, name))
+         @assert_that(associated(id), is(true()))
+         node => graph%get_node(id)
+         select type (node)
+         class is (StateItemNode)
+            descriptor => node%get_descriptor()
+            @assertEqual(is_present, descriptor%has_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND))
+            @assertEqual(0, size(descriptor%get_unresolved_kinds()))
+         class default
+            @assert_that(.false., is(true()))
+         end select
+         _RETURN(_SUCCESS)
+      end subroutine check_item
+
+   end subroutine test_geometry_hook_resolves_or_drops_vertical_coordinate
 
 end module Test_GraphGeometryHook

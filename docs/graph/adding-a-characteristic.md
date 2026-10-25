@@ -208,3 +208,40 @@ First kind with a DEFERRED value (a value the component supplies later).
   GEOMETRY characteristic and falls back to the owner's default geom.
 - `build_transform` calls `report_build_transform_unsupported`, so a geometry
   mismatch is reported as unsupported rather than as an error.
+
+## VerticalCoordinate as implemented
+
+Second kind with a DEFERRED value; it reuses Geometry's machinery.
+
+| Input | Shape | Entry |
+|---|---|---|
+| `vertical_stagger` NONE | any | none (no vertical dimension) |
+| `VariableSpec%vertical_grid` | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE | SPECIFIED, holding the `VerticalGrid` |
+| `VariableSpec%mirror_vgrid` and no grid | same | MIRRORED |
+| nothing declared | same | DEFERRED |
+| nothing declared | EXPRESSION | MIRRORED (the §2.4 allowlist case) |
+| `VERTICALGRID` composite | STATE | SPECIFIED, dimension names only |
+| any | SERVICE, other STATE, WILDCARD | none |
+
+- `CharacteristicDefaults` also carries the component's vertical grid;
+  `graphbuilder_resolve_deferred` (GEOM_B) sets it from
+  `OuterMetaComponent%get_vertical_grid`.
+- A kind that does not apply when the component supplies nothing overrides
+  `drop_if_unsupplied`; `StateItemDescriptor%drop_unsupplied` removes those
+  entries after `resolve_deferred`. Only VerticalCoordinate does this, so a
+  2D item in a component with no vertical grid stays valid. Geometry stays
+  DEFERRED.
+- `harvest` does not read `vgrid`: no DEFERRED VERTICAL_COORDINATE is left
+  by then.
+- `VerticalStaggerLoc`'s `==` treats MIRROR as a wildcard; the factory uses
+  `is_none()`.
+- `write_info` writes `vgrid=` through `MAPL_FieldSet` /
+  `MAPL_FieldBundleSet`; `is_structural()` is `.true.`. `FieldGet` finds the
+  grid by id, so the grid must be known to the vertical grid manager.
+- Hybrid `needs_extension_for` is kept; the single-overlap `build_transform`
+  calls `report_build_transform_unsupported`.
+- `StateItemDescriptor` no longer has `declared_vertical_grid`;
+  `resolve_export_vgrid` reads the item's characteristic and falls back to
+  the owner's vertical grid.
+- Test fixtures that want a 2D item set `vertical_stagger = NONE`
+  (`make_var` does).

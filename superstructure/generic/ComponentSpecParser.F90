@@ -75,6 +75,7 @@ module mapl_ComponentSpecParser_mod
    character(*), parameter :: KEY_UNGRIDDED_DIM_COORDINATES = 'coordinates'
    character(*), parameter :: KEY_VERTICAL_STAGGER = 'vertical_dim_spec'
    character(*), parameter :: KEY_GEOMETRY_MIRROR = 'geometry_mirror'
+   character(*), parameter :: KEY_VERTICAL_GRID_MIRROR = 'vertical_grid_mirror'
    character(*), parameter :: KEY_TIMESTEP = 'timestep'
    character(*), parameter :: KEY_RUN_TIME_OFFSET = 'run_time_offset'
 

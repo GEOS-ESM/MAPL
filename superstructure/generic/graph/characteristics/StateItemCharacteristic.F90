@@ -102,6 +102,7 @@ module mapl_StateItemCharacteristic_mod
       procedure :: write_info => char_write_info
       procedure :: is_structural => char_is_structural
       procedure :: resolve_deferred => char_resolve_deferred
+      procedure :: drop_if_unsupplied => char_drop_if_unsupplied
    end type StateItemCharacteristic
 
    ! REQ-CHAR-002a: a pure subtype-shape split - no additional deferred
@@ -278,6 +279,17 @@ contains
       _UNUSED_DUMMY(defaults)
       _RETURN(_SUCCESS)
    end subroutine char_resolve_deferred
+
+   ! True when this DEFERRED characteristic does not apply to the item because
+   ! the component supplied no value for it. Most kinds stay DEFERRED instead.
+   logical function char_drop_if_unsupplied(this, defaults) result(drop)
+      class(StateItemCharacteristic), intent(in) :: this
+      type(CharacteristicDefaults), intent(in) :: defaults
+
+      drop = .false.
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(defaults)
+   end function char_drop_if_unsupplied
 
    subroutine refchar_set_referenced_node_id(this, node_id)
       class(ReferenceCharacteristic), intent(inout) :: this

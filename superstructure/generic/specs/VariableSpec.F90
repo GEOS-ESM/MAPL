@@ -135,6 +135,7 @@ module mapl_VariableSpec_mod
       ! vertical aspect
       !=====================
       class(VerticalGrid), allocatable :: vertical_grid
+      logical :: mirror_vgrid = .false.
       type(VerticalStaggerLoc), allocatable :: vertical_stagger
       character(:), allocatable :: vertical_alignment  ! "upward" | "downward" | "with_grid" (default)
 
@@ -311,6 +312,7 @@ contains
         regrid_param, &
         horizontal_dims_spec, &
         mirror_geom, &
+        mirror_vgrid, &
         vector_basis_kind, &
         restart_mode, &
         rc) result(var_spec)
@@ -340,6 +342,7 @@ contains
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
       logical, optional, intent(in) :: mirror_geom
+      logical, optional, intent(in) :: mirror_vgrid
       character(*), optional, intent(in) :: vector_basis_kind
       type(RestartMode), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
@@ -377,6 +380,7 @@ contains
       _SET_OPTIONAL(regrid_param)
       _SET_OPTIONAL(horizontal_dims_spec)
       _SET_OPTIONAL(mirror_geom)
+      _SET_OPTIONAL(mirror_vgrid)
       _SET_OPTIONAL(restart_mode)
 
       var_spec%vector_basis_kind = MAPL_VECTOR_BASIS_KIND_NS

@@ -523,10 +523,13 @@ in the first one; later ones refine it.
   (today only an item-level `geometry:` block sets it), so the graph can
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
-- **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims and B3-Geometry
-  done (commit trailers `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
-  `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`); others not
+- **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry and
+  B3-VerticalCoordinate done (commit trailers `Plan-Task: B3-Units`,
+  `Plan-Task: B3-TypeKind`, `Plan-Task: B3-UngriddedDims`,
+  `Plan-Task: B3-Geometry`, `Plan-Task: B3-VerticalCoordinate`); others not
   started.
+  B3-VerticalCoordinate: see design.md §5 and adding-a-characteristic.md
+  "VerticalCoordinate as implemented".
   B3-Geometry (first DEFERRED kind): `GeometryCharacteristic` gained
   `write_info`, `is_structural() = .true.` and `resolve_deferred`; the
   factory (`make_geometry_characteristic`) gives SPECIFIED for a declared
@@ -621,7 +624,7 @@ in the first one; later ones refine it.
 
 **B4. Remove manual dispatch.** Delete `merged_item_for_link`'s kind
 chain, the `get_item_<kind>` getters (`get_item_units`/`get_item_typekind`/
-`get_item_ungridded_dims`/`get_item_geom`, plus any later B3 task adds), scalar args of
+`get_item_ungridded_dims`/`get_item_geom`/`get_item_vgrid`, plus any later B3 task adds), scalar args of
 `materialize_field_extension` (create from goal descriptor + chain
 step instead), `GraphStateItem%ordering`/table. Done also requires
 `grep -nE '_CHARACTERISTIC_KIND|[A-Za-z]+Characteristic\b' GraphBuilder*.F90`

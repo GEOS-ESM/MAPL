@@ -417,10 +417,11 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine resolve_export_geom
-   module subroutine resolve_export_vgrid(export_item, owner, vgrid)
+   module subroutine resolve_export_vgrid(export_item, owner, vgrid, rc)
       type(StateItemDescriptor), intent(in) :: export_item
       class(OuterMetaComponent), target, intent(inout) :: owner
       class(VerticalGrid), allocatable, intent(out) :: vgrid
+      integer, optional, intent(out) :: rc
 
    end subroutine resolve_export_vgrid
 

@@ -69,6 +69,7 @@ contains
          logical :: has_expression
          logical :: has_dims
          logical :: mirror_geom, has_mirror_geom
+         logical :: mirror_vgrid, has_mirror_vgrid
          character(:), allocatable :: dims_str
          type(HorizontalDimsSpec) :: horizontal_dims_spec
          type(ESMF_HConfig) :: subcfg
@@ -118,6 +119,12 @@ contains
             has_mirror_geom = ESMF_HConfigIsDefined(attributes, keyString=KEY_GEOMETRY_MIRROR, _RC)
             if (has_mirror_geom) then
                mirror_geom = ESMF_HConfigAsLogical(attributes, keyString=KEY_GEOMETRY_MIRROR, _RC)
+            end if
+
+            mirror_vgrid = .false.
+            has_mirror_vgrid = ESMF_HConfigIsDefined(attributes, keyString=KEY_VERTICAL_GRID_MIRROR, _RC)
+            if (has_mirror_vgrid) then
+               mirror_vgrid = ESMF_HConfigAsLogical(attributes, keyString=KEY_VERTICAL_GRID_MIRROR, _RC)
             end if
 
             has_standard_name = ESMF_HConfigIsDefined(attributes,keyString='standard_name', _RC)
@@ -174,7 +181,8 @@ contains
                   geom=geom, &
                  vertical_grid=vertical_grid, &
                  horizontal_dims_spec=horizontal_dims_spec, &
-                 mirror_geom=mirror_geom, _RC)
+                 mirror_geom=mirror_geom, &
+                 mirror_vgrid=mirror_vgrid, _RC)
 
             if (allocated(units)) deallocate(units)
             if (allocated(standard_name)) deallocate(standard_name)

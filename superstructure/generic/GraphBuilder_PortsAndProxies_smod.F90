@@ -5,6 +5,7 @@
 submodule (mapl_GraphBuilder_mod) GraphBuilder_PortsAndProxies_smod
    use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE, operator(==)
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -66,34 +67,64 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_item_geom
 
-   ! Same priority order as resolve_export_geom(), but "not found" means
-   ! "no vertical dimension" (a legitimate 2D field), not a failure.
-   ! An explicit vertical_stagger == VERTICAL_STAGGER_NONE (from
-   ! `vertical_dim_spec: NONE`) is honored ahead of the component-wide
-   ! default so a 2D field in a 3D-capable component does not get that
-   ! component's vertical grid.
-   module subroutine resolve_export_vgrid(export_item, owner, vgrid)
+   ! The grid held by the item's VERTICAL_COORDINATE characteristic. An
+   ! item with no such entry has no vertical dimension (a legitimate 2D
+   ! field), so "not found" is not a failure. An explicit
+   ! vertical_stagger == VERTICAL_STAGGER_NONE is honored ahead of the
+   ! component-wide default so a 2D field in a 3D-capable component does not
+   ! get that component's vertical grid.
+   module subroutine resolve_export_vgrid(export_item, owner, vgrid, rc)
       type(StateItemDescriptor), intent(in) :: export_item
       class(OuterMetaComponent), target, intent(inout) :: owner
       class(VerticalGrid), allocatable, intent(out) :: vgrid
+      integer, optional, intent(out) :: rc
 
       class(VerticalGrid), pointer :: component_vgrid
       type(VerticalStaggerLoc), allocatable :: declared_vertical_stagger
-      class(VerticalGrid), allocatable :: declared_vertical_grid
+      class(VerticalGrid), allocatable :: item_vgrid
+      integer :: status
 
       call export_item%get_vertical_stagger(declared_vertical_stagger)
       if (allocated(declared_vertical_stagger)) then
-         if (declared_vertical_stagger == VERTICAL_STAGGER_NONE) return
+         if (declared_vertical_stagger == VERTICAL_STAGGER_NONE) then
+            _RETURN(_SUCCESS)
+         end if
       end if
 
-      call export_item%get_declared_vertical_grid(declared_vertical_grid)
-      if (allocated(declared_vertical_grid)) then
-         vgrid = declared_vertical_grid
-         return
+      call get_item_vgrid(export_item, item_vgrid, _RC)
+      if (allocated(item_vgrid)) then
+         vgrid = item_vgrid
+         _RETURN(_SUCCESS)
       end if
 
+      ! MIRRORED entries (expressions, mirror_vgrid) hold no grid of their own.
       component_vgrid => owner%get_vertical_grid()
       if (associated(component_vgrid)) vgrid = component_vgrid
+      _RETURN(_SUCCESS)
    end subroutine resolve_export_vgrid
+
+   ! The vertical grid held by the item's VERTICAL_COORDINATE characteristic,
+   ! if any. Unallocated when there is no entry, or the entry is MIRRORED or
+   ! holds only dimension names.
+   subroutine get_item_vgrid(item, vgrid, rc)
+      type(StateItemDescriptor), intent(in) :: item
+      class(VerticalGrid), allocatable, intent(out) :: vgrid
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(StateItemCharacteristic), allocatable :: characteristic
+
+      _RETURN_UNLESS(item%has_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND))
+
+      call item%get_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, characteristic, _RC)
+      select type (characteristic)
+      class is (VerticalCoordinateCharacteristic)
+         if (characteristic%has_vgrid()) vgrid = characteristic%get_vgrid()
+      class default
+         _FAIL('GraphBuilder: get_item_vgrid - characteristic is not a VerticalCoordinateCharacteristic')
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine get_item_vgrid
 
 end submodule GraphBuilder_PortsAndProxies_smod

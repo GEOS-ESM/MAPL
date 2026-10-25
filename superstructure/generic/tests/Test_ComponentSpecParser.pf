@@ -105,6 +105,45 @@ contains
       call ESMF_HConfigDestroy(config, _RC)
    end subroutine test_parse_var_specs_geometry_mirror
 
+   ! vertical_grid_mirror: true marks an import to adopt the connected
+   ! export's vertical grid; an item that omits it does not.
+   @test
+   subroutine test_parse_var_specs_vertical_grid_mirror()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: var_spec
+      type(VariableSpecVectorIterator) :: iter
+      integer :: rc, status, n_mirror, n_plain
+
+      config = ESMF_HConfigCreate(content='{states: {import: {' // &
+           'A: {typekind: R4, vertical_grid_mirror: true},' // &
+           'B: {typekind: R4}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      @assertEqual(2, var_specs%size())
+
+      n_mirror = 0
+      n_plain = 0
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            if (var_spec%short_name == 'A') then
+               @assertTrue(var_spec%mirror_vgrid)
+               n_mirror = n_mirror + 1
+            else
+               @assertFalse(var_spec%mirror_vgrid)
+               n_plain = n_plain + 1
+            end if
+         end do
+      end associate
+      @assertEqual(1, n_mirror)
+      @assertEqual(1, n_plain)
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_vertical_grid_mirror
+
    @test
    subroutine test_equal_child_spec_ss_differs()
       class(UserSetServices), allocatable :: ss_A

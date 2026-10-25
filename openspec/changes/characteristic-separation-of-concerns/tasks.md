@@ -65,12 +65,17 @@ if materialization needs the value before B4; add it to 4.2's list.
       duplicate). `get_item_ungridded_dims`, the UNGRIDDED_DIMS branch of
       `merged_item_for_link` and the `GraphBuilder.F90` use list remain
       for B4 (§6.3).
-- [ ] 3.4 B3-VerticalCoordinate (M2: component grid / DEFERRED). Same
+- [x] 3.4 B3-VerticalCoordinate (M2: component grid / DEFERRED). Same
       component-wide rule as Geometry (§5): absent is DEFERRED from the
-      component `vertical_grid`; reuse Geometry's `CharacteristicDefaults`,
-      `resolve_deferred` and harvest machinery rather than adding new
-      paths. Explicit vertical mirroring keyword: owner to decide spelling
-      before the task starts; Statistics/History imports adopt it.
+      component `vertical_grid`, reusing `CharacteristicDefaults` and
+      `resolve_deferred`. Owner-approved addition (design §5): an item
+      with `vertical_stagger == NONE` gets no entry, and a DEFERRED entry
+      whose component has no vertical grid is dropped at GEOM_B
+      (`StateItemDescriptor%drop_unsupplied`). Keyword: `mirror_vgrid` /
+      YAML `vertical_grid_mirror: true`; Statistics and History imports
+      without their own grid use it. `get_item_vgrid`,
+      `resolve_export_vgrid` and the VERTICAL_COORDINATE branch of the
+      mismatch classification remain for B4 (§6.3).
 - [ ] 3.5 B3-VerticalStagger (new kind; also add the
       (EXPRESSION, VERTICAL_STAGGER) entry to the §2.4 allowlist, which
       B2 left out because the kind did not exist)
@@ -126,7 +131,7 @@ if materialization needs the value before B4; add it to 4.2's list.
 - [ ] 4.2 Materialize extension fields by empty-create +
       `sync_to_info(STRUCTURAL)` + `MAPL_FieldEmptyComplete` (§3.2.1);
       delete `get_item_units` / `get_item_typekind` /
-      `get_item_ungridded_dims` / `get_item_geom`, and the
+      `get_item_ungridded_dims` / `get_item_geom` / `get_item_vgrid`, and the
       `insert_geom_id_characteristic` import in
       `GraphBuilder_Geometry_smod.F90` (these name concrete
       `*Characteristic` types in `select type`, so 4.4 depends on this).

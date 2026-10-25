@@ -1302,7 +1302,7 @@ contains
       ! CENTER when the export's own declared vertical_stagger does not
       ! say otherwise (VariableSpec.F90's own make_VerticalGridAspect
       ! precedent).
-      call resolve_export_vgrid(export_item, export_meta, vgrid)
+      call resolve_export_vgrid(export_item, export_meta, vgrid, _RC)
       import_typekind = get_item_typekind(import_item, _RC)
       export_ungridded_dims = get_item_ungridded_dims(export_item, _RC)
       if (allocated(vgrid)) then
@@ -1456,7 +1456,7 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      call resolve_export_vgrid(export_item, export_meta, vgrid)
+      call resolve_export_vgrid(export_item, export_meta, vgrid, _RC)
       if (allocated(vgrid)) then
          vert_staggerloc = VERTICAL_STAGGER_CENTER
          call export_item%get_vertical_stagger(declared_vertical_stagger)

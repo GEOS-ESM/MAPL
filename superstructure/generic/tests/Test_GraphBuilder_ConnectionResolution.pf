@@ -1507,11 +1507,13 @@ contains
 
       export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T')
       export_var_spec%vertical_grid = export_vgrid
+      deallocate(export_var_spec%vertical_stagger)
       src_spec => src_meta%get_component_spec()
       call src_spec%add_var_spec(export_var_spec)
 
       import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T')
       import_var_spec%vertical_grid = import_vgrid
+      deallocate(import_var_spec%vertical_stagger)
       dst_spec => dst_meta%get_component_spec()
       call dst_spec%add_var_spec(import_var_spec)
 
