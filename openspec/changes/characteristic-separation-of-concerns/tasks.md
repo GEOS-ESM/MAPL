@@ -78,7 +78,18 @@ if materialization needs the value before B4; add it to 4.2's list.
       mismatch classification remain for B4 (§6.3).
 - [ ] 3.5 B3-VerticalStagger (new kind; also add the
       (EXPRESSION, VERTICAL_STAGGER) entry to the §2.4 allowlist, which
-      B2 left out because the kind did not exist)
+      B2 left out because the kind did not exist). Its applicability
+      must agree with VerticalCoordinate's (3.4): `vertical_stagger ==
+      NONE` gives no VERTICAL_COORDINATE entry, and a DEFERRED one is
+      dropped at GEOM_B when the component has no vertical grid. Decide
+      with the owner, before implementing, what VerticalStagger holds in
+      both cases (§5 row says "SPECIFIED NONE when the item has no
+      vertical grid"). Test for NONE with `is_none()`:
+      `VerticalStaggerLoc`'s `==` treats MIRROR as a wildcard (the NONE
+      test in `resolve_export_vgrid` still uses `==`, so a MIRROR export
+      stagger would read as 2D; fix it here). Replaces
+      `StateItemDescriptor%vertical_stagger` and its readers
+      (`resolve_export_vgrid`, two in `_ConnectionResolution_smod`).
 - [x] 3.6 B3-Geometry (M1: item-level entry; DEFERRED; moves
       `_Geometry_smod` inserts behind a helper). Deviations from design
       §2.2/§2.3, owner-approved: a DEFERRED side at connect time waits
