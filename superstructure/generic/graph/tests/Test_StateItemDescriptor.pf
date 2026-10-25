@@ -4,19 +4,24 @@ module Test_StateItemDescriptor
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, SYNC_PHASE_STRUCTURAL, &
         SYNC_PHASE_DESCRIPTIVE
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
-        GEOMETRY_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND
-   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED
+        GEOMETRY_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
+        QUANTITY_TYPE_CHARACTERISTIC_KIND
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
+        CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED, CharacteristicStatus, operator(==)
+   use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
    use mapl_UngriddedDims_mod, only: UngriddedDims, operator(==)
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_field_api, only: MAPL_FieldGet, MAPL_FieldSet
    use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundleSet
    use ESMF, only: ESMF_Field, ESMF_FieldEmptyCreate, ESMF_FieldDestroy, &
         ESMF_TypeKind_Flag, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_R4, operator(==), &
-        ESMF_FieldBundle, ESMF_FieldBundleCreate, ESMF_FieldBundleDestroy
+        ESMF_FieldBundle, ESMF_FieldBundleCreate, ESMF_FieldBundleDestroy, &
+        ESMF_Geom, ESMF_GeomCreate, ESMF_Grid, ESMF_GridCreateNoPeriDim
    use funit
    implicit none
 
@@ -286,7 +291,7 @@ contains
       type(ESMF_Field) :: field
       integer :: status
 
-      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(gen%next()))
+      call item%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, QuantityTypeCharacteristic())
       field = ESMF_FieldEmptyCreate(name='f', rc=status)
       @assertEqual(0, status)
       call handle%set(field)
@@ -361,5 +366,151 @@ contains
       @assertEqual(0, status)
       call ESMF_FieldDestroy(field, noGarbage=.true.)
    end function synced_ungridded_dims
+
+   function make_test_geom(rc) result(geom)
+      integer, optional, intent(out) :: rc
+      type(ESMF_Geom) :: geom
+
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[2], countsPerDeDim2=[2], rc=status)
+      if (status == 0) geom = ESMF_GeomCreate(grid=grid, rc=status)
+      if (present(rc)) rc = status
+   end function make_test_geom
+
+   ! True if the field has a geom after the sync.
+   function synced_has_geom(item, phase) result(has_geom)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      logical :: has_geom
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(ESMF_Geom), allocatable :: geom
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, geom=geom, rc=status)
+      @assertEqual(0, status)
+      has_geom = allocated(geom)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_has_geom
+
+   @test
+   subroutine test_sync_structural_writes_specified_geom()
+      type(StateItemDescriptor) :: item
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom=geom))
+      @assertTrue(synced_has_geom(item, SYNC_PHASE_STRUCTURAL))
+   end subroutine test_sync_structural_writes_specified_geom
+
+   @test
+   subroutine test_sync_descriptive_skips_geom()
+      type(StateItemDescriptor) :: item
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom=geom))
+      @assertFalse(synced_has_geom(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_descriptive_skips_geom
+
+   @test
+   subroutine test_sync_skips_deferred_geom()
+      type(StateItemDescriptor) :: item
+      type(GeometryCharacteristic) :: deferred
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, deferred)
+      @assertFalse(synced_has_geom(item, SYNC_PHASE_STRUCTURAL))
+   end subroutine test_sync_skips_deferred_geom
+
+   @test
+   subroutine test_resolve_deferred_fills_geometry_from_defaults()
+      type(StateItemDescriptor) :: item
+      type(GeometryCharacteristic) :: deferred
+      class(StateItemCharacteristic), allocatable :: c
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, deferred)
+
+      call item%resolve_deferred(CharacteristicDefaults(geom=geom), rc=status)
+      @assertEqual(0, status)
+      call item%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, size(item%get_unresolved_kinds()))
+   end subroutine test_resolve_deferred_fills_geometry_from_defaults
+
+   ! One side known by geom object only, the other by id only: nothing to
+   ! compare, so the pair is assumed to need an extension.
+   @test
+   subroutine test_geometry_needs_extension_mixed_geom_and_id()
+      type(GeometryCharacteristic) :: by_id, by_geom
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+      by_geom = GeometryCharacteristic(geom=geom)
+      by_id = GeometryCharacteristic(geom_id='1')
+      @assertTrue(by_geom%needs_extension_for(by_id))
+      @assertTrue(by_id%needs_extension_for(by_geom))
+      @assertFalse(by_id%needs_extension_for(GeometryCharacteristic(geom_id='1')))
+      @assertTrue(by_id%needs_extension_for(GeometryCharacteristic(geom_id='2')))
+   end subroutine test_geometry_needs_extension_mixed_geom_and_id
+
+   ! No default geom: an item the component fills later must stay DEFERRED.
+   @test
+   subroutine test_resolve_deferred_without_geom_stays_deferred()
+      type(StateItemDescriptor) :: item
+      type(GeometryCharacteristic) :: deferred
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, deferred)
+
+      call item%resolve_deferred(CharacteristicDefaults(), rc=status)
+      @assertEqual(0, status)
+      call item%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_DEFERRED)
+   end subroutine test_resolve_deferred_without_geom_stays_deferred
+
+   @test
+   subroutine test_resolve_deferred_leaves_specified_geometry()
+      type(StateItemDescriptor) :: item
+      class(StateItemCharacteristic), allocatable :: c
+      type(ESMF_Geom) :: geom, other
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+      other = make_test_geom(rc=status)
+      @assertEqual(0, status)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom=geom))
+
+      call item%resolve_deferred(CharacteristicDefaults(geom=other), rc=status)
+      @assertEqual(0, status)
+      call item%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+   end subroutine test_resolve_deferred_leaves_specified_geometry
 
 end module Test_StateItemDescriptor

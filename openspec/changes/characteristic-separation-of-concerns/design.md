@@ -121,15 +121,19 @@ factories and the descriptor call it.
 
 | export \ import | SPECIFIED | MIRRORED | UNCHECKED | DEFERRED |
 |---|---|---|---|---|
-| SPECIFIED | `export_c%needs_extension_for(import_c)` | copy: `allocate(import_c, source=export_c)`, status SPECIFIED; match | match | error: "deferred at connect time" |
-| MIRRORED | error, unless `(export shape, kind)` is allowlisted (§2.4) | error | match | error |
-| UNCHECKED | match | error | match | error |
-| DEFERRED | error | error | error | error |
+| SPECIFIED | `export_c%needs_extension_for(import_c)` | copy: `allocate(import_c, source=export_c)`, status SPECIFIED; match | match | wait |
+| MIRRORED | error, unless `(export shape, kind)` is allowlisted (§2.4) | error | match | wait |
+| UNCHECKED | match | error | match | wait |
+| DEFERRED | wait | wait | wait | wait |
 
 - "match" means no transform for this kind.
-- DEFERRED never reaches connection, because GEOM_B (the only DEFERRED
-  source, §5) runs before ACCEPT_TRANSFER. A DEFERRED cell is therefore a
-  lifecycle-order defect.
+- "wait" is the pair outcome `PAIR_WAIT`: the pair is neither wired nor
+  reported. Its import stays unsettled and `resolve_connections` retries
+  it on a later pass. A DEFERRED value can outlive GEOM_B: a component
+  with no default geom fills its items in its own init phase, which runs
+  after GEOM_B and may run after the first connect pass (§5,
+  `harvest_deferred`). A wait that is never retried to completion is
+  reported at freeze (§2.3). An error cell still means a conflict.
 - The copy in (SPECIFIED, MIRRORED) is generic. It is the only place a
   characteristic is cloned across items, and no subclass carries a mirror
   sentinel.
@@ -145,7 +149,9 @@ must be SPECIFIED or UNCHECKED, or must be a MIRRORED import that no
 connection reached (an unconnected import, which is already reported
 elsewhere). A DEFERRED entry fails freeze and names the item and the
 kind. A MIRRORED **export** with no consumer is allowed (legacy allows
-it: it is never extended).
+it: it is never extended). A component that still has a connection
+waiting on a DEFERRED characteristic also fails freeze, naming the
+component.
 
 #### §2.4 MIRRORED-export allowlist
 
@@ -443,7 +449,7 @@ silently reproduce them as MIRRORED.
 | PhysicalUnits | `units` | allocated and not `'<unknown>'`: SPECIFIED; else UNCHECKED (legacy `new_UnitsAspect`, `set_units`) |
 | StandardName | `standard_name` | allocated: SPECIFIED; else UNCHECKED (legacy) |
 | TypeKind | `typekind` (defaults to R4) | `MAPL_TYPEKIND_MIRROR`: MIRRORED; else SPECIFIED. Never DEFERRED (A12). |
-| Geometry | `geom`, `geom_id`, `horizontal_dims_spec`, `regrid_param` | item geom/geom_id: SPECIFIED; else DEFERRED (component supplies it; legacy FROM_COMP and absent-means-MIRRORED both map here, A12). Freeze fails if the component never supplies one. |
+| Geometry | `geom`, `geom_id`, `horizontal_dims_spec`, `regrid_param` | item geom/geom_id: SPECIFIED; `mirror_geom` or an EXPRESSION with no geom: MIRRORED; else DEFERRED (component supplies it; legacy FROM_COMP and absent-means-MIRRORED both map here, A12). Freeze fails if the component never supplies one. |
 | VerticalCoordinate | `vertical_grid`; `state_item_variant == VERTICALGRID` (member names) | item grid: SPECIFIED; else DEFERRED (component grid, M2). VERTICALGRID composite: SPECIFIED with dimensions only. Items with no vertical grid at all: see B3-VerticalCoordinate (legacy distinguishes them only by stagger NONE). |
 | VerticalStagger | `vertical_stagger`, `vertical_alignment` | allocated real stagger: SPECIFIED; `VERTICAL_STAGGER_MIRROR`: MIRRORED (Q6); unallocated: SPECIFIED NONE when the item has no vertical grid, else DEFERRED to the grid's resolution. EXPRESSION `VERTICAL_STAGGER_INVALID`: MIRRORED. |
 | UngriddedDims | `ungridded_dims` | `is_mirror()`: MIRRORED; else SPECIFIED |
@@ -457,9 +463,12 @@ silently reproduce them as MIRRORED.
 DEFERRED -> SPECIFIED happens through
 `StateItemDescriptor%resolve_deferred(defaults, rc)`, where `defaults` is
 a graph-layer value holding the component's geometry/geom id and
-vertical grid. Each characteristic takes what it needs from it. `graphbuilder_resolve_geometry`
-calls this at GEOM_B for each item in the component without naming a
-kind (D6). The component-level GEOMETRY edges in
+vertical grid. Each characteristic takes what it needs from it. For
+geometry, `run_geometry_hook` calls `graphbuilder_resolve_deferred` for
+each item in the component without naming a kind (D6), and
+`graphbuilder_harvest_deferred` fills items from a realized field or
+bundle at connect time. `graphbuilder_resolve_geometry` handles only the
+component-level GEOMETRY edges. The component-level GEOMETRY edges in
 `GraphBuilder_Geometry_smod.F90` move behind a descriptor/graph helper
 in B3-Geometry.
 
@@ -549,7 +558,10 @@ in B3-Geometry.
 | Plan text | This design | Why |
 |---|---|---|
 | D2: `FROM_COMP` collapses into SPECIFIED | Component-supplied values start DEFERRED and become SPECIFIED at GEOM_A/GEOM_B; TypeKind's R4 default is SPECIFIED | Owner A12. Component values are not known at ADVERTISE (GEOM_A/B run after it). |
-| D2 table has no DEFERRED column/row | DEFERRED on either side at connect time is an error | GEOM_B precedes ACCEPT_TRANSFER, so this is a lifecycle defect. |
+| D2 table has no DEFERRED column/row | DEFERRED on either side at connect time is `PAIR_WAIT`: the pair is retried on a later pass, and freeze fails if it never settles (§2.2, §2.3) | Owner-approved. A component with no default geom (History collection without `geom:`, Statistics) supplies geometry in its own init phase, after GEOM_B, so DEFERRED can legitimately outlive GEOM_B. |
+| Absent geometry means DEFERRED for every item | An import that should adopt the connected export's geometry says so with `mirror_geom` (YAML `geometry_mirror: true`) and is MIRRORED; absence is still DEFERRED | Owner A12: no implicit absent-means-mirror. Statistics imports and History collection imports without `geom:` set it. |
+| DEFERRED -> SPECIFIED only at GEOM_B | Also by `harvest_deferred`, which reads the geom off the component's field or bundle in the state once it has one, without binding the item's `GraphStateItem` handle (imports are skipped) | Owner-approved. Keeps DEFERRED resolution in the graph, with no per-component hook. |
+| Plan scope excludes gridcomps | `StatisticsGridComp` and `TimeVariance` advertise only the chosen variance algorithm's internal fields and share `get_variance_algorithm` | Owner-approved scope change: unchosen algorithms' internal fields would otherwise stay DEFERRED forever and fail freeze. |
 | D3: reference characteristics write a node/registry id | Geometry writes `geom=` (the ESMF object); VerticalCoordinate writes `vgrid=` (stored as `vgrid_id`) | No setter takes a geom id; legacy and every Info reader use the geom object. Adding a geom-id keyword has no consumer. |
 | D3: e.g. descriptor makes one `MAPL_*Set` call per handle kind | Each characteristic calls the setter with its own keywords (§3.1) | A keyword bag would duplicate every setter signature in the graph. Plan left this to B0. |
 | D3: `sync_to_info(handle, rc)` | `sync_to_info(handle, phase, rc)` | The phase argument is how FieldDelta is avoided (§3.2). |

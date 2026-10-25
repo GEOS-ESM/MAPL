@@ -68,6 +68,7 @@ contains
          logical :: has_units
          logical :: has_expression
          logical :: has_dims
+         logical :: mirror_geom, has_mirror_geom
          character(:), allocatable :: dims_str
          type(HorizontalDimsSpec) :: horizontal_dims_spec
          type(ESMF_HConfig) :: subcfg
@@ -111,6 +112,12 @@ contains
                case ('z')
                   horizontal_dims_spec = HORIZONTAL_DIMS_NONE
                end select
+            end if
+
+            mirror_geom = .false.
+            has_mirror_geom = ESMF_HConfigIsDefined(attributes, keyString=KEY_GEOMETRY_MIRROR, _RC)
+            if (has_mirror_geom) then
+               mirror_geom = ESMF_HConfigAsLogical(attributes, keyString=KEY_GEOMETRY_MIRROR, _RC)
             end if
 
             has_standard_name = ESMF_HConfigIsDefined(attributes,keyString='standard_name', _RC)
@@ -166,7 +173,8 @@ contains
                   geom_id=geom_id, &
                   geom=geom, &
                  vertical_grid=vertical_grid, &
-                 horizontal_dims_spec=horizontal_dims_spec, _RC)
+                 horizontal_dims_spec=horizontal_dims_spec, &
+                 mirror_geom=mirror_geom, _RC)
 
             if (allocated(units)) deallocate(units)
             if (allocated(standard_name)) deallocate(standard_name)

@@ -2,8 +2,10 @@
 
 submodule (mapl_VariableSpec_mod) make_characteristics_smod
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
-        TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND
-   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED
+        TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
+        CHARACTERISTIC_STATUS_DEFERRED
+   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
@@ -34,11 +36,12 @@ contains
 
       integer :: status
       integer :: i
-      type(Factory) :: factories(3)
+      type(Factory) :: factories(4)
 
       factories(1)%make => make_units_characteristic
       factories(2)%make => make_typekind_characteristic
       factories(3)%make => make_ungridded_dims_characteristic
+      factories(4)%make => make_geometry_characteristic
 
       do i = 1, size(factories)
          call factories(i)%make(this, descriptor, _RC)
@@ -124,6 +127,54 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_ungridded_dims_characteristic
+
+   ! A geom declared on the item is SPECIFIED. mirror_geom makes it MIRRORED:
+   ! the item adopts the geometry of what it is connected to. Otherwise the
+   ! component supplies it after ADVERTISE (its default geom at GEOM_B, or
+   ! its own init phase), so the entry is DEFERRED and freeze fails if the
+   ! component never provides one. An expression has no geometry of its own
+   ! and is MIRRORED (the allowlisted case). This differs from the legacy
+   ! aspect, which treats "no geom" as MIRRORED. A declared geom_id with no
+   ! geom is SPECIFIED by identity alone. Every shape that
+   ! carries a field, plus SERVICE, has the entry; STATE and WILDCARD do not.
+   subroutine make_geometry_characteristic(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(GeometryCharacteristic) :: geometry
+      character(20) :: id_buffer
+
+      _RETURN_UNLESS(carries_field_description(spec%itemType) .or. spec%itemType == MAPL_STATEITEM_SERVICE)
+
+      if (allocated(spec%geom)) then
+         if (spec%geom_id%is_assigned()) then
+            write(id_buffer, '(I0)') spec%geom_id%get_value()
+            geometry = GeometryCharacteristic(geom_id=trim(id_buffer), geom=spec%geom, &
+                 horizontal_dims_spec=spec%horizontal_dims_spec, regridder_param=spec%regrid_param)
+         else
+            geometry = GeometryCharacteristic(geom=spec%geom, &
+                 horizontal_dims_spec=spec%horizontal_dims_spec, regridder_param=spec%regrid_param)
+         end if
+      else if (spec%geom_id%is_assigned()) then
+         write(id_buffer, '(I0)') spec%geom_id%get_value()
+         geometry = GeometryCharacteristic(geom_id=trim(id_buffer), &
+              horizontal_dims_spec=spec%horizontal_dims_spec, regridder_param=spec%regrid_param)
+      else
+         geometry = GeometryCharacteristic(horizontal_dims_spec=spec%horizontal_dims_spec, &
+              regridder_param=spec%regrid_param)
+         if (spec%itemType == MAPL_STATEITEM_EXPRESSION .or. spec%mirror_geom) then
+            call geometry%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+         else
+            call geometry%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+         end if
+      end if
+
+      call descriptor%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, geometry, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_geometry_characteristic
 
    ! Shapes whose payload is a Field or FieldBundle (or an expression that
    ! evaluates to one) and so carry the field-level kinds.

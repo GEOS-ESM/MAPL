@@ -18,6 +18,7 @@ module mapl_OuterMetaComponent_mod
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_HierarchyId_mod, only: HierarchyId
    use mapl_NodeId_mod, only: NodeId, INVALID_NodeId
+   use mapl_NodeIdSet_mod, only: NodeIdSet
    use mapl_VerticalGrid_mod
    use mapl_SimpleAlarm_mod
    use gFTL2_StringVector
@@ -96,6 +97,17 @@ module mapl_OuterMetaComponent_mod
       ! could double as the flag.
       ! could double as the flag.
       logical :: connections_resolved = .false.
+      ! Imports whose connection has reached a final outcome, so a later
+      ! connect pass skips them. An import whose pair has a DEFERRED side is
+      ! left out and retried. pending_settled_imports holds this pass's
+      ! additions, merged at the end of the pass so two connections naming
+      ! one import are both handled within a pass. waiting_imports holds the
+      ! imports a connection waited on this pass; they are never merged, even
+      ! if another connection settled the same import.
+      type(NodeIdSet) :: settled_imports
+      type(NodeIdSet) :: pending_settled_imports
+      type(NodeIdSet) :: waiting_imports
+      logical :: connections_waiting = .false.
 
       class(Logger), pointer :: lgr  => null() ! "MAPL.Generic" // name
 
@@ -133,6 +145,12 @@ module mapl_OuterMetaComponent_mod
       ! idempotency gate (GraphBuilder_ConnectionResolution_smod.F90).
       procedure :: connections_already_resolved
       procedure :: mark_connections_resolved
+      procedure :: is_import_settled
+      procedure :: note_import_settled
+      procedure :: note_connection_waiting
+      procedure :: has_waiting_connections
+      procedure :: begin_connection_pass
+      procedure :: end_connection_pass
       procedure :: get_logger
       procedure :: set_misc
       procedure :: set_checkpoint_controls_flags
@@ -659,6 +677,37 @@ module mapl_OuterMetaComponent_mod
       module subroutine mark_connections_resolved(this)
          class(OuterMetaComponent), intent(inout) :: this
       end subroutine mark_connections_resolved
+
+      module function is_import_settled(this, import_node_id) result(settled)
+         logical :: settled
+         class(OuterMetaComponent), intent(in) :: this
+         type(NodeId), intent(in) :: import_node_id
+      end function is_import_settled
+
+      module subroutine note_import_settled(this, import_node_id)
+         class(OuterMetaComponent), intent(inout) :: this
+         type(NodeId), intent(in) :: import_node_id
+      end subroutine note_import_settled
+
+      module subroutine note_connection_waiting(this, import_node_id)
+         class(OuterMetaComponent), intent(inout) :: this
+         type(NodeId), intent(in) :: import_node_id
+      end subroutine note_connection_waiting
+
+      module function has_waiting_connections(this) result(waiting)
+         logical :: waiting
+         class(OuterMetaComponent), intent(in) :: this
+      end function has_waiting_connections
+
+      module subroutine begin_connection_pass(this)
+         class(OuterMetaComponent), intent(inout) :: this
+      end subroutine begin_connection_pass
+
+      ! Merges the pass's settled imports. Marks the connections resolved,
+      ! which makes later calls no-ops, only if no pair is still waiting.
+      module subroutine end_connection_pass(this)
+         class(OuterMetaComponent), intent(inout) :: this
+      end subroutine end_connection_pass
 
       module function get_component_spec(this) result(component_spec)
          type(ComponentSpec), pointer :: component_spec

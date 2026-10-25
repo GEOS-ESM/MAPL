@@ -76,6 +76,7 @@ contains
       type(esmf_StateItem_Flag) :: item_type
       integer :: status
       type(esmf_HConfig) :: hconfig
+      integer(kind=kind(WELFORD)) :: algorithm
 
       hconfig = esmf_HConfigCreateAt(iter, _RC)
       action = esmf_HConfigAsString(hconfig, keystring='action', _RC)
@@ -88,7 +89,7 @@ contains
       else
          _FAIL("unsupported ESMF_StateItem_Flag requested for statisitcis GC to handle")
       end if
-      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, name, typekind=MAPL_TYPEKIND_MIRROR, itemtype=item_type, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, name, typekind=MAPL_TYPEKIND_MIRROR, mirror_geom=.true., itemtype=item_type, _RC)
       select case (action)
       case ('average')
          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, itemtype=item_type, _RC)
@@ -104,7 +105,8 @@ contains
          call advertise_time_accumulate_internal_fields(gridcomp, name, item_type, _RC)
       case ('variance')
          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, itemtype=item_type, _RC)
-         call advertise_time_variance_internal_fields(gridcomp, name, item_type, _RC)
+         call get_variance_algorithm(hconfig, algorithm, _RC)
+         call advertise_time_variance_internal_fields(gridcomp, name, item_type, algorithm, _RC)
       case default
          _FAIL('unsupported action: '//action)
       end select
@@ -113,6 +115,30 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine advertise_item
+
+   subroutine get_variance_algorithm(hconfig, algorithm, rc)
+      type(esmf_HConfig), intent(in) :: hconfig
+      integer(kind=kind(WELFORD)), intent(out) :: algorithm
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: algo_str
+
+      algorithm = WELFORD
+      if (esmf_HConfigIsDefined(hconfig, keystring='algorithm')) then
+         algo_str = esmf_HConfigAsString(hconfig, keystring='algorithm', _RC)
+         select case (algo_str)
+         case ('welford')
+            algorithm = WELFORD
+         case ('shifted')
+            algorithm = SHIFTED
+         case default
+            _FAIL('unsupported variance algorithm: '//algo_str)
+         end select
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine get_variance_algorithm
 
    subroutine realize_provided(gridcomp, importState, exportState, clock, rc)
 
@@ -334,20 +360,11 @@ contains
          type(esmf_StateItem_Flag) :: itemtype
          integer(kind=kind(WELFORD)) :: algorithm
          logical :: biased
-         character(:), allocatable :: algo_str
+         type(esmf_HConfig) :: iter_hconfig
 
-         algorithm = WELFORD
-         if (esmf_HConfigIsDefined(iter, keystring='algorithm')) then
-            algo_str = esmf_HConfigAsString(iter, keystring='algorithm', _RC)
-            select case (algo_str)
-            case ('welford')
-               algorithm = WELFORD
-            case ('shifted')
-               algorithm = SHIFTED
-            case default
-               _FAIL('unsupported variance algorithm: '//algo_str)
-            end select
-         end if
+         iter_hconfig = esmf_HConfigCreateAt(iter, _RC)
+         call get_variance_algorithm(iter_hconfig, algorithm, _RC)
+         call esmf_HConfigDestroy(iter_hconfig, _RC)
 
          biased = .false.
          if (esmf_HConfigIsDefined(iter, keystring='biased')) then

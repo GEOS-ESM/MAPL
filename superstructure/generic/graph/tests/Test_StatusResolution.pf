@@ -4,7 +4,7 @@
 module Test_StatusResolution
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor, resolve_pair, resolve_descriptors, &
         resolve_characteristics, is_mirrored_export_allowed, &
-        PAIR_MATCH, PAIR_EXTEND, PAIR_ADOPT, PAIR_CONFLICT, PAIR_INVALID
+        PAIR_MATCH, PAIR_EXTEND, PAIR_ADOPT, PAIR_CONFLICT, PAIR_INVALID, PAIR_WAIT
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), &
         PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
@@ -63,9 +63,9 @@ contains
    end subroutine test_specified_unchecked_matches
 
    @test
-   subroutine test_specified_deferred_conflicts()
-      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_DEFERRED))
-   end subroutine test_specified_deferred_conflicts
+   subroutine test_specified_deferred_waits()
+      @assertEqual(PAIR_WAIT, outcome(CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_DEFERRED))
+   end subroutine test_specified_deferred_waits
 
    ! -- export MIRRORED row --
 
@@ -85,9 +85,9 @@ contains
    end subroutine test_mirrored_unchecked_matches
 
    @test
-   subroutine test_mirrored_deferred_conflicts()
-      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_MIRRORED, CHARACTERISTIC_STATUS_DEFERRED))
-   end subroutine test_mirrored_deferred_conflicts
+   subroutine test_mirrored_deferred_waits()
+      @assertEqual(PAIR_WAIT, outcome(CHARACTERISTIC_STATUS_MIRRORED, CHARACTERISTIC_STATUS_DEFERRED))
+   end subroutine test_mirrored_deferred_waits
 
    ! -- export UNCHECKED row --
 
@@ -108,19 +108,19 @@ contains
    end subroutine test_unchecked_unchecked_matches
 
    @test
-   subroutine test_unchecked_deferred_conflicts()
-      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_DEFERRED))
-   end subroutine test_unchecked_deferred_conflicts
+   subroutine test_unchecked_deferred_waits()
+      @assertEqual(PAIR_WAIT, outcome(CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_DEFERRED))
+   end subroutine test_unchecked_deferred_waits
 
    ! -- export DEFERRED row --
 
    @test
-   subroutine test_deferred_row_always_conflicts()
-      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED))
-      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_MIRRORED))
-      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_UNCHECKED))
-      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_DEFERRED))
-   end subroutine test_deferred_row_always_conflicts
+   subroutine test_deferred_row_always_waits()
+      @assertEqual(PAIR_WAIT, outcome(CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED))
+      @assertEqual(PAIR_WAIT, outcome(CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_MIRRORED))
+      @assertEqual(PAIR_WAIT, outcome(CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_UNCHECKED))
+      @assertEqual(PAIR_WAIT, outcome(CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_DEFERRED))
+   end subroutine test_deferred_row_always_waits
 
    ! -- INVALID on either side --
 
@@ -245,6 +245,30 @@ contains
       @assertEqual(1, size(adopted))
       @assertTrue(adopted(1) == PHYSICAL_UNITS_CHARACTERISTIC_KIND)
    end subroutine test_map_form_reports_needed_adoption
+
+   ! A caller that cannot retry passes no `waiting`; a DEFERRED pair is then
+   ! a conflict, and with `waiting` it is a wait and no conflict.
+   @test
+   subroutine test_map_form_without_waiting_reports_conflict()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:), adopted(:)
+      character(:), allocatable :: conflict
+      logical :: waiting
+      integer :: status
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, units('m', CHARACTERISTIC_STATUS_SPECIFIED))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, units('m', CHARACTERISTIC_STATUS_DEFERRED))
+
+      call resolve_characteristics(export_map, import_map, MAPL_STATEITEM_FIELD, mismatched, adopted, conflict, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(len(conflict) > 0)
+
+      call resolve_characteristics(export_map, import_map, MAPL_STATEITEM_FIELD, mismatched, adopted, conflict, &
+           rc=status, waiting=waiting)
+      @assertEqual(0, status)
+      @assertEqual('', conflict)
+      @assertTrue(waiting)
+   end subroutine test_map_form_without_waiting_reports_conflict
 
    ! -- one-sided absence --
 

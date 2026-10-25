@@ -640,6 +640,7 @@ contains
         dependencies, &
         regrid_param, &
         horizontal_dims_spec, &
+        mirror_geom, &
         vector_basis_kind, &
         restart_mode, &
 
@@ -672,6 +673,7 @@ contains
       type(StringVector), optional, intent(in) :: dependencies
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
+      logical, optional, intent(in) :: mirror_geom
       character(*), optional, intent(in) :: vector_basis_kind
       type(RestartMode), optional, intent(in) :: restart_mode
 
@@ -729,6 +731,7 @@ contains
               dependencies=dependencies, &
               regrid_param=regrid_param, &
               horizontal_dims_spec=horizontal_dims_spec_, &
+              mirror_geom=mirror_geom, &
               vector_basis_kind=vector_basis_kind, &
               restart_mode=restart_mode, &
               _RC)

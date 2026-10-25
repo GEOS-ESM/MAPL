@@ -61,6 +61,9 @@ module Test_GraphBuilder_ConnectionResolution
    use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
+   use mapl_StateItemCharacteristicKind_mod, only: GEOMETRY_CHARACTERISTIC_KIND
+   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
@@ -309,12 +312,9 @@ contains
    ! units/typekind above, but - unlike units/typekind -
    ! StandardNameCharacteristic has no real build_transform provider
    ! (its own module header), so find_or_build_extension_chain's first
-   ! chain-build attempt fails explicitly and the connection is reported
+   ! chain-build attempt reports unsupported and the connection is reported
    ! through unsupported_characteristics with reason 'STANDARD_NAME',
-   ! not wired through any chain. Mirrors
-   ! test_vertical_grid_composites_single_overlap_fails_explicitly's own
-   ! unsupported-characteristic assertion shape, for a plain (non-
-   ! composite) field this time.
+   ! not wired through any chain.
    @test(npes=[0])
    subroutine test_standard_name_mismatch_fails_explicitly(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -374,12 +374,8 @@ contains
 
       call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
            unsupported_characteristics=unsupported, rc=status)
-      ! StandardNameCharacteristic%build_transform _FAILs explicitly (no
-      ! real provider exists for this axis) - same pFUnit exception-
-      ! consumption requirement as
-      ! test_vertical_grid_composites_single_overlap_fails_explicitly's
-      ! own VerticalCoordinateCharacteristic%build_transform call.
-      @assertExceptionRaised('StandardNameCharacteristic: build_transform - no real provider exists for this axis')
+      ! StandardNameCharacteristic%build_transform reports the pair as
+      ! unsupported (no real provider exists for this axis); nothing is raised.
       @assert_that(status, is(0))
 
       ! Not reported as unresolved (a matching export DOES exist - it
@@ -1534,27 +1530,12 @@ contains
       call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
            unsupported_characteristics=unsupported, rc=status)
       call set_materialize_extensions(.false.)
-      ! VerticalGridCharacteristic%build_transform's own internal _FAIL
-      ! (no real vertical-regrid Transform implemented, unchanged 3c
-      ! behavior) - a structured "unsupported" report to this test's own
-      ! caller (status remains 0 below), but still registered with
-      ! pFUnit's own exception mechanism and must be consumed here,
-      ! matching this suite's test_freeze_fails_and_leaves_graph_unfrozen_on_conflict
-      ! precedent for a propagated internal _FAIL/_ASSERT.
-      !
-      ! openspec/changes/vertical-grid-graph-state-item: VerticalGridCharacteristic
-      ! now also carries each side's declared physical dimensions
-      ! (var_spec%vertical_grid%get_supported_physical_dimensions(), a
-      ! pure accessor - GraphBuilder.F90's build_characteristics), so a
-      ! mismatch's build_transform failure is now REQ-GEO-007a's
-      ! three-way classification rather than one flat message.
+      ! The single-overlap vertical case is reported as unsupported (status
+      ! stays 0, nothing raised).
       ! mapl_BasicVerticalGrid%get_supported_physical_dimensions()
       ! (BasicVerticalGrid.F90) always reports exactly one dimension,
       ! the literal "<unknown>" - both sides here report that same
       ! single dimension, so this is the "exactly one overlap" case.
-      @assertExceptionRaised('VerticalCoordinateCharacteristic: single overlapping physical ' // &
-           'dimension "<unknown>" identified as the adaptation candidate, but no real ' // &
-           'vertical-regrid Transform is implemented yet')
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
@@ -2074,9 +2055,6 @@ contains
 
       call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
            unsupported_characteristics=unsupported, rc=status)
-      @assertExceptionRaised('VerticalCoordinateCharacteristic: single overlapping physical ' // &
-           'dimension "pressure" identified as the adaptation candidate, but no real ' // &
-           'vertical-regrid Transform is implemented yet')
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
@@ -3409,5 +3387,193 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_wildcard_import_resolution_is_idempotent
+
+   ! A pair with a DEFERRED side is neither wired nor reported; it is
+   ! retried on the next pass, once the component has filled the value.
+   @test(npes=[0])
+   subroutine test_deferred_geometry_connection_waits_then_wires(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpec) :: deferred_import
+      type(SimpleConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(NodeId), pointer :: t_export, t_import
+      class(GraphNode), pointer :: import_node
+      type(StateItemDescriptor), pointer :: descriptor
+      type(DependencyNetwork), pointer :: net
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_deferred_wait', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+      deferred_import%state_intent = ESMF_STATEINTENT_IMPORT
+      deferred_import%short_name = 'T'
+      call comp_spec%add_var_spec(deferred_import)
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      conn = SimpleConnection( &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='export', short_name='T')), &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='import', short_name='T')))
+      call comp_spec%add_connection(conn)
+
+      call gb%resolve_connections(outer_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unsupported%size())
+
+      graph => outer_meta%get_component_graph()
+      t_export => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      net => graph%get_network(graph%get_default_network_id())
+      @assert_that(net%contains_dependency(t_export, t_import), is(false()))
+      @assert_that(outer_meta%connections_already_resolved(), is(false()))
+      @assert_that(outer_meta%has_waiting_connections(), is(true()))
+
+      ! The component supplies the geometry in its own phase.
+      import_node => graph%get_node(t_import)
+      select type (import_node)
+      class is (StateItemNode)
+         descriptor => import_node%get_descriptor()
+         call descriptor%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_id='1'))
+      end select
+
+      call gb%resolve_connections(outer_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unsupported%size())
+      @assert_that(net%contains_dependency(t_export, t_import), is(true()))
+      @assert_that(outer_meta%connections_already_resolved(), is(true()))
+      @assert_that(outer_meta%has_waiting_connections(), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_deferred_geometry_connection_waits_then_wires
+
+   ! An import that mirrors geometry adopts the export's, so the pair wires
+   ! with no transform and nothing waits.
+   @test(npes=[0])
+   subroutine test_mirrored_geometry_import_wires(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpec) :: mirror_import
+      type(SimpleConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(NodeId), pointer :: t_export, t_import
+      type(DependencyNetwork), pointer :: net
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_mirror_geom', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+      mirror_import%state_intent = ESMF_STATEINTENT_IMPORT
+      mirror_import%short_name = 'T'
+      mirror_import%mirror_geom = .true.
+      call comp_spec%add_var_spec(mirror_import)
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      conn = SimpleConnection( &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='export', short_name='T')), &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='import', short_name='T')))
+      call comp_spec%add_connection(conn)
+
+      call gb%resolve_connections(outer_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unsupported%size())
+
+      graph => outer_meta%get_component_graph()
+      t_export => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      net => graph%get_network(graph%get_default_network_id())
+      @assert_that(net%contains_dependency(t_export, t_import), is(true()))
+      @assert_that(outer_meta%has_waiting_connections(), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_mirrored_geometry_import_wires
+
+   ! Two connections name one import. One waits on a DEFERRED export; the
+   ! other settles the import in the same pass. The waiting connection must
+   ! still be retried and wired once its export is filled.
+   @test(npes=[0])
+   subroutine test_waiting_connection_survives_sibling_settling_import(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpec) :: deferred_export
+      type(SimpleConnection) :: conn_a, conn_b
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(NodeId), pointer :: ta_export, tb_export, t_import
+      class(GraphNode), pointer :: export_node
+      type(StateItemDescriptor), pointer :: descriptor
+      type(DependencyNetwork), pointer :: net
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_two_conn_wait', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+      deferred_export%state_intent = ESMF_STATEINTENT_EXPORT
+      deferred_export%short_name = 'TA'
+      call comp_spec%add_var_spec(deferred_export)
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'TB'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      conn_a = SimpleConnection( &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='export', short_name='TA')), &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='import', short_name='T')))
+      conn_b = SimpleConnection( &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='export', short_name='TB')), &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='import', short_name='T')))
+      call comp_spec%add_connection(conn_a)
+      call comp_spec%add_connection(conn_b)
+
+      call gb%resolve_connections(outer_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      ta_export => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'TA'))
+      tb_export => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'TB'))
+      t_import => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      net => graph%get_network(graph%get_default_network_id())
+      @assert_that(net%contains_dependency(ta_export, t_import), is(false()))
+      @assert_that(outer_meta%has_waiting_connections(), is(true()))
+
+      export_node => graph%get_node(ta_export)
+      select type (export_node)
+      class is (StateItemNode)
+         descriptor => export_node%get_descriptor()
+         call descriptor%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_id='1'))
+      end select
+
+      call gb%resolve_connections(outer_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unsupported%size())
+      @assert_that(net%contains_dependency(ta_export, t_import), is(true()))
+      @assert_that(net%contains_dependency(tb_export, t_import), is(true()))
+      @assert_that(outer_meta%has_waiting_connections(), is(false()))
+      @assert_that(outer_meta%connections_already_resolved(), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_waiting_connection_survives_sibling_settling_import
 
 end module Test_GraphBuilder_ConnectionResolution

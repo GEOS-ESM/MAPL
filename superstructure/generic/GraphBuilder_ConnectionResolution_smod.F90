@@ -209,8 +209,32 @@ contains
       _RETURN(_SUCCESS)
    contains
 
+      ! An import is settled once its pair has a final outcome; one whose pair
+      ! still has a DEFERRED side is tried again on the next connect pass.
       subroutine resolve_one(dst_node, rc)
          class(StateItemNode), target, intent(in) :: dst_node
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         logical :: waiting
+
+         _RETURN_IF(this%is_import_settled(dst_node%get_node_id()))
+
+         waiting = .false.
+         call resolve_one_pair(dst_node, waiting, rc=status)
+         _VERIFY(status)
+         if (waiting) then
+            call this%note_connection_waiting(dst_node%get_node_id())
+         else
+            call this%note_import_settled(dst_node%get_node_id())
+         end if
+
+         _RETURN(_SUCCESS)
+      end subroutine resolve_one
+
+      subroutine resolve_one_pair(dst_node, waiting, rc)
+         class(StateItemNode), target, intent(in) :: dst_node
+         logical, intent(inout) :: waiting
          integer, optional, intent(out) :: rc
 
          integer :: status
@@ -296,7 +320,9 @@ contains
 
          export_item => export_node%get_descriptor()
          import_item => mutable_descriptor(dst_graph, import_node_id, _RC)
-         call resolve_descriptors(export_item, import_item, mismatched, status_conflict, _RC)
+         call resolve_descriptors(export_item, import_item, mismatched, status_conflict, rc=status, waiting=waiting)
+         _VERIFY(status)
+         _RETURN_IF(waiting)
          if (status_conflict /= '') then
             call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
                  status_conflict))
@@ -392,7 +418,7 @@ contains
          call this_graph%add_dependency(net_id, final_node_id, import_node_id, _RC)
 
          _RETURN(_SUCCESS)
-      end subroutine resolve_one
+      end subroutine resolve_one_pair
 
    end subroutine resolve_match_connection
 
@@ -910,6 +936,7 @@ contains
 
       comp_spec => this%get_component_spec()
 
+      call this%begin_connection_pass()
       associate (e => comp_spec%connections%ftn_end())
          iter = comp_spec%connections%ftn_begin()
          do while (iter /= e)
@@ -928,7 +955,7 @@ contains
          end do
       end associate
 
-      call this%mark_connections_resolved()
+      call this%end_connection_pass()
 
       if (present(unresolved_imports)) unresolved_imports = unresolved
       if (present(unsupported_characteristics)) unsupported_characteristics = unsupported

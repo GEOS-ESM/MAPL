@@ -25,6 +25,7 @@ module GraphBuilderTestSupport_mod
    use mapl_OuterMetaComponent_mod, only: OuterMetaComponent, attach_outer_meta, get_outer_meta
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_geom_api, only: mapl_new_GeomId
    use mapl_ErrorHandling_mod
    use esmf
    implicit none
@@ -77,6 +78,11 @@ contains
 
       var_spec%state_intent = state_intent
       var_spec%short_name = short_name
+      ! An item with no geometry is DEFERRED and its connection waits for a
+      ! value, so these fixtures share one identity to wire. Tests of the
+      ! wait itself (test_deferred_geometry_connection_waits_then_wires and
+      ! similar) build their own DEFERRED VariableSpec instead.
+      var_spec%geom_id = mapl_new_GeomId(1)
       if (present(units)) var_spec%units = units
    end function make_var
 

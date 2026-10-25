@@ -197,12 +197,12 @@ contains
          call descriptor%set_vertical_stagger(var_spec%vertical_stagger)
       end if
 
-      ! Capture the var_spec's explicit geom/vertical_grid overrides and
-      ! item type so extension materialization and resolve_export_geom/
-      ! vgrid need no VariableSpec. The component-wide geom/vgrid defaults
-      ! are NOT captured: GEOM_B runs after ADVERTISE, so they are read
-      ! live in GraphBuilder_PortsAndProxies_smod.F90.
-      if (allocated(var_spec%geom)) call descriptor%set_declared_geom(var_spec%geom)
+      ! Capture the var_spec's explicit vertical_grid override and item type
+      ! so extension materialization and resolve_export_vgrid need no
+      ! VariableSpec. The component-wide geom/vgrid defaults are NOT
+      ! captured: GEOM_B runs after ADVERTISE, so they are read live in
+      ! GraphBuilder_PortsAndProxies_smod.F90 (the geom through DEFERRED
+      ! resolution).
       if (allocated(var_spec%vertical_grid)) call descriptor%set_declared_vertical_grid(var_spec%vertical_grid)
       call descriptor%set_declared_item_type(var_spec%itemType)
       ! ItemShapeCharacteristic deliberately duplicates the item type just

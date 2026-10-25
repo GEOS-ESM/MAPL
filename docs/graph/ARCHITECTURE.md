@@ -78,10 +78,20 @@ are `SPECIFIED`. A `MIRRORED` import adopts the export's value
 path); a `MIRRORED` export matches only via the (item type, kind)
 allowlist (`is_mirrored_export_allowed`: EXPRESSION x GEOMETRY /
 VERTICAL_COORDINATE / TYPE_KIND). Status conflicts are reported as
-unsupported connections; `INVALID` is a `_FAIL`. A kind on only one side
+unsupported connections; `INVALID` is a `_FAIL`. A pair with a `DEFERRED`
+side (`PAIR_WAIT`) is neither wired nor reported: its import is left
+unsettled and `resolve_connections` retries it on a later ACCEPT_TRANSFER
+pass (`OuterMetaComponent` `begin/end_connection_pass`,
+`note_import_settled`; the once-only gate closes only when nothing waits). A kind on only one side
 is not compared. At freeze, `run_graph_freeze_hook` calls
 `StateItemDescriptor%check_resolved` on every owned `StateItemNode` and
 reports any `DEFERRED`/`INVALID` entry through `report_if_failed`.
+A `DEFERRED` value is filled in two ways: `resolve_deferred` offers the
+component's default geom (`CharacteristicDefaults`) at GEOM_B, and
+`graphbuilder_harvest_deferred` (at the start of the connect hook) reads
+the geom the component's own phase set on the item's exported or internal
+field/bundle, read-only (the item's handle is not bound); imports are skipped. An item with neither stays `DEFERRED`
+and freeze reports it.
 `MAPL_TYPEKIND_MIRROR` advertises a valueless `MIRRORED` TYPE_KIND entry
 (set by the `VariableSpec` factory, not by the characteristic constructor).
 
@@ -89,27 +99,31 @@ Info writes: `StateItemDescriptor%sync_to_info(handle, phase)` calls
 each SPECIFIED/UNCHECKED characteristic's `write_info` (phases
 `SYNC_PHASE_STRUCTURAL`/`SYNC_PHASE_DESCRIPTIVE`; `is_structural()`
 kinds are skipped in DESCRIPTIVE). The base `write_info` fails; only
-`PhysicalUnits`, `TypeKind` and `UngriddedDims` override it so far, and no production path calls
+`PhysicalUnits`, `TypeKind`, `UngriddedDims` and `Geometry` override it so far, and no production path calls
 `sync_to_info` yet (materialization adopts it in B4). Factories live in
 `specs/VariableSpec/make_characteristics.F90`: the type-bound
 `VariableSpec%make_characteristics` loops over a registry of per-kind
-factories (so far units, typekind and ungridded dims). Procedure: `docs/graph/adding-a-characteristic.md`.
+factories (so far units, typekind, ungridded dims and geometry). Procedure: `docs/graph/adding-a-characteristic.md`.
 
 | Characteristic | Kind constant | `build_transform` today |
 |---|---|---|
 | `PhysicalUnits` | `PHYSICAL_UNITS_CHARACTERISTIC_KIND` | Real: `UnitsConverterTransform` |
 | `TypeKind` | `TYPE_KIND_…` | Real: `TypeKindConverterTransform` |
-| `ItemShape` | `ITEM_SHAPE_…` | Real for `BRACKET`→`FIELD` only (`BracketTimeInterpolationTransform`); other pairings `_FAIL` naming both classes |
-| `Geometry` | `GEOMETRY_…` | `_FAIL` — no horizontal-regrid `Transform` exists yet |
-| `VerticalCoordinate` | `VERTICAL_COORDINATE_…` | `_FAIL` with three distinguishable messages (dimension-overlap outcomes); no vertical-regrid `Transform` yet |
-| `Attributes`, `UngriddedDims`, `StandardName`, `QuantityType`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | `_FAIL` `'<Name>Characteristic: build_transform - no real provider exists for this axis'` — mismatch is detected, repair is a stub |
+| `ItemShape` | `ITEM_SHAPE_…` | Real for `BRACKET`→`FIELD` only (`BracketTimeInterpolationTransform`); other pairings unsupported |
+| `Geometry` | `GEOMETRY_…` | Unsupported — no horizontal-regrid `Transform` exists yet |
+| `VerticalCoordinate` | `VERTICAL_COORDINATE_…` | Single overlap: unsupported (no vertical-regrid `Transform` yet); incompatible and ambiguous overlaps `_FAIL` with distinct messages |
+| `Attributes`, `UngriddedDims`, `StandardName`, `QuantityType`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | Unsupported — mismatch is detected, repair is a stub |
 
 Other files: `CharacteristicStatus.F90`, `StateItemCharacteristicKind.F90`
 (also `MOCK_CHARACTERISTIC_KIND`), `SetSharedCharacteristic.F90`.
 
-A test that deliberately provokes a mismatch on a stub axis must consume
-the exception first, e.g.
-`@assertExceptionRaised('StandardNameCharacteristic: build_transform - no real provider exists for this axis')`.
+"Unsupported" means `build_transform` calls
+`report_build_transform_unsupported(rc)` (`StateItemCharacteristic.F90`),
+which sets `rc = BUILD_TRANSFORM_UNSUPPORTED` and raises nothing;
+`ExtensionResolution` then reports the kind through
+`unsupported_characteristics`. A test of a stub-axis mismatch asserts that
+status or entry and needs no `@assertExceptionRaised`. Any other nonzero
+rc is a genuine error.
 
 #### Transforms (`graph/transforms/`)
 

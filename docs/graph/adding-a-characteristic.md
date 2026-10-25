@@ -18,7 +18,10 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
    - Extends `ValueCharacteristic` (value held inline) or
      `ReferenceCharacteristic` (holds a `NodeId`).
    - Implements the deferred `get_kind`, `needs_extension_for`,
-     `build_transform`, `get_signature`.
+     `build_transform`, `get_signature`. A `build_transform` with no
+     Transform for a pair calls `report_build_transform_unsupported(rc)`
+     (raises nothing; `transformer` stays unallocated); use `_FAIL` only
+     for genuine errors.
    - **No status logic in the subclass.** `needs_extension_for` compares
      values only; `StateItemDescriptor%resolve_pair` decides from the
      two statuses and calls it only when both sides are SPECIFIED.
@@ -158,3 +161,50 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
 - `StateItemDescriptor` no longer has an `ungridded_dims` component or
   `get/set_ungridded_dims`. Materialization reads the value through
   `get_item_ungridded_dims` (a B4 removal, like `get_item_units`).
+
+## Geometry as implemented
+
+First kind with a DEFERRED value (a value the component supplies later).
+
+| Input | Shape | Entry |
+|---|---|---|
+| `VariableSpec%geom` (with or without `geom_id`) or `geom_id` alone | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE, EXPRESSION, SERVICE | SPECIFIED |
+| `VariableSpec%mirror_geom` and no geom | same | MIRRORED |
+| nothing declared | same, except EXPRESSION | DEFERRED |
+| nothing declared | EXPRESSION | MIRRORED (the §2.4 allowlist case) |
+| any | STATE, WILDCARD, other flags | none |
+
+- A DEFERRED entry is filled by `StateItemDescriptor%resolve_deferred`,
+  which offers a `CharacteristicDefaults` (the component's geom and
+  geom id) to every DEFERRED characteristic. `StateItemCharacteristic`'s
+  default `resolve_deferred` does nothing; a new kind with a
+  component-supplied value overrides it and adds its field to
+  `CharacteristicDefaults`. GEOM_B (`graphbuilder_resolve_deferred`) is the
+  first caller.
+- An item with no declared geom and a component with no default geom stays
+  DEFERRED. It is not papered over with UNCHECKED or MIRRORED. The
+  component fills it in its own init phase by setting the geom on the
+  item's field or bundle (`MAPL_FieldSet(geom=)`); `graphbuilder_harvest_deferred`
+  reads that back at the start of connection resolution (exports and
+  internals only; imports get geometry from the connected export). Statistics
+  does this in `INIT_REALIZE_PROVIDED`.
+- A connection with a DEFERRED side waits (`PAIR_WAIT`) and is retried on
+  a later pass. A characteristic still DEFERRED at freeze is reported.
+- No import is turned MIRRORED implicitly: absent geom is DEFERRED and
+  waits like any other DEFERRED item. This differs from the legacy aspect,
+  where an absent geom meant MIRRORED. A component whose imports should
+  adopt the connected export's geometry says so: `mirror_geom=.true.` on
+  `MAPL_GridCompAddSpec`, or `geometry_mirror: true` on a YAML variable.
+  Statistics imports and History collection imports (when the collection
+  declares no `geom:`) do this.
+- Only the geometry identity and `horizontal_dims_spec` are compared; the
+  `ESMF_Geom` and regridder param are carried for `write_info`.
+- `is_structural()` is `.true.`; `write_info` writes `geom=`,
+  `horizontal_dims_spec=` and `regridder_param_info=` through
+  `MAPL_FieldSet` / `MAPL_FieldBundleSet`. DEFERRED and MIRRORED never
+  reach it.
+- `StateItemDescriptor` no longer has `declared_geom` or
+  `get/set_declared_geom`; `resolve_export_geom` reads the item's own
+  GEOMETRY characteristic and falls back to the owner's default geom.
+- `build_transform` calls `report_build_transform_unsupported`, so a geometry
+  mismatch is reported as unsupported rather than as an error.

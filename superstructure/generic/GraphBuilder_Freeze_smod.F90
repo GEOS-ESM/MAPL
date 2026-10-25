@@ -158,8 +158,16 @@ contains
       type(StateItemDescriptor), pointer :: descriptor
       character(:), allocatable :: child_name, comp_name, item_name
       type(OuterMetaComponent), pointer :: child_meta
+      class(Logger), pointer :: lgr
 
       comp_name = this%get_name()
+      if (this%has_waiting_connections()) then
+         lgr => this%get_logger()
+         call lgr%error('GraphBuilder: ' // comp_name // &
+              ' has a connection still waiting on a DEFERRED characteristic at freeze')
+         failed = .true.
+      end if
+
       graph => this%get_component_graph()
       node_ids = graph%get_node_ids()
       associate (e => node_ids%ftn_end())

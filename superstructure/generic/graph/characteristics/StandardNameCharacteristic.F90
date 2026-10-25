@@ -17,13 +17,14 @@
 ! exactly matching UNCHECKED's own documented meaning. Otherwise, plain
 ! string equality - no warning, no ValidationMode, no logging.
 !
-! A `build_transform` is required by the common interface but fails
-! explicitly here - no real provider exists for this axis. Legacy
+! A `build_transform` is required by the common interface but reports
+! unsupported here - no real provider exists for this axis. Legacy
 ! StandardNameAspect%make_transform always returns NullTransform.
 ! `get_signature` derives a stable string from `standard_name`.
 !------------------------------------------------------------------------------
 module mapl_StandardNameCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
+   use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, STANDARD_NAME_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_SPECIFIED, operator(==)
    use mapl_TransformBase_mod, only: TransformBase
@@ -93,9 +94,8 @@ contains
       standard_name = this%standard_name
    end function get_standard_name
 
-   ! merge-characteristic-families task 3.5: no real adaptation exists
-   ! for this axis, graph-native or legacy (module header) - fails
-   ! explicitly.
+   ! No real adaptation exists for this axis (module header): reports
+   ! unsupported.
    subroutine standard_name_build_transform(this, goal, transformer, rc)
       class(StandardNameCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -105,7 +105,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal)
 
-      _FAIL('StandardNameCharacteristic: build_transform - no real provider exists for this axis')
+      call report_build_transform_unsupported(rc)
    end subroutine standard_name_build_transform
 
    ! merge-characteristic-families task 3.5: a stable, value-

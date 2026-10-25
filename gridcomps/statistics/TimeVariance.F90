@@ -519,11 +519,13 @@ contains
       alarm = this%alarm
    end function get_alarm
 
-   ! Advertise union of all internal fields for both algorithms (Option B).
-   subroutine advertise_time_variance_internal_fields(gridcomp, name, item_type, rc)
+   ! Advertises the internal fields of the chosen algorithm only: the other
+   ! kernel's fields are never given a geometry, so they would stay DEFERRED.
+   subroutine advertise_time_variance_internal_fields(gridcomp, name, item_type, algorithm, rc)
       type(esmf_GridComp), intent(inout) :: gridcomp
       character(*), intent(in) :: name
       type(ESMF_StateItem_Flag), intent(in) :: item_type
+      integer(kind=kind(DEFAULT_ALGORITHM)), intent(in) :: algorithm
       integer, optional, intent(out) :: rc
 
       integer :: status, slash_pos
@@ -538,11 +540,14 @@ contains
       ! counts_ owned by Variance, common to both kernels
       call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_INTERNAL, 'counts_'//just_name, fill_value=0.0, itemtype=item_type, _RC)
 
-      ! Welford fields: mux_, muy_, c_
-      call wk%advertise(gridcomp, just_name, item_type, _RC)
-
-      ! Shifted fields: kx_, ky_, ex_, ey_, exy_
-      call sk%advertise(gridcomp, just_name, item_type, _RC)
+      select case (algorithm)
+      case (WELFORD)
+         call wk%advertise(gridcomp, just_name, item_type, _RC)
+      case (SHIFTED)
+         call sk%advertise(gridcomp, just_name, item_type, _RC)
+      case default
+         _FAIL("Unrecognized Variance algorithm")
+      end select
 
       _RETURN(_SUCCESS)
    end subroutine advertise_time_variance_internal_fields

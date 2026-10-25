@@ -73,7 +73,7 @@ module mapl_GraphBuilder_mod
         ATTRIBUTES_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
         STANDARD_NAME_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND, &
         CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND, &
-        ITEM_SHAPE_CHARACTERISTIC_KIND
+        ITEM_SHAPE_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_ComponentSpec_mod, only: ComponentSpec
    use mapl_Connection_mod, only: Connection
@@ -188,6 +188,11 @@ module mapl_GraphBuilder_mod
       procedure, nopass :: run_graph_freeze_hook => graphbuilder_run_graph_freeze_hook
       ! No-op when graph_mode() is GRAPH_MODE_REGISTRY.
       procedure, nopass :: run_geometry_hook => graphbuilder_run_geometry_hook
+      ! Fills DEFERRED item characteristics from the component's default
+      ! geom (GEOM_B) or from the geom the component put on the item
+      ! (harvest, called at connect time).
+      procedure, nopass :: resolve_deferred => graphbuilder_resolve_deferred
+      procedure, nopass :: harvest_deferred => graphbuilder_harvest_deferred
       ! Graph-native equivalent of StateRegistry%add_to_states: inserts
       ! each resolved Field item into a real ESMF_State under its short
       ! name. A real producer only in GRAPH_MODE_GRAPH. rc-returning for
@@ -435,6 +440,16 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine graphbuilder_run_expression_hook
+   module subroutine graphbuilder_resolve_deferred(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+   end subroutine graphbuilder_resolve_deferred
+   module recursive subroutine graphbuilder_harvest_deferred(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+   end subroutine graphbuilder_harvest_deferred
    module subroutine graphbuilder_advertise_geometry(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc

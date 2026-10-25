@@ -50,6 +50,8 @@ module Test_GraphGeometryHook
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_GEOM, MAPL_STATEITEM_VERTICALGRID, operator(==)
    ! -- openspec/changes/vertical-grid-graph-state-item (Phase 4f) -------
    use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
+   use mapl_MultiState_mod, only: MultiState
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_StateItem_mod, only: MAPL_STATEITEM_STATE
    ! ----------------------------------------------------------------------
@@ -331,7 +333,6 @@ contains
       ! _ASSERT/_VERIFY chain still throws pFUnit-visible exceptions
       ! that must be explicitly consumed here, matching this test
       ! target's own established idiom (e.g. Test_MemoryCheckpoint.pf).
-      @assertExceptionRaised('GeometryCharacteristic: no horizontal-regrid Transform is implemented yet')
       @assertExceptionRaised('GraphBuilder: geometry from child geom_provider2 does not match the receiving component' // &
            ' own resolved geometry (unsupported: GEOMETRY) - should be unreachable given GeometrySpec own exclusive resolution')
       
@@ -470,5 +471,197 @@ contains
       call set_graph_mode(GRAPH_MODE_REGISTRY)
       _UNUSED_DUMMY(this)
    end subroutine test_vertical_grid_member_shares_graph_with_geometry
+
+   ! A component with no default geom puts the geom on the item it
+   ! realizes; harvest reads it back from the state and fills the DEFERRED
+   ! characteristic without binding the node's handle. Before the item
+   ! exists, nothing changes.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_harvest_fills_deferred_from_realized_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: t_id
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: descriptor
+      type(GraphStateItem), pointer :: handle
+      type(GriddedComponentDriver), pointer :: driver
+      type(MultiState) :: states
+      type(ESMF_State) :: export_state
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: field
+      type(VariableSpec) :: var_spec
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+
+      call make_outer_meta('harvest_comp', gc, meta, _RC)
+      var_spec%state_intent = ESMF_STATEINTENT_EXPORT
+      var_spec%short_name = 'T'
+      comp_spec => meta%get_component_spec()
+      call comp_spec%add_var_spec(var_spec)
+      call gb%advertise(meta, status)
+      @assert_that(status, is(0))
+
+      graph => meta%get_component_graph()
+      t_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      @assert_that(associated(t_id), is(true()))
+      node => graph%get_node(t_id)
+      select type (node)
+      class is (StateItemNode)
+         descriptor => node%get_descriptor()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assertEqual(1, size(descriptor%get_unresolved_kinds()))
+
+      call gb%harvest_deferred(meta, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(1, size(descriptor%get_unresolved_kinds()))
+
+      geom = make_test_geom(_RC)
+      field = ESMF_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, name='T', _RC)
+      driver => meta%get_user_gc_driver()
+      states = driver%get_states()
+      export_state = states%exportState
+      call ESMF_StateAdd(export_state, [field], _RC)
+
+      call gb%harvest_deferred(meta, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, size(descriptor%get_unresolved_kinds()))
+
+      select type (node)
+      class is (StateItemNode)
+         handle => node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assertTrue(handle%itemType() == ESMF_STATEITEM_NOTFOUND)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+   end subroutine test_harvest_fills_deferred_from_realized_field
+
+   ! An import is never harvested: its geometry comes from the connected
+   ! export, even when the import state holds a field of that name.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_harvest_skips_imports(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: t_id
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: descriptor
+      type(GriddedComponentDriver), pointer :: driver
+      type(MultiState) :: states
+      type(ESMF_State) :: import_state
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: field
+      type(VariableSpec) :: var_spec
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+
+      call make_outer_meta('harvest_import_comp', gc, meta, _RC)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%short_name = 'T'
+      comp_spec => meta%get_component_spec()
+      call comp_spec%add_var_spec(var_spec)
+      call gb%advertise(meta, status)
+      @assert_that(status, is(0))
+
+      geom = make_test_geom(_RC)
+      field = ESMF_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, name='T', _RC)
+      driver => meta%get_user_gc_driver()
+      states = driver%get_states()
+      import_state = states%importState
+      call ESMF_StateAdd(import_state, [field], _RC)
+
+      call gb%harvest_deferred(meta, rc=status)
+      @assert_that(status, is(0))
+
+      graph => meta%get_component_graph()
+      t_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      node => graph%get_node(t_id)
+      select type (node)
+      class is (StateItemNode)
+         descriptor => node%get_descriptor()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assertEqual(1, size(descriptor%get_unresolved_kinds()))
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+   end subroutine test_harvest_skips_imports
+
+   ! A component that has its own geom (a History collection declaring
+   ! `geom:`) gives it to every item with no geometry of its own when the
+   ! geometry hook runs at GEOM_B; an item that mirrors stays MIRRORED.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_geometry_hook_resolves_deferred_imports_from_own_geom(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: plain_id, mirror_id
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: plain, mirror
+      type(ESMF_Geom) :: geom
+      type(VariableSpec) :: plain_spec, mirror_spec
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('geom_comp', gc, meta, _RC)
+      geom = make_test_geom(_RC)
+      call meta%set_geom(geom)
+
+      plain_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      plain_spec%short_name = 'P'
+      mirror_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      mirror_spec%short_name = 'M'
+      mirror_spec%mirror_geom = .true.
+      comp_spec => meta%get_component_spec()
+      call comp_spec%add_var_spec(plain_spec)
+      call comp_spec%add_var_spec(mirror_spec)
+      call gb%advertise(meta, status)
+      @assert_that(status, is(0))
+
+      graph => meta%get_component_graph()
+      plain_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'P'))
+      mirror_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'M'))
+      node => graph%get_node(plain_id)
+      select type (node)
+      class is (StateItemNode)
+         plain => node%get_descriptor()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      node => graph%get_node(mirror_id)
+      select type (node)
+      class is (StateItemNode)
+         mirror => node%get_descriptor()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      @assertEqual(1, size(plain%get_unresolved_kinds()))
+
+      call gb%run_geometry_hook(meta)
+
+      @assertEqual(0, size(plain%get_unresolved_kinds()))
+      @assertEqual(0, size(mirror%get_unresolved_kinds()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_geometry_hook_resolves_deferred_imports_from_own_geom
 
 end module Test_GraphGeometryHook

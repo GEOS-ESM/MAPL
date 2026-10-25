@@ -23,8 +23,10 @@
 !
 ! build_transform / get_signature here absorb an independent role from
 ! graph/extension-reuse. A concrete subclass with no real provider
-! implemented yet (e.g. AttributesCharacteristic) fails build_transform
-! explicitly rather than returning a stub.
+! implemented yet (e.g. AttributesCharacteristic) reports
+! BUILD_TRANSFORM_UNSUPPORTED from build_transform rather than returning a
+! stub Transform. That is an expected outcome, not an error: it raises
+! nothing, and the caller reports the pair as unsupported.
 !
 ! status (CharacteristicStatus, CharacteristicStatus.F90) and, for
 ! ReferenceCharacteristic, the referenced NodeId are exposed only through
@@ -51,6 +53,7 @@ module mapl_StateItemCharacteristic_mod
    use mapl_NodeId_mod, only: NodeId
    use mapl_TransformBase_mod, only: TransformBase
    use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
    use mapl_ErrorHandling_mod
    ! No explicit `implicit none` here - map/header.inc (below) already
    ! supplies one; mapl_Characteristic_mod/mapl_StateItemAspect_mod (the
@@ -73,12 +76,18 @@ module mapl_StateItemCharacteristic_mod
    public :: ReferenceCharacteristic
    public :: SYNC_PHASE_STRUCTURAL
    public :: SYNC_PHASE_DESCRIPTIVE
+   public :: BUILD_TRANSFORM_UNSUPPORTED
+   public :: report_build_transform_unsupported
 
    ! Phases of StateItemDescriptor%sync_to_info. STRUCTURAL: before the field
    ! is completed, every keyword may be written. DESCRIPTIVE: any time, so
    ! structural keywords (and units, a FieldDelta trigger) are skipped.
    integer, parameter :: SYNC_PHASE_STRUCTURAL = 1
    integer, parameter :: SYNC_PHASE_DESCRIPTIVE = 2
+
+   ! rc value of a build_transform that has no Transform for this pair yet.
+   ! Distinct from a failure: nothing is raised.
+   integer, parameter :: BUILD_TRANSFORM_UNSUPPORTED = 1
 
    type, abstract :: StateItemCharacteristic
       private
@@ -92,6 +101,7 @@ module mapl_StateItemCharacteristic_mod
       procedure :: set_status => char_set_status
       procedure :: write_info => char_write_info
       procedure :: is_structural => char_is_structural
+      procedure :: resolve_deferred => char_resolve_deferred
    end type StateItemCharacteristic
 
    ! REQ-CHAR-002a: a pure subtype-shape split - no additional deferred
@@ -162,8 +172,11 @@ module mapl_StateItemCharacteristic_mod
       ! resolving `this` (the established value) into `goal` (the goal
       ! value) - a pure value-to-strategy constructor, with no graph/
       ! NodeId concept involved (post-decouple-transform-from-graph). A
-      ! subclass with no real conversion implemented yet MUST fail
-      ! explicitly (rc /= 0) rather than allocate a no-op/stub Transform.
+      ! subclass with no real conversion implemented yet MUST report
+      ! BUILD_TRANSFORM_UNSUPPORTED (through
+      ! report_build_transform_unsupported, raising nothing) and leave
+      ! `transformer` unallocated, rather than allocate a no-op/stub
+      ! Transform. Any other nonzero rc is a genuine error.
       ! `goal` is guaranteed the same dynamic type as `this` for the real
       ! call chain this method is used in (same guarantee documented on
       ! needs_extension_for above). Every concrete override still
@@ -202,6 +215,15 @@ contains
 
       status = this%status
    end function char_get_status
+
+   ! The one way a build_transform reports "no Transform for this pair yet".
+   ! rc must be present: an absent rc would swallow the outcome.
+   subroutine report_build_transform_unsupported(rc)
+      integer, optional, intent(out) :: rc
+
+      _ASSERT(present(rc), 'build_transform reported unsupported but the caller passed no rc')
+      rc = BUILD_TRANSFORM_UNSUPPORTED
+   end subroutine report_build_transform_unsupported
 
    subroutine char_set_status(this, status)
       class(StateItemCharacteristic), intent(inout) :: this
@@ -243,6 +265,19 @@ contains
       structural = .false.
       _UNUSED_DUMMY(this)
    end function char_is_structural
+
+   ! Takes the component-supplied value for a DEFERRED characteristic.
+   ! Kinds with no component-supplied value are never DEFERRED, so the
+   ! default does nothing.
+   subroutine char_resolve_deferred(this, defaults, rc)
+      class(StateItemCharacteristic), intent(inout) :: this
+      type(CharacteristicDefaults), intent(in) :: defaults
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(defaults)
+      _RETURN(_SUCCESS)
+   end subroutine char_resolve_deferred
 
    subroutine refchar_set_referenced_node_id(this, node_id)
       class(ReferenceCharacteristic), intent(inout) :: this

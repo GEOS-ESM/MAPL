@@ -69,8 +69,24 @@ if materialization needs the value before B4; add it to 4.2's list.
 - [ ] 3.5 B3-VerticalStagger (new kind; also add the
       (EXPRESSION, VERTICAL_STAGGER) entry to the §2.4 allowlist, which
       B2 left out because the kind did not exist)
-- [ ] 3.6 B3-Geometry (M1: item-level entry; DEFERRED; moves
-      `_Geometry_smod` inserts behind a helper)
+- [x] 3.6 B3-Geometry (M1: item-level entry; DEFERRED; moves
+      `_Geometry_smod` inserts behind a helper). Deviations from design
+      §2.2/§2.3, owner-approved: a DEFERRED side at connect time waits
+      (`PAIR_WAIT`, retried on a later pass) instead of being a conflict,
+      and a DEFERRED value may outlive GEOM_B until the component fills it
+      in its own init phase (harvested read-only from the
+      component's field or bundle in the state; imports skipped). A component still
+      waiting at freeze fails freeze. A new
+      `CharacteristicDefaults` type carries the component default geom to
+      `resolve_deferred`. An EXPRESSION with no declared geom is MIRRORED
+      (§2.4 allowlist). Legacy absent-means-mirror is not reproduced: a
+      component says so explicitly with `mirror_geom` (`AddSpec`,
+      `VariableSpec`) or `geometry_mirror: true` (YAML); Statistics and
+      History collection imports (no `geom:`) do. `build_transform`
+      returns a quiet nonzero rc.
+      Statistics now advertises only the chosen variance algorithm's
+      internal fields, since the other kernel's fields are never given a
+      geometry.
 - [ ] 3.7 B3-ItemShape (all shapes; `get_extension_order` per §4.2;
       shape matrix per §4.3)
 - [ ] 3.8 B3-StandardName (delete the subclass status check)
@@ -100,7 +116,9 @@ if materialization needs the value before B4; add it to 4.2's list.
 - [ ] 4.2 Materialize extension fields by empty-create +
       `sync_to_info(STRUCTURAL)` + `MAPL_FieldEmptyComplete` (§3.2.1);
       delete `get_item_units` / `get_item_typekind` /
-      `get_item_ungridded_dims` (the last two name concrete
+      `get_item_ungridded_dims` / `get_item_geom`, and the
+      `insert_geom_id_characteristic` import in
+      `GraphBuilder_Geometry_smod.F90` (these name concrete
       `*Characteristic` types in `select type`, so 4.4 depends on this).
 - [ ] 4.3 Delete `GraphStateItem%ordering` and
       `characteristic_ordering_table`; replace their tests with golden

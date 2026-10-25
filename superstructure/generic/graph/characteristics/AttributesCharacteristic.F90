@@ -19,8 +19,8 @@
 ! callers must pass provides-side as `this`, requires-side as `goal`, same
 ! direction convention as legacy's own matches(src, dst).
 !
-! A `build_transform` is required by the common interface but fails
-! explicitly here - no real provider exists for this axis. Legacy
+! A `build_transform` is required by the common interface but reports
+! unsupported here - no real provider exists for this axis. Legacy
 ! AttributesAspect%make_transform always returns NullTransform (no real
 ! adaptation exists anywhere for this axis, graph-native or legacy).
 ! `get_signature` derives a stable, value-distinguishing string from
@@ -29,6 +29,7 @@
 !------------------------------------------------------------------------------
 module mapl_AttributesCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
+   use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, ATTRIBUTES_CHARACTERISTIC_KIND
    use gFTL2_StringVector, only: StringVector
@@ -115,11 +116,8 @@ contains
       attribute_names = this%attribute_names
    end function get_attribute_names
 
-   ! merge-characteristic-families task 3.1: no real adaptation exists
-   ! for this axis, graph-native or legacy (module header) - fails
-   ! explicitly, mirroring GeometryCharacteristic's/
-   ! VerticalCoordinateCharacteristic's own "no real provider yet" _FAIL
-   ! shape.
+   ! No real adaptation exists for this axis (module header): reports
+   ! unsupported.
    subroutine attributes_build_transform(this, goal, transformer, rc)
       class(AttributesCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -129,7 +127,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal)
 
-      _FAIL('AttributesCharacteristic: build_transform - no real provider exists for this axis')
+      call report_build_transform_unsupported(rc)
    end subroutine attributes_build_transform
 
    ! merge-characteristic-families task 3.1: a stable, value-

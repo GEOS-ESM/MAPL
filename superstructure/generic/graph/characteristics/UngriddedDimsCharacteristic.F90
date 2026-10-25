@@ -9,8 +9,8 @@
 ! UngriddedDimsAspect%matches() uses (plain equality). needs_extension_for
 ! is a single `/=` call - no hand-written comparison logic.
 !
-! A `build_transform` is required by the common interface but fails
-! explicitly here - no real provider exists for this axis. Legacy
+! A `build_transform` is required by the common interface but reports
+! unsupported here - no real provider exists for this axis. Legacy
 ! UngriddedDimsAspect%make_transform always returns NullTransform (no
 ! real adaptation exists anywhere for this axis, graph-native or
 ! legacy). `get_signature` derives a stable string from
@@ -22,6 +22,7 @@
 !------------------------------------------------------------------------------
 module mapl_UngriddedDimsCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
+   use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
    use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL
    use mapl_CharacteristicStatus_mod, only: operator(==), CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_GraphStateItem_mod, only: GraphStateItem
@@ -95,8 +96,8 @@ contains
       ungridded_dims = this%ungridded_dims
    end function get_ungridded_dims
 
-   ! No real adaptation exists for this axis (module header): fails
-   ! explicitly.
+   ! No real adaptation exists for this axis (module header): reports
+   ! unsupported.
    subroutine ungridded_dims_build_transform(this, goal, transformer, rc)
       class(UngriddedDimsCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -106,7 +107,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal)
 
-      _FAIL('UngriddedDimsCharacteristic: build_transform - no real provider exists for this axis')
+      call report_build_transform_unsupported(rc)
    end subroutine ungridded_dims_build_transform
 
    ! ungridded_dims= is a creation input: on a completed field the array shape

@@ -98,10 +98,12 @@ Info.
   have a compiler bug that breaks MAPL.
 - Pending or expected-fail work is gated by an explicit toggle, never by
   a red test.
-- A test that provokes a mismatch on a characteristic axis without a
-  real `build_transform` must consume the `_FAIL` exception first
-  (`@assertExceptionRaised(...)`); write that expectation first, not
-  after discovering it.
+- A `build_transform` with no Transform for a pair yet (a stub axis, or
+  an unsupported pairing) calls `report_build_transform_unsupported(rc)`
+  and leaves `transformer` unallocated. It raises nothing, so a test that
+  provokes such a mismatch asserts `BUILD_TRANSFORM_UNSUPPORTED` (or the
+  `unsupported_characteristics` entry) and needs no
+  `@assertExceptionRaised`. Reserve `_FAIL` for genuine errors.
 - Never call a failure "pre-existing" without reproducing it on a clean
   baseline: a temporary `git worktree` of `HEAD`, removed afterward.
   Reverting only your own newest file proves nothing about the rest of

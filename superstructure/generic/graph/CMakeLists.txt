@@ -75,6 +75,7 @@ target_sources(MAPL.generic PRIVATE
 
   characteristics/CharacteristicStatus.F90
   characteristics/StateItemCharacteristicKind.F90
+  characteristics/CharacteristicDefaults.F90
   characteristics/StateItemCharacteristic.F90
   characteristics/PhysicalUnitsCharacteristic.F90
   characteristics/TypeKindCharacteristic.F90

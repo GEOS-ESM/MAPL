@@ -12,9 +12,11 @@ module Test_VariableSpecCharacteristics
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, &
-        UNGRIDDED_DIMS_CHARACTERISTIC_KIND
+        UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
-        CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED
+        CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
+        CHARACTERISTIC_STATUS_DEFERRED
+   use mapl_geom_api, only: mapl_new_GeomId
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
@@ -316,5 +318,98 @@ contains
          @assertFalse(descriptor%has_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND))
       end do
    end subroutine test_shapes_without_ungridded_dims_get_no_entry
+
+   function geometry_status(var_spec, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, c, _RC)
+      char_status = c%get_status()
+      _RETURN(_SUCCESS)
+   end function geometry_status
+
+   ! A value the item does not declare comes from the component later.
+   @test
+   subroutine test_default_geometry_is_deferred()
+      integer :: status
+
+      @assertTrue(geometry_status(make_spec(MAPL_STATEITEM_FIELD), rc=status) == CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+   end subroutine test_default_geometry_is_deferred
+
+   @test
+   subroutine test_declared_geom_id_is_specified()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%geom_id = mapl_new_GeomId(7)
+      @assertTrue(geometry_status(var_spec, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_declared_geom_id_is_specified
+
+   @test
+   subroutine test_expression_geometry_is_mirrored()
+      integer :: status
+
+      @assertTrue(geometry_status(make_spec(MAPL_STATEITEM_EXPRESSION), rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+   end subroutine test_expression_geometry_is_mirrored
+
+   @test
+   subroutine test_mirror_geom_is_mirrored()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%mirror_geom = .true.
+      @assertTrue(geometry_status(var_spec, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_geom_is_mirrored
+
+   ! A declared geometry wins over the mirror request.
+   @test
+   subroutine test_declared_geom_id_overrides_mirror_geom()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%mirror_geom = .true.
+      var_spec%geom_id = mapl_new_GeomId(7)
+      @assertTrue(geometry_status(var_spec, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_declared_geom_id_overrides_mirror_geom
+
+   @test
+   subroutine test_geometry_applicability()
+      type(ESMF_StateItem_Flag) :: with_entry(6), without_entry(3)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      with_entry = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_SERVICE]
+      do i = 1, size(with_entry)
+         var_spec = make_spec(with_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(descriptor%has_characteristic(GEOMETRY_CHARACTERISTIC_KIND))
+      end do
+
+      without_entry = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN]
+      do i = 1, size(without_entry)
+         descriptor = empty_descriptor
+         var_spec = make_spec(without_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(GEOMETRY_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_geometry_applicability
 
 end module Test_VariableSpecCharacteristics

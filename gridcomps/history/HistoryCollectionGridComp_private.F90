@@ -256,7 +256,12 @@ contains
       character(len=:), allocatable :: short_name
       type(HistoryOptionsBase) :: coll_opts
       type(VarOptions)        :: var_opts
+      logical :: mirror_geom
       integer :: status
+
+      ! A collection with no geom of its own takes the geometry of what it
+      ! is connected to.
+      mirror_geom = .not. ESMF_HConfigIsDefined(hconfig, keystring='geom', _RC)
 
       ! Parse collection-level options (typekind, timeStep, accumulation_type, regrid_param).
       call parse_collection_options(hconfig, coll_opts, _RC)
@@ -299,17 +304,18 @@ contains
             _ASSERT(var_opts%typekind == coll_opts%typekind, 'Cannot override typekind for an individual variable when the collection specifies typekind')
          end if
 
-         call add_var_specs(gridcomp, short_name, alias, var_opts, _RC)
+         call add_var_specs(gridcomp, short_name, alias, var_opts, mirror_geom, _RC)
       end do
 
       _RETURN(_SUCCESS)
    end subroutine register_imports
 
-   subroutine add_var_specs(gridcomp, short_name, alias, opts, rc)
+   subroutine add_var_specs(gridcomp, short_name, alias, opts, mirror_geom, rc)
       type(ESMF_GridComp),  intent(inout) :: gridcomp
       character(len=*),     intent(in)    :: short_name
       character(len=*),     intent(in)    :: alias
       type(VarOptions),     intent(in)    :: opts
+      logical,              intent(in)    :: mirror_geom
       integer, optional, intent(out) :: rc
       integer :: status, slash_loc
       type(ESMF_StateItem_Flag) :: item_type
@@ -327,7 +333,7 @@ contains
       local_tk=MAPL_TYPEKIND_MIRROR
       if (allocated(opts%typekind)) local_tk=opts%typekind
       call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, varspec_short_name,  &
-            units=opts%units, typekind=local_tk, regrid_param=opts%regrid_param, itemtype=item_type, _RC)
+            units=opts%units, typekind=local_tk, regrid_param=opts%regrid_param, mirror_geom=mirror_geom, itemtype=item_type, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_var_specs

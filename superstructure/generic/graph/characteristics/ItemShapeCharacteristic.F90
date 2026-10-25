@@ -20,11 +20,11 @@
 ! build_transform (design.md D3) succeeds only for the BRACKET (this) ->
 ! FIELD (goal) pairing, returning a BracketTimeInterpolationTransform
 ! (Section 3) - every other pairing, including VECTORBRACKET->VECTOR,
-! fails explicitly, mirroring PhysicalUnitsCharacteristic%units_build_
-! transform's own class default -> _FAIL precedent.
+! is reported as unsupported.
 !------------------------------------------------------------------------------
 module mapl_ItemShapeCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
+   use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_TransformBase_mod, only: TransformBase
@@ -103,23 +103,20 @@ contains
 
    ! design.md D3: succeeds only for BRACKET (this) -> FIELD (goal) -
    ! every other pairing (including VECTORBRACKET->VECTOR, design.md
-   ! Non-Goals) _FAILs explicitly, naming both sides' item classes.
+   ! Non-Goals) is reported as unsupported.
    subroutine item_shape_build_transform(this, goal, transformer, rc)
       class(ItemShapeCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
       class(TransformBase), allocatable, intent(out) :: transformer
       integer, optional, intent(out) :: rc
 
-      character(:), allocatable :: message
-
       select type (goal)
       class is (ItemShapeCharacteristic)
          if (this%item_class == MAPL_STATEITEM_BRACKET .and. goal%item_class == MAPL_STATEITEM_FIELD) then
             allocate(transformer, source=BracketTimeInterpolationTransform())
          else
-            message = 'ItemShapeCharacteristic: build_transform - unsupported item-class pairing: ' // &
-                 item_class_name(this%item_class) // ' -> ' // item_class_name(goal%item_class)
-            _FAIL(message)
+            call report_build_transform_unsupported(rc)
+            return
          end if
       class default
          _FAIL('ItemShapeCharacteristic: build_transform called with a non-item-shape goal')

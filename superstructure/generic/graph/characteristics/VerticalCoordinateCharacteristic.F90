@@ -36,6 +36,7 @@
 !------------------------------------------------------------------------------
 module mapl_VerticalCoordinateCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ReferenceCharacteristic
+   use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, VERTICAL_COORDINATE_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, operator(==), operator(/=)
@@ -166,9 +167,10 @@ contains
    ! classification, computed from `dimensions` regardless of which
    ! comparison path (node-identity, identity-token, or dimension-set)
    ! detected the mismatch. No real vertical-regrid Transform is
-   ! implemented yet in any of the three cases - each _FAIL message is
-   ! distinguishable so the outcome is diagnosable rather than one
-   ! undifferentiated mismatch. needs_extension_for's own node-identity
+   ! implemented yet: the single-overlap case (the adaptation candidate) is
+   ! reported as unsupported; the incompatible and ambiguous cases are
+   ! configuration errors and _FAIL with distinguishable messages.
+   ! needs_extension_for's own node-identity
    ! comparison above is unaffected - a different operation answering a
    ! different question on the same instance.
    subroutine vcoord_build_transform(this, goal, transformer, rc)
@@ -192,14 +194,8 @@ contains
 
       select case (outcome)
       case (DIMENSION_OVERLAP_SINGLE)
-         ! Built as an ordinary local variable, not inline as the _FAIL
-         ! macro's own argument - gfortran's preprocessor does not
-         ! support Fortran's `&` continuation spanning a macro
-         ! invocation's own argument list.
-         failure_message = 'VerticalCoordinateCharacteristic: single overlapping physical dimension ' // &
-              '"' // overlap_name // '" identified as the adaptation candidate, ' // &
-              'but no real vertical-regrid Transform is implemented yet'
-         _FAIL(failure_message)
+         ! One candidate dimension, but no vertical-regrid Transform exists yet.
+         call report_build_transform_unsupported(rc)
       case (DIMENSION_OVERLAP_INCOMPATIBLE)
          failure_message = 'VerticalCoordinateCharacteristic: incompatible - no common physical dimension ' // &
               'between export and import vertical grids'

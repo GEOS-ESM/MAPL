@@ -22,7 +22,6 @@ type :: GraphStateItem
    type(StateItemCharacteristicMap) :: characteristics
    type(UngriddedDims) :: ungridded_dims
    type(VerticalStaggerLoc), allocatable :: vertical_stagger
-   type(ESMF_Geom), allocatable :: declared_geom
    class(VerticalGrid), allocatable :: declared_vertical_grid
    type(ESMF_StateItem_Flag) :: declared_item_type = ESMF_STATEITEM_FIELD
 end type
@@ -84,8 +83,8 @@ coordinate, ...). Independent of which ESMF component is allocated —
 
 `ungridded_dims` (always-present, mirrors `VariableSpec%ungridded_dims`),
 `vertical_stagger` (allocatable, mirrors `VariableSpec%vertical_stagger`
-— legitimately absent for a 2D field), `declared_geom`/
-`declared_vertical_grid`/`declared_item_type` — the originating
+— legitimately absent for a 2D field), `declared_vertical_grid`/
+`declared_item_type` — the originating
 `VariableSpec`'s own per-item explicit overrides, captured once by
 `advertise_one` (`GraphBuilder_Advertising_smod.F90`) so later
 materialization code never needs to re-reach a `VariableSpec` by

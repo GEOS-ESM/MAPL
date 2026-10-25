@@ -4,7 +4,7 @@
 ! StateItemDescriptor: the description of a state item, kept apart from the
 ! ESMF handle (GraphStateItem). Holds the sparse StateItemCharacteristicMap
 ! (REQ-CHAR-007/008/009/010) plus the description values that are not yet
-! characteristics (vertical stagger, declared geom / vertical
+! characteristics (vertical stagger, declared vertical
 ! grid / item type / restart mode / expression).
 !
 ! Independent of any ESMF object: a StateItemNode's descriptor is populated at
@@ -13,10 +13,10 @@
 !------------------------------------------------------------------------------
 module mapl_StateItemDescriptor_mod
    use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, operator(==)
-   use ESMF, only: ESMF_Geom
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap, &
         StateItemCharacteristicMapIterator, operator(/=), SYNC_PHASE_STRUCTURAL, SYNC_PHASE_DESCRIPTIVE
    use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), &
         GEOMETRY_CHARACTERISTIC_KIND, VERTICAL_COORDINATE_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
@@ -35,16 +35,19 @@ module mapl_StateItemDescriptor_mod
    public :: resolve_characteristics
    public :: resolve_descriptors
    public :: is_mirrored_export_allowed
-   public :: PAIR_MATCH, PAIR_EXTEND, PAIR_ADOPT, PAIR_CONFLICT, PAIR_INVALID
+   public :: PAIR_MATCH, PAIR_EXTEND, PAIR_ADOPT, PAIR_CONFLICT, PAIR_INVALID, PAIR_WAIT
 
    ! Outcomes of resolve_pair for one kind present on both sides.
    ! PAIR_ADOPT: the import takes a copy of the export's value.
    ! PAIR_INVALID: an INVALID status reached resolution (programming error).
+   ! PAIR_WAIT: a side is still DEFERRED; the component fills it in a later
+   ! phase, so the pair is neither wired nor an error yet.
    integer, parameter :: PAIR_MATCH = 1
    integer, parameter :: PAIR_EXTEND = 2
    integer, parameter :: PAIR_ADOPT = 3
    integer, parameter :: PAIR_CONFLICT = 4
    integer, parameter :: PAIR_INVALID = 5
+   integer, parameter :: PAIR_WAIT = 6
 
    ! (export item type, kind) pairs whose export may be MIRRORED. An
    ! expression has no geometry or precision of its own; each consumer's
@@ -60,7 +63,6 @@ module mapl_StateItemDescriptor_mod
       type(StateItemCharacteristicMap) :: characteristics
       ! Optional or defaulted values: "not declared" is meaningful.
       type(VerticalStaggerLoc), allocatable :: vertical_stagger
-      type(ESMF_Geom), allocatable :: declared_geom
       class(VerticalGrid), allocatable :: declared_vertical_grid
       type(ESMF_StateItem_Flag) :: declared_item_type = ESMF_STATEITEM_FIELD
       type(RestartMode), allocatable :: declared_restart_mode
@@ -72,11 +74,10 @@ module mapl_StateItemDescriptor_mod
       procedure :: get_characteristics => descriptor_get_characteristics
       procedure :: get_unresolved_kinds => descriptor_get_unresolved_kinds
       procedure :: check_resolved => descriptor_check_resolved
+      procedure :: resolve_deferred => descriptor_resolve_deferred
       procedure :: sync_to_info => descriptor_sync_to_info
       procedure :: get_vertical_stagger => descriptor_get_vertical_stagger
       procedure :: set_vertical_stagger => descriptor_set_vertical_stagger
-      procedure :: get_declared_geom => descriptor_get_declared_geom
-      procedure :: set_declared_geom => descriptor_set_declared_geom
       procedure :: get_declared_vertical_grid => descriptor_get_declared_vertical_grid
       procedure :: set_declared_vertical_grid => descriptor_set_declared_vertical_grid
       procedure :: get_declared_item_type => descriptor_get_declared_item_type
@@ -184,7 +185,7 @@ contains
       if (.not. (is_valid(e) .and. is_valid(i))) then
          outcome = PAIR_INVALID
       else if (e == CHARACTERISTIC_STATUS_DEFERRED .or. i == CHARACTERISTIC_STATUS_DEFERRED) then
-         outcome = PAIR_CONFLICT
+         outcome = PAIR_WAIT
       else if (e == CHARACTERISTIC_STATUS_UNCHECKED .and. i == CHARACTERISTIC_STATUS_MIRRORED) then
          outcome = PAIR_CONFLICT
       else if (e == CHARACTERISTIC_STATUS_UNCHECKED .or. i == CHARACTERISTIC_STATUS_UNCHECKED) then
@@ -215,7 +216,9 @@ contains
    ! one side is not applicable to that shape and is skipped. Stops at the
    ! first status conflict and describes it in `conflict` ('' if none).
    ! `adopted` lists kinds the import must copy from the export.
-   subroutine resolve_characteristics(export_map, import_map, export_item_type, mismatched, adopted, conflict, rc)
+   ! A kind that must wait (a DEFERRED side) sets `waiting`; a caller that
+   ! does not pass `waiting` gets a conflict instead, since it cannot retry.
+   subroutine resolve_characteristics(export_map, import_map, export_item_type, mismatched, adopted, conflict, rc, waiting)
       type(StateItemCharacteristicMap), target, intent(in) :: export_map
       type(StateItemCharacteristicMap), target, intent(in) :: import_map
       type(ESMF_StateItem_Flag), intent(in) :: export_item_type
@@ -223,6 +226,7 @@ contains
       type(StateItemCharacteristicKind), allocatable, intent(out) :: adopted(:)
       character(:), allocatable, intent(out) :: conflict
       integer, optional, intent(out) :: rc
+      logical, optional, intent(out) :: waiting
 
       type(StateItemCharacteristicMapIterator) :: iter
       type(StateItemCharacteristicKind) :: kind
@@ -232,6 +236,7 @@ contains
 
       allocate(mismatched(0), adopted(0))
       conflict = ''
+      if (present(waiting)) waiting = .false.
 
       associate (e => export_map%ftn_end())
          iter = export_map%ftn_begin()
@@ -248,6 +253,16 @@ contains
                mismatched = [mismatched, kind]
             case (PAIR_ADOPT)
                adopted = [adopted, kind]
+            case (PAIR_WAIT)
+               if (present(waiting)) then
+                  waiting = .true.
+               else
+                  export_status = export_c%get_status()
+                  import_status = import_c%get_status()
+                  conflict = 'status conflict on ' // kind%to_string() // ': export ' // &
+                       export_status%to_string() // ', import ' // import_status%to_string()
+                  exit
+               end if
             case (PAIR_CONFLICT)
                export_status = export_c%get_status()
                import_status = import_c%get_status()
@@ -266,20 +281,25 @@ contains
    ! Descriptor form of resolve_characteristics: uses the export's declared
    ! item type for the allowlist and records each adoption on the import.
    ! The export is never modified.
-   subroutine resolve_descriptors(export, import, mismatched, conflict, rc)
+   subroutine resolve_descriptors(export, import, mismatched, conflict, rc, waiting)
       type(StateItemDescriptor), intent(in) :: export
       type(StateItemDescriptor), intent(inout) :: import
       type(StateItemCharacteristicKind), allocatable, intent(out) :: mismatched(:)
       character(:), allocatable, intent(out) :: conflict
       integer, optional, intent(out) :: rc
+      logical, optional, intent(out) :: waiting
 
       integer :: status, i
       type(StateItemCharacteristicKind), allocatable :: adopted(:)
       class(StateItemCharacteristic), allocatable :: source
 
       call resolve_characteristics(export%characteristics, import%characteristics, export%declared_item_type, &
-           mismatched, adopted, conflict, _RC)
+           mismatched, adopted, conflict, rc=status, waiting=waiting)
+      _VERIFY(status)
       _RETURN_UNLESS(conflict == '')
+      if (present(waiting)) then
+         _RETURN_IF(waiting)
+      end if
 
       do i = 1, size(adopted)
          call export%get_characteristic(adopted(i), source, _RC)
@@ -335,6 +355,34 @@ contains
       _RETURN(_SUCCESS)
    end subroutine descriptor_check_resolved
 
+   ! Offers the component-supplied values to every DEFERRED characteristic.
+   ! Each characteristic takes what it needs; none is named here. One that
+   ! finds nothing to take stays DEFERRED and fails freeze.
+   subroutine descriptor_resolve_deferred(this, defaults, rc)
+      class(StateItemDescriptor), target, intent(inout) :: this
+      type(CharacteristicDefaults), intent(in) :: defaults
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StateItemCharacteristicMapIterator) :: iter
+      class(StateItemCharacteristic), pointer :: c
+      type(CharacteristicStatus) :: s
+
+      associate (e => this%characteristics%ftn_end())
+         iter = this%characteristics%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            c => iter%second()
+            s = c%get_status()
+            if (s == CHARACTERISTIC_STATUS_DEFERRED) then
+               call c%resolve_deferred(defaults, _RC)
+            end if
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine descriptor_resolve_deferred
+
    ! Writes each SPECIFIED or UNCHECKED characteristic onto the handle's Info.
    ! The DESCRIPTIVE phase skips structural characteristics, so a completed
    ! field is never re-created through FieldDelta.
@@ -388,22 +436,7 @@ contains
       allocate(this%vertical_stagger, source=vertical_stagger)
    end subroutine descriptor_set_vertical_stagger
 
-   ! -- declared geom / vgrid / item type / restart mode / expression --
-
-   subroutine descriptor_get_declared_geom(this, geom)
-      class(StateItemDescriptor), intent(in) :: this
-      type(ESMF_Geom), allocatable, intent(out) :: geom
-
-      if (allocated(this%declared_geom)) geom = this%declared_geom
-   end subroutine descriptor_get_declared_geom
-
-   subroutine descriptor_set_declared_geom(this, geom)
-      class(StateItemDescriptor), intent(inout) :: this
-      type(ESMF_Geom), intent(in) :: geom
-
-      if (allocated(this%declared_geom)) deallocate(this%declared_geom)
-      allocate(this%declared_geom, source=geom)
-   end subroutine descriptor_set_declared_geom
+   ! -- declared vgrid / item type / restart mode / expression --
 
    subroutine descriptor_get_declared_vertical_grid(this, vertical_grid)
       class(StateItemDescriptor), intent(in) :: this

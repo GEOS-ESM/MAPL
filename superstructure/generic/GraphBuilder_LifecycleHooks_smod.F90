@@ -62,6 +62,11 @@ contains
       class(Logger), pointer :: lgr
       character(:), allocatable :: msg
 
+      ! A component fills its DEFERRED characteristics in its own init phase;
+      ! pick those up so a connection that waited on them can be wired.
+      call graphbuilder_harvest_deferred(this, rc=status)
+      call report_if_failed(this, 'harvest_deferred', status)
+
       call graphbuilder_resolve_connections(this, unsupported_characteristics=unsupported, rc=status)
       call report_if_failed(this, 'resolve_connections', status)
 

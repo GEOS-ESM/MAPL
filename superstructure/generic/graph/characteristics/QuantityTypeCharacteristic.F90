@@ -15,14 +15,15 @@
 ! either side is QUANTITY_UNKNOWN, AND basis is equal or either side is
 ! BASIS_NONE.
 !
-! A `build_transform` is required by the common interface but fails
-! explicitly here - no real provider exists for this axis. Legacy
+! A `build_transform` is required by the common interface but reports
+! unsupported here - no real provider exists for this axis. Legacy
 ! QuantityTypeAspect%make_transform always returns NullTransform
 ! ("metadata-only, returns NullTransform"). `get_signature` derives a
 ! stable string from `quantity_type`/`basis`.
 !------------------------------------------------------------------------------
 module mapl_QuantityTypeCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
+   use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, QUANTITY_TYPE_CHARACTERISTIC_KIND
    use mapl_QuantityType_mod, only: QuantityType, MixingRatioBasis, &
@@ -107,9 +108,8 @@ contains
       basis = this%basis
    end function get_basis
 
-   ! merge-characteristic-families task 3.4: no real adaptation exists
-   ! for this axis, graph-native or legacy (module header) - fails
-   ! explicitly.
+   ! No real adaptation exists for this axis (module header): reports
+   ! unsupported.
    subroutine quantity_type_build_transform(this, goal, transformer, rc)
       class(QuantityTypeCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -119,7 +119,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal)
 
-      _FAIL('QuantityTypeCharacteristic: build_transform - no real provider exists for this axis')
+      call report_build_transform_unsupported(rc)
    end subroutine quantity_type_build_transform
 
    ! merge-characteristic-families task 3.4: a stable, value-

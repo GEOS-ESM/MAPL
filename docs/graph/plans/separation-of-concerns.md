@@ -523,9 +523,65 @@ in the first one; later ones refine it.
   (today only an item-level `geometry:` block sets it), so the graph can
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
-- **Status:** B3-Units, B3-TypeKind and B3-UngriddedDims done (commit
-  trailers `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
-  `Plan-Task: B3-UngriddedDims`); others not started.
+- **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims and B3-Geometry
+  done (commit trailers `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
+  `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`); others not
+  started.
+  B3-Geometry (first DEFERRED kind): `GeometryCharacteristic` gained
+  `write_info`, `is_structural() = .true.` and `resolve_deferred`; the
+  factory (`make_geometry_characteristic`) gives SPECIFIED for a declared
+  geom or geom id, MIRRORED for an EXPRESSION or `mirror_geom`, DEFERRED
+  otherwise. `mirror_geom` is a new `AddSpec`/`VariableSpec` keyword (YAML:
+  `geometry_mirror: true`); Statistics imports and History collection
+  imports without a `geom:` use it. No implicit absent-means-mirror. Its
+  `populate_characteristics` had no GEOMETRY insert (only
+  `set_declared_geom`), so this task is the first to give FIELD, BUNDLE,
+  EXPRESSION and SERVICE items a GEOMETRY entry (parity finding M1);
+  `StateItemDescriptor%declared_geom` is gone. New: `CharacteristicDefaults` (the component's geom and id),
+  `StateItemCharacteristic%resolve_deferred` (no-op default) and
+  `StateItemDescriptor%resolve_deferred`, called at GEOM_B (and, for a
+  History collection declaring `geom:`, that resolves its imports from the
+  collection's own geom: covered by
+  `test_geometry_hook_resolves_deferred_imports_from_own_geom`).
+  Owner-approved deviations, recorded in design.md §2.2/§2.3/§8: a
+  DEFERRED side at connect time is `PAIR_WAIT` (not a conflict); the
+  import stays unsettled and `resolve_connections` retries it on a later
+  pass; a component with connections still waiting at freeze fails freeze
+  (`has_waiting_connections`). When two connections name one import and
+  one waits, the import stays unsettled (`waiting_imports`) so the waiting
+  connection is retried. A component with no default geom fills its
+  DEFERRED items in its own init phase; `graphbuilder_harvest_deferred`
+  reads the geom off the component's field or bundle of that name in the
+  state, read-only (it does not bind the node's handle; imports are
+  skipped), at the start of the connect hook. Owner-approved scope
+  change: Statistics advertises only the chosen variance algorithm's
+  internal fields (`TimeVariance.F90`), and `realize_provided` shares
+  `get_variance_algorithm`. `push_geometry_to_child` is skipped for a
+  component with no geom of its own. Every stub
+  `build_transform` (Geometry, Attributes, UngriddedDims, StandardName,
+  QuantityType, Conservation, Normalization, ItemShape's other pairings,
+  the VerticalCoordinate single-overlap case) now calls
+  `report_build_transform_unsupported(rc)`: `rc = BUILD_TRANSFORM_UNSUPPORTED`,
+  nothing raised, documented in CONVENTIONS.md; so `regrid`, `regrid_r8`
+  and `vector_1` are reported as unsupported, not errors. Tests added: harvest (fills from a realized
+  field; skips imports), the geometry hook resolving DEFERRED imports from
+  the component geom, a MIRRORED import wiring through the connection
+  gate, waiting-connection tracking, `geometry_mirror` parsing, and mixed
+  geom vs geom_id in `needs_extension_for`. PENDING comparison against a
+  HEAD worktree (`ctest -R MAPL.generic.scenarios.pending`, Rule 1): HEAD
+  fails `expression_defer_geom`, `history_1`, `scenario_reexport_twice`,
+  `service_service`, `service_with_options`, `statistics`,
+  `statistics_real`, `vector_1`; this tree fails `history_1`,
+  `service_service`, `service_with_options`, `statistics`,
+  `statistics_real`. No scenario fails here that passes at HEAD. The
+  remaining ones fail for causes HEAD shares: "materialization reached
+  with no import units" (`history_1`, `statistics_real`; cause not
+  investigated here) and "MethodGraphNode: argument name already declared"
+  (`statistics_real`); neither is a still-DEFERRED GEOMETRY. Remaining
+  GEOMETRY references for B4: `get_item_geom` and the `GraphBuilder.F90`
+  use list, and the `insert_geom_id_characteristic` import in
+  `GraphBuilder_Geometry_smod.F90`. ESSENTIAL is green on NAG and gfortran
+  (65/65).
   B3-UngriddedDims: `UngriddedDimsCharacteristic` gained `write_info`
   (ungridded_dims= through `MAPL_FieldSet`/`MAPL_FieldBundleSet`) and
   `is_structural() = .true.`; the factory
@@ -565,7 +621,7 @@ in the first one; later ones refine it.
 
 **B4. Remove manual dispatch.** Delete `merged_item_for_link`'s kind
 chain, the `get_item_<kind>` getters (`get_item_units`/`get_item_typekind`/
-`get_item_ungridded_dims`, plus any later B3 task adds), scalar args of
+`get_item_ungridded_dims`/`get_item_geom`, plus any later B3 task adds), scalar args of
 `materialize_field_extension` (create from goal descriptor + chain
 step instead), `GraphStateItem%ordering`/table. Done also requires
 `grep -nE '_CHARACTERISTIC_KIND|[A-Za-z]+Characteristic\b' GraphBuilder*.F90`

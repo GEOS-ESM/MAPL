@@ -10,8 +10,8 @@
 ! NormalizationAspect%matches(). needs_extension_for is a single `/=` call -
 ! no hand-written comparison logic.
 !
-! A `build_transform` is required by the common interface but fails
-! explicitly here - no real provider exists for this axis. Legacy
+! A `build_transform` is required by the common interface but reports
+! unsupported here - no real provider exists for this axis. Legacy
 ! NormalizationAspect%make_transform always returns NullTransform
 ! (no real adaptation exists anywhere for this axis, graph-native or
 ! legacy). `get_signature` derives a stable string from `metadata`'s
@@ -19,6 +19,7 @@
 !------------------------------------------------------------------------------
 module mapl_NormalizationCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
+   use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, NORMALIZATION_CHARACTERISTIC_KIND
    use mapl_NormalizationMetadata_mod, only: NormalizationMetadata, operator(==), operator(/=)
@@ -83,9 +84,8 @@ contains
       metadata = this%metadata
    end function get_metadata
 
-   ! merge-characteristic-families task 3.3: no real adaptation exists
-   ! for this axis, graph-native or legacy (module header) - fails
-   ! explicitly.
+   ! No real adaptation exists for this axis (module header): reports
+   ! unsupported.
    subroutine normalization_build_transform(this, goal, transformer, rc)
       class(NormalizationCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -95,7 +95,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal)
 
-      _FAIL('NormalizationCharacteristic: build_transform - no real provider exists for this axis')
+      call report_build_transform_unsupported(rc)
    end subroutine normalization_build_transform
 
    ! merge-characteristic-families task 3.3: a stable, value-

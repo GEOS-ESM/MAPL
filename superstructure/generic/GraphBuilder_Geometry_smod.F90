@@ -3,13 +3,22 @@
 ! Horizontal geometry as a graph node, and its parent/child wiring.
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_Geometry_smod
-   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, GEOMETRY_CHARACTERISTIC_KIND
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain
-   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_GeometryCharacteristic_mod, only: insert_geom_id_characteristic
+   use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
    use mapl_GeometrySpec_mod, only: GEOMETRY_FROM_CHILD, GEOMETRY_FROM_PARENT
    use mapl_GeomId_mod, only: GeomId
    use mapl_GeomProxyField_mod, only: new_geom_proxy_item
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_REGISTRY
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_MultiState_mod, only: MultiState
+   use mapl_geom_api, only: MAPL_GeomGetId
+   use esmf, only: ESMF_State, ESMF_StateGet, ESMF_FieldBundle, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE, &
+        ESMF_FieldStatus_Flag, ESMF_FieldGet, ESMF_FieldIsCreated, ESMF_FieldBundleIsCreated, ESMF_FieldBundleGet, &
+        operator(==), ESMF_FIELDSTATUS_GRIDSET, ESMF_FIELDSTATUS_COMPLETE
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -19,6 +28,11 @@ contains
       class(OuterMetaComponent), target, intent(inout) :: this
 
       integer :: status
+
+      ! Not gated on graph mode: connection resolution runs in every mode
+      ! and a pair with a DEFERRED characteristic waits.
+      call graphbuilder_resolve_deferred(this, status)
+      call report_if_failed(this, 'resolve_deferred', status)
 
       if (graph_mode() == GRAPH_MODE_REGISTRY) return
 
@@ -66,6 +80,166 @@ contains
       _RETURN(_SUCCESS)
    end subroutine graphbuilder_advertise_geometry
 
+   ! Offers this component's geometry to every item characteristic that is
+   ! still DEFERRED. GEOM_B is the first point at which the component's
+   ! geometry exists, so this must run before connection resolution.
+   module subroutine graphbuilder_resolve_deferred(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(CharacteristicDefaults) :: defaults
+      type(ESMF_Geom) :: geom
+      type(ComponentGraph), pointer :: graph
+      type(NodeIdSet), target :: node_ids
+      type(NodeIdSetIterator) :: iter
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: descriptor
+
+      if (this%has_geom()) then
+         geom = this%get_geom(_RC)
+         defaults = CharacteristicDefaults(geom=geom, geom_id=this%get_geom_id())
+      end if
+
+      graph => this%get_component_graph()
+      node_ids = graph%get_node_ids()
+      associate (e => node_ids%ftn_end())
+         iter = node_ids%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            node => graph%get_node(iter%of())
+            if (.not. associated(node)) cycle
+            select type (node)
+            class is (StateItemNode)
+               descriptor => node%get_descriptor()
+               call descriptor%resolve_deferred(defaults, _RC)
+            end select
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine graphbuilder_resolve_deferred
+
+   ! Fills still-DEFERRED geometry from the geom the component's own phase
+   ! put on the item's field or bundle (a component with no default geom
+   ! supplies it there). Walks the subtree.
+   module recursive subroutine graphbuilder_harvest_deferred(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status, i
+      type(ComponentGraph), pointer :: graph
+      type(NodeIdSet), target :: node_ids
+      type(NodeIdSetIterator) :: iter
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: descriptor
+      type(OuterMetaComponent), pointer :: child_meta
+      type(GriddedComponentDriver), pointer :: driver
+      type(MultiState) :: states
+      character(:), allocatable :: child_name
+
+      driver => this%get_user_gc_driver()
+      states = driver%get_states()
+
+      graph => this%get_component_graph()
+      node_ids = graph%get_node_ids()
+      associate (e => node_ids%ftn_end())
+         iter = node_ids%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            node => graph%get_node(iter%of())
+            if (.not. associated(node)) cycle
+            select type (node)
+            class is (StateItemNode)
+               descriptor => node%get_descriptor()
+               if (size(descriptor%get_unresolved_kinds()) == 0) cycle
+               call fill_deferred_from_handle(states, node, descriptor, _RC)
+            end select
+         end do
+      end associate
+
+      do i = 1, this%get_num_children()
+         child_name = this%get_child_name(i, _RC)
+         child_meta => this%get_child_outer_meta(child_name, _RC)
+         call graphbuilder_harvest_deferred(child_meta, _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine graphbuilder_harvest_deferred
+
+   ! Reads the geom off the component's field or bundle of that name (the
+   ! handle's, if already bound) and offers it to the node's DEFERRED
+   ! characteristics. Read-only: the handle is not bound here. An item the
+   ! component has not realized yet is left alone: a later pass finds it.
+   subroutine fill_deferred_from_handle(states, node, descriptor, rc)
+      type(MultiState), intent(in) :: states
+      class(StateItemNode), target, intent(in) :: node
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(GraphStateItem), pointer :: handle
+      type(ESMF_State) :: state
+      type(ESMF_StateItem_Flag) :: item_kind
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_FieldStatus_Flag) :: field_status
+      type(ESMF_Geom), allocatable :: geom
+      type(CharacteristicDefaults) :: defaults
+      type(GeomId) :: geom_id
+      logical :: has_id
+      integer :: field_count
+      character(:), allocatable :: name
+
+      name = node%get_short_name()
+      _RETURN_UNLESS(allocated(name))
+
+      ! An import gets its geometry from the connected export.
+      _RETURN_IF(node%get_state_intent() == ESMF_STATEINTENT_IMPORT)
+
+      handle => node%get_payload_ptr()
+      item_kind = handle%itemType(_RC)
+
+      if (item_kind == ESMF_STATEITEM_FIELD) then
+         field = handle%get_field(_RC)
+      else if (item_kind == ESMF_STATEITEM_FIELDBUNDLE) then
+         bundle = handle%get_field_bundle(_RC)
+      else
+         call states%get_state(state, node%get_state_intent(), _RC)
+         call ESMF_StateGet(state, itemName=name, itemType=item_kind, _RC)
+         if (item_kind == ESMF_STATEITEM_FIELD) then
+            call ESMF_StateGet(state, itemName=name, field=field, _RC)
+            _RETURN_UNLESS(ESMF_FieldIsCreated(field))
+            call ESMF_FieldGet(field, status=field_status, _RC)
+            _RETURN_UNLESS(any(field_status == [ESMF_FIELDSTATUS_GRIDSET, ESMF_FIELDSTATUS_COMPLETE]))
+         else if (item_kind == ESMF_STATEITEM_FIELDBUNDLE) then
+            call ESMF_StateGet(state, itemName=name, fieldbundle=bundle, _RC)
+            _RETURN_UNLESS(ESMF_FieldBundleIsCreated(bundle))
+            call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+            _RETURN_UNLESS(field_count > 0)
+         else
+            _RETURN(_SUCCESS)
+         end if
+      end if
+
+      allocate(geom)
+      if (item_kind == ESMF_STATEITEM_FIELD) then
+         call ESMF_FieldGet(field, geom=geom, _RC)
+      else
+         call ESMF_FieldBundleGet(bundle, geom=geom, _RC)
+      end if
+
+      geom_id = MAPL_GeomGetId(geom, isPresent=has_id)
+      if (has_id) then
+         defaults = CharacteristicDefaults(geom=geom, geom_id=geom_id)
+      else
+         defaults = CharacteristicDefaults(geom=geom)
+      end if
+      call descriptor%resolve_deferred(defaults, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine fill_deferred_from_handle
+
    ! Gives the already-resolved parent/child geometry relationship (per
    ! geometry_spec%kind) graph structure: a dependency edge from the
    ! providing side to the receiving side. Does not re-decide
@@ -93,7 +267,7 @@ contains
       do i = 1, n
          child_name = this%get_child_name(i, _RC)
          child_spec => this%get_child_component_spec(child_name, _RC)
-         if (child_spec%geometry_spec%kind == GEOMETRY_FROM_PARENT) then
+         if (child_spec%geometry_spec%kind == GEOMETRY_FROM_PARENT .and. this%has_geom()) then
             call push_geometry_to_child(this, child_name, _RC)
          end if
       end do
@@ -121,7 +295,6 @@ contains
       type(OuterMetaComponent), pointer :: child_meta
       type(StateItemCharacteristicMap), target :: this_map, child_map
       type(StateItemCharacteristicKind), allocatable :: mismatched(:)
-      character(20) :: id_buffer
       character(:), allocatable :: unsupported
       character(:), allocatable :: assertion_message
       type(GeomId) :: this_own_geom_id
@@ -145,10 +318,8 @@ contains
       ! (NAG rejects it); bind the intermediate result first.
       this_own_geom_id = this%get_geom_id()
       provider_geom_id = child_meta%get_geom_id()
-      write(id_buffer, '(I0)') provider_geom_id%get_value()
-      call child_map%insert(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_id=trim(id_buffer)))
-      write(id_buffer, '(I0)') this_own_geom_id%get_value()
-      call this_map%insert(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_id=trim(id_buffer)))
+      call insert_geom_id_characteristic(child_map, provider_geom_id)
+      call insert_geom_id_characteristic(this_map, this_own_geom_id)
 
       ! Same dispatch shape as resolve_one (REQ-EXT-001): direct edge on
       ! exact match, else extension chain. A mismatch should be
@@ -197,7 +368,6 @@ contains
       type(OuterMetaComponent), pointer :: child_meta
       type(StateItemCharacteristicMap), target :: this_map, child_map
       type(StateItemCharacteristicKind), allocatable :: mismatched(:)
-      character(20) :: id_buffer
       character(:), allocatable :: unsupported
       character(:), allocatable :: assertion_message
       type(GeomId) :: this_geom_id
@@ -220,10 +390,8 @@ contains
       ! Bind intermediates first; see resolve_geometry_from_child.
       this_geom_id = this%get_geom_id()
       child_geom_id = child_meta%get_geom_id()
-      write(id_buffer, '(I0)') this_geom_id%get_value()
-      call this_map%insert(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_id=trim(id_buffer)))
-      write(id_buffer, '(I0)') child_geom_id%get_value()
-      call child_map%insert(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_id=trim(id_buffer)))
+      call insert_geom_id_characteristic(this_map, this_geom_id)
+      call insert_geom_id_characteristic(child_map, child_geom_id)
 
       ! Same dispatch shape as resolve_geometry_from_child. The edge (and
       ! any chain) lives in the CHILD's graph/network because the

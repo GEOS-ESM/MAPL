@@ -6,7 +6,7 @@
 ! openspec/changes/merge-characteristic-families, tasks 7.1/7.2/7.3:
 ! build_transform/get_signature coverage - explicit-failure for the six
 ! provider-less subclasses (mirrors Test_GeomCharacteristic.pf's own
-! test_geom_characteristic_build_transform_fails_explicitly precedent,
+! test_geom_characteristic_build_transform_reports_unsupported precedent,
 ! before that file's deletion), and the four real, moved
 ! implementations (PhysicalUnitsCharacteristic/TypeKindCharacteristic/
 ! VerticalCoordinateCharacteristic/GeometryCharacteristic) producing the
@@ -14,7 +14,8 @@
 ! already asserted (ported, not just a smoke test).
 module Test_StateItemCharacteristicSubclasses
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic, &
-                                                ReferenceCharacteristic
+                                                ReferenceCharacteristic, &
+                                                BUILD_TRANSFORM_UNSUPPORTED
    use mapl_StateItemCharacteristicKind_mod, only: operator(==), &
                                                     VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
                                                     ATTRIBUTES_CHARACTERISTIC_KIND, &
@@ -349,11 +350,11 @@ contains
       @assertFalse(b%needs_extension_for(a))
    end subroutine test_standard_name_unchecked_status_does_not_need_extension
 
-   ! --- merge-characteristic-families task 7.1: build_transform fails
-   ! explicitly for the six provider-less subclasses ---
+   ! --- build_transform reports BUILD_TRANSFORM_UNSUPPORTED for the six
+   ! provider-less subclasses ---
 
    @test
-   subroutine test_attributes_build_transform_fails_explicitly()
+   subroutine test_attributes_build_transform_reports_unsupported()
       type(AttributesCharacteristic) :: a, b
       class(TransformBase), allocatable :: transformer
       integer :: status
@@ -363,12 +364,12 @@ contains
 
       call a%build_transform(b, transformer, rc=status)
 
-      @assertTrue(status /= 0)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_attributes_build_transform_fails_explicitly
+   end subroutine test_attributes_build_transform_reports_unsupported
 
    @test
-   subroutine test_conservation_build_transform_fails_explicitly()
+   subroutine test_conservation_build_transform_reports_unsupported()
       type(ConservationCharacteristic) :: a, b
       class(TransformBase), allocatable :: transformer
       integer :: status
@@ -378,12 +379,12 @@ contains
 
       call a%build_transform(b, transformer, rc=status)
 
-      @assertTrue(status /= 0)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_conservation_build_transform_fails_explicitly
+   end subroutine test_conservation_build_transform_reports_unsupported
 
    @test
-   subroutine test_normalization_build_transform_fails_explicitly()
+   subroutine test_normalization_build_transform_reports_unsupported()
       type(NormalizationCharacteristic) :: a, b
       class(TransformBase), allocatable :: transformer
       integer :: status
@@ -393,12 +394,12 @@ contains
 
       call a%build_transform(b, transformer, rc=status)
 
-      @assertTrue(status /= 0)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_normalization_build_transform_fails_explicitly
+   end subroutine test_normalization_build_transform_reports_unsupported
 
    @test
-   subroutine test_quantity_type_build_transform_fails_explicitly()
+   subroutine test_quantity_type_build_transform_reports_unsupported()
       type(QuantityTypeCharacteristic) :: a, b
       class(TransformBase), allocatable :: transformer
       integer :: status
@@ -408,12 +409,12 @@ contains
 
       call a%build_transform(b, transformer, rc=status)
 
-      @assertTrue(status /= 0)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_quantity_type_build_transform_fails_explicitly
+   end subroutine test_quantity_type_build_transform_reports_unsupported
 
    @test
-   subroutine test_standard_name_build_transform_fails_explicitly()
+   subroutine test_standard_name_build_transform_reports_unsupported()
       type(StandardNameCharacteristic) :: a, b
       class(TransformBase), allocatable :: transformer
       integer :: status
@@ -423,12 +424,12 @@ contains
 
       call a%build_transform(b, transformer, rc=status)
 
-      @assertTrue(status /= 0)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_standard_name_build_transform_fails_explicitly
+   end subroutine test_standard_name_build_transform_reports_unsupported
 
    @test
-   subroutine test_ungridded_dims_build_transform_fails_explicitly()
+   subroutine test_ungridded_dims_build_transform_reports_unsupported()
       type(UngriddedDimsCharacteristic) :: a, b
       class(TransformBase), allocatable :: transformer
       integer :: status
@@ -438,9 +439,9 @@ contains
 
       call a%build_transform(b, transformer, rc=status)
 
-      @assertTrue(status /= 0)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_ungridded_dims_build_transform_fails_explicitly
+   end subroutine test_ungridded_dims_build_transform_reports_unsupported
 
    ! --- merge-characteristic-families task 7.2: get_signature for the
    ! six provider-less subclasses - two equal-value instances produce
@@ -577,11 +578,10 @@ contains
       @assertEqual('typekind=R4', r4%get_signature())
    end subroutine test_type_kind_get_signature
 
-   ! VerticalCoordinateCharacteristic's own build_transform always
-   ! fails (no real vertical-regrid Transform exists yet) - mirrors the
-   ! retired VerticalGridCharacteristic's own precedent exactly.
+   ! VerticalCoordinateCharacteristic's single-overlap build_transform
+   ! reports unsupported (no real vertical-regrid Transform exists yet).
    @test
-   subroutine test_vertical_coordinate_build_transform_fails_explicitly()
+   subroutine test_vertical_coordinate_build_transform_reports_unsupported()
       type(VerticalCoordinateCharacteristic) :: grid_a, grid_b
       class(TransformBase), allocatable :: transformer
       integer :: status
@@ -591,9 +591,9 @@ contains
 
       call grid_a%build_transform(grid_b, transformer, rc=status)
 
-      @assertTrue(status /= 0)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_vertical_coordinate_build_transform_fails_explicitly
+   end subroutine test_vertical_coordinate_build_transform_reports_unsupported
 
    @test
    subroutine test_vertical_coordinate_get_signature()
@@ -604,12 +604,10 @@ contains
       @assertEqual('vertical_grid=gridA', grid%get_signature())
    end subroutine test_vertical_coordinate_get_signature
 
-   ! GeometryCharacteristic's own build_transform always fails (no real
-   ! horizontal-regrid provider exists yet) - mirrors the retired
-   ! GeomCharacteristic's own precedent exactly
-   ! (test_geom_characteristic_build_transform_fails_explicitly).
+   ! GeometryCharacteristic's own build_transform always reports
+   ! unsupported (no real horizontal-regrid provider exists yet).
    @test
-   subroutine test_geometry_build_transform_fails_explicitly()
+   subroutine test_geometry_build_transform_reports_unsupported()
       type(GeometryCharacteristic) :: geom_a, geom_b
       class(TransformBase), allocatable :: transformer
       integer :: status
@@ -619,9 +617,9 @@ contains
 
       call geom_a%build_transform(geom_b, transformer, rc=status)
 
-      @assertTrue(status /= 0)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_geometry_build_transform_fails_explicitly
+   end subroutine test_geometry_build_transform_reports_unsupported
 
    @test
    subroutine test_geometry_get_signature()
@@ -696,9 +694,9 @@ contains
       end select
    end subroutine test_item_shape_build_transform_bracket_to_field_succeeds
 
-   ! Every other pairing fails explicitly, not a stub Transform.
+   ! Every other pairing is reported as unsupported, not a stub Transform.
    @test
-   subroutine test_item_shape_build_transform_other_pairings_fail_explicitly()
+   subroutine test_item_shape_other_pairings_report_unsupported()
       type(ItemShapeCharacteristic) :: vectorbracket, vector, field, vector_shape
       class(TransformBase), allocatable :: transformer
       integer :: status
@@ -709,12 +707,12 @@ contains
       vector_shape = ItemShapeCharacteristic(MAPL_STATEITEM_VECTOR)
 
       call vectorbracket%build_transform(vector, transformer, rc=status)
-      @assertTrue(status /= 0)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
       @assertFalse(allocated(transformer))
 
       call field%build_transform(vector_shape, transformer, rc=status)
-      @assertTrue(status /= 0)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_item_shape_build_transform_other_pairings_fail_explicitly
+   end subroutine test_item_shape_other_pairings_report_unsupported
 
 end module Test_StateItemCharacteristicSubclasses

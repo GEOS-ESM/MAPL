@@ -126,6 +126,7 @@ module mapl_VariableSpec_mod
        type(mapl_GeomId) :: geom_id
        type(ESMF_Geom), allocatable :: geom
        type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM
+       logical :: mirror_geom = .false.
       ! next two items are mutually exclusive
       type(EsmfRegridderParam), allocatable :: regrid_param
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
@@ -309,6 +310,7 @@ contains
         dependencies, &
         regrid_param, &
         horizontal_dims_spec, &
+        mirror_geom, &
         vector_basis_kind, &
         restart_mode, &
         rc) result(var_spec)
@@ -337,6 +339,7 @@ contains
       type(StringVector), optional, intent(in) :: dependencies
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
+      logical, optional, intent(in) :: mirror_geom
       character(*), optional, intent(in) :: vector_basis_kind
       type(RestartMode), optional, intent(in) :: restart_mode
       integer, optional, intent(out) :: rc
@@ -373,6 +376,7 @@ contains
       _SET_OPTIONAL(dependencies)
       _SET_OPTIONAL(regrid_param)
       _SET_OPTIONAL(horizontal_dims_spec)
+      _SET_OPTIONAL(mirror_geom)
       _SET_OPTIONAL(restart_mode)
 
       var_spec%vector_basis_kind = MAPL_VECTOR_BASIS_KIND_NS
