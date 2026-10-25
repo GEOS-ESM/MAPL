@@ -442,6 +442,16 @@ finds in its characteristic's legacy aspect, and either map them to
 DEFERRED (component supplies it) or report them to the owner. It must not
 silently reproduce them as MIRRORED.
 
+**Component-wide kinds (owner).** By long MAPL convention, Geometry and
+VerticalCoordinate are component-wide: an absent value in `VariableSpec`
+means DEFERRED, filled later from the component default. Typical
+components rely on this and need no change. Components introduced or
+reworked in MAPL3 (Statistics, History collections without `geom:`, and
+similar) instead adopt their connected partner's value. They must say so
+explicitly (`mirror_geom` / YAML `geometry_mirror: true` for Geometry);
+MIRRORED is never inferred from absence. EXPRESSION is the one implicit
+MIRRORED case (§2.4 allowlist).
+
 | Factory | VariableSpec input | Status rule |
 |---|---|---|
 | ItemShape | `itemType`, `state_item_variant` | SPECIFIED |
