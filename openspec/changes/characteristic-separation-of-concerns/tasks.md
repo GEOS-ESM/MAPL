@@ -65,7 +65,12 @@ if materialization needs the value before B4; add it to 4.2's list.
       duplicate). `get_item_ungridded_dims`, the UNGRIDDED_DIMS branch of
       `merged_item_for_link` and the `GraphBuilder.F90` use list remain
       for B4 (§6.3).
-- [ ] 3.4 B3-VerticalCoordinate (M2: component grid / DEFERRED)
+- [ ] 3.4 B3-VerticalCoordinate (M2: component grid / DEFERRED). Same
+      component-wide rule as Geometry (§5): absent is DEFERRED from the
+      component `vertical_grid`; reuse Geometry's `CharacteristicDefaults`,
+      `resolve_deferred` and harvest machinery rather than adding new
+      paths. Explicit vertical mirroring keyword: owner to decide spelling
+      before the task starts; Statistics/History imports adopt it.
 - [ ] 3.5 B3-VerticalStagger (new kind; also add the
       (EXPRESSION, VERTICAL_STAGGER) entry to the §2.4 allowlist, which
       B2 left out because the kind did not exist)
@@ -88,7 +93,9 @@ if materialization needs the value before B4; add it to 4.2's list.
       internal fields, since the other kernel's fields are never given a
       geometry.
 - [ ] 3.7 B3-ItemShape (all shapes; `get_extension_order` per §4.2;
-      shape matrix per §4.3)
+      shape matrix per §4.3). Known starting point: the connect hook
+      reports "no registered extension provider" for ITEM_SHAPE
+      mismatches (seen in `expression_defer_geom`).
 - [ ] 3.8 B3-StandardName (delete the subclass status check)
 - [ ] 3.9 B3-Attributes (always insert; report any scenario change)
 - [ ] 3.10 B3-QuantityType, B3-Conservation, B3-Normalization
@@ -100,7 +107,10 @@ if materialization needs the value before B4; add it to 4.2's list.
       §2.4. Also address ungridded dims: B3-UngriddedDims gives
       EXPRESSION no UNGRIDDED_DIMS entry, so an EXPRESSION export
       silently matches a FIELD import that declares ungridded dims;
-      owner accepted this until this task)
+      owner accepted this until this task. Known starting point: the
+      connect hook reports "no registered extension provider" for
+      EXPRESSION mismatches. Resolve Q2 with the owner and amend §2.4
+      before implementing)
 - [ ] 3.13 B3-LongName (provisional; drop if no graph-created field
       needs it)
 - [ ] 3.14 B3-SetShared: retarget `set_shared_characteristic` to mutate

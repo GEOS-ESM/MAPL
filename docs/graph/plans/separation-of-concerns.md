@@ -634,6 +634,10 @@ and interface names are fine); report its output in the commit body.
   leaves them to legacy `add_to_states`). Until the graph materializes
   a shape, scenarios using it stay `graph_ready = .false.` even if they
   pass (masked).
+- `MAPL_FieldGet`/`MAPL_FieldBundleGet` can segfault on a handle whose
+  Info is not populated yet (D3-cleanup item). Materializing through
+  the setters/getters may hit it; fix the getter (D3-cleanup) rather than
+  bypassing it.
 - **Status:** not started
 
 **B5. Translation in place.** `populate_characteristics` deleted;
@@ -691,6 +695,20 @@ it runs goes in a follow-up commit with the same trailer. Label
   mapping to `MAPL_STATEITEM_VECTORBRACKET`. Before deleting, check
   whether any YAML/test needs `'vector_bracket'` to parse; if one does,
   ask the owner whether to move that case into the compiled copy.
+- `infrastructure/field/FieldGet.F90:82-84`: empty
+  `if (fstatus == ESMF_FIELDSTATUS_EMPTY)` block with a misleading
+  "already deallocated" comment; delete it.
+- `MAPL_FieldGet(geom=)` and `MAPL_FieldBundleGet` segfault on a
+  field/bundle whose Info is not yet populated (`FieldGet.F90:79-90`).
+  They should fail with an rc. B3-Geometry's harvest reads through ESMF
+  directly to avoid it; switch harvest back to the MAPL getter once fixed.
+- `ComponentSpecParser/parse_var_specs.F90:77-80`: fix the indentation
+  of the `geometry_spec`/`geom_id`/`mapl_geom`/`geom_mgr` declarations.
+- Scenario fixtures with `/`-qualified short names (e.g. `A/E_A1`) have
+  no field-dictionary entries, so every run logs "not found in field
+  dictionary (as an alias)" (`VariableSpec.F90` alias lookup; the lookup
+  is correct). Add the entries to the scenario field dictionary, keyed as
+  looked up; ask the owner if qualified vs. bare key is unclear.
 - **Status:** not started
 
 
@@ -709,7 +727,12 @@ summary.
    `.git/PLAN_TASK_MSG`.
 2. Owner reviews the working tree (e.g. magit status), optionally after
    `/review-task <label>` in a separate session.
-3. Fixes go into the working tree (owner asks the author session).
+3. Fixes go into the working tree (owner asks the author session). If
+   the review says "rework needed", or the author session is very long,
+   the author first writes its unfinished list into the task's Status
+   line and the rework runs in a fresh session from the working tree.
+   If the parent session does not relay the review, `last-review
+   <label>` prints it.
 4. Owner commits: `git commit -aF .git/PLAN_TASK_MSG`, or tells the
    author session "commit". (`-a` takes every modified tracked file, so
    check `git status` first.) Whoever commits then deletes
@@ -758,6 +781,8 @@ it may author D1/A4/B5 with sonnet review.
 | B3-Units | opus | owner | template + adding-a-characteristic.md |
 | B3-Geometry | sonnet | opus | geom-as-node, Info id |
 | B3-ItemShape | opus | - | D4 ordering, Bracket rule |
+| B3-VerticalCoordinate | sonnet | opus | first reuse of Geometry's DEFERRED machinery |
+| B3-Expression | opus | gemini/gpt-sol | resolve Q2 and amend design.md §2.4 first |
 | B3 others | sonnet | sonnet (self-review) | one at a time, after B3-Units lands |
 | B4 | sonnet | opus | materialization regressions likely |
 | B5 | sonnet (haiku?) | sonnet if haiku | |
@@ -794,6 +819,10 @@ replicate an unreviewed template across B3.x.
 3. On ICE, nondeterministic segfault, or gFTL copy crash: stop and
    report; do not invent workarounds.
 4. Do not modify files outside the task's stated scope without asking.
+   If the task needs a lifecycle, status-resolution or user-API rule
+   that `design.md` does not cover (or contradicts), stop and report
+   before building it; the owner settles it and `design.md` is amended
+   first.
 5. Follow `docs/graph/CONVENTIONS.md` (after A0).
 6. Source comments: no `openspec/changes` paths, task numbers, or change
    history. Comments explain why, not when. Put change names in the
