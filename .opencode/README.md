@@ -14,7 +14,7 @@ some in your home directory; the table says which.
 | `build-fixer`, `ice-reproducer` agents | `~/.config/opencode/agents/` | no, copy them |
 | `/build-fix`, `/nag-*` commands | `~/.config/opencode/commands/` | no, copy them |
 | Model tier table | `~/.config/opencode/models.md` | no, copy it |
-| `with-nag`, `with-gfortran`, `with-intel`, `model-for` | `~/.local/bin/` | no, copy them |
+| `with-nag`, `with-gfortran`, `with-intel`, `model-for`, `last-review` | `~/.local/bin/` | no, copy them |
 
 Repo instructions for agents are in `AGENTS.md` (top level) and
 `superstructure/generic/AGENTS.md`.
@@ -64,6 +64,23 @@ OPENCODE_MODEL_PROVIDER=asksage model-for haiku     # one-off override
 
 A `-` in the table means the provider has no equivalent (AskSage has
 no Opus or Gemini); `model-for` then fails instead of guessing.
+
+### `last-review`: recover a subagent report
+
+`/review-task` relies on the parent session to repeat the reviewer's
+report. After a dropped connection, or when the parent prints only its
+last line, the report is still in OpenCode's session database.
+`last-review` reads it (read-only):
+
+```bash
+last-review B3-Geometry      # latest reviewer session whose title matches
+last-review -l               # recent reviewer sessions, with outcome
+last-review -s ses_...       # one session by id
+last-review -a triage        # latest triage report instead
+```
+
+Check the header's outcome line: `succeeded` means the report is
+complete; `interrupted` or "still running?" means it is not.
 
 ## Agents
 
