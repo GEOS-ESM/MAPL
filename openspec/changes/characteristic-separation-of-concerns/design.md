@@ -489,6 +489,42 @@ component-level GEOMETRY edges. The component-level GEOMETRY edges in
 `GraphBuilder_Geometry_smod.F90` move behind a descriptor/graph helper
 in B3-Geometry.
 
+#### §5.1 Defaults when a value is not declared
+
+One row per characteristic. "Next source" lists, in priority order,
+where the value comes from when the item does not declare it: the field
+dictionary (applied by `VariableSpec` before either path sees it), the
+component (resolved at GEOM_B, or harvested from the component's
+realized field or bundle), or a built-in constant. "Nothing anywhere"
+is the result when every source is empty. "Mirror" is the explicit way
+to adopt the connected partner's value. The rules apply to imports and
+exports alike, except that MIRROR on an export is an error unless §2.4
+allows it. "Legacy" is what the aspect path (`VariableSpec%make_*Aspect`,
+`specs/*Aspect.F90`) does when nothing is declared. The §5 table above
+is authoritative for status rules; this table summarizes it.
+
+| Characteristic | Declared by | Next source | Nothing anywhere | Mirror | Legacy | State |
+|---|---|---|---|---|---|---|
+| ItemShape | `itemType` | built-in FIELD | - | - | same | design |
+| TypeKind | `typekind` | built-in R4 | - | `MAPL_TYPEKIND_MIRROR` | same; a MIRROR side matches anything | landed |
+| PhysicalUnits | `units` | field dictionary | UNCHECKED | none | UNCHECKED; writes `/$MIRROR$` for mirrored units (no reader) | landed |
+| StandardName | `standard_name` | - | UNCHECKED | - | UNCHECKED | design |
+| LongName (provisional) | `long_name` | field dictionary | UNCHECKED, writes nothing | - | carried on `FieldClassAspect`, not compared | design |
+| UngriddedDims | `ungridded_dims` | built-in: none | - | `is_mirror()` | same | landed |
+| Geometry | `geom`, `geom_id` | component geom, then harvest | freeze fails | `mirror_geom` / `geometry_mirror: true` | item geom, component geom, item id, component id (FROM_COMP); else MIRRORED | landed |
+| VerticalCoordinate | `vertical_grid` | component grid | no entry (2D item) | `mirror_vgrid` / `vertical_grid_mirror: true` | item grid, component grid; else MIRRORED (FROM_COMP if a component geom id exists) | landed |
+| VerticalStagger | `vertical_stagger` / `vertical_dim_spec` | **open:** harvest (current §5 rule), or a built-in that follows the component (CENTER if it has a vertical grid) | SPECIFIED NONE (component has no vertical grid) | `MIRROR` (imports only); `mirror_vgrid` with no stagger | unallocated stagger is treated as mirror; `MIRROR` matches any stagger | **open** |
+| Vertical alignment | `vertical_alignment` | built-in `with_grid` | - | follows a MIRRORED stagger? (open) | `with_grid`; compared after resolving against the grid's direction; the import copies the export's on connect | design |
+| Attributes | `attributes` | built-in: empty | - | - | empty; import's set must be included in export's | design |
+| QuantityType | `quantity_type` | built-in UNKNOWN | - | - | ignores the declared value: always UNKNOWN (Q9) | design |
+| Conservation | `conservation` | built-in CONSERVE_NONE, not conservable | - | `is_mirror` | ignores the declared value: CONSERVE_NONE | design |
+| Normalization | `normalization` | built-in NORMALIZE_NONE, scale 1 | - | `is_mirror` | ignores the declared value: NORMALIZE_NONE, scale 1 | design |
+| RestartMode (new) | `restart_mode` | - | UNCHECKED, writes nothing | - | carried on `FieldClassAspect`, not compared | design |
+| Expression (new) | `expression` | - | - | - | n/a (EXPRESSION shape only) | design |
+
+"State": landed = implemented by its B3 task; design = rule in §5, not
+yet implemented; open = owner decision pending.
+
 ### §6. Inventory: current state -> target
 
 #### §6.1 `GraphStateItem` components
