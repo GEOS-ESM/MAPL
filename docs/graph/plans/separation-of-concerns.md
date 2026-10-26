@@ -885,6 +885,12 @@ come after; their order is not yet decided.
 - Whether `SetSharedCharacteristic` survives.
 - Post-legacy cleanup tasks (delete aspects/transforms/registry,
   rename `StateItemCharacteristic*` if desired) - out of scope here.
+- Post-freeze graph optimizations (future, owner idea): fuse adjacent
+  transform steps through a generic `can_fuse_with`/`fuse` query on the
+  transforms, and allocate an intermediate transform-created node's
+  storage only between its producer and its single consumer when no
+  state, name lookup (History, checkpoint, Expression) or sharing exposes
+  it. Keep that "exposed" property derivable from the graph.
 
 ## Prompt template for task agents
 
