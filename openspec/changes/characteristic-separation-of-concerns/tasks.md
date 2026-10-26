@@ -76,9 +76,11 @@ if materialization needs the value before B4; add it to 4.2's list.
       without their own grid use it. `get_item_vgrid`,
       `resolve_export_vgrid` and the VERTICAL_COORDINATE branch of the
       mismatch classification remain for B4 (§6.3).
-- [ ] 3.5 B3-VerticalStagger (new kind; also add the
+- [ ] 3.5 B3-VerticalStagger. **On hold:** the owner is deciding the
+      default stagger when none is declared (design.md §5.1, "open"
+      row). Do not start until that row is settled. New kind; also add the
       (EXPRESSION, VERTICAL_STAGGER) entry to the §2.4 allowlist, which
-      B2 left out because the kind did not exist). Owner answered Q6,
+      B2 left out because the kind did not exist. Owner answered Q6,
       Q7 and the 2D/mirror cases; follow design.md §5 (VerticalStagger
       row) and Q6/Q7. In short: MIRROR is MIRRORED on imports only
       (error on an export); `mirror_vgrid` with no stagger defaults to
