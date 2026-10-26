@@ -117,7 +117,11 @@ if materialization needs the value before B4; add it to 4.2's list.
 - [ ] 3.7 B3-ItemShape (all shapes; `get_extension_order` per §4.2;
       shape matrix per §4.3). Known starting point: the connect hook
       reports "no registered extension provider" for ITEM_SHAPE
-      mismatches (seen in `expression_defer_geom`).
+      mismatches (seen in `expression_defer_geom`). Since B3-StandardName,
+      only FIELD carries a StandardName entry, so a BRACKET/VECTOR/
+      FIELDBUNDLE/EXPRESSION standard-name mismatch is not detected.
+      Confirm the shape step adopts the import's name after BRACKET->FIELD,
+      as §4.3 assumes; if not, stop and report.
 - [x] 3.8 B3-StandardName (delete the subclass status check). Factory
       inserts for FIELD only (§4.3); an undeclared FIELD name is UNCHECKED.
       `write_info` is descriptive (both phases).
