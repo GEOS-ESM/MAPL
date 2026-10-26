@@ -3,10 +3,11 @@
 submodule (mapl_VariableSpec_mod) make_characteristics_smod
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
         TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
-        VERTICAL_COORDINATE_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND
+        VERTICAL_COORDINATE_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
+   use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic, UNKNOWN_STANDARD_NAME
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
@@ -40,7 +41,7 @@ contains
 
       integer :: status
       integer :: i
-      type(Factory) :: factories(6)
+      type(Factory) :: factories(7)
 
       factories(1)%make => make_units_characteristic
       factories(2)%make => make_typekind_characteristic
@@ -48,6 +49,7 @@ contains
       factories(4)%make => make_geometry_characteristic
       factories(5)%make => make_vertical_coordinate_characteristic
       factories(6)%make => make_standard_name_characteristic
+      factories(7)%make => make_attributes_characteristic
 
       do i = 1, size(factories)
          call factories(i)%make(this, descriptor, _RC)
@@ -249,6 +251,23 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_standard_name_characteristic
+
+   ! Always SPECIFIED, even when empty: an import that requires attributes
+   ! must mismatch an export that declares none. Same shape set as ungridded
+   ! dims: an EXPRESSION carries no attributes of its own.
+   subroutine make_attributes_characteristic(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN_UNLESS(carries_field_description(spec%itemType) .and. spec%itemType /= MAPL_STATEITEM_EXPRESSION)
+
+      call descriptor%set_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND, AttributesCharacteristic(spec%attributes), _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_attributes_characteristic
 
    ! Shapes whose payload is a Field or FieldBundle (or an expression that
    ! evaluates to one) and so carry the field-level kinds.

@@ -16,6 +16,8 @@ module Test_StatusResolution
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
+   use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
+   use gFTL2_StringVector, only: StringVector
    use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_EXPRESSION
    use funit
    implicit none
@@ -285,6 +287,26 @@ contains
       @assertEqual(PAIR_EXTEND, resolve_pair(a, b, MAPL_STATEITEM_FIELD))
       @assertEqual(PAIR_MATCH, resolve_pair(a, a, MAPL_STATEITEM_FIELD))
    end subroutine test_standard_name_unchecked_matches_and_specified_compares
+
+   ! The export is the provides side: an empty export set does not satisfy an
+   ! import that requires an attribute, and a superset does.
+   @test
+   subroutine test_attributes_export_must_provide_what_import_requires()
+      type(AttributesCharacteristic) :: empty, required, extra
+      type(StringVector) :: required_names, extra_names
+
+      call required_names%push_back('shared_attr')
+      call extra_names%push_back('shared_attr')
+      call extra_names%push_back('other_attr')
+      empty = AttributesCharacteristic(StringVector())
+      required = AttributesCharacteristic(required_names)
+      extra = AttributesCharacteristic(extra_names)
+
+      @assertEqual(PAIR_EXTEND, resolve_pair(empty, required, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_MATCH, resolve_pair(extra, required, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(required, extra, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_MATCH, resolve_pair(empty, empty, MAPL_STATEITEM_FIELD))
+   end subroutine test_attributes_export_must_provide_what_import_requires
 
    ! -- one-sided absence --
 

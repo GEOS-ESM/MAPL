@@ -13,13 +13,16 @@ module Test_VariableSpecCharacteristics
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, &
         UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
-        VERTICAL_COORDINATE_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND
+        VERTICAL_COORDINATE_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, &
+        ATTRIBUTES_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
         CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED
    use mapl_geom_api, only: mapl_new_GeomId
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic, UNKNOWN_STANDARD_NAME
+   use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
+   use gFTL2_StringVector, only: StringVector
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
    use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
@@ -624,5 +627,91 @@ contains
          @assertFalse(descriptor%has_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND))
       end do
    end subroutine test_vertical_coordinate_applicability
+
+
+   function attribute_names_of(var_spec, char_status, rc) result(names)
+      type(VariableSpec), intent(in) :: var_spec
+      type(CharacteristicStatus), intent(out) :: char_status
+      integer, optional, intent(out) :: rc
+      type(StringVector) :: names
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND, c, _RC)
+      char_status = c%get_status()
+      select type (c)
+      class is (AttributesCharacteristic)
+         names = c%get_attribute_names()
+      class default
+         status = 1
+         _VERIFY(status)
+      end select
+      _RETURN(_SUCCESS)
+   end function attribute_names_of
+
+   @test
+   subroutine test_default_attributes_is_specified_and_empty()
+      type(StringVector) :: names
+      type(CharacteristicStatus) :: char_status
+      integer :: status
+
+      names = attribute_names_of(make_spec(MAPL_STATEITEM_FIELD), char_status, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, names%size())
+   end subroutine test_default_attributes_is_specified_and_empty
+
+   @test
+   subroutine test_declared_attributes_are_specified_with_names()
+      type(VariableSpec) :: var_spec
+      type(StringVector) :: names
+      type(CharacteristicStatus) :: char_status
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      call var_spec%attributes%push_back('shared_attr')
+      names = attribute_names_of(var_spec, char_status, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(1, names%size())
+      @assertEqual('shared_attr', names%of(1))
+   end subroutine test_declared_attributes_are_specified_with_names
+
+   @test
+   subroutine test_all_attribute_carrying_shapes_get_an_entry()
+      type(ESMF_StateItem_Flag) :: shapes(5)
+      type(StringVector) :: names
+      type(CharacteristicStatus) :: char_status
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE]
+      do i = 1, size(shapes)
+         names = attribute_names_of(make_spec(shapes(i)), char_status, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      end do
+   end subroutine test_all_attribute_carrying_shapes_get_an_entry
+
+   @test
+   subroutine test_shapes_without_attributes_get_no_entry()
+      type(ESMF_StateItem_Flag) :: shapes(7)
+      type(StateItemDescriptor) :: descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD, &
+           MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
+      do i = 1, size(shapes)
+         var_spec = make_spec(shapes(i))
+         call var_spec%attributes%push_back('shared_attr')
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_shapes_without_attributes_get_no_entry
 
 end module Test_VariableSpecCharacteristics

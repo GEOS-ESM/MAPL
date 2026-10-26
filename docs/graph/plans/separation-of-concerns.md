@@ -524,11 +524,34 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate and B3-StandardName done (commit trailers
+  B3-VerticalCoordinate, B3-StandardName and B3-Attributes done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
-  `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`);
-  others not started.
+  `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
+  `Plan-Task: B3-Attributes`); others not started.
+  B3-Attributes: `AttributesCharacteristic` gained `write_info`, a
+  successful no-op (no Info key; design §3.4), `is_structural()` stays
+  false. The factory (`make_attributes_characteristic`) always gives
+  SPECIFIED, including an empty set (design §5 parity fix), and inserts
+  only for FIELD/BRACKET/VECTOR/VECTORBRACKET/FIELDBUNDLE (design §4.3:
+  not EXPRESSION, which previously got an entry when it declared
+  attributes; STATE, SERVICE and WILDCARD likewise). Its
+  `populate_characteristics` block, kind constant and type are gone from
+  `GraphBuilder_Advertising_smod.F90`. No legacy absent-means-mirror
+  case. Remaining GraphBuilder references, for B4: the ATTRIBUTES kind
+  in `merged_item_for_link` and the `GraphBuilder.F90` use list. No
+  `Transform` exists (an unmet requirement is `BUILD_TRANSFORM_UNSUPPORTED`),
+  so `check_graph` needs no new step kind. Scenario report (design Risks):
+  no scenario changed. ESSENTIAL scenarios pass; `MAPL.generic.scenarios.pending`
+  on NAG fails the same 114 checks (`history_1`, `service_service`,
+  `service_with_options`, `statistics`, `statistics_real`) in a HEAD
+  worktree and in this tree (Rule 1). Tests: factory status per input and
+  shape set (empty default is SPECIFIED, EXPRESSION has no entry);
+  `sync_to_info` on Field and FieldBundle succeeds in
+  both phases; the status table with attributes (empty export vs required
+  import is `PAIR_EXTEND`, superset matches, asymmetric); advertise default
+  now has an empty ATTRIBUTES entry. ESSENTIAL is green on NAG and
+  gfortran (65/65).
   B3-StandardName: `StandardNameCharacteristic` no longer reads status
   (the UNCHECKED escape in `needs_extension_for` is deleted; the
   descriptor's `resolve_pair` decides) and gained `write_info`

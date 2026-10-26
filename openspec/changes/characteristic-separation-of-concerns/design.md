@@ -515,7 +515,7 @@ is authoritative for status rules; this table summarizes it.
 | VerticalCoordinate | `vertical_grid` | component grid | no entry (2D item) | `mirror_vgrid` / `vertical_grid_mirror: true` | item grid, component grid; else MIRRORED (FROM_COMP if a component geom id exists) | landed |
 | VerticalStagger | `vertical_stagger` / `vertical_dim_spec` | **open:** harvest (current §5 rule), or a built-in that follows the component (CENTER if it has a vertical grid) | SPECIFIED NONE (component has no vertical grid) | `MIRROR` (imports only); `mirror_vgrid` with no stagger | unallocated stagger is treated as mirror; `MIRROR` matches any stagger | **open** |
 | Vertical alignment | `vertical_alignment` | built-in `with_grid` | - | follows a MIRRORED stagger? (open) | `with_grid`; compared after resolving against the grid's direction; the import copies the export's on connect | design |
-| Attributes | `attributes` | built-in: empty | - | - | empty; import's set must be included in export's | design |
+| Attributes | `attributes` | built-in: empty | - | - | empty; import's set must be included in export's | landed |
 | QuantityType | `quantity_type` | built-in UNKNOWN | - | - | ignores the declared value: always UNKNOWN (Q9) | design |
 | Conservation | `conservation` | built-in CONSERVE_NONE, not conservable | - | `is_mirror` | ignores the declared value: CONSERVE_NONE | design |
 | Normalization | `normalization` | built-in NORMALIZE_NONE, scale 1 | - | `is_mirror` | ignores the declared value: NORMALIZE_NONE, scale 1 | design |

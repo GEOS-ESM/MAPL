@@ -7,8 +7,9 @@ example; TypeKind (`B3-TypeKind`) is the worked example for a
 structural kind with a MIRRORED sentinel; UngriddedDims
 (`B3-UngriddedDims`) adds a kind with its own shape set and a
 descriptor-side duplicate removed; StandardName (`B3-StandardName`) is the
-worked example for deleting a subclass's own status check. Later B3 tasks
-refine this file.
+worked example for deleting a subclass's own status check; Attributes
+(`B3-Attributes`) is the worked example for a kind with no Info key. Later
+B3 tasks refine this file.
 
 Design authority: `openspec/changes/characteristic-separation-of-concerns/design.md`
 (§2 status, §3 Info facade, §4.3 applicability, §5 factories). Rules:
@@ -44,7 +45,9 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
 3. **Info write** (`write_info`, `is_structural`)
    - Override `write_info(this, handle, phase, rc)`. The base version
      `_FAIL`s naming the kind, so `sync_to_info` on a descriptor holding
-     an unconverted kind fails loudly.
+     an unconverted kind fails loudly. A kind with no Info key (design
+     §3.4: Attributes, Expression) still overrides it, as a successful
+     no-op, so that `sync_to_info` does not fail on it.
    - Inspect `handle%itemType()` and call `MAPL_FieldSet` /
      `MAPL_FieldBundleSet` / `MAPL_StateSet` once with only this
      characteristic's own keywords (design.md §3.4 table). Fail for a
@@ -275,3 +278,36 @@ Second kind with a DEFERRED value; it reuses Geometry's machinery.
   declares a name, and the `ValidationMode` strict/permissive severity
   (they were already absent from the characteristic). Field-dictionary
   validation of the name stays in `VariableSpec` construction.
+
+## Attributes as implemented
+
+| Input (`VariableSpec%attributes`) | Shape | Entry |
+|---|---|---|
+| any, including the empty default | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE | SPECIFIED with the names |
+| any | every other flag, including EXPRESSION | none |
+
+- Always inserted, even when empty (design §5). Before this task an empty
+  set produced no entry, so an import requiring attributes was never
+  flagged against an export that declared none; legacy
+  `includes([], required)` is a mismatch, and now so is this. The
+  comparison needs no new rule: an export without the names the import
+  requires is `PAIR_EXTEND`, which has no Transform, so it is reported
+  as unsupported (`BUILD_TRANSFORM_UNSUPPORTED`).
+- Own shape set (design §4.3): like UngriddedDims, not EXPRESSION. Before
+  this task the entry was inserted for any shape that declared attributes
+  (including EXPRESSION, STATE, SERVICE and WILDCARD) and omitted otherwise.
+- The comparison is asymmetric (export must provide everything the import
+  requires; extra export names are fine). `resolve_pair` passes the
+  export as `this`, so no change was needed.
+- Never DEFERRED, MIRRORED or UNCHECKED: there is no mirror sentinel, no
+  component-supplied value and no unknown marker. Legacy
+  absent-means-mirror: none (`AttributesAspect` is constructed
+  non-mirror and cannot mirror).
+- `write_info` writes nothing and succeeds, in both phases and for any
+  handle kind: attributes have no Info key (legacy
+  `AttributesAspect%update_payload` is a no-op, and the `FieldSet`
+  `attributes` dummy is unused). `is_structural()` stays `.false.`.
+- Scenarios: no ESSENTIAL scenario changed. `MAPL.generic.scenarios.pending`
+  fails the same 114 checks (`history_1`, `service_service`,
+  `service_with_options`, `statistics`, `statistics_real`) at HEAD and
+  with this change.

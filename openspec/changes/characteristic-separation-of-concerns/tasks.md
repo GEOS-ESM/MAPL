@@ -125,7 +125,10 @@ if materialization needs the value before B4; add it to 4.2's list.
 - [x] 3.8 B3-StandardName (delete the subclass status check). Factory
       inserts for FIELD only (§4.3); an undeclared FIELD name is UNCHECKED.
       `write_info` is descriptive (both phases).
-- [ ] 3.9 B3-Attributes (always insert; report any scenario change)
+- [x] 3.9 B3-Attributes (always insert; report any scenario change).
+      Inserted for FIELD/BRACKET/VECTOR/VECTORBRACKET/FIELDBUNDLE (§4.3
+      excludes EXPRESSION). `write_info` is a successful no-op. No
+      scenario changed (ESSENTIAL green; PENDING identical to HEAD).
 - [ ] 3.10 B3-QuantityType, B3-Conservation, B3-Normalization
 - [ ] 3.11 B3-RestartMode (new kind; `populate_one` uses
       `sync_to_info(DESCRIPTIVE)`)

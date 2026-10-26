@@ -8,12 +8,10 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
    use mapl_StateItemCharacteristicKind_mod, only: &
-        ATTRIBUTES_CHARACTERISTIC_KIND, &
         QUANTITY_TYPE_CHARACTERISTIC_KIND, &
         CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND, &
         ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_StateItemFlag_mod, only: operator(==)
-   use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
    use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
    use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
@@ -144,15 +142,6 @@ contains
 
       call var_spec%make_characteristics(descriptor, _RC)
 
-      ! Each axis is gated to match its VariableSpec field's own "unset"
-      ! representation.
-      !
-      ! AttributesCharacteristic: inserted only when non-empty; an empty
-      ! set never mismatches, so skipping it is just an optimization.
-      if (var_spec%attributes%size() > 0) then
-         call descriptor%set_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND, &
-              AttributesCharacteristic(var_spec%attributes), _RC)
-      end if
       ! QuantityType/Conservation/Normalization: unconditional; each
       ! default is a valid comparable value.
       call descriptor%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &

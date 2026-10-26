@@ -23,6 +23,8 @@
 ! unsupported here - no real provider exists for this axis. Legacy
 ! AttributesAspect%make_transform always returns NullTransform (no real
 ! adaptation exists anywhere for this axis, graph-native or legacy).
+! `write_info` writes nothing: attributes have no Info key (legacy
+! AttributesAspect%update_payload is a no-op), so no setter argument exists.
 ! `get_signature` derives a stable, value-distinguishing string from
 ! `attribute_names` (sorted, comma-joined) for
 ! mapl_ExtensionResolution_mod's reuse-search cache key.
@@ -34,6 +36,7 @@ module mapl_AttributesCharacteristic_mod
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, ATTRIBUTES_CHARACTERISTIC_KIND
    use gFTL2_StringVector, only: StringVector
    use mapl_TransformBase_mod, only: TransformBase
+   use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StringSortUtilities_mod, only: sorted_names
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -49,6 +52,7 @@ module mapl_AttributesCharacteristic_mod
       procedure :: needs_extension_for => attributes_needs_extension_for
       procedure :: build_transform => attributes_build_transform
       procedure :: get_signature => attributes_get_signature
+      procedure :: write_info => attributes_write_info
       procedure :: get_attribute_names
    end type AttributesCharacteristic
 
@@ -129,6 +133,20 @@ contains
 
       call report_build_transform_unsupported(rc)
    end subroutine attributes_build_transform
+
+   ! Attributes have no Info representation, so there is nothing to write.
+   subroutine attributes_write_info(this, handle, phase, rc)
+      class(AttributesCharacteristic), intent(in) :: this
+      type(GraphStateItem), intent(inout) :: handle
+      integer, intent(in) :: phase
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(handle)
+      _UNUSED_DUMMY(phase)
+
+      _RETURN(_SUCCESS)
+   end subroutine attributes_write_info
 
    ! merge-characteristic-families task 3.1: a stable, value-
    ! distinguishing signature derived from this subclass's own stored
