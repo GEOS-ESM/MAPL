@@ -508,7 +508,7 @@ is authoritative for status rules; this table summarizes it.
 | ItemShape | `itemType` | built-in FIELD | - | - | same | design |
 | TypeKind | `typekind` | built-in R4 | - | `MAPL_TYPEKIND_MIRROR` | same; a MIRROR side matches anything | landed |
 | PhysicalUnits | `units` | field dictionary | UNCHECKED | none | UNCHECKED; writes `/$MIRROR$` for mirrored units (no reader) | landed |
-| StandardName | `standard_name` | - | UNCHECKED | - | UNCHECKED | design |
+| StandardName | `standard_name` | - | UNCHECKED | - | UNCHECKED | landed |
 | LongName (provisional) | `long_name` | field dictionary | UNCHECKED, writes nothing | - | carried on `FieldClassAspect`, not compared | design |
 | UngriddedDims | `ungridded_dims` | built-in: none | - | `is_mirror()` | same | landed |
 | Geometry | `geom`, `geom_id` | component geom, then harvest | freeze fails | `mirror_geom` / `geometry_mirror: true` | item geom, component geom, item id, component id (FROM_COMP); else MIRRORED | landed |

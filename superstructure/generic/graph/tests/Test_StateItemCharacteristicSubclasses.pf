@@ -26,7 +26,6 @@ module Test_StateItemCharacteristicSubclasses
                                                     STANDARD_NAME_CHARACTERISTIC_KIND, &
                                                     ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
-   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED
    use mapl_TransformBase_mod, only: TransformBase
 
    use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
@@ -308,7 +307,7 @@ contains
       @assertTrue(smaller%needs_extension_for(larger))
    end subroutine test_attributes_needs_extension_for_is_asymmetric
 
-   ! --- 6.3: StandardNameCharacteristic (status-based escape) ---
+   ! --- 6.3: StandardNameCharacteristic (value comparison only) ---
 
    @test
    subroutine test_standard_name_is_a_value_characteristic()
@@ -337,18 +336,6 @@ contains
 
       @assertTrue(a%needs_extension_for(b))
    end subroutine test_standard_name_unequal_names_need_extension
-
-   @test
-   subroutine test_standard_name_unchecked_status_does_not_need_extension()
-      type(StandardNameCharacteristic) :: a, b
-
-      a = StandardNameCharacteristic('air_temperature')
-      b = StandardNameCharacteristic('surface_pressure')
-      call a%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
-
-      @assertFalse(a%needs_extension_for(b))
-      @assertFalse(b%needs_extension_for(a))
-   end subroutine test_standard_name_unchecked_status_does_not_need_extension
 
    ! --- build_transform reports BUILD_TRANSFORM_UNSUPPORTED for the six
    ! provider-less subclasses ---

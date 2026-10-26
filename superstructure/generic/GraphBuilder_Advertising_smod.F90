@@ -9,12 +9,11 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
    use mapl_StateItemCharacteristicKind_mod, only: &
         ATTRIBUTES_CHARACTERISTIC_KIND, &
-        STANDARD_NAME_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+        QUANTITY_TYPE_CHARACTERISTIC_KIND, &
         CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND, &
         ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_StateItemFlag_mod, only: operator(==)
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
-   use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
    use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
    use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
@@ -148,12 +147,6 @@ contains
       ! Each axis is gated to match its VariableSpec field's own "unset"
       ! representation.
       !
-      ! StandardNameCharacteristic: allocatable, no default, so gated on
-      ! `allocated()`.
-      if (allocated(var_spec%standard_name)) then
-         call descriptor%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, &
-              StandardNameCharacteristic(var_spec%standard_name), _RC)
-      end if
       ! AttributesCharacteristic: inserted only when non-empty; an empty
       ! set never mismatches, so skipping it is just an optimization.
       if (var_spec%attributes%size() > 0) then

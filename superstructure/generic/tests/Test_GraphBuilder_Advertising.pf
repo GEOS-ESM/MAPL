@@ -45,6 +45,7 @@ module Test_GraphBuilder_Advertising
    use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
    use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, operator(==)
    use mapl_UngriddedDims_mod, only: UngriddedDims
    use mapl_ConservationMetadata_mod, only: ConservationMetadata
    use mapl_NormalizationMetadata_mod, only: NormalizationMetadata
@@ -517,9 +518,9 @@ contains
 
    ! Task 6.2 (regression companion): an item with none of the optional
    ! newly-wired fields set (default VariableSpec, no attributes/standard_
-   ! name declared) still advertises successfully - StandardNameCharacteristic/
-   ! AttributesCharacteristic are correctly absent (both gated on
-   ! "declared"), while UngriddedDimsCharacteristic/QuantityTypeCharacteristic/
+   ! name declared) still advertises successfully - AttributesCharacteristic is
+   ! absent (gated on "declared") and StandardNameCharacteristic is UNCHECKED,
+   ! while UngriddedDimsCharacteristic/QuantityTypeCharacteristic/
    ! ConservationCharacteristic/NormalizationCharacteristic (unconditional
    ! inserts, design.md D1) are still present, at their own default values.
    @test(npes=[0])
@@ -534,6 +535,7 @@ contains
       type(NodeId), pointer :: export_id
       class(GraphNode), pointer :: node
       type(StateItemDescriptor), pointer :: descriptor
+      class(StateItemCharacteristic), allocatable :: found
       integer :: status
       type(GraphBuilder) :: gb
 
@@ -557,7 +559,9 @@ contains
          @assert_that(.false., is(true()))
       end select
 
-      @assertFalse(descriptor%has_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND))
+      @assertTrue(descriptor%has_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND))
+      call descriptor%get_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, found, _RC)
+      @assertTrue(found%get_status() == CHARACTERISTIC_STATUS_UNCHECKED)
       @assertFalse(descriptor%has_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND))
       @assert_that(descriptor%has_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND), is(true()))
       @assert_that(descriptor%has_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND), is(true()))

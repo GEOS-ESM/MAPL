@@ -6,7 +6,9 @@ a `VariableSpec` factory. PhysicalUnits (`B3-Units`) is the worked
 example; TypeKind (`B3-TypeKind`) is the worked example for a
 structural kind with a MIRRORED sentinel; UngriddedDims
 (`B3-UngriddedDims`) adds a kind with its own shape set and a
-descriptor-side duplicate removed. Later B3 tasks refine this file.
+descriptor-side duplicate removed; StandardName (`B3-StandardName`) is the
+worked example for deleting a subclass's own status check. Later B3 tasks
+refine this file.
 
 Design authority: `openspec/changes/characteristic-separation-of-concerns/design.md`
 (§2 status, §3 Info facade, §4.3 applicability, §5 factories). Rules:
@@ -245,3 +247,31 @@ Second kind with a DEFERRED value; it reuses Geometry's machinery.
   the owner's vertical grid.
 - Test fixtures that want a 2D item set `vertical_stagger = NONE`
   (`make_var` does).
+
+## StandardName as implemented
+
+| Input (`VariableSpec%standard_name`) | Shape | Entry |
+|---|---|---|
+| allocated, not `'<unknown>'` | FIELD | SPECIFIED with the value |
+| unallocated or `'<unknown>'` | FIELD | UNCHECKED, no value |
+| any | every other flag, including BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE, EXPRESSION | none |
+
+- Own shape set (design §4.3): only FIELD carries a standard name. Before
+  this task the entry was inserted for any shape that declared one and
+  omitted otherwise; the differences are that an undeclared FIELD now has
+  an UNCHECKED entry, and a declared name on another shape is dropped. A
+  shape with no entry is never compared (one-sided absence, design §2.6).
+- The subclass no longer reads `CharacteristicStatus`: the UNCHECKED
+  escape in `needs_extension_for` is gone, and `resolve_pair` makes
+  UNCHECKED match. `needs_extension_for` is plain string inequality.
+- Never DEFERRED or MIRRORED: there is no mirror sentinel and no
+  component-supplied value. Legacy absent-means-mirror: none
+  (`StandardNameAspect` is UNCHECKED when absent).
+- `write_info` writes `standard_name=` through `MAPL_FieldSet` /
+  `MAPL_FieldBundleSet` in both phases: it is not a `FieldDelta` trigger
+  and is not a creation input, so `is_structural()` stays `.false.`.
+  UNCHECKED writes `UNKNOWN_STANDARD_NAME` (`'<unknown>'`), as units do.
+- Not reproduced from the legacy aspect: the warning when only one side
+  declares a name, and the `ValidationMode` strict/permissive severity
+  (they were already absent from the characteristic). Field-dictionary
+  validation of the name stays in `VariableSpec` construction.

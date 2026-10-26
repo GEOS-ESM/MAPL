@@ -3,10 +3,11 @@
 submodule (mapl_VariableSpec_mod) make_characteristics_smod
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
         TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
-        VERTICAL_COORDINATE_CHARACTERISTIC_KIND
+        VERTICAL_COORDINATE_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
+   use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic, UNKNOWN_STANDARD_NAME
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
@@ -39,13 +40,14 @@ contains
 
       integer :: status
       integer :: i
-      type(Factory) :: factories(5)
+      type(Factory) :: factories(6)
 
       factories(1)%make => make_units_characteristic
       factories(2)%make => make_typekind_characteristic
       factories(3)%make => make_ungridded_dims_characteristic
       factories(4)%make => make_geometry_characteristic
       factories(5)%make => make_vertical_coordinate_characteristic
+      factories(6)%make => make_standard_name_characteristic
 
       do i = 1, size(factories)
          call factories(i)%make(this, descriptor, _RC)
@@ -219,6 +221,34 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_vertical_coordinate_characteristic
+
+   ! A declared standard_name is SPECIFIED. Undeclared (or UNKNOWN_STANDARD_NAME)
+   ! is UNCHECKED: it matches anything. Only a FIELD carries one: the other
+   ! shapes either enforce their own names (VECTOR), are exempt, or adopt the
+   ! field-side value after the shape step.
+   subroutine make_standard_name_characteristic(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StandardNameCharacteristic) :: standard_name
+      logical :: declared
+
+      _RETURN_UNLESS(spec%itemType == MAPL_STATEITEM_FIELD)
+
+      declared = allocated(spec%standard_name)
+      if (declared) declared = spec%standard_name /= UNKNOWN_STANDARD_NAME
+      if (declared) then
+         standard_name = StandardNameCharacteristic(spec%standard_name)
+      else
+         call standard_name%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      end if
+
+      call descriptor%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, standard_name, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_standard_name_characteristic
 
    ! Shapes whose payload is a Field or FieldBundle (or an expression that
    ! evaluates to one) and so carry the field-level kinds.

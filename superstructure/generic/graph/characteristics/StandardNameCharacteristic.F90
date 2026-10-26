@@ -1,38 +1,40 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! StandardNameCharacteristic: the "standard name" StateItemCharacteristic
-! ValueCharacteristic storing a plain standard_name string.
+! StandardNameCharacteristic: the "standard name" StateItemCharacteristic, a
+! ValueCharacteristic holding a plain standard_name string. Names are
+! compared by string equality only; whether a pair is compared at all
+! (UNCHECKED on either side matches) is decided by StateItemDescriptor, not
+! here. An UNCHECKED instance holds no value (get_standard_name returns '');
+! its Info value is UNKNOWN_STANDARD_NAME.
 !
-! SCOPE BOUNDARY (design.md D5): legacy StandardNameAspect%matches() layers
-! real GraphBuilder-adjacent production behavior on top of plain string
-! equality - a wildcard/is_unchecked() short-circuit, asymmetric
-! accept-with-warning when only one side declares a name, and
-! ValidationMode-gated strict-vs-permissive severity with pflogger output
-! (FieldDictionaryConfig). None of that is replicated here - this type has
-! no ValidationMode/FieldDictionaryConfig/pflogger dependency. Instead,
-! needs_extension_for uses the base StateItemCharacteristic's own
-! CharacteristicStatus (REQ-CHAR-003) as the "accept without comparison"
-! escape: if either side's status is UNCHECKED, no extension is needed,
-! exactly matching UNCHECKED's own documented meaning. Otherwise, plain
-! string equality - no warning, no ValidationMode, no logging.
+! Legacy StandardNameAspect%matches() also warns when only one side declares
+! a name and escalates a disagreement by ValidationMode. That is not
+! replicated: this type has no ValidationMode or logging dependency.
 !
-! A `build_transform` is required by the common interface but reports
-! unsupported here - no real provider exists for this axis. Legacy
-! StandardNameAspect%make_transform always returns NullTransform.
-! `get_signature` derives a stable string from `standard_name`.
+! No Transform exists for this axis: build_transform reports unsupported.
 !------------------------------------------------------------------------------
 module mapl_StandardNameCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
    use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, STANDARD_NAME_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_SPECIFIED, operator(==)
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_field_api, only: MAPL_FieldSet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleSet
+   use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_StateItem_Flag, &
+        ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE, operator(==)
    use mapl_TransformBase_mod, only: TransformBase
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
 
    public :: StandardNameCharacteristic
+   public :: UNKNOWN_STANDARD_NAME
+
+   ! Info value for UNCHECKED standard names; also the declared value that
+   ! means UNCHECKED.
+   character(*), parameter :: UNKNOWN_STANDARD_NAME = '<unknown>'
 
    type, extends(ValueCharacteristic) :: StandardNameCharacteristic
       private
@@ -42,6 +44,7 @@ module mapl_StandardNameCharacteristic_mod
       procedure :: needs_extension_for => standard_name_needs_extension_for
       procedure :: build_transform => standard_name_build_transform
       procedure :: get_signature => standard_name_get_signature
+      procedure :: write_info => standard_name_write_info
       procedure :: get_standard_name
    end type StandardNameCharacteristic
 
@@ -65,23 +68,16 @@ contains
       kind = STANDARD_NAME_CHARACTERISTIC_KIND
    end function standard_name_get_kind
 
-   ! `goal` is guaranteed a StandardNameCharacteristic for the real call
-   ! chain this method is used in (same guarantee documented on
-   ! GeometryCharacteristic/PhysicalUnitsCharacteristic). Status-based
-   ! escape (design.md D5): either side UNCHECKED means no extension is
-   ! needed regardless of the stored names.
+   ! `goal` is guaranteed a StandardNameCharacteristic: the caller looks both
+   ! sides up by the same kind key. StateItemDescriptor calls this only when
+   ! both sides are SPECIFIED.
    logical function standard_name_needs_extension_for(this, goal) result(needs_extension)
       class(StandardNameCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
 
       select type (goal)
       class is (StandardNameCharacteristic)
-         if (this%get_status() == CHARACTERISTIC_STATUS_UNCHECKED .or. &
-             goal%get_status() == CHARACTERISTIC_STATUS_UNCHECKED) then
-            needs_extension = .false.
-         else
-            needs_extension = (this%standard_name /= goal%standard_name)
-         end if
+         needs_extension = (this%get_standard_name() /= goal%get_standard_name())
       class default
          error stop 'StandardNameCharacteristic: needs_extension_for called with a non-StandardNameCharacteristic goal - should be checked by calling procedure'
       end select
@@ -91,11 +87,10 @@ contains
       class(StandardNameCharacteristic), intent(in) :: this
       character(:), allocatable :: standard_name
 
-      standard_name = this%standard_name
+      standard_name = ''
+      if (allocated(this%standard_name)) standard_name = this%standard_name
    end function get_standard_name
 
-   ! No real adaptation exists for this axis (module header): reports
-   ! unsupported.
    subroutine standard_name_build_transform(this, goal, transformer, rc)
       class(StandardNameCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -108,14 +103,44 @@ contains
       call report_build_transform_unsupported(rc)
    end subroutine standard_name_build_transform
 
-   ! merge-characteristic-families task 3.5: a stable, value-
-   ! distinguishing signature derived from this subclass's own stored
-   ! value (design.md Risks: a small, mechanical derivation).
+   ! Descriptive: a standard_name write does not touch the field's structure,
+   ! so it is valid in either phase. UNCHECKED writes UNKNOWN_STANDARD_NAME.
+   subroutine standard_name_write_info(this, handle, phase, rc)
+      class(StandardNameCharacteristic), intent(in) :: this
+      type(GraphStateItem), intent(inout) :: handle
+      integer, intent(in) :: phase
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: standard_name
+      type(ESMF_StateItem_Flag) :: item_type
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+
+      _UNUSED_DUMMY(phase)
+
+      standard_name = this%get_standard_name()
+      if (this%get_status() == CHARACTERISTIC_STATUS_UNCHECKED) standard_name = UNKNOWN_STANDARD_NAME
+
+      item_type = handle%itemType(_RC)
+      if (item_type == ESMF_STATEITEM_FIELD) then
+         field = handle%get_field(_RC)
+         call MAPL_FieldSet(field, standard_name=standard_name, _RC)
+      else if (item_type == ESMF_STATEITEM_FIELDBUNDLE) then
+         bundle = handle%get_field_bundle(_RC)
+         call MAPL_FieldBundleSet(bundle, standard_name=standard_name, _RC)
+      else
+         _FAIL('StandardNameCharacteristic: write_info needs a Field or FieldBundle handle')
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine standard_name_write_info
+
    function standard_name_get_signature(this) result(signature)
       class(StandardNameCharacteristic), intent(in) :: this
       character(:), allocatable :: signature
 
-      signature = 'standard_name=' // this%standard_name
+      signature = 'standard_name=' // this%get_standard_name()
    end function standard_name_get_signature
 
 end module mapl_StandardNameCharacteristic_mod

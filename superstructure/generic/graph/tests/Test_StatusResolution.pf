@@ -270,6 +270,22 @@ contains
       @assertTrue(waiting)
    end subroutine test_map_form_without_waiting_reports_conflict
 
+   ! The standard-name comparison has no status check of its own: the table does it.
+   @test
+   subroutine test_standard_name_unchecked_matches_and_specified_compares()
+      type(StandardNameCharacteristic) :: a, b, unchecked
+
+      a = StandardNameCharacteristic('air_temperature')
+      b = StandardNameCharacteristic('surface_pressure')
+      unchecked = StandardNameCharacteristic('ignored')
+      call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+
+      @assertEqual(PAIR_MATCH, resolve_pair(a, unchecked, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_MATCH, resolve_pair(unchecked, b, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(a, b, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_MATCH, resolve_pair(a, a, MAPL_STATEITEM_FIELD))
+   end subroutine test_standard_name_unchecked_matches_and_specified_compares
+
    ! -- one-sided absence --
 
    ! Spec "Bracket without standard name": absence on one side is not a mismatch.

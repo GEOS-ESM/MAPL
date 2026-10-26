@@ -523,11 +523,36 @@ in the first one; later ones refine it.
   (today only an item-level `geometry:` block sets it), so the graph can
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
-- **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry and
-  B3-VerticalCoordinate done (commit trailers `Plan-Task: B3-Units`,
-  `Plan-Task: B3-TypeKind`, `Plan-Task: B3-UngriddedDims`,
-  `Plan-Task: B3-Geometry`, `Plan-Task: B3-VerticalCoordinate`); others not
-  started.
+- **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
+  B3-VerticalCoordinate and B3-StandardName done (commit trailers
+  `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
+  `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
+  `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`);
+  others not started.
+  B3-StandardName: `StandardNameCharacteristic` no longer reads status
+  (the UNCHECKED escape in `needs_extension_for` is deleted; the
+  descriptor's `resolve_pair` decides) and gained `write_info`
+  (`standard_name=` through `MAPL_FieldSet`/`MAPL_FieldBundleSet`, both
+  phases, `is_structural()` stays false; UNCHECKED writes `'<unknown>'`).
+  The factory (`make_standard_name_characteristic`) gives SPECIFIED for a
+  declared name, UNCHECKED for an unallocated or `'<unknown>'` one, and
+  inserts only for FIELD (design §4.3). Its `populate_characteristics`
+  block is gone. Behavior changes: a FIELD with no standard_name now has
+  an UNCHECKED entry (was absent; same matching), and BRACKET, VECTOR,
+  VECTORBRACKET, FIELDBUNDLE and EXPRESSION no longer get an entry even
+  when one is declared (was inserted). No legacy absent-means-mirror
+  case. The only GraphBuilder reference left is the
+  `STANDARD_NAME_CHARACTERISTIC_KIND` enumeration in
+  `merged_item_for_link` and the `GraphBuilder.F90` use list, for B4. No
+  `Transform` exists, so `check_graph` needs no new step kind.
+  Tests: the subclass's UNCHECKED-status test moved to
+  `Test_StatusResolution.pf` (the table does it now); `sync_to_info` on
+  Field and FieldBundle, UNCHECKED and INVALID, and the factory's status
+  and shape set are new. ESSENTIAL is green on NAG and gfortran (65/65);
+  PENDING `MAPL.generic.scenarios.pending` on NAG fails `history_1`,
+  `service_service`, `service_with_options`, `statistics`,
+  `statistics_real`; this matches the set recorded for B3-Geometry, but
+  was not re-run on a HEAD baseline here.
   B3-VerticalCoordinate: see design.md §5 and adding-a-characteristic.md
   "VerticalCoordinate as implemented".
   B3-Geometry (first DEFERRED kind): `GeometryCharacteristic` gained

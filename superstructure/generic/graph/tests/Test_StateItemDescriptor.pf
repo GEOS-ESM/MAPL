@@ -5,7 +5,8 @@ module Test_StateItemDescriptor
         SYNC_PHASE_DESCRIPTIVE
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
         GEOMETRY_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
-        QUANTITY_TYPE_CHARACTERISTIC_KIND, VERTICAL_COORDINATE_CHARACTERISTIC_KIND
+        QUANTITY_TYPE_CHARACTERISTIC_KIND, VERTICAL_COORDINATE_CHARACTERISTIC_KIND, &
+        STANDARD_NAME_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED, CharacteristicStatus, operator(==)
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
@@ -15,6 +16,7 @@ module Test_StateItemDescriptor
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic, UNKNOWN_STANDARD_NAME
    use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
    use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid, mapl_BasicVerticalGridSpec, &
         mapl_BasicVerticalGridFactory, mapl_VerticalGridManager, mapl_VerticalGridFactory, &
@@ -289,6 +291,56 @@ contains
    end subroutine test_sync_structural_writes_ungridded_dims_on_bundle
 
    @test
+   subroutine test_sync_writes_specified_standard_name_in_both_phases()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, StandardNameCharacteristic('air_temperature'))
+      @assertEqual('air_temperature', synced_standard_name(item, SYNC_PHASE_STRUCTURAL))
+      @assertEqual('air_temperature', synced_standard_name(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_writes_specified_standard_name_in_both_phases
+
+   @test
+   subroutine test_sync_writes_unknown_for_unchecked_standard_name()
+      type(StateItemDescriptor) :: item
+      type(StandardNameCharacteristic) :: unchecked
+
+      call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call item%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, unchecked)
+      @assertEqual(UNKNOWN_STANDARD_NAME, synced_standard_name(item, SYNC_PHASE_STRUCTURAL))
+      @assertEqual(UNKNOWN_STANDARD_NAME, synced_standard_name(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_writes_unknown_for_unchecked_standard_name
+
+   @test
+   subroutine test_sync_skips_invalid_standard_name()
+      type(StateItemDescriptor) :: item
+      type(StandardNameCharacteristic) :: invalid
+
+      call item%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, invalid)
+      @assertEqual('seed', synced_standard_name(item, SYNC_PHASE_STRUCTURAL))
+   end subroutine test_sync_skips_invalid_standard_name
+
+   @test
+   subroutine test_sync_writes_standard_name_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      character(:), allocatable :: standard_name
+      integer :: status
+
+      call item%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, StandardNameCharacteristic('air_temperature'))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, standard_name=standard_name, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('air_temperature', standard_name)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_writes_standard_name_on_bundle
+
+   @test
    subroutine test_sync_fails_for_kind_without_write_info()
       type(StateItemDescriptor) :: item
       type(NodeIdGenerator) :: gen
@@ -304,6 +356,29 @@ contains
       @assertTrue(status /= 0)
       call ESMF_FieldDestroy(field, noGarbage=.true.)
    end subroutine test_sync_fails_for_kind_without_write_info
+
+   ! The field starts with standard_name 'seed', so a skipped write reads back 'seed'.
+   function synced_standard_name(item, phase) result(standard_name)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      character(:), allocatable :: standard_name
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, standard_name='seed', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, standard_name=standard_name, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_standard_name
 
    function synced_units(item, phase) result(units)
       type(StateItemDescriptor), intent(in) :: item
