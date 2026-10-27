@@ -8,7 +8,10 @@ module Test_StatusResolution
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), &
         PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
-        VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND
+        VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+        VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
+   use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
+   use mapl_VerticalCoordinateDirection_mod, only: VCOORD_DIRECTION_UP, VCOORD_DIRECTION_DOWN
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
         CHARACTERISTIC_STATUS_INVALID, CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_DEFERRED
@@ -38,6 +41,21 @@ contains
 
       o = resolve_pair(units('m', export_status), units('m', import_status), MAPL_STATEITEM_FIELD)
    end function outcome
+
+   ! -- VerticalOrientation pairs --
+
+   @test
+   subroutine test_vertical_orientation_pairs()
+      type(VerticalOrientationCharacteristic) :: up, down, mirrored
+
+      up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+
+      @assertEqual(PAIR_MATCH, resolve_pair(up, up, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(up, down, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_ADOPT, resolve_pair(up, mirrored, MAPL_STATEITEM_FIELD))
+   end subroutine test_vertical_orientation_pairs
 
    ! -- export SPECIFIED row --
 
@@ -154,10 +172,12 @@ contains
       @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, GEOMETRY_CHARACTERISTIC_KIND))
       @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, VERTICAL_GRID_CHARACTERISTIC_KIND))
       @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, VERTICAL_STAGGER_CHARACTERISTIC_KIND))
+      @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND))
       @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, TYPE_KIND_CHARACTERISTIC_KIND))
       @assertFalse(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, PHYSICAL_UNITS_CHARACTERISTIC_KIND))
       @assertFalse(is_mirrored_export_allowed(MAPL_STATEITEM_FIELD, GEOMETRY_CHARACTERISTIC_KIND))
       @assertFalse(is_mirrored_export_allowed(MAPL_STATEITEM_FIELD, VERTICAL_STAGGER_CHARACTERISTIC_KIND))
+      @assertFalse(is_mirrored_export_allowed(MAPL_STATEITEM_FIELD, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND))
    end subroutine test_allowlist_entries
 
    ! Allowlisted: an EXPRESSION export with MIRRORED TYPE_KIND matches a

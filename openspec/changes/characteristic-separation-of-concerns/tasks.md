@@ -109,7 +109,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       Risk: many scenario items in components with a vertical grid give
       no `vertical_dim_spec`. If harvest does not fill them and freeze
       fails, stop and report the list; do not add a default.
-- [ ] 3.16 B3-VerticalOrientation (new kind; name provisional). Follow
+- [x] 3.16 B3-VerticalOrientation (new kind; name provisional). Follow
       design.md §5 (VerticalOrientation row) and Q7: vertical index order,
       one value per item, independent of VerticalStagger; unspecified ->
       the item's grid direction, resolved once the grid is known; explicit

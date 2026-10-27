@@ -538,12 +538,12 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-VerticalStagger, B3-StandardName and B3-Attributes done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-StandardName and B3-Attributes done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
   `Plan-Task: B3-Attributes`, `Plan-Task: B3-RenameVerticalGrid`,
-  `Plan-Task: B3-VerticalStagger`); others not started.
+  `Plan-Task: B3-VerticalStagger`, `Plan-Task: B3-VerticalOrientation`); others not started.
   B3-Attributes: `AttributesCharacteristic` gained `write_info`, a
   successful no-op (no Info key; design §3.4), `is_structural()` stays
   false. The factory (`make_attributes_characteristic`) always gives
@@ -593,6 +593,27 @@ in the first one; later ones refine it.
   was not re-run on a HEAD baseline here.
   B3-VerticalCoordinate: see design.md §5 and adding-a-characteristic.md
   "VerticalGrid as implemented".
+  B3-VerticalOrientation (done, awaiting commit): see adding-a-characteristic.md
+  "VerticalOrientation as implemented". New kind
+  `VERTICAL_ORIENTATION_CHARACTERISTIC_KIND` and
+  `VerticalOrientationCharacteristic` (structural; `vert_alignment=`
+  through `MAPL_FieldSet`/`MAPL_FieldBundleSet`). The (EXPRESSION,
+  VERTICAL_ORIENTATION) allowlist entry is added. Deviations: no new
+  `CharacteristicDefaults` field (it reads the existing vgrid's
+  `get_coordinate_direction`); the resolved direction is written instead of
+  `with_grid` (owner-accepted). Owner decision: `parse_var_specs` now reads
+  `vertical_alignment`, so the `vertical_alignment_*` scenarios carry real
+  orientations; legacy copy-on-connect of the export's alignment is
+  treated as a legacy defect, and the graph compares the values. No
+  `GraphBuilder*.F90` reference to the kind exists. ESSENTIAL is green on
+  NAG and gfortran (65/65), so no legacy test needed repair. PENDING
+  `MAPL.generic.scenarios.pending` on NAG fails 114 checks in the same five
+  scenarios (`history_1`, `service_service`, `service_with_options`,
+  `statistics`, `statistics_real`) and the same count as recorded for
+  B3-VerticalStagger; not re-run on a HEAD baseline here. The orientation
+  mismatch in `vertical_alignment_same_grid` is masked by the earlier
+  `VERTICAL_GRID` mismatch (warning only), so no scenario exercises the
+  kind; a reversal `Transform` is a C1 item.
   B3-VerticalStagger (done): see adding-a-characteristic.md "VerticalStagger
   as implemented". New kind `VERTICAL_STAGGER_CHARACTERISTIC_KIND` and
   `VerticalStaggerCharacteristic` (structural; `vert_staggerloc=` through

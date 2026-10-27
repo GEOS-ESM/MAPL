@@ -287,6 +287,40 @@ A structural kind with a DEFERRED value and no built-in default.
 - Test fixtures that build a `VariableSpec` by hand must set
   `vertical_stagger` for the item to settle in a component with a grid.
 
+## VerticalOrientation as implemented
+
+A structural value kind: the vertical index order (UP or DOWN). Legacy
+calls it alignment. It is independent of VerticalStagger.
+
+| `vertical_alignment` | Shape | Entry |
+|---|---|---|
+| `upward` / `downward` | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE, EXPRESSION | SPECIFIED UP / DOWN |
+| `mirror` | same | MIRRORED on an import or an expression; an error on any other export, raised at advertise |
+| unallocated or `with_grid`, item has a `vertical_grid` | same | SPECIFIED with that grid's `get_coordinate_direction()` |
+| unallocated or `with_grid`, with `mirror_vgrid`, or EXPRESSION | same | MIRRORED |
+| unallocated or `with_grid`, otherwise | same | DEFERRED |
+| any, `vertical_stagger` NONE; `VERTICALGRID` composite | | none |
+| any | STATE, SERVICE, WILDCARD | none |
+
+- `resolve_deferred` takes the direction from the component's vertical grid
+  (`CharacteristicDefaults` already carries it). `drop_if_unsupplied` drops
+  a DEFERRED entry when the component has no vertical grid.
+- Comparison reads only the two direction values, never a `VerticalGrid`.
+- `write_info` writes `vert_alignment=` in the STRUCTURAL phase for
+  SPECIFIED entries only; `with_grid` is never written because the value is
+  already resolved.
+- A MIRROR stagger does not imply a mirrored orientation.
+- `build_transform` reports unsupported (no reversal or vertical-regrid
+  `Transform`).
+- `parse_var_specs` reads the `vertical_alignment` key into
+  `VariableSpec%vertical_alignment` (also set by `GridCompAddSpec`). The
+  `vertical_alignment_*` scenarios now carry real orientations, but their
+  orientation mismatch is masked: the graph reports only the first
+  unsupported kind per connection, and `VERTICAL_GRID` comes first.
+- The resolved direction is written, not `with_grid` (owner-accepted
+  deviation from legacy; readers resolve either against the same grid). A
+  SPECIFIED entry whose direction is neither up nor down fails the write.
+
 ## StandardName as implemented
 
 | Input (`VariableSpec%standard_name`) | Shape | Entry |

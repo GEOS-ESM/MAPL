@@ -36,6 +36,8 @@ module mapl_StateItemCharacteristicKind_mod
    public :: ITEM_SHAPE_CHARACTERISTIC_KIND
    ! Value 12: vertical stagger location.
    public :: VERTICAL_STAGGER_CHARACTERISTIC_KIND
+   ! Value 13: vertical index order (up or down).
+   public :: VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
    public :: MOCK_CHARACTERISTIC_KIND
 
    type :: StateItemCharacteristicKind
@@ -64,6 +66,9 @@ module mapl_StateItemCharacteristicKind_mod
 
    ! Value 12: vertical stagger (VerticalStaggerCharacteristic.F90).
    type(StateItemCharacteristicKind), parameter :: VERTICAL_STAGGER_CHARACTERISTIC_KIND    = StateItemCharacteristicKind(12)
+
+   ! Value 13: vertical orientation (VerticalOrientationCharacteristic.F90).
+   type(StateItemCharacteristicKind), parameter :: VERTICAL_ORIENTATION_CHARACTERISTIC_KIND = StateItemCharacteristicKind(13)
 
    ! Test-only, mirrors CharacteristicId.F90's own MOCK_CHARACTERISTIC_ID
    ! precedent - lets a test define a fake StateItemCharacteristic
@@ -113,6 +118,8 @@ contains
          s = "ITEM_SHAPE"
       case (VERTICAL_STAGGER_CHARACTERISTIC_KIND%value)
          s = "VERTICAL_STAGGER"
+      case (VERTICAL_ORIENTATION_CHARACTERISTIC_KIND%value)
+         s = "VERTICAL_ORIENTATION"
       case (MOCK_CHARACTERISTIC_KIND%value)
          s = "MOCK"
       case default

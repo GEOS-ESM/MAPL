@@ -14,7 +14,8 @@ module Test_VariableSpecCharacteristics
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, &
         UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
         VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, &
-        ATTRIBUTES_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND
+        ATTRIBUTES_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+        VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
         CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED
@@ -29,6 +30,9 @@ module Test_VariableSpecCharacteristics
    use mapl_UngriddedDims_mod, only: UngriddedDims, operator(==)
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
    use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid
+   use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
+   use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, &
+        VCOORD_DIRECTION_DOWN, operator(==)
    use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE, &
         VERTICAL_STAGGER_MIRROR, VERTICAL_STAGGER_INVALID
    use esmf, only: ESMF_StateItem_Flag, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_IMPORT, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_I4
@@ -623,6 +627,184 @@ contains
       @assertTrue(has_entry)
    end subroutine test_stagger_none_has_no_vertical_grid
 
+   ! Status of the VERTICAL_ORIENTATION entry and, for a SPECIFIED one, its
+   ! direction; has_entry is false when the item gets none.
+   function orientation_entry_status(var_spec, has_entry, direction, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      logical, intent(out) :: has_entry
+      type(VerticalCoordinateDirection), intent(out) :: direction
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      has_entry = descriptor%has_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND)
+      if (has_entry) then
+         call descriptor%get_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, c, _RC)
+         char_status = c%get_status()
+         select type (c)
+         type is (VerticalOrientationCharacteristic)
+            direction = c%get_direction()
+         end select
+      end if
+      _RETURN(_SUCCESS)
+   end function orientation_entry_status
+
+   ! Unspecified follows the grid, which the component supplies later.
+   @test
+   subroutine test_undeclared_vertical_orientation_is_deferred()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+      @assertTrue(has_entry)
+
+      var_spec%vertical_alignment = 'with_grid'
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+   end subroutine test_undeclared_vertical_orientation_is_deferred
+
+   @test
+   subroutine test_declared_vertical_orientation_is_specified()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_alignment = 'upward'
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertTrue(direction == VCOORD_DIRECTION_UP)
+
+      var_spec%vertical_alignment = 'downward'
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertTrue(direction == VCOORD_DIRECTION_DOWN)
+   end subroutine test_declared_vertical_orientation_is_specified
+
+   ! An item grid is known at construction, so with_grid resolves there.
+   @test
+   subroutine test_item_vgrid_resolves_vertical_orientation()
+      type(VariableSpec) :: var_spec
+      type(mapl_BasicVerticalGrid) :: vgrid
+      logical :: has_entry
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      call vgrid%set_coordinate_direction(VCOORD_DIRECTION_UP)
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_grid = vgrid
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertTrue(direction == VCOORD_DIRECTION_UP)
+
+      var_spec%vertical_alignment = 'downward'
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertTrue(direction == VCOORD_DIRECTION_DOWN)
+   end subroutine test_item_vgrid_resolves_vertical_orientation
+
+   @test
+   subroutine test_mirror_vertical_orientation_is_mirrored()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%vertical_alignment = 'mirror'
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+
+      var_spec = make_spec(MAPL_STATEITEM_EXPRESSION)
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_vertical_orientation_is_mirrored
+
+   ! A MIRROR stagger does not imply a mirrored orientation.
+   @test
+   subroutine test_mirror_stagger_does_not_mirror_orientation()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%vertical_stagger = VERTICAL_STAGGER_MIRROR
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_stagger_does_not_mirror_orientation
+
+   @test
+   subroutine test_mirror_vgrid_mirrors_vertical_orientation()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%mirror_vgrid = .true.
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+
+      var_spec%vertical_alignment = 'upward'
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(direction == VCOORD_DIRECTION_UP)
+   end subroutine test_mirror_vgrid_mirrors_vertical_orientation
+
+   @test
+   subroutine test_mirror_vertical_orientation_on_field_export_fails()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_alignment = 'mirror'
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('vertical_alignment mirror is only valid on an import or an expression: X')
+      @assertExceptionRaised('status=1')
+   end subroutine test_mirror_vertical_orientation_on_field_export_fails
+
+   @test
+   subroutine test_unknown_vertical_alignment_fails()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_alignment = 'sideways'
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('unknown vertical_alignment: sideways')
+      @assertExceptionRaised('status=1')
+   end subroutine test_unknown_vertical_alignment_fails
+
+   ! A 2D item (stagger NONE) has no vertical index to order.
+   @test
+   subroutine test_stagger_none_has_no_vertical_orientation()
+      type(VariableSpec) :: var_spec
+      type(CharacteristicStatus) :: char_status
+      logical :: has_entry
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_stagger = VERTICAL_STAGGER_NONE
+      var_spec%vertical_alignment = 'upward'
+      char_status = orientation_entry_status(var_spec, has_entry, direction, rc=status)
+      @assertEqual(0, status)
+      @assertFalse(has_entry)
+   end subroutine test_stagger_none_has_no_vertical_orientation
+
    @test
    subroutine test_undeclared_vertical_stagger_is_deferred()
       type(VariableSpec) :: var_spec
@@ -740,6 +922,33 @@ contains
          @assertFalse(descriptor%has_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND))
       end do
    end subroutine test_vertical_stagger_applicability
+
+   @test
+   subroutine test_vertical_orientation_applicability()
+      type(ESMF_StateItem_Flag) :: with_entry(6), without_entry(4)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      with_entry = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_EXPRESSION]
+      do i = 1, size(with_entry)
+         descriptor = empty_descriptor
+         var_spec = make_spec(with_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(descriptor%has_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND))
+      end do
+
+      without_entry = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE]
+      do i = 1, size(without_entry)
+         descriptor = empty_descriptor
+         var_spec = make_spec(without_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_vertical_orientation_applicability
 
    @test
    subroutine test_vertical_grid_applicability()

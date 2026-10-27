@@ -25,7 +25,8 @@ module Test_StateItemCharacteristicSubclasses
                                                     NORMALIZATION_CHARACTERISTIC_KIND, &
                                                     STANDARD_NAME_CHARACTERISTIC_KIND, &
                                                     ITEM_SHAPE_CHARACTERISTIC_KIND, &
-                                                    VERTICAL_STAGGER_CHARACTERISTIC_KIND
+                                                    VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+                                                    VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
    use mapl_TransformBase_mod, only: TransformBase
 
@@ -35,6 +36,9 @@ module Test_StateItemCharacteristicSubclasses
    use mapl_VerticalStaggerCharacteristic_mod, only: VerticalStaggerCharacteristic
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, &
         VERTICAL_STAGGER_EDGE, VERTICAL_STAGGER_MIRROR
+   use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
+   use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, &
+        VCOORD_DIRECTION_DOWN, operator(==)
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
    use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
    use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
@@ -175,6 +179,53 @@ contains
       call center%build_transform(edge, transformer, rc=status)
       @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
    end subroutine test_vertical_stagger_build_transform_unsupported
+
+   ! --- VerticalOrientationCharacteristic ---
+
+   @test
+   subroutine test_vertical_orientation_is_a_structural_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      @assertTrue(v%get_kind() == VERTICAL_ORIENTATION_CHARACTERISTIC_KIND)
+      @assertTrue(v%is_structural())
+   end subroutine test_vertical_orientation_is_a_structural_value_characteristic
+
+   @test
+   subroutine test_vertical_orientation_needs_extension_for()
+      type(VerticalOrientationCharacteristic) :: up, same_as_up, down
+
+      up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      same_as_up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+
+      @assertFalse(up%needs_extension_for(same_as_up))
+      @assertTrue(up%needs_extension_for(down))
+      @assertTrue(down%needs_extension_for(up))
+   end subroutine test_vertical_orientation_needs_extension_for
+
+   @test
+   subroutine test_vertical_orientation_signature_and_getter()
+      type(VerticalOrientationCharacteristic) :: down
+      type(VerticalCoordinateDirection) :: got
+
+      down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+      @assertEqual('vertical_orientation=downward', down%get_signature())
+      got = down%get_direction()
+      @assertTrue(got == VCOORD_DIRECTION_DOWN)
+   end subroutine test_vertical_orientation_signature_and_getter
+
+   @test
+   subroutine test_vertical_orientation_build_transform_unsupported()
+      type(VerticalOrientationCharacteristic) :: up, down
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+      call up%build_transform(down, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+   end subroutine test_vertical_orientation_build_transform_unsupported
 
    ! --- 3.5: ConservationCharacteristic (reused mirror-aware operator(==)) ---
 

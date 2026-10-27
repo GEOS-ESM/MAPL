@@ -4,7 +4,7 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
         TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
         VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND, &
-        VERTICAL_STAGGER_CHARACTERISTIC_KIND
+        VERTICAL_STAGGER_CHARACTERISTIC_KIND, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
@@ -18,6 +18,10 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
    use mapl_VerticalStaggerCharacteristic_mod, only: VerticalStaggerCharacteristic
    use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_INVALID
+   use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
+   use mapl_VerticalCoordinateDirection_mod, only: VCOORD_DIRECTION_UP, VCOORD_DIRECTION_DOWN
+   use mapl_VerticalAlignment_mod, only: VerticalAlignment, VALIGN_UP, VALIGN_DOWN, VALIGN_WITH_GRID, &
+        VALIGN_INVALID, operator(/=), operator(==)
    implicit none(type, external)
 
    abstract interface
@@ -44,7 +48,7 @@ contains
 
       integer :: status
       integer :: i
-      type(Factory) :: factories(8)
+      type(Factory) :: factories(9)
 
       factories(1)%make => make_units_characteristic
       factories(2)%make => make_typekind_characteristic
@@ -54,6 +58,7 @@ contains
       factories(6)%make => make_standard_name_characteristic
       factories(7)%make => make_attributes_characteristic
       factories(8)%make => make_vertical_stagger_characteristic
+      factories(9)%make => make_vertical_orientation_characteristic
 
       do i = 1, size(factories)
          call factories(i)%make(this, descriptor, _RC)
@@ -317,6 +322,64 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_vertical_stagger_characteristic
+
+   ! vertical_alignment 'upward' or 'downward' is SPECIFIED. 'mirror' is
+   ! MIRRORED; it is an error on an export other than an expression. Absent or
+   ! 'with_grid' follows the grid: SPECIFIED with the item grid's direction,
+   ! else MIRRORED for an EXPRESSION or with mirror_vgrid, else DEFERRED until
+   ! the component grid is known. A DEFERRED entry whose component has no
+   ! vertical grid is dropped at GEOM_B. An explicit vertical_stagger NONE
+   ! means no vertical dimension, so no entry.
+   subroutine make_vertical_orientation_characteristic(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(VerticalOrientationCharacteristic) :: orientation_char
+      character(:), allocatable :: requested
+      type(VerticalAlignment) :: alignment
+      logical :: is_mirror
+
+      if (allocated(spec%state_item_variant)) then
+         _RETURN_IF(spec%state_item_variant == MAPL_STATEITEM_VERTICALGRID)
+      end if
+      _RETURN_UNLESS(carries_field_description(spec%itemType))
+      if (allocated(spec%vertical_stagger)) then
+         _RETURN_IF(spec%vertical_stagger%is_none())
+      end if
+
+      is_mirror = .false.
+      alignment = VALIGN_WITH_GRID
+      if (allocated(spec%vertical_alignment)) then
+         requested = ESMF_UtilStringLowerCase(trim(spec%vertical_alignment))
+         is_mirror = (requested == 'mirror')
+         if (.not. is_mirror) alignment = VerticalAlignment(requested)
+         _ASSERT(alignment /= VALIGN_INVALID, 'unknown vertical_alignment: ' // spec%vertical_alignment)
+      end if
+
+      if (is_mirror .and. spec%state_intent == ESMF_STATEINTENT_EXPORT) then
+         _ASSERT(spec%itemType == MAPL_STATEITEM_EXPRESSION, 'vertical_alignment mirror is only valid on an import or an expression: ' // spec%short_name)
+      end if
+
+      if (is_mirror) then
+         call orientation_char%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      else if (alignment == VALIGN_UP) then
+         orientation_char = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      else if (alignment == VALIGN_DOWN) then
+         orientation_char = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+      else if (allocated(spec%vertical_grid)) then
+         orientation_char = VerticalOrientationCharacteristic(spec%vertical_grid%get_coordinate_direction())
+      else if (spec%itemType == MAPL_STATEITEM_EXPRESSION .or. spec%mirror_vgrid) then
+         call orientation_char%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      else
+         call orientation_char%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      end if
+
+      call descriptor%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, orientation_char, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_vertical_orientation_characteristic
 
    ! Shapes whose payload is a Field or FieldBundle (or an expression that
    ! evaluates to one) and so carry the field-level kinds.

@@ -144,6 +144,45 @@ contains
       call ESMF_HConfigDestroy(config, _RC)
    end subroutine test_parse_var_specs_vertical_grid_mirror
 
+   ! vertical_alignment reaches the VariableSpec as written; omitted stays unallocated.
+   @test
+   subroutine test_parse_var_specs_vertical_alignment()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: var_spec
+      type(VariableSpecVectorIterator) :: iter
+      integer :: rc, status, n_up, n_plain
+
+      config = ESMF_HConfigCreate(content='{states: {import: {' // &
+           'A: {typekind: R4, vertical_alignment: upward},' // &
+           'B: {typekind: R4}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      @assertEqual(2, var_specs%size())
+
+      n_up = 0
+      n_plain = 0
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            if (var_spec%short_name == 'A') then
+               @assertTrue(allocated(var_spec%vertical_alignment))
+               @assertEqual('upward', var_spec%vertical_alignment)
+               n_up = n_up + 1
+            else
+               @assertFalse(allocated(var_spec%vertical_alignment))
+               n_plain = n_plain + 1
+            end if
+         end do
+      end associate
+      @assertEqual(1, n_up)
+      @assertEqual(1, n_plain)
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_vertical_alignment
+
    @test
    subroutine test_equal_child_spec_ss_differs()
       class(UserSetServices), allocatable :: ss_A

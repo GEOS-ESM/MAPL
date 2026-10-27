@@ -18,7 +18,7 @@ module mapl_StateItemDescriptor_mod
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), &
         GEOMETRY_CHARACTERISTIC_KIND, VERTICAL_GRID_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, &
-        VERTICAL_STAGGER_CHARACTERISTIC_KIND
+        VERTICAL_STAGGER_CHARACTERISTIC_KIND, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
         CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_DEFERRED
@@ -152,6 +152,7 @@ contains
            MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, GEOMETRY_CHARACTERISTIC_KIND), &
            MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, VERTICAL_GRID_CHARACTERISTIC_KIND), &
            MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, VERTICAL_STAGGER_CHARACTERISTIC_KIND), &
+           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND), &
            MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, TYPE_KIND_CHARACTERISTIC_KIND)]
       integer :: i
 

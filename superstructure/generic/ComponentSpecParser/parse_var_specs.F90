@@ -52,6 +52,8 @@ contains
          type(ESMF_TypeKind_Flag) :: typekind
          real, allocatable :: fill_value
          type(VerticalStaggerLoc) :: vertical_stagger
+         character(:), allocatable :: vertical_alignment
+         logical :: has_vertical_alignment
          type(UngriddedDims) :: ungridded_dims
          character(:), allocatable :: standard_name
          character(:), allocatable :: long_name
@@ -121,6 +123,12 @@ contains
                mirror_geom = ESMF_HConfigAsLogical(attributes, keyString=KEY_GEOMETRY_MIRROR, _RC)
             end if
 
+            if (allocated(vertical_alignment)) deallocate(vertical_alignment)
+            has_vertical_alignment = ESMF_HConfigIsDefined(attributes, keyString=KEY_VERTICAL_ALIGNMENT, _RC)
+            if (has_vertical_alignment) then
+               vertical_alignment = ESMF_HConfigAsString(attributes, keyString=KEY_VERTICAL_ALIGNMENT, _RC)
+            end if
+
             mirror_vgrid = .false.
             has_mirror_vgrid = ESMF_HConfigIsDefined(attributes, keyString=KEY_VERTICAL_GRID_MIRROR, _RC)
             if (has_mirror_vgrid) then
@@ -170,6 +178,7 @@ contains
                  itemtype=itemtype, &
                  typekind=typekind, &
                  vertical_stagger=vertical_stagger, &
+                 vertical_alignment=vertical_alignment, &
                  ungridded_dims=ungridded_dims, &
                  fill_value=fill_value, &
                  service_items=service_items, &

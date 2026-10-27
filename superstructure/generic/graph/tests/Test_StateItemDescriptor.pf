@@ -6,7 +6,8 @@ module Test_StateItemDescriptor
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
         GEOMETRY_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
         QUANTITY_TYPE_CHARACTERISTIC_KIND, VERTICAL_GRID_CHARACTERISTIC_KIND, &
-        STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND
+        STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+        VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED, CharacteristicStatus, operator(==)
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
@@ -21,6 +22,10 @@ module Test_StateItemDescriptor
    use gFTL2_StringVector, only: StringVector
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
    use mapl_VerticalStaggerCharacteristic_mod, only: VerticalStaggerCharacteristic
+   use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
+   use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, &
+        VCOORD_DIRECTION_DOWN, operator(==)
+   use mapl_VerticalAlignment_mod, only: VerticalAlignment, VALIGN_UP, VALIGN_DOWN, VALIGN_WITH_GRID, operator(==)
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, &
         VERTICAL_STAGGER_EDGE
    use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid, mapl_BasicVerticalGridSpec, &
@@ -32,7 +37,7 @@ module Test_StateItemDescriptor
    use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundleSet
    use ESMF, only: ESMF_Field, ESMF_FieldEmptyCreate, ESMF_FieldDestroy, &
         ESMF_TypeKind_Flag, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_R4, operator(==), &
-        ESMF_FieldBundle, ESMF_FieldBundleCreate, ESMF_FieldBundleDestroy, &
+        ESMF_FieldBundle, ESMF_FieldBundleCreate, ESMF_FieldBundleDestroy, ESMF_FieldBundleAdd, &
         ESMF_Geom, ESMF_GeomCreate, ESMF_Grid, ESMF_GridCreateNoPeriDim
    use funit
    implicit none
@@ -796,6 +801,173 @@ contains
       @assertEqual(0, status)
       @assertTrue(other%has_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND))
    end subroutine test_drop_unsupplied_keeps_resolved_vertical_grid
+
+   ! --- VerticalOrientation ---
+
+   function alignment_after_sync(item, phase) result(alignment)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(VerticalAlignment) :: alignment
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, vert_alignment=alignment, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function alignment_after_sync
+
+   @test
+   subroutine test_sync_structural_writes_vertical_orientation_on_field()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      @assertTrue(alignment_after_sync(item, SYNC_PHASE_STRUCTURAL) == VALIGN_UP)
+
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      @assertTrue(alignment_after_sync(item, SYNC_PHASE_STRUCTURAL) == VALIGN_DOWN)
+   end subroutine test_sync_structural_writes_vertical_orientation_on_field
+
+   @test
+   subroutine test_sync_structural_writes_vertical_orientation_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field) :: member
+      type(VerticalAlignment) :: alignment
+      integer :: status
+
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      member = ESMF_FieldEmptyCreate(name='m', rc=status)
+      @assertEqual(0, status)
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldBundleAdd(bundle, [member], rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(member, vert_alignment=alignment, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(alignment == VALIGN_DOWN)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+      call ESMF_FieldDestroy(member, noGarbage=.true.)
+   end subroutine test_sync_structural_writes_vertical_orientation_on_bundle
+
+   @test
+   subroutine test_sync_descriptive_skips_vertical_orientation()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      @assertTrue(alignment_after_sync(item, SYNC_PHASE_DESCRIPTIVE) == VALIGN_WITH_GRID)
+   end subroutine test_sync_descriptive_skips_vertical_orientation
+
+   @test
+   subroutine test_sync_skips_deferred_and_mirrored_vertical_orientation()
+      type(StateItemDescriptor) :: item
+      type(VerticalOrientationCharacteristic) :: not_a_value
+
+      call not_a_value%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, not_a_value)
+      @assertTrue(alignment_after_sync(item, SYNC_PHASE_STRUCTURAL) == VALIGN_WITH_GRID)
+
+      call not_a_value%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, not_a_value)
+      @assertTrue(alignment_after_sync(item, SYNC_PHASE_STRUCTURAL) == VALIGN_WITH_GRID)
+   end subroutine test_sync_skips_deferred_and_mirrored_vertical_orientation
+
+   ! Resolves the orientation against defaults; returns the entry's status and,
+   ! when it is SPECIFIED, its direction.
+   function orientation_after(item, defaults, direction, rc) result(orientation_status)
+      type(StateItemDescriptor), intent(inout) :: item
+      type(CharacteristicDefaults), intent(in) :: defaults
+      type(VerticalCoordinateDirection), intent(out) :: direction
+      integer, intent(out) :: rc
+      type(CharacteristicStatus) :: orientation_status
+
+      class(StateItemCharacteristic), allocatable :: c
+
+      call item%resolve_deferred(defaults, rc=rc)
+      @assertEqual(0, rc)
+      call item%drop_unsupplied(defaults, rc=rc)
+      @assertEqual(0, rc)
+      call item%get_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, c, rc=rc)
+      @assertEqual(0, rc)
+      orientation_status = c%get_status()
+      select type (c)
+      type is (VerticalOrientationCharacteristic)
+         direction = c%get_direction()
+      end select
+   end function orientation_after
+
+   ! The component grid's direction, not a fixed one, fills the entry.
+   @test
+   subroutine test_resolve_deferred_orientation_takes_grid_direction()
+      type(StateItemDescriptor) :: item
+      type(VerticalOrientationCharacteristic) :: deferred
+      type(CharacteristicDefaults) :: defaults
+      type(mapl_BasicVerticalGrid) :: vgrid
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, deferred)
+      call vgrid%set_coordinate_direction(VCOORD_DIRECTION_UP)
+      defaults = CharacteristicDefaults(vgrid=vgrid)
+      call defaults%set_component_scope()
+
+      @assertTrue(orientation_after(item, defaults, direction, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(direction == VCOORD_DIRECTION_UP)
+   end subroutine test_resolve_deferred_orientation_takes_grid_direction
+
+   @test
+   subroutine test_resolve_deferred_orientation_leaves_specified()
+      type(StateItemDescriptor) :: item
+      type(CharacteristicDefaults) :: defaults
+      type(mapl_BasicVerticalGrid) :: vgrid
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      call vgrid%set_coordinate_direction(VCOORD_DIRECTION_DOWN)
+      defaults = CharacteristicDefaults(vgrid=vgrid)
+      call defaults%set_component_scope()
+
+      @assertTrue(orientation_after(item, defaults, direction, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(direction == VCOORD_DIRECTION_UP)
+   end subroutine test_resolve_deferred_orientation_leaves_specified
+
+   ! No component grid: the item has no vertical index, so the entry goes.
+   @test
+   subroutine test_drop_unsupplied_drops_deferred_orientation_without_vgrid()
+      type(StateItemDescriptor) :: item
+      type(VerticalOrientationCharacteristic) :: deferred
+      type(CharacteristicDefaults) :: defaults
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, deferred)
+      defaults = CharacteristicDefaults()
+      call defaults%set_component_scope()
+      call item%resolve_deferred(defaults, rc=status)
+      @assertEqual(0, status)
+      call item%drop_unsupplied(defaults, rc=status)
+      @assertEqual(0, status)
+      @assertFalse(item%has_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND))
+   end subroutine test_drop_unsupplied_drops_deferred_orientation_without_vgrid
 
    ! --- VerticalStagger ---
 

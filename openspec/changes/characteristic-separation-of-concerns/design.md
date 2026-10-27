@@ -296,7 +296,7 @@ for that shape).
 | HorizontalDimsSpec | `horizontal_dims_spec=` | none | - | S | Moved from Geometry. No bundle keyword (legacy does not write it either). |
 | VerticalGrid | `vgrid=` | `vgrid=` | - | S | Info stores `vgrid_id`. `num_levels` is derived on read. |
 | VerticalStagger | `vert_staggerloc=` | `vert_staggerloc=` | - | S | Bundle path calls FieldSet on members. |
-| VerticalOrientation | `vert_alignment=` | `vert_alignment=` | - | S | Bundle path calls FieldSet on members. |
+| VerticalOrientation | `vert_alignment=` | `vert_alignment=` | - | S | Bundle path calls FieldSet on members. The resolved UP/DOWN is written, not `with_grid` (owner-accepted deviation: readers resolve both against the same grid). |
 | TypeKind | `typekind=` | `typekind=` | - | S | |
 | UngriddedDims | `ungridded_dims=` | `ungridded_dims=` | - | S | |
 | PhysicalUnits | `units=` | `units=` | - | S (see §3.2.2) | UNCHECKED writes `'<unknown>'`. |
@@ -771,7 +771,10 @@ Q7 (B3-VerticalOrientation). **Answered (revised):** orientation (legacy
     component grid); it must not read VerticalGrid when comparing. An
     explicit mirror value (imports only) takes the export's resolved order;
     a MIRROR stagger does not imply it. If resolution does not work this
-    way, stop and report.
+    way, stop and report. **Implemented as designed** (B3-VerticalOrientation):
+    the mirror value is the string `'mirror'` in `vertical_alignment`;
+    `build_transform` reports unsupported (no index-reversal or vertical
+    regrid Transform exists).
 Q9 (B3-QuantityType). Legacy `make_QuantityTypeAspect` ignores
     `VariableSpec%quantity_type` and writes default metadata plus a
     derived normalization that `NormalizationAspect` overwrites. The
