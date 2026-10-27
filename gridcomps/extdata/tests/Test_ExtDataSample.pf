@@ -1,0 +1,71 @@
+#include "MAPL_TestErr.h"
+module Test_ExtDataSample
+   use pfunit
+   use mapl_ExtDataSample_mod
+   use esmf
+   implicit none
+
+contains
+
+   function get_offset_seconds(content, rc) result(seconds)
+      character(len=*), intent(in) :: content
+      integer, intent(out) :: rc
+      integer(ESMF_KIND_I8) :: seconds
+
+      type(ESMF_HConfig) :: config
+      type(ESMF_TimeInterval) :: time_step, offset
+      type(ExtDataSample) :: sample
+      integer :: status
+
+      seconds = 0
+      call ESMF_TimeIntervalSet(time_step, s=900, rc=status)
+      config = ESMF_HConfigCreate(content=content, rc=status)
+      sample = ExtDataSample(config, rc=status)
+      offset = sample%get_update_offset(time_step, rc=rc)
+      if (rc == 0) call ESMF_TimeIntervalGet(offset, s_i8=seconds, rc=status)
+      call ESMF_HConfigDestroy(config, rc=status)
+   end function get_offset_seconds
+
+   @test
+   subroutine test_offset_default_is_zero()
+      integer :: rc
+      @assertEqual(0_ESMF_KIND_I8, get_offset_seconds("{}", rc))
+      @assert_that(rc, is(0))
+   end subroutine test_offset_default_is_zero
+
+   @test
+   subroutine test_offset_positive()
+      integer :: rc
+      @assertEqual(43200_ESMF_KIND_I8, get_offset_seconds("{update_offset: PT12H}", rc))
+      @assert_that(rc, is(0))
+   end subroutine test_offset_positive
+
+   @test
+   subroutine test_offset_explicit_plus()
+      integer :: rc
+      @assertEqual(3600_ESMF_KIND_I8, get_offset_seconds("{update_offset: +PT1H}", rc))
+      @assert_that(rc, is(0))
+   end subroutine test_offset_explicit_plus
+
+   @test
+   subroutine test_offset_negative()
+      integer :: rc
+      @assertEqual(-21600_ESMF_KIND_I8, get_offset_seconds("{update_offset: -PT6H}", rc))
+      @assert_that(rc, is(0))
+   end subroutine test_offset_negative
+
+   @test
+   subroutine test_offset_heartbeat()
+      integer :: rc
+      @assertEqual(900_ESMF_KIND_I8, get_offset_seconds("{update_offset: HEARTBEAT}", rc))
+      @assert_that(rc, is(0))
+   end subroutine test_offset_heartbeat
+
+   @test
+   subroutine test_offset_negative_heartbeat()
+      integer :: rc
+      @assertEqual(-900_ESMF_KIND_I8, get_offset_seconds("{update_offset: -heartbeat}", rc))
+      @assert_that(rc, is(0))
+   end subroutine test_offset_negative_heartbeat
+
+end module Test_ExtDataSample
