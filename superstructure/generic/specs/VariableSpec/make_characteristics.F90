@@ -3,7 +3,8 @@
 submodule (mapl_VariableSpec_mod) make_characteristics_smod
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
         TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
-        VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND
+        VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND, &
+        VERTICAL_STAGGER_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
@@ -15,6 +16,8 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
    use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
    use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
+   use mapl_VerticalStaggerCharacteristic_mod, only: VerticalStaggerCharacteristic
+   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_INVALID
    implicit none(type, external)
 
    abstract interface
@@ -41,7 +44,7 @@ contains
 
       integer :: status
       integer :: i
-      type(Factory) :: factories(7)
+      type(Factory) :: factories(8)
 
       factories(1)%make => make_units_characteristic
       factories(2)%make => make_typekind_characteristic
@@ -50,6 +53,7 @@ contains
       factories(5)%make => make_vertical_grid_characteristic
       factories(6)%make => make_standard_name_characteristic
       factories(7)%make => make_attributes_characteristic
+      factories(8)%make => make_vertical_stagger_characteristic
 
       do i = 1, size(factories)
          call factories(i)%make(this, descriptor, _RC)
@@ -268,6 +272,51 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_attributes_characteristic
+
+   ! A real stagger (CENTER, EDGE, or an explicit NONE) is SPECIFIED.
+   ! VERTICAL_STAGGER_MIRROR is MIRRORED; it is an error on an export other
+   ! than an expression. Undeclared (unallocated, or the
+   ! INVALID that the YAML parser passes for an omitted vertical_dim_spec) is
+   ! MIRRORED for an EXPRESSION or with mirror_vgrid, else DEFERRED: there is
+   ! no built-in default, the component or a realized field supplies it. The
+   ! VERTICALGRID composite has no stagger.
+   subroutine make_vertical_stagger_characteristic(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(VerticalStaggerCharacteristic) :: stagger_char
+      logical :: declared, real_stagger
+
+      if (allocated(spec%state_item_variant)) then
+         _RETURN_IF(spec%state_item_variant == MAPL_STATEITEM_VERTICALGRID)
+      end if
+      _RETURN_UNLESS(carries_field_description(spec%itemType))
+
+      declared = allocated(spec%vertical_stagger)
+      real_stagger = .false.
+      if (declared) then
+         declared = spec%vertical_stagger%to_string() /= VERTICAL_STAGGER_INVALID%to_string()
+         real_stagger = declared .and. .not. spec%vertical_stagger%is_mirror()
+      end if
+
+      if (declared .and. .not. real_stagger .and. spec%state_intent == ESMF_STATEINTENT_EXPORT) then
+         _ASSERT(spec%itemType == MAPL_STATEITEM_EXPRESSION, 'VERTICAL_STAGGER_MIRROR is only valid on an import or an expression: ' // spec%short_name)
+      end if
+
+      if (real_stagger) then
+         stagger_char = VerticalStaggerCharacteristic(spec%vertical_stagger)
+      else if (declared .or. spec%itemType == MAPL_STATEITEM_EXPRESSION .or. spec%mirror_vgrid) then
+         call stagger_char%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      else
+         call stagger_char%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      end if
+
+      call descriptor%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, stagger_char, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_vertical_stagger_characteristic
 
    ! Shapes whose payload is a Field or FieldBundle (or an expression that
    ! evaluates to one) and so carry the field-level kinds.

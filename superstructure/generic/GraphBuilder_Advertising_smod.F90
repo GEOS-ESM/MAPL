@@ -151,10 +151,6 @@ contains
       call descriptor%set_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, &
            NormalizationCharacteristic(var_spec%normalization), _RC)
 
-      if (allocated(var_spec%vertical_stagger)) then
-         call descriptor%set_vertical_stagger(var_spec%vertical_stagger)
-      end if
-
       ! Capture the item type so extension materialization needs no
       ! VariableSpec. The component-wide geom and vertical grid are not
       ! captured: GEOM_B runs after ADVERTISE, so they arrive through

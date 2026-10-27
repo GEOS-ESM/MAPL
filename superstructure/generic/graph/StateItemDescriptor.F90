@@ -4,8 +4,7 @@
 ! StateItemDescriptor: the description of a state item, kept apart from the
 ! ESMF handle (GraphStateItem). Holds the sparse StateItemCharacteristicMap
 ! (REQ-CHAR-007/008/009/010) plus the description values that are not yet
-! characteristics (vertical stagger, declared
-! item type / restart mode / expression).
+! characteristics (declared item type / restart mode / expression).
 !
 ! Independent of any ESMF object: a StateItemNode's descriptor is populated at
 ! ADVERTISE, before any handle exists. Layering: graph/ only; must not depend
@@ -18,12 +17,12 @@ module mapl_StateItemDescriptor_mod
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), &
-        GEOMETRY_CHARACTERISTIC_KIND, VERTICAL_GRID_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND
+        GEOMETRY_CHARACTERISTIC_KIND, VERTICAL_GRID_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, &
+        VERTICAL_STAGGER_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
         CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_DEFERRED
    use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION
-   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc
    use mapl_RestartModes_mod, only: RestartMode
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -61,7 +60,6 @@ module mapl_StateItemDescriptor_mod
       private
       type(StateItemCharacteristicMap) :: characteristics
       ! Optional or defaulted values: "not declared" is meaningful.
-      type(VerticalStaggerLoc), allocatable :: vertical_stagger
       type(ESMF_StateItem_Flag) :: declared_item_type = ESMF_STATEITEM_FIELD
       type(RestartMode), allocatable :: declared_restart_mode
       character(:), allocatable :: declared_expression
@@ -75,8 +73,6 @@ module mapl_StateItemDescriptor_mod
       procedure :: resolve_deferred => descriptor_resolve_deferred
       procedure :: drop_unsupplied => descriptor_drop_unsupplied
       procedure :: sync_to_info => descriptor_sync_to_info
-      procedure :: get_vertical_stagger => descriptor_get_vertical_stagger
-      procedure :: set_vertical_stagger => descriptor_set_vertical_stagger
       procedure :: get_declared_item_type => descriptor_get_declared_item_type
       procedure :: set_declared_item_type => descriptor_set_declared_item_type
       procedure :: get_declared_restart_mode => descriptor_get_declared_restart_mode
@@ -155,6 +151,7 @@ contains
       type(MirroredExportAllowance), parameter :: ALLOWLIST(*) = [ &
            MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, GEOMETRY_CHARACTERISTIC_KIND), &
            MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, VERTICAL_GRID_CHARACTERISTIC_KIND), &
+           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, VERTICAL_STAGGER_CHARACTERISTIC_KIND), &
            MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, TYPE_KIND_CHARACTERISTIC_KIND)]
       integer :: i
 
@@ -439,28 +436,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine descriptor_sync_to_info
-
-   ! -- materialization inputs --
-
-   ! A subroutine with an intent(out) allocatable dummy: a direct
-   ! `x = d%get_vertical_stagger()` from an unallocated allocatable function
-   ! result crashed with a NULL dereference under gfortran.
-   subroutine descriptor_get_vertical_stagger(this, vertical_stagger)
-      class(StateItemDescriptor), intent(in) :: this
-      type(VerticalStaggerLoc), allocatable, intent(out) :: vertical_stagger
-
-      if (allocated(this%vertical_stagger)) vertical_stagger = this%vertical_stagger
-   end subroutine descriptor_get_vertical_stagger
-
-   ! Explicit deallocate + allocate(source=) instead of `=` into an allocatable
-   ! component: avoids a gfortran realloc-on-assignment memory corruption.
-   subroutine descriptor_set_vertical_stagger(this, vertical_stagger)
-      class(StateItemDescriptor), intent(inout) :: this
-      type(VerticalStaggerLoc), intent(in) :: vertical_stagger
-
-      if (allocated(this%vertical_stagger)) deallocate(this%vertical_stagger)
-      allocate(this%vertical_stagger, source=vertical_stagger)
-   end subroutine descriptor_set_vertical_stagger
 
    ! -- declared item type / restart mode / expression --
 

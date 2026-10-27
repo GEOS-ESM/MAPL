@@ -3,9 +3,12 @@
 ! Resolution of an export's geometry and vertical grid.
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_PortsAndProxies_smod
-   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE, operator(==)
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
+   use mapl_VerticalStaggerCharacteristic_mod, only: VerticalStaggerCharacteristic
+   use mapl_StateItemCharacteristicKind_mod, only: VERTICAL_STAGGER_CHARACTERISTIC_KIND
+   use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -67,28 +70,30 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_item_geom
 
-   ! The grid held by the item's VERTICAL_GRID characteristic. An
-   ! item with no such entry has no vertical dimension (a legitimate 2D
-   ! field), so "not found" is not a failure. An explicit
-   ! vertical_stagger == VERTICAL_STAGGER_NONE is honored ahead of the
-   ! component-wide default so a 2D field in a 3D-capable component does not
-   ! get that component's vertical grid.
-   module subroutine resolve_export_vgrid(export_item, owner, vgrid, rc)
+   ! The grid held by the item's VERTICAL_GRID characteristic, else the
+   ! owning component's. An item with no grid has no vertical dimension (a
+   ! legitimate 2D field), so "not found" is not a failure. A SPECIFIED NONE
+   ! stagger is honored ahead of the component-wide default so a 2D field in
+   ! a 3D-capable component does not get that component's vertical grid.
+   ! vert_staggerloc is the item's stagger. A connected export always has
+   ! one SPECIFIED (a DEFERRED stagger makes its pair wait, and a MIRRORED
+   ! export never settles), so its absence is an internal error.
+   module subroutine resolve_export_vgrid(export_item, owner, vgrid, vert_staggerloc, rc)
       type(StateItemDescriptor), intent(in) :: export_item
       class(OuterMetaComponent), target, intent(inout) :: owner
       class(VerticalGrid), allocatable, intent(out) :: vgrid
+      type(VerticalStaggerLoc), intent(out) :: vert_staggerloc
       integer, optional, intent(out) :: rc
 
       class(VerticalGrid), pointer :: component_vgrid
-      type(VerticalStaggerLoc), allocatable :: declared_vertical_stagger
       class(VerticalGrid), allocatable :: item_vgrid
+      logical :: stagger_specified
       integer :: status
 
-      call export_item%get_vertical_stagger(declared_vertical_stagger)
-      if (allocated(declared_vertical_stagger)) then
-         if (declared_vertical_stagger == VERTICAL_STAGGER_NONE) then
-            _RETURN(_SUCCESS)
-         end if
+      call get_item_vertical_stagger(export_item, vert_staggerloc, stagger_specified, _RC)
+      _ASSERT(stagger_specified, 'GraphBuilder: resolve_export_vgrid - export has no SPECIFIED vertical stagger')
+      if (vert_staggerloc%is_none()) then
+         _RETURN(_SUCCESS)
       end if
 
       call get_item_vgrid(export_item, item_vgrid, _RC)
@@ -102,6 +107,37 @@ contains
       if (associated(component_vgrid)) vgrid = component_vgrid
       _RETURN(_SUCCESS)
    end subroutine resolve_export_vgrid
+
+   ! The stagger held by the item's VERTICAL_STAGGER characteristic.
+   ! specified is false when there is no entry or it is not SPECIFIED
+   ! (MIRRORED and DEFERRED hold no value).
+   subroutine get_item_vertical_stagger(item, vertical_stagger, specified, rc)
+      type(StateItemDescriptor), intent(in) :: item
+      type(VerticalStaggerLoc), intent(out) :: vertical_stagger
+      logical, intent(out) :: specified
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(StateItemCharacteristic), allocatable :: characteristic
+      type(CharacteristicStatus) :: s
+
+      specified = .false.
+      _RETURN_UNLESS(item%has_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND))
+
+      call item%get_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, characteristic, _RC)
+      select type (characteristic)
+      class is (VerticalStaggerCharacteristic)
+         s = characteristic%get_status()
+         if (s == CHARACTERISTIC_STATUS_SPECIFIED) then
+            vertical_stagger = characteristic%get_vertical_stagger()
+            specified = .true.
+         end if
+      class default
+         _FAIL('GraphBuilder: get_item_vertical_stagger - characteristic is not a VerticalStaggerCharacteristic')
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine get_item_vertical_stagger
 
    ! The vertical grid held by the item's VERTICAL_GRID characteristic,
    ! if any. Unallocated when there is no entry, or the entry is MIRRORED or

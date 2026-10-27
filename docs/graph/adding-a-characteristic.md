@@ -251,6 +251,42 @@ Second kind with a DEFERRED value; it reuses Geometry's machinery.
 - Test fixtures that want a 2D item set `vertical_stagger = NONE`
   (`make_var` does).
 
+## VerticalStagger as implemented
+
+A structural kind with a DEFERRED value and no built-in default.
+
+| Input | Shape | Entry |
+|---|---|---|
+| CENTER, EDGE or an explicit NONE | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE | SPECIFIED |
+| `VERTICAL_STAGGER_MIRROR` | same | MIRRORED on an import or an expression; an error on any other export, raised at advertise |
+| unallocated or `VERTICAL_STAGGER_INVALID`, with `mirror_vgrid` | same | MIRRORED |
+| unallocated or `VERTICAL_STAGGER_INVALID`, otherwise | same | DEFERRED |
+| nothing declared | EXPRESSION | MIRRORED (the §2.4 allowlist case) |
+| `VERTICALGRID` composite | STATE | none |
+| any | SERVICE, other STATE, WILDCARD | none |
+
+- `parse_var_specs` passes `VERTICAL_STAGGER_INVALID` when the YAML has no
+  `vertical_dim_spec`; the factory treats that as undeclared.
+- `CharacteristicDefaults` carries `component_scope` (set by GEOM_B, so
+  "no vertical grid" means the component has none, not that it is unknown)
+  and `vert_stagger` (harvested from a completed Field, or a bundle's first
+  member, that recorded `vert_staggerloc`; `MAPL_FieldGet` returns
+  `VERTICAL_STAGGER_INVALID` for a field that never recorded one). `resolve_deferred` takes the
+  harvested value first; otherwise a component-scope default with no
+  vertical grid gives SPECIFIED NONE; otherwise the entry stays DEFERRED
+  until harvested, or freeze fails. `drop_if_unsupplied` is not
+  overridden: a DEFERRED stagger is never dropped.
+- An explicit NONE stays SPECIFIED NONE even though VerticalGrid has no
+  entry for it, so a 2D export still mismatches a 3D import.
+- `needs_extension_for` compares `to_string()` values because
+  `VerticalStaggerLoc`'s `==` treats MIRROR as a wildcard.
+- `write_info` writes `vert_staggerloc=` in the STRUCTURAL phase only.
+- `resolve_export_vgrid` reads the stagger from the characteristic and
+  returns it; a SPECIFIED NONE returns before the component's grid is
+  consulted.
+- Test fixtures that build a `VariableSpec` by hand must set
+  `vertical_stagger` for the item to settle in a component with a grid.
+
 ## StandardName as implemented
 
 | Input (`VariableSpec%standard_name`) | Shape | Entry |

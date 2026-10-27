@@ -8,11 +8,16 @@
 !
 ! Graph layer only: holds plain values, no OuterMetaComponent. A new kind
 ! with a component-supplied value adds its component here.
+!
+! component_scope marks the GEOM_B defaults, where an absent vertical grid
+! means the component has none. A set holding only what one realized field
+! showed (harvest) is not component scope: an absent grid there is unknown.
 !------------------------------------------------------------------------------
 module mapl_CharacteristicDefaults_mod
    use ESMF, only: ESMF_Geom
    use mapl_GeomId_mod, only: GeomId
    use mapl_VerticalGrid_mod, only: VerticalGrid
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc
    implicit none(type, external)
    private
 
@@ -25,6 +30,8 @@ module mapl_CharacteristicDefaults_mod
       type(GeomId) :: geom_id_value
       ! Held by value until a vertical grid registry lets nodes share one.
       class(VerticalGrid), allocatable :: vgrid_value
+      logical :: component_scope_value = .false.
+      type(VerticalStaggerLoc), allocatable :: vert_stagger_value
    contains
       procedure :: has_geom => defaults_has_geom
       procedure :: get_geom => defaults_get_geom
@@ -32,6 +39,11 @@ module mapl_CharacteristicDefaults_mod
       procedure :: has_vgrid => defaults_has_vgrid
       procedure :: get_vgrid => defaults_get_vgrid
       procedure :: set_vgrid => defaults_set_vgrid
+      procedure :: is_component_scope => defaults_is_component_scope
+      procedure :: set_component_scope => defaults_set_component_scope
+      procedure :: has_vert_stagger => defaults_has_vert_stagger
+      procedure :: get_vert_stagger => defaults_get_vert_stagger
+      procedure :: set_vert_stagger => defaults_set_vert_stagger
    end type CharacteristicDefaults
 
    interface CharacteristicDefaults
@@ -94,5 +106,38 @@ contains
       if (allocated(this%vgrid_value)) deallocate(this%vgrid_value)
       allocate(this%vgrid_value, source=vgrid)
    end subroutine defaults_set_vgrid
+
+   logical function defaults_is_component_scope(this) result(is_scope)
+      class(CharacteristicDefaults), intent(in) :: this
+
+      is_scope = this%component_scope_value
+   end function defaults_is_component_scope
+
+   subroutine defaults_set_component_scope(this)
+      class(CharacteristicDefaults), intent(inout) :: this
+
+      this%component_scope_value = .true.
+   end subroutine defaults_set_component_scope
+
+   logical function defaults_has_vert_stagger(this) result(has)
+      class(CharacteristicDefaults), intent(in) :: this
+
+      has = allocated(this%vert_stagger_value)
+   end function defaults_has_vert_stagger
+
+   function defaults_get_vert_stagger(this) result(vert_stagger)
+      class(CharacteristicDefaults), intent(in) :: this
+      type(VerticalStaggerLoc) :: vert_stagger
+
+      if (allocated(this%vert_stagger_value)) vert_stagger = this%vert_stagger_value
+   end function defaults_get_vert_stagger
+
+   subroutine defaults_set_vert_stagger(this, vert_stagger)
+      class(CharacteristicDefaults), intent(inout) :: this
+      type(VerticalStaggerLoc), intent(in) :: vert_stagger
+
+      if (allocated(this%vert_stagger_value)) deallocate(this%vert_stagger_value)
+      allocate(this%vert_stagger_value, source=vert_stagger)
+   end subroutine defaults_set_vert_stagger
 
 end module mapl_CharacteristicDefaults_mod

@@ -156,7 +156,8 @@ Statuses: `SPECIFIED`, `MIRROR`, `UNCHECKED`, `DEFERRED` (transient).
     than bypassing it.
 - `StateItemDescriptor%sync_to_info(handle, rc)`: one loop, called at
   materialization and whenever a DEFERRED value becomes SPECIFIED.
-- Info is **write-only** during init: no graph code reads Info back.
+- Graph code may read Info back, but only through `MAPL_*Get` (never raw
+  `ESMF_Info*`; CONVENTIONS §5a). Harvest of a DEFERRED value does this.
 - Info keys must match legacy (`mapl_FieldInfo_mod`) so History/user
   code is unaffected.
 - UNCHECKED: open question (no entry vs. explicit marker) - decide in B0
@@ -498,8 +499,8 @@ StatisticsGridComp). Unit tests for every cell of the D2 table.
   (test-only; its one-sided-is-mismatch rule contradicted §2.6).
   StatisticsGridComp scenarios remain in PENDING with the same failures
   as before B2; ESSENTIAL `history_1` (`typekind: mirror`) passes.
-  Owner-approved gaps: the allowlist has no (EXPRESSION,
-  VERTICAL_STAGGER) entry until that kind exists (B3-VerticalStagger);
+  Owner-approved gaps: the allowlist had no (EXPRESSION,
+  VERTICAL_STAGGER) entry until that kind existed (added by B3-VerticalStagger);
   an allowlisted MIRRORED export only resolves as a legal match, and
   giving each consumer its own precision/geometry stays with the
   existing expression hook until B3-Expression.
@@ -533,11 +534,12 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-StandardName and B3-Attributes done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-StandardName and B3-Attributes done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
-  `Plan-Task: B3-Attributes`, `Plan-Task: B3-RenameVerticalGrid`); others not started.
+  `Plan-Task: B3-Attributes`, `Plan-Task: B3-RenameVerticalGrid`,
+  `Plan-Task: B3-VerticalStagger`); others not started.
   B3-Attributes: `AttributesCharacteristic` gained `write_info`, a
   successful no-op (no Info key; design §3.4), `is_structural()` stays
   false. The factory (`make_attributes_characteristic`) always gives
@@ -587,6 +589,27 @@ in the first one; later ones refine it.
   was not re-run on a HEAD baseline here.
   B3-VerticalCoordinate: see design.md §5 and adding-a-characteristic.md
   "VerticalGrid as implemented".
+  B3-VerticalStagger (done): see adding-a-characteristic.md "VerticalStagger
+  as implemented". New kind `VERTICAL_STAGGER_CHARACTERISTIC_KIND` and
+  `VerticalStaggerCharacteristic` (structural; `vert_staggerloc=` through
+  `MAPL_FieldSet`/`MAPL_FieldBundleSet`). The (EXPRESSION, VERTICAL_STAGGER)
+  allowlist entry is added. `StateItemDescriptor%vertical_stagger` and its
+  get/set are gone; `resolve_export_vgrid` now also returns the stagger it
+  read from the characteristic. `CharacteristicDefaults` gained
+  `component_scope` and `vert_stagger`; GEOM_B sets the first, and
+  `fill_deferred_from_handle` harvests the second from a completed Field
+  (or a bundle's first member) that recorded a stagger. Behavior change: an
+  item with no `vertical_dim_spec` is DEFERRED, and becomes SPECIFIED NONE
+  at GEOM_B only in a component with no vertical grid. Test fixtures that
+  build a `VariableSpec` by hand now set `vertical_stagger` where the item
+  must settle. No scenario changed: ESSENTIAL is green on NAG and gfortran
+  (65/65); PENDING `MAPL.generic.scenarios.pending` on NAG still fails 114
+  checks, the same 114 scenarios with identical failure messages as a
+  clean HEAD worktree. No `Transform` exists (`BUILD_TRANSFORM_UNSUPPORTED`).
+  Remaining GraphBuilder references, for B4: `get_item_vertical_stagger`
+  (names the kind and the concrete type) and `harvest_stagger` in
+  `GraphBuilder_PortsAndProxies_smod.F90` / `_Geometry_smod.F90`; the
+  `GraphBuilder.F90` use list and `merged_item_for_link` are unchanged.
   B3-RenameVerticalGrid (done, no behavior change): `VerticalCoordinateCharacteristic`
   is now `VerticalGridCharacteristic` (file `graph/characteristics/VerticalGridCharacteristic.F90`,
   kind `VERTICAL_GRID_CHARACTERISTIC_KIND`, display `"VERTICAL_GRID"`), with the factory

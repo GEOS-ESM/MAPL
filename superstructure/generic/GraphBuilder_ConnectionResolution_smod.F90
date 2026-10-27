@@ -1261,7 +1261,6 @@ contains
       logical :: has_geom
       class(VerticalGrid), allocatable :: vgrid
       type(VerticalStaggerLoc) :: vert_staggerloc
-      type(VerticalStaggerLoc), allocatable :: declared_vertical_stagger
       type(ESMF_TypeKind_Flag) :: import_typekind
       character(:), allocatable :: import_units
       type(UngriddedDims) :: export_ungridded_dims
@@ -1298,18 +1297,11 @@ contains
       ! Vertical grid is optional (a 2D field legitimately has none,
       ! same as FieldCreate's own optional vgrid argument) - unlike geom,
       ! its absence is not a failure. When present, a vert_staggerloc is
-      ! required alongside it (FieldCreate's own contract); default to
-      ! CENTER when the export's own declared vertical_stagger does not
-      ! say otherwise (VariableSpec.F90's own make_VerticalGridAspect
-      ! precedent).
-      call resolve_export_vgrid(export_item, export_meta, vgrid, _RC)
+      ! required alongside it (FieldCreate's own contract).
+      call resolve_export_vgrid(export_item, export_meta, vgrid, vert_staggerloc, _RC)
       import_typekind = get_item_typekind(import_item, _RC)
       export_ungridded_dims = get_item_ungridded_dims(export_item, _RC)
       if (allocated(vgrid)) then
-         vert_staggerloc = VERTICAL_STAGGER_CENTER
-         call export_item%get_vertical_stagger(declared_vertical_stagger)
-         if (allocated(declared_vertical_stagger)) vert_staggerloc = declared_vertical_stagger
-
          ! typekind/units are the IMPORT's values: the materialized payload must
          ! match what the import requires, not what the export produced.
          call materialize_field_extension(graph, node_id, geom=geom, typekind=import_typekind, &
@@ -1426,7 +1418,6 @@ contains
       logical :: has_geom
       class(VerticalGrid), allocatable :: vgrid
       type(VerticalStaggerLoc) :: vert_staggerloc
-      type(VerticalStaggerLoc), allocatable :: declared_vertical_stagger
       character(:), allocatable :: link_units
       type(ESMF_TypeKind_Flag) :: link_typekind
       character(:), allocatable :: import_units
@@ -1456,12 +1447,7 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      call resolve_export_vgrid(export_item, export_meta, vgrid, _RC)
-      if (allocated(vgrid)) then
-         vert_staggerloc = VERTICAL_STAGGER_CENTER
-         call export_item%get_vertical_stagger(declared_vertical_stagger)
-         if (allocated(declared_vertical_stagger)) vert_staggerloc = declared_vertical_stagger
-      end if
+      call resolve_export_vgrid(export_item, export_meta, vgrid, vert_staggerloc, _RC)
 
       export_ungridded_dims = get_item_ungridded_dims(export_item, _RC)
 

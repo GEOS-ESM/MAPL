@@ -14,7 +14,7 @@ module Test_VariableSpecCharacteristics
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, &
         UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
         VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, &
-        ATTRIBUTES_CHARACTERISTIC_KIND
+        ATTRIBUTES_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
         CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED
@@ -29,8 +29,9 @@ module Test_VariableSpecCharacteristics
    use mapl_UngriddedDims_mod, only: UngriddedDims, operator(==)
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
    use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid
-   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER
-   use esmf, only: ESMF_StateItem_Flag, ESMF_STATEINTENT_EXPORT, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_I4
+   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE, &
+        VERTICAL_STAGGER_MIRROR, VERTICAL_STAGGER_INVALID
+   use esmf, only: ESMF_StateItem_Flag, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_IMPORT, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_I4
    implicit none(type, external)
 
 contains
@@ -499,6 +500,27 @@ contains
       end do
    end subroutine test_geometry_applicability
 
+   ! Status of the VERTICAL_STAGGER entry; has_entry is false when the
+   ! item gets none.
+   function stagger_entry_status(var_spec, has_entry, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      logical, intent(out) :: has_entry
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      has_entry = descriptor%has_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND)
+      if (has_entry) then
+         call descriptor%get_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, c, _RC)
+         char_status = c%get_status()
+      end if
+      _RETURN(_SUCCESS)
+   end function stagger_entry_status
+
    ! Status of the VERTICAL_GRID entry; has_entry is false when the
    ! item gets none.
    function vcoord_status(var_spec, has_entry, rc) result(char_status)
@@ -600,6 +622,124 @@ contains
       @assertEqual(0, status)
       @assertTrue(has_entry)
    end subroutine test_stagger_none_has_no_vertical_grid
+
+   @test
+   subroutine test_undeclared_vertical_stagger_is_deferred()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+      @assertTrue(has_entry)
+
+      var_spec%vertical_stagger = VERTICAL_STAGGER_INVALID
+      @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+   end subroutine test_undeclared_vertical_stagger_is_deferred
+
+   @test
+   subroutine test_declared_vertical_stagger_is_specified()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_stagger = VERTICAL_STAGGER_NONE
+      @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertTrue(has_entry)
+
+      var_spec%vertical_stagger = VERTICAL_STAGGER_EDGE
+      @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_declared_vertical_stagger_is_specified
+
+   ! MIRROR is legal on an import and on an expression export.
+   @test
+   subroutine test_mirror_vertical_stagger_is_mirrored()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%vertical_stagger = VERTICAL_STAGGER_MIRROR
+      @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+
+      var_spec = make_spec(MAPL_STATEITEM_EXPRESSION)
+      var_spec%vertical_stagger = VERTICAL_STAGGER_MIRROR
+      @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_vertical_stagger_is_mirrored
+
+   @test
+   subroutine test_mirror_vertical_stagger_on_field_export_fails()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_stagger = VERTICAL_STAGGER_MIRROR
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('VERTICAL_STAGGER_MIRROR is only valid on an import or an expression: X')
+      @assertExceptionRaised('status=1')
+   end subroutine test_mirror_vertical_stagger_on_field_export_fails
+
+   ! mirror_vgrid with no stagger mirrors it too; a declared stagger wins.
+   @test
+   subroutine test_mirror_vgrid_without_stagger_is_mirrored()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%mirror_vgrid = .true.
+      @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+
+      var_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
+      @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_vgrid_without_stagger_is_mirrored
+
+   @test
+   subroutine test_expression_vertical_stagger_is_mirrored()
+      logical :: has_entry
+      integer :: status
+
+      @assertTrue(stagger_entry_status(make_spec(MAPL_STATEITEM_EXPRESSION), has_entry, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+   end subroutine test_expression_vertical_stagger_is_mirrored
+
+   @test
+   subroutine test_vertical_stagger_applicability()
+      type(ESMF_StateItem_Flag) :: with_entry(6), without_entry(4)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      with_entry = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_EXPRESSION]
+      do i = 1, size(with_entry)
+         descriptor = empty_descriptor
+         var_spec = make_spec(with_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(descriptor%has_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND))
+      end do
+
+      without_entry = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE]
+      do i = 1, size(without_entry)
+         descriptor = empty_descriptor
+         var_spec = make_spec(without_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_vertical_stagger_applicability
 
    @test
    subroutine test_vertical_grid_applicability()

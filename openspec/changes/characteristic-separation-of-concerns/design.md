@@ -327,8 +327,9 @@ this design. It is fixed only if a later task needs it (plan D3).
   would produce the same keys, but the graph writing them is redundant
   until the legacy layer is retired.
 
-Info stays write-only for graph code (no `MAPL_*Get` on description
-keys). The fallback "Info only for user-visible characteristics" is not
+Graph code writes Info through `MAPL_*Set`. It may read it back through
+`MAPL_*Get`, as harvest does for a DEFERRED value; it never uses raw
+`ESMF_Info*` calls. The fallback "Info only for user-visible characteristics" is not
 needed.
 
 ### §4. Extension ordering (D4)

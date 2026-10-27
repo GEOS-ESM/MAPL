@@ -19,6 +19,9 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Geometry_smod
    use esmf, only: ESMF_State, ESMF_StateGet, ESMF_FieldBundle, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE, &
         ESMF_FieldStatus_Flag, ESMF_FieldGet, ESMF_FieldIsCreated, ESMF_FieldBundleIsCreated, ESMF_FieldBundleGet, &
         operator(==), ESMF_FIELDSTATUS_GRIDSET, ESMF_FIELDSTATUS_COMPLETE
+   use esmf, only: ESMF_ITEMORDER_ADDORDER
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_INVALID
+   use mapl_field_api, only: MAPL_FieldGet
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -105,6 +108,7 @@ contains
       end if
       vgrid => this%get_vertical_grid()
       if (associated(vgrid)) call defaults%set_vgrid(vgrid)
+      call defaults%set_component_scope()
 
       graph => this%get_component_graph()
       node_ids = graph%get_node_ids()
@@ -241,10 +245,48 @@ contains
       else
          defaults = CharacteristicDefaults(geom=geom)
       end if
+      call harvest_stagger(item_kind, field, bundle, defaults, _RC)
       call descriptor%resolve_deferred(defaults, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine fill_deferred_from_handle
+
+   ! A completed Field, or the first member of a FieldBundle, has recorded
+   ! its vertical stagger; that supplies it to the defaults.
+   subroutine harvest_stagger(item_kind, field, bundle, defaults, rc)
+      type(ESMF_StateItem_Flag), intent(in) :: item_kind
+      type(ESMF_Field), intent(in) :: field
+      type(ESMF_FieldBundle), intent(in) :: bundle
+      type(CharacteristicDefaults), intent(inout) :: defaults
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Field) :: member
+      type(ESMF_Field), allocatable :: members(:)
+      integer :: n_members
+      type(ESMF_FieldStatus_Flag) :: field_status
+      type(VerticalStaggerLoc) :: stagger
+
+      if (item_kind == ESMF_STATEITEM_FIELD) then
+         member = field
+      else
+         call ESMF_FieldBundleGet(bundle, fieldCount=n_members, _RC)
+         _RETURN_UNLESS(n_members > 0)
+         allocate(members(n_members))
+         call ESMF_FieldBundleGet(bundle, fieldList=members, itemOrderflag=ESMF_ITEMORDER_ADDORDER, _RC)
+         member = members(1)
+      end if
+
+      call ESMF_FieldGet(member, status=field_status, _RC)
+      _RETURN_UNLESS(field_status == ESMF_FIELDSTATUS_COMPLETE)
+
+      ! A field that never recorded a stagger reports INVALID.
+      call MAPL_FieldGet(member, vert_staggerloc=stagger, _RC)
+      _RETURN_UNLESS(stagger%to_string() /= VERTICAL_STAGGER_INVALID%to_string())
+      call defaults%set_vert_stagger(stagger)
+
+      _RETURN(_SUCCESS)
+   end subroutine harvest_stagger
 
    ! Gives the already-resolved parent/child geometry relationship (per
    ! geometry_spec%kind) graph structure: a dependency edge from the

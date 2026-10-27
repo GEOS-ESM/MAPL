@@ -81,6 +81,7 @@ module Test_GraphBuilder_ConnectionResolution
    use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
    use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
    use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
+   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER
    ! -- openspec/changes/phase-7b-expression-dispatch-wiring ---------------
    use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_WILDCARD
    ! -- openspec/changes/phase-7c-wildcard-dispatch-wiring -----------------
@@ -1507,13 +1508,13 @@ contains
 
       export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T')
       export_var_spec%vertical_grid = export_vgrid
-      deallocate(export_var_spec%vertical_stagger)
+      export_var_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
       src_spec => src_meta%get_component_spec()
       call src_spec%add_var_spec(export_var_spec)
 
       import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T')
       import_var_spec%vertical_grid = import_vgrid
-      deallocate(import_var_spec%vertical_stagger)
+      import_var_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
       dst_spec => dst_meta%get_component_spec()
       call dst_spec%add_var_spec(import_var_spec)
 
@@ -3415,6 +3416,7 @@ contains
       call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
       deferred_import%state_intent = ESMF_STATEINTENT_IMPORT
       deferred_import%short_name = 'T'
+      deferred_import%vertical_stagger = VERTICAL_STAGGER_NONE
       call comp_spec%add_var_spec(deferred_import)
 
       call gb%advertise(outer_meta, status)
@@ -3480,6 +3482,7 @@ contains
       call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
       mirror_import%state_intent = ESMF_STATEINTENT_IMPORT
       mirror_import%short_name = 'T'
+      mirror_import%vertical_stagger = VERTICAL_STAGGER_NONE
       mirror_import%mirror_geom = .true.
       call comp_spec%add_var_spec(mirror_import)
 
@@ -3531,6 +3534,7 @@ contains
       comp_spec => outer_meta%get_component_spec()
       deferred_export%state_intent = ESMF_STATEINTENT_EXPORT
       deferred_export%short_name = 'TA'
+      deferred_export%vertical_stagger = VERTICAL_STAGGER_NONE
       call comp_spec%add_var_spec(deferred_export)
       call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'TB'))
       call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))

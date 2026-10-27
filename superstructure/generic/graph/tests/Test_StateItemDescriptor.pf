@@ -6,7 +6,7 @@ module Test_StateItemDescriptor
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
         GEOMETRY_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
         QUANTITY_TYPE_CHARACTERISTIC_KIND, VERTICAL_GRID_CHARACTERISTIC_KIND, &
-        STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND
+        STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED, CharacteristicStatus, operator(==)
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
@@ -20,6 +20,9 @@ module Test_StateItemDescriptor
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
    use gFTL2_StringVector, only: StringVector
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
+   use mapl_VerticalStaggerCharacteristic_mod, only: VerticalStaggerCharacteristic
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, &
+        VERTICAL_STAGGER_EDGE
    use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid, mapl_BasicVerticalGridSpec, &
         mapl_BasicVerticalGridFactory, mapl_VerticalGridManager, mapl_VerticalGridFactory, &
         mapl_get_vertical_grid_manager
@@ -793,5 +796,188 @@ contains
       @assertEqual(0, status)
       @assertTrue(other%has_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND))
    end subroutine test_drop_unsupplied_keeps_resolved_vertical_grid
+
+   ! --- VerticalStagger ---
+
+   function stagger_after_sync(item, phase) result(stagger)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(VerticalStaggerLoc) :: stagger
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, vert_staggerloc=VERTICAL_STAGGER_NONE, rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, vert_staggerloc=stagger, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function stagger_after_sync
+
+   @test
+   subroutine test_sync_structural_writes_vertical_stagger_on_field()
+      type(StateItemDescriptor) :: item
+      type(VerticalStaggerLoc) :: stagger
+
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, VerticalStaggerCharacteristic(VERTICAL_STAGGER_EDGE))
+      stagger = stagger_after_sync(item, SYNC_PHASE_STRUCTURAL)
+      @assertEqual(VERTICAL_STAGGER_EDGE%to_string(), stagger%to_string())
+   end subroutine test_sync_structural_writes_vertical_stagger_on_field
+
+   @test
+   subroutine test_sync_descriptive_skips_vertical_stagger()
+      type(StateItemDescriptor) :: item
+      type(VerticalStaggerLoc) :: stagger
+
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, VerticalStaggerCharacteristic(VERTICAL_STAGGER_EDGE))
+      stagger = stagger_after_sync(item, SYNC_PHASE_DESCRIPTIVE)
+      @assertEqual(VERTICAL_STAGGER_NONE%to_string(), stagger%to_string())
+   end subroutine test_sync_descriptive_skips_vertical_stagger
+
+   @test
+   subroutine test_sync_skips_deferred_and_mirrored_vertical_stagger()
+      type(StateItemDescriptor) :: item
+      type(VerticalStaggerCharacteristic) :: not_a_value
+      type(VerticalStaggerLoc) :: stagger
+
+      call not_a_value%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, not_a_value)
+      stagger = stagger_after_sync(item, SYNC_PHASE_STRUCTURAL)
+      @assertEqual(VERTICAL_STAGGER_NONE%to_string(), stagger%to_string())
+
+      call not_a_value%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, not_a_value)
+      stagger = stagger_after_sync(item, SYNC_PHASE_STRUCTURAL)
+      @assertEqual(VERTICAL_STAGGER_NONE%to_string(), stagger%to_string())
+   end subroutine test_sync_skips_deferred_and_mirrored_vertical_stagger
+
+   function stagger_status_after(item, defaults, rc) result(stagger_status)
+      type(StateItemDescriptor), intent(inout) :: item
+      type(CharacteristicDefaults), intent(in) :: defaults
+      integer, intent(out) :: rc
+      type(CharacteristicStatus) :: stagger_status
+
+      class(StateItemCharacteristic), allocatable :: c
+
+      call item%resolve_deferred(defaults, rc=rc)
+      @assertEqual(0, rc)
+      call item%get_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, c, rc=rc)
+      @assertEqual(0, rc)
+      stagger_status = c%get_status()
+   end function stagger_status_after
+
+   ! A stagger harvested from a realized field fills the DEFERRED entry.
+   @test
+   subroutine test_resolve_deferred_takes_harvested_vertical_stagger()
+      type(StateItemDescriptor) :: item
+      type(VerticalStaggerCharacteristic) :: deferred
+      type(CharacteristicDefaults) :: defaults
+      class(StateItemCharacteristic), allocatable :: c
+      type(VerticalStaggerLoc) :: got
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, deferred)
+      call defaults%set_vert_stagger(VERTICAL_STAGGER_EDGE)
+
+      @assertTrue(stagger_status_after(item, defaults, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      call item%get_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, c, rc=status)
+      select type (c)
+      type is (VerticalStaggerCharacteristic)
+         got = c%get_vertical_stagger()
+         @assertEqual(VERTICAL_STAGGER_EDGE%to_string(), got%to_string())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_resolve_deferred_takes_harvested_vertical_stagger
+
+   ! At component scope with no vertical grid there is no vertical dimension.
+   @test
+   subroutine test_resolve_deferred_stagger_is_none_without_component_vgrid()
+      type(StateItemDescriptor) :: item
+      type(VerticalStaggerCharacteristic) :: deferred
+      type(CharacteristicDefaults) :: defaults
+      class(StateItemCharacteristic), allocatable :: c
+      type(VerticalStaggerLoc) :: got
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, deferred)
+      call defaults%set_component_scope()
+
+      @assertTrue(stagger_status_after(item, defaults, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      call item%get_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, c, rc=status)
+      select type (c)
+      type is (VerticalStaggerCharacteristic)
+         got = c%get_vertical_stagger()
+         @assertEqual(VERTICAL_STAGGER_NONE%to_string(), got%to_string())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_resolve_deferred_stagger_is_none_without_component_vgrid
+
+   ! With a component grid and nothing harvested, or with defaults that are
+   ! not component scope, the entry stays DEFERRED.
+   @test
+   subroutine test_resolve_deferred_stagger_stays_deferred_otherwise()
+      type(StateItemDescriptor) :: item, other
+      type(VerticalStaggerCharacteristic) :: deferred
+      type(CharacteristicDefaults) :: with_grid
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, deferred)
+      with_grid = CharacteristicDefaults(vgrid=make_basic_vgrid())
+      call with_grid%set_component_scope()
+      @assertTrue(stagger_status_after(item, with_grid, status) == CHARACTERISTIC_STATUS_DEFERRED)
+
+      call other%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, deferred)
+      @assertTrue(stagger_status_after(other, CharacteristicDefaults(), status) == CHARACTERISTIC_STATUS_DEFERRED)
+   end subroutine test_resolve_deferred_stagger_stays_deferred_otherwise
+
+   @test
+   subroutine test_resolve_deferred_leaves_specified_vertical_stagger()
+      type(StateItemDescriptor) :: item
+      type(CharacteristicDefaults) :: defaults
+      class(StateItemCharacteristic), allocatable :: c
+      type(VerticalStaggerLoc) :: got
+      integer :: status
+
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER))
+      call defaults%set_vert_stagger(VERTICAL_STAGGER_EDGE)
+      call defaults%set_component_scope()
+
+      @assertTrue(stagger_status_after(item, defaults, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      call item%get_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, c, rc=status)
+      select type (c)
+      type is (VerticalStaggerCharacteristic)
+         got = c%get_vertical_stagger()
+         @assertEqual(VERTICAL_STAGGER_CENTER%to_string(), got%to_string())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_resolve_deferred_leaves_specified_vertical_stagger
+
+   ! A DEFERRED stagger is never dropped for lack of a component value: it
+   ! must be harvested, or freeze fails.
+   @test
+   subroutine test_drop_unsupplied_keeps_deferred_vertical_stagger()
+      type(StateItemDescriptor) :: item
+      type(VerticalStaggerCharacteristic) :: deferred
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, deferred)
+      call item%drop_unsupplied(CharacteristicDefaults(), rc=status)
+      @assertEqual(0, status)
+      @assertTrue(item%has_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND))
+   end subroutine test_drop_unsupplied_keeps_deferred_vertical_stagger
 
 end module Test_StateItemDescriptor

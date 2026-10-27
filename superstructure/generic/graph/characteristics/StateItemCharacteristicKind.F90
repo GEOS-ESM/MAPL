@@ -34,6 +34,8 @@ module mapl_StateItemCharacteristicKind_mod
    public :: STANDARD_NAME_CHARACTERISTIC_KIND
    ! Value 11: the item-class/shape axis.
    public :: ITEM_SHAPE_CHARACTERISTIC_KIND
+   ! Value 12: vertical stagger location.
+   public :: VERTICAL_STAGGER_CHARACTERISTIC_KIND
    public :: MOCK_CHARACTERISTIC_KIND
 
    type :: StateItemCharacteristicKind
@@ -59,6 +61,9 @@ module mapl_StateItemCharacteristicKind_mod
 
    ! Value 11: item-class/shape axis (ItemShapeCharacteristic.F90).
    type(StateItemCharacteristicKind), parameter :: ITEM_SHAPE_CHARACTERISTIC_KIND          = StateItemCharacteristicKind(11)
+
+   ! Value 12: vertical stagger (VerticalStaggerCharacteristic.F90).
+   type(StateItemCharacteristicKind), parameter :: VERTICAL_STAGGER_CHARACTERISTIC_KIND    = StateItemCharacteristicKind(12)
 
    ! Test-only, mirrors CharacteristicId.F90's own MOCK_CHARACTERISTIC_ID
    ! precedent - lets a test define a fake StateItemCharacteristic
@@ -106,6 +111,8 @@ contains
          s = "STANDARD_NAME"
       case (ITEM_SHAPE_CHARACTERISTIC_KIND%value)
          s = "ITEM_SHAPE"
+      case (VERTICAL_STAGGER_CHARACTERISTIC_KIND%value)
+         s = "VERTICAL_STAGGER"
       case (MOCK_CHARACTERISTIC_KIND%value)
          s = "MOCK"
       case default

@@ -24,13 +24,17 @@ module Test_StateItemCharacteristicSubclasses
                                                     CONSERVATION_CHARACTERISTIC_KIND, &
                                                     NORMALIZATION_CHARACTERISTIC_KIND, &
                                                     STANDARD_NAME_CHARACTERISTIC_KIND, &
-                                                    ITEM_SHAPE_CHARACTERISTIC_KIND
+                                                    ITEM_SHAPE_CHARACTERISTIC_KIND, &
+                                                    VERTICAL_STAGGER_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
    use mapl_TransformBase_mod, only: TransformBase
 
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
    use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
+   use mapl_VerticalStaggerCharacteristic_mod, only: VerticalStaggerCharacteristic
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, &
+        VERTICAL_STAGGER_EDGE, VERTICAL_STAGGER_MIRROR
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
    use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
    use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
@@ -111,6 +115,66 @@ contains
       @assertFalse(a%needs_extension_for(same_as_a))
       @assertTrue(a%needs_extension_for(b))
    end subroutine test_ungridded_dims_needs_extension_for
+
+   ! --- VerticalStaggerCharacteristic ---
+
+   @test
+   subroutine test_vertical_stagger_is_a_structural_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER))
+      @assertTrue(v%get_kind() == VERTICAL_STAGGER_CHARACTERISTIC_KIND)
+      @assertTrue(v%is_structural())
+   end subroutine test_vertical_stagger_is_a_structural_value_characteristic
+
+   @test
+   subroutine test_vertical_stagger_needs_extension_for()
+      type(VerticalStaggerCharacteristic) :: center, same_as_center, edge, none
+
+      center = VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER)
+      same_as_center = VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER)
+      edge = VerticalStaggerCharacteristic(VERTICAL_STAGGER_EDGE)
+      none = VerticalStaggerCharacteristic(VERTICAL_STAGGER_NONE)
+
+      @assertFalse(center%needs_extension_for(same_as_center))
+      @assertTrue(center%needs_extension_for(edge))
+      @assertTrue(center%needs_extension_for(none))
+      @assertTrue(none%needs_extension_for(center))
+   end subroutine test_vertical_stagger_needs_extension_for
+
+   ! VerticalStaggerLoc's own == treats MIRROR as a wildcard; the
+   ! characteristic must not.
+   @test
+   subroutine test_vertical_stagger_compare_ignores_mirror_wildcard()
+      type(VerticalStaggerCharacteristic) :: center, mirror
+
+      center = VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER)
+      mirror = VerticalStaggerCharacteristic(VERTICAL_STAGGER_MIRROR)
+      @assertTrue(center%needs_extension_for(mirror))
+   end subroutine test_vertical_stagger_compare_ignores_mirror_wildcard
+
+   @test
+   subroutine test_vertical_stagger_signature_and_getter()
+      type(VerticalStaggerCharacteristic) :: edge
+      type(VerticalStaggerLoc) :: got
+
+      edge = VerticalStaggerCharacteristic(VERTICAL_STAGGER_EDGE)
+      @assertEqual('vertical_stagger=VERTICAL_STAGGER_EDGE', edge%get_signature())
+      got = edge%get_vertical_stagger()
+      @assertEqual(VERTICAL_STAGGER_EDGE%to_string(), got%to_string())
+   end subroutine test_vertical_stagger_signature_and_getter
+
+   @test
+   subroutine test_vertical_stagger_build_transform_unsupported()
+      type(VerticalStaggerCharacteristic) :: center, edge
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      center = VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER)
+      edge = VerticalStaggerCharacteristic(VERTICAL_STAGGER_EDGE)
+      call center%build_transform(edge, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+   end subroutine test_vertical_stagger_build_transform_unsupported
 
    ! --- 3.5: ConservationCharacteristic (reused mirror-aware operator(==)) ---
 

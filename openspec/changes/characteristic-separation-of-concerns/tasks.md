@@ -88,7 +88,7 @@ Numbers are labels, not run order.
       tests, CMake lists, and the kind name in docs/graph and
       `specs/graph/state-item-descriptor/spec.md`. Plan Status lines that say
       `B3-VerticalCoordinate` stay as history.
-- [ ] 3.5 B3-VerticalStagger. New kind; also add the
+- [x] 3.5 B3-VerticalStagger. New kind; also add the
       (EXPRESSION, VERTICAL_STAGGER) entry to the §2.4 allowlist, which
       B2 left out because the kind did not exist. Follow design.md §5
       (VerticalStagger row), A17 and Q6. In short: no built-in default

@@ -61,9 +61,15 @@ module Test_GraphGeometryHook
    use esmf, only: ESMF_GridComp, ESMF_GridCompCreate
    use esmf, only: ESMF_HConfig, ESMF_HConfigCreate
    use GraphBuilderTestSupport_mod, only: make_outer_meta
-   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, &
+        VERTICAL_STAGGER_EDGE
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
+   use mapl_VerticalStaggerCharacteristic_mod, only: VerticalStaggerCharacteristic
+   use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
+        CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_DEFERRED
+   use mapl_field_api, only: MAPL_FieldSet
    use mapl_geom_api, only: mapl_new_GeomId
-   use mapl_StateItemCharacteristicKind_mod, only: VERTICAL_GRID_CHARACTERISTIC_KIND
+   use mapl_StateItemCharacteristicKind_mod, only: VERTICAL_GRID_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND
    use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid
    use ESMF_TestMethod_mod
    use esmf
@@ -714,6 +720,7 @@ contains
 
          deferred_spec%state_intent = ESMF_STATEINTENT_EXPORT
          deferred_spec%short_name = 'D'
+         deferred_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
          deferred_spec%geom_id = mapl_new_GeomId(1)
          mirror_spec%state_intent = ESMF_STATEINTENT_EXPORT
          mirror_spec%short_name = 'M'
@@ -755,5 +762,310 @@ contains
       end subroutine check_item
 
    end subroutine test_geometry_hook_resolves_or_drops_vertical_grid
+
+   ! -- VerticalStagger: harvest, GEOM_B, and freeze --
+
+   subroutine find_descriptor(meta, name, intent, descriptor, rc)
+      type(OuterMetaComponent), pointer, intent(inout) :: meta
+      character(*), intent(in) :: name
+      type(ESMF_StateIntent_Flag), intent(in) :: intent
+      type(StateItemDescriptor), pointer, intent(out) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: id
+      class(GraphNode), pointer :: node
+      integer :: status
+
+      graph => meta%get_component_graph()
+      id => graph%get_resource_index(item_key(intent, name))
+      @assert_that(associated(id), is(true()))
+      node => graph%get_node(id)
+      select type (node)
+      class is (StateItemNode)
+         descriptor => node%get_descriptor()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      _RETURN(_SUCCESS)
+   end subroutine find_descriptor
+
+   ! The status of the item's VERTICAL_STAGGER entry and, when it is
+   ! SPECIFIED, its value.
+   subroutine read_stagger(descriptor, entry_status, stagger, rc)
+      type(StateItemDescriptor), intent(in) :: descriptor
+      type(CharacteristicStatus), intent(out) :: entry_status
+      type(VerticalStaggerLoc), intent(out) :: stagger
+      integer, optional, intent(out) :: rc
+
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call descriptor%get_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, c, _RC)
+      entry_status = c%get_status()
+      select type (c)
+      type is (VerticalStaggerCharacteristic)
+         if (entry_status == CHARACTERISTIC_STATUS_SPECIFIED) stagger = c%get_vertical_stagger()
+      end select
+      _RETURN(_SUCCESS)
+   end subroutine read_stagger
+
+   ! Advertises an item with no declared stagger, in a component that
+   ! has a vertical grid when with_vgrid.
+   subroutine advertise_undeclared_stagger(meta, intent, with_vgrid, rc)
+      type(OuterMetaComponent), pointer, intent(inout) :: meta
+      type(ESMF_StateIntent_Flag), intent(in) :: intent
+      logical, intent(in) :: with_vgrid
+      integer, optional, intent(out) :: rc
+
+      type(mapl_BasicVerticalGrid) :: vgrid
+      type(ComponentSpec), pointer :: comp_spec
+      type(VariableSpec) :: var_spec
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      if (with_vgrid) then
+         call vgrid%set_id(9)
+         call meta%set_vertical_grid(vgrid, _RC)
+      end if
+      var_spec%state_intent = intent
+      var_spec%short_name = 'T'
+      var_spec%mirror_geom = .true.
+      comp_spec => meta%get_component_spec()
+      call comp_spec%add_var_spec(var_spec)
+      call gb%advertise(meta, _RC)
+      _RETURN(_SUCCESS)
+   end subroutine advertise_undeclared_stagger
+
+   function make_field_with_stagger(recorded, rc) result(field)
+      type(VerticalStaggerLoc), optional, intent(in) :: recorded
+      integer, optional, intent(out) :: rc
+      type(ESMF_Field) :: field
+
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      geom = make_test_geom(_RC)
+      field = ESMF_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, name='T', _RC)
+      if (present(recorded)) call MAPL_FieldSet(field, vert_staggerloc=recorded, _RC)
+      _RETURN(_SUCCESS)
+   end function make_field_with_stagger
+
+   ! A stagger the component recorded on its realized Field fills the
+   ! DEFERRED entry, even though the component has a vertical grid.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_harvest_fills_vertical_stagger_from_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(StateItemDescriptor), pointer :: descriptor
+      type(GriddedComponentDriver), pointer :: driver
+      type(MultiState) :: states
+      type(ESMF_State) :: export_state
+      type(ESMF_Field) :: field
+      type(CharacteristicStatus) :: entry_status
+      type(VerticalStaggerLoc) :: stagger
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call make_outer_meta('stagger_harvest_field', gc, meta, _RC)
+      call advertise_undeclared_stagger(meta, ESMF_STATEINTENT_EXPORT, with_vgrid=.true., _RC)
+      call find_descriptor(meta, 'T', ESMF_STATEINTENT_EXPORT, descriptor, _RC)
+
+      call read_stagger(descriptor, entry_status, stagger, _RC)
+      @assertTrue(entry_status == CHARACTERISTIC_STATUS_DEFERRED)
+
+      field = make_field_with_stagger(VERTICAL_STAGGER_EDGE, _RC)
+      driver => meta%get_user_gc_driver()
+      states = driver%get_states()
+      export_state = states%exportState
+      call ESMF_StateAdd(export_state, [field], _RC)
+
+      call gb%harvest_deferred(meta, rc=status)
+      @assert_that(status, is(0))
+      call read_stagger(descriptor, entry_status, stagger, _RC)
+      @assertTrue(entry_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(VERTICAL_STAGGER_EDGE%to_string(), stagger%to_string())
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+   end subroutine test_harvest_fills_vertical_stagger_from_field
+
+   ! A bundle's first member supplies the stagger.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_harvest_fills_vertical_stagger_from_bundle(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(StateItemDescriptor), pointer :: descriptor
+      type(GriddedComponentDriver), pointer :: driver
+      type(MultiState) :: states
+      type(ESMF_State) :: export_state
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      type(CharacteristicStatus) :: entry_status
+      type(VerticalStaggerLoc) :: stagger
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call make_outer_meta('stagger_harvest_bundle', gc, meta, _RC)
+      call advertise_undeclared_stagger(meta, ESMF_STATEINTENT_EXPORT, with_vgrid=.true., _RC)
+      call find_descriptor(meta, 'T', ESMF_STATEINTENT_EXPORT, descriptor, _RC)
+
+      field = make_field_with_stagger(VERTICAL_STAGGER_CENTER, _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=[field], name='T', _RC)
+      driver => meta%get_user_gc_driver()
+      states = driver%get_states()
+      export_state = states%exportState
+      call ESMF_StateAdd(export_state, fieldbundleList=[bundle], _RC)
+
+      call gb%harvest_deferred(meta, rc=status)
+      @assert_that(status, is(0))
+      call read_stagger(descriptor, entry_status, stagger, _RC)
+      @assertTrue(entry_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(VERTICAL_STAGGER_CENTER%to_string(), stagger%to_string())
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+   end subroutine test_harvest_fills_vertical_stagger_from_bundle
+
+   ! A realized field that recorded no stagger leaves the entry DEFERRED;
+   ! freeze reports it rather than a default being invented.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_harvest_leaves_stagger_when_field_recorded_none(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(StateItemDescriptor), pointer :: descriptor
+      type(GriddedComponentDriver), pointer :: driver
+      type(MultiState) :: states
+      type(ESMF_State) :: export_state
+      type(ESMF_Field) :: field
+      type(CharacteristicStatus) :: entry_status
+      type(VerticalStaggerLoc) :: stagger
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call make_outer_meta('stagger_harvest_unrecorded', gc, meta, _RC)
+      call advertise_undeclared_stagger(meta, ESMF_STATEINTENT_EXPORT, with_vgrid=.true., _RC)
+      call find_descriptor(meta, 'T', ESMF_STATEINTENT_EXPORT, descriptor, _RC)
+
+      field = make_field_with_stagger(rc=status)
+      @assert_that(status, is(0))
+      driver => meta%get_user_gc_driver()
+      states = driver%get_states()
+      export_state = states%exportState
+      call ESMF_StateAdd(export_state, [field], _RC)
+
+      call gb%harvest_deferred(meta, rc=status)
+      @assert_that(status, is(0))
+      call read_stagger(descriptor, entry_status, stagger, _RC)
+      @assertTrue(entry_status == CHARACTERISTIC_STATUS_DEFERRED)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+   end subroutine test_harvest_leaves_stagger_when_field_recorded_none
+
+   ! An import never harvests: its stagger comes from the connected export.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_harvest_skips_import_vertical_stagger(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(StateItemDescriptor), pointer :: descriptor
+      type(GriddedComponentDriver), pointer :: driver
+      type(MultiState) :: states
+      type(ESMF_State) :: import_state
+      type(ESMF_Field) :: field
+      type(CharacteristicStatus) :: entry_status
+      type(VerticalStaggerLoc) :: stagger
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call make_outer_meta('stagger_harvest_import', gc, meta, _RC)
+      call advertise_undeclared_stagger(meta, ESMF_STATEINTENT_IMPORT, with_vgrid=.true., _RC)
+      call find_descriptor(meta, 'T', ESMF_STATEINTENT_IMPORT, descriptor, _RC)
+
+      field = make_field_with_stagger(VERTICAL_STAGGER_EDGE, _RC)
+      driver => meta%get_user_gc_driver()
+      states = driver%get_states()
+      import_state = states%importState
+      call ESMF_StateAdd(import_state, [field], _RC)
+
+      call gb%harvest_deferred(meta, rc=status)
+      @assert_that(status, is(0))
+      call read_stagger(descriptor, entry_status, stagger, _RC)
+      @assertTrue(entry_status == CHARACTERISTIC_STATUS_DEFERRED)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+   end subroutine test_harvest_skips_import_vertical_stagger
+
+   ! At GEOM_B an undeclared stagger becomes NONE only in a component with
+   ! no vertical grid; with a grid it waits for the harvest.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_geometry_hook_resolves_undeclared_stagger(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc_with, gc_without
+      type(OuterMetaComponent), pointer :: meta_with, meta_without
+      type(StateItemDescriptor), pointer :: with_grid, without_grid
+      type(CharacteristicStatus) :: entry_status
+      type(VerticalStaggerLoc) :: stagger
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+
+      call make_outer_meta('stagger_geomb_with', gc_with, meta_with, _RC)
+      call advertise_undeclared_stagger(meta_with, ESMF_STATEINTENT_EXPORT, with_vgrid=.true., _RC)
+      call find_descriptor(meta_with, 'T', ESMF_STATEINTENT_EXPORT, with_grid, _RC)
+      call gb%run_geometry_hook(meta_with)
+      call read_stagger(with_grid, entry_status, stagger, _RC)
+      @assertTrue(entry_status == CHARACTERISTIC_STATUS_DEFERRED)
+
+      call make_outer_meta('stagger_geomb_without', gc_without, meta_without, _RC)
+      call advertise_undeclared_stagger(meta_without, ESMF_STATEINTENT_EXPORT, with_vgrid=.false., _RC)
+      call find_descriptor(meta_without, 'T', ESMF_STATEINTENT_EXPORT, without_grid, _RC)
+      call gb%run_geometry_hook(meta_without)
+      call read_stagger(without_grid, entry_status, stagger, _RC)
+      @assertTrue(entry_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(VERTICAL_STAGGER_NONE%to_string(), stagger%to_string())
+      @assertFalse(without_grid%has_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND))
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+   end subroutine test_geometry_hook_resolves_undeclared_stagger
+
+   ! A stagger that is never harvested fails freeze, naming the item.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_unharvested_stagger_fails_freeze(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call make_outer_meta('stagger_freeze', gc, meta, _RC)
+      call advertise_undeclared_stagger(meta, ESMF_STATEINTENT_EXPORT, with_vgrid=.true., _RC)
+      call gb%run_geometry_hook(meta)
+
+      call gb%run_graph_freeze_hook(meta)
+      @assertExceptionRaised('StateItemDescriptor: item ' // meta%get_name() // ':T has characteristic VERTICAL_STAGGER still DEFERRED at freeze')
+      @assertExceptionRaised('GraphBuilder: characteristics unresolved at freeze')
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+   end subroutine test_unharvested_stagger_fails_freeze
 
 end module Test_GraphGeometryHook
