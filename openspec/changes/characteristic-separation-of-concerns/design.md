@@ -727,6 +727,11 @@ A18. The vertical-grid characteristic is named `VerticalGrid`
      (`VerticalGridCharacteristic`, `VERTICAL_GRID_CHARACTERISTIC_KIND`,
      display `"VERTICAL_GRID"`). B3-RenameVerticalGrid renames
      VerticalCoordinate.
+A19. Info is not write-only. Graph code may read it back through
+     `MAPL_*Get` (never raw `ESMF_Info*`), e.g. to harvest a DEFERRED
+     value. A MIRROR value on an export is an error raised at advertise by
+     the factory, except for an EXPRESSION, where many characteristics
+     (including VerticalStagger) may be MIRROR.
 
 ## Open Questions (deferred to the named B3 task)
 
