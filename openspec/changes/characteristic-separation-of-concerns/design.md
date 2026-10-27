@@ -88,7 +88,7 @@ Legacy reference points (the behavior being duplicated):
 | `CLASS_ASPECT_ID` (`fill_value`, `bracket_size`, `vector_basis_kind`) | deferred to M3 | - | no | Only needed once the graph materializes those shapes (B4/M3). Owner A8. |
 | `GEOM_ASPECT_ID` (geom) | `Geometry` (`GEOMETRY`) | reference | yes, component-level only | Item-level instance added by B3-Geometry (fixes M1). Also carries the regridder param (not compared). |
 | `GEOM_ASPECT_ID` (`horizontal_dims_spec`) | `HorizontalDimsSpec` (new, A14) | value | no | Today carried inside `GeometryCharacteristic` and compared there, as legacy `GeomAspect%matches` does. Moves to its own kind. |
-| `VERTICAL_GRID_ASPECT_ID` (grid) | `VerticalGrid` (`VERTICAL_GRID`; code still `VerticalCoordinate` until B3-RenameVerticalGrid) | reference | yes | References the item's `VerticalGrid`, which may carry several coordinates. Must also be set from the component vertical grid (M2). |
+| `VERTICAL_GRID_ASPECT_ID` (grid) | `VerticalGrid` (`VERTICAL_GRID`) | reference | yes | References the item's `VerticalGrid`, which may carry several coordinates. Must also be set from the component vertical grid (M2). |
 | `VERTICAL_GRID_ASPECT_ID` (stagger) | `VerticalStagger` (new) | value | no | Replaces `GraphStateItem%vertical_stagger`. |
 | `VERTICAL_GRID_ASPECT_ID` (alignment) | `VerticalOrientation` (new, name provisional; Q7) | value | no | Vertical index order. Independent of VerticalStagger. |
 | `UNITS_ASPECT_ID` | `PhysicalUnits` (`PHYSICAL_UNITS`) | value | yes | |
@@ -546,7 +546,7 @@ is authoritative for status rules; this table summarizes it.
 | UngriddedDims | `ungridded_dims` | built-in: none | - | `is_mirror()` | same | landed |
 | Geometry | `geom`, `geom_id` | component geom, then harvest | freeze fails | `mirror_geom` / `geometry_mirror: true` | item geom, component geom, item id, component id (FROM_COMP); else MIRRORED | landed |
 | HorizontalDimsSpec | `horizontal_dims_spec` / `dims: z` | built-in GEOM | - | explicit mirror value, imports only | compared inside `GeomAspect`, together with the geom | design |
-| VerticalGrid | `vertical_grid` | component grid | no entry (2D item) | `mirror_vgrid` / `vertical_grid_mirror: true` | item grid, component grid; else MIRRORED (FROM_COMP if a component geom id exists) | landed (as VerticalCoordinate) |
+| VerticalGrid | `vertical_grid` | component grid | no entry (2D item) | `mirror_vgrid` / `vertical_grid_mirror: true` | item grid, component grid; else MIRRORED (FROM_COMP if a component geom id exists) | landed |
 | VerticalStagger | `vertical_stagger` / `vertical_dim_spec` | none: harvest from the component's field | NONE if the component has no vertical grid; else freeze fails | `MIRROR` (imports only); `mirror_vgrid` with no stagger | unallocated stagger is treated as mirror; `MIRROR` matches any stagger | design |
 | VerticalOrientation | `vertical_alignment` | the item's grid direction (`with_grid`) | no entry (2D item) | explicit mirror value, imports only | `with_grid`; compared after resolving against the grid's direction; the import copies the export's on connect | design |
 | Attributes | `attributes` | built-in: empty | - | - | empty; import's set must be included in export's | landed |

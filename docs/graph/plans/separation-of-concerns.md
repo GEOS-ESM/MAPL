@@ -593,8 +593,8 @@ in the first one; later ones refine it.
   `make_vertical_grid_characteristic`. Renamed in the graph sources, tests, CMake, the
   `VariableSpec` factory, and the docs and delta spec that name the kind. Deviations: the
   renamed file's header dropped its "named X, NOT Y" collision note, which would otherwise
-  read as self-contradictory, and its references to the retired module now say
-  "retired extension-reuse vertical-grid module". Historical `B3-VerticalCoordinate` labels,
+  read as self-contradictory, and its change-history comments about the retired
+  module were removed (AGENTS.md), shortening several comments. Historical `B3-VerticalCoordinate` labels,
   archives, and the unrelated `VerticalCoordinateDirection` and legacy `VerticalCoordinate`
   (infrastructure) types are untouched. ESSENTIAL 65/65 on NAG and gfortran.
   B3-Geometry (first DEFERRED kind): `GeometryCharacteristic` gained
