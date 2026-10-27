@@ -511,8 +511,17 @@ Label `B3-<Name>` with the name as listed (exception: PhysicalUnits is
 `B3-Units`). List: PhysicalUnits, TypeKind (finish), UngriddedDims, VerticalCoordinate,
 VerticalStagger (new), Geometry, ItemShape (incl. D4 ordering),
 StandardName, Attributes, QuantityType, Conservation, Normalization,
-RestartMode (new), Expression (new), LongName (new, provisional),
-SetShared (kept: runtime geometry change is a goal).
+RestartMode (new), Expression (new), LongName (new),
+SetShared (kept: runtime geometry change is a goal). Added by owner
+decisions (design.md A13-A18): RenameVerticalGrid (renames the landed
+VerticalCoordinate to VerticalGrid; old label `B3-VerticalCoordinate`
+stays in history), VerticalOrientation (new, split from VerticalStagger),
+HorizontalDimsSpec (new, split from Geometry), StringMirror (shared
+mirror sentinel for StandardName/LongName). Run order: tasks.md §3 header.
+- Later cleanup, not a current task (owner): one "Declared by" keyword per
+  characteristic, one mirror mechanism (sentinels instead of
+  `mirror_geom`/`mirror_vgrid`), and renaming ItemShape and
+  VerticalOrientation (design.md §5.1 note).
 Run one at a time after B2 (direct commits; no parallel agents). Produce `docs/graph/adding-a-characteristic.md`
 in the first one; later ones refine it.
 - Each task whose characteristic has a Transform teaches
@@ -833,6 +842,10 @@ it may author D1/A4/B5 with sonnet review.
 | B3-Geometry | sonnet | opus | geom-as-node, Info id |
 | B3-ItemShape | opus | - | D4 ordering, Bracket rule |
 | B3-VerticalCoordinate | sonnet | opus | first reuse of Geometry's DEFERRED machinery |
+| B3-RenameVerticalGrid | sonnet | sonnet (self-review) | mechanical rename, no behavior change |
+| B3-VerticalStagger | sonnet | opus | DEFERRED/harvest; fixture risk |
+| B3-VerticalOrientation | sonnet | opus | resolve against grid without comparing it |
+| B3-HorizontalDimsSpec | sonnet | opus | changes when Geometry is compared |
 | B3-Expression | opus | gemini/gpt-sol | resolve Q2 and amend design.md §2.4 first |
 | B3 others | sonnet | sonnet (self-review) | one at a time, after B3-Units lands |
 | B4 | sonnet | opus | materialization regressions likely |
