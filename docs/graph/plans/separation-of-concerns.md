@@ -522,7 +522,11 @@ mirror sentinel for StandardName/LongName). Run order: tasks.md §3 header.
 - Later cleanup, not a current task (owner): one "Declared by" keyword per
   characteristic, one mirror mechanism (sentinels instead of
   `mirror_geom`/`mirror_vgrid`), and renaming ItemShape and
-  VerticalOrientation (design.md §5.1 note).
+  VerticalOrientation (design.md §5.1 note). The `mirror_geom`/`mirror_vgrid`
+  flags are not rejected on an export today (B3-VerticalStagger checks only
+  an explicit `VERTICAL_STAGGER_MIRROR`); an unconnected export with either
+  flag passes freeze as MIRRORED. Fix with the sentinel cleanup, or sooner
+  if the owner wants.
 Run one at a time after B2 (direct commits; no parallel agents). Produce `docs/graph/adding-a-characteristic.md`
 in the first one; later ones refine it.
 - Each task whose characteristic has a Transform teaches

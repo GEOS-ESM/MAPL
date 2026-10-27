@@ -55,7 +55,10 @@ if materialization needs the value before B4; add it to 4.2's list.
 
 Remaining order (owner): 3.15, 3.5, 3.16, 3.17, 3.18, then 3.7, 3.13,
 3.11, 3.10, 3.12, 3.14 as their open questions allow (3.10: Q9; 3.12: Q2).
-Numbers are labels, not run order.
+Numbers are labels, not run order. Every task whose characteristic has a
+mirror value rejects it on a non-EXPRESSION export in the factory, at
+advertise, with a test (A19; B3-VerticalStagger is the pattern). A
+harvest reads through `MAPL_*Get`, never raw Info (A19).
 
 - [x] 3.1 B3-Units (template; also writes
       `docs/graph/adding-a-characteristic.md`). Owner-approved deviation:
@@ -195,7 +198,9 @@ Numbers are labels, not run order.
 - [ ] 4.2 Materialize extension fields by empty-create +
       `sync_to_info(STRUCTURAL)` + `MAPL_FieldEmptyComplete` (§3.2.1);
       delete `get_item_units` / `get_item_typekind` /
-      `get_item_ungridded_dims` / `get_item_geom` / `get_item_vgrid`, and the
+      `get_item_ungridded_dims` / `get_item_geom` / `get_item_vgrid` /
+      `get_item_vertical_stagger`, move `harvest_stagger` out of
+      `GraphBuilder_Geometry_smod.F90` behind the characteristic, and the
       `insert_geom_id_characteristic` import in
       `GraphBuilder_Geometry_smod.F90` (these name concrete
       `*Characteristic` types in `select type`, so 4.4 depends on this).
