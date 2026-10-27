@@ -3,7 +3,7 @@
 submodule (mapl_VariableSpec_mod) make_characteristics_smod
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
         TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
-        VERTICAL_COORDINATE_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND
+        VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
@@ -14,7 +14,7 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
    use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
-   use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
+   use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
    implicit none(type, external)
 
    abstract interface
@@ -47,7 +47,7 @@ contains
       factories(2)%make => make_typekind_characteristic
       factories(3)%make => make_ungridded_dims_characteristic
       factories(4)%make => make_geometry_characteristic
-      factories(5)%make => make_vertical_coordinate_characteristic
+      factories(5)%make => make_vertical_grid_characteristic
       factories(6)%make => make_standard_name_characteristic
       factories(7)%make => make_attributes_characteristic
 
@@ -190,18 +190,18 @@ contains
    ! 2D item in a component without a vertical grid stays valid. An explicit
    ! vertical_stagger NONE means no vertical dimension and gets no entry.
    ! The VERTICALGRID composite has no grid object, only member names.
-   subroutine make_vertical_coordinate_characteristic(spec, descriptor, rc)
+   subroutine make_vertical_grid_characteristic(spec, descriptor, rc)
       class(VariableSpec), intent(in) :: spec
       type(StateItemDescriptor), intent(inout) :: descriptor
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(VerticalCoordinateCharacteristic) :: vertical_coordinate
+      type(VerticalGridCharacteristic) :: vertical_grid_char
 
       if (allocated(spec%state_item_variant)) then
          if (spec%state_item_variant == MAPL_STATEITEM_VERTICALGRID) then
-            vertical_coordinate = VerticalCoordinateCharacteristic(dimensions=spec%get_member_names())
-            call descriptor%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, vertical_coordinate, _RC)
+            vertical_grid_char = VerticalGridCharacteristic(dimensions=spec%get_member_names())
+            call descriptor%set_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND, vertical_grid_char, _RC)
             _RETURN(_SUCCESS)
          end if
       end if
@@ -212,17 +212,17 @@ contains
       end if
 
       if (allocated(spec%vertical_grid)) then
-         vertical_coordinate = VerticalCoordinateCharacteristic(vgrid=spec%vertical_grid)
+         vertical_grid_char = VerticalGridCharacteristic(vgrid=spec%vertical_grid)
       else if (spec%itemType == MAPL_STATEITEM_EXPRESSION .or. spec%mirror_vgrid) then
-         call vertical_coordinate%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+         call vertical_grid_char%set_status(CHARACTERISTIC_STATUS_MIRRORED)
       else
-         call vertical_coordinate%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+         call vertical_grid_char%set_status(CHARACTERISTIC_STATUS_DEFERRED)
       end if
 
-      call descriptor%set_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, vertical_coordinate, _RC)
+      call descriptor%set_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND, vertical_grid_char, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine make_vertical_coordinate_characteristic
+   end subroutine make_vertical_grid_characteristic
 
    ! A declared standard_name is SPECIFIED. Undeclared (or UNKNOWN_STANDARD_NAME)
    ! is UNCHECKED: it matches anything. Only a FIELD carries one: the other

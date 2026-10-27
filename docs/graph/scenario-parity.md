@@ -148,7 +148,7 @@ In production, the same faults only log a warning and drop part of the graph.
   always fails. C1 needs B3-Geometry (an item-level characteristic) before
   a regrid mismatch can be detected at all. Flipping `regrid*` needs both.
 - **M2. Component vertical grid is not an item characteristic.**
-  `VERTICAL_COORDINATE_CHARACTERISTIC_KIND` is set only when
+  `VERTICAL_GRID_CHARACTERISTIC_KIND` is set only when
   `var_spec%vertical_grid` is allocated. `parse_var_specs` fills that only
   from an item-level `geometry:` block, never from the component's
   `geometry: vertical_grid:`. In every `vertical_*` scenario the grid is

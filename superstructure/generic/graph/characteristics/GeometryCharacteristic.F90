@@ -17,7 +17,7 @@
 ! Absorbs the retired mapl_GeomCharacteristic_mod's own opaque geom_id
 ! string-token identity and its (always-failing) build_transform/get_signature,
 ! in addition to this type's own pre-existing NodeId-sharing role - same HYBRID
-! needs_extension_for pattern as VerticalCoordinateCharacteristic.F90
+! needs_extension_for pattern as VerticalGridCharacteristic.F90
 ! (see that module's own header comment for the full rationale): a real
 ! referenced_node_id set on both sides (the GraphStateItem-sharing use
 ! case, REQ-CHAR-012) is authoritative and unchanged from this type's
@@ -67,7 +67,7 @@ module mapl_GeometryCharacteristic_mod
       ! Moved from the retired mapl_GeomCharacteristic_mod - the opaque
       ! identity token, carried alongside the inherited
       ! referenced_node_id (same deliberate mix as
-      ! VerticalCoordinateCharacteristic.F90, design.md Risks).
+      ! VerticalGridCharacteristic.F90, design.md Risks).
       character(:), allocatable :: geom_id
       type(ESMF_Geom), allocatable :: geom
       type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM

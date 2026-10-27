@@ -63,7 +63,7 @@ module Test_GraphGeometryHook
    use GraphBuilderTestSupport_mod, only: make_outer_meta
    use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE
    use mapl_geom_api, only: mapl_new_GeomId
-   use mapl_StateItemCharacteristicKind_mod, only: VERTICAL_COORDINATE_CHARACTERISTIC_KIND
+   use mapl_StateItemCharacteristicKind_mod, only: VERTICAL_GRID_CHARACTERISTIC_KIND
    use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid
    use ESMF_TestMethod_mod
    use esmf
@@ -676,7 +676,7 @@ contains
    ! coordinate. Without one the entry is dropped (the item has no vertical
    ! dimension), and a mirrored entry survives either way.
    @test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_geometry_hook_resolves_or_drops_vertical_coordinate(this)
+   subroutine test_geometry_hook_resolves_or_drops_vertical_grid(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
       type(ESMF_GridComp) :: gc_with, gc_without
@@ -746,7 +746,7 @@ contains
          select type (node)
          class is (StateItemNode)
             descriptor => node%get_descriptor()
-            @assertEqual(is_present, descriptor%has_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND))
+            @assertEqual(is_present, descriptor%has_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND))
             @assertEqual(0, size(descriptor%get_unresolved_kinds()))
          class default
             @assert_that(.false., is(true()))
@@ -754,6 +754,6 @@ contains
          _RETURN(_SUCCESS)
       end subroutine check_item
 
-   end subroutine test_geometry_hook_resolves_or_drops_vertical_coordinate
+   end subroutine test_geometry_hook_resolves_or_drops_vertical_grid
 
 end module Test_GraphGeometryHook

@@ -1544,7 +1544,7 @@ contains
       entry => unsupported%at(1, status)
       @assertEqual('child_dst', entry%component_name)
       @assertEqual('T', entry%short_name)
-      @assertEqual('VERTICAL_COORDINATE', entry%reason)
+      @assertEqual('VERTICAL_GRID', entry%reason)
 
       _UNUSED_DUMMY(this)
    end subroutine test_materialize_extensions_vgrid_mismatch_unaffected
@@ -2063,7 +2063,7 @@ contains
       entry => unsupported%at(1, status)
       @assertEqual('child_dst', entry%component_name)
       @assertEqual('MY_VGRID', entry%short_name)
-      @assertEqual('VERTICAL_COORDINATE', entry%reason)
+      @assertEqual('VERTICAL_GRID', entry%reason)
 
       _UNUSED_DUMMY(this)
    end subroutine test_vertical_grid_composites_single_overlap_fails_explicitly
@@ -2150,7 +2150,7 @@ contains
 
       call resolve_vertical_grid_membership_mismatch([character(8) :: 'pressure'], [character(8) :: 'height'], &
            unresolved, unsupported, status)
-      @assertExceptionRaised('VerticalCoordinateCharacteristic: incompatible - no common ' // &
+      @assertExceptionRaised('VerticalGridCharacteristic: incompatible - no common ' // &
            'physical dimension between export and import vertical grids')
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
@@ -2158,7 +2158,7 @@ contains
       entry => unsupported%at(1, status)
       @assertEqual('child_dst', entry%component_name)
       @assertEqual('MY_VGRID', entry%short_name)
-      @assertEqual('VERTICAL_COORDINATE', entry%reason)
+      @assertEqual('VERTICAL_GRID', entry%reason)
 
       _UNUSED_DUMMY(this)
    end subroutine test_vertical_grid_composites_zero_overlap_fails_incompatible
@@ -2173,7 +2173,7 @@ contains
       call resolve_vertical_grid_membership_mismatch([character(8) :: 'pressure', 'height'], &
            [character(8) :: 'height', 'pressure', 'depth'], &
            unresolved, unsupported, status)
-      @assertExceptionRaised('VerticalCoordinateCharacteristic: ambiguous - more than one ' // &
+      @assertExceptionRaised('VerticalGridCharacteristic: ambiguous - more than one ' // &
            'common physical dimension between export and import vertical grids (height,pressure)')
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
@@ -2181,7 +2181,7 @@ contains
       entry => unsupported%at(1, status)
       @assertEqual('child_dst', entry%component_name)
       @assertEqual('MY_VGRID', entry%short_name)
-      @assertEqual('VERTICAL_COORDINATE', entry%reason)
+      @assertEqual('VERTICAL_GRID', entry%reason)
 
       _UNUSED_DUMMY(this)
    end subroutine test_vertical_grid_composites_multiple_overlap_fails_ambiguous

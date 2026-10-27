@@ -24,7 +24,7 @@ deprecated yet.
 | `UnitsAspect` | `PhysicalUnitsCharacteristic` | |
 | `TypekindAspect` | `TypeKindCharacteristic` | |
 | `GeomAspect` | `GeometryCharacteristic` | Geometry is also a graph node (`GeomProxyField`). |
-| `VerticalGridAspect` | `VerticalCoordinateCharacteristic` | Plan adds a separate vertical-stagger characteristic. |
+| `VerticalGridAspect` | `VerticalGridCharacteristic` | Plan adds a separate vertical-stagger characteristic. |
 | `UngriddedDimsAspect`, `StandardNameAspect`, `AttributesAspect`, `QuantityTypeAspect`, `ConservationAspect`, `NormalizationAspect` | `UngriddedDimsCharacteristic`, `StandardNameCharacteristic`, `AttributesCharacteristic`, `QuantityTypeCharacteristic`, `ConservationCharacteristic`, `NormalizationCharacteristic` | Same names minus `Aspect`. Mismatch detection works; `build_transform` is a stub (see `ARCHITECTURE.md` §1.1). |
 | `StateItemSpec` | `StateItemNode` + `StateItemDescriptor` + `GraphStateItem` | Spec = description + producer/consumer. Graph = node (identity, revision) + descriptor (description) + payload (ESMF handle); producer/consumer are dependency edges. |
 | `VariableSpec` | `VariableSpec` (unchanged) | Fortran-level user declaration. Graph reads it in `advertise_one`; plan D5 adds `make_characteristics` beside `make_aspects`. |

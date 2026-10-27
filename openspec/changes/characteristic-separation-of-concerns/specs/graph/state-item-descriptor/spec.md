@@ -63,7 +63,7 @@ encountered by the descriptor SHALL be reported as an error.
 A MIRRORED export characteristic SHALL be accepted only when the pair
 (export shape, kind) appears in a static allowlist owned by the
 descriptor module. The initial allowlist SHALL be: (EXPRESSION,
-GEOMETRY), (EXPRESSION, VERTICAL_COORDINATE), (EXPRESSION,
+GEOMETRY), (EXPRESSION, VERTICAL_GRID), (EXPRESSION,
 VERTICAL_STAGGER), (EXPRESSION, TYPE_KIND). For an allowlisted pair the
 extension chain tip for that consumer SHALL take the import's value
 without a Transform step, and the export's own descriptor SHALL NOT be
@@ -97,7 +97,7 @@ naming the item and the kind.
 SPECIFIED or UNCHECKED characteristic through that characteristic's own
 write method, which SHALL call only `MAPL_FieldSet`,
 `MAPL_FieldBundleSet`, or `MAPL_StateSet`. Structural characteristics
-(geometry, vertical coordinate, vertical stagger, typekind, ungridded
+(geometry, vertical grid, vertical stagger, typekind, ungridded
 dims, units) SHALL be written only in the STRUCTURAL phase, before the
 field is completed. UNCHECKED units and standard_name SHALL be written as
 `'<unknown>'`; other UNCHECKED characteristics SHALL write nothing.

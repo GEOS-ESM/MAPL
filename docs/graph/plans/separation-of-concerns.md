@@ -537,7 +537,7 @@ in the first one; later ones refine it.
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
-  `Plan-Task: B3-Attributes`); others not started.
+  `Plan-Task: B3-Attributes`, `Plan-Task: B3-RenameVerticalGrid`); others not started.
   B3-Attributes: `AttributesCharacteristic` gained `write_info`, a
   successful no-op (no Info key; design §3.4), `is_structural()` stays
   false. The factory (`make_attributes_characteristic`) always gives
@@ -586,7 +586,17 @@ in the first one; later ones refine it.
   `statistics_real`; this matches the set recorded for B3-Geometry, but
   was not re-run on a HEAD baseline here.
   B3-VerticalCoordinate: see design.md §5 and adding-a-characteristic.md
-  "VerticalCoordinate as implemented".
+  "VerticalGrid as implemented".
+  B3-RenameVerticalGrid (done, no behavior change): `VerticalCoordinateCharacteristic`
+  is now `VerticalGridCharacteristic` (file `graph/characteristics/VerticalGridCharacteristic.F90`,
+  kind `VERTICAL_GRID_CHARACTERISTIC_KIND`, display `"VERTICAL_GRID"`), with the factory
+  `make_vertical_grid_characteristic`. Renamed in the graph sources, tests, CMake, the
+  `VariableSpec` factory, and the docs and delta spec that name the kind. Deviations: the
+  renamed file's header dropped its "named X, NOT Y" collision note, which would otherwise
+  read as self-contradictory, and its references to the retired module now say
+  "retired extension-reuse vertical-grid module". Historical `B3-VerticalCoordinate` labels,
+  archives, and the unrelated `VerticalCoordinateDirection` and legacy `VerticalCoordinate`
+  (infrastructure) types are untouched. ESSENTIAL 65/65 on NAG and gfortran.
   B3-Geometry (first DEFERRED kind): `GeometryCharacteristic` gained
   `write_info`, `is_structural() = .true.` and `resolve_deferred`; the
   factory (`make_geometry_characteristic`) gives SPECIFIED for a declared

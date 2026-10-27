@@ -8,7 +8,7 @@ module Test_StatusResolution
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), &
         PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
-        VERTICAL_COORDINATE_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND
+        VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
         CHARACTERISTIC_STATUS_INVALID, CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_DEFERRED
@@ -152,7 +152,7 @@ contains
    @test
    subroutine test_allowlist_entries()
       @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, GEOMETRY_CHARACTERISTIC_KIND))
-      @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, VERTICAL_COORDINATE_CHARACTERISTIC_KIND))
+      @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, VERTICAL_GRID_CHARACTERISTIC_KIND))
       @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, TYPE_KIND_CHARACTERISTIC_KIND))
       @assertFalse(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, PHYSICAL_UNITS_CHARACTERISTIC_KIND))
       @assertFalse(is_mirrored_export_allowed(MAPL_STATEITEM_FIELD, GEOMETRY_CHARACTERISTIC_KIND))

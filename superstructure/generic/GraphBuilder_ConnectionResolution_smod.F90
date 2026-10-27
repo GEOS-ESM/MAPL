@@ -1513,7 +1513,7 @@ contains
             units_converted = .true.
          else if (mismatched_kinds(j) == TYPE_KIND_CHARACTERISTIC_KIND) then
             typekind_converted = .true.
-         else if (mismatched_kinds(j) == VERTICAL_COORDINATE_CHARACTERISTIC_KIND) then
+         else if (mismatched_kinds(j) == VERTICAL_GRID_CHARACTERISTIC_KIND) then
             ! Vertical grid is resolved once by materialize_extension_chain, not per
             ! link; nothing to merge. build_transform for this kind always fails, so
             ! this is unreachable in practice, but it is enumerated so a mismatch

@@ -3,7 +3,7 @@
 Source: `superstructure/generic/graph/{StateItemCharacteristic,CharacteristicStatus,StateItemCharacteristicKind,StateItemDescriptor,ExtensionResolution,ExtensionMaterialization}.F90`
 plus one module per concrete characteristic: `PhysicalUnitsCharacteristic`,
 `TypeKindCharacteristic`, `GeometryCharacteristic`,
-`VerticalCoordinateCharacteristic`, `UngriddedDimsCharacteristic`,
+`VerticalGridCharacteristic`, `UngriddedDimsCharacteristic`,
 `ConservationCharacteristic`, `NormalizationCharacteristic`,
 `QuantityTypeCharacteristic`, `AttributesCharacteristic`,
 `StandardNameCharacteristic`.
@@ -22,7 +22,7 @@ StateItemCharacteristic (abstract)
   ├─ ValueCharacteristic      (holds value inline, never shared)
   │     e.g. PhysicalUnitsCharacteristic, TypeKindCharacteristic
   └─ ReferenceCharacteristic  (holds a NodeId to a shared graph node)
-        e.g. GeometryCharacteristic, VerticalCoordinateCharacteristic
+        e.g. GeometryCharacteristic, VerticalGridCharacteristic
 ```
 
 (`StateItemCharacteristic.F90:77-96`.) `ReferenceCharacteristic`'s

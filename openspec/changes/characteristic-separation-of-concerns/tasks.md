@@ -80,7 +80,7 @@ Numbers are labels, not run order.
       without their own grid use it. `get_item_vgrid`,
       `resolve_export_vgrid` and the VERTICAL_COORDINATE branch of the
       mismatch classification remain for B4 (§6.3).
-- [ ] 3.15 B3-RenameVerticalGrid (no behavior change). Rename the
+- [x] 3.15 B3-RenameVerticalGrid (no behavior change). Rename the
       VerticalCoordinate characteristic to VerticalGrid (A18): file
       `VerticalCoordinateCharacteristic.F90` -> `VerticalGridCharacteristic.F90`,
       type `VerticalGridCharacteristic`, kind

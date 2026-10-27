@@ -2,7 +2,7 @@
 
 !------------------------------------------------------------------------------
 ! StringSortUtilities: one shared `sorted_names` helper, used by
-! AttributesCharacteristic.F90 and VerticalCoordinateCharacteristic.F90 so
+! AttributesCharacteristic.F90 and VerticalGridCharacteristic.F90 so
 ! each does not need its own private copy.
 !------------------------------------------------------------------------------
 module mapl_StringSortUtilities_mod

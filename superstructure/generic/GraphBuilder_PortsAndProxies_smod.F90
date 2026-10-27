@@ -5,7 +5,7 @@
 submodule (mapl_GraphBuilder_mod) GraphBuilder_PortsAndProxies_smod
    use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE, operator(==)
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
-   use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
+   use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -67,7 +67,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_item_geom
 
-   ! The grid held by the item's VERTICAL_COORDINATE characteristic. An
+   ! The grid held by the item's VERTICAL_GRID characteristic. An
    ! item with no such entry has no vertical dimension (a legitimate 2D
    ! field), so "not found" is not a failure. An explicit
    ! vertical_stagger == VERTICAL_STAGGER_NONE is honored ahead of the
@@ -103,7 +103,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine resolve_export_vgrid
 
-   ! The vertical grid held by the item's VERTICAL_COORDINATE characteristic,
+   ! The vertical grid held by the item's VERTICAL_GRID characteristic,
    ! if any. Unallocated when there is no entry, or the entry is MIRRORED or
    ! holds only dimension names.
    subroutine get_item_vgrid(item, vgrid, rc)
@@ -114,14 +114,14 @@ contains
       integer :: status
       class(StateItemCharacteristic), allocatable :: characteristic
 
-      _RETURN_UNLESS(item%has_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND))
+      _RETURN_UNLESS(item%has_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND))
 
-      call item%get_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, characteristic, _RC)
+      call item%get_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND, characteristic, _RC)
       select type (characteristic)
-      class is (VerticalCoordinateCharacteristic)
+      class is (VerticalGridCharacteristic)
          if (characteristic%has_vgrid()) vgrid = characteristic%get_vgrid()
       class default
-         _FAIL('GraphBuilder: get_item_vgrid - characteristic is not a VerticalCoordinateCharacteristic')
+         _FAIL('GraphBuilder: get_item_vgrid - characteristic is not a VerticalGridCharacteristic')
       end select
 
       _RETURN(_SUCCESS)

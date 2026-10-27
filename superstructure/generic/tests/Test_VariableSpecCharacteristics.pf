@@ -13,7 +13,7 @@ module Test_VariableSpecCharacteristics
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, &
         UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
-        VERTICAL_COORDINATE_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, &
+        VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, &
         ATTRIBUTES_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
         CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
@@ -27,7 +27,7 @@ module Test_VariableSpecCharacteristics
    use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
    use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
    use mapl_UngriddedDims_mod, only: UngriddedDims, operator(==)
-   use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
+   use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
    use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid
    use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER
    use esmf, only: ESMF_StateItem_Flag, ESMF_STATEINTENT_EXPORT, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_I4
@@ -499,7 +499,7 @@ contains
       end do
    end subroutine test_geometry_applicability
 
-   ! Status of the VERTICAL_COORDINATE entry; has_entry is false when the
+   ! Status of the VERTICAL_GRID entry; has_entry is false when the
    ! item gets none.
    function vcoord_status(var_spec, has_entry, rc) result(char_status)
       type(VariableSpec), intent(in) :: var_spec
@@ -512,23 +512,23 @@ contains
       integer :: status
 
       call var_spec%make_characteristics(descriptor, _RC)
-      has_entry = descriptor%has_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND)
+      has_entry = descriptor%has_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND)
       if (has_entry) then
-         call descriptor%get_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, c, _RC)
+         call descriptor%get_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND, c, _RC)
          char_status = c%get_status()
       end if
       _RETURN(_SUCCESS)
    end function vcoord_status
 
    @test
-   subroutine test_default_vertical_coordinate_is_deferred()
+   subroutine test_default_vertical_grid_is_deferred()
       logical :: has_entry
       integer :: status
 
       @assertTrue(vcoord_status(make_spec(MAPL_STATEITEM_FIELD), has_entry, rc=status) == CHARACTERISTIC_STATUS_DEFERRED)
       @assertEqual(0, status)
       @assertTrue(has_entry)
-   end subroutine test_default_vertical_coordinate_is_deferred
+   end subroutine test_default_vertical_grid_is_deferred
 
    @test
    subroutine test_declared_vgrid_is_specified()
@@ -545,13 +545,13 @@ contains
    end subroutine test_declared_vgrid_is_specified
 
    @test
-   subroutine test_expression_vertical_coordinate_is_mirrored()
+   subroutine test_expression_vertical_grid_is_mirrored()
       logical :: has_entry
       integer :: status
 
       @assertTrue(vcoord_status(make_spec(MAPL_STATEITEM_EXPRESSION), has_entry, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
       @assertEqual(0, status)
-   end subroutine test_expression_vertical_coordinate_is_mirrored
+   end subroutine test_expression_vertical_grid_is_mirrored
 
    @test
    subroutine test_mirror_vgrid_is_mirrored()
@@ -583,7 +583,7 @@ contains
 
    ! Stagger NONE means no vertical dimension, so no entry.
    @test
-   subroutine test_stagger_none_has_no_vertical_coordinate()
+   subroutine test_stagger_none_has_no_vertical_grid()
       type(VariableSpec) :: var_spec
       logical :: has_entry
       type(CharacteristicStatus) :: char_status
@@ -599,10 +599,10 @@ contains
       char_status = vcoord_status(var_spec, has_entry, rc=status)
       @assertEqual(0, status)
       @assertTrue(has_entry)
-   end subroutine test_stagger_none_has_no_vertical_coordinate
+   end subroutine test_stagger_none_has_no_vertical_grid
 
    @test
-   subroutine test_vertical_coordinate_applicability()
+   subroutine test_vertical_grid_applicability()
       type(ESMF_StateItem_Flag) :: with_entry(5), without_entry(4)
       type(StateItemDescriptor) :: descriptor, empty_descriptor
       type(VariableSpec) :: var_spec
@@ -615,7 +615,7 @@ contains
          var_spec = make_spec(with_entry(i))
          call var_spec%make_characteristics(descriptor, rc=status)
          @assertEqual(0, status)
-         @assertTrue(descriptor%has_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND))
+         @assertTrue(descriptor%has_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND))
       end do
 
       without_entry = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE]
@@ -624,9 +624,9 @@ contains
          var_spec = make_spec(without_entry(i))
          call var_spec%make_characteristics(descriptor, rc=status)
          @assertEqual(0, status)
-         @assertFalse(descriptor%has_characteristic(VERTICAL_COORDINATE_CHARACTERISTIC_KIND))
+         @assertFalse(descriptor%has_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND))
       end do
-   end subroutine test_vertical_coordinate_applicability
+   end subroutine test_vertical_grid_applicability
 
 
    function attribute_names_of(var_spec, char_status, rc) result(names)

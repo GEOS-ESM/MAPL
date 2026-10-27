@@ -1,38 +1,19 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! VerticalCoordinateCharacteristic: the "vertical grid" StateItemCharacteristic
+! VerticalGridCharacteristic: the "vertical grid" StateItemCharacteristic
 ! ReferenceCharacteristic, same shape as GeometryCharacteristic.F90: holds a
 ! NodeId referencing a shared graph node, not a value of its own.
 !
-! Named VerticalCoordinateCharacteristic, NOT VerticalGridCharacteristic -
-! design.md D1: an exact, unavoidable collision with the existing, unrelated
-! graph/extension-reuse VerticalGridCharacteristic type (Fortran module/type
-! names share one global namespace). Same collision-avoidance discipline
-! already applied for GeometryCharacteristic vs. legacy GeomCharacteristic.
-!
-! Absorbs the retired mapl_VerticalGridCharacteristic_mod's own grid_id/dimensions
-! value data and its real build_transform (dimension-overlap classification)/
-! get_signature, in addition to this type's own pre-existing NodeId-sharing role.
-! needs_extension_for is therefore now a HYBRID comparison (design.md Risks -
-! "a deliberate, narrow exception specific to this one subclass"):
-!   - when a real referenced_node_id has been set on BOTH sides (the
-!     GraphStateItem-sharing use case, REQ-CHAR-012: sharing is nothing
-!     more than two map entries holding the same NodeId), that identity
-!     comparison is authoritative, UNCHANGED from this type's own
-!     pre-merge behavior.
-!   - otherwise (at least one side has no real NodeId - the
-!     GraphBuilder-production-call-site case, which supplies only an
-!     opaque grid_id string token/dimension set, never a NodeId, since
-!     GraphBuilder's build_characteristics()/GraphBuilder_Geometry_smod's
-!     mismatch-detection call sites have no NodeId to give it), falls
-!     back to the same identity-token-else-dimension-set comparison
-!     mapl_VerticalGridCharacteristic_mod's own vgrid_needs_extension_for
-!     used, UNCHANGED in substance from that retired module's own logic.
-! Both branches answer the same question ("do these two values need an
-! extension to reconcile") - which comparison path applies is determined
-! entirely by what data the two sides actually carry, not by a
-! separate flag.
+! It also carries grid_id/dimensions value data for the dimension-overlap
+! build_transform and get_signature. needs_extension_for is therefore a
+! hybrid comparison, chosen by the data the two sides carry:
+!   - when a real referenced_node_id is set on BOTH sides (REQ-CHAR-012:
+!     sharing is two map entries holding the same NodeId), that identity
+!     comparison is authoritative.
+!   - otherwise (a GraphBuilder call site that supplies only an opaque
+!     grid_id or dimension set), the identity-token-else-dimension-set
+!     comparison is used.
 !
 ! An item-level instance may also hold the VerticalGrid itself (written by
 ! write_info). Status: SPECIFIED when constructed with a value. DEFERRED
@@ -40,7 +21,7 @@
 ! GEOM_B); a DEFERRED entry whose component has none is dropped
 ! (drop_if_unsupplied), because the item has no vertical dimension.
 !------------------------------------------------------------------------------
-module mapl_VerticalCoordinateCharacteristic_mod
+module mapl_VerticalGridCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ReferenceCharacteristic
    use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL, report_build_transform_unsupported
    use mapl_CharacteristicStatus_mod, only: operator(==), CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_DEFERRED
@@ -51,7 +32,7 @@ module mapl_VerticalCoordinateCharacteristic_mod
    use mapl_field_bundle_api, only: MAPL_FieldBundleSet
    use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
    use ESMF, only: operator(==)
-   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, VERTICAL_COORDINATE_CHARACTERISTIC_KIND
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, VERTICAL_GRID_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, operator(==), operator(/=)
    use mapl_TransformBase_mod, only: TransformBase
    use gFTL2_StringVector, only: StringVector
@@ -60,7 +41,7 @@ module mapl_VerticalCoordinateCharacteristic_mod
    implicit none(type, external)
    private
 
-   public :: VerticalCoordinateCharacteristic
+   public :: VerticalGridCharacteristic
    public :: classify_dimension_overlap
    public :: DIMENSION_OVERLAP_SINGLE
    public :: DIMENSION_OVERLAP_INCOMPATIBLE
@@ -70,13 +51,8 @@ module mapl_VerticalCoordinateCharacteristic_mod
    integer, parameter :: DIMENSION_OVERLAP_INCOMPATIBLE = 2
    integer, parameter :: DIMENSION_OVERLAP_AMBIGUOUS = 3
 
-   type, extends(ReferenceCharacteristic) :: VerticalCoordinateCharacteristic
+   type, extends(ReferenceCharacteristic) :: VerticalGridCharacteristic
       private
-      ! Moved from the retired mapl_VerticalGridCharacteristic_mod -
-      ! value data for the dimension-overlap build_transform/get_signature
-      ! below, carried alongside the inherited referenced_node_id (design.md
-      ! Risks: a deliberate mix of reference and value data, unique to
-      ! this one subclass).
       character(:), allocatable :: grid_id
       type(StringVector) :: dimensions
       class(VerticalGrid), allocatable :: vgrid
@@ -95,11 +71,11 @@ module mapl_VerticalCoordinateCharacteristic_mod
       procedure :: get_grid_id
       procedure :: has_grid_id
       procedure :: get_dimensions
-   end type VerticalCoordinateCharacteristic
+   end type VerticalGridCharacteristic
 
-   interface VerticalCoordinateCharacteristic
-      module procedure new_VerticalCoordinateCharacteristic
-   end interface VerticalCoordinateCharacteristic
+   interface VerticalGridCharacteristic
+      module procedure new_VerticalGridCharacteristic
+   end interface VerticalGridCharacteristic
 
 contains
 
@@ -107,18 +83,16 @@ contains
    ! characteristic points at - set via the inherited
    ! ReferenceCharacteristic%set_referenced_node_id accessor, not a bare
    ! field assignment (that component is private to
-   ! mapl_StateItemCharacteristic_mod). OPTIONAL, mirroring the retired
-   ! mapl_VerticalGridCharacteristic_mod's own new_VerticalGridCharacteristic
-   ! constructor (design.md Decisions, task 2.3): a GraphBuilder-production
-   ! call site has no NodeId to supply, only grid_id/dimensions; a
-   ! GraphStateItem-sharing call site supplies only referenced_node_id.
+   ! mapl_StateItemCharacteristic_mod). OPTIONAL: a GraphBuilder call site
+   ! supplies grid_id/dimensions, a GraphStateItem-sharing call site supplies
+   ! only referenced_node_id.
    ! A given vgrid supplies grid_id and dimensions unless they are also given.
-   function new_VerticalCoordinateCharacteristic(referenced_node_id, grid_id, dimensions, vgrid) result(characteristic)
+   function new_VerticalGridCharacteristic(referenced_node_id, grid_id, dimensions, vgrid) result(characteristic)
       type(NodeId), optional, intent(in) :: referenced_node_id
       character(*), optional, intent(in) :: grid_id
       type(StringVector), optional, intent(in) :: dimensions
       class(VerticalGrid), optional, intent(in) :: vgrid
-      type(VerticalCoordinateCharacteristic) :: characteristic
+      type(VerticalGridCharacteristic) :: characteristic
 
       if (present(referenced_node_id)) call characteristic%set_referenced_node_id(referenced_node_id)
       if (present(vgrid)) call characteristic%set_from_vgrid(vgrid)
@@ -126,10 +100,10 @@ contains
       if (present(dimensions)) characteristic%dimensions = dimensions
       if (present(referenced_node_id) .or. present(grid_id) .or. present(dimensions) .or. present(vgrid)) &
            call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
-   end function new_VerticalCoordinateCharacteristic
+   end function new_VerticalGridCharacteristic
 
    subroutine set_from_vgrid(this, vgrid)
-      class(VerticalCoordinateCharacteristic), intent(inout) :: this
+      class(VerticalGridCharacteristic), intent(inout) :: this
       class(VerticalGrid), intent(in) :: vgrid
 
       character(20) :: id_buffer
@@ -144,27 +118,25 @@ contains
    function vcoord_get_kind() result(kind)
       type(StateItemCharacteristicKind) :: kind
 
-      kind = VERTICAL_COORDINATE_CHARACTERISTIC_KIND
+      kind = VERTICAL_GRID_CHARACTERISTIC_KIND
    end function vcoord_get_kind
 
-   ! `goal` is guaranteed a VerticalCoordinateCharacteristic for the real
+   ! `goal` is guaranteed a VerticalGridCharacteristic for the real
    ! call chain this method is used in (same guarantee documented on
    ! GeometryCharacteristic/PhysicalUnitsCharacteristic: StateItemDescriptor%
    ! set_characteristic asserts kind match before inserting). The class
    ! default branch below should be checked by the calling procedure.
    !
-   ! Hybrid comparison (module header): real NodeId on both sides is
-   ! authoritative when present; otherwise falls back to the retired
-   ! mapl_VerticalGridCharacteristic_mod's own identity-token-else-
-   ! dimension-set comparison.
+   ! Real NodeId on both sides is authoritative; otherwise the identity token,
+   ! else the dimension set, decides (module header).
    logical function vcoord_needs_extension_for(this, goal) result(needs_extension)
-      class(VerticalCoordinateCharacteristic), intent(in) :: this
+      class(VerticalGridCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
 
       type(NodeId) :: this_node_id, goal_node_id
 
       select type (goal)
-      class is (VerticalCoordinateCharacteristic)
+      class is (VerticalGridCharacteristic)
          this_node_id = this%get_referenced_node_id()
          goal_node_id = goal%get_referenced_node_id()
          if (this_node_id%is_valid() .and. goal_node_id%is_valid()) then
@@ -175,14 +147,14 @@ contains
             needs_extension = .not. same_set(this%dimensions, goal%dimensions)
          end if
       class default
-         error stop 'VerticalCoordinateCharacteristic: needs_extension_for called with a non-VerticalCoordinateCharacteristic goal - should be checked by calling procedure'
+         error stop 'VerticalGridCharacteristic: needs_extension_for called with a non-VerticalGridCharacteristic goal - should be checked by calling procedure'
       end select
    end function vcoord_needs_extension_for
 
    ! Writes vgrid= (when held). Shapes with no Field or FieldBundle payload
    ! have nothing to write.
    subroutine vcoord_write_info(this, handle, phase, rc)
-      class(VerticalCoordinateCharacteristic), intent(in) :: this
+      class(VerticalGridCharacteristic), intent(in) :: this
       type(GraphStateItem), intent(inout) :: handle
       integer, intent(in) :: phase
       integer, optional, intent(out) :: rc
@@ -209,7 +181,7 @@ contains
    end subroutine vcoord_write_info
 
    logical function vcoord_is_structural(this) result(structural)
-      class(VerticalCoordinateCharacteristic), intent(in) :: this
+      class(VerticalGridCharacteristic), intent(in) :: this
 
       structural = .true.
       _UNUSED_DUMMY(this)
@@ -218,7 +190,7 @@ contains
    ! A DEFERRED vertical coordinate becomes SPECIFIED with the component's
    ! vertical grid when it has one; otherwise it stays DEFERRED.
    subroutine vcoord_resolve_deferred(this, defaults, rc)
-      class(VerticalCoordinateCharacteristic), intent(inout) :: this
+      class(VerticalGridCharacteristic), intent(inout) :: this
       type(CharacteristicDefaults), intent(in) :: defaults
       integer, optional, intent(out) :: rc
 
@@ -236,58 +208,49 @@ contains
 
    ! An item whose component has no vertical grid has no vertical dimension.
    logical function vcoord_drop_if_unsupplied(this, defaults) result(drop)
-      class(VerticalCoordinateCharacteristic), intent(in) :: this
+      class(VerticalGridCharacteristic), intent(in) :: this
       type(CharacteristicDefaults), intent(in) :: defaults
 
       drop = this%get_status() == CHARACTERISTIC_STATUS_DEFERRED .and. .not. defaults%has_vgrid()
    end function vcoord_drop_if_unsupplied
 
    function get_vgrid(this) result(vgrid)
-      class(VerticalCoordinateCharacteristic), intent(in) :: this
+      class(VerticalGridCharacteristic), intent(in) :: this
       class(VerticalGrid), allocatable :: vgrid
 
       allocate(vgrid, source=this%vgrid)
    end function get_vgrid
 
    logical function has_vgrid(this) result(has)
-      class(VerticalCoordinateCharacteristic), intent(in) :: this
+      class(VerticalGridCharacteristic), intent(in) :: this
 
       has = allocated(this%vgrid)
    end function has_vgrid
 
    function get_grid_id(this) result(grid_id)
-      class(VerticalCoordinateCharacteristic), intent(in) :: this
+      class(VerticalGridCharacteristic), intent(in) :: this
       character(:), allocatable :: grid_id
 
       grid_id = this%grid_id
    end function get_grid_id
 
    logical function has_grid_id(this) result(has)
-      class(VerticalCoordinateCharacteristic), intent(in) :: this
+      class(VerticalGridCharacteristic), intent(in) :: this
 
       has = allocated(this%grid_id)
    end function has_grid_id
 
    function get_dimensions(this) result(dimensions)
-      class(VerticalCoordinateCharacteristic), intent(in) :: this
+      class(VerticalGridCharacteristic), intent(in) :: this
       type(StringVector) :: dimensions
 
       dimensions = this%dimensions
    end function get_dimensions
 
-   ! Moved from the retired mapl_VerticalGridCharacteristic_mod's own
-   ! vgrid_build_transform - REQ-GEO-007a's three-way dimension-overlap
-   ! classification, computed from `dimensions` regardless of which
-   ! comparison path (node-identity, identity-token, or dimension-set)
-   ! detected the mismatch. No real vertical-regrid Transform is
-   ! implemented yet: the single-overlap case (the adaptation candidate) is
-   ! reported as unsupported; the incompatible and ambiguous cases are
-   ! configuration errors and _FAIL with distinguishable messages.
-   ! needs_extension_for's own node-identity
-   ! comparison above is unaffected - a different operation answering a
-   ! different question on the same instance.
+   ! REQ-GEO-007a three-way dimension-overlap classification, computed from
+   ! `dimensions` whichever comparison path detected the mismatch.
    subroutine vcoord_build_transform(this, goal, transformer, rc)
-      class(VerticalCoordinateCharacteristic), intent(in) :: this
+      class(VerticalGridCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
       class(TransformBase), allocatable, intent(out) :: transformer
       integer, optional, intent(out) :: rc
@@ -299,10 +262,10 @@ contains
       character(:), allocatable :: failure_message
 
       select type (goal)
-      class is (VerticalCoordinateCharacteristic)
+      class is (VerticalGridCharacteristic)
          outcome = classify_dimension_overlap(this%dimensions, goal%dimensions, overlap_name, overlap_list, _RC)
       class default
-         _FAIL('VerticalCoordinateCharacteristic: goal is not a VerticalCoordinateCharacteristic')
+         _FAIL('VerticalGridCharacteristic: goal is not a VerticalGridCharacteristic')
       end select
 
       select case (outcome)
@@ -310,27 +273,22 @@ contains
          ! One candidate dimension, but no vertical-regrid Transform exists yet.
          call report_build_transform_unsupported(rc)
       case (DIMENSION_OVERLAP_INCOMPATIBLE)
-         failure_message = 'VerticalCoordinateCharacteristic: incompatible - no common physical dimension ' // &
+         failure_message = 'VerticalGridCharacteristic: incompatible - no common physical dimension ' // &
               'between export and import vertical grids'
          _FAIL(failure_message)
       case (DIMENSION_OVERLAP_AMBIGUOUS)
-         failure_message = 'VerticalCoordinateCharacteristic: ambiguous - more than one common physical ' // &
+         failure_message = 'VerticalGridCharacteristic: ambiguous - more than one common physical ' // &
               'dimension between export and import vertical grids (' // overlap_list // ')'
          _FAIL(failure_message)
       case default
-         _FAIL('VerticalCoordinateCharacteristic: unrecognized dimension-overlap outcome')
+         _FAIL('VerticalGridCharacteristic: unrecognized dimension-overlap outcome')
       end select
    end subroutine vcoord_build_transform
 
-   ! Moved from the retired mapl_VerticalGridCharacteristic_mod's own
-   ! vgrid_get_signature - includes both the identity token (when
-   ! present) and the sorted dimension set (when non-empty), so two
-   ! otherwise-identical-looking characteristics that differ in either
-   ! respect get distinct reuse-cache keys. The NodeId-sharing case (no
-   ! grid_id/dimensions set) falls back to the referenced node's own
-   ! string form.
+   ! Includes the identity token (when present) and the sorted dimension set
+   ! (when non-empty), so characteristics differing in either get distinct keys.
    function vcoord_get_signature(this) result(signature)
-      class(VerticalCoordinateCharacteristic), intent(in) :: this
+      class(VerticalGridCharacteristic), intent(in) :: this
       character(:), allocatable :: signature
 
       type(NodeId) :: this_node_id
@@ -446,4 +404,4 @@ contains
       end do
    end function join
 
-end module mapl_VerticalCoordinateCharacteristic_mod
+end module mapl_VerticalGridCharacteristic_mod

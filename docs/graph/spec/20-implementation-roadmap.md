@@ -2500,7 +2500,7 @@ review pass — see §20.4.18's own sequencing note.
   | 9 | Composite advertise/readvertise (tree structure) | `test_composite_advertise_creates_node_tree`, `test_composite_advertise_multi_level`, `test_composite_readvertise_does_not_duplicate` | Advertising (`advertise_one`'s composite-member recursion) exclusively | (b) split candidate — same submodule as bucket 1, a strong argument for merging buckets 1+9 into ONE `Test_GraphBuilder_Advertising.pf` rather than two separate new files (see 17-5 recommendation) | none |
   | 10 | Composite connection wiring (whole-composite match, member non-addressability) | `test_ordinary_connection_wires_matching_composite`, `test_composite_member_not_independently_addressable` | ConnectionResolution (`for_each_matching_import` against composite member nodes) exclusively | (b) split candidate — same submodule as buckets 2/3/4/5/7, another strong merge-not-separate-file argument (see 17-5 recommendation) | none |
   | 11 | Vertical-grid composite tagging (variant selection) | `test_vertical_grid_composite_tags_variant`, `test_untagged_composite_keeps_plain_state_variant` | Advertising (`advertise_one`'s `state_item_variant` tagging) exclusively | (b) split candidate — same submodule as buckets 1/9 | none |
-  | 12 | Vertical-grid composite overlap resolution (match/single/zero/multiple) | `test_vertical_grid_composites_match_wires_directly`, `test_vertical_grid_composites_single_overlap_fails_explicitly`, `test_vertical_grid_composites_zero_overlap_fails_incompatible`, `test_vertical_grid_composites_multiple_overlap_fails_ambiguous` | ConnectionResolution (`resolve_match_connection`→`find_mismatched_characteristics`/`VerticalCoordinateCharacteristic`, confirmed via `grep VerticalCoordinateCharacteristic GraphBuilder_ConnectionResolution_smod.F90`) exclusively | (b) split candidate — same submodule as bucket 10 | uses `resolve_vertical_grid_membership_mismatch` (local to this bucket) |
+  | 12 | Vertical-grid composite overlap resolution (match/single/zero/multiple) | `test_vertical_grid_composites_match_wires_directly`, `test_vertical_grid_composites_single_overlap_fails_explicitly`, `test_vertical_grid_composites_zero_overlap_fails_incompatible`, `test_vertical_grid_composites_multiple_overlap_fails_ambiguous` | ConnectionResolution (`resolve_match_connection`→`find_mismatched_characteristics`/`VerticalGridCharacteristic`, confirmed via `grep VerticalGridCharacteristic GraphBuilder_ConnectionResolution_smod.F90`) exclusively | (b) split candidate — same submodule as bucket 10 | uses `resolve_vertical_grid_membership_mismatch` (local to this bucket) |
   | 13 | Qualified-export namespace building | `test_build_qualified_export_namespace_multilevel`, `test_qualified_name_matches_virtualconnectionpt_convention` | CallbackWiring (`build_qualified_export_namespace`/`collect_qualified_exports`) exclusively | (b) split candidate | none |
   | 14 | `query_component_exports` (History-support query) | `test_query_component_exports_scoped_to_resolved_component`, `test_query_component_exports_deep_hierarchy_no_propagation` | **Neither CallbackWiring nor ConnectionResolution** — calls the parent-module shared helper `query_component_exports` directly, never through any `gb%` type-bound method | (a) tests `GraphBuilder.F90`'s own shared logic — stays, same "shared code colocated with its test" reasoning as `item_key`'s own tests. Note: this bucket is currently physically adjacent to bucket 13 (CallbackWiring) in the file, which is why the roadmap's own coarse-group list above lumped it under "qualified-export namespace/`query_component_exports`" as one group — characterization shows these are two DIFFERENT sub-topics, one submodule-specific (13) and one parent-shared (14) |
   | 15 | Non-callback destination unaffected (negative control) | `test_non_callback_destination_unaffected` | ConnectionResolution (ordinary `resolve_match_connection` path, confirming callback dispatch is NOT triggered) | (b) split candidate, but see ambiguity note: this test exists specifically to prove ConnectionResolution and CallbackWiring do NOT interact for this input — a split that separates ConnectionResolution tests from CallbackWiring tests needs this test to stay with ConnectionResolution (it tests ConnectionResolution's own dispatch decision), not move to a hypothetical CallbackWiring file, even though its name/comment reads as "callback-adjacent" |
@@ -2912,7 +2912,7 @@ informal pass's own secondhand counts in two places, named below):**
   `StateItemCharacteristicDetection.F90`,
   `StateItemCharacteristicKind.F90`, `TypeKindCharacteristic.F90`,
   `UngriddedDimsCharacteristic.F90`,
-  `VerticalCoordinateCharacteristic.F90`. Matches the prior pass's own
+  `VerticalGridCharacteristic.F90`. Matches the prior pass's own
   count (15).
 - **`transforms/`** — 5 files, confirmed: `Transform.F90`,
   `TransformBase.F90`, `TransformGraphNode.F90`,
@@ -3063,7 +3063,7 @@ session-size-gated — each move below is small on its own):**
 `openspec/changes/archive/2026-10-18-dedup-characteristic-sorted-names`
 (commit `6df133e3`): new `superstructure/generic/graph/StringSortUtilities.F90`
 holds the shared `sorted_names` helper; `AttributesCharacteristic.F90`
-and `VerticalCoordinateCharacteristic.F90` both now `use` it instead of
+and `VerticalGridCharacteristic.F90` both now `use` it instead of
 keeping a private copy. Verified via the existing
 `StateItemCharacteristic`-subclass test coverage plus a full
 `ctest -L ESSENTIAL` regression, 0 new failures. The rest of this
@@ -3076,7 +3076,7 @@ backlog's own original item 5 ("some growable arrays of strings should
 be `StringVector` instead of raw fixed-width character arrays") named
 four candidate call sites
 (`GraphBuilder_CallbackWiring_smod.F90:606,640` and
-`AttributesCharacteristic.F90`/`VerticalCoordinateCharacteristic.F90`'s
+`AttributesCharacteristic.F90`/`VerticalGridCharacteristic.F90`'s
 own `sorted_names` helpers). **Direct verification during this planning
 session found none of the four are `StringVector` candidates by the
 backlog owner's own stated criterion** (known size at allocation time
@@ -3093,7 +3093,7 @@ two lines above each real `allocate` call.
 **The real, actionable issue at these four sites is a different one
 than the backlog described: duplication, not typing.**
 `AttributesCharacteristic.F90`'s own `sorted_names` (lines 149-177) and
-`VerticalCoordinateCharacteristic.F90`'s own `sorted_names` (lines
+`VerticalGridCharacteristic.F90`'s own `sorted_names` (lines
 329-357) are near-identical insertion-sort implementations over a
 `StringVector` input — the former's own comment admits this directly:
 "reimplemented here... since that module's own copy is private."
@@ -3149,7 +3149,7 @@ extract one shared function, update two call sites, re-run the
 existing `Test_StateItemCharacteristicSubclasses.pf`/
 `Test_StateItemCharacteristic.pf` coverage (whichever already exercises
 `AttributesCharacteristic%get_signature`/
-`VerticalCoordinateCharacteristic%get_signature`, the two call paths
+`VerticalGridCharacteristic%get_signature`, the two call paths
 that reach `sorted_names`) with 0 new failures as the exit criterion.
 Small enough to fold into Phase 18's own `characteristics/` move
 (18-4) as a drive-by cleanup if convenient, but does not require

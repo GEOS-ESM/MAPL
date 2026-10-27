@@ -60,7 +60,7 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
      `mapl_StateItemCharacteristic_mod`): STRUCTURAL runs between
      empty-create and complete; DESCRIPTIVE may run on a completed
      field. Override `is_structural()` to return `.true.` for creation
-     inputs (Geometry, VerticalCoordinate, VerticalStagger, TypeKind,
+     inputs (Geometry, VerticalGrid, VerticalStagger, TypeKind,
      UngriddedDims); `sync_to_info` skips them in DESCRIPTIVE.
    - A descriptive characteristic whose keyword is a `FieldSet`
      FieldDelta trigger (`geom`, `vgrid`, `typekind`, `num_levels`,
@@ -214,7 +214,7 @@ First kind with a DEFERRED value (a value the component supplies later).
 - `build_transform` calls `report_build_transform_unsupported`, so a geometry
   mismatch is reported as unsupported rather than as an error.
 
-## VerticalCoordinate as implemented
+## VerticalGrid as implemented
 
 Second kind with a DEFERRED value; it reuses Geometry's machinery.
 
@@ -233,10 +233,10 @@ Second kind with a DEFERRED value; it reuses Geometry's machinery.
   `OuterMetaComponent%get_vertical_grid`.
 - A kind that does not apply when the component supplies nothing overrides
   `drop_if_unsupplied`; `StateItemDescriptor%drop_unsupplied` removes those
-  entries after `resolve_deferred`. Only VerticalCoordinate does this, so a
+  entries after `resolve_deferred`. Only VerticalGrid does this, so a
   2D item in a component with no vertical grid stays valid. Geometry stays
   DEFERRED.
-- `harvest` does not read `vgrid`: no DEFERRED VERTICAL_COORDINATE is left
+- `harvest` does not read `vgrid`: no DEFERRED VERTICAL_GRID is left
   by then.
 - `VerticalStaggerLoc`'s `==` treats MIRROR as a wildcard; the factory uses
   `is_none()`.

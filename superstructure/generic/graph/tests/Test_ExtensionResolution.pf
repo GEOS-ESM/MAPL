@@ -32,9 +32,9 @@ module Test_ExtensionResolution
    use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
-        VERTICAL_COORDINATE_CHARACTERISTIC_KIND, MOCK_CHARACTERISTIC_KIND, operator(==)
+        VERTICAL_GRID_CHARACTERISTIC_KIND, MOCK_CHARACTERISTIC_KIND, operator(==)
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
-   use mapl_VerticalCoordinateCharacteristic_mod, only: VerticalCoordinateCharacteristic
+   use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain
    ! openspec/changes/phase-7a-shape-dispatch-wiring, task 9.2/9.3:
    ! ITEM_SHAPE_CHARACTERISTIC_KIND walked by this same, uniform
@@ -160,9 +160,9 @@ contains
       type(StateItemCharacteristicKind), allocatable :: mismatched(:)
 
       call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
-      call export_map%insert(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, VerticalCoordinateCharacteristic(grid_id='gridA'))
+      call export_map%insert(VERTICAL_GRID_CHARACTERISTIC_KIND, VerticalGridCharacteristic(grid_id='gridA'))
       call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'))
-      call import_map%insert(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, VerticalCoordinateCharacteristic(grid_id='gridB'))
+      call import_map%insert(VERTICAL_GRID_CHARACTERISTIC_KIND, VerticalGridCharacteristic(grid_id='gridB'))
 
       mismatched = find_mismatched_characteristics(export_map, import_map)
       @assertEqual(2, size(mismatched))
@@ -294,17 +294,17 @@ contains
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)
 
-      call export_map%insert(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, VerticalCoordinateCharacteristic(grid_id='gridA'))
-      call import_map%insert(VERTICAL_COORDINATE_CHARACTERISTIC_KIND, VerticalCoordinateCharacteristic(grid_id='gridB'))
+      call export_map%insert(VERTICAL_GRID_CHARACTERISTIC_KIND, VerticalGridCharacteristic(grid_id='gridA'))
+      call import_map%insert(VERTICAL_GRID_CHARACTERISTIC_KIND, VerticalGridCharacteristic(grid_id='gridB'))
       mismatched = find_mismatched_characteristics(export_map, import_map)
 
-      ! VerticalCoordinateCharacteristic%build_transform always fails -
+      ! VerticalGridCharacteristic%build_transform always fails -
       ! no real vertical-regrid Transform exists yet.
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
            mismatched, final_id, intermediate_ids, unsupported, rc=status)
 
       @assertEqual(0, status)
-      @assertEqual('VERTICAL_COORDINATE', unsupported)
+      @assertEqual('VERTICAL_GRID', unsupported)
    end subroutine test_unregistered_characteristic_fails_loudly
 
    ! -- reuse -------------------------------------------------------------

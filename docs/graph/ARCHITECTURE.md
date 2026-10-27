@@ -77,7 +77,7 @@ are `SPECIFIED`. A `MIRRORED` import adopts the export's value
 (`resolve_descriptors`, used by `resolve_one` and the inout-borrower
 path); a `MIRRORED` export matches only via the (item type, kind)
 allowlist (`is_mirrored_export_allowed`: EXPRESSION x GEOMETRY /
-VERTICAL_COORDINATE / TYPE_KIND). Status conflicts are reported as
+VERTICAL_GRID / TYPE_KIND). Status conflicts are reported as
 unsupported connections; `INVALID` is a `_FAIL`. A pair with a `DEFERRED`
 side (`PAIR_WAIT`) is neither wired nor reported: its import is left
 unsettled and `resolve_connections` retries it on a later ACCEPT_TRANSFER
@@ -99,11 +99,11 @@ Info writes: `StateItemDescriptor%sync_to_info(handle, phase)` calls
 each SPECIFIED/UNCHECKED characteristic's `write_info` (phases
 `SYNC_PHASE_STRUCTURAL`/`SYNC_PHASE_DESCRIPTIVE`; `is_structural()`
 kinds are skipped in DESCRIPTIVE). The base `write_info` fails; only
-`PhysicalUnits`, `TypeKind`, `UngriddedDims`, `Geometry`, `VerticalCoordinate`, `StandardName` and `Attributes` (a no-op: no Info key) override it so far, and no production path calls
+`PhysicalUnits`, `TypeKind`, `UngriddedDims`, `Geometry`, `VerticalGrid`, `StandardName` and `Attributes` (a no-op: no Info key) override it so far, and no production path calls
 `sync_to_info` yet (materialization adopts it in B4). Factories live in
 `specs/VariableSpec/make_characteristics.F90`: the type-bound
 `VariableSpec%make_characteristics` loops over a registry of per-kind
-factories (so far units, typekind, ungridded dims, geometry, vertical coordinate, standard name and attributes). Procedure: `docs/graph/adding-a-characteristic.md`.
+factories (so far units, typekind, ungridded dims, geometry, vertical grid, standard name and attributes). Procedure: `docs/graph/adding-a-characteristic.md`.
 
 | Characteristic | Kind constant | `build_transform` today |
 |---|---|---|
@@ -111,7 +111,7 @@ factories (so far units, typekind, ungridded dims, geometry, vertical coordinate
 | `TypeKind` | `TYPE_KIND_…` | Real: `TypeKindConverterTransform` |
 | `ItemShape` | `ITEM_SHAPE_…` | Real for `BRACKET`→`FIELD` only (`BracketTimeInterpolationTransform`); other pairings unsupported |
 | `Geometry` | `GEOMETRY_…` | Unsupported — no horizontal-regrid `Transform` exists yet |
-| `VerticalCoordinate` | `VERTICAL_COORDINATE_…` | Single overlap: unsupported (no vertical-regrid `Transform` yet); incompatible and ambiguous overlaps `_FAIL` with distinct messages |
+| `VerticalGrid` | `VERTICAL_GRID_…` | Single overlap: unsupported (no vertical-regrid `Transform` yet); incompatible and ambiguous overlaps `_FAIL` with distinct messages |
 | `Attributes`, `UngriddedDims`, `StandardName`, `QuantityType`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | Unsupported — mismatch is detected, repair is a stub |
 
 Other files: `CharacteristicStatus.F90`, `StateItemCharacteristicKind.F90`
@@ -277,7 +277,7 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
 ## 3. Known limitations (current)
 
 - No geometry (horizontal regrid) or vertical-regrid `Transform`;
-  `GeometryCharacteristic` and `VerticalCoordinateCharacteristic`
+  `GeometryCharacteristic` and `VerticalGridCharacteristic`
   mismatches `_FAIL`. This is the main reason legacy `regrid*` and
   `propagate_geom` scenarios cannot run under graph mode.
 - Six characteristic axes detect mismatch but have no repair (see §1.1).
@@ -356,7 +356,7 @@ Primary records are under `openspec/changes/archive/`; read the relevant
   `2026-10-19-phase-12-characteristic-dispatch-wiring`): six further
   axes (Attributes, UngriddedDims, StandardName, QuantityType,
   Conservation, Normalization) wired into `populate_characteristics`
-  alongside Units, TypeKind, and VerticalCoordinate; ItemShape was
+  alongside Units, TypeKind, and VerticalGrid; ItemShape was
   added by 7a.
 - **Restart compatibility** (phase 13): `declared_restart_mode` is
   captured at advertise and written to ESMF Info by `populate_one`,

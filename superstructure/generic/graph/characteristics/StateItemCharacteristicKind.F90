@@ -25,7 +25,7 @@ module mapl_StateItemCharacteristicKind_mod
    public :: GEOMETRY_CHARACTERISTIC_KIND
    ! Values 4-10: Vertical, Attributes, Ungridded, Quantity, Conservation,
    ! Normalization, Standard Name.
-   public :: VERTICAL_COORDINATE_CHARACTERISTIC_KIND
+   public :: VERTICAL_GRID_CHARACTERISTIC_KIND
    public :: ATTRIBUTES_CHARACTERISTIC_KIND
    public :: UNGRIDDED_DIMS_CHARACTERISTIC_KIND
    public :: QUANTITY_TYPE_CHARACTERISTIC_KIND
@@ -49,7 +49,7 @@ module mapl_StateItemCharacteristicKind_mod
    type(StateItemCharacteristicKind), parameter :: GEOMETRY_CHARACTERISTIC_KIND       = StateItemCharacteristicKind(3)
 
    ! Values 4-10: one per remaining legacy *Aspect axis (REQ-CHAR-006).
-   type(StateItemCharacteristicKind), parameter :: VERTICAL_COORDINATE_CHARACTERISTIC_KIND = StateItemCharacteristicKind(4)
+   type(StateItemCharacteristicKind), parameter :: VERTICAL_GRID_CHARACTERISTIC_KIND = StateItemCharacteristicKind(4)
    type(StateItemCharacteristicKind), parameter :: ATTRIBUTES_CHARACTERISTIC_KIND          = StateItemCharacteristicKind(5)
    type(StateItemCharacteristicKind), parameter :: UNGRIDDED_DIMS_CHARACTERISTIC_KIND      = StateItemCharacteristicKind(6)
    type(StateItemCharacteristicKind), parameter :: QUANTITY_TYPE_CHARACTERISTIC_KIND       = StateItemCharacteristicKind(7)
@@ -90,8 +90,8 @@ contains
          s = "TYPE_KIND"
       case (GEOMETRY_CHARACTERISTIC_KIND%value)
          s = "GEOMETRY"
-      case (VERTICAL_COORDINATE_CHARACTERISTIC_KIND%value)
-         s = "VERTICAL_COORDINATE"
+      case (VERTICAL_GRID_CHARACTERISTIC_KIND%value)
+         s = "VERTICAL_GRID"
       case (ATTRIBUTES_CHARACTERISTIC_KIND%value)
          s = "ATTRIBUTES"
       case (UNGRIDDED_DIMS_CHARACTERISTIC_KIND%value)
