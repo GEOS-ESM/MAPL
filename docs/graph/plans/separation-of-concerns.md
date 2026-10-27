@@ -842,7 +842,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-Geometry | sonnet | opus | geom-as-node, Info id |
 | B3-ItemShape | opus | - | D4 ordering, Bracket rule |
 | B3-VerticalCoordinate | sonnet | opus | first reuse of Geometry's DEFERRED machinery |
-| B3-RenameVerticalGrid | sonnet | sonnet (self-review) | mechanical rename, no behavior change |
+| B3-RenameVerticalGrid | haiku | sonnet | mechanical rename, no behavior change; first haiku authoring trial |
 | B3-VerticalStagger | sonnet | opus | DEFERRED/harvest; fixture risk |
 | B3-VerticalOrientation | sonnet | opus | resolve against grid without comparing it |
 | B3-HorizontalDimsSpec | sonnet | opus | changes when Geometry is compared |
