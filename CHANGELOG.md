@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [v2.35.3+R21C_v1.7.0] - 2026-10-27
+
+### Changed
+
+- Backport new generic XY grid factory to create regional grids on any input set of 2D lons and lats
+  - **NOTE**: This grid factory is experimental and the API may change or it might be superseded by another grid factory
+
 ## [v2.35.3+R21C_v1.6.0] - 2026-08-18
 
 ### Fixed
@@ -51,7 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Add capability to mangle `LONG_NAME in ACG with a different prefix
+- Add capability to mangle `LONG_NAME` in ACG with a different prefix
 
 ## [v2.35.3+R21C_v1.1.0] - 2024-03-28
 
