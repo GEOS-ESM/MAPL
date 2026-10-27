@@ -53,6 +53,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   whose fields are all SKIP reads nothing, so its file may be missing even
   with `bootstrap: false`.
   Components can query the mark with `MAPL_FieldGet(field, bootstrapped=...)`
+- ExtData now supports the `update_frequency`, `update_reference_time` and
+  `update_offset` sampling keys, with the same behavior as MAPL2. Added
+  component test case29.
 
 ### Changed
 
