@@ -593,7 +593,7 @@ in the first one; later ones refine it.
   was not re-run on a HEAD baseline here.
   B3-VerticalCoordinate: see design.md §5 and adding-a-characteristic.md
   "VerticalGrid as implemented".
-  B3-VerticalOrientation (done, awaiting commit): see adding-a-characteristic.md
+  B3-VerticalOrientation (done): see adding-a-characteristic.md
   "VerticalOrientation as implemented". New kind
   `VERTICAL_ORIENTATION_CHARACTERISTIC_KIND` and
   `VerticalOrientationCharacteristic` (structural; `vert_alignment=`
@@ -771,6 +771,12 @@ in A1's table; flip `vertical_*` once B3-VerticalCoordinate (M2) has
 landed. Flip only scenarios the graph actually populates (see "What
 ready means today" in `scenario-parity.md`). May be split into
 `C1-geom` and `C1-vertical` if large.
+- C1-vertical also adds the VerticalOrientation reversal step (B3-VerticalOrientation
+  left `build_transform` unsupported) and a scenario whose expectations can detect a
+  flipped index order: `vertical_alignment_same_grid` checks a constant value, and its
+  orientation mismatch is masked by a VERTICAL_GRID mismatch. It also covers
+  `merged_item_for_link`'s missing VERTICAL_ORIENTATION branch if B4 has not yet
+  replaced it.
 - **Status:** not started
 
 **C2.x. One task per remaining root cause** (label `C2-<short-name>`),
