@@ -84,11 +84,13 @@ Legacy reference points (the behavior being duplicated):
 |---|---|---|---|---|
 | `CLASS_ASPECT_ID` (class identity) | `ItemShape` (`ITEM_SHAPE`) | value | yes, partial | Widened to every `MAPL_STATEITEM_*` shape (see §4.3). Replaces `declared_item_type`. |
 | `CLASS_ASPECT_ID` (`ExpressionClassAspect%expression`) | `Expression` (new) | value | no | Expression string. Never mismatches (§2.5). |
-| `CLASS_ASPECT_ID` (`FieldClassAspect%long_name`) | `LongName` (new, provisional, A8) | value | no | Never mismatches. Needed for Info parity (`SharedIO` reads `long_name`). Owner A8. |
+| `CLASS_ASPECT_ID` (`FieldClassAspect%long_name`) | `LongName` (new, A8) | value | no | Never mismatches. Needed for Info parity (`SharedIO` reads `long_name`) and by History (mirror, A13). Owner A8. |
 | `CLASS_ASPECT_ID` (`fill_value`, `bracket_size`, `vector_basis_kind`) | deferred to M3 | - | no | Only needed once the graph materializes those shapes (B4/M3). Owner A8. |
-| `GEOM_ASPECT_ID` | `Geometry` (`GEOMETRY`) | reference | yes, component-level only | Item-level instance added by B3-Geometry (fixes M1). Also carries `horizontal_dims_spec` and the regridder param (not compared, like legacy `GeomAspect%matches`). |
-| `VERTICAL_GRID_ASPECT_ID` (grid) | `VerticalCoordinate` (`VERTICAL_COORDINATE`) | reference | yes | Must also be set from the component vertical grid (M2). |
-| `VERTICAL_GRID_ASPECT_ID` (stagger, alignment) | `VerticalStagger` (new) | value | no | Replaces `GraphStateItem%vertical_stagger`. Also holds the item's vertical alignment (owner Q7). |
+| `GEOM_ASPECT_ID` (geom) | `Geometry` (`GEOMETRY`) | reference | yes, component-level only | Item-level instance added by B3-Geometry (fixes M1). Also carries the regridder param (not compared). |
+| `GEOM_ASPECT_ID` (`horizontal_dims_spec`) | `HorizontalDimsSpec` (new, A14) | value | no | Today carried inside `GeometryCharacteristic` and compared there, as legacy `GeomAspect%matches` does. Moves to its own kind. |
+| `VERTICAL_GRID_ASPECT_ID` (grid) | `VerticalGrid` (`VERTICAL_GRID`; code still `VerticalCoordinate` until B3-RenameVerticalGrid) | reference | yes | References the item's `VerticalGrid`, which may carry several coordinates. Must also be set from the component vertical grid (M2). |
+| `VERTICAL_GRID_ASPECT_ID` (stagger) | `VerticalStagger` (new) | value | no | Replaces `GraphStateItem%vertical_stagger`. |
+| `VERTICAL_GRID_ASPECT_ID` (alignment) | `VerticalOrientation` (new, name provisional; Q7) | value | no | Vertical index order. Independent of VerticalStagger. |
 | `UNITS_ASPECT_ID` | `PhysicalUnits` (`PHYSICAL_UNITS`) | value | yes | |
 | `TYPEKIND_ASPECT_ID` | `TypeKind` (`TYPE_KIND`) | value | yes | |
 | `UNGRIDDED_DIMS_ASPECT_ID` | `UngriddedDims` (`UNGRIDDED_DIMS`) | value | yes | Replaces `GraphStateItem%ungridded_dims`. |
@@ -97,12 +99,17 @@ Legacy reference points (the behavior being duplicated):
 | `CONSERVATION_ASPECT_ID` | `Conservation` (`CONSERVATION`) | value | yes | |
 | `NORMALIZATION_ASPECT_ID` | `Normalization` (`NORMALIZATION`) | value | yes | |
 | `STANDARD_NAME_ASPECT_ID` | `StandardName` (`STANDARD_NAME`) | value | yes | |
-| (none: `VariableSpec%restart_mode`, legacy uses it in `FieldClassAspect%add_to_state`) | `RestartMode` (new) | value | no | Never mismatches. Per-alias Info key (§3.2). |
+| (none: `VariableSpec%restart_mode`, legacy uses it in `FieldClassAspect%add_to_state`) | `RestartMode` (new) | value | no | Never compared. Default `RESTART_REQUIRED` (A15). Per-alias Info key (§3.2). |
 | (none) | `SetShared` is a mutator, not a characteristic | - | - | See §7.3. |
 
 New kinds get the next `StateItemCharacteristicKind` integer values in
 the order the B3 tasks land them. The B3 list in the plan gains
-`LongName` (A8).
+`LongName` (A8), `HorizontalDimsSpec` (A14) and `VerticalOrientation` (Q7).
+
+Horizontal and vertical description stay separate characteristics. A
+caller that wants them together can build a read-only view from the
+descriptor's entries; no combined type is stored or compared. A transform
+that needs several of them reads them while building (§4.1).
 
 ### §2. Generic status (D2)
 
@@ -170,8 +177,9 @@ Allowlist entries (shape, kind) and their resolution:
 | Export shape | Kind | Resolution |
 |---|---|---|
 | EXPRESSION | GEOMETRY | Per consumer: the chain tip takes the import's value (no Transform step; the analog of `ExtendTransform`). The export's own descriptor is not modified, because several consumers may want different values. |
-| EXPRESSION | VERTICAL_COORDINATE | Same. |
+| EXPRESSION | VERTICAL_GRID | Same. |
 | EXPRESSION | VERTICAL_STAGGER | Same. In legacy, stagger lives in `VerticalGridAspect`, and `ExpressionClassAspect%create` may adopt the stagger of its variables early. |
+| EXPRESSION | VERTICAL_ORIENTATION | Same (added with the kind, B3-VerticalOrientation). |
 | EXPRESSION | TYPE_KIND | Only when declared `MAPL_TYPEKIND_MIRROR`. Same resolution. |
 
 The allowlist is a static table in the descriptor module, keyed by
@@ -234,8 +242,8 @@ one of `geom`, `vgrid`, `typekind`, `num_levels`, `units` is present
    lets materialization stay characteristic-agnostic.
 2. **After completion, only DESCRIPTIVE-phase keywords are ever
    written.** A characteristic marked structural (`is_structural() =
-   .true.`: Geometry, VerticalCoordinate, VerticalStagger, TypeKind,
-   UngriddedDims) is skipped in the DESCRIPTIVE phase. PhysicalUnits is
+   .true.`: Geometry, HorizontalDimsSpec, VerticalGrid, VerticalStagger,
+   VerticalOrientation, TypeKind, UngriddedDims) is skipped in the DESCRIPTIVE phase. PhysicalUnits is
    descriptive, but `units=` is one of FieldSet's FieldDelta triggers.
    It is therefore written only in the STRUCTURAL phase. A post-completion
    units write is not needed (units are never DEFERRED, and imports do not
@@ -284,14 +292,16 @@ for that shape).
 | Characteristic | `MAPL_FieldSet` | `MAPL_FieldBundleSet` | `MAPL_StateSet` | Phase | Notes |
 |---|---|---|---|---|---|
 | ItemShape | `state_item_variant=` | `state_item_variant=`, `fieldBundleType=` (BRACKET/VECTOR/VECTORBRACKET/SERVICE) | `state_item_variant=` (`state_set_own`) | D | Replaces the direct calls in `CompositeStateMaterialization` and `GeomProxyField`. |
-| Geometry | `geom=`, `horizontal_dims_spec=`, `regridder_param_info=` | `geom=`, `regridder_param_info=` | - | S | Bundle `geom=` cascades to members via FieldSet. Write it only before the members complete. No `horizontal_dims_spec` on the bundle setter (legacy does not write it either). |
-| VerticalCoordinate | `vgrid=` | `vgrid=` | - | S | Info stores `vgrid_id`. `num_levels` is derived on read. |
-| VerticalStagger | `vert_staggerloc=`, `vert_alignment=` | `vert_staggerloc=`, `vert_alignment=` | - | S | Bundle path calls FieldSet on members. |
+| Geometry | `geom=`, `regridder_param_info=` | `geom=`, `regridder_param_info=` | - | S | Bundle `geom=` cascades to members via FieldSet. Write it only before the members complete. |
+| HorizontalDimsSpec | `horizontal_dims_spec=` | none | - | S | Moved from Geometry. No bundle keyword (legacy does not write it either). |
+| VerticalGrid | `vgrid=` | `vgrid=` | - | S | Info stores `vgrid_id`. `num_levels` is derived on read. |
+| VerticalStagger | `vert_staggerloc=` | `vert_staggerloc=` | - | S | Bundle path calls FieldSet on members. |
+| VerticalOrientation | `vert_alignment=` | `vert_alignment=` | - | S | Bundle path calls FieldSet on members. |
 | TypeKind | `typekind=` | `typekind=` | - | S | |
 | UngriddedDims | `ungridded_dims=` | `ungridded_dims=` | - | S | |
 | PhysicalUnits | `units=` | `units=` | - | S (see §3.2.2) | UNCHECKED writes `'<unknown>'`. |
 | StandardName | `standard_name=` | `standard_name=` | - | D | Field-wide (unaliased). UNCHECKED writes `'<unknown>'`. |
-| LongName (provisional) | `long_name=` | `long_name=` | - | D | Per-alias: written on the item's own alias. |
+| LongName | `long_name=` | `long_name=` | - | D | Per-alias: written on the item's own alias. |
 | Attributes | none | none | - | - | Writes nothing (legacy `AttributesAspect%update_payload` is a no-op). `FieldSet`'s `attributes` dummy is unused (`_UNUSED_DUMMY`). No setter argument is added. |
 | QuantityType | `quantity_type_metadata=` | `quantity_type_metadata=` | - | D | Writes only its own key. Legacy also wrote a derived `normalization_metadata`, which `NormalizationAspect` then overwrote (AspectMap order 9 < 11). Owner Q9. |
 | Conservation | `conservation_metadata=` | `conservation_metadata=` | - | D | |
@@ -336,9 +346,21 @@ loop (bounded, as legacy MAX_ITERATIONS = 10):
   exit if empty
   order := tip[ITEM_SHAPE]%get_extension_order(goal), then any mismatched kinds not listed, in kind-name order
   k := first kind in order that is in mismatched
-  step := tip[k]%build_transform(goal[k])
-  tip := tip with tip[k] replaced by goal[k]   (generic; replaces merged_item_for_link)
+  (step, covered) := tip[k]%build_transform(goal[k], tip, goal)
+  tip := tip with tip[c] replaced by goal[c] for every c in covered   (generic; replaces merged_item_for_link)
 ```
+
+Mismatch detection stays per kind and independent. Only building may
+look across kinds: `build_transform` gets read-only access to the whole
+tip and goal descriptors and returns the kinds its step resolves
+(`covered`, default `[k]`). This lets one vertical regrid produce the
+goal's VerticalGrid, VerticalStagger and VerticalOrientation together;
+those kinds are then no longer mismatched on the new tip. A
+VerticalStagger-only change (same grid) may read the tip's VerticalGrid
+while building, never while comparing (Q7, A16). A VerticalOrientation-
+only mismatch is its own zero-cost step (a reversed view) and needs no
+grid. The covered-list signature and replacement land with B4 (4.1); the
+vertical regrid that uses them is C1.
 
 This refines the plan's "owned by the export's shape": after an
 ITEM_SHAPE step (for example BRACKET -> FIELD), the remaining kinds are
@@ -348,24 +370,27 @@ their applicable set (see §4.3), and a golden test records it.
 
 #### §4.2 Shape -> extension order (from legacy `get_aspect_order`)
 
-Legacy -> graph kind mapping: CLASS->ITEM_SHAPE, GEOM->GEOMETRY,
-VERTICAL_GRID->VERTICAL_COORDINATE then VERTICAL_STAGGER, UNITS->PHYSICAL_UNITS,
-TYPEKIND->TYPE_KIND, others same name.
+Legacy -> graph kind mapping: CLASS->ITEM_SHAPE, GEOM->HORIZONTAL_DIMS_SPEC
+then GEOMETRY, VERTICAL_GRID->VERTICAL_GRID then VERTICAL_STAGGER then
+VERTICAL_ORIENTATION, UNITS->PHYSICAL_UNITS, TYPEKIND->TYPE_KIND, others
+same name. In the orders below, "GEOM" stands for HORIZONTAL_DIMS_SPEC,
+GEOMETRY and "VGRID" for VERTICAL_GRID, VERTICAL_STAGGER,
+VERTICAL_ORIENTATION.
 
 | Shape | Legacy source | Graph order |
 |---|---|---|
-| FIELD | `FieldClassAspect` | ITEM_SHAPE, ATTRIBUTES, UNGRIDDED_DIMS, QUANTITY_TYPE, CONSERVATION, GEOMETRY, VERTICAL_COORDINATE, VERTICAL_STAGGER, NORMALIZATION, PHYSICAL_UNITS, STANDARD_NAME, TYPE_KIND |
+| FIELD | `FieldClassAspect` | ITEM_SHAPE, ATTRIBUTES, UNGRIDDED_DIMS, QUANTITY_TYPE, CONSERVATION, GEOM, VGRID, NORMALIZATION, PHYSICAL_UNITS, STANDARD_NAME, TYPE_KIND |
 | FIELDBUNDLE | `FieldBundleClassAspect` | FIELD order without STANDARD_NAME |
 | VECTOR | `VectorClassAspect` (= Field order minus STANDARD_NAME) | FIELD order without STANDARD_NAME |
-| BRACKET | `BracketClassAspect`, goal geom not time-dependent | ATTRIBUTES, UNGRIDDED_DIMS, QUANTITY_TYPE, GEOMETRY, ITEM_SHAPE |
-| BRACKET | same, goal geom time-dependent | ATTRIBUTES, UNGRIDDED_DIMS, QUANTITY_TYPE, ITEM_SHAPE, GEOMETRY. Not implemented: owner Q4. |
+| BRACKET | `BracketClassAspect`, goal geom not time-dependent | ATTRIBUTES, UNGRIDDED_DIMS, QUANTITY_TYPE, GEOM, ITEM_SHAPE |
+| BRACKET | same, goal geom time-dependent | ATTRIBUTES, UNGRIDDED_DIMS, QUANTITY_TYPE, ITEM_SHAPE, GEOM. Not implemented: owner Q4. |
 | VECTORBRACKET | `VectorBracketClassAspect` | same as BRACKET |
-| EXPRESSION | `ExpressionClassAspect` | GEOMETRY, VERTICAL_COORDINATE, VERTICAL_STAGGER, TYPE_KIND, ITEM_SHAPE |
+| EXPRESSION | `ExpressionClassAspect` | GEOMETRY, VGRID, TYPE_KIND, ITEM_SHAPE |
 | STATE | `StateClassAspect` lists CLASS, ATTRIBUTES, UNGRIDDED_DIMS, GEOM, VERTICAL_GRID, UNITS, TYPEKIND | ITEM_SHAPE only (plan D3: a State has no such characteristics). Owner Q5. |
 | SERVICE | `ServiceClassAspect` | ITEM_SHAPE, GEOMETRY |
 | WILDCARD | `WildcardClassAspect` (empty) | empty |
 | GEOM (graph-only variant) | none | GEOMETRY |
-| VERTICALGRID (graph-only variant) | none | VERTICAL_COORDINATE |
+| VERTICALGRID (graph-only variant) | none | VERTICAL_GRID |
 
 Consequences:
 - FIELD changes from [units, typekind, geometry] to the legacy order.
@@ -388,8 +413,9 @@ The factory omits kinds that are not applicable, using legacy
 | FIELD | all comparing kinds + RestartMode, LongName |
 | BRACKET, VECTORBRACKET | all comparing kinds except STANDARD_NAME (legacy order omits it, and the field-side tip after ITEM_SHAPE adopts the import's) |
 | VECTOR, FIELDBUNDLE | all comparing kinds except STANDARD_NAME |
-| EXPRESSION | ITEM_SHAPE, GEOMETRY, VERTICAL_COORDINATE, VERTICAL_STAGGER, TYPE_KIND, Expression, and PHYSICAL_UNITS as UNCHECKED (owner Q3) |
-| (any shape above) | VERTICAL_COORDINATE and VERTICAL_STAGGER apply only to an item with a vertical dimension: none for `vertical_stagger == NONE`, and SERVICE, STATE and WILDCARD never have them (the VERTICALGRID composite is the one STATE with a VERTICAL_COORDINATE) |
+| EXPRESSION | ITEM_SHAPE, GEOMETRY, VERTICAL_GRID, VERTICAL_STAGGER, VERTICAL_ORIENTATION, TYPE_KIND, Expression, and PHYSICAL_UNITS as UNCHECKED (owner Q3) |
+| (any shape above) | VERTICAL_GRID, VERTICAL_STAGGER and VERTICAL_ORIENTATION apply only to an item with a vertical dimension: no VERTICAL_GRID or VERTICAL_ORIENTATION for `vertical_stagger == NONE`, and SERVICE, STATE and WILDCARD never have them (the VERTICALGRID composite is the one STATE with a VERTICAL_GRID) |
+| (any shape with GEOMETRY except EXPRESSION, SERVICE) | HORIZONTAL_DIMS_SPEC. With NONE (A14) the item's GEOMETRY entry is never compared (see §5) |
 | STATE | ITEM_SHAPE only |
 | SERVICE | ITEM_SHAPE, GEOMETRY |
 | WILDCARD | ITEM_SHAPE only |
@@ -444,33 +470,40 @@ DEFERRED (component supplies it) or report them to the owner. It must not
 silently reproduce them as MIRRORED.
 
 **Component-wide kinds (owner).** By long MAPL convention, Geometry and
-VerticalCoordinate are component-wide: an absent value in `VariableSpec`
+VerticalGrid are component-wide: an absent value in `VariableSpec`
 means DEFERRED, filled later from the component default. Typical
 components rely on this and need no change. Components introduced or
 reworked in MAPL3 (Statistics, History collections without `geom:`, and
 similar) instead adopt their connected partner's value. They must say so
 explicitly (`mirror_geom` / YAML `geometry_mirror: true` for Geometry,
-`mirror_vgrid` / `vertical_grid_mirror: true` for VerticalCoordinate);
+`mirror_vgrid` / `vertical_grid_mirror: true` for VerticalGrid);
 MIRRORED is never inferred from absence. EXPRESSION is the one implicit
 MIRRORED case (§2.4 allowlist).
+
+**String mirror sentinel (A13).** StandardName and LongName (and later
+PhysicalUnits, if wanted) share one named string parameter exported by
+`VariableSpec`. Declaring it gives MIRRORED, imports only (an export is an
+error, A1). It replaces no existing keyword; legacy has none for these.
 
 | Factory | VariableSpec input | Status rule |
 |---|---|---|
 | ItemShape | `itemType`, `state_item_variant` | SPECIFIED |
 | Expression | `expression` (EXPRESSION only) | SPECIFIED |
 | PhysicalUnits | `units` | allocated and not `'<unknown>'`: SPECIFIED; else UNCHECKED (legacy `new_UnitsAspect`, `set_units`) |
-| StandardName | `standard_name` | allocated: SPECIFIED; else UNCHECKED (legacy) |
+| StandardName | `standard_name` | string mirror sentinel: MIRRORED, imports only (A13); else allocated: SPECIFIED; else UNCHECKED (legacy) |
 | TypeKind | `typekind` (defaults to R4) | `MAPL_TYPEKIND_MIRROR`: MIRRORED; else SPECIFIED. Never DEFERRED (A12). |
-| Geometry | `geom`, `geom_id`, `horizontal_dims_spec`, `regrid_param` | item geom/geom_id: SPECIFIED; `mirror_geom` or an EXPRESSION with no geom: MIRRORED; else DEFERRED (component supplies it; legacy FROM_COMP and absent-means-MIRRORED both map here, A12). Freeze fails if the component never supplies one. |
-| VerticalCoordinate | `vertical_grid`, `mirror_vgrid`, `vertical_stagger`; `state_item_variant == VERTICALGRID` (member names) | `vertical_stagger == NONE`: no entry (2D item). Item grid: SPECIFIED. `mirror_vgrid` or an EXPRESSION with no grid: MIRRORED. Else DEFERRED (component grid, M2). VERTICALGRID composite: SPECIFIED with dimensions only. A DEFERRED entry whose component has no vertical grid is dropped at GEOM_B (owner, B3-VerticalCoordinate): such an item is 2D as far as the graph can tell, and legacy distinguishes it only by the same absence. |
-| VerticalStagger | `vertical_stagger`, `vertical_alignment`, `mirror_vgrid` | Real stagger (CENTER/EDGE/NONE): SPECIFIED. `VERTICAL_STAGGER_MIRROR`: MIRRORED, imports only; on an export it is an error (A1, Q6). Unallocated with `mirror_vgrid`: MIRRORED (Q-mirror). Other unallocated (or `VERTICAL_STAGGER_INVALID`, which `parse_var_specs` passes when YAML gives no `vertical_dim_spec`): DEFERRED. At GEOM_B a DEFERRED stagger becomes SPECIFIED NONE if the component has no vertical grid (the same 2D outcome as an explicit NONE, A-2D); otherwise it stays DEFERRED until the component fills it (harvest from its realized field or bundle), and freeze fails if it never does. An explicit NONE stays SPECIFIED NONE even though VerticalCoordinate has no entry, so a 2D export still mismatches a 3D import. EXPRESSION `VERTICAL_STAGGER_INVALID`: MIRRORED. Alignment: Q7. |
+| Geometry | `geom`, `geom_id`, `regrid_param` | item geom/geom_id: SPECIFIED; `mirror_geom` or an EXPRESSION with no geom: MIRRORED; else DEFERRED (component supplies it; legacy FROM_COMP and absent-means-MIRRORED both map here, A12). Freeze fails if the component never supplies one. With HorizontalDimsSpec NONE the entry is never compared (A14): either it is omitted, or, if field creation needs the item's geom, it gets a "filled but not compared" form; B3-HorizontalDimsSpec finds which and reports before adding the second. |
+| HorizontalDimsSpec | `horizontal_dims_spec` (YAML `dims: z` -> NONE) | defaults to GEOM: SPECIFIED. Explicit NONE: SPECIFIED. MIRRORED via an explicit mirror value, imports only (A14). GEOM vs NONE in either direction is a mismatch with no transform, i.e. an error (A14). |
+| VerticalGrid | `vertical_grid`, `mirror_vgrid`, `vertical_stagger`; `state_item_variant == VERTICALGRID` (member names) | `vertical_stagger == NONE`: no entry (2D item). Item grid: SPECIFIED. `mirror_vgrid` or an EXPRESSION with no grid: MIRRORED. Else DEFERRED (component grid, M2). VERTICALGRID composite: SPECIFIED with dimensions only. A DEFERRED entry whose component has no vertical grid is dropped at GEOM_B (owner, B3-VerticalCoordinate): such an item is 2D as far as the graph can tell, and legacy distinguishes it only by the same absence. |
+| VerticalStagger | `vertical_stagger`, `mirror_vgrid` | No built-in default (A17). Real stagger (CENTER/EDGE/NONE): SPECIFIED. `VERTICAL_STAGGER_MIRROR`: MIRRORED, imports only; on an export it is an error (A1, Q6). Unallocated with `mirror_vgrid`: MIRRORED (Q-mirror). Other unallocated (or `VERTICAL_STAGGER_INVALID`, which `parse_var_specs` passes when YAML gives no `vertical_dim_spec`): DEFERRED, not an error at advertise (a component such as Statistics may fill it only after other connections resolve). At GEOM_B a DEFERRED stagger becomes SPECIFIED NONE if the component has no vertical grid (A17); otherwise it stays DEFERRED until harvested from the component's realized field or bundle, and freeze fails if it never is. An explicit NONE stays SPECIFIED NONE even though VerticalGrid has no entry, so a 2D export still mismatches a 3D import. EXPRESSION `VERTICAL_STAGGER_INVALID`: MIRRORED. |
+| VerticalOrientation | `vertical_alignment` (`upward`/`downward`/`with_grid`) | Vertical index order relative to physical up/down (Q7). Unspecified or `with_grid`: the item's grid direction, resolved to UP/DOWN once the grid is known (factory for an item grid, `resolve_deferred` for the component grid), DEFERRED until then. Explicit mirror value: MIRRORED, imports only; takes the export's resolved order. A MIRROR stagger does not imply a mirrored orientation. No entry when VerticalGrid has none. |
 | UngriddedDims | `ungridded_dims` | `is_mirror()`: MIRRORED; else SPECIFIED |
 | Attributes | `attributes` | SPECIFIED, **always inserted, even if empty**. This fixes a parity bug: today an empty export set is omitted, so an import requiring attributes is never flagged, whereas legacy `includes([], required)` mismatches. |
 | QuantityType | `quantity_type` | SPECIFIED |
 | Conservation | `conservation` | `is_mirror`: MIRRORED; else SPECIFIED |
 | Normalization | `normalization` | `is_mirror`: MIRRORED; else SPECIFIED |
-| RestartMode | `restart_mode` | allocated: SPECIFIED; else UNCHECKED (writes nothing) |
-| LongName (provisional, A8) | `long_name` | allocated: SPECIFIED; else UNCHECKED (writes nothing) |
+| RestartMode | `restart_mode` | allocated: SPECIFIED; else SPECIFIED `RESTART_REQUIRED` (A15). Never compared (§2.5). |
+| LongName (A8) | `long_name` (field dictionary fills it first) | string mirror sentinel: MIRRORED, imports only (A13); else allocated: SPECIFIED; else the StandardName value if declared: SPECIFIED; else UNCHECKED (writes nothing) |
 
 DEFERRED -> SPECIFIED happens through
 `StateItemDescriptor%resolve_deferred(defaults, rc)`, where `defaults` is
@@ -479,7 +512,7 @@ vertical grid. Each characteristic takes what it needs from it. After
 that, `StateItemDescriptor%drop_unsupplied(defaults)` removes each
 characteristic that is still DEFERRED and says (through
 `drop_if_unsupplied`) that it does not apply without a value: today only
-VerticalCoordinate, when the component supplied no vertical grid. Other
+VerticalGrid, when the component supplied no vertical grid. Other
 kinds, Geometry included, stay DEFERRED until a component fills them. For
 geometry, `run_geometry_hook` calls `graphbuilder_resolve_deferred` for
 each item in the component without naming a kind (D6), and
@@ -507,23 +540,32 @@ is authoritative for status rules; this table summarizes it.
 |---|---|---|---|---|---|---|
 | ItemShape | `itemType` | built-in FIELD | - | - | same | design |
 | TypeKind | `typekind` | built-in R4 | - | `MAPL_TYPEKIND_MIRROR` | same; a MIRROR side matches anything | landed |
-| PhysicalUnits | `units` | field dictionary | UNCHECKED | none | UNCHECKED; writes `/$MIRROR$` for mirrored units (no reader) | landed |
-| StandardName | `standard_name` | - | UNCHECKED | - | UNCHECKED | landed |
-| LongName (provisional) | `long_name` | field dictionary | UNCHECKED, writes nothing | - | carried on `FieldClassAspect`, not compared | design |
+| PhysicalUnits | `units` | field dictionary | UNCHECKED | none (may adopt the string sentinel later) | UNCHECKED; writes `/$MIRROR$` for mirrored units (no reader) | landed |
+| StandardName | `standard_name` | - | UNCHECKED | string sentinel, imports only (A13) | UNCHECKED | landed; mirror: design |
+| LongName | `long_name` | field dictionary, then StandardName | UNCHECKED, writes nothing | string sentinel, imports only (A13) | carried on `FieldClassAspect`, not compared | design |
 | UngriddedDims | `ungridded_dims` | built-in: none | - | `is_mirror()` | same | landed |
 | Geometry | `geom`, `geom_id` | component geom, then harvest | freeze fails | `mirror_geom` / `geometry_mirror: true` | item geom, component geom, item id, component id (FROM_COMP); else MIRRORED | landed |
-| VerticalCoordinate | `vertical_grid` | component grid | no entry (2D item) | `mirror_vgrid` / `vertical_grid_mirror: true` | item grid, component grid; else MIRRORED (FROM_COMP if a component geom id exists) | landed |
-| VerticalStagger | `vertical_stagger` / `vertical_dim_spec` | **open:** harvest (current §5 rule), or a built-in that follows the component (CENTER if it has a vertical grid) | SPECIFIED NONE (component has no vertical grid) | `MIRROR` (imports only); `mirror_vgrid` with no stagger | unallocated stagger is treated as mirror; `MIRROR` matches any stagger | **open** |
-| Vertical alignment | `vertical_alignment` | built-in `with_grid` | - | follows a MIRRORED stagger? (open) | `with_grid`; compared after resolving against the grid's direction; the import copies the export's on connect | design |
+| HorizontalDimsSpec | `horizontal_dims_spec` / `dims: z` | built-in GEOM | - | explicit mirror value, imports only | compared inside `GeomAspect`, together with the geom | design |
+| VerticalGrid | `vertical_grid` | component grid | no entry (2D item) | `mirror_vgrid` / `vertical_grid_mirror: true` | item grid, component grid; else MIRRORED (FROM_COMP if a component geom id exists) | landed (as VerticalCoordinate) |
+| VerticalStagger | `vertical_stagger` / `vertical_dim_spec` | none: harvest from the component's field | NONE if the component has no vertical grid; else freeze fails | `MIRROR` (imports only); `mirror_vgrid` with no stagger | unallocated stagger is treated as mirror; `MIRROR` matches any stagger | design |
+| VerticalOrientation | `vertical_alignment` | the item's grid direction (`with_grid`) | no entry (2D item) | explicit mirror value, imports only | `with_grid`; compared after resolving against the grid's direction; the import copies the export's on connect | design |
 | Attributes | `attributes` | built-in: empty | - | - | empty; import's set must be included in export's | landed |
 | QuantityType | `quantity_type` | built-in UNKNOWN | - | - | ignores the declared value: always UNKNOWN (Q9) | design |
 | Conservation | `conservation` | built-in CONSERVE_NONE, not conservable | - | `is_mirror` | ignores the declared value: CONSERVE_NONE | design |
 | Normalization | `normalization` | built-in NORMALIZE_NONE, scale 1 | - | `is_mirror` | ignores the declared value: NORMALIZE_NONE, scale 1 | design |
-| RestartMode (new) | `restart_mode` | - | UNCHECKED, writes nothing | - | carried on `FieldClassAspect`, not compared | design |
+| RestartMode (new) | `restart_mode` | built-in `RESTART_REQUIRED` (A15) | - | - | carried on `FieldClassAspect`, not compared | design |
 | Expression (new) | `expression` | - | - | - | n/a (EXPRESSION shape only) | design |
 
 "State": landed = implemented by its B3 task; design = rule in §5, not
 yet implemented; open = owner decision pending.
+
+Later cleanup, not in the current task set (owner): one "Declared by" per
+characteristic (Geometry `geom`/`geom_id`, VerticalStagger
+`vertical_stagger`/`vertical_dim_spec`, HorizontalDimsSpec
+`horizontal_dims_spec`/`dims:`); one mirror mechanism per characteristic,
+a named sentinel value instead of the `mirror_geom`/`mirror_vgrid` flags;
+renaming ItemShape and VerticalOrientation. Future: HorizontalDimsSpec
+NONE -> GEOM by replication across the horizontal points (A14).
 
 ### §6. Inventory: current state -> target
 
@@ -537,7 +579,7 @@ yet implemented; open = owner decision pending.
 | `ungridded_dims` | `_ConnectionResolution_smod` (materialization) | `UngriddedDims` characteristic (already in the map; duplicate removed in B3-UngriddedDims) |
 | `vertical_stagger` | `_ConnectionResolution_smod`, `_PortsAndProxies_smod` | `VerticalStagger` (new, B3-VerticalStagger) |
 | `declared_geom` | `_PortsAndProxies_smod%resolve_export_geom` | `Geometry` item-level (B3-Geometry). DEFERRED replaces the "read component geom live" fallback. |
-| `declared_vertical_grid` | `_PortsAndProxies_smod` | `VerticalCoordinate` (B3-VerticalCoordinate, M2); the characteristic holds the `VerticalGrid` object |
+| `declared_vertical_grid` | `_PortsAndProxies_smod` | `VerticalGrid` (landed as VerticalCoordinate in B3-VerticalCoordinate, M2; renamed by B3-RenameVerticalGrid); the characteristic holds the `VerticalGrid` object |
 | `declared_item_type` | `_ConnectionResolution_smod` (WILDCARD / FIELD / BRACKET gates) | `ItemShape` widened to all shapes (B3-ItemShape). The gates become `descriptor%shape()` queries on the ItemShape value, through a generic accessor that returns the `MAPL_StateItem_Flag` (no concrete type named in GraphBuilder). |
 | `declared_restart_mode` | `_StatePopulation_smod%populate_one` | `RestartMode` (new, B3-RestartMode); populate_one calls `sync_to_info(alias, DESCRIPTIVE)` |
 | `declared_expression` | `_ConnectionResolution_smod` (expression hook) | `Expression` (new, B3-Expression) |
@@ -548,8 +590,8 @@ yet implemented; open = owner decision pending.
 |---|---|---|---|
 | `allocated(units)` -> PHYSICAL_UNITS | absent if unallocated | PhysicalUnits | unallocated -> UNCHECKED |
 | `typekind /= MAPL_TYPEKIND_MIRROR` -> TYPE_KIND | absent if mirror | TypeKind | mirror -> MIRRORED (B2 converts this first) |
-| `allocated(vertical_grid)` -> VERTICAL_COORDINATE(grid_id, dims) | item-level only | VerticalCoordinate | else DEFERRED to component grid (M2) |
-| `state_item_variant == VERTICALGRID` -> VERTICAL_COORDINATE(dims) | | VerticalCoordinate (same factory) | none |
+| `allocated(vertical_grid)` -> VERTICAL_GRID(grid_id, dims) | item-level only | VerticalGrid | else DEFERRED to component grid (M2) |
+| `state_item_variant == VERTICALGRID` -> VERTICAL_GRID(dims) | | VerticalGrid (same factory) | none |
 | `allocated(standard_name)` -> STANDARD_NAME | absent if unallocated | StandardName | unallocated -> UNCHECKED; omitted for exempt shapes (§4.3) |
 | `attributes%size() > 0` -> ATTRIBUTES | absent if empty | Attributes | always present (parity fix) |
 | UNGRIDDED_DIMS (unconditional) | | UngriddedDims | mirror -> MIRRORED |
@@ -557,7 +599,7 @@ yet implemented; open = owner decision pending.
 | `set_ungridded_dims` | duplicate | removed (UngriddedDims) | |
 | `set_vertical_stagger` | | VerticalStagger | new |
 | `set_declared_geom` | | Geometry (item-level) | new kind on items (M1) |
-| `set_declared_vertical_grid` | | VerticalCoordinate | |
+| `set_declared_vertical_grid` | | VerticalGrid | |
 | `set_declared_item_type` | | ItemShape | |
 | ITEM_SHAPE for FIELD/BRACKET/VECTOR/VECTORBRACKET only | | ItemShape, all shapes | EXPRESSION->FIELD becomes a real matrix cell (§4.3) |
 | `set_declared_restart_mode` | | RestartMode | new |
@@ -615,11 +657,11 @@ yet implemented; open = owner decision pending.
 | Absent geometry means DEFERRED for every item | An import that should adopt the connected export's geometry says so with `mirror_geom` (YAML `geometry_mirror: true`) and is MIRRORED; absence is still DEFERRED | Owner A12: no implicit absent-means-mirror. Statistics imports and History collection imports without `geom:` set it. |
 | DEFERRED -> SPECIFIED only at GEOM_B | Also by `harvest_deferred`, which reads the geom off the component's field or bundle in the state once it has one, without binding the item's `GraphStateItem` handle (imports are skipped) | Owner-approved. Keeps DEFERRED resolution in the graph, with no per-component hook. |
 | Plan scope excludes gridcomps | `StatisticsGridComp` and `TimeVariance` advertise only the chosen variance algorithm's internal fields and share `get_variance_algorithm` | Owner-approved scope change: unchosen algorithms' internal fields would otherwise stay DEFERRED forever and fail freeze. |
-| D3: reference characteristics write a node/registry id | Geometry writes `geom=` (the ESMF object); VerticalCoordinate writes `vgrid=` (stored as `vgrid_id`) | No setter takes a geom id; legacy and every Info reader use the geom object. Adding a geom-id keyword has no consumer. |
+| D3: reference characteristics write a node/registry id | Geometry writes `geom=` (the ESMF object); VerticalGrid writes `vgrid=` (stored as `vgrid_id`) | No setter takes a geom id; legacy and every Info reader use the geom object. Adding a geom-id keyword has no consumer. |
 | D3: e.g. descriptor makes one `MAPL_*Set` call per handle kind | Each characteristic calls the setter with its own keywords (§3.1) | A keyword bag would duplicate every setter signature in the graph. Plan left this to B0. |
 | D3: `sync_to_info(handle, rc)` | `sync_to_info(handle, phase, rc)` | The phase argument is how FieldDelta is avoided (§3.2). |
 | D4: order owned by the **export's** shape | Owned by the current **chain tip's** shape, re-queried each step | Legacy re-queries on each new tip; after a BRACKET->FIELD step, FIELD order applies (§4.1). |
-| D1 new characteristics "restart mode, expression, vertical stagger, ..." | Those three, plus `LongName` (provisional) | Info parity for `SharedIO`/History. Owner A8. |
+| D1 new characteristics "restart mode, expression, vertical stagger, ..." | Those three, plus `LongName`, `HorizontalDimsSpec` and `VerticalOrientation` | LongName: Info parity for `SharedIO`/History (A8). The other two split out of Geometry and VerticalStagger (A14, Q7). |
 
 ## Risks / Trade-offs
 
@@ -654,13 +696,36 @@ task.
 A1. Mirrored exports are disallowed by default. Only the EXPRESSION
     entries in §2.4 are allowlisted. Further entries need a compelling,
     demonstrated use case.
-A8. Add `LongName` (provisional): it is in the B3 list. Drop it if
-    B3-LongName finds no graph-created field needs it.
+A8. Add `LongName`. Default chain: declared, then field dictionary, then
+    the StandardName value. Supports the string mirror (A13).
 A10. Runtime geometry change is a goal (History samplers on imports,
      ExtData epoch-dependent exports, moving nested grids). SetShared
      survives (§7.3).
 A12. Values the component supplies are DEFERRED; TypeKind's R4 default is
      SPECIFIED. Watch for legacy cases where absent means MIRROR (§5).
+A13. StandardName and LongName need a mirror (History). One named string
+     sentinel in `VariableSpec`, imports only. Task B3-StringMirror, before
+     B3-LongName.
+A14. `horizontal_dims_spec` becomes its own characteristic,
+     HorizontalDimsSpec (GEOM default, NONE for e.g. Ak/Bk with
+     `dims: z`). GEOM vs NONE in either direction fails (NONE -> GEOM by
+     replication is future work). With NONE on both sides Geometry is not
+     compared, so such items connect across different horizontal grids.
+     Mirror allowed on imports. Ordered before GEOMETRY (§4.2).
+A15. RestartMode defaults to `RESTART_REQUIRED`. It is never compared and
+     builds no transform. Imports sharing an export may differ; each
+     writes its own alias, and the last restart phase wins (accepted).
+A16. Combined steps: mismatches are detected per kind; one build step may
+     resolve several kinds (§4.1). Fusing adjacent steps after freeze is
+     future work.
+A17. VerticalStagger has no built-in default. An undeclared stagger is
+     DEFERRED at advertise (not an error), harvested from the component's
+     realized field, NONE if the component has no vertical grid, and
+     freeze fails otherwise.
+A18. The vertical-grid characteristic is named `VerticalGrid`
+     (`VerticalGridCharacteristic`, `VERTICAL_GRID_CHARACTERISTIC_KIND`,
+     display `"VERTICAL_GRID"`). B3-RenameVerticalGrid renames
+     VerticalCoordinate.
 
 ## Open Questions (deferred to the named B3 task)
 
@@ -690,14 +755,17 @@ Q6 (B3-VerticalStagger). **Answered: confirmed.** `VERTICAL_STAGGER_MIRROR`
     When `mirror_vgrid` is set and no stagger is given, the stagger
     defaults to MIRRORED; an explicit stagger still wins (latent, no
     current user).
-Q7 (B3-VerticalStagger). **Answered:** alignment is a per-item value in
-    `VerticalStagger` (almost always `with_grid`). Independent alignment per
-    coordinate has no use case; out of scope. Legacy compares the alignment
-    resolved against the grid's direction. `VerticalStagger` must not read
-    `VerticalCoordinate` when comparing (characteristics compare
-    independently). If it needs the grid direction, it resolves it once the
-    grid is known (factory for an item grid, `resolve_deferred` for the
-    component grid). If that does not work, stop and report.
+Q7 (B3-VerticalOrientation). **Answered (revised):** orientation (legacy
+    "alignment"; name provisional) is the vertical index order relative to
+    physical up/down, one value per item. CF `positive` is per-coordinate
+    output metadata, not this. It is its own characteristic,
+    `VerticalOrientation`, independent of VerticalStagger. Unspecified
+    means the item's grid direction (`with_grid`), resolved to UP/DOWN once
+    the grid is known (factory for an item grid, `resolve_deferred` for the
+    component grid); it must not read VerticalGrid when comparing. An
+    explicit mirror value (imports only) takes the export's resolved order;
+    a MIRROR stagger does not imply it. If resolution does not work this
+    way, stop and report.
 Q9 (B3-QuantityType). Legacy `make_QuantityTypeAspect` ignores
     `VariableSpec%quantity_type` and writes default metadata plus a
     derived normalization that `NormalizationAspect` overwrites. The
