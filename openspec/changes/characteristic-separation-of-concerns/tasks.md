@@ -53,11 +53,12 @@ nothing for that kind, except the §6.3 materialization references
 the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
-Remaining order (owner): 3.19b, 3.20, 3.21, then 3.7, 3.13, 3.11, 3.10,
+Remaining order (owner): 3.20, 3.21, then 3.7, 3.13, 3.11, 3.10,
 3.12, 3.14 as their open questions allow (3.12: Q2).
-Numbers are labels, not run order. Every task whose characteristic has a
-mirror value rejects it on a non-EXPRESSION export in the factory, at
-advertise, with a test (A19; B3-VerticalStagger is the pattern). A
+Numbers are labels, not run order. A task whose characteristic adds a
+mirror value adds its spelling to `VariableSpec%requests_mirror()`; the
+generic export checks (A21) then reject it on a non-EXPRESSION export, and
+the factory adds no export assert of its own. A
 harvest reads through `MAPL_*Get`, never raw Info (A19).
 
 - [x] 3.1 B3-Units (template; also writes

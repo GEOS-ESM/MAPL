@@ -573,14 +573,14 @@ in the first one; later ones refine it.
   run timed out `MAPL.generic.scenarios` (1876 s) because the host laptop
   was asleep during the run; it passed alone in 45 s and in a clean full
   rerun.
-  B3-MirrorGeneric (tasks.md 3.19b, done, not committed): A21 is one rule.
+  B3-MirrorGeneric (tasks.md 3.19b, done): A21 is one rule.
   `VariableSpec%requests_mirror()` lists each explicit mirror spelling;
   `make_VariableSpec` asserts `not requests_mirror()` on a non-EXPRESSION
   export, and `make_characteristics` runs a post-loop check that fails on any
   MIRRORED entry on such an export, naming the kind. The per-factory export
-  asserts are removed. Deviation: `requests_mirror()` excludes the
-  EXPRESSION-default MIRRORED entries (an expression is MIRRORED without
-  asking). Owner-approved fixture changes: `typekind` and `ungridded_dims`
+  asserts are removed. `requests_mirror()` checks only explicit requests;
+  an EXPRESSION's default MIRRORED entries are not requests (consistent
+  with A21, not a deviation). Owner-approved fixture changes: `typekind` and `ungridded_dims`
   mirror tests now use import intent. `test_shapes_without_standard_name_get_no_entry`,
   `..._ungridded_dims_...`, `..._attributes_...` reset the descriptor per shape
   (they leaked a BRACKET-family MIRRORED geometry into later shapes).
@@ -964,7 +964,7 @@ whether `haiku` may author Fortran):
 If `sonnet` passes the debugging replay cleanly, the "sonnet?" entries
 below move from opus to sonnet. If `haiku` passes the mechanical replay,
 it may author D1/A4/B5 with sonnet review.
-- **Status:** debugging replay done: `sonnet` (nasa_litellm claude-sonnet-5-5) passed, so the `(sonnet?)` rows moved to sonnet, with opus kept as reviewer. haiku (nasa_litellm) also passed the debugging replay but hedged one fix (kept the old path as a fallback); mechanical replay skipped by owner decision - try haiku on real tasks with review. Benchmark kept outside the repo, so candidates can't see the answer key: `~/.opencode/plan/calibration/README.md`. Real-task trials: haiku authored B3-RenameVerticalGrid (clean) and B3-StringMirror (sonnet review found should-fix items, owner decisions came out of it, no rework session needed); both with sonnet review.
+- **Status:** debugging replay done: `sonnet` (nasa_litellm claude-sonnet-5-5) passed, so the `(sonnet?)` rows moved to sonnet, with opus kept as reviewer. haiku (nasa_litellm) also passed the debugging replay but hedged one fix (kept the old path as a fallback); mechanical replay skipped by owner decision - try haiku on real tasks with review. Benchmark kept outside the repo, so candidates can't see the answer key: `~/.opencode/plan/calibration/README.md`. Real-task trials: haiku authored B3-RenameVerticalGrid (clean) and B3-StringMirror (sonnet review found should-fix items, owner decisions came out of it, no rework session needed); both with sonnet review. B3-MirrorFlagGuard (haiku): clean, sonnet review accept with minor test gaps. B3-MirrorGeneric (haiku): looped several times on pFUnit failures (exact-match message; the extra `status=1` exception from `_RC`) before stopping and reporting; the stop rule worked, and a one-message diagnosis from the meta session unblocked it. Give haiku the pFUnit/`_ASSERT` exception rule up front.
 
 | Task | Author | Reviewer | Notes |
 |---|---|---|---|

@@ -104,6 +104,11 @@ Info.
   provokes such a mismatch asserts `BUILD_TRANSFORM_UNSUPPORTED` (or the
   `unsupported_characteristics` entry) and needs no
   `@assertExceptionRaised`. Reserve `_FAIL` for genuine errors.
+- Under pFUnit, a failing `_ASSERT`/`_FAIL` records its message as an
+  exception, and every enclosing `_RC`/`_VERIFY` it propagates through
+  records another one, `status=<rc>`. A test must consume each one with
+  `@assertExceptionRaised` (exact text), or it fails even when
+  `rc` is right. Checking `rc` with `@assertEqual` does not consume them.
 - Never call a failure "pre-existing" without reproducing it on a clean
   baseline: a temporary `git worktree` of `HEAD`, removed afterward.
   Reverting only your own newest file proves nothing about the rest of
