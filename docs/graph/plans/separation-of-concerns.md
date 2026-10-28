@@ -586,6 +586,14 @@ in the first one; later ones refine it.
   (they leaked a BRACKET-family MIRRORED geometry into later shapes).
   Factory-path tests expect the full message including ` (<KIND>)` plus
   `status=1`; `_ASSERT` in the check records a message as well as setting rc.
+  Sonnet review (after landing): accept with follow-ups. Owner accepted the
+  map copy in `check_no_mirrored_entry` as is. Open, for a later task: stale
+  per-kind "error on an export" text in `make_characteristics.F90` header
+  comments and `adding-a-characteristic.md` (VerticalStagger,
+  VerticalOrientation, StringMirror, HorizontalDimsSpec sections), and
+  `requests_mirror()` constructor tests for typekind, horizontal dims,
+  ungridded dims, stagger and alignment, plus post-loop tests for typekind
+  and ungridded dims. Non-ESSENTIAL tests and non-test configs: E1-intel.
   B3-MirrorFlagGuard (done, owner-approved fixture change): `make_VariableSpec`
   rejects `MAPL_STRING_MIRROR` on any export and `mirror_geom`/`mirror_vgrid`
   on a non-EXPRESSION export (A21); the Geometry and VerticalGrid factories
@@ -913,8 +921,26 @@ it runs goes in a follow-up commit with the same trailer. Label
   looked up; ask the owner if qualified vs. bare key is unclear.
 - **Status:** not started
 
+### Phase E - closing
 
-## Model assignment
+**E1. Full test run with Intel on bucy.** Runs last, after every other
+task. The non-ESSENTIAL ctest labels (e.g.
+`MAPL.generic.scenarios.pending` and other tests skipped by
+`-L ESSENTIAL`) need data and an Intel build that exist only on bucy.
+On bucy, using the `remote-build` skill, `with-intel` (`ifx-stack`,
+unversioned): configure a clean Release build of the plan's final HEAD
+and run the full ctest suite (no `-L ESSENTIAL`). Also grep every
+YAML/RC config there (outside `superstructure/generic/tests/`) for
+mirror values (`typekind: mirror`, `vertical_dim_spec: MIRROR`,
+`geometry_mirror`, `dims: mirror`, `"<mirror>"`, `vertical_alignment:
+mirror`) under an `export:` section, since A21 now rejects them on a
+non-EXPRESSION export. For each failure, compare against a clean build of
+the commit before Phase B (the `Plan-Task: B0` design commits do not
+change code; use the parent of the first `Plan-Task: B1` commit) with the
+same build type, then classify it as caused by this plan or as existing
+before it. Report findings; do not fix. Fixes become new tasks. Label
+`E1-intel`.
+- **Status:** not started
 
 Author = writes the task and leaves it uncommitted. Reviewer = the
 read-only `reviewer` subagent (`.opencode/agents/reviewer.md`):
@@ -1005,6 +1031,7 @@ it may author D1/A4/B5 with sonnet review.
 | D1 | sonnet (haiku?) | sonnet if haiku | `public ::` rule |
 | D2 | sonnet | opus | lifecycle-phase ordering |
 | D3-cleanup | sonnet | - | items are small and independent |
+| E1-intel | sonnet | - | run and classify only; remote build on bucy |
 
 `(sonnet?)`/`(haiku?)` = move to that model only if it passes calibration.
 Always opus regardless: B0, B2, B3-Units, B3-ItemShape, A1-diagnosis,
@@ -1056,7 +1083,7 @@ B4 -> C1, B3-VerticalCoordinate -> C1 (vertical part), D1 -> D2;
 C2-alias-owner -> C2-alias-nonfield. The C2 tasks need only A1-diagnosis
 and may run before Phase B. A4 is independent of A1-A3 and B0 (they touch tests/docs, A4 touches
 production comments), so their order is free; still one task at a time.
-D3-cleanup has no dependencies.
+D3-cleanup has no dependencies. E1-intel runs after every other task.
 
 **Run order (owner decision, after A5b):** critical path first:
 B0 -> B1 -> B2 -> B3.x -> {B4, B5} -> C1. Within B3.x, B3-Units goes
