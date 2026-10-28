@@ -519,7 +519,8 @@ VerticalCoordinate to VerticalGrid; old label `B3-VerticalCoordinate`
 stays in history), VerticalOrientation (new, split from VerticalStagger),
 HorizontalDimsSpec (new, split from Geometry), StringMirror (shared
 mirror sentinel for StandardName/LongName), MirrorFlagGuard (A21: reject
-mirror flags on exports in `make_VariableSpec`). Run order: tasks.md §3 header.
+mirror flags on exports in `make_VariableSpec`), DimsZLegacy (A22: legacy
+`GeomAspect` skips the geom comparison for two `dims: z` items). Run order: tasks.md §3 header.
 - Later cleanup, not a current task (owner): one "Declared by" keyword per
   characteristic, one mirror mechanism (sentinels instead of
   `mirror_geom`/`mirror_vgrid`), and renaming ItemShape and
@@ -957,6 +958,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-RenameVerticalGrid | haiku | sonnet | mechanical rename, no behavior change; first haiku authoring trial |
 | B3-StringMirror | haiku | sonnet | small factory change; second haiku authoring trial |
 | B3-MirrorFlagGuard | haiku | sonnet | constructor/factory assertions + two fixtures |
+| B3-DimsZLegacy | sonnet | - | legacy GeomAspect change + scenario with two grids; stop if legacy still regrids |
 | B3-VerticalStagger | sonnet | opus | DEFERRED/harvest; fixture risk |
 | B3-VerticalOrientation | sonnet | opus | resolve against grid without comparing it |
 | B3-HorizontalDimsSpec | sonnet | opus | changes when Geometry is compared |

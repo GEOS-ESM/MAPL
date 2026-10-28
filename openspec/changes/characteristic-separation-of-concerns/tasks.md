@@ -53,8 +53,8 @@ nothing for that kind, except the §6.3 materialization references
 the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
-Remaining order (owner): 3.19, then 3.7, 3.13, 3.11, 3.10, 3.12, 3.14 as
-their open questions allow (3.10: Q9; 3.12: Q2).
+Remaining order (owner): 3.19, 3.20, then 3.7, 3.13, 3.11, 3.10, 3.12,
+3.14 as their open questions allow (3.12: Q2).
 Numbers are labels, not run order. Every task whose characteristic has a
 mirror value rejects it on a non-EXPRESSION export in the factory, at
 advertise, with a test (A19; B3-VerticalStagger is the pattern). A
@@ -155,6 +155,19 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       collection, `history_1`, `statistics_real` are all imports); if one
       does, stop and report. Update adding-a-characteristic.md (Geometry,
       VerticalGrid and StringMirror sections).
+- [ ] 3.20 B3-DimsZLegacy (A22; legacy layer change). In
+      `specs/GeomAspect.F90` `matches`, when both sides'
+      `horizontal_dims_spec` is NONE, return `.true.` without comparing
+      geom or geom_id (a MIRROR spec still goes through
+      `dims_specs_agree` as today). Check that `make_transform` and
+      `connect_to_export` need nothing more for that case; if legacy still
+      builds a regrid, stop and report. Then make `dims_z_field` use two
+      different horizontal grids for `comp_src` and `comp_dst` (keep it
+      ready; expectations unchanged: no chain), and update its
+      `description.md`. Add a `Test_Aspects.pf` case: two NONE GeomAspects
+      with different geoms match; NONE vs GEOM still does not. Remove the
+      deviation sentence from 3.17 and the plan Status. Graph code is not
+      touched.
 - [x] 3.6 B3-Geometry (M1: item-level entry; DEFERRED; moves
       `_Geometry_smod` inserts behind a helper). Deviations from design
       §2.2/§2.3, owner-approved: a DEFERRED side at connect time waits
@@ -188,7 +201,12 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       Inserted for FIELD/BRACKET/VECTOR/VECTORBRACKET/FIELDBUNDLE (§4.3
       excludes EXPRESSION). `write_info` is a successful no-op. No
       scenario changed (ESSENTIAL green; PENDING identical to HEAD).
-- [ ] 3.10 B3-QuantityType, B3-Conservation, B3-Normalization
+- [ ] 3.10 B3-QuantityType, B3-Conservation, B3-Normalization. Q9
+      answered: each factory uses the declared `VariableSpec` value
+      (legacy's fixed defaults are not reproduced; report it in the commit
+      message as a parity difference with no current user, since no
+      keyword or YAML key sets these fields yet). Field-dictionary defaults
+      for them are future work, not this task.
 - [ ] 3.11 B3-RestartMode (new kind; `populate_one` uses
       `sync_to_info(DESCRIPTIVE)`). Default `RESTART_REQUIRED`, never
       compared, no transform (A15). `write_info` writes the item's own
