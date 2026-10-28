@@ -15,6 +15,7 @@ module mapl_ExtDataSample_mod
       character(:), allocatable :: refresh_offset
       contains
          procedure :: set_defaults
+         procedure :: get_update_offset
    end type
 
    interface ExtDataSample
@@ -94,5 +95,40 @@ contains
       _VERIFY(status)
       _RETURN(_SUCCESS)
    end subroutine set_defaults
+
+   ! Resolve update_offset into a time interval. The string is an ISO 8601
+   ! duration with an optional leading "+" or "-", or the token HEARTBEAT
+   ! meaning one clock time step.
+   function get_update_offset(this, time_step, unusable, rc) result(offset)
+      type(ESMF_TimeInterval) :: offset
+      class(ExtDataSample), intent(in) :: this
+      type(ESMF_TimeInterval), intent(in) :: time_step
+      class(mapl_KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status, i, j
+      logical :: negative
+      character(len=:), allocatable :: str, upper
+
+      _UNUSED_DUMMY(unusable)
+
+      str = trim(adjustl(this%refresh_offset))
+      i = index(str, "-")
+      j = index(str, "+")
+      _ASSERT(i == 0 .or. j == 0, '"+" and "-" cannot both be present in update_offset string.')
+      negative = (i > 0)
+      if (negative) str = str(i+1:)
+      if (j > 0) str = str(j+1:)
+
+      upper = ESMF_UtilStringUpperCase(str, _RC)
+      if (index(upper, "HEARTBEAT") > 0) then
+         offset = time_step
+      else
+         call ESMF_TimeIntervalSet(offset, str, _RC)
+      end if
+      if (negative) offset = -offset
+
+      _RETURN(_SUCCESS)
+   end function get_update_offset
 
 end module mapl_ExtDataSample_mod

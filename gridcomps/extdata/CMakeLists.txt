@@ -19,6 +19,7 @@ set(srcs
  ExtDataRuleMap.F90
  ExtDataSample.F90
  ExtDataSampleMap.F90
+ ExtDataPointerUpdate.F90
  PrimaryExport.F90
  PrimaryExportVector.F90
  ExtDataFileReader.F90

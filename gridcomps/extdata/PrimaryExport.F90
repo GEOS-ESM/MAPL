@@ -14,6 +14,7 @@ module mapl_PrimaryExport_mod
    use mapl_ExtDataRule_mod
    use mapl_ExtDataCollection_mod
     use mapl_ExtDataSample_mod
+     use mapl_ExtDataPointerUpdate_mod
     use VerticalCoordinateMod
     use pflogger, only: logger
     use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER
@@ -35,6 +36,7 @@ module mapl_PrimaryExport_mod
       character(len=:), allocatable :: regridding_method
       logical :: enable_vertical_regrid = .false.
       integer :: fraction_value
+      type(ExtDataPointerUpdate) :: pointer_update
       ! Coordinate-comparison tolerance from the collection's config
       ! (see GEOS-ESM/MAPL#5385 / ExtDataCollection%coordinate_tolerance),
       ! expressed as a FRACTION of this grid's own local spacing (DX),
@@ -55,7 +57,6 @@ module mapl_PrimaryExport_mod
          procedure :: get_file_selector
          procedure :: complete_export_spec
          procedure :: update_export_spec
-         !procedure :: get_file_var_name
          procedure :: get_export_var_name
          procedure :: get_bracket
          procedure :: update_my_bracket
@@ -114,6 +115,7 @@ module mapl_PrimaryExport_mod
           i_client => mapl_get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
          primary_export%client_collection_id = i_client%add_data_collection(file_template, _RC)
          call primary_export%bracket%set_parameters(time_interpolation=sample%time_interpolation)
+         call primary_export%pointer_update%create(sample, time_step, _RC)
          allocate(primary_export%start_and_end, source=time_range)
          primary_export%coordinate_tolerance = collection%get_coordinate_tolerance()
       end if
@@ -250,18 +252,18 @@ module mapl_PrimaryExport_mod
       _RETURN(_SUCCESS)
    end subroutine update_export_spec
 
-   subroutine update_my_bracket(this, bundle, current_time, weights, rc)
+   subroutine update_my_bracket(this, bundle, use_time, weights, rc)
       class(PrimaryExport), intent(inout) :: this
       type(ESMF_FieldBundle), intent(inout) :: bundle
-      type(ESMF_Time), intent(in) :: current_time
+      type(ESMF_Time), intent(in) :: use_time
       real, allocatable, intent(out) :: weights(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
       real :: local_weights(2)
 
-      call this%file_selector%update_file_bracket(bundle, current_time, this%bracket, _RC)
-      local_weights = this%bracket%compute_bracket_weights(current_time, _RC)
+      call this%file_selector%update_file_bracket(bundle, use_time, this%bracket, _RC)
+      local_weights = this%bracket%compute_bracket_weights(use_time, _RC)
 
       if (this%file_vars%size() == 1) then
          allocate(weights(3),_STAT)
