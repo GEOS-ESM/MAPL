@@ -73,9 +73,11 @@ contains
          block
            logical, pointer :: scratchpad(:)
            integer :: sizeof_logical
+           integer(kind=MPI_ADDRESS_KIND) :: lb, extent
 
-           call MPI_Type_extent(MPI_LOGICAL, sizeof_logical, ierror)
+           call MPI_Type_get_extent(MPI_LOGICAL, lb, extent, ierror)
            _VERIFY(ierror)
+           sizeof_logical = int(extent)
            sz = lock%npes * sizeof_logical
 #if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
            call MPI_Alloc_mem(sz, MPI_INFO_NULL, lock%locks_ptr, ierror)
@@ -155,7 +157,6 @@ contains
       ! who needs the lock next (if anyone)?
       block
         integer :: p, next_rank, buffer
-        p = this%rank
         next_rank = -1
         do p = this%rank+1, this%npes-1
            if (this%local_data(p)) then

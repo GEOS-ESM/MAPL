@@ -144,6 +144,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed `FileLock.acquire` (GEOS-ESM/MAPL#5461): it checked `OSError.errno` on the
+  class instead of the caught exception, so a held lock raised immediately
+  instead of waiting. Also fixed the `IOerror` typo in `python/MAPL/exp.py`, the
+  silent exit on tile input in `apps/split_restart.py`, the deprecated
+  `MPI_Type_extent` in `MpiMutex`, and a dead assignment in `MpiMutex.release`
+  (GEOS-ESM/MAPL#5465).
 - Fixed logging of resource values that contain `%` (e.g. file-name templates
   such as `%y4%m2%d2`): the HConfig value loggers passed the message to
   pFlogger as its format string, which then failed with "not enough position
@@ -292,6 +298,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Removed the stale top-level `udunits2f/` copy; the build uses
+  `utils/udunits2f/` (GEOS-ESM/MAPL#5465).
 - Removed obsolete `BUILD_SHARED_MAPL` CMake option and unused
   `MAPL_LIBRARY_TYPE` variable from root `CMakeLists.txt` and `INSTALL.md`, as
   MAPL3 exclusively builds shared libraries.

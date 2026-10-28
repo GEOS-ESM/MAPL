@@ -74,7 +74,7 @@ def setup(inConfigFiles=None):
     os.mkdir(tmpdir)
     os.chdir(tmpdir)
     if os.system(cmd):
-       raise IOerror("red_ma.pl did not complete successfully")
+       raise IOError("red_ma.pl did not complete successfully")
 
 #   Resources as specified by user
 #   ------------------------------
