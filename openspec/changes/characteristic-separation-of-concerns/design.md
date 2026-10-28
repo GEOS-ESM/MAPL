@@ -87,7 +87,7 @@ Legacy reference points (the behavior being duplicated):
 | `CLASS_ASPECT_ID` (`FieldClassAspect%long_name`) | `LongName` (new, A8) | value | no | Never mismatches. Needed for Info parity (`SharedIO` reads `long_name`) and by History (mirror, A13). Owner A8. |
 | `CLASS_ASPECT_ID` (`fill_value`, `bracket_size`, `vector_basis_kind`) | deferred to M3 | - | no | Only needed once the graph materializes those shapes (B4/M3). Owner A8. |
 | `GEOM_ASPECT_ID` (geom) | `Geometry` (`GEOMETRY`) | reference | yes, component-level only | Item-level instance added by B3-Geometry (fixes M1). Also carries the regridder param (not compared). |
-| `GEOM_ASPECT_ID` (`horizontal_dims_spec`) | `HorizontalDimsSpec` (new, A14) | value | landed (B3-HorizontalDimsSpec) | Moved out of `GeometryCharacteristic`. SPECIFIED (GEOM or NONE) or MIRRORED (`HORIZONTAL_DIMS_MIRROR`, imports only); GEOM vs NONE is a mismatch with no Transform. |
+| `GEOM_ASPECT_ID` (`horizontal_dims_spec`) | `HorizontalDimsSpec` (new, A14) | value | landed (B3-HorizontalDimsSpec) | Moved out of `GeometryCharacteristic`. SPECIFIED (GEOM or NONE) or MIRRORED (`HORIZONTAL_DIMS_MIRROR`, imports only); GEOM vs NONE is incompatible (A23). |
 | `VERTICAL_GRID_ASPECT_ID` (grid) | `VerticalGrid` (`VERTICAL_GRID`) | reference | yes | References the item's `VerticalGrid`, which may carry several coordinates. Must also be set from the component vertical grid (M2). |
 | `VERTICAL_GRID_ASPECT_ID` (stagger) | `VerticalStagger` (new) | value | no | Replaces `GraphStateItem%vertical_stagger`. |
 | `VERTICAL_GRID_ASPECT_ID` (alignment) | `VerticalOrientation` (new, name provisional; Q7) | value | no | Vertical index order. Independent of VerticalStagger. |
@@ -505,7 +505,7 @@ error, A1). It replaces no existing keyword; legacy has none for these.
 | StandardName | `standard_name` | string mirror sentinel: MIRRORED, imports only (A13); else allocated: SPECIFIED; else UNCHECKED (legacy) |
 | TypeKind | `typekind` (defaults to R4) | `MAPL_TYPEKIND_MIRROR`: MIRRORED; else SPECIFIED. Never DEFERRED (A12). |
 | Geometry | `geom`, `geom_id`, `regrid_param` | item geom/geom_id: SPECIFIED; `mirror_geom` or an EXPRESSION with no geom: MIRRORED; else DEFERRED (component supplies it; legacy FROM_COMP and absent-means-MIRRORED both map here, A12). Freeze fails if the component never supplies one. With HorizontalDimsSpec NONE the entry is never compared (A14): field creation still needs the item's geom, so it is UNCHECKED, written to Info only when it holds a geom, and still offered `resolve_deferred` (§3.3). |
-| HorizontalDimsSpec | `horizontal_dims_spec` (YAML `dims: z` -> NONE) | defaults to GEOM: SPECIFIED. Explicit NONE: SPECIFIED. MIRRORED via `HORIZONTAL_DIMS_MIRROR` (YAML `dims: mirror`), imports only (A14); an error on an export. GEOM vs NONE in either direction is a mismatch with no transform: `BUILD_TRANSFORM_UNSUPPORTED`, as for every structural kind. |
+| HorizontalDimsSpec | `horizontal_dims_spec` (YAML `dims: z` -> NONE) | defaults to GEOM: SPECIFIED. Explicit NONE: SPECIFIED. MIRRORED via `HORIZONTAL_DIMS_MIRROR` (YAML `dims: mirror`), imports only (A14); an error on an export. GEOM vs NONE in either direction is incompatible: `BUILD_TRANSFORM_INCOMPATIBLE` (A23), reported as a connection conflict. |
 | VerticalGrid | `vertical_grid`, `mirror_vgrid`, `vertical_stagger`; `state_item_variant == VERTICALGRID` (member names) | `vertical_stagger == NONE`: no entry (2D item). Item grid: SPECIFIED. `mirror_vgrid` or an EXPRESSION with no grid: MIRRORED. Else DEFERRED (component grid, M2). VERTICALGRID composite: SPECIFIED with dimensions only. A DEFERRED entry whose component has no vertical grid is dropped at GEOM_B (owner, B3-VerticalCoordinate): such an item is 2D as far as the graph can tell, and legacy distinguishes it only by the same absence. |
 | VerticalStagger | `vertical_stagger`, `mirror_vgrid` | No built-in default (A17). Real stagger (CENTER/EDGE/NONE): SPECIFIED. `VERTICAL_STAGGER_MIRROR`: MIRRORED, imports only; on an export it is an error (A1, Q6). Unallocated with `mirror_vgrid`: MIRRORED (Q-mirror). Other unallocated (or `VERTICAL_STAGGER_INVALID`, which `parse_var_specs` passes when YAML gives no `vertical_dim_spec`): DEFERRED, not an error at advertise (a component such as Statistics may fill it only after other connections resolve). At GEOM_B a DEFERRED stagger becomes SPECIFIED NONE if the component has no vertical grid (A17); otherwise it stays DEFERRED until harvested from the component's realized field or bundle, and freeze fails if it never is. An explicit NONE stays SPECIFIED NONE even though VerticalGrid has no entry, so a 2D export still mismatches a 3D import. EXPRESSION `VERTICAL_STAGGER_INVALID`: MIRRORED. |
 | VerticalOrientation | `vertical_alignment` (`upward`/`downward`/`with_grid`) | Vertical index order relative to physical up/down (Q7). Unspecified or `with_grid`: the item's grid direction, resolved to UP/DOWN once the grid is known (factory for an item grid, `resolve_deferred` for the component grid), DEFERRED until then. Explicit mirror value: MIRRORED, imports only; takes the export's resolved order. A MIRROR stagger does not imply a mirrored orientation. No entry when VerticalGrid has none. |
@@ -761,6 +761,16 @@ A22. Legacy `GeomAspect%matches` skips the geom comparison when both
      `dims: z` items across different horizontal grids (A14). This is a
      deliberate change to the legacy layer, so that a scenario can cover
      the case. Task B3-DimsZLegacy.
+A23. `build_transform` has two failure outcomes. `BUILD_TRANSFORM_UNSUPPORTED`:
+     the pair is legal but its Transform is not built yet (e.g. a regrid
+     before C1); reported as today. `BUILD_TRANSFORM_INCOMPATIBLE`: the pair
+     can never connect (legacy `supports_conversion` false), e.g.
+     HorizontalDimsSpec GEOM vs NONE; reported as a connection conflict
+     naming the kind and both values. Neither raises (`_FAIL`), so other
+     connections in the component still resolve. While the graph runs in
+     shadow mode, a conflict is a warning like every graph failure, and
+     legacy stops the run; once legacy is retired it is fatal. B3-ItemShape
+     uses INCOMPATIBLE for its §4.3 "error" cells. Task B3-IncompatiblePair.
 
 ## Open Questions (deferred to the named B3 task)
 
