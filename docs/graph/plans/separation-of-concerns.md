@@ -562,7 +562,10 @@ in the first one; later ones refine it.
   tree (the count recorded for B3-VerticalStagger and B3-VerticalOrientation),
   but the HEAD worktree's pending run aborted on a NAG gFTL runtime error
   (`Dangling pointer A%TREE`, `set/iterator_procedures.inc`) before running
-  scenarios, so the set could not be compared. One parallel gfortran ESSENTIAL
+  scenarios, so the set could not be compared. That worktree was configured
+  `Debug` while the main `nag/` tree is `Release`, so the abort may be a
+  Debug-only NAG runtime check rather than a HEAD defect (not investigated).
+  One parallel gfortran ESSENTIAL
   run timed out `MAPL.generic.scenarios` (1876 s) because the host laptop
   was asleep during the run; it passed alone in 45 s and in a clean full
   rerun.
@@ -932,7 +935,7 @@ whether `haiku` may author Fortran):
 If `sonnet` passes the debugging replay cleanly, the "sonnet?" entries
 below move from opus to sonnet. If `haiku` passes the mechanical replay,
 it may author D1/A4/B5 with sonnet review.
-- **Status:** debugging replay done: `sonnet` (nasa_litellm claude-sonnet-5-5) passed, so the `(sonnet?)` rows moved to sonnet, with opus kept as reviewer. haiku (nasa_litellm) also passed the debugging replay but hedged one fix (kept the old path as a fallback); mechanical replay skipped by owner decision - try haiku on real tasks with review. Benchmark kept outside the repo, so candidates can't see the answer key: `~/.opencode/plan/calibration/README.md`.
+- **Status:** debugging replay done: `sonnet` (nasa_litellm claude-sonnet-5-5) passed, so the `(sonnet?)` rows moved to sonnet, with opus kept as reviewer. haiku (nasa_litellm) also passed the debugging replay but hedged one fix (kept the old path as a fallback); mechanical replay skipped by owner decision - try haiku on real tasks with review. Benchmark kept outside the repo, so candidates can't see the answer key: `~/.opencode/plan/calibration/README.md`. Real-task trials: haiku authored B3-RenameVerticalGrid (clean) and B3-StringMirror (sonnet review found should-fix items, owner decisions came out of it, no rework session needed); both with sonnet review.
 
 | Task | Author | Reviewer | Notes |
 |---|---|---|---|
@@ -953,6 +956,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-ItemShape | opus | - | D4 ordering, Bracket rule |
 | B3-VerticalCoordinate | sonnet | opus | first reuse of Geometry's DEFERRED machinery |
 | B3-RenameVerticalGrid | haiku | sonnet | mechanical rename, no behavior change; first haiku authoring trial |
+| B3-StringMirror | haiku | sonnet | small factory change; second haiku authoring trial |
 | B3-VerticalStagger | sonnet | opus | DEFERRED/harvest; fixture risk |
 | B3-VerticalOrientation | sonnet | opus | resolve against grid without comparing it |
 | B3-HorizontalDimsSpec | sonnet | opus | changes when Geometry is compared |
@@ -985,7 +989,8 @@ replicate an unreviewed template across B3.x.
 ### Rules for every agent prompt
 1. Never call a failure "pre-existing" without reproducing it on a
    clean baseline (a temporary `git worktree` of HEAD, removed
-   afterward with `git worktree remove`).
+   afterward with `git worktree remove`). Configure the baseline with the
+   same `CMAKE_BUILD_TYPE` as the tree it is compared against.
 2. Build/test NAG then gfortran; put both `ctest -L ESSENTIAL`
    summary lines in the proposed commit message body. Docs-only tasks
    (no source, CMake or test changes) write "docs only; ctest not run"

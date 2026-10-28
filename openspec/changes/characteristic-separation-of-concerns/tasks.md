@@ -53,8 +53,8 @@ nothing for that kind, except the §6.3 materialization references
 the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
-Remaining order (owner): 3.15, 3.5, 3.16, 3.17, 3.18, then 3.7, 3.13,
-3.11, 3.10, 3.12, 3.14 as their open questions allow (3.10: Q9; 3.12: Q2).
+Remaining order (owner): 3.7, 3.13, 3.11, 3.10, 3.12, 3.14 as their open
+questions allow (3.10: Q9; 3.12: Q2).
 Numbers are labels, not run order. Every task whose characteristic has a
 mirror value rejects it on a non-EXPRESSION export in the factory, at
 advertise, with a test (A19; B3-VerticalStagger is the pattern). A
@@ -185,7 +185,13 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       before implementing)
 - [ ] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
-      `write_info`.
+      `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the
+      way B3-StringMirror did: `make_VariableSpec` strips it into a
+      `long_name_mirror` flag so no legacy reader sees the string. Note a
+      mirrored long_name must not fall back to the field dictionary or
+      StandardName. Also add the YAML path test B3-StringMirror skipped:
+      `parse_var_specs` reading `standard_name: "<mirror>"` (and
+      `long_name: "<mirror>"`) sets the flag.
 - [ ] 3.14 B3-SetShared: retarget `set_shared_characteristic` to mutate
       the descriptor (§7.3); check and report whether import-side
       geometry changes (History samplers) are handled. Since B1 it

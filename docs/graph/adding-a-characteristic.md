@@ -350,8 +350,8 @@ NONE (`dims: z`, no horizontal dimensions). It was part of
   Field creation still needs a geom, so the entry may carry one:
   `write_info` writes an UNCHECKED Geometry only when it holds a geom, and
   `resolve_deferred` (now offered to UNCHECKED entries too) fills one that
-  has none from the component default. A NONE export cannot feed a
-  `mirror_geom` import (D2 conflict). This gives UNCHECKED a second meaning
+  has none from the component default. A `mirror_geom` import fed by a NONE
+  export adopts its UNCHECKED entry (design A20). This gives UNCHECKED a second meaning
   for Geometry only; design.md §3.3 records it.
 - Extension order: the plan puts this kind before GEOMETRY. That ordering
   is B3-ItemShape work (`get_extension_order`), so until then mismatches
