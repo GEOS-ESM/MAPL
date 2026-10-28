@@ -520,7 +520,9 @@ stays in history), VerticalOrientation (new, split from VerticalStagger),
 HorizontalDimsSpec (new, split from Geometry), StringMirror (shared
 mirror sentinel for StandardName/LongName), MirrorFlagGuard (A21: reject
 mirror flags on exports in `make_VariableSpec`), DimsZLegacy (A22: legacy
-`GeomAspect` skips the geom comparison for two `dims: z` items). Run order: tasks.md §3 header.
+`GeomAspect` skips the geom comparison for two `dims: z` items),
+IncompatiblePair (A23: `BUILD_TRANSFORM_INCOMPATIBLE`, reported as a
+connection conflict). Run order: tasks.md §3 header.
 - Later cleanup, not a current task (owner): one "Declared by" keyword per
   characteristic, one mirror mechanism (sentinels instead of
   `mirror_geom`/`mirror_vgrid`), and renaming ItemShape and
@@ -655,7 +657,7 @@ in the first one; later ones refine it.
   legacy `GeomAspect` treats it as agreeing with anything and adopts the
   export's spec at connection. Deviations: (1) GEOM vs NONE is
   `BUILD_TRANSFORM_UNSUPPORTED`, like every structural kind, not a hard
-  error (owner has not confirmed); (2) "ordered before GEOMETRY" is
+  error (owner later decided it is a hard error, A23: B3-IncompatiblePair); (2) "ordered before GEOMETRY" is
   not implemented: it belongs with B3-ItemShape's `get_extension_order`
   (the new kind is 14, after GEOMETRY), which is harmless while a NONE
   item's Geometry never mismatches. New scenario
@@ -959,6 +961,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-StringMirror | haiku | sonnet | small factory change; second haiku authoring trial |
 | B3-MirrorFlagGuard | haiku | sonnet | constructor/factory assertions + two fixtures |
 | B3-DimsZLegacy | sonnet | - | legacy GeomAspect change + scenario with two grids; stop if legacy still regrids |
+| B3-IncompatiblePair | sonnet | - | new build_transform outcome; conflict reporting stays kind-agnostic (D6) |
 | B3-VerticalStagger | sonnet | opus | DEFERRED/harvest; fixture risk |
 | B3-VerticalOrientation | sonnet | opus | resolve against grid without comparing it |
 | B3-HorizontalDimsSpec | sonnet | opus | changes when Geometry is compared |

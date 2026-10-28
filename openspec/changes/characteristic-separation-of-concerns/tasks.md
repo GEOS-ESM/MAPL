@@ -53,8 +53,8 @@ nothing for that kind, except the §6.3 materialization references
 the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
-Remaining order (owner): 3.19, 3.20, then 3.7, 3.13, 3.11, 3.10, 3.12,
-3.14 as their open questions allow (3.12: Q2).
+Remaining order (owner): 3.19, 3.20, 3.21, then 3.7, 3.13, 3.11, 3.10,
+3.12, 3.14 as their open questions allow (3.12: Q2).
 Numbers are labels, not run order. Every task whose characteristic has a
 mirror value rejects it on a non-EXPRESSION export in the factory, at
 advertise, with a test (A19; B3-VerticalStagger is the pattern). A
@@ -168,6 +168,24 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       with different geoms match; NONE vs GEOM still does not. Remove the
       deviation sentence from 3.17 and the plan Status. Graph code is not
       touched.
+- [ ] 3.21 B3-IncompatiblePair (A23). Add `BUILD_TRANSFORM_INCOMPATIBLE`
+      beside `BUILD_TRANSFORM_UNSUPPORTED` in
+      `graph/characteristics/StateItemCharacteristic.F90`, with a
+      `report_build_transform_incompatible(rc)` helper (raises nothing).
+      `HorizontalDimsSpecCharacteristic%build_transform` returns it (every
+      SPECIFIED pair that reaches it is GEOM vs NONE). In
+      `graph/ExtensionResolution.F90` (the loop at the `build_transform`
+      call) and its caller in `GraphBuilder_ConnectionResolution_smod.F90`,
+      report an incompatible kind as a connection conflict naming the kind
+      and both values (use `get_signature` or `to_string`; no kind named in
+      GraphBuilder, D6), distinct from the existing "no registered extension
+      provider" warning. No `_FAIL`. Tests: HorizontalDimsSpec returns
+      INCOMPATIBLE both ways; a connection-resolution test shows the
+      conflict text and that other connections in the component still
+      resolve. Update CONVENTIONS.md (the build_transform rule) and
+      adding-a-characteristic.md (HorizontalDimsSpec section). If an
+      existing test asserts UNSUPPORTED for GEOM vs NONE, change it; if any
+      other kind's test changes, stop and report.
 - [x] 3.6 B3-Geometry (M1: item-level entry; DEFERRED; moves
       `_Geometry_smod` inserts behind a helper). Deviations from design
       §2.2/§2.3, owner-approved: a DEFERRED side at connect time waits
@@ -193,7 +211,8 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       only FIELD carries a StandardName entry, so a BRACKET/VECTOR/
       FIELDBUNDLE/EXPRESSION standard-name mismatch is not detected.
       Confirm the shape step adopts the import's name after BRACKET->FIELD,
-      as §4.3 assumes; if not, stop and report.
+      as §4.3 assumes; if not, stop and report. The §4.3 "error" cells
+      return `BUILD_TRANSFORM_INCOMPATIBLE` (A23), not UNSUPPORTED.
 - [x] 3.8 B3-StandardName (delete the subclass status check). Factory
       inserts for FIELD only (§4.3); an undeclared FIELD name is UNCHECKED.
       `write_info` is descriptive (both phases).
