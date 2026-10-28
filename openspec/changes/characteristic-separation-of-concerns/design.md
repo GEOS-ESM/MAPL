@@ -749,13 +749,25 @@ A20. An UNCHECKED export paired with a MIRRORED import adopts (§2.2):
      bad case turns up. Decided during B3-StringMirror (an export with no
      declared standard_name feeding a `MAPL_STRING_MIRROR` import is the
      common History case).
-A21. Mirror requests that are flags or sentinels (`mirror_geom`,
-     `mirror_vgrid`, `MAPL_STRING_MIRROR`) are rejected on an export by
-     `make_VariableSpec`, so both graph and legacy-only modes see the
-     error. `mirror_geom`/`mirror_vgrid` are allowed on an EXPRESSION
-     export (it is MIRRORED for those kinds anyway). The factories keep the
-     same assertion (A19), so a hand-built VariableSpec is caught too.
-     Task B3-MirrorFlagGuard.
+A21. No mirror of any kind on an export, unless the item is an EXPRESSION
+     (refines A19; one generic rule, no per-characteristic cases). Two
+     checks, neither naming a characteristic:
+     1. `make_VariableSpec` (both graph and legacy-only modes): a
+        `VariableSpec%requests_mirror()` helper is true when any field
+        holds its mirror value (`MAPL_TYPEKIND_MIRROR`, `mirror_geom`,
+        `mirror_vgrid`, `HORIZONTAL_DIMS_MIRROR`, `VERTICAL_STAGGER_MIRROR`,
+        `vertical_alignment = 'mirror'`, `ungridded_dims%is_mirror()`,
+        `standard_name_mirror`, ...). One `_ASSERT` rejects it on a
+        non-EXPRESSION export. The helper lists each field's spelling until
+        the later one-mirror-mechanism cleanup; a characteristic that adds a
+        mirror value adds it there.
+     2. `VariableSpec%make_characteristics` (graph path; also catches a
+        hand-built `VariableSpec`): after the factory loop, a non-EXPRESSION
+        export whose descriptor holds any MIRRORED entry is an error naming
+        the kind. This replaces the per-factory export assertions.
+     Declaring is separate from resolving: an EXPRESSION may declare any
+     mirror, and whether a MIRRORED expression export resolves is still the
+     §2.4 allowlist. Task B3-MirrorFlagGuard.
 A22. Legacy `GeomAspect%matches` skips the geom comparison when both
      sides' `horizontal_dims_spec` is NONE, so legacy also connects two
      `dims: z` items across different horizontal grids (A14). This is a
