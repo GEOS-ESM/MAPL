@@ -749,6 +749,13 @@ A20. An UNCHECKED export paired with a MIRRORED import adopts (§2.2):
      bad case turns up. Decided during B3-StringMirror (an export with no
      declared standard_name feeding a `MAPL_STRING_MIRROR` import is the
      common History case).
+A21. Mirror requests that are flags or sentinels (`mirror_geom`,
+     `mirror_vgrid`, `MAPL_STRING_MIRROR`) are rejected on an export by
+     `make_VariableSpec`, so both graph and legacy-only modes see the
+     error. `mirror_geom`/`mirror_vgrid` are allowed on an EXPRESSION
+     export (it is MIRRORED for those kinds anyway). The factories keep the
+     same assertion (A19), so a hand-built VariableSpec is caught too.
+     Task B3-MirrorFlagGuard.
 
 ## Open Questions (deferred to the named B3 task)
 
