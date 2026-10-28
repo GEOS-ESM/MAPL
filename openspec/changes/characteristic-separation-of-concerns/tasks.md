@@ -128,7 +128,10 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       stop and report before adding it. Tests: a new `dims: z` scenario
       connecting across different horizontal grids, and failure tests for
       both mismatch directions. This replaces the "no horizontal geom"
-      check planned for ItemShape/B4.
+      check planned for ItemShape/B4. Deviation: `dims_z_field` uses one
+      cap geometry for both children (the author reports that legacy still
+      compares geoms, so a scenario cannot differ); connecting across
+      different grids is covered only by unit tests.
 - [ ] 3.18 B3-StringMirror (A13). Add one named string sentinel to
       `VariableSpec`; the StandardName factory maps it to MIRRORED
       (imports only; an export is an error). LongName (3.13) reuses it.
@@ -204,6 +207,14 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `insert_geom_id_characteristic` import in
       `GraphBuilder_Geometry_smod.F90` (these name concrete
       `*Characteristic` types in `select type`, so 4.4 depends on this).
+      Precondition (B3-HorizontalDimsSpec follow-up): harvest skips a node
+      with no DEFERRED kinds, so a `dims: z` (NONE) export in a component
+      with no default geom keeps an UNCHECKED Geometry with no geom, and a
+      descriptor-built field for it would have none. Make harvest also
+      visit a node whose UNCHECKED Geometry holds no geom (a characteristic
+      query, not a GraphBuilder kind check), and add a
+      `Test_GraphGeometryHook` case: such an export gets its geom from the
+      realized field.
 - [ ] 4.3 Delete `GraphStateItem%ordering` and
       `characteristic_ordering_table`; replace their tests with golden
       `get_extension_order` tests per shape.
