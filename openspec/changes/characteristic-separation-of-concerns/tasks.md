@@ -148,6 +148,18 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       vertical grid or make it an import, keeping the test's intent that a
       non-DEFERRED entry survives GEOM_B) and `advertise_undeclared_stagger`
       (set `mirror_geom` only for an import; give an export a `geom_id`).
+      Also set `state_intent = ESMF_STATEINTENT_IMPORT` (owner-approved) in
+      the seven `Test_VariableSpecCharacteristics.pf` tests that inherit
+      `make_spec()`'s export default while setting a flag:
+      `test_mirror_geom_is_mirrored`,
+      `test_declared_geom_id_overrides_mirror_geom`,
+      `test_none_item_ignores_mirror_geom`, `test_mirror_vgrid_is_mirrored`,
+      `test_declared_vgrid_overrides_mirror_vgrid`,
+      `test_mirror_vgrid_mirrors_vertical_orientation`,
+      `test_mirror_vgrid_without_stagger_is_mirrored`; their assertions stay
+      the same. The export check comes first: a flag on a non-EXPRESSION
+      export is an error even when a declared geom/grid would override it
+      (one rejection test covers flag plus declared value).
       Tests: constructor rejects a FIELD export with each flag, accepts an
       EXPRESSION export with `mirror_geom`/`mirror_vgrid`, accepts imports;
       each factory rejects a hand-built FIELD export. No production caller
