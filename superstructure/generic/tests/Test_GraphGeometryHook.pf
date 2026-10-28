@@ -696,13 +696,13 @@ contains
       call make_outer_meta('vgrid_comp', gc_with, meta_with, _RC)
       call meta_with%set_vertical_grid(vgrid, _RC)
       call advertise_and_hook(meta_with, _RC)
-      call check_item(meta_with, 'D', is_present=.true., _RC)
-      call check_item(meta_with, 'M', is_present=.true., _RC)
+      call check_item(meta_with, 'D', ESMF_STATEINTENT_EXPORT, is_present=.true., _RC)
+      call check_item(meta_with, 'M', ESMF_STATEINTENT_IMPORT, is_present=.true., _RC)
 
       call make_outer_meta('no_vgrid_comp', gc_without, meta_without, _RC)
       call advertise_and_hook(meta_without, _RC)
-      call check_item(meta_without, 'D', is_present=.false., _RC)
-      call check_item(meta_without, 'M', is_present=.true., _RC)
+      call check_item(meta_without, 'D', ESMF_STATEINTENT_EXPORT, is_present=.false., _RC)
+      call check_item(meta_without, 'M', ESMF_STATEINTENT_IMPORT, is_present=.true., _RC)
 
       call set_graph_mode(GRAPH_MODE_REGISTRY)
       _UNUSED_DUMMY(this)
@@ -722,7 +722,7 @@ contains
          deferred_spec%short_name = 'D'
          deferred_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
          deferred_spec%geom_id = mapl_new_GeomId(1)
-         mirror_spec%state_intent = ESMF_STATEINTENT_EXPORT
+         mirror_spec%state_intent = ESMF_STATEINTENT_IMPORT
          mirror_spec%short_name = 'M'
          mirror_spec%geom_id = mapl_new_GeomId(1)
          mirror_spec%mirror_vgrid = .true.
@@ -734,9 +734,10 @@ contains
          _RETURN(_SUCCESS)
       end subroutine advertise_and_hook
 
-      subroutine check_item(meta, name, is_present, rc)
+      subroutine check_item(meta, name, intent, is_present, rc)
          type(OuterMetaComponent), pointer, intent(inout) :: meta
          character(*), intent(in) :: name
+         type(ESMF_StateIntent_Flag), intent(in) :: intent
          logical, intent(in) :: is_present
          integer, optional, intent(out) :: rc
 
@@ -747,7 +748,7 @@ contains
          integer :: status
 
          graph => meta%get_component_graph()
-         id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, name))
+         id => graph%get_resource_index(item_key(intent, name))
          @assert_that(associated(id), is(true()))
          node => graph%get_node(id)
          select type (node)
@@ -830,7 +831,11 @@ contains
       end if
       var_spec%state_intent = intent
       var_spec%short_name = 'T'
-      var_spec%mirror_geom = .true.
+      if (intent == ESMF_STATEINTENT_IMPORT) then
+         var_spec%mirror_geom = .true.
+      else
+         var_spec%geom_id = mapl_new_GeomId(1)
+      end if
       comp_spec => meta%get_component_spec()
       call comp_spec%add_var_spec(var_spec)
       call gb%advertise(meta, _RC)

@@ -540,13 +540,14 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes and B3-StringMirror done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror and B3-MirrorFlagGuard done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
   `Plan-Task: B3-Attributes`, `Plan-Task: B3-RenameVerticalGrid`,
   `Plan-Task: B3-VerticalStagger`, `Plan-Task: B3-VerticalOrientation`,
-  `Plan-Task: B3-HorizontalDimsSpec`, `Plan-Task: B3-StringMirror`); others not started.
+  `Plan-Task: B3-HorizontalDimsSpec`, `Plan-Task: B3-StringMirror`,
+  `Plan-Task: B3-MirrorFlagGuard`); others not started.
   B3-StringMirror: `VariableSpec` exports `MAPL_STRING_MIRROR` (`'<mirror>'`;
   YAML `standard_name: "<mirror>"`), shared with the later LongName task.
   `make_VariableSpec` does not store it: it sets `standard_name_mirror` and
@@ -571,6 +572,18 @@ in the first one; later ones refine it.
   run timed out `MAPL.generic.scenarios` (1876 s) because the host laptop
   was asleep during the run; it passed alone in 45 s and in a clean full
   rerun.
+  B3-MirrorFlagGuard (done, owner-approved fixture change): `make_VariableSpec`
+  rejects `MAPL_STRING_MIRROR` on any export and `mirror_geom`/`mirror_vgrid`
+  on a non-EXPRESSION export (A21); the Geometry and VerticalGrid factories
+  assert the flags too (A19). Fixtures: `Test_GraphGeometryHook`
+  `advertise_and_hook` makes `M` an import (`check_item` takes an intent),
+  `advertise_undeclared_stagger` uses `mirror_geom` for imports only and a
+  `geom_id` for exports; seven `Test_VariableSpecCharacteristics` tests set
+  `ESMF_STATEINTENT_IMPORT` (owner-approved). Constructor tests check the
+  message via `@assertExceptionRaised`. gfortran rejects `&` continuations
+  inside `_ASSERT` and identifiers over 63 characters; both avoided.
+  Deviation: the plan's table row (line 973) says to drop the per-factory
+  asserts; tasks.md 3.19 keeps them, so they stay (tasks.md wins).
   B3-Attributes: `AttributesCharacteristic` gained `write_info`, a
   successful no-op (no Info key; design §3.4), `is_structural()` stays
   false. The factory (`make_attributes_characteristic`) always gives

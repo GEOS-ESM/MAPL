@@ -173,6 +173,10 @@ contains
 
       _RETURN_UNLESS(carries_field_description(spec%itemType) .or. spec%itemType == MAPL_STATEITEM_SERVICE)
 
+      if (spec%mirror_geom) then
+         _ASSERT(spec%state_intent == ESMF_STATEINTENT_IMPORT .or. spec%itemType == MAPL_STATEITEM_EXPRESSION, 'mirror_geom is only valid on an import or an expression: ' // spec%short_name)
+      end if
+
       compared = .not. (has_horizontal_dims_spec(spec%itemType) .and. spec%horizontal_dims_spec == HORIZONTAL_DIMS_NONE)
 
       if (allocated(spec%geom)) then
@@ -247,6 +251,9 @@ contains
       end if
 
       _RETURN_UNLESS(carries_field_description(spec%itemType))
+      if (spec%mirror_vgrid) then
+         _ASSERT(spec%state_intent == ESMF_STATEINTENT_IMPORT .or. spec%itemType == MAPL_STATEITEM_EXPRESSION, 'mirror_vgrid is only valid on an import or an expression: ' // spec%short_name)
+      end if
       if (allocated(spec%vertical_stagger)) then
          _RETURN_IF(spec%vertical_stagger%is_none())
       end if

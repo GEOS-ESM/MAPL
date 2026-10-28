@@ -345,6 +345,82 @@ contains
    end subroutine test_make_VariableSpec_strips_mirror_sentinel
 
    @test
+   subroutine test_make_VariableSpec_rejects_mirror_sentinel_on_export()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           standard_name=MAPL_STRING_MIRROR, rc=status)
+      @assertExceptionRaised('MAPL_STRING_MIRROR is only valid on an import: X')
+   end subroutine test_make_VariableSpec_rejects_mirror_sentinel_on_export
+
+   @test
+   subroutine test_make_VariableSpec_rejects_mirror_flags_on_field_export()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           mirror_geom=.true., rc=status)
+      @assertExceptionRaised('mirror_geom/mirror_vgrid are only valid on an import or an expression: X')
+   end subroutine test_make_VariableSpec_rejects_mirror_flags_on_field_export
+
+   @test
+   subroutine test_make_VariableSpec_rejects_mirror_vgrid_on_field_export()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           mirror_vgrid=.true., rc=status)
+      @assertExceptionRaised('mirror_geom/mirror_vgrid are only valid on an import or an expression: X')
+   end subroutine test_make_VariableSpec_rejects_mirror_vgrid_on_field_export
+
+   @test
+   subroutine test_make_VariableSpec_accepts_export_expression_mirror()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_EXPRESSION, mirror_geom=.true., mirror_vgrid=.true., rc=status)
+      @assertEqual(0, status)
+   end subroutine test_make_VariableSpec_accepts_export_expression_mirror
+
+   @test
+   subroutine test_make_VariableSpec_accepts_mirror_flags_on_import()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', &
+           mirror_geom=.true., mirror_vgrid=.true., rc=status)
+      @assertEqual(0, status)
+   end subroutine test_make_VariableSpec_accepts_mirror_flags_on_import
+
+   @test
+   subroutine test_geometry_factory_rejects_hand_built_mirror_geom_export()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%mirror_geom = .true.
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror_geom is only valid on an import or an expression: X')
+      @assertExceptionRaised('status=1')
+   end subroutine test_geometry_factory_rejects_hand_built_mirror_geom_export
+
+   @test
+   subroutine test_vgrid_factory_rejects_hand_built_mirror_export()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%mirror_vgrid = .true.
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror_vgrid is only valid on an import or an expression: X')
+      @assertExceptionRaised('status=1')
+   end subroutine test_vgrid_factory_rejects_hand_built_mirror_export
+
+   @test
    subroutine test_shapes_without_standard_name_get_no_entry()
       type(ESMF_StateItem_Flag) :: shapes(11)
       type(StateItemDescriptor) :: descriptor
@@ -508,6 +584,7 @@ contains
       integer :: status
 
       var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
       var_spec%mirror_geom = .true.
       @assertTrue(geometry_status(var_spec, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
       @assertEqual(0, status)
@@ -520,6 +597,7 @@ contains
       integer :: status
 
       var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
       var_spec%mirror_geom = .true.
       var_spec%geom_id = mapl_new_GeomId(7)
       @assertTrue(geometry_status(var_spec, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
@@ -633,6 +711,7 @@ contains
       integer :: status
 
       var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
       var_spec%horizontal_dims_spec = HORIZONTAL_DIMS_NONE
       var_spec%mirror_geom = .true.
       @assertTrue(geometry_status(var_spec, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
@@ -765,6 +844,7 @@ contains
       integer :: status
 
       var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
       var_spec%mirror_vgrid = .true.
       @assertTrue(vcoord_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
       @assertEqual(0, status)
@@ -780,6 +860,7 @@ contains
 
       call vgrid%set_id(5)
       var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
       var_spec%vertical_grid = vgrid
       var_spec%mirror_vgrid = .true.
       @assertTrue(vcoord_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
@@ -932,6 +1013,7 @@ contains
       integer :: status
 
       var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
       var_spec%mirror_vgrid = .true.
       @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
       @assertEqual(0, status)
@@ -1057,6 +1139,7 @@ contains
       integer :: status
 
       var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
       var_spec%mirror_vgrid = .true.
       @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
       @assertEqual(0, status)

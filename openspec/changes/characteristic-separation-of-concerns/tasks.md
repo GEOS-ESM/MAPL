@@ -135,7 +135,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
 - [x] 3.18 B3-StringMirror (A13). Add one named string sentinel to
       `VariableSpec`; the StandardName factory maps it to MIRRORED
       (imports only; an export is an error). LongName (3.13) reuses it.
-- [ ] 3.19 B3-MirrorFlagGuard (A21). In `make_VariableSpec`
+- [x] 3.19 B3-MirrorFlagGuard (A21). In `make_VariableSpec`
       (`specs/VariableSpec.F90`, beside the `vector_basis_kind` check),
       reject on an export: `mirror_geom` or `mirror_vgrid` unless the item
       is an EXPRESSION, and `MAPL_STRING_MIRROR` (`standard_name_mirror`)

@@ -179,6 +179,9 @@ First kind with a DEFERRED value (a value the component supplies later).
 | nothing declared | EXPRESSION | MIRRORED (the §2.4 allowlist case) |
 | any | STATE, WILDCARD, other flags | none |
 
+- A mirror request on an export is rejected at advertise: `mirror_geom` is
+  valid only on an import or an EXPRESSION (`make_VariableSpec` and the
+  factory both assert it; B3-MirrorFlagGuard).
 - A DEFERRED entry is filled by `StateItemDescriptor%resolve_deferred`,
   which offers a `CharacteristicDefaults` (the component's geom and
   geom id) to every DEFERRED characteristic. `StateItemCharacteristic`'s
@@ -250,6 +253,9 @@ Second kind with a DEFERRED value; it reuses Geometry's machinery.
   the owner's vertical grid.
 - Test fixtures that want a 2D item set `vertical_stagger = NONE`
   (`make_var` does).
+- A mirror request on an export is rejected at advertise: `mirror_vgrid` is
+  valid only on an import or an EXPRESSION (`make_VariableSpec` and the
+  factory both assert it; B3-MirrorFlagGuard).
 
 ## VerticalStagger as implemented
 
@@ -407,6 +413,9 @@ A shared sentinel, not a characteristic of its own. `VariableSpec` exports
   becomes UNCHECKED: there is nothing to copy and nothing is compared. This
   is the generic (UNCHECKED, MIRRORED) rule in the descriptor, for all kinds.
 - LongName (B3-LongName) reuses the same sentinel and the same rule.
+- A `MAPL_STRING_MIRROR` request on an export is rejected in
+  `make_VariableSpec` (so legacy-only mode also sees it, A21) and again by the
+  StandardName factory (A19).
 
 ## Attributes as implemented
 

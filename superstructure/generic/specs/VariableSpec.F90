@@ -396,6 +396,13 @@ contains
       _SET_OPTIONAL(mirror_vgrid)
       _SET_OPTIONAL(restart_mode)
 
+      if (state_intent == ESMF_STATEINTENT_EXPORT) then
+         _ASSERT(.not. var_spec%standard_name_mirror, 'MAPL_STRING_MIRROR is only valid on an import: ' // short_name)
+         if (var_spec%itemType /= MAPL_STATEITEM_EXPRESSION) then
+            _ASSERT(.not. (var_spec%mirror_geom .or. var_spec%mirror_vgrid), 'mirror_geom/mirror_vgrid are only valid on an import or an expression: ' // short_name)
+         end if
+      end if
+
       var_spec%vector_basis_kind = MAPL_VECTOR_BASIS_KIND_NS
       if (present(vector_basis_kind)) then
          _ASSERT(any(var_spec%itemType == [MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET]), 'vector_basis_kind can only be specified for vectors')
