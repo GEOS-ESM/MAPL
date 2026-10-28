@@ -167,7 +167,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       collection, `history_1`, `statistics_real` are all imports); if one
       does, stop and report. Update adding-a-characteristic.md (Geometry,
       VerticalGrid and StringMirror sections).
-- [ ] 3.19b B3-MirrorGeneric (A21 as revised: no mirror of any kind on a
+- [x] 3.19b B3-MirrorGeneric (A21 as revised: no mirror of any kind on a
       non-EXPRESSION export; one rule, no per-characteristic cases).
       3.19 landed the per-flag version; this replaces it. Two checks, as in
       design.md A21:

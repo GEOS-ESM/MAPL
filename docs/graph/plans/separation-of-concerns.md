@@ -573,6 +573,19 @@ in the first one; later ones refine it.
   run timed out `MAPL.generic.scenarios` (1876 s) because the host laptop
   was asleep during the run; it passed alone in 45 s and in a clean full
   rerun.
+  B3-MirrorGeneric (tasks.md 3.19b, done, not committed): A21 is one rule.
+  `VariableSpec%requests_mirror()` lists each explicit mirror spelling;
+  `make_VariableSpec` asserts `not requests_mirror()` on a non-EXPRESSION
+  export, and `make_characteristics` runs a post-loop check that fails on any
+  MIRRORED entry on such an export, naming the kind. The per-factory export
+  asserts are removed. Deviation: `requests_mirror()` excludes the
+  EXPRESSION-default MIRRORED entries (an expression is MIRRORED without
+  asking). Owner-approved fixture changes: `typekind` and `ungridded_dims`
+  mirror tests now use import intent. `test_shapes_without_standard_name_get_no_entry`,
+  `..._ungridded_dims_...`, `..._attributes_...` reset the descriptor per shape
+  (they leaked a BRACKET-family MIRRORED geometry into later shapes).
+  Factory-path tests expect the full message including ` (<KIND>)` plus
+  `status=1`; `_ASSERT` in the check records a message as well as setting rc.
   B3-MirrorFlagGuard (done, owner-approved fixture change): `make_VariableSpec`
   rejects `MAPL_STRING_MIRROR` on any export and `mirror_geom`/`mirror_vgrid`
   on a non-EXPRESSION export (A21); the Geometry and VerticalGrid factories

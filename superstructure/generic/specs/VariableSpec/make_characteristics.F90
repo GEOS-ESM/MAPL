@@ -7,13 +7,16 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
         VERTICAL_STAGGER_CHARACTERISTIC_KIND, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
         HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
-        CHARACTERISTIC_STATUS_DEFERRED
+        CHARACTERISTIC_STATUS_DEFERRED, operator(==)
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic, UNKNOWN_STANDARD_NAME
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
-   use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_MIRROR, operator(==)
+   use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_NONE, operator(==)
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap, &
+        StateItemCharacteristicMapIterator, operator(/=)
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
@@ -68,8 +71,44 @@ contains
          call factories(i)%make(this, descriptor, _RC)
       end do
 
+      if (this%state_intent == ESMF_STATEINTENT_EXPORT .and. this%itemType /= MAPL_STATEITEM_EXPRESSION) then
+         call check_no_mirrored_entry(this, descriptor, _RC)
+      end if
+
       _RETURN(_SUCCESS)
    end subroutine make_characteristics
+
+   ! Backstop for a hand-built spec that bypasses make_VariableSpec. Names the
+   ! kind so the error points at the characteristic that resolved MIRRORED.
+   subroutine check_no_mirrored_entry(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(in) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StateItemCharacteristicMap) :: characteristics
+      type(StateItemCharacteristicMapIterator) :: iter
+      class(StateItemCharacteristic), pointer :: c
+      character(:), allocatable :: msg, kind_name
+      type(StateItemCharacteristicKind) :: kind
+
+      characteristics = descriptor%get_characteristics()
+      associate (e => characteristics%ftn_end())
+         iter = characteristics%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            c => iter%second()
+            if (c%get_status() == CHARACTERISTIC_STATUS_MIRRORED) then
+               kind = iter%first()
+               kind_name = kind%to_string()
+               msg = 'mirror is only valid on an import or an expression: ' // spec%short_name // ' (' // kind_name // ')'
+               _ASSERT(.false., msg)
+            end if
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine check_no_mirrored_entry
 
    ! Declared units are SPECIFIED. Undeclared (or UNKNOWN_UNITS) units are
    ! UNCHECKED: they match anything and are never converted. Only shapes
@@ -173,10 +212,6 @@ contains
 
       _RETURN_UNLESS(carries_field_description(spec%itemType) .or. spec%itemType == MAPL_STATEITEM_SERVICE)
 
-      if (spec%mirror_geom) then
-         _ASSERT(spec%state_intent == ESMF_STATEINTENT_IMPORT .or. spec%itemType == MAPL_STATEITEM_EXPRESSION, 'mirror_geom is only valid on an import or an expression: ' // spec%short_name)
-      end if
-
       compared = .not. (has_horizontal_dims_spec(spec%itemType) .and. spec%horizontal_dims_spec == HORIZONTAL_DIMS_NONE)
 
       if (allocated(spec%geom)) then
@@ -207,7 +242,7 @@ contains
    end subroutine make_geometry_characteristic
 
    ! SPECIFIED with GEOM unless the item declares NONE. HORIZONTAL_DIMS_MIRROR
-   ! is MIRRORED, imports only. Only Field and FieldBundle payloads have one:
+   ! is MIRRORED (requests_mirror rejects it on a non-EXPRESSION export). Only Field and FieldBundle payloads have one:
    ! an EXPRESSION or SERVICE has no horizontal layout of its own.
    subroutine make_horizontal_dims_spec_characteristic(spec, descriptor, rc)
       class(VariableSpec), intent(in) :: spec
@@ -217,10 +252,6 @@ contains
       integer :: status
 
       _RETURN_UNLESS(has_horizontal_dims_spec(spec%itemType))
-
-      if (spec%horizontal_dims_spec == HORIZONTAL_DIMS_MIRROR) then
-         _ASSERT(spec%state_intent == ESMF_STATEINTENT_IMPORT, 'HORIZONTAL_DIMS_MIRROR is only valid on an import: ' // spec%short_name)
-      end if
 
       call descriptor%set_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
            HorizontalDimsSpecCharacteristic(spec%horizontal_dims_spec), _RC)
@@ -251,9 +282,6 @@ contains
       end if
 
       _RETURN_UNLESS(carries_field_description(spec%itemType))
-      if (spec%mirror_vgrid) then
-         _ASSERT(spec%state_intent == ESMF_STATEINTENT_IMPORT .or. spec%itemType == MAPL_STATEITEM_EXPRESSION, 'mirror_vgrid is only valid on an import or an expression: ' // spec%short_name)
-      end if
       if (allocated(spec%vertical_stagger)) then
          _RETURN_IF(spec%vertical_stagger%is_none())
       end if
@@ -288,7 +316,6 @@ contains
       _RETURN_UNLESS(spec%itemType == MAPL_STATEITEM_FIELD)
 
       if (spec%standard_name_mirror) then
-         _ASSERT(spec%state_intent == ESMF_STATEINTENT_IMPORT, 'MAPL_STRING_MIRROR is only valid on an import: ' // spec%short_name)
          call standard_name%set_status(CHARACTERISTIC_STATUS_MIRRORED)
          call descriptor%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, standard_name, _RC)
          _RETURN(_SUCCESS)
@@ -352,10 +379,6 @@ contains
          real_stagger = declared .and. .not. spec%vertical_stagger%is_mirror()
       end if
 
-      if (declared .and. .not. real_stagger .and. spec%state_intent == ESMF_STATEINTENT_EXPORT) then
-         _ASSERT(spec%itemType == MAPL_STATEITEM_EXPRESSION, 'VERTICAL_STAGGER_MIRROR is only valid on an import or an expression: ' // spec%short_name)
-      end if
-
       if (real_stagger) then
          stagger_char = VerticalStaggerCharacteristic(spec%vertical_stagger)
       else if (declared .or. spec%itemType == MAPL_STATEITEM_EXPRESSION .or. spec%mirror_vgrid) then
@@ -402,10 +425,6 @@ contains
          is_mirror = (requested == 'mirror')
          if (.not. is_mirror) alignment = VerticalAlignment(requested)
          _ASSERT(alignment /= VALIGN_INVALID, 'unknown vertical_alignment: ' // spec%vertical_alignment)
-      end if
-
-      if (is_mirror .and. spec%state_intent == ESMF_STATEINTENT_EXPORT) then
-         _ASSERT(spec%itemType == MAPL_STATEITEM_EXPRESSION, 'vertical_alignment mirror is only valid on an import or an expression: ' // spec%short_name)
       end if
 
       if (is_mirror) then

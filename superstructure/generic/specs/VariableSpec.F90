@@ -37,6 +37,7 @@ module mapl_VariableSpec_mod
    use mapl_UngriddedDims_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_HorizontalDimsSpec_mod
+   use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
     use mapl_VirtualConnectionPt_mod
     use mapl_ActualConnectionPt_mod
     use mapl_VerticalGrid_mod
@@ -280,6 +281,7 @@ module mapl_VariableSpec_mod
       procedure :: make_ClassAspect
 
       procedure :: make_characteristics
+      procedure :: requests_mirror
 
       procedure :: declare_member
       procedure :: has_member
@@ -396,11 +398,8 @@ contains
       _SET_OPTIONAL(mirror_vgrid)
       _SET_OPTIONAL(restart_mode)
 
-      if (state_intent == ESMF_STATEINTENT_EXPORT) then
-         _ASSERT(.not. var_spec%standard_name_mirror, 'MAPL_STRING_MIRROR is only valid on an import: ' // short_name)
-         if (var_spec%itemType /= MAPL_STATEITEM_EXPRESSION) then
-            _ASSERT(.not. (var_spec%mirror_geom .or. var_spec%mirror_vgrid), 'mirror_geom/mirror_vgrid are only valid on an import or an expression: ' // short_name)
-         end if
+      if (state_intent == ESMF_STATEINTENT_EXPORT .and. var_spec%itemType /= MAPL_STATEITEM_EXPRESSION) then
+         _ASSERT(.not. var_spec%requests_mirror(), 'mirror is only valid on an import or an expression: ' // short_name)
       end if
 
       var_spec%vector_basis_kind = MAPL_VECTOR_BASIS_KIND_NS
@@ -428,6 +427,24 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function make_VariableSpec
+
+   ! True when the spec explicitly asks for a mirror. Expression defaults are
+   ! not requests: an EXPRESSION has no geometry, grid or stagger of its own
+   ! and is MIRRORED without asking.
+   logical function requests_mirror(this)
+      class(VariableSpec), intent(in) :: this
+
+      requests_mirror = this%standard_name_mirror .or. this%mirror_geom .or. this%mirror_vgrid
+      requests_mirror = requests_mirror .or. this%typekind == MAPL_TYPEKIND_MIRROR
+      requests_mirror = requests_mirror .or. this%horizontal_dims_spec == HORIZONTAL_DIMS_MIRROR
+      requests_mirror = requests_mirror .or. this%ungridded_dims%is_mirror()
+      if (allocated(this%vertical_stagger)) then
+         requests_mirror = requests_mirror .or. this%vertical_stagger%is_mirror()
+      end if
+      if (allocated(this%vertical_alignment)) then
+         requests_mirror = requests_mirror .or. (ESMF_UtilStringLowerCase(trim(this%vertical_alignment)) == 'mirror')
+      end if
+   end function requests_mirror
 
    ! Apply field dictionary defaults for units and long_name.
    ! Lookup key priority:
