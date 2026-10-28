@@ -144,6 +144,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `MakeDirectory`, `RemoveDirectory` and `RemoveFile` in `utils/OS.F90` no
+  longer build unquoted `mkdir`/`rmdir`/`rm` shell commands for
+  `execute_command_line` (GEOS-ESM/MAPL#5464). They call C `mkdir`, `rmdir`
+  and `unlink` directly (`bind(C)`), so paths containing spaces or shell
+  metacharacters work and no shell is forked. `force` keeps its meaning
+  (`mkdir -p` / `rm -f` semantics). The root-only `make_directory` helper in
+  `CapDriver.F90` was removed in favor of calling `mapl_MakeDirectory` on the
+  root process directly. `test_DirPath.pf`, `pfio_ctest_io.F90` and the
+  `raw_bw` benchmark now use the OS utilities instead of shelling out, and
+  `test_OS.pf` gained coverage of the whole OS API.
+
 - Fixed logging of resource values that contain `%` (e.g. file-name templates
   such as `%y4%m2%d2`): the HConfig value loggers passed the message to
   pFlogger as its format string, which then failed with "not enough position
