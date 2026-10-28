@@ -288,9 +288,10 @@ HorizontalDimsSpec is NONE still needs a geom for field creation
 Geometry entry is UNCHECKED and may carry a geom. `GeometryCharacteristic`
 writes an UNCHECKED entry only when it holds a geom, and
 `resolve_deferred` fills an UNCHECKED entry that has none from the
-component default (it stays UNCHECKED). D2 therefore treats a NONE export
-paired with a MIRRORED Geometry import as a conflict, which is intended: a
-NONE item has no geometry to mirror.
+component default (it stays UNCHECKED). Under A20 a MIRRORED Geometry
+import paired with a NONE export adopts the export's UNCHECKED entry,
+including any geom it carries; the HorizontalDimsSpec pair still decides
+whether the connection is legal.
 
 #### §3.4 Characteristic -> setter keyword
 
@@ -742,6 +743,12 @@ A19. Info is not write-only. Graph code may read it back through
      value. A MIRROR value on an export is an error raised at advertise by
      the factory, except for an EXPRESSION, where many characteristics
      (including VerticalStagger) may be MIRROR.
+A20. An UNCHECKED export paired with a MIRRORED import adopts (§2.2):
+     the import takes a copy of the export's entry and is UNCHECKED, so it
+     matches. The rule holds for every kind; refine it per kind only if a
+     bad case turns up. Decided during B3-StringMirror (an export with no
+     declared standard_name feeding a `MAPL_STRING_MIRROR` import is the
+     common History case).
 
 ## Open Questions (deferred to the named B3 task)
 
