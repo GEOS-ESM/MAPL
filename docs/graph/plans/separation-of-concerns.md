@@ -587,7 +587,8 @@ in the first one; later ones refine it.
   Factory-path tests expect the full message including ` (<KIND>)` plus
   `status=1`; `_ASSERT` in the check records a message as well as setting rc.
   Sonnet review (after landing): accept with follow-ups. Owner accepted the
-  map copy in `check_no_mirrored_entry` as is. Open, for a later task: stale
+  map copy in `check_no_mirrored_entry` as is. The rest is folded into
+  tasks.md 3.20 (owner): stale
   per-kind "error on an export" text in `make_characteristics.F90` header
   comments and `adding-a-characteristic.md` (VerticalStagger,
   VerticalOrientation, StringMirror, HorizontalDimsSpec sections), and
@@ -1014,7 +1015,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-StringMirror | haiku | sonnet | small factory change; second haiku authoring trial |
 | B3-MirrorFlagGuard | haiku | sonnet | constructor/factory assertions + two fixtures |
 | B3-MirrorGeneric | haiku | sonnet | one generic export check (constructor + after factory loop); drop per-factory export asserts |
-| B3-DimsZLegacy | sonnet | - | legacy GeomAspect change + scenario with two grids; stop if legacy still regrids |
+| B3-DimsZLegacy | sonnet | - | legacy GeomAspect change + scenario with two grids; stop if legacy still regrids; plus MirrorGeneric review follow-ups (docs/comments, tests) |
 | B3-IncompatiblePair | sonnet | - | new build_transform outcome; conflict reporting stays kind-agnostic (D6) |
 | B3-VerticalStagger | sonnet | opus | DEFERRED/harvest; fixture risk |
 | B3-VerticalOrientation | sonnet | opus | resolve against grid without comparing it |

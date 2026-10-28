@@ -228,6 +228,24 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       rejection tests in `Test_VariableSpecCharacteristics.pf`
       (`test_make_VariableSpec_rejects_*`, `test_export_mirror_flag_with_*`)
       check only the message; add a check that `status` is nonzero.
+      Also (B3-MirrorGeneric review, owner: fold here):
+      (a) Replace the stale per-kind "imports only" / "error on an export"
+      text with a one-line pointer to the generic rule (A21):
+      `make_characteristics.F90` header comments of the HorizontalDimsSpec,
+      VerticalStagger and VerticalOrientation factories, and
+      `adding-a-characteristic.md` (VerticalStagger and VerticalOrientation
+      tables, StringMirror and HorizontalDimsSpec sections; grep for
+      "export" to find each). Rewrap the 122-character comment line in the
+      HorizontalDimsSpec factory header.
+      (b) Tests: a `make_VariableSpec` export rejection for each remaining
+      `requests_mirror()` spelling (`MAPL_TYPEKIND_MIRROR`,
+      `HORIZONTAL_DIMS_MIRROR`, a mirror `ungridded_dims`, a mirror
+      `vertical_stagger`, `vertical_alignment='mirror'`) and an accept for a
+      plain export; post-loop (hand-built spec) export rejections for
+      typekind and ungridded dims, expecting the full message with the
+      kind's `to_string()` and `status=1` (CONVENTIONS.md pFUnit rule).
+      These are separate from the legacy change; list them in the commit
+      message.
 - [ ] 3.21 B3-IncompatiblePair (A23). Add `BUILD_TRANSFORM_INCOMPATIBLE`
       beside `BUILD_TRANSFORM_UNSUPPORTED` in
       `graph/characteristics/StateItemCharacteristic.F90`, with a
