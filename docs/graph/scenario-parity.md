@@ -37,6 +37,7 @@ to "Verified root causes" below.
 | scenario_2 | yes | passes |
 | 3d_specs | yes | passes |
 | ungridded_dims | yes | passes |
+| dims_z_field (graph-scenarios) | yes | passes: two `dims: z` items connect with no chain |
 | precision_extension | yes | passes |
 | precision_extension_3d | yes | passes |
 | export_dependency | yes | passes |

@@ -87,7 +87,7 @@ Legacy reference points (the behavior being duplicated):
 | `CLASS_ASPECT_ID` (`FieldClassAspect%long_name`) | `LongName` (new, A8) | value | no | Never mismatches. Needed for Info parity (`SharedIO` reads `long_name`) and by History (mirror, A13). Owner A8. |
 | `CLASS_ASPECT_ID` (`fill_value`, `bracket_size`, `vector_basis_kind`) | deferred to M3 | - | no | Only needed once the graph materializes those shapes (B4/M3). Owner A8. |
 | `GEOM_ASPECT_ID` (geom) | `Geometry` (`GEOMETRY`) | reference | yes, component-level only | Item-level instance added by B3-Geometry (fixes M1). Also carries the regridder param (not compared). |
-| `GEOM_ASPECT_ID` (`horizontal_dims_spec`) | `HorizontalDimsSpec` (new, A14) | value | no | Today carried inside `GeometryCharacteristic` and compared there, as legacy `GeomAspect%matches` does. Moves to its own kind. |
+| `GEOM_ASPECT_ID` (`horizontal_dims_spec`) | `HorizontalDimsSpec` (new, A14) | value | landed (B3-HorizontalDimsSpec) | Moved out of `GeometryCharacteristic`. SPECIFIED (GEOM or NONE) or MIRRORED (`HORIZONTAL_DIMS_MIRROR`, imports only); GEOM vs NONE is a mismatch with no Transform. |
 | `VERTICAL_GRID_ASPECT_ID` (grid) | `VerticalGrid` (`VERTICAL_GRID`) | reference | yes | References the item's `VerticalGrid`, which may carry several coordinates. Must also be set from the component vertical grid (M2). |
 | `VERTICAL_GRID_ASPECT_ID` (stagger) | `VerticalStagger` (new) | value | no | Replaces `GraphStateItem%vertical_stagger`. |
 | `VERTICAL_GRID_ASPECT_ID` (alignment) | `VerticalOrientation` (new, name provisional; Q7) | value | no | Vertical index order. Independent of VerticalStagger. |
@@ -281,6 +281,16 @@ writes nothing for UNCHECKED on the other axes, and those axes either
 have no UNCHECKED state or `_RETURN_IF(mirror)`. MIRRORED is never
 written (it cannot reach sync, §2). Legacy's `'/$MIRROR$'` units marker
 is not reproduced (owner Q11).
+
+Exception, owner-approved with B3-HorizontalDimsSpec (A14): an item whose
+HorizontalDimsSpec is NONE still needs a geom for field creation
+(`make_grid_to_field_map`), but its Geometry must not be compared. Its
+Geometry entry is UNCHECKED and may carry a geom. `GeometryCharacteristic`
+writes an UNCHECKED entry only when it holds a geom, and
+`resolve_deferred` fills an UNCHECKED entry that has none from the
+component default (it stays UNCHECKED). D2 therefore treats a NONE export
+paired with a MIRRORED Geometry import as a conflict, which is intended: a
+NONE item has no geometry to mirror.
 
 #### §3.4 Characteristic -> setter keyword
 
@@ -493,8 +503,8 @@ error, A1). It replaces no existing keyword; legacy has none for these.
 | PhysicalUnits | `units` | allocated and not `'<unknown>'`: SPECIFIED; else UNCHECKED (legacy `new_UnitsAspect`, `set_units`) |
 | StandardName | `standard_name` | string mirror sentinel: MIRRORED, imports only (A13); else allocated: SPECIFIED; else UNCHECKED (legacy) |
 | TypeKind | `typekind` (defaults to R4) | `MAPL_TYPEKIND_MIRROR`: MIRRORED; else SPECIFIED. Never DEFERRED (A12). |
-| Geometry | `geom`, `geom_id`, `regrid_param` | item geom/geom_id: SPECIFIED; `mirror_geom` or an EXPRESSION with no geom: MIRRORED; else DEFERRED (component supplies it; legacy FROM_COMP and absent-means-MIRRORED both map here, A12). Freeze fails if the component never supplies one. With HorizontalDimsSpec NONE the entry is never compared (A14): either it is omitted, or, if field creation needs the item's geom, it gets a "filled but not compared" form; B3-HorizontalDimsSpec finds which and reports before adding the second. |
-| HorizontalDimsSpec | `horizontal_dims_spec` (YAML `dims: z` -> NONE) | defaults to GEOM: SPECIFIED. Explicit NONE: SPECIFIED. MIRRORED via an explicit mirror value, imports only (A14). GEOM vs NONE in either direction is a mismatch with no transform, i.e. an error (A14). |
+| Geometry | `geom`, `geom_id`, `regrid_param` | item geom/geom_id: SPECIFIED; `mirror_geom` or an EXPRESSION with no geom: MIRRORED; else DEFERRED (component supplies it; legacy FROM_COMP and absent-means-MIRRORED both map here, A12). Freeze fails if the component never supplies one. With HorizontalDimsSpec NONE the entry is never compared (A14): field creation still needs the item's geom, so it is UNCHECKED, written to Info only when it holds a geom, and still offered `resolve_deferred` (§3.3). |
+| HorizontalDimsSpec | `horizontal_dims_spec` (YAML `dims: z` -> NONE) | defaults to GEOM: SPECIFIED. Explicit NONE: SPECIFIED. MIRRORED via `HORIZONTAL_DIMS_MIRROR` (YAML `dims: mirror`), imports only (A14); an error on an export. GEOM vs NONE in either direction is a mismatch with no transform: `BUILD_TRANSFORM_UNSUPPORTED`, as for every structural kind. |
 | VerticalGrid | `vertical_grid`, `mirror_vgrid`, `vertical_stagger`; `state_item_variant == VERTICALGRID` (member names) | `vertical_stagger == NONE`: no entry (2D item). Item grid: SPECIFIED. `mirror_vgrid` or an EXPRESSION with no grid: MIRRORED. Else DEFERRED (component grid, M2). VERTICALGRID composite: SPECIFIED with dimensions only. A DEFERRED entry whose component has no vertical grid is dropped at GEOM_B (owner, B3-VerticalCoordinate): such an item is 2D as far as the graph can tell, and legacy distinguishes it only by the same absence. |
 | VerticalStagger | `vertical_stagger`, `mirror_vgrid` | No built-in default (A17). Real stagger (CENTER/EDGE/NONE): SPECIFIED. `VERTICAL_STAGGER_MIRROR`: MIRRORED, imports only; on an export it is an error (A1, Q6). Unallocated with `mirror_vgrid`: MIRRORED (Q-mirror). Other unallocated (or `VERTICAL_STAGGER_INVALID`, which `parse_var_specs` passes when YAML gives no `vertical_dim_spec`): DEFERRED, not an error at advertise (a component such as Statistics may fill it only after other connections resolve). At GEOM_B a DEFERRED stagger becomes SPECIFIED NONE if the component has no vertical grid (A17); otherwise it stays DEFERRED until harvested from the component's realized field or bundle, and freeze fails if it never is. An explicit NONE stays SPECIFIED NONE even though VerticalGrid has no entry, so a 2D export still mismatches a 3D import. EXPRESSION `VERTICAL_STAGGER_INVALID`: MIRRORED. |
 | VerticalOrientation | `vertical_alignment` (`upward`/`downward`/`with_grid`) | Vertical index order relative to physical up/down (Q7). Unspecified or `with_grid`: the item's grid direction, resolved to UP/DOWN once the grid is known (factory for an item grid, `resolve_deferred` for the component grid), DEFERRED until then. Explicit mirror value: MIRRORED, imports only; takes the export's resolved order. A MIRROR stagger does not imply a mirrored orientation. No entry when VerticalGrid has none. |
@@ -546,7 +556,7 @@ is authoritative for status rules; this table summarizes it.
 | LongName | `long_name` | field dictionary, then StandardName | UNCHECKED, writes nothing | string sentinel, imports only (A13) | carried on `FieldClassAspect`, not compared | design |
 | UngriddedDims | `ungridded_dims` | built-in: none | - | `is_mirror()` | same | landed |
 | Geometry | `geom`, `geom_id` | component geom, then harvest | freeze fails | `mirror_geom` / `geometry_mirror: true` | item geom, component geom, item id, component id (FROM_COMP); else MIRRORED | landed |
-| HorizontalDimsSpec | `horizontal_dims_spec` / `dims: z` | built-in GEOM | - | explicit mirror value, imports only | compared inside `GeomAspect`, together with the geom | design |
+| HorizontalDimsSpec | `horizontal_dims_spec` / `dims: z` | built-in GEOM | - | `HORIZONTAL_DIMS_MIRROR` (`dims: mirror`), imports only | compared inside `GeomAspect`, together with the geom (a mirror agrees with any spec) | design |
 | VerticalGrid | `vertical_grid` | component grid | no entry (2D item) | `mirror_vgrid` / `vertical_grid_mirror: true` | item grid, component grid; else MIRRORED (FROM_COMP if a component geom id exists) | landed |
 | VerticalStagger | `vertical_stagger` / `vertical_dim_spec` | none: harvest from the component's field | NONE if the component has no vertical grid; else freeze fails | `MIRROR` (imports only); `mirror_vgrid` with no stagger | unallocated stagger is treated as mirror; `MIRROR` matches any stagger | design |
 | VerticalOrientation | `vertical_alignment` | the item's grid direction (`with_grid`) | no entry (2D item) | explicit mirror value, imports only | `with_grid`; compared after resolving against the grid's direction; the import copies the export's on connect | design |

@@ -26,7 +26,8 @@ module Test_StateItemCharacteristicSubclasses
                                                     STANDARD_NAME_CHARACTERISTIC_KIND, &
                                                     ITEM_SHAPE_CHARACTERISTIC_KIND, &
                                                     VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
-                                                    VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
+                                                    VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+                                                   HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
    use mapl_TransformBase_mod, only: TransformBase
 
@@ -37,6 +38,10 @@ module Test_StateItemCharacteristicSubclasses
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, &
         VERTICAL_STAGGER_EDGE, VERTICAL_STAGGER_MIRROR
    use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
+   use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_MIRRORED, operator(==)
+   use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE, &
+        HORIZONTAL_DIMS_MIRROR, operator(==)
    use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, &
         VCOORD_DIRECTION_DOWN, operator(==)
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
@@ -226,6 +231,64 @@ contains
       call up%build_transform(down, transformer, rc=status)
       @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
    end subroutine test_vertical_orientation_build_transform_unsupported
+
+   ! --- HorizontalDimsSpecCharacteristic ---
+
+   @test
+   subroutine test_horizontal_dims_spec_is_a_structural_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM))
+      @assertTrue(v%get_kind() == HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND)
+      @assertTrue(v%is_structural())
+   end subroutine test_horizontal_dims_spec_is_a_structural_value_characteristic
+
+   @test
+   subroutine test_horizontal_dims_spec_needs_extension_for()
+      type(HorizontalDimsSpecCharacteristic) :: geom, same_as_geom, none
+
+      geom = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM)
+      same_as_geom = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM)
+      none = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE)
+
+      @assertFalse(geom%needs_extension_for(same_as_geom))
+      @assertTrue(geom%needs_extension_for(none))
+      @assertTrue(none%needs_extension_for(geom))
+   end subroutine test_horizontal_dims_spec_needs_extension_for
+
+   @test
+   subroutine test_horizontal_dims_spec_signature_and_getter()
+      type(HorizontalDimsSpecCharacteristic) :: none
+      type(HorizontalDimsSpec) :: got
+
+      none = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE)
+      @assertEqual('horizontal_dims_spec=HORIZONTAL_DIMS_NONE', none%get_signature())
+      got = none%get_horizontal_dims_spec()
+      @assertTrue(got == HORIZONTAL_DIMS_NONE)
+   end subroutine test_horizontal_dims_spec_signature_and_getter
+
+   @test
+   subroutine test_horizontal_dims_spec_build_transform_unsupported()
+      type(HorizontalDimsSpecCharacteristic) :: geom, none
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      geom = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM)
+      none = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE)
+      call geom%build_transform(none, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      call none%build_transform(geom, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+   end subroutine test_horizontal_dims_spec_build_transform_unsupported
+
+   ! HORIZONTAL_DIMS_MIRROR is not a value: it becomes MIRRORED status.
+   @test
+   subroutine test_horizontal_dims_spec_mirror_is_mirrored_without_value()
+      type(HorizontalDimsSpecCharacteristic) :: mirrored
+
+      mirrored = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_MIRROR)
+      @assertTrue(mirrored%get_status() == CHARACTERISTIC_STATUS_MIRRORED)
+   end subroutine test_horizontal_dims_spec_mirror_is_mirrored_without_value
 
    ! --- 3.5: ConservationCharacteristic (reused mirror-aware operator(==)) ---
 

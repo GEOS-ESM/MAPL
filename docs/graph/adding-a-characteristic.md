@@ -321,6 +321,45 @@ calls it alignment. It is independent of VerticalStagger.
   deviation from legacy; readers resolve either against the same grid). A
   SPECIFIED entry whose direction is neither up nor down fails the write.
 
+## HorizontalDimsSpec as implemented
+
+A structural value kind: GEOM (the item spans the horizontal geometry) or
+NONE (`dims: z`, no horizontal dimensions). It was part of
+`GeometryCharacteristic`; it is now its own kind.
+
+| Input (`VariableSpec%horizontal_dims_spec`) | Shape | Entry |
+|---|---|---|
+| GEOM (default) or NONE | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE | SPECIFIED with the value |
+| MIRROR (imports only) | same | MIRRORED, no value |
+| any | EXPRESSION, SERVICE, STATE, WILDCARD | none |
+
+- Comparison is plain equality. GEOM vs NONE in either direction is a
+  mismatch, and `build_transform` reports unsupported (no Transform).
+- `write_info` writes `horizontal_dims_spec=` through `MAPL_FieldSet` in
+  the STRUCTURAL phase (it decides the grid-to-field map at completion). A
+  bundle has nothing to write: the bundle setter has no such keyword.
+- Mirror. `HORIZONTAL_DIMS_MIRROR` (YAML `dims: mirror`) is a member of
+  the `HorizontalDimsSpec` enum, not a value to compare: the characteristic
+  built from it is MIRRORED with no value, so an import adopts the
+  export's spec (`PAIR_ADOPT`). The factory rejects it on an export.
+  Legacy `GeomAspect` treats it as agreeing with any spec and adopts the
+  export's at `connect_to_export`; field creation asserts GEOM or NONE.
+- **Uncompared Geometry.** For a NONE item the Geometry factory builds the
+  entry with `compared=.false.`: UNCHECKED instead of SPECIFIED or
+  DEFERRED, so two NONE items connect across different horizontal grids.
+  Field creation still needs a geom, so the entry may carry one:
+  `write_info` writes an UNCHECKED Geometry only when it holds a geom, and
+  `resolve_deferred` (now offered to UNCHECKED entries too) fills one that
+  has none from the component default. A NONE export cannot feed a
+  `mirror_geom` import (D2 conflict). This gives UNCHECKED a second meaning
+  for Geometry only; design.md §3.3 records it.
+- Extension order: the plan puts this kind before GEOMETRY. That ordering
+  is B3-ItemShape work (`get_extension_order`), so until then mismatches
+  follow kind number and this kind (14) comes after GEOMETRY (3). With NONE
+  the Geometry never mismatches, so the order does not matter yet.
+- Test: scenario `graph-scenarios/dims_z_field`, plus unit tests for the
+  pair outcomes and the factory.
+
 ## StandardName as implemented
 
 | Input (`VariableSpec%standard_name`) | Shape | Entry |

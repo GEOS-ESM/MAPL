@@ -11,6 +11,8 @@ module Test_StatusResolution
         VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
         VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
    use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
+   use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
+   use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_MIRROR
    use mapl_VerticalCoordinateDirection_mod, only: VCOORD_DIRECTION_UP, VCOORD_DIRECTION_DOWN
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
         CHARACTERISTIC_STATUS_INVALID, CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED, &
@@ -56,6 +58,34 @@ contains
       @assertEqual(PAIR_EXTEND, resolve_pair(up, down, MAPL_STATEITEM_FIELD))
       @assertEqual(PAIR_ADOPT, resolve_pair(up, mirrored, MAPL_STATEITEM_FIELD))
    end subroutine test_vertical_orientation_pairs
+
+   ! -- HorizontalDimsSpec pairs and the uncompared geometry of a NONE item --
+
+   @test
+   subroutine test_horizontal_dims_spec_pairs()
+      type(HorizontalDimsSpecCharacteristic) :: geom, none, mirrored
+
+      geom = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM)
+      none = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE)
+      mirrored = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_MIRROR)
+
+      @assertEqual(PAIR_MATCH, resolve_pair(none, none, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_MATCH, resolve_pair(geom, geom, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(geom, none, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(none, geom, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_ADOPT, resolve_pair(geom, mirrored, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_ADOPT, resolve_pair(none, mirrored, MAPL_STATEITEM_FIELD))
+   end subroutine test_horizontal_dims_spec_pairs
+
+   ! Two NONE items on different horizontal grids still match.
+   @test
+   subroutine test_uncompared_geometries_match_across_grids()
+      type(GeometryCharacteristic) :: a, b
+
+      a = GeometryCharacteristic(geom_id='1', compared=.false.)
+      b = GeometryCharacteristic(geom_id='2', compared=.false.)
+      @assertEqual(PAIR_MATCH, resolve_pair(a, b, MAPL_STATEITEM_FIELD))
+   end subroutine test_uncompared_geometries_match_across_grids
 
    ! -- export SPECIFIED row --
 

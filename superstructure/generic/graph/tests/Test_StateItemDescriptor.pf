@@ -7,7 +7,7 @@ module Test_StateItemDescriptor
         GEOMETRY_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
         QUANTITY_TYPE_CHARACTERISTIC_KIND, VERTICAL_GRID_CHARACTERISTIC_KIND, &
         STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
-        VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
+        VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED, CharacteristicStatus, operator(==)
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
@@ -23,6 +23,9 @@ module Test_StateItemDescriptor
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
    use mapl_VerticalStaggerCharacteristic_mod, only: VerticalStaggerCharacteristic
    use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
+   use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
+   use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE, &
+        HORIZONTAL_DIMS_UNKNOWN, operator(==)
    use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, &
         VCOORD_DIRECTION_DOWN, operator(==)
    use mapl_VerticalAlignment_mod, only: VerticalAlignment, VALIGN_UP, VALIGN_DOWN, VALIGN_WITH_GRID, operator(==)
@@ -801,6 +804,111 @@ contains
       @assertEqual(0, status)
       @assertTrue(other%has_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND))
    end subroutine test_drop_unsupplied_keeps_resolved_vertical_grid
+
+   ! --- HorizontalDimsSpec and the uncompared geometry of a NONE item ---
+
+   function dims_spec_after_sync(item, phase) result(dims_spec)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(HorizontalDimsSpec) :: dims_spec
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, horizontal_dims_spec=dims_spec, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function dims_spec_after_sync
+
+   @test
+   subroutine test_sync_structural_writes_horizontal_dims_spec()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE))
+      @assertTrue(dims_spec_after_sync(item, SYNC_PHASE_STRUCTURAL) == HORIZONTAL_DIMS_NONE)
+
+      call item%set_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM))
+      @assertTrue(dims_spec_after_sync(item, SYNC_PHASE_STRUCTURAL) == HORIZONTAL_DIMS_GEOM)
+   end subroutine test_sync_structural_writes_horizontal_dims_spec
+
+   ! The key is never written in the descriptive phase, so reading it fails.
+   @test
+   subroutine test_sync_descriptive_skips_horizontal_dims_spec()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(HorizontalDimsSpec) :: written
+      integer :: status
+
+      call item%set_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE))
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, horizontal_dims_spec=written, rc=status)
+      @assertFalse(status == 0)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_sync_descriptive_skips_horizontal_dims_spec
+
+   ! An uncompared geometry holding a geom is written like a compared one.
+   @test
+   subroutine test_sync_structural_writes_uncompared_geom()
+      type(StateItemDescriptor) :: item
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom=geom, compared=.false.))
+      @assertTrue(synced_has_geom(item, SYNC_PHASE_STRUCTURAL))
+   end subroutine test_sync_structural_writes_uncompared_geom
+
+   ! UNCHECKED with no geom is a wildcard: nothing to write.
+   @test
+   subroutine test_sync_skips_uncompared_geom_without_value()
+      type(StateItemDescriptor) :: item
+      type(GeometryCharacteristic) :: waiting
+
+      waiting = GeometryCharacteristic(compared=.false.)
+      call waiting%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, waiting)
+      @assertFalse(synced_has_geom(item, SYNC_PHASE_STRUCTURAL))
+   end subroutine test_sync_skips_uncompared_geom_without_value
+
+   ! The component's geom reaches an uncompared entry and it stays UNCHECKED.
+   @test
+   subroutine test_resolve_deferred_fills_uncompared_geometry()
+      type(StateItemDescriptor) :: item
+      type(GeometryCharacteristic) :: waiting
+      class(StateItemCharacteristic), allocatable :: c
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+      waiting = GeometryCharacteristic(compared=.false.)
+      call waiting%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, waiting)
+
+      call item%resolve_deferred(CharacteristicDefaults(geom=geom), rc=status)
+      @assertEqual(0, status)
+      call item%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertTrue(synced_has_geom(item, SYNC_PHASE_STRUCTURAL))
+   end subroutine test_resolve_deferred_fills_uncompared_geometry
 
    ! --- VerticalOrientation ---
 

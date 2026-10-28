@@ -15,7 +15,7 @@ module Test_VariableSpecCharacteristics
         UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
         VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, &
         ATTRIBUTES_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
-        VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
+        VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
         CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED
@@ -31,6 +31,9 @@ module Test_VariableSpecCharacteristics
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
    use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid
    use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
+   use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
+   use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE, &
+        HORIZONTAL_DIMS_MIRROR, operator(==)
    use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, &
         VCOORD_DIRECTION_DOWN, operator(==)
    use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE, &
@@ -503,6 +506,137 @@ contains
          @assertFalse(descriptor%has_characteristic(GEOMETRY_CHARACTERISTIC_KIND))
       end do
    end subroutine test_geometry_applicability
+
+   ! --- HorizontalDimsSpec ---
+
+   function dims_spec_entry(var_spec, dims_spec, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      type(HorizontalDimsSpec), intent(out) :: dims_spec
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, c, _RC)
+      char_status = c%get_status()
+      select type (c)
+      class is (HorizontalDimsSpecCharacteristic)
+         dims_spec = c%get_horizontal_dims_spec()
+      class default
+         status = 1
+         _VERIFY(status)
+      end select
+      _RETURN(_SUCCESS)
+   end function dims_spec_entry
+
+   @test
+   subroutine test_default_horizontal_dims_spec_is_specified_geom()
+      type(HorizontalDimsSpec) :: dims_spec
+      integer :: status
+
+      @assertTrue(dims_spec_entry(make_spec(MAPL_STATEITEM_FIELD), dims_spec, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertTrue(dims_spec == HORIZONTAL_DIMS_GEOM)
+   end subroutine test_default_horizontal_dims_spec_is_specified_geom
+
+   @test
+   subroutine test_declared_none_horizontal_dims_spec_is_specified_none()
+      type(VariableSpec) :: var_spec
+      type(HorizontalDimsSpec) :: dims_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%horizontal_dims_spec = HORIZONTAL_DIMS_NONE
+      @assertTrue(dims_spec_entry(var_spec, dims_spec, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertTrue(dims_spec == HORIZONTAL_DIMS_NONE)
+   end subroutine test_declared_none_horizontal_dims_spec_is_specified_none
+
+   @test
+   subroutine test_mirror_horizontal_dims_spec_on_import_is_mirrored()
+      type(VariableSpec) :: var_spec
+      type(HorizontalDimsSpec) :: dims_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%horizontal_dims_spec = HORIZONTAL_DIMS_MIRROR
+      @assertTrue(dims_spec_entry(var_spec, dims_spec, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_horizontal_dims_spec_on_import_is_mirrored
+
+   @test
+   subroutine test_mirror_horizontal_dims_spec_on_export_is_an_error()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%horizontal_dims_spec = HORIZONTAL_DIMS_MIRROR
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('HORIZONTAL_DIMS_MIRROR is only valid on an import: X')
+      @assertExceptionRaised('status=1')
+   end subroutine test_mirror_horizontal_dims_spec_on_export_is_an_error
+
+   ! A mirror_geom request on a NONE item is moot: its geometry is not compared.
+   @test
+   subroutine test_none_item_ignores_mirror_geom()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%horizontal_dims_spec = HORIZONTAL_DIMS_NONE
+      var_spec%mirror_geom = .true.
+      @assertTrue(geometry_status(var_spec, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+   end subroutine test_none_item_ignores_mirror_geom
+
+   @test
+   subroutine test_horizontal_dims_spec_applicability()
+      type(ESMF_StateItem_Flag) :: with_entry(5), without_entry(5)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      with_entry = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE]
+      do i = 1, size(with_entry)
+         descriptor = empty_descriptor
+         var_spec = make_spec(with_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(descriptor%has_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND))
+      end do
+
+      without_entry = [MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_STATE, &
+           MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN]
+      do i = 1, size(without_entry)
+         descriptor = empty_descriptor
+         var_spec = make_spec(without_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_horizontal_dims_spec_applicability
+
+   ! A NONE item is never compared on geometry, but still takes a geom later.
+   @test
+   subroutine test_none_item_geometry_is_unchecked()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%horizontal_dims_spec = HORIZONTAL_DIMS_NONE
+      @assertTrue(geometry_status(var_spec, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+
+      var_spec%geom_id = mapl_new_GeomId(7)
+      @assertTrue(geometry_status(var_spec, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+   end subroutine test_none_item_geometry_is_unchecked
 
    ! Status of the VERTICAL_STAGGER entry; has_entry is false when the
    ! item gets none.

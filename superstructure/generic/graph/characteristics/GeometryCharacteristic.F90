@@ -27,26 +27,30 @@
 ! retired mapl_GeomCharacteristic_mod's own identity-token comparison.
 !
 ! An item-level instance may also hold the ESMF_Geom itself, plus the
-! horizontal_dims_spec and regridder param the item declares. Only the
-! geometry identity is compared (like legacy GeomAspect%matches, plus
-! horizontal_dims_spec); the regridder param is carried for write_info.
+! regridder param the item declares. Only the geometry identity is
+! compared (like legacy GeomAspect%matches); the regridder param is carried
+! for write_info.
 !
 ! Status: SPECIFIED when constructed with a value. DEFERRED means the
 ! owning component supplies the geometry later (resolve_deferred, GEOM_B).
-! No geometry is ever UNCHECKED; MIRRORED only when the factory sets it.
+! MIRRORED only when the factory sets it.
+!
+! An item with no horizontal dimensions (HorizontalDimsSpec NONE) is not
+! compared, but field creation still needs a geom. Such an instance is
+! built with compared=.false.: it is UNCHECKED instead of SPECIFIED or
+! DEFERRED, and is written to Info only when it holds a geom.
 !------------------------------------------------------------------------------
 module mapl_GeometryCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ReferenceCharacteristic
    use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL, StateItemCharacteristicMap
    use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
-   use mapl_CharacteristicStatus_mod, only: operator(==), CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_DEFERRED, &
-        CHARACTERISTIC_STATUS_MIRRORED
+   use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_DEFERRED, &
+        CHARACTERISTIC_STATUS_MIRRORED, CHARACTERISTIC_STATUS_UNCHECKED
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, GEOMETRY_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, operator(==), operator(/=)
    use mapl_TransformBase_mod, only: TransformBase
-   use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_GEOM, operator(==), operator(/=)
    use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
    use mapl_GeomId_mod, only: GeomId
    use mapl_geom_api, only: mapl_SameGeom
@@ -70,8 +74,8 @@ module mapl_GeometryCharacteristic_mod
       ! VerticalGridCharacteristic.F90, design.md Risks).
       character(:), allocatable :: geom_id
       type(ESMF_Geom), allocatable :: geom
-      type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM
       type(EsmfRegridderParam), allocatable :: regridder_param
+      logical :: compared = .true.
    contains
       procedure, nopass :: get_kind => geometry_get_kind
       procedure :: needs_extension_for => geometry_needs_extension_for
@@ -84,7 +88,6 @@ module mapl_GeometryCharacteristic_mod
       procedure :: has_geom_id
       procedure :: get_geom
       procedure :: has_geom
-      procedure :: get_horizontal_dims_spec
    end type GeometryCharacteristic
 
    interface GeometryCharacteristic
@@ -93,22 +96,22 @@ module mapl_GeometryCharacteristic_mod
 
 contains
 
-   function new_GeometryCharacteristic(referenced_node_id, geom_id, geom, horizontal_dims_spec, regridder_param) &
+   function new_GeometryCharacteristic(referenced_node_id, geom_id, geom, regridder_param, compared) &
         result(characteristic)
       type(NodeId), optional, intent(in) :: referenced_node_id
       character(*), optional, intent(in) :: geom_id
       type(ESMF_Geom), optional, intent(in) :: geom
-      type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
       type(EsmfRegridderParam), optional, intent(in) :: regridder_param
+      logical, optional, intent(in) :: compared
       type(GeometryCharacteristic) :: characteristic
 
       if (present(referenced_node_id)) call characteristic%set_referenced_node_id(referenced_node_id)
       if (present(geom_id)) characteristic%geom_id = geom_id
       if (present(geom)) allocate(characteristic%geom, source=geom)
-      if (present(horizontal_dims_spec)) characteristic%horizontal_dims_spec = horizontal_dims_spec
       if (present(regridder_param)) allocate(characteristic%regridder_param, source=regridder_param)
+      if (present(compared)) characteristic%compared = compared
       if (present(referenced_node_id) .or. present(geom_id) .or. present(geom)) then
-         call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
+         call characteristic%set_status(settled_status(characteristic%compared))
       end if
    end function new_GeometryCharacteristic
 
@@ -138,10 +141,6 @@ contains
 
       select type (goal)
       class is (GeometryCharacteristic)
-         if (this%horizontal_dims_spec /= goal%horizontal_dims_spec) then
-            needs_extension = .true.
-            return
-         end if
          this_node_id = this%get_referenced_node_id()
          goal_node_id = goal%get_referenced_node_id()
          if (this_node_id%is_valid() .and. goal_node_id%is_valid()) then
@@ -185,9 +184,10 @@ contains
       end if
    end function geometry_get_signature
 
-   ! Writes geom= (when held), horizontal_dims_spec= and the regridder
-   ! param. Shapes with no Field or FieldBundle payload (service,
-   ! expression) have nothing to write.
+   ! Writes geom= (when held) and the regridder param. UNCHECKED is written
+   ! only when it holds a geom, since it is then an uncompared geometry (not
+   ! a valueless wildcard). Shapes with no Field or FieldBundle payload
+   ! (service, expression) have nothing to write.
    subroutine geometry_write_info(this, handle, phase, rc)
       class(GeometryCharacteristic), intent(in) :: this
       type(GraphStateItem), intent(inout) :: handle
@@ -201,7 +201,11 @@ contains
       type(ESMF_Info), allocatable :: regridder_param_info
 
       _RETURN_UNLESS(phase == SYNC_PHASE_STRUCTURAL)
-      _RETURN_UNLESS(this%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      if (this%get_status() == CHARACTERISTIC_STATUS_UNCHECKED) then
+         _RETURN_UNLESS(allocated(this%geom))
+      else
+         _RETURN_UNLESS(this%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      end if
 
       item_type = handle%itemType(_RC)
       if (allocated(this%regridder_param)) then
@@ -211,11 +215,9 @@ contains
       if (item_type == ESMF_STATEITEM_FIELD) then
          field = handle%get_field(_RC)
          if (allocated(this%geom)) then
-            call MAPL_FieldSet(field, geom=this%geom, horizontal_dims_spec=this%horizontal_dims_spec, &
-                 regridder_param_info=regridder_param_info, _RC)
-         else
-            call MAPL_FieldSet(field, horizontal_dims_spec=this%horizontal_dims_spec, &
-                 regridder_param_info=regridder_param_info, _RC)
+            call MAPL_FieldSet(field, geom=this%geom, regridder_param_info=regridder_param_info, _RC)
+         else if (allocated(regridder_param_info)) then
+            call MAPL_FieldSet(field, regridder_param_info=regridder_param_info, _RC)
          end if
       else if (item_type == ESMF_STATEITEM_FIELDBUNDLE) then
          bundle = handle%get_field_bundle(_RC)
@@ -241,7 +243,8 @@ contains
    end function geometry_is_structural
 
    ! A DEFERRED geometry becomes SPECIFIED with the offered geometry when
-   ! there is one. Otherwise it stays DEFERRED, to be filled by the
+   ! there is one; an uncompared one with no geom yet takes it and stays
+   ! UNCHECKED. Otherwise it stays DEFERRED, to be filled by the
    ! component's own phase (freeze reports it if never filled).
    subroutine geometry_resolve_deferred(this, defaults, rc)
       class(GeometryCharacteristic), intent(inout) :: this
@@ -251,7 +254,11 @@ contains
       type(GeomId) :: id
       character(20) :: id_buffer
 
-      _RETURN_UNLESS(this%get_status() == CHARACTERISTIC_STATUS_DEFERRED)
+      if (this%get_status() == CHARACTERISTIC_STATUS_UNCHECKED) then
+         _RETURN_IF(this%compared .or. allocated(this%geom))
+      else
+         _RETURN_UNLESS(this%get_status() == CHARACTERISTIC_STATUS_DEFERRED)
+      end if
       _RETURN_UNLESS(defaults%has_geom())
 
       if (allocated(this%geom)) deallocate(this%geom)
@@ -261,10 +268,21 @@ contains
          write(id_buffer, '(I0)') id%get_value()
          this%geom_id = trim(id_buffer)
       end if
-      call this%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
+      call this%set_status(settled_status(this%compared))
 
       _RETURN(_SUCCESS)
    end subroutine geometry_resolve_deferred
+
+   function settled_status(compared) result(status)
+      logical, intent(in) :: compared
+      type(CharacteristicStatus) :: status
+
+      if (compared) then
+         status = CHARACTERISTIC_STATUS_SPECIFIED
+      else
+         status = CHARACTERISTIC_STATUS_UNCHECKED
+      end if
+   end function settled_status
 
    function get_geom_id(this) result(geom_id)
       class(GeometryCharacteristic), intent(in) :: this
@@ -291,12 +309,5 @@ contains
 
       has = allocated(this%geom)
    end function has_geom
-
-   function get_horizontal_dims_spec(this) result(horizontal_dims_spec)
-      class(GeometryCharacteristic), intent(in) :: this
-      type(HorizontalDimsSpec) :: horizontal_dims_spec
-
-      horizontal_dims_spec = this%horizontal_dims_spec
-   end function get_horizontal_dims_spec
 
 end module mapl_GeometryCharacteristic_mod

@@ -99,11 +99,11 @@ Info writes: `StateItemDescriptor%sync_to_info(handle, phase)` calls
 each SPECIFIED/UNCHECKED characteristic's `write_info` (phases
 `SYNC_PHASE_STRUCTURAL`/`SYNC_PHASE_DESCRIPTIVE`; `is_structural()`
 kinds are skipped in DESCRIPTIVE). The base `write_info` fails; only
-`PhysicalUnits`, `TypeKind`, `UngriddedDims`, `Geometry`, `VerticalGrid`, `VerticalStagger`, `VerticalOrientation`, `StandardName` and `Attributes` (a no-op: no Info key) override it so far, and no production path calls
+`PhysicalUnits`, `TypeKind`, `UngriddedDims`, `Geometry`, `VerticalGrid`, `VerticalStagger`, `VerticalOrientation`, `HorizontalDimsSpec`, `StandardName` and `Attributes` (a no-op: no Info key) override it so far, and no production path calls
 `sync_to_info` yet (materialization adopts it in B4). Factories live in
 `specs/VariableSpec/make_characteristics.F90`: the type-bound
 `VariableSpec%make_characteristics` loops over a registry of per-kind
-factories (so far units, typekind, ungridded dims, geometry, vertical grid, vertical stagger, vertical orientation, standard name and attributes). Procedure: `docs/graph/adding-a-characteristic.md`.
+factories (so far units, typekind, ungridded dims, geometry, vertical grid, vertical stagger, vertical orientation, horizontal dims spec, standard name and attributes). Procedure: `docs/graph/adding-a-characteristic.md`.
 
 | Characteristic | Kind constant | `build_transform` today |
 |---|---|---|
@@ -114,6 +114,7 @@ factories (so far units, typekind, ungridded dims, geometry, vertical grid, vert
 | `VerticalGrid` | `VERTICAL_GRID_…` | Single overlap: unsupported (no vertical-regrid `Transform` yet); incompatible and ambiguous overlaps `_FAIL` with distinct messages |
 | `VerticalStagger` | `VERTICAL_STAGGER_…` | Unsupported — mismatch is detected, repair is a stub |
 | `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Unsupported — mismatch is detected, repair is a stub |
+| `HorizontalDimsSpec` | `HORIZONTAL_DIMS_SPEC_…` | Unsupported — GEOM vs NONE is detected in both directions; no Transform changes it |
 | `Attributes`, `UngriddedDims`, `StandardName`, `QuantityType`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | Unsupported — mismatch is detected, repair is a stub |
 
 Other files: `CharacteristicStatus.F90`, `StateItemCharacteristicKind.F90`

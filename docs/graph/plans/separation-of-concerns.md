@@ -538,12 +538,13 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-StandardName and B3-Attributes done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName and B3-Attributes done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
   `Plan-Task: B3-Attributes`, `Plan-Task: B3-RenameVerticalGrid`,
-  `Plan-Task: B3-VerticalStagger`, `Plan-Task: B3-VerticalOrientation`); others not started.
+  `Plan-Task: B3-VerticalStagger`, `Plan-Task: B3-VerticalOrientation`,
+  `Plan-Task: B3-HorizontalDimsSpec`); others not started.
   B3-Attributes: `AttributesCharacteristic` gained `write_info`, a
   successful no-op (no Info key; design §3.4), `is_structural()` stays
   false. The factory (`make_attributes_characteristic`) always gives
@@ -614,6 +615,30 @@ in the first one; later ones refine it.
   mismatch in `vertical_alignment_same_grid` is masked by the earlier
   `VERTICAL_GRID` mismatch (warning only), so no scenario exercises the
   kind; a reversal `Transform` is a C1 item.
+  B3-HorizontalDimsSpec (done): see adding-a-characteristic.md
+  "HorizontalDimsSpec as implemented". New kind
+  `HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND` (14) and
+  `HorizontalDimsSpecCharacteristic` (structural; `horizontal_dims_spec=`
+  through `MAPL_FieldSet`, nothing for bundles); `horizontal_dims_spec` is
+  gone from `GeometryCharacteristic`. Decision gate: field creation does
+  need the geom of a NONE item (`make_grid_to_field_map`), so the owner
+  approved Option A: a NONE item's Geometry is UNCHECKED and may carry a
+  geom (`GeometryCharacteristic(compared=.false.)`); `write_info` writes
+  it when it holds a geom, and `resolve_deferred` is now offered to
+  UNCHECKED entries (design.md §3.3 amended). The mirror value is a new
+  enum member `HORIZONTAL_DIMS_MIRROR` (YAML `dims: mirror`, imports only;
+  `StatisticsGridComp` uses it); the factory turns it into MIRRORED, and
+  legacy `GeomAspect` treats it as agreeing with anything and adopts the
+  export's spec at connection. Deviations: (1) GEOM vs NONE is
+  `BUILD_TRANSFORM_UNSUPPORTED`, like every structural kind, not a hard
+  error (owner has not confirmed); (2) "ordered before GEOMETRY" is
+  not implemented: it belongs with B3-ItemShape's `get_extension_order`
+  (the new kind is 14, after GEOMETRY), which is harmless while a NONE
+  item's Geometry never mismatches. New scenario
+  `graph-scenarios/dims_z_field` (ready). Mismatch tests are unit tests
+  (`Test_StatusResolution`, `Test_StateItemCharacteristicSubclasses`), not
+  scenarios, since a GEOM-vs-NONE connection is unsupported. No
+  `GraphBuilder*.F90` reference to the kind exists.
   B3-VerticalStagger (done): see adding-a-characteristic.md "VerticalStagger
   as implemented". New kind `VERTICAL_STAGGER_CHARACTERISTIC_KIND` and
   `VerticalStaggerCharacteristic` (structural; `vert_staggerloc=` through

@@ -84,6 +84,7 @@ target_sources(MAPL.generic PRIVATE
   characteristics/VerticalGridCharacteristic.F90
   characteristics/VerticalStaggerCharacteristic.F90
   characteristics/VerticalOrientationCharacteristic.F90
+  characteristics/HorizontalDimsSpecCharacteristic.F90
   characteristics/UngriddedDimsCharacteristic.F90
   characteristics/ConservationCharacteristic.F90
   characteristics/NormalizationCharacteristic.F90

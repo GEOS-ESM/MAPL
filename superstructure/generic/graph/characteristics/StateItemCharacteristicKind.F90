@@ -38,6 +38,8 @@ module mapl_StateItemCharacteristicKind_mod
    public :: VERTICAL_STAGGER_CHARACTERISTIC_KIND
    ! Value 13: vertical index order (up or down).
    public :: VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
+   ! Value 14: horizontal dims spec (GEOM or NONE).
+   public :: HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND
    public :: MOCK_CHARACTERISTIC_KIND
 
    type :: StateItemCharacteristicKind
@@ -69,6 +71,9 @@ module mapl_StateItemCharacteristicKind_mod
 
    ! Value 13: vertical orientation (VerticalOrientationCharacteristic.F90).
    type(StateItemCharacteristicKind), parameter :: VERTICAL_ORIENTATION_CHARACTERISTIC_KIND = StateItemCharacteristicKind(13)
+
+   ! Value 14: horizontal dims spec (HorizontalDimsSpecCharacteristic.F90).
+   type(StateItemCharacteristicKind), parameter :: HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND = StateItemCharacteristicKind(14)
 
    ! Test-only, mirrors CharacteristicId.F90's own MOCK_CHARACTERISTIC_ID
    ! precedent - lets a test define a fake StateItemCharacteristic
@@ -120,6 +125,8 @@ contains
          s = "VERTICAL_STAGGER"
       case (VERTICAL_ORIENTATION_CHARACTERISTIC_KIND%value)
          s = "VERTICAL_ORIENTATION"
+      case (HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND%value)
+         s = "HORIZONTAL_DIMS_SPEC"
       case (MOCK_CHARACTERISTIC_KIND%value)
          s = "MOCK"
       case default

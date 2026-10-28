@@ -5,6 +5,7 @@ module mapl_StatisticsGridComp_mod
    use MAPL
    use ESMF
    ! local modules
+   use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_MIRROR
    use mapl_AbstractTimeStatistic_mod
    use mapl_StatisticsVector_mod
    use mapl_NullStatistic_mod
@@ -89,7 +90,8 @@ contains
       else
          _FAIL("unsupported ESMF_StateItem_Flag requested for statisitcis GC to handle")
       end if
-      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, name, typekind=MAPL_TYPEKIND_MIRROR, mirror_geom=.true., mirror_vgrid=.true., itemtype=item_type, _RC)
+      call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, name, typekind=MAPL_TYPEKIND_MIRROR, mirror_geom=.true., mirror_vgrid=.true., &
+           horizontal_dims_spec=HORIZONTAL_DIMS_MIRROR, itemtype=item_type, _RC)
       select case (action)
       case ('average')
          call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_EXPORT, name, itemtype=item_type, _RC)

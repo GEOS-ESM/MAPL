@@ -350,9 +350,11 @@ contains
       _RETURN(_SUCCESS)
    end subroutine descriptor_check_resolved
 
-   ! Offers the component-supplied values to every DEFERRED characteristic.
-   ! Each characteristic takes what it needs; none is named here. One that
-   ! finds nothing to take stays DEFERRED and fails freeze.
+   ! Offers the component-supplied values to every DEFERRED or UNCHECKED
+   ! characteristic (an UNCHECKED one may still be waiting for a value it
+   ! carries but does not compare). Each characteristic takes what it needs;
+   ! none is named here. A DEFERRED one that finds nothing to take stays
+   ! DEFERRED and fails freeze.
    subroutine descriptor_resolve_deferred(this, defaults, rc)
       class(StateItemDescriptor), target, intent(inout) :: this
       type(CharacteristicDefaults), intent(in) :: defaults
@@ -369,7 +371,7 @@ contains
             call iter%next()
             c => iter%second()
             s = c%get_status()
-            if (s == CHARACTERISTIC_STATUS_DEFERRED) then
+            if (s == CHARACTERISTIC_STATUS_DEFERRED .or. s == CHARACTERISTIC_STATUS_UNCHECKED) then
                call c%resolve_deferred(defaults, _RC)
             end if
          end do

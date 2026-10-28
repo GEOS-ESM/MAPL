@@ -114,6 +114,8 @@ contains
                select case (ESMF_UtilStringLowerCase(dims_str))
                case ('z')
                   horizontal_dims_spec = HORIZONTAL_DIMS_NONE
+               case ('mirror')
+                  horizontal_dims_spec = HORIZONTAL_DIMS_MIRROR
                end select
             end if
 

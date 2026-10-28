@@ -4,13 +4,16 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
         TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
         VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND, &
-        VERTICAL_STAGGER_CHARACTERISTIC_KIND, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
+        VERTICAL_STAGGER_CHARACTERISTIC_KIND, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+        HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic, UNKNOWN_STANDARD_NAME
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
+   use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_MIRROR, operator(==)
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
@@ -48,7 +51,7 @@ contains
 
       integer :: status
       integer :: i
-      type(Factory) :: factories(9)
+      type(Factory) :: factories(10)
 
       factories(1)%make => make_units_characteristic
       factories(2)%make => make_typekind_characteristic
@@ -59,6 +62,7 @@ contains
       factories(7)%make => make_attributes_characteristic
       factories(8)%make => make_vertical_stagger_characteristic
       factories(9)%make => make_vertical_orientation_characteristic
+      factories(10)%make => make_horizontal_dims_spec_characteristic
 
       do i = 1, size(factories)
          call factories(i)%make(this, descriptor, _RC)
@@ -152,8 +156,11 @@ contains
    ! component never provides one. An expression has no geometry of its own
    ! and is MIRRORED (the allowlisted case). This differs from the legacy
    ! aspect, which treats "no geom" as MIRRORED. A declared geom_id with no
-   ! geom is SPECIFIED by identity alone. Every shape that
-   ! carries a field, plus SERVICE, has the entry; STATE and WILDCARD do not.
+   ! geom is SPECIFIED by identity alone. An item with no horizontal
+   ! dimensions (horizontal_dims_spec NONE) is never compared but still needs
+   ! a geom to be created, so it is UNCHECKED and takes the component's geom
+   ! when it declares none. Every shape that carries a field, plus SERVICE,
+   ! has the entry; STATE and WILDCARD do not.
    subroutine make_geometry_characteristic(spec, descriptor, rc)
       class(VariableSpec), intent(in) :: spec
       type(StateItemDescriptor), intent(inout) :: descriptor
@@ -162,26 +169,28 @@ contains
       integer :: status
       type(GeometryCharacteristic) :: geometry
       character(20) :: id_buffer
+      logical :: compared
 
       _RETURN_UNLESS(carries_field_description(spec%itemType) .or. spec%itemType == MAPL_STATEITEM_SERVICE)
+
+      compared = .not. (has_horizontal_dims_spec(spec%itemType) .and. spec%horizontal_dims_spec == HORIZONTAL_DIMS_NONE)
 
       if (allocated(spec%geom)) then
          if (spec%geom_id%is_assigned()) then
             write(id_buffer, '(I0)') spec%geom_id%get_value()
             geometry = GeometryCharacteristic(geom_id=trim(id_buffer), geom=spec%geom, &
-                 horizontal_dims_spec=spec%horizontal_dims_spec, regridder_param=spec%regrid_param)
+                 regridder_param=spec%regrid_param, compared=compared)
          else
-            geometry = GeometryCharacteristic(geom=spec%geom, &
-                 horizontal_dims_spec=spec%horizontal_dims_spec, regridder_param=spec%regrid_param)
+            geometry = GeometryCharacteristic(geom=spec%geom, regridder_param=spec%regrid_param, compared=compared)
          end if
       else if (spec%geom_id%is_assigned()) then
          write(id_buffer, '(I0)') spec%geom_id%get_value()
-         geometry = GeometryCharacteristic(geom_id=trim(id_buffer), &
-              horizontal_dims_spec=spec%horizontal_dims_spec, regridder_param=spec%regrid_param)
+         geometry = GeometryCharacteristic(geom_id=trim(id_buffer), regridder_param=spec%regrid_param, compared=compared)
       else
-         geometry = GeometryCharacteristic(horizontal_dims_spec=spec%horizontal_dims_spec, &
-              regridder_param=spec%regrid_param)
-         if (spec%itemType == MAPL_STATEITEM_EXPRESSION .or. spec%mirror_geom) then
+         geometry = GeometryCharacteristic(regridder_param=spec%regrid_param, compared=compared)
+         if (.not. compared) then
+            call geometry%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+         else if (spec%itemType == MAPL_STATEITEM_EXPRESSION .or. spec%mirror_geom) then
             call geometry%set_status(CHARACTERISTIC_STATUS_MIRRORED)
          else
             call geometry%set_status(CHARACTERISTIC_STATUS_DEFERRED)
@@ -192,6 +201,28 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_geometry_characteristic
+
+   ! SPECIFIED with GEOM unless the item declares NONE. HORIZONTAL_DIMS_MIRROR
+   ! is MIRRORED, imports only. Only Field and FieldBundle payloads have one:
+   ! an EXPRESSION or SERVICE has no horizontal layout of its own.
+   subroutine make_horizontal_dims_spec_characteristic(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN_UNLESS(has_horizontal_dims_spec(spec%itemType))
+
+      if (spec%horizontal_dims_spec == HORIZONTAL_DIMS_MIRROR) then
+         _ASSERT(spec%state_intent == ESMF_STATEINTENT_IMPORT, 'HORIZONTAL_DIMS_MIRROR is only valid on an import: ' // spec%short_name)
+      end if
+
+      call descriptor%set_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(spec%horizontal_dims_spec), _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_horizontal_dims_spec_characteristic
 
    ! A vertical grid declared on the item is SPECIFIED. mirror_vgrid, or an
    ! EXPRESSION with no grid, is MIRRORED. Otherwise the component supplies
@@ -380,6 +411,14 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_vertical_orientation_characteristic
+
+   ! Shapes that carry a horizontal dims spec: field-carrying, but not
+   ! EXPRESSION.
+   logical function has_horizontal_dims_spec(item_type) result(has)
+      type(ESMF_StateItem_Flag), intent(in) :: item_type
+
+      has = carries_field_description(item_type) .and. item_type /= MAPL_STATEITEM_EXPRESSION
+   end function has_horizontal_dims_spec
 
    ! Shapes whose payload is a Field or FieldBundle (or an expression that
    ! evaluates to one) and so carry the field-level kinds.

@@ -117,7 +117,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       comparing. Add the (EXPRESSION, VERTICAL_ORIENTATION) allowlist
       entry. A mismatch needs a reversal step; if no Transform exists,
       `build_transform` fails like Geometry's and the task reports it.
-- [ ] 3.17 B3-HorizontalDimsSpec (new kind, A14). Move
+- [x] 3.17 B3-HorizontalDimsSpec (new kind, A14). Move
       `horizontal_dims_spec` out of `GeometryCharacteristic` into
       `HorizontalDimsSpecCharacteristic`
       (`HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND`), ordered before

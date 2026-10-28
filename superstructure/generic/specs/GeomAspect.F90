@@ -139,7 +139,7 @@ contains
       supports_conversion_specific = .false.
       select type(dst)
       class is (GeomAspect)
-         supports_conversion_specific = (src%horizontal_dims_spec == dst%horizontal_dims_spec)
+         supports_conversion_specific = dims_specs_agree(src%horizontal_dims_spec, dst%horizontal_dims_spec)
       end select
 
    end function supports_conversion_specific
@@ -152,10 +152,10 @@ contains
       class is (GeomAspect)
          if (allocated(src%geom) .and. allocated(dst%geom)) then
             matches = MAPL_SameGeom(src%geom, dst%geom) .and. &
-                 (src%horizontal_dims_spec == dst%horizontal_dims_spec)
+                 dims_specs_agree(src%horizontal_dims_spec, dst%horizontal_dims_spec)
          else if (src%geom_id%is_assigned() .and. dst%geom_id%is_assigned()) then
             matches = (src%geom_id%get_value() == dst%geom_id%get_value()) .and. &
-                 (src%horizontal_dims_spec == dst%horizontal_dims_spec)
+                 dims_specs_agree(src%horizontal_dims_spec, dst%horizontal_dims_spec)
          else if (src%is_mirror()) then
             matches = .false. ! need geom extension
          else
@@ -166,6 +166,13 @@ contains
       end select
 
    end function matches
+
+   ! A mirror spec agrees with anything: it takes the other side's at connection.
+   elemental logical function dims_specs_agree(a, b)
+      type(HorizontalDimsSpec), intent(in) :: a, b
+
+      dims_specs_agree = (a == b) .or. (a == HORIZONTAL_DIMS_MIRROR) .or. (b == HORIZONTAL_DIMS_MIRROR)
+   end function dims_specs_agree
 
    function get_regridder_param(src_aspect, dst_aspect, rc) result(regridder_param)
       type(EsmfRegridderParam) :: regridder_param
@@ -269,6 +276,9 @@ contains
 
         export_ = to_GeomAspect(export, _RC)
         this%geom_id = export_%geom_id
+        if (this%horizontal_dims_spec == HORIZONTAL_DIMS_MIRROR) then
+           this%horizontal_dims_spec = export_%horizontal_dims_spec
+        end if
         if (allocated(export_%geom)) then
            this%geom = export_%geom
            call this%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
