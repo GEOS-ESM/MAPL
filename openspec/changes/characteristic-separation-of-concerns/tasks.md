@@ -224,6 +224,10 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       with different geoms match; NONE vs GEOM still does not. Remove the
       deviation sentence from 3.17 and the plan Status. Graph code is not
       touched.
+      Also (B3-MirrorFlagGuard review, minor): the `make_VariableSpec`
+      rejection tests in `Test_VariableSpecCharacteristics.pf`
+      (`test_make_VariableSpec_rejects_*`, `test_export_mirror_flag_with_*`)
+      check only the message; add a check that `status` is nonzero.
 - [ ] 3.21 B3-IncompatiblePair (A23). Add `BUILD_TRANSFORM_INCOMPATIBLE`
       beside `BUILD_TRANSFORM_UNSUPPORTED` in
       `graph/characteristics/StateItemCharacteristic.F90`, with a
