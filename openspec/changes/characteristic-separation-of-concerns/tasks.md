@@ -53,7 +53,7 @@ nothing for that kind, except the §6.3 materialization references
 the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
-Remaining order (owner): 3.19, 3.20, 3.21, then 3.7, 3.13, 3.11, 3.10,
+Remaining order (owner): 3.19b, 3.20, 3.21, then 3.7, 3.13, 3.11, 3.10,
 3.12, 3.14 as their open questions allow (3.12: Q2).
 Numbers are labels, not run order. Every task whose characteristic has a
 mirror value rejects it on a non-EXPRESSION export in the factory, at
@@ -167,6 +167,49 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       collection, `history_1`, `statistics_real` are all imports); if one
       does, stop and report. Update adding-a-characteristic.md (Geometry,
       VerticalGrid and StringMirror sections).
+- [ ] 3.19b B3-MirrorGeneric (A21 as revised: no mirror of any kind on a
+      non-EXPRESSION export; one rule, no per-characteristic cases).
+      3.19 landed the per-flag version; this replaces it. Two checks, as in
+      design.md A21:
+      (1) Add `VariableSpec%requests_mirror()`: true when any field holds its
+      mirror value (`MAPL_TYPEKIND_MIRROR`, `mirror_geom`, `mirror_vgrid`,
+      `HORIZONTAL_DIMS_MIRROR`, `VERTICAL_STAGGER_MIRROR`,
+      `vertical_alignment` mirror, `ungridded_dims%is_mirror()`,
+      `standard_name_mirror`; grep the factories in `make_characteristics.F90`
+      for every `MIRRORED` branch and cover each one). In `make_VariableSpec`
+      replace the 3.19 per-flag asserts with one `_ASSERT`: not
+      (`requests_mirror()` and export and not EXPRESSION), message
+      `mirror is only valid on an import or an expression: <name>`.
+      (2) In `make_characteristics`, after the factory loop: if the item is
+      a non-EXPRESSION export, fail on any MIRRORED entry in the descriptor,
+      naming the kind via `to_string()` (loop over the descriptor; name no
+      kind in the code).
+      Remove every per-factory export assert in `make_characteristics.F90`
+      (mirror_geom, mirror_vgrid, HORIZONTAL_DIMS_MIRROR,
+      MAPL_STRING_MIRROR, VERTICAL_STAGGER_MIRROR, vertical_alignment
+      mirror) and their header-comment sentences. Note: the
+      HORIZONTAL_DIMS_MIRROR and MAPL_STRING_MIRROR asserts today also
+      reject an EXPRESSION export; under A21 an EXPRESSION may declare any
+      mirror, so that rejection goes away (whether it resolves is the §2.4
+      allowlist, unchanged). If removing it breaks a test or scenario that
+      relies on it, stop and report.
+      Existing export-error tests (constructor and factory) keep their
+      setup and expect the new message (constructor) or the post-loop
+      message (hand-built `VariableSpec`, factory path). Keep the 3.19
+      fixture changes. Typekind and ungridded-dims mirrors had no export
+      check before, so other tests may now trip it: if such a test checks
+      the mirror mechanism, switch it to import intent (assertions
+      unchanged) and list it in the commit message. New tests: `requests_mirror()` true for each
+      spelling and false for a plain spec; constructor rejects a FIELD
+      export with a mirror, accepts an EXPRESSION export and an import;
+      post-loop check rejects a hand-built FIELD export and names the kind.
+      No production caller or scenario puts a mirror value on an export; if
+      one does, stop and report. Update adding-a-characteristic.md: replace
+      each per-kind "error on an export" note with a pointer to the generic
+      rule, and say a characteristic that adds a mirror value adds it to
+      `requests_mirror()`. Also update the §3 header sentence "Every task
+      whose characteristic has a mirror value rejects it ... in the
+      factory" to point at the generic check.
 - [ ] 3.20 B3-DimsZLegacy (A22; legacy layer change). In
       `specs/GeomAspect.F90` `matches`, when both sides'
       `horizontal_dims_spec` is NONE, return `.true.` without comparing

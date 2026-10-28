@@ -519,7 +519,8 @@ VerticalCoordinate to VerticalGrid; old label `B3-VerticalCoordinate`
 stays in history), VerticalOrientation (new, split from VerticalStagger),
 HorizontalDimsSpec (new, split from Geometry), StringMirror (shared
 mirror sentinel for StandardName/LongName), MirrorFlagGuard (A21: reject
-mirror flags on exports in `make_VariableSpec`), DimsZLegacy (A22: legacy
+mirror flags on exports in `make_VariableSpec`), MirrorGeneric (A21 as one
+generic rule: no mirror of any kind on a non-EXPRESSION export), DimsZLegacy (A22: legacy
 `GeomAspect` skips the geom comparison for two `dims: z` items),
 IncompatiblePair (A23: `BUILD_TRANSFORM_INCOMPATIBLE`, reported as a
 connection conflict). Run order: tasks.md §3 header.
@@ -582,8 +583,8 @@ in the first one; later ones refine it.
   `ESMF_STATEINTENT_IMPORT` (owner-approved). Constructor tests check the
   message via `@assertExceptionRaised`. gfortran rejects `&` continuations
   inside `_ASSERT` and identifiers over 63 characters; both avoided.
-  Deviation: the plan's table row (line 973) says to drop the per-factory
-  asserts; tasks.md 3.19 keeps them, so they stay (tasks.md wins).
+  This is the first, per-flag version of A21; the owner then made A21 one
+  generic rule, which B3-MirrorGeneric (tasks.md 3.19b) implements.
   B3-Attributes: `AttributesCharacteristic` gained `write_info`, a
   successful no-op (no Info key; design §3.4), `is_structural()` stays
   false. The factory (`make_attributes_characteristic`) always gives
@@ -973,6 +974,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-RenameVerticalGrid | haiku | sonnet | mechanical rename, no behavior change; first haiku authoring trial |
 | B3-StringMirror | haiku | sonnet | small factory change; second haiku authoring trial |
 | B3-MirrorFlagGuard | haiku | sonnet | constructor/factory assertions + two fixtures |
+| B3-MirrorGeneric | haiku | sonnet | one generic export check (constructor + after factory loop); drop per-factory export asserts |
 | B3-DimsZLegacy | sonnet | - | legacy GeomAspect change + scenario with two grids; stop if legacy still regrids |
 | B3-IncompatiblePair | sonnet | - | new build_transform outcome; conflict reporting stays kind-agnostic (D6) |
 | B3-VerticalStagger | sonnet | opus | DEFERRED/harvest; fixture risk |
