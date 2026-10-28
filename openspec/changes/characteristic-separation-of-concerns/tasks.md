@@ -53,8 +53,8 @@ nothing for that kind, except the §6.3 materialization references
 the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
-Remaining order (owner): 3.7, 3.13, 3.11, 3.10, 3.12, 3.14 as their open
-questions allow (3.10: Q9; 3.12: Q2).
+Remaining order (owner): 3.19, then 3.7, 3.13, 3.11, 3.10, 3.12, 3.14 as
+their open questions allow (3.10: Q9; 3.12: Q2).
 Numbers are labels, not run order. Every task whose characteristic has a
 mirror value rejects it on a non-EXPRESSION export in the factory, at
 advertise, with a test (A19; B3-VerticalStagger is the pattern). A
@@ -135,6 +135,26 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
 - [x] 3.18 B3-StringMirror (A13). Add one named string sentinel to
       `VariableSpec`; the StandardName factory maps it to MIRRORED
       (imports only; an export is an error). LongName (3.13) reuses it.
+- [ ] 3.19 B3-MirrorFlagGuard (A21). In `make_VariableSpec`
+      (`specs/VariableSpec.F90`, beside the `vector_basis_kind` check),
+      reject on an export: `mirror_geom` or `mirror_vgrid` unless the item
+      is an EXPRESSION, and `MAPL_STRING_MIRROR` (`standard_name_mirror`)
+      always. Add the same `mirror_geom` / `mirror_vgrid` assertion to the
+      Geometry and VerticalGrid factories (`make_characteristics.F90`),
+      matching the existing HORIZONTAL_DIMS_MIRROR / StringMirror ones; keep
+      the StringMirror factory assertion. Fix the two test fixtures that put
+      a mirror flag on an export: `Test_GraphGeometryHook.pf`
+      `advertise_and_hook` (export `M` with `mirror_vgrid`: give it a real
+      vertical grid or make it an import, keeping the test's intent that a
+      non-DEFERRED entry survives GEOM_B) and `advertise_undeclared_stagger`
+      (set `mirror_geom` only for an import; give an export a `geom_id`).
+      Tests: constructor rejects a FIELD export with each flag, accepts an
+      EXPRESSION export with `mirror_geom`/`mirror_vgrid`, accepts imports;
+      each factory rejects a hand-built FIELD export. No production caller
+      or scenario sets these flags on an export (Statistics, History
+      collection, `history_1`, `statistics_real` are all imports); if one
+      does, stop and report. Update adding-a-characteristic.md (Geometry,
+      VerticalGrid and StringMirror sections).
 - [x] 3.6 B3-Geometry (M1: item-level entry; DEFERRED; moves
       `_Geometry_smod` inserts behind a helper). Deviations from design
       §2.2/§2.3, owner-approved: a DEFERRED side at connect time waits
