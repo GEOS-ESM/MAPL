@@ -4,7 +4,7 @@
 ! applicability for each characteristic a factory inserts.
 module Test_VariableSpecCharacteristics
    use pfunit
-   use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_VariableSpec_mod, only: VariableSpec, make_VariableSpec, MAPL_STRING_MIRROR
    use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, &
         MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD, &
         MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_UNKNOWN, &
@@ -305,6 +305,46 @@ contains
    end subroutine test_unknown_standard_name_is_unchecked
 
    @test
+   subroutine test_mirror_standard_name_on_import_is_mirrored()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: standard_name
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%standard_name_mirror = .true.
+      @assertTrue(standard_name_status(var_spec, standard_name, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_standard_name_on_import_is_mirrored
+
+   @test
+   subroutine test_mirror_standard_name_on_export_is_an_error()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%standard_name_mirror = .true.
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('MAPL_STRING_MIRROR is only valid on an import: X')
+      @assertExceptionRaised('status=1')
+   end subroutine test_mirror_standard_name_on_export_is_an_error
+
+   ! make_VariableSpec strips the sentinel so the legacy FieldDictionary and
+   ! StandardNameAspect readers never see the literal string.
+   @test
+   subroutine test_make_VariableSpec_strips_mirror_sentinel()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', &
+           standard_name=MAPL_STRING_MIRROR, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(var_spec%standard_name_mirror)
+      @assertFalse(allocated(var_spec%standard_name))
+   end subroutine test_make_VariableSpec_strips_mirror_sentinel
+
+   @test
    subroutine test_shapes_without_standard_name_get_no_entry()
       type(ESMF_StateItem_Flag) :: shapes(11)
       type(StateItemDescriptor) :: descriptor
@@ -318,6 +358,11 @@ contains
       do i = 1, size(shapes)
          var_spec = make_spec(shapes(i))
          var_spec%standard_name = 'air_temperature'
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND))
+         var_spec%standard_name_mirror = .true.
+         var_spec%state_intent = ESMF_STATEINTENT_IMPORT
          call var_spec%make_characteristics(descriptor, rc=status)
          @assertEqual(0, status)
          @assertFalse(descriptor%has_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND))

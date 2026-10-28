@@ -182,7 +182,7 @@ contains
       else if (e == CHARACTERISTIC_STATUS_DEFERRED .or. i == CHARACTERISTIC_STATUS_DEFERRED) then
          outcome = PAIR_WAIT
       else if (e == CHARACTERISTIC_STATUS_UNCHECKED .and. i == CHARACTERISTIC_STATUS_MIRRORED) then
-         outcome = PAIR_CONFLICT
+         outcome = PAIR_ADOPT
       else if (e == CHARACTERISTIC_STATUS_UNCHECKED .or. i == CHARACTERISTIC_STATUS_UNCHECKED) then
          outcome = PAIR_MATCH
       else if (e == CHARACTERISTIC_STATUS_MIRRORED) then

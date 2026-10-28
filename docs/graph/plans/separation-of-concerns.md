@@ -108,7 +108,7 @@ Statuses: `SPECIFIED`, `MIRROR`, `UNCHECKED`, `DEFERRED` (transient).
 |---|---|---|---|
 | SPECIFIED | subclass `needs_extension_for`/`build_transform` | copy export value -> import, becomes SPECIFIED | match |
 | MIRROR | **error** except allowlisted shapes (EXPRESSION) | **error** | match |
-| UNCHECKED | match | **error** | match |
+| UNCHECKED | match | copy export -> import, becomes UNCHECKED | match |
 
 - UNCHECKED = "always match, user beware" (bootstrapping MAPL2-era items
   that never quantified the axis; expression outputs).
@@ -538,13 +538,34 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName and B3-Attributes done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes and B3-StringMirror done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
   `Plan-Task: B3-Attributes`, `Plan-Task: B3-RenameVerticalGrid`,
   `Plan-Task: B3-VerticalStagger`, `Plan-Task: B3-VerticalOrientation`,
-  `Plan-Task: B3-HorizontalDimsSpec`); others not started.
+  `Plan-Task: B3-HorizontalDimsSpec`, `Plan-Task: B3-StringMirror`); others not started.
+  B3-StringMirror: `VariableSpec` exports `MAPL_STRING_MIRROR` (`'<mirror>'`;
+  YAML `standard_name: "<mirror>"`), shared with the later LongName task.
+  `make_VariableSpec` does not store it: it sets `standard_name_mirror` and
+  leaves `standard_name` unallocated, so the FieldDictionary lookup (alias
+  fallback), `StandardNameAspect` and `split_name` never see the string. The
+  StandardName factory maps the flag to MIRRORED and asserts on an export;
+  only FIELD carries the entry, so the flag is ignored on other shapes
+  (their member fields carry their own names). Owner decision, generic
+  for all kinds: an UNCHECKED export against a MIRRORED import now adopts
+  (the import becomes UNCHECKED) instead of conflicting; design.md §2.2, the
+  descriptor spec table and `Test_StatusResolution` are amended. The factory
+  assertion runs only in the graph path, so an export typo is not caught in
+  legacy-only mode. No scenario changed. Not reproduced on a clean HEAD
+  baseline: `MAPL.generic.scenarios.pending` on NAG fails 114 checks in the
+  tree (the count recorded for B3-VerticalStagger and B3-VerticalOrientation),
+  but the HEAD worktree's pending run aborted on a NAG gFTL runtime error
+  (`Dangling pointer A%TREE`, `set/iterator_procedures.inc`) before running
+  scenarios, so the set could not be compared. One parallel gfortran ESSENTIAL
+  run timed out `MAPL.generic.scenarios` (1876 s) because the host laptop
+  was asleep during the run; it passed alone in 45 s and in a clean full
+  rerun.
   B3-Attributes: `AttributesCharacteristic` gained `write_info`, a
   successful no-op (no Info key; design §3.4), `is_structural()` stays
   false. The factory (`make_attributes_characteristic`) always gives

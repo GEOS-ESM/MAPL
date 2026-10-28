@@ -376,8 +376,8 @@ NONE (`dims: z`, no horizontal dimensions). It was part of
 - The subclass no longer reads `CharacteristicStatus`: the UNCHECKED
   escape in `needs_extension_for` is gone, and `resolve_pair` makes
   UNCHECKED match. `needs_extension_for` is plain string inequality.
-- Never DEFERRED or MIRRORED: there is no mirror sentinel and no
-  component-supplied value. Legacy absent-means-mirror: none
+- Never DEFERRED. MIRRORED only through the `MAPL_STRING_MIRROR`
+  sentinel (see StringMirror below). Legacy absent-means-mirror: none
   (`StandardNameAspect` is UNCHECKED when absent).
 - `write_info` writes `standard_name=` through `MAPL_FieldSet` /
   `MAPL_FieldBundleSet` in both phases: it is not a `FieldDelta` trigger
@@ -387,6 +387,26 @@ NONE (`dims: z`, no horizontal dimensions). It was part of
   declares a name, and the `ValidationMode` strict/permissive severity
   (they were already absent from the characteristic). Field-dictionary
   validation of the name stays in `VariableSpec` construction.
+
+## StringMirror as implemented
+
+A shared sentinel, not a characteristic of its own. `VariableSpec` exports
+`MAPL_STRING_MIRROR = '<mirror>'`; YAML spells it `standard_name: "<mirror>"`
+(written quoted).
+
+- `make_VariableSpec` does not store the sentinel. It sets
+  `standard_name_mirror = .true.` and leaves `standard_name` unallocated.
+  The legacy readers (the FieldDictionary lookup, `StandardNameAspect`,
+  `split_name` on vectors) therefore never see the literal string. An
+  unallocated name makes the FieldDictionary lookup fall back to the
+  `short_name` alias, so units and long_name still default on the import.
+- The StandardName factory maps the flag to MIRRORED. It asserts on an
+  export, as HORIZONTAL_DIMS_MIRROR does (A1). Only FIELD carries the entry,
+  as for every standard-name case.
+- Against an export with no declared name (UNCHECKED), the mirrored import
+  becomes UNCHECKED: there is nothing to copy and nothing is compared. This
+  is the generic (UNCHECKED, MIRRORED) rule in the descriptor, for all kinds.
+- LongName (B3-LongName) reuses the same sentinel and the same rule.
 
 ## Attributes as implemented
 

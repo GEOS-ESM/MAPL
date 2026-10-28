@@ -31,7 +31,7 @@ any subclass method is called:
 |---|---|---|---|---|
 | SPECIFIED | subclass comparison | copy export value to import; match | match | error |
 | MIRRORED | error unless allowlisted | error | match | error |
-| UNCHECKED | match | error | match | error |
+| UNCHECKED | match | copy export value to import (import becomes UNCHECKED); match | match | error |
 | DEFERRED | error | error | error | error |
 
 Subclass comparison, Transform-building, and Info-writing methods SHALL

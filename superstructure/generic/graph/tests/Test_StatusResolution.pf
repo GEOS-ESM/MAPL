@@ -148,9 +148,9 @@ contains
    end subroutine test_unchecked_specified_matches
 
    @test
-   subroutine test_unchecked_mirrored_conflicts()
-      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED))
-   end subroutine test_unchecked_mirrored_conflicts
+   subroutine test_unchecked_mirrored_adopts()
+      @assertEqual(PAIR_ADOPT, outcome(CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED))
+   end subroutine test_unchecked_mirrored_adopts
 
    @test
    subroutine test_unchecked_unchecked_matches()
@@ -283,6 +283,31 @@ contains
          @assertTrue(.false., 'adopted entry is not a TypeKindCharacteristic')
       end select
    end subroutine test_mirrored_import_adopts_export_value
+
+   ! A mirrored import against an UNCHECKED export becomes UNCHECKED: there is
+   ! no name to copy, and nothing is compared.
+   @test
+   subroutine test_mirrored_import_adopts_unchecked_export()
+      type(StateItemDescriptor) :: export, import
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      character(:), allocatable :: conflict
+      class(StateItemCharacteristic), allocatable :: found
+      type(StandardNameCharacteristic) :: unchecked, mirrored
+      integer :: status
+
+      call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call export%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, unchecked, rc=status)
+      call import%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, mirrored, rc=status)
+
+      call resolve_descriptors(export, import, mismatched, conflict, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', conflict)
+      @assertEqual(0, size(mismatched))
+
+      call import%get_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, found, rc=status)
+      @assertTrue(found%get_status() == CHARACTERISTIC_STATUS_UNCHECKED)
+   end subroutine test_mirrored_import_adopts_unchecked_export
 
    ! Bare maps cannot record an adoption, so the map form fails.
    @test

@@ -132,7 +132,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       cap geometry for both children (the author reports that legacy still
       compares geoms, so a scenario cannot differ); connecting across
       different grids is covered only by unit tests.
-- [ ] 3.18 B3-StringMirror (A13). Add one named string sentinel to
+- [x] 3.18 B3-StringMirror (A13). Add one named string sentinel to
       `VariableSpec`; the StandardName factory maps it to MIRRORED
       (imports only; an export is an error). LongName (3.13) reuses it.
 - [x] 3.6 B3-Geometry (M1: item-level entry; DEFERRED; moves

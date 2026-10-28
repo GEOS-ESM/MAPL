@@ -70,6 +70,11 @@ module mapl_VariableSpec_mod
 
    public :: VariableSpec
    public :: make_VariableSpec
+   public :: MAPL_STRING_MIRROR
+
+   ! standard_name value that requests the connected partner's name (imports
+   ! only). Write it quoted in YAML ("<mirror>").
+   character(*), parameter :: MAPL_STRING_MIRROR = '<mirror>'
 
    ! This type provides components that might be needed for _any_
    ! state item.  This is largely to support legacy interfaces, but it
@@ -94,6 +99,8 @@ module mapl_VariableSpec_mod
       ! Field & Vector
       !---------------------
       character(:), allocatable :: standard_name
+      ! Set by a MAPL_STRING_MIRROR request; standard_name stays unallocated.
+      logical :: standard_name_mirror = .false.
       character(:), allocatable :: long_name ! from FieldDictionary or override
       type(RestartMode), allocatable :: restart_mode
       !---------------------
@@ -360,7 +367,13 @@ contains
 #  undef _SET_OPTIONAL
 #endif
 #define _SET_OPTIONAL(opt) if (present(opt)) var_spec%opt = opt
-      _SET_OPTIONAL(standard_name)
+      if (present(standard_name)) then
+         if (standard_name == MAPL_STRING_MIRROR) then
+            var_spec%standard_name_mirror = .true.
+         else
+            var_spec%standard_name = standard_name
+         end if
+      end if
       _SET_OPTIONAL(long_name)
       _SET_OPTIONAL(geom_id)
       _SET_OPTIONAL(geom)
@@ -396,7 +409,13 @@ contains
       ! carry no standard_name of their own to look up).
       fd_config => get_field_dictionary_config()
       if (.not. fd_config%is_exempt(var_spec%itemType)) then
-         call apply_field_dictionary_defaults_(var_spec, short_name, standard_name, units, long_name, _RC)
+         if (allocated(var_spec%standard_name)) then
+            call apply_field_dictionary_defaults_(var_spec, short_name, &
+                 standard_name=var_spec%standard_name, units=units, long_name=long_name, _RC)
+         else
+            call apply_field_dictionary_defaults_(var_spec, short_name, &
+                 units=units, long_name=long_name, _RC)
+         end if
       end if
 
       _RETURN(_SUCCESS)

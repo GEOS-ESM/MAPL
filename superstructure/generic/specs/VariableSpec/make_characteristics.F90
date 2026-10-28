@@ -264,8 +264,9 @@ contains
       _RETURN(_SUCCESS)
    end subroutine make_vertical_grid_characteristic
 
-   ! A declared standard_name is SPECIFIED. Undeclared (or UNKNOWN_STANDARD_NAME)
-   ! is UNCHECKED: it matches anything. Only a FIELD carries one: the other
+   ! A declared standard_name is SPECIFIED. The MAPL_STRING_MIRROR request
+   ! is MIRRORED, imports only. Undeclared (or UNKNOWN_STANDARD_NAME) is
+   ! UNCHECKED: it matches anything. Only a FIELD carries one: the other
    ! shapes either enforce their own names (VECTOR), are exempt, or adopt the
    ! field-side value after the shape step.
    subroutine make_standard_name_characteristic(spec, descriptor, rc)
@@ -278,6 +279,13 @@ contains
       logical :: declared
 
       _RETURN_UNLESS(spec%itemType == MAPL_STATEITEM_FIELD)
+
+      if (spec%standard_name_mirror) then
+         _ASSERT(spec%state_intent == ESMF_STATEINTENT_IMPORT, 'MAPL_STRING_MIRROR is only valid on an import: ' // spec%short_name)
+         call standard_name%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+         call descriptor%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, standard_name, _RC)
+         _RETURN(_SUCCESS)
+      end if
 
       declared = allocated(spec%standard_name)
       if (declared) declared = spec%standard_name /= UNKNOWN_STANDARD_NAME

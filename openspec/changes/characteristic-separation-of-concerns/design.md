@@ -130,7 +130,7 @@ factories and the descriptor call it.
 |---|---|---|---|---|
 | SPECIFIED | `export_c%needs_extension_for(import_c)` | copy: `allocate(import_c, source=export_c)`, status SPECIFIED; match | match | wait |
 | MIRRORED | error, unless `(export shape, kind)` is allowlisted (§2.4) | error | match | wait |
-| UNCHECKED | match | error | match | wait |
+| UNCHECKED | match | copy: the import becomes UNCHECKED; match | match | wait |
 | DEFERRED | wait | wait | wait | wait |
 
 - "match" means no transform for this kind.
@@ -552,7 +552,7 @@ is authoritative for status rules; this table summarizes it.
 | ItemShape | `itemType` | built-in FIELD | - | - | same | design |
 | TypeKind | `typekind` | built-in R4 | - | `MAPL_TYPEKIND_MIRROR` | same; a MIRROR side matches anything | landed |
 | PhysicalUnits | `units` | field dictionary | UNCHECKED | none (may adopt the string sentinel later) | UNCHECKED; writes `/$MIRROR$` for mirrored units (no reader) | landed |
-| StandardName | `standard_name` | - | UNCHECKED | string sentinel, imports only (A13) | UNCHECKED | landed; mirror: design |
+| StandardName | `standard_name` | - | UNCHECKED | string sentinel, imports only (A13) | UNCHECKED | landed |
 | LongName | `long_name` | field dictionary, then StandardName | UNCHECKED, writes nothing | string sentinel, imports only (A13) | carried on `FieldClassAspect`, not compared | design |
 | UngriddedDims | `ungridded_dims` | built-in: none | - | `is_mirror()` | same | landed |
 | Geometry | `geom`, `geom_id` | component geom, then harvest | freeze fails | `mirror_geom` / `geometry_mirror: true` | item geom, component geom, item id, component id (FROM_COMP); else MIRRORED | landed |
