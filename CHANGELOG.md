@@ -14,10 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update `components.yaml`
-  - ESMA_cmake v4.51.0
+  - ESMA_cmake v4.52.0
     - Make ESMA_cmake reentrant
     - Fix issue with quad precision detection test
     - Fixes for Flang and NVIDIA compilers
+    - Fixes for CMake builds
+  - ESMA_env v5.27.0
+    - Update to GEOSpyD 26.7.2
 - MAPLPy: add a method to retrieve the Fortran MPI communicator (as a flat `Fint`)
 - MAPLPy: add a `GetResource_Int64` alongside the 32bit one
 
