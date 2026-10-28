@@ -756,6 +756,11 @@ A21. Mirror requests that are flags or sentinels (`mirror_geom`,
      export (it is MIRRORED for those kinds anyway). The factories keep the
      same assertion (A19), so a hand-built VariableSpec is caught too.
      Task B3-MirrorFlagGuard.
+A22. Legacy `GeomAspect%matches` skips the geom comparison when both
+     sides' `horizontal_dims_spec` is NONE, so legacy also connects two
+     `dims: z` items across different horizontal grids (A14). This is a
+     deliberate change to the legacy layer, so that a scenario can cover
+     the case. Task B3-DimsZLegacy.
 
 ## Open Questions (deferred to the named B3 task)
 
@@ -803,6 +808,10 @@ Q9 (B3-QuantityType). Legacy `make_QuantityTypeAspect` ignores
     `VariableSpec%quantity_type` and writes default metadata plus a
     derived normalization that `NormalizationAspect` overwrites. The
     graph writes the declared value and only its own key. Confirm.
+    **Answered: confirmed, for all three** (QuantityType, Conservation,
+    Normalization): the graph uses the declared value, not legacy's fixed
+    defaults. Future (owner, not a current task): the field dictionary
+    supplies values for these three, as it does for units and long_name.
 Q11 (B3-Units). **Answered: confirmed.** Legacy writes
     `units='/$MIRROR$'` into Info for mirrored units, and no reader
     exists. The graph never writes a MIRROR marker; the PhysicalUnits
