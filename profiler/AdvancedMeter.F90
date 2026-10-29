@@ -75,8 +75,13 @@ contains
       type(AdvancedMeter) :: meter
       class(AbstractGauge), intent(in) :: gauge
 
+      ! Initialize NAG's per-DSO OpenMP state before direct meter use reaches
+      ! the !$omp master directives in start and stop.
+      !$omp parallel
+      !$omp end parallel
+
       meter%gauge = gauge
-      
+
    end function new_AdvancedMeter
 
 

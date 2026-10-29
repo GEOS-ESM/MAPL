@@ -13,12 +13,13 @@ MAPL requires a Fortran 2003 compliant compiler. It is currently tested and
 supported with:
 
 - Intel Fortran Classic `ifort` 2021.6.0 and 2021.13.0
-- Intel Fortran LLVM `ifx` 2025.0
-- GCC 13.2.0, 14.2.0, 15.2.0
-- NAG Fortran 7.2.28
+- Intel Fortran LLVM `ifx` 2025.3
+- GCC 14.2.0, 15.2.0, 16.2.0
+- NAG Fortran 7.2.28+
+- LLVM Flang 23.1.1 (but supports Flang 22.1+)
 
-Note that at the moment MAPL does not support LLVM Flang or NVHPC.
-Efforts are underway to support these.
+Note that at the moment MAPL does not support NVHPC.
+Efforts are underway to support this compiler.
 
 ### MPI
 
@@ -26,8 +27,8 @@ MAPL requires MPI and has been tested to run with:
 
 - Open MPI
 - Intel MPI
-- MPICH 4 (only MAPL 2.41 and higher)
-- MVAPICH2
+- MPICH 4+ (only MAPL 2.41 and higher)
+- MVAPICH
 
 ### Libraries
 
@@ -53,17 +54,17 @@ MAPL is currently tested with the following library versions:
 | netCDF-C       | v4.9.2         |
 | netCDF-Fortran | v4.6.1         |
 | UDUNITS2       | v2.2.28        |
-| ESMF           | v8.9.0         |
-| GFE            | v1.19.0        |
+| ESMF           | v9.0.0b17      |
+| GFE            | v1.28.0        |
 
 #### ESMF Versions
 
-NOTE: MAPL only requires ESMF 8.6.1, but we currently build with
-ESMF 8.9.0 and have support for ESMF 9 betas.
+NOTE: MAPL v2 only requires ESMF 8.6.1, but we currently build with
+ESMF 9.0.0b17 as that is what MAPL v3 development uses.
 
 #### ESMA Baselibs
 
-The above libraries are equivalent to ESMA-Baselibs v8.19.0. This is used
+The above libraries are equivalent to ESMA-Baselibs v8.33.0 and v9.13.0. This is used
 internally by GEOS-ESM users at the GMAO.
 
 ## Getting MAPL
@@ -84,7 +85,7 @@ Then you can run `mepo clone` in your MAPL clone and you'll get
 three subrepos:
 
 - [ESMA_env](https://github.com/GEOS-ESM/ESMA_env)
-  - This is we use internally to control our compilers, libraries, etc. for external users it's a bit of a no-op
+  - This is what we use internally to control our compilers and libraries. For external users, it is mostly a no-op.
 - [ESMA_cmake](https://github.com/GEOS-ESM/ESMA_cmake)
   - This has most of our CMake controls, macros, etc.
 - [ecbuild](https://github.com/GEOS-ESM/ecbuild)
@@ -114,14 +115,14 @@ spack install mapl
 Once you have all the dependent libraries, the build process should be pretty standard:
 
 ```
-cmake -B build-dir -S . --install-prefix=/path/to/install-dir < -DCMAKE_Fortran_COMPILER=XXX >
+cmake -S . -B build-dir --install-prefix /path/to/install-dir -DCMAKE_Fortran_COMPILER=XXX
 cmake --build build-dir --target install -j N
 ```
 where `N` is the number of parallel build jobs you want to run.
 
 Note: If you have `FC` set in the environment, then there is no need for
 `CMAKE_Fortran_COMPILER` but many environments do not provide `FC` and might
-default to `gfortran` which might not be what you want.
+default to `gfortran`, which might not be what you want.
 
 ### Available CMake Options
 

@@ -21,7 +21,11 @@ TRUE_VALUES = {'t', 'true', 'yes', 'y', 'si', 'oui', 'sim'}
 FALSE_VALUES = {'f', 'false', 'no', 'n', 'no', 'non', 'nao'}
 
 # constants used for Option.DIMS and computing rank
-DIMS_OPTIONS = [('MAPL_DimsVertOnly', 1, 'z'), ('MAPL_DimsHorzOnly', 2, 'xy'), ('MAPL_DimsHorzVert', 3, 'xyz')]
+DIMS_OPTIONS = [('MAPL_DimsVertOnly', 1, 'z'),
+                ('MAPL_DimsHorzOnly', 2, 'xy'),
+                ('MAPL_DimsHorzVert', 3, 'xyz'),
+                ('MAPL_DimsTileOnly', 4, 't'),
+                ('MAPL_DimsTileTile', 5, 'tt')]
 RANKS = dict([(entry, rank) for entry, rank, _ in DIMS_OPTIONS])
 
 ############################### HELPER FUNCTIONS ###############################

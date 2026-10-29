@@ -117,6 +117,11 @@
      type(ESMF_Config)    :: CF
      logical              :: active = .true.
      logical              :: file_weights = .false.
+     logical              :: log_files_read = .false.
+     character(:), allocatable :: files_read_log_path
+     type(stringVector)   :: files_read
+     type(ESMF_Time)      :: run_start_time
+     type(ESMF_Time)      :: run_end_time
   end type MAPL_ExtData_State
 
 ! Hook for the ESMF
@@ -284,7 +289,8 @@ CONTAINS
    call ESMF_ConfigGetAttribute(cf_master,new_rc_file,label="EXTDATA_YAML_FILE:",default="extdata.yaml",_RC)
    call get_global_options(new_rc_file,self%active,self%file_weights,_RC)
 
-   call ESMF_ClockGet(CLOCK, currTIME=time, _RC)
+   call ESMF_ClockGet(CLOCK, currTime=time, _RC)
+   call ESMF_ClockGet(clock, currTime=run_range(1), stoptime=run_range(2), _RC)
 ! Get information from export state
 !----------------------------------
     call ESMF_StateGet(EXPORT, ITEMCOUNT=ItemCount, _RC)
@@ -301,6 +307,13 @@ CONTAINS
     end if
 
     call new_ExtDataOldTypesCreator(config_yaml, new_rc_file, time, _RC)
+
+    self%log_files_read = config_yaml%log_files_read
+    if (config_yaml%log_files_read) then
+       self%files_read_log_path = config_yaml%files_read_log_path
+       self%run_start_time = time
+       self%run_end_time = run_range(2)
+    end if
 
     allocate(ITEMNAMES(ITEMCOUNT), _STAT)
     allocate(ITEMTYPES(ITEMCOUNT), _STAT)
@@ -399,7 +412,6 @@ CONTAINS
       end if
    enddo
 
-   call ESMF_ClockGet(clock, currtime=run_range(1), stoptime=run_range(2), _RC)
 !  now lets establish the horizonal and vertical grid for each component, replaces getlevs
    do i=1,self%primary%import_names%size()
 
@@ -643,7 +655,7 @@ CONTAINS
          call item%filestream%get_file_bracket(use_time,item%source_time, item%modelGridFields%comp2, item%fail_on_missing_file,_RC)
       end if
       call create_bracketing_fields(item,self%ExtDataState, _RC)
-      call IOBundle_Add_Entry(IOBundles,item,idx)
+      call IOBundle_Add_Entry(IOBundles,self,item,idx)
       useTime(i)=use_time
 
    end do READ_LOOP
@@ -693,6 +705,7 @@ CONTAINS
       call MAPL_ExtDataFlipBracketSide(item,bracket_side,_RC)
       call bundle_iter%next()
    enddo
+
    call MAPL_ExtDataDestroyCFIO(IOBundles,_RC)
 
    call MAPL_TimerOff(MAPLSTATE,"-Read_Loop")
@@ -789,6 +802,41 @@ CONTAINS
 !-------------------------------------------------------------------------
 
    integer                           :: status
+   type(MAPL_ExtData_state), pointer :: self
+   type(ESMF_Config)                 :: CF_local
+   type(ESMF_HConfig)                :: cfg, files_list
+   type(StringVectorIterator)        :: fiter
+      character(len=ESMF_MAXSTR)        :: filename
+   character(len=ESMF_MAXSTR)        :: timestring
+
+!  Extract internal state
+!  ----------------------
+   call extract_ ( GC, self, CF_local, _RC )
+
+!  Write file-read log if enabled
+!  --------------------------------
+   if (self%log_files_read) then
+      cfg = ESMF_HConfigCreate(_RC)
+
+      call ESMF_TimeGet(self%run_start_time, timeString=timestring, _RC)
+      call ESMF_HConfigAdd(cfg, content=trim(timestring), addKeyString='run_start', _RC)
+
+      call ESMF_TimeGet(self%run_end_time, timeString=timestring, _RC)
+      call ESMF_HConfigAdd(cfg, content=trim(timestring), addKeyString='run_end', _RC)
+
+      files_list = ESMF_HConfigCreate(_RC)
+      fiter = self%files_read%begin()
+      do while (fiter /= self%files_read%end())
+         filename = fiter%get()
+         call ESMF_HConfigAdd(files_list, content=trim(filename), _RC)
+         call fiter%next()
+      end do
+      call ESMF_HConfigAdd(cfg, files_list, addKeyString='files_read', _RC)
+      call ESMF_HConfigDestroy(files_list, _RC)
+
+      call ESMF_HConfigFileSave(cfg, self%files_read_log_path, _RC)
+      call ESMF_HConfigDestroy(cfg, _RC)
+   end if
 
 !  Finalize MAPL Generic
 !  ---------------------
@@ -1400,8 +1448,9 @@ CONTAINS
 
   end subroutine MAPL_ExtDataReadPrefetch
 
-  subroutine IOBundle_Add_Entry(IOBundles,item,entry_num,rc)
+  subroutine IOBundle_Add_Entry(IOBundles,extdata_state,item,entry_num,rc)
      type(IOBundleNGVector), intent(inout) :: IOBundles
+     type(MAPL_ExtData_state), intent(inout) :: extdata_state
      type(primaryExport), target, intent(inout)        :: item
      integer, intent(in)                    :: entry_num
      integer, intent(out), optional         :: rc
@@ -1428,6 +1477,7 @@ CONTAINS
                item%pfioCollection_id,item%iclient_collection_id,itemsL,on_tiles,_RC)
            call IOBundles%push_back(io_bundle)
            call extdata_lgr%info('%a updated L bracket with: %a at time index %i0 ',item%name, current_file, time_index)
+           call append_files_read(extdata_state, current_file, _RC)
         end if
      end if
      call item%modelGridFields%comp1%get_parameters('R',update=update,file=current_file,time_index=time_index)
@@ -1438,6 +1488,7 @@ CONTAINS
                item%pfioCollection_id,item%iclient_collection_id,itemsR,on_tiles,_RC)
            call IOBundles%push_back(io_bundle)
            call extdata_lgr%info('%a updated R bracket with: %a at time index %i0 ',item%name,current_file, time_index)
+           call append_files_read(extdata_state, current_file, _RC)
         end if
      end if
 
@@ -1880,6 +1931,34 @@ CONTAINS
 
   end subroutine confirm_imports_for_vregrid
 
+  subroutine append_files_read(self, current_file, rc)
+     type(MAPL_ExtData_State), intent(inout) :: self
+     character(len=*),         intent(in)    :: current_file 
+     integer, optional,        intent(out)   :: rc
+     if (.not. self%log_files_read) then
+        _RETURN(_SUCCESS)
+     end if
+     if (.not. string_in_vector(self%files_read, current_file)) then 
+        call self%files_read%push_back(trim(current_file))
+     end if
+     _RETURN(_SUCCESS)
+  end subroutine append_files_read
 
+  logical function string_in_vector(vec, str)
+     type(StringVector), intent(in) :: vec
+     character(len=*),   intent(in) :: str
+     type(StringVectorIterator) :: iter
+      character(len=ESMF_MAXSTR) :: val
+     string_in_vector = .false.
+     iter = vec%begin()
+     do while (iter /= vec%end())
+        val = iter%get()
+        if (trim(val) == trim(str)) then
+           string_in_vector = .true.
+           return
+        end if
+        call iter%next()
+     end do
+  end function string_in_vector
 
  END MODULE MAPL_ExtDataGridComp2G
