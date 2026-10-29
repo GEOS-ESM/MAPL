@@ -1136,6 +1136,10 @@ replicate an unreviewed template across B3.x.
    only the task's files (never untracked files you didn't create);
    after committing, delete `.git/PLAN_TASK_MSG`.
    Never push, never rewrite earlier commits.
+8. Line length: keep new or touched source and test lines to 80
+   characters. Up to 120 is acceptable only for a compelling reason
+   (e.g. an `_ASSERT` with a long message string). Rewrap existing
+   longer lines you touch.
 
 ## Dependency summary
 
