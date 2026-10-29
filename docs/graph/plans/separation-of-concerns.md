@@ -43,9 +43,22 @@ Preferences stated in discussion, not obvious from the rest of the plan:
   lint-style ctests) unless the risk is subtle or dangerous. Check such
   rules once in a task's Done condition; document the rule once the
   source satisfies it; review enforces it afterwards.
-- One task at a time: no parallel task agents or worktrees, and no plan
-  edits while a task has uncommitted work that touches the plan (wait
-  for its commit, then edit).
+- One main-line task at a time. The meta session runs tasks through
+  author and reviewer subagents (`/run-task`), and collects questions
+  for upcoming tasks up front (`/preflight`); design-heavy (opus-author)
+  tasks still run as interactive sessions. A task that touches none of
+  the main-line task's files (D3, A4, docs, investigations) may run in a
+  worktree at the same time, with owner approval; B3.x tasks may not.
+  How: `~/.opencode/plan/orchestration.md`. No plan edits while a task
+  has uncommitted work that touches the plan (wait for its commit, then
+  edit); worktree tasks never edit the plan.
+- Questions to the owner: legacy behavior first, in legacy terms; a
+  concrete YAML example and what the user sees; options with their
+  consequences; a recommendation. No labels invented in the session.
+  If the owner asks for more context, re-ask from a lower level.
+  Details: orchestration.md, "Question format".
+- The owner reviews every task before it commits (reviewer subagent at
+  least `sonnet` when the model table says `-`).
 - Fix-as-needed beats speculative completeness (e.g. `MAPL_StateSet` is
   extended when a task needs it); no speculative compiler workarounds.
 - Prefer overloading existing MAPL generic names (`MAPL_FieldGet`,
@@ -60,7 +73,10 @@ Preferences stated in discussion, not obvious from the rest of the plan:
   Status line, scope), delete a stale `.git/PLAN_TASK_MSG`, then fold
   its findings into later tasks.
 - Tooling lives outside the plan: `.opencode/README.md` (agents,
-  commands, `with-*` wrappers, `model-for` tiers). The owner's personal
+  commands, `with-*` wrappers, `model-for` tiers).
+- Personal workflow tooling (commands, agents, orchestration notes,
+  known traps) lives under `~/.config/opencode/` and `~/.opencode/plan/`,
+  not in the repo. The owner's personal
   workflow commands (e.g. `/meta-checkpoint`, `/meta-resume`) live in
   `~/.config/opencode/`, not the repo.
 - The owner may run reviews or worktrees from other sessions. Check
@@ -1015,19 +1031,22 @@ summary.
 1. Author finishes: changes uncommitted and unstaged (new files left
    untracked; list them in the message body), proposed message in
    `.git/PLAN_TASK_MSG`.
-2. Owner reviews the working tree (e.g. magit status), optionally after
-   `/review-task <label>` in a separate session.
-3. Fixes go into the working tree (owner asks the author session). If
-   the review says "rework needed", or the author session is very long,
-   the author first writes its unfinished list into the task's Status
-   line and the rework runs in a fresh session from the working tree.
-   If the parent session does not relay the review, `last-review
-   <label>` prints it.
-4. Owner commits: `git commit -aF .git/PLAN_TASK_MSG`, or tells the
-   author session "commit". (`-a` takes every modified tracked file, so
-   check `git status` first.) Whoever commits then deletes
-   `.git/PLAN_TASK_MSG`; a stale one would be mistaken for the next
-   task's message.
+2. Under `/run-task` the meta session launches the reviewer when the
+   author finishes, has the author fix findings that need no owner
+   decision, and brings the owner one message: verdict, report, fixes,
+   questions, and the files to commit. In an interactive task session
+   the owner runs `/review-task <label>` there instead.
+3. Owner decisions go back to the author (meta resumes the same author
+   subagent). If the review says "rework needed", or the author session
+   is very long, the author first writes its unfinished list into the
+   task's Status line and the rework runs in a fresh author from the
+   working tree. `last-review <label>` (or `-s <session>`) prints any
+   subagent's last report.
+4. Commit only when the owner says "commit": `git add` exactly the
+   task's files (never `-a`; never the owner's untracked files), then
+   `git commit -F .git/PLAN_TASK_MSG`. Whoever commits then deletes
+   that file; a stale one would be mistaken for the next task's
+   message.
 5. Problems found after commit go in a follow-up commit with the same
    `Plan-Task:` trailer.
 Senior-developer review happens once, at the final PR to `develop`.
@@ -1113,6 +1132,8 @@ replicate an unreviewed template across B3.x.
    clean baseline (a temporary `git worktree` of HEAD, removed
    afterward with `git worktree remove`). Configure the baseline with the
    same `CMAKE_BUILD_TYPE` as the tree it is compared against.
+   `mapl-worktree baseline <name> --configure` does both (and links
+   ESMA_cmake and GEOS_FieldDictionary); `mapl-worktree remove <name>`.
 2. Build/test NAG then gfortran; put both `ctest -L ESSENTIAL`
    summary lines in the proposed commit message body. Docs-only tasks
    (no source, CMake or test changes) write "docs only; ctest not run"
@@ -1135,6 +1156,8 @@ replicate an unreviewed template across B3.x.
    `.git/PLAN_TASK_MSG`. Commit only when the owner says so, and then
    only the task's files (never untracked files you didn't create);
    after committing, delete `.git/PLAN_TASK_MSG`.
+   In a worktree, `.git` is a file; the message goes in
+   `$(git rev-parse --git-dir)/PLAN_TASK_MSG`.
    Never push, never rewrite earlier commits.
 8. Line length: keep new or touched source and test lines to 80
    characters. Up to 120 is acceptable only for a compelling reason
