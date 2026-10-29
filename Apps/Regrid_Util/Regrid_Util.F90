@@ -46,6 +46,8 @@
      integer :: nn
      character(len=5) :: imsz,jmsz
 
+     if (index(gridName, 'EASE') /=0) return ! Not necessary for EASE grid 
+
      nn   = len_trim(Gridname)
      imsz = Gridname(3:index(Gridname,'x')-1)
      jmsz = Gridname(index(Gridname,'x')+1:nn-3)
@@ -260,13 +262,22 @@
        character(len=2) :: pole,dateline
        integer :: nn
 
+       cf = MAPL_ConfigCreate(_RC)
+       call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".NX:",_RC)
+       call MAPL_ConfigSetAttribute(cf,value=lm, label=trim(grid_name)//".LM:",_RC)
+
+       if (index(grid_name, 'EASE') /=0) then
+          !These three attributes are enough to create a EASE grid from the EASE factory 
+          call MAPL_ConfigSetAttribute(cf,value="EASE", label=trim(grid_name)//".GRID_TYPE:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value=trim(grid_name), label=trim(grid_name)//".GRIDNAME:",_RC)
+          call MAPL_ConfigSetAttribute(cf,value=ny, label=trim(grid_name)//".NY:",_RC)
+          _RETURN(_SUCCESS)
+       endif
+
        nn = len_trim(grid_name)
        dateline=grid_name(nn-1:nn)
        pole=grid_name(1:2)
 
-       cf = MAPL_ConfigCreate(_RC)
-       call MAPL_ConfigSetAttribute(cf,value=NX, label=trim(grid_name)//".NX:",_RC)
-       call MAPL_ConfigSetAttribute(cf,value=lm, label=trim(grid_name)//".LM:",_RC)
        if (dateline=='CF') then
           call MAPL_ConfigSetAttribute(cf,value="Cubed-Sphere", label=trim(grid_name)//".GRID_TYPE:",_RC)
           call MAPL_ConfigSetAttribute(cf,value=6, label=trim(grid_name)//".NF:",_RC)
