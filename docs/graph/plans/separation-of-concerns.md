@@ -60,7 +60,12 @@ Preferences stated in discussion, not obvious from the rest of the plan:
   Status line, scope), delete a stale `.git/PLAN_TASK_MSG`, then fold
   its findings into later tasks.
 - Tooling lives outside the plan: `.opencode/README.md` (agents,
-  commands, `with-*` wrappers, `model-for` tiers).
+  commands, `with-*` wrappers, `model-for` tiers). The owner's personal
+  workflow commands (e.g. `/meta-checkpoint`, `/meta-resume`) live in
+  `~/.config/opencode/`, not the repo.
+- The owner may run reviews or worktrees from other sessions. Check
+  `session_v2` for "Review <label>" sessions before saying no review ran,
+  and do not attribute a worktree or test log to a task without checking.
 
 ## Context every task prompt should include
 
@@ -563,7 +568,9 @@ in the first one; later ones refine it.
   "connection conflict", apart from "no registered extension provider".
   Decision: incompatible pairs have their own report and descriptor status
   conflicts were left in `unsupported_characteristics`, so no existing
-  behavior changed; merging them is a later choice. Nothing calls `_FAIL`,
+  behavior changed. Owner (review): keep the two channels separate for now;
+  the Geometry hooks and callback wiring may keep reporting an incompatible
+  pair as unsupported until those sites are retired. Nothing calls `_FAIL`,
   and a test shows the component's other connection still wires. No
   `GraphBuilder*.F90` names a kind. Tests: `Test_StateItemCharacteristicSubclasses`
   (renamed to `..._incompatible`), `Test_ExtensionResolution` (with and
@@ -1069,8 +1076,8 @@ it may author D1/A4/B5 with sonnet review.
 | B3-StringMirror | haiku | sonnet | small factory change; second haiku authoring trial |
 | B3-MirrorFlagGuard | haiku | sonnet | constructor/factory assertions + two fixtures |
 | B3-MirrorGeneric | haiku | sonnet | one generic export check (constructor + after factory loop); drop per-factory export asserts |
-| B3-DimsZLegacy | sonnet | - | legacy GeomAspect change + scenario with two grids; stop if legacy still regrids; plus MirrorGeneric review follow-ups (docs/comments, tests) |
-| B3-IncompatiblePair | sonnet | - | new build_transform outcome; conflict reporting stays kind-agnostic (D6) |
+| B3-DimsZLegacy | sonnet | sonnet (owner-run) | legacy GeomAspect change + scenario with two grids; stop if legacy still regrids; plus MirrorGeneric review follow-ups (docs/comments, tests) |
+| B3-IncompatiblePair | sonnet | sonnet (pre-commit) | new build_transform outcome; conflict reporting stays kind-agnostic (D6) |
 | B3-VerticalStagger | sonnet | opus | DEFERRED/harvest; fixture risk |
 | B3-VerticalOrientation | sonnet | opus | resolve against grid without comparing it |
 | B3-HorizontalDimsSpec | sonnet | opus | changes when Geometry is compared |
