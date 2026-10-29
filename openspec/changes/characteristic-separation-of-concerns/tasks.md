@@ -129,10 +129,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       stop and report before adding it. Tests: a new `dims: z` scenario
       connecting across different horizontal grids, and failure tests for
       both mismatch directions. This replaces the "no horizontal geom"
-      check planned for ItemShape/B4. Deviation: `dims_z_field` uses one
-      cap geometry for both children (the author reports that legacy still
-      compares geoms, so a scenario cannot differ); connecting across
-      different grids is covered only by unit tests.
+      check planned for ItemShape/B4.
 - [x] 3.18 B3-StringMirror (A13). Add one named string sentinel to
       `VariableSpec`; the StandardName factory maps it to MIRRORED
       (imports only; an export is an error). LongName (3.13) reuses it.
@@ -211,7 +208,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `requests_mirror()`. Also update the §3 header sentence "Every task
       whose characteristic has a mirror value rejects it ... in the
       factory" to point at the generic check.
-- [ ] 3.20 B3-DimsZLegacy (A22; legacy layer change). In
+- [x] 3.20 B3-DimsZLegacy (A22; legacy layer change). In
       `specs/GeomAspect.F90` `matches`, when both sides'
       `horizontal_dims_spec` is NONE, return `.true.` without comparing
       geom or geom_id (a MIRROR spec still goes through

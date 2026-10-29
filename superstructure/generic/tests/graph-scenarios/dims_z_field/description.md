@@ -2,11 +2,15 @@
 
 Same shape as `vertical_field` but both sides declare `dims: z`, so the
 field has no horizontal dimensions: only the vertical one (rank 1).
-Checks that two such items connect directly, with no extension.
+Checks that two such items connect directly, with no extension, even when
+the two components have different horizontal grids (12x13 and 6x7): the
+geometry of a `dims: z` item is not compared.
 
-The geometry of a `dims: z` item is not compared; that is covered by unit
-tests, because the legacy path still compares geoms and so cannot run a
-scenario with differing horizontal grids.
+Each component declares its own `geometry:`, so the cap's geometry is not
+used by either child. Neither child declares a `vertical_grid`: both
+inherit the cap's, so they share one grid. A grid declared by each child
+would get its own id, and the graph path compares ids (no vertical
+Transform yet), so it would mismatch even with equal levels.
 
 There is no run phase, so no value is checked.
 

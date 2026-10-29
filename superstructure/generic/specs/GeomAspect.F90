@@ -150,7 +150,11 @@ contains
 
       select type(dst)
       class is (GeomAspect)
-         if (allocated(src%geom) .and. allocated(dst%geom)) then
+         if (src%horizontal_dims_spec == HORIZONTAL_DIMS_NONE .and. &
+              dst%horizontal_dims_spec == HORIZONTAL_DIMS_NONE) then
+            ! No horizontal dimension: the geom does not affect the data.
+            matches = .true.
+         else if (allocated(src%geom) .and. allocated(dst%geom)) then
             matches = MAPL_SameGeom(src%geom, dst%geom) .and. &
                  dims_specs_agree(src%horizontal_dims_spec, dst%horizontal_dims_spec)
          else if (src%geom_id%is_assigned() .and. dst%geom_id%is_assigned()) then

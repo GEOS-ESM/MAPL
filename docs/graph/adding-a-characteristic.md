@@ -263,7 +263,7 @@ A structural kind with a DEFERRED value and no built-in default.
 | Input | Shape | Entry |
 |---|---|---|
 | CENTER, EDGE or an explicit NONE | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE | SPECIFIED |
-| `VERTICAL_STAGGER_MIRROR` | same | MIRRORED on an import or an expression; an error on any other export, raised at advertise |
+| `VERTICAL_STAGGER_MIRROR` | same | MIRRORED (mirror on an export: generic rule, A21) |
 | unallocated or `VERTICAL_STAGGER_INVALID`, with `mirror_vgrid` | same | MIRRORED |
 | unallocated or `VERTICAL_STAGGER_INVALID`, otherwise | same | DEFERRED |
 | nothing declared | EXPRESSION | MIRRORED (the §2.4 allowlist case) |
@@ -300,7 +300,7 @@ calls it alignment. It is independent of VerticalStagger.
 | `vertical_alignment` | Shape | Entry |
 |---|---|---|
 | `upward` / `downward` | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE, EXPRESSION | SPECIFIED UP / DOWN |
-| `mirror` | same | MIRRORED on an import or an expression; an error on any other export, raised at advertise |
+| `mirror` | same | MIRRORED (mirror on an export: generic rule, A21) |
 | unallocated or `with_grid`, item has a `vertical_grid` | same | SPECIFIED with that grid's `get_coordinate_direction()` |
 | unallocated or `with_grid`, with `mirror_vgrid`, or EXPRESSION | same | MIRRORED |
 | unallocated or `with_grid`, otherwise | same | DEFERRED |
@@ -335,7 +335,7 @@ NONE (`dims: z`, no horizontal dimensions). It was part of
 | Input (`VariableSpec%horizontal_dims_spec`) | Shape | Entry |
 |---|---|---|
 | GEOM (default) or NONE | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE | SPECIFIED with the value |
-| MIRROR (imports only) | same | MIRRORED, no value |
+| MIRROR | same | MIRRORED, no value (mirror on an export: generic rule, A21) |
 | any | EXPRESSION, SERVICE, STATE, WILDCARD | none |
 
 - Comparison is plain equality. GEOM vs NONE in either direction is a
@@ -346,7 +346,8 @@ NONE (`dims: z`, no horizontal dimensions). It was part of
 - Mirror. `HORIZONTAL_DIMS_MIRROR` (YAML `dims: mirror`) is a member of
   the `HorizontalDimsSpec` enum, not a value to compare: the characteristic
   built from it is MIRRORED with no value, so an import adopts the
-  export's spec (`PAIR_ADOPT`). The factory rejects it on an export.
+  export's spec (`PAIR_ADOPT`). An export carrying it is rejected by the
+  generic rule (A21).
   Legacy `GeomAspect` treats it as agreeing with any spec and adopts the
   export's at `connect_to_export`; field creation asserts GEOM or NONE.
 - **Uncompared Geometry.** For a NONE item the Geometry factory builds the
@@ -362,8 +363,11 @@ NONE (`dims: z`, no horizontal dimensions). It was part of
   is B3-ItemShape work (`get_extension_order`), so until then mismatches
   follow kind number and this kind (14) comes after GEOMETRY (3). With NONE
   the Geometry never mismatches, so the order does not matter yet.
-- Test: scenario `graph-scenarios/dims_z_field`, plus unit tests for the
-  pair outcomes and the factory.
+- Legacy `GeomAspect%matches` is true for two NONE items without comparing
+  geom or geom_id, so legacy builds no regrid across different horizontal
+  grids (`Test_Aspects`). A MIRROR spec still compares geoms.
+- Test: scenario `graph-scenarios/dims_z_field` (children on different
+  horizontal grids), plus unit tests for the pair outcomes and the factory.
 
 ## StandardName as implemented
 
@@ -405,8 +409,8 @@ A shared sentinel, not a characteristic of its own. `VariableSpec` exports
   `split_name` on vectors) therefore never see the literal string. An
   unallocated name makes the FieldDictionary lookup fall back to the
   `short_name` alias, so units and long_name still default on the import.
-- The StandardName factory maps the flag to MIRRORED. It asserts on an
-  export, as HORIZONTAL_DIMS_MIRROR does (A1). Only FIELD carries the entry,
+- The StandardName factory maps the flag to MIRRORED; an export carrying it
+  is rejected by the generic rule (A21). Only FIELD carries the entry,
   as for every standard-name case.
 - Against an export with no declared name (UNCHECKED), the mirrored import
   becomes UNCHECKED: there is nothing to copy and nothing is compared. This

@@ -541,14 +541,15 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror and B3-MirrorFlagGuard done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric and B3-DimsZLegacy done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
   `Plan-Task: B3-Attributes`, `Plan-Task: B3-RenameVerticalGrid`,
   `Plan-Task: B3-VerticalStagger`, `Plan-Task: B3-VerticalOrientation`,
   `Plan-Task: B3-HorizontalDimsSpec`, `Plan-Task: B3-StringMirror`,
-  `Plan-Task: B3-MirrorFlagGuard`); others not started.
+  `Plan-Task: B3-MirrorFlagGuard`, `Plan-Task: B3-MirrorGeneric`,
+  `Plan-Task: B3-DimsZLegacy`); others not started.
   B3-StringMirror: `VariableSpec` exports `MAPL_STRING_MIRROR` (`'<mirror>'`;
   YAML `standard_name: "<mirror>"`), shared with the later LongName task.
   `make_VariableSpec` does not store it: it sets `standard_name_mirror` and
@@ -595,6 +596,37 @@ in the first one; later ones refine it.
   `requests_mirror()` constructor tests for typekind, horizontal dims,
   ungridded dims, stagger and alignment, plus post-loop tests for typekind
   and ungridded dims. Non-ESSENTIAL tests and non-test configs: E1-intel.
+  B3-DimsZLegacy (tasks.md 3.20, done; legacy layer change, A22):
+  `GeomAspect%matches` returns true when both sides' `horizontal_dims_spec`
+  is NONE, before any geom or geom_id comparison; a MIRROR spec still goes
+  through `dims_specs_agree`. Checked: for two NONE items `matches` is true,
+  so `can_connect_to` is true and `needs_extension_for` is false, so
+  `make_extension` calls no `make_transform` and no regrid is built;
+  `connect_to_export` only copies geom_id/geom, nothing more needed. The
+  `dims_z_field` scenario now gives `comp_src` (12x13) and `comp_dst` (6x7)
+  their own `geometry:` (no `vertical_grid` in the children, which inherit
+  the cap's; a grid declared per child gets its own id and would mismatch
+  VERTICAL_GRID); expectations unchanged and it passes in all three
+  graph modes. New `Test_Aspects` cases: two NONE GeomAspects with different
+  geoms match, connect and need no extension; NONE vs GEOM does not match
+  (different or same geom); a MIRROR spec still compares geoms. Review
+  follow-ups (separate from the legacy change): the six
+  `make_VariableSpec` rejection tests now check `status /= 0`; new
+  `make_VariableSpec` export rejection tests for `MAPL_TYPEKIND_MIRROR`,
+  `HORIZONTAL_DIMS_MIRROR`, a mirror `ungridded_dims`, `VERTICAL_STAGGER_MIRROR`
+  and `vertical_alignment='mirror'`, an accept test for a plain export, and
+  post-loop rejections for typekind and ungridded dims (full message with the
+  kind's `to_string()`, `status=1`); stale per-kind "error on an export" text
+  replaced by a pointer to the generic rule in `make_characteristics.F90`
+  (HorizontalDimsSpec, StandardName, VerticalStagger, VerticalOrientation
+  factory headers; the long line rewrapped) and `adding-a-characteristic.md`.
+  The 3.17 deviation sentence is removed. The NONE shortcut also covers a
+  NONE export with no geom (tested; it needs no geom extension). Latent: a
+  time-dependent `GeomAspect` still forces an extension for two NONE items;
+  no production caller sets it, so it is not handled here. PENDING on NAG compared with a
+  clean HEAD worktree configured `Release` like `nag/` (Rule 1): both fail
+  114 checks in the same five scenarios (`history_1`, `service_service`,
+  `service_with_options`, `statistics`, `statistics_real`).
   B3-MirrorFlagGuard (done, owner-approved fixture change): `make_VariableSpec`
   rejects `MAPL_STRING_MIRROR` on any export and `mirror_geom`/`mirror_vgrid`
   on a non-EXPRESSION export (A21); the Geometry and VerticalGrid factories

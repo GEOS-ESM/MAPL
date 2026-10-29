@@ -242,8 +242,9 @@ contains
    end subroutine make_geometry_characteristic
 
    ! SPECIFIED with GEOM unless the item declares NONE. HORIZONTAL_DIMS_MIRROR
-   ! is MIRRORED (requests_mirror rejects it on a non-EXPRESSION export). Only Field and FieldBundle payloads have one:
-   ! an EXPRESSION or SERVICE has no horizontal layout of its own.
+   ! is MIRRORED (mirror on an export: see check_no_mirrored_entry). Only Field
+   ! and FieldBundle payloads have one: an EXPRESSION or SERVICE has no
+   ! horizontal layout of its own.
    subroutine make_horizontal_dims_spec_characteristic(spec, descriptor, rc)
       class(VariableSpec), intent(in) :: spec
       type(StateItemDescriptor), intent(inout) :: descriptor
@@ -299,11 +300,11 @@ contains
       _RETURN(_SUCCESS)
    end subroutine make_vertical_grid_characteristic
 
-   ! A declared standard_name is SPECIFIED. The MAPL_STRING_MIRROR request
-   ! is MIRRORED, imports only. Undeclared (or UNKNOWN_STANDARD_NAME) is
-   ! UNCHECKED: it matches anything. Only a FIELD carries one: the other
-   ! shapes either enforce their own names (VECTOR), are exempt, or adopt the
-   ! field-side value after the shape step.
+   ! A declared standard_name is SPECIFIED. The MAPL_STRING_MIRROR request is
+   ! MIRRORED (mirror on an export: see check_no_mirrored_entry). Undeclared
+   ! (or UNKNOWN_STANDARD_NAME) is UNCHECKED: it matches anything. Only a
+   ! FIELD carries one: the other shapes either enforce their own names
+   ! (VECTOR), are exempt, or adopt the field-side value after the shape step.
    subroutine make_standard_name_characteristic(spec, descriptor, rc)
       class(VariableSpec), intent(in) :: spec
       type(StateItemDescriptor), intent(inout) :: descriptor
@@ -352,8 +353,8 @@ contains
    end subroutine make_attributes_characteristic
 
    ! A real stagger (CENTER, EDGE, or an explicit NONE) is SPECIFIED.
-   ! VERTICAL_STAGGER_MIRROR is MIRRORED; it is an error on an export other
-   ! than an expression. Undeclared (unallocated, or the
+   ! VERTICAL_STAGGER_MIRROR is MIRRORED (mirror on an export: see
+   ! check_no_mirrored_entry). Undeclared (unallocated, or the
    ! INVALID that the YAML parser passes for an omitted vertical_dim_spec) is
    ! MIRRORED for an EXPRESSION or with mirror_vgrid, else DEFERRED: there is
    ! no built-in default, the component or a realized field supplies it. The
@@ -393,7 +394,7 @@ contains
    end subroutine make_vertical_stagger_characteristic
 
    ! vertical_alignment 'upward' or 'downward' is SPECIFIED. 'mirror' is
-   ! MIRRORED; it is an error on an export other than an expression. Absent or
+   ! MIRRORED (mirror on an export: see check_no_mirrored_entry). Absent or
    ! 'with_grid' follows the grid: SPECIFIED with the item grid's direction,
    ! else MIRRORED for an EXPRESSION or with mirror_vgrid, else DEFERRED until
    ! the component grid is known. A DEFERRED entry whose component has no
