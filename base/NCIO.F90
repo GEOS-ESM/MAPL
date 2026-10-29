@@ -4374,7 +4374,6 @@ contains
     integer :: fieldIsValid
     type(ESMF_Array) :: array
     type(ESMF_FieldStatus_Flag) :: fieldStatus
-    integer :: nComplete, nSkipped, ind
     logical :: local_clobber
 
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
@@ -4449,50 +4448,22 @@ contains
              _VERIFY(STATUS)
              call ESMF_FieldBundleGet(bundle, name=BundleName, rc=status)
              _VERIFY(STATUS)
-             nComplete = 0
-             nSkipped = 0
              DO J = 1,nBundle
                call ESMF_FieldBundleGet(bundle, fieldIndex=J, field=field, rc=status)
                _VERIFY(STATUS)
                ! Skip placeholder fields that have no grid/data (e.g. Turbulence TRI)
                call ESMF_FieldGet(field, status=fieldStatus, _RC)
-               if (fieldStatus /= ESMF_FIELDSTATUS_COMPLETE) then
-                  nSkipped = nSkipped + 1
-                  call ESMF_FieldGet(field,name=FieldName,rc=status)
-                  _VERIFY(STATUS)
-                  if (mapl_am_i_root()) then
-                     write(*,'(A,I0,A)') '   bundle '//trim(BundleName)//' field ', J, ': '// &
-                          trim(FieldName)//' -> SKIPPED (not complete)'
-                  end if
-                  cycle
-               end if
-               nComplete = nComplete + 1
+               if (fieldStatus /= ESMF_FIELDSTATUS_COMPLETE) cycle
                call ESMF_FieldGet(field,name=FieldName,rc=status)
                _VERIFY(STATUS)
                ! Tack on BundleName to distiguish duplicate FieldNames in different Bundles (PCHEM for instance)
                FieldName = trim(BundleName) //'_'// trim(FieldName)
-               if (mapl_am_i_root()) then
-                  ! The file writer later strips everything up to '::' from the name
-                  ind = index(FieldName, '::')
-                  if (ind > 0) then
-                     write(*,'(A,I0,A)') '   bundle '//trim(BundleName)//' field ', J, ': '// &
-                          trim(FieldName(len_trim(BundleName)+2:))//' -> written as '//trim(FieldName(ind+2:))
-                  else
-                     write(*,'(A,I0,A)') '   bundle '//trim(BundleName)//' field ', J, ': '// &
-                          trim(FieldName(len_trim(BundleName)+2:))//' -> written as '//trim(FieldName)
-                  end if
-               end if
                new_field = MAPL_FieldCreate(Field,FieldName,rc=status)
                _VERIFY(STATUS)
                call ESMF_AttributeSet(new_field, name='from_bundle', value=trim(BundleName), _RC)
                call MAPL_FieldBundleAdd(bundle_write,new_field,rc=status)
                _VERIFY(STATUS)
              ENDDO
-             if (mapl_am_i_root()) then
-                write(*,'(A,I0,A,I0,A,I0)') ' bundle '//trim(BundleName)//' in '//trim(StateName)// &
-                     ': total fields = ', nBundle, ', complete (written) = ', nComplete, &
-                     ', not complete (skipped) = ', nSkipped
-             end if
 
           ELSE IF (ITEMTYPES(I) == ESMF_StateItem_Field) THEN
              call ESMF_StateGet(state, itemnames(i), field, rc=status)
