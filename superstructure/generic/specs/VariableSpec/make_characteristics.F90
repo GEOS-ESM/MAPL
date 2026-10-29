@@ -5,11 +5,12 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
         TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
         VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND, &
         VERTICAL_STAGGER_CHARACTERISTIC_KIND, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
-        HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND
+        HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED, operator(==)
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
+   use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic, UNKNOWN_STANDARD_NAME
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
@@ -54,7 +55,7 @@ contains
 
       integer :: status
       integer :: i
-      type(Factory) :: factories(10)
+      type(Factory) :: factories(11)
 
       factories(1)%make => make_units_characteristic
       factories(2)%make => make_typekind_characteristic
@@ -66,6 +67,7 @@ contains
       factories(8)%make => make_vertical_stagger_characteristic
       factories(9)%make => make_vertical_orientation_characteristic
       factories(10)%make => make_horizontal_dims_spec_characteristic
+      factories(11)%make => make_item_shape_characteristic
 
       do i = 1, size(factories)
          call factories(i)%make(this, descriptor, _RC)
@@ -446,6 +448,28 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_vertical_orientation_characteristic
+
+   ! Every shape carries its item class, SPECIFIED, with the declared variant
+   ! if any.
+   subroutine make_item_shape_characteristic(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ItemShapeCharacteristic) :: item_shape
+
+      if (allocated(spec%state_item_variant)) then
+         item_shape = ItemShapeCharacteristic(spec%itemType, &
+              spec%state_item_variant)
+      else
+         item_shape = ItemShapeCharacteristic(spec%itemType)
+      end if
+      call descriptor%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           item_shape, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_item_shape_characteristic
 
    ! Shapes that carry a horizontal dims spec: field-carrying, but not
    ! EXPRESSION.

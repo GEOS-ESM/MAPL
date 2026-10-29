@@ -16,6 +16,10 @@ module Test_VariableSpecCharacteristics
         VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, &
         ATTRIBUTES_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
         VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        ITEM_SHAPE => ITEM_SHAPE_CHARACTERISTIC_KIND
+   use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
         CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED
@@ -39,6 +43,7 @@ module Test_VariableSpecCharacteristics
    use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE, &
         VERTICAL_STAGGER_MIRROR, VERTICAL_STAGGER_INVALID
    use esmf, only: ESMF_StateItem_Flag, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_IMPORT, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_I4
+   use esmf, only: operator(==)
    implicit none(type, external)
 
 contains
@@ -1469,5 +1474,55 @@ contains
          @assertFalse(descriptor%has_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND))
       end do
    end subroutine test_shapes_without_attributes_get_no_entry
+
+   ! Every shape gets a SPECIFIED ItemShape holding its declared class.
+   @test
+   subroutine test_every_shape_gets_specified_item_shape()
+      type(ESMF_StateItem_Flag) :: shapes(9)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, &
+           MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, &
+           MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_EXPRESSION, &
+           MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, &
+           MAPL_STATEITEM_WILDCARD]
+      do i = 1, size(shapes)
+         var_spec = make_spec(shapes(i))
+         var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+         descriptor = empty_descriptor
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         call descriptor%get_characteristic(ITEM_SHAPE, c, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+         select type (c)
+         type is (ItemShapeCharacteristic)
+            @assertTrue(c%get_item_class() == shapes(i))
+         class default
+            @assertTrue(.false., 'ITEM_SHAPE entry has the wrong type')
+         end select
+      end do
+   end subroutine test_every_shape_gets_specified_item_shape
+
+   ! A declared variant is carried in the signature.
+   @test
+   subroutine test_item_shape_carries_declared_variant()
+      type(StateItemDescriptor) :: descriptor
+      type(VariableSpec) :: var_spec
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_STATE)
+      var_spec%state_item_variant = MAPL_STATEITEM_VERTICALGRID
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertEqual(0, status)
+      call descriptor%get_characteristic(ITEM_SHAPE, c, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('item_class=STATE,variant=VERTICALGRID', &
+           c%get_signature())
+   end subroutine test_item_shape_carries_declared_variant
 
 end module Test_VariableSpecCharacteristics

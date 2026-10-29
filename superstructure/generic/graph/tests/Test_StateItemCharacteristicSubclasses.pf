@@ -54,8 +54,23 @@ module Test_StateItemCharacteristicSubclasses
    ! openspec/changes/phase-7a-shape-dispatch-wiring
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_BracketTimeInterpolationTransform_mod, only: BracketTimeInterpolationTransform
-   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, &
-                                  MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, &
+        MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+        MAPL_STATEITEM_VECTORBRACKET
+   use mapl_StateItem_mod, only: S_FIELD => MAPL_STATEITEM_FIELD, &
+        S_BUNDLE => MAPL_STATEITEM_FIELDBUNDLE, &
+        S_STATE => MAPL_STATEITEM_STATE, &
+        S_SERVICE => MAPL_STATEITEM_SERVICE, &
+        S_WILDCARD => MAPL_STATEITEM_WILDCARD, &
+        S_BRACKET => MAPL_STATEITEM_BRACKET, &
+        S_VECTOR => MAPL_STATEITEM_VECTOR, &
+        S_VECTORBRACKET => MAPL_STATEITEM_VECTORBRACKET, &
+        S_EXPRESSION => MAPL_STATEITEM_EXPRESSION
+   use mapl_StateItemFlag_mod, only: VARIANT_GEOM => MAPL_STATEITEM_GEOM, &
+        VARIANT_VERTICALGRID => MAPL_STATEITEM_VERTICALGRID
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristicMap
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
+   use ESMF, only: ESMF_StateItem_Flag
 
    use mapl_UngriddedDims_mod, only: UngriddedDims
    use mapl_QuantityType_mod, only: QUANTITY_MIXING_RATIO, QUANTITY_TEMPERATURE, QUANTITY_UNKNOWN, &
@@ -861,25 +876,189 @@ contains
       end select
    end subroutine test_item_shape_build_transform_bracket_to_field_succeeds
 
-   ! Every other pairing is reported as unsupported, not a stub Transform.
+   ! Matrix cells that need no step.
    @test
-   subroutine test_item_shape_other_pairings_report_unsupported()
-      type(ItemShapeCharacteristic) :: vectorbracket, vector, field, vector_shape
+   subroutine test_item_shape_matching_cells()
+      @assertFalse(needs_extension(S_FIELD, S_WILDCARD))
+      @assertFalse(needs_extension(S_BUNDLE, S_BUNDLE))
+      @assertFalse(needs_extension(S_BUNDLE, S_WILDCARD))
+      @assertFalse(needs_extension(S_STATE, S_STATE))
+      @assertFalse(needs_extension(S_STATE, S_WILDCARD))
+      @assertFalse(needs_extension(S_VECTOR, S_VECTOR))
+      @assertFalse(needs_extension(S_SERVICE, S_SERVICE))
+      @assertFalse(needs_extension(S_EXPRESSION, S_FIELD))
+   end subroutine test_item_shape_matching_cells
+
+   ! VECTORBRACKET -> VECTOR has no time-interpolation step yet.
+   @test
+   subroutine test_item_shape_vectorbracket_reports_unsupported()
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+      type(ItemShapeCharacteristic) :: vectorbracket
+
+      vectorbracket = shape_of(S_VECTORBRACKET)
+      call vectorbracket%build_transform(shape_of(S_VECTOR), transformer, &
+           rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_item_shape_vectorbracket_reports_unsupported
+
+   ! Pairs that can never connect: each needs extension and reports
+   ! incompatible.
+   @test
+   subroutine test_item_shape_error_cells_report_incompatible()
+      call check_incompatible(S_FIELD, S_BUNDLE)
+      call check_incompatible(S_FIELD, S_STATE)
+      call check_incompatible(S_FIELD, S_VECTOR)
+      call check_incompatible(S_BRACKET, S_BUNDLE)
+      call check_incompatible(S_BRACKET, S_WILDCARD)
+      call check_incompatible(S_EXPRESSION, S_STATE)
+      call check_incompatible(S_EXPRESSION, S_WILDCARD)
+      call check_incompatible(S_BUNDLE, S_FIELD)
+      call check_incompatible(S_STATE, S_BUNDLE)
+      call check_incompatible(S_VECTOR, S_FIELD)
+      call check_incompatible(S_VECTOR, S_WILDCARD)
+      call check_incompatible(S_SERVICE, S_FIELD)
+      call check_incompatible(S_SERVICE, S_WILDCARD)
+      call check_incompatible(S_VECTORBRACKET, S_VECTORBRACKET)
+      call check_incompatible(S_VECTORBRACKET, S_FIELD)
+      call check_incompatible(S_VECTORBRACKET, S_WILDCARD)
+   end subroutine test_item_shape_error_cells_report_incompatible
+
+   subroutine check_incompatible(export_class, import_class)
+      type(ESMF_StateItem_Flag), intent(in) :: export_class, import_class
+
+      type(ItemShapeCharacteristic) :: export_shape
       class(TransformBase), allocatable :: transformer
       integer :: status
 
-      vectorbracket = ItemShapeCharacteristic(MAPL_STATEITEM_VECTORBRACKET)
-      vector = ItemShapeCharacteristic(MAPL_STATEITEM_VECTOR)
-      field = ItemShapeCharacteristic(MAPL_STATEITEM_FIELD)
-      vector_shape = ItemShapeCharacteristic(MAPL_STATEITEM_VECTOR)
-
-      call vectorbracket%build_transform(vector, transformer, rc=status)
-      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      export_shape = shape_of(export_class)
+      @assertTrue(export_shape%needs_extension_for(shape_of(import_class)))
+      call export_shape%build_transform(shape_of(import_class), transformer, &
+           rc=status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
       @assertFalse(allocated(transformer))
+   end subroutine check_incompatible
 
-      call field%build_transform(vector_shape, transformer, rc=status)
-      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
-      @assertFalse(allocated(transformer))
-   end subroutine test_item_shape_other_pairings_report_unsupported
+   function shape_of(item_class) result(item_shape)
+      type(ESMF_StateItem_Flag), intent(in) :: item_class
+      type(ItemShapeCharacteristic) :: item_shape
+
+      item_shape = ItemShapeCharacteristic(item_class)
+   end function shape_of
+
+   logical function needs_extension(export_class, import_class)
+      type(ESMF_StateItem_Flag), intent(in) :: export_class, import_class
+
+      type(ItemShapeCharacteristic) :: export_shape
+
+      export_shape = shape_of(export_class)
+      needs_extension = &
+           export_shape%needs_extension_for(shape_of(import_class))
+   end function needs_extension
+
+   ! --- get_extension_order: one golden list per shape ---
+
+   @test
+   subroutine test_extension_order_field()
+      call check_order(shape_of(S_FIELD), [character(len=24) :: &
+           'ITEM_SHAPE', 'ATTRIBUTES', 'UNGRIDDED_DIMS', 'QUANTITY_TYPE', &
+           'CONSERVATION', 'HORIZONTAL_DIMS_SPEC', 'GEOMETRY', &
+           'VERTICAL_GRID', 'VERTICAL_STAGGER', 'VERTICAL_ORIENTATION', &
+           'NORMALIZATION', 'PHYSICAL_UNITS', 'STANDARD_NAME', 'TYPE_KIND'])
+   end subroutine test_extension_order_field
+
+   @test
+   subroutine test_extension_order_fieldbundle()
+      call check_order(shape_of(S_BUNDLE), [character(len=24) :: &
+           'ITEM_SHAPE', 'ATTRIBUTES', 'UNGRIDDED_DIMS', 'QUANTITY_TYPE', &
+           'CONSERVATION', 'HORIZONTAL_DIMS_SPEC', 'GEOMETRY', &
+           'VERTICAL_GRID', 'VERTICAL_STAGGER', 'VERTICAL_ORIENTATION', &
+           'NORMALIZATION', 'PHYSICAL_UNITS', 'TYPE_KIND'])
+   end subroutine test_extension_order_fieldbundle
+
+   @test
+   subroutine test_extension_order_vector()
+      call check_order(shape_of(S_VECTOR), [character(len=24) :: &
+           'ITEM_SHAPE', 'ATTRIBUTES', 'UNGRIDDED_DIMS', 'QUANTITY_TYPE', &
+           'CONSERVATION', 'HORIZONTAL_DIMS_SPEC', 'GEOMETRY', &
+           'VERTICAL_GRID', 'VERTICAL_STAGGER', 'VERTICAL_ORIENTATION', &
+           'NORMALIZATION', 'PHYSICAL_UNITS', 'TYPE_KIND'])
+   end subroutine test_extension_order_vector
+
+   @test
+   subroutine test_extension_order_bracket()
+      call check_order(shape_of(S_BRACKET), [character(len=24) :: &
+           'ATTRIBUTES', 'UNGRIDDED_DIMS', 'QUANTITY_TYPE', &
+           'HORIZONTAL_DIMS_SPEC', 'GEOMETRY', 'ITEM_SHAPE'])
+   end subroutine test_extension_order_bracket
+
+   @test
+   subroutine test_extension_order_vectorbracket()
+      call check_order(shape_of(S_VECTORBRACKET), [character(len=24) :: &
+           'ATTRIBUTES', 'UNGRIDDED_DIMS', 'QUANTITY_TYPE', &
+           'HORIZONTAL_DIMS_SPEC', 'GEOMETRY', 'ITEM_SHAPE'])
+   end subroutine test_extension_order_vectorbracket
+
+   @test
+   subroutine test_extension_order_expression()
+      call check_order(shape_of(S_EXPRESSION), [character(len=24) :: &
+           'GEOMETRY', 'VERTICAL_GRID', 'VERTICAL_STAGGER', &
+           'VERTICAL_ORIENTATION', 'TYPE_KIND', 'ITEM_SHAPE'])
+   end subroutine test_extension_order_expression
+
+   @test
+   subroutine test_extension_order_service()
+      call check_order(shape_of(S_SERVICE), &
+           [character(len=24) :: &
+           'ITEM_SHAPE', 'GEOMETRY'])
+   end subroutine test_extension_order_service
+
+   @test
+   subroutine test_extension_order_state()
+      character(len=24), allocatable :: empty(:)
+
+      allocate(empty(0))
+      call check_order(shape_of(S_STATE), empty)
+   end subroutine test_extension_order_state
+
+   @test
+   subroutine test_extension_order_wildcard()
+      character(len=24), allocatable :: empty(:)
+
+      allocate(empty(0))
+      call check_order(shape_of(S_WILDCARD), empty)
+   end subroutine test_extension_order_wildcard
+
+   @test
+   subroutine test_extension_order_geom_variant()
+      call check_order(ItemShapeCharacteristic(S_FIELD, VARIANT_GEOM), &
+           [character(len=24) :: &
+           'GEOMETRY'])
+   end subroutine test_extension_order_geom_variant
+
+   @test
+   subroutine test_extension_order_verticalgrid_variant()
+      call check_order(ItemShapeCharacteristic(S_STATE, VARIANT_VERTICALGRID), &
+           [character(len=24) :: &
+           'VERTICAL_GRID'])
+   end subroutine test_extension_order_verticalgrid_variant
+
+   subroutine check_order(item_shape, expected)
+      type(ItemShapeCharacteristic), intent(in) :: item_shape
+      character(len=*), intent(in) :: expected(:)
+
+      type(StateItemCharacteristicMap) :: goal
+      type(StateItemCharacteristicKind), allocatable :: order(:)
+      integer :: status, i
+
+      order = item_shape%get_extension_order(goal, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(size(expected), size(order))
+      if (size(expected) /= size(order)) return
+      do i = 1, size(order)
+         @assertEqual(trim(expected(i)), order(i)%to_string())
+      end do
+   end subroutine check_order
 
 end module Test_StateItemCharacteristicSubclasses

@@ -365,9 +365,8 @@ NONE (`dims: z`, no horizontal dimensions). It was part of
   has none from the component default. A `mirror_geom` import fed by a NONE
   export adopts its UNCHECKED entry (design A20). This gives UNCHECKED a second meaning
   for Geometry only; design.md §3.3 records it.
-- Extension order: the plan puts this kind before GEOMETRY. That ordering
-  is B3-ItemShape work (`get_extension_order`), so until then mismatches
-  follow kind number and this kind (14) comes after GEOMETRY (3). With NONE
+- Extension order: every shape order that lists GEOMETRY puts this kind
+  just before it (`ItemShapeCharacteristic%get_extension_order`). With NONE
   the Geometry never mismatches, so the order does not matter yet.
 - Legacy `GeomAspect%matches` is true for two NONE items without comparing
   geom or geom_id, so legacy builds no regrid across different horizontal
@@ -457,3 +456,60 @@ A shared sentinel, not a characteristic of its own. `VariableSpec` exports
   fails the same 114 checks (`history_1`, `service_service`,
   `service_with_options`, `statistics`, `statistics_real`) at HEAD and
   with this change.
+
+## ItemShape as implemented
+
+| Input (`VariableSpec`) | Shape | Entry |
+|---|---|---|
+| `itemType`, optional `state_item_variant` | every shape | SPECIFIED with the class and the variant if declared |
+
+- Factory `make_item_shape_characteristic` (factory 11); the block in
+  `populate_characteristics` that inserted it for FIELD, BRACKET, VECTOR and
+  VECTORBRACKET only is gone. `declared_item_type` stays: the
+  `GraphBuilder` gates still read it (design §6.1 wants a generic
+  `shape()` accessor for them; not done here).
+- Matrix (design §4.3, legacy `matches` / `supports_conversion_specific`):
+  FIELD, FIELDBUNDLE and STATE match themselves and WILDCARD; VECTOR and
+  SERVICE match themselves; BRACKET -> FIELD builds
+  `BracketTimeInterpolationTransform`; EXPRESSION -> FIELD matches (no
+  shape step; evaluation is per consumer, design Q2, and a consumer that
+  differs shows up as a non-shape mismatch until B3-Expression);
+  VECTORBRACKET -> VECTOR is `BUILD_TRANSFORM_UNSUPPORTED` (no
+  time-interpolation step yet); every other pair, including
+  VECTORBRACKET -> VECTORBRACKET, is `BUILD_TRANSFORM_INCOMPATIBLE` and
+  is reported as a connection conflict.
+- `get_extension_order(goal, rc)` returns the design §4.2 list for the
+  shape (GEOM variant: GEOMETRY; VERTICALGRID variant: VERTICAL_GRID).
+  BRACKET/VECTORBRACKET use the non-time-dependent list only (owner Q4).
+  STATE and WILDCARD return an empty list (owner Q5). `goal` is unused.
+- Ordering happens in `resolve_characteristics` (`order_mismatched`), so
+  every caller, including `find_mismatched_characteristics`, gets ordered
+  kinds and `GraphBuilder` names no kind. Each step takes the first
+  mismatched kind in the current tip's shape order, else the first
+  remaining kind by `to_string()`. After the ITEM_SHAPE step the tip's shape
+  is the import's, so the rest follow that order (BRACKET -> FIELD puts
+  units after the shape step). Only the shape is replaced on the tip; the
+  general covered-kind replacement is B4.
+- `GraphStateItem%ordering` and `characteristic_ordering_table` are
+  deleted; their tests are replaced by one golden test per shape in
+  `Test_StateItemCharacteristicSubclasses` and ordering tests in
+  `Test_ExtensionResolution`.
+- `write_info` is minimal, like legacy (which never tags class payloads).
+  It writes `state_item_variant=` only when a variant was declared
+  (VERTICALGRID, GEOM), on a Field, FieldBundle or State. It writes
+  `fieldBundleType=` for BRACKET, VECTOR, VECTORBRACKET and SERVICE
+  bundles in the STRUCTURAL phase only (legacy sets it at
+  `MAPL_FieldBundleCreate`). It writes nothing else. Reason: an EXPRESSION
+  or a BRACKET -> FIELD node is materialized as a plain Field, and tagging
+  it with its declared class would fail a FIELD kind check in
+  `bind_port` or `MethodGraphNode%bind_argument`.
+  `CompositeStateMaterialization` and `GeomProxyField` still call the
+  setters directly.
+- Standard name after BRACKET -> FIELD: not checked. Legacy
+  `StandardNameAspect%connect_to_export` adopts the export's name, and a
+  BRACKET has no StandardName entry, so the graph matches legacy
+  PERMISSIVE mode. Strict-mode checking waits for a graph validation mode.
+- Scenarios: no ESSENTIAL scenario changed, and the "no registered extension
+  provider" warnings are identical to a clean HEAD baseline.
+  `MAPL.generic.scenarios.pending` fails the same 114 checks with identical
+  messages at HEAD and with this change.

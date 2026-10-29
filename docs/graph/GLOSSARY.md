@@ -19,8 +19,8 @@ deprecated yet.
 | `AspectStatus` (`ASPECT_STATUS_INVALID`, `FROM_COMP`, `SPECIFIED`, `MIRRORED`, `DEFERRED`, `UNCHECKED`) | `CharacteristicStatus` (`INVALID`, `SPECIFIED`, `MIRRORED`, `UNCHECKED`, `DEFERRED`) | Graph has no `FROM_COMP`. The plan collapses it into `SPECIFIED` (plan D2). |
 | `AspectId` | `StateItemCharacteristicKind` | Map key identifying the axis. |
 | `AspectMap` (inside `StateItemSpec`) | `StateItemCharacteristicMap` (inside `StateItemDescriptor`) | The map lives in the descriptor owned by `StateItemNode`. |
-| `ClassAspect` (`FieldClassAspect`, `BracketClassAspect`, `ExpressionClassAspect`, `WildcardClassAspect`, …) | `ItemShapeCharacteristic` | Structural class of an item. Graph handles Bracket→Field only through the characteristic; Expression and Wildcard are handled by dedicated `GraphBuilder` hooks. |
-| `ClassAspect%get_aspect_order(goal_aspects)` | `GraphStateItem%ordering` / `characteristic_ordering_table` (variant-keyed, no legacy basis) | Plan D4 replaces it with `get_extension_order` owned by the shape. |
+| `ClassAspect` (`FieldClassAspect`, `BracketClassAspect`, `ExpressionClassAspect`, `WildcardClassAspect`, …) | `ItemShapeCharacteristic` | Structural class of an item. Every shape carries one. Graph converts Bracket→Field only through the characteristic; Expression and Wildcard are resolved by dedicated `GraphBuilder` hooks. |
+| `ClassAspect%get_aspect_order(goal_aspects)` | `ItemShapeCharacteristic%get_extension_order(goal, rc)` | Per-shape lists from legacy; applied by `resolve_characteristics`. Kinds a list omits follow by kind name. |
 | `UnitsAspect` | `PhysicalUnitsCharacteristic` | |
 | `TypekindAspect` | `TypeKindCharacteristic` | |
 | `GeomAspect` | `GeometryCharacteristic` | Geometry is also a graph node (`GeomProxyField`). |

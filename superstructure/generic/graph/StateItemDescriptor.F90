@@ -22,6 +22,9 @@ module mapl_StateItemDescriptor_mod
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
         CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_DEFERRED
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        ITEM_SHAPE_CHARACTERISTIC_KIND
+   use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION
    use mapl_RestartModes_mod, only: RestartMode
    use mapl_ErrorHandling_mod
@@ -213,6 +216,7 @@ contains
    ! `adopted` lists kinds the import must copy from the export.
    ! A kind that must wait (a DEFERRED side) sets `waiting`; a caller that
    ! does not pass `waiting` gets a conflict instead, since it cannot retry.
+   ! `mismatched` is in extension order (order_mismatched).
    subroutine resolve_characteristics(export_map, import_map, export_item_type, mismatched, adopted, conflict, rc, waiting)
       type(StateItemCharacteristicMap), target, intent(in) :: export_map
       type(StateItemCharacteristicMap), target, intent(in) :: import_map
@@ -270,8 +274,109 @@ contains
          end do
       end associate
 
+      if (conflict == '') then
+         mismatched = order_mismatched(export_map, import_map, mismatched, _RC)
+      end if
+
       _RETURN(_SUCCESS)
    end subroutine resolve_characteristics
+
+   ! Orders mismatched kinds as the chain reconciles them. Each step takes the
+   ! first mismatched kind in the current tip's shape order, then the kinds
+   ! that order does not list, by kind name. After the ITEM_SHAPE step the tip
+   ! has the import's shape, so the remaining kinds follow that shape's order.
+   ! With no ITEM_SHAPE entry, all kinds go by name.
+   function order_mismatched(export_map, import_map, mismatched, rc) &
+        result(ordered)
+      type(StateItemCharacteristicMap), target, intent(in) :: export_map
+      type(StateItemCharacteristicMap), target, intent(in) :: import_map
+      type(StateItemCharacteristicKind), intent(in) :: mismatched(:)
+      integer, optional, intent(out) :: rc
+      type(StateItemCharacteristicKind), allocatable :: ordered(:)
+
+      integer :: status, i, n
+      type(StateItemCharacteristicKind), allocatable :: remaining(:)
+      type(StateItemCharacteristicKind), allocatable :: shape_order(:)
+      class(StateItemCharacteristic), pointer :: tip_shape
+      logical, allocatable :: done(:)
+
+      remaining = by_name(mismatched)
+      n = size(remaining)
+      allocate(ordered(0))
+      allocate(done(n), source=.false.)
+
+      tip_shape => null()
+      if (export_map%count(ITEM_SHAPE_CHARACTERISTIC_KIND) > 0) then
+         tip_shape => export_map%at(ITEM_SHAPE_CHARACTERISTIC_KIND, _RC)
+      end if
+
+      do while (size(ordered) < n)
+         allocate(shape_order(0))
+         if (associated(tip_shape)) then
+            select type (tip_shape)
+            type is (ItemShapeCharacteristic)
+               shape_order = tip_shape%get_extension_order(import_map, _RC)
+            class default
+               _FAIL('StateItemDescriptor: ITEM_SHAPE entry has the wrong type')
+            end select
+         end if
+
+         i = first_pending(shape_order)
+         if (i == 0) i = findloc(done, .false., dim=1)
+         done(i) = .true.
+         ordered = [ordered, remaining(i)]
+         deallocate(shape_order)
+
+         if (remaining(i) == ITEM_SHAPE_CHARACTERISTIC_KIND) then
+            tip_shape => import_map%at(ITEM_SHAPE_CHARACTERISTIC_KIND, _RC)
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+
+   contains
+
+      ! Index in `remaining` of the first not-yet-ordered kind listed in
+      ! `list`, or 0.
+      integer function first_pending(list) result(idx)
+         type(StateItemCharacteristicKind), intent(in) :: list(:)
+
+         integer :: j, k
+
+         idx = 0
+         do j = 1, size(list)
+            do k = 1, n
+               if (.not. done(k) .and. remaining(k) == list(j)) then
+                  idx = k
+                  return
+               end if
+            end do
+         end do
+      end function first_pending
+
+   end function order_mismatched
+
+   ! Insertion sort by to_string(), so the fallback order does not depend on
+   ! the numeric kind values.
+   function by_name(kinds) result(sorted)
+      type(StateItemCharacteristicKind), intent(in) :: kinds(:)
+      type(StateItemCharacteristicKind), allocatable :: sorted(:)
+
+      integer :: i, j
+      type(StateItemCharacteristicKind) :: key
+
+      sorted = kinds
+      do i = 2, size(sorted)
+         key = sorted(i)
+         j = i - 1
+         do while (j >= 1)
+            if (.not. (key%to_string() < sorted(j)%to_string())) exit
+            sorted(j + 1) = sorted(j)
+            j = j - 1
+         end do
+         sorted(j + 1) = key
+      end do
+   end function by_name
 
    ! Descriptor form of resolve_characteristics: uses the export's declared
    ! item type for the allowlist and records each adoption on the import.

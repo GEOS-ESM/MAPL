@@ -29,7 +29,7 @@ module mapl_GraphStateItem_mod
    use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag, &
                                       MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, &
                                       MAPL_STATEITEM_STATE, MAPL_STATEITEM_ROUTEHANDLE, &
-                                      MAPL_STATEITEM_NOTFOUND, MAPL_STATEITEM_GEOM, &
+                                      MAPL_STATEITEM_NOTFOUND, &
                                       MAPL_STATEITEM_INVALID, &
                                       operator(==), operator(/=)
    use mapl_field_api, only: MAPL_FieldGet
@@ -37,10 +37,6 @@ module mapl_GraphStateItem_mod
    use mapl_state_api, only: MAPL_StateGet
    use mapl_NodeId_mod, only: NodeId
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap, StateItemMemberMapIterator
-   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), &
-                                                    PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
-                                                    TYPE_KIND_CHARACTERISTIC_KIND, &
-                                                    GEOMETRY_CHARACTERISTIC_KIND
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -81,7 +77,6 @@ module mapl_GraphStateItem_mod
       procedure :: state_members_ptr => stateitem_state_members_ptr
       procedure :: add_field_bundle_member => stateitem_add_field_bundle_member
       procedure :: add_state_member => stateitem_add_state_member
-      procedure :: ordering => stateitem_ordering
       ! Test-only backdoor: deliberately violates the at-most-one-allocated
       ! invariant, bypassing the `set` choke point, so the checked-defect path
       ! (REQ-SI-004) can be exercised. Production code MUST NOT call this.
@@ -405,54 +400,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine stateitem_add_state_member
 
-   ! REQ-CHAR-010/011: delegates to the static per-variant table
-   ! characteristic_ordering_table (below). `mismatched_kinds` is the set of
-   ! kinds a detection algorithm found mismatched; this reorders it (never adds
-   ! or removes) according to this item's variant. A variant with no table
-   ! entry keeps the input order.
-   function stateitem_ordering(this, mismatched_kinds, rc) result(order)
-      class(GraphStateItem), intent(in) :: this
-      type(StateItemCharacteristicKind), intent(in) :: mismatched_kinds(:)
-      integer, optional, intent(out) :: rc
-      type(StateItemCharacteristicKind), allocatable :: order(:)
-
-      integer :: status
-      type(MAPL_StateItem_Flag) :: variant_flag
-      type(StateItemCharacteristicKind), allocatable :: canonical(:)
-      integer :: i, j, n
-
-      variant_flag = this%variant(_RC)
-      canonical = characteristic_ordering_table(variant_flag)
-
-      allocate(order(0))
-      if (size(canonical) == 0) then
-         ! No table entry for this variant: keep the input order.
-         order = mismatched_kinds
-         _RETURN(_SUCCESS)
-      end if
-
-      ! Canonical-first: every mismatched kind the table orders, in table order.
-      do i = 1, size(canonical)
-         do j = 1, size(mismatched_kinds)
-            if (mismatched_kinds(j) == canonical(i)) then
-               order = [order, mismatched_kinds(j)]
-               exit
-            end if
-         end do
-      end do
-
-      ! Then any mismatched kind the table has no opinion on, in its original
-      ! relative order, so tables need not be exhaustive (REQ-CHAR-001).
-      n = size(mismatched_kinds)
-      do j = 1, n
-         if (.not. kind_in_list(mismatched_kinds(j), canonical)) then
-            order = [order, mismatched_kinds(j)]
-         end if
-      end do
-
-      _RETURN(_SUCCESS)
-   end function stateitem_ordering
-
    ! Test-only: forces esmf_field and esmf_field_bundle both allocated at
    ! once, bypassing the `set` choke point, so the checked-defect path
    ! in check_invariant()/itemType() can be exercised.
@@ -470,47 +417,5 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine stateitem_debug_force_double_allocate
-
-   ! -- characteristic-ordering strategy table --
-
-   logical function kind_in_list(k, list) result(found)
-      type(StateItemCharacteristicKind), intent(in) :: k
-      type(StateItemCharacteristicKind), intent(in) :: list(:)
-
-      integer :: i
-
-      found = .false.
-      do i = 1, size(list)
-         if (list(i) == k) then
-            found = .true.
-            return
-         end if
-      end do
-   end function kind_in_list
-
-   ! Static per-variant ordering table. Illustrative, not validated against an
-   ! end-to-end comparison use case; kept simple and easy to extend. A variant
-   ! with no entry (`case default`) returns a zero-size array, which
-   ! stateitem_ordering() treats as "no opinion, use input order".
-   function characteristic_ordering_table(variant_flag) result(order)
-      type(MAPL_StateItem_Flag), intent(in) :: variant_flag
-      type(StateItemCharacteristicKind), allocatable :: order(:)
-
-      if (variant_flag == MAPL_STATEITEM_FIELD) then
-         ! Ordinary field: reconcile units first (cheap, element-wise), then
-         ! precision, then geometry last (regrid is the most expensive step and is
-         ! best done on already-corrected data).
-         order = [PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, &
-                  GEOMETRY_CHARACTERISTIC_KIND]
-      else if (variant_flag == MAPL_STATEITEM_GEOM) then
-         ! A geometry-tagged field: geometry identity is its defining
-         ! characteristic, so reconcile it before unit/precision adjustments that
-         ! would otherwise operate on wrong-shape storage.
-         order = [GEOMETRY_CHARACTERISTIC_KIND, PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
-                  TYPE_KIND_CHARACTERISTIC_KIND]
-      else
-         allocate(order(0))
-      end if
-   end function characteristic_ordering_table
 
 end module mapl_GraphStateItem_mod

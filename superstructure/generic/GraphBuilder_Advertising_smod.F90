@@ -9,13 +9,11 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
    use mapl_StateItemCharacteristicKind_mod, only: &
         QUANTITY_TYPE_CHARACTERISTIC_KIND, &
-        CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND, &
-        ITEM_SHAPE_CHARACTERISTIC_KIND
+        CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND
    use mapl_StateItemFlag_mod, only: operator(==)
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
    use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
    use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
-   use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -156,18 +154,6 @@ contains
       ! captured: GEOM_B runs after ADVERTISE, so they arrive through
       ! DEFERRED resolution.
       call descriptor%set_declared_item_type(var_spec%itemType)
-      ! ItemShapeCharacteristic deliberately duplicates the item type just
-      ! captured above. Inserted only for shape-comparable types
-      ! (FIELD/BRACKET/VECTOR/VECTORBRACKET): other types (EXPRESSION,
-      ! WILDCARD, SERVICE, STATE, FIELDBUNDLE, ...) resolve through
-      ! separate mechanisms, and inserting it for them would report a
-      ! spurious shape mismatch (e.g. EXPRESSION export to FIELD import)
-      ! that build_transform fails.
-      if (var_spec%itemType == MAPL_STATEITEM_FIELD .or. var_spec%itemType == MAPL_STATEITEM_BRACKET &
-           .or. var_spec%itemType == MAPL_STATEITEM_VECTOR .or. var_spec%itemType == MAPL_STATEITEM_VECTORBRACKET) then
-         call descriptor%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
-              ItemShapeCharacteristic(var_spec%itemType), _RC)
-      end if
 
       ! Captured at advertise time; populate_one reads it back when it
       ! creates the MAPL_NamedAlias.

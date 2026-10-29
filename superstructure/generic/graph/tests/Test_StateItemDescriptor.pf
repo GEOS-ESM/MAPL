@@ -42,6 +42,18 @@ module Test_StateItemDescriptor
         ESMF_TypeKind_Flag, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_R4, operator(==), &
         ESMF_FieldBundle, ESMF_FieldBundleCreate, ESMF_FieldBundleDestroy, ESMF_FieldBundleAdd, &
         ESMF_Geom, ESMF_GeomCreate, ESMF_Grid, ESMF_GridCreateNoPeriDim
+   use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        ITEM_SHAPE_CHARACTERISTIC_KIND
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION, &
+        MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_STATE
+   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag, operator(==), &
+        VARIANT_INVALID => MAPL_STATEITEM_INVALID, &
+        VARIANT_VERTICALGRID => MAPL_STATEITEM_VERTICALGRID
+   use mapl_enums_api, only: MAPL_FieldBundleType_Flag, &
+        MAPL_FIELDBUNDLETYPE_BRACKET, MAPL_FIELDBUNDLETYPE_BASIC, operator(==)
+   use mapl_state_api, only: MAPL_StateGet
+   use ESMF, only: ESMF_State, ESMF_StateCreate, ESMF_StateDestroy
    use funit
    implicit none
 
@@ -1259,5 +1271,89 @@ contains
       @assertEqual(0, status)
       @assertTrue(item%has_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND))
    end subroutine test_drop_unsupplied_keeps_deferred_vertical_stagger
+
+   ! An undeclared variant is not written: a Field reads back unset.
+   @test
+   subroutine test_sync_item_shape_writes_no_undeclared_variant()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(MAPL_StateItem_Flag) :: variant
+      integer :: status, phase
+
+      call item%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_EXPRESSION))
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      do phase = SYNC_PHASE_STRUCTURAL, SYNC_PHASE_DESCRIPTIVE
+         call item%sync_to_info(handle, phase, rc=status)
+         @assertEqual(0, status)
+      end do
+      call MAPL_FieldGet(field, state_item_variant=variant, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(variant == VARIANT_INVALID)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_sync_item_shape_writes_no_undeclared_variant
+
+   ! fieldBundleType is written in the STRUCTURAL phase only; no variant.
+   @test
+   subroutine test_sync_bracket_shape_writes_bundle_type_structural_only()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      type(MAPL_StateItem_Flag) :: variant
+      type(MAPL_FieldBundleType_Flag) :: bundle_type
+      integer :: status
+
+      call item%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_BRACKET))
+
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(bundle, &
+           fieldBundleType=MAPL_FIELDBUNDLETYPE_BASIC, rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, fieldBundleType=bundle_type, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(bundle_type == MAPL_FIELDBUNDLETYPE_BASIC)
+
+      call item%sync_to_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, state_item_variant=variant, &
+           fieldBundleType=bundle_type, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(bundle_type == MAPL_FIELDBUNDLETYPE_BRACKET)
+      @assertTrue(variant == VARIANT_INVALID)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_bracket_shape_writes_bundle_type_structural_only
+
+   ! A declared variant is written in either phase.
+   @test
+   subroutine test_sync_writes_declared_variant_on_state()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_State) :: state
+      type(MAPL_StateItem_Flag) :: variant
+      integer :: status
+
+      call item%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_STATE, VARIANT_VERTICALGRID))
+      state = ESMF_StateCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(state, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_StateGet(state, state_item_variant=variant, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(variant == VARIANT_VERTICALGRID)
+      call ESMF_StateDestroy(state)
+   end subroutine test_sync_writes_declared_variant_on_state
 
 end module Test_StateItemDescriptor

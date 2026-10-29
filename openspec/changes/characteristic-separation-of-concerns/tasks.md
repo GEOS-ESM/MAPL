@@ -54,7 +54,7 @@ the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
 Remaining order (owner): 3.20, 3.21, then 3.7, 3.13, 3.11, 3.10,
-3.12, 3.14 as their open questions allow (3.12: Q2).
+3.12, 3.14 as their open questions allow (3.12: Q2 answered).
 Numbers are labels, not run order. A task whose characteristic adds a
 mirror value adds its spelling to `VariableSpec%requests_mirror()`; the
 generic export checks (A21) then reject it on a non-EXPRESSION export, and
@@ -279,15 +279,21 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       Statistics now advertises only the chosen variance algorithm's
       internal fields, since the other kernel's fields are never given a
       geometry.
-- [ ] 3.7 B3-ItemShape (all shapes; `get_extension_order` per §4.2;
+- [x] 3.7 B3-ItemShape (all shapes; `get_extension_order` per §4.2;
       shape matrix per §4.3). Known starting point: the connect hook
       reports "no registered extension provider" for ITEM_SHAPE
       mismatches (seen in `expression_defer_geom`). Since B3-StandardName,
       only FIELD carries a StandardName entry, so a BRACKET/VECTOR/
-      FIELDBUNDLE/EXPRESSION standard-name mismatch is not detected.
-      Confirm the shape step adopts the import's name after BRACKET->FIELD,
-      as §4.3 assumes; if not, stop and report. The §4.3 "error" cells
-      return `BUILD_TRANSFORM_INCOMPATIBLE` (A23), not UNSUPPORTED.
+      FIELDBUNDLE/EXPRESSION standard-name mismatch is not detected
+      (owner: accepted, legacy PERMISSIVE behavior; §4.3 note). The §4.3
+      "error" cells return `BUILD_TRANSFORM_INCOMPATIBLE` (A23), not
+      UNSUPPORTED. VECTORBRACKET -> VECTOR is UNSUPPORTED; every other
+      VECTORBRACKET pair is INCOMPATIBLE. `write_info` writes only a
+      declared variant, and `fieldBundleType=` in STRUCTURAL only.
+      EXPRESSION -> FIELD is a match cell (owner: evaluation is per
+      consumer, Q2; a differing consumer shows up as a non-shape
+      mismatch until 3.12). Ordering runs in `resolve_characteristics`;
+      `GraphStateItem%ordering` and its table are deleted here. Done.
 - [x] 3.8 B3-StandardName (delete the subclass status check). Factory
       inserts for FIELD only (§4.3); an undeclared FIELD name is UNCHECKED.
       `write_info` is descriptive (both phases).
@@ -305,16 +311,19 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `sync_to_info(DESCRIPTIVE)`). Default `RESTART_REQUIRED`, never
       compared, no transform (A15). `write_info` writes the item's own
       alias, so imports sharing an export keep their own modes.
-- [ ] 3.12 B3-Expression (new kind; per-consumer semantics pending Q2.
-      Since B2, an allowlisted MIRRORED export resolves only as a legal
+- [ ] 3.12 B3-Expression (new kind; per-consumer evaluation, Q2
+      answered: each import that differs from the others in any
+      characteristic gets its own evaluation on its own goal; imports
+      that agree on every characteristic may share one, §2.4. ItemShape's
+      EXPRESSION -> FIELD match cell becomes a real per-consumer step
+      here. Since B2, an allowlisted MIRRORED export resolves only as a legal
       match; this task gives each consumer its own geometry/precision,
       §2.4. Also address ungridded dims: B3-UngriddedDims gives
       EXPRESSION no UNGRIDDED_DIMS entry, so an EXPRESSION export
       silently matches a FIELD import that declares ungridded dims;
       owner accepted this until this task. Known starting point: the
       connect hook reports "no registered extension provider" for
-      EXPRESSION mismatches. Resolve Q2 with the owner and amend §2.4
-      before implementing)
+      EXPRESSION mismatches)
 - [ ] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the
@@ -353,9 +362,9 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       query, not a GraphBuilder kind check), and add a
       `Test_GraphGeometryHook` case: such an export gets its geom from the
       realized field.
-- [ ] 4.3 Delete `GraphStateItem%ordering` and
+- [x] 4.3 Delete `GraphStateItem%ordering` and
       `characteristic_ordering_table`; replace their tests with golden
-      `get_extension_order` tests per shape.
+      `get_extension_order` tests per shape. Done in B3-ItemShape.
 - [ ] 4.4 Done when the D6 grep (`_CHARACTERISTIC_KIND` and concrete
       `*Characteristic` names in `GraphBuilder*.F90`, outside comments)
       finds nothing, and ESSENTIAL passes on NAG and gfortran.

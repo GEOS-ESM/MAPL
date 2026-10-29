@@ -187,8 +187,14 @@ The allowlist is a static table in the descriptor module, keyed by
 export is an error (owner A1). An entry is added only when a compelling
 use case is shown, and each new entry is its own reviewed change. The per-consumer
 evaluation (inputs extended to each consumer's goal) is a change to the
-Phase 7b hook design. B0 records it as the target and as owner Q2. Until
-B3-Expression lands it, an EXPRESSION export with MIRRORED geometry
+Phase 7b hook design. Owner decision (Q2, answered): an expression is
+evaluated per consumer, as in legacy. Each import that differs from the
+others in any characteristic (geometry, vertical grid, precision, ...)
+gets its own evaluation on its own goal; imports that agree on every
+characteristic may share one evaluation. Today's single evaluation into
+the export (`run_expression_hook`) is correct only for consumers that
+agree with it on everything. B3-Expression implements the rule. Until
+it lands, an EXPRESSION export with MIRRORED geometry
 connected to an import with a different geometry stays a known gap
 (`expression_defer_geom`, masked by M3).
 
@@ -204,7 +210,8 @@ single source of description (D1) and so that `sync_to_info` covers them.
 "Absent" means "not applicable to this shape" (D2). Detection keeps
 `ExtensionResolution`'s rule: a kind present on only one side is **not**
 a mismatch. This matters only across shapes (for example a BRACKET export
-has no STANDARD_NAME entry, see §4.3), and the shape step handles those.
+has no STANDARD_NAME entry, see §4.3), so its name is not compared
+with the import's (legacy PERMISSIVE behavior, §4.3).
 `StateItemCharacteristicDetection` (stricter, and used only by its own
 test) is aligned with this rule or deleted in B2. Its one-sided rule
 would make every cross-shape pair mismatch.
@@ -302,7 +309,7 @@ for that shape).
 
 | Characteristic | `MAPL_FieldSet` | `MAPL_FieldBundleSet` | `MAPL_StateSet` | Phase | Notes |
 |---|---|---|---|---|---|
-| ItemShape | `state_item_variant=` | `state_item_variant=`, `fieldBundleType=` (BRACKET/VECTOR/VECTORBRACKET/SERVICE) | `state_item_variant=` (`state_set_own`) | D | Replaces the direct calls in `CompositeStateMaterialization` and `GeomProxyField`. |
+| ItemShape | `state_item_variant=` (declared variant only) | `state_item_variant=` (declared variant only); `fieldBundleType=` (BRACKET/VECTOR/VECTORBRACKET/SERVICE, STRUCTURAL phase only, as legacy sets it at `MAPL_FieldBundleCreate`) | `state_item_variant=` (`state_set_own`, declared variant only) | D (bundle type: S) | Only a declared variant (VERTICALGRID, GEOM) is written: an EXPRESSION or BRACKET -> FIELD node is materialized as a plain Field and must not carry its declared class. Replaces the direct calls in `CompositeStateMaterialization` and `GeomProxyField`. |
 | Geometry | `geom=`, `regridder_param_info=` | `geom=`, `regridder_param_info=` | - | S | Bundle `geom=` cascades to members via FieldSet. Write it only before the members complete. |
 | HorizontalDimsSpec | `horizontal_dims_spec=` | none | - | S | Moved from Geometry. No bundle keyword (legacy does not write it either). |
 | VerticalGrid | `vgrid=` | `vgrid=` | - | S | Info stores `vgrid_id`. `num_levels` is derived on read. |
@@ -398,9 +405,9 @@ VERTICAL_ORIENTATION.
 | BRACKET | same, goal geom time-dependent | ATTRIBUTES, UNGRIDDED_DIMS, QUANTITY_TYPE, ITEM_SHAPE, GEOM. Not implemented (Q4); tracked by plan C3. |
 | VECTORBRACKET | `VectorBracketClassAspect` | same as BRACKET |
 | EXPRESSION | `ExpressionClassAspect` | GEOMETRY, VGRID, TYPE_KIND, ITEM_SHAPE |
-| STATE | `StateClassAspect` lists CLASS, ATTRIBUTES, UNGRIDDED_DIMS, GEOM, VERTICAL_GRID, UNITS, TYPEKIND | ITEM_SHAPE only (plan D3: a State has no such characteristics). Owner Q5. |
+| STATE | `StateClassAspect` lists CLASS, ATTRIBUTES, UNGRIDDED_DIMS, GEOM, VERTICAL_GRID, UNITS, TYPEKIND | empty (owner Q5; plan D3: a State has no such characteristics). Not a behavior change: ITEM_SHAPE is the only kind a STATE carries, and its mismatch is still detected and resolved by the shape matrix through the unlisted-kinds fallback. |
 | SERVICE | `ServiceClassAspect` | ITEM_SHAPE, GEOMETRY |
-| WILDCARD | `WildcardClassAspect` (empty) | empty |
+| WILDCARD | `WildcardClassAspect` (empty) | empty (an ITEM_SHAPE mismatch is still handled by the matrix, as for STATE) |
 | GEOM (graph-only variant) | none | GEOMETRY |
 | VERTICALGRID (graph-only variant) | none | VERTICAL_GRID |
 
@@ -412,7 +419,7 @@ Consequences:
   (time interpolation) runs first, and the FIELD order then handles units
   and typekind on the new tip.
 - `GraphStateItem%ordering` and `characteristic_ordering_table` are
-  deleted (B4). `Test_GraphStateItem.pf`'s ordering tests are replaced
+  deleted (done in B3-ItemShape). `Test_GraphStateItem.pf`'s ordering tests are replaced
   by a golden test per shape for `get_extension_order`.
 
 #### §4.3 Applicability (which kinds a shape's map holds)
@@ -423,7 +430,7 @@ The factory omits kinds that are not applicable, using legacy
 | Shape | Applicable kinds |
 |---|---|
 | FIELD | all comparing kinds + RestartMode, LongName |
-| BRACKET, VECTORBRACKET | all comparing kinds except STANDARD_NAME (legacy order omits it, and the field-side tip after ITEM_SHAPE adopts the import's) |
+| BRACKET, VECTORBRACKET | all comparing kinds except STANDARD_NAME (legacy order omits it; see the note below the matrix) |
 | VECTOR, FIELDBUNDLE | all comparing kinds except STANDARD_NAME |
 | EXPRESSION | ITEM_SHAPE, GEOMETRY, VERTICAL_GRID, VERTICAL_STAGGER, VERTICAL_ORIENTATION, TYPE_KIND, Expression, and PHYSICAL_UNITS as UNCHECKED (owner Q3) |
 | (any shape above) | VERTICAL_GRID, VERTICAL_STAGGER and VERTICAL_ORIENTATION apply only to an item with a vertical dimension: no VERTICAL_GRID or VERTICAL_ORIENTATION for `vertical_stagger == NONE`, and SERVICE, STATE and WILDCARD never have them (the VERTICALGRID composite is the one STATE with a VERTICAL_GRID) |
@@ -439,12 +446,26 @@ The ItemShape `needs_extension_for` / `build_transform` matrix (legacy
 |---|---|---|---|---|---|
 | FIELD | match | error | error | match | error |
 | BRACKET | `BracketTimeInterpolationTransform` | error | error | error | error |
-| VECTORBRACKET | not handled (legacy only) | | | | |
-| EXPRESSION | expression evaluation (§2.4, Q2) | error | error | error | error |
+| VECTORBRACKET | error | error | error | error | VECTOR: unsupported (no time-interpolation step yet); others, including VECTORBRACKET: error |
+| EXPRESSION | match (no shape step; evaluation is per consumer, §2.4, Q2) | error | error | error | error |
 | FIELDBUNDLE | error | match | error | match | error |
 | STATE | error | error | match | match | error |
 | VECTOR | error | error | error | error | VECTOR: match |
 | SERVICE | error | error | error | error | SERVICE: match |
+
+Standard name across BRACKET -> FIELD (owner, B3-ItemShape): legacy
+`StandardNameAspect%connect_to_export` adopts the export's name, not the
+import's. A BRACKET carries no StandardName entry, so a name disagreement
+across BRACKET -> FIELD is not checked, which matches legacy PERMISSIVE
+mode. Strict-mode checking waits for a graph validation mode, which needs
+its own design decision.
+
+EXPRESSION -> FIELD (owner, B3-ItemShape): the cell is a match because a
+consumer that agrees with the evaluation on every characteristic is
+correctly wired to the shared result. A consumer that differs shows up as
+a GEOMETRY (or other kind) mismatch, not as a shape mismatch; that stays
+the known gap (`expression_defer_geom`) until B3-Expression builds the
+per-consumer evaluation steps (§2.4).
 
 WILDCARD imports keep their dedicated resolution
 (`resolve_wildcard_destination`). The match cells exist so that the
@@ -635,8 +656,7 @@ NONE -> GEOM by replication across the horizontal points (A14).
    standard_name, no entry otherwise (§3.3).
 2. **Expression semantics**: documented in §2.4 / §4.2 / §4.3 from
    `ExpressionClassAspect`. The allowlist entries and the expression
-   order are fixed. The per-consumer evaluation is the target, and the
-   owner confirms it in Q2.
+   order are fixed. Evaluation is per consumer (Q2, answered; §2.4).
 3. **`SetSharedCharacteristic` survives** (owner A10: runtime geometry
    change is a goal). Use cases, in priority order:
    - custom samplers under History (for example a satellite instrument
@@ -691,7 +711,7 @@ NONE -> GEOM by replication across the horizontal points (A14).
   (`FieldClassAspect%allocate`). It is already exercised by every legacy
   scenario.
 - [Per-consumer expression evaluation enlarges the expression hook] ->
-  Deferred to B3-Expression, pending Q2.
+  Deferred to B3-Expression (Q2 answered: per consumer, §2.4).
 
 ## Migration Plan
 
@@ -786,10 +806,11 @@ A23. `build_transform` has two failure outcomes. `BUILD_TRANSFORM_UNSUPPORTED`:
 
 ## Open Questions (deferred to the named B3 task)
 
-Q2 (B3-Expression). Replicate legacy per-consumer instantiation (inputs
-    extended to each consumer's goal; needed whenever inputs and the
-    consumer differ in geometry/typekind), or keep Phase 7b's single
-    instance and require such expressions to be SPECIFIED?
+Q2 (B3-Expression). **Answered** (owner): replicate legacy per-consumer
+    evaluation. Each import that differs from the others in any
+    characteristic gets its own evaluation on its own goal; imports that
+    agree on every characteristic may share one evaluation (§2.4).
+    B3-Expression implements it.
 Q3 (B3-Expression). Expression units: legacy never compares them (UNITS
     is absent from `ExpressionClassAspect`'s order, and ExtData passes
     `'<unknown>'`). Is UNCHECKED for every expression correct? Also,

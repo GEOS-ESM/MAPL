@@ -571,6 +571,26 @@ in the first one; later ones refine it.
   `Plan-Task: B3-HorizontalDimsSpec`, `Plan-Task: B3-StringMirror`,
   `Plan-Task: B3-MirrorFlagGuard`, `Plan-Task: B3-MirrorGeneric`,
   `Plan-Task: B3-DimsZLegacy`, `Plan-Task: B3-IncompatiblePair`); others not started.
+  B3-ItemShape: done (`Plan-Task: B3-ItemShape`). Every shape gets a
+  SPECIFIED ItemShape from a `make_characteristics` factory (with
+  `state_item_variant` if declared); the advertise block is gone. Shape
+  matrix per design §4.3: error cells return `BUILD_TRANSFORM_INCOMPATIBLE`;
+  VECTORBRACKET -> VECTOR is UNSUPPORTED and every other VECTORBRACKET
+  pair is INCOMPATIBLE, as in legacy (VECTORBRACKET -> VECTORBRACKET used
+  to match and is now a connection conflict). EXPRESSION -> FIELD is a
+  match cell (owner, Q2: evaluation is per consumer; a differing consumer
+  shows up as a non-shape mismatch until B3-Expression). No standard-name
+  check across BRACKET -> FIELD (legacy PERMISSIVE behavior).
+  `get_extension_order` per §4.2 (non-time-dependent BRACKET only, Q4;
+  STATE and WILDCARD empty, Q5), applied in `resolve_characteristics`
+  with the order re-queried after the ITEM_SHAPE step; full tip
+  replacement stays B4. `GraphStateItem%ordering` and its table are
+  deleted here (tasks.md 4.3). `write_info` writes only a declared
+  variant, and `fieldBundleType=` in STRUCTURAL only. Not done:
+  `declared_item_type` and its `GraphBuilder` gates (§6.1 `shape()`
+  accessor); the direct setter calls in `CompositeStateMaterialization`
+  and `GeomProxyField`. ESSENTIAL green on NAG and gfortran (65/65);
+  warnings and the 114 PENDING failures match a clean HEAD baseline.
   B3-IncompatiblePair (A23): `BUILD_TRANSFORM_INCOMPATIBLE` and
   `report_build_transform_incompatible(rc)` sit beside the UNSUPPORTED
   versions; `HorizontalDimsSpecCharacteristic%build_transform` returns it
@@ -1112,7 +1132,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-VerticalStagger | sonnet | opus | DEFERRED/harvest; fixture risk |
 | B3-VerticalOrientation | sonnet | opus | resolve against grid without comparing it |
 | B3-HorizontalDimsSpec | sonnet | opus | changes when Geometry is compared |
-| B3-Expression | opus | gemini/gpt-sol | resolve Q2 and amend design.md §2.4 first |
+| B3-Expression | opus | gemini/gpt-sol | Q2 answered (per-consumer evaluation, design.md §2.4) |
 | B3 others | sonnet | sonnet (self-review) | one at a time, after B3-Units lands |
 | B4 | sonnet | opus | materialization regressions likely |
 | B5 | sonnet (haiku?) | sonnet if haiku | |
