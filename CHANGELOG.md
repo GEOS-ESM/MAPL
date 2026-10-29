@@ -144,6 +144,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `get_or_create_outer_meta` (`GenericGridComp.F90`) no longer leaves a
+  spurious `esmf_usercompgetinternalstate Failure` error in every
+  `PET*.ESMF_LogFile`. It probed for the outer meta with a labelled
+  `ESMF_InternalStateGet`, which ESMF logs as an error when the label is
+  absent (always the case for the cap gridcomp). It now checks the label
+  list first.
+
 - Fixed logging of resource values that contain `%` (e.g. file-name templates
   such as `%y4%m2%d2`): the HConfig value loggers passed the message to
   pFlogger as its format string, which then failed with "not enough position
