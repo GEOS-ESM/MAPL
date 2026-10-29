@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add attribute `from_bundle` to fields in checkpoints that were in a bundle
 - `field_bundle_read` can now fill an empty bundle from a file that has both edge and center 3D fields (forward port of MAPL 2.57.2 fix)
 
 ### Changed
