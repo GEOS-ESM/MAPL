@@ -101,13 +101,16 @@ contains
 
       ! Create windows that will be used for coordination
       ! 1. lock - control modification of other windows
-      ds%mutex = MpiMutex(ds%comm)
+      ds%mutex = MpiMutex(ds%comm, rc=ierror)
+      _VERIFY(ierror)
       ds%win_server_directory = make_directory_window(ds%comm, ds%server_dir)
       ds%win_client_directory = make_directory_window(ds%comm, ds%client_dir)
 
       if(ds%rank == 0) then
-         call ds%put_directory(empty_dir, ds%win_client_directory)
-         call ds%put_directory(empty_dir, ds%win_server_directory)
+         call ds%put_directory(empty_dir, ds%win_client_directory, rc=ierror)
+         _VERIFY(ierror)
+         call ds%put_directory(empty_dir, ds%win_server_directory, rc=ierror)
+         _VERIFY(ierror)
       end if
 
       ds%parser = ProtocolParser()
@@ -175,6 +178,8 @@ contains
       type (DirectoryEntry) :: dir_entry
 
       logical :: found
+      logical :: full
+      integer :: lock_status
       integer :: n
       integer :: server_rank
       integer :: tmp_rank
@@ -216,38 +221,52 @@ contains
 
       if (rank_in_client == 0) then
 
-         call this%mutex%acquire()
-
-         dir = this%get_directory(this%win_server_directory)
-
          found = .false.
-         do n = 1, dir%num_entries
-            if (port_name == dir%entries(n)%port_name) then
-               if (dir%entries(n)%partner_root_rank >= 0) then
-                  found = .true.
-                  server_root_rank =  dir%entries(n)%partner_root_rank
+         full = .false.
+
+         ! No early return is allowed between acquire and release; errors
+         ! are recorded and checked after the lock has been released.
+         call this%mutex%acquire(rc=ierror)
+         _VERIFY(ierror)
+
+         locked: block
+            dir = this%get_directory(this%win_server_directory, rc=lock_status)
+            if (lock_status /= _SUCCESS) exit locked
+
+            do n = 1, dir%num_entries
+               if (port_name == dir%entries(n)%port_name) then
+                  if (dir%entries(n)%partner_root_rank >= 0) then
+                     found = .true.
+                     server_root_rank =  dir%entries(n)%partner_root_rank
+                  end if
+                  exit
                end if
-               exit
-            end if
-         end do
+            end do
+            if (found) exit locked
 
-         if (.not. found) then  ! advertise self
-
-            dir = this%get_directory(this%win_client_directory)
+            ! advertise self
+            dir = this%get_directory(this%win_client_directory, rc=lock_status)
+            if (lock_status /= _SUCCESS) exit locked
 
             n = dir%num_entries + 1
+            if (n > MAX_NUM_PORTS) then
+               full = .true.
+               exit locked
+            end if
             dir%num_entries = n
 
             dir_entry%port_name = port_name
-            call MPI_Comm_rank(this%comm, dir_entry%partner_root_rank, ierror) ! global comm
-            _VERIFY(ierror)
-
+            dir_entry%partner_root_rank = this%rank ! rank in global comm
             dir%entries(n) = dir_entry
 
-            call this%put_directory(dir, this%win_client_directory)
-         end if
+            call this%put_directory(dir, this%win_client_directory, rc=lock_status)
+         end block locked
 
-         call this%mutex%release()
+         call this%mutex%release(rc=ierror)
+         _VERIFY(ierror)
+
+         _VERIFY(lock_status)
+         _ASSERT(.not. full, 'client directory full; increase MAX_NUM_PORTS')
 
          if (found) then
             call MPI_Send(this%rank, 1, MPI_INTEGER, server_root_rank, DISCOVERY_TAG, this%comm, ierror)
@@ -330,6 +349,7 @@ contains
       integer :: n
       integer :: cnts
       integer :: n_entries
+      integer :: lock_status
 
       server%terminate  = .false.
       server_comm = MPI_COMM_NULL
@@ -343,31 +363,40 @@ contains
 
       if (rank_in_server == 0) then
 
-         call this%mutex%acquire()
-
-         dir = this%get_directory(this%win_client_directory)
          client_root_rank = -1
-
          found = .false.
-         n_entries = dir%num_entries
-         do n = 1, n_entries
-            if (port_name == dir%entries(n)%port_name) then
-               found = .true.
-               client_root_rank =  dir%entries(n)%partner_root_rank
-               exit
+
+         ! No early return is allowed between acquire and release; errors
+         ! are recorded and checked after the lock has been released.
+         call this%mutex%acquire(rc=ierror)
+         _VERIFY(ierror)
+
+         locked: block
+            dir = this%get_directory(this%win_client_directory, rc=lock_status)
+            if (lock_status /= _SUCCESS) exit locked
+
+            n_entries = dir%num_entries
+            do n = 1, n_entries
+               if (port_name == dir%entries(n)%port_name) then
+                  found = .true.
+                  client_root_rank =  dir%entries(n)%partner_root_rank
+                  exit
+               end if
+            end do
+
+            if (found) then
+               ! Clear entry
+               dir%entries(n:n_entries-1) = dir%entries(n+1:n_entries)
+               dir%entries(n_entries)%port_name = ''
+               dir%entries(n_entries)%partner_root_rank = -1
+               dir%num_entries = n_entries - 1
+               call this%put_directory(dir, this%win_client_directory, rc=lock_status)
             end if
-         end do
+         end block locked
 
-         if (found) then
-            ! Clear entry
-            dir%entries(n:n_entries-1) = dir%entries(n+1:n_entries)
-            dir%entries(n_entries)%port_name = ''
-            dir%entries(n_entries)%partner_root_rank = -1
-            dir%num_entries = n_entries - 1
-            call this%put_directory(dir, this%win_client_directory)
-         end if
-
-         call this%mutex%release()
+         call this%mutex%release(rc=ierror)
+         _VERIFY(ierror)
+         _VERIFY(lock_status)
 
          if (found) then
             call MPI_Send(this%rank, 1, MPI_INTEGER, client_root_rank, DISCOVERY_TAG, this%comm, ierror)
@@ -464,10 +493,13 @@ contains
       type (Directory) :: dir
       type (DirectoryEntry) :: dir_entry
       logical :: found
+      logical :: full
+      integer :: lock_status
       integer :: server_comm
       character(len=*), parameter :: Iam = __FILE__
 
       ! Update local ports
+      _ASSERT(this%n_local_ports < MAX_NUM_PORTS, 'too many local ports; increase MAX_NUM_PORTS')
       this%n_local_ports = this%n_local_ports + 1
       this%local_ports(this%n_local_ports) = port
       server_comm = MPI_COMM_NULL
@@ -482,33 +514,49 @@ contains
 
       if (rank_in_server == 0) then
 
-         call this%mutex%acquire()
-
-        ! Get - modify - put
-         dir = this%get_directory(this%win_server_directory)
-
-         ! Verify that server has not already published.
          found = .false.
-         do n = 1, dir%num_entries
-            if (port_name == dir%entries(n)%port_name) then
-               if (dir%entries(n)%partner_root_rank >= 0) then
-                  found = .true.
+         full = .false.
+
+         ! No early return is allowed between acquire and release; errors
+         ! are recorded and checked after the lock has been released.
+         call this%mutex%acquire(rc=ierror)
+         _VERIFY(ierror)
+
+         locked: block
+            ! Get - modify - put
+            dir = this%get_directory(this%win_server_directory, rc=lock_status)
+            if (lock_status /= _SUCCESS) exit locked
+
+            ! Verify that server has not already published.
+            do n = 1, dir%num_entries
+               if (port_name == dir%entries(n)%port_name) then
+                  if (dir%entries(n)%partner_root_rank >= 0) then
+                     found = .true.
+                  end if
+                  exit
                end if
-               exit
+            end do
+            if (found) exit locked
+
+            n = dir%num_entries + 1
+            if (n > MAX_NUM_PORTS) then
+               full = .true.
+               exit locked
             end if
-         end do
+            dir%num_entries = n
 
-         _ASSERT(.not. found, 'not found port_name')
+            dir_entry%port_name = port_name
+            dir_entry%partner_root_rank = this%rank
+            dir%entries(n) = dir_entry
+            call this%put_directory(dir, this%win_server_directory, rc=lock_status)
+         end block locked
 
-         n = dir%num_entries + 1
-         dir%num_entries = n
+         call this%mutex%release(rc=ierror)
+         _VERIFY(ierror)
 
-         dir_entry%port_name = port_name
-         dir_entry%partner_root_rank = this%rank
-         dir%entries(n) = dir_entry
-         call this%put_directory(dir, this%win_server_directory)
-
-         call this%mutex%release()
+         _VERIFY(lock_status)
+         _ASSERT(.not. found, 'port already published: '//trim(port_name))
+         _ASSERT(.not. full, 'server directory full; increase MAX_NUM_PORTS')
       end if
       _RETURN(_SUCCESS)
    end subroutine publish
@@ -543,14 +591,15 @@ contains
    end function get_win
 
 
-   function get_directory(this, win) result(dir)
+   function get_directory(this, win, rc) result(dir)
       type (Directory) :: dir
       class (DirectoryService), intent(in) :: this
       integer, intent(in) :: win
+      integer, optional, intent(out) :: rc
 
       integer :: sz
       integer(kind=MPI_ADDRESS_KIND) :: disp
-      integer :: ierror, rc
+      integer :: ierror
 
       call MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, win, ierror)
       _VERIFY(ierror)
@@ -562,19 +611,20 @@ contains
 
       call MPI_Win_unlock(0, win, ierror)
       _VERIFY(ierror)
-      return
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
    end function get_directory
 
 
-   subroutine put_directory(this, dir, win)
+   subroutine put_directory(this, dir, win, rc)
       class (DirectoryService), intent(in) :: this
       type (Directory), intent(in) :: dir
       integer, intent(in) :: win
+      integer, optional, intent(out) :: rc
 
       integer :: sz
       integer(kind=MPI_ADDRESS_KIND) :: disp
-      integer :: ierror, rc
+      integer :: ierror
 
 
       call MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, win, ierror)
@@ -587,7 +637,7 @@ contains
 
       call MPI_Win_unlock(0, win, ierror)
       _VERIFY(ierror)
-      return
+      _RETURN(_SUCCESS)
       _UNUSED_DUMMY(this)
    end subroutine put_directory
 
@@ -609,7 +659,8 @@ contains
 
          write(6,*)"client0 terminates servers"; flush(6)
 
-         dir = this%get_directory(this%win_server_directory)
+         dir = this%get_directory(this%win_server_directory, rc=ierror)
+         _VERIFY(ierror)
 
          do i = 1, dir%num_entries
 
@@ -635,7 +686,8 @@ contains
       call MPI_Barrier(this%comm, ierror)
       _VERIFY(ierror)
 
-      call this%mutex%free_mpi_resources()
+      call this%mutex%free_mpi_resources(rc=ierror)
+      _VERIFY(ierror)
 
       call MPI_Win_free(this%win_server_directory, ierror)
       _VERIFY(ierror)
