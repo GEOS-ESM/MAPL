@@ -395,7 +395,7 @@ VERTICAL_ORIENTATION.
 | FIELDBUNDLE | `FieldBundleClassAspect` | FIELD order without STANDARD_NAME |
 | VECTOR | `VectorClassAspect` (= Field order minus STANDARD_NAME) | FIELD order without STANDARD_NAME |
 | BRACKET | `BracketClassAspect`, goal geom not time-dependent | ATTRIBUTES, UNGRIDDED_DIMS, QUANTITY_TYPE, GEOM, ITEM_SHAPE |
-| BRACKET | same, goal geom time-dependent | ATTRIBUTES, UNGRIDDED_DIMS, QUANTITY_TYPE, ITEM_SHAPE, GEOM. Not implemented: owner Q4. |
+| BRACKET | same, goal geom time-dependent | ATTRIBUTES, UNGRIDDED_DIMS, QUANTITY_TYPE, ITEM_SHAPE, GEOM. Not implemented (Q4); tracked by plan C3. |
 | VECTORBRACKET | `VectorBracketClassAspect` | same as BRACKET |
 | EXPRESSION | `ExpressionClassAspect` | GEOMETRY, VGRID, TYPE_KIND, ITEM_SHAPE |
 | STATE | `StateClassAspect` lists CLASS, ATTRIBUTES, UNGRIDDED_DIMS, GEOM, VERTICAL_GRID, UNITS, TYPEKIND | ITEM_SHAPE only (plan D3: a State has no such characteristics). Owner Q5. |
@@ -799,10 +799,15 @@ Q4 (B3-ItemShape). `BracketClassAspect`'s time-dependent-geometry
     branch: no caller ever sets `is_time_dependent = .true.`. Can the
     graph implement only the non-time-dependent order? (A10's
     epoch-dependent ExtData geometry may be the intended user; check
-    there first.)
+    there first.) **Answered: yes, today's order only**, but the gap
+    must stay tracked so that adding time-dependent geometry does not
+    silently get the wrong order: plan C3 (time-dependent geometry)
+    carries it, together with the DimsZLegacy latent case (a
+    time-dependent `GeomAspect` forces an extension for two NONE items).
 Q5 (B3-ItemShape). `StateClassAspect` orders
     ATTRIBUTES/UNGRIDDED/GEOM/VGRID/UNITS/TYPEKIND for States. Plan D3
-    says States have none. Confirm dropping them.
+    says States have none. Confirm dropping them. **Answered: dropped.**
+    STATE gets no extension order.
 Q6 (B3-VerticalStagger). **Answered: confirmed.** `VERTICAL_STAGGER_MIRROR`
     maps to MIRRORED: the import adopts the export's stagger. It is for
     generic components (History writing another component's field in

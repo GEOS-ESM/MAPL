@@ -943,6 +943,18 @@ ready means today" in `scenario-parity.md`). May be split into
   replaced it.
 - **Status:** not started
 
+**C3. Time-dependent geometry (reminder; prerequisite for A10's
+epoch-dependent ExtData exports and moving nested grids).** Today nothing
+marks a geom time-dependent, so the graph ignores the case. Before any
+code sets it, this task must: (1) give BRACKET/VECTORBRACKET's
+`get_extension_order` the legacy time-dependent branch (ITEM_SHAPE before
+GEOM, i.e. time-interpolate then regrid; design.md §4.2 table and Q4);
+(2) handle the DimsZLegacy latent case (a time-dependent `GeomAspect`
+forces a geom extension for two `dims: z` items). Without both, the
+wrong order runs silently.
+- **Status:** not started; not scheduled until time-dependent geometry
+  has a user.
+
 **C2.x. One task per remaining root cause** (label `C2-<short-name>`),
 from "Verified root causes" in `docs/graph/scenario-parity.md`. Each task
 starts from that diagnosis, fixes production source, and flips the
@@ -1172,7 +1184,9 @@ B4 -> C1, B3-VerticalCoordinate -> C1 (vertical part), D1 -> D2;
 C2-alias-owner -> C2-alias-nonfield. The C2 tasks need only A1-diagnosis
 and may run before Phase B. A4 is independent of A1-A3 and B0 (they touch tests/docs, A4 touches
 production comments), so their order is free; still one task at a time.
-D3-cleanup has no dependencies. E1-intel runs after every other task.
+D3-cleanup has no dependencies. E1-intel runs after every other task
+except C3, which waits for a user of time-dependent geometry
+(B3-ItemShape -> C3).
 
 **Run order (owner decision, after A5b):** critical path first:
 B0 -> B1 -> B2 -> B3.x -> {B4, B5} -> C1. Within B3.x, B3-Units goes
