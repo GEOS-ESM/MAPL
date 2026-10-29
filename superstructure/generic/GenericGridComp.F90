@@ -62,10 +62,14 @@ contains
          type(GriddedComponentDriver) :: user_gc_driver
          integer :: status
          character(ESMF_MAXSTR) :: name
+         character(len=:), allocatable :: labels(:)
+         character(*), parameter :: OUTER_META_LABEL = 'MAPL::OuterMetaComponent::private'
 
-         call ESMF_InternalStateGet(gridcomp, internalState=wrapper, &
-              label='MAPL::OuterMetaComponent::private', rc=status)
-         if (status == ESMF_SUCCESS) then
+         ! Check the label list first: a get with a missing label logs an
+         ! ESMF error, even though a missing outer meta is expected here.
+         call ESMF_InternalStateGet(gridcomp, labelList=labels, _RC)
+         if (any(labels == OUTER_META_LABEL)) then
+            call ESMF_InternalStateGet(gridcomp, internalState=wrapper, label=OUTER_META_LABEL, _RC)
             outer_meta => wrapper%ptr
             _RETURN(_SUCCESS)
          end if
