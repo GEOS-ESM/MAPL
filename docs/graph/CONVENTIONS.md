@@ -25,6 +25,13 @@ once it exists. Root `AGENTS.md` carries the build/test procedure.
 - Existing violations are being removed (plan task A4). Do not copy
   their style and do not add to them.
 
+## 1a. Line length
+
+- New or touched source and test lines stay within 80 characters.
+- Up to 120 is acceptable only for a compelling reason, for example an
+  `_ASSERT` with a long message string.
+- Rewrap existing longer lines that you touch; leave untouched ones.
+
 ## 2. Layering
 
 - `ComponentGraph`, `DependencyNetwork`, `GraphNode*`, `GraphStateItem`
