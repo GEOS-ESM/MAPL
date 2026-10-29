@@ -114,7 +114,7 @@ factories (so far units, typekind, ungridded dims, geometry, vertical grid, vert
 | `VerticalGrid` | `VERTICAL_GRID_…` | Single overlap: unsupported (no vertical-regrid `Transform` yet); incompatible and ambiguous overlaps `_FAIL` with distinct messages |
 | `VerticalStagger` | `VERTICAL_STAGGER_…` | Unsupported — mismatch is detected, repair is a stub |
 | `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Unsupported — mismatch is detected, repair is a stub |
-| `HorizontalDimsSpec` | `HORIZONTAL_DIMS_SPEC_…` | Unsupported — GEOM vs NONE is detected in both directions; no Transform changes it |
+| `HorizontalDimsSpec` | `HORIZONTAL_DIMS_SPEC_…` | Incompatible — GEOM vs NONE is detected in both directions and can never connect |
 | `Attributes`, `UngriddedDims`, `StandardName`, `QuantityType`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | Unsupported — mismatch is detected, repair is a stub |
 
 Other files: `CharacteristicStatus.F90`, `StateItemCharacteristicKind.F90`
@@ -125,8 +125,15 @@ Other files: `CharacteristicStatus.F90`, `StateItemCharacteristicKind.F90`
 which sets `rc = BUILD_TRANSFORM_UNSUPPORTED` and raises nothing;
 `ExtensionResolution` then reports the kind through
 `unsupported_characteristics`. A test of a stub-axis mismatch asserts that
-status or entry and needs no `@assertExceptionRaised`. Any other nonzero
-rc is a genuine error.
+status or entry and needs no `@assertExceptionRaised`. A pair that can
+never connect calls `report_build_transform_incompatible(rc)` instead
+(`rc = BUILD_TRANSFORM_INCOMPATIBLE`, raises nothing).
+`ExtensionResolution` returns it through the optional `conflict` argument
+(kind plus both `get_signature()` values); `graphbuilder_resolve_connections`
+collects it in `connection_conflicts` and the connect hook logs it as a
+"connection conflict" warning, apart from the "no registered extension
+provider" one. Status conflicts still go to `unsupported_characteristics`.
+Any other nonzero rc is a genuine error.
 
 #### Transforms (`graph/transforms/`)
 

@@ -243,7 +243,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       kind's `to_string()` and `status=1` (CONVENTIONS.md pFUnit rule).
       These are separate from the legacy change; list them in the commit
       message.
-- [ ] 3.21 B3-IncompatiblePair (A23). Add `BUILD_TRANSFORM_INCOMPATIBLE`
+- [x] 3.21 B3-IncompatiblePair (A23). Add `BUILD_TRANSFORM_INCOMPATIBLE`
       beside `BUILD_TRANSFORM_UNSUPPORTED` in
       `graph/characteristics/StateItemCharacteristic.F90`, with a
       `report_build_transform_incompatible(rc)` helper (raises nothing).

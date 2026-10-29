@@ -541,7 +541,7 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric and B3-DimsZLegacy done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy and B3-IncompatiblePair done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
@@ -549,7 +549,29 @@ in the first one; later ones refine it.
   `Plan-Task: B3-VerticalStagger`, `Plan-Task: B3-VerticalOrientation`,
   `Plan-Task: B3-HorizontalDimsSpec`, `Plan-Task: B3-StringMirror`,
   `Plan-Task: B3-MirrorFlagGuard`, `Plan-Task: B3-MirrorGeneric`,
-  `Plan-Task: B3-DimsZLegacy`); others not started.
+  `Plan-Task: B3-DimsZLegacy`, `Plan-Task: B3-IncompatiblePair`); others not started.
+  B3-IncompatiblePair (A23): `BUILD_TRANSFORM_INCOMPATIBLE` and
+  `report_build_transform_incompatible(rc)` sit beside the UNSUPPORTED
+  versions; `HorizontalDimsSpecCharacteristic%build_transform` returns it
+  both ways (no other kind changed). `find_or_build_extension_chain` and
+  `build_chain` gain an optional `conflict` argument holding
+  `incompatible <KIND>: export <signature>, import <signature>`, built from
+  `to_string()` and `get_signature()`; a caller that omits it still gets the
+  kind in `unsupported_characteristic`, so the Geometry and callback sites
+  are unchanged. `graphbuilder_resolve_connections` gains an optional
+  `connection_conflicts` vector, and the connect hook logs it as
+  "connection conflict", apart from "no registered extension provider".
+  Decision: incompatible pairs have their own report and descriptor status
+  conflicts were left in `unsupported_characteristics`, so no existing
+  behavior changed; merging them is a later choice. Nothing calls `_FAIL`,
+  and a test shows the component's other connection still wires. No
+  `GraphBuilder*.F90` names a kind. Tests: `Test_StateItemCharacteristicSubclasses`
+  (renamed to `..._incompatible`), `Test_ExtensionResolution` (with and
+  without `conflict`), `Test_GraphBuilder_ConnectionResolution`
+  (`test_incompatible_dims_is_conflict_others_resolve`).
+  ESSENTIAL green on NAG and gfortran (65/65); PENDING
+  `MAPL.generic.scenarios.pending` on NAG fails the same 114 checks with
+  identical messages as a clean HEAD worktree (Release, removed afterward).
   B3-StringMirror: `VariableSpec` exports `MAPL_STRING_MIRROR` (`'<mirror>'`;
   YAML `standard_name: "<mirror>"`), shared with the later LongName task.
   `make_VariableSpec` does not store it: it sets `standard_name_mirror` and

@@ -16,9 +16,9 @@
 !
 ! Chain-building calls each mismatched characteristic's own
 ! StateItemCharacteristic%build_transform, an ordinary deferred method with
-! no provider registry. An unsupported characteristic fails loudly because
-! its build_transform fails (rc /= 0) when it has no real conversion
-! (e.g. AttributesCharacteristic).
+! no provider registry. A characteristic with no real conversion yet reports
+! BUILD_TRANSFORM_UNSUPPORTED (e.g. AttributesCharacteristic); one whose pair
+! can never connect reports BUILD_TRANSFORM_INCOMPATIBLE. Neither raises.
 !
 ! Reuse search (find_or_build_extension_chain) is keyed through
 ! ComponentGraph%add_resource_index/get_resource_index (REQ-CG-001), not a
@@ -34,7 +34,7 @@
 ! search and gives the same outcome for any single-characteristic mismatch.
 module mapl_ExtensionResolution_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap, &
-        StateItemCharacteristicMapIterator, operator(==), operator(/=)
+        StateItemCharacteristicMapIterator, BUILD_TRANSFORM_INCOMPATIBLE, operator(==), operator(/=)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
    use mapl_StateItemDescriptor_mod, only: resolve_characteristics
    use ESMF, only: ESMF_STATEITEM_FIELD
@@ -113,6 +113,11 @@ contains
    ! already created for earlier kinds stay in the graph unreferenced. `rc`
    ! reports genuine errors (e.g. graph mutation failure) separately.
    !
+   ! A kind whose build_transform reports BUILD_TRANSFORM_INCOMPATIBLE is
+   ! reported through `conflict` instead (text naming the kind and both
+   ! signatures), leaving unsupported_characteristic empty. A caller that
+   ! does not pass `conflict` gets the kind in unsupported_characteristic.
+   !
    ! intermediate_node_ids(:) is parallel to mismatched_kinds: entry i is the
    ! NodeId holding the state after mismatched_kinds(i)'s conversion, so entry
    ! size(mismatched_kinds) equals final_node_id. It is zero-size on the reuse
@@ -121,7 +126,7 @@ contains
    ! orphaned extension node is excluded).
    subroutine find_or_build_extension_chain(graph, network_id, export_node_id, &
         export_map, import_map, mismatched_kinds, &
-        final_node_id, intermediate_node_ids, unsupported_characteristic, rc)
+        final_node_id, intermediate_node_ids, unsupported_characteristic, rc, conflict)
       class(ComponentGraph), target, intent(inout) :: graph
       type(DependencyNetworkId), intent(in) :: network_id
       type(NodeId), intent(in) :: export_node_id
@@ -132,12 +137,14 @@ contains
       type(NodeId), allocatable, intent(out) :: intermediate_node_ids(:)
       character(:), allocatable, intent(out) :: unsupported_characteristic
       integer, optional, intent(out) :: rc
+      character(:), allocatable, optional, intent(out) :: conflict
 
       integer :: status
       character(:), allocatable :: reuse_key
       type(NodeId), pointer :: existing
 
       unsupported_characteristic = ''
+      if (present(conflict)) conflict = ''
 
       reuse_key = chain_key(export_node_id, mismatched_kinds, import_map)
       existing => graph%get_resource_index(reuse_key)
@@ -148,10 +155,16 @@ contains
       end if
 
       call build_chain(graph, network_id, export_node_id, export_map, import_map, &
-           mismatched_kinds, final_node_id, intermediate_node_ids, unsupported_characteristic, _RC)
+           mismatched_kinds, final_node_id, intermediate_node_ids, unsupported_characteristic, &
+           conflict=conflict, _RC)
 
       if (unsupported_characteristic /= '') then
          _RETURN(_SUCCESS)
+      end if
+      if (present(conflict)) then
+         if (conflict /= '') then
+            _RETURN(_SUCCESS)
+         end if
       end if
 
       call graph%add_resource_index(reuse_key, final_node_id, _RC)
@@ -176,7 +189,7 @@ contains
    end function chain_key
 
    subroutine build_chain(graph, network_id, export_node_id, export_map, import_map, &
-        mismatched_kinds, final_node_id, intermediate_node_ids, unsupported_characteristic, rc)
+        mismatched_kinds, final_node_id, intermediate_node_ids, unsupported_characteristic, rc, conflict)
       class(ComponentGraph), target, intent(inout) :: graph
       type(DependencyNetworkId), intent(in) :: network_id
       type(NodeId), intent(in) :: export_node_id
@@ -187,6 +200,7 @@ contains
       type(NodeId), allocatable, intent(out) :: intermediate_node_ids(:)
       character(:), allocatable, intent(out) :: unsupported_characteristic
       integer, optional, intent(out) :: rc
+      character(:), allocatable, optional, intent(out) :: conflict
 
       integer :: status
       integer :: i
@@ -206,6 +220,8 @@ contains
       type(NodeRevision) :: empty_revision
       type(TransformGraphNode) :: transform_node
 
+      unsupported_characteristic = ''
+      if (present(conflict)) conflict = ''
       allocate(intermediate_node_ids(size(mismatched_kinds)))
       num_built = 0
       current_node_id = export_node_id
@@ -222,7 +238,12 @@ contains
 
          call export_characteristic%build_transform(import_characteristic, transformer, status)
          if (status /= 0) then
-            unsupported_characteristic = mismatched_kinds(i)%to_string()
+            if (status == BUILD_TRANSFORM_INCOMPATIBLE .and. present(conflict)) then
+               conflict = 'incompatible ' // mismatched_kinds(i)%to_string() // ': export ' // &
+                    export_characteristic%get_signature() // ', import ' // import_characteristic%get_signature()
+            else
+               unsupported_characteristic = mismatched_kinds(i)%to_string()
+            end if
             ! Truncate to the links built before this failure; this step's orphaned
             ! extension_node_id (created above, never wired) is excluded.
             intermediate_node_ids = intermediate_node_ids(1:num_built)
@@ -254,7 +275,6 @@ contains
       end do
 
       final_node_id = current_node_id
-      unsupported_characteristic = ''
 
       _RETURN(_SUCCESS)
    end subroutine build_chain

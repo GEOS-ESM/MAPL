@@ -26,7 +26,9 @@
 ! implemented yet (e.g. AttributesCharacteristic) reports
 ! BUILD_TRANSFORM_UNSUPPORTED from build_transform rather than returning a
 ! stub Transform. That is an expected outcome, not an error: it raises
-! nothing, and the caller reports the pair as unsupported.
+! nothing, and the caller reports the pair as unsupported. A pair that can
+! never connect reports BUILD_TRANSFORM_INCOMPATIBLE instead; it also raises
+! nothing, and the caller reports a connection conflict.
 !
 ! status (CharacteristicStatus, CharacteristicStatus.F90) and, for
 ! ReferenceCharacteristic, the referenced NodeId are exposed only through
@@ -78,6 +80,8 @@ module mapl_StateItemCharacteristic_mod
    public :: SYNC_PHASE_DESCRIPTIVE
    public :: BUILD_TRANSFORM_UNSUPPORTED
    public :: report_build_transform_unsupported
+   public :: BUILD_TRANSFORM_INCOMPATIBLE
+   public :: report_build_transform_incompatible
 
    ! Phases of StateItemDescriptor%sync_to_info. STRUCTURAL: before the field
    ! is completed, every keyword may be written. DESCRIPTIVE: any time, so
@@ -88,6 +92,10 @@ module mapl_StateItemCharacteristic_mod
    ! rc value of a build_transform that has no Transform for this pair yet.
    ! Distinct from a failure: nothing is raised.
    integer, parameter :: BUILD_TRANSFORM_UNSUPPORTED = 1
+
+   ! rc value of a build_transform for a pair that can never connect, so no
+   ! Transform will ever exist for it. Nothing is raised.
+   integer, parameter :: BUILD_TRANSFORM_INCOMPATIBLE = 2
 
    type, abstract :: StateItemCharacteristic
       private
@@ -177,7 +185,10 @@ module mapl_StateItemCharacteristic_mod
       ! BUILD_TRANSFORM_UNSUPPORTED (through
       ! report_build_transform_unsupported, raising nothing) and leave
       ! `transformer` unallocated, rather than allocate a no-op/stub
-      ! Transform. Any other nonzero rc is a genuine error.
+      ! Transform. A pair that can never connect MUST report
+      ! BUILD_TRANSFORM_INCOMPATIBLE (through
+      ! report_build_transform_incompatible), also raising nothing. Any
+      ! other nonzero rc is a genuine error.
       ! `goal` is guaranteed the same dynamic type as `this` for the real
       ! call chain this method is used in (same guarantee documented on
       ! needs_extension_for above). Every concrete override still
@@ -225,6 +236,15 @@ contains
       _ASSERT(present(rc), 'build_transform reported unsupported but the caller passed no rc')
       rc = BUILD_TRANSFORM_UNSUPPORTED
    end subroutine report_build_transform_unsupported
+
+   ! The one way a build_transform reports "this pair can never connect".
+   ! rc must be present: an absent rc would swallow the outcome.
+   subroutine report_build_transform_incompatible(rc)
+      integer, optional, intent(out) :: rc
+
+      _ASSERT(present(rc), 'build_transform reported incompatible but the caller passed no rc')
+      rc = BUILD_TRANSFORM_INCOMPATIBLE
+   end subroutine report_build_transform_incompatible
 
    subroutine char_set_status(this, status)
       class(StateItemCharacteristic), intent(inout) :: this

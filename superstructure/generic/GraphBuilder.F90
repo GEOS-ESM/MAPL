@@ -358,7 +358,7 @@ module mapl_GraphBuilder_mod
 
    end subroutine check_match_connection_unsatisfied
     module subroutine graphbuilder_resolve_connections(this, unusable, unresolved_imports, &
-         unsupported_characteristics, rc)
+         unsupported_characteristics, connection_conflicts, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
       type(GraphResolutionEntryVector), optional, intent(out) :: unresolved_imports
@@ -366,14 +366,18 @@ module mapl_GraphBuilder_mod
       ! (mapl_ExtensionResolution_mod); distinct from unresolved_imports,
       ! which means "no export at all".
       type(GraphResolutionEntryVector), optional, intent(out) :: unsupported_characteristics
+      ! Matched pairs that can never connect (a characteristic's build_transform
+      ! reports them incompatible); the entry reason names the kind and both values.
+      type(GraphResolutionEntryVector), optional, intent(out) :: connection_conflicts
       integer, optional, intent(out) :: rc
 
     end subroutine graphbuilder_resolve_connections
-   module subroutine resolve_match_connection(this, conn, unresolved, unsupported, rc)
+   module subroutine resolve_match_connection(this, conn, unresolved, unsupported, conflicts, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(Connection), intent(in) :: conn
       type(GraphResolutionEntryVector), intent(inout) :: unresolved
       type(GraphResolutionEntryVector), intent(inout) :: unsupported
+      type(GraphResolutionEntryVector), intent(inout) :: conflicts
       integer, optional, intent(out) :: rc
 
    end subroutine resolve_match_connection

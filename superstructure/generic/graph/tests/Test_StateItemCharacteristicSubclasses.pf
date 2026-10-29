@@ -15,7 +15,7 @@
 module Test_StateItemCharacteristicSubclasses
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic, &
                                                 ReferenceCharacteristic, &
-                                                BUILD_TRANSFORM_UNSUPPORTED
+                                                BUILD_TRANSFORM_UNSUPPORTED, BUILD_TRANSFORM_INCOMPATIBLE
    use mapl_StateItemCharacteristicKind_mod, only: operator(==), &
                                                     VERTICAL_GRID_CHARACTERISTIC_KIND, &
                                                     ATTRIBUTES_CHARACTERISTIC_KIND, &
@@ -268,7 +268,7 @@ contains
    end subroutine test_horizontal_dims_spec_signature_and_getter
 
    @test
-   subroutine test_horizontal_dims_spec_build_transform_unsupported()
+   subroutine test_horizontal_dims_spec_build_transform_incompatible()
       type(HorizontalDimsSpecCharacteristic) :: geom, none
       class(TransformBase), allocatable :: transformer
       integer :: status
@@ -276,10 +276,12 @@ contains
       geom = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM)
       none = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE)
       call geom%build_transform(none, transformer, rc=status)
-      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
       call none%build_transform(geom, transformer, rc=status)
-      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
-   end subroutine test_horizontal_dims_spec_build_transform_unsupported
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_horizontal_dims_spec_build_transform_incompatible
 
    ! HORIZONTAL_DIMS_MIRROR is not a value: it becomes MIRRORED status.
    @test

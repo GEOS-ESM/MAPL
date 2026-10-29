@@ -104,6 +104,16 @@ Info.
   provokes such a mismatch asserts `BUILD_TRANSFORM_UNSUPPORTED` (or the
   `unsupported_characteristics` entry) and needs no
   `@assertExceptionRaised`. Reserve `_FAIL` for genuine errors.
+- A pair that can never connect (no Transform will ever exist, e.g.
+  HorizontalDimsSpec GEOM vs NONE) calls
+  `report_build_transform_incompatible(rc)` instead. It also raises
+  nothing and leaves `transformer` unallocated. `ExtensionResolution`
+  returns it through `conflict`, naming the kind and both
+  `get_signature()` values, and `GraphBuilder` collects it in
+  `connection_conflicts`, separate from `unsupported_characteristics`.
+  A test asserts `BUILD_TRANSFORM_INCOMPATIBLE` or the `connection_conflicts`
+  entry and needs no `@assertExceptionRaised`. Descriptor status conflicts
+  (`resolve_descriptors`) still go to `unsupported_characteristics`.
 - Under pFUnit, a failing `_ASSERT`/`_FAIL` records its message as an
   exception, and every enclosing `_RC`/`_VERIFY` it propagates through
   records another one, `status=<rc>`. A test must consume each one with

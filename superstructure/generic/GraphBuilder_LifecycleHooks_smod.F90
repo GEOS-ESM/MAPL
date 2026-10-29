@@ -56,7 +56,7 @@ contains
       class(OuterMetaComponent), target, intent(inout) :: this
 
       integer :: status
-      type(GraphResolutionEntryVector) :: unsupported
+      type(GraphResolutionEntryVector) :: unsupported, conflicts
       integer :: i
       type(GraphResolutionEntry), pointer :: entry
       class(Logger), pointer :: lgr
@@ -67,7 +67,8 @@ contains
       call graphbuilder_harvest_deferred(this, rc=status)
       call report_if_failed(this, 'harvest_deferred', status)
 
-      call graphbuilder_resolve_connections(this, unsupported_characteristics=unsupported, rc=status)
+      call graphbuilder_resolve_connections(this, unsupported_characteristics=unsupported, &
+           connection_conflicts=conflicts, rc=status)
       call report_if_failed(this, 'resolve_connections', status)
 
       lgr => this%get_logger()
@@ -76,6 +77,13 @@ contains
          ! Pre-concatenated string; see graphbuilder_run_activate_hook.
          msg = 'GraphBuilder: no registered extension provider for mismatched characteristic ' // &
               entry%component_name // ':' // entry%short_name // ':' // entry%reason
+         call lgr%warning(msg)
+      end do
+
+      do i = 1, conflicts%size()
+         entry => conflicts%of(i)
+         msg = 'GraphBuilder: connection conflict ' // &
+              entry%component_name // ':' // entry%short_name // ': ' // entry%reason
          call lgr%warning(msg)
       end do
 

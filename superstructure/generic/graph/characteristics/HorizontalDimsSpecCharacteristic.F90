@@ -7,8 +7,8 @@
 ! ValueCharacteristic wrapping the existing HorizontalDimsSpec value type.
 !
 ! Status: SPECIFIED with a GEOM or NONE value. GEOM versus NONE in either
-! direction is a mismatch; there is no Transform that changes it, so
-! build_transform reports unsupported. MIRRORED holds no value: the import
+! direction is a mismatch that can never be repaired, so build_transform
+! reports it incompatible. MIRRORED holds no value: the import
 ! adopts the export's spec. HORIZONTAL_DIMS_MIRROR is not a value to compare;
 ! the VariableSpec factory turns it into MIRRORED status.
 !
@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------------
 module mapl_HorizontalDimsSpecCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
-   use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL, report_build_transform_unsupported
+   use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL, report_build_transform_incompatible
    use mapl_CharacteristicStatus_mod, only: operator(==), CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND
@@ -99,7 +99,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal)
 
-      call report_build_transform_unsupported(rc)
+      call report_build_transform_incompatible(rc)
    end subroutine dims_spec_build_transform
 
    function dims_spec_get_signature(this) result(signature)

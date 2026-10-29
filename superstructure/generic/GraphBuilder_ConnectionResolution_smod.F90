@@ -179,11 +179,12 @@ contains
    !
    ! Accepts any Connection subtype: a SimpleConnection is the exact-match
    ! case of MatchConnection's pattern expansion, with no separate code path.
-   module subroutine resolve_match_connection(this, conn, unresolved, unsupported, rc)
+   module subroutine resolve_match_connection(this, conn, unresolved, unsupported, conflicts, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(Connection), intent(in) :: conn
       type(GraphResolutionEntryVector), intent(inout) :: unresolved
       type(GraphResolutionEntryVector), intent(inout) :: unsupported
+      type(GraphResolutionEntryVector), intent(inout) :: conflicts
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -249,6 +250,7 @@ contains
          type(StateItemDescriptor), pointer :: export_item, import_item
          type(StateItemCharacteristicKind), allocatable :: mismatched(:)
          character(:), allocatable :: unsupported_characteristic
+         character(:), allocatable :: incompatible_pair
          character(:), allocatable :: materialization_failure
          type(StringVector) :: callback_rejected
          character(:), pointer :: rejected_item
@@ -361,7 +363,15 @@ contains
          ! (mapl_ExtensionResolution_mod) rather than wiring the pair directly.
          call find_or_build_extension_chain(this_graph, net_id, export_node_id, &
               export_item%get_characteristics(), import_item%get_characteristics(), mismatched, &
-              final_node_id, intermediate_node_ids, unsupported_characteristic, _RC)
+              final_node_id, intermediate_node_ids, unsupported_characteristic, conflict=incompatible_pair, _RC)
+
+         if (incompatible_pair /= '') then
+            ! Reported apart from "no registered extension provider": this pair
+            ! can never connect. The component's other connections still resolve.
+            call conflicts%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
+                 incompatible_pair))
+            _RETURN(_SUCCESS)
+         end if
 
          if (unsupported_characteristic /= '') then
             ! Distinguishable from "import has no matching export".
@@ -911,7 +921,7 @@ contains
    ! GRAPH_FREEZE phase, so it is still mutable across both ACCEPT_TRANSFER
    ! passes.
     module subroutine graphbuilder_resolve_connections(this, unusable, unresolved_imports, &
-         unsupported_characteristics, rc)
+         unsupported_characteristics, connection_conflicts, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
       type(GraphResolutionEntryVector), optional, intent(out) :: unresolved_imports
@@ -919,6 +929,7 @@ contains
       ! provider (mapl_ExtensionResolution_mod); distinct from unresolved_imports
       ! ("no export at all").
       type(GraphResolutionEntryVector), optional, intent(out) :: unsupported_characteristics
+      type(GraphResolutionEntryVector), optional, intent(out) :: connection_conflicts
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -927,10 +938,12 @@ contains
       class(Connection), pointer :: c
       type(GraphResolutionEntryVector) :: unresolved
       type(GraphResolutionEntryVector) :: unsupported
+      type(GraphResolutionEntryVector) :: conflicts
 
       if (this%connections_already_resolved()) then
          if (present(unresolved_imports)) unresolved_imports = unresolved
          if (present(unsupported_characteristics)) unsupported_characteristics = unsupported
+         if (present(connection_conflicts)) connection_conflicts = conflicts
          _RETURN(_SUCCESS)
       end if
 
@@ -944,11 +957,11 @@ contains
             c => iter%of()
             select type (c)
             class is (MatchConnection)
-               call resolve_match_connection(this, c, unresolved, unsupported, _RC)
+               call resolve_match_connection(this, c, unresolved, unsupported, conflicts, _RC)
             class is (SimpleConnection)
                ! Same call as the MatchConnection arm: resolve_match_connection only
                ! uses Connection-base accessors.
-               call resolve_match_connection(this, c, unresolved, unsupported, _RC)
+               call resolve_match_connection(this, c, unresolved, unsupported, conflicts, _RC)
             class default
                ! Other subtypes (e.g. ReexportConnection) are not resolved here.
             end select
@@ -959,6 +972,7 @@ contains
 
       if (present(unresolved_imports)) unresolved_imports = unresolved
       if (present(unsupported_characteristics)) unsupported_characteristics = unsupported
+      if (present(connection_conflicts)) connection_conflicts = conflicts
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

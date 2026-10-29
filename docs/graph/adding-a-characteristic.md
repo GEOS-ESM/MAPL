@@ -23,8 +23,10 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
    - Implements the deferred `get_kind`, `needs_extension_for`,
      `build_transform`, `get_signature`. A `build_transform` with no
      Transform for a pair calls `report_build_transform_unsupported(rc)`
-     (raises nothing; `transformer` stays unallocated); use `_FAIL` only
-     for genuine errors.
+     (raises nothing; `transformer` stays unallocated). A pair that can
+     never connect calls `report_build_transform_incompatible(rc)`
+     (also raises nothing; reported as a connection conflict). Use `_FAIL`
+     only for genuine errors.
    - **No status logic in the subclass.** `needs_extension_for` compares
      values only; `StateItemDescriptor%resolve_pair` decides from the
      two statuses and calls it only when both sides are SPECIFIED.
@@ -339,7 +341,11 @@ NONE (`dims: z`, no horizontal dimensions). It was part of
 | any | EXPRESSION, SERVICE, STATE, WILDCARD | none |
 
 - Comparison is plain equality. GEOM vs NONE in either direction is a
-  mismatch, and `build_transform` reports unsupported (no Transform).
+  mismatch, and `build_transform` reports
+  `BUILD_TRANSFORM_INCOMPATIBLE` (no Transform can change it). The
+  connection is reported in `connection_conflicts` as
+  `incompatible HORIZONTAL_DIMS_SPEC: export <signature>, import
+  <signature>`; the component's other connections still resolve.
 - `write_info` writes `horizontal_dims_spec=` through `MAPL_FieldSet` in
   the STRUCTURAL phase (it decides the grid-to-field map at completion). A
   bundle has nothing to write: the bundle setter has no such keyword.
