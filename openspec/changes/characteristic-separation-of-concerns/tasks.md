@@ -53,8 +53,8 @@ nothing for that kind, except the §6.3 materialization references
 the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
-Remaining order (owner): 3.20, 3.21, then 3.7, 3.13, 3.11, 3.10,
-3.12, 3.14 as their open questions allow (3.12: Q2 answered).
+Remaining order (owner): 3.13, 3.11, 3.10, 3.22, 3.12, 3.14
+(3.12: Q2 answered). 3.7, 3.20 and 3.21 are done.
 Numbers are labels, not run order. A task whose characteristic adds a
 mirror value adds its spelling to `VariableSpec%requests_mirror()`; the
 generic export checks (A21) then reject it on a non-EXPRESSION export, and
@@ -261,6 +261,15 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       adding-a-characteristic.md (HorizontalDimsSpec section). If an
       existing test asserts UNSUPPORTED for GEOM vs NONE, change it; if any
       other kind's test changes, stop and report.
+- [ ] 3.22 B3-IncompatibleSweep (A23; after 3.10). Every kind whose legacy
+      aspect never converts a mismatch (`supports_conversion` false):
+      Attributes, UngriddedDims, StandardName, QuantityType, Conservation,
+      Normalization. Their `build_transform` returns
+      `BUILD_TRANSFORM_INCOMPATIBLE` instead of UNSUPPORTED, all in one
+      change (owner: one general rule, not per kind). Update their tests
+      and CONVENTIONS.md's build_transform rule. Check each against its
+      legacy aspect first; if one does convert in some case, stop and
+      report.
 - [x] 3.6 B3-Geometry (M1: item-level entry; DEFERRED; moves
       `_Geometry_smod` inserts behind a helper). Deviations from design
       §2.2/§2.3, owner-approved: a DEFERRED side at connect time waits
@@ -306,11 +315,32 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       (legacy's fixed defaults are not reproduced; report it in the commit
       message as a parity difference with no current user, since no
       keyword or YAML key sets these fields yet). Field-dictionary defaults
-      for them are future work, not this task.
-- [ ] 3.11 B3-RestartMode (new kind; `populate_one` uses
-      `sync_to_info(DESCRIPTIVE)`). Default `RESTART_REQUIRED`, never
+      for them are future work, not this task. Preflight answers (owner):
+      a mismatch stays `BUILD_TRANSFORM_UNSUPPORTED`, like Attributes,
+      UngriddedDims and StandardName; task 3.22 moves all six to
+      INCOMPATIBLE together. An undeclared quantity type stays SPECIFIED
+      `QUANTITY_UNKNOWN`, and "unknown matches anything" (and `BASIS_NONE`
+      matching any basis) stays a value rule in the subclass; say in
+      adding-a-characteristic.md that such value wildcards are not status.
+- [ ] 3.11 B3-RestartMode (new kind). Default `RESTART_REQUIRED`, never
       compared, no transform (A15). `write_info` writes the item's own
       alias, so imports sharing an export keep their own modes.
+      Preflight answers (owner):
+      - The source field's mode is never used: every item, import or
+        export, gets REQUIRED unless it declares its own, and an alias can
+        override it. So an undeclared mode is SPECIFIED REQUIRED and is
+        always written (a mode set directly with `MAPL_FieldSet` on a field
+        whose spec declares none is overwritten; no repo code does that).
+      - Per-alias writes: a plain `sync_to_info(DESCRIPTIVE)` on an alias
+        would also rewrite field-wide keys (e.g. an import's UNCHECKED
+        standard_name over the export's). Add
+        `StateItemCharacteristic%is_per_alias()` (default false; true for
+        RestartMode, and LongName once 3.13 lands) and a descriptor method
+        that writes only per-alias entries; `populate_one` calls it.
+        GraphBuilder names no kind. Amend design §3.5/§6.1.
+      - INTERNAL items are not populated by the graph yet; not in this
+        task (gap until B4; say so in the commit message).
+      - No `restart_mode` YAML key; unit tests only.
 - [ ] 3.12 B3-Expression (new kind; per-consumer evaluation, Q2
       answered: each import that differs from the others in any
       characteristic gets its own evaluation on its own goal; imports
@@ -332,7 +362,18 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       mirrored long_name must not fall back to the field dictionary or
       StandardName. Also add the YAML path test B3-StringMirror skipped:
       `parse_var_specs` reading `standard_name: "<mirror>"` (and
-      `long_name: "<mirror>"`) sets the flag.
+      `long_name: "<mirror>"`) sets the flag. Preflight answers (owner):
+      - Shapes: FIELD and EXPRESSION (legacy passes `long_name` only to
+        `FieldClassAspect` and `ExpressionClassAspect`). Amend the §4.3
+        EXPRESSION row. Also fix §3.4/§4.3: a bundle's `long_name` is
+        bundle-wide (id 0), not per-alias.
+      - The StandardName fallback (A8's third step) applies to exports
+        only. An import with no declared long_name stays UNCHECKED and
+        inherits the export's, as in legacy.
+      - No per-alias wiring here: 3.11 adds `is_per_alias()` and the
+        `populate_one` call. LongName returns true from `is_per_alias()`
+        if 3.11 has landed; otherwise 3.11 sets it. Until then LongName is
+        unit-tested only; say so in the commit message.
 - [ ] 3.14 B3-SetShared: retarget `set_shared_characteristic` to mutate
       the descriptor (§7.3); check and report whether import-side
       geometry changes (History samplers) are handled. Since B1 it

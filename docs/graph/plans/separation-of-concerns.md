@@ -1129,6 +1129,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-MirrorGeneric | haiku | sonnet | one generic export check (constructor + after factory loop); drop per-factory export asserts |
 | B3-DimsZLegacy | sonnet | sonnet (owner-run) | legacy GeomAspect change + scenario with two grids; stop if legacy still regrids; plus MirrorGeneric review follow-ups (docs/comments, tests) |
 | B3-IncompatiblePair | sonnet | sonnet (pre-commit) | new build_transform outcome; conflict reporting stays kind-agnostic (D6) |
+| B3-IncompatibleSweep | sonnet | sonnet | tasks.md 3.22; six kinds UNSUPPORTED -> INCOMPATIBLE at once |
 | B3-VerticalStagger | sonnet | opus | DEFERRED/harvest; fixture risk |
 | B3-VerticalOrientation | sonnet | opus | resolve against grid without comparing it |
 | B3-HorizontalDimsSpec | sonnet | opus | changes when Geometry is compared |
