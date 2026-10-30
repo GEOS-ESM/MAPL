@@ -1,34 +1,36 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! QuantityTypeCharacteristic: the "quantity type" StateItemCharacteristic
-! ValueCharacteristic storing only the two fields legacy
-! QuantityTypeAspect%matches() itself uses: quantity_type and basis (both
-! mapl_QuantityType_mod enum types, no StateRegistry coupling).
-! QuantityTypeAspect's other fields (dimensions, molecular_weight) play no
-! role in its own mismatch comparison and are not carried over here
-! (REQ-CHAR-002 scopes this hierarchy to mismatch description, not full
-! legacy-aspect-object replication).
+! QuantityTypeCharacteristic: the "quantity type" StateItemCharacteristic, a
+! ValueCharacteristic holding the two fields that take part in comparison,
+! quantity_type and basis. Dimensions and molecular weight are not carried:
+! VariableSpec declares neither.
 !
-! needs_extension_for ports QuantityTypeAspect%matches()'s own logic
-! verbatim: match (no extension needed) when quantity_type is equal or
-! either side is QUANTITY_UNKNOWN, AND basis is equal or either side is
-! BASIS_NONE.
+! needs_extension_for matches when quantity_type is equal or either side is
+! QUANTITY_UNKNOWN, and basis is equal or either side is BASIS_NONE. These
+! are value rules, not status: an undeclared quantity type is SPECIFIED
+! QUANTITY_UNKNOWN. The kind is never MIRRORED.
 !
-! A `build_transform` is required by the common interface but reports
-! unsupported here - no real provider exists for this axis. Legacy
-! QuantityTypeAspect%make_transform always returns NullTransform
-! ("metadata-only, returns NullTransform"). `get_signature` derives a
-! stable string from `quantity_type`/`basis`.
+! No Transform exists for this axis (legacy returns NullTransform):
+! build_transform reports unsupported. write_info writes only
+! quantity_type_metadata=, in either phase, for SPECIFIED entries.
 !------------------------------------------------------------------------------
 module mapl_QuantityTypeCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
    use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
-   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
+   use mapl_CharacteristicStatus_mod, only: &
+        CHARACTERISTIC_STATUS_SPECIFIED, operator(==)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, QUANTITY_TYPE_CHARACTERISTIC_KIND
    use mapl_QuantityType_mod, only: QuantityType, MixingRatioBasis, &
                                      QUANTITY_UNKNOWN, BASIS_NONE, &
                                      operator(==)
+   use mapl_QuantityTypeMetadata_mod, only: QuantityTypeMetadata
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_field_api, only: MAPL_FieldSet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleSet
+   use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_StateItem_Flag, &
+        ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
+   use ESMF, only: operator(==)
    use mapl_TransformBase_mod, only: TransformBase
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -45,6 +47,7 @@ module mapl_QuantityTypeCharacteristic_mod
       procedure :: needs_extension_for => quantity_type_needs_extension_for
       procedure :: build_transform => quantity_type_build_transform
       procedure :: get_signature => quantity_type_get_signature
+      procedure :: write_info => quantity_type_write_info
       procedure :: get_quantity_type
       procedure :: get_basis
    end type QuantityTypeCharacteristic
@@ -71,9 +74,7 @@ contains
       kind = QUANTITY_TYPE_CHARACTERISTIC_KIND
    end function quantity_type_get_kind
 
-   ! `goal` is guaranteed a QuantityTypeCharacteristic for the real call
-   ! chain this method is used in (same guarantee documented on
-   ! GeometryCharacteristic/PhysicalUnitsCharacteristic).
+   ! `goal` is guaranteed a QuantityTypeCharacteristic by the caller.
    logical function quantity_type_needs_extension_for(this, goal) result(needs_extension)
       class(QuantityTypeCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -108,8 +109,6 @@ contains
       basis = this%basis
    end function get_basis
 
-   ! No real adaptation exists for this axis (module header): reports
-   ! unsupported.
    subroutine quantity_type_build_transform(this, goal, transformer, rc)
       class(QuantityTypeCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -122,9 +121,39 @@ contains
       call report_build_transform_unsupported(rc)
    end subroutine quantity_type_build_transform
 
-   ! merge-characteristic-families task 3.4: a stable, value-
-   ! distinguishing signature derived from this subclass's own stored
-   ! value (design.md Risks: a small, mechanical derivation).
+   ! Writes quantity_type_metadata= only (not a creation input, not a
+   ! FieldDelta trigger). Only SPECIFIED entries hold a value.
+   subroutine quantity_type_write_info(this, handle, phase, rc)
+      class(QuantityTypeCharacteristic), intent(in) :: this
+      type(GraphStateItem), intent(inout) :: handle
+      integer, intent(in) :: phase
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_StateItem_Flag) :: item_type
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      type(QuantityTypeMetadata) :: metadata
+
+      _UNUSED_DUMMY(phase)
+      _RETURN_UNLESS(this%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+
+      metadata = QuantityTypeMetadata(quantity_type=this%quantity_type, &
+           basis=this%basis)
+      item_type = handle%itemType(_RC)
+      if (item_type == ESMF_STATEITEM_FIELD) then
+         field = handle%get_field(_RC)
+         call MAPL_FieldSet(field, quantity_type_metadata=metadata, _RC)
+      else if (item_type == ESMF_STATEITEM_FIELDBUNDLE) then
+         bundle = handle%get_field_bundle(_RC)
+         call MAPL_FieldBundleSet(bundle, quantity_type_metadata=metadata, _RC)
+      else
+         _FAIL('QuantityTypeCharacteristic: needs Field or FieldBundle')
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine quantity_type_write_info
+
    function quantity_type_get_signature(this) result(signature)
       class(QuantityTypeCharacteristic), intent(in) :: this
       character(:), allocatable :: signature

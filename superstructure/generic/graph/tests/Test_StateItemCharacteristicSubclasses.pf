@@ -312,7 +312,7 @@ contains
       @assertTrue(mirrored%get_status() == CHARACTERISTIC_STATUS_MIRRORED)
    end subroutine test_horizontal_dims_spec_mirror_is_mirrored_without_value
 
-   ! --- 3.5: ConservationCharacteristic (reused mirror-aware operator(==)) ---
+   ! --- ConservationCharacteristic ---
 
    @test
    subroutine test_conservation_is_a_value_characteristic()
@@ -334,20 +334,23 @@ contains
       @assertTrue(a%needs_extension_for(b))
    end subroutine test_conservation_needs_extension_for
 
-   ! Exercises ConservationMetadata's own mirror-aware operator(==)
-   ! ("both-mirror compares equal unconditionally") through this new
-   ! subclass - design.md D3.
+   ! The constructor accepts mirror metadata and needs_extension_for relies
+   ! on the metadata's own mirror-aware operator(==) (both mirrors compare
+   ! equal). The factory never builds this state: it makes a MIRRORED entry
+   ! instead.
    @test
    subroutine test_conservation_mirror_instances_do_not_need_extension()
-      type(ConservationCharacteristic) :: mirror_a, mirror_b
+      type(ConservationCharacteristic) :: mirror_a, mirror_b, mass
 
       mirror_a = ConservationCharacteristic(new_ConservationMetadata_mirror())
       mirror_b = ConservationCharacteristic(new_ConservationMetadata_mirror())
+      mass = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
 
       @assertFalse(mirror_a%needs_extension_for(mirror_b))
+      @assertTrue(mirror_a%needs_extension_for(mass))
    end subroutine test_conservation_mirror_instances_do_not_need_extension
 
-   ! --- 3.5: NormalizationCharacteristic (reused mirror-aware operator(==)) ---
+   ! --- NormalizationCharacteristic ---
 
    @test
    subroutine test_normalization_is_a_value_characteristic()
@@ -371,15 +374,17 @@ contains
 
    @test
    subroutine test_normalization_mirror_instances_do_not_need_extension()
-      type(NormalizationCharacteristic) :: mirror_a, mirror_b
+      type(NormalizationCharacteristic) :: mirror_a, mirror_b, delp
 
       mirror_a = NormalizationCharacteristic(NormalizationMetadata())
       mirror_b = NormalizationCharacteristic(NormalizationMetadata())
+      delp = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
 
       @assertFalse(mirror_a%needs_extension_for(mirror_b))
+      @assertTrue(mirror_a%needs_extension_for(delp))
    end subroutine test_normalization_mirror_instances_do_not_need_extension
 
-   ! --- 4.3: QuantityTypeCharacteristic ---
+   ! --- QuantityTypeCharacteristic ---
 
    @test
    subroutine test_quantity_type_is_a_value_characteristic()

@@ -17,9 +17,10 @@ module Test_VariableSpecCharacteristics
         ATTRIBUTES_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
         VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
         HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND, &
-        RESTART_MODE_CHARACTERISTIC_KIND
+        RESTART_MODE_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+        CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND
    use mapl_StateItemCharacteristicKind_mod, only: &
-        ITEM_SHAPE => ITEM_SHAPE_CHARACTERISTIC_KIND
+        ITEM_SHAPE => ITEM_SHAPE_CHARACTERISTIC_KIND, StateItemCharacteristicKind
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
@@ -32,6 +33,18 @@ module Test_VariableSpecCharacteristics
    use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
    use mapl_RestartModes_mod, only: RestartMode, RESTART_REQUIRED, RESTART_SKIP, operator(==)
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
+   use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
+   use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
+   use mapl_QuantityType_mod, only: QUANTITY_UNKNOWN, QUANTITY_TEMPERATURE, &
+        BASIS_NONE, operator(==)
+   use mapl_ConservationMetadata_mod, only: ConservationMetadata, &
+        new_ConservationMetadata_mirror
+   use mapl_ConservationType_mod, only: CONSERVE_NONE, &
+        CONSERVE_MASS, operator(==)
+   use mapl_NormalizationMetadata_mod, only: NormalizationMetadata
+   use mapl_NormalizationType_mod, only: NORMALIZE_NONE, &
+        NORMALIZE_DELP, operator(==)
    use gFTL2_StringVector, only: StringVector
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
@@ -49,6 +62,9 @@ module Test_VariableSpecCharacteristics
         VERTICAL_STAGGER_MIRROR, VERTICAL_STAGGER_INVALID
    use esmf, only: ESMF_StateItem_Flag, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_INTERNAL, ESMF_StateIntent_Flag, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_I4
    use esmf, only: operator(==)
+   use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateDestroy
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_DESCRIPTIVE
    implicit none(type, external)
 
 contains
@@ -1883,6 +1899,278 @@ contains
       var_spec%restart_mode = RESTART_SKIP
       @assertFalse(var_spec%requests_mirror())
    end subroutine test_restart_mode_is_not_a_mirror_request
+
+   ! --- QuantityType, Conservation, Normalization ---
+
+   function metadata_status(var_spec, kind, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      type(StateItemCharacteristicKind), intent(in) :: kind
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(kind, c, _RC)
+      char_status = c%get_status()
+      _RETURN(_SUCCESS)
+   end function metadata_status
+
+   ! No keyword or YAML key sets these fields yet, so a spec carries the
+   ! defaults: UNKNOWN, CONSERVE_NONE (not conservable), NORMALIZE_NONE
+   ! (scale 1). They are SPECIFIED, never MIRRORED, and a default export is
+   ! accepted.
+   @test
+   subroutine test_default_metadata_kinds_are_specified()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      type(ConservationMetadata) :: cmeta
+      type(NormalizationMetadata) :: nmeta
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertEqual(0, status)
+
+      call descriptor%get_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (QuantityTypeCharacteristic)
+         @assertTrue(c%get_quantity_type() == QUANTITY_UNKNOWN)
+         @assertTrue(c%get_basis() == BASIS_NONE)
+      class default
+         @assertTrue(.false., 'QUANTITY_TYPE entry has the wrong type')
+      end select
+
+      call descriptor%get_characteristic(CONSERVATION_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (ConservationCharacteristic)
+         cmeta = c%get_metadata()
+         @assertFalse(cmeta%is_mirror())
+         @assertTrue(cmeta%get_conservation_type() == CONSERVE_NONE)
+         @assertFalse(cmeta%get_is_conservable())
+      class default
+         @assertTrue(.false., 'CONSERVATION entry has the wrong type')
+      end select
+
+      call descriptor%get_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (NormalizationCharacteristic)
+         nmeta = c%get_metadata()
+         @assertFalse(nmeta%is_mirror())
+         @assertTrue(nmeta%get_normalization_type() == NORMALIZE_NONE)
+         @assertEqual(1.0, nmeta%get_normalization_scale())
+      class default
+         @assertTrue(.false., 'NORMALIZATION entry has the wrong type')
+      end select
+   end subroutine test_default_metadata_kinds_are_specified
+
+   @test
+   subroutine test_default_spec_does_not_request_metadata_mirror()
+      type(VariableSpec) :: var_spec
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      @assertFalse(var_spec%requests_mirror())
+   end subroutine test_default_spec_does_not_request_metadata_mirror
+
+   ! The declared value is used, not legacy's fixed defaults.
+   @test
+   subroutine test_declared_metadata_values_are_used()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      type(ConservationMetadata) :: cmeta
+      type(NormalizationMetadata) :: nmeta
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%quantity_type = QUANTITY_TEMPERATURE
+      var_spec%conservation = ConservationMetadata(CONSERVE_MASS, &
+           is_conservable=.true.)
+      var_spec%normalization = NormalizationMetadata(NORMALIZE_DELP, &
+           normalization_scale=2.0)
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertEqual(0, status)
+
+      call descriptor%get_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (QuantityTypeCharacteristic)
+         @assertTrue(c%get_quantity_type() == QUANTITY_TEMPERATURE)
+      class default
+         @assertTrue(.false., 'QUANTITY_TYPE entry has the wrong type')
+      end select
+
+      call descriptor%get_characteristic(CONSERVATION_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (ConservationCharacteristic)
+         cmeta = c%get_metadata()
+         @assertTrue(cmeta%get_conservation_type() == CONSERVE_MASS)
+         @assertTrue(cmeta%get_is_conservable())
+      class default
+         @assertTrue(.false., 'CONSERVATION entry has the wrong type')
+      end select
+
+      call descriptor%get_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (NormalizationCharacteristic)
+         nmeta = c%get_metadata()
+         @assertTrue(nmeta%get_normalization_type() == NORMALIZE_DELP)
+         @assertEqual(2.0, nmeta%get_normalization_scale())
+      class default
+         @assertTrue(.false., 'NORMALIZATION entry has the wrong type')
+      end select
+   end subroutine test_declared_metadata_values_are_used
+
+   @test
+   subroutine test_mirror_conservation_on_import_is_mirrored()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%conservation = new_ConservationMetadata_mirror()
+      @assertTrue(var_spec%requests_mirror())
+      @assertTrue(metadata_status(var_spec, CONSERVATION_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+      ! Only its own kind turns mirrored.
+      @assertTrue(metadata_status(var_spec, NORMALIZATION_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_conservation_on_import_is_mirrored
+
+   @test
+   subroutine test_mirror_normalization_on_import_is_mirrored()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%normalization = NormalizationMetadata()
+      @assertTrue(var_spec%requests_mirror())
+      @assertTrue(metadata_status(var_spec, NORMALIZATION_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+      @assertTrue(metadata_status(var_spec, CONSERVATION_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_normalization_on_import_is_mirrored
+
+   ! These fields have no make_VariableSpec keyword and are assigned after
+   ! it runs, so only the check after the factory loop sees a mirror here.
+   @test
+   subroutine test_export_rejects_conservation_mirror()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%conservation = new_ConservationMetadata_mirror()
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression: X (CONSERVATION)')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_export_rejects_conservation_mirror
+
+   @test
+   subroutine test_export_rejects_normalization_mirror()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%normalization = NormalizationMetadata()
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression: X (NORMALIZATION)')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_export_rejects_normalization_mirror
+
+   @test
+   subroutine test_all_metadata_carrying_shapes_get_an_entry()
+      type(ESMF_StateItem_Flag) :: shapes(5)
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE]
+      do i = 1, size(shapes)
+         @assertTrue(metadata_status(make_spec(shapes(i)), QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
+              CHARACTERISTIC_STATUS_SPECIFIED)
+         @assertEqual(0, status)
+         @assertTrue(metadata_status(make_spec(shapes(i)), CONSERVATION_CHARACTERISTIC_KIND, rc=status) == &
+              CHARACTERISTIC_STATUS_SPECIFIED)
+         @assertEqual(0, status)
+         @assertTrue(metadata_status(make_spec(shapes(i)), NORMALIZATION_CHARACTERISTIC_KIND, rc=status) == &
+              CHARACTERISTIC_STATUS_SPECIFIED)
+         @assertEqual(0, status)
+      end do
+   end subroutine test_all_metadata_carrying_shapes_get_an_entry
+
+   @test
+   subroutine test_shapes_without_metadata_kinds_get_no_entry()
+      type(ESMF_StateItem_Flag) :: shapes(7)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD, &
+           MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
+      do i = 1, size(shapes)
+         var_spec = make_spec(shapes(i))
+         descriptor = empty_descriptor
+         var_spec%quantity_type = QUANTITY_TEMPERATURE
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND))
+         @assertFalse(descriptor%has_characteristic(CONSERVATION_CHARACTERISTIC_KIND))
+         @assertFalse(descriptor%has_characteristic(NORMALIZATION_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_shapes_without_metadata_kinds_get_no_entry
+
+   ! A State carries none of these kinds: write_info fails for it. A direct
+   ! call records only the kind's own message.
+   @test
+   subroutine test_metadata_write_info_fails_for_a_state_handle()
+      type(QuantityTypeCharacteristic) :: qty
+      type(ConservationCharacteristic) :: cons
+      type(NormalizationCharacteristic) :: norm
+      type(GraphStateItem) :: handle
+      type(ESMF_State) :: state
+      integer :: status
+
+      qty = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE)
+      cons = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+      norm = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+      state = ESMF_StateCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(state, rc=status)
+      @assertEqual(0, status)
+
+      call qty%write_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertExceptionRaised('QuantityTypeCharacteristic: needs Field or FieldBundle')
+      @assertTrue(status /= 0)
+      call cons%write_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertExceptionRaised('ConservationCharacteristic: needs Field or FieldBundle')
+      @assertTrue(status /= 0)
+      call norm%write_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertExceptionRaised('NormalizationCharacteristic: needs Field or FieldBundle')
+      @assertTrue(status /= 0)
+      call ESMF_StateDestroy(state)
+   end subroutine test_metadata_write_info_fails_for_a_state_handle
 
    ! A declared variant is carried in the signature.
    @test

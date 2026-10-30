@@ -1,15 +1,19 @@
 module Test_StateItemDescriptor
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator
-   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, SYNC_PHASE_STRUCTURAL, &
-        SYNC_PHASE_DESCRIPTIVE
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, &
+        ValueCharacteristic, SYNC_PHASE_STRUCTURAL, SYNC_PHASE_DESCRIPTIVE, &
+        report_build_transform_unsupported
+   use mapl_TransformBase_mod, only: TransformBase
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
         GEOMETRY_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
         QUANTITY_TYPE_CHARACTERISTIC_KIND, VERTICAL_GRID_CHARACTERISTIC_KIND, &
         STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
         VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
         HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND, &
-        RESTART_MODE_CHARACTERISTIC_KIND
+        RESTART_MODE_CHARACTERISTIC_KIND, CONSERVATION_CHARACTERISTIC_KIND, &
+        NORMALIZATION_CHARACTERISTIC_KIND, StateItemCharacteristicKind, &
+        MOCK_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED, CharacteristicStatus, operator(==)
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
@@ -19,6 +23,15 @@ module Test_StateItemDescriptor
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
+   use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
+   use mapl_QuantityTypeMetadata_mod, only: QuantityTypeMetadata, operator(==)
+   use mapl_ConservationMetadata_mod, only: ConservationMetadata, operator(==)
+   use mapl_NormalizationMetadata_mod, only: NormalizationMetadata, operator(==)
+   use mapl_QuantityType_mod, only: QUANTITY_TEMPERATURE, QUANTITY_PRESSURE, &
+        BASIS_WET_MASS
+   use mapl_ConservationType_mod, only: CONSERVE_MASS, CONSERVE_ENERGY
+   use mapl_NormalizationType_mod, only: NORMALIZE_DELP, NORMALIZE_DZ
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic, UNKNOWN_STANDARD_NAME
    use mapl_LongNameCharacteristic_mod, only: LongNameCharacteristic
    use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
@@ -62,7 +75,52 @@ module Test_StateItemDescriptor
    use funit
    implicit none
 
+   ! Test-only kind with no write_info override: the base class fails for a
+   ! new kind that has none.
+   type, extends(ValueCharacteristic) :: NoWriteCharacteristic
+   contains
+      procedure, nopass :: get_kind => no_write_get_kind
+      procedure :: needs_extension_for => no_write_needs_extension_for
+      procedure :: build_transform => no_write_build_transform
+      procedure :: get_signature => no_write_get_signature
+   end type NoWriteCharacteristic
+
 contains
+
+   function no_write_get_kind() result(kind)
+      type(StateItemCharacteristicKind) :: kind
+
+      kind = MOCK_CHARACTERISTIC_KIND
+   end function no_write_get_kind
+
+   logical function no_write_needs_extension_for(this, goal) result(needs)
+      class(NoWriteCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+
+      needs = .false.
+   end function no_write_needs_extension_for
+
+   subroutine no_write_build_transform(this, goal, transformer, rc)
+      class(NoWriteCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      class(TransformBase), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
+      call report_build_transform_unsupported(rc)
+   end subroutine no_write_build_transform
+
+   function no_write_get_signature(this) result(signature)
+      class(NoWriteCharacteristic), intent(in) :: this
+      character(:), allocatable :: signature
+
+      signature = 'no_write'
+   end function no_write_get_signature
+
+   function make_no_write() result(c)
+      type(NoWriteCharacteristic) :: c
+
+      call c%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
+   end function make_no_write
 
    @test
    subroutine test_characteristics_map_starts_empty()
@@ -446,7 +504,7 @@ contains
       type(ESMF_Field) :: field
       integer :: status
 
-      call item%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, QuantityTypeCharacteristic())
+      call item%set_characteristic(MOCK_CHARACTERISTIC_KIND, make_no_write())
       field = ESMF_FieldEmptyCreate(name='f', rc=status)
       @assertEqual(0, status)
       call handle%set(field)
@@ -488,6 +546,285 @@ contains
       @assertEqual(0, status)
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
    end subroutine test_sync_attributes_succeeds
+
+   ! --- QuantityType, Conservation, Normalization ---
+
+   ! The field starts with PRESSURE metadata, so a skipped write reads back
+   ! PRESSURE. normalization_metadata reads back as a mirror when its key was
+   ! never written, which shows that QuantityType writes only its own key.
+   function synced_quantity_type(item, phase, normalization) result(metadata)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(NormalizationMetadata), optional, intent(out) :: normalization
+      type(QuantityTypeMetadata) :: metadata
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(NormalizationMetadata) :: norm
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, rc=status, &
+           quantity_type_metadata=QuantityTypeMetadata(QUANTITY_PRESSURE))
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, quantity_type_metadata=metadata, &
+           normalization_metadata=norm, rc=status)
+      @assertEqual(0, status)
+      if (present(normalization)) normalization = norm
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_quantity_type
+
+   ! The field starts with ENERGY conservation. Reading conservation back
+   ! asserts the key exists, so the seed is required.
+   function synced_conservation(item, phase, quantity_type) result(metadata)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(QuantityTypeMetadata), optional, intent(out) :: quantity_type
+      type(ConservationMetadata) :: metadata
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(QuantityTypeMetadata) :: qty
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, rc=status, &
+           conservation_metadata=ConservationMetadata(CONSERVE_ENERGY))
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, conservation_metadata=metadata, &
+           quantity_type_metadata=qty, rc=status)
+      @assertEqual(0, status)
+      if (present(quantity_type)) quantity_type = qty
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_conservation
+
+   ! The field starts with DZ normalization.
+   function synced_normalization(item, phase, quantity_type) result(metadata)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(QuantityTypeMetadata), optional, intent(out) :: quantity_type
+      type(NormalizationMetadata) :: metadata
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(QuantityTypeMetadata) :: qty
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, rc=status, &
+           normalization_metadata=NormalizationMetadata(NORMALIZE_DZ))
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, normalization_metadata=metadata, &
+           quantity_type_metadata=qty, rc=status)
+      @assertEqual(0, status)
+      if (present(quantity_type)) quantity_type = qty
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_normalization
+
+   @test
+   subroutine test_sync_writes_specified_quantity_type_both_phases()
+      type(StateItemDescriptor) :: item
+      type(QuantityTypeMetadata) :: expected
+      type(NormalizationMetadata) :: norm
+
+      call item%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+           QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_WET_MASS))
+      expected = QuantityTypeMetadata(QUANTITY_TEMPERATURE, &
+           basis=BASIS_WET_MASS)
+      @assertTrue(expected == synced_quantity_type(item, &
+           SYNC_PHASE_STRUCTURAL, norm))
+      @assertTrue(expected == synced_quantity_type(item, &
+           SYNC_PHASE_DESCRIPTIVE))
+      ! Legacy also wrote a derived normalization; only the own key is written.
+      @assertTrue(norm%is_mirror())
+   end subroutine test_sync_writes_specified_quantity_type_both_phases
+
+   @test
+   subroutine test_sync_skips_mirrored_quantity_type()
+      type(StateItemDescriptor) :: item
+      type(QuantityTypeCharacteristic) :: mirrored
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, mirrored)
+      @assertTrue(QuantityTypeMetadata(QUANTITY_PRESSURE) == &
+           synced_quantity_type(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_skips_mirrored_quantity_type
+
+   @test
+   subroutine test_sync_writes_quantity_type_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      type(QuantityTypeMetadata) :: metadata
+      integer :: status
+
+      call item%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+           QuantityTypeCharacteristic(QUANTITY_TEMPERATURE))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, quantity_type_metadata=metadata, &
+           rc=status)
+      @assertEqual(0, status)
+      @assertTrue(QuantityTypeMetadata(QUANTITY_TEMPERATURE) == metadata)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_writes_quantity_type_on_bundle
+
+   @test
+   subroutine test_sync_writes_specified_conservation_both_phases()
+      type(StateItemDescriptor) :: item
+      type(ConservationMetadata) :: expected
+      type(QuantityTypeMetadata) :: qty
+
+      expected = ConservationMetadata(CONSERVE_MASS, is_conservable=.true.)
+      call item%set_characteristic(CONSERVATION_CHARACTERISTIC_KIND, &
+           ConservationCharacteristic(expected))
+      @assertTrue(expected == synced_conservation(item, &
+           SYNC_PHASE_STRUCTURAL, qty))
+      @assertTrue(expected == synced_conservation(item, &
+           SYNC_PHASE_DESCRIPTIVE))
+      @assertTrue(qty%is_mirror())
+   end subroutine test_sync_writes_specified_conservation_both_phases
+
+   @test
+   subroutine test_sync_skips_mirrored_conservation()
+      type(StateItemDescriptor) :: item
+      type(ConservationCharacteristic) :: mirrored
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(CONSERVATION_CHARACTERISTIC_KIND, mirrored)
+      @assertTrue(ConservationMetadata(CONSERVE_ENERGY) == &
+           synced_conservation(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_skips_mirrored_conservation
+
+   @test
+   subroutine test_sync_writes_conservation_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      type(ConservationMetadata) :: metadata
+      integer :: status
+
+      call item%set_characteristic(CONSERVATION_CHARACTERISTIC_KIND, &
+           ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS)))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, conservation_metadata=metadata, &
+           rc=status)
+      @assertEqual(0, status)
+      @assertTrue(ConservationMetadata(CONSERVE_MASS) == metadata)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_writes_conservation_on_bundle
+
+   @test
+   subroutine test_sync_writes_specified_normalization_both_phases()
+      type(StateItemDescriptor) :: item
+      type(NormalizationMetadata) :: expected
+      type(QuantityTypeMetadata) :: qty
+
+      expected = NormalizationMetadata(NORMALIZE_DELP, normalization_scale=2.0)
+      call item%set_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, &
+           NormalizationCharacteristic(expected))
+      @assertTrue(expected == synced_normalization(item, &
+           SYNC_PHASE_STRUCTURAL, qty))
+      @assertTrue(expected == synced_normalization(item, &
+           SYNC_PHASE_DESCRIPTIVE))
+      @assertTrue(qty%is_mirror())
+   end subroutine test_sync_writes_specified_normalization_both_phases
+
+   @test
+   subroutine test_sync_skips_mirrored_normalization()
+      type(StateItemDescriptor) :: item
+      type(NormalizationCharacteristic) :: mirrored
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, mirrored)
+      @assertTrue(NormalizationMetadata(NORMALIZE_DZ) == &
+           synced_normalization(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_skips_mirrored_normalization
+
+   ! The three kinds are field-wide: the per-alias sync must not write them.
+   @test
+   subroutine test_per_alias_sync_skips_metadata_kinds()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(QuantityTypeMetadata) :: qty
+      type(ConservationMetadata) :: cons
+      type(NormalizationMetadata) :: norm
+      integer :: status
+
+      call item%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+           QuantityTypeCharacteristic(QUANTITY_TEMPERATURE))
+      call item%set_characteristic(CONSERVATION_CHARACTERISTIC_KIND, &
+           ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS)))
+      call item%set_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, &
+           NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP)))
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, rc=status, &
+           quantity_type_metadata=QuantityTypeMetadata(QUANTITY_PRESSURE), &
+           conservation_metadata=ConservationMetadata(CONSERVE_ENERGY), &
+           normalization_metadata=NormalizationMetadata(NORMALIZE_DZ))
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_per_alias_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, quantity_type_metadata=qty, &
+           conservation_metadata=cons, normalization_metadata=norm, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(QuantityTypeMetadata(QUANTITY_PRESSURE) == qty)
+      @assertTrue(ConservationMetadata(CONSERVE_ENERGY) == cons)
+      @assertTrue(NormalizationMetadata(NORMALIZE_DZ) == norm)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_per_alias_sync_skips_metadata_kinds
+
+   @test
+   subroutine test_sync_writes_normalization_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      type(NormalizationMetadata) :: metadata
+      integer :: status
+
+      call item%set_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, &
+           NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP)))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, normalization_metadata=metadata, &
+           rc=status)
+      @assertEqual(0, status)
+      @assertTrue(NormalizationMetadata(NORMALIZE_DELP) == metadata)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_writes_normalization_on_bundle
 
    ! --- RestartMode ---
 
@@ -616,8 +953,8 @@ contains
       call ESMF_FieldDestroy(field, noGarbage=.true.)
    end subroutine test_per_alias_sync_writes_nothing_for_unchecked
 
-   ! Another kind without a write_info (QuantityType) does not stop the
-   ! per-alias sync, because only per-alias entries are visited.
+   ! A kind without a write_info does not stop the per-alias sync, because
+   ! only per-alias entries are visited.
    @test
    subroutine test_per_alias_sync_skips_kinds_without_write_info()
       type(StateItemDescriptor) :: item
@@ -626,7 +963,7 @@ contains
       character(:), allocatable :: long_name
       integer :: status
 
-      call item%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, QuantityTypeCharacteristic())
+      call item%set_characteristic(MOCK_CHARACTERISTIC_KIND, make_no_write())
       call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, LongNameCharacteristic('Name'))
       field = ESMF_FieldEmptyCreate(name='f', rc=status)
       @assertEqual(0, status)

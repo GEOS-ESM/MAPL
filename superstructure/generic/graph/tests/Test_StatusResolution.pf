@@ -22,6 +22,15 @@ module Test_StatusResolution
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
+   use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
+   use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
+   use mapl_QuantityType_mod, only: QUANTITY_UNKNOWN, QUANTITY_TEMPERATURE, &
+        QUANTITY_PRESSURE, BASIS_NONE, BASIS_WET_MASS, BASIS_DRY_MASS
+   use mapl_ConservationMetadata_mod, only: ConservationMetadata
+   use mapl_ConservationType_mod, only: CONSERVE_MASS, CONSERVE_ENERGY
+   use mapl_NormalizationMetadata_mod, only: NormalizationMetadata
+   use mapl_NormalizationType_mod, only: NORMALIZE_DELP, NORMALIZE_DZ
    use gFTL2_StringVector, only: StringVector
    use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_EXPRESSION
    use funit
@@ -58,6 +67,54 @@ contains
       @assertEqual(PAIR_EXTEND, resolve_pair(up, down, MAPL_STATEITEM_FIELD))
       @assertEqual(PAIR_ADOPT, resolve_pair(up, mirrored, MAPL_STATEITEM_FIELD))
    end subroutine test_vertical_orientation_pairs
+
+   ! "Unknown matches anything" and BASIS_NONE are value rules of the
+   ! subclass, not status: both sides are SPECIFIED.
+   @test
+   subroutine test_quantity_type_value_wildcards_are_not_status()
+      type(QuantityTypeCharacteristic) :: unknown, temperature, pressure
+      type(QuantityTypeCharacteristic) :: wet, dry, no_basis
+
+      unknown = QuantityTypeCharacteristic(QUANTITY_UNKNOWN)
+      temperature = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE)
+      pressure = QuantityTypeCharacteristic(QUANTITY_PRESSURE)
+      wet = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_WET_MASS)
+      dry = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_DRY_MASS)
+      no_basis = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_NONE)
+
+      @assertEqual(PAIR_MATCH, resolve_pair(temperature, unknown, &
+           MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_MATCH, resolve_pair(unknown, temperature, &
+           MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(temperature, pressure, &
+           MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_MATCH, resolve_pair(wet, no_basis, &
+           MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(wet, dry, MAPL_STATEITEM_FIELD))
+   end subroutine test_quantity_type_value_wildcards_are_not_status
+
+   @test
+   subroutine test_conservation_and_normalization_pairs()
+      type(ConservationCharacteristic) :: mass, energy, mirrored_c
+      type(NormalizationCharacteristic) :: delp, dz, mirrored_n
+
+      mass = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+      energy = ConservationCharacteristic(ConservationMetadata(CONSERVE_ENERGY))
+      call mirrored_c%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(PAIR_MATCH, resolve_pair(mass, mass, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(mass, energy, &
+           MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_ADOPT, resolve_pair(mass, mirrored_c, &
+           MAPL_STATEITEM_FIELD))
+
+      delp = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+      dz = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DZ))
+      call mirrored_n%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(PAIR_MATCH, resolve_pair(delp, delp, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(delp, dz, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_ADOPT, resolve_pair(delp, mirrored_n, &
+           MAPL_STATEITEM_FIELD))
+   end subroutine test_conservation_and_normalization_pairs
 
    ! -- HorizontalDimsSpec pairs and the uncompared geometry of a NONE item --
 

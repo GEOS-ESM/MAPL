@@ -1,29 +1,30 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! ConservationCharacteristic: the "conservation" StateItemCharacteristic
-! ValueCharacteristic wrapping the existing, already-decoupled
-! ConservationMetadata value type (enums/ConservationMetadata.F90) directly:
-! no StateRegistry coupling, and ConservationMetadata already defines
-! operator(==)/operator(/=) with its own mirror-aware semantics (both-mirror
-! compares equal unconditionally) matching legacy ConservationAspect%matches().
-! needs_extension_for is a single `/=` call - no hand-written comparison
-! logic.
+! ConservationCharacteristic: the "conservation" StateItemCharacteristic, a
+! ValueCharacteristic wrapping the ConservationMetadata value type
+! (enums/ConservationMetadata.F90). Its operator(==) has its own mirror-aware
+! rule, which needs_extension_for reuses. A VariableSpec mirror is not a
+! value to compare: the factory turns it into MIRRORED status.
 !
-! A `build_transform` is required by the common interface but reports
-! unsupported here - no real provider exists for this axis. Legacy
-! ConservationAspect%make_transform unconditionally _FAILs ("should
-! not be called") - this axis is detected but never adapted, graph-native
-! or legacy. `get_signature` derives a stable string from `metadata`'s
-! own `conservation_type%to_string()`.
+! No Transform exists for this axis (legacy make_transform _FAILs):
+! build_transform reports unsupported. write_info writes only
+! conservation_metadata=, in either phase, for SPECIFIED entries.
 !------------------------------------------------------------------------------
 module mapl_ConservationCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
    use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
-   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
+   use mapl_CharacteristicStatus_mod, only: &
+        CHARACTERISTIC_STATUS_SPECIFIED, operator(==)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, CONSERVATION_CHARACTERISTIC_KIND
    use mapl_ConservationMetadata_mod, only: ConservationMetadata, operator(==), operator(/=)
    use mapl_ConservationType_mod, only: ConservationType
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_field_api, only: MAPL_FieldSet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleSet
+   use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_StateItem_Flag, &
+        ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
+   use ESMF, only: operator(==)
    use mapl_TransformBase_mod, only: TransformBase
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -39,6 +40,7 @@ module mapl_ConservationCharacteristic_mod
       procedure :: needs_extension_for => conservation_needs_extension_for
       procedure :: build_transform => conservation_build_transform
       procedure :: get_signature => conservation_get_signature
+      procedure :: write_info => conservation_write_info
       procedure :: get_metadata
    end type ConservationCharacteristic
 
@@ -62,9 +64,7 @@ contains
       kind = CONSERVATION_CHARACTERISTIC_KIND
    end function conservation_get_kind
 
-   ! `goal` is guaranteed a ConservationCharacteristic for the real call
-   ! chain this method is used in (same guarantee documented on
-   ! GeometryCharacteristic/PhysicalUnitsCharacteristic).
+   ! `goal` is guaranteed a ConservationCharacteristic by the caller.
    logical function conservation_needs_extension_for(this, goal) result(needs_extension)
       class(ConservationCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -84,8 +84,6 @@ contains
       metadata = this%metadata
    end function get_metadata
 
-   ! No real adaptation exists for this axis (module header): reports
-   ! unsupported.
    subroutine conservation_build_transform(this, goal, transformer, rc)
       class(ConservationCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -98,9 +96,37 @@ contains
       call report_build_transform_unsupported(rc)
    end subroutine conservation_build_transform
 
-   ! merge-characteristic-families task 3.2: a stable, value-
-   ! distinguishing signature derived from this subclass's own stored
-   ! value (design.md Risks: a small, mechanical derivation).
+   ! Writes conservation_metadata= only (not a creation input, not a
+   ! FieldDelta trigger). Only SPECIFIED entries hold a value.
+   subroutine conservation_write_info(this, handle, phase, rc)
+      class(ConservationCharacteristic), intent(in) :: this
+      type(GraphStateItem), intent(inout) :: handle
+      integer, intent(in) :: phase
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_StateItem_Flag) :: item_type
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+
+      _UNUSED_DUMMY(phase)
+      _RETURN_UNLESS(this%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+
+      item_type = handle%itemType(_RC)
+      if (item_type == ESMF_STATEITEM_FIELD) then
+         field = handle%get_field(_RC)
+         call MAPL_FieldSet(field, conservation_metadata=this%metadata, _RC)
+      else if (item_type == ESMF_STATEITEM_FIELDBUNDLE) then
+         bundle = handle%get_field_bundle(_RC)
+         call MAPL_FieldBundleSet(bundle, &
+              conservation_metadata=this%metadata, _RC)
+      else
+         _FAIL('ConservationCharacteristic: needs Field or FieldBundle')
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine conservation_write_info
+
    function conservation_get_signature(this) result(signature)
       class(ConservationCharacteristic), intent(in) :: this
       character(:), allocatable :: signature

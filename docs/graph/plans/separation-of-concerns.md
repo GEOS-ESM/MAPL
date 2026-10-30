@@ -593,7 +593,7 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName and B3-RestartMode done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName, B3-RestartMode, B3-QuantityType, B3-Conservation and B3-Normalization done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
@@ -602,7 +602,62 @@ in the first one; later ones refine it.
   `Plan-Task: B3-HorizontalDimsSpec`, `Plan-Task: B3-StringMirror`,
   `Plan-Task: B3-MirrorFlagGuard`, `Plan-Task: B3-MirrorGeneric`,
   `Plan-Task: B3-DimsZLegacy`, `Plan-Task: B3-IncompatiblePair`,
-  `Plan-Task: B3-LongName`, `Plan-Task: B3-RestartMode`); others not started.
+  `Plan-Task: B3-LongName`, `Plan-Task: B3-RestartMode`,
+  `Plan-Task: B3-QuantityType`, `Plan-Task: B3-Conservation`,
+  `Plan-Task: B3-Normalization`); others not started.
+  B3-QuantityType, B3-Conservation, B3-Normalization (tasks.md 3.10, done as
+  one commit with three trailers): see adding-a-characteristic.md
+  "QuantityType, Conservation and Normalization as implemented". The three
+  characteristics gain `write_info` (`quantity_type_metadata=`,
+  `conservation_metadata=`, `normalization_metadata=` through
+  `MAPL_FieldSet` / `MAPL_FieldBundleSet`; either phase; SPECIFIED only; not
+  structural, not per-alias, no FieldDelta). Factories 14-16 insert for FIELD,
+  BRACKET, VECTOR, VECTORBRACKET and FIELDBUNDLE only (design §4.3; before
+  this every shape got an entry); their `populate_characteristics` block and
+  the three kinds/types in `GraphBuilder_Advertising_smod.F90` are gone.
+  Owner Q9: each factory uses the declared `VariableSpec` value, not legacy's
+  fixed UNKNOWN / CONSERVE_NONE / NORMALIZE_NONE scale 1 (parity difference
+  with no current user: no keyword or YAML key sets these fields yet;
+  field-dictionary defaults are future work). An undeclared quantity type is
+  SPECIFIED `QUANTITY_UNKNOWN`; "unknown matches anything" and `BASIS_NONE`
+  stay value rules in the subclass, not status. Conservation and
+  Normalization are MIRRORED when their metadata `is_mirror()` (factory
+  interprets it); both are in `requests_mirror()`, and only the post-loop
+  check in `make_characteristics` catches a mirror on an export because the
+  fields are assigned after `make_VariableSpec`. A mismatch stays
+  `BUILD_TRANSFORM_UNSUPPORTED`; task 3.22 moves all six kinds together.
+  Legacy absent-means-mirror: none reaches the graph (`make_*Aspect` always
+  build non-mirror aspects; `QuantityTypeAspect()` and `NormalizationAspect()`
+  with no argument are mirrors, `ConservationAspect()` is not). Legacy
+  `connect_to_export` copies the export's value onto the import
+  unconditionally; the graph compares and does not copy. For QuantityType
+  this is a real difference, left open and referred to the owner: the value
+  wildcards (`QUANTITY_UNKNOWN`, `BASIS_NONE`) let an import that declares
+  nothing match a more specific export without being equal; legacy then
+  leaves the import holding the export's quantity type and basis, the graph
+  leaves it SPECIFIED UNKNOWN. No visible effect today: legacy
+  `make_QuantityTypeAspect` ignores declarations (Q9), so in legacy both
+  sides are UNKNOWN, and nothing sets these fields yet. Legacy
+  `QuantityTypeAspect` validate (dimensions, molecular weight)
+  has no counterpart: `VariableSpec` declares neither (unfinished, left).
+  Remaining GraphBuilder references, for B4: the three kinds in
+  `merged_item_for_link` (`_ConnectionResolution_smod`) and the
+  `GraphBuilder.F90` use list. Production path: `populate_one` calls only
+  `sync_per_alias_to_info`, so these field-wide kinds are written only by
+  tests until B4. Tests: `Test_StateItemDescriptor` (write both phases,
+  mirrored skipped, bundle; the old "kind without write_info fails" test now
+  uses a test-only kind), `Test_VariableSpecCharacteristics` (defaults,
+  declared values, mirror on import, post-loop export rejection with full
+  message, shape sets), `Test_StatusResolution` (value wildcards are not
+  status; mirror adopt; a State handle makes `write_info` fail; the
+  per-alias sync skips the three kinds). The two
+  `..._mirror_instances_do_not_need_extension` tests are kept: the
+  constructors still accept mirror metadata and `needs_extension_for` relies
+  on the metadata `operator(==)` mirror rule. Deviation: none from tasks.md 3.10. Design
+  §4.3's EXPRESSION row now says these kinds are added by 3.12. ESSENTIAL
+  green on NAG and gfortran (65/65). `MAPL.generic.scenarios.pending` on NAG:
+  Tests run: 373, Failures: 114, Errors: 0, the same five scenarios as the
+  known baseline.
   B3-RestartMode (tasks.md 3.11, done): see adding-a-characteristic.md
   "RestartMode as implemented". New kind `RESTART_MODE_CHARACTERISTIC_KIND`
   (16) and `RestartModeCharacteristic` (never compared; `build_transform`

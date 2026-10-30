@@ -98,12 +98,13 @@ and freeze reports it.
 Info writes: `StateItemDescriptor%sync_to_info(handle, phase)` calls
 each SPECIFIED/UNCHECKED characteristic's `write_info` (phases
 `SYNC_PHASE_STRUCTURAL`/`SYNC_PHASE_DESCRIPTIVE`; `is_structural()`
-kinds are skipped in DESCRIPTIVE). The base `write_info` fails; only
-`PhysicalUnits`, `TypeKind`, `UngriddedDims`, `Geometry`, `VerticalGrid`, `VerticalStagger`, `VerticalOrientation`, `HorizontalDimsSpec`, `StandardName`, `LongName`, `RestartMode`, `ItemShape` and `Attributes` (a no-op: no Info key) override it so far. Only `populate_one` calls into it, through `StateItemDescriptor%sync_per_alias_to_info` (entries whose `is_per_alias()` is true: `RestartMode`, `LongName`); no production path calls
+kinds are skipped in DESCRIPTIVE). Every kind with a factory overrides
+`write_info` (`Attributes` as a no-op: no Info key). The base version
+fails, so a new kind without one fails `sync_to_info` loudly. Only `populate_one` calls into it, through `StateItemDescriptor%sync_per_alias_to_info` (entries whose `is_per_alias()` is true: `RestartMode`, `LongName`); no production path calls
 `sync_to_info` yet (materialization adopts it in B4). Known gap until B4: an import with no declared `long_name` writes nothing, so under graph-only its alias reads `unknown` (legacy inherits the export's via `connect_to_export`). Factories live in
 `specs/VariableSpec/make_characteristics.F90`: the type-bound
 `VariableSpec%make_characteristics` loops over a registry of per-kind
-factories (so far units, typekind, ungridded dims, geometry, vertical grid, vertical stagger, vertical orientation, horizontal dims spec, standard name, attributes, item shape, long name and restart mode). Procedure: `docs/graph/adding-a-characteristic.md`.
+factories (so far units, typekind, ungridded dims, geometry, vertical grid, vertical stagger, vertical orientation, horizontal dims spec, standard name, attributes, item shape, long name, restart mode, quantity type, conservation and normalization). Procedure: `docs/graph/adding-a-characteristic.md`.
 
 | Characteristic | Kind constant | `build_transform` today |
 |---|---|---|

@@ -244,22 +244,10 @@ module mapl_VariableSpec_mod
       !=====================
       ! declared quantity-type/conservation/normalization
       !=====================
-      ! Lets a caller declare a non-default quantity-type, conservation, or
-      ! normalization value for this item, so GraphBuilder's own
-      ! populate_characteristics (graph/graph-builder) has a real,
-      ! settable value to read for QuantityTypeCharacteristic/
-      ! ConservationCharacteristic/NormalizationCharacteristic - the three
-      ! StateItemCharacteristic subclasses these axes feed (5a2,
-      ! subclasses). Before this, every real construction path
-      ! (make_QuantityTypeAspect/make_ConservationAspect/
-      ! make_NormalizationAspect, below) unconditionally built the same
-      ! default/mirror-inferred value regardless of input - these three
-      ! fields exist so that default is no longer the only reachable
-      ! value. Set via plain field assignment only, no make_VariableSpec
-      ! keyword, same as `callback_interface_id`/`state_item_variant`/
-      ! `is_inout_borrower` above - no ComponentSpecParser/YAML or
-      ! SetServices-convenience entry point exists yet (design.md D2,
-      ! explicit deferral).
+      ! Read by the QuantityType, Conservation and Normalization factories
+      ! in make_characteristics. Set by plain field assignment only: no
+      ! make_VariableSpec keyword, YAML key or SetServices entry point sets
+      ! them yet. The legacy make_*Aspect procedures ignore them.
       type(MAPL_QuantityType) :: quantity_type = MAPL_QUANTITY_UNKNOWN
       type(ConservationMetadata) :: conservation
       type(NormalizationMetadata) :: normalization
@@ -448,6 +436,8 @@ contains
       requests_mirror = requests_mirror .or. this%typekind == MAPL_TYPEKIND_MIRROR
       requests_mirror = requests_mirror .or. this%horizontal_dims_spec == HORIZONTAL_DIMS_MIRROR
       requests_mirror = requests_mirror .or. this%ungridded_dims%is_mirror()
+      requests_mirror = requests_mirror .or. this%conservation%is_mirror()
+      requests_mirror = requests_mirror .or. this%normalization%is_mirror()
       if (allocated(this%vertical_stagger)) then
          requests_mirror = requests_mirror .or. this%vertical_stagger%is_mirror()
       end if

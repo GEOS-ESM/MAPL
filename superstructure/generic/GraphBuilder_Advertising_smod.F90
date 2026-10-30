@@ -7,13 +7,7 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
    use mapl_CompositeStateMaterialization_mod, only: materialize_composite
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
-   use mapl_StateItemCharacteristicKind_mod, only: &
-        QUANTITY_TYPE_CHARACTERISTIC_KIND, &
-        CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND
    use mapl_StateItemFlag_mod, only: operator(==)
-   use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
-   use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
-   use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -139,15 +133,6 @@ contains
       descriptor => node%get_descriptor()
 
       call var_spec%make_characteristics(descriptor, _RC)
-
-      ! QuantityType/Conservation/Normalization: unconditional; each
-      ! default is a valid comparable value.
-      call descriptor%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
-           QuantityTypeCharacteristic(quantity_type=var_spec%quantity_type), _RC)
-      call descriptor%set_characteristic(CONSERVATION_CHARACTERISTIC_KIND, &
-           ConservationCharacteristic(var_spec%conservation), _RC)
-      call descriptor%set_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, &
-           NormalizationCharacteristic(var_spec%normalization), _RC)
 
       ! Capture the item type so extension materialization needs no
       ! VariableSpec. The component-wide geom and vertical grid are not

@@ -6,7 +6,9 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
         VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND, &
         VERTICAL_STAGGER_CHARACTERISTIC_KIND, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
         HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
-        ITEM_SHAPE_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND, RESTART_MODE_CHARACTERISTIC_KIND
+        ITEM_SHAPE_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND, RESTART_MODE_CHARACTERISTIC_KIND, &
+        QUANTITY_TYPE_CHARACTERISTIC_KIND, CONSERVATION_CHARACTERISTIC_KIND, &
+        NORMALIZATION_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED, operator(==)
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
@@ -16,6 +18,9 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
    use mapl_LongNameCharacteristic_mod, only: LongNameCharacteristic
    use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
    use mapl_RestartModes_mod, only: RESTART_REQUIRED
+   use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
+   use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
    use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_NONE, operator(==)
@@ -59,7 +64,7 @@ contains
 
       integer :: status
       integer :: i
-      type(Factory) :: factories(13)
+      type(Factory) :: factories(16)
 
       factories(1)%make => make_units_characteristic
       factories(2)%make => make_typekind_characteristic
@@ -74,6 +79,9 @@ contains
       factories(11)%make => make_item_shape_characteristic
       factories(12)%make => make_long_name_characteristic
       factories(13)%make => make_restart_mode_characteristic
+      factories(14)%make => make_quantity_type_characteristic
+      factories(15)%make => make_conservation_characteristic
+      factories(16)%make => make_normalization_characteristic
 
       do i = 1, size(factories)
          call factories(i)%make(this, descriptor, _RC)
@@ -183,7 +191,7 @@ contains
       integer :: status
       type(UngriddedDimsCharacteristic) :: ungridded_dims
 
-      _RETURN_UNLESS(carries_field_description(spec%itemType) .and. spec%itemType /= MAPL_STATEITEM_EXPRESSION)
+      _RETURN_UNLESS(has_field_metadata(spec%itemType))
 
       if (spec%ungridded_dims%is_mirror()) then
          call ungridded_dims%set_status(CHARACTERISTIC_STATUS_MIRRORED)
@@ -353,7 +361,7 @@ contains
 
       integer :: status
 
-      _RETURN_UNLESS(carries_field_description(spec%itemType) .and. spec%itemType /= MAPL_STATEITEM_EXPRESSION)
+      _RETURN_UNLESS(has_field_metadata(spec%itemType))
 
       call descriptor%set_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND, AttributesCharacteristic(spec%attributes), _RC)
 
@@ -544,6 +552,84 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_restart_mode_characteristic
+
+   ! The declared quantity type is SPECIFIED; an undeclared one is
+   ! QUANTITY_UNKNOWN, which matches anything. Never MIRRORED or DEFERRED.
+   ! Same shape set as ungridded dims.
+   subroutine make_quantity_type_characteristic(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN_UNLESS(has_field_metadata(spec%itemType))
+
+      call descriptor%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+           QuantityTypeCharacteristic(quantity_type=spec%quantity_type), _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_quantity_type_characteristic
+
+   ! A mirror ConservationMetadata is MIRRORED (mirror on an export: see
+   ! check_no_mirrored_entry); anything else, including the
+   ! CONSERVE_NONE default, is SPECIFIED with the declared value.
+   subroutine make_conservation_characteristic(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ConservationCharacteristic) :: conservation
+
+      _RETURN_UNLESS(has_field_metadata(spec%itemType))
+
+      if (spec%conservation%is_mirror()) then
+         call conservation%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      else
+         conservation = ConservationCharacteristic(spec%conservation)
+      end if
+
+      call descriptor%set_characteristic(CONSERVATION_CHARACTERISTIC_KIND, &
+           conservation, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_conservation_characteristic
+
+   ! A mirror NormalizationMetadata is MIRRORED (mirror on an export: see
+   ! check_no_mirrored_entry); anything else, including the NORMALIZE_NONE
+   ! default, is SPECIFIED with the declared value.
+   subroutine make_normalization_characteristic(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(NormalizationCharacteristic) :: normalization
+
+      _RETURN_UNLESS(has_field_metadata(spec%itemType))
+
+      if (spec%normalization%is_mirror()) then
+         call normalization%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      else
+         normalization = NormalizationCharacteristic(spec%normalization)
+      end if
+
+      call descriptor%set_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, &
+           normalization, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_normalization_characteristic
+
+   ! Shapes that carry the per-field metadata kinds (ungridded dims,
+   ! attributes, quantity type, conservation, normalization): field-carrying,
+   ! but not EXPRESSION, which has none of its own.
+   logical function has_field_metadata(item_type) result(has)
+      type(ESMF_StateItem_Flag), intent(in) :: item_type
+
+      has = carries_field_description(item_type) .and. &
+           item_type /= MAPL_STATEITEM_EXPRESSION
+   end function has_field_metadata
 
    ! Shapes that carry a horizontal dims spec: field-carrying, but not
    ! EXPRESSION.

@@ -462,7 +462,7 @@ The factory omits kinds that are not applicable, using legacy
 | FIELD | all comparing kinds + RestartMode, LongName |
 | BRACKET, VECTORBRACKET | all comparing kinds except STANDARD_NAME (legacy order omits it; see the note below the matrix) |
 | VECTOR, FIELDBUNDLE | all comparing kinds except STANDARD_NAME |
-| EXPRESSION | every FIELD kind except STANDARD_NAME and HORIZONTAL_DIMS_SPEC (row below), plus Expression, taken from the declaration (owner Q3, §2.4): ITEM_SHAPE, GEOMETRY, VERTICAL_GRID, VERTICAL_STAGGER, VERTICAL_ORIENTATION, TYPE_KIND, PHYSICAL_UNITS (Field rule: declared SPECIFIED, absent or `'<unknown>'` UNCHECKED), UNGRIDDED_DIMS, ATTRIBUTES, QUANTITY_TYPE, CONSERVATION, NORMALIZATION, LONG_NAME, RestartMode (the kinds that are not yet implemented arrive with their B3 tasks) |
+| EXPRESSION | every FIELD kind except STANDARD_NAME and HORIZONTAL_DIMS_SPEC (row below), plus Expression, taken from the declaration (owner Q3, §2.4): ITEM_SHAPE, GEOMETRY, VERTICAL_GRID, VERTICAL_STAGGER, VERTICAL_ORIENTATION, TYPE_KIND, PHYSICAL_UNITS (Field rule: declared SPECIFIED, absent or `'<unknown>'` UNCHECKED), UNGRIDDED_DIMS, ATTRIBUTES, QUANTITY_TYPE, CONSERVATION, NORMALIZATION, LONG_NAME, RestartMode (B3-Expression, task 3.12, adds the kinds whose own B3 tasks gave EXPRESSION no entry: UNGRIDDED_DIMS, ATTRIBUTES, QUANTITY_TYPE, CONSERVATION, NORMALIZATION and RestartMode) |
 | (any shape above) | VERTICAL_GRID, VERTICAL_STAGGER and VERTICAL_ORIENTATION apply only to an item with a vertical dimension: no VERTICAL_GRID or VERTICAL_ORIENTATION for `vertical_stagger == NONE`, and SERVICE, STATE and WILDCARD never have them (the VERTICALGRID composite is the one STATE with a VERTICAL_GRID) |
 | (any shape with GEOMETRY except EXPRESSION, SERVICE) | HORIZONTAL_DIMS_SPEC. With NONE (A14) the item's GEOMETRY entry is never compared (see §5) |
 | STATE | ITEM_SHAPE only |
@@ -615,9 +615,9 @@ is authoritative for status rules; this table summarizes it.
 | VerticalStagger | `vertical_stagger` / `vertical_dim_spec` | none: harvest from the component's field | NONE if the component has no vertical grid; else freeze fails | `MIRROR` (imports only); `mirror_vgrid` with no stagger | unallocated stagger is treated as mirror; `MIRROR` matches any stagger | landed |
 | VerticalOrientation | `vertical_alignment` | the item's grid direction (`with_grid`) | no entry (2D item) | explicit mirror value, imports only | `with_grid`; compared after resolving against the grid's direction; the import copies the export's on connect | landed |
 | Attributes | `attributes` | built-in: empty | - | - | empty; import's set must be included in export's | landed |
-| QuantityType | `quantity_type` | built-in UNKNOWN | - | - | ignores the declared value: always UNKNOWN (Q9) | design |
-| Conservation | `conservation` | built-in CONSERVE_NONE, not conservable | - | `is_mirror` | ignores the declared value: CONSERVE_NONE | design |
-| Normalization | `normalization` | built-in NORMALIZE_NONE, scale 1 | - | `is_mirror` | ignores the declared value: NORMALIZE_NONE, scale 1 | design |
+| QuantityType | `quantity_type` | built-in UNKNOWN | - | - | ignores the declared value: always UNKNOWN (Q9) | landed |
+| Conservation | `conservation` | built-in CONSERVE_NONE, not conservable | - | `is_mirror` | ignores the declared value: CONSERVE_NONE | landed |
+| Normalization | `normalization` | built-in NORMALIZE_NONE, scale 1 | - | `is_mirror` | ignores the declared value: NORMALIZE_NONE, scale 1 | landed |
 | RestartMode | `restart_mode` | built-in `RESTART_REQUIRED` (A15); the exporter's mode is never adopted | - | - | carried on `FieldClassAspect`, not compared; absent is `RESTART_REQUIRED` | landed |
 | Expression (new) | `expression` | - | - | - | n/a (EXPRESSION shape only) | design |
 
@@ -660,7 +660,7 @@ NONE -> GEOM by replication across the horizontal points (A14).
 | `allocated(standard_name)` -> STANDARD_NAME | absent if unallocated | StandardName | unallocated -> UNCHECKED; omitted for exempt shapes (§4.3) |
 | `attributes%size() > 0` -> ATTRIBUTES | absent if empty | Attributes | always present (parity fix) |
 | UNGRIDDED_DIMS (unconditional) | | UngriddedDims | mirror -> MIRRORED |
-| QUANTITY_TYPE, CONSERVATION, NORMALIZATION (unconditional) | | each its own factory | mirror metadata -> MIRRORED |
+| QUANTITY_TYPE, CONSERVATION, NORMALIZATION (FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE only; landed) | | each its own factory | mirror metadata -> MIRRORED (CONSERVATION, NORMALIZATION) |
 | `set_ungridded_dims` | duplicate | removed (UngriddedDims) | |
 | `set_vertical_stagger` | | VerticalStagger | new |
 | `set_declared_geom` | | Geometry (item-level) | new kind on items (M1) |

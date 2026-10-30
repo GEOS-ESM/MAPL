@@ -311,7 +311,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       Inserted for FIELD/BRACKET/VECTOR/VECTORBRACKET/FIELDBUNDLE (§4.3
       excludes EXPRESSION). `write_info` is a successful no-op. No
       scenario changed (ESSENTIAL green; PENDING identical to HEAD).
-- [ ] 3.10 B3-QuantityType, B3-Conservation, B3-Normalization. Q9
+- [x] 3.10 B3-QuantityType, B3-Conservation, B3-Normalization. Q9
       answered: each factory uses the declared `VariableSpec` value
       (legacy's fixed defaults are not reproduced; report it in the commit
       message as a parity difference with no current user, since no
@@ -323,6 +323,12 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `QUANTITY_UNKNOWN`, and "unknown matches anything" (and `BASIS_NONE`
       matching any basis) stays a value rule in the subclass; say in
       adding-a-characteristic.md that such value wildcards are not status.
+      Done as one commit with three trailers. `write_info` for each (own
+      key only, either phase, SPECIFIED only); factories 14-16 for FIELD,
+      BRACKET, VECTOR, VECTORBRACKET and FIELDBUNDLE (EXPRESSION is 3.12);
+      conservation and normalization `is_mirror()` added to
+      `requests_mirror()`. `merged_item_for_link` and the `GraphBuilder.F90`
+      use list still name the three kinds (B4, §6.3). No scenario changed.
 - [x] 3.11 B3-RestartMode (new kind). Default `RESTART_REQUIRED`, never
       compared, no transform (A15). `write_info` writes the item's own
       alias, so imports sharing an export keep their own modes.

@@ -11,8 +11,10 @@ worked example for deleting a subclass's own status check; Attributes
 (`B3-Attributes`) is the worked example for a kind with no Info key; LongName
 (`B3-LongName`) is the worked example for a never-compared kind with a
 default chain; RestartMode (`B3-RestartMode`) is the worked example for a
-per-alias kind written by `populate_one`. Later
-B3 tasks refine this file.
+per-alias kind written by `populate_one`; QuantityType, Conservation and
+Normalization (`B3-QuantityType`, `B3-Conservation`, `B3-Normalization`) are
+the worked example for three kinds that share one shape set and one
+metadata-valued Info key each. Later B3 tasks refine this file.
 
 Design authority: `openspec/changes/characteristic-separation-of-concerns/design.md`
 (§2 status, §3 Info facade, §4.3 applicability, §5 factories). Rules:
@@ -33,6 +35,13 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
    - **No status logic in the subclass.** `needs_extension_for` compares
      values only; `StateItemDescriptor%resolve_pair` decides from the
      two statuses and calls it only when both sides are SPECIFIED.
+     A value wildcard is not status: a rule such as "an unknown quantity
+     type matches anything" or "`BASIS_NONE` matches any basis" is part of
+     the value comparison. Both sides stay SPECIFIED. For a kind that has
+     such a value wildcard, an undeclared value is SPECIFIED with the
+     wildcard value, not UNCHECKED (QuantityType). Kinds whose undeclared
+     value means "unknown" without a wildcard value (PhysicalUnits,
+     StandardName, LongName) use UNCHECKED.
    - Must tolerate a valueless instance (UNCHECKED, MIRRORED, DEFERRED):
      accessors and `get_signature` must not touch an unallocated
      component. `PhysicalUnitsCharacteristic%get_units` returns `''`.
@@ -527,13 +536,90 @@ A never-compared, per-alias kind. `needs_extension_for` is always false and
   for a Field handle. `populate_one` creates the `MAPL_NamedAlias`, wraps it
   in a `GraphStateItem`, and calls it with `item_id`'s own descriptor.
   `GraphBuilder` names no kind. A full `sync_to_info` is not used there:
-  QuantityType, Conservation and Normalization still have the failing base
-  `write_info`, and an import's UNCHECKED standard_name would overwrite
-  the export's field-wide name.
+  an import's UNCHECKED standard_name would overwrite the export's
+  field-wide name.
 - `StateItemDescriptor` no longer has `declared_restart_mode` or its
   accessors; the advertise block that captured it is gone.
 - INTERNAL items are not populated by the graph yet, so their restart mode
   and long_name are not written (gap until B4).
+
+## QuantityType, Conservation and Normalization as implemented
+
+Three kinds with one shape set and one rule each. Each holds a metadata
+value, writes only its own Info key, and has no Transform.
+
+| Input | Shape | Entry |
+|---|---|---|
+| `VariableSpec%quantity_type` (default `QUANTITY_UNKNOWN`) | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE | SPECIFIED with the type; `basis` is `BASIS_NONE` |
+| `VariableSpec%conservation`, not mirror (default `CONSERVE_NONE`, not conservable) | same | SPECIFIED with the metadata |
+| `VariableSpec%conservation%is_mirror()` | same | MIRRORED, no value |
+| `VariableSpec%normalization`, not mirror (default `NORMALIZE_NONE`, scale 1) | same | SPECIFIED with the metadata |
+| `VariableSpec%normalization%is_mirror()` | same | MIRRORED, no value |
+| any | EXPRESSION, STATE, SERVICE, WILDCARD, other flags | none |
+
+- Own shape set (design §4.3): the same five shapes as Attributes and
+  UngriddedDims. Before this task the three kinds were inserted for every
+  shape. The factories share `has_field_metadata`.
+- Declared value (owner Q9): each factory uses the value the spec declares.
+  Legacy `make_QuantityTypeAspect`, `make_ConservationAspect` and
+  `make_NormalizationAspect` ignore the spec and always build UNKNOWN,
+  CONSERVE_NONE and NORMALIZE_NONE with scale 1 (and legacy's quantity-type
+  `update_payload` also wrote a derived `normalization_metadata`, which the
+  Normalization aspect then overwrote). This is a parity difference with no
+  current user: no `make_VariableSpec` keyword or YAML key sets these fields
+  yet, so they are assigned directly on the spec. Field-dictionary defaults
+  for them are future work.
+- Value wildcards are not status. QuantityType keeps the legacy rule "equal,
+  or either side `QUANTITY_UNKNOWN`; and basis equal, or either side
+  `BASIS_NONE`" inside `needs_extension_for`. An undeclared quantity type is
+  SPECIFIED `QUANTITY_UNKNOWN`, not UNCHECKED. Conservation and Normalization
+  compare through the metadata types' own `operator(==)`.
+- Never DEFERRED. QuantityType is never MIRRORED (it has no mirror spelling).
+  Conservation and Normalization are MIRRORED when the metadata
+  `is_mirror()`; the factory interprets it, the constructors do not.
+  `VariableSpec%requests_mirror()` includes both, so a mirror on an export is
+  rejected by the generic rule (A21). These two fields have no
+  `make_VariableSpec` keyword and are assigned after it runs, so only the
+  check after the factory loop in `make_characteristics` reports a mirror
+  here (message ends ` (CONSERVATION)` or ` (NORMALIZATION)`). A default
+  `ConservationMetadata` is not a mirror; `ConservationMetadata()` with no
+  arguments is.
+- Legacy absent-means-mirror: `QuantityTypeAspect()` and
+  `NormalizationAspect()` with no argument are mirrors, and so are the
+  no-argument `QuantityTypeMetadata()`, `ConservationMetadata()` and
+  `NormalizationMetadata()`. `ConservationAspect()` is not (it builds
+  CONSERVE_NONE, non-mirror). `make_QuantityTypeAspect`,
+  `make_ConservationAspect` and `make_NormalizationAspect` always build
+  non-mirror aspects, so none of this reaches the graph and none is
+  reproduced.
+- Mismatch: `build_transform` calls `report_build_transform_unsupported`
+  (legacy returns `NullTransform` for quantity type and normalization and
+  `_FAIL`s for conservation). A later task moves these kinds to
+  `BUILD_TRANSFORM_INCOMPATIBLE` together with Attributes, UngriddedDims and
+  StandardName, so `check_graph` needs no new step kind.
+- `write_info` writes `quantity_type_metadata=`, `conservation_metadata=` and
+  `normalization_metadata=` through `MAPL_FieldSet` / `MAPL_FieldBundleSet`,
+  in either phase, for SPECIFIED entries only (MIRRORED never reaches it). None
+  is structural, none triggers `FieldDelta`, and none is per-alias. Quantity
+  type carries `quantity_type` and `basis`; `VariableSpec` has no dimensions or
+  molecular weight to carry.
+- Reading back: `MAPL_FieldGet` returns a mirror metadata object for an
+  absent quantity-type or normalization key but asserts that the conservation
+  key exists, so a test of "not written" seeds the key first.
+- Connect: legacy `connect_to_export` copies the export's value onto the
+  import unconditionally; the graph compares and does not copy (as for
+  VerticalOrientation). For Conservation and Normalization that is the only
+  difference (equal values after a match). For QuantityType it is not:
+  `QuantityTypeAspect%connect_to_export` copies the export's `quantity_type`
+  and `basis`, and the value wildcards (`QUANTITY_UNKNOWN`, `BASIS_NONE`) let
+  an import that declares nothing match a more specific export without being
+  equal. Legacy then leaves the import holding the export's quantity type and
+  basis; the graph leaves it SPECIFIED `QUANTITY_UNKNOWN`. This is an open
+  difference, referred to the owner. It has no visible effect today: legacy
+  `make_QuantityTypeAspect` ignores declarations (Q9), so in legacy both sides
+  are UNKNOWN, and nothing sets these fields yet.
+- Production: `populate_one` calls only `sync_per_alias_to_info`, so these
+  field-wide kinds are written only by tests (and by B4 materialization later).
 
 ## Attributes as implemented
 
