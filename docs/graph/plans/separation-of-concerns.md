@@ -1178,6 +1178,12 @@ affected scenarios to ready (unless masked: M3).
   short name collide when an import and export share a name; key by
   (intent, short name). The diagnosis's name-mangling experiment broke
   `Test_GraphBuilder_RunPhaseNode`; don't repeat it.
+- Note for whichever task takes up `statistics`/`statistics_real` (found
+  by B3-InternalNoMirror; unchecked): the statistics gridcomp has no geom,
+  so its internals (`sum_*`, `counts_*`, ...) get DEFERRED geometry and
+  vertical grid in the graph, and only the component sets them later, on
+  the field. Check whether that also fails freeze, besides the current
+  "resolve_connections step failed".
 - **Status:** not started
 
 ### Phase D - structure
@@ -1224,7 +1230,9 @@ it runs goes in a follow-up commit with the same trailer. Label
   a real ID or delete it. Characteristic module headers still cite
   "merge-characteristic-families task ..." and "(extension-reuse change
   design.md ...)"; `graph/tests/Test_StateItemCharacteristicSubclasses.pf`'s
-  header cites `openspec/changes/` paths. Remove them (AGENTS.md "Source
+  header cites `openspec/changes/` paths, as do section banners in
+  `tests/Test_GraphBuilder_ConnectionResolution.pf` (e.g. ~89,
+  `phase-7c-wildcard-dispatch-wiring`). Remove them (AGENTS.md "Source
   comments").
 - `infrastructure/field/FieldInfo.F90:~305` (`FieldInfoGetInternal`):
   reading conservation asserts the key exists, while quantity-type and

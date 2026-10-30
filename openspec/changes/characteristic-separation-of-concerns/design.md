@@ -558,9 +558,9 @@ error, A1). It replaces no existing keyword; legacy has none for these.
 | StandardName | `standard_name` | string mirror sentinel: MIRRORED, imports only (A13); else allocated: SPECIFIED; else UNCHECKED (legacy) |
 | TypeKind | `typekind` (defaults to R4) | `MAPL_TYPEKIND_MIRROR`: MIRRORED; else SPECIFIED. Never DEFERRED (A12). |
 | Geometry | `geom`, `geom_id`, `regrid_param` | item geom/geom_id: SPECIFIED; `mirror_geom` or an EXPRESSION with no geom: MIRRORED; else DEFERRED (component supplies it; legacy FROM_COMP and absent-means-MIRRORED both map here, A12). Freeze fails if the component never supplies one. With HorizontalDimsSpec NONE the entry is never compared (A14): field creation still needs the item's geom, so it is UNCHECKED, written to Info only when it holds a geom, and still offered `resolve_deferred` (§3.3). |
-| HorizontalDimsSpec | `horizontal_dims_spec` (YAML `dims: z` -> NONE) | defaults to GEOM: SPECIFIED. Explicit NONE: SPECIFIED. MIRRORED via `HORIZONTAL_DIMS_MIRROR` (YAML `dims: mirror`), imports only (A14); an error on an export. GEOM vs NONE in either direction is incompatible: `BUILD_TRANSFORM_INCOMPATIBLE` (A23), reported as a connection conflict. |
+| HorizontalDimsSpec | `horizontal_dims_spec` (YAML `dims: z` -> NONE) | defaults to GEOM: SPECIFIED. Explicit NONE: SPECIFIED. MIRRORED via `HORIZONTAL_DIMS_MIRROR` (YAML `dims: mirror`), imports only (A14); an error on any other intent (A21). GEOM vs NONE in either direction is incompatible: `BUILD_TRANSFORM_INCOMPATIBLE` (A23), reported as a connection conflict. |
 | VerticalGrid | `vertical_grid`, `mirror_vgrid`, `vertical_stagger`; `state_item_variant == VERTICALGRID` (member names) | `vertical_stagger == NONE`: no entry (2D item). Item grid: SPECIFIED. `mirror_vgrid` or an EXPRESSION with no grid: MIRRORED. Else DEFERRED (component grid, M2). VERTICALGRID composite: SPECIFIED with dimensions only. A DEFERRED entry whose component has no vertical grid is dropped at GEOM_B (owner, B3-VerticalCoordinate): such an item is 2D as far as the graph can tell, and legacy distinguishes it only by the same absence. |
-| VerticalStagger | `vertical_stagger`, `mirror_vgrid` | No built-in default (A17). Real stagger (CENTER/EDGE/NONE): SPECIFIED. `VERTICAL_STAGGER_MIRROR`: MIRRORED, imports only; on an export it is an error (A1, Q6). Unallocated with `mirror_vgrid`: MIRRORED (Q-mirror). Other unallocated (or `VERTICAL_STAGGER_INVALID`, which `parse_var_specs` passes when YAML gives no `vertical_dim_spec`): DEFERRED, not an error at advertise (a component such as Statistics may fill it only after other connections resolve). At GEOM_B a DEFERRED stagger becomes SPECIFIED NONE if the component has no vertical grid (A17); otherwise it stays DEFERRED until harvested from the component's realized field or bundle, and freeze fails if it never is. An explicit NONE stays SPECIFIED NONE even though VerticalGrid has no entry, so a 2D export still mismatches a 3D import. EXPRESSION `VERTICAL_STAGGER_INVALID`: MIRRORED. |
+| VerticalStagger | `vertical_stagger`, `mirror_vgrid` | No built-in default (A17). Real stagger (CENTER/EDGE/NONE): SPECIFIED. `VERTICAL_STAGGER_MIRROR`: MIRRORED, imports only; on any other intent it is an error (A1, Q6, A21). Unallocated with `mirror_vgrid`: MIRRORED (Q-mirror). Other unallocated (or `VERTICAL_STAGGER_INVALID`, which `parse_var_specs` passes when YAML gives no `vertical_dim_spec`): DEFERRED, not an error at advertise (a component such as Statistics may fill it only after other connections resolve). At GEOM_B a DEFERRED stagger becomes SPECIFIED NONE if the component has no vertical grid (A17); otherwise it stays DEFERRED until harvested from the component's realized field or bundle, and freeze fails if it never is. An explicit NONE stays SPECIFIED NONE even though VerticalGrid has no entry, so a 2D export still mismatches a 3D import. EXPRESSION `VERTICAL_STAGGER_INVALID`: MIRRORED. |
 | VerticalOrientation | `vertical_alignment` (`upward`/`downward`/`with_grid`) | Vertical index order relative to physical up/down (Q7). Unspecified or `with_grid`: the item's grid direction, resolved to UP/DOWN once the grid is known (factory for an item grid, `resolve_deferred` for the component grid), DEFERRED until then. Explicit mirror value: MIRRORED, imports only; takes the export's resolved order. A MIRROR stagger does not imply a mirrored orientation. No entry when VerticalGrid has none. |
 | UngriddedDims | `ungridded_dims` | `is_mirror()`: MIRRORED; else SPECIFIED |
 | Attributes | `attributes` | SPECIFIED, **always inserted, even if empty**. This fixes a parity bug: today an empty export set is omitted, so an import requiring attributes is never flagged, whereas legacy `includes([], required)` mismatches. |
@@ -596,8 +596,8 @@ component (resolved at GEOM_B, or harvested from the component's
 realized field or bundle), or a built-in constant. "Nothing anywhere"
 is the result when every source is empty. "Mirror" is the explicit way
 to adopt the connected partner's value. The rules apply to imports and
-exports alike, except that MIRROR on an export is an error unless §2.4
-allows it. "Legacy" is what the aspect path (`VariableSpec%make_*Aspect`,
+exports alike, except that MIRROR on anything but an import is an error
+unless §2.4 allows it (A21). "Legacy" is what the aspect path (`VariableSpec%make_*Aspect`,
 `specs/*Aspect.F90`) does when nothing is declared. The §5 table above
 is authoritative for status rules; this table summarizes it.
 
@@ -793,9 +793,9 @@ A18. The vertical-grid characteristic is named `VerticalGrid`
      VerticalCoordinate.
 A19. Info is not write-only. Graph code may read it back through
      `MAPL_*Get` (never raw `ESMF_Info*`), e.g. to harvest a DEFERRED
-     value. A MIRROR value on an export is an error raised at advertise by
-     the factory, except for an EXPRESSION, where many characteristics
-     (including VerticalStagger) may be MIRROR.
+     value. A MIRROR value on anything but an import is an error raised at
+     advertise (A21), except for an EXPRESSION export, where many
+     characteristics (including VerticalStagger) may be MIRROR.
 A20. An UNCHECKED export paired with a MIRRORED import adopts (§2.2):
      the import takes a copy of the export's entry and is UNCHECKED, so it
      matches. The rule holds for every kind; refine it per kind only if a
@@ -899,7 +899,7 @@ Q6 (B3-VerticalStagger). **Answered: confirmed.** `VERTICAL_STAGGER_MIRROR`
     maps to MIRRORED: the import adopts the export's stagger. It is for
     generic components (History writing another component's field in
     native form, where most characteristics are mirrored). It is legal on
-    imports only; on an export it is an error (A1).
+    imports only; on any other intent it is an error (A1, A21).
     Q-mirror (owner): `mirror_vgrid` does not replace the stagger keyword.
     When `mirror_vgrid` is set and no stagger is given, the stagger
     defaults to MIRRORED; an explicit stagger still wins (latent, no

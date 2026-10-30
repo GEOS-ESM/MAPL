@@ -58,7 +58,8 @@ Remaining order (owner): 3.25, 3.26, 3.27, 3.12, 3.23, 3.14
 3.7, 3.10, 3.11, 3.13, 3.20, 3.21 and 3.22 are done.
 Numbers are labels, not run order. A task whose characteristic adds a
 mirror value adds its spelling to `VariableSpec%requests_mirror()`; the
-generic export checks (A21) then reject it on a non-EXPRESSION export, and
+generic checks (A21) then reject it on anything but an import or an
+EXPRESSION export, and
 the factory adds no export assert of its own. A
 harvest reads through `MAPL_*Get`, never raw Info (A19).
 
@@ -167,7 +168,8 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       does, stop and report. Update adding-a-characteristic.md (Geometry,
       VerticalGrid and StringMirror sections).
 - [x] 3.19b B3-MirrorGeneric (A21 as revised: no mirror of any kind on a
-      non-EXPRESSION export; one rule, no per-characteristic cases).
+      non-EXPRESSION export; one rule, no per-characteristic cases;
+      generalized to internals and the message reworded by 3.25).
       3.19 landed the per-flag version; this replaces it. Two checks, as in
       design.md A21:
       (1) Add `VariableSpec%requests_mirror()`: true when any field holds its
@@ -415,18 +417,15 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       consumer.
 - [x] 3.25 B3-InternalNoMirror (design Q13; owner: "very important to
       settle this correctly"). An INTERNAL item never has any mirror
-      property. Reject explicit mirror requests on INTERNAL in both A21
-      checks (generalize "non-EXPRESSION export" to "any intent but
-      IMPORT, except an EXPRESSION export"), and find every default that
-      yields mirror for an internal (legacy `make_GeomAspect` /
-      `make_VerticalGridAspect` start at MIRRORED). Also enforce the
-      owner rule that an EXPRESSION is EXPORT only (never IMPORT or
-      INTERNAL; a re-exported internal is never an expression); nothing
-      rejects it today. Report each mirror default to the owner
-      before changing it: a mirror default on an internal means the
-      rules are inconsistent.
-      Done (owner scope narrowed the text above; the graph needs no check
-      of its own): VariableSpec only. `intent_rule_violation` in
+      property, and an EXPRESSION is EXPORT only (never IMPORT or
+      INTERNAL; a re-exported internal is never an expression). Owner
+      scope: enforce in VariableSpec only, one rule used by both A21
+      checks (a mirror request is allowed only on an IMPORT or an
+      EXPRESSION export); the graph needs no check of its own, since its
+      factories give MIRRORED only for an explicit request or an
+      EXPRESSION. Report each legacy mirror default on an internal to the
+      owner before changing it.
+      Done: VariableSpec only. `intent_rule_violation` in
       `VariableSpec_private.F90` is the one rule, by intent and item type: a mirror
       request is allowed only on an IMPORT or an EXPRESSION export, and an
       EXPRESSION only as an export. `make_VariableSpec` and the backstop
