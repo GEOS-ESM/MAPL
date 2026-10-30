@@ -185,18 +185,42 @@ Allowlist entries (shape, kind) and their resolution:
 The allowlist is a static table in the descriptor module, keyed by
 (shape, kind). It is data, not GraphBuilder logic. Every other MIRRORED
 export is an error (owner A1). An entry is added only when a compelling
-use case is shown, and each new entry is its own reviewed change. The per-consumer
-evaluation (inputs extended to each consumer's goal) is a change to the
-Phase 7b hook design. Owner decision (Q2, answered): an expression is
-evaluated per consumer, as in legacy. Each import that differs from the
-others in any characteristic (geometry, vertical grid, precision, ...)
-gets its own evaluation on its own goal; imports that agree on every
-characteristic may share one evaluation. Today's single evaluation into
-the export (`run_expression_hook`) is correct only for consumers that
-agree with it on everything. B3-Expression implements the rule. Until
-it lands, an EXPRESSION export with MIRRORED geometry
-connected to an import with a different geometry stays a known gap
-(`expression_defer_geom`, masked by M3).
+use case is shown, and each new entry is its own reviewed change.
+
+Per-consumer evaluation (owner, Q2 and Q3 answered). An expression is
+evaluated per consumer, as in legacy, with these rules:
+- **Where it is built.** At connect time, by a dedicated expression path
+  in the connection code, chosen by item type (as wildcard imports are).
+  Each input and the result use ordinary extension chains. GraphBuilder
+  names no characteristic (D6).
+- **The export is a placeholder.** It is never evaluated and never placed
+  in a state; an expression with no consumer is never computed. The
+  ACCEPT_TRANSFER hook only checks that the referenced names exist.
+- **Inputs.** Each input is converted to the evaluation's geometry,
+  vertical grid and precision, and stays in its own units (Q3).
+- **Result.** It carries the expression's declared characteristics
+  (every FIELD kind except STANDARD_NAME: units, ungridded dims,
+  attributes, quantity, ...); ordinary Field rules then convert it to the
+  consumer. A mismatch that cannot be converted is a connection conflict.
+- **Precision.** Evaluation runs at the consumer's precision (the R4
+  default acts as "take the consumer's").
+- **Vertical.** An expression with no `vertical_dim_spec` takes the
+  consumer's stagger; inputs are converted to it.
+- **Sharing.** Consumers that agree on what the evaluation depends on
+  (geometry, vertical grid, precision) share one evaluation. Differences
+  after it (units, ...) get their own conversion off the shared result.
+- **Nested expressions.** An expression that refers to another
+  expression is reported as unsupported, with a clear message.
+- **Later optimization (own task).** If all inputs share one geometry (or
+  vertical grid), evaluate on that native grid and transform only the
+  result to each consumer.
+
+Today's single evaluation into the export (`run_expression_hook`) is
+correct only for consumers that agree with it on everything.
+B3-ExpressionPerConsumer implements the rules above. Until it lands, an
+EXPRESSION export with MIRRORED geometry connected to an import with a
+different geometry stays a known gap (`expression_defer_geom`, masked by
+M3; it stays pending until C1 provides regridding).
 
 #### §2.5 Non-comparing characteristics
 
@@ -432,7 +456,7 @@ The factory omits kinds that are not applicable, using legacy
 | FIELD | all comparing kinds + RestartMode, LongName |
 | BRACKET, VECTORBRACKET | all comparing kinds except STANDARD_NAME (legacy order omits it; see the note below the matrix) |
 | VECTOR, FIELDBUNDLE | all comparing kinds except STANDARD_NAME |
-| EXPRESSION | ITEM_SHAPE, GEOMETRY, VERTICAL_GRID, VERTICAL_STAGGER, VERTICAL_ORIENTATION, TYPE_KIND, LONG_NAME, Expression, and PHYSICAL_UNITS as UNCHECKED (owner Q3) |
+| EXPRESSION | every FIELD kind except STANDARD_NAME and HORIZONTAL_DIMS_SPEC (row below), plus Expression, taken from the declaration (owner Q3, §2.4): ITEM_SHAPE, GEOMETRY, VERTICAL_GRID, VERTICAL_STAGGER, VERTICAL_ORIENTATION, TYPE_KIND, PHYSICAL_UNITS (Field rule: declared SPECIFIED, absent or `'<unknown>'` UNCHECKED), UNGRIDDED_DIMS, ATTRIBUTES, QUANTITY_TYPE, CONSERVATION, NORMALIZATION, LONG_NAME, RestartMode (the kinds that are not yet implemented arrive with their B3 tasks) |
 | (any shape above) | VERTICAL_GRID, VERTICAL_STAGGER and VERTICAL_ORIENTATION apply only to an item with a vertical dimension: no VERTICAL_GRID or VERTICAL_ORIENTATION for `vertical_stagger == NONE`, and SERVICE, STATE and WILDCARD never have them (the VERTICALGRID composite is the one STATE with a VERTICAL_GRID) |
 | (any shape with GEOMETRY except EXPRESSION, SERVICE) | HORIZONTAL_DIMS_SPEC. With NONE (A14) the item's GEOMETRY entry is never compared (see §5) |
 | STATE | ITEM_SHAPE only |
@@ -464,8 +488,10 @@ EXPRESSION -> FIELD (owner, B3-ItemShape): the cell is a match because a
 consumer that agrees with the evaluation on every characteristic is
 correctly wired to the shared result. A consumer that differs shows up as
 a GEOMETRY (or other kind) mismatch, not as a shape mismatch; that stays
-the known gap (`expression_defer_geom`) until B3-Expression builds the
-per-consumer evaluation steps (§2.4).
+the known gap (`expression_defer_geom`) until B3-ExpressionPerConsumer
+builds the per-consumer evaluation in the connection code's expression
+path (§2.4). The cell itself stays a match; it does not become a
+Transform step.
 
 WILDCARD imports keep their dedicated resolution
 (`resolve_wildcard_destination`). The match cells exist so that the
@@ -711,7 +737,8 @@ NONE -> GEOM by replication across the horizontal points (A14).
   (`FieldClassAspect%allocate`). It is already exercised by every legacy
   scenario.
 - [Per-consumer expression evaluation enlarges the expression hook] ->
-  Deferred to B3-Expression (Q2 answered: per consumer, §2.4).
+  Deferred to B3-ExpressionPerConsumer (Q2 answered: per consumer, built
+  in the connection code's expression path, §2.4).
 
 ## Migration Plan
 
@@ -809,13 +836,27 @@ A23. `build_transform` has two failure outcomes. `BUILD_TRANSFORM_UNSUPPORTED`:
 Q2 (B3-Expression). **Answered** (owner): replicate legacy per-consumer
     evaluation. Each import that differs from the others in any
     characteristic gets its own evaluation on its own goal; imports that
-    agree on every characteristic may share one evaluation (§2.4).
-    B3-Expression implements it.
-Q3 (B3-Expression). Expression units: legacy never compares them (UNITS
-    is absent from `ExpressionClassAspect`'s order, and ExtData passes
-    `'<unknown>'`). Is UNCHECKED for every expression correct? Also,
-    legacy lists TYPEKIND before CLASS for expressions: was a typekind
-    conversion on an expression's own (empty) payload ever meant to work?
+    agree on what the evaluation depends on (geometry, vertical grid,
+    precision) share one (§2.4). B3-ExpressionPerConsumer implements it.
+Q3 (B3-Expression). **Answered (owner); the question's premise was
+    wrong.** Legacy does convert units for expressions: the goal for each
+    input is the expression's own aspects with CLASS replaced by Field and
+    StandardName by unchecked (`ExpressionClassAspect.F90:342-347`), so an
+    input is converted to the expression's units. The owner treats that as
+    a legacy bug: an expression can be nonlinear (`U**2+V**2`), so the
+    framework must not reason about expression units versus input units.
+    Rules:
+    - Inputs reach the evaluation in their own units; they are converted
+      only to the consumer's geometry, vertical grid and precision.
+    - The result carries the expression's declared units; ordinary Field
+      rules then convert it to the consumer's units. Expression units
+      follow the Field rule: declared is SPECIFIED; absent or
+      `'<unknown>'` is UNCHECKED (the result is unchecked).
+    - Evaluation runs at the consumer's precision (the default R4 acts as
+      "take the consumer's").
+    - Per-input units syntax is a possible later feature, not planned.
+    Legacy's TYPEKIND-before-CLASS order for expressions is moot: the
+    expression export is a placeholder with no payload (§2.4).
 Q4 (B3-ItemShape). `BracketClassAspect`'s time-dependent-geometry
     branch: no caller ever sets `is_time_dependent = .true.`. Can the
     graph implement only the non-time-dependent order? (A10's
@@ -865,3 +906,23 @@ Q11 (B3-Units). **Answered: confirmed.** Legacy writes
     exists. The graph never writes a MIRROR marker; the PhysicalUnits
     factory never produces MIRRORED (unallocated or `'<unknown>'` units
     are UNCHECKED), so only SPECIFIED and UNCHECKED reach `write_info`.
+Q13 (task to be assigned). **Owner rule: an INTERNAL item never has any
+    mirror property.** Internals do not take part in connections, so
+    nothing could ever resolve a mirror on one. An internal that is
+    re-exported is connected through the export, which is an export (A21
+    applies to it); the originating internal still has no mirror. If a
+    default comes out as mirror for an internal, the rules are
+    inconsistent and must be fixed, not accommodated. Known places to
+    settle (owner: "very important to settle this correctly"):
+    - Explicit mirror requests: the A21 checks (`make_VariableSpec` and
+      `make_characteristics`) reject them on a non-EXPRESSION EXPORT
+      only; an INTERNAL with e.g. `long_name: "<mirror>"`, `mirror_geom`
+      or `typekind: mirror` is accepted today, on both paths.
+    - Legacy defaults: `VariableSpec%make_GeomAspect` and
+      `make_VerticalGridAspect` start at `ASPECT_STATUS_MIRRORED` and
+      leave it there when neither the item nor the component supplies a
+      geom (or a vertical grid / component geom id), whatever the intent.
+    - Graph defaults: the factories produce MIRRORED only from an
+      explicit request or for an EXPRESSION, so they comply once explicit
+      requests are rejected; whether an EXPRESSION can be INTERNAL is to
+      be checked.

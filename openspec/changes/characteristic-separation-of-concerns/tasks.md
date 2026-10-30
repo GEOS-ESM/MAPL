@@ -53,8 +53,9 @@ nothing for that kind, except the §6.3 materialization references
 the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
-Remaining order (owner): 3.13, 3.11, 3.10, 3.22, 3.12, 3.14
-(3.12: Q2 answered). 3.7, 3.20 and 3.21 are done.
+Remaining order (owner): 3.11, 3.10, 3.22, 3.12, 3.23, 3.14
+(3.12/3.23: Q2, Q3 answered; 3.24 later, 3.25 to be scheduled).
+3.7, 3.13, 3.20 and 3.21 are done.
 Numbers are labels, not run order. A task whose characteristic adds a
 mirror value adds its spelling to `VariableSpec%requests_mirror()`; the
 generic export checks (A21) then reject it on a non-EXPRESSION export, and
@@ -341,19 +342,47 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       - INTERNAL items are not populated by the graph yet; not in this
         task (gap until B4; say so in the commit message).
       - No `restart_mode` YAML key; unit tests only.
-- [ ] 3.12 B3-Expression (new kind; per-consumer evaluation, Q2
-      answered: each import that differs from the others in any
-      characteristic gets its own evaluation on its own goal; imports
-      that agree on every characteristic may share one, §2.4. ItemShape's
-      EXPRESSION -> FIELD match cell becomes a real per-consumer step
-      here. Since B2, an allowlisted MIRRORED export resolves only as a legal
-      match; this task gives each consumer its own geometry/precision,
-      §2.4. Also address ungridded dims: B3-UngriddedDims gives
-      EXPRESSION no UNGRIDDED_DIMS entry, so an EXPRESSION export
-      silently matches a FIELD import that declares ungridded dims;
-      owner accepted this until this task. Known starting point: the
-      connect hook reports "no registered extension provider" for
-      EXPRESSION mismatches)
+- [ ] 3.12 B3-Expression (new kind; mechanical half of the owner's split).
+      Add the Expression characteristic and give the EXPRESSION factory
+      applicability per design §4.3 (every FIELD kind except
+      STANDARD_NAME, from the declaration; units by the Field rule, Q3).
+      Evaluation is unchanged (still `run_expression_hook`). Also closes
+      the ungridded-dims gap: B3-UngriddedDims gave EXPRESSION no
+      UNGRIDDED_DIMS entry, so an EXPRESSION export silently matches a
+      FIELD import that declares ungridded dims (owner accepted this
+      until this task). The units rule for inputs (no conversion to the
+      expression's units, Q3) is 3.23, not this task.
+- [ ] 3.23 B3-ExpressionPerConsumer (after 3.12). Build the per-consumer
+      evaluation per design §2.4: a dedicated expression path in the
+      connection code chosen by item type (like wildcard imports); inputs
+      converted to the evaluation's geometry, vertical grid and precision
+      in their own units; result carries the declared characteristics,
+      then ordinary chains to each consumer; evaluation at the
+      consumer's precision; no `vertical_dim_spec` takes the consumer's
+      stagger; consumers that agree on geometry, vertical grid and
+      precision share one evaluation; the export is a placeholder (never
+      evaluated, never in a state; ACCEPT_TRANSFER only checks the names
+      exist); an expression referring to another expression is reported
+      unsupported. Tests: a ready scenario whose consumers differ in
+      precision/units (B: R4; C: R8 in cm; expect two evaluations, C sees
+      300 cm) and a `check_graph` expression entry.
+      `expression_defer_geom` stays pending until C1. Known starting
+      point: the connect hook reports "no registered extension provider"
+      for EXPRESSION mismatches.
+- [ ] 3.24 B3-ExpressionNativeGrid (optimization, after 3.23; owner
+      request). If all inputs share one geometry (or vertical grid),
+      evaluate on that native grid and transform only the result to each
+      consumer.
+- [ ] 3.25 B3-InternalNoMirror (design Q13; owner: "very important to
+      settle this correctly"). An INTERNAL item never has any mirror
+      property. Reject explicit mirror requests on INTERNAL in both A21
+      checks (generalize "non-EXPRESSION export" to "any intent but
+      IMPORT, except an EXPRESSION export"), and find every default that
+      yields mirror for an internal (legacy `make_GeomAspect` /
+      `make_VerticalGridAspect` start at MIRRORED; check whether an
+      EXPRESSION can be INTERNAL). Report each such default to the owner
+      before changing it: a mirror default on an internal means the
+      rules are inconsistent.
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the

@@ -544,7 +544,11 @@ mirror flags on exports in `make_VariableSpec`), MirrorGeneric (A21 as one
 generic rule: no mirror of any kind on a non-EXPRESSION export), DimsZLegacy (A22: legacy
 `GeomAspect` skips the geom comparison for two `dims: z` items),
 IncompatiblePair (A23: `BUILD_TRANSFORM_INCOMPATIBLE`, reported as a
-connection conflict). Run order: tasks.md §3 header.
+connection conflict), ExpressionPerConsumer (split from Expression: the
+per-consumer evaluation, design.md §2.4, Q2/Q3), ExpressionNativeGrid
+(later optimization: evaluate on the inputs' shared native grid),
+InternalNoMirror (design.md Q13: an INTERNAL item never has a mirror
+property). Run order: tasks.md §3 header.
 - Later cleanup, not a current task (owner): one "Declared by" keyword per
   characteristic, one mirror mechanism (sentinels instead of
   `mirror_geom`/`mirror_vgrid`), and renaming ItemShape and
@@ -1159,7 +1163,10 @@ it may author D1/A4/B5 with sonnet review.
 | B3-VerticalStagger | sonnet | opus | DEFERRED/harvest; fixture risk |
 | B3-VerticalOrientation | sonnet | opus | resolve against grid without comparing it |
 | B3-HorizontalDimsSpec | sonnet | opus | changes when Geometry is compared |
-| B3-Expression | opus | gemini/gpt-sol | Q2 answered (per-consumer evaluation, design.md §2.4) |
+| B3-Expression | opus | gemini/gpt-sol | mechanical: Expression kind, factory applicability (design.md §4.3, Q3) |
+| B3-ExpressionPerConsumer | opus | gemini/gpt-sol | per-consumer evaluation in the connection code (design.md §2.4) |
+| B3-ExpressionNativeGrid | sonnet | opus | optimization, after B3-ExpressionPerConsumer |
+| B3-InternalNoMirror | sonnet | opus | design.md Q13; reports mirror defaults to the owner before changing them |
 | B3 others | sonnet | sonnet (self-review) | one at a time, after B3-Units lands |
 | B4 | sonnet | opus | materialization regressions likely |
 | B5 | sonnet (haiku?) | sonnet if haiku | |
