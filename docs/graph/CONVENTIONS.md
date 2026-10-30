@@ -123,7 +123,7 @@ Info.
   StandardName, because it fails the test: legacy permissive
   `ValidationMode` (the default) connects a mismatch with a warning and the
   export's name wins; only strict mode rejects it. Its graph behavior
-  awaits a graph validation-mode decision. Incompatible also raises
+  is task B3-StandardNameValidation. Incompatible also raises
   nothing and leaves `transformer` unallocated. `ExtensionResolution`
   returns it through `conflict`, naming the kind and both
   `get_signature()` values, and `GraphBuilder` collects it in

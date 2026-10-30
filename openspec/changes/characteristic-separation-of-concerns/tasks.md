@@ -53,8 +53,8 @@ nothing for that kind, except the §6.3 materialization references
 the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
-Remaining order (owner): 3.25, 3.26, 3.12, 3.23, 3.14
-(3.12/3.23: Q2, Q3 answered; 3.24 later).
+Remaining order (owner): 3.25, 3.26, 3.27, 3.12, 3.23, 3.14
+(3.12/3.23: Q2, Q3 answered; 3.24 later; 3.27 before B4).
 3.7, 3.10, 3.11, 3.13, 3.20, 3.21 and 3.22 are done.
 Numbers are labels, not run order. A task whose characteristic adds a
 mirror value adds its spelling to `VariableSpec%requests_mirror()`; the
@@ -283,7 +283,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `StandardNameAspect%matches` connects two different names with a
       warning in the default PERMISSIVE `ValidationMode` (the export's name
       wins) and rejects them only in STRICT mode. It stays
-      `BUILD_TRANSFORM_UNSUPPORTED` until a graph validation-mode decision.
+      `BUILD_TRANSFORM_UNSUPPORTED` until 3.27 B3-StandardNameValidation.
       Five small edits (one `report_build_transform_incompatible` call
       each); there is no shared base implementation, since the rule is a
       property of the legacy aspect and a base default would make every
@@ -459,6 +459,20 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       4. One owner decision session; each accepted correction becomes its
          own small task. The matrix likely replaces or extends design
          §5.1 as a stable doc (decided at the session).
+- [ ] 3.27 B3-StandardNameValidation (owner, after 3.22; decision may be
+      taken in 3.26's session; must land before B4). Legacy
+      `StandardNameAspect%matches` consults the field-dictionary
+      `ValidationMode`: STRICT rejects two different specified names;
+      PERMISSIVE (the default, `FieldDictionaryConfig.F90`) connects with a
+      warning and the export's name wins. The graph has no validation mode
+      and never connects such a pair (StandardName is
+      `BUILD_TRANSFORM_UNSUPPORTED`). Decide and implement the graph
+      behavior (permissive: match with a warning, export's name wins;
+      strict: INCOMPATIBLE), reading the mode without making the graph
+      depend on StateRegistry. This is also the "graph validation mode"
+      design §4.3 defers (standard name across BRACKET -> FIELD). Related:
+      the owner's "system-wide setting for enforcing standard_name for
+      Fields". Design-bearing (opus author; owner settles the design).
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the

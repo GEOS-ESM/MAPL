@@ -422,8 +422,8 @@ NONE (`dims: z`, no horizontal dimensions). It was part of
   left it out): legacy `StandardNameAspect%matches` connects two different
   names with a warning in the default PERMISSIVE `ValidationMode` (the
   export's name wins) and rejects them only in STRICT mode, so it fails the
-  "legacy rejects every mismatch" test. Its graph behavior awaits a graph
-  validation-mode decision.
+  "legacy rejects every mismatch" test. Its graph behavior is task
+  B3-StandardNameValidation (tasks.md 3.27).
 - Not reproduced from the legacy aspect: the warning when only one side
   declares a name, and the `ValidationMode` strict/permissive severity
   (they were already absent from the characteristic). Field-dictionary

@@ -561,7 +561,8 @@ per-consumer evaluation, design.md §2.4, Q2/Q3), ExpressionNativeGrid
 (later optimization: evaluate on the inputs' shared native grid),
 InternalNoMirror (design.md Q13: an INTERNAL item never has a mirror
 property), RulesReview (review of all default, connection and intent
-rules; tasks.md 3.26). Run order: tasks.md §3 header.
+rules; tasks.md 3.26), StandardNameValidation (graph validation mode for
+standard_name mismatches; tasks.md 3.27). Run order: tasks.md §3 header.
 - Later cleanup, not a current task (owner): one "Declared by" keyword per
   characteristic, one mirror mechanism (sentinels instead of
   `mirror_geom`/`mirror_vgrid`), and renaming ItemShape and
@@ -579,7 +580,10 @@ rules; tasks.md 3.26). Run order: tasks.md §3 header.
   gap by design (tasks.md 4.2); probably easier with graph machinery than
   with StateRegistry. To analyze: ESMF data sharing, readers of alias ids
   (`RestartHandler`, History), extension chains, bundles, cost per import,
-  coexistence with legacy. Related owner question: should import and
+  coexistence with legacy. Also (owner, after 3.22): an import that is its
+  own field could keep its own standard_name where legacy permissive mode
+  makes "the export's name win", turning the 3.27 mismatch question into
+  per-item metadata rather than a connection failure. Related owner question: should import and
   export be allowed to differ in names and restart mode at all (History
   use cases)? Can fold into B3-RulesReview's decision session.
 Run one at a time after B2 (direct commits; no parallel agents). Produce `docs/graph/adding-a-characteristic.md`
@@ -768,7 +772,7 @@ in the first one; later ones refine it.
   `StandardNameAspect%matches` connects two different names with a warning
   in the default PERMISSIVE `ValidationMode` (the export's name wins) and
   rejects them only in STRICT mode. It stays `BUILD_TRANSFORM_UNSUPPORTED`
-  until a graph validation-mode decision. Five small edits, no shared base
+  until B3-StandardNameValidation (tasks.md 3.27). Five small edits, no shared base
   default (a default would make future kinds incompatible by accident).
   Tests: five `..._reports_incompatible` in
   `Test_StateItemCharacteristicSubclasses` (StandardName still asserts
@@ -1325,6 +1329,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-ExpressionNativeGrid | sonnet | opus | optimization, after B3-ExpressionPerConsumer |
 | B3-InternalNoMirror | sonnet | opus | design.md Q13; reports mirror defaults to the owner before changing them |
 | B3-RulesReview | opus | gemini/gpt-sol | read-only; report and proposals, no code; then owner session |
+| B3-StandardNameValidation | opus | sonnet | design-bearing; owner settles the design (possibly in B3-RulesReview's session) |
 | B3 others | sonnet | sonnet (self-review) | one at a time, after B3-Units lands |
 | B4 | sonnet | opus | materialization regressions likely |
 | B5 | sonnet (haiku?) | sonnet if haiku | |
