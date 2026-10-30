@@ -1165,6 +1165,19 @@ it runs goes in a follow-up commit with the same trailer. Label
   dictionary (as an alias)" (`VariableSpec.F90` alias lookup; the lookup
   is correct). Add the entries to the scenario field dictionary, keyed as
   looked up; ask the owner if qualified vs. bare key is unclear.
+- A4 leftovers (found by 3.10; comment-only): source comments cite
+  `REQ-CHAR-0xx` IDs that do not exist in `openspec/specs/` (e.g.
+  `GeometryCharacteristic.F90`, `CharacteristicStatus.F90`): map each to
+  a real ID or delete it. Characteristic module headers still cite
+  "merge-characteristic-families task ..." and "(extension-reuse change
+  design.md ...)"; `graph/tests/Test_StateItemCharacteristicSubclasses.pf`'s
+  header cites `openspec/changes/` paths. Remove them (AGENTS.md "Source
+  comments").
+- `infrastructure/field/FieldInfo.F90:~305` (`FieldInfoGetInternal`):
+  reading conservation asserts the key exists, while quantity-type and
+  normalization reads fall back to a mirror object. Make the three
+  consistent; ask the owner which behavior is right (missing key = error,
+  or = mirror) if it is not obvious from the callers.
 - **Status:** not started
 
 ### Phase E - closing

@@ -417,7 +417,14 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
          DEFERRED vs UNCHECKED for undeclared values; per-intent
          fallbacks (LongName); shape-specific exemptions (EXPRESSION);
          rules in the graph but not legacy or the reverse; rules found
-         late (Q13, expression export-only).
+         late (Q13, expression export-only); value wildcards that match
+         anything (QUANTITY_UNKNOWN, BASIS_NONE): should "matches
+         anything" also mean "adopt the export's value"? Legacy
+         `QuantityTypeAspect%connect_to_export` copies the export's
+         quantity type and basis onto the import unconditionally; the
+         graph compares and does not copy, so an undeclared import stays
+         UNKNOWN. Owner (after 3.10): fairly certain the legacy rule is
+         incorrect.
       3. The owner's rules list (kept by the owner outside the repo; meta
          passes it in) is an input: for each rule, list every source or
          legacy behavior that violates it and any use case against it.
@@ -491,6 +498,10 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       alias copies) and an import behind an extension chain (the
       extension field), with a populate-level test for each. Revisit if
       the shared-data item (plan, Later) is adopted.
+      Never run a full `sync_to_info` on an import's alias: an import's
+      default SPECIFIED values (CONSERVE_NONE, NORMALIZE_NONE,
+      QUANTITY_UNKNOWN, ...) would overwrite the export's field-wide keys.
+      Imports write per-alias keys only (design §3.2, §3.5).
 - [x] 4.3 Delete `GraphStateItem%ordering` and
       `characteristic_ordering_table`; replace their tests with golden
       `get_extension_order` tests per shape. Done in B3-ItemShape.
