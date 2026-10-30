@@ -30,14 +30,16 @@ module Test_GraphBuilder_Advertising
    use mapl_StateItem_mod, only: MAPL_STATEITEM_STATE
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
    use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
-   use mapl_RestartModes_mod, only: RestartMode, RESTART_SKIP, operator(==)
+   use mapl_RestartModes_mod, only: RestartMode, RESTART_REQUIRED, RESTART_SKIP, operator(==)
+   use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
    ! openspec/changes/phase-12-characteristic-dispatch-wiring, tasks.md
    ! Section 6: direct coverage of populate_characteristics's six
    ! newly-wired axes.
    use mapl_StateItemCharacteristicKind_mod, only: ATTRIBUTES_CHARACTERISTIC_KIND, &
         UNGRIDDED_DIMS_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, &
         QUANTITY_TYPE_CHARACTERISTIC_KIND, CONSERVATION_CHARACTERISTIC_KIND, &
-        NORMALIZATION_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND
+        NORMALIZATION_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND, &
+        RESTART_MODE_CHARACTERISTIC_KIND
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
    use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
@@ -563,6 +565,7 @@ contains
       call descriptor%get_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, found, _RC)
       @assertTrue(found%get_status() == CHARACTERISTIC_STATUS_UNCHECKED)
       @assertTrue(descriptor%has_characteristic(LONG_NAME_CHARACTERISTIC_KIND))
+      @assertTrue(descriptor%has_characteristic(RESTART_MODE_CHARACTERISTIC_KIND))
       @assertTrue(descriptor%has_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND))
       @assert_that(descriptor%has_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND), is(true()))
       @assert_that(descriptor%has_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND), is(true()))
@@ -598,12 +601,9 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_attributes_characteristic_asymmetric_comparison
 
-   ! openspec/changes/phase-13-restart-compatibility (docs/graph/spec/
-   ! 20-implementation-roadmap.md sec 20.4.13): verify that advertise_one
-   ! captures VariableSpec%restart_mode into the StateItemNode's own
-   ! StateItemDescriptor at advertise time, so populate_one
-   ! (GraphBuilder_StatePopulation_smod.F90) can read it back when
-   ! creating the real ESMF alias.
+   ! advertise_one captures VariableSpec%restart_mode as the item's
+   ! RESTART_MODE characteristic, which populate_one writes onto the real
+   ! MAPL_NamedAlias; an undeclared mode is SPECIFIED RESTART_REQUIRED.
    @test(npes=[0])
    subroutine test_restart_mode_captured_at_advertise_time(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -616,31 +616,29 @@ contains
       type(NodeId), pointer :: node_id
       class(GraphNode), pointer :: node
       type(StateItemDescriptor), pointer :: descriptor
-      type(VariableSpec) :: var_skip
-      type(RestartMode), allocatable :: captured_mode
+      type(VariableSpec) :: var_skip, var_default
       integer :: status
 
       call make_outer_meta('comp_restart_mode', outer_gc, outer_meta, rc=status)
       @assertEqual(0, status)
 
-      ! VariableSpec with restart_mode=RESTART_SKIP - set directly as
-      ! populate_characteristics's own caller does (plain field assignment,
-      ! the same shape as callback_interface_id/state_item_variant in the
-      ! existing tests - no make_VariableSpec keyword for restart_mode yet,
-      ! per Phase 8's own "YAML-unreachable" note in the roadmap).
+      ! No make_VariableSpec keyword for restart_mode: set the component
+      ! directly.
       var_skip = make_var(ESMF_STATEINTENT_EXPORT, 'T_SKIP')
       var_skip%restart_mode = RESTART_SKIP
+      var_default = make_var(ESMF_STATEINTENT_EXPORT, 'T_DEFAULT')
 
       comp_spec => outer_meta%get_component_spec()
       call comp_spec%add_var_spec(var_skip)
+      call comp_spec%add_var_spec(var_default)
 
       call gb%run_advertise_hook(outer_meta)
       status = 0
 
       graph => outer_meta%get_component_graph()
+
       node_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T_SKIP'))
       @assert_that('T_SKIP node exists', associated(node_id), is(true()))
-
       node => graph%get_node(node_id)
       select type (node)
       class is (StateItemNode)
@@ -648,12 +646,39 @@ contains
       class default
          @assert_that('T_SKIP node is a StateItemNode', .false., is(true()))
       end select
+      @assertTrue(restart_mode_of(descriptor) == RESTART_SKIP, 'declared restart_mode is RESTART_SKIP')
 
-      call descriptor%get_declared_restart_mode(captured_mode)
-      @assert_that('restart_mode captured at advertise time', allocated(captured_mode), is(true()))
-      @assertTrue(captured_mode == RESTART_SKIP, 'captured restart_mode is RESTART_SKIP')
+      node_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T_DEFAULT'))
+      @assert_that('T_DEFAULT node exists', associated(node_id), is(true()))
+      node => graph%get_node(node_id)
+      select type (node)
+      class is (StateItemNode)
+         descriptor => node%get_descriptor()
+      class default
+         @assert_that('T_DEFAULT node is a StateItemNode', .false., is(true()))
+      end select
+      @assertTrue(restart_mode_of(descriptor) == RESTART_REQUIRED, 'undeclared restart_mode is RESTART_REQUIRED')
 
       _UNUSED_DUMMY(this)
    end subroutine test_restart_mode_captured_at_advertise_time
+
+   function restart_mode_of(descriptor) result(mode)
+      type(StateItemDescriptor), intent(in) :: descriptor
+      type(RestartMode) :: mode
+
+      class(StateItemCharacteristic), allocatable :: found
+      integer :: status
+
+      mode = RESTART_REQUIRED
+      @assertTrue(descriptor%has_characteristic(RESTART_MODE_CHARACTERISTIC_KIND))
+      call descriptor%get_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, found, rc=status)
+      @assertEqual(0, status)
+      select type (found)
+      type is (RestartModeCharacteristic)
+         mode = found%get_restart_mode()
+      class default
+         @assertTrue(.false., 'RESTART_MODE entry is a RestartModeCharacteristic')
+      end select
+   end function restart_mode_of
 
 end module Test_GraphBuilder_Advertising

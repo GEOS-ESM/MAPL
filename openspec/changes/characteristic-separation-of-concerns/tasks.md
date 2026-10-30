@@ -53,7 +53,7 @@ nothing for that kind, except the §6.3 materialization references
 the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
-Remaining order (owner): 3.11, 3.10, 3.22, 3.25, 3.12, 3.23, 3.14
+Remaining order (owner): 3.10, 3.22, 3.25, 3.12, 3.23, 3.14
 (3.12/3.23: Q2, Q3 answered; 3.24 later).
 3.7, 3.13, 3.20 and 3.21 are done.
 Numbers are labels, not run order. A task whose characteristic adds a
@@ -323,7 +323,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `QUANTITY_UNKNOWN`, and "unknown matches anything" (and `BASIS_NONE`
       matching any basis) stays a value rule in the subclass; say in
       adding-a-characteristic.md that such value wildcards are not status.
-- [ ] 3.11 B3-RestartMode (new kind). Default `RESTART_REQUIRED`, never
+- [x] 3.11 B3-RestartMode (new kind). Default `RESTART_REQUIRED`, never
       compared, no transform (A15). `write_info` writes the item's own
       alias, so imports sharing an export keep their own modes.
       Preflight answers (owner):
@@ -342,6 +342,16 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       - INTERNAL items are not populated by the graph yet; not in this
         task (gap until B4; say so in the commit message).
       - No `restart_mode` YAML key; unit tests only.
+      Done: `RestartModeCharacteristic` (kind 16, FIELD only), factory 13,
+      `is_per_alias()` (true for RestartMode and LongName),
+      `StateItemDescriptor%sync_per_alias_to_info`, `populate_one` calls it
+      with the alias wrapped in a `GraphStateItem`; `declared_restart_mode`
+      and its advertise block are gone. LongName is now written from
+      `populate_one` (an UNCHECKED import alias writes nothing, so it
+      reads `unknown` under graph-only until B4 writes the owning field's
+      slot; a declared one is written; a bundle is never written per alias, because its
+      long_name is bundle-wide). INTERNAL items stay unpopulated (gap
+      until B4). Design §3.4/§3.5/§5.1/§6.1 amended.
 - [ ] 3.12 B3-Expression (new kind; mechanical half of the owner's split).
       Add the Expression characteristic and give the EXPRESSION factory
       applicability per design §4.3 (every FIELD kind except
@@ -401,14 +411,14 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       - The StandardName fallback (A8's third step) applies to every
         intent except IMPORT (export, internal); legacy has no such
         fallback, a deliberate difference. An import with no declared
-        long_name stays UNCHECKED and inherits the export's, as in legacy.
-      - No per-alias wiring here: 3.11 adds `is_per_alias()` and the
-        `populate_one` call. LongName returns true from `is_per_alias()`
-        if 3.11 has landed; otherwise 3.11 sets it. Until then LongName is
-        unit-tested only; say so in the commit message.
+        long_name stays UNCHECKED and writes nothing (legacy: inherits the
+        export's via `connect_to_export`; graph path: gap until B4 (4.2)).
+      - No per-alias wiring here: 3.11 added `is_per_alias()` and the
+        `populate_one` call, and sets LongName's flag.
       Done: `LongNameCharacteristic` (kind 15, FIELD and EXPRESSION only),
-      factory 12, `long_name_mirror`, YAML test. No per-alias wiring yet;
-      3.11 adds `is_per_alias()` and sets LongName's flag.
+      factory 12, `long_name_mirror`, YAML test. Per-alias wiring landed
+      with 3.11, which added `is_per_alias()` (true for LongName) and the
+      `populate_one` call.
 - [ ] 3.14 B3-SetShared: retarget `set_shared_characteristic` to mutate
       the descriptor (§7.3); check and report whether import-side
       geometry changes (History samplers) are handled. Since B1 it

@@ -16,7 +16,8 @@ module Test_VariableSpecCharacteristics
         VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, &
         ATTRIBUTES_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
         VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
-        HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND
+        HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND, &
+        RESTART_MODE_CHARACTERISTIC_KIND
    use mapl_StateItemCharacteristicKind_mod, only: &
         ITEM_SHAPE => ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
@@ -28,6 +29,8 @@ module Test_VariableSpecCharacteristics
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic, UNKNOWN_STANDARD_NAME
    use mapl_LongNameCharacteristic_mod, only: LongNameCharacteristic
+   use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
+   use mapl_RestartModes_mod, only: RestartMode, RESTART_REQUIRED, RESTART_SKIP, operator(==)
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
    use gFTL2_StringVector, only: StringVector
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
@@ -44,7 +47,7 @@ module Test_VariableSpecCharacteristics
         VCOORD_DIRECTION_DOWN, operator(==)
    use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE, &
         VERTICAL_STAGGER_MIRROR, VERTICAL_STAGGER_INVALID
-   use esmf, only: ESMF_StateItem_Flag, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_INTERNAL, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_I4
+   use esmf, only: ESMF_StateItem_Flag, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_INTERNAL, ESMF_StateIntent_Flag, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_I4
    use esmf, only: operator(==)
    implicit none(type, external)
 
@@ -675,7 +678,7 @@ contains
       @assertEqual(0, status)
    end subroutine test_export_long_name_without_standard_name_is_unchecked
 
-   ! An import never falls back; it inherits the export's long_name.
+   ! An import never falls back; with no long_name it is UNCHECKED.
    @test
    subroutine test_import_long_name_does_not_fall_back()
       type(VariableSpec) :: var_spec
@@ -1788,6 +1791,98 @@ contains
          end select
       end do
    end subroutine test_every_shape_gets_specified_item_shape
+
+   function restart_mode_status(var_spec, mode, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      type(RestartMode), intent(out) :: mode
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, c, _RC)
+      char_status = c%get_status()
+      select type (c)
+      class is (RestartModeCharacteristic)
+         mode = c%get_restart_mode()
+      class default
+         status = 1
+         _VERIFY(status)
+      end select
+      _RETURN(_SUCCESS)
+   end function restart_mode_status
+
+   @test
+   subroutine test_declared_restart_mode_is_specified()
+      type(VariableSpec) :: var_spec
+      type(RestartMode) :: mode
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%restart_mode = RESTART_SKIP
+      char_status = restart_mode_status(var_spec, mode, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(mode == RESTART_SKIP)
+   end subroutine test_declared_restart_mode_is_specified
+
+   ! An undeclared mode is SPECIFIED RESTART_REQUIRED on every intent (the
+   ! exporter's mode is never adopted), so it is always written.
+   @test
+   subroutine test_undeclared_restart_mode_is_required()
+      type(VariableSpec) :: var_spec
+      type(RestartMode) :: mode
+      integer :: status, i
+      type(CharacteristicStatus) :: char_status
+      type(ESMF_StateIntent_Flag) :: intents(3)
+
+      intents = [ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_INTERNAL]
+      do i = 1, size(intents)
+         var_spec = make_spec(MAPL_STATEITEM_FIELD)
+         var_spec%state_intent = intents(i)
+         char_status = restart_mode_status(var_spec, mode, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+         @assertTrue(mode == RESTART_REQUIRED)
+      end do
+   end subroutine test_undeclared_restart_mode_is_required
+
+   ! Legacy passes restart_mode to FieldClassAspect only.
+   @test
+   subroutine test_shapes_without_restart_mode_get_no_entry()
+      type(ESMF_StateItem_Flag) :: shapes(11)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, &
+           MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, &
+           MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN, &
+           MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
+      do i = 1, size(shapes)
+         descriptor = empty_descriptor
+         var_spec = make_spec(shapes(i))
+         var_spec%restart_mode = RESTART_SKIP
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(RESTART_MODE_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_shapes_without_restart_mode_get_no_entry
+
+   ! make_VariableSpec has no restart_mode keyword and never mirrors it.
+   @test
+   subroutine test_restart_mode_is_not_a_mirror_request()
+      type(VariableSpec) :: var_spec
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%restart_mode = RESTART_SKIP
+      @assertFalse(var_spec%requests_mirror())
+   end subroutine test_restart_mode_is_not_a_mirror_request
 
    ! A declared variant is carried in the signature.
    @test

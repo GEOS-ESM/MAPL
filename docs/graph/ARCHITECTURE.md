@@ -99,11 +99,11 @@ Info writes: `StateItemDescriptor%sync_to_info(handle, phase)` calls
 each SPECIFIED/UNCHECKED characteristic's `write_info` (phases
 `SYNC_PHASE_STRUCTURAL`/`SYNC_PHASE_DESCRIPTIVE`; `is_structural()`
 kinds are skipped in DESCRIPTIVE). The base `write_info` fails; only
-`PhysicalUnits`, `TypeKind`, `UngriddedDims`, `Geometry`, `VerticalGrid`, `VerticalStagger`, `VerticalOrientation`, `HorizontalDimsSpec`, `StandardName`, `LongName`, `ItemShape` and `Attributes` (a no-op: no Info key) override it so far, and no production path calls
-`sync_to_info` yet (materialization adopts it in B4). Factories live in
+`PhysicalUnits`, `TypeKind`, `UngriddedDims`, `Geometry`, `VerticalGrid`, `VerticalStagger`, `VerticalOrientation`, `HorizontalDimsSpec`, `StandardName`, `LongName`, `RestartMode`, `ItemShape` and `Attributes` (a no-op: no Info key) override it so far. Only `populate_one` calls into it, through `StateItemDescriptor%sync_per_alias_to_info` (entries whose `is_per_alias()` is true: `RestartMode`, `LongName`); no production path calls
+`sync_to_info` yet (materialization adopts it in B4). Known gap until B4: an import with no declared `long_name` writes nothing, so under graph-only its alias reads `unknown` (legacy inherits the export's via `connect_to_export`). Factories live in
 `specs/VariableSpec/make_characteristics.F90`: the type-bound
 `VariableSpec%make_characteristics` loops over a registry of per-kind
-factories (so far units, typekind, ungridded dims, geometry, vertical grid, vertical stagger, vertical orientation, horizontal dims spec, standard name, attributes, item shape and long name). Procedure: `docs/graph/adding-a-characteristic.md`.
+factories (so far units, typekind, ungridded dims, geometry, vertical grid, vertical stagger, vertical orientation, horizontal dims spec, standard name, attributes, item shape, long name and restart mode). Procedure: `docs/graph/adding-a-characteristic.md`.
 
 | Characteristic | Kind constant | `build_transform` today |
 |---|---|---|
@@ -117,6 +117,7 @@ factories (so far units, typekind, ungridded dims, geometry, vertical grid, vert
 | `HorizontalDimsSpec` | `HORIZONTAL_DIMS_SPEC_…` | Incompatible — GEOM vs NONE is detected in both directions and can never connect |
 | `Attributes`, `UngriddedDims`, `StandardName`, `QuantityType`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | Unsupported — mismatch is detected, repair is a stub |
 | `LongName` | `LONG_NAME_…` | Never compared (`needs_extension_for` is always false); `build_transform` is the unsupported stub |
+| `RestartMode` | `RESTART_MODE_…` | Never compared; `build_transform` is the unsupported stub. FIELD only; per-alias |
 
 Other files: `CharacteristicStatus.F90`, `StateItemCharacteristicKind.F90`
 (also `MOCK_CHARACTERISTIC_KIND`), `SetSharedCharacteristic.F90`.
@@ -370,9 +371,10 @@ Primary records are under `openspec/changes/archive/`; read the relevant
   Conservation, Normalization) wired into `populate_characteristics`
   alongside Units, TypeKind, and VerticalGrid; ItemShape was
   added by 7a.
-- **Restart compatibility** (phase 13): `declared_restart_mode` is
-  captured at advertise and written to ESMF Info by `populate_one`,
-  mirroring `FieldClassAspect%add_to_state`.
+- **Restart compatibility** (phase 13): the item's `RESTART_MODE`
+  characteristic is built at advertise and written to ESMF Info on the
+  alias by `populate_one` (through `sync_per_alias_to_info`), mirroring
+  `FieldClassAspect%add_to_state`.
 
 ## 6. Roadmap pointer
 

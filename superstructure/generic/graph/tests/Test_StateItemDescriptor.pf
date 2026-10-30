@@ -8,7 +8,8 @@ module Test_StateItemDescriptor
         QUANTITY_TYPE_CHARACTERISTIC_KIND, VERTICAL_GRID_CHARACTERISTIC_KIND, &
         STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
         VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
-        HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND
+        HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND, &
+        RESTART_MODE_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED, CharacteristicStatus, operator(==)
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
@@ -20,6 +21,8 @@ module Test_StateItemDescriptor
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic, UNKNOWN_STANDARD_NAME
    use mapl_LongNameCharacteristic_mod, only: LongNameCharacteristic
+   use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
+   use mapl_RestartModes_mod, only: RestartMode, RESTART_REQUIRED, RESTART_SKIP, operator(==)
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
    use gFTL2_StringVector, only: StringVector
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
@@ -485,6 +488,207 @@ contains
       @assertEqual(0, status)
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
    end subroutine test_sync_attributes_succeeds
+
+   ! --- RestartMode ---
+
+   @test
+   subroutine test_sync_writes_specified_restart_mode_in_both_phases()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, &
+           RestartModeCharacteristic(RESTART_SKIP))
+      @assertTrue(RESTART_SKIP == synced_restart_mode(item, SYNC_PHASE_STRUCTURAL))
+      @assertTrue(RESTART_SKIP == synced_restart_mode(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_writes_specified_restart_mode_in_both_phases
+
+   ! The seeded SKIP is overwritten by the SPECIFIED default: an undeclared
+   ! mode is always written.
+   @test
+   subroutine test_sync_writes_default_restart_mode()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, &
+           RestartModeCharacteristic(RESTART_REQUIRED))
+      @assertTrue(RESTART_REQUIRED == synced_restart_mode(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_writes_default_restart_mode
+
+   @test
+   subroutine test_sync_skips_mirrored_and_invalid_restart_mode()
+      type(StateItemDescriptor) :: item
+      type(RestartModeCharacteristic) :: mirrored, invalid
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, mirrored)
+      @assertTrue(RESTART_SKIP == synced_restart_mode(item, SYNC_PHASE_DESCRIPTIVE))
+      call item%set_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, invalid)
+      @assertTrue(RESTART_SKIP == synced_restart_mode(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_skips_mirrored_and_invalid_restart_mode
+
+   ! Only a Field carries a restart mode: the bundle setter has no keyword.
+   @test
+   subroutine test_sync_restart_mode_fails_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+
+      call item%set_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, &
+           RestartModeCharacteristic(RESTART_SKIP))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertTrue(status /= 0)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_restart_mode_fails_on_bundle
+
+   ! --- per-alias sync ---
+
+   ! An import alias writes its own restart_mode and long_name, and leaves
+   ! the field-wide keys (here standard_name, units) of the exporter alone.
+   @test
+   subroutine test_per_alias_sync_writes_only_per_alias_entries()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      character(:), allocatable :: long_name, standard_name
+      type(RestartMode) :: mode
+      integer :: status
+
+      call item%set_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, &
+           RestartModeCharacteristic(RESTART_REQUIRED))
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, &
+           LongNameCharacteristic('Import Name'))
+      call item%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, &
+           StandardNameCharacteristic('import_standard_name'))
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, long_name='seed', standard_name='export_standard_name', &
+           restart_mode=RESTART_SKIP, rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+
+      call item%sync_per_alias_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, long_name=long_name, standard_name=standard_name, &
+           restart_mode=mode, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('Import Name', long_name)
+      @assertEqual('export_standard_name', standard_name)
+      @assertTrue(RESTART_REQUIRED == mode)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_per_alias_sync_writes_only_per_alias_entries
+
+   ! An UNCHECKED standard_name would write '<unknown>' field-wide in a full
+   ! sync; the per-alias sync does not touch it, and an UNCHECKED long_name
+   ! writes nothing, so both values are unchanged.
+   @test
+   subroutine test_per_alias_sync_writes_nothing_for_unchecked()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(LongNameCharacteristic) :: long_name_unchecked
+      type(StandardNameCharacteristic) :: standard_name_unchecked
+      character(:), allocatable :: long_name, standard_name
+      integer :: status
+
+      call long_name_unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call standard_name_unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, long_name_unchecked)
+      call item%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, standard_name_unchecked)
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, long_name='Seed Name', standard_name='seed_standard_name', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+
+      call item%sync_per_alias_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, long_name=long_name, standard_name=standard_name, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('Seed Name', long_name)
+      @assertEqual('seed_standard_name', standard_name)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_per_alias_sync_writes_nothing_for_unchecked
+
+   ! Another kind without a write_info (QuantityType) does not stop the
+   ! per-alias sync, because only per-alias entries are visited.
+   @test
+   subroutine test_per_alias_sync_skips_kinds_without_write_info()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      character(:), allocatable :: long_name
+      integer :: status
+
+      call item%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, QuantityTypeCharacteristic())
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, LongNameCharacteristic('Name'))
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_per_alias_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, long_name=long_name, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('Name', long_name)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_per_alias_sync_skips_kinds_without_write_info
+
+   ! A bundle's long_name is bundle-wide (not per-alias), and the bundle
+   ! setter has no restart_mode, so the per-alias sync leaves a bundle alone.
+   @test
+   subroutine test_per_alias_sync_leaves_bundle_alone()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      character(:), allocatable :: long_name
+      integer :: status
+
+      call item%set_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, &
+           RestartModeCharacteristic(RESTART_SKIP))
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, LongNameCharacteristic('Import Name'))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(bundle, long_name='Export Name', rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_per_alias_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, long_name=long_name, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('Export Name', long_name)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_per_alias_sync_leaves_bundle_alone
+
+   ! The field starts with restart_mode SKIP, so a skipped write reads it back.
+   function synced_restart_mode(item, phase) result(mode)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(RestartMode) :: mode
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, restart_mode=RESTART_SKIP, rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, restart_mode=mode, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_restart_mode
 
    ! The field starts with long_name 'seed'; a skipped write reads it back.
    function synced_long_name(item, phase) result(long_name)

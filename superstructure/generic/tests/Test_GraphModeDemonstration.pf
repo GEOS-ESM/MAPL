@@ -379,8 +379,8 @@ contains
    ! under GRAPH_MODE_GRAPH.
    !
    ! Uses the plain_field fixture (T export/import, no restart_mode in
-   ! YAML -> allocatable not set -> FieldInfoSetInternal never called ->
-   ! FieldInfoGetInternal returns the default RESTART_REQUIRED). Under
+   ! YAML -> the RESTART_MODE characteristic defaults to RESTART_REQUIRED
+   ! and is written onto the alias). Under
    ! GRAPH_MODE_GRAPH the field is graph-materialized (not by legacy
    ! FieldClassAspect%add_to_state), so this test confirms the default
    ! path works without regression. Exit criterion per roadmap: a real
@@ -450,11 +450,10 @@ contains
 
       ! get_restart_bundle with is_write=.false. applies
       ! predicate_skip_restart_ which reads RestartMode metadata via
-      ! FieldInfoGetInternal. T has no restart_mode declared in YAML so
-      ! declared_restart_mode is not allocated, FieldInfoSetInternal is
-      ! never called, and FieldInfoGetInternal returns the default
-      ! RESTART_REQUIRED - so T is NOT filtered out. Bundle count must
-      ! be 1 (T present, not skipped).
+      ! FieldInfoGetInternal. T has no restart_mode declared in YAML, so its
+      ! RESTART_MODE characteristic is the SPECIFIED default RESTART_REQUIRED,
+      ! which populate_one writes onto the alias - T is NOT filtered out.
+      ! Bundle count must be 1 (T present, not skipped).
       call get_restart_bundle(dst_own_import_state, is_write=.false., &
            bundle=restart_bundle, _RC)
       call ESMF_FieldBundleGet(restart_bundle, fieldCount=bundle_count, _RC)

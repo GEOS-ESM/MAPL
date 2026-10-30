@@ -109,6 +109,7 @@ module mapl_StateItemCharacteristic_mod
       procedure :: set_status => char_set_status
       procedure :: write_info => char_write_info
       procedure :: is_structural => char_is_structural
+      procedure :: is_per_alias => char_is_per_alias
       procedure :: resolve_deferred => char_resolve_deferred
       procedure :: drop_if_unsupplied => char_drop_if_unsupplied
    end type StateItemCharacteristic
@@ -286,6 +287,16 @@ contains
       structural = .false.
       _UNUSED_DUMMY(this)
    end function char_is_structural
+
+   ! A per-alias characteristic is stored under the item's own alias, not
+   ! field-wide, so an import that aliases another item's field can write it
+   ! without touching the exporter's value.
+   logical function char_is_per_alias(this) result(per_alias)
+      class(StateItemCharacteristic), intent(in) :: this
+
+      per_alias = .false.
+      _UNUSED_DUMMY(this)
+   end function char_is_per_alias
 
    ! Takes the component-supplied value for a DEFERRED characteristic.
    ! Kinds with no component-supplied value are never DEFERRED, so the

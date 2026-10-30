@@ -36,6 +36,7 @@ module mapl_LongNameCharacteristic_mod
       procedure :: build_transform => long_name_build_transform
       procedure :: get_signature => long_name_get_signature
       procedure :: write_info => long_name_write_info
+      procedure :: is_per_alias => long_name_is_per_alias
       procedure :: get_long_name
    end type LongNameCharacteristic
 
@@ -120,6 +121,14 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine long_name_write_info
+
+   ! A Field's long_name is stored under its own alias.
+   logical function long_name_is_per_alias(this) result(per_alias)
+      class(LongNameCharacteristic), intent(in) :: this
+
+      _UNUSED_DUMMY(this)
+      per_alias = .true.
+   end function long_name_is_per_alias
 
    function long_name_get_signature(this) result(signature)
       class(LongNameCharacteristic), intent(in) :: this

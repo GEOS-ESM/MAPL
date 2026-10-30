@@ -6,7 +6,7 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
         VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND, &
         VERTICAL_STAGGER_CHARACTERISTIC_KIND, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
         HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
-        ITEM_SHAPE_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND
+        ITEM_SHAPE_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND, RESTART_MODE_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED, operator(==)
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
@@ -14,6 +14,8 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic, UNKNOWN_STANDARD_NAME
    use mapl_LongNameCharacteristic_mod, only: LongNameCharacteristic
+   use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
+   use mapl_RestartModes_mod, only: RESTART_REQUIRED
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
    use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_NONE, operator(==)
@@ -57,7 +59,7 @@ contains
 
       integer :: status
       integer :: i
-      type(Factory) :: factories(12)
+      type(Factory) :: factories(13)
 
       factories(1)%make => make_units_characteristic
       factories(2)%make => make_typekind_characteristic
@@ -71,6 +73,7 @@ contains
       factories(10)%make => make_horizontal_dims_spec_characteristic
       factories(11)%make => make_item_shape_characteristic
       factories(12)%make => make_long_name_characteristic
+      factories(13)%make => make_restart_mode_characteristic
 
       do i = 1, size(factories)
          call factories(i)%make(this, descriptor, _RC)
@@ -480,7 +483,7 @@ contains
    ! empty one, is SPECIFIED; the field dictionary has already filled it in
    ! make_VariableSpec. Any intent but IMPORT (export, internal) that declares
    ! none takes its standard_name value; legacy has no such fallback. Anything
-   ! else is UNCHECKED and writes nothing, so an import inherits the export's.
+   ! else is UNCHECKED and writes nothing.
    subroutine make_long_name_characteristic(spec, descriptor, rc)
       class(VariableSpec), intent(in) :: spec
       type(StateItemDescriptor), intent(inout) :: descriptor
@@ -516,6 +519,31 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_long_name_characteristic
+
+   ! Only FIELD carries a restart mode (legacy passes restart_mode to
+   ! FieldClassAspect only). An undeclared mode is SPECIFIED RESTART_REQUIRED
+   ! and always written; the exporter's mode is never adopted.
+   subroutine make_restart_mode_characteristic(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(RestartModeCharacteristic) :: restart_mode
+
+      _RETURN_UNLESS(spec%itemType == MAPL_STATEITEM_FIELD)
+
+      if (allocated(spec%restart_mode)) then
+         restart_mode = RestartModeCharacteristic(spec%restart_mode)
+      else
+         restart_mode = RestartModeCharacteristic(RESTART_REQUIRED)
+      end if
+
+      call descriptor%set_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, &
+           restart_mode, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_restart_mode_characteristic
 
    ! Shapes that carry a horizontal dims spec: field-carrying, but not
    ! EXPRESSION.

@@ -28,7 +28,8 @@ module Test_StateItemCharacteristicSubclasses
                                                     VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
                                                     VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
         HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
-        LONG_NAME_CHARACTERISTIC_KIND
+        LONG_NAME_CHARACTERISTIC_KIND, &
+        RESTART_MODE_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
    use mapl_TransformBase_mod, only: TransformBase
 
@@ -50,6 +51,8 @@ module Test_StateItemCharacteristicSubclasses
    use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
    use mapl_LongNameCharacteristic_mod, only: LongNameCharacteristic
+   use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
+   use mapl_RestartModes_mod, only: RestartMode, RESTART_REQUIRED, RESTART_SKIP, operator(==)
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
@@ -577,6 +580,70 @@ contains
       @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
       @assertFalse(allocated(transformer))
    end subroutine test_long_name_build_transform_reports_unsupported
+
+   ! --- RestartModeCharacteristic (never compared) ---
+
+   @test
+   subroutine test_restart_mode_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=RestartModeCharacteristic(RESTART_SKIP))
+      @assertTrue(v%get_kind() == RESTART_MODE_CHARACTERISTIC_KIND)
+   end subroutine test_restart_mode_is_a_value_characteristic
+
+   @test
+   subroutine test_restart_mode_never_needs_extension()
+      type(RestartModeCharacteristic) :: a, b
+
+      a = RestartModeCharacteristic(RESTART_REQUIRED)
+      b = RestartModeCharacteristic(RESTART_SKIP)
+
+      @assertFalse(a%needs_extension_for(b))
+      @assertFalse(b%needs_extension_for(a))
+   end subroutine test_restart_mode_never_needs_extension
+
+   @test
+   subroutine test_restart_mode_signature_and_unvalued_accessor()
+      type(RestartModeCharacteristic) :: a, unvalued
+
+      a = RestartModeCharacteristic(RESTART_SKIP)
+      @assertEqual('restart_mode=1', a%get_signature())
+      @assertTrue(a%get_restart_mode() == RESTART_SKIP)
+      @assertTrue(unvalued%get_restart_mode() == RESTART_REQUIRED)
+      @assertEqual('restart_mode=0', unvalued%get_signature())
+   end subroutine test_restart_mode_signature_and_unvalued_accessor
+
+   @test
+   subroutine test_restart_mode_build_transform_reports_unsupported()
+      type(RestartModeCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = RestartModeCharacteristic(RESTART_REQUIRED)
+      b = RestartModeCharacteristic(RESTART_SKIP)
+      call a%build_transform(b, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_restart_mode_build_transform_reports_unsupported
+
+   ! Only the two characteristics stored under the item's own alias are
+   ! per-alias; the base default is field-wide.
+   @test
+   subroutine test_is_per_alias()
+      type(RestartModeCharacteristic) :: restart_mode
+      type(LongNameCharacteristic) :: long_name
+      type(StandardNameCharacteristic) :: standard_name
+      type(PhysicalUnitsCharacteristic) :: units
+
+      restart_mode = RestartModeCharacteristic(RESTART_SKIP)
+      long_name = LongNameCharacteristic('x')
+      standard_name = StandardNameCharacteristic('x')
+      units = PhysicalUnitsCharacteristic('K')
+      @assertTrue(restart_mode%is_per_alias())
+      @assertTrue(long_name%is_per_alias())
+      @assertFalse(standard_name%is_per_alias())
+      @assertFalse(units%is_per_alias())
+   end subroutine test_is_per_alias
 
    ! --- build_transform reports BUILD_TRANSFORM_UNSUPPORTED for the six
    ! provider-less subclasses ---

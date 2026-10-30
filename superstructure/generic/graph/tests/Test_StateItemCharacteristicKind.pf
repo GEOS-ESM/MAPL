@@ -15,7 +15,7 @@ module Test_StateItemCharacteristicKind
                                                     NORMALIZATION_CHARACTERISTIC_KIND, &
                                                     STANDARD_NAME_CHARACTERISTIC_KIND, &
                                                     VERTICAL_STAGGER_CHARACTERISTIC_KIND, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
-        LONG_NAME_CHARACTERISTIC_KIND, &
+        LONG_NAME_CHARACTERISTIC_KIND, RESTART_MODE_CHARACTERISTIC_KIND, &
                                                     INVALID_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), operator(/=), &
                                              CHARACTERISTIC_STATUS_INVALID, &
@@ -72,6 +72,8 @@ contains
       @assertTrue(LONG_NAME_CHARACTERISTIC_KIND /= &
            STANDARD_NAME_CHARACTERISTIC_KIND)
       @assertTrue(LONG_NAME_CHARACTERISTIC_KIND /= INVALID_CHARACTERISTIC_KIND)
+      @assertTrue(RESTART_MODE_CHARACTERISTIC_KIND /= LONG_NAME_CHARACTERISTIC_KIND)
+      @assertTrue(RESTART_MODE_CHARACTERISTIC_KIND /= INVALID_CHARACTERISTIC_KIND)
    end subroutine test_new_kind_constants_are_stable_and_distinct
 
    @test
@@ -86,6 +88,7 @@ contains
       @assertEqual('VERTICAL_STAGGER', VERTICAL_STAGGER_CHARACTERISTIC_KIND%to_string())
       @assertEqual('VERTICAL_ORIENTATION', VERTICAL_ORIENTATION_CHARACTERISTIC_KIND%to_string())
       @assertEqual('LONG_NAME', LONG_NAME_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('RESTART_MODE', RESTART_MODE_CHARACTERISTIC_KIND%to_string())
    end subroutine test_new_kind_to_string
 
    ! design.md D1: the type's own default field initializer (0) is the

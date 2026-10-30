@@ -26,7 +26,6 @@ module mapl_StateItemDescriptor_mod
         ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION
-   use mapl_RestartModes_mod, only: RestartMode
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -64,7 +63,6 @@ module mapl_StateItemDescriptor_mod
       type(StateItemCharacteristicMap) :: characteristics
       ! Optional or defaulted values: "not declared" is meaningful.
       type(ESMF_StateItem_Flag) :: declared_item_type = ESMF_STATEITEM_FIELD
-      type(RestartMode), allocatable :: declared_restart_mode
       character(:), allocatable :: declared_expression
    contains
       procedure :: has_characteristic => descriptor_has_characteristic
@@ -76,10 +74,9 @@ module mapl_StateItemDescriptor_mod
       procedure :: resolve_deferred => descriptor_resolve_deferred
       procedure :: drop_unsupplied => descriptor_drop_unsupplied
       procedure :: sync_to_info => descriptor_sync_to_info
+      procedure :: sync_per_alias_to_info => descriptor_sync_per_alias_to_info
       procedure :: get_declared_item_type => descriptor_get_declared_item_type
       procedure :: set_declared_item_type => descriptor_set_declared_item_type
-      procedure :: get_declared_restart_mode => descriptor_get_declared_restart_mode
-      procedure :: set_declared_restart_mode => descriptor_set_declared_restart_mode
       procedure :: get_declared_expression => descriptor_get_declared_expression
       procedure :: set_declared_expression => descriptor_set_declared_expression
    end type StateItemDescriptor
@@ -524,6 +521,40 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+
+      call sync_entries(this, handle, phase, per_alias_only=.false., _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine descriptor_sync_to_info
+
+   ! Writes only the per-alias entries (is_per_alias()) onto an alias handle.
+   ! A field-wide key written through an alias would overwrite the field's
+   ! owner (an import's UNCHECKED standard_name over the export's). Only a
+   ! Field alias carries per-alias metadata, so any other handle is left alone.
+   subroutine descriptor_sync_per_alias_to_info(this, handle, phase, rc)
+      class(StateItemDescriptor), target, intent(in) :: this
+      type(GraphStateItem), intent(inout) :: handle
+      integer, intent(in) :: phase
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_StateItem_Flag) :: item_type
+
+      item_type = handle%itemType(_RC)
+      _RETURN_UNLESS(item_type == ESMF_STATEITEM_FIELD)
+      call sync_entries(this, handle, phase, per_alias_only=.true., _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine descriptor_sync_per_alias_to_info
+
+   subroutine sync_entries(this, handle, phase, per_alias_only, rc)
+      class(StateItemDescriptor), target, intent(in) :: this
+      type(GraphStateItem), intent(inout) :: handle
+      integer, intent(in) :: phase
+      logical, intent(in) :: per_alias_only
+      integer, optional, intent(out) :: rc
+
+      integer :: status
       type(StateItemCharacteristicMapIterator) :: iter
       class(StateItemCharacteristic), pointer :: c
       type(CharacteristicStatus) :: s
@@ -538,14 +569,15 @@ contains
             s = c%get_status()
             if (.not. (s == CHARACTERISTIC_STATUS_SPECIFIED .or. s == CHARACTERISTIC_STATUS_UNCHECKED)) cycle
             if (phase == SYNC_PHASE_DESCRIPTIVE .and. c%is_structural()) cycle
+            if (per_alias_only .and. .not. c%is_per_alias()) cycle
             call c%write_info(handle, phase, _RC)
          end do
       end associate
 
       _RETURN(_SUCCESS)
-   end subroutine descriptor_sync_to_info
+   end subroutine sync_entries
 
-   ! -- declared item type / restart mode / expression --
+   ! -- declared item type / expression --
 
    function descriptor_get_declared_item_type(this) result(item_type)
       class(StateItemDescriptor), intent(in) :: this
@@ -560,21 +592,6 @@ contains
 
       this%declared_item_type = item_type
    end subroutine descriptor_set_declared_item_type
-
-   subroutine descriptor_get_declared_restart_mode(this, restart_mode)
-      class(StateItemDescriptor), intent(in) :: this
-      type(RestartMode), allocatable, intent(out) :: restart_mode
-
-      if (allocated(this%declared_restart_mode)) restart_mode = this%declared_restart_mode
-   end subroutine descriptor_get_declared_restart_mode
-
-   subroutine descriptor_set_declared_restart_mode(this, restart_mode)
-      class(StateItemDescriptor), intent(inout) :: this
-      type(RestartMode), intent(in) :: restart_mode
-
-      if (allocated(this%declared_restart_mode)) deallocate(this%declared_restart_mode)
-      allocate(this%declared_restart_mode, source=restart_mode)
-   end subroutine descriptor_set_declared_restart_mode
 
    subroutine descriptor_get_declared_expression(this, expression)
       class(StateItemDescriptor), intent(in) :: this

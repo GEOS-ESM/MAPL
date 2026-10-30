@@ -10,7 +10,8 @@ descriptor-side duplicate removed; StandardName (`B3-StandardName`) is the
 worked example for deleting a subclass's own status check; Attributes
 (`B3-Attributes`) is the worked example for a kind with no Info key; LongName
 (`B3-LongName`) is the worked example for a never-compared kind with a
-default chain. Later
+default chain; RestartMode (`B3-RestartMode`) is the worked example for a
+per-alias kind written by `populate_one`. Later
 B3 tasks refine this file.
 
 Design authority: `openspec/changes/characteristic-separation-of-concerns/design.md`
@@ -66,6 +67,12 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
      field. Override `is_structural()` to return `.true.` for creation
      inputs (Geometry, VerticalGrid, VerticalStagger, TypeKind,
      UngriddedDims); `sync_to_info` skips them in DESCRIPTIVE.
+   - Override `is_per_alias()` to return `.true.` only for a key that
+     `MAPL_FieldSet` stores under the item's own `MAPL_NamedAlias` id
+     (`restart_mode`, a Field's `long_name`). `populate_one` writes just
+     those through `StateItemDescriptor%sync_per_alias_to_info`; the
+     field-wide keys belong to the exporting item and must not be
+     rewritten through an import's alias.
    - A descriptive characteristic whose keyword is a `FieldSet`
      FieldDelta trigger (`geom`, `vgrid`, `typekind`, `num_levels`,
      `units`) must also return early unless the phase is STRUCTURAL.
@@ -449,15 +456,21 @@ a step for it.
   StandardName value. The last step applies to every intent except IMPORT
   (export and internal); legacy has no standard-name fallback, so this is
   a deliberate difference. An import with no `long_name` stays UNCHECKED
-  and takes the export's through the generic UNCHECKED rule, as legacy
-  `connect_to_export` (`mirror_name`) does. A mirrored `standard_name` is unallocated in the spec, so it does not
-  count as declared. A mirrored `long_name` never falls back.
+  and writes nothing. Legacy inherits the export's value there through
+  `connect_to_export` (`mirror_name`); the graph path does not yet (known
+  gap, see below). A mirrored `standard_name` is unallocated in the spec,
+  so it does not count as declared. A mirrored `long_name` never falls back.
 - Legacy absent-means-mirror: an import with no `long_name` inherits the
   export's value in `FieldClassAspect%connect_to_export` (`mirror_name`).
   The graph reproduces it as UNCHECKED, not MIRRORED: an UNCHECKED import
-  stays valueless and writes nothing, so the field keeps the export's
-  long_name. The exception is an import that declares its own `long_name`:
-  that import is SPECIFIED and keeps its value (legacy: dst wins), and so
+  stays valueless and writes nothing. (Known gap until B4: `populate_one`
+  creates the import alias with `MAPL_NamedAlias`, which copies the raw
+  field's own long_name slot, and nothing writes that slot in the graph path
+  yet, because the export's value is written on the export's alias only.
+  So an undeclared import reads `unknown` under graph-only, where legacy
+  supplies the export's through `connect_to_export`. B4 materialization
+  `sync_to_info` on the owning field closes it.) The exception is an
+  import that declares its own `long_name`: that import is SPECIFIED and keeps its value (legacy: dst wins), and so
   does the graph.
 - Mirror: `make_VariableSpec` strips `MAPL_STRING_MIRROR` into
   `long_name_mirror`, so no legacy reader sees the string;
@@ -467,11 +480,60 @@ a step for it.
   `MAPL_FieldBundleSet` in both phases (not structural). `MAPL_FieldSet`
   stores a field's long_name under the field's own alias; a bundle's is
   bundle-wide (id 0). UNCHECKED writes nothing (design §3.3).
-- Not wired yet: `populate_one` does not call `sync_to_info`, and
-  `is_per_alias()` does not exist. B3-RestartMode adds both and sets
-  LongName's flag. Until then LongName is covered by unit tests only.
+- Per-alias: `is_per_alias()` returns true (added by B3-RestartMode), so
+  `populate_one` writes it through `sync_per_alias_to_info` (see
+  "RestartMode as implemented"). An UNCHECKED import alias writes nothing and
+  keeps whatever `MAPL_NamedAlias` copied from the field (see the gap
+  above). A bundle's long_name is bundle-wide (id 0), so a bundle is never written per alias;
+  `populate_one` handles Field items only, and `sync_per_alias_to_info`
+  ignores any other handle.
 - `parse_var_specs` already reads `standard_name` and `long_name`; the YAML
   test covers `"<mirror>"` for both.
+
+## RestartMode as implemented
+
+A never-compared, per-alias kind. `needs_extension_for` is always false and
+`build_transform` is the unsupported stub (design A15).
+
+| Input (`VariableSpec%restart_mode`) | Shape | Entry |
+|---|---|---|
+| allocated | FIELD | SPECIFIED with the mode |
+| unallocated, on any intent | FIELD | SPECIFIED `RESTART_REQUIRED` |
+| any | every other flag, including EXPRESSION | none |
+
+- Kind `RESTART_MODE_CHARACTERISTIC_KIND` (16), display `RESTART_MODE`;
+  factory 13 (`make_restart_mode_characteristic`). Legacy passes
+  `restart_mode` only to `FieldClassAspect`, so FIELD only. (Design §4.3
+  lists RestartMode in the EXPRESSION row for B3-Expression; that is a
+  later task.)
+- Legacy absent-means-mirror: none. An absent mode is `RESTART_REQUIRED`
+  (`FieldInfoGetInternal`), and the graph makes that default explicit.
+- The source field's mode is never used: every item, import or export, gets
+  REQUIRED unless it declares its own. Imports sharing an export may
+  differ; each writes its own alias, and the last restart phase wins
+  (accepted, A15). There is no `restart_mode` YAML key.
+- Because an undeclared mode is SPECIFIED, it is always written. **Known
+  limitation:** a mode set directly with `MAPL_FieldSet(restart_mode=)` on a
+  field whose spec declares none is overwritten with `RESTART_REQUIRED` when
+  the item is populated. No repo code does that; declare the mode on the
+  spec instead.
+- `write_info` writes `restart_mode=` through `MAPL_FieldSet` in both
+  phases (not structural; not a FieldDelta trigger). It fails on any handle
+  but a Field: the bundle setter has no `restart_mode`.
+- **Per-alias writes.** `StateItemCharacteristic%is_per_alias()` defaults to
+  false; RestartMode and LongName return true.
+  `StateItemDescriptor%sync_per_alias_to_info(handle, phase)` runs
+  `write_info` only for per-alias entries (SPECIFIED or UNCHECKED), and only
+  for a Field handle. `populate_one` creates the `MAPL_NamedAlias`, wraps it
+  in a `GraphStateItem`, and calls it with `item_id`'s own descriptor.
+  `GraphBuilder` names no kind. A full `sync_to_info` is not used there:
+  QuantityType, Conservation and Normalization still have the failing base
+  `write_info`, and an import's UNCHECKED standard_name would overwrite
+  the export's field-wide name.
+- `StateItemDescriptor` no longer has `declared_restart_mode` or its
+  accessors; the advertise block that captured it is gone.
+- INTERNAL items are not populated by the graph yet, so their restart mode
+  and long_name are not written (gap until B4).
 
 ## Attributes as implemented
 

@@ -92,6 +92,7 @@ target_sources(MAPL.generic PRIVATE
   characteristics/AttributesCharacteristic.F90
   characteristics/StandardNameCharacteristic.F90
   characteristics/LongNameCharacteristic.F90
+  characteristics/RestartModeCharacteristic.F90
   characteristics/ItemShapeCharacteristic.F90
 
   callback/CallbackArgumentSpec.F90

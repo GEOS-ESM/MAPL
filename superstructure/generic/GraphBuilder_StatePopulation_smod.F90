@@ -6,8 +6,7 @@
 submodule (mapl_GraphBuilder_mod) GraphBuilder_StatePopulation_smod
    use esmf, only: ESMF_State, ESMF_StateAddReplace, ESMF_STATEITEM_FIELD, operator(==)
    use mapl_FieldNamedAlias_mod, only: MAPL_NamedAlias
-   use mapl_field_api, only: MAPL_FieldSet
-   use mapl_RestartModes_mod, only: RestartMode
+   use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_DESCRIPTIVE
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_GRAPH
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
@@ -126,7 +125,7 @@ contains
       type(ESMF_Field) :: field
       type(ESMF_Field) :: alias
       type(ESMF_State) :: state
-      type(RestartMode), allocatable :: restart_mode
+      type(GraphStateItem) :: alias_handle
 
       if (.not. associated(id_ptr)) then
          _RETURN(_SUCCESS)
@@ -155,14 +154,12 @@ contains
       alias = MAPL_NamedAlias(field, name=short_name, _RC)
       call ESMF_StateAddReplace(state, [alias], _RC)
 
-      ! restart_mode is per-endpoint metadata keyed by this alias's id, as
-      ! in legacy FieldClassAspect%add_to_state. Read it from item_id's
-      ! own payload, not field_node_id's: each declared item keeps its own
-      ! restart_mode regardless of which field backs it.
-      call get_declared_restart_mode(graph, item_id, restart_mode)
-      if (allocated(restart_mode)) then
-         call MAPL_FieldSet(alias, restart_mode=restart_mode, _RC)
-      end if
+      ! Per-alias keys (restart_mode, long_name) come from item_id's own
+      ! descriptor, not field_node_id's: each declared item keeps its own
+      ! values regardless of which field backs it. Field-wide keys belong to
+      ! the exporting item and are not touched here.
+      call alias_handle%set(alias, _RC)
+      call sync_alias_info(graph, item_id, short_name, alias_handle, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine populate_one
@@ -200,25 +197,32 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_field_if_materialized
 
-   ! Reads node_id's declared restart_mode (set at advertise time by
-   ! populate_characteristics), if any. Private to this submodule.
-   subroutine get_declared_restart_mode(graph, node_id, restart_mode)
+   ! Writes node_id's per-alias characteristics onto the alias handle.
+   ! Private to this submodule.
+   subroutine sync_alias_info(graph, node_id, short_name, alias_handle, rc)
       type(ComponentGraph), target, intent(in) :: graph
       type(NodeId), intent(in) :: node_id
-      type(RestartMode), allocatable, intent(out) :: restart_mode
+      character(*), intent(in) :: short_name
+      type(GraphStateItem), intent(inout) :: alias_handle
+      integer, optional, intent(out) :: rc
 
+      integer :: status
       class(GraphNode), pointer :: node
       type(StateItemDescriptor), pointer :: descriptor
 
       node => graph%get_node(node_id)
-      if (.not. associated(node)) return
+      _ASSERT(associated(node), 'GraphBuilder: sync_alias_info - NodeId not found in graph: ' // short_name)
 
       select type (node)
       class is (StateItemNode)
          descriptor => node%get_descriptor()
-         call descriptor%get_declared_restart_mode(restart_mode)
+         call descriptor%sync_per_alias_to_info(alias_handle, SYNC_PHASE_DESCRIPTIVE, _RC)
+      class default
+         _FAIL('GraphBuilder: sync_alias_info - NodeId does not refer to a StateItemNode: ' // short_name)
       end select
-   end subroutine get_declared_restart_mode
+
+      _RETURN(_SUCCESS)
+   end subroutine sync_alias_info
 
    ! Walks predecessor edges from start_id, one hop at a time, until a
    ! node whose payload is a real Field is reached. Takes the FIRST

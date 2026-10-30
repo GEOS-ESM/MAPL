@@ -566,7 +566,7 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair and B3-LongName done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName and B3-RestartMode done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
@@ -575,7 +575,31 @@ in the first one; later ones refine it.
   `Plan-Task: B3-HorizontalDimsSpec`, `Plan-Task: B3-StringMirror`,
   `Plan-Task: B3-MirrorFlagGuard`, `Plan-Task: B3-MirrorGeneric`,
   `Plan-Task: B3-DimsZLegacy`, `Plan-Task: B3-IncompatiblePair`,
-  `Plan-Task: B3-LongName`); others not started.
+  `Plan-Task: B3-LongName`, `Plan-Task: B3-RestartMode`); others not started.
+  B3-RestartMode (tasks.md 3.11, done): see adding-a-characteristic.md
+  "RestartMode as implemented". New kind `RESTART_MODE_CHARACTERISTIC_KIND`
+  (16) and `RestartModeCharacteristic` (never compared; `build_transform`
+  unsupported; `write_info` writes `restart_mode=` through `MAPL_FieldSet`
+  on a Field, any other handle fails). Factory 13: FIELD only; an undeclared
+  mode is SPECIFIED `RESTART_REQUIRED` and always written (a mode set
+  directly with `MAPL_FieldSet` on a spec that declares none is overwritten;
+  documented limitation). Per-alias writes: `StateItemCharacteristic%is_per_alias()`
+  (default false; true for RestartMode and LongName) and
+  `StateItemDescriptor%sync_per_alias_to_info` (per-alias entries, Field
+  handles only); `populate_one` calls it in place of its direct
+  `MAPL_FieldSet(restart_mode=)`, so GraphBuilder names no kind. LongName is
+  now written from `populate_one` for the first time: an UNCHECKED import
+  alias writes nothing (it reads `unknown` under graph-only until B4
+  materialization writes the owning field; legacy supplies the export's
+  through `connect_to_export`); a bundle is not
+  per-alias (design §3.4). `declared_restart_mode` and its advertise block
+  are removed. Deviations: none from tasks.md 3.11. Not done (as agreed):
+  INTERNAL items are still not populated by the graph (gap until B4); no
+  `restart_mode` YAML key. Design §4.3's EXPRESSION row already lists
+  RestartMode "when their B3 tasks arrive"; left to B3-Expression (3.12).
+  ESSENTIAL green on NAG and gfortran (65/65). `MAPL.generic.scenarios.pending`
+  on NAG: Tests run: 373, Failures: 114, Errors: 0, the same five scenarios
+  as the known baseline.
   B3-LongName (tasks.md 3.13, done): see adding-a-characteristic.md "LongName
   as implemented". New kind `LONG_NAME_CHARACTERISTIC_KIND` (15) and
   `LongNameCharacteristic` (never compared; `build_transform` unsupported;
@@ -592,9 +616,9 @@ in the first one; later ones refine it.
   so the generic A21 checks reject it on exports. Added the `parse_var_specs`
   YAML test for `standard_name: "<mirror>"` and `long_name: "<mirror>"`.
   Design §3.4/§4.3/§5/§5.1 amended (bundle long_name is bundle-wide; EXPRESSION
-  row gains LONG_NAME). Deviation: none from tasks.md; not wired into
-  `populate_one` (no `is_per_alias()` yet), so LongName is unit-tested only
-  until B3-RestartMode (3.11). ESSENTIAL green on NAG and gfortran (65/65).
+  row gains LONG_NAME). Deviation: none from tasks.md; it landed without
+  `is_per_alias()` and was wired into `populate_one` by B3-RestartMode
+  (3.11). ESSENTIAL green on NAG and gfortran (65/65).
   `MAPL.generic.scenarios.pending` on NAG compared with a clean HEAD
   worktree configured Release like `nag/` (Rule 1, removed afterward): both
   fail 114 of 373 checks in the same five scenarios (`history_1`,

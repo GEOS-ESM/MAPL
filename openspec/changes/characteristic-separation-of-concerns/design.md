@@ -348,7 +348,7 @@ for that shape).
 | QuantityType | `quantity_type_metadata=` | `quantity_type_metadata=` | - | D | Writes only its own key. Legacy also wrote a derived `normalization_metadata`, which `NormalizationAspect` then overwrote (AspectMap order 9 < 11). Owner Q9. |
 | Conservation | `conservation_metadata=` | `conservation_metadata=` | - | D | |
 | Normalization | `normalization_metadata=` | `normalization_metadata=` | - | D | |
-| RestartMode | `restart_mode=` | none | - | D | Per-alias, written on the item's own `MAPL_NamedAlias` (as `populate_one` does today). The bundle setter has no `restart_mode`: add it only when a bundle needs one (none does today). |
+| RestartMode | `restart_mode=` | none | - | D | Per-alias, written on the item's own `MAPL_NamedAlias` by `populate_one` through `sync_per_alias_to_info` (§3.5). An undeclared mode is SPECIFIED `RESTART_REQUIRED` and always written, so a mode set directly with `MAPL_FieldSet` on a field whose spec declares none is overwritten. The bundle setter has no `restart_mode`: add it only when a bundle needs one (none does today). |
 | Expression | none | none | - | - | No Info key in legacy. |
 
 `MAPL_StateSet`: only `state_set_own(state_item_variant=)` is used. The
@@ -364,6 +364,12 @@ this design. It is fixed only if a later task needs it (plan D3).
   (only if the payload already exists; structural kinds are skipped, so
   this is in effect a no-op until the descriptive kinds can be DEFERRED),
   and on alias creation in `populate_one` (per-alias keys only).
+  `populate_one` calls `StateItemDescriptor%sync_per_alias_to_info`, which
+  writes only the entries whose `is_per_alias()` is true (RestartMode,
+  LongName) and only on a Field alias; GraphBuilder names no kind. A full
+  `sync_to_info` on an alias is wrong: it would write field-wide keys
+  (an import's UNCHECKED standard_name over the export's) and fail on kinds
+  whose `write_info` is not implemented yet.
 - Legacy-created payloads (advertised items still materialized by
   `registry%add_to_states`) are not written by the graph. Both writers
   would produce the same keys, but the graph writing them is redundant
@@ -562,7 +568,7 @@ error, A1). It replaces no existing keyword; legacy has none for these.
 | Conservation | `conservation` | `is_mirror`: MIRRORED; else SPECIFIED |
 | Normalization | `normalization` | `is_mirror`: MIRRORED; else SPECIFIED |
 | RestartMode | `restart_mode` | allocated: SPECIFIED; else SPECIFIED `RESTART_REQUIRED` (A15). Never compared (§2.5). |
-| LongName (A8) | `long_name` (field dictionary fills it first); FIELD and EXPRESSION only | string mirror sentinel: MIRRORED, imports only (A13); else allocated (even empty): SPECIFIED; else, on any intent but IMPORT, the StandardName value if declared (not `'<unknown>'`): SPECIFIED; else UNCHECKED (writes nothing). An import with no `long_name` is UNCHECKED and takes the export's. A mirrored `long_name` never falls back. |
+| LongName (A8) | `long_name` (field dictionary fills it first); FIELD and EXPRESSION only | string mirror sentinel: MIRRORED, imports only (A13); else allocated (even empty): SPECIFIED; else, on any intent but IMPORT, the StandardName value if declared (not `'<unknown>'`): SPECIFIED; else UNCHECKED (writes nothing). An import with no `long_name` is UNCHECKED and writes nothing (legacy: inherits the export's via `connect_to_export`; graph path: gap until B4 (4.2)). A mirrored `long_name` never falls back. |
 
 DEFERRED -> SPECIFIED happens through
 `StateItemDescriptor%resolve_deferred(defaults, rc)`, where `defaults` is
@@ -601,7 +607,7 @@ is authoritative for status rules; this table summarizes it.
 | TypeKind | `typekind` | built-in R4 | - | `MAPL_TYPEKIND_MIRROR` | same; a MIRROR side matches anything | landed |
 | PhysicalUnits | `units` | field dictionary | UNCHECKED | none (may adopt the string sentinel later) | UNCHECKED; writes `/$MIRROR$` for mirrored units (no reader) | landed |
 | StandardName | `standard_name` | - | UNCHECKED | string sentinel, imports only (A13) | UNCHECKED | landed |
-| LongName | `long_name` | field dictionary, then StandardName (every intent but IMPORT; legacy has none) | UNCHECKED, writes nothing | string sentinel, imports only (A13) | carried on `FieldClassAspect`, not compared; an import with none inherits the export's | landed |
+| LongName | `long_name` | field dictionary, then StandardName (every intent but IMPORT; legacy has none) | UNCHECKED, writes nothing | string sentinel, imports only (A13) | carried on `FieldClassAspect`, not compared; an import with none inherits the export's (graph path: gap until B4 (4.2)) | landed |
 | UngriddedDims | `ungridded_dims` | built-in: none | - | `is_mirror()` | same | landed |
 | Geometry | `geom`, `geom_id` | component geom, then harvest | freeze fails | `mirror_geom` / `geometry_mirror: true` | item geom, component geom, item id, component id (FROM_COMP); else MIRRORED | landed |
 | HorizontalDimsSpec | `horizontal_dims_spec` / `dims: z` | built-in GEOM | - | `HORIZONTAL_DIMS_MIRROR` (`dims: mirror`), imports only | compared inside `GeomAspect`, together with the geom (a mirror agrees with any spec) | landed |
@@ -612,7 +618,7 @@ is authoritative for status rules; this table summarizes it.
 | QuantityType | `quantity_type` | built-in UNKNOWN | - | - | ignores the declared value: always UNKNOWN (Q9) | design |
 | Conservation | `conservation` | built-in CONSERVE_NONE, not conservable | - | `is_mirror` | ignores the declared value: CONSERVE_NONE | design |
 | Normalization | `normalization` | built-in NORMALIZE_NONE, scale 1 | - | `is_mirror` | ignores the declared value: NORMALIZE_NONE, scale 1 | design |
-| RestartMode (new) | `restart_mode` | built-in `RESTART_REQUIRED` (A15) | - | - | carried on `FieldClassAspect`, not compared | design |
+| RestartMode | `restart_mode` | built-in `RESTART_REQUIRED` (A15); the exporter's mode is never adopted | - | - | carried on `FieldClassAspect`, not compared; absent is `RESTART_REQUIRED` | landed |
 | Expression (new) | `expression` | - | - | - | n/a (EXPRESSION shape only) | design |
 
 "State": landed = implemented by its B3 task; design = rule in §5, not
@@ -640,7 +646,7 @@ NONE -> GEOM by replication across the horizontal points (A14).
 | `declared_geom` | `_PortsAndProxies_smod%resolve_export_geom` | `Geometry` item-level (B3-Geometry). DEFERRED replaces the "read component geom live" fallback. |
 | `declared_vertical_grid` | `_PortsAndProxies_smod` | `VerticalGrid` (landed as VerticalCoordinate in B3-VerticalCoordinate, M2; renamed by B3-RenameVerticalGrid); the characteristic holds the `VerticalGrid` object |
 | `declared_item_type` | `_ConnectionResolution_smod` (WILDCARD / FIELD / BRACKET gates) | `ItemShape` widened to all shapes (B3-ItemShape). The gates become `descriptor%shape()` queries on the ItemShape value, through a generic accessor that returns the `MAPL_StateItem_Flag` (no concrete type named in GraphBuilder). |
-| `declared_restart_mode` | `_StatePopulation_smod%populate_one` | `RestartMode` (new, B3-RestartMode); populate_one calls `sync_to_info(alias, DESCRIPTIVE)` |
+| `declared_restart_mode` | `_StatePopulation_smod%populate_one` | `RestartMode` (new, B3-RestartMode, landed); populate_one calls `sync_per_alias_to_info(alias, DESCRIPTIVE)` (§3.5) |
 | `declared_expression` | `_ConnectionResolution_smod` (expression hook) | `Expression` (new, B3-Expression) |
 
 #### §6.2 `populate_characteristics` blocks
@@ -661,7 +667,7 @@ NONE -> GEOM by replication across the horizontal points (A14).
 | `set_declared_vertical_grid` | | VerticalGrid | |
 | `set_declared_item_type` | | ItemShape | |
 | ITEM_SHAPE for FIELD/BRACKET/VECTOR/VECTORBRACKET only | | ItemShape, all shapes | EXPRESSION->FIELD becomes a real matrix cell (§4.3) |
-| `set_declared_restart_mode` | | RestartMode | new |
+| `set_declared_restart_mode` | | RestartMode | removed (B3-RestartMode) |
 | `set_declared_expression` (EXPRESSION) | | Expression | new |
 
 `populate_characteristics` is then a single call

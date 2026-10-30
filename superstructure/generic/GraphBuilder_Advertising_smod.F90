@@ -155,10 +155,6 @@ contains
       ! DEFERRED resolution.
       call descriptor%set_declared_item_type(var_spec%itemType)
 
-      ! Captured at advertise time; populate_one reads it back when it
-      ! creates the MAPL_NamedAlias.
-      if (allocated(var_spec%restart_mode)) call descriptor%set_declared_restart_mode(var_spec%restart_mode)
-
       ! Captured at advertise time; graphbuilder_run_expression_hook reads
       ! it back.
       if (var_spec%itemType == MAPL_STATEITEM_EXPRESSION .and. allocated(var_spec%expression)) then

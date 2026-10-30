@@ -42,6 +42,8 @@ module mapl_StateItemCharacteristicKind_mod
    public :: HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND
    ! Value 15: long name.
    public :: LONG_NAME_CHARACTERISTIC_KIND
+   ! Value 16: restart mode.
+   public :: RESTART_MODE_CHARACTERISTIC_KIND
    public :: MOCK_CHARACTERISTIC_KIND
 
    type :: StateItemCharacteristicKind
@@ -80,6 +82,10 @@ module mapl_StateItemCharacteristicKind_mod
    ! Value 15: long name (LongNameCharacteristic.F90).
    type(StateItemCharacteristicKind), parameter :: &
         LONG_NAME_CHARACTERISTIC_KIND = StateItemCharacteristicKind(15)
+
+   ! Value 16: restart mode (RestartModeCharacteristic.F90).
+   type(StateItemCharacteristicKind), parameter :: &
+        RESTART_MODE_CHARACTERISTIC_KIND = StateItemCharacteristicKind(16)
 
    ! Test-only, mirrors CharacteristicId.F90's own MOCK_CHARACTERISTIC_ID
    ! precedent - lets a test define a fake StateItemCharacteristic
@@ -135,6 +141,8 @@ contains
          s = "HORIZONTAL_DIMS_SPEC"
       case (LONG_NAME_CHARACTERISTIC_KIND%value)
          s = "LONG_NAME"
+      case (RESTART_MODE_CHARACTERISTIC_KIND%value)
+         s = "RESTART_MODE"
       case (MOCK_CHARACTERISTIC_KIND%value)
          s = "MOCK"
       case default

@@ -47,6 +47,8 @@ module Test_GraphBuilderMaterializeGate
    use mapl_ChildSpec_mod, only: ChildSpec
    use mapl_ComponentSpec_mod, only: ComponentSpec
    use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_RestartModes_mod, only: RestartMode, RESTART_REQUIRED, RESTART_SKIP, operator(==)
+   use mapl_field_api, only: MAPL_FieldGet, MAPL_FieldSet
    use mapl_ConnectionPt_mod, only: ConnectionPt
    use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
    use mapl_MatchConnection_mod, only: MatchConnection
@@ -728,6 +730,192 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_populate_state_reaches_each_childs_own_state
+
+   ! populate_one writes each alias's own per-alias keys (restart_mode,
+   ! long_name) from its own item's descriptor.
+   ! S: the export declares RESTART_SKIP, so its alias reads SKIP (the raw
+   ! field's slot is still REQUIRED, so only a real write gets there).
+   ! T: the raw field's own slot is set to SKIP before populate_state, so a
+   ! no-op write would leave every alias of it at SKIP. The export declares
+   ! RESTART_REQUIRED and the import declares nothing; both read REQUIRED
+   ! only because populate_one writes it (imports sharing an export keep
+   ! their own modes, not the exporter's).
+   ! U: the import declares its own long_name and the export declares none,
+   ! so the import's alias carries the import's.
+   ! W: an export with a standard_name and no long_name gets
+   ! long_name = standard_name on its alias.
+   ! Not asserted: an UNCHECKED import inheriting the export's long_name. The
+   ! export's value is written on the export's alias only, and the import's
+   ! MAPL_NamedAlias copies the raw field's own slot, so the import reads
+   ! 'unknown' under the graph path (gap until B4).
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_state_writes_per_alias_keys(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(VariableSpec) :: spec
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: parent_import_state, parent_export_state
+      type(ESMF_State) :: src_export_state, dst_import_state
+      type(MultiState) :: parent_multi_state, src_states, dst_states
+      type(GriddedComponentDriver), pointer :: src_own_driver, dst_own_driver
+      type(ESMF_Field) :: field, raw_field
+      type(ComponentGraph), pointer :: src_graph
+      type(NodeId), pointer :: t_export_id
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: export_payload
+      type(RestartMode) :: mode
+      character(:), allocatable :: long_name
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+
+      call make_outer_meta('comp_parent_per_alias', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      dst_spec => dst_meta%get_component_spec()
+
+      spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
+      spec%geom = geom
+      spec%restart_mode = RESTART_REQUIRED
+      spec%long_name = 'Export T'
+      call src_spec%add_var_spec(spec)
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T', units='m'))
+
+      spec = make_var(ESMF_STATEINTENT_EXPORT, 'S', units='m')
+      spec%geom = geom
+      spec%restart_mode = RESTART_SKIP
+      call src_spec%add_var_spec(spec)
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'S', units='m'))
+
+      spec = make_var(ESMF_STATEINTENT_EXPORT, 'U', units='m')
+      spec%geom = geom
+      call src_spec%add_var_spec(spec)
+      spec = make_var(ESMF_STATEINTENT_IMPORT, 'U', units='m')
+      spec%long_name = 'Import U'
+      call dst_spec%add_var_spec(spec)
+
+      spec = make_var(ESMF_STATEINTENT_EXPORT, 'W', units='m')
+      spec%geom = geom
+      spec%standard_name = 'air_temperature'
+      call src_spec%add_var_spec(spec)
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'W', units='m'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+
+      ! Put SKIP in T's raw field slot, which MAPL_NamedAlias copies onto
+      ! every alias it creates.
+      src_graph => src_meta%get_component_graph()
+      t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      @assert_that(associated(t_export_id), is(true()))
+      node => src_graph%get_node(t_export_id)
+      select type (node)
+      class is (StateItemNode)
+         export_payload = node%get_payload()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      raw_field = export_payload%get_field(rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(raw_field, restart_mode=RESTART_SKIP, rc=status)
+      @assertEqual(0, status)
+
+      parent_import_state = ESMF_StateCreate(name='import', rc=status)
+      @assertEqual(0, status)
+      parent_export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      parent_multi_state = MultiState(importState=parent_import_state, exportState=parent_export_state)
+
+      call gb%populate_state(parent_meta, parent_multi_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assert_that(status, is(0))
+
+      src_own_driver => src_meta%get_user_gc_driver()
+      src_states = src_own_driver%get_states()
+      src_export_state = src_states%exportState
+      dst_own_driver => dst_meta%get_user_gc_driver()
+      dst_states = dst_own_driver%get_states()
+      dst_import_state = dst_states%importState
+
+      ! A declared SKIP reaches the export's alias.
+      call ESMF_StateGet(src_export_state, 'S', field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, restart_mode=mode, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(mode == RESTART_SKIP)
+
+      ! The export's alias reads its declared mode and long_name, over the
+      ! raw field's SKIP.
+      call ESMF_StateGet(src_export_state, 'T', field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, restart_mode=mode, long_name=long_name, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(mode == RESTART_REQUIRED)
+      @assertEqual('Export T', long_name)
+
+      ! The import of the same field keeps its own mode: REQUIRED, not the
+      ! raw field's SKIP.
+      call ESMF_StateGet(dst_import_state, 'T', field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, restart_mode=mode, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(mode == RESTART_REQUIRED)
+
+      ! An import that declares a long_name carries it on its own alias.
+      call ESMF_StateGet(dst_import_state, 'U', field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, long_name=long_name, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('Import U', long_name)
+
+      ! The export's long_name falls back to its standard_name.
+      call ESMF_StateGet(src_export_state, 'W', field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, long_name=long_name, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('air_temperature', long_name)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_populate_state_writes_per_alias_keys
 
    ! openspec/changes/phase-10a-state-materialization, spec "Graph mode
    ! governs whether population touches the real state": in both
