@@ -53,8 +53,8 @@ nothing for that kind, except the §6.3 materialization references
 the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
-Remaining order (owner): 3.11, 3.10, 3.22, 3.12, 3.23, 3.14
-(3.12/3.23: Q2, Q3 answered; 3.24 later, 3.25 to be scheduled).
+Remaining order (owner): 3.11, 3.10, 3.22, 3.25, 3.12, 3.23, 3.14
+(3.12/3.23: Q2, Q3 answered; 3.24 later).
 3.7, 3.13, 3.20 and 3.21 are done.
 Numbers are labels, not run order. A task whose characteristic adds a
 mirror value adds its spelling to `VariableSpec%requests_mirror()`; the
@@ -379,8 +379,10 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       checks (generalize "non-EXPRESSION export" to "any intent but
       IMPORT, except an EXPRESSION export"), and find every default that
       yields mirror for an internal (legacy `make_GeomAspect` /
-      `make_VerticalGridAspect` start at MIRRORED; check whether an
-      EXPRESSION can be INTERNAL). Report each such default to the owner
+      `make_VerticalGridAspect` start at MIRRORED). Also enforce the
+      owner rule that an EXPRESSION is EXPORT only (never IMPORT or
+      INTERNAL; a re-exported internal is never an expression); nothing
+      rejects it today. Report each mirror default to the owner
       before changing it: a mirror default on an internal means the
       rules are inconsistent.
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field

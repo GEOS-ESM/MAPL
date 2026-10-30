@@ -924,5 +924,9 @@ Q13 (task to be assigned). **Owner rule: an INTERNAL item never has any
       geom (or a vertical grid / component geom id), whatever the intent.
     - Graph defaults: the factories produce MIRRORED only from an
       explicit request or for an EXPRESSION, so they comply once explicit
-      requests are rejected; whether an EXPRESSION can be INTERNAL is to
-      be checked.
+      requests are rejected.
+    - Owner rule: an EXPRESSION is EXPORT only; never IMPORT or INTERNAL,
+      and an internal re-exported as an export is never an expression.
+      Nothing enforces this today (no check in `make_VariableSpec` or the
+      YAML parser); add one, so the EXPRESSION mirror exemption can only
+      ever apply to an export.
