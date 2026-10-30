@@ -413,7 +413,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       request). If all inputs share one geometry (or vertical grid),
       evaluate on that native grid and transform only the result to each
       consumer.
-- [ ] 3.25 B3-InternalNoMirror (design Q13; owner: "very important to
+- [x] 3.25 B3-InternalNoMirror (design Q13; owner: "very important to
       settle this correctly"). An INTERNAL item never has any mirror
       property. Reject explicit mirror requests on INTERNAL in both A21
       checks (generalize "non-EXPRESSION export" to "any intent but
@@ -425,6 +425,19 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       rejects it today. Report each mirror default to the owner
       before changing it: a mirror default on an internal means the
       rules are inconsistent.
+      Done (owner scope narrowed the text above; the graph needs no check
+      of its own): VariableSpec only. `intent_rule_violation` in
+      `VariableSpec_private.F90` is the one rule, by intent and item type: a mirror
+      request is allowed only on an IMPORT or an EXPRESSION export, and an
+      EXPRESSION only as an export. `make_VariableSpec` and the backstop
+      `check_intent_rules` (was `check_no_mirrored_entry`) both call it;
+      the YAML parser and `MAPL_GridCompAddSpec` reach it through
+      `make_VariableSpec`. A YAML `expression:` key under `import:` or
+      `internal:` is not stopped by the parser, only by this rule. Legacy
+      defaults left alone (owner): see design.md Q13. New messages: `mirror
+      is only valid on an import or an expression export: <name>` (+
+      ` (<KIND>)` from the backstop) and `an expression is only valid on an
+      export: <name>`.
 - [ ] 3.26 B3-RulesReview (owner; after 3.25, before 3.12). The default,
       connection and intent rules emerged from use cases, and the better
       generalization was often not obvious at the time. Review them

@@ -105,6 +105,67 @@ contains
       call ESMF_HConfigDestroy(config, _RC)
    end subroutine test_parse_var_specs_geometry_mirror
 
+   ! A mirror request on an internal is rejected by make_VariableSpec, which
+   ! the parser calls; an import with the same request is accepted.
+   @test
+   subroutine test_parse_var_specs_rejects_mirror_on_internal()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      integer :: rc, status
+
+      config = ESMF_HConfigCreate(content='{states: {internal: {' // &
+           'A: {typekind: mirror}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: A')
+      ! parse_state_specs and parse_var_specs each pass the failure up
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+      call ESMF_HConfigDestroy(config, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {import: {' // &
+           'A: {typekind: mirror}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      @assertEqual(1, var_specs%size())
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_rejects_mirror_on_internal
+
+   ! An `expression` key makes the item an EXPRESSION whatever the block, so
+   ! the parser itself does not stop one under import or internal; the intent
+   ! rule in make_VariableSpec does.
+   @test
+   subroutine test_parse_var_specs_rejects_expression_on_import_and_internal()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      integer :: rc, status
+
+      config = ESMF_HConfigCreate(content='{states: {import: {' // &
+           'E: {expression: "A + B"}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('an expression is only valid on an export: E')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+      call ESMF_HConfigDestroy(config, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {internal: {' // &
+           'E: {expression: "A + B"}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('an expression is only valid on an export: E')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+      call ESMF_HConfigDestroy(config, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'E: {expression: "A + B"}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      @assertEqual(1, var_specs%size())
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_rejects_expression_on_import_and_internal
+
    ! vertical_grid_mirror: true marks an import to adopt the connected
    ! export's vertical grid; an item that omits it does not.
    @test

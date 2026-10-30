@@ -202,8 +202,11 @@ First kind with a DEFERRED value (a value the component supplies later).
 | nothing declared | EXPRESSION | MIRRORED (the §2.4 allowlist case) |
 | any | STATE, WILDCARD, other flags | none |
 
-- A mirror on an export is rejected at advertise by the generic rule (A21):
-  no MIRRORED entry is allowed on a non-EXPRESSION export. A characteristic
+- A mirror is rejected by the generic rule (A21): it is allowed only on an
+  IMPORT, or on an EXPRESSION export; an INTERNAL or any other export never
+  has one. An EXPRESSION is allowed only as an export. The rule is one
+  helper, `intent_rule_violation`, called by `make_VariableSpec` and by the
+  check after the factory loop in `make_characteristics`. A characteristic
   that adds a mirror value adds it to `VariableSpec%requests_mirror()`.
 - A DEFERRED entry is filled by `StateItemDescriptor%resolve_deferred`,
   which offers a `CharacteristicDefaults` (the component's geom and
@@ -276,8 +279,8 @@ Second kind with a DEFERRED value; it reuses Geometry's machinery.
   the owner's vertical grid.
 - Test fixtures that want a 2D item set `vertical_stagger = NONE`
   (`make_var` does).
-- A mirror on an export is rejected at advertise by the generic rule (A21),
-  not by a VerticalGrid check.
+- A mirror on anything but an import or an expression export is rejected by
+  the generic rule (A21), not by a VerticalGrid check.
 
 ## VerticalStagger as implemented
 
@@ -286,7 +289,7 @@ A structural kind with a DEFERRED value and no built-in default.
 | Input | Shape | Entry |
 |---|---|---|
 | CENTER, EDGE or an explicit NONE | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE | SPECIFIED |
-| `VERTICAL_STAGGER_MIRROR` | same | MIRRORED (mirror on an export: generic rule, A21) |
+| `VERTICAL_STAGGER_MIRROR` | same | MIRRORED (mirror only on an import or expression export: generic rule, A21) |
 | unallocated or `VERTICAL_STAGGER_INVALID`, with `mirror_vgrid` | same | MIRRORED |
 | unallocated or `VERTICAL_STAGGER_INVALID`, otherwise | same | DEFERRED |
 | nothing declared | EXPRESSION | MIRRORED (the §2.4 allowlist case) |
@@ -323,7 +326,7 @@ calls it alignment. It is independent of VerticalStagger.
 | `vertical_alignment` | Shape | Entry |
 |---|---|---|
 | `upward` / `downward` | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE, EXPRESSION | SPECIFIED UP / DOWN |
-| `mirror` | same | MIRRORED (mirror on an export: generic rule, A21) |
+| `mirror` | same | MIRRORED (mirror only on an import or expression export: generic rule, A21) |
 | unallocated or `with_grid`, item has a `vertical_grid` | same | SPECIFIED with that grid's `get_coordinate_direction()` |
 | unallocated or `with_grid`, with `mirror_vgrid`, or EXPRESSION | same | MIRRORED |
 | unallocated or `with_grid`, otherwise | same | DEFERRED |
@@ -358,7 +361,7 @@ NONE (`dims: z`, no horizontal dimensions). It was part of
 | Input (`VariableSpec%horizontal_dims_spec`) | Shape | Entry |
 |---|---|---|
 | GEOM (default) or NONE | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE | SPECIFIED with the value |
-| MIRROR | same | MIRRORED, no value (mirror on an export: generic rule, A21) |
+| MIRROR | same | MIRRORED, no value (mirror only on an import or expression export: generic rule, A21) |
 | any | EXPRESSION, SERVICE, STATE, WILDCARD | none |
 
 - Comparison is plain equality. GEOM vs NONE in either direction is a
@@ -373,8 +376,8 @@ NONE (`dims: z`, no horizontal dimensions). It was part of
 - Mirror. `HORIZONTAL_DIMS_MIRROR` (YAML `dims: mirror`) is a member of
   the `HorizontalDimsSpec` enum, not a value to compare: the characteristic
   built from it is MIRRORED with no value, so an import adopts the
-  export's spec (`PAIR_ADOPT`). An export carrying it is rejected by the
-  generic rule (A21).
+  export's spec (`PAIR_ADOPT`). An export or internal carrying it is
+  rejected by the generic rule (A21).
   Legacy `GeomAspect` treats it as agreeing with any spec and adopts the
   export's at `connect_to_export`; field creation asserts GEOM or NONE.
 - **Uncompared Geometry.** For a NONE item the Geometry factory builds the
@@ -441,16 +444,16 @@ A shared sentinel, not a characteristic of its own. `VariableSpec` exports
   `split_name` on vectors) therefore never see the literal string. An
   unallocated name makes the FieldDictionary lookup fall back to the
   `short_name` alias, so units and long_name still default on the import.
-- The StandardName factory maps the flag to MIRRORED; an export carrying it
-  is rejected by the generic rule (A21). Only FIELD carries the entry,
-  as for every standard-name case.
+- The StandardName factory maps the flag to MIRRORED; an export or internal
+  carrying it is rejected by the generic rule (A21). Only FIELD carries the
+  entry, as for every standard-name case.
 - Against an export with no declared name (UNCHECKED), the mirrored import
   becomes UNCHECKED: there is nothing to copy and nothing is compared. This
   is the generic (UNCHECKED, MIRRORED) rule in the descriptor, for all kinds.
 - LongName (B3-LongName) reuses the same sentinel and the same rule; see
   LongName below.
-- A `MAPL_STRING_MIRROR` request on an export is rejected by the generic rule
-  (A21), in `make_VariableSpec` and after the factory loop.
+- A `MAPL_STRING_MIRROR` request on an export or internal is rejected by the
+  generic rule (A21), in `make_VariableSpec` and after the factory loop.
 
 ## LongName as implemented
 
@@ -460,7 +463,7 @@ a step for it.
 
 | Input | Shape | Entry |
 |---|---|---|
-| `MAPL_STRING_MIRROR` (`long_name_mirror`) | FIELD, EXPRESSION | MIRRORED (imports only; exports: generic rule, A21) |
+| `MAPL_STRING_MIRROR` (`long_name_mirror`) | FIELD, EXPRESSION | MIRRORED (imports only; elsewhere: generic rule, A21) |
 | `long_name` allocated, even empty | same | SPECIFIED with the value |
 | unallocated, not an import (export, internal), `standard_name` declared and not `'<unknown>'` | same | SPECIFIED with the standard name |
 | unallocated, otherwise (including every import) | same | UNCHECKED, no value, writes nothing |
@@ -492,8 +495,8 @@ a step for it.
   does the graph.
 - Mirror: `make_VariableSpec` strips `MAPL_STRING_MIRROR` into
   `long_name_mirror`, so no legacy reader sees the string;
-  `requests_mirror()` includes it, so an export is rejected by the generic
-  rule.
+  `requests_mirror()` includes it, so an export or internal is rejected by
+  the generic rule.
 - `write_info` writes `long_name=` through `MAPL_FieldSet` /
   `MAPL_FieldBundleSet` in both phases (not structural). `MAPL_FieldSet`
   stores a field's long_name under the field's own alias; a bundle's is
@@ -586,8 +589,8 @@ value, writes only its own Info key, and has no Transform.
 - Never DEFERRED. QuantityType is never MIRRORED (it has no mirror spelling).
   Conservation and Normalization are MIRRORED when the metadata
   `is_mirror()`; the factory interprets it, the constructors do not.
-  `VariableSpec%requests_mirror()` includes both, so a mirror on an export is
-  rejected by the generic rule (A21). These two fields have no
+  `VariableSpec%requests_mirror()` includes both, so a mirror on an export or
+  internal is rejected by the generic rule (A21). These two fields have no
   `make_VariableSpec` keyword and are assigned after it runs, so only the
   check after the factory loop in `make_characteristics` reports a mirror
   here (message ends ` (CONSERVATION)` or ` (NORMALIZATION)`). A default

@@ -87,16 +87,18 @@ contains
          call factories(i)%make(this, descriptor, _RC)
       end do
 
-      if (this%state_intent == ESMF_STATEINTENT_EXPORT .and. this%itemType /= MAPL_STATEITEM_EXPRESSION) then
-         call check_no_mirrored_entry(this, descriptor, _RC)
-      end if
+      call check_intent_rules(this, descriptor, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine make_characteristics
 
-   ! Backstop for a hand-built spec that bypasses make_VariableSpec. Names the
-   ! kind so the error points at the characteristic that resolved MIRRORED.
-   subroutine check_no_mirrored_entry(spec, descriptor, rc)
+   ! Backstop for a hand-built spec that bypasses make_VariableSpec, and for
+   ! fields set by direct assignment after it (conservation, normalization).
+   ! Applies the same intent rules as make_VariableSpec: an explicit request
+   ! is rejected even for a shape with no entry of that kind. A MIRRORED entry
+   ! the factories resolved is rejected too, and the scan names its kind so
+   ! the error points at the characteristic.
+   subroutine check_intent_rules(spec, descriptor, rc)
       class(VariableSpec), intent(in) :: spec
       type(StateItemDescriptor), intent(in) :: descriptor
       integer, optional, intent(out) :: rc
@@ -105,8 +107,14 @@ contains
       type(StateItemCharacteristicMap) :: characteristics
       type(StateItemCharacteristicMapIterator) :: iter
       class(StateItemCharacteristic), pointer :: c
-      character(:), allocatable :: msg, kind_name
+      character(:), allocatable :: msg, kind_name, reason
       type(StateItemCharacteristicKind) :: kind
+
+      reason = intent_rule_violation(spec%state_intent, spec%itemType, mirror=.false.)
+      _ASSERT(len(reason) == 0, reason // ': ' // spec%short_name)
+
+      reason = intent_rule_violation(spec%state_intent, spec%itemType, mirror=.true.)
+      _RETURN_IF(len(reason) == 0)
 
       characteristics = descriptor%get_characteristics()
       associate (e => characteristics%ftn_end())
@@ -117,14 +125,17 @@ contains
             if (c%get_status() == CHARACTERISTIC_STATUS_MIRRORED) then
                kind = iter%first()
                kind_name = kind%to_string()
-               msg = 'mirror is only valid on an import or an expression: ' // spec%short_name // ' (' // kind_name // ')'
-               _ASSERT(.false., msg)
+               msg = reason // ': ' // spec%short_name // ' (' // kind_name // ')'
+               _FAIL(msg)
             end if
          end do
       end associate
 
+      ! A request on a shape with no entry of that kind leaves nothing to scan.
+      _ASSERT(.not. spec%requests_mirror(), reason // ': ' // spec%short_name)
+
       _RETURN(_SUCCESS)
-   end subroutine check_no_mirrored_entry
+   end subroutine check_intent_rules
 
    ! Declared units are SPECIFIED. Undeclared (or UNKNOWN_UNITS) units are
    ! UNCHECKED: they match anything and are never converted. Only shapes
@@ -258,7 +269,7 @@ contains
    end subroutine make_geometry_characteristic
 
    ! SPECIFIED with GEOM unless the item declares NONE. HORIZONTAL_DIMS_MIRROR
-   ! is MIRRORED (mirror on an export: see check_no_mirrored_entry). Only Field
+   ! is MIRRORED (see check_intent_rules for where that is allowed). Only Field
    ! and FieldBundle payloads have one: an EXPRESSION or SERVICE has no
    ! horizontal layout of its own.
    subroutine make_horizontal_dims_spec_characteristic(spec, descriptor, rc)
@@ -317,7 +328,7 @@ contains
    end subroutine make_vertical_grid_characteristic
 
    ! A declared standard_name is SPECIFIED. The MAPL_STRING_MIRROR request is
-   ! MIRRORED (mirror on an export: see check_no_mirrored_entry). Undeclared
+   ! MIRRORED (see check_intent_rules for where that is allowed). Undeclared
    ! (or UNKNOWN_STANDARD_NAME) is UNCHECKED: it matches anything. Only a
    ! FIELD carries one: the other shapes either enforce their own names
    ! (VECTOR), are exempt, or adopt the field-side value after the shape step.
@@ -369,8 +380,8 @@ contains
    end subroutine make_attributes_characteristic
 
    ! A real stagger (CENTER, EDGE, or an explicit NONE) is SPECIFIED.
-   ! VERTICAL_STAGGER_MIRROR is MIRRORED (mirror on an export: see
-   ! check_no_mirrored_entry). Undeclared (unallocated, or the
+   ! VERTICAL_STAGGER_MIRROR is MIRRORED (see check_intent_rules for where
+   ! that is allowed). Undeclared (unallocated, or the
    ! INVALID that the YAML parser passes for an omitted vertical_dim_spec) is
    ! MIRRORED for an EXPRESSION or with mirror_vgrid, else DEFERRED: there is
    ! no built-in default, the component or a realized field supplies it. The
@@ -410,7 +421,7 @@ contains
    end subroutine make_vertical_stagger_characteristic
 
    ! vertical_alignment 'upward' or 'downward' is SPECIFIED. 'mirror' is
-   ! MIRRORED (mirror on an export: see check_no_mirrored_entry). Absent or
+   ! MIRRORED (see check_intent_rules for where that is allowed). Absent or
    ! 'with_grid' follows the grid: SPECIFIED with the item grid's direction,
    ! else MIRRORED for an EXPRESSION or with mirror_vgrid, else DEFERRED until
    ! the component grid is known. A DEFERRED entry whose component has no
@@ -486,8 +497,8 @@ contains
    end subroutine make_item_shape_characteristic
 
    ! Only FIELD and EXPRESSION carry a long_name (legacy passes it to no
-   ! other class aspect). A MAPL_STRING_MIRROR request is MIRRORED (mirror on
-   ! an export: see check_no_mirrored_entry). A declared long_name, even an
+   ! other class aspect). A MAPL_STRING_MIRROR request is MIRRORED (see
+   ! check_intent_rules for where that is allowed). A declared long_name, even an
    ! empty one, is SPECIFIED; the field dictionary has already filled it in
    ! make_VariableSpec. Any intent but IMPORT (export, internal) that declares
    ! none takes its standard_name value; legacy has no such fallback. Anything
@@ -571,8 +582,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine make_quantity_type_characteristic
 
-   ! A mirror ConservationMetadata is MIRRORED (mirror on an export: see
-   ! check_no_mirrored_entry); anything else, including the
+   ! A mirror ConservationMetadata is MIRRORED (see check_intent_rules for
+   ! where that is allowed); anything else, including the
    ! CONSERVE_NONE default, is SPECIFIED with the declared value.
    subroutine make_conservation_characteristic(spec, descriptor, rc)
       class(VariableSpec), intent(in) :: spec
@@ -596,8 +607,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine make_conservation_characteristic
 
-   ! A mirror NormalizationMetadata is MIRRORED (mirror on an export: see
-   ! check_no_mirrored_entry); anything else, including the NORMALIZE_NONE
+   ! A mirror NormalizationMetadata is MIRRORED (see check_intent_rules for
+   ! where that is allowed); anything else, including the NORMALIZE_NONE
    ! default, is SPECIFIED with the declared value.
    subroutine make_normalization_characteristic(spec, descriptor, rc)
       class(VariableSpec), intent(in) :: spec

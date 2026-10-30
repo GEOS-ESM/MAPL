@@ -3070,52 +3070,10 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_expression_hook_reports_unresolved_reference
 
-   ! Task 9.4 (design.md D6): is_ordinary_resolvable_import(node)
-   ! returning FALSE classifies an item's declared type as
-   ! UNCONDITIONALLY unresolvable via ordinary graph resolution (its
-   ! own header comment/design.md Context: "no graph-native resolution
-   ! path exists for this item class"), causing graphbuilder_
-   ! unresolved_import_node_ids's scan to `cycle` past it entirely - it
-   ! never appears in that scan's report at all, resolved or not.
-   ! Pre-D6, EXPRESSION was lumped into that same unconditionally-
-   ! unresolvable classification alongside WILDCARD/SERVICE; D6 removes
-   ! it from that list - is_ordinary_resolvable_import itself is
-   ! private (GraphBuilder_ConnectionResolution_smod.F90), so this is
-   ! observed indirectly through graphbuilder_unresolved_import_node_
-   ! ids (its one real call site, D2/D6's own cited consumer), the only
-   ! reachable observation point from this test file.
-   !
-   ! Once no longer excluded, 'expr' falls through to the scan's
-   ! ordinary Connection-based check (connection_resolves_import) -
-   ! which never succeeds for it, since expression resolution happens
-   ! entirely through run_expression_hook's own direct NodeId
-   ! dependency wiring (design.md D1), never through a declared
-   ! Connection. So 'expr' DOES appear in the unresolved-imports report
-   ! post-D6 (provably harmless per design.md's own Risk note: an
-   ! expression item is never mirrored/propagated to an ancestor in
-   ! this change's own scope, so this list membership has no real
-   ! consequence) - the positive, observable signal that D6's
-   ! exclusion-arm removal actually took effect. 'wild' (WILDCARD,
-   ! untouched by this change, Non-Goals) remains excluded throughout -
-   ! still invisible to the scan either way (negative control).
-   !
-   ! graphbuilder_unresolved_import_node_ids only ever scans a
-   ! component's own IMPORT ports (state_intent == ESMF_STATEINTENT_
-   ! IMPORT) - 'expr' above is an EXPORT, so this test instead declares
-   ! the EXPRESSION item as an IMPORT itself (a degenerate, but
-   ! perfectly legal, shape for exercising the gate specifically; D2's
-   ! own resolution logic does not care which side the item is declared
-   ! on - only that it is a sibling-resolvable EXPRESSION), alongside an
-   ! ordinary SERVICE-typed import left entirely unresolved as the
-   ! negative control (openspec/changes/phase-7c-wildcard-dispatch-
-   ! wiring, design.md D6: SERVICE is the only declared type still
-   ! genuinely excluded post-Phase-7c - WILDCARD moved to its own
-   ! test_wildcard_no_longer_excluded_from_gate below, since it now
-   ! falls through to the scan exactly like EXPRESSION, for a different
-   ! reason (a real resolve_wildcard_destination path exists, not "no
-   ! Connection governs it")).
+   ! A SERVICE import, which no ancestor connection could resolve, is
+   ! excluded from the unresolved-import scan (is_ordinary_resolvable_import).
    @test(npes=[0])
-   subroutine test_resolved_expression_no_longer_excluded_from_gate(this)
+   subroutine test_service_import_excluded_from_gate(this)
       class(MpiTestMethod), intent(inout) :: this
 
       type(ESMF_GridComp) :: parent_gc
@@ -3126,79 +3084,50 @@ contains
       type(ChildSpec) :: child_spec
       type(ComponentSpec), pointer :: child_spec_obj
       type(VariableSpec) :: var_spec
-      type(GraphResolutionEntryVector) :: unresolved
       type(UnresolvedImportEntry), allocatable :: unresolved_ids(:)
       integer :: status
       type(GraphBuilder) :: gb
       integer :: i
-      logical :: found_service
-      logical :: found_expr
+      logical :: found_service, found_plain
 
-      call make_outer_meta('comp_expression_gate_parent', parent_gc, parent_meta, _RC)
+      call make_outer_meta('comp_service_gate_parent', parent_gc, parent_meta, _RC)
       child_spec = ChildSpec()
-      call parent_meta%add_child('child_expr', child_spec, _RC)
-      child_driver = parent_meta%get_child('child_expr', _RC)
+      call parent_meta%add_child('child_svc', child_spec, _RC)
+      child_driver = parent_meta%get_child('child_svc', _RC)
       child_gc = child_driver%get_gridcomp()
       child_meta => get_outer_meta(child_gc, _RC)
 
       child_spec_obj => child_meta%get_component_spec()
-      call child_spec_obj%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'A', units='m'))
-
-      var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'expr', units='m')
-      var_spec%itemType = MAPL_STATEITEM_EXPRESSION
-      var_spec%expression = 'A'
-      call child_spec_obj%add_var_spec(var_spec)
 
       var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'svc')
       var_spec%itemType = MAPL_STATEITEM_SERVICE
       call child_spec_obj%add_var_spec(var_spec)
+      ! An ordinary unconnected import is reported, so the scan does run.
+      call child_spec_obj%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'plain', units='m'))
 
       call gb%advertise(child_meta, status)
       @assert_that(status, is(0))
 
-      call gb%run_expression_hook(child_meta, unresolved=unresolved, rc=status)
-      @assert_that(status, is(0))
-      @assertEqual(0, unresolved%size())
-
       unresolved_ids = graphbuilder_unresolved_import_node_ids(parent_meta, child_meta, status)
       @assert_that(status, is(0))
 
-      ! 'expr' is no longer excluded from the scan (D6's own exclusion-
-      ! arm removal) - it now falls through to the scan's ordinary
-      ! Connection-based check, which never succeeds for it (no
-      ! Connection governs expression resolution, design.md D1), so it
-      ! DOES appear in the report (see this test's own header comment
-      ! for why that is the expected, harmless, post-D6 signal - not a
-      ! bug). 'svc' (SERVICE, still excluded post-Phase-7c) remains
-      ! excluded from the scan entirely, as before.
       found_service = .false.
-      found_expr = .false.
+      found_plain = .false.
       do i = 1, size(unresolved_ids)
-         if (unresolved_ids(i)%short_name == 'expr') found_expr = .true.
          if (unresolved_ids(i)%short_name == 'svc') found_service = .true.
+         if (unresolved_ids(i)%short_name == 'plain') found_plain = .true.
       end do
-      @assert_that(found_expr, is(true()))
+      @assert_that(found_plain, is(true()))
       @assert_that(found_service, is(false()))
 
       _UNUSED_DUMMY(this)
-   end subroutine test_resolved_expression_no_longer_excluded_from_gate
+   end subroutine test_service_import_excluded_from_gate
 
-   ! openspec/changes/phase-7c-wildcard-dispatch-wiring, design.md D6:
-   ! companion to test_resolved_expression_no_longer_excluded_from_gate
-   ! above, exercising the same gate for WILDCARD specifically. Unlike
-   ! EXPRESSION (which falls through to the scan's ordinary Connection-
-   ! based check and never resolves, since no Connection governs
-   ! expression resolution), an unconnected WILDCARD import ALSO falls
-   ! through to that same check and ALSO never resolves this way - its
-   ! real resolution mechanism is resolve_one's own new WILDCARD branch
-   ! (resolve_wildcard_destination), reached only through
-   ! resolve_connections's own Connection-driven dispatch, never through
-   ! this read-only propagation scan's connection_resolves_import check.
-   ! So, like 'expr', an unconnected 'wild' now DOES appear in the
-   ! unresolved-imports report - the harmless post-D6 signal this test
-   ! confirms directly (not a regression: a WILDCARD import with no
-   ! declared Connection at all was never resolvable before this change
-   ! either).
+   ! An unconnected WILDCARD import falls through to the unresolved-import
+   ! scan's ordinary Connection-based check and never resolves that way: its
+   ! real resolution is resolve_one's WILDCARD branch
+   ! (resolve_wildcard_destination), reached only through a Connection. So it
+   ! appears in the unresolved-imports report.
    @test(npes=[0])
    subroutine test_wildcard_no_longer_excluded_from_gate(this)
       class(MpiTestMethod), intent(inout) :: this

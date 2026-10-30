@@ -597,7 +597,7 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName, B3-RestartMode, B3-QuantityType, B3-Conservation, B3-Normalization and B3-IncompatibleSweep done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName, B3-RestartMode, B3-QuantityType, B3-Conservation, B3-Normalization, B3-IncompatibleSweep and B3-InternalNoMirror done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
@@ -608,7 +608,8 @@ in the first one; later ones refine it.
   `Plan-Task: B3-DimsZLegacy`, `Plan-Task: B3-IncompatiblePair`,
   `Plan-Task: B3-LongName`, `Plan-Task: B3-RestartMode`,
   `Plan-Task: B3-QuantityType`, `Plan-Task: B3-Conservation`,
-  `Plan-Task: B3-Normalization`, `Plan-Task: B3-IncompatibleSweep`); others not started.
+  `Plan-Task: B3-Normalization`, `Plan-Task: B3-IncompatibleSweep`,
+  `Plan-Task: B3-InternalNoMirror`); others not started.
   B3-QuantityType, B3-Conservation, B3-Normalization (tasks.md 3.10, done as
   one commit with three trailers): see adding-a-characteristic.md
   "QuantityType, Conservation and Normalization as implemented". The three
@@ -812,6 +813,17 @@ in the first one; later ones refine it.
   run timed out `MAPL.generic.scenarios` (1876 s) because the host laptop
   was asleep during the run; it passed alone in 45 s and in a clean full
   rerun.
+  B3-InternalNoMirror (tasks.md 3.25, done): A21 generalized, in
+  VariableSpec only. `intent_rule_violation` allows a mirror request only on
+  an IMPORT or an EXPRESSION export, and an EXPRESSION only as an export;
+  `make_VariableSpec` and the backstop `check_intent_rules` both call it
+  (the graph needs no check of its own). New messages: `mirror is only valid
+  on an import or an expression export: <name>` and `an expression is only
+  valid on an export: <name>`. Three tests that built an EXPRESSION with
+  IMPORT intent now use EXPORT, and one that declared an EXPRESSION import
+  on purpose was deleted. Legacy `make_GeomAspect`/`make_VerticalGridAspect`
+  MIRRORED defaults occur on statistics-gridcomp internals; owner decided to
+  leave them (design.md Q13).
   B3-MirrorGeneric (tasks.md 3.19b, done): A21 is one rule.
   `VariableSpec%requests_mirror()` lists each explicit mirror spelling;
   `make_VariableSpec` asserts `not requests_mirror()` on a non-EXPRESSION
@@ -826,8 +838,8 @@ in the first one; later ones refine it.
   Factory-path tests expect the full message including ` (<KIND>)` plus
   `status=1`; `_ASSERT` in the check records a message as well as setting rc.
   Sonnet review (after landing): accept with follow-ups. Owner accepted the
-  map copy in `check_no_mirrored_entry` as is. The rest is folded into
-  tasks.md 3.20 (owner): stale
+  map copy in `check_no_mirrored_entry` (now `check_intent_rules`) as is.
+  The rest is folded into tasks.md 3.20 (owner): stale
   per-kind "error on an export" text in `make_characteristics.F90` header
   comments and `adding-a-characteristic.md` (VerticalStagger,
   VerticalOrientation, StringMirror, HorizontalDimsSpec sections), and

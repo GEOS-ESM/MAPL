@@ -802,25 +802,36 @@ A20. An UNCHECKED export paired with a MIRRORED import adopts (§2.2):
      bad case turns up. Decided during B3-StringMirror (an export with no
      declared standard_name feeding a `MAPL_STRING_MIRROR` import is the
      common History case).
-A21. No mirror of any kind on an export, unless the item is an EXPRESSION
-     (refines A19; one generic rule, no per-characteristic cases). Two
-     checks, neither naming a characteristic:
+A21. A mirror of any kind is allowed only on an IMPORT, or on an EXPRESSION
+     export; an EXPRESSION is allowed only as an export (refines A19; one
+     generic rule, no per-characteristic cases; generalized from "no mirror
+     on a non-EXPRESSION export" by Q13). The rule is written once, by
+     intent and item type, in `intent_rule_violation` (`VariableSpec_private.F90`),
+     and checked in two places, neither naming a characteristic:
      1. `make_VariableSpec` (both graph and legacy-only modes): a
         `VariableSpec%requests_mirror()` helper is true when any field
         holds its mirror value (`MAPL_TYPEKIND_MIRROR`, `mirror_geom`,
         `mirror_vgrid`, `HORIZONTAL_DIMS_MIRROR`, `VERTICAL_STAGGER_MIRROR`,
         `vertical_alignment = 'mirror'`, `ungridded_dims%is_mirror()`,
-        `standard_name_mirror`, ...). One `_ASSERT` rejects it on a
-        non-EXPRESSION export. The helper lists each field's spelling until
-        the later one-mirror-mechanism cleanup; a characteristic that adds a
-        mirror value adds it there.
+        `standard_name_mirror`, ...). One `_ASSERT` on the helper's reason
+        rejects a request on an INTERNAL or on a non-EXPRESSION export, and
+        an EXPRESSION on an IMPORT or INTERNAL. The helper lists each field's
+        spelling until the later one-mirror-mechanism cleanup; a
+        characteristic that adds a mirror value adds it there.
      2. `VariableSpec%make_characteristics` (graph path; also catches a
-        hand-built `VariableSpec`): after the factory loop, a non-EXPRESSION
-        export whose descriptor holds any MIRRORED entry is an error naming
-        the kind. This replaces the per-factory export assertions.
-     Declaring is separate from resolving: an EXPRESSION may declare any
-     mirror, and whether a MIRRORED expression export resolves is still the
-     §2.4 allowlist. Task B3-MirrorFlagGuard.
+        hand-built `VariableSpec` and the fields set by direct assignment
+        after `make_VariableSpec`, conservation and normalization): after the
+        factory loop, the same rule is applied. An EXPRESSION that is not an
+        export is an error; where a mirror is not allowed, any MIRRORED
+        entry is an error naming the kind, and an explicit request on a
+        shape with no entry of that kind is an error too (as in 1). This
+        replaces the per-factory export assertions.
+     Messages: `mirror is only valid on an import or an expression export:
+     <short_name>` (+ ` (<kind>)` from the descriptor check) and `an
+     expression is only valid on an export: <short_name>`.
+     Declaring is separate from resolving: an EXPRESSION export may declare
+     any mirror, and whether a MIRRORED expression export resolves is still
+     the §2.4 allowlist. Tasks B3-MirrorFlagGuard, B3-InternalNoMirror.
 A22. Legacy `GeomAspect%matches` skips the geom comparison when both
      sides' `horizontal_dims_spec` is NONE, so legacy also connects two
      `dims: z` items across different horizontal grids (A14). This is a
@@ -920,27 +931,43 @@ Q11 (B3-Units). **Answered: confirmed.** Legacy writes
     exists. The graph never writes a MIRROR marker; the PhysicalUnits
     factory never produces MIRRORED (unallocated or `'<unknown>'` units
     are UNCHECKED), so only SPECIFIED and UNCHECKED reach `write_info`.
-Q13 (task to be assigned). **Owner rule: an INTERNAL item never has any
+Q13 (B3-InternalNoMirror). **Owner rule: an INTERNAL item never has any
     mirror property.** Internals do not take part in connections, so
     nothing could ever resolve a mirror on one. An internal that is
     re-exported is connected through the export, which is an export (A21
     applies to it); the originating internal still has no mirror. If a
     default comes out as mirror for an internal, the rules are
-    inconsistent and must be fixed, not accommodated. Known places to
-    settle (owner: "very important to settle this correctly"):
-    - Explicit mirror requests: the A21 checks (`make_VariableSpec` and
-      `make_characteristics`) reject them on a non-EXPRESSION EXPORT
-      only; an INTERNAL with e.g. `long_name: "<mirror>"`, `mirror_geom`
-      or `typekind: mirror` is accepted today, on both paths.
-    - Legacy defaults: `VariableSpec%make_GeomAspect` and
-      `make_VerticalGridAspect` start at `ASPECT_STATUS_MIRRORED` and
-      leave it there when neither the item nor the component supplies a
-      geom (or a vertical grid / component geom id), whatever the intent.
+    inconsistent and must be fixed, not accommodated. Status of the places
+    to settle:
+    - Explicit mirror requests: **implemented, in `VariableSpec` only.**
+      The graph needs no check of its own: once an internal cannot be
+      declared with any mirror, and an EXPRESSION cannot be declared on a
+      non-export, the graph factories cannot produce one (they give
+      MIRRORED only for an explicit request or for an EXPRESSION). Both A21
+      checks (`make_VariableSpec` and the backstop in `make_characteristics`)
+      call `intent_rule_violation`: a mirror is allowed only on an IMPORT or
+      an EXPRESSION export. The YAML parser and `MAPL_GridCompAddSpec` both
+      go through `make_VariableSpec`, so they are covered.
+    - EXPRESSION is EXPORT only (never IMPORT or INTERNAL; an internal
+      re-exported as an export is never an expression): **implemented** in
+      the same helper, in both checks. The YAML parser does not stop an
+      `expression:` key under `import:` or `internal:` (it only sets the
+      item type), so `make_VariableSpec` is where it is rejected.
     - Graph defaults: the factories produce MIRRORED only from an
-      explicit request or for an EXPRESSION, so they comply once explicit
-      requests are rejected.
-    - Owner rule: an EXPRESSION is EXPORT only; never IMPORT or INTERNAL,
-      and an internal re-exported as an export is never an expression.
-      Nothing enforces this today (no check in `make_VariableSpec` or the
-      YAML parser); add one, so the EXPRESSION mirror exemption can only
-      ever apply to an export.
+      explicit request or for an EXPRESSION, so they comply.
+    - Legacy defaults: **answered: leave them alone.** The owner's rule
+      governs declarations (VariableSpec and the graph).
+      `VariableSpec%make_GeomAspect` and `make_VerticalGridAspect` start at
+      `ASPECT_STATUS_MIRRORED` and leave it there when neither the item nor
+      the component supplies a geom (or a vertical grid / component geom
+      id), whatever the intent; `update_from_payload` sets it again when
+      the field has none. This does occur: the statistics gridcomp
+      (`libMAPL.statistics`) has no geometry of its own, and its internals
+      (`sum_*`, `counts_*`, `temp_max*`, `temp_min*`, `mux_*`, `muy_*`,
+      `kx_*`, ...) come out MIRRORED for geom and vertical grid. That
+      status is an artifact of legacy's "no geom means MIRRORED" default.
+      It behaves as "the component fills it in later": such an internal is
+      never connected, `StateRegistry%allocate` skips it, and the statistics
+      code copies geom and vertical grid onto it from its input field. It
+      goes away when the aspects are deleted. The graph gives these
+      internals DEFERRED, which complies.

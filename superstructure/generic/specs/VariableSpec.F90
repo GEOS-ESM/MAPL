@@ -351,6 +351,7 @@ contains
 
       integer :: status
       type(FieldDictionaryConfig), pointer :: fd_config
+      character(:), allocatable :: reason
 
       var_spec%short_name = short_name
       var_spec%state_intent = state_intent
@@ -394,9 +395,8 @@ contains
       _SET_OPTIONAL(mirror_vgrid)
       _SET_OPTIONAL(restart_mode)
 
-      if (state_intent == ESMF_STATEINTENT_EXPORT .and. var_spec%itemType /= MAPL_STATEITEM_EXPRESSION) then
-         _ASSERT(.not. var_spec%requests_mirror(), 'mirror is only valid on an import or an expression: ' // short_name)
-      end if
+      reason = intent_rule_violation(state_intent, var_spec%itemType, var_spec%requests_mirror())
+      _ASSERT(len(reason) == 0, reason // ': ' // short_name)
 
       var_spec%vector_basis_kind = MAPL_VECTOR_BASIS_KIND_NS
       if (present(vector_basis_kind)) then
