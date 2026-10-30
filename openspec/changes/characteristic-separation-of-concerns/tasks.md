@@ -53,9 +53,9 @@ nothing for that kind, except the §6.3 materialization references
 the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
-Remaining order (owner): 3.10, 3.22, 3.25, 3.12, 3.23, 3.14
+Remaining order (owner): 3.10, 3.22, 3.25, 3.26, 3.12, 3.23, 3.14
 (3.12/3.23: Q2, Q3 answered; 3.24 later).
-3.7, 3.13, 3.20 and 3.21 are done.
+3.7, 3.11, 3.13, 3.20 and 3.21 are done.
 Numbers are labels, not run order. A task whose characteristic adds a
 mirror value adds its spelling to `VariableSpec%requests_mirror()`; the
 generic export checks (A21) then reject it on a non-EXPRESSION export, and
@@ -395,6 +395,33 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       rejects it today. Report each mirror default to the owner
       before changing it: a mirror default on an internal means the
       rules are inconsistent.
+- [ ] 3.26 B3-RulesReview (owner; after 3.25, before 3.12). The default,
+      connection and intent rules emerged from use cases, and the better
+      generalization was often not obvious at the time. Review them
+      together; read-only, output is a report and proposals, no code.
+      1. One rules matrix, a row per characteristic: applicable shapes;
+         intents that may declare it; undeclared result per intent
+         (SPECIFIED default, DEFERRED, UNCHECKED, dropped); mirror (where
+         allowed, mechanism); compared at connect, and its Transform;
+         field-wide or per-alias write; legacy behavior. Plus a shape x
+         intent table (which shapes may be IMPORT, EXPORT, INTERNAL).
+      2. Irregularities, each with a proposed generalization and its
+         consequences (tests, legacy behavior, later tasks). Seeds: flags
+         vs string sentinel for mirror; several "Declared by" keywords;
+         DEFERRED vs UNCHECKED for undeclared values; per-intent
+         fallbacks (LongName); shape-specific exemptions (EXPRESSION);
+         rules in the graph but not legacy or the reverse; rules found
+         late (Q13, expression export-only).
+      3. The owner's rules list (kept by the owner outside the repo; meta
+         passes it in) is an input: for each rule, list every source or
+         legacy behavior that violates it and any use case against it.
+         Report conflicts as open questions; never resolve one in either
+         direction without the owner. First known conflict: the owner
+         allows import and export to differ in standard_name, but
+         standard_name is field-wide (not per-alias) in legacy and graph.
+      4. One owner decision session; each accepted correction becomes its
+         own small task. The matrix likely replaces or extends design
+         §5.1 as a stable doc (decided at the session).
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the
@@ -448,6 +475,16 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       query, not a GraphBuilder kind check), and add a
       `Test_GraphGeometryHook` case: such an export gets its geom from the
       realized field.
+      Also (owner, after B3-RestartMode; the owner is not certain this is
+      the right behavior: it is about user convenience, not right or
+      wrong): an import that declares no long_name must read the
+      export's, as legacy `FieldClassAspect%connect_to_export`
+      (`mirror_name`) gives. Since B3-RestartMode it reads `unknown` on
+      the graph path. Cover a direct match (no extension field: the
+      export's long_name must be on the owning field that the import's
+      alias copies) and an import behind an extension chain (the
+      extension field), with a populate-level test for each. Revisit if
+      the shared-data item (plan, Later) is adopted.
 - [x] 4.3 Delete `GraphStateItem%ordering` and
       `characteristic_ordering_table`; replace their tests with golden
       `get_extension_order` tests per shape. Done in B3-ItemShape.

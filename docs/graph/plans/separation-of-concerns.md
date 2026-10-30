@@ -458,6 +458,18 @@ and report; do not rename. Also:
   `state_set`'s dummies are now `intent(in)` (`units` is
   `character(len=*)`), and its `intenT` typo is fixed.
 
+**A6. Graph test executable throw hook.** The `MAPL.generic.graph`
+pFUnit executable initializes through `graph/tests/GraphCoreTestInit.F90`
+and never calls `MAPL_set_throw_method`, so a `_FAIL`/`_ASSERT` only
+prints `FAIL at line=` to stderr and `@assertExceptionRaised` cannot work
+there. Install the throw hook in `GraphCoreTest_Initialize` (without full
+MAPL initialization if possible), then fix every graph test it exposes,
+including `test_sync_fails_for_kind_without_write_info` and
+`test_sync_restart_mode_fails_on_bundle` (`Test_StateItemDescriptor.pf`),
+which must assert all their exceptions (CONVENTIONS.md, pFUnit). One
+commit. May run in a worktree only while no B3 task touches graph tests.
+- **Status:** not started
+
 ### Phase B - characteristic architecture
 
 B1 through B5 each implement their section of
@@ -548,13 +560,28 @@ connection conflict), ExpressionPerConsumer (split from Expression: the
 per-consumer evaluation, design.md §2.4, Q2/Q3), ExpressionNativeGrid
 (later optimization: evaluate on the inputs' shared native grid),
 InternalNoMirror (design.md Q13: an INTERNAL item never has a mirror
-property). Run order: tasks.md §3 header.
+property), RulesReview (review of all default, connection and intent
+rules; tasks.md 3.26). Run order: tasks.md §3 header.
 - Later cleanup, not a current task (owner): one "Declared by" keyword per
   characteristic, one mirror mechanism (sentinels instead of
   `mirror_geom`/`mirror_vgrid`), and renaming ItemShape and
   VerticalOrientation (design.md §5.1 note). Rejecting `mirror_geom`/`mirror_vgrid`
   on a non-EXPRESSION export is task B3-MirrorFlagGuard (A21), not part of
   this cleanup.
+- For consideration, not scheduled (owner; after B4 unless moved): an
+  IMPORT and an EXPORT share only the underlying data, not the whole
+  field. Today an import is an alias (`MAPL_NamedAlias`) of the export's
+  field or of an extension field, so the characteristics that may differ
+  per item (restart_mode, long_name) live in Info's per-alias section,
+  keyed by alias id. First step: a pros/cons analysis, no code. Pros the
+  owner noted: removes the per-alias Info section (a kludge MAPL had ESMF
+  enable, retrieving an alias id); closes the undeclared-import long_name
+  gap by design (tasks.md 4.2); probably easier with graph machinery than
+  with StateRegistry. To analyze: ESMF data sharing, readers of alias ids
+  (`RestartHandler`, History), extension chains, bundles, cost per import,
+  coexistence with legacy. Related owner question: should import and
+  export be allowed to differ in names and restart mode at all (History
+  use cases)? Can fold into B3-RulesReview's decision session.
 Run one at a time after B2 (direct commits; no parallel agents). Produce `docs/graph/adding-a-characteristic.md`
 in the first one; later ones refine it.
 - Each task whose characteristic has a Transform teaches
@@ -1170,6 +1197,7 @@ it may author D1/A4/B5 with sonnet review.
 | A4 | sonnet | diff review always | judgment on which "why" to keep; haiku only after calibration |
 | A5 | sonnet | opus | touches infrastructure field/bundle/state APIs |
 | A5b | sonnet | - | small; compilers verify distinguishability |
+| A6 | sonnet | sonnet | throw hook for the graph test executable; fix exposed tests |
 | B0 | opus | owner + gemini/gpt-sol | cross-family review: "what did this miss vs. legacy aspects?" |
 | B1 | sonnet | opus | escalate any compiler/gFTL crash |
 | B2 | opus | gemini/gpt-sol | core semantics |
@@ -1191,6 +1219,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-ExpressionPerConsumer | opus | gemini/gpt-sol | per-consumer evaluation in the connection code (design.md §2.4) |
 | B3-ExpressionNativeGrid | sonnet | opus | optimization, after B3-ExpressionPerConsumer |
 | B3-InternalNoMirror | sonnet | opus | design.md Q13; reports mirror defaults to the owner before changing them |
+| B3-RulesReview | opus | gemini/gpt-sol | read-only; report and proposals, no code; then owner session |
 | B3 others | sonnet | sonnet (self-review) | one at a time, after B3-Units lands |
 | B4 | sonnet | opus | materialization regressions likely |
 | B5 | sonnet (haiku?) | sonnet if haiku | |
