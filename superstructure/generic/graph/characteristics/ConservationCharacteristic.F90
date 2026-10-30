@@ -7,13 +7,13 @@
 ! rule, which needs_extension_for reuses. A VariableSpec mirror is not a
 ! value to compare: the factory turns it into MIRRORED status.
 !
-! No Transform exists for this axis (legacy make_transform _FAILs):
-! build_transform reports unsupported. write_info writes only
+! Legacy converts no mismatch of two non-mirror values (its make_transform
+! _FAILs): build_transform reports incompatible. write_info writes only
 ! conservation_metadata=, in either phase, for SPECIFIED entries.
 !------------------------------------------------------------------------------
 module mapl_ConservationCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
-   use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
+   use mapl_StateItemCharacteristic_mod, only: report_build_transform_incompatible
    use mapl_CharacteristicStatus_mod, only: &
         CHARACTERISTIC_STATUS_SPECIFIED, operator(==)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, CONSERVATION_CHARACTERISTIC_KIND
@@ -93,7 +93,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal)
 
-      call report_build_transform_unsupported(rc)
+      call report_build_transform_incompatible(rc)
    end subroutine conservation_build_transform
 
    ! Writes conservation_metadata= only (not a creation input, not a

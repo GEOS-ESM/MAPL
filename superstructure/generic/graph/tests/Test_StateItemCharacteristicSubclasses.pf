@@ -3,11 +3,10 @@
 ! correct Value/Reference classification, correct get_kind(), and
 ! needs_extension_for() comparison semantics (design.md D1-D5).
 !
-! openspec/changes/merge-characteristic-families, tasks 7.1/7.2/7.3:
-! build_transform/get_signature coverage - explicit-failure for the six
-! provider-less subclasses (mirrors Test_GeomCharacteristic.pf's own
-! test_geom_characteristic_build_transform_reports_unsupported precedent,
-! before that file's deletion), and the four real, moved
+! build_transform/get_signature coverage - incompatible for five of the six
+! subclasses with no Transform (Attributes, UngriddedDims, QuantityType,
+! Conservation, Normalization), unsupported for StandardName (legacy
+! permissive mode connects a mismatch), and the four real, moved
 ! implementations (PhysicalUnitsCharacteristic/TypeKindCharacteristic/
 ! VerticalGridCharacteristic/GeometryCharacteristic) producing the
 ! same outcomes Test_Characteristic.pf/Test_GeomCharacteristic.pf
@@ -650,11 +649,13 @@ contains
       @assertFalse(units%is_per_alias())
    end subroutine test_is_per_alias
 
-   ! --- build_transform reports BUILD_TRANSFORM_UNSUPPORTED for the six
-   ! provider-less subclasses ---
+   ! --- build_transform reports BUILD_TRANSFORM_INCOMPATIBLE for the five
+   ! subclasses whose legacy aspect rejects every mismatch of two non-mirror
+   ! values and converts nothing, and BUILD_TRANSFORM_UNSUPPORTED for
+   ! StandardName (legacy permissive mode connects a mismatch) ---
 
    @test
-   subroutine test_attributes_build_transform_reports_unsupported()
+   subroutine test_attributes_build_transform_reports_incompatible()
       type(AttributesCharacteristic) :: a, b
       class(TransformBase), allocatable :: transformer
       integer :: status
@@ -664,12 +665,12 @@ contains
 
       call a%build_transform(b, transformer, rc=status)
 
-      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_attributes_build_transform_reports_unsupported
+   end subroutine test_attributes_build_transform_reports_incompatible
 
    @test
-   subroutine test_conservation_build_transform_reports_unsupported()
+   subroutine test_conservation_build_transform_reports_incompatible()
       type(ConservationCharacteristic) :: a, b
       class(TransformBase), allocatable :: transformer
       integer :: status
@@ -679,12 +680,12 @@ contains
 
       call a%build_transform(b, transformer, rc=status)
 
-      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_conservation_build_transform_reports_unsupported
+   end subroutine test_conservation_build_transform_reports_incompatible
 
    @test
-   subroutine test_normalization_build_transform_reports_unsupported()
+   subroutine test_normalization_build_transform_reports_incompatible()
       type(NormalizationCharacteristic) :: a, b
       class(TransformBase), allocatable :: transformer
       integer :: status
@@ -694,12 +695,12 @@ contains
 
       call a%build_transform(b, transformer, rc=status)
 
-      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_normalization_build_transform_reports_unsupported
+   end subroutine test_normalization_build_transform_reports_incompatible
 
    @test
-   subroutine test_quantity_type_build_transform_reports_unsupported()
+   subroutine test_quantity_type_build_transform_reports_incompatible()
       type(QuantityTypeCharacteristic) :: a, b
       class(TransformBase), allocatable :: transformer
       integer :: status
@@ -709,9 +710,9 @@ contains
 
       call a%build_transform(b, transformer, rc=status)
 
-      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_quantity_type_build_transform_reports_unsupported
+   end subroutine test_quantity_type_build_transform_reports_incompatible
 
    @test
    subroutine test_standard_name_build_transform_reports_unsupported()
@@ -729,7 +730,7 @@ contains
    end subroutine test_standard_name_build_transform_reports_unsupported
 
    @test
-   subroutine test_ungridded_dims_build_transform_reports_unsupported()
+   subroutine test_ungridded_dims_build_transform_reports_incompatible()
       type(UngriddedDimsCharacteristic) :: a, b
       class(TransformBase), allocatable :: transformer
       integer :: status
@@ -739,15 +740,14 @@ contains
 
       call a%build_transform(b, transformer, rc=status)
 
-      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_ungridded_dims_build_transform_reports_unsupported
+   end subroutine test_ungridded_dims_build_transform_reports_incompatible
 
-   ! --- merge-characteristic-families task 7.2: get_signature for the
-   ! six provider-less subclasses - two equal-value instances produce
-   ! identical signatures, two different-value instances produce
-   ! different ones (design.md Risks - sufficient for reuse-key
-   ! correctness) ---
+   ! --- get_signature for the six subclasses with no Transform - two
+   ! equal-value instances produce identical signatures, two
+   ! different-value instances produce different ones (design.md Risks -
+   ! sufficient for reuse-key correctness) ---
 
    @test
    subroutine test_attributes_get_signature_distinguishes_values()

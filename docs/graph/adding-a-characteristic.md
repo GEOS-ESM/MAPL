@@ -30,7 +30,10 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
      Transform for a pair calls `report_build_transform_unsupported(rc)`
      (raises nothing; `transformer` stays unallocated). A pair that can
      never connect calls `report_build_transform_incompatible(rc)`
-     (also raises nothing; reported as a connection conflict). Use `_FAIL`
+     (also raises nothing; reported as a connection conflict). The test for
+     the second: legacy rejects every mismatch of two non-mirror values and
+     no reachable case converts data (see CONVENTIONS.md; StandardName fails
+     the test and stays unsupported). Use `_FAIL`
      only for genuine errors.
    - **No status logic in the subclass.** `needs_extension_for` compares
      values only; `StateItemDescriptor%resolve_pair` decides from the
@@ -415,6 +418,12 @@ NONE (`dims: z`, no horizontal dimensions). It was part of
   `MAPL_FieldBundleSet` in both phases: it is not a `FieldDelta` trigger
   and is not a creation input, so `is_structural()` stays `.false.`.
   UNCHECKED writes `UNKNOWN_STANDARD_NAME` (`'<unknown>'`), as units do.
+- `build_transform` reports unsupported and stays so (B3-IncompatibleSweep
+  left it out): legacy `StandardNameAspect%matches` connects two different
+  names with a warning in the default PERMISSIVE `ValidationMode` (the
+  export's name wins) and rejects them only in STRICT mode, so it fails the
+  "legacy rejects every mismatch" test. Its graph behavior awaits a graph
+  validation-mode decision.
 - Not reproduced from the legacy aspect: the warning when only one side
   declares a name, and the `ValidationMode` strict/permissive severity
   (they were already absent from the characteristic). Field-dictionary
@@ -592,11 +601,21 @@ value, writes only its own Info key, and has no Transform.
   `make_ConservationAspect` and `make_NormalizationAspect` always build
   non-mirror aspects, so none of this reaches the graph and none is
   reproduced.
-- Mismatch: `build_transform` calls `report_build_transform_unsupported`
-  (legacy returns `NullTransform` for quantity type and normalization and
-  `_FAIL`s for conservation). A later task moves these kinds to
-  `BUILD_TRANSFORM_INCOMPATIBLE` together with Attributes, UngriddedDims and
-  StandardName, so `check_graph` needs no new step kind.
+- Mismatch: `build_transform` calls `report_build_transform_incompatible`
+  (B3-IncompatibleSweep), as do Attributes and UngriddedDims, so
+  `check_graph` needs no new step kind. Legacy check: the three
+  aspects return true from `supports_conversion_general`, but
+  `supports_conversion_specific` is true only for matching pairs (or a
+  mirror), so a mismatch of two non-mirror values is rejected by
+  `StateItemAspect%can_connect_to`. The one branch that could convert is
+  `can_connect_to`'s time-dependent branch (it returns the general
+  function and ignores `matches`), which leads to `make_transform` (a
+  `NullTransform` for quantity type and normalization, a `_FAIL` for
+  conservation). No caller sets the time-dependent flag on these three
+  (`make_QuantityTypeAspect`, `make_ConservationAspect` and
+  `make_NormalizationAspect` never pass it). **Revisit these three kinds
+  if a time-dependent quantity type, conservation or normalization is ever
+  introduced.**
 - `write_info` writes `quantity_type_metadata=`, `conservation_metadata=` and
   `normalization_metadata=` through `MAPL_FieldSet` / `MAPL_FieldBundleSet`,
   in either phase, for SPECIFIED entries only (MIRRORED never reaches it). None
@@ -633,8 +652,8 @@ value, writes only its own Info key, and has no Transform.
   flagged against an export that declared none; legacy
   `includes([], required)` is a mismatch, and now so is this. The
   comparison needs no new rule: an export without the names the import
-  requires is `PAIR_EXTEND`, which has no Transform, so it is reported
-  as unsupported (`BUILD_TRANSFORM_UNSUPPORTED`).
+  requires is `PAIR_EXTEND`, which can never connect, so it is reported
+  as incompatible (`BUILD_TRANSFORM_INCOMPATIBLE`).
 - Own shape set (design §4.3): like UngriddedDims, not EXPRESSION. Before
   this task the entry was inserted for any shape that declared attributes
   (including EXPRESSION, STATE, SERVICE and WILDCARD) and omitted otherwise.

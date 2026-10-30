@@ -175,5 +175,4 @@ some `description.md` files are known deviations from §5 and §7.
 All seven fixtures are in `Test_Scenarios.pf`'s `scenario_table()`
 (scenario name `../graph-scenarios/<name>`, `graph_ready` true) and run
 in `registry`, `graph` and `both` modes.
-`standard_name_and_ungridded_dims_mismatch` uses `permissive` and
-`expected_exception`.
+`standard_name_and_ungridded_dims_mismatch` uses `permissive`.

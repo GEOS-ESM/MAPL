@@ -7,13 +7,14 @@
 ! mirror-aware rule, which needs_extension_for reuses. A VariableSpec mirror
 ! is not a value to compare: the factory turns it into MIRRORED status.
 !
-! No Transform exists for this axis (legacy returns NullTransform):
-! build_transform reports unsupported. write_info writes only
+! Legacy converts no mismatch of two non-mirror values (its NullTransform
+! is only reachable for a time-dependent aspect, which nothing sets):
+! build_transform reports incompatible. write_info writes only
 ! normalization_metadata=, in either phase, for SPECIFIED entries.
 !------------------------------------------------------------------------------
 module mapl_NormalizationCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
-   use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
+   use mapl_StateItemCharacteristic_mod, only: report_build_transform_incompatible
    use mapl_CharacteristicStatus_mod, only: &
         CHARACTERISTIC_STATUS_SPECIFIED, operator(==)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, NORMALIZATION_CHARACTERISTIC_KIND
@@ -93,7 +94,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal)
 
-      call report_build_transform_unsupported(rc)
+      call report_build_transform_incompatible(rc)
    end subroutine normalization_build_transform
 
    ! Writes normalization_metadata= only (not a creation input, not a

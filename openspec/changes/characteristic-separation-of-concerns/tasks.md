@@ -53,9 +53,9 @@ nothing for that kind, except the §6.3 materialization references
 the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
-Remaining order (owner): 3.10, 3.22, 3.25, 3.26, 3.12, 3.23, 3.14
+Remaining order (owner): 3.25, 3.26, 3.12, 3.23, 3.14
 (3.12/3.23: Q2, Q3 answered; 3.24 later).
-3.7, 3.11, 3.13, 3.20 and 3.21 are done.
+3.7, 3.10, 3.11, 3.13, 3.20, 3.21 and 3.22 are done.
 Numbers are labels, not run order. A task whose characteristic adds a
 mirror value adds its spelling to `VariableSpec%requests_mirror()`; the
 generic export checks (A21) then reject it on a non-EXPRESSION export, and
@@ -262,15 +262,39 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       adding-a-characteristic.md (HorizontalDimsSpec section). If an
       existing test asserts UNSUPPORTED for GEOM vs NONE, change it; if any
       other kind's test changes, stop and report.
-- [ ] 3.22 B3-IncompatibleSweep (A23; after 3.10). Every kind whose legacy
-      aspect never converts a mismatch (`supports_conversion` false):
-      Attributes, UngriddedDims, StandardName, QuantityType, Conservation,
-      Normalization. Their `build_transform` returns
-      `BUILD_TRANSFORM_INCOMPATIBLE` instead of UNSUPPORTED, all in one
-      change (owner: one general rule, not per kind). Update their tests
-      and CONVENTIONS.md's build_transform rule. Check each against its
-      legacy aspect first; if one does convert in some case, stop and
+- [x] 3.22 B3-IncompatibleSweep (A23; after 3.10). Every kind whose legacy
+      aspect rejects every mismatch of two non-mirror values, with no
+      reachable case that converts data: Attributes, UngriddedDims,
+      QuantityType, Conservation, Normalization. Their `build_transform`
+      returns `BUILD_TRANSFORM_INCOMPATIBLE` instead of UNSUPPORTED, all in
+      one change (owner: one general rule, not per kind). Update their
+      tests and CONVENTIONS.md's build_transform rule. Check each against
+      its legacy aspect first; if one does convert in some case, stop and
       report.
+      Done (owner decisions on two review questions). QuantityType,
+      Conservation and Normalization have `supports_conversion_general`
+      true, but `supports_conversion_specific` is true only for matching
+      pairs (or a mirror), and the one branch of
+      `StateItemAspect%can_connect_to` that ignores `matches`
+      (time-dependent) is unreachable for them (no caller sets the flag);
+      it would yield only a `NullTransform` or a `_FAIL`. So the criterion
+      was reworded from "`supports_conversion` false". StandardName was
+      in the original list and is OUT: it fails the criterion, since legacy
+      `StandardNameAspect%matches` connects two different names with a
+      warning in the default PERMISSIVE `ValidationMode` (the export's name
+      wins) and rejects them only in STRICT mode. It stays
+      `BUILD_TRANSFORM_UNSUPPORTED` until a graph validation-mode decision.
+      Five small edits (one `report_build_transform_incompatible` call
+      each); there is no shared base implementation, since the rule is a
+      property of the legacy aspect and a base default would make every
+      future kind incompatible by accident. Tests: five renamed
+      `..._reports_incompatible` in `Test_StateItemCharacteristicSubclasses`
+      (the StandardName test still asserts UNSUPPORTED);
+      `test_incompatible_ungridded_dims_is_conflict` in
+      `Test_GraphBuilder_ConnectionResolution` asserts the
+      `connection_conflicts` entry for a non-HorizontalDimsSpec kind. No
+      scenario behavior changed (one fixture description reworded);
+      PENDING identical to HEAD (see the plan Status).
 - [x] 3.6 B3-Geometry (M1: item-level entry; DEFERRED; moves
       `_Geometry_smod` inserts behind a helper). Deviations from design
       §2.2/§2.3, owner-approved: a DEFERRED side at connect time waits
@@ -317,9 +341,9 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       message as a parity difference with no current user, since no
       keyword or YAML key sets these fields yet). Field-dictionary defaults
       for them are future work, not this task. Preflight answers (owner):
-      a mismatch stays `BUILD_TRANSFORM_UNSUPPORTED`, like Attributes,
-      UngriddedDims and StandardName; task 3.22 moves all six to
-      INCOMPATIBLE together. An undeclared quantity type stays SPECIFIED
+      a mismatch was `BUILD_TRANSFORM_UNSUPPORTED` here, like Attributes,
+      UngriddedDims and StandardName; task 3.22 moved five of the six
+      (all but StandardName) to INCOMPATIBLE together. An undeclared quantity type stays SPECIFIED
       `QUANTITY_UNKNOWN`, and "unknown matches anything" (and `BASIS_NONE`
       matching any basis) stays a value rule in the subclass; say in
       adding-a-characteristic.md that such value wildcards are not status.

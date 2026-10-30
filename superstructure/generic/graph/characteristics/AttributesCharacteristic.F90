@@ -20,9 +20,8 @@
 ! direction convention as legacy's own matches(src, dst).
 !
 ! A `build_transform` is required by the common interface but reports
-! unsupported here - no real provider exists for this axis. Legacy
-! AttributesAspect%make_transform always returns NullTransform (no real
-! adaptation exists anywhere for this axis, graph-native or legacy).
+! incompatible here: legacy AttributesAspect never converts a mismatch
+! (supports_conversion_* are false), so no Transform can ever exist.
 ! `write_info` writes nothing: attributes have no Info key (legacy
 ! AttributesAspect%update_payload is a no-op), so no setter argument exists.
 ! `get_signature` derives a stable, value-distinguishing string from
@@ -31,7 +30,7 @@
 !------------------------------------------------------------------------------
 module mapl_AttributesCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
-   use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
+   use mapl_StateItemCharacteristic_mod, only: report_build_transform_incompatible
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, ATTRIBUTES_CHARACTERISTIC_KIND
    use gFTL2_StringVector, only: StringVector
@@ -120,8 +119,7 @@ contains
       attribute_names = this%attribute_names
    end function get_attribute_names
 
-   ! No real adaptation exists for this axis (module header): reports
-   ! unsupported.
+   ! A mismatch can never be adapted (module header): reports incompatible.
    subroutine attributes_build_transform(this, goal, transformer, rc)
       class(AttributesCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -131,7 +129,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal)
 
-      call report_build_transform_unsupported(rc)
+      call report_build_transform_incompatible(rc)
    end subroutine attributes_build_transform
 
    ! Attributes have no Info representation, so there is nothing to write.

@@ -83,6 +83,7 @@ module Test_GraphBuilder_ConnectionResolution
    use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
    use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER
    use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_NONE
+   use mapl_UngriddedDims_mod, only: UngriddedDims
    ! -- openspec/changes/phase-7b-expression-dispatch-wiring ---------------
    use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_WILDCARD
    ! -- openspec/changes/phase-7c-wildcard-dispatch-wiring -----------------
@@ -500,6 +501,100 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_incompatible_dims_is_conflict_others_resolve
+
+   ! A kind other than HorizontalDimsSpec reports the same way: an
+   ! UngriddedDims mismatch (export none, import one dimension of extent 5)
+   ! is one connection_conflicts entry, not unsupported; nothing is wired
+   ! for that import, and the component's other connection (U) resolves.
+   @test(npes=[0])
+   subroutine test_incompatible_ungridded_dims_is_conflict(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph
+      type(ComponentGraph), pointer :: src_graph, dst_graph
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported, conflicts
+      type(GraphResolutionEntry), pointer :: entry
+      type(VariableSpec) :: import_var_spec
+      type(NodeId), pointer :: t_export_id, t_import_id, u_export_id, u_import_id
+      type(DependencyNetwork), pointer :: net
+      type(DependencyNetworkId) :: net_id
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_parent_ungridded_conflict', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T', units='K'))
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'U', units='K'))
+
+      dst_spec => dst_meta%get_component_spec()
+      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T', units='K')
+      import_var_spec%ungridded_dims = UngriddedDims([5])
+      call dst_spec%add_var_spec(import_var_spec)
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'U', units='K'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, connection_conflicts=conflicts, rc=status)
+      @assert_that(status, is(0))
+
+      @assertEqual(0, unresolved%size())
+      @assertEqual(0, unsupported%size())
+      @assertEqual(1, conflicts%size())
+      entry => conflicts%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('T', entry%short_name)
+      @assertEqual('incompatible UNGRIDDED_DIMS: export ungridded_dims=, ' // &
+           'import ungridded_dims=NONE:5', entry%reason)
+
+      parent_graph => parent_meta%get_component_graph()
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      u_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'U'))
+      u_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'U'))
+      @assert_that(associated(t_export_id), is(true()))
+      @assert_that(associated(t_import_id), is(true()))
+      @assert_that(associated(u_export_id), is(true()))
+      @assert_that(associated(u_import_id), is(true()))
+
+      net_id = parent_graph%get_default_network_id()
+      net => parent_graph%get_network(net_id)
+      @assert_that(net%has_predecessors(t_import_id), is(false()))
+      @assert_that(net%contains_dependency(u_export_id, u_import_id), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_incompatible_ungridded_dims_is_conflict
 
    ! openspec/changes/ordinary-inout-direct-alias - REQ-INOUT-001 direct-
    ! alias case: a destination item declared an ordinary inout borrower

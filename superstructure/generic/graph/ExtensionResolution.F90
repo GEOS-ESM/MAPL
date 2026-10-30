@@ -17,7 +17,7 @@
 ! Chain-building calls each mismatched characteristic's own
 ! StateItemCharacteristic%build_transform, an ordinary deferred method with
 ! no provider registry. A characteristic with no real conversion yet reports
-! BUILD_TRANSFORM_UNSUPPORTED (e.g. AttributesCharacteristic); one whose pair
+! BUILD_TRANSFORM_UNSUPPORTED (e.g. VerticalGridCharacteristic); one whose pair
 ! can never connect reports BUILD_TRANSFORM_INCOMPATIBLE. Neither raises.
 !
 ! Reuse search (find_or_build_extension_chain) is keyed through

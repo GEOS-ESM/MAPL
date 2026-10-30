@@ -10,10 +10,9 @@
 ! is a single `/=` call - no hand-written comparison logic.
 !
 ! A `build_transform` is required by the common interface but reports
-! unsupported here - no real provider exists for this axis. Legacy
-! UngriddedDimsAspect%make_transform always returns NullTransform (no
-! real adaptation exists anywhere for this axis, graph-native or
-! legacy). `get_signature` derives a stable string from
+! incompatible here: legacy UngriddedDimsAspect never converts a mismatch
+! (supports_conversion_* are false), so no Transform can ever exist.
+! `get_signature` derives a stable string from
 ! `ungridded_dims`'s own per-dimension name/extent pairs.
 !
 ! A MIRRORED instance holds no value (get_ungridded_dims returns an empty
@@ -22,7 +21,7 @@
 !------------------------------------------------------------------------------
 module mapl_UngriddedDimsCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
-   use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
+   use mapl_StateItemCharacteristic_mod, only: report_build_transform_incompatible
    use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL
    use mapl_CharacteristicStatus_mod, only: operator(==), CHARACTERISTIC_STATUS_SPECIFIED
    use mapl_GraphStateItem_mod, only: GraphStateItem
@@ -96,8 +95,7 @@ contains
       ungridded_dims = this%ungridded_dims
    end function get_ungridded_dims
 
-   ! No real adaptation exists for this axis (module header): reports
-   ! unsupported.
+   ! A mismatch can never be adapted (module header): reports incompatible.
    subroutine ungridded_dims_build_transform(this, goal, transformer, rc)
       class(UngriddedDimsCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -107,7 +105,7 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal)
 
-      call report_build_transform_unsupported(rc)
+      call report_build_transform_incompatible(rc)
    end subroutine ungridded_dims_build_transform
 
    ! ungridded_dims= is a creation input: on a completed field the array shape

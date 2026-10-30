@@ -116,7 +116,8 @@ factories (so far units, typekind, ungridded dims, geometry, vertical grid, vert
 | `VerticalStagger` | `VERTICAL_STAGGER_…` | Unsupported — mismatch is detected, repair is a stub |
 | `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Unsupported — mismatch is detected, repair is a stub |
 | `HorizontalDimsSpec` | `HORIZONTAL_DIMS_SPEC_…` | Incompatible — GEOM vs NONE is detected in both directions and can never connect |
-| `Attributes`, `UngriddedDims`, `StandardName`, `QuantityType`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | Unsupported — mismatch is detected, repair is a stub |
+| `Attributes`, `UngriddedDims`, `QuantityType`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | Incompatible — legacy rejects every mismatch of two non-mirror values, so a detected mismatch can never connect |
+| `StandardName` | `STANDARD_NAME_…` | Unsupported — legacy connects a mismatch with a warning in the default PERMISSIVE `ValidationMode` (the export's name wins) and rejects it only in STRICT mode; waits on a graph validation-mode decision |
 | `LongName` | `LONG_NAME_…` | Never compared (`needs_extension_for` is always false); `build_transform` is the unsupported stub |
 | `RestartMode` | `RESTART_MODE_…` | Never compared; `build_transform` is the unsupported stub. FIELD only; per-alias |
 

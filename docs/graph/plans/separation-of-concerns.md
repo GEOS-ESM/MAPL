@@ -593,7 +593,7 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName, B3-RestartMode, B3-QuantityType, B3-Conservation and B3-Normalization done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName, B3-RestartMode, B3-QuantityType, B3-Conservation, B3-Normalization and B3-IncompatibleSweep done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
@@ -604,7 +604,7 @@ in the first one; later ones refine it.
   `Plan-Task: B3-DimsZLegacy`, `Plan-Task: B3-IncompatiblePair`,
   `Plan-Task: B3-LongName`, `Plan-Task: B3-RestartMode`,
   `Plan-Task: B3-QuantityType`, `Plan-Task: B3-Conservation`,
-  `Plan-Task: B3-Normalization`); others not started.
+  `Plan-Task: B3-Normalization`, `Plan-Task: B3-IncompatibleSweep`); others not started.
   B3-QuantityType, B3-Conservation, B3-Normalization (tasks.md 3.10, done as
   one commit with three trailers): see adding-a-characteristic.md
   "QuantityType, Conservation and Normalization as implemented". The three
@@ -624,8 +624,9 @@ in the first one; later ones refine it.
   Normalization are MIRRORED when their metadata `is_mirror()` (factory
   interprets it); both are in `requests_mirror()`, and only the post-loop
   check in `make_characteristics` catches a mirror on an export because the
-  fields are assigned after `make_VariableSpec`. A mismatch stays
-  `BUILD_TRANSFORM_UNSUPPORTED`; task 3.22 moves all six kinds together.
+  fields are assigned after `make_VariableSpec`. A mismatch was
+  `BUILD_TRANSFORM_UNSUPPORTED` here; B3-IncompatibleSweep (tasks.md 3.22)
+  moved five of the six (all but StandardName) to INCOMPATIBLE together.
   Legacy absent-means-mirror: none reaches the graph (`make_*Aspect` always
   build non-mirror aspects; `QuantityTypeAspect()` and `NormalizationAspect()`
   with no argument are mirrors, `ConservationAspect()` is not). Legacy
@@ -751,6 +752,38 @@ in the first one; later ones refine it.
   ESSENTIAL green on NAG and gfortran (65/65); PENDING
   `MAPL.generic.scenarios.pending` on NAG fails the same 114 checks with
   identical messages as a clean HEAD worktree (Release, removed afterward).
+  B3-IncompatibleSweep (tasks.md 3.22): Attributes, UngriddedDims,
+  QuantityType, Conservation and Normalization call
+  `report_build_transform_incompatible`. The criterion is "legacy
+  rejects every mismatch of two non-mirror values, and no reachable case
+  converts data", not "`supports_conversion` false": QuantityType,
+  Conservation and Normalization have `supports_conversion_general` true,
+  but `supports_conversion_specific` is true only for matching pairs, and
+  the time-dependent branch of `StateItemAspect%can_connect_to` is
+  unreachable for them (no caller sets the flag; it would yield only a
+  `NullTransform` or `_FAIL`). They must be revisited if a time-dependent
+  quantity type, conservation or normalization is ever introduced (C3 list;
+  adding-a-characteristic.md). StandardName is OUT of the sweep (owner,
+  after review): it fails the criterion, since legacy
+  `StandardNameAspect%matches` connects two different names with a warning
+  in the default PERMISSIVE `ValidationMode` (the export's name wins) and
+  rejects them only in STRICT mode. It stays `BUILD_TRANSFORM_UNSUPPORTED`
+  until a graph validation-mode decision. Five small edits, no shared base
+  default (a default would make future kinds incompatible by accident).
+  Tests: five `..._reports_incompatible` in
+  `Test_StateItemCharacteristicSubclasses` (StandardName still asserts
+  UNSUPPORTED); `test_incompatible_ungridded_dims_is_conflict` shows the
+  `connection_conflicts` report is kind-agnostic (D6); the StandardName
+  connection test is unchanged. In shadow mode a conflict is still a
+  warning. Docs: CONVENTIONS.md, ARCHITECTURE.md, GLOSSARY.md,
+  adding-a-characteristic.md, design.md A23, tasks.md 3.10/3.22, and the
+  `standard_name_and_ungridded_dims_mismatch` fixture description,
+  expectations comment and scenario-naming.md (stale expected-exception
+  claim). ESSENTIAL green on NAG and gfortran (65/65); PENDING on NAG:
+  `Tests run: 373, Failures: 114, Errors: 0`, same five scenarios
+  (history_1, service_service, service_with_options, statistics,
+  statistics_real); its warnings name only VERTICAL_GRID, GEOMETRY and
+  EXPRESSION, so no message changed and no clean baseline was needed.
   B3-StringMirror: `VariableSpec` exports `MAPL_STRING_MIRROR` (`'<mirror>'`;
   YAML `standard_name: "<mirror>"`), shared with the later LongName task.
   `make_VariableSpec` does not store it: it sets `standard_name_mirror` and
@@ -1106,8 +1139,12 @@ code sets it, this task must: (1) give BRACKET/VECTORBRACKET's
 `get_extension_order` the legacy time-dependent branch (ITEM_SHAPE before
 GEOM, i.e. time-interpolate then regrid; design.md §4.2 table and Q4);
 (2) handle the DimsZLegacy latent case (a time-dependent `GeomAspect`
-forces a geom extension for two `dims: z` items). Without both, the
-wrong order runs silently.
+forces a geom extension for two `dims: z` items); (3) revisit QuantityType,
+Conservation and Normalization: their `build_transform` reports INCOMPATIBLE
+because legacy's time-dependent branch of `StateItemAspect%can_connect_to`
+(which ignores `matches`) is unreachable for them, and a time-dependent
+quantity type, conservation or normalization would make it reachable.
+Without all three, the wrong order runs silently.
 - **Status:** not started; not scheduled until time-dependent geometry
   has a user.
 
@@ -1279,7 +1316,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-MirrorGeneric | haiku | sonnet | one generic export check (constructor + after factory loop); drop per-factory export asserts |
 | B3-DimsZLegacy | sonnet | sonnet (owner-run) | legacy GeomAspect change + scenario with two grids; stop if legacy still regrids; plus MirrorGeneric review follow-ups (docs/comments, tests) |
 | B3-IncompatiblePair | sonnet | sonnet (pre-commit) | new build_transform outcome; conflict reporting stays kind-agnostic (D6) |
-| B3-IncompatibleSweep | sonnet | sonnet | tasks.md 3.22; six kinds UNSUPPORTED -> INCOMPATIBLE at once |
+| B3-IncompatibleSweep | sonnet | sonnet | tasks.md 3.22; five kinds UNSUPPORTED -> INCOMPATIBLE at once (StandardName excluded) |
 | B3-VerticalStagger | sonnet | opus | DEFERRED/harvest; fixture risk |
 | B3-VerticalOrientation | sonnet | opus | resolve against grid without comparing it |
 | B3-HorizontalDimsSpec | sonnet | opus | changes when Geometry is compared |

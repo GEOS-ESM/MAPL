@@ -111,9 +111,19 @@ Info.
   provokes such a mismatch asserts `BUILD_TRANSFORM_UNSUPPORTED` (or the
   `unsupported_characteristics` entry) and needs no
   `@assertExceptionRaised`. Reserve `_FAIL` for genuine errors.
-- A pair that can never connect (no Transform will ever exist, e.g.
-  HorizontalDimsSpec GEOM vs NONE) calls
-  `report_build_transform_incompatible(rc)` instead. It also raises
+- A pair that can never connect calls
+  `report_build_transform_incompatible(rc)` instead. The criterion is one
+  general rule: legacy rejects every mismatch of two non-mirror values of
+  that kind, and no reachable case converts data (so no Transform will ever
+  exist). It applies to HorizontalDimsSpec (GEOM vs NONE), the pairs the
+  ItemShape matrix rejects, and Attributes, UngriddedDims, QuantityType,
+  Conservation and Normalization. A kind whose Transform is merely not
+  built yet (Geometry, VerticalGrid, VerticalStagger, VerticalOrientation,
+  ItemShape's VECTORBRACKET to VECTOR) stays unsupported. So does
+  StandardName, because it fails the test: legacy permissive
+  `ValidationMode` (the default) connects a mismatch with a warning and the
+  export's name wins; only strict mode rejects it. Its graph behavior
+  awaits a graph validation-mode decision. Incompatible also raises
   nothing and leaves `transformer` unallocated. `ExtensionResolution`
   returns it through `conflict`, naming the kind and both
   `get_signature()` values, and `GraphBuilder` collects it in

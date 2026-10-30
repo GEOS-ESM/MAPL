@@ -7,9 +7,9 @@ established and compared (matching on both sides, confirming the
 unconditional-insertion axis is live and does not falsely mismatch when
 equal) while `standard_name` genuinely mismatches, the "a real
 production mismatch on a newly-wired axis is now visible to detection"
-case. Neither axis has a `build_transform` provider (see
-`StandardNameCharacteristic`/`UngriddedDimsCharacteristic`'s own module
-headers), so this is a detection-only fixture, not a
+case. Neither axis has a `Transform` (`StandardNameCharacteristic`
+reports unsupported, `UngriddedDimsCharacteristic` incompatible; see their
+own module headers), so this is a detection-only fixture, not a
 `units_and_typekind_mismatch`-style case with a real adaptation.
 
 `comp_src` exports `T` with `standard_name: air_temperature` and one
@@ -31,7 +31,7 @@ Expected outcome: `GraphBuilder%resolve_connections` detects the
 `standard_name` mismatch (`find_mismatched_characteristics` returns
 `STANDARD_NAME`), `find_or_build_extension_chain` attempts to build a
 chain, `StandardNameCharacteristic%build_transform` fails explicitly
-(no real provider), and the connection is reported through
+(no Transform exists), and the connection is reported through
 `unsupported_characteristics` with reason `STANDARD_NAME` - not wired
 through any chain, and never a fatal `rc` out of
 `graphbuilder_run_connect_hook` (caught and logged as a warning, same
@@ -53,9 +53,8 @@ and `GraphBuilder`'s own, independent detection is what is actually
 under test here.
 
 This fixture runs in `Test_Scenarios.pf` with a permissive
-field-dictionary override and an expected-exception entry in
-`scenario_table()` (the `StandardNameCharacteristic` build_transform
-failure, consumed during setup). The `graph: connections:` entry in
+field-dictionary override; `build_transform` raises nothing, so no
+expected exception is needed. The `graph: connections:` entry in
 `expectations.yaml` (`wired: false`) asserts that no edge and no
 predecessor exists between the two endpoints.
 

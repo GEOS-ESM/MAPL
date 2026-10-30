@@ -829,13 +829,21 @@ A22. Legacy `GeomAspect%matches` skips the geom comparison when both
 A23. `build_transform` has two failure outcomes. `BUILD_TRANSFORM_UNSUPPORTED`:
      the pair is legal but its Transform is not built yet (e.g. a regrid
      before C1); reported as today. `BUILD_TRANSFORM_INCOMPATIBLE`: the pair
-     can never connect (legacy `supports_conversion` false), e.g.
+     can never connect (legacy rejects every mismatch of two non-mirror
+     values and no reachable case converts data), e.g.
      HorizontalDimsSpec GEOM vs NONE; reported as a connection conflict
      naming the kind and both values. Neither raises (`_FAIL`), so other
      connections in the component still resolve. While the graph runs in
      shadow mode, a conflict is a warning like every graph failure, and
      legacy stops the run; once legacy is retired it is fatal. B3-ItemShape
      uses INCOMPATIBLE for its §4.3 "error" cells. Task B3-IncompatiblePair.
+     B3-IncompatibleSweep applies the same rule to Attributes, UngriddedDims,
+     QuantityType, Conservation and Normalization. StandardName fails the
+     rule's test and stays UNSUPPORTED: legacy `StandardNameAspect%matches`
+     connects two different names with a warning in the default PERMISSIVE
+     `ValidationMode` (the export's name wins) and rejects them only in
+     STRICT mode. Its graph behavior awaits a graph validation-mode
+     decision.
 
 ## Open Questions (deferred to the named B3 task)
 

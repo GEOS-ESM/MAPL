@@ -23,7 +23,7 @@
 !
 ! build_transform / get_signature here absorb an independent role from
 ! graph/extension-reuse. A concrete subclass with no real provider
-! implemented yet (e.g. AttributesCharacteristic) reports
+! implemented yet (e.g. VerticalGridCharacteristic) reports
 ! BUILD_TRANSFORM_UNSUPPORTED from build_transform rather than returning a
 ! stub Transform. That is an expected outcome, not an error: it raises
 ! nothing, and the caller reports the pair as unsupported. A pair that can

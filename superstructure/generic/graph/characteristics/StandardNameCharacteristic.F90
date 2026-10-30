@@ -12,7 +12,10 @@
 ! a name and escalates a disagreement by ValidationMode. That is not
 ! replicated: this type has no ValidationMode or logging dependency.
 !
-! No Transform exists for this axis: build_transform reports unsupported.
+! No Transform exists for this axis: build_transform reports unsupported, not
+! incompatible, because legacy StandardNameAspect%matches connects a
+! mismatch (with a warning, the export's name wins) unless the field
+! dictionary ValidationMode is STRICT.
 !------------------------------------------------------------------------------
 module mapl_StandardNameCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
