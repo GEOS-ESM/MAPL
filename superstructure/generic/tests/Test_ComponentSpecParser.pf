@@ -144,6 +144,49 @@ contains
       call ESMF_HConfigDestroy(config, _RC)
    end subroutine test_parse_var_specs_vertical_grid_mirror
 
+   ! "<mirror>" for standard_name or long_name sets the mirror flag and is not
+   ! stored; an item that omits it keeps its declared values.
+   @test
+   subroutine test_parse_var_specs_string_mirror()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: var_spec
+      type(VariableSpecVectorIterator) :: iter
+      integer :: rc, status, n_seen
+
+      config = ESMF_HConfigCreate(content='{states: {import: {' // &
+           'A: {typekind: R4, standard_name: "<mirror>", ' // &
+           'long_name: "<mirror>"},' // &
+           'B: {typekind: R4, standard_name: foo, long_name: Bar}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      @assertEqual(2, var_specs%size())
+
+      n_seen = 0
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            n_seen = n_seen + 1
+            if (var_spec%short_name == 'A') then
+               @assertTrue(var_spec%standard_name_mirror)
+               @assertTrue(var_spec%long_name_mirror)
+               @assertFalse(allocated(var_spec%standard_name))
+               @assertFalse(allocated(var_spec%long_name))
+            else
+               @assertFalse(var_spec%standard_name_mirror)
+               @assertFalse(var_spec%long_name_mirror)
+               @assertEqual('foo', var_spec%standard_name)
+               @assertEqual('Bar', var_spec%long_name)
+            end if
+         end do
+      end associate
+      @assertEqual(2, n_seen)
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_string_mirror
+
    ! vertical_alignment reaches the VariableSpec as written; omitted stays unallocated.
    @test
    subroutine test_parse_var_specs_vertical_alignment()

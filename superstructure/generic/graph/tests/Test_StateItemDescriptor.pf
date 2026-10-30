@@ -7,7 +7,8 @@ module Test_StateItemDescriptor
         GEOMETRY_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
         QUANTITY_TYPE_CHARACTERISTIC_KIND, VERTICAL_GRID_CHARACTERISTIC_KIND, &
         STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
-        VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND
+        VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+        HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED, CharacteristicStatus, operator(==)
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
@@ -18,6 +19,7 @@ module Test_StateItemDescriptor
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic, UNKNOWN_STANDARD_NAME
+   use mapl_LongNameCharacteristic_mod, only: LongNameCharacteristic
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
    use gFTL2_StringVector, only: StringVector
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
@@ -366,6 +368,74 @@ contains
    end subroutine test_sync_writes_standard_name_on_bundle
 
    @test
+   subroutine test_sync_writes_specified_long_name_in_both_phases()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, &
+           LongNameCharacteristic('Air Temperature'))
+      @assertEqual('Air Temperature', &
+           synced_long_name(item, SYNC_PHASE_STRUCTURAL))
+      @assertEqual('Air Temperature', &
+           synced_long_name(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_writes_specified_long_name_in_both_phases
+
+   ! An empty long_name is a declared value (legacy tests allocated).
+   @test
+   subroutine test_sync_writes_empty_long_name()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, &
+           LongNameCharacteristic(''))
+      @assertEqual('', synced_long_name(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_writes_empty_long_name
+
+   ! UNCHECKED writes nothing, so the seeded value is unchanged.
+   @test
+   subroutine test_sync_unchecked_long_name_writes_nothing()
+      type(StateItemDescriptor) :: item
+      type(LongNameCharacteristic) :: unchecked
+
+      call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, unchecked)
+      @assertEqual('seed', synced_long_name(item, SYNC_PHASE_STRUCTURAL))
+      @assertEqual('seed', synced_long_name(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_unchecked_long_name_writes_nothing
+
+   @test
+   subroutine test_sync_skips_mirrored_and_invalid_long_name()
+      type(StateItemDescriptor) :: item
+      type(LongNameCharacteristic) :: mirrored, invalid
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, mirrored)
+      @assertEqual('seed', synced_long_name(item, SYNC_PHASE_DESCRIPTIVE))
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, invalid)
+      @assertEqual('seed', synced_long_name(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_skips_mirrored_and_invalid_long_name
+
+   @test
+   subroutine test_sync_writes_long_name_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      character(:), allocatable :: long_name
+      integer :: status
+
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, &
+           LongNameCharacteristic('Air Temperature'))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, long_name=long_name, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('Air Temperature', long_name)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_writes_long_name_on_bundle
+
+   @test
    subroutine test_sync_fails_for_kind_without_write_info()
       type(StateItemDescriptor) :: item
       type(NodeIdGenerator) :: gen
@@ -415,6 +485,29 @@ contains
       @assertEqual(0, status)
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
    end subroutine test_sync_attributes_succeeds
+
+   ! The field starts with long_name 'seed'; a skipped write reads it back.
+   function synced_long_name(item, phase) result(long_name)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      character(:), allocatable :: long_name
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, long_name='seed', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, long_name=long_name, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_long_name
 
    ! The field starts with standard_name 'seed', so a skipped write reads back 'seed'.
    function synced_standard_name(item, phase) result(standard_name)

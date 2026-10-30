@@ -37,7 +37,7 @@ module Test_GraphBuilder_Advertising
    use mapl_StateItemCharacteristicKind_mod, only: ATTRIBUTES_CHARACTERISTIC_KIND, &
         UNGRIDDED_DIMS_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, &
         QUANTITY_TYPE_CHARACTERISTIC_KIND, CONSERVATION_CHARACTERISTIC_KIND, &
-        NORMALIZATION_CHARACTERISTIC_KIND
+        NORMALIZATION_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
    use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
@@ -562,6 +562,7 @@ contains
       @assertTrue(descriptor%has_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND))
       call descriptor%get_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, found, _RC)
       @assertTrue(found%get_status() == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertTrue(descriptor%has_characteristic(LONG_NAME_CHARACTERISTIC_KIND))
       @assertTrue(descriptor%has_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND))
       @assert_that(descriptor%has_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND), is(true()))
       @assert_that(descriptor%has_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND), is(true()))

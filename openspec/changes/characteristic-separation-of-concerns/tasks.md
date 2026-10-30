@@ -354,7 +354,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       owner accepted this until this task. Known starting point: the
       connect hook reports "no registered extension provider" for
       EXPRESSION mismatches)
-- [ ] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
+- [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the
       way B3-StringMirror did: `make_VariableSpec` strips it into a
@@ -367,13 +367,17 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
         `FieldClassAspect` and `ExpressionClassAspect`). Amend the §4.3
         EXPRESSION row. Also fix §3.4/§4.3: a bundle's `long_name` is
         bundle-wide (id 0), not per-alias.
-      - The StandardName fallback (A8's third step) applies to exports
-        only. An import with no declared long_name stays UNCHECKED and
-        inherits the export's, as in legacy.
+      - The StandardName fallback (A8's third step) applies to every
+        intent except IMPORT (export, internal); legacy has no such
+        fallback, a deliberate difference. An import with no declared
+        long_name stays UNCHECKED and inherits the export's, as in legacy.
       - No per-alias wiring here: 3.11 adds `is_per_alias()` and the
         `populate_one` call. LongName returns true from `is_per_alias()`
         if 3.11 has landed; otherwise 3.11 sets it. Until then LongName is
         unit-tested only; say so in the commit message.
+      Done: `LongNameCharacteristic` (kind 15, FIELD and EXPRESSION only),
+      factory 12, `long_name_mirror`, YAML test. No per-alias wiring yet;
+      3.11 adds `is_per_alias()` and sets LongName's flag.
 - [ ] 3.14 B3-SetShared: retarget `set_shared_characteristic` to mutate
       the descriptor (§7.3); check and report whether import-side
       geometry changes (History samplers) are handled. Since B1 it

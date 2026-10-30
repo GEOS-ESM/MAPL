@@ -40,6 +40,8 @@ module mapl_StateItemCharacteristicKind_mod
    public :: VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
    ! Value 14: horizontal dims spec (GEOM or NONE).
    public :: HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND
+   ! Value 15: long name.
+   public :: LONG_NAME_CHARACTERISTIC_KIND
    public :: MOCK_CHARACTERISTIC_KIND
 
    type :: StateItemCharacteristicKind
@@ -74,6 +76,10 @@ module mapl_StateItemCharacteristicKind_mod
 
    ! Value 14: horizontal dims spec (HorizontalDimsSpecCharacteristic.F90).
    type(StateItemCharacteristicKind), parameter :: HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND = StateItemCharacteristicKind(14)
+
+   ! Value 15: long name (LongNameCharacteristic.F90).
+   type(StateItemCharacteristicKind), parameter :: &
+        LONG_NAME_CHARACTERISTIC_KIND = StateItemCharacteristicKind(15)
 
    ! Test-only, mirrors CharacteristicId.F90's own MOCK_CHARACTERISTIC_ID
    ! precedent - lets a test define a fake StateItemCharacteristic
@@ -127,6 +133,8 @@ contains
          s = "VERTICAL_ORIENTATION"
       case (HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND%value)
          s = "HORIZONTAL_DIMS_SPEC"
+      case (LONG_NAME_CHARACTERISTIC_KIND%value)
+         s = "LONG_NAME"
       case (MOCK_CHARACTERISTIC_KIND%value)
          s = "MOCK"
       case default

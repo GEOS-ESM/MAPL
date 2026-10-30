@@ -27,7 +27,8 @@ module Test_StateItemCharacteristicSubclasses
                                                     ITEM_SHAPE_CHARACTERISTIC_KIND, &
                                                     VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
                                                     VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
-                                                   HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND
+        HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+        LONG_NAME_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
    use mapl_TransformBase_mod, only: TransformBase
 
@@ -48,6 +49,7 @@ module Test_StateItemCharacteristicSubclasses
    use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
    use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
+   use mapl_LongNameCharacteristic_mod, only: LongNameCharacteristic
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
@@ -531,6 +533,50 @@ contains
 
       @assertTrue(a%needs_extension_for(b))
    end subroutine test_standard_name_unequal_names_need_extension
+
+   ! --- LongNameCharacteristic (never compared) ---
+
+   @test
+   subroutine test_long_name_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=LongNameCharacteristic('Air Temperature'))
+      @assertTrue(v%get_kind() == LONG_NAME_CHARACTERISTIC_KIND)
+   end subroutine test_long_name_is_a_value_characteristic
+
+   @test
+   subroutine test_long_name_never_needs_extension()
+      type(LongNameCharacteristic) :: a, b
+
+      a = LongNameCharacteristic('Air Temperature')
+      b = LongNameCharacteristic('Surface Pressure')
+
+      @assertFalse(a%needs_extension_for(b))
+      @assertFalse(b%needs_extension_for(a))
+   end subroutine test_long_name_never_needs_extension
+
+   @test
+   subroutine test_long_name_signature_and_unvalued_accessor()
+      type(LongNameCharacteristic) :: a, unvalued
+
+      a = LongNameCharacteristic('Air Temperature')
+      @assertEqual('long_name=Air Temperature', a%get_signature())
+      @assertEqual('', unvalued%get_long_name())
+      @assertEqual('long_name=', unvalued%get_signature())
+   end subroutine test_long_name_signature_and_unvalued_accessor
+
+   @test
+   subroutine test_long_name_build_transform_reports_unsupported()
+      type(LongNameCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = LongNameCharacteristic('a')
+      b = LongNameCharacteristic('b')
+      call a%build_transform(b, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_long_name_build_transform_reports_unsupported
 
    ! --- build_transform reports BUILD_TRANSFORM_UNSUPPORTED for the six
    ! provider-less subclasses ---

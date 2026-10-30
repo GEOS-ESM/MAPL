@@ -5,13 +5,15 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
         TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
         VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND, &
         VERTICAL_STAGGER_CHARACTERISTIC_KIND, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
-        HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, ITEM_SHAPE_CHARACTERISTIC_KIND
+        HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+        ITEM_SHAPE_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED, operator(==)
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic, UNKNOWN_STANDARD_NAME
+   use mapl_LongNameCharacteristic_mod, only: LongNameCharacteristic
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
    use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_NONE, operator(==)
@@ -55,7 +57,7 @@ contains
 
       integer :: status
       integer :: i
-      type(Factory) :: factories(11)
+      type(Factory) :: factories(12)
 
       factories(1)%make => make_units_characteristic
       factories(2)%make => make_typekind_characteristic
@@ -68,6 +70,7 @@ contains
       factories(9)%make => make_vertical_orientation_characteristic
       factories(10)%make => make_horizontal_dims_spec_characteristic
       factories(11)%make => make_item_shape_characteristic
+      factories(12)%make => make_long_name_characteristic
 
       do i = 1, size(factories)
          call factories(i)%make(this, descriptor, _RC)
@@ -470,6 +473,49 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_item_shape_characteristic
+
+   ! Only FIELD and EXPRESSION carry a long_name (legacy passes it to no
+   ! other class aspect). A MAPL_STRING_MIRROR request is MIRRORED (mirror on
+   ! an export: see check_no_mirrored_entry). A declared long_name, even an
+   ! empty one, is SPECIFIED; the field dictionary has already filled it in
+   ! make_VariableSpec. Any intent but IMPORT (export, internal) that declares
+   ! none takes its standard_name value; legacy has no such fallback. Anything
+   ! else is UNCHECKED and writes nothing, so an import inherits the export's.
+   subroutine make_long_name_characteristic(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(LongNameCharacteristic) :: long_name
+      logical :: carries, from_standard_name
+
+      carries = spec%itemType == MAPL_STATEITEM_FIELD .or. &
+           spec%itemType == MAPL_STATEITEM_EXPRESSION
+      _RETURN_UNLESS(carries)
+
+      ! A mirrored standard_name is left unallocated by make_VariableSpec.
+      from_standard_name = .false.
+      if (spec%state_intent /= ESMF_STATEINTENT_IMPORT .and. &
+           allocated(spec%standard_name)) then
+         from_standard_name = spec%standard_name /= UNKNOWN_STANDARD_NAME
+      end if
+
+      if (spec%long_name_mirror) then
+         call long_name%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      else if (allocated(spec%long_name)) then
+         long_name = LongNameCharacteristic(spec%long_name)
+      else if (from_standard_name) then
+         long_name = LongNameCharacteristic(spec%standard_name)
+      else
+         call long_name%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      end if
+
+      call descriptor%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, &
+           long_name, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_long_name_characteristic
 
    ! Shapes that carry a horizontal dims spec: field-carrying, but not
    ! EXPRESSION.

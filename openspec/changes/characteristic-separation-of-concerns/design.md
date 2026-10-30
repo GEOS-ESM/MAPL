@@ -319,7 +319,7 @@ for that shape).
 | UngriddedDims | `ungridded_dims=` | `ungridded_dims=` | - | S | |
 | PhysicalUnits | `units=` | `units=` | - | S (see §3.2.2) | UNCHECKED writes `'<unknown>'`. |
 | StandardName | `standard_name=` | `standard_name=` | - | D | Field-wide (unaliased). UNCHECKED writes `'<unknown>'`. |
-| LongName | `long_name=` | `long_name=` | - | D | Per-alias: written on the item's own alias. |
+| LongName | `long_name=` | `long_name=` | - | D | A Field's is per-alias: written on the item's own alias. A bundle's is bundle-wide (`FieldBundleInfo` id 0), not per-alias. UNCHECKED writes nothing. |
 | Attributes | none | none | - | - | Writes nothing (legacy `AttributesAspect%update_payload` is a no-op). `FieldSet`'s `attributes` dummy is unused (`_UNUSED_DUMMY`). No setter argument is added. |
 | QuantityType | `quantity_type_metadata=` | `quantity_type_metadata=` | - | D | Writes only its own key. Legacy also wrote a derived `normalization_metadata`, which `NormalizationAspect` then overwrote (AspectMap order 9 < 11). Owner Q9. |
 | Conservation | `conservation_metadata=` | `conservation_metadata=` | - | D | |
@@ -432,7 +432,7 @@ The factory omits kinds that are not applicable, using legacy
 | FIELD | all comparing kinds + RestartMode, LongName |
 | BRACKET, VECTORBRACKET | all comparing kinds except STANDARD_NAME (legacy order omits it; see the note below the matrix) |
 | VECTOR, FIELDBUNDLE | all comparing kinds except STANDARD_NAME |
-| EXPRESSION | ITEM_SHAPE, GEOMETRY, VERTICAL_GRID, VERTICAL_STAGGER, VERTICAL_ORIENTATION, TYPE_KIND, Expression, and PHYSICAL_UNITS as UNCHECKED (owner Q3) |
+| EXPRESSION | ITEM_SHAPE, GEOMETRY, VERTICAL_GRID, VERTICAL_STAGGER, VERTICAL_ORIENTATION, TYPE_KIND, LONG_NAME, Expression, and PHYSICAL_UNITS as UNCHECKED (owner Q3) |
 | (any shape above) | VERTICAL_GRID, VERTICAL_STAGGER and VERTICAL_ORIENTATION apply only to an item with a vertical dimension: no VERTICAL_GRID or VERTICAL_ORIENTATION for `vertical_stagger == NONE`, and SERVICE, STATE and WILDCARD never have them (the VERTICALGRID composite is the one STATE with a VERTICAL_GRID) |
 | (any shape with GEOMETRY except EXPRESSION, SERVICE) | HORIZONTAL_DIMS_SPEC. With NONE (A14) the item's GEOMETRY entry is never compared (see §5) |
 | STATE | ITEM_SHAPE only |
@@ -536,7 +536,7 @@ error, A1). It replaces no existing keyword; legacy has none for these.
 | Conservation | `conservation` | `is_mirror`: MIRRORED; else SPECIFIED |
 | Normalization | `normalization` | `is_mirror`: MIRRORED; else SPECIFIED |
 | RestartMode | `restart_mode` | allocated: SPECIFIED; else SPECIFIED `RESTART_REQUIRED` (A15). Never compared (§2.5). |
-| LongName (A8) | `long_name` (field dictionary fills it first) | string mirror sentinel: MIRRORED, imports only (A13); else allocated: SPECIFIED; else the StandardName value if declared: SPECIFIED; else UNCHECKED (writes nothing) |
+| LongName (A8) | `long_name` (field dictionary fills it first); FIELD and EXPRESSION only | string mirror sentinel: MIRRORED, imports only (A13); else allocated (even empty): SPECIFIED; else, on any intent but IMPORT, the StandardName value if declared (not `'<unknown>'`): SPECIFIED; else UNCHECKED (writes nothing). An import with no `long_name` is UNCHECKED and takes the export's. A mirrored `long_name` never falls back. |
 
 DEFERRED -> SPECIFIED happens through
 `StateItemDescriptor%resolve_deferred(defaults, rc)`, where `defaults` is
@@ -575,7 +575,7 @@ is authoritative for status rules; this table summarizes it.
 | TypeKind | `typekind` | built-in R4 | - | `MAPL_TYPEKIND_MIRROR` | same; a MIRROR side matches anything | landed |
 | PhysicalUnits | `units` | field dictionary | UNCHECKED | none (may adopt the string sentinel later) | UNCHECKED; writes `/$MIRROR$` for mirrored units (no reader) | landed |
 | StandardName | `standard_name` | - | UNCHECKED | string sentinel, imports only (A13) | UNCHECKED | landed |
-| LongName | `long_name` | field dictionary, then StandardName | UNCHECKED, writes nothing | string sentinel, imports only (A13) | carried on `FieldClassAspect`, not compared | design |
+| LongName | `long_name` | field dictionary, then StandardName (every intent but IMPORT; legacy has none) | UNCHECKED, writes nothing | string sentinel, imports only (A13) | carried on `FieldClassAspect`, not compared; an import with none inherits the export's | landed |
 | UngriddedDims | `ungridded_dims` | built-in: none | - | `is_mirror()` | same | landed |
 | Geometry | `geom`, `geom_id` | component geom, then harvest | freeze fails | `mirror_geom` / `geometry_mirror: true` | item geom, component geom, item id, component id (FROM_COMP); else MIRRORED | landed |
 | HorizontalDimsSpec | `horizontal_dims_spec` / `dims: z` | built-in GEOM | - | `HORIZONTAL_DIMS_MIRROR` (`dims: mirror`), imports only | compared inside `GeomAspect`, together with the geom (a mirror agrees with any spec) | landed |
@@ -729,7 +729,7 @@ A1. Mirrored exports are disallowed by default. Only the EXPRESSION
     entries in §2.4 are allowlisted. Further entries need a compelling,
     demonstrated use case.
 A8. Add `LongName`. Default chain: declared, then field dictionary, then
-    the StandardName value. Supports the string mirror (A13).
+    the StandardName value (every intent but IMPORT). Supports the string mirror (A13).
 A10. Runtime geometry change is a goal (History samplers on imports,
      ExtData epoch-dependent exports, moving nested grids). SetShared
      survives (§7.3).

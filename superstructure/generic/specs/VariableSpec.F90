@@ -73,8 +73,8 @@ module mapl_VariableSpec_mod
    public :: make_VariableSpec
    public :: MAPL_STRING_MIRROR
 
-   ! standard_name value that requests the connected partner's name (imports
-   ! only). Write it quoted in YAML ("<mirror>").
+   ! standard_name or long_name value that requests the connected partner's
+   ! value (imports only). Write it quoted in YAML ("<mirror>").
    character(*), parameter :: MAPL_STRING_MIRROR = '<mirror>'
 
    ! This type provides components that might be needed for _any_
@@ -103,6 +103,8 @@ module mapl_VariableSpec_mod
       ! Set by a MAPL_STRING_MIRROR request; standard_name stays unallocated.
       logical :: standard_name_mirror = .false.
       character(:), allocatable :: long_name ! from FieldDictionary or override
+      ! Set by a MAPL_STRING_MIRROR request; long_name stays unallocated.
+      logical :: long_name_mirror = .false.
       type(RestartMode), allocatable :: restart_mode
       !---------------------
       ! Vector
@@ -376,7 +378,13 @@ contains
             var_spec%standard_name = standard_name
          end if
       end if
-      _SET_OPTIONAL(long_name)
+      if (present(long_name)) then
+         if (long_name == MAPL_STRING_MIRROR) then
+            var_spec%long_name_mirror = .true.
+         else
+            var_spec%long_name = long_name
+         end if
+      end if
       _SET_OPTIONAL(geom_id)
       _SET_OPTIONAL(geom)
       _SET_OPTIONAL(units)
@@ -434,7 +442,9 @@ contains
    logical function requests_mirror(this)
       class(VariableSpec), intent(in) :: this
 
-      requests_mirror = this%standard_name_mirror .or. this%mirror_geom .or. this%mirror_vgrid
+      requests_mirror = this%standard_name_mirror .or. this%long_name_mirror
+      requests_mirror = requests_mirror .or. this%mirror_geom
+      requests_mirror = requests_mirror .or. this%mirror_vgrid
       requests_mirror = requests_mirror .or. this%typekind == MAPL_TYPEKIND_MIRROR
       requests_mirror = requests_mirror .or. this%horizontal_dims_spec == HORIZONTAL_DIMS_MIRROR
       requests_mirror = requests_mirror .or. this%ungridded_dims%is_mirror()

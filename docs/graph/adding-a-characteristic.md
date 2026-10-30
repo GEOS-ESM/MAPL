@@ -8,7 +8,9 @@ structural kind with a MIRRORED sentinel; UngriddedDims
 (`B3-UngriddedDims`) adds a kind with its own shape set and a
 descriptor-side duplicate removed; StandardName (`B3-StandardName`) is the
 worked example for deleting a subclass's own status check; Attributes
-(`B3-Attributes`) is the worked example for a kind with no Info key. Later
+(`B3-Attributes`) is the worked example for a kind with no Info key; LongName
+(`B3-LongName`) is the worked example for a never-compared kind with a
+default chain. Later
 B3 tasks refine this file.
 
 Design authority: `openspec/changes/characteristic-separation-of-concerns/design.md`
@@ -420,9 +422,56 @@ A shared sentinel, not a characteristic of its own. `VariableSpec` exports
 - Against an export with no declared name (UNCHECKED), the mirrored import
   becomes UNCHECKED: there is nothing to copy and nothing is compared. This
   is the generic (UNCHECKED, MIRRORED) rule in the descriptor, for all kinds.
-- LongName (B3-LongName) reuses the same sentinel and the same rule.
+- LongName (B3-LongName) reuses the same sentinel and the same rule; see
+  LongName below.
 - A `MAPL_STRING_MIRROR` request on an export is rejected by the generic rule
   (A21), in `make_VariableSpec` and after the factory loop.
+
+## LongName as implemented
+
+A descriptive, never-compared kind: `needs_extension_for` is always false
+and `build_transform` is the unsupported stub, so a connection never needs
+a step for it.
+
+| Input | Shape | Entry |
+|---|---|---|
+| `MAPL_STRING_MIRROR` (`long_name_mirror`) | FIELD, EXPRESSION | MIRRORED (imports only; exports: generic rule, A21) |
+| `long_name` allocated, even empty | same | SPECIFIED with the value |
+| unallocated, not an import (export, internal), `standard_name` declared and not `'<unknown>'` | same | SPECIFIED with the standard name |
+| unallocated, otherwise (including every import) | same | UNCHECKED, no value, writes nothing |
+| any | every other flag (BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE, STATE, SERVICE, WILDCARD, ...) | none |
+
+- Own shape set (design §4.3): legacy passes `long_name` only to
+  `FieldClassAspect` and `ExpressionClassAspect`. A bundle can still be
+  written by hand: `write_info` accepts a Field or FieldBundle handle.
+- Default chain (design A8): declared, then the field dictionary (applied
+  by `make_VariableSpec` before any factory runs), then the
+  StandardName value. The last step applies to every intent except IMPORT
+  (export and internal); legacy has no standard-name fallback, so this is
+  a deliberate difference. An import with no `long_name` stays UNCHECKED
+  and takes the export's through the generic UNCHECKED rule, as legacy
+  `connect_to_export` (`mirror_name`) does. A mirrored `standard_name` is unallocated in the spec, so it does not
+  count as declared. A mirrored `long_name` never falls back.
+- Legacy absent-means-mirror: an import with no `long_name` inherits the
+  export's value in `FieldClassAspect%connect_to_export` (`mirror_name`).
+  The graph reproduces it as UNCHECKED, not MIRRORED: an UNCHECKED import
+  stays valueless and writes nothing, so the field keeps the export's
+  long_name. The exception is an import that declares its own `long_name`:
+  that import is SPECIFIED and keeps its value (legacy: dst wins), and so
+  does the graph.
+- Mirror: `make_VariableSpec` strips `MAPL_STRING_MIRROR` into
+  `long_name_mirror`, so no legacy reader sees the string;
+  `requests_mirror()` includes it, so an export is rejected by the generic
+  rule.
+- `write_info` writes `long_name=` through `MAPL_FieldSet` /
+  `MAPL_FieldBundleSet` in both phases (not structural). `MAPL_FieldSet`
+  stores a field's long_name under the field's own alias; a bundle's is
+  bundle-wide (id 0). UNCHECKED writes nothing (design §3.3).
+- Not wired yet: `populate_one` does not call `sync_to_info`, and
+  `is_per_alias()` does not exist. B3-RestartMode adds both and sets
+  LongName's flag. Until then LongName is covered by unit tests only.
+- `parse_var_specs` already reads `standard_name` and `long_name`; the YAML
+  test covers `"<mirror>"` for both.
 
 ## Attributes as implemented
 

@@ -562,7 +562,7 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy and B3-IncompatiblePair done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair and B3-LongName done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
@@ -570,7 +570,33 @@ in the first one; later ones refine it.
   `Plan-Task: B3-VerticalStagger`, `Plan-Task: B3-VerticalOrientation`,
   `Plan-Task: B3-HorizontalDimsSpec`, `Plan-Task: B3-StringMirror`,
   `Plan-Task: B3-MirrorFlagGuard`, `Plan-Task: B3-MirrorGeneric`,
-  `Plan-Task: B3-DimsZLegacy`, `Plan-Task: B3-IncompatiblePair`); others not started.
+  `Plan-Task: B3-DimsZLegacy`, `Plan-Task: B3-IncompatiblePair`,
+  `Plan-Task: B3-LongName`); others not started.
+  B3-LongName (tasks.md 3.13, done): see adding-a-characteristic.md "LongName
+  as implemented". New kind `LONG_NAME_CHARACTERISTIC_KIND` (15) and
+  `LongNameCharacteristic` (never compared; `build_transform` unsupported;
+  `write_info` writes `long_name=` through `MAPL_FieldSet` /
+  `MAPL_FieldBundleSet`, UNCHECKED writes nothing). Factory 12 inserts it for
+  FIELD and EXPRESSION only (legacy passes `long_name` to no other class
+  aspect). Default chain: declared (even empty), then the field dictionary
+  (`make_VariableSpec`), then the StandardName value on every intent but IMPORT (owner decision;
+  legacy has no such fallback); an
+  import with none is UNCHECKED and takes the export's, which reproduces
+  legacy `connect_to_export` `mirror_name` (the one legacy
+  "absent means inherit" case). `MAPL_STRING_MIRROR` is stripped into
+  `long_name_mirror` by `make_VariableSpec` and added to `requests_mirror()`,
+  so the generic A21 checks reject it on exports. Added the `parse_var_specs`
+  YAML test for `standard_name: "<mirror>"` and `long_name: "<mirror>"`.
+  Design §3.4/§4.3/§5/§5.1 amended (bundle long_name is bundle-wide; EXPRESSION
+  row gains LONG_NAME). Deviation: none from tasks.md; not wired into
+  `populate_one` (no `is_per_alias()` yet), so LongName is unit-tested only
+  until B3-RestartMode (3.11). ESSENTIAL green on NAG and gfortran (65/65).
+  `MAPL.generic.scenarios.pending` on NAG compared with a clean HEAD
+  worktree configured Release like `nag/` (Rule 1, removed afterward): both
+  fail 114 of 373 checks in the same five scenarios (`history_1`,
+  `service_service`, `service_with_options`, `statistics`,
+  `statistics_real`), with identical failure messages (sorted logs differ
+  only in timings).
   B3-ItemShape: done (`Plan-Task: B3-ItemShape`). Every shape gets a
   SPECIFIED ItemShape from a `make_characteristics` factory (with
   `state_item_variant` if declared); the advertise block is gone. Shape

@@ -99,11 +99,11 @@ Info writes: `StateItemDescriptor%sync_to_info(handle, phase)` calls
 each SPECIFIED/UNCHECKED characteristic's `write_info` (phases
 `SYNC_PHASE_STRUCTURAL`/`SYNC_PHASE_DESCRIPTIVE`; `is_structural()`
 kinds are skipped in DESCRIPTIVE). The base `write_info` fails; only
-`PhysicalUnits`, `TypeKind`, `UngriddedDims`, `Geometry`, `VerticalGrid`, `VerticalStagger`, `VerticalOrientation`, `HorizontalDimsSpec`, `StandardName`, `ItemShape` and `Attributes` (a no-op: no Info key) override it so far, and no production path calls
+`PhysicalUnits`, `TypeKind`, `UngriddedDims`, `Geometry`, `VerticalGrid`, `VerticalStagger`, `VerticalOrientation`, `HorizontalDimsSpec`, `StandardName`, `LongName`, `ItemShape` and `Attributes` (a no-op: no Info key) override it so far, and no production path calls
 `sync_to_info` yet (materialization adopts it in B4). Factories live in
 `specs/VariableSpec/make_characteristics.F90`: the type-bound
 `VariableSpec%make_characteristics` loops over a registry of per-kind
-factories (so far units, typekind, ungridded dims, geometry, vertical grid, vertical stagger, vertical orientation, horizontal dims spec, standard name, attributes and item shape). Procedure: `docs/graph/adding-a-characteristic.md`.
+factories (so far units, typekind, ungridded dims, geometry, vertical grid, vertical stagger, vertical orientation, horizontal dims spec, standard name, attributes, item shape and long name). Procedure: `docs/graph/adding-a-characteristic.md`.
 
 | Characteristic | Kind constant | `build_transform` today |
 |---|---|---|
@@ -116,6 +116,7 @@ factories (so far units, typekind, ungridded dims, geometry, vertical grid, vert
 | `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Unsupported — mismatch is detected, repair is a stub |
 | `HorizontalDimsSpec` | `HORIZONTAL_DIMS_SPEC_…` | Incompatible — GEOM vs NONE is detected in both directions and can never connect |
 | `Attributes`, `UngriddedDims`, `StandardName`, `QuantityType`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | Unsupported — mismatch is detected, repair is a stub |
+| `LongName` | `LONG_NAME_…` | Never compared (`needs_extension_for` is always false); `build_transform` is the unsupported stub |
 
 Other files: `CharacteristicStatus.F90`, `StateItemCharacteristicKind.F90`
 (also `MOCK_CHARACTERISTIC_KIND`), `SetSharedCharacteristic.F90`.
