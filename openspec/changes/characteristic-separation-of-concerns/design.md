@@ -85,7 +85,8 @@ Legacy reference points (the behavior being duplicated):
 | `CLASS_ASPECT_ID` (class identity) | `ItemShape` (`ITEM_SHAPE`) | value | yes, partial | Widened to every `MAPL_STATEITEM_*` shape (see §4.3). Replaces `declared_item_type`. |
 | `CLASS_ASPECT_ID` (`ExpressionClassAspect%expression`) | `Expression` (new) | value | no | Expression string. Never mismatches (§2.5). |
 | `CLASS_ASPECT_ID` (`FieldClassAspect%long_name`) | `LongName` (new, A8) | value | no | Never mismatches. Needed for Info parity (`SharedIO` reads `long_name`) and by History (mirror, A13). Owner A8. |
-| `CLASS_ASPECT_ID` (`fill_value`, `bracket_size`, `vector_basis_kind`) | deferred to M3 | - | no | Only needed once the graph materializes those shapes (B4/M3). Owner A8. |
+| `CLASS_ASPECT_ID` (`fill_value`) | none (A24, R14) | - | no | Not a characteristic: materialization fills the field from the owning `VariableSpec`'s `fill_value`; an import's has no effect, as in legacy data. Task B3-FillValue (tasks.md 3.34). |
+| `CLASS_ASPECT_ID` (`bracket_size`, `vector_basis_kind`) | deferred to M3 | - | no | Only needed once the graph materializes those shapes (B4/M3). Owner A8. |
 | `GEOM_ASPECT_ID` (geom) | `Geometry` (`GEOMETRY`) | reference | yes, component-level only | Item-level instance added by B3-Geometry (fixes M1). Also carries the regridder param (not compared). |
 | `GEOM_ASPECT_ID` (`horizontal_dims_spec`) | `HorizontalDimsSpec` (new, A14) | value | landed (B3-HorizontalDimsSpec) | Moved out of `GeometryCharacteristic`. SPECIFIED (GEOM or NONE) or MIRRORED (`HORIZONTAL_DIMS_MIRROR`, imports only); GEOM vs NONE is incompatible (A23). |
 | `VERTICAL_GRID_ASPECT_ID` (grid) | `VerticalGrid` (`VERTICAL_GRID`) | reference | yes | References the item's `VerticalGrid`, which may carry several coordinates. Must also be set from the component vertical grid (M2). |
@@ -484,10 +485,13 @@ The ItemShape `needs_extension_for` / `build_transform` matrix (legacy
 | SERVICE | error | error | error | error | SERVICE: match |
 
 Standard name across BRACKET -> FIELD (owner, B3-ItemShape): legacy
-`StandardNameAspect%connect_to_export` adopts the export's name, not the
-import's. A BRACKET carries no StandardName entry, so a name disagreement
-across BRACKET -> FIELD is not checked, which matches legacy PERMISSIVE
-mode. Strict-mode checking waits for a graph validation mode, which needs
+never copies a standard_name between aspects here: `StateItemSpec%connect_to_export`
+connects only the CLASS aspect, so `StandardNameAspect%connect_to_export`
+runs only for a VECTOR's per-component names (`VectorClassAspect`). The
+import aliases the export's (or extension's) field, and standard_name is a
+field-wide Info key, so the import reads the export's name. A BRACKET
+carries no StandardName entry, so a name disagreement across BRACKET ->
+FIELD is not checked, which matches legacy PERMISSIVE mode. Strict-mode checking waits for a graph validation mode, which needs
 its own design decision.
 
 EXPRESSION -> FIELD (owner, B3-ItemShape): the cell is a match because a
@@ -501,7 +505,10 @@ Transform step.
 
 WILDCARD imports keep their dedicated resolution
 (`resolve_wildcard_destination`). The match cells exist so that the
-matrix is total.
+matrix is total. Membership is FIELD exports only (A24, R6; legacy
+production fails on a non-Field match), relaxed if reasonable use cases
+appear; the FIELDBUNDLE and STATE match cells do not make those shapes
+members. Task B3-WildcardFieldOnly (tasks.md 3.30).
 
 ### §5. Translation from VariableSpec (D5)
 
@@ -613,7 +620,7 @@ is authoritative for status rules; this table summarizes it.
 | HorizontalDimsSpec | `horizontal_dims_spec` / `dims: z` | built-in GEOM | - | `HORIZONTAL_DIMS_MIRROR` (`dims: mirror`), imports only | compared inside `GeomAspect`, together with the geom (a mirror agrees with any spec) | landed |
 | VerticalGrid | `vertical_grid` | component grid | no entry (2D item) | `mirror_vgrid` / `vertical_grid_mirror: true` | item grid, component grid; else MIRRORED (FROM_COMP if a component geom id exists) | landed |
 | VerticalStagger | `vertical_stagger` / `vertical_dim_spec` | none: harvest from the component's field | NONE if the component has no vertical grid; else freeze fails | `MIRROR` (imports only); `mirror_vgrid` with no stagger | unallocated stagger is treated as mirror; `MIRROR` matches any stagger | landed |
-| VerticalOrientation | `vertical_alignment` | the item's grid direction (`with_grid`) | no entry (2D item) | explicit mirror value, imports only | `with_grid`; compared after resolving against the grid's direction; the import copies the export's on connect | landed |
+| VerticalOrientation | `vertical_alignment` | the item's grid direction (`with_grid`) | no entry (2D item) | explicit mirror value, imports only | `with_grid`; compared after resolving against the grid's direction; `VerticalGridAspect%connect_to_export` would copy the export's, but it has no production caller (A24, R1) | landed |
 | Attributes | `attributes` | built-in: empty | - | - | empty; import's set must be included in export's | landed |
 | QuantityType | `quantity_type` | built-in UNKNOWN | - | - | ignores the declared value: always UNKNOWN (Q9) | landed |
 | Conservation | `conservation` | built-in CONSERVE_NONE, not conservable | - | `is_mirror` | ignores the declared value: CONSERVE_NONE | landed |
@@ -852,9 +859,64 @@ A23. `build_transform` has two failure outcomes. `BUILD_TRANSFORM_UNSUPPORTED`:
      QuantityType, Conservation and Normalization. StandardName fails the
      rule's test and stays UNSUPPORTED: legacy `StandardNameAspect%matches`
      connects two different names with a warning in the default PERMISSIVE
-     `ValidationMode` (the export's name wins) and rejects them only in
-     STRICT mode. Its graph behavior awaits a graph validation-mode
+     `ValidationMode` (the export's name wins in effect: the import aliases
+     the export's field, and standard_name is field-wide) and rejects them
+     only in STRICT mode. Its graph behavior awaits a graph validation-mode
      decision.
+A24. Rules review (tasks.md 3.26, session 2026-11-02; record and owner's
+     words in `docs/graph/rules-review.md` §4a; R<n> are its questions).
+     - R1: no adopt-on-connect rule. A value wildcard (QUANTITY_UNKNOWN,
+       BASIS_NONE) is "match, no step"; the import reads what the shared
+       field holds. Legacy has no production adopt rule either:
+       `StateItemSpec%connect_to_export` connects only the CLASS aspect, so
+       the value aspects' `connect_to_export` procedures never run
+       (except StandardName per VECTOR component). Revisit with "share
+       only data".
+     - R2: the owner's rule is "almost all characteristics default to
+       DEFERRED" (not "UNSPECIFIED"); option (c): only QuantityType
+       changes now; Conservation and Normalization stay as they are and
+       may follow the same pattern later. Target (not yet implemented;
+       §5.1 shows current behavior):
+       - Undeclared on an EXPORT or INTERNAL: DEFERRED. The user supplies
+         it with `MAPL_FieldSet` in component code ("Users can use
+         FieldSet to modify DEFERRED characteristics"), harvested like
+         geometry and stagger (A19), or declares it (new YAML key and
+         `make_VariableSpec` keyword). Never supplied: freeze fails, "but
+         *only* if it is a characteristic used by that ItemShape". That is
+         structural already: the factory adds the entry only for
+         `has_field_metadata` shapes, and the freeze check fails only on a
+         present DEFERRED entry.
+       - Undeclared on an IMPORT: UNCHECKED (accepts whatever it is given).
+       - Rollout (b): suppliers first; then a ValidationMode-style switch.
+         By default an unsupplied DEFERRED QuantityType at freeze is a
+         warning and falls back, so nothing breaks; in strict mode it is an
+         error. Strict becomes the default once real configs comply. It
+         should share 3.27's configuration surface.
+       - With R1: no adopt rule is added. An import's UNCHECKED replaces
+         the UNKNOWN value wildcard for the undeclared case.
+       Owner: rules may be tweaked after more concrete use cases. Tasks
+       3.35 B3-QuantityTypeSuppliers, 3.36 B3-QuantityTypeDeferred.
+     - R3 (A1/A21 stand), R4 (Q13 added to the owner's list), R7, R9: no
+       design change. A re-export takes an EXPORT (child) or INTERNAL
+       (own) source.
+     - R5: BRACKET/VECTORBRACKET never IMPORT; WILDCARD only IMPORT;
+       written in `intent_rule_violation` with A21 (tasks.md 3.28).
+     - R6: a Wildcard import's members are FIELD exports only, relaxed if
+       reasonable use cases appear (§4.3; tasks.md 3.30).
+     - R8: a second connection to one import is an error in both paths,
+       Wildcard exempt, after a config grep (tasks.md 3.31).
+     - R10: a SimpleConnection is EXPORT -> IMPORT, checked in
+       `parse_connections`; a ReexportConnection is exempt (tasks.md 3.29).
+     - R11: an INTERNAL re-export gets a graph export port, after B4
+       (tasks.md 3.33).
+     - R12: standard_name stays field-wide, for now.
+     - R13: the "standard_name required on Fields" switch is in 3.27.
+     - R14: fill_value is not a characteristic; materialization fills
+       from the owning `VariableSpec` (§1; tasks.md 3.34).
+     - R15: `bootstrapped` stays field-wide RestartHandler Info, not a
+       characteristic. Owner's ideal: false if any component actually
+       reads the value, which wiring probably cannot decide.
+     - R16: probe legacy GEOM_A overwrite first (tasks.md 3.32).
 
 ## Open Questions (deferred to the named B3 task)
 

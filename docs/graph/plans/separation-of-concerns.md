@@ -565,7 +565,31 @@ per-consumer evaluation, design.md §2.4, Q2/Q3), ExpressionNativeGrid
 InternalNoMirror (design.md Q13: an INTERNAL item never has a mirror
 property), RulesReview (review of all default, connection and intent
 rules; tasks.md 3.26), StandardNameValidation (graph validation mode for
-standard_name mismatches; tasks.md 3.27). Run order: tasks.md §3 header.
+standard_name mismatches, plus the "standard_name required on Fields"
+switch; tasks.md 3.27), and RulesReview's follow-ups (design.md A24):
+ShapeIntentRules (3.28: BRACKET/VECTORBRACKET never IMPORT, WILDCARD only
+IMPORT, in `intent_rule_violation`), ConnectionIntentCheck (3.29:
+SimpleConnection EXPORT -> IMPORT in `parse_connections`, re-export
+exempt), WildcardFieldOnly (3.30), OneExportPerImport (3.31: second
+connection to an import is an error, after a config grep), GeomAProbe
+(3.32: probe legacy GEOM_A overwrite of item geometry), InternalReexport
+(3.33: graph export port for an INTERNAL re-export), FillValue (3.34:
+fill from the owning spec at materialization; legacy log text fix),
+QuantityTypeSuppliers (3.35: YAML key, `make_VariableSpec` keyword,
+harvest of a `MAPL_FieldSet` value) and QuantityTypeDeferred (3.36:
+undeclared export/internal QuantityType DEFERRED, import UNCHECKED;
+warn-and-fall-back by default, error in strict mode). Run order:
+tasks.md §3 header. Placement: 3.28, 3.29, 3.30, 3.32 and 3.35 are
+small, independent of 3.27, and touch code 3.27 does not (intent rules,
+parser, wildcard membership, a legacy probe, QuantityType suppliers), so
+they run first while 3.27's design is settled; 3.36 runs right after
+3.27 because its strict/default switch should share 3.27's configuration
+surface, and after 3.35 because the owner wants suppliers before the
+freeze rule; 3.31 runs after 3.27 and before 3.12/3.23 because
+those three all change connection resolution and 3.31's config grep may
+need an owner answer; 3.33 needs B4's ports and materialization; 3.34
+belongs with B4's materialization (4.2), though its legacy log-text fix
+may land earlier on its own.
 - Later cleanup, not a current task (owner): one "Declared by" keyword per
   characteristic, one mirror mechanism (sentinels instead of
   `mirror_geom`/`mirror_vgrid`), and renaming ItemShape and
@@ -613,6 +637,13 @@ in the first one; later ones refine it.
   `Plan-Task: B3-QuantityType`, `Plan-Task: B3-Conservation`,
   `Plan-Task: B3-Normalization`, `Plan-Task: B3-IncompatibleSweep`,
   `Plan-Task: B3-InternalNoMirror`); others not started.
+  B3-RulesReview (tasks.md 3.26): done; owner decisions recorded,
+  including the R2 follow-up (`docs/graph/rules-review.md` §4a, design.md
+  A24, docs only, `Plan-Task: B3-RulesReview`). R1's doc corrections (no
+  adopt-on-connect rule; legacy connects only the CLASS aspect) are done
+  in the same commit; R13 is folded into 3.27; follow-ups are 3.28-3.36.
+  Whether the rules matrix replaces design §5.1 is still undecided (not
+  blocking).
   B3-QuantityType, B3-Conservation, B3-Normalization (tasks.md 3.10, done as
   one commit with three trailers): see adding-a-characteristic.md
   "QuantityType, Conservation and Normalization as implemented". The three
@@ -1352,7 +1383,16 @@ it may author D1/A4/B5 with sonnet review.
 | B3-ExpressionNativeGrid | sonnet | opus | optimization, after B3-ExpressionPerConsumer |
 | B3-InternalNoMirror | sonnet | opus | design.md Q13; reports mirror defaults to the owner before changing them |
 | B3-RulesReview | opus | gemini/gpt-sol | read-only; report and proposals, no code; then owner session |
-| B3-StandardNameValidation | opus | sonnet | design-bearing; owner settles the design (possibly in B3-RulesReview's session) |
+| B3-StandardNameValidation | opus | sonnet | design-bearing; owner settles the design (possibly in B3-RulesReview's session); includes the V3 switch (R13) |
+| B3-ShapeIntentRules | haiku | sonnet | tasks.md 3.28; two rules in `intent_rule_violation` |
+| B3-ConnectionIntentCheck | haiku | sonnet | tasks.md 3.29; parser assert, re-export exempt |
+| B3-WildcardFieldOnly | sonnet | sonnet | tasks.md 3.30; filter in `resolve_wildcard_destination` |
+| B3-OneExportPerImport | sonnet | sonnet | tasks.md 3.31; config grep first, report before code |
+| B3-GeomAProbe | sonnet | - | tasks.md 3.32; probe test only, report |
+| B3-InternalReexport | sonnet | opus | tasks.md 3.33; after B4 |
+| B3-FillValue | sonnet | sonnet | tasks.md 3.34; with or after 4.2 |
+| B3-QuantityTypeSuppliers | sonnet | sonnet | tasks.md 3.35; YAML key, keyword, harvest; before 3.27 |
+| B3-QuantityTypeDeferred | opus | sonnet | tasks.md 3.36; factory status by intent, soft freeze rule, shares 3.27's switch; after 3.27 |
 | B3 others | sonnet | sonnet (self-review) | one at a time, after B3-Units lands |
 | B4 | sonnet | opus | materialization regressions likely |
 | B5 | sonnet (haiku?) | sonnet if haiku | |

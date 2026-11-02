@@ -378,8 +378,9 @@ NONE (`dims: z`, no horizontal dimensions). It was part of
   built from it is MIRRORED with no value, so an import adopts the
   export's spec (`PAIR_ADOPT`). An export or internal carrying it is
   rejected by the generic rule (A21).
-  Legacy `GeomAspect` treats it as agreeing with any spec and adopts the
-  export's at `connect_to_export`; field creation asserts GEOM or NONE.
+  Legacy `GeomAspect` treats it as agreeing with any spec (its
+  `connect_to_export`, which would copy the export's, has no production
+  caller); field creation asserts GEOM or NONE.
 - **Uncompared Geometry.** For a NONE item the Geometry factory builds the
   entry with `compared=.false.`: UNCHECKED instead of SPECIFIED or
   DEFERRED, so two NONE items connect across different horizontal grids.
@@ -628,18 +629,16 @@ value, writes only its own Info key, and has no Transform.
 - Reading back: `MAPL_FieldGet` returns a mirror metadata object for an
   absent quantity-type or normalization key but asserts that the conservation
   key exists, so a test of "not written" seeds the key first.
-- Connect: legacy `connect_to_export` copies the export's value onto the
-  import unconditionally; the graph compares and does not copy (as for
-  VerticalOrientation). For Conservation and Normalization that is the only
-  difference (equal values after a match). For QuantityType it is not:
-  `QuantityTypeAspect%connect_to_export` copies the export's `quantity_type`
-  and `basis`, and the value wildcards (`QUANTITY_UNKNOWN`, `BASIS_NONE`) let
-  an import that declares nothing match a more specific export without being
-  equal. Legacy then leaves the import holding the export's quantity type and
-  basis; the graph leaves it SPECIFIED `QUANTITY_UNKNOWN`. This is an open
-  difference, referred to the owner. It has no visible effect today: legacy
-  `make_QuantityTypeAspect` ignores declarations (Q9), so in legacy both sides
-  are UNKNOWN, and nothing sets these fields yet.
+- Connect: the graph compares and does not copy. Legacy has
+  `QuantityTypeAspect`/`ConservationAspect`/`NormalizationAspect%connect_to_export`
+  procedures that copy the export's value, but they have no production
+  caller: `StateItemSpec%connect_to_export` connects only the CLASS aspect
+  (`rules-review.md` §0). The import aliases the export's field, so it reads
+  the export's field-wide metadata once it is written. The value wildcards
+  (`QUANTITY_UNKNOWN`, `BASIS_NONE`) let an import that declares nothing
+  match a more specific export; it stays SPECIFIED `QUANTITY_UNKNOWN` in its
+  descriptor. Owner (design A24, R1): no adopt rule.
+
 - Production: `populate_one` calls only `sync_per_alias_to_info`, so these
   field-wide kinds are written only by tests (and by B4 materialization later).
 
@@ -724,10 +723,10 @@ value, writes only its own Info key, and has no Transform.
   `bind_port` or `MethodGraphNode%bind_argument`.
   `CompositeStateMaterialization` and `GeomProxyField` still call the
   setters directly.
-- Standard name after BRACKET -> FIELD: not checked. Legacy
-  `StandardNameAspect%connect_to_export` adopts the export's name, and a
-  BRACKET has no StandardName entry, so the graph matches legacy
-  PERMISSIVE mode. Strict-mode checking waits for a graph validation mode.
+- Standard name after BRACKET -> FIELD: not checked. Legacy copies no
+  name (only the CLASS aspect is connected); the import reads the
+  export's field-wide standard_name through the shared field. A BRACKET
+  has no StandardName entry, so the graph matches legacy PERMISSIVE mode. Strict-mode checking waits for a graph validation mode.
 - Scenarios: no ESSENTIAL scenario changed, and the "no registered extension
   provider" warnings are identical to a clean HEAD baseline.
   `MAPL.generic.scenarios.pending` fails the same 114 checks with identical

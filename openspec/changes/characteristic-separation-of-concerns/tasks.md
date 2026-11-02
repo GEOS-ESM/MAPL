@@ -53,8 +53,10 @@ nothing for that kind, except the §6.3 materialization references
 the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
-Remaining order (owner): 3.25, 3.26, 3.27, 3.12, 3.23, 3.14
-(3.12/3.23: Q2, Q3 answered; 3.24 later; 3.27 before B4).
+Remaining order (owner): 3.28, 3.29, 3.30, 3.32, 3.35, 3.27, 3.36,
+3.31, 3.12, 3.23, 3.14 (3.12/3.23: Q2, Q3 answered; 3.24 later; 3.27
+before B4; 3.36 after 3.27, whose switch it shares; 3.34 with or after
+4.2; 3.33 after B4).
 3.7, 3.10, 3.11, 3.13, 3.20, 3.21 and 3.22 are done.
 Numbers are labels, not run order. A task whose characteristic adds a
 mirror value adds its spelling to `VariableSpec%requests_mirror()`; the
@@ -437,7 +439,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       is only valid on an import or an expression export: <name>` (+
       ` (<KIND>)` from the backstop) and `an expression is only valid on an
       export: <name>`.
-- [ ] 3.26 B3-RulesReview (owner; after 3.25, before 3.12). The default,
+- [x] 3.26 B3-RulesReview (owner; after 3.25, before 3.12). The default,
       connection and intent rules emerged from use cases, and the better
       generalization was often not obvious at the time. Review them
       together; read-only, output is a report and proposals, no code.
@@ -456,11 +458,13 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
          late (Q13, expression export-only); value wildcards that match
          anything (QUANTITY_UNKNOWN, BASIS_NONE): should "matches
          anything" also mean "adopt the export's value"? Legacy
-         `QuantityTypeAspect%connect_to_export` copies the export's
-         quantity type and basis onto the import unconditionally; the
-         graph compares and does not copy, so an undeclared import stays
-         UNKNOWN. Owner (after 3.10): fairly certain the legacy rule is
-         incorrect. From develop (#5470): legacy restart read now marks a
+         `QuantityTypeAspect%connect_to_export` would copy the export's
+         quantity type and basis onto the import, but it has no production
+         caller (the review's finding: `StateItemSpec%connect_to_export`
+         connects only the CLASS aspect), so legacy has no adopt rule in
+         practice; the graph compares and does not copy, so an undeclared
+         import stays UNKNOWN. Owner (after 3.10): fairly certain the
+         legacy rule is incorrect; owner (R1): no adopt rule. From develop (#5470): legacy restart read now marks a
          field missing from the restart file as `bootstrapped`
          (`FieldGet(..., bootstrapped=)`, field-wide Info key); relate it
          to RestartMode (who reads it, whether the graph needs it).
@@ -474,6 +478,26 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       4. One owner decision session; each accepted correction becomes its
          own small task. The matrix likely replaces or extends design
          §5.1 as a stable doc (decided at the session).
+      Status: done. Owner decisions recorded, including the R2 follow-up
+      (`docs/graph/rules-review.md` §4a, session 2026-11-02; design.md
+      A24). Follow-up tasks 3.28-3.36; R1's doc corrections done here
+      (this seed, design.md §1/§4.3/§5.1/A23, `adding-a-characteristic.md`);
+      R13 folded into 3.27. Item 4's "the matrix likely replaces or
+      extends design §5.1" was not decided; the matrix stays in
+      `rules-review.md` for now. That open item does not block this task:
+      it is a documentation-home choice, with no rule depending on it.
+      Report:
+      matrix, shape x intent table, irregularities, owner-list check,
+      sixteen ordered questions R1-R16.
+      Finding: legacy `StateItemSpec%connect_to_export` calls only the
+      CLASS aspect's, so the outer-map value aspects' `connect_to_export`
+      (including QuantityType "adopt") never runs in production; only
+      QuantityType, Conservation, Normalization and Geom have unit-test
+      callers. Exception: `VectorClassAspect%connect_to_export` calls
+      `StandardNameAspect%connect_to_export` per component, so VECTOR
+      standard_name adoption is live. Also: legacy fill_value keeps the
+      import's declared value when both differ, despite its "src value
+      wins" log text.
 - [ ] 3.27 B3-StandardNameValidation (owner, after 3.22; decision may be
       taken in 3.26's session; must land before B4). Legacy
       `StandardNameAspect%matches` consults the field-dictionary
@@ -487,10 +511,145 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       depend on StateRegistry. This is also the "graph validation mode"
       design §4.3 defers (standard name across BRACKET -> FIELD). Related:
       the owner's "system-wide setting for enforcing standard_name for
-      Fields". Design-bearing (opus author; owner settles the design).
+      Fields" (V3): in scope here (owner, 3.26 R13). Design one
+      configuration surface for both: the validation mode for a mismatch,
+      and a switch that makes a FIELD with no declared standard_name an
+      error (or warning) at advertise, applied in both paths. Design-bearing
+      (opus author; owner settles the design).
       From develop (#5443): a configurable option now suppresses the
       PERMISSIVE-mode standard_name warnings; the graph behavior must honor
       it too.
+- [ ] 3.28 B3-ShapeIntentRules (3.26 R5: owner chose (a); after 3.26,
+      before 3.27). Add two shape x intent rules to `intent_rule_violation`
+      (`VariableSpec_private.F90`), so both `make_VariableSpec` (both modes)
+      and the `check_intent_rules` backstop apply them: BRACKET and
+      VECTORBRACKET are never IMPORT (INTERNAL stays allowed, owner:
+      conceivable), and WILDCARD is IMPORT only. New messages in the A21
+      style, e.g. `a bracket is not valid on an import: <name>` and `a
+      wildcard is only valid on an import: <name>`. Legacy keeps its
+      connect-time `_FAIL` (now unreachable for a declared import). Grep
+      tests and scenarios for a BRACKET/VECTORBRACKET import or a
+      non-import WILDCARD first and report any (the review found only the
+      `history_wildcard` import). Small; same function as 3.25. Author
+      haiku (sonnet review).
+- [ ] 3.29 B3-ConnectionIntentCheck (3.26 R10: owner chose (a) "Except for
+      Re-export connections!"; R9 (a); before 3.27). In
+      `parse_connections` (`ComponentSpecParser/parse_connections.F90`),
+      `_ASSERT` that a SimpleConnection has `src_intent: export` and
+      `dst_intent: import` (the defaults). A ReexportConnection
+      (`dst_intent: export`) is exempt from that rule; its `src_intent`
+      must be `export` or `internal`, as `ComponentSpec%reexport` already
+      requires. MatchConnection (`all_unsatisfied`) is unaffected. Parser
+      test for each case. The review's scenario grep found no violator.
+      Small parser task. Author haiku (sonnet review).
+- [ ] 3.30 B3-WildcardFieldOnly (3.26 R6: owner chose (a), "We will relax
+      if we encounter reasonable use cases."; before 3.27). In
+      `resolve_wildcard_destination`
+      (`GraphBuilder_ConnectionResolution_smod.F90`), add only FIELD
+      exports (ItemShape) as Wildcard members; skip others (VECTOR,
+      BRACKET, EXPRESSION, FIELDBUNDLE, STATE, SERVICE); a skip is not a
+      connection conflict (at most a debug-level log line). Legacy parity: legacy production fails on a
+      non-Field match (`WildcardClassAspect.F90:84-95`); legacy is not
+      changed here. Test with a Wildcard whose regex matches a field and a
+      bundle; check `history_wildcard` is unchanged. Author sonnet.
+- [ ] 3.31 B3-OneExportPerImport (3.26 R8: owner chose (a); after 3.27,
+      before 3.12/3.23, which change the same connection-resolution
+      code). First grep real configs (`tests/scenarios`, and any GEOS
+      configurations the owner points to) for two connections to one
+      import, including a
+      MatchConnection overlapping an explicit SimpleConnection; report
+      before changing code. Then make a second connection to an import an
+      error in both paths, Wildcard exempt: legacy restores the
+      commented-out assert in `SimpleConnection%activate`
+      (`SimpleConnection.F90:105`); the graph reports a connection
+      conflict in `resolve_one` instead of the silent "first wins" skip.
+      Follow-up only if the grep finds Match/Simple overlaps: ask the owner
+      whether the explicit SimpleConnection may win. Author sonnet.
+- [ ] 3.32 B3-GeomAProbe (3.26 R16: owner chose (a); before 3.27;
+      independent). A probe test (legacy registry path) for a component
+      with a component geom G1 and an export declaring an item geom G2:
+      does `StateRegistry%set_geometry` / `GeomAspect%set_geom`
+      (`StateRegistry_SetGeometry_smod.F90:27`, `GeomAspect.F90:205-224`)
+      replace G2 with G1? Report the result. If confirmed, the owner treats
+      it as a legacy bug (item wins); the fix is a separate small legacy
+      task. If not confirmed, record that in `rules-review.md` §2.6. Test
+      only. Author sonnet.
+- [ ] 3.33 B3-InternalReexport (3.26 R11: owner chose (a); after B4).
+      Graph path for an INTERNAL -> EXPORT re-export: the graph skips
+      ReexportConnection today (`class default`,
+      `GraphBuilder_ConnectionResolution_smod.F90:965`) and internals have
+      no port (`GraphBuilder_Advertising_smod.F90:115`). Give a re-exported
+      internal an export port bound to the internal's node (no mirror on
+      the internal, Q13; the export is an export, A21), and resolve
+      child-export re-exports (R9) the same way or through export
+      propagation, whichever the design shows is one rule. Must pass
+      `scenario_1`, `scenario_2`, `propagate_geom` and
+      `scenario_reexport_twice` in graph mode. Required before graph-only
+      mode. Author sonnet (opus review).
+- [ ] 3.34 B3-FillValue (3.26 R14: owner chose (c); with or after B4's
+      materialization, 4.2). fill_value is not a characteristic: when the
+      graph materializes a field, it fills it from the owning
+      `VariableSpec`'s `fill_value` (the export's, or the internal's); an
+      import's declared fill_value has no effect, as in legacy data today
+      (rules-review.md §0). Also fix the legacy log text in
+      `FieldClassAspect%connect_to_export` (`FieldClassAspect.F90:345`,
+      "(src value wins)" while the destination keeps its value) to say
+      what happens; that one-line part may land earlier on its own. Also
+      update design §1's `fill_value` row. Author sonnet.
+- [ ] 3.35 B3-QuantityTypeSuppliers (3.26 R2: owner chose (c) and
+      rollout (b), suppliers first; before 3.27, independent of it). Give
+      QuantityType its three supply paths, with no change to the undeclared
+      status yet (3.36 does that):
+      1. YAML key `quantity_type:` in `parse_var_specs` (values: the
+         `QuantityType` names, case-folded; unknown value is an error).
+      2. A `quantity_type=` keyword on `make_VariableSpec` (today only
+         field assignment sets `VariableSpec%quantity_type`,
+         `VariableSpec.F90:244-253`). Legacy `make_QuantityTypeAspect`
+         still ignores it (Q9).
+      3. Harvest: extend `graphbuilder_harvest_deferred` /
+         `fill_deferred_from_handle` (`GraphBuilder_Geometry_smod.F90`) to
+         read `quantity_type_metadata` set by the user's `MAPL_FieldSet`
+         (through `MAPL_FieldGet`, A19) into `CharacteristicDefaults`, and
+         give `QuantityTypeCharacteristic` a `resolve_deferred` that takes
+         it. `MAPL_FieldGet` returns mirror metadata for an absent key;
+         treat that as "not supplied". Imports stay skipped. Tests: YAML
+         and keyword paths set the field; a hand-built DEFERRED entry is
+         filled from a field whose component called `MAPL_FieldSet`.
+      No YAML key for basis: `VariableSpec` has no basis field; adding one
+      is out of scope unless the owner asks. Author sonnet (sonnet review).
+- [ ] 3.36 B3-QuantityTypeDeferred (3.26 R2: owner chose (c), rollout (b)
+      and imports (a); after 3.27 and 3.35). Change the QuantityType
+      factory (`make_quantity_type_characteristic`): undeclared on an
+      EXPORT or INTERNAL is DEFERRED; undeclared on an IMPORT is
+      UNCHECKED; declared stays SPECIFIED. Applicability is unchanged (the
+      `has_field_metadata` shapes), so a shape without the kind never
+      fails freeze. Then the switch: by default an unsupplied DEFERRED
+      QuantityType at freeze is a warning and falls back so nothing
+      breaks; strict mode makes it an error. Design points (report before
+      building; stop and ask if any needs a new rule):
+      - Use the configuration surface 3.27 designs (the reason this runs
+        after 3.27), not a second switch.
+      - Keep the freeze check kind-agnostic (D6): the characteristic
+        says whether an unsupplied DEFERRED is fatal under the current
+        mode; the descriptor does not name QuantityType.
+      - The fallback must happen before a waiting connection is reported:
+        a DEFERRED side makes `resolve_pair` return PAIR_WAIT, and freeze
+        fails on waiting connections (`GraphBuilder_Freeze_smod.F90`).
+        Proposed fallback: UNCHECKED, with the warning, at the last
+        harvest point before resolution completes.
+      - UNKNOWN value wildcard: proposed to treat a declared
+        `QUANTITY_UNKNOWN` as undeclared (as PhysicalUnits does for
+        `'<unknown>'`) and drop the UNKNOWN wildcard from
+        `needs_extension_for`. Preflight question for the owner: does the
+        BASIS_NONE wildcard stay (nothing can declare a basis today)?
+      - No adopt rule (R1): an UNCHECKED import matches and copies
+        nothing.
+      Tests: `Test_StatusResolution`, `Test_VariableSpecCharacteristics`
+      QuantityType rows, a freeze test for each mode, and a scenario check
+      that the default mode changes no ESSENTIAL result. Update design
+      §5.1's QuantityType row and A24 to "landed". Strict as the default
+      is a later change, once real configs comply (owner). Owner may tweak
+      the rules after concrete use cases. Author opus (sonnet review).
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the
