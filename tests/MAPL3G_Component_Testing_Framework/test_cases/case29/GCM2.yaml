@@ -1,0 +1,59 @@
+FILL_DEF:
+  E_1: time_interval
+
+#RUN_MODE: FillExportsFromImports
+#RUN_MODE: FillImports
+RUN_MODE: CompareImportsToReference
+
+REF_TIME: 2004-01-01T00:00:00
+UPDATE_OFFSET: PT12H
+UPDATE_REF_TIME: 0
+
+mapl:
+
+  misc:
+    activate_all_exports: true
+
+  states:
+    import:
+      E_1:
+        standard_name: "NA"
+        units: "NA"
+        typekind: R4
+        fill_value: 17.
+        vertical_dim_spec: NONE
+      #E_2:
+        #standard_name: "NA"
+        #units: "NA"
+        #typekind: R4
+        #fill_value: 17.
+        ##vertical_dim_spec: center
+        #vertical_dim_spec: NONE
+    export:
+      E_1:
+        standard_name: "NA"
+        units: "NA"
+        typekind: R4
+        fill_value: 17.
+        vertical_dim_spec: NONE
+      #E_2:
+        #standard_name: "NA"
+        #units: "NA"
+        #typekind: R4
+        #fill_value: 17.
+        ##vertical_dim_spec: CENTER
+        #vertical_dim_spec: NONE
+
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 13
+      jm_world: 9
+      pole: PC
+      dateline: DC
+    vertical_grid:
+      grid_type: basic
+      num_levels: 3
+
+  setServices:
+    sharedObj: libMAPL.componentDriverGridComp
