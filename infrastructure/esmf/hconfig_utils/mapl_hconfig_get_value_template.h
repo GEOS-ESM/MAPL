@@ -48,7 +48,7 @@
       valuestring = trim(buffer)
       _ADJUST_VALUESTRING(valuestring, val)
       if(value_equals_default) valuestring = valuestring // DEFAULT_TAG
-      message = typestring //' '// trim(label) //' = '// valuestring
+      message = typestring //' '// trim(label) //' = '// escape_percent(valuestring)
       _ASSERT(allocated(message), 'message has not been allocated.')
       _ASSERT(len(message) > 0, 'message is empty.')
       _ASSERT(len(message) <= 256, 'message is too long.')
