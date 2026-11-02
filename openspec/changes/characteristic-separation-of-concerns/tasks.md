@@ -460,7 +460,10 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
          quantity type and basis onto the import unconditionally; the
          graph compares and does not copy, so an undeclared import stays
          UNKNOWN. Owner (after 3.10): fairly certain the legacy rule is
-         incorrect.
+         incorrect. From develop (#5470): legacy restart read now marks a
+         field missing from the restart file as `bootstrapped`
+         (`FieldGet(..., bootstrapped=)`, field-wide Info key); relate it
+         to RestartMode (who reads it, whether the graph needs it).
       3. The owner's rules list (kept by the owner outside the repo; meta
          passes it in) is an input: for each rule, list every source or
          legacy behavior that violates it and any use case against it.
@@ -485,6 +488,9 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       design §4.3 defers (standard name across BRACKET -> FIELD). Related:
       the owner's "system-wide setting for enforcing standard_name for
       Fields". Design-bearing (opus author; owner settles the design).
+      From develop (#5443): a configurable option now suppresses the
+      PERMISSIVE-mode standard_name warnings; the graph behavior must honor
+      it too.
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the

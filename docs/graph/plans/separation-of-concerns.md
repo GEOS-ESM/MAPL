@@ -28,6 +28,9 @@ Labels are the task ids below (`A0`, `A1`, `A1-diagnosis`, `A2a`, `B3-Units`, `B
 `git log --grep='^Plan-Task: B3-Units' -p`. Do not record commit hashes
 in this plan (they change if the branch is rebased); the trailer is the
 reference. Never push; never rebase or amend existing commits.
+Only the owner rebases the branch onto `develop` (last: 2026-11-02, onto
+develop through #5473); after a rebase, rebuild NAG and gfortran from
+clean, because incremental builds missed changed module interfaces.
 **Every task must leave all ctests passing** (NAG first, then gfortran;
 `ctest -L ESSENTIAL`). Pending/expected-fail work is gated by explicit
 toggles, never by red tests.
