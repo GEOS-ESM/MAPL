@@ -194,7 +194,8 @@ module mapl_PrimaryExport_mod
          vertical_grid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
          call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', ungridded_dims=ungridded_dims, &
                  typekind=ESMF_TYPEKIND_R4, vgrid=vertical_grid, &
-                 vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER, regridder_param_info=regridder_param_info, _RC)
+                 vert_staggerloc=this%vcoord%stagger, regridder_param_info=regridder_param_info, _RC)
+                 !vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER, regridder_param_info=regridder_param_info, _RC)
       else
          if (this%enable_vertical_regrid) then
             _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))

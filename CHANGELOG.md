@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add hack so that edge level geos-chem inputs can be read and correctly identified as edge instead of centers
 - Enforced the `standard_name` convention between a connected Import and
   Export (GEOS-ESM/MAPL#5413). A new `StandardNameAspect`
   (`superstructure/generic/specs/StandardNameAspect.F90`), modeled directly
