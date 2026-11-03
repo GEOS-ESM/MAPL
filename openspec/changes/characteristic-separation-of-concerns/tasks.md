@@ -519,7 +519,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       From develop (#5443): a configurable option now suppresses the
       PERMISSIVE-mode standard_name warnings; the graph behavior must honor
       it too.
-- [ ] 3.28 B3-ShapeIntentRules (3.26 R5: owner chose (a); after 3.26,
+- [x] 3.28 B3-ShapeIntentRules (3.26 R5: owner chose (a); after 3.26,
       before 3.27). Add two shape x intent rules to `intent_rule_violation`
       (`VariableSpec_private.F90`), so both `make_VariableSpec` (both modes)
       and the `check_intent_rules` backstop apply them: BRACKET and

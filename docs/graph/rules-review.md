@@ -233,10 +233,10 @@ Source: `VariableSpec%requests_mirror` (`VariableSpec.F90:430-447`),
 | FIELDBUNDLE | yes | yes | yes | - |
 | STATE | yes | yes | yes | - |
 | VECTOR | yes | yes | yes (statistics internals) | - |
-| BRACKET | legacy: fails at connect; graph: unenforced | yes | unenforced | legacy `BracketClassAspect%connect_to_export` `_FAIL("BracketClassAspect cannot be an import")` (`BracketClassAspect.F90:285`), at connect time only. An unconnected BRACKET import, or one in graph mode, is never rejected. |
-| VECTORBRACKET | legacy: fails at connect; graph: unenforced | yes | unenforced | `VectorBracketClassAspect.F90:281`, same pattern. YAML: only the root-level `superstructure/generic/to_itemtype.F90` knows `vector_bracket`; the compiled one (`ComponentSpecParser/to_itemtype.F90`, built per `CMakeLists.txt:130`) does not. |
+| BRACKET | rejected at declaration (`intent_rule_violation`, both modes; S1, 3.28) | yes | yes (allowed) | `intent_rule_violation` at `make_VariableSpec` and the `check_intent_rules` backstop. Legacy also `_FAIL`s at connect (`BracketClassAspect.F90:285`), now unreachable for a declared import. |
+| VECTORBRACKET | rejected at declaration (`intent_rule_violation`, both modes; S1, 3.28) | yes | yes (allowed) | `intent_rule_violation` at `make_VariableSpec` and the backstop. Legacy also `_FAIL`s at connect (`VectorBracketClassAspect.F90:281`), now unreachable for a declared import. YAML: only the root-level `superstructure/generic/to_itemtype.F90` knows `vector_bracket`; the compiled one (`ComponentSpecParser/to_itemtype.F90`, built per `CMakeLists.txt:130`) does not. |
 | EXPRESSION | no | yes | no | `intent_rule_violation` at `make_VariableSpec` (both modes) |
-| WILDCARD | yes | unenforced | unenforced | Comments only: "Wildcard is always an import" (`WildcardClassAspect.F90:145`), "not permitted as an export" (`:56`). Legacy `matches` and `supports_conversion_*` are false for a Wildcard export, so it never connects as a source; nothing rejects the declaration. |
+| WILDCARD | yes | rejected at declaration (`intent_rule_violation`, both modes; S1 wildcard half, R5, 3.28) | rejected at declaration (same) | `intent_rule_violation` at `make_VariableSpec` and the backstop. Legacy `WildcardClassAspect.F90:56,145` had comments only; `matches` and `supports_conversion_*` are false for a Wildcard export, so it never connected as a source. |
 | SERVICE | yes | yes | - | excluded from graph resolution |
 
 Shape pairs (export -> import):
@@ -587,11 +587,12 @@ V3. *A system-wide setting for enforcing standard_name on Fields.*
 
 ### ItemShape
 
-S1. *Bracket and VectorBracket are never IMPORT.*
-- Legacy: enforced only at connect (`_FAIL` in `connect_to_export`).
-  Graph: unenforced; a BRACKET import would reach `shape_outcome` and get
-  FIELD->BRACKET INCOMPATIBLE (any export -> BRACKET is INCOMPATIBLE).
-  INTERNAL: unenforced (owner: conceivable). R5.
+S1. *Bracket and VectorBracket are never IMPORT; Wildcard is only IMPORT.*
+- Legacy: bracket imports fail only at connect (`_FAIL` in `connect_to_export`).
+  Graph: enforced at declaration by `intent_rule_violation` (3.28, R5), in
+  both modes: a BRACKET or VECTORBRACKET import is rejected, and a WILDCARD
+  export or internal is rejected (the wildcard half is now enforced too).
+  INTERNAL bracket stays allowed (owner: conceivable).
 
 S2. *Expression is only ever EXPORT.*
 - Enforced in `make_VariableSpec` and the backstop (3.25).

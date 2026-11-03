@@ -74,7 +74,9 @@ contains
       character(*), optional, intent(in) :: units
       type(VariableSpec) :: var_spec
 
+      ! A wildcard is only valid as an import; everything else defaults to export.
       var_spec%state_intent = ESMF_STATEINTENT_EXPORT
+      if (item_type == MAPL_STATEITEM_WILDCARD) var_spec%state_intent = ESMF_STATEINTENT_IMPORT
       var_spec%short_name = 'X'
       var_spec%itemType = item_type
       if (present(units)) var_spec%units = units
@@ -458,6 +460,127 @@ contains
       @assertEqual(0, status)
    end subroutine test_make_VariableSpec_accepts_export_expression_mirror
 
+   ! A bracket is never an import; an INTERNAL bracket is still accepted.
+   @test
+   subroutine test_make_VariableSpec_rejects_bracket_import()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_BRACKET, rc=status)
+      @assertExceptionRaised('a bracket is not valid on an import: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_bracket_import
+
+   @test
+   subroutine test_make_VariableSpec_rejects_vectorbracket_import()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_VECTORBRACKET, rc=status)
+      @assertExceptionRaised('a vector bracket is not valid on an import: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_vectorbracket_import
+
+   @test
+   subroutine test_make_VariableSpec_accepts_internal_bracket()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_BRACKET, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_make_VariableSpec_accepts_internal_bracket
+
+   @test
+   subroutine test_make_VariableSpec_rejects_export_wildcard()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_WILDCARD, rc=status)
+      @assertExceptionRaised('a wildcard is only valid on an import: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_export_wildcard
+
+   @test
+   subroutine test_make_VariableSpec_rejects_internal_wildcard()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_WILDCARD, rc=status)
+      @assertExceptionRaised('a wildcard is only valid on an import: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_internal_wildcard
+
+   @test
+   subroutine test_hand_built_bracket_import_rejected_by_backstop()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_BRACKET)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('a bracket is not valid on an import: X')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_hand_built_bracket_import_rejected_by_backstop
+
+   @test
+   subroutine test_hand_built_export_wildcard_rejected_by_backstop()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_WILDCARD)
+      var_spec%state_intent = ESMF_STATEINTENT_EXPORT
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('a wildcard is only valid on an import: X')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_hand_built_export_wildcard_rejected_by_backstop
+
+   @test
+   subroutine test_hand_built_vectorbracket_import_rejected_by_backstop()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_VECTORBRACKET)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('a vector bracket is not valid on an import: X')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_hand_built_vectorbracket_import_rejected_by_backstop
+
+   @test
+   subroutine test_make_VariableSpec_accepts_internal_vectorbracket()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_VECTORBRACKET, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_make_VariableSpec_accepts_internal_vectorbracket
+
+   @test
+   subroutine test_hand_built_internal_wildcard_rejected_by_backstop()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_WILDCARD)
+      var_spec%state_intent = ESMF_STATEINTENT_INTERNAL
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('a wildcard is only valid on an import: X')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_hand_built_internal_wildcard_rejected_by_backstop
+
    @test
    subroutine test_make_VariableSpec_accepts_mirror_flags_on_import()
       type(VariableSpec) :: var_spec
@@ -831,6 +954,8 @@ contains
          @assertFalse( &
               descriptor%has_characteristic(LONG_NAME_CHARACTERISTIC_KIND))
          var_spec%long_name_mirror = .true.
+         ! A bracket is never an import, so it has no import half.
+         if (shapes(i) == MAPL_STATEITEM_BRACKET .or. shapes(i) == MAPL_STATEITEM_VECTORBRACKET) cycle
          var_spec%state_intent = ESMF_STATEINTENT_IMPORT
          call var_spec%make_characteristics(descriptor, rc=status)
          @assertEqual(0, status)
@@ -886,7 +1011,8 @@ contains
          @assertEqual(0, status)
          @assertFalse(descriptor%has_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND))
          var_spec%standard_name_mirror = .true.
-         ! An EXPRESSION exists only as an export.
+         ! A bracket is never an import, so it has no import half; an EXPRESSION exists only as an export.
+         if (shapes(i) == MAPL_STATEITEM_BRACKET .or. shapes(i) == MAPL_STATEITEM_VECTORBRACKET) cycle
          if (.not. (shapes(i) == MAPL_STATEITEM_EXPRESSION)) var_spec%state_intent = ESMF_STATEINTENT_IMPORT
          call var_spec%make_characteristics(descriptor, rc=status)
          @assertEqual(0, status)
@@ -1793,8 +1919,9 @@ contains
            MAPL_STATEITEM_WILDCARD]
       do i = 1, size(shapes)
          var_spec = make_spec(shapes(i))
-         ! An EXPRESSION exists only as an export.
-         if (.not. (shapes(i) == MAPL_STATEITEM_EXPRESSION)) var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+         ! An EXPRESSION exists only as an export; a bracket is never an import.
+         if (.not. (shapes(i) == MAPL_STATEITEM_EXPRESSION .or. shapes(i) == MAPL_STATEITEM_BRACKET &
+              .or. shapes(i) == MAPL_STATEITEM_VECTORBRACKET)) var_spec%state_intent = ESMF_STATEINTENT_IMPORT
          descriptor = empty_descriptor
          call var_spec%make_characteristics(descriptor, rc=status)
          @assertEqual(0, status)
@@ -2328,7 +2455,7 @@ contains
       @assertEqual(1, status)
    end subroutine test_internal_rejects_hand_built_mirror_geom
 
-   ! A WILDCARD has no TYPE_KIND entry, so no MIRRORED entry exists to find;
+   ! A STATE has no TYPE_KIND entry, so no MIRRORED entry exists to find;
    ! the backstop still rejects the request, as make_VariableSpec would.
    @test
    subroutine test_internal_rejects_hand_built_request_on_shape_without_entry()
@@ -2336,7 +2463,7 @@ contains
       type(StateItemDescriptor) :: descriptor
       integer :: status
 
-      var_spec = make_spec(MAPL_STATEITEM_WILDCARD)
+      var_spec = make_spec(MAPL_STATEITEM_STATE)
       var_spec%state_intent = ESMF_STATEINTENT_INTERNAL
       var_spec%typekind = MAPL_TYPEKIND_MIRROR
       call var_spec%make_characteristics(descriptor, rc=status)

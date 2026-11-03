@@ -847,6 +847,16 @@ in the first one; later ones refine it.
   run timed out `MAPL.generic.scenarios` (1876 s) because the host laptop
   was asleep during the run; it passed alone in 45 s and in a clean full
   rerun.
+  B3-ShapeIntentRules (tasks.md 3.28, done): `intent_rule_violation` adds
+  `a bracket is not valid on an import`, `a vector bracket is not valid on
+  an import` and `a wildcard is only valid on an import` (each `: <name>`),
+  enforced in both `make_VariableSpec` and the backstop. INTERNAL bracket
+  stays allowed. Scenario grep: no BRACKET/VECTORBRACKET import and no
+  non-import WILDCARD in tests, scenarios or gridcomps (the one wildcard,
+  `history_wildcard`, is an import). Test changes: `make_spec(WILDCARD)`
+  now defaults to IMPORT; the bracket shape loops skip their import half.
+  ESSENTIAL (69/69 both) ran after the stack rebuild and the
+  harness-comm-leak scenarios sharding.
   B3-InternalNoMirror (tasks.md 3.25, done): A21 generalized, in
   VariableSpec only. `intent_rule_violation` allows a mirror request only on
   an IMPORT or an EXPRESSION export, and an EXPRESSION only as an export;

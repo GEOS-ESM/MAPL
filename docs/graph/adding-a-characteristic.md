@@ -206,8 +206,11 @@ First kind with a DEFERRED value (a value the component supplies later).
   IMPORT, or on an EXPRESSION export; an INTERNAL or any other export never
   has one. An EXPRESSION is allowed only as an export. The rule is one
   helper, `intent_rule_violation`, called by `make_VariableSpec` and by the
-  check after the factory loop in `make_characteristics`. A characteristic
-  that adds a mirror value adds it to `VariableSpec%requests_mirror()`.
+  check after the factory loop in `make_characteristics`. The same helper
+  also holds the shape x intent rules: a BRACKET or VECTORBRACKET is never
+  an IMPORT (INTERNAL is allowed) and a WILDCARD is only an IMPORT. A
+  characteristic that adds a mirror value adds it to
+  `VariableSpec%requests_mirror()`.
 - A DEFERRED entry is filled by `StateItemDescriptor%resolve_deferred`,
   which offers a `CharacteristicDefaults` (the component's geom and
   geom id) to every DEFERRED characteristic. `StateItemCharacteristic`'s
