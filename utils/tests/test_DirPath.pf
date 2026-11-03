@@ -1,16 +1,20 @@
+#include "MAPL_TestErr.h"
+
 module test_DirPath
    use pfunit
    use mapl_DirPath_mod
    use MAPL_Constants
+   use mapl_os_mod, only: MakeDirectory, RemoveDirectory
 
 contains
 
    @before
    subroutine setup()
-      integer :: unit
+      integer :: unit, status
 
-      call execute_command_line('mkdir dir1 dir2')
-      call execute_command_line('mkdir dir1/dir3')
+      call MakeDirectory('dir1', _RC)
+      call MakeDirectory('dir2', _RC)
+      call MakeDirectory('dir1/dir3', _RC)
       open(newunit=unit,file='dir1/exist.dat',status='new')
       close(unit)
       open(newunit=unit,file='dir1/dir3/exist3.dat',status='new')
@@ -23,7 +27,7 @@ contains
 
    @after
    subroutine tearDown()
-      integer :: unit
+      integer :: unit, status
 
       open(newunit=unit,file='dir1/exist.dat',status='old')
       close(unit, status='delete')
@@ -32,8 +36,9 @@ contains
       open(newunit=unit,file='dir2/exist2.dat',status='old')
       close(unit, status='delete')
 
-      call execute_command_line('rmdir dir1/dir3')
-      call execute_command_line('rmdir dir1 dir2')
+      call RemoveDirectory('dir1/dir3', _RC)
+      call RemoveDirectory('dir1', _RC)
+      call RemoveDirectory('dir2', _RC)
       
    end subroutine tearDown
       

@@ -452,6 +452,7 @@ program main
    use pFIO
    use ctest_io_CLI
    use mapl_ErrorHandling_mod
+   use mapl_os_mod, only: RemoveFile
    use FakeHistData0Mod
    use pFlogger, only: pflogger_init => initialize
    implicit none
@@ -670,13 +671,13 @@ program main
          call execute_command_line(trim(cmd), exitstat = status )
          if (status == 0) then
             print*, 'test_in.nc4 and '//trim(out_file)//' are the same and thus removed'
-            call execute_command_line('/bin/rm -f '//trim(out_file))
+            call RemoveFile(trim(out_file), force=.true., rc=status)
          else
             print*, 'test_in.nc4 and '//trim(out_file)//' differ'
             exit_code = 1
          endif
       enddo
-      call execute_command_line('/bin/rm -f test_in.nc4')
+      call RemoveFile('test_in.nc4', force=.true., rc=status)
    endif
    call MPI_finalize(ierror)
    if ( exit_code == 0) stop 0
