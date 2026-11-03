@@ -576,12 +576,15 @@ connection to an import is an error, after a config grep), GeomAProbe
 (3.33: graph export port for an INTERNAL re-export), FillValue (3.34:
 fill from the owning spec at materialization; legacy log text fix),
 QuantityTypeSuppliers (3.35: YAML key, `make_VariableSpec` keyword,
-harvest of a `MAPL_FieldSet` value) and QuantityTypeDeferred (3.36:
+harvest of a `MAPL_FieldSet` value), QuantityTypeDeferred (3.36:
 undeclared export/internal QuantityType DEFERRED, import UNCHECKED;
-warn-and-fall-back by default, error in strict mode). Run order:
-tasks.md §3 header. Placement: 3.28, 3.29, 3.30, 3.32 and 3.35 are
+warn-and-fall-back by default, error in strict mode) and
+QuantityBasisUnsupported (3.37: a basis-only QuantityType mismatch is
+UNSUPPORTED, A23 amendment). Run order:
+tasks.md §3 header. Placement: 3.28, 3.29, 3.30, 3.32, 3.35 and 3.37 are
 small, independent of 3.27, and touch code 3.27 does not (intent rules,
-parser, wildcard membership, a legacy probe, QuantityType suppliers), so
+parser, wildcard membership, a legacy probe, QuantityType suppliers and
+basis outcome), so
 they run first while 3.27's design is settled; 3.36 runs right after
 3.27 because its strict/default switch should share 3.27's configuration
 surface, and after 3.35 because the owner wants suppliers before the
@@ -596,7 +599,9 @@ may land earlier on its own.
   VerticalOrientation (design.md §5.1 note). Rejecting `mirror_geom`/`mirror_vgrid`
   on a non-EXPRESSION export is task B3-MirrorFlagGuard (A21), not part of
   this cleanup.
-- For consideration, not scheduled (owner; after B4 unless moved): an
+- Moved (owner): this item goes to the first phase of the planned
+  callback-physics openspec change (not yet created); kept here as a
+  pointer until that change exists. For consideration: an
   IMPORT and an EXPORT share only the underlying data, not the whole
   field. Today an import is an alias (`MAPL_NamedAlias`) of the export's
   field or of an extension field, so the characteristics that may differ
@@ -1283,6 +1288,19 @@ it runs goes in a follow-up commit with the same trailer. Label
   normalization reads fall back to a mirror object. Make the three
   consistent; ask the owner which behavior is right (missing key = error,
   or = mirror) if it is not obvious from the callers.
+- `parse_connections`: `all_unsatisfied: false` still makes a
+  MatchConnection; `all_unsatisfied` silently ignores the other keys; YAML
+  intents are case-sensitive while `ComponentSpec%reexport` uses
+  `to_lower`. Ask the owner which of these are bugs.
+- `docs/graph/ARCHITECTURE.md:~163`: stale line counts.
+- Not D3, recorded here (harness-comm-leak, `2d137acb3`):
+  `pfunit/ESMF_TestCase.F90` creates one gridded component with its own
+  VM per test and never destroys it, so every test leaks communicators.
+  `MAPL.generic.scenarios` now runs as four ctest shards
+  (`MAPL_SCENARIO_SHARD`) to stay under MPICH's 2048 limit. Restoring
+  `ESMF_GridCompDestroy` fails inside ESMF's VM-shutdown garbage
+  collection ("Not a valid pointer to ESMF Component object") on both
+  compilers; an investigation for a minimal reproducer is under way.
 - **Status:** not started
 
 ### Phase E - closing
@@ -1403,6 +1421,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-FillValue | sonnet | sonnet | tasks.md 3.34; with or after 4.2 |
 | B3-QuantityTypeSuppliers | sonnet | sonnet | tasks.md 3.35; YAML key, keyword, harvest; before 3.27 |
 | B3-QuantityTypeDeferred | opus | sonnet | tasks.md 3.36; factory status by intent, soft freeze rule, shares 3.27's switch; after 3.27 |
+| B3-QuantityBasisUnsupported | sonnet | sonnet | tasks.md 3.37; basis-only mismatch UNSUPPORTED; before 3.36 |
 | B3 others | sonnet | sonnet (self-review) | one at a time, after B3-Units lands |
 | B4 | sonnet | opus | materialization regressions likely |
 | B5 | sonnet (haiku?) | sonnet if haiku | |

@@ -53,11 +53,11 @@ nothing for that kind, except the §6.3 materialization references
 the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
-Remaining order (owner): 3.28, 3.29, 3.30, 3.32, 3.35, 3.27, 3.36,
+Remaining order (owner): 3.29, 3.30, 3.32, 3.35, 3.37, 3.27, 3.36,
 3.31, 3.12, 3.23, 3.14 (3.12/3.23: Q2, Q3 answered; 3.24 later; 3.27
-before B4; 3.36 after 3.27, whose switch it shares; 3.34 with or after
-4.2; 3.33 after B4).
-3.7, 3.10, 3.11, 3.13, 3.20, 3.21 and 3.22 are done.
+before B4; 3.36 after 3.27, whose switch it shares, and after 3.37;
+3.34 with or after 4.2; 3.33 after B4).
+3.7, 3.10, 3.11, 3.13, 3.20, 3.21, 3.22 and 3.28 are done.
 Numbers are labels, not run order. A task whose characteristic adds a
 mirror value adds its spelling to `VariableSpec%requests_mirror()`; the
 generic checks (A21) then reject it on anything but an import or an
@@ -541,14 +541,22 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       must be `export` or `internal`, as `ComponentSpec%reexport` already
       requires. MatchConnection (`all_unsatisfied`) is unaffected. Parser
       test for each case. The review's scenario grep found no violator.
-      Small parser task. Author haiku (sonnet review).
+      Preflight answer (owner): yes, assert the ReexportConnection
+      `src_intent` too ("YAML parsing is mostly for testing; robustness
+      welcome"). Make `parse_connections` public for testing if the
+      tests need it. Small parser task. Author haiku (sonnet review).
 - [ ] 3.30 B3-WildcardFieldOnly (3.26 R6: owner chose (a), "We will relax
       if we encounter reasonable use cases."; before 3.27). In
       `resolve_wildcard_destination`
       (`GraphBuilder_ConnectionResolution_smod.F90`), add only FIELD
       exports (ItemShape) as Wildcard members; skip others (VECTOR,
       BRACKET, EXPRESSION, FIELDBUNDLE, STATE, SERVICE); a skip is not a
-      connection conflict (at most a debug-level log line). Legacy parity: legacy production fails on a
+      connection conflict. Preflight answers (owner): one debug-level log
+      line per skipped export, plus one warning when every match was
+      skipped. Apply the same filter in `wildcard_import_has_match`, via
+      one shared predicate on `var_spec%itemType`, so the two cannot
+      disagree. Add a graph-builder delta spec: the landed spec says every
+      match is a member. Legacy parity: legacy production fails on a
       non-Field match (`WildcardClassAspect.F90:84-95`); legacy is not
       changed here. Test with a Wildcard whose regex matches a field and a
       bundle; check `history_wildcard` is unchanged. Author sonnet.
@@ -573,7 +581,11 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       replace G2 with G1? Report the result. If confirmed, the owner treats
       it as a legacy bug (item wins); the fix is a separate small legacy
       task. If not confirmed, record that in `rules-review.md` §2.6. Test
-      only. Author sonnet.
+      only. Preflight answers (owner): if confirmed, commit the item-wins
+      probe with `@disable` and the reason; if refuted, commit it enabled
+      and add the §2.6 note. Probe the vertical grid the same way ("vgrid
+      and geom should be symmetric in most regards"), and report whether
+      a stale `geom_id` remains after the overwrite. Author sonnet.
 - [ ] 3.33 B3-InternalReexport (3.26 R11: owner chose (a); after B4).
       Graph path for an INTERNAL -> EXPORT re-export: the graph skips
       ReexportConnection today (`class default`,
@@ -602,6 +614,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       status yet (3.36 does that):
       1. YAML key `quantity_type:` in `parse_var_specs` (values: the
          `QuantityType` names, case-folded; unknown value is an error).
+         Key name confirmed by the owner.
       2. A `quantity_type=` keyword on `make_VariableSpec` (today only
          field assignment sets `VariableSpec%quantity_type`,
          `VariableSpec.F90:244-253`). Legacy `make_QuantityTypeAspect`
@@ -642,6 +655,9 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
         `'<unknown>'`) and drop the UNKNOWN wildcard from
         `needs_extension_for`. Preflight question for the owner: does the
         BASIS_NONE wildcard stay (nothing can declare a basis today)?
+        Frame it knowing the owner plans to split basis into two axes
+        (mass/volume and dry/moist) in the callback-physics change's
+        first phase.
       - No adopt rule (R1): an UNCHECKED import matches and copies
         nothing.
       Tests: `Test_StatusResolution`, `Test_VariableSpecCharacteristics`
@@ -650,6 +666,16 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       §5.1's QuantityType row and A24 to "landed". Strict as the default
       is a later change, once real configs comply (owner). Owner may tweak
       the rules after concrete use cases. Author opus (sonnet review).
+- [ ] 3.37 B3-QuantityBasisUnsupported (owner; amends A23 for basis only;
+      before 3.36). Today any QuantityType mismatch is
+      `BUILD_TRANSFORM_INCOMPATIBLE` (`QuantityTypeCharacteristic.F90`
+      `needs_extension_for` and `build_transform`). Change: two values
+      with the same quantity type that differ only in basis (e.g.
+      `BASIS_DRY_MASS` vs `BASIS_WET_MASS`, neither `BASIS_NONE`) report
+      `BUILD_TRANSFORM_UNSUPPORTED` (a conversion is possible, not built
+      yet); a quantity-type mismatch stays INCOMPATIBLE. Tests for
+      both, in the QuantityType rows of the characteristic tests. Update
+      design §5.1's QuantityType row. Author sonnet (sonnet review).
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the

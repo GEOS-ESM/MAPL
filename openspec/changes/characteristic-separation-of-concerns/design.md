@@ -862,7 +862,10 @@ A23. `build_transform` has two failure outcomes. `BUILD_TRANSFORM_UNSUPPORTED`:
      `ValidationMode` (the export's name wins in effect: the import aliases
      the export's field, and standard_name is field-wide) and rejects them
      only in STRICT mode. Its graph behavior awaits a graph validation-mode
-     decision.
+     decision. Amendment (owner, not yet implemented; tasks.md 3.37): a
+     QuantityType pair that differs only in basis (same quantity type,
+     neither basis `BASIS_NONE`) is UNSUPPORTED, since a conversion can
+     exist; a quantity-type mismatch stays INCOMPATIBLE.
 A24. Rules review (tasks.md 3.26, session 2026-11-02; record and owner's
      words in `docs/graph/rules-review.md` §4a; R<n> are its questions).
      - R1: no adopt-on-connect rule. A value wildcard (QUANTITY_UNKNOWN,
