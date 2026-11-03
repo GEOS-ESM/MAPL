@@ -57,6 +57,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ExtData now supports the `update_frequency`, `update_reference_time` and
   `update_offset` sampling keys, with the same behavior as MAPL2. Added
   component test case29.
+- ExtData now detects ungridded dimensions in the files it reads. The new
+  `ungridded_dims_from_metadata` (`infrastructure/geom_io/SharedIO.F90`,
+  exported as `mapl_ungridded_dims_from_metadata`) is the read-side inverse of
+  `add_ungridded_dimensions`: it returns an `UngriddedDims` for every
+  dimension of a variable that is not a geom (gridded) dimension, the vertical
+  dimension, or `time`. `VerticalCoordinate` now records the file's vertical
+  dimension name in `file_lev_name`. Added unit tests
+  (`Test_UngriddedDimsFromMetadata.pf`) and component test case46.
 
 ### Changed
 
@@ -152,6 +160,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   absent (always the case for the cap gridcomp). It now checks the label
   list first.
 
+- History collection imports now mirror the ungridded dimensions of the
+  exports they are connected to, so fields with ungridded dimensions can be
+  written by History.
+- Field broadcast (`FieldsAreBroadcastConformable`/`FieldCopy`) now supports
+  any number of extra trailing dimensions rather than exactly one.
 - Fixed logging of resource values that contain `%` (e.g. file-name templates
   such as `%y4%m2%d2`): the HConfig value loggers passed the message to
   pFlogger as its format string, which then failed with "not enough position
