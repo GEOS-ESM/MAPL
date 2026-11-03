@@ -338,7 +338,7 @@ names, not the `generic3g`/`MAPL.generic3g.*` names in the generic
 | `MAPL.generic.graph` | `graph/tests/` (core, characteristics, transforms, callbacks) |
 | `MAPL.generic.components` | `Test_GraphBuilder*.pf`, propagation, mode tests, spec/parser tests |
 | `MAPL.generic.components.quiet` | Two deliberate negative-path hook tests, run at `--level ERROR` |
-| `MAPL.generic.scenarios` | `Test_Scenarios.pf`, equivalence harness, graph-mode demonstration (strict field dictionary) |
+| `MAPL.generic.scenarios.shard0` .. `.shard3` | `Test_Scenarios.pf`, equivalence harness, graph-mode demonstration (strict field dictionary). One binary run in 4 processes via `MAPL_SCENARIO_SHARD=k/4`, because `ESMF_TestCase` leaks MPI communicators per test (MPICH limit). `-R MAPL.generic.scenarios.shard` runs all; the plain `MAPL.generic.scenarios` entry is disabled |
 | `MAPL.generic.scenarios.pending` (label `PENDING`, not ESSENTIAL) | Scenarios not yet `graph_ready`, under graph/both; expected to fail; see `docs/graph/scenario-parity.md` |
 | `MAPL.generic.core`, `.aspects`, `.transforms`, `.vertical` | Legacy layer; see `docs/generic/ARCHITECTURE.md` §4.2 |
 

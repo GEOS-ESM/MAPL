@@ -80,7 +80,9 @@ add_pfunit_ctest(
 # Each pFUnit executable generates a loader module. Keep their module output
 # directories distinct so Ninja has only one producer for each .mod file.
 set_target_properties(MAPL.generic.scenarios PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/scenarios")
-set_tests_properties(MAPL.generic.scenarios PROPERTIES LABELS "ESSENTIAL")
+# The unsharded ctest entry created above is replaced by the
+# MAPL.generic.scenarios.shard<k> entries defined after TEST_ENV below.
+set_tests_properties(MAPL.generic.scenarios PROPERTIES DISABLED TRUE)
 add_dependencies(MAPL.generic.scenarios proto_extdata_gc proto_stat_gc copy_scenarios copy_graph_scenarios)
 
 # 2. MAPL.generic.transforms - Data transformation tests
@@ -292,8 +294,34 @@ if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
   list(APPEND TEST_ENV "I_MPI_OFI_PROVIDER=psm3")
 endif()
 
+# ESMF_TestCase leaks one VM (several MPI communicators on rank 0) per test,
+# and MPICH allows ~2048 communicators per process. Run the scenarios binary
+# in this many separate processes so each one stays well under that limit.
+set(MAPL_SCENARIO_SHARDS 4)
+set(scenario_mpi_preflags ${MPIEXEC_PREFLAGS})
+if (MPIEXEC_EXECUTABLE MATCHES ".*openmpi*")
+  list(APPEND scenario_mpi_preflags "--oversubscribe")
+endif ()
+set(scenario_fail_regex
+  "Encountered 1 or more failures/errors during testing")
+math(EXPR last_shard "${MAPL_SCENARIO_SHARDS} - 1")
+foreach (shard RANGE ${last_shard})
+  add_test(
+    NAME MAPL.generic.scenarios.shard${shard}
+    COMMAND ${MPIEXEC_EXECUTABLE} ${scenario_mpi_preflags}
+            ${MPIEXEC_NUMPROC_FLAG} 4
+            $<TARGET_FILE:MAPL.generic.scenarios> --verbose
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  )
+  set_tests_properties(MAPL.generic.scenarios.shard${shard} PROPERTIES
+    ENVIRONMENT
+      "${TEST_ENV};MAPL_SCENARIO_SHARD=${shard}/${MAPL_SCENARIO_SHARDS}"
+    LABELS "ESSENTIAL"
+    FAIL_REGULAR_EXPRESSION "${scenario_fail_regex}"
+  )
+endforeach ()
+
 # Apply environment settings to all test suites
-set_tests_properties(MAPL.generic.scenarios PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.transforms PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.vertical PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.aspects PROPERTIES ENVIRONMENT "${TEST_ENV}")
@@ -306,14 +334,15 @@ set_tests_properties(MAPL.generic.core PROPERTIES ENVIRONMENT "${TEST_ENV}")
 # fail until those scenarios are fixed; see docs/graph/scenario-parity.md.
 add_test(
   NAME MAPL.generic.scenarios.pending
-  COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} 4
+  COMMAND ${MPIEXEC_EXECUTABLE} ${scenario_mpi_preflags}
+          ${MPIEXEC_NUMPROC_FLAG} 4
           $<TARGET_FILE:MAPL.generic.scenarios> --verbose
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 set_tests_properties(MAPL.generic.scenarios.pending PROPERTIES
   ENVIRONMENT "${TEST_ENV};MAPL_SCENARIO_PENDING=1"
   LABELS "PENDING"
-  FAIL_REGULAR_EXPRESSION "Encountered 1 or more failures/errors during testing"
+  FAIL_REGULAR_EXPRESSION "${scenario_fail_regex}"
 )
 
 # Add all test suites to build-tests target

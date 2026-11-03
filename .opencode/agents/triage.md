@@ -38,7 +38,7 @@ or a log. If neither is given, run
 Each shell call is a fresh shell; `module load` does not persist.
 Prefix every ctest/cmake command with `with-nag` (for `nag/`) or
 `with-gfortran` (for `gfortran/`), e.g.
-`with-nag ctest --test-dir nag -R '^MAPL.generic.scenarios$' --output-on-failure`.
+`with-nag ctest --test-dir nag -R '^MAPL.generic.scenarios.shard' --output-on-failure`.
 
 Method:
 1. Rerun each failing suite on its own with

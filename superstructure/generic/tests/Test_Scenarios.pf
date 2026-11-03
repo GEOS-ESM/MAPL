@@ -241,6 +241,11 @@ contains
    !   MAPL_SCENARIO_PENDING  set: run only the not-yet-graph_ready scenarios,
    !                          under graph and both modes (non-ESSENTIAL target).
    !   MAPL_SCENARIO_ONLY     scenario name: restrict to that scenario.
+   !   MAPL_SCENARIO_SHARD    "k/N" (0 <= k < N): keep every N-th parameter,
+   !                          starting at k, of the list left after the
+   !                          filters above. Each ctest shard thereby stays
+   !                          below the MPI communicator limit, because
+   !                          ESMF_TestCase leaks one VM per test.
    function get_parameters() result(params)
 
       type(ScenarioDescription), allocatable :: params(:)
@@ -271,7 +276,49 @@ contains
       params = [params, add_params('fieldcount', check_fieldcount, &
            only=['service_service     ', 'service_with_options'])]
 
+      call apply_shard(params, env_value('MAPL_SCENARIO_SHARD'))
+
    contains
+
+      subroutine apply_shard(params, shard)
+         type(ScenarioDescription), allocatable, intent(inout) :: params(:)
+         character(*), intent(in) :: shard
+
+         integer :: slash, k, n, i
+         logical :: ok
+
+         if (len(shard) == 0) return
+
+         k = -1
+         n = -1
+         slash = index(shard, '/')
+         ok = (slash > 1 .and. slash < len(shard))
+         if (ok) ok = (index(shard(slash+1:), '/') == 0)
+         if (ok) ok = all_digits(shard(:slash-1)) .and. &
+              all_digits(shard(slash+1:))
+         if (ok) then
+            read(shard(:slash-1), '(i10)', iostat=i) k
+            ok = (i == 0)
+         end if
+         if (ok) then
+            read(shard(slash+1:), '(i10)', iostat=i) n
+            ok = (i == 0)
+         end if
+         if (ok) ok = (n >= 1 .and. k >= 0 .and. k < n)
+         if (.not. ok) then
+            error stop 'MAPL_SCENARIO_SHARD must be k/N with 0 <= k < N: ' &
+                 // shard
+         end if
+
+         params = pack(params, [(mod(i - 1, n) == k, i = 1, size(params))])
+      end subroutine apply_shard
+
+      logical function all_digits(str)
+         character(*), intent(in) :: str
+
+         ! At most 9 digits, so the (i10) read cannot overflow.
+         all_digits = (len(str) <= 9 .and. verify(str, '0123456789') == 0)
+      end function all_digits
 
       function add_params(check_name, check_stateitem, only) result(params)
          type(ScenarioDescription), allocatable :: params(:)

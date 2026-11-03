@@ -5,8 +5,8 @@ under `GRAPH_MODE_REGISTRY`. A scenario whose `graph_ready` flag is `.true.`
 in `scenario_table()` is additionally run under `GRAPH_MODE_GRAPH` and
 `GRAPH_MODE_BOTH` (with `set_materialize_extensions(.true.)`), using the same
 `expectations.yaml` and checkers. Flipping a flag to `.true.` is how later
-tasks show progress. `MAPL.generic.scenarios` (ESSENTIAL) stays green because
-only ready scenarios get graph/both parameters.
+tasks show progress. The ESSENTIAL `MAPL.generic.scenarios.shard<k>` tests
+stay green because only ready scenarios get graph/both parameters.
 
 ## Running the pending scenarios
 
@@ -19,8 +19,10 @@ with-nag ctest --test-dir nag -R scenarios.pending
 ```
 
 Environment switches read by `get_parameters()` (usable with the test binary
-directly): `MAPL_SCENARIO_PENDING` (any value: pending-only) and
-`MAPL_SCENARIO_ONLY=<name>` (restrict to one scenario).
+directly): `MAPL_SCENARIO_PENDING` (any value: pending-only),
+`MAPL_SCENARIO_ONLY=<name>` (restrict to one scenario) and
+`MAPL_SCENARIO_SHARD=k/N` (keep every N-th parameter, starting at k, of what
+the other switches leave; the ESSENTIAL ctest shards use this).
 
 ## Table
 
@@ -72,7 +74,8 @@ Method: each pending scenario was run alone, under graph and both modes
 Unique failure locations matched on both compilers. Each cause was then
 confirmed by a minimal source experiment (reverted afterwards). With the G1,
 R1, R2 and P1 experiments applied together, `MAPL.generic.scenarios.pending`
-passed on NAG and the ESSENTIAL `MAPL.generic.scenarios` stayed green.
+passed on NAG and the then-single ESSENTIAL `MAPL.generic.scenarios` entry
+stayed green.
 
 Why a step that `report_if_failed` only logs still fails a test: under pFUnit,
 the MAPL throw method (`pfunit/MAPL_Initialize.F90`) records every failed
