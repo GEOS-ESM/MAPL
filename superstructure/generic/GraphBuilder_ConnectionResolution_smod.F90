@@ -26,6 +26,7 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use mapl_StateArithmeticParser_mod, only: parser_variables_in_expression
    use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use gFTL2_StringVector, only: StringVectorIterator, operator(/=)
+   use pflogger, only: Logger
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -52,6 +53,16 @@ contains
          name = dst_node%get_short_name()
       end select
    end function effective_source_name
+
+   ! Whether a name-matching export may be a member of a Wildcard import.
+   ! Only FIELD exports are members. Shared by resolve_wildcard_destination
+   ! and wildcard_import_has_match so the two cannot disagree.
+   logical function is_wildcard_member_shape(entry)
+      type(QualifiedExportEntry), intent(in) :: entry
+
+      is_wildcard_member_shape = &
+           (entry%var_spec%itemType == MAPL_STATEITEM_FIELD)
+   end function is_wildcard_member_shape
 
    ! Read-only counterpart of resolve_wildcard_destination's matching loop,
    ! shared by the "already resolved?" checks (check_one,
@@ -83,6 +94,7 @@ contains
       do i = 1, size(namespace)
          candidate_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, namespace(i)%qualified_name)
          if (.not. wildcard_v_pt%matches(candidate_v_pt)) cycle
+         if (.not. is_wildcard_member_shape(namespace(i))) cycle
          has_match = .true.
          exit
       end do
@@ -1875,7 +1887,9 @@ contains
       type(ESMF_State) :: state
       type(NodeId) :: member_id
       type(NodeId) :: dst_node_id
-      integer :: i, n
+      class(Logger), pointer :: lgr
+      character(:), allocatable :: msg
+      integer :: i, n, n_skipped
 
       ! dst_node's NodeId belongs to dst's ComponentGraph or to a descendant's
       ! (see find_owning_component_graph). add_resource_index asserts
@@ -1902,6 +1916,8 @@ contains
       ! VirtualConnectionPt%matches() compares state_intent first, so it would
       ! never match an EXPORT candidate.
       allocate(matches(0))
+      n_skipped = 0
+      lgr => this%get_logger()
 
       wildcard_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, dst_node%get_short_name())
 
@@ -1911,6 +1927,20 @@ contains
       do i = 1, size(namespace)
          candidate_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, namespace(i)%qualified_name)
          if (.not. wildcard_v_pt%matches(candidate_v_pt)) cycle
+
+         ! Only FIELD exports are members; any other shape is skipped (not a
+         ! connection conflict).
+         if (.not. is_wildcard_member_shape(namespace(i))) then
+            n_skipped = n_skipped + 1
+            ! One pre-concatenated string: pflogger %a substitution is
+            ! unreliable under gfortran.
+            msg = 'GraphBuilder: wildcard import ' // &
+                 dst_pt%component_name // ':' // dst_node%get_short_name() // &
+                 ' skips non-FIELD export ' // namespace(i)%qualified_name // &
+                 ' (' // itemtype_name(namespace(i)%var_spec%itemType) // ')'
+            call lgr%debug(msg)
+            cycle
+         end if
 
          ! Grow via a fresh temporary + move_alloc: a self-referencing array
          ! constructor ICEs classic ifort.
@@ -1924,6 +1954,12 @@ contains
       if (size(matches) == 0) then
          ! Zero matches: reported as unresolved. No resource-index entry, so a
          ! later connection that supplies a match is not blocked by a stale guard.
+         if (n_skipped > 0) then
+            msg = 'GraphBuilder: wildcard import ' // dst_pt%component_name // &
+                 ':' // dst_node%get_short_name() // ' is unresolved: all ' // &
+                 'matching exports are non-FIELD and are not Wildcard members'
+            call lgr%warning(msg)
+         end if
          call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name()))
          _RETURN(_SUCCESS)
       end if

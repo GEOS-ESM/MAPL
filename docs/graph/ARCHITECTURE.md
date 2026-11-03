@@ -284,7 +284,7 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
 | BRACKET → FIELD | `ItemShapeCharacteristic` + `BracketTimeInterpolationTransform` |
 | VECTORBRACKET | Not handled: legacy only (matrix: VECTOR unsupported, others incompatible). `to_itemtype` in the compiled parser does not parse `'vector_bracket'`. |
 | EXPRESSION | `graphbuilder_run_expression_hook` + `ExpressionTransform` (N:1) |
-| WILDCARD | `resolve_wildcard_destination` (fan-in of every matching producer as composite members) |
+| WILDCARD | `resolve_wildcard_destination` (fan-in of every matching FIELD producer as composite members; other shapes are skipped) |
 | SERVICE | Excluded from graph resolution (`is_ordinary_resolvable_import`); being retired in favor of callbacks |
 | Callback arguments | `GraphBuilder_CallbackWiring_smod.F90` |
 

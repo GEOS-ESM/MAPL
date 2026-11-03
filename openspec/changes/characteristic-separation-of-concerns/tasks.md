@@ -545,7 +545,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `src_intent` too ("YAML parsing is mostly for testing; robustness
       welcome"). Make `parse_connections` public for testing if the
       tests need it. Small parser task. Author haiku (sonnet review).
-- [ ] 3.30 B3-WildcardFieldOnly (3.26 R6: owner chose (a), "We will relax
+- [x] 3.30 B3-WildcardFieldOnly (3.26 R6: owner chose (a), "We will relax
       if we encounter reasonable use cases."; before 3.27). In
       `resolve_wildcard_destination`
       (`GraphBuilder_ConnectionResolution_smod.F90`), add only FIELD
@@ -589,7 +589,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
 - [ ] 3.33 B3-InternalReexport (3.26 R11: owner chose (a); after B4).
       Graph path for an INTERNAL -> EXPORT re-export: the graph skips
       ReexportConnection today (`class default`,
-      `GraphBuilder_ConnectionResolution_smod.F90:965`) and internals have
+      `GraphBuilder_ConnectionResolution_smod.F90:977`) and internals have
       no port (`GraphBuilder_Advertising_smod.F90:115`). Give a re-exported
       internal an export port bound to the internal's node (no mirror on
       the internal, Q13; the export is an export, A21), and resolve

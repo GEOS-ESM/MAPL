@@ -63,13 +63,16 @@ mechanically, one characteristic at a time.
 - `graph/state-item-characteristics`: status semantics become generic;
   ordering is owned by the export's shape; one-sided absence is not a
   mismatch.
+- `graph/graph-builder`: a Wildcard import's members are FIELD exports
+  only; a name-matching export of another shape is skipped.
 
 ## Impact
 
 - `superstructure/generic/graph/` (`GraphStateItem`, `StateItemNode`,
   `characteristics/*`, `ExtensionResolution`, `ExtensionMaterialization`,
   new `StateItemDescriptor`).
-- `superstructure/generic/GraphBuilder*.F90` (dispatch removal only).
+- `superstructure/generic/GraphBuilder*.F90` (dispatch removal; Wildcard
+  membership filter in `GraphBuilder_ConnectionResolution_smod.F90`).
 - `superstructure/generic/specs/VariableSpec.F90` (new
   `make_characteristics`; `make_aspects` untouched).
 - Infrastructure setters: no change required (design.md §3.2, §3.4).

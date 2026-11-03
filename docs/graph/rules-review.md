@@ -244,7 +244,7 @@ Shape pairs (export -> import):
 | Export \ Import | FIELD | FIELDBUNDLE | STATE | VECTOR | WILDCARD |
 |---|---|---|---|---|---|
 | FIELD | legacy match; graph match | - | - | - | legacy match (`FieldClassAspect%matches_a`); graph match |
-| FIELDBUNDLE | - | match both | - | - | legacy `matches_a` true (`FieldBundleClassAspect.F90:300-310`), but `WildcardClassAspect%connect_to_export` casts with `to_FieldClassAspect`, which `_FAIL`s 'aspect is not FieldClassAspect' (`WildcardClassAspect.F90:84-95`, `FieldClassAspect.F90:399`); graph match (member added, no shape filter, `resolve_wildcard_destination`) |
+| FIELDBUNDLE | - | match both | - | - | legacy `matches_a` true (`FieldBundleClassAspect.F90:300-310`), but `WildcardClassAspect%connect_to_export` casts with `to_FieldClassAspect`, which `_FAIL`s 'aspect is not FieldClassAspect' (`WildcardClassAspect.F90:84-95`, `FieldClassAspect.F90:399`); graph skips it (not a member, R6; `resolve_wildcard_destination`) |
 | STATE | - | - | match both | - | as FIELDBUNDLE |
 | VECTOR | - | - | - | legacy match if per-component standard names match (`VectorClassAspect.F90:136`); graph match (no standard_name entry for VECTOR) | graph INCOMPATIBLE as a pair; legacy no |
 | BRACKET | legacy converts (time interpolation); graph converts | - | - | - | - |
@@ -253,11 +253,15 @@ Shape pairs (export -> import):
 
 Wildcard detail: a Wildcard import is matched by name per export, not as a
 shape pair: `resolve_wildcard_destination`
-(`GraphBuilder_ConnectionResolution_smod.F90:1855`) fans in every export in
-`build_qualified_export_namespace` (filtered only by
-`state_intent == EXPORT`, `GraphBuilder_CallbackWiring_smod.F90:67`) whose
-qualified name matches the regex. No shape filter: a VECTOR, BRACKET,
-EXPRESSION or SERVICE export whose name matches becomes a member too.
+fans in every FIELD export in `build_qualified_export_namespace` (filtered
+by `state_intent == EXPORT`, `GraphBuilder_CallbackWiring_smod.F90:67`)
+whose qualified name matches the regex (R6, owner (a)). An export of any
+other shape (FIELDBUNDLE, STATE, VECTOR, BRACKET, VECTORBRACKET,
+EXPRESSION, SERVICE) that matches by name is skipped: one debug log line
+per skip, and one warning when every match was skipped (the import is then
+unresolved, as for zero matches). A skip is not a connection conflict. The
+read-only check `wildcard_import_has_match` uses the same predicate
+(`is_wildcard_member_shape`), so the two cannot disagree.
 
 ## 2. Irregularities and proposed generalizations
 
@@ -396,10 +400,8 @@ Graph only:
 - QuantityType/Conservation/Normalization use the declared value (Q9).
 - Undeclared Geometry/VerticalGrid/VerticalStagger are DEFERRED, not
   MIRRORED (A12, A17); freeze fails if never supplied.
-- A Wildcard import fans in FIELDBUNDLE/STATE (and any other shape)
-  exports; legacy `_FAIL`s on a non-Field export (§1.2).
 - A second connection to an already-settled import is silently skipped
-  (`resolve_one`, `GraphBuilder_ConnectionResolution_smod.F90:222`, "first
+  (`resolve_one`, `GraphBuilder_ConnectionResolution_smod.F90:234`, "first
   wins").
 
 Legacy only:
@@ -417,7 +419,7 @@ Legacy only:
   `GraphBuilder*.F90`). Not in the 3.26 seeds; see R14.
 - Re-export (`ReexportConnection`) is resolved by the registry only; the
   graph skips it (`class default`,
-  `GraphBuilder_ConnectionResolution_smod.F90:965`). Export propagation
+  `GraphBuilder_ConnectionResolution_smod.F90:977`). Export propagation
   (`run_export_propagate_hook`) covers child exports, but an
   INTERNAL->EXPORT re-export has no graph path: internals get no port
   (`GraphBuilder_Advertising_smod.F90:115`). Scenarios using it:
@@ -611,7 +613,8 @@ interpolation; Expression -> Field; Field -> Wildcard.*
   (`FieldBundleClassAspect.F90:300-310`, `StateClassAspect.F90:287-297`),
   but `WildcardClassAspect%connect_to_export` `_FAIL`s for them
   (`WildcardClassAspect.F90:84-95`), so legacy production is Field-only.
-  Graph fans in any shape. R6.
+  The graph is Field-only too (R6, 3.30): it skips a non-Field match
+  instead of failing.
 - Expression -> Field: holds (both).
 
 ### MIRROR
@@ -801,6 +804,7 @@ export:
 Recommendation: (a).
 
 **R6. Which export shapes may a Wildcard import accept?**
+*Resolved: option (a), landed in 3.30 (graph members are FIELD only).*
 Legacy: `FieldBundleClassAspect%matches_a` and `StateClassAspect%matches_a`
 accept a Wildcard (`FieldBundleClassAspect.F90:300-310`,
 `StateClassAspect.F90:287-297`), but `WildcardClassAspect%connect_to_export`
@@ -904,7 +908,7 @@ Recommendation: (a).
 **R11. Schedule a graph task for INTERNAL re-export?**
 Legacy: an INTERNAL -> EXPORT re-export makes the internal appear in the
 export state (`ReexportConnection.F90:116-117`). Graph: re-export is
-skipped (`class default`, `GraphBuilder_ConnectionResolution_smod.F90:965`)
+skipped (`class default`, `GraphBuilder_ConnectionResolution_smod.F90:977`)
 and internals have no port (`GraphBuilder_Advertising_smod.F90:115`), so
 in graph mode the export has no node. Used by `scenario_1`, `scenario_2`,
 `propagate_geom` (`child_A.yaml`, `src_intent: internal`). Example:

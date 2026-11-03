@@ -629,7 +629,7 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName, B3-RestartMode, B3-QuantityType, B3-Conservation, B3-Normalization, B3-IncompatibleSweep, B3-InternalNoMirror and B3-ConnectionIntentCheck done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName, B3-RestartMode, B3-QuantityType, B3-Conservation, B3-Normalization, B3-IncompatibleSweep, B3-InternalNoMirror, B3-ConnectionIntentCheck and B3-WildcardFieldOnly done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
@@ -641,8 +641,19 @@ in the first one; later ones refine it.
   `Plan-Task: B3-LongName`, `Plan-Task: B3-RestartMode`,
   `Plan-Task: B3-QuantityType`, `Plan-Task: B3-Conservation`,
   `Plan-Task: B3-Normalization`, `Plan-Task: B3-IncompatibleSweep`,
-  `Plan-Task: B3-InternalNoMirror`, `Plan-Task: B3-ConnectionIntentCheck`);
+  `Plan-Task: B3-InternalNoMirror`, `Plan-Task: B3-ConnectionIntentCheck`,
+  `Plan-Task: B3-WildcardFieldOnly`);
   others not started.
+  B3-WildcardFieldOnly (tasks.md 3.30): done. Only FIELD exports are
+  Wildcard members, filtered in `resolve_wildcard_destination` and
+  `wildcard_import_has_match` through one predicate
+  (`is_wildcard_member_shape`, on `var_spec%itemType`); one debug line per
+  skipped export and one warning when every match was skipped (import
+  unresolved, as for zero matches). Delta spec added
+  (`specs/graph/graph-builder/spec.md`, MODIFIED wildcard requirement).
+  Two graph-only tests; `build_wildcard_hierarchy` gained `add_non_field`.
+  `history_wildcard` unchanged. ESSENTIAL 69/69 on NAG and gfortran. No
+  deviations. The warning text is not asserted by a test.
   B3-ConnectionIntentCheck (tasks.md 3.29): done. Parser asserts in
   `parse_connections` (`parse_connections.F90`); `parse_connections` public
   for testing; twelve parser tests. Deviation: the internal

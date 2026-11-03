@@ -68,6 +68,7 @@ module Test_GraphBuilder_ConnectionResolution
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
    use mapl_StateItem_mod, only: MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_BRACKET
    ! -- openspec/changes/callback-wiring -----------------------------------
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
    use mapl_CallbackInterface_mod, only: CallbackInterface
@@ -3187,7 +3188,10 @@ contains
    ! add their own connection(s) and call gb%resolve_connections
    ! themselves (mirrors build_tracer_hierarchy's own split of "build
    ! the tree" from "wire the one connection under test").
-   subroutine build_wildcard_hierarchy(name_suffix, wildcard_pattern, root_gc, root_meta, a_meta, b_meta, dst_meta, rc)
+   ! With add_non_field, 'A' also exports 'E_A3' (FIELDBUNDLE) and 'E_A4'
+   ! (BRACKET): they match 'A/E_A.*' by name but are not Wildcard members.
+   subroutine build_wildcard_hierarchy(name_suffix, wildcard_pattern, &
+        root_gc, root_meta, a_meta, b_meta, dst_meta, rc, add_non_field)
       character(*), intent(in) :: name_suffix
       character(*), intent(in) :: wildcard_pattern
       type(ESMF_GridComp), intent(out) :: root_gc
@@ -3196,6 +3200,7 @@ contains
       type(OuterMetaComponent), pointer, intent(out) :: b_meta
       type(OuterMetaComponent), pointer, intent(out) :: dst_meta
       integer, optional, intent(out) :: rc
+      logical, optional, intent(in) :: add_non_field
 
       integer :: status
       type(ChildSpec) :: child_spec
@@ -3203,6 +3208,7 @@ contains
       type(ESMF_GridComp) :: a_gc, b_gc, dst_gc
       type(ComponentSpec), pointer :: a_spec, b_spec, dst_spec
       type(VariableSpec) :: wild_import
+      type(VariableSpec) :: non_field
       type(GraphBuilder) :: gb
 
       call make_outer_meta('root_wild_' // name_suffix, root_gc, root_meta, _RC)
@@ -3229,6 +3235,16 @@ contains
       call a_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'E_A1', units='m'))
       call a_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'E_A2', units='m'))
       call a_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'E1_A0', units='m'))
+      if (present(add_non_field)) then
+         if (add_non_field) then
+            non_field = make_var(ESMF_STATEINTENT_EXPORT, 'E_A3', units='m')
+            non_field%itemType = MAPL_STATEITEM_FIELDBUNDLE
+            call a_spec%add_var_spec(non_field)
+            non_field = make_var(ESMF_STATEINTENT_EXPORT, 'E_A4', units='m')
+            non_field%itemType = MAPL_STATEITEM_BRACKET
+            call a_spec%add_var_spec(non_field)
+         end if
+      end if
 
       b_spec => b_meta%get_component_spec()
       call b_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'E_B1', units='m'))
@@ -3509,6 +3525,138 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_wildcard_import_resolution_is_idempotent
+
+   ! Only FIELD exports are Wildcard members: a FIELDBUNDLE and a BRACKET
+   ! export whose names match the pattern are skipped, and the skip is
+   ! neither a conflict nor an unresolved import.
+   @test(npes=[0])
+   subroutine test_wildcard_non_field_export_is_not_a_member(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, a_meta, b_meta, dst_meta
+      type(ComponentSpec), pointer :: root_spec
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved
+      type(ComponentGraph), pointer :: dst_graph
+      type(NodeId), pointer :: import_id
+      class(GraphNode), pointer :: import_node
+      type(GraphStateItem), pointer :: import_payload
+      type(StateItemMemberMap), pointer :: members
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_wildcard_hierarchy('nonfield', 'A/E_A.*', root_gc, &
+           root_meta, a_meta, b_meta, dst_meta, add_non_field=.true., &
+           rc=status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('<self>', VirtualConnectionPt( &
+           state_intent='export', short_name='^.*$')), &
+           ConnectionPt('dst', VirtualConnectionPt( &
+           state_intent='import', short_name='^.*$')))
+      root_spec => root_meta%get_component_spec()
+      call root_spec%add_connection(conn)
+
+      call gb%resolve_connections(root_meta, &
+           unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+
+      dst_graph => dst_meta%get_component_graph()
+      import_id => dst_graph%get_resource_index( &
+           item_key(ESMF_STATEINTENT_IMPORT, 'A/E_A.*'))
+      @assert_that(associated(import_id), is(true()))
+      import_node => dst_graph%get_node(import_id)
+      select type (import_node)
+      class is (StateItemNode)
+         import_payload => import_node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      members => import_payload%state_members_ptr()
+      @assertEqual(2, members%size())
+      @assert_that(associated(members%at('A/E_A1')), is(true()))
+      @assert_that(associated(members%at('A/E_A2')), is(true()))
+      @assert_that(associated(members%at('A/E_A3')), is(false()))
+      @assert_that(associated(members%at('A/E_A4')), is(false()))
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(a_meta)
+      _UNUSED_DUMMY(b_meta)
+   end subroutine test_wildcard_non_field_export_is_not_a_member
+
+   ! A pattern whose only matches are non-FIELD exports behaves as zero
+   ! matches: the import is reported unresolved and no collection is made.
+   ! The read-only check agrees with the resolution.
+   @test(npes=[0])
+   subroutine test_wildcard_only_non_field_matches_is_unresolved(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, a_meta, b_meta, dst_meta
+      type(ComponentSpec), pointer :: root_spec
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, checked
+      type(GraphResolutionEntry), pointer :: entry
+      type(ComponentGraph), pointer :: dst_graph
+      type(NodeId), pointer :: import_id
+      class(GraphNode), pointer :: import_node
+      type(GraphStateItem), pointer :: import_payload
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_wildcard_hierarchy('onlybundle', 'A/E_A3', root_gc, &
+           root_meta, a_meta, b_meta, dst_meta, add_non_field=.true., &
+           rc=status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('<self>', VirtualConnectionPt( &
+           state_intent='export', short_name='^.*$')), &
+           ConnectionPt('dst', VirtualConnectionPt( &
+           state_intent='import', short_name='^.*$')))
+      root_spec => root_meta%get_component_spec()
+      call root_spec%add_connection(conn)
+
+      ! Read-only check, before any resolution.
+      call gb%check_unsatisfied_imports(root_meta, &
+           unresolved_imports=checked, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(1, checked%size())
+      entry => checked%at(1, status)
+      @assertEqual('A/E_A3', entry%short_name)
+
+      call gb%resolve_connections(root_meta, &
+           unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(1, unresolved%size())
+      entry => unresolved%at(1, status)
+      @assertEqual('dst', entry%component_name)
+      @assertEqual('A/E_A3', entry%short_name)
+
+      dst_graph => dst_meta%get_component_graph()
+      import_id => dst_graph%get_resource_index( &
+           item_key(ESMF_STATEINTENT_IMPORT, 'A/E_A3'))
+      @assert_that(associated(import_id), is(true()))
+      import_node => dst_graph%get_node(import_id)
+      select type (import_node)
+      class is (StateItemNode)
+         import_payload => import_node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      @assert_that(.not. associated(dst_graph%get_resource_index( &
+           'WILDCARD_COLLECTION:' // import_id%to_string())), is(true()))
+      @assertTrue(import_payload%itemType(rc=status) /= ESMF_STATEITEM_STATE)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(a_meta)
+      _UNUSED_DUMMY(b_meta)
+   end subroutine test_wildcard_only_non_field_matches_is_unresolved
 
    ! A pair with a DEFERRED side is neither wired nor reported; it is
    ! retried on the next pass, once the component has filled the value.
