@@ -43,6 +43,7 @@ module VerticalCoordinateMod
       character(len=:), allocatable :: surf_units
       character(len=:), allocatable :: positive
       character(len=:), allocatable :: level_units
+      character(len=:), allocatable :: file_lev_name ! name of the file dimension identified as vertical
       type(mapl_VerticalStaggerLoc) :: stagger
       integer :: vertical_type
       contains
@@ -97,6 +98,7 @@ contains
       end do
       ! if not blank, we found something that "looks" like a vertical coordinate according to cf, now lets fill it out
       if (lev_name /= '') then
+         vertical_coord%file_lev_name = lev_name
          coord_var => metadata%get_coordinate_variable(lev_name, _RC)
          vertical_coord%levels = get_coords(coord_var,_RC)
          vertical_coord%num_levels = size(vertical_coord%levels)
