@@ -62,6 +62,13 @@ Preferences stated in discussion, not obvious from the rest of the plan:
   Details: orchestration.md, "Question format".
 - The owner reviews every task before it commits (reviewer subagent at
   least `sonnet` when the model table says `-`).
+- Eliminating legacy is a primary goal, but nothing legacy is disabled
+  or deleted until (a) this branch is merged into `develop` and (b)
+  external client code builds and passes its tests in graph mode.
+  Graph-only capability (C1, B3-InternalReexport, ...) proceeds now;
+  switching legacy off is a separate later step gated on (a) and (b).
+- No `CHANGELOG.md` entries per task: one entry when the graph work is
+  complete, pointing at the documentation.
 - Fix-as-needed beats speculative completeness (e.g. `MAPL_StateSet` is
   extended when a task needs it); no speculative compiler workarounds.
 - Prefer overloading existing MAPL generic names (`MAPL_FieldGet`,
@@ -1260,6 +1267,11 @@ ready means today" in `scenario-parity.md`). May be split into
   orientation mismatch is masked by a VERTICAL_GRID mismatch. It also covers
   `merged_item_for_link`'s missing VERTICAL_ORIENTATION branch if B4 has not yet
   replaced it.
+- Owner (2026-11-03): split into C1-geom, then C1-vertical; each runs in a
+  worktree alongside the B3 main line, opus author as a background
+  subagent, sonnet review, with the preflight's design questions answered
+  first. Whether C1-geom lands before B4 is decided from the preflight
+  (default: before, unless C1 needs B4's materialization).
 - **Status:** not started
 
 **C3. Time-dependent geometry (reminder; prerequisite for A10's
@@ -1506,7 +1518,8 @@ it may author D1/A4/B5 with sonnet review.
 | B3 others | sonnet | sonnet (self-review) | one at a time, after B3-Units lands |
 | B4 | sonnet | opus | materialization regressions likely |
 | B5 | sonnet (haiku?) | sonnet if haiku | |
-| C1 | opus | - | ESMF regrid/route handles |
+| C1-geom | opus | sonnet | ESMF regrid/route handles; worktree; background author |
+| C1-vertical | opus | sonnet | after C1-geom; orientation reversal; worktree |
 | C2-geom-push | sonnet | opus | |
 | C2-alias-owner | sonnet | opus | |
 | C2-alias-nonfield | sonnet | opus | after C2-alias-owner |
