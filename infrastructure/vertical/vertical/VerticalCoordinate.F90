@@ -2,6 +2,8 @@
 
 module VerticalCoordinateMod
 
+   use mapl_enums_api, only: mapl_VerticalStaggerLoc, MAPL_VERTICAL_STAGGER_NONE, &
+                             MAPL_VERTICAL_STAGGER_CENTER, MAPL_VERTICAL_STAGGER_EDGE
    use PFIO
    use mapl_ErrorHandling_mod
    use gFTL2_StringVector
@@ -41,7 +43,7 @@ module VerticalCoordinateMod
       character(len=:), allocatable :: surf_units
       character(len=:), allocatable :: positive
       character(len=:), allocatable :: level_units
-      integer :: stagger
+      type(mapl_VerticalStaggerLoc) :: stagger
       integer :: vertical_type
       contains
          procedure :: compute_ple
@@ -69,6 +71,9 @@ contains
       character(len=:), allocatable :: lev_name, temp_units, formula_terms, standard_name, long_name, bounds_var, ak_name, bk_name, ps_name, source_file
       type(NETCDF4_FileFormatter) :: file_formatter
       real, allocatable :: temp_ak(:,:), temp_bk(:,:)
+      type(Attribute), pointer :: title_attr
+      class(*), pointer :: title_val
+      logical :: is_edge_levels
 
       vertical_coord%num_levels = 0 ! initialze
       var => metadata%get_variable(var_name, _RC)
@@ -148,7 +153,7 @@ contains
                   vertical_coord%surf_name = ps_name
                   ps_var => metadata%get_variable(ps_name)
                   vertical_coord%surf_units = ps_var%get_attribute_string("units")
-                  vertical_coord%stagger = vertical_stagger_center
+                  vertical_coord%stagger = MAPL_VERTICAL_STAGGER_CENTER 
                   allocate(temp_ak(2,vertical_coord%num_levels))
                   allocate(temp_bk(2,vertical_coord%num_levels))
                   allocate(vertical_coord%ak(vertical_coord%num_levels+1))
@@ -169,7 +174,7 @@ contains
                   vertical_coord%surf_name = ps_name
                   ps_var => metadata%get_variable(ps_name)
                   vertical_coord%surf_units = ps_var%get_attribute_string("units")
-                  vertical_coord%stagger = vertical_stagger_edge
+                  vertical_coord%stagger = MAPL_VERTICAL_STAGGER_EDGE 
                   allocate(vertical_coord%ak(vertical_coord%num_levels+1))
                   allocate(vertical_coord%bk(vertical_coord%num_levels+1))
                   call file_formatter%open(source_file, PFIO_READ, _RC)
@@ -185,6 +190,20 @@ contains
          end if
          ! if this is none of those, then a simple coordinate
          vertical_coord%vertical_type = simple_coord
+         vertical_coord%stagger = MAPL_VERTICAL_STAGGER_CENTER
+         is_edge_levels = .false.
+         if (metadata%has_attribute("Title")) then
+            title_attr => metadata%get_attribute("Title", _RC)
+            title_val => title_attr%get_value()
+            select type (title_val)
+            type is (character(*))
+               is_edge_levels = (index(title_val, "on level edges") > 0)
+            end select
+         end if
+         if (is_edge_levels) then
+            vertical_coord%stagger = MAPL_VERTICAL_STAGGER_EDGE
+            vertical_coord%num_levels = vertical_coord%num_levels - 1
+         end if
       else
          vertical_coord%vertical_type = no_coord
       end if
