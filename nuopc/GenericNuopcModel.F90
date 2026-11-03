@@ -85,6 +85,7 @@ contains
          call NUOPC_CompSpecialize(model, specLabel=label_RealizeAccepted, specRoutine=RealizeAccept, _RC)
          call NUOPC_CompSpecialize(model, specLabel=label_RealizeProvided, specRoutine=RealizeProvided, _RC)
          call NUOPC_CompSpecialize(model, specLabel=label_DataInitialize, specRoutine=DataInitialize, _RC)
+         call NUOPC_CompSpecialize(model, specLabel=label_CheckImport, specRoutine=CheckImport, _RC)
          
          ! Advance specs
          ! MAPL Framework phases
@@ -175,6 +176,19 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine DataInitialize
+
+   recursive subroutine CheckImport(model, rc)
+      type(ESMF_GridComp) :: model
+      integer, intent(out) :: rc
+
+      integer :: status
+      type(NuopcMetaModel), pointer :: meta_model
+
+      meta_model => get_meta_model(model, _RC)
+      call meta_model%check_import(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine CheckImport
 
    recursive subroutine Advance(model, rc)
       type(ESMF_GridComp) :: model

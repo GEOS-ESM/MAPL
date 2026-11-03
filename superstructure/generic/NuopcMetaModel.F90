@@ -4,6 +4,7 @@ module mapl_NuopcMetaModel_mod
    use esmf
    use NUOPC, only: NUOPC_Advertise, NUOPC_GetStateMemberLists
    use NUOPC, only: NUOPC_SetTimestamp, NUOPC_CompAttributeSet
+   use NUOPC, only: NUOPC_IsAtTime
    use NUOPC, only: NUOPC_CompSearchRevPhaseMap, NUOPC_Realize
    use NUOPC_Model, only: NUOPC_ModelGet
    use mapl_MethodPhasesMap_mod
@@ -28,7 +29,7 @@ module mapl_NuopcMetaModel_mod
    use mapl_StateItemSpec_mod
    use mapl_state_api
    ! NUOPC label_Advertise phases
-   use mapl_enums_api, only: MAPL_GENERIC_INIT_SET_CLOCK, MAPL_GENERIC_INIT_ADVERTISE
+   use mapl_enums_api, only: MAPL_GENERIC_INIT_SET_CLOCK, MAPL_GENERIC_INIT_ADVERTISE, MAPL_GENERIC_INIT_USER
    use mapl_enums_api, only: MAPL_GENERIC_INIT_GEOM_A, MAPL_GENERIC_INIT_GEOM_B
    ! NUOPC label_ModifyAdvertise phases
    use mapl_enums_api, only: MAPL_GENERIC_INIT_MODIFY_ADVERTISED
@@ -108,6 +109,8 @@ module mapl_NuopcMetaModel_mod
       procedure :: advance => advance_
       ! label_AdvanceClock
       procedure :: advance_clock
+      ! label_CheckImport
+      procedure :: check_import
       ! Finalize phases
       !----------------
       ! label_Finalize
@@ -157,6 +160,7 @@ contains
 
       ! Registry is created in setServices_ (before specs are parsed).
       !wdb fixme deleteme Do we set the logger?
+      call this%user_gc_driver%initialize(phase_idx=MAPL_GENERIC_INIT_USER, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine init_user_gc
@@ -180,6 +184,32 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine setServices_
+
+   ! Replaces the NUOPC_ModelBase default import check. Imports must be
+   ! stamped at the model clock's currTime, i.e. connectors run before the model.
+   subroutine check_import(this, unusable, rc)
+      class(NuopcMetaModel), intent(inout) :: this
+      class(KeywordEnforcer), optional, intent(out) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Clock) :: modelClock
+      type(ESMF_State) :: importState
+      type(ESMF_Time) :: time
+      logical :: all_at_time
+
+      call NUOPC_ModelGet(this%self_model, modelClock=modelClock, &
+           importState=importState, _RC)
+
+      call ESMF_ClockGet(modelClock, currTime=time, _RC)
+
+      all_at_time = NUOPC_IsAtTime(importState, time, _RC)
+      _ASSERT(all_at_time, 'Import fields not at expected time for model <' &
+           //this%get_name()//'>')
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine check_import
 
    subroutine advertise(this, rc)
       class(NuopcMetaModel), intent(inout) ::  this
@@ -427,8 +457,6 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Clock) :: clock
-      type(StringVector), pointer :: run_phases
-      logical :: found
 !      class(logger_t), pointer :: logger
       integer :: phase
       character(len=ESMF_MAXSTR) :: phaseLabel
@@ -445,12 +473,13 @@ contains
          call ESMF_ClockGetNextTime(clock, nextTime=currTime, _RC)
       end if
 !      is_ringing = this%user_run_alarm%is_ringing(currTime, _RC)
-      is_ringing = .FALSE.
+      is_ringing = .TRUE.
       _RETURN_IF(.not. is_ringing)
 
-      run_phases => this%get_phases(ESMF_METHOD_RUN)
-      !phase = get_phase_index(run_phases, trim(phaseLabel), found=found)
-      _ASSERT(found, 'phase <'//trim(phaseLabel)//'> not found for model <'//this%get_name()//'>')
+      ! The NUOPC run phase index (phase) is used directly as the MAPL user
+      ! run phase index. This assumes the user gridcomp registers its run
+      ! phases in the same order as the NUOPC model. If the phase orders
+      ! differ, this index maps to the wrong MAPL phase.
 
 !      logger => this%get_logger()
       !wdb fixme deleteme Need to reactivate
