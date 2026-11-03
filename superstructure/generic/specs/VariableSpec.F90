@@ -245,9 +245,10 @@ module mapl_VariableSpec_mod
       ! declared quantity-type/conservation/normalization
       !=====================
       ! Read by the QuantityType, Conservation and Normalization factories
-      ! in make_characteristics. Set by plain field assignment only: no
-      ! make_VariableSpec keyword, YAML key or SetServices entry point sets
-      ! them yet. The legacy make_*Aspect procedures ignore them.
+      ! in make_characteristics. quantity_type is also set by the
+      ! make_VariableSpec keyword and the YAML key `quantity_type`;
+      ! conservation and normalization only by field assignment. The legacy
+      ! make_*Aspect procedures ignore all three.
       type(MAPL_QuantityType) :: quantity_type = MAPL_QUANTITY_UNKNOWN
       type(ConservationMetadata) :: conservation
       type(NormalizationMetadata) :: normalization
@@ -314,6 +315,7 @@ contains
         mirror_vgrid, &
         vector_basis_kind, &
         restart_mode, &
+        quantity_type, &
         rc) result(var_spec)
 
       type(VariableSpec) :: var_spec
@@ -344,6 +346,7 @@ contains
       logical, optional, intent(in) :: mirror_vgrid
       character(*), optional, intent(in) :: vector_basis_kind
       type(RestartMode), optional, intent(in) :: restart_mode
+      type(MAPL_QuantityType), optional, intent(in) :: quantity_type
       integer, optional, intent(out) :: rc
 
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
@@ -394,6 +397,7 @@ contains
       _SET_OPTIONAL(mirror_geom)
       _SET_OPTIONAL(mirror_vgrid)
       _SET_OPTIONAL(restart_mode)
+      _SET_OPTIONAL(quantity_type)
 
       reason = intent_rule_violation(state_intent, var_spec%itemType, var_spec%requests_mirror())
       _ASSERT(len(reason) == 0, reason // ': ' // short_name)

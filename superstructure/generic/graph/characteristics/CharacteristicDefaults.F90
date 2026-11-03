@@ -18,6 +18,7 @@ module mapl_CharacteristicDefaults_mod
    use mapl_GeomId_mod, only: GeomId
    use mapl_VerticalGrid_mod, only: VerticalGrid
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc
+   use mapl_QuantityType_mod, only: QuantityType, MixingRatioBasis
    implicit none(type, external)
    private
 
@@ -32,6 +33,8 @@ module mapl_CharacteristicDefaults_mod
       class(VerticalGrid), allocatable :: vgrid_value
       logical :: component_scope_value = .false.
       type(VerticalStaggerLoc), allocatable :: vert_stagger_value
+      type(QuantityType), allocatable :: quantity_type_value
+      type(MixingRatioBasis), allocatable :: basis_value
    contains
       procedure :: has_geom => defaults_has_geom
       procedure :: get_geom => defaults_get_geom
@@ -44,6 +47,10 @@ module mapl_CharacteristicDefaults_mod
       procedure :: has_vert_stagger => defaults_has_vert_stagger
       procedure :: get_vert_stagger => defaults_get_vert_stagger
       procedure :: set_vert_stagger => defaults_set_vert_stagger
+      procedure :: has_quantity_type => defaults_has_quantity_type
+      procedure :: get_quantity_type => defaults_get_quantity_type
+      procedure :: get_basis => defaults_get_basis
+      procedure :: set_quantity_type => defaults_set_quantity_type
    end type CharacteristicDefaults
 
    interface CharacteristicDefaults
@@ -139,5 +146,36 @@ contains
       if (allocated(this%vert_stagger_value)) deallocate(this%vert_stagger_value)
       allocate(this%vert_stagger_value, source=vert_stagger)
    end subroutine defaults_set_vert_stagger
+
+   logical function defaults_has_quantity_type(this) result(has)
+      class(CharacteristicDefaults), intent(in) :: this
+
+      has = allocated(this%quantity_type_value)
+   end function defaults_has_quantity_type
+
+   function defaults_get_quantity_type(this) result(quantity_type_)
+      class(CharacteristicDefaults), intent(in) :: this
+      type(QuantityType) :: quantity_type_
+
+      if (allocated(this%quantity_type_value)) quantity_type_ = this%quantity_type_value
+   end function defaults_get_quantity_type
+
+   function defaults_get_basis(this) result(basis)
+      class(CharacteristicDefaults), intent(in) :: this
+      type(MixingRatioBasis) :: basis
+
+      if (allocated(this%basis_value)) basis = this%basis_value
+   end function defaults_get_basis
+
+   subroutine defaults_set_quantity_type(this, quantity_type_, basis)
+      class(CharacteristicDefaults), intent(inout) :: this
+      type(QuantityType), intent(in) :: quantity_type_
+      type(MixingRatioBasis), intent(in) :: basis
+
+      if (allocated(this%quantity_type_value)) deallocate(this%quantity_type_value)
+      if (allocated(this%basis_value)) deallocate(this%basis_value)
+      allocate(this%quantity_type_value, source=quantity_type_)
+      allocate(this%basis_value, source=basis)
+   end subroutine defaults_set_quantity_type
 
 end module mapl_CharacteristicDefaults_mod

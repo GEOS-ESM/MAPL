@@ -3,9 +3,11 @@
 submodule (mapl_ComponentSpecParser_mod) parse_var_specs_smod
    use mapl_VerticalGrid_mod
    use mapl_HorizontalDimsSpec_mod
+   use mapl_QuantityType_mod, only: QuantityType, QUANTITY_UNKNOWN, operator(/=)
    implicit none(type,external)
 
    character(*), parameter :: KEY_DIMS = 'dims'
+   character(*), parameter :: KEY_QUANTITY_TYPE = 'quantity_type'
 
 contains
 
@@ -70,6 +72,7 @@ contains
          logical :: has_units
          logical :: has_expression
          logical :: has_dims
+         type(QuantityType) :: quantity_type
          logical :: mirror_geom, has_mirror_geom
          logical :: mirror_vgrid, has_mirror_vgrid
          character(:), allocatable :: dims_str
@@ -118,6 +121,8 @@ contains
                   horizontal_dims_spec = HORIZONTAL_DIMS_MIRROR
                end select
             end if
+
+            call to_quantity_type(quantity_type, attributes, _RC)
 
             mirror_geom = .false.
             has_mirror_geom = ESMF_HConfigIsDefined(attributes, keyString=KEY_GEOMETRY_MIRROR, _RC)
@@ -192,6 +197,7 @@ contains
                   geom=geom, &
                  vertical_grid=vertical_grid, &
                  horizontal_dims_spec=horizontal_dims_spec, &
+                 quantity_type=quantity_type, &
                  mirror_geom=mirror_geom, &
                  mirror_vgrid=mirror_vgrid, _RC)
 
@@ -226,6 +232,30 @@ contains
 
          _RETURN(_SUCCESS)
       end subroutine val_to_float
+
+      ! The value is a full QuantityType name, case-folded. QuantityType(name)
+      ! maps an unknown string to QUANTITY_UNKNOWN, so the check is here.
+      subroutine to_quantity_type(quantity_type, attributes, rc)
+         type(QuantityType), intent(out) :: quantity_type
+         type(ESMF_HConfig), intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         logical :: has_quantity_type
+         character(:), allocatable :: written, name, msg
+
+         quantity_type = QUANTITY_UNKNOWN
+         has_quantity_type = ESMF_HConfigIsDefined(attributes, keyString=KEY_QUANTITY_TYPE, _RC)
+         _RETURN_UNLESS(has_quantity_type)
+
+         written = ESMF_HConfigAsString(attributes, keyString=KEY_QUANTITY_TYPE, _RC)
+         name = ESMF_UtilStringUpperCase(written)
+         quantity_type = QuantityType(name)
+         msg = 'Unsupported quantity_type: <' // written // '>'
+         _ASSERT(quantity_type /= QUANTITY_UNKNOWN .or. name == 'QUANTITY_UNKNOWN', msg)
+
+         _RETURN(_SUCCESS)
+      end subroutine to_quantity_type
 
       function to_typekind(attributes, rc) result(typekind)
          use :: mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR

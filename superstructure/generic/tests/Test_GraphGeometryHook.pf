@@ -67,7 +67,14 @@ module Test_GraphGeometryHook
    use mapl_VerticalStaggerCharacteristic_mod, only: VerticalStaggerCharacteristic
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
         CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_DEFERRED
+   use mapl_StateItemCharacteristicKind_mod, only: QUANTITY_TYPE_CHARACTERISTIC_KIND
    use mapl_field_api, only: MAPL_FieldSet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleSet
+   use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_QuantityTypeMetadata_mod, only: QuantityTypeMetadata
+   use mapl_QuantityType_mod, only: QUANTITY_UNKNOWN, QUANTITY_TEMPERATURE, &
+        QUANTITY_MIXING_RATIO, BASIS_NONE, BASIS_DRY_MASS, BASIS_WET_MASS, &
+        operator(==)
    use mapl_geom_api, only: mapl_new_GeomId
    use mapl_StateItemCharacteristicKind_mod, only: VERTICAL_GRID_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND
    use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid
@@ -841,6 +848,250 @@ contains
       call gb%advertise(meta, _RC)
       _RETURN(_SUCCESS)
    end subroutine advertise_undeclared_stagger
+
+   ! Advertises an item whose geometry and stagger are declared, then makes
+   ! its QuantityType entry DEFERRED holding a different value than any test
+   ! supplies, so a resolved value is never the seed.
+   subroutine advertise_deferred_quantity_type(meta, intent, descriptor, rc)
+      type(OuterMetaComponent), pointer, intent(inout) :: meta
+      type(ESMF_StateIntent_Flag), intent(in) :: intent
+      type(StateItemDescriptor), pointer, intent(out) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      type(ComponentSpec), pointer :: comp_spec
+      type(VariableSpec) :: var_spec
+      type(QuantityTypeCharacteristic) :: deferred
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      var_spec%state_intent = intent
+      var_spec%short_name = 'T'
+      var_spec%vertical_stagger = VERTICAL_STAGGER_NONE
+      var_spec%geom_id = mapl_new_GeomId(1)
+      if (intent == ESMF_STATEINTENT_IMPORT) var_spec%mirror_geom = .true.
+      comp_spec => meta%get_component_spec()
+      call comp_spec%add_var_spec(var_spec)
+      call gb%advertise(meta, _RC)
+
+      call find_descriptor(meta, 'T', intent, descriptor, _RC)
+      deferred = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_DRY_MASS)
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call descriptor%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, deferred, _RC)
+      _RETURN(_SUCCESS)
+   end subroutine advertise_deferred_quantity_type
+
+   ! The status of the item's QUANTITY_TYPE entry and its value.
+   subroutine read_quantity_type(descriptor, entry_status, c, rc)
+      type(StateItemDescriptor), intent(in) :: descriptor
+      type(CharacteristicStatus), intent(out) :: entry_status
+      type(QuantityTypeCharacteristic), intent(out) :: c
+      integer, optional, intent(out) :: rc
+
+      class(StateItemCharacteristic), allocatable :: entry
+      integer :: status
+
+      call descriptor%get_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, entry, _RC)
+      entry_status = entry%get_status()
+      select type (entry)
+      type is (QuantityTypeCharacteristic)
+         c = entry
+      end select
+      _RETURN(_SUCCESS)
+   end subroutine read_quantity_type
+
+   ! A quantity type the component set on its realized Field fills the
+   ! DEFERRED entry. Before the Field exists, or when it carries no
+   ! metadata, the entry stays DEFERRED.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_harvest_fills_quantity_type_from_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(StateItemDescriptor), pointer :: descriptor
+      type(GriddedComponentDriver), pointer :: driver
+      type(MultiState) :: states
+      type(ESMF_State) :: export_state
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: field
+      type(CharacteristicStatus) :: entry_status
+      type(QuantityTypeCharacteristic) :: c
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call make_outer_meta('qt_harvest_field', gc, meta, _RC)
+      call advertise_deferred_quantity_type(meta, ESMF_STATEINTENT_EXPORT, descriptor, _RC)
+
+      call gb%harvest_deferred(meta, rc=status)
+      @assert_that(status, is(0))
+      call read_quantity_type(descriptor, entry_status, c, _RC)
+      @assertTrue(entry_status == CHARACTERISTIC_STATUS_DEFERRED)
+
+      geom = make_test_geom(_RC)
+      field = ESMF_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, name='T', _RC)
+      driver => meta%get_user_gc_driver()
+      states = driver%get_states()
+      export_state = states%exportState
+      call ESMF_StateAdd(export_state, [field], _RC)
+
+      ! No metadata set: an absent key reads back as a mirror.
+      call gb%harvest_deferred(meta, rc=status)
+      @assert_that(status, is(0))
+      call read_quantity_type(descriptor, entry_status, c, _RC)
+      @assertTrue(entry_status == CHARACTERISTIC_STATUS_DEFERRED)
+
+      ! An explicit UNKNOWN supplies nothing.
+      call MAPL_FieldSet(field, quantity_type_metadata= &
+           QuantityTypeMetadata(QUANTITY_UNKNOWN), _RC)
+      call gb%harvest_deferred(meta, rc=status)
+      @assert_that(status, is(0))
+      call read_quantity_type(descriptor, entry_status, c, _RC)
+      @assertTrue(entry_status == CHARACTERISTIC_STATUS_DEFERRED)
+
+      call MAPL_FieldSet(field, quantity_type_metadata= &
+           QuantityTypeMetadata(QUANTITY_TEMPERATURE, basis=BASIS_NONE), _RC)
+      call gb%harvest_deferred(meta, rc=status)
+      @assert_that(status, is(0))
+      call read_quantity_type(descriptor, entry_status, c, _RC)
+      @assertTrue(entry_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(c%get_quantity_type() == QUANTITY_TEMPERATURE)
+      @assertTrue(c%get_basis() == BASIS_NONE)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+   end subroutine test_harvest_fills_quantity_type_from_field
+
+   ! The basis comes with the quantity type, not only the type.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_harvest_fills_quantity_type_and_basis(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(StateItemDescriptor), pointer :: descriptor
+      type(GriddedComponentDriver), pointer :: driver
+      type(MultiState) :: states
+      type(ESMF_State) :: export_state
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: field
+      type(CharacteristicStatus) :: entry_status
+      type(QuantityTypeCharacteristic) :: c
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call make_outer_meta('qt_harvest_basis', gc, meta, _RC)
+      call advertise_deferred_quantity_type(meta, ESMF_STATEINTENT_EXPORT, descriptor, _RC)
+
+      geom = make_test_geom(_RC)
+      field = ESMF_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, name='T', _RC)
+      call MAPL_FieldSet(field, quantity_type_metadata= &
+           QuantityTypeMetadata(QUANTITY_TEMPERATURE, basis=BASIS_WET_MASS), _RC)
+      driver => meta%get_user_gc_driver()
+      states = driver%get_states()
+      export_state = states%exportState
+      call ESMF_StateAdd(export_state, [field], _RC)
+
+      call gb%harvest_deferred(meta, rc=status)
+      @assert_that(status, is(0))
+      call read_quantity_type(descriptor, entry_status, c, _RC)
+      @assertTrue(entry_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(c%get_quantity_type() == QUANTITY_TEMPERATURE)
+      @assertTrue(c%get_basis() == BASIS_WET_MASS)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+   end subroutine test_harvest_fills_quantity_type_and_basis
+
+   ! A FieldBundle's own metadata supplies the quantity type and basis.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_harvest_fills_quantity_type_from_bundle(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(StateItemDescriptor), pointer :: descriptor
+      type(GriddedComponentDriver), pointer :: driver
+      type(MultiState) :: states
+      type(ESMF_State) :: export_state
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      type(CharacteristicStatus) :: entry_status
+      type(QuantityTypeCharacteristic) :: c
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call make_outer_meta('qt_harvest_bundle', gc, meta, _RC)
+      call advertise_deferred_quantity_type(meta, ESMF_STATEINTENT_EXPORT, descriptor, _RC)
+
+      geom = make_test_geom(_RC)
+      field = ESMF_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, name='F', _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=[field], name='T', _RC)
+      driver => meta%get_user_gc_driver()
+      states = driver%get_states()
+      export_state = states%exportState
+      call ESMF_StateAdd(export_state, fieldbundleList=[bundle], _RC)
+
+      ! No metadata set: the bundle reads back QUANTITY_UNKNOWN, not a mirror.
+      call gb%harvest_deferred(meta, rc=status)
+      @assert_that(status, is(0))
+      call read_quantity_type(descriptor, entry_status, c, _RC)
+      @assertTrue(entry_status == CHARACTERISTIC_STATUS_DEFERRED)
+
+      call MAPL_FieldBundleSet(bundle, quantity_type_metadata= &
+           QuantityTypeMetadata(QUANTITY_TEMPERATURE, basis=BASIS_NONE), _RC)
+      call gb%harvest_deferred(meta, rc=status)
+      @assert_that(status, is(0))
+      call read_quantity_type(descriptor, entry_status, c, _RC)
+      @assertTrue(entry_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(c%get_quantity_type() == QUANTITY_TEMPERATURE)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+   end subroutine test_harvest_fills_quantity_type_from_bundle
+
+   ! An import is never harvested, even when its field carries metadata.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_harvest_skips_imports_for_quantity_type(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(StateItemDescriptor), pointer :: descriptor
+      type(GriddedComponentDriver), pointer :: driver
+      type(MultiState) :: states
+      type(ESMF_State) :: import_state
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: field
+      type(CharacteristicStatus) :: entry_status
+      type(QuantityTypeCharacteristic) :: c
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call make_outer_meta('qt_harvest_import', gc, meta, _RC)
+      call advertise_deferred_quantity_type(meta, ESMF_STATEINTENT_IMPORT, descriptor, _RC)
+
+      geom = make_test_geom(_RC)
+      field = ESMF_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, name='T', _RC)
+      call MAPL_FieldSet(field, quantity_type_metadata= &
+           QuantityTypeMetadata(QUANTITY_TEMPERATURE, basis=BASIS_NONE), _RC)
+      driver => meta%get_user_gc_driver()
+      states = driver%get_states()
+      import_state = states%importState
+      call ESMF_StateAdd(import_state, [field], _RC)
+
+      call gb%harvest_deferred(meta, rc=status)
+      @assert_that(status, is(0))
+      call read_quantity_type(descriptor, entry_status, c, _RC)
+      @assertTrue(entry_status == CHARACTERISTIC_STATUS_DEFERRED)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+   end subroutine test_harvest_skips_imports_for_quantity_type
 
    function make_field_with_stagger(recorded, rc) result(field)
       type(VerticalStaggerLoc), optional, intent(in) :: recorded

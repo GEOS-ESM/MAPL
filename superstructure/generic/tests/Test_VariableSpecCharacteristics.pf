@@ -2102,6 +2102,44 @@ contains
       end select
    end subroutine test_default_metadata_kinds_are_specified
 
+   ! The make_VariableSpec keyword sets the field the factory reads, and is
+   ! not a mirror request.
+   @test
+   subroutine test_quantity_type_keyword_sets_field_and_characteristic()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, 'X', &
+           quantity_type=QUANTITY_TEMPERATURE, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(var_spec%quantity_type == QUANTITY_TEMPERATURE)
+      @assertFalse(var_spec%requests_mirror())
+
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertEqual(0, status)
+      call descriptor%get_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (QuantityTypeCharacteristic)
+         @assertTrue(c%get_quantity_type() == QUANTITY_TEMPERATURE)
+      class default
+         @assertTrue(.false., 'QUANTITY_TYPE entry has the wrong type')
+      end select
+   end subroutine test_quantity_type_keyword_sets_field_and_characteristic
+
+   @test
+   subroutine test_quantity_type_keyword_absent_leaves_unknown()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, 'X', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(var_spec%quantity_type == QUANTITY_UNKNOWN)
+   end subroutine test_quantity_type_keyword_absent_leaves_unknown
+
    @test
    subroutine test_default_spec_does_not_request_metadata_mirror()
       type(VariableSpec) :: var_spec

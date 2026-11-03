@@ -212,8 +212,9 @@ First kind with a DEFERRED value (a value the component supplies later).
   characteristic that adds a mirror value adds it to
   `VariableSpec%requests_mirror()`.
 - A DEFERRED entry is filled by `StateItemDescriptor%resolve_deferred`,
-  which offers a `CharacteristicDefaults` (the component's geom and
-  geom id) to every DEFERRED characteristic. `StateItemCharacteristic`'s
+  which offers a `CharacteristicDefaults` (the values a component
+  supplies, for example geom, vertical grid, stagger, quantity type) to every
+  DEFERRED characteristic. `StateItemCharacteristic`'s
   default `resolve_deferred` does nothing; a new kind with a
   component-supplied value overrides it and adds its field to
   `CharacteristicDefaults`. GEOM_B (`graphbuilder_resolve_deferred`) is the
@@ -582,9 +583,10 @@ value, writes only its own Info key, and has no Transform.
   CONSERVE_NONE and NORMALIZE_NONE with scale 1 (and legacy's quantity-type
   `update_payload` also wrote a derived `normalization_metadata`, which the
   Normalization aspect then overwrote). This is a parity difference with no
-  current user: no `make_VariableSpec` keyword or YAML key sets these fields
-  yet, so they are assigned directly on the spec. Field-dictionary defaults
-  for them are future work.
+  current user: no `make_VariableSpec` keyword or YAML key sets conservation
+  or normalization yet, so they are assigned directly on the spec.
+  Field-dictionary defaults for them are future work. Quantity type has all
+  three supply paths (next section).
 - Value wildcards are not status. QuantityType keeps the legacy rule "equal,
   or either side `QUANTITY_UNKNOWN`; and basis equal, or either side
   `BASIS_NONE`" inside `needs_extension_for`. An undeclared quantity type is
@@ -629,6 +631,26 @@ value, writes only its own Info key, and has no Transform.
   is structural, none triggers `FieldDelta`, and none is per-alias. Quantity
   type carries `quantity_type` and `basis`; `VariableSpec` has no dimensions or
   molecular weight to carry.
+- QuantityType supply paths (`B3-QuantityTypeSuppliers`): (1) the YAML key
+  `quantity_type:` in `parse_var_specs`, whose value is a full `QuantityType`
+  name, case-folded (`QUANTITY_TEMPERATURE`; no short spellings); an unknown
+  value is an error, checked in the parser because `QuantityType(name)` maps
+  any unknown string to `QUANTITY_UNKNOWN`; (2) the `quantity_type=` keyword
+  of `make_VariableSpec`; (3) harvest: `fill_deferred_from_handle` reads
+  `quantity_type_metadata` from the item's Field or FieldBundle into
+  `CharacteristicDefaults` (`quantity_type` and `basis` together), and
+  `resolve_deferred` takes it for a DEFERRED entry only (the descriptor also
+  offers the defaults to UNCHECKED entries, which stay). An absent key reads
+  back as a mirror from a Field and as non-mirror `QUANTITY_UNKNOWN` from a
+  FieldBundle, and an explicit `QUANTITY_UNKNOWN` says nothing: none is a
+  supplied value. A `quantity_type` declared on a shape with no QuantityType
+  entry (STATE, EXPRESSION, SERVICE, WILDCARD) is ignored, like the other
+  field-metadata keys. There is no YAML key or keyword for basis; legacy
+  `make_QuantityTypeAspect` still ignores the value. Nothing makes an
+  undeclared quantity type DEFERRED yet: the factory still gives SPECIFIED
+  `QUANTITY_UNKNOWN`, so the harvest only reaches a hand-built DEFERRED
+  entry. The harvest keeps the geometry gate (a non-geometry DEFERRED kind is
+  not harvested until the item's geom exists).
 - Reading back: `MAPL_FieldGet` returns a mirror metadata object for an
   absent quantity-type or normalization key but asserts that the conservation
   key exists, so a test of "not written" seeds the key first.

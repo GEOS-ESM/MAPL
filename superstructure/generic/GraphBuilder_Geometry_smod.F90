@@ -22,6 +22,9 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Geometry_smod
    use esmf, only: ESMF_ITEMORDER_ADDORDER
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_INVALID
    use mapl_field_api, only: MAPL_FieldGet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet
+   use mapl_QuantityType_mod, only: QUANTITY_UNKNOWN, operator(==)
+   use mapl_QuantityTypeMetadata_mod, only: QuantityTypeMetadata
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -246,6 +249,7 @@ contains
          defaults = CharacteristicDefaults(geom=geom)
       end if
       call harvest_stagger(item_kind, field, bundle, defaults, _RC)
+      call harvest_quantity_type(item_kind, field, bundle, defaults, _RC)
       call descriptor%resolve_deferred(defaults, _RC)
 
       _RETURN(_SUCCESS)
@@ -287,6 +291,34 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine harvest_stagger
+
+   ! The quantity type and basis a component set on its Field or FieldBundle
+   ! with MAPL_FieldSet / MAPL_FieldBundleSet. An absent key reads back as a
+   ! mirror (Field) or QUANTITY_UNKNOWN (bundle), and an explicit UNKNOWN says
+   ! nothing either: none of them is a supplied value.
+   subroutine harvest_quantity_type(item_kind, field, bundle, defaults, rc)
+      type(ESMF_StateItem_Flag), intent(in) :: item_kind
+      type(ESMF_Field), intent(in) :: field
+      type(ESMF_FieldBundle), intent(in) :: bundle
+      type(CharacteristicDefaults), intent(inout) :: defaults
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(QuantityTypeMetadata) :: metadata
+
+      if (item_kind == ESMF_STATEITEM_FIELD) then
+         call MAPL_FieldGet(field, quantity_type_metadata=metadata, _RC)
+      else
+         call MAPL_FieldBundleGet(bundle, quantity_type_metadata=metadata, _RC)
+      end if
+      _RETURN_IF(metadata%is_mirror())
+      _RETURN_IF(metadata%get_quantity_type() == QUANTITY_UNKNOWN)
+
+      call defaults%set_quantity_type(metadata%get_quantity_type(), &
+           metadata%get_basis())
+
+      _RETURN(_SUCCESS)
+   end subroutine harvest_quantity_type
 
    ! Gives the already-resolved parent/child geometry relationship (per
    ! geometry_spec%kind) graph structure: a dependency edge from the

@@ -682,15 +682,14 @@ quantity type and basis, but it never runs in production (§0 group a);
 has no production adopt rule. Graph: QUANTITY_UNKNOWN and BASIS_NONE match
 anything and nothing is copied (`QuantityTypeCharacteristic.F90:87-93`).
 The import aliases the export's field, so once B4 writes field-wide
-entries it reads the export's value from the shared Info. Example (no YAML
-key, `make_VariableSpec` keyword or SetServices entry sets quantity_type
-today, `VariableSpec.F90:244-253`; only field assignment does, as in
-`Test_GraphBuilder_Advertising.pf:456`):
+entries it reads the export's value from the shared Info. Example (the
+YAML key `quantity_type:` and the `make_VariableSpec` keyword
+`quantity_type=` set it; the legacy aspect ignores both):
 
 ```fortran
 ! component A, export E
-spec_a = make_VariableSpec(ESMF_STATEINTENT_EXPORT, 'E', units='K', _RC)
-spec_a%quantity_type = QUANTITY_TEMPERATURE
+spec_a = make_VariableSpec(ESMF_STATEINTENT_EXPORT, 'E', units='K', &
+     quantity_type=QUANTITY_TEMPERATURE, _RC)
 ! component B, import E: quantity_type left at QUANTITY_UNKNOWN
 spec_b = make_VariableSpec(ESMF_STATEINTENT_IMPORT, 'E', units='K', _RC)
 ! legacy: both UNKNOWN (declared value ignored); connects; nothing copied

@@ -15,12 +15,17 @@
 ! is only reachable for a time-dependent aspect, which nothing sets):
 ! build_transform reports incompatible. write_info writes only
 ! quantity_type_metadata=, in either phase, for SPECIFIED entries.
+!
+! A DEFERRED entry takes the quantity type and basis a component set on its
+! realized item (resolve_deferred); nothing else changes its status.
 !------------------------------------------------------------------------------
 module mapl_QuantityTypeCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
    use mapl_StateItemCharacteristic_mod, only: report_build_transform_incompatible
    use mapl_CharacteristicStatus_mod, only: &
-        CHARACTERISTIC_STATUS_SPECIFIED, operator(==)
+        CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_DEFERRED, &
+        operator(==)
+   use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, QUANTITY_TYPE_CHARACTERISTIC_KIND
    use mapl_QuantityType_mod, only: QuantityType, MixingRatioBasis, &
                                      QUANTITY_UNKNOWN, BASIS_NONE, &
@@ -49,6 +54,7 @@ module mapl_QuantityTypeCharacteristic_mod
       procedure :: build_transform => quantity_type_build_transform
       procedure :: get_signature => quantity_type_get_signature
       procedure :: write_info => quantity_type_write_info
+      procedure :: resolve_deferred => quantity_type_resolve_deferred
       procedure :: get_quantity_type
       procedure :: get_basis
    end type QuantityTypeCharacteristic
@@ -154,6 +160,23 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine quantity_type_write_info
+
+   ! Only a DEFERRED entry takes a value; the descriptor also offers the
+   ! defaults to UNCHECKED ones, which stay as they are.
+   subroutine quantity_type_resolve_deferred(this, defaults, rc)
+      class(QuantityTypeCharacteristic), intent(inout) :: this
+      type(CharacteristicDefaults), intent(in) :: defaults
+      integer, optional, intent(out) :: rc
+
+      _RETURN_UNLESS(this%get_status() == CHARACTERISTIC_STATUS_DEFERRED)
+      _RETURN_UNLESS(defaults%has_quantity_type())
+
+      this%quantity_type = defaults%get_quantity_type()
+      this%basis = defaults%get_basis()
+      call this%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
+
+      _RETURN(_SUCCESS)
+   end subroutine quantity_type_resolve_deferred
 
    function quantity_type_get_signature(this) result(signature)
       class(QuantityTypeCharacteristic), intent(in) :: this

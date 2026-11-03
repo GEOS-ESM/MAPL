@@ -14,6 +14,8 @@ module Test_ComponentSpecParser
    use mapl_ChildSpec_mod
    use mapl_ChildSpecMap_mod
    use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_QuantityType_mod, only: QUANTITY_UNKNOWN, QUANTITY_TEMPERATURE, &
+        QUANTITY_MIXING_RATIO, operator(==)
    use mapl_VariableSpecVector_mod, only: VariableSpecVector, VariableSpecVectorIterator, operator(/=)
    use mapl_ErrorHandling_mod
    use mapl_Connection_mod
@@ -253,6 +255,66 @@ contains
 
       call ESMF_HConfigDestroy(config, _RC)
    end subroutine test_parse_var_specs_string_mirror
+
+   ! quantity_type takes the full QuantityType name, case-folded; omitted
+   ! stays QUANTITY_UNKNOWN.
+   @test
+   subroutine test_parse_var_specs_quantity_type()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: var_spec
+      type(VariableSpecVectorIterator) :: iter
+      integer :: rc, status, n_seen
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'A: {quantity_type: QUANTITY_TEMPERATURE},' // &
+           'B: {quantity_type: Quantity_Mixing_Ratio},' // &
+           'C: {quantity_type: quantity_unknown},' // &
+           'D: {typekind: R4}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      @assertEqual(4, var_specs%size())
+
+      n_seen = 0
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            n_seen = n_seen + 1
+            select case (var_spec%short_name)
+            case ('A')
+               @assertTrue(var_spec%quantity_type == QUANTITY_TEMPERATURE)
+            case ('B')
+               @assertTrue(var_spec%quantity_type == QUANTITY_MIXING_RATIO)
+            case default
+               @assertTrue(var_spec%quantity_type == QUANTITY_UNKNOWN)
+            end select
+         end do
+      end associate
+      @assertEqual(4, n_seen)
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_quantity_type
+
+   ! An unknown value, including a short spelling, is an error.
+   @test
+   subroutine test_parse_var_specs_rejects_unknown_quantity_type()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      integer :: rc, status
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'A: {quantity_type: temperature}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('Unsupported quantity_type: <temperature>')
+      ! parse_state_specs and parse_var_specs each pass it up
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_rejects_unknown_quantity_type
 
    ! vertical_alignment reaches the VariableSpec as written; omitted stays unallocated.
    @test

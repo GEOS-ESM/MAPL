@@ -608,7 +608,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       "(src value wins)" while the destination keeps its value) to say
       what happens; that one-line part may land earlier on its own. Also
       update design §1's `fill_value` row. Author sonnet.
-- [ ] 3.35 B3-QuantityTypeSuppliers (3.26 R2: owner chose (c) and
+- [x] 3.35 B3-QuantityTypeSuppliers (3.26 R2: owner chose (c) and
       rollout (b), suppliers first; before 3.27, independent of it). Give
       QuantityType its three supply paths, with no change to the undeclared
       status yet (3.36 does that):
@@ -634,6 +634,14 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       (STATE, EXPRESSION, SERVICE, WILDCARD) is ignored, as other
       field-metadata keys are today; a general check is a D3 item.
       Author sonnet (sonnet review).
+      Done: YAML key, `quantity_type=` keyword and harvest landed;
+      `resolve_deferred` takes the value only for a DEFERRED entry.
+      Mirror (Field) and `QUANTITY_UNKNOWN` (bundle, or explicit) read as
+      not supplied; the harvest keeps its geometry gate, so a
+      non-geometry DEFERRED kind is not read before the item's geom
+      exists (3.36's fallback ordering must allow for it). Tests: parser
+      (name, case, UNKNOWN, bad value), keyword, `resolve_deferred`
+      (DEFERRED/SPECIFIED/UNCHECKED), harvest (Field, bundle, import).
 - [ ] 3.36 B3-QuantityTypeDeferred (3.26 R2: owner chose (c), rollout (b)
       and imports (a); after 3.27 and 3.35). Change the QuantityType
       factory (`make_quantity_type_characteristic`): undeclared on an
@@ -738,8 +746,10 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `sync_to_info(STRUCTURAL)` + `MAPL_FieldEmptyComplete` (§3.2.1);
       delete `get_item_units` / `get_item_typekind` /
       `get_item_ungridded_dims` / `get_item_geom` / `get_item_vgrid` /
-      `get_item_vertical_stagger`, move `harvest_stagger` out of
-      `GraphBuilder_Geometry_smod.F90` behind the characteristic, and the
+      `get_item_vertical_stagger`, move `harvest_stagger` and
+      `harvest_quantity_type` (its mirror/UNKNOWN "not supplied" rule is
+      QuantityType knowledge) out of `GraphBuilder_Geometry_smod.F90`
+      behind the characteristic, and the
       `insert_geom_id_characteristic` import in
       `GraphBuilder_Geometry_smod.F90` (these name concrete
       `*Characteristic` types in `select type`, so 4.4 depends on this).

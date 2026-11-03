@@ -89,8 +89,9 @@ reports any `DEFERRED`/`INVALID` entry through `report_if_failed`.
 A `DEFERRED` value is filled in two ways: `resolve_deferred` offers the
 component's default geom (`CharacteristicDefaults`) at GEOM_B, and
 `graphbuilder_harvest_deferred` (at the start of the connect hook) reads
-the geom the component's own phase set on the item's exported or internal
-field/bundle, read-only (the item's handle is not bound); imports are skipped. An item with neither stays `DEFERRED`
+the geom, vertical stagger and quantity type/basis the component's own phase
+set on the item's exported or internal field/bundle, read-only (the item's
+handle is not bound); imports are skipped. An item with neither stays `DEFERRED`
 and freeze reports it.
 `MAPL_TYPEKIND_MIRROR` advertises a valueless `MIRRORED` TYPE_KIND entry
 (set by the `VariableSpec` factory, not by the characteristic constructor).

@@ -40,7 +40,10 @@ module Test_StateItemCharacteristicSubclasses
         VERTICAL_STAGGER_EDGE, VERTICAL_STAGGER_MIRROR
    use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
    use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
-   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_MIRRORED, operator(==)
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_MIRRORED, &
+        CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED, &
+        CHARACTERISTIC_STATUS_UNCHECKED, operator(==)
+   use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
    use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE, &
         HORIZONTAL_DIMS_MIRROR, operator(==)
    use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, &
@@ -78,7 +81,7 @@ module Test_StateItemCharacteristicSubclasses
 
    use mapl_UngriddedDims_mod, only: UngriddedDims
    use mapl_QuantityType_mod, only: QUANTITY_MIXING_RATIO, QUANTITY_TEMPERATURE, QUANTITY_UNKNOWN, &
-                                     BASIS_WET_MASS, BASIS_DRY_MASS, BASIS_NONE
+                                     BASIS_WET_MASS, BASIS_DRY_MASS, BASIS_NONE, operator(==)
    use mapl_ConservationMetadata_mod, only: ConservationMetadata, new_ConservationMetadata_mirror
    use mapl_ConservationType_mod, only: CONSERVE_MASS, CONSERVE_ENERGY
    use mapl_NormalizationMetadata_mod, only: NormalizationMetadata
@@ -446,6 +449,65 @@ contains
 
       @assertTrue(wet_mass%needs_extension_for(dry_mass))
    end subroutine test_quantity_type_genuine_basis_mismatch_needs_extension
+
+   ! A DEFERRED entry takes the harvested quantity type and basis.
+   @test
+   subroutine test_quantity_type_deferred_takes_supplied_value()
+      type(QuantityTypeCharacteristic) :: c
+      type(CharacteristicDefaults) :: defaults
+      integer :: status
+
+      c = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      call c%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call defaults%set_quantity_type(QUANTITY_TEMPERATURE, BASIS_DRY_MASS)
+
+      call c%resolve_deferred(defaults, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(c%get_quantity_type() == QUANTITY_TEMPERATURE)
+      @assertTrue(c%get_basis() == BASIS_DRY_MASS)
+   end subroutine test_quantity_type_deferred_takes_supplied_value
+
+   @test
+   subroutine test_quantity_type_deferred_without_value_stays_deferred()
+      type(QuantityTypeCharacteristic) :: c
+      integer :: status
+
+      c = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      call c%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+
+      call c%resolve_deferred(CharacteristicDefaults(), rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_DEFERRED)
+      @assertTrue(c%get_quantity_type() == QUANTITY_MIXING_RATIO)
+      @assertTrue(c%get_basis() == BASIS_WET_MASS)
+   end subroutine test_quantity_type_deferred_without_value_stays_deferred
+
+   ! A SPECIFIED or UNCHECKED entry keeps its value and status; the
+   ! descriptor offers the defaults to UNCHECKED ones too.
+   @test
+   subroutine test_quantity_type_resolve_leaves_specified_and_unchecked()
+      type(QuantityTypeCharacteristic) :: specified, unchecked
+      type(CharacteristicDefaults) :: defaults
+      integer :: status
+
+      specified = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      unchecked = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call defaults%set_quantity_type(QUANTITY_TEMPERATURE, BASIS_DRY_MASS)
+
+      call specified%resolve_deferred(defaults, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(specified%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(specified%get_quantity_type() == QUANTITY_MIXING_RATIO)
+      @assertTrue(specified%get_basis() == BASIS_WET_MASS)
+
+      call unchecked%resolve_deferred(defaults, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(unchecked%get_status() == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertTrue(unchecked%get_quantity_type() == QUANTITY_MIXING_RATIO)
+      @assertTrue(unchecked%get_basis() == BASIS_WET_MASS)
+   end subroutine test_quantity_type_resolve_leaves_specified_and_unchecked
 
    ! --- 5.3: AttributesCharacteristic (asymmetric) ---
 
