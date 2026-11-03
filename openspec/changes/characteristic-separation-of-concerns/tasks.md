@@ -684,6 +684,20 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `QUANTITY_UNKNOWN` against a known type with two different real
       bases is also UNSUPPORTED (one rule with `needs_extension_for`).
       Author sonnet (sonnet review).
+- [ ] 3.38 B3-GeomAItemWins (owner: legacy bug, item wins; after 3.37,
+      before 3.27). Legacy fix for the overwrite 3.32 confirmed. At GEOM_A,
+      an item that declares its own geom or vertical grid keeps it:
+      `GeomAspect%set_geom` and `VerticalGridAspect%set_vertical_grid` do
+      not replace an item value with the component's, and the item's
+      `geom_id` stays consistent with the geom it ends with. Remove
+      `@disable` from the three `Test_Couplers.pf` probes. Also fix, or
+      report with a reason, the findings 3.32 recorded (plan, B3-GeomAProbe
+      Status): `VerticalGridAspect` ignores its `geom`/`typekind` arguments;
+      `make_VerticalGridAspect` sets FROM_COMP with no vertical grid
+      (unlike `make_GeomAspect`); `StateItemSpec%set_geometry`'s geom
+      else-branch calls `aspects%at` and never inserts; add a test for an
+      item that declares only a `geom_id`. Update rules-review.md §2.6/R16
+      to "fixed". Author sonnet (sonnet review).
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the

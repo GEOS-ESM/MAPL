@@ -1479,6 +1479,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-QuantityTypeSuppliers | sonnet | sonnet | tasks.md 3.35; YAML key, keyword, harvest; before 3.27 |
 | B3-QuantityTypeDeferred | opus | sonnet | tasks.md 3.36; factory status by intent, soft freeze rule, shares 3.27's switch; after 3.27 |
 | B3-QuantityBasisUnsupported | sonnet | sonnet | tasks.md 3.37; basis-only mismatch UNSUPPORTED; before 3.36 |
+| B3-GeomAItemWins | sonnet | sonnet | tasks.md 3.38; legacy fix: item geom/vgrid survive GEOM_A; re-enable 3.32 probes; after 3.37, before 3.27 |
 | B3 others | sonnet | sonnet (self-review) | one at a time, after B3-Units lands |
 | B4 | sonnet | opus | materialization regressions likely |
 | B5 | sonnet (haiku?) | sonnet if haiku | |
