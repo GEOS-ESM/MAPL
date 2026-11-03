@@ -1,5 +1,5 @@
-! Lifted from logger project and renamed from MpiLock.  Tests were not
-! brought over, but was tested using MockMpi prototype.
+! Lifted from logger project and renamed from MpiLock.
+! Tests: pfio/tests/Test_MpiMutex.pf
 
 #include "MAPL_ErrLog.h"
 
@@ -37,11 +37,12 @@ module pFIO_MpiMutexMod
 
 contains
 
-   function new_MpiMutex(comm) result(lock)
+   function new_MpiMutex(comm, rc) result(lock)
       type (MpiMutex) :: lock
       integer, intent(in) :: comm
+      integer, optional, intent(out) :: rc
 
-      integer :: ierror, rc
+      integer :: ierror
       integer(kind=MPI_ADDRESS_KIND) :: sz
 #if !defined (SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
       integer(kind=MPI_ADDRESS_KIND) :: baseaddr
@@ -72,9 +73,9 @@ contains
 
          block
            logical, pointer :: scratchpad(:)
-           integer :: sizeof_logical
+           integer(kind=MPI_ADDRESS_KIND) :: lb, sizeof_logical
 
-           call MPI_Type_extent(MPI_LOGICAL, sizeof_logical, ierror)
+           call MPI_Type_get_extent(MPI_LOGICAL, lb, sizeof_logical, ierror)
            _VERIFY(ierror)
            sz = lock%npes * sizeof_logical
 #if defined(SUPPORT_FOR_MPI_ALLOC_MEM_CPTR)
@@ -89,7 +90,7 @@ contains
            call c_f_pointer(lock%locks_ptr, scratchpad, [lock%npes])
            scratchpad = .false.
 
-           call MPI_Win_create(scratchpad, sz, sizeof_logical, &
+           call MPI_Win_create(scratchpad, sz, int(sizeof_logical), &
                 & MPI_INFO_NULL, lock%comm, lock%window, ierror)
            _VERIFY(ierror)
          end block
@@ -105,12 +106,14 @@ contains
 
       allocate(lock%local_data(lock%npes-1))
 
+      _RETURN(_SUCCESS)
    end function new_MpiMutex
 
-   subroutine acquire(this)
+   subroutine acquire(this, rc)
       class (MpiMutex), intent(inout) :: this
+      integer, optional, intent(out) :: rc
 
-      integer :: ierror, rc
+      integer :: ierror
 
       call MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, this%window, ierror)
       _VERIFY(ierror)
@@ -134,12 +137,14 @@ contains
          end block
       end if
 
+      _RETURN(_SUCCESS)
    end subroutine acquire
 
-   subroutine release(this)
+   subroutine release(this, rc)
       class (MpiMutex), intent(inout) :: this
+      integer, optional, intent(out) :: rc
 
-      integer :: ierror, rc
+      integer :: ierror
 
       call MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, this%window, ierror)
       _VERIFY(ierror)
@@ -179,13 +184,15 @@ contains
         end if
       end block
 
+      _RETURN(_SUCCESS)
    end subroutine release
 
-   subroutine free_mpi_resources(this)
+   subroutine free_mpi_resources(this, rc)
       class (MpiMutex), intent(inout) :: this
+      integer, optional, intent(out) :: rc
 
       logical, pointer :: scratchpad(:)
-      integer :: ierror, rc
+      integer :: ierror
 
       ! Release resources
       call MPI_Type_free(this%pe_locks_type, ierror)
@@ -201,6 +208,7 @@ contains
       call Mpi_comm_free(this%comm, ierror)
       _VERIFY(ierror)
 
+      _RETURN(_SUCCESS)
    end subroutine free_mpi_resources
 
 end module pFIO_MpiMutexMod
