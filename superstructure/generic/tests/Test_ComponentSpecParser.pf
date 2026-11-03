@@ -16,6 +16,12 @@ module Test_ComponentSpecParser
    use mapl_VariableSpec_mod, only: VariableSpec
    use mapl_VariableSpecVector_mod, only: VariableSpecVector, VariableSpecVectorIterator, operator(/=)
    use mapl_ErrorHandling_mod
+   use mapl_Connection_mod
+   use mapl_ConnectionPt_mod
+   use mapl_ConnectionVector_mod
+   use mapl_SimpleConnection_mod
+   use mapl_MatchConnection_mod
+   use mapl_ReexportConnection_mod
    use esmf
    implicit none(type,external)
 
@@ -529,6 +535,260 @@ contains
       call ESMF_HConfigDestroy(hconfig)
 
    end subroutine test_to_itemType
+
+   ! A SimpleConnection must be export -> import. The defaults are export
+   ! and import, so a connection that names neither is accepted.
+   @test
+   subroutine test_parse_connection_default_intents()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+
+      call parse_one_connection( &
+           '{src_comp: A, src_name: Z, dst_comp: B, dst_name: Z}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertEqual(0, rc)
+      @assertEqual('simple', conn_kind)
+      @assertEqual('export', src_intent)
+      @assertEqual('import', dst_intent)
+   end subroutine test_parse_connection_default_intents
+
+   @test
+   subroutine test_parse_connection_explicit_export_import()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+
+      call parse_one_connection( &
+           '{src_comp: A, src_name: Z, src_intent: export, ' // &
+           'dst_comp: B, dst_name: Z, dst_intent: import}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertEqual(0, rc)
+      @assertEqual('simple', conn_kind)
+      @assertEqual('export', src_intent)
+      @assertEqual('import', dst_intent)
+   end subroutine test_parse_connection_explicit_export_import
+
+   @test
+   subroutine test_parse_connection_simple_internal_source_fails()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+      character(*), parameter :: expected = &
+           'Simple connection needs export -> import, got ' // &
+           'src_intent=internal dst_intent=import (A/Z -> B/Z)'
+
+      call parse_one_connection( &
+           '{src_comp: A, src_name: Z, src_intent: internal, ' // &
+           'dst_comp: B, dst_name: Z, dst_intent: import}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertExceptionRaised(expected)
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, rc)
+   end subroutine test_parse_connection_simple_internal_source_fails
+
+   @test
+   subroutine test_parse_connection_simple_internal_dest_fails()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+      character(*), parameter :: expected = &
+           'Simple connection needs export -> import, got ' // &
+           'src_intent=export dst_intent=internal (A/Z -> B/Z)'
+
+      call parse_one_connection( &
+           '{src_comp: A, src_name: Z, src_intent: export, ' // &
+           'dst_comp: B, dst_name: Z, dst_intent: internal}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertExceptionRaised(expected)
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, rc)
+   end subroutine test_parse_connection_simple_internal_dest_fails
+
+   @test
+   subroutine test_parse_connection_simple_import_source_fails()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+      character(*), parameter :: expected = &
+           'Simple connection needs export -> import, got ' // &
+           'src_intent=import dst_intent=import (A/Z -> B/Z)'
+
+      call parse_one_connection( &
+           '{src_comp: A, src_name: Z, src_intent: import, ' // &
+           'dst_comp: B, dst_name: Z}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertExceptionRaised(expected)
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, rc)
+   end subroutine test_parse_connection_simple_import_source_fails
+
+   ! Intent strings are case-sensitive and not trimmed; a typo is rejected
+   ! rather than silently taken as a simple connection.
+   @test
+   subroutine test_parse_connection_wrong_case_fails()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+      character(*), parameter :: expected = &
+           'Simple connection needs export -> import, got ' // &
+           'src_intent=Export dst_intent=import (A/Z -> B/Z)'
+
+      call parse_one_connection( &
+           '{src_comp: A, src_name: Z, src_intent: Export, ' // &
+           'dst_comp: B, dst_name: Z}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertExceptionRaised(expected)
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, rc)
+   end subroutine test_parse_connection_wrong_case_fails
+
+   @test
+   subroutine test_parse_connection_typo_dst_fails()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+      character(*), parameter :: expected = &
+           'Simple connection needs export -> import, got ' // &
+           'src_intent=export dst_intent=imports (A/Z -> B/Z)'
+
+      call parse_one_connection( &
+           '{src_comp: A, src_name: Z, dst_comp: B, dst_name: Z, ' // &
+           'dst_intent: imports}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertExceptionRaised(expected)
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, rc)
+   end subroutine test_parse_connection_typo_dst_fails
+
+   ! A re-export (dst_intent: export) takes an export or internal source and
+   ! is exempt from the simple-connection rule.
+   @test
+   subroutine test_parse_connection_reexport_export_source()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+
+      call parse_one_connection( &
+           '{src_comp: child, src_name: Z, src_intent: export, ' // &
+           'dst_comp: <self>, dst_name: Z, dst_intent: export}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertEqual(0, rc)
+      @assertEqual('reexport', conn_kind)
+      @assertEqual('export', src_intent)
+      @assertEqual('export', dst_intent)
+   end subroutine test_parse_connection_reexport_export_source
+
+   ! The src_intent default is export, so a re-export that names no src_intent
+   ! reads a child's export.
+   @test
+   subroutine test_parse_connection_reexport_default_src()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+
+      call parse_one_connection( &
+           '{src_comp: child, src_name: Z, dst_comp: <self>, ' // &
+           'dst_name: Z, dst_intent: export}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertEqual(0, rc)
+      @assertEqual('reexport', conn_kind)
+      @assertEqual('export', src_intent)
+      @assertEqual('export', dst_intent)
+   end subroutine test_parse_connection_reexport_default_src
+
+   @test
+   subroutine test_parse_connection_reexport_internal_source()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+
+      call parse_one_connection( &
+           '{src_comp: <self>, src_name: Z, src_intent: internal, ' // &
+           'dst_comp: <self>, dst_name: Z, dst_intent: export}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertEqual(0, rc)
+      @assertEqual('reexport', conn_kind)
+      @assertEqual('internal', src_intent)
+      @assertEqual('export', dst_intent)
+   end subroutine test_parse_connection_reexport_internal_source
+
+   @test
+   subroutine test_parse_connection_reexport_import_source_fails()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+      character(*), parameter :: expected = &
+           'Re-export needs src export or internal, got ' // &
+           'src_intent=import dst_intent=export ' // &
+           '(child/Z -> <self>/Z)'
+
+      call parse_one_connection( &
+           '{src_comp: child, src_name: Z, src_intent: import, ' // &
+           'dst_comp: <self>, dst_name: Z, dst_intent: export}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertExceptionRaised(expected)
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, rc)
+   end subroutine test_parse_connection_reexport_import_source_fails
+
+   ! all_unsatisfied is not checked against the intent rules: it always makes
+   ! a MatchConnection, export -> import.
+   @test
+   subroutine test_parse_connection_all_unsatisfied_is_match()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+
+      call parse_one_connection( &
+           '{src_comp: A, dst_comp: B, all_unsatisfied: true}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertEqual(0, rc)
+      @assertEqual('match', conn_kind)
+      @assertEqual('export', src_intent)
+      @assertEqual('import', dst_intent)
+   end subroutine test_parse_connection_all_unsatisfied_is_match
+
+   ! Parses one connection from YAML. conn_kind is 'simple', 'reexport',
+   ! 'match',
+   ! or 'none' if the parse failed or did not yield exactly one connection.
+   subroutine parse_one_connection(content, conn_kind, src_intent, &
+        dst_intent, rc)
+      character(*), intent(in) :: content
+      character(:), allocatable, intent(out) :: conn_kind
+      character(:), allocatable, intent(out) :: src_intent
+      character(:), allocatable, intent(out) :: dst_intent
+      integer, intent(out) :: rc
+
+      type(ESMF_HConfig) :: config
+      type(ConnectionVector) :: conns
+      type(ConnectionVectorIterator) :: iter
+      class(Connection), pointer :: c
+      type(ConnectionPt) :: src_pt, dst_pt
+      integer :: status
+
+      conn_kind = 'none'
+      src_intent = ''
+      dst_intent = ''
+      config = ESMF_HConfigCreate( &
+           content='{connections: [' // content // ']}', &
+           rc=status)
+      rc = status
+      if (status /= 0) return
+
+      conns = parse_connections(config, rc=status)
+      rc = status
+      call ESMF_HConfigDestroy(config)
+      if (status /= 0) return
+      if (conns%size() /= 1) return
+
+      iter = conns%begin()
+      c => iter%of()
+
+      select type (c)
+      type is (SimpleConnection)
+         conn_kind = 'simple'
+      type is (ReexportConnection)
+         conn_kind = 'reexport'
+      type is (MatchConnection)
+         conn_kind = 'match'
+      class default
+         conn_kind = 'unknown'
+      end select
+
+      src_pt = c%get_source()
+      dst_pt = c%get_destination()
+      src_intent = src_pt%get_state_intent()
+      dst_intent = dst_pt%get_state_intent()
+   end subroutine parse_one_connection
 
    subroutine write_text_file(filename, content)
       character(*), intent(in) :: filename

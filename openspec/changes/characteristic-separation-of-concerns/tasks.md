@@ -532,7 +532,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       non-import WILDCARD first and report any (the review found only the
       `history_wildcard` import). Small; same function as 3.25. Author
       haiku (sonnet review).
-- [ ] 3.29 B3-ConnectionIntentCheck (3.26 R10: owner chose (a) "Except for
+- [x] 3.29 B3-ConnectionIntentCheck (3.26 R10: owner chose (a) "Except for
       Re-export connections!"; R9 (a); before 3.27). In
       `parse_connections` (`ComponentSpecParser/parse_connections.F90`),
       `_ASSERT` that a SimpleConnection has `src_intent: export` and

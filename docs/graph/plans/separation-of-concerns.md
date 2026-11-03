@@ -629,7 +629,7 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName, B3-RestartMode, B3-QuantityType, B3-Conservation, B3-Normalization, B3-IncompatibleSweep and B3-InternalNoMirror done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName, B3-RestartMode, B3-QuantityType, B3-Conservation, B3-Normalization, B3-IncompatibleSweep, B3-InternalNoMirror and B3-ConnectionIntentCheck done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
@@ -641,7 +641,15 @@ in the first one; later ones refine it.
   `Plan-Task: B3-LongName`, `Plan-Task: B3-RestartMode`,
   `Plan-Task: B3-QuantityType`, `Plan-Task: B3-Conservation`,
   `Plan-Task: B3-Normalization`, `Plan-Task: B3-IncompatibleSweep`,
-  `Plan-Task: B3-InternalNoMirror`); others not started.
+  `Plan-Task: B3-InternalNoMirror`, `Plan-Task: B3-ConnectionIntentCheck`);
+  others not started.
+  B3-ConnectionIntentCheck (tasks.md 3.29): done. Parser asserts in
+  `parse_connections` (`parse_connections.F90`); `parse_connections` public
+  for testing; twelve parser tests. Deviation: the internal
+  `parse_connection` became a subroutine (`class(Connection), allocatable,
+  intent(out)`) because the function form assigned an unallocated
+  polymorphic result on the failure path (latent bug; gfortran SIGSEGV).
+  ESSENTIAL 69/69 on NAG and gfortran. Failure messages name the endpoints.
   B3-RulesReview (tasks.md 3.26): done; owner decisions recorded,
   including the R2 follow-up (`docs/graph/rules-review.md` §4a, design.md
   A24, docs only, `Plan-Task: B3-RulesReview`). R1's doc corrections (no
