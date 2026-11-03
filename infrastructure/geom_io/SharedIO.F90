@@ -6,14 +6,16 @@ module mapl_SharedIO_mod
    use mapl_field_bundle_api
    use mapl_field_api
    use mapl_VerticalStaggerLoc_mod
-   use pfio, only: FileMetaData, Variable, UnlimitedEntity
+   use pfio, only: FileMetaData, Variable, CoordinateVariable, UnlimitedEntity
    use pfio, only: PFIO_UNLIMITED, PFIO_REAL32, PFIO_REAL64, PFIO_INT32, PFIO_INT64
    use gFTL2_StringVector
    use mapl_StringDictionary_mod
    use gFTL2_StringSet
    use mapl_geom_api
+   use mapl_GeomFactory_mod, only: GeomFactory
+   use mapl_CoordinateAxis_mod, only: get_dim_name
    use mapl_UngriddedDims_mod
-   use, intrinsic :: iso_fortran_env, only: REAL64
+   use, intrinsic :: iso_fortran_env, only: REAL64, REAL32, INT64, INT32
    use mapl_UngriddedDim_mod
    use mapl_CompressionSettings_mod
    use esmf
@@ -31,6 +33,7 @@ module mapl_SharedIO_mod
    public :: get_vertical_dimension_name_from_field
    public :: add_ungridded_dimensions
    public :: ungridded_dim_names
+   public :: ungridded_dims_from_metadata
 
    character(len=*), parameter :: EMPTY = ''
 
@@ -351,6 +354,107 @@ contains
 
       _RETURN(_SUCCESS)
    end function ungridded_dim_names
+
+   ! Inverse of add_ungridded_dimensions: build the UngriddedDims of a file variable.
+   ! Dimensions that belong to the geom (gridded), the vertical dimension (lev_name,
+   ! blank if none) or time are skipped.
+   function ungridded_dims_from_metadata(metadata, variable_name, geom, lev_name, rc) result(ungridded_dims)
+      type(UngriddedDims) :: ungridded_dims
+      type(FileMetadata), target, intent(in) :: metadata
+      character(len=*), intent(in) :: variable_name
+      type(mapl_MaplGeom), intent(in) :: geom
+      character(len=*), intent(in) :: lev_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status, i, extent
+      type(Variable), pointer :: var, dim_var
+      type(StringVector), pointer :: var_dims
+      character(len=:), allocatable :: dim_name, lon_dim, lat_dim, units
+      real, allocatable :: coords(:)
+      class(GeomFactory), allocatable :: geom_factory
+      class(mapl_GeomSpec), allocatable :: geom_spec
+      type(StringVector) :: gridded_dims
+
+      ungridded_dims = UngriddedDims()
+
+      geom_factory = geom%get_factory()
+      geom_spec = geom%get_spec()
+      gridded_dims = geom_factory%make_gridded_dims(geom_spec, _RC)
+
+      ! some files name the horizontal dimensions differently than the geom
+      ! factory does (i.e. longitude vs lon), so also identify them by units
+      lon_dim = get_dim_name(metadata, 'degrees_east', rc=status)
+      if (status /= _SUCCESS) lon_dim = ''
+      lat_dim = get_dim_name(metadata, 'degrees_north', rc=status)
+      if (status /= _SUCCESS) lat_dim = ''
+
+      var => metadata%get_variable(variable_name, _RC)
+      var_dims => var%get_dimensions()
+      do i = 1, var_dims%size()
+         dim_name = var_dims%at(i)
+         if (is_gridded_dim(dim_name)) cycle
+         if (dim_name == lon_dim .or. dim_name == lat_dim) cycle
+         if (lev_name /= '' .and. dim_name == lev_name) cycle
+         if (ESMF_UtilStringLowerCase(dim_name) == 'time') cycle
+
+         extent = metadata%get_dimension(dim_name, _RC)
+         coords = get_dim_coordinates(dim_name, extent)
+         units = 'NONE'
+         if (metadata%has_variable(dim_name)) then
+            dim_var => metadata%get_variable(dim_name, _RC)
+            if (dim_var%is_attribute_present('units')) then
+               units = dim_var%get_attribute_string('units', _RC)
+            end if
+         end if
+         call ungridded_dims%add_dim(UngriddedDim(coords, name=dim_name, units=units), _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+
+   contains
+
+      logical function is_gridded_dim(name)
+         character(len=*), intent(in) :: name
+         integer :: j
+
+         is_gridded_dim = .false.
+         do j = 1, gridded_dims%size()
+            if (ESMF_UtilStringLowerCase(name) == ESMF_UtilStringLowerCase(gridded_dims%at(j))) then
+               is_gridded_dim = .true.
+               return
+            end if
+         end do
+      end function is_gridded_dim
+
+      function get_dim_coordinates(name, n) result(values)
+         real, allocatable :: values(:)
+         character(len=*), intent(in) :: name
+         integer, intent(in) :: n
+
+         class(CoordinateVariable), pointer :: coord_var
+         class(*), pointer :: ptr(:)
+         integer :: k
+
+         values = [(real(k), k=1, n)]
+         if (.not. metadata%has_variable(name)) return
+         coord_var => metadata%get_coordinate_variable(name)
+         if (.not. associated(coord_var)) return
+         ptr => coord_var%get_coordinate_data()
+         if (.not. associated(ptr)) return
+         select type (ptr)
+         type is (real(kind=REAL64))
+            values = real(ptr)
+         type is (real(kind=REAL32))
+            values = ptr
+         type is (integer(kind=INT64))
+            values = real(ptr)
+         type is (integer(kind=INT32))
+            values = real(ptr)
+         end select
+         if (size(values) /= n) values = [(real(k), k=1, n)]
+      end function get_dim_coordinates
+
+   end function ungridded_dims_from_metadata
 
    function cat_ungridded_dim_names(dims) result(dim_names)
       character(len=:), allocatable :: dim_names
