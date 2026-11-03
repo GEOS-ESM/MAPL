@@ -1350,7 +1350,14 @@ it runs goes in a follow-up commit with the same trailer. Label
   (`MAPL_SCENARIO_SHARD`) to stay under MPICH's 2048 limit. Restoring
   `ESMF_GridCompDestroy` fails inside ESMF's VM-shutdown garbage
   collection ("Not a valid pointer to ESMF Component object") on both
-  compilers; an investigation for a minimal reproducer is under way.
+  compilers. Cause: two ESMF bugs in VM match-table slot reuse (stale
+  garbage entries; a freed slot keeps its VM local id with a null key),
+  reported to the ESMF team with standalone reproducers (owner,
+  2026-11-03). When an ESMF release fixes both: restore the destroy in
+  `clearInternalState`, rerun ESSENTIAL on both compilers, and decide
+  whether to keep the shards. Fallback if more binaries hit the limit
+  first: keep one gridded component per PET count and reuse it across
+  tests (tried: NAG ESSENTIAL green, unsharded scenarios green).
 - **Status:** not started
 
 ### Phase E - closing
