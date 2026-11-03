@@ -629,7 +629,11 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
          and keyword paths set the field; a hand-built DEFERRED entry is
          filled from a field whose component called `MAPL_FieldSet`.
       No YAML key for basis: `VariableSpec` has no basis field; adding one
-      is out of scope unless the owner asks. Author sonnet (sonnet review).
+      is out of scope unless the owner asks. Preflight answer (owner): a
+      `quantity_type` declared on a shape that has no QuantityType
+      (STATE, EXPRESSION, SERVICE, WILDCARD) is ignored, as other
+      field-metadata keys are today; a general check is a D3 item.
+      Author sonnet (sonnet review).
 - [ ] 3.36 B3-QuantityTypeDeferred (3.26 R2: owner chose (c), rollout (b)
       and imports (a); after 3.27 and 3.35). Change the QuantityType
       factory (`make_quantity_type_characteristic`): undeclared on an
@@ -675,7 +679,11 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `BUILD_TRANSFORM_UNSUPPORTED` (a conversion is possible, not built
       yet); a quantity-type mismatch stays INCOMPATIBLE. Tests for
       both, in the QuantityType rows of the characteristic tests. Update
-      design §5.1's QuantityType row. Author sonnet (sonnet review).
+      design §5.1's QuantityType row. Preflight answer (owner): the
+      quantity axis "matches" by the existing wildcard rule, so
+      `QUANTITY_UNKNOWN` against a known type with two different real
+      bases is also UNSUPPORTED (one rule with `needs_extension_for`).
+      Author sonnet (sonnet review).
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the

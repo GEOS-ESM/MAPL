@@ -1301,6 +1301,14 @@ it runs goes in a follow-up commit with the same trailer. Label
   intents are case-sensitive while `ComponentSpec%reexport` uses
   `to_lower`. Ask the owner which of these are bugs.
 - `docs/graph/ARCHITECTURE.md:~163`: stale line counts.
+- A general "key not valid for this item type" check in `parse_var_specs`
+  across the field-metadata keys (e.g. `quantity_type` on an expression is
+  silently ignored today; owner, 3.35 preflight). Needs a design rule
+  first; ask the owner for its scope.
+- `FieldBundleInfo.F90:~122-131`: `MAPL_FieldBundleGet` with
+  `quantity_type_metadata=` returns a non-mirror `QUANTITY_UNKNOWN` for an
+  absent key, while the Field version returns a mirror. Make them agree;
+  check the bundle's conservation and normalization keys too.
 - Not D3, recorded here (harness-comm-leak, `2d137acb3`):
   `pfunit/ESMF_TestCase.F90` creates one gridded component with its own
   VM per test and never destroys it, so every test leaks communicators.
