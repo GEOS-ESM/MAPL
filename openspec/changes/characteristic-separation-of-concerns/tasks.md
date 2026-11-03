@@ -573,7 +573,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       conflict in `resolve_one` instead of the silent "first wins" skip.
       Follow-up only if the grep finds Match/Simple overlaps: ask the owner
       whether the explicit SimpleConnection may win. Author sonnet.
-- [ ] 3.32 B3-GeomAProbe (3.26 R16: owner chose (a); before 3.27;
+- [x] 3.32 B3-GeomAProbe (3.26 R16: owner chose (a); before 3.27;
       independent). A probe test (legacy registry path) for a component
       with a component geom G1 and an export declaring an item geom G2:
       does `StateRegistry%set_geometry` / `GeomAspect%set_geom`

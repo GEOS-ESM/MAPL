@@ -629,7 +629,7 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName, B3-RestartMode, B3-QuantityType, B3-Conservation, B3-Normalization, B3-IncompatibleSweep, B3-InternalNoMirror, B3-ConnectionIntentCheck and B3-WildcardFieldOnly done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName, B3-RestartMode, B3-QuantityType, B3-Conservation, B3-Normalization, B3-IncompatibleSweep, B3-InternalNoMirror, B3-ConnectionIntentCheck, B3-WildcardFieldOnly and B3-GeomAProbe done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
@@ -642,8 +642,31 @@ in the first one; later ones refine it.
   `Plan-Task: B3-QuantityType`, `Plan-Task: B3-Conservation`,
   `Plan-Task: B3-Normalization`, `Plan-Task: B3-IncompatibleSweep`,
   `Plan-Task: B3-InternalNoMirror`, `Plan-Task: B3-ConnectionIntentCheck`,
-  `Plan-Task: B3-WildcardFieldOnly`);
+  `Plan-Task: B3-WildcardFieldOnly`, `Plan-Task: B3-GeomAProbe`);
   others not started.
+  B3-GeomAProbe (tasks.md 3.32): done; probe CONFIRMED for the geom, the
+  `geom_id` and the vertical grid. Three tests in `Test_Couplers.pf`
+  build an export declaring its own geom G2 (or vertical grid) with no
+  component value, call `registry%set_geometry` with the component's
+  (G1), and assert the desired rule (item kept); seed assertions show G1
+  and G2 (and the two grids) differ. All three fail today, so they are
+  `@disable`d with a reason; the fix task removes `@disable`. Geom:
+  `GeomAspect%set_geom` replaces `geom` with G1. geom_id: stale, the
+  aspect's geom is G1 but the id stays the item's (G2's), because
+  `set_geom` assigns an id only when none is set. Vertical grid:
+  `VerticalGridAspect%set_vertical_grid` replaces the item's grid
+  unconditionally; the aspect has no id. `target_set_geom` did not error
+  on the payload update. rules-review.md §2.6 and R16 record the result.
+  With `@disable` temporarily removed, all three fail at the item-wins
+  assertions on gfortran as well as NAG (no crash). For the legacy fix
+  task: `VerticalGridAspect` ignores its `geom`/`typekind` arguments
+  (`VerticalGridAspect.F90` ~128-129); `make_VerticalGridAspect` sets
+  FROM_COMP with no vertical grid (`VariableSpec.F90` ~873, ~882),
+  unlike `make_GeomAspect`; `StateItemSpec%set_geometry`'s geom
+  else-branch (~607) calls `aspects%at` and never inserts. Untested: an
+  item declaring only a `geom_id` (no geom) ends with the component geom
+  but the item's id. Test only; no source change. ESSENTIAL 69/69 on NAG
+  and gfortran.
   B3-WildcardFieldOnly (tasks.md 3.30): done. Only FIELD exports are
   Wildcard members, filtered in `resolve_wildcard_destination` and
   `wildcard_import_has_match` through one predicate

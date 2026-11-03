@@ -3,6 +3,9 @@
 
 module Test_Couplers
    use mapl_StateItemAspect_mod, only: StateItemAspect
+   use mapl_GeomAspect_mod, only: GeomAspect, to_GeomAspect
+   use mapl_VerticalGridAspect_mod, only: VerticalGridAspect
+   use mapl_VerticalGridAspect_mod, only: to_VerticalGridAspect
    use mapl_TypekindAspect_mod, only: TypekindAspect, to_TypekindAspect
    use mapl_UnitsAspect_mod, only: UnitsAspect, to_UnitsAspect
    use mapl_StateItem_mod
@@ -134,6 +137,194 @@ contains
       _UNUSED_DUMMY(this)
 
    end subroutine test_typekind
+
+   ! Probes of legacy GEOM_A: StateRegistry%set_geometry runs after the item
+   ! was built, so the specs below are built without a component geom or
+   ! vertical grid (passing one would only test the item-wins branch of
+   ! make_GeomAspect) and the component's is applied afterwards, as GEOM_A
+   ! does. Each asserts the desired rule: an item-declared value is kept.
+
+   ! Disabled: legacy GEOM_A replaces the item geom with the component's.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   @disable
+   subroutine test_set_geometry_keeps_item_geom(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(StateRegistry), target :: registry
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: geom1, geom2, actual_geom
+      type(VirtualConnectionPt) :: virtual_pt
+      logical :: same
+      integer :: status
+
+      geom1 = get_geom()
+      geom2 = get_other_geom(_RC)
+      ! Seed: the two geoms differ, so the assertions below can fail.
+      same = mapl_SameGeom(geom1, geom2)
+      @assertFalse(same, 'The two geoms must differ.')
+
+      registry = StateRegistry('StateRegistry')
+      call add_export(registry, virtual_pt, geom=geom2, _RC)
+      call registry%set_geometry(geom=geom1, _RC)
+
+      aspect = get_geom_aspect(registry, virtual_pt, _RC)
+      actual_geom = aspect%get_geom(_RC)
+      same = mapl_SameGeom(actual_geom, geom2)
+      @assertTrue(same, 'The item geom was replaced by the component geom.')
+      _UNUSED_DUMMY(this)
+   end subroutine test_set_geometry_keeps_item_geom
+
+   ! Disabled: legacy GEOM_A leaves a stale geom_id after the overwrite.
+   ! Checks that the aspect's id matches its own geom (stale-id detection);
+   ! relies on new_GeomAspect assigning G2's id at construction. The geom
+   ! test pins item-wins.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   @disable
+   subroutine test_set_geometry_geom_id_follows_geom(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(StateRegistry), target :: registry
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: geom1, geom2, actual_geom
+      type(mapl_GeomId) :: id1, id2, aspect_id, item_id
+      type(VirtualConnectionPt) :: virtual_pt
+      logical :: same_id
+      integer :: status
+
+      geom1 = get_geom()
+      geom2 = get_other_geom(_RC)
+      id1 = mapl_GeomGetId(geom1, _RC)
+      id2 = mapl_GeomGetId(geom2, _RC)
+      ! Seed: the two geoms have different ids.
+      same_id = id1%get_value() == id2%get_value()
+      @assertFalse(same_id, 'The ids must differ.')
+
+      registry = StateRegistry('StateRegistry')
+      call add_export(registry, virtual_pt, geom=geom2, _RC)
+      call registry%set_geometry(geom=geom1, _RC)
+
+      aspect = get_geom_aspect(registry, virtual_pt, _RC)
+      actual_geom = aspect%get_geom(_RC)
+      aspect_id = mapl_GeomGetId(actual_geom, _RC)
+      item_id = aspect%get_geom_id()
+      same_id = aspect_id%get_value() == item_id%get_value()
+      @assertTrue(same_id, 'The geom_id does not belong to the aspect geom.')
+      _UNUSED_DUMMY(this)
+   end subroutine test_set_geometry_geom_id_follows_geom
+
+   ! Disabled: legacy GEOM_A replaces the item vertical grid.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   @disable
+   subroutine test_set_geometry_keeps_item_vgrid(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(StateRegistry), target :: registry
+      type(VerticalGridAspect) :: aspect
+      class(mapl_VerticalGrid), pointer :: vgrid2, actual
+      type(VirtualConnectionPt) :: virtual_pt
+      logical :: same
+      integer :: status
+
+      vgrid2 => get_other_vertical_grid(_RC)
+      ! Seed: the two vertical grids differ.
+      same = vgrid2%matches(vertical_grid)
+      @assertFalse(same, 'Grids must differ.')
+
+      registry = StateRegistry('StateRegistry')
+      call add_export(registry, virtual_pt, geom=get_geom(), &
+           & vertical_grid=vgrid2, _RC)
+      call registry%set_geometry(vertical_grid=vertical_grid, _RC)
+
+      call get_vertical_grid_aspect(registry, virtual_pt, aspect, _RC)
+      actual => aspect%get_vertical_grid(_RC)
+      same = actual%matches(vgrid2)
+      @assertTrue(same, 'The item vertical grid was replaced.')
+      _UNUSED_DUMMY(this)
+   end subroutine test_set_geometry_keeps_item_vgrid
+
+   ! The spec is built without a component geom or vertical grid.
+   subroutine add_export(registry, virtual_pt, geom, vertical_grid, rc)
+      type(StateRegistry), target, intent(inout) :: registry
+      type(VirtualConnectionPt), intent(out) :: virtual_pt
+      type(ESMF_Geom), intent(in) :: geom
+      class(mapl_VerticalGrid), optional, intent(in) :: vertical_grid
+      integer, optional, intent(out) :: rc
+
+      type(VariableSpec) :: var_spec
+      type(StateItemSpec) :: spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, EXPORT_NAME, &
+           & typekind=EXPORT_TYPEKIND, itemtype=ITEMTYPE, units=EXPORT_UNITS, &
+           & geom=geom, vertical_grid=vertical_grid, _RC)
+      spec = var_spec%make_StateItemSpec(registry, _RC)
+      call spec%create(_RC)
+
+      virtual_pt = VirtualConnectionPt(state_intent='export', &
+           & short_name=EXPORT_NAME)
+      call registry%add_primary_spec(virtual_pt=virtual_pt, spec=spec, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_export
+
+   function get_geom_aspect(registry, virtual_pt, rc) result(aspect)
+      type(GeomAspect) :: aspect
+      type(StateRegistry), target, intent(inout) :: registry
+      type(VirtualConnectionPt), intent(in) :: virtual_pt
+      integer, optional, intent(out) :: rc
+
+      type(StateItemSpec), pointer :: primary
+      integer :: status
+
+      primary => registry%get_primary_spec(virtual_pt, _RC)
+      aspect = to_GeomAspect(primary%get_aspects(), _RC)
+
+      _RETURN(_SUCCESS)
+   end function get_geom_aspect
+
+   subroutine get_vertical_grid_aspect(registry, virtual_pt, aspect, rc)
+      type(StateRegistry), target, intent(inout) :: registry
+      type(VirtualConnectionPt), intent(in) :: virtual_pt
+      type(VerticalGridAspect), intent(out) :: aspect
+      integer, optional, intent(out) :: rc
+
+      type(StateItemSpec), pointer :: primary
+      integer :: status
+
+      primary => registry%get_primary_spec(virtual_pt, _RC)
+      aspect = to_VerticalGridAspect(primary%get_aspects(), _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_vertical_grid_aspect
+
+   function get_other_geom(rc) result(geom)
+      type(ESMF_Geom) :: geom
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_HConfig) :: hconfig
+      type(mapl_MaplGeom), pointer :: other
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content= &
+           & "{class: latlon, im_world: 6, jm_world: 7, " // &
+           & "pole: PC, dateline: DC}", _RC)
+      other => geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom = other%get_geom()
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+   end function get_other_geom
+
+   function get_other_vertical_grid(rc) result(vgrid)
+      class(mapl_VerticalGrid), pointer :: vgrid
+      integer, optional, intent(out) :: rc
+
+      type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      integer :: status
+
+      vgrid_manager => mapl_get_vertical_grid_manager(_RC)
+      vgrid => vgrid_manager%create_grid( &
+           & mapl_BasicVerticalGridSpec(num_levels=3), _RC)
+
+      _RETURN(_SUCCESS)
+   end function get_other_vertical_grid
 
    @Before
    subroutine setUp(this)

@@ -428,10 +428,13 @@ Legacy only:
 - Geometry at GEOM_A: `registry%set_geometry` calls `GeomAspect%set_geom`
   on every primary spec of the component (`StateRegistry_SetGeometry_smod.F90:27`,
   `GeomAspect.F90:205`), which sets status SPECIFIED and overwrites
-  `this%geom` even where the item declared its own geom. By reading, an
-  item-level `geometry:` is replaced by the component geom in legacy once
-  the component has one; the graph keeps the item's (SPECIFIED, item
-  wins). Not run; verify before relying on it (R16).
+  `this%geom` even where the item declared its own geom. Probe (3.32,
+  confirmed): an item-level geom is replaced by the component geom, its
+  `geom_id` stays the item's (stale), and an item vertical grid is
+  replaced by the component's; the graph keeps the item's (SPECIFIED,
+  item wins). See the disabled tests `test_set_geometry_keeps_item_geom`,
+  `test_set_geometry_geom_id_follows_geom` and
+  `test_set_geometry_keeps_item_vgrid` in `Test_Couplers.pf`. R16.
 
 ### 2.7 Rules found late
 
@@ -1025,7 +1028,7 @@ marked bootstrapped and A's export alias also reports
 Recommendation: (a) until a production reader exists; ask the #5470
 author who reads it.
 
-**R16. Legacy GEOM_A overwrites item-level geometry (unverified).**
+**R16. Legacy GEOM_A overwrites item-level geometry (confirmed by probe).**
 Legacy: `registry%set_geometry` sets every primary spec's GeomAspect to the
 component geom, SPECIFIED (`StateRegistry_SetGeometry_smod.F90:27`,
 `GeomAspect.F90:205-224`), including an item that declared its own (by
@@ -1042,7 +1045,8 @@ states:
 - (a) Run a probe test before deciding; if confirmed, treat legacy as a
   bug (item wins) in a small legacy task.
 - (b) Accept legacy (component wins) and change the graph.
-Recommendation: (a). No decision until the probe runs.
+Recommendation: (a). Probe result: the overwrite is confirmed (§2.6); the
+owner chose (a) (§4a).
 
 ## 4a. Decisions (owner session, 2026-11-02)
 
