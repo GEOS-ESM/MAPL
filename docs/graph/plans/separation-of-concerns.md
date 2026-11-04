@@ -1,8 +1,10 @@
 # Plan: Graph layer separation-of-concerns cleanup
 
 > Canonical copy: `docs/graph/plans/separation-of-concerns.md` (in repo).
-> Every task MUST update its own **Status** line (done/partial, and any
-> deviations from this plan) as part of the same change as the work. Artifacts produced by earlier tasks
+> Every task MUST record its Status (done/partial, and any deviations
+> from this plan) as part of the same change as the work: B3.x and later
+> openspec tasks in their `tasks.md` item, other tasks in their section
+> here; a B3.x task adds only its label to the B3 Status list below. Artifacts produced by earlier tasks
 > (`docs/graph/CONVENTIONS.md`, `docs/graph/scenario-parity.md`, the B0
 > openspec design, `docs/graph/adding-a-characteristic.md`, ...)
 > **take precedence over this plan's summaries** once they exist. If the
@@ -75,6 +77,12 @@ Preferences stated in discussion, not obvious from the rest of the plan:
   only when the design is silent on the case or the legacy behavior looks
   deliberate and client code may depend on it. The weekly report lists
   new rows. The table is the checklist for switching legacy off.
+- Per-task doc updates are limited (owner, 2026-11-04): Status (see the
+  header), design.md decisions the task makes, delta specs for changed
+  requirements, and docs the task owns. `ARCHITECTURE.md`, `GLOSSARY.md`
+  and `rules-review.md` are not updated per task; the meta session
+  batches them every few landings (from the commits since the last
+  batch), or runs a small doc task. A task brief names the docs to update.
 - No `CHANGELOG.md` entries per task: one entry when the graph work is
   complete, pointing at the documentation.
 - Fix-as-needed beats speculative completeness (e.g. `MAPL_StateSet` is
@@ -1794,8 +1802,9 @@ Scope: <optional narrowing / extra constraints>.
 Done means:
 - ctest -L ESSENTIAL green on NAG and gfortran (while iterating, build
   and run only the affected targets on NAG; ESSENTIAL once at the end)
-- this task's Status line in the plan updated (done/partial, deviations)
-- any doc your task owns created/updated
+- this task's Status recorded (tasks.md item for B3.x; see the header)
+- only the docs the brief names updated (no ARCHITECTURE/GLOSSARY/
+  rules-review edits; meta batches those)
 - NOT committed or staged: changes left in the working tree (new
   files untracked), proposed commit message in `.git/PLAN_TASK_MSG`
   ending with `Plan-Task: <label>`, body containing both ctest summary
