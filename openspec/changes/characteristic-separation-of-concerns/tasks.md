@@ -711,7 +711,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       QuantityType (no scenario or builder test declares a quantity type);
       the reporting path is kind-agnostic (UNSUPPORTED is logged as "no
       registered extension provider ..." instead of "connection conflict").
-- [ ] 3.38 B3-GeomAItemWins (owner: legacy bug, item wins; after 3.37,
+- [x] 3.38 B3-GeomAItemWins (owner: legacy bug, item wins; after 3.37,
       before 3.27). Legacy fix for the overwrite 3.32 confirmed. At GEOM_A,
       an item that declares its own geom or vertical grid keeps it:
       `GeomAspect%set_geom` and `VerticalGridAspect%set_vertical_grid` do
@@ -753,6 +753,11 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       - Pipeline trial (owner): tests first by a separate test author on a
         different model family, a test review, then a sonnet implementer
         that may not edit the tests, then the implementation review.
+      Done. Deviation: `make_VerticalGridAspect` with no grid is MIRRORED
+      except stagger NONE, which is SPECIFIED (the expression scenarios need
+      it; owner-confirmed 2026-11-04; revertible: drop the `is_none()` branch
+      in `make_VerticalGridAspect`; 3.39 revisits it). `make_VerticalGridAspect` lost its
+      `component_geom` / `component_geom_id` arguments.
 - [ ] 3.39 B3-GeomMirrorLegacy (owner; after 3.38, before 3.27). Legacy
       `make_GeomAspect` / `make_VerticalGridAspect` ignore `mirror_geom` /
       `mirror_vgrid`, so the GEOM_A push gives a mirroring item the

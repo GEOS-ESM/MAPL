@@ -713,6 +713,46 @@ in the first one; later ones refine it.
   item declaring only a `geom_id` (no geom) ends with the component geom
   but the item's id. Test only; no source change. ESSENTIAL 69/69 on NAG
   and gfortran.
+  B3-GeomAItemWins (tasks.md 3.38): done, with deviations. Item wins at
+  GEOM_A. `GeomAspect` and `VerticalGridAspect` carry a private "declared by
+  the item" flag (and `GeomAspect` a second one for the `geom_id`), set by
+  `make_GeomAspect` / `make_VerticalGridAspect` only when the `VariableSpec`
+  has its own geom / vertical grid / `geom_id`. The flag is legacy's stand-in
+  for the graph's DEFERRED (design A12); a status-based legacy fix only if
+  3.39 or later needs it. `set_geom` / `set_vertical_grid` stay
+  unconditional; `set_component_geom` / `set_component_vertical_grid` (used
+  by `StateItemSpec%set_geometry`) are no-ops on a declared aspect, and
+  replace an earlier component value and (unless declared) the `geom_id`.
+  `MAPL_GridCompSetGeometry` passes `force_replace=.true.`: it replaces a
+  declared value and marks the item declared. `StateItemSpec%set_geometry`
+  returns the `rc` of its contained helper (no latent failure surfaced) and
+  its geom else-branch inserts the aspect. `VerticalGridAspect`'s dead
+  `geom`/`typekind` arguments are gone. The three `@disable`d probes are
+  enabled. ESSENTIAL 69/69 on NAG and gfortran.
+  Deviations: (1) stagger-NONE rule: `make_VerticalGridAspect` with no grid
+  is MIRRORED as decided, except an item whose stagger is NONE is SPECIFIED.
+  Otherwise the `expression` scenarios failed: before, the aspect was
+  FROM_COMP (not mirror), so `check_vertical_stagger_consistency` saw a
+  NONE-stagger input; as MIRRORED it was skipped and the expression crashed
+  in `BasicVerticalGrid%get_coordinate_field`. Owner-confirmed
+  2026-11-04; it uses `is_none()`, not the wildcard `==`; revert by deleting the stagger-NONE branch in
+  `make_VerticalGridAspect` and teaching that check to treat a NONE-stagger
+  mirror as resolved (3.39 revisits it). (2) `make_VerticalGridAspect` lost its `component_geom`
+  / `component_geom_id` arguments (they only fed FROM_COMP and the dead
+  `geom` argument).
+  For 3.39: stale comment `ExpressionClassAspect.F90:395-400` ("component
+  vertical grid unconditionally overwrites every item's VerticalGridAspect");
+  the stagger-NONE rule above; `mirror_vgrid` (and `mirror_geom`) are still
+  ignored by `make_VerticalGridAspect` / `make_GeomAspect`. Later:
+  design.md ~1028 still says the component grid overwrites every item.
+  Non-ESSENTIAL check on NAG (`MAPL.generic.scenarios.pending` with
+  `MAPL_SCENARIO_ONLY=statistics_real` / `history_1`): 22 failures each (11
+  checks x graph and both modes), all in GraphBuilder ("materialization
+  reached with no import units", "MethodGraphNode: argument name already
+  declared"); none from `set_geometry`, `GeomAspect` or `VerticalGridAspect`.
+  These two were already failing with those messages before 3.38 (see the
+  earlier pending-scenario notes), so no latent failure from the now-returned
+  `rc` surfaced.
   B3-WildcardFieldOnly (tasks.md 3.30): done. Only FIELD exports are
   Wildcard members, filtered in `resolve_wildcard_destination` and
   `wildcard_import_has_match` through one predicate

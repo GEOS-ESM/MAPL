@@ -181,9 +181,9 @@ yet; INCOMPATIBLE = can never connect, A23).
 | StandardName | FIELD only | UNCHECKED (also `UNKNOWN_STANDARD_NAME`); the field dictionary never supplies it | unchanged | MIRRORED for `MAPL_STRING_MIRROR`; IMPORT only (A13) | equal; UNSUPPORTED (pending 3.27) | field-wide; UNCHECKED writes `UNKNOWN_STANDARD_NAME` (`StandardNameCharacteristic.F90:126`) | `StandardNameAspect%matches` (`:110`): dst UNCHECKED matches; src UNCHECKED matches with a warning; differ: STRICT rejects, PERMISSIVE matches with a warning. Built for every shape but consulted only via the class's mandatory/order lists (FIELD; VECTOR per component). Differs: PERMISSIVE mismatch connects in legacy, not in graph. |
 | LongName | FIELD, EXPRESSION | Field-dictionary entry found (FIELD only; EXPRESSION is exempt) -> SPECIFIED with its long_name, for every intent. Otherwise: IMPORT -> UNCHECKED, writes nothing; other intents -> the declared standard_name as long_name (SPECIFIED), else UNCHECKED (`make_long_name_characteristic`) | unchanged | MIRRORED for `MAPL_STRING_MIRROR`; IMPORT only | never (`needs = .false.`); UNSUPPORTED is unreachable | per-alias | `FieldClassAspect` carries it, not compared; undeclared import takes the export's (`mirror_name`). No standard_name fallback. Differs: fallback (graph only); undeclared-import inheritance (legacy only; graph gap, tasks.md 4.2). |
 | UngriddedDims | HFM | SPECIFIED empty | unchanged | MIRRORED for `ungridded_dims%is_mirror()`; IMPORT only | equal; INCOMPATIBLE | field-wide, structural | `UngriddedDimsAspect%matches` equal; no conversion. Same. |
-| Geometry | CFD + SERVICE | DEFERRED; UNCHECKED if `horizontal_dims_spec` NONE (not compared); MIRRORED for EXPRESSION (`make_geometry_characteristic`) | DEFERRED -> SPECIFIED with the component geom at GEOM_B; else stays DEFERRED and may be filled from the realized field (`graphbuilder_harvest_deferred`, connect hook); still DEFERRED at freeze -> error (`check_resolved`). The uncompared UNCHECKED one takes the component geom and stays UNCHECKED (`geometry_resolve_deferred`). Never dropped. | MIRRORED for `mirror_geom` (YAML `geometry_mirror: true`); IMPORT or EXPRESSION | node identity / `mapl_SameGeom` / geom_id; UNSUPPORTED (no regrid before C1) | field-wide, structural | `make_GeomAspect` (`VariableSpec.F90:756`): item geom, else component geom, else item id, else component id (FROM_COMP), else **MIRRORED**. Differs: undeclared is DEFERRED in graph, MIRRORED in legacy (A12). |
+| Geometry | CFD + SERVICE | DEFERRED; UNCHECKED if `horizontal_dims_spec` NONE (not compared); MIRRORED for EXPRESSION (`make_geometry_characteristic`) | DEFERRED -> SPECIFIED with the component geom at GEOM_B; else stays DEFERRED and may be filled from the realized field (`graphbuilder_harvest_deferred`, connect hook); still DEFERRED at freeze -> error (`check_resolved`). The uncompared UNCHECKED one takes the component geom and stays UNCHECKED (`geometry_resolve_deferred`). Never dropped. | MIRRORED for `mirror_geom` (YAML `geometry_mirror: true`); IMPORT or EXPRESSION | node identity / `mapl_SameGeom` / geom_id; UNSUPPORTED (no regrid before C1) | field-wide, structural | `make_GeomAspect` (`VariableSpec.F90:756`): item geom, else component geom, else item id, else component id (FROM_COMP), else **MIRRORED**. An item's own geom survives the GEOM_A push (private "declared by the item" flag, legacy's stand-in for DEFERRED; fixed 3.38). Differs: undeclared is DEFERRED in graph, MIRRORED in legacy (A12). |
 | HorizontalDimsSpec | HDS | SPECIFIED GEOM | unchanged | MIRRORED for `HORIZONTAL_DIMS_MIRROR` (YAML `dims: mirror`); IMPORT only | equal; INCOMPATIBLE | field-wide, structural | Inside `GeomAspect%matches` with `dims_specs_agree` (mirror agrees with any); NONE x NONE matches (A22). Same. |
-| VerticalGrid | CFD (and the VERTICALGRID variant) | DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid`; no entry for stagger NONE (`make_vertical_grid_characteristic`) | DEFERRED -> SPECIFIED from the component vgrid (`vcoord_resolve_deferred`); -> dropped if the component has none (`vcoord_drop_if_unsupplied`, `VerticalGridCharacteristic.F90:210-215`) | MIRRORED for `mirror_vgrid` (YAML `vertical_grid_mirror: true`) or EXPRESSION; IMPORT or EXPRESSION | identity / grid_id / dims set; UNSUPPORTED | field-wide, structural | `make_VerticalGridAspect` (`:850`): item grid, else component grid, else FROM_COMP, else **MIRRORED**. `VerticalGridAspect%matches` true if dst is mirror. Differs: undeclared DEFERRED vs MIRRORED. |
+| VerticalGrid | CFD (and the VERTICALGRID variant) | DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid`; no entry for stagger NONE (`make_vertical_grid_characteristic`) | DEFERRED -> SPECIFIED from the component vgrid (`vcoord_resolve_deferred`); -> dropped if the component has none (`vcoord_drop_if_unsupplied`, `VerticalGridCharacteristic.F90:210-215`) | MIRRORED for `mirror_vgrid` (YAML `vertical_grid_mirror: true`) or EXPRESSION; IMPORT or EXPRESSION | identity / grid_id / dims set; UNSUPPORTED | field-wide, structural | `make_VerticalGridAspect` (`:854`): item grid, else component grid, else **MIRRORED** (SPECIFIED when the item's stagger is NONE). An item's own grid survives the GEOM_A push (declared flag; fixed 3.38). `VerticalGridAspect%matches` true if dst is mirror. Differs: undeclared DEFERRED vs MIRRORED. |
 | VerticalStagger | CFD | DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid` | component has no vgrid -> SPECIFIED NONE at GEOM_B; with a vgrid stays DEFERRED until harvested from a realized field (`stagger_resolve_deferred`, `harvest_stagger`); still DEFERRED at freeze -> error. Never dropped. | MIRRORED for `VERTICAL_STAGGER_MIRROR` (YAML `vertical_dim_spec: MIRROR`); IMPORT or EXPRESSION | equal; UNSUPPORTED | field-wide, structural | Inside `VerticalGridAspect`; unallocated stagger treated as mirror (design §5.1). Differs: undeclared DEFERRED (A17) vs mirror. |
 | VerticalOrientation | CFD minus stagger NONE | `with_grid`: SPECIFIED from the item grid, else DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid` | DEFERRED -> SPECIFIED from the component vgrid's direction (`orientation_resolve_deferred`); -> dropped if the component has none (`orientation_drop_if_unsupplied`, `VerticalOrientationCharacteristic.F90:182-187`) | MIRRORED for `vertical_alignment: mirror`; IMPORT or EXPRESSION | equal direction; UNSUPPORTED | field-wide, structural | Inside `VerticalGridAspect` (alignment). Graph-only split (Q7). |
 | Attributes | HFM | SPECIFIED empty | unchanged | none | import's set included in export's; INCOMPATIBLE | none written | `AttributesAspect%matches` includes (`AttributesAspect.F90:77`). Same. |
@@ -425,16 +425,19 @@ Legacy only:
   (`GraphBuilder_Advertising_smod.F90:115`). Scenarios using it:
   `scenario_1`, `scenario_2`, `propagate_geom` (child_A, `src_intent:
   internal`). See R9, R11.
-- Geometry at GEOM_A: `registry%set_geometry` calls `GeomAspect%set_geom`
-  on every primary spec of the component (`StateRegistry_SetGeometry_smod.F90:27`,
-  `GeomAspect.F90:205`), which sets status SPECIFIED and overwrites
-  `this%geom` even where the item declared its own geom. Probe (3.32,
-  confirmed): an item-level geom is replaced by the component geom, its
-  `geom_id` stays the item's (stale), and an item vertical grid is
-  replaced by the component's; the graph keeps the item's (SPECIFIED,
-  item wins). See the disabled tests `test_set_geometry_keeps_item_geom`,
-  `test_set_geometry_geom_id_follows_geom` and
-  `test_set_geometry_keeps_item_vgrid` in `Test_Couplers.pf`. R16.
+- Geometry at GEOM_A (fixed, 3.38): `registry%set_geometry` pushes the
+  component geom / vertical grid with `set_component_geom` /
+  `set_component_vertical_grid`, which are no-ops on an aspect the item
+  declared itself (a private "declared by the item" flag set by
+  `make_GeomAspect` / `make_VerticalGridAspect`; legacy's stand-in for the
+  graph's DEFERRED, A12). Item wins, as in the graph. The item's `geom_id`
+  follows the geom it ends with unless the item declared its own `geom_id`
+  (an item declaring only a `geom_id` takes the component geom and keeps its
+  id). The explicit `MAPL_GridCompSetGeometry` replaces even a declared value
+  and marks the item declared, so a later component push leaves it alone. A
+  component geom still replaces an earlier component geom. Pinned by
+  `Test_Couplers.pf`, `Test_GeomAspect.pf`,
+  `Test_VerticalGridAspect_NoneMatch.pf`. R16.
 
 ### 2.7 Rules found late
 
@@ -1027,8 +1030,8 @@ marked bootstrapped and A's export alias also reports
 Recommendation: (a) until a production reader exists; ask the #5470
 author who reads it.
 
-**R16. Legacy GEOM_A overwrites item-level geometry (confirmed by probe).**
-Legacy: `registry%set_geometry` sets every primary spec's GeomAspect to the
+**R16. Legacy GEOM_A overwrites item-level geometry (confirmed by probe; fixed, 3.38).**
+Legacy (before the fix): `registry%set_geometry` sets every primary spec's GeomAspect to the
 component geom, SPECIFIED (`StateRegistry_SetGeometry_smod.F90:27`,
 `GeomAspect.F90:205-224`), including an item that declared its own (by
 reading). Graph: an item geom is SPECIFIED and kept. Example:
@@ -1045,7 +1048,8 @@ states:
   bug (item wins) in a small legacy task.
 - (b) Accept legacy (component wins) and change the graph.
 Recommendation: (a). Probe result: the overwrite is confirmed (§2.6); the
-owner chose (a) (§4a).
+owner chose (a) (§4a). Fixed by 3.38 B3-GeomAItemWins: an item that declares
+its own geom or vertical grid keeps it at GEOM_A (§2.6).
 
 ## 4a. Decisions (owner session, 2026-11-02)
 

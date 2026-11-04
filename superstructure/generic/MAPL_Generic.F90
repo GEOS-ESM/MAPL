@@ -1183,7 +1183,7 @@ contains
       spec => primary
       _ASSERT(associated(spec), 'null pointer for spec')
 
-      call spec%set_geometry(geom=geom, vertical_grid=vertical_grid, _RC)
+      call spec%set_geometry(geom=geom, vertical_grid=vertical_grid, force_replace=.true., _RC)
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_set_geometry

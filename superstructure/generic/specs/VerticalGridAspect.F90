@@ -43,6 +43,9 @@ module mapl_VerticalGridAspect_mod
       type(VerticalRegridMethod) :: regrid_method = VERTICAL_REGRID_LINEAR
       type(VerticalStaggerLoc), allocatable :: vertical_stagger
       type(VerticalAlignment) :: vertical_alignment = VALIGN_WITH_GRID
+      ! Legacy stand-in for the graph's DEFERRED: the item's own grid must
+      ! survive the component-wide push.
+      logical :: declared_by_item = .false.
    contains
       procedure :: matches
       procedure :: typesafe_matches
@@ -53,6 +56,7 @@ module mapl_VerticalGridAspect_mod
       procedure, nopass :: get_aspect_id
 
       procedure :: set_vertical_grid
+      procedure :: set_component_vertical_grid
       procedure :: get_vertical_grid
       procedure :: get_vertical_stagger
       procedure :: set_vertical_stagger
@@ -89,21 +93,22 @@ module mapl_VerticalGridAspect_mod
 
 contains
 
-    function new_VerticalGridAspect_specific(vertical_grid, regrid_method, vertical_stagger, vertical_alignment, geom, typekind, time_dependent, aspect_status) result(aspect)
+    function new_VerticalGridAspect_specific(vertical_grid, regrid_method, vertical_stagger, vertical_alignment, time_dependent, aspect_status, declared_by_item) result(aspect)
        type(VerticalGridAspect) :: aspect
        class(VerticalGrid), optional, intent(in) :: vertical_grid
        type(VerticalRegridMethod), optional, intent(in) :: regrid_method
        type(VerticalStaggerLoc), optional, intent(in) :: vertical_stagger
        type(VerticalAlignment), optional, intent(in) :: vertical_alignment
-       type(ESMF_Geom), optional, intent(in) :: geom
-       type(ESMF_Typekind_Flag), optional, intent(in) :: typekind
        logical, optional, intent(in) :: time_dependent
        type(AspectStatus), optional, intent(in) :: aspect_status
+       logical, optional, intent(in) :: declared_by_item
 
        call aspect%set_characteristic_state(ASPECT_STATUS_MIRRORED)
        if (present(aspect_status)) then
           call aspect%set_characteristic_state(aspect_status)
        end if
+
+       if (present(declared_by_item)) aspect%declared_by_item = declared_by_item
        if (present(vertical_grid)) then
           aspect%vertical_grid = vertical_grid
           call aspect%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
@@ -124,9 +129,6 @@ contains
       end if
     
       call aspect%set_time_dependent(time_dependent)
-
-      _UNUSED_DUMMY(geom)
-      _UNUSED_DUMMY(typekind)
    end function new_VerticalGridAspect_specific
 
     function new_VerticalGridAspect_mirror() result(aspect)
@@ -211,9 +213,10 @@ contains
       ! StateItemSpec::make_extension) is NONE, there is nothing to
       ! vertically regrid, full stop - regardless of what dst nominally
       ! requests. dst's vertical_stagger/vertical_grid may only reflect a
-      ! component-wide default vertical grid unconditionally stamped onto
-      ! every registered item by MAPL_GridCompSetVerticalGrid (see
-      ! StateItemSpec::target_set_geom), not a genuine per-variable request -
+      ! component-wide default vertical grid stamped by
+      ! MAPL_GridCompSetVerticalGrid onto every registered item that did not
+      ! declare its own grid (see StateItemSpec::target_set_geom), not a
+      ! genuine per-variable request -
       ! e.g. a History collection's `vertical_grid:` applies to every
       ! variable in its var_list by default, including ones (like a plain
       ! 2D diagnostic) that were never meant to be vertically regridded.
@@ -272,6 +275,29 @@ contains
       matches = (src_resolved == dst_resolved)
 
    end function typesafe_matches
+
+   ! Component-wide push (and, with force_replace, the explicit per-item call).
+   ! An item that declared its own grid keeps it.
+   subroutine set_component_vertical_grid(self, vertical_grid, force_replace, rc)
+       class(VerticalGridAspect), intent(inout) :: self
+       class(VerticalGrid), intent(in) :: vertical_grid
+       logical, optional, intent(in) :: force_replace
+       integer, optional, intent(out) :: rc
+
+       logical :: force
+
+       force = .false.
+       if (present(force_replace)) force = force_replace
+
+       if (self%declared_by_item .and. .not. force) then
+          _RETURN(_SUCCESS)
+       end if
+
+       call self%set_vertical_grid(vertical_grid)
+       if (force) self%declared_by_item = .true.
+
+       _RETURN(_SUCCESS)
+   end subroutine set_component_vertical_grid
 
 
    subroutine set_vertical_grid(self, vertical_grid)

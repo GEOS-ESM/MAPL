@@ -711,8 +711,7 @@ contains
       aspect = this%make_NormalizationAspect(_RC)
       call aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
 
-       aspect = this%make_VerticalGridAspect(vertical_grid, &
-            component_geom=component_geom, component_geom_id=component_geom_id, _RC)
+       aspect = this%make_VerticalGridAspect(vertical_grid, _RC)
       call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
 
       aspect = this%make_ClassAspect(registry, _RC)
@@ -799,7 +798,8 @@ contains
       end if
 
        aspect = GeomAspect(geom=geom_, regridder_param=this%regrid_param, &
-            horizontal_dims_spec=this%horizontal_dims_spec, geom_id=geom_id_, aspect_status=aspect_status)
+            horizontal_dims_spec=this%horizontal_dims_spec, geom_id=geom_id_, aspect_status=aspect_status, &
+            declared_by_item=allocated(this%geom), geom_id_declared_by_item=this%geom_id%is_assigned())
 
       _RETURN(_SUCCESS)
    end function make_GeomAspect
@@ -851,44 +851,36 @@ contains
       _RETURN(_SUCCESS)
    end function make_NormalizationAspect
 
-    function make_VerticalGridAspect(this, vertical_grid, component_geom, component_geom_id, time_dependent, rc) result(aspect)
+    function make_VerticalGridAspect(this, vertical_grid, time_dependent, rc) result(aspect)
       type(VerticalGridAspect) :: aspect
       class(VariableSpec), intent(in) :: this
        class(VerticalGrid), optional, intent(in) :: vertical_grid
-       type(ESMF_Geom), optional, intent(in) :: component_geom
-       type(mapl_GeomId), optional, intent(in) :: component_geom_id
       logical, optional, intent(in) :: time_dependent
       integer, optional, intent(out) :: rc
 
-       type(ESMF_Geom) :: geom_
        class(VerticalGrid), allocatable :: vgrid
        type(AspectStatus) :: aspect_status
 
+      ! A grid in the var spec is prioritized over the component-wide grid.
+      ! If neither is given, the grid is mirrored and determined by a connection,
+      ! except for a 2D item (stagger NONE), which is SPECIFIED.
        aspect_status = ASPECT_STATUS_MIRRORED
-
-      ! If geom is allocated in var spec then it is prioritized over the
-      ! component-wide geom.
-      ! If not specified either way, then it indicates that the geom is
-      ! mirrored ind will be determined by a connection.
-      if (allocated(this%geom)) then
-         geom_ = this%geom
-       elseif (present(component_geom)) then
-          geom_ = component_geom
-          aspect_status = ASPECT_STATUS_FROM_COMP
-      end if
 
       if (allocated(this%vertical_grid)) then
          vgrid = this%vertical_grid
        elseif (present(vertical_grid)) then
           vgrid = vertical_grid
           aspect_status = ASPECT_STATUS_SPECIFIED
-       elseif (present(component_geom_id)) then
-          aspect_status = ASPECT_STATUS_FROM_COMP
+      else if (allocated(this%vertical_stagger)) then
+         ! A mirrored 2D input is skipped by check_vertical_stagger_consistency
+         ! and then crashes an expression in BasicVerticalGrid%get_coordinate_field.
+         ! is_none(), not ==: operator(==) treats MIRROR as equal to anything.
+         if (this%vertical_stagger%is_none()) aspect_status = ASPECT_STATUS_SPECIFIED
       end if
 
        aspect = VerticalGridAspect(vertical_grid=vgrid, vertical_stagger=this%vertical_stagger, &
-            vertical_alignment=VerticalAlignment(this%vertical_alignment), geom=geom_, typekind=this%typekind, &
-            aspect_status=aspect_status)
+            vertical_alignment=VerticalAlignment(this%vertical_alignment), &
+            aspect_status=aspect_status, declared_by_item=allocated(this%vertical_grid))
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(time_dependent)
