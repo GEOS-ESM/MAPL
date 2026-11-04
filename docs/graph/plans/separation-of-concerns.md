@@ -592,7 +592,9 @@ tasks.md §3 header. Placement: 3.28, 3.29, 3.30, 3.32, 3.35 and 3.37 are
 small, independent of 3.27, and touch code 3.27 does not (intent rules,
 parser, wildcard membership, a legacy probe, QuantityType suppliers and
 basis outcome), so
-they run first while 3.27's design is settled; 3.36 runs right after
+they run first while 3.27's design is settled; 3.38 and 3.39 (legacy
+GEOM_A fixes: item geometry wins, mirror requests honored) follow 3.37,
+also before 3.27; 3.36 runs right after
 3.27 because its strict/default switch should share 3.27's configuration
 surface, and after 3.35 because the owner wants suppliers before the
 freeze rule; 3.31 runs after 3.27 and before 3.12/3.23 because
@@ -606,6 +608,10 @@ may land earlier on its own.
   VerticalOrientation (design.md §5.1 note). Rejecting `mirror_geom`/`mirror_vgrid`
   on a non-EXPRESSION export is task B3-MirrorFlagGuard (A21), not part of
   this cleanup.
+- Later, not scheduled (owner, 2026-11-03): retire `geom_id` (item,
+  `GeomAspect`, `VariableSpec`). Storing an id next to the geom duplicates
+  the geometry; graph nodes now serve that purpose. Until legacy can be
+  switched off, no new code extends `geom_id` use.
 - Moved (owner): this item goes to the first phase of the planned
   callback-physics openspec change (not yet created); kept here as a
   pointer until that change exists. For consideration: an
@@ -1277,11 +1283,45 @@ ready means today" in `scenario-parity.md`). May be split into
   orientation mismatch is masked by a VERTICAL_GRID mismatch. It also covers
   `merged_item_for_link`'s missing VERTICAL_ORIENTATION branch if B4 has not yet
   replaced it.
-- Owner (2026-11-03): split into C1-geom, then C1-vertical; each runs in a
-  worktree alongside the B3 main line, opus author as a background
-  subagent, sonnet review, with the preflight's design questions answered
-  first. Whether C1-geom lands before B4 is decided from the preflight
-  (default: before, unless C1 needs B4's materialization).
+- Owner (2026-11-03): split into C1-geom, then C1-vertical; worktree
+  alongside the B3 main line, opus author as a background subagent,
+  sonnet review. The preflight showed end-to-end wiring needs B4 4.1
+  (tip/goal descriptors, covered kinds) and 4.2 (links created on the
+  tip's geometry; materialization gate on outside tests), so each part
+  splits (owner):
+  - C1-geom-a (now, worktree): a graph regrid Transform duplicating
+    `RegridTransform` logic, field only; it asks `RegridderManager` for the
+    regridder lazily and rebuilds it when the geoms change (legacy
+    `update_transform`), keeping that lookup inside the Transform;
+    regridder-param getters on `GeometryCharacteristic` and the legacy
+    both-sides rule; isolated tests regridding real fields between two
+    grids. No `GraphBuilder*.F90` edits.
+  - C1-geom-b (after 4.1/4.2): `GeometryCharacteristic%build_transform`
+    (unsupported unless both sides hold an `ESMF_Geom`); `step_kind` in
+    `Test_Scenarios.pf` learns geometry (and vertical, orientation);
+    chain + value checks; flip `regrid`, `regrid_r8`, and `propagate_geom`
+    if it passes (it has no regrid).
+  - C1-vertical-a / -b: same split. Fixed-levels and basic grids only;
+    a model grid (PLE/ZLE coordinate, legacy
+    `get_coordinate_field_with_coupler` through `StateRegistry%extend`)
+    reports unsupported, and coordinate-as-input-port is a later task.
+    Owner: the hardest coupling area, with many players; question the
+    owner's decisions and drive it from use cases. A stagger-only
+    mismatch on the same grid stays unsupported (legacy connects it with
+    `NullTransform`); edge-to-center will likely be needed eventually,
+    center-to-edge less so. Add an orientation-only scenario (shared
+    parent grid, downward export, upward import, profile check);
+    `vertical_alignment_same_grid` is really a grid mismatch and its
+    constant value cannot detect a flip.
+  - Open C3 design question (owner): with time-varying geometry, route
+    handles (and possibly regridders) may need to be graph nodes with
+    revisions; C1 keeps `RegridderManager` behind the Transform so that
+    change stays local.
+  - Doc drift to fix in C1: ARCHITECTURE.md ~294-296 (geometry mismatches
+    are reported unsupported, not `_FAIL`), scenario-parity.md M1/M2
+    (~53-60, ~147-160), comments at `GraphBuilder_Geometry_smod.F90`
+    ~421, ~497 and `Test_ExtensionResolution.pf:310` once
+    `build_transform` can succeed.
 - **Status:** not started
 
 **C3. Time-dependent geometry (reminder; prerequisite for A10's
@@ -1388,6 +1428,20 @@ it runs goes in a follow-up commit with the same trailer. Label
   `quantity_type_metadata=` returns a non-mirror `QUANTITY_UNKNOWN` for an
   absent key, while the Field version returns a mirror. Make them agree;
   check the bundle's conservation and normalization keys too.
+- Two geom-id counters (3.38 preflight; investigate, then fix if real):
+  item geom ids come from the module-level `GeomIdManager` (`GeomId.F90`,
+  used by `GeometrySpec` and `parse_var_specs`), while `GeomManager`
+  (`GeomManager.F90`, `add_mapl_geom.F90`) numbers geoms from a separate
+  counter. Equal numbers for different grids would make
+  `GeomAspect%matches` and the graph's id comparison report a false match.
+  Likely moot once `geom_id` is retired (Later, below).
+- C1 preflight findings with no owner: `VariableSpec%get_regrid_param`
+  (field-dictionary defaulting, `VariableSpec.F90` ~573-593) has no
+  caller; `VerticalGridAspect%regrid_method` is never set from a
+  `VariableSpec`; `VerticalGrid%get_coordinate_field` takes a legacy
+  `AspectMap` as `class(*)` (the vertical-grid API leaks the legacy
+  layer); `RouteHandleKey` and the graph route-handle role are unused
+  outside tests (and the key lacks typekind).
 - Not D3, recorded here (harness-comm-leak, `2d137acb3`):
   `pfunit/ESMF_TestCase.F90` creates one gridded component with its own
   VM per test and never destroys it, so every test leaks communicators.
@@ -1528,8 +1582,11 @@ it may author D1/A4/B5 with sonnet review.
 | B3 others | sonnet | sonnet (self-review) | one at a time, after B3-Units lands |
 | B4 | sonnet | opus | materialization regressions likely |
 | B5 | sonnet (haiku?) | sonnet if haiku | |
-| C1-geom | opus | sonnet | ESMF regrid/route handles; worktree; background author |
-| C1-vertical | opus | sonnet | after C1-geom; orientation reversal; worktree |
+| B3-GeomMirrorLegacy | sonnet | sonnet | tasks.md 3.39; after 3.38, before 3.27 |
+| C1-geom-a | opus | sonnet | Transform + isolated tests; worktree; background author |
+| C1-geom-b | opus | sonnet | wiring + scenarios; after B4 4.1/4.2 |
+| C1-vertical-a | opus | sonnet | after C1-geom-a; numerics duplication, orientation flip; worktree |
+| C1-vertical-b | opus | sonnet | after C1-vertical-a and B4 |
 | C2-geom-push | sonnet | opus | |
 | C2-alias-owner | sonnet | opus | |
 | C2-alias-nonfield | sonnet | opus | after C2-alias-owner |

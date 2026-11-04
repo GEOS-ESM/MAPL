@@ -515,7 +515,12 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       configuration surface for both: the validation mode for a mismatch,
       and a switch that makes a FIELD with no declared standard_name an
       error (or warning) at advertise, applied in both paths. Design-bearing
-      (opus author; owner settles the design).
+      (opus author; owner settles the design). Also settle here, in general
+      form (owner, 3.37 review): whether an UNSUPPORTED pair (legal, no
+      Transform built yet: basis-only QuantityType, geometry before C1,
+      a stagger-only mismatch) is fatal at freeze in strict mode once
+      legacy is off; proposed: warn by default, fail in strict mode.
+      Owner: concrete use cases decide what must be supported.
       From develop (#5443): a configurable option now suppresses the
       PERMISSIVE-mode standard_name warnings; the graph behavior must honor
       it too.
@@ -674,7 +679,10 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
         nothing.
       Tests: `Test_StatusResolution`, `Test_VariableSpecCharacteristics`
       QuantityType rows, a freeze test for each mode, and a scenario check
-      that the default mode changes no ESSENTIAL result. Update design
+      that the default mode changes no ESSENTIAL result. Also (owner, 3.37
+      review): a GraphBuilder-level test that a basis-only pair (same
+      quantity type, two real bases, declared with `quantity_type:`) is
+      listed as unsupported, not in `connection_conflicts`. Update design
       §5.1's QuantityType row and A24 to "landed". Strict as the default
       is a later change, once real configs comply (owner). Owner may tweak
       the rules after concrete use cases. Author opus (sonnet review).
@@ -717,6 +725,43 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       else-branch calls `aspects%at` and never inserts; add a test for an
       item that declares only a `geom_id`. Update rules-review.md §2.6/R16
       to "fixed". Author sonnet (sonnet review).
+      Preflight answers (owner):
+      - Shape of the fix (preflight proposal, accepted): `set_geom` /
+        `set_vertical_grid` stay unconditional (the aspect constructor,
+        `update_from_payload` and `ExpressionClassAspect` also call them);
+        a private "declared by the item" flag, set by `make_GeomAspect` /
+        `make_VerticalGridAspect` only when the `VariableSpec` has its own
+        geom / vertical grid, makes new component-path setters no-ops;
+        `StateItemSpec%set_geometry` uses those. A component geom still
+        replaces an earlier component geom.
+      - An item declaring only a `geom_id`: keep today's result (component
+        geom, item's id) and pin it with a test. Owner: `geom_id` next to
+        the geom was a mistake; graph nodes serve that purpose now. Do not
+        extend `geom_id` use (retirement is a Later item in the plan).
+      - `MAPL_GridCompSetGeometry` (explicit, one named item) still
+        replaces; item wins only against the component-wide push at
+        GEOM_A.
+      - Mirror requests (`geometry_mirror`, vertical-grid mirror) are out
+        of scope: task 3.39.
+      - Fix the swallowed `rc` in `StateItemSpec%set_geometry` (contained
+        `target_set_geom`, then `_RETURN(_SUCCESS)`); if latent failures
+        surface, stop and report.
+      - Fix the three other probe findings: delete `VerticalGridAspect`'s
+        dead `geom`/`typekind` arguments; `make_VerticalGridAspect` with no
+        vertical grid is MIRRORED, not FROM_COMP; the `set_geometry`
+        else-branch inserts the aspect.
+      - Pipeline trial (owner): tests first by a separate test author on a
+        different model family, a test review, then a sonnet implementer
+        that may not edit the tests, then the implementation review.
+- [ ] 3.39 B3-GeomMirrorLegacy (owner; after 3.38, before 3.27). Legacy
+      `make_GeomAspect` / `make_VerticalGridAspect` ignore `mirror_geom` /
+      `mirror_vgrid`, so the GEOM_A push gives a mirroring item the
+      component geom and it becomes SPECIFIED, while the graph keeps it
+      MIRRORED and adopts the exporter's geometry at connection. Make
+      legacy honor the mirror request: the component push skips mirroring
+      items, which take the exporter's geometry at connection. Affects
+      `statistics_real` and `history_1` (not ESSENTIAL); report their
+      results. Author sonnet (sonnet review).
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the
