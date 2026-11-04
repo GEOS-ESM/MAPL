@@ -153,6 +153,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `get_or_create_outer_meta` (`GenericGridComp.F90`) no longer leaves a
+  spurious `esmf_usercompgetinternalstate Failure` error in every
+  `PET*.ESMF_LogFile`. It probed for the outer meta with a labelled
+  `ESMF_InternalStateGet`, which ESMF logs as an error when the label is
+  absent (always the case for the cap gridcomp). It now checks the label
+  list first.
+
 - History collection imports now mirror the ungridded dimensions of the
   exports they are connected to, so fields with ungridded dimensions can be
   written by History.
