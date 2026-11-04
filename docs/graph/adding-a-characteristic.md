@@ -32,9 +32,9 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
      never connect calls `report_build_transform_incompatible(rc)`
      (also raises nothing; reported as a connection conflict). The test for
      the second: legacy rejects every mismatch of two non-mirror values and
-     no reachable case converts data (see CONVENTIONS.md; StandardName fails
-     the test and stays unsupported). Use `_FAIL`
-     only for genuine errors.
+     no reachable case converts data (see CONVENTIONS.md; StandardName and
+     QuantityType's basis-only mismatch fail the test and stay unsupported).
+     Use `_FAIL` only for genuine errors.
    - **No status logic in the subclass.** `needs_extension_for` compares
      values only; `StateItemDescriptor%resolve_pair` decides from the
      two statuses and calls it only when both sides are SPECIFIED.
@@ -589,9 +589,11 @@ value, writes only its own Info key, and has no Transform.
   three supply paths (next section).
 - Value wildcards are not status. QuantityType keeps the legacy rule "equal,
   or either side `QUANTITY_UNKNOWN`; and basis equal, or either side
-  `BASIS_NONE`" inside `needs_extension_for`. An undeclared quantity type is
-  SPECIFIED `QUANTITY_UNKNOWN`, not UNCHECKED. Conservation and Normalization
-  compare through the metadata types' own `operator(==)`.
+  `BASIS_NONE`" inside `needs_extension_for`; `build_transform` shares that
+  rule: a quantity-type mismatch is INCOMPATIBLE, a basis-only mismatch
+  UNSUPPORTED. An undeclared quantity type is SPECIFIED `QUANTITY_UNKNOWN`,
+  not UNCHECKED. Conservation and Normalization compare through the metadata
+  types' own `operator(==)`.
 - Never DEFERRED. QuantityType is never MIRRORED (it has no mirror spelling).
   Conservation and Normalization are MIRRORED when the metadata
   `is_mirror()`; the factory interprets it, the constructors do not.
@@ -612,7 +614,10 @@ value, writes only its own Info key, and has no Transform.
   reproduced.
 - Mismatch: `build_transform` calls `report_build_transform_incompatible`
   (B3-IncompatibleSweep), as do Attributes and UngriddedDims, so
-  `check_graph` needs no new step kind. Legacy check: the three
+  `check_graph` needs no new step kind. The one exception is QuantityType's
+  basis-only mismatch (same quantity type, two real bases), which calls
+  `report_build_transform_unsupported`: a conversion can exist. Legacy
+  check: the three
   aspects return true from `supports_conversion_general`, but
   `supports_conversion_specific` is true only for matching pairs (or a
   mirror), so a mismatch of two non-mirror values is rejected by

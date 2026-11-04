@@ -116,8 +116,10 @@ Info.
   general rule: legacy rejects every mismatch of two non-mirror values of
   that kind, and no reachable case converts data (so no Transform will ever
   exist). It applies to HorizontalDimsSpec (GEOM vs NONE), the pairs the
-  ItemShape matrix rejects, and Attributes, UngriddedDims, QuantityType,
-  Conservation and Normalization. A kind whose Transform is merely not
+  ItemShape matrix rejects, and Attributes, UngriddedDims, Conservation
+  and Normalization. QuantityType too, except a basis-only mismatch (same
+  quantity type, two real bases), which is unsupported because a
+  conversion can exist. A kind whose Transform is merely not
   built yet (Geometry, VerticalGrid, VerticalStagger, VerticalOrientation,
   ItemShape's VECTORBRACKET to VECTOR) stays unsupported. So does
   StandardName, because it fails the test: legacy permissive

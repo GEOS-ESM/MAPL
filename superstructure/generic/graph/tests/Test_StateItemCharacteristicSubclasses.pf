@@ -713,7 +713,8 @@ contains
 
    ! --- build_transform reports BUILD_TRANSFORM_INCOMPATIBLE for the five
    ! subclasses whose legacy aspect rejects every mismatch of two non-mirror
-   ! values and converts nothing, and BUILD_TRANSFORM_UNSUPPORTED for
+   ! values and converts nothing (QuantityType: all but a basis-only
+   ! mismatch, which is UNSUPPORTED), and BUILD_TRANSFORM_UNSUPPORTED for
    ! StandardName (legacy permissive mode connects a mismatch) ---
 
    @test
@@ -761,20 +762,106 @@ contains
       @assertFalse(allocated(transformer))
    end subroutine test_normalization_build_transform_reports_incompatible
 
+   ! A quantity-type mismatch can never connect.
    @test
-   subroutine test_quantity_type_build_transform_reports_incompatible()
+   subroutine test_quantity_type_mismatch_reports_incompatible()
       type(QuantityTypeCharacteristic) :: a, b
       class(TransformBase), allocatable :: transformer
       integer :: status
 
       a = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
-      b = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      b = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_WET_MASS)
 
+      status = BUILD_TRANSFORM_UNSUPPORTED
       call a%build_transform(b, transformer, rc=status)
 
       @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_quantity_type_build_transform_reports_incompatible
+   end subroutine test_quantity_type_mismatch_reports_incompatible
+
+   ! The quantity axis decides: a quantity mismatch is incompatible even
+   ! when the bases also differ.
+   @test
+   subroutine test_quantity_type_and_basis_mismatch_reports_incompatible()
+      type(QuantityTypeCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      b = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_DRY_MASS)
+
+      status = BUILD_TRANSFORM_UNSUPPORTED
+      call a%build_transform(b, transformer, rc=status)
+
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_quantity_type_and_basis_mismatch_reports_incompatible
+
+   ! Same quantity type, different real bases: a conversion is possible but
+   ! not built yet.
+   @test
+   subroutine test_quantity_type_basis_only_mismatch_reports_unsupported()
+      type(QuantityTypeCharacteristic) :: wet_mass, dry_mass
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      wet_mass = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, &
+           BASIS_WET_MASS)
+      dry_mass = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, &
+           BASIS_DRY_MASS)
+
+      status = BUILD_TRANSFORM_INCOMPATIBLE
+      call wet_mass%build_transform(dry_mass, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+
+      status = BUILD_TRANSFORM_INCOMPATIBLE
+      call dry_mass%build_transform(wet_mass, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_quantity_type_basis_only_mismatch_reports_unsupported
+
+   ! One rule for the quantity axis: QUANTITY_UNKNOWN matches a known type,
+   ! so two different real bases are still a basis-only mismatch.
+   @test
+   subroutine test_quantity_type_unknown_with_differing_bases_unsupported()
+      type(QuantityTypeCharacteristic) :: known, unknown
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      known = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      unknown = QuantityTypeCharacteristic(QUANTITY_UNKNOWN, BASIS_DRY_MASS)
+
+      @assertTrue(known%needs_extension_for(unknown))
+      @assertTrue(unknown%needs_extension_for(known))
+
+      status = BUILD_TRANSFORM_INCOMPATIBLE
+      call known%build_transform(unknown, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+
+      status = BUILD_TRANSFORM_INCOMPATIBLE
+      call unknown%build_transform(known, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_quantity_type_unknown_with_differing_bases_unsupported
+
+   ! BASIS_NONE on either side matches any basis, so these pairs need no
+   ! extension and never reach build_transform in production.
+   @test
+   subroutine test_quantity_type_basis_none_pairs_need_no_extension()
+      type(QuantityTypeCharacteristic) :: wet_mass, no_basis, unknown_none
+
+      wet_mass = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, &
+           BASIS_WET_MASS)
+      no_basis = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_NONE)
+      unknown_none = QuantityTypeCharacteristic(QUANTITY_UNKNOWN, BASIS_NONE)
+
+      @assertFalse(wet_mass%needs_extension_for(no_basis))
+      @assertFalse(no_basis%needs_extension_for(wet_mass))
+      @assertFalse(wet_mass%needs_extension_for(unknown_none))
+      @assertFalse(unknown_none%needs_extension_for(wet_mass))
+   end subroutine test_quantity_type_basis_none_pairs_need_no_extension
 
    @test
    subroutine test_standard_name_build_transform_reports_unsupported()

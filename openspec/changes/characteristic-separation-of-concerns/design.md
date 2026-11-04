@@ -571,7 +571,7 @@ error, A1). It replaces no existing keyword; legacy has none for these.
 | VerticalOrientation | `vertical_alignment` (`upward`/`downward`/`with_grid`) | Vertical index order relative to physical up/down (Q7). Unspecified or `with_grid`: the item's grid direction, resolved to UP/DOWN once the grid is known (factory for an item grid, `resolve_deferred` for the component grid), DEFERRED until then. Explicit mirror value: MIRRORED, imports only; takes the export's resolved order. A MIRROR stagger does not imply a mirrored orientation. No entry when VerticalGrid has none. |
 | UngriddedDims | `ungridded_dims` | `is_mirror()`: MIRRORED; else SPECIFIED |
 | Attributes | `attributes` | SPECIFIED, **always inserted, even if empty**. This fixes a parity bug: today an empty export set is omitted, so an import requiring attributes is never flagged, whereas legacy `includes([], required)` mismatches. |
-| QuantityType | `quantity_type` | SPECIFIED |
+| QuantityType | `quantity_type` | SPECIFIED. A quantity-type mismatch is `BUILD_TRANSFORM_INCOMPATIBLE`; a pair whose quantity types match (equal or either `QUANTITY_UNKNOWN`) and whose bases differ with neither `BASIS_NONE` is `BUILD_TRANSFORM_UNSUPPORTED` (a conversion is possible, not built yet; A23). |
 | Conservation | `conservation` | `is_mirror`: MIRRORED; else SPECIFIED |
 | Normalization | `normalization` | `is_mirror`: MIRRORED; else SPECIFIED |
 | RestartMode | `restart_mode` | allocated: SPECIFIED; else SPECIFIED `RESTART_REQUIRED` (A15). Never compared (§2.5). |
@@ -862,10 +862,13 @@ A23. `build_transform` has two failure outcomes. `BUILD_TRANSFORM_UNSUPPORTED`:
      `ValidationMode` (the export's name wins in effect: the import aliases
      the export's field, and standard_name is field-wide) and rejects them
      only in STRICT mode. Its graph behavior awaits a graph validation-mode
-     decision. Amendment (owner, not yet implemented; tasks.md 3.37): a
-     QuantityType pair that differs only in basis (same quantity type,
-     neither basis `BASIS_NONE`) is UNSUPPORTED, since a conversion can
-     exist; a quantity-type mismatch stays INCOMPATIBLE.
+     decision. Amendment (owner, landed; B3-QuantityBasisUnsupported): a
+     QuantityType pair whose quantity axis matches by the wildcard rule
+     (equal, or either side `QUANTITY_UNKNOWN`) and whose bases differ with
+     neither `BASIS_NONE` is UNSUPPORTED, since a conversion can exist; a
+     quantity-type mismatch stays INCOMPATIBLE, even if the bases also
+     differ. One rule shared with `needs_extension_for`, so `QUANTITY_UNKNOWN`
+     against a known type with two different real bases is also UNSUPPORTED.
 A24. Rules review (tasks.md 3.26, session 2026-11-02; record and owner's
      words in `docs/graph/rules-review.md` §4a; R<n> are its questions).
      - R1: no adopt-on-connect rule. A value wildcard (QUANTITY_UNKNOWN,

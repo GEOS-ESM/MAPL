@@ -11,9 +11,12 @@
 ! are value rules, not status: an undeclared quantity type is SPECIFIED
 ! QUANTITY_UNKNOWN. The kind is never MIRRORED.
 !
-! Legacy converts no mismatch of two non-mirror values (its NullTransform
-! is only reachable for a time-dependent aspect, which nothing sets):
-! build_transform reports incompatible. write_info writes only
+! A quantity-type mismatch can never connect (legacy converts nothing, its
+! NullTransform being reachable only for a time-dependent aspect, which
+! nothing sets): build_transform reports incompatible. A pair whose quantity
+! types match (by the rule above) and whose bases differ, neither being
+! BASIS_NONE, can be converted in principle: build_transform reports
+! unsupported until that conversion exists. write_info writes only
 ! quantity_type_metadata=, in either phase, for SPECIFIED entries.
 !
 ! A DEFERRED entry takes the quantity type and basis a component set on its
@@ -21,7 +24,8 @@
 !------------------------------------------------------------------------------
 module mapl_QuantityTypeCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
-   use mapl_StateItemCharacteristic_mod, only: report_build_transform_incompatible
+   use mapl_StateItemCharacteristic_mod, only: &
+        report_build_transform_incompatible, report_build_transform_unsupported
    use mapl_CharacteristicStatus_mod, only: &
         CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_DEFERRED, &
         operator(==)
@@ -63,6 +67,11 @@ module mapl_QuantityTypeCharacteristic_mod
       module procedure new_QuantityTypeCharacteristic
    end interface QuantityTypeCharacteristic
 
+   ! How an export value and an import value relate on the two axes.
+   integer, parameter :: PAIR_MATCH = 0
+   integer, parameter :: PAIR_BASIS_ONLY = 1
+   integer, parameter :: PAIR_QUANTITY_MISMATCH = 2
+
 contains
 
    function new_QuantityTypeCharacteristic(quantity_type, basis) result(characteristic)
@@ -86,21 +95,38 @@ contains
       class(QuantityTypeCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
 
-      logical :: quantity_matches, basis_matches
-
       select type (goal)
       class is (QuantityTypeCharacteristic)
-         quantity_matches = (this%quantity_type == goal%quantity_type) .or. &
-                             (this%quantity_type == QUANTITY_UNKNOWN) .or. &
-                             (goal%quantity_type == QUANTITY_UNKNOWN)
-         basis_matches = (this%basis == goal%basis) .or. &
-                          (this%basis == BASIS_NONE) .or. &
-                          (goal%basis == BASIS_NONE)
-         needs_extension = .not. (quantity_matches .and. basis_matches)
+         needs_extension = pair_outcome(this, goal) /= PAIR_MATCH
       class default
          error stop 'QuantityTypeCharacteristic: needs_extension_for called with a non-QuantityTypeCharacteristic goal - should be checked by calling procedure'
       end select
    end function quantity_type_needs_extension_for
+
+   ! The quantity axis wins: a quantity-type mismatch is reported even if the
+   ! bases also differ. Each axis matches when equal or either side is its
+   ! wildcard (QUANTITY_UNKNOWN, BASIS_NONE).
+   integer function pair_outcome(a, b) result(outcome)
+      type(QuantityTypeCharacteristic), intent(in) :: a
+      type(QuantityTypeCharacteristic), intent(in) :: b
+
+      logical :: quantity_matches, basis_matches
+
+      quantity_matches = (a%quantity_type == b%quantity_type) .or. &
+                          (a%quantity_type == QUANTITY_UNKNOWN) .or. &
+                          (b%quantity_type == QUANTITY_UNKNOWN)
+      basis_matches = (a%basis == b%basis) .or. &
+                       (a%basis == BASIS_NONE) .or. &
+                       (b%basis == BASIS_NONE)
+
+      if (.not. quantity_matches) then
+         outcome = PAIR_QUANTITY_MISMATCH
+      else if (.not. basis_matches) then
+         outcome = PAIR_BASIS_ONLY
+      else
+         outcome = PAIR_MATCH
+      end if
+   end function pair_outcome
 
    function get_quantity_type(this) result(quantity_type)
       class(QuantityTypeCharacteristic), intent(in) :: this
@@ -122,10 +148,16 @@ contains
       class(TransformBase), allocatable, intent(out) :: transformer
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(goal)
-
-      call report_build_transform_incompatible(rc)
+      select type (goal)
+      class is (QuantityTypeCharacteristic)
+         if (pair_outcome(this, goal) == PAIR_BASIS_ONLY) then
+            call report_build_transform_unsupported(rc)
+         else
+            call report_build_transform_incompatible(rc)
+         end if
+      class default
+         _FAIL('QuantityTypeCharacteristic: build_transform: goal is not a quantity type')
+      end select
    end subroutine quantity_type_build_transform
 
    ! Writes quantity_type_metadata= only (not a creation input, not a

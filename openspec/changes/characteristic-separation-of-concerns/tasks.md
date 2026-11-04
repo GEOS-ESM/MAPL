@@ -678,7 +678,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       §5.1's QuantityType row and A24 to "landed". Strict as the default
       is a later change, once real configs comply (owner). Owner may tweak
       the rules after concrete use cases. Author opus (sonnet review).
-- [ ] 3.37 B3-QuantityBasisUnsupported (owner; amends A23 for basis only;
+- [x] 3.37 B3-QuantityBasisUnsupported (owner; amends A23 for basis only;
       before 3.36). Today any QuantityType mismatch is
       `BUILD_TRANSFORM_INCOMPATIBLE` (`QuantityTypeCharacteristic.F90`
       `needs_extension_for` and `build_transform`). Change: two values
@@ -692,6 +692,17 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `QUANTITY_UNKNOWN` against a known type with two different real
       bases is also UNSUPPORTED (one rule with `needs_extension_for`).
       Author sonnet (sonnet review).
+      Done: `QuantityTypeCharacteristic` has one private `pair_outcome`
+      (match / basis-only / quantity mismatch) shared by
+      `needs_extension_for` and `build_transform`; the quantity axis wins,
+      so a quantity mismatch with differing bases stays INCOMPATIBLE. Tests
+      in `Test_StateItemCharacteristicSubclasses.pf` (both outcomes, both
+      directions, UNKNOWN + differing bases, BASIS_NONE pairs). Docs:
+      design §5.1 row and A23, ARCHITECTURE.md, adding-a-characteristic.md,
+      rules-review.md. No scenario or GraphBuilder test reaches
+      QuantityType (no scenario or builder test declares a quantity type);
+      the reporting path is kind-agnostic (UNSUPPORTED is logged as "no
+      registered extension provider ..." instead of "connection conflict").
 - [ ] 3.38 B3-GeomAItemWins (owner: legacy bug, item wins; after 3.37,
       before 3.27). Legacy fix for the overwrite 3.32 confirmed. At GEOM_A,
       an item that declares its own geom or vertical grid keeps it:

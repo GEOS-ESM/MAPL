@@ -636,7 +636,7 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName, B3-RestartMode, B3-QuantityType, B3-Conservation, B3-Normalization, B3-IncompatibleSweep, B3-InternalNoMirror, B3-ConnectionIntentCheck, B3-WildcardFieldOnly, B3-GeomAProbe and B3-QuantityTypeSuppliers done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName, B3-RestartMode, B3-QuantityType, B3-Conservation, B3-Normalization, B3-IncompatibleSweep, B3-InternalNoMirror, B3-ConnectionIntentCheck, B3-WildcardFieldOnly, B3-GeomAProbe, B3-QuantityTypeSuppliers and B3-QuantityBasisUnsupported done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
@@ -650,8 +650,18 @@ in the first one; later ones refine it.
   `Plan-Task: B3-Normalization`, `Plan-Task: B3-IncompatibleSweep`,
   `Plan-Task: B3-InternalNoMirror`, `Plan-Task: B3-ConnectionIntentCheck`,
   `Plan-Task: B3-WildcardFieldOnly`, `Plan-Task: B3-GeomAProbe`,
-  `Plan-Task: B3-QuantityTypeSuppliers`);
+  `Plan-Task: B3-QuantityTypeSuppliers`, `Plan-Task: B3-QuantityBasisUnsupported`);
   others not started.
+  B3-QuantityBasisUnsupported (tasks.md 3.37): done. `QuantityTypeCharacteristic%build_transform` reports
+  UNSUPPORTED for a basis-only mismatch and INCOMPATIBLE for a
+  quantity-type mismatch (also when the bases differ), through one
+  `pair_outcome` shared with `needs_extension_for`; `QUANTITY_UNKNOWN`
+  against a known type with two real bases is UNSUPPORTED. The old
+  INCOMPATIBLE test was replaced by five tests. No scenario or GraphBuilder
+  test reaches QuantityType; `build_chain` stops at the first failing kind
+  and the only reporting change is that a basis-only pair is logged as
+  "no registered extension provider" rather than "connection conflict" (and
+  is not a conflict entry). No deviations.
   B3-QuantityTypeSuppliers (tasks.md 3.35): done. YAML key `quantity_type:`
   (full QuantityType name, case-folded; unknown value is an error, checked in
   `parse_var_specs` because `QuantityType(name)` maps unknown to UNKNOWN);
