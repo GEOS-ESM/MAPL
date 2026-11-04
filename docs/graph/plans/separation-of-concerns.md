@@ -585,8 +585,7 @@ switch; tasks.md 3.27), and RulesReview's follow-ups (design.md A24):
 ShapeIntentRules (3.28: BRACKET/VECTORBRACKET never IMPORT, WILDCARD only
 IMPORT, in `intent_rule_violation`), ConnectionIntentCheck (3.29:
 SimpleConnection EXPORT -> IMPORT in `parse_connections`, re-export
-exempt), WildcardFieldOnly (3.30), OneExportPerImport (3.31: second
-connection to an import is an error, after a config grep), GeomAProbe
+exempt), WildcardFieldOnly (3.30), OneExportPerImport (3.31: dropped), GeomAProbe
 (3.32: probe legacy GEOM_A overwrite of item geometry), InternalReexport
 (3.33: graph export port for an INTERNAL re-export), FillValue (3.34:
 fill from the owning spec at materialization; legacy log text fix),
@@ -605,9 +604,7 @@ item geometry wins) followed 3.37; 3.39 (mirror requests honored) was
 dropped with the no-legacy-fixes rule; 3.36 runs right after
 3.27 because its strict/default switch should share 3.27's configuration
 surface, and after 3.35 because the owner wants suppliers before the
-freeze rule; 3.31 runs after 3.27 and before 3.12/3.23 because
-those three all change connection resolution and 3.31's config grep may
-need an owner answer; 3.33 needs B4's ports and materialization; 3.34
+freeze rule; 3.31 was dropped (owner); 3.33 needs B4's ports and materialization; 3.34
 belongs with B4's materialization (4.2), though its legacy log-text fix
 may land earlier on its own.
 - Later cleanup, not a current task (owner): one "Declared by" keyword per
@@ -1654,7 +1651,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-ShapeIntentRules | haiku | sonnet | tasks.md 3.28; two rules in `intent_rule_violation` |
 | B3-ConnectionIntentCheck | haiku | sonnet | tasks.md 3.29; parser assert, re-export exempt |
 | B3-WildcardFieldOnly | sonnet | sonnet | tasks.md 3.30; filter in `resolve_wildcard_destination` |
-| B3-OneExportPerImport | sonnet | sonnet | tasks.md 3.31; config grep first, report before code |
+| B3-OneExportPerImport | - | - | tasks.md 3.31; dropped |
 | B3-GeomAProbe | sonnet | - | tasks.md 3.32; probe test only, report |
 | B3-InternalReexport | sonnet | opus | tasks.md 3.33; after B4 |
 | B3-FillValue | sonnet | sonnet | tasks.md 3.34; with or after 4.2 |

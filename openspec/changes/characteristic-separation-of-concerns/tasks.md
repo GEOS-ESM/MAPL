@@ -54,7 +54,7 @@ the commit message. A new `get_item_<kind>` getter is acceptable only
 if materialization needs the value before B4; add it to 4.2's list.
 
 Remaining order (owner): 3.29, 3.30, 3.32, 3.35, 3.37, 3.27, 3.36,
-3.31, 3.12, 3.23, 3.14 (3.12/3.23: Q2, Q3 answered; 3.24 later; 3.27
+3.12, 3.23, 3.14 (3.31 and 3.39 dropped; 3.12/3.23: Q2, Q3 answered; 3.24 later; 3.27
 before B4; 3.36 after 3.27, whose switch it shares, and after 3.37;
 3.34 with or after 4.2; 3.33 after B4).
 3.7, 3.10, 3.11, 3.13, 3.20, 3.21, 3.22 and 3.28 are done.
@@ -565,7 +565,9 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       non-Field match (`WildcardClassAspect.F90:84-95`); legacy is not
       changed here. Test with a Wildcard whose regex matches a field and a
       bundle; check `history_wildcard` is unchanged. Author sonnet.
-- [ ] 3.31 B3-OneExportPerImport (3.26 R8: owner chose (a); after 3.27,
+- [x] 3.31 B3-OneExportPerImport: DROPPED (owner, 2026-11-04, with the
+      no-legacy-fixes rule). The graph keeps its silent "first wins" skip.
+      Original text kept for reference. (3.26 R8: owner chose (a); after 3.27,
       before 3.12/3.23, which change the same connection-resolution
       code). First grep real configs (`tests/scenarios`, and any GEOS
       configurations the owner points to) for two connections to one

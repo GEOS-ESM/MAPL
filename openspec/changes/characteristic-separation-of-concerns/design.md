@@ -910,7 +910,8 @@ A24. Rules review (tasks.md 3.26, session 2026-11-02; record and owner's
      - R6: a Wildcard import's members are FIELD exports only, relaxed if
        reasonable use cases appear (§4.3; tasks.md 3.30).
      - R8: a second connection to one import is an error in both paths,
-       Wildcard exempt, after a config grep (tasks.md 3.31).
+       Wildcard exempt, after a config grep (tasks.md 3.31). Dropped
+       (owner, 2026-11-04): first connection still wins silently.
      - R10: a SimpleConnection is EXPORT -> IMPORT, checked in
        `parse_connections`; a ReexportConnection is exempt (tasks.md 3.29).
      - R11: an INTERNAL re-export gets a graph export port, after B4
