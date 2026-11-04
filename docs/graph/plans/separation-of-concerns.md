@@ -67,6 +67,14 @@ Preferences stated in discussion, not obvious from the rest of the plan:
   external client code builds and passes its tests in graph mode.
   Graph-only capability (C1, B3-InternalReexport, ...) proceeds now;
   switching legacy off is a separate later step gated on (a) and (b).
+- No legacy-behavior fixes (owner, 2026-11-04; 3.38 was the last). A
+  task that finds legacy behaving differently from the graph design
+  follows the design and adds a row to "Legacy and graph behavior
+  differences" in `docs/graph/scenario-parity.md` (item, legacy, graph,
+  task). It asks the owner (dashboard, 🟡, continuing on the graph side)
+  only when the design is silent on the case or the legacy behavior looks
+  deliberate and client code may depend on it. The weekly report lists
+  new rows. The table is the checklist for switching legacy off.
 - No `CHANGELOG.md` entries per task: one entry when the graph work is
   complete, pointing at the documentation.
 - Fix-as-needed beats speculative completeness (e.g. `MAPL_StateSet` is
@@ -592,9 +600,9 @@ tasks.md §3 header. Placement: 3.28, 3.29, 3.30, 3.32, 3.35 and 3.37 are
 small, independent of 3.27, and touch code 3.27 does not (intent rules,
 parser, wildcard membership, a legacy probe, QuantityType suppliers and
 basis outcome), so
-they run first while 3.27's design is settled; 3.38 and 3.39 (legacy
-GEOM_A fixes: item geometry wins, mirror requests honored) follow 3.37,
-also before 3.27; 3.36 runs right after
+they run first while 3.27's design is settled; 3.38 (legacy GEOM_A fix:
+item geometry wins) followed 3.37; 3.39 (mirror requests honored) was
+dropped with the no-legacy-fixes rule; 3.36 runs right after
 3.27 because its strict/default switch should share 3.27's configuration
 surface, and after 3.35 because the owner wants suppliers before the
 freeze rule; 3.31 runs after 3.27 and before 3.12/3.23 because
@@ -746,14 +754,14 @@ in the first one; later ones refine it.
   in `BasicVerticalGrid%get_coordinate_field`. Owner-confirmed
   2026-11-04; it uses `is_none()`, not the wildcard `==`; revert by deleting the stagger-NONE branch in
   `make_VerticalGridAspect` and teaching that check to treat a NONE-stagger
-  mirror as resolved (3.39 revisits it). (2) `make_VerticalGridAspect` lost its `component_geom`
+  mirror as resolved. (2) `make_VerticalGridAspect` lost its `component_geom`
   / `component_geom_id` arguments (they only fed FROM_COMP and the dead
   `geom` argument).
-  For 3.39: stale comment `ExpressionClassAspect.F90:395-400` ("component
-  vertical grid unconditionally overwrites every item's VerticalGridAspect");
-  the stagger-NONE rule above; `mirror_vgrid` (and `mirror_geom`) are still
-  ignored by `make_VerticalGridAspect` / `make_GeomAspect`. Later:
-  design.md ~1028 still says the component grid overwrites every item.
+  Left over (3.39 dropped): stale comment `ExpressionClassAspect.F90:395-400`
+  ("component vertical grid unconditionally overwrites every item's
+  VerticalGridAspect"), for A4/D3; `mirror_vgrid` (and `mirror_geom`) stay
+  ignored by legacy (recorded in `scenario-parity.md`). Later: design.md
+  ~1028 still says the component grid overwrites every item.
   Non-ESSENTIAL check on NAG (`MAPL.generic.scenarios.pending` with
   `MAPL_SCENARIO_ONLY=statistics_real` / `history_1`): 22 failures each (11
   checks x graph and both modes), all in GraphBuilder ("materialization
@@ -1657,7 +1665,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3 others | sonnet | sonnet (self-review) | one at a time, after B3-Units lands |
 | B4 | sonnet | opus | materialization regressions likely |
 | B5 | sonnet (haiku?) | sonnet if haiku | |
-| B3-GeomMirrorLegacy | sonnet | sonnet | tasks.md 3.39; after 3.38, before 3.27 |
+| B3-GeomMirrorLegacy | - | - | tasks.md 3.39; dropped (no legacy fixes) |
 | C1-geom-a | opus | sonnet | Transform + isolated tests; worktree; background author |
 | C1-geom-b | opus | sonnet | wiring + scenarios; after B4 4.1/4.2 |
 | C1-vertical-a | opus | sonnet | after C1-geom-a; numerics duplication, orientation flip; worktree |
@@ -1768,7 +1776,8 @@ on (these take precedence over the plan's summary).
 Scope: <optional narrowing / extra constraints>.
 
 Done means:
-- ctest -L ESSENTIAL green on NAG and gfortran
+- ctest -L ESSENTIAL green on NAG and gfortran (while iterating, build
+  and run only the affected targets on NAG; ESSENTIAL once at the end)
 - this task's Status line in the plan updated (done/partial, deviations)
 - any doc your task owns created/updated
 - NOT committed or staged: changes left in the working tree (new

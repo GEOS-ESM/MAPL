@@ -758,7 +758,10 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       it; owner-confirmed 2026-11-04; revertible: drop the `is_none()` branch
       in `make_VerticalGridAspect`; 3.39 revisits it). `make_VerticalGridAspect` lost its
       `component_geom` / `component_geom_id` arguments.
-- [ ] 3.39 B3-GeomMirrorLegacy (owner; after 3.38, before 3.27). Legacy
+- [x] 3.39 B3-GeomMirrorLegacy: DROPPED (owner, 2026-11-04: no more
+      legacy-behavior fixes; the difference is recorded in
+      `docs/graph/scenario-parity.md`, "Legacy and graph behavior
+      differences"). Original text kept for reference. Legacy
       `make_GeomAspect` / `make_VerticalGridAspect` ignore `mirror_geom` /
       `mirror_vgrid`, so the GEOM_A push gives a mirroring item the
       component geom and it becomes SPECIFIED, while the graph keeps it

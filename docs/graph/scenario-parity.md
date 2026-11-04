@@ -208,3 +208,16 @@ For the geometry/vertical family (`regrid*`, `propagate_geom`,
 items carry no item-level `GeometryCharacteristic`. They stay
 `graph_ready = .false.` so C1 (geometry/regrid `Transform`) has a flag to
 flip.
+
+## Legacy and graph behavior differences
+
+Cases where legacy behaves differently from the graph design and legacy is
+deliberately left alone (no legacy-behavior fixes; see the plan's "Working
+with the owner"). Tasks add a row when they find one. This table is the
+checklist for switching legacy off.
+
+| Item | Legacy | Graph | Found by |
+|------|--------|-------|----------|
+| `geometry_mirror` / `vertical_grid_mirror` on an item, at the GEOM_A push | `make_GeomAspect` / `make_VerticalGridAspect` ignore the request; the component geom / vertical grid is pushed and the aspect becomes SPECIFIED, so a connection to an export on another grid regrids | item stays MIRRORED and adopts the exporter's geometry at connection (no regrid) | 3.39 (dropped) |
+| EXPRESSION export with no geometry and no mirror flag, at the GEOM_A push | gets the component geom / vertical grid (SPECIFIED) | stays MIRRORED (design §5) | 3.39 preflight; revisit with 3.12/3.23 |
+| `long_name` undeclared on an export or internal | none; an import inherits the export's in `connect_to_export` | falls back to the field dictionary, then the StandardName (deliberate, A8) | 3.13 |
