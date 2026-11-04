@@ -612,6 +612,15 @@ may land earlier on its own.
   `GeomAspect`, `VariableSpec`). Storing an id next to the geom duplicates
   the geometry; graph nodes now serve that purpose. Until legacy can be
   switched off, no new code extends `geom_id` use.
+- Later, not scheduled (owner, 2026-11-04): give a MAPL geom id to a geom
+  that arrives from outside MAPL (no `mapl/geom/id`) when it is first
+  seen, e.g. by registering it with the geom manager (use case: NUOPC+MAPL
+  hybrid systems). Then relax `HorizontalRegridTransform`'s no-id failure.
+- Later, not urgent (owner, 2026-11-04): `TypeKindConverterTransform`
+  handles only R4 <-> R8. Add I4 and I8 -> R4/R8 (not R -> I), and make
+  `TypeKindCharacteristic%build_transform` offer it for those pairs. First
+  check what legacy `CopyTransform` / `TypeKindAspect` do for integer
+  exports.
 - Moved (owner): this item goes to the first phase of the planned
   callback-physics openspec change (not yet created); kept here as a
   pointer until that change exists. For consideration: an
@@ -1340,7 +1349,8 @@ ready means today" in `scenario-parity.md`). May be split into
     (unsupported unless both sides hold an `ESMF_Geom`); `step_kind` in
     `Test_Scenarios.pf` learns geometry (and vertical, orientation);
     chain + value checks; flip `regrid`, `regrid_r8`, and `propagate_geom`
-    if it passes (it has no regrid).
+    if it passes (it has no regrid). Decide whether "both sides declare a
+    regridder param" stays a `_FAIL` (as legacy) or becomes INCOMPATIBLE.
   - C1-vertical-a / -b: same split. Fixed-levels and basic grids only;
     a model grid (PLE/ZLE coordinate, legacy
     `get_coordinate_field_with_coupler` through `StateRegistry%extend`)
@@ -1356,13 +1366,34 @@ ready means today" in `scenario-parity.md`). May be split into
   - Open C3 design question (owner): with time-varying geometry, route
     handles (and possibly regridders) may need to be graph nodes with
     revisions; C1 keeps `RegridderManager` behind the Transform so that
-    change stays local.
+    change stays local. Owner (2026-11-04): ultimately the Transform's
+    same-geom test (today the MAPL geom id) should use the geometry
+    node's identity and revision.
   - Doc drift to fix in C1: ARCHITECTURE.md ~294-296 (geometry mismatches
     are reported unsupported, not `_FAIL`), scenario-parity.md M1/M2
     (~53-60, ~147-160), comments at `GraphBuilder_Geometry_smod.F90`
     ~421, ~497 and `Test_ExtensionResolution.pf:310` once
     `build_transform` can succeed.
-- **Status:** not started
+- **Status:** C1-geom-a done. `HorizontalRegridTransform`
+  (graph/transforms/, field only) looks up its regridder in
+  `RegridderManager` lazily at the first `compute` and again when a
+  bound field's geom (by MAPL geom id) or typekind changes (legacy
+  `update_transform` checks only geoms, by ESMF alias).
+  `GeometryCharacteristic` has `get/has_regridder_param` and
+  `select_regridder_param(goal)` (legacy both-sides rule; both
+  declaring one is a `_FAIL`, as legacy). Isolated tests:
+  `Test_HorizontalRegridTransform.pf`, `Test_GeometryRegridderParam.pf`.
+  Integrated normalization is not duplicated. The Transform requires
+  geom-manager geoms (a MAPL geom id on both fields; compute fails
+  otherwise), which C1-geom-b's chain links must use. Left for
+  C1-geom-b: build the Transform in `build_transform` (calling
+  `select_regridder_param`), wiring, scenario flips, remaining doc drift
+  (scenario-parity.md M1/M2, `GraphBuilder_Geometry_smod.F90` ~421/~497,
+  `Test_ExtensionResolution.pf:310`, `adding-a-characteristic.md` ~344).
+  Owner kept the typekind refetch (rare, e.g. ExtData collections of one
+  variable in two precisions, but correctness matters), the geom-id
+  comparison and the no-id failure (2026-11-04).
+  C1-geom-b, C1-vertical-a/-b: not started.
 
 **C3. Time-dependent geometry (reminder; prerequisite for A10's
 epoch-dependent ExtData exports and moving nested grids).** Today nothing
@@ -1482,6 +1513,10 @@ it runs goes in a follow-up commit with the same trailer. Label
   `AspectMap` as `class(*)` (the vertical-grid API leaks the legacy
   layer); `RouteHandleKey` and the graph route-handle role are unused
   outside tests (and the key lacks typekind).
+- `RegridderManager%get_regridder` (`infrastructure/regridder_mgr/
+  RegridderManager.F90` ~103-137) returns a pointer into a gFTL vector that
+  a later `push_back` may move (C1-geom-a review; legacy has the same
+  pattern; unverified).
 - Not D3, recorded here (harness-comm-leak, `2d137acb3`):
   `pfunit/ESMF_TestCase.F90` creates one gridded component with its own
   VM per test and never destroys it, so every test leaks communicators.
