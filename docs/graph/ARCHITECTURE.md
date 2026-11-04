@@ -119,7 +119,7 @@ factories (so far units, typekind, ungridded dims, geometry, vertical grid, vert
 | `HorizontalDimsSpec` | `HORIZONTAL_DIMS_SPEC_…` | Incompatible — GEOM vs NONE is detected in both directions and can never connect |
 | `Attributes`, `UngriddedDims`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | Incompatible — legacy rejects every mismatch of two non-mirror values, so a detected mismatch can never connect |
 | `QuantityType` | `QUANTITY_TYPE_CHARACTERISTIC_KIND` | Incompatible for a quantity-type mismatch; unsupported when only the basis differs (both real bases, quantity axis matching by the wildcard rule): a conversion is possible but not built |
-| `StandardName` | `STANDARD_NAME_…` | Unsupported — legacy connects a mismatch with a warning in the default PERMISSIVE `ValidationMode` (the export's name wins) and rejects it only in STRICT mode; waits on B3-StandardNameValidation (tasks.md 3.27) |
+| `StandardName` | `STANDARD_NAME_…` | By validation mode (`ValidationPolicy.F90`, design A25): strict, incompatible; permissive (default), a match with a connection warning (`match_warning`), the export's name wins. FIELD and BRACKET carry it |
 | `LongName` | `LONG_NAME_…` | Never compared (`needs_extension_for` is always false); `build_transform` is the unsupported stub |
 | `RestartMode` | `RESTART_MODE_…` | Never compared; `build_transform` is the unsupported stub. FIELD only; per-alias |
 

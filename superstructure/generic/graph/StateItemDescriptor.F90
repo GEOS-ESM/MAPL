@@ -26,6 +26,7 @@ module mapl_StateItemDescriptor_mod
         ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION
+   use gFTL2_StringVector, only: StringVector
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -214,7 +215,9 @@ contains
    ! A kind that must wait (a DEFERRED side) sets `waiting`; a caller that
    ! does not pass `waiting` gets a conflict instead, since it cannot retry.
    ! `mismatched` is in extension order (order_mismatched).
-   subroutine resolve_characteristics(export_map, import_map, export_item_type, mismatched, adopted, conflict, rc, waiting)
+   ! `warnings` collects each matched pair's match_warning text.
+   subroutine resolve_characteristics(export_map, import_map, export_item_type, mismatched, adopted, conflict, rc, &
+        waiting, warnings)
       type(StateItemCharacteristicMap), target, intent(in) :: export_map
       type(StateItemCharacteristicMap), target, intent(in) :: import_map
       type(ESMF_StateItem_Flag), intent(in) :: export_item_type
@@ -223,12 +226,14 @@ contains
       character(:), allocatable, intent(out) :: conflict
       integer, optional, intent(out) :: rc
       logical, optional, intent(out) :: waiting
+      type(StringVector), optional, intent(out) :: warnings
 
       type(StateItemCharacteristicMapIterator) :: iter
       type(StateItemCharacteristicKind) :: kind
       class(StateItemCharacteristic), pointer :: export_c, import_c
       type(CharacteristicStatus) :: export_status, import_status
       integer :: status
+      character(:), allocatable :: warning
 
       allocate(mismatched(0), adopted(0))
       conflict = ''
@@ -245,6 +250,10 @@ contains
             import_c => import_map%at(kind, rc=status)
             select case (resolve_pair(export_c, import_c, export_item_type))
             case (PAIR_MATCH)
+               if (present(warnings)) then
+                  warning = export_c%match_warning(import_c)
+                  if (warning /= '') call warnings%push_back(warning)
+               end if
             case (PAIR_EXTEND)
                mismatched = [mismatched, kind]
             case (PAIR_ADOPT)
@@ -378,20 +387,21 @@ contains
    ! Descriptor form of resolve_characteristics: uses the export's declared
    ! item type for the allowlist and records each adoption on the import.
    ! The export is never modified.
-   subroutine resolve_descriptors(export, import, mismatched, conflict, rc, waiting)
+   subroutine resolve_descriptors(export, import, mismatched, conflict, rc, waiting, warnings)
       type(StateItemDescriptor), intent(in) :: export
       type(StateItemDescriptor), intent(inout) :: import
       type(StateItemCharacteristicKind), allocatable, intent(out) :: mismatched(:)
       character(:), allocatable, intent(out) :: conflict
       integer, optional, intent(out) :: rc
       logical, optional, intent(out) :: waiting
+      type(StringVector), optional, intent(out) :: warnings
 
       integer :: status, i
       type(StateItemCharacteristicKind), allocatable :: adopted(:)
       class(StateItemCharacteristic), allocatable :: source
 
       call resolve_characteristics(export%characteristics, import%characteristics, export%declared_item_type, &
-           mismatched, adopted, conflict, rc=status, waiting=waiting)
+           mismatched, adopted, conflict, rc=status, waiting=waiting, warnings=warnings)
       _VERIFY(status)
       _RETURN_UNLESS(conflict == '')
       if (present(waiting)) then

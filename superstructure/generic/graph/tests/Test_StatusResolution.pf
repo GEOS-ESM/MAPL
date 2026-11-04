@@ -33,6 +33,9 @@ module Test_StatusResolution
    use mapl_NormalizationType_mod, only: NORMALIZE_DELP, NORMALIZE_DZ
    use gFTL2_StringVector, only: StringVector
    use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_EXPRESSION
+   use ESMF, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, set_field_dictionary_config, &
+        get_field_dictionary_config
    use funit
    implicit none
 
@@ -406,21 +409,62 @@ contains
       @assertTrue(waiting)
    end subroutine test_map_form_without_waiting_reports_conflict
 
-   ! The standard-name comparison has no status check of its own: the table does it.
+   ! The standard-name comparison has no status check of its own: the table
+   ! does it. Two different names extend only in strict validation mode.
    @test
    subroutine test_standard_name_unchecked_matches_and_specified_compares()
       type(StandardNameCharacteristic) :: a, b, unchecked
+      type(FieldDictionaryConfig) :: saved
 
       a = StandardNameCharacteristic('air_temperature')
       b = StandardNameCharacteristic('surface_pressure')
       unchecked = StandardNameCharacteristic('ignored')
       call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      saved = get_field_dictionary_config()
+      call use_validation('{validation_mode: strict}')
 
       @assertEqual(PAIR_MATCH, resolve_pair(a, unchecked, MAPL_STATEITEM_FIELD))
       @assertEqual(PAIR_MATCH, resolve_pair(unchecked, b, MAPL_STATEITEM_FIELD))
       @assertEqual(PAIR_EXTEND, resolve_pair(a, b, MAPL_STATEITEM_FIELD))
       @assertEqual(PAIR_MATCH, resolve_pair(a, a, MAPL_STATEITEM_FIELD))
+
+      call use_validation('{validation_mode: permissive}')
+      @assertEqual(PAIR_MATCH, resolve_pair(a, b, MAPL_STATEITEM_FIELD))
+
+      call set_field_dictionary_config(saved)
    end subroutine test_standard_name_unchecked_matches_and_specified_compares
+
+   ! A matched pair's match_warning text is collected; a pair that extends
+   ! (strict mode) contributes none.
+   @test
+   subroutine test_map_form_collects_match_warnings()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:), adopted(:)
+      character(:), allocatable :: conflict
+      type(StringVector) :: warnings
+      type(FieldDictionaryConfig) :: saved
+      integer :: status
+
+      call export_map%insert(STANDARD_NAME_CHARACTERISTIC_KIND, StandardNameCharacteristic('air_temperature'))
+      call import_map%insert(STANDARD_NAME_CHARACTERISTIC_KIND, StandardNameCharacteristic('surface_pressure'))
+      saved = get_field_dictionary_config()
+
+      call use_validation('{validation_mode: permissive}')
+      call resolve_characteristics(export_map, import_map, MAPL_STATEITEM_FIELD, mismatched, adopted, conflict, &
+           rc=status, warnings=warnings)
+      @assertEqual(0, status)
+      @assertEqual(0, size(mismatched))
+      @assertEqual(1, int(warnings%size()))
+
+      call use_validation('{validation_mode: strict}')
+      call resolve_characteristics(export_map, import_map, MAPL_STATEITEM_FIELD, mismatched, adopted, conflict, &
+           rc=status, warnings=warnings)
+      @assertEqual(0, status)
+      @assertEqual(1, size(mismatched))
+      @assertEqual(0, int(warnings%size()))
+
+      call set_field_dictionary_config(saved)
+   end subroutine test_map_form_collects_match_warnings
 
    ! The export is the provides side: an empty export set does not satisfy an
    ! import that requires an attribute, and a superset does.
@@ -498,5 +542,14 @@ contains
 
       call c%set_status(status)
    end function typekind_with_status
+
+   subroutine use_validation(content)
+      character(*), intent(in) :: content
+      type(ESMF_HConfig) :: node
+
+      node = ESMF_HConfigCreate(content=content)
+      call set_field_dictionary_config(FieldDictionaryConfig(node))
+      call ESMF_HConfigDestroy(node)
+   end subroutine use_validation
 
 end module Test_StatusResolution

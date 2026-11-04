@@ -62,6 +62,9 @@ module Test_VariableSpecCharacteristics
         VERTICAL_STAGGER_MIRROR, VERTICAL_STAGGER_INVALID
    use esmf, only: ESMF_StateItem_Flag, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_INTERNAL, ESMF_StateIntent_Flag, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_I4
    use esmf, only: operator(==)
+   use esmf, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, set_field_dictionary_config, &
+        get_field_dictionary_config
    use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateDestroy
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_DESCRIPTIVE
@@ -345,6 +348,99 @@ contains
       @assertTrue(standard_name_status(var_spec, standard_name, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
       @assertEqual(0, status)
    end subroutine test_mirror_standard_name_on_import_is_mirrored
+
+   ! A BRACKET carries a standard name too, so a BRACKET -> FIELD pair
+   ! compares names.
+   @test
+   subroutine test_bracket_standard_name_is_specified()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: standard_name
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_BRACKET)
+      var_spec%standard_name = 'air_temperature'
+      @assertTrue(standard_name_status(var_spec, standard_name, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertEqual('air_temperature', standard_name)
+
+      @assertTrue(standard_name_status(make_spec(MAPL_STATEITEM_BRACKET), standard_name, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+   end subroutine test_bracket_standard_name_is_specified
+
+   ! require_standard_name: a FIELD with no standard_name is an error in
+   ! strict mode.
+   @test
+   subroutine test_required_standard_name_missing_fails_when_strict()
+      type(VariableSpec) :: var_spec
+      type(FieldDictionaryConfig) :: saved
+      integer :: status
+
+      saved = get_field_dictionary_config()
+      call use_validation('{validation_mode: strict, require_standard_name: true}')
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', rc=status)
+      call set_field_dictionary_config(saved)
+      @assertExceptionRaised('standard_name required: FIELD "X" declares none (strict mode).')
+      @assertExceptionRaised('status=1')
+   end subroutine test_required_standard_name_missing_fails_when_strict
+
+   @test
+   subroutine test_required_standard_name_unknown_fails_when_strict()
+      type(VariableSpec) :: var_spec
+      type(FieldDictionaryConfig) :: saved
+      integer :: status
+
+      saved = get_field_dictionary_config()
+      call use_validation('{validation_mode: strict, require_standard_name: true}')
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', standard_name=UNKNOWN_STANDARD_NAME, &
+           rc=status)
+      call set_field_dictionary_config(saved)
+      @assertExceptionRaised('standard_name required: FIELD "X" declares none (strict mode).')
+      @assertExceptionRaised('status=1')
+   end subroutine test_required_standard_name_unknown_fails_when_strict
+
+   ! A mirror request counts as declared, and only a FIELD is checked.
+   @test
+   subroutine test_required_standard_name_accepts_mirror_and_other_shapes()
+      type(VariableSpec) :: var_spec
+      type(FieldDictionaryConfig) :: saved
+      integer :: status
+
+      saved = get_field_dictionary_config()
+      call use_validation('{validation_mode: strict, require_standard_name: true}')
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', standard_name=MAPL_STRING_MIRROR, &
+           rc=status)
+      @assertEqual(0, status)
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', itemtype=MAPL_STATEITEM_FIELDBUNDLE, &
+           rc=status)
+      @assertEqual(0, status)
+      call set_field_dictionary_config(saved)
+   end subroutine test_required_standard_name_accepts_mirror_and_other_shapes
+
+   ! Permissive mode warns instead; with the switch off nothing is checked.
+   @test
+   subroutine test_required_standard_name_missing_warns_when_permissive()
+      type(VariableSpec) :: var_spec
+      type(FieldDictionaryConfig) :: saved
+      integer :: status
+
+      saved = get_field_dictionary_config()
+      call use_validation('{validation_mode: permissive, require_standard_name: true}')
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', rc=status)
+      @assertEqual(0, status)
+      call use_validation('{validation_mode: strict}')
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', rc=status)
+      @assertEqual(0, status)
+      call set_field_dictionary_config(saved)
+   end subroutine test_required_standard_name_missing_warns_when_permissive
+
+   subroutine use_validation(content)
+      character(*), intent(in) :: content
+      type(ESMF_HConfig) :: node
+
+      node = ESMF_HConfigCreate(content=content)
+      call set_field_dictionary_config(FieldDictionaryConfig(node))
+      call ESMF_HConfigDestroy(node)
+   end subroutine use_validation
 
    @test
    subroutine test_mirror_standard_name_on_export_is_an_error()
@@ -994,12 +1090,12 @@ contains
 
    @test
    subroutine test_shapes_without_standard_name_get_no_entry()
-      type(ESMF_StateItem_Flag) :: shapes(11)
+      type(ESMF_StateItem_Flag) :: shapes(10)
       type(StateItemDescriptor) :: descriptor, empty_descriptor
       type(VariableSpec) :: var_spec
       integer :: i, status
 
-      shapes = [MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, &
+      shapes = [MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, &
            MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_EXPRESSION, &
            MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD, &
            MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
@@ -1011,8 +1107,8 @@ contains
          @assertEqual(0, status)
          @assertFalse(descriptor%has_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND))
          var_spec%standard_name_mirror = .true.
-         ! A bracket is never an import, so it has no import half; an EXPRESSION exists only as an export.
-         if (shapes(i) == MAPL_STATEITEM_BRACKET .or. shapes(i) == MAPL_STATEITEM_VECTORBRACKET) cycle
+         ! A vector bracket is never an import, so it has no import half; an EXPRESSION exists only as an export.
+         if (shapes(i) == MAPL_STATEITEM_VECTORBRACKET) cycle
          if (.not. (shapes(i) == MAPL_STATEITEM_EXPRESSION)) var_spec%state_intent = ESMF_STATEINTENT_IMPORT
          call var_spec%make_characteristics(descriptor, rc=status)
          @assertEqual(0, status)

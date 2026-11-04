@@ -5,8 +5,8 @@
 !
 ! build_transform/get_signature coverage - incompatible for five of the six
 ! subclasses with no Transform (Attributes, UngriddedDims, QuantityType,
-! Conservation, Normalization), unsupported for StandardName (legacy
-! permissive mode connects a mismatch), and the four real, moved
+! Conservation, Normalization), incompatible for StandardName in strict
+! validation mode (permissive mode tolerates a mismatch), and the four real, moved
 ! implementations (PhysicalUnitsCharacteristic/TypeKindCharacteristic/
 ! VerticalGridCharacteristic/GeometryCharacteristic) producing the
 ! same outcomes Test_Characteristic.pf/Test_GeomCharacteristic.pf
@@ -77,7 +77,9 @@ module Test_StateItemCharacteristicSubclasses
         VARIANT_VERTICALGRID => MAPL_STATEITEM_VERTICALGRID
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristicMap
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
-   use ESMF, only: ESMF_StateItem_Flag
+   use ESMF, only: ESMF_StateItem_Flag, ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, set_field_dictionary_config, &
+        get_field_dictionary_config
 
    use mapl_UngriddedDims_mod, only: UngriddedDims
    use mapl_QuantityType_mod, only: QUANTITY_MIXING_RATIO, QUANTITY_TEMPERATURE, QUANTITY_UNKNOWN, &
@@ -593,15 +595,48 @@ contains
       @assertFalse(a%needs_extension_for(same_as_a))
    end subroutine test_standard_name_equal_names_do_not_need_extension
 
+   ! Permissive mode tolerates a disagreement (match with a warning); strict
+   ! mode does not.
    @test
-   subroutine test_standard_name_unequal_names_need_extension()
+   subroutine test_standard_name_mismatch_extends_only_when_strict()
       type(StandardNameCharacteristic) :: a, b
+      type(FieldDictionaryConfig) :: saved
 
       a = StandardNameCharacteristic('air_temperature')
       b = StandardNameCharacteristic('surface_pressure')
+      saved = get_field_dictionary_config()
 
+      call use_validation('{validation_mode: permissive}')
+      @assertFalse(a%needs_extension_for(b))
+
+      call use_validation('{validation_mode: strict}')
       @assertTrue(a%needs_extension_for(b))
-   end subroutine test_standard_name_unequal_names_need_extension
+
+      call set_field_dictionary_config(saved)
+   end subroutine test_standard_name_mismatch_extends_only_when_strict
+
+   @test
+   subroutine test_standard_name_match_warning()
+      type(StandardNameCharacteristic) :: a, b, unchecked
+      type(FieldDictionaryConfig) :: saved
+
+      a = StandardNameCharacteristic('air_temperature')
+      b = StandardNameCharacteristic('surface_pressure')
+      call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      saved = get_field_dictionary_config()
+      call use_validation('{validation_mode: permissive}')
+
+      @assertEqual('standard_name convention violation (permissive mode): Export declares standard_name "air_temperature" but connected Import declares "surface_pressure". Connecting anyway; the Export value wins.', a%match_warning(b))
+      @assertEqual('', a%match_warning(a))
+      @assertEqual('standard_name convention: Import declares standard_name "surface_pressure" but the connected Export declares none.', unchecked%match_warning(b))
+      @assertEqual('', a%match_warning(unchecked))
+
+      call use_validation('{validation_mode: permissive, suppress_standard_name_warnings: true}')
+      @assertEqual('', a%match_warning(b))
+      @assertEqual('', unchecked%match_warning(b))
+
+      call set_field_dictionary_config(saved)
+   end subroutine test_standard_name_match_warning
 
    ! --- LongNameCharacteristic (never compared) ---
 
@@ -714,8 +749,8 @@ contains
    ! --- build_transform reports BUILD_TRANSFORM_INCOMPATIBLE for the five
    ! subclasses whose legacy aspect rejects every mismatch of two non-mirror
    ! values and converts nothing (QuantityType: all but a basis-only
-   ! mismatch, which is UNSUPPORTED), and BUILD_TRANSFORM_UNSUPPORTED for
-   ! StandardName (legacy permissive mode connects a mismatch) ---
+   ! mismatch, which is UNSUPPORTED), and for StandardName (reached only in
+   ! strict validation mode) ---
 
    @test
    subroutine test_attributes_build_transform_reports_incompatible()
@@ -864,19 +899,19 @@ contains
    end subroutine test_quantity_type_basis_none_pairs_need_no_extension
 
    @test
-   subroutine test_standard_name_build_transform_reports_unsupported()
+   subroutine test_standard_name_build_transform_reports_incompatible()
       type(StandardNameCharacteristic) :: a, b
       class(TransformBase), allocatable :: transformer
       integer :: status
 
       a = StandardNameCharacteristic('air_temperature')
-      b = StandardNameCharacteristic('air_temperature')
+      b = StandardNameCharacteristic('surface_pressure')
 
       call a%build_transform(b, transformer, rc=status)
 
-      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_standard_name_build_transform_reports_unsupported
+   end subroutine test_standard_name_build_transform_reports_incompatible
 
    @test
    subroutine test_ungridded_dims_build_transform_reports_incompatible()
@@ -1327,5 +1362,14 @@ contains
          @assertEqual(trim(expected(i)), order(i)%to_string())
       end do
    end subroutine check_order
+
+   subroutine use_validation(content)
+      character(*), intent(in) :: content
+      type(ESMF_HConfig) :: node
+
+      node = ESMF_HConfigCreate(content=content)
+      call set_field_dictionary_config(FieldDictionaryConfig(node))
+      call ESMF_HConfigDestroy(node)
+   end subroutine use_validation
 
 end module Test_StateItemCharacteristicSubclasses

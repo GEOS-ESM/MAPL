@@ -52,6 +52,9 @@ module Test_ExtensionResolution
         GEOMETRY_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND
    use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
+   use ESMF, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, set_field_dictionary_config, &
+        get_field_dictionary_config
    use funit
    implicit none
 
@@ -655,10 +658,18 @@ contains
    end subroutine test_unlisted_kinds_follow_by_name
 
    ! With no ITEM_SHAPE entry every kind is unlisted, so all go by name.
+   ! Strict validation mode, so the standard names count as a mismatch.
    @test
    subroutine test_no_item_shape_orders_by_name()
       type(StateItemCharacteristicMap) :: export_map, import_map
       type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(FieldDictionaryConfig) :: saved
+      type(ESMF_HConfig) :: node
+
+      saved = get_field_dictionary_config()
+      node = ESMF_HConfigCreate(content='{validation_mode: strict}')
+      call set_field_dictionary_config(FieldDictionaryConfig(node))
+      call ESMF_HConfigDestroy(node)
 
       call export_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
            TypeKindCharacteristic('R4'))
@@ -678,6 +689,8 @@ contains
       @assertEqual('PHYSICAL_UNITS', mismatched(1)%to_string())
       @assertEqual('STANDARD_NAME', mismatched(2)%to_string())
       @assertEqual('TYPE_KIND', mismatched(3)%to_string())
+
+      call set_field_dictionary_config(saved)
    end subroutine test_no_item_shape_orders_by_name
 
 end module Test_ExtensionResolution

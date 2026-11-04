@@ -656,7 +656,7 @@ in the first one; later ones refine it.
   see a vertical-grid mismatch. Do not flip `vertical_*` to ready here;
   that needs C1's vertical regrid Transform.
 - **Status:** B3-Units, B3-TypeKind, B3-UngriddedDims, B3-Geometry,
-  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName, B3-RestartMode, B3-QuantityType, B3-Conservation, B3-Normalization, B3-IncompatibleSweep, B3-InternalNoMirror, B3-ConnectionIntentCheck, B3-WildcardFieldOnly, B3-GeomAProbe, B3-QuantityTypeSuppliers and B3-QuantityBasisUnsupported done (commit trailers
+  B3-VerticalCoordinate, B3-VerticalStagger, B3-VerticalOrientation, B3-HorizontalDimsSpec, B3-StandardName, B3-Attributes, B3-StringMirror, B3-MirrorFlagGuard, B3-MirrorGeneric, B3-DimsZLegacy, B3-IncompatiblePair, B3-LongName, B3-RestartMode, B3-QuantityType, B3-Conservation, B3-Normalization, B3-IncompatibleSweep, B3-InternalNoMirror, B3-ConnectionIntentCheck, B3-WildcardFieldOnly, B3-GeomAProbe, B3-QuantityTypeSuppliers, B3-QuantityBasisUnsupported and B3-StandardNameValidation done (commit trailers
   `Plan-Task: B3-Units`, `Plan-Task: B3-TypeKind`,
   `Plan-Task: B3-UngriddedDims`, `Plan-Task: B3-Geometry`,
   `Plan-Task: B3-VerticalCoordinate`, `Plan-Task: B3-StandardName`,
@@ -670,8 +670,27 @@ in the first one; later ones refine it.
   `Plan-Task: B3-Normalization`, `Plan-Task: B3-IncompatibleSweep`,
   `Plan-Task: B3-InternalNoMirror`, `Plan-Task: B3-ConnectionIntentCheck`,
   `Plan-Task: B3-WildcardFieldOnly`, `Plan-Task: B3-GeomAProbe`,
-  `Plan-Task: B3-QuantityTypeSuppliers`, `Plan-Task: B3-QuantityBasisUnsupported`);
+  `Plan-Task: B3-QuantityTypeSuppliers`, `Plan-Task: B3-QuantityBasisUnsupported`,
+  `Plan-Task: B3-StandardNameValidation`);
   others not started.
+  B3-StandardNameValidation (tasks.md 3.27): done, with one deviation (owner).
+  Design A25. `graph/ValidationPolicy.F90` is the graph's only reader of the
+  `field_dictionary:` validation keys (new key `require_standard_name`).
+  `StateItemCharacteristic%match_warning` (default `''`) reports a tolerated
+  mismatch; `resolve_characteristics` collects it for every PAIR_MATCH, and
+  `resolve_connections` returns it as `connection_warnings` (connect hook
+  logs it). StandardName mismatch: strict INCOMPATIBLE, permissive wired
+  with legacy's warning; one-side warning replicated; both honor
+  `suppress_standard_name_warnings` (#5443). BRACKET carries StandardName.
+  V3 check in `make_VariableSpec` (FIELD only, every intent). Deviation:
+  UNSUPPORTED pairs are recorded (`note_unsupported_pair`) and
+  `GraphBuilder%check_unsupported_pairs` fails on them in strict mode, but
+  the freeze hook does not call it yet: the scenario suite runs strict and 11
+  ESSENTIAL scenarios have GEOMETRY / VERTICAL_GRID pairs that legacy
+  connects (under pFUnit a failed graph step raises). The legacy-retirement
+  step adds the call. Scenario `standard_name_and_ungridded_dims_mismatch`
+  now expects the pair wired (2 root nodes, the orphan extension node is
+  gone). No scenario-parity row: the graph now follows legacy's rule.
   B3-QuantityBasisUnsupported (tasks.md 3.37): done. `QuantityTypeCharacteristic%build_transform` reports
   UNSUPPORTED for a basis-only mismatch and INCOMPATIBLE for a
   quantity-type mismatch (also when the bases differ), through one

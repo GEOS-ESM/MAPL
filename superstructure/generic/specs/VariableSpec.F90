@@ -45,6 +45,9 @@ module mapl_VariableSpec_mod
     use mapl_VirtualConnectionPtVector_mod
     use mapl_ErrorHandling_mod
    use pflogger, only: logging, logger_t => logger
+   use mapl_ValidationPolicy_mod, only: validation_is_strict, standard_name_warnings_suppressed, &
+        standard_name_required
+   use mapl_StandardNameCharacteristic_mod, only: UNKNOWN_STANDARD_NAME
    use mapl_StateRegistry_mod
    use mapl_StateItem_mod
    use mapl_AspectId_mod
@@ -402,6 +405,8 @@ contains
       reason = intent_rule_violation(state_intent, var_spec%itemType, var_spec%requests_mirror())
       _ASSERT(len(reason) == 0, reason // ': ' // short_name)
 
+      call check_standard_name_required_(var_spec, _RC)
+
       var_spec%vector_basis_kind = MAPL_VECTOR_BASIS_KIND_NS
       if (present(vector_basis_kind)) then
          _ASSERT(any(var_spec%itemType == [MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET]), 'vector_basis_kind can only be specified for vectors')
@@ -449,6 +454,38 @@ contains
          requests_mirror = requests_mirror .or. (ESMF_UtilStringLowerCase(trim(this%vertical_alignment)) == 'mirror')
       end if
    end function requests_mirror
+
+   ! With require_standard_name set, a FIELD must declare a standard_name (a
+   ! mirror request counts; '<unknown>' does not). Severity follows the
+   ! validation mode.
+   subroutine check_standard_name_required_(var_spec, rc)
+      type(VariableSpec), intent(in) :: var_spec
+      integer, optional, intent(out) :: rc
+
+      logical :: declared
+      type(logger_t), pointer :: lgr
+      character(:), allocatable :: msg
+
+      _RETURN_UNLESS(standard_name_required())
+      _RETURN_UNLESS(var_spec%itemType == MAPL_STATEITEM_FIELD)
+
+      declared = var_spec%standard_name_mirror
+      if (allocated(var_spec%standard_name)) then
+         declared = declared .or. var_spec%standard_name /= UNKNOWN_STANDARD_NAME
+      end if
+      _RETURN_IF(declared)
+
+      msg = 'standard_name required: FIELD "' // var_spec%short_name // '" declares none'
+      if (validation_is_strict()) then
+         _FAIL(msg // ' (strict mode).')
+      end if
+      if (.not. standard_name_warnings_suppressed()) then
+         lgr => logging%get_logger('MAPL')
+         call lgr%warning(msg // '.')
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine check_standard_name_required_
 
    ! Apply field dictionary defaults for units and long_name.
    ! Lookup key priority:

@@ -112,6 +112,7 @@ module mapl_StateItemCharacteristic_mod
       procedure :: is_per_alias => char_is_per_alias
       procedure :: resolve_deferred => char_resolve_deferred
       procedure :: drop_if_unsupplied => char_drop_if_unsupplied
+      procedure :: match_warning => char_match_warning
    end type StateItemCharacteristic
 
    ! REQ-CHAR-002a: a pure subtype-shape split - no additional deferred
@@ -321,6 +322,19 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(defaults)
    end function char_drop_if_unsupplied
+
+   ! Text to warn about when `this` (the export's value) and `goal` (the
+   ! import's) resolved as a match, '' for none. Called for every matched pair,
+   ! whatever the two statuses, so a kind can warn about a mismatch it tolerates.
+   function char_match_warning(this, goal) result(msg)
+      class(StateItemCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      character(:), allocatable :: msg
+
+      msg = ''
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(goal)
+   end function char_match_warning
 
    subroutine refchar_set_referenced_node_id(this, node_id)
       class(ReferenceCharacteristic), intent(inout) :: this

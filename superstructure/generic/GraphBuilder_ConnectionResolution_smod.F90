@@ -32,6 +32,19 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
 
 contains
 
+   subroutine push_warnings(warnings, component_name, short_name, messages)
+      type(GraphResolutionEntryVector), intent(inout) :: warnings
+      character(*), intent(in) :: component_name
+      character(*), intent(in) :: short_name
+      type(StringVector), target, intent(in) :: messages
+
+      integer :: i
+
+      do i = 1, messages%size()
+         call warnings%push_back(GraphResolutionEntry(component_name, short_name, messages%of(i)))
+      end do
+   end subroutine push_warnings
+
    ! The one place a Connection's concrete subtype matters for resolution.
    ! SimpleConnection: its declared source name, which may differ from the
    ! destination's name. MatchConnection (class default): the destination's own
@@ -191,12 +204,13 @@ contains
    !
    ! Accepts any Connection subtype: a SimpleConnection is the exact-match
    ! case of MatchConnection's pattern expansion, with no separate code path.
-   module subroutine resolve_match_connection(this, conn, unresolved, unsupported, conflicts, rc)
+   module subroutine resolve_match_connection(this, conn, unresolved, unsupported, conflicts, warnings, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(Connection), intent(in) :: conn
       type(GraphResolutionEntryVector), intent(inout) :: unresolved
       type(GraphResolutionEntryVector), intent(inout) :: unsupported
       type(GraphResolutionEntryVector), intent(inout) :: conflicts
+      type(GraphResolutionEntryVector), intent(inout) :: warnings
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -270,6 +284,7 @@ contains
          type(CallbackInterfaceId) :: callback_interface_id
          type(StateItemDescriptor), pointer :: dst_descriptor
          character(:), allocatable :: status_conflict
+         type(StringVector) :: match_warnings
 
          ! A callback interface and inout borrower intent are mutually exclusive
          ! resolution paths; reject the combination before either branch so
@@ -300,7 +315,8 @@ contains
           ! effective source name because a SimpleConnection's source name may
           ! differ from dst_node's.
           if (dst_node%is_inout_borrower()) then
-             call resolve_inout_destination(this, src_pt, dst_pt, dst_node, effective_source_name(conn, dst_node), unsupported, _RC)
+             call resolve_inout_destination(this, src_pt, dst_pt, dst_node, effective_source_name(conn, dst_node), &
+                  unsupported, warnings, _RC)
              _RETURN(_SUCCESS)
           end if
 
@@ -334,7 +350,8 @@ contains
 
          export_item => export_node%get_descriptor()
          import_item => mutable_descriptor(dst_graph, import_node_id, _RC)
-         call resolve_descriptors(export_item, import_item, mismatched, status_conflict, rc=status, waiting=waiting)
+         call resolve_descriptors(export_item, import_item, mismatched, status_conflict, rc=status, waiting=waiting, &
+              warnings=match_warnings)
          _VERIFY(status)
          _RETURN_IF(waiting)
          if (status_conflict /= '') then
@@ -342,6 +359,7 @@ contains
                  status_conflict))
             _RETURN(_SUCCESS)
          end if
+         call push_warnings(warnings, dst_pt%component_name, dst_node%get_short_name(), match_warnings)
 
          if (size(mismatched) == 0) then
             ! Exact match: wire directly, no extension.
@@ -389,6 +407,9 @@ contains
             ! Distinguishable from "import has no matching export".
             call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
                  unsupported_characteristic))
+            ! Kept for the freeze check, which fails on these in strict mode.
+            call this%note_unsupported_pair(dst_pt%component_name // ':' // dst_node%get_short_name() // ':' // &
+                 unsupported_characteristic)
             _RETURN(_SUCCESS)
          end if
 
@@ -933,7 +954,7 @@ contains
    ! GRAPH_FREEZE phase, so it is still mutable across both ACCEPT_TRANSFER
    ! passes.
     module subroutine graphbuilder_resolve_connections(this, unusable, unresolved_imports, &
-         unsupported_characteristics, connection_conflicts, rc)
+         unsupported_characteristics, connection_conflicts, connection_warnings, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
       type(GraphResolutionEntryVector), optional, intent(out) :: unresolved_imports
@@ -942,6 +963,7 @@ contains
       ! ("no export at all").
       type(GraphResolutionEntryVector), optional, intent(out) :: unsupported_characteristics
       type(GraphResolutionEntryVector), optional, intent(out) :: connection_conflicts
+      type(GraphResolutionEntryVector), optional, intent(out) :: connection_warnings
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -951,11 +973,13 @@ contains
       type(GraphResolutionEntryVector) :: unresolved
       type(GraphResolutionEntryVector) :: unsupported
       type(GraphResolutionEntryVector) :: conflicts
+      type(GraphResolutionEntryVector) :: warnings
 
       if (this%connections_already_resolved()) then
          if (present(unresolved_imports)) unresolved_imports = unresolved
          if (present(unsupported_characteristics)) unsupported_characteristics = unsupported
          if (present(connection_conflicts)) connection_conflicts = conflicts
+         if (present(connection_warnings)) connection_warnings = warnings
          _RETURN(_SUCCESS)
       end if
 
@@ -969,11 +993,11 @@ contains
             c => iter%of()
             select type (c)
             class is (MatchConnection)
-               call resolve_match_connection(this, c, unresolved, unsupported, conflicts, _RC)
+               call resolve_match_connection(this, c, unresolved, unsupported, conflicts, warnings, _RC)
             class is (SimpleConnection)
                ! Same call as the MatchConnection arm: resolve_match_connection only
                ! uses Connection-base accessors.
-               call resolve_match_connection(this, c, unresolved, unsupported, conflicts, _RC)
+               call resolve_match_connection(this, c, unresolved, unsupported, conflicts, warnings, _RC)
             class default
                ! Other subtypes (e.g. ReexportConnection) are not resolved here.
             end select
@@ -985,6 +1009,7 @@ contains
       if (present(unresolved_imports)) unresolved_imports = unresolved
       if (present(unsupported_characteristics)) unsupported_characteristics = unsupported
       if (present(connection_conflicts)) connection_conflicts = conflicts
+      if (present(connection_warnings)) connection_warnings = warnings
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -1083,13 +1108,15 @@ contains
    ! delegated to extension-chain construction. Only graph structure is
    ! built here; the runtime return-edge propagation trigger does not exist
    ! yet.
-   module subroutine resolve_inout_destination(this, src_pt, dst_pt, dst_node, effective_src_name, unsupported, rc)
+   module subroutine resolve_inout_destination(this, src_pt, dst_pt, dst_node, effective_src_name, unsupported, &
+        warnings, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ConnectionPt), intent(in) :: src_pt
       type(ConnectionPt), intent(in) :: dst_pt
       class(StateItemNode), target, intent(in) :: dst_node
       character(*), intent(in) :: effective_src_name
       type(GraphResolutionEntryVector), intent(inout) :: unsupported
+      type(GraphResolutionEntryVector), intent(inout) :: warnings
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -1108,6 +1135,7 @@ contains
       type(StateItemDescriptor), pointer :: owner_item, borrower_item
       character(:), allocatable :: status_conflict
       type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(StringVector) :: match_warnings
 
       graph => this%get_component_graph()
       net_id = graph%get_default_network_id()
@@ -1165,7 +1193,7 @@ contains
 
       owner_item => owner_node%get_descriptor()
       borrower_item => mutable_descriptor(graph, import_node_id, _RC)
-      call resolve_descriptors(owner_item, borrower_item, mismatched, status_conflict, _RC)
+      call resolve_descriptors(owner_item, borrower_item, mismatched, status_conflict, warnings=match_warnings, _RC)
       if (status_conflict /= '') then
          call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
               status_conflict))
@@ -1185,6 +1213,7 @@ contains
       ! ordinary exact-match case) plus a return edge in a fresh per-pairing
       ! network. No TransformGraphNode for either.
       call graph%add_dependency(net_id, owner_node_id, import_node_id, _RC)
+      call push_warnings(warnings, dst_pt%component_name, dst_node%get_short_name(), match_warnings)
 
       return_net_id = graph%create_network(_RC)
       call graph%add_dependency(return_net_id, import_node_id, owner_node_id, _RC)

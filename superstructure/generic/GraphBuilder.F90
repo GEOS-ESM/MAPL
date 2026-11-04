@@ -186,6 +186,10 @@ module mapl_GraphBuilder_mod
       ! tree walk, then fails if any required import remains unresolved
       ! anywhere in the hierarchy.
       procedure, nopass :: run_graph_freeze_hook => graphbuilder_run_graph_freeze_hook
+      ! In strict validation mode, fails if any pair in the subtree was left
+      ! unwired as UNSUPPORTED; otherwise a no-op. Joins
+      ! run_graph_freeze_hook once legacy no longer connects such pairs.
+      procedure, nopass :: check_unsupported_pairs => graphbuilder_check_unsupported_pairs
       ! No-op when graph_mode() is GRAPH_MODE_REGISTRY.
       procedure, nopass :: run_geometry_hook => graphbuilder_run_geometry_hook
       ! Fills DEFERRED item characteristics from the component's default
@@ -358,7 +362,7 @@ module mapl_GraphBuilder_mod
 
    end subroutine check_match_connection_unsatisfied
     module subroutine graphbuilder_resolve_connections(this, unusable, unresolved_imports, &
-         unsupported_characteristics, connection_conflicts, rc)
+         unsupported_characteristics, connection_conflicts, connection_warnings, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
       type(GraphResolutionEntryVector), optional, intent(out) :: unresolved_imports
@@ -369,15 +373,18 @@ module mapl_GraphBuilder_mod
       ! Matched pairs that can never connect (a characteristic's build_transform
       ! reports them incompatible); the entry reason names the kind and both values.
       type(GraphResolutionEntryVector), optional, intent(out) :: connection_conflicts
+      ! Wired pairs with a tolerated mismatch (StateItemCharacteristic%match_warning).
+      type(GraphResolutionEntryVector), optional, intent(out) :: connection_warnings
       integer, optional, intent(out) :: rc
 
     end subroutine graphbuilder_resolve_connections
-   module subroutine resolve_match_connection(this, conn, unresolved, unsupported, conflicts, rc)
+   module subroutine resolve_match_connection(this, conn, unresolved, unsupported, conflicts, warnings, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(Connection), intent(in) :: conn
       type(GraphResolutionEntryVector), intent(inout) :: unresolved
       type(GraphResolutionEntryVector), intent(inout) :: unsupported
       type(GraphResolutionEntryVector), intent(inout) :: conflicts
+      type(GraphResolutionEntryVector), intent(inout) :: warnings
       integer, optional, intent(out) :: rc
 
    end subroutine resolve_match_connection
@@ -390,13 +397,15 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end function find_export_node_id
-   module subroutine resolve_inout_destination(this, src_pt, dst_pt, dst_node, effective_src_name, unsupported, rc)
+   module subroutine resolve_inout_destination(this, src_pt, dst_pt, dst_node, effective_src_name, unsupported, &
+        warnings, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ConnectionPt), intent(in) :: src_pt
       type(ConnectionPt), intent(in) :: dst_pt
       class(StateItemNode), target, intent(in) :: dst_node
       character(*), intent(in) :: effective_src_name
       type(GraphResolutionEntryVector), intent(inout) :: unsupported
+      type(GraphResolutionEntryVector), intent(inout) :: warnings
       integer, optional, intent(out) :: rc
 
    end subroutine resolve_inout_destination
@@ -489,6 +498,10 @@ module mapl_GraphBuilder_mod
       class(OuterMetaComponent), target, intent(inout) :: this
 
    end subroutine graphbuilder_run_graph_freeze_hook
+   module subroutine graphbuilder_check_unsupported_pairs(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+   end subroutine graphbuilder_check_unsupported_pairs
 
       ! Graph-native state population procedures (GraphBuilder_StatePopulation_smod.F90)
    module subroutine graphbuilder_populate_state(this, multi_state, rc)

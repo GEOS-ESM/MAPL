@@ -108,6 +108,9 @@ module mapl_OuterMetaComponent_mod
       type(NodeIdSet) :: pending_settled_imports
       type(NodeIdSet) :: waiting_imports
       logical :: connections_waiting = .false.
+      ! "component:item:KIND" of each settled pair left unwired because its
+      ! build_transform reported UNSUPPORTED; checked at freeze.
+      type(StringVector) :: unsupported_pairs
 
       class(Logger), pointer :: lgr  => null() ! "MAPL.Generic" // name
 
@@ -149,6 +152,8 @@ module mapl_OuterMetaComponent_mod
       procedure :: note_import_settled
       procedure :: note_connection_waiting
       procedure :: has_waiting_connections
+      procedure :: note_unsupported_pair
+      procedure :: get_unsupported_pairs
       procedure :: begin_connection_pass
       procedure :: end_connection_pass
       procedure :: get_logger
@@ -698,6 +703,16 @@ module mapl_OuterMetaComponent_mod
          logical :: waiting
          class(OuterMetaComponent), intent(in) :: this
       end function has_waiting_connections
+
+      module subroutine note_unsupported_pair(this, description)
+         class(OuterMetaComponent), intent(inout) :: this
+         character(*), intent(in) :: description
+      end subroutine note_unsupported_pair
+
+      module function get_unsupported_pairs(this) result(pairs)
+         type(StringVector) :: pairs
+         class(OuterMetaComponent), intent(in) :: this
+      end function get_unsupported_pairs
 
       module subroutine begin_connection_pass(this)
          class(OuterMetaComponent), intent(inout) :: this

@@ -8,18 +8,18 @@
 ! here. An UNCHECKED instance holds no value (get_standard_name returns '');
 ! its Info value is UNKNOWN_STANDARD_NAME.
 !
-! Legacy StandardNameAspect%matches() also warns when only one side declares
-! a name and escalates a disagreement by ValidationMode. That is not
-! replicated: this type has no ValidationMode or logging dependency.
-!
-! No Transform exists for this axis: build_transform reports unsupported, not
-! incompatible, because legacy StandardNameAspect%matches connects a
-! mismatch (with a warning, the export's name wins) unless the field
-! dictionary ValidationMode is STRICT.
+! Two different names follow the validation mode (ValidationPolicy): in
+! strict mode the pair needs an extension and build_transform reports it
+! incompatible (no Transform can rename); otherwise it matches with a
+! warning, and the export's name wins because the import aliases the
+! export's field. An UNCHECKED export meeting a declared import also warns,
+! in either mode. Both warnings are dropped when standard_name warnings are
+! suppressed.
 !------------------------------------------------------------------------------
 module mapl_StandardNameCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
-   use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
+   use mapl_StateItemCharacteristic_mod, only: report_build_transform_incompatible
+   use mapl_ValidationPolicy_mod, only: validation_is_strict, standard_name_warnings_suppressed
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, STANDARD_NAME_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_SPECIFIED, operator(==)
    use mapl_GraphStateItem_mod, only: GraphStateItem
@@ -48,6 +48,7 @@ module mapl_StandardNameCharacteristic_mod
       procedure :: build_transform => standard_name_build_transform
       procedure :: get_signature => standard_name_get_signature
       procedure :: write_info => standard_name_write_info
+      procedure :: match_warning => standard_name_match_warning
       procedure :: get_standard_name
    end type StandardNameCharacteristic
 
@@ -73,14 +74,14 @@ contains
 
    ! `goal` is guaranteed a StandardNameCharacteristic: the caller looks both
    ! sides up by the same kind key. StateItemDescriptor calls this only when
-   ! both sides are SPECIFIED.
+   ! both sides are SPECIFIED. Outside strict mode a disagreement is tolerated.
    logical function standard_name_needs_extension_for(this, goal) result(needs_extension)
       class(StandardNameCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
 
       select type (goal)
       class is (StandardNameCharacteristic)
-         needs_extension = (this%get_standard_name() /= goal%get_standard_name())
+         needs_extension = (this%get_standard_name() /= goal%get_standard_name()) .and. validation_is_strict()
       class default
          error stop 'StandardNameCharacteristic: needs_extension_for called with a non-StandardNameCharacteristic goal - should be checked by calling procedure'
       end select
@@ -103,8 +104,32 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal)
 
-      call report_build_transform_unsupported(rc)
+      call report_build_transform_incompatible(rc)
    end subroutine standard_name_build_transform
+
+   function standard_name_match_warning(this, goal) result(msg)
+      class(StandardNameCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      character(:), allocatable :: msg
+
+      msg = ''
+      if (standard_name_warnings_suppressed()) return
+      if (.not. (goal%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)) return
+
+      select type (goal)
+      class is (StandardNameCharacteristic)
+         if (this%get_status() == CHARACTERISTIC_STATUS_UNCHECKED) then
+            msg = 'standard_name convention: Import declares standard_name "' // &
+                 goal%get_standard_name() // '" but the connected Export declares none.'
+         else if (this%get_status() == CHARACTERISTIC_STATUS_SPECIFIED) then
+            if (this%get_standard_name() /= goal%get_standard_name()) then
+               msg = 'standard_name convention violation (permissive mode): Export declares ' // &
+                    'standard_name "' // this%get_standard_name() // '" but connected Import declares "' // &
+                    goal%get_standard_name() // '". Connecting anyway; the Export value wins.'
+            end if
+         end if
+      end select
+   end function standard_name_match_warning
 
    ! Descriptive: a standard_name write does not touch the field's structure,
    ! so it is valid in either phase. UNCHECKED writes UNKNOWN_STANDARD_NAME.

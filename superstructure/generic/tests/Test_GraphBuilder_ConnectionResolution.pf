@@ -89,9 +89,14 @@ module Test_GraphBuilder_ConnectionResolution
    use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_WILDCARD
    ! -- openspec/changes/phase-7c-wildcard-dispatch-wiring -----------------
    use mapl_StateItem_mod, only: MAPL_STATEITEM_SERVICE
+   use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, set_field_dictionary_config, &
+        get_field_dictionary_config
+   use gFTL2_StringVector, only: StringVector
    use esmf
    use pfunit
    implicit none(type, external)
+
+   type(FieldDictionaryConfig), save :: saved_fd_config
 
 contains
 
@@ -100,6 +105,7 @@ contains
       class(MpiTestMethod), intent(inout) :: this
 
       call set_materialize_extensions(.false.)
+      saved_fd_config = get_field_dictionary_config()
       _UNUSED_DUMMY(this)
    end subroutine reset_materialize_extensions_gate
 
@@ -108,8 +114,84 @@ contains
       class(MpiTestMethod), intent(inout) :: this
 
       call set_materialize_extensions(.false.)
+      call set_field_dictionary_config(saved_fd_config)
       _UNUSED_DUMMY(this)
    end subroutine restore_materialize_extensions_gate
+
+   subroutine use_validation(content)
+      character(*), intent(in) :: content
+      type(ESMF_HConfig) :: node
+
+      node = ESMF_HConfigCreate(content=content)
+      call set_field_dictionary_config(FieldDictionaryConfig(node))
+      call ESMF_HConfigDestroy(node)
+   end subroutine use_validation
+
+   ! Parent with children child_src (exporting export_var_spec) and child_dst
+   ! (importing import_var_spec), both advertised, and an all-names
+   ! MatchConnection between them on the parent.
+   subroutine make_pair_fixture(parent_name, export_var_spec, import_var_spec, parent_meta, src_meta, dst_meta, rc)
+      character(*), intent(in) :: parent_name
+      type(VariableSpec), intent(in) :: export_var_spec, import_var_spec
+      type(OuterMetaComponent), pointer, intent(out) :: parent_meta, src_meta, dst_meta
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_GridComp) :: parent_gc, src_gc, dst_gc
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(MatchConnection) :: conn
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta(parent_name, parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_var_spec)
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(import_var_spec)
+
+      call gb%advertise(src_meta, _RC)
+      call gb%advertise(dst_meta, _RC)
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_pair_fixture
+
+   ! True when the parent's default network has an edge from child_src's
+   ! export `name` to child_dst's import `name`.
+   logical function pair_is_wired(parent_meta, src_meta, dst_meta, name) result(wired)
+      type(OuterMetaComponent), pointer, intent(in) :: parent_meta, src_meta, dst_meta
+      character(*), intent(in) :: name
+
+      type(ComponentGraph), pointer :: parent_graph, src_graph, dst_graph
+      type(NodeId), pointer :: export_id, import_id
+      type(DependencyNetwork), pointer :: net
+
+      parent_graph => parent_meta%get_component_graph()
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, name))
+      import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, name))
+      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      wired = net%contains_dependency(export_id, import_id)
+   end function pair_is_wired
 
    ! Task 6.2 / spec "Matching export and import are wired" + "Import
    ! with no matching export is left unresolved" + task 4.2 "Child's
@@ -310,104 +392,132 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_ordinary_connection_units_mismatch_creates_chain
 
-   ! openspec/changes/phase-12-characteristic-dispatch-wiring, design.md
-   ! D3/D4: a mismatch on one of the six newly-wired axes (standard_name,
-   ! here) is detected (find_mismatched_characteristics) exactly like
-   ! units/typekind above, but - unlike units/typekind -
-   ! StandardNameCharacteristic has no real build_transform provider
-   ! (its own module header), so find_or_build_extension_chain's first
-   ! chain-build attempt reports unsupported and the connection is reported
-   ! through unsupported_characteristics with reason 'STANDARD_NAME',
-   ! not wired through any chain.
+   ! Two different declared standard names, permissive validation mode: the
+   ! pair is wired directly (the export's name wins) and reported as a
+   ! connection warning, not as unsupported or a conflict.
    @test(npes=[0])
-   subroutine test_standard_name_mismatch_fails_explicitly(this)
+   subroutine test_standard_name_mismatch_wires_with_warning_when_permissive(this)
       class(MpiTestMethod), intent(inout) :: this
 
-      type(ESMF_GridComp) :: parent_gc
-      type(OuterMetaComponent), pointer :: parent_meta
-      type(OuterMetaComponent), pointer :: src_meta, dst_meta
-      type(GriddedComponentDriver) :: src_driver, dst_driver
-      type(ESMF_GridComp) :: src_gc, dst_gc
-      type(ChildSpec) :: child_spec
-      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
-      type(ComponentGraph), pointer :: parent_graph
-      type(ComponentGraph), pointer :: src_graph, dst_graph
-      type(MatchConnection) :: conn
-      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(GraphResolutionEntryVector) :: unresolved, unsupported, conflicts, warnings
       type(GraphResolutionEntry), pointer :: entry
       type(VariableSpec) :: export_var_spec, import_var_spec
-      type(NodeId), pointer :: t_export_id, t_import_id
-      type(DependencyNetwork), pointer :: net
-      type(DependencyNetworkId) :: net_id
       integer :: status
       type(GraphBuilder) :: gb
 
-      call make_outer_meta('comp_parent_standard_name', parent_gc, parent_meta, _RC)
-      child_spec = ChildSpec()
-      call parent_meta%add_child('child_src', child_spec, _RC)
-      child_spec = ChildSpec()
-      call parent_meta%add_child('child_dst', child_spec, _RC)
-
-      src_driver = parent_meta%get_child('child_src', _RC)
-      dst_driver = parent_meta%get_child('child_dst', _RC)
-      src_gc = src_driver%get_gridcomp()
-      dst_gc = dst_driver%get_gridcomp()
-      src_meta => get_outer_meta(src_gc, _RC)
-      dst_meta => get_outer_meta(dst_gc, _RC)
-
+      call use_validation('{validation_mode: permissive}')
       export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='K')
       export_var_spec%standard_name = 'air_temperature'
-      src_spec => src_meta%get_component_spec()
-      call src_spec%add_var_spec(export_var_spec)
-
       import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T', units='K')
       import_var_spec%standard_name = 'surface_temperature'
-      dst_spec => dst_meta%get_component_spec()
-      call dst_spec%add_var_spec(import_var_spec)
-
-      call gb%advertise(src_meta, status)
-      @assert_that(status, is(0))
-      call gb%advertise(dst_meta, status)
-      @assert_that(status, is(0))
-
-      conn = MatchConnection( &
-           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
-           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
-      parent_spec => parent_meta%get_component_spec()
-      call parent_spec%add_connection(conn)
+      call make_pair_fixture('comp_parent_standard_name_permissive', export_var_spec, import_var_spec, &
+           parent_meta, src_meta, dst_meta, _RC)
 
       call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
-           unsupported_characteristics=unsupported, rc=status)
-      ! StandardNameCharacteristic%build_transform reports the pair as
-      ! unsupported (no real provider exists for this axis); nothing is raised.
+           unsupported_characteristics=unsupported, connection_conflicts=conflicts, &
+           connection_warnings=warnings, rc=status)
       @assert_that(status, is(0))
 
-      ! Not reported as unresolved (a matching export DOES exist - it
-      ! just cannot be adapted) - reported as unsupported instead, naming
-      ! the mismatched kind.
       @assertEqual(0, unresolved%size())
-      @assertEqual(1, unsupported%size())
-      entry => unsupported%at(1, status)
+      @assertEqual(0, unsupported%size())
+      @assertEqual(0, conflicts%size())
+      @assertEqual(1, warnings%size())
+      entry => warnings%at(1, status)
       @assertEqual('child_dst', entry%component_name)
       @assertEqual('T', entry%short_name)
-      @assertEqual('STANDARD_NAME', entry%reason)
+      @assertEqual('standard_name convention violation (permissive mode): Export declares standard_name "air_temperature" but connected Import declares "surface_temperature". Connecting anyway; the Export value wins.', entry%reason)
 
-      ! No chain was wired - the export and import remain unconnected.
-      parent_graph => parent_meta%get_component_graph()
-      src_graph => src_meta%get_component_graph()
-      dst_graph => dst_meta%get_component_graph()
-      t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
-      t_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
-      @assert_that(associated(t_export_id), is(true()))
-      @assert_that(associated(t_import_id), is(true()))
-
-      net_id = parent_graph%get_default_network_id()
-      net => parent_graph%get_network(net_id)
-      @assert_that(net%contains_dependency(t_export_id, t_import_id), is(false()))
-      @assert_that(net%has_predecessors(t_import_id), is(false()))
+      @assert_that(pair_is_wired(parent_meta, src_meta, dst_meta, 'T'), is(true()))
 
       _UNUSED_DUMMY(this)
-   end subroutine test_standard_name_mismatch_fails_explicitly
+   end subroutine test_standard_name_mismatch_wires_with_warning_when_permissive
+
+   ! The same pair in strict validation mode can never connect: it is a
+   ! connection conflict naming both names, and nothing is wired.
+   @test(npes=[0])
+   subroutine test_standard_name_mismatch_is_conflict_when_strict(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(GraphResolutionEntryVector) :: unresolved, unsupported, conflicts, warnings
+      type(GraphResolutionEntry), pointer :: entry
+      type(VariableSpec) :: export_var_spec, import_var_spec
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call use_validation('{validation_mode: strict}')
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='K')
+      export_var_spec%standard_name = 'air_temperature'
+      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T', units='K')
+      import_var_spec%standard_name = 'surface_temperature'
+      call make_pair_fixture('comp_parent_standard_name_strict', export_var_spec, import_var_spec, &
+           parent_meta, src_meta, dst_meta, _RC)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, connection_conflicts=conflicts, &
+           connection_warnings=warnings, rc=status)
+      @assert_that(status, is(0))
+
+      @assertEqual(0, unresolved%size())
+      @assertEqual(0, unsupported%size())
+      @assertEqual(0, warnings%size())
+      @assertEqual(1, conflicts%size())
+      entry => conflicts%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('T', entry%short_name)
+      @assertEqual('incompatible STANDARD_NAME: export standard_name=air_temperature, import standard_name=surface_temperature', entry%reason)
+
+      @assert_that(pair_is_wired(parent_meta, src_meta, dst_meta, 'T'), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_standard_name_mismatch_is_conflict_when_strict
+
+   ! A pair left unwired as UNSUPPORTED (a vertical-grid mismatch: no
+   ! Transform yet) is recorded on the resolving component; the freeze check
+   ! passes in permissive mode and fails in strict mode.
+   @test(npes=[0])
+   subroutine test_unsupported_pair_fails_freeze_check_only_when_strict(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(GraphResolutionEntryVector) :: unsupported
+      type(VariableSpec) :: export_var_spec, import_var_spec
+      type(mapl_BasicVerticalGrid) :: export_vgrid, import_vgrid
+      type(StringVector) :: pairs
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call export_vgrid%set_id(1)
+      call import_vgrid%set_id(2)
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T')
+      export_var_spec%vertical_grid = export_vgrid
+      export_var_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
+      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T')
+      import_var_spec%vertical_grid = import_vgrid
+      import_var_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
+      call make_pair_fixture('comp_parent_unsupported_freeze', export_var_spec, import_var_spec, &
+           parent_meta, src_meta, dst_meta, _RC)
+
+      call gb%resolve_connections(parent_meta, unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(1, unsupported%size())
+
+      pairs = parent_meta%get_unsupported_pairs()
+      @assertEqual(1, pairs%size())
+      @assertEqual('child_dst:T:VERTICAL_GRID', pairs%of(1))
+
+      call use_validation('{validation_mode: permissive}')
+      call gb%check_unsupported_pairs(parent_meta, rc=status)
+      @assert_that(status, is(0))
+
+      call use_validation('{validation_mode: strict}')
+      call gb%check_unsupported_pairs(parent_meta, rc=status)
+      @assertExceptionRaised('GraphBuilder: unsupported pairs remain at freeze (strict validation mode)')
+      @assert_that(status == 0, is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_unsupported_pair_fails_freeze_check_only_when_strict
 
    ! HorizontalDimsSpec GEOM (export) vs NONE (import) can never connect.
    ! It is reported in connection_conflicts, naming the kind and both

@@ -51,6 +51,21 @@ contains
       waiting = this%connections_waiting
    end function has_waiting_connections
 
+   ! Not cleared per pass: a settled import is never resolved again.
+   module subroutine note_unsupported_pair(this, description)
+      class(OuterMetaComponent), intent(inout) :: this
+      character(*), intent(in) :: description
+
+      call this%unsupported_pairs%push_back(description)
+   end subroutine note_unsupported_pair
+
+   module function get_unsupported_pairs(this) result(pairs)
+      type(StringVector) :: pairs
+      class(OuterMetaComponent), intent(in) :: this
+
+      pairs = this%unsupported_pairs
+   end function get_unsupported_pairs
+
    module subroutine begin_connection_pass(this)
       class(OuterMetaComponent), intent(inout) :: this
 

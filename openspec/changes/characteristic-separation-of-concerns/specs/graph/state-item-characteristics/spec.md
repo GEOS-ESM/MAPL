@@ -40,10 +40,12 @@ by the shape SHALL follow the listed ones in a fixed, deterministic order.
 
 ### Requirement: Subclasses never interpret status
 Concrete characteristic subclasses SHALL NOT read or branch on
-`CharacteristicStatus`. Status semantics (MIRRORED, UNCHECKED, DEFERRED,
-INVALID) SHALL be handled only by the base class and the descriptor
-(`graph/state-item-descriptor`, "Status resolution is generic and
-table-driven").
+`CharacteristicStatus` when comparing or converting values. Status
+semantics (MIRRORED, UNCHECKED, DEFERRED, INVALID) SHALL be handled only by
+the base class and the descriptor (`graph/state-item-descriptor`, "Status
+resolution is generic and table-driven"). The one exception is
+`match_warning`, which only reports on a pair the descriptor already
+resolved as a match and may read both statuses to choose its text.
 
 #### Scenario: StandardName has no status check of its own
 - **WHEN** `StandardNameCharacteristic%needs_extension_for` is called
@@ -56,7 +58,31 @@ Mismatch detection SHALL compare only kinds present on both the export
 that shape; cross-shape differences are reconciled by the ITEM_SHAPE
 step.
 
-#### Scenario: Bracket without standard name
-- **WHEN** a BRACKET export has no STANDARD_NAME entry and a FIELD import
-  has a SPECIFIED STANDARD_NAME
+#### Scenario: Vector bracket without standard name
+- **WHEN** a VECTORBRACKET export has no STANDARD_NAME entry and a FIELD
+  import has a SPECIFIED STANDARD_NAME
 - **THEN** STANDARD_NAME is not reported as mismatched
+
+### Requirement: A standard-name disagreement follows the validation mode
+Two different SPECIFIED standard names SHALL need an extension only in
+strict validation mode, where `build_transform` reports the pair
+incompatible. In permissive mode (the default) the pair SHALL match, and
+`match_warning` SHALL return a warning naming both names, unless
+`suppress_standard_name_warnings` is set. An UNCHECKED export meeting a
+SPECIFIED import SHALL also warn, in either mode. A FIELD and a BRACKET
+carry the kind.
+
+#### Scenario: Permissive mismatch is a match with a warning
+- **WHEN** the validation mode is permissive and the export declares
+  `air_temperature` while the import declares `surface_temperature`
+- **THEN** the pair resolves as a match and its `match_warning` names both
+  names
+
+#### Scenario: Strict mismatch is incompatible
+- **WHEN** the validation mode is strict and the two names differ
+- **THEN** the pair needs an extension and `build_transform` reports
+  `BUILD_TRANSFORM_INCOMPATIBLE`
+
+#### Scenario: Suppressed warnings
+- **WHEN** `suppress_standard_name_warnings` is set
+- **THEN** `match_warning` returns `''` for every standard-name pair

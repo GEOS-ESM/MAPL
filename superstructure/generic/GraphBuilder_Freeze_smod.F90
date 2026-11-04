@@ -8,6 +8,8 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Freeze_smod
    use pflogger, only: Logger
    use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
    use mapl_GraphNode_mod, only: GraphNode
+   use mapl_ValidationPolicy_mod, only: validation_is_strict
+   use gFTL2_StringVector, only: StringVector
    implicit none(type, external)
 
 contains
@@ -195,6 +197,53 @@ contains
          call accumulate_unresolved_characteristics_(child_meta, failed)
       end do
    end subroutine accumulate_unresolved_characteristics_
+
+   ! A pair left unwired because no Transform exists yet is a warning at
+   ! connect; strict validation mode also makes it an error at freeze. Not
+   ! called from the freeze hook while legacy still connects these pairs.
+   ! Each pair raises its own error; one summary error follows if any did.
+   module subroutine graphbuilder_check_unsupported_pairs(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      logical :: failed
+
+      _RETURN_UNLESS(validation_is_strict())
+      failed = .false.
+      call accumulate_unsupported_pairs_(this, failed)
+      _ASSERT(.not. failed, 'GraphBuilder: unsupported pairs remain at freeze (strict validation mode)')
+      _RETURN(_SUCCESS)
+   end subroutine graphbuilder_check_unsupported_pairs
+
+   recursive subroutine accumulate_unsupported_pairs_(this, failed)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      logical, intent(inout) :: failed
+
+      integer :: status, i
+      type(StringVector), target :: pairs
+      character(:), allocatable :: child_name, msg
+      type(OuterMetaComponent), pointer :: child_meta
+      class(Logger), pointer :: lgr
+
+      pairs = this%get_unsupported_pairs()
+      if (pairs%size() > 0) then
+         lgr => this%get_logger()
+         do i = 1, pairs%size()
+            msg = 'GraphBuilder: no Transform for mismatched characteristic ' // pairs%of(i) // &
+                 ' (an error in strict validation mode)'
+            call lgr%error(msg)
+         end do
+         failed = .true.
+      end if
+
+      do i = 1, this%get_num_children()
+         child_name = this%get_child_name(i, status)
+         if (status /= 0) cycle
+         child_meta => this%get_child_outer_meta(child_name, status)
+         if (status /= 0) cycle
+         call accumulate_unsupported_pairs_(child_meta, failed)
+      end do
+   end subroutine accumulate_unsupported_pairs_
 
 end submodule GraphBuilder_Freeze_smod
 

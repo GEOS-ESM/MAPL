@@ -498,7 +498,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       standard_name adoption is live. Also: legacy fill_value keeps the
       import's declared value when both differ, despite its "src value
       wins" log text.
-- [ ] 3.27 B3-StandardNameValidation (owner, after 3.22; decision may be
+- [x] 3.27 B3-StandardNameValidation (owner, after 3.22; decision may be
       taken in 3.26's session; must land before B4). Legacy
       `StandardNameAspect%matches` consults the field-dictionary
       `ValidationMode`: STRICT rejects two different specified names;
@@ -524,6 +524,23 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       From develop (#5443): a configurable option now suppresses the
       PERMISSIVE-mode standard_name warnings; the graph behavior must honor
       it too.
+      Done (owner settled the design 2026-11-04; design A25): one surface,
+      the `field_dictionary:` keys (`validation_mode`,
+      `suppress_standard_name_warnings`, new `require_standard_name`), read
+      by graph code only through `graph/ValidationPolicy.F90`. General
+      tolerated-mismatch hook `StateItemCharacteristic%match_warning`,
+      collected by `resolve_characteristics` for every PAIR_MATCH and
+      reported as `connection_warnings`. StandardName: strict INCOMPATIBLE;
+      permissive wired directly with legacy's warning; UNCHECKED export vs
+      declared import warns; both suppressible. BRACKET carries StandardName.
+      V3 in `make_VariableSpec`: FIELD, any intent, mirror counts as
+      declared, `'<unknown>'` does not; error in strict, warning otherwise.
+      UNSUPPORTED pairs are recorded per component and
+      `GraphBuilder%check_unsupported_pairs` fails on them in strict mode;
+      deviation (owner): not called from `run_graph_freeze_hook` yet,
+      because 11 strict ESSENTIAL scenarios have GEOMETRY / VERTICAL_GRID
+      pairs legacy connects. The legacy-retirement step adds the call. 3.36
+      gets `validation_is_strict()` and the method shape in A25.
 - [x] 3.28 B3-ShapeIntentRules (3.26 R5: owner chose (a); after 3.26,
       before 3.27). Add two shape x intent rules to `intent_rule_violation`
       (`VariableSpec_private.F90`), so both `make_VariableSpec` (both modes)

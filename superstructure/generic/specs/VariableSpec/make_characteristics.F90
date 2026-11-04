@@ -330,8 +330,9 @@ contains
    ! A declared standard_name is SPECIFIED. The MAPL_STRING_MIRROR request is
    ! MIRRORED (see check_intent_rules for where that is allowed). Undeclared
    ! (or UNKNOWN_STANDARD_NAME) is UNCHECKED: it matches anything. Only a
-   ! FIELD carries one: the other shapes either enforce their own names
-   ! (VECTOR), are exempt, or adopt the field-side value after the shape step.
+   ! FIELD or a BRACKET carries one (a BRACKET -> FIELD pair compares names, as
+   ! legacy does); the other shapes either enforce their own names (VECTOR) or
+   ! are exempt.
    subroutine make_standard_name_characteristic(spec, descriptor, rc)
       class(VariableSpec), intent(in) :: spec
       type(StateItemDescriptor), intent(inout) :: descriptor
@@ -341,7 +342,7 @@ contains
       type(StandardNameCharacteristic) :: standard_name
       logical :: declared
 
-      _RETURN_UNLESS(spec%itemType == MAPL_STATEITEM_FIELD)
+      _RETURN_UNLESS(any(spec%itemType == [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET]))
 
       if (spec%standard_name_mirror) then
          call standard_name%set_status(CHARACTERISTIC_STATUS_MIRRORED)

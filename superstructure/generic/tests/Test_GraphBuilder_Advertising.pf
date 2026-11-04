@@ -484,7 +484,7 @@ contains
       select type (found)
       class is (StandardNameCharacteristic)
          @assertFalse(found%needs_extension_for(StandardNameCharacteristic('air_temperature')))
-         @assertTrue(found%needs_extension_for(StandardNameCharacteristic('other_name')))
+         @assertEqual('air_temperature', found%get_standard_name())
       class default
          @assert_that(.false., is(true()))
       end select

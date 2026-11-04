@@ -11,6 +11,7 @@ target_sources(MAPL.generic PRIVATE
   OperationGraphNode.F90
   NodeRevision.F90
   GraphMode.F90
+  ValidationPolicy.F90
 
   containers/StateItemMemberMap.F90
   GraphStateItem.F90

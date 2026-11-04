@@ -461,7 +461,8 @@ The factory omits kinds that are not applicable, using legacy
 | Shape | Applicable kinds |
 |---|---|
 | FIELD | all comparing kinds + RestartMode, LongName |
-| BRACKET, VECTORBRACKET | all comparing kinds except STANDARD_NAME (legacy order omits it; see the note below the matrix) |
+| BRACKET | all comparing kinds (STANDARD_NAME since B3-StandardNameValidation, A25; see the note below the matrix) |
+| VECTORBRACKET | all comparing kinds except STANDARD_NAME (per-component names) |
 | VECTOR, FIELDBUNDLE | all comparing kinds except STANDARD_NAME |
 | EXPRESSION | every FIELD kind except STANDARD_NAME and HORIZONTAL_DIMS_SPEC (row below), plus Expression, taken from the declaration (owner Q3, §2.4): ITEM_SHAPE, GEOMETRY, VERTICAL_GRID, VERTICAL_STAGGER, VERTICAL_ORIENTATION, TYPE_KIND, PHYSICAL_UNITS (Field rule: declared SPECIFIED, absent or `'<unknown>'` UNCHECKED), UNGRIDDED_DIMS, ATTRIBUTES, QUANTITY_TYPE, CONSERVATION, NORMALIZATION, LONG_NAME, RestartMode (B3-Expression, task 3.12, adds the kinds whose own B3 tasks gave EXPRESSION no entry: UNGRIDDED_DIMS, ATTRIBUTES, QUANTITY_TYPE, CONSERVATION, NORMALIZATION and RestartMode) |
 | (any shape above) | VERTICAL_GRID, VERTICAL_STAGGER and VERTICAL_ORIENTATION apply only to an item with a vertical dimension: no VERTICAL_GRID or VERTICAL_ORIENTATION for `vertical_stagger == NONE`, and SERVICE, STATE and WILDCARD never have them (the VERTICALGRID composite is the one STATE with a VERTICAL_GRID) |
@@ -489,10 +490,12 @@ never copies a standard_name between aspects here: `StateItemSpec%connect_to_exp
 connects only the CLASS aspect, so `StandardNameAspect%connect_to_export`
 runs only for a VECTOR's per-component names (`VectorClassAspect`). The
 import aliases the export's (or extension's) field, and standard_name is a
-field-wide Info key, so the import reads the export's name. A BRACKET
-carries no StandardName entry, so a name disagreement across BRACKET ->
-FIELD is not checked, which matches legacy PERMISSIVE mode. Strict-mode checking waits for a graph validation mode, which needs
-its own design decision.
+field-wide Info key, so the import reads the export's name. Legacy
+compares every aspect a spec holds, and a BRACKET holds a
+StandardNameAspect, so legacy STRICT rejects a BRACKET -> FIELD name
+disagreement. The graph's BRACKET carries a StandardName entry (A25), so
+the pair follows the same rule as FIELD -> FIELD: tolerated with a
+warning in permissive mode, incompatible in strict mode.
 
 EXPRESSION -> FIELD (owner, B3-ItemShape): the cell is a match because a
 consumer that agrees with the evaluation on every characteristic is
@@ -613,7 +616,7 @@ is authoritative for status rules; this table summarizes it.
 | ItemShape | `itemType` | built-in FIELD | - | - | same | design |
 | TypeKind | `typekind` | built-in R4 | - | `MAPL_TYPEKIND_MIRROR` | same; a MIRROR side matches anything | landed |
 | PhysicalUnits | `units` | field dictionary | UNCHECKED | none (may adopt the string sentinel later) | UNCHECKED; writes `/$MIRROR$` for mirrored units (no reader) | landed |
-| StandardName | `standard_name` | - | UNCHECKED | string sentinel, imports only (A13) | UNCHECKED | landed |
+| StandardName | `standard_name` (FIELD, BRACKET) | - | UNCHECKED; with `require_standard_name`, a FIELD error at advertise in strict mode, else a warning (A25) | string sentinel, imports only (A13) | UNCHECKED | landed. Two different names: strict INCOMPATIBLE; permissive match with a warning, the export's name wins (A25) |
 | LongName | `long_name` | field dictionary, then StandardName (every intent but IMPORT; legacy has none) | UNCHECKED, writes nothing | string sentinel, imports only (A13) | carried on `FieldClassAspect`, not compared; an import with none inherits the export's (graph path: gap until B4 (4.2)) | landed |
 | UngriddedDims | `ungridded_dims` | built-in: none | - | `is_mirror()` | same | landed |
 | Geometry | `geom`, `geom_id` | component geom, then harvest | freeze fails | `mirror_geom` / `geometry_mirror: true` | item geom, component geom, item id, component id (FROM_COMP); else MIRRORED | landed |
@@ -857,12 +860,12 @@ A23. `build_transform` has two failure outcomes. `BUILD_TRANSFORM_UNSUPPORTED`:
      uses INCOMPATIBLE for its §4.3 "error" cells. Task B3-IncompatiblePair.
      B3-IncompatibleSweep applies the same rule to Attributes, UngriddedDims,
      QuantityType, Conservation and Normalization. StandardName fails the
-     rule's test and stays UNSUPPORTED: legacy `StandardNameAspect%matches`
+     rule's test: legacy `StandardNameAspect%matches`
      connects two different names with a warning in the default PERMISSIVE
      `ValidationMode` (the export's name wins in effect: the import aliases
      the export's field, and standard_name is field-wide) and rejects them
-     only in STRICT mode. Its graph behavior awaits a graph validation-mode
-     decision. Amendment (owner, landed; B3-QuantityBasisUnsupported): a
+     only in STRICT mode. A25 gives the graph the same mode-dependent rule
+     (no longer UNSUPPORTED). Amendment (owner, landed; B3-QuantityBasisUnsupported): a
      QuantityType pair whose quantity axis matches by the wildcard rule
      (equal, or either side `QUANTITY_UNKNOWN`) and whose bases differ with
      neither `BASIS_NONE` is UNSUPPORTED, since a conversion can exist; a
@@ -924,6 +927,45 @@ A24. Rules review (tasks.md 3.26, session 2026-11-02; record and owner's
        characteristic. Owner's ideal: false if any component actually
        reads the value, which wiring probably cannot decide.
      - R16: probe legacy GEOM_A overwrite first (tasks.md 3.32).
+
+A25. Validation mode (owner, B3-StandardNameValidation, tasks.md 3.27).
+     - One configuration surface for both paths: the `field_dictionary:`
+       YAML keys `validation_mode` (strict | permissive, default
+       permissive), `suppress_standard_name_warnings`, and the new
+       `require_standard_name` (default false). Graph code reads them only
+       through `graph/ValidationPolicy.F90` (`validation_is_strict`,
+       `standard_name_warnings_suppressed`, `standard_name_required`),
+       which reads `FieldDictionaryConfig`; the graph does not depend on
+       StateRegistry or `specs/*Aspect`.
+     - A tolerated mismatch, in general form: `StateItemCharacteristic%
+       match_warning(goal)` (default `''`) is called for every pair
+       `resolve_characteristics` resolves as PAIR_MATCH, whatever the
+       statuses; the texts are returned as `connection_warnings` and logged
+       by the connect hook. StandardName: two different names need an
+       extension only in strict mode, where `build_transform` reports
+       INCOMPATIBLE (a connection conflict); otherwise they match, the pair
+       is wired directly (the export's name wins) and `match_warning`
+       returns legacy's text. An UNCHECKED export meeting a declared import
+       also warns, in either mode. Both are dropped when
+       `suppress_standard_name_warnings` is set.
+     - BRACKET carries a StandardName entry (§4.3), so BRACKET -> FIELD
+       follows the same rule.
+     - V3 (R13): with `require_standard_name`, a FIELD (any intent) that
+       declares no standard_name (absent or `'<unknown>'`; a mirror counts
+       as declared) is an error in `make_VariableSpec` in strict mode and a
+       warning otherwise. Shared by both paths.
+     - UNSUPPORTED pairs (legal, no Transform yet): a warning at connect by
+       default; in strict mode also an error at freeze. Each component
+       records the pairs it left unwired as UNSUPPORTED
+       (`OuterMetaComponent%note_unsupported_pair`), and
+       `GraphBuilder%check_unsupported_pairs` fails on them in strict mode.
+       Not called from `run_graph_freeze_hook` yet (owner): the strict
+       scenario suite has GEOMETRY and VERTICAL_GRID pairs that legacy
+       connects; the legacy-retirement step adds the call.
+     - For 3.36: a `StateItemCharacteristic` method, default "an unsupplied
+       DEFERRED is fatal" (today's behavior), which QuantityType overrides
+       to "fatal only if `validation_is_strict()`, else fall back". The
+       freeze check calls it and never names the kind (D6). 3.36 adds it.
 
 ## Open Questions (deferred to the named B3 task)
 
