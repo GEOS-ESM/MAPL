@@ -120,10 +120,8 @@ contains
       integer, intent(out)        :: iostat
       character(*), intent(inout) :: iomsg
 
-#ifndef __GFORTRAN__
       write(unit,*, iostat=iostat, iomsg=iomsg) 'IMPORT:', this%importState
       write(unit,*, iostat=iostat, iomsg=iomsg) 'EXPORT:', this%exportState
-#endif
 
       _UNUSED_DUMMY(iotype)
       _UNUSED_DUMMY(v_list)
