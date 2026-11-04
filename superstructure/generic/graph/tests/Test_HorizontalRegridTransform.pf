@@ -1,0 +1,469 @@
+! HorizontalRegridTransform regrids real ESMF fields between two lat-lon
+! grids. Values are checked where the answer follows from the grid layout:
+! the source holds f(i,j) = i (its longitude index), so a destination point
+! on a source node gets that node's value, and a destination point midway
+! between two source longitudes gets their mean. Pole rows are not checked.
+module Test_HorizontalRegridTransform
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
+   use mapl_HorizontalRegridTransform_mod, only: HorizontalRegridTransform
+   use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
+   use mapl_geom_api, only: mapl_GeomManager, mapl_get_geom_manager
+   use mapl_geom_api, only: mapl_MaplGeom
+   use StateItemTestSupport_mod, only: make_test_field_bundle
+   use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_FieldCreate
+   use ESMF, only: ESMF_FieldGet, ESMF_Geom, ESMF_HConfig
+   use ESMF, only: ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use ESMF, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8
+   use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8
+   use ESMF, only: ESMF_REGRIDMETHOD_CONSERVE
+   use ESMF, only: ESMF_Grid, ESMF_GridCreate1PeriDim, ESMF_GeomCreate
+   use ESMF, only: ESMF_GridAddCoord, ESMF_GridGetCoord
+   use ESMF, only: ESMF_COORDSYS_SPH_DEG, ESMF_INDEX_GLOBAL
+   use ESMF, only: ESMF_STAGGERLOC_CENTER
+   use ESMF, only: operator(==)
+   use funit
+   implicit none
+
+   character(*), parameter :: SRC_PORT = 'source_field'
+   character(*), parameter :: DST_PORT = 'destination_field'
+   real, parameter :: TOL = 1.0e-3
+
+contains
+
+   ! Global lat-lon grid, dateline- and pole-centered, so longitude
+   ! centers are -180 + (i-1)*360/im and latitude centers are
+   ! -90 + (j-1)*180/(jm-1).
+   function make_latlon_geom(im, jm, rc) result(geom)
+      integer, intent(in) :: im, jm
+      integer, intent(out) :: rc
+      type(ESMF_Geom) :: geom
+
+      type(mapl_GeomManager), pointer :: geom_mgr
+      type(mapl_MaplGeom), pointer :: mapl_geom
+      type(ESMF_HConfig) :: hconfig
+      character(200) :: content
+      integer :: status
+
+      write(content, '(a,i0,a,i0,a)') '{class: latlon, im_world: ', im, &
+           ', jm_world: ', jm, ', pole: PC, dateline: DC, nx: 1, ny: 1}'
+      hconfig = ESMF_HConfigCreate(content=trim(content), rc=status)
+      rc = status
+      if (status /= 0) return
+
+      geom_mgr => mapl_get_geom_manager()
+      mapl_geom => geom_mgr%get_mapl_geom(hconfig, rc=status)
+      rc = status
+      if (status /= 0) return
+      geom = mapl_geom%get_geom()
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      rc = status
+   end function make_latlon_geom
+
+   ! Field on `geom` holding its longitude index (or `value` if present).
+   function make_field(geom, typekind, rc, value) result(field)
+      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
+      integer, intent(out) :: rc
+      real, optional, intent(in) :: value
+      type(ESMF_Field) :: field
+
+      real(kind=ESMF_KIND_R4), pointer :: x4(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: x8(:,:)
+      integer :: i, status
+
+      field = ESMF_FieldCreate(geom=geom, typekind=typekind, rc=status)
+      rc = status
+      if (status /= 0) return
+
+      if (typekind == ESMF_TYPEKIND_R4) then
+         call ESMF_FieldGet(field, farrayPtr=x4, rc=status)
+         rc = status
+         if (status /= 0) return
+         do i = 1, size(x4, 1)
+            x4(i, :) = i
+         end do
+         if (present(value)) x4 = value
+      else
+         call ESMF_FieldGet(field, farrayPtr=x8, rc=status)
+         rc = status
+         if (status /= 0) return
+         do i = 1, size(x8, 1)
+            x8(i, :) = i
+         end do
+         if (present(value)) x8 = value
+      end if
+   end function make_field
+
+   subroutine bind(transform_ports, port, field)
+      type(PortNameGraphStateItemMap), intent(inout) :: transform_ports
+      character(*), intent(in) :: port
+      type(ESMF_Field), intent(in) :: field
+
+      type(GraphStateItem) :: item
+      integer :: status
+
+      call item%set(field, rc=status)
+      @assertEqual(0, status)
+      call transform_ports%clear()
+      call transform_ports%insert(port, item)
+   end subroutine bind
+
+   function get_r4(field) result(x)
+      type(ESMF_Field), intent(in) :: field
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+
+      integer :: status
+
+      call ESMF_FieldGet(field, farrayPtr=x, rc=status)
+      @assertEqual(0, status)
+   end function get_r4
+
+   ! Source 12x13 to destination 24x13: odd destination columns sit on
+   ! source nodes, even ones midway between two source longitudes. The last
+   ! even column (165E) lies between source columns 12 (150E) and 1 (180W),
+   ! so its expected mean relies on ESMF treating the global lat-lon grid
+   ! as periodic in longitude.
+   subroutine check_refined(x)
+      real, intent(in) :: x(:,:)
+
+      integer :: i, j
+      real :: west, east
+
+      @assertEqual([24, 13], shape(x))
+      do j = 2, 12
+         do i = 1, 12
+            west = i
+            east = modulo(i, 12) + 1
+            @assertEqual(west, x(2*i-1, j), tolerance=TOL)
+            @assertEqual((west + east)/2, x(2*i, j), tolerance=TOL)
+         end do
+      end do
+   end subroutine check_refined
+
+   @test
+   subroutine test_regrid_bilinear_r4()
+      type(HorizontalRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_Field) :: f_in, f_out
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(24, 13, status)
+      @assertEqual(0, status)
+      f_in = make_field(src_geom, ESMF_TYPEKIND_R4, status)
+      @assertEqual(0, status)
+      f_out = make_field(dst_geom, ESMF_TYPEKIND_R4, status, value=-1.)
+      @assertEqual(0, status)
+
+      call bind(inputs, SRC_PORT, f_in)
+      call bind(outputs, DST_PORT, f_out)
+
+      transform = HorizontalRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call check_refined(get_r4(f_out))
+   end subroutine test_regrid_bilinear_r4
+
+   @test
+   subroutine test_regrid_bilinear_r8()
+      type(HorizontalRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_Field) :: f_in, f_out
+      real(kind=ESMF_KIND_R8), pointer :: x(:,:)
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(24, 13, status)
+      @assertEqual(0, status)
+      f_in = make_field(src_geom, ESMF_TYPEKIND_R8, status)
+      @assertEqual(0, status)
+      f_out = make_field(dst_geom, ESMF_TYPEKIND_R8, status, value=-1.)
+      @assertEqual(0, status)
+
+      call bind(inputs, SRC_PORT, f_in)
+      call bind(outputs, DST_PORT, f_out)
+
+      transform = HorizontalRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call ESMF_FieldGet(f_out, farrayPtr=x, rc=status)
+      @assertEqual(0, status)
+      call check_refined(real(x))
+   end subroutine test_regrid_bilinear_r8
+
+   ! A second compute with a destination on another grid must use a
+   ! regridder for the new geom pair, not the one built first.
+   @test
+   subroutine test_destination_geom_change()
+      type(HorizontalRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, fine_geom, coarse_geom
+      type(ESMF_Field) :: f_in, f_fine, f_coarse
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+      integer :: i, j, status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      fine_geom = make_latlon_geom(24, 13, status)
+      @assertEqual(0, status)
+      coarse_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      f_in = make_field(src_geom, ESMF_TYPEKIND_R4, status)
+      @assertEqual(0, status)
+      f_fine = make_field(fine_geom, ESMF_TYPEKIND_R4, status, value=-1.)
+      @assertEqual(0, status)
+      f_coarse = make_field(coarse_geom, ESMF_TYPEKIND_R4, status, value=-1.)
+      @assertEqual(0, status)
+
+      transform = HorizontalRegridTransform(EsmfRegridderParam())
+      call bind(inputs, SRC_PORT, f_in)
+      call bind(outputs, DST_PORT, f_fine)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      call check_refined(get_r4(f_fine))
+
+      ! Every 6x7 node is a 12x13 node: (i,j) -> (2i-1, 2j-1).
+      call bind(outputs, DST_PORT, f_coarse)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      x => get_r4(f_coarse)
+      @assertEqual([6, 7], shape(x))
+      do j = 2, 6
+         do i = 1, 6
+            @assertEqual(real(2*i-1), x(i, j), tolerance=TOL)
+         end do
+      end do
+   end subroutine test_destination_geom_change
+
+   @test
+   subroutine test_source_geom_change()
+      type(HorizontalRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, fine_geom, coarse_geom
+      type(ESMF_Field) :: f_in, f_coarse, f_fine
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+      integer :: i, j, status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      fine_geom = make_latlon_geom(24, 13, status)
+      @assertEqual(0, status)
+      coarse_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      f_in = make_field(src_geom, ESMF_TYPEKIND_R4, status)
+      @assertEqual(0, status)
+      f_coarse = make_field(coarse_geom, ESMF_TYPEKIND_R4, status)
+      @assertEqual(0, status)
+      f_fine = make_field(fine_geom, ESMF_TYPEKIND_R4, status, value=-1.)
+      @assertEqual(0, status)
+
+      transform = HorizontalRegridTransform(EsmfRegridderParam())
+      call bind(inputs, SRC_PORT, f_in)
+      call bind(outputs, DST_PORT, f_fine)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      ! 6x7 source to 24x13: node (i,j) of the source is (4i-3, 2j-1).
+      call bind(inputs, SRC_PORT, f_coarse)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      x => get_r4(f_fine)
+      do j = 2, 6
+         do i = 1, 6
+            @assertEqual(real(i), x(4*i-3, 2*j-1), tolerance=TOL)
+         end do
+      end do
+   end subroutine test_source_geom_change
+
+   ! A second compute with fields of another typekind on the same geoms
+   ! must use a regridder for the new typekinds.
+   @test
+   subroutine test_typekind_change()
+      type(HorizontalRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_Field) :: f_in4, f_out4, f_in8, f_out8
+      real(kind=ESMF_KIND_R8), pointer :: x(:,:)
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(24, 13, status)
+      @assertEqual(0, status)
+      f_in4 = make_field(src_geom, ESMF_TYPEKIND_R4, status)
+      @assertEqual(0, status)
+      f_out4 = make_field(dst_geom, ESMF_TYPEKIND_R4, status, value=-1.)
+      @assertEqual(0, status)
+      f_in8 = make_field(src_geom, ESMF_TYPEKIND_R8, status)
+      @assertEqual(0, status)
+      f_out8 = make_field(dst_geom, ESMF_TYPEKIND_R8, status, value=-1.)
+      @assertEqual(0, status)
+
+      transform = HorizontalRegridTransform(EsmfRegridderParam())
+      call bind(inputs, SRC_PORT, f_in4)
+      call bind(outputs, DST_PORT, f_out4)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      call check_refined(get_r4(f_out4))
+
+      call bind(inputs, SRC_PORT, f_in8)
+      call bind(outputs, DST_PORT, f_out8)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(f_out8, farrayPtr=x, rc=status)
+      @assertEqual(0, status)
+      call check_refined(real(x))
+   end subroutine test_typekind_change
+
+   ! The regridder param chooses the method: conservative regrid of a
+   ! constant keeps the constant.
+   @test
+   subroutine test_regrid_conservative_constant_r4()
+      call check_conservative_constant(ESMF_TYPEKIND_R4)
+   end subroutine test_regrid_conservative_constant_r4
+
+   @test
+   subroutine test_regrid_conservative_constant_r8()
+      call check_conservative_constant(ESMF_TYPEKIND_R8)
+   end subroutine test_regrid_conservative_constant_r8
+
+   subroutine check_conservative_constant(typekind)
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
+
+      type(HorizontalRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_Field) :: f_in, f_out
+      type(EsmfRegridderParam) :: param
+      real(kind=ESMF_KIND_R4), pointer :: x4(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: x8(:,:)
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      f_in = make_field(src_geom, typekind, status, value=3.)
+      @assertEqual(0, status)
+      f_out = make_field(dst_geom, typekind, status, value=-1.)
+      @assertEqual(0, status)
+
+      call bind(inputs, SRC_PORT, f_in)
+      call bind(outputs, DST_PORT, f_out)
+
+      param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      transform = HorizontalRegridTransform(param)
+      @assertTrue(transform%get_regridder_param() == param)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      if (typekind == ESMF_TYPEKIND_R4) then
+         x4 => get_r4(f_out)
+         @assertEqual(3., x4(:, 2:6), tolerance=TOL)
+      else
+         call ESMF_FieldGet(f_out, farrayPtr=x8, rc=status)
+         @assertEqual(0, status)
+         @assertEqual(3., real(x8(:, 2:6)), tolerance=TOL)
+      end if
+   end subroutine check_conservative_constant
+
+   @test
+   subroutine test_bundle_port_fails()
+      type(HorizontalRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(GraphStateItem) :: item
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Geom) :: dst_geom
+      type(ESMF_Field) :: f_out
+      integer :: status
+
+      bundle = make_test_field_bundle(status)
+      @assertEqual(0, status)
+      call item%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call inputs%insert(SRC_PORT, item)
+
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      f_out = make_field(dst_geom, ESMF_TYPEKIND_R4, status)
+      @assertEqual(0, status)
+      call bind(outputs, DST_PORT, f_out)
+
+      transform = HorizontalRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertTrue(status /= 0)
+   end subroutine test_bundle_port_fails
+
+   ! Global 6x7 lat-lon grid made directly with ESMF (no geom manager, so no
+   ! MAPL geom id), with center coordinates so that it can be regridded.
+   function make_esmf_latlon_geom(rc) result(geom)
+      integer, intent(out) :: rc
+      type(ESMF_Geom) :: geom
+
+      type(ESMF_Grid) :: grid
+      real(kind=ESMF_KIND_R8), pointer :: lons(:,:), lats(:,:)
+      integer :: i, j, status
+
+      grid = ESMF_GridCreate1PeriDim(maxIndex=[6, 7], &
+           coordSys=ESMF_COORDSYS_SPH_DEG, indexflag=ESMF_INDEX_GLOBAL, &
+           rc=status)
+      rc = status
+      if (status /= 0) return
+      call ESMF_GridAddCoord(grid, staggerloc=ESMF_STAGGERLOC_CENTER, &
+           rc=status)
+      rc = status
+      if (status /= 0) return
+      call ESMF_GridGetCoord(grid, coordDim=1, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lons, rc=status)
+      rc = status
+      if (status /= 0) return
+      call ESMF_GridGetCoord(grid, coordDim=2, &
+           staggerloc=ESMF_STAGGERLOC_CENTER, farrayPtr=lats, rc=status)
+      rc = status
+      if (status /= 0) return
+      do j = 1, 7
+         do i = 1, 6
+            lons(i, j) = -180 + (i-1)*60
+            lats(i, j) = -90 + (j-1)*30
+         end do
+      end do
+      geom = ESMF_GeomCreate(grid, rc=status)
+      rc = status
+   end function make_esmf_latlon_geom
+
+   ! A geom made directly with ESMF has no MAPL geom id, so it cannot be
+   ! matched to a cached regridder and compute must refuse it.
+   @test
+   subroutine test_geom_without_id_fails()
+      type(HorizontalRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_Field) :: f_in, f_out
+      integer :: status
+
+      src_geom = make_esmf_latlon_geom(status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      f_in = make_field(src_geom, ESMF_TYPEKIND_R4, status)
+      @assertEqual(0, status)
+      f_out = make_field(dst_geom, ESMF_TYPEKIND_R4, status)
+      @assertEqual(0, status)
+
+      call bind(inputs, SRC_PORT, f_in)
+      call bind(outputs, DST_PORT, f_out)
+
+      transform = HorizontalRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertTrue(status /= 0)
+   end subroutine test_geom_without_id_fails
+
+end module Test_HorizontalRegridTransform

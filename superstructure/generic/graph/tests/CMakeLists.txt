@@ -50,6 +50,8 @@ set(test_srcs
   Test_UnitsConverterTransform.pf
   Test_BracketTimeInterpolationTransform.pf
   Test_ExpressionTransform.pf
+  Test_HorizontalRegridTransform.pf
+  Test_GeometryRegridderParam.pf
   Test_StateItemCharacteristicKind.pf
   Test_StateItemCharacteristic.pf
   Test_StateItemCharacteristicSubclasses.pf

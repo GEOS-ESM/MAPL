@@ -32,10 +32,10 @@ Facts below were verified against the tree on 2026-10-21 unless marked
 
 ### 1.1 Graph-neutral core (`superstructure/generic/graph/`)
 
-89 non-test `.F90` files, about 12,300 lines (plus `graph/tests/`, 40
+94 non-test `.F90` files, about 12,300 lines (plus `graph/tests/`, 43
 `.pf` files). No dependency on `OuterComponent`/`StateRegistry`
 (REQ-CG-002). Layout: 34 files at the top level, and subdirectories
-`characteristics/` (16), `transforms/` (7), `callback/` (6), `id_types/`
+`characteristics/` (16), `transforms/` (8), `callback/` (6), `id_types/`
 (5 + `IdTemplate.inc`), `containers/` (21 gFTL instantiations).
 
 | File | Responsibility |
@@ -112,7 +112,7 @@ factories (so far units, typekind, ungridded dims, geometry, vertical grid, vert
 | `PhysicalUnits` | `PHYSICAL_UNITS_CHARACTERISTIC_KIND` | Real: `UnitsConverterTransform` |
 | `TypeKind` | `TYPE_KIND_…` | Real: `TypeKindConverterTransform` |
 | `ItemShape` | `ITEM_SHAPE_…` | Every shape. Real for `BRACKET`→`FIELD` only (`BracketTimeInterpolationTransform`); `VECTORBRACKET`→`VECTOR` unsupported; pairs the shape matrix rejects (including `VECTORBRACKET`→`VECTORBRACKET`) are incompatible. Owns `get_extension_order` |
-| `Geometry` | `GEOMETRY_…` | Unsupported — no horizontal-regrid `Transform` exists yet |
+| `Geometry` | `GEOMETRY_…` | Unsupported — `HorizontalRegridTransform` exists but `build_transform` does not build it yet. `select_regridder_param` holds the regridder-param rule |
 | `VerticalGrid` | `VERTICAL_GRID_…` | Single overlap: unsupported (no vertical-regrid `Transform` yet); incompatible and ambiguous overlaps `_FAIL` with distinct messages |
 | `VerticalStagger` | `VERTICAL_STAGGER_…` | Unsupported — mismatch is detected, repair is a stub |
 | `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Unsupported — mismatch is detected, repair is a stub |
@@ -144,13 +144,17 @@ Any other nonzero rc is a genuine error.
 #### Transforms (`graph/transforms/`)
 
 `TransformBase`, `Transform` (abstract; `Transform` adds the compute
-interface over named ports), `TransformGraphNode`, and four concrete
+interface over named ports), `TransformGraphNode`, and five concrete
 transforms: `UnitsConverterTransform`, `TypeKindConverterTransform`,
 `BracketTimeInterpolationTransform` (built by
 `ItemShapeCharacteristic%build_transform`), `ExpressionTransform` (built
-by `graphbuilder_run_expression_hook`, not by a characteristic). No
-horizontal-regrid or vertical-regrid `Transform` exists; geometry and
-vertical-coordinate mismatches therefore fail in graph mode.
+by `graphbuilder_run_expression_hook`, not by a characteristic), and
+`HorizontalRegridTransform` (field only; built by nothing yet). The
+regrid Transform gets its regridder from `RegridderManager` at the first
+`compute`, from the bound fields' geoms and typekinds, and gets a new one
+when a geom or typekind changes. No vertical-regrid `Transform` exists.
+Geometry and vertical-grid mismatches are reported as unsupported, so the
+graph leaves those connections unwired.
 
 ### 1.2 Integration layer (`superstructure/generic/`, top level)
 
@@ -292,10 +296,12 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
 
 ## 3. Known limitations (current)
 
-- No geometry (horizontal regrid) or vertical-regrid `Transform`;
-  `GeometryCharacteristic` and `VerticalGridCharacteristic`
-  mismatches `_FAIL`. This is the main reason legacy `regrid*` and
-  `propagate_geom` scenarios cannot run under graph mode.
+- No vertical-regrid `Transform`, and `HorizontalRegridTransform` is not
+  built by `GeometryCharacteristic%build_transform` yet. A Geometry
+  mismatch or single-overlap VerticalGrid mismatch is reported unsupported
+  (incompatible and ambiguous VerticalGrid overlaps `_FAIL`). This is the
+  main reason legacy `regrid*` and `propagate_geom` scenarios cannot run
+  under graph mode.
 - Six characteristic axes detect mismatch but have no repair (see §1.1).
 - A mirrored (propagated) import is not inserted into the real
   `ESMF_State` under a child-qualified name (archived task 6.7 of

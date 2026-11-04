@@ -28,8 +28,8 @@
 !
 ! An item-level instance may also hold the ESMF_Geom itself, plus the
 ! regridder param the item declares. Only the geometry identity is
-! compared (like legacy GeomAspect%matches); the regridder param is carried
-! for write_info.
+! compared (like legacy GeomAspect%matches). The regridder param is written
+! to Info and chooses the regrid method (select_regridder_param).
 !
 ! Status: SPECIFIED when constructed with a value. DEFERRED means the
 ! owning component supplies the geometry later (resolve_deferred, GEOM_B).
@@ -88,6 +88,9 @@ module mapl_GeometryCharacteristic_mod
       procedure :: has_geom_id
       procedure :: get_geom
       procedure :: has_geom
+      procedure :: get_regridder_param
+      procedure :: has_regridder_param
+      procedure :: select_regridder_param
    end type GeometryCharacteristic
 
    interface GeometryCharacteristic
@@ -309,5 +312,53 @@ contains
 
       has = allocated(this%geom)
    end function has_geom
+
+   ! A subroutine, not a function with rc: the result has allocatable
+   ! components and would be undefined on failure.
+   subroutine get_regridder_param(this, regridder_param, rc)
+      class(GeometryCharacteristic), intent(in) :: this
+      type(EsmfRegridderParam), intent(out) :: regridder_param
+      integer, optional, intent(out) :: rc
+
+      character(*), parameter :: MSG = &
+           'GeometryCharacteristic: no regridder param declared'
+
+      _ASSERT(allocated(this%regridder_param), MSG)
+      regridder_param = this%regridder_param
+
+      _RETURN(_SUCCESS)
+   end subroutine get_regridder_param
+
+   logical function has_regridder_param(this) result(has)
+      class(GeometryCharacteristic), intent(in) :: this
+
+      has = allocated(this%regridder_param)
+   end function has_regridder_param
+
+   ! Regridder param for regridding from `this` (source) to `goal`
+   ! (destination): the one side that declares one, else the default.
+   ! Declaring one on both sides is an error, even if they agree.
+   subroutine select_regridder_param(this, goal, regridder_param, rc)
+      class(GeometryCharacteristic), intent(in) :: this
+      class(GeometryCharacteristic), intent(in) :: goal
+      type(EsmfRegridderParam), intent(out) :: regridder_param
+      integer, optional, intent(out) :: rc
+
+      character(*), parameter :: BOTH_MSG = 'GeometryCharacteristic: ' // &
+           'source and destination both specify a regridder param; only one may'
+
+      if (allocated(this%regridder_param) .and. &
+           allocated(goal%regridder_param)) then
+         _FAIL(BOTH_MSG)
+      else if (allocated(goal%regridder_param)) then
+         regridder_param = goal%regridder_param
+      else if (allocated(this%regridder_param)) then
+         regridder_param = this%regridder_param
+      else
+         regridder_param = EsmfRegridderParam()
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine select_regridder_param
 
 end module mapl_GeometryCharacteristic_mod
