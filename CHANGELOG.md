@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Added
+
+### Changed
+
+### Removed
+
+### Deprecated
+
+## [2.73.0] - 2026-11-05
+
+### Fixed
+
 - `ExtData2G` `find_any_file` now accounts for the reference time when searching
   for a file to read metadata from. The trial times are snapped onto the
   `ref_time + n*freq` grid the files are actually written on, so collections
@@ -38,10 +50,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Update to GEOSpyD 26.7.2
 - MAPLPy: add a method to retrieve the Fortran MPI communicator (as a flat `Fint`)
 - MAPLPy: add a `GetResource_Int64` alongside the 32bit one
-
-### Removed
-
-### Deprecated
 
 ## [2.72.0] - 2026-09-23
 
