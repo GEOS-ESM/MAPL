@@ -1448,8 +1448,11 @@ forces a geom extension for two `dims: z` items); (3) revisit QuantityType,
 Conservation and Normalization: their `build_transform` reports INCOMPATIBLE
 because legacy's time-dependent branch of `StateItemAspect%can_connect_to`
 (which ignores `matches`) is unreachable for them, and a time-dependent
-quantity type, conservation or normalization would make it reachable.
-Without all three, the wrong order runs silently.
+quantity type, conservation or normalization would make it reachable;
+(4) make `set_shared_characteristic` also reset the step feeding a changed
+import (it resets only downstream steps, so a sampler's regrid would keep
+its old weights; found by 3.14). Without (1)-(3), the wrong order runs
+silently.
 - **Status:** not started; not scheduled until time-dependent geometry
   has a user.
 
@@ -1701,6 +1704,8 @@ it may author D1/A4/B5 with sonnet review.
 | B3-FillValue | sonnet | sonnet | tasks.md 3.34; with or after 4.2 |
 | B3-QuantityTypeSuppliers | sonnet | sonnet | tasks.md 3.35; YAML key, keyword, harvest; before 3.27 |
 | B3-QuantityTypeDeferred | opus | sonnet | tasks.md 3.36; factory status by intent, soft freeze rule, shares 3.27's switch; after 3.27 |
+| B3-SetShared | volunteer | sonnet | tasks.md 3.14; outsourced (GitHub); characteristic only, rebuild is 3.40 |
+| B3-SetSharedMaterialize | sonnet | sonnet | tasks.md 3.40; after 3.14 and B4 4.2 |
 | B3-QuantityBasisUnsupported | sonnet | sonnet | tasks.md 3.37; basis-only mismatch UNSUPPORTED; before 3.36 |
 | B3-GeomAItemWins | sonnet | sonnet | tasks.md 3.38; legacy fix: item geom/vgrid survive GEOM_A; re-enable 3.32 probes; after 3.37, before 3.27 |
 | B3 others | sonnet | sonnet (self-review) | one at a time, after B3-Units lands |

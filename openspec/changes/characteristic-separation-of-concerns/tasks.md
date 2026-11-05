@@ -799,6 +799,12 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       items, which take the exporter's geometry at connection. Affects
       `statistics_real` and `history_1` (not ESSENTIAL); report their
       results. Author sonnet (sonnet review).
+- [ ] 3.40 B3-SetSharedMaterialize (after 3.14 and B4 4.2; owner,
+      2026-11-05). `set_shared_characteristic` rebuilds the affected ESMF
+      payloads after changing a structural characteristic (§7.3's
+      `sync_to_info`), using B4's empty-create + `sync_to_info(STRUCTURAL)`
+      + `MAPL_FieldEmptyComplete` helper, not the FieldDelta path (§3.2).
+      Tests use a real field. Author sonnet (sonnet review).
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the
@@ -828,6 +834,13 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       geometry changes (History samplers) are handled. Since B1 it
       installs only the ESMF handle and leaves the descriptor unchanged,
       so until this task it cannot change a characteristic.
+      Preflight answers (owner, 2026-11-05): change the characteristic
+      only; the ESMF field rebuild (§7.3's `sync_to_info`) is 3.40, after
+      B4. The import-side gap (only downstream steps are reset, so the
+      regrid step feeding a changed import keeps its weights) is reported
+      in the Status and in plan C3, not pinned by a test. Outsourced to a
+      volunteer through GitHub (plan "Working with the owner"): Status
+      comes back in the PR. Author volunteer (meta review, sonnet).
 
 ## 4. Dispatch removal (B4)
 
