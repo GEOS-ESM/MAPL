@@ -436,6 +436,58 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `expression_defer_geom` stays pending until C1. Known starting
       point: the connect hook reports "no registered extension provider"
       for EXPRESSION mismatches.
+      Preflight answers (owner, 2026-11-05):
+      1. The evaluation is the consumer's: inputs are converted to the
+         consumer's geometry, vertical grid and precision, then evaluated
+         there (as legacy). Evaluating on the inputs' native grid is 3.24.
+         Until C1, a grid or vertical-grid difference between inputs and
+         consumer is reported unsupported ("no registered extension
+         provider") and the import stays unwired, never silently wired on
+         the wrong grid.
+      2. Two consumers share an evaluation when the kinds of the
+         MIRRORED-export allowlist (design §2.4: geometry, vertical grid,
+         vertical stagger, vertical orientation, precision) agree. The
+         list comes from the allowlist table through a descriptor method;
+         GraphBuilder names no kind (D6). Other differences (units, ...)
+         are ordinary steps after the shared result.
+      3. Each input's target is its own descriptor with only the
+         allowlist kinds replaced by the evaluation's. An input's
+         ungridded dims, attributes, conservation and units are never
+         compared with the consumer's (legacy compared the whole consumer
+         description). A mismatch between result and consumer is still a
+         connection conflict, at the result's end.
+      4. Evaluation is always at the consumer's precision; a declared
+         `typekind:` on an expression has no effect (say so in docs and
+         the commit message).
+      5. Evaluation nodes and their input chains belong to the connecting
+         (parent) graph, like every other chain.
+      6. Confirmed: a unit-less expression's result is unchecked (no units
+         step; the result takes the import's units); `check_graph` gains an
+         `expression: true` form for multi-input transforms (per-input
+         steps, then the result's chain); the expression hook only checks
+         names, and an expression naming an expression (or itself), a
+         missing name, or an empty expression ('' from 3.12) is reported
+         there even with no consumer; the result copies the expression's
+         characteristics after the 3.36 fallback; if graph mode changes
+         what `<root>` exposes (e.g. `A/expr(1)`), the test author runs
+         the current graph mode first and returns to the owner before
+         changing registry-mode expectations.
+      Split (owner): 3.23a B3-ExpressionPlaceholder, then 3.23b
+      B3-ExpressionPerConsumer, each test-first.
+      - [ ] 3.23a B3-ExpressionPlaceholder: the export becomes a
+        placeholder (no edges, never materialized); the hook becomes the
+        names check (missing, nested, self, empty); a connect-time
+        expression path builds one evaluation per consumer, in the
+        connecting graph, shared only when everything matches; idempotent
+        on a second `resolve_connections`; `check_graph` `expression:`
+        form; existing `expression`/`expression_match` scenarios keep
+        passing (expectation changes go to the owner first).
+      - [ ] 3.23b B3-ExpressionPerConsumer: inputs converted per answers
+        1-4 (precision steps on inputs, no units steps on inputs), sharing
+        by the allowlist kinds (answer 2), result's own units then ordinary
+        steps to each consumer, stagger from the consumer when the
+        expression has no `vertical_dim_spec`, the ready scenario (B: R4;
+        C: R8 in cm, 300 cm) and its `check_graph` entry.
 - [ ] 3.24 B3-ExpressionNativeGrid (optimization, after 3.23; owner
       request). If all inputs share one geometry (or vertical grid),
       evaluate on that native grid and transform only the result to each

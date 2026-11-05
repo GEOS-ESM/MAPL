@@ -1691,7 +1691,8 @@ it may author D1/A4/B5 with sonnet review.
 | B3-VerticalOrientation | sonnet | opus | resolve against grid without comparing it |
 | B3-HorizontalDimsSpec | sonnet | opus | changes when Geometry is compared |
 | B3-Expression | opus | gemini/gpt-sol | mechanical: Expression kind, factory applicability (design.md §4.3, Q3) |
-| B3-ExpressionPerConsumer | opus | gemini/gpt-sol | per-consumer evaluation in the connection code (design.md §2.4) |
+| B3-ExpressionPlaceholder | opus | sonnet | tasks.md 3.23a; test-first (gpt-sol tests); export placeholder, names check, one evaluation per consumer |
+| B3-ExpressionPerConsumer | opus | sonnet | tasks.md 3.23b; test-first (gpt-sol tests); precision/units per consumer, sharing by allowlist kinds (design.md §2.4) |
 | B3-ExpressionNativeGrid | sonnet | opus | optimization, after B3-ExpressionPerConsumer |
 | B3-InternalNoMirror | sonnet | opus | design.md Q13; reports mirror defaults to the owner before changing them |
 | B3-RulesReview | opus | gemini/gpt-sol | read-only; report and proposals, no code; then owner session |
