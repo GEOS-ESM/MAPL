@@ -29,8 +29,10 @@ module Test_SetSharedCharacteristic
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_AccessSpec_mod, only: MAPL_ACCESS_IN
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
-   use mapl_StateItemCharacteristicKind_mod, only: GEOMETRY_CHARACTERISTIC_KIND
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        GEOMETRY_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use ESMF, only: ESMF_Clock
    use funit
    implicit none
@@ -130,7 +132,7 @@ contains
       type(ComponentGraph) :: graph
       type(NodeId) :: shared_id, dep1_id, dep2_id
       type(StateItemNode) :: shared_node, dep1_node, dep2_node
-      type(GraphStateItem) :: payload, new_payload
+      type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
       type(DependencyNetworkId) :: default_id
       class(GraphNode), pointer :: retrieved
@@ -164,7 +166,9 @@ contains
          shared_revision_before = retrieved%get_revision()
       end select
 
-      call set_shared_characteristic(graph, shared_id, new_payload, rc=status)
+      call set_shared_characteristic(graph, shared_id, &
+           TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), &
+           rc=status)
       @assertEqual(0, status)
 
       retrieved => graph%get_node(dep1_id)
@@ -196,6 +200,71 @@ contains
       end select
    end subroutine test_dependents_reset_and_shared_revision_advances
 
+   ! The mutator's own job: after the call the shared node's descriptor
+   ! returns the characteristic that was passed in, under that kind, and
+   ! entries of every other kind are left alone.
+   @test
+   subroutine test_descriptor_holds_the_new_characteristic()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: shared_id, geom_ref_id
+      type(StateItemNode) :: shared_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(NodeIdGenerator) :: gen
+      type(StateItemDescriptor), pointer :: descriptor
+      class(GraphNode), pointer :: retrieved
+      class(StateItemCharacteristic), allocatable :: found
+      integer :: status
+
+      graph = ComponentGraph()
+      geom_ref_id = gen%next()
+
+      shared_id = graph%next_node_id(rc=status)
+      shared_node = StateItemNode(shared_id, payload, revision)
+      call graph%register_node(shared_node, rc=status)
+      @assertEqual(0, status)
+
+      retrieved => graph%get_node(shared_id)
+      select type (retrieved)
+      class is (StateItemNode)
+         descriptor => retrieved%get_descriptor()
+      class default
+         @assertTrue(.false.)
+         return
+      end select
+      call descriptor%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R4'), rc=status)
+      @assertEqual(0, status)
+      call descriptor%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_ref_id), rc=status)
+      @assertEqual(0, status)
+
+      call set_shared_characteristic(graph, shared_id, &
+           TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), &
+           rc=status)
+      @assertEqual(0, status)
+
+      call descriptor%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
+           found, rc=status)
+      @assertEqual(0, status)
+      select type (found)
+      class is (TypeKindCharacteristic)
+         @assertEqual('R8', found%get_type_kind())
+      class default
+         @assertTrue(.false.)
+      end select
+
+      call descriptor%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, &
+           found, rc=status)
+      @assertEqual(0, status)
+      select type (found)
+      class is (GeometryCharacteristic)
+         @assertTrue(found%get_referenced_node_id() == geom_ref_id)
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_descriptor_holds_the_new_characteristic
+
    ! Spec "Mutator never invokes a method node": a MethodGraphNode
    ! registered but NOT wired as a successor of the shared node must
    ! never be invoked by the mutator's walk (it is unreachable from
@@ -208,7 +277,7 @@ contains
       type(ComponentGraph) :: graph
       type(NodeId) :: shared_id, dep_id, method_id
       type(StateItemNode) :: shared_node, dep_node
-      type(GraphStateItem) :: payload, new_payload
+      type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
       type(DependencyNetworkId) :: default_id
       type(MethodGraphNode) :: method_node
@@ -235,7 +304,9 @@ contains
       method_node = MethodGraphNode(method_id, adapter)
       call graph%register_node(method_node, rc=status)
 
-      call set_shared_characteristic(graph, shared_id, new_payload, rc=status)
+      call set_shared_characteristic(graph, shared_id, &
+           TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), &
+           rc=status)
       @assertEqual(0, status)
       @assertEqual(0, call_count)
    end subroutine test_mutator_never_invokes_a_registered_method_node
@@ -255,7 +326,7 @@ contains
       type(ComponentGraph) :: graph
       type(NodeId) :: shared_id, dep_id, transform_id, final_id
       type(StateItemNode) :: shared_node, dep_node, final_node
-      type(GraphStateItem) :: payload, new_payload
+      type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
       type(DependencyNetworkId) :: default_id
       type(TransformGraphNode) :: transform
@@ -313,7 +384,9 @@ contains
       @assertEqual(1, run_count)
 
       ! Mid-"Run" structural reset.
-      call set_shared_characteristic(graph, shared_id, new_payload, rc=status)
+      call set_shared_characteristic(graph, shared_id, &
+           TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), &
+           rc=status)
       @assertEqual(0, status)
 
       ! Spec "Content is not recomputed by the mutator call itself":
@@ -344,7 +417,7 @@ contains
       type(ComponentGraph) :: graph
       type(NodeId) :: shared_id, dep_id, transform_id, final_id, method_id
       type(StateItemNode) :: shared_node, dep_node, final_node
-      type(GraphStateItem) :: payload, new_payload
+      type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
       type(DependencyNetworkId) :: default_id
       type(TransformGraphNode) :: transform
@@ -414,7 +487,9 @@ contains
 
       ! Mid-"Run" structural reset on the shared node, upstream of
       ! final_id through dep_id/transform_id.
-      call set_shared_characteristic(graph, shared_id, new_payload, rc=status)
+      call set_shared_characteristic(graph, shared_id, &
+           TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), &
+           rc=status)
       @assertEqual(0, status)
       @assertEqual(1, run_count)
 
