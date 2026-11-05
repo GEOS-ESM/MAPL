@@ -715,6 +715,15 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       conservative-regridding characteristics in general, do the expedient
       thing: nothing uses them yet; use cases and ExtData support come
       after legacy is dropped. Run test-first.
+      Implementation answers (owner, 2026-11-05): strict `validation_mode`
+      alone does not make an unsupplied QuantityType fatal (the ESSENTIAL
+      scenarios run strict and declare none). A new `field_dictionary:` key
+      `require_quantity_type` (default false), read through
+      `graph/ValidationPolicy.F90` like `require_standard_name`, makes it
+      fatal; otherwise it falls back with the summary warning in both
+      modes. The fallback also runs at the start of `resolve_connections`
+      (its only production caller is the connect hook), so tests that call
+      it directly keep working.
 - [x] 3.37 B3-QuantityBasisUnsupported (owner; amends A23 for basis only;
       before 3.36). Today any QuantityType mismatch is
       `BUILD_TRANSFORM_INCOMPATIBLE` (`QuantityTypeCharacteristic.F90`
