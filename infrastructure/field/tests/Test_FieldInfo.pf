@@ -148,4 +148,36 @@ contains
       @assert_that(rc /= 0, is(.true.))
    end subroutine test_unrecognized_state_item_variant_fails
 
+   ! Regression: FieldGet(field, geom=...) must not crash on a plain ESMF field
+   ! whose MAPL Info keys were never populated.  An empty field returns an
+   ! unallocated geom; a complete field returns its geom.
+   @test
+   subroutine test_field_get_geom_on_plain_empty_field()
+      type(ESMF_Field) :: field
+      type(ESMF_Geom), allocatable :: geom
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call MAPL_FieldGet(field, geom=geom, _RC)
+      @assert_that(allocated(geom), is(.false.))
+
+      call ESMF_FieldDestroy(field, _RC)
+   end subroutine test_field_get_geom_on_plain_empty_field
+
+   @test
+   subroutine test_field_get_geom_on_plain_complete_field()
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: field
+      type(ESMF_Geom), allocatable :: geom
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[4, 4], _RC)
+      field = ESMF_FieldCreate(grid=grid, typekind=ESMF_TYPEKIND_R4, _RC)
+      call MAPL_FieldGet(field, geom=geom, _RC)
+      @assert_that(allocated(geom), is(.true.))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_GridDestroy(grid, _RC)
+   end subroutine test_field_get_geom_on_plain_complete_field
+
 end module Test_FieldInfo

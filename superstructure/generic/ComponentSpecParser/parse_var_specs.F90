@@ -80,11 +80,11 @@ contains
          type(ESMF_HConfig) :: subcfg
          type(StringVector) :: dependencies
 
-          type(GeometrySpec) :: geometry_spec
-          type(mapl_GeomId) :: geom_id
-          type(mapl_MaplGeom), pointer :: mapl_geom
-          type(mapl_GeomManager), pointer :: geom_mgr
-          type(ESMF_Geom), allocatable :: geom
+         type(GeometrySpec) :: geometry_spec
+         type(mapl_GeomId) :: geom_id
+         type(mapl_MaplGeom), pointer :: mapl_geom
+         type(mapl_GeomManager), pointer :: geom_mgr
+         type(ESMF_Geom), allocatable :: geom
          class(VerticalGrid), allocatable :: vertical_grid
 
          has_state = ESMF_HConfigIsDefined(hconfig,keyString=state_intent, _RC)

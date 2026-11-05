@@ -25,4 +25,20 @@ contains
       @assert_that(variant == MAPL_STATEITEM_BRACKET, is(.true.))
    end subroutine test_state_item_variant_round_trip
 
+   ! Regression: FieldBundleGet(bundle, geom=...) must not crash on a plain ESMF
+   ! bundle whose MAPL Info keys were never populated.  A bundle with no MAPL
+   ! geom metadata returns an unallocated geom and succeeds.
+   @test
+   subroutine test_bundle_get_geom_on_plain_bundle()
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Geom), allocatable :: geom
+      integer :: status
+
+      bundle = ESMF_FieldBundleCreate(name='b', _RC)
+      call MAPL_FieldBundleGet(bundle, geom=geom, _RC)
+      @assert_that(allocated(geom), is(.false.))
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+   end subroutine test_bundle_get_geom_on_plain_bundle
+
 end module Test_FieldBundleVariant
