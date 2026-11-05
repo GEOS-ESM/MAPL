@@ -7,9 +7,9 @@ module Test_StatusResolution
         PAIR_MATCH, PAIR_EXTEND, PAIR_ADOPT, PAIR_CONFLICT, PAIR_INVALID, PAIR_WAIT
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), &
-        PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
-        VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
-        VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
+         PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
+         VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+         VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND
    use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
    use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
    use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_MIRROR
@@ -26,7 +26,8 @@ module Test_StatusResolution
    use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
    use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
    use mapl_QuantityType_mod, only: QUANTITY_UNKNOWN, QUANTITY_TEMPERATURE, &
-        QUANTITY_PRESSURE, BASIS_NONE, BASIS_WET_MASS, BASIS_DRY_MASS
+         QUANTITY_PRESSURE, BASIS_NONE, BASIS_WET_MASS, BASIS_DRY_MASS, &
+         operator(==)
    use mapl_ConservationMetadata_mod, only: ConservationMetadata
    use mapl_ConservationType_mod, only: CONSERVE_MASS, CONSERVE_ENERGY
    use mapl_NormalizationMetadata_mod, only: NormalizationMetadata
@@ -71,10 +72,9 @@ contains
       @assertEqual(PAIR_ADOPT, resolve_pair(up, mirrored, MAPL_STATEITEM_FIELD))
    end subroutine test_vertical_orientation_pairs
 
-   ! "Unknown matches anything" and BASIS_NONE are value rules of the
-   ! subclass, not status: both sides are SPECIFIED.
+   ! QUANTITY_UNKNOWN is not a value wildcard. BASIS_NONE remains one.
    @test
-   subroutine test_quantity_type_value_wildcards_are_not_status()
+   subroutine test_quantity_type_unknown_is_not_a_value_wildcard()
       type(QuantityTypeCharacteristic) :: unknown, temperature, pressure
       type(QuantityTypeCharacteristic) :: wet, dry, no_basis
 
@@ -85,16 +85,30 @@ contains
       dry = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_DRY_MASS)
       no_basis = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_NONE)
 
-      @assertEqual(PAIR_MATCH, resolve_pair(temperature, unknown, &
-           MAPL_STATEITEM_FIELD))
-      @assertEqual(PAIR_MATCH, resolve_pair(unknown, temperature, &
-           MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(temperature, unknown, &
+            MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(unknown, temperature, &
+            MAPL_STATEITEM_FIELD))
       @assertEqual(PAIR_EXTEND, resolve_pair(temperature, pressure, &
            MAPL_STATEITEM_FIELD))
       @assertEqual(PAIR_MATCH, resolve_pair(wet, no_basis, &
            MAPL_STATEITEM_FIELD))
       @assertEqual(PAIR_EXTEND, resolve_pair(wet, dry, MAPL_STATEITEM_FIELD))
-   end subroutine test_quantity_type_value_wildcards_are_not_status
+   end subroutine test_quantity_type_unknown_is_not_a_value_wildcard
+
+   @test
+   subroutine test_deferred_quantity_type_waits()
+      type(QuantityTypeCharacteristic) :: deferred, specified
+
+      deferred = QuantityTypeCharacteristic(QUANTITY_UNKNOWN)
+      specified = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE)
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+
+      @assertEqual(PAIR_WAIT, resolve_pair(deferred, specified, &
+           MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_WAIT, resolve_pair(specified, deferred, &
+           MAPL_STATEITEM_FIELD))
+   end subroutine test_deferred_quantity_type_waits
 
    @test
    subroutine test_conservation_and_normalization_pairs()
@@ -368,6 +382,37 @@ contains
       call import%get_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, found, rc=status)
       @assertTrue(found%get_status() == CHARACTERISTIC_STATUS_UNCHECKED)
    end subroutine test_mirrored_import_adopts_unchecked_export
+
+   @test
+   subroutine test_unchecked_quantity_import_does_not_adopt_export_value()
+      type(StateItemDescriptor) :: export, import
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      character(:), allocatable :: conflict
+      class(StateItemCharacteristic), allocatable :: found
+      type(QuantityTypeCharacteristic) :: unchecked
+      integer :: status
+
+      unchecked = QuantityTypeCharacteristic(QUANTITY_UNKNOWN)
+      call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call export%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+           QuantityTypeCharacteristic(QUANTITY_TEMPERATURE), rc=status)
+      call import%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+           unchecked, rc=status)
+
+      call resolve_descriptors(export, import, mismatched, conflict, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', conflict)
+      @assertEqual(0, size(mismatched))
+      call import%get_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+           found, rc=status)
+      @assertTrue(found%get_status() == CHARACTERISTIC_STATUS_UNCHECKED)
+      select type (found)
+      type is (QuantityTypeCharacteristic)
+         @assertTrue(found%get_quantity_type() == QUANTITY_UNKNOWN)
+      class default
+         @assertTrue(.false., 'entry is not a QuantityTypeCharacteristic')
+      end select
+   end subroutine test_unchecked_quantity_import_does_not_adopt_export_value
 
    ! Bare maps cannot record an adoption, so the map form fails.
    @test

@@ -409,15 +409,15 @@ contains
    end subroutine test_quantity_type_matching_does_not_need_extension
 
    @test
-   subroutine test_quantity_type_either_side_unknown_does_not_need_extension()
+   subroutine test_quantity_type_either_side_unknown_needs_extension()
       type(QuantityTypeCharacteristic) :: known, unknown
 
       known = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
       unknown = QuantityTypeCharacteristic(QUANTITY_UNKNOWN, BASIS_WET_MASS)
 
-      @assertFalse(known%needs_extension_for(unknown))
-      @assertFalse(unknown%needs_extension_for(known))
-   end subroutine test_quantity_type_either_side_unknown_does_not_need_extension
+      @assertTrue(known%needs_extension_for(unknown))
+      @assertTrue(unknown%needs_extension_for(known))
+   end subroutine test_quantity_type_either_side_unknown_needs_extension
 
    @test
    subroutine test_quantity_type_basis_none_no_extension()
@@ -856,10 +856,10 @@ contains
       @assertFalse(allocated(transformer))
    end subroutine test_quantity_type_basis_only_mismatch_reports_unsupported
 
-   ! One rule for the quantity axis: QUANTITY_UNKNOWN matches a known type,
-   ! so two different real bases are still a basis-only mismatch.
+   ! QUANTITY_UNKNOWN is a real mismatch against a known type; the quantity
+   ! axis wins even when the bases also differ.
    @test
-   subroutine test_quantity_type_unknown_with_differing_bases_unsupported()
+   subroutine test_quantity_type_unknown_with_differing_bases_incompatible()
       type(QuantityTypeCharacteristic) :: known, unknown
       class(TransformBase), allocatable :: transformer
       integer :: status
@@ -872,19 +872,18 @@ contains
 
       status = BUILD_TRANSFORM_INCOMPATIBLE
       call known%build_transform(unknown, transformer, rc=status)
-      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
       @assertFalse(allocated(transformer))
 
       status = BUILD_TRANSFORM_INCOMPATIBLE
       call unknown%build_transform(known, transformer, rc=status)
-      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
       @assertFalse(allocated(transformer))
-   end subroutine test_quantity_type_unknown_with_differing_bases_unsupported
+   end subroutine test_quantity_type_unknown_with_differing_bases_incompatible
 
-   ! BASIS_NONE on either side matches any basis, so these pairs need no
-   ! extension and never reach build_transform in production.
+   ! BASIS_NONE matches any basis, but does not hide a quantity mismatch.
    @test
-   subroutine test_quantity_type_basis_none_pairs_need_no_extension()
+   subroutine test_quantity_type_basis_none_is_only_a_basis_wildcard()
       type(QuantityTypeCharacteristic) :: wet_mass, no_basis, unknown_none
 
       wet_mass = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, &
@@ -894,9 +893,39 @@ contains
 
       @assertFalse(wet_mass%needs_extension_for(no_basis))
       @assertFalse(no_basis%needs_extension_for(wet_mass))
-      @assertFalse(wet_mass%needs_extension_for(unknown_none))
-      @assertFalse(unknown_none%needs_extension_for(wet_mass))
-   end subroutine test_quantity_type_basis_none_pairs_need_no_extension
+      @assertTrue(wet_mass%needs_extension_for(unknown_none))
+      @assertTrue(unknown_none%needs_extension_for(wet_mass))
+   end subroutine test_quantity_type_basis_none_is_only_a_basis_wildcard
+
+   @test
+   subroutine test_quantity_type_deferred_is_fatal_only_when_required()
+      type(QuantityTypeCharacteristic) :: quantity_type
+      type(PhysicalUnitsCharacteristic) :: units
+      type(FieldDictionaryConfig) :: saved
+
+      quantity_type = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE)
+      units = PhysicalUnitsCharacteristic('K')
+      saved = get_field_dictionary_config()
+
+      call use_validation( &
+           '{validation_mode: permissive, require_quantity_type: false}')
+      @assertFalse(quantity_type%is_deferred_fatal())
+      @assertTrue(units%is_deferred_fatal())
+
+      call use_validation( &
+           '{validation_mode: strict, require_quantity_type: false}')
+      @assertFalse(quantity_type%is_deferred_fatal())
+
+      call use_validation( &
+           '{validation_mode: permissive, require_quantity_type: true}')
+      @assertTrue(quantity_type%is_deferred_fatal())
+
+      call use_validation( &
+           '{validation_mode: strict, require_quantity_type: true}')
+      @assertTrue(quantity_type%is_deferred_fatal())
+
+      call set_field_dictionary_config(saved)
+   end subroutine test_quantity_type_deferred_is_fatal_only_when_required
 
    @test
    subroutine test_standard_name_build_transform_reports_incompatible()

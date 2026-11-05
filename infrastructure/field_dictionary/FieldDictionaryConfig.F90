@@ -31,11 +31,13 @@ module mapl_FieldDictionaryConfig_mod
       type(MAPL_ValidationMode) :: validation_mode
       logical :: suppress_standard_name_warnings = .false.
       logical :: require_standard_name = .false.
+      logical :: require_quantity_type = .false.
    contains
       procedure :: get_dictionary_path
       procedure :: get_validation_mode
       procedure :: suppress_standard_name_warnings_flag
       procedure :: require_standard_name_flag
+      procedure :: require_quantity_type_flag
       procedure :: has_dictionary_path
       procedure :: is_exempt
    end type FieldDictionaryConfig
@@ -137,6 +139,11 @@ contains
               ESMF_HConfigAsLogical(node, keyString='require_standard_name', _RC)
       end if
 
+      if (ESMF_HConfigIsDefined(node, keyString='require_quantity_type')) then
+         config%require_quantity_type = ESMF_HConfigAsLogical( &
+              node, keyString='require_quantity_type', _RC)
+      end if
+
       _RETURN(_SUCCESS)
    end function new_from_hconfig
 
@@ -184,6 +191,11 @@ contains
       class(FieldDictionaryConfig), intent(in) :: this
       require_standard_name_flag = this%require_standard_name
    end function require_standard_name_flag
+
+   pure logical function require_quantity_type_flag(this)
+      class(FieldDictionaryConfig), intent(in) :: this
+      require_quantity_type_flag = this%require_quantity_type
+   end function require_quantity_type_flag
 
    pure logical function has_dictionary_path(this)
       class(FieldDictionaryConfig), intent(in) :: this

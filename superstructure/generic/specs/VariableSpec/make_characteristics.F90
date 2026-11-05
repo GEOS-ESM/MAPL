@@ -19,6 +19,7 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
    use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
    use mapl_RestartModes_mod, only: RESTART_REQUIRED
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_QuantityType_mod, only: QUANTITY_UNKNOWN, operator(==)
    use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
    use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
@@ -565,20 +566,35 @@ contains
       _RETURN(_SUCCESS)
    end subroutine make_restart_mode_characteristic
 
-   ! The declared quantity type is SPECIFIED; an undeclared one is
-   ! QUANTITY_UNKNOWN, which matches anything. Never MIRRORED or DEFERRED.
-   ! Same shape set as ungridded dims.
+   ! The declared quantity type is SPECIFIED; a declared QUANTITY_UNKNOWN
+   ! counts as undeclared. An undeclared quantity type is a real gap: on
+   ! EXPORT or INTERNAL the component may still set one on its realized item
+   ! (DEFERRED, resolved at GEOM_B or, if not required, left to the
+   ! connect-phase fallback); on IMPORT there is no such second chance, so
+   ! it starts UNCHECKED. Never MIRRORED. Same shape set as ungridded dims.
    subroutine make_quantity_type_characteristic(spec, descriptor, rc)
       class(VariableSpec), intent(in) :: spec
       type(StateItemDescriptor), intent(inout) :: descriptor
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(QuantityTypeCharacteristic) :: quantity_type
 
       _RETURN_UNLESS(has_field_metadata(spec%itemType))
 
+      if (spec%quantity_type == QUANTITY_UNKNOWN) then
+         if (spec%state_intent == ESMF_STATEINTENT_IMPORT) then
+            call quantity_type%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+         else
+            call quantity_type%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+         end if
+      else
+         quantity_type = &
+              QuantityTypeCharacteristic(quantity_type=spec%quantity_type)
+      end if
+
       call descriptor%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
-           QuantityTypeCharacteristic(quantity_type=spec%quantity_type), _RC)
+           quantity_type, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine make_quantity_type_characteristic

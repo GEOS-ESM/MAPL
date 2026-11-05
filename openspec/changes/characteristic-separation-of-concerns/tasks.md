@@ -666,7 +666,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       exists (3.36's fallback ordering must allow for it). Tests: parser
       (name, case, UNKNOWN, bad value), keyword, `resolve_deferred`
       (DEFERRED/SPECIFIED/UNCHECKED), harvest (Field, bundle, import).
-- [ ] 3.36 B3-QuantityTypeDeferred (3.26 R2: owner chose (c), rollout (b)
+- [x] 3.36 B3-QuantityTypeDeferred (3.26 R2: owner chose (c), rollout (b)
       and imports (a); after 3.27 and 3.35). Change the QuantityType
       factory (`make_quantity_type_characteristic`): undeclared on an
       EXPORT or INTERNAL is DEFERRED; undeclared on an IMPORT is
@@ -724,6 +724,37 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       modes. The fallback also runs at the start of `resolve_connections`
       (its only production caller is the connect hook), so tests that call
       it directly keep working.
+      Done: `make_quantity_type_characteristic` branches on state_intent
+      (EXPORT/INTERNAL undeclared -> DEFERRED, IMPORT undeclared ->
+      UNCHECKED, declared -> SPECIFIED; a declared `QUANTITY_UNKNOWN`
+      counts as undeclared). `pair_outcome` drops both `QUANTITY_UNKNOWN`
+      disjuncts (BASIS_NONE stays a basis wildcard).
+      `QuantityTypeCharacteristic%is_deferred_fatal` returns
+      `quantity_type_required()` (`graph/ValidationPolicy.F90`), backed by
+      the new `field_dictionary: require_quantity_type` key
+      (`FieldDictionaryConfig.F90`, same pattern as `require_standard_name`;
+      no legacy counterpart). The kind-agnostic fallback is
+      `StateItemDescriptor%fallback_unsupplied_deferred` (per descriptor)
+      plus `GraphBuilder%fallback_unsupplied_deferred` (per component: one
+      summary `GraphResolutionEntry` per characteristic kind that fell
+      back, count plus first 5 item names plus "..."). The connect hook
+      calls it explicitly before `resolve_connections` and returns it
+      through the hook's own `fallback_warnings` optional argument, logged
+      there; `resolve_connections` also applies it, recursively over its
+      own component and every descendant, before resolving any connection
+      pair (deviation from the preceding paragraph's "its only production
+      caller is the connect hook": a connection pairs this component's
+      items with a descendant's via
+      `resolve_qualified_component`/`find_export_node_id`, so a direct
+      `resolve_connections()` call on a parent needs its children's own
+      DEFERRED items converted too, not just its own - otherwise
+      `resolve_pair` returns `PAIR_WAIT` for the whole pair and skips
+      wiring it, which segfaulted an existing
+      `Test_GraphBuilder_ConnectionResolution.pf` test downstream). Both
+      call sites are idempotent (a descriptor already converted has
+      nothing left to report), so the summary warning is produced exactly
+      once per component regardless of which path reaches it first.
+      ctest -L ESSENTIAL: NAG 69/69, gfortran 69/69.
 - [x] 3.37 B3-QuantityBasisUnsupported (owner; amends A23 for basis only;
       before 3.36). Today any QuantityType mismatch is
       `BUILD_TRANSFORM_INCOMPATIBLE` (`QuantityTypeCharacteristic.F90`

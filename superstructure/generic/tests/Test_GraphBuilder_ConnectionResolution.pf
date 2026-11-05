@@ -62,8 +62,12 @@ module Test_GraphBuilder_ConnectionResolution
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
-   use mapl_StateItemCharacteristicKind_mod, only: GEOMETRY_CHARACTERISTIC_KIND
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        GEOMETRY_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_QuantityType_mod, only: QuantityType, MixingRatioBasis, &
+        QUANTITY_MIXING_RATIO, BASIS_WET_MASS, BASIS_DRY_MASS
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
@@ -192,6 +196,35 @@ contains
       net => parent_graph%get_network(parent_graph%get_default_network_id())
       wired = net%contains_dependency(export_id, import_id)
    end function pair_is_wired
+
+   subroutine set_quantity_basis(meta, state_intent, name, quantity_type, &
+        basis, rc)
+      type(OuterMetaComponent), pointer, intent(inout) :: meta
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      character(*), intent(in) :: name
+      type(QuantityType), intent(in) :: quantity_type
+      type(MixingRatioBasis), intent(in) :: basis
+      integer, optional, intent(out) :: rc
+
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: node_id
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: descriptor
+      integer :: status
+
+      graph => meta%get_component_graph()
+      node_id => graph%get_resource_index(item_key(state_intent, name))
+      node => graph%get_node(node_id)
+      select type (node)
+      class is (StateItemNode)
+         descriptor => node%get_descriptor()
+         call descriptor%set_characteristic( &
+              QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+              QuantityTypeCharacteristic(quantity_type, basis), _RC)
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine set_quantity_basis
 
    ! Task 6.2 / spec "Matching export and import are wired" + "Import
    ! with no matching export is left unresolved" + task 4.2 "Child's
@@ -518,6 +551,45 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_unsupported_pair_fails_freeze_check_only_when_strict
+
+   @test(npes=[0])
+   subroutine test_quantity_basis_only_pair_is_unsupported(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(GraphResolutionEntryVector) :: unsupported, conflicts
+      type(GraphResolutionEntry), pointer :: entry
+      type(VariableSpec) :: export_var_spec, import_var_spec
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T')
+      export_var_spec%quantity_type = QUANTITY_MIXING_RATIO
+      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T')
+      import_var_spec%quantity_type = QUANTITY_MIXING_RATIO
+      call make_pair_fixture('comp_parent_quantity_basis', &
+           export_var_spec, import_var_spec, parent_meta, src_meta, &
+           dst_meta, _RC)
+      call set_quantity_basis(src_meta, ESMF_STATEINTENT_EXPORT, 'T', &
+           QUANTITY_MIXING_RATIO, BASIS_WET_MASS, _RC)
+      call set_quantity_basis(dst_meta, ESMF_STATEINTENT_IMPORT, 'T', &
+           QUANTITY_MIXING_RATIO, BASIS_DRY_MASS, _RC)
+
+      call gb%resolve_connections(parent_meta, &
+           unsupported_characteristics=unsupported, &
+           connection_conflicts=conflicts, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, unsupported%size())
+      @assertEqual(0, conflicts%size())
+      entry => unsupported%at(1, status)
+      @assertEqual(0, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('T', entry%short_name)
+      @assertEqual('QUANTITY_TYPE', entry%reason)
+      @assertFalse(pair_is_wired(parent_meta, src_meta, dst_meta, 'T'))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_quantity_basis_only_pair_is_unsupported
 
    ! HorizontalDimsSpec GEOM (export) vs NONE (import) can never connect.
    ! It is reported in connection_conflicts, naming the kind and both

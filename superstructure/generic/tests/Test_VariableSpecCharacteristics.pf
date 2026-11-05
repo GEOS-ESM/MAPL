@@ -2143,12 +2143,10 @@ contains
       _RETURN(_SUCCESS)
    end function metadata_status
 
-   ! No keyword or YAML key sets these fields yet, so a spec carries the
-   ! defaults: UNKNOWN, CONSERVE_NONE (not conservable), NORMALIZE_NONE
-   ! (scale 1). They are SPECIFIED, never MIRRORED, and a default export is
-   ! accepted.
+   ! An undeclared export quantity type is DEFERRED. Conservation and
+   ! normalization retain their SPECIFIED built-in defaults.
    @test
-   subroutine test_default_metadata_kinds_are_specified()
+   subroutine test_default_export_quantity_type_is_deferred()
       type(VariableSpec) :: var_spec
       type(StateItemDescriptor) :: descriptor
       class(StateItemCharacteristic), allocatable :: c
@@ -2162,7 +2160,7 @@ contains
 
       call descriptor%get_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, c, rc=status)
       @assertEqual(0, status)
-      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_DEFERRED)
       select type (c)
       type is (QuantityTypeCharacteristic)
          @assertTrue(c%get_quantity_type() == QUANTITY_UNKNOWN)
@@ -2196,7 +2194,59 @@ contains
       class default
          @assertTrue(.false., 'NORMALIZATION entry has the wrong type')
       end select
-   end subroutine test_default_metadata_kinds_are_specified
+   end subroutine test_default_export_quantity_type_is_deferred
+
+   @test
+   subroutine test_undeclared_quantity_type_status_depends_on_intent()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      @assertTrue(metadata_status(var_spec, &
+           QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+
+      var_spec%state_intent = ESMF_STATEINTENT_INTERNAL
+      @assertTrue(metadata_status(var_spec, &
+           QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+   end subroutine test_undeclared_quantity_type_status_depends_on_intent
+
+   @test
+   subroutine test_declared_unknown_quantity_type_is_deferred()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, 'X', &
+           quantity_type=QUANTITY_UNKNOWN, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(metadata_status(var_spec, &
+           QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+   end subroutine test_declared_unknown_quantity_type_is_deferred
+
+   @test
+   subroutine test_declared_quantity_type_is_specified_for_each_intent()
+      type(ESMF_StateIntent_Flag) :: intents(3)
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      intents = [ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, &
+           ESMF_STATEINTENT_INTERNAL]
+      do i = 1, size(intents)
+         var_spec = make_spec(MAPL_STATEITEM_FIELD)
+         var_spec%state_intent = intents(i)
+         var_spec%quantity_type = QUANTITY_TEMPERATURE
+         @assertTrue(metadata_status(var_spec, &
+              QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
+              CHARACTERISTIC_STATUS_SPECIFIED)
+         @assertEqual(0, status)
+      end do
+   end subroutine test_declared_quantity_type_is_specified_for_each_intent
 
    ! The make_VariableSpec keyword sets the field the factory reads, and is
    ! not a mirror request.
@@ -2371,8 +2421,9 @@ contains
       shapes = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
            MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE]
       do i = 1, size(shapes)
-         @assertTrue(metadata_status(make_spec(shapes(i)), QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
-              CHARACTERISTIC_STATUS_SPECIFIED)
+          @assertTrue(metadata_status(make_spec(shapes(i)), &
+               QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
+               CHARACTERISTIC_STATUS_DEFERRED)
          @assertEqual(0, status)
          @assertTrue(metadata_status(make_spec(shapes(i)), CONSERVATION_CHARACTERISTIC_KIND, rc=status) == &
               CHARACTERISTIC_STATUS_SPECIFIED)

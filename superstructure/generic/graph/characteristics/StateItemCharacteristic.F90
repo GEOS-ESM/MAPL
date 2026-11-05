@@ -112,6 +112,7 @@ module mapl_StateItemCharacteristic_mod
       procedure :: is_per_alias => char_is_per_alias
       procedure :: resolve_deferred => char_resolve_deferred
       procedure :: drop_if_unsupplied => char_drop_if_unsupplied
+      procedure :: is_deferred_fatal => char_is_deferred_fatal
       procedure :: match_warning => char_match_warning
    end type StateItemCharacteristic
 
@@ -322,6 +323,16 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(defaults)
    end function char_drop_if_unsupplied
+
+   ! An unsupplied DEFERRED characteristic is a value freeze needs and the
+   ! component never provided; most kinds treat that as an error regardless
+   ! of validation mode (QuantityTypeCharacteristic overrides this).
+   logical function char_is_deferred_fatal(this) result(fatal)
+      class(StateItemCharacteristic), intent(in) :: this
+
+      fatal = .true.
+      _UNUSED_DUMMY(this)
+   end function char_is_deferred_fatal
 
    ! Text to warn about when `this` (the export's value) and `goal` (the
    ! import's) resolved as a match, '' for none. Called for every matched pair,

@@ -520,6 +520,7 @@ contains
       var_spec%state_intent = ESMF_STATEINTENT_EXPORT
       var_spec%short_name = 'T'
       var_spec%vertical_stagger = VERTICAL_STAGGER_NONE
+      var_spec%quantity_type = QUANTITY_TEMPERATURE
       comp_spec => meta%get_component_spec()
       call comp_spec%add_var_spec(var_spec)
       call gb%advertise(meta, status)
@@ -729,6 +730,7 @@ contains
          deferred_spec%short_name = 'D'
          deferred_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
          deferred_spec%geom_id = mapl_new_GeomId(1)
+         deferred_spec%quantity_type = QUANTITY_TEMPERATURE
          mirror_spec%state_intent = ESMF_STATEINTENT_IMPORT
          mirror_spec%short_name = 'M'
          mirror_spec%geom_id = mapl_new_GeomId(1)
@@ -838,6 +840,7 @@ contains
       end if
       var_spec%state_intent = intent
       var_spec%short_name = 'T'
+      var_spec%quantity_type = QUANTITY_TEMPERATURE
       if (intent == ESMF_STATEINTENT_IMPORT) then
          var_spec%mirror_geom = .true.
       else

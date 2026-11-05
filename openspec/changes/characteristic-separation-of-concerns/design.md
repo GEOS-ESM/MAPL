@@ -574,7 +574,7 @@ error, A1). It replaces no existing keyword; legacy has none for these.
 | VerticalOrientation | `vertical_alignment` (`upward`/`downward`/`with_grid`) | Vertical index order relative to physical up/down (Q7). Unspecified or `with_grid`: the item's grid direction, resolved to UP/DOWN once the grid is known (factory for an item grid, `resolve_deferred` for the component grid), DEFERRED until then. Explicit mirror value: MIRRORED, imports only; takes the export's resolved order. A MIRROR stagger does not imply a mirrored orientation. No entry when VerticalGrid has none. |
 | UngriddedDims | `ungridded_dims` | `is_mirror()`: MIRRORED; else SPECIFIED |
 | Attributes | `attributes` | SPECIFIED, **always inserted, even if empty**. This fixes a parity bug: today an empty export set is omitted, so an import requiring attributes is never flagged, whereas legacy `includes([], required)` mismatches. |
-| QuantityType | `quantity_type` | SPECIFIED. A quantity-type mismatch is `BUILD_TRANSFORM_INCOMPATIBLE`; a pair whose quantity types match (equal or either `QUANTITY_UNKNOWN`) and whose bases differ with neither `BASIS_NONE` is `BUILD_TRANSFORM_UNSUPPORTED` (a conversion is possible, not built yet; A23). |
+| QuantityType | `quantity_type` | Declared (not `QUANTITY_UNKNOWN`): SPECIFIED. Undeclared (or declared `QUANTITY_UNKNOWN`, which counts as undeclared): DEFERRED on EXPORT/INTERNAL, UNCHECKED on IMPORT (B3-QuantityTypeDeferred). A DEFERRED entry whose `is_deferred_fatal()` (`quantity_type_required()`, A25) says no falls back to UNCHECKED at the connect-phase fallback instead of failing freeze; otherwise freeze fails. A quantity-type mismatch is `BUILD_TRANSFORM_INCOMPATIBLE`; a pair whose quantity types are equal (`QUANTITY_UNKNOWN` is no longer a quantity-axis wildcard, B3-QuantityTypeDeferred) and whose bases differ with neither `BASIS_NONE` is `BUILD_TRANSFORM_UNSUPPORTED` (a conversion is possible, not built yet; A23). |
 | Conservation | `conservation` | `is_mirror`: MIRRORED; else SPECIFIED |
 | Normalization | `normalization` | `is_mirror`: MIRRORED; else SPECIFIED |
 | RestartMode | `restart_mode` | allocated: SPECIFIED; else SPECIFIED `RESTART_REQUIRED` (A15). Never compared (§2.5). |
@@ -872,6 +872,12 @@ A23. `build_transform` has two failure outcomes. `BUILD_TRANSFORM_UNSUPPORTED`:
      quantity-type mismatch stays INCOMPATIBLE, even if the bases also
      differ. One rule shared with `needs_extension_for`, so `QUANTITY_UNKNOWN`
      against a known type with two different real bases is also UNSUPPORTED.
+     **Superseded (B3-QuantityTypeDeferred):** `QUANTITY_UNKNOWN` is no
+     longer a quantity-axis wildcard in `pair_outcome` - a declared
+     `QUANTITY_UNKNOWN` now counts as undeclared (DEFERRED on EXPORT/
+     INTERNAL, UNCHECKED on IMPORT; §5.1), so it never reaches `pair_outcome`
+     as a SPECIFIED value in the first place. `BASIS_NONE` is still a basis
+     wildcard, unchanged.
 A24. Rules review (tasks.md 3.26, session 2026-11-02; record and owner's
      words in `docs/graph/rules-review.md` §4a; R<n> are its questions).
      - R1: no adopt-on-connect rule. A value wildcard (QUANTITY_UNKNOWN,
@@ -884,8 +890,8 @@ A24. Rules review (tasks.md 3.26, session 2026-11-02; record and owner's
      - R2: the owner's rule is "almost all characteristics default to
        DEFERRED" (not "UNSPECIFIED"); option (c): only QuantityType
        changes now; Conservation and Normalization stay as they are and
-       may follow the same pattern later. Target (not yet implemented;
-       §5.1 shows current behavior):
+       may follow the same pattern later. Landed (B3-QuantityTypeDeferred;
+       §5.1 has the landed row):
        - Undeclared on an EXPORT or INTERNAL: DEFERRED. The user supplies
          it with `MAPL_FieldSet` in component code ("Users can use
          FieldSet to modify DEFERRED characteristics"), harvested like
@@ -896,11 +902,16 @@ A24. Rules review (tasks.md 3.26, session 2026-11-02; record and owner's
          `has_field_metadata` shapes, and the freeze check fails only on a
          present DEFERRED entry.
        - Undeclared on an IMPORT: UNCHECKED (accepts whatever it is given).
-       - Rollout (b): suppliers first; then a ValidationMode-style switch.
-         By default an unsupplied DEFERRED QuantityType at freeze is a
-         warning and falls back, so nothing breaks; in strict mode it is an
-         error. Strict becomes the default once real configs comply. It
-         should share 3.27's configuration surface.
+       - Rollout (b): suppliers (3.35) first, then the switch (3.36).
+         Landed as a `field_dictionary:` key, `require_quantity_type`
+         (default false, A25), not a `validation_mode` state: strict mode
+         alone does not make an unsupplied QuantityType fatal (the
+         ESSENTIAL scenario suite runs strict and no fixture declares one).
+         By default (`require_quantity_type: false`), an unsupplied
+         DEFERRED QuantityType at freeze is a warning and falls back to
+         UNCHECKED in both modes; with the key true it is an error in both
+         modes. It shares 3.27's configuration surface
+         (`graph/ValidationPolicy.F90`).
        - With R1: no adopt rule is added. An import's UNCHECKED replaces
          the UNKNOWN value wildcard for the undeclared case.
        Owner: rules may be tweaked after more concrete use cases. Tasks
@@ -931,12 +942,14 @@ A24. Rules review (tasks.md 3.26, session 2026-11-02; record and owner's
 A25. Validation mode (owner, B3-StandardNameValidation, tasks.md 3.27).
      - One configuration surface for both paths: the `field_dictionary:`
        YAML keys `validation_mode` (strict | permissive, default
-       permissive), `suppress_standard_name_warnings`, and the new
-       `require_standard_name` (default false). Graph code reads them only
-       through `graph/ValidationPolicy.F90` (`validation_is_strict`,
-       `standard_name_warnings_suppressed`, `standard_name_required`),
-       which reads `FieldDictionaryConfig`; the graph does not depend on
-       StateRegistry or `specs/*Aspect`.
+       permissive), `suppress_standard_name_warnings`, `require_standard_name`
+       (default false), and `require_quantity_type` (default false,
+       B3-QuantityTypeDeferred; graph-only, no legacy counterpart). Graph
+       code reads them only through `graph/ValidationPolicy.F90`
+       (`validation_is_strict`, `standard_name_warnings_suppressed`,
+       `standard_name_required`, `quantity_type_required`), which reads
+       `FieldDictionaryConfig`; the graph does not depend on StateRegistry
+       or `specs/*Aspect`.
      - A tolerated mismatch, in general form: `StateItemCharacteristic%
        match_warning(goal)` (default `''`) is called for every pair
        `resolve_characteristics` resolves as PAIR_MATCH, whatever the
@@ -962,10 +975,19 @@ A25. Validation mode (owner, B3-StandardNameValidation, tasks.md 3.27).
        Not called from `run_graph_freeze_hook` yet (owner): the strict
        scenario suite has GEOMETRY and VERTICAL_GRID pairs that legacy
        connects; the legacy-retirement step adds the call.
-     - For 3.36: a `StateItemCharacteristic` method, default "an unsupplied
-       DEFERRED is fatal" (today's behavior), which QuantityType overrides
-       to "fatal only if `validation_is_strict()`, else fall back". The
-       freeze check calls it and never names the kind (D6). 3.36 adds it.
+     - 3.36 (landed): `StateItemCharacteristic%is_deferred_fatal`, default
+       "an unsupplied DEFERRED is fatal" (today's behavior), which
+       `QuantityTypeCharacteristic` overrides to `quantity_type_required()`
+       (`require_quantity_type`, above - `validation_is_strict()` alone is
+       not enough). The connect-phase fallback
+       (`StateItemDescriptor%fallback_unsupplied_deferred`,
+       `GraphBuilder%fallback_unsupplied_deferred`) calls it before freeze:
+       a non-fatal DEFERRED falls back to UNCHECKED there instead of
+       reaching freeze at all. The fallback also runs at the start of
+       `resolve_connections` so a direct call (bypassing the connect hook)
+       still converts it before matching. The freeze check itself never
+       calls `is_deferred_fatal`; it fails on any DEFERRED entry that
+       survives the fallback, and never names the kind either way (D6).
 
 ## Open Questions (deferred to the named B3 task)
 

@@ -30,6 +30,8 @@ module Test_GraphBuilder_ConvergenceCheck
    use mapl_ConnectionPt_mod, only: ConnectionPt
    use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
    use mapl_MatchConnection_mod, only: MatchConnection
+   use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
+   use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
    use gFTL2_StringVector, only: StringVector
    use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
    use mapl_GraphNode_mod, only: GraphNode
@@ -39,11 +41,40 @@ module Test_GraphBuilder_ConvergenceCheck
    use mapl_StateItemCharacteristicKind_mod, only: TYPE_KIND_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_DEFERRED
    use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
+   use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, &
+        set_field_dictionary_config, get_field_dictionary_config
    use esmf
    use pfunit
    implicit none(type, external)
 
+   type(FieldDictionaryConfig), save :: saved_fd_config
+
 contains
+
+   @before
+   subroutine save_validation_config(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      saved_fd_config = get_field_dictionary_config()
+      _UNUSED_DUMMY(this)
+   end subroutine save_validation_config
+
+   @after
+   subroutine restore_validation_config(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      call set_field_dictionary_config(saved_fd_config)
+      _UNUSED_DUMMY(this)
+   end subroutine restore_validation_config
+
+   subroutine use_validation(content)
+      character(*), intent(in) :: content
+      type(ESMF_HConfig) :: node
+
+      node = ESMF_HConfigCreate(content=content)
+      call set_field_dictionary_config(FieldDictionaryConfig(node))
+      call ESMF_HConfigDestroy(node)
+   end subroutine use_validation
 
    ! make_outer_meta/make_var shared via GraphBuilderTestSupport_mod
    ! (docs/graph/spec/20-implementation-roadmap.md sec 20.4.17,
@@ -63,9 +94,11 @@ contains
    ! run_graph_freeze_hook, called once on parent_meta (the hierarchy
    ! root), matching the real lifecycle's own GENERIC_INIT_GRAPH_FREEZE
    ! phase ordering (resolve everywhere first, freeze+check once, after).
-   subroutine make_two_child_fixture(parent_meta, leave_unresolved, rc)
+   subroutine make_two_child_fixture(parent_meta, leave_unresolved, &
+        fallback_warnings, rc)
       type(OuterMetaComponent), pointer, intent(out) :: parent_meta
       logical, intent(in) :: leave_unresolved
+      type(GraphResolutionEntryVector), optional, intent(out) :: fallback_warnings
       integer, optional, intent(out) :: rc
 
       type(ESMF_GridComp) :: parent_gc
@@ -115,12 +148,120 @@ contains
       ! declares no imports of its own, so this call on it is a no-op
       ! other than resolving the MatchConnection it declares between its
       ! two children.
-      call gb%run_connect_hook(src_meta)
+      if (present(fallback_warnings)) then
+         call gb%run_connect_hook(src_meta, fallback_warnings)
+      else
+         call gb%run_connect_hook(src_meta)
+      end if
       call gb%run_connect_hook(dst_meta)
       call gb%run_connect_hook(parent_meta)
 
       _RETURN(_SUCCESS)
    end subroutine make_two_child_fixture
+
+   @test(npes=[0])
+   subroutine test_quantity_type_permissive_fallback_wires(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(GraphResolutionEntryVector) :: warnings
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call use_validation( &
+           '{validation_mode: permissive, require_quantity_type: false}')
+      call make_two_child_fixture(parent_meta, leave_unresolved=.false., &
+           fallback_warnings=warnings, _RC)
+
+      @assertEqual(1, warnings%size())
+      @assertFalse(parent_meta%has_waiting_connections())
+      call gb%run_graph_freeze_hook(parent_meta)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_quantity_type_permissive_fallback_wires
+
+   @test(npes=[0])
+   subroutine test_quantity_type_strict_without_requirement_falls_back(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(GraphResolutionEntryVector) :: warnings
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call use_validation( &
+           '{validation_mode: strict, require_quantity_type: false}')
+      call make_two_child_fixture(parent_meta, leave_unresolved=.false., &
+           fallback_warnings=warnings, _RC)
+
+      @assertEqual(1, warnings%size())
+      @assertFalse(parent_meta%has_waiting_connections())
+      call gb%run_graph_freeze_hook(parent_meta)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_quantity_type_strict_without_requirement_falls_back
+
+   @test(npes=[0])
+   subroutine test_quantity_type_required_is_fatal_in_permissive_mode(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta
+      type(GraphResolutionEntryVector) :: warnings
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call use_validation( &
+           '{validation_mode: permissive, require_quantity_type: true}')
+      call make_two_child_fixture(parent_meta, leave_unresolved=.false., &
+           fallback_warnings=warnings, _RC)
+      src_meta => parent_meta%get_child_outer_meta('child_src', _RC)
+
+      @assertEqual(0, warnings%size())
+      call gb%run_graph_freeze_hook(parent_meta)
+      @assertExceptionRaised('StateItemDescriptor: item ' // &
+           src_meta%get_name() // &
+           ':T has characteristic QUANTITY_TYPE still DEFERRED at freeze')
+      @assertExceptionRaised('GraphBuilder: characteristics unresolved at freeze')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_quantity_type_required_is_fatal_in_permissive_mode
+
+   @test(npes=[0])
+   subroutine test_quantity_type_fallback_warning_is_summarized(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      character(2), parameter :: names(6) = ['T ', 'Q ', 'U ', 'V ', &
+           'PS', 'TS']
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(GraphResolutionEntryVector) :: warnings
+      type(GraphResolutionEntry), pointer :: entry
+      type(GraphBuilder) :: gb
+      integer :: i, status
+
+      call use_validation( &
+           '{validation_mode: permissive, require_quantity_type: false}')
+      call make_outer_meta('comp_quantity_fallback', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+      do i = 1, size(names)
+         call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, &
+              trim(names(i))))
+      end do
+      call gb%run_advertise_hook(outer_meta)
+
+      call gb%run_connect_hook(outer_meta, warnings)
+
+      @assertEqual(1, warnings%size())
+      entry => warnings%at(1, status)
+      @assertEqual(0, status)
+      @assertEqual(outer_meta%get_name(), entry%component_name)
+      @assertEqual('', entry%short_name)
+      @assertEqual('6 items fell back to UNCHECKED (QUANTITY_TYPE not supplied): T, Q, U, V, PS, ...', &
+           entry%reason)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_quantity_type_fallback_warning_is_summarized
 
    ! Spec scenario "Cycle reaching the iteration limit without
    ! convergence fails explicitly": an import that can never be

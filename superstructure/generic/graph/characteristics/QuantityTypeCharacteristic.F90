@@ -6,10 +6,11 @@
 ! quantity_type and basis. Dimensions and molecular weight are not carried:
 ! VariableSpec declares neither.
 !
-! needs_extension_for matches when quantity_type is equal or either side is
-! QUANTITY_UNKNOWN, and basis is equal or either side is BASIS_NONE. These
-! are value rules, not status: an undeclared quantity type is SPECIFIED
-! QUANTITY_UNKNOWN. The kind is never MIRRORED.
+! needs_extension_for matches when quantity_type is equal and basis is equal
+! or either side is BASIS_NONE: BASIS_NONE is a basis wildcard, but
+! QUANTITY_UNKNOWN is not a quantity-axis wildcard (an undeclared quantity
+! type is a real gap in status, not a SPECIFIED value that matches
+! anything). The kind is never MIRRORED.
 !
 ! A quantity-type mismatch can never connect (legacy converts nothing, its
 ! NullTransform being reachable only for a time-dependent aspect, which
@@ -35,6 +36,7 @@ module mapl_QuantityTypeCharacteristic_mod
                                      QUANTITY_UNKNOWN, BASIS_NONE, &
                                      operator(==)
    use mapl_QuantityTypeMetadata_mod, only: QuantityTypeMetadata
+   use mapl_ValidationPolicy_mod, only: quantity_type_required
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_field_api, only: MAPL_FieldSet
    use mapl_field_bundle_api, only: MAPL_FieldBundleSet
@@ -59,6 +61,7 @@ module mapl_QuantityTypeCharacteristic_mod
       procedure :: get_signature => quantity_type_get_signature
       procedure :: write_info => quantity_type_write_info
       procedure :: resolve_deferred => quantity_type_resolve_deferred
+      procedure :: is_deferred_fatal => quantity_type_is_deferred_fatal
       procedure :: get_quantity_type
       procedure :: get_basis
    end type QuantityTypeCharacteristic
@@ -104,17 +107,16 @@ contains
    end function quantity_type_needs_extension_for
 
    ! The quantity axis wins: a quantity-type mismatch is reported even if the
-   ! bases also differ. Each axis matches when equal or either side is its
-   ! wildcard (QUANTITY_UNKNOWN, BASIS_NONE).
+   ! bases also differ. Only the basis axis has a wildcard (BASIS_NONE);
+   ! QUANTITY_UNKNOWN on either side is an ordinary mismatch against a known
+   ! quantity type.
    integer function pair_outcome(a, b) result(outcome)
       type(QuantityTypeCharacteristic), intent(in) :: a
       type(QuantityTypeCharacteristic), intent(in) :: b
 
       logical :: quantity_matches, basis_matches
 
-      quantity_matches = (a%quantity_type == b%quantity_type) .or. &
-                          (a%quantity_type == QUANTITY_UNKNOWN) .or. &
-                          (b%quantity_type == QUANTITY_UNKNOWN)
+      quantity_matches = (a%quantity_type == b%quantity_type)
       basis_matches = (a%basis == b%basis) .or. &
                        (a%basis == BASIS_NONE) .or. &
                        (b%basis == BASIS_NONE)
@@ -209,6 +211,16 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine quantity_type_resolve_deferred
+
+   ! Unlike most characteristics, an unsupplied quantity type is advisory in
+   ! every validation_mode by default (strict mode alone does not make it
+   ! fatal); only the field_dictionary: require_quantity_type key does.
+   logical function quantity_type_is_deferred_fatal(this) result(fatal)
+      class(QuantityTypeCharacteristic), intent(in) :: this
+
+      fatal = quantity_type_required()
+      _UNUSED_DUMMY(this)
+   end function quantity_type_is_deferred_fatal
 
    function quantity_type_get_signature(this) result(signature)
       class(QuantityTypeCharacteristic), intent(in) :: this

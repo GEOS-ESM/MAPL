@@ -74,6 +74,8 @@ module mapl_StateItemDescriptor_mod
       procedure :: check_resolved => descriptor_check_resolved
       procedure :: resolve_deferred => descriptor_resolve_deferred
       procedure :: drop_unsupplied => descriptor_drop_unsupplied
+      procedure :: fallback_unsupplied_deferred => &
+           descriptor_fallback_unsupplied_deferred
       procedure :: sync_to_info => descriptor_sync_to_info
       procedure :: sync_per_alias_to_info => descriptor_sync_per_alias_to_info
       procedure :: get_declared_item_type => descriptor_get_declared_item_type
@@ -520,6 +522,36 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine descriptor_drop_unsupplied
+
+   ! Converts each characteristic that is still DEFERRED and whose
+   ! is_deferred_fatal() says no to UNCHECKED, so it stops waiting instead of
+   ! failing freeze. Returns the kinds converted, so the caller can report
+   ! what happened without this method naming any particular kind.
+   subroutine descriptor_fallback_unsupplied_deferred(this, fallen_back, rc)
+      class(StateItemDescriptor), target, intent(inout) :: this
+      type(StateItemCharacteristicKind), allocatable, intent(out) :: &
+           fallen_back(:)
+      integer, optional, intent(out) :: rc
+
+      type(StateItemCharacteristicMapIterator) :: iter
+      class(StateItemCharacteristic), pointer :: c
+
+      allocate(fallen_back(0))
+      associate (e => this%characteristics%ftn_end())
+         iter = this%characteristics%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            c => iter%second()
+            if (c%get_status() == CHARACTERISTIC_STATUS_DEFERRED .and. &
+                 .not. c%is_deferred_fatal()) then
+               call c%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+               fallen_back = [fallen_back, iter%first()]
+            end if
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine descriptor_fallback_unsupplied_deferred
 
    ! Writes each SPECIFIED or UNCHECKED characteristic onto the handle's Info.
    ! The DESCRIPTIVE phase skips structural characteristics, so a completed

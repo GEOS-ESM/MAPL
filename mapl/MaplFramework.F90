@@ -1192,13 +1192,17 @@ contains
    !   - a mapping (generic/standard-name-enforcement):
    !     field_dictionary: {path: <path>, validation_mode: strict|permissive,
    !                         suppress_standard_name_warnings: false,
-   !                         require_standard_name: false}
+   !                         require_standard_name: false,
+   !                         require_quantity_type: false}
    ! The 'suppress_standard_name_warnings' key is optional; it defaults to false
    ! (warnings are shown). Set it to true to suppress warnings about missing
    ! standard names (useful for systems still under development).
    ! The 'require_standard_name' key is optional; it defaults to false. When
    ! true, a FIELD that declares no standard_name is an error in strict mode
    ! and a warning otherwise.
+   ! The 'require_quantity_type' key is optional; it defaults to false (graph
+   ! mode only). When true, an EXPORT/INTERNAL item that never declares a
+   ! quantity type fails freeze instead of falling back to UNCHECKED.
    ! Either way, a FieldDictionaryConfig is always stored via
    ! set_field_dictionary_config so StandardNameAspect/VariableSpec have one
    ! consistent place to query the active mode/exemptions, even when the

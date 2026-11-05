@@ -663,10 +663,19 @@ module mapl_GraphBuilder_mod
       class(OuterMetaComponent), target, intent(inout) :: this
 
    end subroutine graphbuilder_run_activate_hook
-    module subroutine graphbuilder_run_connect_hook(this)
+   module subroutine graphbuilder_run_connect_hook(this, fallback_warnings)
       class(OuterMetaComponent), target, intent(inout) :: this
+      type(GraphResolutionEntryVector), optional, intent(out) :: &
+           fallback_warnings
 
-    end subroutine graphbuilder_run_connect_hook
+   end subroutine graphbuilder_run_connect_hook
+   module subroutine graphbuilder_fallback_unsupplied_deferred(this, &
+        warnings, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(GraphResolutionEntryVector), intent(inout) :: warnings
+      integer, optional, intent(out) :: rc
+
+   end subroutine graphbuilder_fallback_unsupplied_deferred
    module subroutine graphbuilder_run_populate_state_hook(this, multi_state)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(MultiState), intent(inout) :: multi_state

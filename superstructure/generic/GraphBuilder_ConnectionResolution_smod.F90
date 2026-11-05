@@ -983,6 +983,15 @@ contains
          _RETURN(_SUCCESS)
       end if
 
+      ! A connection pairs this component's own items with a descendant's
+      ! (resolve_qualified_component, find_export_node_id): a side still
+      ! DEFERRED there would otherwise wait forever, since nothing else
+      ! visits that descendant's own graph from here. Idempotent with the
+      ! connect hook's own per-component call (graphbuilder_run_connect_hook):
+      ! a descendant already handled through its own hook has nothing left
+      ! to fall back.
+      call fallback_unsupplied_deferred_tree(this, _RC)
+
       comp_spec => this%get_component_spec()
 
       call this%begin_connection_pass()
@@ -1015,6 +1024,37 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine graphbuilder_resolve_connections
 
+   ! Applies graphbuilder_fallback_unsupplied_deferred to meta and every
+   ! descendant, so a connection resolved directly (bypassing each
+   ! descendant's own connect hook) still sees a non-fatal DEFERRED side
+   ! converted before matching.
+   recursive subroutine fallback_unsupplied_deferred_tree(meta, rc)
+      class(OuterMetaComponent), target, intent(inout) :: meta
+      integer, optional, intent(out) :: rc
+
+      integer :: status, j
+      type(GraphResolutionEntryVector) :: fallback
+      type(GraphResolutionEntry), pointer :: entry
+      class(Logger), pointer :: lgr
+      character(:), allocatable :: msg
+      type(OuterMetaComponent), pointer :: child_meta
+      character(:), allocatable :: child_name
+
+      call graphbuilder_fallback_unsupplied_deferred(meta, fallback, _RC)
+      lgr => meta%get_logger()
+      do j = 1, fallback%size()
+         entry => fallback%of(j)
+         msg = 'GraphBuilder: ' // entry%component_name // ': ' // entry%reason
+         call lgr%warning(msg)
+      end do
+      do j = 1, meta%get_num_children()
+         child_name = meta%get_child_name(j, _RC)
+         child_meta => meta%get_child_outer_meta(child_name, _RC)
+         call fallback_unsupplied_deferred_tree(child_meta, _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine fallback_unsupplied_deferred_tree
 
    ! Read-only scan of src_meta's ComponentGraph export-port table for a node
    ! whose effective port name matches short_name. Used by
