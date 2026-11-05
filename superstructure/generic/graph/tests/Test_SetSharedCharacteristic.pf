@@ -29,7 +29,8 @@ module Test_SetSharedCharacteristic
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_AccessSpec_mod, only: MAPL_ACCESS_IN
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
-   use mapl_StateItemCharacteristicKind_mod, only: GEOMETRY_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        GEOMETRY_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use ESMF, only: ESMF_Clock
@@ -165,8 +166,9 @@ contains
          shared_revision_before = retrieved%get_revision()
       end select
 
-      call set_shared_characteristic(graph, shared_id, TYPE_KIND_CHARACTERISTIC_KIND, &
-           TypeKindCharacteristic('R8'), rc=status)
+      call set_shared_characteristic(graph, shared_id, &
+           TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), &
+           rc=status)
       @assertEqual(0, status)
 
       retrieved => graph%get_node(dep1_id)
@@ -230,16 +232,20 @@ contains
          @assertTrue(.false.)
          return
       end select
-      call descriptor%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R4'), rc=status)
+      call descriptor%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R4'), rc=status)
       @assertEqual(0, status)
-      call descriptor%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_ref_id), rc=status)
-      @assertEqual(0, status)
-
-      call set_shared_characteristic(graph, shared_id, TYPE_KIND_CHARACTERISTIC_KIND, &
-           TypeKindCharacteristic('R8'), rc=status)
+      call descriptor%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_ref_id), rc=status)
       @assertEqual(0, status)
 
-      call descriptor%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, found, rc=status)
+      call set_shared_characteristic(graph, shared_id, &
+           TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), &
+           rc=status)
+      @assertEqual(0, status)
+
+      call descriptor%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
+           found, rc=status)
       @assertEqual(0, status)
       select type (found)
       class is (TypeKindCharacteristic)
@@ -248,7 +254,8 @@ contains
          @assertTrue(.false.)
       end select
 
-      call descriptor%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, found, rc=status)
+      call descriptor%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, &
+           found, rc=status)
       @assertEqual(0, status)
       select type (found)
       class is (GeometryCharacteristic)
@@ -297,8 +304,9 @@ contains
       method_node = MethodGraphNode(method_id, adapter)
       call graph%register_node(method_node, rc=status)
 
-      call set_shared_characteristic(graph, shared_id, TYPE_KIND_CHARACTERISTIC_KIND, &
-           TypeKindCharacteristic('R8'), rc=status)
+      call set_shared_characteristic(graph, shared_id, &
+           TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), &
+           rc=status)
       @assertEqual(0, status)
       @assertEqual(0, call_count)
    end subroutine test_mutator_never_invokes_a_registered_method_node
@@ -376,8 +384,9 @@ contains
       @assertEqual(1, run_count)
 
       ! Mid-"Run" structural reset.
-      call set_shared_characteristic(graph, shared_id, TYPE_KIND_CHARACTERISTIC_KIND, &
-           TypeKindCharacteristic('R8'), rc=status)
+      call set_shared_characteristic(graph, shared_id, &
+           TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), &
+           rc=status)
       @assertEqual(0, status)
 
       ! Spec "Content is not recomputed by the mutator call itself":
@@ -478,8 +487,9 @@ contains
 
       ! Mid-"Run" structural reset on the shared node, upstream of
       ! final_id through dep_id/transform_id.
-      call set_shared_characteristic(graph, shared_id, TYPE_KIND_CHARACTERISTIC_KIND, &
-           TypeKindCharacteristic('R8'), rc=status)
+      call set_shared_characteristic(graph, shared_id, &
+           TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), &
+           rc=status)
       @assertEqual(0, status)
       @assertEqual(1, run_count)
 

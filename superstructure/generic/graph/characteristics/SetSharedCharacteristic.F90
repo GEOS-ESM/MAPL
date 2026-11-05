@@ -19,6 +19,9 @@
 ! Known gap: only downstream nodes are reset. When the changed item is
 ! an import, the transform step feeding it is upstream and keeps its
 ! stale state (e.g. old regrid weights).
+!
+! Layering: graph/ only; does not depend on OuterMetaComponent or
+! StateRegistry.
 !------------------------------------------------------------------------------
 module mapl_SetSharedCharacteristic_mod
    use mapl_ComponentGraph_mod, only: ComponentGraph
@@ -42,7 +45,8 @@ module mapl_SetSharedCharacteristic_mod
 
 contains
 
-   subroutine set_shared_characteristic(graph, node_id, kind, characteristic, rc)
+   subroutine set_shared_characteristic(graph, node_id, kind, &
+        characteristic, rc)
       class(ComponentGraph), target, intent(in) :: graph
       type(NodeId), intent(in) :: node_id
       type(StateItemCharacteristicKind), intent(in) :: kind
