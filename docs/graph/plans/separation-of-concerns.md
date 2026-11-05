@@ -1597,6 +1597,13 @@ before it. Report findings; do not fix. Fixes become new tasks. Label
 `E1-intel`.
 - **Status:** not started
 
+**E1-early. Intel run of the current HEAD (outsourced).** Same scope as
+E1, on the HEAD at the time the task starts, so Intel surprises surface
+before the end (owner, 2026-11-05). Report only; fixes become new tasks;
+E1 still runs last. If ifx comes out clean, volunteers' second compiler
+switches from `gcc15-stack` to `ifx-stack`.
+- **Status:** not started
+
 Author = writes the task and leaves it uncommitted. Reviewer = the
 read-only `reviewer` subagent (`.opencode/agents/reviewer.md`):
 `/review-task <label> [tier|provider/model] [focus]` (default tier opus).
@@ -1712,6 +1719,7 @@ it may author D1/A4/B5 with sonnet review.
 | D2 | sonnet | opus | lifecycle-phase ordering |
 | D3-cleanup | sonnet | - | items are small and independent |
 | E1-intel | sonnet | - | run and classify only; remote build on bucy |
+| E1-early | volunteer | meta (report check) | outsourced; run and classify only, current HEAD, ifx-stack on bucy |
 
 `(sonnet?)`/`(haiku?)` = move to that model only if it passes calibration.
 Always opus regardless: B0, B2, B3-Units, B3-ItemShape, A1-diagnosis,
