@@ -7,7 +7,6 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
    use mapl_CompositeStateMaterialization_mod, only: materialize_composite
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
-   use mapl_StateItemFlag_mod, only: operator(==)
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -139,12 +138,6 @@ contains
       ! captured: GEOM_B runs after ADVERTISE, so they arrive through
       ! DEFERRED resolution.
       call descriptor%set_declared_item_type(var_spec%itemType)
-
-      ! Captured at advertise time; graphbuilder_run_expression_hook reads
-      ! it back.
-      if (var_spec%itemType == MAPL_STATEITEM_EXPRESSION .and. allocated(var_spec%expression)) then
-         call descriptor%set_declared_expression(var_spec%expression)
-      end if
 
       _RETURN(_SUCCESS)
    end subroutine populate_characteristics

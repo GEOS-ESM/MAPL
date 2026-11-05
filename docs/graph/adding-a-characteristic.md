@@ -166,15 +166,17 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
 
 | Input (`VariableSpec%ungridded_dims`) | Shape | Entry |
 |---|---|---|
-| `is_mirror()` | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE | MIRRORED, no value |
+| `is_mirror()` | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE, EXPRESSION | MIRRORED, no value |
 | anything else, including the empty default | same | SPECIFIED with the dims |
-| any | every other flag, including EXPRESSION | none |
+| any | every other flag (STATE, SERVICE, WILDCARD, ...) | none |
 
-- Own shape set: design §4.3 lists no UNGRIDDED_DIMS for EXPRESSION,
-  STATE, SERVICE or WILDCARD, so the factory does not use
-  `carries_field_description` alone (it excludes EXPRESSION). Before this
-  task the kind was inserted for every shape; the only difference is the
-  missing entries on those shapes.
+- Own shape set: design §4.3 lists no UNGRIDDED_DIMS for STATE, SERVICE
+  or WILDCARD, so the factory uses `has_field_metadata`, not every shape.
+  Before this task the kind was inserted for every shape; the only
+  difference is the missing entries on those shapes. B3-Expression
+  (task 3.12) widened `has_field_metadata` to include EXPRESSION, closing
+  a gap where an EXPRESSION export had no UNGRIDDED_DIMS entry and so
+  silently matched an import that declared ungridded dims.
 - Never DEFERRED: `VariableSpec%ungridded_dims` always has a value (empty
   by default).
 - Legacy absent-means-mirror: `UngriddedDimsAspect()` with no argument is
@@ -523,15 +525,16 @@ A never-compared, per-alias kind. `needs_extension_for` is always false and
 
 | Input (`VariableSpec%restart_mode`) | Shape | Entry |
 |---|---|---|
-| allocated | FIELD | SPECIFIED with the mode |
-| unallocated, on any intent | FIELD | SPECIFIED `RESTART_REQUIRED` |
-| any | every other flag, including EXPRESSION | none |
+| allocated | FIELD, EXPRESSION | SPECIFIED with the mode |
+| unallocated, on any intent | FIELD, EXPRESSION | SPECIFIED `RESTART_REQUIRED` |
+| any | every other flag | none |
 
 - Kind `RESTART_MODE_CHARACTERISTIC_KIND` (16), display `RESTART_MODE`;
   factory 13 (`make_restart_mode_characteristic`). Legacy passes
-  `restart_mode` only to `FieldClassAspect`, so FIELD only. (Design §4.3
-  lists RestartMode in the EXPRESSION row for B3-Expression; that is a
-  later task.)
+  `restart_mode` only to `FieldClassAspect`, so FIELD only; B3-Expression
+  (task 3.12) widened the factory's guard to include EXPRESSION, per
+  design §4.3's EXPRESSION row (an EXPRESSION item's `GraphStateItem`
+  wraps a Field, so the write_info Field-only assertion still holds).
 - Legacy absent-means-mirror: none. An absent mode is `RESTART_REQUIRED`
   (`FieldInfoGetInternal`), and the graph makes that default explicit.
 - The source field's mode is never used: every item, import or export, gets
@@ -560,6 +563,52 @@ A never-compared, per-alias kind. `needs_extension_for` is always false and
 - INTERNAL items are not populated by the graph yet, so their restart mode
   and long_name are not written (gap until B4).
 
+## Expression as implemented
+
+A never-compared, EXPRESSION-only kind holding the declared expression
+string (design §5). `needs_extension_for` is always false and
+`build_transform` is the unsupported stub, exactly like RestartMode.
+
+| Input (`VariableSpec%expression`) | Shape | Entry |
+|---|---|---|
+| any (declared or not) | EXPRESSION | SPECIFIED with the string (empty if undeclared) |
+| any | every other flag | none |
+
+- Kind `EXPRESSION_CHARACTERISTIC_KIND` (17), display `EXPRESSION`;
+  factory 17 (`make_expression_characteristic`), the only factory gated on
+  `spec%itemType == MAPL_STATEITEM_EXPRESSION` rather than a shared
+  shape-set helper.
+- Always SPECIFIED, never UNCHECKED or DEFERRED: `to_itemtype.F90`
+  requires `has_expression` to imply `class: expression` (a YAML
+  `expression:` key only makes sense combined with `class: expression`),
+  but not the converse, so `spec%expression` can be unallocated on an
+  EXPRESSION item built without that key. The factory treats an
+  unallocated `expression` the same as a declared empty string (`''`)
+  rather than asserting it is always present, because the parser does
+  not guarantee it. **Known gap in
+  `to_itemtype.F90`** (not fixed by this task): neither copy of the file
+  (the stale duplicate at `superstructure/generic/to_itemtype.F90` and
+  the live one at `ComponentSpecParser/to_itemtype.F90`) rejects
+  `class: expression` with no `expression:` key at parse time.
+- No Info key: `write_info` succeeds and writes nothing, so
+  `sync_to_info`/`sync_per_alias_to_info` never fail for lacking one.
+  `is_per_alias()` is the base default, false.
+- `get_signature` is `'expression=' // expression`, used only for
+  diagnostics; the characteristic is never compared, so no two
+  expressions can mismatch or extend.
+- Evaluation is unchanged: `GraphBuilder%run_expression_hook` builds the
+  `ExpressionTransform` wiring (design D2); this characteristic only
+  carries the string for `get_item_expression`
+  (`GraphBuilder_ConnectionResolution_smod.F90`) to read. `StateItemDescriptor`
+  no longer has `declared_expression` or its accessors; the advertise
+  block that captured it is gone.
+- B3-Expression (task 3.12) also widened the shared `has_field_metadata`
+  helper to include EXPRESSION (see UngriddedDims, Attributes, and
+  QuantityType/Conservation/Normalization above) and the RestartMode
+  factory's FIELD-only guard, closing a gap where an EXPRESSION export
+  had no UNGRIDDED_DIMS entry and so silently matched a FIELD import
+  that declared ungridded dims.
+
 ## QuantityType, Conservation and Normalization as implemented
 
 Three kinds with one shape set and one rule each. Each holds a metadata
@@ -567,16 +616,17 @@ value, writes only its own Info key, and has no Transform.
 
 | Input | Shape | Entry |
 |---|---|---|
-| `VariableSpec%quantity_type` (default `QUANTITY_UNKNOWN`) | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE | SPECIFIED with the type; `basis` is `BASIS_NONE` |
+| `VariableSpec%quantity_type` (default `QUANTITY_UNKNOWN`) | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE, EXPRESSION | SPECIFIED with the type; `basis` is `BASIS_NONE` |
 | `VariableSpec%conservation`, not mirror (default `CONSERVE_NONE`, not conservable) | same | SPECIFIED with the metadata |
 | `VariableSpec%conservation%is_mirror()` | same | MIRRORED, no value |
 | `VariableSpec%normalization`, not mirror (default `NORMALIZE_NONE`, scale 1) | same | SPECIFIED with the metadata |
 | `VariableSpec%normalization%is_mirror()` | same | MIRRORED, no value |
-| any | EXPRESSION, STATE, SERVICE, WILDCARD, other flags | none |
+| any | STATE, SERVICE, WILDCARD, other flags | none |
 
-- Own shape set (design §4.3): the same five shapes as Attributes and
+- Own shape set (design §4.3): the same shapes as Attributes and
   UngriddedDims. Before this task the three kinds were inserted for every
-  shape. The factories share `has_field_metadata`.
+  shape; before B3-Expression (task 3.12), `has_field_metadata` excluded
+  EXPRESSION. The factories share `has_field_metadata`.
 - Declared value (owner Q9): each factory uses the value the spec declares.
   Legacy `make_QuantityTypeAspect`, `make_ConservationAspect` and
   `make_NormalizationAspect` ignore the spec and always build UNKNOWN,
@@ -649,7 +699,7 @@ value, writes only its own Info key, and has no Transform.
   back as a mirror from a Field and as non-mirror `QUANTITY_UNKNOWN` from a
   FieldBundle, and an explicit `QUANTITY_UNKNOWN` says nothing: none is a
   supplied value. A `quantity_type` declared on a shape with no QuantityType
-  entry (STATE, EXPRESSION, SERVICE, WILDCARD) is ignored, like the other
+  entry (STATE, SERVICE, WILDCARD) is ignored, like the other
   field-metadata keys. There is no YAML key or keyword for basis; legacy
   `make_QuantityTypeAspect` still ignores the value. Nothing makes an
   undeclared quantity type DEFERRED yet: the factory still gives SPECIFIED
@@ -676,8 +726,8 @@ value, writes only its own Info key, and has no Transform.
 
 | Input (`VariableSpec%attributes`) | Shape | Entry |
 |---|---|---|
-| any, including the empty default | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE | SPECIFIED with the names |
-| any | every other flag, including EXPRESSION | none |
+| any, including the empty default | FIELD, BRACKET, VECTOR, VECTORBRACKET, FIELDBUNDLE, EXPRESSION | SPECIFIED with the names |
+| any | every other flag (STATE, SERVICE, WILDCARD, ...) | none |
 
 - Always inserted, even when empty (design §5). Before this task an empty
   set produced no entry, so an import requiring attributes was never
@@ -686,9 +736,11 @@ value, writes only its own Info key, and has no Transform.
   comparison needs no new rule: an export without the names the import
   requires is `PAIR_EXTEND`, which can never connect, so it is reported
   as incompatible (`BUILD_TRANSFORM_INCOMPATIBLE`).
-- Own shape set (design §4.3): like UngriddedDims, not EXPRESSION. Before
-  this task the entry was inserted for any shape that declared attributes
-  (including EXPRESSION, STATE, SERVICE and WILDCARD) and omitted otherwise.
+- Own shape set (design §4.3): like UngriddedDims, uses
+  `has_field_metadata`, not every shape. Before this task the entry was
+  inserted for any shape that declared attributes (including EXPRESSION,
+  STATE, SERVICE and WILDCARD) and omitted otherwise; B3-Expression
+  (task 3.12) later widened `has_field_metadata` to include EXPRESSION.
 - The comparison is asymmetric (export must provide everything the import
   requires; extra export names are fine). `resolve_pair` passes the
   export as `this`, so no change was needed.

@@ -629,7 +629,7 @@ is authoritative for status rules; this table summarizes it.
 | Conservation | `conservation` | built-in CONSERVE_NONE, not conservable | - | `is_mirror` | ignores the declared value: CONSERVE_NONE | landed |
 | Normalization | `normalization` | built-in NORMALIZE_NONE, scale 1 | - | `is_mirror` | ignores the declared value: NORMALIZE_NONE, scale 1 | landed |
 | RestartMode | `restart_mode` | built-in `RESTART_REQUIRED` (A15); the exporter's mode is never adopted | - | - | carried on `FieldClassAspect`, not compared; absent is `RESTART_REQUIRED` | landed |
-| Expression (new) | `expression` | - | - | - | n/a (EXPRESSION shape only) | design |
+| Expression (new) | `expression` | - | - | - | n/a (EXPRESSION shape only) | landed |
 
 "State": landed = implemented by its B3 task; design = rule in §5, not
 yet implemented; open = owner decision pending.
@@ -657,7 +657,7 @@ NONE -> GEOM by replication across the horizontal points (A14).
 | `declared_vertical_grid` | `_PortsAndProxies_smod` | `VerticalGrid` (landed as VerticalCoordinate in B3-VerticalCoordinate, M2; renamed by B3-RenameVerticalGrid); the characteristic holds the `VerticalGrid` object |
 | `declared_item_type` | `_ConnectionResolution_smod` (WILDCARD / FIELD / BRACKET gates) | `ItemShape` widened to all shapes (B3-ItemShape). The gates become `descriptor%shape()` queries on the ItemShape value, through a generic accessor that returns the `MAPL_StateItem_Flag` (no concrete type named in GraphBuilder). |
 | `declared_restart_mode` | `_StatePopulation_smod%populate_one` | `RestartMode` (new, B3-RestartMode, landed); populate_one calls `sync_per_alias_to_info(alias, DESCRIPTIVE)` (§3.5) |
-| `declared_expression` | `_ConnectionResolution_smod` (expression hook) | `Expression` (new, B3-Expression) |
+| `declared_expression` | `_ConnectionResolution_smod` (expression hook) | `Expression` (new, B3-Expression, landed); `declared_expression` removed, `get_item_expression` reads the characteristic instead |
 
 #### §6.2 `populate_characteristics` blocks
 
@@ -678,7 +678,7 @@ NONE -> GEOM by replication across the horizontal points (A14).
 | `set_declared_item_type` | | ItemShape | |
 | ITEM_SHAPE for FIELD/BRACKET/VECTOR/VECTORBRACKET only | | ItemShape, all shapes | EXPRESSION->FIELD becomes a real matrix cell (§4.3) |
 | `set_declared_restart_mode` | | RestartMode | removed (B3-RestartMode) |
-| `set_declared_expression` (EXPRESSION) | | Expression | new |
+| `set_declared_expression` (EXPRESSION) | | Expression | removed (B3-Expression, landed) |
 
 `populate_characteristics` is then a single call
 `var_spec%make_characteristics(node%descriptor())` (B5).

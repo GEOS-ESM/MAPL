@@ -18,7 +18,8 @@ module Test_VariableSpecCharacteristics
         VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
         HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND, &
         RESTART_MODE_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND, &
-        CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND
+        CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND, &
+        EXPRESSION_CHARACTERISTIC_KIND
    use mapl_StateItemCharacteristicKind_mod, only: &
         ITEM_SHAPE => ITEM_SHAPE_CHARACTERISTIC_KIND, StateItemCharacteristicKind
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
@@ -36,6 +37,7 @@ module Test_VariableSpecCharacteristics
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
    use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
    use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
+   use mapl_ExpressionCharacteristic_mod, only: ExpressionCharacteristic
    use mapl_QuantityType_mod, only: QUANTITY_UNKNOWN, QUANTITY_TEMPERATURE, &
         BASIS_NONE, operator(==)
    use mapl_ConservationMetadata_mod, only: ConservationMetadata, &
@@ -1178,12 +1180,13 @@ contains
 
    @test
    subroutine test_all_ungridded_dims_carrying_shapes_get_an_entry()
-      type(ESMF_StateItem_Flag) :: shapes(5)
+      type(ESMF_StateItem_Flag) :: shapes(6)
       type(UngriddedDims) :: dims
       integer :: i, status
 
       shapes = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
-           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE]
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, &
+           MAPL_STATEITEM_EXPRESSION]
       do i = 1, size(shapes)
          @assertTrue(ungridded_dims_status(make_spec(shapes(i)), dims, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
          @assertEqual(0, status)
@@ -1192,13 +1195,14 @@ contains
 
    @test
    subroutine test_shapes_without_ungridded_dims_get_no_entry()
-      type(ESMF_StateItem_Flag) :: shapes(7)
+      type(ESMF_StateItem_Flag) :: shapes(6)
       type(StateItemDescriptor) :: descriptor, empty_descriptor
       type(VariableSpec) :: var_spec
       integer :: i, status
 
-      shapes = [MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD, &
-           MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
+      shapes = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, &
+           MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN, &
+           MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
       do i = 1, size(shapes)
          var_spec = make_spec(shapes(i))
          descriptor = empty_descriptor
@@ -1966,13 +1970,14 @@ contains
 
    @test
    subroutine test_all_attribute_carrying_shapes_get_an_entry()
-      type(ESMF_StateItem_Flag) :: shapes(5)
+      type(ESMF_StateItem_Flag) :: shapes(6)
       type(StringVector) :: names
       type(CharacteristicStatus) :: char_status
       integer :: i, status
 
       shapes = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
-           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE]
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, &
+           MAPL_STATEITEM_EXPRESSION]
       do i = 1, size(shapes)
          names = attribute_names_of(make_spec(shapes(i)), char_status, rc=status)
          @assertEqual(0, status)
@@ -1982,13 +1987,14 @@ contains
 
    @test
    subroutine test_shapes_without_attributes_get_no_entry()
-      type(ESMF_StateItem_Flag) :: shapes(7)
+      type(ESMF_StateItem_Flag) :: shapes(6)
       type(StateItemDescriptor) :: descriptor, empty_descriptor
       type(VariableSpec) :: var_spec
       integer :: i, status
 
-      shapes = [MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD, &
-           MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
+      shapes = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, &
+           MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN, &
+           MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
       do i = 1, size(shapes)
          var_spec = make_spec(shapes(i))
          descriptor = empty_descriptor
@@ -2092,15 +2098,16 @@ contains
       end do
    end subroutine test_undeclared_restart_mode_is_required
 
-   ! Legacy passes restart_mode to FieldClassAspect only.
+   ! Legacy passes restart_mode to FieldClassAspect only; an EXPRESSION also
+   ! carries one (tested separately below).
    @test
    subroutine test_shapes_without_restart_mode_get_no_entry()
-      type(ESMF_StateItem_Flag) :: shapes(11)
+      type(ESMF_StateItem_Flag) :: shapes(10)
       type(StateItemDescriptor) :: descriptor, empty_descriptor
       type(VariableSpec) :: var_spec
       integer :: i, status
 
-      shapes = [MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+      shapes = [MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
            MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, &
            MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, &
            MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN, &
@@ -2124,6 +2131,37 @@ contains
       var_spec%restart_mode = RESTART_SKIP
       @assertFalse(var_spec%requests_mirror())
    end subroutine test_restart_mode_is_not_a_mirror_request
+
+   ! An EXPRESSION carries a restart mode too: same rule as FIELD, declared
+   ! or defaulted RESTART_REQUIRED.
+   @test
+   subroutine test_expression_declared_restart_mode_is_specified()
+      type(VariableSpec) :: var_spec
+      type(RestartMode) :: mode
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_EXPRESSION)
+      var_spec%restart_mode = RESTART_SKIP
+      char_status = restart_mode_status(var_spec, mode, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(mode == RESTART_SKIP)
+   end subroutine test_expression_declared_restart_mode_is_specified
+
+   @test
+   subroutine test_expression_undeclared_restart_mode_is_required()
+      type(VariableSpec) :: var_spec
+      type(RestartMode) :: mode
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_EXPRESSION)
+      char_status = restart_mode_status(var_spec, mode, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(mode == RESTART_REQUIRED)
+   end subroutine test_expression_undeclared_restart_mode_is_required
 
    ! --- QuantityType, Conservation, Normalization ---
 
@@ -2247,6 +2285,31 @@ contains
          @assertEqual(0, status)
       end do
    end subroutine test_declared_quantity_type_is_specified_for_each_intent
+
+   ! An EXPRESSION carries QuantityType too, with the same rule as FIELD:
+   ! undeclared on an export is DEFERRED, declared is SPECIFIED.
+   @test
+   subroutine test_expression_undeclared_quantity_type_is_deferred()
+      integer :: status
+
+      @assertTrue(metadata_status(make_spec(MAPL_STATEITEM_EXPRESSION), &
+           QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+   end subroutine test_expression_undeclared_quantity_type_is_deferred
+
+   @test
+   subroutine test_expression_declared_quantity_type_is_specified()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_EXPRESSION)
+      var_spec%quantity_type = QUANTITY_TEMPERATURE
+      @assertTrue(metadata_status(var_spec, &
+           QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_expression_declared_quantity_type_is_specified
 
    ! The make_VariableSpec keyword sets the field the factory reads, and is
    ! not a mirror request.
@@ -2415,11 +2478,12 @@ contains
 
    @test
    subroutine test_all_metadata_carrying_shapes_get_an_entry()
-      type(ESMF_StateItem_Flag) :: shapes(5)
+      type(ESMF_StateItem_Flag) :: shapes(6)
       integer :: i, status
 
       shapes = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
-           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE]
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, &
+           MAPL_STATEITEM_EXPRESSION]
       do i = 1, size(shapes)
           @assertTrue(metadata_status(make_spec(shapes(i)), &
                QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
@@ -2436,13 +2500,14 @@ contains
 
    @test
    subroutine test_shapes_without_metadata_kinds_get_no_entry()
-      type(ESMF_StateItem_Flag) :: shapes(7)
+      type(ESMF_StateItem_Flag) :: shapes(6)
       type(StateItemDescriptor) :: descriptor, empty_descriptor
       type(VariableSpec) :: var_spec
       integer :: i, status
 
-      shapes = [MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD, &
-           MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
+      shapes = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, &
+           MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN, &
+           MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
       do i = 1, size(shapes)
          var_spec = make_spec(shapes(i))
          descriptor = empty_descriptor
@@ -2763,5 +2828,69 @@ contains
       @assertEqual(0, status)
    end subroutine test_expression_export_mirror_still_accepted
 
+   ! --- Expression characteristic entry ---
+
+   function expression_entry(var_spec, expression, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      character(:), allocatable, intent(out) :: expression
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(EXPRESSION_CHARACTERISTIC_KIND, c, _RC)
+      char_status = c%get_status()
+      select type (c)
+      class is (ExpressionCharacteristic)
+         expression = c%get_expression()
+      class default
+         status = 1
+         _VERIFY(status)
+      end select
+      _RETURN(_SUCCESS)
+   end function expression_entry
+
+   @test
+   subroutine test_declared_expression_is_specified()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: expression
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_EXPRESSION, expression='A + B', rc=status)
+      @assertEqual(0, status)
+      char_status = expression_entry(var_spec, expression, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual('A + B', expression)
+   end subroutine test_declared_expression_is_specified
+
+   ! Only an EXPRESSION item carries an Expression entry (design.md §5).
+   @test
+   subroutine test_only_expression_gets_an_expression_entry()
+      type(ESMF_StateItem_Flag) :: shapes(11)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, &
+           MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, &
+           MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_STATE, &
+           MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD, &
+           MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE_PROVIDER, &
+           MAPL_STATEITEM_SERVICE_SUBSCRIBER]
+      do i = 1, size(shapes)
+         descriptor = empty_descriptor
+         var_spec = make_spec(shapes(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse( &
+              descriptor%has_characteristic(EXPRESSION_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_only_expression_gets_an_expression_entry
 
 end module Test_VariableSpecCharacteristics

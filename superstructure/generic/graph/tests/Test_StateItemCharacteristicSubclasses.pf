@@ -28,7 +28,8 @@ module Test_StateItemCharacteristicSubclasses
                                                     VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
         HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
         LONG_NAME_CHARACTERISTIC_KIND, &
-        RESTART_MODE_CHARACTERISTIC_KIND
+        RESTART_MODE_CHARACTERISTIC_KIND, &
+        EXPRESSION_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
    use mapl_TransformBase_mod, only: TransformBase
 
@@ -55,6 +56,7 @@ module Test_StateItemCharacteristicSubclasses
    use mapl_LongNameCharacteristic_mod, only: LongNameCharacteristic
    use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
    use mapl_RestartModes_mod, only: RestartMode, RESTART_REQUIRED, RESTART_SKIP, operator(==)
+   use mapl_ExpressionCharacteristic_mod, only: ExpressionCharacteristic
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
@@ -745,6 +747,51 @@ contains
       @assertFalse(standard_name%is_per_alias())
       @assertFalse(units%is_per_alias())
    end subroutine test_is_per_alias
+
+   ! --- ExpressionCharacteristic (never compared, no Info key) ---
+
+   @test
+   subroutine test_expression_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=ExpressionCharacteristic('A + B'))
+      @assertTrue(v%get_kind() == EXPRESSION_CHARACTERISTIC_KIND)
+   end subroutine test_expression_is_a_value_characteristic
+
+   @test
+   subroutine test_expression_never_needs_extension()
+      type(ExpressionCharacteristic) :: a, b
+
+      a = ExpressionCharacteristic('A')
+      b = ExpressionCharacteristic('B')
+
+      @assertFalse(a%needs_extension_for(b))
+      @assertFalse(b%needs_extension_for(a))
+   end subroutine test_expression_never_needs_extension
+
+   @test
+   subroutine test_expression_signature_and_accessor()
+      type(ExpressionCharacteristic) :: a, unvalued
+
+      a = ExpressionCharacteristic('A + B')
+      @assertEqual('expression=A + B', a%get_signature())
+      @assertEqual('A + B', a%get_expression())
+      @assertEqual('', unvalued%get_expression())
+      @assertEqual('expression=', unvalued%get_signature())
+   end subroutine test_expression_signature_and_accessor
+
+   @test
+   subroutine test_expression_build_transform_reports_unsupported()
+      type(ExpressionCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = ExpressionCharacteristic('A')
+      b = ExpressionCharacteristic('B')
+      call a%build_transform(b, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_expression_build_transform_reports_unsupported
 
    ! --- build_transform reports BUILD_TRANSFORM_INCOMPATIBLE for the five
    ! subclasses whose legacy aspect rejects every mismatch of two non-mirror

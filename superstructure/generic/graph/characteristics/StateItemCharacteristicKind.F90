@@ -44,6 +44,8 @@ module mapl_StateItemCharacteristicKind_mod
    public :: LONG_NAME_CHARACTERISTIC_KIND
    ! Value 16: restart mode.
    public :: RESTART_MODE_CHARACTERISTIC_KIND
+   ! Value 17: expression string.
+   public :: EXPRESSION_CHARACTERISTIC_KIND
    public :: MOCK_CHARACTERISTIC_KIND
 
    type :: StateItemCharacteristicKind
@@ -86,6 +88,10 @@ module mapl_StateItemCharacteristicKind_mod
    ! Value 16: restart mode (RestartModeCharacteristic.F90).
    type(StateItemCharacteristicKind), parameter :: &
         RESTART_MODE_CHARACTERISTIC_KIND = StateItemCharacteristicKind(16)
+
+   ! Value 17: expression string (ExpressionCharacteristic.F90).
+   type(StateItemCharacteristicKind), parameter :: &
+        EXPRESSION_CHARACTERISTIC_KIND = StateItemCharacteristicKind(17)
 
    ! Test-only, mirrors CharacteristicId.F90's own MOCK_CHARACTERISTIC_ID
    ! precedent - lets a test define a fake StateItemCharacteristic
@@ -143,6 +149,8 @@ contains
          s = "LONG_NAME"
       case (RESTART_MODE_CHARACTERISTIC_KIND%value)
          s = "RESTART_MODE"
+      case (EXPRESSION_CHARACTERISTIC_KIND%value)
+         s = "EXPRESSION"
       case (MOCK_CHARACTERISTIC_KIND%value)
          s = "MOCK"
       case default

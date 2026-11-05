@@ -386,7 +386,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       slot; a declared one is written; a bundle is never written per alias, because its
       long_name is bundle-wide). INTERNAL items stay unpopulated (gap
       until B4). Design §3.4/§3.5/§5.1/§6.1 amended.
-- [ ] 3.12 B3-Expression (new kind; mechanical half of the owner's split).
+- [x] 3.12 B3-Expression (new kind; mechanical half of the owner's split).
       Add the Expression characteristic and give the EXPRESSION factory
       applicability per design §4.3 (every FIELD kind except
       STANDARD_NAME, from the declaration; units by the Field rule, Q3).
@@ -396,6 +396,29 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       FIELD import that declares ungridded dims (owner accepted this
       until this task). The units rule for inputs (no conversion to the
       expression's units, Q3) is 3.23, not this task.
+      Landed: new `ExpressionCharacteristic` (ValueCharacteristic,
+      `needs_extension_for` always false, no Info key, build_transform
+      unsupported) and `EXPRESSION_CHARACTERISTIC_KIND`. Widened the
+      shared `has_field_metadata` helper (now just delegates to
+      `carries_field_description`, which already lists EXPRESSION) to
+      give EXPRESSION an entry for UngriddedDims, Attributes,
+      QuantityType, Conservation and Normalization in one change, plus
+      widened the RestartMode factory's FIELD-only guard. Removed the
+      `declared_expression` field/accessors from `StateItemDescriptor`;
+      connection resolution now reads the expression string off the new
+      characteristic (`get_item_expression` in
+      `GraphBuilder_ConnectionResolution_smod.F90`).
+      Deviations: (1) `make_expression_characteristic` defaults to an
+      empty string, rather than asserting `spec%expression` is always
+      allocated, because `to_itemtype.F90` only asserts
+      "`has_expression` implies `class: expression`", not the converse
+      - an EXPRESSION item with no `expression:` key is not rejected at
+      parse time, and several pre-existing test fixtures build such
+      items for other characteristics' tests. (2) also updated the
+      QuantityType/Conservation/Normalization "carrying shapes" tests in
+      `Test_VariableSpecCharacteristics.pf`, not only the UngriddedDims/
+      Attributes/RestartMode ones named in the brief, since they share
+      the same widened `has_field_metadata` helper.
 - [ ] 3.23 B3-ExpressionPerConsumer (after 3.12). Build the per-consumer
       evaluation per design §2.4: a dedicated expression path in the
       connection code chosen by item type (like wildcard imports); inputs
@@ -869,7 +892,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       factory 12, `long_name_mirror`, YAML test. Per-alias wiring landed
       with 3.11, which added `is_per_alias()` (true for LongName) and the
       `populate_one` call.
-- [ ] 3.14 B3-SetShared: retarget `set_shared_characteristic` to mutate
+- [x] 3.14 B3-SetShared: retarget `set_shared_characteristic` to mutate
       the descriptor (§7.3); check and report whether import-side
       geometry changes (History samplers) are handled. Since B1 it
       installs only the ESMF handle and leaves the descriptor unchanged,
@@ -881,6 +904,13 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       in the Status and in plan C3, not pinned by a test. Outsourced to a
       volunteer through GitHub (plan "Working with the owner"): Status
       comes back in the PR. Author volunteer (meta review, sonnet).
+      Done (PR #5484, Purnendu Chakraborty): `set_shared_characteristic`
+      takes `(graph, node_id, kind, characteristic, rc)` and sets that
+      descriptor entry; the ESMF payload is untouched (3.40). Steps 2 and
+      3 (eager reset of direct successors, revision bump) unchanged. The
+      import-side gap is stated in the module header and plan C3 item 4.
+      No production caller yet. NAG 69/69, gfortran 69/69 (meta, local);
+      on ifx 37/72 ESSENTIAL fail identically on the base (E1-early).
 
 ## 4. Dispatch removal (B4)
 

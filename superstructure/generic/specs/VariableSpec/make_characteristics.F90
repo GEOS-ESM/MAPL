@@ -8,7 +8,7 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
         HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
         ITEM_SHAPE_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND, RESTART_MODE_CHARACTERISTIC_KIND, &
         QUANTITY_TYPE_CHARACTERISTIC_KIND, CONSERVATION_CHARACTERISTIC_KIND, &
-        NORMALIZATION_CHARACTERISTIC_KIND
+        NORMALIZATION_CHARACTERISTIC_KIND, EXPRESSION_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED, operator(==)
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
@@ -18,6 +18,7 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
    use mapl_LongNameCharacteristic_mod, only: LongNameCharacteristic
    use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
    use mapl_RestartModes_mod, only: RESTART_REQUIRED
+   use mapl_ExpressionCharacteristic_mod, only: ExpressionCharacteristic
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
    use mapl_QuantityType_mod, only: QUANTITY_UNKNOWN, operator(==)
    use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
@@ -65,7 +66,7 @@ contains
 
       integer :: status
       integer :: i
-      type(Factory) :: factories(16)
+      type(Factory) :: factories(17)
 
       factories(1)%make => make_units_characteristic
       factories(2)%make => make_typekind_characteristic
@@ -83,6 +84,7 @@ contains
       factories(14)%make => make_quantity_type_characteristic
       factories(15)%make => make_conservation_characteristic
       factories(16)%make => make_normalization_characteristic
+      factories(17)%make => make_expression_characteristic
 
       do i = 1, size(factories)
          call factories(i)%make(this, descriptor, _RC)
@@ -192,9 +194,9 @@ contains
 
    ! An explicitly mirrored UngriddedDims is MIRRORED (the import adopts the
    ! matched export's). Anything else, including the empty default, is
-   ! SPECIFIED; it is never DEFERRED. An EXPRESSION has no ungridded dims of
-   ! its own, so only shapes whose payload is a Field or FieldBundle get an
-   ! entry.
+   ! SPECIFIED; it is never DEFERRED. An EXPRESSION gets an entry from its own
+   ! declaration too (the empty default if it declares none), so an EXPRESSION
+   ! export mismatches a FIELD import that declares ungridded dims.
    subroutine make_ungridded_dims_characteristic(spec, descriptor, rc)
       class(VariableSpec), intent(in) :: spec
       type(StateItemDescriptor), intent(inout) :: descriptor
@@ -366,7 +368,7 @@ contains
 
    ! Always SPECIFIED, even when empty: an import that requires attributes
    ! must mismatch an export that declares none. Same shape set as ungridded
-   ! dims: an EXPRESSION carries no attributes of its own.
+   ! dims, and includes EXPRESSION.
    subroutine make_attributes_characteristic(spec, descriptor, rc)
       class(VariableSpec), intent(in) :: spec
       type(StateItemDescriptor), intent(inout) :: descriptor
@@ -541,18 +543,22 @@ contains
       _RETURN(_SUCCESS)
    end subroutine make_long_name_characteristic
 
-   ! Only FIELD carries a restart mode (legacy passes restart_mode to
-   ! FieldClassAspect only). An undeclared mode is SPECIFIED RESTART_REQUIRED
-   ! and always written; the exporter's mode is never adopted.
+   ! FIELD carries a restart mode (legacy passes restart_mode to
+   ! FieldClassAspect only); EXPRESSION carries one too. An
+   ! undeclared mode is SPECIFIED RESTART_REQUIRED and always written; the
+   ! exporter's mode is never adopted.
    subroutine make_restart_mode_characteristic(spec, descriptor, rc)
       class(VariableSpec), intent(in) :: spec
       type(StateItemDescriptor), intent(inout) :: descriptor
       integer, optional, intent(out) :: rc
 
       integer :: status
+      logical :: is_carrier
       type(RestartModeCharacteristic) :: restart_mode
 
-      _RETURN_UNLESS(spec%itemType == MAPL_STATEITEM_FIELD)
+      is_carrier = spec%itemType == MAPL_STATEITEM_FIELD .or. &
+           spec%itemType == MAPL_STATEITEM_EXPRESSION
+      _RETURN_UNLESS(is_carrier)
 
       if (allocated(spec%restart_mode)) then
          restart_mode = RestartModeCharacteristic(spec%restart_mode)
@@ -649,14 +655,37 @@ contains
       _RETURN(_SUCCESS)
    end subroutine make_normalization_characteristic
 
+   ! An EXPRESSION's expression string is SPECIFIED, always, so there is no
+   ! UNCHECKED or DEFERRED case. The parser does not require an `expression:`
+   ! key, so an unallocated string is stored as ''. Only EXPRESSION carries
+   ! this kind.
+   subroutine make_expression_characteristic(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: expression
+
+      _RETURN_UNLESS(spec%itemType == MAPL_STATEITEM_EXPRESSION)
+
+      expression = ''
+      if (allocated(spec%expression)) expression = spec%expression
+
+      call descriptor%set_characteristic(EXPRESSION_CHARACTERISTIC_KIND, &
+           ExpressionCharacteristic(expression), _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_expression_characteristic
+
    ! Shapes that carry the per-field metadata kinds (ungridded dims,
-   ! attributes, quantity type, conservation, normalization): field-carrying,
-   ! but not EXPRESSION, which has none of its own.
+   ! attributes, quantity type, conservation, normalization): every
+   ! field-carrying shape, EXPRESSION included (it declares these itself, like
+   ! a FIELD). Kept as a named wrapper over carries_field_description.
    logical function has_field_metadata(item_type) result(has)
       type(ESMF_StateItem_Flag), intent(in) :: item_type
 
-      has = carries_field_description(item_type) .and. &
-           item_type /= MAPL_STATEITEM_EXPRESSION
+      has = carries_field_description(item_type)
    end function has_field_metadata
 
    ! Shapes that carry a horizontal dims spec: field-carrying, but not

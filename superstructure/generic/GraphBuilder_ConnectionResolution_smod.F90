@@ -1410,6 +1410,31 @@ contains
       _RETURN(_SUCCESS)
    end subroutine try_materialize_field_extension
 
+   ! Recovers a GraphStateItem's EXPRESSION characteristic as a plain string.
+   ! Always established for an EXPRESSION item (design.md Expression row:
+   ! SPECIFIED, always).
+   subroutine get_item_expression(item, expression, rc)
+      type(StateItemDescriptor), intent(in) :: item
+      character(:), allocatable, intent(out) :: expression
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(StateItemCharacteristic), allocatable :: characteristic
+
+      _ASSERT(item%has_characteristic(EXPRESSION_CHARACTERISTIC_KIND), 'get_item_expression: no Expression entry')
+
+      call item%get_characteristic(EXPRESSION_CHARACTERISTIC_KIND, &
+           characteristic, _RC)
+      select type (characteristic)
+      class is (ExpressionCharacteristic)
+         expression = characteristic%get_expression()
+      class default
+         _FAIL('get_item_expression: entry is not an ExpressionCharacteristic')
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine get_item_expression
+
    ! Recovers a GraphStateItem's PHYSICAL_UNITS characteristic as a plain
    ! string. Returns '' if there is no entry or the entry is UNCHECKED
    ! (an UNCHECKED instance holds no value).
@@ -1780,7 +1805,7 @@ contains
       end if
 
       descriptor => node%get_descriptor()
-      call descriptor%get_declared_expression(expression)
+      call get_item_expression(descriptor, expression, _RC)
       referenced_names = parser_variables_in_expression(expression, _RC)
       this_name = this%get_name(_RC)
 

@@ -4,7 +4,7 @@
 ! StateItemDescriptor: the description of a state item, kept apart from the
 ! ESMF handle (GraphStateItem). Holds the sparse StateItemCharacteristicMap
 ! (REQ-CHAR-007/008/009/010) plus the description values that are not yet
-! characteristics (declared item type / restart mode / expression).
+! characteristics (declared item type).
 !
 ! Independent of any ESMF object: a StateItemNode's descriptor is populated at
 ! ADVERTISE, before any handle exists. Layering: graph/ only; must not depend
@@ -64,7 +64,6 @@ module mapl_StateItemDescriptor_mod
       type(StateItemCharacteristicMap) :: characteristics
       ! Optional or defaulted values: "not declared" is meaningful.
       type(ESMF_StateItem_Flag) :: declared_item_type = ESMF_STATEITEM_FIELD
-      character(:), allocatable :: declared_expression
    contains
       procedure :: has_characteristic => descriptor_has_characteristic
       procedure :: get_characteristic => descriptor_get_characteristic
@@ -80,8 +79,6 @@ module mapl_StateItemDescriptor_mod
       procedure :: sync_per_alias_to_info => descriptor_sync_per_alias_to_info
       procedure :: get_declared_item_type => descriptor_get_declared_item_type
       procedure :: set_declared_item_type => descriptor_set_declared_item_type
-      procedure :: get_declared_expression => descriptor_get_declared_expression
-      procedure :: set_declared_expression => descriptor_set_declared_expression
    end type StateItemDescriptor
 
 contains
@@ -619,7 +616,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine sync_entries
 
-   ! -- declared item type / expression --
+   ! -- declared item type --
 
    function descriptor_get_declared_item_type(this) result(item_type)
       class(StateItemDescriptor), intent(in) :: this
@@ -634,20 +631,5 @@ contains
 
       this%declared_item_type = item_type
    end subroutine descriptor_set_declared_item_type
-
-   subroutine descriptor_get_declared_expression(this, expression)
-      class(StateItemDescriptor), intent(in) :: this
-      character(:), allocatable, intent(out) :: expression
-
-      if (allocated(this%declared_expression)) expression = this%declared_expression
-   end subroutine descriptor_get_declared_expression
-
-   subroutine descriptor_set_declared_expression(this, expression)
-      class(StateItemDescriptor), intent(inout) :: this
-      character(*), intent(in) :: expression
-
-      if (allocated(this%declared_expression)) deallocate(this%declared_expression)
-      allocate(this%declared_expression, source=expression)
-   end subroutine descriptor_set_declared_expression
 
 end module mapl_StateItemDescriptor_mod

@@ -13,6 +13,7 @@ module Test_StateItemDescriptor
         HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND, &
         RESTART_MODE_CHARACTERISTIC_KIND, CONSERVATION_CHARACTERISTIC_KIND, &
         NORMALIZATION_CHARACTERISTIC_KIND, StateItemCharacteristicKind, &
+        EXPRESSION_CHARACTERISTIC_KIND, &
         MOCK_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED, CharacteristicStatus, operator(==)
@@ -37,6 +38,7 @@ module Test_StateItemDescriptor
    use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
    use mapl_RestartModes_mod, only: RestartMode, RESTART_REQUIRED, RESTART_SKIP, operator(==)
    use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
+   use mapl_ExpressionCharacteristic_mod, only: ExpressionCharacteristic
    use gFTL2_StringVector, only: StringVector
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
    use mapl_VerticalStaggerCharacteristic_mod, only: VerticalStaggerCharacteristic
@@ -546,6 +548,28 @@ contains
       @assertEqual(0, status)
       call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
    end subroutine test_sync_attributes_succeeds
+
+   ! Expression has no Info key either: sync succeeds and writes nothing.
+   @test
+   subroutine test_sync_expression_succeeds()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      call item%set_characteristic(EXPRESSION_CHARACTERISTIC_KIND, &
+           ExpressionCharacteristic('A + B'))
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_sync_expression_succeeds
 
    ! --- QuantityType, Conservation, Normalization ---
 
