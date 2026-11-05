@@ -1,53 +1,30 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! mapl_SetSharedCharacteristic_mod: the dedicated, synchronous mutator
-! entry point REQ-CHAR-016 requires for changing a shared
-! ReferenceCharacteristic's underlying value (docs/graph/spec/
-! 18-state-item-characteristics.md §18.8) - "a MAPL_SetGeom-style
-! wrapper" in shape, though this change wires no real call site to it
-! (design.md Non-Goals).
+! set_shared_characteristic replaces one characteristic of an already
+! connected graph item, for items whose geometry changes while the
+! component runs (History samplers). In one synchronous call it sets the
+! entry under `kind` in the node's descriptor, resets the direct
+! StateItemNode successors' revisions so they are recomputed, and
+! advances the node's own revision. TransformGraphNode successors are
+! deliberately left to the lazy, demand-driven path.
 !
-! set_shared_characteristic(graph, node_id, new_payload, rc), in one
-! synchronous call:
-!   1. Installs `new_payload` as `node_id`'s own GraphStateItem payload
-!      (the ESMF handle only; the node's descriptor is left unchanged).
-!   2. Walks `graph`'s default DependencyNetwork%get_successors from
-!      `node_id`, filtering to StateItemNode successors only
-!      (TransformGraphNode successors are left to the lazy,
-!      REQ-REV-006 path - REQ-CHAR-016's own "left to the lazy path").
-!      For each such dependent: resets its own revision to the invalid
-!      sentinel (design.md D7's mechanism note - a fresh
-!      default-constructed NodeRevision, via the dependent's own existing
-!      set_revision() setter; no new NodeRevision/StateItemNode API is
-!      added), and, if the dependent itself holds a
-!      ReferenceCharacteristic entry referencing this same `node_id`,
-!      marks that entry's CharacteristicStatus INVALID too (REQ-CHAR-004,
-!      best-effort - absence of such an entry is not an error).
-!   3. Advances `node_id`'s own revision via its existing
-!      advance_revision() (forward, never reset - distinct from step 2's
-!      dependents, design.md D7's mechanism note).
+! It never looks up or invokes a MethodGraphNode, which is what makes it
+! safe to call from any phase or nesting context.
 !
-! REQ-CHAR-017: never looks up or invokes a MethodGraphNode anywhere in
-! this call graph - only DependencyNetwork query methods and each
-! affected StateItemNode's/GraphStateItem's own structural-reset/revision
-! methods. This is what makes the call safe from any phase/nesting
-! context (§18.9's rejected "dedicated ChangeGeom phase" alternative is
-! not needed).
+! The node's ESMF payload is not rebuilt to match the new
+! characteristic; that needs a field-materialization helper that does
+! not exist yet.
 !
-! Scope note (design.md D7 addendum): only the graph-neutral half of
-! "structural reset" is performed here (revision/status, synthetic-node
-! testable, no ESMF involvement) - actually reallocating an ESMF payload
-! to the new shape (e.g. ESMF_FieldEmptyReset) is real ESMF-aware work
-! left to whichever future integration layer wires this mutator into a
-! real call site; not attempted here.
+! Known gap: only downstream nodes are reset. When the changed item is
+! an import, the transform step feeding it is upstream and keeps its
+! stale state (e.g. old regrid weights).
 !------------------------------------------------------------------------------
 module mapl_SetSharedCharacteristic_mod
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
-   use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_NodeId_mod, only: NodeId, operator(==)
@@ -65,21 +42,23 @@ module mapl_SetSharedCharacteristic_mod
 
 contains
 
-   subroutine set_shared_characteristic(graph, node_id, new_payload, rc)
+   subroutine set_shared_characteristic(graph, node_id, kind, characteristic, rc)
       class(ComponentGraph), target, intent(in) :: graph
       type(NodeId), intent(in) :: node_id
-      type(GraphStateItem), intent(in) :: new_payload
+      type(StateItemCharacteristicKind), intent(in) :: kind
+      class(StateItemCharacteristic), intent(in) :: characteristic
       integer, optional, intent(out) :: rc
 
       integer :: status
       class(GraphNode), pointer :: generic_node
       class(StateItemNode), pointer :: shared_node
+      type(StateItemDescriptor), pointer :: descriptor
       type(DependencyNetwork), pointer :: network
       type(NodeIdSet) :: successors
       type(NodeId), allocatable :: dependent_ids(:)
       integer :: i
 
-      ! Step 1: install the new payload on the shared node itself.
+      ! Step 1: replace the characteristic on the shared node itself.
       generic_node => graph%get_node(node_id)
       _ASSERT(associated(generic_node), 'set_shared_characteristic: node_id not found in graph')
       select type (generic_node)
@@ -88,28 +67,16 @@ contains
       class default
          _FAIL('set_shared_characteristic: node_id does not identify a StateItemNode')
       end select
-      call shared_node%set_payload(new_payload)
+      descriptor => shared_node%get_descriptor()
+      call descriptor%set_characteristic(kind, characteristic, _RC)
 
       ! Step 2: eager structural reset of direct StateItemNode successors
       ! only (TransformGraphNode successors are left to the lazy path).
       !
-      ! Collect-then-process (not a single combined loop): drain the
-      ! successor set's own iterator into a plain NodeId array first,
-      ! with nothing but the iterator's own methods and plain
-      ! array-element assignment in that loop; only then run an
-      ! ordinary indexed loop that calls another procedure
-      ! (reset_dependent_if_state_item, which itself does further graph
-      ! lookups/mutations) per element. Same discipline already
-      ! established in this module family for exactly this reason -
-      ! MethodInvocation.F90's own header comment: a set/map iterator
-      ! that must stay valid across a potentially-complex intervening
-      ! call is not safe to keep live across that call. Confirmed the
-      ! hard way here: a single combined loop (iterator comparison +
-      ! reset_dependent_if_state_item call inside the same do-while)
-      ! produced a NAG runtime dangling-pointer abort
-      ! (MAPL_NODEIDSET_MOD:SET_FTN_BEGIN) - this is not merely a
-      ! gfortran-specific risk, as that header comment's own "on general
-      ! principle" framing already anticipated.
+      ! Drain the successor iterator into a plain array before the loop
+      ! that calls out per element: keeping the iterator live across
+      ! reset_dependent_if_state_item, which does further graph lookups
+      ! and mutations, produced a NAG dangling-pointer abort.
       network => graph%get_network(graph%get_default_network_id())
       _ASSERT(associated(network), 'set_shared_characteristic: default DependencyNetwork not found')
       successors = network%get_successors(node_id)
@@ -120,8 +87,7 @@ contains
       end do
 
       ! Step 3: advance the shared node's own revision last, so
-      ! content-side (lazy) consumers recognize staleness on next demand
-      ! (REQ-CHAR-018/REQ-REV-006, unchanged).
+      ! content-side (lazy) consumers recognize staleness on next demand.
       call shared_node%advance_revision(_RC)
 
       _RETURN(_SUCCESS)
@@ -148,9 +114,8 @@ contains
    end subroutine collect_node_ids
 
    ! Resets one direct successor if (and only if) it is itself a
-   ! StateItemNode (REQ-CHAR-016's own "as opposed to TransformGraphNodes,
-   ! which are left to the lazy path" - a TransformGraphNode successor is
-   ! silently skipped, not an error).
+   ! StateItemNode; a TransformGraphNode successor is silently skipped,
+   ! not an error, because it is served by the lazy path.
    subroutine reset_dependent_if_state_item(graph, shared_node_id, dependent_id, rc)
       class(ComponentGraph), target, intent(in) :: graph
       type(NodeId), intent(in) :: shared_node_id
@@ -170,19 +135,18 @@ contains
          dependent_node => generic_node
       class default
          ! Not a StateItemNode (e.g. a TransformGraphNode) - left to the
-         ! lazy path, REQ-CHAR-016's own scope boundary.
+         ! lazy path.
          _RETURN(_SUCCESS)
       end select
 
-      ! REQ-CHAR-004: reset this dependent's own revision to the invalid
-      ! sentinel - a fresh default-constructed NodeRevision is already
-      ! invalid by construction (design.md D7's mechanism note); no new
-      ! NodeRevision/StateItemNode API is added.
+      ! Reset this dependent's own revision to the invalid sentinel - a
+      ! fresh default-constructed NodeRevision is already invalid by
+      ! construction, so no new NodeRevision/StateItemNode API is needed.
       call dependent_node%set_revision(invalid_revision)
 
       ! Best-effort: if this dependent itself holds a
       ! ReferenceCharacteristic entry referencing the same shared node,
-      ! mark that entry's status INVALID too (REQ-CHAR-004). Absence of
+      ! mark that entry's status INVALID too. Absence of
       ! such an entry is not an error - plenty of structural dependents
       ! are reached through plain DependencyNetwork adjacency with no
       ! StateItemCharacteristic entry of their own.
