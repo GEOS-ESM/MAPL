@@ -705,6 +705,16 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       §5.1's QuantityType row and A24 to "landed". Strict as the default
       is a later change, once real configs comply (owner). Owner may tweak
       the rules after concrete use cases. Author opus (sonnet review).
+      Preflight answers (owner, 2026-11-05): the permissive fallback logs
+      one summary warning per component (count and the first few names),
+      not one per item; BASIS_NONE stays a basis wildcard (the
+      basis-axis split redoes it); a declared `QUANTITY_UNKNOWN` counts as
+      undeclared, the UNKNOWN wildcard leaves `pair_outcome`, the two 3.37
+      tests that hand-build SPECIFIED `QUANTITY_UNKNOWN` are rewritten, and
+      A23's UNKNOWN sentence is marked superseded. For the
+      conservative-regridding characteristics in general, do the expedient
+      thing: nothing uses them yet; use cases and ExtData support come
+      after legacy is dropped. Run test-first.
 - [x] 3.37 B3-QuantityBasisUnsupported (owner; amends A23 for basis only;
       before 3.36). Today any QuantityType mismatch is
       `BUILD_TRANSFORM_INCOMPATIBLE` (`QuantityTypeCharacteristic.F90`
