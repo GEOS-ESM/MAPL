@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `ExtData2G` `find_any_file` now accounts for the reference time when searching
+  for a file to read metadata from. The trial times are snapped onto the
+  `ref_time + n*freq` grid the files are actually written on, so collections
+  whose files are not aligned with the current time are found instead of
+  exhausting every trial. Also removed a leftover debug print.
+
 - Fixed possible deadlock and memory overrun in pFIO `DirectoryService`: the
   shared-directory mutex is now always released before error checks, a
   duplicate `publish` reports a correct error, and directory/local-port

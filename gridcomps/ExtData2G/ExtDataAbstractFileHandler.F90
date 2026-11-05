@@ -177,9 +177,9 @@ contains
      integer, optional, intent(out) :: rc
 
      integer :: status, i
-     type(ESMF_Time) :: useable_time
+     type(ESMF_Time) :: useable_time, start_time
      character(len=ESMF_MAXPATHLEN) :: trial_file
-     logical :: file_found
+     logical :: file_found, single_file
 
      useable_time = current_time
      call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
@@ -189,18 +189,35 @@ contains
         filename = trial_file
         _RETURN(_SUCCESS)
      end if
+
+     ! The time used above is not necessarily one of the times the files are written on.
+     ! Snap to the grid implied by the reference time and frequency before trying again.
      if (allocated(this%valid_range)) then
-        useable_time = this%valid_range(1)
+        start_time = this%valid_range(1)
+     else
+        start_time = current_time
      end if
-     do i=1, MAX_TRIALS
-        useable_time = useable_time + this%frequency
-        call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
-        inquire(file=trim(trial_file),exist=file_found)
-        if (file_found) then
-           filename = trial_file
-           _RETURN(_SUCCESS)
-        end if
-     enddo
+     call snap_to_file_grid(this, start_time, useable_time, single_file, _RC)
+
+     call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
+     inquire(file=trim(trial_file),exist=file_found)
+     if (file_found) then
+        filename = trial_file
+        _RETURN(_SUCCESS)
+     end if
+
+     ! With no frequency all the data is on a single file, so stepping forward gains nothing.
+     if (.not.single_file) then
+        do i=1, MAX_TRIALS
+           useable_time = useable_time + this%frequency
+           call fill_grads_template(trial_file, this%file_template, time=useable_time, _RC)
+           inquire(file=trim(trial_file),exist=file_found)
+           if (file_found) then
+              filename = trial_file
+              _RETURN(_SUCCESS)
+           end if
+        enddo
+     end if
 
      if (fail_on_missing) then
         _ASSERT(file_found,"Could not find any file to open to determine metadata after multiple trials. Tried template: "//trim(this%file_template))
@@ -210,5 +227,56 @@ contains
      _RETURN(_SUCCESS)
 
    end function find_any_file
+
+   ! Snap target_time onto the grid of times the files are actually written on,
+   ! namely reff_time + n*frequency, returning the latest such time at or before
+   ! target_time. ESMF cannot divide by calendar intervals (month, year) so those
+   ! are handled by stepping forward instead.
+   subroutine snap_to_file_grid(this, target_time, snapped_time, single_file, rc)
+      class(ExtDataAbstractFileHandler), intent(in) :: this
+      type(ESMF_Time), intent(in) :: target_time
+      type(ESMF_Time), intent(out) :: snapped_time
+      logical, intent(out) :: single_file
+      integer, optional, intent(out) :: rc
+
+      integer :: n, years, months
+      integer(ESMF_KIND_I8) :: interval_seconds
+
+      ! ESMF reports an error rather than a value when a calendar interval is
+      ! queried as seconds, so rc is deliberately not checked here.
+      interval_seconds = 0
+      years = 0
+      months = 0
+      call ESMF_TimeIntervalGet(this%frequency, s_i8=interval_seconds)
+      call ESMF_TimeIntervalGet(this%frequency, yy=years, mm=months)
+
+      single_file = (interval_seconds == 0) .and. (years == 0) .and. (months == 0)
+      if (single_file) then
+         ! No token in the template, so there is only ever one file.
+         snapped_time = target_time
+         _RETURN(_SUCCESS)
+      end if
+
+      if (target_time <= this%reff_time) then
+         snapped_time = this%reff_time
+         _RETURN(_SUCCESS)
+      end if
+
+      if (interval_seconds == 0) then
+         ! Frequency is a calendar interval and is not representable as an absolute
+         ! number of seconds, so walk forward. Not good but ESMF leaves no choice.
+         snapped_time = this%reff_time
+         do while (snapped_time <= target_time)
+            snapped_time = snapped_time + this%frequency
+         enddo
+         snapped_time = snapped_time - this%frequency
+      else
+         n = (target_time - this%reff_time)/this%frequency
+         snapped_time = this%reff_time + n*this%frequency
+      end if
+
+      _RETURN(_SUCCESS)
+
+   end subroutine snap_to_file_grid
 
 end module MAPL_ExtdataAbstractFileHandler
