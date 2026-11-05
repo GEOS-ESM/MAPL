@@ -29,10 +29,13 @@ Labels are the task ids below (`A0`, `A1`, `A1-diagnosis`, `A2a`, `B3-Units`, `B
 `C2-<short-name>`, ...). Find a task's work with
 `git log --grep='^Plan-Task: B3-Units' -p`. Do not record commit hashes
 in this plan (they change if the branch is rebased); the trailer is the
-reference. Never push; never rebase or amend existing commits.
+reference. Never rebase or amend existing commits. Task agents never
+push; the meta session pushes only the integration branch, fast-forward
+only, right after each commit the owner approved (owner, 2026-11-05).
 Only the owner rebases the branch onto `develop` (last: 2026-11-02, onto
-develop through #5473); after a rebase, rebuild NAG and gfortran from
-clean, because incremental builds missed changed module interfaces.
+develop through #5473), and only while no outsourced PR is open; after a
+rebase, rebuild NAG and gfortran from clean, because incremental builds
+missed changed module interfaces.
 **Every task must leave all ctests passing** (NAG first, then gfortran;
 `ctest -L ESSENTIAL`). Pending/expected-fail work is gated by explicit
 toggles, never by red tests.
@@ -57,6 +60,13 @@ Preferences stated in discussion, not obvious from the rest of the plan:
   How: `~/.opencode/plan/orchestration.md`. No plan edits while a task
   has uncommitted work that touches the plan (wait for its commit, then
   edit); worktree tasks never edit the plan.
+- Outsourcing (owner, 2026-11-05): tasks off the critical path may go
+  to teammates' agents through GitHub: an issue holding a self-contained
+  brief, answered by a draft PR against the integration branch. Their
+  questions come as PR comments; the owner answers them through meta.
+  Meta verifies (NAG and gfortran ESSENTIAL) and reviews. Accepted PRs
+  are squash-merged with the `Plan-Task:` trailer. How:
+  orchestration.md, "GitHub outsourcing".
 - Questions to the owner: legacy behavior first, in legacy terms; a
   concrete YAML example and what the user sees; options with their
   consequences; a recommendation. No labels invented in the session.
