@@ -17,6 +17,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.73.0] - 2026-11-05
+
+### Fixed
+
+- `ExtData2G` `find_any_file` now accounts for the reference time when searching
+  for a file to read metadata from. The trial times are snapped onto the
+  `ref_time + n*freq` grid the files are actually written on, so collections
+  whose files are not aligned with the current time are found instead of
+  exhausting every trial. Also removed a leftover debug print.
+
+- Fixed possible deadlock and memory overrun in pFIO `DirectoryService`: the
+  shared-directory mutex is now always released before error checks, a
+  duplicate `publish` reports a correct error, and directory/local-port
+  capacity (`MAX_NUM_PORTS`) is checked. `MpiMutex` and directory get/put
+  routines now propagate errors via `rc`; replaced MPI-3-removed
+  `MPI_Type_extent` with `MPI_Type_get_extent`; added `Test_MpiMutex` (#5460)
+
+### Added
+
+- Add attribute `from_bundle` to fields in checkpoints that were in a bundle
+
+### Changed
+
+- Update `components.yaml`
+  - ESMA_cmake v4.52.0
+    - Make ESMA_cmake reentrant
+    - Fix issue with quad precision detection test
+    - Fixes for Flang and NVIDIA compilers
+    - Fixes for CMake builds
+  - ESMA_env v5.27.0
+    - Update to GEOSpyD 26.7.2
+- MAPLPy: add a method to retrieve the Fortran MPI communicator (as a flat `Fint`)
+- MAPLPy: add a `GetResource_Int64` alongside the 32bit one
+
 ## [2.72.0] - 2026-09-23
 
 ### Fixed

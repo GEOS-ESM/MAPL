@@ -1,0 +1,153 @@
+! Tests for pFIO_MpiMutexMod.
+!
+! Mutual exclusion is checked with a shared counter held in an MPI window
+! on rank 0.  The increment is a deliberately non-atomic read-modify-write
+! (get in one RMA epoch, put in another), so lost updates would occur if
+! two ranks were ever inside the critical section at the same time.
+
+module Test_MpiMutex
+   use pfunit
+   use mpi
+   use pFIO_MpiMutexMod
+   implicit none
+
+contains
+
+   @test(npes=[1,4])
+   subroutine test_mutual_exclusion(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      integer, parameter :: NITER = 20
+      type (MpiMutex) :: mutex
+      integer :: comm, npes, i, status
+      integer :: win
+      integer, target :: counter
+
+      comm = this%getMpiCommunicator()
+      npes = this%getNumProcesses()
+
+      call create_counter(comm, counter, win)
+
+      mutex = MpiMutex(comm, rc=status)
+      @assertEqual(0, status)
+
+      do i = 1, NITER
+         call mutex%acquire(rc=status)
+         @assertEqual(0, status)
+         call increment_counter(win)
+         call mutex%release(rc=status)
+         @assertEqual(0, status)
+      end do
+
+      call MPI_Barrier(comm, status)
+      @assertEqual(0, status)
+
+      if (this%getProcessRank() == 0) then
+         @assertEqual(npes*NITER, read_counter(win))
+      end if
+
+      call mutex%free_mpi_resources(rc=status)
+      @assertEqual(0, status)
+      call MPI_Win_free(win, status)
+
+   end subroutine test_mutual_exclusion
+
+
+   ! Rank 0 holds the lock while all other ranks queue up behind it,
+   ! so release() must hand the lock on to each waiting rank in turn.
+   @test(npes=[4])
+   subroutine test_handoff_to_waiting_ranks(this)
+      class (MpiTestMethod), intent(inout) :: this
+
+      type (MpiMutex) :: mutex
+      integer :: comm, npes, rank, status
+      integer :: win
+      integer, target :: counter
+      real(kind=kind(0.d0)) :: t0
+
+      comm = this%getMpiCommunicator()
+      npes = this%getNumProcesses()
+      rank = this%getProcessRank()
+
+      call create_counter(comm, counter, win)
+
+      mutex = MpiMutex(comm, rc=status)
+      @assertEqual(0, status)
+
+      if (rank == 0) then
+         call mutex%acquire(rc=status)
+         @assertEqual(0, status)
+      end if
+
+      call MPI_Barrier(comm, status)
+      @assertEqual(0, status)
+
+      if (rank == 0) then
+         ! Give the other ranks time to register as waiters.
+         t0 = MPI_Wtime()
+         do while (MPI_Wtime() - t0 < 0.2d0)
+         end do
+      else
+         call mutex%acquire(rc=status)
+         @assertEqual(0, status)
+      end if
+
+      call increment_counter(win)
+      call mutex%release(rc=status)
+      @assertEqual(0, status)
+
+      call MPI_Barrier(comm, status)
+      @assertEqual(0, status)
+
+      if (rank == 0) then
+         @assertEqual(npes, read_counter(win))
+      end if
+
+      call mutex%free_mpi_resources(rc=status)
+      @assertEqual(0, status)
+      call MPI_Win_free(win, status)
+
+   end subroutine test_handoff_to_waiting_ranks
+
+
+   subroutine create_counter(comm, counter, win)
+      integer, intent(in) :: comm
+      integer, target, intent(inout) :: counter
+      integer, intent(out) :: win
+
+      integer :: sizeof_int, ierror
+      integer(kind=MPI_ADDRESS_KIND) :: lb, extent
+
+      call MPI_Type_get_extent(MPI_INTEGER, lb, extent, ierror)
+      sizeof_int = int(extent)
+      counter = 0
+      call MPI_Win_create(counter, extent, sizeof_int, MPI_INFO_NULL, comm, win, ierror)
+   end subroutine create_counter
+
+
+   ! Non-atomic increment of the counter on rank 0: separate get and put epochs.
+   subroutine increment_counter(win)
+      integer, intent(in) :: win
+
+      integer :: value, ierror
+
+      value = read_counter(win)
+      value = value + 1
+
+      call MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, win, ierror)
+      call MPI_Put(value, 1, MPI_INTEGER, 0, 0_MPI_ADDRESS_KIND, 1, MPI_INTEGER, win, ierror)
+      call MPI_Win_unlock(0, win, ierror)
+   end subroutine increment_counter
+
+
+   integer function read_counter(win) result(value)
+      integer, intent(in) :: win
+
+      integer :: ierror
+
+      call MPI_Win_lock(MPI_LOCK_EXCLUSIVE, 0, 0, win, ierror)
+      call MPI_Get(value, 1, MPI_INTEGER, 0, 0_MPI_ADDRESS_KIND, 1, MPI_INTEGER, win, ierror)
+      call MPI_Win_unlock(0, win, ierror)
+   end function read_counter
+
+end module Test_MpiMutex

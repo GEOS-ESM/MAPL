@@ -3142,6 +3142,7 @@ contains
     logical                            :: bootstrapable_
     logical                            :: isPresent
     logical                            :: is_test_framework, restore_export
+    type(ESMF_FieldStatus_Flag)        :: fieldStatus
     character(len=:), allocatable      :: fname_by_face
     ! get a list of variables in the file so we can skip if the
     ! variable in the state is not in the file and it is bootstrapable
@@ -3248,6 +3249,9 @@ contains
              DO J = 1,nBundle
                call ESMF_FieldBundleGet(bundle, fieldIndex=J, field=field, rc=status)
                _VERIFY(STATUS)
+               ! Skip placeholder fields that have no grid/data (e.g. Turbulence TRI)
+               call ESMF_FieldGet(field, status=fieldStatus, _RC)
+               if (fieldStatus /= ESMF_FIELDSTATUS_COMPLETE) cycle
                call ESMF_FieldGet(field,name=FieldName,rc=status)
                _VERIFY(STATUS)
 
@@ -3581,6 +3585,8 @@ contains
     type(Netcdf4_Fileformatter)           :: formatter
     type(FileMetadata) :: cf
     class (Variable), allocatable :: var
+    class (Variable), pointer :: fvar_ptr
+    character(len=ESMF_MAXSTR) :: from_bundle
     class(*), allocatable :: coordinate_data(:)
     integer :: pfDataType, writer_rank
     character(len=:), allocatable         :: fname_by_writer
@@ -4128,6 +4134,14 @@ contains
              _FAIL( trim(buffer))
           endif
 
+          ! Record which bundle the field came from (set by MAPL_StateVarWriteNCPar)
+          call ESMF_AttributeGet(field, name='from_bundle', isPresent=isPresent, _RC)
+          if (isPresent) then
+             call ESMF_AttributeGet(field, name='from_bundle', value=from_bundle, _RC)
+             fvar_ptr => cf%get_variable(trim(fieldname), _RC)
+             call fvar_ptr%add_attribute('from_bundle', trim(from_bundle))
+          end if
+
        enddo
 
        call ESMF_AttributeGet(bundle, name='MAPL_GridCapture', isPresent=isPresent, _RC)
@@ -4359,6 +4373,7 @@ contains
     logical                            :: is_test_framework, isGridCapture
     integer :: fieldIsValid
     type(ESMF_Array) :: array
+    type(ESMF_FieldStatus_Flag) :: fieldStatus
     logical :: local_clobber
 
     call ESMF_StateGet(STATE,ITEMCOUNT=ITEMCOUNT,RC=STATUS)
@@ -4436,12 +4451,16 @@ contains
              DO J = 1,nBundle
                call ESMF_FieldBundleGet(bundle, fieldIndex=J, field=field, rc=status)
                _VERIFY(STATUS)
+               ! Skip placeholder fields that have no grid/data (e.g. Turbulence TRI)
+               call ESMF_FieldGet(field, status=fieldStatus, _RC)
+               if (fieldStatus /= ESMF_FIELDSTATUS_COMPLETE) cycle
                call ESMF_FieldGet(field,name=FieldName,rc=status)
                _VERIFY(STATUS)
                ! Tack on BundleName to distiguish duplicate FieldNames in different Bundles (PCHEM for instance)
                FieldName = trim(BundleName) //'_'// trim(FieldName)
                new_field = MAPL_FieldCreate(Field,FieldName,rc=status)
                _VERIFY(STATUS)
+               call ESMF_AttributeSet(new_field, name='from_bundle', value=trim(BundleName), _RC)
                call MAPL_FieldBundleAdd(bundle_write,new_field,rc=status)
                _VERIFY(STATUS)
              ENDDO

@@ -1,10 +1,12 @@
-import cffi
 import os
-from MAPL_PythonBridge.types import CVoidPointer, FFI
-from typing import Any, no_type_check
+import platform
+from typing import Any
+
+import cffi
 import numpy as np
 import numpy.typing as npt
-import platform
+
+from MAPL_PythonBridge.types import FFI, CVoidPointer
 
 ESMF_MAXSTR = 256
 
@@ -91,6 +93,9 @@ class MAPLPythonFortranBridge:
             "(void* esmf_state_c_ptr, char* name_c_ptr, int name_len, double default_value"
             ");"
         )
+        self.ffi.cdef(
+            "int MAPLPy_Get_Comm();"
+        )
 
         # MAPLPy_MAPL_X
         self.ffi.cdef("int MAPLPy_MAPL_GetIM(void* esmf_state_c_ptr);")
@@ -153,7 +158,6 @@ class MAPLPythonFortranBridge:
             state, self.ffi.new("char[]", name.encode()), len(name), alloc
         )
 
-    @no_type_check
     def MAPL_GetResource(
         self,
         state: CVoidPointer,
@@ -206,7 +210,6 @@ class MAPLPythonFortranBridge:
         byte_string = self.ffi.string(cdata_string)
         return byte_string.decode("utf-8").rstrip()
 
-    @no_type_check
     def associated_2d(self, state: CVoidPointer, name: str, alloc: bool = False) -> bool:
         associated_as_int = self.mapl_c_bridge.MAPLpy_GetPointer_2D_associated(
             state,
@@ -216,7 +219,6 @@ class MAPLPythonFortranBridge:
         )
         return associated_as_int != 0
 
-    @no_type_check
     def associated_3d(self, state: CVoidPointer, name: str, alloc: bool = False) -> bool:
         associated_as_int = self.mapl_c_bridge.MAPLpy_GetPointer_3D_associated(
             state,
@@ -225,6 +227,9 @@ class MAPLPythonFortranBridge:
             alloc,
         )
         return associated_as_int != 0
+
+    def get_fortran_comm(self) -> int:
+        return self.mapl_c_bridge.MAPLPy_Get_Comm()
 
 
 MAPL_PYHTON_FORTRAN_BRIDGE = MAPLPythonFortranBridge(FFI)
