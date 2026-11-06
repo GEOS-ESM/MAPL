@@ -40,8 +40,9 @@ yet. Sometime soon, this directory will be eliminated." ([../README.md](../READM
 - `GMAO_stoch/CMakeLists.txt` mentions `MAPL_cfio_r4` only in a commented-out line.
 - Fixture, `r8`: GMAO_hermes executables `GFIO_remap.x`, `GFIO_Shave.x`,
   `lcv2prs.x` (`use ESMF_CFIOMod` in lcv2prs.F90), and `convert_aerosols.x` in
-  `@GEOS_Util/post`. See [../../@GMAO_Shared/GMAO_hermes/ARCHITECTURE.md](../../@GMAO_Shared/GMAO_hermes/ARCHITECTURE.md)
-  and [../../@GMAO_Shared/GMAO_gfio/ARCHITECTURE.md](../../@GMAO_Shared/GMAO_gfio/ARCHITECTURE.md).
+  `@GEOS_Util/post`. See the fixture documents
+  `../../@GMAO_Shared/GMAO_hermes/ARCHITECTURE.md` and
+  `../../@GMAO_Shared/GMAO_gfio/ARCHITECTURE.md`.
 
 ## Known traps
 - Two libraries from one source: a change compiles twice with different

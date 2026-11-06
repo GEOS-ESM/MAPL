@@ -12,7 +12,7 @@ MAPL (Modeling Analysis and Prediction Layer) is "a foundation layer of the GEOS
 
 This is the MAPL2 line (`release/v2`). The `develop` branch is MAPL3, a different architecture with its own documents; nothing here describes it.
 
-Parent: [GEOSgcm fixture architecture, section 2.3](../../../docs/ARCHITECTURE.md). Repository-level map: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md); decisions: [docs/decisions.md](docs/decisions.md).
+Parent: GEOSgcm fixture architecture, section 2.3 (`../../../docs/ARCHITECTURE.md` in the fixture). Repository-level map: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md); decisions: [docs/decisions.md](docs/decisions.md).
 
 ## Reading order for a GEOS component developer
 1. [generic/](generic/ARCHITECTURE.md): `MAPL_Generic`, specs, children, connections, resources.

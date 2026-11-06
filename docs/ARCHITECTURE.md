@@ -7,7 +7,7 @@
 Other fixtures (for example GEOSadas, GEOSldas) may place this repository
 elsewhere; paths inside this repository do not change.
 
-Parent: [GEOSgcm fixture architecture, section 2.3 MAPL](../../../../docs/ARCHITECTURE.md). Index and rules: [../AGENTS.md](../AGENTS.md). Decisions: [decisions.md](decisions.md).
+Parent: GEOSgcm fixture architecture, section 2.3 MAPL (`../../../../docs/ARCHITECTURE.md` in the fixture). Index and rules: [../AGENTS.md](../AGENTS.md). Decisions: [decisions.md](decisions.md).
 
 ## 1. Layer map
 Library targets and their `DEPENDENCIES` (each directory's `CMakeLists.txt`):
