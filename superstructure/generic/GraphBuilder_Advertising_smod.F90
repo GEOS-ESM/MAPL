@@ -56,6 +56,7 @@ contains
       type(PortId) :: port_id
       type(StringVector) :: member_names
       class(GraphNode), pointer :: registered_node
+      type(StateItemDescriptor), pointer :: descriptor
 
       key = item_key(var_spec%state_intent, var_spec%short_name)
 
@@ -99,7 +100,11 @@ contains
          call registered_node%set_state_intent(var_spec%state_intent)
          call registered_node%set_is_inout_borrower(var_spec%is_inout_borrower)
          call registered_node%set_callback_interface_id(var_spec%callback_interface_id)
-         call populate_characteristics(registered_node, var_spec, _RC)
+         ! Mutate the stored descriptor in place through a pointer, not a
+         ! copy: copying a populated characteristics map can corrupt
+         ! nondeterministically under gfortran -fcheck=all.
+         descriptor => registered_node%get_descriptor()
+         call var_spec%make_characteristics(descriptor, _RC)
       class default
          _FAIL('GraphBuilder: advertise_one - newly-registered node is not a StateItemNode')
       end select
@@ -115,37 +120,5 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine advertise_one
-
-   ! Maps the var_spec's declared fields into the node's stored
-   ! StateItemDescriptor.
-   subroutine populate_characteristics(node, var_spec, rc)
-      class(StateItemNode), target, intent(inout) :: node
-      type(VariableSpec), intent(in) :: var_spec
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(StateItemDescriptor), pointer :: descriptor
-
-      ! Mutate the stored descriptor in place through a pointer, not a copy:
-      ! copying a populated characteristics map can corrupt nondeterministically
-      ! under gfortran -fcheck=all.
-      descriptor => node%get_descriptor()
-
-      call var_spec%make_characteristics(descriptor, _RC)
-
-      ! Capture the item type so extension materialization needs no
-      ! VariableSpec. The component-wide geom and vertical grid are not
-      ! captured: GEOM_B runs after ADVERTISE, so they arrive through
-      ! DEFERRED resolution.
-      call descriptor%set_declared_item_type(var_spec%itemType)
-
-      ! Recorded for every intent; only an export's or internal's value is
-      ! ever applied (the import's has no effect).
-      if (allocated(var_spec%fill_value)) then
-         call descriptor%set_fill_value(var_spec%fill_value)
-      end if
-
-      _RETURN(_SUCCESS)
-   end subroutine populate_characteristics
 
 end submodule GraphBuilder_Advertising_smod

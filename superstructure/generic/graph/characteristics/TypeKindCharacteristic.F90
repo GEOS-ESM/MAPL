@@ -194,17 +194,9 @@ contains
       signature = 'typekind=' // this%get_type_kind()
    end function typekind_get_signature
 
-   ! Moved from the retired mapl_TypeKindCharacteristicAdapter_mod - no
-   ! other module needs these once the adapter is removed (confirmed by
-   ! grep, task 6.1).
-   !
-   ! Extended to I4/I8/LOGICAL (mirrors mapl_FieldInfo_mod's to_string/to_typekind).
-   ! Defensive broadening for the full set of ESMF_TypeKind_Flag values in use.
-   ! (GraphBuilder_Advertising_smod.F90's populate_characteristics,
-   ! design.md correction) - that is the actual case this change's own
-   ! implementation surfaced (StatisticsGridComp.F90's mirrored
-   ! imports), not a missing I4/I8/LOGICAL label as initially
-   ! suspected.
+   ! Extended to I4/I8/LOGICAL (mirrors mapl_FieldInfo_mod's
+   ! to_string/to_typekind): StatisticsGridComp's mirrored imports need
+   ! these labels.
    function typekind_to_label(type_kind) result(label)
       type(ESMF_TypeKind_Flag), intent(in) :: type_kind
       character(:), allocatable :: label

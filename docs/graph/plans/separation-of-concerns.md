@@ -1383,7 +1383,7 @@ and interface names are fine); report its output in the commit body.
 
 **B5. Translation in place.** `populate_characteristics` deleted;
 advertise calls `VariableSpec%make_characteristics`.
-- **Status:** not started
+- **Status:** done (ESSENTIAL 69/69 NAG and gfortran).
 
 ### Phase C - missing capability
 

@@ -92,6 +92,18 @@ contains
 
       call check_intent_rules(this, descriptor, _RC)
 
+      ! Capture the item type so extension materialization needs no
+      ! VariableSpec. The component-wide geom and vertical grid are not
+      ! captured: GEOM_B runs after ADVERTISE, so they arrive through
+      ! DEFERRED resolution.
+      call descriptor%set_declared_item_type(this%itemType)
+
+      ! Recorded for every intent; only an export's or internal's value is
+      ! ever applied (the import's has no effect).
+      if (allocated(this%fill_value)) then
+         call descriptor%set_fill_value(this%fill_value)
+      end if
+
       _RETURN(_SUCCESS)
    end subroutine make_characteristics
 

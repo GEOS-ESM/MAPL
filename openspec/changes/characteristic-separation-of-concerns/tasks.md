@@ -1139,5 +1139,7 @@ B4b as its own task.
 - [x] 5.1 Add `VariableSpec%make_characteristics` in a new `specs/`
       submodule as a loop over the factory list (§5). (Done in B3-Units;
       later B3 tasks add factories to the list.)
-- [ ] 5.2 Reduce `populate_characteristics` to one call; then delete it.
-- [ ] 5.3 Done when ESSENTIAL passes on NAG and gfortran.
+- [x] 5.2 Reduce `populate_characteristics` to one call; then delete it.
+      (Done in B5-TranslationInPlace: declared item type and fill value
+      moved into `make_characteristics`; advertise calls it directly.)
+- [x] 5.3 Done when ESSENTIAL passes on NAG and gfortran. (69/69 both.)
