@@ -40,7 +40,6 @@ gb%run_advertise_hook(this)`) over what were previously free functions
 | `GraphBuilder_StatePopulation_smod.F90` | Graph-native equivalent of `StateRegistry%add_to_states` — inserts materialized fields into the real `ESMF_State` |
 | `GraphBuilder_RunPhaseNode_smod.F90` | Constructs the ordinary-phase `MethodGraphNode` (construction only — no invocation hook; see its own header before adding one) |
 | `GraphBuilder_RunPhasePull_smod.F90` | Post-run re-propagation pull (plain `ComponentGraph%update()`, never a second driver call) |
-| `GraphBuilder_PortsAndProxies_smod.F90` | Public port / child-proxy population |
 | `GraphBuilder_LifecycleHooks_smod.F90` | Thin per-init-phase hook wrappers called from `OuterMetaComponent` |
 | `GraphBuilder_Visualization_smod.F90` | `NodeIdLabelMap` enrichment for `GraphExport` |
 | `GraphBuilder_Freeze_smod.F90` | Validate-and-freeze |

@@ -105,13 +105,38 @@ first 5 item names) is logged by the hook.
 `MAPL_TYPEKIND_MIRROR` advertises a valueless `MIRRORED` TYPE_KIND entry
 (set by the `VariableSpec` factory, not by the characteristic constructor).
 
+Extension chains: `StateItemCharacteristic%covered_kinds(tip, goal)`
+(default: its own kind; the result includes its own kind and only kinds
+present in both maps) names the kinds one repair step settles.
+`build_chain` keeps a tip map per step, replaces every covered kind with
+the goal's value, and skips later mismatches the tip already covers. An
+extension node's descriptor is the tip after its step;
+`intermediate_node_ids` has one entry per step. Materialization reads
+each link's own descriptor.
+
+Materialization: `materialize_field_extension(graph, node_id [, name],
+rc)` creates an empty field, calls the node's `sync_to_info(STRUCTURAL)`,
+runs `MAPL_FieldEmptyComplete`, and sets `allocation_status` to
+`ALLOCATED`. A characteristic must therefore write in `write_info`
+(STRUCTURAL) whatever `FieldEmptyComplete` needs. Geom and vgrid come
+only from the descriptor; `GraphBuilder` names no characteristic kind or
+concrete characteristic type.
+`StateItemCharacteristic%is_complete()` (default `.true.`) feeds
+`StateItemDescriptor%get_incomplete_kinds` and `check_materializable`
+(failure reason `incomplete_characteristic:<KIND>`). `harvest(handle,
+defaults)` (default no-op; `VerticalStagger` and `QuantityType`
+override) fills characteristics from a realized field; the harvest loop
+also visits nodes with incomplete kinds. `descriptor%get_expression`
+returns the expression string; `add_expression_result_defaults` adds the
+creation defaults (GEOM `horizontal_dims_spec`) for an expression result.
+
 Info writes: `StateItemDescriptor%sync_to_info(handle, phase)` calls
 each SPECIFIED/UNCHECKED characteristic's `write_info` (phases
 `SYNC_PHASE_STRUCTURAL`/`SYNC_PHASE_DESCRIPTIVE`; `is_structural()`
 kinds are skipped in DESCRIPTIVE). Every kind with a factory overrides
 `write_info` (`Attributes` as a no-op: no Info key). The base version
-fails, so a new kind without one fails `sync_to_info` loudly. Only `populate_one` calls into it, through `StateItemDescriptor%sync_per_alias_to_info` (entries whose `is_per_alias()` is true: `RestartMode`, `LongName`); no production path calls
-`sync_to_info` yet (materialization adopts it in B4). Known gap until B4: an import with no declared `long_name` writes nothing, so under graph-only its alias reads `unknown` (legacy inherits the export's via `connect_to_export`). Factories live in
+fails, so a new kind without one fails `sync_to_info` loudly. Only `populate_one` calls into it, through `StateItemDescriptor%sync_per_alias_to_info` (entries whose `is_per_alias()` is true: `RestartMode`, `LongName`); extension and export field materialization calls
+`sync_to_info(STRUCTURAL)` on the node's own descriptor. An import with no declared `long_name` inherits the export's: the owning field's alias-0 entry is written by the full STRUCTURAL sync. Factories live in
 `specs/VariableSpec/make_characteristics.F90`: the type-bound
 `VariableSpec%make_characteristics` loops over a registry of per-kind
 factories (so far units, typekind, ungridded dims, geometry, vertical grid, vertical stagger, vertical orientation, horizontal dims spec, standard name, attributes, item shape, long name, restart mode, quantity type, conservation, normalization and expression). Procedure: `docs/graph/adding-a-characteristic.md`.
@@ -201,7 +226,6 @@ type (stateless; every method is `nopass` and takes the
 | `GraphBuilder_Geometry_smod.F90` | Geometry push/pull (`run_geometry_hook`) |
 | `GraphBuilder_CallbackWiring_smod.F90` | Wildcard/regex callback-argument wiring against the flattened qualified-export namespace |
 | `GraphBuilder_LifecycleHooks_smod.F90` | Wrappers called from `OuterMetaComponent` lifecycle sites: advertise, activate, connect, populate-state hooks; logs `GraphResolutionEntry` results |
-| `GraphBuilder_PortsAndProxies_smod.F90` | Export geom/vgrid resolution helpers (`resolve_export_geom`, `resolve_export_vgrid`). The name is historical: no proxy code remains. |
 | `GraphBuilder_RunPhaseNode_smod.F90`, `GraphBuilder_RunPhasePull_smod.F90` | `MethodGraphNode` construction; demand-driven pull for a run phase |
 | `GraphBuilder_StatePopulation_smod.F90` | Populates the real `ESMF_State` from graph nodes (`graph`/`both` modes) |
 | `GraphBuilder_Visualization_smod.F90` | DOT/JSON enrichment |
@@ -345,8 +369,8 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
   addendum (`spec/20-implementation-roadmap.md`).
 - Mismatched kinds are ordered by the tip's
   `ItemShapeCharacteristic%get_extension_order` in
-  `resolve_characteristics`; only the shape is replaced on the tip between
-  steps (general covered-kind replacement is B4).
+  `resolve_characteristics`; each step replaces its `covered_kinds` on the
+  tip.
 - Legacy retirement (`registry/`, `specs/*Aspect`, legacy `transforms/`)
   is not started. Its graph-side prerequisites in roadmap §20.4.11 (3b2,
   7a, 7b, 7c, 12, 13) have all landed.

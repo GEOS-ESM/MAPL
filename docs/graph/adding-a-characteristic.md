@@ -112,8 +112,8 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
    `call var_spec%make_characteristics(descriptor, _RC)` already there
    runs the registered factory), and drop the kind constant and concrete
    type from that submodule's use list.
-   Materialization references (`get_item_*`, `merged_item_for_link`) are
-   removed in B4, not here.
+   Materialization needs no kind-specific code: it syncs the node's
+   descriptor to Info (see "Extension chains and materialization").
 6. **Tests**
    - `graph/tests/Test_StateItemDescriptor.pf`: `sync_to_info` writes the
      SPECIFIED and UNCHECKED values in the right phases and skips the
@@ -140,8 +140,8 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
 - `write_info` writes `units=` only in STRUCTURAL; UNCHECKED writes
   `'<unknown>'` (`UNKNOWN_UNITS`). Legacy's `'/$MIRROR$'` marker is not
   reproduced (owner Q11): units are never MIRRORED.
-- Materialization still reads units through `get_item_units` until B4;
-  an UNCHECKED import yields `''` there, as an absent entry did before.
+- Materialization writes units through `write_info` only; an UNCHECKED
+  import yields `'<unknown>'`.
 
 ## TypeKind as implemented
 
@@ -159,8 +159,6 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
 - `is_structural()` is `.true.`; `write_info` writes `typekind=` through
   `MAPL_FieldSet`/`MAPL_FieldBundleSet`. MIRRORED never reaches it
   (`sync_to_info` filters), and UNCHECKED is not a TypeKind state.
-- `get_item_typekind` and `merged_item_for_link` still read the kind
-  until B4.
 
 ## UngriddedDims as implemented
 
@@ -189,8 +187,8 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
 - `is_structural()` is `.true.`; `write_info` writes `ungridded_dims=`
   through `MAPL_FieldSet`/`MAPL_FieldBundleSet`. MIRRORED never reaches it.
 - `StateItemDescriptor` no longer has an `ungridded_dims` component or
-  `get/set_ungridded_dims`. Materialization reads the value through
-  `get_item_ungridded_dims` (a B4 removal, like `get_item_units`).
+  `get/set_ungridded_dims`. Materialization writes the value through
+  `write_info`.
 
 ## Geometry as implemented
 
@@ -244,8 +242,8 @@ First kind with a DEFERRED value (a value the component supplies later).
   `MAPL_FieldSet` / `MAPL_FieldBundleSet`. DEFERRED and MIRRORED never
   reach it.
 - `StateItemDescriptor` no longer has `declared_geom` or
-  `get/set_declared_geom`; `resolve_export_geom` reads the item's own
-  GEOMETRY characteristic and falls back to the owner's default geom.
+  `get/set_declared_geom`; materialization takes the geom only from the
+  node's GEOMETRY characteristic (no owner fallback).
 - `build_transform` calls `report_build_transform_unsupported`, so a geometry
   mismatch is reported as unsupported rather than as an error.
 
@@ -281,8 +279,8 @@ Second kind with a DEFERRED value; it reuses Geometry's machinery.
 - Hybrid `needs_extension_for` is kept; the single-overlap `build_transform`
   calls `report_build_transform_unsupported`.
 - `StateItemDescriptor` no longer has `declared_vertical_grid`;
-  `resolve_export_vgrid` reads the item's characteristic and falls back to
-  the owner's vertical grid.
+  materialization takes the vertical grid only from the
+  node's characteristic (no owner fallback).
 - Test fixtures that want a 2D item set `vertical_stagger = NONE`
   (`make_var` does).
 - A mirror on anything but an import or an expression export is rejected by
@@ -318,9 +316,8 @@ A structural kind with a DEFERRED value and no built-in default.
 - `needs_extension_for` compares `to_string()` values because
   `VerticalStaggerLoc`'s `==` treats MIRROR as a wildcard.
 - `write_info` writes `vert_staggerloc=` in the STRUCTURAL phase only.
-- `resolve_export_vgrid` reads the stagger from the characteristic and
-  returns it; a SPECIFIED NONE returns before the component's grid is
-  consulted.
+- `harvest` reads the stagger from a realized field into a DEFERRED
+  entry. A SPECIFIED NONE needs no harvest.
 - Test fixtures that build a `VariableSpec` by hand must set
   `vertical_stagger` for the item to settle in a component with a grid.
 
@@ -491,13 +488,9 @@ a step for it.
 - Legacy absent-means-mirror: an import with no `long_name` inherits the
   export's value in `FieldClassAspect%connect_to_export` (`mirror_name`).
   The graph reproduces it as UNCHECKED, not MIRRORED: an UNCHECKED import
-  stays valueless and writes nothing. (Known gap until B4: `populate_one`
-  creates the import alias with `MAPL_NamedAlias`, which copies the raw
-  field's own long_name slot, and nothing writes that slot in the graph path
-  yet, because the export's value is written on the export's alias only.
-  So an undeclared import reads `unknown` under graph-only, where legacy
-  supplies the export's through `connect_to_export`. B4 materialization
-  `sync_to_info` on the owning field closes it.) The exception is an
+  stays valueless and writes nothing. (The import alias reads the export's
+  value because materialization's full STRUCTURAL `sync_to_info` on the
+  owning field writes long_name on alias 0.) The exception is an
   import that declares its own `long_name`: that import is SPECIFIED and keeps its value (legacy: dst wins), and so
   does the graph.
 - Mirror: `make_VariableSpec` strips `MAPL_STRING_MIRROR` into
@@ -561,7 +554,7 @@ A never-compared, per-alias kind. `needs_extension_for` is always false and
 - `StateItemDescriptor` no longer has `declared_restart_mode` or its
   accessors; the advertise block that captured it is gone.
 - INTERNAL items are not populated by the graph yet, so their restart mode
-  and long_name are not written (gap until B4).
+  and long_name are not written.
 
 ## Expression as implemented
 
@@ -598,8 +591,7 @@ string (design §5). `needs_extension_for` is always false and
   expressions can mismatch or extend.
 - Evaluation is unchanged: `GraphBuilder%run_expression_hook` builds the
   `ExpressionTransform` wiring (design D2); this characteristic only
-  carries the string for `get_item_expression`
-  (`GraphBuilder_ConnectionResolution_smod.F90`) to read. `StateItemDescriptor`
+  carries the string that `StateItemDescriptor%get_expression` returns. `StateItemDescriptor`
   no longer has `declared_expression` or its accessors; the advertise
   block that captured it is gone.
 - B3-Expression (task 3.12) also widened the shared `has_field_metadata`
@@ -720,7 +712,7 @@ value, writes only its own Info key, and has no Transform.
   descriptor. Owner (design A24, R1): no adopt rule.
 
 - Production: `populate_one` calls only `sync_per_alias_to_info`, so these
-  field-wide kinds are written only by tests (and by B4 materialization later).
+  field-wide kinds are written only by tests and by materialization.
 
 ## Attributes as implemented
 
@@ -788,8 +780,7 @@ value, writes only its own Info key, and has no Transform.
   mismatched kind in the current tip's shape order, else the first
   remaining kind by `to_string()`. After the ITEM_SHAPE step the tip's shape
   is the import's, so the rest follow that order (BRACKET -> FIELD puts
-  units after the shape step). Only the shape is replaced on the tip; the
-  general covered-kind replacement is B4.
+  units after the shape step). Each step replaces its `covered_kinds` on the tip.
 - `GraphStateItem%ordering` and `characteristic_ordering_table` are
   deleted; their tests are replaced by one golden test per shape in
   `Test_StateItemCharacteristicSubclasses` and ordering tests in
@@ -813,3 +804,23 @@ value, writes only its own Info key, and has no Transform.
   provider" warnings are identical to a clean HEAD baseline.
   `MAPL.generic.scenarios.pending` fails the same 114 checks with identical
   messages at HEAD and with this change.
+
+## Extension chains and materialization
+
+- `covered_kinds(tip, goal)` defaults to the characteristic's own kind.
+  An override must include its own kind and return only kinds present in
+  both `tip` and `goal`. `build_chain` replaces every covered kind in the
+  tip with the goal's value, and the extension node's descriptor is the
+  tip after its step.
+- Materialization creates an empty field, calls
+  `descriptor%sync_to_info(STRUCTURAL)`, runs `MAPL_FieldEmptyComplete`,
+  and sets `allocation_status` to `ALLOCATED`. A new characteristic must
+  write in `write_info` (STRUCTURAL) whatever `FieldEmptyComplete` needs.
+- `is_complete()` (default `.true.`) feeds
+  `StateItemDescriptor%get_incomplete_kinds` and `check_materializable`
+  (`incomplete_characteristic:<KIND>`) and the harvest loop.
+- `harvest(handle, defaults)` (default no-op) fills the characteristic
+  from a realized field; `VerticalStagger` and `QuantityType` override.
+- `descriptor%get_expression` returns the expression string;
+  `add_expression_result_defaults` adds the creation defaults for an
+  expression result.

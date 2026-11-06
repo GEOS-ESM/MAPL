@@ -58,6 +58,10 @@ deprecated yet.
 | Consumer-adopted kinds | Kinds in the (item type, kind) mirrored-export allowlist (`get_consumer_adopted_kinds`): the evaluation result takes the consumer's value for them. No legacy term. |
 | `declared_wins` | Allowlist flag: a `SPECIFIED` value declared on the expression beats the consumer's. False only for TYPE_KIND (precision is always the consumer's). No legacy term. |
 | Deferred fallback | A `DEFERRED` characteristic nothing supplied (and not fatal, e.g. QuantityType) becomes `UNCHECKED` at connect, with one summary warning. No legacy term. |
+| Tip | The characteristic map after an extension-chain step; the extension node's descriptor. |
+| `covered_kinds(tip, goal)` | Kinds one repair step settles (default: its own kind; only kinds in both maps). |
+| Incomplete kind | A characteristic whose `is_complete()` is false; reported as `incomplete_characteristic:<KIND>` by `check_materializable`. |
+| `harvest` | `StateItemCharacteristic%harvest(handle, defaults)`: fill a characteristic from a realized field (`VerticalStagger`, `QuantityType`). |
 | Characteristic status `UNCHECKED` | "Always match, user beware." |
 
 ## Terms in the plan not yet in code

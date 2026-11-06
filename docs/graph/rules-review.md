@@ -184,7 +184,7 @@ yet; INCOMPATIBLE = can never connect, A23).
 | Geometry | CFD + SERVICE | DEFERRED; UNCHECKED if `horizontal_dims_spec` NONE (not compared); MIRRORED for EXPRESSION (`make_geometry_characteristic`) | DEFERRED -> SPECIFIED with the component geom at GEOM_B; else stays DEFERRED and may be filled from the realized field (`graphbuilder_harvest_deferred`, connect hook); still DEFERRED at freeze -> error (`check_resolved`). The uncompared UNCHECKED one takes the component geom and stays UNCHECKED (`geometry_resolve_deferred`). Never dropped. | MIRRORED for `mirror_geom` (YAML `geometry_mirror: true`); IMPORT or EXPRESSION | node identity / `mapl_SameGeom` / geom_id; UNSUPPORTED (no regrid before C1) | field-wide, structural | `make_GeomAspect` (`VariableSpec.F90:756`): item geom, else component geom, else item id, else component id (FROM_COMP), else **MIRRORED**. An item's own geom survives the GEOM_A push (private "declared by the item" flag, legacy's stand-in for DEFERRED; fixed 3.38). Differs: undeclared is DEFERRED in graph, MIRRORED in legacy (A12). |
 | HorizontalDimsSpec | HDS | SPECIFIED GEOM | unchanged | MIRRORED for `HORIZONTAL_DIMS_MIRROR` (YAML `dims: mirror`); IMPORT only | equal; INCOMPATIBLE | field-wide, structural | Inside `GeomAspect%matches` with `dims_specs_agree` (mirror agrees with any); NONE x NONE matches (A22). Same. |
 | VerticalGrid | CFD (and the VERTICALGRID variant) | DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid`; no entry for stagger NONE (`make_vertical_grid_characteristic`) | DEFERRED -> SPECIFIED from the component vgrid (`vcoord_resolve_deferred`); -> dropped if the component has none (`vcoord_drop_if_unsupplied`, `VerticalGridCharacteristic.F90:210-215`) | MIRRORED for `mirror_vgrid` (YAML `vertical_grid_mirror: true`) or EXPRESSION; IMPORT or EXPRESSION | identity / grid_id / dims set; UNSUPPORTED | field-wide, structural | `make_VerticalGridAspect` (`:854`): item grid, else component grid, else **MIRRORED** (SPECIFIED when the item's stagger is NONE). An item's own grid survives the GEOM_A push (declared flag; fixed 3.38). `VerticalGridAspect%matches` true if dst is mirror. Differs: undeclared DEFERRED vs MIRRORED. |
-| VerticalStagger | CFD | DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid` | component has no vgrid -> SPECIFIED NONE at GEOM_B; with a vgrid stays DEFERRED until harvested from a realized field (`stagger_resolve_deferred`, `harvest_stagger`); still DEFERRED at freeze -> error. Never dropped. | MIRRORED for `VERTICAL_STAGGER_MIRROR` (YAML `vertical_dim_spec: MIRROR`); IMPORT or EXPRESSION | equal; UNSUPPORTED | field-wide, structural | Inside `VerticalGridAspect`; unallocated stagger treated as mirror (design §5.1). Differs: undeclared DEFERRED (A17) vs mirror. |
+| VerticalStagger | CFD | DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid` | component has no vgrid -> SPECIFIED NONE at GEOM_B; with a vgrid stays DEFERRED until harvested from a realized field (`stagger_resolve_deferred`, `VerticalStaggerCharacteristic%harvest`); still DEFERRED at freeze -> error. Never dropped. | MIRRORED for `VERTICAL_STAGGER_MIRROR` (YAML `vertical_dim_spec: MIRROR`); IMPORT or EXPRESSION | equal; UNSUPPORTED | field-wide, structural | Inside `VerticalGridAspect`; unallocated stagger treated as mirror (design §5.1). Differs: undeclared DEFERRED (A17) vs mirror. |
 | VerticalOrientation | CFD minus stagger NONE | `with_grid`: SPECIFIED from the item grid, else DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid` | DEFERRED -> SPECIFIED from the component vgrid's direction (`orientation_resolve_deferred`); -> dropped if the component has none (`orientation_drop_if_unsupplied`, `VerticalOrientationCharacteristic.F90:182-187`) | MIRRORED for `vertical_alignment: mirror`; IMPORT or EXPRESSION | equal direction; UNSUPPORTED | field-wide, structural | Inside `VerticalGridAspect` (alignment). Graph-only split (Q7). |
 | Attributes | HFM (EXPRESSION included, 3.12) | SPECIFIED empty | unchanged | none | import's set included in export's; INCOMPATIBLE | none written | `AttributesAspect%matches` includes (`AttributesAspect.F90:77`). Same. |
 | QuantityType | HFM (EXPRESSION included, 3.12) | Declared -> SPECIFIED. Undeclared (or declared QUANTITY_UNKNOWN): DEFERRED on EXPORT/INTERNAL, UNCHECKED on IMPORT (`make_quantity_type_characteristic`; landed 3.36) | Unsupplied DEFERRED: non-fatal falls back to UNCHECKED with one summary warning; fatal (freeze error) only with `field_dictionary: require_quantity_type` (`quantity_type_required()`) | none | quantity type equal; basis equal or either BASIS_NONE; INCOMPATIBLE for a quantity-type mismatch, UNSUPPORTED for a basis-only mismatch | field-wide (`quantity_type_metadata`) | `make_QuantityTypeAspect` ignores the declared value: always UNKNOWN (Q9). `matches` same rule. Differs: declared value used in graph only. |
@@ -194,11 +194,10 @@ yet; INCOMPATIBLE = can never connect, A23).
 
 Notes on the matrix:
 
-- "Info write": `descriptor_sync_to_info` (field-wide, all entries) has no
-  production caller today (grep of `superstructure/generic`); only
-  `sync_per_alias_to_info` runs (`GraphBuilder_StatePopulation_smod.F90:219`).
-  The field-wide writes are the B4 materialization step. The column says
-  where each entry *will* write.
+- "Info write": `descriptor_sync_to_info` (field-wide, all entries) is called by
+  materialization (`sync_to_info(STRUCTURAL)` on the node descriptor);
+  `sync_per_alias_to_info` runs in `populate_one`. The column says where
+  each entry writes.
 - EXPRESSION gets MIRRORED by default for Geometry, VerticalGrid,
   VerticalStagger and VerticalOrientation without asking
   (`requests_mirror` is false for these defaults; `VariableSpec.F90:427`).
@@ -461,8 +460,7 @@ QuantityType UNKNOWN and BASIS_NONE match anything (graph and legacy
 After connect, legacy's import shares the export's field, so the import
 *reads* the export's `quantity_type_metadata` from the shared Info (and in
 legacy both are always UNKNOWN anyway, Q9). The graph import is an alias
-of the export's field too, so once B4 writes field-wide entries the import
-also reads the export's. The question "should matches-anything also mean
+of the export's field too, so the import also reads the export's. The question "should matches-anything also mean
 adopt?" therefore only matters if import and export stop sharing a field
 ("share only data"), or for per-alias kinds.
 
