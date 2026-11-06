@@ -1022,6 +1022,11 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
 
 ## 4. Dispatch removal (B4)
 
+Split (owner, 2026-11-06): B4a-TipReplacement = 4.1; B4b-DescriptorMaterialize
+= 4.2, test-first (it changes behavior and carries more than three rules),
+opus implementer and review; B4c-D6Grep = 4.4, after B4b. 3.34 runs after
+B4b as its own task.
+
 - [ ] 4.1 Replace `merged_item_for_link` with generic tip replacement
       (§4.1). `build_transform` gets read-only tip and goal descriptors
       and returns the kinds its step covers (default: its own); the tip

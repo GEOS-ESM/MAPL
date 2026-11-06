@@ -1345,6 +1345,9 @@ to show no kind constants or concrete characteristic types (base-class
 and interface names are fine); report its output in the commit body.
   Then update `docs/graph/CONVENTIONS.md` so it states the D6 rule as
   current fact (drop the "not true of the current code" caveat).
+- Split (owner, 2026-11-06) into `B4a-TipReplacement` (tasks.md 4.1),
+  `B4b-DescriptorMaterialize` (4.2, test-first) and `B4c-D6Grep` (4.4,
+  after B4b); see the model table.
 - Also parity finding M3: the graph does not materialize EXPRESSION,
   VECTOR or SERVICE items (logs `unsupported_item_class:<shape>` and
   leaves them to legacy `add_to_states`). Until the graph materializes
@@ -1778,7 +1781,10 @@ it may author D1/A4/B5 with sonnet review.
 | B3-QuantityBasisUnsupported | sonnet | sonnet | tasks.md 3.37; basis-only mismatch UNSUPPORTED; before 3.36 |
 | B3-GeomAItemWins | sonnet | sonnet | tasks.md 3.38; legacy fix: item geom/vgrid survive GEOM_A; re-enable 3.32 probes; after 3.37, before 3.27 |
 | B3 others | sonnet | sonnet (self-review) | one at a time, after B3-Units lands |
-| B4 | sonnet | opus | materialization regressions likely |
+| B4 | - | - | split (owner, 2026-11-06): B4a, B4b, B4c below |
+| B4a-TipReplacement | sonnet | sonnet | tasks.md 4.1; mostly mechanical since extension nodes carry descriptors |
+| B4b-DescriptorMaterialize | opus | opus | tasks.md 4.2; test-first (gpt-sol tests); every extension field's creation path |
+| B4c-D6Grep | sonnet | sonnet | tasks.md 4.4; grep clean + CONVENTIONS.md; after B4b |
 | B5 | sonnet (haiku?) | sonnet if haiku | |
 | B3-GeomMirrorLegacy | - | - | tasks.md 3.39; dropped (no legacy fixes) |
 | C1-geom-a | opus | sonnet | Transform + isolated tests; worktree; background author |
