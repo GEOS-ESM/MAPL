@@ -86,7 +86,7 @@ What legacy production does on connect, for a Field
    aspect takes the export's fill_value only if the import declared none.
    If both are declared and differ, it logs at info "... (src value wins)"
    but assigns nothing, so the import aspect keeps its own value. The log
-   text says the opposite of what the code does.
+   text reads "(dst value kept)", which matches the code.
 4. `export%connect_to_import(import)` (`:282-287`): if the export has no
    fill_value, it takes the import's ("import wins (for now)").
 

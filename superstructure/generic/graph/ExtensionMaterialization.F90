@@ -21,6 +21,8 @@ module mapl_ExtensionMaterialization_mod
    use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_ALLOCATED
    use ESMF, only: ESMF_Field, ESMF_FieldEmptyCreate
    use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, operator(==)
+   use mapl_FieldUtilities_mod, only: FieldSet
+   use ESMF, only: ESMF_KIND_R4
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -49,6 +51,8 @@ contains
       type(GraphStateItem) :: payload
       type(ESMF_Field) :: field
       type(ESMF_StateItem_Flag) :: kind_flag
+      real(ESMF_KIND_R4) :: fill_value
+      logical :: has_fill_value
 
       node => graph%get_node(node_id)
       _ASSERT(associated(node), 'ExtensionMaterialization: NodeId not found in graph')
@@ -65,6 +69,8 @@ contains
          call payload%set(field, _RC)
          call descriptor%sync_to_info(payload, SYNC_PHASE_STRUCTURAL, _RC)
          call MAPL_FieldEmptyComplete(field, _RC)
+         call descriptor%get_fill_value(fill_value, has_fill_value)
+         if (has_fill_value) call FieldSet(field, fill_value, _RC)
          call MAPL_FieldSet(field, &
               allocation_status=MAPL_STATEITEM_ALLOCATION_ALLOCATED, _RC)
          call node%set_payload(payload)

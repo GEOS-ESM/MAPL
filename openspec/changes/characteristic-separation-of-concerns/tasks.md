@@ -753,7 +753,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `scenario_1`, `scenario_2`, `propagate_geom` and
       `scenario_reexport_twice` in graph mode. Required before graph-only
       mode. Author sonnet (opus review).
-- [ ] 3.34 B3-FillValue (3.26 R14: owner chose (c); with or after B4's
+- [x] 3.34 B3-FillValue (3.26 R14: owner chose (c); with or after B4's
       materialization, 4.2). fill_value is not a characteristic: when the
       graph materializes a field, it fills it from the owning
       `VariableSpec`'s `fill_value` (the export's, or the internal's); an
@@ -763,6 +763,18 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       "(src value wins)" while the destination keeps its value) to say
       what happens; that one-line part may land earlier on its own. Also
       update design §1's `fill_value` row. Author sonnet.
+      Status: done. `StateItemDescriptor` carries a plain `fill_value`
+      (`set_fill_value`/`get_fill_value(found)`), recorded by
+      `advertise_one` for every intent; `build_chain` copies the export
+      node's value onto each extension node; `materialize_field_extension`
+      calls `FieldSet` after `MAPL_FieldEmptyComplete`. An import's value is
+      never read. Scope is extension fields (the only fields the graph
+      creates today; exports/internals still go through legacy `allocate`,
+      which fills). Matches legacy: `make_extension` clones the export's
+      aspects and does not substitute the class aspect for Field->Field.
+      No import-ignored test: `find_or_build_extension_chain` takes only
+      the import map, so an import's value is unreachable in that API. The
+      legacy log text reads "(dst value kept)".
 - [x] 3.35 B3-QuantityTypeSuppliers (3.26 R2: owner chose (c) and
       rollout (b), suppliers first; before 3.27, independent of it). Give
       QuantityType its three supply paths, with no change to the undeclared

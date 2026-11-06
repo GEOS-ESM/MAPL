@@ -12,6 +12,7 @@
 !------------------------------------------------------------------------------
 module mapl_StateItemDescriptor_mod
    use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, operator(==)
+   use ESMF, only: ESMF_KIND_R4
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap, &
         StateItemCharacteristicMapIterator, operator(/=), SYNC_PHASE_STRUCTURAL, SYNC_PHASE_DESCRIPTIVE
    use mapl_GraphStateItem_mod, only: GraphStateItem
@@ -83,6 +84,9 @@ module mapl_StateItemDescriptor_mod
       type(StateItemCharacteristicMap) :: characteristics
       ! Optional or defaulted values: "not declared" is meaningful.
       type(ESMF_StateItem_Flag) :: declared_item_type = ESMF_STATEITEM_FIELD
+      ! Not a characteristic: never compared or mirrored. Materialization
+      ! fills the created field with it (the export's or internal's own).
+      real(ESMF_KIND_R4), allocatable :: fill_value
    contains
       procedure :: has_characteristic => descriptor_has_characteristic
       procedure :: get_characteristic => descriptor_get_characteristic
@@ -101,6 +105,8 @@ module mapl_StateItemDescriptor_mod
       procedure :: sync_per_alias_to_info => descriptor_sync_per_alias_to_info
       procedure :: get_declared_item_type => descriptor_get_declared_item_type
       procedure :: set_declared_item_type => descriptor_set_declared_item_type
+      procedure :: set_fill_value => descriptor_set_fill_value
+      procedure :: get_fill_value => descriptor_get_fill_value
       procedure :: get_expression => descriptor_get_expression
       procedure :: add_expression_result_defaults => &
            descriptor_add_expression_result_defaults
@@ -739,6 +745,24 @@ contains
 
       this%declared_item_type = item_type
    end subroutine descriptor_set_declared_item_type
+
+   subroutine descriptor_set_fill_value(this, fill_value)
+      class(StateItemDescriptor), intent(inout) :: this
+      real(ESMF_KIND_R4), intent(in) :: fill_value
+
+      this%fill_value = fill_value
+   end subroutine descriptor_set_fill_value
+
+   ! found is .false. (and fill_value 0) when none was declared.
+   subroutine descriptor_get_fill_value(this, fill_value, found)
+      class(StateItemDescriptor), intent(in) :: this
+      real(ESMF_KIND_R4), intent(out) :: fill_value
+      logical, intent(out) :: found
+
+      found = allocated(this%fill_value)
+      fill_value = 0.0
+      if (found) fill_value = this%fill_value
+   end subroutine descriptor_get_fill_value
 
    ! The expression string of an EXPRESSION item (possibly ''). Fails if
    ! the descriptor has no Expression entry.

@@ -39,7 +39,8 @@ module mapl_ExtensionResolution_mod
         StateItemCharacteristicKind, operator(==)
    use mapl_StateItemDescriptor_mod, only: resolve_characteristics, &
         StateItemDescriptor
-   use ESMF, only: ESMF_STATEITEM_FIELD
+   use ESMF, only: ESMF_STATEITEM_FIELD, ESMF_KIND_R4
+   use mapl_GraphNode_mod, only: GraphNode
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
    use mapl_NodeId_mod, only: NodeId
@@ -228,8 +229,25 @@ contains
       type(GraphStateItem) :: empty_payload
       type(NodeRevision) :: empty_revision
       type(TransformGraphNode) :: transform_node
+      class(GraphNode), pointer :: export_node
+      type(StateItemDescriptor), pointer :: export_descriptor
+      real(ESMF_KIND_R4) :: export_fill_value
+      logical :: has_fill_value
 
       unsupported_characteristic = ''
+      ! Extension items carry the export's fill_value (never the goal's) so
+      ! materialization can fill them.
+      has_fill_value = .false.
+      export_fill_value = 0.0
+      export_node => graph%get_node(export_node_id)
+      if (associated(export_node)) then
+         select type (export_node)
+         class is (StateItemNode)
+            export_descriptor => export_node%get_descriptor()
+            call export_descriptor%get_fill_value(export_fill_value, &
+                 has_fill_value)
+         end select
+      end if
       if (present(conflict)) conflict = ''
       allocate(intermediate_node_ids(size(mismatched_kinds)))
       allocate(done(0))
@@ -264,6 +282,7 @@ contains
             call iter%next()
             call link%set_characteristic(iter%first(), iter%second(), _RC)
          end do
+         if (has_fill_value) call link%set_fill_value(export_fill_value)
          call graph%register_node(extension_node, _RC)
 
          call export_characteristic%build_transform(import_characteristic, transformer, status)

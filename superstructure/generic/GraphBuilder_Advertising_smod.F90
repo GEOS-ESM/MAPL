@@ -139,6 +139,12 @@ contains
       ! DEFERRED resolution.
       call descriptor%set_declared_item_type(var_spec%itemType)
 
+      ! Recorded for every intent; only an export's or internal's value is
+      ! ever applied (the import's has no effect).
+      if (allocated(var_spec%fill_value)) then
+         call descriptor%set_fill_value(var_spec%fill_value)
+      end if
+
       _RETURN(_SUCCESS)
    end subroutine populate_characteristics
 

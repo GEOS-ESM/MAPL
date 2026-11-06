@@ -32,6 +32,7 @@ module Test_ExtensionMaterialization
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain, &
         set_materialize_extensions, materialize_extensions_enabled
    use mapl_ExtensionMaterialization_mod, only: materialize_field_extension
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_FieldCreate_mod, only: FieldCreate, FieldsAreAliased
    use mapl_FieldGet_mod, only: FieldGet
    use mapl_enums_api, only: MAPL_StateItemAllocation, &
@@ -320,5 +321,100 @@ contains
       ! 1000 m == 1 km
       @assertEqual(1.0, x_out(1), tolerance=1.0e-4)
    end subroutine test_materialized_field_supports_correct_unit_conversion
+
+   ! -- fill_value (not a characteristic) ----------------------------------
+
+   ! Builds an export (units m, optional fill_value on its descriptor) and a
+   ! km import chain, materializes the extension, and returns its data.
+   subroutine materialize_with_fill(export_fill, x_out, rc)
+      real, optional, intent(in) :: export_fill
+      real(kind=ESMF_KIND_R4), allocatable, intent(out) :: x_out(:)
+      integer, intent(out) :: rc
+
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id, final_id
+      type(StateItemNode), target :: export_node
+      type(GraphStateItem) :: payload, result_payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: field
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: descriptor
+      real(kind=ESMF_KIND_R4), pointer :: x(:)
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=rc)
+      geom = ESMF_GeomCreate(grid, rc=rc)
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+
+      export_id = graph%next_node_id(rc=rc)
+      export_node = StateItemNode(export_id, payload, revision)
+      if (present(export_fill)) then
+         descriptor => export_node%get_descriptor()
+         call descriptor%set_fill_value(export_fill)
+      end if
+      call graph%register_node(export_node, rc=rc)
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('km'))
+      call export_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='1', geom=geom))
+      call export_map%insert(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM))
+      call export_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R4'))
+      call import_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R4'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=rc)
+      if (rc /= 0) return
+
+      call materialize_field_extension(graph, final_id, rc=rc)
+      if (rc /= 0) return
+
+      node => graph%get_node(final_id)
+      select type (node)
+      class is (StateItemNode)
+         result_payload = node%get_payload()
+      end select
+      field = result_payload%get_field(rc=rc)
+      call assign_fptr(field, x, rc=rc)
+      x_out = x
+   end subroutine materialize_with_fill
+
+   ! Red before: the extension field was never filled (data not 15).
+   @test
+   subroutine test_extension_field_filled_from_export_fill_value()
+      real(kind=ESMF_KIND_R4), allocatable :: x(:)
+      integer :: status
+
+      call materialize_with_fill(export_fill=15.0, x_out=x, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(15.0, x(1), tolerance=1.0e-6)
+   end subroutine test_extension_field_filled_from_export_fill_value
+
+   ! Pins the no-fill case: no fill is applied, so the call succeeds and the
+   ! data is whatever a fresh field holds (not asserted).
+   @test
+   subroutine test_extension_field_without_fill_value_is_not_filled()
+      real(kind=ESMF_KIND_R4), allocatable :: x(:)
+      integer :: status
+
+      call materialize_with_fill(x_out=x, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(4, size(x))
+   end subroutine test_extension_field_without_fill_value_is_not_filled
 
 end module Test_ExtensionMaterialization

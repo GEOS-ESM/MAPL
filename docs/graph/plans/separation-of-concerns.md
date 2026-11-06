@@ -720,6 +720,14 @@ in the first one; later ones refine it.
   and the only reporting change is that a basis-only pair is logged as
   "no registered extension provider" rather than "connection conflict" (and
   is not a conflict entry). No deviations.
+  B3-FillValue (tasks.md 3.34): done. Plain `StateItemDescriptor`
+  fill_value (not a characteristic), set in `advertise_one`, copied export ->
+  extension nodes in `build_chain`, applied by `materialize_field_extension`
+  after completion; an import's value is never read. Scope: extension fields
+  (the only fields the graph creates today). Graph matches legacy: `make_extension` clones the
+  export's aspects and does not substitute the class aspect for Field->Field,
+  so legacy fills the extension with the export's value too. Log text is
+  "(dst value kept)".
   B3-QuantityTypeSuppliers (tasks.md 3.35): done. YAML key `quantity_type:`
   (full QuantityType name, case-folded; unknown value is an error, checked in
   `parse_var_specs` because `QuantityType(name)` maps unknown to UNKNOWN);
