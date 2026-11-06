@@ -34,10 +34,10 @@ module mapl_StateItemNode_mod
    ! different module; they are framework-internal, like set_payload/
    ! set_revision.
    !
-   ! short_name is unallocated and state_intent is ESMF_STATEINTENT_INVALID for
-   ! a node never given an identity (e.g. a cross-component proxy or
-   ! callback-collection node, with no originating VariableSpec); callers check
-   ! get_short_name()'s allocation status / get_state_intent().
+   ! short_name is unset (get_short_name() returns '') and state_intent is
+   ! ESMF_STATEINTENT_INVALID for a node never given an identity (e.g. a
+   ! cross-component proxy or callback-collection node, with no originating
+   ! VariableSpec); callers check has_short_name() / get_state_intent().
    type, extends(BaseGraphNode) :: StateItemNode
       private
       type(GraphStateItem) :: payload
@@ -56,6 +56,7 @@ module mapl_StateItemNode_mod
       procedure :: set_revision => stateitemnode_set_revision
       procedure :: advance_revision => stateitemnode_advance_revision
       procedure :: get_short_name => stateitemnode_get_short_name
+      procedure :: has_short_name => stateitemnode_has_short_name
       procedure :: set_short_name => stateitemnode_set_short_name
       procedure :: get_state_intent => stateitemnode_get_state_intent
       procedure :: set_state_intent => stateitemnode_set_state_intent
@@ -107,8 +108,15 @@ contains
 
       if (allocated(this%short_name)) then
          allocate(short_name, source=this%short_name)
+      else
+         allocate(short_name, source='')
       end if
    end function stateitemnode_get_short_name
+
+   logical function stateitemnode_has_short_name(this) result(has)
+      class(StateItemNode), intent(in) :: this
+      has = allocated(this%short_name)
+   end function stateitemnode_has_short_name
 
    subroutine stateitemnode_set_short_name(this, short_name)
       class(StateItemNode), intent(inout) :: this

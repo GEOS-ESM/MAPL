@@ -1624,7 +1624,22 @@ reports, `allocatable-results-survey.md`). Two tasks (owner, 2026-11-06):
   `ItemShapeCharacteristic` `bundle_type_of` (add `case default`), the
   four `RouteHandleKey` getters, and the test helpers that return
   unallocated names.
-  - **Status:** not started
+  - **Status:** done. NAG and gfortran Debug ESSENTIAL 69/69.
+    - `StateItemNode`: `get_short_name` returns `''` when unset; new
+      `has_short_name()`. Freeze and LifecycleHooks use `'<extension>'`
+      for nameless nodes; Geometry returns unless `has_short_name()`.
+    - `ComponentGraph%get_export_port_name` returns `''` for a non-export
+      candidate; `qualify_exported_name` likewise; callers test
+      `len(name) == 0`. `effective_source_name` already assigned on all
+      paths; left alone.
+    - `ItemShapeCharacteristic`: `bundle_type_of` is a subroutine with
+      `intent(out)` allocatable (unallocated = not a bundle shape).
+    - `RouteHandleKey`: mask getters return size 0 when unset;
+      `get_extrapNumLevels`/`get_regridPoleNPnts` return 0 when unset
+      and gain `has_*()`.
+    - Test helper `find_export_name_in_graph` allocates `''`; asserts use
+      `len(...) > 0`. Added tests for nameless node, unbound export port,
+      unset RouteHandleKey getters.
 - `D5-AllocatableResults-B` (outsourceable; legacy files only): about 25
   functions unallocated only on an error path (`_RC`/`_ASSERT`/`_FAIL`
   before the first allocation): `FieldDictionary` getters, `MAPL_Generic`

@@ -204,8 +204,8 @@ contains
       integer :: field_count
       character(:), allocatable :: name
 
+      _RETURN_UNLESS(node%has_short_name())
       name = node%get_short_name()
-      _RETURN_UNLESS(allocated(name))
 
       ! An import gets its geometry from the connected export.
       _RETURN_IF(node%get_state_intent() == ESMF_STATEINTENT_IMPORT)

@@ -665,7 +665,7 @@ contains
       parent_graph => parent_meta%get_component_graph()
       resolved_name = find_export_name_in_graph(parent_graph, src_export_id)
       @assert_that('export is reachable from parent, under the qualified name', &
-           allocated(resolved_name), is(true()))
+           len(resolved_name) > 0, is(true()))
       @assertEqual('comp_src/T', resolved_name)
 
       _UNUSED_DUMMY(this)
@@ -731,7 +731,7 @@ contains
       grandparent_graph => grandparent_meta%get_component_graph()
       resolved_name = find_export_name_in_graph(grandparent_graph, src_export_id)
       @assert_that('export is reachable from grandparent, name UNCHANGED (not re-qualified)', &
-           allocated(resolved_name), is(true()))
+           len(resolved_name) > 0, is(true()))
       @assertEqual('comp_src/T', resolved_name)
 
       _UNUSED_DUMMY(this)
@@ -892,6 +892,7 @@ contains
       type(PortId) :: candidate_port_id
       type(NodeId) :: candidate_id
 
+      allocate(name, source='')
       export_ports = graph%get_export_ports()
       associate (e => export_ports%ftn_end())
          iter = export_ports%ftn_begin()
@@ -927,9 +928,7 @@ contains
             call iter%next()
             candidate_port_id = iter%first()
             candidate_name = graph%get_export_port_name(candidate_port_id)
-            if (allocated(candidate_name)) then
-               if (candidate_name == target_name) n = n + 1
-            end if
+            if (candidate_name == target_name) n = n + 1
          end do
       end associate
    end function count_entries_named

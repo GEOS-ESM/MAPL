@@ -503,8 +503,10 @@ contains
 
    ! The name an exact-match connection matches this export port against:
    ! the export-propagation override if one was recorded for port_id, else
-   ! the node's own unqualified short_name. Returns an unallocated string if
-   ! port_id is unbound or not a StateItemNode (not an export candidate).
+   ! the node's own unqualified short_name. Returns '' if port_id is unbound
+   ! or not a StateItemNode (not an export candidate).
+   ! '' is never a valid export name (names come from a VariableSpec short
+   ! name or child/name).
    function graph_get_export_port_name(this, port_id) result(name)
       class(ComponentGraph), target, intent(in) :: this
       type(PortId), intent(in) :: port_id
@@ -514,6 +516,7 @@ contains
       type(NodeId), pointer :: node_id
       class(GraphNode), pointer :: generic_node
 
+      allocate(name, source='')
       if (this%is_finalized()) return
 
       override => this%ports%export_port_names%at(port_id)

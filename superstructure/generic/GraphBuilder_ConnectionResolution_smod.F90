@@ -859,7 +859,7 @@ contains
                export_node_id = iter%second()
 
                qualified_name = qualify_exported_name(child_graph, child_port_id, child_name)
-               if (.not. allocated(qualified_name)) cycle
+               if (len(qualified_name) == 0) cycle
 
                if (already_exported(this_graph, export_node_id, qualified_name)) cycle
 
@@ -887,8 +887,9 @@ contains
 
       character(:), allocatable :: own_name
 
+      allocate(qualified_name, source='')
       own_name = child_graph%get_export_port_name(child_port_id)
-      if (.not. allocated(own_name)) return
+      if (len(own_name) == 0) return
 
       ! An override-carrying name was set by an earlier propagation level and
       ! always has the form "descendant/short_name". get_export_port_name does
@@ -929,7 +930,7 @@ contains
             candidate_id = iter%second()
             if (.not. (candidate_id == target_id)) cycle
             candidate_name = graph%get_export_port_name(candidate_port_id)
-            if (.not. allocated(candidate_name)) cycle
+            if (len(candidate_name) == 0) cycle
             if (candidate_name == target_name) then
                found = .true.
                return
@@ -1139,7 +1140,7 @@ contains
             select type (candidate_node)
             class is (StateItemNode)
                candidate_name = src_graph%get_export_port_name(candidate_port_id)
-               if (.not. allocated(candidate_name)) cycle
+               if (len(candidate_name) == 0) cycle
                if (candidate_name == short_name) then
                   export_node => candidate_node
                   return

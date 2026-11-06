@@ -13,6 +13,7 @@ module Test_ComponentGraph_PortBindings
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_NodeId_mod, only: NodeId, operator(==)
+   use mapl_PortId_mod, only: PortId
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELD
    use StateItemTestSupport_mod, only: make_test_field
@@ -315,5 +316,21 @@ contains
       call graph%bind_port(default_id, transform_id, 'x', never_registered_id, rc=status)
       @assertTrue(status /= 0)
    end subroutine test_bind_port_rejects_foreign_ids
+
+   ! An unbound export port has an allocated, empty name.
+   @test
+   subroutine test_unbound_export_port_name_is_empty()
+      type(ComponentGraph) :: graph
+      type(PortId) :: port_id
+      character(:), allocatable :: name
+      integer :: status
+
+      graph = ComponentGraph()
+      port_id = graph%next_port_id(status)
+      @assertEqual(0, status)
+      name = graph%get_export_port_name(port_id)
+      @assertTrue(allocated(name))
+      @assertEqual(0, len(name))
+   end subroutine test_unbound_export_port_name_is_empty
 
 end module Test_ComponentGraph_PortBindings

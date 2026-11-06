@@ -181,8 +181,11 @@ contains
             select type (node)
             class is (StateItemNode)
                descriptor => node%get_descriptor()
-               item_name = node%get_short_name()
-               if (.not. allocated(item_name)) item_name = '<extension>'
+               if (node%has_short_name()) then
+                  item_name = node%get_short_name()
+               else
+                  item_name = '<extension>'
+               end if
                call descriptor%check_resolved(comp_name // ':' // item_name, rc=status)
                if (status /= 0) failed = .true.
             end select

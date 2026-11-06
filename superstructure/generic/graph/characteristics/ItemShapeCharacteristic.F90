@@ -260,7 +260,9 @@ contains
          call MAPL_FieldSet(field, state_item_variant=this%variant, _RC)
       else if (handle_type == ESMF_STATEITEM_FIELDBUNDLE) then
          bundle = handle%get_field_bundle(_RC)
-         if (phase == SYNC_PHASE_STRUCTURAL) bundle_type = bundle_type_of(this)
+         if (phase == SYNC_PHASE_STRUCTURAL) then
+            call bundle_type_of(this, bundle_type)
+         end if
          if (allocated(bundle_type)) then
             call MAPL_FieldBundleSet(bundle, fieldBundleType=bundle_type, _RC)
          end if
@@ -279,10 +281,11 @@ contains
       _RETURN(_SUCCESS)
    end subroutine item_shape_write_info
 
-   ! The fieldBundleType of a bundle-backed shape; unallocated for the rest.
-   function bundle_type_of(this) result(bundle_type)
+   ! The fieldBundleType of a bundle-backed shape; left unallocated for the
+   ! rest.
+   subroutine bundle_type_of(this, bundle_type)
       class(ItemShapeCharacteristic), intent(in) :: this
-      type(MAPL_FieldBundleType_Flag), allocatable :: bundle_type
+      type(MAPL_FieldBundleType_Flag), allocatable, intent(out) :: bundle_type
 
       select case (this%item_class%ot)
       case (MAPL_STATEITEM_BRACKET%ot)
@@ -294,7 +297,7 @@ contains
       case (MAPL_STATEITEM_SERVICE%ot)
          bundle_type = MAPL_FIELDBUNDLETYPE_SERVICE
       end select
-   end function bundle_type_of
+   end subroutine bundle_type_of
 
    function item_shape_get_signature(this) result(signature)
       class(ItemShapeCharacteristic), intent(in) :: this

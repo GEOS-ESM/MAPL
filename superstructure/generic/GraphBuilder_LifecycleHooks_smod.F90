@@ -165,7 +165,11 @@ contains
                descriptor => node%get_descriptor()
                call descriptor%fallback_unsupplied_deferred(fallen_back, _RC)
                if (size(fallen_back) == 0) cycle
-               item_name = node%get_short_name()
+               if (node%has_short_name()) then
+                  item_name = node%get_short_name()
+               else
+                  item_name = '<extension>'
+               end if
                do i = 1, size(fallen_back)
                   g = index_of_kind(kinds_seen, fallen_back(i))
                   if (g == 0) then

@@ -107,4 +107,24 @@ contains
       @assertEqual(0, status)
    end subroutine test_state_item_node_exposes_one_payload_and_one_revision
 
+   ! An unnamed node still returns an allocated (empty) short name.
+   @test
+   subroutine test_state_item_node_short_name_unset_and_set()
+      type(NodeIdGenerator) :: gen
+      type(StateItemNode) :: nameless, named
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      character(:), allocatable :: name
+
+      nameless = StateItemNode(gen%next(), payload, revision)
+      @assertFalse(nameless%has_short_name())
+      name = nameless%get_short_name()
+      @assertTrue(allocated(name))
+      @assertEqual(0, len(name))
+
+      named = StateItemNode(gen%next(), payload, revision, short_name='T')
+      @assertTrue(named%has_short_name())
+      @assertEqual('T', named%get_short_name())
+   end subroutine test_state_item_node_short_name_unset_and_set
+
 end module Test_GraphNodeHierarchy

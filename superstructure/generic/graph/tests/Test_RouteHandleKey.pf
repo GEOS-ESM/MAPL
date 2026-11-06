@@ -35,6 +35,18 @@ contains
    end subroutine test_defaults_and_accessors
 
    @test
+   subroutine test_unset_mask_getters_are_empty()
+      type(NodeIdGenerator) :: generator
+      type(RouteHandleKey) :: key
+
+      key = RouteHandleKey(generator%next(), generator%next())
+      @assertEqual(0, size(key%get_srcMaskValues()))
+      @assertEqual(0, size(key%get_dstMaskValues()))
+      @assertFalse(key%has_extrapNumLevels())
+      @assertFalse(key%has_regridPoleNPnts())
+   end subroutine test_unset_mask_getters_are_empty
+
+   @test
    subroutine test_settings_distinguish_keys()
       type(NodeIdGenerator) :: generator
       type(NodeId) :: source, destination

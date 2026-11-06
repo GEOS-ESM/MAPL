@@ -36,9 +36,11 @@ module mapl_RouteHandleKey_mod
       procedure :: get_extrapNumSrcPnts => key_get_extrapNumSrcPnts
       procedure :: get_extrapDistExponent => key_get_extrapDistExponent
       procedure :: get_extrapNumLevels => key_get_extrapNumLevels
+      procedure :: has_extrapNumLevels => key_has_extrapNumLevels
       procedure :: get_normtype => key_get_normtype
       procedure :: get_polemethod => key_get_polemethod
       procedure :: get_regridPoleNPnts => key_get_regridPoleNPnts
+      procedure :: has_regridPoleNPnts => key_has_regridPoleNPnts
       procedure :: get_linetype => key_get_linetype
       procedure :: get_unmappedaction => key_get_unmappedaction
       procedure :: get_ignoreDegenerate => key_get_ignoreDegenerate
@@ -320,12 +322,20 @@ contains
    function key_get_srcMaskValues(this) result(value)
       class(RouteHandleKey), intent(in) :: this
       integer, allocatable :: value(:)
-      if (allocated(this%srcMaskValues)) value = this%srcMaskValues
+      if (allocated(this%srcMaskValues)) then
+         value = this%srcMaskValues
+      else
+         allocate(value(0))
+      end if
    end function key_get_srcMaskValues
    function key_get_dstMaskValues(this) result(value)
       class(RouteHandleKey), intent(in) :: this
       integer, allocatable :: value(:)
-      if (allocated(this%dstMaskValues)) value = this%dstMaskValues
+      if (allocated(this%dstMaskValues)) then
+         value = this%dstMaskValues
+      else
+         allocate(value(0))
+      end if
    end function key_get_dstMaskValues
 
    function key_get_extrapmethod(this) result(value)
@@ -345,9 +355,14 @@ contains
    end function key_get_extrapDistExponent
    function key_get_extrapNumLevels(this) result(value)
       class(RouteHandleKey), intent(in) :: this
-      integer, allocatable :: value
+      integer :: value
+      value = 0 ! unset: use has_extrapNumLevels() to distinguish
       if (allocated(this%extrapNumLevels)) value = this%extrapNumLevels
    end function key_get_extrapNumLevels
+   logical function key_has_extrapNumLevels(this) result(has)
+      class(RouteHandleKey), intent(in) :: this
+      has = allocated(this%extrapNumLevels)
+   end function key_has_extrapNumLevels
    function key_get_normtype(this) result(value)
       class(RouteHandleKey), intent(in) :: this
       type(ESMF_NormType_Flag) :: value
@@ -360,9 +375,14 @@ contains
    end function key_get_polemethod
    function key_get_regridPoleNPnts(this) result(value)
       class(RouteHandleKey), intent(in) :: this
-      integer, allocatable :: value
+      integer :: value
+      value = 0 ! unset: use has_regridPoleNPnts() to distinguish
       if (allocated(this%regridPoleNPnts)) value = this%regridPoleNPnts
    end function key_get_regridPoleNPnts
+   logical function key_has_regridPoleNPnts(this) result(has)
+      class(RouteHandleKey), intent(in) :: this
+      has = allocated(this%regridPoleNPnts)
+   end function key_has_regridPoleNPnts
    function key_get_linetype(this) result(value)
       class(RouteHandleKey), intent(in) :: this
       type(ESMF_LineType_Flag) :: value
