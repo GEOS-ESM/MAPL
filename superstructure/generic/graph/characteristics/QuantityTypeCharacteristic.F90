@@ -38,8 +38,8 @@ module mapl_QuantityTypeCharacteristic_mod
    use mapl_QuantityTypeMetadata_mod, only: QuantityTypeMetadata
    use mapl_ValidationPolicy_mod, only: quantity_type_required
    use mapl_GraphStateItem_mod, only: GraphStateItem
-   use mapl_field_api, only: MAPL_FieldSet
-   use mapl_field_bundle_api, only: MAPL_FieldBundleSet
+   use mapl_field_api, only: MAPL_FieldSet, MAPL_FieldGet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleSet, MAPL_FieldBundleGet
    use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_StateItem_Flag, &
         ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
    use ESMF, only: operator(==)
@@ -61,6 +61,7 @@ module mapl_QuantityTypeCharacteristic_mod
       procedure :: get_signature => quantity_type_get_signature
       procedure :: write_info => quantity_type_write_info
       procedure :: resolve_deferred => quantity_type_resolve_deferred
+      procedure :: harvest => quantity_type_harvest
       procedure :: is_deferred_fatal => quantity_type_is_deferred_fatal
       procedure :: get_quantity_type
       procedure :: get_basis
@@ -229,5 +230,41 @@ contains
       signature = 'quantity_type=' // this%quantity_type%to_string() // &
            ';basis=' // this%basis%to_string()
    end function quantity_type_get_signature
+
+   ! The quantity type and basis a component set on its Field or FieldBundle
+   ! with MAPL_FieldSet / MAPL_FieldBundleSet. An absent key reads back as a
+   ! mirror (Field) or QUANTITY_UNKNOWN (bundle), and an explicit UNKNOWN says
+   ! nothing either: none of them is a supplied value.
+   subroutine quantity_type_harvest(this, handle, defaults, rc)
+      class(QuantityTypeCharacteristic), intent(in) :: this
+      type(GraphStateItem), intent(in) :: handle
+      type(CharacteristicDefaults), intent(inout) :: defaults
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_StateItem_Flag) :: item_type
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      type(QuantityTypeMetadata) :: metadata
+
+      item_type = handle%itemType(_RC)
+      if (item_type == ESMF_STATEITEM_FIELD) then
+         field = handle%get_field(_RC)
+         call MAPL_FieldGet(field, quantity_type_metadata=metadata, _RC)
+      else if (item_type == ESMF_STATEITEM_FIELDBUNDLE) then
+         bundle = handle%get_field_bundle(_RC)
+         call MAPL_FieldBundleGet(bundle, quantity_type_metadata=metadata, _RC)
+      else
+         _RETURN(_SUCCESS)
+      end if
+      _RETURN_IF(metadata%is_mirror())
+      _RETURN_IF(metadata%get_quantity_type() == QUANTITY_UNKNOWN)
+
+      call defaults%set_quantity_type(metadata%get_quantity_type(), &
+           metadata%get_basis())
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+   end subroutine quantity_type_harvest
 
 end module mapl_QuantityTypeCharacteristic_mod

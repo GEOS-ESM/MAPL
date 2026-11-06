@@ -24,12 +24,15 @@ module mapl_VerticalStaggerCharacteristic_mod
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, VERTICAL_STAGGER_CHARACTERISTIC_KIND
-   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_NONE
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, &
+        VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_INVALID
    use mapl_TransformBase_mod, only: TransformBase
-   use mapl_field_api, only: MAPL_FieldSet
+   use mapl_field_api, only: MAPL_FieldSet, MAPL_FieldGet
    use mapl_field_bundle_api, only: MAPL_FieldBundleSet
    use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_StateItem_Flag, &
         ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
+   use ESMF, only: ESMF_FieldGet, ESMF_FieldBundleGet, ESMF_FieldStatus_Flag, &
+        ESMF_FIELDSTATUS_COMPLETE, ESMF_ITEMORDER_ADDORDER
    use ESMF, only: operator(==)
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -48,6 +51,7 @@ module mapl_VerticalStaggerCharacteristic_mod
       procedure :: write_info => stagger_write_info
       procedure :: is_structural => stagger_is_structural
       procedure :: resolve_deferred => stagger_resolve_deferred
+      procedure :: harvest => stagger_harvest
       procedure :: get_vertical_stagger
    end type VerticalStaggerCharacteristic
 
@@ -167,5 +171,51 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine stagger_resolve_deferred
+
+   ! A completed Field, or the first member of a FieldBundle, has recorded
+   ! its vertical stagger; that supplies it to the defaults.
+   subroutine stagger_harvest(this, handle, defaults, rc)
+      class(VerticalStaggerCharacteristic), intent(in) :: this
+      type(GraphStateItem), intent(in) :: handle
+      type(CharacteristicDefaults), intent(inout) :: defaults
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_StateItem_Flag) :: item_type
+      type(ESMF_Field) :: member
+      type(ESMF_Field), allocatable :: members(:)
+      type(ESMF_FieldBundle) :: bundle
+      integer :: n_members
+      type(ESMF_FieldStatus_Flag) :: field_status
+      type(VerticalStaggerLoc) :: stagger
+      logical :: recorded
+
+      item_type = handle%itemType(_RC)
+      if (item_type == ESMF_STATEITEM_FIELD) then
+         member = handle%get_field(_RC)
+      else if (item_type == ESMF_STATEITEM_FIELDBUNDLE) then
+         bundle = handle%get_field_bundle(_RC)
+         call ESMF_FieldBundleGet(bundle, fieldCount=n_members, _RC)
+         _RETURN_UNLESS(n_members > 0)
+         allocate(members(n_members))
+         call ESMF_FieldBundleGet(bundle, fieldList=members, &
+              itemOrderflag=ESMF_ITEMORDER_ADDORDER, _RC)
+         member = members(1)
+      else
+         _RETURN(_SUCCESS)
+      end if
+
+      call ESMF_FieldGet(member, status=field_status, _RC)
+      _RETURN_UNLESS(field_status == ESMF_FIELDSTATUS_COMPLETE)
+
+      ! A field that never recorded a stagger reports INVALID.
+      call MAPL_FieldGet(member, vert_staggerloc=stagger, _RC)
+      recorded = stagger%to_string() /= VERTICAL_STAGGER_INVALID%to_string()
+      _RETURN_UNLESS(recorded)
+      call defaults%set_vert_stagger(stagger)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+   end subroutine stagger_harvest
 
 end module mapl_VerticalStaggerCharacteristic_mod

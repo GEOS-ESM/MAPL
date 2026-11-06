@@ -1352,6 +1352,10 @@ and interface names are fine); report its output in the commit body.
   separate type-bound method (default own kind); `merged_item_for_link`
   deleted; extension nodes carry the tip; `intermediate_node_ids` is per
   step. NAG and gfortran ESSENTIAL 69/69.
+- B4b status: implemented (tasks.md 4.2); extension and export fields
+  are built from the node's descriptor (empty-create + STRUCTURAL sync +
+  `MAPL_FieldEmptyComplete`); all `get_item_<kind>` getters except
+  `get_item_expression` (B4c) are gone. NAG and gfortran ESSENTIAL 69/69.
 - Also parity finding M3: the graph does not materialize EXPRESSION,
   VECTOR or SERVICE items (logs `unsupported_item_class:<shape>` and
   leaves them to legacy `add_to_states`). Until the graph materializes

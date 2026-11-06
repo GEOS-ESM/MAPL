@@ -416,8 +416,10 @@ contains
                        this_graph, export_node_id, alias_found, _RC)
                end if
                if (.not. alias_found) then
-                  call try_materialize_field_extension(this, src_pt%component_name, export_item, import_item, &
-                       this_graph, export_node_id, materialization_failure, name=export_node%get_short_name(), _RC)
+                  call try_materialize_field_extension(export_item, &
+                       import_item, this_graph, export_node_id, &
+                       materialization_failure, &
+                       name=export_node%get_short_name(), _RC)
                   if (materialization_failure /= '') then
                      ! The edge above still exists; only payload materialization failed.
                      call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
@@ -472,8 +474,10 @@ contains
                ! field-shaped version to materialize, so skip it here and let the
                ! chain's own materialization below run.
                if (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD) then
-                  call try_materialize_field_extension(this, src_pt%component_name, export_item, export_item, &
-                       this_graph, export_node_id, materialization_failure, name=export_node%get_short_name(), _RC)
+                  call try_materialize_field_extension(export_item, &
+                       export_item, this_graph, export_node_id, &
+                       materialization_failure, &
+                       name=export_node%get_short_name(), _RC)
                   if (materialization_failure /= '') then
                      call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
                           materialization_failure))
@@ -490,7 +494,7 @@ contains
          ! materialize_extension_chain materializes every link in
          ! intermediate_node_ids from that link's own descriptor.
          if (materialize_extensions_enabled()) then
-            call materialize_extension_chain(this, src_pt%component_name, export_item, import_item, &
+            call materialize_extension_chain(export_item, import_item, &
                  intermediate_node_ids, this_graph, &
                  materialization_failure, _RC)
             if (materialization_failure /= '') then
@@ -1372,21 +1376,15 @@ contains
       _RETURN(_SUCCESS)
    end subroutine try_alias_export_field
 
-   ! Gives a resolved extension chain's final item a real ESMF_Field (via
-   ! FieldCreate) for a Field-typed export/import pair. Otherwise sets
-   ! failure_reason (empty on success): a non-Field item class on either
-   ! side, or an unresolvable geom.
+   ! Gives node_id (a Field-typed export) a real ESMF_Field built from its
+   ! own descriptor. Otherwise sets failure_reason (empty on success): a
+   ! non-Field item class on either side, or a descriptor still missing a
+   ! value field creation needs.
    ! Optional `name` is passed through to materialize_field_extension so
    ! graph-native state population can find the field by name once it is
    ! inserted into an ESMF_State.
-   !
-   ! export_item/import_item are the two sides' GraphStateItem payloads; item
-   ! type, units, typekind, ungridded_dims and vertical_stagger are read from
-   ! them directly, with no VariableSpec lookup.
-   subroutine try_materialize_field_extension(this, export_comp_name, export_item, import_item, &
+   subroutine try_materialize_field_extension(export_item, import_item, &
         graph, node_id, failure_reason, name, rc)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      character(*), intent(in) :: export_comp_name
       type(StateItemDescriptor), intent(in) :: export_item
       type(StateItemDescriptor), intent(in) :: import_item
       type(ComponentGraph), target, intent(inout) :: graph
@@ -1396,64 +1394,44 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      class(OuterMetaComponent), pointer :: export_meta
-      type(ESMF_Geom) :: geom
-      logical :: has_geom
-      class(VerticalGrid), allocatable :: vgrid
-      type(VerticalStaggerLoc) :: vert_staggerloc
-      type(ESMF_TypeKind_Flag) :: import_typekind
-      character(:), allocatable :: import_units
-      type(UngriddedDims) :: export_ungridded_dims
 
-      failure_reason = ''
-
-      ! The export side admits BRACKET alongside FIELD: a bracket export
-      ! resolved through ItemShapeCharacteristic's chain into a field import is
-      ! materialized via the same FieldCreate path (always a plain Field). The
-      ! import side stays FIELD-only: a bracket is never a valid import shape.
-      if (.not. (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
-           .or. export_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET)) then
-         failure_reason = 'unsupported_item_class:' // itemtype_name(export_item%get_declared_item_type())
-         _RETURN(_SUCCESS)
-      end if
-      if (.not. (import_item%get_declared_item_type() == MAPL_STATEITEM_FIELD)) then
-         failure_reason = 'unsupported_item_class:' // itemtype_name(import_item%get_declared_item_type())
-         _RETURN(_SUCCESS)
-      end if
-      import_units = get_item_units(import_item, _RC)
-      _ASSERT(import_units /= '', 'GraphBuilder: materialization reached with no import units - internal inconsistency')
-
-      export_meta => component_for(this, export_comp_name, _RC)
-
-      call resolve_export_geom(export_item, export_meta, geom, has_geom, _RC)
-      if (.not. has_geom) then
-         ! Neither the export's declared geom nor the owning OuterMetaComponent has
-         ! a concrete geom; distinguishable from "unsupported item class" and
-         ! "unregistered characteristic".
-         failure_reason = 'unresolved_geom'
-         _RETURN(_SUCCESS)
-      end if
-
-      ! Vertical grid is optional (a 2D field legitimately has none,
-      ! same as FieldCreate's own optional vgrid argument) - unlike geom,
-      ! its absence is not a failure. When present, a vert_staggerloc is
-      ! required alongside it (FieldCreate's own contract).
-      call resolve_export_vgrid(export_item, export_meta, vgrid, vert_staggerloc, _RC)
-      import_typekind = get_item_typekind(import_item, _RC)
-      export_ungridded_dims = get_item_ungridded_dims(export_item, _RC)
-      if (allocated(vgrid)) then
-         ! typekind/units are the IMPORT's values: the materialized payload must
-         ! match what the import requires, not what the export produced.
-         call materialize_field_extension(graph, node_id, geom=geom, typekind=import_typekind, &
-              units=import_units, ungridded_dims=export_ungridded_dims, &
-              vgrid=vgrid, vert_staggerloc=vert_staggerloc, name=name, _RC)
-      else
-         call materialize_field_extension(graph, node_id, geom=geom, typekind=import_typekind, &
-              units=import_units, ungridded_dims=export_ungridded_dims, name=name, _RC)
-      end if
+      call check_materializable(export_item, import_item, export_item, &
+           failure_reason)
+      _RETURN_IF(failure_reason /= '')
+      call materialize_field_extension(graph, node_id, name=name, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine try_materialize_field_extension
+
+   ! failure_reason is empty when a field can be created for `item`: the
+   ! export side admits BRACKET alongside FIELD (a bracket export resolved
+   ! into a field import is always materialized as a plain Field); the
+   ! import side stays FIELD-only; and item lacks no creation value.
+   subroutine check_materializable(export_item, import_item, item, &
+        failure_reason)
+      type(StateItemDescriptor), intent(in) :: export_item
+      type(StateItemDescriptor), intent(in) :: import_item
+      type(StateItemDescriptor), intent(in) :: item
+      character(:), allocatable, intent(out) :: failure_reason
+
+      type(StateItemCharacteristicKind), allocatable :: incomplete(:)
+
+      failure_reason = ''
+      if (.not. (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
+           .or. export_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET)) then
+         failure_reason = 'unsupported_item_class:' // itemtype_name(export_item%get_declared_item_type())
+         return
+      end if
+      if (.not. (import_item%get_declared_item_type() == MAPL_STATEITEM_FIELD)) then
+         failure_reason = 'unsupported_item_class:' // itemtype_name(import_item%get_declared_item_type())
+         return
+      end if
+      incomplete = item%get_incomplete_kinds()
+      if (size(incomplete) > 0) then
+         failure_reason = 'incomplete_characteristic:' // &
+              incomplete(1)%to_string()
+      end if
+   end subroutine check_materializable
 
    ! Recovers a GraphStateItem's EXPRESSION characteristic as a plain string.
    ! Always established for an EXPRESSION item (design.md Expression row:
@@ -1480,170 +1458,36 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_item_expression
 
-   ! Recovers a GraphStateItem's PHYSICAL_UNITS characteristic as a plain
-   ! string. Returns '' if there is no entry or the entry is UNCHECKED
-   ! (an UNCHECKED instance holds no value).
-   function get_item_units(item, rc) result(units)
-      type(StateItemDescriptor), intent(in) :: item
-      integer, optional, intent(out) :: rc
-      character(:), allocatable :: units
-
-      integer :: status
-      class(StateItemCharacteristic), allocatable :: characteristic
-
-      units = ''
-      if (.not. item%has_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND)) then
-         _RETURN(_SUCCESS)
-      end if
-
-      call item%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, characteristic, _RC)
-      select type (characteristic)
-      class is (PhysicalUnitsCharacteristic)
-         units = characteristic%get_units()
-      class default
-         _FAIL('GraphBuilder: get_item_units - characteristic is not a PhysicalUnitsCharacteristic')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function get_item_units
-
-   ! Same role as get_item_units(), for TYPE_KIND_CHARACTERISTIC_KIND. Always
-   ! established (advertise_one inserts it unconditionally).
-   function get_item_typekind(item, rc) result(type_kind)
-      type(StateItemDescriptor), intent(in) :: item
-      integer, optional, intent(out) :: rc
-      type(ESMF_TypeKind_Flag) :: type_kind
-
-      integer :: status
-      class(StateItemCharacteristic), allocatable :: characteristic
-
-      type_kind = ESMF_TYPEKIND_R4
-      _ASSERT(item%has_characteristic(TYPE_KIND_CHARACTERISTIC_KIND), 'GraphBuilder: get_item_typekind - no TYPE_KIND_CHARACTERISTIC_KIND established')
-
-      call item%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, characteristic, _RC)
-      select type (characteristic)
-      class is (TypeKindCharacteristic)
-         type_kind = label_to_typekind(characteristic%get_type_kind())
-      class default
-         _FAIL('GraphBuilder: get_item_typekind - characteristic is not a TypeKindCharacteristic')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function get_item_typekind
-
-   ! Same role as get_item_units(), for UNGRIDDED_DIMS_CHARACTERISTIC_KIND.
-   ! Returns empty dims if there is no entry; a MIRRORED instance holds no
-   ! value either.
-   function get_item_ungridded_dims(item, rc) result(ungridded_dims)
-      type(StateItemDescriptor), intent(in) :: item
-      integer, optional, intent(out) :: rc
-      type(UngriddedDims) :: ungridded_dims
-
-      integer :: status
-      class(StateItemCharacteristic), allocatable :: characteristic
-
-      if (.not. item%has_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND)) then
-         _RETURN(_SUCCESS)
-      end if
-
-      call item%get_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND, characteristic, _RC)
-      select type (characteristic)
-      class is (UngriddedDimsCharacteristic)
-         ungridded_dims = characteristic%get_ungridded_dims()
-      class default
-         _FAIL('GraphBuilder: get_item_ungridded_dims - characteristic is not an UngriddedDimsCharacteristic')
-      end select
-
-      _RETURN(_SUCCESS)
-   end function get_item_ungridded_dims
-
-   ! Materializes every entry of intermediate_node_ids (in order) with the
-   ! units/typekind of that extension node's own descriptor (the tip after
-   ! its step). Resolves geom/vgrid once from export_item and reuses them
-   ! for every link. Stops at the first failing link, returning
-   ! try_materialize_field_extension's failure_reason.
-   subroutine materialize_extension_chain(this, export_comp_name, export_item, import_item, &
-        intermediate_node_ids, graph, failure_reason, rc, &
-        allow_unitless)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      character(*), intent(in) :: export_comp_name
+   ! Materializes every entry of intermediate_node_ids (in order), each from
+   ! that extension node's own descriptor (the tip after its step). Stops
+   ! at the first link that cannot be materialized, returning
+   ! check_materializable's failure_reason.
+   subroutine materialize_extension_chain(export_item, import_item, &
+        intermediate_node_ids, graph, failure_reason, rc)
       type(StateItemDescriptor), intent(in) :: export_item
       type(StateItemDescriptor), intent(in) :: import_item
       type(NodeId), intent(in) :: intermediate_node_ids(:)
       type(ComponentGraph), target, intent(inout) :: graph
       character(:), allocatable, intent(out) :: failure_reason
       integer, optional, intent(out) :: rc
-      ! An expression input may be unit-less; its links keep empty units.
-      logical, optional, intent(in) :: allow_unitless
 
       integer :: status
       integer :: i
-      class(OuterMetaComponent), pointer :: export_meta
-      type(ESMF_Geom) :: geom
-      logical :: has_geom
-      class(VerticalGrid), allocatable :: vgrid
-      type(VerticalStaggerLoc) :: vert_staggerloc
-      character(:), allocatable :: link_units
-      type(ESMF_TypeKind_Flag) :: link_typekind
-      character(:), allocatable :: import_units
-      type(UngriddedDims) :: export_ungridded_dims
-      logical :: unitless_ok, units_known
       class(GraphNode), pointer :: link_node
-      type(StateItemDescriptor), pointer :: link_item
 
       failure_reason = ''
-
-      ! Same export-side admission as try_materialize_field_extension; the
-      ! import side stays FIELD-only.
-      if (.not. (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
-           .or. export_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET)) then
-         failure_reason = 'unsupported_item_class:' // itemtype_name(export_item%get_declared_item_type())
-         _RETURN(_SUCCESS)
-      end if
-      if (.not. (import_item%get_declared_item_type() == MAPL_STATEITEM_FIELD)) then
-         failure_reason = 'unsupported_item_class:' // itemtype_name(import_item%get_declared_item_type())
-         _RETURN(_SUCCESS)
-      end if
-      import_units = get_item_units(import_item, _RC)
-      unitless_ok = .false.
-      if (present(allow_unitless)) unitless_ok = allow_unitless
-      units_known = unitless_ok .or. import_units /= ''
-      _ASSERT(units_known, 'GraphBuilder: materialize_extension_chain reached with no import units - internal inconsistency')
-
-      export_meta => component_for(this, export_comp_name, _RC)
-
-      call resolve_export_geom(export_item, export_meta, geom, has_geom, _RC)
-      if (.not. has_geom) then
-          failure_reason = 'unresolved_geom'
-         _RETURN(_SUCCESS)
-      end if
-
-      call resolve_export_vgrid(export_item, export_meta, vgrid, vert_staggerloc, _RC)
-
-      export_ungridded_dims = get_item_ungridded_dims(export_item, _RC)
-
       do i = 1, size(intermediate_node_ids)
          link_node => graph%get_node(intermediate_node_ids(i))
          _ASSERT(associated(link_node), 'GraphBuilder: materialize_extension_chain - link NodeId not found in graph')
          select type (link_node)
          class is (StateItemNode)
-            link_item => link_node%get_descriptor()
+            call check_materializable(export_item, import_item, &
+                 link_node%get_descriptor(), failure_reason)
          class default
             _FAIL('GraphBuilder: materialize_extension_chain - link NodeId is not a StateItemNode')
          end select
-         link_units = get_item_units(link_item, _RC)
-         link_typekind = get_item_typekind(link_item, _RC)
-
-         if (allocated(vgrid)) then
-            call materialize_field_extension(graph, intermediate_node_ids(i), geom=geom, &
-                 typekind=link_typekind, units=link_units, &
-                 ungridded_dims=export_ungridded_dims, &
-                 vgrid=vgrid, vert_staggerloc=vert_staggerloc, _RC)
-         else
-            call materialize_field_extension(graph, intermediate_node_ids(i), geom=geom, &
-                 typekind=link_typekind, units=link_units, &
-                 ungridded_dims=export_ungridded_dims, _RC)
-         end if
+         _RETURN_IF(failure_reason /= '')
+         call materialize_field_extension(graph, intermediate_node_ids(i), _RC)
       end do
 
       _RETURN(_SUCCESS)
@@ -1941,7 +1785,7 @@ contains
                  input_ids(i), found, _RC)
             if (found) cycle
             input_desc => mutable_descriptor(graph, input_ids(i), _RC)
-            call try_materialize_field_extension(this, src_comp, input_desc, &
+            call try_materialize_field_extension(input_desc, &
                  input_desc, graph, input_ids(i), failure, name=name, _RC)
             if (failure /= '') then
                problem = failure
@@ -1974,9 +1818,8 @@ contains
             if (size(intermediates) == 0) cycle
             if (materialize_extensions_enabled()) then
                call input_goal(input_desc, full_goal, full=.true., _RC)
-               call materialize_extension_chain(this, src_comp, input_desc, &
-                    full_goal, intermediates, graph, failure, &
-                    allow_unitless=.true., _RC)
+               call materialize_extension_chain(input_desc, &
+                    full_goal, intermediates, graph, failure, _RC)
                if (failure /= '') then
                   problem = failure
                   _RETURN(_SUCCESS)

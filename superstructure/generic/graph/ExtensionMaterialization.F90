@@ -1,30 +1,27 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! ExtensionMaterialization: real ESMF_Field materialization for a
-! framework-created extension StateItemNode. Graph-layer only: depends on
-! ComponentGraph/NodeId/StateItemNode/GraphStateItem and the
-! StateRegistry-independent mapl_FieldCreate_mod::FieldCreate, never on
-! StateRegistry/StateItemSpec/VariableSpec/OuterMetaComponent. Callers
-! (GraphBuilder.F90) extract the plain geom/typekind/ungridded_dims/vgrid/
-! units values from their own data; this module never reads those types.
+! ExtensionMaterialization: creates the real ESMF_Field of a StateItemNode
+! the graph owns (an export or framework-created extension node) from that
+! node's own descriptor. Graph-layer only: never depends on StateRegistry,
+! VariableSpec or OuterMetaComponent, and names no characteristic.
 !
-! Idempotent: if the target StateItemNode's payload already has an
-! allocated ESMF_Field (e.g. a reused extension chain),
-! materialize_field_extension() is a no-op.
+! Idempotent: if the node's payload already has an ESMF_Field (e.g. a reused
+! extension chain), materialize_field_extension() is a no-op.
 !------------------------------------------------------------------------------
 module mapl_ExtensionMaterialization_mod
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_NodeId_mod, only: NodeId
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
-   use mapl_GraphStateItem_mod, only: GraphStateItem, operator(==)
-   use mapl_FieldCreate_mod, only: FieldCreate
-   use mapl_UngriddedDims_mod, only: UngriddedDims
-   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc
-   use mapl_vertical_grid_api, only: mapl_VerticalGrid
-   use ESMF, only: ESMF_Geom, ESMF_TypeKind_Flag, ESMF_Field
-   use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
+   use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_field_api, only: MAPL_FieldEmptyComplete, MAPL_FieldSet
+   use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_GEOM
+   use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_ALLOCATED
+   use ESMF, only: ESMF_Field, ESMF_FieldEmptyCreate
+   use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, operator(==)
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -33,32 +30,23 @@ module mapl_ExtensionMaterialization_mod
 
 contains
 
-   ! Materializes node_id's StateItemNode payload as a real, allocated
-   ! ESMF_Field via FieldCreate; a no-op if it already has one. Callers must
-   ! already have confirmed the materialization gate
-   ! (mapl_ExtensionResolution_mod's materialize_extensions_enabled()) is on,
-   ! the item is Field-typed, and geom is resolved; this module checks none of
-   ! that.
+   ! Gives node_id's StateItemNode an allocated ESMF_Field built from its
+   ! descriptor: empty-create, write every keyword (sync_to_info STRUCTURAL;
+   ! the geom goes on the empty field), then complete from Info. A no-op if
+   ! the payload already is a Field. Callers check the materialization gate,
+   ! the item class and descriptor completeness; this module does not.
    !
-   ! Optional `name` is passed to FieldCreate(name=name, ...) so a materialized
-   ! item is findable by short name once inserted into an ESMF_State
-   ! (ESMF_StateGet is by name). Omitted by the mismatch-branch call site,
-   ! which never inserts its result into a real ESMF_State.
-   subroutine materialize_field_extension(graph, node_id, geom, typekind, units, &
-        ungridded_dims, vgrid, vert_staggerloc, name, rc)
+   ! Optional `name` makes the field findable by short name once inserted
+   ! into an ESMF_State (ESMF_StateGet is by name).
+   subroutine materialize_field_extension(graph, node_id, name, rc)
       class(ComponentGraph), target, intent(inout) :: graph
       type(NodeId), intent(in) :: node_id
-      type(ESMF_Geom), intent(in) :: geom
-      type(ESMF_TypeKind_Flag), intent(in) :: typekind
-      character(*), intent(in) :: units
-      type(UngriddedDims), optional, intent(in) :: ungridded_dims
-      class(mapl_VerticalGrid), optional, intent(in) :: vgrid
-      type(VerticalStaggerLoc), optional, intent(in) :: vert_staggerloc
       character(*), optional, intent(in) :: name
       integer, optional, intent(out) :: rc
 
       integer :: status
       class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: descriptor
       type(GraphStateItem) :: payload
       type(ESMF_Field) :: field
       type(ESMF_StateItem_Flag) :: kind_flag
@@ -70,15 +58,20 @@ contains
       class is (StateItemNode)
          payload = node%get_payload()
          kind_flag = payload%itemType(_RC)
-         if (kind_flag == ESMF_STATEITEM_FIELD) then
-            ! Already materialized (a reused extension chain) - no-op.
-            _RETURN(_SUCCESS)
-         end if
+         ! Already materialized (a reused extension chain).
+         _RETURN_IF(kind_flag == ESMF_STATEITEM_FIELD)
 
-         field = FieldCreate(geom=geom, typekind=typekind, ungridded_dims=ungridded_dims, &
-              vgrid=vgrid, vert_staggerloc=vert_staggerloc, units=units, name=name, _RC)
-
+         descriptor => node%get_descriptor()
+         field = ESMF_FieldEmptyCreate(name=name, _RC)
          call payload%set(field, _RC)
+         ! Completion needs a horizontal layout; an item that declares none
+         ! (an expression result) spans the geom, as FieldCreate assumes.
+         call MAPL_FieldSet(field, horizontal_dims_spec=HORIZONTAL_DIMS_GEOM, &
+              _RC)
+         call descriptor%sync_to_info(payload, SYNC_PHASE_STRUCTURAL, _RC)
+         call MAPL_FieldEmptyComplete(field, _RC)
+         call MAPL_FieldSet(field, &
+              allocation_status=MAPL_STATEITEM_ALLOCATION_ALLOCATED, _RC)
          call node%set_payload(payload)
       class default
          _FAIL('ExtensionMaterialization: NodeId does not refer to a StateItemNode')

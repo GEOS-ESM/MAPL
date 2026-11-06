@@ -166,6 +166,7 @@ add_dependencies(MAPL.generic.aspects proto_extdata_gc proto_stat_gc)
 
 # 5. MAPL.generic.components - Component and specification tests
 set(components_test_srcs
+  Test_DescriptorMaterialize.pf
   Test_GenericGridComp.pf
   Test_ComponentSpec.pf
   Test_VariableSpecMembers.pf

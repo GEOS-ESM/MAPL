@@ -84,6 +84,7 @@ module mapl_GeometryCharacteristic_mod
       procedure :: write_info => geometry_write_info
       procedure :: is_structural => geometry_is_structural
       procedure :: resolve_deferred => geometry_resolve_deferred
+      procedure :: is_complete => geometry_is_complete
       procedure :: get_geom_id
       procedure :: has_geom_id
       procedure :: get_geom
@@ -275,6 +276,16 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine geometry_resolve_deferred
+
+   ! A settled item-level entry must hold the geom its field is created on.
+   ! A MIRRORED entry is filled from its export, never created from.
+   logical function geometry_is_complete(this) result(complete)
+      class(GeometryCharacteristic), intent(in) :: this
+
+      complete = .true.
+      if (this%get_status() == CHARACTERISTIC_STATUS_MIRRORED) return
+      complete = allocated(this%geom)
+   end function geometry_is_complete
 
    function settled_status(compared) result(status)
       logical, intent(in) :: compared

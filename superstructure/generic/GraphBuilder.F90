@@ -56,7 +56,6 @@
 !------------------------------------------------------------------------------
 module mapl_GraphBuilder_mod
    use esmf, only: ESMF_Field, ESMF_Geom, ESMF_STATEINTENT_EXPORT, ESMF_StateIntent_Flag, ESMF_STATEINTENT_IMPORT, ESMF_StateItem_Flag, operator(==)
-   use esmf, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4
    use gFTL2_StringVector, only: StringVector
    use mapl_CallbackInterface_mod, only: CallbackInterface
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
@@ -64,17 +63,9 @@ module mapl_GraphBuilder_mod
    use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
    use mapl_CallbackStateBinding_mod, only: CallbackStateBinding
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap
-   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
-   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic, label_to_typekind
-   use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
-   use mapl_UngriddedDims_mod, only: UngriddedDims
    use mapl_ExpressionCharacteristic_mod, only: ExpressionCharacteristic
-   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
-        TYPE_KIND_CHARACTERISTIC_KIND, VERTICAL_GRID_CHARACTERISTIC_KIND, operator(==), &
-        ATTRIBUTES_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
-        STANDARD_NAME_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND, &
-        CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND, &
-        ITEM_SHAPE_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        StateItemCharacteristicKind, operator(==), &
         EXPRESSION_CHARACTERISTIC_KIND
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_ComponentSpec_mod, only: ComponentSpec
@@ -101,7 +92,6 @@ module mapl_GraphBuilder_mod
    use mapl_VariableSpec_mod, only: VariableSpec
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
    use mapl_VerticalGrid_mod, only: VerticalGrid
-   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_CENTER, VerticalStaggerLoc
    use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -422,24 +412,6 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine try_alias_export_field
-
-      ! Public ports and child proxies procedures (GraphBuilder_PortsAndProxies_smod.F90)
-   module subroutine resolve_export_geom(export_item, owner, geom, found, rc)
-      type(StateItemDescriptor), intent(in) :: export_item
-      class(OuterMetaComponent), target, intent(inout) :: owner
-      type(ESMF_Geom), intent(out) :: geom
-      logical, intent(out) :: found
-      integer, optional, intent(out) :: rc
-
-   end subroutine resolve_export_geom
-   module subroutine resolve_export_vgrid(export_item, owner, vgrid, vert_staggerloc, rc)
-      type(StateItemDescriptor), intent(in) :: export_item
-      class(OuterMetaComponent), target, intent(inout) :: owner
-      class(VerticalGrid), allocatable, intent(out) :: vgrid
-      type(VerticalStaggerLoc), intent(out) :: vert_staggerloc
-      integer, optional, intent(out) :: rc
-
-   end subroutine resolve_export_vgrid
 
       ! Horizontal geometry procedures (GraphBuilder_Geometry_smod.F90)
    module subroutine graphbuilder_run_geometry_hook(this)

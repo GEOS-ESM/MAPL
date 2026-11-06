@@ -330,7 +330,7 @@ contains
           call derive_num_levels_from_vgrid(info, namespace_, num_levels, num_layers, num_vgrid_levels, _RC)
        end if
 
-      if (present(vert_staggerloc) .and. .not. present(num_levels) .and. .not. present(num_vgrid_levels)) then
+      if (present(vert_staggerloc)) then
          ! A stagger that was never recorded comes back INVALID.
          is_present = esmf_InfoIsPresent(info, namespace_ // KEY_VERT_STAGGERLOC, _RC)
          if (is_present) then

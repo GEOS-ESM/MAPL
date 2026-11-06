@@ -19,7 +19,6 @@ set(srcs
   GraphBuilder.F90
   GraphBuilder_Advertising_smod.F90
   GraphBuilder_ConnectionResolution_smod.F90
-  GraphBuilder_PortsAndProxies_smod.F90
   GraphBuilder_Geometry_smod.F90
   GraphBuilder_Freeze_smod.F90
   GraphBuilder_StatePopulation_smod.F90

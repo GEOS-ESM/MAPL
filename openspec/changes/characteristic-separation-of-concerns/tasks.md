@@ -1041,7 +1041,7 @@ B4b as its own task.
       `intermediate_node_ids` is one entry per step.
       `materialize_extension_chain` reads units/typekind from each
       link's own descriptor and lost its `mismatched_kinds` argument.
-- [ ] 4.2 Materialize extension fields by empty-create +
+- [x] 4.2 Materialize extension fields by empty-create +
       `sync_to_info(STRUCTURAL)` + `MAPL_FieldEmptyComplete` (§3.2.1);
       delete `get_item_units` / `get_item_typekind` /
       `get_item_ungridded_dims` / `get_item_geom` / `get_item_vgrid` /
@@ -1074,12 +1074,43 @@ B4b as its own task.
       default SPECIFIED values (CONSERVE_NONE, NORMALIZE_NONE,
       QUANTITY_UNKNOWN, ...) would overwrite the export's field-wide keys.
       Imports write per-alias keys only (design §3.2, §3.5).
+      Status: `materialize_field_extension(graph, node_id [, name], rc)`
+      empty-creates, writes `horizontal_dims_spec=GEOM` as the creation
+      default (an expression result declares none; kept there rather than
+      on the result descriptor, see design §3.2), runs the node's own
+      `sync_to_info(STRUCTURAL)`, `MAPL_FieldEmptyComplete`, then
+      `allocation_status=ALLOCATED` (as `FieldCreate`). Geom and
+      vgrid come only from the descriptor; the owner-geom/vgrid fallback
+      (`GraphBuilder_PortsAndProxies_smod.F90`) is deleted. The
+      `unresolved_geom` check is the generic
+      `StateItemDescriptor%get_incomplete_kinds()` (new
+      `StateItemCharacteristic%is_complete`, Geometry overrides), reported
+      as `incomplete_characteristic:<kind>`; harvest also visits a node with
+      incomplete kinds. `harvest_stagger`/`harvest_quantity_type` are
+      `VerticalStagger`/`QuantityType` overrides of the new
+      `StateItemCharacteristic%harvest(handle, defaults)` (no-op default),
+      called through `StateItemDescriptor%harvest`. The geometry-proxy
+      identity goes through `GeomProxyField%add_geom_proxy_identity`. The
+      owning field's full sync writes long_name/restart_mode under alias 0,
+      which the import alias copies, so the long_name fallback needs no
+      populate change. `get_item_expression` stays for 4.4.
+      Getter fix: `MAPL_FieldGet(vert_staggerloc=, num_levels=)` left the
+      stagger unset (`FieldInfo.F90`). A unit-less expression input link
+      now carries `<unknown>` units, as legacy `UnitsAspect` writes for
+      UNCHECKED units. Owner exception: tests under
+      `superstructure/generic/tests/` may read ESMF Info directly
+      (read-only); production stays facade-only.
 - [x] 4.3 Delete `GraphStateItem%ordering` and
       `characteristic_ordering_table`; replace their tests with golden
       `get_extension_order` tests per shape. Done in B3-ItemShape.
 - [ ] 4.4 Done when the D6 grep (`_CHARACTERISTIC_KIND` and concrete
       `*Characteristic` names in `GraphBuilder*.F90`, outside comments)
       finds nothing, and ESSENTIAL passes on NAG and gfortran.
+      Also: route `get_item_expression` generically, and move the
+      `horizontal_dims_spec=GEOM` default out of
+      `ExtensionMaterialization` into graph-layer expression-result
+      descriptor construction (a SPECIFIED GEOM HorizontalDimsSpec;
+      not GraphBuilder), then drop the design.md §3.2 "As landed" note.
 
 ## 5. VariableSpec translation (B5)
 

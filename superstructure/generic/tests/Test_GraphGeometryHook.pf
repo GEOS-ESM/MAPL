@@ -78,12 +78,97 @@ module Test_GraphGeometryHook
    use mapl_geom_api, only: mapl_new_GeomId
    use mapl_StateItemCharacteristicKind_mod, only: VERTICAL_GRID_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND
    use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid
+   use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_NONE
+   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_StateItemCharacteristicKind_mod, only: GEOMETRY_CHARACTERISTIC_KIND
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED
+   use mapl_geom_api, only: mapl_SameGeom
    use ESMF_TestMethod_mod
    use esmf
    use pfunit
    implicit none(type, external)
 
 contains
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_harvest_fills_unchecked_geometry_without_deferred(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: id
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: descriptor
+      class(StateItemCharacteristic), allocatable :: characteristic
+      type(GriddedComponentDriver), pointer :: driver
+      type(MultiState) :: states
+      type(ESMF_Geom) :: geom
+      type(ESMF_Geom), allocatable :: harvested
+      type(ESMF_Field) :: field
+      type(VariableSpec) :: var
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call make_outer_meta('unchecked_geom_harvest', gc, meta, _RC)
+      var%state_intent = ESMF_STATEINTENT_EXPORT
+      var%short_name = 'T'
+      var%horizontal_dims_spec = HORIZONTAL_DIMS_NONE
+      var%vertical_stagger = VERTICAL_STAGGER_NONE
+      var%quantity_type = QUANTITY_TEMPERATURE
+      spec => meta%get_component_spec()
+      call spec%add_var_spec(var)
+      call gb%advertise(meta, rc=status)
+      @assertEqual(0, status)
+      graph => meta%get_component_graph()
+      id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      node => graph%get_node(id)
+      select type (node)
+      class is (StateItemNode)
+         descriptor => node%get_descriptor()
+      class default
+         @assertTrue(.false.)
+         return
+      end select
+      @assertEqual(0, size(descriptor%get_unresolved_kinds()))
+      call descriptor%get_characteristic( &
+           GEOMETRY_CHARACTERISTIC_KIND, characteristic, rc=status)
+      @assertEqual(0, status)
+      select type (characteristic)
+      class is (GeometryCharacteristic)
+         @assertTrue(characteristic%get_status() == &
+              CHARACTERISTIC_STATUS_UNCHECKED)
+         @assertFalse(characteristic%has_geom())
+      class default
+         @assertTrue(.false.)
+         return
+      end select
+      geom = make_test_geom(_RC)
+      field = ESMF_FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, &
+           name='T', rc=status)
+      @assertEqual(0, status)
+      driver => meta%get_user_gc_driver()
+      states = driver%get_states()
+      call ESMF_StateAdd(states%exportState, [field], rc=status)
+      @assertEqual(0, status)
+      call gb%harvest_deferred(meta, rc=status)
+      @assertEqual(0, status)
+      deallocate(characteristic)
+      call descriptor%get_characteristic( &
+           GEOMETRY_CHARACTERISTIC_KIND, characteristic, rc=status)
+      @assertEqual(0, status)
+      select type (characteristic)
+      class is (GeometryCharacteristic)
+         @assertTrue(characteristic%has_geom())
+         @assertTrue(characteristic%get_status() == &
+              CHARACTERISTIC_STATUS_UNCHECKED)
+         if (characteristic%has_geom()) then
+            harvested = characteristic%get_geom()
+            @assertTrue(mapl_SameGeom(geom, harvested))
+         end if
+      end select
+      _UNUSED_DUMMY(this)
+   end subroutine test_harvest_fills_unchecked_geometry_without_deferred
 
    ! make_outer_meta shared via GraphBuilderTestSupport_mod
    ! (docs/graph/spec/20-implementation-roadmap.md sec 20.4.17,

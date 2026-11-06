@@ -18,11 +18,15 @@ module mapl_GeomProxyField_mod
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_GEOM
    use mapl_field_api, only: MAPL_FieldSet
+   use mapl_GeomId_mod, only: GeomId
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristicMap
+   use mapl_GeometryCharacteristic_mod, only: insert_geom_id_characteristic
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
 
    public :: new_geom_proxy_item
+   public :: add_geom_proxy_identity
 
 contains
 
@@ -41,5 +45,13 @@ contains
 
       _RETURN(_SUCCESS)
    end function new_geom_proxy_item
+
+   ! The characteristics a geometry proxy node is compared by: its geom id.
+   subroutine add_geom_proxy_identity(characteristics, geom_id)
+      type(StateItemCharacteristicMap), intent(inout) :: characteristics
+      type(GeomId), intent(in) :: geom_id
+
+      call insert_geom_id_characteristic(characteristics, geom_id)
+   end subroutine add_geom_proxy_identity
 
 end module mapl_GeomProxyField_mod

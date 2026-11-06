@@ -5,13 +5,13 @@
 submodule (mapl_GraphBuilder_mod) GraphBuilder_Geometry_smod
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain
-   use mapl_GeometryCharacteristic_mod, only: insert_geom_id_characteristic
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
    use mapl_GeometrySpec_mod, only: GEOMETRY_FROM_CHILD, GEOMETRY_FROM_PARENT
    use mapl_GeomId_mod, only: GeomId
-   use mapl_GeomProxyField_mod, only: new_geom_proxy_item
+   use mapl_GeomProxyField_mod, only: new_geom_proxy_item, &
+        add_geom_proxy_identity
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_REGISTRY
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_MultiState_mod, only: MultiState
@@ -19,12 +19,6 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Geometry_smod
    use esmf, only: ESMF_State, ESMF_StateGet, ESMF_FieldBundle, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE, &
         ESMF_FieldStatus_Flag, ESMF_FieldGet, ESMF_FieldIsCreated, ESMF_FieldBundleIsCreated, ESMF_FieldBundleGet, &
         operator(==), ESMF_FIELDSTATUS_GRIDSET, ESMF_FIELDSTATUS_COMPLETE
-   use esmf, only: ESMF_ITEMORDER_ADDORDER
-   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_INVALID
-   use mapl_field_api, only: MAPL_FieldGet
-   use mapl_field_bundle_api, only: MAPL_FieldBundleGet
-   use mapl_QuantityType_mod, only: QUANTITY_UNKNOWN, operator(==)
-   use mapl_QuantityTypeMetadata_mod, only: QuantityTypeMetadata
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -133,9 +127,10 @@ contains
       _RETURN(_SUCCESS)
    end subroutine graphbuilder_resolve_deferred
 
-   ! Fills still-DEFERRED geometry from the geom the component's own phase
-   ! put on the item's field or bundle (a component with no default geom
-   ! supplies it there). Walks the subtree.
+   ! Fills still-DEFERRED characteristics, and settled ones still missing a
+   ! creation value, from what the component's own phase put on the item's
+   ! field or bundle (a component with no default geom supplies it there).
+   ! Walks the subtree.
    module recursive subroutine graphbuilder_harvest_deferred(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -165,7 +160,8 @@ contains
             select type (node)
             class is (StateItemNode)
                descriptor => node%get_descriptor()
-               if (size(descriptor%get_unresolved_kinds()) == 0) cycle
+               if (size(descriptor%get_unresolved_kinds()) == 0 .and. &
+                    size(descriptor%get_incomplete_kinds()) == 0) cycle
                call fill_deferred_from_handle(states, node, descriptor, _RC)
             end select
          end do
@@ -181,9 +177,10 @@ contains
    end subroutine graphbuilder_harvest_deferred
 
    ! Reads the geom off the component's field or bundle of that name (the
-   ! handle's, if already bound) and offers it to the node's DEFERRED
-   ! characteristics. Read-only: the handle is not bound here. An item the
-   ! component has not realized yet is left alone: a later pass finds it.
+   ! handle's, if already bound), lets each characteristic harvest its own
+   ! recorded value, and offers both to the node's characteristics.
+   ! Read-only: the handle is not bound here. An item the component has not
+   ! realized yet is left alone: a later pass finds it.
    subroutine fill_deferred_from_handle(states, node, descriptor, rc)
       type(MultiState), intent(in) :: states
       class(StateItemNode), target, intent(in) :: node
@@ -203,6 +200,7 @@ contains
       logical :: has_id
       integer :: field_count
       character(:), allocatable :: name
+      type(GraphStateItem) :: realized
 
       _RETURN_UNLESS(node%has_short_name())
       name = node%get_short_name()
@@ -248,77 +246,16 @@ contains
       else
          defaults = CharacteristicDefaults(geom=geom)
       end if
-      call harvest_stagger(item_kind, field, bundle, defaults, _RC)
-      call harvest_quantity_type(item_kind, field, bundle, defaults, _RC)
+      if (item_kind == ESMF_STATEITEM_FIELD) then
+         call realized%set(field, _RC)
+      else
+         call realized%set(bundle, _RC)
+      end if
+      call descriptor%harvest(realized, defaults, _RC)
       call descriptor%resolve_deferred(defaults, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine fill_deferred_from_handle
-
-   ! A completed Field, or the first member of a FieldBundle, has recorded
-   ! its vertical stagger; that supplies it to the defaults.
-   subroutine harvest_stagger(item_kind, field, bundle, defaults, rc)
-      type(ESMF_StateItem_Flag), intent(in) :: item_kind
-      type(ESMF_Field), intent(in) :: field
-      type(ESMF_FieldBundle), intent(in) :: bundle
-      type(CharacteristicDefaults), intent(inout) :: defaults
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ESMF_Field) :: member
-      type(ESMF_Field), allocatable :: members(:)
-      integer :: n_members
-      type(ESMF_FieldStatus_Flag) :: field_status
-      type(VerticalStaggerLoc) :: stagger
-
-      if (item_kind == ESMF_STATEITEM_FIELD) then
-         member = field
-      else
-         call ESMF_FieldBundleGet(bundle, fieldCount=n_members, _RC)
-         _RETURN_UNLESS(n_members > 0)
-         allocate(members(n_members))
-         call ESMF_FieldBundleGet(bundle, fieldList=members, itemOrderflag=ESMF_ITEMORDER_ADDORDER, _RC)
-         member = members(1)
-      end if
-
-      call ESMF_FieldGet(member, status=field_status, _RC)
-      _RETURN_UNLESS(field_status == ESMF_FIELDSTATUS_COMPLETE)
-
-      ! A field that never recorded a stagger reports INVALID.
-      call MAPL_FieldGet(member, vert_staggerloc=stagger, _RC)
-      _RETURN_UNLESS(stagger%to_string() /= VERTICAL_STAGGER_INVALID%to_string())
-      call defaults%set_vert_stagger(stagger)
-
-      _RETURN(_SUCCESS)
-   end subroutine harvest_stagger
-
-   ! The quantity type and basis a component set on its Field or FieldBundle
-   ! with MAPL_FieldSet / MAPL_FieldBundleSet. An absent key reads back as a
-   ! mirror (Field) or QUANTITY_UNKNOWN (bundle), and an explicit UNKNOWN says
-   ! nothing either: none of them is a supplied value.
-   subroutine harvest_quantity_type(item_kind, field, bundle, defaults, rc)
-      type(ESMF_StateItem_Flag), intent(in) :: item_kind
-      type(ESMF_Field), intent(in) :: field
-      type(ESMF_FieldBundle), intent(in) :: bundle
-      type(CharacteristicDefaults), intent(inout) :: defaults
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(QuantityTypeMetadata) :: metadata
-
-      if (item_kind == ESMF_STATEITEM_FIELD) then
-         call MAPL_FieldGet(field, quantity_type_metadata=metadata, _RC)
-      else
-         call MAPL_FieldBundleGet(bundle, quantity_type_metadata=metadata, _RC)
-      end if
-      _RETURN_IF(metadata%is_mirror())
-      _RETURN_IF(metadata%get_quantity_type() == QUANTITY_UNKNOWN)
-
-      call defaults%set_quantity_type(metadata%get_quantity_type(), &
-           metadata%get_basis())
-
-      _RETURN(_SUCCESS)
-   end subroutine harvest_quantity_type
 
    ! Gives the already-resolved parent/child geometry relationship (per
    ! geometry_spec%kind) graph structure: a dependency edge from the
@@ -398,8 +335,8 @@ contains
       ! (NAG rejects it); bind the intermediate result first.
       this_own_geom_id = this%get_geom_id()
       provider_geom_id = child_meta%get_geom_id()
-      call insert_geom_id_characteristic(child_map, provider_geom_id)
-      call insert_geom_id_characteristic(this_map, this_own_geom_id)
+      call add_geom_proxy_identity(child_map, provider_geom_id)
+      call add_geom_proxy_identity(this_map, this_own_geom_id)
 
       ! Same dispatch shape as resolve_one (REQ-EXT-001): direct edge on
       ! exact match, else extension chain. A mismatch should be
@@ -470,8 +407,8 @@ contains
       ! Bind intermediates first; see resolve_geometry_from_child.
       this_geom_id = this%get_geom_id()
       child_geom_id = child_meta%get_geom_id()
-      call insert_geom_id_characteristic(this_map, this_geom_id)
-      call insert_geom_id_characteristic(child_map, child_geom_id)
+      call add_geom_proxy_identity(this_map, this_geom_id)
+      call add_geom_proxy_identity(child_map, child_geom_id)
 
       ! Same dispatch shape as resolve_geometry_from_child. The edge (and
       ! any chain) lives in the CHILD's graph/network because the

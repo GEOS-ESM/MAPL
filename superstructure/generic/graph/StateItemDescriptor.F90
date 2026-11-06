@@ -86,6 +86,8 @@ module mapl_StateItemDescriptor_mod
       procedure :: get_characteristics => descriptor_get_characteristics
       procedure :: get_kinds => descriptor_get_kinds
       procedure :: get_unresolved_kinds => descriptor_get_unresolved_kinds
+      procedure :: get_incomplete_kinds => descriptor_get_incomplete_kinds
+      procedure :: harvest => descriptor_harvest
       procedure :: check_resolved => descriptor_check_resolved
       procedure :: resolve_deferred => descriptor_resolve_deferred
       procedure :: drop_unsupplied => descriptor_drop_unsupplied
@@ -493,6 +495,51 @@ contains
          end do
       end associate
    end function descriptor_get_unresolved_kinds
+
+   ! Kinds whose entry still lacks a value the item's field is created from
+   ! (is_complete), whatever their status.
+   function descriptor_get_incomplete_kinds(this) result(kinds)
+      class(StateItemDescriptor), target, intent(in) :: this
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+
+      type(StateItemCharacteristicMapIterator) :: iter
+      class(StateItemCharacteristic), pointer :: c
+
+      allocate(kinds(0))
+      associate (e => this%characteristics%ftn_end())
+         iter = this%characteristics%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            c => iter%second()
+            if (c%is_complete()) cycle
+            kinds = [kinds, iter%first()]
+         end do
+      end associate
+   end function descriptor_get_incomplete_kinds
+
+   ! Lets each characteristic add to defaults what the component recorded on
+   ! its realized item (handle).
+   subroutine descriptor_harvest(this, handle, defaults, rc)
+      class(StateItemDescriptor), target, intent(in) :: this
+      type(GraphStateItem), intent(in) :: handle
+      type(CharacteristicDefaults), intent(inout) :: defaults
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StateItemCharacteristicMapIterator) :: iter
+      class(StateItemCharacteristic), pointer :: c
+
+      associate (e => this%characteristics%ftn_end())
+         iter = this%characteristics%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            c => iter%second()
+            call c%harvest(handle, defaults, _RC)
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine descriptor_harvest
 
    ! Freeze-time check: fails naming the item and the first unresolved kind.
    subroutine descriptor_check_resolved(this, item_name, rc)

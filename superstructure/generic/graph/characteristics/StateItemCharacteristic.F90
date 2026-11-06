@@ -115,6 +115,8 @@ module mapl_StateItemCharacteristic_mod
       procedure :: drop_if_unsupplied => char_drop_if_unsupplied
       procedure :: is_deferred_fatal => char_is_deferred_fatal
       procedure :: match_warning => char_match_warning
+      procedure :: is_complete => char_is_complete
+      procedure :: harvest => char_harvest
    end type StateItemCharacteristic
 
    ! REQ-CHAR-002a: a pure subtype-shape split - no additional deferred
@@ -365,6 +367,29 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(goal)
    end function char_match_warning
+
+   ! False while a settled entry still lacks a value its field needs to be
+   ! created (e.g. a geometry that is not compared but has no geom yet).
+   logical function char_is_complete(this) result(complete)
+      class(StateItemCharacteristic), intent(in) :: this
+
+      complete = .true.
+      _UNUSED_DUMMY(this)
+   end function char_is_complete
+
+   ! Adds to defaults the value a component recorded on its realized item
+   ! (handle). Kinds the component never records there do nothing.
+   subroutine char_harvest(this, handle, defaults, rc)
+      class(StateItemCharacteristic), intent(in) :: this
+      type(GraphStateItem), intent(in) :: handle
+      type(CharacteristicDefaults), intent(inout) :: defaults
+      integer, optional, intent(out) :: rc
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(handle)
+      _UNUSED_DUMMY(defaults)
+      _RETURN(_SUCCESS)
+   end subroutine char_harvest
 
    subroutine refchar_set_referenced_node_id(this, node_id)
       class(ReferenceCharacteristic), intent(inout) :: this
