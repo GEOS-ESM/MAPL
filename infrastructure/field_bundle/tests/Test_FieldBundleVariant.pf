@@ -1,7 +1,7 @@
 #include "MAPL_TestErr.h"
 
 module Test_FieldBundleVariant
-   use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundleSet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundleSet, MAPL_FieldBundleInfoSetInternal
    use mapl_StateItemFlag_mod
    use pfunit
    use esmf
@@ -40,5 +40,34 @@ contains
 
       call ESMF_FieldBundleDestroy(bundle, _RC)
    end subroutine test_bundle_get_geom_on_plain_bundle
+
+   ! Regression: an error from get_geom must reach the caller.  A bundle
+   ! with a LocStream geom has has_geom recorded in its Info but a geomtype
+   ! get_geom does not support.
+   @test
+   subroutine test_bundle_get_geom_failure_propagates()
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_DistGrid) :: distgrid
+      type(ESMF_LocStream) :: locstream
+      type(ESMF_Info) :: info
+      type(ESMF_Geom), allocatable :: geom
+      integer :: status
+
+      distgrid = ESMF_DistGridCreate(minIndex=[1], maxIndex=[4], regDecomp=[1], _RC)
+      locstream = ESMF_LocStreamCreate(distgrid, name='ls', coordSys=ESMF_COORDSYS_CART, _RC)
+      bundle = ESMF_FieldBundleCreate(name='b', _RC)
+      call ESMF_FieldBundleSet(bundle, locstream=locstream, _RC)
+      call ESMF_InfoGetFromHost(bundle, info, _RC)
+      call MAPL_FieldBundleInfoSetInternal(info, has_geom=.true., _RC)
+
+      call MAPL_FieldBundleGet(bundle, geom=geom, rc=status)
+      @assertExceptionRaised('unsupported geomtype; needs simple extension')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+
+      call ESMF_FieldBundleDestroy(bundle, _RC)
+      call ESMF_LocStreamDestroy(locstream, _RC)
+      call ESMF_DistGridDestroy(distgrid, _RC)
+   end subroutine test_bundle_get_geom_failure_propagates
 
 end module Test_FieldBundleVariant
