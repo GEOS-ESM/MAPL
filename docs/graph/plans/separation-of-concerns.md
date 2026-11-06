@@ -1497,21 +1497,11 @@ here instead of creating one-item tasks. It has no dependencies, so it
 can run whenever the list is worth one session; anything added after
 it runs goes in a follow-up commit with the same trailer. Label
 `D3-cleanup`.
-- Delete the stray `superstructure/generic/to_itemtype.F90`. It is not
-  in the build (CMake compiles `ComponentSpecParser/to_itemtype.F90`).
-  It differs from the compiled copy only by a `'vector_bracket'` case
-  mapping to `MAPL_STATEITEM_VECTORBRACKET`. Before deleting, check
-  whether any YAML/test needs `'vector_bracket'` to parse; if one does,
-  ask the owner whether to move that case into the compiled copy.
-- `infrastructure/field/FieldGet.F90:82-84`: empty
-  `if (fstatus == ESMF_FIELDSTATUS_EMPTY)` block with a misleading
-  "already deallocated" comment; delete it.
-- `MAPL_FieldGet(geom=)` and `MAPL_FieldBundleGet` segfault on a
-  field/bundle whose Info is not yet populated (`FieldGet.F90:79-90`).
-  They should fail with an rc. B3-Geometry's harvest reads through ESMF
-  directly to avoid it; switch harvest back to the MAPL getter once fixed.
-- `ComponentSpecParser/parse_var_specs.F90:77-80`: fix the indentation
-  of the `geometry_spec`/`geom_id`/`mapl_geom`/`geom_mgr` declarations.
+- B3-Geometry's harvest (`GraphBuilder_Geometry_smod.F90` ~238-242) reads
+  geoms through ESMF directly to avoid a suspected `MAPL_FieldGet(geom=)`
+  crash on fields whose Info is not populated. Batch a did not reproduce
+  the crash (regression tests kept): switch harvest back to the MAPL
+  getter and check ESSENTIAL.
 - Scenario fixtures with `/`-qualified short names (e.g. `A/E_A1`) have
   no field-dictionary entries, so every run logs "not found in field
   dictionary (as an alias)" (`VariableSpec.F90` alias lookup; the lookup
@@ -1583,7 +1573,12 @@ it runs goes in a follow-up commit with the same trailer. Label
   2+ entries under gfortran (SIGBUS in deep_copy). `ExpressionTransform`
   works around it by answering port queries from its referenced names;
   fix the copy properly (e.g. ports in a vector) and drop the override.
-- **Status:** not started
+- **Status:** batch a done (PR #5486, Weiyuan Jiang, `2d98aaa14`): stray
+  `to_itemtype.F90` deleted; `FieldGet.F90` empty block removed (getter
+  crash not reproduced; regression tests kept); `FieldBundleGet` now
+  propagates `get_geom` errors (was dropped), with a test;
+  `parse_var_specs.F90` indentation. NAG and gfortran Debug ESSENTIAL
+  69/69. The other items remain.
 
 **D4. NAG Debug green.** Owner rule (2026-11-05): every build is Debug,
 on every compiler. NAG Debug (`-C=dangling`) aborts about 40 ESSENTIAL
