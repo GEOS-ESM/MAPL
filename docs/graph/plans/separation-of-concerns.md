@@ -1596,7 +1596,13 @@ restructure; no behavior change. Main-line B tasks keep landing on
 gfortran Debug 69/69 meanwhile; NAG ESSENTIAL is rechecked when D4
 lands. Candidate for outsourcing (mechanical, off the critical path).
 Label `D4-NagDangling`.
-- **Status:** not started
+- **Status:** done. NAG Debug ESSENTIAL 69/69 and gfortran Debug 69/69.
+  Sites (all a missing TARGET; NAG passed a copy): local `characteristics`
+  in `VariableSpec/make_characteristics.F90`; `graph_validate` locals
+  `producer_ids`/`state_item_ids`/`allowed_ids` in `ComponentGraph.F90`;
+  `this` of `end_connection_pass` (interface in `OuterMetaComponent.F90`
+  and `OuterMetaComponent/connections_resolved.F90`); local `spec` in two
+  `Test_Couplers.pf` tests. Nothing remains.
 
 **D5. Allocatable function results always allocated.** Owner rule
 (2026-11-05): a function with an allocatable result allocates it on every
