@@ -107,11 +107,11 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
      DEFERRED, not MIRRORED. MIRRORED comes only from an explicit mirror
      sentinel. List any legacy "absent means mirror" cases you find in
      the commit message.
-5. **Wire it in**: delete the kind's block in
-   `GraphBuilder_Advertising_smod.F90%populate_characteristics` (the
-   `call var_spec%make_characteristics(descriptor, _RC)` already there
-   runs the registered factory), and drop the kind constant and concrete
-   type from that submodule's use list.
+5. **Wire it in**: add the factory to the list in
+   `specs/VariableSpec/make_characteristics.F90` (advertise calls
+   `var_spec%make_characteristics(descriptor, _RC)`, which runs every
+   registered factory). `GraphBuilder_Advertising_smod.F90` needs no
+   change and must not name the kind or the concrete type.
    Materialization needs no kind-specific code: it syncs the node's
    descriptor to Info (see "Extension chains and materialization").
 6. **Tests**
@@ -755,9 +755,9 @@ value, writes only its own Info key, and has no Transform.
 |---|---|---|
 | `itemType`, optional `state_item_variant` | every shape | SPECIFIED with the class and the variant if declared |
 
-- Factory `make_item_shape_characteristic` (factory 11); the block in
-  `populate_characteristics` that inserted it for FIELD, BRACKET, VECTOR and
-  VECTORBRACKET only is gone. `declared_item_type` stays: the
+- Factory `make_item_shape_characteristic` (factory 11); the old
+  block that inserted it for FIELD, BRACKET, VECTOR and VECTORBRACKET only
+  is gone. `declared_item_type` stays: the
   `GraphBuilder` gates still read it (design §6.1 wants a generic
   `shape()` accessor for them; not done here).
 - Matrix (design §4.3, legacy `matches` / `supports_conversion_specific`):

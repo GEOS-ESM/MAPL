@@ -120,7 +120,11 @@ runs `MAPL_FieldEmptyComplete`, and sets `allocation_status` to
 `ALLOCATED`. A characteristic must therefore write in `write_info`
 (STRUCTURAL) whatever `FieldEmptyComplete` needs. Geom and vgrid come
 only from the descriptor; `GraphBuilder` names no characteristic kind or
-concrete characteristic type.
+concrete characteristic type. The descriptor's `fill_value` (recorded by
+`advertise_one` for every intent, applied only from the export's) is set on
+the field after `FieldEmptyComplete`. `rebuild_field_extension(graph,
+node_id, rc)` runs the same build for a node whose payload is already a
+Field.
 `StateItemCharacteristic%is_complete()` (default `.true.`) feeds
 `StateItemDescriptor%get_incomplete_kinds` and `check_materializable`
 (failure reason `incomplete_characteristic:<KIND>`). `harvest(handle,
@@ -159,7 +163,7 @@ factories (so far units, typekind, ungridded dims, geometry, vertical grid, vert
 | `RestartMode` | `RESTART_MODE_…` | Never compared; `build_transform` is the unsupported stub. FIELD only; per-alias |
 
 Other files: `CharacteristicStatus.F90`, `StateItemCharacteristicKind.F90`
-(also `MOCK_CHARACTERISTIC_KIND`), `SetSharedCharacteristic.F90` (`set_shared_characteristic(kind, characteristic)` sets that one entry in the node's descriptor; the ESMF payload is left alone; only direct `StateItemNode` successors are reset, so a transform step feeding a changed import keeps stale state).
+(also `MOCK_CHARACTERISTIC_KIND`), `SetSharedCharacteristic.F90` (`set_shared_characteristic(kind, characteristic)` sets that one entry in the node's descriptor; a structural characteristic whose payload is an `ESMF_Field` rebuilds that field from the descriptor through `rebuild_field_extension` (same name, fill value applied; a State or importer holding the old Field is not updated); only direct `StateItemNode` successors are reset, so a transform step feeding a changed import keeps stale state).
 
 "Unsupported" means `build_transform` calls
 `report_build_transform_unsupported(rc)` (`StateItemCharacteristic.F90`),
@@ -220,7 +224,7 @@ type (stateless; every method is `nopass` and takes the
 
 | File | Responsibility |
 |---|---|
-| `GraphBuilder_Advertising_smod.F90` | `advertise_one` creates `StateItemNode`s from `VariableSpec`; `populate_characteristics` fills the characteristics map and `declared_*` fields |
+| `GraphBuilder_Advertising_smod.F90` | `advertise_one` creates `StateItemNode`s from `VariableSpec`; `VariableSpec%make_characteristics` (called on the stored descriptor) fills the characteristics map, `declared_item_type` and `fill_value` |
 | `GraphBuilder_ConnectionResolution_smod.F90` | Ordinary/Simple/Match connection resolution (`resolve_one`, `for_each_matching_import`); extension-chain use; import mirroring (`run_propagate_hook`) and export propagation (`run_export_propagate_hook`); Expression names check (`run_expression_hook`) and per-consumer evaluation (`resolve_one_pair`); Wildcard fan-in (`resolve_wildcard_destination`); unsatisfied-import checks; qualified-name resolution |
 | `GraphBuilder_Freeze_smod.F90` | Hierarchy-wide freeze and convergence check (`run_graph_freeze_hook`) |
 | `GraphBuilder_Geometry_smod.F90` | Geometry push/pull (`run_geometry_hook`) |
@@ -437,7 +441,7 @@ Primary records are under `openspec/changes/archive/`; read the relevant
 - **Characteristic dispatch** (phase 12,
   `2026-10-19-phase-12-characteristic-dispatch-wiring`): six further
   axes (Attributes, UngriddedDims, StandardName, QuantityType,
-  Conservation, Normalization) wired into `populate_characteristics`
+  Conservation, Normalization) wired into `make_characteristics`
   alongside Units, TypeKind, and VerticalGrid; ItemShape was
   added by 7a. The `Expression` characteristic (EXPRESSION items only)
   is a further factory in the same registry.

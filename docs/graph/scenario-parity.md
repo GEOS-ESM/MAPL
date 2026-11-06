@@ -144,8 +144,8 @@ In production, the same faults only log a warning and drop part of the graph.
 
 ### Masked passes (not failures, but not graph-produced)
 
-- **M1. No item-level geometry characteristic.** `populate_characteristics`
-  (`GraphBuilder_Advertising_smod.F90`) never inserts
+- **M1. No item-level geometry characteristic.** `make_characteristics`
+  (`specs/VariableSpec/make_characteristics.F90`) never inserts
   `GEOMETRY_CHARACTERISTIC_KIND`. Only the component-level edges in
   `GraphBuilder_Geometry_smod.F90` use it. Variable items with different
   grids therefore compare equal. Also, `GeometryCharacteristic%build_transform`
