@@ -107,7 +107,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(StateItemCharacteristicMap) :: characteristics
+      type(StateItemCharacteristicMap), target :: characteristics
       type(StateItemCharacteristicMapIterator) :: iter
       class(StateItemCharacteristic), pointer :: c
       character(:), allocatable :: msg, kind_name, reason

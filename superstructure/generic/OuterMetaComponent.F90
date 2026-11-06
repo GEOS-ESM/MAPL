@@ -721,7 +721,7 @@ module mapl_OuterMetaComponent_mod
       ! Merges the pass's settled imports. Marks the connections resolved,
       ! which makes later calls no-ops, only if no pair is still waiting.
       module subroutine end_connection_pass(this)
-         class(OuterMetaComponent), intent(inout) :: this
+         class(OuterMetaComponent), target, intent(inout) :: this
       end subroutine end_connection_pass
 
       module function get_component_spec(this) result(component_spec)

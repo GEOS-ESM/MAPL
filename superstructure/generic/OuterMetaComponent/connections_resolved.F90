@@ -75,7 +75,7 @@ contains
    end subroutine begin_connection_pass
 
    module subroutine end_connection_pass(this)
-      class(OuterMetaComponent), intent(inout) :: this
+      class(OuterMetaComponent), target, intent(inout) :: this
 
       type(NodeIdSetIterator) :: iter
 

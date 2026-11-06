@@ -691,8 +691,8 @@ contains
       class(ComponentGraph), target, intent(in) :: this
       integer, optional, intent(out) :: rc
 
-      type(NodeIdSet) :: producer_ids, state_item_ids
-      type(NodeIdSet) :: allowed_ids
+      type(NodeIdSet), target :: producer_ids, state_item_ids
+      type(NodeIdSet), target :: allowed_ids
       type(NodeIdSet), target :: referenced_ids
       type(NodeIdSetIterator) :: ref_iter
       type(NodeId) :: ref_id
