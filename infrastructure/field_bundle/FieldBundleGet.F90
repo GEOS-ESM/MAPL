@@ -130,7 +130,7 @@ contains
 
       if (present(geom) .and. has_geom) then
          allocate(geom)
-         call get_geom(fieldBundle, geom, rc)
+         call get_geom(fieldBundle, geom, _RC)
       end if
 
       if (present(vgrid)) then
@@ -143,6 +143,7 @@ contains
       end if
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
 
    contains
 
@@ -166,7 +167,6 @@ contains
          _FAIL('unsupported geomtype; needs simple extension')
 
          _RETURN(_SUCCESS)
-         _UNUSED_DUMMY(unusable)
 
       end subroutine get_geom
 

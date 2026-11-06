@@ -81,9 +81,6 @@ contains
 
       if (present(geom)) then
          call esmf_FieldGet(field, status=fstatus, _RC)
-         if (fstatus == ESMF_FIELDSTATUS_EMPTY) then
-            ! no op - already deallocated
-         end if
          if (any(fstatus == [ESMF_FIELDSTATUS_GRIDSET, ESMF_FIELDSTATUS_COMPLETE])) then
             allocate(geom)
             call ESMF_FieldGet(field, geom=geom, _RC)
