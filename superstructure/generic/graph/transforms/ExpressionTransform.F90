@@ -2,7 +2,7 @@
 
 !------------------------------------------------------------------------------
 ! ExpressionTransform: the real Transform (mapl_Transform_mod) built by
-! graphbuilder_run_expression_hook for an EXPRESSION-typed item's own N:1
+! build_expression_evaluation, one per consumer of an EXPRESSION item, N:1
 ! resolution (design.md D1/D2/D4/D5). Deliberately independent of legacy's
 ! EvalTransform/ExtensionTransform interface (initialize/update(this,
 ! importState, exportState, clock, rc),
@@ -36,6 +36,8 @@ module mapl_ExpressionTransform_mod
    use mapl_StateArithmeticParser_mod, only: parser_variables_in_expression, StateEval
    use gFTL2_StringVector, only: StringVector, StringVectorIterator, operator(/=)
    use ESMF, only: ESMF_Field, ESMF_State, ESMF_StateCreate, ESMF_StateAdd, ESMF_StateDestroy
+   use mapl_PortSpec_mod, only: PortSpec
+   use mapl_PortSpecMap_mod, only: PortSpecMap
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -52,6 +54,9 @@ module mapl_ExpressionTransform_mod
       type(StringVector) :: referenced_names
    contains
       procedure :: compute => expression_compute
+      procedure :: is_input_port => expression_is_input_port
+      procedure :: get_input_port => expression_get_input_port
+      procedure :: get_input_ports => expression_get_input_ports
    end type ExpressionTransform
 
    interface ExpressionTransform
@@ -72,24 +77,55 @@ contains
       type(ExpressionTransform) :: transform
 
       integer :: status
-      type(StringVectorIterator) :: iter
-      character(:), pointer :: name
 
       transform%expression = expression
       transform%referenced_names = parser_variables_in_expression(expression, _RC)
 
-      associate (b => transform%referenced_names%begin(), e => transform%referenced_names%end())
-         iter = b
-         do while (iter /= e)
-            name => iter%of()
-            call transform%declare_input_port(name, rc=status)
-            call iter%next()
-         end do
-      end associate
+      ! Input ports are answered from referenced_names, not declared in the
+      ! base port map: gfortran's polymorphic copy of a TransformGraphNode
+      ! leaves a multi-entry gFTL map with dangling internal pointers.
       call transform%declare_output_port(OUTPUT_PORT_NAME, rc=status)
 
       _RETURN(_SUCCESS)
    end function new_ExpressionTransform
+
+   logical function expression_is_input_port(this, name) result(is_port)
+      class(ExpressionTransform), intent(in) :: this
+      character(*), intent(in) :: name
+
+      integer :: i
+
+      is_port = .false.
+      do i = 1, this%referenced_names%size()
+         if (this%referenced_names%of(i) == name) then
+            is_port = .true.
+            return
+         end if
+      end do
+   end function expression_is_input_port
+
+   function expression_get_input_port(this, name, rc) result(spec)
+      class(ExpressionTransform), target, intent(in) :: this
+      character(*), intent(in) :: name
+      integer, optional, intent(out) :: rc
+      type(PortSpec) :: spec
+
+      spec = PortSpec(name)
+      _ASSERT(this%is_input_port(name), 'ExpressionTransform: input port not declared')
+      _RETURN(_SUCCESS)
+   end function expression_get_input_port
+
+   function expression_get_input_ports(this) result(ports)
+      class(ExpressionTransform), intent(in) :: this
+      type(PortSpecMap) :: ports
+
+      integer :: i
+
+      do i = 1, this%referenced_names%size()
+         call ports%insert(this%referenced_names%of(i), &
+              PortSpec(this%referenced_names%of(i)))
+      end do
+   end function expression_get_input_ports
 
    ! design.md D5: assembles this transform's own bound named inputs
    ! into a fresh ESMF_State (one ESMF_StateAdd per referenced name,

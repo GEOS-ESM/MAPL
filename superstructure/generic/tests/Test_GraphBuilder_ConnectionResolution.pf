@@ -61,14 +61,20 @@ module Test_GraphBuilder_ConnectionResolution
    use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
    use mapl_StateItemCharacteristicKind_mod, only: &
-        GEOMETRY_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND
+        GEOMETRY_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+        TYPE_KIND_CHARACTERISTIC_KIND, PHYSICAL_UNITS_CHARACTERISTIC_KIND
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
    use mapl_QuantityType_mod, only: QuantityType, MixingRatioBasis, &
         QUANTITY_MIXING_RATIO, BASIS_WET_MASS, BASIS_DRY_MASS
    use mapl_GraphStateItem_mod, only: GraphStateItem
+   use ESMF, only: ESMF_STATEITEM_NOTFOUND
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
    use mapl_StateItem_mod, only: MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
@@ -103,6 +109,135 @@ module Test_GraphBuilder_ConnectionResolution
    type(FieldDictionaryConfig), save :: saved_fd_config
 
 contains
+
+   subroutine make_expression_fixture(parent_name, import_names, &
+        import_units, import_typekinds, parent_meta, src_meta, dst_meta, rc, &
+        input_typekind, b_typekind, import_ungridded, expression_units, &
+        expression_text)
+      character(*), intent(in) :: parent_name
+      character(*), intent(in) :: import_names(:), import_units(:)
+      type(ESMF_TypeKind_Flag), intent(in) :: import_typekinds(:)
+      type(OuterMetaComponent), pointer, intent(out) :: parent_meta
+      type(OuterMetaComponent), pointer, intent(out) :: src_meta, dst_meta
+      integer, optional, intent(out) :: rc
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: input_typekind
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: b_typekind
+      logical, optional, intent(in) :: import_ungridded
+      character(*), optional, intent(in) :: expression_units
+      character(*), optional, intent(in) :: expression_text
+
+      type(ESMF_GridComp) :: parent_gc, src_gc, dst_gc
+      type(GriddedComponentDriver) :: driver
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(VariableSpec) :: var
+      type(SimpleConnection) :: conn
+      type(GraphBuilder) :: gb
+      integer :: i, status
+
+      call make_outer_meta(parent_name, parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('src', child_spec, _RC)
+      call parent_meta%add_child('dst', child_spec, _RC)
+      driver = parent_meta%get_child('src', _RC)
+      src_gc = driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      driver = parent_meta%get_child('dst', _RC)
+      dst_gc = driver%get_gridcomp()
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      var = make_var(ESMF_STATEINTENT_EXPORT, 'A', units='m')
+      if (present(input_typekind)) var%typekind = input_typekind
+      call src_spec%add_var_spec(var)
+      var = make_var(ESMF_STATEINTENT_EXPORT, 'B', units='m')
+      if (present(b_typekind)) var%typekind = b_typekind
+      call src_spec%add_var_spec(var)
+      var = make_var(ESMF_STATEINTENT_EXPORT, 'expr')
+      if (present(expression_units)) then
+         var%units = expression_units
+      else
+         var%units = 'm'
+      end if
+      var%itemType = MAPL_STATEITEM_EXPRESSION
+      var%expression = 'A + B'
+      if (present(expression_text)) var%expression = expression_text
+      call src_spec%add_var_spec(var)
+
+      dst_spec => dst_meta%get_component_spec()
+      parent_spec => parent_meta%get_component_spec()
+      do i = 1, size(import_names)
+         var = make_var(ESMF_STATEINTENT_IMPORT, import_names(i), &
+              units=import_units(i))
+         var%typekind = import_typekinds(i)
+         if (present(import_ungridded)) then
+            if (import_ungridded) &
+                 var%ungridded_dims = UngriddedDims([5])
+         end if
+         call dst_spec%add_var_spec(var)
+         conn = SimpleConnection( &
+              ConnectionPt('src', VirtualConnectionPt( &
+              state_intent='export', short_name='expr')), &
+              ConnectionPt('dst', VirtualConnectionPt( &
+              state_intent='import', short_name=import_names(i))))
+         call parent_spec%add_connection(conn)
+      end do
+
+      call gb%advertise(src_meta, _RC)
+      call gb%advertise(dst_meta, _RC)
+      _RETURN(_SUCCESS)
+   end subroutine make_expression_fixture
+
+   integer function expression_evaluation_count(graph) result(count)
+      type(ComponentGraph), pointer, intent(in) :: graph
+      type(NodeIdSet), target :: ids
+      type(NodeIdSetIterator) :: iter
+      class(GraphNode), pointer :: node
+
+      count = 0
+      ids = graph%get_node_ids()
+      iter = ids%ftn_begin()
+      do while (iter /= ids%ftn_end())
+         call iter%next()
+         node => graph%get_node(iter%of())
+         select type (node)
+         class is (TransformGraphNode)
+            if (node%is_input_port('A') .and. &
+                 node%is_input_port('B') .and. &
+                 node%is_output_port('destination_field')) count = count + 1
+         end select
+      end do
+   end function expression_evaluation_count
+
+   function sole_predecessor_of(graph, id) result(pred)
+      type(NodeId) :: pred
+      type(ComponentGraph), pointer, intent(in) :: graph
+      type(NodeId), intent(in) :: id
+      type(DependencyNetwork), pointer :: net
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: iter
+
+      net => graph%get_network(graph%get_default_network_id())
+      preds = net%get_predecessors(id)
+      if (preds%size() /= 1) return
+      iter = preds%ftn_begin()
+      call iter%next()
+      pred = iter%of()
+   end function sole_predecessor_of
+
+   function node_descriptor(graph, id) result(descriptor)
+      type(StateItemDescriptor), pointer :: descriptor
+      type(ComponentGraph), pointer, intent(in) :: graph
+      type(NodeId), intent(in) :: id
+      class(GraphNode), pointer :: node
+
+      descriptor => null()
+      node => graph%get_node(id)
+      select type (node)
+      class is (StateItemNode)
+         descriptor => node%get_descriptor()
+      end select
+   end function node_descriptor
 
    @before
    subroutine reset_materialize_extensions_gate(this)
@@ -779,64 +914,23 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_incompatible_ungridded_dims_is_conflict
 
-   ! An EXPRESSION export carries an UNGRIDDED_DIMS entry (empty if none is
-   ! declared), so it conflicts with an import that declares ungridded dims.
-   ! Same conflict shape and message as the FIELD case above.
+   ! Expression evaluation succeeds first; incompatibility is reported
+   ! between its FIELD result and the consumer.
    @test(npes=[0])
    subroutine test_expression_export_ungridded_dims_conflict(this)
       class(MpiTestMethod), intent(inout) :: this
 
-      type(ESMF_GridComp) :: parent_gc
-      type(OuterMetaComponent), pointer :: parent_meta
-      type(OuterMetaComponent), pointer :: src_meta, dst_meta
-      type(GriddedComponentDriver) :: src_driver, dst_driver
-      type(ESMF_GridComp) :: src_gc, dst_gc
-      type(ChildSpec) :: child_spec
-      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
-      type(MatchConnection) :: conn
-      type(GraphResolutionEntryVector) :: unresolved, unsupported, conflicts
-      type(GraphResolutionEntry), pointer :: entry
-      type(VariableSpec) :: export_var_spec, import_var_spec
+       type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+       type(ComponentGraph), pointer :: parent_graph, dst_graph
+       type(GraphResolutionEntryVector) :: unresolved, unsupported, conflicts
+       type(GraphResolutionEntry), pointer :: entry
+       type(NodeId), pointer :: import_id
       integer :: status
       type(GraphBuilder) :: gb
 
-      call make_outer_meta('comp_parent_expr_ungridded_conflict', &
-           parent_gc, parent_meta, _RC)
-      child_spec = ChildSpec()
-      call parent_meta%add_child('child_src', child_spec, _RC)
-      child_spec = ChildSpec()
-      call parent_meta%add_child('child_dst', child_spec, _RC)
-
-      src_driver = parent_meta%get_child('child_src', _RC)
-      dst_driver = parent_meta%get_child('child_dst', _RC)
-      src_gc = src_driver%get_gridcomp()
-      dst_gc = dst_driver%get_gridcomp()
-      src_meta => get_outer_meta(src_gc, _RC)
-      dst_meta => get_outer_meta(dst_gc, _RC)
-
-      src_spec => src_meta%get_component_spec()
-      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='K')
-      export_var_spec%itemType = MAPL_STATEITEM_EXPRESSION
-      export_var_spec%expression = 'A'
-      call src_spec%add_var_spec(export_var_spec)
-
-      dst_spec => dst_meta%get_component_spec()
-      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T', units='K')
-      import_var_spec%ungridded_dims = UngriddedDims([5])
-      call dst_spec%add_var_spec(import_var_spec)
-
-      call gb%advertise(src_meta, status)
-      @assert_that(status, is(0))
-      call gb%advertise(dst_meta, status)
-      @assert_that(status, is(0))
-
-      conn = MatchConnection( &
-           ConnectionPt('child_src', &
-           VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
-           ConnectionPt('child_dst', &
-           VirtualConnectionPt(state_intent='import', short_name='^.*$')))
-      parent_spec => parent_meta%get_component_spec()
-      call parent_spec%add_connection(conn)
+       call make_expression_fixture('expr_ungridded', ['I'], ['m'], &
+             [ESMF_TYPEKIND_R4], parent_meta, src_meta, dst_meta, rc=status, &
+            import_ungridded=.true.)
 
       call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
            unsupported_characteristics=unsupported, &
@@ -847,13 +941,342 @@ contains
       @assertEqual(0, unsupported%size())
       @assertEqual(1, conflicts%size())
       entry => conflicts%at(1, status)
-      @assertEqual('child_dst', entry%component_name)
-      @assertEqual('T', entry%short_name)
+       @assertEqual('dst', entry%component_name)
+       @assertEqual('I', entry%short_name)
       @assertEqual('incompatible UNGRIDDED_DIMS: export ungridded_dims=, ' // &
-           'import ungridded_dims=NONE:5', entry%reason)
+            'import ungridded_dims=NONE:5', entry%reason)
+       parent_graph => parent_meta%get_component_graph()
+       dst_graph => dst_meta%get_component_graph()
+       import_id => dst_graph%get_resource_index( &
+            item_key(ESMF_STATEINTENT_IMPORT, 'I'))
+       @assertEqual(1, expression_evaluation_count(parent_graph))
+       block
+          type(DependencyNetwork), pointer :: net
+          net => parent_graph%get_network( &
+               parent_graph%get_default_network_id())
+          @assertFalse(net%has_predecessors(import_id))
+       end block
 
       _UNUSED_DUMMY(this)
    end subroutine test_expression_export_ungridded_dims_conflict
+
+   @test(npes=[0])
+   subroutine test_expression_connection_builds_evaluation_in_parent(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, sg, dg
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(NodeId), pointer :: expr_id, import_id
+      type(NodeId) :: result_id, transform_id
+      type(DependencyNetwork), pointer :: net
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: payload
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_one', ['I'], ['m'], &
+           [ESMF_TYPEKIND_R4], parent, src, dst, _RC)
+      call gb%resolve_connections(parent, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, unresolved%size())
+      @assertEqual(0, unsupported%size())
+      pg => parent%get_component_graph()
+      sg => src%get_component_graph()
+      dg => dst%get_component_graph()
+      @assertEqual(1, expression_evaluation_count(pg))
+      @assertEqual(0, expression_evaluation_count(sg))
+      import_id => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, &
+           'I'))
+      expr_id => sg%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, &
+           'expr'))
+      result_id = sole_predecessor_of(pg, import_id)
+      transform_id = sole_predecessor_of(pg, result_id)
+      @assertTrue(pg%owns_node(result_id))
+      @assertTrue(pg%owns_node(transform_id))
+      node => pg%get_node(transform_id)
+      select type (node)
+      class is (TransformGraphNode)
+         @assertTrue(node%is_input_port('A'))
+         @assertTrue(node%is_input_port('B'))
+      class default
+         @assertTrue(.false., 'expression predecessor is not a transform')
+      end select
+      net => pg%get_network(pg%get_default_network_id())
+      @assertFalse(net%has_predecessors(expr_id))
+      @assertFalse(net%has_successors(expr_id))
+      node => sg%get_node(expr_id)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+         @assertTrue(payload%itemType(rc=status) == ESMF_STATEITEM_NOTFOUND)
+      end select
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_connection_builds_evaluation_in_parent
+
+   @test(npes=[0])
+   subroutine test_identical_expression_consumers_share_evaluation(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, dg
+      type(NodeId), pointer :: i1, i2
+      type(NodeId) :: result1, result2
+      type(GraphResolutionEntryVector) :: unsupported
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_share', ['I1', 'I2'], &
+           ['m ', 'm '], [ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R4], &
+           parent, src, dst, _RC)
+      call gb%resolve_connections(parent, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, unsupported%size())
+      pg => parent%get_component_graph()
+      @assertEqual(1, expression_evaluation_count(pg))
+      dg => dst%get_component_graph()
+      i1 => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I1'))
+      i2 => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I2'))
+      result1 = sole_predecessor_of(pg, i1)
+      result2 = sole_predecessor_of(pg, i2)
+      @assertTrue(result1%is_valid())
+      @assertTrue(result2%is_valid())
+      @assertTrue(result1 == result2)
+      _UNUSED_DUMMY(this)
+   end subroutine test_identical_expression_consumers_share_evaluation
+
+   @test(npes=[0])
+   subroutine test_expression_r8_consumer_is_unsupported(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, dg
+      type(DependencyNetwork), pointer :: net
+      type(GraphResolutionEntryVector) :: unsupported
+      type(GraphResolutionEntry), pointer :: entry
+      type(NodeId), pointer :: i1, i2
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_split', ['I1', 'I2'], &
+           ['m ', 'm '], [ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8], &
+           parent, src, dst, _RC)
+      call gb%resolve_connections(parent, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(unsupported%size() >= 1)
+      if (unsupported%size() < 1) return
+      entry => unsupported%at(1, status)
+      @assertEqual('dst', entry%component_name)
+      @assertEqual('I2', entry%short_name)
+      @assertTrue(index(entry%reason, 'expression input ') == 1)
+      pg => parent%get_component_graph()
+      dg => dst%get_component_graph()
+      i1 => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I1'))
+      i2 => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I2'))
+      net => pg%get_network(pg%get_default_network_id())
+      @assertEqual(1, expression_evaluation_count(pg))
+      @assertTrue(net%has_predecessors(i1))
+      @assertFalse(net%has_predecessors(i2))
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_r8_consumer_is_unsupported
+
+   @test(npes=[0])
+   subroutine test_expression_resolution_is_idempotent(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg
+      type(ComponentGraph), pointer :: dg
+      type(DependencyNetwork), pointer :: net
+      type(NodeId), pointer :: import_id
+      type(NodeId) :: first_result, second_result
+      type(NodeIdSet), target :: first_ids, second_ids, first_edges, second_edges
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_idempotent', ['I'], ['m'], &
+           [ESMF_TYPEKIND_R4], parent, src, dst, _RC)
+      call gb%resolve_connections(parent, rc=status)
+      @assertEqual(0, status)
+      pg => parent%get_component_graph()
+      @assertEqual(1, expression_evaluation_count(pg))
+      if (expression_evaluation_count(pg) /= 1) return
+      dg => dst%get_component_graph()
+      import_id => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, &
+           'I'))
+      @assertEqual(1, expression_evaluation_count(pg))
+      first_result = sole_predecessor_of(pg, import_id)
+      @assertTrue(first_result%is_valid())
+      first_ids = pg%get_node_ids()
+      net => pg%get_network(pg%get_default_network_id())
+      first_edges = net%get_referenced_ids()
+      call gb%resolve_connections(parent, rc=status)
+      @assertEqual(0, status)
+      second_ids = pg%get_node_ids()
+      second_edges = net%get_referenced_ids()
+      @assertEqual(first_ids%size(), second_ids%size())
+      @assertEqual(first_edges%size(), second_edges%size())
+      @assertEqual(1, expression_evaluation_count(pg))
+      second_result = sole_predecessor_of(pg, import_id)
+      @assertTrue(first_result == second_result)
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_resolution_is_idempotent
+
+   @test(npes=[0])
+   subroutine test_expression_result_units_chain_starts_at_result(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, dg
+      type(NodeId), pointer :: import_id
+      type(NodeId) :: units_result, units_transform, expression_result
+      class(GraphNode), pointer :: node
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_units', ['I'], ['cm'], &
+           [ESMF_TYPEKIND_R4], parent, src, dst, _RC)
+      call gb%resolve_connections(parent, rc=status)
+      @assertEqual(0, status)
+      pg => parent%get_component_graph()
+      @assertEqual(1, expression_evaluation_count(pg))
+      dg => dst%get_component_graph()
+      import_id => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, &
+           'I'))
+      units_result = sole_predecessor_of(pg, import_id)
+      units_transform = sole_predecessor_of(pg, units_result)
+      expression_result = sole_predecessor_of(pg, units_transform)
+      node => pg%get_node(units_transform)
+      select type (node)
+      class is (TransformGraphNode)
+         @assertTrue(node%is_input_port('source_field'))
+         @assertTrue(node%is_output_port('destination_field'))
+         @assertFalse(node%is_input_port('A'))
+      class default
+         @assertTrue(.false., 'units step is not a transform')
+      end select
+      node => pg%get_node(sole_predecessor_of(pg, expression_result))
+      select type (node)
+      class is (TransformGraphNode)
+         @assertTrue(node%is_input_port('A'))
+         @assertTrue(node%is_input_port('B'))
+      class default
+         @assertTrue(.false., 'result producer is not ExpressionTransform')
+      end select
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_result_units_chain_starts_at_result
+
+   @test(npes=[0])
+   subroutine test_expression_result_adopts_consumer_typekind(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, dg
+      type(NodeId), pointer :: import_id
+      type(NodeId) :: result_id
+      type(StateItemDescriptor), pointer :: result_desc
+      class(StateItemCharacteristic), allocatable :: result_c
+      class(GraphNode), pointer :: node
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_adopt', ['I'], ['m'], &
+           [ESMF_TYPEKIND_R8], parent, src, dst, rc=status, &
+           input_typekind=ESMF_TYPEKIND_R8, b_typekind=ESMF_TYPEKIND_R8)
+      call gb%resolve_connections(parent, rc=status)
+      @assertEqual(0, status)
+      pg => parent%get_component_graph()
+      dg => dst%get_component_graph()
+      import_id => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, &
+           'I'))
+      result_id = sole_predecessor_of(pg, import_id)
+      @assertTrue(result_id%is_valid())
+      if (.not. result_id%is_valid()) return
+      node => pg%get_node(sole_predecessor_of(pg, result_id))
+      select type (node)
+      class is (TransformGraphNode)
+         @assertTrue(node%is_input_port('A'))
+         @assertTrue(node%is_input_port('B'))
+      class default
+         @assertTrue(.false., 'result producer is not ExpressionTransform')
+      end select
+      result_desc => node_descriptor(pg, result_id)
+      @assertTrue(associated(result_desc))
+      if (.not. associated(result_desc)) return
+      call result_desc%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
+           result_c, rc=status)
+      @assertEqual('typekind=R8', result_c%get_signature())
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_result_adopts_consumer_typekind
+
+   @test(npes=[0])
+   subroutine test_unitless_expression_result_takes_consumer_units(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, dg
+      type(NodeId), pointer :: import_id
+      type(NodeId) :: result_id
+      class(GraphNode), pointer :: node
+      type(GraphResolutionEntryVector) :: unsupported
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_unitless', ['I'], ['cm'], &
+           [ESMF_TYPEKIND_R4], parent, src, dst, rc=status, &
+           expression_units='<unknown>')
+      call gb%resolve_connections(parent, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, unsupported%size())
+      pg => parent%get_component_graph()
+      @assertEqual(1, expression_evaluation_count(pg))
+      if (expression_evaluation_count(pg) /= 1) return
+      dg => dst%get_component_graph()
+      import_id => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, &
+           'I'))
+      result_id = sole_predecessor_of(pg, import_id)
+      @assertTrue(result_id%is_valid())
+      if (.not. result_id%is_valid()) return
+      node => pg%get_node(sole_predecessor_of(pg, result_id))
+      select type (node)
+      class is (TransformGraphNode)
+         @assertTrue(node%is_input_port('A'))
+         @assertTrue(node%is_input_port('B'))
+         @assertFalse(node%is_input_port('source_field'))
+      class default
+         @assertTrue(.false., 'result producer is not ExpressionTransform')
+      end select
+      _UNUSED_DUMMY(this)
+   end subroutine test_unitless_expression_result_takes_consumer_units
+
+   @test(npes=[0])
+   subroutine test_expression_input_conversion_is_unsupported(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, dg
+      type(DependencyNetwork), pointer :: net
+      type(GraphResolutionEntryVector) :: unsupported
+      type(GraphResolutionEntry), pointer :: entry
+      type(NodeId), pointer :: import_id
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_input_convert', ['I'], ['m'], &
+            [ESMF_TYPEKIND_R4], parent, src, dst, rc=status, &
+           input_typekind=ESMF_TYPEKIND_R8)
+      call gb%resolve_connections(parent, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, unsupported%size())
+      entry => unsupported%at(1, status)
+      @assertEqual('dst', entry%component_name)
+      @assertEqual('I', entry%short_name)
+      @assertEqual('expression input A requires conversion', entry%reason)
+      pg => parent%get_component_graph()
+      dg => dst%get_component_graph()
+      import_id => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, &
+           'I'))
+      net => pg%get_network(pg%get_default_network_id())
+      @assertFalse(net%has_predecessors(import_id))
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_input_conversion_is_unsupported
 
    ! openspec/changes/ordinary-inout-direct-alias - REQ-INOUT-001 direct-
    ! alias case: a destination item declared an ordinary inout borrower
@@ -3123,17 +3546,10 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_resolution_succeeds_with_no_live_var_spec_reference
 
-   ! openspec/changes/phase-7b-expression-dispatch-wiring, tasks.md 9.1
-   ! (design.md D2): a component with one EXPRESSION-typed export
-   ! ('expr', referencing sibling exports 'A'/'B'/'C') advertises, then
-   ! run_expression_hook builds one ExpressionTransform-backed
-   ! TransformGraphNode wired directly off each referenced sibling's own
-   ! NodeId (no connection/resolve_connections involved at all - D2's
-   ! resolution is same-component-local, entirely independent of the
-   ! ordinary MatchConnection/SimpleConnection machinery every other test
-   ! in this file exercises).
+   ! Expression exports stay placeholders. ACCEPT_TRANSFER validates names
+   ! without adding transform or dependency nodes.
    @test(npes=[0])
-   subroutine test_expression_hook_wires_transform_to_sibling_exports(this)
+   subroutine test_expression_hook_leaves_placeholder_untouched(this)
       class(MpiTestMethod), intent(inout) :: this
 
       type(ESMF_GridComp) :: outer_gc
@@ -3143,9 +3559,8 @@ contains
       type(VariableSpec) :: var_spec
       type(GraphResolutionEntryVector) :: unresolved
       type(NodeId), pointer :: a_id, b_id, c_id, expr_id
-      type(NodeId), pointer :: bound_id
-      type(DependencyNetworkId) :: net_id
-      type(DependencyNetwork), pointer :: net
+       type(DependencyNetwork), pointer :: net
+       type(NodeIdSet), target :: before_ids, after_ids
       integer :: status
       type(GraphBuilder) :: gb
 
@@ -3161,14 +3576,17 @@ contains
       var_spec%expression = '(A + B)/C'
       call comp_spec%add_var_spec(var_spec)
 
-      call gb%advertise(outer_meta, status)
-      @assert_that(status, is(0))
+       call gb%advertise(outer_meta, status)
+       @assert_that(status, is(0))
 
-      call gb%run_expression_hook(outer_meta, unresolved=unresolved, rc=status)
+       graph => outer_meta%get_component_graph()
+       before_ids = graph%get_node_ids()
+
+       call gb%run_expression_hook(outer_meta, unresolved=unresolved, rc=status)
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
 
-      graph => outer_meta%get_component_graph()
+       after_ids = graph%get_node_ids()
       a_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'A'))
       b_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'B'))
       c_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'C'))
@@ -3178,53 +3596,14 @@ contains
       @assert_that(associated(c_id), is(true()))
       @assert_that(associated(expr_id), is(true()))
 
-      ! The real transform NodeId: not any of the four StateItemNodes
-      ! above - found by recording it off the resource-index entry the
-      ! hook itself records under 'EXPRHOOK:' // expr_id%to_string()
-      ! (design.md D2 step 6), same idempotency-record read pattern
-      ! the test below (9.2) relies on.
-      block
-         type(NodeId), pointer :: transform_id
-
-         transform_id => graph%get_resource_index('EXPRHOOK:' // expr_id%to_string())
-         @assert_that(associated(transform_id), is(true()))
-
-         net_id = graph%get_default_network_id()
-
-         bound_id => graph%get_port_binding(net_id, transform_id, 'A')
-         @assert_that(associated(bound_id), is(true()))
-         @assert_that(bound_id == a_id, is(true()))
-
-         bound_id => graph%get_port_binding(net_id, transform_id, 'B')
-         @assert_that(associated(bound_id), is(true()))
-         @assert_that(bound_id == b_id, is(true()))
-
-         bound_id => graph%get_port_binding(net_id, transform_id, 'C')
-         @assert_that(associated(bound_id), is(true()))
-         @assert_that(bound_id == c_id, is(true()))
-
-         bound_id => graph%get_port_binding(net_id, transform_id, 'destination_field')
-         @assert_that(associated(bound_id), is(true()))
-         @assert_that(bound_id == expr_id, is(true()))
-
-         net => graph%get_network(net_id)
-         @assert_that(net%contains_dependency(a_id, transform_id), is(true()))
-         @assert_that(net%contains_dependency(b_id, transform_id), is(true()))
-         @assert_that(net%contains_dependency(c_id, transform_id), is(true()))
-         @assert_that(net%contains_dependency(transform_id, expr_id), is(true()))
-      end block
+       @assertEqual(before_ids%size(), after_ids%size())
+       net => graph%get_network(graph%get_default_network_id())
+       @assert_that(net%has_predecessors(expr_id), is(false()))
 
       _UNUSED_DUMMY(this)
-   end subroutine test_expression_hook_wires_transform_to_sibling_exports
+   end subroutine test_expression_hook_leaves_placeholder_untouched
 
-   ! Task 9.2 (design.md D2 step 6): re-running run_expression_hook for
-   ! the same component a second time is a no-op - the idempotency guard
-   ! (the 'EXPRHOOK:' resource-index entry recorded by the first call)
-   ! means no second transform node is registered and no port binding is
-   ! disturbed. Observed indirectly: the transform NodeId recorded under
-   ! that same resource-index key is identical before/after the second
-   ! call (a fresh transform would get a new, different NodeId from
-   ! next_node_id()).
+   ! An expression with no consumer is only name-checked and never evaluated.
    @test(npes=[0])
    subroutine test_expression_hook_is_idempotent(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -3235,9 +3614,7 @@ contains
       type(ComponentGraph), pointer :: graph
       type(VariableSpec) :: var_spec
       type(GraphResolutionEntryVector) :: unresolved
-      type(NodeId), pointer :: expr_id
-      type(NodeId), pointer :: transform_id_first, transform_id_second
-      character(:), allocatable :: hook_key
+       type(NodeIdSet), target :: before_ids, after_ids
       integer :: status
       type(GraphBuilder) :: gb
 
@@ -3251,26 +3628,17 @@ contains
       var_spec%expression = 'A'
       call comp_spec%add_var_spec(var_spec)
 
-      call gb%advertise(outer_meta, status)
-      @assert_that(status, is(0))
+       call gb%advertise(outer_meta, status)
+       @assert_that(status, is(0))
+       graph => outer_meta%get_component_graph()
+       before_ids = graph%get_node_ids()
 
       call gb%run_expression_hook(outer_meta, unresolved=unresolved, rc=status)
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
 
-      graph => outer_meta%get_component_graph()
-      expr_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'expr'))
-      hook_key = 'EXPRHOOK:' // expr_id%to_string()
-      transform_id_first => graph%get_resource_index(hook_key)
-      @assert_that(associated(transform_id_first), is(true()))
-
-      call gb%run_expression_hook(outer_meta, unresolved=unresolved, rc=status)
-      @assert_that(status, is(0))
-      @assertEqual(0, unresolved%size())
-
-      transform_id_second => graph%get_resource_index(hook_key)
-      @assert_that(associated(transform_id_second), is(true()))
-      @assert_that(transform_id_first == transform_id_second, is(true()))
+       after_ids = graph%get_node_ids()
+       @assertEqual(before_ids%size(), after_ids%size())
 
       _UNUSED_DUMMY(this)
    end subroutine test_expression_hook_is_idempotent
@@ -3328,6 +3696,151 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_expression_hook_reports_unresolved_reference
+
+   @test(npes=[0])
+   subroutine test_expression_hook_reports_missing_name_with_consumer(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(GraphResolutionEntryVector) :: unresolved
+      type(GraphResolutionEntry), pointer :: entry
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_missing_consumer', ['I'], ['m'], &
+           [ESMF_TYPEKIND_R4], parent, src, dst, rc=status, &
+           expression_text='MISSING')
+      call gb%run_expression_hook(src, unresolved=unresolved, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, unresolved%size())
+      entry => unresolved%at(1, status)
+      @assertEqual('MISSING', entry%short_name)
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_hook_reports_missing_name_with_consumer
+
+   @test(npes=[0])
+   subroutine test_accept_transfer_fails_for_missing_expression_name(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      call check_accept_transfer_missing_name_is_fatal( &
+           '{validation_mode: permissive}', this)
+   end subroutine test_accept_transfer_fails_for_missing_expression_name
+
+   @test(npes=[0])
+   subroutine test_accept_transfer_missing_name_is_fatal_in_strict_mode(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      call check_accept_transfer_missing_name_is_fatal( &
+           '{validation_mode: strict}', this)
+   end subroutine test_accept_transfer_missing_name_is_fatal_in_strict_mode
+
+   subroutine check_accept_transfer_missing_name_is_fatal(validation, this)
+      character(*), intent(in) :: validation
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(VariableSpec) :: var
+      type(ESMF_State) :: import_state, export_state
+      type(ESMF_Time) :: start_time
+      type(ESMF_TimeInterval) :: timestep
+      type(ESMF_Clock) :: clock
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call use_validation(validation)
+      call make_outer_meta('comp_missing_expression_initialize', outer_gc, &
+           outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+      var = make_var(ESMF_STATEINTENT_EXPORT, 'expr', units='m')
+      var%itemType = MAPL_STATEITEM_EXPRESSION
+      var%expression = 'MISSING'
+      call comp_spec%add_var_spec(var)
+      call gb%advertise(outer_meta, status)
+      @assertEqual(0, status)
+
+      import_state = ESMF_StateCreate(_RC)
+      export_state = ESMF_StateCreate(_RC)
+      call ESMF_TimeSet(start_time, yy=2000, _RC)
+      call ESMF_TimeIntervalSet(timestep, h=1, _RC)
+      clock = ESMF_ClockCreate(timestep=timestep, startTime=start_time, _RC)
+
+      call outer_meta%initialize_accept_transfer(import_state, export_state, &
+           clock, rc=status)
+      @assertExceptionRaised('GraphBuilder: expression expr references missing item MISSING')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine check_accept_transfer_missing_name_is_fatal
+
+   @test(npes=[0])
+   subroutine test_expression_hook_reports_nested_expression(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      call check_invalid_expression_reference('other', 'expr', .true., &
+           'expression references expression item', this)
+   end subroutine test_expression_hook_reports_nested_expression
+
+   @test(npes=[0])
+   subroutine test_expression_hook_reports_self_reference(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      call check_invalid_expression_reference('A', 'A', .false., &
+           'expression references itself', this)
+   end subroutine test_expression_hook_reports_self_reference
+
+   @test(npes=[0])
+   subroutine test_expression_hook_reports_empty_expression(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      call check_invalid_expression_reference('', 'expr', .false., &
+           'expression is empty', this)
+   end subroutine test_expression_hook_reports_empty_expression
+
+   subroutine check_invalid_expression_reference(expression, item_name, &
+        add_other, expected_reason, this)
+      character(*), intent(in) :: expression, item_name, expected_reason
+      logical, intent(in) :: add_other
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(VariableSpec) :: var_spec
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_invalid_expression', outer_gc, outer_meta, &
+           _RC)
+      comp_spec => outer_meta%get_component_spec()
+      if (add_other) then
+         call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, &
+              'A', units='m'))
+         var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'other', units='m')
+         var_spec%itemType = MAPL_STATEITEM_EXPRESSION
+         var_spec%expression = 'A'
+         call comp_spec%add_var_spec(var_spec)
+      end if
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, item_name, units='m')
+      var_spec%itemType = MAPL_STATEITEM_EXPRESSION
+      var_spec%expression = expression
+      call comp_spec%add_var_spec(var_spec)
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+      call gb%run_expression_hook(outer_meta, unresolved=unresolved, &
+           unsupported=unsupported, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      @assertEqual(1, unsupported%size())
+      entry => unsupported%at(1, status)
+      @assertEqual(item_name, entry%short_name)
+      @assertEqual(expected_reason, entry%reason)
+
+      _UNUSED_DUMMY(this)
+   end subroutine check_invalid_expression_reference
 
    ! A SERVICE import, which no ancestor connection could resolve, is
    ! excluded from the unresolved-import scan (is_ordinary_resolvable_import).

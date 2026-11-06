@@ -474,7 +474,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
          changing registry-mode expectations.
       Split (owner): 3.23a B3-ExpressionPlaceholder, then 3.23b
       B3-ExpressionPerConsumer, each test-first.
-      - [ ] 3.23a B3-ExpressionPlaceholder: the export becomes a
+      - [x] 3.23a B3-ExpressionPlaceholder: the export becomes a
         placeholder (no edges, never materialized); the hook becomes the
         names check (missing, nested, self, empty); a connect-time
         expression path builds one evaluation per consumer, in the
@@ -482,6 +482,25 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
         on a second `resolve_connections`; `check_graph` `expression:`
         form; existing `expression`/`expression_match` scenarios keep
         passing (expectation changes go to the owner first).
+        Owner (2026-11-05): a problem the hook finds (missing name, nested
+        expression, self-reference, empty expression) fails the
+        component's initialize, in both validation modes: the production
+        call passes the report vectors and fails on a non-empty one
+        (legacy fails at registry time on a missing name). A positive
+        "consumers differing in precision get two evaluations" test is
+        3.23b, since 3.23a reports any input conversion unsupported.
+        Unit-less result (owner, 2026-11-05): structural only: no units
+        step, and the field created for the result carries the import's
+        units; the result's descriptor keeps units UNCHECKED.
+        Status: done. Hook = names check (missing -> unresolved; nested,
+        self, empty -> unsupported), fatal via
+        `fail_on_expression_reports` in ACCEPT_TRANSFER. Connect-time
+        `build_expression_evaluation` (key `EXPREVAL:`) in the connecting
+        graph; result then resolved as an ordinary pair. Allowlist kinds
+        via `StateItemDescriptor%get_consumer_adopted_kinds`.
+        `ExpressionTransform` overrides the input-port queries (gfortran
+        polymorphic-copy defect with multi-entry port maps). No scenario
+        expectation changes beyond the test author's `check_graph` entry.
       - [ ] 3.23b B3-ExpressionPerConsumer: inputs converted per answers
         1-4 (precision steps on inputs, no units steps on inputs), sharing
         by the allowlist kinds (answer 2), result's own units then ordinary

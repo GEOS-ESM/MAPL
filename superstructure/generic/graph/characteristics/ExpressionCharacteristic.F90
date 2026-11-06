@@ -4,8 +4,9 @@
 ! ExpressionCharacteristic: the "expression" StateItemCharacteristic, a
 ! ValueCharacteristic holding the declared expression string of an EXPRESSION
 ! item. It is descriptive only and never compared: needs_extension_for is
-! always false, so a connection never needs a step for it. Evaluation stays
-! `run_expression_hook`'s job; this characteristic only carries the string.
+! always false, so a connection never needs a step for it. Evaluation is
+! built per consumer at connect time; this characteristic only carries the
+! string.
 !
 ! No Info key: write_info succeeds and writes nothing (design.md Expression
 ! row, §3.4).

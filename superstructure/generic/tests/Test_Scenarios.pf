@@ -25,6 +25,7 @@ module Test_Scenarios
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_PortSpecMap_mod, only: PortSpecMap
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_FieldGet_mod, only: FieldGet
    use mapl_Generic_api, only: mapl_GridCompCreate, &
@@ -575,7 +576,7 @@ contains
          character(len=16), allocatable :: found(:), expected(:)
          type(ESMF_HConfig) :: chain, step
          character(len=16) :: kind
-         logical :: wired, ok
+         logical :: wired, ok, is_expression
          integer, parameter :: MAX_CHAIN = 16
 
          rc = 0
@@ -597,6 +598,12 @@ contains
             wired = ESMF_HConfigAsLogical(connection, keyString='wired', _RC)
          end if
 
+         is_expression = .false.
+         if (ESMF_HConfigIsDefined(connection, keyString='expression')) then
+            is_expression = ESMF_HConfigAsLogical(connection, &
+                 keyString='expression', _RC)
+         end if
+
          if (.not. wired) then
             @assert_that(msg // ' :: no edge', net%contains_dependency(export_id, import_id), is(false()))
             @assert_that(msg // ' :: import has no predecessor', net%has_predecessors(import_id), is(false()))
@@ -616,6 +623,11 @@ contains
          end if
 
          allocate(found(0))
+         if (is_expression) then
+            call check_expression_connection(connection, export_id, &
+                 import_id, msg, _RC)
+            return
+         end if
          if (.not. net%contains_dependency(export_id, import_id)) then
             ! import <- final item <- transform <- item ... <- export
             cur = import_id
@@ -652,6 +664,131 @@ contains
          end if
          rc = 0
       end subroutine check_connection
+
+      subroutine check_expression_connection(connection, export_id, &
+           import_id, msg, rc)
+          type(ESMF_HConfig), intent(in) :: connection
+          type(NodeId), intent(in) :: export_id, import_id
+          character(*), intent(in) :: msg
+          integer, intent(out) :: rc
+
+          type(NodeId) :: result_id, expression_transform_id, bound_id
+          type(NodeId) :: transform_id, previous
+          type(NodeId), pointer :: binding
+          type(NodeIdSet), target :: preds
+          type(NodeIdSetIterator) :: pred_iter
+          type(ESMF_HConfig) :: inputs, input_steps, step
+          type(ESMF_HConfigIter) :: iter, begin_iter, end_iter
+          character(:), allocatable :: input_name, export_path, source_comp
+          character(:), allocatable :: expected_kind
+          character(len=16) :: actual_kind
+          class(GraphNode), pointer :: node
+          logical :: ok
+          integer :: slash, n, status
+          type(PortSpecMap) :: input_ports
+
+          rc = 0
+          result_id = sole_predecessor(import_id, ok)
+          @assertTrue(ok, msg // ' :: import has exactly one predecessor')
+          if (.not. ok) return
+          if (ESMF_HConfigIsDefined(connection, keyString='chain')) then
+             input_steps = ESMF_HConfigCreateAt(connection, &
+                  keyString='chain', _RC)
+             do n = ESMF_HConfigGetSize(input_steps), 1, -1
+                transform_id = sole_predecessor(result_id, ok)
+                @assertTrue(ok, msg // ' :: result chain predecessor')
+                if (.not. ok) return
+                @assertTrue(is_transform(transform_id), msg // &
+                     ' :: result chain predecessor is transform')
+                if (.not. is_transform(transform_id)) return
+                previous = sole_predecessor(transform_id, ok)
+                @assertTrue(ok, msg // ' :: result transform has one input')
+                if (.not. ok) return
+                step = ESMF_HConfigCreateAt(input_steps, index=n, _RC)
+                expected_kind = ESMF_HConfigAsString(step, _RC)
+                actual_kind = step_kind(previous, result_id, _RC)
+                @assertEqual(expected_kind, trim(actual_kind))
+                result_id = previous
+             end do
+          end if
+
+          @assertFalse(result_id == export_id, &
+               msg // ' :: evaluation result is not expression placeholder')
+          preds = net%get_predecessors(result_id)
+          @assertEqual(1, preds%size(), &
+               msg // ' :: result has exactly one producer')
+          if (preds%size() /= 1) return
+          pred_iter = preds%ftn_begin()
+          call pred_iter%next()
+          expression_transform_id = pred_iter%of()
+          node => root_graph%get_node(expression_transform_id)
+          select type (transform_node => node)
+          class is (TransformGraphNode)
+             @assertTrue(transform_node%is_output_port( &
+                  'destination_field'), msg // ' :: expression output port')
+             inputs = ESMF_HConfigCreateAt(connection, &
+                  keyString='inputs', _RC)
+             input_ports = transform_node%get_input_ports()
+             @assertEqual(ESMF_HConfigGetSize(inputs), input_ports%size(), &
+                  msg // ' :: exact expression input count')
+             begin_iter = ESMF_HConfigIterBegin(inputs, _RC)
+             end_iter = ESMF_HConfigIterEnd(inputs, _RC)
+             iter = begin_iter
+             export_path = ESMF_HConfigAsString(connection, &
+                  keyString='export', _RC)
+             slash = index(export_path, '/', back=.true.)
+             source_comp = export_path(:slash-1)
+             do while (ESMF_HConfigIterLoop(iter, begin_iter, end_iter))
+                input_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+                @assertTrue(transform_node%is_input_port(input_name), &
+                     msg // ' :: expression input ' // input_name)
+                binding => root_graph%get_port_binding( &
+                     root_graph%get_default_network_id(), &
+                     expression_transform_id, input_name)
+                @assertTrue(associated(binding), msg // &
+                     ' :: expression input is bound: ' // input_name)
+                if (.not. associated(binding)) cycle
+                bound_id = binding
+                input_steps = ESMF_HConfigCreateAtMapVal(iter, _RC)
+                do n = ESMF_HConfigGetSize(input_steps), 1, -1
+                   transform_id = sole_predecessor(bound_id, ok)
+                   @assertTrue(ok, msg // ' :: input chain predecessor')
+                   if (.not. ok) return
+                   @assertTrue(is_transform(transform_id), msg // &
+                        ' :: input chain predecessor is transform')
+                   if (.not. is_transform(transform_id)) return
+                   previous = sole_predecessor(transform_id, ok)
+                   @assertTrue(ok, msg // &
+                        ' :: input transform has one input')
+                   if (.not. ok) return
+                   step = ESMF_HConfigCreateAt(input_steps, index=n, _RC)
+                   expected_kind = ESMF_HConfigAsString(step, _RC)
+                   actual_kind = step_kind(previous, bound_id, _RC)
+                   @assertEqual(expected_kind, trim(actual_kind))
+                   bound_id = previous
+                end do
+                binding => resolve(source_comp // '/' // input_name, &
+                     ESMF_STATEINTENT_EXPORT, _RC)
+                @assertTrue(associated(binding), msg // &
+                     ' :: expression source resolved: ' // input_name)
+                if (associated(binding)) then
+                   @assertTrue(bound_id == binding, msg // &
+                        ' :: input chain reaches ' // input_name)
+                end if
+             end do
+          class default
+             @assertTrue(.false., msg // &
+                  ' :: result producer is an ExpressionTransform')
+             return
+          end select
+
+          @assertFalse(net%has_predecessors(export_id), &
+               msg // ' :: expression placeholder has no predecessor')
+          @assertFalse(net%has_successors(export_id), &
+               msg // ' :: expression placeholder has no successor')
+          rc = 0
+
+      end subroutine check_expression_connection
 
       function resolve(path, intent, rc) result(id)
          type(NodeId), pointer :: id

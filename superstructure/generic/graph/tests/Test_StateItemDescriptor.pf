@@ -12,9 +12,9 @@ module Test_StateItemDescriptor
         VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
         HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND, &
         RESTART_MODE_CHARACTERISTIC_KIND, CONSERVATION_CHARACTERISTIC_KIND, &
-        NORMALIZATION_CHARACTERISTIC_KIND, StateItemCharacteristicKind, &
-        EXPRESSION_CHARACTERISTIC_KIND, &
-        MOCK_CHARACTERISTIC_KIND
+         NORMALIZATION_CHARACTERISTIC_KIND, StateItemCharacteristicKind, &
+         EXPRESSION_CHARACTERISTIC_KIND, &
+         MOCK_CHARACTERISTIC_KIND, operator(==)
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED, CharacteristicStatus, operator(==)
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
@@ -88,6 +88,25 @@ module Test_StateItemDescriptor
    end type NoWriteCharacteristic
 
 contains
+
+   @test
+   subroutine test_expression_consumer_adopted_kinds_come_from_descriptor()
+      type(StateItemDescriptor) :: item
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+      integer :: status
+
+      call item%set_declared_item_type(MAPL_STATEITEM_EXPRESSION)
+      call item%get_consumer_adopted_kinds(kinds, rc=status)
+
+      @assertEqual(0, status)
+      if (status /= 0) return
+      @assertEqual(5, size(kinds))
+      @assertTrue(any(kinds == GEOMETRY_CHARACTERISTIC_KIND))
+      @assertTrue(any(kinds == VERTICAL_GRID_CHARACTERISTIC_KIND))
+      @assertTrue(any(kinds == VERTICAL_STAGGER_CHARACTERISTIC_KIND))
+      @assertTrue(any(kinds == VERTICAL_ORIENTATION_CHARACTERISTIC_KIND))
+      @assertTrue(any(kinds == TYPE_KIND_CHARACTERISTIC_KIND))
+   end subroutine test_expression_consumer_adopted_kinds_come_from_descriptor
 
    function no_write_get_kind() result(kind)
       type(StateItemCharacteristicKind) :: kind

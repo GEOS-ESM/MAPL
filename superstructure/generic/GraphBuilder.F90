@@ -449,11 +449,13 @@ module mapl_GraphBuilder_mod
    ! Implemented in GraphBuilder_ConnectionResolution_smod.F90; declared
    ! here only to sit with the other per-hook interfaces. unresolved
    ! (optional) reports an expression's referenced name with no matching
-   ! sibling export; a miss is reported, not a hard failure.
-   module subroutine graphbuilder_run_expression_hook(this, unusable, unresolved, rc)
+   ! sibling export; unsupported reports nested, self, and empty expressions.
+   module subroutine graphbuilder_run_expression_hook(this, unusable, &
+        unresolved, unsupported, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
       type(GraphResolutionEntryVector), optional, intent(out) :: unresolved
+      type(GraphResolutionEntryVector), optional, intent(out) :: unsupported
       integer, optional, intent(out) :: rc
 
    end subroutine graphbuilder_run_expression_hook

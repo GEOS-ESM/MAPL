@@ -9,6 +9,8 @@ submodule (mapl_OuterMetaComponent_mod) initialize_accept_transfer_smod
    use mapl_ConnectionVector_mod, only: operator(/=)
    use mapl_GraphBuilder_mod, only: GraphBuilder
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_GRAPH
+   use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
+   use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
    use mapl_ErrorHandling_mod
    implicit none(type,external)
 
@@ -28,6 +30,8 @@ contains
       type(OuterMetaComponent), pointer :: provider_meta
       integer :: status
       type(GraphBuilder) :: gb
+      type(GraphResolutionEntryVector) :: expression_unresolved
+      type(GraphResolutionEntryVector) :: expression_unsupported
 
 !#      call this%propagate_geom_to_children(_RC)
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_ACCEPT_TRANSFER, _RC)
@@ -45,15 +49,13 @@ contains
       ! accept-transfer step (real edges + freeze) by this point, making
       ! cross-boundary proxy/lookup reads well-defined.
       call gb%run_connect_hook(this)
-      ! D7: after run_connect_hook (every same-component sibling export
-      ! is guaranteed already advertised by this point - connect_hook's
-      ! own ordinary wiring has already run) and before propagate_exports
-      ! (an EXPRESSION item's own resolution is same-component-local,
-      ! design.md D2 step 3 - it has no dependency on anything
-      ! propagate_exports does). Not placed in initialize_advertise.F90:
-      ! that phase runs before sibling exports exist at all, too early
-      ! for find_export_node_id to see them.
-      call gb%run_expression_hook(this)
+      ! After run_connect_hook (sibling exports are advertised) and before
+      ! propagate_exports. A problem in an expression is fatal in every
+      ! validation mode.
+      call gb%run_expression_hook(this, unresolved=expression_unresolved, &
+           unsupported=expression_unsupported, _RC)
+      call fail_on_expression_reports(expression_unresolved, &
+           expression_unsupported, _RC)
       call this%registry%propagate_exports(_RC)
 
       user_states = this%user_gc_driver%get_states()
@@ -86,6 +88,40 @@ contains
       _UNUSED_DUMMY(unusable)
 
    end subroutine initialize_accept_transfer
+
+   ! Fails with every problem the expression hook reported, one message
+   ! per problem.
+   subroutine fail_on_expression_reports(unresolved, unsupported, rc)
+      type(GraphResolutionEntryVector), target, intent(in) :: unresolved
+      type(GraphResolutionEntryVector), target, intent(in) :: unsupported
+      integer, optional, intent(out) :: rc
+
+      character(:), allocatable :: message
+      type(GraphResolutionEntry), pointer :: entry
+      integer :: i
+
+      message = ''
+      do i = 1, unresolved%size()
+         entry => unresolved%of(i)
+         call append('GraphBuilder: ' // entry%reason)
+      end do
+      do i = 1, unsupported%size()
+         entry => unsupported%of(i)
+         call append('GraphBuilder: expression ' // entry%short_name // &
+              ': ' // entry%reason)
+      end do
+      if (message /= '') then
+         _FAIL(message)
+      end if
+
+      _RETURN(_SUCCESS)
+   contains
+      subroutine append(text)
+         character(*), intent(in) :: text
+         if (message /= '') message = message // new_line('a')
+         message = message // text
+      end subroutine append
+   end subroutine fail_on_expression_reports
 
    subroutine process_connections(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this

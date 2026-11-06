@@ -59,6 +59,13 @@ module mapl_StateItemDescriptor_mod
       type(StateItemCharacteristicKind) :: kind
    end type MirroredExportAllowance
 
+   type(MirroredExportAllowance), parameter :: ALLOWLIST(*) = [ &
+           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, GEOMETRY_CHARACTERISTIC_KIND), &
+           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, VERTICAL_GRID_CHARACTERISTIC_KIND), &
+           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, VERTICAL_STAGGER_CHARACTERISTIC_KIND), &
+           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND), &
+           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, TYPE_KIND_CHARACTERISTIC_KIND)]
+
    type :: StateItemDescriptor
       private
       type(StateItemCharacteristicMap) :: characteristics
@@ -79,9 +86,29 @@ module mapl_StateItemDescriptor_mod
       procedure :: sync_per_alias_to_info => descriptor_sync_per_alias_to_info
       procedure :: get_declared_item_type => descriptor_get_declared_item_type
       procedure :: set_declared_item_type => descriptor_set_declared_item_type
+      procedure :: get_consumer_adopted_kinds => &
+           descriptor_get_consumer_adopted_kinds
    end type StateItemDescriptor
 
 contains
+
+   ! The kinds an export of this item type takes from each consumer
+   ! (the MIRRORED-export allowlist entries for the declared item type).
+   subroutine descriptor_get_consumer_adopted_kinds(this, kinds, rc)
+      class(StateItemDescriptor), intent(in) :: this
+      type(StateItemCharacteristicKind), allocatable, intent(out) :: kinds(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: i
+
+      allocate(kinds(0))
+      do i = 1, size(ALLOWLIST)
+         if (ALLOWLIST(i)%item_type == this%get_declared_item_type()) then
+            kinds = [kinds, ALLOWLIST(i)%kind]
+         end if
+      end do
+      _RETURN(_SUCCESS)
+   end subroutine descriptor_get_consumer_adopted_kinds
 
    ! -- characteristics (REQ-CHAR-007/008/010) --
 
@@ -148,12 +175,6 @@ contains
       type(ESMF_StateItem_Flag), intent(in) :: export_item_type
       type(StateItemCharacteristicKind), intent(in) :: kind
 
-      type(MirroredExportAllowance), parameter :: ALLOWLIST(*) = [ &
-           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, GEOMETRY_CHARACTERISTIC_KIND), &
-           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, VERTICAL_GRID_CHARACTERISTIC_KIND), &
-           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, VERTICAL_STAGGER_CHARACTERISTIC_KIND), &
-           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND), &
-           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, TYPE_KIND_CHARACTERISTIC_KIND)]
       integer :: i
 
       allowed = .false.

@@ -216,9 +216,17 @@ evaluated per consumer, as in legacy, with these rules:
   vertical grid), evaluate on that native grid and transform only the
   result to each consumer.
 
-Today's single evaluation into the export (`run_expression_hook`) is
-correct only for consumers that agree with it on everything.
-B3-ExpressionPerConsumer implements the rules above. Until it lands, an
+Landed structure (3.23a, B3-ExpressionPlaceholder): the export is a
+placeholder; `run_expression_hook` is the names check, and a problem it
+finds fails ACCEPT_TRANSFER in every validation mode. `resolve_one_pair`
+builds one evaluation per consumer in the connecting graph (key
+`EXPREVAL:`), takes the consumer's values for the kinds listed by
+`StateItemDescriptor%get_consumer_adopted_kinds`, and reports an input
+that would need conversion as unsupported. `ExpressionTransform` answers
+its input ports from its referenced names instead of the base port map
+(gfortran's polymorphic copy breaks a multi-entry port map).
+B3-ExpressionPerConsumer (3.23b) adds input conversion and sharing by the
+allowlist kinds. Until it lands, an
 EXPRESSION export with MIRRORED geometry connected to an import with a
 different geometry stays a known gap (`expression_defer_geom`, masked by
 M3; it stays pending until C1 provides regridding).
