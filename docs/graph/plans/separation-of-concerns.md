@@ -1598,6 +1598,39 @@ lands. Candidate for outsourcing (mechanical, off the critical path).
 Label `D4-NagDangling`.
 - **Status:** not started
 
+**D5. Allocatable function results always allocated.** Owner rule
+(2026-11-05): a function with an allocatable result allocates it on every
+path (allocate at the top, or use a subroutine with intent(out));
+polymorphic results: deallocate between two assignments (gfortran). The
+ifx crash at `GraphBuilder_Freeze_smod` ~184 (`node%get_short_name()` on
+a nameless node) is one case. Sites: survey of 2026-11-05 (meta's
+reports, `allocatable-results-survey.md`). Two tasks (owner, 2026-11-06):
+- `D5-AllocatableResults-A` (main line, after 3.23b lands and
+  D4-NagDangling is in; before B4): sites unallocated on a normal path.
+  `StateItemNode%get_short_name` allocates `''` and gains
+  `has_short_name()`; callers that test `allocated()` use it
+  (`GraphBuilder_Freeze_smod`, `GraphBuilder_Geometry_smod`,
+  `ComponentGraph`); callers that assume a name (notably
+  `GraphBuilder_LifecycleHooks_smod` ~168, which loops over all nodes) skip
+  or handle nameless nodes. Same treatment for
+  `ComponentGraph%get_export_port_name`, `qualify_exported_name`,
+  `effective_source_name` (`GraphBuilder_ConnectionResolution_smod`),
+  `ItemShapeCharacteristic` `bundle_type_of` (add `case default`), the
+  four `RouteHandleKey` getters, and the test helpers that return
+  unallocated names.
+  - **Status:** not started
+- `D5-AllocatableResults-B` (outsourceable; legacy files only): about 25
+  functions unallocated only on an error path (`_RC`/`_ASSERT`/`_FAIL`
+  before the first allocation): `FieldDictionary` getters, `MAPL_Generic`
+  and `OuterMetaComponent` name/checkpoint-dir getters, `StateRegistry`
+  `get_specs`, `get_aspect_order` in the spec classes, vertical-grid
+  factories, `make_ClassAspect`, `GeomAspect`/`ConservationAspect`
+  `make_transform`. Eight results are polymorphic. No behavior change.
+  - **Status:** not started
+
+Both apply the owner's rule only; other ifx problems go to the owner
+(he leads ifx porting).
+
 ### Phase E - closing
 
 **E1. Full test run with Intel on bucy.** Runs last, after every other
@@ -1744,6 +1777,8 @@ it may author D1/A4/B5 with sonnet review.
 | D2 | sonnet | opus | lifecycle-phase ordering |
 | D3-cleanup | sonnet | - | items are small and independent |
 | D4-NagDangling | sonnet | - | mechanical; outsourceable |
+| D5-AllocatableResults-A | sonnet | sonnet | main line after 3.23b and D4, before B4; callers' "absent" tests change |
+| D5-AllocatableResults-B | volunteer | sonnet | outsourceable; legacy error-path sites, 8 polymorphic |
 | E1-intel | sonnet | - | run and classify only; remote build on bucy |
 | E1-early | volunteer | meta (report check) | outsourced; run and classify only, current HEAD, ifx-stack on bucy |
 
