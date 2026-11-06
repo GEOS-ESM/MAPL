@@ -225,11 +225,25 @@ builds one evaluation per consumer in the connecting graph (key
 that would need conversion as unsupported. `ExpressionTransform` answers
 its input ports from its referenced names instead of the base port map
 (gfortran's polymorphic copy breaks a multi-entry port map).
-B3-ExpressionPerConsumer (3.23b) adds input conversion and sharing by the
-allowlist kinds. Until it lands, an
-EXPRESSION export with MIRRORED geometry connected to an import with a
-different geometry stays a known gap (`expression_defer_geom`, masked by
-M3; it stays pending until C1 provides regridding).
+B3-ExpressionPerConsumer (3.23b): the result's value for an adopted kind
+is a SPECIFIED value declared on the expression, else the consumer's
+(unless MIRRORED), else the expression's own; precision is always the
+consumer's, so a declared `typekind:` on an expression has no effect
+(the allowlist's `declared_wins` flag). A mismatch between the result and
+its consumer is then an ordinary step. Each input reaches the result's
+adopted-kind values through an ordinary extension chain whose goal holds
+only those kinds (so inputs keep their own units and dimensions; never a
+units step on an input). All input chains are built before the transform
+and result node, so a failing input leaves no evaluation. Precision gets
+real steps; geometry, vertical grid, stagger and orientation differences
+are unsupported (kind name, also kept for the strict freeze check); an
+incompatible outcome is a connection conflict. A DEFERRED adopted value
+on the consumer or an input builds nothing and waits. Extension nodes
+carry a descriptor: the export's characteristics with the import's values
+for the kinds converted so far. An EXPRESSION export with MIRRORED
+geometry connected to an import with a different geometry stays a known
+gap (`expression_defer_geom`, masked by M3; pending until C1 provides
+regridding).
 
 #### §2.5 Non-comparing characteristics
 

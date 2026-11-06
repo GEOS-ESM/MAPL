@@ -501,7 +501,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
         `ExpressionTransform` overrides the input-port queries (gfortran
         polymorphic-copy defect with multi-entry port maps). No scenario
         expectation changes beyond the test author's `check_graph` entry.
-      - [ ] 3.23b B3-ExpressionPerConsumer: inputs converted per answers
+      - [x] 3.23b B3-ExpressionPerConsumer: inputs converted per answers
         1-4 (precision steps on inputs, no units steps on inputs), sharing
         by the allowlist kinds (answer 2), result's own units then ordinary
         steps to each consumer, stagger from the consumer when the
@@ -518,6 +518,32 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
         unsupported with a note. (4) An incompatible adopted kind on an
         input is a connection conflict. (5) Unsupported expression
         inputs also feed `note_unsupported_pair` (strict freeze).
+        Status: done. Each input reaches
+        the result's adopted-kind values through an ordinary extension
+        chain (`find_or_build_extension_chain`, goal = only the adopted
+        kinds the input has), built and materialized before the transform
+        and result node; precision gets real steps, other adopted kinds
+        report their kind name as unsupported (and `note_unsupported_pair`),
+        an incompatible outcome goes to `conflicts`. Never a units step on
+        an input. A DEFERRED adopted value on the consumer or an input
+        builds nothing and waits. The allowlist gained `declared_wins`
+        (`get_consumer_adopted_kinds(..., declared_wins=)`): a SPECIFIED
+        value declared on the expression wins except typekind.
+        Generic change: `build_chain` now gives every extension node a
+        descriptor (the export's characteristics with the import's values
+        for the kinds converted so far); the tests read it. Unit-less
+        inputs: chain materialization accepts empty units
+        (`allow_unitless`). An input status conflict is reported
+        unsupported without `note_unsupported_pair`, as an ordinary
+        pair's status conflict is.
+        `expression_per_consumer_r8` (pending) still fails in registry
+        mode at the legacy coupler ("unsupported itemType").
+        Quiet-INCOMPATIBLE adopted-kind input test waived: no adopted
+        kind's build_transform returns INCOMPATIBLE; VerticalGrid's
+        incompatible path _FAILs.
+        The unit-less materialization test needed an ESMF geom id on its
+        raw geom (fixture fix, owner): geometry compares geom objects by
+        that id, as legacy GeomAspect does.
 - [ ] 3.24 B3-ExpressionNativeGrid (optimization, after 3.23; owner
       request). If all inputs share one geometry (or vertical grid),
       evaluate on that native grid and transform only the result to each

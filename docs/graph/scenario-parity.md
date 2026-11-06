@@ -218,6 +218,7 @@ checklist for switching legacy off.
 
 | Item | Legacy | Graph | Found by |
 |------|--------|-------|----------|
+| R4 expression inputs with an R8 consumer (`expression_per_consumer_r8`) | orders TYPEKIND before CLASS (`specs/ExpressionClassAspect.F90:119-124`); precision coupler fails on the expression item (`transforms/CouplerMetaComponent.F90:588`). Import couplers run in every mode, blocking this scenario even in graph mode; no legacy fix | converts each input to consumer precision before evaluation, then converts result units. Scenario stays pending and graph-only until legacy couplers stop running in graph mode | 3.23b B3-ExpressionPerConsumer |
 | `geometry_mirror` / `vertical_grid_mirror` on an item, at the GEOM_A push | `make_GeomAspect` / `make_VerticalGridAspect` ignore the request; the component geom / vertical grid is pushed and the aspect becomes SPECIFIED, so a connection to an export on another grid regrids | item stays MIRRORED and adopts the exporter's geometry at connection (no regrid) | 3.39 (dropped) |
 | EXPRESSION export with no geometry and no mirror flag, at the GEOM_A push | gets the component geom / vertical grid (SPECIFIED) | stays MIRRORED (design §5) | 3.39 preflight; revisit with 3.12/3.23 |
 | `long_name` undeclared on an export or internal | none; an import inherits the export's in `connect_to_export` | falls back to the field dictionary, then the StandardName (deliberate, A8) | 3.13 |

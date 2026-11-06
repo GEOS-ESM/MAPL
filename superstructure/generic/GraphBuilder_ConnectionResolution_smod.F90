@@ -15,8 +15,9 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use mapl_ExpressionTransform_mod, only: ExpressionTransform
    use mapl_ExtensionResolution_mod, only: find_or_build_extension_chain, materialize_extensions_enabled
    use mapl_StateItemDescriptor_mod, only: resolve_descriptors, &
-        resolve_pair, PAIR_EXTEND
+        resolve_characteristics
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_MIRRORED, &
+        CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED, &
         operator(==)
    use mapl_StateItemCharacteristic_mod, only: &
         StateItemCharacteristicMapIterator, operator(/=)
@@ -290,7 +291,7 @@ contains
          type(StateItemDescriptor), pointer :: dst_descriptor
          character(:), allocatable :: status_conflict
          type(StringVector) :: match_warnings
-         logical :: is_evaluation, evaluated
+         logical :: is_evaluation, evaluated, expression_strict
          character(:), allocatable :: expression_problem
 
          ! A callback interface and inout borrower intent are mutually exclusive
@@ -364,11 +365,23 @@ contains
          if (is_evaluation) then
             call build_expression_evaluation(this, this_graph, net_id, &
                  src_pt%component_name, export_node, import_item, &
-                 export_node_id, evaluated, expression_problem, _RC)
+                 export_node_id, evaluated, expression_problem, &
+                 incompatible_pair, waiting, expression_strict, _RC)
+            if (incompatible_pair /= '') then
+               call conflicts%push_back(GraphResolutionEntry( &
+                    dst_pt%component_name, dst_node%get_short_name(), &
+                    incompatible_pair))
+               _RETURN(_SUCCESS)
+            end if
             if (expression_problem /= '') then
                call unsupported%push_back(GraphResolutionEntry( &
                     dst_pt%component_name, dst_node%get_short_name(), &
                     expression_problem))
+               if (expression_strict) then
+                  call this%note_unsupported_pair(dst_pt%component_name // &
+                       ':' // dst_node%get_short_name() // ':' // &
+                       expression_problem)
+               end if
                _RETURN(_SUCCESS)
             end if
             _RETURN_UNLESS(evaluated)
@@ -1550,7 +1563,8 @@ contains
    ! find_or_build_extension_chain was called with (intermediate_node_ids is
    ! parallel to it).
    subroutine materialize_extension_chain(this, export_comp_name, export_item, import_item, &
-        mismatched_kinds, intermediate_node_ids, graph, failure_reason, rc)
+        mismatched_kinds, intermediate_node_ids, graph, failure_reason, rc, &
+        allow_unitless)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: export_comp_name
       type(StateItemDescriptor), intent(in) :: export_item
@@ -1560,6 +1574,8 @@ contains
       type(ComponentGraph), target, intent(inout) :: graph
       character(:), allocatable, intent(out) :: failure_reason
       integer, optional, intent(out) :: rc
+      ! An expression input may be unit-less; its links keep empty units.
+      logical, optional, intent(in) :: allow_unitless
 
       integer :: status
       integer :: i
@@ -1572,6 +1588,7 @@ contains
       type(ESMF_TypeKind_Flag) :: link_typekind
       character(:), allocatable :: import_units
       type(UngriddedDims) :: export_ungridded_dims
+      logical :: unitless_ok, units_known
 
       failure_reason = ''
 
@@ -1587,7 +1604,10 @@ contains
          _RETURN(_SUCCESS)
       end if
       import_units = get_item_units(import_item, _RC)
-      _ASSERT(import_units /= '', 'GraphBuilder: materialize_extension_chain reached with no import units - internal inconsistency')
+      unitless_ok = .false.
+      if (present(allow_unitless)) unitless_ok = allow_unitless
+      units_known = unitless_ok .or. import_units /= ''
+      _ASSERT(units_known, 'GraphBuilder: materialize_extension_chain reached with no import units - internal inconsistency')
 
       export_meta => component_for(this, export_comp_name, _RC)
 
@@ -1851,13 +1871,17 @@ contains
    ! One evaluation of export_node's expression for a consumer described
    ! by import_item, built in `graph` (the connecting graph): a result node
    ! fed by an ExpressionTransform whose inputs are the referenced sibling
-   ! exports. The result copies the expression's characteristics and takes
-   ! the consumer-adopted kinds from the consumer. Consumers whose results
-   ! agree on those kinds share one evaluation (EXPREVAL: key).
+   ! exports, each through its own extension chain to the result's
+   ! consumer-adopted kinds. Consumers whose results agree on those kinds
+   ! share one evaluation (EXPREVAL: key). All input chains are built before
+   ! the transform, so a failing input leaves no partial evaluation.
    ! `evaluated` is false when the names are invalid (the expression hook
-   ! reports those) or when `problem` is set.
+   ! reports those), when a side is DEFERRED (`waiting`), or when `problem`
+   ! or `conflict` is set. `strict` marks a `problem` that is an
+   ! unsupported kind (kept for the freeze check).
    subroutine build_expression_evaluation(this, graph, net_id, src_comp, &
-        export_node, import_item, result_id, evaluated, problem, rc)
+        export_node, import_item, result_id, evaluated, problem, conflict, &
+        waiting, strict, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ComponentGraph), target, intent(inout) :: graph
       type(DependencyNetworkId), intent(in) :: net_id
@@ -1867,17 +1891,25 @@ contains
       type(NodeId), intent(out) :: result_id
       logical, intent(out) :: evaluated
       character(:), allocatable, intent(out) :: problem
+      character(:), allocatable, intent(out) :: conflict
+      logical, intent(inout) :: waiting
+      logical, intent(out) :: strict
       integer, optional, intent(out) :: rc
 
       integer :: status, i, k
       type(StateItemDescriptor), pointer :: export_desc, input_desc, stored
       type(StateItemCharacteristicKind), allocatable :: kinds(:)
-      class(StateItemCharacteristic), allocatable :: c, input_c
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(StateItemCharacteristicKind), allocatable :: adopted(:)
+      logical, allocatable :: declared_wins(:)
+      class(StateItemCharacteristic), allocatable :: c
       character(:), allocatable :: key, expression, item_name
+      character(:), allocatable :: status_conflict, unsupported_kind
       type(NodeId), pointer :: existing
       type(StringVector) :: names
       character(:), pointer :: name
-      type(NodeId), allocatable :: input_ids(:)
+      type(NodeId), allocatable :: input_ids(:), bound_ids(:)
+      type(NodeId), allocatable :: intermediates(:)
       type(NodeId) :: input_id, transform_id, export_id
       class(StateItemNode), pointer :: input_node
       type(ExpressionTransform) :: transformer
@@ -1885,21 +1917,29 @@ contains
       type(NodeRevision) :: empty_revision
       type(StateItemCharacteristicMap), target :: export_map
       type(StateItemCharacteristicMapIterator) :: iter
-      logical :: found, has, needs_conversion
+      logical :: found, has, input_waiting
       character(:), allocatable :: failure
       type(ESMF_StateItem_Flag) :: input_type
 
       evaluated = .false.
       problem = ''
+      conflict = ''
+      strict = .false.
       item_name = export_node%get_short_name()
       export_desc => export_node%get_descriptor()
-      call export_desc%get_consumer_adopted_kinds(kinds, _RC)
+      call export_desc%get_consumer_adopted_kinds(kinds, &
+           declared_wins=declared_wins, _RC)
 
       export_id = export_node%get_node_id()
       key = 'EXPREVAL:' // export_id%to_string()
       do k = 1, size(kinds)
-         call result_characteristic(kinds(k), c, has, _RC)
-         if (has) key = key // ':' // c%get_signature()
+         call result_characteristic(k, c, has, _RC)
+         if (.not. has) cycle
+         if (c%get_status() == CHARACTERISTIC_STATUS_DEFERRED) then
+            waiting = .true.
+            _RETURN(_SUCCESS)
+         end if
+         key = key // ':' // c%get_signature()
       end do
       existing => graph%get_resource_index(key)
       if (associated(existing)) then
@@ -1911,7 +1951,7 @@ contains
       call get_item_expression(export_desc, expression, _RC)
       _RETURN_IF(len_trim(expression) == 0)
       names = parser_variables_in_expression(expression, _RC)
-      allocate(input_ids(names%size()))
+      allocate(input_ids(names%size()), bound_ids(names%size()))
       do i = 1, names%size()
          name => names%of(i)
          _RETURN_IF(name == item_name)
@@ -1922,19 +1962,28 @@ contains
          input_type = input_desc%get_declared_item_type()
          _RETURN_IF(input_type == MAPL_STATEITEM_EXPRESSION)
          input_ids(i) = input_id
-         do k = 1, size(kinds)
-            if (.not. input_desc%has_characteristic(kinds(k))) cycle
-            call result_characteristic(kinds(k), c, has, _RC)
-            if (.not. has) cycle
-            if (allocated(input_c)) deallocate(input_c)
-            call input_desc%get_characteristic(kinds(k), input_c, _RC)
-            needs_conversion = &
-                 resolve_pair(input_c, c, input_type) == PAIR_EXTEND
-            if (needs_conversion) then
-               problem = 'expression input ' // name // ' requires conversion'
-               _RETURN(_SUCCESS)
-            end if
-         end do
+      end do
+
+      ! Every input settled and comparable before anything is built.
+      do i = 1, names%size()
+         input_desc => mutable_descriptor(graph, input_ids(i), _RC)
+         block
+            type(StateItemDescriptor) :: goal
+            call input_goal(input_desc, goal, _RC)
+            call resolve_characteristics(input_desc%get_characteristics(), &
+                 goal%get_characteristics(), &
+                 input_desc%get_declared_item_type(), mismatched, adopted, &
+                 status_conflict, rc=status, waiting=input_waiting)
+            _VERIFY(status)
+         end block
+         if (input_waiting) then
+            waiting = .true.
+            _RETURN(_SUCCESS)
+         end if
+         if (status_conflict /= '') then
+            problem = status_conflict
+            _RETURN(_SUCCESS)
+         end if
       end do
 
       ! Inputs need real fields for the transform to compute.
@@ -1954,6 +2003,41 @@ contains
          end do
       end if
 
+      do i = 1, names%size()
+         input_desc => mutable_descriptor(graph, input_ids(i), _RC)
+         bound_ids(i) = input_ids(i)
+         block
+            type(StateItemDescriptor) :: goal, full_goal
+            call input_goal(input_desc, goal, _RC)
+            call resolve_characteristics(input_desc%get_characteristics(), &
+                 goal%get_characteristics(), &
+                 input_desc%get_declared_item_type(), mismatched, adopted, &
+                 status_conflict, _RC)
+            if (size(mismatched) == 0) cycle
+            call find_or_build_extension_chain(graph, net_id, input_ids(i), &
+                 input_desc%get_characteristics(), goal%get_characteristics(), &
+                 mismatched, bound_ids(i), intermediates, unsupported_kind, &
+                 conflict=conflict, _RC)
+            _RETURN_IF(conflict /= '')
+            if (unsupported_kind /= '') then
+               problem = unsupported_kind
+               strict = .true.
+               _RETURN(_SUCCESS)
+            end if
+            if (size(intermediates) == 0) cycle
+            if (materialize_extensions_enabled()) then
+               call input_goal(input_desc, full_goal, full=.true., _RC)
+               call materialize_extension_chain(this, src_comp, input_desc, &
+                    full_goal, mismatched, intermediates, graph, failure, &
+                    allow_unitless=.true., _RC)
+               if (failure /= '') then
+                  problem = failure
+                  _RETURN(_SUCCESS)
+               end if
+            end if
+         end block
+      end do
+
       transformer = ExpressionTransform(expression, _RC)
       transform_id = graph%next_node_id(_RC)
       call graph%register_node(TransformGraphNode(transform_id, transformer), _RC)
@@ -1972,14 +2056,14 @@ contains
          call stored%set_characteristic(iter%first(), iter%second(), _RC)
       end do
       do k = 1, size(kinds)
-         call result_characteristic(kinds(k), c, has, _RC)
+         call result_characteristic(k, c, has, _RC)
          if (has) call stored%set_characteristic(kinds(k), c, _RC)
       end do
 
       do i = 1, names%size()
          name => names%of(i)
-         call graph%bind_port(net_id, transform_id, name, input_ids(i), _RC)
-         call graph%add_dependency(net_id, input_ids(i), transform_id, _RC)
+         call graph%bind_port(net_id, transform_id, name, bound_ids(i), _RC)
+         call graph%add_dependency(net_id, bound_ids(i), transform_id, _RC)
       end do
       call graph%bind_port(net_id, transform_id, 'destination_field', &
            result_id, _RC)
@@ -1990,10 +2074,11 @@ contains
       _RETURN(_SUCCESS)
    contains
 
-      ! The result's value for an adopted kind: the consumer's, unless the
-      ! consumer mirrors it; else the expression's own.
-      subroutine result_characteristic(kind, value, has, rc)
-         type(StateItemCharacteristicKind), intent(in) :: kind
+      ! The result's value for adopted kind kinds(k): a SPECIFIED value
+      ! declared on the expression where the kind lets it win; else the
+      ! consumer's unless it mirrors; else the expression's own.
+      subroutine result_characteristic(k, value, has, rc)
+         integer, intent(in) :: k
          class(StateItemCharacteristic), allocatable, intent(out) :: value
          logical, intent(out) :: has
          integer, optional, intent(out) :: rc
@@ -2001,20 +2086,63 @@ contains
          integer :: status
 
          has = .false.
-         if (import_item%has_characteristic(kind)) then
-            call import_item%get_characteristic(kind, value, _RC)
+         if (declared_wins(k) .and. &
+              export_desc%has_characteristic(kinds(k))) then
+            call export_desc%get_characteristic(kinds(k), value, _RC)
+            has = value%get_status() == CHARACTERISTIC_STATUS_SPECIFIED
+            if (has) then
+               _RETURN(_SUCCESS)
+            end if
+            deallocate(value)
+         end if
+         if (import_item%has_characteristic(kinds(k))) then
+            call import_item%get_characteristic(kinds(k), value, _RC)
             has = .not. (value%get_status() == CHARACTERISTIC_STATUS_MIRRORED)
             if (has) then
                _RETURN(_SUCCESS)
             end if
             deallocate(value)
          end if
-         if (export_desc%has_characteristic(kind)) then
-            call export_desc%get_characteristic(kind, value, _RC)
+         if (export_desc%has_characteristic(kinds(k))) then
+            call export_desc%get_characteristic(kinds(k), value, _RC)
             has = .true.
          end if
          _RETURN(_SUCCESS)
       end subroutine result_characteristic
+
+      ! What an input must become: the result's value for each adopted kind
+      ! the input has. With `full`, also the input's other entries (for
+      ! materialization), so units and dimensions stay the input's own.
+      subroutine input_goal(input, goal, rc, full)
+         type(StateItemDescriptor), target, intent(in) :: input
+         type(StateItemDescriptor), intent(inout) :: goal
+         integer, optional, intent(out) :: rc
+         logical, optional, intent(in) :: full
+
+         integer :: status, j
+         type(StateItemCharacteristicKind), allocatable :: present_kinds(:)
+         class(StateItemCharacteristic), allocatable :: value
+         logical :: has_value
+
+         call goal%set_declared_item_type(input%get_declared_item_type())
+         if (present(full)) then
+            if (full) then
+               ! Entry by entry: no copy of the polymorphic map.
+               call input%get_kinds(present_kinds)
+               do j = 1, size(present_kinds)
+                  call input%get_characteristic(present_kinds(j), value, _RC)
+                  call goal%set_characteristic(present_kinds(j), value, _RC)
+                  deallocate(value)
+               end do
+            end if
+         end if
+         do j = 1, size(kinds)
+            if (.not. input%has_characteristic(kinds(j))) cycle
+            call result_characteristic(j, value, has_value, _RC)
+            if (has_value) call goal%set_characteristic(kinds(j), value, _RC)
+         end do
+         _RETURN(_SUCCESS)
+      end subroutine input_goal
 
    end subroutine build_expression_evaluation
 

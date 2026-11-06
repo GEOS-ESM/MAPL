@@ -71,6 +71,15 @@ module Test_GraphBuilder_ConnectionResolution
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
+   use mapl_VerticalStaggerCharacteristic_mod, only: &
+        VerticalStaggerCharacteristic
+   use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        VERTICAL_STAGGER_CHARACTERISTIC_KIND, EXPRESSION_CHARACTERISTIC_KIND
+   use mapl_CharacteristicStatus_mod, only: &
+        CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_MIRRORED
+   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_EDGE
+   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_INVALID
    use mapl_QuantityType_mod, only: QuantityType, MixingRatioBasis, &
         QUANTITY_MIXING_RATIO, BASIS_WET_MASS, BASIS_DRY_MASS
    use mapl_GraphStateItem_mod, only: GraphStateItem
@@ -238,6 +247,83 @@ contains
          descriptor => node%get_descriptor()
       end select
    end function node_descriptor
+
+   subroutine set_expression_characteristic(meta, intent, name, value)
+      type(OuterMetaComponent), pointer, intent(in) :: meta
+      type(ESMF_StateIntent_Flag), intent(in) :: intent
+      character(*), intent(in) :: name
+      class(StateItemCharacteristic), intent(in) :: value
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: id
+      type(StateItemDescriptor), pointer :: descriptor
+      integer :: status
+
+      graph => meta%get_component_graph()
+      id => graph%get_resource_index(item_key(intent, name))
+      descriptor => node_descriptor(graph, id)
+      call descriptor%set_characteristic(value%get_kind(), value, rc=status)
+      @assertEqual(0, status)
+   end subroutine set_expression_characteristic
+
+   subroutine assert_expression_input(graph, source_graph, result_id, &
+        name, typekind, converted, expected_units)
+      type(ComponentGraph), pointer, intent(in) :: graph, source_graph
+      type(NodeId), intent(in) :: result_id
+      character(*), intent(in) :: name, typekind
+      logical, intent(in) :: converted
+      character(*), optional, intent(in) :: expected_units
+      type(NodeId) :: transform_id, previous, converter
+      type(NodeId), pointer :: bound, source
+      type(StateItemDescriptor), pointer :: descriptor
+      class(StateItemCharacteristic), allocatable :: value
+      class(GraphNode), pointer :: node
+      integer :: status
+
+      transform_id = sole_predecessor_of(graph, result_id)
+      @assertTrue(transform_id%is_valid())
+      if (.not. transform_id%is_valid()) return
+      bound => graph%get_port_binding(graph%get_default_network_id(), &
+           transform_id, name)
+      @assertTrue(associated(bound))
+      if (.not. associated(bound)) return
+      source => source_graph%get_resource_index( &
+           item_key(ESMF_STATEINTENT_EXPORT, name))
+      previous = bound
+      if (converted) then
+         @assertTrue(graph%owns_node(bound))
+         converter = sole_predecessor_of(graph, bound)
+         @assertTrue(converter%is_valid())
+         if (.not. converter%is_valid()) return
+         @assertTrue(graph%owns_node(converter))
+         node => graph%get_node(converter)
+         select type (node)
+         class is (TransformGraphNode)
+            @assertTrue(node%is_input_port('source_field'))
+            @assertTrue(node%is_output_port('destination_field'))
+         class default
+            @assertTrue(.false., 'input converter is not a transform')
+            return
+         end select
+         previous = sole_predecessor_of(graph, converter)
+      end if
+      @assertTrue(previous == source)
+      descriptor => node_descriptor(graph, bound)
+      @assertTrue(associated(descriptor))
+      if (.not. associated(descriptor)) return
+      call descriptor%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
+           value, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('typekind=' // typekind, value%get_signature())
+      deallocate(value)
+      call descriptor%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           value, rc=status)
+      @assertEqual(0, status)
+      if (present(expected_units)) then
+         @assertEqual('units=' // expected_units, value%get_signature())
+      else
+         @assertEqual('units=m', value%get_signature())
+      end if
+   end subroutine assert_expression_input
 
    @before
    subroutine reset_materialize_extensions_gate(this)
@@ -1046,14 +1132,14 @@ contains
    end subroutine test_identical_expression_consumers_share_evaluation
 
    @test(npes=[0])
-   subroutine test_expression_r8_consumer_is_unsupported(this)
+   subroutine test_expression_precision_consumers_get_two_evaluations(this)
       class(MpiTestMethod), intent(inout) :: this
       type(OuterMetaComponent), pointer :: parent, src, dst
-      type(ComponentGraph), pointer :: pg, dg
+      type(ComponentGraph), pointer :: pg, dg, sg
       type(DependencyNetwork), pointer :: net
       type(GraphResolutionEntryVector) :: unsupported
-      type(GraphResolutionEntry), pointer :: entry
       type(NodeId), pointer :: i1, i2
+      type(NodeId) :: result1, result2
       integer :: status
       type(GraphBuilder) :: gb
 
@@ -1063,22 +1149,26 @@ contains
       call gb%resolve_connections(parent, &
            unsupported_characteristics=unsupported, rc=status)
       @assertEqual(0, status)
-      @assertTrue(unsupported%size() >= 1)
-      if (unsupported%size() < 1) return
-      entry => unsupported%at(1, status)
-      @assertEqual('dst', entry%component_name)
-      @assertEqual('I2', entry%short_name)
-      @assertTrue(index(entry%reason, 'expression input ') == 1)
+      @assertEqual(0, unsupported%size())
       pg => parent%get_component_graph()
       dg => dst%get_component_graph()
+      sg => src%get_component_graph()
       i1 => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I1'))
       i2 => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I2'))
       net => pg%get_network(pg%get_default_network_id())
-      @assertEqual(1, expression_evaluation_count(pg))
+      @assertEqual(2, expression_evaluation_count(pg))
       @assertTrue(net%has_predecessors(i1))
-      @assertFalse(net%has_predecessors(i2))
+      @assertTrue(net%has_predecessors(i2))
+      if (.not. net%has_predecessors(i2)) return
+      result1 = sole_predecessor_of(pg, i1)
+      result2 = sole_predecessor_of(pg, i2)
+      @assertFalse(result1 == result2)
+      call assert_expression_input(pg, sg, result1, 'A', 'R4', .false.)
+      call assert_expression_input(pg, sg, result1, 'B', 'R4', .false.)
+      call assert_expression_input(pg, sg, result2, 'A', 'R8', .true.)
+      call assert_expression_input(pg, sg, result2, 'B', 'R8', .true.)
       _UNUSED_DUMMY(this)
-   end subroutine test_expression_r8_consumer_is_unsupported
+   end subroutine test_expression_precision_consumers_get_two_evaluations
 
    @test(npes=[0])
    subroutine test_expression_resolution_is_idempotent(this)
@@ -1247,14 +1337,14 @@ contains
    end subroutine test_unitless_expression_result_takes_consumer_units
 
    @test(npes=[0])
-   subroutine test_expression_input_conversion_is_unsupported(this)
+   subroutine test_expression_input_precision_converts_down(this)
       class(MpiTestMethod), intent(inout) :: this
       type(OuterMetaComponent), pointer :: parent, src, dst
-      type(ComponentGraph), pointer :: pg, dg
+      type(ComponentGraph), pointer :: pg, dg, sg
       type(DependencyNetwork), pointer :: net
       type(GraphResolutionEntryVector) :: unsupported
-      type(GraphResolutionEntry), pointer :: entry
       type(NodeId), pointer :: import_id
+      type(NodeId) :: result_id
       integer :: status
       type(GraphBuilder) :: gb
 
@@ -1264,19 +1354,504 @@ contains
       call gb%resolve_connections(parent, &
            unsupported_characteristics=unsupported, rc=status)
       @assertEqual(0, status)
-      @assertEqual(1, unsupported%size())
-      entry => unsupported%at(1, status)
-      @assertEqual('dst', entry%component_name)
-      @assertEqual('I', entry%short_name)
-      @assertEqual('expression input A requires conversion', entry%reason)
+      @assertEqual(0, unsupported%size())
       pg => parent%get_component_graph()
       dg => dst%get_component_graph()
+      sg => src%get_component_graph()
       import_id => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, &
            'I'))
       net => pg%get_network(pg%get_default_network_id())
+      @assertTrue(net%has_predecessors(import_id))
+      if (.not. net%has_predecessors(import_id)) return
+      result_id = sole_predecessor_of(pg, import_id)
+      call assert_expression_input(pg, sg, result_id, 'A', 'R4', .true.)
+      call assert_expression_input(pg, sg, result_id, 'B', 'R4', .false.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_input_precision_converts_down
+
+   @test(npes=[0])
+   subroutine test_expression_units_consumers_share_evaluation(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, dg
+      type(NodeId), pointer :: i1, i2
+      type(NodeId) :: result1, result2, units_result, units_transform
+      type(GraphResolutionEntryVector) :: unsupported
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_units_share', ['I1', 'I2'], &
+           ['m ', 'cm'], [ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R4], &
+           parent, src, dst, _RC)
+      call gb%resolve_connections(parent, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, unsupported%size())
+      pg => parent%get_component_graph()
+      dg => dst%get_component_graph()
+      @assertEqual(1, expression_evaluation_count(pg))
+      i1 => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I1'))
+      i2 => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I2'))
+      result1 = sole_predecessor_of(pg, i1)
+      units_result = sole_predecessor_of(pg, i2)
+      units_transform = sole_predecessor_of(pg, units_result)
+      result2 = sole_predecessor_of(pg, units_transform)
+      @assertTrue(result1%is_valid())
+      @assertTrue(result2%is_valid())
+      @assertTrue(result1 == result2)
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_units_consumers_share_evaluation
+
+   @test(npes=[0])
+   subroutine test_expression_three_consumers_share_by_precision(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, dg
+      type(NodeId), pointer :: i1, i2, i3
+      type(NodeId) :: r1, r2, r3
+      type(GraphResolutionEntryVector) :: unsupported
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_three', ['I1', 'I2', 'I3'], &
+           ['m', 'm', 'm'], &
+           [ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8], &
+           parent, src, dst, _RC)
+      call gb%resolve_connections(parent, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, unsupported%size())
+      pg => parent%get_component_graph()
+      dg => dst%get_component_graph()
+      @assertEqual(2, expression_evaluation_count(pg))
+      i1 => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I1'))
+      i2 => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I2'))
+      i3 => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I3'))
+      r1 = sole_predecessor_of(pg, i1)
+      r2 = sole_predecessor_of(pg, i2)
+      r3 = sole_predecessor_of(pg, i3)
+      @assertTrue(r1%is_valid())
+      @assertTrue(r2%is_valid())
+      @assertTrue(r3%is_valid())
+      @assertTrue(r1 == r2)
+      @assertFalse(r1 == r3)
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_three_consumers_share_by_precision
+
+   @test(npes=[0])
+   subroutine test_expression_converted_inputs_are_reused(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, dg, sg
+      type(NodeId), pointer :: i1, i2
+      type(NodeId) :: result1, result2
+      type(NodeIdSet), target :: before_ids, after_ids
+      type(GraphResolutionEntryVector) :: unsupported
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_reuse_inputs', ['I1', 'I2'], &
+           ['m', 'm'], [ESMF_TYPEKIND_R8, ESMF_TYPEKIND_R8], &
+           parent, src, dst, _RC)
+      call gb%resolve_connections(parent, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, unsupported%size())
+      pg => parent%get_component_graph()
+      dg => dst%get_component_graph()
+      sg => src%get_component_graph()
+      @assertEqual(1, expression_evaluation_count(pg))
+      if (expression_evaluation_count(pg) /= 1) return
+      i1 => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I1'))
+      i2 => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I2'))
+      result1 = sole_predecessor_of(pg, i1)
+      result2 = sole_predecessor_of(pg, i2)
+      @assertTrue(result1 == result2)
+      call assert_expression_input(pg, sg, result1, 'A', 'R8', .true.)
+      call assert_expression_input(pg, sg, result1, 'B', 'R8', .true.)
+      before_ids = pg%get_node_ids()
+      call gb%resolve_connections(parent, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, unsupported%size())
+      after_ids = pg%get_node_ids()
+      @assertEqual(before_ids%size(), after_ids%size())
+      @assertEqual(1, expression_evaluation_count(pg))
+      result2 = sole_predecessor_of(pg, i2)
+      @assertTrue(result1 == result2)
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_converted_inputs_are_reused
+
+   @test(npes=[0])
+   subroutine test_expression_precision_precedes_result_units(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, sg, dg
+      type(NodeId), pointer :: import_id
+      type(NodeId) :: units_result, units_transform, result_id
+      type(StateItemDescriptor), pointer :: descriptor
+      class(StateItemCharacteristic), allocatable :: value
+      type(GraphResolutionEntryVector) :: unsupported
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_precision_units', ['I'], ['cm'], &
+           [ESMF_TYPEKIND_R8], parent, src, dst, _RC)
+      call gb%resolve_connections(parent, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, unsupported%size())
+      pg => parent%get_component_graph()
+      sg => src%get_component_graph()
+      dg => dst%get_component_graph()
+      @assertEqual(1, expression_evaluation_count(pg))
+      if (expression_evaluation_count(pg) /= 1) return
+      import_id => dg%get_resource_index( &
+           item_key(ESMF_STATEINTENT_IMPORT, 'I'))
+      units_result = sole_predecessor_of(pg, import_id)
+      units_transform = sole_predecessor_of(pg, units_result)
+      result_id = sole_predecessor_of(pg, units_transform)
+      @assertTrue(result_id%is_valid())
+      if (.not. result_id%is_valid()) return
+      descriptor => node_descriptor(pg, units_result)
+      @assertTrue(associated(descriptor))
+      if (.not. associated(descriptor)) return
+      call descriptor%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           value, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('units=cm', value%get_signature())
+      deallocate(value)
+      call descriptor%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
+           value, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('typekind=R8', value%get_signature())
+      deallocate(value)
+      descriptor => node_descriptor(pg, result_id)
+      @assertTrue(associated(descriptor))
+      if (.not. associated(descriptor)) return
+      call descriptor%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           value, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('units=m', value%get_signature())
+      call assert_expression_input(pg, sg, result_id, 'A', 'R8', .true.)
+      call assert_expression_input(pg, sg, result_id, 'B', 'R8', .true.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_precision_precedes_result_units
+
+   @test(npes=[0])
+   subroutine test_expression_inputs_keep_own_units_and_dimensions(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, sg, dg
+      type(NodeId), pointer :: import_id
+      type(NodeId) :: result_id
+      type(GraphResolutionEntryVector) :: unsupported, conflicts
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_input_metadata', ['I'], ['m'], &
+           [ESMF_TYPEKIND_R8], parent, src, dst, _RC)
+      call set_expression_characteristic(src, ESMF_STATEINTENT_EXPORT, &
+           'A', PhysicalUnitsCharacteristic('km'))
+      call set_expression_characteristic(src, ESMF_STATEINTENT_EXPORT, &
+           'A', UngriddedDimsCharacteristic(UngriddedDims([5])))
+      call gb%resolve_connections(parent, &
+           unsupported_characteristics=unsupported, &
+           connection_conflicts=conflicts, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, unsupported%size())
+      @assertEqual(0, conflicts%size())
+      pg => parent%get_component_graph()
+      sg => src%get_component_graph()
+      dg => dst%get_component_graph()
+      import_id => dg%get_resource_index( &
+           item_key(ESMF_STATEINTENT_IMPORT, 'I'))
+      result_id = sole_predecessor_of(pg, import_id)
+      @assertTrue(result_id%is_valid())
+      if (.not. result_id%is_valid()) return
+      call assert_expression_input(pg, sg, result_id, 'A', 'R8', .true., &
+           expected_units='km')
+      call assert_expression_input(pg, sg, result_id, 'B', 'R8', .true.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_inputs_keep_own_units_and_dimensions
+
+   @test(npes=[0])
+   subroutine test_expression_declared_precision_is_ignored(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, dg
+      type(NodeId), pointer :: import_id
+      type(StateItemDescriptor), pointer :: descriptor
+      class(StateItemCharacteristic), allocatable :: value
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_declared_precision', ['I'], ['m'], &
+           [ESMF_TYPEKIND_R4], parent, src, dst, _RC)
+      call set_expression_characteristic(src, ESMF_STATEINTENT_EXPORT, &
+           'expr', TypeKindCharacteristic('R8'))
+      call gb%resolve_connections(parent, rc=status)
+      @assertEqual(0, status)
+      pg => parent%get_component_graph()
+      dg => dst%get_component_graph()
+      import_id => dg%get_resource_index( &
+           item_key(ESMF_STATEINTENT_IMPORT, 'I'))
+      descriptor => node_descriptor(pg, sole_predecessor_of(pg, import_id))
+      @assertTrue(associated(descriptor))
+      if (.not. associated(descriptor)) return
+      call descriptor%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
+           value, rc=status)
+      @assertEqual('typekind=R4', value%get_signature())
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_declared_precision_is_ignored
+
+   @test(npes=[0])
+   subroutine test_expression_input_stagger_is_unsupported(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, dg
+      type(DependencyNetwork), pointer :: net
+      type(NodeId), pointer :: import_id
+      type(GraphResolutionEntryVector) :: unsupported, conflicts
+      type(GraphResolutionEntry), pointer :: entry
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_input_stagger', ['I'], ['m'], &
+           [ESMF_TYPEKIND_R4], parent, src, dst, _RC)
+      call set_expression_characteristic(src, ESMF_STATEINTENT_EXPORT, &
+           'A', VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER))
+      call gb%resolve_connections(parent, &
+           unsupported_characteristics=unsupported, &
+           connection_conflicts=conflicts, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, conflicts%size())
+      @assertEqual(1, unsupported%size())
+      if (unsupported%size() /= 1) return
+      entry => unsupported%at(1, status)
+      @assertEqual('dst', entry%component_name)
+      @assertEqual('I', entry%short_name)
+      @assertEqual('VERTICAL_STAGGER', entry%reason)
+      pg => parent%get_component_graph()
+      dg => dst%get_component_graph()
+      import_id => dg%get_resource_index( &
+           item_key(ESMF_STATEINTENT_IMPORT, 'I'))
+      net => pg%get_network(pg%get_default_network_id())
+      @assertFalse(net%has_predecessors(import_id))
+      @assertEqual(0, expression_evaluation_count(pg))
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_input_stagger_is_unsupported
+
+   @test(npes=[0])
+   subroutine test_expression_partial_input_failure_has_no_evaluation(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, dg
+      type(DependencyNetwork), pointer :: net
+      type(NodeId), pointer :: import_id
+      type(NodeIdSet), target :: ids
+      type(NodeIdSetIterator) :: iter
+      type(StateItemDescriptor), pointer :: descriptor
+      type(GraphResolutionEntryVector) :: unsupported
+      type(GraphResolutionEntry), pointer :: entry
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_partial_inputs', ['I'], ['m'], &
+           [ESMF_TYPEKIND_R8], parent, src, dst, _RC)
+      call set_expression_characteristic(src, ESMF_STATEINTENT_EXPORT, &
+           'B', GeometryCharacteristic(geom_id='2'))
+      call gb%resolve_connections(parent, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, unsupported%size())
+      if (unsupported%size() /= 1) return
+      entry => unsupported%at(1, status)
+      @assertEqual('GEOMETRY', entry%reason)
+      pg => parent%get_component_graph()
+      dg => dst%get_component_graph()
+      import_id => dg%get_resource_index( &
+           item_key(ESMF_STATEINTENT_IMPORT, 'I'))
+      net => pg%get_network(pg%get_default_network_id())
+      @assertFalse(net%has_predecessors(import_id))
+      @assertEqual(0, expression_evaluation_count(pg))
+      ids = pg%get_node_ids()
+      iter = ids%ftn_begin()
+      do while (iter /= ids%ftn_end())
+         call iter%next()
+         descriptor => node_descriptor(pg, iter%of())
+         if (.not. associated(descriptor)) cycle
+         ! An input chain may survive failure, but never an expression result.
+         @assertFalse(descriptor%has_characteristic( &
+              EXPRESSION_CHARACTERISTIC_KIND))
+      end do
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_partial_input_failure_has_no_evaluation
+
+   @test(npes=[0])
+   subroutine test_expression_unsupported_input_reaches_strict_freeze(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(StringVector) :: pairs
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_strict_input', ['I'], ['m'], &
+           [ESMF_TYPEKIND_R4], parent, src, dst, _RC)
+      call set_expression_characteristic(src, ESMF_STATEINTENT_EXPORT, &
+           'A', GeometryCharacteristic(geom_id='2'))
+      call gb%resolve_connections(parent, rc=status)
+      @assertEqual(0, status)
+      pairs = parent%get_unsupported_pairs()
+      @assertEqual(1, pairs%size())
+      if (pairs%size() == 1) then
+         @assertEqual('dst:I:GEOMETRY', pairs%of(1))
+      end if
+      call use_validation('{validation_mode: strict}')
+      call gb%check_unsupported_pairs(parent, rc=status)
+      @assertExceptionRaised('GraphBuilder: unsupported pairs remain at freeze (strict validation mode)')
+      @assertEqual(1, status)
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_unsupported_input_reaches_strict_freeze
+
+   @test(npes=[0])
+   subroutine test_expression_declared_stagger_wins_over_consumer(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, dg
+      type(NodeId), pointer :: import_id
+      type(DependencyNetwork), pointer :: net
+      type(GraphResolutionEntryVector) :: unsupported
+      type(GraphResolutionEntry), pointer :: entry
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_declared_stagger', ['I'], ['m'], &
+           [ESMF_TYPEKIND_R4], parent, src, dst, _RC)
+      call set_expression_characteristic(src, ESMF_STATEINTENT_EXPORT, &
+           'expr', VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER))
+      call set_expression_characteristic(src, ESMF_STATEINTENT_EXPORT, &
+           'A', VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER))
+      call set_expression_characteristic(src, ESMF_STATEINTENT_EXPORT, &
+           'B', VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER))
+      call set_expression_characteristic(dst, ESMF_STATEINTENT_IMPORT, &
+           'I', VerticalStaggerCharacteristic(VERTICAL_STAGGER_EDGE))
+      call gb%resolve_connections(parent, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, unsupported%size())
+      if (unsupported%size() /= 1) return
+      entry => unsupported%at(1, status)
+      @assertEqual('VERTICAL_STAGGER', entry%reason)
+      pg => parent%get_component_graph()
+      dg => dst%get_component_graph()
+      @assertEqual(1, expression_evaluation_count(pg))
+      import_id => dg%get_resource_index( &
+           item_key(ESMF_STATEINTENT_IMPORT, 'I'))
+      net => pg%get_network(pg%get_default_network_id())
       @assertFalse(net%has_predecessors(import_id))
       _UNUSED_DUMMY(this)
-   end subroutine test_expression_input_conversion_is_unsupported
+   end subroutine test_expression_declared_stagger_wins_over_consumer
+
+   @test(npes=[0])
+   subroutine test_expression_undeclared_stagger_adopts_consumer(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, dg
+      type(NodeId), pointer :: import_id
+      type(StateItemDescriptor), pointer :: descriptor
+      type(VerticalStaggerCharacteristic) :: mirrored
+      class(StateItemCharacteristic), allocatable :: value
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_mirror_stagger', ['I'], ['m'], &
+           [ESMF_TYPEKIND_R4], parent, src, dst, _RC)
+      mirrored = VerticalStaggerCharacteristic(VERTICAL_STAGGER_INVALID)
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call set_expression_characteristic(src, ESMF_STATEINTENT_EXPORT, &
+           'expr', mirrored)
+      call set_expression_characteristic(src, ESMF_STATEINTENT_EXPORT, &
+           'A', VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER))
+      call set_expression_characteristic(src, ESMF_STATEINTENT_EXPORT, &
+           'B', VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER))
+      call set_expression_characteristic(dst, ESMF_STATEINTENT_IMPORT, &
+           'I', VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER))
+      call gb%resolve_connections(parent, rc=status)
+      @assertEqual(0, status)
+      pg => parent%get_component_graph()
+      dg => dst%get_component_graph()
+      import_id => dg%get_resource_index( &
+           item_key(ESMF_STATEINTENT_IMPORT, 'I'))
+      descriptor => node_descriptor(pg, sole_predecessor_of(pg, import_id))
+      @assertTrue(associated(descriptor))
+      if (.not. associated(descriptor)) return
+      call descriptor%get_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+           value, rc=status)
+      @assertEqual('vertical_stagger=VERTICAL_STAGGER_CENTER', &
+           value%get_signature())
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_undeclared_stagger_adopts_consumer
+
+   subroutine assert_expression_deferred_waits(on_consumer)
+      logical, intent(in) :: on_consumer
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg
+      type(TypeKindCharacteristic) :: deferred
+      type(GraphResolutionEntryVector) :: unsupported, conflicts
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call make_expression_fixture('expr_deferred', ['I'], ['m'], &
+           [ESMF_TYPEKIND_R4], parent, src, dst, rc=status)
+      @assertEqual(0, status)
+      deferred = TypeKindCharacteristic('R4')
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      if (on_consumer) then
+         call set_expression_characteristic(dst, ESMF_STATEINTENT_IMPORT, &
+              'I', deferred)
+      else
+         call set_expression_characteristic(src, ESMF_STATEINTENT_EXPORT, &
+              'B', deferred)
+      end if
+      pg => parent%get_component_graph()
+      call gb%resolve_connections(parent, &
+           unsupported_characteristics=unsupported, &
+           connection_conflicts=conflicts, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, unsupported%size())
+      @assertEqual(0, conflicts%size())
+      @assertEqual(0, expression_evaluation_count(pg))
+      if (on_consumer) then
+         call set_expression_characteristic(dst, ESMF_STATEINTENT_IMPORT, &
+              'I', TypeKindCharacteristic('R4'))
+      else
+         call set_expression_characteristic(src, ESMF_STATEINTENT_EXPORT, &
+              'B', TypeKindCharacteristic('R4'))
+      end if
+      call gb%resolve_connections(parent, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, expression_evaluation_count(pg))
+      call gb%resolve_connections(parent, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, expression_evaluation_count(pg))
+   end subroutine assert_expression_deferred_waits
+
+   @test(npes=[0])
+   subroutine test_expression_deferred_consumer_waits_then_builds(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      call assert_expression_deferred_waits(.true.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_deferred_consumer_waits_then_builds
+
+   @test(npes=[0])
+   subroutine test_expression_deferred_input_waits_then_builds(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      call assert_expression_deferred_waits(.false.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_deferred_input_waits_then_builds
 
    ! openspec/changes/ordinary-inout-direct-alias - REQ-INOUT-001 direct-
    ! alias case: a destination item declared an ordinary inout borrower

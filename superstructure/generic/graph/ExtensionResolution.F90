@@ -36,7 +36,8 @@ module mapl_ExtensionResolution_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap, &
         StateItemCharacteristicMapIterator, BUILD_TRANSFORM_INCOMPATIBLE, operator(==), operator(/=)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
-   use mapl_StateItemDescriptor_mod, only: resolve_characteristics
+   use mapl_StateItemDescriptor_mod, only: resolve_characteristics, &
+        StateItemDescriptor
    use ESMF, only: ESMF_STATEITEM_FIELD
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
@@ -215,7 +216,11 @@ contains
       type(NodeId) :: current_node_id
       type(NodeId) :: extension_node_id
       type(NodeId) :: transform_node_id
-      type(StateItemNode) :: extension_node
+      type(StateItemNode), target :: extension_node
+      type(StateItemDescriptor), pointer :: link
+      class(StateItemCharacteristic), pointer :: converted
+      type(StateItemCharacteristicMapIterator) :: iter
+      integer :: j
       type(GraphStateItem) :: empty_payload
       type(NodeRevision) :: empty_revision
       type(TransformGraphNode) :: transform_node
@@ -234,6 +239,18 @@ contains
          ! as advertise_one does.
          extension_node_id = graph%next_node_id(_RC)
          extension_node = StateItemNode(extension_node_id, empty_payload, empty_revision)
+         ! The link describes the item after this step: the export's
+         ! characteristics with the import's values for kinds converted so far.
+         link => extension_node%get_descriptor()
+         iter = export_map%ftn_begin()
+         do while (iter /= export_map%ftn_end())
+            call iter%next()
+            call link%set_characteristic(iter%first(), iter%second(), _RC)
+         end do
+         do j = 1, i
+            converted => import_map%at(mismatched_kinds(j), _RC)
+            call link%set_characteristic(mismatched_kinds(j), converted, _RC)
+         end do
          call graph%register_node(extension_node, _RC)
 
          call export_characteristic%build_transform(import_characteristic, transformer, status)

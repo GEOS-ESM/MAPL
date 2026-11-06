@@ -54,17 +54,25 @@ module mapl_StateItemDescriptor_mod
    ! expression has no geometry or precision of its own; each consumer's
    ! chain tip takes the consumer's value. Add entries only with a
    ! demonstrated use case.
+   ! declared_wins: a SPECIFIED value declared on the export beats the
+   ! consumer's. Precision is always the consumer's.
    type :: MirroredExportAllowance
       type(ESMF_StateItem_Flag) :: item_type
       type(StateItemCharacteristicKind) :: kind
+      logical :: declared_wins
    end type MirroredExportAllowance
 
    type(MirroredExportAllowance), parameter :: ALLOWLIST(*) = [ &
-           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, GEOMETRY_CHARACTERISTIC_KIND), &
-           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, VERTICAL_GRID_CHARACTERISTIC_KIND), &
-           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, VERTICAL_STAGGER_CHARACTERISTIC_KIND), &
-           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND), &
-           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, TYPE_KIND_CHARACTERISTIC_KIND)]
+           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, &
+                GEOMETRY_CHARACTERISTIC_KIND, .true.), &
+           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, &
+                VERTICAL_GRID_CHARACTERISTIC_KIND, .true.), &
+           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, &
+                VERTICAL_STAGGER_CHARACTERISTIC_KIND, .true.), &
+           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, &
+                VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, .true.), &
+           MirroredExportAllowance(MAPL_STATEITEM_EXPRESSION, &
+                TYPE_KIND_CHARACTERISTIC_KIND, .false.)]
 
    type :: StateItemDescriptor
       private
@@ -76,6 +84,7 @@ module mapl_StateItemDescriptor_mod
       procedure :: get_characteristic => descriptor_get_characteristic
       procedure :: set_characteristic => descriptor_set_characteristic
       procedure :: get_characteristics => descriptor_get_characteristics
+      procedure :: get_kinds => descriptor_get_kinds
       procedure :: get_unresolved_kinds => descriptor_get_unresolved_kinds
       procedure :: check_resolved => descriptor_check_resolved
       procedure :: resolve_deferred => descriptor_resolve_deferred
@@ -94,19 +103,26 @@ contains
 
    ! The kinds an export of this item type takes from each consumer
    ! (the MIRRORED-export allowlist entries for the declared item type).
-   subroutine descriptor_get_consumer_adopted_kinds(this, kinds, rc)
+   ! declared_wins(i): kinds(i) keeps a SPECIFIED value declared on this
+   ! item over the consumer's.
+   subroutine descriptor_get_consumer_adopted_kinds(this, kinds, rc, &
+        declared_wins)
       class(StateItemDescriptor), intent(in) :: this
       type(StateItemCharacteristicKind), allocatable, intent(out) :: kinds(:)
       integer, optional, intent(out) :: rc
+      logical, allocatable, optional, intent(out) :: declared_wins(:)
 
       integer :: i
+      logical, allocatable :: wins(:)
 
-      allocate(kinds(0))
+      allocate(kinds(0), wins(0))
       do i = 1, size(ALLOWLIST)
          if (ALLOWLIST(i)%item_type == this%get_declared_item_type()) then
             kinds = [kinds, ALLOWLIST(i)%kind]
+            wins = [wins, ALLOWLIST(i)%declared_wins]
          end if
       end do
+      if (present(declared_wins)) call move_alloc(wins, declared_wins)
       _RETURN(_SUCCESS)
    end subroutine descriptor_get_consumer_adopted_kinds
 
@@ -168,6 +184,23 @@ contains
 
       characteristics = this%characteristics
    end function descriptor_get_characteristics
+
+   ! The kinds established on this item, read in place (no map copy).
+   subroutine descriptor_get_kinds(this, kinds)
+      class(StateItemDescriptor), target, intent(in) :: this
+      type(StateItemCharacteristicKind), allocatable, intent(out) :: kinds(:)
+
+      type(StateItemCharacteristicMapIterator) :: iter
+
+      allocate(kinds(0))
+      associate (e => this%characteristics%ftn_end())
+         iter = this%characteristics%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            kinds = [kinds, iter%first()]
+         end do
+      end associate
+   end subroutine descriptor_get_kinds
 
    ! -- generic status resolution --
 

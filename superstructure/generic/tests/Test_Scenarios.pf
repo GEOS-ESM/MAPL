@@ -71,6 +71,8 @@ module Test_Scenarios
       ! Exception text the graph path raises during initialization. Such a
       ! scenario runs in graph and both modes only.
       character(:), allocatable :: expected_exception
+      ! Legacy import couplers can block graph-only capabilities.
+      logical :: graph_only = .false.
    end type ScenarioEntry
 
    @testParameter
@@ -184,6 +186,9 @@ contains
            ScenarioEntry('extdata_1',               'cap.yaml',         .true.), &
            ScenarioEntry('names_1',                 'parent.yaml',      .true.), &
            ScenarioEntry('expression',              'parent.yaml',      .true.), &
+           ScenarioEntry('expression_per_consumer', 'parent.yaml',      .true.), &
+           ScenarioEntry('expression_per_consumer_r8', 'parent.yaml', &
+                .false., graph_only=.true.), &
            ScenarioEntry('../graph-scenarios/plain_field',                  'cap.yaml', .true.), &
            ScenarioEntry('../graph-scenarios/vertical_field',               'cap.yaml', .true.), &
            ScenarioEntry('../graph-scenarios/ungridded_dims',               'cap.yaml', .true.), &
@@ -224,11 +229,20 @@ contains
       if (pending_only) then
          if (entry%graph_ready) then
             allocate(character(len=8) :: modes(0))
+         else if (entry%graph_only) then
+            modes = [character(len=8) :: GRAPH_MODE_GRAPH]
          else
             modes = [character(len=8) :: GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH]
          end if
       else
-         if (entry%graph_ready .and. allocated(entry%expected_exception)) then
+         if (entry%graph_only) then
+            if (entry%graph_ready) then
+               modes = [character(len=8) :: GRAPH_MODE_GRAPH]
+            else
+               allocate(character(len=8) :: modes(0))
+            end if
+         else if (entry%graph_ready .and. &
+              allocated(entry%expected_exception)) then
             modes = [character(len=8) :: GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH]
          else if (entry%graph_ready) then
             modes = [character(len=8) :: GRAPH_MODE_REGISTRY, GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH]
