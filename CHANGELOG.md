@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add hack so that edge level geos-chem inputs can be read and correctly identified as edge instead of centers
 - Enforced the `standard_name` convention between a connected Import and
   Export (GEOS-ESM/MAPL#5413). A new `StandardNameAspect`
   (`superstructure/generic/specs/StandardNameAspect.F90`), modeled directly
@@ -44,6 +45,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   standalone MAPL builds.
 - Added ability to output on a set of fixed pressure or height levels in History3G
 - Extended History and StatisticsGridComp so one can take the average, min, max, accumulation, and variance of vectors
+- Added per-field restart bootstrapping (GEOS-ESM/MAPL#5459). With the
+  component's `mapl: misc: restart: bootstrap: true`, a field missing from an
+  existing restart file keeps its initial value and is marked as bootstrapped,
+  and the rest of the file is read normally; with `bootstrap: false`, a missing
+  field is an error naming the field and the file. When the restart file
+  itself is missing, every non-SKIP field is marked as bootstrapped; a state
+  whose fields are all SKIP reads nothing, so its file may be missing even
+  with `bootstrap: false`.
+  Components can query the mark with `MAPL_FieldGet(field, bootstrapped=...)`
+- ExtData now supports the `update_frequency`, `update_reference_time` and
+  `update_offset` sampling keys, with the same behavior as MAPL2. Added
+  component test case29.
+- ExtData now detects ungridded dimensions in the files it reads. The new
+  `ungridded_dims_from_metadata` (`infrastructure/geom_io/SharedIO.F90`,
+  exported as `mapl_ungridded_dims_from_metadata`) is the read-side inverse of
+  `add_ungridded_dimensions`: it returns an `UngriddedDims` for every
+  dimension of a variable that is not a geom (gridded) dimension, the vertical
+  dimension, or `time`. `VerticalCoordinate` now records the file's vertical
+  dimension name in `file_lev_name`. Added unit tests
+  (`Test_UngriddedDimsFromMetadata.pf`) and component test case46.
 
 ### Changed
 
@@ -118,6 +139,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The module and its file were renamed to match: `mapl_LoadBalance_mod` in
   `mp_utils/MAPL_LoadBalance.F90` is now `mapl_LoadBalancer_mod` in
   `mp_utils/MAPL_LoadBalancer.F90`
+- `MAPL_FieldBundleFilter` now takes a predicate object, an extension of the
+  new abstract type `MAPL_FieldPredicate` with a `remove(this, field, rc)`
+  method, instead of a predicate procedure, so a predicate can carry the data
+  it needs as components (**BREAKING**: callers that pass a procedure must
+  wrap it in a `MAPL_FieldPredicate` extension). The alternative, an internal
+  procedure predicate that uses its host's variables, crashes under ifx.
 - Updated `components.yaml`
   - ESMA_cmake v4.51.0
     - Make ESMA_cmake reentrant
@@ -126,6 +153,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `get_or_create_outer_meta` (`GenericGridComp.F90`) no longer leaves a
+  spurious `esmf_usercompgetinternalstate Failure` error in every
+  `PET*.ESMF_LogFile`. It probed for the outer meta with a labelled
+  `ESMF_InternalStateGet`, which ESMF logs as an error when the label is
+  absent (always the case for the cap gridcomp). It now checks the label
+  list first.
+
+- History collection imports now mirror the ungridded dimensions of the
+  exports they are connected to, so fields with ungridded dimensions can be
+  written by History.
+- Field broadcast (`FieldsAreBroadcastConformable`/`FieldCopy`) now supports
+  any number of extra trailing dimensions rather than exactly one.
 - Fixed logging of resource values that contain `%` (e.g. file-name templates
   such as `%y4%m2%d2`): the HConfig value loggers passed the message to
   pFlogger as its format string, which then failed with "not enough position

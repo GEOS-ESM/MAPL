@@ -185,6 +185,7 @@ set(core_test_srcs
   Test_QuantityType.pf
   Test_ConservationType.pf
   Test_PolymorphicSetMirror.pf
+  Test_RestartBootstrap.pf
 )
 
 add_pfunit_ctest(
