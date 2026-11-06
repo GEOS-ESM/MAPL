@@ -32,6 +32,8 @@ module Test_ExtensionMaterialization
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain, &
         set_materialize_extensions, materialize_extensions_enabled
    use mapl_ExtensionMaterialization_mod, only: materialize_field_extension
+   use mapl_SetSharedCharacteristic_mod, only: set_shared_characteristic
+   use ESMF, only: ESMF_FieldGet, ESMF_MAXSTR
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_FieldCreate_mod, only: FieldCreate, FieldsAreAliased
    use mapl_FieldGet_mod, only: FieldGet
@@ -40,7 +42,7 @@ module Test_ExtensionMaterialization
    use mapl_FieldPointerUtilities_mod, only: assign_fptr
    use ESMF, only: ESMF_Geom, ESMF_Grid, ESMF_Field, ESMF_TypeKind_Flag
    use ESMF, only: ESMF_GridCreateNoPeriDim, ESMF_GeomCreate
-   use ESMF, only: ESMF_TYPEKIND_R4, ESMF_KIND_R4
+   use ESMF, only: ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8, ESMF_KIND_R4
    use ESMF, only: ESMF_STATEITEM_FIELD, ESMF_STATEITEM_NOTFOUND
    use ESMF, only: operator(==)
    use funit
@@ -416,5 +418,147 @@ contains
       @assertEqual(0, status)
       @assertEqual(4, size(x))
    end subroutine test_extension_field_without_fill_value_is_not_filled
+
+   ! -- set_shared_characteristic rebuild --------------------------------
+
+   ! Builds a node whose descriptor is complete and materializes its
+   ! field under the name 'f1'.
+   subroutine make_named_field_node(graph, node_id, geom, fill, rc)
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(NodeId), intent(out) :: node_id
+      type(ESMF_Geom), intent(out) :: geom
+      real, optional, intent(in) :: fill
+      integer, intent(out) :: rc
+
+      type(ESMF_Grid) :: grid
+      type(StateItemNode), target :: node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemDescriptor), pointer :: descriptor
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=rc)
+      geom = ESMF_GeomCreate(grid, rc=rc)
+      graph = ComponentGraph()
+      node_id = graph%next_node_id(rc=rc)
+      node = StateItemNode(node_id, payload, revision)
+      descriptor => node%get_descriptor()
+      call descriptor%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'), rc=rc)
+      call descriptor%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='1', geom=geom), rc=rc)
+      call descriptor%set_characteristic( &
+           HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM), rc=rc)
+      call descriptor%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R4'), rc=rc)
+      if (present(fill)) call descriptor%set_fill_value(fill)
+      call graph%register_node(node, rc=rc)
+      call materialize_field_extension(graph, node_id, name='f1', rc=rc)
+   end subroutine make_named_field_node
+
+   subroutine get_node_field(graph, node_id, field, rc)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: node_id
+      type(ESMF_Field), intent(out) :: field
+      integer, intent(out) :: rc
+
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: payload
+
+      node => graph%get_node(node_id)
+      select type (node)
+      class is (StateItemNode)
+         payload = node%get_payload()
+      end select
+      field = payload%get_field(rc=rc)
+   end subroutine get_node_field
+
+   @test
+   subroutine test_set_shared_structural_rebuilds_field()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: id
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: before, after
+      type(ESMF_TypeKind_Flag) :: got_typekind
+      character(len=ESMF_MAXSTR) :: got_name
+      logical :: same
+      integer :: s1, s2, s3, s4, s5, s6
+
+      call make_named_field_node(graph, id, geom, fill=7.0, rc=s1)
+      call get_node_field(graph, id, before, s2)
+      call set_shared_characteristic(graph, id, TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R8'), rc=s3)
+      call get_node_field(graph, id, after, s4)
+      same = FieldsAreAliased(before, after)
+      call FieldGet(after, typekind=got_typekind, rc=s5)
+      call ESMF_FieldGet(after, name=got_name, rc=s6)
+
+      @assertEqual(0, s1 + s2 + s3 + s4 + s5 + s6)
+      @assertFalse(same)
+      @assertTrue(got_typekind == ESMF_TYPEKIND_R8)
+      @assertEqual('f1', trim(got_name))
+   end subroutine test_set_shared_structural_rebuilds_field
+
+   @test
+   subroutine test_set_shared_rebuilt_field_has_fill_value()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: id
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: before, after
+      real(kind=ESMF_KIND_R4), pointer :: x(:), x_old(:)
+      integer :: s1, s2, s3, s4, s5, s6
+
+      call make_named_field_node(graph, id, geom, fill=7.0, rc=s1)
+      ! Zero the old data so only a real rebuild can read 7.0 back.
+      call get_node_field(graph, id, before, s5)
+      call assign_fptr(before, x_old, rc=s6)
+      x_old = 0.0
+      ! Same typekind, new geometry object: still a structural change.
+      call set_shared_characteristic(graph, id, GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='1', geom=geom), rc=s2)
+      call get_node_field(graph, id, after, s3)
+      call assign_fptr(after, x, rc=s4)
+      @assertEqual(0, s1 + s2 + s3 + s4 + s5 + s6)
+      @assertEqual(7.0, x(1), tolerance=1.0e-6)
+   end subroutine test_set_shared_rebuilt_field_has_fill_value
+
+   @test
+   subroutine test_set_shared_nonstructural_keeps_same_field()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: id
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: before, after
+      logical :: same
+      integer :: s1, s2, s3, s4
+
+      call make_named_field_node(graph, id, geom, rc=s1)
+      call get_node_field(graph, id, before, s2)
+      call set_shared_characteristic(graph, id, &
+           PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('km'), rc=s3)
+      call get_node_field(graph, id, after, s4)
+      same = FieldsAreAliased(before, after)
+      @assertEqual(0, s1 + s2 + s3 + s4)
+      @assertTrue(same)
+   end subroutine test_set_shared_nonstructural_keeps_same_field
+
+   @test
+   subroutine test_set_shared_without_field_payload_does_not_rebuild()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: id
+      type(StateItemNode) :: node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      integer :: s1, s2
+
+      graph = ComponentGraph()
+      id = graph%next_node_id(rc=s1)
+      node = StateItemNode(id, payload, revision)
+      call graph%register_node(node, rc=s1)
+      call set_shared_characteristic(graph, id, TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R8'), rc=s2)
+      @assertEqual(0, s1)
+      @assertEqual(0, s2)
+   end subroutine test_set_shared_without_field_payload_does_not_rebuild
 
 end module Test_ExtensionMaterialization

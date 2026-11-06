@@ -12,9 +12,12 @@
 ! It never looks up or invokes a MethodGraphNode, which is what makes it
 ! safe to call from any phase or nesting context.
 !
-! The node's ESMF payload is not rebuilt to match the new
-! characteristic; that needs a field-materialization helper that does
-! not exist yet.
+! If the new characteristic is structural and the node's payload is an
+! ESMF_Field, that field is rebuilt from the descriptor (same name,
+! fill value applied) and replaces the node's payload. Otherwise the
+! payload is left alone. Direct successors are not rebuilt. A Field
+! already inserted into an ESMF_State, or aliased by importers, is NOT
+! replaced there; a production caller must re-insert the new field.
 !
 ! Known gap: only downstream nodes are reset. When the changed item is
 ! an import, the transform step feeding it is upstream and keeps its
@@ -27,6 +30,9 @@ module mapl_SetSharedCharacteristic_mod
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
    use mapl_GraphNode_mod, only: GraphNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_ExtensionMaterialization_mod, only: rebuild_field_extension
+   use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, operator(==)
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_NodeRevision_mod, only: NodeRevision
@@ -61,6 +67,8 @@ contains
       type(NodeIdSet) :: successors
       type(NodeId), allocatable :: dependent_ids(:)
       integer :: i
+      type(GraphStateItem) :: payload
+      type(ESMF_StateItem_Flag) :: payload_kind
 
       ! Step 1: replace the characteristic on the shared node itself.
       generic_node => graph%get_node(node_id)
@@ -73,6 +81,16 @@ contains
       end select
       descriptor => shared_node%get_descriptor()
       call descriptor%set_characteristic(kind, characteristic, _RC)
+
+      ! A structural change invalidates the existing field's shape, so
+      ! rebuild it; a synthetic or not-yet-materialized payload is skipped.
+      if (characteristic%is_structural()) then
+         payload = shared_node%get_payload()
+         payload_kind = payload%itemType(_RC)
+         if (payload_kind == ESMF_STATEITEM_FIELD) then
+            call rebuild_field_extension(graph, node_id, _RC)
+         end if
+      end if
 
       ! Step 2: eager structural reset of direct StateItemNode successors
       ! only (TransformGraphNode successors are left to the lazy path).

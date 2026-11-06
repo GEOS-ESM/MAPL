@@ -8,6 +8,8 @@
 !
 ! Idempotent: if the node's payload already has an ESMF_Field (e.g. a reused
 ! extension chain), materialize_field_extension() is a no-op.
+! rebuild_field_extension() instead replaces an existing Field payload;
+! an ESMF_State or importer holding the old Field is not updated.
 !------------------------------------------------------------------------------
 module mapl_ExtensionMaterialization_mod
    use mapl_ComponentGraph_mod, only: ComponentGraph
@@ -19,15 +21,16 @@ module mapl_ExtensionMaterialization_mod
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_field_api, only: MAPL_FieldEmptyComplete, MAPL_FieldSet
    use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_ALLOCATED
-   use ESMF, only: ESMF_Field, ESMF_FieldEmptyCreate
+   use ESMF, only: ESMF_Field, ESMF_FieldEmptyCreate, ESMF_FieldGet
    use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, operator(==)
    use mapl_FieldUtilities_mod, only: FieldSet
-   use ESMF, only: ESMF_KIND_R4
+   use ESMF, only: ESMF_KIND_R4, ESMF_MAXSTR
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
 
    public :: materialize_field_extension
+   public :: rebuild_field_extension
 
 contains
 
@@ -47,12 +50,8 @@ contains
 
       integer :: status
       class(GraphNode), pointer :: node
-      type(StateItemDescriptor), pointer :: descriptor
       type(GraphStateItem) :: payload
-      type(ESMF_Field) :: field
       type(ESMF_StateItem_Flag) :: kind_flag
-      real(ESMF_KIND_R4) :: fill_value
-      logical :: has_fill_value
 
       node => graph%get_node(node_id)
       _ASSERT(associated(node), 'ExtensionMaterialization: NodeId not found in graph')
@@ -64,21 +63,76 @@ contains
          ! Already materialized (a reused extension chain).
          _RETURN_IF(kind_flag == ESMF_STATEITEM_FIELD)
 
-         descriptor => node%get_descriptor()
-         field = ESMF_FieldEmptyCreate(name=name, _RC)
-         call payload%set(field, _RC)
-         call descriptor%sync_to_info(payload, SYNC_PHASE_STRUCTURAL, _RC)
-         call MAPL_FieldEmptyComplete(field, _RC)
-         call descriptor%get_fill_value(fill_value, has_fill_value)
-         if (has_fill_value) call FieldSet(field, fill_value, _RC)
-         call MAPL_FieldSet(field, &
-              allocation_status=MAPL_STATEITEM_ALLOCATION_ALLOCATED, _RC)
-         call node%set_payload(payload)
+         call build_field_payload(node, name, _RC)
       class default
          _FAIL('ExtensionMaterialization: NodeId does not refer to a StateItemNode')
       end select
 
       _RETURN(_SUCCESS)
    end subroutine materialize_field_extension
+
+   ! Replaces node_id's existing ESMF_Field payload with a new complete
+   ! field built from the (since changed) descriptor, keeping the old
+   ! field's name. Unlike materialize_field_extension this does not stop
+   ! at an existing Field. A Field already inserted into an ESMF_State, or
+   ! aliased by importers, is not replaced there.
+   subroutine rebuild_field_extension(graph, node_id, rc)
+      class(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: node_id
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: payload
+      type(ESMF_Field) :: old_field
+      type(ESMF_StateItem_Flag) :: kind_flag
+      character(len=ESMF_MAXSTR) :: old_name
+
+      node => graph%get_node(node_id)
+      _ASSERT(associated(node), 'rebuild: NodeId not found in graph')
+
+      select type (node)
+      class is (StateItemNode)
+         payload = node%get_payload()
+         kind_flag = payload%itemType(_RC)
+         _ASSERT(kind_flag == ESMF_STATEITEM_FIELD, 'rebuild needs a Field')
+         old_field = payload%get_field(_RC)
+         call ESMF_FieldGet(old_field, name=old_name, _RC)
+         call build_field_payload(node, trim(old_name), _RC)
+      class default
+         _FAIL('ExtensionMaterialization: NodeId is not a StateItemNode')
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine rebuild_field_extension
+
+   ! Builds a complete field from the node's descriptor and installs it
+   ! as the node's payload, replacing whatever payload was there.
+   subroutine build_field_payload(node, name, rc)
+      class(StateItemNode), target, intent(inout) :: node
+      character(*), optional, intent(in) :: name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StateItemDescriptor), pointer :: descriptor
+      type(GraphStateItem) :: payload
+      type(ESMF_Field) :: field
+      real(ESMF_KIND_R4) :: fill_value
+      logical :: has_fill_value
+
+      payload = node%get_payload()
+      descriptor => node%get_descriptor()
+      field = ESMF_FieldEmptyCreate(name=name, _RC)
+      call payload%set(field, _RC)
+      call descriptor%sync_to_info(payload, SYNC_PHASE_STRUCTURAL, _RC)
+      call MAPL_FieldEmptyComplete(field, _RC)
+      call descriptor%get_fill_value(fill_value, has_fill_value)
+      if (has_fill_value) call FieldSet(field, fill_value, _RC)
+      call MAPL_FieldSet(field, &
+           allocation_status=MAPL_STATEITEM_ALLOCATION_ALLOCATED, _RC)
+      call node%set_payload(payload)
+
+      _RETURN(_SUCCESS)
+   end subroutine build_field_payload
 
 end module mapl_ExtensionMaterialization_mod

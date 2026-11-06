@@ -982,12 +982,23 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       items, which take the exporter's geometry at connection. Affects
       `statistics_real` and `history_1` (not ESSENTIAL); report their
       results. Author sonnet (sonnet review).
-- [ ] 3.40 B3-SetSharedMaterialize (after 3.14 and B4 4.2; owner,
+- [x] 3.40 B3-SetSharedMaterialize (after 3.14 and B4 4.2; owner,
       2026-11-05). `set_shared_characteristic` rebuilds the affected ESMF
       payloads after changing a structural characteristic (§7.3's
       `sync_to_info`), using B4's empty-create + `sync_to_info(STRUCTURAL)`
       + `MAPL_FieldEmptyComplete` helper, not the FieldDelta path (§3.2).
       Tests use a real field. Author sonnet (sonnet review).
+      Done: `set_shared_characteristic` rebuilds the node's payload
+      when the new characteristic `is_structural()` and the payload is an
+      `ESMF_Field`, via `rebuild_field_extension` (shares
+      `build_field_payload` with `materialize_field_extension`: same
+      name, fill value applied). Non-structural kinds and non-Field
+      payloads behave as in 3.14, which closes 3.14's "payload not
+      rebuilt" gap; direct successors are reset, not rebuilt. Reported
+      gap: a Field already inserted into an `ESMF_State` or aliased by
+      importers is not replaced there, so a production caller (History
+      samplers) must re-insert the new field. The import-side gap stays
+      as in 3.14 (plan C3 item 4). NAG 69/69, gfortran 69/69.
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the
