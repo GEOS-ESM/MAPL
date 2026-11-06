@@ -1348,6 +1348,10 @@ and interface names are fine); report its output in the commit body.
 - Split (owner, 2026-11-06) into `B4a-TipReplacement` (tasks.md 4.1),
   `B4b-DescriptorMaterialize` (4.2, test-first) and `B4c-D6Grep` (4.4,
   after B4b); see the model table.
+- B4a status: done (tasks.md 4.1). `covered_kinds(tip, goal)` is a
+  separate type-bound method (default own kind); `merged_item_for_link`
+  deleted; extension nodes carry the tip; `intermediate_node_ids` is per
+  step. NAG and gfortran ESSENTIAL 69/69.
 - Also parity finding M3: the graph does not materialize EXPRESSION,
   VECTOR or SERVICE items (logs `unsupported_item_class:<shape>` and
   leaves them to legacy `add_to_states`). Until the graph materializes

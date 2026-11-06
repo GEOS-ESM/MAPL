@@ -105,6 +105,7 @@ module mapl_StateItemCharacteristic_mod
       procedure(I_needs_extension_for), deferred :: needs_extension_for
       procedure(I_build_transform), deferred :: build_transform
       procedure(I_get_signature), deferred :: get_signature
+      procedure :: covered_kinds => char_covered_kinds
       procedure :: get_status => char_get_status
       procedure :: set_status => char_set_status
       procedure :: write_info => char_write_info
@@ -223,6 +224,24 @@ module mapl_StateItemCharacteristic_mod
    end interface
 
 contains
+
+   ! The kinds a build_transform step for this characteristic resolves.
+   ! Default: just its own kind. A step that also resolves other kinds
+   ! (e.g. a vertical regrid covering stagger) overrides this and may read
+   ! the whole tip and goal. The result must include this characteristic's
+   ! own kind and only kinds present in both the tip and the goal.
+   function char_covered_kinds(this, tip, goal) result(kinds)
+      class(StateItemCharacteristic), intent(in) :: this
+      type(StateItemCharacteristicMap), target, intent(in) :: tip
+      type(StateItemCharacteristicMap), target, intent(in) :: goal
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+
+      allocate(kinds(1))
+      kinds(1) = this%get_kind()
+
+      _UNUSED_DUMMY(tip)
+      _UNUSED_DUMMY(goal)
+   end function char_covered_kinds
 
    function char_get_status(this) result(status)
       class(StateItemCharacteristic), intent(in) :: this

@@ -488,10 +488,11 @@ contains
          ! items keep their unallocated placeholder payload.
          !
          ! materialize_extension_chain materializes every link in
-         ! intermediate_node_ids with that link's own evolved typekind/units.
+         ! intermediate_node_ids from that link's own descriptor.
          if (materialize_extensions_enabled()) then
             call materialize_extension_chain(this, src_pt%component_name, export_item, import_item, &
-                 mismatched, intermediate_node_ids, this_graph, materialization_failure, _RC)
+                 intermediate_node_ids, this_graph, &
+                 materialization_failure, _RC)
             if (materialization_failure /= '') then
                ! Distinguishable from "no matching export" and "unregistered
                ! characteristic" above.
@@ -1556,21 +1557,18 @@ contains
       _RETURN(_SUCCESS)
    end function get_item_ungridded_dims
 
-   ! Materializes every entry of intermediate_node_ids (in order) with that
-   ! link's own evolved typekind/units (merged_item_for_link). Resolves
-   ! geom/vgrid once from export_item and reuses them for every link. Stops
-   ! at the first failing link, returning try_materialize_field_extension's
-   ! failure_reason. mismatched_kinds MUST be the array
-   ! find_or_build_extension_chain was called with (intermediate_node_ids is
-   ! parallel to it).
+   ! Materializes every entry of intermediate_node_ids (in order) with the
+   ! units/typekind of that extension node's own descriptor (the tip after
+   ! its step). Resolves geom/vgrid once from export_item and reuses them
+   ! for every link. Stops at the first failing link, returning
+   ! try_materialize_field_extension's failure_reason.
    subroutine materialize_extension_chain(this, export_comp_name, export_item, import_item, &
-        mismatched_kinds, intermediate_node_ids, graph, failure_reason, rc, &
+        intermediate_node_ids, graph, failure_reason, rc, &
         allow_unitless)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: export_comp_name
       type(StateItemDescriptor), intent(in) :: export_item
       type(StateItemDescriptor), intent(in) :: import_item
-      type(StateItemCharacteristicKind), intent(in) :: mismatched_kinds(:)
       type(NodeId), intent(in) :: intermediate_node_ids(:)
       type(ComponentGraph), target, intent(inout) :: graph
       character(:), allocatable, intent(out) :: failure_reason
@@ -1590,6 +1588,8 @@ contains
       character(:), allocatable :: import_units
       type(UngriddedDims) :: export_ungridded_dims
       logical :: unitless_ok, units_known
+      class(GraphNode), pointer :: link_node
+      type(StateItemDescriptor), pointer :: link_item
 
       failure_reason = ''
 
@@ -1623,7 +1623,16 @@ contains
       export_ungridded_dims = get_item_ungridded_dims(export_item, _RC)
 
       do i = 1, size(intermediate_node_ids)
-         call merged_item_for_link(export_item, import_item, mismatched_kinds, i, link_units, link_typekind, _RC)
+         link_node => graph%get_node(intermediate_node_ids(i))
+         _ASSERT(associated(link_node), 'GraphBuilder: materialize_extension_chain - link NodeId not found in graph')
+         select type (link_node)
+         class is (StateItemNode)
+            link_item => link_node%get_descriptor()
+         class default
+            _FAIL('GraphBuilder: materialize_extension_chain - link NodeId is not a StateItemNode')
+         end select
+         link_units = get_item_units(link_item, _RC)
+         link_typekind = get_item_typekind(link_item, _RC)
 
          if (allocated(vgrid)) then
             call materialize_field_extension(graph, intermediate_node_ids(i), geom=geom, &
@@ -1640,69 +1649,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine materialize_extension_chain
 
-   ! Link i's materialized typekind/units is the IMPORT item's value for each
-   ! kind in mismatched_kinds(1:i) (already converted by that point) and the
-   ! EXPORT item's otherwise. At i == size(mismatched_kinds) this is the
-   ! final-node formula of try_materialize_field_extension. _FAILs for any
-   ! kind it cannot translate.
-   subroutine merged_item_for_link(export_item, import_item, mismatched_kinds, i, units, type_kind, rc)
-      type(StateItemDescriptor), intent(in) :: export_item
-      type(StateItemDescriptor), intent(in) :: import_item
-      type(StateItemCharacteristicKind), intent(in) :: mismatched_kinds(:)
-      integer, intent(in) :: i
-      character(:), allocatable, intent(out) :: units
-      type(ESMF_TypeKind_Flag), intent(out) :: type_kind
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      integer :: j
-      logical :: units_converted
-      logical :: typekind_converted
-      character(:), allocatable :: assertion_message
-
-      units = get_item_units(export_item, _RC)
-      type_kind = get_item_typekind(export_item, _RC)
-      units_converted = .false.
-      typekind_converted = .false.
-
-      do j = 1, i
-         if (mismatched_kinds(j) == PHYSICAL_UNITS_CHARACTERISTIC_KIND) then
-            units_converted = .true.
-         else if (mismatched_kinds(j) == TYPE_KIND_CHARACTERISTIC_KIND) then
-            typekind_converted = .true.
-         else if (mismatched_kinds(j) == VERTICAL_GRID_CHARACTERISTIC_KIND) then
-            ! Vertical grid is resolved once by materialize_extension_chain, not per
-            ! link; nothing to merge. build_transform for this kind always fails, so
-            ! this is unreachable in practice, but it is enumerated so a mismatch
-            ! fails with build_chain's message rather than the _FAIL below.
-         else if (mismatched_kinds(j) == ITEM_SHAPE_CHARACTERISTIC_KIND) then
-            ! Nothing to merge: the materialized node is always a plain Field,
-            ! decided by materialize_field_extension. Enumerated so a BRACKET->FIELD
-            ! mismatch that does not reach a real Transform fails with build_chain's
-            ! unsupported-characteristic message, not the "unrecognized" assertion
-            ! below.
-         else if (mismatched_kinds(j) == ATTRIBUTES_CHARACTERISTIC_KIND .or. &
-                  mismatched_kinds(j) == UNGRIDDED_DIMS_CHARACTERISTIC_KIND .or. &
-                  mismatched_kinds(j) == STANDARD_NAME_CHARACTERISTIC_KIND .or. &
-                  mismatched_kinds(j) == QUANTITY_TYPE_CHARACTERISTIC_KIND .or. &
-                  mismatched_kinds(j) == CONSERVATION_CHARACTERISTIC_KIND .or. &
-                  mismatched_kinds(j) == NORMALIZATION_CHARACTERISTIC_KIND) then
-            ! None of these axes has a real build_transform (each _FAILs), so
-            ! build_chain fails first and none can reach here in practice. Enumerated
-            ! so a mismatch on one fails with that message, not the "unrecognized"
-            ! assertion below.
-         else
-            assertion_message = 'GraphBuilder: merged_item_for_link - unrecognized StateItemCharacteristicKind: ' // &
-                 mismatched_kinds(j)%to_string()
-            _FAIL(assertion_message)
-         end if
-      end do
-
-      if (units_converted) units = get_item_units(import_item, _RC)
-      if (typekind_converted) type_kind = get_item_typekind(import_item, _RC)
-
-      _RETURN(_SUCCESS)
-   end subroutine merged_item_for_link
    ! Resolves a (component, intent, short_name) reference to the item's real
    ! NodeId:
    !  - "<self>"/this's own name: this component's graph (the item must
@@ -2029,7 +1975,7 @@ contains
             if (materialize_extensions_enabled()) then
                call input_goal(input_desc, full_goal, full=.true., _RC)
                call materialize_extension_chain(this, src_comp, input_desc, &
-                    full_goal, mismatched, intermediates, graph, failure, &
+                    full_goal, intermediates, graph, failure, &
                     allow_unitless=.true., _RC)
                if (failure /= '') then
                   problem = failure

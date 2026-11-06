@@ -431,8 +431,10 @@ those kinds are then no longer mismatched on the new tip. A
 VerticalStagger-only change (same grid) may read the tip's VerticalGrid
 while building, never while comparing (Q7, A16). A VerticalOrientation-
 only mismatch is its own zero-cost step (a reversed view) and needs no
-grid. The covered-list signature and replacement land with B4 (4.1); the
-vertical regrid that uses them is C1.
+grid. The covered list is a separate type-bound `covered_kinds(tip, goal)`
+(default `[own kind]`) called just before `build_transform`, not a
+`build_transform` return value (B4a); the vertical regrid that uses it
+is C1.
 
 This refines the plan's "owned by the export's shape": after an
 ITEM_SHAPE step (for example BRACKET -> FIELD), the remaining kinds are

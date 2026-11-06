@@ -1027,10 +1027,20 @@ Split (owner, 2026-11-06): B4a-TipReplacement = 4.1; B4b-DescriptorMaterialize
 opus implementer and review; B4c-D6Grep = 4.4, after B4b. 3.34 runs after
 B4b as its own task.
 
-- [ ] 4.1 Replace `merged_item_for_link` with generic tip replacement
+- [x] 4.1 Replace `merged_item_for_link` with generic tip replacement
       (§4.1). `build_transform` gets read-only tip and goal descriptors
       and returns the kinds its step covers (default: its own); the tip
       replacement replaces all of them (A16).
+      Status: `merged_item_for_link` deleted. Covered kinds are a
+      separate non-deferred `StateItemCharacteristic%covered_kinds(tip,
+      goal)` (tip/goal are `StateItemCharacteristicMap`; default = own
+      kind), so no `build_transform` override changed. `build_chain`
+      builds a tip map per step, replaces all covered kinds with the
+      goal's, skips later mismatched kinds already covered, and each
+      extension node's descriptor is the tip after its step.
+      `intermediate_node_ids` is one entry per step.
+      `materialize_extension_chain` reads units/typekind from each
+      link's own descriptor and lost its `mismatched_kinds` argument.
 - [ ] 4.2 Materialize extension fields by empty-create +
       `sync_to_info(STRUCTURAL)` + `MAPL_FieldEmptyComplete` (§3.2.1);
       delete `get_item_units` / `get_item_typekind` /

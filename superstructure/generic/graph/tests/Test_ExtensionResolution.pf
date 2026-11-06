@@ -1,3 +1,5 @@
+#include "MAPL.h"
+
 ! openspec/changes/extension-reuse - task group 6 (unit tests for
 ! mapl_StateItemCharacteristic_mod / mapl_ExtensionResolution_mod).
 !
@@ -25,6 +27,8 @@ module Test_ExtensionResolution
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
    use mapl_NodeId_mod, only: NodeId, operator(==)
    use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_Transform_mod, only: Transform
@@ -68,8 +72,13 @@ module Test_ExtensionResolution
    type, extends(StateItemCharacteristic) :: FakeCharacteristic
       private
       character(:), allocatable :: value
+      ! When set, this step also resolves the units kind.
+      logical :: covers_units = .false.
+      ! When set, covered_kinds wrongly omits the step's own kind.
+      logical :: omits_own_kind = .false.
    contains
       procedure, nopass :: get_kind => fake_get_kind
+      procedure :: covered_kinds => fake_covered_kinds
       procedure :: get_signature => fake_get_signature
       procedure :: needs_extension_for => fake_needs_extension_for
       procedure :: build_transform => fake_build_transform
@@ -81,11 +90,18 @@ module Test_ExtensionResolution
 
 contains
 
-   function new_FakeCharacteristic(value) result(characteristic)
+   function new_FakeCharacteristic(value, covers_units, omits_own_kind) &
+        result(characteristic)
       character(*), intent(in) :: value
+      logical, optional, intent(in) :: covers_units
+      logical, optional, intent(in) :: omits_own_kind
       type(FakeCharacteristic) :: characteristic
 
       characteristic%value = value
+      if (present(covers_units)) characteristic%covers_units = covers_units
+      if (present(omits_own_kind)) then
+         characteristic%omits_own_kind = omits_own_kind
+      end if
       call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_FakeCharacteristic
 
@@ -94,6 +110,24 @@ contains
 
       kind = MOCK_CHARACTERISTIC_KIND
    end function fake_get_kind
+
+   function fake_covered_kinds(this, tip, goal) result(kinds)
+      class(FakeCharacteristic), intent(in) :: this
+      type(StateItemCharacteristicMap), target, intent(in) :: tip
+      type(StateItemCharacteristicMap), target, intent(in) :: goal
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+
+      if (this%omits_own_kind) then
+         kinds = [PHYSICAL_UNITS_CHARACTERISTIC_KIND]
+      else if (this%covers_units) then
+         kinds = [MOCK_CHARACTERISTIC_KIND, PHYSICAL_UNITS_CHARACTERISTIC_KIND]
+      else
+         kinds = [MOCK_CHARACTERISTIC_KIND]
+      end if
+
+      _UNUSED_DUMMY(tip)
+      _UNUSED_DUMMY(goal)
+   end function fake_covered_kinds
 
    function fake_get_signature(this) result(signature)
       class(FakeCharacteristic), intent(in) :: this
@@ -404,6 +438,175 @@ contains
       @assertEqual(0, status)
       @assertEqual('HORIZONTAL_DIMS_SPEC', unsupported)
    end subroutine test_incompatible_pair_without_conflict_argument_is_unsupported
+
+   ! One step covering two kinds: one extension node, both kinds at the
+   ! goal's value, reused by a second resolve.
+   @test
+   subroutine test_covering_step_resolves_two_kinds_in_one_link()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id, final_id2
+      type(NodeId), allocatable :: intermediate_ids(:), intermediate_ids2(:)
+      character(:), allocatable :: unsupported
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: link
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'))
+      call export_map%insert(MOCK_CHARACTERISTIC_KIND, &
+           FakeCharacteristic('a', covers_units=.true.))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('km'))
+      call import_map%insert(MOCK_CHARACTERISTIC_KIND, FakeCharacteristic('b'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(2, size(mismatched))
+      ! Order is by kind name: MOCK sorts before PHYSICAL_UNITS, so the MOCK
+      ! step (which covers units) comes first.
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, &
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertEqual(1, size(intermediate_ids))
+      @assertTrue(intermediate_ids(1) == final_id)
+
+      node => graph%get_node(final_id)
+      select type (node)
+      class is (StateItemNode)
+         link => node%get_descriptor()
+      end select
+      call link%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, c, &
+           rc=status)
+      @assertEqual('units=km', c%get_signature())
+      call link%get_characteristic(MOCK_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual('mock=b', c%get_signature())
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, &
+           mismatched, final_id2, intermediate_ids2, unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(final_id == final_id2)
+      @assertEqual(0, size(intermediate_ids2))
+   end subroutine test_covering_step_resolves_two_kinds_in_one_link
+
+   ! Default covered kinds is the step's own kind: two mismatches make two
+   ! steps, and each link is the export plus the goal for kinds so far.
+   @test
+   subroutine test_default_coverage_links_are_export_plus_goal_so_far()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: link
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'))
+      call export_map%insert(MOCK_CHARACTERISTIC_KIND, FakeCharacteristic('a'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('km'))
+      call import_map%insert(MOCK_CHARACTERISTIC_KIND, FakeCharacteristic('b'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, &
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, size(intermediate_ids))
+
+      ! Step 1 is the first kind in order (MOCK sorts before PHYSICAL_UNITS).
+      node => graph%get_node(intermediate_ids(1))
+      select type (node)
+      class is (StateItemNode)
+         link => node%get_descriptor()
+      end select
+      call link%get_characteristic(MOCK_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual('mock=b', c%get_signature())
+      call link%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, c, &
+           rc=status)
+      @assertEqual('units=m', c%get_signature())
+
+      node => graph%get_node(intermediate_ids(2))
+      select type (node)
+      class is (StateItemNode)
+         link => node%get_descriptor()
+      end select
+      call link%get_characteristic(MOCK_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual('mock=b', c%get_signature())
+      call link%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, c, &
+           rc=status)
+      @assertEqual('units=km', c%get_signature())
+   end subroutine test_default_coverage_links_are_export_plus_goal_so_far
+
+   ! covered_kinds that omits the step's own kind is a contract violation.
+   @test
+   subroutine test_covered_kinds_omitting_own_kind_fails()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'))
+      call export_map%insert(MOCK_CHARACTERISTIC_KIND, &
+           FakeCharacteristic('a', omits_own_kind=.true.))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('km'))
+      call import_map%insert(MOCK_CHARACTERISTIC_KIND, FakeCharacteristic('b'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, &
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
+      ! This suite's driver does not capture MAPL error messages, so only
+      ! the failure status is checked.
+      @assertTrue(status /= 0)
+      @assertEqual('', unsupported)
+   end subroutine test_covered_kinds_omitting_own_kind_fails
 
    ! -- reuse -------------------------------------------------------------
 

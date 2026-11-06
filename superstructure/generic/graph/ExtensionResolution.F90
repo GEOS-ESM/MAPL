@@ -35,7 +35,8 @@
 module mapl_ExtensionResolution_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap, &
         StateItemCharacteristicMapIterator, BUILD_TRANSFORM_INCOMPATIBLE, operator(==), operator(/=)
-   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        StateItemCharacteristicKind, operator(==)
    use mapl_StateItemDescriptor_mod, only: resolve_characteristics, &
         StateItemDescriptor
    use ESMF, only: ESMF_STATEITEM_FIELD
@@ -105,7 +106,7 @@ contains
    end function find_mismatched_characteristics
 
    ! REQ-EXT-001: resolve export_node_id -> (chain of transform steps and
-   ! extension items, one per entry in mismatched_kinds) -> final_node_id,
+   ! extension items, one per build step) -> final_node_id,
    ! reusing an existing chain for the same export and combined mismatch
    ! signature when one exists. Reports "unsupported" via
    ! unsupported_characteristic (non-empty name, rc still success - an expected
@@ -119,9 +120,10 @@ contains
    ! signatures), leaving unsupported_characteristic empty. A caller that
    ! does not pass `conflict` gets the kind in unsupported_characteristic.
    !
-   ! intermediate_node_ids(:) is parallel to mismatched_kinds: entry i is the
-   ! NodeId holding the state after mismatched_kinds(i)'s conversion, so entry
-   ! size(mismatched_kinds) equals final_node_id. It is zero-size on the reuse
+   ! intermediate_node_ids(:) has one entry per build step: entry i is the
+   ! NodeId holding the tip after step i, and the last entry equals
+   ! final_node_id. A step may cover several kinds (covered_kinds), so there
+   ! can be fewer entries than mismatched_kinds. It is zero-size on the reuse
    ! path (the first call already materialized the links) and truncated to the
    ! links actually built on an early unsupported exit (the failed step's
    ! orphaned extension node is excluded).
@@ -218,9 +220,11 @@ contains
       type(NodeId) :: transform_node_id
       type(StateItemNode), target :: extension_node
       type(StateItemDescriptor), pointer :: link
-      class(StateItemCharacteristic), pointer :: converted
       type(StateItemCharacteristicMapIterator) :: iter
-      integer :: j
+      type(StateItemCharacteristicMap), target :: tip
+      type(StateItemCharacteristicKind), allocatable :: covered(:), done(:)
+      logical :: covers_own_kind
+      character(:), allocatable :: assertion_message
       type(GraphStateItem) :: empty_payload
       type(NodeRevision) :: empty_revision
       type(TransformGraphNode) :: transform_node
@@ -228,28 +232,37 @@ contains
       unsupported_characteristic = ''
       if (present(conflict)) conflict = ''
       allocate(intermediate_node_ids(size(mismatched_kinds)))
+      allocate(done(0))
       num_built = 0
       current_node_id = export_node_id
 
       do i = 1, size(mismatched_kinds)
+         ! A step that already covered this kind leaves nothing to resolve.
+         if (has_kind(done, mismatched_kinds(i))) cycle
          export_characteristic => export_map%at(mismatched_kinds(i), rc=status)
          import_characteristic => import_map%at(mismatched_kinds(i), rc=status)
+
+         ! Tip at this step: the export with goal values for kinds covered
+         ! so far.
+         call make_tip(export_map, import_map, done, tip, _RC)
+         covered = export_characteristic%covered_kinds(tip, import_map)
+         covers_own_kind = has_kind(covered, mismatched_kinds(i))
+         assertion_message = 'ExtensionResolution: covered_kinds omits ' // &
+              'own kind ' // mismatched_kinds(i)%to_string()
+         _ASSERT(covers_own_kind, assertion_message)
+         done = [done, covered]
 
          ! Extension StateItemNode: payload left unallocated ("not yet realized"),
          ! as advertise_one does.
          extension_node_id = graph%next_node_id(_RC)
          extension_node = StateItemNode(extension_node_id, empty_payload, empty_revision)
-         ! The link describes the item after this step: the export's
-         ! characteristics with the import's values for kinds converted so far.
+         ! The link describes the item after this step: the next tip.
+         call make_tip(export_map, import_map, done, tip, _RC)
          link => extension_node%get_descriptor()
-         iter = export_map%ftn_begin()
-         do while (iter /= export_map%ftn_end())
+         iter = tip%ftn_begin()
+         do while (iter /= tip%ftn_end())
             call iter%next()
             call link%set_characteristic(iter%first(), iter%second(), _RC)
-         end do
-         do j = 1, i
-            converted => import_map%at(mismatched_kinds(j), _RC)
-            call link%set_characteristic(mismatched_kinds(j), converted, _RC)
          end do
          call graph%register_node(extension_node, _RC)
 
@@ -291,9 +304,61 @@ contains
          current_node_id = extension_node_id
       end do
 
+      intermediate_node_ids = intermediate_node_ids(1:num_built)
       final_node_id = current_node_id
 
       _RETURN(_SUCCESS)
    end subroutine build_chain
+
+   logical function has_kind(kinds, kind)
+      type(StateItemCharacteristicKind), intent(in) :: kinds(:)
+      type(StateItemCharacteristicKind), intent(in) :: kind
+
+      integer :: i
+
+      has_kind = .false.
+      do i = 1, size(kinds)
+         if (kinds(i) == kind) has_kind = .true.
+      end do
+   end function has_kind
+
+   ! tip := export_map with the goal's value for every kind in `done`.
+   ! Entries are inserted one at a time (no whole-map assignment).
+   subroutine make_tip(export_map, goal_map, done, tip, rc)
+      type(StateItemCharacteristicMap), target, intent(in) :: export_map
+      type(StateItemCharacteristicMap), target, intent(in) :: goal_map
+      type(StateItemCharacteristicKind), intent(in) :: done(:)
+      type(StateItemCharacteristicMap), target, intent(inout) :: tip
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i
+      logical :: in_tip, in_goal
+      character(:), allocatable :: assertion_message
+      type(StateItemCharacteristicMapIterator) :: iter
+      class(StateItemCharacteristic), pointer :: value
+
+      do i = 1, size(done)
+         in_tip = export_map%count(done(i)) > 0
+         in_goal = goal_map%count(done(i)) > 0
+         assertion_message = 'ExtensionResolution: covered kind ' // &
+              done(i)%to_string() // ' is missing from the tip or the goal'
+         _ASSERT(in_tip .and. in_goal, assertion_message)
+      end do
+
+      call tip%clear()
+      iter = export_map%ftn_begin()
+      do while (iter /= export_map%ftn_end())
+         call iter%next()
+         if (has_kind(done, iter%first())) then
+            value => goal_map%at(iter%first(), _RC)
+            call tip%insert(iter%first(), value)
+         else
+            call tip%insert(iter%first(), iter%second())
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine make_tip
 
 end module mapl_ExtensionResolution_mod
