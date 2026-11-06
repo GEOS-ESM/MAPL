@@ -1,12 +1,12 @@
 # Rules review: defaults, connections and intents
 
 Status: owner decisions recorded (session 2026-11-02 and the R2
-follow-up, §4a). Read-only review: nothing here has changed source. §4
+follow-up, §4a). Review document: the matrix describes the tree as reviewed; landed follow-ups are marked in §4a. §4
 keeps the questions as asked, as the record; §4a gives the decisions and
 the follow-up tasks (tasks.md 3.28-3.36). Still undecided: whether the
 §1 matrix replaces design §5.1 as a stable doc.
 
-Tree reviewed: branch `feature/#5286-graph-phase-5`, 2026-11-02.
+Tree reviewed: branch `feature/#5286-graph-phase-5`, 2026-11-02; shape sets, QuantityType and EXPRESSION rows updated at `cc98f77c3`, 2026-11-06.
 
 Numbering: this report's questions are R1-R16 (§4), decisions in §4a. "Q<n>" and "A<n>"
 always mean the open questions and owner decisions in `design.md`
@@ -19,7 +19,7 @@ Terms not in the legacy code, `GLOSSARY.md` or `design.md`:
   does not set it (advertise time), and what GEOM_B resolution and harvest
   make of it before freeze (§1, two columns).
 - **value wildcard**: a SPECIFIED value that the comparison treats as
-  "matches anything" (QUANTITY_UNKNOWN, BASIS_NONE). It differs from the
+  "matches anything" (BASIS_NONE; QUANTITY_UNKNOWN was one before 3.36). It differs from the
   UNCHECKED status, which is a status, not a value.
 - **adopt**: the import takes the export's value on connect (legacy:
   `connect_to_export` copies it; graph: design §2.2 copy on SPECIFIED x MIRRORED,
@@ -125,11 +125,11 @@ Source for the graph columns: the factories in
 `VariableSpec%make_*Aspect` (`specs/VariableSpec.F90:670-970`) and
 `specs/*Aspect.F90`.
 
-Shape sets used below (`make_characteristics.F90:638-661`):
+Shape sets used below (`make_characteristics.F90:684-707`):
 
 - **CFD** (`carries_field_description`): FIELD, BRACKET, VECTOR,
   VECTORBRACKET, FIELDBUNDLE, EXPRESSION.
-- **HFM** (`has_field_metadata`): CFD minus EXPRESSION.
+- **HFM** (`has_field_metadata`): CFD (since 3.12 it delegates to `carries_field_description`, so EXPRESSION is included; HDS still excludes EXPRESSION).
 - **HDS** (`has_horizontal_dims_spec`): CFD minus EXPRESSION.
 
 Intents: every intent may declare every characteristic, except that a
@@ -137,7 +137,7 @@ mirror request is allowed only on an IMPORT or an EXPRESSION export, and
 an EXPRESSION only as an EXPORT (`intent_rule_violation`,
 `VariableSpec_private.F90:29`; applied in `make_VariableSpec`,
 `VariableSpec.F90:398`, and the backstop `check_intent_rules`,
-`make_characteristics.F90:101`). No factory branches on intent, except
+`check_intent_rules` in `make_characteristics.F90`). No factory branches on intent, except
 LongName (IMPORT vs. the rest). So the undeclared columns are the same
 for every intent unless the row says otherwise.
 
@@ -180,17 +180,17 @@ yet; INCOMPATIBLE = can never connect, A23).
 | PhysicalUnits | CFD | Field-dictionary entry found (non-exempt shape) -> SPECIFIED with its units; otherwise UNCHECKED (also for `'<unknown>'`) (`make_units_characteristic`) | unchanged | none (factory never MIRRORED) | equal; `UnitsConverterTransform` | field-wide, structural | `UnitsAspect%matches`: UNCHECKED or `<unknown>` on either side matches (`UnitsAspect.F90:105-112`); else `are_convertible`. Same in effect. |
 | StandardName | FIELD, BRACKET (since 3.27) | UNCHECKED (also `UNKNOWN_STANDARD_NAME`); the field dictionary never supplies it | unchanged | MIRRORED for `MAPL_STRING_MIRROR`; IMPORT only (A13) | equal; differ: strict INCOMPATIBLE, permissive match with a warning (3.27, design A25) | field-wide; UNCHECKED writes `UNKNOWN_STANDARD_NAME` (`StandardNameCharacteristic.F90:126`) | `StandardNameAspect%matches` (`:110`): dst UNCHECKED matches; src UNCHECKED matches with a warning; differ: STRICT rejects, PERMISSIVE matches with a warning. Built for every shape but consulted only via the class's mandatory/order lists (FIELD; VECTOR per component). Same rule in the graph since 3.27. |
 | LongName | FIELD, EXPRESSION | Field-dictionary entry found (FIELD only; EXPRESSION is exempt) -> SPECIFIED with its long_name, for every intent. Otherwise: IMPORT -> UNCHECKED, writes nothing; other intents -> the declared standard_name as long_name (SPECIFIED), else UNCHECKED (`make_long_name_characteristic`) | unchanged | MIRRORED for `MAPL_STRING_MIRROR`; IMPORT only | never (`needs = .false.`); UNSUPPORTED is unreachable | per-alias | `FieldClassAspect` carries it, not compared; undeclared import takes the export's (`mirror_name`). No standard_name fallback. Differs: fallback (graph only); undeclared-import inheritance (legacy only; graph gap, tasks.md 4.2). |
-| UngriddedDims | HFM | SPECIFIED empty | unchanged | MIRRORED for `ungridded_dims%is_mirror()`; IMPORT only | equal; INCOMPATIBLE | field-wide, structural | `UngriddedDimsAspect%matches` equal; no conversion. Same. |
+| UngriddedDims | HFM (EXPRESSION included, 3.12) | SPECIFIED empty | unchanged | MIRRORED for `ungridded_dims%is_mirror()`; IMPORT only | equal; INCOMPATIBLE | field-wide, structural | `UngriddedDimsAspect%matches` equal; no conversion. Same. |
 | Geometry | CFD + SERVICE | DEFERRED; UNCHECKED if `horizontal_dims_spec` NONE (not compared); MIRRORED for EXPRESSION (`make_geometry_characteristic`) | DEFERRED -> SPECIFIED with the component geom at GEOM_B; else stays DEFERRED and may be filled from the realized field (`graphbuilder_harvest_deferred`, connect hook); still DEFERRED at freeze -> error (`check_resolved`). The uncompared UNCHECKED one takes the component geom and stays UNCHECKED (`geometry_resolve_deferred`). Never dropped. | MIRRORED for `mirror_geom` (YAML `geometry_mirror: true`); IMPORT or EXPRESSION | node identity / `mapl_SameGeom` / geom_id; UNSUPPORTED (no regrid before C1) | field-wide, structural | `make_GeomAspect` (`VariableSpec.F90:756`): item geom, else component geom, else item id, else component id (FROM_COMP), else **MIRRORED**. An item's own geom survives the GEOM_A push (private "declared by the item" flag, legacy's stand-in for DEFERRED; fixed 3.38). Differs: undeclared is DEFERRED in graph, MIRRORED in legacy (A12). |
 | HorizontalDimsSpec | HDS | SPECIFIED GEOM | unchanged | MIRRORED for `HORIZONTAL_DIMS_MIRROR` (YAML `dims: mirror`); IMPORT only | equal; INCOMPATIBLE | field-wide, structural | Inside `GeomAspect%matches` with `dims_specs_agree` (mirror agrees with any); NONE x NONE matches (A22). Same. |
 | VerticalGrid | CFD (and the VERTICALGRID variant) | DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid`; no entry for stagger NONE (`make_vertical_grid_characteristic`) | DEFERRED -> SPECIFIED from the component vgrid (`vcoord_resolve_deferred`); -> dropped if the component has none (`vcoord_drop_if_unsupplied`, `VerticalGridCharacteristic.F90:210-215`) | MIRRORED for `mirror_vgrid` (YAML `vertical_grid_mirror: true`) or EXPRESSION; IMPORT or EXPRESSION | identity / grid_id / dims set; UNSUPPORTED | field-wide, structural | `make_VerticalGridAspect` (`:854`): item grid, else component grid, else **MIRRORED** (SPECIFIED when the item's stagger is NONE). An item's own grid survives the GEOM_A push (declared flag; fixed 3.38). `VerticalGridAspect%matches` true if dst is mirror. Differs: undeclared DEFERRED vs MIRRORED. |
 | VerticalStagger | CFD | DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid` | component has no vgrid -> SPECIFIED NONE at GEOM_B; with a vgrid stays DEFERRED until harvested from a realized field (`stagger_resolve_deferred`, `harvest_stagger`); still DEFERRED at freeze -> error. Never dropped. | MIRRORED for `VERTICAL_STAGGER_MIRROR` (YAML `vertical_dim_spec: MIRROR`); IMPORT or EXPRESSION | equal; UNSUPPORTED | field-wide, structural | Inside `VerticalGridAspect`; unallocated stagger treated as mirror (design §5.1). Differs: undeclared DEFERRED (A17) vs mirror. |
 | VerticalOrientation | CFD minus stagger NONE | `with_grid`: SPECIFIED from the item grid, else DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid` | DEFERRED -> SPECIFIED from the component vgrid's direction (`orientation_resolve_deferred`); -> dropped if the component has none (`orientation_drop_if_unsupplied`, `VerticalOrientationCharacteristic.F90:182-187`) | MIRRORED for `vertical_alignment: mirror`; IMPORT or EXPRESSION | equal direction; UNSUPPORTED | field-wide, structural | Inside `VerticalGridAspect` (alignment). Graph-only split (Q7). |
-| Attributes | HFM | SPECIFIED empty | unchanged | none | import's set included in export's; INCOMPATIBLE | none written | `AttributesAspect%matches` includes (`AttributesAspect.F90:77`). Same. |
-| QuantityType | HFM | SPECIFIED QUANTITY_UNKNOWN (value wildcard) | unchanged | none | equal or either UNKNOWN; basis equal or either NONE; INCOMPATIBLE for a quantity-type mismatch, UNSUPPORTED for a basis-only mismatch | field-wide (`quantity_type_metadata`) | `make_QuantityTypeAspect` ignores the declared value: always UNKNOWN (Q9). `matches` same rule. Differs: declared value used in graph only. |
-| Conservation | HFM | SPECIFIED CONSERVE_NONE | unchanged | MIRRORED for `conservation%is_mirror()`; IMPORT only | `metadata ==`; INCOMPATIBLE | field-wide | `make_ConservationAspect` ignores the declared value (CONSERVE_NONE). Differs as QuantityType. |
-| Normalization | HFM | SPECIFIED NORMALIZE_NONE, scale 1 | unchanged | MIRRORED for `normalization%is_mirror()`; IMPORT only | `metadata ==`; INCOMPATIBLE | field-wide | `make_NormalizationAspect` ignores the declared value. Differs as QuantityType. |
-| RestartMode | FIELD only | SPECIFIED RESTART_REQUIRED (A15) | unchanged | none | never (`needs = .false.`) | per-alias | `FieldClassAspect%restart_mode`, written per alias in `FieldClassAspect%add_to_state` (`:498`). Same. |
+| Attributes | HFM (EXPRESSION included, 3.12) | SPECIFIED empty | unchanged | none | import's set included in export's; INCOMPATIBLE | none written | `AttributesAspect%matches` includes (`AttributesAspect.F90:77`). Same. |
+| QuantityType | HFM (EXPRESSION included, 3.12) | Declared -> SPECIFIED. Undeclared (or declared QUANTITY_UNKNOWN): DEFERRED on EXPORT/INTERNAL, UNCHECKED on IMPORT (`make_quantity_type_characteristic`; landed 3.36) | Unsupplied DEFERRED: non-fatal falls back to UNCHECKED with one summary warning; fatal (freeze error) only with `field_dictionary: require_quantity_type` (`quantity_type_required()`) | none | quantity type equal; basis equal or either BASIS_NONE; INCOMPATIBLE for a quantity-type mismatch, UNSUPPORTED for a basis-only mismatch | field-wide (`quantity_type_metadata`) | `make_QuantityTypeAspect` ignores the declared value: always UNKNOWN (Q9). `matches` same rule. Differs: declared value used in graph only. |
+| Conservation | HFM (EXPRESSION included, 3.12) | SPECIFIED CONSERVE_NONE | unchanged | MIRRORED for `conservation%is_mirror()`; IMPORT only | `metadata ==`; INCOMPATIBLE | field-wide | `make_ConservationAspect` ignores the declared value (CONSERVE_NONE). Differs as QuantityType. |
+| Normalization | HFM (EXPRESSION included, 3.12) | SPECIFIED NORMALIZE_NONE, scale 1 | unchanged | MIRRORED for `normalization%is_mirror()`; IMPORT only | `metadata ==`; INCOMPATIBLE | field-wide | `make_NormalizationAspect` ignores the declared value. Differs as QuantityType. |
+| RestartMode | FIELD, EXPRESSION (3.12) | SPECIFIED RESTART_REQUIRED (A15) | unchanged | none | never (`needs = .false.`) | per-alias | `FieldClassAspect%restart_mode`, written per alias in `FieldClassAspect%add_to_state` (`:498`). Same. |
 
 Notes on the matrix:
 
@@ -293,18 +293,18 @@ Geometry: `geom` and `geom_id`; VerticalStagger: `vertical_stagger` and
 Today, undeclared gives, at advertise (factory status; ItemShape, which
 is always declared, left out), when no field-dictionary default applies:
 
-- SPECIFIED built-in default (8): TypeKind R4, UngriddedDims empty,
-  HorizontalDimsSpec GEOM, Attributes empty, QuantityType UNKNOWN,
+- SPECIFIED built-in default (7): TypeKind R4, UngriddedDims empty,
+  HorizontalDimsSpec GEOM, Attributes empty,
   Conservation NONE, Normalization NONE, RestartMode REQUIRED.
-- UNCHECKED (3): PhysicalUnits, StandardName, LongName (IMPORT, or no
-  fallback).
+- UNCHECKED (3, plus QuantityType on an IMPORT): PhysicalUnits,
+  StandardName, LongName (IMPORT, or no fallback).
 
 When the field dictionary has an entry for the item (non-exempt shape),
 PhysicalUnits and LongName are SPECIFIED from it instead, leaving one
 UNCHECKED kind (StandardName, if not declared).
-- DEFERRED (4): Geometry, VerticalGrid, VerticalStagger,
-  VerticalOrientation.
-- Value wildcard inside SPECIFIED: QuantityType UNKNOWN / BASIS_NONE.
+- DEFERRED (4, plus QuantityType on an EXPORT or INTERNAL): Geometry,
+  VerticalGrid, VerticalStagger, VerticalOrientation.
+- Value wildcard inside SPECIFIED: QuantityType BASIS_NONE.
 
 After GEOM_B and before freeze, the four DEFERRED ones end as follows
 (§1, last undeclared column):
@@ -382,8 +382,9 @@ long_name, not the export's. Not a question, but worth knowing for the
 
 ### 2.5 EXPRESSION exemptions
 
-EXPRESSION differs from FIELD in: no UngriddedDims/Attributes/QuantityType/
-Conservation/Normalization/HorizontalDimsSpec entry; default MIRRORED
+EXPRESSION differs from FIELD in: no HorizontalDimsSpec entry (since 3.12
+UngriddedDims, Attributes, QuantityType, Conservation and Normalization
+have one); default MIRRORED
 Geometry/VerticalGrid/VerticalStagger/VerticalOrientation; MIRRORED allowed
 on export (design §2.4 allowlist); field dictionary exempt (`is_exempt`); legacy
 `connect_to_export` is a no-op (`ExpressionClassAspect.F90:232`). All
@@ -1060,7 +1061,7 @@ record.
 | Q | Decision | Owner's words | Follow-up |
 |---|---|---|---|
 | R1 | (a) No adopt rule for value wildcards; correct the docs that describe the legacy `connect_to_export` copy as behavior. | "(a)" | Done in this task: tasks.md 3.26 seed; design.md §4.3 (BRACKET -> FIELD standard_name note), §5.1 (VerticalOrientation legacy cell), A23 ("export's name wins" qualified), A24 (new); `adding-a-characteristic.md` (QuantityType connect note, BRACKET -> FIELD note, HorizontalDimsSpec mirror note). |
-| R2 | (c), only QuantityType changes now, and the rule reads "almost all characteristics default to DEFERRED", not "UNSPECIFIED". Follow-up decisions: (1) DEFERRED is supplied by the user with `MAPL_FieldSet` in component code; never supplied, freeze fails, but only for a kind the item's shape carries (structural already: the factory adds no entry for other shapes, and freeze checks only present entries). (2) Rollout (b): suppliers first (YAML key, `make_VariableSpec` keyword, harvest of a `MAPL_FieldSet` value); then a ValidationMode-style switch: an unsupplied DEFERRED QuantityType at freeze is a warning with a fallback by default, an error in strict mode; strict becomes the default once real configs comply. (3) Imports (a): an undeclared IMPORT is UNCHECKED; only exports and internals carry the DEFERRED/freeze rule. Conservation and Normalization unchanged for now. | "I used the wrong term. I meant "DEFERRED" where I said "UNSPECIFIED". (c)"; "Users can use FieldSet to modify DEFERRED characteristics"; freeze fails "but *only* if it is a characteristic used by that ItemShape. E.g., a State with DEFERRED physical units is ok."; rollout: "Later I will work through more concrete use cases and we may tweak the rules."; imports: "will try to work through realistic use cases later to refine this." | 3.35 B3-QuantityTypeSuppliers, 3.36 B3-QuantityTypeDeferred. Consistency with R1 and the UNKNOWN wildcard: see the note below the table. |
+| R2 | (c), only QuantityType changes now, and the rule reads "almost all characteristics default to DEFERRED", not "UNSPECIFIED". Follow-up decisions: (1) DEFERRED is supplied by the user with `MAPL_FieldSet` in component code; never supplied, freeze fails, but only for a kind the item's shape carries (structural already: the factory adds no entry for other shapes, and freeze checks only present entries). (2) Rollout (b): suppliers first (YAML key, `make_VariableSpec` keyword, harvest of a `MAPL_FieldSet` value); then a ValidationMode-style switch: an unsupplied DEFERRED QuantityType at freeze is a warning with a fallback by default, an error in strict mode; strict becomes the default once real configs comply. (3) Imports (a): an undeclared IMPORT is UNCHECKED; only exports and internals carry the DEFERRED/freeze rule. Conservation and Normalization unchanged for now. | "I used the wrong term. I meant "DEFERRED" where I said "UNSPECIFIED". (c)"; "Users can use FieldSet to modify DEFERRED characteristics"; freeze fails "but *only* if it is a characteristic used by that ItemShape. E.g., a State with DEFERRED physical units is ok."; rollout: "Later I will work through more concrete use cases and we may tweak the rules."; imports: "will try to work through realistic use cases later to refine this." | 3.35 B3-QuantityTypeSuppliers, 3.36 B3-QuantityTypeDeferred. 3.36 landed. Consistency with R1 and the UNKNOWN wildcard: see the note below the table. |
 | R3 | (a) Keep the hard error for MIRROR on a non-EXPRESSION export; M1 reads "disallowed until a use case and export cloning exist". | "(a)" | none (owner's list). |
 | R4 | (a) Add "INTERNAL: no mirror of any kind" (Q13) to the owner's list as M4. | "(a)" | none (owner's list). |
 | R5 | (a) BRACKET/VECTORBRACKET never IMPORT, WILDCARD only IMPORT, in `intent_rule_violation`, both modes. | "(a)" | 3.28 B3-ShapeIntentRules. |
@@ -1077,7 +1078,7 @@ record.
 | R16 | (a) Run a probe test before deciding; if legacy does overwrite, treat it as a legacy bug (item wins). | "(a)" | 3.32 B3-GeomAProbe. |
 
 R2 and R1 together. R1 (a) says no adopt rule; R2 does not add one.
-After 3.36:
+After 3.36 (landed):
 
 - An undeclared EXPORT or INTERNAL QuantityType is DEFERRED, not SPECIFIED
   `QUANTITY_UNKNOWN`. Until it is supplied, a connection to it waits
@@ -1087,10 +1088,12 @@ After 3.36:
   UNCHECKED side, with no copy (PAIR_ADOPT is only for a MIRRORED import).
   So the import's UNCHECKED status replaces the UNKNOWN value wildcard for
   the undeclared case, and the import still copies nothing (R1).
-- What is left of the wildcard in `QuantityTypeCharacteristic%needs_extension_for`
-  (`QuantityTypeCharacteristic.F90:87-93`) is only an explicitly declared
-  `QUANTITY_UNKNOWN`, which becomes possible once 3.35 adds a declaration
-  path. 3.36 proposes treating a declared UNKNOWN as undeclared, as the
+- A declared `QUANTITY_UNKNOWN` counts as undeclared (as the
+  PhysicalUnits factory does for `'<unknown>'`), and both UNKNOWN
+  disjuncts are gone from `pair_outcome`'s quantity-axis match. Before the
+  change, the wildcard in `QuantityTypeCharacteristic%needs_extension_for`
+  was only an explicitly declared `QUANTITY_UNKNOWN`, which becomes possible once 3.35 adds a declaration
+  path. 3.36 proposed treating a declared UNKNOWN as undeclared, as the
   PhysicalUnits factory already does for `'<unknown>'`, and dropping the
   UNKNOWN wildcard from `needs_extension_for`. BASIS_NONE is a separate
   case: `VariableSpec` has no basis field, so nothing declares a basis;
@@ -1104,16 +1107,13 @@ B4), which R1 and R12 name as the point to revisit.
 
 - `superstructure/generic/specs/VariableSpec.F90:569` `get_regrid_param`:
   no caller; the field-dictionary regrid default is never applied.
-- `superstructure/generic/to_itemtype.F90` (root of `generic/`) duplicates
-  `ComponentSpecParser/to_itemtype.F90` and is not built
-  (`CMakeLists.txt:130` builds the latter); only the unbuilt copy parses
-  `vector_bracket`, so YAML cannot declare a VECTORBRACKET.
+- The stray `superstructure/generic/to_itemtype.F90` is deleted (D3-cleanup);
+  `ComponentSpecParser/to_itemtype.F90` does not parse `vector_bracket`, so
+  YAML cannot declare a VECTORBRACKET.
 - `superstructure/generic/graph/characteristics/LongNameCharacteristic.F90:90`:
   `build_transform` reports UNSUPPORTED, but `needs_extension_for` is
   always false, so it is unreachable; INCOMPATIBLE or a "never called"
   comment would be clearer. Same for `RestartModeCharacteristic.F90:91`.
-- `docs/graph/ARCHITECTURE.md:314-316` says NAG must be exactly 7.2.41;
-  AGENTS.md says load only the unversioned stack. Stale wording.
 - `superstructure/generic/OuterMetaComponent/initialize_advertise.F90:48-69,73-107`:
   long change-history comments ("Phase 3b", archived task numbers), the
   style AGENTS.md asks to remove (task A4).

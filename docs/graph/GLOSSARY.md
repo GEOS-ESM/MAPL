@@ -19,7 +19,7 @@ deprecated yet.
 | `AspectStatus` (`ASPECT_STATUS_INVALID`, `FROM_COMP`, `SPECIFIED`, `MIRRORED`, `DEFERRED`, `UNCHECKED`) | `CharacteristicStatus` (`INVALID`, `SPECIFIED`, `MIRRORED`, `UNCHECKED`, `DEFERRED`) | Graph has no `FROM_COMP`. The plan collapses it into `SPECIFIED` (plan D2). |
 | `AspectId` | `StateItemCharacteristicKind` | Map key identifying the axis. |
 | `AspectMap` (inside `StateItemSpec`) | `StateItemCharacteristicMap` (inside `StateItemDescriptor`) | The map lives in the descriptor owned by `StateItemNode`. |
-| `ClassAspect` (`FieldClassAspect`, `BracketClassAspect`, `ExpressionClassAspect`, `WildcardClassAspect`, …) | `ItemShapeCharacteristic` | Structural class of an item. Every shape carries one. Graph converts Bracket→Field only through the characteristic; Expression and Wildcard are resolved by dedicated `GraphBuilder` hooks. |
+| `ClassAspect` (`FieldClassAspect`, `BracketClassAspect`, `ExpressionClassAspect`, `WildcardClassAspect`, …) | `ItemShapeCharacteristic` | Structural class of an item. Every shape carries one. Graph converts Bracket→Field only through the characteristic; Expression and Wildcard are resolved by dedicated `GraphBuilder` code. |
 | `ClassAspect%get_aspect_order(goal_aspects)` | `ItemShapeCharacteristic%get_extension_order(goal, rc)` | Per-shape lists from legacy; applied by `resolve_characteristics`. Kinds a list omits follow by kind name. |
 | `UnitsAspect` | `PhysicalUnitsCharacteristic` | |
 | `TypekindAspect` | `TypeKindCharacteristic` | |
@@ -36,7 +36,7 @@ deprecated yet.
 | `ExtensionFamily` (primary + derived specs per virtual pt) | `ExtensionResolution` (`find_mismatched_characteristics`, `find_or_build_extension_chain`) and extension `StateItemNode`s | Chain of extension nodes replaces the family set. |
 | `StateRegistry%propagate_unsatisfied_imports` / `propagate_exports` | `graphbuilder_run_propagate_hook` / `graphbuilder_run_export_propagate_hook` | Run in sequence with the legacy calls in `initialize_advertise.F90`. |
 | `Connection`, `SimpleConnection`, `MatchConnection`, `ReexportConnection` | Same types (shared) | Graph resolution dispatches on `SimpleConnection` and `MatchConnection`; `ReexportConnection` takes the `class default` path. These are in the integration seam, not duplicated. |
-| `ExpressionClassAspect` + `EvalTransform` | `graphbuilder_run_expression_hook` + `ExpressionTransform` | N:1, dedicated hook (not pairwise). |
+| `ExpressionClassAspect` + `EvalTransform` | Expression placeholder + `graphbuilder_run_expression_hook` (names check) + per-consumer `ExpressionTransform` evaluation | N:1, not pairwise; one evaluation per consumer, built in `resolve_one_pair`. `ExpressionCharacteristic` holds the declared expression string. |
 | `WildcardClassAspect` | `resolve_wildcard_destination` | Each match is a composite member of the import. |
 | `ServiceClassAspect` | callbacks (`graph/callback/`) | Service is being retired, not migrated. |
 | `GRAPH_MODE_*` | `mapl_GraphMode_mod` | `registry` (default, legacy only), `both`, `graph`. Set only by test code. |
@@ -54,6 +54,10 @@ deprecated yet.
 | Variant | `MAPL_StateItem_Flag` tag refining an ESMF kind (`GEOM`, …) in ESMF Info. |
 | Frozen | After `freeze()` a `ComponentGraph` accepts no new nodes or edges. |
 | Composite state / member | A `STATE`-typed item with named members; members have no ports of their own. |
+| Expression placeholder | An EXPRESSION export: no edges, never materialized; each consumer gets its own evaluation (result node + `ExpressionTransform`). Legacy: `ExpressionClassAspect` item. |
+| Consumer-adopted kinds | Kinds in the (item type, kind) mirrored-export allowlist (`get_consumer_adopted_kinds`): the evaluation result takes the consumer's value for them. No legacy term. |
+| `declared_wins` | Allowlist flag: a `SPECIFIED` value declared on the expression beats the consumer's. False only for TYPE_KIND (precision is always the consumer's). No legacy term. |
+| Deferred fallback | A `DEFERRED` characteristic nothing supplied (and not fatal, e.g. QuantityType) becomes `UNCHECKED` at connect, with one summary warning. No legacy term. |
 | Characteristic status `UNCHECKED` | "Always match, user beware." |
 
 ## Terms in the plan not yet in code
