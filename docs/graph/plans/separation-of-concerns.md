@@ -17,7 +17,8 @@ branch (currently `feature/#5286-graph-phase-5`); one task = one commit,
 or a short series of commits. Agents **do not commit**: they leave the
 task as uncommitted changes plus a proposed message in
 `.git/PLAN_TASK_MSG`, and the owner reviews the working tree before
-committing (see "Review and commit" below). The integration branch goes to `develop` as
+committing (or meta lands it under auto-landing; see "Working with the
+owner") (see "Review and commit" below). The integration branch goes to `develop` as
 one final PR, followed by a walkthrough with the senior developers.
 Every task commit ends with a git trailer naming its task:
 
@@ -31,7 +32,8 @@ Labels are the task ids below (`A0`, `A1`, `A1-diagnosis`, `A2a`, `B3-Units`, `B
 in this plan (they change if the branch is rebased); the trailer is the
 reference. Never rebase or amend existing commits. Task agents never
 push; the meta session pushes only the integration branch, fast-forward
-only, right after each commit the owner approved (owner, 2026-11-05).
+only, right after each commit the owner approved or meta auto-landed (owner,
+2026-11-05).
 Only the owner rebases the branch onto `develop` (last: 2026-11-02, onto
 develop through #5473), and only while no outsourced PR is open; after a
 rebase, rebuild NAG and gfortran from clean, because incremental builds
@@ -72,8 +74,13 @@ Preferences stated in discussion, not obvious from the rest of the plan:
   consequences; a recommendation. No labels invented in the session.
   If the owner asks for more context, re-ask from a lower level.
   Details: orchestration.md, "Question format".
-- The owner reviews every task before it commits (reviewer subagent at
-  least `sonnet` when the model table says `-`).
+- Every task is reviewed before it commits (reviewer subagent at least
+  `sonnet` when the model table says `-`). Sonnet-authored tasks that
+  the reviewer accepts and that pass NAG and gfortran Debug ESSENTIAL
+  land without the owner's "commit" (owner, 2026-11-06), with trailer
+  `Landed-By: meta`; the owner reviews them afterwards. Opus/design,
+  test-first, and decision-carrying tasks still wait for him. Rules:
+  orchestration.md, "Auto-landing".
 - Eliminating legacy is a primary goal, but nothing legacy is disabled
   or deleted until (a) this branch is merged into `develop` and (b)
   external client code builds and passes its tests in graph mode.
