@@ -1578,6 +1578,24 @@ it runs goes in a follow-up commit with the same trailer. Label
   whether to keep the shards. Fallback if more binaries hit the limit
   first: keep one gridded component per PET count and reuse it across
   tests (tried: NAG ESSENTIAL green, unsharded scenarios green).
+- `graph/transforms/TransformGraphNode.F90` ~91: `allocate(transformer,
+  source=)` plus the HierarchyGraph insert corrupts a `PortSpecMap` with
+  2+ entries under gfortran (SIGBUS in deep_copy). `ExpressionTransform`
+  works around it by answering port queries from its referenced names;
+  fix the copy properly (e.g. ports in a vector) and drop the override.
+- **Status:** not started
+
+**D4. NAG Debug green.** Owner rule (2026-11-05): every build is Debug,
+on every compiler. NAG Debug (`-C=dangling`) aborts about 40 ESSENTIAL
+tests at `d63770b13`, nearly all at the gFTL set/map iterator
+("dangling pointer THIS%TREE"), plus `Test_Couplers.pf` ~825
+(ASPECTS). Usual cause (owner): a missing TARGET on an intervening
+dummy argument, which lets NAG pass a copy in and out. Find each site
+from the NAG runtime messages and add TARGET (dummy or local) or
+restructure; no behavior change. Main-line B tasks keep landing on
+gfortran Debug 69/69 meanwhile; NAG ESSENTIAL is rechecked when D4
+lands. Candidate for outsourcing (mechanical, off the critical path).
+Label `D4-NagDangling`.
 - **Status:** not started
 
 ### Phase E - closing
@@ -1725,6 +1743,7 @@ it may author D1/A4/B5 with sonnet review.
 | D1 | sonnet (haiku?) | sonnet if haiku | `public ::` rule |
 | D2 | sonnet | opus | lifecycle-phase ordering |
 | D3-cleanup | sonnet | - | items are small and independent |
+| D4-NagDangling | sonnet | - | mechanical; outsourceable |
 | E1-intel | sonnet | - | run and classify only; remote build on bucy |
 | E1-early | volunteer | meta (report check) | outsourced; run and classify only, current HEAD, ifx-stack on bucy |
 

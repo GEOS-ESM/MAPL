@@ -507,6 +507,17 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
         steps to each consumer, stagger from the consumer when the
         expression has no `vertical_dim_spec`, the ready scenario (B: R4;
         C: R8 in cm, 300 cm) and its `check_graph` entry.
+        Preflight answers (owner, 2026-11-06): (1) a SPECIFIED value
+        declared on the expression wins over the consumer's for the
+        adopted kinds, except typekind (always the consumer's); a
+        mismatch is then an ordinary result-to-consumer step. (2) A
+        DEFERRED adopted kind on the consumer or an input: build nothing,
+        wait and retry like an ordinary pair. (3) A unit-less input that
+        needs a precision step: allow empty units when materializing its
+        chain if field creation tolerates them, else report it
+        unsupported with a note. (4) An incompatible adopted kind on an
+        input is a connection conflict. (5) Unsupported expression
+        inputs also feed `note_unsupported_pair` (strict freeze).
 - [ ] 3.24 B3-ExpressionNativeGrid (optimization, after 3.23; owner
       request). If all inputs share one geometry (or vertical grid),
       evaluate on that native grid and transform only the result to each
