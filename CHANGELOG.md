@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Allow . in is_valid in utils/Validation.F90 so that grid comps with . in their names can be pass validation test.
+
 - Add hack so that edge level geos-chem inputs can be read and correctly identified as edge instead of centers
 - Enforced the `standard_name` convention between a connected Import and
   Export (GEOS-ESM/MAPL#5413). A new `StandardNameAspect`

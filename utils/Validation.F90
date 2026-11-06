@@ -9,6 +9,7 @@ module mapl_Validation_mod
    character(*), parameter :: UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
    character(*), parameter :: DIGITS = '0123456789'
    character(*), parameter :: ALPHANUMERIC = LOWER//UPPER//DIGITS
+   character(*), parameter :: PUNCTUATION = '_'//'.'
 
 contains
 
@@ -27,7 +28,7 @@ contains
       is_valid = (verify(name(1:1), LOWER // UPPER) == 0)
       if (.not. is_valid) return
       
-      is_valid = (verify(name(2:), LOWER // UPPER // DIGITS // '_') == 0)
+      is_valid = (verify(name(2:), ALPHANUMERIC // PUNCTUATION) == 0)
 
    end function is_valid_name
   
