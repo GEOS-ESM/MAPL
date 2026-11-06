@@ -19,6 +19,9 @@ module Test_StateItemDescriptor
         CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED, CharacteristicStatus, operator(==)
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_ExpressionCharacteristic_mod, only: ExpressionCharacteristic
+   use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
+   use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM, operator(==)
    use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
    use mapl_UngriddedDims_mod, only: UngriddedDims, operator(==)
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
@@ -2032,5 +2035,61 @@ contains
       @assertTrue(variant == VARIANT_VERTICALGRID)
       call ESMF_StateDestroy(state)
    end subroutine test_sync_writes_declared_variant_on_state
+
+   ! get_expression returns the stored string, and fails when absent.
+   @test
+   subroutine test_get_expression_present_and_absent()
+      type(StateItemDescriptor) :: item, bare
+      character(:), allocatable :: expression
+      integer :: status_present, status_absent
+
+      call item%set_characteristic(EXPRESSION_CHARACTERISTIC_KIND, &
+           ExpressionCharacteristic('a + b'))
+      call bare%get_expression(expression, rc=status_absent)
+      call item%get_expression(expression, rc=status_present)
+      @assertEqual(0, status_present)
+      @assertEqual('a + b', expression)
+      @assertTrue(status_absent /= 0)
+   end subroutine test_get_expression_present_and_absent
+
+   ! add_expression_result_defaults gives a descriptor without a horizontal
+   ! dims spec a SPECIFIED GEOM entry, and keeps an existing one.
+   @test
+   subroutine test_add_expression_result_defaults_geom_and_keeps_existing()
+      type(StateItemDescriptor) :: item, kept
+      class(StateItemCharacteristic), allocatable :: c
+      logical :: had_before, has_after
+      integer :: status1, status2, status3, status4
+
+      had_before = item%has_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND)
+      call item%add_expression_result_defaults(rc=status1)
+      has_after = item%has_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND)
+      call item%get_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, c, rc=status2)
+      call kept%set_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE), rc=status3)
+      call kept%add_expression_result_defaults(rc=status4)
+      @assertEqual(0, status1)
+      @assertEqual(0, status2)
+      @assertEqual(0, status3)
+      @assertEqual(0, status4)
+      @assertFalse(had_before)
+      @assertTrue(has_after)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (HorizontalDimsSpecCharacteristic)
+         @assertTrue(c%get_horizontal_dims_spec() == HORIZONTAL_DIMS_GEOM)
+      class default
+         @assertTrue(.false.)
+      end select
+      deallocate(c)
+      call kept%get_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, c, rc=status1)
+      @assertEqual(0, status1)
+      select type (c)
+      type is (HorizontalDimsSpecCharacteristic)
+         @assertTrue(c%get_horizontal_dims_spec() == HORIZONTAL_DIMS_NONE)
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_add_expression_result_defaults_geom_and_keeps_existing
 
 end module Test_StateItemDescriptor

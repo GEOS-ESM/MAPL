@@ -23,10 +23,12 @@ module Test_ExtensionMaterialization
    use mapl_StateItemCharacteristicKind_mod, only: &
         StateItemCharacteristicKind, &
         PHYSICAL_UNITS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
-        TYPE_KIND_CHARACTERISTIC_KIND
+        TYPE_KIND_CHARACTERISTIC_KIND, HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
+   use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_GEOM
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain, &
         set_materialize_extensions, materialize_extensions_enabled
    use mapl_ExtensionMaterialization_mod, only: materialize_field_extension
@@ -101,6 +103,8 @@ contains
       ! from the export and typekind matches, so only units are converted.
       call export_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
            GeometryCharacteristic(geom_id='1', geom=geom))
+      call export_map%insert(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM))
       call export_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
            TypeKindCharacteristic('R4'))
       call import_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
@@ -187,6 +191,8 @@ contains
       ! from the export and typekind matches, so only units are converted.
       call export_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
            GeometryCharacteristic(geom_id='1', geom=geom))
+      call export_map%insert(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM))
       call export_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
            TypeKindCharacteristic('R4'))
       call import_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
@@ -263,6 +269,8 @@ contains
       ! from the export and typekind matches, so only units are converted.
       call export_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
            GeometryCharacteristic(geom_id='1', geom=geom))
+      call export_map%insert(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM))
       call export_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
            TypeKindCharacteristic('R4'))
       call import_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &

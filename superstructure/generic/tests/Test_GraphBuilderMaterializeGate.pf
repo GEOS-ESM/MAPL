@@ -41,6 +41,7 @@
 module Test_GraphBuilderMaterializeGate
    use mapl_OuterMetaComponent_mod
    use mapl_GraphBuilder_mod
+   use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_GEOM, operator(==)
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
@@ -89,7 +90,8 @@ contains
       type(SimpleConnection) :: connection
       type(ESMF_Grid) :: grid
       type(ESMF_Geom) :: geom
-      type(ESMF_Field) :: source_field, converted_field
+      type(ESMF_Field) :: source_field, converted_field, result_field
+      type(HorizontalDimsSpec) :: dims_spec
       type(ESMF_State) :: export_state
       type(MultiState) :: states
       type(ComponentGraph), pointer :: pg, dg
@@ -186,6 +188,23 @@ contains
          @assertTrue(typekind == ESMF_TYPEKIND_R8)
       class default
          @assertTrue(.false., 'converted input is not a state item')
+      end select
+
+      ! The expression result spans the geom: the descriptor says so, and
+      ! materialization writes no default of its own.
+      node => pg%get_node(result_id)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+         @assertTrue(payload%itemType(rc=status) == ESMF_STATEITEM_FIELD)
+         result_field = payload%get_field(rc=status)
+         @assertEqual(0, status)
+         call MAPL_FieldGet(result_field, horizontal_dims_spec=dims_spec, &
+              rc=status)
+         @assertEqual(0, status)
+         @assertTrue(dims_spec == HORIZONTAL_DIMS_GEOM)
+      class default
+         @assertTrue(.false., 'expression result is not a state item')
       end select
       _UNUSED_DUMMY(this)
    end subroutine test_unitless_expression_input_precision_materializes

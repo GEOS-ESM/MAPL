@@ -1103,7 +1103,7 @@ B4b as its own task.
 - [x] 4.3 Delete `GraphStateItem%ordering` and
       `characteristic_ordering_table`; replace their tests with golden
       `get_extension_order` tests per shape. Done in B3-ItemShape.
-- [ ] 4.4 Done when the D6 grep (`_CHARACTERISTIC_KIND` and concrete
+- [x] 4.4 Done when the D6 grep (`_CHARACTERISTIC_KIND` and concrete
       `*Characteristic` names in `GraphBuilder*.F90`, outside comments)
       finds nothing, and ESSENTIAL passes on NAG and gfortran.
       Also: route `get_item_expression` generically, and move the
@@ -1111,6 +1111,16 @@ B4b as its own task.
       `ExtensionMaterialization` into graph-layer expression-result
       descriptor construction (a SPECIFIED GEOM HorizontalDimsSpec;
       not GraphBuilder), then drop the design.md §3.2 "As landed" note.
+      Status: done (B4c). `StateItemDescriptor%get_expression` (fails
+      when the entry is absent, as before; both callers still treat an
+      empty string as nothing to do) replaces `get_item_expression`.
+      `StateItemDescriptor%add_expression_result_defaults`, called
+      generically by
+      `build_expression_evaluation`, gives the result a SPECIFIED GEOM
+      HorizontalDimsSpec when it has none; `ExtensionMaterialization`
+      writes no default. The D6 grep shows only base-class names
+      (`StateItemCharacteristic` at ConnectionResolution:1671, 1848,
+      1890; GraphBuilder.F90:65, 366). NAG and gfortran ESSENTIAL 69/69.
 
 ## 5. VariableSpec translation (B5)
 

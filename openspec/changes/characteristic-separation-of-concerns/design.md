@@ -294,13 +294,7 @@ one of `geom`, `vgrid`, `typekind`, `num_levels`, `units` is present
    `MAPL_FieldEmptyComplete` allocates from Info. This replaces
    `materialize_field_extension`'s scalar arguments (B4), and it is what
    lets materialization stay characteristic-agnostic.
-   As landed (B4b): before the sync, materialization writes
-   `horizontal_dims_spec=GEOM` as a creation default, which the item's own
-   HorizontalDimsSpec entry then overwrites. An expression result has no
-   entry (EXPRESSION declares no horizontal layout), and giving it one
-   would mean naming the kind in GraphBuilder (D6) or adding it to the
-   consumer-adopted kinds, which would also compare every expression
-   input's layout against the consumer's. After completion it writes
+   After completion it writes
    `allocation_status=ALLOCATED`, as `FieldCreate` does.
 2. **After completion, only DESCRIPTIVE-phase keywords are ever
    written.** A characteristic marked structural (`is_structural() =

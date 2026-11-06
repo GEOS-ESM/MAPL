@@ -1433,31 +1433,6 @@ contains
       end if
    end subroutine check_materializable
 
-   ! Recovers a GraphStateItem's EXPRESSION characteristic as a plain string.
-   ! Always established for an EXPRESSION item (design.md Expression row:
-   ! SPECIFIED, always).
-   subroutine get_item_expression(item, expression, rc)
-      type(StateItemDescriptor), intent(in) :: item
-      character(:), allocatable, intent(out) :: expression
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      class(StateItemCharacteristic), allocatable :: characteristic
-
-      _ASSERT(item%has_characteristic(EXPRESSION_CHARACTERISTIC_KIND), 'get_item_expression: no Expression entry')
-
-      call item%get_characteristic(EXPRESSION_CHARACTERISTIC_KIND, &
-           characteristic, _RC)
-      select type (characteristic)
-      class is (ExpressionCharacteristic)
-         expression = characteristic%get_expression()
-      class default
-         _FAIL('get_item_expression: entry is not an ExpressionCharacteristic')
-      end select
-
-      _RETURN(_SUCCESS)
-   end subroutine get_item_expression
-
    ! Materializes every entry of intermediate_node_ids (in order), each from
    ! that extension node's own descriptor (the tip after its step). Stops
    ! at the first link that cannot be materialized, returning
@@ -1625,7 +1600,7 @@ contains
       this_name = this%get_name(_RC)
       item_name = node%get_short_name()
       descriptor => node%get_descriptor()
-      call get_item_expression(descriptor, expression, _RC)
+      call descriptor%get_expression(expression, _RC)
       if (len_trim(expression) == 0) then
          call unsupported%push_back(GraphResolutionEntry(this_name, item_name, &
               'expression is empty'))
@@ -1739,7 +1714,7 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      call get_item_expression(export_desc, expression, _RC)
+      call export_desc%get_expression(expression, _RC)
       _RETURN_IF(len_trim(expression) == 0)
       names = parser_variables_in_expression(expression, _RC)
       allocate(input_ids(names%size()), bound_ids(names%size()))
@@ -1849,6 +1824,7 @@ contains
          call result_characteristic(k, c, has, _RC)
          if (has) call stored%set_characteristic(kinds(k), c, _RC)
       end do
+      call stored%add_expression_result_defaults(_RC)
 
       do i = 1, names%size()
          name => names%of(i)

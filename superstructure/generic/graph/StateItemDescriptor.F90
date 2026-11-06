@@ -23,9 +23,13 @@ module mapl_StateItemDescriptor_mod
         CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_DEFERRED
    use mapl_StateItemCharacteristicKind_mod, only: &
-        ITEM_SHAPE_CHARACTERISTIC_KIND
+        ITEM_SHAPE_CHARACTERISTIC_KIND, EXPRESSION_CHARACTERISTIC_KIND, &
+        HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION
+   use mapl_ExpressionCharacteristic_mod, only: ExpressionCharacteristic
+   use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
+   use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_GEOM
    use gFTL2_StringVector, only: StringVector
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -97,6 +101,9 @@ module mapl_StateItemDescriptor_mod
       procedure :: sync_per_alias_to_info => descriptor_sync_per_alias_to_info
       procedure :: get_declared_item_type => descriptor_get_declared_item_type
       procedure :: set_declared_item_type => descriptor_set_declared_item_type
+      procedure :: get_expression => descriptor_get_expression
+      procedure :: add_expression_result_defaults => &
+           descriptor_add_expression_result_defaults
       procedure :: get_consumer_adopted_kinds => &
            descriptor_get_consumer_adopted_kinds
    end type StateItemDescriptor
@@ -732,5 +739,46 @@ contains
 
       this%declared_item_type = item_type
    end subroutine descriptor_set_declared_item_type
+
+   ! The expression string of an EXPRESSION item (possibly ''). Fails if
+   ! the descriptor has no Expression entry.
+   subroutine descriptor_get_expression(this, expression, rc)
+      class(StateItemDescriptor), intent(in) :: this
+      character(:), allocatable, intent(out) :: expression
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(StateItemCharacteristic), allocatable :: characteristic
+
+      _ASSERT(this%has_characteristic(EXPRESSION_CHARACTERISTIC_KIND), 'StateItemDescriptor: no Expression entry')
+      call this%get_characteristic(EXPRESSION_CHARACTERISTIC_KIND, &
+           characteristic, _RC)
+      select type (characteristic)
+      class is (ExpressionCharacteristic)
+         expression = characteristic%get_expression()
+      class default
+         _FAIL('StateItemDescriptor: Expression entry has the wrong type')
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine descriptor_get_expression
+
+   ! Gives an expression result descriptor a SPECIFIED GEOM
+   ! HorizontalDimsSpec, as FieldCreate assumes, unless it has an entry.
+   subroutine descriptor_add_expression_result_defaults(this, rc)
+      class(StateItemDescriptor), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      if (.not. this%has_characteristic( &
+           HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND)) then
+         call this%set_characteristic( &
+              HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+              HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM), _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine descriptor_add_expression_result_defaults
 
 end module mapl_StateItemDescriptor_mod

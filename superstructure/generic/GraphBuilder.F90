@@ -63,10 +63,8 @@ module mapl_GraphBuilder_mod
    use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
    use mapl_CallbackStateBinding_mod, only: CallbackStateBinding
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap
-   use mapl_ExpressionCharacteristic_mod, only: ExpressionCharacteristic
    use mapl_StateItemCharacteristicKind_mod, only: &
-        StateItemCharacteristicKind, operator(==), &
-        EXPRESSION_CHARACTERISTIC_KIND
+        StateItemCharacteristicKind, operator(==)
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_ComponentSpec_mod, only: ComponentSpec
    use mapl_Connection_mod, only: Connection

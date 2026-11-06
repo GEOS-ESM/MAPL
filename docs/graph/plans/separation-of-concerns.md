@@ -1356,6 +1356,12 @@ and interface names are fine); report its output in the commit body.
   are built from the node's descriptor (empty-create + STRUCTURAL sync +
   `MAPL_FieldEmptyComplete`); all `get_item_<kind>` getters except
   `get_item_expression` (B4c) are gone. NAG and gfortran ESSENTIAL 69/69.
+- B4c status: done (tasks.md 4.4); B4 done (4.1-4.4). D6 grep shows only
+  base-class names. `StateItemDescriptor%get_expression` and
+  `add_expression_result_defaults` (SPECIFIED GEOM for an expression
+  result, called
+  from `build_expression_evaluation`) replace `get_item_expression` and
+  the materialization default. NAG and gfortran ESSENTIAL 69/69.
 - Also parity finding M3: the graph does not materialize EXPRESSION,
   VECTOR or SERVICE items (logs `unsupported_item_class:<shape>` and
   leaves them to legacy `add_to_states`). Until the graph materializes

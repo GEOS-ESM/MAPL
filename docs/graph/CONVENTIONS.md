@@ -52,16 +52,15 @@ expected; a call into the legacy layer is not. (Phases 7a/7b/7c are the
 precedent: `ItemShapeCharacteristic`, `ExpressionTransform`, wildcard
 fan-in are independent reimplementations.)
 
-## 4. GraphBuilder is characteristic-agnostic (target rule)
+## 4. GraphBuilder is characteristic-agnostic
 
-`GraphBuilder.F90` and its submodules should not name any
-`*_CHARACTERISTIC_KIND` constant or concrete `*Characteristic` type;
-characteristic-specific behavior belongs in the characteristic. This is
-the target (plan decision D6) and **is not true of the current code**:
-`GraphBuilder_Advertising_smod.F90`, `GraphBuilder_Geometry_smod.F90`,
-`GraphBuilder_ConnectionResolution_smod.F90`, and `GraphBuilder.F90`
-still name kinds. Do not add new references. Plan task B4 removes the
-remaining ones.
+`GraphBuilder.F90` and its submodules name no `*_CHARACTERISTIC_KIND`
+constant and no concrete `*Characteristic` type (plan decision D6);
+characteristic-specific behavior belongs in the characteristic. The base
+class `StateItemCharacteristic`, `StateItemCharacteristicMap` and
+`StateItemCharacteristicKind` are fine. Check:
+`grep -nE '_CHARACTERISTIC_KIND|[A-Za-z]+Characteristic\b' GraphBuilder*.F90`
+must show only those base names. Do not add new references.
 
 ## 5. Fortran and compiler pitfalls
 
@@ -97,6 +96,9 @@ strings live in `utils/MAPL_ESMF_InfoKeys.F90` and the infrastructure Info
 modules. Not enforced by a test; fix violations when noticed. A
 missing setter argument is added to the setter, not worked around with raw
 Info.
+Tests under `superstructure/generic/tests/` may read framework Info
+read-only through a helper with exported key constants; production code
+and `graph/tests/` stay facade-only.
 
 ## 6. Tests
 

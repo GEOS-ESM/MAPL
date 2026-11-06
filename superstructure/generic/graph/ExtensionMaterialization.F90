@@ -18,7 +18,6 @@ module mapl_ExtensionMaterialization_mod
    use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_field_api, only: MAPL_FieldEmptyComplete, MAPL_FieldSet
-   use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_GEOM
    use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_ALLOCATED
    use ESMF, only: ESMF_Field, ESMF_FieldEmptyCreate
    use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, operator(==)
@@ -64,10 +63,6 @@ contains
          descriptor => node%get_descriptor()
          field = ESMF_FieldEmptyCreate(name=name, _RC)
          call payload%set(field, _RC)
-         ! Completion needs a horizontal layout; an item that declares none
-         ! (an expression result) spans the geom, as FieldCreate assumes.
-         call MAPL_FieldSet(field, horizontal_dims_spec=HORIZONTAL_DIMS_GEOM, &
-              _RC)
          call descriptor%sync_to_info(payload, SYNC_PHASE_STRUCTURAL, _RC)
          call MAPL_FieldEmptyComplete(field, _RC)
          call MAPL_FieldSet(field, &
