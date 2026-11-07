@@ -58,11 +58,11 @@ to "Verified root causes" below.
 | vertical_regridding_3 | no | same as `vertical_regridding` (`C:I_C`, `PHYS:T_PHYS` exact) |
 | vertical_alignment_regrid | no | same as `vertical_regridding` |
 | vertical_alignment_with_grid | no | same as `vertical_regridding` |
-| scenario_reexport_twice | no | FAILS: G1 only |
-| expression_defer_geom | no | FAILS: G1 only. After G1, passes, with masked EXPRESSION items (M3) |
-| history_1 | no | FAILS: G1 and R1 |
+| scenario_reexport_twice | yes | passes; graph builds the re-export ports |
+| expression_defer_geom | no | passes since the G1 guard (measured 2026-11-06), with masked EXPRESSION items (M3); not yet flipped |
+| history_1 | no | passes since the G1 guard (measured 2026-11-06); not yet flipped. Recheck R1 before flipping |
 | statistics | no | FAILS: R1 only |
-| statistics_real | no | FAILS: G1, R1, R2 (vector `A/UV`), P1 |
+| statistics_real | no | FAILS: R1, R2 (vector `A/UV`), P1; measured 2026-11-06: `MethodGraphNode: argument name already declared` (P1) |
 | service_service | no | FAILS: R2 only. After R2, passes, with masked SERVICE items (M3) |
 | service_with_options | no | same as `service_service` |
 | vector_1 | no | FAILS: R2 only. After R2, passes, with masked VECTOR items (M3) |
@@ -92,12 +92,13 @@ In production, the same faults only log a warning and drop part of the graph.
   registered no geometry node, so the push asserts
   `push_geometry_to_child called before this component advertised its own geometry`.
   Legacy `propagate_geom_to_children` copies the geom only
-  `if (allocated(this%geom))`. Experiment: adding `.and. this%has_geom()` to
-  the push condition made `scenario_reexport_twice` and
+  `if (allocated(this%geom))`. Fixed: the push condition now has
+  `.and. this%has_geom()` (`GraphBuilder_Geometry_smod.F90`). Experiment
+  before the fix: it made `scenario_reexport_twice` and
   `expression_defer_geom` pass, and removed the assertion from `history_1`
-  and `statistics_real`. Affects: scenario_reexport_twice,
-  expression_defer_geom, history_1, statistics_real. First-pass reading
-  confirmed.
+  and `statistics_real`. After the fix `expression_defer_geom` and
+  `history_1` pass; `statistics_real` still fails for R1, R2 and P1.
+  First-pass reading confirmed.
 - **R1. Export aliasing looks in the wrong component for propagated exports.**
   This corrects the first-pass "no import units" cause. That assertion
   (`try_materialize_field_extension`) is a secondary symptom. Real cause:

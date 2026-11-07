@@ -56,7 +56,7 @@ if materialization needs the value before B4; add it to 4.2's list.
 Remaining order (owner): 3.29, 3.30, 3.32, 3.35, 3.37, 3.27, 3.36,
 3.12, 3.23, 3.14 (3.31 and 3.39 dropped; 3.12/3.23: Q2, Q3 answered; 3.24 later; 3.27
 before B4; 3.36 after 3.27, whose switch it shares, and after 3.37;
-3.34 with or after 4.2; 3.33 after B4).
+3.34 with or after 4.2; 3.33 after B4; 3.41 after 3.33).
 3.7, 3.10, 3.11, 3.13, 3.20, 3.21, 3.22 and 3.28 are done.
 Numbers are labels, not run order. A task whose characteristic adds a
 mirror value adds its spelling to `VariableSpec%requests_mirror()`; the
@@ -741,7 +741,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       and add the §2.6 note. Probe the vertical grid the same way ("vgrid
       and geom should be symmetric in most regards"), and report whether
       a stale `geom_id` remains after the overwrite. Author sonnet.
-- [ ] 3.33 B3-InternalReexport (3.26 R11: owner chose (a); after B4).
+- [x] 3.33 B3-InternalReexport (3.26 R11: owner chose (a); after B4).
       Graph path for an INTERNAL -> EXPORT re-export: the graph skips
       ReexportConnection today (`class default`,
       `GraphBuilder_ConnectionResolution_smod.F90:977`) and internals have
@@ -753,6 +753,14 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `scenario_1`, `scenario_2`, `propagate_geom` and
       `scenario_reexport_twice` in graph mode. Required before graph-only
       mode. Author sonnet (opus review).
+      Status: done. `run_reexport_hook` (after `run_advertise_hook`,
+      before export propagation) adds an export port named by the
+      destination, bound to the source's existing node (own internal by
+      resource index, descendant export by port name). Flipped
+      `scenario_reexport_twice`; `propagate_geom` stays pending on the
+      geometry gap (C1-geom-b). State population still reads var specs,
+      not export ports; a re-exported internal gets its user Field in the
+      export state only through legacy until 3.41 populates from ports.
 - [x] 3.34 B3-FillValue (3.26 R14: owner chose (c); with or after B4's
       materialization, 4.2). fill_value is not a characteristic: when the
       graph materializes a field, it fills it from the owning
@@ -999,6 +1007,21 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       importers is not replaced there, so a production caller (History
       samplers) must re-insert the new field. The import-side gap stays
       as in 3.14 (plan C3 item 4). NAG 69/69, gfortran 69/69.
+- [ ] 3.41 B3-ExportPortPopulation (owner, 2026-11-06; after 3.33,
+      before E1 and any graph-only default). State population
+      (`GraphBuilder_StatePopulation_smod.F90`, `populate_one`) walks the
+      declared `VariableSpec`s and takes only IMPORT and EXPORT intents.
+      Make it walk the component's export-port table too: for each port,
+      the Field of the port's bound node is added to the user export
+      state under the PORT's name, including a port bound to an
+      INTERNAL-intent node (a re-exported internal), a renamed re-export
+      (`Eparent_B1`) and a propagated name (`child_B/E_B1`). Today these
+      reach the export state only through legacy
+      (`StateRegistry%add_to_states`). Done when `scenario_1`,
+      `scenario_2` and `scenario_reexport_twice` get those items from the
+      graph (a test that fails if the legacy path were absent: assert on
+      graph-populated state, not on the scenario run alone). Author
+      sonnet (opus review).
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the

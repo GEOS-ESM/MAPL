@@ -1802,6 +1802,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-OneExportPerImport | - | - | tasks.md 3.31; dropped |
 | B3-GeomAProbe | sonnet | - | tasks.md 3.32; probe test only, report |
 | B3-InternalReexport | sonnet | opus | tasks.md 3.33; after B4 |
+| B3-ExportPortPopulation | sonnet | opus | tasks.md 3.41; after 3.33; state population walks export ports (re-exports, renames, propagated names) |
 | B3-FillValue | sonnet | sonnet | tasks.md 3.34; with or after 4.2 |
 | B3-QuantityTypeSuppliers | sonnet | sonnet | tasks.md 3.35; YAML key, keyword, harvest; before 3.27 |
 | B3-QuantityTypeDeferred | opus | sonnet | tasks.md 3.36; factory status by intent, soft freeze rule, shares 3.27's switch; after 3.27 |

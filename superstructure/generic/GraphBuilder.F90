@@ -137,6 +137,7 @@ module mapl_GraphBuilder_mod
    public :: graphbuilder_unresolved_import_node_ids
    public :: graphbuilder_run_propagate_hook
    public :: graphbuilder_run_export_propagate_hook
+   public :: graphbuilder_run_reexport_hook
 
    ! Stateless by design: every bound procedure still takes the
    ! OuterMetaComponent it operates on. All bindings are NOPASS, e.g.
@@ -160,6 +161,11 @@ module mapl_GraphBuilder_mod
       ! propagate_exports_subregistry. Called from initialize_advertise.F90
       ! where legacy calls registry%propagate_exports.
       procedure, nopass :: run_export_propagate_hook => graphbuilder_run_export_propagate_hook
+      ! Gives each ReexportConnection of `this` an export port under the
+      ! destination name, bound to the source's existing node. Called from
+      ! initialize_advertise.F90 after run_advertise_hook and before the
+      ! export propagation of this component's parent reads these ports.
+      procedure, nopass :: run_reexport_hook => graphbuilder_run_reexport_hook
       procedure, nopass :: run_activate_hook => graphbuilder_run_activate_hook
       procedure, nopass :: run_connect_hook => graphbuilder_run_connect_hook
       ! Resolves an EXPRESSION item's named variable references against
@@ -337,6 +343,19 @@ module mapl_GraphBuilder_mod
        class(OuterMetaComponent), target, intent(inout) :: this
 
     end subroutine graphbuilder_run_export_propagate_hook
+
+    ! For each ReexportConnection of `this`, adds an export port named by the
+    ! destination, bound to the source's existing NodeId (no new node; an
+    ! INTERNAL source stays INTERNAL, only its visibility changes). The source
+    ! is an own internal (found by resource index) or an exported item of any
+    ! descendant (found by export-port name, so a propagated name resolves).
+    ! Fails if the source does not exist or the destination name is already
+    ! taken by a different node. Unlike its neighbours this hook propagates
+    ! failure: a re-export that cannot resolve must not be silent.
+    module subroutine graphbuilder_run_reexport_hook(this, rc)
+       class(OuterMetaComponent), target, intent(inout) :: this
+       integer, optional, intent(out) :: rc
+    end subroutine graphbuilder_run_reexport_hook
    module subroutine for_each_matching_import(dst_graph, dst_pt, op, rc)
       type(ComponentGraph), target, intent(in) :: dst_graph
       type(ConnectionPt), intent(in) :: dst_pt

@@ -52,6 +52,9 @@ contains
       ! "Invocation point" decision. run_advertise_hook() never
       ! propagates failure into this routine's own error path.
       call gb%run_advertise_hook(this)
+      ! Re-export ports must exist before the parent propagates this
+      ! component's export ports.
+      call gb%run_reexport_hook(this, _RC)
       ! initialize_geom_b.F90 (see that file's own comment) - a
       ! pre-existing timing bug, found while writing this sub-change's
       ! own pFUnit coverage against a real (DSO-backed) fixture: this

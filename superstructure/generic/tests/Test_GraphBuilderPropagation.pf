@@ -25,6 +25,7 @@ module Test_GraphBuilderPropagation
    use mapl_ConnectionPt_mod, only: ConnectionPt
    use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
    use mapl_MatchConnection_mod, only: MatchConnection
+   use mapl_ReexportConnection_mod, only: ReexportConnection
    use mapl_NodeId_mod, only: NodeId, operator(==)
    use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
    use mapl_PortId_mod, only: PortId
@@ -932,5 +933,287 @@ contains
          end do
       end associate
    end function count_entries_named
+
+   ! Re-export of an own INTERNAL item: the export port is bound to the
+   ! internal node itself. No EXPORT node is created and no mirror.
+   @test(npes=[0])
+   subroutine test_reexport_own_internal_binds_internal_node(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: internal_id, export_key_id
+      type(ReexportConnection) :: conn
+      character(:), allocatable :: port_name
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_reexport_internal', gc, meta, _RC)
+      spec => meta%get_component_spec()
+      call spec%add_var_spec(make_var(ESMF_STATEINTENT_INTERNAL, 'Z'))
+      conn = ReexportConnection( &
+           ConnectionPt('<self>', &
+           VirtualConnectionPt(state_intent='internal', short_name='Z')), &
+           ConnectionPt('<self>', &
+           VirtualConnectionPt(state_intent='export', short_name='Zout')))
+      call spec%add_connection(conn)
+
+      call gb%advertise(meta, status)
+      @assert_that(status, is(0))
+      call gb%run_reexport_hook(meta, status)
+      @assert_that(status, is(0))
+
+      graph => meta%get_component_graph()
+      internal_id => graph%get_resource_index( &
+           item_key(ESMF_STATEINTENT_INTERNAL, 'Z'))
+      export_key_id => graph%get_resource_index( &
+           item_key(ESMF_STATEINTENT_EXPORT, 'Z'))
+      @assert_that(associated(internal_id), is(true()))
+      @assert_that('no second EXPORT node', &
+           associated(export_key_id), is(false()))
+      port_name = find_export_name_in_graph(graph, internal_id)
+      @assertEqual('Zout', port_name)
+
+      ! Repeat call is a no-op.
+      call gb%run_reexport_hook(meta, status)
+      @assert_that(status, is(0))
+      @assertEqual(1, count_export_ports(graph))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_reexport_own_internal_binds_internal_node
+
+   ! Re-export of a child export gives the renamed port in addition to the
+   ! propagated qualified one; a grandparent re-exports the renamed port by
+   ! its port name.
+   @test(npes=[0])
+   subroutine test_reexport_child_export_and_chain(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gp_gc, mid_gc, src_gc
+      type(OuterMetaComponent), pointer :: gp_meta, mid_meta, src_meta
+      type(GriddedComponentDriver) :: mid_driver, src_driver
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: spec
+      type(ComponentGraph), pointer :: gp_graph, mid_graph, src_graph
+      type(NodeId), pointer :: src_id
+      type(ReexportConnection) :: conn
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_reexport_gp', gp_gc, gp_meta, _RC)
+      child_spec = ChildSpec()
+      call gp_meta%add_child('MID', child_spec, _RC)
+      mid_driver = gp_meta%get_child('MID', _RC)
+      mid_gc = mid_driver%get_gridcomp()
+      mid_meta => get_outer_meta(mid_gc, _RC)
+      call mid_meta%add_child('SRC', child_spec, _RC)
+      src_driver = mid_meta%get_child('SRC', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+
+      spec => src_meta%get_component_spec()
+      call spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+      conn = ReexportConnection( &
+           ConnectionPt('SRC', &
+           VirtualConnectionPt(state_intent='export', short_name='T')), &
+           ConnectionPt('<self>', &
+           VirtualConnectionPt(state_intent='export', short_name='Tmid')))
+      spec => mid_meta%get_component_spec()
+      call spec%add_connection(conn)
+      conn = ReexportConnection( &
+           ConnectionPt('MID', &
+           VirtualConnectionPt(state_intent='export', short_name='Tmid')), &
+           ConnectionPt('<self>', &
+           VirtualConnectionPt(state_intent='export', short_name='Tgp')))
+      spec => gp_meta%get_component_spec()
+      call spec%add_connection(conn)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%run_reexport_hook(mid_meta, status)
+      @assert_that(status, is(0))
+      call gb%run_export_propagate_hook(mid_meta)
+      call gb%run_reexport_hook(gp_meta, status)
+      @assert_that(status, is(0))
+
+      src_graph => src_meta%get_component_graph()
+      mid_graph => mid_meta%get_component_graph()
+      gp_graph => gp_meta%get_component_graph()
+      src_id => src_graph%get_resource_index( &
+           item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      @assert_that(associated(src_id), is(true()))
+      @assertEqual(2, count_export_ports(mid_graph))
+      @assertEqual(1, count_ports_for_node(mid_graph, src_id, 'Tmid'))
+      @assertEqual(1, count_ports_for_node(mid_graph, src_id, 'SRC/T'))
+      @assertEqual(1, count_ports_for_node(gp_graph, src_id, 'Tgp'))
+
+      ! The renamed port qualifies like any other when it propagates.
+      call gb%run_export_propagate_hook(gp_meta)
+      @assertEqual(1, count_ports_for_node(gp_graph, src_id, 'MID/Tmid'))
+      @assertEqual(1, count_ports_for_node(gp_graph, src_id, 'SRC/T'))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_reexport_child_export_and_chain
+
+   ! A destination name already used by another export port fails.
+   @test(npes=[0])
+   subroutine test_reexport_duplicate_destination_fails(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ReexportConnection) :: conn
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_reexport_bad', gc, meta, _RC)
+      spec => meta%get_component_spec()
+      call spec%add_var_spec(make_var(ESMF_STATEINTENT_INTERNAL, 'Z'))
+      call spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'E'))
+      conn = ReexportConnection( &
+           ConnectionPt('<self>', &
+           VirtualConnectionPt(state_intent='internal', short_name='Z')), &
+           ConnectionPt('<self>', &
+           VirtualConnectionPt(state_intent='export', short_name='E')))
+      call spec%add_connection(conn)
+      call gb%advertise(meta, status)
+      @assert_that(status, is(0))
+
+      call gb%run_reexport_hook(meta, status)
+      @assertExceptionRaised('Re-export destination already exists: E')
+      @assertExceptionRaised('status=1')
+      _UNUSED_DUMMY(this)
+   end subroutine test_reexport_duplicate_destination_fails
+
+   @test(npes=[0])
+   subroutine test_reexport_missing_source_fails(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ReexportConnection) :: conn
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_reexport_nosrc', gc, meta, _RC)
+      spec => meta%get_component_spec()
+      conn = ReexportConnection( &
+           ConnectionPt('<self>', &
+           VirtualConnectionPt(state_intent='internal', short_name='Q')), &
+           ConnectionPt('<self>', &
+           VirtualConnectionPt(state_intent='export', short_name='Qout')))
+      call spec%add_connection(conn)
+      call gb%advertise(meta, status)
+      @assert_that(status, is(0))
+
+      call gb%run_reexport_hook(meta, status)
+      @assertExceptionRaised('Re-export source does not exist: Q')
+      @assertExceptionRaised('status=1')
+      _UNUSED_DUMMY(this)
+   end subroutine test_reexport_missing_source_fails
+
+   ! A descendant that exports nothing of that name is a missing source.
+   @test(npes=[0])
+   subroutine test_reexport_missing_descendant_source_fails(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc, src_gc
+      type(OuterMetaComponent), pointer :: meta, src_meta
+      type(GriddedComponentDriver) :: src_driver
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: spec
+      type(ReexportConnection) :: conn
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_reexport_nodesc', gc, meta, _RC)
+      child_spec = ChildSpec()
+      call meta%add_child('SRC', child_spec, _RC)
+      src_driver = meta%get_child('SRC', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      spec => meta%get_component_spec()
+      conn = ReexportConnection( &
+           ConnectionPt('SRC', &
+           VirtualConnectionPt(state_intent='export', short_name='T')), &
+           ConnectionPt('<self>', &
+           VirtualConnectionPt(state_intent='export', short_name='Tout')))
+      call spec%add_connection(conn)
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+
+      call gb%run_reexport_hook(meta, status)
+      @assertExceptionRaised('Re-export source does not exist: T')
+      @assertExceptionRaised('status=1')
+      _UNUSED_DUMMY(this)
+   end subroutine test_reexport_missing_descendant_source_fails
+
+   ! A source component path that names no descendant fails.
+   @test(npes=[0])
+   subroutine test_reexport_bad_component_path_fails(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ReexportConnection) :: conn
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_reexport_badpath', gc, meta, _RC)
+      spec => meta%get_component_spec()
+      conn = ReexportConnection( &
+           ConnectionPt('NOPE', &
+           VirtualConnectionPt(state_intent='export', short_name='T')), &
+           ConnectionPt('<self>', &
+           VirtualConnectionPt(state_intent='export', short_name='Tout')))
+      call spec%add_connection(conn)
+      call gb%advertise(meta, status)
+      @assert_that(status, is(0))
+
+      call gb%run_reexport_hook(meta, status)
+      @assertExceptionRaised('Child not found: <NOPE>.')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      _UNUSED_DUMMY(this)
+   end subroutine test_reexport_bad_component_path_fails
+
+   function count_export_ports(graph) result(n)
+      type(ComponentGraph), target, intent(in) :: graph
+      integer :: n
+      type(PortIdNodeIdMap), target :: ports
+
+      ports = graph%get_export_ports()
+      n = ports%size()
+   end function count_export_ports
+
+   function count_ports_for_node(graph, target_id, target_name) result(n)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), pointer, intent(in) :: target_id
+      character(*), intent(in) :: target_name
+      integer :: n
+
+      type(PortIdNodeIdMap), target :: ports
+      type(PortIdNodeIdMapIterator) :: iter
+
+      n = 0
+      ports = graph%get_export_ports()
+      associate (e => ports%ftn_end())
+         iter = ports%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            if (.not. (iter%second() == target_id)) cycle
+            if (graph%get_export_port_name(iter%first()) == target_name) then
+               n = n + 1
+            end if
+         end do
+      end associate
+   end function count_ports_for_node
 
 end module Test_GraphBuilderPropagation

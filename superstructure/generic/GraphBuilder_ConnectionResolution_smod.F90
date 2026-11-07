@@ -9,7 +9,9 @@
 ! characteristics are read off each already-advertised StateItemNode, never
 ! re-derived from a VariableSpec.
 submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
-   use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateGet, ESMF_STATEITEM_NOTFOUND, operator(==)
+   use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateGet, &
+        ESMF_STATEITEM_NOTFOUND, &
+        ESMF_STATEINTENT_INTERNAL, operator(==)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
    use mapl_ConnectionVector_mod, only: ConnectionVectorIterator, operator(/=)
    use mapl_ExpressionTransform_mod, only: ExpressionTransform
@@ -33,6 +35,7 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use gFTL2_StringVector, only: StringVectorIterator, operator(/=)
    use pflogger, only: Logger
+   use mapl_ReexportConnection_mod, only: ReexportConnection
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -878,6 +881,113 @@ contains
          end associate
       end do
    end subroutine graphbuilder_run_export_propagate_hook
+
+   ! See the interface in GraphBuilder.F90. A repeat call (same name, same
+   ! node) is a no-op.
+   module subroutine graphbuilder_run_reexport_hook(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentSpec), pointer :: comp_spec
+      type(ConnectionVectorIterator) :: iter
+      class(Connection), pointer :: c
+
+      comp_spec => this%get_component_spec()
+      associate (e => comp_spec%connections%ftn_end())
+         iter = comp_spec%connections%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            c => iter%of()
+            select type (c)
+            type is (ReexportConnection)
+               call reexport_one(this, c, status)
+               _VERIFY(status)
+            class default
+               ! Not a re-export.
+            end select
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine graphbuilder_run_reexport_hook
+
+   subroutine reexport_one(this, conn, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      class(Connection), intent(in) :: conn
+      integer, intent(out) :: rc
+
+      integer :: status
+      type(ConnectionPt) :: src_pt, dst_pt
+      type(OuterMetaComponent), pointer :: src_meta
+      type(ComponentGraph), pointer :: src_graph, this_graph
+      type(NodeId), pointer :: internal_id
+      class(StateItemNode), pointer :: export_node
+      type(NodeId) :: src_node_id, existing_id
+      type(PortId) :: new_port_id
+      character(:), allocatable :: dst_name, src_name, msg
+      logical :: taken
+
+      src_pt = conn%get_source()
+      dst_pt = conn%get_destination()
+      src_name = src_pt%v_pt%get_esmf_name()
+      dst_name = dst_pt%v_pt%get_esmf_name()
+      this_graph => this%get_component_graph()
+
+      src_meta => resolve_qualified_component(this, src_pt%component_name, _RC)
+      src_graph => src_meta%get_component_graph()
+
+      if (src_pt%v_pt%is_internal()) then
+         internal_id => src_graph%get_resource_index( &
+              item_key(ESMF_STATEINTENT_INTERNAL, src_name))
+         msg = 'Re-export source does not exist: ' // src_name
+         _ASSERT(associated(internal_id), msg)
+         src_node_id = internal_id
+      else
+         export_node => find_export_node(src_meta, src_name)
+         msg = 'Re-export source does not exist: ' // src_name
+         _ASSERT(associated(export_node), msg)
+         src_node_id = export_node%get_node_id()
+      end if
+
+      call find_export_port_by_name(this_graph, dst_name, taken, existing_id)
+      if (taken) then
+         msg = 'Re-export destination already exists: ' // dst_name
+         _ASSERT(existing_id == src_node_id, msg)
+         _RETURN(_SUCCESS)
+      end if
+
+      new_port_id = this_graph%next_port_id(_RC)
+      call this_graph%add_export_port(new_port_id, src_node_id, status, &
+           qualified_name=dst_name)
+      _VERIFY(status)
+
+      _RETURN(_SUCCESS)
+   end subroutine reexport_one
+
+   subroutine find_export_port_by_name(graph, name, found, node_id)
+      type(ComponentGraph), target, intent(in) :: graph
+      character(*), intent(in) :: name
+      logical, intent(out) :: found
+      type(NodeId), intent(out) :: node_id
+
+      type(PortIdNodeIdMap), target :: export_ports
+      type(PortIdNodeIdMapIterator) :: iter
+
+      found = .false.
+      export_ports = graph%get_export_ports()
+      associate (e => export_ports%ftn_end())
+         iter = export_ports%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            if (graph%get_export_port_name(iter%first()) == name) then
+               found = .true.
+               node_id = iter%second()
+               return
+            end if
+         end do
+      end associate
+   end subroutine find_export_port_by_name
 
    ! Name a child's export-port entry carries once propagated into the
    ! parent's export-port table. Mirrors legacy propagate_exports_virtual_pt:
