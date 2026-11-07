@@ -1124,8 +1124,9 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       propagated or wildcard name; 3.41b/3.42); `expression`,
       `expression_match` (import standard_name `<unknown>`);
       `scenario_1`, `scenario_2`, `scenario_reexport_twice` (the
-      re-exported internal ZZ_A1 is not in the user export state:
-      3.41b). Now passing: `names_1`. Pending scenarios with the switch
+      re-exported internal ZZ_A1 is not in the user export state; now
+      passing with the switch ON, fixed by 3.41b's port walk). Now
+      passing: `names_1`. Pending scenarios with the switch
       ON: `vertical_regridding_3` ABORTS the run (ConfigurableGridComp.F90:82
       dereferences the pointer of a created, unallocated export);
       `vertical_regridding_2` now FAILS (describing the import's own
@@ -1133,15 +1134,16 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       SPECIFIED with no direction: StateItemDescriptor.F90:726); `regrid`,
       `regrid_r8`, `expression_defer_geom` (status gridset where complete
       is expected for an export or import fed by a regrid or deferred
-      chain), `propagate_geom` and `vector_1` (re-exported internal or
-      bundle `uv` not in the state), `history_1`, `statistics` (rc 41
+      chain), `propagate_geom` (re-exported internal not in the state; now
+      passing with the switch ON, fixed by 3.41b) and `vector_1` (bundle
+      `uv` not in the state), `history_1`, `statistics` (rc 41
       reading propagated exports); `expression_per_consumer_r8`,
       `service_service`, `service_with_options`, `statistics_real` fail as
       with the switch off; `vertical_alignment_regrid`,
       `vertical_alignment_with_grid`, `vertical_regridding` pass.
       Everything else graph-ready passes. Row added to scenario-parity.md:
       unconnected re-exported export.
-- [ ] 3.41b B3-ExportPortPopulation (owner, 2026-11-06; after 3.41a;
+- [x] 3.41b B3-ExportPortPopulation (owner, 2026-11-06; after 3.41a;
       before E1 and any graph-only default). Second half of the old
       3.41. Make `graphbuilder_populate_state` walk the component's
       export-port table too: for each port, the Field of the port's
@@ -1157,6 +1159,70 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       those items from the graph (a unit test that fails if the legacy
       path were absent: assert on graph-populated state, not on the
       scenario run alone). Author sonnet (opus review).
+      Status: done. `graphbuilder_populate_state` walks the export-port
+      table after the declared-item walk, only when
+      `graph_populates_user_states()` (switch on, GRAPH mode); with the
+      switch off or in BOTH mode the walk adds nothing and legacy
+      `add_to_states` stays the producer. For each port the bound node's
+      Field is aliased into the user export state under the port name
+      (`populate_export_ports`, `populate_export_port` in
+      GraphBuilder_StatePopulation_smod.F90). A name with a slash goes
+      into a substate made by `get_substate`, as
+      `FieldClassAspect%add_to_state` does; `sync_alias_info` copies the
+      bound node's long_name and restart mode onto the alias. A port bound
+      to an INTERNAL node is completed and allocated; a port bound to an
+      export is only described, so an unconnected re-exported export stays
+      CREATED (GRIDSET). A port is skipped as a duplicate only when the
+      declared export of the same name resolves to the same node; a
+      same-named re-export of a child's export is a different node and is
+      added. Non-Field nodes are skipped. Tests (in
+      Test_GraphBuilderMaterializeGate.pf):
+      `test_populate_export_ports_graph_mode` (no `add_to_states`,
+      populate twice: a renamed re-export of an INTERNAL is the internal's
+      ALLOCATED Field with its long_name; a renamed re-export of an
+      unconnected export is the producer's Field, GRIDSET and not
+      allocated; propagated `child_src/E_conn` is in a substate, aliased
+      to the producer's Field; item counts equal after the second pass;
+      fails with the port walk off) and
+      `test_populate_export_ports_off_in_hybrid_and_both` (switch off, and
+      BOTH mode with the switch on: the export state stays empty; fails if
+      the walk ignores the switch). Scenarios with the switch ON (NAG,
+      one at a time): `scenario_1`, `scenario_2`,
+      `scenario_reexport_twice` and `propagate_geom` pass all five
+      checks.
+      `history_1`, `statistics`, `history_wildcard` and `extdata_1` still
+      fail with the switch ON and pass with it OFF (`history_1` and
+      `statistics` re-run in GRAPH and BOTH mode with the switch off:
+      pass); the port walk did not change them. (a) `statistics`: status
+      41 from GENERIC_INIT_ADVERTISE. `ProtoStatGridComp.F90:63`
+      (init_modify_advertised) reads export `avg_T` from the user export
+      state; with the switch on, legacy `add_to_states` at advertise
+      (`initialize_advertise.F90:116`) is skipped and the graph populates
+      only at accept_transfer, so the item is not there yet. Follow-up
+      3.44. (b) `history_1`: fails [item type] (and other checks) for the
+      collection's imports `A/E_A1`, `B/E_B2`, `B/E_B3`. Suspected cause,
+      from reading the code only: those declared names contain a slash,
+      and advertise creates no Field for a declared name with a slash
+      (`GraphBuilder_Advertising_smod.F90:~116`), so population has
+      nothing to insert. Not verified by a run; part of 3.44's
+      preflight. (c) `history_wildcard` and `extdata_1` fail [item type]
+      (`Test_Scenarios.pf` ~961/988; `ProtoExtDataGC.F90:220`); their
+      readers take propagated or wildcard names; 3.44 or 3.42 to decide.
+      Dedup: `test_populate_export_ports_graph_mode` declares a parent
+      export `PE` and asserts it is in the state once and is its own
+      Field. Adding it twice would still give the same count (the add is
+      a replace), so the guard is mostly defensive: it avoids a second
+      insertion and a second descriptor sync. `sync_alias_info` is
+      pinned: the test sets the internal's own Field restart mode and
+      long_name to values other than the declared ones, runs a third
+      pass, and fails with the `sync_alias_info` call removed. Known
+      limitation: a port name that collides with an existing non-port item
+      replaces it silently; `reexport_one` guards the common case, and the
+      port walk adds no duplicate-name assertion. Pending, not here:
+      bundles and composites
+      (`vector_1`), populate depth to grandchildren
+      (`graphbuilder_propagation`), outer states (3.42). Production
+      default stays hybrid. NAG and gfortran ESSENTIAL 69/69.
 - [ ] 3.42 B3-OuterStatePopulation (owner, 2026-11-07, low priority;
       after 3.41b, before any graph-only default). Legacy
       `add_to_states(mode='outer')` fills the ESMF import/export states
@@ -1182,6 +1248,16 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       SPECIFIED value without a direction; decide with a unit test that
       fails today. Preflight first (which is the design's intent: A-number
       for VerticalOrientation completeness). Author sonnet (sonnet review).
+- [ ] 3.44 B3-AdvertisePopulation (found by 3.41b review, 2026-11-07;
+      before any graph-only default). With the switch on the graph must
+      populate the user states at advertise, as legacy `add_to_states`
+      does at advertise (`initialize_advertise.F90:116`), because user
+      gridcomps read their own states in INIT_MODIFY_ADVERTISED
+      (`statistics`: `ProtoStatGridComp.F90:63` reads export `avg_T`, so
+      status 41 today). Fields exist at advertise since 3.41a. Preflight
+      first: what must be complete at advertise (descriptors, geoms), and
+      qualified names for `history_1` (declared names with a slash have
+      no Field today). Author sonnet (sonnet review).
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the

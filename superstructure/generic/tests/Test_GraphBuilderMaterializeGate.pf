@@ -60,6 +60,7 @@ module Test_GraphBuilderMaterializeGate
    use mapl_ConnectionPt_mod, only: ConnectionPt
    use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
    use mapl_MatchConnection_mod, only: MatchConnection
+   use mapl_ReexportConnection_mod, only: ReexportConnection
    use mapl_NodeId_mod, only: NodeId
    use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
    use mapl_GraphNode_mod, only: GraphNode
@@ -1400,6 +1401,236 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_populate_state_field_per_node_graph_mode
+
+   ! On the field-per-node fixture's parent: an INTERNAL PZ re-exported as
+   ! PZout, child_src's unconnected export E_unconn re-exported as Eren, and
+   ! the children's exports propagated as child_src/<name>.
+   subroutine add_export_port_cases(parent_meta, rc)
+      type(OuterMetaComponent), pointer, intent(in) :: parent_meta
+      integer, intent(out) :: rc
+
+      type(ComponentSpec), pointer :: parent_spec
+      type(VariableSpec) :: var_spec
+      type(ReexportConnection) :: conn
+      type(GraphBuilder) :: gb
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      _VERIFY(status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      _VERIFY(status)
+      parent_spec => parent_meta%get_component_spec()
+      var_spec = make_var(ESMF_STATEINTENT_INTERNAL, 'PZ', units='m')
+      var_spec%geom = geom
+      var_spec%long_name = 'PZ long name'
+      var_spec%restart_mode = RESTART_SKIP
+      call parent_spec%add_var_spec(var_spec)
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'PE', units='m')
+      var_spec%geom = geom
+      call parent_spec%add_var_spec(var_spec)
+      conn = ReexportConnection( &
+           ConnectionPt('<self>', &
+           VirtualConnectionPt(state_intent='internal', short_name='PZ')), &
+           ConnectionPt('<self>', &
+           VirtualConnectionPt(state_intent='export', short_name='PZout')))
+      call parent_spec%add_connection(conn)
+      conn = ReexportConnection( &
+           ConnectionPt('child_src', &
+           VirtualConnectionPt(state_intent='export', short_name='E_unconn')), &
+           ConnectionPt('<self>', &
+           VirtualConnectionPt(state_intent='export', short_name='Eren')))
+      call parent_spec%add_connection(conn)
+
+      call gb%advertise(parent_meta, _RC)
+      call gb%run_reexport_hook(parent_meta, _RC)
+      call gb%run_export_propagate_hook(parent_meta)
+      rc = 0
+   end subroutine add_export_port_cases
+
+   ! Populates the parent twice (ACCEPT_TRANSFER runs twice) and returns its
+   ! real export state.
+   subroutine populate_parent_twice(parent_meta, export_state, rc, states_out)
+      type(OuterMetaComponent), pointer, intent(in) :: parent_meta
+      type(ESMF_State), intent(out) :: export_state
+      integer, intent(out) :: rc
+      type(MultiState), optional, intent(out) :: states_out
+
+      type(ESMF_State) :: import_state, internal_state
+      type(MultiState) :: states
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      import_state = ESMF_StateCreate(name='p_import', rc=status)
+      _VERIFY(status)
+      export_state = ESMF_StateCreate(name='p_export', rc=status)
+      _VERIFY(status)
+      internal_state = ESMF_StateCreate(name='p_internal', rc=status)
+      _VERIFY(status)
+      states = MultiState(importState=import_state, exportState=export_state, &
+           internalState=internal_state)
+      call gb%populate_state(parent_meta, states, _RC)
+      call gb%populate_state(parent_meta, states, _RC)
+      if (present(states_out)) states_out = states
+      rc = 0
+   end subroutine populate_parent_twice
+
+   ! The export-port table feeds the user export state, with no registry
+   ! add_to_states: (a) a renamed re-export of an INTERNAL is that internal's
+   ! allocated Field, carrying its long_name; (b) a renamed re-export of an
+   ! unconnected export is the producer's Field, still only GRIDSET; (c) a
+   ! propagated child_src/E_conn sits in a substate, aliased to the
+   ! producer's Field. A second pass adds nothing.
+   ! Seeded to fail: with the port walk off, the export state is empty.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_export_ports_graph_mode(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(ESMF_State) :: export_state, sub_state
+      type(ESMF_Field) :: legacy(3), pz_port, pz_node, eren_port, eren_node
+      type(ESMF_Field) :: conn_port, conn_node, pe_port, pe_node
+      type(ESMF_FieldStatus_Flag) :: eren_fstatus
+      type(RestartMode) :: pz_mode
+      type(MultiState) :: parent_states
+      type(GraphBuilder) :: gb
+      type(MAPL_StateItemAllocation) :: pz_alloc, eren_alloc
+      character(:), allocatable :: long_name
+      integer :: status, st_pz, st_e, st_c, st_sub, st_n(4), st_a(4), st_l, st_ea, st_m, st_pe
+      integer :: export_count, sub_count
+      logical :: pz_same, eren_same, conn_same, pe_same
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_field_per_node_fixture('comp_parent_ports', parent_meta, &
+           src_meta, dst_meta, .false., &
+           MAPL_STATEITEM_ALLOCATION_ACTIVE, legacy, status)
+      @assert_that(status, is(0))
+      call add_export_port_cases(parent_meta, status)
+      @assert_that(status, is(0))
+      call populate_parent_twice(parent_meta, export_state, status, parent_states)
+      @assert_that(status, is(0))
+      ! Then the internal's own Field slots are made to differ from its
+      ! declaration, so a third pass gives the alias the declared values only
+      ! through sync_alias_info.
+      call get_node_field(parent_meta, ESMF_STATEINTENT_INTERNAL, 'PZ', &
+           pz_node, status)
+      @assert_that(status, is(0))
+      call MAPL_FieldSet(pz_node, restart_mode=RESTART_REQUIRED, &
+           long_name='raw long name', rc=status)
+      @assert_that(status, is(0))
+      call gb%populate_state(parent_meta, parent_states, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assert_that(status, is(0))
+
+      call ESMF_StateGet(export_state, itemCount=export_count, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(export_state, 'PZout', pz_port, rc=st_pz)
+      call ESMF_StateGet(export_state, 'Eren', eren_port, rc=st_e)
+      call ESMF_StateGet(export_state, 'child_src', sub_state, rc=st_sub)
+      @assertEqual(0, st_pz)
+      @assertEqual(0, st_e)
+      @assertEqual(0, st_sub)
+      call ESMF_StateGet(sub_state, itemCount=sub_count, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(sub_state, 'E_conn', conn_port, rc=st_c)
+      @assertEqual(0, st_c)
+      call ESMF_StateGet(export_state, 'PE', pe_port, rc=st_pe)
+      @assertEqual(0, st_pe)
+
+      call get_node_field(parent_meta, ESMF_STATEINTENT_INTERNAL, 'PZ', &
+           pz_node, st_n(1))
+      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'E_unconn', &
+           eren_node, st_n(2))
+      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'E_conn', &
+           conn_node, st_n(3))
+      call get_node_field(parent_meta, ESMF_STATEINTENT_EXPORT, 'PE', &
+           pe_node, st_n(4))
+      pe_same = FieldsAreAliased(pe_port, pe_node, rc=st_a(4))
+      pz_same = FieldsAreAliased(pz_port, pz_node, rc=st_a(1))
+      eren_same = FieldsAreAliased(eren_port, eren_node, rc=st_a(2))
+      conn_same = FieldsAreAliased(conn_port, conn_node, rc=st_a(3))
+      call get_allocation_status(pz_port, pz_alloc, st_l)
+      call get_allocation_status(eren_port, eren_alloc, st_ea)
+      call MAPL_FieldGet(pz_port, long_name=long_name, restart_mode=pz_mode, &
+           rc=st_m)
+      @assertEqual(0, st_l)
+      @assertEqual(0, st_ea)
+      @assertEqual(0, st_m)
+      call ESMF_FieldGet(eren_port, status=eren_fstatus, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, st_n(1))
+      @assertEqual(0, st_n(2))
+      @assertEqual(0, st_n(3))
+      @assertEqual(0, st_n(4))
+      @assertEqual(0, st_a(4))
+      @assertEqual(0, st_a(1))
+      @assertEqual(0, st_a(2))
+      @assertEqual(0, st_a(3))
+
+      @assertTrue(pz_same)
+      @assertTrue(pz_alloc == MAPL_STATEITEM_ALLOCATION_ALLOCATED)
+      @assertEqual('PZ long name', long_name)
+      ! The raw Field's slot is REQUIRED: SKIP is from sync_alias_info.
+      @assertTrue(pz_mode == RESTART_SKIP)
+      @assertTrue(eren_same)
+      @assertTrue(eren_alloc == MAPL_STATEITEM_ALLOCATION_CREATED)
+      @assertTrue(eren_fstatus == ESMF_FIELDSTATUS_GRIDSET)
+      @assertTrue(conn_same)
+      ! The declared export PE is in the state once and is its own Field.
+      @assertTrue(pe_same)
+      ! PZout, Eren, PE and the child_src substate; E_conn and E_unconn in it.
+      @assertEqual(4, export_count)
+      @assertEqual(2, sub_count)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(dst_meta)
+   end subroutine test_populate_export_ports_graph_mode
+
+   ! The port walk adds nothing with the switch off or in BOTH mode: legacy
+   ! add_to_states fills the user export state there.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_export_ports_off_in_hybrid_and_both(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(ESMF_State) :: export_state
+      type(ESMF_Field) :: legacy(3)
+      integer :: status, off_count, both_count
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_field_per_node_fixture('comp_parent_ports_off', parent_meta, &
+           src_meta, dst_meta, .false., &
+           MAPL_STATEITEM_ALLOCATION_ACTIVE, legacy, status)
+      @assert_that(status, is(0))
+      call add_export_port_cases(parent_meta, status)
+      @assert_that(status, is(0))
+
+      call set_graph_owns_user_states(.false.)
+      call populate_parent_twice(parent_meta, export_state, status)
+      @assert_that(status, is(0))
+      call ESMF_StateGet(export_state, itemCount=off_count, rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_BOTH)
+      call set_graph_owns_user_states(.true.)
+      call populate_parent_twice(parent_meta, export_state, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assert_that(status, is(0))
+      call ESMF_StateGet(export_state, itemCount=both_count, rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual(0, off_count)
+      @assertEqual(0, both_count)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_meta)
+      _UNUSED_DUMMY(dst_meta)
+   end subroutine test_populate_export_ports_off_in_hybrid_and_both
 
    ! (d) REGISTRY mode: advertise creates no Field, so population finds
    ! nothing for the INTERNAL item or the unconnected EXPORT.
