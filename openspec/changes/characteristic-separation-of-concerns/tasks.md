@@ -56,7 +56,7 @@ if materialization needs the value before B4; add it to 4.2's list.
 Remaining order (owner): 3.29, 3.30, 3.32, 3.35, 3.37, 3.27, 3.36,
 3.12, 3.23, 3.14 (3.31 and 3.39 dropped; 3.12/3.23: Q2, Q3 answered; 3.24 later; 3.27
 before B4; 3.36 after 3.27, whose switch it shares, and after 3.37;
-3.34 with or after 4.2; 3.33 after B4; 3.41 after 3.33).
+3.34 with or after 4.2; 3.33 after B4; 3.41a, 3.41b, 3.42 after 3.33, in that order).
 3.7, 3.10, 3.11, 3.13, 3.20, 3.21, 3.22 and 3.28 are done.
 Numbers are labels, not run order. A task whose characteristic adds a
 mirror value adds its spelling to `VariableSpec%requests_mirror()`; the
@@ -760,7 +760,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `scenario_reexport_twice`; `propagate_geom` stays pending on the
       geometry gap (C1-geom-b). State population still reads var specs,
       not export ports; a re-exported internal gets its user Field in the
-      export state only through legacy until 3.41 populates from ports.
+      export state only through legacy until 3.41b populates from ports.
 - [x] 3.34 B3-FillValue (3.26 R14: owner chose (c); with or after B4's
       materialization, 4.2). fill_value is not a characteristic: when the
       graph materializes a field, it fills it from the owning
@@ -1007,21 +1007,63 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       importers is not replaced there, so a production caller (History
       samplers) must re-insert the new field. The import-side gap stays
       as in 3.14 (plan C3 item 4). NAG 69/69, gfortran 69/69.
-- [ ] 3.41 B3-ExportPortPopulation (owner, 2026-11-06; after 3.33,
-      before E1 and any graph-only default). State population
-      (`GraphBuilder_StatePopulation_smod.F90`, `populate_one`) walks the
-      declared `VariableSpec`s and takes only IMPORT and EXPORT intents.
-      Make it walk the component's export-port table too: for each port,
-      the Field of the port's bound node is added to the user export
-      state under the PORT's name, including a port bound to an
+- [ ] 3.41a B3-FieldPerNode (owner, 2026-11-07, answer c; after 3.33;
+      first half of the old 3.41). Legacy creates every declared item at
+      advertise (`advertise_variable` -> `create()`: empty Field,
+      `allocation_status=CREATED`), activates an INTERNAL always and an
+      EXPORT only when a connection or re-export chain needs it, allocates
+      only active items (`allocate_items`), and `add_to_states(mode='user')`
+      places the primary spec of every family, active or not (an
+      unconnected export is an empty created Field in the user export
+      state). The graph has no counterpart: a node gets a Field only when
+      a connection needs one, built complete and ALLOCATED in one step
+      (`build_field_payload`). Give the graph the same three statuses
+      using the existing `allocation_status` values CREATED, ACTIVE,
+      ALLOCATED: every declared node (all intents) gets a Field at
+      advertise, complete from its descriptor (geometry, units, fill
+      value, per-alias keys) but not allocated; an INTERNAL is activated
+      and allocated always; an EXPORT or IMPORT is activated and
+      allocated by the same rule legacy uses (connection or re-export
+      source), so materialization completes the existing Field instead of
+      creating a second one. Split `build_field_payload` so completion
+      and allocation can happen separately. Then add INTERNAL to the
+      declared-item walk in `graphbuilder_populate_state` so the user
+      INTERNAL state receives the node's Field under the item's name (the
+      gridcomp writes this Field). Preflight points: the tmp_states
+      scratch export in `initialize_accept_transfer.F90` (the component's
+      own export walk lands in a throwaway state; the real user states
+      are `this%user_gc_driver%get_states()`); freeze and readers of a
+      payload must tolerate a created-not-allocated Field; hybrid mode
+      keeps legacy's own Field in the user states (graph writes by
+      `StateAddReplace` and is a no-op in BOTH mode). Done when a graph
+      population unit test (GRAPH mode, no `registry%add_to_states`)
+      finds the Field for an internal, an unconnected export (created,
+      not allocated) and a connected export in the right user states.
+      Author sonnet (opus review).
+- [ ] 3.41b B3-ExportPortPopulation (owner, 2026-11-06; after 3.41a;
+      before E1 and any graph-only default). Second half of the old
+      3.41. Make `graphbuilder_populate_state` walk the component's
+      export-port table too: for each port, the Field of the port's
+      bound node (3.41a guarantees it exists) is added to the real user
+      export state under the PORT's name, including a port bound to an
       INTERNAL-intent node (a re-exported internal), a renamed re-export
-      (`Eparent_B1`) and a propagated name (`child_B/E_B1`). Today these
-      reach the export state only through legacy
-      (`StateRegistry%add_to_states`). Done when `scenario_1`,
-      `scenario_2` and `scenario_reexport_twice` get those items from the
-      graph (a test that fails if the legacy path were absent: assert on
-      graph-populated state, not on the scenario run alone). Author
-      sonnet (opus review).
+      (`Eparent_B1`) and a propagated name (`child_B/E_B1`, inserted
+      through the substate-aware path `FieldClassAspect%add_to_state`
+      uses). Per-alias keys (long_name, restart mode) come from the bound
+      node's descriptor via `sync_alias_info`. Deduplicate against the
+      declared-item walk (every declared export also has a port). Done
+      when `scenario_1`, `scenario_2` and `scenario_reexport_twice` get
+      those items from the graph (a unit test that fails if the legacy
+      path were absent: assert on graph-populated state, not on the
+      scenario run alone). Author sonnet (opus review).
+- [ ] 3.42 B3-OuterStatePopulation (owner, 2026-11-07, low priority;
+      after 3.41b, before any graph-only default). Legacy
+      `add_to_states(mode='outer')` fills the ESMF import/export states
+      the parent sees; the graph never writes them. The owner expects
+      the outer states are not user-visible and exist mostly so the
+      component behaves as an ESMF gridcomp, so this may reduce to a
+      small task. Preflight first (what reads the outer states: the
+      parent's coupler, extension fields, `<root>` expectations).
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the
