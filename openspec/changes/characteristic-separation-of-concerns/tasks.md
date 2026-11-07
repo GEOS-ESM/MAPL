@@ -1243,11 +1243,21 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `sync_to_info` then fails
       (`StateItemDescriptor.F90:~726` via
       `VerticalOrientationCharacteristic.F90:~138`). Seen as a
-      `vertical_regridding_2` failure with the switch ON. Either the
-      characteristic reports itself incomplete, or `write_info` skips a
-      SPECIFIED value without a direction; decide with a unit test that
-      fails today. Preflight first (which is the design's intent: A-number
-      for VerticalOrientation completeness). Author sonnet (sonnet review).
+      `vertical_regridding_2` failure with the switch ON. Cause: a
+      single-level `fixed_levels` grid has direction UNSPECIFIED
+      (`FixedLevelsVerticalGrid.F90:76-95`), and with_grid resolves the
+      orientation to SPECIFIED holding that direction. Owner decision
+      (2026-11-07, option a): `orientation_write_info` skips an
+      UNSPECIFIED direction and writes nothing, so the Field keeps
+      with_grid, as legacy does (`FieldInfo.F90:350` reads an unwritten
+      alignment as with_grid); an INVALID direction still fails; the
+      characteristic stays complete. UNSPECIFIED against an explicit up or
+      down still compares unequal (no vertical Transform); leave it until
+      a scenario needs it. Done when a unit test that fails today (a
+      single-level orientation write returns status 0; INVALID returns
+      nonzero) passes, the module header comment says so, and
+      `vertical_regridding_2` passes with the switch ON. Author sonnet
+      (sonnet review).
 - [ ] 3.44 B3-AdvertisePopulation (found by 3.41b review, 2026-11-07;
       before any graph-only default). With the switch on the graph must
       populate the user states at advertise, as legacy `add_to_states`
