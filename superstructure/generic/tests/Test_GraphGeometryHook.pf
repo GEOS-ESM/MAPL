@@ -598,6 +598,9 @@ contains
       type(VariableSpec) :: var_spec
       integer :: status
       type(GraphBuilder) :: gb
+      type(ESMF_StateItem_Flag) :: payload_kind
+      type(ESMF_Field) :: payload_field
+      type(ESMF_FieldStatus_Flag) :: payload_status
 
       call set_graph_mode(GRAPH_MODE_GRAPH)
 
@@ -644,7 +647,13 @@ contains
       class default
          @assert_that(.false., is(true()))
       end select
-      @assertTrue(handle%itemType() == ESMF_STATEITEM_NOTFOUND)
+      ! The node keeps the Field created at advertise, still empty: harvest
+      ! read the component's field but bound nothing.
+      payload_kind = handle%itemType()
+      payload_field = handle%get_field(_RC)
+      call ESMF_FieldGet(payload_field, status=payload_status, _RC)
+      @assertTrue(payload_kind == ESMF_STATEITEM_FIELD)
+      @assertTrue(payload_status == ESMF_FIELDSTATUS_EMPTY)
 
       call set_graph_mode(GRAPH_MODE_REGISTRY)
       _UNUSED_DUMMY(this)

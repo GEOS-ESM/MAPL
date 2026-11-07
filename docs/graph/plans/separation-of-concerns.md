@@ -1805,6 +1805,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-FieldPerNode | sonnet | opus | tasks.md 3.41a; after 3.33; every node gets a created Field, INTERNAL populated |
 | B3-ExportPortPopulation | sonnet | opus | tasks.md 3.41b; after 3.41a; state population walks export ports |
 | B3-OuterStatePopulation | sonnet | sonnet | tasks.md 3.42; low priority, preflight first |
+| B3-VerticalOrientationSync | sonnet | sonnet | tasks.md 3.43; found by 3.41a; preflight first |
 | B3-FillValue | sonnet | sonnet | tasks.md 3.34; with or after 4.2 |
 | B3-QuantityTypeSuppliers | sonnet | sonnet | tasks.md 3.35; YAML key, keyword, harvest; before 3.27 |
 | B3-QuantityTypeDeferred | opus | sonnet | tasks.md 3.36; factory status by intent, soft freeze rule, shares 3.27's switch; after 3.27 |

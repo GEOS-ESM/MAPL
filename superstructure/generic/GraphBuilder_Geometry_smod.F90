@@ -176,6 +176,13 @@ contains
       _RETURN(_SUCCESS)
    end subroutine graphbuilder_harvest_deferred
 
+   logical function status_has_geom(field_status) result(has_geom)
+      type(ESMF_FieldStatus_Flag), intent(in) :: field_status
+
+      has_geom = field_status == ESMF_FIELDSTATUS_GRIDSET .or. &
+           field_status == ESMF_FIELDSTATUS_COMPLETE
+   end function status_has_geom
+
    ! Reads the geom off the component's field or bundle of that name (the
    ! handle's, if already bound), lets each characteristic harvest its own
    ! recorded value, and offers both to the node's characteristics.
@@ -201,6 +208,7 @@ contains
       integer :: field_count
       character(:), allocatable :: name
       type(GraphStateItem) :: realized
+      logical :: payload_has_geom
 
       _RETURN_UNLESS(node%has_short_name())
       name = node%get_short_name()
@@ -211,18 +219,25 @@ contains
       handle => node%get_payload_ptr()
       item_kind = handle%itemType(_RC)
 
+      ! A Field only created at advertise has no geom: read the component's
+      ! own field of that name instead.
+      payload_has_geom = .false.
       if (item_kind == ESMF_STATEITEM_FIELD) then
          field = handle%get_field(_RC)
-      else if (item_kind == ESMF_STATEITEM_FIELDBUNDLE) then
+         call ESMF_FieldGet(field, status=field_status, _RC)
+         payload_has_geom = status_has_geom(field_status)
+      end if
+
+      if (item_kind == ESMF_STATEITEM_FIELDBUNDLE) then
          bundle = handle%get_field_bundle(_RC)
-      else
+      else if (.not. payload_has_geom) then
          call states%get_state(state, node%get_state_intent(), _RC)
          call ESMF_StateGet(state, itemName=name, itemType=item_kind, _RC)
          if (item_kind == ESMF_STATEITEM_FIELD) then
             call ESMF_StateGet(state, itemName=name, field=field, _RC)
             _RETURN_UNLESS(ESMF_FieldIsCreated(field))
             call ESMF_FieldGet(field, status=field_status, _RC)
-            _RETURN_UNLESS(any(field_status == [ESMF_FIELDSTATUS_GRIDSET, ESMF_FIELDSTATUS_COMPLETE]))
+            _RETURN_UNLESS(status_has_geom(field_status))
          else if (item_kind == ESMF_STATEITEM_FIELDBUNDLE) then
             call ESMF_StateGet(state, itemName=name, fieldbundle=bundle, _RC)
             _RETURN_UNLESS(ESMF_FieldBundleIsCreated(bundle))

@@ -14,6 +14,7 @@ module Test_Scenarios
    use mapl_GraphScenarioBootstrap_mod, only: build_scenario_tree
    use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_REGISTRY, GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
+   use mapl_GraphOwnsUserStates_mod, only: set_graph_owns_user_states
    use mapl_GriddedComponentDriver_mod
    use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, &
         set_field_dictionary_config, get_field_dictionary_config
@@ -256,6 +257,8 @@ contains
    !   MAPL_SCENARIO_PENDING  set: run only the not-yet-graph_ready scenarios,
    !                          under graph and both modes (non-ESSENTIAL target).
    !   MAPL_SCENARIO_ONLY     scenario name: restrict to that scenario.
+   !   MAPL_SCENARIO_GRAPH_OWNS_USER_STATES  set: graph mode runs with the graph
+   !                          owning the user states (other modes unaffected).
    !   MAPL_SCENARIO_SHARD    "k/N" (0 <= k < N): keep every N-th parameter,
    !                          starting at k, of the list left after the
    !                          filters above. Each ctest shard thereby stays
@@ -381,6 +384,9 @@ contains
 
       call set_graph_mode(this%graph_mode, _RC)
       call set_materialize_extensions(this%graph_mode /= GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states( &
+           this%graph_mode == GRAPH_MODE_GRAPH .and. &
+           env_is_set('MAPL_SCENARIO_GRAPH_OWNS_USER_STATES'))
 
       this%saved_fd_config = get_field_dictionary_config()
       if (this%permissive) call set_field_dictionary_config(FieldDictionaryConfig())
@@ -430,6 +436,7 @@ contains
       end associate
 
       call set_materialize_extensions(.false.)
+      call set_graph_owns_user_states(.false.)
       call set_graph_mode(GRAPH_MODE_REGISTRY, _RC)
 
       file_name = './scenarios/' // this%scenario_name // '/expectations.yaml'
@@ -443,6 +450,7 @@ contains
       integer :: status
 
       call set_materialize_extensions(.false.)
+      call set_graph_owns_user_states(.false.)
       call set_graph_mode(GRAPH_MODE_REGISTRY, _RC)
       call set_field_dictionary_config(this%saved_fd_config)
 

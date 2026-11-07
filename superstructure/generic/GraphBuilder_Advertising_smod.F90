@@ -5,6 +5,8 @@
 submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
    use esmf, only: operator(==), operator(/=)
    use mapl_CompositeStateMaterialization_mod, only: materialize_composite
+   use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_REGISTRY
+   use mapl_ExtensionMaterialization_mod, only: create_field_extension
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
    use mapl_ErrorHandling_mod
@@ -105,6 +107,18 @@ contains
          ! nondeterministically under gfortran -fcheck=all.
          descriptor => registered_node%get_descriptor()
          call var_spec%make_characteristics(descriptor, _RC)
+
+         ! Legacy creates every declared item's Field (empty, not
+         ! allocated) at advertise. A name with a slash (a propagated
+         ! name) is not a valid ESMF Field name and is left alone.
+         if (graph_mode() /= GRAPH_MODE_REGISTRY .and. &
+              member_names%size() == 0 .and. &
+              index(var_spec%short_name, '/') == 0) then
+            if (descriptor%get_declared_item_type() == &
+                 MAPL_STATEITEM_FIELD) then
+               call create_field_extension(graph, id, var_spec%short_name, _RC)
+            end if
+         end if
       class default
          _FAIL('GraphBuilder: advertise_one - newly-registered node is not a StateItemNode')
       end select

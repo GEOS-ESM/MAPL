@@ -31,14 +31,20 @@ module Test_ExtensionMaterialization
    use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_GEOM
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain, &
         set_materialize_extensions, materialize_extensions_enabled
-   use mapl_ExtensionMaterialization_mod, only: materialize_field_extension
+   use mapl_ExtensionMaterialization_mod, only: materialize_field_extension, &
+        create_field_extension, field_extension_is_created, &
+             rebuild_field_extension
+   use mapl_field_api, only: MAPL_FieldGet
+   use ESMF, only: ESMF_FieldStatus_Flag, ESMF_FIELDSTATUS_EMPTY, &
+        ESMF_FIELDSTATUS_COMPLETE
    use mapl_SetSharedCharacteristic_mod, only: set_shared_characteristic
    use ESMF, only: ESMF_FieldGet, ESMF_MAXSTR
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_FieldCreate_mod, only: FieldCreate, FieldsAreAliased
    use mapl_FieldGet_mod, only: FieldGet
    use mapl_enums_api, only: MAPL_StateItemAllocation, &
-        MAPL_STATEITEM_ALLOCATION_ALLOCATED, operator(==)
+        MAPL_STATEITEM_ALLOCATION_ALLOCATED, &
+        MAPL_STATEITEM_ALLOCATION_CREATED, operator(==)
    use mapl_FieldPointerUtilities_mod, only: assign_fptr
    use ESMF, only: ESMF_Geom, ESMF_Grid, ESMF_Field, ESMF_TypeKind_Flag
    use ESMF, only: ESMF_GridCreateNoPeriDim, ESMF_GeomCreate
@@ -560,5 +566,103 @@ contains
       @assertEqual(0, s1)
       @assertEqual(0, s2)
    end subroutine test_set_shared_without_field_payload_does_not_rebuild
+
+   ! A node first gets an empty Field (status CREATED), then the same Field
+   ! object is completed and allocated from the node descriptor; a rebuild
+   ! of a merely created Field changes nothing; a second materialize is a
+   ! no-op on the allocated Field.
+   @test
+   subroutine test_create_then_materialize_keeps_one_field()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: node_id
+      type(StateItemNode) :: item_node
+      type(GraphStateItem) :: payload, after_payload
+      type(NodeRevision) :: revision
+      type(StateItemDescriptor), pointer :: descriptor
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      class(GraphNode), pointer :: node
+      type(ESMF_Field) :: created, completed, again
+      type(ESMF_FieldStatus_Flag) :: created_fstatus, completed_fstatus
+      type(MAPL_StateItemAllocation) :: created_alloc, completed_alloc
+      logical :: was_created, is_created_after, same_field, same_again
+      integer :: status, st1, st2, st3, st4
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+
+      graph = ComponentGraph()
+      node_id = graph%next_node_id(rc=status)
+      item_node = StateItemNode(node_id, payload, revision)
+      call graph%register_node(item_node, rc=status)
+
+      node => graph%get_node(node_id)
+      select type (node)
+      class is (StateItemNode)
+         descriptor => node%get_descriptor()
+      end select
+      call descriptor%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'), rc=status)
+      call descriptor%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='1', geom=geom), rc=status)
+      call descriptor%set_characteristic( &
+           HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM), rc=status)
+      call descriptor%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R4'), rc=status)
+
+      call create_field_extension(graph, node_id, 'T', rc=status)
+      @assertEqual(0, status)
+      was_created = field_extension_is_created(graph, node_id)
+      select type (node)
+      class is (StateItemNode)
+         payload = node%get_payload()
+      end select
+      created = payload%get_field(rc=st1)
+      call ESMF_FieldGet(created, status=created_fstatus, rc=st2)
+      call MAPL_FieldGet(created, allocation_status=created_alloc, rc=st3)
+      @assertEqual(0, st1)
+      @assertEqual(0, st2)
+      @assertEqual(0, st3)
+      @assertTrue(was_created)
+      @assertTrue(created_fstatus == ESMF_FIELDSTATUS_EMPTY)
+      @assertTrue(created_alloc == MAPL_STATEITEM_ALLOCATION_CREATED)
+
+      ! Nothing to rebuild on a Field that is only created.
+      call rebuild_field_extension(graph, node_id, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(field_extension_is_created(graph, node_id))
+
+      call materialize_field_extension(graph, node_id, rc=status)
+      @assertEqual(0, status)
+      is_created_after = field_extension_is_created(graph, node_id)
+      select type (node)
+      class is (StateItemNode)
+         after_payload = node%get_payload()
+      end select
+      completed = after_payload%get_field(rc=st1)
+      call ESMF_FieldGet(completed, status=completed_fstatus, rc=st2)
+      call MAPL_FieldGet(completed, allocation_status=completed_alloc, rc=st3)
+      same_field = FieldsAreAliased(created, completed, rc=st4)
+      @assertEqual(0, st1)
+      @assertEqual(0, st2)
+      @assertEqual(0, st3)
+      @assertEqual(0, st4)
+      @assertFalse(is_created_after)
+      @assertTrue(completed_fstatus == ESMF_FIELDSTATUS_COMPLETE)
+      @assertTrue(completed_alloc == MAPL_STATEITEM_ALLOCATION_ALLOCATED)
+      @assertTrue(same_field)
+
+      call materialize_field_extension(graph, node_id, rc=status)
+      @assertEqual(0, status)
+      select type (node)
+      class is (StateItemNode)
+         after_payload = node%get_payload()
+      end select
+      again = after_payload%get_field(rc=status)
+      same_again = FieldsAreAliased(completed, again, rc=st4)
+      @assertEqual(0, st4)
+      @assertTrue(same_again)
+   end subroutine test_create_then_materialize_keeps_one_field
 
 end module Test_ExtensionMaterialization

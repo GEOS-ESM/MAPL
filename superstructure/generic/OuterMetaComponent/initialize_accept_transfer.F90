@@ -9,6 +9,7 @@ submodule (mapl_OuterMetaComponent_mod) initialize_accept_transfer_smod
    use mapl_ConnectionVector_mod, only: operator(/=)
    use mapl_GraphBuilder_mod, only: GraphBuilder
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_GRAPH
+   use mapl_GraphOwnsUserStates_mod, only: graph_populates_user_states
    use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
    use mapl_ErrorHandling_mod
@@ -24,7 +25,7 @@ contains
       class(KE), optional, intent(in) :: unusable
       integer, optional, intent(out) :: rc
 
-      type(MultiState) :: outer_states, user_states, tmp_states
+      type(MultiState) :: outer_states, user_states, tmp_states, graph_states
       class(GriddedComponentDriver), pointer :: provider
       type(ESMF_GridComp) :: provider_gc
       type(OuterMetaComponent), pointer :: provider_meta
@@ -74,7 +75,15 @@ contains
       if (graph_mode() /= GRAPH_MODE_GRAPH) then
          call this%registry%add_to_states(tmp_states, mode='user', _RC)
       end if
-      call gb%run_populate_state_hook(this, tmp_states)
+      ! Off: legacy filled the user states and the graph populates only
+      ! what it always did (the real import state; export and internal go to
+      ! throwaway states). On: the graph fills all three real user states.
+      if (graph_populates_user_states()) then
+         graph_states = user_states
+      else
+         graph_states = tmp_states
+      end if
+      call gb%run_populate_state_hook(this, graph_states)
 
       outer_states = MultiState(importState=importState, exportState=exportState)
       if (graph_mode() /= GRAPH_MODE_GRAPH) then

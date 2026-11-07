@@ -1022,11 +1022,16 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       ALLOCATED: every declared node (all intents) gets a Field at
       advertise, complete from its descriptor (geometry, units, fill
       value, per-alias keys) but not allocated; an INTERNAL is activated
-      and allocated always; an EXPORT or IMPORT is activated and
-      allocated by the same rule legacy uses (connection or re-export
-      source), so materialization completes the existing Field instead of
-      creating a second one. Split `build_field_payload` so completion
-      and allocation can happen separately. Then add INTERNAL to the
+      and allocated always; an EXPORT is allocated only when a connection
+      consumes it (owner, 2026-11-07: an unconnected re-export is NOT
+      allocated; legacy allocates it because its re-export chain activates
+      the source, a legacy bug; follow the design and add a row to the
+      legacy/graph differences table in scenario-parity.md), so
+      materialization completes the existing Field instead of creating a
+      second one. An unconnected export, re-exported or not, stays created
+      (GRIDSET once its geometry is written). Split `build_field_payload`
+      so completion and allocation can happen separately. Then add
+      INTERNAL to the
       declared-item walk in `graphbuilder_populate_state` so the user
       INTERNAL state receives the node's Field under the item's name (the
       gridcomp writes this Field). Preflight points: the tmp_states
@@ -1035,11 +1040,107 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       are `this%user_gc_driver%get_states()`); freeze and readers of a
       payload must tolerate a created-not-allocated Field; hybrid mode
       keeps legacy's own Field in the user states (graph writes by
-      `StateAddReplace` and is a no-op in BOTH mode). Done when a graph
+      `StateAddReplace` and is a no-op in BOTH mode).
+      Owner answer (2026-11-07, option c): an explicit switch, off by
+      default like `set_materialize_extensions`, "graph owns the user
+      states". Off: production behavior unchanged (legacy fills the
+      states; the graph creates, completes and aliases Fields). On: the
+      legacy user-state population (`add_to_states(mode='user')` at
+      advertise and at REALIZE_ACCEPTED) is skipped and the graph
+      populates the real user import, internal and export states, the
+      outer states remaining legacy's until 3.42. Scenarios that cannot
+      pass with the switch on (`plain_field`, `dims_z_field`, ExtData and
+      history ones) are measured and listed as the pending worklist before
+      graph-only can be the default; they are not fixed here. Done when a graph
       population unit test (GRAPH mode, no `registry%add_to_states`)
       finds the Field for an internal, an unconnected export (created,
       not allocated) and a connected export in the right user states.
       Author sonnet (opus review).
+      Status (in progress, item stays open): Feasibility holds: one Field
+      object goes empty-create (`create_field_extension`,
+      `allocation_status=CREATED`, ESMF EMPTY), then `sync_to_info`
+      STRUCTURAL puts the geom on it (ESMF GRIDSET, what legacy shows for
+      an unconnected export or import; `describe_created_field`, at
+      population), then `MAPL_FieldEmptyComplete` + fill + ALLOCATED
+      (`complete_field`). Built: `advertise_one` creates the Field for
+      INTERNAL, EXPORT and IMPORT nodes of FIELD class when graph mode is
+      not REGISTRY (skipped: composites, bundles, vectors, brackets,
+      expressions, services, state items, and names with a slash, which
+      are not valid ESMF Field names); `materialize_field_extension`
+      completes a CREATED Field in place and is a no-op for any other
+      Field; `rebuild_field_extension` is a no-op on a created Field.
+      "Created" means status CREATED and an original, not a named alias
+      (alias id 0): legacy writes the same status key on its Fields, and
+      the only legacy Field a node holds is an alias of one, so a legacy
+      Field still marked CREATED is not mistaken for a graph-created one
+      (tested). The switch `set_graph_owns_user_states` (test-only setter),
+      read as `graph_populates_user_states()` (switch and GRAPH mode) at
+      every gate (`graph/GraphOwnsUserStates.F90`;
+      `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES` for Test_Scenarios). OFF:
+      legacy fills the user states; populate inserts only completed
+      Fields, skips INTERNAL, and the call site passes the HEAD scratch
+      states; `try_alias_export_field` still aliases legacy's Field and
+      destroys the orphaned created one (not if it shares a host). ON:
+      legacy user population is skipped (`initialize_advertise`,
+      `initialize_realize_accepted`; accept_transfer already was), the
+      call site passes the real user states, populate completes and
+      allocates INTERNAL and describes created exports, an import with a
+      producer gets the producer's Field (its own created Field stays on
+      its node, created, in no state) and one without gets its own
+      (GRIDSET), `allocate_internals` at REALIZE_ACCEPTED allocates any
+      INTERNAL whose descriptor is complete by then (an incomplete one
+      stays created), and `try_alias_export_field` finds nothing to alias
+      so the created Field is completed in place. An unconnected export,
+      re-exported or not, stays created (owner Q2).
+      `find_materialized_predecessor` walks past the import's own created
+      Field, and returns not found at any created-only Field further
+      along (the connection did not complete it; nothing there to walk
+      for). `fill_deferred_from_handle` reads the component's own field
+      when the payload Field has no geom yet. Tests: updated
+      `Test_GraphGeometryHook.test_harvest_fills_deferred_from_realized_field`;
+      new `test_populate_state_field_per_node_graph_mode` (ON, fresh
+      states, two passes, unconnected import),
+      `..._registry_unchanged`,
+      `test_populate_state_switch_off_keeps_legacy_fields` (states
+      pre-filled with empty Fields, E_conn ACTIVE, E_unconn CREATED, Z
+      ACTIVE), `test_legacy_field_marked_created_is_not_graph_created`,
+      `test_connected_export_not_aliased_when_graph_owns_states`,
+      `test_import_not_fed_a_created_only_export_field`,
+      `test_import_with_producer_gets_producer_field`,
+      `test_allocate_internals_hook_completes_only_complete`,
+      `test_create_then_materialize_keeps_one_field`.
+      Pending worklist, measured with the switch ON in GRAPH mode on NAG
+      (not fixed here). Graph-ready scenarios failing: `plain_field`,
+      `units_mismatch_run_phase`, `units_and_typekind_mismatch`,
+      `invalidate` ([value]: the gridcomp writes its export into the user
+      Field while the outer state holds legacy's; 3.42);
+      `graphbuilder_propagation` (the import in a grandchild: populate
+      reaches direct children only, so it gets its own empty Field);
+      `dims_z_field` (completing the export from its descriptor fails:
+      `drop_unsupplied` dropped the vertical grid at GEOM_B, so the Field
+      has no levels; separate finding); `export_dependency` (E2 stays
+      GRIDSET: legacy allocates it through the export dependency);
+      `history_wildcard`, `extdata_1` (ExtData and history read exports by
+      propagated or wildcard name; 3.41b/3.42); `expression`,
+      `expression_match` (import standard_name `<unknown>`);
+      `scenario_1`, `scenario_2`, `scenario_reexport_twice` (the
+      re-exported internal ZZ_A1 is not in the user export state:
+      3.41b). Now passing: `names_1`. Pending scenarios with the switch
+      ON: `vertical_regridding_3` ABORTS the run (ConfigurableGridComp.F90:82
+      dereferences the pointer of a created, unallocated export);
+      `vertical_regridding_2` now FAILS (describing the import's own
+      created Field runs sync_to_info, and its VerticalOrientation is
+      SPECIFIED with no direction: StateItemDescriptor.F90:726); `regrid`,
+      `regrid_r8`, `expression_defer_geom` (status gridset where complete
+      is expected for an export or import fed by a regrid or deferred
+      chain), `propagate_geom` and `vector_1` (re-exported internal or
+      bundle `uv` not in the state), `history_1`, `statistics` (rc 41
+      reading propagated exports); `expression_per_consumer_r8`,
+      `service_service`, `service_with_options`, `statistics_real` fail as
+      with the switch off; `vertical_alignment_regrid`,
+      `vertical_alignment_with_grid`, `vertical_regridding` pass.
+      Everything else graph-ready passes. Row added to scenario-parity.md:
+      unconnected re-exported export.
 - [ ] 3.41b B3-ExportPortPopulation (owner, 2026-11-06; after 3.41a;
       before E1 and any graph-only default). Second half of the old
       3.41. Make `graphbuilder_populate_state` walk the component's
@@ -1064,6 +1165,23 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       component behaves as an ESMF gridcomp, so this may reduce to a
       small task. Preflight first (what reads the outer states: the
       parent's coupler, extension fields, `<root>` expectations).
+      Carried over from 3.41a (switch ON): the user export state and the
+      outer export state must hold the same Field (`plain_field`), and
+      each INTERNAL is allocated twice, once by the graph and once by
+      legacy's `registry%allocate`, so restart or history readers that go
+      through the registry see legacy's Field; both must be closed here.
+- [ ] 3.43 B3-VerticalOrientationSync (found by 3.41a, 2026-11-07).
+      Creating Fields for imports exposed a disagreement:
+      `get_incomplete_kinds()` reports the descriptor complete, but its
+      VerticalOrientation is SPECIFIED with no direction, and
+      `sync_to_info` then fails
+      (`StateItemDescriptor.F90:~726` via
+      `VerticalOrientationCharacteristic.F90:~138`). Seen as a
+      `vertical_regridding_2` failure with the switch ON. Either the
+      characteristic reports itself incomplete, or `write_info` skips a
+      SPECIFIED value without a direction; decide with a unit test that
+      fails today. Preflight first (which is the design's intent: A-number
+      for VerticalOrientation completeness). Author sonnet (sonnet review).
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the

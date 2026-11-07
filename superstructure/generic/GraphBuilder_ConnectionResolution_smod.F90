@@ -10,6 +10,7 @@
 ! re-derived from a VariableSpec.
 submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateGet, &
+        ESMF_FieldDestroy, &
         ESMF_STATEITEM_NOTFOUND, &
         ESMF_STATEINTENT_INTERNAL, operator(==)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
@@ -25,6 +26,9 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
         StateItemCharacteristicMapIterator, operator(/=)
    use mapl_FieldNamedAlias_mod, only: MAPL_NamedAlias
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_REGISTRY
+   use mapl_GraphOwnsUserStates_mod, only: graph_populates_user_states
+   use mapl_ExtensionMaterialization_mod, only: field_extension_is_created
+   use mapl_FieldCreate_mod, only: FieldsAreAliased
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
@@ -1427,6 +1431,11 @@ contains
    ! sites: if found, the caller skips the FieldCreate path. If the field is
    ! not yet available by name (two-pass timing), returns success with
    ! found = .false. and the caller falls back to FieldCreate.
+   !
+   ! With graph_populates_user_states() there is nothing to alias: the state
+   ! holds the node's own created Field, so found = .false. and the caller
+   ! completes that Field in place. With it off, the created Field is
+   ! replaced by the alias and destroyed (nothing else holds it).
    module subroutine try_alias_export_field(this, export_comp_name, export_short_name, &
         graph, node_id, found, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
@@ -1444,11 +1453,12 @@ contains
       type(ESMF_State) :: export_state
       type(ESMF_StateItem_Flag) :: item_kind
       type(ESMF_Field) :: field
-      type(ESMF_Field) :: alias
+      type(ESMF_Field) :: alias, created
       class(GraphNode), pointer :: node
       type(GraphStateItem), pointer :: payload
 
       found = .false.
+      _RETURN_IF(graph_populates_user_states())
 
       export_meta => component_for(this, export_comp_name, _RC)
       export_driver => export_meta%get_user_gc_driver()
@@ -1476,6 +1486,10 @@ contains
          ! Mutate the stored handle in place through a pointer rather than a
          ! get_payload()/set_payload() round trip (gfortran copy hazard).
          payload => node%get_payload_ptr()
+         if (field_extension_is_created(graph, node_id)) then
+            created = payload%get_field(_RC)
+            call destroy_if_not_aliased(created, field, _RC)
+         end if
          call payload%set(alias, _RC)
       class default
          _FAIL('GraphBuilder: try_alias_export_field - NodeId does not refer to a StateItemNode')
@@ -1485,6 +1499,25 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine try_alias_export_field
+
+   ! Destroys `old` unless it shares its host with `kept` (an alias of the
+   ! same Field must not be destroyed).
+   subroutine destroy_if_not_aliased(old, kept, rc)
+      type(ESMF_Field), intent(inout) :: old
+      type(ESMF_Field), intent(in) :: kept
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: aliased
+
+      aliased = FieldsAreAliased(old, kept, rc=status)
+      _VERIFY(status)
+      if (.not. aliased) then
+         call ESMF_FieldDestroy(old, noGarbage=.true., _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine destroy_if_not_aliased
 
    ! Gives node_id (a Field-typed export) a real ESMF_Field built from its
    ! own descriptor. Otherwise sets failure_reason (empty on success): a

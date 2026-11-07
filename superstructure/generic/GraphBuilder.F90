@@ -138,6 +138,7 @@ module mapl_GraphBuilder_mod
    public :: graphbuilder_run_propagate_hook
    public :: graphbuilder_run_export_propagate_hook
    public :: graphbuilder_run_reexport_hook
+   public :: graphbuilder_allocate_internals
 
    ! Stateless by design: every bound procedure still takes the
    ! OuterMetaComponent it operates on. All bindings are NOPASS, e.g.
@@ -166,6 +167,9 @@ module mapl_GraphBuilder_mod
       ! initialize_advertise.F90 after run_advertise_hook and before the
       ! export propagation of this component's parent reads these ports.
       procedure, nopass :: run_reexport_hook => graphbuilder_run_reexport_hook
+      ! Completes and allocates this component's INTERNAL Fields at
+      ! REALIZE_ACCEPTED (where legacy allocates them).
+      procedure, nopass :: allocate_internals => graphbuilder_allocate_internals
       procedure, nopass :: run_activate_hook => graphbuilder_run_activate_hook
       procedure, nopass :: run_connect_hook => graphbuilder_run_connect_hook
       ! Resolves an EXPRESSION item's named variable references against
@@ -356,6 +360,10 @@ module mapl_GraphBuilder_mod
        class(OuterMetaComponent), target, intent(inout) :: this
        integer, optional, intent(out) :: rc
     end subroutine graphbuilder_run_reexport_hook
+   module subroutine graphbuilder_allocate_internals(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+   end subroutine graphbuilder_allocate_internals
    module subroutine for_each_matching_import(dst_graph, dst_pt, op, rc)
       type(ComponentGraph), target, intent(in) :: dst_graph
       type(ConnectionPt), intent(in) :: dst_pt

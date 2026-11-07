@@ -4,10 +4,14 @@
 ! ESMF import/export States.
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_StatePopulation_smod
-   use esmf, only: ESMF_State, ESMF_StateAddReplace, ESMF_STATEITEM_FIELD, operator(==)
+   use esmf, only: ESMF_State, ESMF_StateAddReplace, ESMF_STATEITEM_FIELD, &
+        operator(==), ESMF_STATEINTENT_INTERNAL
    use mapl_FieldNamedAlias_mod, only: MAPL_NamedAlias
    use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_DESCRIPTIVE
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_GRAPH
+   use mapl_ExtensionMaterialization_mod, only: complete_created_field, &
+        describe_created_field, field_extension_is_created
+   use mapl_GraphOwnsUserStates_mod, only: graph_populates_user_states
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
@@ -33,8 +37,14 @@ contains
    ! An export's field is on its own node. An import's field is found by
    ! walking predecessor edges to the first node with a real Field
    ! (find_materialized_predecessor), which handles a direct match and
-   ! an extension chain alike. INTERNAL items and non-Field items are
-   ! skipped; an unresolved import is skipped silently.
+   ! an extension chain alike. Non-Field items are skipped. An unresolved
+   ! import gets its own created Field when graph_populates_user_states()
+   ! is on, and nothing otherwise.
+   !
+   ! With graph_populates_user_states() off, only Fields already completed
+   ! are inserted and INTERNAL items are skipped: legacy filled the user
+   ! states and must keep them. With it on, an INTERNAL item is completed
+   ! and allocated, and a created export goes in as it is (GRIDSET).
    module subroutine graphbuilder_populate_state(this, multi_state, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(MultiState), intent(inout) :: multi_state
@@ -67,7 +77,8 @@ contains
             call iter%next()
             var_spec => iter%of()
             if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT .or. &
-                 var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) cycle
+                 var_spec%state_intent == ESMF_STATEINTENT_EXPORT .or. &
+                 var_spec%state_intent == ESMF_STATEINTENT_INTERNAL)) cycle
             id_ptr => graph%get_resource_index(item_key(var_spec%state_intent, var_spec%short_name))
             call populate_one(graph, net, multi_state, id_ptr, var_spec%state_intent, var_spec%short_name, _RC)
          end do
@@ -126,13 +137,24 @@ contains
       type(ESMF_Field) :: alias
       type(ESMF_State) :: state
       type(GraphStateItem) :: alias_handle
+      logical :: owns, created_only
 
       if (.not. associated(id_ptr)) then
          _RETURN(_SUCCESS)
       end if
       item_id = id_ptr
 
-      if (state_intent == ESMF_STATEINTENT_EXPORT) then
+      owns = graph_populates_user_states()
+      if (state_intent == ESMF_STATEINTENT_INTERNAL .and. .not. owns) then
+         _RETURN(_SUCCESS)
+      end if
+      if (owns .and. .not. (state_intent == ESMF_STATEINTENT_IMPORT)) then
+         call prepare_created_field(graph, item_id, &
+              state_intent == ESMF_STATEINTENT_INTERNAL, _RC)
+      end if
+
+      if (state_intent == ESMF_STATEINTENT_EXPORT .or. &
+           state_intent == ESMF_STATEINTENT_INTERNAL) then
          call get_field_if_materialized(graph, item_id, field, found, _RC)
       else
          field_node_id = find_materialized_predecessor(graph, net, item_id, found)
@@ -141,10 +163,25 @@ contains
          ! unguarded and reads an uninitialized status.
          if (found) then
             call get_field_if_materialized(graph, field_node_id, field, found, _RC)
+         else if (owns) then
+            ! No producer: the import's own created Field, as legacy leaves
+            ! an unconnected import.
+            call prepare_created_field(graph, item_id, .false., _RC)
+            call get_field_if_materialized(graph, item_id, field, found, _RC)
          end if
       end if
       if (.not. found) then
          _RETURN(_SUCCESS)
+      end if
+      if (.not. owns) then
+         if (state_intent == ESMF_STATEINTENT_IMPORT) then
+            created_only = field_extension_is_created(graph, field_node_id)
+         else
+            created_only = field_extension_is_created(graph, item_id)
+         end if
+         if (created_only) then
+            _RETURN(_SUCCESS)
+         end if
       end if
 
       call multi_state%get_state(state, state_intent, _RC)
@@ -163,6 +200,74 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine populate_one
+
+   ! Completes and allocates every INTERNAL Field of this component that is
+   ! still only created and whose descriptor is complete by now. One whose
+   ! descriptor is still incomplete stays created.
+   module subroutine graphbuilder_allocate_internals(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentSpec), pointer :: spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpecVectorIterator) :: iter
+      type(VariableSpec), pointer :: var_spec
+      type(NodeId), pointer :: id_ptr
+
+      _RETURN_UNLESS(graph_populates_user_states())
+
+      graph => this%get_component_graph()
+      spec => this%get_component_spec()
+      associate (e => spec%var_specs%ftn_end())
+         iter = spec%var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            if (.not. (var_spec%state_intent == &
+                 ESMF_STATEINTENT_INTERNAL)) cycle
+            id_ptr => graph%get_resource_index( &
+                 item_key(var_spec%state_intent, var_spec%short_name))
+            if (.not. associated(id_ptr)) cycle
+            call prepare_created_field(graph, id_ptr, .true., _RC)
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine graphbuilder_allocate_internals
+
+   ! A created Field whose descriptor is complete gets its description
+   ! (geom first), so a user sees a GRIDSET Field. An INTERNAL item is also
+   ! completed and allocated (legacy activates it always). An incomplete
+   ! descriptor leaves the Field as created.
+   subroutine prepare_created_field(graph, node_id, allocate_it, rc)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: node_id
+      logical, intent(in) :: allocate_it
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: descriptor
+      type(StateItemCharacteristicKind), allocatable :: incomplete(:)
+
+      node => graph%get_node(node_id)
+      _RETURN_UNLESS(associated(node))
+      select type (node)
+      class is (StateItemNode)
+         descriptor => node%get_descriptor()
+         incomplete = descriptor%get_incomplete_kinds()
+         if (size(incomplete) == 0) then
+            if (allocate_it) then
+               call complete_created_field(node, _RC)
+            else
+               call describe_created_field(node, _RC)
+            end if
+         end if
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine prepare_created_field
 
    ! Field-only, no-op-if-not-materialized accessor shared by
    ! graphbuilder_populate_state's export and (resolved) import cases.
@@ -258,9 +363,16 @@ contains
             payload = node%get_payload()
             kind_flag = payload%itemType(rc=status)
             if (status == 0 .and. kind_flag == ESMF_STATEITEM_FIELD) then
-               field_node_id = current
-               found = .true.
-               return
+               if (.not. field_extension_is_created(graph, current)) then
+                  field_node_id = current
+                  found = .true.
+                  return
+               end if
+               ! A Field that is only created is no producer. The start
+               ! node is the import itself, whose own created Field is
+               ! walked past; further along, a created-only Field means the
+               ! connection did not complete it, so there is nothing to find.
+               if (hop > 1) return
             end if
          end select
 

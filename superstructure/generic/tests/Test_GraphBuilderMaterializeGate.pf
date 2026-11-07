@@ -50,6 +50,9 @@ module Test_GraphBuilderMaterializeGate
    use mapl_VariableSpec_mod, only: VariableSpec
    use mapl_RestartModes_mod, only: RestartMode, RESTART_REQUIRED, RESTART_SKIP, operator(==)
    use mapl_field_api, only: MAPL_FieldGet, MAPL_FieldSet
+   use mapl_enums_api, only: MAPL_StateItemAllocation, operator(==)
+   use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_CREATED, &
+        MAPL_STATEITEM_ALLOCATION_ACTIVE, MAPL_STATEITEM_ALLOCATION_ALLOCATED
    use mapl_field_api, only: MAPL_FieldCreate
    use mapl_GeomUtilities_mod, only: GeomSetId
    use mapl_SimpleConnection_mod, only: SimpleConnection
@@ -63,6 +66,12 @@ module Test_GraphBuilderMaterializeGate
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem, operator(==)
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
+   use mapl_ExtensionMaterialization_mod, only: field_extension_is_created
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
+   use mapl_StateItemCharacteristicKind_mod, only: GEOMETRY_CHARACTERISTIC_KIND
+   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE
+   use mapl_GraphOwnsUserStates_mod, only: set_graph_owns_user_states
    use mapl_StateItem_mod, only: MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_FIELD
    use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_REGISTRY, GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH
    use mapl_MultiState_mod, only: MultiState
@@ -222,6 +231,8 @@ contains
       class(ESMF_TestMethod), intent(inout) :: this
 
       call set_materialize_extensions(.false.)
+      call set_graph_owns_user_states(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
       _UNUSED_DUMMY(this)
    end subroutine restore_materialize_extensions_gate
 
@@ -1146,5 +1157,705 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_populate_state_no_insert_in_registry_or_both_mode
+
+   ! Builds child_src (INTERNAL Z, EXPORT E_unconn, EXPORT E_conn) and
+   ! child_dst (IMPORT E_conn) under a parent, advertises both, and connects
+   ! only E_conn. The caller sets the graph mode first: advertise reads it.
+   ! With prefill, child_src's own real user states are filled as legacy
+   ! leaves them after advertise (fields E_unconn, E_conn and Z, returned in
+   ! legacy_fields in that order) before connections resolve.
+   subroutine make_field_per_node_fixture(parent_name, parent_meta, src_meta, &
+        dst_meta, prefill, legacy_conn_status, legacy_fields, rc)
+      character(*), intent(in) :: parent_name
+      type(OuterMetaComponent), pointer, intent(out) :: parent_meta
+      type(OuterMetaComponent), pointer, intent(out) :: src_meta, dst_meta
+      logical, intent(in) :: prefill
+      type(MAPL_StateItemAllocation), intent(in) :: legacy_conn_status
+      type(ESMF_Field), intent(out) :: legacy_fields(3)
+      integer, intent(out) :: rc
+
+      type(ESMF_GridComp) :: parent_gc
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(VariableSpec) :: var_spec
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(GriddedComponentDriver), pointer :: src_own_driver
+      type(MultiState) :: src_own_states
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      _VERIFY(status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      _VERIFY(status)
+
+      call make_outer_meta(parent_name, parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      var_spec = make_var(ESMF_STATEINTENT_INTERNAL, 'Z', units='m')
+      var_spec%geom = geom
+      call src_spec%add_var_spec(var_spec)
+      var_spec%state_intent = ESMF_STATEINTENT_INTERNAL
+      var_spec%short_name = 'Zdef'
+      var_spec%vertical_stagger = VERTICAL_STAGGER_NONE
+      var_spec%units = 'm'
+      call src_spec%add_var_spec(var_spec)
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'E_unconn', units='m')
+      var_spec%geom = geom
+      call src_spec%add_var_spec(var_spec)
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'E_conn', units='m')
+      var_spec%geom = geom
+      call src_spec%add_var_spec(var_spec)
+
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'E_conn', &
+           units='m'))
+      var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'I_unconn', units='m')
+      var_spec%geom = geom
+      call dst_spec%add_var_spec(var_spec)
+
+      call gb%advertise(src_meta, _RC)
+      call gb%advertise(dst_meta, _RC)
+
+      if (prefill) then
+         src_own_driver => src_meta%get_user_gc_driver()
+         src_own_states = src_own_driver%get_states()
+         legacy_fields(1) = ESMF_FieldEmptyCreate(name='E_unconn', rc=status)
+         _VERIFY(status)
+         legacy_fields(2) = ESMF_FieldEmptyCreate(name='E_conn', rc=status)
+         _VERIFY(status)
+         legacy_fields(3) = ESMF_FieldEmptyCreate(name='Z', rc=status)
+         _VERIFY(status)
+         ! Legacy at ACCEPT_TRANSFER: empty Fields; an unconnected export is
+         ! CREATED, a connected export or an internal ACTIVE.
+         call MAPL_FieldSet(legacy_fields(1), &
+              allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, rc=status)
+         _VERIFY(status)
+         call MAPL_FieldSet(legacy_fields(2), &
+              allocation_status=legacy_conn_status, rc=status)
+         _VERIFY(status)
+         call MAPL_FieldSet(legacy_fields(3), &
+              allocation_status=MAPL_STATEITEM_ALLOCATION_ACTIVE, rc=status)
+         _VERIFY(status)
+         call ESMF_StateAdd(src_own_states%exportState, [legacy_fields(1), &
+              legacy_fields(2)], rc=status)
+         _VERIFY(status)
+         call ESMF_StateAdd(src_own_states%internalState, [legacy_fields(3)], &
+              rc=status)
+         _VERIFY(status)
+      end if
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt( &
+                state_intent='export', short_name='E_conn')), &
+           ConnectionPt('child_dst', &
+                VirtualConnectionPt(state_intent='import', &
+                short_name='E_conn')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, _RC)
+
+      rc = 0
+   end subroutine make_field_per_node_fixture
+
+   ! Allocation status recorded in a Field's Info, read through MAPL_FieldGet.
+   subroutine get_allocation_status(field, alloc_status, rc)
+      type(ESMF_Field), intent(in) :: field
+      type(MAPL_StateItemAllocation), intent(out) :: alloc_status
+      integer, intent(out) :: rc
+
+      call MAPL_FieldGet(field, allocation_status=alloc_status, rc=rc)
+   end subroutine get_allocation_status
+
+   ! In GRAPH mode every INTERNAL and EXPORT Field item gets one Field at
+   ! advertise. Population (no registry add_to_states) then puts: an
+   ! INTERNAL item allocated in the user internal state; an unconnected
+   ! EXPORT created and not allocated in the user export state; a connected
+   ! EXPORT allocated, and aliased by the import in the consumer state.
+   ! Seeded to fail: with creation at advertise off, Z and E_unconn are
+   ! absent from the states; with completion off, Z is only CREATED.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_state_field_per_node_graph_mode(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(GriddedComponentDriver), pointer :: dst_own_driver
+      type(MultiState) :: dst_own_states
+      type(ESMF_State) :: internal_state, export_state, import_state
+      type(ESMF_State) :: parent_import_state, parent_export_state
+      type(MultiState) :: src_states, parent_states
+      type(ESMF_Field) :: z_field, unconn_field, conn_field, import_field
+      type(ESMF_Field) :: unconn_import
+      type(ESMF_FieldStatus_Flag) :: unconn_import_fstatus
+      integer :: import_count
+      type(ESMF_FieldStatus_Flag) :: z_fstatus, unconn_fstatus
+      type(MAPL_StateItemAllocation) :: z_alloc, unconn_alloc, conn_alloc
+      integer :: status, status_z, status_u, status_c, status_i
+      logical :: aliased
+      type(GraphBuilder) :: gb
+      type(ESMF_Field) :: legacy(3)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_field_per_node_fixture('comp_parent_fpn_graph', parent_meta, &
+           src_meta, dst_meta, .false., &
+           MAPL_STATEITEM_ALLOCATION_ACTIVE, legacy, status)
+      @assert_that(status, is(0))
+
+      internal_state = ESMF_StateCreate(name='internal', rc=status)
+      @assertEqual(0, status)
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      import_state = ESMF_StateCreate(name='import', rc=status)
+      @assertEqual(0, status)
+      src_states = MultiState(importState=import_state, &
+           exportState=export_state, internalState=internal_state)
+
+      parent_import_state = ESMF_StateCreate(name='p_import', rc=status)
+      @assertEqual(0, status)
+      parent_export_state = ESMF_StateCreate(name='p_export', rc=status)
+      @assertEqual(0, status)
+      parent_states = MultiState(importState=parent_import_state, &
+           exportState=parent_export_state)
+
+      ! The parent walk fills each child's own real states (the consumer's
+      ! import); the producer's own walk fills the states built above.
+      call gb%populate_state(parent_meta, parent_states, status)
+      @assert_that(status, is(0))
+      call gb%populate_state(src_meta, src_states, status)
+      @assert_that(status, is(0))
+      ! A second pass (GENERIC_INIT_ACCEPT_TRANSFER runs twice) is harmless.
+      call gb%populate_state(parent_meta, parent_states, status)
+      @assert_that(status, is(0))
+      call gb%populate_state(src_meta, src_states, status)
+      @assert_that(status, is(0))
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+
+      call ESMF_StateGet(internal_state, 'Z', z_field, rc=status_z)
+      call ESMF_StateGet(export_state, 'E_unconn', unconn_field, rc=status_u)
+      call ESMF_StateGet(export_state, 'E_conn', conn_field, rc=status_c)
+      dst_own_driver => dst_meta%get_user_gc_driver()
+      dst_own_states = dst_own_driver%get_states()
+      call ESMF_StateGet(dst_own_states%importState, 'E_conn', import_field, &
+           rc=status_i)
+      @assertEqual(0, status_z)
+      @assertEqual(0, status_u)
+      @assertEqual(0, status_c)
+      @assertEqual(0, status_i)
+      call ESMF_StateGet(dst_own_states%importState, 'I_unconn', &
+           unconn_import, rc=status_i)
+      @assertEqual(0, status_i)
+      call ESMF_FieldGet(unconn_import, status=unconn_import_fstatus, &
+           rc=status_i)
+      @assertEqual(0, status_i)
+      call ESMF_StateGet(dst_own_states%importState, itemCount=import_count, &
+           rc=status_i)
+      @assertEqual(0, status_i)
+
+      call get_allocation_status(z_field, z_alloc, status_z)
+      call get_allocation_status(unconn_field, unconn_alloc, status_u)
+      call get_allocation_status(conn_field, conn_alloc, status_c)
+      call ESMF_FieldGet(z_field, status=z_fstatus, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(unconn_field, status=unconn_fstatus, rc=status)
+      @assertEqual(0, status)
+      aliased = FieldsAreAliased(conn_field, import_field)
+      @assertEqual(0, status_z)
+      @assertEqual(0, status_u)
+      @assertEqual(0, status_c)
+
+      ! (a) INTERNAL: allocated.
+      @assertTrue(z_alloc == MAPL_STATEITEM_ALLOCATION_ALLOCATED)
+      @assertTrue(z_fstatus == ESMF_FIELDSTATUS_COMPLETE)
+      ! (b) unconnected EXPORT: created, not allocated.
+      @assertTrue(unconn_alloc == MAPL_STATEITEM_ALLOCATION_CREATED)
+      @assertFalse(unconn_fstatus == ESMF_FIELDSTATUS_COMPLETE)
+      ! (c) connected EXPORT: allocated, one Field with the import.
+      @assertTrue(conn_alloc == MAPL_STATEITEM_ALLOCATION_ALLOCATED)
+      @assertTrue(aliased)
+      ! An unconnected import gets its own created Field with its geom
+      ! (GRIDSET); the connected import got the producer Field, so only
+      ! these two imports are in the state.
+      @assertTrue(unconn_import_fstatus == ESMF_FIELDSTATUS_GRIDSET)
+      @assertEqual(2, import_count)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_populate_state_field_per_node_graph_mode
+
+   ! (d) REGISTRY mode: advertise creates no Field, so population finds
+   ! nothing for the INTERNAL item or the unconnected EXPORT.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_state_field_per_node_registry_unchanged(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(ESMF_State) :: internal_state, export_state, import_state
+      type(MultiState) :: src_states
+      integer :: status, internal_count, export_count, kinds_found, i
+      type(GraphBuilder) :: gb
+      type(ESMF_Field) :: legacy(3)
+      type(ComponentGraph), pointer :: src_graph
+      type(NodeId), pointer :: id_ptr
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: payload
+      type(ESMF_StateIntent_Flag) :: intents(2)
+      character(len=8) :: names(2)
+
+      intents = [ESMF_STATEINTENT_INTERNAL, ESMF_STATEINTENT_EXPORT]
+      names = ['Z       ', 'E_unconn']
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call make_field_per_node_fixture('comp_parent_fpn_reg', parent_meta, &
+           src_meta, dst_meta, .false., &
+           MAPL_STATEITEM_ALLOCATION_ACTIVE, legacy, status)
+      @assert_that(status, is(0))
+
+      internal_state = ESMF_StateCreate(name='internal', rc=status)
+      @assertEqual(0, status)
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      @assertEqual(0, status)
+      import_state = ESMF_StateCreate(name='import', rc=status)
+      @assertEqual(0, status)
+      src_states = MultiState(importState=import_state, &
+           exportState=export_state, internalState=internal_state)
+
+      ! Registry mode: populate is a no-op, and the nodes hold no Field.
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call gb%populate_state(src_meta, src_states, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assert_that(status, is(0))
+
+      call ESMF_StateGet(internal_state, itemCount=internal_count, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(export_state, itemCount=export_count, rc=status)
+      @assertEqual(0, status)
+      src_graph => src_meta%get_component_graph()
+      kinds_found = 0
+      do i = 1, size(names)
+         id_ptr => src_graph%get_resource_index(item_key(intents(i), &
+              trim(names(i))))
+         @assertTrue(associated(id_ptr))
+         node => src_graph%get_node(id_ptr)
+         select type (node)
+         class is (StateItemNode)
+            payload = node%get_payload()
+         class default
+            @assert_that(.false., is(true()))
+         end select
+         if (payload%itemType() == ESMF_STATEITEM_FIELD) then
+            kinds_found = kinds_found + 1
+         end if
+      end do
+      @assertEqual(0, internal_count)
+      @assertEqual(0, export_count)
+      @assertEqual(0, kinds_found)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(parent_meta)
+      _UNUSED_DUMMY(dst_meta)
+   end subroutine test_populate_state_field_per_node_registry_unchanged
+
+   ! Reads the Field a node holds as its payload.
+   subroutine get_node_field(meta, intent, name, field, rc)
+      type(OuterMetaComponent), pointer, intent(in) :: meta
+      type(ESMF_StateIntent_Flag), intent(in) :: intent
+      character(*), intent(in) :: name
+      type(ESMF_Field), intent(out) :: field
+      integer, intent(out) :: rc
+
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: id_ptr
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: payload
+
+      rc = -1
+      graph => meta%get_component_graph()
+      id_ptr => graph%get_resource_index(item_key(intent, name))
+      if (.not. associated(id_ptr)) return
+      node => graph%get_node(id_ptr)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+         field = payload%get_field(rc=rc)
+      end select
+   end subroutine get_node_field
+
+   ! Switch OFF (production): legacy has filled the user states. Population
+   ! must leave legacy Fields where they are: INTERNAL is not touched, a
+   ! created-only export does not replace legacy's, and the connected export
+   ! is an alias of legacy's Field (the graph Field made at advertise is not
+   ! what the state holds). Seeded to fail: a populate that replaced legacy
+   ! Fields makes the unconnected export or Z differ from the legacy Field.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_state_switch_off_keeps_legacy_fields(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(GriddedComponentDriver), pointer :: src_own_driver
+      type(MultiState) :: src_states, parent_states
+      type(ESMF_State) :: p_import, p_export
+      type(ESMF_Field) :: legacy(3), z_field, unconn_field, conn_field, &
+           node_conn
+      logical :: z_same, unconn_same, conn_same, payload_same
+      integer :: status, st_z, st_u, st_c, st_n, st_a, st_b, st_d, st_e
+      type(GraphBuilder) :: gb
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+      call make_field_per_node_fixture('comp_parent_fpn_off', parent_meta, &
+           src_meta, dst_meta, .true., &
+           MAPL_STATEITEM_ALLOCATION_ACTIVE, legacy, status)
+      @assert_that(status, is(0))
+
+      p_import = ESMF_StateCreate(name='p_import', rc=status)
+      @assertEqual(0, status)
+      p_export = ESMF_StateCreate(name='p_export', rc=status)
+      @assertEqual(0, status)
+      parent_states = MultiState(importState=p_import, exportState=p_export)
+      src_own_driver => src_meta%get_user_gc_driver()
+      src_states = src_own_driver%get_states()
+
+      call gb%populate_state(parent_meta, parent_states, status)
+      @assert_that(status, is(0))
+      call gb%populate_state(src_meta, src_states, status)
+      @assert_that(status, is(0))
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+
+      call ESMF_StateGet(src_states%internalState, 'Z', z_field, rc=st_z)
+      call ESMF_StateGet(src_states%exportState, 'E_unconn', unconn_field, &
+           rc=st_u)
+      call ESMF_StateGet(src_states%exportState, 'E_conn', conn_field, rc=st_c)
+      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'E_conn', &
+           node_conn, st_n)
+      z_same = FieldsAreAliased(legacy(3), z_field, rc=st_a)
+      unconn_same = FieldsAreAliased(legacy(1), unconn_field, rc=st_b)
+      conn_same = FieldsAreAliased(legacy(2), conn_field, rc=st_d)
+      payload_same = FieldsAreAliased(legacy(2), node_conn, rc=st_e)
+      @assertEqual(0, st_z)
+      @assertEqual(0, st_u)
+      @assertEqual(0, st_c)
+      @assertEqual(0, st_n)
+      @assertEqual(0, st_a)
+      @assertEqual(0, st_b)
+      @assertEqual(0, st_d)
+      @assertEqual(0, st_e)
+      @assertTrue(z_same)
+      @assertTrue(unconn_same)
+      @assertTrue(conn_same)
+      ! Off: the connected export node aliases legacy Field, as before.
+      @assertTrue(payload_same)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(dst_meta)
+   end subroutine test_populate_state_switch_off_keeps_legacy_fields
+
+   ! Switch ON: nothing to alias even if a Field of that name is already in
+   ! the producer state. The connected export node keeps its own Field,
+   ! completed in place (ALLOCATED, not an alias of the other one).
+   ! Seeded to fail: aliasing as with the switch off makes it the same Field.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_connected_export_not_aliased_when_graph_owns_states(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(ESMF_Field) :: legacy(3), node_conn
+      type(MAPL_StateItemAllocation) :: node_alloc
+      logical :: same
+      integer :: status, st_n, st_a, st_s
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_field_per_node_fixture('comp_parent_fpn_on', parent_meta, &
+           src_meta, dst_meta, .true., &
+           MAPL_STATEITEM_ALLOCATION_ACTIVE, legacy, status)
+      @assert_that(status, is(0))
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+
+      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'E_conn', &
+           node_conn, st_n)
+      call get_allocation_status(node_conn, node_alloc, st_a)
+      same = FieldsAreAliased(legacy(2), node_conn, rc=st_s)
+      @assertEqual(0, st_n)
+      @assertEqual(0, st_a)
+      @assertEqual(0, st_s)
+      @assertTrue(node_alloc == MAPL_STATEITEM_ALLOCATION_ALLOCATED)
+      @assertFalse(same)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(parent_meta)
+      _UNUSED_DUMMY(dst_meta)
+   end subroutine test_connected_export_not_aliased_when_graph_owns_states
+
+   ! An import whose producer Field is only created (the connection could
+   ! not complete it) is not fed it: the created Field is no producer, so
+   ! the import falls back to its own created Field.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_import_not_fed_a_created_only_export_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(GriddedComponentDriver), pointer :: dst_own_driver
+      type(MultiState) :: dst_states, parent_states
+      type(ESMF_State) :: p_import, p_export
+      type(ESMF_Field) :: legacy(3)
+      type(ComponentGraph), pointer :: src_graph
+      type(NodeId), pointer :: id_ptr
+      class(GraphNode), pointer :: node
+      type(StateItemNode), pointer :: item
+      integer :: status, st_f
+      type(ESMF_Field) :: import_field
+      logical :: fed_producer
+      type(GraphBuilder) :: gb
+      type(GraphStateItem) :: empty_payload
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_field_per_node_fixture('comp_parent_fpn_imp', parent_meta, &
+           src_meta, dst_meta, .false., &
+           MAPL_STATEITEM_ALLOCATION_ACTIVE, legacy, status)
+      @assert_that(status, is(0))
+
+      ! Put the producer back to created-only: a fresh Field, no allocation.
+      src_graph => src_meta%get_component_graph()
+      id_ptr => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, &
+           'E_conn'))
+      @assertTrue(associated(id_ptr))
+      node => src_graph%get_node(id_ptr)
+      select type (node)
+      class is (StateItemNode)
+         item => node
+         empty_payload = item%get_payload()
+      end select
+      legacy(2) = ESMF_FieldEmptyCreate(name='E_conn', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(legacy(2), &
+           allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, rc=status)
+      @assertEqual(0, status)
+      call empty_payload%set(legacy(2), rc=status)
+      @assertEqual(0, status)
+      call item%set_payload(empty_payload)
+
+      p_import = ESMF_StateCreate(name='p_import', rc=status)
+      @assertEqual(0, status)
+      p_export = ESMF_StateCreate(name='p_export', rc=status)
+      @assertEqual(0, status)
+      parent_states = MultiState(importState=p_import, exportState=p_export)
+      call gb%populate_state(parent_meta, parent_states, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assert_that(status, is(0))
+
+      dst_own_driver => dst_meta%get_user_gc_driver()
+      dst_states = dst_own_driver%get_states()
+      call ESMF_StateGet(dst_states%importState, 'E_conn', import_field, &
+           rc=status)
+      @assertEqual(0, status)
+      fed_producer = FieldsAreAliased(legacy(2), import_field, rc=st_f)
+      @assertEqual(0, st_f)
+      @assertFalse(fed_producer)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_import_not_fed_a_created_only_export_field
+
+   ! Switch OFF, but the Field legacy aliased is still marked CREATED in its
+   ! Info (legacy writes the same status key). The node holds an alias of it,
+   ! which is not a graph-created Field: it is not treated as created-only,
+   ! so population still passes legacy Fields through, and the import
+   ! is fed that Field as at HEAD. Pins the alias-id check.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_legacy_field_marked_created_is_not_graph_created(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(GriddedComponentDriver), pointer :: dst_own_driver
+      type(MultiState) :: dst_states, parent_states
+      type(ESMF_State) :: p_import, p_export
+      type(ESMF_Field) :: legacy(3), node_conn, import_field
+      type(ComponentGraph), pointer :: src_graph
+      type(NodeId), pointer :: id_ptr
+      logical :: payload_aliased, import_aliased, is_created
+      integer :: status, st_n, st_i, st_a, st_b
+      type(GraphBuilder) :: gb
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call make_field_per_node_fixture('comp_parent_fpn_s1', parent_meta, &
+           src_meta, dst_meta, .true., MAPL_STATEITEM_ALLOCATION_CREATED, &
+           legacy, status)
+      @assert_that(status, is(0))
+
+      p_import = ESMF_StateCreate(name='p_import', rc=status)
+      @assertEqual(0, status)
+      p_export = ESMF_StateCreate(name='p_export', rc=status)
+      @assertEqual(0, status)
+      parent_states = MultiState(importState=p_import, exportState=p_export)
+      call gb%populate_state(parent_meta, parent_states, status)
+      @assert_that(status, is(0))
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+
+      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'E_conn', &
+           node_conn, st_n)
+      payload_aliased = FieldsAreAliased(legacy(2), node_conn, rc=st_a)
+      src_graph => src_meta%get_component_graph()
+      id_ptr => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, &
+           'E_conn'))
+      is_created = field_extension_is_created(src_graph, id_ptr)
+      dst_own_driver => dst_meta%get_user_gc_driver()
+      dst_states = dst_own_driver%get_states()
+      call ESMF_StateGet(dst_states%importState, 'E_conn', import_field, &
+           rc=st_i)
+      import_aliased = FieldsAreAliased(legacy(2), import_field, rc=st_b)
+      @assertEqual(0, st_n)
+      @assertEqual(0, st_a)
+      @assertEqual(0, st_i)
+      @assertEqual(0, st_b)
+      @assertTrue(payload_aliased)
+      @assertFalse(is_created)
+      @assertTrue(import_aliased)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_legacy_field_marked_created_is_not_graph_created
+
+   ! At REALIZE_ACCEPTED (switch ON) an INTERNAL Field whose descriptor is
+   ! complete is allocated; one still incomplete stays created. Seeded to
+   ! fail: with the hook a no-op Z stays CREATED.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_allocate_internals_hook_completes_only_complete(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(ESMF_Field) :: legacy(3), z_field, zdef_field
+      type(MAPL_StateItemAllocation) :: z_alloc, zdef_alloc
+      integer :: status, st_z, st_d, st_za, st_da
+      type(GraphBuilder) :: gb
+      type(ComponentGraph), pointer :: src_graph
+      type(NodeId), pointer :: id_ptr
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: descriptor
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_field_per_node_fixture('comp_parent_fpn_alloc', parent_meta, &
+           src_meta, dst_meta, .false., MAPL_STATEITEM_ALLOCATION_ACTIVE, &
+           legacy, status)
+      @assert_that(status, is(0))
+
+      ! Make Zdef incomplete: a geometry with no value yet.
+      src_graph => src_meta%get_component_graph()
+      id_ptr => src_graph%get_resource_index( &
+           item_key(ESMF_STATEINTENT_INTERNAL, 'Zdef'))
+      @assertTrue(associated(id_ptr))
+      node => src_graph%get_node(id_ptr)
+      select type (node)
+      class is (StateItemNode)
+         descriptor => node%get_descriptor()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      call descriptor%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(), rc=status)
+      @assert_that(status, is(0))
+      @assertTrue(size(descriptor%get_incomplete_kinds()) > 0)
+
+      call gb%allocate_internals(src_meta, status)
+      @assert_that(status, is(0))
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+
+      call get_node_field(src_meta, ESMF_STATEINTENT_INTERNAL, 'Z', z_field, &
+           st_z)
+      call get_node_field(src_meta, ESMF_STATEINTENT_INTERNAL, 'Zdef', &
+           zdef_field, st_d)
+      call get_allocation_status(z_field, z_alloc, st_za)
+      call get_allocation_status(zdef_field, zdef_alloc, st_da)
+      @assertEqual(0, st_z)
+      @assertEqual(0, st_d)
+      @assertEqual(0, st_za)
+      @assertEqual(0, st_da)
+      @assertTrue(z_alloc == MAPL_STATEITEM_ALLOCATION_ALLOCATED)
+      @assertTrue(zdef_alloc == MAPL_STATEITEM_ALLOCATION_CREATED)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(parent_meta)
+      _UNUSED_DUMMY(dst_meta)
+   end subroutine test_allocate_internals_hook_completes_only_complete
+
+   ! An import with a producer is fed the producer Field; its own Field made
+   ! at advertise stays on its node, created and in no state.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_import_with_producer_gets_producer_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(GriddedComponentDriver), pointer :: dst_own_driver
+      type(MultiState) :: dst_states, parent_states
+      type(ESMF_State) :: p_import, p_export
+      type(ESMF_Field) :: legacy(3), producer, import_field, own_import
+      type(MAPL_StateItemAllocation) :: own_alloc
+      logical :: fed_producer, own_is_in_state
+      integer :: status, st_p, st_i, st_o, st_a, st_f, st_g
+      type(GraphBuilder) :: gb
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_field_per_node_fixture('comp_parent_fpn_prod', parent_meta, &
+           src_meta, dst_meta, .false., MAPL_STATEITEM_ALLOCATION_ACTIVE, &
+           legacy, status)
+      @assert_that(status, is(0))
+
+      p_import = ESMF_StateCreate(name='p_import', rc=status)
+      @assertEqual(0, status)
+      p_export = ESMF_StateCreate(name='p_export', rc=status)
+      @assertEqual(0, status)
+      parent_states = MultiState(importState=p_import, exportState=p_export)
+      call gb%populate_state(parent_meta, parent_states, status)
+      @assert_that(status, is(0))
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+
+      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'E_conn', &
+           producer, st_p)
+      call get_node_field(dst_meta, ESMF_STATEINTENT_IMPORT, 'E_conn', &
+           own_import, st_o)
+      dst_own_driver => dst_meta%get_user_gc_driver()
+      dst_states = dst_own_driver%get_states()
+      call ESMF_StateGet(dst_states%importState, 'E_conn', import_field, &
+           rc=st_i)
+      fed_producer = FieldsAreAliased(producer, import_field, rc=st_f)
+      own_is_in_state = FieldsAreAliased(own_import, import_field, rc=st_g)
+      call get_allocation_status(own_import, own_alloc, st_a)
+      @assertEqual(0, st_p)
+      @assertEqual(0, st_o)
+      @assertEqual(0, st_i)
+      @assertEqual(0, st_f)
+      @assertEqual(0, st_g)
+      @assertEqual(0, st_a)
+      @assertTrue(fed_producer)
+      @assertFalse(own_is_in_state)
+      @assertTrue(own_alloc == MAPL_STATEITEM_ALLOCATION_CREATED)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_meta)
+   end subroutine test_import_with_producer_gets_producer_field
 
 end module Test_GraphBuilderMaterializeGate

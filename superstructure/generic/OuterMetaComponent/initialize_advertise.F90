@@ -15,6 +15,7 @@ submodule (mapl_OuterMetaComponent_mod) initialize_advertise_smod
    use mapl_MultiState_mod
    use mapl_MpiTimerGauge_mod, only: MpiTimerGauge
    use mapl_GraphBuilder_mod, only: GraphBuilder
+   use mapl_GraphOwnsUserStates_mod, only: graph_populates_user_states
    use mapl_ErrorHandling_mod
    implicit none (type, external)
 
@@ -111,8 +112,11 @@ contains
       call gb%run_export_propagate_hook(this)
       call this%registry%propagate_exports(_RC)
 
-      user_states = this%user_gc_driver%get_states()
-      call this%registry%add_to_states(user_states, mode='user', _RC)
+      ! Graph-owned user states are filled by graph population instead.
+      if (.not. graph_populates_user_states()) then
+         user_states = this%user_gc_driver%get_states()
+         call this%registry%add_to_states(user_states, mode='user', _RC)
+      end if
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
