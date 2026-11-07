@@ -50,9 +50,9 @@ to "Verified root causes" below.
 | extdata_1 | yes | passes |
 | names_1 | yes | passes |
 | vertical_alignment_same_grid | yes | passes |
-| regrid | no | passes, masked (M1): graph sees `B:I_B1` as an exact match; the geometry difference is invisible. C1 target |
-| regrid_r8 | no | passes, masked (M1): graph sees only the `TYPE_KIND` mismatch for `B:I_B1`, never the geometry one. C1 target |
-| propagate_geom | no | passes, masked (M1): exact match; geometry handled only by legacy. C1 target |
+| regrid | no | passes, masked (M1): both sides' geometry is DEFERRED/UNCHECKED, so the graph sees `B:I_B1` as an exact match and the geometry difference goes undetected; `GeometryCharacteristic%build_transform` always reports unsupported. C1 target |
+| regrid_r8 | no | passes, masked (M1): graph sees only the `TYPE_KIND` mismatch for `B:I_B1`; the geometry mismatch goes undetected (DEFERRED/UNCHECKED sides) and `build_transform` always reports unsupported. C1 target |
+| propagate_geom | no | passes, masked (M1): geometry DEFERRED/UNCHECKED, so an exact match; geometry handled only by legacy (`build_transform` reports unsupported). C1 target |
 | vertical_regridding | no | passes, masked (M2): `B:I_B` is an exact match in the graph; vertical-grid difference invisible |
 | vertical_regridding_2 | no | same as `vertical_regridding` (`B:I_B`, `D:I_D` exact) |
 | vertical_regridding_3 | no | same as `vertical_regridding` (`C:I_C`, `PHYS:T_PHYS` exact) |
@@ -93,7 +93,7 @@ In production, the same faults only log a warning and drop part of the graph.
   `push_geometry_to_child called before this component advertised its own geometry`.
   Legacy `propagate_geom_to_children` copies the geom only
   `if (allocated(this%geom))`. Fixed: the push condition now has
-  `.and. this%has_geom()` (`GraphBuilder_Geometry_smod.F90`). Experiment
+  `.and. this%has_geom()` (`GraphBuilder_Geometry_smod.F90:302`). Experiment
   before the fix: it made `scenario_reexport_twice` and
   `expression_defer_geom` pass, and removed the assertion from `history_1`
   and `statistics_real`. After the fix `expression_defer_geom` and
@@ -145,13 +145,16 @@ In production, the same faults only log a warning and drop part of the graph.
 
 ### Masked passes (not failures, but not graph-produced)
 
-- **M1. No item-level geometry characteristic.** `make_characteristics`
-  (`specs/VariableSpec/make_characteristics.F90`) never inserts
-  `GEOMETRY_CHARACTERISTIC_KIND`. Only the component-level edges in
-  `GraphBuilder_Geometry_smod.F90` use it. Variable items with different
-  grids therefore compare equal. Also, `GeometryCharacteristic%build_transform`
-  always fails. C1 needs B3-Geometry (an item-level characteristic) before
-  a regrid mismatch can be detected at all. Flipping `regrid*` needs both.
+- **M1. Item geometry is rarely SPECIFIED.** `make_characteristics`
+  (`specs/VariableSpec/make_characteristics.F90:74,245-284`) does insert
+  `GEOMETRY_CHARACTERISTIC_KIND` for every field-carrying shape and SERVICE.
+  It is SPECIFIED only when the item declares a geom or geom id; otherwise
+  it is DEFERRED (MIRRORED for an EXPRESSION or `mirror_geom`, UNCHECKED for
+  horizontal dims NONE) and takes the component geom at GEOM_B. Items on the
+  component's own grid therefore compare equal, and
+  `GeometryCharacteristic%build_transform` always reports unsupported
+  (`GeometryCharacteristic.F90:164-175`), so a regrid is never built.
+  Flipping `regrid*` needs a geometry `Transform` (C1).
 - **M2. Component vertical grid is not an item characteristic.**
   `VERTICAL_GRID_CHARACTERISTIC_KIND` is set only when
   `var_spec%vertical_grid` is allocated. `parse_var_specs` fills that only
@@ -205,8 +208,8 @@ expression/wildcard/bracket-indexed exports (`T(1)`). Retiring the legacy
 calls is plan work (D2 and the B tasks); do not remove them in a test task.
 
 For the geometry/vertical family (`regrid*`, `propagate_geom`,
-`vertical_*`) a geometry mismatch is also never detected, because variable
-items carry no item-level `GeometryCharacteristic`. They stay
+`vertical_*`) a geometry mismatch is not repaired: no geometry `Transform`
+exists (M1). They stay
 `graph_ready = .false.` so C1 (geometry/regrid `Transform`) has a flag to
 flip.
 

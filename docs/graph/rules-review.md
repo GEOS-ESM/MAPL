@@ -417,8 +417,8 @@ Legacy only:
   connect). No graph characteristic or GraphBuilder code handles
   fill_value (grep of `superstructure/generic/graph` and
   `GraphBuilder*.F90`). Not in the 3.26 seeds; see R14.
-- Re-export (`ReexportConnection`) is resolved by the registry only; the
-  graph skips it (`class default`,
+- *(Landed in 3.33: `run_reexport_hook` / `reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:919-970`, gives a re-export an export port.)* At review time, re-export (`ReexportConnection`) was resolved by the registry only; the
+  graph skipped it (`class default`,
   `GraphBuilder_ConnectionResolution_smod.F90:977`). Export propagation
   (`run_export_propagate_hook`) covers child exports, but an
   INTERNAL->EXPORT re-export has no graph path: internals get no port
@@ -552,7 +552,7 @@ the EXPORT state.*
 - Mechanism matches the rule: `connect_export_to_export` adds the source's
   extension family under the new virtual point
   (`ReexportConnection.F90:116-117`): no extension, no comparison.
-- Graph: not handled at all (§2.6). See R9, R11.
+- Graph: not handled at all at review time (§2.6); landed in 3.33 (`reexport_one`). See R9, R11.
 
 C4. *An EXPORT may connect to multiple IMPORTs with differing
 characteristics.*
@@ -870,6 +870,7 @@ Follow-up, only if that grep finds MatchConnection/SimpleConnection
 overlaps: decide whether the explicit SimpleConnection may win.
 
 **R9. Which source intents may a re-export take?**
+*Resolved: option (a); the graph resolves both source intents in `run_reexport_hook` (3.33; `reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:919-970`).*
 Legacy: `ReexportConnection` exposes an EXPORT (a child's) or an INTERNAL
 (own) item as a new export, with no comparison; `ComponentSpec%reexport`
 accepts `export` (default) or `internal` and fails otherwise
@@ -910,11 +911,14 @@ connections:
 Recommendation: (a).
 
 **R11. Schedule a graph task for INTERNAL re-export?**
+*Resolved: option (a), landed in 3.33: a re-exported internal gets an export port bound to the internal's node (`run_reexport_hook`). Owner, 2026-11-07: an unconnected re-exported export stays created, not allocated.*
 Legacy: an INTERNAL -> EXPORT re-export makes the internal appear in the
-export state (`ReexportConnection.F90:116-117`). Graph: re-export is
-skipped (`class default`, `GraphBuilder_ConnectionResolution_smod.F90:977`)
-and internals have no port (`GraphBuilder_Advertising_smod.F90:115`), so
-in graph mode the export has no node. Used by `scenario_1`, `scenario_2`,
+export state (`ReexportConnection.F90:116-117`). Graph, at review time (no
+longer current; see "Resolved" above and `reexport_one`,
+`GraphBuilder_ConnectionResolution_smod.F90:919-970`): re-export was
+skipped (`class default`) and internals have no port
+(`GraphBuilder_Advertising_smod.F90:115`, still true), so in graph mode the
+export had no node. Used by `scenario_1`, `scenario_2`,
 `propagate_geom` (`child_A.yaml`, `src_intent: internal`). Example:
 
 ```yaml
@@ -1066,9 +1070,9 @@ record.
 | R6 | (a) A Wildcard import accepts FIELD exports only, in the graph too. | "(a) We will relax if we encounter reasonable use cases." | 3.30 B3-WildcardFieldOnly. |
 | R7 | (a) S4 reads "Bracket -> Field and VectorBracket -> Vector, via time interpolation". | "(a)" | none (owner's list). |
 | R8 | (a) A second connection to an import is an error in both paths; Wildcard exempt; after a grep of real configs. | "(a)" | 3.31 B3-OneExportPerImport. |
-| R9 | (a) A re-export takes an EXPORT (child) or INTERNAL (own) source, as legacy; C3 is reworded. | "(a)" | none (owner's list). |
+| R9 | (a) A re-export takes an EXPORT (child) or INTERNAL (own) source, as legacy; C3 is reworded. | "(a)" | none (owner's list). Graph side: 3.33 B3-InternalReexport resolves a child-export re-export as one rule with the internal case (`run_reexport_hook`). |
 | R10 | (a) for SimpleConnection only: `parse_connections` asserts src EXPORT, dst IMPORT. A ReexportConnection (`dst_intent: export`) is exempt; its sources are EXPORT or INTERNAL (R9). | "(a) Except for Re-export connections!" | 3.29 B3-ConnectionIntentCheck. |
-| R11 | (a) Graph task: an INTERNAL re-export gets an export port bound to the internal node; after B4. | "(a)" | 3.33 B3-InternalReexport. |
+| R11 | (a) Graph task: an INTERNAL re-export gets an export port bound to the internal node; after B4. | "(a)" | 3.33 B3-InternalReexport (done: `run_reexport_hook`). Owner, 2026-11-07 (3.41a): an unconnected re-exported export stays created, not allocated; legacy allocates it, a legacy bug (row in scenario-parity.md). |
 | R12 | (a) standard_name stays field-wide, for now; P1 amended ("standard_name must agree; long_name and restart_mode may differ"). | "(a) for now." | none now; revisit with "share only data". |
 | R13 | (a) The system-wide "standard_name required on Fields" switch (V3) is in 3.27's scope. | "(a)" | 3.27 text updated. |
 | R14 | (c) fill_value is not a characteristic: materialization fills the field from the owning `VariableSpec`'s fill_value. The legacy "(src value wins)" log text gets fixed. | "(c)" | 3.34 B3-FillValue. |

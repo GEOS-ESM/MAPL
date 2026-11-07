@@ -56,6 +56,7 @@ files at the top level, and subdirectories `characteristics/`,
 | `callback/*` | Callback interface/method/state-binding data model and registry |
 | `RouteHandleKey.F90` | Semantic key for route-handle reuse |
 | `GraphExport.F90` | Graph-neutral DOT/JSON topology export |
+| `GraphOwnsUserStates.F90` | Test-only switch `set_graph_owns_user_states` (off by default); `graph_populates_user_states()` is the switch AND `GRAPH` mode, and every gate asks that, never the bare switch |
 | `GraphMode.F90` | `registry` / `graph` / `both` selector (`mapl_GraphMode_mod`) |
 | `StringSortUtilities.F90` | Shared `sorted_names` helper |
 
@@ -125,6 +126,19 @@ concrete characteristic type. The descriptor's `fill_value` (recorded by
 the field after `FieldEmptyComplete`. `rebuild_field_extension(graph,
 node_id, rc)` runs the same build for a node whose payload is already a
 Field.
+A node's Field is built in three steps on one object: `create_field_extension`
+(empty Field, `allocation_status` `CREATED`), `describe_created_field`
+(geometry written, ESMF GRIDSET) and `complete_field` (`FieldEmptyComplete`,
+fill value, `ALLOCATED`). `materialize_field_extension` completes a CREATED
+Field in place and is a no-op for any other existing Field;
+`rebuild_field_extension` is a no-op on a created Field. "Graph-created"
+means status `CREATED` and an original Field (alias id 0), so a legacy Field
+that carries the same status key is not mistaken for one
+(`payload_is_created` in `ExtensionMaterialization.F90`).
+`advertise_one` creates the Field at advertise for INTERNAL, EXPORT and
+IMPORT nodes of FIELD class when graph mode is not `REGISTRY`; not for
+composites, bundles, vectors, brackets, expressions, services, state items
+or names containing `/` (`GraphBuilder_Advertising_smod.F90:112-121`).
 `StateItemCharacteristic%is_complete()` (default `.true.`) feeds
 `StateItemDescriptor%get_incomplete_kinds` and `check_materializable`
 (failure reason `incomplete_characteristic:<KIND>`). `harvest(handle,
@@ -321,11 +335,35 @@ Graph code also must not call into the legacy `specs/*Aspect`,
 
 | File | Sequence |
 |---|---|
-| `initialize_advertise.F90` | `recurse()` (children first) → `self_advertise` → `gb%run_advertise_hook` → legacy `process_connections` → `gb%run_activate_hook` → `gb%run_propagate_hook` → `registry%propagate_unsatisfied_imports` → `gb%run_export_propagate_hook` → `registry%propagate_exports` → `registry%add_to_states` |
+| `initialize_advertise.F90` | `recurse()` (children first) → `self_advertise` → `gb%run_advertise_hook` → `gb%run_reexport_hook` → legacy `process_connections` → `gb%run_activate_hook` → `gb%run_propagate_hook` → `registry%propagate_unsatisfied_imports` → `gb%run_export_propagate_hook` → `registry%propagate_exports` → `registry%add_to_states` |
 | `initialize_accept_transfer.F90` | `gb%run_connect_hook`, then `gb%run_expression_hook`, then `gb%run_populate_state_hook` |
 | `initialize_geom_b.F90` | `gb%run_geometry_hook` |
 | `initialize_graph_freeze.F90` | `gb%run_graph_freeze_hook` (root only) |
 | `run_user.F90` | `gb%run_pull_hook` |
+
+`run_reexport_hook` runs after `run_advertise_hook` and before export
+propagation: for each `ReexportConnection` it adds an export port named by
+the re-export destination, bound to the source's existing node (an own
+INTERNAL-intent node by resource index, or a descendant export's node by
+port name). A repeat of the same name and node is a no-op; a different node
+fails (`reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:919-969`).
+The internal gets no port or mirror of its own.
+
+With the user-state switch off (default) legacy fills the real user states and
+the graph only creates, completes and aliases Fields; `populate` inserts only
+completed Fields and skips INTERNAL. At accept_transfer, off: legacy fills
+the real user states, then the call site passes scratch states (real import
+state, throwaway export and internal) to the populate hook
+(`initialize_accept_transfer.F90:62-86`). On, in `GRAPH` mode: legacy
+user-state population is skipped (`initialize_advertise`,
+`initialize_realize_accepted`), the call site passes the real user states,
+and `populate` fills the real user import, internal and export states and
+completes INTERNAL Fields. `allocate_internals`
+(`initialize_realize_accepted.F90:30`) allocates each INTERNAL whose
+descriptor is complete by then; an unconnected export stays created, never
+allocated. `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES` turns it on in
+`Test_Scenarios`. The scenarios that fail with it on are listed in tasks.md
+3.41a Status.
 
 `run_propagate_hook` must follow `run_activate_hook`: an import resolved
 by a connection declared at this level must be reflected before this
@@ -364,6 +402,12 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
   cannot run end to end: legacy couplers still run in graph mode and fail
   on the expression item. The scenario stays pending (see
   `docs/graph/scenario-parity.md`).
+- State population still reads var specs, not export ports (a re-exported
+  internal reaches the export state only through legacy; 3.41b), and the
+  outer states are never written by the graph (3.42).
+- `find_materialized_predecessor` skips a created-only Field and reports
+  not found past one; payload readers must tolerate EMPTY and GRIDSET
+  Fields.
 - Six characteristic axes detect mismatch but have no repair (see §1.1).
 - A mirrored (propagated) import is not inserted into the real
   `ESMF_State` under a child-qualified name (archived task 6.7 of

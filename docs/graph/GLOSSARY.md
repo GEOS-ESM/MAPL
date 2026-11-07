@@ -35,7 +35,7 @@ deprecated yet.
 | `ActualConnectionPt` | `NodeId` of the resolved node | |
 | `ExtensionFamily` (primary + derived specs per virtual pt) | `ExtensionResolution` (`find_mismatched_characteristics`, `find_or_build_extension_chain`) and extension `StateItemNode`s | Chain of extension nodes replaces the family set. |
 | `StateRegistry%propagate_unsatisfied_imports` / `propagate_exports` | `graphbuilder_run_propagate_hook` / `graphbuilder_run_export_propagate_hook` | Run in sequence with the legacy calls in `initialize_advertise.F90`. |
-| `Connection`, `SimpleConnection`, `MatchConnection`, `ReexportConnection` | Same types (shared) | Graph resolution dispatches on `SimpleConnection` and `MatchConnection`; `ReexportConnection` takes the `class default` path. These are in the integration seam, not duplicated. |
+| `Connection`, `SimpleConnection`, `MatchConnection`, `ReexportConnection` | Same types (shared) | Graph resolution dispatches on `SimpleConnection` and `MatchConnection`; `ReexportConnection` is handled by `run_reexport_hook`, which adds an export port. These are in the integration seam, not duplicated. |
 | `ExpressionClassAspect` + `EvalTransform` | Expression placeholder + `graphbuilder_run_expression_hook` (names check) + per-consumer `ExpressionTransform` evaluation | N:1, not pairwise; one evaluation per consumer, built in `resolve_one_pair`. `ExpressionCharacteristic` holds the declared expression string. |
 | `WildcardClassAspect` | `resolve_wildcard_destination` | Each match is a composite member of the import. |
 | `ServiceClassAspect` | callbacks (`graph/callback/`) | Service is being retired, not migrated. |
@@ -49,6 +49,8 @@ deprecated yet.
 | Activate / connect | Connection resolution (`run_activate_hook`) and post-freeze convergence (`run_connect_hook`, `run_graph_freeze_hook`). |
 | Mirrored import | An import bubbled up from a child into the parent's import-port table (not the resource index). |
 | Propagated export | A child's export in the parent's export-port table, named `child/short_name`. |
+| Re-export port | A graph export port created by `run_reexport_hook`, named by the re-export destination and bound to the source's existing node (own internal or descendant export). Legacy: `ReexportConnection`. |
+| `CREATED` / `ALLOCATED` / `ACTIVE` | `allocation_status` values on a node's Field: `CREATED` = empty Field made at advertise (legacy `FieldClassAspect%create`, called from `advertise_variable`); `ACTIVE` = legacy `activate` (`FieldClassAspect.F90:235`); `ALLOCATED` = completed and allocated (legacy `allocate_items` allocates, but never writes this status key). A graph-created Field is `CREATED` and an original (alias id 0). |
 | Resource index | Per-`ComponentGraph` map of directly advertised items. |
 | Extension | A framework-created `StateItemNode` plus `TransformGraphNode` inserted between a mismatched export and import. |
 | Variant | `MAPL_StateItem_Flag` tag refining an ESMF kind (`GEOM`, …) in ESMF Info. |
