@@ -50,6 +50,7 @@ deprecated yet.
 | Mirrored import | An import bubbled up from a child into the parent's import-port table (not the resource index). |
 | Propagated export | A child's export in the parent's export-port table, named `child/short_name`. |
 | Re-export port | A graph export port created by `run_reexport_hook`, named by the re-export destination and bound to the source's existing node (own internal or descendant export). Legacy: `ReexportConnection`. |
+| Export port walk | `populate_export_ports` in `graphbuilder_populate_state`: aliases each export port's bound-node Field into the user export state under the port name (switch on, `GRAPH` mode). Legacy: the `add_to_states` primary pass in `user` mode, which skips child-owned names (non-empty `comp_name`); the graph walk does not. |
 | `CREATED` / `ALLOCATED` / `ACTIVE` | `allocation_status` values on a node's Field: `CREATED` = empty Field made at advertise (legacy `FieldClassAspect%create`, called from `advertise_variable`); `ACTIVE` = legacy `activate` (`FieldClassAspect.F90:235`); `ALLOCATED` = completed and allocated (legacy `allocate_items` allocates, but never writes this status key). A graph-created Field is `CREATED` and an original (alias id 0). |
 | Resource index | Per-`ComponentGraph` map of directly advertised items. |
 | Extension | A framework-created `StateItemNode` plus `TransformGraphNode` inserted between a mismatched export and import. |

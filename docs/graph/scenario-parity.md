@@ -35,8 +35,8 @@ to "Verified root causes" below.
 | Scenario | Ready? | Graph-mode result / root cause (verified) |
 |---|---|---|
 | scenario_0 | yes | passes |
-| scenario_1 | yes | passes |
-| scenario_2 | yes | passes |
+| scenario_1 | yes | passes. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes in `GRAPH` mode, with the re-exported internal `Z_A1` (expected as `child_A/Z_A1`) supplied by the export-port walk |
+| scenario_2 | yes | passes. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes in `GRAPH` mode, with the re-exported internal `Z_A1` renamed `ZZ_A1` (expected as `child_A/ZZ_A1`) supplied by the export-port walk |
 | 3d_specs | yes | passes |
 | ungridded_dims | yes | passes |
 | dims_z_field (graph-scenarios) | yes | passes: two `dims: z` items on different horizontal grids connect with no chain |
@@ -52,13 +52,13 @@ to "Verified root causes" below.
 | vertical_alignment_same_grid | yes | passes |
 | regrid | no | passes, masked (M1): both sides' geometry is DEFERRED/UNCHECKED, so the graph sees `B:I_B1` as an exact match and the geometry difference goes undetected; `GeometryCharacteristic%build_transform` always reports unsupported. C1 target |
 | regrid_r8 | no | passes, masked (M1): graph sees only the `TYPE_KIND` mismatch for `B:I_B1`; the geometry mismatch goes undetected (DEFERRED/UNCHECKED sides) and `build_transform` always reports unsupported. C1 target |
-| propagate_geom | no | passes, masked (M1): geometry DEFERRED/UNCHECKED, so an exact match; geometry handled only by legacy (`build_transform` reports unsupported). C1 target |
+| propagate_geom | no | passes, masked (M1): geometry DEFERRED/UNCHECKED, so an exact match; geometry handled only by legacy (`build_transform` reports unsupported). C1 target. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes in `GRAPH` mode: the re-exported internal `Z_A1` (expected as `child_A/Z_A1`) comes from the export-port walk (table flag unchanged) |
 | vertical_regridding | no | passes, masked (M2): `B:I_B` is an exact match in the graph; vertical-grid difference invisible |
-| vertical_regridding_2 | no | same as `vertical_regridding` (`B:I_B`, `D:I_D` exact) |
+| vertical_regridding_2 | no | same as `vertical_regridding` (`B:I_B`, `D:I_D` exact). Passes with `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` too: a single-level grid's orientation entry holds UNSPECIFIED and `write_info` writes nothing for it |
 | vertical_regridding_3 | no | same as `vertical_regridding` (`C:I_C`, `PHYS:T_PHYS` exact) |
 | vertical_alignment_regrid | no | same as `vertical_regridding` |
 | vertical_alignment_with_grid | no | same as `vertical_regridding` |
-| scenario_reexport_twice | yes | passes; graph builds the re-export ports |
+| scenario_reexport_twice | yes | passes; graph builds the re-export ports. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes in `GRAPH` mode: the user export state gets both re-exports from the port walk: `Eparent_B1`, a re-export of a child's export, and `Egrandparent_B1`, a re-export of that re-export |
 | expression_defer_geom | no | passes since the G1 guard (measured 2026-11-06), with masked EXPRESSION items (M3); not yet flipped |
 | history_1 | no | passes since the G1 guard (measured 2026-11-06); not yet flipped. Recheck R1 before flipping |
 | statistics | no | FAILS: R1 only |
@@ -228,3 +228,4 @@ checklist for switching legacy off.
 | `long_name` undeclared on an export or internal | none; an import inherits the export's in `connect_to_export` | falls back to the field dictionary, then the StandardName (deliberate, A8) | 3.13 |
 | QuantityType value `QUANTITY_UNKNOWN` as a quantity-axis wildcard | legacy `QuantityTypeAspect%matches` keeps the wildcard: either side `QUANTITY_UNKNOWN` matches anything | dropped from `pair_outcome`: a declared `QUANTITY_UNKNOWN` now counts as undeclared (DEFERRED on EXPORT/INTERNAL, UNCHECKED on IMPORT), never reaching `pair_outcome` as a SPECIFIED value (`BASIS_NONE` stays a basis wildcard) | 3.36 |
 | Unconnected export that a re-export names | allocated: the re-export chain activates the source, so `allocate_items` allocates it (a legacy bug; owner decision 2026-11-07) | stays created (GRIDSET once its geometry is written), not allocated; only a connection that consumes the export allocates it | 3.41a B3-FieldPerNode |
+| Propagated child export in the user export state | `add_to_states(mode='user')` skips every item whose `comp_name` is non-empty (`registry/StateRegistry_Actions_smod.F90:73`), so a child's propagated export is not in the parent's user export state | with the user-state switch on, the export-port walk aliases each propagated port (`child/E`) into a substate of the user export state (`populate_export_port`) | 3.41b B3-ExportPortPopulation |

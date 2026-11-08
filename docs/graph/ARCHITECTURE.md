@@ -167,7 +167,7 @@ factories (so far units, typekind, ungridded dims, geometry, vertical grid, vert
 | `Geometry` | `GEOMETRY_…` | Unsupported — `HorizontalRegridTransform` exists but `build_transform` does not build it yet. `select_regridder_param` holds the regridder-param rule |
 | `VerticalGrid` | `VERTICAL_GRID_…` | Single overlap: unsupported (no vertical-regrid `Transform` yet); incompatible and ambiguous overlaps `_FAIL` with distinct messages |
 | `VerticalStagger` | `VERTICAL_STAGGER_…` | Unsupported — mismatch is detected, repair is a stub |
-| `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Unsupported — mismatch is detected, repair is a stub |
+| `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Unsupported — mismatch is detected, repair is a stub. A grid with no direction (a single level) leaves the entry `SPECIFIED` holding `UNSPECIFIED`; `write_info` writes nothing for it, so the Field keeps `with_grid` (`VerticalOrientationCharacteristic.F90:135-136`). An `INVALID` direction still fails `write_info`. `UNSPECIFIED` against an explicit up or down still compares unequal |
 | `HorizontalDimsSpec` | `HORIZONTAL_DIMS_SPEC_…` | Incompatible — GEOM vs NONE is detected in both directions and can never connect |
 | `Attributes`, `UngriddedDims`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | Incompatible — legacy rejects every mismatch of two non-mirror values, so a detected mismatch can never connect |
 | `QuantityType` | `QUANTITY_TYPE_CHARACTERISTIC_KIND` | Incompatible for a quantity-type mismatch; unsupported when only the basis differs (both real bases; `BASIS_NONE` is a basis wildcard, `QUANTITY_UNKNOWN` is not a wildcard): a conversion is possible but not built. Factory status by intent: declared -> `SPECIFIED`; undeclared (or declared `QUANTITY_UNKNOWN`) -> `DEFERRED` on EXPORT/INTERNAL, `UNCHECKED` on IMPORT. `is_deferred_fatal` is `quantity_type_required()` (`ValidationPolicy.F90`, key `field_dictionary: require_quantity_type`, no legacy counterpart; strict validation alone does not set it). An unsupplied one falls back to `UNCHECKED` with one summary warning |
@@ -361,9 +361,21 @@ and `populate` fills the real user import, internal and export states and
 completes INTERNAL Fields. `allocate_internals`
 (`initialize_realize_accepted.F90:30`) allocates each INTERNAL whose
 descriptor is complete by then; an unconnected export stays created, never
-allocated. `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES` turns it on in
-`Test_Scenarios`. The scenarios that fail with it on are listed in tasks.md
-3.41a Status.
+allocated. With the switch on, `populate` also walks the component's
+export-port table (`populate_export_ports`, `populate_export_port`,
+`GraphBuilder_StatePopulation_smod.F90:220-289`). Each port's bound-node
+Field is aliased into the user export state under the PORT's name: a renamed
+re-export, a re-exported INTERNAL, or a propagated `child/E` (placed in a
+substate made by `get_substate`, as `FieldClassAspect%add_to_state` does).
+A port is skipped only when the declared export of the same name resolves to
+the same node; a same-named re-export of a child's export is a different node
+and is added. An INTERNAL-bound port is completed and allocated; an
+export-bound port is only described, so it stays `CREATED`/`GRIDSET`.
+Non-Field nodes are skipped. `sync_alias_info` writes the per-alias keys
+(long_name, restart mode) on each alias. With the switch off, or in `BOTH`
+mode, the walk adds nothing. `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES` turns the
+switch on in `Test_Scenarios`. The scenarios that fail with it on are listed
+in the tasks.md 3.41a and 3.41b Status.
 
 `run_propagate_hook` must follow `run_activate_hook`: an import resolved
 by a connection declared at this level must be reflected before this
@@ -402,9 +414,22 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
   cannot run end to end: legacy couplers still run in graph mode and fail
   on the expression item. The scenario stays pending (see
   `docs/graph/scenario-parity.md`).
-- State population still reads var specs, not export ports (a re-exported
-  internal reaches the export state only through legacy; 3.41b), and the
-  outer states are never written by the graph (3.42).
+- The outer states are never written by the graph (tasks.md 3.42).
+- With the user-state switch on, population runs only at accept_transfer.
+  A gridcomp that reads its own states in `INIT_MODIFY_ADVERTISED` finds
+  them empty and fails (`statistics`, `superstructure/generic/tests/gridcomps/ProtoStatGridComp.F90:63`;
+  tasks.md 3.44).
+- Export-port population: a port name that collides with an existing
+  non-port item replaces it silently (no duplicate-name assertion).
+  Propagated names (`child/E`) also land in the user export state, which
+  legacy does not do (its `user` mode skips child-owned names;
+  `registry/StateRegistry_Actions_smod.F90:73`). The port walk reads the
+  component's own export-port table and has no depth limit. The limit is in
+  the child-spec walk that populates IMPORTS (and child exports): it reaches
+  direct children only, so an import in a grandchild gets its own empty
+  Field (`graphbuilder_propagation`). Bundles and composites (`vector_1`)
+  are not populated. The scenarios that still fail with the switch on are in the
+  tasks.md 3.41b Status.
 - `find_materialized_predecessor` skips a created-only Field and reports
   not found past one; payload readers must tolerate EMPTY and GRIDSET
   Fields.

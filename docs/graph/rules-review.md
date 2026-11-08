@@ -911,7 +911,7 @@ connections:
 Recommendation: (a).
 
 **R11. Schedule a graph task for INTERNAL re-export?**
-*Resolved: option (a), landed in 3.33: a re-exported internal gets an export port bound to the internal's node (`run_reexport_hook`). Owner, 2026-11-07: an unconnected re-exported export stays created, not allocated.*
+*Resolved: option (a), landed in 3.33: a re-exported internal gets an export port bound to the internal's node (`run_reexport_hook`). Owner, 2026-11-07: an unconnected re-exported export stays created, not allocated. 3.41b B3-ExportPortPopulation: with the user-state switch on, the graph puts each re-export port's Field into the user export state under the port name.*
 Legacy: an INTERNAL -> EXPORT re-export makes the internal appear in the
 export state (`ReexportConnection.F90:116-117`). Graph, at review time (no
 longer current; see "Resolved" above and `reexport_one`,
@@ -1072,7 +1072,7 @@ record.
 | R8 | (a) A second connection to an import is an error in both paths; Wildcard exempt; after a grep of real configs. | "(a)" | 3.31 B3-OneExportPerImport. |
 | R9 | (a) A re-export takes an EXPORT (child) or INTERNAL (own) source, as legacy; C3 is reworded. | "(a)" | none (owner's list). Graph side: 3.33 B3-InternalReexport resolves a child-export re-export as one rule with the internal case (`run_reexport_hook`). |
 | R10 | (a) for SimpleConnection only: `parse_connections` asserts src EXPORT, dst IMPORT. A ReexportConnection (`dst_intent: export`) is exempt; its sources are EXPORT or INTERNAL (R9). | "(a) Except for Re-export connections!" | 3.29 B3-ConnectionIntentCheck. |
-| R11 | (a) Graph task: an INTERNAL re-export gets an export port bound to the internal node; after B4. | "(a)" | 3.33 B3-InternalReexport (done: `run_reexport_hook`). Owner, 2026-11-07 (3.41a): an unconnected re-exported export stays created, not allocated; legacy allocates it, a legacy bug (row in scenario-parity.md). |
+| R11 | (a) Graph task: an INTERNAL re-export gets an export port bound to the internal node; after B4. | "(a)" | 3.33 B3-InternalReexport (done: `run_reexport_hook`). Owner, 2026-11-07 (3.41a): an unconnected re-exported export stays created, not allocated; legacy allocates it, a legacy bug (row in scenario-parity.md). 3.41b B3-ExportPortPopulation: the user export state is filled from the port, not from the declared item. |
 | R12 | (a) standard_name stays field-wide, for now; P1 amended ("standard_name must agree; long_name and restart_mode may differ"). | "(a) for now." | none now; revisit with "share only data". |
 | R13 | (a) The system-wide "standard_name required on Fields" switch (V3) is in 3.27's scope. | "(a)" | 3.27 text updated. |
 | R14 | (c) fill_value is not a characteristic: materialization fills the field from the owning `VariableSpec`'s fill_value. The legacy "(src value wins)" log text gets fixed. | "(c)" | 3.34 B3-FillValue. |
