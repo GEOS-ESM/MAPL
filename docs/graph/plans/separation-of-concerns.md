@@ -1468,7 +1468,44 @@ ready means today" in `scenario-parity.md`). May be split into
   Owner kept the typekind refetch (rare, e.g. ExtData collections of one
   variable in two precisions, but correctness matters), the geom-id
   comparison and the no-id failure (2026-11-04).
-  C1-geom-b, C1-vertical-a/-b: not started.
+  C1-geom-b, C1-vertical-a: in review (worktrees, 2026-11-08).
+  C1-vertical-b: not started.
+  - Owner (2026-11-08, C1-geom-b): both sides declaring a regridder param
+    is INCOMPATIBLE (A23), not a `_FAIL`; the param is part of the
+    geometry signature, so imports with different params do not share a
+    chain. A geometry mismatch on a non-Field item (bundle, bracket,
+    vector) reports unsupported until C1-geom-c. Per-member regrid nodes
+    were considered and rejected: they would make composite members
+    addressable (against D6), members are often unknown at advertise, and
+    vector components must be regridded together (basis rotation).
+  - C1-geom-c (after C1-geom-b; owner 2026-11-08): bundle-level horizontal
+    regrid, one Transform per bundle looping over members, as legacy
+    `Regridder%regrid(fb_in, fb_out)`: plain bundles, VECTOR (rotation),
+    BRACKET/VECTORBRACKET (regrid only when `bracket_updated`, then time
+    interpolation). The graph must create bundle-shaped extension items.
+  - Owner (2026-11-08, C1-vertical-a): (1) a field whose alignment differs
+    from its grid's direction gets its column coordinate in its own
+    storage order before regridding (legacy reverses levels that are in
+    grid order, giving wrong values; difference row in scenario-parity);
+    (2) basic grids: legacy rule, same level count is the same grid (an
+    orientation-only difference gets a flip), different counts are
+    INCOMPATIBLE at connect; (3) Transforms read vgrid, stagger and
+    alignment from their bound Fields at compute (no `build_transform`
+    interface change); (4) import levels outside the export's range copy
+    the end value (as Release legacy) with one warning per weight build,
+    no Debug abort; (5) fixed levels in different units are converted
+    (udunits), unconvertible units fail; (6) numeric levels through
+    `VerticalGrid%get_column_coordinate` (infrastructure; default
+    unsupported, fixed levels override); (7) R8 is not supported: a
+    connect-time warning (C1-vertical-b) and a run-time failure name it;
+    (8) conservative and normalization stay out (model grid task);
+    (9) the orientation-only step copies for now. A pointer view
+    (`a(:,:,n:1:-1)` with `ESMF_DATACOPY_REFERENCE`) is deferred; its
+    first step is an ESMF test. Owner: it may matter for CTM performance,
+    since CTMs often use coordinates reversed from the dynamics.
+  - Doc task (owner, 2026-11-08): correct `docs/mapl3/vertical-alignment.md`
+    (its upward/downward examples contradict the code and design Q7; it
+    documents a `coordinate_direction` key that nothing parses).
 
 **C3. Time-dependent geometry (reminder; prerequisite for A10's
 epoch-dependent ExtData exports and moving nested grids).** Today nothing
@@ -1823,6 +1860,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-GeomMirrorLegacy | - | - | tasks.md 3.39; dropped (no legacy fixes) |
 | C1-geom-a | opus | sonnet | Transform + isolated tests; worktree; background author |
 | C1-geom-b | opus | sonnet | wiring + scenarios; after B4 4.1/4.2 |
+| C1-geom-c | opus | sonnet | bundle-level regrid (plain, vector, bracket); after C1-geom-b; tier proposed by meta |
 | C1-vertical-a | opus | sonnet | after C1-geom-a; numerics duplication, orientation flip; worktree |
 | C1-vertical-b | opus | sonnet | after C1-vertical-a and B4 |
 | C2-geom-push | sonnet | opus | |

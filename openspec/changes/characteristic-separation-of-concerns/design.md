@@ -432,11 +432,15 @@ goal's VerticalGrid, VerticalStagger and VerticalOrientation together;
 those kinds are then no longer mismatched on the new tip. A
 VerticalStagger-only change (same grid) may read the tip's VerticalGrid
 while building, never while comparing (Q7, A16). A VerticalOrientation-
-only mismatch is its own zero-cost step (a reversed view) and needs no
-grid. The covered list is a separate type-bound `covered_kinds(tip, goal)`
-(default `[own kind]`) called just before `build_transform`, not a
-`build_transform` return value (B4a); the vertical regrid that uses it
-is C1.
+only mismatch is its own step and needs no grid; it copies for now
+(owner, 2026-11-08: a reversed pointer view is deferred until an ESMF
+test shows Fields accept it). The covered list is a separate type-bound
+`covered_kinds(tip, goal)` (default `[own kind]`) called just before
+`build_transform`, not a `build_transform` return value (B4a); the vertical
+regrid that uses it is C1. The read-only tip and goal views went to
+`covered_kinds`, not `build_transform` (owner, 2026-11-08): a Transform
+reads its own inputs (vgrid, stagger, alignment) from its bound Fields
+at compute.
 
 This refines the plan's "owned by the export's shape": after an
 ITEM_SHAPE step (for example BRACKET -> FIELD), the remaining kinds are
