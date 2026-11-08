@@ -1468,8 +1468,75 @@ ready means today" in `scenario-parity.md`). May be split into
   Owner kept the typekind refetch (rare, e.g. ExtData collections of one
   variable in two precisions, but correctness matters), the geom-id
   comparison and the no-id failure (2026-11-04).
-  C1-geom-b, C1-vertical-a: in review (worktrees, 2026-11-08).
-  C1-vertical-b: not started.
+  C1-geom-b done (90686236d). Owner decisions (2026-11-08). Both sides declaring a regridder
+  param: report a per-connection incompatible pair, not an abort
+  ("Accepted recommendation: b. It gives a precise per-connection error
+  and fixes the chain-sharing gap. Legacy's abort stays in place until
+  legacy goes away."). Geometry mismatch on non-Field items: regrid
+  bundles later with a bundle-level Transform that loops over members,
+  as legacy does; no per-member nodes ("It keeps legacy's numerics
+  (vector rotation, regrid once per bracket refresh) and the graph's rule
+  that a node is an advertised item. Per-member nodes cost a design
+  change for no gain the regridder does not already give. For C1-geom-b
+  now, that means non-Field items report "unsupported", through an
+  optional item-kind argument that only geometry reads. I add C1-geom-c
+  (bundle regrid, including bracket and vector) to the plan after
+  C1-geom-b."). Follow-up: C1-geom-c. Known limit until then: a geometry
+  mismatch on a FIELDBUNDLE, BRACKET, VECTOR or VECTORBRACKET item reports
+  unsupported GEOMETRY (legacy regrids it in hybrid mode). The regrid
+  value check was probed (regrid output overwritten -> the value check
+  fails in GRAPH mode for regrid and regrid_r8); it uses constant fields,
+  so it guards that the regrid runs, not interpolation accuracy (the
+  isolated HorizontalRegridTransform tests cover that). The vertical and orientation step kinds are unexercised
+  until C1-vertical.
+  C1-vertical-a done (03933d948). C1-vertical-a done. VerticalColumnRegridTransform and
+  VerticalFlipTransform (graph/transforms/) with isolated tests in
+  Test_VerticalColumnRegridTransform.pf; no characteristic, GraphBuilder or
+  scenario changes (all C1-vertical-b). Owner decisions (2026-11-08):
+  (1) "build each field's column coordinate in the field's own storage
+  order (reversed when its alignment differs from its grid's direction),
+  then regrid": done. The legacy experiment showed legacy is wrong when
+  alignment differs from the grid's direction: it flips each side's
+  levels by alignment, which assumes levels are stored in alignment
+  order, but they are stored in grid order. On a 3-level UP grid
+  [1000,500,100] hPa to [800,300] hPa with T = 2p+1, a source stored DOWN
+  gave [521,1501] instead of [1601,601], and a destination stored DOWN
+  gave [1601,601] instead of [601,1601]. Graph gives the correct values
+  (parity row added by meta). (2) "basic grids: legacy rule
+  (BasicVerticalGrid%matches ...)": the Transform copies or flips for
+  matching grids and fails for basic grids with different counts; the
+  connect-time INCOMPATIBLE is -b. (3) "reads vgrid, vert_staggerloc,
+  vert_alignment from its bound Fields at compute": done, no
+  build_transform interface change. (4) "copy the end value and log a
+  warning once per weight build ... No Debug abort": done through a new
+  optional allow_out_of_range argument on compute_linear_map (smallest
+  change; the legacy caller is unchanged). (5) "convert export levels to
+  the import's units with udunits if cheap ... else fail": it was cheap
+  (one get_converter per weight build); inconvertible units fail.
+  (6) "get_column_coordinate ... non-deferred, default reports
+  unsupported; FixedLevelsVerticalGrid overrides": done; the Transform
+  neither selects on FixedLevels nor uses AspectMap/GeomAspect. (7) "R4
+  only ... export the message": vertical_regrid_r8_message(name) is
+  public. (8) "conservative ... reports unsupported": a
+  CONSERVATIVE-method Transform fails at compute when a real regrid is
+  needed; on matching grids it copies or flips, as legacy (meta decision
+  2026-11-08). (9) "Orientation-only
+  step COPIES now": VerticalFlipTransform copies. Model grids (PLE/ZLE)
+  fail: they supply no column coordinate. The legacy direction bug needs
+  numeric levels on both sides, so it shows only in regrids between
+  fixed-level grids, whose coordinate comes back in grid order (basic
+  equal-count grids copy or flip in both legacy and graph). Model-grid
+  coordinate fields arrive in the field's own order, where legacy's flip
+  should be right; that is from reading the code, not verified by a run. The failure
+  tests that assert only status /= 0 (model grid, invalid alignment, EDGE,
+  inconvertible units, different dimensions, R8, basic different counts)
+  were each run alone and fail with their intended message. A stagger-only mismatch on the
+  same grid fails. Left for C1-vertical-b: build_transform for
+  VerticalGrid and VerticalOrientation, covered kinds, step_kind
+  in Test_Scenarios.pf, the connect-time R8 warning and basic-count
+  INCOMPATIBLE, scenario flips, and doc drift (ARCHITECTURE.md ~168,
+  ~229, ~407; VerticalOrientationCharacteristic.F90:18 header).
+  C1-vertical-b, C1-geom-c: not started.
   - Owner (2026-11-08, C1-geom-b): both sides declaring a regridder param
     is INCOMPATIBLE (A23), not a `_FAIL`; the param is part of the
     geometry signature, so imports with different params do not share a
