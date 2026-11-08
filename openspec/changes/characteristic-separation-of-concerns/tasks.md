@@ -1236,7 +1236,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       each INTERNAL is allocated twice, once by the graph and once by
       legacy's `registry%allocate`, so restart or history readers that go
       through the registry see legacy's Field; both must be closed here.
-- [ ] 3.43 B3-VerticalOrientationSync (found by 3.41a, 2026-11-07).
+- [x] 3.43 B3-VerticalOrientationSync (found by 3.41a, 2026-11-07).
       Creating Fields for imports exposed a disagreement:
       `get_incomplete_kinds()` reports the descriptor complete, but its
       VerticalOrientation is SPECIFIED with no direction, and
@@ -1258,6 +1258,21 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       nonzero) passes, the module header comment says so, and
       `vertical_regridding_2` passes with the switch ON. Author sonnet
       (sonnet review).
+      Status: done. `orientation_write_info` returns early for
+      `VCOORD_DIRECTION_UNSPECIFIED` (after the phase and status
+      checks); INVALID still fails with the existing message; the module
+      header comment says so. Tests in
+      `Test_VariableSpecCharacteristics.pf`:
+      `test_unspecified_direction_is_written_as_nothing` (single-level
+      grid, entry SPECIFIED with UNSPECIFIED, write_info status 0, Field
+      still reads with_grid; red before the fix with the "has no up or
+      down direction" failure), `test_invalid_direction_write_info_fails`
+      (exact message, status /= 0) and
+      `test_up_and_down_directions_are_written` (UP and DOWN read back).
+      `vertical_regridding_2` passes with
+      `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` (NAG, pending target,
+      graph and both modes); the table flag is unchanged. No second
+      failure was found. NAG and gfortran ESSENTIAL 69/69.
 - [ ] 3.44 B3-AdvertisePopulation (found by 3.41b review, 2026-11-07;
       before any graph-only default). With the switch on the graph must
       populate the user states at advertise, as legacy `add_to_states`

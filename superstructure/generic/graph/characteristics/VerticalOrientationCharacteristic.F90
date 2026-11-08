@@ -9,8 +9,10 @@
 ! Status: SPECIFIED when constructed with a value. An item that follows its
 ! grid ("with_grid", the default) gets the grid's direction as that value:
 ! from the item's own grid at construction, or from the component's grid
-! through resolve_deferred (DEFERRED until then). Comparison reads only the
-! two orientation values, never a VerticalGrid. MIRRORED means the import
+! through resolve_deferred (DEFERRED until then). A grid with no direction
+! (a single level) leaves the entry SPECIFIED holding UNSPECIFIED, and
+! write_info writes nothing for it. Comparison reads only the two
+! orientation values, never a VerticalGrid. MIRRORED means the import
 ! adopts the export's orientation.
 !
 ! build_transform reports unsupported: no index-reversal Transform exists.
@@ -22,7 +24,7 @@ module mapl_VerticalOrientationCharacteristic_mod
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
-   use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, VCOORD_DIRECTION_DOWN, operator(==), operator(/=)
+   use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, VCOORD_DIRECTION_DOWN, VCOORD_DIRECTION_UNSPECIFIED, operator(==), operator(/=)
    use mapl_VerticalAlignment_mod, only: VerticalAlignment, VALIGN_UP, VALIGN_DOWN
    use mapl_VerticalGrid_mod, only: VerticalGrid
    use mapl_TransformBase_mod, only: TransformBase
@@ -115,6 +117,7 @@ contains
    ! only in the STRUCTURAL phase. The resolved direction is written rather
    ! than with_grid: readers resolve either against the same grid, and the
    ! resolved value stays correct if the field's grid is later replaced.
+   ! An UNSPECIFIED direction is not written.
    subroutine orientation_write_info(this, handle, phase, rc)
       class(VerticalOrientationCharacteristic), intent(in) :: this
       type(GraphStateItem), intent(inout) :: handle
@@ -129,6 +132,8 @@ contains
 
       _RETURN_UNLESS(phase == SYNC_PHASE_STRUCTURAL)
       _RETURN_UNLESS(this%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      ! Legacy reads an unwritten alignment as with_grid, which is right here.
+      _RETURN_IF(this%direction == VCOORD_DIRECTION_UNSPECIFIED)
 
       if (this%direction == VCOORD_DIRECTION_UP) then
          alignment = VALIGN_UP

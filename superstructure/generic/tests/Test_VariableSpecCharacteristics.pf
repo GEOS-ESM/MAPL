@@ -59,7 +59,10 @@ module Test_VariableSpecCharacteristics
    use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE, &
         HORIZONTAL_DIMS_MIRROR, operator(==)
    use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, &
-        VCOORD_DIRECTION_DOWN, operator(==)
+        VCOORD_DIRECTION_DOWN, VCOORD_DIRECTION_UNSPECIFIED, VCOORD_DIRECTION_INVALID, operator(==)
+   use mapl_VerticalAlignment_mod, only: VerticalAlignment, VALIGN_UP, VALIGN_DOWN, VALIGN_WITH_GRID, VALIGN_INVALID, operator(==)
+   use mapl_field_api, only: MAPL_FieldGet
+   use esmf, only: ESMF_Field, ESMF_FieldEmptyCreate, ESMF_FieldDestroy
    use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE, &
         VERTICAL_STAGGER_MIRROR, VERTICAL_STAGGER_INVALID
    use esmf, only: ESMF_StateItem_Flag, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_INTERNAL, ESMF_StateIntent_Flag, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_I4
@@ -69,7 +72,7 @@ module Test_VariableSpecCharacteristics
         get_field_dictionary_config
    use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateDestroy
    use mapl_GraphStateItem_mod, only: GraphStateItem
-   use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_DESCRIPTIVE
+   use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_DESCRIPTIVE, SYNC_PHASE_STRUCTURAL
    implicit none(type, external)
 
 contains
@@ -1648,6 +1651,87 @@ contains
       @assertEqual(0, status)
       @assertTrue(direction == VCOORD_DIRECTION_DOWN)
    end subroutine test_item_vgrid_resolves_vertical_orientation
+
+   ! Alignment a fresh Field reads back after the characteristic writes to it.
+   function alignment_after_write(characteristic, rc) result(alignment)
+      class(StateItemCharacteristic), intent(in) :: characteristic
+      integer, intent(out) :: rc
+      type(VerticalAlignment) :: alignment
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      alignment = VALIGN_INVALID
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call characteristic%write_info(handle, SYNC_PHASE_STRUCTURAL, rc=rc)
+      call MAPL_FieldGet(field, vert_alignment=alignment, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function alignment_after_write
+
+   ! A grid with no direction (a single level) leaves the entry SPECIFIED
+   ! with an unspecified direction; writing it leaves the Field following
+   ! its grid.
+   @test
+   subroutine test_unspecified_direction_is_written_as_nothing()
+      type(VariableSpec) :: var_spec
+      type(mapl_BasicVerticalGrid) :: vgrid
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status, write_status
+
+      call vgrid%set_coordinate_direction(VCOORD_DIRECTION_UNSPECIFIED)
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_grid = vgrid
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertEqual(0, status)
+      call descriptor%get_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (VerticalOrientationCharacteristic)
+         @assertTrue(c%get_direction() == VCOORD_DIRECTION_UNSPECIFIED)
+      end select
+
+      @assertTrue(alignment_after_write(c, write_status) == VALIGN_WITH_GRID)
+      @assertEqual(0, write_status)
+   end subroutine test_unspecified_direction_is_written_as_nothing
+
+   ! An invalid direction is a defect and still fails.
+   @test
+   subroutine test_invalid_direction_write_info_fails()
+      type(VerticalOrientationCharacteristic) :: orientation
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      orientation = VerticalOrientationCharacteristic(VCOORD_DIRECTION_INVALID)
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call orientation%write_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertExceptionRaised('VerticalOrientationCharacteristic: SPECIFIED entry has no up or down direction')
+      @assertTrue(status /= 0)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_invalid_direction_write_info_fails
+
+   @test
+   subroutine test_up_and_down_directions_are_written()
+      type(VerticalOrientationCharacteristic) :: up, down
+      integer :: status
+
+      up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+      @assertTrue(alignment_after_write(up, status) == VALIGN_UP)
+      @assertEqual(0, status)
+      @assertTrue(alignment_after_write(down, status) == VALIGN_DOWN)
+      @assertEqual(0, status)
+   end subroutine test_up_and_down_directions_are_written
 
    @test
    subroutine test_mirror_vertical_orientation_is_mirrored()
