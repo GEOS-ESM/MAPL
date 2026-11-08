@@ -1615,6 +1615,23 @@ affected scenarios to ready (unless masked: M3).
   "resolve_connections step failed".
 - **Status:** not started
 
+**C4. Hierarchy-wide forward network** (label `C4-ForwardNetwork`;
+openspec change `hierarchy-wide-forward-network`, approved by the owner
+2026-11-08). One forward `DependencyNetwork` per hierarchy replaces each
+component's default network; reuse (extension chains, expression
+evaluations, collections) and transform port bindings become
+hierarchy-wide; a pull names only the item; each component pulls its own
+imports before its run and advances its exports after it; callback get
+edges join the forward network; write-back networks (callback put, inout
+return) stay separate and are never pulled. Owner decisions are in the
+change's design.md Context; the inout borrower stays as is (deferred,
+kept only in case callback states prove unsuitable). Holds 3.42,
+C1-vertical-b and C1-geom-c until it lands. Follow-up (`C4-b`, not yet
+an openspec change): state population without the descendant walk,
+merged geometry push/pull, removal of the `get_child_component_graph`
+carve-out.
+- **Status:** not started
+
 ### Phase D - structure
 
 **D1. Split `GraphBuilder_ConnectionResolution_smod.F90`** (2500 lines)
@@ -1930,6 +1947,8 @@ it may author D1/A4/B5 with sonnet review.
 | C1-geom-c | opus | sonnet | bundle-level regrid (plain, vector, bracket); after C1-geom-b; tier proposed by meta |
 | C1-vertical-a | opus | sonnet | after C1-geom-a; numerics duplication, orientation flip; worktree |
 | C1-vertical-b | opus | sonnet | after C1-vertical-a and B4 |
+| C4-ForwardNetwork | opus | sonnet | openspec hierarchy-wide-forward-network; test-first (gpt-sol tests); owner commit; holds 3.42, C1-vertical-b, C1-geom-c |
+| C4-b | opus | sonnet | follow-up: population, geometry merge, carve-out; needs its own openspec change |
 | C2-geom-push | sonnet | opus | |
 | C2-alias-owner | sonnet | opus | |
 | C2-alias-nonfield | sonnet | opus | after C2-alias-owner |
