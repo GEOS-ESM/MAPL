@@ -251,13 +251,15 @@ contains
 
    ! GENERIC_INIT_ACCEPT_TRANSFER entry point into
    ! graphbuilder_populate_state.
-   module subroutine graphbuilder_run_populate_state_hook(this, multi_state)
+   module subroutine graphbuilder_run_populate_state_hook(this, &
+        multi_state, own_only)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(MultiState), intent(inout) :: multi_state
+      logical, optional, intent(in) :: own_only
 
       integer :: status
 
-      call graphbuilder_populate_state(this, multi_state, status)
+      call graphbuilder_populate_state(this, multi_state, status, own_only)
       call report_if_failed(this, 'populate_state', status)
    end subroutine graphbuilder_run_populate_state_hook
 

@@ -53,6 +53,9 @@ module Test_GraphBuilder_Advertising
    use mapl_ConservationType_mod, only: CONSERVE_MASS
    use mapl_NormalizationType_mod, only: NORMALIZE_DELP
    use gFTL2_StringVector, only: StringVector
+   use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_REGISTRY, &
+        GRAPH_MODE_GRAPH
+   use mapl_ExtensionMaterialization_mod, only: field_extension_is_created
    use esmf
    use pfunit
    implicit none(type, external)
@@ -105,6 +108,58 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_advertise_creates_state_item_nodes
+
+   ! In GRAPH mode a declared name with a slash (a qualified import) gets a
+   ! created Field at advertise, named by the part after the last slash.
+   ! Seeded to fail: with the slash skip back, the node holds no Field.
+   @test(npes=[0])
+   subroutine test_advertise_creates_field_for_slash_name(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: id_ptr
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: payload
+      type(ESMF_Field) :: field
+      character(len=ESMF_MAXSTR) :: field_name
+      logical :: is_created
+      integer :: status, status_name
+      type(GraphBuilder) :: gb
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call make_outer_meta('comp_advertise_slash', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'A/X'))
+
+      call gb%advertise(outer_meta, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      id_ptr => graph%get_resource_index( &
+           item_key(ESMF_STATEINTENT_IMPORT, 'A/X'))
+      @assert_that(associated(id_ptr), is(true()))
+      is_created = field_extension_is_created(graph, id_ptr)
+      node => graph%get_node(id_ptr)
+      field_name = ''
+      status_name = -1
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+         field = payload%get_field(rc=status_name)
+         if (status_name == 0) then
+            call ESMF_FieldGet(field, name=field_name, rc=status_name)
+         end if
+      end select
+      @assertEqual(0, status_name)
+      @assertTrue(is_created)
+      @assertEqual('X', trim(field_name))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_advertise_creates_field_for_slash_name
 
    ! Task 6.4 (public-port half) / spec "Declared public port is
    ! recorded": an advertised import/export item's identity is

@@ -10,7 +10,8 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_StatePopulation_smod
    use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_DESCRIPTIVE
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_GRAPH
    use mapl_ExtensionMaterialization_mod, only: complete_created_field, &
-        describe_created_field, field_extension_is_created
+        describe_created_field, field_extension_is_created, &
+        write_advertised_keys
    use mapl_GraphOwnsUserStates_mod, only: graph_populates_user_states
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
@@ -28,7 +29,8 @@ contains
    ! can never reach the ESMF_StateAdd below.
    !
    ! Two walks. (1) Items `this` advertises and connects to itself. (2)
-   ! Each declared child's var_specs, looked up in THAT CHILD's graph.
+   ! Each declared descendant's var_specs, looked up in THAT COMPONENT's
+   ! graph (populate_descendants).
    ! For a connection between two children, the resolved item is each
    ! child's own StateItemNode, never a node in the parent's graph, so
    ! walking `this`'s var_specs alone would find nothing. The dependency
@@ -47,16 +49,25 @@ contains
    ! too (populate_export_ports): a re-export or propagated export has no
    ! declared item of that name.
    !
+   ! own_only (advertise time, switch on): only the user states of `this`
+   ! itself, and only each item's own created Field, unconnected and
+   ! undescribed except for the non-structural keys (units, names). No
+   ! child walk, no completion, no allocation. The later full population
+   ! replaces the same entries.
+   !
    ! With graph_populates_user_states() off, only Fields already completed
    ! are inserted and INTERNAL items are skipped: legacy filled the user
    ! states and must keep them. With it on, an INTERNAL item is completed
    ! and allocated, and a created export goes in as it is (GRIDSET).
-   module subroutine graphbuilder_populate_state(this, multi_state, rc)
+   module subroutine graphbuilder_populate_state(this, multi_state, rc, &
+        own_only)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(MultiState), intent(inout) :: multi_state
       integer, optional, intent(out) :: rc
+      logical, optional, intent(in) :: own_only
 
       integer :: status
+      logical :: only_own
       type(ComponentSpec), pointer :: this_spec, child_spec
       type(ComponentGraph), pointer :: graph
       type(ComponentGraph), pointer :: child_graph
@@ -71,6 +82,9 @@ contains
       type(MultiState) :: child_states
 
       _RETURN_IF(graph_mode() /= GRAPH_MODE_GRAPH)
+      only_own = .false.
+      if (present(own_only)) only_own = own_only
+      _RETURN_IF(only_own .and. .not. graph_populates_user_states())
 
       graph => this%get_component_graph()
       net => graph%get_network(graph%get_default_network_id())
@@ -86,25 +100,59 @@ contains
                  var_spec%state_intent == ESMF_STATEINTENT_EXPORT .or. &
                  var_spec%state_intent == ESMF_STATEINTENT_INTERNAL)) cycle
             id_ptr => graph%get_resource_index(item_key(var_spec%state_intent, var_spec%short_name))
-            call populate_one(graph, net, multi_state, id_ptr, var_spec%state_intent, var_spec%short_name, _RC)
+            call populate_one(graph, net, multi_state, id_ptr, &
+                 var_spec%state_intent, var_spec%short_name, only_own, &
+                 .true., _RC)
          end do
       end associate
 
       ! Export ports: a re-exported or propagated item is an export under the
       ! port's name that no declared item names.
       if (graph_populates_user_states()) then
-         call populate_export_ports(graph, multi_state, _RC)
+         call populate_export_ports(graph, multi_state, only_own, _RC)
       end if
+
+      _RETURN_IF(only_own)
 
       ! Cross-component case: populate INTO THE CHILD's own real
       ! MultiState, never `this`'s `multi_state`; the connected item
       ! belongs to the child. Only the parent reaches down.
-      n = this%get_num_children()
+      call populate_descendants(this, graph, net, .true., _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine graphbuilder_populate_state
+
+   ! Populates the user states of every descendant of `owner`, using the
+   ! network of the component whose hook is running. Imports connected by
+   ! that component's own connections have their edge only there, so a
+   ! grandchild is reached from every ancestor. Below the direct children,
+   ! an import this network cannot resolve is left to the ancestor that
+   ! can: no own-created fallback, which would replace the right Field.
+   recursive subroutine populate_descendants(owner, graph, net, direct, rc)
+      class(OuterMetaComponent), target, intent(inout) :: owner
+      type(ComponentGraph), target, intent(in) :: graph
+      type(DependencyNetwork), intent(in) :: net
+      logical, intent(in) :: direct
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentSpec), pointer :: child_spec
+      type(ComponentGraph), pointer :: child_graph
+      type(VariableSpecVectorIterator) :: iter
+      type(VariableSpec), pointer :: var_spec
+      type(NodeId), pointer :: id_ptr
+      character(:), allocatable :: child_name
+      integer :: n, i
+      type(OuterMetaComponent), pointer :: child_meta
+      type(GriddedComponentDriver), pointer :: child_driver
+      type(MultiState) :: child_states
+
+      n = owner%get_num_children()
       do i = 1, n
-         child_name = this%get_child_name(i, _RC)
-         child_spec => this%get_child_component_spec(child_name, _RC)
-         child_graph => this%get_child_component_graph(child_name, _RC)
-         child_meta => this%get_child_outer_meta(child_name, _RC)
+         child_name = owner%get_child_name(i, _RC)
+         child_spec => owner%get_child_component_spec(child_name, _RC)
+         child_graph => owner%get_child_component_graph(child_name, _RC)
+         child_meta => owner%get_child_outer_meta(child_name, _RC)
          child_driver => child_meta%get_user_gc_driver()
          child_states = child_driver%get_states()
          associate (e => child_spec%var_specs%ftn_end())
@@ -115,13 +163,18 @@ contains
                if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT .or. &
                     var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) cycle
                id_ptr => child_graph%get_resource_index(item_key(var_spec%state_intent, var_spec%short_name))
-               call populate_one(graph, net, child_states, id_ptr, var_spec%state_intent, var_spec%short_name, _RC)
+               call populate_one(graph, net, child_states, id_ptr, &
+                    var_spec%state_intent, var_spec%short_name, .false., &
+                    direct, _RC)
             end do
          end associate
+         if (graph_populates_user_states()) then
+            call populate_descendants(child_meta, graph, net, .false., _RC)
+         end if
       end do
 
       _RETURN(_SUCCESS)
-   end subroutine graphbuilder_populate_state
+   end subroutine populate_descendants
 
    ! Shared by both walks in graphbuilder_populate_state: resolves
    ! id_ptr's real field (export: direct; import: predecessor walk) and,
@@ -133,13 +186,16 @@ contains
    ! would duplicate rather than replace on the second
    ! GENERIC_INIT_ACCEPT_TRANSFER pass. Mirrors legacy
    ! FieldClassAspect%add_to_state.
-   module subroutine populate_one(graph, net, multi_state, id_ptr, state_intent, short_name, rc)
+   module subroutine populate_one(graph, net, multi_state, id_ptr, &
+        state_intent, short_name, own_only, may_fallback, rc)
       type(ComponentGraph), target, intent(in) :: graph
       type(DependencyNetwork), intent(in) :: net
       type(MultiState), intent(inout) :: multi_state
       type(NodeId), pointer, intent(in) :: id_ptr
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
+      logical, intent(in) :: own_only
+      logical, intent(in) :: may_fallback
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -147,9 +203,10 @@ contains
       logical :: found
       type(ESMF_Field) :: field
       type(ESMF_Field) :: alias
-      type(ESMF_State) :: state
+      type(ESMF_State) :: substate
       type(GraphStateItem) :: alias_handle
       logical :: owns, created_only
+      character(:), allocatable :: inner_name
 
       if (.not. associated(id_ptr)) then
          _RETURN(_SUCCESS)
@@ -160,12 +217,14 @@ contains
       if (state_intent == ESMF_STATEINTENT_INTERNAL .and. .not. owns) then
          _RETURN(_SUCCESS)
       end if
-      if (owns .and. .not. (state_intent == ESMF_STATEINTENT_IMPORT)) then
+      if (own_only) then
+         call write_keys_on_created_field(graph, item_id, _RC)
+      else if (owns .and. .not. (state_intent == ESMF_STATEINTENT_IMPORT)) then
          call prepare_created_field(graph, item_id, &
               state_intent == ESMF_STATEINTENT_INTERNAL, _RC)
       end if
 
-      if (state_intent == ESMF_STATEINTENT_EXPORT .or. &
+      if (own_only .or. state_intent == ESMF_STATEINTENT_EXPORT .or. &
            state_intent == ESMF_STATEINTENT_INTERNAL) then
          call get_field_if_materialized(graph, item_id, field, found, _RC)
       else
@@ -175,7 +234,7 @@ contains
          ! unguarded and reads an uninitialized status.
          if (found) then
             call get_field_if_materialized(graph, field_node_id, field, found, _RC)
-         else if (owns) then
+         else if (owns .and. may_fallback) then
             ! No producer: the import's own created Field, as legacy leaves
             ! an unconnected import.
             call prepare_created_field(graph, item_id, .false., _RC)
@@ -196,19 +255,20 @@ contains
          end if
       end if
 
-      call multi_state%get_state(state, state_intent, _RC)
+      call get_target_substate(multi_state, state_intent, short_name, &
+           substate, inner_name, _RC)
 
       ! Add-or-replace by the alias's stable name: idempotent across the
       ! two ACCEPT_TRANSFER passes.
-      alias = MAPL_NamedAlias(field, name=short_name, _RC)
-      call ESMF_StateAddReplace(state, [alias], _RC)
+      alias = MAPL_NamedAlias(field, name=inner_name, _RC)
+      call ESMF_StateAddReplace(substate, [alias], _RC)
 
       ! Per-alias keys (restart_mode, long_name) come from item_id's own
       ! descriptor, not field_node_id's: each declared item keeps its own
       ! values regardless of which field backs it. Field-wide keys belong to
       ! the exporting item and are not touched here.
       call alias_handle%set(alias, _RC)
-      call sync_alias_info(graph, item_id, short_name, alias_handle, _RC)
+      call sync_alias_info(graph, item_id, inner_name, alias_handle, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine populate_one
@@ -217,9 +277,10 @@ contains
    ! State under the port's name. A port whose name resolves to its own
    ! node is the declared-item walk's entry and is skipped; a same-named
    ! port on another node (a re-export) is not.
-   subroutine populate_export_ports(graph, multi_state, rc)
+   subroutine populate_export_ports(graph, multi_state, own_only, rc)
       type(ComponentGraph), target, intent(in) :: graph
       type(MultiState), intent(inout) :: multi_state
+      logical, intent(in) :: own_only
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -241,7 +302,8 @@ contains
             if (associated(declared_id)) then
                if (declared_id == node_id) cycle
             end if
-            call populate_export_port(graph, multi_state, node_id, port_name, _RC)
+            call populate_export_port(graph, multi_state, node_id, &
+                 port_name, own_only, _RC)
          end do
       end associate
 
@@ -250,17 +312,19 @@ contains
 
    ! The substate path mirrors FieldClassAspect%add_to_state: the part of
    ! the name before the last slash is a substate, created if missing.
-   subroutine populate_export_port(graph, multi_state, node_id, port_name, rc)
+   subroutine populate_export_port(graph, multi_state, node_id, port_name, &
+        own_only, rc)
       type(ComponentGraph), target, intent(in) :: graph
       type(MultiState), intent(inout) :: multi_state
       type(NodeId), intent(in) :: node_id
       character(*), intent(in) :: port_name
+      logical, intent(in) :: own_only
       integer, optional, intent(out) :: rc
 
-      integer :: status, idx
+      integer :: status
       logical :: found
       type(ESMF_Field) :: field, alias
-      type(ESMF_State) :: state, substate
+      type(ESMF_State) :: substate
       type(GraphStateItem) :: alias_handle
       character(:), allocatable :: inner_name
 
@@ -268,17 +332,15 @@ contains
       if (.not. found) then
          _RETURN(_SUCCESS)
       end if
-      call prepare_created_field(graph, node_id, node_is_internal(graph, node_id), _RC)
-
-      call multi_state%get_state(state, ESMF_STATEINTENT_EXPORT, _RC)
-      idx = index(port_name, '/', back=.true.)
-      if (idx > 0) then
-         call get_substate(state, port_name(:idx-1), substate=substate, _RC)
-         inner_name = port_name(idx+1:)
+      if (own_only) then
+         call write_keys_on_created_field(graph, node_id, _RC)
       else
-         substate = state
-         inner_name = port_name
+         call prepare_created_field(graph, node_id, &
+              node_is_internal(graph, node_id), _RC)
       end if
+
+      call get_target_substate(multi_state, ESMF_STATEINTENT_EXPORT, &
+           port_name, substate, inner_name, _RC)
 
       alias = MAPL_NamedAlias(field, name=inner_name, _RC)
       call ESMF_StateAddReplace(substate, [alias], _RC)
@@ -287,6 +349,33 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine populate_export_port
+
+   ! The State a name is inserted into: the part of the name before the last
+   ! slash is a substate (created if missing), the rest the inner name.
+   subroutine get_target_substate(multi_state, state_intent, full_name, &
+        substate, inner_name, rc)
+      type(MultiState), intent(inout) :: multi_state
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      character(*), intent(in) :: full_name
+      type(ESMF_State), intent(out) :: substate
+      character(:), allocatable, intent(out) :: inner_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status, idx
+      type(ESMF_State) :: state
+
+      call multi_state%get_state(state, state_intent, _RC)
+      idx = index(full_name, '/', back=.true.)
+      if (idx > 0) then
+         call get_substate(state, full_name(:idx-1), substate=substate, _RC)
+         inner_name = full_name(idx+1:)
+      else
+         substate = state
+         inner_name = full_name
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine get_target_substate
 
    ! A re-exported internal is allocated like any internal; a created export
    ! stays created.
@@ -373,6 +462,26 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine prepare_created_field
+
+   ! Writes the non-structural keys of node_id onto its Field when that is
+   ! only created (see write_advertised_keys).
+   subroutine write_keys_on_created_field(graph, node_id, rc)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: node_id
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(GraphNode), pointer :: node
+
+      node => graph%get_node(node_id)
+      _RETURN_UNLESS(associated(node))
+      select type (node)
+      class is (StateItemNode)
+         call write_advertised_keys(node, _RC)
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine write_keys_on_created_field
 
    ! Field-only, no-op-if-not-materialized accessor shared by
    ! graphbuilder_populate_state's export and (resolved) import cases.

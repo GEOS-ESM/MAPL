@@ -505,19 +505,24 @@ module mapl_GraphBuilder_mod
    end subroutine graphbuilder_check_unsupported_pairs
 
       ! Graph-native state population procedures (GraphBuilder_StatePopulation_smod.F90)
-   module subroutine graphbuilder_populate_state(this, multi_state, rc)
+   module subroutine graphbuilder_populate_state(this, multi_state, rc, &
+        own_only)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(MultiState), intent(inout) :: multi_state
       integer, optional, intent(out) :: rc
+      logical, optional, intent(in) :: own_only
 
    end subroutine graphbuilder_populate_state
-   module subroutine populate_one(graph, net, multi_state, id_ptr, state_intent, short_name, rc)
+   module subroutine populate_one(graph, net, multi_state, id_ptr, &
+        state_intent, short_name, own_only, may_fallback, rc)
       type(ComponentGraph), target, intent(in) :: graph
       type(DependencyNetwork), intent(in) :: net
       type(MultiState), intent(inout) :: multi_state
       type(NodeId), pointer, intent(in) :: id_ptr
       type(ESMF_StateIntent_Flag), intent(in) :: state_intent
       character(*), intent(in) :: short_name
+      logical, intent(in) :: own_only
+      logical, intent(in) :: may_fallback
       integer, optional, intent(out) :: rc
 
    end subroutine populate_one
@@ -677,9 +682,11 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine graphbuilder_fallback_unsupplied_deferred
-   module subroutine graphbuilder_run_populate_state_hook(this, multi_state)
+   module subroutine graphbuilder_run_populate_state_hook(this, &
+        multi_state, own_only)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(MultiState), intent(inout) :: multi_state
+      logical, optional, intent(in) :: own_only
 
    end subroutine graphbuilder_run_populate_state_hook
    module subroutine assert_converged(unresolved, rc)

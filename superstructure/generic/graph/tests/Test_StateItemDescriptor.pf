@@ -3,6 +3,7 @@ module Test_StateItemDescriptor
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, &
         ValueCharacteristic, SYNC_PHASE_STRUCTURAL, SYNC_PHASE_DESCRIPTIVE, &
+        SYNC_PHASE_ADVERTISED, &
         report_build_transform_unsupported
    use mapl_TransformBase_mod, only: TransformBase
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
@@ -261,6 +262,30 @@ contains
       units = synced_units(item, SYNC_PHASE_DESCRIPTIVE)
       @assertEqual('(none)', units)
    end subroutine test_sync_descriptive_skips_units
+
+   ! The ADVERTISED phase is for a Field that is only created: units are
+   ! safe to write there, structural keys are not.
+   @test
+   subroutine test_sync_advertised_writes_units()
+      type(StateItemDescriptor) :: item
+      character(:), allocatable :: units
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'))
+      units = synced_units(item, SYNC_PHASE_ADVERTISED)
+      @assertEqual('m', units)
+   end subroutine test_sync_advertised_writes_units
+
+   @test
+   subroutine test_sync_advertised_skips_typekind()
+      type(StateItemDescriptor) :: item
+      type(ESMF_TypeKind_Flag) :: type_kind
+
+      call item%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R8'))
+      type_kind = synced_typekind(item, SYNC_PHASE_ADVERTISED)
+      @assertTrue(type_kind == ESMF_TYPEKIND_R4)
+   end subroutine test_sync_advertised_skips_typekind
 
    @test
    subroutine test_sync_skips_invalid_characteristic()

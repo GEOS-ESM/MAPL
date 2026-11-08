@@ -19,7 +19,8 @@ module mapl_ExtensionMaterialization_mod
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
-   use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL
+   use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL, &
+        SYNC_PHASE_ADVERTISED
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_field_api, only: MAPL_FieldEmptyComplete, MAPL_FieldSet
    use mapl_field_api, only: MAPL_FieldGet
@@ -41,6 +42,7 @@ module mapl_ExtensionMaterialization_mod
    public :: field_extension_is_created
    public :: complete_created_field
    public :: describe_created_field
+   public :: write_advertised_keys
 
 contains
 
@@ -223,6 +225,26 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine describe_created_field
+
+   ! Writes only the non-structural keys (units, standard name, long name,
+   ! ...) of the node's descriptor onto a merely created Field: what a user
+   ! component may read at advertise. No geom, no typekind, no allocation.
+   ! Any other payload is left alone.
+   subroutine write_advertised_keys(node, rc)
+      class(StateItemNode), target, intent(inout) :: node
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(GraphStateItem), pointer :: payload
+      type(StateItemDescriptor), pointer :: descriptor
+
+      payload => node%get_payload_ptr()
+      _RETURN_UNLESS(payload_is_created(payload))
+      descriptor => node%get_descriptor()
+      call descriptor%sync_to_info(payload, SYNC_PHASE_ADVERTISED, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine write_advertised_keys
 
    ! Errors are swallowed: a Field with no allocation status is not CREATED.
    ! The Field must also be an original, never a named alias (alias id 0):

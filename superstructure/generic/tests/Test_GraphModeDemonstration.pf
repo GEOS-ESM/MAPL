@@ -66,6 +66,7 @@ module Test_GraphModeDemonstration
    use mapl_MultiState_mod
    use mapl_OuterMetaComponent_mod
    use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_GRAPH, GRAPH_MODE_REGISTRY
+   use mapl_GraphOwnsUserStates_mod, only: set_graph_owns_user_states
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_ComponentGraph_mod, only: ComponentGraph
@@ -256,6 +257,88 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_graph_mode_propagates_through_two_characteristic_chain
+
+   ! The statistics scenario reads its own export in INIT_MODIFY_ADVERTISED
+   ! (ProtoStatGridComp), so with the switch on its user state must hold the
+   ! item by the end of the ADVERTISE phase. Runs only the first three init
+   ! phases; the user component reports status 41 otherwise.
+   ! Seeded to fail: with the advertise-time populate call removed, the
+   ! MODIFY_ADVERTISED phase returns a nonzero user status.
+   @test(npes=[0])
+   subroutine test_switch_on_user_reads_own_export_at_modify_advertised(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: cap_gc
+      type(ESMF_State) :: importState, exportState
+      type(ESMF_Clock) :: clock
+      integer :: status, phase_status
+
+      call NUOPC_FieldDictionarySetup( &
+           filename='./scenarios/FieldDictionary.yml', _RC)
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call build_scenario_tree_to_phase('./scenarios/statistics/cap.yaml', &
+           3, cap_gc, importState, exportState, clock, phase_status)
+      call set_graph_owns_user_states(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assertEqual(0, phase_status)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_switch_on_user_reads_own_export_at_modify_advertised
+
+   ! Creates the scenario tree and runs the first last_phase entries of
+   ! GENERIC_INIT_PHASE_SEQUENCE. phase_status is the first nonzero user or
+   ! framework status, else 0.
+   subroutine build_scenario_tree_to_phase(config_file, last_phase, cap_gc, &
+        importState, exportState, clock, phase_status)
+      character(*), intent(in) :: config_file
+      integer, intent(in) :: last_phase
+      type(ESMF_GridComp), intent(out) :: cap_gc
+      type(ESMF_State), intent(out) :: importState, exportState
+      type(ESMF_Clock), intent(out) :: clock
+      integer, intent(out) :: phase_status
+
+      type(ESMF_HConfig) :: config
+      type(ESMF_Config) :: config_cf
+      type(ESMF_Time) :: t0, t1
+      type(ESMF_TimeInterval) :: dt
+      integer :: status, user_status, i
+
+      phase_status = 0
+      config = ESMF_HConfigCreate(filename=config_file, rc=status)
+      if (status /= 0) then
+         phase_status = status
+         return
+      end if
+      config_cf = ESMF_ConfigCreate(hconfig=config, rc=status)
+      cap_gc = ESMF_GridCompCreate(name='CAP_ADVERTISE_READ', &
+           config=config_cf, rc=status)
+      call ESMF_GridCompSetServices(cap_gc, mapl_GenericSetservices, &
+           userRC=user_status, rc=status)
+      if (status /= 0 .or. user_status /= 0) then
+         phase_status = max(abs(status), abs(user_status))
+         return
+      end if
+
+      call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", rc=status)
+      call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", rc=status)
+      call ESMF_TimeIntervalSet(dt, h=1, rc=status)
+      clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, &
+           refTime=t0, rc=status)
+      importState = ESMF_StateCreate(rc=status)
+      exportState = ESMF_StateCreate(rc=status)
+
+      do i = 1, last_phase
+         call ESMF_GridCompInitialize(cap_gc, &
+              importState=importState, exportState=exportState, clock=clock, &
+              phase=GENERIC_INIT_PHASE_SEQUENCE(i), userRC=user_status, &
+              rc=status)
+         if (status /= 0 .or. user_status /= 0) then
+            phase_status = max(abs(status), abs(user_status))
+            return
+         end if
+      end do
+   end subroutine build_scenario_tree_to_phase
 
    ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.5,
    ! design.md D3: resurrects the abandoned

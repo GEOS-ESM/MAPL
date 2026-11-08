@@ -14,7 +14,8 @@ module mapl_StateItemDescriptor_mod
    use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, operator(==)
    use ESMF, only: ESMF_KIND_R4
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap, &
-        StateItemCharacteristicMapIterator, operator(/=), SYNC_PHASE_STRUCTURAL, SYNC_PHASE_DESCRIPTIVE
+        StateItemCharacteristicMapIterator, operator(/=), &
+        SYNC_PHASE_STRUCTURAL, SYNC_PHASE_DESCRIPTIVE, SYNC_PHASE_ADVERTISED
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), &
@@ -665,8 +666,8 @@ contains
    end subroutine descriptor_fallback_unsupplied_deferred
 
    ! Writes each SPECIFIED or UNCHECKED characteristic onto the handle's Info.
-   ! The DESCRIPTIVE phase skips structural characteristics, so a completed
-   ! field is never re-created through FieldDelta.
+   ! The DESCRIPTIVE and ADVERTISED phases skip structural characteristics, so
+   ! a completed field is never re-created through FieldDelta.
    subroutine descriptor_sync_to_info(this, handle, phase, rc)
       class(StateItemDescriptor), target, intent(in) :: this
       type(GraphStateItem), intent(inout) :: handle
@@ -711,8 +712,12 @@ contains
       type(StateItemCharacteristicMapIterator) :: iter
       class(StateItemCharacteristic), pointer :: c
       type(CharacteristicStatus) :: s
+      logical :: known_phase
 
-      _ASSERT(phase == SYNC_PHASE_STRUCTURAL .or. phase == SYNC_PHASE_DESCRIPTIVE, 'StateItemDescriptor: sync_to_info - unknown phase')
+      known_phase = (phase == SYNC_PHASE_STRUCTURAL .or. &
+           phase == SYNC_PHASE_DESCRIPTIVE .or. &
+           phase == SYNC_PHASE_ADVERTISED)
+      _ASSERT(known_phase, 'StateItemDescriptor: sync_to_info - unknown phase')
 
       associate (e => this%characteristics%ftn_end())
          iter = this%characteristics%ftn_begin()
@@ -721,7 +726,7 @@ contains
             c => iter%second()
             s = c%get_status()
             if (.not. (s == CHARACTERISTIC_STATUS_SPECIFIED .or. s == CHARACTERISTIC_STATUS_UNCHECKED)) cycle
-            if (phase == SYNC_PHASE_DESCRIPTIVE .and. c%is_structural()) cycle
+            if (phase /= SYNC_PHASE_STRUCTURAL .and. c%is_structural()) cycle
             if (per_alias_only .and. .not. c%is_per_alias()) cycle
             call c%write_info(handle, phase, _RC)
          end do

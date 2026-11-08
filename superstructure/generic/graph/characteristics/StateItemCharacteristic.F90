@@ -78,6 +78,7 @@ module mapl_StateItemCharacteristic_mod
    public :: ReferenceCharacteristic
    public :: SYNC_PHASE_STRUCTURAL
    public :: SYNC_PHASE_DESCRIPTIVE
+   public :: SYNC_PHASE_ADVERTISED
    public :: BUILD_TRANSFORM_UNSUPPORTED
    public :: report_build_transform_unsupported
    public :: BUILD_TRANSFORM_INCOMPATIBLE
@@ -86,8 +87,11 @@ module mapl_StateItemCharacteristic_mod
    ! Phases of StateItemDescriptor%sync_to_info. STRUCTURAL: before the field
    ! is completed, every keyword may be written. DESCRIPTIVE: any time, so
    ! structural keywords (and units, a FieldDelta trigger) are skipped.
+   ! ADVERTISED: on a Field that is only created, so units are safe to write
+   ! but structural keywords are still skipped.
    integer, parameter :: SYNC_PHASE_STRUCTURAL = 1
    integer, parameter :: SYNC_PHASE_DESCRIPTIVE = 2
+   integer, parameter :: SYNC_PHASE_ADVERTISED = 3
 
    ! rc value of a build_transform that has no Transform for this pair yet.
    ! Distinct from a failure: nothing is raised.

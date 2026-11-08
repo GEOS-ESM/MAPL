@@ -49,7 +49,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      character(:), allocatable :: key
+      character(:), allocatable :: key, leaf
       type(NodeId), pointer :: existing
       type(NodeId) :: id
       type(StateItemNode) :: node
@@ -110,13 +110,15 @@ contains
 
          ! Legacy creates every declared item's Field (empty, not
          ! allocated) at advertise. A name with a slash (a propagated
-         ! name) is not a valid ESMF Field name and is left alone.
+         ! name) gets a Field named by the part after the last slash,
+         ! as legacy names the Field it puts in a substate.
          if (graph_mode() /= GRAPH_MODE_REGISTRY .and. &
-              member_names%size() == 0 .and. &
-              index(var_spec%short_name, '/') == 0) then
+              member_names%size() == 0) then
             if (descriptor%get_declared_item_type() == &
                  MAPL_STATEITEM_FIELD) then
-               call create_field_extension(graph, id, var_spec%short_name, _RC)
+               leaf = var_spec%short_name(index(var_spec%short_name, '/', &
+                    back=.true.)+1:)
+               call create_field_extension(graph, id, leaf, _RC)
             end if
          end if
       class default

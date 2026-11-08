@@ -85,6 +85,15 @@ module Test_GraphBuilderMaterializeGate
    use pfunit
    implicit none(type, external)
 
+   type :: AdvertisePopulationSnapshot
+      logical :: z_created = .false., e_created = .false., i_created = .false.
+      logical :: e_is_node_field = .false.
+      character(:), allocatable :: e_units, e_standard_name, e_long_name
+      character(:), allocatable :: i_units, x_units
+      character(len=ESMF_MAXSTR) :: x_name = ''
+      integer :: import_count = -1, export_count = -1, a_count = -1
+   end type AdvertisePopulationSnapshot
+
 contains
 
    @Test(type=ESMF_TestMethod, npes=[1])
@@ -1731,6 +1740,399 @@ contains
       end select
    end subroutine get_node_field
 
+   ! Builds one component with an internal Z, an export E, an import I and a
+   ! qualified import A/X, advertised in GRAPH mode and not connected. The
+   ! caller sets graph mode and the switch first: advertise reads them.
+   subroutine make_advertise_population_fixture(name, meta, states, rc)
+      character(*), intent(in) :: name
+      type(OuterMetaComponent), pointer, intent(out) :: meta
+      type(MultiState), intent(out) :: states
+      integer, intent(out) :: rc
+
+      type(ESMF_GridComp) :: gc
+      type(ComponentSpec), pointer :: spec
+      type(VariableSpec) :: var_spec
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: import_state, export_state, internal_state
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      _VERIFY(status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      _VERIFY(status)
+      call GeomSetId(geom, 311, rc=status)
+      _VERIFY(status)
+
+      call make_outer_meta(name, gc, meta, _RC)
+      spec => meta%get_component_spec()
+      var_spec = make_var(ESMF_STATEINTENT_INTERNAL, 'Z', units='m')
+      var_spec%geom = geom
+      call spec%add_var_spec(var_spec)
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'E', units='K')
+      var_spec%geom = geom
+      var_spec%standard_name = 'air_temperature'
+      var_spec%long_name = 'Air temperature'
+      call spec%add_var_spec(var_spec)
+      var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'I', units='K')
+      var_spec%geom = geom
+      call spec%add_var_spec(var_spec)
+      var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'A/X', units='m')
+      var_spec%geom = geom
+      call spec%add_var_spec(var_spec)
+
+      call gb%advertise(meta, _RC)
+
+      import_state = ESMF_StateCreate(name='import', rc=status)
+      _VERIFY(status)
+      export_state = ESMF_StateCreate(name='export', rc=status)
+      _VERIFY(status)
+      internal_state = ESMF_StateCreate(name='internal', rc=status)
+      _VERIFY(status)
+      states = MultiState(importState=import_state, exportState=export_state, &
+           internalState=internal_state)
+
+      rc = 0
+   end subroutine make_advertise_population_fixture
+
+   ! Everything the advertise-time populate needs to be checked on: the
+   ! items in the three user states, what each holds, and the export node.
+   subroutine read_advertise_population(meta, states, snapshot, rc)
+      type(OuterMetaComponent), pointer, intent(in) :: meta
+      type(MultiState), intent(inout) :: states
+      type(AdvertisePopulationSnapshot), intent(out) :: snapshot
+      integer, intent(out) :: rc
+
+      type(ESMF_Field) :: z_field, e_field, i_field, x_field, e_node
+      type(ESMF_State) :: a_state
+      type(MAPL_StateItemAllocation) :: z_alloc, e_alloc, i_alloc
+      integer :: status, st(8)
+
+      st = 0
+      call ESMF_StateGet(states%internalState, 'Z', z_field, rc=st(1))
+      call ESMF_StateGet(states%exportState, 'E', e_field, rc=st(2))
+      call ESMF_StateGet(states%importState, 'I', i_field, rc=st(3))
+      call ESMF_StateGet(states%importState, 'A', a_state, rc=st(4))
+      call ESMF_StateGet(a_state, 'X', x_field, rc=st(5))
+      call get_node_field(meta, ESMF_STATEINTENT_EXPORT, 'E', e_node, st(6))
+      call ESMF_StateGet(states%importState, itemCount=snapshot%import_count, &
+           rc=st(7))
+      call ESMF_StateGet(states%exportState, itemCount=snapshot%export_count, &
+           rc=st(8))
+      if (any(st /= 0)) then
+         rc = maxval(abs(st))
+         return
+      end if
+
+      call get_allocation_status(z_field, z_alloc, st(1))
+      call get_allocation_status(e_field, e_alloc, st(2))
+      call get_allocation_status(i_field, i_alloc, st(3))
+      snapshot%z_created = (z_alloc == MAPL_STATEITEM_ALLOCATION_CREATED)
+      snapshot%e_created = (e_alloc == MAPL_STATEITEM_ALLOCATION_CREATED)
+      snapshot%i_created = (i_alloc == MAPL_STATEITEM_ALLOCATION_CREATED)
+      call MAPL_FieldGet(e_field, units=snapshot%e_units, &
+           standard_name=snapshot%e_standard_name, &
+           long_name=snapshot%e_long_name, rc=st(4))
+      call MAPL_FieldGet(i_field, units=snapshot%i_units, rc=st(5))
+      call MAPL_FieldGet(x_field, units=snapshot%x_units, rc=st(6))
+      snapshot%e_is_node_field = FieldsAreAliased(e_field, e_node, rc=st(7))
+      call ESMF_FieldGet(x_field, name=snapshot%x_name, rc=st(8))
+      call ESMF_StateGet(a_state, itemCount=snapshot%a_count, rc=status)
+      st(1) = max(abs(st(1)), abs(status))
+      rc = maxval(abs(st))
+   end subroutine read_advertise_population
+
+   ! GRAPH mode, switch on: the own-only populate at advertise puts the own
+   ! created Field of each declared item in the user states, before any
+   ! connection: the internal created and not allocated, the export created
+   ! with units, standard name and long name readable, the import its own
+   ! created Field, and the qualified import A/X as X in substate A. A later
+   ! full populate (the accept_transfer one) leaves the item counts and the
+   ! export Field as they were and the units unchanged.
+   ! Seeded to fail: with the own-only populate off the states are empty;
+   ! with the descriptive keys off the units read back unknown.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_state_own_only_at_advertise(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(MultiState) :: states
+      type(AdvertisePopulationSnapshot) :: early, late
+      integer :: status, status_early, status_late
+      type(GraphBuilder) :: gb
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_advertise_population_fixture('comp_adv_pop', meta, states, &
+           status)
+      @assert_that(status, is(0))
+
+      call gb%populate_state(meta, states, status, own_only=.true.)
+      @assert_that(status, is(0))
+      call read_advertise_population(meta, states, early, status_early)
+
+      ! The accept_transfer populate, twice (it runs twice).
+      call gb%populate_state(meta, states, status)
+      @assert_that(status, is(0))
+      call gb%populate_state(meta, states, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assert_that(status, is(0))
+      call read_advertise_population(meta, states, late, status_late)
+
+      @assertEqual(0, status_early)
+      @assertEqual(0, status_late)
+      @assertTrue(early%z_created)
+      @assertTrue(early%e_created)
+      @assertTrue(early%i_created)
+      @assertEqual('K', early%e_units)
+      @assertEqual('air_temperature', early%e_standard_name)
+      @assertEqual('Air temperature', early%e_long_name)
+      @assertEqual('K', early%i_units)
+      @assertEqual('m', early%x_units)
+      @assertEqual('X', trim(early%x_name))
+      @assertEqual(2, early%import_count)
+      @assertEqual(1, early%a_count)
+      @assertEqual(1, early%export_count)
+      @assertTrue(early%e_is_node_field)
+
+      ! Repeating at accept_transfer: same export Field, same units, same
+      ! counts. The internal is now completed, so it is no longer created.
+      @assertTrue(late%e_is_node_field)
+      @assertEqual('K', late%e_units)
+      @assertEqual('air_temperature', late%e_standard_name)
+      @assertEqual('Air temperature', late%e_long_name)
+      @assertEqual('K', late%i_units)
+      @assertEqual('m', late%x_units)
+      @assertEqual(early%import_count, late%import_count)
+      @assertEqual(early%export_count, late%export_count)
+      @assertEqual(early%a_count, late%a_count)
+      @assertFalse(late%z_created)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_populate_state_own_only_at_advertise
+
+   ! Switch OFF: the own-only populate is a no-op. Nothing is inserted into
+   ! the user states, and the Fields the graph created at advertise stay
+   ! undescribed: no units are written onto them (legacy owns those Fields
+   ! when the switch is off).
+   ! Seeded to fail: an own-only populate that ignored the switch writes the
+   ! declared units onto the export and import Fields.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_state_own_only_off_changes_nothing(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(MultiState) :: states
+      type(ESMF_Field) :: e_node, i_node
+      character(:), allocatable :: e_units, i_units
+      integer :: status, import_count, export_count, internal_count
+      integer :: st_i, st_e, st_z, st_en, st_in, st_eu, st_iu
+      type(GraphBuilder) :: gb
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+      call make_advertise_population_fixture('comp_adv_pop_off', meta, &
+           states, status)
+      @assert_that(status, is(0))
+
+      call gb%populate_state(meta, states, status, own_only=.true.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assert_that(status, is(0))
+
+      call ESMF_StateGet(states%importState, itemCount=import_count, rc=st_i)
+      call ESMF_StateGet(states%exportState, itemCount=export_count, rc=st_e)
+      call ESMF_StateGet(states%internalState, itemCount=internal_count, &
+           rc=st_z)
+      call get_node_field(meta, ESMF_STATEINTENT_EXPORT, 'E', e_node, st_en)
+      call get_node_field(meta, ESMF_STATEINTENT_IMPORT, 'I', i_node, st_in)
+      @assertEqual(0, st_i)
+      @assertEqual(0, st_e)
+      @assertEqual(0, st_z)
+      @assertEqual(0, st_en)
+      @assertEqual(0, st_in)
+      call MAPL_FieldGet(e_node, units=e_units, rc=st_eu)
+      call MAPL_FieldGet(i_node, units=i_units, rc=st_iu)
+      @assertEqual(0, st_eu)
+      @assertEqual(0, st_iu)
+      @assertEqual(0, import_count)
+      @assertEqual(0, export_count)
+      @assertEqual(0, internal_count)
+      ! No declared units reached the graph-created Fields.
+      @assertFalse(allocated(e_units))
+      @assertFalse(allocated(i_units))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_populate_state_own_only_off_changes_nothing
+
+   ! Three levels, switch on, population in lifecycle order (children
+   ! first). P declares MID and SRC; MID declares DST and SRC2. P connects
+   ! SRC.T to MID/DST.T (a grandchild import: the edge is in P only); MID
+   ! connects SRC2.X to DST.X (the edge is in MID only). After MID then P
+   ! have populated, DST holds the producer Field for T (reached from P
+   ! through the descendant walk) and still holds SRC2 Field for X: the P
+   ! pass sees no producer for X in its own network and must not replace it
+   ! with an own created Field.
+   ! Seeded to fail: with the walk limited to direct children, T is absent
+   ! from DST; with the no-fallback rule off, X is no longer SRC2 Field.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_state_reaches_grandchild_without_replacing(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: p_meta, mid_meta, src_meta
+      type(OuterMetaComponent), pointer :: src2_meta, dst_meta
+      type(GriddedComponentDriver), pointer :: dst_own_driver
+      type(MultiState) :: dst_states, p_states, mid_states
+      type(ESMF_Field) :: t_state, x_state, t_node, x_node
+      logical :: t_same, x_same
+      integer :: status, st(6)
+      type(GraphBuilder) :: gb
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_three_level_fixture(p_meta, mid_meta, src_meta, src2_meta, &
+           dst_meta, status)
+      @assert_that(status, is(0))
+
+      p_states = make_plain_states('p')
+      mid_states = make_plain_states('mid')
+      call gb%populate_state(mid_meta, mid_states, status)
+      @assert_that(status, is(0))
+      call gb%populate_state(p_meta, p_states, status)
+      @assert_that(status, is(0))
+      call gb%populate_state(p_meta, p_states, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assert_that(status, is(0))
+
+      dst_own_driver => dst_meta%get_user_gc_driver()
+      dst_states = dst_own_driver%get_states()
+      call ESMF_StateGet(dst_states%importState, 'T', t_state, rc=st(1))
+      call ESMF_StateGet(dst_states%importState, 'X', x_state, rc=st(2))
+      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'T', t_node, st(3))
+      call get_node_field(src2_meta, ESMF_STATEINTENT_EXPORT, 'X', x_node, &
+           st(4))
+      t_same = FieldsAreAliased(t_state, t_node, rc=st(5))
+      x_same = FieldsAreAliased(x_state, x_node, rc=st(6))
+      @assertEqual(0, st(1))
+      @assertEqual(0, st(2))
+      @assertEqual(0, st(3))
+      @assertEqual(0, st(4))
+      @assertEqual(0, st(5))
+      @assertEqual(0, st(6))
+      @assertTrue(t_same)
+      @assertTrue(x_same)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_populate_state_reaches_grandchild_without_replacing
+
+   function make_plain_states(prefix) result(states)
+      character(*), intent(in) :: prefix
+      type(MultiState) :: states
+
+      type(ESMF_State) :: import_state, export_state, internal_state
+      integer :: status
+
+      import_state = ESMF_StateCreate(name=prefix // '_import', rc=status)
+      export_state = ESMF_StateCreate(name=prefix // '_export', rc=status)
+      internal_state = ESMF_StateCreate(name=prefix // '_internal', rc=status)
+      states = MultiState(importState=import_state, exportState=export_state, &
+           internalState=internal_state)
+   end function make_plain_states
+
+   ! P holds SRC (export T) and MID; MID holds SRC2 (export X) and DST
+   ! (imports T and X). Advertised deepest first, connections resolved MID
+   ! then P, as the lifecycle does.
+   subroutine make_three_level_fixture(p_meta, mid_meta, src_meta, &
+        src2_meta, dst_meta, rc)
+      type(OuterMetaComponent), pointer, intent(out) :: p_meta, mid_meta
+      type(OuterMetaComponent), pointer, intent(out) :: src_meta, src2_meta
+      type(OuterMetaComponent), pointer, intent(out) :: dst_meta
+      integer, intent(out) :: rc
+
+      type(ESMF_GridComp) :: p_gc, gc
+      type(GriddedComponentDriver) :: driver
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: spec
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved
+      type(VariableSpec) :: var_spec
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      _VERIFY(status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      _VERIFY(status)
+      call GeomSetId(geom, 312, rc=status)
+      _VERIFY(status)
+
+      call make_outer_meta('comp_three_level_p', p_gc, p_meta, _RC)
+      child_spec = ChildSpec()
+      call p_meta%add_child('SRC', child_spec, _RC)
+      child_spec = ChildSpec()
+      call p_meta%add_child('MID', child_spec, _RC)
+      driver = p_meta%get_child('SRC', _RC)
+      gc = driver%get_gridcomp()
+      src_meta => get_outer_meta(gc, _RC)
+      driver = p_meta%get_child('MID', _RC)
+      gc = driver%get_gridcomp()
+      mid_meta => get_outer_meta(gc, _RC)
+
+      child_spec = ChildSpec()
+      call mid_meta%add_child('SRC2', child_spec, _RC)
+      child_spec = ChildSpec()
+      call mid_meta%add_child('DST', child_spec, _RC)
+      driver = mid_meta%get_child('SRC2', _RC)
+      gc = driver%get_gridcomp()
+      src2_meta => get_outer_meta(gc, _RC)
+      driver = mid_meta%get_child('DST', _RC)
+      gc = driver%get_gridcomp()
+      dst_meta => get_outer_meta(gc, _RC)
+
+      spec => src_meta%get_component_spec()
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
+      var_spec%geom = geom
+      call spec%add_var_spec(var_spec)
+      spec => src2_meta%get_component_spec()
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'X', units='m')
+      var_spec%geom = geom
+      call spec%add_var_spec(var_spec)
+      spec => dst_meta%get_component_spec()
+      call spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T', units='m'))
+      call spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'X', units='m'))
+
+      call gb%advertise(src_meta, _RC)
+      call gb%advertise(src2_meta, _RC)
+      call gb%advertise(dst_meta, _RC)
+      call gb%advertise(mid_meta, _RC)
+      call gb%advertise(p_meta, _RC)
+
+      conn = MatchConnection( &
+           ConnectionPt('SRC2', VirtualConnectionPt(state_intent='export', &
+           short_name='X')), &
+           ConnectionPt('DST', VirtualConnectionPt(state_intent='import', &
+           short_name='X')))
+      spec => mid_meta%get_component_spec()
+      call spec%add_connection(conn)
+      call gb%resolve_connections(mid_meta, unresolved_imports=unresolved, &
+           _RC)
+
+      conn = MatchConnection( &
+           ConnectionPt('SRC', VirtualConnectionPt(state_intent='export', &
+           short_name='T')), &
+           ConnectionPt('MID/DST', VirtualConnectionPt(state_intent='import', &
+           short_name='T')))
+      spec => p_meta%get_component_spec()
+      call spec%add_connection(conn)
+      call gb%resolve_connections(p_meta, unresolved_imports=unresolved, _RC)
+
+      rc = 0
+   end subroutine make_three_level_fixture
+
    ! Switch OFF (production): legacy has filled the user states. Population
    ! must leave legacy Fields where they are: INTERNAL is not touched, a
    ! created-only export does not replace legacy's, and the connected export
@@ -1766,6 +2168,9 @@ contains
       src_own_driver => src_meta%get_user_gc_driver()
       src_states = src_own_driver%get_states()
 
+      ! The advertise-time own-only populate does nothing with the switch off.
+      call gb%populate_state(src_meta, src_states, status, own_only=.true.)
+      @assert_that(status, is(0))
       call gb%populate_state(parent_meta, parent_states, status)
       @assert_that(status, is(0))
       call gb%populate_state(src_meta, src_states, status)

@@ -1294,7 +1294,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` (NAG, pending target,
       graph and both modes); the table flag is unchanged. No second
       failure was found. NAG and gfortran ESSENTIAL 69/69.
-- [ ] 3.44 B3-AdvertisePopulation (found by 3.41b review, 2026-11-07;
+- [x] 3.44 B3-AdvertisePopulation (found by 3.41b review, 2026-11-07;
       before any graph-only default). With the switch on the graph must
       populate the user states at advertise, as legacy `add_to_states`
       does at advertise (`initialize_advertise.F90:116`), because user
@@ -1319,6 +1319,112 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       Field at advertise, named by the part after the last slash (verify
       ESMF accepts it); switch off is unchanged. For `history_1`, first
       read the failing run's log for `populate_state` errors.
+      Status: done. `initialize_advertise.F90` now calls
+      `run_populate_state_hook(this, user_states, own_only=.true.)` at the
+      end of ADVERTISE when the switch is on (legacy `add_to_states`
+      otherwise). Hook style, not `_RC`: a failure is logged and advertise
+      continues, like the other graph hooks; accept_transfer populates again.
+      A swallowed failure resurfaces as status 41 in the user gridcomp that
+      reads its own state in INIT_MODIFY_ADVERTISED; the log
+      warning `GraphBuilder: populate_state step failed with rc=...` is the
+      clue.
+      `populate_state` and the hook gained an optional `own_only` (after
+      `rc`, so existing callers are unchanged). Own-only: no child walk, no
+      `prepare_created_field` (no describe, no complete, no allocation), and
+      a no-op with the switch off. Instead each Field gets the descriptive
+      keys through a new `SYNC_PHASE_ADVERTISED` (`write_advertised_keys` in
+      `ExtensionMaterialization.F90`): the non-structural keys only (units,
+      standard name, long name, restart mode, ...), never geom or typekind.
+      `PhysicalUnitsCharacteristic%write_info` writes units in STRUCTURAL
+      and ADVERTISED only; the existing DESCRIPTIVE phase still skips them
+      (units on a completed Field enter FieldDelta). Repeating the writes at
+      accept_transfer is harmless: tested by populating twice more after
+      the advertise-time call (same export Field, same units, standard name
+      and long name, same item counts). `populate_one` is substate-aware
+      (helper `get_target_substate`, shared with `populate_export_port`): a
+      qualified import `A/E_A1` is inserted as `E_A1` in substate `A`, for
+      every intent. A declared name with a slash now gets a created Field at
+      advertise, named by the part after the last slash (ESMF accepts it).
+      Deviation, needed by `statistics`: the accept_transfer walk over
+      children now recurses to every descendant (`populate_descendants`),
+      each with the network of the component whose hook runs, because the
+      dependency edge of a grandchild import such as `history/collection_1`
+      `A/T` lives in the grandparent network. Below the direct children an
+      import with no producer in that network gets no own-created fallback
+      (an ancestor that does resolve it inserts the right Field; the
+      fallback would replace it). Switch off is unchanged.
+      The switch-off guard (`populate_state` returns early for own-only
+      with the switch off) prevents the key write onto graph-created
+      Fields, not an insertion: with it off, `populate_one` would write the
+      declared units onto the node Fields and then return at the
+      created-only check, inserting nothing.
+      Tests (each mutation-checked): `test_populate_state_own_only_at_advertise`
+      (before connect: internal created and not allocated, export created
+      with units, standard name and long name readable and the same Field
+      as its node, import its own created Field, `A/X` as `X` in substate
+      `A`; after two accept_transfer populates the counts, the export Field
+      and the keys are unchanged and the internal is completed; fails with
+      the own-only populate or the key write off);
+      `test_populate_state_own_only_off_changes_nothing` (nothing inserted
+      and no units written on the node Fields; fails with the switch guard
+      removed); the own-only call added to
+      `test_populate_state_switch_off_keeps_legacy_fields`;
+      `test_populate_state_reaches_grandchild_without_replacing` (three
+      levels, switch on: the grandchild import `T`, whose edge is only in
+      the top network, gets the producer Field, and `X`, resolved only in
+      the middle network, keeps the lower Field; fails with the recursion
+      removed and, separately, with the no-fallback rule removed);
+      `test_switch_on_user_reads_own_export_at_modify_advertised` (runs the
+      first three init phases of the `statistics` tree with the switch on,
+      so the `initialize_advertise.F90` branch is wired; fails with the
+      advertise-time call removed; lives in `Test_GraphModeDemonstration.pf`,
+      part of the scenarios target, which is ESSENTIAL);
+      `test_advertise_creates_field_for_slash_name` (fails with the slash
+      skip back); `test_sync_advertised_writes_units` and
+      `test_sync_advertised_skips_typekind`.
+      Scenarios with the switch ON (NAG, one at a time): `statistics`
+      passes (gfortran too); `scenario_1`, `scenario_2`,
+      `scenario_reexport_twice` and `propagate_geom` still pass.
+      `history_1` still fails two checks. [status] `B/E_B3` stays gridset:
+      the log shows no extension provider for the VERTICAL_GRID mismatch,
+      the known no-vertical-regrid limit. [value] `A/E_A1` reads 1 where
+      100 is expected (m to cm). Suspicion S1 (an ancestor pass replacing a
+      converted Field with the raw export) is ruled out by logging every
+      pass for `A/E_A1`: the pass at `history` (direct child, network
+      without the edge) finds no producer and inserts the import own
+      created Field; the pass at the top (descendant, network with the
+      edge) walks five hops and inserts an unnamed chain tip, complete,
+      never the raw export Field. The tip holds 1.0 as R8 and the raw
+      export 1.0 as R4, so the chain exists but its conversion has not
+      run. That is a run-phase effect: the pull hook
+      (`graphbuilder_run_pull_hook`) walks only the direct children of each
+      component, so the grandchild `collection_1` import `A/E_A1` is never
+      updated. An experiment (not kept) making the pull recursive made the
+      [value] check pass and left only [status] `B/E_B3`. Not fixed here;
+      follow-up for the pull hook (a candidate for its own task).
+      (`units_mismatch_run_phase` fails on an export value,
+      `comp_src::export::T`, a different class: 3.42.)
+      `graphbuilder_propagation`: its 3.41b failure (populate reached direct
+      children only, so a grandchild import got its own empty Field) is
+      fixed by `populate_descendants`; it now fails a different check, the
+      `comp_src` export `T` [value] (outer-state class, 3.42).
+      `history_wildcard` still fails [item type] for the collection imports
+      (wildcard members) and [status] for `root/A` exports; `extdata_1`
+      still fails in the run phase (`ProtoExtDataGC.F90:220`, status 41);
+      `vector_1` still fails [item type] (bundle). The other 3.41b worklist
+      results are unchanged. Known limits: Field items only (bundles,
+      states, vectors and composites are not populated at advertise or
+      later); items a user gridcomp advertises itself with
+      `mapl_GridCompAdvertiseVariable` are not in the graph, so not
+      populated; legacy `user` mode skips propagated (`comp_name`) families
+      and the own-only populate does not (3.41b, 3.42). Suspicion S2 (a
+      Field handle cached at advertise going stale): the only caller of
+      `rebuild_field_extension` is `set_shared_characteristic` (structural
+      change), which no production code calls; and `rebuild_field_extension`
+      returns at once for a Field that is only created, so a Field made at
+      advertise is never replaced there. `materialize_field_extension`
+      completes a created Field in place. No stale handle found.
+      `graph_ready` flags are unchanged. NAG and gfortran ESSENTIAL 69/69.
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the

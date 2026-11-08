@@ -112,9 +112,14 @@ contains
       call gb%run_export_propagate_hook(this)
       call this%registry%propagate_exports(_RC)
 
-      ! Graph-owned user states are filled by graph population instead.
-      if (.not. graph_populates_user_states()) then
-         user_states = this%user_gc_driver%get_states()
+      ! Graph-owned user states: the graph inserts each item's created Field
+      ! now, legacy otherwise.
+      user_states = this%user_gc_driver%get_states()
+      if (graph_populates_user_states()) then
+         ! A user component reads its own states in INIT_MODIFY_ADVERTISED.
+         ! A failure is reported and not fatal, like the other graph hooks.
+         call gb%run_populate_state_hook(this, user_states, own_only=.true.)
+      else
          call this%registry%add_to_states(user_states, mode='user', _RC)
       end if
 

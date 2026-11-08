@@ -11,7 +11,8 @@
 !------------------------------------------------------------------------------
 module mapl_PhysicalUnitsCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
-   use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL
+   use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL, &
+        SYNC_PHASE_ADVERTISED
    use mapl_CharacteristicStatus_mod, only: operator(==), &
         CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_UNCHECKED
    use mapl_GraphStateItem_mod, only: GraphStateItem
@@ -112,8 +113,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine units_build_transform
 
-   ! Written only in the STRUCTURAL phase: units= on a completed field enters
-   ! FieldDelta.
+   ! Written only in the STRUCTURAL and ADVERTISED phases: units= on a
+   ! completed field enters FieldDelta.
    subroutine units_write_info(this, handle, phase, rc)
       class(PhysicalUnitsCharacteristic), intent(in) :: this
       type(GraphStateItem), intent(inout) :: handle
@@ -126,7 +127,10 @@ contains
       type(ESMF_Field) :: field
       type(ESMF_FieldBundle) :: bundle
 
-      _RETURN_UNLESS(phase == SYNC_PHASE_STRUCTURAL)
+      if (phase /= SYNC_PHASE_STRUCTURAL .and. &
+           phase /= SYNC_PHASE_ADVERTISED) then
+         _RETURN(_SUCCESS)
+      end if
 
       units = this%get_units()
       if (this%get_status() == CHARACTERISTIC_STATUS_UNCHECKED) units = UNKNOWN_UNITS
