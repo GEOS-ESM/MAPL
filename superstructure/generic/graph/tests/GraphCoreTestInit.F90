@@ -8,6 +8,7 @@
 module GraphCoreTestInit_mod
    use ESMF, only: ESMF_Initialize, ESMF_Finalize, ESMF_LOGKIND_NONE, ESMF_SUCCESS
    use udunits2f, only: UDUNITS_Initialize => Initialize
+   use pflogger, only: pfl_initialize => initialize
    implicit none(type, external)
 
 contains
@@ -28,6 +29,9 @@ contains
 
       call UDUNITS_Initialize(rc=status)
       if (status /= 0) error stop 'GraphCoreTestInit_mod: udunits2f Initialize failed'
+
+      ! Code under test may log warnings; pflogger aborts if never set up.
+      call pfl_initialize()
    end subroutine GraphCoreTest_Initialize
 
    subroutine GraphCoreTest_Finalize()

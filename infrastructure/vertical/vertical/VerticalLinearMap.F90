@@ -33,21 +33,31 @@ contains
    ! Compute linear interpolation transformation matrix,
    ! src*matrix = dst, when regridding (vertical) from src to dst
    ! NOTE: find_bracket_ below handles monotonic src arrays (increasing or decreasing)
-   subroutine compute_linear_map(src, dst, matrix, rc)
+   ! allow_out_of_range: dst values outside src's range take the nearest
+   ! end value (what release builds already do) instead of failing debug.
+   subroutine compute_linear_map(src, dst, matrix, allow_out_of_range, rc)
       real(REAL32), intent(in) :: src(:)
       real(REAL32), intent(in) :: dst(:)
       type(SparseMatrix_sp), intent(out) :: matrix
       ! real(REAL32), allocatable, intent(out) :: matrix(:, :)
+      logical, optional, intent(in) :: allow_out_of_range
       integer, optional, intent(out) :: rc
 
       real(REAL32) :: val, weight(2)
       integer :: ndx
       type(IndexValuePair) :: pair(2)
-
 #ifndef NDEBUG
-      _ASSERT(maxval(dst) <= maxval(src), "maxval(dst) > maxval(src)")
-      _ASSERT(minval(dst) >= minval(src), "minval(dst) < minval(src)")
+      logical :: check_range
+
+      check_range = .true.
+      if (present(allow_out_of_range)) check_range = .not. allow_out_of_range
+      if (check_range) then
+         _ASSERT(maxval(dst) <= maxval(src), "maxval(dst) > maxval(src)")
+         _ASSERT(minval(dst) >= minval(src), "minval(dst) < minval(src)")
+      end if
       ! _ASSERT(is_decreasing(src), "src array is not decreasing")
+#else
+      _UNUSED_DUMMY(allow_out_of_range)
 #endif
 
       ! allocate(matrix(size(dst), size(src)), source=0., _STAT)

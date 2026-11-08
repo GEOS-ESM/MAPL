@@ -41,6 +41,7 @@ module mapl_FixedLevelsVerticalGrid_mod
        procedure :: get_units
        procedure :: get_num_layers
        procedure :: get_coordinate_field
+       procedure :: get_column_coordinate
        procedure :: get_supported_physical_dimensions
        procedure :: matches
     end type FixedLevelsVerticalGrid
@@ -194,6 +195,20 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(physical_dimension)
    end function get_coordinate_field
+
+   subroutine get_column_coordinate(this, physical_dimension, levels, rc)
+      class(FixedLevelsVerticalGrid), intent(in) :: this
+      character(*), intent(in) :: physical_dimension
+      real, allocatable, intent(out) :: levels(:)
+      integer, optional, intent(out) :: rc
+
+      if (physical_dimension /= this%get_physical_dimension()) then
+         _FAIL('Unsupported physical dimension: ' // physical_dimension)
+      end if
+      levels = this%spec%levels
+
+      _RETURN(_SUCCESS)
+   end subroutine get_column_coordinate
 
    function get_supported_physical_dimensions(this) result(dimensions)
       type(StringVector) :: dimensions

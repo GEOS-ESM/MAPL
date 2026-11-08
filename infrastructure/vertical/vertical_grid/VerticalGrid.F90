@@ -23,6 +23,7 @@ module mapl_VerticalGrid_mod
       procedure :: set_coordinate_direction
       procedure :: get_primary_coordinate
       procedure :: set_primary_coordinate
+      procedure :: get_column_coordinate
       procedure(I_get_coordinate_field), deferred :: get_coordinate_field
       procedure(I_get_supported_physical_dimensions), deferred :: get_supported_physical_dimensions
       procedure(I_get_units), deferred :: get_units
@@ -136,5 +137,18 @@ contains
       
       this%primary_coordinate = primary_coordinate
    end subroutine set_primary_coordinate
+
+   ! Level values of one column, in grid index order, for grids whose
+   ! levels are the same in every column. Other grids report failure.
+   subroutine get_column_coordinate(this, physical_dimension, levels, rc)
+      class(VerticalGrid), intent(in) :: this
+      character(*), intent(in) :: physical_dimension
+      real, allocatable, intent(out) :: levels(:)
+      integer, optional, intent(out) :: rc
+
+      _FAIL('vertical grid has no column coordinate for ' // physical_dimension)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(levels)
+   end subroutine get_column_coordinate
 end module mapl_VerticalGrid_mod
 
