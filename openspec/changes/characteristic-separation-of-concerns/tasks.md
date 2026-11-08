@@ -1236,6 +1236,27 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       each INTERNAL is allocated twice, once by the graph and once by
       legacy's `registry%allocate`, so restart or history readers that go
       through the registry see legacy's Field; both must be closed here.
+      Preflight done; owner decisions (2026-11-07), one task (not split):
+      (1) the graph writes the outer states by reusing `populate_one` and
+      `populate_export_ports` on the outer MultiState (a third populate
+      call at `initialize_accept_transfer.F90` or an outer flag, gated by
+      `graph_populates_user_states()`; legacy outer `add_to_states` at
+      `initialize_realize_accepted.F90` skipped when the switch is on;
+      INTERNAL items and the child walk skipped), so the user and outer
+      aliases share one Field (`plain_field`; test with
+      `mapl_FieldsAreAliased`); (2) a propagated child export (a port
+      name with a slash) leaves the USER export pass of the 3.41b port
+      walk and goes only to the OUTER export state, as legacy does
+      (`StateRegistry_Actions_smod.F90:73`); this corrects 3.41b and
+      changes the scenario-parity difference row and the ARCHITECTURE
+      limitation; (3) the position-labelled names (`T(1)`, `T(2)`,
+      `I_A1(1)`) are NOT written by the graph: add a `legacy_only` marker
+      to those expectation items (about 63 entries in 19 files) that
+      `Test_Scenarios` skips when the graph owns the states; (4) the
+      INTERNAL double allocation is closed by (1): no graph-side reader
+      sees the registry's Field, which stays an unread shadow until the
+      legacy spec path is retired. Flips `plain_field`; `units_*` and
+      `invalidate` need the marker.
 - [x] 3.43 B3-VerticalOrientationSync (found by 3.41a, 2026-11-07).
       Creating Fields for imports exposed a disagreement:
       `get_incomplete_kinds()` reports the descriptor complete, but its
@@ -1283,6 +1304,21 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       first: what must be complete at advertise (descriptors, geoms), and
       qualified names for `history_1` (declared names with a slash have
       no Field today). Author sonnet (sonnet review).
+      Preflight done; owner decisions (2026-11-07): (1) at advertise the
+      graph also writes the descriptive-phase keys (units, standard name,
+      long name; not geometry or typekind) onto the Field, as legacy's
+      `update_payload_from_aspects` does; the author tests that repeating
+      it at accept_transfer is harmless; (2) Field items only: bundles,
+      states and vectors stay with later work and are recorded as a known
+      limit (`vector_1` stays pending). Design from the preflight: populate
+      at the end of ADVERTISE, after export propagation
+      (`initialize_advertise.F90:115-119`), in an own-only insert mode (no
+      describe or complete, no child walk); `populate_one` becomes
+      substate-aware, so a qualified import such as `A/E_A1` goes into
+      substate `A` as legacy does; a declared name with a slash gets a
+      Field at advertise, named by the part after the last slash (verify
+      ESMF accepts it); switch off is unchanged. For `history_1`, first
+      read the failing run's log for `populate_state` errors.
 - [x] 3.13 B3-LongName (A8; after 3.18). Default chain: declared, field
       dictionary, then StandardName; string mirror on imports. Per-alias
       `write_info`. Reuse `MAPL_STRING_MIRROR` (one constant, owner) the

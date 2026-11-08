@@ -1804,7 +1804,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-InternalReexport | sonnet | opus | tasks.md 3.33; after B4 |
 | B3-FieldPerNode | sonnet | opus | tasks.md 3.41a; after 3.33; every node gets a created Field, INTERNAL populated |
 | B3-ExportPortPopulation | sonnet | opus | tasks.md 3.41b; after 3.41a; state population walks export ports |
-| B3-OuterStatePopulation | sonnet | sonnet | tasks.md 3.42; low priority, preflight first |
+| B3-OuterStatePopulation | sonnet | sonnet | tasks.md 3.42; low priority; preflight done, one task; outer states from the graph, labelled names via a legacy_only marker |
 | B3-VerticalOrientationSync | sonnet | sonnet | tasks.md 3.43; found by 3.41a; owner chose to skip an UNSPECIFIED direction in write_info |
 | B3-AdvertisePopulation | sonnet | sonnet | tasks.md 3.44; found by 3.41b; graph populates user states at advertise when the switch is on; preflight first |
 | B3-FillValue | sonnet | sonnet | tasks.md 3.34; with or after 4.2 |
