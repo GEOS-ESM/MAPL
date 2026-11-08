@@ -35,7 +35,11 @@ module Test_Scenarios
                                !mapl_GridCompGeta, &
                                !mapl_GridcompGetResource
    use mapl_ESMF_Utilities_mod
-   use mapl_geom_api, only: mapl_GeomGet
+   use mapl_geom_api, only: mapl_GeomGet, mapl_GeomGetId, mapl_GeomId
+   use mapl_vertical_grid_api, only: mapl_VerticalGrid
+   use mapl_VerticalAlignment_mod, only: VerticalAlignment, operator(/=)
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, &
+        VERTICAL_STAGGER_NONE, operator(/=)
    use mapl_field_api, only: MAPL_FieldGet
    use mapl_field_bundle_api, only: MAPL_FieldBundleGet
    use esmf
@@ -74,6 +78,9 @@ module Test_Scenarios
       character(:), allocatable :: expected_exception
       ! Legacy import couplers can block graph-only capabilities.
       logical :: graph_only = .false.
+      ! In graph mode the graph owns the user states, so the checks read
+      ! what the graph produced (e.g. a graph-regridded import).
+      logical :: graph_owns_user_states = .false.
    end type ScenarioEntry
 
    @testParameter
@@ -83,6 +90,7 @@ module Test_Scenarios
       character(:), allocatable :: graph_mode
       character(:), allocatable :: check_name
       logical :: permissive = .false.
+      logical :: graph_owns_user_states = .false.
       character(:), allocatable :: expected_exception
       procedure(I_check_stateitem), nopass, pointer :: check_stateitem
    contains
@@ -96,6 +104,7 @@ module Test_Scenarios
       character(:), allocatable :: graph_mode
       character(:), allocatable :: check_name
       logical :: permissive = .false.
+      logical :: graph_owns_user_states = .false.
       character(:), allocatable :: expected_exception
       type(FieldDictionaryConfig) :: saved_fd_config
       procedure(I_check_stateitem), nopass, pointer :: check_stateitem
@@ -127,12 +136,13 @@ contains
       s%graph_mode = desc%graph_mode
       s%check_name = desc%check_name
       s%permissive = desc%permissive
+      s%graph_owns_user_states = desc%graph_owns_user_states
       if (allocated(desc%expected_exception)) s%expected_exception = desc%expected_exception
       s%check_stateitem => desc%check_stateitem
    end function new_Scenario
 
    function new_ScenarioDescription(name, root, graph_mode, check_name, check_stateitem, &
-        permissive, expected_exception) result(s)
+        permissive, expected_exception, graph_owns_user_states) result(s)
       type(ScenarioDescription) :: s
       character(*), intent(in) :: name
       character(*), intent(in) :: root
@@ -141,6 +151,7 @@ contains
       procedure(I_check_stateitem) :: check_stateitem
       logical, optional, intent(in) :: permissive
       character(*), optional, intent(in) :: expected_exception
+      logical, optional, intent(in) :: graph_owns_user_states
       s%name = name
       s%root = root
       s%graph_mode = graph_mode
@@ -148,6 +159,8 @@ contains
       s%check_stateitem => check_stateitem
       if (present(permissive)) s%permissive = permissive
       if (present(expected_exception)) s%expected_exception = expected_exception
+      if (present(graph_owns_user_states)) &
+           s%graph_owns_user_states = graph_owns_user_states
 
       call s%setNumPETsRequested(1)
    end function new_ScenarioDescription
@@ -159,7 +172,7 @@ contains
            ScenarioEntry('scenario_1',              'parent.yaml',      .true.), &
            ScenarioEntry('scenario_2',              'parent.yaml',      .true.), &
            ScenarioEntry('scenario_reexport_twice', 'grandparent.yaml', .true.), &
-           ScenarioEntry('propagate_geom',          'parent.yaml',      .false.), &
+           ScenarioEntry('propagate_geom',          'parent.yaml',      .true.), &
            ScenarioEntry('vertical_regridding_2',   'parent.yaml',      .false.), &
            ScenarioEntry('vertical_regridding_3',   'AGCM.yaml',        .false.), &
            ScenarioEntry('statistics',              'cap.yaml',         .false.), &
@@ -172,15 +185,17 @@ contains
            ScenarioEntry('service_service',         'parent.yaml',      .false.), &
            ScenarioEntry('service_with_options',    'parent.yaml',      .false.), &
            ScenarioEntry('export_dependency',       'parent.yaml',      .true.), &
-           ScenarioEntry('regrid',                  'cap.yaml',         .false.), &
-           ScenarioEntry('regrid_r8',               'cap.yaml',         .false.), &
+           ScenarioEntry('regrid',                  'cap.yaml',         .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('regrid_r8',               'cap.yaml',         .true., &
+                graph_owns_user_states=.true.), &
            ScenarioEntry('vector_1',                'parent.yaml',      .false.), &
            ScenarioEntry('vertical_regridding',     'parent.yaml',      .false.), &
            ScenarioEntry('vertical_alignment_same_grid', 'parent.yaml', .true.), &
            ScenarioEntry('vertical_alignment_regrid',    'parent.yaml', .false.), &
            ScenarioEntry('vertical_alignment_with_grid', 'parent.yaml', .false.), &
            ScenarioEntry('expression_match',        'parent.yaml',      .true.), &
-           ScenarioEntry('expression_defer_geom',   'parent.yaml',      .false.), &
+           ScenarioEntry('expression_defer_geom',   'parent.yaml',      .true.), &
            ScenarioEntry('invalidate',              'cap.yaml',         .true.), &
            ScenarioEntry('history_1',               'cap.yaml',         .false.), &
            ScenarioEntry('history_wildcard',        'cap.yaml',         .true.), &
@@ -259,6 +274,8 @@ contains
    !   MAPL_SCENARIO_ONLY     scenario name: restrict to that scenario.
    !   MAPL_SCENARIO_GRAPH_OWNS_USER_STATES  set: graph mode runs with the graph
    !                          owning the user states (other modes unaffected).
+   !                          A table entry can also ask for this itself
+   !                          (graph_owns_user_states).
    !   MAPL_SCENARIO_SHARD    "k/N" (0 <= k < N): keep every N-th parameter,
    !                          starting at k, of the list left after the
    !                          filters above. Each ctest shard thereby stays
@@ -359,10 +376,13 @@ contains
             do j = 1, size(modes)
                if (allocated(table(i)%expected_exception)) then
                   params = [params, ScenarioDescription(table(i)%name, table(i)%root, trim(modes(j)), &
-                       check_name, check_stateitem, table(i)%permissive, table(i)%expected_exception)]
+                       check_name, check_stateitem, table(i)%permissive, &
+                       table(i)%expected_exception, &
+                       graph_owns_user_states=table(i)%graph_owns_user_states)]
                else
                   params = [params, ScenarioDescription(table(i)%name, table(i)%root, trim(modes(j)), &
-                       check_name, check_stateitem, table(i)%permissive)]
+                       check_name, check_stateitem, table(i)%permissive, &
+                       graph_owns_user_states=table(i)%graph_owns_user_states)]
                end if
             end do
          end do
@@ -386,7 +406,8 @@ contains
       call set_materialize_extensions(this%graph_mode /= GRAPH_MODE_REGISTRY)
       call set_graph_owns_user_states( &
            this%graph_mode == GRAPH_MODE_GRAPH .and. &
-           env_is_set('MAPL_SCENARIO_GRAPH_OWNS_USER_STATES'))
+           (this%graph_owns_user_states .or. &
+           env_is_set('MAPL_SCENARIO_GRAPH_OWNS_USER_STATES')))
 
       this%saved_fd_config = get_field_dictionary_config()
       if (this%permissive) call set_field_dictionary_config(FieldDictionaryConfig())
@@ -540,8 +561,9 @@ contains
    !       - {export: comp_src/T, import: comp_dst/T, chain: [units, typekind]}
    !       - {export: comp_src/T, import: comp_dst/T, wired: false}
    ! `chain` lists the extension steps in order from export to import; an empty
-   ! list means a direct edge. Step kinds are inferred from the units and
-   ! typekind of the items either side of each transform. Paths are relative
+   ! list means a direct edge. A step kind (units, typekind, geometry,
+   ! vertical, orientation) is the one aspect that differs between the items
+   ! either side of its transform. Paths are relative
    ! to the root component, and each connection is one the root declared
    ! (chains live in the root's graph). Registry mode has no graph, so it is skipped; the
    ! checks run once per scenario and mode, under the 'item type' parameter.
@@ -879,6 +901,8 @@ contains
          end select
       end function is_transform
 
+      ! The one aspect that differs between the items either side of a
+      ! transform names the step; none or several give unknown.
       function step_kind(in_id, out_id, rc) result(kind)
          character(len=16) :: kind
          type(NodeId), intent(in) :: in_id, out_id
@@ -887,19 +911,65 @@ contains
          integer :: status
          character(:), allocatable :: in_units, out_units
          type(ESMF_TypeKind_Flag) :: in_tk, out_tk
+         type(ESMF_Geom), allocatable :: in_geom, out_geom
+         class(mapl_VerticalGrid), pointer :: in_vgrid, out_vgrid
+         type(VerticalAlignment) :: in_align, out_align
+         type(VerticalStaggerLoc) :: in_stagger, out_stagger
+         logical :: has_vertical
          type(ESMF_Field) :: in_field, out_field
+         logical :: differs(5)
+         character(len=16), parameter :: KINDS(5) = [character(len=16) :: &
+              'units', 'typekind', 'geometry', 'vertical', 'orientation']
 
          rc = 0
          kind = 'unknown'
          in_field = item_field(in_id, _RC)
          out_field = item_field(out_id, _RC)
-         call FieldGet(in_field, units=in_units, typekind=in_tk, _RC)
-         call FieldGet(out_field, units=out_units, typekind=out_tk, _RC)
+         call FieldGet(in_field, units=in_units, typekind=in_tk, &
+              geom=in_geom, vgrid=in_vgrid, vert_alignment=in_align, &
+              vert_staggerloc=in_stagger, _RC)
+         call FieldGet(out_field, units=out_units, typekind=out_tk, &
+              geom=out_geom, vgrid=out_vgrid, vert_alignment=out_align, &
+              vert_staggerloc=out_stagger, _RC)
 
-         if (in_units /= out_units .and. in_tk == out_tk) kind = 'units'
-         if (in_units == out_units .and. in_tk /= out_tk) kind = 'typekind'
+         differs(1) = in_units /= out_units
+         differs(2) = .not. (in_tk == out_tk)
+         differs(3) = geom_differs(in_geom, out_geom, _RC)
+         ! Items with no vertical dim still carry their component vgrid.
+         has_vertical = in_stagger /= VERTICAL_STAGGER_NONE .or. &
+              out_stagger /= VERTICAL_STAGGER_NONE
+         differs(4) = has_vertical .and. (in_stagger /= out_stagger .or. &
+              vgrid_differs(in_vgrid, out_vgrid))
+         differs(5) = has_vertical .and. in_align /= out_align
+
+         if (count(differs) == 1) kind = KINDS(findloc(differs, .true., dim=1))
          rc = 0
       end function step_kind
+
+      ! Geoms compare by MAPL geom id, as the regrid does.
+      logical function geom_differs(a, b, rc) result(differs)
+         type(ESMF_Geom), allocatable, intent(in) :: a, b
+         integer, intent(out) :: rc
+
+         integer :: status
+         type(mapl_GeomId) :: id_a, id_b
+
+         rc = 0
+         differs = allocated(a) .neqv. allocated(b)
+         if (.not. (allocated(a) .and. allocated(b))) return
+         id_a = mapl_GeomGetId(a, _RC)
+         id_b = mapl_GeomGetId(b, _RC)
+         differs = id_a%get_value() /= id_b%get_value()
+         rc = 0
+      end function geom_differs
+
+      logical function vgrid_differs(a, b) result(differs)
+         class(mapl_VerticalGrid), pointer, intent(in) :: a, b
+
+         differs = associated(a) .neqv. associated(b)
+         if (.not. (associated(a) .and. associated(b))) return
+         differs = a%get_id() /= b%get_id()
+      end function vgrid_differs
 
       function item_field(id, rc) result(field)
          type(ESMF_Field) :: field

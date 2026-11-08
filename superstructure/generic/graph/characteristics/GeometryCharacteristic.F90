@@ -15,7 +15,7 @@
 ! for UnitsConverterTransform vs. legacy ConvertUnitsTransform.
 !
 ! Absorbs the retired mapl_GeomCharacteristic_mod's own opaque geom_id
-! string-token identity and its (always-failing) build_transform/get_signature,
+! string-token identity and its get_signature,
 ! in addition to this type's own pre-existing NodeId-sharing role - same HYBRID
 ! needs_extension_for pattern as VerticalGridCharacteristic.F90
 ! (see that module's own header comment for the full rationale): a real
@@ -29,7 +29,10 @@
 ! An item-level instance may also hold the ESMF_Geom itself, plus the
 ! regridder param the item declares. Only the geometry identity is
 ! compared (like legacy GeomAspect%matches). The regridder param is written
-! to Info and chooses the regrid method (select_regridder_param).
+! to Info and chooses the regrid method (select_regridder_param). A
+! Field mismatch between two held geoms is resolved by a
+! HorizontalRegridTransform; one where both sides declare a regridder param
+! is incompatible. Other item shapes report unsupported.
 !
 ! Status: SPECIFIED when constructed with a value. DEFERRED means the
 ! owning component supplies the geometry later (resolve_deferred, GEOM_B).
@@ -44,16 +47,23 @@ module mapl_GeometryCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ReferenceCharacteristic
    use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL, StateItemCharacteristicMap
    use mapl_StateItemCharacteristic_mod, only: report_build_transform_unsupported
+   use mapl_StateItemCharacteristic_mod, only: &
+        report_build_transform_incompatible
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_DEFERRED, &
         CHARACTERISTIC_STATUS_MIRRORED, CHARACTERISTIC_STATUS_UNCHECKED
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, GEOMETRY_CHARACTERISTIC_KIND
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        ITEM_SHAPE_CHARACTERISTIC_KIND
+   use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD
    use mapl_NodeId_mod, only: NodeId, operator(==), operator(/=)
    use mapl_TransformBase_mod, only: TransformBase
    use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
+   use mapl_HorizontalRegridTransform_mod, only: HorizontalRegridTransform
    use mapl_GeomId_mod, only: GeomId
-   use mapl_geom_api, only: mapl_SameGeom
+   use mapl_geom_api, only: mapl_SameGeom, mapl_GeomGetId
    use mapl_field_api, only: MAPL_FieldSet
    use mapl_field_bundle_api, only: MAPL_FieldBundleSet
    use ESMF, only: ESMF_Geom, ESMF_Field, ESMF_FieldBundle, ESMF_Info, ESMF_InfoDestroy
@@ -80,6 +90,7 @@ module mapl_GeometryCharacteristic_mod
       procedure, nopass :: get_kind => geometry_get_kind
       procedure :: needs_extension_for => geometry_needs_extension_for
       procedure :: build_transform => geometry_build_transform
+      procedure :: build_transform_for_item => geometry_build_transform_for_item
       procedure :: get_signature => geometry_get_signature
       procedure :: write_info => geometry_write_info
       procedure :: is_structural => geometry_is_structural
@@ -161,30 +172,106 @@ contains
       end select
    end function geometry_needs_extension_for
 
+   ! A regrid needs the geoms themselves; an id-only pair (the component-level
+   ! geometry wiring) has nothing to regrid between and stays unsupported.
+   ! Only one side may choose the regrid method, so a pair that both declare
+   ! a regridder param can never connect. That is checked first: such a pair
+   ! is incompatible whatever its geoms.
    subroutine geometry_build_transform(this, goal, transformer, rc)
       class(GeometryCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
       class(TransformBase), allocatable, intent(out) :: transformer
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(goal)
+      integer :: status
+      type(EsmfRegridderParam) :: regridder_param
 
-      ! No horizontal-regrid Transform exists yet.
-      call report_build_transform_unsupported(rc)
+      select type (goal)
+      class is (GeometryCharacteristic)
+         if (allocated(this%regridder_param) .and. &
+              allocated(goal%regridder_param)) then
+            call report_build_transform_incompatible(rc)
+            return
+         end if
+         if (.not. (allocated(this%geom) .and. allocated(goal%geom))) then
+            call report_build_transform_unsupported(rc)
+            return
+         end if
+         call this%select_regridder_param(goal, regridder_param, _RC)
+         allocate(transformer, &
+              source=HorizontalRegridTransform(regridder_param))
+      class default
+         _FAIL('GeometryCharacteristic: build_transform needs a geometry goal')
+      end select
+
+      _RETURN(_SUCCESS)
    end subroutine geometry_build_transform
 
+   ! HorizontalRegridTransform regrids Fields only, so a bundle-like item
+   ! (FIELDBUNDLE, BRACKET, VECTOR, ...) is not regridded yet. A tip with no
+   ! shape entry (component-level wiring) is not restricted.
+   subroutine geometry_build_transform_for_item(this, goal, tip, &
+        transformer, rc)
+      class(GeometryCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      type(StateItemCharacteristicMap), target, intent(in) :: tip
+      class(TransformBase), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(StateItemCharacteristic), pointer :: item_shape
+
+      if (tip%count(ITEM_SHAPE_CHARACTERISTIC_KIND) > 0) then
+         item_shape => tip%at(ITEM_SHAPE_CHARACTERISTIC_KIND, _RC)
+         select type (item_shape)
+         type is (ItemShapeCharacteristic)
+            if (.not. (item_shape%get_item_class() == &
+                 MAPL_STATEITEM_FIELD)) then
+               call report_build_transform_unsupported(rc)
+               return
+            end if
+         end select
+      end if
+      call this%build_transform(goal, transformer, rc)
+   end subroutine geometry_build_transform_for_item
+
+   ! The regridder param is part of the signature so that imports asking for
+   ! different regrid methods do not share one extension chain.
    function geometry_get_signature(this) result(signature)
       class(GeometryCharacteristic), intent(in) :: this
       character(:), allocatable :: signature
 
       type(NodeId) :: this_node_id
+      type(GeomId) :: id
+      logical :: has_id
+      integer :: status
+      character(20) :: id_buffer
+      character(:), allocatable :: param_text
+
+      ! A held geom without a geom_id is named by its MAPL geom id, the
+      ! identity needs_extension_for compares, so distinct geoms differ.
+      has_id = .false.
+      if (.not. allocated(this%geom_id) .and. allocated(this%geom)) then
+         id = mapl_GeomGetId(this%geom, isPresent=has_id, rc=status)
+         has_id = has_id .and. status == 0
+      end if
 
       if (allocated(this%geom_id)) then
          signature = 'geom=' // this%geom_id
+      else if (has_id) then
+         write(id_buffer, '(I0)') id%get_value()
+         signature = 'geom=' // trim(id_buffer)
       else
          this_node_id = this%get_referenced_node_id()
          signature = 'geom_node=' // this_node_id%to_string()
+      end if
+      if (allocated(this%regridder_param)) then
+         param_text = this%regridder_param%to_string(rc=status)
+         ! get_signature has no rc; a param that cannot be rendered would
+         ! make chain keys ambiguous, so stop rather than guess.
+         if (status /= 0) error stop &
+              'GeometryCharacteristic: regridder param to_string failed'
+         signature = signature // ', regridder_param=' // param_text
       end if
    end function geometry_get_signature
 

@@ -369,10 +369,10 @@ contains
             ' does not match the receiving component own resolved geometry (unsupported: ' // &
             unsupported // ') - should be unreachable given GeometrySpec own exclusive resolution'
       _ASSERT(unsupported == '', assertion_message)
-      ! No materialize_extension_chain call: the geometry
-      ! characteristic build_transform always fails (no horizontal-regrid
-      ! Transform exists), so `unsupported` is never '' in practice. The
-      ! assertion above flags this site if that changes.
+      ! No materialize_extension_chain call: component-level entries hold
+      ! only a geom id, so the geometry build_transform reports unsupported
+      ! and `unsupported` is never '' in practice. The assertion above flags
+      ! this site if that changes.
 
       call this_graph%add_dependency(net_id, final_id, this_own_id, _RC)
 

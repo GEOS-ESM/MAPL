@@ -110,6 +110,7 @@ module mapl_StateItemCharacteristic_mod
       procedure(I_build_transform), deferred :: build_transform
       procedure(I_get_signature), deferred :: get_signature
       procedure :: covered_kinds => char_covered_kinds
+      procedure :: build_transform_for_item => char_build_transform_for_item
       procedure :: get_status => char_get_status
       procedure :: set_status => char_set_status
       procedure :: write_info => char_write_info
@@ -248,6 +249,21 @@ contains
       _UNUSED_DUMMY(tip)
       _UNUSED_DUMMY(goal)
    end function char_covered_kinds
+
+   ! build_transform for the item described by `tip` (the export with the
+   ! goal values of the steps so far). Default: the item does not matter. A
+   ! kind whose Transform handles only some item shapes overrides this.
+   subroutine char_build_transform_for_item(this, goal, tip, transformer, rc)
+      class(StateItemCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      type(StateItemCharacteristicMap), target, intent(in) :: tip
+      class(TransformBase), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
+      call this%build_transform(goal, transformer, rc)
+
+      _UNUSED_DUMMY(tip)
+   end subroutine char_build_transform_for_item
 
    function char_get_status(this) result(status)
       class(StateItemCharacteristic), intent(in) :: this

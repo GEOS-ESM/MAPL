@@ -60,6 +60,11 @@ module Test_StateItemCharacteristicSubclasses
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_HorizontalRegridTransform_mod, only: HorizontalRegridTransform
+   use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
+   use StateItemTestSupport_mod, only: make_latlon_geom
+   use ESMF, only: ESMF_Geom, ESMF_REGRIDMETHOD_CONSERVE
+   use ESMF, only: ESMF_REGRIDMETHOD_PATCH
    ! openspec/changes/phase-7a-shape-dispatch-wiring
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_BracketTimeInterpolationTransform_mod, only: BracketTimeInterpolationTransform
@@ -1164,8 +1169,8 @@ contains
       @assertEqual('vertical_grid=gridA', grid%get_signature())
    end subroutine test_vertical_grid_get_signature
 
-   ! GeometryCharacteristic's own build_transform always reports
-   ! unsupported (no real horizontal-regrid provider exists yet).
+   ! An id-only pair (the component-level geometry wiring) holds no geom to
+   ! regrid between, so it stays unsupported.
    @test
    subroutine test_geometry_build_transform_reports_unsupported()
       type(GeometryCharacteristic) :: geom_a, geom_b
@@ -1181,6 +1186,160 @@ contains
       @assertFalse(allocated(transformer))
    end subroutine test_geometry_build_transform_reports_unsupported
 
+   ! Two held geoms give a regrid that uses the selected param.
+   @test
+   subroutine test_geometry_build_transform_regrids_held_geoms()
+      type(GeometryCharacteristic) :: src, dst
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(EsmfRegridderParam) :: param
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      src = GeometryCharacteristic(geom_id='1', geom=src_geom)
+      dst = GeometryCharacteristic(geom_id='2', geom=dst_geom, &
+           regridder_param=param)
+
+      call src%build_transform(dst, transformer, rc=status)
+
+      @assertEqual(0, status)
+      call check_param(param)
+
+      ! A param declared on the source side only is used too.
+      src = GeometryCharacteristic(geom_id='1', geom=src_geom, &
+           regridder_param=param)
+      dst = GeometryCharacteristic(geom_id='2', geom=dst_geom)
+      call src%build_transform(dst, transformer, rc=status)
+      @assertEqual(0, status)
+      call check_param(param)
+
+   contains
+
+      subroutine check_param(expected)
+         type(EsmfRegridderParam), intent(in) :: expected
+
+         @assertTrue(allocated(transformer))
+         select type (transformer)
+         type is (HorizontalRegridTransform)
+            @assertTrue(transformer%get_regridder_param() == expected)
+         class default
+            @assertTrue(.false., 'expected a HorizontalRegridTransform')
+         end select
+      end subroutine check_param
+
+   end subroutine test_geometry_build_transform_regrids_held_geoms
+
+   ! A geom on one side only is not enough to regrid.
+   @test
+   subroutine test_geometry_build_transform_one_geom_unsupported()
+      type(GeometryCharacteristic) :: src, dst
+      type(ESMF_Geom) :: src_geom
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      src = GeometryCharacteristic(geom_id='1', geom=src_geom)
+      dst = GeometryCharacteristic(geom_id='2')
+
+      call src%build_transform(dst, transformer, rc=status)
+
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+      call dst%build_transform(src, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_geometry_build_transform_one_geom_unsupported
+
+   ! Only one side may choose the regrid method.
+   @test
+   subroutine test_geometry_build_transform_both_params_incompatible()
+      type(GeometryCharacteristic) :: src, dst
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(EsmfRegridderParam) :: param
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      src = GeometryCharacteristic(geom_id='1', geom=src_geom, &
+           regridder_param=param)
+      dst = GeometryCharacteristic(geom_id='2', geom=dst_geom, &
+           regridder_param=param)
+
+      call src%build_transform(dst, transformer, rc=status)
+
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_geometry_build_transform_both_params_incompatible
+
+   ! The regrid handles Fields only: a bundle or bracket item with two held
+   ! geoms is unsupported, a Field item gets the regrid.
+   @test
+   subroutine test_geometry_build_transform_for_item_field_only()
+      type(GeometryCharacteristic) :: src, dst
+      type(ESMF_Geom) :: src_geom, dst_geom
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      src = GeometryCharacteristic(geom_id='1', geom=src_geom)
+      dst = GeometryCharacteristic(geom_id='2', geom=dst_geom)
+
+      call check_shape(S_BUNDLE, BUILD_TRANSFORM_UNSUPPORTED)
+      call check_shape(S_BRACKET, BUILD_TRANSFORM_UNSUPPORTED)
+      call check_shape(S_VECTOR, BUILD_TRANSFORM_UNSUPPORTED)
+      call check_shape(S_FIELD, 0)
+
+   contains
+
+      subroutine check_shape(item_class, expected_status)
+         type(ESMF_StateItem_Flag), intent(in) :: item_class
+         integer, intent(in) :: expected_status
+
+         type(StateItemCharacteristicMap) :: tip
+
+         call tip%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+              ItemShapeCharacteristic(item_class))
+         call src%build_transform_for_item(dst, tip, transformer, rc=status)
+         @assertEqual(expected_status, status)
+         @assertEqual(expected_status == 0, allocated(transformer))
+      end subroutine check_shape
+
+   end subroutine test_geometry_build_transform_for_item_field_only
+
+   ! With no shape entry (component-level wiring) the item is not
+   ! restricted.
+   @test
+   subroutine test_geometry_build_transform_for_item_without_shape()
+      type(GeometryCharacteristic) :: src, dst
+      type(ESMF_Geom) :: src_geom, dst_geom
+      class(TransformBase), allocatable :: transformer
+      type(StateItemCharacteristicMap) :: tip
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      src = GeometryCharacteristic(geom_id='1', geom=src_geom)
+      dst = GeometryCharacteristic(geom_id='2', geom=dst_geom)
+
+      call src%build_transform_for_item(dst, tip, transformer, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(allocated(transformer))
+   end subroutine test_geometry_build_transform_for_item_without_shape
+
    @test
    subroutine test_geometry_get_signature()
       type(GeometryCharacteristic) :: geom
@@ -1189,6 +1348,58 @@ contains
 
       @assertEqual('geom=1', geom%get_signature())
    end subroutine test_geometry_get_signature
+
+   ! Different regridder params give different signatures.
+   @test
+   subroutine test_geometry_get_signature_includes_regridder_param()
+      type(GeometryCharacteristic) :: conserve, patch, plain
+
+      conserve = GeometryCharacteristic(geom_id='1', regridder_param= &
+           EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE))
+      patch = GeometryCharacteristic(geom_id='1', regridder_param= &
+           EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_PATCH))
+      plain = GeometryCharacteristic(geom_id='1')
+
+      @assertTrue(index(conserve%get_signature(), 'conserve') > 0)
+      @assertTrue(index(patch%get_signature(), 'patch') > 0)
+      @assertFalse(conserve%get_signature() == patch%get_signature())
+      @assertFalse(conserve%get_signature() == plain%get_signature())
+   end subroutine test_geometry_get_signature_includes_regridder_param
+
+   ! Equal params built separately give equal signatures.
+   @test
+   subroutine test_geometry_signature_equal_for_equal_params()
+      type(GeometryCharacteristic) :: a, b
+
+      a = GeometryCharacteristic(geom_id='1', regridder_param= &
+           EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE))
+      b = GeometryCharacteristic(geom_id='1', regridder_param= &
+           EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE))
+
+      @assertEqual(a%get_signature(), b%get_signature())
+      @assertEqual(0, index(a%get_signature(), new_line('a')))
+   end subroutine test_geometry_signature_equal_for_equal_params
+
+   ! Held geoms with no geom_id are named by their MAPL geom id, so two
+   ! distinct geoms do not share a signature (and an extension chain).
+   @test
+   subroutine test_geometry_signature_from_held_geom()
+      type(GeometryCharacteristic) :: a, b, a_again
+      type(ESMF_Geom) :: geom_a, geom_b
+      integer :: status
+
+      geom_a = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      geom_b = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      a = GeometryCharacteristic(geom=geom_a)
+      b = GeometryCharacteristic(geom=geom_b)
+      a_again = GeometryCharacteristic(geom=geom_a)
+
+      @assertEqual(1, index(a%get_signature(), 'geom='))
+      @assertFalse(a%get_signature() == b%get_signature())
+      @assertEqual(a%get_signature(), a_again%get_signature())
+   end subroutine test_geometry_signature_from_held_geom
 
    ! --- openspec/changes/phase-7a-shape-dispatch-wiring, task 7:
    ! ItemShapeCharacteristic (design.md D1-D3) ---

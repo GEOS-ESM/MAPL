@@ -69,6 +69,7 @@ module mapl_TransformGraphNode_mod
       procedure :: get_output_port => node_get_output_port
       procedure :: get_input_ports => node_get_input_ports
       procedure :: get_output_ports => node_get_output_ports
+      procedure :: get_transformer => node_get_transformer
       ! -- staleness / execution bookkeeping (REQ-REV-005..007) -----------
       procedure :: has_run => node_has_run
       procedure :: needs_execution => node_needs_execution
@@ -90,6 +91,14 @@ contains
       node%BaseGraphNode = BaseGraphNode(id)
       allocate(node%transformer, source=transformer)
    end function new_TransformGraphNode
+
+   ! The held Transform, for inspection (e.g. which conversion a chain built).
+   function node_get_transformer(this) result(transformer)
+      class(TransformGraphNode), target, intent(in) :: this
+      class(Transform), pointer :: transformer
+
+      transformer => this%transformer
+   end function node_get_transformer
 
    ! -- port queries: pure delegation ---------------------------------------
    ! Declaration ownership lives on Transform (mapl_Transform_mod) - a

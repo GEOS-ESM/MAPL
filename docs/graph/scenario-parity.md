@@ -50,16 +50,16 @@ to "Verified root causes" below.
 | extdata_1 | yes | passes |
 | names_1 | yes | passes |
 | vertical_alignment_same_grid | yes | passes |
-| regrid | no | passes, masked (M1): both sides' geometry is DEFERRED/UNCHECKED, so the graph sees `B:I_B1` as an exact match and the geometry difference goes undetected; `GeometryCharacteristic%build_transform` always reports unsupported. C1 target |
-| regrid_r8 | no | passes, masked (M1): graph sees only the `TYPE_KIND` mismatch for `B:I_B1`; the geometry mismatch goes undetected (DEFERRED/UNCHECKED sides) and `build_transform` always reports unsupported. C1 target |
-| propagate_geom | no | passes, masked (M1): geometry DEFERRED/UNCHECKED, so an exact match; geometry handled only by legacy (`build_transform` reports unsupported). C1 target. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes in `GRAPH` mode: the re-exported internal `Z_A1` (expected as `child_A/Z_A1`) comes from the export-port walk (table flag unchanged) |
+| regrid | yes | passes (measured 2026-11-08): one geometry step (`HorizontalRegridTransform`), chain checked. The table entry sets `graph_owns_user_states`, so in `GRAPH` mode the value check reads the graph-regridded import (a corrupted regrid output fails it) |
+| regrid_r8 | yes | passes (measured 2026-11-08): geometry then typekind step, chain checked; graph-owned user states as for `regrid` |
+| propagate_geom | yes | passes (measured 2026-11-08): same grid on both sides, direct edge (`chain: []`). With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes in `GRAPH` mode: the re-exported internal `Z_A1` (expected as `child_A/Z_A1`) comes from the export-port walk |
 | vertical_regridding | no | passes, masked (M2): `B:I_B` is an exact match in the graph; vertical-grid difference invisible |
 | vertical_regridding_2 | no | same as `vertical_regridding` (`B:I_B`, `D:I_D` exact). Passes with `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` too: a single-level grid's orientation entry holds UNSPECIFIED and `write_info` writes nothing for it |
 | vertical_regridding_3 | no | same as `vertical_regridding` (`C:I_C`, `PHYS:T_PHYS` exact) |
 | vertical_alignment_regrid | no | same as `vertical_regridding` |
 | vertical_alignment_with_grid | no | same as `vertical_regridding` |
 | scenario_reexport_twice | yes | passes; graph builds the re-export ports. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes in `GRAPH` mode: the user export state gets both re-exports from the port walk: `Eparent_B1`, a re-export of a child's export, and `Egrandparent_B1`, a re-export of that re-export |
-| expression_defer_geom | no | passes since the G1 guard (measured 2026-11-06), with masked EXPRESSION items (M3); not yet flipped |
+| expression_defer_geom | yes | passes (measured 2026-11-08): each input on the file grid gets a geometry step (`HorizontalRegridTransform`) before the `ExpressionTransform`; the chain links carry the input names, which `StateEval` looks up |
 | history_1 | no | passes since the G1 guard (measured 2026-11-06); not yet flipped. Recheck R1 before flipping |
 | statistics | no | FAILS: R1 only |
 | statistics_real | no | FAILS: R1, R2 (vector `A/UV`), P1; measured 2026-11-06: `MethodGraphNode: argument name already declared` (P1) |
@@ -145,16 +145,17 @@ In production, the same faults only log a warning and drop part of the graph.
 
 ### Masked passes (not failures, but not graph-produced)
 
-- **M1. Item geometry is rarely SPECIFIED.** `make_characteristics`
-  (`specs/VariableSpec/make_characteristics.F90:74,245-284`) does insert
+- **M1. Item geometry is rarely SPECIFIED (resolved for regrid).**
+  `make_characteristics`
+  (`specs/VariableSpec/make_characteristics.F90:74,245-284`) inserts
   `GEOMETRY_CHARACTERISTIC_KIND` for every field-carrying shape and SERVICE.
   It is SPECIFIED only when the item declares a geom or geom id; otherwise
   it is DEFERRED (MIRRORED for an EXPRESSION or `mirror_geom`, UNCHECKED for
-  horizontal dims NONE) and takes the component geom at GEOM_B. Items on the
-  component's own grid therefore compare equal, and
-  `GeometryCharacteristic%build_transform` always reports unsupported
-  (`GeometryCharacteristic.F90:164-175`), so a regrid is never built.
-  Flipping `regrid*` needs a geometry `Transform` (C1).
+  horizontal dims NONE) and takes the component geom at GEOM_B. Re-measured
+  2026-11-08: the geometry difference was not masked. Before C1-geom-b,
+  `regrid` and `regrid_r8` already logged unsupported GEOMETRY for
+  `B:I_B1`. Since C1-geom-b a pair holding two geoms gets a
+  `HorizontalRegridTransform`, and both scenarios are ready.
 - **M2. Component vertical grid is not an item characteristic.**
   `VERTICAL_GRID_CHARACTERISTIC_KIND` is set only when
   `var_spec%vertical_grid` is allocated. `parse_var_specs` fills that only
@@ -165,11 +166,13 @@ In production, the same faults only log a warning and drop part of the graph.
   `Transform` is still missing. Not covered by C1: needs its own C2 task,
   or should be folded into B3-VerticalCoordinate.
 - **M3. Non-Field shapes are not materialized by the graph.** After G1 and R2,
-  EXPRESSION (`expression_defer_geom`), VECTOR (`vector_1`,
+  EXPRESSION, VECTOR (`vector_1`,
   `statistics_real`) and SERVICE (`service_*`) connections log
   `unsupported_item_class:<shape>` and leave those items to legacy
   `add_to_states`. Flipping these scenarios to ready after G1/R2 gives a
   masked pass, like the ready rows in the next section.
+  `expression_defer_geom` no longer logs this (re-measured 2026-11-08): its
+  expression is evaluated on the graph path.
 
 Suggested C2 split: `C2-geom-push` (G1), `C2-alias-owner` (R1),
 `C2-alias-nonfield` (R2), `C2-runphase-args` (P1, key arguments by intent
@@ -207,11 +210,9 @@ Gaps: INTERNAL items, imports and exports with no connection, and
 expression/wildcard/bracket-indexed exports (`T(1)`). Retiring the legacy
 calls is plan work (D2 and the B tasks); do not remove them in a test task.
 
-For the geometry/vertical family (`regrid*`, `propagate_geom`,
-`vertical_*`) a geometry mismatch is not repaired: no geometry `Transform`
-exists (M1). They stay
-`graph_ready = .false.` so C1 (geometry/regrid `Transform`) has a flag to
-flip.
+`regrid*` and `propagate_geom` are ready since C1-geom-b. The `vertical_*`
+family stays `graph_ready = .false.` until a vertical `Transform` exists
+(M2, C1-vertical).
 
 ## Legacy and graph behavior differences
 
@@ -229,3 +230,5 @@ checklist for switching legacy off.
 | QuantityType value `QUANTITY_UNKNOWN` as a quantity-axis wildcard | legacy `QuantityTypeAspect%matches` keeps the wildcard: either side `QUANTITY_UNKNOWN` matches anything | dropped from `pair_outcome`: a declared `QUANTITY_UNKNOWN` now counts as undeclared (DEFERRED on EXPORT/INTERNAL, UNCHECKED on IMPORT), never reaching `pair_outcome` as a SPECIFIED value (`BASIS_NONE` stays a basis wildcard) | 3.36 |
 | Unconnected export that a re-export names | allocated: the re-export chain activates the source, so `allocate_items` allocates it (a legacy bug; owner decision 2026-11-07) | stays created (GRIDSET once its geometry is written), not allocated; only a connection that consumes the export allocates it | 3.41a B3-FieldPerNode |
 | Propagated child export in the user export state | `add_to_states(mode='user')` skips every item whose `comp_name` is non-empty (`registry/StateRegistry_Actions_smod.F90:73`), so a child's propagated export is not in the parent's user export state | with the user-state switch on, the export-port walk aliases each propagated port (`child/E`) into a substate of the user export state (`populate_export_port`) | 3.41b B3-ExportPortPopulation |
+| Both export and import declare a regridder param, on different geoms | `GeomAspect%make_transform` `_FAIL`s (`specs/GeomAspect.F90:191-213`); connection setup aborts | reported per pair as an incompatible GEOMETRY conflict naming both signatures (with params); the component's other connections still resolve. Owner decision 2026-11-08 | C1-geom-b |
+| Geometry mismatch on a FIELDBUNDLE, BRACKET, VECTOR or VECTORBRACKET item | `RegridTransform%update` regrids Fields and FieldBundles (`transforms/RegridTransform.F90:218-235`) | reports unsupported GEOMETRY until a bundle-level regrid Transform exists (owner decision 2026-11-08; C1-geom-c). Hybrid mode is unaffected: legacy does the regrid | C1-geom-b |

@@ -244,8 +244,15 @@ First kind with a DEFERRED value (a value the component supplies later).
 - `StateItemDescriptor` no longer has `declared_geom` or
   `get/set_declared_geom`; materialization takes the geom only from the
   node's GEOMETRY characteristic (no owner fallback).
-- `build_transform` calls `report_build_transform_unsupported`, so a geometry
-  mismatch is reported as unsupported rather than as an error.
+- `build_transform`: when both sides hold an `ESMF_Geom`, a
+  `HorizontalRegridTransform` with the param from `select_regridder_param`
+  (the side that declares one, else the default). An id-only pair (the
+  component-level geometry wiring) reports unsupported. Both sides declaring
+  a regridder param reports incompatible. `get_signature` includes the param,
+  so imports asking for different methods do not share a chain. A held geom
+  with no `geom_id` is named in the signature by its MAPL geom id.
+  `build_transform_for_item` reports unsupported when the tip's ITEM_SHAPE
+  is not FIELD; a later task (bundle regrid) adds bundle-level regrid.
 
 ## VerticalGrid as implemented
 
@@ -812,6 +819,10 @@ value, writes only its own Info key, and has no Transform.
   both `tip` and `goal`. `build_chain` replaces every covered kind in the
   tip with the goal's value, and the extension node's descriptor is the
   tip after its step.
+- `build_chain` calls `build_transform_for_item(goal, tip, ...)`, which by
+  default calls `build_transform`. Override it only when the Transform
+  handles some item shapes and not others (Geometry: Field only, so a
+  bundle, bracket or vector tip reports unsupported).
 - Materialization creates an empty field, calls
   `descriptor%sync_to_info(STRUCTURAL)`, runs `MAPL_FieldEmptyComplete`,
   and sets `allocation_status` to `ALLOCATED`. A new characteristic must

@@ -222,7 +222,7 @@ contains
       type(StateItemNode), target :: extension_node
       type(StateItemDescriptor), pointer :: link
       type(StateItemCharacteristicMapIterator) :: iter
-      type(StateItemCharacteristicMap), target :: tip
+      type(StateItemCharacteristicMap), target :: tip, step_tip
       type(StateItemCharacteristicKind), allocatable :: covered(:), done(:)
       logical :: covers_own_kind
       character(:), allocatable :: assertion_message
@@ -262,8 +262,8 @@ contains
 
          ! Tip at this step: the export with goal values for kinds covered
          ! so far.
-         call make_tip(export_map, import_map, done, tip, _RC)
-         covered = export_characteristic%covered_kinds(tip, import_map)
+         call make_tip(export_map, import_map, done, step_tip, _RC)
+         covered = export_characteristic%covered_kinds(step_tip, import_map)
          covers_own_kind = has_kind(covered, mismatched_kinds(i))
          assertion_message = 'ExtensionResolution: covered_kinds omits ' // &
               'own kind ' // mismatched_kinds(i)%to_string()
@@ -285,7 +285,8 @@ contains
          if (has_fill_value) call link%set_fill_value(export_fill_value)
          call graph%register_node(extension_node, _RC)
 
-         call export_characteristic%build_transform(import_characteristic, transformer, status)
+         call export_characteristic%build_transform_for_item( &
+              import_characteristic, step_tip, transformer, status)
          if (status /= 0) then
             if (status == BUILD_TRANSFORM_INCOMPATIBLE .and. present(conflict)) then
                conflict = 'incompatible ' // mismatched_kinds(i)%to_string() // ': export ' // &

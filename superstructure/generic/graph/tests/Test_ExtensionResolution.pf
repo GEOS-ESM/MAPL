@@ -50,11 +50,20 @@ module Test_ExtensionResolution
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_HorizontalRegridTransform_mod, only: HorizontalRegridTransform
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
+   use StateItemTestSupport_mod, only: make_latlon_geom
+   use ESMF, only: ESMF_Geom, ESMF_REGRIDMETHOD_CONSERVE
+   use ESMF, only: ESMF_REGRIDMETHOD_PATCH
+   use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
    use mapl_StateItemCharacteristicKind_mod, only: &
         TYPE_KIND_CHARACTERISTIC_KIND, &
         GEOMETRY_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND
    use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELDBUNDLE
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
    use ESMF, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
    use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, set_field_dictionary_config, &
@@ -746,6 +755,302 @@ contains
       @assertEqual(1, size(intermediate_ids))
       @assertTrue(intermediate_ids(1) == final_id)
    end subroutine test_bracket_to_field_mismatch_builds_interpolation_chain
+
+   ! Two held geoms: one regrid step, a link on the import geometry, and a
+   ! transform between export and link.
+   @test
+   subroutine test_geometry_mismatch_builds_regrid_chain()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id, transform_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported, conflict
+      type(ESMF_Geom) :: src_geom, dst_geom
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: link
+      class(StateItemCharacteristic), allocatable :: c
+      type(DependencyNetwork), pointer :: net
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: iter
+      class(Transform), pointer :: transformer
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      call export_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='1', geom=src_geom))
+      call import_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='2', geom=dst_geom))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(1, size(mismatched))
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status, conflict=conflict)
+
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertEqual('', conflict)
+      @assertEqual(1, size(intermediate_ids))
+      @assertTrue(intermediate_ids(1) == final_id)
+
+      node => graph%get_node(final_id)
+      select type (node)
+      class is (StateItemNode)
+         link => node%get_descriptor()
+      class default
+         @assertTrue(.false., 'chain link is not a StateItemNode')
+         return
+      end select
+      call link%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('geom=2', c%get_signature())
+
+      net => graph%get_network(net_id)
+      preds = net%get_predecessors(final_id)
+      @assertEqual(1, preds%size())
+      iter = preds%ftn_begin()
+      call iter%next()
+      transform_id = iter%of()
+      node => graph%get_node(transform_id)
+      select type (node)
+      class is (TransformGraphNode)
+         transformer => node%get_transformer()
+         select type (transformer)
+         type is (HorizontalRegridTransform)
+         class default
+            @assertTrue(.false., 'chain transform is not a regrid')
+         end select
+      class default
+         @assertTrue(.false., 'link predecessor is not a TransformGraphNode')
+      end select
+      preds = net%get_predecessors(transform_id)
+      @assertEqual(1, preds%size())
+      @assertTrue(preds%count(export_id) == 1)
+   end subroutine test_geometry_mismatch_builds_regrid_chain
+
+   ! Both sides declaring a regridder param is reported as a conflict, so
+   ! nothing is wired and the caller can go on with other connections.
+   @test
+   subroutine test_geometry_both_params_reports_conflict()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported, conflict
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(EsmfRegridderParam) :: param
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      call export_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='1', geom=src_geom, &
+           regridder_param=param))
+      call import_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='2', geom=dst_geom, &
+           regridder_param=param))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(1, size(mismatched))
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status, conflict=conflict)
+
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertEqual(1, index(conflict, 'incompatible GEOMETRY: export geom=1'))
+      @assertTrue(index(conflict, 'import geom=2') > 0)
+      @assertEqual(0, size(intermediate_ids))
+   end subroutine test_geometry_both_params_reports_conflict
+
+   ! A bundle item with a geometry mismatch is not regridded yet: the chain
+   ! reports GEOMETRY unsupported and wires nothing.
+   @test
+   subroutine test_bundle_geometry_mismatch_is_unsupported()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported, conflict
+      type(ESMF_Geom) :: src_geom, dst_geom
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      call export_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_FIELDBUNDLE))
+      call export_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='1', geom=src_geom))
+      call import_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_FIELDBUNDLE))
+      call import_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='2', geom=dst_geom))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(1, size(mismatched))
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status, conflict=conflict)
+
+      @assertEqual(0, status)
+      @assertEqual('GEOMETRY', unsupported)
+      @assertEqual('', conflict)
+      @assertEqual(0, size(intermediate_ids))
+   end subroutine test_bundle_geometry_mismatch_is_unsupported
+
+   ! A bracket export into a Field import: the regrid step comes before the
+   ! shape step, so the tip is still a bracket and GEOMETRY is unsupported.
+   @test
+   subroutine test_bracket_geometry_mismatch_is_unsupported()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported, conflict
+      type(ESMF_Geom) :: src_geom, dst_geom
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      call export_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_BRACKET))
+      call export_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='1', geom=src_geom))
+      call import_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_FIELD))
+      call import_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='2', geom=dst_geom))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(2, size(mismatched))
+      @assertEqual('GEOMETRY', mismatched(1)%to_string())
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status, conflict=conflict)
+
+      @assertEqual(0, status)
+      @assertEqual('GEOMETRY', unsupported)
+      @assertEqual(0, size(intermediate_ids))
+   end subroutine test_bracket_geometry_mismatch_is_unsupported
+
+   ! Two imports on the same geom but with different regridder params get
+   ! separate chains; a repeat of the first reuses its chain.
+   @test
+   subroutine test_geometry_chain_not_shared_across_params()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, conserve_map, patch_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: conserve_id, patch_id, again_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported, conflict
+      type(ESMF_Geom) :: src_geom, dst_geom
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_default_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      call export_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='1', geom=src_geom))
+      call conserve_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='2', geom=dst_geom, &
+           regridder_param=EsmfRegridderParam( &
+           regridmethod=ESMF_REGRIDMETHOD_CONSERVE)))
+      call patch_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='2', geom=dst_geom, &
+           regridder_param=EsmfRegridderParam( &
+           regridmethod=ESMF_REGRIDMETHOD_PATCH)))
+      mismatched = find_mismatched_characteristics(export_map, conserve_map)
+      @assertEqual(1, size(mismatched))
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, conserve_map, mismatched, conserve_id, &
+           intermediate_ids, unsupported, rc=status, conflict=conflict)
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, patch_map, mismatched, patch_id, &
+           intermediate_ids, unsupported, rc=status, conflict=conflict)
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertFalse(conserve_id == patch_id)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, conserve_map, mismatched, again_id, &
+           intermediate_ids, unsupported, rc=status, conflict=conflict)
+      @assertEqual(0, status)
+      @assertTrue(again_id == conserve_id)
+      @assertEqual(0, size(intermediate_ids))
+   end subroutine test_geometry_chain_not_shared_across_params
 
    ! --- extension order of mismatched kinds ---
 

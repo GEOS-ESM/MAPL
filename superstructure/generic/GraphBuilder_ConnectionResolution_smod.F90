@@ -1579,15 +1579,17 @@ contains
    ! Materializes every entry of intermediate_node_ids (in order), each from
    ! that extension node's own descriptor (the tip after its step). Stops
    ! at the first link that cannot be materialized, returning
-   ! check_materializable's failure_reason.
+   ! check_materializable's failure_reason. `name` names the link fields,
+   ! for consumers that look their inputs up by field name.
    subroutine materialize_extension_chain(export_item, import_item, &
-        intermediate_node_ids, graph, failure_reason, rc)
+        intermediate_node_ids, graph, failure_reason, rc, name)
       type(StateItemDescriptor), intent(in) :: export_item
       type(StateItemDescriptor), intent(in) :: import_item
       type(NodeId), intent(in) :: intermediate_node_ids(:)
       type(ComponentGraph), target, intent(inout) :: graph
       character(:), allocatable, intent(out) :: failure_reason
       integer, optional, intent(out) :: rc
+      character(*), optional, intent(in) :: name
 
       integer :: status
       integer :: i
@@ -1605,7 +1607,8 @@ contains
             _FAIL('GraphBuilder: materialize_extension_chain - link NodeId is not a StateItemNode')
          end select
          _RETURN_IF(failure_reason /= '')
-         call materialize_field_extension(graph, intermediate_node_ids(i), _RC)
+         call materialize_field_extension(graph, intermediate_node_ids(i), &
+              name=name, _RC)
       end do
 
       _RETURN(_SUCCESS)
@@ -1936,8 +1939,10 @@ contains
             if (size(intermediates) == 0) cycle
             if (materialize_extensions_enabled()) then
                call input_goal(input_desc, full_goal, full=.true., _RC)
+               ! StateEval finds each input by its field name.
                call materialize_extension_chain(input_desc, &
-                    full_goal, intermediates, graph, failure, _RC)
+                    full_goal, intermediates, graph, failure, &
+                    name=names%of(i), _RC)
                if (failure /= '') then
                   problem = failure
                   _RETURN(_SUCCESS)
