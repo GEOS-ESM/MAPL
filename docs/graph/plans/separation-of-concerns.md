@@ -1769,6 +1769,20 @@ it runs goes in a follow-up commit with the same trailer. Label
   `VerticalStaggerCharacteristic.F90:18`, `VerticalGridCharacteristic.F90:273`
   and `VerticalOrientationCharacteristic.F90:18` say no vertical Transform
   exists; fold the last three into C1-vertical-b).
+  Second sweep done (e202491c4, 79 files, comment and text only;
+  `check-comment-only.py superstructure enums apps` exits 0; NAG and gfortran
+  ESSENTIAL 69/69): the `design.md`/`tasks.md`/`proposal.md` citations,
+  "Task N.M" and "Phase N" banners, openspec change names, and the
+  wrong or stale comments listed above (`GraphOwnsUserStates.F90`,
+  `initialize_accept_transfer.F90`, `units_mismatch_run_phase/description.md`)
+  are gone; the `openspec/changes` paths in `tools/graph_visualization` and
+  the graph-scenario descriptions are gone. Remaining: `design.md Risks` at
+  `GeometryCharacteristic.F90:78` (C1-geom-c-a's file), `REQ-MTH-011` inside
+  the two assertion-message strings (a code change),
+  `superstructure/generic/AGENTS.md` lines 35 and 51 (pointer to the
+  archive), and `capability/name` spec-directory references such as
+  `generic/field-name-propagation` and `graph/extension-reuse`, which name
+  directories that exist under `openspec/specs/`.
 - `infrastructure/field/FieldInfo.F90:~305` (`FieldInfoGetInternal`):
   reading conservation asserts the key exists, while quantity-type and
   normalization reads fall back to a mirror object. Make the three
