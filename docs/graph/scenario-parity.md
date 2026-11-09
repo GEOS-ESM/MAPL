@@ -46,7 +46,7 @@ to "Verified root causes" below.
 | export_dependency | yes | passes |
 | expression | yes | passes |
 | expression_match | yes | passes |
-| invalidate | yes | passes |
+| invalidate | yes | passes. The table entry sets `graph_owns_user_states` (measured 2026-11-09 with the switch on, NAG: passes; the `T(1)`, `T(2)` expectations are `legacy_only`) |
 | history_wildcard | yes | passes |
 | extdata_1 | yes | passes |
 | names_1 | yes | passes |
@@ -59,7 +59,7 @@ to "Verified root causes" below.
 | vertical_regridding_3 | no | same as `vertical_regridding` (`C:I_C`, `PHYS:T_PHYS` exact) |
 | vertical_alignment_regrid | no | same as `vertical_regridding` |
 | vertical_alignment_with_grid | no | same as `vertical_regridding` |
-| scenario_reexport_twice | yes | passes; graph builds the re-export ports. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes in `GRAPH` mode: the user export state gets both re-exports from the port walk: `Eparent_B1`, a re-export of a child's export, and `Egrandparent_B1`, a re-export of that re-export |
+| scenario_reexport_twice | yes | passes; graph builds the re-export ports. The table entry sets `graph_owns_user_states`, so it is also the regression for propagated names staying out of the user export state. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes in `GRAPH` mode: the user export state gets both re-exports from the port walk: `Eparent_B1`, a re-export of a child's export, and `Egrandparent_B1`, a re-export of that re-export |
 | expression_defer_geom | yes | passes (measured 2026-11-08): each input on the file grid gets a geometry step (`HorizontalRegridTransform`) before the `ExpressionTransform`; the chain links carry the input names, which `StateEval` looks up |
 | history_1 | yes | passes in graph and both modes (the table entry is `.true.`), the deep pull going through the hierarchy's forward network. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it was last measured failing two checks: `B/E_B3` (vertical-grid mismatch, no provider) and the `A/E_A1` value (tasks.md 3.44 Status); not re-measured since the forward network landed |
 | statistics | no | FAILS: R1 only. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it passes: user states are populated at advertise, so the gridcomp finds its export in `INIT_MODIFY_ADVERTISED` |
@@ -67,6 +67,14 @@ to "Verified root causes" below.
 | service_service | no | FAILS: R2 only. After R2, passes, with masked SERVICE items (M3) |
 | service_with_options | no | same as `service_service` |
 | vector_1 | no | FAILS: R2 only. After R2, passes, with masked VECTOR items (M3) |
+
+Measured 2026-11-09 on NAG with the switch on in `GRAPH` mode (3.42): all pass
+(`plain_field`, `units_mismatch_run_phase`, `units_and_typekind_mismatch`,
+`invalidate`, `graphbuilder_propagation`, `scenario_1`, `scenario_2`,
+`scenario_reexport_twice`, `propagate_geom`, `names_1`, `statistics`). The
+first five and `scenario_reexport_twice` now have `graph_owns_user_states` in
+the table. The outer states (the ones the parent sees) are written by the
+graph at `REALIZE_ACCEPTED` and share their Fields with the user states.
 
 ## Verified root causes (A1 diagnosis)
 
@@ -232,7 +240,8 @@ checklist for switching legacy off.
 | `long_name` undeclared on an export or internal | none; an import inherits the export's in `connect_to_export` | falls back to the field dictionary, then the StandardName (deliberate, A8) | 3.13 |
 | QuantityType value `QUANTITY_UNKNOWN` as a quantity-axis wildcard | legacy `QuantityTypeAspect%matches` keeps the wildcard: either side `QUANTITY_UNKNOWN` matches anything | dropped from `pair_outcome`: a declared `QUANTITY_UNKNOWN` now counts as undeclared (DEFERRED on EXPORT/INTERNAL, UNCHECKED on IMPORT), never reaching `pair_outcome` as a SPECIFIED value (`BASIS_NONE` stays a basis wildcard) | 3.36 |
 | Unconnected export that a re-export names | allocated: the re-export chain activates the source, so `allocate_items` allocates it (a legacy bug; owner decision 2026-11-07) | stays created (GRIDSET once its geometry is written), not allocated; only a connection that consumes the export allocates it | 3.41a B3-FieldPerNode |
-| Propagated child export in the user export state | `add_to_states(mode='user')` skips every item whose `comp_name` is non-empty (`registry/StateRegistry_Actions_smod.F90:73`), so a child's propagated export is not in the parent's user export state | with the user-state switch on, the export-port walk aliases each propagated port (`child/E`) into a substate of the user export state (`populate_export_port`) | 3.41b B3-ExportPortPopulation |
+| Propagated child export in the user export state | `add_to_states(mode='user')` skips every item whose `comp_name` is non-empty (`registry/StateRegistry_Actions_smod.F90:73`), so a child's propagated export is not in the parent's user export state | with the user-state switch on, a propagated port (`child/E`, a slash in the name) is skipped by the user passes (advertise and accept_transfer) and written only to the OUTER export state, in a substate, at REALIZE_ACCEPTED (`populate_export_ports` with `include_propagated`); same as legacy | 3.41b B3-ExportPortPopulation; corrected by 3.42 B3-OuterStatePopulation |
+| Position-labelled names (`T(1)`, `T(2)`, `I_A1(1)`, `A/E_A1(1)`) in the user and outer states | `add_to_states` writes some extension Fields under a name with a position suffix | the graph writes each item once under its declared or port name; no position-labelled copies. Expectation items for these names carry `legacy_only: true`, which `Test_Scenarios` skips when the graph owns the states (registry and both modes still check them). Owner decision 2026-11-07 | 3.42 B3-OuterStatePopulation |
 | Both export and import declare a regridder param, on different geoms | `GeomAspect%make_transform` `_FAIL`s (`specs/GeomAspect.F90:191-213`); connection setup aborts | reported per pair as an incompatible GEOMETRY conflict naming both signatures (with params); the component's other connections still resolve. Owner decision 2026-11-08 | C1-geom-b |
 | Geometry mismatch on a FIELDBUNDLE, BRACKET, VECTOR or VECTORBRACKET item | `RegridTransform%update` regrids Fields and FieldBundles (`transforms/RegridTransform.F90:218-235`) | reports unsupported GEOMETRY until a bundle-level regrid Transform exists (owner decision 2026-11-08; C1-geom-c). Hybrid mode is unaffected: legacy does the regrid | C1-geom-b |
 | Vertical regrid between different fixed-level grids where a field's alignment differs from its grid's direction | `VerticalRegridTransform` reverses each side's levels by the field's alignment (`transforms/VerticalRegridTransform.F90:430-436`, `:519-623`), but fixed-level coordinates are in grid order, so values are wrong: UP grid [1000,500,100] hPa to [800,300] hPa, T = 2p+1: a source stored DOWN gives [521,1501] instead of [1601,601]; a destination stored DOWN gets its output reversed. Model-grid (PLE/ZLE) coordinates arrive in the field's own order, where the flip should be right (read, not run) | builds each side's levels in that field's storage order, then regrids; correct values. Owner decision 2026-11-08 | C1-vertical-a |

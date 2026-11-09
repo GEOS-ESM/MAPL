@@ -105,6 +105,8 @@ module Test_Scenarios
       character(:), allocatable :: check_name
       logical :: permissive = .false.
       logical :: graph_owns_user_states = .false.
+      ! The switch as setup applied it (table flag or environment, GRAPH only).
+      logical :: graph_owns_states = .false.
       character(:), allocatable :: expected_exception
       type(FieldDictionaryConfig) :: saved_fd_config
       procedure(I_check_stateitem), nopass, pointer :: check_stateitem
@@ -171,7 +173,8 @@ contains
       table = [ &
            ScenarioEntry('scenario_1',              'parent.yaml',      .true.), &
            ScenarioEntry('scenario_2',              'parent.yaml',      .true.), &
-           ScenarioEntry('scenario_reexport_twice', 'grandparent.yaml', .true.), &
+           ScenarioEntry('scenario_reexport_twice', 'grandparent.yaml', .true., &
+                graph_owns_user_states=.true.), &
            ScenarioEntry('propagate_geom',          'parent.yaml',      .true.), &
            ScenarioEntry('vertical_regridding_2',   'parent.yaml',      .false.), &
            ScenarioEntry('vertical_regridding_3',   'AGCM.yaml',        .false.), &
@@ -196,7 +199,8 @@ contains
            ScenarioEntry('vertical_alignment_with_grid', 'parent.yaml', .false.), &
            ScenarioEntry('expression_match',        'parent.yaml',      .true.), &
            ScenarioEntry('expression_defer_geom',   'parent.yaml',      .true.), &
-           ScenarioEntry('invalidate',              'cap.yaml',         .true.), &
+           ScenarioEntry('invalidate',              'cap.yaml',         .true., &
+                graph_owns_user_states=.true.), &
            ScenarioEntry('history_1',               'cap.yaml',         .true.), &
            ScenarioEntry('history_wildcard',        'cap.yaml',         .true.), &
            ScenarioEntry('extdata_1',               'cap.yaml',         .true.), &
@@ -205,15 +209,19 @@ contains
            ScenarioEntry('expression_per_consumer', 'parent.yaml',      .true.), &
            ScenarioEntry('expression_per_consumer_r8', 'parent.yaml', &
                 .false., graph_only=.true.), &
-           ScenarioEntry('../graph-scenarios/plain_field',                  'cap.yaml', .true.), &
+           ScenarioEntry('../graph-scenarios/plain_field',                  'cap.yaml', .true., &
+                graph_owns_user_states=.true.), &
            ScenarioEntry('../graph-scenarios/vertical_field',               'cap.yaml', .true.), &
            ScenarioEntry('../graph-scenarios/ungridded_dims',               'cap.yaml', .true.), &
            ScenarioEntry('../graph-scenarios/dims_z_field',                 'cap.yaml', .true.), &
-           ScenarioEntry('../graph-scenarios/units_mismatch_run_phase',     'cap.yaml', .true.), &
+           ScenarioEntry('../graph-scenarios/units_mismatch_run_phase',     'cap.yaml', .true., &
+                graph_owns_user_states=.true.), &
            ScenarioEntry('../graph-scenarios/grandparent_units_run_phase', 'cap.yaml', .true., &
                 graph_owns_user_states=.true.), &
-           ScenarioEntry('../graph-scenarios/units_and_typekind_mismatch',  'cap.yaml', .true.), &
-           ScenarioEntry('../graph-scenarios/graphbuilder_propagation',     'cap.yaml', .true.), &
+           ScenarioEntry('../graph-scenarios/units_and_typekind_mismatch',  'cap.yaml', .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('../graph-scenarios/graphbuilder_propagation',     'cap.yaml', .true., &
+                graph_owns_user_states=.true.), &
            ScenarioEntry('../graph-scenarios/standard_name_and_ungridded_dims_mismatch', 'cap.yaml', .true., &
                 permissive=.true.) &
            ]
@@ -406,10 +414,10 @@ contains
 
       call set_graph_mode(this%graph_mode, _RC)
       call set_materialize_extensions(this%graph_mode /= GRAPH_MODE_REGISTRY)
-      call set_graph_owns_user_states( &
-           this%graph_mode == GRAPH_MODE_GRAPH .and. &
+      this%graph_owns_states = this%graph_mode == GRAPH_MODE_GRAPH .and. &
            (this%graph_owns_user_states .or. &
-           env_is_set('MAPL_SCENARIO_GRAPH_OWNS_USER_STATES')))
+           env_is_set('MAPL_SCENARIO_GRAPH_OWNS_USER_STATES'))
+      call set_graph_owns_user_states(this%graph_owns_states)
 
       this%saved_fd_config = get_field_dictionary_config()
       if (this%permissive) call set_field_dictionary_config(FieldDictionaryConfig())
@@ -522,6 +530,7 @@ contains
          type(ESMF_State) :: state
          character(:), allocatable :: msg
          type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
+         logical :: legacy_only
 
          rc = -1
 
@@ -543,6 +552,13 @@ contains
          do while (ESMF_HConfigIterLoop(hconfigIter,hconfigIterBegin,hconfigIterEnd))
             item_name = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
             expected_properties = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
+
+            ! Position-labelled names such as T(1) exist only in legacy.
+            legacy_only = .false.
+            if (ESMF_HConfigIsDefined(expected_properties, keyString='legacy_only')) then
+               legacy_only = ESMF_HConfigAsLogical(expected_properties, keyString='legacy_only', _RC)
+            end if
+            if (legacy_only .and. this%graph_owns_states) cycle
 
             msg = comp_path // '::' // state_intent // '::' // item_name
 

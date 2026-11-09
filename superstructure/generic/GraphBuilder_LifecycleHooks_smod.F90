@@ -263,6 +263,18 @@ contains
       call report_if_failed(this, 'populate_state', status)
    end subroutine graphbuilder_run_populate_state_hook
 
+   ! GENERIC_INIT_REALIZE_ACCEPTED entry point into
+   ! graphbuilder_populate_outer_state.
+   module subroutine graphbuilder_run_populate_outer_hook(this, multi_state)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(MultiState), intent(inout) :: multi_state
+
+      integer :: status
+
+      call graphbuilder_populate_outer_state(this, multi_state, status)
+      call report_if_failed(this, 'populate_outer_state', status)
+   end subroutine graphbuilder_run_populate_outer_hook
+
    ! Separate procedure so the check has its own rc to pass to
    ! report_if_failed.
    module subroutine assert_converged(unresolved, rc)

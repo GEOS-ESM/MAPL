@@ -1489,9 +1489,10 @@ contains
    ! add_to_states: (a) a renamed re-export of an INTERNAL is that internal's
    ! allocated Field, carrying its long_name; (b) a renamed re-export of an
    ! unconnected export is the producer's Field, still only GRIDSET; (c) a
-   ! propagated child_src/E_conn sits in a substate, aliased to the
-   ! producer's Field. A second pass adds nothing.
-   ! Seeded to fail: with the port walk off, the export state is empty.
+   ! propagated child_src/E_conn is NOT in the user export state (it is an
+   ! outer-state item, as in legacy). A second pass adds nothing.
+   ! Seeded to fail: with the port walk off, the export state is empty; with
+   ! the propagated filter off, the child_src substate appears.
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_populate_export_ports_graph_mode(this)
       class(ESMF_TestMethod), intent(inout) :: this
@@ -1499,16 +1500,16 @@ contains
       type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
       type(ESMF_State) :: export_state, sub_state
       type(ESMF_Field) :: legacy(3), pz_port, pz_node, eren_port, eren_node
-      type(ESMF_Field) :: conn_port, conn_node, pe_port, pe_node
+      type(ESMF_Field) :: pe_port, pe_node
       type(ESMF_FieldStatus_Flag) :: eren_fstatus
       type(RestartMode) :: pz_mode
       type(MultiState) :: parent_states
       type(GraphBuilder) :: gb
       type(MAPL_StateItemAllocation) :: pz_alloc, eren_alloc
       character(:), allocatable :: long_name
-      integer :: status, st_pz, st_e, st_c, st_sub, st_n(4), st_a(4), st_l, st_ea, st_m, st_pe
-      integer :: export_count, sub_count
-      logical :: pz_same, eren_same, conn_same, pe_same
+      integer :: status, st_pz, st_e, st_sub, st_n(3), st_a(3), st_l, st_ea, st_m, st_pe
+      integer :: export_count
+      logical :: pz_same, eren_same, pe_same
 
       call set_graph_mode(GRAPH_MODE_GRAPH)
       call set_graph_owns_user_states(.true.)
@@ -1541,11 +1542,7 @@ contains
       call ESMF_StateGet(export_state, 'child_src', sub_state, rc=st_sub)
       @assertEqual(0, st_pz)
       @assertEqual(0, st_e)
-      @assertEqual(0, st_sub)
-      call ESMF_StateGet(sub_state, itemCount=sub_count, rc=status)
-      @assertEqual(0, status)
-      call ESMF_StateGet(sub_state, 'E_conn', conn_port, rc=st_c)
-      @assertEqual(0, st_c)
+      @assertTrue(st_sub /= 0)
       call ESMF_StateGet(export_state, 'PE', pe_port, rc=st_pe)
       @assertEqual(0, st_pe)
 
@@ -1553,14 +1550,11 @@ contains
            pz_node, st_n(1))
       call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'E_unconn', &
            eren_node, st_n(2))
-      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'E_conn', &
-           conn_node, st_n(3))
       call get_node_field(parent_meta, ESMF_STATEINTENT_EXPORT, 'PE', &
-           pe_node, st_n(4))
-      pe_same = FieldsAreAliased(pe_port, pe_node, rc=st_a(4))
+           pe_node, st_n(3))
+      pe_same = FieldsAreAliased(pe_port, pe_node, rc=st_a(3))
       pz_same = FieldsAreAliased(pz_port, pz_node, rc=st_a(1))
       eren_same = FieldsAreAliased(eren_port, eren_node, rc=st_a(2))
-      conn_same = FieldsAreAliased(conn_port, conn_node, rc=st_a(3))
       call get_allocation_status(pz_port, pz_alloc, st_l)
       call get_allocation_status(eren_port, eren_alloc, st_ea)
       call MAPL_FieldGet(pz_port, long_name=long_name, restart_mode=pz_mode, &
@@ -1573,11 +1567,9 @@ contains
       @assertEqual(0, st_n(1))
       @assertEqual(0, st_n(2))
       @assertEqual(0, st_n(3))
-      @assertEqual(0, st_n(4))
-      @assertEqual(0, st_a(4))
+      @assertEqual(0, st_a(3))
       @assertEqual(0, st_a(1))
       @assertEqual(0, st_a(2))
-      @assertEqual(0, st_a(3))
 
       @assertTrue(pz_same)
       @assertTrue(pz_alloc == MAPL_STATEITEM_ALLOCATION_ALLOCATED)
@@ -1587,12 +1579,10 @@ contains
       @assertTrue(eren_same)
       @assertTrue(eren_alloc == MAPL_STATEITEM_ALLOCATION_CREATED)
       @assertTrue(eren_fstatus == ESMF_FIELDSTATUS_GRIDSET)
-      @assertTrue(conn_same)
       ! The declared export PE is in the state once and is its own Field.
       @assertTrue(pe_same)
-      ! PZout, Eren, PE and the child_src substate; E_conn and E_unconn in it.
-      @assertEqual(4, export_count)
-      @assertEqual(2, sub_count)
+      ! PZout, Eren and PE only: no child_src substate.
+      @assertEqual(3, export_count)
 
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(dst_meta)
@@ -1640,6 +1630,413 @@ contains
       _UNUSED_DUMMY(src_meta)
       _UNUSED_DUMMY(dst_meta)
    end subroutine test_populate_export_ports_off_in_hybrid_and_both
+
+   ! The own-only populate at advertise never writes a propagated child
+   ! export (slash in the port name): that belongs to the outer state only.
+   ! Seeded to fail: with the propagated filter off, the child_src substate
+   ! appears in the user export state.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_state_own_only_skips_propagated(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(ESMF_State) :: import_state, export_state, sub_state
+      type(ESMF_Field) :: legacy(3)
+      type(MultiState) :: states
+      type(GraphBuilder) :: gb
+      integer :: status, st_sub, export_count
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_field_per_node_fixture('comp_parent_ports_own', parent_meta, &
+           src_meta, dst_meta, .false., &
+           MAPL_STATEITEM_ALLOCATION_ACTIVE, legacy, status)
+      @assert_that(status, is(0))
+      call add_export_port_cases(parent_meta, status)
+      @assert_that(status, is(0))
+      import_state = ESMF_StateCreate(name='p_import', rc=status)
+      @assert_that(status, is(0))
+      export_state = ESMF_StateCreate(name='p_export', rc=status)
+      @assert_that(status, is(0))
+      states = MultiState(importState=import_state, exportState=export_state)
+
+      call gb%populate_state(parent_meta, states, status, own_only=.true.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assert_that(status, is(0))
+
+      call ESMF_StateGet(export_state, 'child_src', sub_state, rc=st_sub)
+      call ESMF_StateGet(export_state, itemCount=export_count, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(st_sub /= 0)
+      ! PZout, Eren and PE.
+      @assertEqual(3, export_count)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_meta)
+      _UNUSED_DUMMY(dst_meta)
+   end subroutine test_populate_state_own_only_skips_propagated
+
+   ! Fills the parent user states and outer states (the ones its own
+   ! parent sees) as the lifecycle does, each pass twice.
+   subroutine populate_user_and_outer(parent_meta, user_states, outer_states, &
+        passes, rc)
+      type(OuterMetaComponent), pointer, intent(in) :: parent_meta
+      type(MultiState), intent(out) :: user_states, outer_states
+      integer, intent(in) :: passes
+      integer, intent(out) :: rc
+
+      type(ESMF_State) :: u_import, u_export, o_import, o_export
+      type(GraphBuilder) :: gb
+      integer :: status, i
+
+      u_import = ESMF_StateCreate(name='u_import', rc=status)
+      _VERIFY(status)
+      u_export = ESMF_StateCreate(name='u_export', rc=status)
+      _VERIFY(status)
+      o_import = ESMF_StateCreate(name='o_import', rc=status)
+      _VERIFY(status)
+      o_export = ESMF_StateCreate(name='o_export', rc=status)
+      _VERIFY(status)
+      user_states = MultiState(importState=u_import, exportState=u_export)
+      outer_states = MultiState(importState=o_import, exportState=o_export)
+      do i = 1, passes
+         call gb%populate_state(parent_meta, user_states, status)
+         _VERIFY(status)
+         call gb%populate_outer_state(parent_meta, outer_states, status)
+         _VERIFY(status)
+      end do
+      rc = 0
+   end subroutine populate_user_and_outer
+
+   ! The outer states hold the very Fields of the user states: the declared
+   ! export PE, the re-exported internal PZout and the re-exported export
+   ! Eren on the parent, and the connected import E_conn and the unconnected
+   ! import I_unconn on child_dst. Seeded to fail: with the outer populate
+   ! off the outer states are empty.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_outer_state_shares_user_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(GriddedComponentDriver), pointer :: dst_driver
+      type(MultiState) :: user_states, outer_states, dst_user, dst_outer
+      type(ESMF_State) :: u_import, o_import
+      type(ESMF_Field) :: legacy(3), u_pe, o_pe, u_pz, o_pz, u_er, o_er
+      type(ESMF_Field) :: u_ec, o_ec, u_iu, o_iu
+      logical :: pe_same, pz_same, er_same, ec_same, iu_same
+      integer :: status, st(10), sa(5)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_field_per_node_fixture('comp_parent_outer', parent_meta, &
+           src_meta, dst_meta, .false., &
+           MAPL_STATEITEM_ALLOCATION_ACTIVE, legacy, status)
+      @assert_that(status, is(0))
+      call add_export_port_cases(parent_meta, status)
+      @assert_that(status, is(0))
+      call populate_user_and_outer(parent_meta, user_states, outer_states, 2, &
+           status)
+      @assert_that(status, is(0))
+
+      dst_driver => dst_meta%get_user_gc_driver()
+      dst_user = dst_driver%get_states()
+      call populate_dst_outer(dst_meta, dst_user, dst_outer, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assert_that(status, is(0))
+
+      call ESMF_StateGet(user_states%exportState, 'PE', u_pe, rc=st(1))
+      call ESMF_StateGet(outer_states%exportState, 'PE', o_pe, rc=st(2))
+      call ESMF_StateGet(user_states%exportState, 'PZout', u_pz, rc=st(3))
+      call ESMF_StateGet(outer_states%exportState, 'PZout', o_pz, rc=st(4))
+      call ESMF_StateGet(user_states%exportState, 'Eren', u_er, rc=st(5))
+      call ESMF_StateGet(outer_states%exportState, 'Eren', o_er, rc=st(6))
+      u_import = dst_user%importState
+      o_import = dst_outer%importState
+      call ESMF_StateGet(u_import, 'E_conn', u_ec, rc=st(7))
+      call ESMF_StateGet(o_import, 'E_conn', o_ec, rc=st(8))
+      call ESMF_StateGet(u_import, 'I_unconn', u_iu, rc=st(9))
+      call ESMF_StateGet(o_import, 'I_unconn', o_iu, rc=st(10))
+      @assertEqual(0, maxval(abs(st)))
+
+      pe_same = FieldsAreAliased(u_pe, o_pe, rc=sa(1))
+      pz_same = FieldsAreAliased(u_pz, o_pz, rc=sa(2))
+      er_same = FieldsAreAliased(u_er, o_er, rc=sa(3))
+      ec_same = FieldsAreAliased(u_ec, o_ec, rc=sa(4))
+      iu_same = FieldsAreAliased(u_iu, o_iu, rc=sa(5))
+      @assertEqual(0, maxval(abs(sa)))
+      @assertTrue(pe_same)
+      @assertTrue(pz_same)
+      @assertTrue(er_same)
+      @assertTrue(ec_same)
+      @assertTrue(iu_same)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_meta)
+   end subroutine test_populate_outer_state_shares_user_field
+
+   ! Fills the user and outer import/export states of child_dst.
+   subroutine populate_dst_outer(dst_meta, dst_user, dst_outer, rc)
+      type(OuterMetaComponent), pointer, intent(in) :: dst_meta
+      type(MultiState), intent(inout) :: dst_user
+      type(MultiState), intent(out) :: dst_outer
+      integer, intent(out) :: rc
+
+      type(ESMF_State) :: o_import, o_export
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      o_import = ESMF_StateCreate(name='d_import', rc=status)
+      _VERIFY(status)
+      o_export = ESMF_StateCreate(name='d_export', rc=status)
+      _VERIFY(status)
+      dst_outer = MultiState(importState=o_import, exportState=o_export)
+      call gb%populate_state(dst_meta, dst_user, status)
+      _VERIFY(status)
+      call gb%populate_outer_state(dst_meta, dst_outer, status)
+      _VERIFY(status)
+      rc = 0
+   end subroutine populate_dst_outer
+
+   ! A propagated child export child_src/E_conn is in the OUTER export state
+   ! only, aliased to the producer Field, as legacy does; the user export
+   ! state has no child_src substate. Seeded to fail: with the slash filter
+   ! off the user export state gains the substate; with the outer populate
+   ! off the outer state lacks it.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_outer_state_propagated_only_in_outer(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(MultiState) :: user_states, outer_states
+      type(ESMF_State) :: u_sub, o_sub
+      type(ESMF_Field) :: legacy(3), o_conn, o_unconn, conn_node, unconn_node
+      logical :: conn_same, unconn_same
+      integer :: status, st(8)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_field_per_node_fixture('comp_parent_outer_prop', parent_meta, &
+           src_meta, dst_meta, .false., &
+           MAPL_STATEITEM_ALLOCATION_ACTIVE, legacy, status)
+      @assert_that(status, is(0))
+      call add_export_port_cases(parent_meta, status)
+      @assert_that(status, is(0))
+      call populate_user_and_outer(parent_meta, user_states, outer_states, 2, &
+           status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assert_that(status, is(0))
+
+      call ESMF_StateGet(user_states%exportState, 'child_src', u_sub, rc=st(1))
+      call ESMF_StateGet(outer_states%exportState, 'child_src', o_sub, rc=st(2))
+      call ESMF_StateGet(o_sub, 'E_conn', o_conn, rc=st(3))
+      call ESMF_StateGet(o_sub, 'E_unconn', o_unconn, rc=st(4))
+      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'E_conn', &
+           conn_node, st(5))
+      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'E_unconn', &
+           unconn_node, st(6))
+      conn_same = FieldsAreAliased(o_conn, conn_node, rc=st(7))
+      unconn_same = FieldsAreAliased(o_unconn, unconn_node, rc=st(8))
+
+      @assertTrue(st(1) /= 0)
+      @assertEqual(0, st(2))
+      @assertEqual(0, st(3))
+      @assertEqual(0, st(4))
+      @assertEqual(0, st(5))
+      @assertEqual(0, st(6))
+      @assertEqual(0, st(7))
+      @assertEqual(0, st(8))
+      @assertTrue(conn_same)
+      @assertTrue(unconn_same)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(dst_meta)
+   end subroutine test_populate_outer_state_propagated_only_in_outer
+
+   ! The outer states hold only the declared and port items of the component
+   ! itself: no INTERNAL item (PZ itself, only its re-export PZout), no item
+   ! of a child, and no population of the child states.
+   ! Seeded to fail: an outer walk that included INTERNAL items would fill
+   ! the outer internal state.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_outer_state_skips_internal_and_children(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(GriddedComponentDriver), pointer :: src_driver
+      type(MultiState) :: outer_states, src_user
+      type(ESMF_State) :: o_import, o_export, o_internal
+      type(GraphBuilder) :: gb
+      type(ESMF_Field) :: legacy(3), f
+      type(ESMF_State) :: sub
+      integer :: status, st_pz, st_e, st_ec, st_sub
+      integer :: import_count, export_count, internal_count, src_export_count, child_count
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_field_per_node_fixture('comp_parent_outer_int', parent_meta, &
+           src_meta, dst_meta, .false., &
+           MAPL_STATEITEM_ALLOCATION_ACTIVE, legacy, status)
+      @assert_that(status, is(0))
+      call add_export_port_cases(parent_meta, status)
+      @assert_that(status, is(0))
+      ! Only the outer populate runs, so any item in the user
+      ! states of the child would come from it.
+      o_import = ESMF_StateCreate(name='o_import', rc=status)
+      @assert_that(status, is(0))
+      o_export = ESMF_StateCreate(name='o_export', rc=status)
+      @assert_that(status, is(0))
+      o_internal = ESMF_StateCreate(name='o_internal', rc=status)
+      @assert_that(status, is(0))
+      outer_states = MultiState(importState=o_import, exportState=o_export, &
+           internalState=o_internal)
+      call gb%populate_outer_state(parent_meta, outer_states, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assert_that(status, is(0))
+
+      call ESMF_StateGet(outer_states%exportState, 'PZ', f, rc=st_pz)
+      call ESMF_StateGet(outer_states%exportState, 'E_unconn', f, rc=st_e)
+      call ESMF_StateGet(outer_states%exportState, 'E_conn', f, rc=st_ec)
+      call ESMF_StateGet(outer_states%exportState, 'child_src', sub, rc=st_sub)
+      call ESMF_StateGet(sub, itemCount=child_count, rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(outer_states%importState, itemCount=import_count, &
+           rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(outer_states%exportState, itemCount=export_count, &
+           rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateGet(o_internal, itemCount=internal_count, rc=status)
+      @assertEqual(0, status)
+      src_driver => src_meta%get_user_gc_driver()
+      src_user = src_driver%get_states()
+      call ESMF_StateGet(src_user%exportState, itemCount=src_export_count, &
+           rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(st_pz /= 0)
+      @assertTrue(st_e /= 0)
+      @assertTrue(st_ec /= 0)
+      @assertEqual(0, st_sub)
+      ! The parent declares no import. PZout, Eren, PE and the child_src
+      ! substate in the export state.
+      @assertEqual(0, import_count)
+      @assertEqual(4, export_count)
+      ! E_unconn, E_conn: the two propagated child exports (Z is internal).
+      @assertEqual(2, child_count)
+      ! Z and PZ are INTERNAL: no internal item reaches the outer states.
+      @assertEqual(0, internal_count)
+      ! The parent walk never fills the user states of a child.
+      @assertEqual(0, src_export_count)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(dst_meta)
+   end subroutine test_populate_outer_state_skips_internal_and_children
+
+   ! The outer populate adds nothing with the switch off or in BOTH mode:
+   ! legacy add_to_states fills the outer states there.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_outer_state_off_in_hybrid_and_both(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(MultiState) :: user_states, outer_states
+      type(ESMF_Field) :: legacy(3)
+      integer :: status, off_count, both_count
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_field_per_node_fixture('comp_parent_outer_off', parent_meta, &
+           src_meta, dst_meta, .false., &
+           MAPL_STATEITEM_ALLOCATION_ACTIVE, legacy, status)
+      @assert_that(status, is(0))
+      call add_export_port_cases(parent_meta, status)
+      @assert_that(status, is(0))
+
+      call set_graph_owns_user_states(.false.)
+      call populate_user_and_outer(parent_meta, user_states, outer_states, 2, &
+           status)
+      @assert_that(status, is(0))
+      call ESMF_StateGet(outer_states%exportState, itemCount=off_count, &
+           rc=status)
+      @assertEqual(0, status)
+
+      call set_graph_mode(GRAPH_MODE_BOTH)
+      call set_graph_owns_user_states(.true.)
+      call populate_user_and_outer(parent_meta, user_states, outer_states, 2, &
+           status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assert_that(status, is(0))
+      call ESMF_StateGet(outer_states%exportState, itemCount=both_count, &
+           rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual(0, off_count)
+      @assertEqual(0, both_count)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_meta)
+      _UNUSED_DUMMY(dst_meta)
+   end subroutine test_populate_outer_state_off_in_hybrid_and_both
+
+   ! Calling the outer populate again changes nothing: same item counts and
+   ! the same Fields. Seeded to fail: an outer fill that added instead of
+   ! replacing would raise the counts or fail on a duplicate name.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_outer_state_idempotent(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(MultiState) :: user_states, outer_states
+      type(ESMF_State) :: sub
+      type(ESMF_Field) :: legacy(3), before, after
+      type(GraphBuilder) :: gb
+      logical :: same
+      integer :: status, st(6), count_before, count_after, sub_before, sub_after
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_field_per_node_fixture('comp_parent_outer_idem', parent_meta, &
+           src_meta, dst_meta, .false., &
+           MAPL_STATEITEM_ALLOCATION_ACTIVE, legacy, status)
+      @assert_that(status, is(0))
+      call add_export_port_cases(parent_meta, status)
+      @assert_that(status, is(0))
+      call populate_user_and_outer(parent_meta, user_states, outer_states, 1, &
+           status)
+      @assert_that(status, is(0))
+      call ESMF_StateGet(outer_states%exportState, itemCount=count_before, &
+           rc=st(1))
+      call ESMF_StateGet(outer_states%exportState, 'child_src', sub, rc=st(2))
+      call ESMF_StateGet(sub, itemCount=sub_before, rc=st(3))
+      call ESMF_StateGet(outer_states%exportState, 'PE', before, rc=st(4))
+
+      call gb%populate_outer_state(parent_meta, outer_states, status)
+      call gb%populate_outer_state(parent_meta, outer_states, rc=st(5))
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assert_that(status, is(0))
+      @assert_that(st(5), is(0))
+
+      call ESMF_StateGet(outer_states%exportState, itemCount=count_after, &
+           rc=st(1))
+      call ESMF_StateGet(outer_states%exportState, 'child_src', sub, rc=st(2))
+      call ESMF_StateGet(sub, itemCount=sub_after, rc=st(3))
+      call ESMF_StateGet(outer_states%exportState, 'PE', after, rc=st(4))
+      same = FieldsAreAliased(before, after, rc=st(6))
+      @assertEqual(0, maxval(abs(st)))
+      @assertEqual(count_before, count_after)
+      @assertEqual(sub_before, sub_after)
+      @assertTrue(same)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_meta)
+      _UNUSED_DUMMY(dst_meta)
+   end subroutine test_populate_outer_state_idempotent
 
    ! (d) REGISTRY mode: advertise creates no Field, so population finds
    ! nothing for the INTERNAL item or the unconnected EXPORT.

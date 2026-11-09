@@ -45,8 +45,8 @@ contains
    ! is on, and nothing otherwise.
    !
    ! With graph_populates_user_states() on, the export-port table is walked
-   ! too (populate_export_ports): a re-export or propagated export has no
-   ! declared item of that name.
+   ! too (populate_export_ports): a re-export has no declared item of that
+   ! name. A propagated child export goes only to the outer state.
    !
    ! own_only (advertise time, switch on): only the user states of `this`
    ! itself, and only each item's own created Field, unconnected and
@@ -108,7 +108,7 @@ contains
       ! Export ports: a re-exported or propagated item is an export under the
       ! port's name that no declared item names.
       if (graph_populates_user_states()) then
-         call populate_export_ports(graph, multi_state, only_own, _RC)
+         call populate_export_ports(graph, multi_state, only_own, .false., _RC)
       end if
 
       _RETURN_IF(only_own)
@@ -120,6 +120,51 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine graphbuilder_populate_state
+
+   ! Fills the import/export States the parent sees, as legacy
+   ! add_to_states(mode='outer') does, with the same Fields the user states
+   ! hold. A no-op unless graph_populates_user_states() is on. Declared
+   ! IMPORT and EXPORT items, then every export port including a propagated
+   ! child export (a slash in the port name), which only this state gets.
+   ! INTERNAL items are not outer items. No descendants: each component
+   ! fills its own outer states at its own realize_accepted.
+   module subroutine graphbuilder_populate_outer_state(this, multi_state, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(MultiState), intent(inout) :: multi_state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentSpec), pointer :: this_spec
+      type(ComponentGraph), pointer :: graph
+      type(DependencyNetwork), pointer :: net
+      type(VariableSpecVectorIterator) :: iter
+      type(VariableSpec), pointer :: var_spec
+      type(NodeId), pointer :: id_ptr
+
+      _RETURN_UNLESS(graph_populates_user_states())
+
+      graph => this%get_component_graph()
+      net => graph%get_network(graph%get_forward_network_id())
+
+      this_spec => this%get_component_spec()
+      associate (e => this_spec%var_specs%ftn_end())
+         iter = this_spec%var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT .or. &
+                 var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) cycle
+            id_ptr => graph%get_resource_index(item_key(var_spec%state_intent, var_spec%short_name))
+            call populate_one(graph, net, multi_state, id_ptr, &
+                 var_spec%state_intent, var_spec%short_name, .false., &
+                 .true., _RC)
+         end do
+      end associate
+
+      call populate_export_ports(graph, multi_state, .false., .true., _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine graphbuilder_populate_outer_state
 
    ! Populates the user states of every descendant of `owner`, using the
    ! hierarchy's forward network. A grandchild is reached from every
@@ -274,11 +319,15 @@ contains
    ! Adds the Field of every export port's bound node to the user export
    ! State under the port's name. A port whose name resolves to its own
    ! node is the declared-item walk's entry and is skipped; a same-named
-   ! port on another node (a re-export) is not.
-   subroutine populate_export_ports(graph, multi_state, own_only, rc)
+   ! port on another node (a re-export) is not. A propagated child export
+   ! (slash in the name) is for the outer state only, as in legacy, so
+   ! include_propagated is false for a user pass.
+   subroutine populate_export_ports(graph, multi_state, own_only, &
+        include_propagated, rc)
       type(ComponentGraph), target, intent(in) :: graph
       type(MultiState), intent(inout) :: multi_state
       logical, intent(in) :: own_only
+      logical, intent(in) :: include_propagated
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -300,6 +349,7 @@ contains
             if (associated(declared_id)) then
                if (declared_id == node_id) cycle
             end if
+            if (.not. include_propagated .and. index(port_name, '/') > 0) cycle
             call populate_export_port(graph, multi_state, node_id, &
                  port_name, own_only, _RC)
          end do

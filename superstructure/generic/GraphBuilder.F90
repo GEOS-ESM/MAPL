@@ -204,6 +204,11 @@ module mapl_GraphBuilder_mod
       ! GENERIC_INIT_ACCEPT_TRANSFER entry.
       procedure, nopass :: populate_state => graphbuilder_populate_state
       procedure, nopass :: run_populate_state_hook => graphbuilder_run_populate_state_hook
+      ! Fills the import/export States the PARENT sees (legacy
+      ! add_to_states mode='outer') with the same Fields as the user
+      ! states. GRAPH_MODE_GRAPH with graph_populates_user_states() only.
+      procedure, nopass :: populate_outer_state => graphbuilder_populate_outer_state
+      procedure, nopass :: run_populate_outer_hook => graphbuilder_run_populate_outer_hook
       ! Construction only; see graphbuilder_build_run_phase_node. Do not
       ! add an invocation hook without resolving the blockers named there.
       procedure, nopass :: build_run_phase_node => graphbuilder_build_run_phase_node
@@ -515,6 +520,12 @@ module mapl_GraphBuilder_mod
       logical, optional, intent(in) :: own_only
 
    end subroutine graphbuilder_populate_state
+   module subroutine graphbuilder_populate_outer_state(this, multi_state, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(MultiState), intent(inout) :: multi_state
+      integer, optional, intent(out) :: rc
+
+   end subroutine graphbuilder_populate_outer_state
    module subroutine populate_one(graph, net, multi_state, id_ptr, &
         state_intent, short_name, own_only, may_fallback, rc)
       type(ComponentGraph), target, intent(in) :: graph
@@ -695,6 +706,11 @@ module mapl_GraphBuilder_mod
       logical, optional, intent(in) :: own_only
 
    end subroutine graphbuilder_run_populate_state_hook
+   module subroutine graphbuilder_run_populate_outer_hook(this, multi_state)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(MultiState), intent(inout) :: multi_state
+
+   end subroutine graphbuilder_run_populate_outer_hook
    module subroutine assert_converged(unresolved, rc)
       type(GraphResolutionEntryVector), intent(in) :: unresolved
       integer, optional, intent(out) :: rc

@@ -36,7 +36,11 @@ contains
       end if
 
       outer_states = MultiState(importState=importState, exportState=exportState)
-      call this%registry%add_to_states(outer_states, mode='outer', _RC)
+      if (graph_populates_user_states()) then
+         call gb%run_populate_outer_hook(this, outer_states)
+      else
+         call this%registry%add_to_states(outer_states, mode='outer', _RC)
+      end if
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(importState)

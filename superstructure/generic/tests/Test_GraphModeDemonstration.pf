@@ -73,6 +73,7 @@ module Test_GraphModeDemonstration
    use mapl_GraphBuilder_mod, only: item_key
    use mapl_NodeId_mod, only: NodeId, operator(==)
    use mapl_Generic_api, only: mapl_GenericSetServices
+   use mapl_FieldCreate_mod, only: FieldsAreAliased
    use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
    use mapl_RestartHandler_mod, only: get_restart_bundle
    use esmf
@@ -285,6 +286,70 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_switch_on_user_reads_own_export_at_modify_advertised
+
+   ! Through phase 8 (REALIZE_ACCEPTED) with the switch on, the states the
+   ! parent sees hold the very Fields of the user states: comp_src outer
+   ! export T is its user export T, comp_dst outer import T is its user
+   ! import T, and the root export holds comp_src/T as the same Field.
+   ! Seeded to fail: with the outer populate call restored to the legacy
+   ! add_to_states, the outer Fields are the legacy ones, not aliased to the user ones.
+   @test(npes=[0])
+   subroutine test_switch_on_outer_states_share_user_fields(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: cap_gc, src_gc, dst_gc
+      type(ESMF_State) :: importState, exportState, root_sub
+      type(ESMF_Clock) :: clock
+      type(OuterMetaComponent), pointer :: cap_meta, src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(GriddedComponentDriver), pointer :: src_user, dst_user
+      type(MultiState) :: src_outer, dst_outer, src_ustates, dst_ustates
+      type(ESMF_Field) :: src_u, src_o, dst_u, dst_o, root_f
+      logical :: src_same, dst_same, root_same
+      integer :: status, phase_status, st(8)
+
+      call NUOPC_FieldDictionarySetup( &
+           filename='./scenarios/FieldDictionary.yml', _RC)
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call build_scenario_tree_to_phase('./graph-scenarios/plain_field/cap.yaml', &
+           8, cap_gc, importState, exportState, clock, phase_status)
+      call set_graph_owns_user_states(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assertEqual(0, phase_status)
+
+      cap_meta => get_outer_meta(cap_gc, _RC)
+      src_driver = cap_meta%get_child('comp_src', _RC)
+      dst_driver = cap_meta%get_child('comp_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+      src_user => src_meta%get_user_gc_driver()
+      dst_user => dst_meta%get_user_gc_driver()
+      src_ustates = src_user%get_states()
+      dst_ustates = dst_user%get_states()
+      src_outer = src_driver%get_states()
+      dst_outer = dst_driver%get_states()
+
+      call ESMF_StateGet(src_ustates%exportState, 'T', src_u, rc=st(1))
+      call ESMF_StateGet(src_outer%exportState, 'T', src_o, rc=st(2))
+      call ESMF_StateGet(dst_ustates%importState, 'T', dst_u, rc=st(3))
+      call ESMF_StateGet(dst_outer%importState, 'T', dst_o, rc=st(4))
+      call ESMF_StateGet(exportState, 'comp_src', root_sub, rc=st(5))
+      call ESMF_StateGet(root_sub, 'T', root_f, rc=st(6))
+      @assertEqual(0, maxval(abs(st(1:6))))
+      src_same = FieldsAreAliased(src_u, src_o, rc=st(7))
+      dst_same = FieldsAreAliased(dst_u, dst_o, rc=st(8))
+      @assertEqual(0, maxval(abs(st(7:8))))
+      root_same = FieldsAreAliased(src_u, root_f, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(src_same)
+      @assertTrue(dst_same)
+      @assertTrue(root_same)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_switch_on_outer_states_share_user_fields
 
    ! Creates the scenario tree and runs the first last_phase entries of
    ! GENERIC_INIT_PHASE_SEQUENCE. phase_status is the first nonzero user or

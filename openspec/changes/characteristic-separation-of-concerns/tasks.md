@@ -1183,7 +1183,9 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       unconnected export is the producer's Field, GRIDSET and not
       allocated; propagated `child_src/E_conn` is in a substate, aliased
       to the producer's Field; item counts equal after the second pass;
-      fails with the port walk off) and
+      fails with the port walk off. Since 3.42 a propagated name is
+      written only to the outer export state, not to a user-export
+      substate) and
       `test_populate_export_ports_off_in_hybrid_and_both` (switch off, and
       BOTH mode with the switch on: the export state stays empty; fails if
       the walk ignores the switch). Scenarios with the switch ON (NAG,
@@ -1208,6 +1210,8 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       preflight. (c) `history_wildcard` and `extdata_1` fail [item type]
       (`Test_Scenarios.pf` ~961/988; `ProtoExtDataGC.F90:220`); their
       readers take propagated or wildcard names; 3.44 or 3.42 to decide.
+      Since 3.42 a propagated name is written only to the outer export
+      state.
       Dedup: `test_populate_export_ports_graph_mode` declares a parent
       export `PE` and asserts it is in the state once and is its own
       Field. Adding it twice would still give the same count (the add is
@@ -1223,7 +1227,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       (`vector_1`), populate depth to grandchildren
       (`graphbuilder_propagation`), outer states (3.42). Production
       default stays hybrid. NAG and gfortran ESSENTIAL 69/69.
-- [ ] 3.42 B3-OuterStatePopulation (owner, 2026-11-07, low priority;
+- [x] 3.42 B3-OuterStatePopulation (owner, 2026-11-07, low priority;
       after 3.41b, before any graph-only default). Legacy
       `add_to_states(mode='outer')` fills the ESMF import/export states
       the parent sees; the graph never writes them. The owner expects
@@ -1258,6 +1262,59 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       sees the registry's Field, which stays an unread shadow until the
       legacy spec path is retired. Flips `plain_field`; `units_*` and
       `invalidate` need the marker.
+      Status: done. `graphbuilder_populate_outer_state` (and the hook
+      `run_populate_outer_hook`) fills the outer MultiState at
+      `initialize_realize_accepted.F90`, replacing the legacy
+      `add_to_states(mode='outer')` there when
+      `graph_populates_user_states()`: the declared IMPORT and EXPORT
+      items through `populate_one` (own_only false, fallback allowed), then
+      `populate_export_ports` with `include_propagated=.true.`; INTERNAL
+      items and descendants are skipped; each component fills its own
+      outer states at its own REALIZE_ACCEPTED. `populate_export_ports`
+      has the new argument `include_propagated`; every user pass
+      (advertise own-only and accept_transfer) passes false and skips a
+      port whose name has a slash, after the declared-id check. The
+      outer and user aliases share one Field. Unchanged: switch off and
+      BOTH mode (legacy fills the outer states); no change to legacy
+      advertise or allocate, so the registry's INTERNAL Field stays an
+      unread shadow. No reader of the outer states in production code
+      (only `Test_Scenarios.get_substates`). Marker: 58 live `(n)`
+      expectation entries in 18 files carry `legacy_only: true`;
+      `Scenario%graph_owns_states` records the switch as setup applied it,
+      and `check_items_in_state` skips such an item when it is true. Tests
+      (`Test_GraphBuilderMaterializeGate.pf`): new
+      `test_populate_outer_state_shares_user_field`,
+      `_propagated_only_in_outer`, `_skips_internal_and_children`,
+      `_off_in_hybrid_and_both`, `_idempotent`,
+      `test_populate_state_own_only_skips_propagated`; changed
+      `test_populate_export_ports_graph_mode` (the propagated
+      `child_src/E_conn` is now absent from the user export state, 3 items).
+      `Test_GraphModeDemonstration.pf`:
+      `test_switch_on_outer_states_share_user_fields` (phases 1-8 of
+      `plain_field`: outer export `T` of comp_src, outer import `T` of
+      comp_dst and root export `comp_src/T` alias the user Fields). Mutation
+      checks (NAG): slash filter dropped fails `test_populate_export_ports_graph_mode`,
+      `test_populate_state_own_only_skips_propagated` and
+      `..._propagated_only_in_outer`; outer populate a no-op fails
+      `..._shares_user_field`, `..._propagated_only_in_outer`,
+      `..._skips_internal_and_children` and `..._idempotent`; the
+      switch gate removed fails `..._off_in_hybrid_and_both`; INTERNAL
+      included in the outer walk fails `..._skips_internal_and_children`;
+      the legacy outer call restored fails
+      `test_switch_on_outer_states_share_user_fields` and the [value]
+      check of `plain_field`, `units_mismatch_run_phase` and `invalidate`.
+      Scenarios measured with the switch ON, GRAPH mode, NAG: `plain_field`,
+      `units_mismatch_run_phase`, `units_and_typekind_mismatch`,
+      `invalidate`, `graphbuilder_propagation`, `scenario_1`, `scenario_2`,
+      `scenario_reexport_twice`, `propagate_geom`, `names_1`, `statistics`
+      all pass. `graph_owns_user_states` is now set in the table for
+      `plain_field`, `units_mismatch_run_phase`,
+      `units_and_typekind_mismatch`, `invalidate`,
+      `graphbuilder_propagation` and `scenario_reexport_twice` (the
+      slash-filter regression). Pending, not here: scenarios outside the
+      list above with the switch on (3.41a worklist items other than the
+      six flipped). Production default stays hybrid. NAG and gfortran
+      ESSENTIAL 69/69.
 - [x] 3.43 B3-VerticalOrientationSync (found by 3.41a, 2026-11-07).
       Creating Fields for imports exposed a disagreement:
       `get_incomplete_kinds()` reports the descriptor complete, but its
