@@ -170,6 +170,7 @@ contains
       integer, optional, intent(out) :: rc
       type(ESMF_Time) :: next_ring
 
+      do_update = .false.
       if (this%disabled) then
          do_update = .false.
          _RETURN(_SUCCESS)
