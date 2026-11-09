@@ -242,6 +242,7 @@ contains
 
       call regcomp(regex,'^'//this%get_full_name()//'$' // C_NULL_CHAR,flags='xmi')
       matches = regexec(regex,item%get_full_name() // C_NULL_CHAR)
+      call regfree(regex)
 
    end function matches
 
