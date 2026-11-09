@@ -181,7 +181,7 @@ yet; INCOMPATIBLE = can never connect, A23).
 | StandardName | FIELD, BRACKET (since 3.27) | UNCHECKED (also `UNKNOWN_STANDARD_NAME`); the field dictionary never supplies it | unchanged | MIRRORED for `MAPL_STRING_MIRROR`; IMPORT only (A13) | equal; differ: strict INCOMPATIBLE, permissive match with a warning (3.27, design A25) | field-wide; UNCHECKED writes `UNKNOWN_STANDARD_NAME` (`StandardNameCharacteristic.F90:126`) | `StandardNameAspect%matches` (`:110`): dst UNCHECKED matches; src UNCHECKED matches with a warning; differ: STRICT rejects, PERMISSIVE matches with a warning. Built for every shape but consulted only via the class's mandatory/order lists (FIELD; VECTOR per component). Same rule in the graph since 3.27. |
 | LongName | FIELD, EXPRESSION | Field-dictionary entry found (FIELD only; EXPRESSION is exempt) -> SPECIFIED with its long_name, for every intent. Otherwise: IMPORT -> UNCHECKED, writes nothing; other intents -> the declared standard_name as long_name (SPECIFIED), else UNCHECKED (`make_long_name_characteristic`) | unchanged | MIRRORED for `MAPL_STRING_MIRROR`; IMPORT only | never (`needs = .false.`); UNSUPPORTED is unreachable | per-alias | `FieldClassAspect` carries it, not compared; undeclared import takes the export's (`mirror_name`). No standard_name fallback. Differs: fallback (graph only); undeclared-import inheritance (legacy only; graph gap, tasks.md 4.2). |
 | UngriddedDims | HFM (EXPRESSION included, 3.12) | SPECIFIED empty | unchanged | MIRRORED for `ungridded_dims%is_mirror()`; IMPORT only | equal; INCOMPATIBLE | field-wide, structural | `UngriddedDimsAspect%matches` equal; no conversion. Same. |
-| Geometry | CFD + SERVICE | DEFERRED; UNCHECKED if `horizontal_dims_spec` NONE (not compared); MIRRORED for EXPRESSION (`make_geometry_characteristic`) | DEFERRED -> SPECIFIED with the component geom at GEOM_B; else stays DEFERRED and may be filled from the realized field (`graphbuilder_harvest_deferred`, connect hook); still DEFERRED at freeze -> error (`check_resolved`). The uncompared UNCHECKED one takes the component geom and stays UNCHECKED (`geometry_resolve_deferred`). Never dropped. | MIRRORED for `mirror_geom` (YAML `geometry_mirror: true`); IMPORT or EXPRESSION | node identity / `mapl_SameGeom` / geom_id; UNSUPPORTED (no regrid before C1) | field-wide, structural | `make_GeomAspect` (`VariableSpec.F90:756`): item geom, else component geom, else item id, else component id (FROM_COMP), else **MIRRORED**. An item's own geom survives the GEOM_A push (private "declared by the item" flag, legacy's stand-in for DEFERRED; fixed 3.38). Differs: undeclared is DEFERRED in graph, MIRRORED in legacy (A12). |
+| Geometry | CFD + SERVICE | DEFERRED; UNCHECKED if `horizontal_dims_spec` NONE (not compared); MIRRORED for EXPRESSION (`make_geometry_characteristic`) | DEFERRED -> SPECIFIED with the component geom at GEOM_B; else stays DEFERRED and may be filled from the realized field (`graphbuilder_harvest_deferred`, connect hook); still DEFERRED at freeze -> error (`check_resolved`). The uncompared UNCHECKED one takes the component geom and stays UNCHECKED (`geometry_resolve_deferred`). Never dropped. | MIRRORED for `mirror_geom` (YAML `geometry_mirror: true`); IMPORT or EXPRESSION | node identity / `mapl_SameGeom` / geom_id; Field with two held geoms: `HorizontalRegridTransform` (C1-geom-b; `GeometryCharacteristic.F90:180-208`); id-only pair or non-Field tip: UNSUPPORTED (`:213-236`); both sides declaring a regridder param: INCOMPATIBLE | field-wide, structural | `make_GeomAspect` (`VariableSpec.F90:756`): item geom, else component geom, else item id, else component id (FROM_COMP), else **MIRRORED**. An item's own geom survives the GEOM_A push (private "declared by the item" flag, legacy's stand-in for DEFERRED; fixed 3.38). Differs: undeclared is DEFERRED in graph, MIRRORED in legacy (A12). |
 | HorizontalDimsSpec | HDS | SPECIFIED GEOM | unchanged | MIRRORED for `HORIZONTAL_DIMS_MIRROR` (YAML `dims: mirror`); IMPORT only | equal; INCOMPATIBLE | field-wide, structural | Inside `GeomAspect%matches` with `dims_specs_agree` (mirror agrees with any); NONE x NONE matches (A22). Same. |
 | VerticalGrid | CFD (and the VERTICALGRID variant) | DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid`; no entry for stagger NONE (`make_vertical_grid_characteristic`) | DEFERRED -> SPECIFIED from the component vgrid (`vcoord_resolve_deferred`); -> dropped if the component has none (`vcoord_drop_if_unsupplied`, `VerticalGridCharacteristic.F90:210-215`) | MIRRORED for `mirror_vgrid` (YAML `vertical_grid_mirror: true`) or EXPRESSION; IMPORT or EXPRESSION | identity / grid_id / dims set; UNSUPPORTED | field-wide, structural | `make_VerticalGridAspect` (`:854`): item grid, else component grid, else **MIRRORED** (SPECIFIED when the item's stagger is NONE). An item's own grid survives the GEOM_A push (declared flag; fixed 3.38). `VerticalGridAspect%matches` true if dst is mirror. Differs: undeclared DEFERRED vs MIRRORED. |
 | VerticalStagger | CFD | DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid` | component has no vgrid -> SPECIFIED NONE at GEOM_B; with a vgrid stays DEFERRED until harvested from a realized field (`stagger_resolve_deferred`, `VerticalStaggerCharacteristic%harvest`); still DEFERRED at freeze -> error. Never dropped. | MIRRORED for `VERTICAL_STAGGER_MIRROR` (YAML `vertical_dim_spec: MIRROR`); IMPORT or EXPRESSION | equal; UNSUPPORTED | field-wide, structural | Inside `VerticalGridAspect`; unallocated stagger treated as mirror (design §5.1). Differs: undeclared DEFERRED (A17) vs mirror. |
@@ -400,9 +400,11 @@ Graph only:
 - QuantityType/Conservation/Normalization use the declared value (Q9).
 - Undeclared Geometry/VerticalGrid/VerticalStagger are DEFERRED, not
   MIRRORED (A12, A17); freeze fails if never supplied.
-- A second connection to an already-settled import is silently skipped
-  (`resolve_one`, `GraphBuilder_ConnectionResolution_smod.F90:234`, "first
-  wins").
+- A second connection that arrives in a later connect pass, after the
+  import settled, is silently skipped (`resolve_one` returns at
+  `is_import_settled`, `GraphBuilder_ConnectionResolution_smod.F90:254-273`;
+  "first wins"). A second producer resolved in the same pass is reported
+  instead (§2.10).
 
 Legacy only:
 
@@ -503,16 +505,33 @@ anyway. See R1.
   By reading, a second SimpleConnection to the same import runs
   `connect_sibling` again and `FieldClassAspect%connect_to_export`
   replaces the payload, so the last connection wins. Not run.
-- Graph: `resolve_one` returns early for a settled import, so the first
-  connection wins and the second is silently ignored. Not reported.
+- Graph, same pass: two connections that name one import in the same
+  connect pass both reach `resolve_one` (an import is marked settled only
+  by `end_connection_pass`, `OuterMetaComponent/connections_resolved.F90`).
+  The forward network refuses a second, different producer into a
+  `StateItemNode` (`ComponentGraph%forward_producer_conflict`,
+  `ComponentGraph.F90:365-433`). For ordinary and inout-borrower pairings
+  connection resolution checks first and records a per-pair
+  `connection_conflicts` entry naming the item, skips the second producer,
+  and continues the pass (`second_producer`, called at
+  `GraphBuilder_ConnectionResolution_smod.F90:410,519`; inout borrower at
+  `:1445-1450`). The first stays. Other edge kinds (wildcard fan-in,
+  expression, callback collection, geometry) have no such check and reach
+  the `add_dependency` assertion.
+- Graph, later pass: `resolve_one` returns early for an import that already
+  settled (`:254-273`), so a connection that arrives in a later pass is
+  silently skipped and the first wins, with no report.
+- Legacy: by reading, the last connection wins silently
+  (`scenario-parity.md`, "Two connections into one import").
 - `DependencyNetwork` `validate` asserts at most one producer
   (`DependencyNetwork.F90:368`) and the demand-driven update does too
-  (`ComponentGraph_DemandDrivenUpdate.F90:135`), but these count producer
-  operation nodes, not connections; the silent skip means a second edge is
-  never made, so they do not fire. Not verified as a full guarantee.
+  (`ComponentGraph_DemandDrivenUpdate.F90:140`); these count producer
+  operation nodes, not connections.
 
-Neither path enforces the owner's connection rule 5; each silently picks
-one. See R8.
+Legacy does not enforce the owner's connection rule 5 (last wins, by
+reading, not run). The graph reports a second producer only when it is
+resolved in the same pass as the first, and only for ordinary and
+inout-borrower pairings. See R8.
 
 ### 2.11 SimpleConnection intents are not validated
 
@@ -561,7 +580,9 @@ characteristics.*
   on an export (A1) would need cloning, hence disallowed.
 
 C5. *An IMPORT connects to only one EXPORT, except Wildcard.*
-- Unenforced in both; each silently keeps one (§2.10). Wildcard holds.
+- Unenforced in both. Legacy silently keeps the last (by reading); the
+  graph keeps the first, reporting the other only when both resolve in the
+  same pass (§2.10). Wildcard holds.
 
 ### VariableSpec
 
@@ -848,15 +869,15 @@ VectorBracket -> Field".
 Recommendation: (a).
 
 **R8. One export per import: enforce?**
+*Graph today: a second producer resolved in the same connect pass is reported per pair as a connection conflict naming the item (ordinary and inout-borrower pairings only), the first stays, and the pass continues; one arriving in a later pass is silently skipped (§2.10; `second_producer`, `GraphBuilder_ConnectionResolution_smod.F90:410,519,1445`). Task 3.31 (enforce in both paths) was dropped; legacy is unchanged.*
 Legacy: the check is commented out (`SimpleConnection.F90:105`); by
-reading, the last connection wins. Graph: first wins, second silently
-skipped (`resolve_one`, `:222`). Example:
+reading, the last connection wins. Example:
 
 ```yaml
 connections:
   - {src_comp: A, src_name: T, dst_comp: C, dst_name: T}
   - {src_comp: B, src_name: T, dst_comp: C, dst_name: T}
-# legacy: C/T aliases B's T (by reading); graph: A's T; no message in either
+# legacy: C/T aliases B's T (by reading, no message); graph: A's T; B's connection is reported as a conflict if both resolve in the same pass
 ```
 
 - (a) Make it an error in both (restore the legacy assert; the graph

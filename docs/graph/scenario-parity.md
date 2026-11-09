@@ -40,6 +40,7 @@ to "Verified root causes" below.
 | 3d_specs | yes | passes |
 | ungridded_dims | yes | passes |
 | dims_z_field (graph-scenarios) | yes | passes: two `dims: z` items on different horizontal grids connect with no chain |
+| grandparent_units_run_phase (graph-scenarios) | yes | passes (inferred from the commit and its 69/69 ESSENTIAL result; not re-measured): the root declares a connection between two grandchildren (`source_branch/producer/T` to `middle/consumer/producer/T`), expected chain `[units]`. The producer changes its export on step two and the consumer must see the converted value (5000.) before its run; this covers the run-phase pull and advance through the forward network. The table entry sets `graph_owns_user_states`. Per the message of commit `39c16e40f`, a mutation check (NAG) with `run_pull_hook` and `run_advance_hook` made no-ops failed only this scenario in graph mode |
 | precision_extension | yes | passes |
 | precision_extension_3d | yes | passes |
 | export_dependency | yes | passes |
@@ -60,8 +61,8 @@ to "Verified root causes" below.
 | vertical_alignment_with_grid | no | same as `vertical_regridding` |
 | scenario_reexport_twice | yes | passes; graph builds the re-export ports. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes in `GRAPH` mode: the user export state gets both re-exports from the port walk: `Eparent_B1`, a re-export of a child's export, and `Egrandparent_B1`, a re-export of that re-export |
 | expression_defer_geom | yes | passes (measured 2026-11-08): each input on the file grid gets a geometry step (`HorizontalRegridTransform`) before the `ExpressionTransform`; the chain links carry the input names, which `StateEval` looks up |
-| history_1 | no | passes since the G1 guard (measured 2026-11-06); not yet flipped. Recheck R1 before flipping |
-| statistics | no | FAILS: R1 only |
+| history_1 | yes | passes in graph and both modes (the table entry is `.true.`), the deep pull going through the hierarchy's forward network. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it was last measured failing two checks: `B/E_B3` (vertical-grid mismatch, no provider) and the `A/E_A1` value (tasks.md 3.44 Status); not re-measured since the forward network landed |
+| statistics | no | FAILS: R1 only. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it passes: user states are populated at advertise, so the gridcomp finds its export in `INIT_MODIFY_ADVERTISED` |
 | statistics_real | no | FAILS: R1, R2 (vector `A/UV`), P1; measured 2026-11-06: `MethodGraphNode: argument name already declared` (P1) |
 | service_service | no | FAILS: R2 only. After R2, passes, with masked SERVICE items (M3) |
 | service_with_options | no | same as `service_service` |
@@ -162,9 +163,10 @@ In production, the same faults only log a warning and drop part of the graph.
   from an item-level `geometry:` block, never from the component's
   `geometry: vertical_grid:`. In every `vertical_*` scenario the grid is
   declared per component, so the import and export compare equal and
-  legacy does the regrid. Even when it is set, the vertical regrid
-  `Transform` is still missing. Not covered by C1: needs its own C2 task,
-  or should be folded into B3-VerticalCoordinate.
+  legacy does the regrid. Even when it is set, `VerticalGridCharacteristic`
+  `build_transform` does not yet build `VerticalColumnRegridTransform`
+  (C1-vertical-b). Not covered by C1: needs its own C2 task, or should be
+  folded into B3-VerticalCoordinate.
 - **M3. Non-Field shapes are not materialized by the graph.** After G1 and R2,
   EXPRESSION, VECTOR (`vector_1`,
   `statistics_real`) and SERVICE (`service_*`) connections log
@@ -211,8 +213,9 @@ expression/wildcard/bracket-indexed exports (`T(1)`). Retiring the legacy
 calls is plan work (D2 and the B tasks); do not remove them in a test task.
 
 `regrid*` and `propagate_geom` are ready since C1-geom-b. The `vertical_*`
-family stays `graph_ready = .false.` until a vertical `Transform` exists
-(M2, C1-vertical).
+family stays `graph_ready = .false.`: `VerticalColumnRegridTransform` and
+`VerticalFlipTransform` exist, but no characteristic builds them (M2,
+C1-vertical-b).
 
 ## Legacy and graph behavior differences
 
@@ -234,4 +237,4 @@ checklist for switching legacy off.
 | Geometry mismatch on a FIELDBUNDLE, BRACKET, VECTOR or VECTORBRACKET item | `RegridTransform%update` regrids Fields and FieldBundles (`transforms/RegridTransform.F90:218-235`) | reports unsupported GEOMETRY until a bundle-level regrid Transform exists (owner decision 2026-11-08; C1-geom-c). Hybrid mode is unaffected: legacy does the regrid | C1-geom-b |
 | Vertical regrid between different fixed-level grids where a field's alignment differs from its grid's direction | `VerticalRegridTransform` reverses each side's levels by the field's alignment (`transforms/VerticalRegridTransform.F90:430-436`, `:519-623`), but fixed-level coordinates are in grid order, so values are wrong: UP grid [1000,500,100] hPa to [800,300] hPa, T = 2p+1: a source stored DOWN gives [521,1501] instead of [1601,601]; a destination stored DOWN gets its output reversed. Model-grid (PLE/ZLE) coordinates arrive in the field's own order, where the flip should be right (read, not run) | builds each side's levels in that field's storage order, then regrids; correct values. Owner decision 2026-11-08 | C1-vertical-a |
 | Import levels outside the export's level range | `compute_linear_map` copies the end value silently in Release; Debug builds abort on an assertion (`infrastructure/vertical/vertical/VerticalLinearMap.F90`) | copies the end value in every build and logs one warning per weight build. Owner decision 2026-11-08 | C1-vertical-a |
-| Two connections into one import | last connection silently wins: `connect_to_export` replaces the import's payload with each export in turn (`specs/FieldClassAspect.F90:292-304`); the one-connection assert is commented out (`connection/SimpleConnection.F90:105`) | the second producer is reported per pair as a connection conflict naming the item; the first connection's edge stays and the component's other connections still resolve. Owner decision 2026-11-08 | C4-ForwardNetwork |
+| Two connections into one import | last connection silently wins, by reading, not run: `connect_to_export` replaces the import's payload with each export in turn (`specs/FieldClassAspect.F90:292-304`); the one-connection assert is commented out (`connection/SimpleConnection.F90:105`) | the first connection wins. A second producer resolved in the same connect pass, for an ordinary or inout-borrower pairing, is reported per pair as a connection conflict naming the item (`second_producer`, `GraphBuilder_ConnectionResolution_smod.F90:410,519,1445`); the first connection's edge stays and the component's other connections still resolve. A connection arriving in a later pass, after the import settled, is silently skipped (`resolve_one`, `:254-273`); other edge kinds have no pre-check. Owner decision 2026-11-08 | C4-ForwardNetwork |

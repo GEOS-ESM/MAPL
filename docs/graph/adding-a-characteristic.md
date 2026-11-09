@@ -73,12 +73,16 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
      entries. Decide what UNCHECKED writes (§3.3: `'<unknown>'` for units
      and standard_name, nothing for every other key). MIRRORED and
      DEFERRED never reach `write_info`; do not invent a marker for them.
-   - Phases (`SYNC_PHASE_STRUCTURAL`, `SYNC_PHASE_DESCRIPTIVE`, in
-     `mapl_StateItemCharacteristic_mod`): STRUCTURAL runs between
-     empty-create and complete; DESCRIPTIVE may run on a completed
-     field. Override `is_structural()` to return `.true.` for creation
+   - Phases (`SYNC_PHASE_STRUCTURAL`, `SYNC_PHASE_DESCRIPTIVE`,
+     `SYNC_PHASE_ADVERTISED`, in `mapl_StateItemCharacteristic_mod`):
+     STRUCTURAL runs between empty-create and complete; DESCRIPTIVE may
+     run on a completed field; ADVERTISED runs on a Field that is only
+     created, when the graph fills a user state at advertise (non-structural
+     keys only). Override `is_structural()` to return `.true.` for creation
      inputs (Geometry, VerticalGrid, VerticalStagger, TypeKind,
-     UngriddedDims); `sync_to_info` skips them in DESCRIPTIVE.
+     UngriddedDims); `sync_to_info` skips them in DESCRIPTIVE and
+     ADVERTISED. A descriptive kind needs no phase test: it is written in
+     all three (StandardName, LongName, RestartMode).
    - Override `is_per_alias()` to return `.true.` only for a key that
      `MAPL_FieldSet` stores under the item's own `MAPL_NamedAlias` id
      (`restart_mode`, a Field's `long_name`). `populate_one` writes just
@@ -88,7 +92,9 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
    - A descriptive characteristic whose keyword is a `FieldSet`
      FieldDelta trigger (`geom`, `vgrid`, `typekind`, `num_levels`,
      `units`) must also return early unless the phase is STRUCTURAL.
-     PhysicalUnits does this.
+     PhysicalUnits does this, except that it also writes `units` in
+     ADVERTISED, where the Field is only created and the write is safe
+     (`PhysicalUnitsCharacteristic.F90:130-133`).
 4. **Factory** (`specs/VariableSpec/make_characteristics.F90`, a submodule
    of `mapl_VariableSpec_mod`)
    - Add a private `subroutine make_<name>_characteristic(spec, descriptor, rc)`
@@ -137,7 +143,7 @@ Design authority: `openspec/changes/characteristic-separation-of-concerns/design
 
 - UNCHECKED on either side matches (no conversion), which equals the
   old behavior of omitting the entry.
-- `write_info` writes `units=` only in STRUCTURAL; UNCHECKED writes
+- `write_info` writes `units=` only in STRUCTURAL and ADVERTISED; UNCHECKED writes
   `'<unknown>'` (`UNKNOWN_UNITS`). Legacy's `'/$MIRROR$'` marker is not
   reproduced (owner Q11): units are never MIRRORED.
 - Materialization writes units through `write_info` only; an UNCHECKED
@@ -284,7 +290,10 @@ Second kind with a DEFERRED value; it reuses Geometry's machinery.
   `MAPL_FieldBundleSet`; `is_structural()` is `.true.`. `FieldGet` finds the
   grid by id, so the grid must be known to the vertical grid manager.
 - Hybrid `needs_extension_for` is kept; the single-overlap `build_transform`
-  calls `report_build_transform_unsupported`.
+  calls `report_build_transform_unsupported`
+  (`VerticalGridCharacteristic.F90:252-286`).
+  `VerticalColumnRegridTransform` exists in `graph/transforms/` but is not
+  wired into `build_transform`.
 - `StateItemDescriptor` no longer has `declared_vertical_grid`;
   materialization takes the vertical grid only from the
   node's characteristic (no owner fallback).
@@ -351,8 +360,11 @@ calls it alignment. It is independent of VerticalStagger.
   SPECIFIED entries only; `with_grid` is never written because the value is
   already resolved.
 - A MIRROR stagger does not imply a mirrored orientation.
-- `build_transform` reports unsupported (no reversal or vertical-regrid
-  `Transform`).
+- `build_transform` reports unsupported
+  (`VerticalOrientationCharacteristic.F90:97-107`).
+  `VerticalFlipTransform` (an index reversal for an orientation-only
+  mismatch, Field, R4 and R8) exists in `graph/transforms/` but is not wired
+  into `build_transform`.
 - `parse_var_specs` reads the `vertical_alignment` key into
   `VariableSpec%vertical_alignment` (also set by `GridCompAddSpec`). The
   `vertical_alignment_*` scenarios now carry real orientations, but their

@@ -17,17 +17,19 @@ legacy-to-graph vocabulary in `docs/graph/GLOSSARY.md`.
 4. `docs/graph/*.md` topic files (see `docs/graph/README.md`).
 5. **This file** — a navigational summary.
 
-One openspec change is in flight:
+Two openspec changes are active:
 `openspec/changes/characteristic-separation-of-concerns/`, which
-implements Phase B of `docs/graph/plans/separation-of-concerns.md`.
-Where this file and that change's `design.md` disagree about
+implements Phase B of `docs/graph/plans/separation-of-concerns.md`, and
+`openspec/changes/hierarchy-wide-forward-network/` (plan task C4, one
+forward network per hierarchy).
+Where this file and the first change's `design.md` disagree about
 characteristics, the descriptor or status resolution, `design.md` wins.
 Landed changes (including `hierarchy-wide-component-graph`, phases
 7a/7b/7c and 12) are under `openspec/changes/archive/<date>-<name>/`.
 
 Facts below were verified against the tree on 2026-10-21 unless marked
-**[ASSUMPTION]**; updated 2026-11-06 through `cc98f77c3` (characteristics,
-expression, §1.1-§1.2, §2.3, §2.6, §3, §4, §5).
+**[ASSUMPTION]**; updated 2026-11-09 through `39c16e40f` (§1.1-§1.2,
+§2.2-§2.4, §3, §4, §5).
 
 ## 1. Module map (`superstructure/generic/`)
 
@@ -36,18 +38,20 @@ expression, §1.1-§1.2, §2.3, §2.6, §3, §4, §5).
 No dependency on `OuterComponent`/`StateRegistry` (REQ-CG-002). Layout:
 files at the top level, and subdirectories `characteristics/`,
 `transforms/`, `callback/`, `id_types/` (plus `IdTemplate.inc`),
-`containers/` (gFTL instantiations); tests are in `graph/tests/`.
+`containers/` (gFTL instantiations); tests are in `graph/tests/` (for example `Test_ForwardNetwork.pf` for the
+hierarchy's forward network and `Test_VerticalColumnRegridTransform.pf`
+for both vertical Transforms).
 
 | File | Responsibility |
 |---|---|
 | `id_types/NodeId.F90`, `DependencyNetworkId.F90`, `PortId.F90`, `HierarchyId.F90`, `CallbackInterfaceId.F90` | Identity types generated from `id_types/IdTemplate.inc` |
-| `HierarchyGraph.F90` | Hierarchy-wide `NodeId→GraphNode` and `DependencyNetworkId→DependencyNetwork` maps plus the shared id generators |
+| `HierarchyGraph.F90` | Hierarchy-wide `NodeId→GraphNode` and `DependencyNetworkId→DependencyNetwork` maps plus the shared id generators. Also owns the hierarchy's one forward network (created in `initialize`), the transform `PortBindingTable`, and the reuse index (`add_reuse_entry`/`get_reuse_entry`; keys `EXTCHAIN:`, `EXPREVAL:`, `CALLBACK_COLLECTION:`, `WILDCARD_COLLECTION:`) (`HierarchyGraph.F90:43-57,62-74`) |
 | `HierarchyResources.F90`, `HierarchyRegistry.F90` | Container for one `HierarchyGraph`; process-wide registry keyed by `HierarchyId` (`request_new_hierarchy`, `get_hierarchy_resources`, `release_hierarchy`) |
 | `GraphNode.F90`, `BaseGraphNode.F90`, `StateItemNode.F90`, `OperationGraphNode.F90`, `MethodGraphNode.F90` | Node hierarchy. `StateItemNode%has_short_name()` is false for a nameless node (extension, expression result); `get_short_name()` then returns `''`. |
 | `GraphStateItem.F90` | Payload of a `StateItemNode`: Field/FieldBundle/State handle (at most one allocated) and the member maps. The variant tag is read and written only through `MAPL_FieldGet/Set(state_item_variant=)`, `MAPL_FieldBundleGet/Set(state_item_variant=)` and `MAPL_StateGet/Set(state_item_variant=)`; `MAPL_StateItem_Flag` lives in `enums/StateItemFlag.F90` and its Info key in `infrastructure/field/StateItemVariantInfo.F90` and `utils/MAPL_ESMF_InfoKeys.F90`. |
 | `StateItemDescriptor.F90` | Description of a state item, owned by `StateItemNode` (`get_descriptor()` returns a pointer): the characteristics map (`has/get/set_characteristic`, `get_characteristics`) plus the `declared_*` values, and the (item type, kind) mirrored-export allowlist. Independent of any ESMF handle. |
 | `DependencyNetwork.F90` | Acyclic adjacency-list storage |
-| `ComponentGraph.F90`, `ComponentGraph_DemandDrivenUpdate.F90` | Per-`OuterComponent` owner of resource index, import/export port tables, child-port bindings, lifecycle state; demand-driven `update()`. Node/network storage is in `HierarchyGraph`, reached via a stored `HierarchyId`. |
+| `ComponentGraph.F90`, `ComponentGraph_DemandDrivenUpdate.F90` | Per-`OuterComponent` owner of resource index, import/export port tables, child-port bindings, its own write-back networks, lifecycle state; demand-driven `update(node_id, rc)` over the forward network. It has no network of its own for forward edges: `get_forward_network_id` returns the hierarchy's. Node/network storage is in `HierarchyGraph`, reached via a stored `HierarchyId`. |
 | `NodeRevision.F90`, `NodeLabel.F90` | Revision stamps; visualization labels |
 | `PortSpec.F90`, `PortBindingKey.F90`, `PortBindingTable.F90`, `ArgumentSpec.F90`, `AccessSpec.F90` | Transform port declarations and external port-binding table; method argument specs |
 | `ExtensionResolution.F90` | Mismatch detection (`find_mismatched_characteristics`), extension-chain build (`find_or_build_extension_chain`), reuse lookup |
@@ -137,8 +141,9 @@ that carries the same status key is not mistaken for one
 (`payload_is_created` in `ExtensionMaterialization.F90`).
 `advertise_one` creates the Field at advertise for INTERNAL, EXPORT and
 IMPORT nodes of FIELD class when graph mode is not `REGISTRY`; not for
-composites, bundles, vectors, brackets, expressions, services, state items
-or names containing `/` (`GraphBuilder_Advertising_smod.F90:112-121`).
+composites, bundles, vectors, brackets, expressions, services or state
+items (`GraphBuilder_Advertising_smod.F90:109-122`). A declared name containing
+`/` gets a Field named by the part after the last slash.
 `StateItemCharacteristic%is_complete()` (default `.true.`) feeds
 `StateItemDescriptor%get_incomplete_kinds` and `check_materializable`
 (failure reason `incomplete_characteristic:<KIND>`). `harvest(handle,
@@ -150,8 +155,12 @@ creation defaults (GEOM `horizontal_dims_spec`) for an expression result.
 
 Info writes: `StateItemDescriptor%sync_to_info(handle, phase)` calls
 each SPECIFIED/UNCHECKED characteristic's `write_info` (phases
-`SYNC_PHASE_STRUCTURAL`/`SYNC_PHASE_DESCRIPTIVE`; `is_structural()`
-kinds are skipped in DESCRIPTIVE). Every kind with a factory overrides
+`SYNC_PHASE_STRUCTURAL`, `SYNC_PHASE_DESCRIPTIVE` and
+`SYNC_PHASE_ADVERTISED`; `is_structural()` kinds are skipped in both
+non-STRUCTURAL phases, `StateItemDescriptor.F90:719-727`; ADVERTISED is for
+a Field that is only created, `StateItemCharacteristic.F90:86-94`, and
+`PhysicalUnits` writes `units` in STRUCTURAL and ADVERTISED only,
+`PhysicalUnitsCharacteristic.F90:130-133`). Every kind with a factory overrides
 `write_info` (`Attributes` as a no-op: no Info key). The base version
 fails, so a new kind without one fails `sync_to_info` loudly. Only `populate_one` calls into it, through `StateItemDescriptor%sync_per_alias_to_info` (entries whose `is_per_alias()` is true: `RestartMode`, `LongName`); extension and export field materialization calls
 `sync_to_info(STRUCTURAL)` on the node's own descriptor. An import with no declared `long_name` inherits the export's: the owning field's alias-0 entry is written by the full STRUCTURAL sync. Factories live in
@@ -164,10 +173,10 @@ factories (so far units, typekind, ungridded dims, geometry, vertical grid, vert
 | `PhysicalUnits` | `PHYSICAL_UNITS_CHARACTERISTIC_KIND` | Real: `UnitsConverterTransform` |
 | `TypeKind` | `TYPE_KIND_…` | Real: `TypeKindConverterTransform` |
 | `ItemShape` | `ITEM_SHAPE_…` | Every shape. Real for `BRACKET`→`FIELD` only (`BracketTimeInterpolationTransform`); `VECTORBRACKET`→`VECTOR` unsupported; pairs the shape matrix rejects (including `VECTORBRACKET`→`VECTORBRACKET`) are incompatible. Owns `get_extension_order` |
-| `Geometry` | `GEOMETRY_…` | Unsupported — `HorizontalRegridTransform` exists but `build_transform` does not build it yet. `select_regridder_param` holds the regridder-param rule |
-| `VerticalGrid` | `VERTICAL_GRID_…` | Single overlap: unsupported (no vertical-regrid `Transform` yet); incompatible and ambiguous overlaps `_FAIL` with distinct messages |
-| `VerticalStagger` | `VERTICAL_STAGGER_…` | Unsupported — mismatch is detected, repair is a stub |
-| `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Unsupported — mismatch is detected, repair is a stub. A grid with no direction (a single level) leaves the entry `SPECIFIED` holding `UNSPECIFIED`; `write_info` writes nothing for it, so the Field keeps `with_grid` (`VerticalOrientationCharacteristic.F90:135-136`). An `INVALID` direction still fails `write_info`. `UNSPECIFIED` against an explicit up or down still compares unequal |
+| `Geometry` | `GEOMETRY_…` | Real for a pair that both hold an `ESMF_Geom`: `HorizontalRegridTransform` with the param from `select_regridder_param` (the side that declares one, else the default). An id-only pair (component-level geometry wiring) is unsupported; both sides declaring a regridder param is incompatible, checked first (`GeometryCharacteristic.F90:180-208`). Overrides `build_transform_for_item`: a tip whose `ITEM_SHAPE` is not FIELD (bundle, bracket, vector, ...) is unsupported (`:213-236`). `get_signature` appends the regridder param's `to_string()`, so imports asking for different methods do not share a chain (`:240-276`) |
+| `VerticalGrid` | `VERTICAL_GRID_…` | Single overlap: still unsupported (`vcoord_build_transform` does not build `VerticalColumnRegridTransform`, `VerticalGridCharacteristic.F90:252-286`); incompatible and ambiguous overlaps `_FAIL` with distinct messages |
+| `VerticalStagger` | `VERTICAL_STAGGER_…` | Unsupported — mismatch is detected, repair is a stub (`VerticalStaggerCharacteristic.F90:98-108`) |
+| `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Unsupported — mismatch is detected, `build_transform` does not build `VerticalFlipTransform` (`VerticalOrientationCharacteristic.F90:97-107`). A grid with no direction (a single level) leaves the entry `SPECIFIED` holding `UNSPECIFIED`; `write_info` writes nothing for it, so the Field keeps `with_grid` (`VerticalOrientationCharacteristic.F90:135-136`). An `INVALID` direction still fails `write_info`. `UNSPECIFIED` against an explicit up or down still compares unequal |
 | `HorizontalDimsSpec` | `HORIZONTAL_DIMS_SPEC_…` | Incompatible — GEOM vs NONE is detected in both directions and can never connect |
 | `Attributes`, `UngriddedDims`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | Incompatible — legacy rejects every mismatch of two non-mirror values, so a detected mismatch can never connect |
 | `QuantityType` | `QUANTITY_TYPE_CHARACTERISTIC_KIND` | Incompatible for a quantity-type mismatch; unsupported when only the basis differs (both real bases; `BASIS_NONE` is a basis wildcard, `QUANTITY_UNKNOWN` is not a wildcard): a conversion is possible but not built. Factory status by intent: declared -> `SPECIFIED`; undeclared (or declared `QUANTITY_UNKNOWN`) -> `DEFERRED` on EXPORT/INTERNAL, `UNCHECKED` on IMPORT. `is_deferred_fatal` is `quantity_type_required()` (`ValidationPolicy.F90`, key `field_dictionary: require_quantity_type`, no legacy counterpart; strict validation alone does not set it). An unsupplied one falls back to `UNCHECKED` with one summary warning |
@@ -218,34 +227,52 @@ are built before the transform, so a failing input leaves no evaluation.
 #### Transforms (`graph/transforms/`)
 
 `TransformBase`, `Transform` (abstract; `Transform` adds the compute
-interface over named ports), `TransformGraphNode`, and five concrete
-transforms: `UnitsConverterTransform`, `TypeKindConverterTransform`,
-`BracketTimeInterpolationTransform` (built by
+interface over named ports), `TransformGraphNode` (`get_transformer()`
+returns the held `Transform` read-only, `TransformGraphNode.F90:96-101`),
+and seven concrete transforms: `UnitsConverterTransform`,
+`TypeKindConverterTransform`, `BracketTimeInterpolationTransform` (built by
 `ItemShapeCharacteristic%build_transform`), `ExpressionTransform` (built
-by the connect-time expression path in `GraphBuilder_ConnectionResolution_smod.F90`, not by a characteristic), and
-`HorizontalRegridTransform` (field only; built by nothing yet). The
-regrid Transform gets its regridder from `RegridderManager` at the first
-`compute`, from the bound fields' geoms and typekinds, and gets a new one
-when a geom or typekind changes. No vertical-regrid `Transform` exists.
-Geometry and vertical-grid mismatches are reported as unsupported, so the
-graph leaves those connections unwired.
+by the connect-time expression path in `GraphBuilder_ConnectionResolution_smod.F90`, not by a characteristic),
+`HorizontalRegridTransform` (field only; built by
+`GeometryCharacteristic%build_transform`), and the two vertical Transforms
+below. The horizontal regrid Transform gets its regridder from
+`RegridderManager` at the first `compute`, from the bound fields' geoms and
+typekinds, and gets a new one when a geom or typekind changes.
+`EsmfRegridderParam%to_string` (a deferred `RegridderParam` method; compact
+JSON of `make_info`, `EsmfRegridder.F90:292-306`) is what the Geometry
+signature, and so the chain key, carries.
+
+`VerticalColumnRegridTransform` (Field, R4 only, linear only; copy or
+flip when the two grids match, otherwise weights between the grids'
+column coordinates at level centers, rebuilt when a grid, stagger or
+alignment changes) and `VerticalFlipTransform` (Field, R4 and R8; index
+reversal for an orientation-only mismatch) exist with isolated tests
+(`Test_VerticalColumnRegridTransform.pf`) but **no characteristic builds
+either one**: `VerticalGrid`, `VerticalStagger` and `VerticalOrientation`
+all still report unsupported (table above). Import levels outside the
+export's range take the end value with one logged warning per weight
+build (`VerticalColumnRegridTransform.F90:296-314`); an R8 field fails
+(`:395-401`, message shared through `vertical_regrid_r8_message`).
+Vertical-grid and orientation mismatches are therefore reported as
+unsupported and the graph leaves those connections unwired. A geometry
+mismatch on a bundle, bracket or vector item is likewise unsupported.
 
 ### 1.2 Integration layer (`superstructure/generic/`, top level)
 
 `GraphBuilder.F90` is the public module: the `GraphBuilder`
 type (stateless; every method is `nopass` and takes the
-`OuterMetaComponent`) and cross-submodule interfaces. Eleven submodules:
+`OuterMetaComponent`) and cross-submodule interfaces. Ten submodules:
 
 | File | Responsibility |
 |---|---|
 | `GraphBuilder_Advertising_smod.F90` | `advertise_one` creates `StateItemNode`s from `VariableSpec`; `VariableSpec%make_characteristics` (called on the stored descriptor) fills the characteristics map, `declared_item_type` and `fill_value` |
 | `GraphBuilder_ConnectionResolution_smod.F90` | Ordinary/Simple/Match connection resolution (`resolve_one`, `for_each_matching_import`); extension-chain use; import mirroring (`run_propagate_hook`) and export propagation (`run_export_propagate_hook`); Expression names check (`run_expression_hook`) and per-consumer evaluation (`resolve_one_pair`); Wildcard fan-in (`resolve_wildcard_destination`); unsatisfied-import checks; qualified-name resolution |
-| `GraphBuilder_Freeze_smod.F90` | Hierarchy-wide freeze and convergence check (`run_graph_freeze_hook`) |
-| `GraphBuilder_Geometry_smod.F90` | Geometry push/pull (`run_geometry_hook`) |
-| `GraphBuilder_CallbackWiring_smod.F90` | Wildcard/regex callback-argument wiring against the flattened qualified-export namespace |
+| `GraphBuilder_Freeze_smod.F90` | Hierarchy-wide freeze and convergence check (`run_graph_freeze_hook`): freezes every component's graph, then the hierarchy's forward network once (`freeze_forward_network`, `GraphBuilder_Freeze_smod.F90:49-54`) |
+| `GraphBuilder_Geometry_smod.F90` | Geometry push/pull (`run_geometry_hook`); its edges go in the forward network. The push skips a component's own `FROM_CHILD` provider, which would close a cycle (`:300-306`) |
+| `GraphBuilder_CallbackWiring_smod.F90` | Wildcard/regex callback-argument wiring against the flattened qualified-export namespace. Get arguments join the forward network; each method gets its own put (write-back) network (`:384-427`) |
 | `GraphBuilder_LifecycleHooks_smod.F90` | Wrappers called from `OuterMetaComponent` lifecycle sites: advertise, activate, connect, populate-state hooks; logs `GraphResolutionEntry` results |
-| `GraphBuilder_RunPhaseNode_smod.F90`, `GraphBuilder_RunPhasePull_smod.F90` | `MethodGraphNode` construction; demand-driven pull for a run phase |
-| `GraphBuilder_StatePopulation_smod.F90` | Populates the real `ESMF_State` from graph nodes (`graph`/`both` modes) |
+| `GraphBuilder_RunPhaseNode_smod.F90`, `GraphBuilder_RunPhasePull_smod.F90` | `MethodGraphNode` construction; run-phase pull and advance. `run_pull_hook` runs `ComponentGraph%update` on each of the component's own advertised imports before its user run, through the hierarchy's forward network, so it reaches a producer wherever the connection was declared; `run_advance_hook` advances the revision of its own advertised exports after a successful run. Both are no-ops outside `GRAPH` mode (`GraphBuilder_RunPhasePull_smod.F90:25-93`) |
+| `GraphBuilder_StatePopulation_smod.F90` | Populates the real `ESMF_State` from graph nodes (`graph` mode only; a no-op in `registry` and `both`). Optional `own_only` for advertise time; `populate_descendants` walks every descendant |
 | `GraphBuilder_Visualization_smod.F90` | DOT/JSON enrichment |
 
 Also: `GraphResolutionEntry*.F90` (structured resolution report),
@@ -258,7 +285,9 @@ tests and `apps/graph_diagnostic`), `OuterMetaComponent.F90` +
 submodule area), `Test_GraphBuilderPropagation.pf`,
 `Test_GraphBuilderEquivalence.pf`, `Test_GraphEquivalenceHarness.pf`,
 `Test_GraphModeDemonstration.pf`, `Test_GraphMode.pf`,
-`Test_GraphBuilderMaterializeGate.pf`, `Test_GraphGeometryHook.pf`, and
+`Test_GraphBuilderMaterializeGate.pf` (materialization gates and graph-mode
+state population), `Test_GraphGeometryHook.pf`,
+`Test_ForwardNetworkErrors.pf` (the forward-producer error message), and
 the fixtures `tests/scenarios/` (legacy YAML scenarios) and
 `tests/graph-scenarios/` (graph-mode fixtures).
 
@@ -294,6 +323,34 @@ Graph code also must not call into the legacy `specs/*Aspect`,
   resolves shared maps via `get_hierarchy_resources`.
 - Each `ComponentGraph` keeps a private set of the ids it registered
   (`own_node_ids`, queried with `owns_node()`).
+- The hierarchy has exactly one **forward** `DependencyNetwork`, owned by
+  `HierarchyGraph` and created with the hierarchy. Every edge that carries
+  data toward a consumer goes into it (ordinary connections, extension
+  chains, expression evaluations, collections, geometry edges, and the get
+  side of a callback argument), whichever component's declaration produced
+  the edge. Every `ComponentGraph` reports the same id from
+  `get_forward_network_id`; there is no per-component default network and
+  no `get_default_network_id`. A `ComponentGraph` owns only the
+  **write-back** networks it makes with `create_network` (the put side of a
+  callback method, the return edge of an inout borrower), and a pull never
+  follows one. `ComponentGraph%update(node_id, rc)` takes no network id.
+  The transform `PortBindingTable` and the reuse index are shared the same
+  way; the advertised-item resource index stays per component.
+- `add_dependency` into the forward network: an identical re-add is a
+  no-op, and a second, different producer into a `StateItemNode` fails
+  naming the item (`forward_producer_conflict`,
+  `ComponentGraph.F90:365-433`). Edges into a `TransformGraphNode` are not
+  limited. For ordinary and inout-borrower pairings, connection resolution
+  checks first and records a pair-level `connection_conflicts` entry
+  instead of failing the pass: the second producer is skipped and the first
+  stays (`second_producer`, called at
+  `GraphBuilder_ConnectionResolution_smod.F90:410,519`; the inout borrower
+  case at `:1445-1450`). Only a second producer resolved in the same
+  connect pass is seen: an import settled by an earlier pass is skipped
+  silently (`:254-273`). Wildcard fan-in, expression, callback-collection
+  and geometry edges have no pre-check and hit the `add_dependency`
+  assertion. `Test_ForwardNetworkErrors.pf`
+  and `Test_ForwardNetwork.pf` cover the graph side.
 - Cross-component edges connect two real `NodeId`s directly:
   `add_dependency`/`validate`/`bind_port`/`add_import_port`/
   `add_export_port` accept an id owned by `this` **or** registered
@@ -306,8 +363,11 @@ Graph code also must not call into the legacy `specs/*Aspect`,
 - `freeze()` is one hierarchy-wide operation: the
   `GENERIC_INIT_GRAPH_FREEZE` phase runs once at the true hierarchy
   root and `GraphBuilder_Freeze_smod.F90` freezes every component's
-  `ComponentGraph`, then runs the hierarchy-wide convergence check
-  (any remaining unresolved required import is a hard failure).
+  `ComponentGraph` (each validates and freezes its own write-back
+  networks), then validates and freezes the forward network once
+  (`freeze_forward_network`, idempotent), then runs the hierarchy-wide
+  convergence check (any remaining unresolved required import is a hard
+  failure).
   `graphbuilder_resolve_connections` is made idempotent by
   `connections_already_resolved()`/`mark_connections_resolved()`
   (`OuterMetaComponent/connections_resolved.F90`), not by `is_frozen()`.
@@ -335,11 +395,11 @@ Graph code also must not call into the legacy `specs/*Aspect`,
 
 | File | Sequence |
 |---|---|
-| `initialize_advertise.F90` | `recurse()` (children first) → `self_advertise` → `gb%run_advertise_hook` → `gb%run_reexport_hook` → legacy `process_connections` → `gb%run_activate_hook` → `gb%run_propagate_hook` → `registry%propagate_unsatisfied_imports` → `gb%run_export_propagate_hook` → `registry%propagate_exports` → `registry%add_to_states` |
+| `initialize_advertise.F90` | `recurse()` (children first) → `self_advertise` → `gb%run_advertise_hook` → `gb%run_reexport_hook` → legacy `process_connections` → `gb%run_activate_hook` → `gb%run_propagate_hook` → `registry%propagate_unsatisfied_imports` → `gb%run_export_propagate_hook` → `registry%propagate_exports` → either `gb%run_populate_state_hook(..., own_only=.true.)` (user-state switch on) or `registry%add_to_states(mode='user')` (`initialize_advertise.F90:48-123`) |
 | `initialize_accept_transfer.F90` | `gb%run_connect_hook`, then `gb%run_expression_hook`, then `gb%run_populate_state_hook` |
 | `initialize_geom_b.F90` | `gb%run_geometry_hook` |
 | `initialize_graph_freeze.F90` | `gb%run_graph_freeze_hook` (root only) |
-| `run_user.F90` | `gb%run_pull_hook` |
+| `run_user.F90` | import couplers (legacy) → `gb%run_pull_hook` → user run → `gb%run_advance_hook` → export couplers (legacy) (`run_user.F90:48-68`) |
 
 `run_reexport_hook` runs after `run_advertise_hook` and before export
 propagation: for each `ReexportConnection` it adds an export port named by
@@ -358,12 +418,33 @@ state, throwaway export and internal) to the populate hook
 user-state population is skipped (`initialize_advertise`,
 `initialize_realize_accepted`), the call site passes the real user states,
 and `populate` fills the real user import, internal and export states and
-completes INTERNAL Fields. `allocate_internals`
+completes INTERNAL Fields.
+
+With the switch on, population runs twice. At the end of ADVERTISE
+(`initialize_advertise.F90:118-121`) the hook runs with `own_only`: only the
+component's own user states, each item's own created Field, with the
+non-structural keys written through `SYNC_PHASE_ADVERTISED` (units, standard
+name, long name, ...; never geom or typekind), no child walk, no completion
+and no allocation (`GraphBuilder_StatePopulation_smod.F90:51-55,84-86`;
+`write_advertised_keys`, `ExtensionMaterialization.F90:233-247`). A user
+gridcomp that reads its own state in `INIT_MODIFY_ADVERTISED` therefore
+finds its items. `populate_one` is substate-aware (`get_target_substate`,
+shared with the export-port walk): a qualified name `A/E_A1` is inserted as
+`E_A1` in substate `A`. With the switch off, `own_only` is a no-op, which
+keeps the key write off graph-created Fields. The advertise-time call is
+hook style: a failure is logged as a warning by `report_if_failed`
+(`GraphBuilder_LifecycleHooks_smod.F90:291`) and advertise continues. The accept_transfer pass then repeats the insert (add-or-replace
+by alias name, so it is idempotent) and walks every descendant, not only
+direct children (`populate_descendants`), each against the forward network;
+below the direct children an import with no producer yet gets no
+own-created fallback, because an ancestor whose connection supplies it
+inserts the right Field and the fallback would replace it
+(`:129-175`, `:235-240`). `allocate_internals`
 (`initialize_realize_accepted.F90:30`) allocates each INTERNAL whose
 descriptor is complete by then; an unconnected export stays created, never
 allocated. With the switch on, `populate` also walks the component's
 export-port table (`populate_export_ports`, `populate_export_port`,
-`GraphBuilder_StatePopulation_smod.F90:220-289`). Each port's bound-node
+`GraphBuilder_StatePopulation_smod.F90:278-349`). Each port's bound-node
 Field is aliased into the user export state under the PORT's name: a renamed
 re-export, a re-exported INTERNAL, or a propagated `child/E` (placed in a
 substate made by `get_substate`, as `FieldClassAspect%add_to_state` does).
@@ -374,8 +455,12 @@ export-bound port is only described, so it stays `CREATED`/`GRIDSET`.
 Non-Field nodes are skipped. `sync_alias_info` writes the per-alias keys
 (long_name, restart mode) on each alias. With the switch off, or in `BOTH`
 mode, the walk adds nothing. `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES` turns the
-switch on in `Test_Scenarios`. The scenarios that fail with it on are listed
-in the tasks.md 3.41a and 3.41b Status.
+switch on in `Test_Scenarios` for every scenario, and a `scenario_table()`
+entry can set `graph_owns_user_states` for one scenario (`regrid`,
+`regrid_r8` and `grandparent_units_run_phase` do,
+`Test_Scenarios.pf:188-191,213-214`). Either way the switch is on only in
+`GRAPH` mode (`Test_Scenarios.pf:409-412`). The scenarios that fail with it on are listed
+in the tasks.md 3.41a, 3.41b and 3.44 Status.
 
 `run_propagate_hook` must follow `run_activate_hook`: an import resolved
 by a connection declared at this level must be reflected before this
@@ -404,36 +489,46 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
 
 ## 3. Known limitations (current)
 
-- No vertical-regrid `Transform`, and `HorizontalRegridTransform` is not
-  built by `GeometryCharacteristic%build_transform` yet. A Geometry
-  mismatch or single-overlap VerticalGrid mismatch is reported unsupported
-  (incompatible and ambiguous VerticalGrid overlaps `_FAIL`). This is the
-  main reason legacy `regrid*` and `propagate_geom` scenarios cannot run
-  under graph mode.
+- A horizontal regrid is built only for a Field whose two sides hold an
+  `ESMF_Geom` (§1.1). An id-only geometry pair, and a geometry mismatch on a
+  bundle, bracket or vector item, are reported unsupported, so the graph
+  leaves those connections unwired.
+- `VerticalColumnRegridTransform` and `VerticalFlipTransform` exist, but no
+  characteristic builds them: a single-overlap `VerticalGrid` mismatch, a
+  `VerticalStagger` mismatch and a `VerticalOrientation` mismatch are all
+  reported unsupported (incompatible and ambiguous VerticalGrid overlaps
+  `_FAIL`). The `vertical_regridding*`, `vertical_alignment_regrid` and
+  `vertical_alignment_with_grid` scenarios stay `graph_ready = .false.`
+  (`Test_Scenarios.pf:176-177,193,195-196`).
+  The vertical column regrid is R4 and linear only, at level centers.
 - An expression whose consumer has precision R8 (`expression_per_consumer_r8`)
   cannot run end to end: legacy couplers still run in graph mode and fail
   on the expression item. The scenario stays pending (see
   `docs/graph/scenario-parity.md`).
 - The outer states are never written by the graph (tasks.md 3.42).
-- With the user-state switch on, population runs only at accept_transfer.
-  A gridcomp that reads its own states in `INIT_MODIFY_ADVERTISED` finds
-  them empty and fails (`statistics`, `superstructure/generic/tests/gridcomps/ProtoStatGridComp.F90:63`;
-  tasks.md 3.44).
+- User-state population at advertise is Field items only: bundles, states,
+  vectors and composites are not populated at advertise or later. Items a
+  user gridcomp advertises itself with `mapl_GridCompAdvertiseVariable` are
+  not in the graph, so they are not populated. Legacy `user` mode skips
+  propagated (`comp_name`) names and the own-only populate does not
+  (tasks.md 3.44 Status).
 - Export-port population: a port name that collides with an existing
   non-port item replaces it silently (no duplicate-name assertion).
   Propagated names (`child/E`) also land in the user export state, which
   legacy does not do (its `user` mode skips child-owned names;
   `registry/StateRegistry_Actions_smod.F90:73`). The port walk reads the
-  component's own export-port table and has no depth limit. The limit is in
-  the child-spec walk that populates IMPORTS (and child exports): it reaches
-  direct children only, so an import in a grandchild gets its own empty
-  Field (`graphbuilder_propagation`). Bundles and composites (`vector_1`)
+  component's own export-port table and has no depth limit; the walk over
+  the declared imports and exports of the descendants reaches every
+  descendant (`populate_descendants`). Bundles and composites (`vector_1`)
   are not populated. The scenarios that still fail with the switch on are in the
-  tasks.md 3.41b Status.
+  tasks.md 3.41b and 3.44 Status.
 - `find_materialized_predecessor` skips a created-only Field and reports
   not found past one; payload readers must tolerate EMPTY and GRIDSET
   Fields.
-- Six characteristic axes detect mismatch but have no repair (see §1.1).
+- Some mismatches are detected but not repaired (see §1.1): VerticalGrid
+  (single overlap), VerticalStagger, VerticalOrientation, a QuantityType
+  basis-only mismatch, VECTORBRACKET→VECTOR, and Geometry for an id-only
+  pair or a non-Field item.
 - A mirrored (propagated) import is not inserted into the real
   `ESMF_State` under a child-qualified name (archived task 6.7 of
   `hierarchy-wide-component-graph`; needs a new branch in
@@ -475,7 +570,7 @@ names, not the `generic3g`/`MAPL.generic3g.*` names in the generic
 
 | Target | Covers |
 |---|---|
-| `MAPL.generic.graph` | `graph/tests/` (core, characteristics, transforms, callbacks) |
+| `MAPL.generic.graph` | `graph/tests/` (core, characteristics, transforms, callbacks, forward network). The executable initializes through `GraphCoreTestInit.F90`: ESMF, udunits and `pfl_initialize()` (`GraphCoreTestInit.F90:11,32-34`), because code under test may log warnings (the vertical regrid does) and pflogger aborts if never set up |
 | `MAPL.generic.components` | `Test_GraphBuilder*.pf`, propagation, mode tests, spec/parser tests |
 | `MAPL.generic.components.quiet` | Two deliberate negative-path hook tests, run at `--level ERROR` |
 | `MAPL.generic.scenarios.shard0` .. `.shard3` | `Test_Scenarios.pf`, equivalence harness, graph-mode demonstration (strict field dictionary). One binary run in 4 processes via `MAPL_SCENARIO_SHARD=k/4`, because `ESMF_TestCase` leaks MPI communicators per test (MPICH limit). `-R MAPL.generic.scenarios.shard` runs all; the plain `MAPL.generic.scenarios` entry is disabled |
@@ -501,6 +596,13 @@ Primary records are under `openspec/changes/archive/`; read the relevant
 - **Composite-member non-addressability and connection direction are
   explicit, test-covered requirements** (D6).
 - **Freeze is one hierarchy-wide call** (D7).
+- **One forward network per hierarchy** (plan task C4): owned by
+  `HierarchyGraph`, not by each component. A pull through it reaches a
+  producer whichever component declared the edge; per-component networks
+  split one data path across networks. Write-back networks stay per
+  component and are never pulled. Wording reference:
+  `docs/graph/spec/06-dependency-network.md` §6.2 and
+  `spec/07-component-graph.md` REQ-CG-004.
 - **Geometry is a graph node** (incomplete `ESMF_Field` tagged
   `MAPL_STATEITEM_GEOM`), so a component may derive its geom from
   children.
