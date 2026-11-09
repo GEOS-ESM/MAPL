@@ -154,6 +154,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `VirtualConnectionPt%matches` (`VirtualConnectionPt.F90`) now frees the regex it
+  compiles. Without `regfree`, every wildcard match (e.g. the cap's Root-to-History
+  `MatchConnection` from `connect_all`) leaked the compiled pattern and glibc's DFA tables;
+  in a GEOS Moist standalone regression with 281 History fields this was ~6 GB per PET.
 - `get_or_create_outer_meta` (`GenericGridComp.F90`) no longer leaves a
   spurious `esmf_usercompgetinternalstate Failure` error in every
   `PET*.ESMF_LogFile`. It probed for the outer meta with a labelled
