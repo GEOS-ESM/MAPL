@@ -15,6 +15,11 @@ module Test_Scenarios
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
    use mapl_GraphOwnsUserStates_mod, only: set_graph_owns_user_states
    use mapl_GriddedComponentDriver_mod
+   use mapl_ComponentDriver_mod, only: ComponentDriverPtr
+   use mapl_ComponentDriverPtrVector_mod, only: ComponentDriverPtrVector
+   use mapl_StateRegistry_mod, only: StateRegistry
+   use mapl_FieldPointerUtilities_mod, only: assign_fptr, field_has_de
+   use mapl_FieldFillDefault_mod, only: get_field_fill_default_r4, get_field_fill_default_r8
    use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, &
         set_field_dictionary_config, get_field_dictionary_config
    use mapl_ComponentGraph_mod, only: ComponentGraph
@@ -515,6 +520,7 @@ contains
       end do components
 
       call check_graph(this, _RC)
+      call check_legacy_couplers(this, _RC)
 
    contains
 
@@ -1029,6 +1035,111 @@ contains
       end function int_to_string
 
    end subroutine check_graph
+
+   ! When the graph populates the user states the legacy couplers must not
+   ! run, so the import[1] and export[1] Fields of each still hold the fill
+   ! value MAPL gives a new Field. Compared by bits: it is a signaling NaN.
+   ! Only for scenarios whose couplers read items without a fill_value; a
+   ! declared fill_value is also written into the legacy payload. Runs once
+   ! per scenario and mode, under the 'item type' parameter.
+   subroutine check_legacy_couplers(this, rc)
+      class(Scenario), intent(inout) :: this
+      integer, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: root_meta
+
+      rc = 0
+      if (this%check_name /= 'item type') return
+      if (.not. this%graph_owns_states) return
+      if (.not. any(this%scenario_name == [character(len=48) :: &
+           'invalidate', &
+           '../graph-scenarios/units_mismatch_run_phase', &
+           '../graph-scenarios/grandparent_units_run_phase', &
+           '../graph-scenarios/units_and_typekind_mismatch'])) return
+
+      root_meta => get_outer_meta(this%outer_gc, _RC)
+      call check_component_couplers(root_meta, 'ROOT', _RC)
+   end subroutine check_legacy_couplers
+
+   recursive subroutine check_component_couplers(meta, path, rc)
+      type(OuterMetaComponent), target, intent(inout) :: meta
+      character(*), intent(in) :: path
+      integer, intent(out) :: rc
+
+      integer :: status, i
+      type(OuterMetaComponent), pointer :: child_meta
+      type(StateRegistry), pointer :: registry
+      type(ComponentDriverPtrVector) :: couplers
+      character(:), allocatable :: child_name
+
+      rc = 0
+      registry => meta%get_registry()
+      couplers = registry%get_import_couplers()
+      call check_coupler_payloads(couplers, 'import coupler of ' // path, _RC)
+      couplers = registry%get_export_couplers()
+      call check_coupler_payloads(couplers, 'export coupler of ' // path, _RC)
+
+      do i = 1, meta%get_num_children()
+         child_name = meta%get_child_name(i, _RC)
+         child_meta => meta%get_child_outer_meta(child_name, _RC)
+         call check_component_couplers(child_meta, path // '/' // child_name, _RC)
+      end do
+   end subroutine check_component_couplers
+
+   subroutine check_coupler_payloads(couplers, description, rc)
+      type(ComponentDriverPtrVector), intent(in) :: couplers
+      character(*), intent(in) :: description
+      integer, intent(out) :: rc
+
+      integer :: status, i
+      type(ComponentDriverPtr) :: wrapper
+      type(MultiState) :: coupler_states
+      type(ESMF_StateItem_Flag) :: itemtype
+
+      rc = 0
+      do i = 1, couplers%size()
+         wrapper = couplers%of(i)
+         coupler_states = wrapper%ptr%get_states()
+         call ESMF_StateGet(coupler_states%importState, 'import[1]', itemtype=itemtype, _RC)
+         if (itemtype /= ESMF_STATEITEM_FIELD) cycle
+         call check_payload_is_fill(coupler_states%importState, 'import[1]', description, _RC)
+         call check_payload_is_fill(coupler_states%exportState, 'export[1]', description, _RC)
+      end do
+   end subroutine check_coupler_payloads
+
+   subroutine check_payload_is_fill(state, item_name, description, rc)
+      use, intrinsic :: iso_fortran_env, only: INT32, INT64
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: item_name
+      character(*), intent(in) :: description
+      integer, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Field) :: field
+      type(ESMF_FieldStatus_Flag) :: field_status
+      type(ESMF_TypeKind_Flag) :: typekind
+      real(ESMF_KIND_R4), pointer :: x4(:)
+      real(ESMF_KIND_R8), pointer :: x8(:)
+      logical :: has_de
+
+      rc = 0
+      call ESMF_StateGet(state, item_name, field, _RC)
+      call ESMF_FieldGet(field, status=field_status, typekind=typekind, _RC)
+      if (field_status /= ESMF_FIELDSTATUS_COMPLETE) return
+      has_de = field_has_de(field, _RC)
+      if (.not. has_de) return
+
+      if (typekind == ESMF_TYPEKIND_R4) then
+         call assign_fptr(field, x4, _RC)
+         @assertTrue(all(transfer(x4, [0_INT32]) == transfer(get_field_fill_default_r4(), 0_INT32)), &
+              description // ' ' // item_name // ': legacy payload was written, so the coupler ran')
+      else if (typekind == ESMF_TYPEKIND_R8) then
+         call assign_fptr(field, x8, _RC)
+         @assertTrue(all(transfer(x8, [0_INT64]) == transfer(get_field_fill_default_r8(), 0_INT64)), &
+              description // ' ' // item_name // ': legacy payload was written, so the coupler ran')
+      end if
+   end subroutine check_payload_is_fill
 
    function get_itemtype(state, short_name, rc) result(itemtype)
       type(ESMF_StateItem_Flag) :: itemtype

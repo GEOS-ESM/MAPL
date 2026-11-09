@@ -8,6 +8,7 @@ submodule (mapl_OuterMetaComponent_mod) run_user_smod
    use mapl_GraphBuilder_mod, only: GraphBuilder
    use mapl_ErrorHandling_mod
    use pflogger, only: logger_t => logger
+   use mapl_GraphOwnsUserStates_mod, only: graph_populates_user_states
 
    implicit none(type,external)
 
@@ -45,28 +46,35 @@ contains
       phase = get_phase_index(run_phases, phase_name, found=found)
       _ASSERT(found, 'phase <'//phase_name//'> not found for gridcomp <'//this%get_name()//'>')
 
-      import_couplers = this%registry%get_import_couplers()
-      do i = 1, import_couplers%size()
-         drvr = import_couplers%of(i)
-          call drvr%ptr%run(phase_idx=MAPL_GENERIC_COUPLER_UPDATE, _RC)
-      end do
+      ! With graph-populated user states the couplers' payload Fields are
+      ! never written, so running them would convert unwritten data.
+      if (.not. graph_populates_user_states()) then
+         import_couplers = this%registry%get_import_couplers()
+         do i = 1, import_couplers%size()
+            drvr = import_couplers%of(i)
+            call drvr%ptr%run(phase_idx=MAPL_GENERIC_COUPLER_UPDATE, _RC)
+         end do
+      end if
 
       logger => this%get_logger()
       call logger%info(phase_name//": starting...")
       call this%start_timer(phase_name)
-      ! Graph mode only: pull own imports before the run (as the import
-      ! couplers above do in legacy) and advance own exports after it.
+      ! Graph mode only: pull own imports before the run (what the import
+      ! couplers do in legacy) and advance own exports after it.
       call gb%run_pull_hook(this, _RC)
       call this%user_gc_driver%run(phase_idx=phase, _RC)
       call gb%run_advance_hook(this, _RC)
       call this%stop_timer(phase_name)
       call logger%info(phase_name//": ...completed")
 
-      export_couplers = this%registry%get_export_couplers()
-      do i = 1, export_couplers%size()
-         drvr = export_couplers%of(i)
-          call drvr%ptr%run(phase_idx=MAPL_GENERIC_COUPLER_INVALIDATE, _RC)
-      end do
+      ! Same gate as the import couplers above.
+      if (.not. graph_populates_user_states()) then
+         export_couplers = this%registry%get_export_couplers()
+         do i = 1, export_couplers%size()
+            drvr = export_couplers%of(i)
+            call drvr%ptr%run(phase_idx=MAPL_GENERIC_COUPLER_INVALIDATE, _RC)
+         end do
+      end if
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
