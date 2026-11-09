@@ -1745,6 +1745,30 @@ it runs goes in a follow-up commit with the same trailer. Label
   `tests/Test_GraphBuilder_ConnectionResolution.pf` (e.g. ~89,
   `phase-7c-wildcard-dispatch-wiring`). Remove them (AGENTS.md "Source
   comments").
+  Done (dfca610d4, 136 files, comment-only; `check-comment-only.py
+  superstructure enums apps` exits 0; NAG and gfortran ESSENTIAL 69/69).
+  Every `REQ-*` citation that is not in `openspec/specs/` was removed (only
+  `REQ-VIZ-002/003` exist), plus `openspec/changes` paths, task and design
+  numbers and change-history wording in source comments. Left for a
+  follow-up sweep (`a4-leftovers-b`, not yet scheduled): 68 source lines
+  citing `design.md`/`tasks.md`/`proposal.md` without a path
+  (`VariableSpec.F90`, `ExpressionTransform.F90`, `ExpressionClassAspect.F90`,
+  `VectorClassAspect.F90`, `OuterMetaComponent.F90`, ...), 37 "Task N.M"
+  lines in `.pf` headers, remaining "Phase N" mentions
+  (`initialize_advertise.F90`, `initialize_accept_transfer.F90`,
+  `NormalizationAspect.F90`, `Transform.F90`, `GraphScenarioBootstrap.F90`,
+  the `Test_GraphBuilder_*.pf` headers), `REQ-MTH-011` inside two assertion
+  message strings (`GraphBuilder_LifecycleHooks_smod.F90:289`,
+  `Test_GraphBuilder_ConvergenceCheck.pf:281`; a code change), non-source
+  `openspec/changes` paths (`tools/graph_visualization/render_graph.py:14`,
+  which also cites the nonexistent `REQ-VIZ-009`, and its README;
+  `graph-scenarios/*/description.md`; `superstructure/generic/AGENTS.md`
+  lines 35 and 51), and source comments that are wrong after 3.42 or
+  after C1-vertical-a (`GraphOwnsUserStates.F90:5` "Outer states stay
+  legacy's either way"; `initialize_accept_transfer.F90:62-72`;
+  `VerticalStaggerCharacteristic.F90:18`, `VerticalGridCharacteristic.F90:273`
+  and `VerticalOrientationCharacteristic.F90:18` say no vertical Transform
+  exists; fold the last three into C1-vertical-b).
 - `infrastructure/field/FieldInfo.F90:~305` (`FieldInfoGetInternal`):
   reading conservation asserts the key exists, while quantity-type and
   normalization reads fall back to a mirror object. Make the three
