@@ -4355,7 +4355,7 @@ contains
     type (ESMF_FieldBundle)              :: bundle
     type (ESMF_Field)                    :: field
     integer                              :: status
-    integer                              :: I, J, ITEMCOUNT
+    integer                              :: I, J, ITEMCOUNT, ind
     type (ESMF_StateItem_Flag), pointer  :: ITEMTYPES(:)
     character(len=ESMF_MAXSTR ), pointer :: ITEMNAMES(:)
     logical, pointer                     :: DOIT(:)
@@ -4456,6 +4456,12 @@ contains
                if (fieldStatus /= ESMF_FIELDSTATUS_COMPLETE) cycle
                call ESMF_FieldGet(field,name=FieldName,rc=status)
                _VERIFY(STATUS)
+               ! Strip old style aerosol prefix first, as the reader does, so the
+               ! bundle copy cannot collide with a state field of the same name
+               ind= index(FieldName, '::')
+               if (ind> 0) then
+                 FieldName = trim(FieldName(ind+2:))
+               end if
                ! Tack on BundleName to distiguish duplicate FieldNames in different Bundles (PCHEM for instance)
                FieldName = trim(BundleName) //'_'// trim(FieldName)
                new_field = MAPL_FieldCreate(Field,FieldName,rc=status)
