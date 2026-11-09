@@ -3,17 +3,16 @@
 !------------------------------------------------------------------------------
 ! CallbackMethodBinding: the method-level binding record connecting one
 ! callback method's invocation to the graph structure it operates on
-! (spec/15-callbacks.md REQ-CB-018/019, design.md Decision 6) - completing
-! 15-callbacks.md sec 15.2's metadata-concept list (CallbackMethodAttachment
-! was already resolved by Phase 4c as "reuse StateMethodInvocation, no new
-! type"; this is the other concept 4c explicitly left to this change).
+! (spec/15-callbacks.md, design.md Decision 6). It is one of the metadata
+! concepts of 15-callbacks.md sec 15.2; the other, CallbackMethodAttachment,
+! reuses StateMethodInvocation instead of adding a new type.
 !
-! Stores the invoked MethodGraphNode's own NodeId (REQ-CB-019 - the
+! Stores the invoked MethodGraphNode's own NodeId (the
 ! caller is responsible for having registered that node, with a
 ! StateMethodInvocation adapter attached, in the destination component's
 ! own ComponentGraph), the DependencyNetworkId of its put (write-back)
-! network, and one argument name -> NodeId endpoint map per direction
-! (REQ-CB-018). Get edges live in the hierarchy's forward network, so no
+! network, and one argument name -> NodeId endpoint map per direction.
+! Get edges live in the hierarchy's forward network, so no
 ! get network id is stored. get_bindings/put_bindings are two
 ! separate StateItemMemberMaps, one per direction, rather than one map
 ! keyed by a compound (argument_name, direction) key - mirrors
@@ -22,9 +21,8 @@
 !
 ! For an argument that is only ever read (a "get"-only argument) or only
 ! ever written (a "put"-only argument), the corresponding empty map is
-! simply unused - this
-! type does not itself enforce that every argument appears in exactly one
-! direction; that is the caller's (GraphBuilder's) own wiring
+! simply unused - this type does not itself enforce that every argument
+! appears in exactly one direction; that is the caller's (GraphBuilder's) own wiring
 ! responsibility.
 !------------------------------------------------------------------------------
 module mapl_CallbackMethodBinding_mod

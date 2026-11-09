@@ -14,7 +14,7 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
 
 contains
 
-   ! REQ-GB-003: one StateItemNode per advertised import/export/internal
+   ! One StateItemNode per advertised import/export/internal
    ! item. Imports and exports are also recorded as public ports (any
    ! sibling's connect_all can reach them by name); internal items are
    ! component-private.

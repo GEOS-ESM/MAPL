@@ -1,6 +1,7 @@
 #include "MAPL_TestErr.h"
 
-! openspec/changes/composite-state-spec, tasks.md 4.1.
+! VariableSpec composite members: independent per-member characteristics and
+! map-key retrieval.
 module Test_VariableSpecMembers
    use pfunit
    use mapl_VariableSpec_mod
@@ -166,9 +167,8 @@ contains
       @assertEqual('km', got_b%units)
    end subroutine test_members_keep_independent_characteristics
 
-   ! design.md Decisions "A member's own short_name field is never read":
-   ! declare a member whose short_name differs from its map key -
-   ! retrieval is still by map key only.
+   ! A member's own short_name field is never read: declare a member whose
+   ! short_name differs from its map key - retrieval is still by map key only.
    @test
    subroutine test_member_short_name_is_not_consulted()
       type(VariableSpec) :: spec

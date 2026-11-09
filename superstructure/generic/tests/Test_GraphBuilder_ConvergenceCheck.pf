@@ -1,20 +1,14 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
-! Tasks 5.2/5.3 (spec/12-methods-and-drivers.md REQ-MTH-011 step (c),
-! griddedcomponentdriver-integration-lifecycle spec.md "The realize/
-! accept/realize initialization cycle terminates on defined convergence
-! or fails explicitly"). Originally graphbuilder_run_connect_hook's own
-! hard-error check for an unresolved required import once that
-! component's own graph froze; openspec/changes/hierarchy-wide-
-! component-graph, tasks.md Group 9 (design.md D7) moved both freezing
-! and this convergence check to a single, hierarchy-wide call -
-! GraphBuilder%run_graph_freeze_hook, the GENERIC_INIT_GRAPH_FREEZE
-! phase's own entry point (OuterMetaComponent/
-! initialize_graph_freeze.F90) - run exactly once, at the hierarchy
-! root, after every component's own connections are resolved
-! (run_connect_hook, which no longer freezes or checks convergence
-! itself). Rewritten against that new call site (tasks.md task 9.4).
+! Convergence check: the realize/accept/realize
+! initialization cycle terminates on defined convergence or fails explicitly.
+! The hard-error check for an unresolved required import lives in a single,
+! hierarchy-wide call - GraphBuilder%run_graph_freeze_hook, the
+! GENERIC_INIT_GRAPH_FREEZE phase's own entry point (OuterMetaComponent/
+! initialize_graph_freeze.F90) - run exactly once, at the hierarchy root, after
+! every component's own connections are resolved (run_connect_hook, which no
+! longer freezes or checks convergence itself).
 !
 ! Test-only OuterMetaComponent instances are built the same way
 ! Test_GraphBuilder.pf does (bypassing SetServices/DSO machinery).
@@ -144,10 +138,9 @@ contains
 
       ! connect()-time resolution on every component (matches the real
       ! lifecycle's own per-component GENERIC_INIT_ACCEPT_TRANSFER call,
-      ! which no longer freezes - tasks.md Group 9). parent_meta itself
-      ! declares no imports of its own, so this call on it is a no-op
-      ! other than resolving the MatchConnection it declares between its
-      ! two children.
+      ! which does not freeze). parent_meta itself declares no imports of its
+      ! own, so this call on it is a no-op other than resolving the
+      ! MatchConnection it declares between its two children.
       if (present(fallback_warnings)) then
          call gb%run_connect_hook(src_meta, fallback_warnings)
       else
@@ -263,13 +256,12 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_quantity_type_fallback_warning_is_summarized
 
-   ! Spec scenario "Cycle reaching the iteration limit without
-   ! convergence fails explicitly": an import that can never be
-   ! resolved is still unresolved once the whole hierarchy is frozen
-   ! (the fixed schedule has run out) - the hard error check raises an
-   ! explicit failure rather than only logging a warning, but freezing
-   ! itself already succeeded for every component (component
-   ! initialization is not aborted - design.md Risks "still caught...
+   ! Spec scenario "Cycle reaching the iteration limit without convergence
+   ! fails explicitly": an import that can never be resolved is still
+   ! unresolved once the whole hierarchy is frozen (the fixed schedule has run
+   ! out) - the hard error check raises an explicit failure rather than only
+   ! logging a warning, but freezing itself already succeeded for every
+   ! component (component initialization is not aborted - "still caught...
    ! downgraded to a logged failure").
    @test(npes=[0])
    subroutine test_unresolved_import_after_freeze_fails_explicitly(this)
@@ -300,15 +292,13 @@ contains
    ! normally": every declared import resolves by the time the whole
    ! hierarchy freezes - no exception, ordinary success.
    !
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 9.2/9.3:
-   ! also directly confirms the hierarchy-wide property itself - every
-   ! component in the hierarchy (both children, not merely the root
-   ! parent_meta on which run_graph_freeze_hook was called) reports
-   ! frozen afterward. A single run_graph_freeze_hook(parent_meta) call
-   ! walking only parent_meta's own graph (the old, per-component
-   ! behavior) would leave src_meta/dst_meta's own graphs unfrozen -
-   ! this assertion is what distinguishes "hierarchy-wide" from
-   ! "per-component, called once more."
+   ! Also directly confirms the hierarchy-wide property itself - every
+   ! component in the hierarchy (both children, not merely the root parent_meta
+   ! on which run_graph_freeze_hook was called) reports frozen afterward. A
+   ! single run_graph_freeze_hook(parent_meta) call walking only parent_meta's
+   ! own graph (the old, per-component behavior) would leave
+   ! src_meta/dst_meta's own graphs unfrozen - this assertion is what
+   ! distinguishes "hierarchy-wide" from "per-component, called once more."
    @test(npes=[0])
    subroutine test_fully_resolved_proceeds_without_error(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -342,15 +332,12 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_fully_resolved_proceeds_without_error
 
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 9.3
-   ! ("Update frozen-structure-rejects-mutation test coverage to
-   ! exercise attempted mutation from an arbitrary component anywhere
-   ! in an already-frozen hierarchy, not only the component that issued
-   ! the freeze call"): a non-root child's own graph - never the
-   ! component run_graph_freeze_hook was directly called on - rejects a
-   ! mutation attempt once the hierarchy-wide freeze has run, exactly as
-   ! graph/component-hierarchy's own "Frozen structure rejects mutation"
-   ! scenario requires.
+   ! Attempted mutation from an arbitrary component anywhere in an
+   ! already-frozen hierarchy, not only the component that issued the freeze
+   ! call: a non-root child's own graph - never the component
+   ! run_graph_freeze_hook was directly called on - rejects a mutation attempt
+   ! once the hierarchy-wide freeze has run (the "Frozen structure rejects
+   ! mutation" scenario).
    @test(npes=[0])
    subroutine test_mutation_rejected_from_arbitrary_hierarchy_component(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -384,13 +371,12 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_mutation_rejected_from_arbitrary_hierarchy_component
 
-   ! Task 5.3 (regression), updated for tasks.md Group 9's new call
-   ! site: a second call to run_graph_freeze_hook on an already-frozen,
-   ! fully-resolved hierarchy is a safe no-op - it must not re-raise the
-   ! hard-error check with stale/inconsistent state, and must not
-   ! attempt to mutate the already-frozen graph (ComponentGraph%freeze()
-   ! is itself idempotent, ComponentGraph.F90 graph_freeze - "Idempotent
-   ! if already frozen").
+   ! A second call to
+   ! run_graph_freeze_hook on an already-frozen, fully-resolved hierarchy is a
+   ! safe no-op - it must not re-raise the hard-error check with
+   ! stale/inconsistent state, and must not attempt to mutate the
+   ! already-frozen graph (ComponentGraph%freeze is itself idempotent,
+   ! ComponentGraph.F90 graph_freeze - "Idempotent if already frozen").
    @test(npes=[0])
    subroutine test_second_call_on_frozen_graph_is_noop(this)
       class(MpiTestMethod), intent(inout) :: this

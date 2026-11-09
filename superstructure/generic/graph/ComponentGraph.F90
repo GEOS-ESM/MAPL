@@ -4,7 +4,7 @@
 ! ComponentGraph: graph-neutral owner of a component's own public import/
 ! export ports, child-port bindings, advertised-item resource index,
 ! write-back networks, port-identity generation, and mutable/frozen/finalized
-! lifecycle state (REQ-CG-001).
+! lifecycle state.
 !
 ! The polymorphic node map (NodeId -> GraphNode), the dependency-network
 ! map (DependencyNetworkId -> DependencyNetwork), the node/network id
@@ -18,14 +18,14 @@
 ! instance's set", since every component's ids share the one HierarchyGraph.
 !
 ! MUST NOT depend on OuterComponent, StateRegistry, GriddedComponentDriver,
-! GraphBuilder, or any component-hierarchy type (REQ-CG-002).
+! GraphBuilder, or any component-hierarchy type.
 !
 ! Transform-port declarations live on TransformGraphNode; the external
 ! port binding table (bind_port()/get_port_binding()/get_port_bindings(),
 ! keyed (DependencyNetworkId, NodeId) -> port name -> NodeId) is shared by
-! the hierarchy (REQ-XFORM-004/005: external storage, never on-node).
+! the hierarchy (external storage, never on-node).
 !
-! update() (REQ-REV-005..007/009) is type-bound here but implemented in the
+! update() is type-bound here but implemented in the
 ! submodule ComponentGraph_DemandDrivenUpdate.F90 purely for file size.
 ! mapl_GraphExport_mod, by contrast, is deliberately a separate module: a
 ! submodule can reach private components, which would void the "depends only
@@ -73,7 +73,7 @@ module mapl_ComponentGraph_mod
    integer, parameter :: GRAPH_LIFECYCLE_FINALIZED = 3
 
    ! Private aggregation of the three PortId -> NodeId lookup tables
-   ! (REQ-CG-001: import ports, export ports, child-port bindings).
+   ! (import ports, export ports, child-port bindings).
    !
    ! export_port_names is a sparse side-table, PortId -> overriding qualified
    ! name, populated only for export ports created by export propagation, never
@@ -133,7 +133,7 @@ module mapl_ComponentGraph_mod
       ! same "return a copy, empty once finalized" contract as get_node_ids()
       procedure :: get_import_ports => graph_get_import_ports
       procedure :: get_export_ports => graph_get_export_ports
-      ! -- transform port bindings (REQ-XFORM-005) --------------------------
+      ! -- transform port bindings --------------------------
       procedure :: bind_port => graph_bind_port
       procedure :: get_port_binding => graph_get_port_binding
       procedure :: get_port_bindings => graph_get_port_bindings
@@ -145,7 +145,7 @@ module mapl_ComponentGraph_mod
       ! -- full-graph enumeration (for exporters / full-graph walks) --------
       procedure :: get_node_ids => graph_get_node_ids
       procedure :: get_network_ids => graph_get_network_ids
-      ! -- demand-driven update (REQ-REV-005..007) --
+      ! -- demand-driven update --
       procedure :: update => graph_update_item
       ! -- validation / lifecycle -------------------------------------------
       procedure :: validate => graph_validate
@@ -224,7 +224,7 @@ contains
       _RETURN(_SUCCESS)
    end function graph_next_node_id
 
-   ! REQ-CG-001/REQ-ID-005: the shared HierarchyGraph is authoritative; a
+   ! The shared HierarchyGraph is authoritative; a
    ! node cannot make itself a member by claiming an id, and no second node
    ! silently replaces a registered one anywhere in the hierarchy.
    ! own_node_ids records that THIS instance registered id.
@@ -301,7 +301,7 @@ contains
       is_forward = (id == this%get_forward_network_id())
    end function graph_is_forward_network
 
-   ! REQ-CG-006: no new DependencyNetworks may be created after freeze.
+   ! No new DependencyNetworks may be created after freeze.
    ! A created network is a write-back network owned by this instance.
    function graph_create_network(this, rc) result(id)
       class(ComponentGraph), intent(inout) :: this
@@ -356,7 +356,7 @@ contains
    ! source/target may be another component's real NodeId (resolved by
    ! GraphBuilder's resolve_qualified_component, whose one-directional tree walk
    ! is what prevents resolving upward past the declaring component; this layer
-   ! cannot know the component tree, REQ-CG-002). Either endpoint must be
+   ! cannot know the component tree). Either endpoint must be
    ! registered somewhere in this hierarchy; an id never registered is rejected.
    !
    ! In the forward network a state item has at most one producer, whichever
@@ -464,7 +464,7 @@ contains
       _RETURN(_SUCCESS)
    end function graph_next_port_id
 
-   ! REQ-CG-001/005/006: not finalized, not frozen, port_id valid and not
+   ! Not finalized, not frozen, port_id valid and not
    ! already bound (no silent replace). node_id must be owned by this
    ! instance (owns_node(), not mere presence in the shared HierarchyGraph),
    ! or be a node registered elsewhere in this hierarchy: a mirrored import
@@ -614,11 +614,11 @@ contains
       ports = this%ports%export_ports
    end function graph_get_export_ports
 
-   ! -- transform port bindings (REQ-XFORM-005) --
+   ! -- transform port bindings --
 
    ! Validates: graph not finalized/frozen; network_id is the forward network
    ! or owned by this instance, and not frozen; node_id is a TransformGraphNode
-   ! registered in this hierarchy that declared port_name (REQ-XFORM-004); if
+   ! registered in this hierarchy that declared port_name; if
    ! that declaration is kind-constrained and target_id is a StateItemNode, its
    ! GraphStateItem%variant() matches. Storage (no silent replace) is the
    ! hierarchy's shared PortBindingTable.
@@ -788,7 +788,7 @@ contains
 
    ! -- validation / lifecycle --
 
-   ! REQ-CG-004: validates each write-back network this instance owns, on its
+   ! Validates each write-back network this instance owns, on its
    ! own. The forward network spans the hierarchy and is validated once, by
    ! freeze_forward_network. A write-back target may also have a forward
    ! producer: the write-back fires only after the method runs.
@@ -842,7 +842,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine validate_network
 
-   ! REQ-CG-005..007: validates first (no freeze state changes on
+   ! Validates first (no freeze state changes on
    ! failure), then freezes every write-back network this instance owns,
    ! then the instance itself. Idempotent if already frozen. The forward
    ! network is frozen by freeze_forward_network.
@@ -899,7 +899,7 @@ contains
    end subroutine graph_freeze_forward_network
 
    ! Frozen and finalized are both "structure is immutable" states -
-   ! finalize() may be called directly from mutable (REQ-CG-003b does not
+   ! finalize() may be called directly from mutable (finalize does not
    ! require a prior freeze), so this reports true for either.
    logical function graph_is_frozen(this) result(frozen)
       class(ComponentGraph), intent(in) :: this
@@ -907,7 +907,7 @@ contains
       frozen = this%lifecycle_status /= GRAPH_LIFECYCLE_MUTABLE
    end function graph_is_frozen
 
-   ! REQ-CG-003b/003c: explicit, fallible, never folded into a destructor.
+   ! Explicit, fallible, never folded into a destructor.
    subroutine graph_finalize(this, rc)
       class(ComponentGraph), intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -951,7 +951,7 @@ contains
 
    ! -- private helpers --------------------------------------------------------
 
-   ! Classifies ids (REQ-DEP-008): an OperationGraphNode descendant is
+   ! Classifies ids: an OperationGraphNode descendant is
    ! producer-capable; a StateItemNode is subject to the one-producer-per-
    ! state-item check.
    subroutine graph_classify_nodes(this, ids, producer_ids, state_item_ids)

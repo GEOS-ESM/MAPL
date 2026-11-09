@@ -59,15 +59,15 @@ module mapl_OuterMetaComponent_mod
 ! Hierarchy
       type(GriddedComponentDriverMap)             :: children
       type(StateRegistry) :: registry
-      ! hierarchy-wide HierarchyResources registry entry (REQ-HIER-002/004).
+      ! Hierarchy-wide HierarchyResources registry entry.
       ! All ComponentGraphs in one hierarchy share the same HierarchyGraph.
       type(HierarchyId) :: hierarchy_id
-      ! Distinguishes true hierarchy roots from descendants (REQ-HIER-003/005).
+      ! Distinguishes true hierarchy roots from descendants.
       ! Used only by initialize_graph_freeze to perform the whole-hierarchy freeze
       ! walk once, at the root, and be a no-op elsewhere.
       logical :: is_hierarchy_root = .false.
-      ! Graph-neutral core (docs/graph/spec/02-component-hierarchy.md
-      ! REQ-HIER-002/004): exactly one local ComponentGraph per
+      ! Graph-neutral core (docs/graph/hierarchy-and-component-graph.md):
+      ! exactly one local ComponentGraph per
       ! OuterComponent. Constructed in init_meta (see init_meta.F90);
       ! not yet populated by any GraphBuilder logic (that is roadmap
       ! sub-change 3b, docs/graph/spec/20-implementation-roadmap.md
@@ -644,7 +644,7 @@ module mapl_OuterMetaComponent_mod
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_registry
 
-      ! docs/graph/spec/02-component-hierarchy.md REQ-HIER-002/004: the
+      ! docs/graph/spec/02-component-hierarchy.md: the
       ! one local ComponentGraph owned by this OuterComponent. Read-only
       ! accessor; mutation happens only through ComponentGraph's own
       ! type-bound procedures on the returned pointer.
@@ -731,13 +731,13 @@ module mapl_OuterMetaComponent_mod
 
       ! Framework-internal reach into a named child's own ComponentSpec/
       ! ComponentGraph/OuterMetaComponent
-      ! (docs/graph/spec/02-component-hierarchy.md REQ-GB-002's
+      ! (docs/graph/spec/02-component-hierarchy.md's
       ! "framework may reach into a child's own state" carve-out;
-      ! REQ-HIER-005 keeps this out of OuterMetaComponent's general
+      ! this is kept out of OuterMetaComponent's general
       ! public API). Fortran has no friend-module/package-private
       ! visibility, so these three ARE Fortran-public - "internal use
       ! only" here is a documented convention, the same class of trust
-      ! already extended by REQ-GB-002, not a compiler-enforced boundary.
+      ! already extended to the framework, not a compiler-enforced boundary.
       ! Not re-exported by any user-facing aggregator module; intended
       ! callers are framework code inside mapl_generic (e.g.
       ! mapl_GraphBuilder_mod) that already has this same reach
@@ -763,7 +763,7 @@ module mapl_OuterMetaComponent_mod
       ! accessors) - unlike get_child_component_spec/
       ! get_child_component_graph above, no existing accessor exposes
       ! those without the whole child OuterMetaComponent object itself.
-      ! Same REQ-GB-002 carve-out and visibility convention as the two
+      ! Same framework-internal carve-out and visibility convention as the two
       ! above, not a new kind of exposure.
       module function get_child_outer_meta(this, child_name, rc) result(child_meta)
          type(OuterMetaComponent), pointer :: child_meta

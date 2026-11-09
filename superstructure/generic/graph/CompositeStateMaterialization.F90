@@ -4,7 +4,7 @@
 ! CompositeStateMaterialization: recursive walk that turns a VariableSpec
 ! with declared members (specs/VariableSpec.F90) into graph structure: one
 ! StateItemNode per tree node (leaves and nested-state levels alike), with
-! each nested level's GraphStateItem state_members map (REQ-SI-006)
+! each nested level's GraphStateItem state_members map
 ! populated with its declared children's NodeIds. A separate module that
 ! GraphBuilder calls into, like ExtensionResolution/ExtensionMaterialization.
 !

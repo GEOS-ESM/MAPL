@@ -23,9 +23,9 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_CallbackWiring_smod
 
 contains
 
-   ! REQ-CB-013/014: builds root's flattened qualified-export namespace
+   ! Builds root's flattened qualified-export namespace
    ! by recursing over every descendant. A fresh, uncached snapshot
-   ! (REQ-CB-016 "currently-known"). root's exports are keyed by short
+   ! ("currently-known" exports only). root's exports are keyed by short
    ! name; a descendant's by comp_path/short_name.
    module function build_qualified_export_namespace(root, rc) result(entries)
       class(OuterMetaComponent), target, intent(inout) :: root
@@ -121,7 +121,7 @@ contains
    ! relative to `this`) to the matched export's real NodeId, found via
    ! its owning component's resource index. Node storage is shared
    ! hierarchy-wide, so the owner's own NodeId is used directly and no
-   ! parent-local proxy is created (REQ-HIER-006).
+   ! parent-local proxy is created.
    module function resolve_qualified_export_node_id(this, src_component_name, entry, rc) result(node_id)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: src_component_name
@@ -214,7 +214,7 @@ contains
       end do
    end function export_conforms_to_interface
 
-   ! REQ-CB-016 "materialize a flat callback collection": builds one
+   ! Materializes a flat callback collection: builds one
    ! StateItemNode (a real, structurally empty ESMF_State) in this's
    ! graph whose state_members map has one entry per resolved match,
    ! keyed by its qualified name (unique within one resolution) and
@@ -332,7 +332,7 @@ contains
       _RETURN(_SUCCESS)
    end function build_callback_state_binding
 
-   ! REQ-CB-018/019: builds one CallbackMethodBinding for method_name on
+   ! Builds one CallbackMethodBinding for method_name on
    ! state_binding. Registers a MethodGraphNode (holding the attachment
    ! from CallbackStateBinding%bind_method) in this's graph, creates a
    ! put network, and wires each argument's dependency edge into the
@@ -402,7 +402,7 @@ contains
          member_id => state_binding%get_argument_binding(argument_name)
          _ASSERT(associated(member_id), 'GraphBuilder: build_callback_method_binding - argument not bound on state binding: ' // argument_name)
 
-         ! Populate the node's argument/binding storage (REQ-MTH-002) with
+         ! Populate the node's argument/binding storage with
          ! what CallbackStateBinding's invoke_method() would build per
          ! call, so method_node%invoke() is self-sufficient.
          arg_spec = iface%get_argument(argument_name, _RC)
@@ -471,7 +471,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine wire_callback_argument
 
-   ! REQ-CB-020: invoke once after all arguments are ready, in the same
+   ! Invoke once after all arguments are ready, in the same
    ! three-phase shape as mapl_MethodInvocation_mod%
    ! invoke_on_forward_network: get arguments are pulled through the
    ! forward network, put targets are advanced directly. The callback
@@ -509,7 +509,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine invoke_callback_method
 
-   ! REQ-REV-011 "pull-all-before" through the forward network: each bound
+   ! Pull-all-before, through the forward network: each bound
    ! callback-side member is pulled, reaching its provider's producer
    ! wherever that edge was declared.
    ! Collect names first so no map iterator is live across graph%update().
@@ -542,7 +542,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine pull_callback_get_arguments
 
-   ! REQ-REV-011 "advance-all-after" on binding's put network. Only
+   ! Advance-all-after, on binding's put network. Only
    ! reached once invoke() succeeded, so a failed invocation does not
    ! advance bound outputs.
    module subroutine advance_callback_put_arguments(graph, put_bindings, rc)

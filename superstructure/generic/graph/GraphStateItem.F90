@@ -2,20 +2,20 @@
 
 !------------------------------------------------------------------------------
 ! GraphStateItem: concrete, non-polymorphic node payload type
-! (REQ-SI-001/002). Three allocatable ESMF handle components - a field, a
+! Three allocatable ESMF handle components - a field, a
 ! field bundle, and a state - of which at most one may be allocated at any
-! time (REQ-SI-004). A route handle is represented by allocating the state
+! time. A route handle is represented by allocating the state
 ! component in a persistent wrapper role holding exactly one ESMF_RouteHandle
-! member (REQ-SI-002a).
+! member.
 !
 ! Two-tier classification: itemType() is the native ESMF classification
 ! (FIELD/FIELDBUNDLE/STATE/NOTFOUND: purely which component is allocated, for
 ! retrieval via get_field()/get_field_bundle()/get_state()); variant() is the
-! extensible, Info-backed MAPL_StateItem_Flag (REQ-SI-002b/002c) saying which
+! extensible, Info-backed MAPL_StateItem_Flag saying which
 ! role the instance plays, including the route-handle wrapper as a refinement
 ! of STATE, like MAPL_STATEITEM_VERTICALGRID. All allocation goes through the
 ! single generic `set`, which enforces the at-most-one-allocated invariant and
-! the membership-map gating (REQ-SI-006); raw component access is private.
+! the membership-map gating; raw component access is private.
 !------------------------------------------------------------------------------
 module mapl_GraphStateItem_mod
    use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_State, ESMF_RouteHandle
@@ -79,7 +79,7 @@ module mapl_GraphStateItem_mod
       procedure :: add_state_member => stateitem_add_state_member
       ! Test-only backdoor: deliberately violates the at-most-one-allocated
       ! invariant, bypassing the `set` choke point, so the checked-defect path
-      ! (REQ-SI-004) can be exercised. Production code MUST NOT call this.
+      ! can be exercised. Production code MUST NOT call this.
       procedure :: debug_force_double_allocate_for_test => stateitem_debug_force_double_allocate
    end type GraphStateItem
 
@@ -241,7 +241,7 @@ contains
 
    ! Convenience overload of `set` for the route-handle-wrapper role: builds a
    ! small ESMF_State holding exactly one ESMF_RouteHandle and installs it via
-   ! set_state, keeping creation behind the same choke point (REQ-SI-002a).
+   ! set_state, keeping creation behind the same choke point.
    ! Renewal should replace the member on the existing wrapper state via
    ! ESMF_State calls on get_state()'s result, not call this again.
    subroutine stateitem_set_route_handle(this, route_handle, rc)
@@ -305,7 +305,7 @@ contains
    end function stateitem_get_state
 
    ! Resolves the route handle out of the wrapper's sole member rather than
-   ! exposing a bare stored component (REQ-SI-002a). Gated on variant(), not
+   ! exposing a bare stored component. Gated on variant(), not
    ! itemType() (which reports plain STATE for a wrapper; see the module
    ! header). Looks the member up by the name ESMF_StateAdd assigned.
    function stateitem_get_route_handle(this, rc) result(route_handle)
@@ -379,7 +379,7 @@ contains
    end subroutine stateitem_add_field_bundle_member
 
    ! Gated on itemType()==STATE and variant()/=ROUTEHANDLE (the wrapper's sole
-   ! member is not a graph-visible, node-identity-addressable item - REQ-SI-006).
+   ! member is not a graph-visible, node-identity-addressable item).
    subroutine stateitem_add_state_member(this, name, id, rc)
       class(GraphStateItem), intent(inout) :: this
       character(*), intent(in) :: name

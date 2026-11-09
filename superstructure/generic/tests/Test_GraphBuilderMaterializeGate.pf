@@ -1,13 +1,11 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
-! openspec/changes/graph-builder-stateitem-resolution, found during
-! gfortran/NAG portability testing: split out of Test_GraphBuilder.pf -
-! this file holds all five of Test_GraphBuilder.pf's own
+! Found during gfortran/NAG portability testing: split out of
+! Test_GraphBuilder.pf - this file holds all five of Test_GraphBuilder.pf's own
 ! ESMF_TestMethod tests (type=ESMF_TestMethod, npes=[1] - each calls
-! FieldCreate/populate_state on a real ESMF_Geom, needing a real
-! per-test ESMF VM that a plain MpiTestMethod sub-communicator does not
-! provide).
+! FieldCreate/populate_state on a real ESMF_Geom, needing a real per-test ESMF
+! VM that a plain MpiTestMethod sub-communicator does not provide).
 !
 ! The direct trigger: mapl_ExtensionResolution_mod's
 ! materialize-extensions gate is MODULE-LEVEL GLOBAL state
@@ -264,20 +262,18 @@ contains
       pred_id = iter%of()
    end function single_predecessor
 
-   ! Task 6.2/6.4 / spec "Resolved extension has a real payload" +
-   ! "Resolved extension remains discoverable" + "Reused extension is
-   ! not re-materialized": with the gate explicitly enabled, the
-   ! extension chain's final item gets a real, correctly-shaped
-   ! ESMF_Field, still discoverable via the same proxy/predecessor
-   ! query, and calling resolve_connections a second time does not
-   ! replace it.
-   ! type=ESMF_TestMethod, npes=[1] (unlike Test_GraphBuilder.pf's other
-   ! tests, Test_GeomAspect.pf's own precedent for real-geom pFUnit
-   ! tests): this test calls FieldCreate on a real ESMF_Geom - a plain
-   ! MpiTestMethod sub-communicator does not reconfigure ESMF's own
-   ! default VM, so a real ESMF collective call still synchronizes
-   ! against this suite's full ambient multi-PE test world and would
-   ! deadlock without ESMF_TestMethod's proper per-test VM scoping.
+   ! Spec "Resolved extension has a real payload" + "Resolved extension remains
+   ! discoverable" + "Reused extension is not re-materialized": with the gate
+   ! explicitly enabled, the extension chain's final item gets a real,
+   ! correctly-shaped ESMF_Field, still discoverable via the same
+   ! proxy/predecessor query, and calling resolve_connections a second time
+   ! does not replace it. type=ESMF_TestMethod, npes=[1] (unlike
+   ! Test_GraphBuilder.pf's other tests, Test_GeomAspect.pf's own precedent for
+   ! real-geom pFUnit tests): this test calls FieldCreate on a real ESMF_Geom -
+   ! a plain MpiTestMethod sub-communicator does not reconfigure ESMF's own
+   ! default VM, so a real ESMF collective call still synchronizes against this
+   ! suite's full ambient multi-PE test world and would deadlock without
+   ! ESMF_TestMethod's proper per-test VM scoping.
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_materialize_extensions_enabled_creates_real_field(this)
       class(ESMF_TestMethod), intent(inout) :: this
@@ -325,10 +321,10 @@ contains
       src_meta => get_outer_meta(src_gc, _RC)
       dst_meta => get_outer_meta(dst_gc, _RC)
 
-      ! Explicit-override geom (design.md Decisions "Geom/vgrid
-      ! resolution order" case (a), the HistoryCollection-style case) -
-      ! this synthetic OuterMetaComponent never runs initialize_geom_a/b,
-      ! so it has no component-wide default of its own.
+      ! Explicit-override geom ("Geom/vgrid resolution order" case (a), the
+      ! HistoryCollection-style case) - this synthetic OuterMetaComponent never
+      ! runs initialize_geom_a/b, so it has no component-wide default of its
+      ! own.
       export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
       export_var_spec%geom = geom
       src_spec => src_meta%get_component_spec()
@@ -383,24 +379,22 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_materialize_extensions_enabled_creates_real_field
 
-   ! openspec/changes/phase-7a-shape-dispatch-wiring, task 9.4: a
-   ! BRACKET export -> FIELD import pairing reaches the narrowed
-   ! export-side gate (Section 5/design.md D5) and is NOT reported as
-   ! unsupported_item_class - unlike
+   ! A BRACKET export -> FIELD import pairing reaches the narrowed export-side
+   ! gate and is NOT reported as unsupported_item_class - unlike
    ! Test_GraphBuilder_ConnectionResolution.pf's own
    ! test_materialize_extensions_reports_unsupported_item_class
-   ! (VECTOR->VECTOR), which still correctly fails (shape mismatch with
-   ! no build_transform support). Units/typekind match on both sides,
-   ! isolating the shape axis exactly as 9.2/9.3's synthetic-node test
-   ! does. Lives in THIS file, not
-   ! Test_GraphBuilder_ConnectionResolution.pf, because
-   ! materialize_extension_chain (where the Section 5.2 gate actually
-   ! lives) calls resolve_export_geom, which needs a real geom - the
-   ! same type=ESMF_TestMethod, npes=[1] real-ESMF-geom precedent as
-   ! test_materialize_extensions_enabled_creates_real_field just above
-   ! (a plain MpiTestMethod sub-communicator cannot run the real
-   ! ESMF_GridCreateNoPeriDim/GeomCreate collective calls this test
-   ! needs).
+   ! (VECTOR->VECTOR), which still correctly fails (shape mismatch with no
+   ! build_transform support). Units/typekind match on both sides, isolating
+   ! the shape axis exactly as the synthetic-node test
+   ! test_bracket_to_field_mismatch_builds_interpolation_chain in
+   ! Test_ExtensionResolution.pf does. Lives in
+   ! THIS file, not Test_GraphBuilder_ConnectionResolution.pf, because
+   ! materialize_extension_chain (where the gate actually lives)
+   ! calls resolve_export_geom, which needs a real geom - the same
+   ! type=ESMF_TestMethod, npes=[1] real-ESMF-geom precedent as
+   ! test_materialize_extensions_enabled_creates_real_field just above (a plain
+   ! MpiTestMethod sub-communicator cannot run the real
+   ! ESMF_GridCreateNoPeriDim/GeomCreate collective calls this test needs).
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_materialize_extensions_bracket_export_narrowed_gate(this)
       class(ESMF_TestMethod), intent(inout) :: this
@@ -473,30 +467,25 @@ contains
       call set_materialize_extensions(.false.)
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
-      ! The whole point of design.md D5's narrowed gate: a BRACKET
-      ! export reaching try_materialize_field_extension/
-      ! materialize_extension_chain is no longer rejected outright -
-      ! it is the ITEM_SHAPE mismatch's own build_transform
-      ! (ItemShapeCharacteristic -> BracketTimeInterpolationTransform)
-      ! that resolves this pairing, not the export-side
-      ! unsupported_item_class check this task narrows.
+      ! A BRACKET export reaching try_materialize_field_extension/
+      ! materialize_extension_chain is not rejected outright by the
+      ! export-side unsupported_item_class check - it is the ITEM_SHAPE
+      ! mismatch build_transform (ItemShapeCharacteristic ->
+      ! BracketTimeInterpolationTransform) that resolves this pairing.
       @assertEqual(0, unsupported%size())
 
       _UNUSED_DUMMY(this)
    end subroutine test_materialize_extensions_bracket_export_narrowed_gate
 
-   ! openspec/changes/phase-10a-state-materialization, spec "Matching
-   ! export is materialized with a real field": with the graph mode
-   ! selected as GRAPH_MODE_GRAPH (GRAPH_MODE_BOTH behaves identically
-   ! for this call - both are "not GRAPH_MODE_REGISTRY"), resolve_one's
-   ! no-mismatch branch gives the export's own node (here, the parent's
-   ! own proxy standing in for child_src's export - no separate
-   ! extension node exists for an exact match) a real, allocated field,
-   ! reusing the same geom/vgrid resolution
-   ! test_materialize_extensions_enabled_creates_real_field already
-   ! exercises for the mismatch branch.
-   ! type=ESMF_TestMethod, npes=[1]: same real-ESMF-geom precedent as
-   ! that test.
+   ! Spec "Matching export is materialized with a real field": with the graph
+   ! mode selected as GRAPH_MODE_GRAPH (GRAPH_MODE_BOTH behaves identically for
+   ! this call - both are "not GRAPH_MODE_REGISTRY"), resolve_one's no-mismatch
+   ! branch gives the export's own node (here, the parent's own proxy standing
+   ! in for child_src's export - no separate extension node exists for an exact
+   ! match) a real, allocated field, reusing the same geom/vgrid resolution
+   ! test_materialize_extensions_enabled_creates_real_field already exercises
+   ! for the mismatch branch. type=ESMF_TestMethod, npes=[1]: same
+   ! real-ESMF-geom precedent as that test.
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_exact_match_materializes_field_in_graph_mode(this)
       class(ESMF_TestMethod), intent(inout) :: this
@@ -583,7 +572,7 @@ contains
 
       ! No extension chain for an exact match - still a direct edge
       ! (spec "Matching export and import are wired" is unaffected by
-      ! this sub-change).
+      ! the materialization step).
       net => parent_graph%get_network(parent_graph%get_forward_network_id())
       @assert_that(net%contains_dependency(t_export_id, t_import_id), is(true()))
 
@@ -606,28 +595,21 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_exact_match_materializes_field_in_graph_mode
 
-   ! openspec/changes/phase-10a-state-materialization, task 4.2: direct
-   ! coverage of graphbuilder_populate_state, called the way design.md's
-   ! own correction prescribes - on the PARENT (the component that
-   ! declared the MatchConnection), not either connected child. Covers
-   ! spec "An exact-match import's real field is found via its export"
-   ! (child_dst's own real import field, once inserted, is the SAME
-   ! field object materialized on child_src's own export proxy - checked
-   ! via FieldsAreAliased, not just typekind/units equality) and spec
-   ! "Unresolved import is not populated" (Q, declared but never
-   ! connected, produces no entry and no error) in one fixture.
+   ! Direct coverage of graphbuilder_populate_state, called on the PARENT (the component that
+   ! declared the MatchConnection), not either connected child. Covers spec "An exact-match
+   ! import's real field is found via its export" (child_dst's own real import
+   ! field, once inserted, is the SAME field object materialized on child_src's
+   ! own export proxy - checked via FieldsAreAliased, not just typekind/units
+   ! equality) and spec "Unresolved import is not populated" (Q, declared but
+   ! never connected, produces no entry and no error) in one fixture.
    !
-   ! openspec/changes/graph-child-state-population: this test's own
-   ! assertions were updated here. The field this test checks for is a
-   ! sibling-to-sibling (cross-component) connection's own resolved
-   ! item - per that change's own fix, it now lands in child_dst's own
-   ! real ESMF_State (get_user_gc_driver()%get_states()), never in the
-   ! parent-supplied `multi_state` this test still passes into
-   ! populate_state (which remains correct for the parent's own
-   ! same-component/degenerate case, untouched by that fix). The
-   ! parent-supplied `multi_state` is now explicitly asserted to
-   ! receive NEITHER field, confirming the fix rather than merely
-   ! happening to still pass.
+   ! The field this test checks for is the resolved item of a
+   ! sibling-to-sibling (cross-component) connection: it lands in the own real
+   ! ESMF_State of child_dst (get_user_gc_driver%get_states), never in the
+   ! parent-supplied `multi_state` this test passes into populate_state
+   ! (which is only used for the same-component/degenerate case of the
+   ! parent). The parent-supplied `multi_state` is explicitly asserted to
+   ! receive NEITHER field.
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_populate_state_aliases_export_and_skips_unresolved(this)
       class(ESMF_TestMethod), intent(inout) :: this
@@ -715,10 +697,8 @@ contains
       call set_graph_mode(GRAPH_MODE_REGISTRY)
       @assert_that(status, is(0))
 
-      ! The export's own real field, fetched directly from child_src's
-      ! own real NodeId (same node task 4.1 checks) - no parent-local
-      ! proxy exists anymore (openspec/changes/hierarchy-wide-component-
-      ! graph, tasks.md 3.4).
+      ! The export's own real field, fetched directly from child_src's own real
+      ! NodeId (same node checks) - no parent-local proxy exists.
       src_graph => src_meta%get_component_graph()
       t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
       @assert_that(associated(t_export_id), is(true()))
@@ -732,12 +712,11 @@ contains
       export_field = export_payload%get_field(rc=status)
       @assertEqual(0, status)
 
-      ! openspec/changes/graph-child-state-population: a sibling
-      ! connection's resolved import field now lands in child_dst's OWN
-      ! real ESMF_State (reached via get_user_gc_driver()%get_states()),
-      ! never in the parent-supplied `multi_state` above - the field is
-      ! still the SAME field object child_src's own export proxy
-      ! materialized, not merely an equally-shaped copy.
+      ! A sibling connection's resolved import field lands in child_dst's
+      ! OWN real ESMF_State (reached via get_user_gc_driver%get_states), never
+      ! in the parent-supplied `multi_state` above - the field is still the
+      ! SAME field object child_src's own export proxy materialized, not merely
+      ! an equally-shaped copy.
       dst_own_driver => dst_meta%get_user_gc_driver()
       dst_own_states = dst_own_driver%get_states()
       dst_own_import_state = dst_own_states%importState
@@ -764,16 +743,13 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_populate_state_aliases_export_and_skips_unresolved
 
-   ! openspec/changes/graph-child-state-population, tasks.md 2.1/2.2:
-   ! direct coverage of the fix itself - child_src's own real EXPORT
-   ! state and child_dst's own real IMPORT state each receive the
-   ! resolved field under its own short name, the two states hold the
-   ! SAME field object (FieldsAreAliased), and the parent's own
-   ! multi_state is confirmed empty - the one assertion
-   ! test_populate_state_aliases_export_and_skips_unresolved above does
-   ! not make (it checks child_dst's own import state and the Q
-   ! unresolved-import case, but not child_src's own export state
-   ! explicitly).
+   ! Direct coverage of the per-child state population - child_src's own real EXPORT state and
+   ! child_dst's own real IMPORT state each receive the resolved field under
+   ! its own short name, the two states hold the SAME field object
+   ! (FieldsAreAliased), and the parent's own multi_state is confirmed empty -
+   ! the one assertion test_populate_state_aliases_export_and_skips_unresolved
+   ! above does not make (it checks child_dst's own import state and the Q
+   ! unresolved-import case, but not child_src's own export state explicitly).
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_populate_state_reaches_each_childs_own_state(this)
       class(ESMF_TestMethod), intent(inout) :: this
@@ -853,8 +829,8 @@ contains
       call set_graph_mode(GRAPH_MODE_REGISTRY)
       @assert_that(status, is(0))
 
-      ! child_src's own real EXPORT state (design.md D4 - the export
-      ! side is touched symmetrically with the import side).
+      ! child_src's own real EXPORT state (the export side is touched
+      ! symmetrically with the import side).
       src_own_driver => src_meta%get_user_gc_driver()
       src_own_states = src_own_driver%get_states()
       src_own_export_state = src_own_states%exportState
@@ -1075,15 +1051,14 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_populate_state_writes_per_alias_keys
 
-   ! openspec/changes/phase-10a-state-materialization, spec "Graph mode
-   ! governs whether population touches the real state": in both
-   ! GRAPH_MODE_REGISTRY and GRAPH_MODE_BOTH, graphbuilder_populate_state
-   ! inserts nothing into a real ESMF_State, even though
-   ! GRAPH_MODE_BOTH's own materialization step above still gives the
-   ! export's own node a real field (checked directly, out of band, same
-   ! as test_exact_match_materializes_field_in_graph_mode already does
-   ! for GRAPH_MODE_GRAPH - GRAPH_MODE_BOTH behaves identically there,
-   ! "not GRAPH_MODE_REGISTRY").
+   ! Spec "Graph mode governs whether population touches the real state": in
+   ! both GRAPH_MODE_REGISTRY and GRAPH_MODE_BOTH, graphbuilder_populate_state
+   ! inserts nothing into a real ESMF_State, even though GRAPH_MODE_BOTH's own
+   ! materialization step above still gives the export's own node a real field
+   ! (checked directly, out of band, same as
+   ! test_exact_match_materializes_field_in_graph_mode already does for
+   ! GRAPH_MODE_GRAPH - GRAPH_MODE_BOTH behaves identically there, "not
+   ! GRAPH_MODE_REGISTRY").
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_populate_state_no_insert_in_registry_or_both_mode(this)
       class(ESMF_TestMethod), intent(inout) :: this

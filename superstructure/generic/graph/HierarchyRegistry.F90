@@ -3,7 +3,7 @@
 !------------------------------------------------------------------------------
 ! HierarchyRegistry: the one shared, cross-ComponentGraph lookup point for
 ! HierarchyResources values. Follows mapl_CallbackInterfaceRegistry_mod's
-! wrapper-procedure convention (REQ-CB-010: narrower wrapper procedures that
+! wrapper-procedure convention (narrower wrapper procedures that
 ! hide the singleton), but keyed by HierarchyId rather than a bare
 ! singleton. That gives independent hierarchies (e.g. separate pFUnit
 ! fixtures in one process) distinct HierarchyResources entries with no

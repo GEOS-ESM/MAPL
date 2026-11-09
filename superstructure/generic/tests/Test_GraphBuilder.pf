@@ -1,13 +1,12 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
-! Phase 3b (docs/graph/spec/20-implementation-roadmap.md sec 20.4.1,
-! openspec/changes/graphbuilder-advertising-connections): originally
-! GraphBuilder advertising, public-port/child-proxy population,
-! validate/freeze, composite advertise/readvertise, vertical-grid
-! composite tagging, visualization label map, callback state/method
-! binding, run-phase-node construction, and the parent-shared
-! resolve_qualified_component/query_component_exports helpers.
+! Tests for GraphBuilder: advertising, public-port population, validate/freeze,
+! composite advertise/readvertise, vertical-grid composite tagging,
+! visualization label map, callback state/method binding, run-phase-node
+! construction, and the parent-shared
+! resolve_qualified_component/query_component_exports helpers. Most of these
+! live in per-submodule files; see below for what remains here.
 !
 ! Phase 17-5 (docs/graph/spec/20-implementation-roadmap.md sec
 ! 20.4.17): per the 17-2/17-3 bucket characterization, every
@@ -70,11 +69,9 @@ module Test_GraphBuilder
 
 contains
 
-   ! visualization-enrichment-layer change, task 3.1/3.2/4.1: a
-   ! component's own advertised import/export/internal items are
-   ! labeled by their own declared short_name when build_label_map's
-   ! result is handed to the exporter (spec.md "Advertised item is
-   ! labeled by its own name").
+   ! A component's own advertised import/export/internal items are labeled by
+   ! their own declared short_name when build_label_map's result is handed to
+   ! the exporter.
    @test(npes=[0])
    subroutine test_build_label_map_labels_own_advertised_items(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -117,21 +114,16 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_build_label_map_labels_own_advertised_items
 
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.4:
-   ! retires the former "a cached child-proxy node is labeled
-   ! <child_name>:<short_name> and marked as a proxy" coverage -
-   ! build_label_map no longer labels any child-proxy node (removed
-   ! along with proxy_key/get_or_make_local_node_id; a cross-component
-   ! edge now references the child's own real NodeId directly, in the
-   ! child's own graph, never a stand-in in this component's own graph).
-   ! test_build_label_map_labels_own_advertised_items above already
-   ! covers this function's remaining (own-advertised-item) behavior.
+   ! build_label_map labels no child-proxy node: a cross-component edge
+   ! references the child's own real NodeId directly, in the child's own graph,
+   ! never a stand-in in this component's own graph.
+   ! test_build_label_map_labels_own_advertised_items above covers the labeling
+   ! of own-advertised items.
 
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 7.1,
-   ! design.md D4: query_component_exports(root, path) returns ONLY the
-   ! path-resolved component's own resolved exports - no recursion into
-   ! its children (unlike enumerate_qualified_exports/
-   ! build_qualified_export_namespace, which flatten a whole subtree).
+   ! query_component_exports(root, path) returns ONLY the path-resolved
+   ! component's own resolved exports - no recursion into its children (unlike
+   ! enumerate_qualified_exports/ build_qualified_export_namespace, which
+   ! flatten a whole subtree).
    @test(npes=[0])
    subroutine test_query_component_exports_scoped_to_resolved_component(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -190,14 +182,13 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_query_component_exports_scoped_to_resolved_component
 
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 7.2,
-   ! design.md D4: History-style deep-hierarchy export visibility - a
-   ! 3+-level nested fixture (root -> MID -> LEAF), resolved correctly
-   ! through query_component_exports's path-resolution + local-index
-   ! read, with NO propagation/mirroring step involved at any level
-   ! (LEAF's own export is never mirrored into MID or root's own
-   ! import/export-port tables; it is found purely by resolving the
-   ! qualified path and reading LEAF's own resource index directly).
+   ! History-style deep-hierarchy export visibility - a 3+-level nested fixture
+   ! (root -> MID -> LEAF), resolved correctly through
+   ! query_component_exports's path-resolution + local-index read, with NO
+   ! propagation/mirroring step involved at any level (LEAF's own export is
+   ! never mirrored into MID or root's own import/export-port tables; it is
+   ! found purely by resolving the qualified path and reading LEAF's own
+   ! resource index directly).
    @test(npes=[0])
    subroutine test_query_component_exports_deep_hierarchy_no_propagation(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -237,8 +228,8 @@ contains
       call gb%advertise(root_meta, status)
       @assert_that(status, is(0))
       ! Deliberately no run_propagate_hook/run_export_propagate_hook
-      ! call anywhere in this test - the whole point of D4 is that this
-      ! query needs none of that machinery.
+      ! call anywhere in this test - the whole point is that this query
+      ! needs none of that machinery.
 
       entries = query_component_exports(root_meta, 'MID/LEAF', status)
       @assert_that(status, is(0))
@@ -376,10 +367,9 @@ contains
       _RETURN(_SUCCESS)
    end subroutine build_tracer_hierarchy
 
-   ! Task 4.2 / spec "A pattern matching multiple qualified exports
-   ! selects all of them" + "A matching export that does not implement
-   ! the expected interface is rejected": DU/SS conform, BAD (no
-   ! declared 'tracers' member) does not.
+   ! A pattern matching multiple qualified exports selects all of them, and a
+   ! matching export that does not implement the expected interface is
+   ! rejected: DU/SS conform, BAD (no declared 'tracers' member) does not.
    @test(npes=[0])
    subroutine test_resolve_callback_import_matches_and_rejects(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -439,8 +429,7 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_resolve_callback_import_matches_and_rejects
 
-   ! Task 4.2 (empty-match case) / spec "A pattern matching no export
-   ! resolves to an empty, valid selection".
+   ! A pattern matching no export resolves to an empty, valid selection.
    @test(npes=[0])
    subroutine test_resolve_callback_import_no_match_is_empty(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -465,14 +454,10 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_resolve_callback_import_no_match_is_empty
 
-   ! openspec/changes/graph-builder-resolution-index, task 4.1 /
-   ! design.md Risks "the fixed gap": a single-segment path equal to
-   ! the calling component's own name resolves to that component
-   ! itself, not a child lookup attempt - resolve_descendant's own
-   ! prior behavior (before this change relocated it as
-   ! resolve_qualified_component) always called get_child_outer_meta
-   ! unconditionally on the first segment, so this regresses without
-   ! the is_self short-circuit this change adds.
+   ! A single-segment path equal to the calling component's
+   ! own name resolves to that component itself, not a child lookup attempt;
+   ! calling get_child_outer_meta unconditionally on the first segment would
+   ! fail, so this guards the is_self short-circuit.
    @test(npes=[0])
    subroutine test_resolve_qualified_component_single_segment_self(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -497,10 +482,9 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_resolve_qualified_component_single_segment_self
 
-   ! openspec/changes/graph-builder-resolution-index, task 4.2: a
-   ! three-level synthetic hierarchy (parent/child/grandchild); a
-   ! two-segment path ('child/grandchild') resolves to the grandchild's
-   ! own OuterMetaComponent.
+   ! a three-level synthetic hierarchy (parent/child/grandchild); a two-segment
+   ! path ('child/grandchild') resolves to the grandchild's own
+   ! OuterMetaComponent.
    @test(npes=[0])
    subroutine test_resolve_qualified_component_multi_level(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -531,10 +515,9 @@ contains
       @assert_that(status, is(0))
       @assert_that(associated(resolved, grandchild_meta), is(true()))
 
-      ! Single-segment path to a direct child continues to resolve
-      ! exactly as component_for's own "<self>"/direct-child dispatch
-      ! already does (design.md "A connection naming a direct child or
-      ! self is unaffected").
+      ! Single-segment path to a direct child continues to resolve exactly as
+      ! component_for's own "<self>"/direct-child dispatch already does. A
+      ! connection naming a direct child or self is unaffected.
       resolved => resolve_qualified_component(root_meta, 'MID', status)
       @assert_that(status, is(0))
       @assert_that(associated(resolved, child_meta), is(true()))
@@ -542,19 +525,15 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_resolve_qualified_component_multi_level
 
-   ! openspec/changes/hierarchy-wide-component-graph, graph/component-
-   ! hierarchy delta spec "Connection endpoint resolution never resolves
-   ! upward past its declaring component" - scenario "A connection
-   ! cannot name an ancestor": resolve_qualified_component, called with
-   ! MID as root, has no code path that can reach ROOT (MID's own
-   ! parent) or a name that is neither MID itself nor one of its
-   ! descendants - get_child_outer_meta only ever looks up MID's OWN
-   ! children map (OuterMetaComponent/get_child_by_name.F90), with no
-   ! "get_parent" accessor anywhere in OuterMetaComponent to begin with
-   ! (design.md D6 - "the walk has no 'look at my own parent' code path
-   ! to begin with"). Naming ROOT (the ancestor) or SIBLING (neither
-   ! MID nor a descendant of MID) therefore fails to resolve, exactly
-   ! like naming any other nonexistent child would - this is a
+   ! A connection endpoint never resolves upward past its declaring component
+   ! (a connection cannot name an ancestor): resolve_qualified_component, called
+   ! with MID as root, has no code path that can reach ROOT (MID's own parent)
+   ! or a name that is neither MID itself nor one of its descendants -
+   ! get_child_outer_meta only ever looks up MID's OWN children map
+   ! (OuterMetaComponent/get_child_by_name.F90), with no "get_parent" accessor
+   ! anywhere in OuterMetaComponent to begin with. Naming ROOT (the ancestor)
+   ! or SIBLING (neither MID nor a descendant of MID) therefore fails to
+   ! resolve, exactly like naming any other nonexistent child would - this is a
    ! structural property of the walk, not a special-cased check.
    @test(npes=[0])
    subroutine test_resolve_qualified_component_cannot_name_ancestor(this)

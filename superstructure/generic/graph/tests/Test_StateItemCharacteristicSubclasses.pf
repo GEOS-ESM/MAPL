@@ -1,7 +1,6 @@
-! openspec/changes/state-item-characteristic-subclasses, tasks 2.3/3.5/4.3/
-! 5.3/6.3: the seven new concrete StateItemCharacteristic subclasses -
+! The seven newer concrete StateItemCharacteristic subclasses -
 ! correct Value/Reference classification, correct get_kind(), and
-! needs_extension_for() comparison semantics (design.md D1-D5).
+! needs_extension_for() comparison semantics.
 !
 ! build_transform/get_signature coverage - incompatible for five of the six
 ! subclasses with no Transform (Attributes, UngriddedDims, QuantityType,
@@ -65,7 +64,6 @@ module Test_StateItemCharacteristicSubclasses
    use StateItemTestSupport_mod, only: make_latlon_geom
    use ESMF, only: ESMF_Geom, ESMF_REGRIDMETHOD_CONSERVE
    use ESMF, only: ESMF_REGRIDMETHOD_PATCH
-   ! openspec/changes/phase-7a-shape-dispatch-wiring
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_BracketTimeInterpolationTransform_mod, only: BracketTimeInterpolationTransform
    use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, &
@@ -563,7 +561,7 @@ contains
    end subroutine test_attributes_missing_required_name_needs_extension
 
    ! Swapping this/goal for the same two non-equal sets produces the
-   ! opposite result, making the asymmetry visible (design.md Risks).
+   ! opposite result, making the asymmetry visible.
    @test
    subroutine test_attributes_needs_extension_for_is_asymmetric()
       type(AttributesCharacteristic) :: larger, smaller
@@ -1011,8 +1009,8 @@ contains
 
    ! --- get_signature for the six subclasses with no Transform - two
    ! equal-value instances produce identical signatures, two
-   ! different-value instances produce different ones (design.md Risks -
-   ! sufficient for reuse-key correctness) ---
+   ! different-value instances produce different ones (sufficient for
+   ! reuse-key correctness) ---
 
    @test
    subroutine test_attributes_get_signature_distinguishes_values()
@@ -1090,8 +1088,8 @@ contains
       @assertTrue(a%get_signature() /= b%get_signature())
    end subroutine test_ungridded_dims_get_signature_distinguishes_values
 
-   ! --- merge-characteristic-families task 7.3: build_transform/
-   ! get_signature for the four real, moved implementations - ports
+   ! --- build_transform/get_signature for the four real, moved
+   ! implementations - ports
    ! Test_Characteristic.pf's/Test_GeomCharacteristic.pf's own
    ! assertions onto the surviving StateItemCharacteristic-side types ---
 
@@ -1401,8 +1399,7 @@ contains
       @assertEqual(a%get_signature(), a_again%get_signature())
    end subroutine test_geometry_signature_from_held_geom
 
-   ! --- openspec/changes/phase-7a-shape-dispatch-wiring, task 7:
-   ! ItemShapeCharacteristic (design.md D1-D3) ---
+   ! --- ItemShapeCharacteristic ---
 
    @test
    subroutine test_item_shape_is_a_value_characteristic()
@@ -1433,7 +1430,7 @@ contains
    end subroutine test_item_shape_bracket_vs_field_needs_extension
 
    ! Mismatch correctly detected even though no Transform exists for
-   ! this particular pairing (design.md Non-Goals).
+   ! this particular pairing.
    @test
    subroutine test_item_shape_vectorbracket_vs_vector_needs_extension()
       type(ItemShapeCharacteristic) :: vectorbracket, vector

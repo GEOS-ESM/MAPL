@@ -2,22 +2,21 @@
 
 !------------------------------------------------------------------------------
 ! StateItemCharacteristic: abstract per-characteristic model attached to a
-! GraphStateItem (docs/graph/spec/18-state-item-characteristics.md
-! REQ-CHAR-001/002). Branches into two abstract intermediate kinds
-! (REQ-CHAR-002a):
+! GraphStateItem (docs/graph/characteristics.md). Branches into two
+! abstract intermediate kinds:
 !
 !   - ValueCharacteristic: holds its value inline, no identity beyond its
 !     owning GraphStateItem, never shared (PhysicalUnitsCharacteristic.F90,
 !     TypeKindCharacteristic.F90).
 !   - ReferenceCharacteristic: holds a NodeId referencing a shared graph
 !     node elsewhere, rather than a value of its own
-!     (GeometryCharacteristic.F90). REQ-CHAR-002b: the referenced node is
+!     (GeometryCharacteristic.F90). The referenced node is
 !     an ordinary graph node with its own real NodeId/NodeRevision
 !     identity - this type only holds the reference, never the payload.
 !
-! REQ-CHAR-009's detection-completeness requirement ("iterate every entry
-! through the common StateItemCharacteristic interface only, never
-! branching on Value-vs-Reference kind") is why the deferred methods
+! Mismatch detection iterates every entry through the common
+! StateItemCharacteristic interface only, never branching on
+! Value-vs-Reference kind; that is why the deferred methods
 ! below (get_kind/needs_extension_for/build_transform/get_signature) are
 ! declared on this common ancestor, not duplicated per kind.
 !
@@ -41,7 +40,7 @@
 ! them directly.
 !
 ! StateItemCharacteristicMap (StateItemCharacteristicKind ->
-! class(StateItemCharacteristic), REQ-CHAR-007's key/value types) is a
+! class(StateItemCharacteristic)) is a
 ! real gFTL2 polymorphic map, generated the same way
 ! mapl_Characteristic_mod generates CharacteristicMap for the
 ! deliberately-independent graph/extension-reuse hierarchy - instantiated
@@ -124,14 +123,14 @@ module mapl_StateItemCharacteristic_mod
       procedure :: harvest => char_harvest
    end type StateItemCharacteristic
 
-   ! REQ-CHAR-002a: a pure subtype-shape split - no additional deferred
+   ! A pure subtype-shape split - no additional deferred
    ! methods or components at this tier. ValueCharacteristic never holds
    ! a NodeId; a concrete subclass (PhysicalUnitsCharacteristic,
    ! TypeKindCharacteristic) holds its own value inline directly.
    type, abstract, extends(StateItemCharacteristic) :: ValueCharacteristic
    end type ValueCharacteristic
 
-   ! REQ-CHAR-002b: holds a reference (NodeId), never a value of its own.
+   ! Holds a reference (NodeId), never a value of its own.
    type, abstract, extends(StateItemCharacteristic) :: ReferenceCharacteristic
       private
       type(NodeId) :: referenced_node_id
@@ -154,10 +153,9 @@ module mapl_StateItemCharacteristic_mod
          type(StateItemCharacteristicKind) :: kind
       end function I_get_kind
 
-      ! REQ-CHAR-009: a plain value/identity comparison only - no
-      ! Transform-building logic at this layer (that is
-      ! graph/extension-reuse's existing, separate concern; this
-      ! hierarchy's job per REQ-CHAR-002 is description, not adaptation).
+      ! A plain value/identity comparison only - no Transform-building
+      ! logic here (that is build_transform's job; this hierarchy
+      ! describes, it does not adapt).
       ! `goal` is guaranteed the same dynamic type as `this`: the one
       ! production caller, resolve_pair (mapl_StateItemDescriptor_mod),
       ! receives both sides looked up
@@ -165,7 +163,7 @@ module mapl_StateItemCharacteristic_mod
       ! StateItemDescriptor characteristics maps, and the only insertion path
       ! into that map, StateItemDescriptor%set_characteristic, asserts
       ! `characteristic%get_kind() == kind` before inserting
-      ! (REQ-CHAR-006/009, design.md D9) - so any entry retrievable at a
+      ! - so any entry retrievable at a
       ! given key is provably that key's own concrete type, for the
       ! actual call chain this method is used in, not merely by
       ! convention. A concrete implementation's `class default` branch
@@ -180,7 +178,7 @@ module mapl_StateItemCharacteristic_mod
          class(StateItemCharacteristic), intent(in) :: goal
       end function I_needs_extension_for
 
-      ! merge-characteristic-families: build a Transform (declared here
+      ! Build a Transform (declared here
       ! as its own TransformBase ancestor - mapl_TransformBase_mod - not
       ! mapl_Transform_mod directly, to avoid a circular module
       ! dependency: Transform's own compute() interface reaches
@@ -191,7 +189,7 @@ module mapl_StateItemCharacteristic_mod
       ! TransformBase.F90's own header comment for the full rationale)
       ! resolving `this` (the established value) into `goal` (the goal
       ! value) - a pure value-to-strategy constructor, with no graph/
-      ! NodeId concept involved (post-decouple-transform-from-graph). A
+      ! NodeId concept involved. A
       ! subclass with no real conversion implemented yet MUST report
       ! BUILD_TRANSFORM_UNSUPPORTED (through
       ! report_build_transform_unsupported, raising nothing) and leave
@@ -217,7 +215,7 @@ module mapl_StateItemCharacteristic_mod
          integer, optional, intent(out) :: rc
       end subroutine I_build_transform
 
-      ! merge-characteristic-families: a human-readable, value-
+      ! A human-readable, value-
       ! distinguishing signature (e.g. "units=m/s") - used by
       ! mapl_ExtensionResolution_mod's reuse-search cache key to
       ! distinguish two mismatches of the same kind but different

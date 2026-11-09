@@ -2,21 +2,21 @@
 
 !------------------------------------------------------------------------------
 ! TransformGraphNode: concrete OperationGraphNode descendant representing
-! a demand-driven MAPL Transform (spec/03-graph-node-hierarchy.md
-! REQ-NODE-005, spec/10-transforms-and-ports.md REQ-XFORM-001..004).
+! a demand-driven MAPL Transform (spec/03-graph-node-hierarchy.md,
+! spec/10-transforms-and-ports.md).
 !
 ! Holds exactly one Transform (component "transformer", see
 ! mapl_Transform_mod for why port declarations and compute() live there,
 ! not here) and delegates every port-query method to it unchanged -
-! REQ-XFORM-004's "declaration belongs to the Transform" is honored by
+! port declaration belongs to the Transform, so it is honored by
 ! the delegation target, not by duplicating storage here. This mirrors
 ! StateItemNode holding a GraphStateItem as "payload": the node adds exactly
 ! the graph-plumbing concerns its payload/transformer does not carry -
 ! NodeId/lifecycle (inherited via OperationGraphNode/BaseGraphNode) and,
 ! here, the staleness/baseline bookkeeping the demand-driven update
-! algorithm needs (spec/11-revision-and-update.md REQ-REV-005..007):
+! algorithm needs (spec/11-revision-and-update.md):
 ! has_run()/needs_execution()/record_run(), exposed as methods per
-! REQ-REV-003's "expose via methods, not raw field access" pattern,
+! the "expose via methods, not raw field access" pattern,
 ! already established by StateItemNode's own revision accessors.
 ! ComponentGraph%update() (mapl_ComponentGraph_DemandDrivenUpdate_smod)
 ! is a thin traversal/orchestration layer with no persistent state of
@@ -24,7 +24,7 @@
 !
 ! Port *bindings* (which concrete NodeId fills a declared port, for a
 ! given DependencyNetworkId) are explicitly NOT stored here - see
-! mapl_PortBindingTable_mod / ComponentGraph%bind_port(), REQ-XFORM-005.
+! mapl_PortBindingTable_mod / ComponentGraph%bind_port().
 !------------------------------------------------------------------------------
 module mapl_TransformGraphNode_mod
    use mapl_OperationGraphNode_mod, only: OperationGraphNode
@@ -70,7 +70,7 @@ module mapl_TransformGraphNode_mod
       procedure :: get_input_ports => node_get_input_ports
       procedure :: get_output_ports => node_get_output_ports
       procedure :: get_transformer => node_get_transformer
-      ! -- staleness / execution bookkeeping (REQ-REV-005..007) -----------
+      ! -- staleness / execution bookkeeping -----------
       procedure :: has_run => node_has_run
       procedure :: needs_execution => node_needs_execution
       procedure :: record_run => node_record_run
@@ -171,7 +171,7 @@ contains
       ports = this%transformer%get_output_ports()
    end function node_get_output_ports
 
-   ! -- staleness / execution bookkeeping (REQ-REV-005..007) ----------------
+   ! -- staleness / execution bookkeeping ----------------
 
    logical function node_has_run(this) result(has_run)
       class(TransformGraphNode), intent(in) :: this
@@ -179,7 +179,7 @@ contains
       has_run = this%has_run_flag
    end function node_has_run
 
-   ! REQ-REV-006 steps 2-4: stale if never run, or if any current
+   ! Stale if never run, or if any current
    ! declared-input revision differs from (or is absent from) the
    ! baseline recorded after the last successful execution.
    function node_needs_execution(this, current_input_revisions) result(stale)
@@ -215,7 +215,7 @@ contains
       end do
    end function node_needs_execution
 
-   ! REQ-REV-006 step 6: the executed input revisions become the new
+   ! The executed input revisions become the new
    ! baseline for future staleness comparisons.
    subroutine node_record_run(this, current_input_revisions, rc)
       class(TransformGraphNode), intent(inout) :: this
@@ -228,7 +228,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine node_record_run
 
-   ! REQ-XFORM-001: invokes the held Transform, forwarding its own
+   ! Invokes the held Transform, forwarding its own
    ! caller-supplied, already-resolved bound input/output values
    ! unchanged into compute(). Does not itself touch any input/output NodeId or advance
    ! any revision - that orchestration is ComponentGraph%update()'s job

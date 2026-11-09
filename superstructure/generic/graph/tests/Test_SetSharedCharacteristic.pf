@@ -1,9 +1,7 @@
-! openspec/changes/state-item-characteristics, tasks 7.6/7.7/7.8/7.10:
-! sharing a GeometryCharacteristic across two GraphStateItems, the
-! set_shared_characteristic() eager-structural/lazy-content mutator
-! (design.md D7), and its composition with the already-shipped
-! REQ-REV-011 pre-invocation pull (MethodInvocation.F90's
-! invoke_on_forward_network - design.md D8, Context's correction note).
+! Sharing a GeometryCharacteristic across two GraphStateItems, the
+! set_shared_characteristic() eager-structural/lazy-content mutator,
+! and its composition with the pre-invocation pull
+! (invoke_on_forward_network in MethodInvocation.F90).
 !
 ! Synthetic ComponentGraph/StateItemNode/TransformGraphNode/
 ! MethodGraphNode only - no ESMF component/GridComp/StateRegistry
@@ -82,7 +80,7 @@ contains
       if (present(rc)) rc = 0
    end subroutine recording_adapter_invoke
 
-   ! -- sharing (task 7.6, REQ-CHAR-012/014) ----------------------------
+   ! -- sharing -----------------------------------------------------------
 
    ! Spec "Two state items share one geometry reference": no new
    ! identity mechanism required - both GraphStateItems' GeometryCharacteristic
@@ -116,13 +114,13 @@ contains
       end select
    end subroutine test_two_state_items_share_one_geometry_reference
 
-   ! -- mutator: eager structural reset (task 7.7) ----------------------
+   ! -- mutator: eager structural reset -----------------------------------
 
    ! Spec "Dependents are reset within the same call" / "Mutator never
    ! invokes a method node": a shared node with two direct StateItemNode
    ! successors (plain structural edges, no TransformGraphNode between
-   ! them - REQ-CHAR-016's own "as opposed to TransformGraphNodes, which
-   ! are left to the lazy path"). After the call: both successors'
+   ! them; TransformGraphNodes are left to the lazy path). After the
+   ! call: both successors'
    ! revisions are invalid, the shared node's own revision has advanced,
    ! and nothing else in the graph has executed (there is nothing to
    ! execute - no TransformGraphNode/MethodGraphNode reachable from the
@@ -311,7 +309,7 @@ contains
       @assertEqual(0, call_count)
    end subroutine test_mutator_never_invokes_a_registered_method_node
 
-   ! -- content-side laziness (task 7.8, REQ-CHAR-018) ------------------
+   ! -- content-side laziness ---------------------------------------------
 
    ! Spec "Content is not recomputed by the mutator call itself" /
    ! "Next demand-driven request produces correct content": shared_id's
@@ -319,7 +317,7 @@ contains
    ! TransformGraphNode producing final_id. After the mutator resets
    ! dep_id, no recompute has happened yet; a subsequent
    ! ComponentGraph%update() request on final_id recognizes dep_id's
-   ! revision as stale (REQ-REV-006, unchanged) and re-executes exactly
+   ! revision as stale and re-executes exactly
    ! once.
    @test
    subroutine test_content_recompute_is_lazy_after_structural_reset()
@@ -348,7 +346,7 @@ contains
       call graph%add_dependency(default_id, shared_id, dep_id, rc=status)
 
       ! dep_id starts with no producer of its own (a bare structural
-      ! dependent, per REQ-CHAR-016's own model) - give it a real,
+      ! dependent) - give it a real,
       ! advanced revision before priming, simulating "this dependent
       ! already has real content," so the mutator's later reset-to-
       ! invalid is an actual change the demand-driven algorithm can
@@ -401,7 +399,7 @@ contains
       @assertEqual(2, run_count)
    end subroutine test_content_recompute_is_lazy_after_structural_reset
 
-   ! -- composition with the existing REQ-REV-011 pull (task 7.10) -----
+   ! -- composition with the existing pre-invocation pull ------------
 
    ! Spec "Pre-invocation pull reflects a prior mid-Run structural
    ! reset": a mid-"Run" structural reset via set_shared_characteristic
@@ -409,9 +407,9 @@ contains
    ! MethodGraphNode whose bound IN argument is final_id (the output of
    ! an ordinary TransformGraphNode chain rooted at shared_id's direct
    ! dependent dep_id), confirms the ALREADY-SHIPPED pre-invocation pull
-   ! (MethodInvocation.F90's pull_bound_inputs, REQ-REV-011) resolves the
+   ! (MethodInvocation.F90's pull_bound_inputs) resolves the
    ! staleness introduced by the new mutator, with zero special-cased
-   ! interaction coded between the two (design.md D8).
+   ! interaction coded between the two.
    @test
    subroutine test_pre_invocation_pull_reflects_prior_structural_reset()
       type(ComponentGraph) :: graph
@@ -494,7 +492,7 @@ contains
       @assertEqual(1, run_count)
 
       ! Invoking the method node triggers the EXISTING pre-invocation
-      ! pull (REQ-REV-011) over its bound IN argument (final_id), which
+      ! pull over its bound IN argument (final_id), which
       ! recognizes dep_id's now-invalid revision and re-executes the
       ! transform chain BEFORE the adapter's own invoke() is called.
       call invoke_on_forward_network(graph, method_id, rc=status)

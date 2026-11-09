@@ -1,19 +1,19 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! MethodInvocation: REQ-MTH-003a's trigger/advance discipline around a
-! MethodGraphNode invocation on the forward DependencyNetwork (REQ-REV-011),
+! MethodInvocation: the trigger/advance discipline around a
+! MethodGraphNode invocation on the forward DependencyNetwork,
 ! as one graph-neutral procedure rather than an OuterMetaComponent method.
 !
-! invoke_on_forward_network() applies REQ-REV-011's forward-network rule,
+! invoke_on_forward_network() applies the forward-network rule,
 ! unconditionally and all-or-nothing:
-!   1. Before invocation: ComponentGraph%update() (REQ-REV-006) over every
+!   1. Before invocation: ComponentGraph%update() over every
 !      one of the method node's bound IN/INOUT arguments.
 !   2. Invoke the node.
 !   3. Only if invocation succeeds: advance the NodeRevision of every one of
 !      the method node's bound OUT/INOUT arguments.
 !
-! REQ-REV-011a: the discipline is "controlled by the OuterMetaComponent
+! The discipline is "controlled by the OuterMetaComponent
 ! layer" through who calls this procedure, not by the mechanism living inside
 ! OuterMetaComponent; it needs only ComponentGraph/MethodGraphNode/
 ! NodeRevision, so it is testable on a synthetic graph.
@@ -107,7 +107,7 @@ contains
       end do
    end subroutine collect_bound_names
 
-   ! REQ-REV-011's "pull-all-before": ComponentGraph%update() over every bound
+   ! Pull-all-before: ComponentGraph%update() over every bound
    ! IN/INOUT argument, on the forward network. Indexed loop over the
    ! pre-collected name list; no map iterator.
    subroutine pull_bound_inputs(graph, method_node, bindings, names, rc)
@@ -140,7 +140,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine pull_bound_inputs
 
-   ! REQ-REV-011's "advance-all-after": NodeRevision%advance() on every bound
+   ! Advance-all-after: NodeRevision%advance() on every bound
    ! OUT/INOUT argument, reached only once invoke() has succeeded (the verify macro
    ! above returns early otherwise). Indexed loop, as in pull_bound_inputs.
    subroutine advance_bound_outputs(graph, method_node, bindings, names, rc)

@@ -1,5 +1,4 @@
-! openspec/changes/extension-registry-visibility - task group 6: real
-! payload materialization for a framework-created extension item
+! Real payload materialization for a framework-created extension item
 ! (mapl_ExtensionMaterialization_mod), gated by
 ! mapl_ExtensionResolution_mod's materialize_extensions_enabled()/
 ! set_materialize_extensions(). Synthetic ComponentGraph/StateItemNode
@@ -8,8 +7,8 @@
 ! Test_FieldCreate.pf's own precedent) since this capability's whole job
 ! is a real, allocated ESMF_Field, not a synthetic MockPayload.
 !
-! Gate hygiene (design.md Risks - "module-level mutable state can leak
-! across pFUnit tests"): every test that calls set_materialize_extensions
+! Gate hygiene (module-level mutable state can leak across pFUnit
+! tests): every test that calls set_materialize_extensions
 ! resets it to .false. before returning.
 module Test_ExtensionMaterialization
    use mapl_ComponentGraph_mod, only: ComponentGraph
@@ -240,7 +239,7 @@ contains
       @assertTrue(are_aliased)
    end subroutine test_materialize_is_idempotent_on_reuse
 
-   ! -- numerical correctness (task 6.3) ---------------------------------
+   ! -- numerical correctness -----------------------------------------------
 
    @test
    subroutine test_materialized_field_supports_correct_unit_conversion()

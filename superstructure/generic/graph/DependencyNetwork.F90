@@ -2,12 +2,12 @@
 
 !------------------------------------------------------------------------------
 ! DependencyNetwork: graph-neutral dependency wiring with direct
-! predecessor/successor adjacency, keyed by NodeId (REQ-DEP-001/002). No first-class edge objects: a dependency is
+! predecessor/successor adjacency, keyed by NodeId. No first-class edge objects: a dependency is
 ! addressed only by its (source, target) NodeId pair.
 !
 ! Two synchronized gFTL maps (NodeId -> NodeIdSet) hold successor and
 ! predecessor adjacency. Ownership/classification of NodeIds is not known to
-! this type (that is ComponentGraph's job, REQ-CG-002 layering) - callers
+! this type (that is ComponentGraph's job) - callers
 ! that need ownership or producer-count validation pass the relevant NodeId
 ! sets into add_dependency()/validate() as optional arguments; if omitted,
 ! those specific checks are skipped, which is how the standalone synthetic
@@ -49,7 +49,7 @@ module mapl_DependencyNetwork_mod
       procedure :: clear => network_clear
       ! exposes collect_referenced_ids() so ComponentGraph%validate() can build a
       ! per-call allowed-id set for this network's referenced ids without this
-      ! type knowing about hierarchy-wide storage (REQ-CG-002)
+      ! type knowing about hierarchy-wide storage
       procedure :: get_referenced_ids => network_get_referenced_ids
    end type DependencyNetwork
 
@@ -66,7 +66,7 @@ contains
 
    ! -- mutators ---------------------------------------------------------
 
-   ! REQ-DEP-005/006: validates before mutating either map; on any
+   ! Validates before mutating either map; on any
    ! rejection (frozen, invalid id, self-dependency, foreign id, cycle),
    ! no adjacency changes.
    subroutine network_add_dependency(this, source, target, rc, valid_ids)
@@ -100,7 +100,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine network_add_dependency
 
-   ! REQ-DEP-005: removes the pair if present; no-op (success) if absent.
+   ! Removes the pair if present; no-op (success) if absent.
    subroutine network_remove_dependency(this, source, target, rc)
       class(DependencyNetwork), intent(inout) :: this
       type(NodeId), intent(in) :: source
@@ -133,7 +133,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine network_clear
 
-   ! REQ-DEP-005: irreversible; no failure path defined by the spec.
+   ! Irreversible; no failure path defined by the spec.
    subroutine network_freeze(this)
       class(DependencyNetwork), intent(inout) :: this
 
@@ -215,7 +215,7 @@ contains
       if (has) has = .not. found%empty()
    end function network_has_successors
 
-   ! REQ-DEP-006: pure query - no side effects. Searches downstream from
+   ! Pure query - no side effects. Searches downstream from
    ! `target`; if `source` is reachable, adding source->target would close
    ! a cycle.
    logical function network_would_create_cycle(this, source, target) result(cyclic)
@@ -230,10 +230,10 @@ contains
 
    ! -- validation ---------------------------------------------------------
 
-   ! REQ-DEP-007: full structural validation. `valid_ids`, `producer_ids`,
+   ! Full structural validation. `valid_ids`, `producer_ids`,
    ! and `state_item_ids` are optional NodeId classification sets, normally
-   ! supplied by the owning ComponentGraph (REQ-CG-002 keeps this type
-   ! itself graph-neutral - it does not know about GraphNode subclasses).
+   ! supplied by the owning ComponentGraph (this type
+   ! itself stays graph-neutral - it does not know about GraphNode subclasses).
    ! Omitting them skips only the checks that need that classification
    ! (ownership, one-producer-per-state-item); symmetry, self-dependency,
    ! and acyclicity are always checked.
@@ -252,7 +252,7 @@ contains
       type(NodeIdSet), pointer :: neighbor_set, reverse_set
 
       all_ids = collect_referenced_ids(this)
-      ! REQ-DEP-007 item 2: all referenced ids are owned by the graph.
+      ! All referenced ids are owned by the graph.
       if (present(valid_ids)) then
          set_iter = all_ids%ftn_begin()
          do while (set_iter /= all_ids%ftn_end())
@@ -263,7 +263,7 @@ contains
          end do
       end if
 
-      ! REQ-DEP-007 item 3: no self-dependencies.
+      ! No self-dependencies.
       map_iter = this%successors_map%ftn_begin()
       do while (map_iter /= this%successors_map%ftn_end())
          call map_iter%next()
@@ -273,7 +273,7 @@ contains
          _ASSERT(neighbor_set%count(node) == 0, 'DependencyNetwork: validate found a self-dependency')
       end do
 
-      ! REQ-DEP-007 item 1: predecessor/successor symmetry, both directions.
+      ! Predecessor/successor symmetry, both directions.
       map_iter = this%successors_map%ftn_begin()
       do while (map_iter /= this%successors_map%ftn_end())
          call map_iter%next()
@@ -308,7 +308,7 @@ contains
          end do
       end do
 
-      ! REQ-DEP-007 item 4: acyclicity of the whole network.
+      ! Acyclicity of the whole network.
       set_iter = all_ids%ftn_begin()
       do while (set_iter /= all_ids%ftn_end())
          call set_iter%next()
@@ -328,7 +328,7 @@ contains
          end if
       end do
 
-      ! REQ-DEP-007 item 5 / REQ-DEP-008: at most one producer per state item.
+      ! At most one producer per state item.
       if (present(producer_ids) .and. present(state_item_ids)) then
          call validate_producer_counts(this, producer_ids, state_item_ids, rc=rc)
          if (present(rc)) then

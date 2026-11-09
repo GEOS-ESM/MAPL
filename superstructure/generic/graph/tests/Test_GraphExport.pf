@@ -1,5 +1,4 @@
-! Task 5.3 (spec/19-visualization-export.md §19.2, REQ-VIZ-001..003,
-! REQ-VIZ-006..012, REQ-VIZ-014, REQ-VIZ-016/016a, REQ-VIZ-017).
+! Task 5.3 (spec/19-visualization-export.md §19.2).
 !
 ! Synthetic graph only - no OuterComponent/StateRegistry/hierarchy type
 ! is referenced anywhere in this file, matching the exit criterion in
@@ -80,7 +79,7 @@ contains
       call graph%bind_port(default_id, transform_id, 'out', output_id, rc=status)
    end subroutine build_synthetic_graph
 
-   ! REQ-VIZ-010/011: node kind, payload kind, and network attribution
+   ! Node kind, payload kind, and network attribution
    ! are present in the DOT output.
    @test
    subroutine test_dot_includes_node_and_edge_metadata()
@@ -101,7 +100,7 @@ contains
       @assertTrue(index(dot_text, 'network="' // default_id%to_string() // '"') > 0)
    end subroutine test_dot_includes_node_and_edge_metadata
 
-   ! REQ-VIZ-012: bound port names appear as edge labels; an edge with no
+   ! Bound port names appear as edge labels; an edge with no
    ! matching binding-table entry is still exported, without a label
    ! (degrades gracefully rather than failing).
    @test
@@ -134,7 +133,7 @@ contains
       @assertTrue(index(dot_text, unbound_edge // ' [network="' // default_id%to_string() // '"]') > 0)
    end subroutine test_port_labels_present_when_bound_absent_when_not
 
-   ! REQ-VIZ-016/016a: revision metadata is optional, present only when
+   ! Revision metadata is optional, present only when
    ! both requested and the node's revision is actually valid (an
    ! invalid/never-produced revision is not reported as if it were a
    ! real stamp), and reading it does not mutate anything.
@@ -180,7 +179,7 @@ contains
       @assertTrue(index(dot_with, 'revision="0"') > 0)
    end subroutine test_revision_metadata_optional_when_requested_and_valid
 
-   ! REQ-VIZ-002/016a/019.1: export never executes a TransformGraphNode
+   ! Export never executes a TransformGraphNode
    ! or advances any NodeRevision as a side effect.
    @test
    subroutine test_export_does_not_mutate_graph_state()
@@ -229,7 +228,7 @@ contains
       end select
    end subroutine test_export_does_not_mutate_graph_state
 
-   ! REQ-VIZ-009: DOT and JSON enumerate the same node/edge sets.
+   ! DOT and JSON enumerate the same node/edge sets.
    @test
    subroutine test_dot_and_json_agree_on_node_and_edge_sets()
       type(ComponentGraph) :: graph
@@ -258,7 +257,7 @@ contains
                           '", "target": "' // output_id%to_string() // '"') > 0)
    end subroutine test_dot_and_json_agree_on_node_and_edge_sets
 
-   ! REQ-VIZ-007: export is usable at least once after freeze.
+   ! Export is usable at least once after freeze.
    @test
    subroutine test_export_works_on_frozen_graph()
       type(ComponentGraph) :: graph
@@ -277,7 +276,7 @@ contains
       @assertTrue(index(dot_text, 'kind="TransformGraphNode"') > 0)
    end subroutine test_export_works_on_frozen_graph
 
-   ! REQ-VIZ-017: no bulk payload data is ever serialized - only
+   ! No bulk payload data is ever serialized - only
    ! classification metadata (checked here by absence of any array-like
    ! numeric dump; the exporter never touches ESMF_Field contents at
    ! all, so this is really a design guarantee, exercised here as a

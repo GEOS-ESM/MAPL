@@ -3,7 +3,7 @@
 !------------------------------------------------------------------------------
 ! GraphBuilder: integration layer between the graph-neutral
 ! ComponentGraph/DependencyNetwork core and the rest of MAPL
-! (REQ-GB-001/002/003). It is the only layer allowed to depend on both the
+! It is the only layer allowed to depend on both the
 ! graph core and OuterMetaComponent.
 !
 ! Scope: advertising (StateItemNodes for import/export/internal items),
@@ -17,11 +17,11 @@
 ! operates on and reads/writes only that component's ComponentGraph (via
 ! get_component_graph), plus a named child's graph/spec via
 ! get_child_component_graph()/get_child_component_spec(). That reach is a
-! framework-internal carve-out (REQ-GB-002), not part of
-! OuterMetaComponent's public API (REQ-HIER-003/005).
+! framework-internal carve-out, not part of
+! OuterMetaComponent's public API.
 !
 ! Advertised-item lookup uses ComponentGraph's semantic resource index
-! (REQ-CG-001), keyed by item_key().
+! keyed by item_key().
 !
 ! Cross-component connections: node storage is shared hierarchy-wide, so
 ! a dependency edge references a child's own real NodeId directly; no
@@ -46,7 +46,7 @@
 !     geometry-proxy GraphStateItem registered as a StateItemNode under
 !     the reserved GEOMETRY_ITEM_NAME key. It is deliberately not in
 !     ComponentSpec%var_specs, so it cannot reach add_to_states or a
-!     user-facing state (REQ-GEO-003).
+!     user-facing state.
 !   - graphbuilder_resolve_geometry(): adds a dependency edge for the
 !     resolved parent/child relationship, in the pull (from child) and
 !     push (to child) directions. A mismatch would mean GeometrySpec and
@@ -230,7 +230,7 @@ module mapl_GraphBuilder_mod
    ! Reserved item name for a component's resolved horizontal geometry,
    ! indexed with item_key() like ordinary items but never inserted into
    ! ComponentSpec%var_specs, so it cannot reach add_to_states or a
-   ! user-facing state (REQ-GEO-003).
+   ! user-facing state.
    character(*), parameter :: GEOMETRY_ITEM_NAME = 'MAPL_Geometry'
 
    ! Per-match callback for for_each_matching_import(). Callers pass an
@@ -312,7 +312,7 @@ module mapl_GraphBuilder_mod
    ! graphbuilder_check_unsatisfied_imports on the child alone (it only
    ! sees connections the child itself declares, missing a parent's
    ! connection naming the child, and mirroring an already-resolved
-   ! import risks a REQ-DEP-008a two-producer violation). An import is
+   ! import risks a two-producer violation in the forward network). An import is
    ! unresolved iff NEITHER (a) a MatchConnection declared on `child_meta`
    ! whose destination resolves back to it, NOR (b) a MatchConnection
    ! declared on `this_parent` whose destination resolves to `child_meta`,
@@ -760,8 +760,8 @@ contains
 
    ! Returns the OuterMetaComponent named by comp_name: `this` if
    ! is_self, else the direct child via get_child_outer_meta (the
-   ! REQ-GB-002 carve-out, not OuterMetaComponent's public API,
-   ! REQ-HIER-005). Returns the object, not its ComponentSpec, because the
+   ! framework-internal carve-out, not OuterMetaComponent's public API).
+   ! Returns the object, not its ComponentSpec, because the
    ! component-wide geom/vertical_grid defaults live on
    ! OuterMetaComponent.
    function component_for(this, comp_name, rc) result(comp_meta)
@@ -939,7 +939,7 @@ contains
       end select
    end function itemtype_name
 
-   ! REQ-CB-016: expands the connection's source pattern (src_pt%v_pt)
+   ! Expands the connection's source pattern (src_pt%v_pt)
    ! against the flattened qualified-export namespace rooted at
    ! src_pt%component_name, keeping only matches that implement the
    ! CallbackInterface for expected_interface_id. rejected (optional)

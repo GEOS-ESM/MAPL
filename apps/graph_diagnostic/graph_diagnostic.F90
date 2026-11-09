@@ -180,11 +180,10 @@ contains
       _RETURN(_SUCCESS)
    end subroutine export_subtree
 
-   ! Exports ONE component's own local ComponentGraph (REQ-VIZ-003:
-   ! graph-neutral exporter, single-ComponentGraph-scoped by design,
-   ! REQ-VIZ-005/Q18 hierarchy-wide stitching deliberately not
-   ! attempted) to a .dot/.json pair, enriched with this component's
-   ! own build_label_map (REQ-VIZ-004, GraphBuilder_Visualization_
+   ! Exports ONE component's own local ComponentGraph (graph-neutral
+   ! exporter, single-ComponentGraph-scoped by design; hierarchy-wide
+   ! stitching is deliberately not attempted) to a .dot/.json pair, enriched with this component's
+   ! own build_label_map (GraphBuilder_Visualization_
    ! smod.F90) - the exact "build_label_map + export_graph_dot +
    ! export_graph_json once per component" sequence the roadmap names.
    !

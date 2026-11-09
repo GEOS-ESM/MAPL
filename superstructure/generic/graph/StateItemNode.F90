@@ -3,7 +3,7 @@
 !------------------------------------------------------------------------------
 ! StateItemNode: concrete GraphNode holding exactly one GraphStateItem payload
 ! (the ESMF handle), one StateItemDescriptor (the item's description), and one
-! NodeRevision (REQ-NODE-003a, REQ-SI-005), in addition to the NodeId and
+! NodeRevision, in addition to the NodeId and
 ! lifecycle status inherited from BaseGraphNode. No adjacency.
 !------------------------------------------------------------------------------
 module mapl_StateItemNode_mod
@@ -213,8 +213,8 @@ contains
       revision = this%revision
    end function stateitemnode_get_revision
 
-   ! Raw revision assignment, for construction-time setup. The REQ-REV-002/003
-   ! path ("only advance, never assign an arbitrary value to mean 'changed'")
+   ! Raw revision assignment, for construction-time setup. The usual
+   ! path (only advance, never assign an arbitrary value to mean changed)
    ! is advance_revision() below, which the demand-driven update uses.
    subroutine stateitemnode_set_revision(this, revision)
       class(StateItemNode), intent(inout) :: this
@@ -223,7 +223,7 @@ contains
       this%revision = revision
    end subroutine stateitemnode_set_revision
 
-   ! REQ-REV-002/003: the only mutation path that means "this node's
+   ! The only mutation path that means "this node's
    ! logical value just changed" - delegates to NodeRevision%advance(),
    ! never assigns a caller-fabricated value.
    subroutine stateitemnode_advance_revision(this, rc)

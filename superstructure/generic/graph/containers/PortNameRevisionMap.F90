@@ -3,7 +3,7 @@
 ! Used by TransformGraphNode to record the input-revision baseline from
 ! its last successful execution, and by the demand-driven update engine
 ! to assemble the current input-revision snapshot to compare against it
-! (spec/11-revision-and-update.md REQ-REV-006).
+! (spec/11-revision-and-update.md).
 !------------------------------------------------------------------------------
 module mapl_PortNameRevisionMap_mod
    use mapl_NodeRevision_mod, only: NodeRevision

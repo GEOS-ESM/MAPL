@@ -2,7 +2,7 @@
 ! MethodInvocationAdapter: abstract invocation-adapter type hiding the ESMF
 ! call-signature difference between a GridComp phase invocation and an
 ! attached-State callback method invocation behind one deferred invoke()
-! entry point (REQ-MTH-001/002). MethodGraphNode (mapl_MethodGraphNode_mod)
+! entry point. MethodGraphNode (mapl_MethodGraphNode_mod)
 ! holds exactly one of these and delegates invocation to it unchanged; the
 ! node never branches on which concrete adapter kind is attached.
 !
@@ -14,8 +14,8 @@
 ! Also declares the two small injectable abstract interfaces
 ! (GridCompPhaseInvoker/StateMethodInvoker) that the concrete adapters
 ! (GridCompMethodInvocation.F90/StateMethodInvocation.F90) delegate to, so
-! REQ-MTH-003 ("must not duplicate invocation logic already in
-! GriddedComponentDriver") holds by construction: a concrete adapter's
+! invocation logic is not duplicated from
+! GriddedComponentDriver, by construction: a concrete adapter's
 ! invoke() only gathers bound arguments and calls the one injected entry
 ! point. GridCompDriverPhaseInvoker.F90 is the GriddedComponentDriver-backed
 ! GridCompPhaseInvoker. No ESMF_MethodExecute-backed StateMethodInvoker
@@ -25,7 +25,7 @@
 ! name, because GriddedComponentDriver%run/initialize/finalize
 ! (superstructure/component/GriddedComponentDriver.F90) take phase_idx.
 !
-! DriverResolver: the REQ-MTH-009 "stable local identifier -> driver"
+! DriverResolver: the "stable local identifier -> driver"
 ! resolution abstraction. Declared here, not in mapl_OuterMetaComponent_mod,
 ! so this module stays independent of OuterMetaComponent (only the return
 ! type, GriddedComponentDriver, is needed). The concrete implementation that
@@ -81,7 +81,7 @@ module mapl_MethodInvocationAdapter_mod
       end subroutine gridcomp_invoke_phase_interface
    end interface
 
-   ! REQ-MTH-009: resolves a stable driver_key to the concrete driver it names,
+   ! Resolves a stable driver_key to the concrete driver it names,
    ! without the resolved pointer ever being retained by any graph-visible
    ! object. The real implementation (OuterMetaComponentDriverResolver.F90)
    ! resolves against a real OuterMetaComponent's driver/children; a test double
@@ -101,7 +101,7 @@ module mapl_MethodInvocationAdapter_mod
       end function driver_resolver_resolve_interface
    end interface
 
-   ! Injected by StateMethodInvocation. No clock parameter (REQ-CB-001's
+   ! Injected by StateMethodInvocation. No clock parameter (the
    ! attached State callback methods have no clock argument).
    type, abstract :: StateMethodInvoker
    contains

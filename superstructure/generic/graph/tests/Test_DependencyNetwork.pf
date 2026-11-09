@@ -1,4 +1,4 @@
-! Tasks 5.1/5.2 (spec/06-dependency-network.md REQ-DEP-001..008).
+! Tasks 5.1/5.2 (spec/06-dependency-network.md).
 !
 ! DependencyNetwork is graph-neutral: it knows nothing about GraphNode
 ! subclasses. Ownership ("valid_ids") and producer/state-item
@@ -15,7 +15,7 @@ module Test_DependencyNetwork
 
 contains
 
-   ! REQ-DEP-001/002/005: add_dependency creates bidirectional adjacency;
+   ! add_dependency creates bidirectional adjacency;
    ! contains_dependency/get_predecessors/get_successors/has_predecessors/
    ! has_successors all agree.
    @test
@@ -49,7 +49,7 @@ contains
       @assertFalse(net%has_successors(b))
    end subroutine test_add_dependency_is_bidirectional
 
-   ! REQ-DEP-005: remove_dependency clears both adjacency directions.
+   ! remove_dependency clears both adjacency directions.
    @test
    subroutine test_remove_dependency_clears_both_directions()
       type(NodeIdGenerator) :: gen
@@ -71,7 +71,7 @@ contains
       @assertFalse(net%has_predecessors(b))
    end subroutine test_remove_dependency_clears_both_directions
 
-   ! REQ-DEP-005: removing an absent pair is a harmless no-op.
+   ! Removing an absent pair is a harmless no-op.
    @test
    subroutine test_remove_dependency_absent_pair_is_noop()
       type(NodeIdGenerator) :: gen
@@ -86,7 +86,7 @@ contains
       @assertEqual(0, status)
    end subroutine test_remove_dependency_absent_pair_is_noop
 
-   ! REQ-DEP-005: clear() empties all adjacency.
+   ! clear() empties all adjacency.
    @test
    subroutine test_clear_empties_network()
       type(NodeIdGenerator) :: gen
@@ -110,7 +110,7 @@ contains
       @assertFalse(net%has_predecessors(c))
    end subroutine test_clear_empties_network
 
-   ! REQ-DEP-006/007: self-dependency is rejected without mutation.
+   ! Self-dependency is rejected without mutation.
    @test
    subroutine test_self_dependency_rejected_no_mutation()
       type(NodeIdGenerator) :: gen
@@ -126,7 +126,7 @@ contains
       @assertFalse(net%has_successors(a))
    end subroutine test_self_dependency_rejected_no_mutation
 
-   ! REQ-DEP-006/007: a NodeId outside the supplied valid_ids set is
+   ! A NodeId outside the supplied valid_ids set is
    ! rejected as foreign, with no partial mutation.
    @test
    subroutine test_foreign_node_rejected_no_mutation()
@@ -149,7 +149,7 @@ contains
       @assertFalse(net%has_successors(a))
    end subroutine test_foreign_node_rejected_no_mutation
 
-   ! REQ-DEP-006: an edge that would close a cycle is rejected, with the
+   ! An edge that would close a cycle is rejected, with the
    ! existing adjacency left completely unchanged.
    @test
    subroutine test_cycle_rejected_no_partial_mutation()
@@ -180,7 +180,7 @@ contains
       @assertFalse(net%has_successors(c))
    end subroutine test_cycle_rejected_no_partial_mutation
 
-   ! REQ-DEP-005: freeze() disables all structural mutation while leaving
+   ! freeze() disables all structural mutation while leaving
    ! read-only queries available.
    @test
    subroutine test_frozen_network_rejects_mutation_keeps_queries()
@@ -212,7 +212,7 @@ contains
       @assertTrue(net%contains_dependency(a, b))
    end subroutine test_frozen_network_rejects_mutation_keeps_queries
 
-   ! REQ-DEP-005: freeze is irreversible - no operation reopens mutation.
+   ! Freeze is irreversible - no operation reopens mutation.
    @test
    subroutine test_freeze_is_irreversible()
       type(NodeIdGenerator) :: gen
@@ -227,7 +227,7 @@ contains
       @assertTrue(net%is_frozen())
    end subroutine test_freeze_is_irreversible
 
-   ! REQ-DEP-007: a valid acyclic network with owned ids passes validate().
+   ! A valid acyclic network with owned ids passes validate().
    @test
    subroutine test_validate_passes_for_valid_network()
       type(NodeIdGenerator) :: gen
@@ -259,7 +259,7 @@ contains
       print*,__FILE__,__LINE__
    end subroutine test_validate_passes_for_valid_network
 
-   ! REQ-DEP-007 item 2: validate() rejects a NodeId not present in the
+   ! validate() rejects a NodeId not present in the
    ! supplied valid_ids set, even though add_dependency (called without a
    ! valid_ids argument) permitted the wiring.
    @test
@@ -283,7 +283,7 @@ contains
       @assertTrue(status /= 0)
    end subroutine test_validate_rejects_unowned_reference
 
-   ! REQ-DEP-008: two direct producers for the same state item fail
+   ! Two direct producers for the same state item fail
    ! validation.
    @test
    subroutine test_validate_rejects_multiple_direct_producers()
@@ -310,7 +310,7 @@ contains
       @assertTrue(status /= 0)
    end subroutine test_validate_rejects_multiple_direct_producers
 
-   ! REQ-DEP-008 note: an explicit merge node feeding the state item is
+   ! An explicit merge node feeding the state item is
    ! accepted - the state item still has exactly one *direct* producer
    ! (the merge node); the two upstream contributors feed the merge node,
    ! not the state item.

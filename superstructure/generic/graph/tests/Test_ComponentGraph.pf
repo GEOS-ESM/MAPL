@@ -1,10 +1,10 @@
-! Tasks 5.3/5.4/5.5 (spec/07-component-graph.md REQ-CG-001..008).
+! Tasks 5.3/5.4/5.5 (spec/07-component-graph.md).
 !
 ! Uses only synthetic graph nodes (StateItemNode plus a local
 ! OperationGraphNode descendant, matching the pattern already established
 ! by Test_GraphNodeHierarchy.pf's MockOperationGraphNode) - no
 ! OuterComponent/StateRegistry/GraphBuilder/component-hierarchy type is
-! referenced anywhere, demonstrating REQ-CG-002 at the same time.
+! referenced anywhere, demonstrating the layering rule at the same time.
 module Test_ComponentGraph
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
@@ -28,7 +28,7 @@ module Test_ComponentGraph
    implicit none
 
    ! Test-only concrete OperationGraphNode descendant, standing in for the
-   ! not-yet-implemented TransformGraphNode (REQ-NODE-004).
+   ! not-yet-implemented TransformGraphNode.
    type, extends(OperationGraphNode) :: MockOperationGraphNode
    end type MockOperationGraphNode
 
@@ -47,7 +47,7 @@ contains
       rc = 0
    end subroutine noop_compute
 
-   ! REQ-CG-004 scenario "Graph owns distinct default network identity" (as
+   ! Scenario "Graph owns distinct default network identity" (as
    ! amended): no graph has a network of its own by default; every graph in
    ! one hierarchy reports the same forward network, which none owns.
    @test
@@ -70,7 +70,7 @@ contains
       @assertFalse(graph2%owns_network(id2))
    end subroutine test_graphs_in_one_hierarchy_share_forward_network
 
-   ! REQ-CG-001 scenario "Node registration preserves identity": no second
+   ! Scenario "Node registration preserves identity": no second
    ! node silently replaces one already registered under the same NodeId.
    @test
    subroutine test_node_registration_preserves_identity_no_silent_replace()
@@ -97,7 +97,7 @@ contains
       @assertTrue(status /= 0)
    end subroutine test_node_registration_preserves_identity_no_silent_replace
 
-   ! REQ-CG-001/002: initialization builds structure (nodes, default
+   ! Initialization builds structure (nodes, default
    ! network, dependency) using only synthetic types.
    @test
    subroutine test_initialization_builds_structure()
@@ -130,7 +130,7 @@ contains
       @assertEqual(0, status)
    end subroutine test_initialization_builds_structure
 
-   ! REQ-CG-004 scenario "Invalid foreign node is rejected": wiring a
+   ! Scenario "Invalid foreign node is rejected": wiring a
    ! NodeId that was issued but never registered anywhere in the hierarchy
    ! fails without partial mutation.
    @test
@@ -155,7 +155,7 @@ contains
       @assertTrue(status /= 0)
    end subroutine test_add_dependency_rejects_unregistered_node
 
-   ! REQ-CG-004 scenario "Same-pass cross-network write is rejected" (as
+   ! Scenario "Same-pass cross-network write is rejected" (as
    ! amended): an item with a forward producer may also be the target of a
    ! write-back edge, since the write-back fires only after the method runs.
    @test
@@ -198,7 +198,7 @@ contains
       @assertEqual(0, status)
    end subroutine test_validate_accepts_forward_and_writeback_producers
 
-   ! REQ-CG-005..007: freeze validates first and leaves no freeze-state
+   ! Freeze validates first and leaves no freeze-state
    ! change on failure. Trigger: two producers of one item inside one
    ! write-back network (no add-time producer check there).
    @test
@@ -244,7 +244,7 @@ contains
       @assertFalse(writeback_network%is_frozen())
    end subroutine test_freeze_fails_and_does_not_change_state_on_invalid_graph
 
-   ! REQ-CG-007 scenario "Graph freeze propagates to networks": one graph
+   ! Scenario "Graph freeze propagates to networks": one graph
    ! freeze freezes only its write-back networks; the hierarchy-wide forward
    ! freeze then freezes the forward network, after which no graph in the
    ! hierarchy, frozen or not, may add a forward edge or port binding.
@@ -301,7 +301,7 @@ contains
       @assertTrue(status /= 0)
    end subroutine test_hierarchy_freeze_propagates_to_networks
 
-   ! REQ-CG-006 scenario "Frozen structure rejects mutation": node,
+   ! Scenario "Frozen structure rejects mutation": node,
    ! dependency, network, and port-binding additions all fail after freeze.
    @test
    subroutine test_frozen_graph_rejects_all_structural_mutation()
@@ -350,7 +350,7 @@ contains
       @assertTrue(status /= 0)
    end subroutine test_frozen_graph_rejects_all_structural_mutation
 
-   ! REQ-CG-006/008 scenario "Runtime value update remains allowed": after
+   ! Scenario "Runtime value update remains allowed": after
    ! freeze, an existing StateItemNode's payload may still be updated in
    ! place (through the pointer returned by get_node(), exactly as a real
    ! caller would - no ComponentGraph API is involved in the mutation
@@ -404,7 +404,7 @@ contains
       end select
    end subroutine test_runtime_value_update_allowed_after_freeze
 
-   ! REQ-CG-005..007: freeze() is irreversible; calling it again is a
+   ! freeze() is irreversible; calling it again is a
    ! harmless no-op that leaves the graph frozen.
    @test
    subroutine test_graph_freeze_is_irreversible()
@@ -420,7 +420,7 @@ contains
       @assertTrue(graph%is_frozen())
    end subroutine test_graph_freeze_is_irreversible
 
-   ! REQ-CG-003b/003c scenario "Finalized graph rejects use".
+   ! Scenario "Finalized graph rejects use".
    @test
    subroutine test_finalized_graph_rejects_use()
       use mapl_GraphNode_mod, only: GraphNode
@@ -451,7 +451,7 @@ contains
       call graph%freeze(rc=status)
       @assertTrue(status /= 0)
 
-      ! Finalization itself is not idempotent (REQ-CG-003c): a second
+      ! Finalization itself is not idempotent: a second
       ! call is also rejected as "use after finalize."
       call graph%finalize(rc=status)
       @assertTrue(status /= 0)

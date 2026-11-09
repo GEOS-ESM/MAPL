@@ -2,11 +2,9 @@
 
 !------------------------------------------------------------------------------
 ! UnitsConverterTransform: the one real Transform (mapl_Transform_mod)
-! built by a Characteristic%build_transform in the extension-reuse
-! change (UnitsCharacteristic.F90; design.md Decisions - "Extension-chain
-! execution ships with one real characteristic provider"). Deliberately
-! independent of legacy's ExtensionTransform interface (initialize/
-! update(this, importState, exportState, clock, rc),
+! built by a Characteristic%build_transform (PhysicalUnitsCharacteristic.F90).
+! Deliberately independent of the interface of legacy ExtensionTransform
+! (initialize/update(this, importState, exportState, clock, rc),
 ! superstructure/generic/transforms/ExtensionTransform.F90):
 ! TransformGraphNode%execute() calls Transform%compute(this, inputs,
 ! outputs, rc), passing this transform's own already-resolved, bound
@@ -21,7 +19,7 @@
 ! cannot coexist under the same name even though they live in different
 ! modules. Rename to ConvertUnitsTransform (matching RegridTransform's
 ! naming convention) once the legacy module is removed - tracked as a
-! task in the 3c2 follow-up (docs/graph/spec/20-implementation-roadmap.md).
+! later task (docs/graph/spec/20-implementation-roadmap.md).
 !
 ! Reuses two general-purpose infrastructure pieces, not legacy
 ! StateRegistry/ExtensionFamily machinery: mapl_FieldPointerUtilities_mod

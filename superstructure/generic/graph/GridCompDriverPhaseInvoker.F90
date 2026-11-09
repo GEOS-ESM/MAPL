@@ -11,7 +11,7 @@
 ! ESMF_Method_Flag, fixed at construction) and a DriverResolver used to turn
 ! a driver_key into the concrete driver. invoke_phase() resolves, dispatches
 ! to the one matching driver call, and propagates rc; nothing else touches
-! arguments/bindings/clock, satisfying REQ-MTH-003 by construction. clock is
+! arguments/bindings/clock, so no invocation logic is duplicated. clock is
 ! unused: GriddedComponentDriver's own clock member (set at construction or
 ! via set_clock) is what initialize/run/finalize use, so a second clock
 ! threaded through this call would be redundant, not authoritative.

@@ -1,4 +1,4 @@
-! Task 1.3 (spec/11-revision-and-update.md REQ-REV-001..003).
+! Task 1.3 (spec/11-revision-and-update.md).
 module Test_NodeRevision
    use mapl_NodeRevision_mod, only: NodeRevision, operator(==), operator(/=)
    use funit
@@ -6,7 +6,7 @@ module Test_NodeRevision
 
 contains
 
-   ! REQ-REV-001: initial state is invalid, distinct from any value
+   ! Initial state is invalid, distinct from any value
    ! reachable by advance().
    @test
    subroutine test_default_constructed_is_invalid()
@@ -15,7 +15,7 @@ contains
       @assertFalse(revision%is_valid())
    end subroutine test_default_constructed_is_invalid
 
-   ! REQ-REV-001: first advance() transitions invalid -> first valid.
+   ! First advance() transitions invalid -> first valid.
    @test
    subroutine test_first_advance_produces_valid_revision()
       type(NodeRevision) :: revision
@@ -26,7 +26,7 @@ contains
       @assertTrue(revision%is_valid())
    end subroutine test_first_advance_produces_valid_revision
 
-   ! REQ-REV-001: repeated advance() strictly changes the observable
+   ! Repeated advance() strictly changes the observable
    ! revision each time.
    @test
    subroutine test_repeated_advance_changes_revision()
@@ -45,7 +45,7 @@ contains
       @assertTrue(after_first /= after_second)
    end subroutine test_repeated_advance_changes_revision
 
-   ! REQ-REV-001: two independently-advanced-the-same-number-of-times
+   ! Two independently-advanced-the-same-number-of-times
    ! revisions compare equal (equality is value-based, not identity-based).
    @test
    subroutine test_equal_advance_counts_compare_equal()
@@ -65,7 +65,7 @@ contains
       @assertTrue(left == right)
    end subroutine test_equal_advance_counts_compare_equal
 
-   ! REQ-REV-001: overflow is detected before wrapping, leaving the
+   ! Overflow is detected before wrapping, leaving the
    ! observable value unchanged. Uses the test-only
    ! debug_force_max_for_test() backdoor to reach the boundary directly,
    ! rather than looping ~2^63 times.
@@ -83,8 +83,7 @@ contains
       @assertEqual(before_overflow_attempt, revision%to_string())
    end subroutine test_advance_overflow_detected_not_wrapped
 
-   ! REQ-REV-001 (diagnostic accessor, not itself a spec requirement but
-   ! exercised here since the exporter capability depends on it):
+   ! Diagnostic accessor, exercised here since the exporter depends on it:
    ! to_string() reports a sentinel for an invalid revision and a
    ! numeric-looking string for a valid one.
    @test

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 ! CallbackServiceNameIdMap: gFTL map of service name (string) ->
 ! CallbackInterfaceId, the CallbackInterfaceRegistry's own lookup-by-name
-! index (spec/15-callbacks.md REQ-CB-009).
+! index (spec/15-callbacks.md).
 !------------------------------------------------------------------------------
 module mapl_CallbackServiceNameIdMap_mod
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId

@@ -37,7 +37,7 @@ contains
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
-      ! Hierarchy-wide name uniqueness (REQ-HIER-002/004). Sibling check above
+      ! Hierarchy-wide name uniqueness. Sibling check above
       ! is not sufficient; names must be unique across the entire hierarchy.
       resources => get_hierarchy_resources(this%hierarchy_id)
       _ASSERT(resources%component_names%count(child_name) == 0, 'duplicate component name elsewhere in the hierarchy: <'//child_name//'>.')

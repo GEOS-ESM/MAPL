@@ -1,10 +1,8 @@
 !------------------------------------------------------------------------------
 ! CharacteristicStatus: status value every StateItemCharacteristic
-! (StateItemCharacteristic.F90) carries (docs/graph/spec/18-state-item-
-! characteristics.md REQ-CHAR-003/004). Keeps the spec's own working
-! name - no collision, no better alternative was proposed.
+! (StateItemCharacteristic.F90) carries (docs/graph/characteristics.md).
 !
-! Five values only (REQ-CHAR-003): INVALID (no meaningful value yet, the
+! Five values only: INVALID (no meaningful value yet, the
 ! default-constructed state), SPECIFIED (fully resolved/authoritative),
 ! MIRRORED (not yet resolved, will be made to match a source once
 ! connected), UNCHECKED (connection allowed without reconciliation despite
@@ -12,16 +10,14 @@
 ! remain diagnostically distinguishable from SPECIFIED/MIRRORED), and
 ! DEFERRED (processing deferred to a known, later point - distinct from
 ! INVALID, which implies "not yet touched" with no known future resolution
-! point). Design.md D1: no additional ERROR/CONFLICT value is added here -
-! a reconciliation failure this capability's own detection/mutator code
-! cannot resolve is reported as an ordinary rc/_FAIL error at the call
-! site, not encoded as a sixth status value.
+! point). There is deliberately no ERROR/CONFLICT value: a reconciliation
+! failure that detection/mutator code cannot resolve is reported as an
+! ordinary rc/_FAIL error at the call site, not encoded as a status.
 !
 ! Follows CharacteristicId.F90's own shape (wrapped integer, named
 ! parameter constants, operator(==)/operator(/=), to_string()) -
-! deliberately independent of it (design.md D2's own rationale for
-! StateItemCharacteristicKind applies equally here: this is a different
-! concept living in the same directory).
+! deliberately independent of it (same rationale as
+! StateItemCharacteristicKind: a different concept in the same directory).
 !------------------------------------------------------------------------------
 module mapl_CharacteristicStatus_mod
    implicit none(type, external)

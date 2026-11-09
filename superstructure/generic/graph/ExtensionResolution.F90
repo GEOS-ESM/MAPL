@@ -2,7 +2,7 @@
 
 !------------------------------------------------------------------------------
 ! ExtensionResolution: mismatch detection, extension-chain creation, and
-! reuse lookup (REQ-EXT-001/003). Graph-neutral: depends only on
+! reuse lookup. Graph-neutral: depends only on
 ! StateItemCharacteristic/StateItemCharacteristicMap/
 ! StateItemCharacteristicKind, ComponentGraph/DependencyNetworkId/NodeId, and
 ! TransformGraphNode/Transform - not on OuterMetaComponent/StateRegistry/
@@ -82,7 +82,7 @@ contains
       enabled = materialize_extensions
    end function materialize_extensions_enabled
 
-   ! REQ-EXT-003/REQ-EXT-001: which characteristic kinds does the export
+   ! Which characteristic kinds does the export
    ! declare that the import also declares, needing a Transform? Status is
    ! resolved generically (resolve_characteristics). With bare maps there is
    ! no item type and no import to record an adoption on, so a status
@@ -107,7 +107,7 @@ contains
       _RETURN(_SUCCESS)
    end function find_mismatched_characteristics
 
-   ! REQ-EXT-001: resolve export_node_id -> (chain of transform steps and
+   ! Resolve export_node_id -> (chain of transform steps and
    ! extension items, one per build step) -> final_node_id,
    ! reusing an existing chain for the same export and combined mismatch
    ! signature when one exists. Reports "unsupported" via

@@ -2,17 +2,17 @@
 
 !------------------------------------------------------------------------------
 ! StateMethodInvocation: MethodInvocationAdapter concrete subtype modeling an
-! attached ESMF State callback method invocation (REQ-MTH-001, REQ-CB-001).
+! attached ESMF State callback method invocation.
 ! Carries the callback State's NodeId and a method name; delegates to an
 ! injected StateMethodInvoker rather than calling anything ESMF-specific
-! itself, satisfying REQ-MTH-003 by construction.
+! itself, so no invocation logic is duplicated.
 !
 ! No ESMF_MethodExecute-backed StateMethodInvoker exists yet; tests use a
 ! synthetic double (superstructure/generic/graph/tests/
 ! Test_StateMethodInvocation.pf).
 !
 ! invoke() accepts a clock argument for interface uniformity with
-! MethodInvocationAdapter but ignores it: REQ-CB-001's attached State
+! MethodInvocationAdapter but ignores it: the attached State
 ! callback methods have no clock parameter, so StateMethodInvoker%
 ! invoke_method() has none either.
 !------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ contains
       method_name = this%method_name
    end function state_method_get_method_name
 
-   ! REQ-MTH-003: gathers bound arguments, calls the one injected
+   ! Gathers bound arguments, calls the one injected
    ! StateMethodInvoker entry point, returns. Nothing else. clock is
    ! accepted but unused (no clock in the underlying call, see header).
    subroutine state_method_invoke(this, arguments, bindings, clock, rc)

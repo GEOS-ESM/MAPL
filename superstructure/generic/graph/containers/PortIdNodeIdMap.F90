@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 ! PortIdNodeIdMap: gFTL map of PortId -> NodeId. Reused by ComponentGraph
 ! for public import ports, public export ports, and child-port bindings
-! (spec/07-component-graph.md REQ-CG-001) - three separate instances of the
+! (spec/07-component-graph.md) - three separate instances of the
 ! same map type, since all three are "named port identity resolves to the
 ! NodeId currently bound to it."
 !------------------------------------------------------------------------------

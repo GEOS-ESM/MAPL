@@ -1,35 +1,29 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
-! openspec/changes/phase-10b-equivalence-harness: generalized,
-! fixture-driven both-mode equivalence harness. A parameterized pFUnit
-! suite - shaped like Test_Scenarios.pf's own
-! ScenarioDescription/testParameter machinery - that runs each covered
-! fixture once through the standard MAPL init-phase sequence under
-! GRAPH_MODE_BOTH and asserts both equivalence checks generically
-! (design.md "One parameterized pFUnit test case ... performs both
-! equivalence checks ... generically, driven by a per-fixture
-! description"), rather than one hand-written subroutine per fixture
-! (the pattern Test_GraphBuilderEquivalence.pf's own two existing
+! Generalized, fixture-driven both-mode equivalence harness. A parameterized
+! pFUnit suite - shaped like Test_Scenarios.pf's own
+! ScenarioDescription/testParameter machinery - that runs each covered fixture
+! once through the standard MAPL init-phase sequence under GRAPH_MODE_BOTH and
+! asserts both equivalence checks generically (driven by a per-fixture
+! description), rather than one hand-written subroutine per
+! fixture (the pattern Test_GraphBuilderEquivalence.pf's own two existing
 ! @test(npes=[0]) subroutines use).
 !
-! Deliberately a separate file/module from Test_GraphBuilderEquivalence.pf
-! - a deviation from design.md's own "New @testParameter/@testCase pair
-! in Test_GraphBuilderEquivalence.pf itself, not a new file" wording,
-! recorded here rather than silently worked around. pFUnit's preprocessor
-! generates exactly one testcase-wrapper type per module, keyed off
-! whichever @testCase type that module declares; adding EquivalenceFixture
-! as a second @testCase alongside the existing @test(npes=[0])
-! MpiTestMethod-based subroutines in the same file causes the generated
-! driver to force EquivalenceFixture as the `this` argument into those
-! existing subroutines too, which expect MpiTestMethod - a real compile
-! error (NAG), not a design-time guess. A new, dedicated file is the only
-! option that satisfies both of design.md's own constraints at once: "No
-! change to the two existing hand-written tests" and the new testParameter/
-! testCase type living in a .pf file scoped to this harness. Both files
-! build into the same MAPL.generic.scenarios pFUnit executable (CMakeLists.txt),
-! share one WORKING_DIRECTORY, and this file's own fixtures continue to
-! live under graph-scenarios/ exactly as design.md/proposal.md specify.
+! Deliberately a separate file/module from Test_GraphBuilderEquivalence.pf.
+! pFUnit's preprocessor generates
+! exactly one testcase-wrapper type per module, keyed off whichever @testCase
+! type that module declares; adding EquivalenceFixture as a second @testCase
+! alongside the existing @test(npes=[0]) MpiTestMethod-based subroutines in the
+! same file causes the generated driver to force EquivalenceFixture as the
+! `this` argument into those existing subroutines too, which expect
+! MpiTestMethod - a real compile error (NAG), not a design-time guess. A new,
+! dedicated file is the only option that leaves the two existing hand-written
+! tests unchanged and keeps the new testParameter/testCase type in a .pf file
+! scoped to this harness.
+! Both files build into the same MAPL.generic.scenarios pFUnit executable
+! (CMakeLists.txt), share one WORKING_DIRECTORY, and this file's own fixtures
+! continue to live under graph-scenarios/.
 module Test_GraphEquivalenceHarness
 
    use mapl_Generic_mod
@@ -63,8 +57,7 @@ module Test_GraphEquivalenceHarness
    ! legacy (registry-mode) oracle. Every other fixture (including the
    ! two pre-existing graphbuilder_equivalence* ones used by
    ! Test_GraphBuilderEquivalence.pf's own two @test(npes=[0])
-   ! subroutines) stays under scenarios/ instead - proposal.md "New
-   ! fixture root, separate from scenarios/".
+   ! subroutines) stays under scenarios/ instead.
 
    @testParameter
    type, extends(ESMF_TestParameter) :: EquivalenceFixtureDescription
@@ -128,17 +121,13 @@ contains
       f%has_run_phase = desc%has_run_phase
    end function new_EquivalenceFixture
 
-   ! Task 3.3: the four covered fixtures from Task 1 - plain_field
-   ! (has_run_phase=.true., the only fixture whose data value is compared
-   ! after a run phase - design.md "Run-phase value comparison is scoped
-   ! to the plain_field fixture only"), vertical_field and ungridded_dims
-   ! (both has_run_phase=.false., static init-phase-only fixtures).
-   ! units_and_typekind_mismatch (openspec/changes/
-   ! phase-10c-typekind-characteristic) adds a fourth, also
+   ! The covered fixtures: plain_field (has_run_phase=.true.),
+   ! vertical_field and ungridded_dims (both has_run_phase=.false., static
+   ! init-phase-only fixtures). units_and_typekind_mismatch is a fourth, also
    ! has_run_phase=.false. (static), fixture whose connection is resolved
-   ! through a real two-characteristic extension chain rather than
-   ! directly - check() below gates one additional assertion block on
-   ! this fixture's own name (design.md D6).
+   ! through a real two-characteristic extension chain rather than directly -
+   ! check below gates one additional assertion block on this fixture's own
+   ! name.
    function get_equivalence_fixtures() result(params)
       type(EquivalenceFixtureDescription), allocatable :: params(:)
 
@@ -150,17 +139,15 @@ contains
            ]
    end function get_equivalence_fixtures
 
-   ! Task 4.1: setup lifted directly from
-   ! Test_GraphBuilderEquivalence.pf's own
+   ! Setup lifted directly from Test_GraphBuilderEquivalence.pf's own
    ! test_both_mode_materializes_without_legacy_collision working body
-   ! (design.md Risks mitigation), parameterized on
-   ! this%fixture_name/this%fixture_root (-> './graph-scenarios/' //
-   ! name // '/' // root, the new, separate fixture root - proposal.md
-   ! "New fixture root") instead of a fixed
-   ! './scenarios/graphbuilder_equivalence/cap.yaml' path. GRAPH_MODE_BOTH
-   ! is reset to GRAPH_MODE_REGISTRY unconditionally right after the
-   ! init-phase loop, before any assertion runs - same ordering as that
-   ! existing hand-written test.
+   ! parameterized on this%fixture_name/this%fixture_root (->
+   ! './graph-scenarios/' // name // '/' // root, the separate fixture
+   ! root) instead of a fixed
+   ! './scenarios/graphbuilder_equivalence/cap.yaml' path. GRAPH_MODE_BOTH is
+   ! reset to GRAPH_MODE_REGISTRY unconditionally right after the init-phase
+   ! loop, before any assertion runs - same ordering as that existing
+   ! hand-written test.
    subroutine equivalence_fixture_setup(this)
       class(EquivalenceFixture), intent(inout) :: this
 
@@ -191,16 +178,15 @@ contains
       exportState = ESMF_StateCreate(_RC)
 
       call set_graph_mode(GRAPH_MODE_BOTH)
-      ! openspec/changes/phase-10c-typekind-characteristic, design.md D6
-      ! (second correction): without this, resolve_one's mismatch
-      ! branch (GraphBuilder.F90) never materializes a real payload for
-      ! units_and_typekind_mismatch's own connection - neither the
-      ! export (that's the exact-match branch's own job, gated on
-      ! graph_mode() alone) nor the chain's final item (gated on this
-      ! flag too). Mirrors Test_GraphBuilderEquivalence.pf's own
-      ! existing set_materialize_extensions usage; harmless for the
-      ! three existing exact-match fixtures, which never take the
-      ! mismatch branch this flag gates.
+      ! Without this, resolve_one's mismatch branch
+      ! (GraphBuilder.F90) never materializes a real payload for
+      ! units_and_typekind_mismatch's own connection - neither the export
+      ! (that's the exact-match branch's own job, gated on graph_mode alone)
+      ! nor the chain's final item (gated on this flag too). Mirrors
+      ! Test_GraphBuilderEquivalence.pf's own existing
+      ! set_materialize_extensions usage; harmless for the three existing
+      ! exact-match fixtures, which never take the mismatch branch this flag
+      ! gates.
       call set_materialize_extensions(.true.)
       do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
          associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
@@ -213,11 +199,11 @@ contains
       call set_materialize_extensions(.false.)
       call set_graph_mode(GRAPH_MODE_REGISTRY)
 
-      ! Run the fixture's own GENERIC_RUN_USER phase only when
-      ! has_run_phase is true (plain_field only) - comp_src's own 'run:'
-      ! section sets the known data value this harness later compares
-      ! (Task 4.5), and run_children_phases_ (ConfigurableGridComp)
-      ! propagates GENERIC_RUN_USER down to comp_dst as well.
+      ! Run the fixture's own GENERIC_RUN_USER phase only when has_run_phase is
+      ! true (plain_field only) - comp_src's own 'run:' section sets the known
+      ! data value this harness later compares, and run_children_phases_
+      ! (ConfigurableGridComp) propagates GENERIC_RUN_USER down to comp_dst as
+      ! well.
       if (this%has_run_phase) then
          call ESMF_GridCompRun(this%cap_gc, &
               importState=importState, exportState=exportState, clock=clock, &
@@ -236,20 +222,14 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine equivalence_fixture_teardown
 
-   ! Task 4.2-4.4: the one generic @test subroutine, driven entirely by
-   ! this%fixture_name/this%connection_short_name - no per-check-type
-   ! branching (design.md "Both equivalence checks ... run
-   ! unconditionally inside this one subroutine for every parameter
-   ! value"). Data-value comparison after a run phase (originally task
-   ! 4.5) was dropped during implementation - both mode structurally
-   ! never writes a run phase's output into the graph-native field (see
-   ! design.md "Run-phase value comparison was dropped from this
-   ! sub-change's own scope"; spec.md no longer requires it). This
-   ! subroutine no longer reads this%has_run_phase at all (only the
-   ! dropped branch did); plain_field's own run phase still executes in
-   ! equivalence_fixture_setup above regardless, so the fixture itself
-   ! stays valid, reusable coverage for a future graph-mode-alone
-   ! sub-change.
+   ! The one generic @test subroutine, driven entirely by
+   ! this%fixture_name/this%connection_short_name - no per-check-type branching
+   ! (both equivalence checks run unconditionally for every parameter value).
+   ! There is no data-value comparison after a run phase: both mode
+   ! structurally never writes a run phase's output into the graph-native
+   ! field. This subroutine therefore does not read this%has_run_phase;
+   ! plain_field's own run phase still executes in equivalence_fixture_setup
+   ! above regardless.
    @test
    subroutine check(this)
       class(EquivalenceFixture), intent(inout) :: this
@@ -275,7 +255,7 @@ contains
 
       associate (name => this%connection_short_name)
 
-      ! --- Task 4.2: no-leak check. Legacy's own real import ESMF_State
+      ! --- No-leak check. Legacy's own real import ESMF_State
       ! on comp_dst still contains exactly one entry (same as
       ! GRAPH_MODE_REGISTRY would produce) - no additional or duplicate
       ! entry contributed by graph-native materialization. ---
@@ -291,16 +271,12 @@ contains
       call ESMF_StateGet(dst_import_state, itemCount=item_count, _RC)
       @assertEqual(1, item_count, this%fixture_name // ' :: no leaked state entry')
 
-      ! --- Task 4.3: payload-parity check. Resolve the export's own
-      ! real node (comp_src's own graph - openspec/changes/hierarchy-
-      ! wide-component-graph, tasks.md 3.4: no parent-local proxy exists
-      ! anymore) and compare its materialized payload's typekind/units/
-      ! geom against the legacy oracle field above.
-      ! openspec/changes/phase-10c-typekind-characteristic, design.md D6
-      ! (second correction): this whole block is scoped to an
-      ! exact-match connection (per this change's own
-      ! graph/equivalence-harness spec delta, "Static attributes agree
-      ! before any run phase" is an exact-match-connection scenario) -
+      ! --- Payload-parity check. Resolve the export's own real node
+      ! (comp_src's own graph - no parent-local proxy exists anymore) and
+      ! compare its materialized payload's typekind/units/geom against the
+      ! legacy oracle field above. This whole block is scoped to an
+      ! exact-match connection ("Static attributes agree before any run
+      ! phase" is an exact-match-connection scenario) -
       ! for units_and_typekind_mismatch, resolve_one's mismatch branch
       ! (GraphBuilder.F90) never materializes the export's own node at
       ! all (only the chain's final item is materialized, checked
@@ -331,22 +307,18 @@ contains
          @assertEqual(legacy_units, graph_units, this%fixture_name // ' :: units parity')
          @assert_that(this%fixture_name // ' :: geom parity', legacy_geom == graph_geom, is(true()))
 
-         ! --- Task 4.4: rank/shape comparison via plain ESMF_FieldGet
-         ! (FieldGet does not report shape directly - design.md "Shape/value
-         ! parity is read via FieldGet, not raw ESMF_FieldGet" + a second,
-         ! ordinary ESMF_FieldGet call). ---
+         ! --- Rank/shape comparison via plain ESMF_FieldGet (FieldGet does
+         ! not report shape directly). ---
          call ESMF_FieldGet(legacy_field, rank=legacy_rank, _RC)
          call ESMF_FieldGet(graph_field, rank=graph_rank, _RC)
          @assertEqual(legacy_rank, graph_rank, this%fixture_name // ' :: rank parity')
       end if
 
-      ! --- openspec/changes/phase-10c-typekind-characteristic, design.md
-      ! D6: for the one fixture whose connection is resolved through a
+      ! --- For the one fixture whose connection is resolved through a
       ! real two-characteristic extension chain, additionally verify the
       ! chain's FINAL item - not merely the original export - has the
       ! typekind/units the import actually declared. The import's own
-      ! real NodeId now lives in comp_dst's own graph (openspec/changes/
-      ! hierarchy-wide-component-graph, tasks.md 3.4), but the chain's
+      ! real NodeId lives in comp_dst's own graph, but the chain's
       ! own TransformGraphNodes/intermediate items remain registered in
       ! cap's own graph (find_or_build_extension_chain is called with
       ! the forward network, since cap is the component that
@@ -361,7 +333,8 @@ contains
       end associate
    end subroutine check
 
-   ! openspec/changes/phase-10c-typekind-characteristic, design.md D6.
+   ! Verifies the extension chain's final item carries the import's
+   ! typekind and units.
    subroutine check_chain_final_item(this, cap_graph, dst_graph, name, rc)
       class(EquivalenceFixture), intent(in) :: this
       type(ComponentGraph), pointer, intent(in) :: cap_graph
@@ -381,15 +354,13 @@ contains
       type(ESMF_TypeKind_Flag) :: chain_final_typekind
       character(:), allocatable :: chain_final_units
 
-      ! openspec/changes/hierarchy-wide-component-graph, tasks.md 3.4:
-      ! the import's own real NodeId lives in comp_dst's own graph (no
+      ! The import's own real NodeId lives in comp_dst's own graph (no
       ! parent-local proxy exists anymore), but the chain's own
-      ! TransformGraphNodes/intermediate items remain registered in
-      ! cap's own graph (find_or_build_extension_chain
-      ! was called with cap's own ComponentGraph, since cap is the
-      ! component that declared the connection) - walk predecessors
-      ! there, starting from the real import NodeId resolved from
-      ! comp_dst's own graph.
+      ! TransformGraphNodes/intermediate items remain registered in cap's own
+      ! graph (find_or_build_extension_chain was called with cap's own
+      ! ComponentGraph, since cap is the component that declared the
+      ! connection) - walk predecessors there, starting from the real import
+      ! NodeId resolved from comp_dst's own graph.
       import_node_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, name))
       @assert_that(this%fixture_name // ' :: import item resolved', associated(import_node_id), is(true()))
 

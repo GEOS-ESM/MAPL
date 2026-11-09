@@ -2,17 +2,17 @@
 
 !------------------------------------------------------------------------------
 ! CallbackArgumentSpec: a CallbackInterface's named argument declaration
-! (spec/15-callbacks.md REQ-CB-003) - a name plus a required expected
+! (spec/15-callbacks.md) - a name plus a required expected
 ! MAPL_StateItem_Flag kind (e.g. the PassiveTracer example's "tracers,
 ! ESMF FieldBundle", §15.3). Carries no AccessSpec of its own - access is
-! declared per-method by CallbackMethodSpec (REQ-CB-004: "one shared
-! argument MAY have different access in different methods"); putting
+! declared per-method by CallbackMethodSpec (one shared
+! argument may have different access in different methods); putting
 ! AccessSpec here as well, mirroring ArgumentSpec exactly, would invite a
 ! second, unused source of truth (callback-data-model-registry design.md
 ! Decision 1).
 !
 ! Unlike ArgumentSpec's optional expected_kind, expected_kind is
-! required here: every REQ-CB-003 example states one, and there is no
+! required here: every callback example states one, and there is no
 ! unconstrained-callback-argument use case in the spec to support.
 !------------------------------------------------------------------------------
 module mapl_CallbackArgumentSpec_mod

@@ -3,8 +3,8 @@
 !------------------------------------------------------------------------------
 ! StateItemDescriptor: the description of a state item, kept apart from the
 ! ESMF handle (GraphStateItem). Holds the sparse StateItemCharacteristicMap
-! (REQ-CHAR-007/008/009/010) plus the description values that are not yet
-! characteristics (declared item type).
+! plus the description values that are not yet characteristics (declared
+! item type).
 !
 ! Independent of any ESMF object: a StateItemNode's descriptor is populated at
 ! ADVERTISE, before any handle exists. Layering: graph/ only; must not depend
@@ -142,7 +142,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine descriptor_get_consumer_adopted_kinds
 
-   ! -- characteristics (REQ-CHAR-007/008/010) --
+   ! -- characteristics --
 
    logical function descriptor_has_characteristic(this, kind) result(has)
       class(StateItemDescriptor), intent(in) :: this
@@ -151,7 +151,7 @@ contains
       has = this%characteristics%count(kind) > 0
    end function descriptor_has_characteristic
 
-   ! REQ-CHAR-008: an absent key means "never established" and fails
+   ! An absent key means "never established" and fails
    ! explicitly rather than returning an INVALID-status placeholder. A
    ! subroutine with an intent(out) allocatable dummy, not a function returning
    ! a polymorphic allocatable: an unallocated polymorphic function result on
@@ -173,7 +173,7 @@ contains
    end subroutine descriptor_get_characteristic
 
    ! Inserts or replaces the entry under `kind`; the one explicit-replace
-   ! operation. REQ-CHAR-006/009: characteristic%get_kind() MUST equal `kind`,
+   ! operation. characteristic%get_kind() MUST equal `kind`,
    ! because detection pairs two items' entries by key and assumes both dynamic
    ! types match.
    subroutine descriptor_set_characteristic(this, kind, characteristic, rc)
@@ -192,7 +192,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine descriptor_set_characteristic
 
-   ! REQ-CHAR-009: enumerable so detection can iterate every entry. Returns a
+   ! Enumerable so detection can iterate every entry. Returns a
    ! copy.
    function descriptor_get_characteristics(this) result(characteristics)
       class(StateItemDescriptor), intent(in) :: this

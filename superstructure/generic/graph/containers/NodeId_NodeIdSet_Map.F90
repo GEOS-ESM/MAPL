@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 ! NodeId_NodeIdSet_Map: gFTL map of NodeId -> NodeIdSet, used by
 ! DependencyNetwork for predecessor/successor adjacency storage
-! (spec/06-dependency-network.md REQ-DEP-002).
+! (spec/06-dependency-network.md).
 !------------------------------------------------------------------------------
 module mapl_NodeId_NodeIdSet_Map_mod
    use mapl_NodeId_mod, only: NodeId, operator(<)

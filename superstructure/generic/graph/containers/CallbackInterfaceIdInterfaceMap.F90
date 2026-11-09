@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 ! CallbackInterfaceIdInterfaceMap: gFTL map of CallbackInterfaceId ->
 ! CallbackInterface, the CallbackInterfaceRegistry's own identity ->
-! interface storage (spec/15-callbacks.md REQ-CB-009). Mirrors
+! interface storage (spec/15-callbacks.md). Mirrors
 ! DependencyNetworkIdNetworkMap.F90's own "Id -> owned value" shape:
 ! Key_LT ordering comes from CallbackInterfaceId's own IdTemplate.inc-
 ! generated operator(<).

@@ -1,8 +1,7 @@
 !------------------------------------------------------------------------------
 ! PortBindingKey: composite gFTL map key pairing a DependencyNetworkId
 ! with a NodeId, used by PortBindingTable to key the external
-! (DependencyNetworkId, NodeId) -> port name -> NodeId table required by
-! REQ-XFORM-005.
+! (DependencyNetworkId, NodeId) -> port name -> NodeId table.
 !------------------------------------------------------------------------------
 module mapl_PortBindingKey_mod
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId, operator(==), operator(<)

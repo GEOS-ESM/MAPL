@@ -2,11 +2,11 @@
 
 !------------------------------------------------------------------------------
 ! GridCompMethodInvocation: MethodInvocationAdapter concrete subtype modeling
-! a GridComp initialize/run phase invocation (REQ-MTH-001). Carries a stable
-! driver identifier (character key, REQ-MTH-009's "stable local identifier,
-! never a raw pointer to the driver" shape) and a phase_idx; delegates to an
+! a GridComp initialize/run phase invocation. Carries a stable
+! driver identifier (a character key: a stable local identifier,
+! never a raw pointer to the driver) and a phase_idx; delegates to an
 ! injected GridCompPhaseInvoker rather than calling anything ESMF-specific
-! itself, satisfying REQ-MTH-003 by construction.
+! itself, so no invocation logic is duplicated.
 !
 ! phase_idx (integer), not a phase name: it matches
 ! GriddedComponentDriver%run/initialize/finalize
@@ -78,7 +78,7 @@ contains
       phase_idx = this%phase_idx
    end function gridcomp_get_phase_idx
 
-   ! REQ-MTH-003: gathers bound arguments, calls the one injected
+   ! Gathers bound arguments, calls the one injected
    ! GridCompPhaseInvoker entry point, returns. Nothing else.
    subroutine gridcomp_invoke(this, arguments, bindings, clock, rc)
       class(GridCompMethodInvocation), intent(inout) :: this

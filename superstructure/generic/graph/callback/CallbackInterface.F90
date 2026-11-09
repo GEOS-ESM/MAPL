@@ -1,16 +1,16 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! CallbackInterface: a reusable callback contract (spec/15-callbacks.md
-! REQ-CB-002/003) - argument name -> CallbackArgumentSpec, plus method
+! CallbackInterface: a reusable callback contract (spec/15-callbacks.md)
+! - argument name -> CallbackArgumentSpec, plus method
 ! name -> CallbackMethodSpec. Built through a declare_argument /
 ! declare_method / set_method_argument_access sequence, each rejecting a
 ! duplicate name at its own level (no-silent-replace, matching
 ! MethodGraphNode.declare_argument's own convention).
 !
-! Carries no service-name field of its own (REQ-CB-002: "Service name is
-! the key in CallbackInterfaceRegistry's lookup map and MUST NOT be
-! duplicated as a field inside CallbackInterface itself") -
+! Carries no service-name field of its own (the service name is
+! the key in CallbackInterfaceRegistry's lookup map and must not be
+! duplicated as a field inside CallbackInterface itself) -
 ! CallbackInterfaceRegistry.F90 owns that association.
 !
 ! set_method_argument_access requires both the method name and the
@@ -55,7 +55,7 @@ module mapl_CallbackInterface_mod
 
 contains
 
-   ! REQ-CB-003: declares a named argument with its expected kind.
+   ! Declares a named argument with its expected kind.
    ! Rejects a duplicate name, leaving the existing declaration
    ! unchanged (spec scenario "Duplicate argument name is rejected").
    subroutine interface_declare_argument(this, name, expected_kind, rc)
@@ -100,7 +100,7 @@ contains
       arguments = this%arguments
    end function interface_get_arguments
 
-   ! REQ-CB-003: declares a named method with no argument-access entries
+   ! Declares a named method with no argument-access entries
    ! yet - set_method_argument_access (below) fills those in. Rejects a
    ! duplicate name, leaving the existing declaration unchanged (spec
    ! scenario "Duplicate method name is rejected").
@@ -147,7 +147,7 @@ contains
       methods = this%methods
    end function interface_get_methods
 
-   ! REQ-CB-004: assigns method_name's access mode for argument_name.
+   ! Assigns method_name's access mode for argument_name.
    ! Requires both names to already be declared on this interface (spec
    ! scenarios "Method argument access for an undeclared argument/method
    ! is rejected") before mutating the method's own CallbackMethodSpec

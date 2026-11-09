@@ -1,4 +1,4 @@
-! Task 4.2 (spec/11-revision-and-update.md REQ-REV-005..007, REQ-REV-009).
+! Task 4.2 (spec/11-revision-and-update.md).
 !
 ! Synthetic graphs only (StateItemNode/TransformGraphNode via
 ! ComponentGraph) - no ESMF component/GridComp/StateRegistry involved
@@ -34,7 +34,7 @@ module Test_DemandDrivenUpdate
    ! MethodInvocationAdapter double whose invoke() must never be called
    ! by demand-driven update (spec/graph/method-graph-node/spec.md
    ! "Method node execution is never scheduled by demand-driven
-   ! update", spec/03-graph-node-hierarchy.md REQ-NODE-007). Held via a
+   ! update", spec/03-graph-node-hierarchy.md). Held via a
    ! pointer for the same sourced-allocation-copy reason as
    ! CountingCompute's run_count above.
    type, extends(MethodInvocationAdapter) :: NeverCalledAdapter
@@ -90,7 +90,7 @@ contains
       @assertEqual(0, status)
    end subroutine test_externally_supplied_item_is_noop
 
-   ! REQ-REV-005/006: first request executes the transform exactly once,
+   ! First request executes the transform exactly once,
    ! and advances its output's revision.
    @test
    subroutine test_first_request_executes_transform_once()
@@ -152,7 +152,7 @@ contains
       end select
    end subroutine test_first_request_executes_transform_once
 
-   ! REQ-REV-006: a second request with no input change does not
+   ! A second request with no input change does not
    ! re-execute.
    @test
    subroutine test_unchanged_second_request_does_not_reexecute()
@@ -200,7 +200,7 @@ contains
       @assertEqual(1, run_count)
    end subroutine test_unchanged_second_request_does_not_reexecute
 
-   ! REQ-REV-006: a changed input triggers re-execution.
+   ! A changed input triggers re-execution.
    @test
    subroutine test_changed_input_triggers_reexecution()
       type(ComponentGraph) :: graph
@@ -258,7 +258,7 @@ contains
       @assertEqual(2, run_count)
    end subroutine test_changed_input_triggers_reexecution
 
-   ! REQ-REV-007: all declared outputs advance together, not only the
+   ! All declared outputs advance together, not only the
    ! one originally requested.
    @test
    subroutine test_all_outputs_advance_together()
@@ -331,7 +331,7 @@ contains
       end select
    end subroutine test_all_outputs_advance_together
 
-   ! REQ-REV-006 step 1: a two-transform chain fully updates upstream
+   ! A two-transform chain fully updates upstream
    ! before the downstream transform's staleness is evaluated, and an
    ! upstream-only input change propagates through both.
    @test
@@ -417,7 +417,7 @@ contains
 
    ! Task 5.1 (spec/graph/method-graph-node/spec.md "Method node
    ! execution is never scheduled by demand-driven update",
-   ! spec/03-graph-node-hierarchy.md REQ-NODE-007). Registers a
+   ! spec/03-graph-node-hierarchy.md). Registers a
    ! MethodGraphNode alongside ordinary StateItemNode/TransformGraphNode
    ! wiring (unconnected - no add_dependency call involves it, matching
    ! this change's own explicit deferral of wiring MethodGraphNode into
@@ -471,7 +471,7 @@ contains
       call graph%bind_port(default_id, transform_id, 'out', output_id, rc=status)
 
       ! Registered alongside the above, but never wired into any
-      ! DependencyNetwork - REQ-NODE-007's own point is that demand-
+      ! DependencyNetwork - the own point is that demand-
       ! driven update must not schedule it regardless.
       was_called = .false.
       adapter%was_called => was_called

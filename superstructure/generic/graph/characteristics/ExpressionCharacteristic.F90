@@ -8,8 +8,7 @@
 ! built per consumer at connect time; this characteristic only carries the
 ! string.
 !
-! No Info key: write_info succeeds and writes nothing (design.md Expression
-! row, §3.4).
+! No Info key: write_info succeeds and writes nothing.
 !
 ! No Transform exists for this axis: build_transform reports unsupported.
 !------------------------------------------------------------------------------

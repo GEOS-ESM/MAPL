@@ -25,7 +25,7 @@ contains
       user_gc_name = this%user_gc_driver%get_name(_RC)
       this%registry = StateRegistry(user_gc_name)
 
-      ! Root component requests fresh hierarchy; descendant joins parent's (REQ-HIER-002/004).
+      ! Root component requests fresh hierarchy; descendant joins parent's.
       if (present(hierarchy_id)) then
          this%hierarchy_id = hierarchy_id
       else
@@ -48,7 +48,7 @@ contains
          call resources%component_names%insert(user_gc_name)
       end if
 
-      ! docs/graph/spec/02-component-hierarchy.md REQ-HIER-002/004: every
+      ! docs/graph/spec/02-component-hierarchy.md: every
       ! OuterComponent owns exactly one local ComponentGraph. Constructed
       ! here (not in new_outer_meta) to match the registry's construction
       ! pattern above - ComponentGraph() is non-trivial (seeds the default

@@ -74,7 +74,7 @@ contains
       @assertEqual(0, status)
    end subroutine test_item_type_matches_allocated_plain_state
 
-   ! REQ-SI-002a/002b: route-handle-wrapper role is still itemType()==
+   ! Route-handle-wrapper role is still itemType()==
    ! STATE (it's a plain esmf_state as far as "which component is
    ! allocated" is concerned) - the wrapper role itself is a variant()
    ! question, exercised separately below.
@@ -118,7 +118,7 @@ contains
       @assertEqual(0, status)
    end subroutine test_at_most_one_component_allocated
 
-   ! REQ-SI-004: more than one allocated component is a checked defect,
+   ! More than one allocated component is a checked defect,
    ! not silently tolerated. Forced via the test-only backdoor since
    ! there is no public path to reach this state.
    @test
@@ -140,7 +140,7 @@ contains
       @assertTrue(status /= 0)
    end subroutine test_double_allocation_is_a_checked_defect
 
-   ! REQ-SI-002b: variant() defaults to the vanilla value matching the
+   ! variant() defaults to the vanilla value matching the
    ! native kind (mirroring itemType()'s own vocabulary) when no finer
    ! role has been tagged.
    @test
@@ -192,7 +192,7 @@ contains
       @assertEqual(0, status)
    end subroutine test_variant_round_trips_and_travels_with_field
 
-   ! REQ-SI-002b: variant() reports the route-handle role as a
+   ! variant() reports the route-handle role as a
    ! refinement of STATE (mirroring how VERTICALGRID also refines
    ! STATE), delegating to the wrapper's sole member's own native
    ! classification rather than at the itemType() tier.
@@ -211,7 +211,7 @@ contains
       @assertEqual(0, status)
    end subroutine test_variant_is_route_handle_for_route_handle_wrapper
 
-   ! REQ-SI-002a: the route handle is resolved out of the wrapper's
+   ! The route handle is resolved out of the wrapper's
    ! sole member via get_route_handle(), gated on variant() rather than
    ! itemType().
    @test
@@ -234,7 +234,7 @@ contains
       @assertTrue(is_created)
    end subroutine test_get_route_handle_resolves_from_wrapper
 
-   ! REQ-SI-006: state_members is rejected for the route-handle-wrapper
+   ! state_members is rejected for the route-handle-wrapper
    ! role even though itemType() reports STATE for it - the wrapper's
    ! sole member is not a graph-visible, node-identity-addressable item.
    @test
@@ -261,7 +261,7 @@ contains
       @assertEqual('GEOM', MAPL_STATEITEM_GEOM%to_string())
    end subroutine test_variant_to_string
 
-   ! REQ-SI-006: field-bundle member map populated only for
+   ! Field-bundle member map populated only for
    ! field-bundle kind; state member map stays empty.
    @test
    subroutine test_field_bundle_member_map_gated_by_kind()
@@ -347,7 +347,7 @@ contains
       @assertEqual(0, s_members%size())
    end subroutine test_both_member_maps_empty_for_route_handle_kind
 
-   ! REQ-SI-005/spec/04 §4.6.4: no dedicated geometry node/payload kind
+   ! No dedicated geometry node/payload kind
    ! exists - geometry is an ordinary GraphStateItem with its field component
    ! allocated and variant() == MAPL_STATEITEM_GEOM.
    @test

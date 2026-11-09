@@ -1,5 +1,4 @@
-! openspec/changes/state-item-characteristics, task 7.1: stable,
-! distinct StateItemCharacteristicKind values and to_string(), and
+! Stable, distinct StateItemCharacteristicKind values and to_string(), and
 ! CharacteristicStatus default/invalid construction, each named value
 ! distinct, to_string().
 module Test_StateItemCharacteristicKind
@@ -44,8 +43,7 @@ contains
       @assertEqual('GEOMETRY', GEOMETRY_CHARACTERISTIC_KIND%to_string())
    end subroutine test_kind_to_string
 
-   ! openspec/changes/state-item-characteristic-subclasses, task 1.2:
-   ! seven new kinds (design.md D7, values 4-10) are each stable, distinct
+   ! Seven newer kinds (values 4-10) are each stable, distinct
    ! from one another and from the three 5a already registered, and have
    ! a correct to_string().
    @test
@@ -91,7 +89,7 @@ contains
       @assertEqual('RESTART_MODE', RESTART_MODE_CHARACTERISTIC_KIND%to_string())
    end subroutine test_new_kind_to_string
 
-   ! design.md D1: the type's own default field initializer (0) is the
+   ! The default field initializer (0) is the
    ! INVALID value, so a default-constructed CharacteristicStatus() is
    ! invalid with no explicit constructor call.
    @test

@@ -161,12 +161,11 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_advertise_creates_field_for_slash_name
 
-   ! Task 6.4 (public-port half) / spec "Declared public port is
-   ! recorded": an advertised import/export item's identity is
-   ! retrievable by name (resource index), and graphbuilder_advertise()
-   ! reports success - which it would not if the internal
-   ! add_import_port/add_export_port calls (REQ-HIER-002 "public ports")
-   ! had failed, since those are guarded by ordinary rc/status checks.
+   ! Spec "Declared public port is recorded": an
+   ! advertised import/export item's identity is retrievable by name (resource
+   ! index), and graphbuilder_advertise reports success - which it would not if
+   ! the internal add_import_port/add_export_port calls had failed, since
+   ! those are guarded by ordinary rc/status checks.
    ! An internal item gets neither port kind.
    @test(npes=[0])
    subroutine test_public_port_recorded_and_reachable_by_name(this)
@@ -197,14 +196,13 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_public_port_recorded_and_reachable_by_name
 
-   ! -- openspec/changes/composite-state-spec ------------------------------
+   ! -- composite state specs -------------------------------------------
 
-   ! Task 4.2 / spec "Composite top-level item is represented like an
-   ! ordinary advertised item" + "Leaf member of a composite is
-   ! represented in the graph": advertising a VariableSpec with declared
-   ! members builds a top-level node plus one node per member, each
-   ! reachable via the top-level node's own GraphStateItem%state_members
-   ! map.
+   ! Spec "Composite top-level item is represented like an ordinary advertised
+   ! item" + "Leaf member of a composite is represented in the graph":
+   ! advertising a VariableSpec with declared members builds a top-level node
+   ! plus one node per member, each reachable via the top-level node's own
+   ! GraphStateItem%state_members map.
    @test(npes=[0])
    subroutine test_composite_advertise_creates_node_tree(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -255,8 +253,8 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_composite_advertise_creates_node_tree
 
-   ! Task 4.2 / spec "Nested member of a composite is represented in the
-   ! graph": a two-level-deep composite produces the full tree.
+   ! Spec "Nested member of a composite is represented in the graph": a
+   ! two-level-deep composite produces the full tree.
    @test(npes=[0])
    subroutine test_composite_advertise_multi_level(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -320,8 +318,8 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_composite_advertise_multi_level
 
-   ! Task 4.2 / spec "Re-advertising the same composite declaration does
-   ! not duplicate its node tree".
+   ! Spec "Re-advertising the same composite declaration does not duplicate its
+   ! node tree".
    @test(npes=[0])
    subroutine test_composite_readvertise_does_not_duplicate(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -361,15 +359,14 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_composite_readvertise_does_not_duplicate
 
-   ! -- openspec/changes/vertical-grid-graph-state-item ---------------------
+   ! -- vertical-grid state items ----------------------------------------
 
-   ! Task 1.3 / spec "A vertical grid is carried as a nested-state item
-   ! with per-dimension coordinate-set members": a composite VariableSpec
-   ! tagged state_item_variant = MAPL_STATEITEM_VERTICALGRID materializes
-   ! (via the EXISTING, unmodified composite-state-spec path) as a
-   ! StateItemNode whose GraphStateItem%variant() reports VERTICALGRID
-   ! (design.md D2), with each declared physical dimension retrievable as
-   ! an independently node-identified member.
+   ! Spec "A vertical grid is carried as a nested-state item with per-dimension
+   ! coordinate-set members": a composite VariableSpec tagged
+   ! state_item_variant = MAPL_STATEITEM_VERTICALGRID materializes (via the
+   ! EXISTING, unmodified composite-state-spec path) as a StateItemNode whose
+   ! GraphStateItem%variant reports VERTICALGRID, with each declared physical
+   ! dimension retrievable as an independently node-identified member.
    @test(npes=[0])
    subroutine test_vertical_grid_composite_tags_variant(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -427,12 +424,10 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_vertical_grid_composite_tags_variant
 
-   ! Regression companion to the test above: an ordinary composite that
-   ! does NOT set state_item_variant (every composite declared before
-   ! this change, and any future one that is not a vertical grid) keeps
-   ! reporting the plain STATE variant - materialize_composite's new
-   ! tagging step (design.md D2) is additive, gated on
-   ! allocated(var_spec%state_item_variant).
+   ! Regression companion to the test above: an ordinary composite that does
+   ! NOT set state_item_variant (any composite that is not a vertical grid) keeps reporting the plain
+   ! STATE variant - materialize_composite's new tagging step is additive,
+   ! gated on allocated(var_spec%state_item_variant).
    @test(npes=[0])
    subroutine test_untagged_composite_keeps_plain_state_variant(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -622,10 +617,10 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_advertise_establishes_six_new_characteristics
 
-   ! Task 6.2 (regression companion): an item with none of the optional
-   ! newly-wired fields set (default VariableSpec, no attributes/standard_
-   ! name declared) still advertises successfully - AttributesCharacteristic is
-   ! present and empty, StandardNameCharacteristic is UNCHECKED, and
+   ! Regression companion: an item with none of the optional newly-wired
+   ! fields set (default VariableSpec, no attributes/standard_name declared)
+   ! still advertises successfully - AttributesCharacteristic is present and
+   ! empty, StandardNameCharacteristic is UNCHECKED, and
    ! UngriddedDimsCharacteristic/QuantityTypeCharacteristic/
    ! ConservationCharacteristic/NormalizationCharacteristic are still present,
    ! at their own default values.
@@ -679,10 +674,10 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_advertise_default_var_spec_no_spurious_characteristics
 
-   ! Task 6.3: AttributesCharacteristic's own asymmetric comparison
-   ! (module header, AttributesCharacteristic.F90) - an export declaring a
-   ! superset of the import's required attributes does not mismatch; an
-   ! export missing one of the import's required attributes does.
+   ! AttributesCharacteristic's own asymmetric comparison (module header,
+   ! AttributesCharacteristic.F90) - an export declaring a superset of the
+   ! import's required attributes does not mismatch; an export missing one of
+   ! the import's required attributes does.
    @test(npes=[0])
    subroutine test_attributes_characteristic_asymmetric_comparison(this)
       class(MpiTestMethod), intent(inout) :: this

@@ -156,7 +156,7 @@ contains
       class(UserSetServices), optional, intent(in) :: set_services
       type(ESMF_HConfig), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
-      ! framework-internal keyword (REQ-HIER-002/004). When absent,
+      ! Framework-internal keyword. When absent,
       ! the component gets a fresh hierarchy. When supplied (internal use
       ! only), the child joins the parent's hierarchy instead of starting a new one.
       type(HierarchyId), optional, intent(in) :: hierarchy_id

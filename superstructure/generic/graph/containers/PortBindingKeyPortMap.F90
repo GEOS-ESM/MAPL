@@ -1,8 +1,8 @@
 !------------------------------------------------------------------------------
 ! PortBindingKeyPortMap: gFTL map of PortBindingKey ->
 ! StateItemMemberMap (itself port name -> NodeId), the external
-! Transform port-binding table storage (spec/10-transforms-and-ports.md
-! REQ-XFORM-005). Reuses StateItemMemberMap's existing
+! Transform port-binding table storage (spec/10-transforms-and-ports.md).
+! Reuses StateItemMemberMap's existing
 ! character -> NodeId container for the inner map rather than
 ! duplicating an identical container under a new name (the same reuse
 ! ComponentGraph already applies to its own resource_index).

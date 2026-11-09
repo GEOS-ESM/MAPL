@@ -2,7 +2,6 @@
 
 !------------------------------------------------------------------------------
 ! BaseGraphNode: the common-property layer of the GraphNode hierarchy
-! (REQ-NODE-002/002a).
 !
 ! Contains exactly the properties common to every graph node: a
 ! lifecycle-status value and its own NodeId. No adjacency (predecessors/
@@ -11,8 +10,8 @@
 !
 ! NodeId is set once, at construction, via the BaseGraphNode(id) structure
 ! constructor. There is no public mutator: the component is private and only
-! the constructor and get_node_id() are public (REQ-NODE-002a: "set once ...
-! never mutated afterward").
+! the constructor and get_node_id() are public (set once, never
+! mutated afterward).
 !------------------------------------------------------------------------------
 module mapl_BaseGraphNode_mod
    use mapl_GraphNode_mod, only: GraphNode

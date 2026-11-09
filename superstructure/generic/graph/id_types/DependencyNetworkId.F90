@@ -3,9 +3,9 @@
 ! instances within a ComponentGraph.
 !
 ! Generated from the authoritative template spec/templates/IdTemplate.inc
-! per spec/05-identities.md REQ-ID-003/004. Defines DEFAULT_ID before
+! per spec/05-identities.md. Defines DEFAULT_ID before
 ! inclusion so a distinguished default network id is available, per
-! spec/07-component-graph.md REQ-CG-004.
+! spec/07-component-graph.md.
 !------------------------------------------------------------------------------
 module mapl_DependencyNetworkId_mod
 

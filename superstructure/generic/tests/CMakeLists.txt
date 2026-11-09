@@ -14,9 +14,8 @@ add_custom_target(copy_scenarios ALL
 )
 
 # Copy graph-scenarios directory to build directory at build time
-# (sibling to scenarios/, graph-mode-equivalence fixtures only - see
-# openspec/changes/phase-10b-equivalence-harness proposal.md "New fixture
-# root"). Mirrors copy_scenarios above.
+# (sibling to scenarios/, graph-mode-equivalence fixtures only).
+# Mirrors copy_scenarios above.
 add_custom_target(copy_graph_scenarios ALL
   COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/graph-scenarios

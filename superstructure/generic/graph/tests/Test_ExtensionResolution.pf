@@ -1,7 +1,7 @@
 #include "MAPL.h"
 
-! openspec/changes/extension-reuse - task group 6 (unit tests for
-! mapl_StateItemCharacteristic_mod / mapl_ExtensionResolution_mod).
+! Unit tests for mapl_StateItemCharacteristic_mod /
+! mapl_ExtensionResolution_mod.
 !
 ! Uses only synthetic graph nodes (StateItemNode/TransformGraphNode) - no
 ! OuterComponent/StateRegistry/GraphBuilder type is referenced anywhere,
@@ -9,19 +9,11 @@
 ! multi-step chain test uses a test-only FakeCharacteristic
 ! (MOCK_CHARACTERISTIC_KIND, mirroring AspectId.F90's own MOCK_ASPECT_ID
 ! precedent) so the chain-building loop can be exercised with two links
-! without needing a second real, executing characteristic (extension-
-! reuse change design.md Decisions).
+! without needing a second real, executing characteristic.
 !
-! openspec/changes/merge-characteristic-families, task 6.4: re-typed from
-! the retired mapl_Characteristic_mod/mapl_CharacteristicId_mod onto the
-! surviving mapl_StateItemCharacteristic_mod/
-! mapl_StateItemCharacteristicKind_mod family. FakeCharacteristic now
-! extends StateItemCharacteristic (nopass get_kind, four-argument
-! build_transform, no graph/NodeId argument - already the shape
-! post-decouple-transform-from-graph) and gains a new get_signature
-! implementation (task 1.1's new deferred method) - a simple
-! 'mock=' // this%value mirrors its existing get_signature-style naming
-! already used elsewhere in this hierarchy.
+! FakeCharacteristic extends StateItemCharacteristic (nopass get_kind,
+! four-argument build_transform, no graph/NodeId argument); its
+! get_signature returns a simple mock= prefix plus this%value.
 module Test_ExtensionResolution
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_HierarchyId_mod, only: HierarchyId
@@ -42,7 +34,6 @@ module Test_ExtensionResolution
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain
-   ! openspec/changes/phase-7a-shape-dispatch-wiring, task 9.2/9.3:
    ! ITEM_SHAPE_CHARACTERISTIC_KIND walked by this same, uniform
    ! find_mismatched_characteristics/build_chain machinery.
    use mapl_StateItemCharacteristicKind_mod, only: ITEM_SHAPE_CHARACTERISTIC_KIND
@@ -259,8 +250,7 @@ contains
       @assertEqual(0, status)
       @assertEqual('', unsupported)
       @assertFalse(final_id == export_id)
-      ! openspec/changes/phase-11b-chain-intermediate-materialization:
-      ! a single-characteristic chain's own intermediate_ids array has
+      ! A single-characteristic chain: the intermediate_ids array has
       ! length 1, and that one entry is the chain's own final node.
       @assertEqual(1, size(intermediate_ids))
       @assertTrue(intermediate_ids(1) == final_id)
@@ -301,8 +291,7 @@ contains
       @assertEqual(0, status)
       @assertEqual('', unsupported)
       @assertFalse(final_id == export_id)
-      ! openspec/changes/phase-11b-chain-intermediate-materialization,
-      ! design.md D1/D5: a two-characteristic chain's own
+      ! A two-characteristic chain:
       ! intermediate_ids array has length 2, its last entry equals
       ! final_node_id, and both entries are distinct NodeIds.
       @assertEqual(2, size(intermediate_ids))
@@ -657,8 +646,7 @@ contains
       @assertEqual(0, status)
 
       @assertTrue(final_id1 == final_id2)
-      ! openspec/changes/phase-11b-chain-intermediate-materialization,
-      ! design.md D1: the reuse-hit path returns a zero-size
+      ! The reuse-hit path returns a zero-size
       ! intermediate_node_ids array - a reused chain's own links were
       ! already materialized by the first call, no re-materialization
       ! work is ever needed.
@@ -748,12 +736,11 @@ contains
       @assertEqual(1, size(intermediate_ids2))
    end subroutine test_different_variant_creates_new_extension
 
-   ! -- openspec/changes/phase-7a-shape-dispatch-wiring, task 9.2/9.3:
-   ! a genuine BRACKET (export) -> FIELD (import) mismatch is reported
-   ! by find_mismatched_characteristics and successfully chain-built -
-   ! no unsupported_characteristic - producing one
-   ! BracketTimeInterpolationTransform-backed extension node (design.md
-   ! D7(a), structure-only - find_mismatched_characteristics/build_chain
+   ! -- A genuine BRACKET (export) -> FIELD (import) mismatch is reported by
+   ! find_mismatched_characteristics and successfully chain-built (no
+   ! unsupported_characteristic), producing one
+   ! BracketTimeInterpolationTransform-backed extension node
+   ! (structure-only - find_mismatched_characteristics/build_chain
    ! exercised directly, exactly as every other characteristic above,
    ! with no GraphBuilder/OuterMetaComponent involved). ------------------
 
@@ -780,7 +767,7 @@ contains
       call graph%register_node(export_node, rc=status)
 
       ! Units/typekind deliberately matched on both sides - isolating
-      ! the shape axis (task 9.2's own stated intent).
+      ! the shape axis.
       call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
       call export_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, ItemShapeCharacteristic(MAPL_STATEITEM_BRACKET))
       call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))

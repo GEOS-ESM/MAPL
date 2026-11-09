@@ -2,9 +2,9 @@
 
 !------------------------------------------------------------------------------
 ! TypeKindCharacteristic: the "type/kind (precision)" StateItemCharacteristic
-! (docs/graph/spec/18-state-item-characteristics.md REQ-CHAR-001 table) -
-! a ValueCharacteristic (REQ-CHAR-002a: holds its value inline, never
-! shared). Holds a plain label (e.g. 'R4'/'R8') rather than an ESMF
+! (docs/graph/characteristics.md) - a ValueCharacteristic: holds its
+! value inline, never shared. Holds a plain label (e.g. 'R4'/'R8') rather
+! than an ESMF
 ! typekind handle directly. A MIRRORED instance holds no value
 ! (get_type_kind returns ''). MAPL_TYPEKIND_MIRROR is not a precision and is
 ! invalid input to the constructors.
@@ -97,7 +97,7 @@ contains
    ! the same StateItemCharacteristicKind key, and
    ! StateItemDescriptor%set_characteristic (the only insertion path into that
    ! map) asserts a characteristic's own kind matches its map key before
-   ! inserting (REQ-CHAR-006/009, design.md D9) - so the class default
+   ! inserting - so the class default
    ! branch below should be checked by the calling procedure, matching
    ! this codebase's own established `error stop` precedent for exactly
    ! that situation (DependencyNetwork.F90, ActualConnectionPt.F90).

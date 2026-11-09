@@ -1,14 +1,11 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
-! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1/6.3/6.4
-! (design.md D3): recursive import mirroring - 3b2's replacement.
-! `graphbuilder_run_propagate_hook` mirrors each direct child's own
-! still-unresolved imports into the calling component's own
-! import-port table, unconditionally (no connection needs to name that
-! child); an ordinary connection declared against the ancestor then
-! resolves the mirrored port exactly as it would an item advertised
-! directly, through the EXISTING, UNMODIFIED
+! Recursive import mirroring: `graphbuilder_run_propagate_hook` mirrors each direct child's own
+! still-unresolved imports into the calling component's own import-port table,
+! unconditionally (no connection needs to name that child); an ordinary
+! connection declared against the ancestor then resolves the mirrored port
+! exactly as it would an item advertised directly, through the ordinary
 ! `for_each_matching_import`/`resolve_one` machinery.
 !
 ! Test-only OuterMetaComponent instances are built the same way
@@ -40,14 +37,13 @@ module Test_GraphBuilderPropagation
 
 contains
 
-   ! Task 6.1 (unit-level): a child with an advertised, unresolved
-   ! import is reported by the new structural scan
-   ! graphbuilder_unresolved_import_node_ids - including when the
-   ! child declares NO connection of its own (the motivating fixture's
-   ! own shape: a component whose import's resolution is entirely the
-   ! responsibility of some ancestor, not itself). The parent argument
-   ! is child_meta's own real parent (comp_propagate_undeclared_parent)
-   ! - propagation always runs with a direct parent/child pair, never a
+   ! A child with an advertised, unresolved import is reported by
+   ! the new structural scan graphbuilder_unresolved_import_node_ids -
+   ! including when the child declares NO connection of its own (the motivating
+   ! fixture's own shape: a component whose import's resolution is entirely the
+   ! responsibility of some ancestor, not itself). The parent argument is
+   ! child_meta's own real parent (comp_propagate_undeclared_parent) -
+   ! propagation always runs with a direct parent/child pair, never a
    ! standalone component with no parent at all.
    @test(npes=[0])
    subroutine test_unresolved_import_node_ids_reports_undeclared_import(this)
@@ -96,19 +92,18 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_unresolved_import_node_ids_reports_undeclared_import
 
-   ! Task 6.1 (unit-level) / spec "An already-resolved import is not
-   ! mirrored": once an ordinary MatchConnection declared on the
-   ! PARENT itself (the common connect_all shape) names child_dst as
-   ! its own destination and finds a matching source export, the new
-   ! two-level positive-match check (case (b): a connection declared on
-   ! the parent, resolving directly to the child) reports it resolved -
-   ! this is exactly the common-pattern correctness fix (discovered
-   ! during this task): a structural dependency-edge check would always
-   ! read "unresolved" here, since no edge exists anywhere yet at the
+   ! Spec "An already-resolved import is not mirrored": once an
+   ! ordinary MatchConnection declared on the PARENT itself (the common
+   ! connect_all shape) names child_dst as its own destination and finds a
+   ! matching source export, the new two-level positive-match check (case (b):
+   ! a connection declared on the parent, resolving directly to the child)
+   ! reports it resolved - this is exactly the common-pattern correctness fix:
+   ! a structural dependency-edge check would
+   ! always read "unresolved" here, since no edge exists anywhere yet at the
    ! point propagation actually runs (ADVERTISE time, strictly before
    ! graphbuilder_resolve_connections ever adds one) - only a positive
-   ! connection-match check, not graph wiring, can answer this
-   ! correctly at that phase.
+   ! connection-match check, not graph wiring, can answer this correctly at
+   ! that phase.
    @test(npes=[0])
    subroutine test_unresolved_import_node_ids_excludes_resolved_import(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -168,11 +163,11 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_unresolved_import_node_ids_excludes_resolved_import
 
-   ! Task 6.1/6.2 (direct hook test) / spec "A child's unresolved
-   ! import becomes visible in the parent's own import-port table":
-   ! graphbuilder_run_propagate_hook(parent) mirrors child_dst's own
-   ! unresolved import 'T' into the PARENT's own import-port table,
-   ! under the same real NodeId - no new node.
+   ! Spec "A child's unresolved import becomes visible in the parent's own
+   ! import-port table":
+   ! graphbuilder_run_propagate_hook(parent) mirrors child_dst's own unresolved
+   ! import 'T' into the PARENT's own import-port table, under the same real
+   ! NodeId - no new node.
    @test(npes=[0])
    subroutine test_run_propagate_hook_mirrors_unresolved_import(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -219,11 +214,10 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_run_propagate_hook_mirrors_unresolved_import
 
-   ! Task 6.1/6.2 / spec "Mirroring requires no connection naming the
-   ! child": the motivating fixture's own shape - child_dst declares no
-   ! connection naming itself, no connection anywhere names child_dst
-   ! for propagation's purpose, yet its own unresolved import is still
-   ! mirrored into the parent.
+   ! Spec "Mirroring requires no connection naming the child": the motivating
+   ! fixture's own shape - child_dst declares no connection naming itself, no
+   ! connection anywhere names child_dst for propagation's purpose, yet its own
+   ! unresolved import is still mirrored into the parent.
    @test(npes=[0])
    subroutine test_run_propagate_hook_unconditional_no_connection_needed(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -274,28 +268,25 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_run_propagate_hook_unconditional_no_connection_needed
 
-   ! Task 6.1 / spec "An already-resolved import is not mirrored": a
-   ! child's own import, resolved by a connection declared AT OR BELOW
-   ! that child's own level (per the delta spec's own precise scoping),
-   ! is NOT mirrored into the parent. Three-level fixture: PARENT ->
-   ! MID (declares a sibling connection naming its own two children) ->
-   ! {leaf_src, leaf_dst} - MID's own import 'T' (leaf_dst's) is
-   ! resolved entirely within MID's own subtree, below MID's own level,
-   ! before PARENT's own mirroring step (run against MID) ever runs.
+   ! Spec "An already-resolved import is not mirrored": a child's own import,
+   ! resolved by a connection declared AT OR BELOW that child's own level (per
+   ! the delta spec's own precise scoping), is NOT mirrored into the parent.
+   ! Three-level fixture: PARENT -> MID (declares a sibling connection naming
+   ! its own two children) -> {leaf_src, leaf_dst} - MID's own import 'T'
+   ! (leaf_dst's) is resolved entirely within MID's own subtree, below MID's
+   ! own level, before PARENT's own mirroring step (run against MID) ever runs.
    !
-   ! openspec/changes/hierarchy-wide-component-graph, tasks.md 6.1
-   ! (scope note, discovered while writing this test): an import
-   ! resolved by some ANCESTOR's own direct multi-level connection
-   ! (declared ABOVE the child, not at-or-below it) is explicitly OUT
-   ! OF SCOPE for this "not mirrored" guarantee - the delta spec's own
-   ! wording ("at or below the child's own level") deliberately
-   ! excludes that case; mirroring it anyway is a harmless redundant
-   ! import-port entry, not a correctness violation, and is not what
-   ! this test exercises (see graphbuilder_unresolved_import_node_ids's
-   ! own header comment, GraphBuilder_ConnectionResolution_smod.F90,
-   ! for the full reasoning, including why no dependency edge exists
-   ! anywhere yet at the real ADVERTISE-time call site to check
-   ! against in the first place).
+   ! Scope note: an import resolved by
+   ! some ANCESTOR's own direct multi-level connection (declared ABOVE the
+   ! child, not at-or-below it) is explicitly OUT OF SCOPE for this "not
+   ! mirrored" guarantee - the delta spec's own wording ("at or below the
+   ! child's own level") deliberately excludes that case; mirroring it anyway
+   ! is a harmless redundant import-port entry, not a correctness violation,
+   ! and is not what this test exercises (see
+   ! graphbuilder_unresolved_import_node_ids's own header comment,
+   ! GraphBuilder_ConnectionResolution_smod.F90, for the full reasoning,
+   ! including why no dependency edge exists anywhere yet at the real
+   ! ADVERTISE-time call site to check against in the first place).
    @test(npes=[0])
    subroutine test_run_propagate_hook_does_not_mirror_resolved_import(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -377,17 +368,16 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_run_propagate_hook_does_not_mirror_resolved_import
 
-   ! Task 6.3: once a child's import is mirrored into the parent's own
-   ! import-port table, an ORDINARY connection declared at the parent
-   ! naming "<self>" as its own destination (the mirrored port is now
-   ! reachable through `this`'s own import ports, exactly like a
-   ! directly-advertised import) resolves it via the EXISTING,
-   ! UNMODIFIED for_each_matching_import/resolve_one - confirmation,
-   ! not new resolution logic. three-level fixture: GRANDPARENT ->
-   ! PARENT (no connection of its own) -> comp_dst (declares the
-   ! unresolved import 'T', no connection of its own either) - mirrors
-   ! the motivating cap/comp_mid/comp_dst shape, with the grandparent's
-   ! own connection supplying the resolving export directly.
+   ! Once a child's import is mirrored into the parent's own import-port table,
+   ! an ORDINARY connection declared at the parent naming "<self>" as its own
+   ! destination (the mirrored port is now reachable through `this`'s own
+   ! import ports, exactly like a directly-advertised import) resolves it via
+   ! the EXISTING, UNMODIFIED for_each_matching_import/resolve_one -
+   ! confirmation, not new resolution logic. three-level fixture: GRANDPARENT
+   ! -> PARENT (no connection of its own) -> comp_dst (declares the unresolved
+   ! import 'T', no connection of its own either) - mirrors the motivating
+   ! cap/comp_mid/comp_dst shape, with the grandparent's own connection
+   ! supplying the resolving export directly.
    @test(npes=[0])
    subroutine test_mirrored_import_resolves_via_unmodified_resolution(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -433,9 +423,9 @@ contains
       dst_spec => dst_meta%get_component_spec()
       call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
 
-      ! comp_mid ('MID', = parent_meta) declares NO connection of its
-      ! own - deliberately, matching the fixture's own "comp_mid
-      ! declares no connection" shape (design.md D3).
+      ! comp_mid ('MID', = parent_meta) declares NO connection of its own -
+      ! deliberately, matching the "comp_mid declares no connection" shape of
+      ! the fixture.
       parent_spec => parent_meta%get_component_spec()
       @assertEqual(0, parent_spec%connections%size())
 
@@ -641,14 +631,12 @@ contains
       end do
    end function count_transforms
 
-   ! Task 6.4 / spec "Multiple distinct descendants bubbling the same
-   ! short name are each independently resolvable": two distinct
-   ! children (child_a, child_b) each advertise their own unresolved
-   ! import 'T', each mirrored into the same parent; an ordinary
-   ! connection naming the parent as destination resolves BOTH
-   ! independently (for_each_matching_import's own existing multi-match
-   ! iteration, resolve_one's own existing per-match handling - no new
-   ! code).
+   ! Spec "Multiple distinct descendants bubbling the same short name are each
+   ! independently resolvable": two distinct children (child_a, child_b) each
+   ! advertise their own unresolved import 'T', each mirrored into the same
+   ! parent; an ordinary connection naming the parent as destination resolves
+   ! BOTH independently (for_each_matching_import's own existing multi-match
+   ! iteration, resolve_one's own existing per-match handling - no new code).
    @test(npes=[0])
    subroutine test_multiple_descendants_bubble_same_name(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -773,12 +761,11 @@ contains
       end associate
    end function port_map_contains_value
 
-   ! Task 6.8 / spec "Export E from component A becomes export A/E in
-   ! the parent component P": a single level of export propagation.
-   ! comp_src ('A') advertises export 'T' directly; parent's own
-   ! run_export_propagate_hook call propagates it into parent's own
-   ! export-port table under the qualified name 'comp_src/T' - the
-   ! SAME real NodeId, additionally reachable under a different name.
+   ! Spec "Export E from component A becomes export A/E in the parent component
+   ! P": a single level of export propagation. comp_src ('A') advertises export
+   ! 'T' directly; parent's own run_export_propagate_hook call propagates it
+   ! into parent's own export-port table under the qualified name 'comp_src/T'
+   ! - the SAME real NodeId, additionally reachable under a different name.
    @test(npes=[0])
    subroutine test_run_export_propagate_hook_qualifies_one_level(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -828,16 +815,14 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_run_export_propagate_hook_qualifies_one_level
 
-   ! Task 6.8 / spec "...but stays A/E in the grandparent component":
-   ! two levels of export propagation. comp_src ('A', child of MID)
-   ! advertises 'T' directly; MID's own run_export_propagate_hook call
-   ! qualifies it to 'comp_src/T' in MID's own export-port table (same
-   ! as the one-level test above); GRANDPARENT's own
-   ! run_export_propagate_hook call, run against MID, propagates
-   ! MID's own ALREADY-QUALIFIED 'comp_src/T' entry UNCHANGED - never
-   ! re-qualified to 'MID/comp_src/T' - per the user's own confirmation
-   ! of legacy's exact rule (propagate_exports_virtual_pt,
-   ! StateRegistry_Propagation_smod.F90).
+   ! Spec "...but stays A/E in the grandparent component": two levels of export
+   ! propagation. comp_src ('A', child of MID) advertises 'T' directly; MID's
+   ! own run_export_propagate_hook call qualifies it to 'comp_src/T' in MID's
+   ! own export-port table (same as the one-level test above); GRANDPARENT's
+   ! own run_export_propagate_hook call, run against MID, propagates MID's own
+   ! ALREADY-QUALIFIED 'comp_src/T' entry UNCHANGED - never re-qualified to
+   ! 'MID/comp_src/T' - the legacy rule
+   ! (propagate_exports_virtual_pt, StateRegistry_Propagation_smod.F90).
    @test(npes=[0])
    subroutine test_run_export_propagate_hook_passthrough_second_level(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -894,11 +879,10 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_run_export_propagate_hook_passthrough_second_level
 
-   ! Task 6.8 / idempotency: a repeat run_export_propagate_hook call
-   ! (ESMF's own Provide/Accept/Realize re-entrancy, same concern
-   ! already_mirrored's own header comment documents for the import
-   ! side) must not add a second, duplicate (node_id, qualified_name)
-   ! entry.
+   ! Idempotency: a repeat run_export_propagate_hook call (ESMF's own
+   ! Provide/Accept/Realize re-entrancy, same concern already_mirrored's own
+   ! header comment documents for the import side) must not add a second,
+   ! duplicate (node_id, qualified_name) entry.
    @test(npes=[0])
    subroutine test_run_export_propagate_hook_is_idempotent(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -941,14 +925,13 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_run_export_propagate_hook_is_idempotent
 
-   ! Task 6.8 end-to-end / spec "An ordinary connection resolves a
-   ! propagated export exactly as it would an item advertised
-   ! directly": mirrors the motivating history_1 fixture's own shape
-   ! (cap -> {comp_src with child A, comp_dst} where comp_dst's own
-   ! import is a qualified name 'A/T') at unit-test scale - confirms
-   ! graphbuilder_resolve_connections (unmodified) resolves a
-   ! wildcard-style connection against the propagated, qualified export
-   ! name with no new resolution code.
+   ! End-to-end / spec "An ordinary connection resolves a propagated export
+   ! exactly as it would an item advertised directly": mirrors the motivating
+   ! history_1 fixture's own shape (cap -> {comp_src with child A, comp_dst}
+   ! where comp_dst's own import is a qualified name 'A/T') at unit-test scale
+   ! - confirms graphbuilder_resolve_connections (unmodified) resolves a
+   ! wildcard-style connection against the propagated, qualified export name
+   ! with no new resolution code.
    @test(npes=[0])
    subroutine test_propagated_export_resolves_via_unmodified_resolution(this)
       class(MpiTestMethod), intent(inout) :: this

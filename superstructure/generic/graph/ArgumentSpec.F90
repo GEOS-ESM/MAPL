@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! ArgumentSpec: a MethodGraphNode's declared named-argument specification
-! (REQ-MTH-002): a name plus an AccessSpec plus an optional expected
+! ArgumentSpec: a MethodGraphNode's declared named-argument specification:
+! a name plus an AccessSpec plus an optional expected
 ! GraphStateItem kind constraint. Mirrors PortSpec's shape (PortSpec.F90) with
 ! one added field (AccessSpec). AccessSpec encodes direction, including the
 ! INOUT/UNSPECIFIED cases a two-map input/output split cannot represent, so

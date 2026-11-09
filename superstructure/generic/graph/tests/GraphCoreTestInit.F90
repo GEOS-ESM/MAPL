@@ -13,7 +13,7 @@ module GraphCoreTestInit_mod
 
 contains
 
-   ! extension-reuse change: also initializes udunits2f (relies on the
+   ! Also initializes udunits2f (relies on the
    ! UDUNITS2_XML_PATH environment variable, set for this test's ctest
    ! entry - superstructure/generic/graph/tests/CMakeLists.txt - same
    ! convention as mapl/MaplFramework.F90's own initialize_udunits(),

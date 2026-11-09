@@ -1,8 +1,8 @@
 #include "MAPL.h"
 
 !------------------------------------------------------------------------------
-! mapl_GeomProxyField_mod: builds the geometry-proxy GraphStateItem
-! (REQ-GEO-001): an incomplete ESMF_Field (ESMF_FIELDSTATUS_GRIDSET: grid
+! mapl_GeomProxyField_mod: builds the geometry-proxy GraphStateItem:
+! an incomplete ESMF_Field (ESMF_FIELDSTATUS_GRIDSET: grid
 ! assigned, no data array allocated) tagged with the MAPL_STATEITEM_GEOM
 ! variant, wrapped as an ordinary GraphStateItem.
 !

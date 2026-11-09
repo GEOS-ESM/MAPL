@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------
 ! OperationGraphNode: abstract "something that runs" layer of the GraphNode
-! hierarchy (REQ-NODE-004).
+! hierarchy.
 !
 ! Extends BaseGraphNode and adds no components of its own; it distinguishes
 ! "operation" nodes from StateItemNode's "value" nodes. Concrete subclasses

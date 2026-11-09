@@ -1,9 +1,9 @@
 !------------------------------------------------------------------------------
 ! Test-only gFTL map instantiation: NodeId-keyed, polymorphic-valued map,
-! demonstrating REQ-ID-006 (spec/05-identities.md) directly - NodeId is
-! usable as a gFTL map key for a polymorphic mapped value with no Box
-! wrapper type, using the same Key/Key_LT/T/T_polymorphic pattern MAPL
-! itself uses (superstructure/generic/graph/containers/NodeMap.F90).
+! demonstrating (spec/05-identities.md) that NodeId is usable as a gFTL
+! map key for a polymorphic mapped value with no Box wrapper type, using the
+! same Key/Key_LT/T/T_polymorphic pattern MAPL itself uses
+! (superstructure/generic/graph/containers/NodeMap.F90).
 !------------------------------------------------------------------------------
 module NodeIdMockPayloadMap_mod
    use mapl_NodeId_mod, only: NodeId, operator(<)

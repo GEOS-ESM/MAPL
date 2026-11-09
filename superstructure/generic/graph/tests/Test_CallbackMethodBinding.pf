@@ -1,9 +1,8 @@
-! openspec/changes/callback-wiring, tasks.md 7.4/8.1/8.2 - synthetic
-! ComponentGraph-only tests (no OuterMetaComponent/ESMF component
+! Synthetic ComponentGraph-only tests (no OuterMetaComponent/ESMF component
 ! needed), same posture as Test_MethodInvocation.pf: CallbackMethodBinding's
-! own construction/accessors (spec/15-callbacks.md REQ-CB-019), and
+! own construction/accessors (spec/15-callbacks.md), and
 ! mapl_GraphBuilder_mod%invoke_callback_method's invoke-once-after-all-
-! ready discipline (design.md Decision 7, REQ-CB-018/019/020).
+! ready discipline.
 module Test_CallbackMethodBinding
    use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
    use mapl_GraphBuilder_mod, only: invoke_callback_method
@@ -130,7 +129,7 @@ contains
    ! path is ready" + "A ready method is invoked exactly once per
    ! invocation request": the get-network provider is fed by a
    ! TransformGraphNode that has not yet run; invoke_callback_method
-   ! pulls it current (REQ-REV-006) before invoking, invokes exactly
+   ! pulls it current before invoking, invokes exactly
    ! once, and advances the put-network target's revision only after
    ! that successful invocation.
    @test

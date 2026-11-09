@@ -75,7 +75,7 @@ contains
       kind = ATTRIBUTES_CHARACTERISTIC_KIND
    end function attributes_get_kind
 
-   ! ASYMMETRIC (module header comment, design.md D2): `this` = provides
+   ! ASYMMETRIC (see module header comment): `this` = provides
    ! (export) side, `goal` = requires (import) side. `goal` is guaranteed
    ! an AttributesCharacteristic for the real call chain this method is
    ! used in (same guarantee documented on GeometryCharacteristic/
@@ -146,10 +146,8 @@ contains
       _RETURN(_SUCCESS)
    end subroutine attributes_write_info
 
-   ! merge-characteristic-families task 3.1: a stable, value-
-   ! distinguishing signature derived from this subclass's own stored
-   ! value - a sorted, comma-joined list of attribute_names (design.md
-   ! Risks: a small, mechanical derivation, no new comparison logic).
+   ! A stable, value-distinguishing signature derived from this subclass's
+   ! own stored value: a sorted, comma-joined list of attribute_names.
    function attributes_get_signature(this) result(signature)
       class(AttributesCharacteristic), intent(in) :: this
       character(:), allocatable :: signature

@@ -2,7 +2,7 @@
 
 !------------------------------------------------------------------------------
 ! CallbackMethodSpec: one callback method's argument-access declarations
-! (spec/15-callbacks.md REQ-CB-004) - argument name -> AccessSpec,
+! (spec/15-callbacks.md) - argument name -> AccessSpec,
 ! allowing one argument shared across an interface's methods to carry a
 ! different access mode in each method (e.g. the PassiveTracer example,
 ! §15.3: "tracers" is OUT in "get" and IN in "put").
@@ -34,7 +34,7 @@ module mapl_CallbackMethodSpec_mod
 
 contains
 
-   ! REQ-CB-004: declares this method's access mode for one argument
+   ! Declares this method's access mode for one argument
    ! name. Rejects a duplicate declaration for the same argument name on
    ! this method, leaving the existing declaration unchanged - the same
    ! no-silent-replace convention used throughout this module family.

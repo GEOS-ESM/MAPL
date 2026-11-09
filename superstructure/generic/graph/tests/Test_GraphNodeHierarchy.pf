@@ -13,13 +13,13 @@ module Test_GraphNodeHierarchy
    ! the Phase 2/4 TransformGraphNode/MethodGraphNode concrete subclasses
    ! (out of scope for this change) - demonstrates that OperationGraphNode
    ! can be extended into a concrete, instantiable type while adding no
-   ! identity mechanism of its own (REQ-NODE-004).
+   ! identity mechanism of its own.
    type, extends(OperationGraphNode) :: MockOperationGraphNode
    end type MockOperationGraphNode
 
 contains
 
-   ! REQ-NODE-001/REQ-NODE-004: GraphNode and OperationGraphNode are
+   ! GraphNode and OperationGraphNode are
    ! abstract. The only evidence a runtime test can offer is that a
    ! concrete descendant of each exists and is instantiable/usable
    ! through the identity/dispatch contract inherited from GraphNode -
@@ -50,7 +50,7 @@ contains
       @assertEqual(NODE_LIFECYCLE_CREATED, node%get_lifecycle_status())
    end subroutine test_operation_graph_node_inherits_identity
 
-   ! REQ-NODE-002/002a: NodeId accessor returns the id set at creation;
+   ! NodeId accessor returns the id set at creation;
    ! no public mutator changes it afterward (there is no such mutator in
    ! BaseGraphNode's public interface - absence, not a failing call, is
    ! the evidence).
@@ -71,7 +71,7 @@ contains
       @assertTrue(node%get_node_id() == id)
    end subroutine test_node_id_set_once_and_stable
 
-   ! REQ-NODE-003a/REQ-SI-005: StateItemNode is instantiable, and exposes
+   ! StateItemNode is instantiable, and exposes
    ! exactly one payload and one revision.
    @test
    subroutine test_state_item_node_is_instantiable()

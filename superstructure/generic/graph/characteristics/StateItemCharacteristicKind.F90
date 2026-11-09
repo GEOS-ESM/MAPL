@@ -1,7 +1,6 @@
 !------------------------------------------------------------------------------
 ! StateItemCharacteristicKind: type-safe, stable identity for a concrete
-! StateItemCharacteristic (StateItemCharacteristic.F90) subclass
-! (REQ-CHAR-005/006).
+! StateItemCharacteristic (StateItemCharacteristic.F90) subclass.
 !
 ! Named StateItemCharacteristicKind to avoid collision with
 ! mapl_CharacteristicId_mod (unrelated, different purpose).
@@ -60,7 +59,7 @@ module mapl_StateItemCharacteristicKind_mod
    type(StateItemCharacteristicKind), parameter :: TYPE_KIND_CHARACTERISTIC_KIND      = StateItemCharacteristicKind(2)
    type(StateItemCharacteristicKind), parameter :: GEOMETRY_CHARACTERISTIC_KIND       = StateItemCharacteristicKind(3)
 
-   ! Values 4-10: one per remaining legacy *Aspect axis (REQ-CHAR-006).
+   ! Values 4-10: one per remaining legacy *Aspect axis.
    type(StateItemCharacteristicKind), parameter :: VERTICAL_GRID_CHARACTERISTIC_KIND = StateItemCharacteristicKind(4)
    type(StateItemCharacteristicKind), parameter :: ATTRIBUTES_CHARACTERISTIC_KIND          = StateItemCharacteristicKind(5)
    type(StateItemCharacteristicKind), parameter :: UNGRIDDED_DIMS_CHARACTERISTIC_KIND      = StateItemCharacteristicKind(6)

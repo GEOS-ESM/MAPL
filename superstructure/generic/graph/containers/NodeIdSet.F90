@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------
 ! NodeIdSet: gFTL set of NodeId, used by DependencyNetwork for predecessor/
-! successor adjacency (spec/06-dependency-network.md REQ-DEP-002).
+! successor adjacency (spec/06-dependency-network.md).
 !------------------------------------------------------------------------------
 module mapl_NodeIdSet_mod
    use mapl_NodeId_mod, only: NodeId, operator(<)

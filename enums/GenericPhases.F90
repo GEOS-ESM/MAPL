@@ -47,9 +47,8 @@ module mapl_GenericPhases_mod
       enumerator :: GENERIC_INIT_REALIZE_PROVIDED
       enumerator :: GENERIC_INIT_ACCEPT_TRANSFER
       enumerator :: GENERIC_INIT_REALIZE_ACCEPTED
-      ! openspec/changes/hierarchy-wide-component-graph, tasks.md Group 9
-      ! (design.md D7, "Freeze becomes one hierarchy-wide call"): a
-      ! dedicated, explicitly NON-RECURSIVE phase - the handler
+      ! Freeze is one hierarchy-wide call: a dedicated, explicitly
+      ! NON-RECURSIVE phase - the handler
       ! (OuterMetaComponent%initialize_graph_freeze) does not call
       ! recurse() the way every other init phase does; it is a no-op for
       ! any non-root component and, only at the true hierarchy root,
@@ -124,8 +123,7 @@ module mapl_GenericPhases_mod
         GENERIC_INIT_ACCEPT_TRANSFER, &  ! 10
         GENERIC_INIT_REALIZE_ACCEPTED, & ! 11
 
-        ! openspec/changes/hierarchy-wide-component-graph, tasks.md
-        ! Group 9: exactly one occurrence, after the second (and last)
+        ! Exactly one occurrence, after the second (and last)
         ! GENERIC_INIT_REALIZE_ACCEPTED above - see this phase's own
         ! enumerator comment above for why it needs no idempotency
         ! guard the way GENERIC_INIT_ACCEPT_TRANSFER's own two

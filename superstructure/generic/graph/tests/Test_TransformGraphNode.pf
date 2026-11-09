@@ -1,5 +1,5 @@
-! Task 2.4 (spec/10-transforms-and-ports.md REQ-XFORM-001..004,
-! spec/11-revision-and-update.md REQ-REV-005..007).
+! Task 2.4 (spec/10-transforms-and-ports.md,
+! spec/11-revision-and-update.md).
 module Test_TransformGraphNode
    use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use mapl_Transform_mod, only: Transform
@@ -30,7 +30,7 @@ module Test_TransformGraphNode
    ! its fixed port shape is intrinsic to the subclass, declared once by
    ! its own constructor - a caller wiring an instance into a
    ! TransformGraphNode never needs to know or re-declare that shape
-   ! itself (REQ-XFORM-004's "declaration belongs to the Transform").
+   ! itself (the "declaration belongs to the Transform").
    type, extends(Transform) :: SelfDescribingTransform
    contains
       procedure :: compute => self_describing_compute
@@ -72,7 +72,7 @@ contains
       rc = 0
    end subroutine self_describing_compute
 
-   ! REQ-XFORM-002: multiple named inputs and outputs, independently
+   ! Multiple named inputs and outputs, independently
    ! retrievable by name and direction.
    @test
    subroutine test_declare_multiple_named_ports()
@@ -105,7 +105,7 @@ contains
       @assertEqual('source_field', spec%get_name())
    end subroutine test_declare_multiple_named_ports
 
-   ! REQ-XFORM-004: port declaration is intrinsic to the Transform
+   ! Port declaration is intrinsic to the Transform
    ! subclass, not something the wiring code must know or re-declare.
    ! The node is built directly from an already-self-configured
    ! Transform instance - no declare_input_port/declare_output_port
@@ -129,7 +129,7 @@ contains
       @assertEqual(0, status)
    end subroutine test_ports_are_intrinsic_to_the_transform_subclass
 
-   ! REQ-XFORM-004 (uniqueness within one direction).
+   ! Port names must be unique within one direction.
    @test
    subroutine test_duplicate_input_port_name_rejected()
       type(NodeIdGenerator) :: gen
@@ -178,7 +178,7 @@ contains
       @assertEqual(0, status)
    end subroutine test_same_name_allowed_across_directions
 
-   ! REQ-XFORM-003: declared kind constraint is queryable without any
+   ! Declared kind constraint is queryable without any
    ! bound value.
    @test
    subroutine test_kind_constrained_port_query()
@@ -218,7 +218,7 @@ contains
       @assertFalse(spec%is_kind_constrained())
    end subroutine test_unconstrained_port_reports_not_constrained
 
-   ! REQ-XFORM-001: no implicit execution.
+   ! No implicit execution.
    @test
    subroutine test_construction_does_not_execute()
       type(NodeIdGenerator) :: gen
@@ -234,7 +234,7 @@ contains
       @assertFalse(node%has_run())
    end subroutine test_construction_does_not_execute
 
-   ! REQ-REV-006 step 4: never-run reports stale regardless of input
+   ! Never-run reports stale regardless of input
    ! revisions (even an empty set).
    @test
    subroutine test_never_run_is_stale()
@@ -271,7 +271,7 @@ contains
       @assertEqual(2, counter)
    end subroutine test_execute_invokes_strategy
 
-   ! REQ-REV-005: execute() failure is reported, not swallowed.
+   ! execute() failure is reported, not swallowed.
    @test
    subroutine test_execute_propagates_strategy_failure()
       type(NodeIdGenerator) :: gen
@@ -287,7 +287,7 @@ contains
       @assertTrue(status /= 0)
    end subroutine test_execute_propagates_strategy_failure
 
-   ! REQ-REV-006 steps 3/6: after record_run(), an identical input
+   ! After record_run(), an identical input
    ! revision snapshot is no longer stale.
    @test
    subroutine test_record_run_then_unchanged_inputs_not_stale()
@@ -311,7 +311,7 @@ contains
       @assertFalse(node%needs_execution(revisions))
    end subroutine test_record_run_then_unchanged_inputs_not_stale
 
-   ! REQ-REV-006 step 4: a changed declared-input revision makes the
+   ! A changed declared-input revision makes the
    ! transform stale again.
    @test
    subroutine test_changed_input_revision_is_stale()

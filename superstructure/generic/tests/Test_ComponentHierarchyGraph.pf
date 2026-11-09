@@ -2,7 +2,7 @@
 #include "unused_dummy.H"
 
 ! Phase 3a (docs/graph/spec/20-implementation-roadmap.md sec 20.4.1,
-! docs/graph/spec/02-component-hierarchy.md REQ-HIER-001..006):
+! docs/graph/spec/02-component-hierarchy.md):
 ! OuterMetaComponent%get_component_graph() ownership-shape wiring.
 !
 ! Test-only OuterMetaComponent instances are built directly via
@@ -34,8 +34,8 @@ contains
    ! (docs/graph/spec/20-implementation-roadmap.md sec 20.4.17,
    ! sub-step 17-1).
 
-   ! REQ-HIER-002/004 scenarios "New component owns its required parts"
-   ! and one-local-ComponentGraph: a freshly constructed
+   ! A new component owns its required parts, and exactly one local
+   ! ComponentGraph: a freshly constructed
    ! OuterMetaComponent owns a valid, empty, mutable ComponentGraph.
    @test(npes=[0])
    subroutine test_new_component_owns_valid_empty_graph(this)
@@ -60,7 +60,7 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_new_component_owns_valid_empty_graph
 
-   ! REQ-HIER-004 scenario "Sibling components have distinct graphs":
+   ! Sibling components have distinct graphs:
    ! two children of the same parent each own their own local
    ! ComponentGraph - a node registered in one is invisible in the
    ! other's graph query API.
@@ -113,11 +113,11 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_sibling_components_have_distinct_graphs
 
-   ! REQ-HIER-002/006: the graph reachable through
+   ! The graph reachable through
    ! OuterMetaComponent%get_component_graph() is fully functional for
    ! public ports (import/export) and child-port bindings - reuse of
-   ! ComponentGraph's own PortIdNodeIdMap-backed tables (proposal.md -
-   ! What Changes), not a new storage type on OuterMetaComponent.
+   ! ComponentGraph's own PortIdNodeIdMap-backed tables, not a new storage
+   ! type on OuterMetaComponent.
    @test(npes=[0])
    subroutine test_graph_port_tables_reachable_through_accessor(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -173,7 +173,7 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_graph_port_tables_reachable_through_accessor
 
-   ! REQ-HIER-003/005 encapsulation boundary. Two things are verified
+   ! Encapsulation boundary. Two things are verified
    ! together here:
    !
    ! 1. (Runtime-checkable) The only public path from a parent to a
@@ -197,7 +197,7 @@ contains
    !    not exist" at runtime; this guarantee is enforced by code review
    !    against OuterMetaComponent.F90's interface block, not by this
    !    test's assertions. Re-verify by inspection if that file's public
-   !    interface changes (design.md - Risks/Trade-offs).
+   !    interface changes.
    @test(npes=[0])
    subroutine test_parent_reaches_child_only_through_driver(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -224,14 +224,11 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_parent_reaches_child_only_through_driver
 
-   ! openspec/changes/hierarchy-wide-component-graph, graph/component-
-   ! hierarchy delta spec "Component names are unique across the entire
-   ! hierarchy" scenario "Adding a child with a name already used
-   ! elsewhere in the hierarchy fails" - the sibling-level case: two
-   ! children of the same parent, same name. (Already covered
-   ! implicitly today by add_child_by_spec's own sibling-count assert -
-   ! this test exercises it directly, for the first time, rather than
-   ! leaving it untested.)
+   ! Component names are unique across the entire hierarchy (a child with a
+   ! name already used elsewhere is rejected) - the sibling-level case: two
+   ! children of the same parent, same name. (Already covered implicitly today by
+   ! add_child_by_spec's own sibling-count assert - this test exercises it
+   ! directly, for the first time, rather than leaving it untested.)
    @test(npes=[0])
    subroutine test_add_child_rejects_sibling_name_collision(this)
       class(MpiTestMethod), intent(inout) :: this

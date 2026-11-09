@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 ! NodeIdGraphNodeMap: gFTL map of NodeId -> polymorphic GraphNode, the
-! ComponentGraph-owned node registry (spec/07-component-graph.md REQ-CG-001,
-! spec/05-identities.md REQ-ID-005/006). NodeId is directly usable as a
+! ComponentGraph-owned node registry (spec/07-component-graph.md,
+! spec/05-identities.md). NodeId is directly usable as a
 ! gFTL map key for a polymorphic mapped value with no Box wrapper type,
 ! matching the pattern demonstrated by the test-only
 ! NodeIdMockPayloadMap_mod (graph/tests/NodeIdMockPayloadMap_mod.F90).

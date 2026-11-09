@@ -2,29 +2,23 @@
 
 !------------------------------------------------------------------------------
 ! GeometryCharacteristic: the "geometry" StateItemCharacteristic
-! (docs/graph/spec/18-state-item-characteristics.md REQ-CHAR-001 table) -
-! a ReferenceCharacteristic (REQ-CHAR-002a/002b: holds a NodeId
-! referencing a shared graph node, not a value of its own).
+! (docs/graph/characteristics.md) - a ReferenceCharacteristic: holds a
+! NodeId referencing a shared graph node, not a value of its own.
 !
-! Named GeometryCharacteristic, NOT GeomCharacteristic (the spec table's
-! own suggested name) - design.md D3: an exact, unavoidable collision
-! with the existing, unrelated mapl_GeomCharacteristic_mod/
-! GeomCharacteristic type already shipped for graph/extension-reuse
+! Named GeometryCharacteristic, NOT GeomCharacteristic, to avoid a clash
+! with the legacy mapl_GeomCharacteristic_mod/GeomCharacteristic names
 ! (Fortran module/type names share one global namespace). Same
-! collision-avoidance discipline already applied once in this codebase
-! for UnitsConverterTransform vs. legacy ConvertUnitsTransform.
+! discipline as UnitsConverterTransform vs. legacy ConvertUnitsTransform.
 !
-! Absorbs the retired mapl_GeomCharacteristic_mod's own opaque geom_id
-! string-token identity and its get_signature,
-! in addition to this type's own pre-existing NodeId-sharing role - same HYBRID
+! Carries an opaque geom_id string-token identity and a get_signature,
+! in addition to its NodeId-sharing role - same HYBRID
 ! needs_extension_for pattern as VerticalGridCharacteristic.F90
 ! (see that module's own header comment for the full rationale): a real
 ! referenced_node_id set on both sides (the GraphStateItem-sharing use
-! case, REQ-CHAR-012) is authoritative and unchanged from this type's
-! own pre-merge behavior; otherwise (the GraphBuilder-production-
+! case) is authoritative; otherwise (the GraphBuilder-production-
 ! call-site case, which supplies only an opaque geom_id string token via
-! GeomId%get_value() rendered to text, never a NodeId) falls back to the
-! retired mapl_GeomCharacteristic_mod's own identity-token comparison.
+! GeomId%get_value() rendered to text, never a NodeId) falls back to a
+! comparison of the opaque identity tokens.
 !
 ! An item-level instance may also hold the ESMF_Geom itself, plus the
 ! regridder param the item declares. Only the geometry identity is

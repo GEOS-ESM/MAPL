@@ -1,4 +1,4 @@
-! Task 3.4 (spec/10-transforms-and-ports.md REQ-XFORM-005,
+! Task 3.4 (spec/10-transforms-and-ports.md,
 ! spec/07-component-graph.md port-binding table addition).
 !
 ! Uses only synthetic graph nodes (StateItemNode/TransformGraphNode) - no
@@ -37,7 +37,7 @@ contains
       rc = 0
    end subroutine noop_compute
 
-   ! REQ-XFORM-005: the same TransformGraphNode may be bound differently
+   ! The same TransformGraphNode may be bound differently
    ! per network, with neither binding overwriting the other.
    @test
    subroutine test_bind_port_independent_per_network()
@@ -89,7 +89,7 @@ contains
       @assertTrue(bound_id == target2_id)
    end subroutine test_bind_port_independent_per_network
 
-   ! REQ-XFORM-005 scenario "Binding requires a matching port declaration".
+   ! Scenario "Binding requires a matching port declaration".
    @test
    subroutine test_bind_port_rejects_undeclared_port_name()
       type(ComponentGraph) :: graph
@@ -119,7 +119,7 @@ contains
       @assertTrue(status /= 0)
    end subroutine test_bind_port_rejects_undeclared_port_name
 
-   ! REQ-XFORM-005 scenario "Rebinding an already-bound port name is
+   ! Scenario "Rebinding an already-bound port name is
    ! rejected".
    @test
    subroutine test_bind_port_rejects_rebind()
@@ -163,7 +163,7 @@ contains
       @assertTrue(bound_id == target1_id)
    end subroutine test_bind_port_rejects_rebind
 
-   ! REQ-XFORM-005 scenario "Missing binding degrades gracefully".
+   ! Scenario "Missing binding degrades gracefully".
    @test
    subroutine test_get_port_binding_missing_returns_null()
       type(ComponentGraph) :: graph
@@ -187,7 +187,7 @@ contains
       @assertFalse(associated(bound_id))
    end subroutine test_get_port_binding_missing_returns_null
 
-   ! REQ-XFORM-005 scenario "Binding a kind-constrained port to a
+   ! Scenario "Binding a kind-constrained port to a
    ! mismatched value is rejected".
    @test
    subroutine test_bind_port_rejects_kind_mismatch()
@@ -258,8 +258,7 @@ contains
       @assertEqual(0, status)
    end subroutine test_bind_port_accepts_matching_kind
 
-   ! REQ-XFORM-005 / component-graph modified spec scenario "Frozen
-   ! structure rejects new transform port bindings".
+   ! Frozen structure rejects new transform port bindings.
    @test
    subroutine test_bind_port_rejected_after_freeze()
       type(ComponentGraph) :: graph

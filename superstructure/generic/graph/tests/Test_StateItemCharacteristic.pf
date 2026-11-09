@@ -1,5 +1,4 @@
-! openspec/changes/state-item-characteristics, task 7.2:
-! StateItemCharacteristic's Value/Reference split (REQ-CHAR-002a/002b) and
+! StateItemCharacteristic Value/Reference split and
 ! each concrete subclass's needs_extension_for()/get_kind().
 module Test_StateItemCharacteristic
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic, &
@@ -91,10 +90,10 @@ contains
       @assertTrue(r4%needs_extension_for(r8))
    end subroutine test_type_kind_needs_extension_for
 
-   ! REQ-CHAR-012/014: two GeometryCharacteristics referencing the same
+   ! Two GeometryCharacteristics referencing the same
    ! NodeId are a match - "sharing is nothing more than two map entries
    ! holding the same NodeId" (also exercised at the GraphStateItem
-   ! level, task 7.6).
+   ! level in Test_SetSharedCharacteristic.pf).
    @test
    subroutine test_geometry_needs_extension_for_compares_referenced_node_id()
       type(GeometryCharacteristic) :: a, same_as_a, b
@@ -111,7 +110,7 @@ contains
       @assertTrue(a%needs_extension_for(b))
    end subroutine test_geometry_needs_extension_for_compares_referenced_node_id
 
-   ! Spec "Newly constructed characteristic is invalid" (REQ-CHAR-003): no
+   ! Spec "Newly constructed characteristic is invalid" : no
    ! value established yet.
    @test
    subroutine test_newly_constructed_characteristic_is_invalid_status()

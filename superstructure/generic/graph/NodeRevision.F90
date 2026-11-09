@@ -2,20 +2,20 @@
 
 !------------------------------------------------------------------------------
 ! NodeRevision: 64-bit monotonically-advancing version stamp on a
-! StateItemNode's logical value (REQ-NODE-003a, REQ-REV-001..003).
+! StateItemNode's logical value.
 !
-! The internal integer is private (REQ-REV-001: "no client reads the raw
-! integer"); the default-constructed value is a distinct INVALID_VALUE, not an
+! The internal integer is private (no client reads the raw
+! integer); the default-constructed value is a distinct INVALID_VALUE, not an
 ! ordinary-looking revision, and is_valid() is how a caller distinguishes
 ! "never produced" from "produced at least once". advance() transitions
 ! invalid -> first valid and valid -> next valid, detecting overflow *before*
-! wrapping (REQ-REV-001) rather than letting the value wrap to an
+! wrapping rather than letting the value wrap to an
 ! earlier-looking one.
 !
 ! to_string() is a diagnostic-only accessor (used by the graph-neutral
-! exporter, REQ-VIZ-016/016a), like NodeId%to_string(): a one-way formatted
+! exporter), like NodeId%to_string(): a one-way formatted
 ! string for display is not "reading the raw value" in the sense
-! REQ-REV-001's encapsulation guards against (arithmetic on it,
+! the encapsulation guards against (arithmetic on it,
 ! reconstructing a revision from it).
 !------------------------------------------------------------------------------
 module mapl_NodeRevision_mod
@@ -63,7 +63,7 @@ contains
       valid = this%value /= INVALID_VALUE
    end function revision_is_valid
 
-   ! REQ-REV-001: invalid -> first valid; valid -> next valid; overflow
+   ! Invalid -> first valid; valid -> next valid; overflow
    ! detected before the increment would wrap, leaving the observable
    ! value unchanged on failure.
    subroutine revision_advance(this, rc)

@@ -2,7 +2,7 @@
 ! AccessSpecMap: gFTL map of argument name (string) -> AccessSpec. A
 ! generic character -> AccessSpec map with no callback-specific meaning
 ! of its own (AccessSpec is itself a general MAPL concept, spec/15-
-! callbacks.md REQ-CB-005) - introduced as a standalone container
+! callbacks.md) - introduced as a standalone container
 ! (callback-data-model-registry design.md Decision 2) rather than nested
 ! inside CallbackMethodSpec.F90, since the gFTL map/template.inc emits
 ! its own implicit none/private directives, which conflict with a

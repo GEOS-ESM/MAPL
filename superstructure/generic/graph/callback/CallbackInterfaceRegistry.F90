@@ -2,10 +2,10 @@
 
 !------------------------------------------------------------------------------
 ! CallbackInterfaceRegistry: the one shared, cross-ComponentGraph lookup
-! point for CallbackInterface values (spec/15-callbacks.md REQ-CB-008/
-! 009/010) - "callback interfaces MUST be shared across component
+! point for CallbackInterface values (spec/15-callbacks.md) -
+! "callback interfaces MUST be shared across component
 ! graphs... a root-owned registry with pointers threaded down to
-! descendants is awkward" (REQ-CB-008).
+! descendants is awkward".
 !
 ! A private derived type (CallbackInterfaceRegistry) owns a
 ! CallbackInterfaceId -> CallbackInterface map, a service name ->
@@ -13,8 +13,8 @@
 ! available for free from CallbackInterfaceId's own IdTemplate.inc-
 ! generated CallbackInterfaceIdGenerator), backed by a single private
 ! module-level singleton instance. Callers never see the type itself -
-! only the public wrapper procedures below (REQ-CB-010's explicit
-! "narrower wrapper procedures that hide the singleton" option) -
+! only the public wrapper procedures below (narrower wrapper
+! procedures that hide the singleton) -
 ! generalizing ExtensionResolution.F90's own single-flag module-level-
 ! state precedent to a full owned-state singleton
 ! (callback-data-model-registry design.md Decision 4).
@@ -44,7 +44,7 @@ module mapl_CallbackInterfaceRegistry_mod
       type(CallbackInterfaceIdGenerator) :: id_generator
    end type CallbackInterfaceRegistryType
 
-   ! The one shared instance (REQ-CB-008). Not exposed outside this
+   ! The one shared instance. Not exposed outside this
    ! module - every external interaction goes through the wrapper
    ! procedures below.
    type(CallbackInterfaceRegistryType), save, target :: the_registry
@@ -57,7 +57,7 @@ contains
       registry => the_registry
    end function get_registry
 
-   ! REQ-CB-009/010: assigns a new, unique CallbackInterfaceId and
+   ! Assigns a new, unique CallbackInterfaceId and
    ! records iface under both maps atomically. Rejects a duplicate
    ! service_name (spec scenario "Duplicate service name is rejected").
    subroutine register_callback_interface(service_name, iface, id, rc)

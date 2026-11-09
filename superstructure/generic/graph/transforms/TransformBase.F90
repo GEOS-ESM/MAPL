@@ -2,18 +2,16 @@
 
 !------------------------------------------------------------------------------
 ! TransformBase: abstract port-declaration descriptor - named, multi-
-! input/multi-output port declarations (REQ-XFORM-002/003/004) only, with
+! input/multi-output port declarations only, with
 ! no compute()/PortNameGraphStateItemMap/GraphStateItem dependency of any
 ! kind.
 !
-! Split out of mapl_Transform_mod (merge-characteristic-families change,
-! task: break a circular module dependency) specifically so
+! Split out of mapl_Transform_mod to break a circular module dependency,
+! specifically so
 ! mapl_StateItemCharacteristic_mod's build_transform deferred method could
 ! declare its own `transformer` dummy argument's type without pulling in
 ! mapl_PortNameGraphStateItemMap_mod -> mapl_GraphStateItem_mod ->
-! mapl_StateItemCharacteristic_mod (a genuine cycle, not present before
-! merge-characteristic-families gave StateItemCharacteristic a
-! Transform-returning build_transform): GraphStateItem is the one type
+! mapl_StateItemCharacteristic_mod (a genuine cycle): GraphStateItem is the one type
 ! StateItemCharacteristic.F90 is itself used by (its own characteristics
 ! map), so anything StateItemCharacteristic.F90 uses, directly or
 ! transitively, must not route back through GraphStateItem.
@@ -70,7 +68,7 @@ module mapl_TransformBase_mod
 
 contains
 
-   ! -- port declarations (REQ-XFORM-002/003/004) -------------------------
+   ! -- port declarations -------------------------
 
    subroutine transform_declare_input_port(this, name, rc, expected_kind)
       class(TransformBase), intent(inout) :: this

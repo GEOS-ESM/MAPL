@@ -2,7 +2,7 @@
 
 !------------------------------------------------------------------------------
 ! Submodule implementing ComponentGraph%update(), the runtime-interpreted
-! demand-driven update algorithm (REQ-REV-005..007, REQ-REV-009). It is a
+! demand-driven update algorithm. It is a
 ! submodule (not a separate module) so it can use ComponentGraph's private
 ! components; see ComponentGraph.F90's header for the contrast with
 ! mapl_GraphExport_mod.
@@ -14,18 +14,16 @@
 !
 !   - StateItemNode: find its sole producer (predecessor) in this network.
 !     Zero predecessors means externally supplied - nothing to do. More than
-!     one is a defensive assert (REQ-DEP-008 validation already forbids it).
+!     one is a defensive assert (network validation already forbids it).
 !     If the sole predecessor is a TransformGraphNode, update it first.
 !   - TransformGraphNode: update every DependencyNetwork predecessor first
-!     (REQ-REV-006 step 1; adjacency and the port-binding table describe the
+!     (adjacency and the port-binding table describe the
 !     same edges, so these are exactly the declared inputs). Then assemble
-!     the current input-revision snapshot via get_port_binding()
-!     (REQ-XFORM-005), ask the transform whether it needs to execute
-!     (REQ-REV-006 steps 2-4), execute if so, advance every declared output's
-!     revision together (REQ-REV-007) and record the new baseline
-!     (REQ-REV-006 step 6).
-!   - any other GraphNode kind (e.g. MethodGraphNode): not demand-driven
-!     (REQ-NODE-007), deliberately not scheduled here.
+!     the current input-revision snapshot via get_port_binding(), ask the
+!     transform whether it needs to execute, execute if so, advance every
+!     declared output's revision together and record the new baseline.
+!   - any other GraphNode kind (e.g. MethodGraphNode): not demand-driven,
+!     deliberately not scheduled here.
 !
 ! No cycle/visited-set bookkeeping: acyclicity is enforced by
 ! DependencyNetwork%validate()/ComponentGraph%freeze(), and re-visiting a
@@ -106,11 +104,11 @@ contains
    ! and the list of predecessor NodeIds that must be current before its
    ! own work runs.
    !
-   ! REQ-REV-006 step 1: a StateItemNode with no producer in this network is
+   ! A StateItemNode with no producer in this network is
    ! externally supplied (empty predecessor list); with one producer it depends
-   ! on it (the n <= 1 assert is defensive, REQ-DEP-008 already forbids more). A
+   ! on it (the n <= 1 assert is defensive, network validation already forbids more). A
    ! TransformGraphNode depends on every declared input. Any other GraphNode
-   ! kind (e.g. MethodGraphNode) is not demand-driven (REQ-NODE-007): empty
+   ! kind (e.g. MethodGraphNode) is not demand-driven: empty
    ! predecessor list, and a no-op in finish_update_frame.
    function make_update_frame(this, network_id, node_id, rc) result(frame)
       class(ComponentGraph), target, intent(in) :: this
@@ -182,14 +180,14 @@ contains
       class default
          ! StateItemNode (nothing further to do once its sole producer,
          ! if any, is current) and any other non-demand-driven kind
-         ! (REQ-NODE-007) - intentionally a no-op, not an oversight.
+         ! - intentionally a no-op, not an oversight.
       end select
 
       _RETURN(_SUCCESS)
    end subroutine finish_update_frame
 
-   ! REQ-REV-006 steps 2-6 (the TransformGraphNode side). Predecessor
-   ! updates (step 1) are done by the caller via make_update_frame().
+   ! The TransformGraphNode side of update. Predecessor
+   ! updates are done by the caller via make_update_frame().
    subroutine finish_transform(graph, network_id, transform_id, transform_node, rc)
       class(ComponentGraph), target, intent(in) :: graph
       type(DependencyNetworkId), intent(in) :: network_id
@@ -207,8 +205,8 @@ contains
       type(NodeRevision) :: bound_revision
       integer :: status
 
-      ! Steps 2-3: assemble the current declared-input revision snapshot via the
-      ! external port-binding table (REQ-XFORM-005) and, in the same loop, each
+      ! Assemble the current declared-input revision snapshot via the
+      ! external port-binding table and, in the same loop, each
       ! bound input port's GraphStateItem value, to pass into execute() if needed.
       input_ports = transform_node%get_input_ports()
       port_iter = input_ports%ftn_begin()
@@ -234,7 +232,7 @@ contains
          call current_input_revisions%insert(port_name, bound_revision)
       end do
 
-      ! Step 4: execute only if never run, or if stale.
+      ! Execute only if never run, or if stale.
       if (transform_node%needs_execution(current_input_revisions)) then
 
          ! Resolve each declared output port's bound GraphStateItem value to pass
@@ -263,8 +261,8 @@ contains
 
          call transform_node%execute(input_items, output_items, _RC)
 
-         ! Step 5: advance every declared output together (REQ-REV-007:
-         ! all-or-nothing, never partial).
+         ! Advance every declared output together
+         ! (all-or-nothing, never partial).
          port_iter = output_ports%ftn_begin()
          do while (port_iter /= output_ports%ftn_end())
             call port_iter%next()
@@ -285,7 +283,7 @@ contains
             end select
          end do
 
-         ! Step 6: the executed input revisions become the new baseline.
+         ! The executed input revisions become the new baseline.
          call transform_node%record_run(current_input_revisions, _RC)
       end if
 

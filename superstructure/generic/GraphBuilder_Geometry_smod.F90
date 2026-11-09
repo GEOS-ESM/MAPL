@@ -359,7 +359,7 @@ contains
       call add_geom_proxy_identity(child_map, provider_geom_id)
       call add_geom_proxy_identity(this_map, this_own_geom_id)
 
-      ! Same dispatch shape as resolve_one (REQ-EXT-001): direct edge on
+      ! Same dispatch shape as resolve_one: direct edge on
       ! exact match, else extension chain. A mismatch should be
       ! unreachable given GeometrySpec's exclusive resolution, but goes
       ! through the real path rather than being assumed away.
@@ -388,7 +388,7 @@ contains
    ! Push direction: adds a dependency edge, in the forward network, from
    ! this (parent)'s geometry NodeId to the named child's, through the
    ! CHILD's graph via the framework-internal get_child_component_graph()
-   ! carve-out (REQ-GB-002).
+   ! carve-out.
    module subroutine push_geometry_to_child(this, child_name, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: child_name

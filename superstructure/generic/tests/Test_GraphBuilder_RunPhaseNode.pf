@@ -28,12 +28,11 @@ module Test_GraphBuilder_RunPhaseNode
 
 contains
 
-   ! openspec/changes/phase-10d-ordinary-phase-method-node, tasks.md
-   ! 3.1: graphbuilder_build_run_phase_node constructs exactly one
-   ! MethodGraphNode for a component's own run phase, keyed to its own
-   ! advertised import/export VariableSpecs - no real driver run
-   ! anywhere in this test (construction only, mirroring every other
-   ! synthetic-graph construction test in this file).
+   ! graphbuilder_build_run_phase_node constructs exactly one MethodGraphNode
+   ! for a component's own run phase, keyed to its own advertised import/export
+   ! VariableSpecs - no real driver run anywhere in this test (construction
+   ! only, mirroring every other synthetic-graph construction test in this
+   ! file).
    @test(npes=[0])
    subroutine test_build_run_phase_node_constructs_node_from_ports(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -94,9 +93,8 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_build_run_phase_node_constructs_node_from_ports
 
-   ! openspec/changes/phase-10d-ordinary-phase-method-node, tasks.md
-   ! 3.2: construction is a no-op under the default (registry) graph
-   ! mode - no node is built, no NodeId is stored.
+   ! Construction is a no-op under the default (registry) graph mode - no node
+   ! is built, no NodeId is stored.
    @test(npes=[0])
    subroutine test_build_run_phase_node_is_noop_in_registry_mode(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -127,10 +125,8 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_build_run_phase_node_is_noop_in_registry_mode
 
-   ! openspec/changes/phase-10d-ordinary-phase-method-node, tasks.md
-   ! 3.3: a second construction call under a non-registry graph mode is
-   ! idempotent - the already-stored NodeId is left unchanged, and the
-   ! call does not fail.
+   ! A second construction call under a non-registry graph mode is idempotent -
+   ! the already-stored NodeId is left unchanged, and the call does not fail.
    @test(npes=[0])
    subroutine test_build_run_phase_node_is_idempotent(this)
       class(MpiTestMethod), intent(inout) :: this

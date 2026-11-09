@@ -2,11 +2,11 @@
 
 !------------------------------------------------------------------------------
 ! PhysicalUnitsCharacteristic: the "physical units" StateItemCharacteristic
-! (REQ-CHAR-001, REQ-CHAR-002a). ValueCharacteristic holds its value
-! inline, never shared. needs_extension_for checks string inequality.
+! ValueCharacteristic: holds its value inline, never shared.
+! needs_extension_for checks string inequality.
 ! An UNCHECKED instance holds no value (get_units returns ''); its Info
 ! value is UNKNOWN_UNITS. Units are never MIRRORED.
-! Named to avoid collision with graph/extension-reuse's unrelated
+! Named to avoid collision with the legacy
 ! mapl_UnitsCharacteristic_mod type.
 !------------------------------------------------------------------------------
 module mapl_PhysicalUnitsCharacteristic_mod
@@ -72,7 +72,7 @@ contains
    ! the same StateItemCharacteristicKind key, and
    ! StateItemDescriptor%set_characteristic (the only insertion path into that
    ! map) asserts a characteristic's own kind matches its map key before
-   ! inserting (REQ-CHAR-006/009, design.md D9) - so the class default
+   ! inserting - so the class default
    ! branch below should be checked by the calling procedure, matching
    ! this codebase's own established `error stop` precedent for exactly
    ! that situation (DependencyNetwork.F90, ActualConnectionPt.F90).

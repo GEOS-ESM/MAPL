@@ -8,8 +8,8 @@
 ! It also carries grid_id/dimensions value data for the dimension-overlap
 ! build_transform and get_signature. needs_extension_for is therefore a
 ! hybrid comparison, chosen by the data the two sides carry:
-!   - when a real referenced_node_id is set on BOTH sides (REQ-CHAR-012:
-!     sharing is two map entries holding the same NodeId), that identity
+!   - when a real referenced_node_id is set on BOTH sides (sharing is
+!     two map entries holding the same NodeId), that identity
 !     comparison is authoritative.
 !   - otherwise (a GraphBuilder call site that supplies only an opaque
 !     grid_id or dimension set), the identity-token-else-dimension-set
@@ -247,7 +247,7 @@ contains
       dimensions = this%dimensions
    end function get_dimensions
 
-   ! REQ-GEO-007a three-way dimension-overlap classification, computed from
+   ! Three-way dimension-overlap classification, computed from
    ! `dimensions` whichever comparison path detected the mismatch.
    subroutine vcoord_build_transform(this, goal, transformer, rc)
       class(VerticalGridCharacteristic), intent(in) :: this
@@ -308,7 +308,7 @@ contains
       end if
    end function vcoord_get_signature
 
-   ! REQ-GEO-007a, as a small, pure, independently-testable helper (no
+   ! A small, pure, independently-testable helper (no
    ! ComponentGraph dependency): computes the set overlap between two
    ! physical-dimension-name sets and classifies the result.
    ! `overlap_name` is set only for DIMENSION_OVERLAP_SINGLE (the one

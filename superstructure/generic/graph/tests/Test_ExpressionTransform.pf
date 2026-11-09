@@ -1,12 +1,11 @@
 #include "MAPL.h"
 
-! openspec/changes/phase-7b-expression-dispatch-wiring, task 8:
 ! ExpressionTransform numerical correctness (real ESMF_Field data via
 ! StateArithmeticParser_mod::StateEval, no legacy
 ! EvalTransform/ExtensionTransform/ESMF_Field-via-MultiState
 ! involvement) - exercised directly via compute(), the same "exercise
 ! the Transform directly" idiom Test_BracketTimeInterpolationTransform.pf
-! already uses (design.md D5/D7).
+! already uses.
 module Test_ExpressionTransform
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
@@ -75,7 +74,7 @@ contains
       call ESMF_GridDestroy(grid, rc=status)
    end subroutine test_expression_transform_two_variables
 
-   ! design.md/tasks.md task 8.4: degenerate N=1 case still resolves and
+   ! Degenerate N=1 case still resolves and
    ! evaluates correctly.
    @test
    subroutine test_expression_transform_single_variable()
@@ -121,7 +120,7 @@ contains
       call ESMF_GridDestroy(grid, rc=status)
    end subroutine test_expression_transform_single_variable
 
-   ! design.md/tasks.md task 8.5: real N:1 with three or more referenced
+   ! Real N:1 with three or more referenced
    ! variables.
    @test
    subroutine test_expression_transform_three_variables()

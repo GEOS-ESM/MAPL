@@ -179,7 +179,7 @@ module mapl_VariableSpec_mod
       ! Meaningful only when itemType == MAPL_STATEITEM_STATE
       ! (declare_member enforces this at declaration time); a member's
       ! own short_name field is never read - only the map key is a
-      ! member's identity (design.md Decisions, mirrors REQ-VAL-006).
+      ! member's identity (design.md Decisions).
       type(VariableSpecMemberMap) :: members
 
       !=====================
@@ -209,9 +209,8 @@ module mapl_VariableSpec_mod
       ! `members` above) with the graph-native MAPL_StateItem_Flag
       ! (mapl_StateItemFlag_mod) its materialized GraphStateItem should
       ! report from variant() - e.g. MAPL_STATEITEM_VERTICALGRID for a
-      ! component's vertical grid (REQ-GEO-009, 13-geometry-and-vertical-
-      ! grids.md), whose declared members (one per physical dimension,
-      ! REQ-GEO-004a) are otherwise ordinary composite members. Default
+      ! component's vertical grid, whose declared members (one per physical
+      ! dimension) are otherwise ordinary composite members. Default
       ! unallocated for an ordinary (non-tagged) composite or leaf -
       ! mapl_CompositeStateMaterialization_mod only calls MAPL_StateSet(state_item_variant=)
       ! when this is allocated, so every existing composite declaration
@@ -226,9 +225,8 @@ module mapl_VariableSpec_mod
       !=====================
       ! ordinary-inout-direct-alias)
       !=====================
-      ! Marks an import as an ordinary inout borrower (16-inout-items.md
-      ! REQ-INOUT-001, direct-alias case only): the import's payload is
-      ! expected to be the same underlying payload as the matched export
+      ! Marks an import as an ordinary inout borrower (direct-alias case only):
+      ! the import's payload is expected to be the same underlying payload as the matched export
       ! it borrows from, with GraphBuilder additionally wiring a
       ! borrower-to-owner return-network edge so the owner's node
       ! reflects the borrower's result after the borrower executes
@@ -1013,7 +1011,7 @@ contains
    ! that no member is already declared under `name` (spec scenario
    ! "Duplicate member name at the same level is rejected"), leaving the
    ! existing entry unchanged on failure. `member`'s own short_name field
-   ! is never read (design.md Decisions, mirrors REQ-VAL-006).
+   ! is never read (design.md Decisions).
    subroutine declare_member(this, name, member, rc)
       class(VariableSpec), intent(inout) :: this
       character(*), intent(in) :: name

@@ -8,7 +8,7 @@
 ! rather than any named-component access: each <ID_NAME>Generator has
 ! exactly one integer(INT32) component (its private next_value counter),
 ! so this does not require, and does not depend on, any change to the
-! encapsulation in the generated modules (REQ-ID-001). Confirmed empirically
+! encapsulation in the generated modules. Confirmed empirically
 ! under nagfor; see design.md "Risks / Trade-offs".
 !
 ! One concrete overload per sibling ID type (rather than an

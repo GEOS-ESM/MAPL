@@ -2,7 +2,7 @@
 
 !------------------------------------------------------------------------------
 ! PortBindingTable: the external (DependencyNetworkId, NodeId) -> port
-! name -> NodeId table settled by REQ-XFORM-005. Wraps a gFTL map of PortBindingKey ->
+! name -> NodeId table. Wraps a gFTL map of PortBindingKey ->
 ! StateItemMemberMap, enforcing "no silent replace" for both the
 ! per-(network,node) entry and individual port-name bindings within it,
 ! matching every other registration API in this repo (ComponentGraph's
@@ -64,8 +64,8 @@ contains
    end subroutine table_bind
 
    ! Pointer to the bound NodeId, or null if no binding exists for this
-   ! (network, node, port name) combination - REQ-VIZ-012's "missing
-   ! binding degrades gracefully" relies on this returning null rather
+   ! (network, node, port name) combination - the exporter degrades gracefully
+   ! on a missing binding and relies on this returning null rather
    ! than failing.
    function table_get_binding(this, network_id, node_id, port_name) result(target_id)
       class(PortBindingTable), target, intent(in) :: this

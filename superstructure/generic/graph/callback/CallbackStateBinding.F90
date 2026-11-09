@@ -2,7 +2,7 @@
 
 !------------------------------------------------------------------------------
 ! CallbackStateBinding: explicit storage of one callback State's realized
-! contract (spec/15-callbacks.md REQ-CB-007) - the CallbackInterfaceId it
+! contract (spec/15-callbacks.md) - the CallbackInterfaceId it
 ! implements, the NodeId of the callback State's own StateItemNode, an
 ! argument name -> member NodeId map (reusing the existing
 ! StateItemMemberMap type unchanged), and a method name -> method
@@ -28,8 +28,8 @@
 ! invoke_method() materializes a fresh ArgumentSpecMap at call time from
 ! the bound interface's own CallbackArgumentSpec (expected kind) and the
 ! target method's own CallbackMethodSpec (per-method AccessSpec) -
-! required because StateMethodInvocation%invoke() (Phase 4a) takes an
-! ArgumentSpecMap, and REQ-CB-004's per-method access model means the
+! required because StateMethodInvocation%invoke() takes an
+! ArgumentSpecMap, and the per-method access model means the
 ! same argument can carry a different AccessSpec for a different method
 ! on the same binding, so no single persisted ArgumentSpecMap could
 ! serve every method.
@@ -102,7 +102,7 @@ contains
       state_node_id = this%state_node_id
    end function binding_get_state_node_id
 
-   ! REQ-CB-007: binds argument name -> member_id. Requires name to be
+   ! Binds argument name -> member_id. Requires name to be
    ! declared on the bound interface (spec scenario "Binding an argument
    ! name outside the interface is rejected") and rejects rebinding an
    ! already-bound name (no-silent-replace, matching MethodGraphNode.
@@ -129,7 +129,7 @@ contains
       member_id => this%argument_bindings%at(name)
    end function binding_get_argument_binding
 
-   ! REQ-CB-007: binds method name -> a StateMethodInvocation attachment
+   ! Binds method name -> a StateMethodInvocation attachment
    ! constructed from this binding's own state_node_id (so the caller
    ! never supplies it redundantly, design.md Decision 5). Requires name
    ! to be declared on the bound interface (spec scenario "Binding a
@@ -165,7 +165,7 @@ contains
       attachment => this%method_attachments%at(name)
    end function binding_get_method_attachment
 
-   ! REQ-CB-007/REQ-CB-001: invokes the named method's attachment with
+   ! Invokes the named method's attachment with
    ! this binding's current argument member bindings. Materializes a
    ! fresh ArgumentSpecMap for this method call (module header) - each
    ! argument's AccessSpec comes from the target method's own

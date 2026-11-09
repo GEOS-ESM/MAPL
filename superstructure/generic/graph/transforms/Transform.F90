@@ -13,7 +13,7 @@
 ! testable in complete isolation from ComponentGraph/DependencyNetwork/
 ! NodeRevision.
 !
-! Split from TransformBase (merge-characteristic-families change):
+! Split from TransformBase:
 ! compute()'s own PortNameGraphStateItemMap arguments are
 ! exactly what gives this module a dependency chain reaching
 ! mapl_GraphStateItem_mod (via mapl_PortNameGraphStateItemMap_mod) -
@@ -32,7 +32,7 @@
 ! port-query methods to it, adding only what IS a graph-plumbing concern
 ! on top: NodeId/lifecycle (inherited via OperationGraphNode/
 ! BaseGraphNode) and revision/staleness bookkeeping
-! (spec/11-revision-and-update.md REQ-REV-005..007).
+! (spec/11-revision-and-update.md).
 !------------------------------------------------------------------------------
 module mapl_Transform_mod
    use mapl_TransformBase_mod, only: TransformBase, operator(==), operator(/=)

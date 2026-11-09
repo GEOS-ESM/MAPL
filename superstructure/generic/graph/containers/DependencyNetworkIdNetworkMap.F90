@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 ! DependencyNetworkIdNetworkMap: gFTL map of DependencyNetworkId ->
 ! DependencyNetwork, the ComponentGraph-owned network registry
-! (spec/07-component-graph.md REQ-CG-001). Plain (non-polymorphic) mapped
+! (spec/07-component-graph.md). Plain (non-polymorphic) mapped
 ! value - DependencyNetwork is a single concrete type, not a hierarchy.
 !------------------------------------------------------------------------------
 module mapl_DependencyNetworkIdNetworkMap_mod
