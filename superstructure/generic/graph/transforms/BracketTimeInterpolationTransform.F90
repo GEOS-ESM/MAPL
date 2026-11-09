@@ -28,8 +28,7 @@
 ! build_chain) even though its input port semantically holds a field
 ! *bundle* (the bracket) - reads it via
 ! inputs%at(INPUT_PORT_NAME)%get_field_bundle() instead of %get_field();
-! the port name is a chain-wiring convention, not a type claim
-! (design.md D4).
+! the port name is a chain-wiring convention, not a type claim.
 !------------------------------------------------------------------------------
 module mapl_BracketTimeInterpolationTransform_mod
    use mapl_Transform_mod, only: Transform
@@ -89,8 +88,8 @@ contains
       output_item => outputs%at(OUTPUT_PORT_NAME)
       _ASSERT(associated(output_item), 'BracketTimeInterpolationTransform: output port not found in outputs')
 
-      ! design.md D4: the input port semantically holds a bundle (the
-      ! bracket), not a field - get_field_bundle(), NOT get_field().
+      ! The input port semantically holds a bundle (the bracket), not a
+      ! field - get_field_bundle(), NOT get_field().
       input_bundle = input_item%get_field_bundle(_RC)
       output_field = output_item%get_field(_RC)
 
@@ -110,7 +109,7 @@ contains
 
    ! Verbatim re-implementation of TimeInterpolateTransform.F90's own
    ! run_r4 (read as the faithful behavioral reference, never called
-   ! into - design.md D4), against the bundle/field directly, no
+   ! into), against the bundle/field directly, no
    ! ESMF_State arguments.
    subroutine interpolate_r4(bundle_in, field_out, rc)
       type(ESMF_FieldBundle), intent(in) :: bundle_in
@@ -140,7 +139,7 @@ contains
    end subroutine interpolate_r4
 
    ! Verbatim re-implementation of TimeInterpolateTransform.F90's own
-   ! run_r8 (same D4 rationale as interpolate_r4 above).
+   ! run_r8, against the bundle/field directly (see interpolate_r4).
    subroutine interpolate_r8(bundle_in, field_out, rc)
       type(ESMF_FieldBundle), intent(in) :: bundle_in
       type(ESMF_Field), intent(inout) :: field_out

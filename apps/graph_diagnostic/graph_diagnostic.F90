@@ -3,7 +3,7 @@
 
 !------------------------------------------------------------------------------
 ! graph_diagnostic.x: standalone, hierarchy-wide graph diagnostic driver
-! (docs/graph/spec/20-implementation-roadmap.md sec 20.4.21, Phase 21).
+! (docs/graph/spec/20-implementation-roadmap.md sec 20.4.21).
 !
 ! Scope (read the roadmap section itself before changing this file):
 ! this is NOT a hierarchy-wide (multi-ComponentGraph, stitched-at-
@@ -31,7 +31,7 @@
 ! same debugging session, against the same underlying export call.
 !
 ! Bootstrap: reuses mapl_GraphScenarioBootstrap_mod%build_scenario_tree
-! (Phase 21 sub-step 21-1), itself extracted from
+! itself extracted from
 ! superstructure/generic/tests/Test_Scenarios.pf's own setup() - no
 ! second YAML-loading path invented for this driver.
 !

@@ -1,9 +1,10 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
-! Phase 3a (docs/graph/spec/20-implementation-roadmap.md sec 20.4.1,
-! docs/graph/spec/02-component-hierarchy.md):
-! OuterMetaComponent%get_component_graph() ownership-shape wiring.
+! Tests for the ownership-shape wiring of
+! OuterMetaComponent%get_component_graph() (see
+! docs/graph/spec/20-implementation-roadmap.md sec 20.4.1 and
+! docs/graph/spec/02-component-hierarchy.md).
 !
 ! Test-only OuterMetaComponent instances are built directly via
 ! attach_outer_meta / OuterMetaComponent() / init_meta - the exact
@@ -31,8 +32,7 @@ module Test_ComponentHierarchyGraph
 contains
 
    ! make_outer_meta shared via GraphBuilderTestSupport_mod
-   ! (docs/graph/spec/20-implementation-roadmap.md sec 20.4.17,
-   ! sub-step 17-1).
+   ! (docs/graph/spec/20-implementation-roadmap.md sec 20.4.17).
 
    ! A new component owns its required parts, and exactly one local
    ! ComponentGraph: a freshly constructed

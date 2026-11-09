@@ -1,8 +1,8 @@
 !------------------------------------------------------------------------------
 ! VariableSpecMemberMap: gFTL map (string -> polymorphic VariableSpecTag),
-! used by VariableSpec for its own declared-member storage
+! used by VariableSpec for its own declared-member storage. It lets
 ! VariableSpec contain a map of itself without a circular module
-! dependency (design.md Decisions) - not for open extensibility
+! dependency - not for open extensibility
 ! (VariableSpec is the only concrete extension of VariableSpecTag that
 ! will ever exist). Same shape as containers/NodeIdGraphNodeMap.F90 (a
 ! polymorphic map over a foreign, already-defined abstract type, via the

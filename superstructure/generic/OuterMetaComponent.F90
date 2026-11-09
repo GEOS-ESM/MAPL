@@ -68,10 +68,8 @@ module mapl_OuterMetaComponent_mod
       logical :: is_hierarchy_root = .false.
       ! Graph-neutral core (docs/graph/hierarchy-and-component-graph.md):
       ! exactly one local ComponentGraph per
-      ! OuterComponent. Constructed in init_meta (see init_meta.F90);
-      ! not yet populated by any GraphBuilder logic (that is roadmap
-      ! sub-change 3b, docs/graph/spec/20-implementation-roadmap.md
-      ! §20.4.1).
+      ! OuterComponent. Constructed in init_meta (see init_meta.F90) and
+      ! populated by GraphBuilder.
       type(ComponentGraph) :: local_graph
 
       ! NodeId for the one run-phase MethodGraphNode constructed by GraphBuilder.
@@ -134,12 +132,10 @@ module mapl_OuterMetaComponent_mod
       procedure :: get_geom_id
       procedure :: get_registry
       procedure :: get_component_graph
-      ! setter pair for the run-phase MethodGraphNode's own NodeId
-      ! (design.md D1) - setter used only by GraphBuilder.F90's own
-      ! construction step (graphbuilder_build_run_phase_node). Not
-      ! currently read by any invocation call site - construction only
-      ! (proposal.md Non-Goals).
-      ! (proposal.md Non-Goals).
+      ! setter pair for the run-phase MethodGraphNode's own NodeId -
+      ! setter used only by GraphBuilder.F90's own construction step
+      ! (graphbuilder_build_run_phase_node). Not currently read by any
+      ! invocation call site - construction only.
       procedure :: get_run_phase_method_node_id
       procedure :: set_run_phase_method_node_id
       ! 9: accessor/mark-done pair for connections_resolved above - used
@@ -756,9 +752,8 @@ module mapl_OuterMetaComponent_mod
          integer, optional, intent(out) :: rc
       end function get_child_component_graph
 
-      ! extension-registry-visibility change: GraphBuilder.F90's own
-      ! materialization step needs a named child's component-wide
-      ! geom/vertical_grid defaults (has_geom()/get_geom()/
+      ! GraphBuilder.F90's own materialization step needs a named child's
+      ! component-wide geom/vertical_grid defaults (has_geom()/get_geom()/
       ! get_vertical_grid(), all already-public OuterMetaComponent
       ! accessors) - unlike get_child_component_spec/
       ! get_child_component_graph above, no existing accessor exposes
@@ -792,11 +787,8 @@ module mapl_OuterMetaComponent_mod
       ! (get_child_by_name.F90's own "deep copy of shallow ESMF objects
       ! - be careful using result" caveat): added for
       ! OuterMetaComponentDriverResolver.F90, which needs a driver only
-      ! transiently, inside one resolve() call, and never retains it -
-      ! griddedcomponentdriver-integration-lifecycle design.md Decisions
-      ! ("The concrete DriverResolver implementation lives in
-      ! superstructure/generic/"). Keeps `children` itself private to
-      ! this module.
+      ! transiently, inside one resolve() call, and never retains it.
+      ! Keeps `children` itself private to this module.
       module function get_child_driver(this, child_name, rc) result(driver)
          class(GriddedComponentDriver), pointer :: driver
          class(OuterMetaComponent), target, intent(in) :: this

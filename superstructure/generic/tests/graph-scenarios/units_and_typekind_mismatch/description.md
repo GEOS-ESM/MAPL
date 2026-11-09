@@ -3,8 +3,7 @@
 Exercises a two-characteristic (`units` + `typekind`) extension chain in
 one connection, isolating "chain exists, correct values once" from
 `scenarios/invalidate/`'s own `numsteps: 2` runtime-re-invalidation
-fixture, which this fixture deliberately does not reuse or modify
-(openspec/changes/phase-10c-typekind-characteristic).
+fixture, which this fixture deliberately does not reuse or modify.
 
 `comp_src` exports `T` as `hPa`/`R4`; `comp_dst` imports `T` as
 `Pa`/`R8`. Both mismatches are resolved by one extension chain: a

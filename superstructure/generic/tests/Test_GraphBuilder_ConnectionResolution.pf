@@ -1,42 +1,37 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
-! Phase 17-5a (docs/graph/spec/20-implementation-roadmap.md sec
-! 20.4.17, 17-5): split out of Test_GraphBuilder.pf - holds the
-! ConnectionResolution-exclusive buckets identified by 17-2/17-3's
-! characterization (buckets 2, 3, 4, 5, 7, 10, 12, 15, 17, 21, 22):
-! ordinary (MatchConnection) resolution match/unresolved, inout
-! borrowing, the activate-time unsatisfied-import check,
-! SimpleConnection resolution, materialize-extensions gating,
-! composite connection wiring, vertical-grid composite overlap
-! resolution, the non-callback-destination negative control, the
-! callback-collection full-pipeline test (exercises ConnectionResolution's
-! own resolve_callback_destination, despite its "callback" name - see
-! bucket 17's own 17-3 note), multi-level qualified-component
+! Tests for the ConnectionResolution part of GraphBuilder: ordinary
+! (MatchConnection) resolution match/unresolved, inout borrowing, the
+! activate-time unsatisfied-import check, SimpleConnection resolution,
+! materialize-extensions gating, composite connection wiring,
+! vertical-grid composite overlap resolution, the non-callback-
+! destination negative control, the callback-collection full-pipeline
+! test (exercises resolve_callback_destination of ConnectionResolution,
+! despite its "callback" name), multi-level qualified-component
 ! connection resolution, and node-identity-based resolution with no
 ! live VariableSpec reference.
 !
-! Every test here goes through GraphBuilder%resolve_connections (or,
-! for bucket 4, %check_unsatisfied_imports) exercising the
-! ConnectionResolution submodule, directly or (bucket 17/21) via one
-! specific call site into a shared helper - see the roadmap's own
-! 17-3 table for the full per-bucket submodule attribution.
+! Every test here goes through GraphBuilder%resolve_connections (or, for
+! the unsatisfied-import check, %check_unsatisfied_imports).
 !
-! Carries along two bucket-local fixture helpers (single_predecessor
-! for bucket 7, resolve_vertical_grid_membership_mismatch for bucket
-! 12) and bucket 7's own callback-wiring fixture helpers needed by
-! bucket 17 (make_passive_tracer_interface, make_tracer_callback_export,
-! build_tracer_hierarchy - NOT make_exchanger_interface, which is
-! needed only by bucket 18's test_callback_method_binding_builds_get_put_networks,
-! staying in Test_GraphBuilder.pf).
+! Carries along two local fixture helpers (single_predecessor for the
+! materialize-extensions gating tests,
+! resolve_vertical_grid_membership_mismatch for the vertical-grid
+! overlap test) and the callback-wiring fixture helpers needed by the
+! callback-collection test (make_passive_tracer_interface,
+! make_tracer_callback_export, build_tracer_hierarchy - NOT
+! make_exchanger_interface, which is needed only by
+! test_callback_method_binding_builds_get_put_networks in
+! Test_GraphBuilder_CallbackWiring.pf).
 !
 ! Also carries the reset_materialize_extensions_gate/
-! restore_materialize_extensions_gate @before/@after pair (bucket 23):
-! required because bucket 7 (materialize-extensions gating) moved
-! here, and pFUnit's @before/@after typing is NOT disambiguated per
-! test (see Test_GraphBuilder.pf's own module header for the full
-! explanation, including the exact NAG compile error that confirmed
-! this) - every @test below is MpiTestMethod-typed to match.
+! restore_materialize_extensions_gate @before/@after pair, required
+! because the materialize-extensions gating tests live here and pFUnit
+! @before/@after typing is NOT disambiguated per test (see the module
+! header of Test_GraphBuilder.pf for the full explanation, including the
+! exact NAG compile error that confirmed this) - every @test below is
+! MpiTestMethod-typed to match.
 !
 ! Test-only OuterMetaComponent instances are built the same way
 ! Test_GraphBuilder.pf's own fixtures are (bypassing SetServices/DSO

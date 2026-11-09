@@ -18,11 +18,10 @@
 ! mutating the named method's own CallbackMethodSpec in place via
 ! %at() pointer access - the same "declare then mutate via %at()
 ! pointer" idiom MethodGraphNode.F90's own node_declare_argument/
-! node_bind_argument already established, applied one level deeper
-! (callback-data-model-registry design.md Decision 3). This ordering
-! requirement (argument must be declared before any method may declare
-! access to it) is enforced by an explicit _ASSERT, not a silent no-op
-! (design.md Risks).
+! node_bind_argument already established, applied one level deeper.
+! This ordering requirement (argument must be declared before any
+! method may declare access to it) is enforced by an explicit _ASSERT,
+! not a silent no-op.
 !------------------------------------------------------------------------------
 module mapl_CallbackInterface_mod
    use mapl_CallbackArgumentSpec_mod, only: CallbackArgumentSpec
@@ -151,8 +150,7 @@ contains
    ! Requires both names to already be declared on this interface (spec
    ! scenarios "Method argument access for an undeclared argument/method
    ! is rejected") before mutating the method's own CallbackMethodSpec
-   ! in place via %at() pointer access (module header, design.md
-   ! Decision 3).
+   ! in place via %at() pointer access (see module header).
    subroutine interface_set_method_argument_access(this, method_name, argument_name, access, rc)
       class(CallbackInterface), intent(inout) :: this
       character(*), intent(in) :: method_name

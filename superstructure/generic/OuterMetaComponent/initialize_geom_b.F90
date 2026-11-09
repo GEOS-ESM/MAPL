@@ -22,24 +22,17 @@ contains
        call this%propagate_geom_to_children(_RC)
        call recurse(this, phase_idx=MAPL_GENERIC_INIT_GEOM_B, _RC)
 
-       ! from initialize_advertise.F90 (a pre-existing timing bug found
-       ! while writing this sub-change's own pFUnit coverage - see that
-       ! file's own comment at the old call site for the full story).
-       ! This is the correct point: by here, this component's own geom
-       ! is real (a GEOMETRY_PROVIDER's own geom is set at the START of
-       ! its own GEOM_A, well before GEOM_B even starts; a
-       ! GEOMETRY_FROM_PARENT child's own geom is set by this call's own
-       ! propagate_geom_to_children() above, before recursion) - and
-       ! recurse() above has already completed every child's own GEOM_B
-       ! (including their own run_geometry_hook call) bottom-up, so by
-       ! the time a parent's own hook runs here, every child already has
-       ! both a real geom AND its own geometry graph node registered -
-       ! required for both the pull and the push direction
-       ! (mapl_GraphBuilder_mod's own module header, "Horizontal
-       ! geometry" note). Gated behind mapl_GraphMode_mod%graph_mode()
-       ! reporting something other than GRAPH_MODE_REGISTRY - a no-op
-       ! for every real production run today, same as before this
-       ! correction.
+       ! The geometry hook runs here, not in initialize_advertise.F90:
+       ! GEOM_A/GEOM_B run after ADVERTISE, so only now is this
+       ! component's own geom real (a GEOMETRY_PROVIDER's geom is set at
+       ! the start of its GEOM_A; a GEOMETRY_FROM_PARENT child's geom is
+       ! set by propagate_geom_to_children() above). recurse() above has
+       ! also completed every child's GEOM_B, including its own
+       ! run_geometry_hook call, so every child already has a real geom
+       ! and its geometry graph node registered - required for both the
+       ! pull and the push direction (see the "Horizontal geometry" note
+       ! in the mapl_GraphBuilder_mod header). A no-op when graph_mode()
+       ! is GRAPH_MODE_REGISTRY.
        call gb%run_geometry_hook(this)
 
        _RETURN(_SUCCESS)

@@ -1,14 +1,13 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
-! Phase 17-5c (docs/graph/spec/20-implementation-roadmap.md sec
-! 20.4.17, 17-5): split out of Test_GraphBuilder.pf - holds bucket 6
-! (Freeze), exercising `graphbuilder_freeze` exclusively: successful
-! freeze, and a cross-network-write conflict that fails validation and
-! leaves the graph unfrozen. A direct sibling of the already-split
-! Test_GraphBuilder_ConvergenceCheck.pf (which covers the hierarchy-
-! wide freeze/convergence-check call site, run once at the hierarchy
-! root) - this file covers the per-component freeze call itself.
+! Tests for the Freeze part of GraphBuilder, exercising
+! `graphbuilder_freeze` exclusively: successful freeze, and a
+! cross-network-write conflict that fails validation and leaves the graph
+! unfrozen. A direct sibling of Test_GraphBuilder_ConvergenceCheck.pf
+! (which covers the hierarchy-wide freeze/convergence-check call site,
+! run once at the hierarchy root) - this file covers the per-component
+! freeze call itself.
 !
 ! Test-only OuterMetaComponent instances are built the same way
 ! Test_GraphBuilder.pf's own fixtures are (bypassing SetServices/DSO
@@ -27,7 +26,7 @@ module Test_GraphBuilder_Freeze
 
 contains
 
-   ! Task 6.5 / spec "Successful resolution is followed by freeze" and
+   ! Spec "Successful resolution is followed by freeze" and
    ! "Validation failure prevents freeze".
    @test(npes=[0])
    subroutine test_freeze_succeeds_when_valid(this)

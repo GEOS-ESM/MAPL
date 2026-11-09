@@ -5,22 +5,11 @@
 ! superstructure/generic/graph/tests/IdGeneratorTestSupport.F90: plain
 ! Fortran module, not a pFUnit test file itself).
 !
-! Extracted per docs/graph/spec/20-implementation-roadmap.md
-! sec 20.4.17, sub-step 17-1: `make_outer_meta` was duplicated,
-! byte-identical, across 7 files
-! (Test_GraphBuilder.pf, Test_GraphBuilderPropagation.pf,
-! Test_GraphBuilderMaterializeGate.pf,
-! Test_GraphBuilder_ConvergenceCheck.pf, Test_ComponentHierarchyGraph.pf,
-! Test_GraphGeometryHook.pf, Test_OuterMetaComponentDriverResolver.pf);
-! `make_var` was duplicated, NOT byte-identical, across 4 of those 7
-! (two different signatures: a 3-argument form with an optional
-! `units`, and a 2-argument form without it). This module defines each
-! once: `make_outer_meta` unchanged, `make_var` in its 3-argument form
-! (`units` optional) - a strict superset of the 2-argument form, since
-! every real call site across all 4 original files passes only
-! `state_intent`/`short_name` positionally and none passes `units`
-! explicitly, so the 2-argument call sites need no change when they
-! switch to this shared 3-argument form.
+! Provides the fixtures the GraphBuilder and hierarchy tests share:
+! `make_outer_meta` builds a top-level OuterMetaComponent without the
+! SetServices/DSO machinery, and `make_var` builds a VariableSpec from a
+! state intent and short name (`units` optional). See
+! docs/graph/spec/20-implementation-roadmap.md sec 20.4.17.
 module GraphBuilderTestSupport_mod
    use mapl_OuterMetaComponent_mod, only: OuterMetaComponent, attach_outer_meta, get_outer_meta
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver

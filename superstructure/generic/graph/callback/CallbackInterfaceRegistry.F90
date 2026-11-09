@@ -16,8 +16,7 @@
 ! only the public wrapper procedures below (narrower wrapper
 ! procedures that hide the singleton) -
 ! generalizing ExtensionResolution.F90's own single-flag module-level-
-! state precedent to a full owned-state singleton
-! (callback-data-model-registry design.md Decision 4).
+! state precedent to a full owned-state singleton.
 !
 ! register_callback_interface rejects a duplicate service_name
 ! (no-silent-replace, the same convention used throughout this module

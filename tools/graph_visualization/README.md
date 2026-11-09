@@ -11,8 +11,7 @@ on `PATH`).
    file via `superstructure/generic/graph/GraphExport.F90`'s
    `export_graph_dot` (optionally enriched with human-readable
    import/export/internal names and child-proxy markers via
-   `superstructure/generic/GraphBuilder.F90`'s `build_label_map` - see
-   `openspec/changes/visualization-enrichment-layer`).
+   `superstructure/generic/GraphBuilder.F90`'s `build_label_map`).
 2. Render that `.dot` file to an image:
 
    ```sh

@@ -1,11 +1,9 @@
-! Task 2.4 (spec/12-methods-and-drivers.md,
-! griddedcomponentdriver-integration-lifecycle spec.md "GridComp phase
-! invocation reaches the real driver's own phase entry points"). First
-! test in this repo exercising a real GriddedComponentDriver wrapping a
-! real (minimal, bare) ESMF_GridComp through the new
-! GridCompDriverPhaseInvoker - no OuterMetaComponent, no GraphBuilder,
-! no MethodGraphNode: only the invoker/resolver/driver seam this
-! sub-change adds.
+! Spec: spec/12-methods-and-drivers.md. GridComp phase invocation
+! reaches the phase entry points of the real driver. First test in this
+! repo exercising a real GriddedComponentDriver wrapping a real
+! (minimal, bare) ESMF_GridComp through GridCompDriverPhaseInvoker - no
+! OuterMetaComponent, no GraphBuilder, no MethodGraphNode: only the
+! invoker/resolver/driver seam.
 !
 ! Lives in this suite (not superstructure/generic/graph/tests/) because
 ! it needs a real, working ESMF_Clock/ESMF_GridComp lifecycle - this
@@ -145,10 +143,9 @@ contains
 
    ! Bare ESMF_GridComp with the three test entry points registered via
    ! a real ESMF_GridCompSetServices call at phase 1 - no MAPL
-   ! SetServices/generic machinery involved at all (design.md Risks:
-   ! "no real MethodGraphNode is constructed... manually constructing
-   ! the MethodGraphNode/GridCompMethodInvocation rather than via
-   ! GraphBuilder").
+   ! SetServices/generic machinery involved at all: tests construct the
+   ! MethodGraphNode/GridCompMethodInvocation manually rather than via
+   ! GraphBuilder.
    subroutine make_test_driver(driver, rc)
       type(GriddedComponentDriver), intent(out) :: driver
       integer, optional, intent(out) :: rc

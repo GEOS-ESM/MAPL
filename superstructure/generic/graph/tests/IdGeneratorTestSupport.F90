@@ -9,7 +9,7 @@
 ! exactly one integer(INT32) component (its private next_value counter),
 ! so this does not require, and does not depend on, any change to the
 ! encapsulation in the generated modules. Confirmed empirically
-! under nagfor; see design.md "Risks / Trade-offs".
+! under nagfor.
 !
 ! One concrete overload per sibling ID type (rather than an
 ! unlimited-polymorphic dummy) because Fortran forbids intrinsic

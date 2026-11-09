@@ -2,8 +2,8 @@
 ! Minimal ESMF init/finalize hooks for the GraphCore pFUnit test executable
 ! (EXTRA_INITIALIZE/EXTRA_FINALIZE/EXTRA_USE), sufficient for GraphStateItem's
 ! tests to allocate real ESMF_Field/FieldBundle/State handles. Deliberately
-! does not depend on the full MAPL library - this repo has no
-! GridComp/StateRegistry context in scope (see proposal.md).
+! does not depend on the full MAPL library - no GridComp/StateRegistry
+! context is in scope for these tests.
 !------------------------------------------------------------------------------
 module GraphCoreTestInit_mod
    use ESMF, only: ESMF_Initialize, ESMF_Finalize, ESMF_LOGKIND_NONE, ESMF_SUCCESS

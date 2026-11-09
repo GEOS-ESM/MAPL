@@ -36,10 +36,9 @@ module mapl_TypeKindCharacteristic_mod
    ! try_materialize_field_extension/materialize_extension_chain) can
    ! recover the real ESMF_TypeKind_Flag this characteristic's own label
    ! was converted from, once that call site no longer has a
-   ! VariableSpec reference to read %typekind off directly (proposal.md
-   ! "nothing downstream should need to walk back to the originating
-   ! VariableSpec") - the inverse of new_TypeKindCharacteristic_flag's
-   ! own conversion, previously private to this module.
+   ! VariableSpec reference to read %typekind off directly (nothing
+   ! downstream should need to walk back to the originating VariableSpec)
+   ! - the inverse of new_TypeKindCharacteristic_flag's own conversion.
    public :: label_to_typekind
 
    type, extends(ValueCharacteristic) :: TypeKindCharacteristic

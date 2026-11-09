@@ -64,7 +64,7 @@ contains
 #else
          call ridiculous(child_meta, OuterMetaComponent(child_outer_gc, child_driver, hconfig=total_hconfig))
 #endif
-         ! design.md D1: pass this%hierarchy_id down explicitly, so the
+         ! Pass this%hierarchy_id down explicitly, so the
          ! child's own local_graph shares this component's hierarchy
          ! rather than requesting a fresh one of its own.
          call child_meta%init_meta(hierarchy_id=this%hierarchy_id, rc=status)

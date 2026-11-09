@@ -30,8 +30,7 @@ configure_file(field_dictionary_test.yaml field_dictionary_test.yaml COPYONLY)
 
 # Also copy it under the default path MaplFramework%initialize_field_dictionary
 # looks for when no field_dictionary: cap.yaml key is present (which is the
-# case for every pFUnit binary here - see openspec change
-# use-field-dictionary-in-scenario-tests). This activates the fixture above
+# case for every pFUnit binary here). This activates the fixture above
 # for all six of this directory's pFUnit executables (they share this
 # WORKING_DIRECTORY), in PERMISSIVE ValidationMode (the default).
 configure_file(field_dictionary_test.yaml geos_field_dictionary.yaml COPYONLY)
@@ -54,11 +53,7 @@ set(COMMON_LINK_LIBRARIES MAPL.generic.test_common MAPL.pfunit MAPL.statistics)
 # 1. MAPL.generic.scenarios - End-to-end integration test scenarios.
 # All scenarios now run under STRICT field-dictionary ValidationMode
 # (Initialize_strict, same module as the default Initialize() every other
-# pFUnit binary here still uses) - see openspec change
-# use-field-dictionary-in-scenario-tests. This was previously split into a
-# separate MAPL.generic.scenarios/.strict pair while some scenarios were
-# still being migrated; now that all of them are STRICT-clean, it is a
-# single suite again.
+# pFUnit binary here still uses).
 set(scenarios_test_srcs
   Test_Scenarios.pf
   Test_MemoryCheckpoint.pf
@@ -207,7 +202,7 @@ add_dependencies(MAPL.generic.components proto_extdata_gc proto_stat_gc)
 # but holds the two .pf files whose tests deliberately drive a GraphBuilder
 # hook down a negative path that is expected to log a warning via
 # report_if_failed (docs/graph/spec/20-implementation-roadmap.md sec
-# 20.4.20, Phase 20: "field dictionary not found"-style noise is source
+# 20.4.20: "field dictionary not found"-style noise is source
 # (a), out of scope here; this is source (b)). Rather than changing
 # report_if_failed's own severity (which would also silence genuinely
 # unexpected failures elsewhere), this suite is run with --level ERROR
@@ -217,9 +212,8 @@ add_dependencies(MAPL.generic.components proto_extdata_gc proto_stat_gc)
 # default level and still surfaces real warnings. Split out, not just
 # filtered, because ValidationMode/logging level are both process-wide
 # singletons set once at EXTRA_INITIALIZE time (same constraint documented
-# for MAPL.generic.scenarios/.strict in openspec change
-# use-field-dictionary-in-scenario-tests) - they cannot vary per-test
-# within one executable.
+# for MAPL.generic.scenarios) - they cannot vary per-test within one
+# executable.
 #
 # MAX_PES 1 (not the usual 4): default_initialize_pflogger
 # (mapl/MaplFramework.F90) only honors --level on MPI rank 0 - every other

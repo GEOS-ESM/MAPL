@@ -21,7 +21,7 @@
 ! that dependency had to be isolated to this tier specifically, not the
 ! common ancestor.
 !
-! A real Transform (Phase 3/4, in MAPL - e.g. ConvertUnitsTransform)
+! A real Transform (in MAPL - e.g. ConvertUnitsTransform)
 ! extends this directly, declaring its own fixed port shape (via
 ! declare_input_port()/declare_output_port(), inherited from
 ! TransformBase) in its own constructor - port shape is intrinsic

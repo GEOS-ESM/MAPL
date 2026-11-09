@@ -179,7 +179,7 @@ module mapl_VariableSpec_mod
       ! Meaningful only when itemType == MAPL_STATEITEM_STATE
       ! (declare_member enforces this at declaration time); a member's
       ! own short_name field is never read - only the map key is a
-      ! member's identity (design.md Decisions).
+      ! member's identity.
       type(VariableSpecMemberMap) :: members
 
       !=====================
@@ -192,18 +192,15 @@ module mapl_VariableSpec_mod
       ! an ordinary (non-callback) item - GraphBuilder branches on this
       ! field's validity, not on itemType, since a callback-consuming
       ! import is still an ordinary composite STATE item otherwise
-      ! (design.md Decision 0 - mirrors MAPL_STATEITEM_SERVICE's own
-      ! "mark the item, not the connection" precedent without
-      ! overloading itemType itself). Set via plain field assignment
-      ! only (no make_VariableSpec keyword - design.md's own "Explicit
-      ! deferrals": no ComponentSpecParser/YAML or SetServices-
-      ! convenience entry point exists yet, mirroring
-      ! composite-state-spec's own "YAML/HConfig-driven builder... not
-      ! built here" precedent for `members`, below).
+      ! (mirrors MAPL_STATEITEM_SERVICE's own "mark the item, not the
+      ! connection" precedent without overloading itemType itself). Set
+      ! via plain field assignment only (no make_VariableSpec keyword):
+      ! no ComponentSpecParser/YAML or SetServices-convenience entry
+      ! point exists for it, as for `members`, above.
       type(CallbackInterfaceId) :: callback_interface_id
 
       !=====================
-      ! vertical-grid-graph-state-item)
+      ! Composite state variant
       !=====================
       ! Tags a composite declaration (itemType == MAPL_STATEITEM_STATE,
       ! `members` above) with the graph-native MAPL_StateItem_Flag
@@ -216,30 +213,29 @@ module mapl_VariableSpec_mod
       ! when this is allocated, so every existing composite declaration
       ! is unaffected. Mirrors `callback_interface_id`'s own precedent
       ! exactly: "mark the item, not a new itemType," set via plain field
-      ! assignment only, no make_VariableSpec keyword (design.md D2) -
+      ! assignment only, no make_VariableSpec keyword -
       ! chosen over a polymorphic role-class hierarchy since no second
       ! composite role is anticipated yet and MAPL_StateItem_Flag already
       ! provides the needed vocabulary.
       type(MAPL_StateItem_Flag), allocatable :: state_item_variant
 
       !=====================
-      ! ordinary-inout-direct-alias)
+      ! Inout borrower
       !=====================
       ! Marks an import as an ordinary inout borrower (direct-alias case only):
       ! the import's payload is expected to be the same underlying payload as the matched export
       ! it borrows from, with GraphBuilder additionally wiring a
       ! borrower-to-owner return-network edge so the owner's node
-      ! reflects the borrower's result after the borrower executes
-      ! (design.md Decisions 1-3). Default .false. for an ordinary
-      ! (non-inout) import - GraphBuilder branches on this field, not on
-      ! itemType, mirroring `callback_interface_id`'s own "mark the item,
-      ! not a new itemType" precedent exactly. The owner this borrower
+      ! reflects the borrower's result after the borrower executes.
+      ! Default .false. for an ordinary (non-inout) import - GraphBuilder
+      ! branches on this field, not on itemType, mirroring
+      ! `callback_interface_id`'s own "mark the item, not a new itemType"
+      ! precedent exactly. The owner this borrower
       ! pairs with is identified through the existing `MatchConnection`
       ! mechanism already used for ordinary connections - no owner
-      ! reference is stored on the borrower's own VariableSpec (design.md
-      ! Decision 1). Set via plain field assignment only, no
-      ! make_VariableSpec keyword, same as `callback_interface_id`/
-      ! `state_item_variant`.
+      ! reference is stored on the borrower's own VariableSpec. Set via
+      ! plain field assignment only, no make_VariableSpec keyword, same as
+      ! `callback_interface_id`/`state_item_variant`.
       logical :: is_inout_borrower = .false.
 
       !=====================
@@ -770,9 +766,8 @@ contains
    ! for item types exempt from standard_name enforcement
    ! (FieldDictionaryConfig%is_exempt: FieldBundle, State, Wildcard,
    ! Expression, Service), or for Vector (which enforces its own two split
-   ! names internally - see make_ClassAspect's MAPL_STATEITEM_VECTOR case and
-   ! generic/standard-name-enforcement design.md Decision 6). Passing
-   ! `this%standard_name` unallocated is fine: make_StandardNameAspect/
+   ! names internally - see make_ClassAspect's MAPL_STATEITEM_VECTOR case).
+   ! Passing `this%standard_name` unallocated is fine: make_StandardNameAspect/
    ! StandardNameAspect's constructor leaves the aspect ASPECT_STATUS_UNCHECKED
    ! (wildcard) when no value is present.
    function make_StandardNameAspect(this, rc) result(aspect)
@@ -942,16 +937,15 @@ contains
       case (MAPL_STATEITEM_STATE%ot)
          aspect = StateClassAspect(state_intent=this%state_intent)
       case (MAPL_STATEITEM_VECTOR%ot)
-         ! Bugfix (found via openspec change use-field-dictionary-in-scenario-tests):
          ! std_name_1/std_name_2 are intentionally left UNALLOCATED (not
          ! defaulted to the literal 'unknown') when this%standard_name is
          ! absent, so StandardNameAspect's own constructor treats them as
          ! unchecked/wildcard - matching every other absent-standard_name
-         ! case (generic/standard-name-enforcement). The literal 'unknown'
-         ! string used here previously was treated as a real, specified
-         ! name, causing spurious standard_name mismatch warnings for any
-         ! Vector import/export left without an explicit standard_name
-         ! (e.g. the statistics gridcomp's internal vector accumulators).
+         ! case. A literal 'unknown' string would be treated as a real,
+         ! specified name, causing spurious standard_name mismatch warnings
+         ! for any Vector import/export left without an explicit
+         ! standard_name (e.g. the statistics gridcomp internal vector
+         ! accumulators).
          if (allocated(this%standard_name)) then
             call split_name(this%standard_name, std_name_1, std_name_2, _RC)
          end if
@@ -962,8 +956,7 @@ contains
          end if
          ! standard_name is a compound "(name1,name2)" encoding of two
          ! independent CF names (one per physical component), not one
-         ! shared scalar value like units/typekind - see
-         ! generic/standard-name-enforcement design.md Decision 6.
+         ! shared scalar value like units/typekind.
          ! VectorClassAspect enforces/carries the two split names itself
          ! (standard_name_1/standard_name_2), independent of the outer
          ! per-VarSpec StandardNameAspect built below (which is built from
@@ -1007,11 +1000,11 @@ contains
    ! ========================================================================
 
    ! Asserts this%itemType is already MAPL_STATEITEM_STATE (fails loudly
-   ! otherwise - design.md Decisions: no implicit itemType mutation) and
+   ! otherwise: no implicit itemType mutation) and
    ! that no member is already declared under `name` (spec scenario
    ! "Duplicate member name at the same level is rejected"), leaving the
    ! existing entry unchanged on failure. `member`'s own short_name field
-   ! is never read (design.md Decisions).
+   ! is never read.
    subroutine declare_member(this, name, member, rc)
       class(VariableSpec), intent(inout) :: this
       character(*), intent(in) :: name

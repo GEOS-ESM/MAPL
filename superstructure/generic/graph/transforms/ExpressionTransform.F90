@@ -3,7 +3,7 @@
 !------------------------------------------------------------------------------
 ! ExpressionTransform: the real Transform (mapl_Transform_mod) built by
 ! build_expression_evaluation, one per consumer of an EXPRESSION item, N:1
-! resolution (design.md D1/D2/D4/D5). Deliberately independent of legacy's
+! resolution. Deliberately independent of legacy's
 ! EvalTransform/ExtensionTransform interface (initialize/update(this,
 ! importState, exportState, clock, rc),
 ! superstructure/generic/transforms/EvalTransform.F90):
@@ -17,13 +17,13 @@
 ! interface... Reuses... read as a faithful behavioral reference...
 ! never called into"). Unlike those two (fixed 1:1 arity), this
 ! transform's own arity is determined per-instance from the expression
-! string itself (design.md D1/D4): one named input port per referenced
-! variable - the variable's own short name, not a positional convention
-! (D4) - plus one 'destination_field' output port.
+! string itself: one named input port per referenced variable - the
+! variable's own short name, not a positional convention - plus one
+! 'destination_field' output port.
 !
 ! compute() reuses StateArithmeticParser_mod::StateEval directly - the
 ! same byte-code expression engine legacy's own EvalTransform%update
-! already calls (design.md D5) - by assembling its own bound named
+! already calls - by assembling its own bound named
 ! inputs into a fresh ESMF_State (one ESMF_StateAdd per referenced
 ! name, same name the expression string itself uses, so StateEval's own
 ! internal ESMF_StateGet lookup by name resolves correctly with no
@@ -47,7 +47,7 @@ module mapl_ExpressionTransform_mod
    type, extends(Transform) :: ExpressionTransform
       private
       character(:), allocatable :: expression
-      ! design.md D4: the referenced-variable names - also this
+      ! The referenced-variable names - also this
       ! transform's own declared input port names - kept so compute()
       ! can assemble the ESMF_State it hands to StateEval without
       ! re-parsing the expression on every call.
@@ -67,7 +67,7 @@ module mapl_ExpressionTransform_mod
 
 contains
 
-   ! design.md D2 step 4/D4: one declared input port per name
+   ! One declared input port per name
    ! parser_variables_in_expression finds in the expression string,
    ! named after the variable itself, plus one 'destination_field'
    ! output port.
@@ -127,7 +127,7 @@ contains
       end do
    end function expression_get_input_ports
 
-   ! design.md D5: assembles this transform's own bound named inputs
+   ! Assembles this transform's own bound named inputs
    ! into a fresh ESMF_State (one ESMF_StateAdd per referenced name,
    ! under that same name) and calls StateEval directly - the exact
    ! same byte-code evaluator legacy's own EvalTransform%update already

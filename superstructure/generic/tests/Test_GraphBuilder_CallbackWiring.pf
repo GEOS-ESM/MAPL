@@ -1,27 +1,19 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
-! Phase 17-5d (docs/graph/spec/20-implementation-roadmap.md sec
-! 20.4.17, 17-5): split out of Test_GraphBuilder.pf - holds the
-! CallbackWiring-exclusive buckets (13, 18): qualified-export namespace
-! building (build_qualified_export_namespace/collect_qualified_exports),
-! and callback state/method binding construction
-! (build_callback_state_binding/build_callback_method_binding, both
-! called directly, not through gb%). Merged into ONE file per the
-! roadmap's own 17-5 recommendation (same submodule).
+! Tests for the CallbackWiring part of GraphBuilder: qualified-export
+! namespace building (build_qualified_export_namespace/
+! collect_qualified_exports), and callback state/method binding
+! construction (build_callback_state_binding/
+! build_callback_method_binding, both called directly, not through gb%).
 !
-! Carries make_exchanger_interface (bucket 18's own fixture, used only
-! by test_callback_method_binding_builds_get_put_networks) - NOT
-! make_passive_tracer_interface/make_tracer_callback_export/
-! build_tracer_hierarchy, which stayed in Test_GraphBuilder.pf
-! (bucket 16) and are duplicated in
-! Test_GraphBuilder_ConnectionResolution.pf (bucket 17) - this file's
-! own bucket-18 test that needs that hierarchy
-! (test_build_callback_state_binding_uses_real_member_nodeids) is
-! therefore the THIRD place that fixture shape is needed, so it is
-! duplicated here too rather than factored out (see GraphBuilderTest
-! Support_mod's own header for why these per-bucket fixtures were not
-! all hoisted there during 17-1).
+! Carries make_exchanger_interface (used only by
+! test_callback_method_binding_builds_get_put_networks). The tracer
+! hierarchy fixtures (make_passive_tracer_interface,
+! make_tracer_callback_export, build_tracer_hierarchy) are duplicated in
+! Test_GraphBuilder.pf and Test_GraphBuilder_ConnectionResolution.pf, and
+! here for test_build_callback_state_binding_uses_real_member_nodeids,
+! rather than factored into GraphBuilderTestSupport_mod.
 !
 ! Test-only OuterMetaComponent instances are built the same way
 ! Test_GraphBuilder.pf's own fixtures are (bypassing SetServices/DSO
@@ -190,7 +182,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine build_tracer_hierarchy
 
-   ! Task 2.2 / spec "Descendant exports are visible under a
+   ! Spec "Descendant exports are visible under a
    ! hierarchically-qualified name": own export under own name,
    ! descendant exports qualified and distinguishable, re-querying does
    ! not duplicate.
@@ -268,7 +260,7 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_build_qualified_export_namespace_multilevel
 
-   ! Task 2.3 / design.md Risks cross-check: the graph-native qualified
+   ! Cross-check: the graph-native qualified
    ! name for a descendant export matches what
    ! VirtualConnectionPt%get_full_name() would produce for the same
    ! single-level case.
@@ -320,9 +312,9 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_qualified_name_matches_virtualconnectionpt_convention
 
-   ! Task 6.2 / design.md Context: build_callback_state_binding's bound
-   ! argument NodeIds match the real, already-materialized member
-   ! NodeIds in DU's own graph - not caller-supplied stand-ins.
+   ! The argument NodeIds bound by build_callback_state_binding match the
+   ! real, already-materialized member NodeIds in the DU graph - not
+   ! caller-supplied stand-ins.
    @test(npes=[0])
    subroutine test_build_callback_state_binding_uses_real_member_nodeids(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -383,7 +375,7 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_build_callback_state_binding_uses_real_member_nodeids
 
-   ! Task 7.3 / spec "Get and put networks are independently
+   ! Spec "Get and put networks are independently
    ! constructed" + "Each network is acyclic on its own even if their
    ! union is not": a single shared provider item feeds "get" and
    ! receives "put" - provider->value->provider would be a 2-cycle if

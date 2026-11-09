@@ -8,8 +8,7 @@
 ! declared per-method by CallbackMethodSpec (one shared
 ! argument may have different access in different methods); putting
 ! AccessSpec here as well, mirroring ArgumentSpec exactly, would invite a
-! second, unused source of truth (callback-data-model-registry design.md
-! Decision 1).
+! second, unused source of truth.
 !
 ! Unlike ArgumentSpec's optional expected_kind, expected_kind is
 ! required here: every callback example states one, and there is no

@@ -7,23 +7,23 @@
 ! argument name -> member NodeId map (reusing the existing
 ! StateItemMemberMap type unchanged), and a method name -> method
 ! attachment map (reusing the existing StateMethodInvocation adapter
-! type unchanged, callback-data-model-registry design.md Decision 5).
+! type unchanged).
 !
 ! Constructed with a CallbackInterfaceId and a CallbackInterface value
 ! together (rather than resolving the interface itself from a
-! CallbackInterfaceRegistry lookup) - the caller (a test today; Phase
-! 4d's GraphBuilder wiring later) is expected to have already resolved
-! the id via the registry, the same "caller resolves, this module just
-! validates the result" split MethodGraphNode.bind_argument already uses
-! for kind-constraint checks (design.md Decision 6). bind_argument/
-! bind_method both reject a name outside that interface's own
-! declarations (spec scenarios "Binding an argument/method name outside
-! the interface is rejected").
+! CallbackInterfaceRegistry lookup) - the caller (GraphBuilder's
+! build_callback_state_binding, or a test) is expected to have already
+! resolved the id via the registry, the same "caller resolves, this
+! module just validates the result" split MethodGraphNode.bind_argument
+! already uses for kind-constraint checks. bind_argument/bind_method
+! both reject a name outside that interface's own declarations (spec
+! scenarios "Binding an argument/method name outside the interface is
+! rejected").
 !
 ! Does not itself resolve member NodeIds from a real composite callback
 ! State's declared member tree - member NodeIds and method invokers are
 ! caller-supplied, matching MethodGraphNode's own established scope
-! (proposal.md - Why, design.md Non-Goals).
+! (a binding record, not a resolver of the composite State).
 !
 ! invoke_method() materializes a fresh ArgumentSpecMap at call time from
 ! the bound interface's own CallbackArgumentSpec (expected kind) and the
@@ -131,7 +131,7 @@ contains
 
    ! Binds method name -> a StateMethodInvocation attachment
    ! constructed from this binding's own state_node_id (so the caller
-   ! never supplies it redundantly, design.md Decision 5). Requires name
+   ! never supplies it redundantly). Requires name
    ! to be declared on the bound interface (spec scenario "Binding a
    ! method name outside the interface is rejected") and rejects
    ! rebinding an already-bound name. invoker is optional - an

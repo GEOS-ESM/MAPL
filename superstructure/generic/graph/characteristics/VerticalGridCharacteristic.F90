@@ -371,7 +371,7 @@ contains
    ! Set equality: same size, and every name in `a` is present in `b`
    ! (sufficient given neither set is expected to contain duplicates -
    ! REQ "Member names are unique within one composite declaration
-   ! level", composite-state-spec).
+   ! level").
    logical function same_set(a, b) result(equal)
       type(StringVector), intent(in) :: a
       type(StringVector), intent(in) :: b

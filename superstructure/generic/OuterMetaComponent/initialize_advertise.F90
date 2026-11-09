@@ -46,36 +46,23 @@ contains
 
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_ADVERTISE, _RC)
       call self_advertise(this, _RC)
-      ! Phase 3b (docs/graph/spec/20-implementation-roadmap.md sec 20.4.1):
-      ! populate this component's graph representation alongside the
-      ! legacy advertise path, never replacing it - see
-      ! mapl_GraphBuilder_mod's module header and this change's design.md
-      ! "Invocation point" decision. run_advertise_hook() never
-      ! propagates failure into this routine's own error path.
+      ! Populate this component's graph representation alongside the
+      ! legacy advertise path (see mapl_GraphBuilder_mod's module header).
+      ! run_advertise_hook() never propagates failure into this routine's
+      ! own error path.
       call gb%run_advertise_hook(this)
       ! Re-export ports must exist before the parent propagates this
       ! component's export ports.
       call gb%run_reexport_hook(this, _RC)
-      ! initialize_geom_b.F90 (see that file's own comment) - a
-      ! pre-existing timing bug, found while writing this sub-change's
-      ! own pFUnit coverage against a real (DSO-backed) fixture: this
-      ! component's own this%has_geom() is not yet true at
-      ! GENERIC_INIT_ADVERTISE time for a GEOMETRY_PROVIDER component
-      ! (GenericPhases.F90's own GENERIC_INIT_PHASE_SEQUENCE runs
-      ! GEOM_A/GEOM_B strictly AFTER ADVERTISE, not before it, contrary
-      ! to this module's own now-corrected header comment) - calling the
-      ! geometry hook here left graphbuilder_advertise_geometry() a
-      ! silent no-op and push_geometry_to_child() hitting its own
-      ! "called before this component advertised its own geometry"
-      ! assertion for any FROM_PARENT child. Never caught before because
-      ! every existing geometry-hook test (Test_GraphGeometryHook.pf) is
-      ! synthetic - it calls set_geom() directly, bypassing the real
-      ! lifecycle's own GEOM_A/GEOM_B timing entirely.
+      ! No geometry hook here: GEOM_A/GEOM_B run strictly after ADVERTISE
+      ! (GENERIC_INIT_PHASE_SEQUENCE in GenericPhases.F90), so this
+      ! component's has_geom() is not yet true and the hook would be a
+      ! silent no-op. It is called from initialize_geom_b.F90 instead.
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 
       call process_connections(this, _RC)
-      ! Phase 3b: process_connections() above only calls Connection%activate()
-      ! at this phase - it does NOT form real wiring (that is
+      ! process_connections() above only calls Connection%activate() at
+      ! this phase - it does NOT form real wiring (that is
       ! initialize_accept_transfer.F90's job, mirroring connect()). The
       ! activate()-time analog here is likewise read-only: it determines
       ! which ordinary-match imports would be unresolved, matching the
@@ -83,26 +70,22 @@ contains
       ! make, without creating any graph structure (see
       ! mapl_GraphBuilder_mod module header, "Two-phase timing").
       call gb%run_activate_hook(this)
-      ! registry%propagate_unsatisfied_imports() call immediately
-      ! below - placed at the SAME point in this same file, right after
-      ! run_activate_hook, for the same reason legacy's own call sits
-      ! after process_connections()/activate(): a child's own
-      ! is_active()-equivalent state (here, graphbuilder_check_
-      ! unsatisfied_imports/add_dependency wiring) must already reflect
-      ! that child's own just-completed activate-time resolution before
-      ! this component's own mirroring step reads it - mirroring BEFORE
-      ! activate would needlessly bubble every import resolved at the
-      ! child's own level too. Never propagates failure into this
-      ! routine's own error path (same convention as run_advertise_hook/
-      ! run_activate_hook above - see graphbuilder_run_propagate_hook's
-      ! own report_if_failed calls).
+      ! Graph analog of the registry%propagate_unsatisfied_imports() call
+      ! immediately below, placed right after run_activate_hook for the
+      ! same reason legacy's call sits after process_connections()/
+      ! activate(): a child's activate-time resolution must already be
+      ! reflected before this component's mirroring step reads it.
+      ! Mirroring before activate would needlessly bubble every import
+      ! the child resolved at its own level. Never propagates failure
+      ! into this routine's own error path (same as run_advertise_hook/
+      ! run_activate_hook above).
       call gb%run_propagate_hook(this)
       call this%registry%propagate_unsatisfied_imports(_RC)
-      ! the graph-native export-propagation analog of legacy's own
-      ! registry%propagate_exports() call immediately below - same
-      ! "parent reaches into child" shape as run_propagate_hook above,
-      ! but unconditional for exports (no "already resolved" gate - see
-      ! graphbuilder_run_export_propagate_hook's own header comment,
+      ! Graph analog of legacy registry%propagate_exports() immediately
+      ! below - same "parent reaches into child" shape as
+      ! run_propagate_hook above, but unconditional for exports (no
+      ! "already resolved" gate - see
+      ! graphbuilder_run_export_propagate_hook in
       ! GraphBuilder_ConnectionResolution_smod.F90). No ordering
       ! dependency on run_activate_hook/run_propagate_hook (export
       ! propagation only reads child export-port tables, populated

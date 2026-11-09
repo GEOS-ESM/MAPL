@@ -1,4 +1,4 @@
-! Task 4.2 (spec/11-revision-and-update.md).
+! Spec: spec/11-revision-and-update.md.
 !
 ! Synthetic graphs only (StateItemNode/TransformGraphNode via
 ! ComponentGraph) - no ESMF component/GridComp/StateRegistry involved
@@ -415,14 +415,13 @@ contains
       @assertEqual(2, run_count2)
    end subroutine test_two_transform_chain_propagates
 
-   ! Task 5.1 (spec/graph/method-graph-node/spec.md "Method node
-   ! execution is never scheduled by demand-driven update",
-   ! spec/03-graph-node-hierarchy.md). Registers a
+   ! Spec: method-graph-node "Method node execution is never scheduled by
+   ! demand-driven update", spec/03-graph-node-hierarchy.md. Registers a
    ! MethodGraphNode alongside ordinary StateItemNode/TransformGraphNode
-   ! wiring (unconnected - no add_dependency call involves it, matching
-   ! this change's own explicit deferral of wiring MethodGraphNode into
-   ! a real DependencyNetwork), then resolves an unrelated
-   ! TransformGraphNode-produced value via ComponentGraph%update().
+   ! wiring (unconnected - no add_dependency call involves it, since
+   ! MethodGraphNode is not wired into a real DependencyNetwork here),
+   ! then resolves an unrelated TransformGraphNode-produced value via
+   ! ComponentGraph%update().
    ! Confirms the MethodGraphNode's adapter is never invoked -
    ! exercising the existing, unmodified class default branch in
    ! mapl_ComponentGraph_DemandDrivenUpdate_smod against this new node

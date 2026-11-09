@@ -5,8 +5,7 @@
 ! The map value type is the existing StateMethodInvocation
 ! adapter, not a new wrapper type - a callback method attachment *is*
 ! exactly "an invocation adapter bound to this method name on this
-! callback State's NodeId" (callback-data-model-registry design.md
-! Decision 5).
+! callback State's NodeId".
 !------------------------------------------------------------------------------
 module mapl_CallbackMethodAttachmentMap_mod
    use mapl_StateMethodInvocation_mod, only: StateMethodInvocation

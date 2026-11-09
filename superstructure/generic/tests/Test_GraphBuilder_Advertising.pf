@@ -1,15 +1,13 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
-! Phase 17-5b (docs/graph/spec/20-implementation-roadmap.md sec
-! 20.4.17, 17-5): split out of Test_GraphBuilder.pf - holds the
-! Advertising-exclusive buckets (1, 9, 11): basic advertise/public-
+! Tests for the Advertising part of GraphBuilder: basic advertise/public-
 ! port recording, composite advertise/readvertise (tree structure),
-! and vertical-grid composite variant tagging. All three buckets
-! exercise `advertise_one`'s own recursion/tagging exclusively (per
-! 17-3's own characterization, buckets 1/9/11 are the same submodule,
-! so they are merged into this ONE file rather than three separate
-! ones - see the roadmap's own 17-5 recommendation).
+! vertical-grid composite variant tagging, and the characteristics
+! captured at advertise time (item type, fill value, the six newer
+! characteristics, attributes comparison, restart_mode). They exercise
+! the recursion/tagging in `advertise_one` and the characteristic capture
+! done there.
 !
 ! Test-only OuterMetaComponent instances are built the same way
 ! Test_GraphBuilder.pf's own fixtures are (bypassing SetServices/DSO
@@ -364,7 +362,7 @@ contains
    ! Spec "A vertical grid is carried as a nested-state item with per-dimension
    ! coordinate-set members": a composite VariableSpec tagged
    ! state_item_variant = MAPL_STATEITEM_VERTICALGRID materializes (via the
-   ! EXISTING, unmodified composite-state-spec path) as a StateItemNode whose
+   ! existing composite-state path) as a StateItemNode whose
    ! GraphStateItem%variant reports VERTICALGRID, with each declared physical
    ! dimension retrievable as an independently node-identified member.
    @test(npes=[0])

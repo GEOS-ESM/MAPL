@@ -5,10 +5,8 @@
 ! (superstructure/generic/graph/MethodInvocationAdapter.F90)
 ! implementation, resolving a driver_key against a real
 ! OuterMetaComponent's own driver ownership
-! (user_gc_driver + one driver per child) -
-! griddedcomponentdriver-integration-lifecycle design.md Decisions
-! ("The concrete DriverResolver implementation lives in
-! superstructure/generic/, alongside GraphBuilder.F90").
+! (user_gc_driver + one driver per child). It lives in
+! superstructure/generic/, alongside GraphBuilder.F90.
 !
 ! Deliberately a plain module (not an OuterMetaComponent submodule):
 ! resolves entirely through OuterMetaComponent's existing public

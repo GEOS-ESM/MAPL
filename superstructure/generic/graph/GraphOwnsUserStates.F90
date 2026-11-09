@@ -2,7 +2,9 @@
 ! and export ESMF_States. Off by default: legacy fills them and the graph
 ! only creates, completes and aliases Fields. On (GRAPH mode): legacy
 ! skips its user-state population and graph population fills all three.
-! Outer states stay legacy's either way.
+! The outer (parent-visible) import and export states follow the same
+! switch: legacy fills them when it is off, the graph fills them at
+! realize_accepted when it is on.
 module mapl_GraphOwnsUserStates_mod
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_GRAPH
    implicit none

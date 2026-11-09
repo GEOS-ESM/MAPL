@@ -1,19 +1,17 @@
 cap -> comp_mid -> comp_dst (recursive import mirroring)
 ==========================================================
 
-This fixture resurrects the test shape named by
-openspec/changes/hierarchy-wide-component-graph, tasks.md 6.5 and
-design.md D3's own postmortem of the rejected "search the subtree"
-alternative: `comp_mid` is an intermediate component that declares
+This fixture covers the case a "search the subtree" resolution would
+get wrong: `comp_mid` is an intermediate component that declares
 *no* connection of its own, and has no advertised import of its own
 either - its only child, `comp_dst`, is the one that advertises an
 unresolved import (`T`). `cap` (the grandparent) declares an ordinary
 `all_unsatisfied` connection naming `comp_src` as source and `comp_mid`
-as destination - `comp_mid`, not `comp_dst` - exactly the shape design.md
-D3 points out a subtree-search approach could not reproduce correctly
-(nothing at `cap`'s level names `comp_dst` specifically; `cap`'s
-connection only happens to name `comp_mid`, the component one level
-closer, as its own declared destination).
+as destination - `comp_mid`, not `comp_dst` - exactly the shape a
+subtree-search approach could not reproduce correctly (nothing at
+`cap`'s level names `comp_dst` specifically; `cap`'s connection only
+happens to name `comp_mid`, the component one level closer, as its own
+declared destination).
 
 For this connection to resolve, `comp_dst`'s own unresolved import
 must already be mirrored into `comp_mid`'s own import-port table by
@@ -39,9 +37,7 @@ Expected structural outcome:
   `Test_GraphModeDemonstration.pf`'s own
   `test_graph_mode_mirrors_grandchild_import_recursively`.
 
-Task 6.7 (explicitly out of scope here, per design.md D3's own
-"genuinely open" note): inserting the mirrored import into
-`comp_mid`'s own real `ESMF_State` under a child-qualified name
-(`comp_dst/T`) is not implemented yet - this fixture exercises only
-the graph-side structural outcome above, not a real run-phase value
-flowing into `comp_mid`'s own real import state.
+Out of scope here: inserting the mirrored import into `comp_mid`'s own
+real `ESMF_State` under a child-qualified name (`comp_dst/T`). This
+fixture exercises only the graph-side structural outcome above, not a
+real run-phase value flowing into `comp_mid`'s own real import state.

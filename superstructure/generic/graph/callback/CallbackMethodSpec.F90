@@ -7,11 +7,9 @@
 ! different access mode in each method (e.g. the PassiveTracer example,
 ! §15.3: "tracers" is OUT in "get" and IN in "put").
 !
-! A thin wrapper around a new AccessSpecMap (callback-data-model-
-! registry design.md Decision 2), not a bespoke map and not a reuse of
-! ArgumentSpecMap - ArgumentSpec carries an unused kind-constraint field
-! that would be dead weight on every entry here (see design.md Decision
-! 2's rejected alternative).
+! A thin wrapper around an AccessSpecMap, not a bespoke map and not a
+! reuse of ArgumentSpecMap - ArgumentSpec carries an unused
+! kind-constraint field that would be dead weight on every entry here.
 !------------------------------------------------------------------------------
 module mapl_CallbackMethodSpec_mod
    use mapl_AccessSpec_mod, only: AccessSpec

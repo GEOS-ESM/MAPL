@@ -58,8 +58,7 @@ module mapl_VectorClassAspect_mod
       ! units/typekind which are one shared scalar value for the whole
       ! vector - so, unlike those, standard_name is enforced per-component
       ! directly here rather than through a single outer StandardNameAspect
-      ! entry in the VarSpec's shared AspectMap. See
-      ! generic/standard-name-enforcement design.md Decision 6.
+      ! entry in the VarSpec's shared AspectMap.
       type(StandardNameAspect) :: standard_name_aspects(2)
       type(MAPL_VectorBasisKind) :: basis_kind
    contains
@@ -104,8 +103,7 @@ contains
    ! Should always be the same as for Field, minus STANDARD_NAME_ASPECT_ID:
    ! agreement for standard_name is checked per-component directly in
    ! matches() below (not through a separate outer aspect-map slot), because
-   ! the two components generally have different, independent CF names - see
-   ! generic/standard-name-enforcement design.md Decision 6.
+   ! the two components generally have different, independent CF names.
    function get_aspect_order(this, goal_aspects, rc) result(aspect_ids)
       type(AspectId), allocatable :: aspect_ids(:)
       class(VectorClassAspect), intent(in) :: this
@@ -229,8 +227,7 @@ contains
         end do
       end associate
 
-      ! This component's own split standard_name (see
-      ! generic/standard-name-enforcement design.md Decision 6) - applied
+      ! This component's own split standard_name - applied
       ! LAST, after the generic sibling loop above, because `other_aspects`
       ! (the outer, per-VarSpec AspectMap) still contains an unconsulted
       ! STANDARD_NAME_ASPECT_ID entry built from the *unsplit* compound
@@ -288,8 +285,7 @@ contains
 
       ! Per-component standard_name: already validated (equal, wildcard, or
       ! accepted per permissive mode) by matches() above; each component
-      ! unconditionally adopts its counterpart's (already-matched) value -
-      ! see generic/standard-name-enforcement design.md Decision 6.
+      ! unconditionally adopts its counterpart's (already-matched) value.
       do i = 1, NUM_COMPONENTS
          call this%standard_name_aspects(i)%connect_to_export( &
               export_%standard_name_aspects(i), actual_pt, _RC)

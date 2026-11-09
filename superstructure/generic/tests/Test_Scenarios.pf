@@ -1,7 +1,6 @@
 #include "MAPL_TestErr.h"
 
-! All scenarios run under STRICT field-dictionary ValidationMode (see
-! openspec change use-field-dictionary-in-scenario-tests). Built via the
+! All scenarios run under STRICT field-dictionary ValidationMode. Built via the
 ! Initialize_strict() EXTRA_INITIALIZE hook (pfunit/MAPL_Initialize.F90).
 ! Every other pFUnit binary in this directory still uses plain Initialize()
 ! (default PERMISSIVE) and is unaffected.
@@ -429,14 +428,12 @@ contains
 
       associate (outer_gc => this%outer_gc, outer_states => this%outer_states, grid => this%grid)
 
-        ! docs/graph/spec/20-implementation-roadmap.md sec 20.4.21,
-        ! sub-step 21-1: this test's own bootstrap sequence (ESMF_Config
-        ! -> ESMF_GridCompCreate -> SetServices ->
-        ! GENERIC_INIT_PHASE_SEQUENCE) has been factored into
-        ! build_scenario_tree, shared with the new standalone graph
-        ! diagnostic driver (apps/graph_diagnostic/). This test is the
-        ! regression check for that extraction: everything below this
-        ! call (the run-phase loop, expectations loading) is unchanged.
+        ! docs/graph/spec/20-implementation-roadmap.md sec 20.4.21:
+        ! the bootstrap sequence (ESMF_Config -> ESMF_GridCompCreate ->
+        ! SetServices -> GENERIC_INIT_PHASE_SEQUENCE) lives in
+        ! build_scenario_tree, shared with the standalone graph
+        ! diagnostic driver (apps/graph_diagnostic/). Everything below this
+        ! call (the run-phase loop, expectations loading) is specific to this test.
         call build_scenario_tree(file_name, outer_gc, outer_meta, &
              clock=clock, importState=importState, exportState=exportState, _RC)
 

@@ -39,16 +39,14 @@ contains
       call this%run_custom(ESMF_METHOD_INITIALIZE, 'GENERIC::INIT_ACCEPT_TRANSFER', _RC)
 
       call process_connections(this, _RC)
-      ! Phase 3b: process_connections() above calls Connection%connect()
-      ! at this phase - the real wiring step (versus activate() at
-      ! GENERIC_INIT_ADVERTISE, see initialize_advertise.F90). This is
-      ! therefore the correct point for GraphBuilder's own real graph
-      ! mutation (proxy nodes + dependency edges) and freeze, additional
-      ! to, not a replacement for, process_connections() above - see
-      ! mapl_GraphBuilder_mod module header, "Two-phase timing". Runs
-      ! after recursion, so every child has already completed its own
-      ! accept-transfer step (real edges + freeze) by this point, making
-      ! cross-boundary proxy/lookup reads well-defined.
+      ! process_connections() above calls Connection%connect() at this
+      ! phase - the real wiring step (versus activate() at
+      ! GENERIC_INIT_ADVERTISE, see initialize_advertise.F90). So this is
+      ! where GraphBuilder adds its dependency edges, in addition to
+      ! process_connections() (see mapl_GraphBuilder_mod header,
+      ! "Two-phase timing"). Runs after recursion, so every child has
+      ! already completed its own accept-transfer step by this point and
+      ! cross-boundary lookups are well-defined.
       call gb%run_connect_hook(this)
       ! After run_connect_hook (sibling exports are advertised) and before
       ! propagate_exports. A problem in an expression is fatal in every
@@ -61,17 +59,11 @@ contains
 
       user_states = this%user_gc_driver%get_states()
       tmp_states = MultiState(importState=user_states%importState)
-      ! spec "graph mode makes graph-native population the real
-      ! producer": in GRAPH_MODE_GRAPH, graph-native population
-      ! (immediately below) is the sole real producer for this
-      ! component - legacy's own add_to_states is skipped entirely
-      ! rather than running alongside it (never GRAPH_MODE_BOTH, which
-      ! runs graph-native materialization but never touches a shared
-      ! ESMF_State - design.md "both mode's no-collision guarantee is
-      ! structural"). Not exercised end-to-end by any fixture in this
-      ! phase (proposal.md/design.md's own explicit "demonstrate before
-      ! replace" deferral) - verified only via graph_mode()'s own direct
-      ! unit coverage and code-level inspection.
+      ! Legacy add_to_states is skipped in GRAPH mode, so legacy and the
+      ! graph do not both fill the user states. When
+      ! graph_populates_user_states() is on, the graph fills the real user
+      ! states here and the outer states at realize_accepted
+      ! (initialize_realize_accepted.F90).
       if (graph_mode() /= GRAPH_MODE_GRAPH) then
          call this%registry%add_to_states(tmp_states, mode='user', _RC)
       end if

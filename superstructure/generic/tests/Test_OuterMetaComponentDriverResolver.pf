@@ -1,12 +1,11 @@
 #include "MAPL_TestErr.h"
 #include "unused_dummy.H"
 
-! Task 3.2 (spec/12-methods-and-drivers.md,
-! griddedcomponentdriver-integration-lifecycle spec.md "A driver key
-! resolves to an owned driver without exposing driver identity as a
-! pointer"). OuterMetaComponentDriverResolver's real
-! driver_key resolution against a real OuterMetaComponent's own driver ownership
-! (own driver + one driver per child).
+! Spec: spec/12-methods-and-drivers.md.
+! The real driver_key resolution of OuterMetaComponentDriverResolver
+! against the driver ownership of a real OuterMetaComponent (own driver
+! + one driver per child), without exposing driver identity as a
+! pointer.
 !
 ! Test-only OuterMetaComponent instances are built the same way
 ! Test_ComponentHierarchyGraph.pf/Test_GraphBuilder.pf do (bypassing
@@ -24,8 +23,7 @@ module Test_OuterMetaComponentDriverResolver
 contains
 
    ! make_outer_meta shared via GraphBuilderTestSupport_mod
-   ! (docs/graph/spec/20-implementation-roadmap.md sec 20.4.17,
-   ! sub-step 17-1).
+   ! (docs/graph/spec/20-implementation-roadmap.md sec 20.4.17).
 
    ! Spec scenario "Own-driver key resolves to the component's own
    ! driver": both the '<self>' sentinel and an empty key resolve to

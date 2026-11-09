@@ -3,7 +3,7 @@
 !------------------------------------------------------------------------------
 ! CallbackMethodBinding: the method-level binding record connecting one
 ! callback method's invocation to the graph structure it operates on
-! (spec/15-callbacks.md, design.md Decision 6). It is one of the metadata
+! (spec/15-callbacks.md). It is one of the metadata
 ! concepts of 15-callbacks.md sec 15.2; the other, CallbackMethodAttachment,
 ! reuses StateMethodInvocation instead of adding a new type.
 !
@@ -17,7 +17,7 @@
 ! separate StateItemMemberMaps, one per direction, rather than one map
 ! keyed by a compound (argument_name, direction) key - mirrors
 ! CallbackStateBinding's own established "one plain gFTL map per
-! concept" precedent (design.md Decision 6).
+! concept" precedent.
 !
 ! For an argument that is only ever read (a "get"-only argument) or only
 ! ever written (a "put"-only argument), the corresponding empty map is

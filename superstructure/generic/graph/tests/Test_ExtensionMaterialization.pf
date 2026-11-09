@@ -290,10 +290,9 @@ contains
       @assertEqual(0, status)
 
       ! Simulate the export item already having a real, populated field -
-      ! out of this capability's own scope (it only materializes the
+      ! out of scope for this test (it only materializes the
       ! *extension* item; the export/source item's own realization is
-      ! separate, later integration work, proposal.md "Explicitly out of
-      ! scope").
+      ! separate integration work).
       input_field = FieldCreate(geom=geom, typekind=ESMF_TYPEKIND_R4, units='m', rc=status)
       @assertEqual(0, status)
       call assign_fptr(input_field, x_in, rc=status)

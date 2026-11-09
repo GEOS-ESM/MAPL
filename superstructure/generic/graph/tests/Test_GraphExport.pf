@@ -1,4 +1,4 @@
-! Task 5.3 (spec/19-visualization-export.md §19.2).
+! Spec: spec/19-visualization-export.md §19.2.
 !
 ! Synthetic graph only - no OuterComponent/StateRegistry/hierarchy type
 ! is referenced anywhere in this file, matching the exit criterion in
@@ -311,10 +311,7 @@ contains
       @assertTrue(index(dot_text, 'payload="FIELD"') > 0)
    end subroutine test_export_excludes_payload_data
 
-   ! Task 2.1/2.2 (spec.md "Labeled node appears under its supplied
-   ! label in DOT/JSON" / "Export without a label lookup is unchanged" /
-   ! "Node with no lookup entry falls back to its identity string"):
-   ! a labeled node shows its supplied label; an unlabeled node (present
+   ! A labeled node shows its supplied label; an unlabeled node (present
    ! in the map argument but with no entry) still falls back to
    ! NodeId%to_string(); omitting the argument entirely reproduces the
    ! exact pre-enrichment output.
@@ -351,9 +348,8 @@ contains
       @assertTrue(index(json_labeled, '"label": "' // extra_input_id%to_string() // '"') > 0)
    end subroutine test_label_lookup_overrides_identity_with_fallback
 
-   ! Task 2.3 (spec.md "Proxy node is visually distinct in DOT" /
-   ! "Proxy node carries a proxy field in JSON" / "Ordinary node carries
-   ! no proxy marking").
+   ! A proxy node is visually distinct in DOT and carries a proxy field in
+   ! JSON; an ordinary node carries no proxy marking.
    @test
    subroutine test_proxy_flag_marks_node_distinguishably()
       type(ComponentGraph) :: graph

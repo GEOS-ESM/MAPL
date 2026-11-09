@@ -3,7 +3,7 @@
 !------------------------------------------------------------------------------
 ! GraphScenarioBootstrap: reusable, non-pFUnit-coupled extraction of
 ! Test_Scenarios.pf's own setup() bootstrap sequence (docs/graph/spec/
-! 20-implementation-roadmap.md sec 20.4.21, Phase 21, sub-step 21-1).
+! 20-implementation-roadmap.md sec 20.4.21).
 !
 ! Goal (sized for this one extraction, per the roadmap's own exit
 ! criterion): take a top-level YAML config file path in, drive it
@@ -11,8 +11,8 @@
 ! GENERIC_INIT_PHASE_SEQUENCE sequence Test_Scenarios.pf's own setup()
 ! already performs, and hand back a real, fully-advertised-and-
 ! connected OuterMetaComponent tree (reached via the returned
-! ESMF_GridComp and get_outer_meta()) - exactly the input the Phase 21
-! driver (21-2) needs to walk and export.
+! ESMF_GridComp and get_outer_meta()) - exactly the input the
+! graph_diagnostic driver needs to walk and export.
 !
 ! Deliberately NOT reproduced here: setup()'s own ESMF_HConfig-driven
 ! numsteps/run-phase loop, its tearDown(), or anything about pFUnit's
@@ -34,7 +34,7 @@
 ! against './scenarios/FieldDictionary.yml' - that path is specific to
 ! superstructure/generic/tests/'s own WORKING_DIRECTORY convention.
 ! Callers running against a different working directory (e.g. the
-! Phase 21 driver, apps/graph_diagnostic/) must call
+! graph_diagnostic driver, apps/graph_diagnostic/) must call
 ! NUOPC_FieldDictionarySetup themselves first (or rely on
 ! MAPL_Initialize's own default field-dictionary loading) - this
 ! module does not hardcode a path that would only be valid from one

@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
 """render_graph.py: render a Graphviz .dot file to an image.
 
-Standalone, non-Fortran companion to graph/visualization-export
+Standalone, non-Fortran companion to the graph exporter
 (superstructure/generic/graph/GraphExport.F90): turns a .dot file
 produced by that exporter (optionally enriched with human-readable
-labels/proxy markers by GraphBuilder.F90's build_label_map, see
-graph/visualization-enrichment-layer) into a rendered image, per
-REQ-VIZ-002's "delegated to established external tools" posture.
+labels/proxy markers by GraphBuilder.F90's build_label_map) into a
+rendered image, per REQ-VIZ-002's "delegated to established external
+tools" posture.
 
 Shells out to the system's installed Graphviz `dot` executable via
 `subprocess` - no third-party Python package dependency (stdlib only).
-DOT input only; JSON export is a different, not-yet-needed consumer
-(REQ-VIZ-009) - see openspec/changes/visualization-enrichment-layer/
-design.md, "Render script shells out to the `dot` binary via
-subprocess".
+DOT input only; JSON export is a different, not-yet-needed consumer.
 
 Usage:
     render_graph.py <input.dot> <output.svg|output.png|...>
