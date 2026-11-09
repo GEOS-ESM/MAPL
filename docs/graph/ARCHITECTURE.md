@@ -173,7 +173,7 @@ factories (so far units, typekind, ungridded dims, geometry, vertical grid, vert
 | `PhysicalUnits` | `PHYSICAL_UNITS_CHARACTERISTIC_KIND` | Real: `UnitsConverterTransform` |
 | `TypeKind` | `TYPE_KIND_…` | Real: `TypeKindConverterTransform` |
 | `ItemShape` | `ITEM_SHAPE_…` | Every shape. Real for `BRACKET`→`FIELD` only (`BracketTimeInterpolationTransform`); `VECTORBRACKET`→`VECTOR` unsupported; pairs the shape matrix rejects (including `VECTORBRACKET`→`VECTORBRACKET`) are incompatible. Owns `get_extension_order` |
-| `Geometry` | `GEOMETRY_…` | Real for a pair that both hold an `ESMF_Geom`: `HorizontalRegridTransform` with the param from `select_regridder_param` (the side that declares one, else the default). An id-only pair (component-level geometry wiring) is unsupported; both sides declaring a regridder param is incompatible, checked first (`GeometryCharacteristic.F90:180-208`). Overrides `build_transform_for_item`: a tip whose `ITEM_SHAPE` is not FIELD (bundle, bracket, vector, ...) is unsupported (`:213-236`). `get_signature` appends the regridder param's `to_string()`, so imports asking for different methods do not share a chain (`:240-276`) |
+| `Geometry` | `GEOMETRY_…` | Real for a pair that both hold an `ESMF_Geom`, with the param from `select_regridder_param` (the side that declares one, else the default). An id-only pair (component-level geometry wiring) is unsupported; both sides declaring a regridder param is incompatible, checked first (`GeometryCharacteristic.F90:190-224`, shared by both item paths). Overrides `build_transform_for_item` to dispatch on the tip's `ITEM_SHAPE` item class: FIELD gets `HorizontalRegridTransform`; VECTOR and BRACKET get `HorizontalBundleRegridTransform`; FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE and WILDCARD are unsupported. A tip with no `ITEM_SHAPE` entry (component-level wiring) is not restricted (`:230-263`). `get_signature` appends the regridder param's `to_string()`, so imports asking for different methods do not share a chain (`:267-303`) |
 | `VerticalGrid` | `VERTICAL_GRID_…` | Single overlap: still unsupported (`vcoord_build_transform` does not build `VerticalColumnRegridTransform`, `VerticalGridCharacteristic.F90:252-286`); incompatible and ambiguous overlaps `_FAIL` with distinct messages |
 | `VerticalStagger` | `VERTICAL_STAGGER_…` | Unsupported — mismatch is detected, repair is a stub (`VerticalStaggerCharacteristic.F90:98-108`) |
 | `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Unsupported — mismatch is detected, `build_transform` does not build `VerticalFlipTransform` (`VerticalOrientationCharacteristic.F90:97-107`). A grid with no direction (a single level) leaves the entry `SPECIFIED` holding `UNSPECIFIED`; `write_info` writes nothing for it, so the Field keeps `with_grid` (`VerticalOrientationCharacteristic.F90:135-136`). An `INVALID` direction still fails `write_info`. `UNSPECIFIED` against an explicit up or down still compares unequal |
@@ -229,15 +229,26 @@ are built before the transform, so a failing input leaves no evaluation.
 `TransformBase`, `Transform` (abstract; `Transform` adds the compute
 interface over named ports), `TransformGraphNode` (`get_transformer()`
 returns the held `Transform` read-only, `TransformGraphNode.F90:96-101`),
-and seven concrete transforms: `UnitsConverterTransform`,
+and eight concrete transforms: `UnitsConverterTransform`,
 `TypeKindConverterTransform`, `BracketTimeInterpolationTransform` (built by
 `ItemShapeCharacteristic%build_transform`), `ExpressionTransform` (built
 by the connect-time expression path in `GraphBuilder_ConnectionResolution_smod.F90`, not by a characteristic),
-`HorizontalRegridTransform` (field only; built by
-`GeometryCharacteristic%build_transform`), and the two vertical Transforms
-below. The horizontal regrid Transform gets its regridder from
+`HorizontalRegridTransform` (Field; built by
+`GeometryCharacteristic%build_transform_for_item`),
+`HorizontalBundleRegridTransform` (VECTOR and BRACKET bundles; built by the
+same method), and the two vertical Transforms below. The horizontal regrid Transform gets its regridder from
 `RegridderManager` at the first `compute`, from the bound fields' geoms and
 typekinds, and gets a new one when a geom or typekind changes.
+`HorizontalBundleRegridTransform` regrids a bundle with one
+`Regridder%regrid(fb_in, fb_out)` call, so the two vector components go
+through one rotated regrid. It creates the output members at compute (a
+clone of each input member on the output geom) and again when the input
+member count changes. A regridded VECTOR takes the input `vector_basis_kind`.
+A BRACKET is regridded when `bracket_updated` is true, and on the first
+compute or after a regridder, geom, typekind or member-set change whatever
+the flag says; it also copies the input interpolation weights to the output.
+No bundle payload is created yet, so the chain is built but a bundle item
+is not filled in the graph.
 `EsmfRegridderParam%to_string` (a deferred `RegridderParam` method; compact
 JSON of `make_info`, `EsmfRegridder.F90:292-306`) is what the Geometry
 signature, and so the chain key, carries.
@@ -255,7 +266,8 @@ build (`VerticalColumnRegridTransform.F90:296-314`); an R8 field fails
 (`:395-401`, message shared through `vertical_regrid_r8_message`).
 Vertical-grid and orientation mismatches are therefore reported as
 unsupported and the graph leaves those connections unwired. A geometry
-mismatch on a bundle, bracket or vector item is likewise unsupported.
+mismatch on a FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE or WILDCARD item is
+likewise unsupported.
 
 ### 1.2 Integration layer (`superstructure/generic/`, top level)
 
@@ -517,19 +529,23 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
 | Item class | Graph-mode path |
 |---|---|
 | FIELD, FIELDBUNDLE, STATE | Ordinary resolution + characteristic extension chain |
+| VECTOR, BRACKET (geometry mismatch) | The extension chain holds a `HorizontalBundleRegridTransform` link of the item's class (BRACKET→FIELD adds time interpolation after it). `materialize_extension_chain` refuses a link whose declared class is not FIELD with `unsupported_item_class:<class>`, so no bundle payload is created yet. A chain link takes its declared class from its `ITEM_SHAPE` entry (`StateItemDescriptor%take_declared_item_type_from_shape`; an EXPRESSION shape gives FIELD) |
 | BRACKET → FIELD | `ItemShapeCharacteristic` + `BracketTimeInterpolationTransform` |
 | VECTORBRACKET | Not handled: legacy only (matrix: VECTOR unsupported, others incompatible). `to_itemtype` in the compiled parser does not parse `'vector_bracket'`. |
 | EXPRESSION | Placeholder export; names check in `graphbuilder_run_expression_hook`; one `ExpressionTransform` (N:1) evaluation per consumer, built in `resolve_one_pair` |
 | WILDCARD | `resolve_wildcard_destination` (fan-in of every matching FIELD producer as composite members; other shapes are skipped) |
-| SERVICE | Excluded from graph resolution (`is_ordinary_resolvable_import`); being retired in favor of callbacks |
+| SERVICE | Resolved like any other item by `resolve_one`. `is_ordinary_resolvable_import` only keeps an unresolved SERVICE import from being propagated to an ancestor. `try_alias_export_field` does not check the item class, so a SERVICE (or VECTOR) export found by name is read as a Field: the `ESMF_StateGet(field=)` call returns rc=13 (known bug; the intended behavior is that a SERVICE pair is aliased like any bundle). Being retired in favor of callbacks |
 | Callback arguments | `GraphBuilder_CallbackWiring_smod.F90` |
 
 ## 3. Known limitations (current)
 
 - A horizontal regrid is built only for a Field whose two sides hold an
   `ESMF_Geom` (§1.1). An id-only geometry pair, and a geometry mismatch on a
-  bundle, bracket or vector item, are reported unsupported, so the graph
-  leaves those connections unwired.
+  FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE or WILDCARD item, are reported
+  unsupported, so the graph leaves those connections unwired. A VECTOR or
+  BRACKET geometry mismatch builds a `HorizontalBundleRegridTransform` chain,
+  but `materialize_extension_chain` refuses its non-FIELD links, so no
+  bundle payload exists and the bundle is not regridded in the graph.
 - `VerticalColumnRegridTransform` and `VerticalFlipTransform` exist, but no
   characteristic builds them: a single-overlap `VerticalGrid` mismatch, a
   `VerticalStagger` mismatch and a `VerticalOrientation` mismatch are all
@@ -564,7 +580,7 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
 - Some mismatches are detected but not repaired (see §1.1): VerticalGrid
   (single overlap), VerticalStagger, VerticalOrientation, a QuantityType
   basis-only mismatch, VECTORBRACKET→VECTOR, and Geometry for an id-only
-  pair or a non-Field item.
+  pair or a FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE or WILDCARD item.
 - A mirrored (propagated) import is not inserted into the real
   `ESMF_State` under a child-qualified name (archived task 6.7 of
   `hierarchy-wide-component-graph`; needs a new branch in
