@@ -1350,6 +1350,22 @@ in the first one; later ones refine it.
   rule, forcing UNCHECKED stays with B3-Expression (Q3). No production
   path calls `sync_to_info` yet.
 
+**B3-SkipLegacyCouplers** (owner, 2026-11-09; merge blocker). ifx Debug
+(`-fpe0`) traps "floating invalid" in `ConvertUnitsTransform` in four
+scenarios that set `graph_owns_user_states` and have a legacy units
+coupler (`invalidate`, `units_mismatch_run_phase`,
+`units_and_typekind_mismatch`, `grandparent_units_run_phase`); NAG and
+gfortran compute a NaN silently. Cause (the owner's bucy agent): with the
+switch on, A writes into the graph's Field, while the legacy coupler's
+input aliases the legacy payload, which nobody writes and which still holds
+the FieldFill signaling-NaN sentinel. Owner decision (option a): skip the
+legacy import and export couplers in `OuterMetaComponent/run_user.F90`
+when `graph_populates_user_states()`; aliasing or copying into the legacy
+payload (options b, c) were rejected. The author first verifies that the
+graph delivers the data in that mode. The owner confirms ifx on bucy.
+Owner commits.
+- **Status:** in progress (2026-11-09).
+
 **B4. Remove manual dispatch.** Delete `merged_item_for_link`'s kind
 chain, the `get_item_<kind>` getters (`get_item_units`/`get_item_typekind`/
 `get_item_ungridded_dims`/`get_item_geom`/`get_item_vgrid`, plus any later B3 task adds), scalar args of
@@ -1481,7 +1497,9 @@ ready means today" in `scenario-parity.md`). May be split into
   now, that means non-Field items report "unsupported", through an
   optional item-kind argument that only geometry reads. I add C1-geom-c
   (bundle regrid, including bracket and vector) to the plan after
-  C1-geom-b."). Follow-up: C1-geom-c. Known limit until then: a geometry
+  C1-geom-b."). Follow-up: C1-geom-c. Known limit until C1-geom-c-a
+  (landed c1dd7cbed; VECTOR and BRACKET now regrid, FIELDBUNDLE and
+  VECTORBRACKET still do not): a geometry
   mismatch on a FIELDBUNDLE, BRACKET, VECTOR or VECTORBRACKET item reports
   unsupported GEOMETRY (legacy regrids it in hybrid mode). The regrid
   value check was probed (regrid output overwritten -> the value check
@@ -1536,7 +1554,23 @@ ready means today" in `scenario-parity.md`). May be split into
   in Test_Scenarios.pf, the connect-time R8 warning and basic-count
   INCOMPATIBLE, scenario flips, and doc drift (ARCHITECTURE.md ~168,
   ~229, ~407; VerticalOrientationCharacteristic.F90:18 header).
-  C1-vertical-b, C1-geom-c: not started.
+  C1-vertical-b: not started. C1-geom-c-a done (c1dd7cbed, owner commit):
+  `HorizontalBundleRegridTransform` regrids a VECTOR (one rotated
+  `Regridder%regrid(fb_in, fb_out)` call, exporter basis kept) or a
+  BRACKET (only when `bracket_updated`, and on the first compute or after a
+  regridder, geom, typekind or member-set change whatever the flag says;
+  interpolation weights copied) and creates the output members at compute
+  by cloning the input members. `GeometryCharacteristic` dispatches on the
+  tip item class (FIELD: Field regrid; VECTOR, BRACKET: bundle regrid;
+  others unsupported). A chain link takes its declared item class from its
+  ITEM_SHAPE entry (EXPRESSION gives FIELD). Owner-approved GraphBuilder
+  exception: `materialize_extension_chain` refuses a link whose item class
+  is not FIELD (`unsupported_item_class:<class>`). No bundle payload, no
+  scenario change. VECTORBRACKET stays unsupported (follow-up with tests).
+  NAG and gfortran 69/69. C1-geom-c-b: not started.
+  Nit for C1-geom-c-b: `Test_HorizontalBundleRegridTransform.pf:21` imports
+  `MAPL_FIELDBUNDLETYPE_BASIC` and `MAPL_FIELDBUNDLETYPE_VECTORBRACKET`
+  unused.
   - Owner (2026-11-08, C1-geom-b): both sides declaring a regridder param
     is INCOMPATIBLE (A23), not a `_FAIL`; the param is part of the
     geometry signature, so imports with different params do not share a
@@ -1650,6 +1684,16 @@ affected scenarios to ready (unless masked: M3).
   state for propagated (qualified) exports.
 - `C2-alias-nonfield` (R2): export aliasing assumes a Field; VECTOR and
   SERVICE return rc=13. After `C2-alias-owner` (same procedure).
+- Owner decisions for `C2-alias-owner` and `C2-alias-nonfield`
+  (2026-11-09, from the preflight): one author, two commits (R1, then R2),
+  separate reviews. A SERVICE pair is aliased like any bundle (no special
+  case). Masked scenarios are flipped to ready with a "masked" note and a
+  parity row: `statistics` after R1; `service_service` and
+  `service_with_options` after R2. `vector_1` does not flip (it needs
+  `C1-geom-c-b`); `statistics_real` stays pending (`C2-runphase-args`).
+  Record the failing results first (`MAPL_SCENARIO_PENDING=1
+  MAPL_SCENARIO_ONLY=<name>`). `ARCHITECTURE.md` ~524 wrongly says SERVICE
+  is excluded (meta's doc batch).
 - `C2-runphase-args` (P1): run-phase method-node arguments keyed by
   short name collide when an import and export share a name; key by
   (intent, short name). The diagnosis's name-mangling experiment broke
@@ -1730,6 +1774,10 @@ it runs goes in a follow-up commit with the same trailer. Label
   nothing reads (the code reads `grid_type`; the direction comes from the
   levels), and their `expectations.yaml` comments call decreasing levels
   "downward". Fix those too, after `C1-vertical-direction`.
+- `superstructure/generic/tests/Test_FixedLevelsVerticalGrid.pf` is in no
+  `CMakeLists.txt` and uses a removed constructor; it is a dead copy of
+  `infrastructure/vertical/vertical_grid/tests/Test_FixedLevelsVerticalGrid.pf`
+  (found by the D5-AllocatableResults-B review). Delete it.
 - Scenario fixtures with `/`-qualified short names (e.g. `A/E_A1`) have
   no field-dictionary entries, so every run logs "not found in field
   dictionary (as an alias)" (`VariableSpec.F90` alias lookup; the lookup
@@ -1908,9 +1956,25 @@ reports, `allocatable-results-survey.md`). Two tasks (owner, 2026-11-06):
   `get_specs`, `get_aspect_order` in the spec classes, vertical-grid
   factories, `make_ClassAspect`, `GeomAspect`/`ConservationAspect`
   `make_transform`. Eight results are polymorphic. No behavior change.
-  - **Status:** issued as GEOS-ESM/MAPL#5494 to Purnendu
-    (2026-11-09; first offered to Shayon, reassigned by the owner);
-    awaiting his draft PR.
+  - **Status:** done (c32f21792, PR #5496 by Purnendu, squash-merged
+    2026-11-09; NAG and gfortran Debug ESSENTIAL 69/69 on meta's run).
+    32 functions allocate a placeholder result first. Owner decisions
+    (2026-11-09): the `VerticalGridFactory` wrappers allocate a
+    `MirrorVerticalGrid` placeholder (option a); `Subgrid.F90` and the
+    other sites the reviewer found go to `D5-AllocatableResults-C`.
+- `D5-AllocatableResults-C` (owner, 2026-11-09; before legacy is
+  dropped): the remaining error-path sites. `Subgrid.F90`
+  `make_subgrids_from_num_grids` / `_from_bounds` (`_RC` before the
+  allocate), substates, OpenMP-related allocatable results (the
+  `OpenMP_Support` copies), the `create_grid_from_file_metadata` test, and
+  the reviewer's candidates: `SharedIO.F90:307,349`,
+  `HConfigAs.F90:252,275`, `make_EASEGeomSpec_from_hconfig.F90:114`,
+  `LocStreamGeomFactory.F90:185`, `get_coordinates_dim.F90:20`,
+  `VerticalCoordinate.F90:232`, `StateFilter.F90:139`,
+  `HConfigMatch.F90:68`, `graph/ExtensionResolution.F90:101`. Vet each
+  candidate before editing (some may already allocate on every path);
+  re-examine the legacy ones in graph context first. Same rule as A and B.
+  - **Status:** not started
 
 Both apply the owner's rule only; other ifx problems go to the owner
 (he leads ifx porting).
@@ -2043,6 +2107,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-OuterStatePopulation | sonnet | sonnet | tasks.md 3.42; low priority; preflight done, one task; outer states from the graph, labelled names via a legacy_only marker |
 | B3-VerticalOrientationSync | sonnet | sonnet | tasks.md 3.43; found by 3.41a; owner chose to skip an UNSPECIFIED direction in write_info |
 | B3-AdvertisePopulation | sonnet | sonnet | tasks.md 3.44; found by 3.41b; graph populates user states at advertise when the switch is on; preflight first |
+| B3-SkipLegacyCouplers | sonnet | sonnet | ifx Debug trap (merge blocker); skip legacy couplers in run_user when the graph owns the user states (owner option a, 2026-11-09); owner commits after bucy ifx check |
 | B3-FillValue | sonnet | sonnet | tasks.md 3.34; with or after 4.2 |
 | B3-QuantityTypeSuppliers | sonnet | sonnet | tasks.md 3.35; YAML key, keyword, harvest; before 3.27 |
 | B3-QuantityTypeDeferred | opus | sonnet | tasks.md 3.36; factory status by intent, soft freeze rule, shares 3.27's switch; after 3.27 |
@@ -2075,7 +2140,8 @@ it may author D1/A4/B5 with sonnet review.
 | D3-cleanup | sonnet | - | items are small and independent |
 | D4-NagDangling | sonnet | - | mechanical; outsourceable |
 | D5-AllocatableResults-A | sonnet | sonnet | main line after 3.23b and D4, before B4; callers' "absent" tests change |
-| D5-AllocatableResults-B | volunteer | sonnet | outsourceable; legacy error-path sites, 8 polymorphic |
+| D5-AllocatableResults-B | volunteer | sonnet | outsourceable; legacy error-path sites, 8 polymorphic; landed (#5496) |
+| D5-AllocatableResults-C | sonnet | sonnet | subgrids, substates, OpenMP results, reviewer's 11 candidates (vet first); before legacy is dropped |
 | E1-intel | sonnet | - | run and classify only; remote build on bucy |
 | E1-early | volunteer | meta (report check) | outsourced; run and classify only, current HEAD, ifx-stack on bucy |
 

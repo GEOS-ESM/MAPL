@@ -68,6 +68,17 @@ to "Verified root causes" below.
 | service_with_options | no | same as `service_service` |
 | vector_1 | no | FAILS: R2 only. After R2, passes, with masked VECTOR items (M3) |
 
+Re-measured 2026-11-09 on NAG (`MAPL.generic.scenarios.pending`, before
+C1-geom-c-a): 4 of the 11 pending scenarios fail. `service_service` and
+`service_with_options`: `resolve_connections` rc=13 (R2).
+`statistics_real`: `argument name already declared` (P1) and
+`unsupported_item_class:VECTOR`. `expression_per_consumer_r8` (graph-only):
+all 11 checks fail; cause not traced yet. The other 7 pass in graph and both
+modes: the five `vertical_*` rows above (masked, M2), `vector_1` (masked,
+still logs `unsupported_item_class:VECTOR`; flips after `C1-geom-c-b`) and
+`statistics` (the R1 rows above are stale; it flips after `C2-alias-owner`
+as a masked pass). The per-row text above predates this measurement.
+
 Measured 2026-11-09 on NAG with the switch on in `GRAPH` mode (3.42): all pass
 (`plain_field`, `units_mismatch_run_phase`, `units_and_typekind_mismatch`,
 `invalidate`, `graphbuilder_propagation`, `scenario_1`, `scenario_2`,
@@ -185,7 +196,10 @@ In production, the same faults only log a warning and drop part of the graph.
   `add_to_states`. Flipping these scenarios to ready after G1/R2 gives a
   masked pass, like the ready rows in the next section.
   `expression_defer_geom` no longer logs this (re-measured 2026-11-08): its
-  expression is evaluated on the graph path.
+  expression is evaluated on the graph path. Since C1-geom-c-a the graph
+  builds a regrid chain for a VECTOR or BRACKET geometry mismatch, but still
+  creates no bundle payload; `materialize_extension_chain` refuses a
+  non-Field link (`unsupported_item_class:<class>`).
 
 Suggested C2 split: `C2-geom-push` (G1), `C2-alias-owner` (R1),
 `C2-alias-nonfield` (R2), `C2-runphase-args` (P1, key arguments by intent
@@ -248,7 +262,12 @@ checklist for switching legacy off.
 | Propagated child export in the user export state | `add_to_states(mode='user')` skips every item whose `comp_name` is non-empty (`registry/StateRegistry_Actions_smod.F90:73`), so a child's propagated export is not in the parent's user export state | with the user-state switch on, a propagated port (`child/E`, a slash in the name) is skipped by the user passes (advertise and accept_transfer) and written only to the OUTER export state, in a substate, at REALIZE_ACCEPTED (`populate_export_ports` with `include_propagated`); same as legacy | 3.41b B3-ExportPortPopulation; corrected by 3.42 B3-OuterStatePopulation |
 | Position-labelled names (`T(1)`, `T(2)`, `I_A1(1)`, `A/E_A1(1)`) in the user and outer states | `add_to_states` writes some extension Fields under a name with a position suffix | the graph writes each item once under its declared or port name; no position-labelled copies. Expectation items for these names carry `legacy_only: true`, which `Test_Scenarios` skips when the graph owns the states (registry and both modes still check them). Owner decision 2026-11-07 | 3.42 B3-OuterStatePopulation |
 | Both export and import declare a regridder param, on different geoms | `GeomAspect%make_transform` `_FAIL`s (`specs/GeomAspect.F90:191-213`); connection setup aborts | reported per pair as an incompatible GEOMETRY conflict naming both signatures (with params); the component's other connections still resolve. Owner decision 2026-11-08 | C1-geom-b |
-| Geometry mismatch on a FIELDBUNDLE, BRACKET, VECTOR or VECTORBRACKET item | `RegridTransform%update` regrids Fields and FieldBundles (`transforms/RegridTransform.F90:218-235`) | reports unsupported GEOMETRY until a bundle-level regrid Transform exists (owner decision 2026-11-08; C1-geom-c). Hybrid mode is unaffected: legacy does the regrid | C1-geom-b |
+| Geometry mismatch on a FIELDBUNDLE or VECTORBRACKET item | `RegridTransform%update` regrids Fields and FieldBundles (`transforms/RegridTransform.F90:218-235`) | reports unsupported GEOMETRY (owner decisions 2026-11-08 and 2026-11-09; VECTORBRACKET is a follow-up, FIELDBUNDLE only if a client needs it). Hybrid mode is unaffected: legacy does the regrid | C1-geom-b; C1-geom-c-a |
+| Geometry mismatch on a VECTOR or BRACKET item | `RegridTransform%update` regrids the bundle (`transforms/RegridTransform.F90:218-235`) | chain built with `HorizontalBundleRegridTransform` (one rotated regrid call for a VECTOR, exporter basis kept); no bundle payload until `C2-alias-nonfield` and `C1-geom-c-b` | C1-geom-c-a |
+| First compute of a bracket regrid with `bracket_updated` false | skips the regrid, so the output is never filled | regrids on the first compute whatever the flag says | C1-geom-c-a |
+| Bracket regrid after a regridder, geom, typekind or member-set change | regrids only when `bracket_updated` is true | also regrids after such a change, so the output is never stale | C1-geom-c-a |
+| Interpolation weights of a regridded bracket | copied to the extension bundle by the coupler (`CouplerMetaComponent` `update_time_varying`) | the Transform copies the input weights to its output | C1-geom-c-a |
+| Members of a regridded bracket or vector | come from the cloned class aspect at allocate | the Transform clones the input members onto the output geom at compute and recreates them when the count changes | C1-geom-c-a |
 | Vertical regrid between different fixed-level grids where a field's alignment differs from its grid's direction | `VerticalRegridTransform` reverses each side's levels by the field's alignment (`transforms/VerticalRegridTransform.F90:430-436`, `:519-623`), but fixed-level coordinates are in grid order, so values are wrong: UP grid [1000,500,100] hPa to [800,300] hPa, T = 2p+1: a source stored DOWN gives [521,1501] instead of [1601,601]; a destination stored DOWN gets its output reversed. Model-grid (PLE/ZLE) coordinates arrive in the field's own order, where the flip should be right (read, not run) | builds each side's levels in that field's storage order, then regrids; correct values. Owner decision 2026-11-08 | C1-vertical-a |
 | Import levels outside the export's level range | `compute_linear_map` copies the end value silently in Release; Debug builds abort on an assertion (`infrastructure/vertical/vertical/VerticalLinearMap.F90`) | copies the end value in every build and logs one warning per weight build. Owner decision 2026-11-08 | C1-vertical-a |
 | Two connections into one import | last connection silently wins, by reading, not run: `connect_to_export` replaces the import's payload with each export in turn (`specs/FieldClassAspect.F90:292-304`); the one-connection assert is commented out (`connection/SimpleConnection.F90:105`) | the first connection wins. A second producer resolved in the same connect pass, for an ordinary or inout-borrower pairing, is reported per pair as a connection conflict naming the item (`second_producer`, `GraphBuilder_ConnectionResolution_smod.F90:410,519,1445`); the first connection's edge stays and the component's other connections still resolve. A connection arriving in a later pass, after the import settled, is silently skipped (`resolve_one`, `:254-273`); other edge kinds have no pre-check. Owner decision 2026-11-08 | C4-ForwardNetwork |
