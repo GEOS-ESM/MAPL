@@ -585,6 +585,49 @@ contains
       @assertEqual([3., 2., 1.], c)
    end subroutine test_basic_equal_count_flips
 
+   ! A height grid with increasing levels is UP. On the same grid a field
+   ! stored as the grid and one aligned upward are the same order: a copy.
+   @test
+   subroutine test_height_grid_upward_alignment_copies()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g
+      integer :: status
+      real, allocatable :: c(:)
+
+      geom = make_geom()
+      g => make_fixed('height', [0., 100., 500.], 'm')
+      f_in = make_field(geom, g, 'T')
+      f_out = make_field(geom, g, 'T', alignment=VALIGN_UP)
+      call fill(f_in, [1., 2., 3.])
+
+      status = regrid(f_in, f_out)
+      c = column(f_out)
+      @assertEqual(0, status)
+      @assertEqual([1., 2., 3.], c)
+   end subroutine test_height_grid_upward_alignment_copies
+
+   ! Downward alignment is the opposite of the UP height grid: reversed.
+   @test
+   subroutine test_height_grid_downward_alignment_reverses()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g
+      integer :: status
+      real, allocatable :: c(:)
+
+      geom = make_geom()
+      g => make_fixed('height', [0., 100., 500.], 'm')
+      f_in = make_field(geom, g, 'T')
+      f_out = make_field(geom, g, 'T', alignment=VALIGN_DOWN)
+      call fill(f_in, [1., 2., 3.])
+
+      status = regrid(f_in, f_out)
+      c = column(f_out)
+      @assertEqual(0, status)
+      @assertEqual([3., 2., 1.], c)
+   end subroutine test_height_grid_downward_alignment_reverses
+
    ! Same orientation: a plain copy. Also a basic grid against fixed levels
    ! with the same count.
    @test

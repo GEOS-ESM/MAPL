@@ -27,11 +27,11 @@ Two properties are easy to confuse:
    - `UP`: level values decrease with index (e.g. `[3, 2, 1]`; pressure
      decreasing away from the surface). The index increases going up.
 
-   A `fixed_levels` grid derives its direction from the numbers alone, so
-   increasing values always give `DOWN`. A height or altitude grid such as
-   `[0, 100, 500]` therefore gets `DOWN` although its index increases going
-   up; the "going down" and "going up" glosses above hold for pressure-like
-   and depth-like coordinates only.
+   A `fixed_levels` grid derives its direction from the numbers and from
+   `physical_dimension`. A `height` or `altitude` grid increases going up, so
+   `[0, 100, 500]` gives `UP` (see [Grid Direction](#grid-direction)); the
+   "going down" and "going up" glosses above hold for pressure-like and
+   depth-like coordinates.
 
 2. **Vertical alignment** (`vertical_alignment`): the order of the field's
    vertical index in memory, relative to physical up and down.
@@ -96,12 +96,39 @@ gives `1`, anything else `<unknown>`). The examples below that are complete
 `vertical_grid` blocks include both required keys; the shorter snippets show
 only the lines that matter and are abbreviated.
 
-- A `fixed_levels` grid derives it from `levels`: strictly increasing values
-  give `DOWN`, strictly decreasing values give `UP`, a single level gives
-  no direction, and any other order is an error. The derivation looks only at
-  the numbers; `physical_dimension` is not consulted. A `direction:` key in a
-  `fixed_levels` grid is rejected, and a `coordinate_direction:` key is not
-  read.
+- A `fixed_levels` grid derives it from `levels` and `physical_dimension`. The
+  levels must be strictly monotonic, or the grid is an error; a single level
+  gives no direction. Otherwise:
+
+  | `physical_dimension`                                   | increasing levels | decreasing levels |
+  |--------------------------------------------------------|-------------------|-------------------|
+  | `height`, `altitude`                                   | `UP`              | `DOWN`            |
+  | `pressure`, `depth`, `layer`, any other name, or none  | `DOWN`            | `UP`              |
+
+  The names are matched exactly and are case-sensitive, so `Height` is an
+  "other name". For example, `physical_dimension: height` with
+  `levels: [0., 100., 500.]` gives `UP`, and `levels: [500., 100., 0.]` gives
+  `DOWN`. A `direction:` key in a `fixed_levels` grid is rejected, and a
+  `coordinate_direction:` key is not read.
+
+  **Changed meaning** (no warning is given). A multi-level `height` or
+  `altitude` grid used to give `DOWN` for increasing levels. Two things change:
+
+  - A YAML with such a grid and an explicit `vertical_alignment`: `upward` now
+    means stored in grid order (it used to be reversed from the grid), and
+    `downward` is reversed from it.
+  - An item with `with_grid` alignment on such a grid now resolves to `UP`. A
+    basic grid (direction `DOWN`) with the same number of levels counts as the
+    same grid as a `fixed_levels` grid, in either order. Between an item on
+    the height grid and an item on that basic grid, both the graph path
+    (`VerticalColumnRegridTransform`) and the legacy path (`VerticalGridAspect`
+    resolved alignments) now reverse the vertical index where they used to
+    copy it.
+
+  Review those alignments and connections. A `model` grid keeps its own
+  direction (`DOWN` unless its `direction:` key says otherwise), so a
+  height-valued `model` grid stays `DOWN` while a `fixed_levels` height grid
+  is now `UP`.
 - A `model` grid accepts an optional `direction:` key (`upward` or `downward`,
   or the short forms `up`, `u`, `down`, `d`, or `unspecified`); the default is
   `DOWN`.
@@ -400,6 +427,21 @@ import:
 coupling; the two grids share no physical dimension. A mediator component would
 be needed.
 
+### Example 3: Height Grid
+
+```yaml
+vertical_grid:
+  levels: [0., 100., 500.]      # direction UP: height increases going up
+  units: m
+  physical_dimension: height
+export:
+  temp_k:
+    vertical_alignment: upward    # the grid order; no reversal
+```
+
+With `levels: [500., 100., 0.]` the direction is `DOWN`, and `upward` would
+reverse the field.
+
 ## Best Practices
 
 1. **Specify alignment explicitly** for clarity, even when using default `with_grid`
@@ -455,7 +497,7 @@ ctest -R MAPL.generic.scenarios.shard
 - `enums/VerticalAlignment.F90` - `VerticalAlignment` type, `VALIGN_UP/DOWN/WITH_GRID`, `resolve`
 - `enums/VerticalCoordinateDirection.F90` - `VerticalCoordinateDirection` type
 - `infrastructure/vertical/vertical_grid/VerticalGrid.F90` - grid direction accessors (default `DOWN`)
-- `superstructure/generic/vertical/FixedLevelsVerticalGrid.F90` - direction derived from `levels`
+- `superstructure/generic/vertical/FixedLevelsVerticalGrid.F90` - direction derived from `levels` and `physical_dimension`
 - `superstructure/generic/vertical/ModelVerticalGrid.F90` - optional `direction:` key
 - `superstructure/generic/ComponentSpecParser/parse_var_specs.F90` - YAML parsing of `vertical_alignment`
 - `superstructure/generic/specs/VariableSpec/make_characteristics.F90` - orientation characteristic from `vertical_alignment`

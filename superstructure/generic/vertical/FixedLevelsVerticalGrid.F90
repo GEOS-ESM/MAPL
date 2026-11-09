@@ -75,25 +75,32 @@ contains
       spec%units = units
    end function new_FixedLevelsVerticalGridSpec
 
-   ! The vertical direction is not supplied by the user; it is derived from
-   ! the levels, which must be strictly monotonic:
-   !   increasing values -> VCOORD_DIRECTION_DOWN
-   !   decreasing values -> VCOORD_DIRECTION_UP
-   !   a single level    -> VCOORD_DIRECTION_UNSPECIFIED
-   function derive_direction(levels, rc) result(direction)
+   ! Height and altitude increase going up, so they invert the numbers rule;
+   ! an unallocated dimension takes the numbers rule.
+   function derive_direction(levels, physical_dimension, rc) result(direction)
       type(VerticalCoordinateDirection) :: direction
       real, intent(in) :: levels(:)
+      character(len=:), allocatable, intent(in) :: physical_dimension
       integer, optional, intent(out) :: rc
 
       integer :: n
+      logical :: increases_upward
 
       n = size(levels)
       direction = VCOORD_DIRECTION_UNSPECIFIED
+      increases_upward = .false.
+      if (allocated(physical_dimension)) then
+         select case (physical_dimension)
+         case ('height', 'altitude')
+            increases_upward = .true.
+         end select
+      end if
+
       if (n > 1) then
          if (all(levels(2:n) > levels(1:n-1))) then
-            direction = VCOORD_DIRECTION_DOWN
+            direction = merge(VCOORD_DIRECTION_UP, VCOORD_DIRECTION_DOWN, increases_upward)
          else if (all(levels(2:n) < levels(1:n-1))) then
-            direction = VCOORD_DIRECTION_UP
+            direction = merge(VCOORD_DIRECTION_DOWN, VCOORD_DIRECTION_UP, increases_upward)
          else
             _FAIL('levels must be strictly monotonic (all increasing or all decreasing)')
          end if
@@ -111,8 +118,8 @@ contains
 
       this%spec = spec
       ! VerticalGrid's own coordinate_direction defaults to DOWN; override it
-      ! with the direction derived from the levels.
-      call this%set_coordinate_direction(derive_direction(spec%levels, rc=status))
+      ! with the direction derived from the levels and physical dimension.
+      call this%set_coordinate_direction(derive_direction(spec%levels, spec%physical_dimension, rc=status))
       _VERIFY(STATUS)
       _RETURN(_SUCCESS)
    end subroutine initialize
@@ -330,9 +337,9 @@ contains
          local_spec%units = get_default_units(local_spec%physical_dimension)
       end if
 
-      ! Direction is derived from levels; validate monotonicity here.
+      ! Direction is derived from levels and dimension; validate monotonicity here.
       _ASSERT(.not. esmf_HConfigIsDefined(config, keyString="direction"), "'direction' is not allowed for fixed_levels vertical_grid; it is derived from levels")
-      direction = derive_direction(local_spec%levels, _RC)
+      direction = derive_direction(local_spec%levels, local_spec%physical_dimension, _RC)
 
       ! Use polymorphic allocation
       deallocate(spec)
