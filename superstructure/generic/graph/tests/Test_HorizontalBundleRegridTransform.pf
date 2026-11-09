@@ -1,0 +1,1000 @@
+! HorizontalBundleRegridTransform regrids VECTOR and BRACKET bundles between
+! two lat-lon grids made by the geom manager. A vector is checked against an
+! analytic field (a uniform Cartesian flow projected on the sphere) as a
+! smoke test, and against the shortening that the rotation through Cartesian
+! components gives an eastward flow and in the rows next to the poles for a
+! vector in the GRID basis (the cases that tell one rotated regrid from two
+! separate component regrids). A bracket is checked against longitude-index
+! values as in Test_HorizontalRegridTransform. The pole rows themselves are
+! not checked.
+module Test_HorizontalBundleRegridTransform
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
+   use mapl_HorizontalBundleRegridTransform_mod, only: HorizontalBundleRegridTransform
+   use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundleSet
+   use mapl_geom_api, only: mapl_GridGetCoordinates, mapl_GeomGetId
+   use mapl_geom_api, only: mapl_GeomManager, mapl_get_geom_manager, mapl_MaplGeom
+   use mapl_GeomId_mod, only: GeomId
+   use mapl_VectorBasis_mod, only: VectorBasis
+   use mapl_enums_api, only: MAPL_FIELDBUNDLETYPE_VECTOR, MAPL_FIELDBUNDLETYPE_BRACKET
+   use mapl_enums_api, only: MAPL_FIELDBUNDLETYPE_BASIC, MAPL_FIELDBUNDLETYPE_VECTORBRACKET
+   use mapl_enums_api, only: MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_GRID
+   use mapl_enums_api, only: MAPL_VECTOR_BASIS_KIND_NS, operator(==)
+   use StateItemTestSupport_mod, only: make_latlon_geom, make_test_member
+   use StateItemTestSupport_mod, only: make_test_bundle
+   use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_FieldGet
+   use ESMF, only: ESMF_FieldBundleGet, ESMF_Geom, ESMF_GeomGet, ESMF_Grid
+   use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8
+   use ESMF, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R8, operator(==)
+   use ESMF, only: ESMF_GeomCreate, ESMF_GridCreateNoPeriDim
+   use funit
+   implicit none
+
+   character(*), parameter :: SRC_PORT = 'source_field'
+   character(*), parameter :: DST_PORT = 'destination_field'
+   real(kind=ESMF_KIND_R8), parameter :: PI = acos(-1._ESMF_KIND_R8)
+   real(kind=ESMF_KIND_R8), parameter :: DEG2RAD = PI / 180._ESMF_KIND_R8
+
+contains
+
+   subroutine bind(ports, port, bundle)
+      type(PortNameGraphStateItemMap), intent(inout) :: ports
+      character(*), intent(in) :: port
+      type(ESMF_FieldBundle), intent(in) :: bundle
+
+      type(GraphStateItem) :: item
+      integer :: status
+
+      call item%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call ports%clear()
+      call ports%insert(port, item)
+   end subroutine bind
+
+   function get_r4(field) result(x)
+      type(ESMF_Field), intent(in) :: field
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+
+      integer :: status
+
+      call ESMF_FieldGet(field, farrayPtr=x, rc=status)
+      @assertEqual(0, status)
+   end function get_r4
+
+   ! Longitude-index values: member i of a bracket holds i*100 + longitude
+   ! index, so the members stay apart in the result.
+   subroutine fill_by_longitude_index(field, offset)
+      type(ESMF_Field), intent(in) :: field
+      real, intent(in) :: offset
+
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+      integer :: i
+
+      x => get_r4(field)
+      do i = 1, size(x, 1)
+         x(i, :) = offset + i
+      end do
+   end subroutine fill_by_longitude_index
+
+   function get_r8(field) result(x)
+      type(ESMF_Field), intent(in) :: field
+      real(kind=ESMF_KIND_R8), pointer :: x(:,:)
+
+      integer :: status
+
+      call ESMF_FieldGet(field, farrayPtr=x, rc=status)
+      @assertEqual(0, status)
+   end function get_r8
+
+   subroutine fill_by_longitude_index_r8(field, offset)
+      type(ESMF_Field), intent(in) :: field
+      real, intent(in) :: offset
+
+      real(kind=ESMF_KIND_R8), pointer :: x(:,:)
+      integer :: i
+
+      x => get_r8(field)
+      do i = 1, size(x, 1)
+         x(i, :) = offset + i
+      end do
+   end subroutine fill_by_longitude_index_r8
+
+   subroutine members_of(bundle, members)
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      type(ESMF_Field), allocatable, intent(out) :: members(:)
+
+      integer :: status
+
+      call MAPL_FieldBundleGet(bundle, fieldList=members, rc=status)
+      @assertEqual(0, status)
+   end subroutine members_of
+
+   ! Source 12x13 and destination 24x13: odd destination columns sit on
+   ! source nodes, even ones midway between two source longitudes.
+   subroutine check_refined(x, offset)
+      real(kind=ESMF_KIND_R4), intent(in) :: x(:,:)
+      real, intent(in) :: offset
+
+      integer :: i, j
+      real :: west, east
+
+      @assertEqual([24, 13], shape(x))
+      do j = 2, 12
+         do i = 1, 12
+            west = offset + i
+            east = offset + modulo(i, 12) + 1
+            @assertEqual(west, x(2*i-1, j), tolerance=1.0e-3)
+            @assertEqual((west + east)/2, x(2*i, j), tolerance=1.0e-3)
+         end do
+      end do
+   end subroutine check_refined
+
+   ! A vector bundle on `geom` holding the uniform Cartesian flow (1,0,0)
+   ! projected on the sphere: u = -sin(lon), v = -sin(lat)*cos(lon).
+   subroutine make_flow_vector(geom, bundle)
+      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_FieldBundle), intent(out) :: bundle
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: members(2)
+      real(kind=ESMF_KIND_R4), allocatable :: lons(:,:), lats(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: u(:,:), v(:,:)
+      integer :: status
+
+      members(1) = make_test_member(geom, 'u', 0., status)
+      @assertEqual(0, status)
+      members(2) = make_test_member(geom, 'v', 0., status)
+      @assertEqual(0, status)
+      call ESMF_GeomGet(geom, grid=grid, rc=status)
+      @assertEqual(0, status)
+      call mapl_GridGetCoordinates(grid, longitudes=lons, latitudes=lats, rc=status)
+      @assertEqual(0, status)
+      u => get_r4(members(1))
+      v => get_r4(members(2))
+      u = -sin(real(lons * DEG2RAD, ESMF_KIND_R4))
+      v = -sin(real(lats * DEG2RAD, ESMF_KIND_R4)) * cos(real(lons * DEG2RAD, ESMF_KIND_R4))
+
+      bundle = make_test_bundle(geom, MAPL_FIELDBUNDLETYPE_VECTOR, members, status)
+      @assertEqual(0, status)
+   end subroutine make_flow_vector
+
+   ! Smoke test: the result is the same analytic flow on the destination
+   ! grid within the interpolation error. It does not tell one rotated
+   ! regrid from two separate component regrids, because on these grids both
+   ! are within the same error; the near-pole and the cosine tests do.
+   @test
+   subroutine test_vector_regrid_smoke_matches_analytic_flow()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_Grid) :: grid
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      type(ESMF_Field), allocatable :: members(:)
+      real(kind=ESMF_KIND_R4), allocatable :: lons(:,:), lats(:,:)
+      real(kind=ESMF_KIND_R4), allocatable :: u_expected(:,:), v_expected(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: u(:,:), v(:,:)
+      real :: max_u_error, max_v_error
+      integer :: status
+
+      src_geom = make_latlon_geom(36, 19, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(18, 11, status)
+      @assertEqual(0, status)
+      call make_flow_vector(src_geom, fb_in)
+      fb_out = make_test_bundle(dst_geom, MAPL_FIELDBUNDLETYPE_VECTOR, &
+           [ESMF_Field ::], status)
+      @assertEqual(0, status)
+      call bind(inputs, SRC_PORT, fb_in)
+      call bind(outputs, DST_PORT, fb_out)
+
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call ESMF_GeomGet(dst_geom, grid=grid, rc=status)
+      @assertEqual(0, status)
+      call mapl_GridGetCoordinates(grid, longitudes=lons, latitudes=lats, rc=status)
+      @assertEqual(0, status)
+      u_expected = -sin(real(lons * DEG2RAD, ESMF_KIND_R4))
+      v_expected = -sin(real(lats * DEG2RAD, ESMF_KIND_R4)) * cos(real(lons * DEG2RAD, ESMF_KIND_R4))
+      call members_of(fb_out, members)
+      @assertEqual(2, size(members))
+      u => get_r4(members(1))
+      v => get_r4(members(2))
+      max_u_error = maxval(abs(u(:, 2:10) - u_expected(:, 2:10)))
+      max_v_error = maxval(abs(v(:, 2:10) - v_expected(:, 2:10)))
+      @assertEqual(0., max_u_error, tolerance=2.0e-3)
+      @assertEqual(0., max_v_error, tolerance=2.0e-3)
+   end subroutine test_vector_regrid_smoke_matches_analytic_flow
+
+   ! Components of the uniform Cartesian flow (1,0,0) in the GRID basis of
+   ! `geom`: u = e1(x), v = e2(x), the x entries of the two basis vectors.
+   subroutine grid_basis_flow(geom, u, v)
+      type(ESMF_Geom), intent(in) :: geom
+      real(kind=ESMF_KIND_R4), allocatable, intent(out) :: u(:,:), v(:,:)
+
+      type(mapl_GeomManager), pointer :: geom_mgr
+      type(mapl_MaplGeom), pointer :: mapl_geom
+      type(VectorBasis), pointer :: basis
+      type(GeomId) :: id
+      real(kind=ESMF_KIND_R8), pointer :: e1x(:,:), e2x(:,:)
+      integer :: status
+
+      id = mapl_GeomGetId(geom, rc=status)
+      @assertEqual(0, status)
+      geom_mgr => mapl_get_geom_manager()
+      mapl_geom => geom_mgr%get_mapl_geom(id, rc=status)
+      @assertEqual(0, status)
+      basis => mapl_geom%get_basis(MAPL_VECTOR_BASIS_KIND_GRID, rc=status)
+      @assertEqual(0, status)
+      e1x => get_r8(basis%elements(1, 1))
+      e2x => get_r8(basis%elements(1, 2))
+      u = real(e1x, ESMF_KIND_R4)
+      v = real(e2x, ESMF_KIND_R4)
+   end subroutine grid_basis_flow
+
+   ! Near-pole case. Source 12x37 and destination 24x37 grids have pole
+   ! rows and a row at 85 degrees, and the destination longitudes lie between
+   ! the source ones. The input holds the flow (1,0,0) in the GRID basis; the
+   ! output bundle starts in the NS basis and takes the input basis. The
+   ! result is checked against the same flow in the destination GRID basis,
+   ! in the rows next to the poles. Regridding u and v as scalars mixes values
+   ! of a basis that turns fast near the pole and misses by far more than the
+   ! tolerance there.
+   @test
+   subroutine test_vector_regrid_near_pole_in_grid_basis()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      type(ESMF_Field) :: in_members(2)
+      type(ESMF_Field), allocatable :: members(:)
+      real(kind=ESMF_KIND_R4), allocatable :: u_in(:,:), v_in(:,:)
+      real(kind=ESMF_KIND_R4), allocatable :: u_expected(:,:), v_expected(:,:)
+      real(kind=ESMF_KIND_R4), pointer :: u(:,:), v(:,:)
+      real :: max_u_south, max_v_south, max_u_north, max_v_north
+      integer :: jm, status
+
+      jm = 37
+      src_geom = make_latlon_geom(12, jm, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(24, jm, status)
+      @assertEqual(0, status)
+      in_members(1) = make_test_member(src_geom, 'u', 0., status)
+      @assertEqual(0, status)
+      in_members(2) = make_test_member(src_geom, 'v', 0., status)
+      @assertEqual(0, status)
+      call grid_basis_flow(src_geom, u_in, v_in)
+      u => get_r4(in_members(1))
+      v => get_r4(in_members(2))
+      u = u_in
+      v = v_in
+      fb_in = make_test_bundle(src_geom, MAPL_FIELDBUNDLETYPE_VECTOR, in_members, status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(fb_in, vector_basis_kind=MAPL_VECTOR_BASIS_KIND_GRID, rc=status)
+      @assertEqual(0, status)
+      fb_out = make_test_bundle(dst_geom, MAPL_FIELDBUNDLETYPE_VECTOR, &
+           [ESMF_Field ::], status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(fb_out, vector_basis_kind=MAPL_VECTOR_BASIS_KIND_NS, rc=status)
+      @assertEqual(0, status)
+      call bind(inputs, SRC_PORT, fb_in)
+      call bind(outputs, DST_PORT, fb_out)
+
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call grid_basis_flow(dst_geom, u_expected, v_expected)
+      call members_of(fb_out, members)
+      @assertEqual(2, size(members))
+      u => get_r4(members(1))
+      v => get_r4(members(2))
+      max_u_south = maxval(abs(u(:, 2) - u_expected(:, 2)))
+      max_v_south = maxval(abs(v(:, 2) - v_expected(:, 2)))
+      max_u_north = maxval(abs(u(:, jm-1) - u_expected(:, jm-1)))
+      max_v_north = maxval(abs(v(:, jm-1) - v_expected(:, jm-1)))
+      @assertEqual(0., max_u_south, tolerance=3.0e-3)
+      @assertEqual(0., max_v_south, tolerance=3.0e-3)
+      @assertEqual(0., max_u_north, tolerance=3.0e-3)
+      @assertEqual(0., max_v_north, tolerance=3.0e-3)
+   end subroutine test_vector_regrid_near_pole_in_grid_basis
+
+   ! A flow that is eastward everywhere (u = 1, v = 0). Regridding u and v
+   ! separately keeps 1 and 0 exactly. The vector regrid goes through
+   ! Cartesian components, and the average of two unit east vectors 20
+   ! degrees apart is shorter than one by cos(10 degrees), so a destination
+   ! point midway between two source nodes on the equator gets
+   ! u = cos(10 degrees), while a destination point on a source node keeps
+   ! u = 1. Only a rotated regrid of both components together gives this.
+   @test
+   subroutine test_vector_regrid_rotates_through_cartesian_components()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_Field) :: members(2)
+      type(ESMF_Field), allocatable :: out_members(:)
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      real(kind=ESMF_KIND_R4), pointer :: u(:,:), v(:,:)
+      real :: u_on_node, u_midway, max_v
+      real, parameter :: COS_10 = cos(10.0 * real(DEG2RAD))
+      integer, parameter :: EQUATOR = 10
+      integer :: status
+
+      ! 18x11 (20 degree) source into 36x19 (10 degree) destination: the
+      ! destination equator row is a source row, the odd destination columns
+      ! sit on source nodes and the even ones midway between two.
+      src_geom = make_latlon_geom(18, 11, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(36, 19, status)
+      @assertEqual(0, status)
+      members(1) = make_test_member(src_geom, 'u', 1., status)
+      @assertEqual(0, status)
+      members(2) = make_test_member(src_geom, 'v', 0., status)
+      @assertEqual(0, status)
+      fb_in = make_test_bundle(src_geom, MAPL_FIELDBUNDLETYPE_VECTOR, members, status)
+      @assertEqual(0, status)
+      fb_out = make_test_bundle(dst_geom, MAPL_FIELDBUNDLETYPE_VECTOR, &
+           [ESMF_Field ::], status)
+      @assertEqual(0, status)
+      call bind(inputs, SRC_PORT, fb_in)
+      call bind(outputs, DST_PORT, fb_out)
+
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call members_of(fb_out, out_members)
+      @assertEqual(2, size(out_members))
+      u => get_r4(out_members(1))
+      v => get_r4(out_members(2))
+      u_on_node = u(5, EQUATOR)
+      u_midway = u(6, EQUATOR)
+      max_v = maxval(abs(v(:, EQUATOR)))
+      @assertEqual(1.0, u_on_node, tolerance=1.0e-3)
+      @assertEqual(COS_10, u_midway, tolerance=1.0e-3)
+      @assertEqual(0.0, max_v, tolerance=1.0e-3)
+   end subroutine test_vector_regrid_rotates_through_cartesian_components
+
+   ! A regridded vector keeps the basis of the exporter: the output takes
+   ! the input basis whatever it held before.
+   @test
+   subroutine test_vector_output_takes_input_basis()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      type(MAPL_VectorBasisKind) :: basis_out
+      logical :: is_grid
+      integer :: status
+
+      src_geom = make_latlon_geom(36, 19, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(18, 11, status)
+      @assertEqual(0, status)
+      call make_flow_vector(src_geom, fb_in)
+      call MAPL_FieldBundleSet(fb_in, vector_basis_kind=MAPL_VECTOR_BASIS_KIND_GRID, rc=status)
+      @assertEqual(0, status)
+      fb_out = make_test_bundle(dst_geom, MAPL_FIELDBUNDLETYPE_VECTOR, &
+           [ESMF_Field ::], status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(fb_out, vector_basis_kind=MAPL_VECTOR_BASIS_KIND_NS, rc=status)
+      @assertEqual(0, status)
+      call bind(inputs, SRC_PORT, fb_in)
+      call bind(outputs, DST_PORT, fb_out)
+
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call MAPL_FieldBundleGet(fb_out, vector_basis_kind=basis_out, rc=status)
+      @assertEqual(0, status)
+      is_grid = (basis_out == MAPL_VECTOR_BASIS_KIND_GRID)
+      @assertTrue(is_grid)
+   end subroutine test_vector_output_takes_input_basis
+
+   ! A vector has exactly two components; the regrid fails for one.
+   @test
+   subroutine test_vector_with_one_member_fails()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_Field) :: members(1)
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      integer :: status
+
+      src_geom = make_latlon_geom(36, 19, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(18, 11, status)
+      @assertEqual(0, status)
+      members(1) = make_test_member(src_geom, 'u', 1., status)
+      @assertEqual(0, status)
+      fb_in = make_test_bundle(src_geom, MAPL_FIELDBUNDLETYPE_VECTOR, members, status)
+      @assertEqual(0, status)
+      fb_out = make_test_bundle(dst_geom, MAPL_FIELDBUNDLETYPE_VECTOR, &
+           [ESMF_Field ::], status)
+      @assertEqual(0, status)
+      call bind(inputs, SRC_PORT, fb_in)
+      call bind(outputs, DST_PORT, fb_out)
+
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertTrue(status /= 0)
+   end subroutine test_vector_with_one_member_fails
+
+   ! A bracket of two members: each member is regridded to the matching
+   ! output member, and the output bundle holds as many members as the input.
+   @test
+   subroutine test_bracket_regrid_each_member()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_Field) :: members(2)
+      type(ESMF_Field), allocatable :: out_members(:)
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(24, 13, status)
+      @assertEqual(0, status)
+      members(1) = make_test_member(src_geom, 'b1', 0., status)
+      @assertEqual(0, status)
+      members(2) = make_test_member(src_geom, 'b2', 0., status)
+      @assertEqual(0, status)
+      call fill_by_longitude_index(members(1), 0.)
+      call fill_by_longitude_index(members(2), 100.)
+      fb_in = make_test_bundle(src_geom, MAPL_FIELDBUNDLETYPE_BRACKET, members, status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(fb_in, bracket_updated=.true., &
+           interpolation_weights=[1.0, 0.5, 0.5], rc=status)
+      @assertEqual(0, status)
+      fb_out = make_test_bundle(dst_geom, MAPL_FIELDBUNDLETYPE_BRACKET, &
+           [ESMF_Field ::], status)
+      @assertEqual(0, status)
+      call bind(inputs, SRC_PORT, fb_in)
+      call bind(outputs, DST_PORT, fb_out)
+
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call members_of(fb_out, out_members)
+      @assertEqual(2, size(out_members))
+      call check_refined(get_r4(out_members(1)), 0.)
+      call check_refined(get_r4(out_members(2)), 100.)
+   end subroutine test_bracket_regrid_each_member
+
+   ! The output of a bracket carries the interpolation weights of the input,
+   ! since the time interpolation after the regrid reads them from there.
+   @test
+   subroutine test_bracket_output_carries_interpolation_weights()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_Field) :: members(2)
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      real(kind=ESMF_KIND_R4), allocatable :: weights(:)
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(24, 13, status)
+      @assertEqual(0, status)
+      members(1) = make_test_member(src_geom, 'b1', 1., status)
+      @assertEqual(0, status)
+      members(2) = make_test_member(src_geom, 'b2', 2., status)
+      @assertEqual(0, status)
+      fb_in = make_test_bundle(src_geom, MAPL_FIELDBUNDLETYPE_BRACKET, members, status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(fb_in, bracket_updated=.true., &
+           interpolation_weights=[1.0, 0.25, 0.75], rc=status)
+      @assertEqual(0, status)
+      fb_out = make_test_bundle(dst_geom, MAPL_FIELDBUNDLETYPE_BRACKET, &
+           [ESMF_Field ::], status)
+      @assertEqual(0, status)
+      call bind(inputs, SRC_PORT, fb_in)
+      call bind(outputs, DST_PORT, fb_out)
+
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call MAPL_FieldBundleGet(fb_out, interpolation_weights=weights, rc=status)
+      @assertEqual(0, status)
+      @assertEqual([1.0, 0.25, 0.75], weights, tolerance=1.0e-6)
+   end subroutine test_bracket_output_carries_interpolation_weights
+
+   ! After a first compute, a bracket whose bracket_updated flag is false is
+   ! not regridded again: the output keeps the values of the first compute.
+   ! With the flag true again the new input values arrive.
+   @test
+   subroutine test_bracket_regrid_only_when_updated()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_Field) :: members(2)
+      type(ESMF_Field), allocatable :: out_members(:)
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      real(kind=ESMF_KIND_R4), allocatable :: after_first(:,:)
+      real(kind=ESMF_KIND_R4), allocatable :: after_stale(:,:)
+      real(kind=ESMF_KIND_R4), allocatable :: after_updated(:,:)
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(24, 13, status)
+      @assertEqual(0, status)
+      members(1) = make_test_member(src_geom, 'b1', 0., status)
+      @assertEqual(0, status)
+      members(2) = make_test_member(src_geom, 'b2', 0., status)
+      @assertEqual(0, status)
+      call fill_by_longitude_index(members(1), 0.)
+      call fill_by_longitude_index(members(2), 100.)
+      fb_in = make_test_bundle(src_geom, MAPL_FIELDBUNDLETYPE_BRACKET, members, status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(fb_in, bracket_updated=.true., &
+           interpolation_weights=[1.0, 0.5, 0.5], rc=status)
+      @assertEqual(0, status)
+      fb_out = make_test_bundle(dst_geom, MAPL_FIELDBUNDLETYPE_BRACKET, &
+           [ESMF_Field ::], status)
+      @assertEqual(0, status)
+      call bind(inputs, SRC_PORT, fb_in)
+      call bind(outputs, DST_PORT, fb_out)
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      call members_of(fb_out, out_members)
+      after_first = get_r4(out_members(1))
+
+      ! New input values, but the producer has not marked them updated.
+      call fill_by_longitude_index(members(1), 500.)
+      call MAPL_FieldBundleSet(fb_in, bracket_updated=.false., rc=status)
+      @assertEqual(0, status)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      call members_of(fb_out, out_members)
+      after_stale = get_r4(out_members(1))
+
+      call MAPL_FieldBundleSet(fb_in, bracket_updated=.true., rc=status)
+      @assertEqual(0, status)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      call members_of(fb_out, out_members)
+      after_updated = get_r4(out_members(1))
+
+      @assertTrue(all(after_stale == after_first))
+      @assertEqual(500. + 1., after_updated(1, 5), tolerance=1.0e-3)
+   end subroutine test_bracket_regrid_only_when_updated
+
+   ! The first compute regrids even when bracket_updated is false, because
+   ! the output has never held a result.
+   @test
+   subroutine test_bracket_first_compute_regrids_when_not_updated()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_Field) :: members(2)
+      type(ESMF_Field), allocatable :: out_members(:)
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(24, 13, status)
+      @assertEqual(0, status)
+      members(1) = make_test_member(src_geom, 'b1', 0., status)
+      @assertEqual(0, status)
+      members(2) = make_test_member(src_geom, 'b2', 0., status)
+      @assertEqual(0, status)
+      call fill_by_longitude_index(members(1), 0.)
+      call fill_by_longitude_index(members(2), 100.)
+      fb_in = make_test_bundle(src_geom, MAPL_FIELDBUNDLETYPE_BRACKET, members, status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(fb_in, bracket_updated=.false., &
+           interpolation_weights=[1.0, 0.5, 0.5], rc=status)
+      @assertEqual(0, status)
+      fb_out = make_test_bundle(dst_geom, MAPL_FIELDBUNDLETYPE_BRACKET, &
+           [ESMF_Field ::], status)
+      @assertEqual(0, status)
+      call bind(inputs, SRC_PORT, fb_in)
+      call bind(outputs, DST_PORT, fb_out)
+
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call members_of(fb_out, out_members)
+      @assertEqual(2, size(out_members))
+      call check_refined(get_r4(out_members(1)), 0.)
+      call check_refined(get_r4(out_members(2)), 100.)
+   end subroutine test_bracket_first_compute_regrids_when_not_updated
+
+   ! When the input member count changes between computes, the output
+   ! members are created again to match (they carry the new member names), and the result is regridded even
+   ! though bracket_updated is false.
+   @test
+   subroutine test_bracket_member_count_change_recreates_output_members()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_Field) :: two(2), three(3)
+      type(ESMF_Field), allocatable :: out_members(:)
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      character(len=64) :: name1, name3
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(24, 13, status)
+      @assertEqual(0, status)
+      fb_out = make_test_bundle(dst_geom, MAPL_FIELDBUNDLETYPE_BRACKET, &
+           [ESMF_Field ::], status)
+      @assertEqual(0, status)
+      call bind(outputs, DST_PORT, fb_out)
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+
+      two(1) = make_test_member(src_geom, 'b1', 0., status)
+      @assertEqual(0, status)
+      two(2) = make_test_member(src_geom, 'b2', 0., status)
+      @assertEqual(0, status)
+      call fill_by_longitude_index(two(1), 0.)
+      call fill_by_longitude_index(two(2), 100.)
+      fb_in = make_test_bundle(src_geom, MAPL_FIELDBUNDLETYPE_BRACKET, two, status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(fb_in, bracket_updated=.true., &
+           interpolation_weights=[1.0, 0.5, 0.5], rc=status)
+      @assertEqual(0, status)
+      call bind(inputs, SRC_PORT, fb_in)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      call members_of(fb_out, out_members)
+      @assertEqual(2, size(out_members))
+
+      three(1) = make_test_member(src_geom, 'c1', 0., status)
+      @assertEqual(0, status)
+      three(2) = make_test_member(src_geom, 'c2', 0., status)
+      @assertEqual(0, status)
+      three(3) = make_test_member(src_geom, 'c3', 0., status)
+      @assertEqual(0, status)
+      call fill_by_longitude_index(three(1), 0.)
+      call fill_by_longitude_index(three(2), 100.)
+      call fill_by_longitude_index(three(3), 200.)
+      fb_in = make_test_bundle(src_geom, MAPL_FIELDBUNDLETYPE_BRACKET, three, status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(fb_in, bracket_updated=.false., &
+           interpolation_weights=[1.0, 0.3, 0.3, 0.4], rc=status)
+      @assertEqual(0, status)
+      call bind(inputs, SRC_PORT, fb_in)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call members_of(fb_out, out_members)
+      @assertEqual(3, size(out_members))
+      call ESMF_FieldGet(out_members(1), name=name1, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(out_members(3), name=name3, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('c1', trim(name1))
+      @assertEqual('c3', trim(name3))
+      call check_refined(get_r4(out_members(1)), 0.)
+      call check_refined(get_r4(out_members(2)), 100.)
+      call check_refined(get_r4(out_members(3)), 200.)
+   end subroutine test_bracket_member_count_change_recreates_output_members
+
+   ! Builds a two-member bracket on `geom` filled by longitude index
+   ! (offset 0 and 100), bracket_updated as given.
+   subroutine make_two_member_bracket(geom, updated, bundle, typekind)
+      type(ESMF_Geom), intent(in) :: geom
+      logical, intent(in) :: updated
+      type(ESMF_FieldBundle), intent(out) :: bundle
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+
+      type(ESMF_Field) :: members(2)
+      logical :: is_r8
+      integer :: status
+
+      is_r8 = .false.
+      if (present(typekind)) is_r8 = (typekind == ESMF_TYPEKIND_R8)
+      members(1) = make_test_member(geom, 'b1', 0., status, typekind=typekind)
+      @assertEqual(0, status)
+      members(2) = make_test_member(geom, 'b2', 0., status, typekind=typekind)
+      @assertEqual(0, status)
+      if (is_r8) then
+         call fill_by_longitude_index_r8(members(1), 0.)
+         call fill_by_longitude_index_r8(members(2), 100.)
+      else
+         call fill_by_longitude_index(members(1), 0.)
+         call fill_by_longitude_index(members(2), 100.)
+      end if
+      bundle = make_test_bundle(geom, MAPL_FIELDBUNDLETYPE_BRACKET, members, &
+           status, typekind=typekind)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(bundle, bracket_updated=updated, &
+           interpolation_weights=[1.0, 0.5, 0.5], rc=status)
+      @assertEqual(0, status)
+   end subroutine make_two_member_bracket
+
+   ! Builds an output bracket on `geom` that already holds two members of
+   ! value -1, so that a changed member count cannot be what forces a regrid.
+   subroutine make_filled_output(geom, bundle, typekind)
+      type(ESMF_Geom), intent(in) :: geom
+      type(ESMF_FieldBundle), intent(out) :: bundle
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+
+      type(ESMF_Field) :: members(2)
+      integer :: status
+
+      members(1) = make_test_member(geom, 'o1', -1., status, typekind=typekind)
+      @assertEqual(0, status)
+      members(2) = make_test_member(geom, 'o2', -1., status, typekind=typekind)
+      @assertEqual(0, status)
+      bundle = make_test_bundle(geom, MAPL_FIELDBUNDLETYPE_BRACKET, members, &
+           status, typekind=typekind)
+      @assertEqual(0, status)
+   end subroutine make_filled_output
+
+   ! After a first compute, the destination geom changes and
+   ! bracket_updated is false: the regridder is looked up again for the new
+   ! geom pair and the new output is regridded, not left at its -1.
+   @test
+   subroutine test_bracket_destination_geom_change_regrids()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, fine_geom, coarse_geom
+      type(ESMF_FieldBundle) :: fb_in, fb_fine, fb_coarse
+      type(ESMF_Field), allocatable :: out_members(:)
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+      real :: first_member_value, second_member_value
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      fine_geom = make_latlon_geom(24, 13, status)
+      @assertEqual(0, status)
+      coarse_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      call make_two_member_bracket(src_geom, .true., fb_in)
+      call make_filled_output(fine_geom, fb_fine)
+      call make_filled_output(coarse_geom, fb_coarse)
+      call bind(inputs, SRC_PORT, fb_in)
+      call bind(outputs, DST_PORT, fb_fine)
+
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call MAPL_FieldBundleSet(fb_in, bracket_updated=.false., rc=status)
+      @assertEqual(0, status)
+      call bind(outputs, DST_PORT, fb_coarse)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      ! Every 6x7 node is a 12x13 node: (i,j) -> (2i-1, 2j-1).
+      call members_of(fb_coarse, out_members)
+      @assertEqual(2, size(out_members))
+      x => get_r4(out_members(1))
+      first_member_value = x(3, 4)
+      x => get_r4(out_members(2))
+      second_member_value = x(3, 4)
+      @assertEqual(5.0, first_member_value, tolerance=1.0e-3)
+      @assertEqual(105.0, second_member_value, tolerance=1.0e-3)
+   end subroutine test_bracket_destination_geom_change_regrids
+
+   ! Same for a change of the source geom.
+   @test
+   subroutine test_bracket_source_geom_change_regrids()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, coarse_geom, fine_geom
+      type(ESMF_FieldBundle) :: fb_src, fb_coarse, fb_fine
+      type(ESMF_Field), allocatable :: out_members(:)
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+      real :: first_member_value, second_member_value
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      coarse_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      fine_geom = make_latlon_geom(24, 13, status)
+      @assertEqual(0, status)
+      call make_two_member_bracket(src_geom, .true., fb_src)
+      call make_two_member_bracket(coarse_geom, .false., fb_coarse)
+      call make_filled_output(fine_geom, fb_fine)
+      call bind(outputs, DST_PORT, fb_fine)
+
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+      call bind(inputs, SRC_PORT, fb_src)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      ! 6x7 source to 24x13: node (i,j) of the source is (4i-3, 2j-1).
+      call bind(inputs, SRC_PORT, fb_coarse)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      call members_of(fb_fine, out_members)
+      @assertEqual(2, size(out_members))
+      x => get_r4(out_members(1))
+      first_member_value = x(9, 7)
+      x => get_r4(out_members(2))
+      second_member_value = x(9, 7)
+      @assertEqual(3.0, first_member_value, tolerance=1.0e-3)
+      @assertEqual(103.0, second_member_value, tolerance=1.0e-3)
+   end subroutine test_bracket_source_geom_change_regrids
+
+   ! After an R4 compute, R8 bundles on the same geoms with bracket_updated
+   ! false: the regridder is looked up again for the new typekinds and the
+   ! R8 output is regridded.
+   @test
+   subroutine test_bracket_typekind_change_regrids()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_FieldBundle) :: fb_in4, fb_out4, fb_in8, fb_out8
+      type(ESMF_Field), allocatable :: out_members(:)
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(24, 13, status)
+      @assertEqual(0, status)
+      call make_two_member_bracket(src_geom, .true., fb_in4)
+      call make_filled_output(dst_geom, fb_out4)
+      call make_two_member_bracket(src_geom, .false., fb_in8, ESMF_TYPEKIND_R8)
+      call make_filled_output(dst_geom, fb_out8, ESMF_TYPEKIND_R8)
+
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+      call bind(inputs, SRC_PORT, fb_in4)
+      call bind(outputs, DST_PORT, fb_out4)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call bind(inputs, SRC_PORT, fb_in8)
+      call bind(outputs, DST_PORT, fb_out8)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      call members_of(fb_out8, out_members)
+      @assertEqual(2, size(out_members))
+      call check_refined(real(get_r8(out_members(1)), ESMF_KIND_R4), 0.)
+      call check_refined(real(get_r8(out_members(2)), ESMF_KIND_R4), 100.)
+   end subroutine test_bracket_typekind_change_regrids
+
+   ! R8 members: the output members are created as R8 on the destination
+   ! geom, and each is regridded to the matching input member.
+   @test
+   subroutine test_bracket_regrid_r8_creates_r8_members()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      type(ESMF_Field), allocatable :: out_members(:)
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(24, 13, status)
+      @assertEqual(0, status)
+      call make_two_member_bracket(src_geom, .true., fb_in, ESMF_TYPEKIND_R8)
+      fb_out = make_test_bundle(dst_geom, MAPL_FIELDBUNDLETYPE_BRACKET, &
+           [ESMF_Field ::], status, typekind=ESMF_TYPEKIND_R8)
+      @assertEqual(0, status)
+      call bind(inputs, SRC_PORT, fb_in)
+      call bind(outputs, DST_PORT, fb_out)
+
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call members_of(fb_out, out_members)
+      @assertEqual(2, size(out_members))
+      call check_refined(real(get_r8(out_members(1)), ESMF_KIND_R4), 0.)
+      call check_refined(real(get_r8(out_members(2)), ESMF_KIND_R4), 100.)
+   end subroutine test_bracket_regrid_r8_creates_r8_members
+
+   ! Both bundles must be on geoms from the geom manager; a source geom
+   ! made directly with ESMF has no MAPL geom id and compute refuses it.
+   @test
+   subroutine test_geom_without_id_fails()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: members(2)
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[6], countsPerDeDim2=[7], rc=status)
+      @assertEqual(0, status)
+      src_geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(24, 13, status)
+      @assertEqual(0, status)
+      members(1) = make_test_member(src_geom, 'b1', 1., status)
+      @assertEqual(0, status)
+      members(2) = make_test_member(src_geom, 'b2', 2., status)
+      @assertEqual(0, status)
+      fb_in = make_test_bundle(src_geom, MAPL_FIELDBUNDLETYPE_BRACKET, members, status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(fb_in, bracket_updated=.true., &
+           interpolation_weights=[1.0, 0.5, 0.5], rc=status)
+      @assertEqual(0, status)
+      fb_out = make_test_bundle(dst_geom, MAPL_FIELDBUNDLETYPE_BRACKET, &
+           [ESMF_Field ::], status)
+      @assertEqual(0, status)
+      call bind(inputs, SRC_PORT, fb_in)
+      call bind(outputs, DST_PORT, fb_out)
+
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertTrue(status /= 0)
+   end subroutine test_geom_without_id_fails
+
+   ! The destination bundle must be on a geom from the geom manager too.
+   @test
+   subroutine test_destination_geom_without_id_fails()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: members(2)
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[6], countsPerDeDim2=[7], rc=status)
+      @assertEqual(0, status)
+      dst_geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      members(1) = make_test_member(src_geom, 'b1', 1., status)
+      @assertEqual(0, status)
+      members(2) = make_test_member(src_geom, 'b2', 2., status)
+      @assertEqual(0, status)
+      fb_in = make_test_bundle(src_geom, MAPL_FIELDBUNDLETYPE_BRACKET, members, status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(fb_in, bracket_updated=.true., &
+           interpolation_weights=[1.0, 0.5, 0.5], rc=status)
+      @assertEqual(0, status)
+      fb_out = make_test_bundle(dst_geom, MAPL_FIELDBUNDLETYPE_BRACKET, &
+           [ESMF_Field ::], status)
+      @assertEqual(0, status)
+      call bind(inputs, SRC_PORT, fb_in)
+      call bind(outputs, DST_PORT, fb_out)
+
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertTrue(status /= 0)
+   end subroutine test_destination_geom_without_id_fails
+
+   ! A port that holds a Field instead of a bundle is refused.
+   @test
+   subroutine test_field_port_fails()
+      type(HorizontalBundleRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(GraphStateItem) :: item
+      type(ESMF_Geom) :: dst_geom
+      type(ESMF_Field) :: f_in
+      type(ESMF_FieldBundle) :: fb_out
+      integer :: status
+
+      dst_geom = make_latlon_geom(24, 13, status)
+      @assertEqual(0, status)
+      f_in = make_test_member(dst_geom, 'f', 1., status)
+      @assertEqual(0, status)
+      call item%set(f_in, rc=status)
+      @assertEqual(0, status)
+      call inputs%insert(SRC_PORT, item)
+      fb_out = make_test_bundle(dst_geom, MAPL_FIELDBUNDLETYPE_BRACKET, &
+           [ESMF_Field ::], status)
+      @assertEqual(0, status)
+      call bind(outputs, DST_PORT, fb_out)
+
+      transform = HorizontalBundleRegridTransform(EsmfRegridderParam())
+      call transform%compute(inputs, outputs, status)
+      @assertTrue(status /= 0)
+   end subroutine test_field_port_fails
+
+end module Test_HorizontalBundleRegridTransform

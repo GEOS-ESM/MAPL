@@ -283,6 +283,7 @@ contains
             call iter%next()
             call link%set_characteristic(iter%first(), iter%second(), _RC)
          end do
+         call link%take_declared_item_type_from_shape(_RC)
          if (has_fill_value) call link%set_fill_value(export_fill_value)
          call graph%register_node(extension_node, _RC)
 

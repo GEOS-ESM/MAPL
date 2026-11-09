@@ -11,9 +11,15 @@ module StateItemTestSupport_mod
    use ESMF, only: ESMF_FieldBundleCreate, ESMF_FieldBundleDestroy
    use ESMF, only: ESMF_StateCreate, ESMF_StateDestroy
    use ESMF, only: ESMF_RouteHandleCreate, ESMF_RouteHandleDestroy
-   use ESMF, only: ESMF_TYPEKIND_R4
+   use ESMF, only: ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8, operator(==)
    use ESMF, only: ESMF_Geom, ESMF_HConfig
    use ESMF, only: ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use ESMF, only: ESMF_FieldGet, ESMF_FieldBundleAdd
+   use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8
+   use ESMF, only: ESMF_TypeKind_Flag
+   use mapl_field_api, only: MAPL_FieldCreate
+   use mapl_field_bundle_api, only: MAPL_FieldBundleCreate, MAPL_FieldBundleSet
+   use mapl_enums_api, only: MAPL_FieldBundleType_Flag
    use mapl_geom_api, only: mapl_GeomManager, mapl_get_geom_manager
    use mapl_geom_api, only: mapl_MaplGeom
    implicit none(type, external)
@@ -24,6 +30,8 @@ module StateItemTestSupport_mod
    public :: make_test_state
    public :: make_test_route_handle
    public :: make_latlon_geom
+   public :: make_test_member
+   public :: make_test_bundle
 
 contains
 
@@ -54,6 +62,72 @@ contains
       bundle = ESMF_FieldBundleCreate(rc=status)
       if (present(rc)) rc = status
    end function make_test_field_bundle
+
+   ! Field on `geom` (R4 unless `typekind` says R8) holding `value`
+   ! everywhere. Made by MAPL_FieldCreate so that it carries the MAPL
+   ! metadata the vector rotation reads.
+   function make_test_member(geom, name, value, rc, typekind) result(field)
+      type(ESMF_Geom), intent(in) :: geom
+      character(*), intent(in) :: name
+      real, intent(in) :: value
+      integer, intent(out) :: rc
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      type(ESMF_Field) :: field
+
+      real(kind=ESMF_KIND_R4), pointer :: x4(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: x8(:,:)
+      type(ESMF_TypeKind_Flag) :: typekind_
+      integer :: status
+
+      typekind_ = ESMF_TYPEKIND_R4
+      if (present(typekind)) typekind_ = typekind
+      field = MAPL_FieldCreate(geom, typekind_, name=name, rc=status)
+      rc = status
+      if (status /= 0) return
+      if (typekind_ == ESMF_TYPEKIND_R8) then
+         call ESMF_FieldGet(field, farrayPtr=x8, rc=status)
+         rc = status
+         if (status /= 0) return
+         x8 = value
+      else
+         call ESMF_FieldGet(field, farrayPtr=x4, rc=status)
+         rc = status
+         if (status /= 0) return
+         x4 = value
+      end if
+   end function make_test_member
+
+   ! Bundle of the given type with its geom and typekind set first and then
+   ! `members` (which may be empty) added: setting the geom resets the bundle,
+   ! so it cannot come after the members.
+   function make_test_bundle(geom, bundle_type, members, rc, typekind) &
+        result(bundle)
+      type(ESMF_Geom), intent(in) :: geom
+      type(MAPL_FieldBundleType_Flag), intent(in) :: bundle_type
+      type(ESMF_Field), intent(in) :: members(:)
+      integer, intent(out) :: rc
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      type(ESMF_FieldBundle) :: bundle
+
+      type(ESMF_TypeKind_Flag) :: typekind_
+      integer :: status
+
+      typekind_ = ESMF_TYPEKIND_R4
+      if (present(typekind)) typekind_ = typekind
+
+      bundle = MAPL_FieldBundleCreate(name='test_bundle', &
+           fieldBundleType=bundle_type, rc=status)
+      rc = status
+      if (status /= 0) return
+      call MAPL_FieldBundleSet(bundle, geom=geom, &
+           typekind=typekind_, rc=status)
+      rc = status
+      if (status /= 0) return
+      if (size(members) == 0) return
+      call ESMF_FieldBundleAdd(bundle, members, multiflag=.true., &
+           relaxedFlag=.true., rc=status)
+      rc = status
+   end function make_test_bundle
 
    function make_test_state(rc) result(state)
       integer, optional, intent(out) :: rc

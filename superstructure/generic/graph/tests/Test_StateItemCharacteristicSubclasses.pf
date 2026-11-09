@@ -60,6 +60,7 @@ module Test_StateItemCharacteristicSubclasses
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_HorizontalRegridTransform_mod, only: HorizontalRegridTransform
+   use mapl_HorizontalBundleRegridTransform_mod, only: HorizontalBundleRegridTransform
    use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
    use StateItemTestSupport_mod, only: make_latlon_geom
    use ESMF, only: ESMF_Geom, ESMF_REGRIDMETHOD_CONSERVE
@@ -1278,10 +1279,10 @@ contains
       @assertFalse(allocated(transformer))
    end subroutine test_geometry_build_transform_both_params_incompatible
 
-   ! The regrid handles Fields only: a bundle or bracket item with two held
-   ! geoms is unsupported, a Field item gets the regrid.
+   ! A FIELD tip gets the Field regrid, a VECTOR or BRACKET tip the bundle
+   ! regrid. Every other item shape is unsupported and builds nothing.
    @test
-   subroutine test_geometry_build_transform_for_item_field_only()
+   subroutine test_geometry_build_transform_for_item_dispatch()
       type(GeometryCharacteristic) :: src, dst
       type(ESMF_Geom) :: src_geom, dst_geom
       class(TransformBase), allocatable :: transformer
@@ -1294,27 +1295,78 @@ contains
       src = GeometryCharacteristic(geom_id='1', geom=src_geom)
       dst = GeometryCharacteristic(geom_id='2', geom=dst_geom)
 
-      call check_shape(S_BUNDLE, BUILD_TRANSFORM_UNSUPPORTED)
-      call check_shape(S_BRACKET, BUILD_TRANSFORM_UNSUPPORTED)
-      call check_shape(S_VECTOR, BUILD_TRANSFORM_UNSUPPORTED)
-      call check_shape(S_FIELD, 0)
+      call check_shape(S_FIELD, 0, 'field')
+      call check_shape(S_VECTOR, 0, 'bundle')
+      call check_shape(S_BRACKET, 0, 'bundle')
+      call check_shape(S_BUNDLE, BUILD_TRANSFORM_UNSUPPORTED, 'none')
+      call check_shape(S_VECTORBRACKET, BUILD_TRANSFORM_UNSUPPORTED, 'none')
+      call check_shape(S_SERVICE, BUILD_TRANSFORM_UNSUPPORTED, 'none')
+      call check_shape(S_STATE, BUILD_TRANSFORM_UNSUPPORTED, 'none')
+      call check_shape(S_WILDCARD, BUILD_TRANSFORM_UNSUPPORTED, 'none')
 
    contains
 
-      subroutine check_shape(item_class, expected_status)
+      subroutine check_shape(item_class, expected_status, expected_kind)
          type(ESMF_StateItem_Flag), intent(in) :: item_class
          integer, intent(in) :: expected_status
+         character(*), intent(in) :: expected_kind
 
          type(StateItemCharacteristicMap) :: tip
+         character(:), allocatable :: kind
 
          call tip%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
               ItemShapeCharacteristic(item_class))
          call src%build_transform_for_item(dst, tip, transformer, rc=status)
+
+         kind = 'none'
+         if (allocated(transformer)) then
+            select type (transformer)
+            type is (HorizontalRegridTransform)
+               kind = 'field'
+            type is (HorizontalBundleRegridTransform)
+               kind = 'bundle'
+            class default
+               kind = 'other'
+            end select
+         end if
          @assertEqual(expected_status, status)
-         @assertEqual(expected_status == 0, allocated(transformer))
+         @assertEqual(expected_kind, kind)
       end subroutine check_shape
 
-   end subroutine test_geometry_build_transform_for_item_field_only
+   end subroutine test_geometry_build_transform_for_item_dispatch
+
+   ! The pair rules do not depend on the item shape: two regridder params
+   ! are incompatible and an id-only pair is unsupported for a bundle shape
+   ! just as for a Field.
+   @test
+   subroutine test_geometry_build_transform_for_item_bundle_pair_rules()
+      type(GeometryCharacteristic) :: src, dst, id_only
+      type(ESMF_Geom) :: src_geom, dst_geom
+      class(TransformBase), allocatable :: transformer
+      type(StateItemCharacteristicMap) :: tip
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      call tip%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(S_VECTOR))
+
+      src = GeometryCharacteristic(geom_id='1', geom=src_geom, &
+           regridder_param=EsmfRegridderParam())
+      dst = GeometryCharacteristic(geom_id='2', geom=dst_geom, &
+           regridder_param=EsmfRegridderParam())
+      call src%build_transform_for_item(dst, tip, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+
+      src = GeometryCharacteristic(geom_id='1', geom=src_geom)
+      id_only = GeometryCharacteristic(geom_id='2')
+      call src%build_transform_for_item(id_only, tip, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_geometry_build_transform_for_item_bundle_pair_rules
 
    ! With no shape entry (component-level wiring) the item is not
    ! restricted.

@@ -106,6 +106,8 @@ module mapl_StateItemDescriptor_mod
       procedure :: sync_per_alias_to_info => descriptor_sync_per_alias_to_info
       procedure :: get_declared_item_type => descriptor_get_declared_item_type
       procedure :: set_declared_item_type => descriptor_set_declared_item_type
+      procedure :: take_declared_item_type_from_shape => &
+           descriptor_take_declared_item_type_from_shape
       procedure :: set_fill_value => descriptor_set_fill_value
       procedure :: get_fill_value => descriptor_get_fill_value
       procedure :: get_expression => descriptor_get_expression
@@ -750,6 +752,33 @@ contains
 
       this%declared_item_type = item_type
    end subroutine descriptor_set_declared_item_type
+
+   ! Makes the declared item type that of the ITEM_SHAPE entry, so a
+   ! descriptor built entry by entry (an extension link) describes the same
+   ! item class as its shape. An EXPRESSION shape gives FIELD: the
+   ! expression is evaluated into a Field, and a link must not look like
+   ! another expression item. Without a shape entry it is left as it is.
+   subroutine descriptor_take_declared_item_type_from_shape(this, rc)
+      class(StateItemDescriptor), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(StateItemCharacteristic), pointer :: item_shape
+
+      _RETURN_UNLESS(this%characteristics%count(ITEM_SHAPE_CHARACTERISTIC_KIND) > 0)
+      item_shape => this%characteristics%at(ITEM_SHAPE_CHARACTERISTIC_KIND, _RC)
+      select type (item_shape)
+      type is (ItemShapeCharacteristic)
+         this%declared_item_type = item_shape%get_item_class()
+         if (this%declared_item_type == MAPL_STATEITEM_EXPRESSION) then
+            this%declared_item_type = ESMF_STATEITEM_FIELD
+         end if
+      class default
+         _FAIL('StateItemDescriptor: ITEM_SHAPE entry has the wrong type')
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine descriptor_take_declared_item_type_from_shape
 
    subroutine descriptor_set_fill_value(this, fill_value)
       class(StateItemDescriptor), intent(inout) :: this

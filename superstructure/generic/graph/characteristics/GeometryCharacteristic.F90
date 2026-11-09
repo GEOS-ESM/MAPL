@@ -25,8 +25,9 @@
 ! compared (like legacy GeomAspect%matches). The regridder param is written
 ! to Info and chooses the regrid method (select_regridder_param). A
 ! Field mismatch between two held geoms is resolved by a
-! HorizontalRegridTransform; one where both sides declare a regridder param
-! is incompatible. Other item shapes report unsupported.
+! HorizontalRegridTransform, a VECTOR or BRACKET one by a
+! HorizontalBundleRegridTransform; one where both sides declare a regridder
+! param is incompatible. Other item shapes report unsupported.
 !
 ! Status: SPECIFIED when constructed with a value. DEFERRED means the
 ! owning component supplies the geometry later (resolve_deferred, GEOM_B).
@@ -51,11 +52,14 @@ module mapl_GeometryCharacteristic_mod
    use mapl_StateItemCharacteristicKind_mod, only: &
         ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
-   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, &
+        MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_BRACKET
    use mapl_NodeId_mod, only: NodeId, operator(==), operator(/=)
    use mapl_TransformBase_mod, only: TransformBase
    use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
    use mapl_HorizontalRegridTransform_mod, only: HorizontalRegridTransform
+   use mapl_HorizontalBundleRegridTransform_mod, only: &
+        HorizontalBundleRegridTransform
    use mapl_GeomId_mod, only: GeomId
    use mapl_geom_api, only: mapl_SameGeom, mapl_GeomGetId
    use mapl_field_api, only: MAPL_FieldSet
@@ -97,6 +101,7 @@ module mapl_GeometryCharacteristic_mod
       procedure :: get_regridder_param
       procedure :: has_regridder_param
       procedure :: select_regridder_param
+      procedure, private :: build_regrid_transform
    end type GeometryCharacteristic
 
    interface GeometryCharacteristic
@@ -177,6 +182,18 @@ contains
       class(TransformBase), allocatable, intent(out) :: transformer
       integer, optional, intent(out) :: rc
 
+      call this%build_regrid_transform(goal, .false., transformer, rc)
+   end subroutine geometry_build_transform
+
+   ! The Field regrid, or with `bundle` the bundle regrid, of the pair; the
+   ! rules for which pairs can connect do not depend on the item shape.
+   subroutine build_regrid_transform(this, goal, bundle, transformer, rc)
+      class(GeometryCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      logical, intent(in) :: bundle
+      class(TransformBase), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
       integer :: status
       type(EsmfRegridderParam) :: regridder_param
 
@@ -192,18 +209,24 @@ contains
             return
          end if
          call this%select_regridder_param(goal, regridder_param, _RC)
-         allocate(transformer, &
-              source=HorizontalRegridTransform(regridder_param))
+         if (bundle) then
+            allocate(transformer, &
+                 source=HorizontalBundleRegridTransform(regridder_param))
+         else
+            allocate(transformer, &
+                 source=HorizontalRegridTransform(regridder_param))
+         end if
       class default
          _FAIL('GeometryCharacteristic: build_transform needs a geometry goal')
       end select
 
       _RETURN(_SUCCESS)
-   end subroutine geometry_build_transform
+   end subroutine build_regrid_transform
 
-   ! HorizontalRegridTransform regrids Fields only, so a bundle-like item
-   ! (FIELDBUNDLE, BRACKET, VECTOR, ...) is not regridded yet. A tip with no
-   ! shape entry (component-level wiring) is not restricted.
+   ! A Field is regridded by HorizontalRegridTransform; a VECTOR or BRACKET
+   ! bundle by HorizontalBundleRegridTransform. Every other item shape has no
+   ! regrid yet and reports unsupported. A tip with no shape entry
+   ! (component-level wiring) is not restricted.
    subroutine geometry_build_transform_for_item(this, goal, tip, &
         transformer, rc)
       class(GeometryCharacteristic), intent(in) :: this
@@ -214,19 +237,29 @@ contains
 
       integer :: status
       class(StateItemCharacteristic), pointer :: item_shape
+      type(ESMF_StateItem_Flag) :: item_class
 
-      if (tip%count(ITEM_SHAPE_CHARACTERISTIC_KIND) > 0) then
-         item_shape => tip%at(ITEM_SHAPE_CHARACTERISTIC_KIND, _RC)
-         select type (item_shape)
-         type is (ItemShapeCharacteristic)
-            if (.not. (item_shape%get_item_class() == &
-                 MAPL_STATEITEM_FIELD)) then
-               call report_build_transform_unsupported(rc)
-               return
-            end if
-         end select
+      if (tip%count(ITEM_SHAPE_CHARACTERISTIC_KIND) == 0) then
+         call this%build_transform(goal, transformer, rc)
+         return
       end if
-      call this%build_transform(goal, transformer, rc)
+
+      item_shape => tip%at(ITEM_SHAPE_CHARACTERISTIC_KIND, _RC)
+      select type (item_shape)
+      type is (ItemShapeCharacteristic)
+         item_class = item_shape%get_item_class()
+      class default
+         _FAIL('GeometryCharacteristic: ITEM_SHAPE entry has the wrong type')
+      end select
+
+      if (item_class == MAPL_STATEITEM_FIELD) then
+         call this%build_transform(goal, transformer, rc)
+      else if (item_class == MAPL_STATEITEM_VECTOR .or. &
+           item_class == MAPL_STATEITEM_BRACKET) then
+         call this%build_regrid_transform(goal, .true., transformer, rc)
+      else
+         call report_build_transform_unsupported(rc)
+      end if
    end subroutine geometry_build_transform_for_item
 
    ! The regridder param is part of the signature so that imports asking for

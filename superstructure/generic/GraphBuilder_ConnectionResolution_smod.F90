@@ -1613,7 +1613,8 @@ contains
    ! Materializes every entry of intermediate_node_ids (in order), each from
    ! that extension node's own descriptor (the tip after its step). Stops
    ! at the first link that cannot be materialized, returning
-   ! check_materializable's failure_reason. `name` names the link fields,
+   ! check_materializable's failure_reason, or unsupported_item_class when
+   ! the link itself is not declared a Field. `name` names the link fields,
    ! for consumers that look their inputs up by field name.
    subroutine materialize_extension_chain(export_item, import_item, &
         intermediate_node_ids, graph, failure_reason, rc, name)
@@ -1628,6 +1629,8 @@ contains
       integer :: status
       integer :: i
       class(GraphNode), pointer :: link_node
+      type(ESMF_StateItem_Flag) :: link_type
+      type(StateItemDescriptor), pointer :: link_descriptor
 
       failure_reason = ''
       do i = 1, size(intermediate_node_ids)
@@ -1637,6 +1640,14 @@ contains
          class is (StateItemNode)
             call check_materializable(export_item, import_item, &
                  link_node%get_descriptor(), failure_reason)
+            ! A link is built as a plain Field, so a link of another item
+            ! class (e.g. a bracket after its regrid step) cannot be.
+            link_descriptor => link_node%get_descriptor()
+            link_type = link_descriptor%get_declared_item_type()
+            if (failure_reason == '' .and. &
+                 .not. (link_type == MAPL_STATEITEM_FIELD)) then
+               failure_reason = 'unsupported_item_class:' // itemtype_name(link_type)
+            end if
          class default
             _FAIL('GraphBuilder: materialize_extension_chain - link NodeId is not a StateItemNode')
          end select

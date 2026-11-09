@@ -70,7 +70,8 @@ module Test_StateItemDescriptor
    use mapl_StateItemCharacteristicKind_mod, only: &
         ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION, &
-        MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_STATE
+        MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_STATE, MAPL_STATEITEM_VECTOR, &
+        MAPL_STATEITEM_FIELD
    use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag, operator(==), &
         VARIANT_INVALID => MAPL_STATEITEM_INVALID, &
         VARIANT_VERTICALGRID => MAPL_STATEITEM_VERTICALGRID
@@ -111,6 +112,64 @@ contains
       @assertTrue(any(kinds == VERTICAL_ORIENTATION_CHARACTERISTIC_KIND))
       @assertTrue(any(kinds == TYPE_KIND_CHARACTERISTIC_KIND))
    end subroutine test_expression_consumer_adopted_kinds_come_from_descriptor
+
+   ! A descriptor built entry by entry takes the item class of its shape
+   ! entry: a VECTOR or BRACKET shape is not left at the Field default.
+   @test
+   subroutine test_declared_item_type_follows_shape_entry()
+      type(StateItemDescriptor) :: item
+      logical :: vector_ok, bracket_ok
+      integer :: status
+
+      call item%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_VECTOR), rc=status)
+      @assertEqual(0, status)
+      call item%take_declared_item_type_from_shape(rc=status)
+      @assertEqual(0, status)
+      vector_ok = (item%get_declared_item_type() == MAPL_STATEITEM_VECTOR)
+
+      call item%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_BRACKET), rc=status)
+      @assertEqual(0, status)
+      call item%take_declared_item_type_from_shape(rc=status)
+      @assertEqual(0, status)
+      bracket_ok = (item%get_declared_item_type() == MAPL_STATEITEM_BRACKET)
+
+      @assertTrue(vector_ok)
+      @assertTrue(bracket_ok)
+   end subroutine test_declared_item_type_follows_shape_entry
+
+   ! An EXPRESSION shape gives a FIELD link: the expression is evaluated
+   ! into a Field, and a link must not be taken for another expression item.
+   @test
+   subroutine test_declared_item_type_of_expression_shape_is_field()
+      type(StateItemDescriptor) :: item
+      logical :: is_field
+      integer :: status
+
+      call item%set_declared_item_type(MAPL_STATEITEM_EXPRESSION)
+      call item%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_EXPRESSION), rc=status)
+      @assertEqual(0, status)
+      call item%take_declared_item_type_from_shape(rc=status)
+      @assertEqual(0, status)
+      is_field = (item%get_declared_item_type() == MAPL_STATEITEM_FIELD)
+      @assertTrue(is_field)
+   end subroutine test_declared_item_type_of_expression_shape_is_field
+
+   ! With no shape entry the declared type is left as it was.
+   @test
+   subroutine test_declared_item_type_without_shape_entry_is_unchanged()
+      type(StateItemDescriptor) :: item
+      logical :: unchanged
+      integer :: status
+
+      call item%set_declared_item_type(MAPL_STATEITEM_BRACKET)
+      call item%take_declared_item_type_from_shape(rc=status)
+      @assertEqual(0, status)
+      unchanged = (item%get_declared_item_type() == MAPL_STATEITEM_BRACKET)
+      @assertTrue(unchanged)
+   end subroutine test_declared_item_type_without_shape_entry_is_unchanged
 
    function no_write_get_kind() result(kind)
       type(StateItemCharacteristicKind) :: kind
