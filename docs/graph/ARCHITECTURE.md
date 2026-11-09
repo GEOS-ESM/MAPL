@@ -413,7 +413,7 @@ Graph code also must not call into the legacy `specs/*Aspect`,
 | `initialize_geom_b.F90` | `gb%run_geometry_hook` |
 | `initialize_realize_accepted.F90` | `recurse()` → user phase → legacy `registry%allocate` → `gb%allocate_internals` → user-state `add_to_states(mode='user')` (switch off only) → outer states: `gb%run_populate_outer_hook` (switch on, `GRAPH` mode) or `registry%add_to_states(mode='outer')` (`initialize_realize_accepted.F90:26-43`) |
 | `initialize_graph_freeze.F90` | `gb%run_graph_freeze_hook` (root only) |
-| `run_user.F90` | import couplers (legacy) → `gb%run_pull_hook` → user run → `gb%run_advance_hook` → export couplers (legacy) (`run_user.F90:48-68`) |
+| `run_user.F90` | import couplers (legacy) → `gb%run_pull_hook` → user run → `gb%run_advance_hook` → export couplers (legacy); both coupler loops are skipped when `graph_populates_user_states()`, and so is the import-coupler initialize in `initialize_user.F90` (`run_user.F90:49-77`) |
 
 `run_reexport_hook` runs after `run_advertise_hook` and before export
 propagation: for each `ReexportConnection` it adds an export port named by
@@ -555,8 +555,9 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
   (`Test_Scenarios.pf:179-180,196,198-199`).
   The vertical column regrid is R4 and linear only, at level centers.
 - An expression whose consumer has precision R8 (`expression_per_consumer_r8`)
-  cannot run end to end: legacy couplers still run in graph mode and fail
-  on the expression item. The scenario stays pending (see
+  cannot run end to end with the user-state switch off: the legacy couplers
+  run and fail on the expression item. With the switch on they are skipped
+  and the scenario passes (NAG); it is still pending (see
   `docs/graph/scenario-parity.md`).
 - The outer states are written by the graph only with the user-state switch
   on in `GRAPH` mode (§2.4); otherwise legacy fills them. The outer

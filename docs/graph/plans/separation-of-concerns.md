@@ -1364,7 +1364,21 @@ when `graph_populates_user_states()`; aliasing or copying into the legacy
 payload (options b, c) were rejected. The author first verifies that the
 graph delivers the data in that mode. The owner confirms ifx on bucy.
 Owner commits.
-- **Status:** in progress (2026-11-09).
+- **Status:** done (a23ad61d0, owner commit; NAG and gfortran Debug
+  ESSENTIAL 69/69). Both coupler loops in `run_user.F90` and the
+  import-coupler initialize loop in `initialize_user.F90` are skipped when
+  `graph_populates_user_states()`. Verified on NAG by tracing: only the
+  graph-mode legacy conversions disappear, and the graph
+  `UnitsConverterTransform` still delivers `B import T = 5000.`.
+  Regression test `check_legacy_couplers` (`Test_Scenarios.pf`): for the
+  four units scenarios in graph-owns mode, each legacy coupler's
+  `import[1]` and `export[1]` still hold the FieldFill sentinel (compared
+  by bits); it fails on all four with the guard reverted. Owner's ifx Debug
+  confirmation on bucy pending (2026-11-10). Found on the way:
+  `expression_per_consumer_r8` passes on NAG with the switch on; revisit
+  its pending flag and parity row. Follow-up idea (reviewer): warn when
+  graph-owns mode meets an item class the graph does not materialize (M3),
+  which today would be dropped silently.
 
 **B4. Remove manual dispatch.** Delete `merged_item_for_link`'s kind
 chain, the `get_item_<kind>` getters (`get_item_units`/`get_item_typekind`/
@@ -2007,6 +2021,14 @@ E1 still runs last. If ifx comes out clean, volunteers' second compiler
 switches from `gcc15-stack` to `ifx-stack`.
 - **Status:** not started
 
+**E2-TeamWalkthrough** (owner, 2026-11-09; after the merge into
+`develop`). A walkthrough of the graph implementation for the owner's
+team, with a PowerPoint deck. Length and number of sessions are not
+decided. Before authoring, meta asks the owner (dashboard): audience depth,
+sessions and length, framing from legacy terms, slides only or a live
+scenario demo, and the tool for the deck.
+- **Status:** not started
+
 Author = writes the task and leaves it uncommitted. Reviewer = the
 read-only `reviewer` subagent (`.opencode/agents/reviewer.md`):
 `/review-task <label> [tier|provider/model] [focus]` (default tier opus).
@@ -2144,6 +2166,7 @@ it may author D1/A4/B5 with sonnet review.
 | D5-AllocatableResults-C | sonnet | sonnet | subgrids, substates, OpenMP results, reviewer's 11 candidates (vet first); before legacy is dropped |
 | E1-intel | sonnet | - | run and classify only; remote build on bucy |
 | E1-early | volunteer | meta (report check) | outsourced; run and classify only, current HEAD, ifx-stack on bucy |
+| E2-TeamWalkthrough | opus | sonnet | after the develop merge; slide deck for the owner's team; scope questions first |
 
 `(sonnet?)`/`(haiku?)` = move to that model only if it passes calibration.
 Always opus regardless: B0, B2, B3-Units, B3-ItemShape, A1-diagnosis,
