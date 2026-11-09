@@ -59,11 +59,12 @@ algorithm below.
 Q3): bindings are stored externally in `ComponentGraph`'s
 `PortBindingTable`, keyed `(DependencyNetworkId, NodeId) -> port name
 -> NodeId` (`PortBindingTable.F90:1`), **uniformly** — not on-node even
-for the (common) single-network case. This generalizes the pattern
-callback method bindings already used (`CallbackMethodBinding`, which
-genuinely needs two networks per attachment, get/put) to ordinary
-Transforms too, so code that walks bindings never branches on
-"on-node vs. external storage" per node kind.
+for the (common) single-network case. The network id in the key
+is the hierarchy's one forward network for a connection-resolution
+Transform (`bind_port` accepts the forward network or a network this
+component created, `ComponentGraph.F90:647`); a callback put network is the
+other kind of network a binding can name. Code that walks bindings never
+branches on "on-node vs. external storage" per node kind.
 
 `PortBindingTable` itself knows nothing about ownership or declared
 port names — those checks (does this `NodeId` belong to this component,

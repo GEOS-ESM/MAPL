@@ -60,7 +60,7 @@ fail.
 
 ## Not implemented here
 
-Hierarchy-wide (multi-`ComponentGraph`) export/composition at proxy-node
-boundaries, and repeated/time-series export calls across runtime — both
+Hierarchy-wide (multi-`ComponentGraph`) export/composition across
+component boundaries, and repeated/time-series export calls across runtime — both
 open, see `open-questions.md` (Q16, Q18). Current scope is per-component,
 callable at least once after freeze.

@@ -25,10 +25,14 @@ test graph) has:
   instance's own set," since every component's nodes/networks live
   together in the one shared `HierarchyGraph` map.
 
-This split exists so that cross-component wiring (parent-local proxy
-nodes standing in for a child's items, see `graph-builder.md`) can
+This split exists so that cross-component wiring (an edge between two
+real `NodeId`s issued by different components, see `graph-builder.md`) can
 share one id space across the hierarchy, while `ComponentGraph` still
-enforces per-component ownership/encapsulation on top.
+tracks which ids and write-back networks each component created. The one
+forward network (every edge that carries data toward a consumer, whichever
+component declared it) belongs to the `HierarchyGraph`, not to any
+`ComponentGraph` (`HierarchyGraph.F90:14-20`;
+`ComponentGraph.F90:96-100`).
 
 ### Why `HierarchyRegistry` is keyed, not a bare singleton
 
@@ -72,11 +76,12 @@ Owns, locally:
   hierarchy-wide, unlike `NodeId`).
 - **Transform port-binding table** (`PortBindingTable`) — external
   storage, keyed `(DependencyNetworkId, NodeId) -> port name -> NodeId`
-  (REQ-XFORM-005). See `transforms-and-update.md`.
+  (REQ-XFORM-005). See `transforms-and-update.md`. The network id is
+  the forward network or a write-back network this component created
+  (`graph_bind_port`, `ComponentGraph.F90:647`).
 - **Semantic resource index** (`StateItemMemberMap`) — name-keyed
-  `NodeId` lookup, reused by `GraphBuilder` for advertised-item and
-  cross-graph-proxy identity lookup; no separate lookup table was
-  invented for that purpose.
+  `NodeId` lookup, reused by `GraphBuilder` for advertised-item identity
+  lookup; no separate lookup table was invented for that purpose.
 - **Lifecycle status**: `MUTABLE -> FROZEN -> FINALIZED`
   (`GRAPH_LIFECYCLE_*` parameters, `:97-99`). One-way.
 
@@ -95,27 +100,34 @@ advertise time).
 
 ### `add_dependency` and foreign ids
 
-A dependency edge can only be added to a network **this `ComponentGraph`
-owns**, between two `NodeId`s this call is allowed to reference. "Allowed"
-is strictly narrower than "anything in the hierarchy": either ids this
-instance itself registered, or ids `allowed_foreign_node()`
-(`ComponentGraph.F90:139`) explicitly permits — "registered somewhere in
-this hierarchy" is not sufficient on its own; see that procedure's own
-header comment and REQ-HIER-005/006 (a parent may not reach into a
-child's internal topology — cross-component wiring always goes through
-a parent-local proxy node instead, never a direct edge to a child's real
-node).
+A dependency edge can only be added to the hierarchy's forward network
+or to a write-back network **this `ComponentGraph` created**
+(`graph_add_dependency`, `ComponentGraph.F90:379-380`). Both endpoint
+`NodeId`s must be registered somewhere in the hierarchy
+(`allowed_foreign_node()`, `ComponentGraph.F90:386-387,439-447`): an id
+issued by another component is accepted, so a cross-component edge
+connects two real `NodeId`s directly, with no proxy node
+(`spec/02-component-hierarchy.md` §2.3). The check is presence in the
+shared `HierarchyGraph`; it does not answer "is this mine" (`owns_node()`)
+and does not enforce the descendant-only rule, which
+`resolve_qualified_component` does by walking the component tree
+downward. In the forward network a state item has at most one producer
+(`forward_producer_conflict`, `ComponentGraph.F90:393-396`); an identical
+re-add is a no-op (`:390-392`).
 
 ## Demand-driven `update()`
 
 Implemented in the submodule `ComponentGraph_DemandDrivenUpdate.F90`
 (split out purely for file size — `ComponentGraph.F90` is the largest
-file in the directory). `update(network_id, node_id, rc)`: "ensure this
-node's value is current, within this network." Dispatches on dynamic
-node kind:
+file in the directory). `update(node_id, rc)`: "ensure this
+node's value is current." It always walks the hierarchy's forward network
+(`graph_update_item` calls `get_forward_network_id`,
+`ComponentGraph_DemandDrivenUpdate.F90:75-82`); the internal helpers take
+the network id as an argument, the public call does not. Dispatches on
+dynamic node kind:
 
-- **`StateItemNode`**: find its sole predecessor (producer) in this
-  network. Zero predecessors ⇒ externally supplied, nothing to do.
+- **`StateItemNode`**: find its sole predecessor (producer) in the
+  forward network. Zero predecessors ⇒ externally supplied, nothing to do.
   More than one is a defensive assert (validation should already
   forbid it). If the predecessor is a `TransformGraphNode`, recurse
   into it.

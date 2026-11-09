@@ -272,7 +272,7 @@ type (stateless; every method is `nopass` and takes the
 | `GraphBuilder_CallbackWiring_smod.F90` | Wildcard/regex callback-argument wiring against the flattened qualified-export namespace. Get arguments join the forward network; each method gets its own put (write-back) network (`:384-427`) |
 | `GraphBuilder_LifecycleHooks_smod.F90` | Wrappers called from `OuterMetaComponent` lifecycle sites: advertise, activate, connect, populate-state hooks; logs `GraphResolutionEntry` results |
 | `GraphBuilder_RunPhaseNode_smod.F90`, `GraphBuilder_RunPhasePull_smod.F90` | `MethodGraphNode` construction; run-phase pull and advance. `run_pull_hook` runs `ComponentGraph%update` on each of the component's own advertised imports before its user run, through the hierarchy's forward network, so it reaches a producer wherever the connection was declared; `run_advance_hook` advances the revision of its own advertised exports after a successful run. Both are no-ops outside `GRAPH` mode (`GraphBuilder_RunPhasePull_smod.F90:25-93`) |
-| `GraphBuilder_StatePopulation_smod.F90` | Populates the real `ESMF_State` from graph nodes (`graph` mode only; a no-op in `registry` and `both`). Optional `own_only` for advertise time; `populate_descendants` walks every descendant |
+| `GraphBuilder_StatePopulation_smod.F90` | Populates the real `ESMF_State` from graph nodes (`graph` mode only; a no-op in `registry` and `both`). Optional `own_only` for advertise time; `populate_descendants` walks every descendant; `graphbuilder_populate_outer_state` fills the parent-visible outer states at realize_accepted (switch on) |
 | `GraphBuilder_Visualization_smod.F90` | DOT/JSON enrichment |
 
 Also: `GraphResolutionEntry*.F90` (structured resolution report),
@@ -286,7 +286,8 @@ submodule area), `Test_GraphBuilderPropagation.pf`,
 `Test_GraphBuilderEquivalence.pf`, `Test_GraphEquivalenceHarness.pf`,
 `Test_GraphModeDemonstration.pf`, `Test_GraphMode.pf`,
 `Test_GraphBuilderMaterializeGate.pf` (materialization gates and graph-mode
-state population), `Test_GraphGeometryHook.pf`,
+state population, including the outer-state population tests
+`test_populate_outer_state_*`), `Test_GraphGeometryHook.pf`,
 `Test_ForwardNetworkErrors.pf` (the forward-producer error message), and
 the fixtures `tests/scenarios/` (legacy YAML scenarios) and
 `tests/graph-scenarios/` (graph-mode fixtures).
@@ -398,6 +399,7 @@ Graph code also must not call into the legacy `specs/*Aspect`,
 | `initialize_advertise.F90` | `recurse()` (children first) → `self_advertise` → `gb%run_advertise_hook` → `gb%run_reexport_hook` → legacy `process_connections` → `gb%run_activate_hook` → `gb%run_propagate_hook` → `registry%propagate_unsatisfied_imports` → `gb%run_export_propagate_hook` → `registry%propagate_exports` → either `gb%run_populate_state_hook(..., own_only=.true.)` (user-state switch on) or `registry%add_to_states(mode='user')` (`initialize_advertise.F90:48-123`) |
 | `initialize_accept_transfer.F90` | `gb%run_connect_hook`, then `gb%run_expression_hook`, then `gb%run_populate_state_hook` |
 | `initialize_geom_b.F90` | `gb%run_geometry_hook` |
+| `initialize_realize_accepted.F90` | `recurse()` → user phase → legacy `registry%allocate` → `gb%allocate_internals` → user-state `add_to_states(mode='user')` (switch off only) → outer states: `gb%run_populate_outer_hook` (switch on, `GRAPH` mode) or `registry%add_to_states(mode='outer')` (`initialize_realize_accepted.F90:26-43`) |
 | `initialize_graph_freeze.F90` | `gb%run_graph_freeze_hook` (root only) |
 | `run_user.F90` | import couplers (legacy) → `gb%run_pull_hook` → user run → `gb%run_advance_hook` → export couplers (legacy) (`run_user.F90:48-68`) |
 
@@ -433,34 +435,69 @@ shared with the export-port walk): a qualified name `A/E_A1` is inserted as
 `E_A1` in substate `A`. With the switch off, `own_only` is a no-op, which
 keeps the key write off graph-created Fields. The advertise-time call is
 hook style: a failure is logged as a warning by `report_if_failed`
-(`GraphBuilder_LifecycleHooks_smod.F90:291`) and advertise continues. The accept_transfer pass then repeats the insert (add-or-replace
+(`GraphBuilder_LifecycleHooks_smod.F90:293-306`) and advertise continues. The accept_transfer pass then repeats the insert (add-or-replace
 by alias name, so it is idempotent) and walks every descendant, not only
 direct children (`populate_descendants`), each against the forward network;
 below the direct children an import with no producer yet gets no
 own-created fallback, because an ancestor whose connection supplies it
 inserts the right Field and the fallback would replace it
-(`:129-175`, `:235-240`). `allocate_internals`
+(`GraphBuilder_StatePopulation_smod.F90:168-220`, `:277-283`). `allocate_internals`
 (`initialize_realize_accepted.F90:30`) allocates each INTERNAL whose
 descriptor is complete by then; an unconnected export stays created, never
 allocated. With the switch on, `populate` also walks the component's
 export-port table (`populate_export_ports`, `populate_export_port`,
-`GraphBuilder_StatePopulation_smod.F90:278-349`). Each port's bound-node
+`GraphBuilder_StatePopulation_smod.F90:319-399`). Each port's bound-node
 Field is aliased into the user export state under the PORT's name: a renamed
-re-export, a re-exported INTERNAL, or a propagated `child/E` (placed in a
-substate made by `get_substate`, as `FieldClassAspect%add_to_state` does).
-A port is skipped only when the declared export of the same name resolves to
-the same node; a same-named re-export of a child's export is a different node
+re-export or a re-exported INTERNAL. A port is skipped only when the
+declared export of the same name resolves to the same node; a same-named re-export of a child's export is a different node
 and is added. An INTERNAL-bound port is completed and allocated; an
 export-bound port is only described, so it stays `CREATED`/`GRIDSET`.
-Non-Field nodes are skipped. `sync_alias_info` writes the per-alias keys
-(long_name, restart mode) on each alias. With the switch off, or in `BOTH`
-mode, the walk adds nothing. `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES` turns the
-switch on in `Test_Scenarios` for every scenario, and a `scenario_table()`
-entry can set `graph_owns_user_states` for one scenario (`regrid`,
-`regrid_r8` and `grandparent_units_run_phase` do,
-`Test_Scenarios.pf:188-191,213-214`). Either way the switch is on only in
-`GRAPH` mode (`Test_Scenarios.pf:409-412`). The scenarios that fail with it on are listed
-in the tasks.md 3.41a, 3.41b and 3.44 Status.
+Non-Field nodes are skipped. A propagated port (a slash in the name)
+is skipped by the user passes (advertise and accept_transfer): the
+`include_propagated` argument is false for them
+(`GraphBuilder_StatePopulation_smod.F90:111,352`), and a propagated child
+export is written only to the outer export state, as legacy does
+(`registry/StateRegistry_Actions_smod.F90:73`). `sync_alias_info` writes the
+per-alias keys (long_name, restart mode) on each alias. With the switch off,
+or in `BOTH` mode, the walk adds nothing.
+
+The graph also fills the **outer** import and export states, the ones the
+parent sees, at `INIT_REALIZE_ACCEPTED` (`initialize_realize_accepted.F90:38-44`,
+not accept_transfer: a child's accept_transfer fill runs before the parent's
+connect step). `gb%run_populate_outer_hook` calls
+`graphbuilder_populate_outer_state`
+(`GraphBuilder_StatePopulation_smod.F90:131-167`): a third populate call,
+on the outer `MultiState`, reusing `populate_one` (declared IMPORT and
+EXPORT items only, `own_only` false, own-created fallback allowed) and then
+`populate_export_ports` with `include_propagated` true, so a propagated
+`child/E` lands in a substate of the outer export state, made by
+`get_substate` as `FieldClassAspect%add_to_state` does
+(`populate_export_port`, `GraphBuilder_StatePopulation_smod.F90:363-399`). INTERNAL items and
+descendants are skipped: each component fills its own outer states at its
+own realize_accepted. The user and outer aliases are two named aliases of one
+`ESMF_Field` (`Test_GraphModeDemonstration.pf`,
+`test_switch_on_outer_states_share_user_fields`). A hook failure is a
+warning, like the other hooks (`report_if_failed`,
+`GraphBuilder_LifecycleHooks_smod.F90:268-276`). The legacy path that stays:
+with the switch off, or outside `GRAPH` mode (the switch is gated by
+`graph_populates_user_states()`, `graph/GraphOwnsUserStates.F90:32-34`),
+`registry%add_to_states(mode='outer')` fills the outer states at
+`initialize_realize_accepted.F90:42`; in `REGISTRY` and `BOTH` mode legacy also fills
+them at accept_transfer (`initialize_accept_transfer.F90:89-91`). The graph
+does not write position-labelled names such as `T(1)`; their expectation
+items carry `legacy_only: true`, which `Test_Scenarios` skips when it applied
+the switch (`Test_Scenarios.pf:557-561`).
+
+`MAPL_SCENARIO_GRAPH_OWNS_USER_STATES` turns the switch on in
+`Test_Scenarios` for every scenario, and a `scenario_table()` entry can set
+`graph_owns_user_states` for one scenario (`scenario_reexport_twice`,
+`regrid`, `regrid_r8`, `invalidate`, and the `graph-scenarios` `plain_field`,
+`units_mismatch_run_phase`, `grandparent_units_run_phase`,
+`units_and_typekind_mismatch` and `graphbuilder_propagation` do;
+`Test_Scenarios.pf:176-177,191-194,202-203,212-224`). Either way the switch is
+on only in `GRAPH` mode (`Test_Scenarios.pf:417-420`). Scenarios
+that do not yet pass with the switch on are recorded in the tasks.md 3.41a,
+3.41b and 3.44 Status; `scenario-parity.md` lists the measured rows.
 
 `run_propagate_hook` must follow `run_activate_hook`: an import resolved
 by a connection declared at this level must be reflected before this
@@ -499,24 +536,23 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
   reported unsupported (incompatible and ambiguous VerticalGrid overlaps
   `_FAIL`). The `vertical_regridding*`, `vertical_alignment_regrid` and
   `vertical_alignment_with_grid` scenarios stay `graph_ready = .false.`
-  (`Test_Scenarios.pf:176-177,193,195-196`).
+  (`Test_Scenarios.pf:179-180,196,198-199`).
   The vertical column regrid is R4 and linear only, at level centers.
 - An expression whose consumer has precision R8 (`expression_per_consumer_r8`)
   cannot run end to end: legacy couplers still run in graph mode and fail
   on the expression item. The scenario stays pending (see
   `docs/graph/scenario-parity.md`).
-- The outer states are never written by the graph (tasks.md 3.42).
+- The outer states are written by the graph only with the user-state switch
+  on in `GRAPH` mode (§2.4); otherwise legacy fills them. The outer
+  population covers Field items only (the same limit as the user passes,
+  below) and never writes position-labelled names (`T(1)`).
 - User-state population at advertise is Field items only: bundles, states,
   vectors and composites are not populated at advertise or later. Items a
   user gridcomp advertises itself with `mapl_GridCompAdvertiseVariable` are
-  not in the graph, so they are not populated. Legacy `user` mode skips
-  propagated (`comp_name`) names and the own-only populate does not
-  (tasks.md 3.44 Status).
+  not in the graph, so they are not populated (tasks.md 3.44 Status).
 - Export-port population: a port name that collides with an existing
   non-port item replaces it silently (no duplicate-name assertion).
-  Propagated names (`child/E`) also land in the user export state, which
-  legacy does not do (its `user` mode skips child-owned names;
-  `registry/StateRegistry_Actions_smod.F90:73`). The port walk reads the
+  The port walk reads the
   component's own export-port table and has no depth limit; the walk over
   the declared imports and exports of the descendants reaches every
   descendant (`populate_descendants`). Bundles and composites (`vector_1`)

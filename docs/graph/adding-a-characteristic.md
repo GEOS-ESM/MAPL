@@ -367,9 +367,35 @@ calls it alignment. It is independent of VerticalStagger.
   into `build_transform`.
 - `parse_var_specs` reads the `vertical_alignment` key into
   `VariableSpec%vertical_alignment` (also set by `GridCompAddSpec`). The
-  `vertical_alignment_*` scenarios now carry real orientations, but their
-  orientation mismatch is masked: the graph reports only the first
-  unsupported kind per connection, and `VERTICAL_GRID` comes first.
+  `vertical_alignment_*` scenarios carry real orientations. In
+  `vertical_alignment_same_grid` and `vertical_alignment_regrid` the
+  orientation mismatch is masked by the `VERTICAL_GRID` mismatch, for these
+  reasons:
+  - Each component builds its own vertical grid from its config through
+    the grid manager, which gives every grid a new id
+    (`ComponentSpecParser/parse_geometry_spec.F90:115-116`,
+    `VerticalGridManager.F90:100-117,354-357`). The items declare no grid of
+    their own, so `resolve_deferred` fills each `VerticalGridCharacteristic`
+    from the component grid (`VerticalGridCharacteristic.F90:105-116,192-207`)
+    and `needs_extension_for` compares the grid ids, so two components with
+    identical levels still mismatch (`:144-145`).
+  - `get_extension_order` lists `VERTICAL_GRID` before `VERTICAL_STAGGER`
+    and `VERTICAL_ORIENTATION` (`ItemShapeCharacteristic.F90:201-204,224`).
+  - The chain stops at the first kind whose `build_transform` reports
+    unsupported, and builds nothing for the later kinds
+    (`ExtensionResolution.F90:113-117,291-300`). A single common physical
+    dimension (pressure here) is unsupported for `VERTICAL_GRID`
+    (`VerticalGridCharacteristic.F90:272-274`), so the orientation kind is
+    never tried.
+  - `vertical_alignment_with_grid` has no orientation mismatch to mask:
+    both items follow a downward grid, so both resolve to DOWN
+    (`make_characteristics.F90:480-485`;
+    `VerticalOrientationCharacteristic.F90:169-183`). Only its grid
+    mismatch (3 vs 2 levels) is reported.
+  - Both orientation entries are SPECIFIED, so an orientation-only
+    mismatch (same grid object, different `vertical_alignment`) would
+    reach `VerticalOrientationCharacteristic%build_transform`, which is
+    unsupported. No scenario builds that pair.
 - The resolved direction is written, not `with_grid` (owner-accepted
   deviation from legacy; readers resolve either against the same grid). A
   SPECIFIED entry whose direction is neither up nor down fails the write.

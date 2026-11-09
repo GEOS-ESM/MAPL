@@ -171,7 +171,7 @@ yet; INCOMPATIBLE = can never connect, A23).
 
 "Info write": field-wide (the shared ESMF field's Info) or per-alias
 (`is_per_alias()`, written by `sync_per_alias_to_info` on each alias in
-`GraphBuilder_StatePopulation_smod.F90:219`).
+`GraphBuilder_StatePopulation_smod.F90:586`).
 
 | Characteristic | Shapes | Undeclared: status at advertise (factory) | Undeclared: after GEOM_B / before freeze | Mirror (graph; where; spelling) | Compared / Transform (graph) | Info write | Legacy, and where it differs |
 |---|---|---|---|---|---|---|---|

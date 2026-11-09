@@ -46,8 +46,8 @@ arbitrary integer, and no arithmetic. The only way to get a valid id is
 `NodeId`/`DependencyNetworkId` generation moved from per-`ComponentGraph`
 to per-`HierarchyGraph` (see `hierarchy-and-component-graph.md`) so that
 ids are unique across an entire hierarchy, not just within one
-component — required once parent-local proxy nodes for child items
-exist in the same shared id space as the child's own nodes.
+component — required because a cross-component dependency edge connects
+a parent-side id and a child's own real `NodeId` in one shared id space.
 
 ## Adding a new id type
 

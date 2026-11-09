@@ -37,8 +37,8 @@ or node-kind knowledge lives here; this type is pure adjacency.
   (if passed); every `state_item_ids` member may have **at most one
   predecessor within this network** (producer uniqueness, REQ-DEP-008).
   This is a *per-network* check — the same `StateItemNode` can
-  legitimately have different producers in different networks (e.g. a
-  callback's `get` vs. `put` network). The stronger cross-network
+  legitimately have different producers in different networks (e.g. the
+  forward network vs. a callback's put network). The stronger cross-network
   "never written twice in one update pass" rule is enforced at
   `GraphBuilder`/`ComponentGraph` construction time, not here (see
   `open-questions.md`, formerly Q4).
@@ -75,6 +75,6 @@ end do
 
 One `DependencyNetwork` instance per logical wiring purpose per
 hierarchy or component — e.g. the hierarchy's one forward network, plus a
-`get`/`put` pair per callback interface attachment. Instances are owned and keyed
+put (write-back) network per callback method attachment. Instances are owned and keyed
 by `DependencyNetworkId` inside the shared `HierarchyGraph`
 (`hierarchy-and-component-graph.md`), not inside this module.

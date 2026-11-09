@@ -57,10 +57,10 @@ Mirrors the legacy imperative coupler's `Connection%activate()`/
 
 - **`GENERIC_INIT_ADVERTISE`**: `graphbuilder_check_unsatisfied_imports()`
   — read-only, determines which ordinary-match imports *would* be
-  satisfied, with **no graph structure created** (no proxy nodes, no
-  dependency edges). Called from `initialize_advertise.F90`.
+  satisfied, with **no graph structure created** (no dependency
+  edges). Called from `initialize_advertise.F90`.
 - **`GENERIC_INIT_ACCEPT_TRANSFER`**: `graphbuilder_resolve_connections()`
-  — the real graph mutation (proxies + dependency edges). Called from
+  — the real graph mutation (dependency edges and extension chains). Called from
   `initialize_accept_transfer.F90`, alongside the legacy `connect()`
   call, followed by `graphbuilder_freeze()` there (freezing before real
   wiring exists would be premature).
@@ -72,20 +72,26 @@ Real call sites, all under `superstructure/generic/OuterMetaComponent/`:
 
 ## Cross-component (parent/child) connections
 
-A dependency edge can only be added to a network owned by the graph
-that owns **both** its endpoint `NodeId`s (`ComponentGraph%add_dependency`
-enforces this — see `hierarchy-and-component-graph.md`). A
-`MatchConnection` naming a child therefore cannot be wired directly
-into the child's own network — nor would that be legal (REQ-HIER-005:
-a parent may not reach into a child's internal `DependencyNetwork`).
-Instead, for any endpoint that isn't `<self>`
+Node storage is shared across the hierarchy, so a connection that names a
+child needs no stand-in. For any endpoint that isn't `<self>`
 (`SELF_COMPONENT_NAME`, matches `StateRegistry_Hierarchy_smod`'s own
-sentinel), `GraphBuilder` creates (or reuses a cached) **parent-local
-proxy `StateItemNode`** standing in for the child's item (REQ-HIER-006),
-registers it in the *parent's* own graph, and records it via
-`add_child_port_binding`. The actual dependency edge always lands in
-the hierarchy's single forward network (`[RE-EVALUATED]`: one forward
-network per hierarchy, shared by every component).
+sentinel), `GraphBuilder` finds the descendant component
+(`resolve_qualified_component`, a downward walk only) and uses that
+component's own real `NodeId`. Ordinary connection resolution takes it from
+the descendant's export-port table (`find_export_node_id` over
+`find_export_node`, `GraphBuilder_ConnectionResolution_smod.F90:1257-1325`):
+a resource-index lookup by short name would fail for a propagated export,
+whose port name is qualified. Callback wiring takes it from the owner's
+resource index (`resolve_qualified_export_node_id`,
+`GraphBuilder_CallbackWiring_smod.F90:125-160`). No proxy node is created
+(`spec/02-component-hierarchy.md` §2.3), and
+`ComponentGraph%add_dependency` accepts an id issued by another component
+(`allowed_foreign_node`, `ComponentGraph.F90:439-447`; see
+`hierarchy-and-component-graph.md`). The dependency edge lands in the
+hierarchy's single forward network, shared by every component
+(`HierarchyGraph.F90:14-20`). `add_child_port_binding` is a
+`ComponentGraph` method that the tests call
+(`Test_ComponentHierarchyGraph.pf:158`); `GraphBuilder` does not.
 
 ## GraphMode: the legacy/graph-native switch
 

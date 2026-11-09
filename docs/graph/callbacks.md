@@ -22,7 +22,7 @@ A callback State is an ordinary `StateItemNode` holding a `STATE`-kind
 | `AccessSpec` | `AccessSpec.F90` | general MAPL access-mode classification (not callback-specific) — introduced for `MethodGraphNode`'s own argument declarations, reused here unchanged |
 | `CallbackInterfaceRegistry` | `CallbackInterfaceRegistry.F90` | the one shared, cross-`ComponentGraph` lookup for `CallbackInterface` values, keyed by service name / `CallbackInterfaceId` |
 | `CallbackStateBinding` | `CallbackStateBinding.F90` | one callback State's realized contract: which interface, its `StateItemNode`'s `NodeId`, argument→member `NodeId` map, method→attachment map |
-| `CallbackMethodBinding` | `CallbackMethodBinding.F90` | the method-level binding: invoked `MethodGraphNode`'s `NodeId`, plus **separate get/put `DependencyNetworkId`s** and their own argument→`NodeId` endpoint maps |
+| `CallbackMethodBinding` | `CallbackMethodBinding.F90` | the method-level binding: invoked `MethodGraphNode`'s `NodeId`, the **put** `DependencyNetworkId` only (get edges live in the hierarchy's forward network, so no get network id is stored), and separate get and put argument→`NodeId` endpoint maps (`CallbackMethodBinding.F90:11-19,43-46`) |
 
 ## CallbackInterfaceRegistry: singleton, hidden behind wrappers
 
@@ -38,23 +38,35 @@ owner is awkward, so a keyed/wrapped singleton is used instead (same
 `register_callback_interface` rejects a duplicate service name,
 leaving the original registration unchanged.
 
-## Why get/put need two networks, not one
+## Get and put: forward network plus a put network per attachment
 
 A callback attachment commonly needs data flowing both ways relative
 to the invocation: a `get` fills arguments from elsewhere before
-calling, a `put` writes results somewhere after. `CallbackMethodBinding`
-therefore carries **two independent `DependencyNetworkId`s** (get, put)
-and two independent `StateItemMemberMap`s — not one map keyed by a
-compound `(name, direction)` key. If an argument is only ever read (a
-"get"-only argument) or only ever written (a "put"-only argument), the
-unused network id/map is simply empty — no special-casing needed.
+calling, a `put` writes results somewhere after. The two directions
+use different networks:
 
-This get/put pattern is also the precedent that `transforms-and-update.md`'s
-Q3 resolution (external, uniform port-binding storage) generalizes:
-callback bindings were already external for exactly this reason
-(one node routinely belongs to two networks); the resolution made
-ordinary Transform port bindings follow the same external-storage shape
-rather than special-casing the single-network case on-node.
+- **get** edges carry data toward the method before it runs, so they
+  join the hierarchy's one forward network
+  (`graph%get_forward_network_id()`, `GraphBuilder_CallbackWiring_smod.F90:382-384`).
+  `invoke_callback_method` pulls the get arguments through that network.
+- **put** edges are the method's write-back: each attachment creates its
+  own put network (`graph%create_network()`, `:385`), and
+  `CallbackMethodBinding` stores only that put `DependencyNetworkId`.
+  Put targets are advanced directly by `NodeId` after the method runs
+  (`:476-508`).
+
+`CallbackMethodBinding` keeps two independent `StateItemMemberMap`s
+(get, put) — not one map keyed by a compound `(name, direction)` key. If
+an argument is only ever read (a "get"-only argument) or only ever
+written (a "put"-only argument), the unused map is simply empty — no
+special-casing needed.
+
+A write-back network is owned by the `ComponentGraph` that created it
+(`own_network_ids`, `ComponentGraph.F90:96-100`); the forward network
+belongs to the hierarchy (`HierarchyGraph.F90:14-20`). Port bindings
+for a Transform are keyed by `(DependencyNetworkId, NodeId)`, so the
+same node can still be bound in the forward network and in a put
+network (`transforms-and-update.md`).
 
 ## Handler / Invoker
 
