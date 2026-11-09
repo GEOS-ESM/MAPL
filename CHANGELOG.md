@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+## [2.74.0] - 2026-11-09
+
+### Fixed
+
+- Fixed `NC_ENAMEINUSE` in `MAPL_StateVarWriteNCPar`: for bundle fields with `::` in the name, the prefix is now removed before `<BundleName>_` is added, which matches the reader
+  - NOTE: When upstream code that needs this fix is updated, this could affect checkpoints. The actual fields would not change, but names could
+
+### Added
+
+- Added agent-oriented architecture documentation (`AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/decisions.md`, one `ARCHITECTURE.md` per source directory)
+
 ## [2.73.0] - 2026-11-05
 
 ### Fixed
