@@ -76,9 +76,12 @@ module MAPL_SatVaporMod
 
 ! Physical parameters
 
-  real(kind = REAL64), parameter :: MINPFAC = 2.0
-  real(kind = REAL64), parameter :: MAX_RS  = 1.0/(MINPFAC-1.0)
-  real(kind = REAL64), parameter :: MAX_QS  = MAX_RS/(1.0+MAX_RS)
+! WIP (see issue #5426): specific humidity guard/clamp now matches GEOS_QSAT
+! (guard PP > es, clamp to 1.0). Mixing-ratio mode keeps the old MINPFAC guard.
+  real(kind = REAL64), parameter :: MINPFAC_QS = 1.0
+  real(kind = REAL64), parameter :: MAX_QS     = 1.0
+  real(kind = REAL64), parameter :: MINPFAC    = 2.0
+  real(kind = REAL64), parameter :: MAX_RS     = 1.0/(MINPFAC-1.0)
 
 ! Table parameters
 
@@ -454,7 +457,7 @@ contains
 
 
     real(kind=REAL32) :: TI,W
-    real(kind=REAL32) :: DD, TT, EF
+    real(kind=REAL32) :: DD, TT, EF, PFAC
     real(kind=REAL32) :: DDQ
     integer           :: IT
     logical           :: OverLqu
@@ -505,7 +508,7 @@ contains
 
 
     real(kind=REAL64) :: TI,W
-    real(kind=REAL64) :: DD, TT, EF
+    real(kind=REAL64) :: DD, TT, EF, PFAC
     real(kind=REAL64) :: DDQ
     integer           :: IT
     logical           :: OverLqu
@@ -566,7 +569,7 @@ contains
 
     integer           :: I
     real(kind=REAL32) :: TI,W
-    real(kind=REAL32) :: DD, TT, EF
+    real(kind=REAL32) :: DD, TT, EF, PFAC
     real(kind=REAL32) :: DDQ
     integer           :: IT
     logical           :: OverLqu
@@ -621,7 +624,7 @@ contains
     integer           :: I
     real(kind=REAL64) :: TI,W
     real(kind=REAL64) :: DDQ
-    real(kind=REAL64) :: DD, TT, EF
+    real(kind=REAL64) :: DD, TT, EF, PFAC
     integer           :: IT
     logical           :: OverLqu
 
@@ -685,7 +688,7 @@ contains
     integer           :: I, J
     real(kind=REAL32) :: TI,W
     real(kind=REAL32) :: DDQ
-    real(kind=REAL32) :: DD, TT, EF
+    real(kind=REAL32) :: DD, TT, EF, PFAC
     integer           :: IT
     logical           :: OverLqu
 
@@ -741,7 +744,7 @@ contains
     integer           :: I, J
     real(kind=REAL64) :: TI,W
     real(kind=REAL64) :: DDQ
-    real(kind=REAL64) :: DD, TT, EF
+    real(kind=REAL64) :: DD, TT, EF, PFAC
     integer           :: IT
     logical           :: OverLqu
 
@@ -807,7 +810,7 @@ contains
     integer           :: I, J, K
     real(kind=REAL32) :: TI,W
     real(kind=REAL32) :: DDQ
-    real(kind=REAL32) :: DD, TT, EF
+    real(kind=REAL32) :: DD, TT, EF, PFAC
     integer           :: IT
     logical           :: OverLqu
 
@@ -865,7 +868,7 @@ contains
     integer           :: I, J, K
     real(kind=REAL64) :: TI,W
     real(kind=REAL64) :: DDQ
-    real(kind=REAL64) :: DD, TT, EF
+    real(kind=REAL64) :: DD, TT, EF, PFAC
     integer           :: IT
     logical           :: OverLqu
 
