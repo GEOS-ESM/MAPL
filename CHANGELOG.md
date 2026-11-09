@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed `NC_ENAMEINUSE` in `MAPL_StateVarWriteNCPar`: for bundle fields with `::` in the name, the prefix is now removed before `<BundleName>_` is added, which matches the reader
+
 ### Added
 
 ### Changed
