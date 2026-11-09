@@ -58,8 +58,8 @@ types.
 specification corpus — implementers MUST
 use it (or a direct evolution of it) rather than re-deriving an equivalent
 template independently. Usage: define `ID_NAME` (and optionally
-`DEFAULT_ID` if a default-valued instance is needed, as `ComponentGraph`'s
-default `DependencyNetworkId` requires — REQ-CG-004) before `#include`-ing
+`DEFAULT_ID` if a default-valued instance is needed; `ComponentGraph` no
+longer needs one, see REQ-CG-004) before `#include`-ing
 the template; it generates:
 
 - `type :: ID_NAME` — encapsulated, private integer value (`INT32`),

@@ -24,7 +24,7 @@ See proposal.md for why. Today (`superstructure/generic/graph/`):
   network. No production code advances an export's revision after a run
   (`advance_revision` is called only by `update()` outputs, callback put,
   `set_shared_characteristic`, and the test-only
-  `invoke_on_default_network`), so a transform re-executes only on its
+  `invoke_on_forward_network`), so a transform re-executes only on its
   first pull.
 - A standalone `ComponentGraph()` (no hierarchy id) creates a fresh
   hierarchy, so graph-neutral unit tests get a hierarchy of their own.
@@ -77,6 +77,14 @@ no-op (the two-pass init may resolve a connection twice). Edges into a
 `TransformGraphNode` are not limited. The check lives in `ComponentGraph`
 (it knows node kinds); `DependencyNetwork` stays graph-neutral.
 `DependencyNetwork%validate` still checks producers at freeze.
+The connection pass checks first (`forward_producer_conflict`): a
+connection that would add a second producer is recorded as a
+`connection_conflicts` entry naming the item and skipped; the first
+producer stays and the pass continues (owner decision 2026-11-08; legacy
+lets the last connection win, see `docs/graph/scenario-parity.md`).
+Inout borrower pairings use the same check. Accepted limitation: a pair
+rejected after its extension chain was built leaves that chain in the
+forward network, unreachable by any pull.
 
 ### D3. Port bindings and the reuse index move to `HierarchyGraph`
 - The `PortBindingTable` moves to `HierarchyGraph`. `bind_port` no
@@ -111,6 +119,20 @@ the user run). Advancing exports is what lets a transform re-execute on
 later steps; without it the pull is a no-op after the first step.
 *Alternative:* keep the parent-driven loop but make it recursive.
 Rejected by the owner (pull on the field).
+
+*Finding (task 1.1):* on HEAD, `invalidate` gets its step-2 value only
+through the legacy couplers (still active in graph mode); no graph export
+revision was ever advanced, so graph transforms ran once. D5 stands as
+written.
+
+*Geometry push (temporary):* legacy copies the FROM_CHILD provider's
+geometry up to the parent (`initialize_geom_a.F90:57-69`) and then copies
+the parent's geometry back to every FROM_PARENT child, the provider
+included (`propagate_geom_to_children.F90:27-35`), an echo of the
+provider's own geometry. In one forward network that echo (pull up plus
+push down on the same items) is a cycle, so `graphbuilder_resolve_geometry`
+skips the push to the component's own provider. Owner decision
+2026-11-08: temporary, until C4-b redoes component geometry.
 
 ### D6. Callback get edges in the forward network
 `build_callback_method_binding` wires provider-to-member edges into the

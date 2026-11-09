@@ -116,20 +116,25 @@ logic. Without an explicit trigger, such a `GraphStateItem` could be silently
 stale (content) or wrongly-shaped (structure) when the method that
 consumes it actually runs.
 
-**REQ-REV-011.** The concrete trigger points, by network, are:
+**REQ-REV-011 `[RE-EVALUATED]`.** The concrete trigger points are:
 
-- **Default `DependencyNetwork`** (`07-component-graph.md` REQ-CG-001a —
-  ordinary GridComp `Run`/`Initialize` phases): the *first step* of
-  invoking a GridComp run method MUST be to request updated values
-  (`update()`, REQ-REV-006) for **all** of that method's import items.
-  After the run method completes, **all** of its export items' revisions
-  MUST be advanced (REQ-MTH-003a, `12-methods-and-drivers.md`) —
-  unconditionally, on the coarse-grained default-network assumption that
-  every phase touches every import/export.
-- **Other (callback/method-specific) networks** (`15-callbacks.md` §15.10):
-  the trigger points are immediately *before* and immediately *after*
-  execution of the relevant state callback method, not tied to a whole
-  GridComp phase boundary.
+- **Forward `DependencyNetwork`** (ordinary GridComp `Run` phases, graph
+  mode): the *first step* of invoking a component's run method MUST be to
+  request updated values (`update(node_id)`, REQ-REV-006) for **all** of
+  that component's own advertised import items. The pull follows the
+  hierarchy's forward network, so it reaches each import's producer
+  wherever the edge was declared (parent or any ancestor). After the run
+  method completes successfully, **all** of the component's own advertised
+  export items' revisions MUST be advanced (REQ-MTH-003a,
+  `12-methods-and-drivers.md`) — unconditionally, on the coarse-grained
+  assumption that every phase touches every import/export. Advancing the
+  exports is what lets a transform re-execute on a later step. This
+  matches legacy order (import couplers update before the user run). A
+  parent no longer pulls its children's imports after its own run.
+- **Callback methods** (`15-callbacks.md` §15.10): immediately *before*
+  execution, each get argument is pulled through the forward network;
+  immediately *after*, each put target's revision is advanced directly.
+  A write-back network is never pulled.
 
 **REQ-REV-011a.** This trigger/advance logic is controlled by the
 `OuterMetaComponent` layer (the private-state derived type inside an
@@ -137,11 +142,11 @@ consumes it actually runs.
 wrapped user component) — not by the `MethodGraphNode`/invocation-adapter
 abstraction itself acting alone. The invocation adapter (§12.2) still
 performs the call; `OuterMetaComponent` is what decides, on the
-default-network path, to pull-all-before and advance-all-after.
+forward-network path, to pull-all-before and advance-all-after.
 
 **`[future direction, not yet specified]`** Later, individual run methods
 MAY be annotated to declare a narrower set of imports actually pulled and
-exports actually advanced, rather than the current default-network
+exports actually advanced, rather than the current forward-network
 all-imports/all-exports assumption — see `07-component-graph.md` REQ-CG-001a
 for the matching future-direction note on per-method networks. Default
 behavior, absent such annotation, MUST always remain "assume all

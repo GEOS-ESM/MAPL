@@ -3,7 +3,7 @@
 ! set_shared_characteristic() eager-structural/lazy-content mutator
 ! (design.md D7), and its composition with the already-shipped
 ! REQ-REV-011 pre-invocation pull (MethodInvocation.F90's
-! invoke_on_default_network - design.md D8, Context's correction note).
+! invoke_on_forward_network - design.md D8, Context's correction note).
 !
 ! Synthetic ComponentGraph/StateItemNode/TransformGraphNode/
 ! MethodGraphNode only - no ESMF component/GridComp/StateRegistry
@@ -11,7 +11,7 @@
 ! Test_MethodInvocation.pf's own posture.
 module Test_SetSharedCharacteristic
    use mapl_SetSharedCharacteristic_mod, only: set_shared_characteristic
-   use mapl_MethodInvocation_mod, only: invoke_on_default_network
+   use mapl_MethodInvocation_mod, only: invoke_on_forward_network
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
@@ -140,7 +140,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      default_id = graph%get_default_network_id()
+      default_id = graph%get_forward_network_id()
 
       shared_id = graph%next_node_id(rc=status)
       shared_node = StateItemNode(shared_id, payload, revision)
@@ -286,7 +286,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      default_id = graph%get_default_network_id()
+      default_id = graph%get_forward_network_id()
 
       shared_id = graph%next_node_id(rc=status)
       shared_node = StateItemNode(shared_id, payload, revision)
@@ -336,7 +336,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      default_id = graph%get_default_network_id()
+      default_id = graph%get_forward_network_id()
 
       shared_id = graph%next_node_id(rc=status)
       shared_node = StateItemNode(shared_id, payload, revision)
@@ -379,7 +379,7 @@ contains
 
       ! Prime the chain: first demand-driven request executes the
       ! transform once.
-      call graph%update(default_id, final_id, rc=status)
+      call graph%update(final_id, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, run_count)
 
@@ -396,7 +396,7 @@ contains
       ! Spec "Next demand-driven request produces correct content": the
       ! transform's recorded baseline for 'in' (dep_id) no longer
       ! matches dep_id's now-invalid revision, so it re-executes.
-      call graph%update(default_id, final_id, rc=status)
+      call graph%update(final_id, rc=status)
       @assertEqual(0, status)
       @assertEqual(2, run_count)
    end subroutine test_content_recompute_is_lazy_after_structural_reset
@@ -405,7 +405,7 @@ contains
 
    ! Spec "Pre-invocation pull reflects a prior mid-Run structural
    ! reset": a mid-"Run" structural reset via set_shared_characteristic
-   ! on shared_id, followed by invoke_on_default_network on a
+   ! on shared_id, followed by invoke_on_forward_network on a
    ! MethodGraphNode whose bound IN argument is final_id (the output of
    ! an ordinary TransformGraphNode chain rooted at shared_id's direct
    ! dependent dep_id), confirms the ALREADY-SHIPPED pre-invocation pull
@@ -431,7 +431,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      default_id = graph%get_default_network_id()
+      default_id = graph%get_forward_network_id()
 
       shared_id = graph%next_node_id(rc=status)
       shared_node = StateItemNode(shared_id, payload, revision)
@@ -469,7 +469,7 @@ contains
       call graph%bind_port(default_id, transform_id, 'out', final_id, rc=status)
 
       ! Prime the chain.
-      call graph%update(default_id, final_id, rc=status)
+      call graph%update(final_id, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, run_count)
 
@@ -497,7 +497,7 @@ contains
       ! pull (REQ-REV-011) over its bound IN argument (final_id), which
       ! recognizes dep_id's now-invalid revision and re-executes the
       ! transform chain BEFORE the adapter's own invoke() is called.
-      call invoke_on_default_network(graph, method_id, rc=status)
+      call invoke_on_forward_network(graph, method_id, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, call_count)
       @assertEqual(2, run_count)

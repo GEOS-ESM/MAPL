@@ -7,8 +7,10 @@
 ! components; see ComponentGraph.F90's header for the contrast with
 ! mapl_GraphExport_mod.
 !
-! update(this, network_id, node_id, rc): ensure this node's value is current
-! within this network. Dispatches on the node's dynamic kind:
+! update(this, node_id, rc): ensure this node's value is current, following
+! the hierarchy's forward network only (write-back networks are never
+! pulled), so the result does not depend on which graph asks. Dispatches on
+! the node's dynamic kind:
 !
 !   - StateItemNode: find its sole producer (predecessor) in this network.
 !     Zero predecessors means externally supplied - nothing to do. More than
@@ -35,7 +37,7 @@
 ! subject to %at() are TARGET so the pointers/iterators stay valid across the
 ! whole loop.
 !
-! The traversal is explicit-stack, not Fortran recursion; see graph_update.
+! The traversal is explicit-stack, not Fortran recursion; see graph_update_item.
 !------------------------------------------------------------------------------
 submodule (mapl_ComponentGraph_mod) mapl_ComponentGraph_DemandDrivenUpdate_smod
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
@@ -56,7 +58,7 @@ submodule (mapl_ComponentGraph_mod) mapl_ComponentGraph_DemandDrivenUpdate_smod
 contains
 
    ! Public entry point (ComponentGraph%update()): ensures node_id's value is
-   ! current within network_id.
+   ! current within the forward network.
    !
    ! Explicit-stack (non-recursive) traversal: mutually recursive update
    ! procedures corrupted local variables on return from a deeper call under
@@ -65,17 +67,19 @@ contains
    ! a post-order DFS over the predecessor DAG (make_update_frame() discovers
    ! predecessors) and each node's own non-recursive work
    ! (finish_update_frame()/finish_transform()).
-   module subroutine graph_update(this, network_id, node_id, rc)
+   module subroutine graph_update_item(this, node_id, rc)
       class(ComponentGraph), target, intent(in) :: this
-      type(DependencyNetworkId), intent(in) :: network_id
       type(NodeId), intent(in) :: node_id
       integer, optional, intent(out) :: rc
 
+      type(DependencyNetworkId) :: network_id
       type(UpdateFrame), allocatable :: stack(:)
       type(UpdateFrame) :: new_frame
       type(NodeId) :: next_id
       integer :: top
       integer :: status
+
+      network_id = this%get_forward_network_id(_RC)
 
       ! The error-handling macro expands to more than one statement, so it
       ! cannot appear inside an array constructor; assign to a local first.
@@ -96,10 +100,11 @@ contains
       end do
 
       _RETURN(_SUCCESS)
-   end subroutine graph_update
+   end subroutine graph_update_item
 
-   ! Builds one graph_update stack frame for node_id: the node itself and the
-   ! list of predecessor NodeIds that must be current before its own work runs.
+   ! Builds one graph_update_item stack frame for node_id: the node itself
+   ! and the list of predecessor NodeIds that must be current before its
+   ! own work runs.
    !
    ! REQ-REV-006 step 1: a StateItemNode with no producer in this network is
    ! externally supplied (empty predecessor list); with one producer it depends

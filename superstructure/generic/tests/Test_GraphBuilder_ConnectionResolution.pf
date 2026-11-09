@@ -226,7 +226,7 @@ contains
       type(NodeIdSet), target :: preds
       type(NodeIdSetIterator) :: iter
 
-      net => graph%get_network(graph%get_default_network_id())
+      net => graph%get_network(graph%get_forward_network_id())
       preds = net%get_predecessors(id)
       if (preds%size() /= 1) return
       iter = preds%ftn_begin()
@@ -282,7 +282,7 @@ contains
       transform_id = sole_predecessor_of(graph, result_id)
       @assertTrue(transform_id%is_valid())
       if (.not. transform_id%is_valid()) return
-      bound => graph%get_port_binding(graph%get_default_network_id(), &
+      bound => graph%get_port_binding(graph%get_forward_network_id(), &
            transform_id, name)
       @assertTrue(associated(bound))
       if (.not. associated(bound)) return
@@ -399,7 +399,7 @@ contains
       _RETURN(_SUCCESS)
    end subroutine make_pair_fixture
 
-   ! True when the parent's default network has an edge from child_src's
+   ! True when the forward network has an edge from child_src's
    ! export `name` to child_dst's import `name`.
    logical function pair_is_wired(parent_meta, src_meta, dst_meta, name) result(wired)
       type(OuterMetaComponent), pointer, intent(in) :: parent_meta, src_meta, dst_meta
@@ -414,7 +414,7 @@ contains
       dst_graph => dst_meta%get_component_graph()
       export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, name))
       import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, name))
-      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      net => parent_graph%get_network(parent_graph%get_forward_network_id())
       wired = net%contains_dependency(export_id, import_id)
    end function pair_is_wired
 
@@ -452,7 +452,7 @@ contains
    ! published port gets a parent-local proxy": a parent declares a
    ! connect_all-style MatchConnection between two children; the parent
    ! ends up with proxy nodes (not the children's own NodeIds) wired in
-   ! its own default network, and the one import with no matching export
+   ! the hierarchy's forward network, and the one import with no matching export
    ! is reported, not silently dropped.
    @test(npes=[0])
    subroutine test_ordinary_connection_wires_matching_and_reports_unresolved(this)
@@ -543,10 +543,10 @@ contains
       @assert_that(parent_graph%owns_node(t_export_id), is(false()))
       @assert_that(parent_graph%owns_node(t_import_id), is(false()))
 
-      ! The edge itself lives in the PARENT's own default network (the
-      ! declaring component's network), connecting the two children's
+      ! The edge itself lives in the hierarchy's forward network (declared
+      ! by the parent), connecting the two children's
       ! own real NodeIds directly.
-      net_id = parent_graph%get_default_network_id()
+      net_id = parent_graph%get_forward_network_id()
       net => parent_graph%get_network(net_id)
       @assert_that(net%contains_dependency(t_export_id, t_import_id), is(true()))
       @assert_that(net%has_predecessors(q_import_id), is(false()))
@@ -634,7 +634,7 @@ contains
       @assert_that(associated(t_export_id), is(true()))
       @assert_that(associated(t_import_id), is(true()))
 
-      net_id = parent_graph%get_default_network_id()
+      net_id = parent_graph%get_forward_network_id()
       net => parent_graph%get_network(net_id)
 
       ! Not a direct edge (spec "Mismatched export and import are wired
@@ -898,7 +898,7 @@ contains
       @assert_that(associated(u_export_id), is(true()))
       @assert_that(associated(u_import_id), is(true()))
 
-      net_id = parent_graph%get_default_network_id()
+      net_id = parent_graph%get_forward_network_id()
       net => parent_graph%get_network(net_id)
       @assert_that(net%has_predecessors(t_import_id), is(false()))
       @assert_that(net%contains_dependency(u_export_id, u_import_id), is(true()))
@@ -992,7 +992,7 @@ contains
       @assert_that(associated(u_export_id), is(true()))
       @assert_that(associated(u_import_id), is(true()))
 
-      net_id = parent_graph%get_default_network_id()
+      net_id = parent_graph%get_forward_network_id()
       net => parent_graph%get_network(net_id)
       @assert_that(net%has_predecessors(t_import_id), is(false()))
       @assert_that(net%contains_dependency(u_export_id, u_import_id), is(true()))
@@ -1039,7 +1039,7 @@ contains
        block
           type(DependencyNetwork), pointer :: net
           net => parent_graph%get_network( &
-               parent_graph%get_default_network_id())
+               parent_graph%get_forward_network_id())
           @assertFalse(net%has_predecessors(import_id))
        end block
 
@@ -1088,7 +1088,7 @@ contains
       class default
          @assertTrue(.false., 'expression predecessor is not a transform')
       end select
-      net => pg%get_network(pg%get_default_network_id())
+      net => pg%get_network(pg%get_forward_network_id())
       @assertFalse(net%has_predecessors(expr_id))
       @assertFalse(net%has_successors(expr_id))
       node => sg%get_node(expr_id)
@@ -1155,7 +1155,7 @@ contains
       sg => src%get_component_graph()
       i1 => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I1'))
       i2 => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I2'))
-      net => pg%get_network(pg%get_default_network_id())
+      net => pg%get_network(pg%get_forward_network_id())
       @assertEqual(2, expression_evaluation_count(pg))
       @assertTrue(net%has_predecessors(i1))
       @assertTrue(net%has_predecessors(i2))
@@ -1197,7 +1197,7 @@ contains
       first_result = sole_predecessor_of(pg, import_id)
       @assertTrue(first_result%is_valid())
       first_ids = pg%get_node_ids()
-      net => pg%get_network(pg%get_default_network_id())
+      net => pg%get_network(pg%get_forward_network_id())
       first_edges = net%get_referenced_ids()
       call gb%resolve_connections(parent, rc=status)
       @assertEqual(0, status)
@@ -1360,7 +1360,7 @@ contains
       sg => src%get_component_graph()
       import_id => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, &
            'I'))
-      net => pg%get_network(pg%get_default_network_id())
+      net => pg%get_network(pg%get_forward_network_id())
       @assertTrue(net%has_predecessors(import_id))
       if (.not. net%has_predecessors(import_id)) return
       result_id = sole_predecessor_of(pg, import_id)
@@ -1481,6 +1481,61 @@ contains
       @assertTrue(result1 == result2)
       _UNUSED_DUMMY(this)
    end subroutine test_expression_converted_inputs_are_reused
+
+   ! The same evaluation needed by a connection declared on another
+   ! component (here the source itself, connecting its expression to its
+   ! own import) reuses the evaluation the parent built: one expression
+   ! transform in the hierarchy.
+   @test(npes=[0])
+   subroutine test_expression_reused_across_declaring_components(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: pg, dg, sg
+      type(ComponentSpec), pointer :: src_spec
+      type(NodeId), pointer :: i1, i2
+      type(NodeId) :: result1, result2
+      type(VariableSpec) :: var
+      type(SimpleConnection) :: conn
+      type(GraphResolutionEntryVector) :: unsupported
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_expression_fixture('expr_reuse_declarers', ['I1'], &
+           ['m'], [ESMF_TYPEKIND_R4], parent, src, dst, _RC)
+      src_spec => src%get_component_spec()
+      var = make_var(ESMF_STATEINTENT_IMPORT, 'I2', units='m')
+      var%typekind = ESMF_TYPEKIND_R4
+      call src_spec%add_var_spec(var)
+      conn = SimpleConnection( &
+           ConnectionPt('<self>', VirtualConnectionPt( &
+           state_intent='export', short_name='expr')), &
+           ConnectionPt('<self>', VirtualConnectionPt( &
+           state_intent='import', short_name='I2')))
+      call src_spec%add_connection(conn)
+      call gb%advertise(src, _RC)
+
+      call gb%resolve_connections(parent, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, unsupported%size())
+      call gb%resolve_connections(src, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, unsupported%size())
+
+      pg => parent%get_component_graph()
+      dg => dst%get_component_graph()
+      sg => src%get_component_graph()
+      @assertEqual(1, expression_evaluation_count(pg))
+      @assertEqual(0, expression_evaluation_count(sg))
+      i1 => dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I1'))
+      i2 => sg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'I2'))
+      result1 = sole_predecessor_of(pg, i1)
+      result2 = sole_predecessor_of(sg, i2)
+      @assertTrue(result1%is_valid())
+      @assertTrue(result1 == result2)
+      _UNUSED_DUMMY(this)
+   end subroutine test_expression_reused_across_declaring_components
 
    @test(npes=[0])
    subroutine test_expression_precision_precedes_result_units(this)
@@ -1636,7 +1691,7 @@ contains
       dg => dst%get_component_graph()
       import_id => dg%get_resource_index( &
            item_key(ESMF_STATEINTENT_IMPORT, 'I'))
-      net => pg%get_network(pg%get_default_network_id())
+      net => pg%get_network(pg%get_forward_network_id())
       @assertFalse(net%has_predecessors(import_id))
       @assertEqual(0, expression_evaluation_count(pg))
       _UNUSED_DUMMY(this)
@@ -1672,7 +1727,7 @@ contains
       dg => dst%get_component_graph()
       import_id => dg%get_resource_index( &
            item_key(ESMF_STATEINTENT_IMPORT, 'I'))
-      net => pg%get_network(pg%get_default_network_id())
+      net => pg%get_network(pg%get_forward_network_id())
       @assertFalse(net%has_predecessors(import_id))
       @assertEqual(0, expression_evaluation_count(pg))
       ids = pg%get_node_ids()
@@ -1748,7 +1803,7 @@ contains
       @assertEqual(1, expression_evaluation_count(pg))
       import_id => dg%get_resource_index( &
            item_key(ESMF_STATEINTENT_IMPORT, 'I'))
-      net => pg%get_network(pg%get_default_network_id())
+      net => pg%get_network(pg%get_forward_network_id())
       @assertFalse(net%has_predecessors(import_id))
       _UNUSED_DUMMY(this)
    end subroutine test_expression_declared_stagger_wins_over_consumer
@@ -1856,7 +1911,7 @@ contains
    ! openspec/changes/ordinary-inout-direct-alias - REQ-INOUT-001 direct-
    ! alias case: a destination item declared an ordinary inout borrower
    ! (VariableSpec%is_inout_borrower) wires a forward edge (owner ->
-   ! borrower) in the default network - identical wiring shape to the
+   ! borrower) in the forward network - identical wiring shape to the
    ! ordinary REQ-EXT-003 no-op case above, so owner/borrower payload
    ! sharing is inherited from that same materialization path (not
    ! independently testable at this synthetic-node layer - neither this
@@ -1945,15 +2000,14 @@ contains
       @assert_that(associated(t_export_id), is(true()))
       @assert_that(associated(t_import_id), is(true()))
 
-      ! Forward edge: owner -> borrower, in the default network -
+      ! Forward edge: owner -> borrower, in the forward network -
       ! identical wiring shape to the ordinary REQ-EXT-003 no-op case.
-      net_id = parent_graph%get_default_network_id()
+      net_id = parent_graph%get_forward_network_id()
       net => parent_graph%get_network(net_id)
       @assert_that(net%contains_dependency(t_export_id, t_import_id), is(true()))
 
-      ! Return edge: borrower -> owner, in a DIFFERENT network from the
-      ! default one (design.md Decision 2, revised: a fresh per-pairing
-      ! network, not the default network, not the same one as forward).
+      ! Return edge: borrower -> owner, in a fresh per-pairing write-back
+      ! network, never the forward network.
       found_return_edge = .false.
       all_net_ids = parent_graph%get_network_ids()
       net_iter = all_net_ids%ftn_begin()
@@ -1976,6 +2030,137 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_inout_direct_alias_wires_forward_and_return_edges
+
+   ! Two owners feed one inout borrower import. The first owner's pairing is
+   ! wired; the second is recorded as a connection conflict naming the item,
+   ! gets no forward edge and no return network, and the pass still succeeds
+   ! and wires a later unrelated connection.
+   @test(npes=[0])
+   subroutine test_inout_second_owner_is_conflict_pass_continues(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: a_meta, b_meta, dst_meta
+      type(GriddedComponentDriver) :: a_driver, b_driver, dst_driver
+      type(ESMF_GridComp) :: a_gc, b_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, a_spec, b_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph, a_graph, b_graph, dst_graph
+      type(MatchConnection) :: conn_1, conn_2, conn_3
+      type(GraphResolutionEntryVector) :: unresolved, unsupported, conflicts
+      type(GraphResolutionEntry), pointer :: entry
+      type(VariableSpec) :: borrower_spec
+      type(NodeId), pointer :: a_t, b_t, a_u, t_import, u_import
+      type(DependencyNetwork), pointer :: net, candidate_net
+      type(DependencyNetworkId), pointer :: candidate_id
+      type(DependencyNetworkIdSet), target :: all_net_ids
+      type(DependencyNetworkIdSetIterator) :: net_iter
+      integer :: n_return_networks
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_parent_inout_two_owners', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_a', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_b', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      a_driver = parent_meta%get_child('child_a', _RC)
+      b_driver = parent_meta%get_child('child_b', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      a_gc = a_driver%get_gridcomp()
+      b_gc = b_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      a_meta => get_outer_meta(a_gc, _RC)
+      b_meta => get_outer_meta(b_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      a_spec => a_meta%get_component_spec()
+      call a_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+      call a_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'U'))
+      b_spec => b_meta%get_component_spec()
+      call b_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T'))
+
+      dst_spec => dst_meta%get_component_spec()
+      borrower_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T')
+      borrower_spec%is_inout_borrower = .true.
+      call dst_spec%add_var_spec(borrower_spec)
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'U'))
+
+      call gb%advertise(a_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(b_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn_1 = MatchConnection( &
+           ConnectionPt('child_a', VirtualConnectionPt(state_intent='export', short_name='^T$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^T$')))
+      conn_2 = MatchConnection( &
+           ConnectionPt('child_b', VirtualConnectionPt(state_intent='export', short_name='^T$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^T$')))
+      conn_3 = MatchConnection( &
+           ConnectionPt('child_a', VirtualConnectionPt(state_intent='export', short_name='^U$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^U$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn_1)
+      call parent_spec%add_connection(conn_2)
+      call parent_spec%add_connection(conn_3)
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, connection_conflicts=conflicts, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      @assertEqual(0, unsupported%size())
+
+      @assertEqual(1, conflicts%size())
+      entry => conflicts%at(1, status)
+      @assertEqual('T', entry%short_name)
+      @assert_that(index(entry%reason, '"T"') > 0, is(true()))
+
+      parent_graph => parent_meta%get_component_graph()
+      a_graph => a_meta%get_component_graph()
+      b_graph => b_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      a_t => a_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      a_u => a_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'U'))
+      b_t => b_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      u_import => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'U'))
+
+      net => parent_graph%get_network(parent_graph%get_forward_network_id())
+      ! First producer stays; the rejected one has no edge; the later
+      ! unrelated connection is wired.
+      @assert_that(net%contains_dependency(a_t, t_import), is(true()))
+      @assert_that(net%contains_dependency(b_t, t_import), is(false()))
+      @assert_that(net%contains_dependency(a_u, u_import), is(true()))
+
+      ! Exactly one write-back network (the first pairing's); none for the
+      ! rejected pairing.
+      n_return_networks = 0
+      all_net_ids = parent_graph%get_network_ids()
+      net_iter = all_net_ids%ftn_begin()
+      do while (net_iter /= all_net_ids%ftn_end())
+         call net_iter%next()
+         candidate_id => net_iter%of()
+         if (candidate_id == parent_graph%get_forward_network_id()) cycle
+         candidate_net => parent_graph%get_network(candidate_id)
+         if (candidate_net%contains_dependency(t_import, b_t)) then
+            @assert_that(.false., is(true()))
+         end if
+         if (candidate_net%contains_dependency(t_import, a_t)) n_return_networks = n_return_networks + 1
+      end do
+      @assertEqual(1, n_return_networks)
+
+      call parent_graph%validate(status)
+      @assert_that(status, is(0))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_inout_second_owner_is_conflict_pass_continues
 
    ! spec "A mismatched pairing is rejected rather than silently chained"
    ! - REQ-INOUT-002 reserves the non-direct-alias case; an inout
@@ -2064,7 +2249,7 @@ contains
       @assert_that(associated(t_export_id), is(true()))
       @assert_that(associated(t_import_id), is(true()))
 
-      net_id = parent_graph%get_default_network_id()
+      net_id = parent_graph%get_forward_network_id()
       net => parent_graph%get_network(net_id)
       @assert_that(net%contains_dependency(t_export_id, t_import_id), is(false()))
       @assert_that(net%has_successors(t_export_id), is(false()))
@@ -2362,7 +2547,7 @@ contains
       graph => outer_meta%get_component_graph()
       t_export => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
       t_import => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
-      net => graph%get_network(graph%get_default_network_id())
+      net => graph%get_network(graph%get_forward_network_id())
       ! The now-correct outcome: a real dependency edge IS created -
       ! the opposite of what the old (replaced) test asserted.
       @assert_that(net%contains_dependency(t_export, t_import), is(true()))
@@ -2440,7 +2625,7 @@ contains
       @assert_that(associated(export_id), is(true()))
       @assert_that(associated(import_id), is(true()))
 
-      net_id = parent_graph%get_default_network_id()
+      net_id = parent_graph%get_forward_network_id()
       net => parent_graph%get_network(net_id)
       @assert_that(net%contains_dependency(export_id, import_id), is(true()))
 
@@ -2518,7 +2703,7 @@ contains
       @assert_that(associated(export_id), is(true()))
       @assert_that(associated(import_id), is(true()))
 
-      net_id = parent_graph%get_default_network_id()
+      net_id = parent_graph%get_forward_network_id()
       net => parent_graph%get_network(net_id)
 
       ! Not a direct edge - a transform node is interposed (same shape
@@ -2723,7 +2908,7 @@ contains
       @assert_that(associated(export_id), is(true()))
       @assert_that(associated(import_id), is(true()))
 
-      net_id = parent_graph%get_default_network_id()
+      net_id = parent_graph%get_forward_network_id()
       net => parent_graph%get_network(net_id)
       @assert_that(net%contains_dependency(export_id, import_id), is(true()))
 
@@ -2820,7 +3005,7 @@ contains
       t_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
       @assert_that(associated(t_import_id), is(true()))
 
-      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      net => parent_graph%get_network(parent_graph%get_forward_network_id())
       extension_id = single_predecessor(net, t_import_id)
 
       node => parent_graph%get_node(extension_id)
@@ -3165,7 +3350,7 @@ contains
       @assert_that(associated(export_id), is(true()))
       @assert_that(associated(import_id), is(true()))
 
-      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      net => parent_graph%get_network(parent_graph%get_forward_network_id())
       ! Direct wire (spec "Matching export and import are wired"), not an
       ! extension chain - the composite items carry no units/vertical_grid
       ! of their own, so find_mismatched_characteristics reports none.
@@ -3427,7 +3612,7 @@ contains
       @assert_that(associated(export_id), is(true()))
       @assert_that(associated(import_id), is(true()))
 
-      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      net => parent_graph%get_network(parent_graph%get_forward_network_id())
       @assert_that(net%contains_dependency(export_id, import_id), is(true()))
 
       _UNUSED_DUMMY(this)
@@ -3807,7 +3992,7 @@ contains
       import_id => dyn_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'tracers'))
       @assert_that(associated(import_id), is(true()))
 
-      net => root_graph%get_network(root_graph%get_default_network_id())
+      net => root_graph%get_network(root_graph%get_forward_network_id())
       preds = net%get_predecessors(import_id)
       @assertEqual(1, preds%size())
       pred_iter = preds%ftn_begin()
@@ -3907,7 +4092,7 @@ contains
       @assert_that(associated(t_export_id), is(true()))
       @assert_that(associated(t_import_id), is(true()))
 
-      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      net => parent_graph%get_network(parent_graph%get_forward_network_id())
       @assert_that(net%contains_dependency(t_export_id, t_import_id), is(true()))
 
       _UNUSED_DUMMY(this)
@@ -4012,7 +4197,7 @@ contains
       @assert_that(associated(t_export_id), is(true()))
       @assert_that(associated(t_import_id), is(true()))
 
-      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      net => parent_graph%get_network(parent_graph%get_forward_network_id())
       @assert_that(net%contains_dependency(t_export_id, t_import_id), is(true()))
 
       _UNUSED_DUMMY(this)
@@ -4115,7 +4300,7 @@ contains
       ! matching, from each side's own already-established node
       ! characteristics (set once at advertise time, before the
       ! var_specs overwrite above).
-      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      net => parent_graph%get_network(parent_graph%get_forward_network_id())
       @assert_that(net%contains_dependency(t_export_id, t_import_id), is(true()))
 
       _UNUSED_DUMMY(this)
@@ -4172,7 +4357,7 @@ contains
       @assert_that(associated(expr_id), is(true()))
 
        @assertEqual(before_ids%size(), after_ids%size())
-       net => graph%get_network(graph%get_default_network_id())
+       net => graph%get_network(graph%get_forward_network_id())
        @assert_that(net%has_predecessors(expr_id), is(false()))
 
       _UNUSED_DUMMY(this)
@@ -5048,7 +5233,7 @@ contains
       graph => outer_meta%get_component_graph()
       t_export => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
       t_import => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
-      net => graph%get_network(graph%get_default_network_id())
+      net => graph%get_network(graph%get_forward_network_id())
       @assert_that(net%contains_dependency(t_export, t_import), is(false()))
       @assert_that(outer_meta%connections_already_resolved(), is(false()))
       @assert_that(outer_meta%has_waiting_connections(), is(true()))
@@ -5115,7 +5300,7 @@ contains
       graph => outer_meta%get_component_graph()
       t_export => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
       t_import => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
-      net => graph%get_network(graph%get_default_network_id())
+      net => graph%get_network(graph%get_forward_network_id())
       @assert_that(net%contains_dependency(t_export, t_import), is(true()))
       @assert_that(outer_meta%has_waiting_connections(), is(false()))
 
@@ -5123,8 +5308,9 @@ contains
    end subroutine test_mirrored_geometry_import_wires
 
    ! Two connections name one import. One waits on a DEFERRED export; the
-   ! other settles the import in the same pass. The waiting connection must
-   ! still be retried and wired once its export is filled.
+   ! other settles the import in the same pass. On retry the waiting
+   ! connection would add a second producer for T: it is recorded as a
+   ! pair-level conflict naming T, and later connections still resolve.
    @test(npes=[0])
    subroutine test_waiting_connection_survives_sibling_settling_import(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -5134,9 +5320,10 @@ contains
       type(ComponentSpec), pointer :: comp_spec
       type(ComponentGraph), pointer :: graph
       type(VariableSpec) :: deferred_export
-      type(SimpleConnection) :: conn_a, conn_b
-      type(GraphResolutionEntryVector) :: unresolved, unsupported
-      type(NodeId), pointer :: ta_export, tb_export, t_import
+      type(SimpleConnection) :: conn_a, conn_b, conn_c
+      type(GraphResolutionEntryVector) :: unresolved, unsupported, conflicts
+      type(GraphResolutionEntry), pointer :: entry
+      type(NodeId), pointer :: ta_export, tb_export, t_import, u_import
       class(GraphNode), pointer :: export_node
       type(StateItemDescriptor), pointer :: descriptor
       type(DependencyNetwork), pointer :: net
@@ -5151,6 +5338,7 @@ contains
       call comp_spec%add_var_spec(deferred_export)
       call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'TB'))
       call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'U'))
 
       call gb%advertise(outer_meta, status)
       @assert_that(status, is(0))
@@ -5161,19 +5349,27 @@ contains
       conn_b = SimpleConnection( &
            ConnectionPt('<self>', VirtualConnectionPt(state_intent='export', short_name='TB')), &
            ConnectionPt('<self>', VirtualConnectionPt(state_intent='import', short_name='T')))
+      ! Processed after conn_a on the retry pass.
+      conn_c = SimpleConnection( &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='export', short_name='TA')), &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='import', short_name='U')))
       call comp_spec%add_connection(conn_a)
       call comp_spec%add_connection(conn_b)
+      call comp_spec%add_connection(conn_c)
 
       call gb%resolve_connections(outer_meta, unresolved_imports=unresolved, &
-           unsupported_characteristics=unsupported, rc=status)
+           unsupported_characteristics=unsupported, connection_conflicts=conflicts, rc=status)
       @assert_that(status, is(0))
+      @assertEqual(0, conflicts%size())
 
       graph => outer_meta%get_component_graph()
       ta_export => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'TA'))
       tb_export => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'TB'))
       t_import => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
-      net => graph%get_network(graph%get_default_network_id())
+      u_import => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'U'))
+      net => graph%get_network(graph%get_forward_network_id())
       @assert_that(net%contains_dependency(ta_export, t_import), is(false()))
+      @assert_that(net%contains_dependency(ta_export, u_import), is(false()))
       @assert_that(outer_meta%has_waiting_connections(), is(true()))
 
       export_node => graph%get_node(ta_export)
@@ -5184,15 +5380,93 @@ contains
       end select
 
       call gb%resolve_connections(outer_meta, unresolved_imports=unresolved, &
-           unsupported_characteristics=unsupported, rc=status)
+           unsupported_characteristics=unsupported, connection_conflicts=conflicts, rc=status)
       @assert_that(status, is(0))
-      @assertEqual(0, unsupported%size())
-      @assert_that(net%contains_dependency(ta_export, t_import), is(true()))
+      @assertEqual(1, conflicts%size())
+      entry => conflicts%at(1, status)
+      @assertEqual('T', entry%short_name)
+      @assert_that(index(entry%reason, '"T"') > 0, is(true()))
+      @assert_that(net%contains_dependency(ta_export, t_import), is(false()))
       @assert_that(net%contains_dependency(tb_export, t_import), is(true()))
+      @assert_that(net%contains_dependency(ta_export, u_import), is(true()))
       @assert_that(outer_meta%has_waiting_connections(), is(false()))
-      @assert_that(outer_meta%connections_already_resolved(), is(true()))
 
       _UNUSED_DUMMY(this)
    end subroutine test_waiting_connection_survives_sibling_settling_import
+
+   ! One connection waits on a DEFERRED export while another settles a
+   ! different import in the same pass; the waiting one is still retried
+   ! and wired once its export is filled.
+   @test(npes=[0])
+   subroutine test_waiting_connection_survives_sibling_settling_other_import(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpec) :: deferred_export
+      type(SimpleConnection) :: conn_a, conn_b
+      type(GraphResolutionEntryVector) :: unresolved, unsupported, conflicts
+      type(NodeId), pointer :: ta_export, tb_export, t_import, u_import
+      class(GraphNode), pointer :: export_node
+      type(StateItemDescriptor), pointer :: descriptor
+      type(DependencyNetwork), pointer :: net
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_two_conn_wait_other', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+      deferred_export%state_intent = ESMF_STATEINTENT_EXPORT
+      deferred_export%short_name = 'TA'
+      deferred_export%vertical_stagger = VERTICAL_STAGGER_NONE
+      call comp_spec%add_var_spec(deferred_export)
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'TB'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T'))
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'U'))
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      conn_a = SimpleConnection( &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='export', short_name='TA')), &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='import', short_name='T')))
+      conn_b = SimpleConnection( &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='export', short_name='TB')), &
+           ConnectionPt('<self>', VirtualConnectionPt(state_intent='import', short_name='U')))
+      call comp_spec%add_connection(conn_a)
+      call comp_spec%add_connection(conn_b)
+
+      call gb%resolve_connections(outer_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, connection_conflicts=conflicts, rc=status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      ta_export => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'TA'))
+      tb_export => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'TB'))
+      t_import => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      u_import => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'U'))
+      net => graph%get_network(graph%get_forward_network_id())
+      @assert_that(net%contains_dependency(ta_export, t_import), is(false()))
+      @assert_that(net%contains_dependency(tb_export, u_import), is(true()))
+      @assert_that(outer_meta%has_waiting_connections(), is(true()))
+
+      export_node => graph%get_node(ta_export)
+      select type (export_node)
+      class is (StateItemNode)
+         descriptor => export_node%get_descriptor()
+         call descriptor%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_id='1'))
+      end select
+
+      call gb%resolve_connections(outer_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, connection_conflicts=conflicts, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, conflicts%size())
+      @assert_that(net%contains_dependency(ta_export, t_import), is(true()))
+      @assert_that(net%contains_dependency(tb_export, u_import), is(true()))
+      @assert_that(outer_meta%has_waiting_connections(), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_waiting_connection_survives_sibling_settling_other_import
 
 end module Test_GraphBuilder_ConnectionResolution

@@ -197,7 +197,7 @@ contains
            ScenarioEntry('expression_match',        'parent.yaml',      .true.), &
            ScenarioEntry('expression_defer_geom',   'parent.yaml',      .true.), &
            ScenarioEntry('invalidate',              'cap.yaml',         .true.), &
-           ScenarioEntry('history_1',               'cap.yaml',         .false.), &
+           ScenarioEntry('history_1',               'cap.yaml',         .true.), &
            ScenarioEntry('history_wildcard',        'cap.yaml',         .true.), &
            ScenarioEntry('extdata_1',               'cap.yaml',         .true.), &
            ScenarioEntry('names_1',                 'parent.yaml',      .true.), &
@@ -210,6 +210,8 @@ contains
            ScenarioEntry('../graph-scenarios/ungridded_dims',               'cap.yaml', .true.), &
            ScenarioEntry('../graph-scenarios/dims_z_field',                 'cap.yaml', .true.), &
            ScenarioEntry('../graph-scenarios/units_mismatch_run_phase',     'cap.yaml', .true.), &
+           ScenarioEntry('../graph-scenarios/grandparent_units_run_phase', 'cap.yaml', .true., &
+                graph_owns_user_states=.true.), &
            ScenarioEntry('../graph-scenarios/units_and_typekind_mismatch',  'cap.yaml', .true.), &
            ScenarioEntry('../graph-scenarios/graphbuilder_propagation',     'cap.yaml', .true.), &
            ScenarioEntry('../graph-scenarios/standard_name_and_ungridded_dims_mismatch', 'cap.yaml', .true., &
@@ -585,7 +587,7 @@ contains
 
       root_meta => get_outer_meta(this%outer_gc, _RC)
       root_graph => root_meta%get_component_graph()
-      net => root_graph%get_network(root_graph%get_default_network_id())
+      net => root_graph%get_network(root_graph%get_forward_network_id())
 
       do i = 1, ESMF_HConfigGetSize(this%expectations)
          comp_expectations = ESMF_HConfigCreateAt(this%expectations, index=i, _RC)
@@ -787,7 +789,7 @@ contains
                 @assertTrue(transform_node%is_input_port(input_name), &
                      msg // ' :: expression input ' // input_name)
                 binding => root_graph%get_port_binding( &
-                     root_graph%get_default_network_id(), &
+                     root_graph%get_forward_network_id(), &
                      expression_transform_id, input_name)
                 @assertTrue(associated(binding), msg // &
                      ' :: expression input is bound: ' // input_name)
@@ -840,10 +842,11 @@ contains
          type(ESMF_StateIntent_Flag), intent(in) :: intent
          integer, intent(out) :: rc
 
-         integer :: status, idx
+         integer :: status, idx, i
          type(OuterMetaComponent), pointer :: meta
          type(ComponentGraph), pointer :: graph
-         character(:), allocatable :: rest, child_name
+         character(:), allocatable :: rest, child_name, candidate
+         logical :: found, traversed
 
          rc = 0
          id => null()
@@ -854,21 +857,31 @@ contains
             return
          end if
          meta => root_meta
-         rest = path(:idx-1)
-         do while (len(rest) > 0)
+         rest = path
+         traversed = .false.
+         do
             idx = index(rest, '/')
-            if (idx == 0) then
-               child_name = rest
-               rest = ''
-            else
-               child_name = rest(:idx-1)
-               rest = rest(idx+1:)
-            end if
+            if (idx == 0) exit
+            child_name = rest(:idx-1)
+            found = .false.
+            do i = 1, meta%get_num_children()
+               candidate = meta%get_child_name(i, status)
+               _VERIFY(status)
+               if (candidate == child_name) then
+                  found = .true.
+                  exit
+               end if
+            end do
+            if (.not. found) exit
             meta => meta%get_child_outer_meta(child_name, _RC)
+            rest = rest(idx+1:)
+            traversed = .true.
          end do
+         @assertTrue(traversed, &
+              'graph expectation path needs an existing component: ' // path)
+         if (.not. traversed) return
          graph => meta%get_component_graph()
-         idx = index(path, '/', back=.true.)
-         id => graph%get_resource_index(item_key(intent, path(idx+1:)))
+         id => graph%get_resource_index(item_key(intent, rest))
          rc = 0
       end function resolve
 

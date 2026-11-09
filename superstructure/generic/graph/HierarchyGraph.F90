@@ -12,9 +12,12 @@
 ! construct or hold it; they resolve it on every access via
 ! get_hierarchy_resources(hierarchy_id).
 !
-! It holds only those two map/generator pairs. PortId generation, resource
-! indexes, ports, child-port bindings, and lifecycle state stay
-! component-local in ComponentGraph.
+! It also holds the one forward network (every edge that carries data toward
+! a consumer, whichever component declared it), the transform port-binding
+! table, and the reuse index (extension chains, expression evaluations,
+! collections). PortId generation, the advertised-item resource indexes,
+! ports, child-port bindings, write-back network ownership and lifecycle
+! state stay component-local in ComponentGraph.
 !------------------------------------------------------------------------------
 module mapl_HierarchyGraph_mod
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator
@@ -23,6 +26,8 @@ module mapl_HierarchyGraph_mod
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
    use mapl_NodeIdGraphNodeMap_mod
    use mapl_DependencyNetworkIdNetworkMap_mod
+   use mapl_PortBindingTable_mod, only: PortBindingTable
+   use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
@@ -35,7 +40,15 @@ module mapl_HierarchyGraph_mod
       type(DependencyNetworkIdNetworkMap) :: networks
       type(NodeIdGenerator) :: node_generator
       type(DependencyNetworkIdGenerator) :: network_generator
+      type(DependencyNetworkId) :: forward_network_id
+      type(PortBindingTable) :: port_bindings
+      type(StateItemMemberMap) :: reuse_index
    contains
+      procedure :: initialize => hgraph_initialize
+      procedure :: get_forward_network_id => hgraph_get_forward_network_id
+      procedure :: get_port_bindings_ptr => hgraph_get_port_bindings_ptr
+      procedure :: add_reuse_entry => hgraph_add_reuse_entry
+      procedure :: get_reuse_entry => hgraph_get_reuse_entry
       procedure :: next_node_id => hgraph_next_node_id
       procedure :: register_node => hgraph_register_node
       procedure :: get_node => hgraph_get_node
@@ -45,6 +58,54 @@ module mapl_HierarchyGraph_mod
    end type HierarchyGraph
 
 contains
+
+   ! Creates the forward network; called once, when the hierarchy is created.
+   subroutine hgraph_initialize(this, rc)
+      class(HierarchyGraph), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      type(DependencyNetwork) :: empty_network
+      integer :: status
+
+      this%forward_network_id = this%next_network_id(_RC)
+      call this%register_network(this%forward_network_id, empty_network, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine hgraph_initialize
+
+   function hgraph_get_forward_network_id(this) result(id)
+      class(HierarchyGraph), intent(in) :: this
+      type(DependencyNetworkId) :: id
+
+      id = this%forward_network_id
+   end function hgraph_get_forward_network_id
+
+   function hgraph_get_port_bindings_ptr(this) result(table)
+      class(HierarchyGraph), target, intent(in) :: this
+      type(PortBindingTable), pointer :: table
+
+      table => this%port_bindings
+   end function hgraph_get_port_bindings_ptr
+
+   subroutine hgraph_add_reuse_entry(this, key, node_id, rc)
+      class(HierarchyGraph), intent(inout) :: this
+      character(*), intent(in) :: key
+      type(NodeId), intent(in) :: node_id
+      integer, optional, intent(out) :: rc
+
+      _ASSERT(this%reuse_index%count(key) == 0, 'HierarchyGraph: add_reuse_entry - key is already bound')
+      call this%reuse_index%insert(key, node_id)
+
+      _RETURN(_SUCCESS)
+   end subroutine hgraph_add_reuse_entry
+
+   function hgraph_get_reuse_entry(this, key) result(node_id)
+      class(HierarchyGraph), target, intent(in) :: this
+      character(*), intent(in) :: key
+      type(NodeId), pointer :: node_id
+
+      node_id => this%reuse_index%at(key)
+   end function hgraph_get_reuse_entry
 
    ! One counter for the whole hierarchy: two components can only be issued the
    ! same NodeId if two generators exist, and this type guarantees one.

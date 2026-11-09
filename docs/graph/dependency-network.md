@@ -74,7 +74,7 @@ end do
 ## Ownership vs. storage
 
 One `DependencyNetwork` instance per logical wiring purpose per
-component — e.g. the default per-component network, plus a `get`/`put`
-pair per callback interface attachment. Instances are owned and keyed
+hierarchy or component — e.g. the hierarchy's one forward network, plus a
+`get`/`put` pair per callback interface attachment. Instances are owned and keyed
 by `DependencyNetworkId` inside the shared `HierarchyGraph`
 (`hierarchy-and-component-graph.md`), not inside this module.

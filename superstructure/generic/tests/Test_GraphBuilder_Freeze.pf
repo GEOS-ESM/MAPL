@@ -56,8 +56,10 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_freeze_succeeds_when_valid
 
+   ! A second forward producer for one item is rejected when the edge is
+   ! added, naming the item; the first edge stays and freeze succeeds.
    @test(npes=[0])
-   subroutine test_freeze_fails_and_leaves_graph_unfrozen_on_conflict(this)
+   subroutine test_second_forward_producer_rejected_before_freeze(this)
       class(MpiTestMethod), intent(inout) :: this
 
       type(ESMF_GridComp) :: outer_gc
@@ -65,7 +67,7 @@ contains
       type(ComponentSpec), pointer :: comp_spec
       type(ComponentGraph), pointer :: graph
       type(NodeId), pointer :: a_id, b_id, t_id
-      type(DependencyNetworkId) :: default_net_id, second_net_id
+      type(DependencyNetworkId) :: forward_net_id
       integer :: status
       type(GraphBuilder) :: gb
 
@@ -83,30 +85,18 @@ contains
       b_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'B'))
       t_id => graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
 
-      default_net_id = graph%get_default_network_id()
-      second_net_id = graph%create_network(_RC)
-
-      ! REQ-DEP-008a: T written (has a predecessor) in two different
-      ! networks within what would be one update pass - construction-time
-      ! validation must reject this, not just at runtime.
-      call graph%add_dependency(default_net_id, a_id, t_id, _RC)
-      call graph%add_dependency(second_net_id, b_id, t_id, _RC)
+      forward_net_id = graph%get_forward_network_id()
+      call graph%add_dependency(forward_net_id, a_id, t_id, _RC)
+      call graph%add_dependency(forward_net_id, b_id, t_id, rc=status)
+      @assertExceptionRaised( &
+           'ComponentGraph: forward network item "T" already has a different producer')
+      @assert_that(status, is(not(equal_to(0))))
 
       call gb%freeze(outer_meta, status)
-      ! Four propagated frames to unwind, innermost first: the
-      ! descriptive message from validate_cross_network_writes()
-      ! (ComponentGraph.F90), then three bare "status=1" propagation
-      ! frames (graph_validate -> graph_freeze -> graphbuilder_freeze) -
-      ! same pattern as Test_MemoryCheckpoint.pf's multi-frame unwind.
-      @assertExceptionRaised( &
-           'ComponentGraph: validate found a state item written in more than one network within the same update pass')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
-      @assert_that(status, is(not(equal_to(0))))
-      @assert_that(graph%is_frozen(), is(false()))
+      @assert_that(status, is(0))
+      @assert_that(graph%is_frozen(), is(true()))
 
       _UNUSED_DUMMY(this)
-   end subroutine test_freeze_fails_and_leaves_graph_unfrozen_on_conflict
+   end subroutine test_second_forward_producer_rejected_before_freeze
 
 end module Test_GraphBuilder_Freeze

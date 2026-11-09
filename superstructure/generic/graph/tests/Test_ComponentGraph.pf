@@ -1,5 +1,4 @@
-! Tasks 5.3/5.4/5.5 (spec/07-component-graph.md REQ-CG-001..008,
-! spec/06-dependency-network.md REQ-DEP-008a).
+! Tasks 5.3/5.4/5.5 (spec/07-component-graph.md REQ-CG-001..008).
 !
 ! Uses only synthetic graph nodes (StateItemNode plus a local
 ! OperationGraphNode descendant, matching the pattern already established
@@ -17,6 +16,11 @@ module Test_ComponentGraph
    use mapl_NodeId_mod, only: NodeId, operator(==), operator(/=)
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId, operator(==)
    use mapl_PortId_mod, only: PortId
+   use mapl_HierarchyId_mod, only: HierarchyId
+   use mapl_HierarchyRegistry_mod, only: request_new_hierarchy
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_Transform_mod, only: Transform
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
    use StateItemTestSupport_mod, only: make_test_field
    use ESMF, only: ESMF_Field
    use ESMF, only: ESMF_STATEITEM_FIELD
@@ -28,34 +32,43 @@ module Test_ComponentGraph
    type, extends(OperationGraphNode) :: MockOperationGraphNode
    end type MockOperationGraphNode
 
+   type, extends(Transform) :: NoOpTransform
+   contains
+      procedure :: compute => noop_compute
+   end type NoOpTransform
+
 contains
 
-   ! REQ-CG-004 scenario "Graph owns distinct default network identity":
-   ! each graph's default network id is its own dynamically-generated
-   ! instance property (not a shared global constant), and each graph
-   ! genuinely owns its own. (Independent generators both starting at
-   ! their first issued value can coincide numerically across separate
-   ! ComponentGraph instances - REQ-ID-002 only promises freshness within
-   ! one graph's lifetime - so this does not assert cross-instance
-   ! numeric inequality; it asserts each id is real, non-default-sentinel,
-   ! and owned by its own graph.)
+   subroutine noop_compute(this, inputs, outputs, rc)
+      class(NoOpTransform), intent(inout) :: this
+      type(PortNameGraphStateItemMap), intent(in) :: inputs
+      type(PortNameGraphStateItemMap), intent(in) :: outputs
+      integer, intent(out) :: rc
+      rc = 0
+   end subroutine noop_compute
+
+   ! REQ-CG-004 scenario "Graph owns distinct default network identity" (as
+   ! amended): no graph has a network of its own by default; every graph in
+   ! one hierarchy reports the same forward network, which none owns.
    @test
-   subroutine test_each_graph_has_distinct_default_network()
+   subroutine test_graphs_in_one_hierarchy_share_forward_network()
       use mapl_DependencyNetworkId_mod, only: DEFAULT_DependencyNetworkId
+      type(HierarchyId) :: hierarchy_id
       type(ComponentGraph) :: graph1, graph2
       type(DependencyNetworkId) :: id1, id2
 
-      graph1 = ComponentGraph()
-      graph2 = ComponentGraph()
+      hierarchy_id = request_new_hierarchy()
+      graph1 = ComponentGraph(hierarchy_id)
+      graph2 = ComponentGraph(hierarchy_id)
 
-      id1 = graph1%get_default_network_id()
-      id2 = graph2%get_default_network_id()
+      id1 = graph1%get_forward_network_id()
+      id2 = graph2%get_forward_network_id()
 
-      @assertTrue(graph1%owns_network(id1))
-      @assertTrue(graph2%owns_network(id2))
+      @assertTrue(id1 == id2)
       @assertFalse(id1 == DEFAULT_DependencyNetworkId)
-      @assertFalse(id2 == DEFAULT_DependencyNetworkId)
-   end subroutine test_each_graph_has_distinct_default_network
+      @assertFalse(graph1%owns_network(id1))
+      @assertFalse(graph2%owns_network(id2))
+   end subroutine test_graphs_in_one_hierarchy_share_forward_network
 
    ! REQ-CG-001 scenario "Node registration preserves identity": no second
    ! node silently replaces one already registered under the same NodeId.
@@ -109,7 +122,7 @@ contains
       call graph%register_node(item, rc=status)
       @assertEqual(0, status)
 
-      default_id = graph%get_default_network_id()
+      default_id = graph%get_forward_network_id()
       call graph%add_dependency(default_id, producer_id, item_id, rc=status)
       @assertEqual(0, status)
 
@@ -118,14 +131,10 @@ contains
    end subroutine test_initialization_builds_structure
 
    ! REQ-CG-004 scenario "Invalid foreign node is rejected": wiring a
-   ! NodeId this graph never registered fails without partial mutation.
-   ! (A legitimately-issued-but-never-registered id is exactly as foreign
-   ! to ownership/wiring as one from a different graph entirely - the
-   ! ownership check is against the owned *nodes* map, not the
-   ! generator - and this avoids relying on cross-instance id inequality,
-   ! which independent per-graph generators do not promise.)
+   ! NodeId that was issued but never registered anywhere in the hierarchy
+   ! fails without partial mutation.
    @test
-   subroutine test_add_dependency_rejects_foreign_node()
+   subroutine test_add_dependency_rejects_unregistered_node()
       type(ComponentGraph) :: graph
       type(NodeId) :: owned_id, never_registered_id
       type(MockOperationGraphNode) :: owned_node
@@ -141,25 +150,23 @@ contains
 
       never_registered_id = graph%next_node_id(rc=status)
 
-      default_id = graph%get_default_network_id()
+      default_id = graph%get_forward_network_id()
       call graph%add_dependency(default_id, owned_id, never_registered_id, rc=status)
       @assertTrue(status /= 0)
-   end subroutine test_add_dependency_rejects_foreign_node
+   end subroutine test_add_dependency_rejects_unregistered_node
 
-   ! REQ-DEP-008a scenario "Same-pass cross-network write is rejected":
-   ! two different graph-owned networks each independently and validly
-   ! write the same StateItemNode; graph-level validate() must catch the
-   ! combination even though each individual network's own validate()
-   ! (one producer per network) passes.
+   ! REQ-CG-004 scenario "Same-pass cross-network write is rejected" (as
+   ! amended): an item with a forward producer may also be the target of a
+   ! write-back edge, since the write-back fires only after the method runs.
    @test
-   subroutine test_validate_rejects_cross_network_duplicate_write()
+   subroutine test_validate_accepts_forward_and_writeback_producers()
       type(ComponentGraph) :: graph
       type(NodeId) :: producer1_id, producer2_id, item_id
       type(MockOperationGraphNode) :: producer1, producer2
       type(StateItemNode) :: item
       type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
-      type(DependencyNetworkId) :: default_id, second_network_id
+      type(DependencyNetworkId) :: forward_id, writeback_id
       integer :: status
 
       graph = ComponentGraph()
@@ -176,23 +183,24 @@ contains
       item = StateItemNode(item_id, payload, revision)
       call graph%register_node(item, rc=status)
 
-      default_id = graph%get_default_network_id()
-      call graph%add_dependency(default_id, producer1_id, item_id, rc=status)
+      forward_id = graph%get_forward_network_id()
+      call graph%add_dependency(forward_id, producer1_id, item_id, rc=status)
       @assertEqual(0, status)
 
-      second_network_id = graph%create_network(rc=status)
+      writeback_id = graph%create_network(rc=status)
       @assertEqual(0, status)
-      call graph%add_dependency(second_network_id, producer2_id, item_id, rc=status)
+      call graph%add_dependency(writeback_id, producer2_id, item_id, rc=status)
       @assertEqual(0, status)
 
-      ! Each network is individually valid (one producer each)...
       call graph%validate(rc=status)
-      ! ...but the graph-level cross-network check must still reject it.
-      @assertTrue(status /= 0)
-   end subroutine test_validate_rejects_cross_network_duplicate_write
+      @assertEqual(0, status)
+      call graph%freeze_forward_network(rc=status)
+      @assertEqual(0, status)
+   end subroutine test_validate_accepts_forward_and_writeback_producers
 
    ! REQ-CG-005..007: freeze validates first and leaves no freeze-state
-   ! change on failure (the "rollback" behavior for task 5.4/5.5).
+   ! change on failure. Trigger: two producers of one item inside one
+   ! write-back network (no add-time producer check there).
    @test
    subroutine test_freeze_fails_and_does_not_change_state_on_invalid_graph()
       type(ComponentGraph) :: graph
@@ -201,8 +209,8 @@ contains
       type(StateItemNode) :: item
       type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
-      type(DependencyNetworkId) :: default_id, second_network_id
-      type(DependencyNetwork), pointer :: default_network, second_network
+      type(DependencyNetworkId) :: forward_id, writeback_id
+      type(DependencyNetwork), pointer :: forward_network, writeback_network
       integer :: status
 
       graph = ComponentGraph()
@@ -219,44 +227,79 @@ contains
       item = StateItemNode(item_id, payload, revision)
       call graph%register_node(item, rc=status)
 
-      default_id = graph%get_default_network_id()
-      call graph%add_dependency(default_id, producer1_id, item_id, rc=status)
-
-      second_network_id = graph%create_network(rc=status)
-      call graph%add_dependency(second_network_id, producer2_id, item_id, rc=status)
+      writeback_id = graph%create_network(rc=status)
+      call graph%add_dependency(writeback_id, producer1_id, item_id, rc=status)
+      @assertEqual(0, status)
+      call graph%add_dependency(writeback_id, producer2_id, item_id, rc=status)
+      @assertEqual(0, status)
 
       call graph%freeze(rc=status)
       @assertTrue(status /= 0)
       @assertFalse(graph%is_frozen())
 
-      default_network => graph%get_network(default_id)
-      second_network => graph%get_network(second_network_id)
-      @assertFalse(default_network%is_frozen())
-      @assertFalse(second_network%is_frozen())
+      forward_id = graph%get_forward_network_id()
+      forward_network => graph%get_network(forward_id)
+      writeback_network => graph%get_network(writeback_id)
+      @assertFalse(forward_network%is_frozen())
+      @assertFalse(writeback_network%is_frozen())
    end subroutine test_freeze_fails_and_does_not_change_state_on_invalid_graph
 
-   ! REQ-CG-007 scenario "Graph freeze propagates to networks".
+   ! REQ-CG-007 scenario "Graph freeze propagates to networks": one graph
+   ! freeze freezes only its write-back networks; the hierarchy-wide forward
+   ! freeze then freezes the forward network, after which no graph in the
+   ! hierarchy, frozen or not, may add a forward edge or port binding.
    @test
-   subroutine test_freeze_propagates_to_owned_networks()
-      type(ComponentGraph) :: graph
-      type(DependencyNetworkId) :: default_id, second_network_id
-      type(DependencyNetwork), pointer :: default_network, second_network
+   subroutine test_hierarchy_freeze_propagates_to_networks()
+      type(HierarchyId) :: hierarchy_id
+      type(ComponentGraph) :: graph, other_graph
+      type(DependencyNetworkId) :: forward_id, writeback_id
+      type(DependencyNetwork), pointer :: forward_network, writeback_network
+      type(NodeId) :: a_id, b_id, transform_id
+      type(StateItemNode) :: a, b
+      type(TransformGraphNode) :: transform
+      type(NoOpTransform) :: strategy
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
       integer :: status
 
-      graph = ComponentGraph()
-      default_id = graph%get_default_network_id()
-      second_network_id = graph%create_network(rc=status)
+      hierarchy_id = request_new_hierarchy()
+      graph = ComponentGraph(hierarchy_id)
+      other_graph = ComponentGraph(hierarchy_id)
+      forward_id = graph%get_forward_network_id()
+      writeback_id = graph%create_network(rc=status)
+      @assertEqual(0, status)
+
+      a_id = other_graph%next_node_id(rc=status)
+      a = StateItemNode(a_id, payload, revision)
+      call other_graph%register_node(a, rc=status)
+      b_id = other_graph%next_node_id(rc=status)
+      b = StateItemNode(b_id, payload, revision)
+      call other_graph%register_node(b, rc=status)
+      transform_id = other_graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('x', rc=status)
+      call other_graph%register_node(transform, rc=status)
       @assertEqual(0, status)
 
       call graph%freeze(rc=status)
       @assertEqual(0, status)
-
       @assertTrue(graph%is_frozen())
-      default_network => graph%get_network(default_id)
-      second_network => graph%get_network(second_network_id)
-      @assertTrue(default_network%is_frozen())
-      @assertTrue(second_network%is_frozen())
-   end subroutine test_freeze_propagates_to_owned_networks
+      writeback_network => graph%get_network(writeback_id)
+      forward_network => graph%get_network(forward_id)
+      @assertTrue(writeback_network%is_frozen())
+      @assertFalse(forward_network%is_frozen())
+
+      call graph%freeze_forward_network(rc=status)
+      @assertEqual(0, status)
+      forward_network => graph%get_network(forward_id)
+      @assertTrue(forward_network%is_frozen())
+
+      @assertFalse(other_graph%is_frozen())
+      call other_graph%add_dependency(forward_id, a_id, b_id, rc=status)
+      @assertTrue(status /= 0)
+      call other_graph%bind_port(forward_id, transform_id, 'x', a_id, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_hierarchy_freeze_propagates_to_networks
 
    ! REQ-CG-006 scenario "Frozen structure rejects mutation": node,
    ! dependency, network, and port-binding additions all fail after freeze.
@@ -280,6 +323,8 @@ contains
 
       call graph%freeze(rc=status)
       @assertEqual(0, status)
+      call graph%freeze_forward_network(rc=status)
+      @assertEqual(0, status)
 
       ! No new node may be added.
       new_node_id = graph%next_node_id(rc=status)
@@ -294,7 +339,7 @@ contains
       @assertTrue(status /= 0)
 
       ! No new dependency may be added.
-      default_id = graph%get_default_network_id()
+      default_id = graph%get_forward_network_id()
       call graph%add_dependency(default_id, item_id, item_id, rc=status)
       @assertTrue(status /= 0)
 

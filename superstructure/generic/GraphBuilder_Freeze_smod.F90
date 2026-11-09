@@ -33,18 +33,25 @@ contains
    ! (initialize_graph_freeze.F90) checks is_hierarchy_root, so only the
    ! true root does real work; this procedure does not re-check.
    ! Makes two separate walks of the component tree: first freeze every
-   ! component's graph, then collect unresolved required imports and
-   ! fail if any remain. Two walks because a component's unresolved
-   ! imports can depend on a sibling subtree's mirrored exports/imports,
+   ! component's graph and then, once, the hierarchy's forward network
+   ! (every component's edges are in it), then collect unresolved
+   ! required imports and fail if any remain. Two walks because a
+   ! component's unresolved imports can depend on a sibling subtree's
+   ! mirrored exports/imports,
    ! so convergence is checked only once every graph is frozen.
    module subroutine graphbuilder_run_graph_freeze_hook(this)
       class(OuterMetaComponent), target, intent(inout) :: this
 
       integer :: status
       type(GraphResolutionEntryVector) :: unresolved
+      type(ComponentGraph), pointer :: graph
 
       call freeze_subtree_(this, status)
       call report_if_failed(this, 'graph_freeze:freeze_subtree', status)
+
+      graph => this%get_component_graph()
+      call graph%freeze_forward_network(status)
+      call report_if_failed(this, 'graph_freeze:freeze_forward_network', status)
 
       call check_characteristics_resolved_subtree_(this, status)
       call report_if_failed(this, 'graph_freeze:characteristics_resolved', status)

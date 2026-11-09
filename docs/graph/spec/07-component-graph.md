@@ -29,12 +29,16 @@ still own, exactly as component-local as before:
 
 - `PortIdGenerator` (port identities remain scoped to the single
   component that declares them — unaffected by this change)
-- a default `DependencyNetworkId` (per-instance, but itself drawn from
-  the now-shared `DependencyNetworkIdGenerator`)
+- `[RE-EVALUATED]` no default network of its own: it reads the
+  hierarchy's forward `DependencyNetworkId` (`get_forward_network_id`,
+  REQ-CG-004), and the ids of write-back networks it creates are drawn
+  from the shared `DependencyNetworkIdGenerator`
 - public import ports
 - public export ports
-- a `TransformGraphNode` port-binding table keyed by
-  `(DependencyNetworkId, NodeId)`
+- `[RE-EVALUATED]` no port-binding table: the `TransformGraphNode`
+  port-binding table, keyed by `(DependencyNetworkId, NodeId)`, is owned
+  by the hierarchy (`HierarchyGraph`) and shared by every
+  `ComponentGraph`
 - child-port bindings
 - semantic resource indexes (e.g., `RouteHandleKey → NodeId`; see
   `14-route-handles.md`)
@@ -46,31 +50,34 @@ still own, exactly as component-local as before:
   per-instance map membership (`05-identities.md` §5.3,
   `openspec/changes/hierarchy-wide-component-graph/design.md` D2)
 
-**REQ-CG-001a.** Initially, every `MethodGraphNode` representing a GridComp
-initialize/run phase MUST use the single default `DependencyNetwork`. In
+**REQ-CG-001a.** `[RE-EVALUATED]` Initially, every `MethodGraphNode`
+representing a GridComp initialize/run phase MUST use the hierarchy's
+single forward `DependencyNetwork` (held by `HierarchyGraph`, shared by
+every component; formerly a per-component "default" network). In
 particular, all init phases (`12-methods-and-drivers.md` REQ-MTH-011)
-always share the default network, regardless of any future refinement
+always share the forward network, regardless of any future refinement
 below.
 
 **`[future direction, not yet specified]`** Component registration is
 expected to eventually be able to declare, per run-method phase, which
 imports it actually consumes and which exports it actually updates
 (increments the revision of), so that phase can use a narrower,
-purpose-specific `DependencyNetwork` instead of the default one — this is
+purpose-specific `DependencyNetwork` instead of the forward one — this is
 the same fine-grained-annotation direction noted in
 `11-revision-and-update.md` §11.4a and `12-methods-and-drivers.md`
 REQ-MTH-003a. Default behavior (no annotation) MUST always remain "this
-phase touches all imports/exports," using the default network. This is not
-a design yet, just a stated future direction the default-network naming
+phase touches all imports/exports," using the forward network. This is not
+a design yet, just a stated future direction the forward-network naming
 (below) is chosen to remain compatible with.
 
-**Naming.** "Default" is kept as the name for this network, on the
-reasoning that once per-method networks exist, "default" becomes the
-permanent fallback network for any method that has not opted into
-fine-grained declaration — a real, permanent role, not a placeholder.
-Alternatives considered: `CoarseNetwork`, `UnscopedNetwork` (emphasizing
-contrast with future fine-grained networks). No change made; revisit if a
-better name surfaces.
+**Naming.** `[RE-EVALUATED]` The network is called the *forward*
+network: it carries every producer-to-consumer edge in the hierarchy and
+is the only network pulled. It contrasts with the *write-back* networks
+(callback put, inout return), which stay per component and are never
+pulled. Once per-method networks exist, the forward network remains the
+fallback for any method that has not opted into fine-grained
+declaration. The earlier name "default" was dropped when the network
+moved from each `ComponentGraph` to the hierarchy.
 
 **REQ-CG-002.** `ComponentGraph` MUST NOT depend on `OuterComponent`,
 `StateRegistry`, or any component-hierarchy implementation type. Those
@@ -111,10 +118,19 @@ be folded into a structure destructor.
 guard against use *after* `finalize()`, not against use before a
 now-unnecessary `initialize()` call.
 
-**REQ-CG-004.** `initialize()` MUST create a default `DependencyNetwork`.
-Its `DependencyNetworkId` MUST be an instance property (read at runtime),
-not a global/module constant — different `ComponentGraph` instances have
-different default network IDs.
+**REQ-CG-004 `[RE-EVALUATED]`.** A `ComponentGraph` has no default
+`DependencyNetwork` of its own. The hierarchy's one forward network is
+created with the hierarchy (in `HierarchyGraph`) and every `ComponentGraph`
+in the hierarchy reports the same `DependencyNetworkId` for it
+(`get_forward_network_id`), read at runtime, never a global/module
+constant. `create_network` creates a write-back network owned by the
+calling graph. Transform port bindings and the reuse index (extension
+chains, expression evaluations, collections) are shared by the hierarchy;
+the advertised-item resource index stays per component. Validation
+requires every referenced node to be registered somewhere in the
+hierarchy; each graph's freeze validates and freezes its own write-back
+networks, and the hierarchy freeze validates and freezes the forward
+network once, after every graph is frozen.
 
 ## 7.3 Lifecycle: mutable → frozen `[RE-EVALUATED]`
 

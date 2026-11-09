@@ -185,12 +185,12 @@ contains
       dg => dst%get_component_graph()
       import_id => dg%get_resource_index( &
            item_key(ESMF_STATEINTENT_IMPORT, 'I'))
-      net => pg%get_network(pg%get_default_network_id())
+      net => pg%get_network(pg%get_forward_network_id())
       @assertTrue(net%has_predecessors(import_id))
       if (.not. net%has_predecessors(import_id)) return
       result_id = single_predecessor(net, import_id)
       evaluation_id = single_predecessor(net, result_id)
-      bound => pg%get_port_binding(pg%get_default_network_id(), &
+      bound => pg%get_port_binding(pg%get_forward_network_id(), &
            evaluation_id, 'A')
       @assertTrue(associated(bound))
       if (.not. associated(bound)) return
@@ -361,7 +361,7 @@ contains
       t_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
       @assert_that(associated(t_import_id), is(true()))
 
-      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      net => parent_graph%get_network(parent_graph%get_forward_network_id())
       extension_id = single_predecessor(net, t_import_id)
 
       node => parent_graph%get_node(extension_id)
@@ -584,7 +584,7 @@ contains
       ! No extension chain for an exact match - still a direct edge
       ! (spec "Matching export and import are wired" is unaffected by
       ! this sub-change).
-      net => parent_graph%get_network(parent_graph%get_default_network_id())
+      net => parent_graph%get_network(parent_graph%get_forward_network_id())
       @assert_that(net%contains_dependency(t_export_id, t_import_id), is(true()))
 
       node => src_graph%get_node(t_export_id)

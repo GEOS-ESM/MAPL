@@ -211,23 +211,26 @@ exports from any descendant," not literal glob syntax — implementations
 MUST use regex matching against the flattened qualified-export namespace.
 See `17-open-questions.md` Q5.
 
-## 15.10 Callback dependency networks
+## 15.10 Callback dependency networks `[RE-EVALUATED]`
 
-**REQ-CB-018.** A callback method MAY have its own `DependencyNetwork`. For
-an `INOUT` callback argument:
+**REQ-CB-018 `[re-evaluated]`.** A callback method has its own put
+(write-back) `DependencyNetwork`; its get edges are in the hierarchy's
+forward network. For an `INOUT` callback argument:
 
 ```
-get network:  provider representation -> transforms -> callback representation
-put network:  callback representation -> transforms -> provider representation
+forward network:  provider representation -> transforms -> callback representation
+put network:      callback representation -> transforms -> provider representation
 ```
 
-The same `StateItemNode`s MAY participate in both networks. Each
-method-specific network MUST remain acyclic individually (REQ-DEP-004),
-even though their union may be cyclic.
+The same `StateItemNode`s MAY participate in both networks. Each network
+MUST remain acyclic individually (REQ-DEP-004), even though their union
+may be cyclic. Because the get side is in the forward network, pulling a
+get argument reaches the provider's own producer, wherever that edge was
+declared.
 
 **REQ-CB-019.** A method-level binding MUST identify:
 
-- `DependencyNetworkId`
+- the `DependencyNetworkId` of its put network
 - the `MethodGraphNode` to invoke
 - argument source and target `NodeId`s
 

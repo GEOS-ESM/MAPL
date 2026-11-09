@@ -24,6 +24,8 @@
 ! already used elsewhere in this hierarchy.
 module Test_ExtensionResolution
    use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_HierarchyId_mod, only: HierarchyId
+   use mapl_HierarchyRegistry_mod, only: request_new_hierarchy
    use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
    use mapl_NodeId_mod, only: NodeId, operator(==)
    use mapl_StateItemNode_mod, only: StateItemNode
@@ -241,7 +243,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
 
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
@@ -280,7 +282,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
 
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
@@ -343,7 +345,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
 
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
@@ -383,7 +385,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
 
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
@@ -429,7 +431,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
 
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
@@ -469,7 +471,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)
@@ -534,7 +536,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)
@@ -594,7 +596,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)
@@ -635,7 +637,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
 
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
@@ -664,6 +666,48 @@ contains
    end subroutine test_reuse_second_import_same_variant
 
    @test
+   subroutine test_reuse_same_variant_across_declaring_graphs()
+      type(HierarchyId) :: hierarchy_id
+      type(ComponentGraph), target :: parent_graph, grandparent_graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id, final_id1, final_id2
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId), allocatable :: intermediate_ids1(:), intermediate_ids2(:)
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      hierarchy_id = request_new_hierarchy()
+      parent_graph = ComponentGraph(hierarchy_id)
+      grandparent_graph = ComponentGraph(hierarchy_id)
+      net_id = parent_graph%get_forward_network_id(status)
+      export_id = parent_graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call parent_graph%register_node(export_node, rc=status)
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('km'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(parent_graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id1, intermediate_ids1, &
+           unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, size(intermediate_ids1))
+      call find_or_build_extension_chain(grandparent_graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id2, intermediate_ids2, &
+           unsupported, rc=status)
+
+      @assertEqual(0, status)
+      @assertTrue(final_id1 == final_id2)
+      @assertEqual(0, size(intermediate_ids2))
+   end subroutine test_reuse_same_variant_across_declaring_graphs
+
+   @test
    subroutine test_different_variant_creates_new_extension()
       type(ComponentGraph), target :: graph
       type(DependencyNetworkId) :: net_id
@@ -679,7 +723,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
 
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
@@ -729,7 +773,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
 
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
@@ -782,7 +826,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)
@@ -863,7 +907,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)
@@ -912,7 +956,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)
@@ -961,7 +1005,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)
@@ -1010,7 +1054,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
       call graph%register_node(export_node, rc=status)

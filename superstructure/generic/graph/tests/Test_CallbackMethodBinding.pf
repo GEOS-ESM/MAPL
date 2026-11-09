@@ -8,6 +8,8 @@ module Test_CallbackMethodBinding
    use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
    use mapl_GraphBuilder_mod, only: invoke_callback_method
    use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_HierarchyId_mod, only: HierarchyId
+   use mapl_HierarchyRegistry_mod, only: request_new_hierarchy
    use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use mapl_Transform_mod, only: Transform
    use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
@@ -85,11 +87,9 @@ contains
       put_net_id = graph%create_network(rc=status)
       other_id = graph%next_node_id(rc=status)
 
-      binding = CallbackMethodBinding(method_id, get_net_id, put_net_id)
+      binding = CallbackMethodBinding(method_id, put_net_id)
 
       @assertTrue(binding%get_method_node_id() == method_id)
-      @assertTrue(binding%get_network_id() == get_net_id)
-      @assertTrue(binding%get_get_network_id() == get_net_id)
       @assertTrue(binding%get_put_network_id() == put_net_id)
 
       call binding%bind_get_argument('x', other_id, rc=status)
@@ -118,7 +118,7 @@ contains
       id_a = graph%next_node_id(rc=status)
       id_b = graph%next_node_id(rc=status)
 
-      binding = CallbackMethodBinding(method_id, get_net_id, put_net_id)
+      binding = CallbackMethodBinding(method_id, put_net_id)
 
       call binding%bind_get_argument('x', id_a, rc=status)
       @assertEqual(0, status)
@@ -135,7 +135,8 @@ contains
    ! that successful invocation.
    @test
    subroutine test_invoke_pulls_get_then_invokes_then_advances_put()
-      type(ComponentGraph), target :: graph
+      type(HierarchyId) :: hierarchy_id
+      type(ComponentGraph), target :: producer_graph, callback_graph
       type(NodeId) :: producer_id, get_provider_id, put_target_id, method_id
       type(StateItemNode) :: get_provider_node, put_target_node
       type(GraphStateItem) :: payload
@@ -153,39 +154,43 @@ contains
       integer, target :: run_count_at_invoke
       integer :: status
 
-      graph = ComponentGraph()
-      get_net_id = graph%create_network(rc=status)
-      put_net_id = graph%create_network(rc=status)
+      hierarchy_id = request_new_hierarchy()
+      producer_graph = ComponentGraph(hierarchy_id)
+      callback_graph = ComponentGraph(hierarchy_id)
+      get_net_id = producer_graph%get_forward_network_id(status)
+      put_net_id = callback_graph%create_network(rc=status)
 
       run_count = 0
       call_count = 0
       run_count_at_invoke = -1
       strategy%run_count => run_count
 
-      producer_id = graph%next_node_id(rc=status)
+      producer_id = producer_graph%next_node_id(rc=status)
       producer = TransformGraphNode(producer_id, strategy)
       call producer%declare_output_port('out', rc=status)
-      call graph%register_node(producer, rc=status)
+      call producer_graph%register_node(producer, rc=status)
 
-      get_provider_id = graph%next_node_id(rc=status)
+      get_provider_id = producer_graph%next_node_id(rc=status)
       get_provider_node = StateItemNode(get_provider_id, payload, revision)
-      call graph%register_node(get_provider_node, rc=status)
-      call graph%add_dependency(get_net_id, producer_id, get_provider_id, rc=status)
-      call graph%bind_port(get_net_id, producer_id, 'out', get_provider_id, rc=status)
+      call producer_graph%register_node(get_provider_node, rc=status)
+      call producer_graph%add_dependency(get_net_id, producer_id, &
+           get_provider_id, rc=status)
+      call producer_graph%bind_port(get_net_id, producer_id, 'out', &
+           get_provider_id, rc=status)
 
-      put_target_id = graph%next_node_id(rc=status)
+      put_target_id = callback_graph%next_node_id(rc=status)
       put_target_node = StateItemNode(put_target_id, payload, revision)
-      call graph%register_node(put_target_node, rc=status)
+      call callback_graph%register_node(put_target_node, rc=status)
 
       adapter%run_count_source => run_count
       adapter%call_count => call_count
       adapter%run_count_at_invoke => run_count_at_invoke
 
-      method_id = graph%next_node_id(rc=status)
+      method_id = callback_graph%next_node_id(rc=status)
       method_node = MethodGraphNode(method_id, adapter)
-      call graph%register_node(method_node, rc=status)
+      call callback_graph%register_node(method_node, rc=status)
 
-      binding = CallbackMethodBinding(method_id, get_net_id, put_net_id)
+      binding = CallbackMethodBinding(method_id, put_net_id)
       call binding%bind_get_argument('value', get_provider_id, rc=status)
       @assertEqual(0, status)
       call binding%bind_put_argument('value', put_target_id, rc=status)
@@ -194,13 +199,13 @@ contains
       ! Not yet ready: the get-network producer has never run.
       @assertEqual(0, run_count)
 
-      call invoke_callback_method(graph, binding, rc=status)
+      call invoke_callback_method(callback_graph, binding, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, call_count)
       @assertEqual(1, run_count_at_invoke)
       @assertEqual(1, run_count)
 
-      node => graph%get_node(put_target_id)
+      node => callback_graph%get_node(put_target_id)
       select type (node)
       class is (StateItemNode)
          put_revision_after = node%get_revision()
@@ -211,7 +216,7 @@ contains
 
       ! Invoked again on request -> exactly one more invocation (once
       ! per invocation request, not "already done, skip").
-      call invoke_callback_method(graph, binding, rc=status)
+      call invoke_callback_method(callback_graph, binding, rc=status)
       @assertEqual(0, status)
       @assertEqual(2, call_count)
    end subroutine test_invoke_pulls_get_then_invokes_then_advances_put

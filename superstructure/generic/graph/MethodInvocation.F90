@@ -2,10 +2,10 @@
 
 !------------------------------------------------------------------------------
 ! MethodInvocation: REQ-MTH-003a's trigger/advance discipline around a
-! MethodGraphNode invocation on the default DependencyNetwork (REQ-REV-011),
+! MethodGraphNode invocation on the forward DependencyNetwork (REQ-REV-011),
 ! as one graph-neutral procedure rather than an OuterMetaComponent method.
 !
-! invoke_on_default_network() applies REQ-REV-011's default-network rule,
+! invoke_on_forward_network() applies REQ-REV-011's forward-network rule,
 ! unconditionally and all-or-nothing:
 !   1. Before invocation: ComponentGraph%update() (REQ-REV-006) over every
 !      one of the method node's bound IN/INOUT arguments.
@@ -43,7 +43,7 @@ module mapl_MethodInvocation_mod
    implicit none(type, external)
    private
 
-   public :: invoke_on_default_network
+   public :: invoke_on_forward_network
 
    ! Argument names are short, framework-declared identifiers (unlike a
    ! component's advertised item short_name); 128 is a generous bound.
@@ -51,7 +51,7 @@ module mapl_MethodInvocation_mod
 
 contains
 
-   subroutine invoke_on_default_network(graph, node_id, rc, clock)
+   subroutine invoke_on_forward_network(graph, node_id, rc, clock)
       class(ComponentGraph), target, intent(in) :: graph
       type(NodeId), intent(in) :: node_id
       integer, optional, intent(out) :: rc
@@ -64,13 +64,13 @@ contains
       character(MAX_ARGUMENT_NAME_LEN), allocatable :: names(:)
 
       generic_node => graph%get_node(node_id)
-      _ASSERT(associated(generic_node), 'invoke_on_default_network: node_id not found in graph')
+      _ASSERT(associated(generic_node), 'invoke_on_forward_network: node_id not found in graph')
 
       select type (generic_node)
       class is (MethodGraphNode)
          method_node => generic_node
       class default
-         _FAIL('invoke_on_default_network: node_id does not identify a MethodGraphNode')
+         _FAIL('invoke_on_forward_network: node_id does not identify a MethodGraphNode')
       end select
 
       bindings = method_node%get_argument_bindings()
@@ -84,7 +84,7 @@ contains
       call advance_bound_outputs(graph, method_node, bindings, names, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine invoke_on_default_network
+   end subroutine invoke_on_forward_network
 
    ! One uninterrupted iteration pass: only the iterator's own methods and
    ! plain array-element assignment (not even a container call like
@@ -108,7 +108,7 @@ contains
    end subroutine collect_bound_names
 
    ! REQ-REV-011's "pull-all-before": ComponentGraph%update() over every bound
-   ! IN/INOUT argument, on the default network. Indexed loop over the
+   ! IN/INOUT argument, on the forward network. Indexed loop over the
    ! pre-collected name list; no map iterator.
    subroutine pull_bound_inputs(graph, method_node, bindings, names, rc)
       class(ComponentGraph), target, intent(in) :: graph
@@ -133,7 +133,7 @@ contains
          access = arg%get_access()
 
          if (access == MAPL_ACCESS_IN .or. access == MAPL_ACCESS_INOUT) then
-            call graph%update(graph%get_default_network_id(), bound_id, _RC)
+            call graph%update(bound_id, _RC)
          end if
       end do
 

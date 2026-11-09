@@ -312,7 +312,7 @@ contains
       ! The edge lives in the CHILD's own graph/network, connecting the
       ! parent's own real NodeId directly to the child's own real
       ! NodeId - no proxy, in either direction.
-      net_id = child_graph%get_default_network_id()
+      net_id = child_graph%get_forward_network_id()
       net => child_graph%get_network(net_id)
       @assert_that(net%contains_dependency(parent_own_id, child_own_id), is(true()))
 
@@ -375,7 +375,7 @@ contains
       @assert_that(associated(parent_own_id), is(true()))
       @assert_that(associated(child_own_id), is(true()))
 
-      net_id = parent_graph%get_default_network_id()
+      net_id = parent_graph%get_forward_network_id()
       net => parent_graph%get_network(net_id)
       @assert_that(net%contains_dependency(child_own_id, parent_own_id), is(true()))
 
@@ -453,7 +453,7 @@ contains
       child_own_id => child_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
       @assert_that(associated(child_own_id), is(true()))
 
-      net_id = parent_graph%get_default_network_id()
+      net_id = parent_graph%get_forward_network_id()
       net => parent_graph%get_network(net_id)
       @assert_that(net%contains_dependency(child_own_id, parent_own_id), is(false()))
 

@@ -137,7 +137,7 @@ contains
       @assert_that(ESMF_FieldIsCreated(field), is(true()))
 
       ! --- GraphBuilder's own resolution reaches the same conclusion:
-      ! a dependency edge exists, in the cap's own default network,
+      ! a dependency edge exists, in the forward network,
       ! directly between comp_src's own real export NodeId and
       ! comp_dst's own real import NodeId (openspec/changes/
       ! hierarchy-wide-component-graph, tasks.md 3.4: no parent-local
@@ -154,7 +154,7 @@ contains
       @assert_that(associated(t_export_id), is(true()))
       @assert_that(associated(t_import_id), is(true()))
 
-      net => cap_graph%get_network(cap_graph%get_default_network_id())
+      net => cap_graph%get_network(cap_graph%get_forward_network_id())
       @assert_that(net%contains_dependency(t_export_id, t_import_id), is(true()))
 
       _UNUSED_DUMMY(this)
@@ -280,7 +280,7 @@ contains
       @assert_that(associated(t_export_id), is(true()))
       @assert_that(associated(t_import_id), is(true()))
 
-      net => cap_graph%get_network(cap_graph%get_default_network_id())
+      net => cap_graph%get_network(cap_graph%get_forward_network_id())
       @assert_that(net%contains_dependency(t_export_id, t_import_id), is(false()))
       @assert_that(net%has_successors(t_export_id), is(true()))
       @assert_that(net%has_predecessors(t_import_id), is(true()))
@@ -415,7 +415,7 @@ contains
       @assert_that(associated(t_export_id), is(true()))
       @assert_that(associated(t_import_id), is(true()))
 
-      net => cap_graph%get_network(cap_graph%get_default_network_id())
+      net => cap_graph%get_network(cap_graph%get_forward_network_id())
       @assert_that(net%contains_dependency(t_export_id, t_import_id), is(true()))
 
       node => src_graph%get_node(t_export_id)
@@ -517,7 +517,7 @@ contains
       @assert_that(ESMF_FieldIsCreated(field), is(true()))
 
       ! --- GraphBuilder's own resolution reaches the same conclusion:
-      ! a dependency edge exists, in history's own default network,
+      ! a dependency edge exists, in the forward network,
       ! directly between stat's own real export NodeId ('A/TS') and
       ! collection_1's own real import NodeId ('TS_avg') - no proxy,
       ! src_name /= dst_name resolved correctly (design.md D1's own
@@ -535,7 +535,7 @@ contains
       @assert_that(associated(export_id), is(true()))
       @assert_that(associated(import_id), is(true()))
 
-      net => history_graph%get_network(history_graph%get_default_network_id())
+      net => history_graph%get_network(history_graph%get_forward_network_id())
       @assert_that(net%contains_dependency(export_id, import_id), is(true()))
 
       _UNUSED_DUMMY(this)

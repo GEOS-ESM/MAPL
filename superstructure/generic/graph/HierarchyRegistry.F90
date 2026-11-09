@@ -70,6 +70,7 @@ contains
       id = registry%id_generator%next(status)
       _ASSERT(status == 0, 'HierarchyRegistry: HierarchyId generator exhausted')
 
+      call resources%graph%initialize(_RC)
       call registry%hierarchies%insert(id, resources)
 
       _RETURN(_SUCCESS)

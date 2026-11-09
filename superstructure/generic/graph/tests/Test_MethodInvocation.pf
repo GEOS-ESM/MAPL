@@ -22,7 +22,7 @@
 ! intervening procedure boundary for graph/method_node construction,
 ! avoids it and was confirmed correct under both NAG and gfortran.
 module Test_MethodInvocation
-   use mapl_MethodInvocation_mod, only: invoke_on_default_network
+   use mapl_MethodInvocation_mod, only: invoke_on_forward_network
    use mapl_ComponentGraph_mod, only: ComponentGraph
    use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use mapl_Transform_mod, only: Transform
@@ -120,7 +120,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      default_id = graph%get_default_network_id()
+      default_id = graph%get_forward_network_id()
 
       run_count = 0
       call_count = 0
@@ -159,7 +159,7 @@ contains
       call method_node%bind_argument('x_inout', inout_id, rc=status)
       call graph%register_node(method_node, rc=status)
 
-      call invoke_on_default_network(graph, method_id, rc=status)
+      call invoke_on_forward_network(graph, method_id, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, call_count)
       @assertEqual(1, run_count_at_invoke)
@@ -168,7 +168,7 @@ contains
 
    ! Spec scenario "Bound outputs are advanced after successful
    ! invocation": both OUT and INOUT are invalid beforehand and valid
-   ! immediately after invoke_on_default_network returns.
+   ! immediately after invoke_on_forward_network returns.
    @test
    subroutine test_bound_outputs_advanced_after_success()
       type(ComponentGraph), target :: graph
@@ -186,7 +186,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      default_id = graph%get_default_network_id()
+      default_id = graph%get_forward_network_id()
 
       run_count = 0
       strategy%run_count => run_count
@@ -230,7 +230,7 @@ contains
          @assertTrue(.false.)
       end select
 
-      call invoke_on_default_network(graph, method_id, rc=status)
+      call invoke_on_forward_network(graph, method_id, rc=status)
       @assertEqual(0, status)
 
       node => graph%get_node(out_id)
@@ -270,7 +270,7 @@ contains
       integer :: status
 
       graph = ComponentGraph()
-      default_id = graph%get_default_network_id()
+      default_id = graph%get_forward_network_id()
 
       run_count = 0
       strategy%run_count => run_count
@@ -306,7 +306,7 @@ contains
       call method_node%bind_argument('x_inout', inout_id, rc=status)
       call graph%register_node(method_node, rc=status)
 
-      call invoke_on_default_network(graph, method_id, rc=status)
+      call invoke_on_forward_network(graph, method_id, rc=status)
       @assertTrue(status /= 0)
 
       node => graph%get_node(out_id)

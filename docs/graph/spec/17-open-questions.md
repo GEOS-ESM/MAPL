@@ -760,7 +760,7 @@ remains open exactly as recorded above.
 | StateItemCharacteristic hierarchy, incl. Value/Reference split | Settled direction (speculative pending Q11) |
 | CharacteristicStatus / CharacteristicType naming | Open (naming only, §18.3/§18.4) |
 | StateItemCharacteristic as graph node | Resolved: no bespoke observer node; eager structural / lazy content split instead (Q12); cross-graph walk mechanics still open |
-| MethodGraphNode invocation triggers argument update() | Settled (REQ-REV-011), with concrete default-network/callback-network trigger points specified |
+| MethodGraphNode invocation triggers argument update() | Settled (REQ-REV-011), with concrete forward-network/callback-network trigger points specified |
 | Dedicated "ChangeGeom" phase | Rejected (§18.9) |
 | Characteristic transform-insertion order | **Open (Q13)** |
 | Characteristic sharing + structural propagation | Settled direction (eager mutator, no listener list); cross-graph mechanics open |

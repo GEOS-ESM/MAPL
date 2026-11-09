@@ -31,6 +31,9 @@ module Test_GraphBuilderPropagation
    use mapl_PortId_mod, only: PortId
    use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
    use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
    use esmf
    use pfunit
    implicit none(type, external)
@@ -479,11 +482,164 @@ contains
       @assert_that(associated(dst_import_id), is(true()))
 
       grandparent_graph => grandparent_meta%get_component_graph()
-      net => grandparent_graph%get_network(grandparent_graph%get_default_network_id())
+      net => grandparent_graph%get_network(grandparent_graph%get_forward_network_id())
       @assert_that(net%contains_dependency(src_export_id, dst_import_id), is(true()))
 
       _UNUSED_DUMMY(this)
    end subroutine test_mirrored_import_resolves_via_unmodified_resolution
+
+   ! Reuse across declaring components: P connects SRC/T to DST_A/T and GP
+   ! connects the propagated SRC/T to DST_B, both needing the same units
+   ! conversion. Both imports share one extension item, one transform exists
+   ! in the hierarchy, and both connections' edges are in the forward network.
+   @test(npes=[0])
+   subroutine test_reuse_across_declaring_components(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gp_gc
+      type(OuterMetaComponent), pointer :: gp_meta, p_meta, src_meta
+      type(OuterMetaComponent), pointer :: dst_a_meta, dst_b_meta
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: gp_spec, p_spec, src_spec
+      type(ComponentSpec), pointer :: dst_a_spec, dst_b_spec
+      type(ComponentGraph), pointer :: gp_graph, src_graph
+      type(ComponentGraph), pointer :: dst_a_graph, dst_b_graph
+      type(NodeId), pointer :: export_id, import_a_id, import_b_id
+      type(NodeId) :: pred_a, pred_b
+      type(MatchConnection) :: p_conn, gp_conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(DependencyNetwork), pointer :: net
+      type(NodeIdSet), target :: preds_a, preds_b
+      type(NodeIdSetIterator) :: iter
+      integer :: status, n_transforms
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_reuse_gp', gp_gc, gp_meta, _RC)
+      child_spec = ChildSpec()
+      call gp_meta%add_child('P', child_spec, _RC)
+      child_spec = ChildSpec()
+      call gp_meta%add_child('DST_B', child_spec, _RC)
+      p_meta => child_meta(gp_meta, 'P')
+      dst_b_meta => child_meta(gp_meta, 'DST_B')
+      child_spec = ChildSpec()
+      call p_meta%add_child('SRC', child_spec, _RC)
+      child_spec = ChildSpec()
+      call p_meta%add_child('DST_A', child_spec, _RC)
+      src_meta => child_meta(p_meta, 'SRC')
+      dst_a_meta => child_meta(p_meta, 'DST_A')
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m'))
+      dst_a_spec => dst_a_meta%get_component_spec()
+      call dst_a_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T', units='km'))
+      dst_b_spec => dst_b_meta%get_component_spec()
+      call dst_b_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'SRC/T', units='km'))
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_a_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_b_meta, status)
+      @assert_that(status, is(0))
+      call gb%run_export_propagate_hook(p_meta)
+
+      p_conn = MatchConnection( &
+           ConnectionPt('SRC', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('DST_A', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      p_spec => p_meta%get_component_spec()
+      call p_spec%add_connection(p_conn)
+      gp_conn = MatchConnection( &
+           ConnectionPt('P', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('DST_B', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      gp_spec => gp_meta%get_component_spec()
+      call gp_spec%add_connection(gp_conn)
+
+      call gb%resolve_connections(p_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      @assertEqual(0, unsupported%size())
+      call gb%resolve_connections(gp_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      @assertEqual(0, unsupported%size())
+
+      src_graph => src_meta%get_component_graph()
+      dst_a_graph => dst_a_meta%get_component_graph()
+      dst_b_graph => dst_b_meta%get_component_graph()
+      export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      import_a_id => dst_a_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      import_b_id => dst_b_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'SRC/T'))
+      @assert_that(associated(export_id), is(true()))
+      @assert_that(associated(import_a_id), is(true()))
+      @assert_that(associated(import_b_id), is(true()))
+
+      gp_graph => gp_meta%get_component_graph()
+      net => gp_graph%get_network(gp_graph%get_forward_network_id())
+      @assert_that(net%has_successors(export_id), is(true()))
+      preds_a = net%get_predecessors(import_a_id)
+      preds_b = net%get_predecessors(import_b_id)
+      @assertEqual(1, int(preds_a%size()))
+      @assertEqual(1, int(preds_b%size()))
+      iter = preds_a%ftn_begin()
+      call iter%next()
+      pred_a = iter%of()
+      iter = preds_b%ftn_begin()
+      call iter%next()
+      pred_b = iter%of()
+      @assertTrue(pred_a == pred_b)
+      @assert_that(pred_a == export_id, is(false()))
+
+      n_transforms = count_transforms(gp_meta)
+      @assertEqual(1, n_transforms)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_reuse_across_declaring_components
+
+   function child_meta(parent, name) result(meta)
+      type(OuterMetaComponent), target, intent(inout) :: parent
+      character(*), intent(in) :: name
+      type(OuterMetaComponent), pointer :: meta
+
+      type(GriddedComponentDriver) :: driver
+      type(ESMF_GridComp) :: gc
+
+      driver = parent%get_child(name)
+      gc = driver%get_gridcomp()
+      meta => get_outer_meta(gc)
+   end function child_meta
+
+   recursive function count_transforms(meta) result(n)
+      type(OuterMetaComponent), target, intent(inout) :: meta
+      integer :: n
+
+      type(ComponentGraph), pointer :: graph
+      type(NodeIdSet), target :: ids
+      type(NodeIdSetIterator) :: iter
+      class(GraphNode), pointer :: node
+      type(OuterMetaComponent), pointer :: child
+      character(:), allocatable :: name
+      integer :: i
+
+      n = 0
+      graph => meta%get_component_graph()
+      ids = graph%get_node_ids()
+      iter = ids%ftn_begin()
+      do while (iter /= ids%ftn_end())
+         call iter%next()
+         node => graph%get_node(iter%of())
+         select type (node)
+         class is (TransformGraphNode)
+            n = n + 1
+         end select
+      end do
+      do i = 1, meta%get_num_children()
+         name = meta%get_child_name(i)
+         child => child_meta(meta, name)
+         n = n + count_transforms(child)
+      end do
+   end function count_transforms
 
    ! Task 6.4 / spec "Multiple distinct descendants bubbling the same
    ! short name are each independently resolvable": two distinct
@@ -582,10 +738,10 @@ contains
       @assert_that(associated(child_b_import_id), is(true()))
 
       ! Both independently resolved against the SAME source export -
-      ! two distinct dependency edges, both in the GRANDPARENT's own
-      ! default network (the component that declared this connection).
+      ! two distinct dependency edges, both in the forward network
+      ! (declared by the GRANDPARENT).
       grandparent_graph => grandparent_meta%get_component_graph()
-      net => grandparent_graph%get_network(grandparent_graph%get_default_network_id())
+      net => grandparent_graph%get_network(grandparent_graph%get_forward_network_id())
       @assert_that(net%contains_dependency(src_export_id, child_a_import_id), is(true()))
       @assert_that(net%contains_dependency(src_export_id, child_b_import_id), is(true()))
 
@@ -870,9 +1026,9 @@ contains
 
       ! The real edge wired is between the two REAL endpoints directly -
       ! A's own export NodeId and dst's own import NodeId - no proxy at
-      ! any level, in cap's own default network.
+      ! any level, in the forward network.
       cap_graph => cap_meta%get_component_graph()
-      net => cap_graph%get_network(cap_graph%get_default_network_id())
+      net => cap_graph%get_network(cap_graph%get_forward_network_id())
       @assert_that(net%contains_dependency(a_export_id, dst_import_id), is(true()))
 
       _UNUSED_DUMMY(this)

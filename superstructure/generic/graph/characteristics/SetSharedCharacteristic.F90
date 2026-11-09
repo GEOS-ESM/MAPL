@@ -99,8 +99,8 @@ contains
       ! that calls out per element: keeping the iterator live across
       ! reset_dependent_if_state_item, which does further graph lookups
       ! and mutations, produced a NAG dangling-pointer abort.
-      network => graph%get_network(graph%get_default_network_id())
-      _ASSERT(associated(network), 'set_shared_characteristic: default DependencyNetwork not found')
+      network => graph%get_network(graph%get_forward_network_id())
+      _ASSERT(associated(network), 'set_shared_characteristic: forward DependencyNetwork not found')
       successors = network%get_successors(node_id)
       call collect_node_ids(successors, dependent_ids)
 

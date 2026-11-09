@@ -1629,8 +1629,26 @@ kept only in case callback states prove unsuitable). Holds 3.42,
 C1-vertical-b and C1-geom-c until it lands. Follow-up (`C4-b`, not yet
 an openspec change): state population without the descendant walk,
 merged geometry push/pull, removal of the `get_child_component_graph`
-carve-out.
-- **Status:** not started
+carve-out. Owner (2026-11-08) on geometry in C4-b: each component gets
+explicit import and export geometry items. FROM_PARENT: an import geometry
+wired to the parent's (connection made by the parent) and an export
+geometry offered to its children. FROM_CHILD: an import wired to that
+child, and an export offered to the other children and to its parent.
+PROVIDER: an export only, which the parent may connect. Components keep
+the legacy declarations; the explicit items are built from them. C4's skip
+of the geometry push into a component's own provider child is temporary
+until then.
+- **Status:** done (commit trailer `Plan-Task: C4-ForwardNetwork`). NAG
+  and gfortran Debug ESSENTIAL 69/69; `history_1` now `graph_ready`.
+  Deviations: geometry push skips the component's own FROM_CHILD
+  provider (pull + push would be a cycle in the one forward network;
+  temporary: C4-b redesigns geometry as explicit import/export geoms;
+  owner decision 2026-11-08); a second connection into one import is a
+  `connection_conflicts` entry naming the item, skipped while the pass
+  continues, for ordinary and inout-borrower pairings (legacy: last
+  wins; parity row added);
+  `CallbackMethodBinding` keeps only `get_put_network_id`. See the
+  change's design.md D2 and D5.
 
 ### Phase D - structure
 

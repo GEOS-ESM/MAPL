@@ -335,8 +335,8 @@ contains
    ! REQ-CB-018/019: builds one CallbackMethodBinding for method_name on
    ! state_binding. Registers a MethodGraphNode (holding the attachment
    ! from CallbackStateBinding%bind_method) in this's graph, creates a
-   ! get and a put network, and wires each argument's dependency edge
-   ! into the network for its access mode, reusing
+   ! put network, and wires each argument's dependency edge into the
+   ! forward network (get) or the put network, by access mode, reusing
    ! find_mismatched_characteristics/find_or_build_extension_chain as
    ! ordinary connection resolution does. CallbackArgumentSpec declares
    ! no characteristics yet, so the exact-match direct-edge branch is
@@ -354,7 +354,7 @@ contains
 
       integer :: status
       type(ComponentGraph), pointer :: graph
-      type(DependencyNetworkId) :: get_net_id, put_net_id
+      type(DependencyNetworkId) :: forward_net_id, put_net_id
       type(StateMethodInvocation), pointer :: attachment
       type(NodeId) :: method_node_id
       type(MethodGraphNode) :: method_node
@@ -378,10 +378,13 @@ contains
       ! copies it into the graph's node map.
       method_node = MethodGraphNode(method_node_id, attachment)
 
-      get_net_id = graph%create_network(_RC)
+      ! Get edges carry data toward the method before it runs, so they join
+      ! the forward network; only the put (write-back) network is the
+      ! method's own.
+      forward_net_id = graph%get_forward_network_id(_RC)
       put_net_id = graph%create_network(_RC)
 
-      binding = CallbackMethodBinding(method_node_id, get_net_id, put_net_id)
+      binding = CallbackMethodBinding(method_node_id, put_net_id)
 
       method_spec = iface%get_method(method_name, _RC)
       accesses = method_spec%get_argument_accesses()
@@ -412,8 +415,10 @@ contains
          if (access == MAPL_ACCESS_IN .or. access == MAPL_ACCESS_INOUT) then
             provider_id => provider_get_ids%at(argument_name)
             _ASSERT(associated(provider_id), 'GraphBuilder: build_callback_method_binding - no get-side provider for argument: ' // argument_name)
-            call wire_callback_argument(graph, get_net_id, provider_id, member_id, _RC)
-            call binding%bind_get_argument(argument_name, provider_id, _RC)
+            call wire_callback_argument(graph, forward_net_id, provider_id, member_id, _RC)
+            ! Pulling the callback-side member reaches the provider and
+            ! whatever produces it, plus any conversion wired between them.
+            call binding%bind_get_argument(argument_name, member_id, _RC)
          end if
 
          if (access == MAPL_ACCESS_OUT .or. access == MAPL_ACCESS_INOUT) then
@@ -468,10 +473,9 @@ contains
 
    ! REQ-CB-020: invoke once after all arguments are ready, in the same
    ! three-phase shape as mapl_MethodInvocation_mod%
-   ! invoke_on_default_network but on binding's own get/put networks.
-   ! The callback MethodGraphNode is never registered with demand-driven
-   ! update: only its get-network predecessors are pulled, and only its
-   ! put-network targets are advanced, explicitly by this procedure.
+   ! invoke_on_forward_network: get arguments are pulled through the
+   ! forward network, put targets are advanced directly. The callback
+   ! MethodGraphNode is never scheduled by demand-driven update.
    module subroutine invoke_callback_method(graph, binding, rc)
       class(ComponentGraph), target, intent(inout) :: graph
       type(CallbackMethodBinding), target, intent(in) :: binding
@@ -481,11 +485,9 @@ contains
       type(StateItemMemberMap) :: get_bindings, put_bindings
       class(GraphNode), pointer :: generic_node
       class(MethodGraphNode), pointer :: method_node
-      type(DependencyNetworkId) :: get_net_id
 
       ! put revisions are advanced directly by NodeId (as
       ! advance_bound_outputs does), so the put network id is not needed.
-      get_net_id = binding%get_get_network_id()
       get_bindings = binding%get_get_bindings()
       put_bindings = binding%get_put_bindings()
 
@@ -498,7 +500,7 @@ contains
          _ASSERT(.false., 'GraphBuilder: invoke_callback_method - node_id does not identify a MethodGraphNode')
       end select
 
-      call pull_callback_get_arguments(graph, get_net_id, get_bindings, _RC)
+      call pull_callback_get_arguments(graph, get_bindings, _RC)
 
       call method_node%invoke(_RC)
 
@@ -507,11 +509,12 @@ contains
       _RETURN(_SUCCESS)
    end subroutine invoke_callback_method
 
-   ! REQ-REV-011 "pull-all-before" on binding's get network. Collect
-   ! names first so no map iterator is live across graph%update().
-   module subroutine pull_callback_get_arguments(graph, network_id, get_bindings, rc)
+   ! REQ-REV-011 "pull-all-before" through the forward network: each bound
+   ! callback-side member is pulled, reaching its provider's producer
+   ! wherever that edge was declared.
+   ! Collect names first so no map iterator is live across graph%update().
+   module subroutine pull_callback_get_arguments(graph, get_bindings, rc)
       class(ComponentGraph), target, intent(in) :: graph
-      type(DependencyNetworkId), intent(in) :: network_id
       type(StateItemMemberMap), target, intent(in) :: get_bindings
       integer, optional, intent(out) :: rc
 
@@ -519,7 +522,7 @@ contains
       type(StateItemMemberMapIterator) :: iter
       character(:), allocatable :: names(:)
       integer :: n, i
-      type(NodeId), pointer :: provider_id
+      type(NodeId), pointer :: member_id
 
       allocate(character(MAX_CALLBACK_ARGUMENT_NAME_LEN) :: names(get_bindings%size()))
       n = 0
@@ -531,9 +534,9 @@ contains
       end do
 
       do i = 1, n
-         provider_id => get_bindings%at(trim(names(i)))
-         _ASSERT(associated(provider_id), 'GraphBuilder: pull_callback_get_arguments - bound name not found')
-         call graph%update(network_id, provider_id, _RC)
+         member_id => get_bindings%at(trim(names(i)))
+         _ASSERT(associated(member_id), 'GraphBuilder: pull_callback_get_arguments - bound name not found')
+         call graph%update(member_id, _RC)
       end do
 
       _RETURN(_SUCCESS)

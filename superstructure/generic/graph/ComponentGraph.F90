@@ -2,13 +2,14 @@
 
 !------------------------------------------------------------------------------
 ! ComponentGraph: graph-neutral owner of a component's own public import/
-! export ports, child-port bindings, transform port-binding table, semantic
-! resource index, port-identity generation, and mutable/frozen/finalized
+! export ports, child-port bindings, advertised-item resource index,
+! write-back networks, port-identity generation, and mutable/frozen/finalized
 ! lifecycle state (REQ-CG-001).
 !
 ! The polymorphic node map (NodeId -> GraphNode), the dependency-network
-! map (DependencyNetworkId -> DependencyNetwork) and the node/network id
-! generators live in one HierarchyGraph per hierarchy, held in the
+! map (DependencyNetworkId -> DependencyNetwork), the node/network id
+! generators, the one forward network, the transform port-binding table and
+! the reuse index live in one HierarchyGraph per hierarchy, held in the
 ! HierarchyId-keyed registry (mapl_HierarchyRegistry_mod). This type holds
 ! only a HierarchyId and resolves the shared storage through
 ! get_hierarchy_resources() wherever needed, never caching a reference.
@@ -21,8 +22,8 @@
 !
 ! Transform-port declarations live on TransformGraphNode; the external
 ! port binding table (bind_port()/get_port_binding()/get_port_bindings(),
-! keyed (DependencyNetworkId, NodeId) -> port name -> NodeId) is owned here
-! (REQ-XFORM-004/005: external storage, never on-node).
+! keyed (DependencyNetworkId, NodeId) -> port name -> NodeId) is shared by
+! the hierarchy (REQ-XFORM-004/005: external storage, never on-node).
 !
 ! update() (REQ-REV-005..007/009) is type-bound here but implemented in the
 ! submodule ComponentGraph_DemandDrivenUpdate.F90 purely for file size.
@@ -92,14 +93,13 @@ module mapl_ComponentGraph_mod
       type(HierarchyId) :: hierarchy_id
       ! Explicit record of which ids this instance registered itself (not a
       ! reverse hierarchy-wide lookup); filled by graph_register_node/
-      ! graph_create_network, read by owns_node()/owns_network() and by
-      ! validate()/add_dependency().
+      ! graph_create_network, read by owns_node()/owns_network().
+      ! own_network_ids holds only write-back networks; the forward network
+      ! belongs to the hierarchy.
       type(NodeIdSet) :: own_node_ids
       type(DependencyNetworkIdSet) :: own_network_ids
       type(PortIdGenerator) :: port_generator
-      type(DependencyNetworkId) :: default_network_id
       type(GraphPortRegistry) :: ports
-      type(PortBindingTable) :: transform_port_bindings
       type(StateItemMemberMap) :: resource_index
       integer :: lifecycle_status = GRAPH_LIFECYCLE_MUTABLE
    contains
@@ -112,7 +112,8 @@ module mapl_ComponentGraph_mod
       ! instance (see graph_add_dependency)
       procedure :: allowed_foreign_node => graph_allowed_foreign_node
       ! -- network registry ------------------------------------------------
-      procedure :: get_default_network_id => graph_get_default_network_id
+      procedure :: get_forward_network_id => graph_get_forward_network_id
+      procedure :: is_forward_network => graph_is_forward_network
       procedure :: create_network => graph_create_network
       procedure :: get_network => graph_get_network
       procedure :: owns_network => graph_owns_network
@@ -138,26 +139,31 @@ module mapl_ComponentGraph_mod
       procedure :: get_port_bindings => graph_get_port_bindings
       procedure :: add_resource_index => graph_add_resource_index
       procedure :: get_resource_index => graph_get_resource_index
+      procedure :: add_reuse_entry => graph_add_reuse_entry
+      procedure :: forward_producer_conflict => graph_forward_producer_conflict
+      procedure :: get_reuse_entry => graph_get_reuse_entry
       ! -- full-graph enumeration (for exporters / full-graph walks) --------
       procedure :: get_node_ids => graph_get_node_ids
       procedure :: get_network_ids => graph_get_network_ids
       ! -- demand-driven update (REQ-REV-005..007) --
-      procedure :: update => graph_update
+      procedure :: update => graph_update_item
       ! -- validation / lifecycle -------------------------------------------
       procedure :: validate => graph_validate
       procedure :: freeze => graph_freeze
+      ! hierarchy-wide: called once, after every component graph froze
+      procedure :: freeze_forward_network => graph_freeze_forward_network
       procedure :: is_frozen => graph_is_frozen
       procedure :: finalize => graph_finalize
       procedure :: is_finalized => graph_is_finalized
       ! -- private helpers ---------------------------------------------------
-      procedure, private :: classify_owned_nodes => graph_classify_owned_nodes
+      procedure, private :: classify_nodes => graph_classify_nodes
    end type ComponentGraph
 
    interface ComponentGraph
       module procedure new_ComponentGraph
    end interface ComponentGraph
 
-   ! One explicit-stack frame for graph_update's iterative traversal; not
+   ! One explicit-stack frame for graph_update_item's iterative traversal; not
    ! part of the public API. Declared here rather than in the submodule because
    ! a submodule-local derived type broke the ifx shared-library version script
    ! (`version node not found for symbol ...@..._UPDATEFRAME`).
@@ -168,24 +174,20 @@ module mapl_ComponentGraph_mod
       integer :: next_index = 1
    end type UpdateFrame
 
-   ! update() is implemented in mapl_ComponentGraph_DemandDrivenUpdate_smod
+   ! The walk behind update() is implemented in
+   ! mapl_ComponentGraph_DemandDrivenUpdate_smod
    ! (ComponentGraph_DemandDrivenUpdate.F90) to keep this file from growing;
-   ! callers see an ordinary graph%update(...) type-bound call.
+   ! callers see an ordinary graph%update(node_id) type-bound call.
    interface
-      module subroutine graph_update(this, network_id, node_id, rc)
+      module subroutine graph_update_item(this, node_id, rc)
          class(ComponentGraph), target, intent(in) :: this
-         type(DependencyNetworkId), intent(in) :: network_id
          type(NodeId), intent(in) :: node_id
          integer, optional, intent(out) :: rc
-      end subroutine graph_update
+      end subroutine graph_update_item
    end interface
 
 contains
 
-   ! REQ-CG-003a/004: the constructor performs the unconditional bootstrap
-   ! (the default network id is the first one issued by this hierarchy's
-   ! shared generator, so it cannot hit exhaustion).
-   !
    ! When hierarchy_id is omitted (standalone synthetic graphs in tests), a
    ! fresh hierarchy is requested and this graph becomes its root. A real
    ! OuterMetaComponent always passes the hierarchy's hierarchy_id (see
@@ -195,19 +197,11 @@ contains
       type(HierarchyId), optional, intent(in) :: hierarchy_id
       type(ComponentGraph) :: graph
 
-      type(HierarchyResources), pointer :: resources
-      type(DependencyNetwork) :: empty_network
-
       if (present(hierarchy_id)) then
          graph%hierarchy_id = hierarchy_id
       else
          graph%hierarchy_id = request_new_hierarchy()
       end if
-
-      resources => get_hierarchy_resources(graph%hierarchy_id)
-      graph%default_network_id = resources%graph%next_network_id()
-      call resources%graph%register_network(graph%default_network_id, empty_network)
-      call graph%own_network_ids%insert(graph%default_network_id)
    end function new_ComponentGraph
 
    ! -- node registry -------------------------------------------------------
@@ -284,14 +278,31 @@ contains
 
    ! -- network registry ------------------------------------------------------
 
-   function graph_get_default_network_id(this) result(id)
+   ! The hierarchy's one forward network: the same id from every
+   ! ComponentGraph in the hierarchy.
+   function graph_get_forward_network_id(this, rc) result(id)
       class(ComponentGraph), intent(in) :: this
+      integer, optional, intent(out) :: rc
       type(DependencyNetworkId) :: id
 
-      id = this%default_network_id
-   end function graph_get_default_network_id
+      type(HierarchyResources), pointer :: resources
+
+      resources => get_hierarchy_resources(this%hierarchy_id)
+      _ASSERT(associated(resources), 'ComponentGraph: get_forward_network_id - hierarchy not found')
+      id = resources%graph%get_forward_network_id()
+
+      _RETURN(_SUCCESS)
+   end function graph_get_forward_network_id
+
+   logical function graph_is_forward_network(this, id) result(is_forward)
+      class(ComponentGraph), intent(in) :: this
+      type(DependencyNetworkId), intent(in) :: id
+
+      is_forward = (id == this%get_forward_network_id())
+   end function graph_is_forward_network
 
    ! REQ-CG-006: no new DependencyNetworks may be created after freeze.
+   ! A created network is a write-back network owned by this instance.
    function graph_create_network(this, rc) result(id)
       class(ComponentGraph), intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -339,18 +350,18 @@ contains
       owns = (.not. this%is_finalized()) .and. (this%own_network_ids%count(id) > 0)
    end function graph_owns_network
 
-   ! Forwards to DependencyNetwork%add_dependency() with an allowed-id set
-   ! built fresh for this call (never cached), giving REQ-CG-004 "Invalid
-   ! foreign node is rejected". network_id must be owned by THIS instance
-   ! (explicit check: the shared HierarchyGraph would resolve any component's
-   ! network id).
+   ! network_id is the hierarchy's forward network (accepted from any graph in
+   ! the hierarchy) or a write-back network this instance created.
    !
    ! source/target may be another component's real NodeId (resolved by
    ! GraphBuilder's resolve_qualified_component, whose one-directional tree walk
    ! is what prevents resolving upward past the declaring component; this layer
-   ! cannot know the component tree, REQ-CG-002). A node this instance does not
-   ! own is admitted only if registered somewhere in this hierarchy
-   ! (allowed_foreign_node); an id never registered anywhere is rejected.
+   ! cannot know the component tree, REQ-CG-002). Either endpoint must be
+   ! registered somewhere in this hierarchy; an id never registered is rejected.
+   !
+   ! In the forward network a state item has at most one producer, whichever
+   ! component declares the edge; re-adding the identical edge is a no-op,
+   ! since two-pass initialization may resolve one connection twice.
    subroutine graph_add_dependency(this, network_id, source, target, rc)
       class(ComponentGraph), target, intent(inout) :: this
       type(DependencyNetworkId), intent(in) :: network_id
@@ -359,27 +370,67 @@ contains
       integer, optional, intent(out) :: rc
 
       type(DependencyNetwork), pointer :: network
-      type(NodeIdSet) :: allowed_ids
+      logical :: is_forward
+      character(:), allocatable :: item_name
+      integer :: status
 
       _ASSERT(.not. this%is_finalized(), 'ComponentGraph: add_dependency called after finalize')
       _ASSERT(.not. this%is_frozen(), 'ComponentGraph: add_dependency called on a frozen graph')
-      _ASSERT(this%owns_network(network_id), 'ComponentGraph: add_dependency - unknown DependencyNetworkId')
+      is_forward = this%is_forward_network(network_id)
+      _ASSERT(is_forward .or. this%owns_network(network_id), 'ComponentGraph: add_dependency - unknown DependencyNetworkId')
 
       network => this%get_network(network_id)
       _ASSERT(associated(network), 'ComponentGraph: add_dependency - unknown DependencyNetworkId')
+      _ASSERT(.not. network%is_frozen(), 'ComponentGraph: add_dependency called on a frozen network')
 
-      allowed_ids = this%own_node_ids
-      if (.not. this%owns_node(source)) then
-         _ASSERT(this%allowed_foreign_node(source), 'ComponentGraph: add_dependency - source NodeId is not registered anywhere in this hierarchy')
-         call allowed_ids%insert(source)
-      end if
-      if (.not. this%owns_node(target)) then
-         _ASSERT(this%allowed_foreign_node(target), 'ComponentGraph: add_dependency - target NodeId is not registered anywhere in this hierarchy')
-         call allowed_ids%insert(target)
+      _ASSERT(this%allowed_foreign_node(source), 'ComponentGraph: add_dependency - source NodeId is not registered anywhere in this hierarchy')
+      _ASSERT(this%allowed_foreign_node(target), 'ComponentGraph: add_dependency - target NodeId is not registered anywhere in this hierarchy')
+
+      if (network%contains_dependency(source, target)) then
+         _RETURN(_SUCCESS)
       end if
 
-      call network%add_dependency(source, target, rc=rc, valid_ids=allowed_ids)
+      if (is_forward) then
+         item_name = this%forward_producer_conflict(source, target)
+         _ASSERT(item_name == '', 'ComponentGraph: forward network item "' // item_name // '" already has a different producer')
+      end if
+
+      call network%add_dependency(source, target, _RC)
+
+      _RETURN(_SUCCESS)
    end subroutine graph_add_dependency
+
+   ! Returns the item's name when adding source -> target to the forward
+   ! network would give StateItemNode target a second, different producer;
+   ! '' otherwise (no conflict, identical edge, or target not a state item).
+   function graph_forward_producer_conflict(this, source, target) result(item_name)
+      character(:), allocatable :: item_name
+      class(ComponentGraph), target, intent(in) :: this
+      type(NodeId), intent(in) :: source
+      type(NodeId), intent(in) :: target
+
+      class(GraphNode), pointer :: node
+      type(DependencyNetwork), pointer :: network
+      integer :: status
+
+      item_name = ''
+      network => this%get_network(this%get_forward_network_id(rc=status))
+      if (status /= 0 .or. .not. associated(network)) return
+      if (network%contains_dependency(source, target)) return
+      if (.not. network%has_predecessors(target)) return
+      node => this%get_node(target)
+      if (.not. associated(node)) return
+      select type (node)
+      class is (StateItemNode)
+         if (node%has_short_name()) then
+            item_name = node%get_short_name()
+         else
+            item_name = target%to_string()
+         end if
+      class default
+         ! Transforms and other operations may have many inputs.
+      end select
+   end function graph_forward_producer_conflict
 
    ! True iff id is registered in this hierarchy's shared HierarchyGraph by
    ! ANY component. Admits already-resolved cross-component edge endpoints;
@@ -565,13 +616,12 @@ contains
 
    ! -- transform port bindings (REQ-XFORM-005) --
 
-   ! Validates: graph not finalized/frozen; network_id and node_id owned by
-   ! this instance; node_id is a TransformGraphNode that declared port_name
-   ! (REQ-XFORM-004); if that declaration is kind-constrained and target_id is
-   ! a StateItemNode, its GraphStateItem%variant() matches. Storage (no silent
-   ! replace) is delegated to PortBindingTable%bind().
-   ! target_id may be a different component's real NodeId (same admission as
-   ! graph_add_dependency); node_id is always this instance's own.
+   ! Validates: graph not finalized/frozen; network_id is the forward network
+   ! or owned by this instance, and not frozen; node_id is a TransformGraphNode
+   ! registered in this hierarchy that declared port_name (REQ-XFORM-004); if
+   ! that declaration is kind-constrained and target_id is a StateItemNode, its
+   ! GraphStateItem%variant() matches. Storage (no silent replace) is the
+   ! hierarchy's shared PortBindingTable.
    subroutine graph_bind_port(this, network_id, node_id, port_name, target_id, rc)
       class(ComponentGraph), target, intent(inout) :: this
       type(DependencyNetworkId), intent(in) :: network_id
@@ -585,15 +635,21 @@ contains
       type(PortSpec) :: spec
       type(MAPL_StateItem_Flag) :: expected_kind, actual_kind
       type(GraphStateItem) :: target_payload
+      type(DependencyNetwork), pointer :: network
+      type(PortBindingTable), pointer :: table
+      type(HierarchyResources), pointer :: resources
+      logical :: is_forward
       integer :: status
 
       _ASSERT(.not. this%is_finalized(), 'ComponentGraph: bind_port called after finalize')
       _ASSERT(.not. this%is_frozen(), 'ComponentGraph: bind_port called on a frozen graph')
-      _ASSERT(this%owns_network(network_id), 'ComponentGraph: bind_port - unknown DependencyNetworkId')
-      _ASSERT(this%owns_node(node_id), 'ComponentGraph: bind_port - transform NodeId is not owned by this graph')
-      if (.not. this%owns_node(target_id)) then
-         _ASSERT(this%allowed_foreign_node(target_id), 'ComponentGraph: bind_port - target NodeId is not registered anywhere in this hierarchy')
-      end if
+      is_forward = this%is_forward_network(network_id)
+      _ASSERT(is_forward .or. this%owns_network(network_id), 'ComponentGraph: bind_port - unknown DependencyNetworkId')
+      network => this%get_network(network_id)
+      _ASSERT(associated(network), 'ComponentGraph: bind_port - unknown DependencyNetworkId')
+      _ASSERT(.not. network%is_frozen(), 'ComponentGraph: bind_port called on a frozen network')
+      _ASSERT(this%allowed_foreign_node(node_id), 'ComponentGraph: bind_port - transform NodeId is not registered anywhere in this hierarchy')
+      _ASSERT(this%allowed_foreign_node(target_id), 'ComponentGraph: bind_port - target NodeId is not registered anywhere in this hierarchy')
 
       node => this%get_node(node_id)
       select type (node)
@@ -627,7 +683,9 @@ contains
          _ASSERT(.false., 'ComponentGraph: bind_port - node_id does not refer to a TransformGraphNode')
       end select
 
-      call this%transform_port_bindings%bind(network_id, node_id, port_name, target_id, _RC)
+      resources => get_hierarchy_resources(this%hierarchy_id)
+      table => resources%graph%get_port_bindings_ptr()
+      call table%bind(network_id, node_id, port_name, target_id, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine graph_bind_port
@@ -639,9 +697,14 @@ contains
       character(*), intent(in) :: port_name
       type(NodeId), pointer :: target_id
 
+      type(HierarchyResources), pointer :: resources
+      type(PortBindingTable), pointer :: table
+
       target_id => null()
       if (this%is_finalized()) return
-      target_id => this%transform_port_bindings%get_binding(network_id, node_id, port_name)
+      resources => get_hierarchy_resources(this%hierarchy_id)
+      table => resources%graph%get_port_bindings_ptr()
+      target_id => table%get_binding(network_id, node_id, port_name)
    end function graph_get_port_binding
 
    function graph_get_port_bindings(this, network_id, node_id) result(port_map)
@@ -650,8 +713,13 @@ contains
       type(NodeId), intent(in) :: node_id
       type(StateItemMemberMap) :: port_map
 
+      type(HierarchyResources), pointer :: resources
+      type(PortBindingTable), pointer :: table
+
       if (this%is_finalized()) return
-      port_map = this%transform_port_bindings%get_bindings(network_id, node_id)
+      resources => get_hierarchy_resources(this%hierarchy_id)
+      table => resources%graph%get_port_bindings_ptr()
+      port_map = table%get_bindings(network_id, node_id)
    end function graph_get_port_bindings
 
    subroutine graph_add_resource_index(this, key, node_id, rc)
@@ -680,25 +748,54 @@ contains
       node_id => this%resource_index%at(key)
    end function graph_get_resource_index
 
+   ! Hierarchy-wide index of built extension chains, expression evaluations
+   ! and collections, so a second declaring component reuses them. Unlike
+   ! the resource index, the node need not be owned by this instance.
+   subroutine graph_add_reuse_entry(this, key, node_id, rc)
+      class(ComponentGraph), intent(inout) :: this
+      character(*), intent(in) :: key
+      type(NodeId), intent(in) :: node_id
+      integer, optional, intent(out) :: rc
+
+      type(HierarchyResources), pointer :: resources
+      integer :: status
+
+      _ASSERT(.not. this%is_finalized(), 'ComponentGraph: add_reuse_entry called after finalize')
+      _ASSERT(.not. this%is_frozen(), 'ComponentGraph: add_reuse_entry called on a frozen graph')
+      _ASSERT(this%allowed_foreign_node(node_id), 'ComponentGraph: add_reuse_entry - NodeId is not registered anywhere in this hierarchy')
+
+      resources => get_hierarchy_resources(this%hierarchy_id)
+      call resources%graph%add_reuse_entry(key, node_id, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine graph_add_reuse_entry
+
+   function graph_get_reuse_entry(this, key, rc) result(node_id)
+      class(ComponentGraph), intent(in) :: this
+      character(*), intent(in) :: key
+      integer, optional, intent(out) :: rc
+      type(NodeId), pointer :: node_id
+
+      type(HierarchyResources), pointer :: resources
+
+      node_id => null()
+      _ASSERT(.not. this%is_finalized(), 'ComponentGraph: get_reuse_entry called after finalize')
+      resources => get_hierarchy_resources(this%hierarchy_id)
+      node_id => resources%graph%get_reuse_entry(key)
+
+      _RETURN(_SUCCESS)
+   end function graph_get_reuse_entry
+
    ! -- validation / lifecycle --
 
-   ! REQ-CG-004 "Invalid foreign node is rejected" and "Same-pass
-   ! cross-network write is rejected": validates every owned network, passing
-   ! this instance's producer/state-item classification to
-   ! DependencyNetwork%validate(), then checks REQ-DEP-008a across them.
-   !
-   ! Each network's allowed-id set is own_node_ids plus those of its referenced
-   ! ids registered elsewhere in this hierarchy, recomputed here (not cached)
-   ! because validate() may run standalone, without add_dependency calls.
+   ! REQ-CG-004: validates each write-back network this instance owns, on its
+   ! own. The forward network spans the hierarchy and is validated once, by
+   ! freeze_forward_network. A write-back target may also have a forward
+   ! producer: the write-back fires only after the method runs.
    subroutine graph_validate(this, rc)
       class(ComponentGraph), target, intent(in) :: this
       integer, optional, intent(out) :: rc
 
-      type(NodeIdSet), target :: producer_ids, state_item_ids
-      type(NodeIdSet), target :: allowed_ids
-      type(NodeIdSet), target :: referenced_ids
-      type(NodeIdSetIterator) :: ref_iter
-      type(NodeId) :: ref_id
       type(DependencyNetworkIdSetIterator) :: net_iter
       type(DependencyNetworkId) :: net_id
       type(DependencyNetwork), pointer :: network
@@ -706,75 +803,49 @@ contains
 
       _ASSERT(.not. this%is_finalized(), 'ComponentGraph: validate called after finalize')
 
-      call this%classify_owned_nodes(producer_ids, state_item_ids)
-
       net_iter = this%own_network_ids%ftn_begin()
       do while (net_iter /= this%own_network_ids%ftn_end())
          call net_iter%next()
          net_id = net_iter%of()
          network => this%get_network(net_id)
          _ASSERT(associated(network), 'ComponentGraph: validate - owned DependencyNetworkId not found')
-
-         allowed_ids = this%own_node_ids
-         referenced_ids = network%get_referenced_ids()
-         ref_iter = referenced_ids%ftn_begin()
-         do while (ref_iter /= referenced_ids%ftn_end())
-            call ref_iter%next()
-            ref_id = ref_iter%of()
-            if (this%owns_node(ref_id)) cycle
-            _ASSERT(this%allowed_foreign_node(ref_id), 'ComponentGraph: validate - referenced NodeId is not registered anywhere in this hierarchy')
-            call allowed_ids%insert(ref_id)
-         end do
-
-         call network%validate(valid_ids=allowed_ids, producer_ids=producer_ids, &
-                                 state_item_ids=state_item_ids, _RC)
+         call validate_network(this, network, _RC)
       end do
-
-      call validate_cross_network_writes(this, state_item_ids, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine graph_validate
 
-   ! REQ-DEP-008a: across all networks this instance owns, no
-   ! StateItemNode may be written (have a non-empty predecessor set) in
-   ! more than one network.
-   subroutine validate_cross_network_writes(this, state_item_ids, rc)
+   ! Every referenced id must be registered in this hierarchy; producer
+   ! counts use the referenced nodes' own kinds, whichever graph owns them.
+   subroutine validate_network(this, network, rc)
       class(ComponentGraph), target, intent(in) :: this
-      type(NodeIdSet), target, intent(in) :: state_item_ids
+      type(DependencyNetwork), intent(in) :: network
       integer, optional, intent(out) :: rc
 
-      type(NodeIdSetIterator) :: item_iter
-      type(DependencyNetworkIdSetIterator) :: net_iter
-      type(NodeId) :: item
-      type(DependencyNetworkId) :: net_id
-      type(DependencyNetwork), pointer :: network
-      integer :: write_count
+      type(NodeIdSet), target :: referenced_ids, producer_ids, state_item_ids
+      type(NodeIdSetIterator) :: ref_iter
+      type(NodeId) :: ref_id
+      integer :: status
 
-      item_iter = state_item_ids%ftn_begin()
-      do while (item_iter /= state_item_ids%ftn_end())
-         call item_iter%next()
-         item = item_iter%of()
-
-         write_count = 0
-         net_iter = this%own_network_ids%ftn_begin()
-         do while (net_iter /= this%own_network_ids%ftn_end())
-            call net_iter%next()
-            net_id = net_iter%of()
-            network => this%get_network(net_id)
-            if (associated(network)) then
-               if (network%has_predecessors(item)) write_count = write_count + 1
-            end if
-         end do
-
-         _ASSERT(write_count <= 1, 'ComponentGraph: validate found a state item written in more than one network within the same update pass')
+      referenced_ids = network%get_referenced_ids()
+      ref_iter = referenced_ids%ftn_begin()
+      do while (ref_iter /= referenced_ids%ftn_end())
+         call ref_iter%next()
+         ref_id = ref_iter%of()
+         _ASSERT(this%allowed_foreign_node(ref_id), 'ComponentGraph: validate - referenced NodeId is not registered anywhere in this hierarchy')
       end do
 
+      call this%classify_nodes(referenced_ids, producer_ids, state_item_ids)
+      call network%validate(valid_ids=referenced_ids, producer_ids=producer_ids, &
+                              state_item_ids=state_item_ids, _RC)
+
       _RETURN(_SUCCESS)
-   end subroutine validate_cross_network_writes
+   end subroutine validate_network
 
    ! REQ-CG-005..007: validates first (no freeze state changes on
-   ! failure), then freezes every network this instance owns, then the
-   ! instance itself. Idempotent if already frozen.
+   ! failure), then freezes every write-back network this instance owns,
+   ! then the instance itself. Idempotent if already frozen. The forward
+   ! network is frozen by freeze_forward_network.
    subroutine graph_freeze(this, rc)
       class(ComponentGraph), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -804,6 +875,28 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine graph_freeze
+
+   ! Validates and freezes the hierarchy's forward network. Called once per
+   ! hierarchy (the freeze hook), through any of its graphs. Idempotent.
+   subroutine graph_freeze_forward_network(this, rc)
+      class(ComponentGraph), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      type(DependencyNetwork), pointer :: network
+      integer :: status
+
+      _ASSERT(.not. this%is_finalized(), 'ComponentGraph: freeze_forward_network called after finalize')
+      network => this%get_network(this%get_forward_network_id())
+      _ASSERT(associated(network), 'ComponentGraph: freeze_forward_network - forward network not found')
+      if (network%is_frozen()) then
+         _RETURN(_SUCCESS)
+      end if
+
+      call validate_network(this, network, _RC)
+      call network%freeze()
+
+      _RETURN(_SUCCESS)
+   end subroutine graph_freeze_forward_network
 
    ! Frozen and finalized are both "structure is immutable" states -
    ! finalize() may be called directly from mutable (REQ-CG-003b does not
@@ -846,21 +939,24 @@ contains
       ids = this%own_node_ids
    end function graph_get_node_ids
 
+   ! The forward network plus the write-back networks this instance created.
    function graph_get_network_ids(this) result(ids)
       class(ComponentGraph), target, intent(in) :: this
       type(DependencyNetworkIdSet) :: ids
 
       if (this%is_finalized()) return
       ids = this%own_network_ids
+      call ids%insert(this%get_forward_network_id())
    end function graph_get_network_ids
 
    ! -- private helpers --------------------------------------------------------
 
-   ! Classifies owned nodes (REQ-DEP-008): an OperationGraphNode descendant
-   ! is producer-capable; a StateItemNode is subject to the one-producer-per-
-   ! state-item check. Walks own_node_ids, fetching nodes via get_node().
-   subroutine graph_classify_owned_nodes(this, producer_ids, state_item_ids)
+   ! Classifies ids (REQ-DEP-008): an OperationGraphNode descendant is
+   ! producer-capable; a StateItemNode is subject to the one-producer-per-
+   ! state-item check.
+   subroutine graph_classify_nodes(this, ids, producer_ids, state_item_ids)
       class(ComponentGraph), target, intent(in) :: this
+      type(NodeIdSet), target, intent(in) :: ids
       type(NodeIdSet), intent(out) :: producer_ids
       type(NodeIdSet), intent(out) :: state_item_ids
 
@@ -868,8 +964,8 @@ contains
       type(NodeId) :: id
       class(GraphNode), pointer :: node
 
-      iter = this%own_node_ids%ftn_begin()
-      do while (iter /= this%own_node_ids%ftn_end())
+      iter = ids%ftn_begin()
+      do while (iter /= ids%ftn_end())
          call iter%next()
          id = iter%of()
          node => this%get_node(id)
@@ -882,10 +978,9 @@ contains
          class default
             ! Any other GraphNode kind (e.g. a bare BaseGraphNode with no
             ! more specific role) is neither producer-capable nor subject
-            ! to the one-producer-per-state-item constraint - deliberately
-            ! left unclassified, not an oversight.
+            ! to the one-producer-per-state-item constraint.
          end select
       end do
-   end subroutine graph_classify_owned_nodes
+   end subroutine graph_classify_nodes
 
 end module mapl_ComponentGraph_mod

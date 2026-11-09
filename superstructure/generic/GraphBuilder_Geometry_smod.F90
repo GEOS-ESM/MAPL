@@ -294,10 +294,16 @@ contains
       end if
 
       ! -- push: for each of this component's own children that wants
-      ! geometry from its parent (this) --
+      ! geometry from its parent (this). Not back to this component's own
+      ! provider: its geometry is the source of this one, and the push
+      ! edge would close a cycle in the forward network. The skip is
+      ! temporary, pending a geometry redesign. --
       n = this%get_num_children()
       do i = 1, n
          child_name = this%get_child_name(i, _RC)
+         if (this_spec%geometry_spec%kind == GEOMETRY_FROM_CHILD) then
+            if (child_name == this_spec%geometry_spec%provider) cycle
+         end if
          child_spec => this%get_child_component_spec(child_name, _RC)
          if (child_spec%geometry_spec%kind == GEOMETRY_FROM_PARENT .and. this%has_geom()) then
             call push_geometry_to_child(this, child_name, _RC)
@@ -333,7 +339,7 @@ contains
       type(GeomId) :: provider_geom_id
 
       this_graph => this%get_component_graph()
-      net_id = this_graph%get_default_network_id()
+      net_id = this_graph%get_forward_network_id(_RC)
       existing => this_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
       _ASSERT(associated(existing), 'GraphBuilder: resolve_geometry_from_child called before this component advertised its own geometry')
       this_own_id = existing
@@ -379,10 +385,10 @@ contains
       _RETURN(_SUCCESS)
    end subroutine resolve_geometry_from_child
 
-   ! Push direction: adds a dependency edge from this (parent)'s
-   ! geometry NodeId to the named child's, in the CHILD's graph/network,
-   ! via the framework-internal get_child_component_graph() carve-out
-   ! (REQ-GB-002).
+   ! Push direction: adds a dependency edge, in the forward network, from
+   ! this (parent)'s geometry NodeId to the named child's, through the
+   ! CHILD's graph via the framework-internal get_child_component_graph()
+   ! carve-out (REQ-GB-002).
    module subroutine push_geometry_to_child(this, child_name, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: child_name
@@ -425,11 +431,11 @@ contains
       call add_geom_proxy_identity(this_map, this_geom_id)
       call add_geom_proxy_identity(child_map, child_geom_id)
 
-      ! Same dispatch shape as resolve_geometry_from_child. The edge (and
-      ! any chain) lives in the CHILD's graph/network because the
-      ! receiving node is a child_graph node; add_dependency admits
-      ! this_own_id as a cross-component endpoint.
-      child_net_id = child_graph%get_default_network_id()
+      ! Same dispatch shape as resolve_geometry_from_child. Any chain is
+      ! registered through the CHILD's graph because the receiving node is
+      ! a child_graph node; add_dependency admits this_own_id as a
+      ! cross-component endpoint.
+      child_net_id = child_graph%get_forward_network_id(_RC)
       mismatched = find_mismatched_characteristics(this_map, child_map, _RC)
       if (size(mismatched) == 0) then
          call child_graph%add_dependency(child_net_id, this_own_id, child_own_id, _RC)

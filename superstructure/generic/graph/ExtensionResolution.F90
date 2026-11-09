@@ -20,8 +20,9 @@
 ! BUILD_TRANSFORM_UNSUPPORTED (e.g. VerticalGridCharacteristic); one whose pair
 ! can never connect reports BUILD_TRANSFORM_INCOMPATIBLE. Neither raises.
 !
-! Reuse search (find_or_build_extension_chain) is keyed through
-! ComponentGraph%add_resource_index/get_resource_index (REQ-CG-001), not a
+! Reuse search (find_or_build_extension_chain) is keyed through the
+! hierarchy-wide ComponentGraph%add_reuse_entry/get_reuse_entry, so a chain
+! built for one declaring component is found from any other; not a
 ! DependencyNetwork%get_successors walk: TransformGraphNode holds its
 ! Transform in a private component with no accessor, so a structural walk
 ! cannot recover which characteristic value an existing chain's output
@@ -151,7 +152,7 @@ contains
       if (present(conflict)) conflict = ''
 
       reuse_key = chain_key(export_node_id, mismatched_kinds, import_map)
-      existing => graph%get_resource_index(reuse_key)
+      existing => graph%get_reuse_entry(reuse_key, _RC)
       if (associated(existing)) then
          final_node_id = existing
          allocate(intermediate_node_ids(0))
@@ -171,7 +172,7 @@ contains
          end if
       end if
 
-      call graph%add_resource_index(reuse_key, final_node_id, _RC)
+      call graph%add_reuse_entry(reuse_key, final_node_id, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine find_or_build_extension_chain

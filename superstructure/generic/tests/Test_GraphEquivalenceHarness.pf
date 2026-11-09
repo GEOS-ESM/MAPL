@@ -349,7 +349,7 @@ contains
       ! hierarchy-wide-component-graph, tasks.md 3.4), but the chain's
       ! own TransformGraphNodes/intermediate items remain registered in
       ! cap's own graph (find_or_build_extension_chain is called with
-      ! cap's own default network, since cap is the component that
+      ! the forward network, since cap is the component that
       ! declared the connection) - this%cap_meta%get_component_graph()
       ! is still the right graph to walk predecessors in. ---
       if (this%fixture_name == 'units_and_typekind_mismatch') then
@@ -385,7 +385,7 @@ contains
       ! the import's own real NodeId lives in comp_dst's own graph (no
       ! parent-local proxy exists anymore), but the chain's own
       ! TransformGraphNodes/intermediate items remain registered in
-      ! cap's own graph/default network (find_or_build_extension_chain
+      ! cap's own graph (find_or_build_extension_chain
       ! was called with cap's own ComponentGraph, since cap is the
       ! component that declared the connection) - walk predecessors
       ! there, starting from the real import NodeId resolved from
@@ -393,7 +393,7 @@ contains
       import_node_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, name))
       @assert_that(this%fixture_name // ' :: import item resolved', associated(import_node_id), is(true()))
 
-      net => cap_graph%get_network(cap_graph%get_default_network_id())
+      net => cap_graph%get_network(cap_graph%get_forward_network_id())
       preds = net%get_predecessors(import_node_id)
       @assertEqual(1, preds%size(), this%fixture_name // ' :: import has exactly one predecessor (the chain''s final item)')
       pred_iter = preds%ftn_begin()

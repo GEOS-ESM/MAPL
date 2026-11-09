@@ -34,9 +34,8 @@ contains
    ! For a connection between two children, the resolved item is each
    ! child's own StateItemNode, never a node in the parent's graph, so
    ! walking `this`'s var_specs alone would find nothing. The dependency
-   ! edge still lives in `this`'s default network (`this` declared the
-   ! connection); node lookup works from any ComponentGraph in the
-   ! hierarchy because node storage is shared.
+   ! edge lives in the hierarchy's forward network; node lookup works from
+   ! any ComponentGraph in the hierarchy because node storage is shared.
    !
    ! An export's field is on its own node. An import's field is found by
    ! walking predecessor edges to the first node with a real Field
@@ -87,7 +86,7 @@ contains
       _RETURN_IF(only_own .and. .not. graph_populates_user_states())
 
       graph => this%get_component_graph()
-      net => graph%get_network(graph%get_default_network_id())
+      net => graph%get_network(graph%get_forward_network_id())
 
       ! Same-component case: item connected entirely to itself.
       this_spec => this%get_component_spec()
@@ -123,11 +122,10 @@ contains
    end subroutine graphbuilder_populate_state
 
    ! Populates the user states of every descendant of `owner`, using the
-   ! network of the component whose hook is running. Imports connected by
-   ! that component's own connections have their edge only there, so a
-   ! grandchild is reached from every ancestor. Below the direct children,
-   ! an import this network cannot resolve is left to the ancestor that
-   ! can: no own-created fallback, which would replace the right Field.
+   ! hierarchy's forward network. A grandchild is reached from every
+   ! ancestor. Below the direct children, an import with no producer yet is
+   ! left to the ancestor whose connection will provide one: no own-created
+   ! fallback, which would replace the right Field.
    recursive subroutine populate_descendants(owner, graph, net, direct, rc)
       class(OuterMetaComponent), target, intent(inout) :: owner
       type(ComponentGraph), target, intent(in) :: graph

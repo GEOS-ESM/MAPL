@@ -207,12 +207,13 @@ module mapl_GraphBuilder_mod
       ! Construction only; see graphbuilder_build_run_phase_node. Do not
       ! add an invocation hook without resolving the blockers named there.
       procedure, nopass :: build_run_phase_node => graphbuilder_build_run_phase_node
-      ! Re-propagates a sibling connection's extension-chain transform
-      ! after a run phase, via ComponentGraph%update() only (never a
-      ! MethodGraphNode or a second driver%run()). Called from
-      ! run_user.F90 right after the legacy run call. No-op outside
-      ! GRAPH_MODE_GRAPH.
+      ! Pulls the component's own imports through the forward network
+      ! before its run (ComponentGraph%update() only, never a
+      ! MethodGraphNode or a second driver%run()), and advances its own
+      ! exports after a successful run. Called from run_user.F90. No-op
+      ! outside GRAPH_MODE_GRAPH.
       procedure, nopass :: run_pull_hook => graphbuilder_run_pull_hook
+      procedure, nopass :: run_advance_hook => graphbuilder_run_advance_hook
    end type GraphBuilder
 
    ! Matches StateRegistry_Hierarchy_smod's own SELF sentinel
@@ -415,13 +416,14 @@ module mapl_GraphBuilder_mod
 
    end function find_export_node_id
    module subroutine resolve_inout_destination(this, src_pt, dst_pt, dst_node, effective_src_name, unsupported, &
-        warnings, rc)
+        conflicts, warnings, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ConnectionPt), intent(in) :: src_pt
       type(ConnectionPt), intent(in) :: dst_pt
       class(StateItemNode), target, intent(in) :: dst_node
       character(*), intent(in) :: effective_src_name
       type(GraphResolutionEntryVector), intent(inout) :: unsupported
+      type(GraphResolutionEntryVector), intent(inout) :: conflicts
       type(GraphResolutionEntryVector), intent(inout) :: warnings
       integer, optional, intent(out) :: rc
 
@@ -549,6 +551,11 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine graphbuilder_run_pull_hook
+   module subroutine graphbuilder_run_advance_hook(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+   end subroutine graphbuilder_run_advance_hook
 
       ! Visualization enrichment procedures (GraphBuilder_Visualization_smod.F90)
    module function graphbuilder_build_label_map(this, rc) result(label_map)
@@ -639,9 +646,8 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine invoke_callback_method
-   module subroutine pull_callback_get_arguments(graph, network_id, get_bindings, rc)
+   module subroutine pull_callback_get_arguments(graph, get_bindings, rc)
       class(ComponentGraph), target, intent(in) :: graph
-      type(DependencyNetworkId), intent(in) :: network_id
       type(StateItemMemberMap), target, intent(in) :: get_bindings
       integer, optional, intent(out) :: rc
 

@@ -242,7 +242,7 @@ contains
       dst_graph => dst_meta%get_component_graph()
 
       this_graph => this%get_component_graph()
-      net_id = this_graph%get_default_network_id()
+      net_id = this_graph%get_forward_network_id(_RC)
 
       call for_each_matching_import(dst_graph, dst_pt, resolve_one, _RC)
 
@@ -331,7 +331,7 @@ contains
           ! differ from dst_node's.
           if (dst_node%is_inout_borrower()) then
              call resolve_inout_destination(this, src_pt, dst_pt, dst_node, effective_source_name(conn, dst_node), &
-                  unsupported, warnings, _RC)
+                  unsupported, conflicts, warnings, _RC)
              _RETURN(_SUCCESS)
           end if
 
@@ -407,6 +407,9 @@ contains
 
          if (size(mismatched) == 0) then
             ! Exact match: wire directly, no extension.
+            if (second_producer(export_node_id, import_node_id, dst_node%get_short_name())) then
+               _RETURN(_SUCCESS)
+            end if
             call this_graph%add_dependency(net_id, export_node_id, import_node_id, _RC)
 
             ! Give the export node a real, allocated field using the same geom/vgrid
@@ -513,10 +516,31 @@ contains
             end if
          end if
 
+         if (second_producer(final_node_id, import_node_id, dst_node%get_short_name())) then
+            _RETURN(_SUCCESS)
+         end if
          call this_graph%add_dependency(net_id, final_node_id, import_node_id, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine resolve_one_pair
+
+      ! Records a pair-level conflict, instead of failing the whole pass,
+      ! when another connection already produces this import.
+      logical function second_producer(source_id, import_id, short_name)
+         type(NodeId), intent(in) :: source_id
+         type(NodeId), intent(in) :: import_id
+         character(*), intent(in) :: short_name
+
+         character(:), allocatable :: item_name
+
+         item_name = this_graph%forward_producer_conflict(source_id, import_id)
+         second_producer = (item_name /= '')
+         if (second_producer) then
+            call conflicts%push_back(GraphResolutionEntry(dst_pt%component_name, &
+                 short_name, 'import "' // item_name // &
+                 '" already has a different producer (another connection)'))
+         end if
+      end function second_producer
 
    end subroutine resolve_match_connection
 
@@ -1303,7 +1327,7 @@ contains
    ! Resolves a destination declared an ordinary inout borrower (direct-alias
    ! case only). Reuses find_export_node_id/resolve_descriptors
    ! as resolve_one's ordinary path does for the exact-match check. On an
-   ! exact match, adds the forward edge (owner -> borrower) in the default
+   ! exact match, adds the forward edge (owner -> borrower) in the forward
    ! network and a return edge (borrower -> owner) in a fresh per-pairing
    ! network, so no network ever has two producers of one NodeId. Shapes
    ! reserved for a future design (mismatched payload, no identifiable
@@ -1312,13 +1336,14 @@ contains
    ! built here; the runtime return-edge propagation trigger does not exist
    ! yet.
    module subroutine resolve_inout_destination(this, src_pt, dst_pt, dst_node, effective_src_name, unsupported, &
-        warnings, rc)
+        conflicts, warnings, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ConnectionPt), intent(in) :: src_pt
       type(ConnectionPt), intent(in) :: dst_pt
       class(StateItemNode), target, intent(in) :: dst_node
       character(*), intent(in) :: effective_src_name
       type(GraphResolutionEntryVector), intent(inout) :: unsupported
+      type(GraphResolutionEntryVector), intent(inout) :: conflicts
       type(GraphResolutionEntryVector), intent(inout) :: warnings
       integer, optional, intent(out) :: rc
 
@@ -1336,12 +1361,12 @@ contains
       class(GraphNode), pointer :: candidate_node
       logical :: owner_is_chained
       type(StateItemDescriptor), pointer :: owner_item, borrower_item
-      character(:), allocatable :: status_conflict
+      character(:), allocatable :: status_conflict, item_name
       type(StateItemCharacteristicKind), allocatable :: mismatched(:)
       type(StringVector) :: match_warnings
 
       graph => this%get_component_graph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id(_RC)
 
       import_node_id = resolve_local_node_id(this, dst_pt%component_name, &
            ESMF_STATEINTENT_IMPORT, dst_node%get_short_name(), _RC)
@@ -1412,9 +1437,18 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      ! Direct-alias case: forward edge in the default network (as in the
-      ! ordinary exact-match case) plus a return edge in a fresh per-pairing
-      ! network. No TransformGraphNode for either.
+      ! Direct-alias case: edge in the forward network (as in the ordinary
+      ! exact-match case) plus a return edge in a fresh per-pairing
+      ! write-back network. No TransformGraphNode for either.
+      ! A different owner already feeds this borrower: record it and skip the
+      ! pairing (no forward edge, no return network).
+      item_name = graph%forward_producer_conflict(owner_node_id, import_node_id)
+      if (item_name /= '') then
+         call conflicts%push_back(GraphResolutionEntry(dst_pt%component_name, &
+              dst_node%get_short_name(), 'import "' // item_name // &
+              '" already has a different producer (another connection)'))
+         _RETURN(_SUCCESS)
+      end if
       call graph%add_dependency(net_id, owner_node_id, import_node_id, _RC)
       call push_warnings(warnings, dst_pt%component_name, dst_node%get_short_name(), match_warnings)
 
@@ -1853,7 +1887,7 @@ contains
          end if
          key = key // ':' // c%get_signature()
       end do
-      existing => graph%get_resource_index(key)
+      existing => graph%get_reuse_entry(key, _RC)
       if (associated(existing)) then
          result_id = existing
          evaluated = .true.
@@ -1982,7 +2016,7 @@ contains
       call graph%bind_port(net_id, transform_id, 'destination_field', &
            result_id, _RC)
       call graph%add_dependency(net_id, transform_id, result_id, _RC)
-      call graph%add_resource_index(key, result_id, _RC)
+      call graph%add_reuse_entry(key, result_id, _RC)
       evaluated = .true.
 
       _RETURN(_SUCCESS)
@@ -2065,10 +2099,11 @@ contains
    ! materialization (materialize_callback_collection), wiring to the
    ! advertised destination import via an ordinary add_dependency edge, and
    ! per-match CallbackStateBinding construction
-   ! (build_callback_state_binding). Idempotent: a resource-index key derived
-   ! from the import's NodeId is checked first (as find_or_build_extension_chain's
-   ! chain_key is), so a repeat resolve_connections() call does not duplicate
-   ! collection members.
+   ! (build_callback_state_binding). Idempotent: a hierarchy-wide reuse
+   ! key derived from the import's NodeId is checked first (as
+   ! find_or_build_extension_chain's chain_key is), so a repeat
+   ! resolve_connections() call, from any declaring component, does not
+   ! duplicate collection members.
    subroutine resolve_callback_destination(this, src_pt, dst_pt, dst_short_name, expected_interface_id, rejected, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ConnectionPt), intent(in) :: src_pt
@@ -2092,7 +2127,7 @@ contains
       import_id = resolve_local_node_id(this, dst_pt%component_name, ESMF_STATEINTENT_IMPORT, dst_short_name, _RC)
 
       collection_key = 'CALLBACK_COLLECTION:' // import_id%to_string()
-      existing_collection => graph%get_resource_index(collection_key)
+      existing_collection => graph%get_reuse_entry(collection_key, _RC)
       if (associated(existing_collection)) then
          if (present(rejected)) rejected = StringVector()
          _RETURN(_SUCCESS)
@@ -2101,55 +2136,13 @@ contains
       matches = resolve_callback_import(this, src_pt, expected_interface_id, rejected, _RC)
 
       collection_id = materialize_callback_collection(this, src_pt, matches, _RC)
-      call graph%add_resource_index(collection_key, collection_id, _RC)
+      call graph%add_reuse_entry(collection_key, collection_id, _RC)
 
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id(_RC)
       call graph%add_dependency(net_id, collection_id, import_id, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine resolve_callback_destination
-
-   ! Finds the ComponentGraph in meta's subtree that owns node_id. A
-   ! destination's own graph does not necessarily own a destination import's
-   ! NodeId: graphbuilder_run_propagate_hook mirrors an unresolved import
-   ! upward into ancestors' import-port tables by VALUE, without changing
-   ! which graph owns the NodeId. For an all_unsatisfied-style connection
-   ! declared several levels above the import's advertiser, add_resource_index
-   ! (which asserts owns_node()) must therefore go through the owning graph.
-   recursive function find_owning_component_graph(meta, node_id, rc) result(owning_graph)
-      class(OuterMetaComponent), target, intent(inout) :: meta
-      type(NodeId), intent(in) :: node_id
-      integer, optional, intent(out) :: rc
-      type(ComponentGraph), pointer :: owning_graph
-
-      integer :: status
-      type(ComponentGraph), pointer :: own_graph
-      integer :: i, num_children
-      character(:), allocatable :: child_name
-      type(OuterMetaComponent), pointer :: child_meta
-
-      owning_graph => null()
-
-      own_graph => meta%get_component_graph()
-      if (own_graph%owns_node(node_id)) then
-         owning_graph => own_graph
-         _RETURN(_SUCCESS)
-      end if
-
-      num_children = meta%get_num_children()
-      do i = 1, num_children
-         child_name = meta%get_child_name(i, status)
-         if (status /= 0) cycle
-         child_meta => meta%get_child_outer_meta(child_name, status)
-         if (status /= 0) cycle
-         owning_graph => find_owning_component_graph(child_meta, node_id, status)
-         if (associated(owning_graph)) then
-            _RETURN(_SUCCESS)
-         end if
-      end do
-
-      _RETURN(_SUCCESS)
-   end function find_owning_component_graph
 
    ! Resolves one WILDCARD-typed destination import by re-running its own
    ! declared pattern against the connection's source export namespace
@@ -2171,7 +2164,6 @@ contains
       character(:), allocatable :: collection_key
       type(NodeId), pointer :: existing_collection
       class(OuterMetaComponent), pointer :: root_meta
-      class(OuterMetaComponent), pointer :: dst_meta
       type(QualifiedExportEntry), allocatable :: namespace(:)
       type(QualifiedExportEntry), allocatable :: matches(:)
       type(QualifiedExportEntry), allocatable :: grown_matches(:)
@@ -2185,19 +2177,13 @@ contains
       character(:), allocatable :: msg
       integer :: i, n, n_skipped
 
-      ! dst_node's NodeId belongs to dst's ComponentGraph or to a descendant's
-      ! (see find_owning_component_graph). add_resource_index asserts
-      ! owns_node(), so the resource-index guard/write below must use the
-      ! owning graph.
-      dst_meta => resolve_qualified_component(this, dst_pt%component_name, _RC)
+      graph => this%get_component_graph()
       dst_node_id = dst_node%get_node_id()
-      graph => find_owning_component_graph(dst_meta, dst_node_id, _RC)
-      _ASSERT(associated(graph), 'GraphBuilder: resolve_wildcard_destination - no ComponentGraph in dst subtree owns this import NodeId')
 
       ! Idempotency, keyed off the import's NodeId (as
       ! resolve_callback_destination does).
       collection_key = 'WILDCARD_COLLECTION:' // dst_node_id%to_string()
-      existing_collection => graph%get_resource_index(collection_key)
+      existing_collection => graph%get_reuse_entry(collection_key, _RC)
       if (associated(existing_collection)) then
          _RETURN(_SUCCESS)
       end if
@@ -2246,7 +2232,7 @@ contains
       end do
 
       if (size(matches) == 0) then
-         ! Zero matches: reported as unresolved. No resource-index entry, so a
+         ! Zero matches: reported as unresolved. No reuse entry, so a
          ! later connection that supplies a match is not blocked by a stale guard.
          if (n_skipped > 0) then
             msg = 'GraphBuilder: wildcard import ' // dst_pt%component_name // &
@@ -2269,7 +2255,7 @@ contains
          call payload%add_state_member(matches(i)%qualified_name, member_id, _RC)
       end do
 
-      call graph%add_resource_index(collection_key, dst_node_id, _RC)
+      call graph%add_reuse_entry(collection_key, dst_node_id, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine resolve_wildcard_destination

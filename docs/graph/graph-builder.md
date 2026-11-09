@@ -83,9 +83,9 @@ Instead, for any endpoint that isn't `<self>`
 sentinel), `GraphBuilder` creates (or reuses a cached) **parent-local
 proxy `StateItemNode`** standing in for the child's item (REQ-HIER-006),
 registers it in the *parent's* own graph, and records it via
-`add_child_port_binding`. The actual dependency edge always lands on
-the calling component's own default network, between two of its own
-(real-or-proxy) `NodeId`s.
+`add_child_port_binding`. The actual dependency edge always lands in
+the hierarchy's single forward network (`[RE-EVALUATED]`: one forward
+network per hierarchy, shared by every component).
 
 ## GraphMode: the legacy/graph-native switch
 

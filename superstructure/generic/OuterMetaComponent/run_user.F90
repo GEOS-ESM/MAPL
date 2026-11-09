@@ -54,17 +54,11 @@ contains
       logger => this%get_logger()
       call logger%info(phase_name//": starting...")
       call this%start_timer(phase_name)
-      call this%user_gc_driver%run(phase_idx=phase, _RC)
-      ! re-propagates any sibling connection's extension-chain
-      ! transform now that this component's own children have just
-      ! run (ConfigurableGridComp's own run_children_phases_ already
-      ! ran every declared child by the time user_gc_driver%run()
-      ! above returns, for a component built that way; harmless no-op
-      ! for a leaf component with no children). A plain
-      ! ComponentGraph%update() pull - never a MethodGraphNode, never
-      ! a second driver%run() call (graphbuilder_run_pull_hook's own
-      ! header comment). A no-op outside GRAPH_MODE_GRAPH.
+      ! Graph mode only: pull own imports before the run (as the import
+      ! couplers above do in legacy) and advance own exports after it.
       call gb%run_pull_hook(this, _RC)
+      call this%user_gc_driver%run(phase_idx=phase, _RC)
+      call gb%run_advance_hook(this, _RC)
       call this%stop_timer(phase_name)
       call logger%info(phase_name//": ...completed")
 

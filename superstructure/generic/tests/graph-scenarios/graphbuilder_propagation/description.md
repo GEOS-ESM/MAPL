@@ -25,8 +25,8 @@ reusing the existing, unmodified `for_each_matching_import`/
 `resolve_one` machinery - no search, no proxy.
 
 Expected structural outcome:
-- The dependency edge `cap`'s own connection creates lives in `cap`'s
-  own default network, directly between `comp_src`'s own real export
+- The dependency edge `cap`'s own connection creates lives in the
+  hierarchy's forward network, directly between `comp_src`'s own real export
   `NodeId` and `comp_dst`'s own real import `NodeId` - the same two
   real endpoints a direct (non-mirrored) connection would use, with no
   proxy node standing in for either side at any level. This is the

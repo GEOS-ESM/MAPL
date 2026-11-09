@@ -11,17 +11,18 @@
 ! Stores the invoked MethodGraphNode's own NodeId (REQ-CB-019 - the
 ! caller is responsible for having registered that node, with a
 ! StateMethodInvocation adapter attached, in the destination component's
-! own ComponentGraph) plus, for the get and put dependency networks
-! REQ-CB-018 establishes, each one's DependencyNetworkId and its own
-! argument name -> NodeId endpoint map. get_bindings/put_bindings are two
+! own ComponentGraph), the DependencyNetworkId of its put (write-back)
+! network, and one argument name -> NodeId endpoint map per direction
+! (REQ-CB-018). Get edges live in the hierarchy's forward network, so no
+! get network id is stored. get_bindings/put_bindings are two
 ! separate StateItemMemberMaps, one per direction, rather than one map
 ! keyed by a compound (argument_name, direction) key - mirrors
 ! CallbackStateBinding's own established "one plain gFTL map per
 ! concept" precedent (design.md Decision 6).
 !
 ! For an argument that is only ever read (a "get"-only argument) or only
-! ever written (a "put"-only argument), the binding's own put_network_id/
-! get_network_id and the corresponding empty map are simply unused - this
+! ever written (a "put"-only argument), the corresponding empty map is
+! simply unused - this
 ! type does not itself enforce that every argument appears in exactly one
 ! direction; that is the caller's (GraphBuilder's) own wiring
 ! responsibility.
@@ -39,14 +40,11 @@ module mapl_CallbackMethodBinding_mod
    type :: CallbackMethodBinding
       private
       type(NodeId) :: method_node_id
-      type(DependencyNetworkId) :: get_net_id
       type(DependencyNetworkId) :: put_net_id
       type(StateItemMemberMap) :: get_bindings
       type(StateItemMemberMap) :: put_bindings
    contains
       procedure :: get_method_node_id => binding_get_method_node_id
-      procedure :: get_network_id => binding_get_network_id
-      procedure :: get_get_network_id => binding_get_get_network_id
       procedure :: get_put_network_id => binding_get_put_network_id
       procedure :: bind_get_argument => binding_bind_get_argument
       procedure :: bind_put_argument => binding_bind_put_argument
@@ -62,14 +60,12 @@ module mapl_CallbackMethodBinding_mod
 
 contains
 
-   function new_CallbackMethodBinding(method_node_id, get_network_id, put_network_id) result(binding)
+   function new_CallbackMethodBinding(method_node_id, put_network_id) result(binding)
       type(NodeId), intent(in) :: method_node_id
-      type(DependencyNetworkId), intent(in) :: get_network_id
       type(DependencyNetworkId), intent(in) :: put_network_id
       type(CallbackMethodBinding) :: binding
 
       binding%method_node_id = method_node_id
-      binding%get_net_id = get_network_id
       binding%put_net_id = put_network_id
    end function new_CallbackMethodBinding
 
@@ -79,25 +75,6 @@ contains
 
       method_node_id = this%method_node_id
    end function binding_get_method_node_id
-
-   ! "The" network identity (spec REQ-CB-019/scenario "Method-level
-   ! binding exposes network...") - the get network is the primary one
-   ! reported here; get_get_network_id()/get_put_network_id() below are
-   ! the unambiguous accessors for either specific direction (module
-   ! header).
-   function binding_get_network_id(this) result(network_id)
-      class(CallbackMethodBinding), intent(in) :: this
-      type(DependencyNetworkId) :: network_id
-
-      network_id = this%get_net_id
-   end function binding_get_network_id
-
-   function binding_get_get_network_id(this) result(network_id)
-      class(CallbackMethodBinding), intent(in) :: this
-      type(DependencyNetworkId) :: network_id
-
-      network_id = this%get_net_id
-   end function binding_get_get_network_id
 
    function binding_get_put_network_id(this) result(network_id)
       class(CallbackMethodBinding), intent(in) :: this

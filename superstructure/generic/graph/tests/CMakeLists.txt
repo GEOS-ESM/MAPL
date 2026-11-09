@@ -33,6 +33,7 @@ set(test_srcs
   Test_NodeRevision.pf
   Test_DependencyNetwork.pf
   Test_ComponentGraph.pf
+  Test_ForwardNetwork.pf
   Test_ComponentGraph_Enumeration.pf
   Test_TransformGraphNode.pf
   Test_ComponentGraph_PortBindings.pf

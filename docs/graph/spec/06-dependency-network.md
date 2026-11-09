@@ -22,19 +22,31 @@ properties (e.g., a per-edge transform-role annotation beyond what
 `TransformGraphNode` ports already express), REQ-DEP-001 should be revisited
 explicitly rather than worked around informally.
 
-## 6.2 Ownership and acyclicity
+## 6.2 Ownership and acyclicity `[RE-EVALUATED]`
 
-**REQ-DEP-003.** Each `ComponentGraph` MUST own one or more
-`DependencyNetwork`s.
+**REQ-DEP-003 `[re-evaluated]`.** Each hierarchy has exactly one
+*forward* `DependencyNetwork`, held in the shared `HierarchyGraph`. Every
+edge that carries data toward a consumer before the consumer runs
+(ordinary connections, extension chains, expression evaluations,
+collection edges, geometry edges, and the get side of a callback
+argument) goes into it, whichever component's declaration produced the
+edge. A `ComponentGraph` has no default network of its own; it owns only
+the *write-back* networks it creates (the put side of a callback method,
+the return edge of an inout borrower). A pull never follows a write-back
+network.
 
 **REQ-DEP-004.** Each individual `DependencyNetwork` MUST be acyclic. The
-*union* of all of a `ComponentGraph`'s networks MAY be cyclic.
+forward network is acyclic across the whole hierarchy. The union of the
+forward network and a write-back network MAY be cyclic.
 
-**Rationale (callbacks):** a get-network may contain `provider value → get
-transform → callback value`; a put-network may contain `callback value →
-put transform → provider value`. Their union is cyclic; each is
-individually acyclic. This is why per-method networks exist instead of one
-network per graph — see `15-callbacks.md` §15.7.
+**Rationale (callbacks, re-evaluated):** the get side `provider value →
+get transform → callback value` lives in the forward network; the put side
+`callback value → put transform → provider value` lives in the method's
+own write-back network. Their union is cyclic; each is individually
+acyclic. Per-component forward networks were dropped because they split
+one data path across networks (an edge declared by a grandparent was
+invisible to a pull through the parent's network) and duplicated reusable
+chains per declaring component — see `15-callbacks.md` §15.10.
 
 ## 6.3 Structure
 
@@ -85,26 +97,24 @@ contributors to one value MUST be represented through an explicit merge or
 accumulation `TransformGraphNode`, not by allowing multiple direct
 producers.
 
-Note: this constraint is scoped to a single `DependencyNetwork`. A
-`StateItemNode` MAY have different producers in different networks it
-participates in (e.g., forward vs. return network for an inout item — see
+Note `[re-evaluated]`: in the forward network this is checked when the
+edge is added, across the whole hierarchy: a second, different producer
+into a `StateItemNode` fails naming the item; re-adding the identical
+edge is a no-op (two-pass initialization may resolve a connection twice).
+Edges into a `TransformGraphNode` are not limited. A `StateItemNode` MAY
+also be the target of a write-back edge (callback put, inout return; see
 `16-inout-items.md`, `[DEFERRED]`).
 
-**REQ-DEP-008a `[settled, sharpens REQ-DEP-008]`.** Across all networks a
-`ComponentGraph` owns, there MUST NEVER be a case where, within a single
-update pass, the same `StateItemNode` is written to more than once.
-`GraphBuilder`/`ComponentGraph` construction-time validation MUST reject
-any wiring that could result in this. REQ-DEP-008 alone does not prevent
-this (it only limits producer count *per network*); this requirement adds
-the cross-network check for the same-update-pass case. The callback
-get/put pattern (`15-callbacks.md` §15.10) remains permitted because
-REQ-CB-020 already guarantees the get-network write and the put-network
-write are never part of the same pass (single invocation, after all
-arguments are prepared — the two writes are temporally distinct events,
-not concurrent producers within one pass). The general ordinary-inout case
-(`16-inout-items.md`) remains `[DEFERRED]` and is not otherwise addressed
-by this requirement beyond ruling out the same-pass-double-write hazard
-specifically. See `17-open-questions.md` Q4.
+**REQ-DEP-008a `[re-evaluated]`.** There MUST NEVER be a case where,
+within a single update pass, the same `StateItemNode` is written to more
+than once. With one forward network per hierarchy, REQ-DEP-008's add-time
+check already covers every forward producer. A write-back edge into an
+item that also has a forward producer is NOT rejected: a pull follows only
+the forward network, and the write-back fires only after the method runs
+(pull before, write-back after; REQ-CB-020), so the two writes are never
+part of the same pass. The separate cross-network validation step is
+therefore removed. The general ordinary-inout case (`16-inout-items.md`)
+remains `[DEFERRED]`. See `17-open-questions.md` Q4.
 
 ## 6.6 Port bindings — location `[SETTLED]`
 

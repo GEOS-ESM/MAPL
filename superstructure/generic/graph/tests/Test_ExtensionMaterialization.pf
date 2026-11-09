@@ -100,7 +100,7 @@ contains
       @assertEqual(0, status)
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
 
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
@@ -188,7 +188,7 @@ contains
       geom = ESMF_GeomCreate(grid, rc=status)
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
 
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
@@ -266,7 +266,7 @@ contains
       geom = ESMF_GeomCreate(grid, rc=status)
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
 
       export_id = graph%next_node_id(rc=status)
       export_node = StateItemNode(export_id, payload, revision)
@@ -313,7 +313,7 @@ contains
       @assertEqual(0, status)
       call set_materialize_extensions(.false.)
 
-      call graph%update(net_id, final_id, rc=status)
+      call graph%update(final_id, rc=status)
       @assertEqual(0, status)
 
       node => graph%get_node(final_id)
@@ -360,7 +360,7 @@ contains
       geom = ESMF_GeomCreate(grid, rc=rc)
 
       graph = ComponentGraph()
-      net_id = graph%get_default_network_id()
+      net_id = graph%get_forward_network_id()
 
       export_id = graph%next_node_id(rc=rc)
       export_node = StateItemNode(export_id, payload, revision)

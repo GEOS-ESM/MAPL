@@ -43,11 +43,11 @@ invocation as follows:
 - After invocation: the revisions of the method's bound `OUT`/`INOUT`
   arguments MUST all be advanced — the method is assumed, by default, to
   have written all of them (this is the export-side counterpart of the
-  pull-all-before rule, and shares its default-network, all-or-nothing
+  pull-all-before rule, and shares its forward-network, all-or-nothing
   assumption per REQ-REV-011).
 
 Both are a required part of "invoke," not an optional extra step. On the
-default `DependencyNetwork`, per REQ-REV-011, this discipline is actually
+hierarchy's forward `DependencyNetwork`, per REQ-REV-011, this discipline is actually
 owned and executed by the `OuterMetaComponent` layer (the private-state
 derived type inside an `OuterComponent`'s wrapping GridComp that invokes
 methods on the wrapped user component) around the call the invocation
