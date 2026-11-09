@@ -2,51 +2,80 @@
 
 ## Overview
 
-MAPL3 introduces explicit control over vertical coordinate alignment for fields with vertical dimensions. This feature allows components to specify how vertical data should be stored in memory, independent of the grid's coordinate direction.
+MAPL3 lets a field with a vertical dimension declare how its vertical index is
+ordered in memory, independent of the order of its vertical grid's levels. A
+component states this with the `vertical_alignment` key of a state item. When
+two connected items differ in storage order, MAPL3 reverses the vertical index
+or folds the reversal into the vertical regridding weights.
+
+The graph-native layer calls the same property *vertical orientation*
+(`VerticalOrientationCharacteristic`); the YAML key and the legacy layer use
+*alignment*.
 
 ## Background
 
-### Coordinate Direction vs. Data Alignment
+### Grid Direction vs. Data Alignment
 
-It's important to distinguish between two concepts:
+Two properties are easy to confuse:
 
-1. **Coordinate Direction** (`coordinate_direction`): Describes the physical interpretation of vertical coordinates
-   - `downward`: Coordinate values increase with index (e.g., `[1, 2, 3]`; pressure increasing toward the surface)
-   - `upward`: Coordinate values decrease with index (e.g., `[3, 2, 1]`)
+1. **Grid direction**: the order of a vertical grid's level values. It is not
+   a YAML key. A grid derives it, or has a default (see
+   [Grid Direction](#grid-direction)).
+   - `DOWN`: level values increase with index (e.g. `[1, 2, 3]`; pressure
+     increasing toward the surface, or depth increasing with index). The index
+     increases going down.
+   - `UP`: level values decrease with index (e.g. `[3, 2, 1]`; pressure
+     decreasing away from the surface). The index increases going up.
 
-2. **Vertical Alignment** (`vertical_alignment`): Describes how data is stored in memory
-   - `downward`: Data stored with first element at top/start of coordinate system
-   - `upward`: Data stored with first element at bottom/end of coordinate system
-   - `with_grid`: Data alignment follows the grid's coordinate direction (default)
+   A `fixed_levels` grid derives its direction from the numbers alone, so
+   increasing values always give `DOWN`. A height or altitude grid such as
+   `[0, 100, 500]` therefore gets `DOWN` although its index increases going
+   up; the "going down" and "going up" glosses above hold for pressure-like
+   and depth-like coordinates only.
+
+2. **Vertical alignment** (`vertical_alignment`): the order of the field's
+   vertical index in memory, relative to physical up and down.
+   - `upward`: the first element is at the bottom; the index increases going up
+     (the same order as an `UP` grid).
+   - `downward`: the first element is at the top; the index increases going
+     down (the same order as a `DOWN` grid).
+   - `with_grid`: the field is stored in its grid's direction (the default).
+
+A field is stored in grid order when its alignment resolves to its grid's
+direction, and reversed relative to grid order when it resolves to the opposite
+direction.
 
 ### Motivation
 
-Different atmospheric and oceanic models use different conventions for storing vertical data:
+Different atmospheric and oceanic models use different conventions for storing
+vertical data:
 
-- **Atmospheric models** often use pressure coordinates (high pressure at surface, low at top)
+- **Atmospheric models** often use pressure coordinates (high pressure at the
+  surface, low at the top)
   - Some store data top-to-bottom `[1 hPa, 10 hPa, 100 hPa, 1000 hPa]`
+    (`downward`)
   - Others store bottom-to-top `[1000 hPa, 100 hPa, 10 hPa, 1 hPa]`
+    (`upward`)
 
-- **Ocean models** typically use depth coordinates (0 at surface, increasing downward)
+- **Ocean models** typically use depth coordinates (0 at the surface,
+  increasing downward)
   - Data usually stored surface-to-bottom `[0 m, 10 m, 100 m, 1000 m]`
-
-The vertical alignment feature allows MAPL3 to handle data exchange between components with different storage conventions transparently.
+    (`downward`)
 
 ## YAML Configuration
 
 ### Component Specification
 
-Vertical alignment is specified in component YAML files for fields with vertical dimensions:
+Vertical alignment is specified on state items that have a vertical dimension:
 
 ```yaml
 mapl:
   geometry:
     vertical_grid:
-      class: fixed_levels
-      levels: [1000., 850., 500., 250., 100.]  # hPa
+      grid_type: fixed_levels                  # optional
+      levels: [1000., 850., 500., 250., 100.]  # hPa; decreasing, so the grid direction is UP
       units: hPa
       physical_dimension: pressure
-      coordinate_direction: upward             # Decreasing levels (derived)
 
   states:
     export:
@@ -57,19 +86,55 @@ mapl:
         vertical_alignment: upward              # Memory storage convention
 ```
 
+### Grid Direction
+
+The grid direction is not configured for a `fixed_levels` grid. A
+`fixed_levels` `vertical_grid` block requires `levels` and
+`physical_dimension`; `units` is optional and defaults per physical dimension
+(`pressure` gives `Pa`, `height`, `altitude` and `depth` give `m`, `layer`
+gives `1`, anything else `<unknown>`). The examples below that are complete
+`vertical_grid` blocks include both required keys; the shorter snippets show
+only the lines that matter and are abbreviated.
+
+- A `fixed_levels` grid derives it from `levels`: strictly increasing values
+  give `DOWN`, strictly decreasing values give `UP`, a single level gives
+  no direction, and any other order is an error. The derivation looks only at
+  the numbers; `physical_dimension` is not consulted. A `direction:` key in a
+  `fixed_levels` grid is rejected, and a `coordinate_direction:` key is not
+  read.
+- A `model` grid accepts an optional `direction:` key (`upward` or `downward`,
+  or the short forms `up`, `u`, `down`, `d`, or `unspecified`); the default is
+  `DOWN`.
+- A basic grid (one defined only by `num_levels`) has direction `DOWN`.
+
 ### Alignment Options
 
-The `vertical_alignment` field accepts three values:
+The `vertical_alignment` field accepts `upward`, `downward` and `with_grid`
+on both paths. The short forms `up`, `u`, `down`, `d` and `with-grid` are also
+accepted, together with all-upper-case spellings (`UPWARD`, `UP`, `U`,
+`DOWNWARD`, `DOWN`, `D`, `WITH_GRID`, `WITH-GRID`).
+
+The graph path also accepts `mirror` (imports and expression exports only) and
+lower-cases the value first, so mixed case such as `Upward` is accepted
+there. An unknown value is an error on the graph path. The legacy path calls
+the `VerticalAlignment` constructor directly on the written string, which does
+not lower-case, so a mixed-case spelling or `mirror` gives an invalid
+alignment there; what the legacy path does with an invalid alignment is not
+documented here.
+
+The examples below use one grid, `levels: [1000., 850., 500., 250., 100.]`,
+whose direction is `UP`. Memory layout lists the level each stored element
+holds, in index order.
 
 #### 1. `with_grid` (Default)
 
-Data alignment follows the grid's `coordinate_direction`. This is the default behavior if `vertical_alignment` is not specified.
+The field is stored in its grid's direction. This is the default if
+`vertical_alignment` is not specified.
 
 **Example:**
 ```yaml
 vertical_grid:
-  levels: [1000., 850., 500., 250., 100.]
-  coordinate_direction: upward  # decreasing levels
+  levels: [1000., 850., 500., 250., 100.]  # direction UP
 
 export:
   temperature:
@@ -78,159 +143,219 @@ export:
 
 Memory layout: `[T(1000), T(850), T(500), T(250), T(100)]`
 
-#### 2. `downward`
+#### 2. `upward`
 
-Data is always stored with the first coordinate value first, regardless of coordinate direction.
+The first element is at the bottom. On an `UP` grid this is the grid's own
+order.
 
 **Example:**
 ```yaml
 vertical_grid:
-  levels: [1000., 850., 500., 250., 100.]
-  coordinate_direction: upward  # decreasing levels
+  levels: [1000., 850., 500., 250., 100.]  # direction UP
 
 export:
   temperature:
-    vertical_alignment: downward
+    vertical_alignment: upward
 ```
 
 Memory layout: `[T(1000), T(850), T(500), T(250), T(100)]`
 
-#### 3. `upward`
+On a `DOWN` grid, `upward` is the reverse of the grid order.
 
-Data is always stored with the last coordinate value first (reversed order).
+#### 3. `downward`
+
+The first element is at the top. On an `UP` grid this is the reverse of the
+grid order.
 
 **Example:**
 ```yaml
 vertical_grid:
-  levels: [1000., 850., 500., 250., 100.]
-  coordinate_direction: upward  # decreasing levels
+  levels: [1000., 850., 500., 250., 100.]  # direction UP
 
 export:
   temperature:
-    vertical_alignment: upward
+    vertical_alignment: downward
 ```
 
 Memory layout: `[T(100), T(250), T(500), T(850), T(1000)]`
 
+On a `DOWN` grid, `downward` is the grid order.
+
+#### 4. `mirror` (imports and expression exports only)
+
+The item takes the orientation of the export it is connected to, resolved to
+`UP` or `DOWN`.
+
+#### Defaults and omissions
+
+- An item with no `vertical_alignment`, or `with_grid`, follows the grid it
+  declares itself, or else the component's vertical grid.
+- On the graph path, if the component has no vertical grid, the item has no
+  vertical index to order and carries no orientation (the entry is dropped).
+  The legacy path's handling is not documented here.
+- An item with `vertical_dim_spec: none` has no vertical dimension and no
+  orientation.
+- A grid with a single level has no direction, so its fields are never reversed.
+
 ## Vertical Regridding with Alignment
 
-When MAPL3 connects two components with different vertical grids or alignments, it automatically handles the necessary transformations.
+When MAPL3 connects two components with different vertical grids or
+alignments, the vertical-grid and orientation differences are handled
+together.
 
-### Same Grid, Different Alignments (Degenerate Case)
+### Same Grid, Different Alignments
 
-When source and destination use the same vertical grid but different alignments, MAPL3 detects this and performs only an array reversal without interpolation:
+Two grids count as the same when they have the same grid identity, or when one
+of them is a basic grid with the same number of levels. Two `vertical_grid:`
+blocks in different components create two different grids, even with identical
+`levels`. A child component with the default (`from_parent`) geometry takes its
+parent's vertical grid, so a parent and its children share one grid.
+
+When the grids are the same and the two items' alignments resolve to different
+directions, MAPL3 copies the data with the vertical index reversed and does not
+interpolate. When they resolve to the same direction, nothing is done. The two
+staggers must agree.
+
+**Parent grid shared by children A and B (neither declares its own):**
+```yaml
+# parent
+mapl:
+  geometry:
+    vertical_grid:
+      levels: [1000., 850., 500.]   # direction UP
+      physical_dimension: pressure
+```
 
 **Source Component A:**
 ```yaml
-vertical_grid:
-  levels: [1000., 850., 500.]
-  coordinate_direction: upward  # decreasing levels
-
 export:
   temperature:
-    vertical_alignment: downward
+    vertical_alignment: downward    # resolves to DOWN
 ```
 
 **Destination Component B:**
 ```yaml
-vertical_grid:
-  levels: [1000., 850., 500.]  # Same grid!
-  coordinate_direction: upward  # decreasing levels
-
 import:
   temperature:
-    vertical_alignment: upward   # Different alignment
+    vertical_alignment: upward      # resolves to UP
 ```
 
-**Transformation:** Simple array reversal, no interpolation needed.
+**Transformation:** array reversal; no interpolation.
 
 ### Different Grids with Alignments
 
-When grids differ, MAPL3 performs vertical regridding while respecting alignments:
+When the grids differ, MAPL3 performs vertical regridding and takes each
+field's alignment into account.
 
 **Source Component A:**
 ```yaml
 vertical_grid:
-  levels: [1000., 850., 500., 250., 100.]
-  coordinate_direction: upward  # decreasing levels
+  levels: [1000., 850., 500., 250., 100.]  # direction UP
 
 export:
   temperature:
-    vertical_alignment: downward
+    vertical_alignment: downward    # stored [T(100), T(250), T(500), T(850), T(1000)]
 ```
 
 **Destination Component B:**
 ```yaml
 vertical_grid:
-  levels: [900., 700., 400., 200.]
-  coordinate_direction: upward  # decreasing levels
+  levels: [900., 700., 400., 200.]         # direction UP
 
 import:
   temperature:
-    vertical_alignment: upward
+    vertical_alignment: upward      # stored [T(900), T(700), T(400), T(200)]
 ```
 
-**Transformation:**
-1. Align source data to a common orientation (decreasing values, i.e. upward) for regridding
-2. Perform vertical linear interpolation
-3. Apply destination alignment transformation
+**Transformation** (`VerticalColumnRegridTransform`):
+1. Put each side's level values in that field's storage order. A's levels
+   become `[100, 250, 500, 850, 1000]` (its alignment is opposite to its
+   grid's direction); B's stay as they are.
+2. Build linear interpolation weights between the two ordered level lists.
+3. Apply the weights. The weights map stored data to stored data, so no data
+   is reversed separately.
+
+The graph-native `VerticalColumnRegridTransform` handles a Field only, in
+single precision, with linear interpolation. When the grids differ, both
+fields must be at level centers, the two grids must share a physical dimension
+(for example `pressure`), and level values are converted to the destination's
+units when the units differ. The same-grid copy only needs the two staggers to
+agree. The legacy `VerticalRegridTransform` also accepts conservative
+regridding.
 
 ## ExtData Integration
 
-ExtData can read files with different vertical conventions using `vertical_alignment`:
-
-```yaml
-# extdata.yaml
-Exports:
-  atmospheric_pressure:
-    collection: ERA5_pressure_levels
-    variable: P
-    vertical_alignment: upward  # ERA5 stores top-to-bottom
-
-  ocean_temperature:
-    collection: HYCOM_depth_levels
-    variable: TEMP
-    vertical_alignment: downward  # HYCOM stores surface-to-bottom
-```
+ExtData reads `vertical_alignment` from an export rule and stores it in the
+rule (`ExtDataRule`). Nothing reads the stored value, so the key has no effect
+on the data ExtData delivers.
 
 ## Implementation Details
 
-### Flip Detection
+### Grid Sameness
 
-MAPL3 automatically detects when source and destination grids are identical but require alignment transformation:
-
-1. Compare vertical coordinate arrays element-by-element
-2. If coordinates match: no regridding needed, only alignment transform
-3. If coordinates differ: perform full vertical regridding
-
-The tolerance for coordinate comparison is set to ensure robust detection even with floating-point precision differences.
+Both the legacy path and `VerticalColumnRegridTransform` decide whether two
+grids are the same by comparing grid identities, and then by asking the source
+grid whether it matches the destination grid. A `fixed_levels` or `model` grid
+matches only a basic grid with the same number of layers; a basic grid matches
+any grid with the same number of layers. Level values are not compared
+element by element, and no tolerance is applied.
 
 ### Alignment Resolution
 
-The alignment resolution algorithm determines the transformation needed:
+An alignment resolves to a direction against the item's grid:
 
 ```
-source_flip = (source_alignment != grid_direction)
-dest_flip = (dest_alignment != grid_direction)
+resolve(with_grid, grid_direction) = grid_direction
+resolve(upward,    grid_direction) = UP
+resolve(downward,  grid_direction) = DOWN
+```
+
+Two directions are opposite only when one is `UP` and the other is `DOWN`;
+a missing direction (single-level grid) is never opposite to anything.
+
+```
+dir_src = resolve(src_alignment, src_grid_direction)
+dir_dst = resolve(dst_alignment, dst_grid_direction)
 
 if same_grid:
-    if source_flip != dest_flip:
-        perform array reversal
+    copy, reversed if opposite(dir_src, dir_dst)
 else:
-    apply alignment transforms for regridding
+    order each side's level values as its field is stored:
+        reverse the levels when opposite(grid_direction, resolved direction)
+    interpolate between the ordered level lists
 ```
+
+Destination levels outside the source range take the nearest end value, and
+one warning per weight build is logged. The legacy transform asserts on
+out-of-range levels in debug builds.
+
+### Where the Work Is Done
+
+- On the legacy path, `VerticalGridAspect` compares the two items and chooses
+  `NullTransform` (same grid, same resolved direction) or
+  `VerticalRegridTransform`.
+- On the graph path, a `VerticalOrientation` mismatch and a `VerticalGrid`
+  mismatch are detected, but their `build_transform` reports unsupported;
+  `VerticalColumnRegridTransform` and `VerticalFlipTransform` exist with unit
+  tests and are not yet built by any characteristic. See
+  `docs/graph/ARCHITECTURE.md`.
 
 ## Examples
 
 ### Example 1: Atmospheric Model Coupling
 
-Two atmospheric components using different vertical storage conventions:
+Two atmospheric components sharing one vertical grid (both take the parent's)
+and using different vertical storage conventions:
+
+```yaml
+# parent
+vertical_grid:
+  levels: [1000., 850., 700., 500., 300., 100.]   # direction UP
+  physical_dimension: pressure
+```
 
 **Component A (GCM):** Stores data bottom-to-top
 ```yaml
-vertical_grid:
-  levels: [1000., 850., 700., 500., 300., 100.]
-  coordinate_direction: upward  # decreasing levels
 export:
   U:
     vertical_alignment: upward  # Bottom-to-top storage
@@ -238,129 +363,105 @@ export:
 
 **Component B (Chemistry):** Stores data top-to-bottom
 ```yaml
-vertical_grid:
-  levels: [1000., 850., 700., 500., 300., 100.]  # Same grid
-  coordinate_direction: upward  # decreasing levels
 import:
   U:
     vertical_alignment: downward  # Top-to-bottom storage
 ```
 
-**Result:** Automatic array reversal during data exchange.
+**Result:** The data is reversed during the exchange.
 
 ### Example 2: Atmosphere-Ocean Coupling
 
-Coupling atmospheric and ocean models with different coordinate systems:
+Atmospheric and ocean components with different coordinate systems:
 
 **Atmosphere Component:**
 ```yaml
 vertical_grid:
-  levels: [1000., 925., 850., 700., 500., 300., 100.]
+  levels: [1000., 925., 850., 700., 500., 300., 100.]  # direction UP
   units: hPa
-  coordinate_direction: upward  # decreasing levels
   physical_dimension: pressure
 export:
   air_temp:
-    vertical_alignment: downward
+    vertical_alignment: downward  # stored top-to-bottom, reversed from the grid
 ```
 
 **Ocean Component:**
 ```yaml
 vertical_grid:
-  levels: [0., 10., 50., 150., 500., 1500.]
+  levels: [0., 10., 50., 150., 500., 1500.]            # direction DOWN
   units: m
-  coordinate_direction: downward  # increasing levels
   physical_dimension: depth
 import:
   sea_surface_temp:
-    vertical_alignment: downward
+    vertical_alignment: downward  # stored surface-to-bottom, the grid order
 ```
 
-**Note:** Different physical dimensions (pressure vs. depth) prevent direct coupling. A mediator component would be needed.
-
-### Example 3: ExtData with Vertical Regridding
-
-Reading external data and regridding to component's vertical grid:
-
-**Component Configuration:**
-```yaml
-vertical_grid:
-  levels: [1000., 850., 700., 500., 300., 100.]
-  coordinate_direction: upward  # decreasing levels
-import:
-  ozone:
-    vertical_alignment: downward
-```
-
-**ExtData Configuration:**
-```yaml
-Collections:
-  MERRA2_3d:
-    template: /path/to/MERRA2.%y4%m2%d2.nc4
-
-Exports:
-  ozone:
-    collection: MERRA2_3d
-    variable: O3
-    vertical_alignment: upward  # MERRA2 stored top-to-bottom
-```
-
-**Result:** ExtData reads O3 with upward alignment, MAPL3 transforms to downward alignment with regridding if grid differs.
+**Note:** Different physical dimensions (pressure vs. depth) prevent direct
+coupling; the two grids share no physical dimension. A mediator component would
+be needed.
 
 ## Best Practices
 
 1. **Specify alignment explicitly** for clarity, even when using default `with_grid`
 2. **Document vertical conventions** in component README files
 3. **Use consistent alignment** within a component for all vertical fields
-4. **Test alignment scenarios** with integration tests (see `generic3g/tests/scenarios/vertical_alignment_*`)
+4. **Test alignment scenarios** with integration tests (see
+   `superstructure/generic/tests/scenarios/vertical_alignment_*`)
 
 ## Constraints
 
-### VerticalLinearMap Requirements
+### Vertical Regridding Requirements
 
-When vertical regridding is performed, the destination vertical grid must be fully contained within the source vertical grid range:
+Vertical regridding between different grids requires:
 
-```
-minval(destination_levels) >= minval(source_levels)
-maxval(destination_levels) <= maxval(source_levels)
-```
+- both fields at level centers (an edge-staggered field does not regrid
+  between different grids on the graph path);
+- a physical dimension both grids support, with convertible units;
+- level values from both grids, unless the grids are the same;
+- linear interpolation on the graph path.
 
-**Valid Example:**
+A destination level outside the source range is not an error on the graph path:
+it takes the nearest end value and a warning is logged.
+
+**Inside the range:**
 - Source: `[1000, 850, 700, 500, 300, 100]` (range: 100-1000)
-- Destination: `[900, 750, 600, 400, 200]` (range: 200-900) ✓
+- Destination: `[900, 750, 600, 400, 200]` (range: 200-900): all interpolated
 
-**Invalid Example:**
+**Outside the range:**
 - Source: `[1000, 850, 700, 500, 300, 100]` (range: 100-1000)
-- Destination: `[1050, 800, 500, 200, 50]` (range: 50-1050) ✗
+- Destination: `[1050, 800, 500, 200, 50]` (range: 50-1050): 1050 takes the
+  value at 1000 and 50 takes the value at 100
 
 ## Testing
 
 Integration tests for vertical alignment are provided in:
-- `generic3g/tests/scenarios/vertical_alignment_same_grid/`
-- `generic3g/tests/scenarios/vertical_alignment_regrid/`
-- `generic3g/tests/scenarios/vertical_alignment_with_grid/`
+- `superstructure/generic/tests/scenarios/vertical_alignment_same_grid/`
+- `superstructure/generic/tests/scenarios/vertical_alignment_regrid/`
+- `superstructure/generic/tests/scenarios/vertical_alignment_with_grid/`
 
-Run tests with:
+Unit tests for the graph transforms are in
+`superstructure/generic/graph/tests/Test_VerticalColumnRegridTransform.pf`.
+
+Run the scenarios from a build directory with:
 ```bash
-cd build/generic3g/tests
-mpirun -np 1 ./MAPL.generic3g.tests -f vertical_alignment
+ctest -R MAPL.generic.scenarios.shard
 ```
+(`vertical_alignment_regrid` and `vertical_alignment_with_grid` are not yet
+`graph_ready`; see `docs/graph/scenario-parity.md`.)
 
 ## Related Files
 
 ### Implementation
-- `generic3g/vertical/VerticalRegridTransform.F90` - Flip detection and regridding
-- `generic3g/field_utils/FieldWithVerticalAlignment.F90` - Alignment data structure
-- `generic3g/states/VerticalAlignmentEnumType.F90` - Enumeration type
-- `hconfig_utils/HConfigUtils.F90` - YAML parsing for `vertical_alignment`
-
-### Documentation
-- `.opencode/plans/vertical-alignment-implementation.md` - Implementation plan
-- This document
-
-## References
-
-- Issue #4405: Initial feature request
-- PR #4410: Core implementation (Tasks 1-6)
-- PR #4412: Integration tests (Task 7)
-- Issue #4413: Documentation (Task 8)
+- `enums/VerticalAlignment.F90` - `VerticalAlignment` type, `VALIGN_UP/DOWN/WITH_GRID`, `resolve`
+- `enums/VerticalCoordinateDirection.F90` - `VerticalCoordinateDirection` type
+- `infrastructure/vertical/vertical_grid/VerticalGrid.F90` - grid direction accessors (default `DOWN`)
+- `superstructure/generic/vertical/FixedLevelsVerticalGrid.F90` - direction derived from `levels`
+- `superstructure/generic/vertical/ModelVerticalGrid.F90` - optional `direction:` key
+- `superstructure/generic/ComponentSpecParser/parse_var_specs.F90` - YAML parsing of `vertical_alignment`
+- `superstructure/generic/specs/VariableSpec/make_characteristics.F90` - orientation characteristic from `vertical_alignment`
+- `superstructure/generic/graph/characteristics/VerticalOrientationCharacteristic.F90` - the graph's orientation characteristic
+- `superstructure/generic/graph/transforms/VerticalColumnRegridTransform.F90` - graph-native regrid, copy and reversal
+- `superstructure/generic/graph/transforms/VerticalFlipTransform.F90` - graph-native index reversal
+- `superstructure/generic/specs/VerticalGridAspect.F90` and `VerticalGridAspect/make_transform.F90` - legacy matching and transform choice
+- `superstructure/generic/transforms/VerticalRegridTransform.F90` - legacy vertical regrid and flip
+- `gridcomps/extdata/ExtDataRule.F90` - parses and stores `vertical_alignment`
