@@ -383,11 +383,12 @@ contains
         real(ESMF_KIND_R4), allocatable :: dp(:,:,:)
 
         real(ESMF_KIND_R4), pointer :: vcoord(:,:,:)
+        real(ESMF_KIND_R4), allocatable :: buffer(:,:,:)
         integer :: n_horz, n_levels, n_layers, n_ungridded, k
         integer :: status
 
-      ! An allocatable result must be allocated on error paths too; the caller copies it.
-      allocate(dp(0,0,0))
+       ! An allocatable result must be allocated on error paths too; the caller copies it.
+       allocate(dp(0,0,0))
        ! Get condensed vertical coordinate field (edges) in fused layout
        call assign_fptr_condensed_array(vcoord_field, vcoord, _RC)
 
@@ -396,12 +397,13 @@ contains
       n_layers    = n_levels - 1
       n_ungridded = size(vcoord, 3)
 
-      deallocate(dp)
-      allocate(dp(n_horz, n_layers, n_ungridded), _STAT)
+      ! Fill a buffer first so a failed allocate leaves dp at its placeholder.
+      allocate(buffer(n_horz, n_layers, n_ungridded), _STAT)
 
       do k = 1, n_layers
-         dp(:,k,:) = vcoord(:,k+1,:) - vcoord(:,k,:)
+         buffer(:,k,:) = vcoord(:,k+1,:) - vcoord(:,k,:)
       end do
+      call move_alloc(buffer, dp)
 
       _RETURN(_SUCCESS)
    end function compute_layer_thickness_r4
@@ -412,11 +414,12 @@ contains
         real(ESMF_KIND_R8), allocatable :: dp(:,:,:)
 
         real(ESMF_KIND_R8), pointer :: vcoord(:,:,:)
+        real(ESMF_KIND_R8), allocatable :: buffer(:,:,:)
         integer :: n_horz, n_levels, n_layers, n_ungridded, k
         integer :: status
 
-      ! An allocatable result must be allocated on error paths too; the caller copies it.
-      allocate(dp(0,0,0))
+       ! An allocatable result must be allocated on error paths too; the caller copies it.
+       allocate(dp(0,0,0))
        ! Get condensed vertical coordinate field (edges) in fused layout
        call assign_fptr_condensed_array(vcoord_field, vcoord, _RC)
 
@@ -425,12 +428,13 @@ contains
       n_layers    = n_levels - 1
       n_ungridded = size(vcoord, 3)
 
-      deallocate(dp)
-      allocate(dp(n_horz, n_layers, n_ungridded), _STAT)
+      ! Fill a buffer first so a failed allocate leaves dp at its placeholder.
+      allocate(buffer(n_horz, n_layers, n_ungridded), _STAT)
 
       do k = 1, n_layers
-         dp(:,k,:) = vcoord(:,k+1,:) - vcoord(:,k,:)
+         buffer(:,k,:) = vcoord(:,k+1,:) - vcoord(:,k,:)
       end do
+      call move_alloc(buffer, dp)
 
       _RETURN(_SUCCESS)
    end function compute_layer_thickness_r8

@@ -22,7 +22,9 @@ module mapl_BasicVerticalGrid_mod
 
    ! Spec type
    type, extends(VerticalGridSpec) :: BasicVerticalGridSpec
-      integer :: num_levels
+      ! Default-initialized so the error-path placeholder copies of this
+      ! type are well defined.
+      integer :: num_levels = 0
    end type BasicVerticalGridSpec
 
    ! Grid type

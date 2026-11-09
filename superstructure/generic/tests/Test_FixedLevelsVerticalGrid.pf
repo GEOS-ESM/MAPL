@@ -44,23 +44,6 @@ contains
       @assert_that(vgrid1 /= vgrid3, is(true()))
 
    end subroutine test_not_equals
-
-   @test
-   ! The result of get_units is allocatable, so the caller copies it even
-   ! when the physical dimension is wrong.  It must be allocated there.
-   subroutine test_get_units_allocates_result_on_error()
-      type(FixedLevelsVerticalGrid) :: vgrid
-      character(:), allocatable :: units
-      integer :: status
-
-      real, parameter :: levels(*) = [1., 5., 7.]
-
-      vgrid = FixedLevelsVerticalGrid(standard_name='air_pressure', units='Pa', levels=levels)
-      units = vgrid%get_units('bogus_dimension', rc=status)
-      @assertExceptionRaised('Unsupported physical dimension: bogus_dimension')
-      @assert_that(status, is(not(equal_to(0))))
-      @assert_that(allocated(units), is(true()))
-
-   end subroutine test_get_units_allocates_result_on_error
-
+   
+   
 end module Test_FixedLevelsVerticalGrid

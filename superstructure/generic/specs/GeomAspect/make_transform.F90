@@ -43,13 +43,12 @@ contains
       _VERIFY(status)
       
       ! Build appropriate transform based on normalization decision
+      deallocate(transform)
       if (use_normalization) then
-         deallocate(transform)
          transform = build_normalized_regrid_transform(src%geom, dst_%geom, &
                                                         regridder_param, other_aspects, &
                                                         norm_metadata, _RC)
       else
-         deallocate(transform)
          allocate(transform, source=RegridTransform(src%geom, dst_%geom, regridder_param))
       end if
 
