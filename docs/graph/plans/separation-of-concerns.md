@@ -1668,6 +1668,16 @@ ready means today" in `scenario-parity.md`). May be split into
     ExtData/GEOS configurations declare height levels; what `layer` and
     unknown dimensions should do); update `docs/mapl3/vertical-alignment.md`
     in the same task. Owner commits. Before C1-vertical-b.
+  - **Status:** done (ffc978344, owner commit; NAG and gfortran Debug
+    ESSENTIAL 69/69). `derive_direction` takes `physical_dimension`
+    (exact, case-sensitive match; unallocated = numbers rule); 15 grid
+    tests and 2 column-regrid tests. Owner (2026-11-09, answer a): a
+    `with_grid` pair between a height fixed-levels grid (now UP) and a basic
+    or model grid of the same level count (DOWN by default) now reverses
+    instead of copying; accepted and documented in
+    `docs/mapl3/vertical-alignment.md`; a client that hits it sets an
+    explicit `direction:` or `vertical_alignment:`. No config in the repo
+    uses that case. The D3 fixture item below is now unblocked.
 
 **C3. Time-dependent geometry (reminder; prerequisite for A10's
 epoch-dependent ExtData exports and moving nested grids).** Today nothing
@@ -1792,6 +1802,9 @@ it runs goes in a follow-up commit with the same trailer. Label
   `CMakeLists.txt` and uses a removed constructor; it is a dead copy of
   `infrastructure/vertical/vertical_grid/tests/Test_FixedLevelsVerticalGrid.pf`
   (found by the D5-AllocatableResults-B review). Delete it.
+- Stale `!wdb fixme deleteme` comments about `is_mirror()` in
+  `make_transform.F90` (~98) and `VerticalGridAspect.F90` (~418) (found by
+  C1-vertical-direction). Check and remove.
 - Scenario fixtures with `/`-qualified short names (e.g. `A/E_A1`) have
   no field-dictionary entries, so every run logs "not found in field
   dictionary (as an alias)" (`VariableSpec.F90` alias lookup; the lookup
@@ -2148,7 +2161,7 @@ it may author D1/A4/B5 with sonnet review.
 | C1-geom-b | opus | sonnet | wiring + scenarios; after B4 4.1/4.2 |
 | C1-geom-c-a | sonnet | sonnet | bundle regrid Transform for VECTOR and BRACKET, chain link item class, isolated tests; owner commit (owner 2026-11-09; tier chosen by owner) |
 | C1-geom-c-b | sonnet | sonnet | after C2-alias-nonfield: bundle materialization, member creation, flip vector_1, extension-reuse delta spec |
-| C1-vertical-direction | sonnet | sonnet | fixed_levels direction depends on physical_dimension (height/altitude increasing = UP), legacy and graph (owner exception 2026-11-09); needs preflight; owner commit; before C1-vertical-b |
+| C1-vertical-direction | sonnet | sonnet | fixed_levels direction depends on physical_dimension (height/altitude increasing = UP), legacy and graph (owner exception 2026-11-09); landed ffc978344 |
 | C1-vertical-a | opus | sonnet | after C1-geom-a; numerics duplication, orientation flip; worktree |
 | C1-vertical-b | opus | sonnet | after C1-vertical-a and B4 |
 | C4-ForwardNetwork | opus | sonnet | openspec hierarchy-wide-forward-network; test-first (gpt-sol tests); owner commit; landed |
