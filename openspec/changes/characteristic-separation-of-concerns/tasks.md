@@ -1239,9 +1239,10 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       Preflight done; owner decisions (2026-11-07), one task (not split):
       (1) the graph writes the outer states by reusing `populate_one` and
       `populate_export_ports` on the outer MultiState (a third populate
-      call at `initialize_accept_transfer.F90` or an outer flag, gated by
-      `graph_populates_user_states()`; legacy outer `add_to_states` at
-      `initialize_realize_accepted.F90` skipped when the switch is on;
+      call at `initialize_realize_accepted.F90` (owner, 2026-11-09: not
+      accept_transfer, where a child's fill runs before the parent's
+      connect step), gated by `graph_populates_user_states()`, replacing
+      the legacy outer `add_to_states` there when the switch is on;
       INTERNAL items and the child walk skipped), so the user and outer
       aliases share one Field (`plain_field`; test with
       `mapl_FieldsAreAliased`); (2) a propagated child export (a port
