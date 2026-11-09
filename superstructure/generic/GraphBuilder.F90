@@ -887,9 +887,10 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: target_meta
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(entries(0))
       target_meta => resolve_qualified_component(root, path, _RC)
 
-      allocate(entries(0))
       call append_own_export_index_entries(target_meta, '', entries, _RC)
 
       _RETURN(_SUCCESS)

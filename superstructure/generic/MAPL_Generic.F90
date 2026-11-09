@@ -578,6 +578,8 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      name = ''
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       name = outer_meta%get_child_name(index, _RC)
 
@@ -1292,6 +1294,8 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: status
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      dir = ''
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       dir = outer_meta%get_checkpoint_dir(current_time, is_private=is_private, _RC)
 

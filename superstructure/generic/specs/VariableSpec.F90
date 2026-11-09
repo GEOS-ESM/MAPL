@@ -933,15 +933,21 @@ contains
       character(:), allocatable :: std_name_1, std_name_2
       type(MAPL_VectorBasisKind) :: basis_kind
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      aspect = FieldClassAspect('')
+
       select case (this%itemType%ot)
       case (MAPL_STATEITEM_FIELD%ot)
+         deallocate(aspect)
          aspect = FieldClassAspect( &
               long_name=this%long_name, &
               fill_value=this%fill_value, &
               restart_mode=this%restart_mode)
       case (MAPL_STATEITEM_FIELDBUNDLE%ot)
+         deallocate(aspect)
          aspect = FieldBundleClassAspect()
       case (MAPL_STATEITEM_STATE%ot)
+         deallocate(aspect)
          aspect = StateClassAspect(state_intent=this%state_intent)
       case (MAPL_STATEITEM_VECTOR%ot)
          ! Bugfix (found via openspec change use-field-dictionary-in-scenario-tests):
@@ -971,6 +977,7 @@ contains
          ! per-VarSpec StandardNameAspect built below (which is built from
          ! the raw, unsplit compound string and is never actually consulted
          ! for a Vector item - see VectorClassAspect%get_aspect_order).
+         deallocate(aspect)
          aspect = VectorClassAspect( &
               [ &
               FieldClassAspect(fill_value=this%fill_value), &
@@ -980,23 +987,27 @@ contains
               standard_name_1=std_name_1, &
               standard_name_2=std_name_2)
       case (MAPL_STATEITEM_BRACKET%ot)
+         deallocate(aspect)
          aspect = BracketClassAspect(this%bracket_size, fill_value=this%fill_value)
       case (MAPL_STATEITEM_VECTORBRACKET%ot)
+         deallocate(aspect)
          if (allocated(this%vector_basis_kind)) then
             aspect = VectorBracketClassAspect(this%bracket_size, vector_basis_kind=this%vector_basis_kind, fill_value=this%fill_value)
          else
             aspect = VectorBracketClassAspect(this%bracket_size, fill_value=this%fill_value)
          end if
       case (MAPL_STATEITEM_WILDCARD%ot)
+         deallocate(aspect)
          allocate(aspect,source=WildcardClassAspect())
       case (MAPL_STATEITEM_SERVICE%ot)
          _ASSERT(present(registry), 'must have registry for creating a Service')
+         deallocate(aspect)
          aspect = ServiceClassAspect(registry, this%service_items)
       case (MAPL_STATEITEM_EXPRESSION%ot)
+         deallocate(aspect)
          aspect = ExpressionClassAspect(registry=registry, expression=this%expression, &
               long_name=this%long_name)
       case default
-         aspect=FieldClassAspect('') ! must allocate something
          _FAIL('Unsupported itemType')
       end select
 

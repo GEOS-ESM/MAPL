@@ -10,6 +10,7 @@ module Test_VariableSpecCharacteristics
         MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_UNKNOWN, &
         MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
+   use mapl_ClassAspect_mod, only: ClassAspect
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
    use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, &
         UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
@@ -2976,5 +2977,23 @@ contains
               descriptor%has_characteristic(EXPRESSION_CHARACTERISTIC_KIND))
       end do
    end subroutine test_only_expression_gets_an_expression_entry
+
+   ! The result of make_ClassAspect is allocatable, so the caller copies
+   ! it even when the Service item has no registry.
+   @test
+   subroutine test_make_ClassAspect_allocates_result_on_error()
+      type(VariableSpec) :: var_spec
+      class(ClassAspect), allocatable :: aspect
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_SERVICE, rc=status)
+      @assertEqual(0, status)
+
+      aspect = var_spec%make_ClassAspect(rc=status)
+      @assertExceptionRaised('must have registry for creating a Service')
+      @assertTrue(status /= 0)
+      @assertTrue(allocated(aspect))
+   end subroutine test_make_ClassAspect_allocates_result_on_error
 
 end module Test_VariableSpecCharacteristics

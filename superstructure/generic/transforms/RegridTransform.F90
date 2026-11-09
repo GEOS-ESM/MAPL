@@ -362,6 +362,8 @@ contains
       type(ESMF_TypeKind_Flag) :: tk
       integer :: status
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(dp(0,0,0))
       call ESMF_FieldGet(this%vcoord_field, typekind=tk, _RC)
 
       if (tk == ESMF_TYPEKIND_R4) then
@@ -384,6 +386,8 @@ contains
         integer :: n_horz, n_levels, n_layers, n_ungridded, k
         integer :: status
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(dp(0,0,0))
        ! Get condensed vertical coordinate field (edges) in fused layout
        call assign_fptr_condensed_array(vcoord_field, vcoord, _RC)
 
@@ -392,6 +396,7 @@ contains
       n_layers    = n_levels - 1
       n_ungridded = size(vcoord, 3)
 
+      deallocate(dp)
       allocate(dp(n_horz, n_layers, n_ungridded), _STAT)
 
       do k = 1, n_layers
@@ -410,6 +415,8 @@ contains
         integer :: n_horz, n_levels, n_layers, n_ungridded, k
         integer :: status
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(dp(0,0,0))
        ! Get condensed vertical coordinate field (edges) in fused layout
        call assign_fptr_condensed_array(vcoord_field, vcoord, _RC)
 
@@ -418,6 +425,7 @@ contains
       n_layers    = n_levels - 1
       n_ungridded = size(vcoord, 3)
 
+      deallocate(dp)
       allocate(dp(n_horz, n_layers, n_ungridded), _STAT)
 
       do k = 1, n_layers

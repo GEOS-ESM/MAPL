@@ -629,4 +629,21 @@ contains
 
    end subroutine test_FieldConvertPrec_R4R8_no_DE
 
+   @Test(npes=[4])
+   ! The result of spread_scalar is allocatable, so the caller copies it
+   ! even when the call fails.  It must be allocated on the error path.
+   subroutine test_spread_scalar_allocates_result_on_error(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_Field) :: x
+      type(ESMF_Field), allocatable :: vector(:)
+      integer :: status
+
+      x = XR4
+      vector = FieldSpread(x, 0, rc=status)
+      @assertExceptionRaised('ncopies must be positive')
+      @assertTrue(status /= 0)
+      @assertTrue(allocated(vector))
+
+   end subroutine test_spread_scalar_allocates_result_on_error
+
 end module Test_FieldBLAS

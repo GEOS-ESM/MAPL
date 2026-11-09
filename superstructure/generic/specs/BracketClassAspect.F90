@@ -112,6 +112,8 @@ contains
       integer :: status
       type(GeomAspect) :: geom_aspect
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(aspect_ids(0))
       geom_aspect = to_GeomAspect(goal_aspects, _RC)
       if (geom_aspect%is_time_dependent()) then
          ! must do time interpolation first

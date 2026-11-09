@@ -9,6 +9,10 @@ module Test_BasicVerticalGrid
    use esmf, only: esmf_HConfigCreate, esmf_HConfigDestroy
    implicit none
 
+   ! A spec the BasicVerticalGridFactory does not recognize.
+   type, extends(VerticalGridSpec) :: UnsupportedSpec
+   end type UnsupportedSpec
+
 contains
 
 
@@ -273,5 +277,21 @@ contains
       primary_coord = grid%get_primary_coordinate()
       @assertEqual("height", primary_coord, 'Should be able to change to height')
    end subroutine test_primary_coordinate_change
+
+
+   @test
+   ! The result of create_grid_from_spec is allocatable, so the caller
+   ! copies it even when the spec type is wrong.  It must be allocated.
+   subroutine test_create_grid_from_spec_allocates_result_on_error()
+      type(BasicVerticalGridFactory) :: factory
+      type(UnsupportedSpec) :: spec
+      class(VerticalGrid), allocatable :: grid
+      integer :: status
+
+      grid = factory%create_grid_from_spec(spec, rc=status)
+      @assertExceptionRaised('unknown error')
+      @assertTrue(status /= 0, 'An unsupported spec must give a nonzero rc')
+      @assertTrue(allocated(grid), 'The result must be allocated on the error path')
+   end subroutine test_create_grid_from_spec_allocates_result_on_error
 
 end module Test_BasicVerticalGrid

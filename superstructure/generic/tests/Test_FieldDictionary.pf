@@ -688,4 +688,23 @@ contains
 
    end subroutine test_full_entry_all_fields
 
+   @test
+   ! The getters return an allocatable string.  On the error path the
+   ! caller still copies the result, so it must be allocated even when
+   ! the lookup fails.
+   subroutine test_getters_allocate_result_on_error()
+      type(FieldDictionary) :: fd
+      character(:), allocatable :: s
+      integer :: status
+
+      fd = FieldDictionary(stream = &
+           '{X_Y_Z: {canonical_units: m, long_name: "X Y Z"}}')
+
+      s = fd%get_standard_name('nope', rc=status)
+      @assertExceptionRaised('FieldDictionary: short name "nope" not found in dictionary')
+      @assert_that(status, is(not(equal_to(0))))
+      @assert_that(allocated(s), is(true()))
+
+   end subroutine test_getters_allocate_result_on_error
+
 end module Test_FieldDictionary
