@@ -1813,7 +1813,9 @@ reports, `allocatable-results-survey.md`). Two tasks (owner, 2026-11-06):
   `get_specs`, `get_aspect_order` in the spec classes, vertical-grid
   factories, `make_ClassAspect`, `GeomAspect`/`ConservationAspect`
   `make_transform`. Eight results are polymorphic. No behavior change.
-  - **Status:** not started
+  - **Status:** issued as GEOS-ESM/MAPL#5494 to Purnendu
+    (2026-11-09; first offered to Shayon, reassigned by the owner);
+    awaiting his draft PR.
 
 Both apply the owner's rule only; other ifx problems go to the owner
 (he leads ifx porting).
