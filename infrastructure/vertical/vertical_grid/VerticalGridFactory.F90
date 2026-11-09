@@ -4,6 +4,7 @@ module mapl_VerticalGridFactory_mod
    use esmf, only: esmf_HConfig
    use mapl_VerticalGrid_mod, only: VerticalGrid
    use mapl_VerticalGridSpec_mod, only: VerticalGridSpec
+   use mapl_MirrorVerticalGrid_mod, only: MirrorVerticalGrid
    use mapl_ErrorHandling_mod
    implicit none(type,external)
    private
@@ -113,9 +114,13 @@ contains
       
       class(VerticalGridSpec), allocatable :: spec
       integer :: status
-      
+
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(grid, source=MirrorVerticalGrid())
+
       ! Create spec and then grid from spec
       spec = this%create_spec_from_config(config, _RC)
+      deallocate(grid)
       allocate(grid, source=this%create_grid_from_spec(spec, rc=status))
       _VERIFY(status)
       
@@ -130,9 +135,13 @@ contains
       
       class(VerticalGridSpec), allocatable :: spec
       integer :: status
-      
+
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(grid, source=MirrorVerticalGrid())
+
       ! Create spec and then grid from spec
       spec = this%create_spec_from_file_metadata(file_metadata, _RC)
+      deallocate(grid)
       grid = this%create_grid_from_spec(spec, _RC)
       
       _RETURN(_SUCCESS)

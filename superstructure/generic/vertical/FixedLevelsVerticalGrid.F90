@@ -137,6 +137,8 @@ contains
       character(len=*), intent(in) :: physical_dimension
       integer, optional, intent(out) :: rc
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      units = ''
       _ASSERT(physical_dimension == this%get_physical_dimension(), 'Unsupported physical dimension: '//physical_dimension)
       units = this%spec%units
 
@@ -308,6 +310,8 @@ contains
       type(VerticalCoordinateDirection) :: direction
       integer :: status
       
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(spec, source=local_spec)
       _ASSERT(this%supports(config), 'FixedLevelsVerticalGridFactory does not support this configuration')
       
       ! Get physical dimension (required)
@@ -331,6 +335,7 @@ contains
       direction = derive_direction(local_spec%levels, _RC)
 
       ! Use polymorphic allocation
+      deallocate(spec)
       allocate(spec, source=local_spec)
       
       _RETURN(_SUCCESS)
@@ -361,9 +366,12 @@ contains
       type(FixedLevelsVerticalGrid) :: local_grid
       integer :: status
       
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(grid, source=local_grid)
       select type (spec)
       type is (FixedLevelsVerticalGridSpec)
          call local_grid%initialize(spec, _RC)
+         deallocate(grid)
          allocate(grid, source=local_grid)
       class default
          _RETURN(_FAILURE)

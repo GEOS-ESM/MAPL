@@ -22,7 +22,9 @@ module mapl_BasicVerticalGrid_mod
 
    ! Spec type
    type, extends(VerticalGridSpec) :: BasicVerticalGridSpec
-      integer :: num_levels
+      ! Default-initialized so the error-path placeholder copies of this
+      ! type are well defined.
+      integer :: num_levels = 0
    end type BasicVerticalGridSpec
 
    ! Grid type
@@ -186,6 +188,9 @@ contains
       type(BasicVerticalGridSpec) :: local_spec
       integer :: status
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(spec, source=local_spec)
+
       ! Get number of levels if specified, otherwise use default
       if (esmf_HConfigIsDefined(config, keyString="num_levels")) then
          local_spec%num_levels = esmf_HConfigAsI4(config, keyString="num_levels", _RC)
@@ -196,6 +201,7 @@ contains
       _ASSERT(local_spec%num_levels > 0, 'Number of levels must be positive')
 
       ! Use polymorphic allocation
+      deallocate(spec)
       allocate(spec, source=local_spec)
 
       _RETURN(_SUCCESS)
@@ -255,9 +261,12 @@ contains
 
       type(BasicVerticalGrid) :: local_grid
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(grid, source=local_grid)
       select type (spec)
       type is (BasicVerticalGridSpec)
          call local_grid%initialize(spec)
+         deallocate(grid)
          allocate(grid, source=local_grid)
       class default
          _RETURN(_FAILURE)

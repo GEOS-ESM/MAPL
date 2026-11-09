@@ -490,9 +490,12 @@ contains
       
       type(ModelVerticalGrid) :: local_grid
       
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(grid, source=local_grid)
       select type (spec)
       type is (ModelVerticalGridSpec)
          call local_grid%initialize(spec)
+         deallocate(grid)
          allocate(grid, source=local_grid)
       class default
          _RETURN(_FAILURE)

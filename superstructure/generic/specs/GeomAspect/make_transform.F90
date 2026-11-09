@@ -23,12 +23,13 @@ contains
       type(NormalizationMetadata) :: norm_metadata
       logical :: use_normalization
 
-      allocate(transform,source=NullTransform()) ! just in case
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(transform,source=NullTransform())
       dst_ = to_GeomAspect(dst, _RC)
-      deallocate(transform)
 
       ! Handle mirror case - needs geometry extension
       if (src%is_mirror()) then
+         deallocate(transform)
          allocate(transform, source=ExtendTransform())
          _RETURN(_SUCCESS)
       end if
@@ -42,6 +43,7 @@ contains
       _VERIFY(status)
       
       ! Build appropriate transform based on normalization decision
+      deallocate(transform)
       if (use_normalization) then
          transform = build_normalized_regrid_transform(src%geom, dst_%geom, &
                                                         regridder_param, other_aspects, &
@@ -117,6 +119,9 @@ contains
       type(VerticalStaggerLoc) :: vertical_stagger
       logical :: has_layers
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(transform, source=NullTransform())
+
        ! Get vertical grid from aspect map
        vert_aspect = to_VerticalGridAspect(other_aspects, _RC)
        vert_grid => vert_aspect%get_vertical_grid(_RC)
@@ -127,6 +132,7 @@ contains
        vertical_stagger = vert_aspect%get_vertical_stagger(_RC)
        has_layers = (vertical_stagger /= VERTICAL_STAGGER_NONE)
        if (.not. has_layers) then
+          deallocate(transform)
           allocate(transform, source=RegridTransform(src_geom, dst_geom, regridder_param))
           _RETURN(_SUCCESS)
        end if
@@ -148,6 +154,7 @@ contains
       end select
 
       ! Create transform with integrated normalization support
+      deallocate(transform)
       allocate(transform, source=RegridTransform(src_geom, dst_geom, regridder_param, &
                                                  vcoord_field=vcoord_field, &
                                                  vcoord_coupler=vcoord_coupler, &

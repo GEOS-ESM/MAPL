@@ -266,6 +266,8 @@ contains
       type(FieldDictionaryItem), pointer :: item
       integer :: status
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      canonical_units = ''
       item => this%entries%at(standard_name, _RC)
       canonical_units = item%get_units()
 
@@ -281,6 +283,8 @@ contains
       type(FieldDictionaryItem), pointer :: item
       integer :: status
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      long_name = ''
       item => this%entries%at(standard_name, _RC)
       long_name = item%get_long_name()
 
@@ -296,6 +300,8 @@ contains
        integer :: status
        character(:), allocatable :: msg
 
+       ! An allocatable result must be allocated on error paths too; the caller copies it.
+       standard_name = ''
        msg = 'FieldDictionary: short name "' // alias // '" not found in dictionary'
        _ASSERT(this%alias_map%count(alias) /= 0, msg)
        standard_name = this%alias_map%at(alias, _RC)

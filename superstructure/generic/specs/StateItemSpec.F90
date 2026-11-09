@@ -255,6 +255,8 @@ contains
       integer :: status
       class(ClassAspect), pointer :: src_class_aspect
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(ids(0))
       src_class_aspect => to_ClassAspect(src_spec%aspects, _RC)
       ids = src_class_aspect%get_aspect_order(dst_spec%get_aspects(), _RC)
 

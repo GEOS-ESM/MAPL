@@ -113,6 +113,8 @@ contains
       integer :: status
       type(AspectId), allocatable :: field_aspect_ids(:)
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(aspect_ids(0))
       field_aspect_ids = this%component_specs(1)%get_aspect_order(goal_aspects, _RC)
       aspect_ids = pack(field_aspect_ids, field_aspect_ids /= STANDARD_NAME_ASPECT_ID)
 
