@@ -1550,6 +1550,29 @@ ready means today" in `scenario-parity.md`). May be split into
     `Regridder%regrid(fb_in, fb_out)`: plain bundles, VECTOR (rotation),
     BRACKET/VECTORBRACKET (regrid only when `bracket_updated`, then time
     interpolation). The graph must create bundle-shaped extension items.
+    Preflight and owner decisions (2026-11-09; report
+    `~/.opencode/plan/reports/C1-geom-c-preflight.md`, accepted
+    recommendations): (1) shapes: VECTOR and BRACKET (to FIELD) only;
+    VECTORBRACKET (needs a graph vector time-interpolation Transform and
+    `shape_outcome` CONVERT) is a follow-up; plain FIELDBUNDLE only if a
+    client needs it. (2) Members of a bundle extension item: the regrid
+    Transform creates (and resizes if the input count changes) the output
+    members at compute, cloning each input member onto the destination
+    geom; no member count in the descriptor. (3) A regridded VECTOR keeps
+    the exporter's basis (legacy); the importer's basis (b) or basis as a
+    compared characteristic (c) stays an open question against the
+    bundle-extension item (M3). (4) The bundle export gets no graph
+    payload in this task: `vector_1` flips only after `C2-alias-nonfield`.
+    Split: `C1-geom-c-a` (Transform for VECTOR and BRACKET, dispatch in
+    `geometry_build_transform_for_item` by item shape, the chain link
+    records the tip's item class, isolated tests, flip the two "bundle
+    geometry mismatch is unsupported" tests; no materialization, no
+    scenario flip; sonnet author, sonnet review, owner commits because it
+    adds a legacy/graph difference row) and `C1-geom-c-b` (after
+    `C2-alias-nonfield`: bundle materialization, member creation, a
+    bracket test gridcomp, flip `vector_1`, delta spec for the
+    `extension-reuse` requirement that a VECTOR reports an explicit
+    failure).
   - Owner (2026-11-08, C1-vertical-a): (1) a field whose alignment differs
     from its grid's direction gets its column coordinate in its own
     storage order before regridding (legacy reverses levels that are in
@@ -1572,7 +1595,31 @@ ready means today" in `scenario-parity.md`). May be split into
     since CTMs often use coordinates reversed from the dynamics.
   - Doc task (owner, 2026-11-08): correct `docs/mapl3/vertical-alignment.md`
     (its upward/downward examples contradict the code and design Q7; it
-    documents a `coordinate_direction` key that nothing parses).
+    documents a `coordinate_direction` key that nothing parses). Done
+    (73a1e8a8c). Owner answers (2026-11-09): (1) a `fixed_levels` grid
+    derives its direction from the numbers alone (increasing = DOWN), so
+    a height grid `[0, 100, 500]` gets DOWN although its index increases
+    going up; the owner chose that the direction should depend on
+    `physical_dimension` (height and altitude: increasing = UP). That
+    changes legacy and graph alike (`FixedLevelsVerticalGrid`
+    `derive_direction`); an explicit owner exception to "no legacy-behavior
+    fixes". New task `C1-vertical-direction` (below); the doc keeps
+    describing the current rule until it lands. (2) Comparing only the two
+    resolved directions once the grids match is intended (legacy and
+    graph agree). (3) The fixture `vertical_alignment_same_grid` declares
+    two separate grids (two grid ids), so it tests a regrid, not a
+    same-grid flip: D3 item (below).
+  - `C1-vertical-direction` (owner 2026-11-09, answer b): derive a
+    `fixed_levels` grid's direction from `physical_dimension` as well as the
+    numbers: pressure and depth keep increasing = DOWN; height and altitude
+    get increasing = UP. Change `derive_direction`
+    (`FixedLevelsVerticalGrid.F90` ~83-103) once, so legacy and graph agree;
+    the fixed-levels scenarios and any height-based fixture need checking
+    (the C1-vertical-a Transform reads the direction from the grid, so no
+    Transform change expected). Needs a preflight first (which fixtures and
+    ExtData/GEOS configurations declare height levels; what `layer` and
+    unknown dimensions should do); update `docs/mapl3/vertical-alignment.md`
+    in the same task. Owner commits. Before C1-vertical-b.
 
 **C3. Time-dependent geometry (reminder; prerequisite for A10's
 epoch-dependent ExtData exports and moving nested grids).** Today nothing
@@ -1625,8 +1672,8 @@ imports before its run and advances its exports after it; callback get
 edges join the forward network; write-back networks (callback put, inout
 return) stay separate and are never pulled. Owner decisions are in the
 change's design.md Context; the inout borrower stays as is (deferred,
-kept only in case callback states prove unsuitable). Holds 3.42,
-C1-vertical-b and C1-geom-c until it lands. Follow-up (`C4-b`, not yet
+kept only in case callback states prove unsuitable). It held 3.42,
+C1-vertical-b and C1-geom-c; it has landed. Follow-up (`C4-b`, not yet
 an openspec change): state population without the descendant walk,
 merged geometry push/pull, removal of the `get_child_component_graph`
 carve-out. Owner (2026-11-08) on geometry in C4-b: each component gets
@@ -1673,6 +1720,16 @@ it runs goes in a follow-up commit with the same trailer. Label
   crash on fields whose Info is not populated. Batch a did not reproduce
   the crash (regression tests kept): switch harvest back to the MAPL
   getter and check ESSENTIAL.
+- Fixture `vertical_alignment_same_grid` (`superstructure/generic/tests/
+  scenarios/vertical_alignment_same_grid/{A,B}.yaml`) declares two separate
+  `vertical_grid` blocks, so the two components get different grid ids and the
+  scenario tests a regrid, not a same-grid flip (owner, 2026-11-09). Make the
+  two components share a parent grid (default `from_parent` geometry) so it
+  tests the flip. The fixtures `vertical_alignment_{same_grid,regrid,with_grid}`
+  also still write `coordinate_direction:` and `class: fixed_levels`, which
+  nothing reads (the code reads `grid_type`; the direction comes from the
+  levels), and their `expectations.yaml` comments call decreasing levels
+  "downward". Fix those too, after `C1-vertical-direction`.
 - Scenario fixtures with `/`-qualified short names (e.g. `A/E_A1`) have
   no field-dictionary entries, so every run logs "not found in field
   dictionary (as an alias)" (`VariableSpec.F90` alias lookup; the lookup
@@ -1964,10 +2021,12 @@ it may author D1/A4/B5 with sonnet review.
 | B3-GeomMirrorLegacy | - | - | tasks.md 3.39; dropped (no legacy fixes) |
 | C1-geom-a | opus | sonnet | Transform + isolated tests; worktree; background author |
 | C1-geom-b | opus | sonnet | wiring + scenarios; after B4 4.1/4.2 |
-| C1-geom-c | opus | sonnet | bundle-level regrid (plain, vector, bracket); after C1-geom-b; tier proposed by meta |
+| C1-geom-c-a | sonnet | sonnet | bundle regrid Transform for VECTOR and BRACKET, chain link item class, isolated tests; owner commit (owner 2026-11-09; tier chosen by owner) |
+| C1-geom-c-b | sonnet | sonnet | after C2-alias-nonfield: bundle materialization, member creation, flip vector_1, extension-reuse delta spec |
+| C1-vertical-direction | sonnet | sonnet | fixed_levels direction depends on physical_dimension (height/altitude increasing = UP), legacy and graph (owner exception 2026-11-09); needs preflight; owner commit; before C1-vertical-b |
 | C1-vertical-a | opus | sonnet | after C1-geom-a; numerics duplication, orientation flip; worktree |
 | C1-vertical-b | opus | sonnet | after C1-vertical-a and B4 |
-| C4-ForwardNetwork | opus | sonnet | openspec hierarchy-wide-forward-network; test-first (gpt-sol tests); owner commit; holds 3.42, C1-vertical-b, C1-geom-c |
+| C4-ForwardNetwork | opus | sonnet | openspec hierarchy-wide-forward-network; test-first (gpt-sol tests); owner commit; landed |
 | C4-b | opus | sonnet | follow-up: population, geometry merge, carve-out; needs its own openspec change |
 | C2-geom-push | sonnet | opus | |
 | C2-alias-owner | sonnet | opus | |
