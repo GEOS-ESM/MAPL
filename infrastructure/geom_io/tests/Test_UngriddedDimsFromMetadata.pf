@@ -1,0 +1,243 @@
+#include "MAPL_TestErr.h"
+
+module Test_UngriddedDimsFromMetadata
+
+   use pfunit
+   use esmf
+   use esmf_TestMethod_mod
+   use mapl_geom_api, only: mapl_GeomManager, mapl_MaplGeom, mapl_get_geom_manager
+   use mapl_field_api, only: MAPL_FieldCreate
+   use mapl_field_bundle_api
+   use mapl_enums_api, only: MAPL_FIELDBUNDLETYPE_BASIC
+   use mapl_enums_api, only: MAPL_VERTICAL_STAGGER_NONE, MAPL_VERTICAL_STAGGER_CENTER
+   use mapl_vertical_grid_api
+   use mapl_geomio_api
+   use mapl_SharedIO_mod, only: ungridded_dims_from_metadata
+   use mapl_UngriddedDims_mod
+   use mapl_UngriddedDim_mod
+   use pfio, only: FileMetadata, NETCDF4_FileFormatter, PFIO_READ
+
+   implicit none
+
+   character(len=*), parameter :: FILE_WITH_UNGRIDDED = 'test_file_ungridded_dims.nc4'
+   character(len=*), parameter :: FILE_TWO_UNGRIDDED = 'test_file_two_ungridded_dims.nc4'
+   character(len=*), parameter :: FILE_NO_UNGRIDDED = 'test_file_no_ungridded_dims.nc4'
+
+contains
+
+   ! Helper: create a latlon geom registered with the GeomManager.
+   function make_latlon_mapl_geom(im, jm, rc) result(mapl_geom)
+      type(mapl_MaplGeom), pointer :: mapl_geom
+      integer, intent(in) :: im, jm
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(mapl_GeomManager), pointer :: geom_mgr
+      type(ESMF_HConfig) :: hconfig
+      character(len=256) :: content
+
+      write(content, '(A,I0,A,I0,A)') &
+           '{class: latlon, im_world: ', im, &
+           ', jm_world: ', jm, &
+           ', pole: PC, dateline: DC, nx: 1, ny: 1}'
+
+      hconfig = ESMF_HConfigCreate(content=trim(content), _RC)
+      geom_mgr => mapl_get_geom_manager()
+      mapl_geom => geom_mgr%get_mapl_geom(hconfig, _RC)
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_latlon_mapl_geom
+
+   function make_clock(rc) result(clock)
+      type(ESMF_Clock) :: clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Time) :: start_time
+      type(ESMF_TimeInterval) :: time_step
+
+      call ESMF_TimeSet(start_time, yy=2000, mm=3, dd=15, h=0, m=0, s=0, _RC)
+      call ESMF_TimeIntervalSet(time_step, m=30, _RC)
+      clock = ESMF_ClockCreate(timeStep=time_step, startTime=start_time, _RC)
+      call ESMF_ClockSet(clock, currTime=start_time, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_clock
+
+   ! Helper: write a single field to a file via the bundle writer.
+   subroutine write_field(field, clock, filename, rc)
+      type(ESMF_Field), intent(in) :: field
+      type(ESMF_Clock), intent(inout) :: clock
+      character(len=*), intent(in) :: filename
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Time) :: time
+      type(mapl_FieldBundleWriter) :: writer
+
+      call ESMF_ClockGet(clock, currTime=time, _RC)
+      bundle = ESMF_FieldBundleCreate(_RC)
+      call MAPL_FieldBundleSet(bundle, fieldBundleType=MAPL_FIELDBUNDLETYPE_BASIC, _RC)
+      call ESMF_FieldBundleAdd(bundle, [field], _RC)
+
+      call writer%create_from_bundle(bundle, clock, _RC)
+      call writer%start_new_file(filename, time, _RC)
+      call writer%write_to_file(bundle, time, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine write_field
+
+   function read_metadata(filename, rc) result(metadata)
+      type(FileMetadata) :: metadata
+      character(len=*), intent(in) :: filename
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(NETCDF4_FileFormatter) :: formatter
+
+      call formatter%open(filename, PFIO_READ, _RC)
+      metadata = formatter%read(_RC)
+      call formatter%close(_RC)
+
+      _RETURN(_SUCCESS)
+   end function read_metadata
+
+   ! A 3D field with one ungridded dimension is written to file. The
+   ! gridded (lon,lat), vertical (lev) and time dimensions must be
+   ! filtered out leaving only the ungridded dimension.
+   ! (Fields are limited to rank 4 by MAPL_FieldGetLocalElementCount.)
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_vertical_and_one_ungridded_dim(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer :: status
+      type(mapl_MaplGeom), pointer :: mapl_geom
+      type(ESMF_Geom) :: geom
+      type(ESMF_Clock) :: clock
+      type(ESMF_Field) :: field
+      real(kind=ESMF_KIND_R4), pointer :: ptr(:,:,:,:)
+      type(mapl_VerticalGridManager), pointer :: vgrid_mgr
+      class(mapl_VerticalGrid), pointer :: vgrid
+      type(FileMetadata) :: metadata
+      type(UngriddedDims) :: expected, actual
+      type(UngriddedDim) :: expected_dim, actual_dim
+      integer :: i
+
+      mapl_geom => make_latlon_mapl_geom(4, 5, _RC)
+      geom = mapl_geom%get_geom()
+      vgrid_mgr => mapl_get_vertical_grid_manager()
+      vgrid => vgrid_mgr%create_grid(mapl_BasicVerticalGridSpec(num_levels=3), _RC)
+      clock = make_clock(_RC)
+
+      ! The file writer stores ungridded dimensions as bare dimensions
+      ! (no coordinate variable), so the expected coordinates are the
+      ! defaults, 1..extent, and the units are the default.
+      expected = UngriddedDims()
+      call expected%add_dim(UngriddedDim(2, name='ens'), _RC)
+
+      field = MAPL_FieldCreate(geom, ESMF_TYPEKIND_R4, &
+           vgrid=vgrid, vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER, &
+           ungridded_dims=expected, &
+           name='tracer', long_name='tracer', standard_name='tracer', units='1', _RC)
+      call ESMF_FieldGet(field, farrayPtr=ptr, _RC)
+      ptr = 1.0
+
+      call write_field(field, clock, FILE_WITH_UNGRIDDED, _RC)
+
+      metadata = read_metadata(FILE_WITH_UNGRIDDED, _RC)
+      actual = ungridded_dims_from_metadata(metadata, 'tracer', mapl_geom, 'lev', _RC)
+
+      @assertEqual(expected%get_num_ungridded(), actual%get_num_ungridded())
+      do i = 1, expected%get_num_ungridded()
+         expected_dim = expected%get_ith_dim_spec(i, _RC)
+         actual_dim = actual%get_ith_dim_spec(i, _RC)
+         @assertEqual(expected_dim%get_name(), actual_dim%get_name())
+         @assertEqual(expected_dim%get_extent(), actual_dim%get_extent())
+         @assertEqual(expected_dim%get_coordinates(), actual_dim%get_coordinates())
+         @assertEqual(expected_dim%get_units(), actual_dim%get_units())
+      end do
+      @assertTrue(expected == actual, 'ungridded dims differ from original')
+
+   end subroutine test_vertical_and_one_ungridded_dim
+
+   ! Two ungridded dimensions and no vertical dimension.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_two_ungridded_dims_no_vertical(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer :: status
+      type(mapl_MaplGeom), pointer :: mapl_geom
+      type(ESMF_Geom) :: geom
+      type(ESMF_Clock) :: clock
+      type(ESMF_Field) :: field
+      real(kind=ESMF_KIND_R4), pointer :: ptr(:,:,:,:)
+      type(FileMetadata) :: metadata
+      type(UngriddedDims) :: expected, actual
+      type(UngriddedDim) :: expected_dim, actual_dim
+      integer :: i
+
+      mapl_geom => make_latlon_mapl_geom(4, 5, _RC)
+      geom = mapl_geom%get_geom()
+      clock = make_clock(_RC)
+
+      expected = UngriddedDims()
+      call expected%add_dim(UngriddedDim(2, name='ens'), _RC)
+      call expected%add_dim(UngriddedDim(4, name='species'), _RC)
+
+      field = MAPL_FieldCreate(geom, ESMF_TYPEKIND_R4, &
+           vert_staggerloc=MAPL_VERTICAL_STAGGER_NONE, &
+           ungridded_dims=expected, &
+           name='tracer', long_name='tracer', standard_name='tracer', units='1', _RC)
+      call ESMF_FieldGet(field, farrayPtr=ptr, _RC)
+      ptr = 1.0
+
+      call write_field(field, clock, FILE_TWO_UNGRIDDED, _RC)
+
+      metadata = read_metadata(FILE_TWO_UNGRIDDED, _RC)
+      actual = ungridded_dims_from_metadata(metadata, 'tracer', mapl_geom, '', _RC)
+
+      @assertEqual(expected%get_num_ungridded(), actual%get_num_ungridded())
+      do i = 1, expected%get_num_ungridded()
+         expected_dim = expected%get_ith_dim_spec(i, _RC)
+         actual_dim = actual%get_ith_dim_spec(i, _RC)
+         @assertEqual(expected_dim%get_name(), actual_dim%get_name())
+         @assertEqual(expected_dim%get_extent(), actual_dim%get_extent())
+         @assertEqual(expected_dim%get_coordinates(), actual_dim%get_coordinates())
+         @assertEqual(expected_dim%get_units(), actual_dim%get_units())
+      end do
+      @assertTrue(expected == actual, 'ungridded dims differ from original')
+
+   end subroutine test_two_ungridded_dims_no_vertical
+
+   ! A plain 2D field has no vertical or ungridded dimensions.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_no_ungridded_dims(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer :: status
+      type(mapl_MaplGeom), pointer :: mapl_geom
+      type(ESMF_Geom) :: geom
+      type(ESMF_Clock) :: clock
+      type(ESMF_Field) :: field
+      type(FileMetadata) :: metadata
+      type(UngriddedDims) :: actual
+
+      mapl_geom => make_latlon_mapl_geom(4, 5, _RC)
+      geom = mapl_geom%get_geom()
+      clock = make_clock(_RC)
+
+      field = MAPL_FieldCreate(geom, ESMF_TYPEKIND_R4, &
+           vert_staggerloc=MAPL_VERTICAL_STAGGER_NONE, &
+           name='temperature', long_name='temperature', standard_name='temperature', units='K', _RC)
+
+      call write_field(field, clock, FILE_NO_UNGRIDDED, _RC)
+
+      metadata = read_metadata(FILE_NO_UNGRIDDED, _RC)
+      actual = ungridded_dims_from_metadata(metadata, 'temperature', mapl_geom, '', _RC)
+      @assertEqual(0, actual%get_num_ungridded())
+
+   end subroutine test_no_ungridded_dims
+
+end module Test_UngriddedDimsFromMetadata
