@@ -30,6 +30,10 @@ module mapl_OuterMetaComponent_mod
    public :: get_outer_meta
    public :: attach_outer_meta
    public :: free_outer_meta
+   ! Shared child construction. Used by add_child_by_spec and, in future, by
+   ! other parent meta types (e.g. NuopcMetaModel) that cannot reach the
+   ! private components of OuterMetaComponent from their own module.
+   public :: create_child
 
    type :: OuterMetaComponent
       private
@@ -41,9 +45,9 @@ module mapl_OuterMetaComponent_mod
       ! These are only allocated when parent overrides default timestepping.
       type(ESMF_TimeInterval)                     :: user_offset
       type(MethodPhasesMap)                       :: user_phases_map
-       type(ESMF_HConfig)                          :: hconfig
+      type(ESMF_HConfig)                          :: hconfig
 
-       type(GeomId)                           :: geom_id
+       type(GeomId)                                :: geom_id
        type(ESMF_Geom), allocatable                :: geom
        class(VerticalGrid), allocatable            :: vertical_grid
 
@@ -177,6 +181,21 @@ module mapl_OuterMetaComponent_mod
          type(ChildSpec), intent(inout) :: child_spec
          integer, optional, intent(out) :: rc
       end subroutine add_child_by_spec
+
+      ! Creates a child component and configures it from the parent-supplied
+      ! values. Does not insert the child into any parent's child map; the
+      ! caller owns that. Implemented in a submodule because the body needs
+      ! mapl_Generic_api, which depends on this module.
+      module recursive subroutine create_child(child_name, child_spec, &
+           parent_hconfig, parent_registry, parent_offset, child_driver, rc)
+         character(*), intent(in) :: child_name
+         type(ChildSpec), intent(inout) :: child_spec
+         type(ESMF_HConfig), intent(in) :: parent_hconfig
+         type(StateRegistry), intent(inout) :: parent_registry
+         type(ESMF_TimeInterval), intent(in) :: parent_offset
+         type(GriddedComponentDriver), intent(out) :: child_driver
+         integer, optional, intent(out) :: rc
+      end subroutine create_child
 
        module function new_outer_meta(gridcomp, user_gc_driver, user_setServices, hconfig) result(outer_meta)
           type(OuterMetaComponent) :: outer_meta

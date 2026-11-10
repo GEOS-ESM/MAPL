@@ -83,7 +83,7 @@ add_subdirectory(vertical)
 esma_add_fortran_submodules(
   TARGET MAPL.generic
   SUBDIRECTORY OuterMetaComponent
-  SOURCES SetServices.F90 add_child_by_spec.F90 new_outer_meta.F90 init_meta.F90
+  SOURCES SetServices.F90 add_child_by_spec.F90 create_child.F90 new_outer_meta.F90 init_meta.F90
           get_num_children.F90 get_child_name.F90 get_child_by_name.F90
           run_child_by_name.F90 run_children.F90
           get_outer_meta_from_outer_gc.F90 attach_outer_meta.F90 free_outer_meta.F90
