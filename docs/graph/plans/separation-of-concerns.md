@@ -1873,10 +1873,19 @@ affected scenarios to ready (unless masked: M3).
   Record the failing results first (`MAPL_SCENARIO_PENDING=1
   MAPL_SCENARIO_ONLY=<name>`). `ARCHITECTURE.md` ~524 wrongly says SERVICE
   is excluded (meta's doc batch).
-- `C2-runphase-args` (P1): run-phase method-node arguments keyed by
-  short name collide when an import and export share a name; key by
-  (intent, short name). The diagnosis's name-mangling experiment broke
-  `Test_GraphBuilder_RunPhaseNode`; don't repeat it.
+- `C2-runphase-args` (P1): DROPPED (owner, 2026-11-10, dashboard thread
+  runphase-node, option a), replaced by `C2-runphase-dormant`: the
+  run-phase method node is no longer built at connect time (nothing reads
+  or invokes it; the survey report section 6), which removes P1. The
+  keying fix (by intent and short name) is needed only if the node is
+  revived. Original text: run-phase method-node arguments keyed by short
+  name collide when an import and export share a name.
+- `C2-runphase-dormant` (owner, 2026-11-10): stop calling
+  `graphbuilder_build_run_phase_node` from `run_connect_hook`; keep the
+  builder, `Test_GraphBuilder_RunPhaseNode` and the OuterMetaComponent
+  accessors as dormant code; flip `statistics_real` to ready if it passes.
+  Brief `~/.opencode/plan/briefs/C2-runphase-dormant.md`.
+  - **Status:** in progress
 - Note for whichever task takes up `statistics`/`statistics_real` (found
   by B3-InternalNoMirror; unchecked): the statistics gridcomp has no geom,
   so its internals (`sum_*`, `counts_*`, ...) get DEFERRED geometry and
@@ -2394,7 +2403,8 @@ it may author D1/A4/B5 with sonnet review.
 | C2-qualified-src | sonnet | sonnet | qualified src_comp in Wildcard/callback paths |
 | C2-bundle-exports | sonnet | opus | landed 2594dc1fb; graph-created VECTOR (all intents) and BRACKET (export) bundles (SERVICE split out) |
 | C2-service-exports | opus | opus | AFTER the develop merge (owner 2026-11-10); SERVICE members from subscribers; own preflight |
-| C2-runphase-args | sonnet | opus | changes method-node keying |
+| C2-runphase-args | - | - | dropped (owner 2026-11-10); see C2-runphase-dormant |
+| C2-runphase-dormant | sonnet | sonnet | stop building the run-phase method node at connect; statistics_real ready |
 | D1 | sonnet (haiku?) | sonnet if haiku | `public ::` rule |
 | D2 | sonnet | opus | lifecycle-phase ordering |
 | D3-cleanup | sonnet | - | items are small and independent |
