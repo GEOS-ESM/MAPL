@@ -1585,6 +1585,22 @@ ready means today" in `scenario-parity.md`). May be split into
   Nit for C1-geom-c-b: `Test_HorizontalBundleRegridTransform.pf:21` imports
   `MAPL_FIELDBUNDLETYPE_BASIC` and `MAPL_FIELDBUNDLETYPE_VECTORBRACKET`
   unused.
+  - Owner decisions for C1-geom-c-b (2026-11-10, from its preflight,
+    `~/.opencode/plan/reports/C1-geom-c-b-preflight.md`): (1) `vector_1`
+    stays as it is (its vertical mismatch needs C1-vertical-b); add a new
+    scenario `vector_regrid` with equal basic vertical grids and a
+    `chain: [geometry]` expectation. (2) A vector with a units or
+    precision mismatch must work, as in legacy (`ConvertUnitsTransform`
+    and `CopyTransform` convert bundles member by member): the graph
+    `UnitsConverterTransform` and `TypeKindConverterTransform` get a
+    bundle branch in this task, creating output members at compute like
+    the bundle regrid Transform; `vector_regrid` gets a units case.
+    Brackets need nothing: they are time-interpolated to a Field first.
+    (3) The `extension-reuse` delta spec goes in the active
+    `characteristic-separation-of-concerns` change. (4) Vertical regrid of
+    bundles (VECTOR, BRACKET; legacy `VerticalRegridTransform`
+    `process_fieldbundle`) is part of C1-vertical-b, which flips
+    `vector_1`. (5) New task `C2-bundle-exports` (C2.x).
   - Owner (2026-11-08, C1-geom-b): both sides declaring a regridder param
     is INCOMPATIBLE (A23), not a `_FAIL`; the param is part of the
     geometry signature, so imports with different params do not share a
@@ -1729,6 +1745,27 @@ affected scenarios to ready (unless masked: M3).
   - **Status:** not started
 - `C2-alias-nonfield` (R2): export aliasing assumes a Field; VECTOR and
   SERVICE return rc=13. After `C2-alias-owner` (same procedure).
+  - **Status:** done (3bb936230, owner commit). `try_alias_export_field`
+    branches on the state item kind: a FieldBundle (VECTOR, SERVICE,
+    BRACKET) is aliased with `MAPL_NamedAlias`; any other kind (nested
+    State) is not found, without failure. `service_service` and
+    `service_with_options` flipped to ready (masked; red before: 24
+    failures each, rc=13). `vector_1` already passed before the fix and is
+    not flipped; `statistics_real` is now blocked only by P1. Meta
+    decisions, owner confirmed 2026-11-10: an expression input whose
+    declared item type is not FIELD is reported `unsupported_item_class`
+    at resolve time (`ExpressionTransform` reads only Fields; the reviewer
+    found every input refused this way was refused before); a created
+    FIELD placeholder whose legacy item is a bundle is destroyed. Seven
+    unit tests. NAG and gfortran ESSENTIAL 69/69. Opus review accepted
+    after one fix round.
+- `C2-bundle-exports` (owner 2026-11-10; after `C1-geom-c-b`): the graph
+  creates VECTOR, SERVICE and BRACKET export bundles itself, with their
+  members as the legacy class aspects' `create`/`allocate` do, so they are
+  not silently missing when the graph owns the user states (today the
+  graph only aliases the bundle legacy made). The last gap before vectors
+  work in every mode; independent of `C4-b`.
+  - **Status:** not started
 - Owner decisions for `C2-alias-owner` and `C2-alias-nonfield`
   (2026-11-09, from the preflight): one author, two commits (R1, then R2),
   separate reviews. A SERVICE pair is aliased like any bundle (no special
@@ -2181,16 +2218,17 @@ it may author D1/A4/B5 with sonnet review.
 | C1-geom-a | opus | sonnet | Transform + isolated tests; worktree; background author |
 | C1-geom-b | opus | sonnet | wiring + scenarios; after B4 4.1/4.2 |
 | C1-geom-c-a | sonnet | sonnet | bundle regrid Transform for VECTOR and BRACKET, chain link item class, isolated tests; owner commit (owner 2026-11-09; tier chosen by owner) |
-| C1-geom-c-b | sonnet | sonnet | after C2-alias-nonfield: bundle materialization, member creation, flip vector_1, extension-reuse delta spec |
+| C1-geom-c-b | sonnet | sonnet | bundle materialization, member creation, units/typekind bundle branch, new vector_regrid scenario, bracket test gridcomp, extension-reuse delta spec |
 | C1-vertical-direction | sonnet | sonnet | fixed_levels direction depends on physical_dimension (height/altitude increasing = UP), legacy and graph (owner exception 2026-11-09); landed ffc978344 |
 | C1-vertical-a | opus | sonnet | after C1-geom-a; numerics duplication, orientation flip; worktree |
-| C1-vertical-b | opus | sonnet | after C1-vertical-a and B4 |
+| C1-vertical-b | opus | sonnet | after C1-vertical-a and B4; includes bundles (VECTOR, BRACKET), flips vector_1 |
 | C4-ForwardNetwork | opus | sonnet | openspec hierarchy-wide-forward-network; test-first (gpt-sol tests); owner commit; landed |
 | C4-b | opus | sonnet | follow-up: population, geometry merge, carve-out; needs its own openspec change |
 | C2-geom-push | sonnet | opus | |
 | C2-alias-owner | sonnet | opus | landed 72fa0ece0 |
-| C2-alias-nonfield | sonnet | opus | after C2-alias-owner |
+| C2-alias-nonfield | sonnet | opus | landed 3bb936230 |
 | C2-qualified-src | sonnet | sonnet | qualified src_comp in Wildcard/callback paths |
+| C2-bundle-exports | sonnet | opus | after C1-geom-c-b: graph-created VECTOR/SERVICE/BRACKET export bundles |
 | C2-runphase-args | sonnet | opus | changes method-node keying |
 | D1 | sonnet (haiku?) | sonnet if haiku | `public ::` rule |
 | D2 | sonnet | opus | lifecycle-phase ordering |
