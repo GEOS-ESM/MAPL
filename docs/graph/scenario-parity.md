@@ -80,9 +80,10 @@ every scenario then fails with "shared object not found"). Full pending run:
 `build_run_phase_node step failed with rc=1` (P1) and
 `resolve_connections step failed with rc=13`) and
 `expression_per_consumer_r8` (11, graph-only; the first failed assertion is
-`Expected: is <0> but: was <1>`, with no log line before it; cause not
-traced). Each of `vertical_regridding`, `vertical_regridding_2`,
-`vertical_regridding_3`, `vertical_alignment_regrid`,
+`Expected: is <0> but: was <1>`; its cause is the legacy import coupler, which
+fails on the expression item, `CouplerMetaComponent.F90:588`). That scenario is
+ready now (see R4 below). Each of `vertical_regridding`,
+`vertical_regridding_2`, `vertical_regridding_3`, `vertical_alignment_regrid`,
 `vertical_alignment_with_grid` and `vector_1`, run alone with
 `MAPL_SCENARIO_ONLY`, passes (22 checks, no failures); in the full run none of
 them fails. `statistics` is a ready scenario now (ready shards: 33 checks =
@@ -92,6 +93,9 @@ them fails. `statistics` is a ready scenario now (ready shards: 33 checks =
 other tests in the binary), and alone through the ready shards with the fix
 reverted (the same 33 checks, no failures), so this measurement does not show
 R1 failing it. The per-row text above predates this measurement.
+
+A pending run on 2026-11-10 on NAG, after `expression_per_consumer_r8` became
+ready, gave `Tests run: 173, Failures: 22`, all of them `statistics_real`.
 
 Measured 2026-11-09 on NAG with the switch on in `GRAPH` mode (3.42): all pass
 (`plain_field`, `units_mismatch_run_phase`, `units_and_typekind_mismatch`,
@@ -296,7 +300,7 @@ checklist for switching legacy off.
 
 | Item | Legacy | Graph | Found by |
 |------|--------|-------|----------|
-| R4 expression inputs with an R8 consumer (`expression_per_consumer_r8`) | orders TYPEKIND before CLASS (`specs/ExpressionClassAspect.F90:119-124`); precision coupler fails on the expression item (`transforms/CouplerMetaComponent.F90:588`). Import couplers run in every mode except graph mode with the user-state switch on, blocking this scenario otherwise; no legacy fix | converts each input to consumer precision before evaluation, then converts result units. Since B3-SkipLegacyCouplers the scenario passes on NAG with the switch on (2026-11-09, run alone); it stays pending until its table entry sets `graph_owns_user_states` | 3.23b B3-ExpressionPerConsumer |
+| R4 expression inputs with an R8 consumer (`expression_per_consumer_r8`) | orders TYPEKIND before CLASS (`specs/ExpressionClassAspect.F90:119-124`); precision coupler fails on the expression item (`transforms/CouplerMetaComponent.F90:588`). Import couplers run in every mode except graph mode with the user-state switch on, blocking this scenario otherwise; no legacy fix | converts each input to consumer precision before evaluation, then converts result units. Since B3-SkipLegacyCouplers the scenario passes with the switch on (NAG 2026-11-09, run alone). It is ready now, graph mode only, and its table entry sets `graph_owns_user_states` (measured 2026-11-10: 11 checks pass on NAG and gfortran; with the switch dropped the legacy coupler fails it again) | 3.23b B3-ExpressionPerConsumer |
 | `geometry_mirror` / `vertical_grid_mirror` on an item, at the GEOM_A push | `make_GeomAspect` / `make_VerticalGridAspect` ignore the request; the component geom / vertical grid is pushed and the aspect becomes SPECIFIED, so a connection to an export on another grid regrids | item stays MIRRORED and adopts the exporter's geometry at connection (no regrid) | 3.39 (dropped) |
 | EXPRESSION export with no geometry and no mirror flag, at the GEOM_A push | gets the component geom / vertical grid (SPECIFIED) | stays MIRRORED (design §5) | 3.39 preflight; revisit with 3.12/3.23 |
 | `long_name` undeclared on an export or internal | none; an import inherits the export's in `connect_to_export` | falls back to the field dictionary, then the StandardName (deliberate, A8) | 3.13 |

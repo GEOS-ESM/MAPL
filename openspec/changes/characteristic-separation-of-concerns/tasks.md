@@ -423,7 +423,7 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       `Test_VariableSpecCharacteristics.pf`, not only the UngriddedDims/
       Attributes/RestartMode ones named in the brief, since they share
       the same widened `has_field_metadata` helper.
-- [ ] 3.23 B3-ExpressionPerConsumer (after 3.12). Build the per-consumer
+- [x] 3.23 B3-ExpressionPerConsumer (after 3.12). Build the per-consumer
       evaluation per design §2.4: a dedicated expression path in the
       connection code chosen by item type (like wildcard imports); inputs
       converted to the evaluation's geometry, vertical grid and precision
@@ -540,8 +540,13 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
         (`allow_unitless`). An input status conflict is reported
         unsupported without `note_unsupported_pair`, as an ordinary
         pair's status conflict is.
-        `expression_per_consumer_r8` (pending) still fails in registry
-        mode at the legacy coupler ("unsupported itemType").
+        `expression_per_consumer_r8` failed in registry mode at the
+        legacy coupler ("unsupported itemType") before the flip.
+        Status (C2-expr-r8-flip): `expression_per_consumer_r8` is ready,
+        graph mode only, with `graph_owns_user_states` in its table entry
+        (the switch skips the legacy couplers); 11 checks pass on NAG and
+        gfortran. With the switch dropped it fails again at the legacy
+        coupler.
         Quiet-INCOMPATIBLE adopted-kind input test waived: no adopted
         kind's build_transform returns INCOMPATIBLE; VerticalGrid's
         incompatible path _FAILs.
