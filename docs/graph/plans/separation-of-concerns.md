@@ -1763,7 +1763,17 @@ affected scenarios to ready (unless masked: M3).
   `GraphBuilder.F90` ~972); use `resolve_qualified_component` as
   `C2-alias-owner` did. Found by the C2-alias-owner author; no scenario
   known to need it.
-  - **Status:** not started
+  - **Status:** done (222e79933, auto-landed). The two Wildcard sites
+    (`wildcard_import_has_match`, `resolve_wildcard_destination`) and
+    `resolve_callback_import` use `resolve_qualified_component`;
+    `component_for` had no callers left and is removed. Names in the
+    namespace are relative to the source component passed in, so a
+    qualified source gives the same keys as a direct child
+    (`E_S1`, `LEAF/E_L1`). Six unit tests (qualified wildcard source,
+    descendant member, no-match check, missing source, qualified callback
+    source, missing callback source); seeding `component_for` back failed
+    all six. NAG and gfortran Debug ESSENTIAL 69/69. Sonnet review
+    accepted; three comment nits fixed.
 - `C2-alias-nonfield` (R2): export aliasing assumes a Field; VECTOR and
   SERVICE return rc=13. After `C2-alias-owner` (same procedure).
   - **Status:** done (3bb936230, owner commit). `try_alias_export_field`
