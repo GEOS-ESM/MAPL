@@ -1786,6 +1786,31 @@ affected scenarios to ready (unless masked: M3).
   not silently missing when the graph owns the user states (today the
   graph only aliases the bundle legacy made). The last gap before vectors
   work in every mode; independent of `C4-b`.
+  - Owner decisions (2026-11-10, preflight
+    `~/.opencode/plan/reports/C2-bundle-exports-preflight.md`): (1) scope
+    VECTOR and BRACKET only; SERVICE is split into `C2-service-exports`.
+    (2) A vector's two component standard names (split from
+    `(n1,n2) suffix` as legacy `split_name`) are a plain descriptor
+    attribute used only to name the members, not compared (as today);
+    legacy's per-component matching is a possible follow-up, with a
+    legacy/graph difference row now. (3) A VECTOR or BRACKET export with
+    no legacy bundle to alias gets a graph-created bundle with either
+    switch setting (one code path; the two refusal tests from
+    `C1-geom-c-b` flip). (4) An unconnected export keeps a memberless
+    bundle (legacy `allocate` runs only for active items). (5) A BRACKET
+    export without `bracket_size` fails with a clear message; more than 2
+    still fails (no change to legacy).
+  - **Status:** not started
+- `C2-service-exports` (owner 2026-11-10; after `C2-bundle-exports`): the
+  graph builds SERVICE export bundles itself. Legacy
+  `ServiceClassAspect%connect_to_import` adds each subscriber's INTERNAL
+  Field named in its `items:` (the same object), in connection order, and
+  `add_to_state` puts the bundle in both the user import and export
+  state. The graph needs the `items` list on the import descriptor, a
+  lookup of another component's internal items at resolve time, and
+  per-connection ordering. Flips `service_service` and
+  `service_with_options` with the graph-owns switch. Needs its own
+  preflight.
   - **Status:** not started
 - Owner decisions for `C2-alias-owner` and `C2-alias-nonfield`
   (2026-11-09, from the preflight): one author, two commits (R1, then R2),
@@ -2278,7 +2303,8 @@ it may author D1/A4/B5 with sonnet review.
 | C2-alias-owner | sonnet | opus | landed 72fa0ece0 |
 | C2-alias-nonfield | sonnet | opus | landed 3bb936230 |
 | C2-qualified-src | sonnet | sonnet | qualified src_comp in Wildcard/callback paths |
-| C2-bundle-exports | sonnet | opus | after C1-geom-c-b: graph-created VECTOR/SERVICE/BRACKET export bundles |
+| C2-bundle-exports | sonnet | opus | graph-created VECTOR and BRACKET export bundles (SERVICE split out) |
+| C2-service-exports | opus | opus | after C2-bundle-exports; SERVICE members from subscribers; own preflight |
 | C2-runphase-args | sonnet | opus | changes method-node keying |
 | D1 | sonnet (haiku?) | sonnet if haiku | `public ::` rule |
 | D2 | sonnet | opus | lifecycle-phase ordering |
