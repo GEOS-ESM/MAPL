@@ -11,6 +11,8 @@ module mapl_NuopcMetaModel_mod
    use mapl_KeywordEnforcer_mod, only: KeywordEnforcer
    use mapl_ErrorHandling_mod
    use mapl_InnerMetaComponent_mod
+   use mapl_OuterMetaComponent_mod, only: create_child
+   use mapl_ChildSpec_mod, only: ChildSpec
    use mapl_geom_api, only: mapl_GeomManager, mapl_get_geom_manager, mapl_MaplGeom
    use mapl_GriddedComponentDriver_mod
    use mapl_GriddedComponentDriverVector_mod
@@ -30,8 +32,7 @@ module mapl_NuopcMetaModel_mod
    use mapl_state_api
    ! NUOPC label_Advertise phases
    use mapl_enums_api, only: MAPL_GENERIC_INIT_SET_CLOCK, MAPL_GENERIC_INIT_ADVERTISE, MAPL_GENERIC_INIT_USER
-   use mapl_enums_api, only: MAPL_GENERIC_INIT_GEOM_A, MAPL_GENERIC_INIT_GEOM_B
-   ! NUOPC label_ModifyAdvertise phases
+   use mapl_enums_api, only: MAPL_GENERIC_INIT_GEOM_A, MAPL_GENERIC_INIT_GEOM_B   ! NUOPC label_ModifyAdvertise phases
    use mapl_enums_api, only: MAPL_GENERIC_INIT_MODIFY_ADVERTISED
    ! NUOPC label_RealizeProvided phases
    use mapl_enums_api, only: MAPL_GENERIC_INIT_REALIZE_PROVIDED, MAPL_GENERIC_INIT_READ_RESTART
@@ -84,6 +85,12 @@ module mapl_NuopcMetaModel_mod
       procedure, private :: get_name
       procedure, private :: get_state
       procedure, private :: advertise_outer
+      ! Hierarchy
+      !----------
+      procedure :: add_child
+      procedure :: get_num_children
+      procedure :: get_child_name
+      procedure :: set_clock
       ! Init phases
       !------------
       ! label_Advertise
@@ -136,6 +143,20 @@ module mapl_NuopcMetaModel_mod
    end interface get_meta_model
 
    character(len=*), parameter :: META_MODEL_PRIVATE_STATE = "MAPL::NuopcMetaModel::private"
+
+   ! Base-class candidates (plan rule R5).
+   !
+   ! These operations exist, with matching names and argument lists, on both
+   ! NuopcMetaModel and OuterMetaComponent. They are the intended deferred
+   ! bindings of a future AbstractMetaComponent:
+   !
+   !    add_child, recurse, get_num_children, get_child_name,
+   !    run_child_by_name, run_children_, get_registry, get_hconfig,
+   !    get_component_spec, set_entry_point
+   !
+   ! Keep their signatures free of concrete meta types (rule R3) so the
+   ! migration is mechanical. Shared implementations belong in one place
+   ! (rule R1); create_child is the first of those.
 
 contains
 
@@ -420,20 +441,20 @@ contains
 
       integer :: status
       type(ESMF_Clock) :: modelClock, internalClock
-      type(GriddedComponentDriver), pointer :: driver
       type(ESMF_State) :: exportState
       type(ESMF_Field), pointer :: exportFields(:)
       integer :: i
 
       ! The user GridComp has no OuterMetaComponent to set its clock, so
-      ! hand it the NUOPC model clock here.
+      ! derive the user and child clocks from the NUOPC model clock here. This
+      ! cannot happen in advertise: the model clock is not valid until the
+      ! realize phase.
       call NUOPC_ModelGet(this%self_model, modelClock=modelClock, _RC)
-      driver => this%get_user_gc_driver()
-      call driver%set_clock(modelClock)
+      call this%set_clock(modelClock, _RC)
 
       ! Extra MAPL phases
       call this%read_restart(_RC)
-      call recurse(this, phase_idx=MAPL_GENERIC_INIT_ADVERTISE, _RC)
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_USER, _RC)
       call this%init_user_gc(_RC)
 
       ! Same as NUOPC_ModelBase default DataInitialize: stamp exports as
@@ -513,9 +534,11 @@ contains
       if (this%run_if_alarm_rings_next) then
          call ESMF_ClockGetNextTime(modelClock, nextTime=currTime, _RC)
       end if
-      !wdb fixme deleteme Need to reactivate
-      !is_ringing = this%user_run_alarm%is_ringing(currTime, _RC)
-      is_ringing = .FALSE.
+      ! Alarms are not set up yet (user_run_alarm is unconfigured), so the
+      ! user GridComp and children advance on every model step. This matches
+      ! advance_, which runs the user phase unconditionally. Replace with
+      ! this%user_run_alarm%is_ringing(currTime) when alarms land.
+      is_ringing = .TRUE.
       _RETURN_IF(.not. is_ringing)
 
       associate(e => this%children%ftn_end())
@@ -667,16 +690,116 @@ contains
 
    end subroutine advertise_geom_b
 
-   !wdb fixme deleteme Not implemented
-   subroutine recurse(meta_model, phase_idx, rc)
+   ! Invokes an ESMF initialize phase on every child. Mirrors
+   ! OuterMetaComponent/recurse.F90.
+   recursive subroutine recurse(meta_model, phase_idx, rc)
       class(NuopcMetaModel), target, intent(inout) :: meta_model
       integer, intent(in) :: phase_idx
       integer, optional, intent(out) :: rc
       integer :: status
 
+      type(GriddedComponentDriverMapIterator) :: iter
+      type(GriddedComponentDriver), pointer :: child
+
+      associate(e => meta_model%children%ftn_end())
+        iter = meta_model%children%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           child => iter%second()
+           call child%initialize(phase_idx=phase_idx, _RC)
+        end do
+      end associate
+
       _RETURN(_SUCCESS)
 
    end subroutine recurse
+
+   ! Thin wrapper over create_child, matching OuterMetaComponent%add_child_by_spec.
+   ! This meta model is the root of its MAPL hierarchy, so the accumulated
+   ! parent offset is zero.
+   recursive subroutine add_child(this, child_name, child_spec, rc)
+      class(NuopcMetaModel), intent(inout) :: this
+      character(*), intent(in) :: child_name
+      type(ChildSpec), intent(inout) :: child_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(GriddedComponentDriver) :: child_driver
+      type(ESMF_TimeInterval) :: parent_offset
+
+      _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
+
+      call ESMF_TimeIntervalSet(parent_offset, s=0, _RC)
+      call create_child(child_name, child_spec, this%hconfig, this%registry, &
+           parent_offset, child_driver, _RC)
+
+      call this%children%insert(child_name, child_driver)
+
+      _RETURN(_SUCCESS)
+
+   end subroutine add_child
+
+   function get_num_children(this) result(num_children)
+      class(NuopcMetaModel), target, intent(in) :: this
+      integer :: num_children
+
+      num_children = this%children%size()
+
+   end function get_num_children
+
+   function get_child_name(this, index, rc) result(name)
+      class(NuopcMetaModel), target, intent(in) :: this
+      integer, intent(in) :: index
+      integer, optional, intent(out) :: rc
+      character(len=:), allocatable :: name
+
+      type(GriddedComponentDriverMapIterator) :: iter
+
+      _ASSERT(index > 0, "index should be >= 1")
+      _ASSERT(index <= this%get_num_children(), "index should be <= num_children")
+
+      iter = this%children%ftn_begin()
+      call advance(iter, index)
+      name = iter%first()
+
+      _RETURN(_SUCCESS)
+
+   end function get_child_name
+
+   ! Derives the user GridComp and child clocks from the NUOPC model clock,
+   ! mirroring OuterMetaComponent/initialize_set_clock.F90. Alarms and
+   ! per-child timesteps are not handled yet.
+   !
+   ! Called from data_initialize, not advertise: the NUOPC model clock is not
+   ! valid until the realize phase (IPDvXp07), after advertise has run.
+   recursive subroutine set_clock(this, outer_clock, rc)
+      class(NuopcMetaModel), intent(inout) :: this
+      type(ESMF_Clock), intent(in) :: outer_clock
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Clock) :: user_clock, child_clock
+      type(GriddedComponentDriverMapIterator) :: iter
+      type(GriddedComponentDriver), pointer :: child
+
+      user_clock = ESMF_ClockCreate(outer_clock, _RC)
+      call this%user_gc_driver%set_clock(user_clock)
+
+      associate(e => this%children%ftn_end())
+        iter = this%children%ftn_begin()
+        do while (iter /= e)
+           call iter%next()
+           child_clock = ESMF_ClockCreate(user_clock, _RC)
+           child => iter%second()
+           call child%set_clock(child_clock)
+        end do
+      end associate
+
+      call recurse(this, phase_idx=MAPL_GENERIC_INIT_SET_CLOCK, _RC)
+
+      _RETURN(_SUCCESS)
+
+   end subroutine set_clock
 
    !wdb fixme deleteme Not implemented
    subroutine realize_accept(this, rc)

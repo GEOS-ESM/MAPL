@@ -299,6 +299,33 @@ contains
       _RETURN(_SUCCESS)
    end subroutine get_nuopc_meta_for_user_gc_
 
+   ! Single resolution point for hierarchy operations (plan rule R4).
+   ! Returns whichever meta object owns the hierarchy for this gridcomp:
+   ! a NuopcMetaModel when the gridcomp is a NUOPC model's user GridComp,
+   ! otherwise an OuterMetaComponent.
+   !
+   ! When AbstractMetaComponent lands, this becomes a single
+   ! class(AbstractMetaComponent) pointer and the callers' branching goes away.
+   subroutine get_hierarchy_meta_(gridcomp, nuopc_meta, outer_meta, is_nuopc, rc)
+      type(ESMF_GridComp), intent(inout) :: gridcomp
+      class(NuopcMetaModel), pointer, intent(out) :: nuopc_meta
+      type(OuterMetaComponent), pointer, intent(out) :: outer_meta
+      logical, intent(out) :: is_nuopc
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      nullify(outer_meta)
+      call get_nuopc_meta_for_user_gc_(gridcomp, nuopc_meta, is_nuopc, _RC)
+      if (is_nuopc) then
+         _RETURN(_SUCCESS)
+      end if
+
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_hierarchy_meta_
+
    recursive subroutine gridcomp_get_outer_meta(gridcomp, outer_meta, rc)
       type(ESMF_GridComp), intent(inout) :: gridcomp
       type(OuterMetaComponent), pointer, intent(out) :: outer_meta
@@ -390,8 +417,9 @@ contains
 
       call get_nuopc_meta_for_user_gc_(gridcomp, nuopc_meta, found, _RC)
       if (found) then
-         _ASSERT(.not. (present(logger) .or. present(geom) .or. present(grid) .or. present(num_levels) .or. present(num_children)), "NUOPC user GridComp: only hconfig and name are supported by gridcomp_get.")
+         _ASSERT(.not. (present(logger) .or. present(geom) .or. present(grid) .or. present(num_levels)), "NUOPC user GridComp: only hconfig, name and num_children are supported by gridcomp_get.")
          if (present(hconfig)) call nuopc_meta%get_hconfig(hconfig, _RC)
+         if (present(num_children)) num_children = nuopc_meta%get_num_children()
          if (present(name)) then
             call esmf_GridCompGet(gridcomp, name=buffer, _RC)
             name = trim(buffer)
@@ -595,9 +623,14 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
+      class(NuopcMetaModel), pointer :: nuopc_meta
+      logical :: is_nuopc
 
-      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_add_child_by_spec', _RC)
-      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call get_hierarchy_meta_(gridcomp, nuopc_meta, outer_meta, is_nuopc, _RC)
+      if (is_nuopc) then
+         call nuopc_meta%add_child(child_name, child_spec, _RC)
+         _RETURN(_SUCCESS)
+      end if
       call outer_meta%add_child(child_name, child_spec, _RC)
 
       _RETURN(_SUCCESS)
@@ -648,12 +681,17 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
+      class(NuopcMetaModel), pointer :: nuopc_meta
+      logical :: is_nuopc
 
       ! Always allocate the result, even on the error path, so callers never
       ! see an unallocated string.
       name = ''
-      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_get_child_name_by_index', _RC)
-      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call get_hierarchy_meta_(gridcomp, nuopc_meta, outer_meta, is_nuopc, _RC)
+      if (is_nuopc) then
+         name = nuopc_meta%get_child_name(index, _RC)
+         _RETURN(_SUCCESS)
+      end if
       name = outer_meta%get_child_name(index, _RC)
 
       _RETURN(_SUCCESS)
