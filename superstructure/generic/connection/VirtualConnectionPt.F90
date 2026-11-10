@@ -30,6 +30,7 @@ module mapl_VirtualConnectionPt_mod
       procedure :: is_internal
 
       procedure :: matches
+      procedure :: is_literal
 
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
@@ -244,43 +245,24 @@ contains
 
       pattern = this%get_full_name()
 
-      ! A pattern without regex metacharacters matches only its own name
-      ! (ignoring case, as REG_ICASE does), so skip compiling a regex.
-      if (scan(pattern, '.[]()*+?{}|^$\') == 0) then
-         matches = equal_ignore_case(pattern, item%get_full_name())
+      ! A pattern without regex metacharacters matches only its own name,
+      ! so skip compiling a regex. Matching is case-sensitive.
+      if (this%is_literal()) then
+         matches = (pattern == item%get_full_name())
          return
       end if
 
-      call regcomp(regex,'^'//pattern//'$' // C_NULL_CHAR,flags='xmi')
+      call regcomp(regex,'^'//pattern//'$' // C_NULL_CHAR,flags='xm')
       matches = regexec(regex,item%get_full_name() // C_NULL_CHAR)
       call regfree(regex)
 
    end function matches
 
-   pure logical function equal_ignore_case(a, b) result(equal)
-      character(*), intent(in) :: a
-      character(*), intent(in) :: b
-
-      integer :: i
-
-      equal = (len(a) == len(b))
-      if (.not. equal) return
-
-      do i = 1, len(a)
-         if (to_lower(a(i:i)) /= to_lower(b(i:i))) then
-            equal = .false.
-            return
-         end if
-      end do
-
-   contains
-
-      pure character function to_lower(c)
-         character, intent(in) :: c
-         to_lower = c
-         if (c >= 'A' .and. c <= 'Z') to_lower = achar(iachar(c) + 32)
-      end function to_lower
-
-   end function equal_ignore_case
+   ! True if the full name has no POSIX ERE metacharacters, i.e. as a
+   ! pattern it matches only itself.
+   logical function is_literal(this)
+      class(VirtualConnectionPt), intent(in) :: this
+      is_literal = (scan(this%get_full_name(), '.[]()*+?{}|^$\') == 0)
+   end function is_literal
 
 end module mapl_VirtualConnectionPt_mod

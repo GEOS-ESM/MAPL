@@ -115,6 +115,19 @@ contains
       type(VirtualPtFamilyMapIterator) :: iter
 
       matches = VirtualConnectionPtVector()
+
+      ! A literal pattern matches at most one item: look it up. The map key
+      ! orders by state intent and then full name, as matches compares them.
+      ! Push the stored key, whose comp_name/short_name split callers use.
+      if (pattern%is_literal()) then
+         iter = this%family_map%find(pattern)
+         if (iter /= this%family_map%end()) then
+            v_pt => iter%first()
+            call matches%push_back(v_pt)
+         end if
+         return
+      end if
+
       associate (e => this%family_map%ftn_end())
         iter = this%family_map%ftn_begin()
         do while (iter /= e)
