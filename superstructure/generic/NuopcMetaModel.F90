@@ -29,6 +29,11 @@ module mapl_NuopcMetaModel_mod
    use mapl_ComponentSpecParser_mod
    use mapl_VirtualConnectionPt_mod
    use mapl_StateItemSpec_mod
+   use mapl_Connection_mod
+   use mapl_ConnectionPt_mod
+   use mapl_MatchConnection_mod
+   use mapl_ConnectionVector_mod, only: ConnectionVectorIterator
+   use mapl_ConnectionVector_mod, only: operator(/=)
    use mapl_state_api
    ! NUOPC label_Advertise phases
    use mapl_enums_api, only: MAPL_GENERIC_INIT_SET_CLOCK, MAPL_GENERIC_INIT_ADVERTISE, MAPL_GENERIC_INIT_USER
@@ -91,6 +96,7 @@ module mapl_NuopcMetaModel_mod
       procedure :: get_num_children
       procedure :: get_child_name
       procedure :: set_clock
+      procedure :: connect_all
       ! Init phases
       !------------
       ! label_Advertise
@@ -249,20 +255,44 @@ contains
       call this%advertise_geom_b(_RC)
       call this%run_custom(ESMF_METHOD_INITIALIZE, PHASE_NAME, _RC)
 
+      ! Same order as OuterMetaComponent/initialize_advertise: activate this
+      ! component's own connections, then pull up whatever the children could
+      ! not satisfy among themselves, before any state is populated.
+      call process_connections(this, _RC)
+      call this%registry%propagate_unsatisfied_imports(_RC)
+      call this%registry%propagate_exports(_RC)
+
       ! Create user-side items in the user GridComp states (mirrors OuterMetaComponent)
       user_states = this%user_gc_driver%get_states()
       call this%registry%add_to_states(user_states, mode='user', _RC)
 
-      !wdb fixme deleteme Do I need these?
-!      call process_connections(this, _RC)
-!      call this%registry%propagate_unsatisfied_imports(_RC)
-!      call this%registry%propagate_exports(_RC)
- 
       call this%advertise_outer(ESMF_STATEINTENT_IMPORT, _RC)
       call this%advertise_outer(ESMF_STATEINTENT_EXPORT, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine advertise
+
+   ! Activates the connections declared in this component's own spec.
+   ! Mirrors process_connections in OuterMetaComponent/initialize_advertise.
+   subroutine process_connections(this, rc)
+      class(NuopcMetaModel), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ConnectionVectorIterator) :: iter
+      class(Connection), pointer :: c
+
+      associate (e => this%component_spec%connections%end())
+        iter = this%component_spec%connections%begin()
+        do while (iter /= e)
+           c => iter%of()
+           call c%activate(this%registry, _RC)
+           call iter%next()
+        end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine process_connections
 
    subroutine advertise_outer(this, stateIntent, rc)
       class(NuopcMetaModel), intent(inout) :: this
@@ -278,9 +308,17 @@ contains
       outerState = importState
       if(stateIntent == ESMF_STATEINTENT_EXPORT) outerState=exportState
 
+      ! Only Field items are advertised to NUOPC. Bundles, states and other
+      ! item types are not exposed: NUOPC connectors operate on fields, and
+      ! there is no agreed mapping for the composite types yet.
+      !
       ! Metadata comes from the variable specs: field metadata is only
       ! attached to the ESMF fields during registry allocation, which is
       ! after advertise.
+      !
+      ! NOTE: this iterates this component's own var_specs, so items
+      ! propagated up from children are not advertised yet. See the plan,
+      ! Phase 3 item 3.
       associate (e => this%component_spec%var_specs%end())
         iter = this%component_spec%var_specs%begin()
         do while (iter /= e)
@@ -801,6 +839,27 @@ contains
 
    end subroutine set_clock
 
+   ! Magic connection: match each unsatisfied import in dst_comp with an
+   ! export of the same short name in src_comp. Mirrors
+   ! OuterMetaComponent/connect_all.F90.
+   subroutine connect_all(this, src_comp, dst_comp, rc)
+      class(NuopcMetaModel), intent(inout) :: this
+      character(*), intent(in) :: src_comp
+      character(*), intent(in) :: dst_comp
+      integer, optional, intent(out) :: rc
+
+      class(Connection), allocatable :: conn
+
+      conn = MatchConnection( &
+           ConnectionPt(src_comp, VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt(dst_comp, VirtualConnectionPt(state_intent='import', short_name='^.*$'))  &
+           )
+      call this%component_spec%add_connection(conn)
+
+      _RETURN(_SUCCESS)
+
+   end subroutine connect_all
+
    !wdb fixme deleteme Not implemented
    subroutine realize_accept(this, rc)
       class(NuopcMetaModel), intent(inout) :: this
@@ -885,7 +944,9 @@ contains
       innerState = this%get_state(ESMF_STATEINTENT_EXPORT, _RC)
       call NUOPC_ModelGet(this%self_model, exportState=exportState, _RC)
       call NUOPC_GetStateMemberLists(exportState, itemNameList=itemNameList, _RC)
-      _ASSERT(associated(itemNameList), 'itemNameList not associated')
+      ! A component with no exports is legal; NUOPC_GetStateMemberLists
+      ! leaves the list unassociated in that case.
+      _RETURN_UNLESS(associated(itemNameList))
       do i=1, size(itemNameList)
          call MAPL_StateGet(innerState, itemNameList(i), field=innerField, _RC)
          call NUOPC_Realize(exportState, innerField, _RC)

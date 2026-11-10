@@ -1012,9 +1012,14 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
+      class(NuopcMetaModel), pointer :: nuopc_meta
+      logical :: is_nuopc
 
-      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_connect_all', _RC)
-      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
+      call get_hierarchy_meta_(gridcomp, nuopc_meta, outer_meta, is_nuopc, _RC)
+      if (is_nuopc) then
+         call nuopc_meta%connect_all(src_comp, dst_comp, _RC)
+         _RETURN(_SUCCESS)
+      end if
       call outer_meta%connect_all(src_comp, dst_comp, _RC)
 
       _RETURN(_SUCCESS)
@@ -1367,11 +1372,16 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
+      class(NuopcMetaModel), pointer :: nuopc_meta
+      logical :: is_nuopc
       type(ComponentSpec), pointer :: component_spec
 
-      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_add_simple_connection', _RC)
-      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
-      component_spec => outer_meta%get_component_spec()
+      call get_hierarchy_meta_(gridcomp, nuopc_meta, outer_meta, is_nuopc, _RC)
+      if (is_nuopc) then
+         component_spec => nuopc_meta%get_component_spec()
+      else
+         component_spec => outer_meta%get_component_spec()
+      end if
       call component_spec%add_connection(src_comp=src_comp, src_names=src_names, dst_comp=dst_comp, dst_names=dst_names, _RC)
 
       _RETURN(_SUCCESS)
@@ -1389,11 +1399,16 @@ contains
 
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
+      class(NuopcMetaModel), pointer :: nuopc_meta
+      logical :: is_nuopc
       type(ComponentSpec), pointer :: component_spec
 
-      call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_reexport', _RC)
-      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
-      component_spec => outer_meta%get_component_spec()
+      call get_hierarchy_meta_(gridcomp, nuopc_meta, outer_meta, is_nuopc, _RC)
+      if (is_nuopc) then
+         component_spec => nuopc_meta%get_component_spec()
+      else
+         component_spec => outer_meta%get_component_spec()
+      end if
       call component_spec%reexport(src_comp=src_comp, src_name=src_name, src_intent=src_intent, &
            new_name=new_name, _RC)
 
