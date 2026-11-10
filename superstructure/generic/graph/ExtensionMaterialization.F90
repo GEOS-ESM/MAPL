@@ -10,6 +10,11 @@
 ! no allocation: create_field_extension) and ALLOCATED, as one Field object.
 ! materialize_field_extension() completes a CREATED Field in place; it is a
 ! no-op for any other existing Field (e.g. a reused extension chain).
+!
+! A node whose descriptor declares a VECTOR or BRACKET gets an ALLOCATED
+! FieldBundle of that type instead, with its descriptor written to it and no
+! members: the Transform that fills the bundle creates the members at
+! compute. The created-only states above are Field-only.
 ! rebuild_field_extension() instead replaces an existing completed Field;
 ! an ESMF_State or importer holding the old Field is not updated.
 !------------------------------------------------------------------------------
@@ -24,10 +29,16 @@ module mapl_ExtensionMaterialization_mod
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_field_api, only: MAPL_FieldEmptyComplete, MAPL_FieldSet
    use mapl_field_api, only: MAPL_FieldGet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleCreate, MAPL_FieldBundleSet
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_BRACKET
+   use mapl_enums_api, only: MAPL_FieldBundleType_Flag
+   use mapl_enums_api, only: MAPL_FIELDBUNDLETYPE_VECTOR
+   use mapl_enums_api, only: MAPL_FIELDBUNDLETYPE_BRACKET
    use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_ALLOCATED
    use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_CREATED
    use mapl_enums_api, only: MAPL_StateItemAllocation, operator(==)
    use ESMF, only: ESMF_Field, ESMF_FieldEmptyCreate, ESMF_FieldGet
+   use ESMF, only: ESMF_FieldBundle, ESMF_STATEITEM_FIELDBUNDLE
    use ESMF, only: ESMF_NamedAliasGet
    use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, operator(==)
    use mapl_FieldUtilities_mod, only: FieldSet
@@ -48,9 +59,11 @@ contains
 
    ! Gives node_id's StateItemNode an allocated ESMF_Field built from its
    ! descriptor: empty-create, write every keyword (sync_to_info STRUCTURAL;
-   ! the geom goes on the empty field), then complete from Info. A no-op if
-   ! the payload already is a Field. Callers check the materialization gate,
-   ! the item class and descriptor completeness; this module does not.
+   ! the geom goes on the empty field), then complete from Info. A node that
+   ! declares a VECTOR or BRACKET gets a memberless FieldBundle instead. A
+   ! no-op if the payload already is a Field or a FieldBundle. Callers check
+   ! the materialization gate, the item class and descriptor completeness;
+   ! this module does not.
    !
    ! Optional `name` makes the field findable by short name once inserted
    ! into an ESMF_State (ESMF_StateGet is by name).
@@ -73,6 +86,8 @@ contains
       class is (StateItemNode)
          payload => node%get_payload_ptr()
          kind_flag = payload%itemType(_RC)
+         ! An existing bundle is left alone (a reused extension chain).
+         _RETURN_IF(kind_flag == ESMF_STATEITEM_FIELDBUNDLE)
          if (kind_flag == ESMF_STATEITEM_FIELD) then
             ! Already materialized (a reused extension chain), unless it
             ! was only created: then complete that same Field object.
@@ -83,7 +98,11 @@ contains
             _RETURN(_SUCCESS)
          end if
 
-         call build_field_payload(node, name, _RC)
+         if (is_bundle_class(node)) then
+            call build_bundle_payload(node, name, _RC)
+         else
+            call build_field_payload(node, name, _RC)
+         end if
       class default
          _FAIL('ExtensionMaterialization: NodeId does not refer to a StateItemNode')
       end select
@@ -288,6 +307,52 @@ contains
       call payload%set(field, _RC)
       call complete_field(node, field, _RC)
    end subroutine build_field_payload
+
+   ! The bundle-backed item classes this module can create. The class comes
+   ! from the descriptor: a fresh node has no payload to ask.
+   logical function is_bundle_class(node)
+      class(StateItemNode), target, intent(in) :: node
+
+      type(StateItemDescriptor), pointer :: descriptor
+      type(ESMF_StateItem_Flag) :: item_class
+
+      descriptor => node%get_descriptor()
+      item_class = descriptor%get_declared_item_type()
+      is_bundle_class = (item_class == MAPL_STATEITEM_VECTOR) .or. &
+           (item_class == MAPL_STATEITEM_BRACKET)
+   end function is_bundle_class
+
+   ! Installs a new FieldBundle of the node's declared class as its payload,
+   ! writes the descriptor on it and marks it ALLOCATED. It has no members.
+   subroutine build_bundle_payload(node, name, rc)
+      class(StateItemNode), target, intent(inout) :: node
+      character(*), optional, intent(in) :: name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StateItemDescriptor), pointer :: descriptor
+      type(GraphStateItem), pointer :: payload
+      type(ESMF_FieldBundle) :: bundle
+      type(MAPL_FieldBundleType_Flag) :: bundle_type
+      type(ESMF_StateItem_Flag) :: item_class
+
+      descriptor => node%get_descriptor()
+      item_class = descriptor%get_declared_item_type()
+      if (item_class == MAPL_STATEITEM_VECTOR) then
+         bundle_type = MAPL_FIELDBUNDLETYPE_VECTOR
+      else
+         bundle_type = MAPL_FIELDBUNDLETYPE_BRACKET
+      end if
+
+      bundle = MAPL_FieldBundleCreate(name=name, fieldBundleType=bundle_type, _RC)
+      payload => node%get_payload_ptr()
+      call payload%set(bundle, _RC)
+      call descriptor%sync_to_info(payload, SYNC_PHASE_STRUCTURAL, _RC)
+      call MAPL_FieldBundleSet(bundle, &
+           allocation_status=MAPL_STATEITEM_ALLOCATION_ALLOCATED, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine build_bundle_payload
 
    ! Completes and allocates `field`, the node's payload Field, from the
    ! node's descriptor: write every keyword (sync_to_info STRUCTURAL; the

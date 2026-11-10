@@ -34,6 +34,16 @@ module Test_ExtensionMaterialization
         create_field_extension, field_extension_is_created, &
              rebuild_field_extension
    use mapl_field_api, only: MAPL_FieldGet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundlesAreAliased
+   use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
+   use mapl_StateItemCharacteristicKind_mod, only: ITEM_SHAPE_CHARACTERISTIC_KIND
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_BRACKET
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD
+   use mapl_enums_api, only: MAPL_FieldBundleType_Flag
+   use mapl_enums_api, only: MAPL_FIELDBUNDLETYPE_VECTOR, MAPL_FIELDBUNDLETYPE_BRACKET
+   use StateItemTestSupport_mod, only: make_latlon_geom
+   use ESMF, only: ESMF_FieldBundle, ESMF_FieldBundleGet, ESMF_Geom
+   use ESMF, only: ESMF_STATEITEM_FIELDBUNDLE, ESMF_StateItem_Flag
    use ESMF, only: ESMF_FieldStatus_Flag, ESMF_FIELDSTATUS_EMPTY, &
         ESMF_FIELDSTATUS_COMPLETE
    use mapl_SetSharedCharacteristic_mod, only: set_shared_characteristic
@@ -45,7 +55,7 @@ module Test_ExtensionMaterialization
         MAPL_STATEITEM_ALLOCATION_ALLOCATED, &
         MAPL_STATEITEM_ALLOCATION_CREATED, operator(==)
    use mapl_FieldPointerUtilities_mod, only: assign_fptr
-   use ESMF, only: ESMF_Geom, ESMF_Grid, ESMF_Field, ESMF_TypeKind_Flag
+   use ESMF, only: ESMF_Grid, ESMF_Field, ESMF_TypeKind_Flag
    use ESMF, only: ESMF_GridCreateNoPeriDim, ESMF_GeomCreate
    use ESMF, only: ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8, ESMF_KIND_R4
    use ESMF, only: ESMF_STATEITEM_FIELD, ESMF_STATEITEM_NOTFOUND
@@ -662,5 +672,199 @@ contains
       @assertEqual(0, st4)
       @assertTrue(same_again)
    end subroutine test_create_then_materialize_keeps_one_field
+
+   ! -- bundle links ------------------------------------------------------
+
+   ! Builds the chain from an export of shape `export_class` on one geom to
+   ! an import of shape `import_class` on another (units and typekind equal),
+   ! and returns the chain links. Test helper.
+   subroutine build_bundle_chain(graph, export_class, import_class, &
+        final_id, intermediate_ids)
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(ESMF_StateItem_Flag), intent(in) :: export_class, import_class
+      type(NodeId), intent(out) :: final_id
+      type(NodeId), allocatable, intent(out) :: intermediate_ids(:)
+
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(ESMF_Geom) :: src_geom, dst_geom
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      call export_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(export_class))
+      call import_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(import_class))
+      call export_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='1', geom=src_geom))
+      call import_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='2', geom=dst_geom))
+      call export_map%insert(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM))
+      call import_map%insert(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM))
+      call export_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R8'))
+      call import_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R8'))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m s-1'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m s-1'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+   end subroutine build_bundle_chain
+
+   ! The payload bundle of node_id, or failure.
+   subroutine bundle_of(graph, node_id, bundle)
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(NodeId), intent(in) :: node_id
+      type(ESMF_FieldBundle), intent(out) :: bundle
+
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: payload
+      type(ESMF_StateItem_Flag) :: item_type
+      integer :: status
+
+      node => graph%get_node(node_id)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+         item_type = payload%itemType(rc=status)
+         @assertEqual(0, status)
+         @assertTrue(item_type == ESMF_STATEITEM_FIELDBUNDLE)
+         bundle = payload%get_field_bundle(rc=status)
+         @assertEqual(0, status)
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine bundle_of
+
+   ! A VECTOR link is an allocated VECTOR bundle with the descriptor written
+   ! on it and no members: the Transform makes them at compute.
+   @test
+   subroutine test_vector_link_is_allocated_bundle_without_members()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      type(ESMF_FieldBundle) :: bundle
+      type(MAPL_FieldBundleType_Flag) :: bundle_type
+      type(MAPL_StateItemAllocation) :: alloc_status
+      type(ESMF_TypeKind_Flag) :: got_typekind
+      type(ESMF_Geom), allocatable :: got_geom
+      character(:), allocatable :: got_units
+      integer :: n_members, status
+
+      call build_bundle_chain(graph, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTOR, final_id, intermediate_ids)
+      @assertEqual(1, size(intermediate_ids))
+
+      call materialize_field_extension(graph, intermediate_ids(1), &
+           name='uv', rc=status)
+      @assertEqual(0, status)
+
+      call bundle_of(graph, intermediate_ids(1), bundle)
+      call MAPL_FieldBundleGet(bundle, fieldBundleType=bundle_type, &
+           typekind=got_typekind, geom=got_geom, units=got_units, &
+           allocation_status=alloc_status, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldBundleGet(bundle, fieldCount=n_members, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(bundle_type == MAPL_FIELDBUNDLETYPE_VECTOR)
+      @assertTrue(got_typekind == ESMF_TYPEKIND_R8)
+      @assertTrue(allocated(got_geom))
+      @assertEqual('m s-1', got_units)
+      @assertTrue(alloc_status == MAPL_STATEITEM_ALLOCATION_ALLOCATED)
+      @assertEqual(0, n_members)
+   end subroutine test_vector_link_is_allocated_bundle_without_members
+
+   ! A BRACKET export into a FIELD import: the regrid link is a BRACKET
+   ! bundle and the time-interpolation link a plain Field.
+   @test
+   subroutine test_bracket_chain_links_are_bundle_then_field()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      type(ESMF_FieldBundle) :: bundle
+      type(MAPL_FieldBundleType_Flag) :: bundle_type
+      type(GraphStateItem), pointer :: payload
+      class(GraphNode), pointer :: node
+      type(ESMF_StateItem_Flag) :: item_type
+      integer :: n_members, status
+
+      call build_bundle_chain(graph, MAPL_STATEITEM_BRACKET, &
+           MAPL_STATEITEM_FIELD, final_id, intermediate_ids)
+      @assertEqual(2, size(intermediate_ids))
+
+      call materialize_field_extension(graph, intermediate_ids(1), rc=status)
+      @assertEqual(0, status)
+      call materialize_field_extension(graph, intermediate_ids(2), rc=status)
+      @assertEqual(0, status)
+
+      call bundle_of(graph, intermediate_ids(1), bundle)
+      call MAPL_FieldBundleGet(bundle, fieldBundleType=bundle_type, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldBundleGet(bundle, fieldCount=n_members, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(bundle_type == MAPL_FIELDBUNDLETYPE_BRACKET)
+      @assertEqual(0, n_members)
+
+      node => graph%get_node(intermediate_ids(2))
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+         item_type = payload%itemType(rc=status)
+         @assertEqual(0, status)
+         @assertTrue(item_type == ESMF_STATEITEM_FIELD)
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_bracket_chain_links_are_bundle_then_field
+
+   ! A bundle that already exists (a reused chain) is the same bundle after
+   ! another materialization.
+   @test
+   subroutine test_bundle_link_is_not_rebuilt()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      type(ESMF_FieldBundle) :: first, second
+      logical :: same_bundle
+      integer :: status
+
+      call build_bundle_chain(graph, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTOR, final_id, intermediate_ids)
+      call materialize_field_extension(graph, intermediate_ids(1), rc=status)
+      @assertEqual(0, status)
+      call bundle_of(graph, intermediate_ids(1), first)
+
+      call materialize_field_extension(graph, intermediate_ids(1), rc=status)
+      @assertEqual(0, status)
+      call bundle_of(graph, intermediate_ids(1), second)
+
+      same_bundle = MAPL_FieldBundlesAreAliased(first, second, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(same_bundle)
+   end subroutine test_bundle_link_is_not_rebuilt
 
 end module Test_ExtensionMaterialization

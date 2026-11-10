@@ -102,7 +102,7 @@ module Test_GraphBuilder_ConnectionResolution
    ! -- expression dispatch ----------------------------------------------
    use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_WILDCARD
    ! -- wildcard dispatch ------------------------------------------------
-   use mapl_StateItem_mod, only: MAPL_STATEITEM_SERVICE
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_VECTORBRACKET
    use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, set_field_dictionary_config, &
         get_field_dictionary_config
    use gFTL2_StringVector, only: StringVector
@@ -2995,12 +2995,99 @@ contains
    ! for why (pFUnit @before/@after type-matching limitation when this suite's
    ! own tests mix MpiTestMethod/ESMF_TestMethod).
 
-   ! Spec "A non-field item class fails explicitly": a Vector-typed mismatched
-   ! pair is reported as an explicit, distinguishable failure - not a
-   ! fabricated payload, and not confused with "no matching export" or
-   ! "unregistered characteristic."
+   ! Spec "A non-field, non-shape-convertible item class fails explicitly
+   ! rather than getting a fabricated payload" (a bundle link whose step has
+   ! no bundle Transform): a Vector pair with a vertical-grid mismatch is reported at
+   ! resolve time (the vertical step has no bundle Transform), not built as a
+   ! bundle link that fails at compute. Nothing is wired and no payload is
+   ! fabricated.
    @test(npes=[0])
-   subroutine test_materialize_extensions_reports_unsupported_item_class(this)
+   subroutine test_materialize_extensions_vector_vgrid_mismatch_unsupported(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
+      type(VariableSpec) :: export_var_spec, import_var_spec
+      type(mapl_BasicVerticalGrid) :: export_vgrid, import_vgrid
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_parent_vector_vgrid_mismatch', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      call export_vgrid%set_id(1)
+      call import_vgrid%set_id(2)
+
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T')
+      export_var_spec%itemType = MAPL_STATEITEM_VECTOR
+      export_var_spec%vertical_grid = export_vgrid
+      export_var_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_var_spec)
+
+      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T')
+      import_var_spec%itemType = MAPL_STATEITEM_VECTOR
+      import_var_spec%vertical_grid = import_vgrid
+      import_var_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(import_var_spec)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call set_materialize_extensions(.true.)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      call set_materialize_extensions(.false.)
+      ! The single-overlap vertical case is reported as unsupported (status
+      ! stays 0, nothing raised).
+      ! mapl_BasicVerticalGrid%get_supported_physical_dimensions()
+      ! (BasicVerticalGrid.F90) always reports exactly one dimension,
+      ! the literal "<unknown>" - both sides here report that same
+      ! single dimension, so this is the "exactly one overlap" case.
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      @assertEqual(1, unsupported%size())
+      entry => unsupported%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('T', entry%short_name)
+      @assertEqual('VERTICAL_GRID', entry%reason)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_materialize_extensions_vector_vgrid_mismatch_unsupported
+
+   ! Spec "A non-field, non-shape-convertible item class fails explicitly
+   ! rather than getting a fabricated payload" (a VECTORBRACKET pair): it has no time-interpolation
+   ! step, so the shape mismatch is reported as unsupported ITEM_SHAPE and
+   ! no payload is fabricated.
+   @test(npes=[0])
+   subroutine test_materialize_extensions_vectorbracket_export_unsupported(this)
       class(MpiTestMethod), intent(inout) :: this
 
       type(ESMF_GridComp) :: parent_gc
@@ -3017,7 +3104,7 @@ contains
       integer :: status
       type(GraphBuilder) :: gb
 
-      call make_outer_meta('comp_parent_vector_mismatch', parent_gc, parent_meta, _RC)
+      call make_outer_meta('comp_parent_vecbracket_export', parent_gc, parent_meta, _RC)
       child_spec = ChildSpec()
       call parent_meta%add_child('child_src', child_spec, _RC)
       child_spec = ChildSpec()
@@ -3030,12 +3117,12 @@ contains
       src_meta => get_outer_meta(src_gc, _RC)
       dst_meta => get_outer_meta(dst_gc, _RC)
 
-      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
-      export_var_spec%itemType = MAPL_STATEITEM_VECTOR
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T')
+      export_var_spec%itemType = MAPL_STATEITEM_VECTORBRACKET
       src_spec => src_meta%get_component_spec()
       call src_spec%add_var_spec(export_var_spec)
 
-      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T', units='km')
+      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T')
       import_var_spec%itemType = MAPL_STATEITEM_VECTOR
       dst_spec => dst_meta%get_component_spec()
       call dst_spec%add_var_spec(import_var_spec)
@@ -3061,10 +3148,10 @@ contains
       entry => unsupported%at(1, status)
       @assertEqual('child_dst', entry%component_name)
       @assertEqual('T', entry%short_name)
-      @assertEqual('unsupported_item_class:VECTOR', entry%reason)
+      @assertEqual('ITEM_SHAPE', entry%reason)
 
       _UNUSED_DUMMY(this)
-   end subroutine test_materialize_extensions_reports_unsupported_item_class
+   end subroutine test_materialize_extensions_vectorbracket_export_unsupported
 
    ! Spec "An extension with no executing provider is still not given a
    ! payload": a vertical-grid mismatch (an unregistered characteristic

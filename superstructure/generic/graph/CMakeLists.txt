@@ -70,6 +70,7 @@ target_sources(MAPL.generic PRIVATE
   transforms/BracketTimeInterpolationTransform.F90
   transforms/ExpressionTransform.F90
   transforms/HorizontalRegridTransform.F90
+  transforms/BundleMemberSupport.F90
   transforms/HorizontalBundleRegridTransform.F90
   transforms/VerticalFlipTransform.F90
   transforms/VerticalColumnRegridTransform.F90

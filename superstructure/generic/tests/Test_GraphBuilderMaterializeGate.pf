@@ -74,7 +74,10 @@ module Test_GraphBuilderMaterializeGate
    use mapl_GraphOwnsUserStates_mod, only: set_graph_owns_user_states
    use mapl_StateItem_mod, only: MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_FIELD
    use mapl_StateItem_mod, only: MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_SERVICE
-   use mapl_field_bundle_api, only: MAPL_FieldBundlesAreAliased
+   use mapl_field_bundle_api, only: MAPL_FieldBundlesAreAliased, MAPL_FieldBundleGet
+   use mapl_enums_api, only: MAPL_FieldBundleType_Flag, MAPL_FIELDBUNDLETYPE_BRACKET
+   use mapl_enums_api, only: MAPL_FIELDBUNDLETYPE_VECTOR
+   use mapl_UnitsConverterTransform_mod, only: UnitsConverterTransform
    use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_REGISTRY, GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH
    use mapl_MultiState_mod, only: MultiState
    use mapl_FieldCreate_mod, only: FieldsAreAliased
@@ -404,12 +407,10 @@ contains
    end subroutine test_materialize_extensions_enabled_creates_real_field
 
    ! A BRACKET export -> FIELD import pairing reaches the narrowed export-side
-   ! gate and is NOT reported as unsupported_item_class - unlike
-   ! Test_GraphBuilder_ConnectionResolution.pf's own
-   ! test_materialize_extensions_reports_unsupported_item_class
-   ! (VECTOR->VECTOR), which still correctly fails (shape mismatch with no
-   ! build_transform support). Units/typekind match on both sides, isolating
-   ! the shape axis exactly as the synthetic-node test
+   ! gate and is NOT reported as unsupported_item_class - unlike a SERVICE
+   ! export (test_exact_match_service_without_alias_reported_unsupported
+   ! below) or a VECTORBRACKET export, which still correctly fail. Units/typekind
+   ! match on both sides, isolating the shape axis exactly as the synthetic-node test
    ! test_bracket_to_field_mismatch_builds_interpolation_chain in
    ! Test_ExtensionResolution.pf does. Lives in
    ! THIS file, not Test_GraphBuilder_ConnectionResolution.pf, because
@@ -502,11 +503,11 @@ contains
    end subroutine test_materialize_extensions_bracket_export_narrowed_gate
 
    ! A BRACKET export into a FIELD import on another geom builds a chain
-   ! whose regrid link is a BRACKET. Every link is created as a plain Field,
-   ! so that link is refused with the item class named, and neither the
-   ! BRACKET link nor the time interpolation link after it gets a Field.
+   ! whose regrid link is a BRACKET. That link is materialized as a bundle
+   ! without members (the regrid creates them at compute) and the time
+   ! interpolation link after it as a Field; nothing is reported unsupported.
    @Test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_materialize_extensions_rejects_bracket_link(this)
+   subroutine test_materialize_extensions_materializes_bracket_link(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
       type(ESMF_GridComp) :: parent_gc
@@ -526,7 +527,13 @@ contains
       type(NodeId), pointer :: t_export_id
       type(NodeId) :: last_link_id, transform_id, first_link_id
       type(DependencyNetwork), pointer :: net
-      logical :: first_created, last_created
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: link_payload
+      type(ESMF_StateItem_Flag) :: first_type, last_type
+      type(ESMF_FieldBundle) :: link_bundle
+      type(MAPL_FieldBundleType_Flag) :: bundle_type
+      type(MAPL_StateItemAllocation) :: alloc_status
+      integer :: n_members
       integer :: status
       type(GraphBuilder) :: gb
 
@@ -585,13 +592,10 @@ contains
       call set_materialize_extensions(.false.)
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
-      @assertEqual(1, unsupported%size())
-      if (unsupported%size() /= 1) return
-      entry => unsupported%at(1, status)
-      @assertEqual('unsupported_item_class:BRACKET', entry%reason)
+      @assertEqual(0, unsupported%size())
 
       ! The chain is export, regrid, BRACKET link, interpolation, FIELD
-      ! link; it is not wired to the import after the failure.
+      ! link: a bundle without members, then a Field.
       parent_graph => parent_meta%get_component_graph()
       src_graph => src_meta%get_component_graph()
       t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
@@ -600,13 +604,176 @@ contains
       first_link_id = single_successor(net, transform_id)
       transform_id = single_successor(net, first_link_id)
       last_link_id = single_successor(net, transform_id)
-      first_created = field_extension_is_created(parent_graph, first_link_id)
-      last_created = field_extension_is_created(parent_graph, last_link_id)
-      @assertFalse(first_created)
-      @assertFalse(last_created)
+
+      node => parent_graph%get_node(first_link_id)
+      select type (node)
+      class is (StateItemNode)
+         link_payload => node%get_payload_ptr()
+         first_type = link_payload%itemType(rc=status)
+         @assertEqual(0, status)
+         @assertTrue(first_type == ESMF_STATEITEM_FIELDBUNDLE)
+         if (first_type == ESMF_STATEITEM_FIELDBUNDLE) then
+            link_bundle = link_payload%get_field_bundle(rc=status)
+            @assertEqual(0, status)
+            call MAPL_FieldBundleGet(link_bundle, fieldBundleType=bundle_type, &
+                 allocation_status=alloc_status, rc=status)
+            @assertEqual(0, status)
+            call ESMF_FieldBundleGet(link_bundle, fieldCount=n_members, rc=status)
+            @assertEqual(0, status)
+            @assertTrue(bundle_type == MAPL_FIELDBUNDLETYPE_BRACKET)
+            @assertTrue(alloc_status == MAPL_STATEITEM_ALLOCATION_ALLOCATED)
+            @assertEqual(0, n_members)
+         end if
+      class default
+         @assertTrue(.false.)
+      end select
+
+      node => parent_graph%get_node(last_link_id)
+      select type (node)
+      class is (StateItemNode)
+         link_payload => node%get_payload_ptr()
+         last_type = link_payload%itemType(rc=status)
+         @assertEqual(0, status)
+         @assertTrue(last_type == ESMF_STATEITEM_FIELD)
+      class default
+         @assertTrue(.false.)
+      end select
 
       _UNUSED_DUMMY(this)
-   end subroutine test_materialize_extensions_rejects_bracket_link
+   end subroutine test_materialize_extensions_materializes_bracket_link
+
+   ! Spec "A vector link is materialized as a bundle without members": a
+   ! Vector pair with a units mismatch gets one UnitsConverterTransform and
+   ! a VECTOR link that is an allocated bundle with no members (the
+   ! Transform creates them at compute). Nothing is reported unsupported.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_materialize_extensions_materializes_vector_units_link(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ESMF_GridComp) :: src_gc, dst_gc
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph, src_graph
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(VariableSpec) :: export_var_spec, import_var_spec
+      type(NodeId), pointer :: t_export_id
+      type(NodeId) :: transform_id, link_id
+      type(GraphResolutionEntry), pointer :: entry
+      type(DependencyNetwork), pointer :: net
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: link_payload
+      type(ESMF_StateItem_Flag) :: link_type
+      type(ESMF_FieldBundle) :: link_bundle
+      type(MAPL_FieldBundleType_Flag) :: bundle_type
+      integer :: n_members
+      integer :: status
+      logical :: is_units_transform
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 331, rc=status)
+      @assertEqual(0, status)
+
+      call make_outer_meta('comp_parent_vector_units', parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
+      export_var_spec%itemType = MAPL_STATEITEM_VECTOR
+      export_var_spec%geom = geom
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(export_var_spec)
+
+      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T', units='km')
+      import_var_spec%itemType = MAPL_STATEITEM_VECTOR
+      import_var_spec%geom = geom
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(import_var_spec)
+
+      call gb%advertise(src_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(dst_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      parent_spec => parent_meta%get_component_spec()
+      call parent_spec%add_connection(conn)
+
+      call set_materialize_extensions(.true.)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=status)
+      call set_materialize_extensions(.false.)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+      if (unsupported%size() > 0) then
+         entry => unsupported%at(1, status)
+         @assertEqual('', entry%reason)
+      end if
+      @assertEqual(0, unsupported%size())
+
+      ! The chain is export, units Transform, VECTOR link.
+      parent_graph => parent_meta%get_component_graph()
+      src_graph => src_meta%get_component_graph()
+      t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      net => parent_graph%get_network(parent_graph%get_forward_network_id())
+      transform_id = single_successor(net, t_export_id)
+      link_id = single_successor(net, transform_id)
+
+      node => parent_graph%get_node(transform_id)
+      is_units_transform = .false.
+      select type (node)
+      class is (TransformGraphNode)
+         select type (t => node%get_transformer())
+         type is (UnitsConverterTransform)
+            is_units_transform = .true.
+         end select
+      end select
+      @assertTrue(is_units_transform)
+
+      node => parent_graph%get_node(link_id)
+      select type (node)
+      class is (StateItemNode)
+         link_payload => node%get_payload_ptr()
+         link_type = link_payload%itemType(rc=status)
+         @assertEqual(0, status)
+         @assertTrue(link_type == ESMF_STATEITEM_FIELDBUNDLE)
+         if (link_type == ESMF_STATEITEM_FIELDBUNDLE) then
+            link_bundle = link_payload%get_field_bundle(rc=status)
+            @assertEqual(0, status)
+            call MAPL_FieldBundleGet(link_bundle, fieldBundleType=bundle_type, rc=status)
+            @assertEqual(0, status)
+            call ESMF_FieldBundleGet(link_bundle, fieldCount=n_members, rc=status)
+            @assertEqual(0, status)
+            @assertTrue(bundle_type == MAPL_FIELDBUNDLETYPE_VECTOR)
+            @assertEqual(0, n_members)
+         end if
+      class default
+         @assertTrue(.false.)
+      end select
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_materialize_extensions_materializes_vector_units_link
 
    ! Spec "Matching export is materialized with a real field": with the graph
    ! mode selected as GRAPH_MODE_GRAPH (GRAPH_MODE_BOTH behaves identically for
@@ -3048,9 +3215,11 @@ contains
    !                   imports as the FIELD I
    ! Every other mode connects the source component MID/SRC, port V (port
    ! expr to import I for BUNDLE_EXPRESSION).
+   ! With no_legacy, legacy leaves nothing under V, so nothing is aliased.
    subroutine make_bundle_alias_fixture(mode, p_meta, src_meta, legacy_bundle, &
-        unresolved, unsupported, rc)
+        unresolved, unsupported, rc, no_legacy)
       integer, intent(in) :: mode
+      logical, optional, intent(in) :: no_legacy
       type(OuterMetaComponent), pointer, intent(out) :: p_meta, src_meta
       type(ESMF_FieldBundle), intent(out) :: legacy_bundle
       type(GraphResolutionEntryVector), intent(out) :: unresolved, unsupported
@@ -3069,9 +3238,12 @@ contains
       type(ESMF_Geom) :: geom
       type(ESMF_State) :: nested
       character(:), allocatable :: import_name, source_name
+      logical :: legacy_adds_item
       integer :: status
       type(GraphBuilder) :: gb
 
+      legacy_adds_item = .true.
+      if (present(no_legacy)) legacy_adds_item = .not. no_legacy
       grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
       _VERIFY(status)
       geom = ESMF_GeomCreate(grid, rc=status)
@@ -3133,7 +3305,10 @@ contains
 
       own_driver => src_meta%get_user_gc_driver()
       own_states = own_driver%get_states()
-      if (mode == BUNDLE_NESTED) then
+      if (.not. legacy_adds_item) then
+         legacy_bundle = ESMF_FieldBundleCreate(name='V', rc=status)
+         _VERIFY(status)
+      else if (mode == BUNDLE_NESTED) then
          nested = ESMF_StateCreate(name='V', rc=status)
          _VERIFY(status)
          call ESMF_StateAdd(own_states%exportState, [nested], rc=status)
@@ -3246,6 +3421,109 @@ contains
       call check_bundle_alias(BUNDLE_BRACKET)
       _UNUSED_DUMMY(this)
    end subroutine test_alias_bracket_export_feeds_chain
+
+   ! Switch OFF, a VECTOR export with a VECTOR import of the same geom and
+   ! units (an exact match), and legacy left no item to alias: the graph has
+   ! no bundle to make for an export, so the pair is reported as
+   ! unsupported_item_class:VECTOR and no bundle payload is created.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_exact_match_vector_without_alias_reported_unsupported(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: p_meta, src_meta
+      type(ESMF_FieldBundle) :: legacy_bundle
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
+      logical :: is_bundle, aliased
+      integer :: status, st_n, st_e, n_unsupported
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+      call make_bundle_alias_fixture(BUNDLE_VECTOR, p_meta, src_meta, &
+           legacy_bundle, unresolved, unsupported, status, no_legacy=.true.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assertEqual(0, status)
+
+      n_unsupported = unsupported%size()
+      @assertEqual(1, n_unsupported)
+      if (n_unsupported == 1) then
+         entry => unsupported%at(1, st_e)
+         @assertEqual(0, st_e)
+         @assertEqual('unsupported_item_class:VECTOR', entry%reason)
+      end if
+      call get_node_bundle_aliased(src_meta, legacy_bundle, is_bundle, aliased, st_n)
+      @assertFalse(is_bundle)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(p_meta)
+   end subroutine test_exact_match_vector_without_alias_reported_unsupported
+
+   ! Switch OFF, a BRACKET export into a FIELD import and legacy left no
+   ! item to alias: the chain input would be an unallocated bundle that the
+   ! first Transform fails on at compute, so it is reported at resolve time
+   ! as unsupported_item_class:BRACKET.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_chain_input_bracket_without_alias_reported_unsupported(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: p_meta, src_meta
+      type(ESMF_FieldBundle) :: legacy_bundle
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
+      integer :: status, st_e, n_unsupported
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+      call make_bundle_alias_fixture(BUNDLE_BRACKET, p_meta, src_meta, &
+           legacy_bundle, unresolved, unsupported, status, no_legacy=.true.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assertEqual(0, status)
+
+      n_unsupported = unsupported%size()
+      @assertEqual(1, n_unsupported)
+      if (n_unsupported == 1) then
+         entry => unsupported%at(1, st_e)
+         @assertEqual(0, st_e)
+         @assertEqual('unsupported_item_class:BRACKET', entry%reason)
+      end if
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(p_meta)
+      _UNUSED_DUMMY(src_meta)
+   end subroutine test_chain_input_bracket_without_alias_reported_unsupported
+
+   ! Switch OFF, a SERVICE pair with legacy having left no item to alias:
+   ! only FIELD (and, for a chain, VECTOR and BRACKET) can be created, so the
+   ! pair is reported as unsupported_item_class:SERVICE.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_exact_match_service_without_alias_reported_unsupported(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: p_meta, src_meta
+      type(ESMF_FieldBundle) :: legacy_bundle
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
+      integer :: status, st_e, n_unsupported
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+      call make_bundle_alias_fixture(BUNDLE_SERVICE, p_meta, src_meta, &
+           legacy_bundle, unresolved, unsupported, status, no_legacy=.true.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assertEqual(0, status)
+
+      n_unsupported = unsupported%size()
+      @assertEqual(1, n_unsupported)
+      if (n_unsupported == 1) then
+         entry => unsupported%at(1, st_e)
+         @assertEqual(0, st_e)
+         @assertEqual('unsupported_item_class:SERVICE', entry%reason)
+      end if
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(p_meta)
+      _UNUSED_DUMMY(src_meta)
+   end subroutine test_exact_match_service_without_alias_reported_unsupported
 
    ! Switch OFF, a propagated (qualified) VECTOR export: the bundle is in the
    ! user export state of the producing component, found by the port walk.

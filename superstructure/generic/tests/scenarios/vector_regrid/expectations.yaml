@@ -1,0 +1,71 @@
+# Two vectors on different lat-lon grids with equal vertical grids: `uv`
+# differs in geometry only, `wind` in geometry and in units (m s-1 -> km s-1).
+# The graph result is checked through the chain only; the values of the
+# imports come from legacy.
+#
+# NOTE on standard_name for a vector bundle: VariableSpec splits the compound
+# standard_name into two per-component names, in [eastward, northward] order.
+
+- component: A/<user>
+  export:
+    uv:
+      status: complete
+      class: bundle
+      standard_name: ['eastward horizontal velocity', 'northward horizontal velocity']
+    wind:
+      status: complete
+      class: bundle
+      standard_name: ['eastward wind', 'northward wind']
+
+- component: A
+  export:
+    uv:
+      status: complete
+      class: bundle
+      standard_name: ['eastward horizontal velocity', 'northward horizontal velocity']
+    wind:
+      status: complete
+      class: bundle
+      standard_name: ['eastward wind', 'northward wind']
+
+- component: B/<user>
+  import:
+    uv:
+      status: complete
+      class: bundle
+      standard_name: ['eastward horizontal velocity', 'northward horizontal velocity']
+    wind:
+      status: complete
+      class: bundle
+      standard_name: ['eastward wind', 'northward wind']
+
+- component: B
+  import:
+    uv:
+      status: complete
+      class: bundle
+      standard_name: ['eastward horizontal velocity', 'northward horizontal velocity']
+    wind:
+      status: complete
+      class: bundle
+      standard_name: ['eastward wind', 'northward wind']
+
+- component: <user>
+  import: {}
+  export: {}
+  internal: {}
+
+- component: <root>
+  export:
+    A/uv:
+      status: complete
+      class: bundle
+      standard_name: ['eastward horizontal velocity', 'northward horizontal velocity']
+    A/wind:
+      status: complete
+      class: bundle
+      standard_name: ['eastward wind', 'northward wind']
+  graph:
+    connections:
+      - {export: A/uv, import: B/uv, chain: [geometry]}
+      - {export: A/wind, import: B/wind, chain: [geometry, units]}

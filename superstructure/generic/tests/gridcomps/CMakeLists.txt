@@ -6,7 +6,10 @@ add_library(proto_extdata_gc SHARED
 add_library(proto_stat_gc SHARED
   ProtoStatGridComp.F90)
 
-set (comps proto_extdata_gc proto_stat_gc)
+add_library(proto_bracket_gc SHARED
+  ProtoBracketGridComp.F90)
+
+set (comps proto_extdata_gc proto_stat_gc proto_bracket_gc)
 foreach (comp ${comps})
   target_link_libraries(${comp} MAPL.generic)
   target_include_directories(${comp} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/..)

@@ -77,7 +77,7 @@ set_target_properties(MAPL.generic.scenarios PROPERTIES Fortran_MODULE_DIRECTORY
 # The unsharded ctest entry created above is replaced by the
 # MAPL.generic.scenarios.shard<k> entries defined after TEST_ENV below.
 set_tests_properties(MAPL.generic.scenarios PROPERTIES DISABLED TRUE)
-add_dependencies(MAPL.generic.scenarios proto_extdata_gc proto_stat_gc copy_scenarios copy_graph_scenarios)
+add_dependencies(MAPL.generic.scenarios proto_extdata_gc proto_stat_gc proto_bracket_gc copy_scenarios copy_graph_scenarios)
 
 # 2. MAPL.generic.transforms - Data transformation tests
 set(transforms_test_srcs

@@ -264,9 +264,10 @@ First kind with a DEFERRED value (a value the component supplies later).
   STATE and WILDCARD report unsupported. A tip with no ITEM_SHAPE entry is
   not restricted. A chain link takes its declared item class from its
   ITEM_SHAPE entry (`StateItemDescriptor%take_declared_item_type_from_shape`;
-  an EXPRESSION shape gives FIELD), and `materialize_extension_chain` refuses
-  a link that is not FIELD with `unsupported_item_class:<class>`, so a bundle
-  regrid chain is built but no bundle payload is created yet.
+  an EXPRESSION shape gives FIELD). `materialize_extension_chain` materializes
+  a VECTOR or BRACKET link as an allocated bundle with no members (the
+  Transform creates the members at compute) and refuses any other non-FIELD
+  link with `unsupported_item_class:<class>`.
 
 ## VerticalGrid as implemented
 

@@ -292,6 +292,8 @@ contains
          character(:), allocatable :: unsupported_characteristic
          character(:), allocatable :: incompatible_pair
          character(:), allocatable :: materialization_failure
+         type(GraphStateItem), pointer :: chain_input_payload
+         type(ESMF_StateItem_Flag) :: chain_input_type
          type(StringVector) :: callback_rejected
          character(:), pointer :: rejected_item
          integer :: j
@@ -481,21 +483,30 @@ contains
                     this_graph, export_node_id, alias_found, _RC)
             end if
             if (.not. alias_found) then
-               ! export_item is passed as both export and import, so loosening the
-               ! export-side gate would reach the FIELD-only import-side check and
-               ! abandon the connection. A non-FIELD (e.g. bracket) input has no
-               ! field-shaped version to materialize, so skip it here and let the
-               ! chain's own materialization below run.
+               ! Only a Field input can be created here. A bundle input that
+               ! is not an alias of a legacy bundle has no payload the graph
+               ! can make (graph-created export bundles do not exist yet), and
+               ! the chain's Transform would fail at compute: report it now.
                if (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD) then
                   call try_materialize_field_extension(export_item, &
                        export_item, this_graph, export_node_id, &
                        materialization_failure, &
                        name=export_node%get_short_name(), _RC)
-                  if (materialization_failure /= '') then
-                     call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
-                          materialization_failure))
-                     _RETURN(_SUCCESS)
+               else
+                  ! Only a test that sets a bundle payload by hand reaches
+                  ! here holding one; a legacy bundle alias is handled above.
+                  chain_input_payload => export_node%get_payload_ptr()
+                  chain_input_type = chain_input_payload%itemType(_RC)
+                  materialization_failure = ''
+                  if (.not. (chain_input_type == ESMF_STATEITEM_FIELDBUNDLE)) then
+                     materialization_failure = 'unsupported_item_class:' // &
+                          itemtype_name(export_item%get_declared_item_type())
                   end if
+               end if
+               if (materialization_failure /= '') then
+                  call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
+                       materialization_failure))
+                  _RETURN(_SUCCESS)
                end if
             end if
          end if
@@ -1659,26 +1670,34 @@ contains
       _RETURN(_SUCCESS)
    end subroutine try_materialize_field_extension
 
-   ! failure_reason is empty when a field can be created for `item`: the
-   ! export side admits BRACKET alongside FIELD (a bracket export resolved
-   ! into a field import is always materialized as a plain Field); the
-   ! import side stays FIELD-only; and item lacks no creation value.
+   ! failure_reason is empty when a payload can be created for `item`. The
+   ! export side admits FIELD and BRACKET (a bracket export resolved into a
+   ! field import is materialized as a plain Field); the import side admits
+   ! FIELD; and item lacks no creation value. With admit_bundles (a chain
+   ! link) VECTOR is also admitted on both sides, as a bundle without members.
+   ! Exact-match exports and chain inputs are never bundles here.
    subroutine check_materializable(export_item, import_item, item, &
-        failure_reason)
+        failure_reason, admit_bundles)
       type(StateItemDescriptor), intent(in) :: export_item
       type(StateItemDescriptor), intent(in) :: import_item
       type(StateItemDescriptor), intent(in) :: item
       character(:), allocatable, intent(out) :: failure_reason
+      logical, optional, intent(in) :: admit_bundles
 
       type(StateItemCharacteristicKind), allocatable :: incomplete(:)
+      logical :: bundles
 
+      bundles = .false.
+      if (present(admit_bundles)) bundles = admit_bundles
       failure_reason = ''
       if (.not. (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
-           .or. export_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET)) then
+           .or. export_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET &
+           .or. (bundles .and. export_item%get_declared_item_type() == MAPL_STATEITEM_VECTOR))) then
          failure_reason = 'unsupported_item_class:' // itemtype_name(export_item%get_declared_item_type())
          return
       end if
-      if (.not. (import_item%get_declared_item_type() == MAPL_STATEITEM_FIELD)) then
+      if (.not. (import_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
+           .or. (bundles .and. import_item%get_declared_item_type() == MAPL_STATEITEM_VECTOR))) then
          failure_reason = 'unsupported_item_class:' // itemtype_name(import_item%get_declared_item_type())
          return
       end if
@@ -1693,8 +1712,8 @@ contains
    ! that extension node's own descriptor (the tip after its step). Stops
    ! at the first link that cannot be materialized, returning
    ! check_materializable's failure_reason, or unsupported_item_class when
-   ! the link itself is not declared a Field. `name` names the link fields,
-   ! for consumers that look their inputs up by field name.
+   ! the link itself is declared neither Field, Vector nor Bracket. `name`
+   ! names the links, for consumers that look their inputs up by name.
    subroutine materialize_extension_chain(export_item, import_item, &
         intermediate_node_ids, graph, failure_reason, rc, name)
       type(StateItemDescriptor), intent(in) :: export_item
@@ -1718,13 +1737,16 @@ contains
          select type (link_node)
          class is (StateItemNode)
             call check_materializable(export_item, import_item, &
-                 link_node%get_descriptor(), failure_reason)
-            ! A link is built as a plain Field, so a link of another item
-            ! class (e.g. a bracket after its regrid step) cannot be.
+                 link_node%get_descriptor(), failure_reason, &
+                 admit_bundles=.true.)
+            ! A link is built as a Field, or as a bundle without members
+            ! for a vector or bracket; no other item class can be.
             link_descriptor => link_node%get_descriptor()
             link_type = link_descriptor%get_declared_item_type()
             if (failure_reason == '' .and. &
-                 .not. (link_type == MAPL_STATEITEM_FIELD)) then
+                 .not. (link_type == MAPL_STATEITEM_FIELD .or. &
+                 link_type == MAPL_STATEITEM_VECTOR .or. &
+                 link_type == MAPL_STATEITEM_BRACKET)) then
                failure_reason = 'unsupported_item_class:' // itemtype_name(link_type)
             end if
          class default

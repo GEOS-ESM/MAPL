@@ -197,6 +197,8 @@ contains
            ScenarioEntry('regrid_r8',               'cap.yaml',         .true., &
                 graph_owns_user_states=.true.), &
            ScenarioEntry('vector_1',                'parent.yaml',      .false.), &
+           ScenarioEntry('vector_regrid',           'cap.yaml',         .true.), &
+           ScenarioEntry('bracket_regrid',          'cap.yaml',         .true.), &
            ScenarioEntry('vertical_regridding',     'parent.yaml',      .false.), &
            ScenarioEntry('vertical_alignment_same_grid', 'parent.yaml', .true.), &
            ScenarioEntry('vertical_alignment_regrid',    'parent.yaml', .false.), &
@@ -583,8 +585,8 @@ contains
    !       - {export: comp_src/T, import: comp_dst/T, wired: false}
    ! `chain` lists the extension steps in order from export to import; an empty
    ! list means a direct edge. A step kind (units, typekind, geometry,
-   ! vertical, orientation) is the one aspect that differs between the items
-   ! either side of its transform. Paths are relative
+   ! vertical, orientation, item_shape) is the one aspect that differs
+   ! between the items either side of its transform. Paths are relative
    ! to the root component, and each connection is one the root declared
    ! (chains live in the root's graph). Registry mode has no graph, so it is skipped; the
    ! checks run once per scenario and mode, under the 'item type' parameter.
@@ -948,21 +950,18 @@ contains
          type(VerticalAlignment) :: in_align, out_align
          type(VerticalStaggerLoc) :: in_stagger, out_stagger
          logical :: has_vertical
-         type(ESMF_Field) :: in_field, out_field
-         logical :: differs(5)
-         character(len=16), parameter :: KINDS(5) = [character(len=16) :: &
-              'units', 'typekind', 'geometry', 'vertical', 'orientation']
+         logical :: differs(6)
+         logical :: in_bundle, out_bundle
+         character(len=16), parameter :: KINDS(6) = [character(len=16) :: &
+              'units', 'typekind', 'geometry', 'vertical', 'orientation', &
+              'item_shape']
 
          rc = 0
          kind = 'unknown'
-         in_field = item_field(in_id, _RC)
-         out_field = item_field(out_id, _RC)
-         call FieldGet(in_field, units=in_units, typekind=in_tk, &
-              geom=in_geom, vgrid=in_vgrid, vert_alignment=in_align, &
-              vert_staggerloc=in_stagger, _RC)
-         call FieldGet(out_field, units=out_units, typekind=out_tk, &
-              geom=out_geom, vgrid=out_vgrid, vert_alignment=out_align, &
-              vert_staggerloc=out_stagger, _RC)
+         call item_description(in_id, in_units, in_tk, in_geom, in_vgrid, &
+              in_align, in_stagger, in_bundle, _RC)
+         call item_description(out_id, out_units, out_tk, out_geom, out_vgrid, &
+              out_align, out_stagger, out_bundle, _RC)
 
          differs(1) = in_units /= out_units
          differs(2) = .not. (in_tk == out_tk)
@@ -973,6 +972,7 @@ contains
          differs(4) = has_vertical .and. (in_stagger /= out_stagger .or. &
               vgrid_differs(in_vgrid, out_vgrid))
          differs(5) = has_vertical .and. in_align /= out_align
+         differs(6) = in_bundle .neqv. out_bundle
 
          if (count(differs) == 1) kind = KINDS(findloc(differs, .true., dim=1))
          rc = 0
@@ -1003,14 +1003,26 @@ contains
          differs = a%get_id() /= b%get_id()
       end function vgrid_differs
 
-      function item_field(id, rc) result(field)
-         type(ESMF_Field) :: field
+      ! What step_kind compares, read from the chain item's Field or, for a
+      ! VECTOR or BRACKET link, from its FieldBundle.
+      subroutine item_description(id, units, typekind, geom, vgrid, align, &
+           stagger, is_bundle, rc)
          type(NodeId), intent(in) :: id
+         character(:), allocatable, intent(out) :: units
+         type(ESMF_TypeKind_Flag), intent(out) :: typekind
+         type(ESMF_Geom), allocatable, intent(out) :: geom
+         class(mapl_VerticalGrid), pointer, intent(out) :: vgrid
+         type(VerticalAlignment), intent(out) :: align
+         type(VerticalStaggerLoc), intent(out) :: stagger
+         logical, intent(out) :: is_bundle
          integer, intent(out) :: rc
 
          integer :: status
          class(GraphNode), pointer :: node
          type(GraphStateItem), pointer :: payload
+         type(ESMF_StateItem_Flag) :: item_type
+         type(ESMF_Field) :: field
+         type(ESMF_FieldBundle) :: bundle
 
          rc = 0
          node => root_graph%get_node(id)
@@ -1021,9 +1033,22 @@ contains
             @assertTrue(.false., 'graph chain item is not a StateItemNode')
             return
          end select
+         item_type = payload%itemType(_RC)
+         is_bundle = (item_type == ESMF_STATEITEM_FIELDBUNDLE)
+         if (is_bundle) then
+            bundle = payload%get_field_bundle(_RC)
+            @assertTrue(ESMF_FieldBundleIsCreated(bundle), 'graph chain item has a real, created bundle')
+            call MAPL_FieldBundleGet(bundle, units=units, typekind=typekind, &
+                 geom=geom, vgrid=vgrid, vert_alignment=align, &
+                 vert_staggerloc=stagger, _RC)
+            return
+         end if
          field = payload%get_field(_RC)
          @assertTrue(ESMF_FieldIsCreated(field), 'graph chain item has a real, created field')
-      end function item_field
+         call FieldGet(field, units=units, typekind=typekind, geom=geom, &
+              vgrid=vgrid, vert_alignment=align, vert_staggerloc=stagger, _RC)
+         rc = 0
+      end subroutine item_description
 
       function int_to_string(n) result(str)
          character(:), allocatable :: str
