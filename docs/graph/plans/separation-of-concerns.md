@@ -1706,6 +1706,27 @@ affected scenarios to ready (unless masked: M3).
   no geometry.
 - `C2-alias-owner` (R1): export aliasing searches the wrong component's
   state for propagated (qualified) exports.
+  - **Status:** done (72fa0ece0, owner commit). `try_alias_export_field`
+    takes the export port name; `find_alias_owner` walks the export-port
+    tables down from the source component (a plain last-slash split is
+    wrong for exports propagated through two or more ancestors). Five
+    unit tests in `Test_GraphBuilderMaterializeGate.pf`. `statistics`
+    flipped to ready as a masked pass (owner 2026-11-10, a): it already
+    passed without the fix; the earlier failure was not traced. NAG and
+    gfortran ESSENTIAL 69/69. Two opus reviews (first: rework for the
+    depth >= 2 split; second: accept with follow-ups, below).
+  - Review follow-ups (unscheduled nits; fold into a later C2 or D3
+    task): `find_export_node` copies the `PortIdNodeIdMap` per child
+    (use a `get_export_ports` pointer); a duplicate X/T port name across
+    two children picks the first child silently; no test for a `<self>`
+    source combined with a propagated port; no test for a null owner.
+- `C2-qualified-src`: a qualified source component (`MID/SRC2`) still
+  fails in `component_for` in the Wildcard and callback paths
+  (`GraphBuilder_ConnectionResolution_smod.F90` ~117 and ~2229,
+  `GraphBuilder.F90` ~972); use `resolve_qualified_component` as
+  `C2-alias-owner` did. Found by the C2-alias-owner author; no scenario
+  known to need it.
+  - **Status:** not started
 - `C2-alias-nonfield` (R2): export aliasing assumes a Field; VECTOR and
   SERVICE return rc=13. After `C2-alias-owner` (same procedure).
 - Owner decisions for `C2-alias-owner` and `C2-alias-nonfield`
@@ -2167,8 +2188,9 @@ it may author D1/A4/B5 with sonnet review.
 | C4-ForwardNetwork | opus | sonnet | openspec hierarchy-wide-forward-network; test-first (gpt-sol tests); owner commit; landed |
 | C4-b | opus | sonnet | follow-up: population, geometry merge, carve-out; needs its own openspec change |
 | C2-geom-push | sonnet | opus | |
-| C2-alias-owner | sonnet | opus | |
+| C2-alias-owner | sonnet | opus | landed 72fa0ece0 |
 | C2-alias-nonfield | sonnet | opus | after C2-alias-owner |
+| C2-qualified-src | sonnet | sonnet | qualified src_comp in Wildcard/callback paths |
 | C2-runphase-args | sonnet | opus | changes method-node keying |
 | D1 | sonnet (haiku?) | sonnet if haiku | `public ::` rule |
 | D2 | sonnet | opus | lifecycle-phase ordering |
