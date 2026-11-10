@@ -506,9 +506,8 @@ contains
       @assert_that(status, is(0))
       @assert_that(associated(resolved, grandchild_meta), is(true()))
 
-      ! Single-segment path to a direct child continues to resolve exactly as
-      ! component_for's own "<self>"/direct-child dispatch already does. A
-      ! connection naming a direct child or self is unaffected.
+      ! A single-segment path naming a direct child resolves to that child,
+      ! so a connection naming a direct child or self is unaffected.
       resolved => resolve_qualified_component(root_meta, 'MID', status)
       @assert_that(status, is(0))
       @assert_that(associated(resolved, child_meta), is(true()))

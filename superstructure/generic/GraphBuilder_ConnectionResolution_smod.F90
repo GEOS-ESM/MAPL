@@ -116,7 +116,7 @@ contains
 
       wildcard_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, node%get_short_name())
 
-      root_meta => component_for(owner, src_component_name, _RC)
+      root_meta => resolve_qualified_component(owner, src_component_name, _RC)
       namespace = build_qualified_export_namespace(root_meta, _RC)
 
       do i = 1, size(namespace)
@@ -2336,7 +2336,7 @@ contains
 
       wildcard_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, dst_node%get_short_name())
 
-      root_meta => component_for(this, src_pt%component_name, _RC)
+      root_meta => resolve_qualified_component(this, src_pt%component_name, _RC)
       namespace = build_qualified_export_namespace(root_meta, _RC)
 
       do i = 1, size(namespace)

@@ -101,7 +101,6 @@ module mapl_GraphBuilder_mod
    ! a private-by-default module internal linkage, so a separately
    ! compiled submodule cannot link to it (NAG does not have this
    ! limitation). Each is called from at least one submodule.
-   public :: component_for
    public :: is_self
    public :: itemtype_name
    ! Public so tests and other code that identify a geometry node need not
@@ -121,7 +120,7 @@ module mapl_GraphBuilder_mod
 
    ! Shared multi-level qualified-path resolution, used by callback and
    ! ordinary connection resolution. Public for the same gfortran
-   ! cross-submodule-linkage reason as component_for/is_self above.
+   ! cross-submodule-linkage reason as is_self above.
    public :: resolve_qualified_component
    public :: QualifiedExportIndexEntry
    ! History support: given a qualified component path, returns that
@@ -130,9 +129,9 @@ module mapl_GraphBuilder_mod
    ! same per-item scan as append_own_export_index_entries.
    public :: query_component_exports
 
-   ! Same gfortran cross-submodule-linkage reason as component_for/
-   ! is_self above: called from GraphBuilder_LifecycleHooks_smod.F90,
-   ! defined in GraphBuilder_ConnectionResolution_smod.F90.
+   ! Same gfortran cross-submodule-linkage reason as is_self above:
+   ! called from GraphBuilder_LifecycleHooks_smod.F90, defined in
+   ! GraphBuilder_ConnectionResolution_smod.F90.
    public :: UnresolvedImportEntry
    public :: graphbuilder_unresolved_import_node_ids
    public :: graphbuilder_run_propagate_hook
@@ -761,39 +760,13 @@ contains
       self_ref = (comp_name == SELF_COMPONENT_NAME) .or. (comp_name == this%get_name())
    end function is_self
 
-   ! Returns the OuterMetaComponent named by comp_name: `this` if
-   ! is_self, else the direct child via get_child_outer_meta (the
-   ! framework-internal carve-out, not OuterMetaComponent's public API).
-   ! Returns the object, not its ComponentSpec, because the
-   ! component-wide geom/vertical_grid defaults live on
-   ! OuterMetaComponent.
-   function component_for(this, comp_name, rc) result(comp_meta)
-      class(OuterMetaComponent), target, intent(inout) :: this
-      character(*), intent(in) :: comp_name
-      integer, optional, intent(out) :: rc
-      class(OuterMetaComponent), pointer :: comp_meta
-
-      integer :: status
-
-      comp_meta => null()
-
-      if (is_self(this, comp_name)) then
-         comp_meta => this
-         _RETURN(_SUCCESS)
-      end if
-
-      comp_meta => this%get_child_outer_meta(comp_name, _RC)
-
-      _RETURN(_SUCCESS)
-   end function component_for
-
    ! Walks path's '/'-separated segments via get_child_outer_meta, one
-   ! hop per segment, from root to the component the last segment names;
-   ! component_for generalized to arbitrary depth. The first segment is
-   ! checked against is_self(root, segment) first, so a single-segment
-   ! path equal to root's name (or "<self>") resolves to root rather than
-   ! a child lookup. path MUST be non-empty: root itself is reached by
-   ! that is_self short-circuit, not by an empty path.
+   ! hop per segment, from root to the component the last segment names,
+   ! at any depth. The first segment is checked against
+   ! is_self(root, segment) first, so a single-segment path equal to
+   ! root's name (or "<self>") resolves to root rather than a child
+   ! lookup. path MUST be non-empty: root itself is reached by that
+   ! is_self short-circuit, not by an empty path.
    function resolve_qualified_component(root, path, rc) result(meta)
       class(OuterMetaComponent), target, intent(inout) :: root
       character(*), intent(in) :: path
@@ -972,7 +945,7 @@ contains
 
       allocate(matches(0))
 
-      root_meta => component_for(this, src_pt%component_name, _RC)
+      root_meta => resolve_qualified_component(this, src_pt%component_name, _RC)
       namespace = build_qualified_export_namespace(root_meta, _RC)
       expected_iface = get_callback_interface(expected_interface_id, _RC)
 

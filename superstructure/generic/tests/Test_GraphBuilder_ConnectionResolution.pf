@@ -5501,4 +5501,414 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_waiting_connection_survives_sibling_settling_other_import
 
+   ! Fixture for a source component below a direct child of root: root -> MID
+   ! -> SRC -> LEAF, plus root -> dst whose WILDCARD import carries the given
+   ! pattern. SRC exports E_S1/E_S2/E1_X and LEAF exports E_L1; MID exports
+   ! E_M1, which a connection sourced at MID/SRC must never see. Advertises
+   ! everything but resolves nothing.
+   subroutine build_qualified_wildcard_hierarchy(name_suffix, wildcard_pattern, &
+        root_gc, root_meta, src_meta, leaf_meta, dst_meta, rc)
+      character(*), intent(in) :: name_suffix
+      character(*), intent(in) :: wildcard_pattern
+      type(ESMF_GridComp), intent(out) :: root_gc
+      type(OuterMetaComponent), pointer, intent(out) :: root_meta
+      type(OuterMetaComponent), pointer, intent(out) :: src_meta
+      type(OuterMetaComponent), pointer, intent(out) :: leaf_meta
+      type(OuterMetaComponent), pointer, intent(out) :: dst_meta
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: mid_driver, src_driver, leaf_driver, dst_driver
+      type(ESMF_GridComp) :: mid_gc, src_gc, leaf_gc, dst_gc
+      type(OuterMetaComponent), pointer :: mid_meta
+      type(ComponentSpec), pointer :: mid_spec, src_spec, leaf_spec, dst_spec
+      type(VariableSpec) :: wild_import
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('root_qwild_' // name_suffix, root_gc, root_meta, _RC)
+      child_spec = ChildSpec()
+      call root_meta%add_child('MID', child_spec, _RC)
+      child_spec = ChildSpec()
+      call root_meta%add_child('dst', child_spec, _RC)
+
+      mid_driver = root_meta%get_child('MID', _RC)
+      mid_gc = mid_driver%get_gridcomp()
+      mid_meta => get_outer_meta(mid_gc, _RC)
+      dst_driver = root_meta%get_child('dst', _RC)
+      dst_gc = dst_driver%get_gridcomp()
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      child_spec = ChildSpec()
+      call mid_meta%add_child('SRC', child_spec, _RC)
+      src_driver = mid_meta%get_child('SRC', _RC)
+      src_gc = src_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+
+      child_spec = ChildSpec()
+      call src_meta%add_child('LEAF', child_spec, _RC)
+      leaf_driver = src_meta%get_child('LEAF', _RC)
+      leaf_gc = leaf_driver%get_gridcomp()
+      leaf_meta => get_outer_meta(leaf_gc, _RC)
+
+      mid_spec => mid_meta%get_component_spec()
+      call mid_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'E_M1', units='m'))
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'E_S1', units='m'))
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'E_S2', units='m'))
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'E1_X', units='m'))
+      leaf_spec => leaf_meta%get_component_spec()
+      call leaf_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'E_L1', units='m'))
+
+      wild_import = make_var(ESMF_STATEINTENT_IMPORT, wildcard_pattern)
+      wild_import%itemType = MAPL_STATEITEM_WILDCARD
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(wild_import)
+
+      call gb%advertise(leaf_meta, _RC)
+      call gb%advertise(src_meta, _RC)
+      call gb%advertise(mid_meta, _RC)
+      call gb%advertise(dst_meta, _RC)
+      call gb%advertise(root_meta, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine build_qualified_wildcard_hierarchy
+
+   ! A Wildcard whose connection source is a depth-2 component (MID/SRC)
+   ! expands against the exports of that component, keyed relative to it,
+   ! and binds the real export NodeIds. A second resolve changes nothing and
+   ! the read-only check reports the import as resolved.
+   @test(npes=[0])
+   subroutine test_wildcard_qualified_source_resolves_members(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, src_meta, leaf_meta, dst_meta
+      type(ComponentSpec), pointer :: root_spec
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, checked
+      type(ComponentGraph), pointer :: dst_graph, src_graph
+      type(NodeId), pointer :: import_id, e_s1_id, e_s2_id
+      class(GraphNode), pointer :: import_node
+      type(GraphStateItem), pointer :: import_payload
+      type(StateItemMemberMap), pointer :: members
+      type(NodeId), pointer :: member_id
+      integer :: status, n_members, n_unresolved_before, n_unresolved_after
+      logical :: has_s1, has_s2, has_m1, has_x1
+      type(GraphBuilder) :: gb
+
+      call build_qualified_wildcard_hierarchy('members', 'E_S.*', root_gc, root_meta, &
+           src_meta, leaf_meta, dst_meta, _RC)
+
+      conn = MatchConnection( &
+           ConnectionPt('MID/SRC', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      root_spec => root_meta%get_component_spec()
+      call root_spec%add_connection(conn)
+
+      call gb%resolve_connections(root_meta, unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+
+      dst_graph => dst_meta%get_component_graph()
+      import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'E_S.*'))
+      @assert_that(associated(import_id), is(true()))
+      import_node => dst_graph%get_node(import_id)
+      select type (import_node)
+      class is (StateItemNode)
+         import_payload => import_node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      members => import_payload%state_members_ptr()
+      n_members = members%size()
+      has_s1 = associated(members%at('E_S1'))
+      has_s2 = associated(members%at('E_S2'))
+      has_m1 = associated(members%at('E_M1'))
+      has_x1 = associated(members%at('E1_X'))
+      @assertEqual(2, n_members)
+      @assert_that(has_s1, is(true()))
+      @assert_that(has_s2, is(true()))
+      @assert_that(has_m1, is(false()))
+      @assert_that(has_x1, is(false()))
+
+      src_graph => src_meta%get_component_graph()
+      e_s1_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'E_S1'))
+      e_s2_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'E_S2'))
+      member_id => members%at('E_S1')
+      @assert_that(member_id == e_s1_id, is(true()))
+      member_id => members%at('E_S2')
+      @assert_that(member_id == e_s2_id, is(true()))
+
+      ! Read-only "already resolved?" check and a repeat resolve.
+      call gb%check_unsatisfied_imports(root_meta, unresolved_imports=checked, rc=status)
+      @assert_that(status, is(0))
+      n_unresolved_before = checked%size()
+      @assertEqual(0, n_unresolved_before)
+
+      call gb%resolve_connections(root_meta, unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+      n_unresolved_after = unresolved%size()
+      @assertEqual(0, n_unresolved_after)
+      @assertEqual(2, members%size())
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(leaf_meta)
+   end subroutine test_wildcard_qualified_source_resolves_members
+
+   ! A match below the qualified source keeps its path relative to that
+   ! source and binds the NodeId of the component three levels down.
+   @test(npes=[0])
+   subroutine test_wildcard_qualified_source_resolves_descendant_member(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, src_meta, leaf_meta, dst_meta
+      type(ComponentSpec), pointer :: root_spec
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved
+      type(ComponentGraph), pointer :: dst_graph, leaf_graph
+      type(NodeId), pointer :: import_id, e_l1_id
+      class(GraphNode), pointer :: import_node
+      type(GraphStateItem), pointer :: import_payload
+      type(StateItemMemberMap), pointer :: members
+      type(NodeId), pointer :: member_id
+      integer :: status, n_members
+      type(GraphBuilder) :: gb
+
+      call build_qualified_wildcard_hierarchy('descendant', 'LEAF/E_L1', root_gc, root_meta, &
+           src_meta, leaf_meta, dst_meta, _RC)
+
+      conn = MatchConnection( &
+           ConnectionPt('MID/SRC', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      root_spec => root_meta%get_component_spec()
+      call root_spec%add_connection(conn)
+
+      call gb%resolve_connections(root_meta, unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+
+      dst_graph => dst_meta%get_component_graph()
+      import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'LEAF/E_L1'))
+      @assert_that(associated(import_id), is(true()))
+      import_node => dst_graph%get_node(import_id)
+      select type (import_node)
+      class is (StateItemNode)
+         import_payload => import_node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      members => import_payload%state_members_ptr()
+      n_members = members%size()
+      @assertEqual(1, n_members)
+      leaf_graph => leaf_meta%get_component_graph()
+      e_l1_id => leaf_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'E_L1'))
+      member_id => members%at('LEAF/E_L1')
+      @assert_that(associated(member_id), is(true()))
+      @assert_that(member_id == e_l1_id, is(true()))
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_meta)
+   end subroutine test_wildcard_qualified_source_resolves_descendant_member
+
+   ! The read-only check sees no match when the qualified source exports
+   ! nothing the pattern accepts (E_M1 lives on MID, not on MID/SRC).
+   @test(npes=[0])
+   subroutine test_wildcard_qualified_source_check_reports_no_match(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, src_meta, leaf_meta, dst_meta
+      type(ComponentSpec), pointer :: root_spec
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: checked
+      integer :: status, n_checked
+      type(GraphBuilder) :: gb
+
+      call build_qualified_wildcard_hierarchy('nomatch', 'E_M1', root_gc, root_meta, &
+           src_meta, leaf_meta, dst_meta, _RC)
+
+      conn = MatchConnection( &
+           ConnectionPt('MID/SRC', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      root_spec => root_meta%get_component_spec()
+      call root_spec%add_connection(conn)
+
+      call gb%check_unsatisfied_imports(root_meta, unresolved_imports=checked, rc=status)
+      @assert_that(status, is(0))
+      n_checked = checked%size()
+      @assertEqual(1, n_checked)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_meta)
+      _UNUSED_DUMMY(leaf_meta)
+      _UNUSED_DUMMY(dst_meta)
+   end subroutine test_wildcard_qualified_source_check_reports_no_match
+
+   ! A source path naming a component that does not exist fails cleanly.
+   @test(npes=[0])
+   subroutine test_wildcard_missing_qualified_source_fails(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, src_meta, leaf_meta, dst_meta
+      type(ComponentSpec), pointer :: root_spec
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_qualified_wildcard_hierarchy('missing', 'E_S.*', root_gc, root_meta, &
+           src_meta, leaf_meta, dst_meta, _RC)
+
+      conn = MatchConnection( &
+           ConnectionPt('MID/NOPE', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+           ConnectionPt('dst', VirtualConnectionPt(state_intent='import', short_name='^.*$')))
+      root_spec => root_meta%get_component_spec()
+      call root_spec%add_connection(conn)
+
+      call gb%resolve_connections(root_meta, unresolved_imports=unresolved, rc=status)
+      @assertExceptionRaised('Child not found: <NOPE>.')
+      ! One status=1 per error-return frame between the failing lookup and here.
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(src_meta)
+      _UNUSED_DUMMY(leaf_meta)
+      _UNUSED_DUMMY(dst_meta)
+   end subroutine test_wildcard_missing_qualified_source_fails
+
+   ! A callback import whose source is a depth-2 component (CHEM/DU)
+   ! expands against the exports of that component, keyed relative to it.
+   @test(npes=[0])
+   subroutine test_callback_qualified_source_expands_against_its_exports(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, du_meta, ss_meta, dyn_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ComponentSpec), pointer :: root_spec, dyn_spec
+      type(VariableSpec) :: dyn_import
+      type(MatchConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, checked
+      type(ComponentGraph), pointer :: root_graph, dyn_graph, du_graph
+      type(NodeId), pointer :: import_id, du_export_id
+      type(DependencyNetwork), pointer :: net
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: pred_iter
+      type(NodeId) :: collection_id
+      class(GraphNode), pointer :: collection_node
+      type(GraphStateItem), pointer :: collection_payload
+      type(StateItemMemberMap), pointer :: members
+      type(NodeId), pointer :: member_id
+      integer :: status, n_members, n_preds
+      logical :: has_ss
+      type(GraphBuilder) :: gb
+
+      call build_tracer_hierarchy('svc-qsrc', root_gc, root_meta, chem_meta, du_meta, ss_meta, &
+           dyn_meta, iface, interface_id, _RC)
+
+      dyn_import = make_var(ESMF_STATEINTENT_IMPORT, 'tracers')
+      dyn_import%callback_interface_id = interface_id
+      dyn_spec => dyn_meta%get_component_spec()
+      call dyn_spec%add_var_spec(dyn_import)
+      call gb%advertise(dyn_meta, status)
+      @assert_that(status, is(0))
+
+      conn = MatchConnection( &
+           ConnectionPt('CHEM/DU', VirtualConnectionPt(state_intent='export', short_name='tracer_callback')), &
+           ConnectionPt('DYN', VirtualConnectionPt(state_intent='import', short_name='tracers')))
+      root_spec => root_meta%get_component_spec()
+      call root_spec%add_connection(conn)
+
+      ! Read-only check first: the qualified source has a match.
+      call gb%check_unsatisfied_imports(root_meta, unresolved_imports=checked, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, checked%size())
+
+      call gb%resolve_connections(root_meta, unresolved_imports=unresolved, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, unresolved%size())
+
+      root_graph => root_meta%get_component_graph()
+      dyn_graph => dyn_meta%get_component_graph()
+      import_id => dyn_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'tracers'))
+      @assert_that(associated(import_id), is(true()))
+
+      net => root_graph%get_network(root_graph%get_forward_network_id())
+      preds = net%get_predecessors(import_id)
+      n_preds = preds%size()
+      @assertEqual(1, n_preds)
+      pred_iter = preds%ftn_begin()
+      call pred_iter%next()
+      collection_id = pred_iter%of()
+
+      collection_node => root_graph%get_node(collection_id)
+      select type (collection_node)
+      class is (StateItemNode)
+         collection_payload => collection_node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      members => collection_payload%state_members_ptr()
+      n_members = members%size()
+      member_id => members%at('tracer_callback')
+      has_ss = associated(members%at('SS/tracer_callback'))
+      @assertEqual(1, n_members)
+      @assert_that(associated(member_id), is(true()))
+      @assert_that(has_ss, is(false()))
+
+      du_graph => du_meta%get_component_graph()
+      du_export_id => du_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'tracer_callback'))
+      @assert_that(member_id == du_export_id, is(true()))
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(chem_meta)
+      _UNUSED_DUMMY(ss_meta)
+   end subroutine test_callback_qualified_source_expands_against_its_exports
+
+   ! A callback source path naming a component that does not exist fails
+   ! cleanly.
+   @test(npes=[0])
+   subroutine test_callback_missing_qualified_source_fails(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, du_meta, ss_meta, dyn_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(ConnectionPt) :: src_pt
+      integer :: status
+
+      call build_tracer_hierarchy('svc-qmissing', root_gc, root_meta, chem_meta, du_meta, ss_meta, &
+           dyn_meta, iface, interface_id, _RC)
+
+      src_pt = ConnectionPt('CHEM/NOPE', VirtualConnectionPt(state_intent='export', short_name='tracer_callback'))
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      @assertExceptionRaised('Child not found: <NOPE>.')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(chem_meta)
+      _UNUSED_DUMMY(du_meta)
+      _UNUSED_DUMMY(ss_meta)
+      _UNUSED_DUMMY(dyn_meta)
+   end subroutine test_callback_missing_qualified_source_fails
+
 end module Test_GraphBuilder_ConnectionResolution
