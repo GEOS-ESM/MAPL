@@ -604,10 +604,9 @@ because the state holds the node's own created Field
   (`ExpressionTransform.F90:157`), so `build_expression_evaluation` reports
   `unsupported_item_class:<class>` at resolve time, before the alias call
   (`GraphBuilder_ConnectionResolution_smod.F90:2047-2062`).
-- The Wildcard and callback paths, and `GraphBuilder.F90`'s own call, resolve
-  a source component with `component_for`, which rejects a qualified name
-  (`GraphBuilder_ConnectionResolution_smod.F90:118,2325`,
-  `GraphBuilder.F90:972`): a qualified source component still fails there.
+- The Wildcard and callback paths resolve a qualified source component
+  (`MID/SRC`) with `resolve_qualified_component`, like the other paths; the
+  namespace entry names are relative to that source component.
 
 ## 3. Known limitations (current)
 
@@ -634,9 +633,6 @@ because the state holds the node's own created Field
   ids (`VerticalGridCharacteristic.F90:145`), where legacy compares by level
   count (`scenario-parity.md`, difference rows). `vertical_dim_spec: center`
   on both sides therefore builds a (unsupported) vertical chain.
-- A connection whose source component is a qualified path (`a/b`) fails in the
-  Wildcard and callback paths, which resolve the source with `component_for`
-  (§2.7); plan task `C2-qualified-src`.
 - `VerticalColumnRegridTransform` and `VerticalFlipTransform` exist, but no
   characteristic builds them: a single-overlap `VerticalGrid` mismatch, a
   `VerticalStagger` mismatch and a `VerticalOrientation` mismatch are all
@@ -648,8 +644,8 @@ because the state holds the node's own created Field
 - An expression whose consumer has precision R8 (`expression_per_consumer_r8`)
   cannot run end to end with the user-state switch off: the legacy couplers
   run and fail on the expression item. With the switch on they are skipped
-  and the scenario passes (NAG); it is still pending (see
-  `docs/graph/scenario-parity.md`).
+  and the scenario passes: its table entry sets `graph_owns_user_states`
+  and it runs ready, in graph mode only (see `docs/graph/scenario-parity.md`).
 - The outer states are written by the graph only with the user-state switch
   on in `GRAPH` mode (§2.4); otherwise legacy fills them. The outer
   population covers Field items only (the same limit as the user passes,

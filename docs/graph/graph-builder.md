@@ -126,7 +126,7 @@ conformance checking needs it.
 ## A real gfortran gotcha
 
 Several procedures that look purely internal
-(`component_for`/`is_self`/`item_key`/`resolve_qualified_component`/...)
+(`is_self`/`item_key`/`resolve_qualified_component`/...)
 are `public` for a non-obvious reason: a gfortran-specific linkage
 limitation emits ordinary (non-`module`) procedures defined in a
 private-by-default module's `CONTAINS` with internal/static linkage

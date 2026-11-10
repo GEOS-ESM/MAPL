@@ -1375,8 +1375,8 @@ Owner commits.
   `import[1]` and `export[1]` still hold the FieldFill sentinel (compared
   by bits); it fails on all four with the guard reverted. Owner's ifx Debug
   confirmation on bucy pending (2026-11-10). Found on the way:
-  `expression_per_consumer_r8` passes on NAG with the switch on; revisit
-  its pending flag and parity row. Follow-up idea (reviewer): warn when
+  `expression_per_consumer_r8` passes on NAG with the switch on (made
+  ready in `C2-expr-r8-flip`, below). Follow-up idea (reviewer): warn when
   graph-owns mode meets an item class the graph does not materialize (M3),
   which today would be dropped silently.
 
@@ -1774,6 +1774,16 @@ affected scenarios to ready (unless masked: M3).
     source, missing callback source); seeding `component_for` back failed
     all six. NAG and gfortran Debug ESSENTIAL 69/69. Sonnet review
     accepted; three comment nits fixed.
+- `C2-expr-r8-flip` (closes openspec 3.23): `expression_per_consumer_r8`
+  runs ready.
+  - **Status:** done (c2b57f2a0, auto-landed). Table entry now ready,
+    `graph_only`, `graph_owns_user_states`: graph mode only, legacy couplers
+    skipped. Red before (NAG, pending run): 11 failures, first error the
+    legacy coupler (`CouplerMetaComponent.F90:588`, "unsupported itemType");
+    the old note "cause not traced" was wrong. Seed (switch dropped) fails the
+    same way. 11 checks pass on NAG and gfortran; ESSENTIAL 69/69 on both.
+    Sonnet review accepted with two doc nits, fixed. Openspec change
+    `characteristic-separation-of-concerns` now has no open items.
 - `C2-alias-nonfield` (R2): export aliasing assumes a Field; VECTOR and
   SERVICE return rc=13. After `C2-alias-owner` (same procedure).
   - **Status:** done (3bb936230, owner commit). `try_alias_export_field`
