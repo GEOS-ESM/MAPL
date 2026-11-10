@@ -2195,6 +2195,44 @@ E1 still runs last. If ifx comes out clean, volunteers' second compiler
 switches from `gcc15-stack` to `ifx-stack`.
 - **Status:** not started
 
+**F. Simplification (owner, 2026-11-10; all after the merge into `develop`).**
+Source: an opus survey of the graph layer
+(`~/.opencode/plan/reports/graph-simplification-survey.md`): pure
+refactors can remove about 5-6% of the graph and GraphBuilder source
+(repeated idioms, not concepts); most of the weight is code no production
+path uses yet. Owner decisions:
+- `F1-PureRefactors`: the survey's R1-R10 (connection-pair dispatch loops
+  and classifier, `ensure_export_payload` for the alias-then-materialize
+  blocks, node-walk helpers, a child/descendant iterator for the Freeze
+  walkers, port lookups on ComponentGraph, GraphExport enumeration,
+  geometry wiring, StatePopulation helpers, item-class predicate,
+  resolution reporting) are done after the merge, as the first commits of
+  D1 (R1, R2, R10) and then the rest, one single-purpose task each, no
+  test changes except renames, serialized with feature work (they touch
+  the files feature tasks touch). Nothing before the merge.
+- Keep the callback stack and the inout borrower (they are the base of
+  the SERVICE-to-callbacks migration). The run-phase `MethodGraphNode`
+  (built at every connect, never invoked) is under a follow-up check in
+  the survey report, section 6; if no planned task invokes it, move it
+  into a marked dormant submodule (owner: "b for that node only").
+- `F2-TestOnlyAPIs` (D3 batch after the merge): remove the graph APIs
+  with no production caller and no stated consumer (`query_component_exports`
+  and `QualifiedExportIndexEntry`, ComponentGraph child-port-binding APIs,
+  `remove_dependency`, NodeLabel `is_proxy`, `RouteHandleKey.F90`); keep
+  `graphbuilder_freeze` and `check_unsupported_pairs`. Owner answered "a"
+  without naming a consumer, so the History sampler and ExtData need none
+  of them.
+- `F3-FinalizeLifecycle` (owner leans to b): call `ComponentGraph%finalize`
+  at the end of initialize so the 16 FINALIZED asserts catch late
+  mutation; a separate task after the merge (a small behavior change).
+- Left alone (owner confirmed): SetSharedCharacteristic, MethodInvocation
+  and ReferenceCharacteristic node-id paths until the History sampler
+  design is fixed; the `build_transform` stubs keep the deferred binding
+  (at most one shared helper call per stub, after `C1-vertical-b`);
+  `set_materialize_extensions` stays a transitional switch behind the D2
+  seam; the survey's justified-complexity list is not touched.
+- **Status:** not started
+
 **E2-TeamWalkthrough** (owner, 2026-11-09; after the merge into
 `develop`). A walkthrough of the graph implementation for the owner's
 team, with a PowerPoint deck. Length and number of sessions are not
