@@ -1800,7 +1800,34 @@ affected scenarios to ready (unless masked: M3).
     bundle (legacy `allocate` runs only for active items). (5) A BRACKET
     export without `bracket_size` fails with a clear message; more than 2
     still fails (no change to legacy).
-  - **Status:** not started
+  - Owner decision (2026-11-10, widening, after review): VECTOR is a
+    regular use case that parallels Field in legacy, so the graph treats it
+    like Field for every intent and either switch setting. BRACKET stays
+    export-only: it exists in the framework only for ExtData (regrid before
+    time interpolation); there is no BRACKET import or internal, and none
+    is supported. This replaced decision (3)'s gating of the advertise
+    placeholder on the user-states switch.
+  - **Status:** done (2594dc1fb, owner commit; opus review: accept with
+    fixes, all applied). A VECTOR item of any intent and a BRACKET export
+    get a created bundle at advertise; a connection that consumes it
+    completes it in place (vector: two members named from the component
+    standard names, basis default NS; bracket: `bracket_size` members, at
+    most 2, missing size fails); chain links stay memberless; an
+    unconnected export or import keeps its memberless bundle; VECTOR
+    internals are completed and allocated by `allocate_internals`. A legacy
+    bundle aliased over a created bundle destroys it, for the CREATED case
+    only (a bundle already completed by a connection and later replaced is
+    not destroyed, as for a Field; unreachable in practice because legacy
+    adds its item at advertise). Component names, `vector_basis_kind` and
+    `bracket_size` are plain descriptor attributes. `vector_regrid` and
+    `bracket_regrid` set `graph_owns_user_states` and pass with the switch
+    on and off. NAG and gfortran ESSENTIAL 69/69. New parity row:
+    component-name mismatch (legacy warns or rejects; graph neither).
+    Follow-ups: `noGarbage=.true.` on the bundle destroy and one shared
+    destroy helper for Field and bundle; destroying graph-owned payloads at
+    finalize with the switch off (created Fields have the same gap);
+    `fill_deferred_from_handle` decides "has a geom" by
+    `fieldCount > 0` because ESMF 9.13 has no bundle status query.
 - `C2-service-exports` (owner 2026-11-10; after `C2-bundle-exports`): the
   graph builds SERVICE export bundles itself. Legacy
   `ServiceClassAspect%connect_to_import` adds each subscriber's INTERNAL
@@ -1811,7 +1838,11 @@ affected scenarios to ready (unless masked: M3).
   per-connection ordering. Flips `service_service` and
   `service_with_options` with the graph-owns switch. Needs its own
   preflight.
-  - **Status:** not started
+  - Owner decision (2026-11-10): runs AFTER the merge to `develop`; it does
+    not gate the merge (the merge-date estimate drops by about 1.5 days).
+    Until then the user-states switch cannot be turned on for a component
+    with a SERVICE item.
+  - **Status:** not started (after the develop merge)
 - Owner decisions for `C2-alias-owner` and `C2-alias-nonfield`
   (2026-11-09, from the preflight): one author, two commits (R1, then R2),
   separate reviews. A SERVICE pair is aliased like any bundle (no special
@@ -2303,8 +2334,8 @@ it may author D1/A4/B5 with sonnet review.
 | C2-alias-owner | sonnet | opus | landed 72fa0ece0 |
 | C2-alias-nonfield | sonnet | opus | landed 3bb936230 |
 | C2-qualified-src | sonnet | sonnet | qualified src_comp in Wildcard/callback paths |
-| C2-bundle-exports | sonnet | opus | graph-created VECTOR and BRACKET export bundles (SERVICE split out) |
-| C2-service-exports | opus | opus | after C2-bundle-exports; SERVICE members from subscribers; own preflight |
+| C2-bundle-exports | sonnet | opus | landed 2594dc1fb; graph-created VECTOR (all intents) and BRACKET (export) bundles (SERVICE split out) |
+| C2-service-exports | opus | opus | AFTER the develop merge (owner 2026-11-10); SERVICE members from subscribers; own preflight |
 | C2-runphase-args | sonnet | opus | changes method-node keying |
 | D1 | sonnet (haiku?) | sonnet if haiku | `public ::` rule |
 | D2 | sonnet | opus | lifecycle-phase ordering |
