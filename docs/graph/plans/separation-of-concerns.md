@@ -1581,7 +1581,7 @@ ready means today" in `scenario-parity.md`). May be split into
   exception: `materialize_extension_chain` refuses a link whose item class
   is not FIELD (`unsupported_item_class:<class>`). No bundle payload, no
   scenario change. VECTORBRACKET stays unsupported (follow-up with tests).
-  NAG and gfortran 69/69. C1-geom-c-b: not started.
+  NAG and gfortran 69/69. C1-geom-c-b: done (d9238c088, below).
   Nit for C1-geom-c-b: `Test_HorizontalBundleRegridTransform.pf:21` imports
   `MAPL_FIELDBUNDLETYPE_BASIC` and `MAPL_FIELDBUNDLETYPE_VECTORBRACKET`
   unused.
@@ -1601,6 +1601,27 @@ ready means today" in `scenario-parity.md`). May be split into
     bundles (VECTOR, BRACKET; legacy `VerticalRegridTransform`
     `process_fieldbundle`) is part of C1-vertical-b, which flips
     `vector_1`. (5) New task `C2-bundle-exports` (C2.x).
+  - C1-geom-c-b **Status:** done (d9238c088, owner commit). Extension
+    links whose declared item class is VECTOR or BRACKET are materialized
+    as memberless bundles (`ExtensionMaterialization`); exact-match and
+    chain-input exports stay FIELD-only (`check_materializable`
+    `admit_bundles` only for chain links). Shared `BundleMemberSupport`
+    (member creation at compute, output typekind/units, basis and
+    weights) used by the bundle regrid, units and typekind Transforms;
+    units and typekind convert bundles member by member. New ready
+    scenarios `vector_regrid` (`[geometry]`, `[geometry, units]`) and
+    `bracket_regrid` (`[geometry, item_shape]`), masked passes; a trace
+    confirmed the graph Transforms run. `ProtoBracketGridComp` sets
+    weights only (members not filled). Delta spec
+    `extension-reuse` in the active change. Owner confirmed (2026-11-10):
+    an unaliased VECTOR/BRACKET chain input is refused at resolve time
+    until `C2-bundle-exports` (with `graph_owns_user_states` on,
+    `vector_regrid` reports `unsupported_item_class:VECTOR`). Found:
+    equal basic vertical grids mismatch in the graph (manager grid ids)
+    but match in legacy (`BasicVerticalGrid%matches`, layer count);
+    parity row added; owner: fix in C1-vertical-b, or a small task first
+    if C1-vertical-b is far off. NAG and gfortran 69/69. Sonnet review
+    accepted after two fix rounds.
   - Owner (2026-11-08, C1-geom-b): both sides declaring a regridder param
     is INCOMPATIBLE (A23), not a `_FAIL`; the param is part of the
     geometry signature, so imports with different params do not share a
@@ -2218,10 +2239,10 @@ it may author D1/A4/B5 with sonnet review.
 | C1-geom-a | opus | sonnet | Transform + isolated tests; worktree; background author |
 | C1-geom-b | opus | sonnet | wiring + scenarios; after B4 4.1/4.2 |
 | C1-geom-c-a | sonnet | sonnet | bundle regrid Transform for VECTOR and BRACKET, chain link item class, isolated tests; owner commit (owner 2026-11-09; tier chosen by owner) |
-| C1-geom-c-b | sonnet | sonnet | bundle materialization, member creation, units/typekind bundle branch, new vector_regrid scenario, bracket test gridcomp, extension-reuse delta spec |
+| C1-geom-c-b | sonnet | sonnet | landed d9238c088; bundle materialization, member creation, units/typekind bundle branch, new vector_regrid scenario, bracket test gridcomp, extension-reuse delta spec |
 | C1-vertical-direction | sonnet | sonnet | fixed_levels direction depends on physical_dimension (height/altitude increasing = UP), legacy and graph (owner exception 2026-11-09); landed ffc978344 |
 | C1-vertical-a | opus | sonnet | after C1-geom-a; numerics duplication, orientation flip; worktree |
-| C1-vertical-b | opus | sonnet | after C1-vertical-a and B4; includes bundles (VECTOR, BRACKET), flips vector_1 |
+| C1-vertical-b | opus | sonnet | after C1-vertical-a and B4; includes bundles (VECTOR, BRACKET), flips vector_1; fix basic-grid id mismatch (parity row) |
 | C4-ForwardNetwork | opus | sonnet | openspec hierarchy-wide-forward-network; test-first (gpt-sol tests); owner commit; landed |
 | C4-b | opus | sonnet | follow-up: population, geometry merge, carve-out; needs its own openspec change |
 | C2-geom-push | sonnet | opus | |
