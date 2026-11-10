@@ -6,7 +6,8 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
    use esmf, only: operator(==), operator(/=)
    use mapl_CompositeStateMaterialization_mod, only: materialize_composite
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_REGISTRY
-   use mapl_ExtensionMaterialization_mod, only: create_field_extension
+   use mapl_ExtensionMaterialization_mod, only: create_field_extension, &
+        create_bundle_extension
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
    use mapl_ErrorHandling_mod
@@ -108,7 +109,7 @@ contains
          descriptor => registered_node%get_descriptor()
          call var_spec%make_characteristics(descriptor, _RC)
 
-         ! Legacy creates every declared item's Field (empty, not
+         ! Legacy creates every declared item's Field or bundle (empty, not
          ! allocated) at advertise. A name with a slash (a propagated
          ! name) gets a Field named by the part after the last slash,
          ! as legacy names the Field it puts in a substate.
@@ -119,6 +120,16 @@ contains
                leaf = var_spec%short_name(index(var_spec%short_name, '/', &
                     back=.true.)+1:)
                call create_field_extension(graph, id, leaf, _RC)
+            else if (descriptor%get_declared_item_type() == &
+                 MAPL_STATEITEM_VECTOR .or. &
+                 (descriptor%get_declared_item_type() == &
+                 MAPL_STATEITEM_BRACKET .and. &
+                 var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) then
+               ! As a Field. A BRACKET exists only for ExtData as an export,
+               ! so one declared as an import or internal gets none.
+               leaf = var_spec%short_name(index(var_spec%short_name, '/', &
+                    back=.true.)+1:)
+               call create_bundle_extension(graph, id, leaf, _RC)
             end if
          end if
       class default

@@ -5,7 +5,7 @@
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_StatePopulation_smod
    use esmf, only: ESMF_State, ESMF_StateAddReplace, ESMF_STATEITEM_FIELD, &
-        operator(==), ESMF_STATEINTENT_INTERNAL
+        ESMF_STATEITEM_FIELDBUNDLE, operator(==), ESMF_STATEINTENT_INTERNAL
    use mapl_FieldNamedAlias_mod, only: MAPL_NamedAlias
    use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_DESCRIPTIVE
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_GRAPH
@@ -40,7 +40,8 @@ contains
    ! An export's field is on its own node. An import's field is found by
    ! walking predecessor edges to the first node with a real Field
    ! (find_materialized_predecessor), which handles a direct match and
-   ! an extension chain alike. Non-Field items are skipped. An unresolved
+   ! an extension chain alike. A VECTOR or BRACKET export goes in as its
+   ! bundle. Other items are skipped. An unresolved
    ! import gets its own created Field when graph_populates_user_states()
    ! is on, and nothing otherwise.
    !
@@ -246,6 +247,8 @@ contains
       logical :: found
       type(ESMF_Field) :: field
       type(ESMF_Field) :: alias
+      type(ESMF_FieldBundle) :: bundle, bundle_alias
+      type(ESMF_StateItem_Flag) :: item_kind
       type(ESMF_State) :: substate
       type(GraphStateItem) :: alias_handle
       logical :: owns, created_only
@@ -269,22 +272,31 @@ contains
 
       if (own_only .or. state_intent == ESMF_STATEINTENT_EXPORT .or. &
            state_intent == ESMF_STATEINTENT_INTERNAL) then
-         call get_field_if_materialized(graph, item_id, field, found, _RC)
+         call get_item_if_materialized(graph, item_id, field, bundle, &
+              item_kind, found, _RC)
       else
          field_node_id = find_materialized_predecessor(graph, net, item_id, found)
          ! Keep the if-then-end-if block: a one-line `if` guarding a call
          ! that ends in the error macro leaves the macro's status check
          ! unguarded and reads an uninitialized status.
          if (found) then
-            call get_field_if_materialized(graph, field_node_id, field, found, _RC)
+            call get_item_if_materialized(graph, field_node_id, field, &
+                 bundle, item_kind, found, _RC)
          else if (owns .and. may_fallback) then
             ! No producer: the import's own created Field, as legacy leaves
             ! an unconnected import.
             call prepare_created_field(graph, item_id, .false., _RC)
-            call get_field_if_materialized(graph, item_id, field, found, _RC)
+            call get_item_if_materialized(graph, item_id, field, bundle, &
+                 item_kind, found, _RC)
          end if
       end if
       if (.not. found) then
+         _RETURN(_SUCCESS)
+      end if
+      ! Legacy fills the state with its own bundles (it adds them under the
+      ! same name and rejects a different one), so the graph adds only Fields
+      ! unless it owns the states.
+      if (item_kind == ESMF_STATEITEM_FIELDBUNDLE .and. .not. owns) then
          _RETURN(_SUCCESS)
       end if
       if (.not. owns) then
@@ -303,14 +315,21 @@ contains
 
       ! Add-or-replace by the alias's stable name: idempotent across the
       ! two ACCEPT_TRANSFER passes.
-      alias = MAPL_NamedAlias(field, name=inner_name, _RC)
-      call ESMF_StateAddReplace(substate, [alias], _RC)
+      if (item_kind == ESMF_STATEITEM_FIELDBUNDLE) then
+         bundle_alias = MAPL_NamedAlias(bundle, name=inner_name, _RC)
+         call ESMF_StateAddReplace(substate, [bundle_alias], _RC)
+         call alias_handle%set(bundle_alias, _RC)
+      else
+         alias = MAPL_NamedAlias(field, name=inner_name, _RC)
+         call ESMF_StateAddReplace(substate, [alias], _RC)
+         call alias_handle%set(alias, _RC)
+      end if
 
       ! Per-alias keys (restart_mode, long_name) come from item_id's own
       ! descriptor, not field_node_id's: each declared item keeps its own
       ! values regardless of which field backs it. Field-wide keys belong to
-      ! the exporting item and are not touched here.
-      call alias_handle%set(alias, _RC)
+      ! the exporting item and are not touched here. For a bundle alias
+      ! sync_alias_info runs and does nothing.
       call sync_alias_info(graph, item_id, inner_name, alias_handle, _RC)
 
       _RETURN(_SUCCESS)
@@ -372,11 +391,14 @@ contains
       integer :: status
       logical :: found
       type(ESMF_Field) :: field, alias
+      type(ESMF_FieldBundle) :: bundle, bundle_alias
+      type(ESMF_StateItem_Flag) :: item_kind
       type(ESMF_State) :: substate
       type(GraphStateItem) :: alias_handle
       character(:), allocatable :: inner_name
 
-      call get_field_if_materialized(graph, node_id, field, found, _RC)
+      call get_item_if_materialized(graph, node_id, field, bundle, &
+           item_kind, found, _RC)
       if (.not. found) then
          _RETURN(_SUCCESS)
       end if
@@ -390,9 +412,15 @@ contains
       call get_target_substate(multi_state, ESMF_STATEINTENT_EXPORT, &
            port_name, substate, inner_name, _RC)
 
-      alias = MAPL_NamedAlias(field, name=inner_name, _RC)
-      call ESMF_StateAddReplace(substate, [alias], _RC)
-      call alias_handle%set(alias, _RC)
+      if (item_kind == ESMF_STATEITEM_FIELDBUNDLE) then
+         bundle_alias = MAPL_NamedAlias(bundle, name=inner_name, _RC)
+         call ESMF_StateAddReplace(substate, [bundle_alias], _RC)
+         call alias_handle%set(bundle_alias, _RC)
+      else
+         alias = MAPL_NamedAlias(field, name=inner_name, _RC)
+         call ESMF_StateAddReplace(substate, [alias], _RC)
+         call alias_handle%set(alias, _RC)
+      end if
       call sync_alias_info(graph, node_id, inner_name, alias_handle, _RC)
 
       _RETURN(_SUCCESS)
@@ -531,19 +559,22 @@ contains
       _RETURN(_SUCCESS)
    end subroutine write_keys_on_created_field
 
-   ! Field-only, no-op-if-not-materialized accessor shared by
-   ! graphbuilder_populate_state's export and (resolved) import cases.
-   module subroutine get_field_if_materialized(graph, node_id, field, found, rc)
+   ! No-op-if-not-materialized accessor shared by graphbuilder_populate_state's
+   ! export and (resolved) import cases. The payload is a Field or a
+   ! FieldBundle (item_kind says which; the unused output is reset to its default).
+   module subroutine get_item_if_materialized(graph, node_id, field, bundle, &
+        item_kind, found, rc)
       type(ComponentGraph), target, intent(in) :: graph
       type(NodeId), intent(in) :: node_id
       type(ESMF_Field), intent(out) :: field
+      type(ESMF_FieldBundle), intent(out) :: bundle
+      type(ESMF_StateItem_Flag), intent(out) :: item_kind
       logical, intent(out) :: found
       integer, optional, intent(out) :: rc
 
       integer :: status
       class(GraphNode), pointer :: node
-      type(GraphStateItem) :: payload
-      type(ESMF_StateItem_Flag) :: kind_flag
+      type(GraphStateItem), pointer :: payload
 
       found = .false.
       node => graph%get_node(node_id)
@@ -553,16 +584,19 @@ contains
 
       select type (node)
       class is (StateItemNode)
-         payload = node%get_payload()
-         kind_flag = payload%itemType(_RC)
-         if (kind_flag == ESMF_STATEITEM_FIELD) then
+         payload => node%get_payload_ptr()
+         item_kind = payload%itemType(_RC)
+         if (item_kind == ESMF_STATEITEM_FIELD) then
             field = payload%get_field(_RC)
+            found = .true.
+         else if (item_kind == ESMF_STATEITEM_FIELDBUNDLE) then
+            bundle = payload%get_field_bundle(_RC)
             found = .true.
          end if
       end select
 
       _RETURN(_SUCCESS)
-   end subroutine get_field_if_materialized
+   end subroutine get_item_if_materialized
 
    ! Writes node_id's per-alias characteristics onto the alias handle.
    ! Private to this submodule.
@@ -592,7 +626,7 @@ contains
    end subroutine sync_alias_info
 
    ! Walks predecessor edges from start_id, one hop at a time, until a
-   ! node whose payload is a real Field is reached. Takes the FIRST
+   ! node whose payload is a real Field or FieldBundle is reached. Takes the FIRST
    ! predecessor at each hop: validation already guarantees a single
    ! producer per import. found=.false. (not an error) if there is no
    ! predecessor (unresolved import) or the defensive hop limit is hit.
@@ -624,7 +658,8 @@ contains
          class is (StateItemNode)
             payload = node%get_payload()
             kind_flag = payload%itemType(rc=status)
-            if (status == 0 .and. kind_flag == ESMF_STATEITEM_FIELD) then
+            if (status == 0 .and. (kind_flag == ESMF_STATEITEM_FIELD .or. &
+                 kind_flag == ESMF_STATEITEM_FIELDBUNDLE)) then
                if (.not. field_extension_is_created(graph, current)) then
                   field_node_id = current
                   found = .true.

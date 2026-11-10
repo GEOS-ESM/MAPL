@@ -16,7 +16,7 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Geometry_smod
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_MultiState_mod, only: MultiState
    use mapl_geom_api, only: MAPL_GeomGetId
-   use esmf, only: ESMF_State, ESMF_StateGet, ESMF_FieldBundle, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE, &
+   use esmf, only: ESMF_State, ESMF_StateGet, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE, &
         ESMF_FieldStatus_Flag, ESMF_FieldGet, ESMF_FieldIsCreated, ESMF_FieldBundleIsCreated, ESMF_FieldBundleGet, &
         operator(==), ESMF_FIELDSTATUS_GRIDSET, ESMF_FIELDSTATUS_COMPLETE
    use mapl_ErrorHandling_mod
@@ -228,9 +228,17 @@ contains
          payload_has_geom = status_has_geom(field_status)
       end if
 
+      ! Likewise a bundle only created at advertise. Members are the reliable
+      ! source of a bundle's geom (ESMF has no status query for it); a
+      ! memberless bundle's geom, if any, came from the descriptor, which
+      ! therefore already has it.
       if (item_kind == ESMF_STATEITEM_FIELDBUNDLE) then
          bundle = handle%get_field_bundle(_RC)
-      else if (.not. payload_has_geom) then
+         call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+         payload_has_geom = field_count > 0
+      end if
+
+      if (.not. payload_has_geom) then
          call states%get_state(state, node%get_state_intent(), _RC)
          call ESMF_StateGet(state, itemName=name, itemType=item_kind, _RC)
          if (item_kind == ESMF_STATEITEM_FIELD) then

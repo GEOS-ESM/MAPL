@@ -10,7 +10,7 @@
 ! re-derived from a VariableSpec.
 submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateGet, &
-        ESMF_FieldDestroy, ESMF_FieldBundle, &
+        ESMF_FieldDestroy, &
         ESMF_STATEITEM_NOTFOUND, ESMF_STATEITEM_FIELD, &
         ESMF_STATEITEM_FIELDBUNDLE, &
         ESMF_STATEINTENT_INTERNAL, operator(==), operator(/=)
@@ -30,6 +30,7 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use mapl_GraphOwnsUserStates_mod, only: graph_populates_user_states
    use mapl_ExtensionMaterialization_mod, only: field_extension_is_created
    use mapl_FieldCreate_mod, only: FieldsAreAliased
+   use mapl_field_bundle_api, only: MAPL_FieldBundleDestroy
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
@@ -483,18 +484,20 @@ contains
                     this_graph, export_node_id, alias_found, _RC)
             end if
             if (.not. alias_found) then
-               ! Only a Field input can be created here. A bundle input that
-               ! is not an alias of a legacy bundle has no payload the graph
-               ! can make (graph-created export bundles do not exist yet), and
-               ! the chain's Transform would fail at compute: report it now.
-               if (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD) then
+               ! A Field, VECTOR or BRACKET input is created here (a bundle
+               ! with its members). Any other class has no payload the graph
+               ! can make: report it now rather than when the chain's
+               ! Transform fails at compute.
+               if (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
+                    .or. export_item%get_declared_item_type() == MAPL_STATEITEM_VECTOR &
+                    .or. export_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET) then
                   call try_materialize_field_extension(export_item, &
                        export_item, this_graph, export_node_id, &
                        materialization_failure, &
                        name=export_node%get_short_name(), _RC)
                else
                   ! Only a test that sets a bundle payload by hand reaches
-                  ! here holding one; a legacy bundle alias is handled above.
+                  ! here holding one.
                   chain_input_payload => export_node%get_payload_ptr()
                   chain_input_type = chain_input_payload%itemType(_RC)
                   materialization_failure = ''
@@ -1509,10 +1512,10 @@ contains
       type(GriddedComponentDriver), pointer :: export_driver
       type(MultiState) :: export_states
       type(ESMF_State) :: export_state
-      type(ESMF_StateItem_Flag) :: item_kind
+      type(ESMF_StateItem_Flag) :: item_kind, payload_kind
       type(ESMF_Field) :: field
       type(ESMF_Field) :: alias, created
-      type(ESMF_FieldBundle) :: bundle, bundle_alias
+      type(ESMF_FieldBundle) :: bundle, bundle_alias, created_bundle
       class(GraphNode), pointer :: node
       type(GraphStateItem), pointer :: payload
 
@@ -1558,17 +1561,31 @@ contains
             ! per-alias metadata (standard_name/long_name/restart_mode), as
             ! populate_one does.
             alias = MAPL_NamedAlias(field, name=leaf, _RC)
+            payload_kind = payload%itemType(_RC)
             if (field_extension_is_created(graph, node_id)) then
-               created = payload%get_field(_RC)
-               call destroy_if_not_aliased(created, field, _RC)
+               if (payload_kind == ESMF_STATEITEM_FIELD) then
+                  created = payload%get_field(_RC)
+                  call destroy_if_not_aliased(created, field, _RC)
+               else if (payload_kind == ESMF_STATEITEM_FIELDBUNDLE) then
+                  created_bundle = payload%get_field_bundle(_RC)
+                  call MAPL_FieldBundleDestroy(created_bundle, destroy_contents=.true., _RC)
+               end if
             end if
             call payload%set(alias, _RC)
          else
-            ! A node declared FIELD holds a created placeholder even though
-            ! legacy put a bundle in the state; nothing else holds it.
+            ! A created payload is replaced and destroyed (nothing else holds
+            ! it): the placeholder Field of a node declared FIELD whose legacy
+            ! item is a bundle, or a created VECTOR or BRACKET bundle with its
+            ! members.
+            payload_kind = payload%itemType(_RC)
             if (field_extension_is_created(graph, node_id)) then
-               created = payload%get_field(_RC)
-               call ESMF_FieldDestroy(created, noGarbage=.true., _RC)
+               if (payload_kind == ESMF_STATEITEM_FIELD) then
+                  created = payload%get_field(_RC)
+                  call ESMF_FieldDestroy(created, noGarbage=.true., _RC)
+               else if (payload_kind == ESMF_STATEITEM_FIELDBUNDLE) then
+                  created_bundle = payload%get_field_bundle(_RC)
+                  call MAPL_FieldBundleDestroy(created_bundle, destroy_contents=.true., _RC)
+               end if
             end if
             call ESMF_StateGet(export_state, itemName=leaf, fieldBundle=bundle, _RC)
             bundle_alias = MAPL_NamedAlias(bundle, name=leaf, _RC)
@@ -1643,10 +1660,11 @@ contains
       _RETURN(_SUCCESS)
    end subroutine destroy_if_not_aliased
 
-   ! Gives node_id (a Field-typed export) a real ESMF_Field built from its
-   ! own descriptor. Otherwise sets failure_reason (empty on success): a
-   ! non-Field item class on either side, or a descriptor still missing a
-   ! value field creation needs.
+   ! Gives node_id (an export) a real ESMF_Field, or for a VECTOR or BRACKET a
+   ! FieldBundle with its members, built from its own descriptor. Otherwise
+   ! sets failure_reason (empty on success): an item class that cannot be
+   ! created on either side, or a descriptor still missing a value creation
+   ! needs.
    ! Optional `name` is passed through to materialize_field_extension so
    ! graph-native state population can find the field by name once it is
    ! inserted into an ESMF_State.
@@ -1665,39 +1683,36 @@ contains
       call check_materializable(export_item, import_item, export_item, &
            failure_reason)
       _RETURN_IF(failure_reason /= '')
-      call materialize_field_extension(graph, node_id, name=name, _RC)
+      call materialize_field_extension(graph, node_id, name=name, &
+           with_members=.true., _RC)
 
       _RETURN(_SUCCESS)
    end subroutine try_materialize_field_extension
 
    ! failure_reason is empty when a payload can be created for `item`. The
-   ! export side admits FIELD and BRACKET (a bracket export resolved into a
-   ! field import is materialized as a plain Field); the import side admits
-   ! FIELD; and item lacks no creation value. With admit_bundles (a chain
-   ! link) VECTOR is also admitted on both sides, as a bundle without members.
-   ! Exact-match exports and chain inputs are never bundles here.
+   ! export side admits FIELD, VECTOR and BRACKET (the graph creates a bundle
+   ! for the latter two); the import side admits FIELD, VECTOR and BRACKET
+   ! (a bracket only as the export passed as its own import, for a chain
+   ! input); and item lacks no creation value. SERVICE is never admitted.
    subroutine check_materializable(export_item, import_item, item, &
-        failure_reason, admit_bundles)
+        failure_reason)
       type(StateItemDescriptor), intent(in) :: export_item
       type(StateItemDescriptor), intent(in) :: import_item
       type(StateItemDescriptor), intent(in) :: item
       character(:), allocatable, intent(out) :: failure_reason
-      logical, optional, intent(in) :: admit_bundles
 
       type(StateItemCharacteristicKind), allocatable :: incomplete(:)
-      logical :: bundles
 
-      bundles = .false.
-      if (present(admit_bundles)) bundles = admit_bundles
       failure_reason = ''
       if (.not. (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
            .or. export_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET &
-           .or. (bundles .and. export_item%get_declared_item_type() == MAPL_STATEITEM_VECTOR))) then
+           .or. export_item%get_declared_item_type() == MAPL_STATEITEM_VECTOR)) then
          failure_reason = 'unsupported_item_class:' // itemtype_name(export_item%get_declared_item_type())
          return
       end if
       if (.not. (import_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
-           .or. (bundles .and. import_item%get_declared_item_type() == MAPL_STATEITEM_VECTOR))) then
+           .or. import_item%get_declared_item_type() == MAPL_STATEITEM_VECTOR &
+           .or. import_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET)) then
          failure_reason = 'unsupported_item_class:' // itemtype_name(import_item%get_declared_item_type())
          return
       end if
@@ -1737,8 +1752,7 @@ contains
          select type (link_node)
          class is (StateItemNode)
             call check_materializable(export_item, import_item, &
-                 link_node%get_descriptor(), failure_reason, &
-                 admit_bundles=.true.)
+                 link_node%get_descriptor(), failure_reason)
             ! A link is built as a Field, or as a bundle without members
             ! for a vector or bracket; no other item class can be.
             link_descriptor => link_node%get_descriptor()

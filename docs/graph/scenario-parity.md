@@ -67,8 +67,8 @@ to "Verified root causes" below.
 | service_service | yes | ready (masked pass: the SERVICE items are aliased from the legacy user export state and the graph does not materialize them, M3). Red before `C2-alias-nonfield` (measured 2026-11-10: `Tests run: 43, Failures: 24`, first log line `resolve_connections step failed with rc=13`), green after |
 | service_with_options | yes | same as `service_service` |
 | vector_1 | no | passes, but run alone it already passed before `C2-alias-nonfield` (measured 2026-11-10: no `rc=13` in the log), so it is not flipped: A has 3 fixed levels and B has 1, so its chain stops at the vertical-grid step, which has no bundle Transform; it waits for `C1-vertical-b` |
-| vector_regrid | yes | ready (masked pass: the values of the imports come from legacy). Two VECTOR pairs on 12x13 and 6x7 lat-lon grids, both with `vertical_dim_spec: NONE` (with `center` the same two basic vertical grids still mismatch, see the vertical-grid difference row below); `chain:` expectations check `uv` as `[geometry]` and `wind` (`m s-1` to `km s-1`) as `[geometry, units]`. In the default run the bundle regrid executes twice and the units conversion once per scenario run (measured 2026-11-10 with a temporary trace), so the Transforms do run at compute, on bundles the graph created for the links and on the legacy export bundle as input. With `graph_owns_user_states` it fails (measured 2026-11-10): the connection is reported at resolve time as `unsupported_item_class:VECTOR` (the export bundle is not aliased from legacy and the graph creates none), the import is not wired, and the user-state checks then fail on `A/uv` (`C2-bundle-exports`). The table row does not set it |
-| bracket_regrid | yes | ready (masked pass). A BRACKET export (declared in code by `ProtoBracketGridComp`, since YAML cannot declare a bracket) on a 12x13 grid into a Field import on a 6x7 grid, `vertical_dim_spec: NONE`; the `chain:` expectation checks `[geometry, item_shape]` (bundle regrid, then time interpolation to a Field). The values of the import come from legacy; the gridcomp fills no members |
+| vector_regrid | yes | ready (masked pass: the values of the imports come from legacy). Two VECTOR pairs on 12x13 and 6x7 lat-lon grids, both with `vertical_dim_spec: NONE` (with `center` the same two basic vertical grids still mismatch, see the vertical-grid difference row below); `chain:` expectations check `uv` as `[geometry]` and `wind` (`m s-1` to `km s-1`) as `[geometry, units]`. In the default run the bundle regrid executes twice and the units conversion once per scenario run (measured 2026-11-10 with a temporary trace), so the Transforms do run at compute, on bundles the graph created for the links and on the legacy export bundle as input. Passes with `graph_owns_user_states` too (measured 2026-11-10, NAG, all four shards): the graph creates the export bundles `uv` and `wind` at advertise and gives them their two members at connect (`C2-bundle-exports`); the same bundles are created with the switch off, and the legacy alias then replaces them, so the export, import and root checks of the per-member standard names pass on graph-owned states. The table row sets it |
+| bracket_regrid | yes | ready (masked pass). A BRACKET export (declared in code by `ProtoBracketGridComp`, since YAML cannot declare a bracket) on a 12x13 grid into a Field import on a 6x7 grid, `vertical_dim_spec: NONE`; the `chain:` expectation checks `[geometry, item_shape]` (bundle regrid, then time interpolation to a Field). The values of the import come from legacy; the gridcomp fills no members. Passes with `graph_owns_user_states` too (measured 2026-11-10, NAG): the graph creates the export bundle with `bracket_size` members. The table row sets it |
 
 Re-measured 2026-11-09 on NAG, in a tree with `C2-alias-owner` applied, with
 `MAPL_SCENARIO_PENDING=1` through ctest (`MAPL.generic.scenarios.pending`;
@@ -208,19 +208,32 @@ In production, the same faults only log a warning and drop part of the graph.
   physical dimension is then reported unsupported (`build_transform`,
   `VerticalGridCharacteristic.F90:272-274`): the graph builds no
   `VerticalColumnRegridTransform` for it, and legacy does the regrid.
-- **M3. Non-Field shapes are not materialized by the graph.** An
-  exact-match SERVICE or VECTOR export is aliased from the bundle legacy put
-  in the user export state (`C2-alias-nonfield`); the graph creates no bundle
-  of its own for an export. `unsupported_item_class:<shape>` appears when
-  legacy left no such item to alias (`service_service`,
-  `service_with_options`, `vector_1` and `statistics_real` otherwise leave
-  those items to legacy `add_to_states`): for an exact-match export, and for
-  the input of an extension chain (a VECTOR or BRACKET export that is not
-  aliased); also for a non-Field chain link other than VECTOR or BRACKET, or
-  for a bundle used as an expression input. Flipping these scenarios to
-  ready gives a masked pass, like the ready rows in the next section.
-  `service_service` and `service_with_options` are flipped; `vector_1` is not
-  (needs `C1-vertical-b`).
+- **M3. SERVICE is not materialized by the graph; VECTOR and BRACKET
+  bundles are.** In graph mode, as for a Field, the graph creates an empty
+  CREATED bundle at advertise for every declared VECTOR item (import, export
+  and internal) and for every BRACKET export, with either switch setting. A
+  BRACKET is an export only, by design: it exists for ExtData (regrid before
+  time interpolation), and a bracket import or internal is not supported (the
+  spec refuses an import; an internal gets no bundle). A bundle gets its
+  members (a vector's two, a bracket's `bracket_size`, as legacy `allocate`)
+  when a connection consumes it, or, for a VECTOR internal with
+  `graph_owns_user_states`, at `allocate_internals`. An unconnected export or import keeps an empty
+  bundle. With `graph_owns_user_states` the bundle is put in the user states.
+  With the switch off, legacy fills the user states and the graph adds only
+  Fields; an exact-match SERVICE or VECTOR export is aliased from the legacy
+  bundle (`C2-alias-nonfield`), which replaces the created bundle, destroying
+  it with its members (also for a chain input, not only an exact match);
+  SERVICE has no created bundle. A BRACKET export without `bracket_size` fails with a
+  message (legacy leaves the size undefined); more than 2 still fails.
+  `unsupported_item_class:<shape>`
+  remains for SERVICE (`service_service`, `service_with_options`,
+  `statistics_real` otherwise leave those items to legacy `add_to_states`;
+  the graph creates no SERVICE bundle: `C2-service-exports`), for a
+  non-Field chain link other than VECTOR or BRACKET, and for a bundle used
+  as an expression input. Flipping the SERVICE scenarios to ready gives a
+  masked pass, like the ready rows in the next section. `service_service`
+  and `service_with_options` are flipped; `vector_1` is not (needs
+  `C1-vertical-b`).
   `expression_defer_geom` no longer logs this (re-measured 2026-11-08): its
   expression is evaluated on the graph path. Since C1-geom-c-a the graph
   builds a regrid chain for a VECTOR or BRACKET geometry mismatch, and since
@@ -229,8 +242,7 @@ In production, the same faults only log a warning and drop part of the graph.
   for a units or typekind step on a VECTOR. A link of another non-Field
   class, or a bundle link whose step has no bundle Transform (vertical
   grid), is still refused (`unsupported_item_class:<class>`, or the
-  characteristic name). Graph-created export bundles, which an unaliased
-  VECTOR or BRACKET chain input would need, are `C2-bundle-exports`.
+  characteristic name).
 
 Suggested C2 split: `C2-geom-push` (G1), `C2-alias-owner` (R1),
 `C2-alias-nonfield` (R2), `C2-runphase-args` (P1, key arguments by intent
@@ -297,6 +309,7 @@ checklist for switching legacy off.
 | Geometry mismatch on a FIELDBUNDLE or VECTORBRACKET item | `RegridTransform%update` regrids Fields and FieldBundles (`transforms/RegridTransform.F90:218-235`) | reports unsupported GEOMETRY (owner decisions 2026-11-08 and 2026-11-09; VECTORBRACKET is a follow-up, FIELDBUNDLE only if a client needs it). Hybrid mode is unaffected: legacy does the regrid | C1-geom-b; C1-geom-c-a |
 | Geometry mismatch on a VECTOR or BRACKET item | `RegridTransform%update` regrids the bundle (`transforms/RegridTransform.F90:218-235`) | chain built with `HorizontalBundleRegridTransform` (one rotated regrid call for a VECTOR, exporter basis kept); the chain link is an allocated bundle without members, whose members the Transform creates at compute (a clone of each input member on the output geom, created again when the input member count changes) | C1-geom-c-a; C1-geom-c-b |
 | Units or typekind mismatch on a VECTOR item | `ConvertUnitsTransform%update_field_bundle` and `CopyTransform` (`FieldBundleCopy`) convert the bundle member by member | `UnitsConverterTransform` and `TypeKindConverterTransform` convert member by member into members they create at compute on the output bundle (cloned from the input members, in the output typekind and units); the vector basis is carried to the output. A bracket is time-interpolated to a Field before these steps, so they never see a bracket | C1-geom-c-b |
+| Standard names of the two components of a VECTOR | `VectorClassAspect%matches` compares the two split component names (`specs/VectorClassAspect.F90`, `standard_name_aspects(i)%matches`), so a mismatch in either component is a mismatch: legacy warns (permissive, the default) or rejects (strict) | the two names are split from `(n1,n2) suffix` at advertise and kept on the descriptor only to name the members the graph creates; they are not compared at connect: the graph neither warns nor rejects (`make_standard_name_characteristic` returns early for VECTOR), so a vector pair with different component names connects without a message | C2-bundle-exports (owner decision 2026-11-10) |
 | First compute of a bracket regrid with `bracket_updated` false | skips the regrid, so the output is never filled | regrids on the first compute whatever the flag says | C1-geom-c-a |
 | Bracket regrid after a regridder, geom, typekind or member-set change | regrids only when `bracket_updated` is true | also regrids after such a change, so the output is never stale | C1-geom-c-a |
 | Interpolation weights of a regridded bracket | copied to the extension bundle by the coupler (`CouplerMetaComponent` `update_time_varying`) | the Transform copies the input weights to its output | C1-geom-c-a |

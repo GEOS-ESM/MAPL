@@ -83,6 +83,28 @@ vertical-grid step), remain outside this requirement's scope (see the
   own geometry, typekind and units and with no members; the members are
   created by the Transform at compute
 
+#### Scenario: A vector item gets its bundle at advertise as a field does; a bracket only as an export
+- **WHEN** graph mode is active and a vector item of any state intent
+  (import, export or internal), or a bracket export, is advertised, with
+  either user-state switch setting
+- **THEN** the item's node holds an empty field bundle of that type with
+  allocation status created; a bracket declared as an internal gets none
+  (a bracket exists only as an export, for time interpolation by ExtData);
+  a legacy bundle aliased over the created one replaces it, and the created
+  bundle is destroyed with its members
+
+#### Scenario: A vector or bracket export with no legacy bundle to alias gets a bundle with members
+- **WHEN** graph mode is active and a vector or bracket
+  export is consumed by a connection (as an exact match, or as the input
+  of an extension chain) and no existing bundle of that name is aliased
+- **THEN** the export has a real, allocated field bundle of that type with
+  its two members (vector) or `bracket_size` members (bracket, at most
+  two), each a complete field with the export's geometry, typekind, units
+  and fill value; a vector's members carry the two component standard
+  names; the bundle has the declared vector basis, or a bracket's
+  `bracket_updated` set; a bracket export without `bracket_size` fails with
+  an explicit message
+
 #### Scenario: A non-field, non-shape-convertible item class fails explicitly rather than getting a fabricated payload
 - **WHEN** payload materialization is enabled and a mismatched
   export/import pair's underlying item is not a plain field, is not a
@@ -91,10 +113,9 @@ vertical-grid step), remain outside this requirement's scope (see the
   service item, a wildcard item, a plain field-bundle item, a
   vector-bracket item, or a bracket item whose mismatch set does not
   include the shape-dispatch characteristic), or a vector or bracket
-  chain input is not an alias of an existing bundle (the graph creates no
-  export bundle), or a vector or bracket link needs a step that has no
-  Transform for a bundle (the vertical-grid step, which is reported as
-  that unsupported characteristic and not materialized)
+  link needs a step that has no Transform for a bundle (the vertical-grid
+  step, which is reported as that unsupported characteristic and not
+  materialized)
 - **THEN** the system reports an explicit, distinguishable failure
   identifying the unsupported item class or characteristic rather than
   materializing an incomplete, incorrect, or empty payload — for any link

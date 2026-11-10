@@ -13,6 +13,7 @@
 module mapl_StateItemDescriptor_mod
    use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, operator(==)
    use ESMF, only: ESMF_KIND_R4
+   use mapl_enums_api, only: MAPL_VectorBasisKind
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap, &
         StateItemCharacteristicMapIterator, operator(/=), &
         SYNC_PHASE_STRUCTURAL, SYNC_PHASE_DESCRIPTIVE, SYNC_PHASE_ADVERTISED
@@ -88,6 +89,12 @@ module mapl_StateItemDescriptor_mod
       ! Not a characteristic: never compared or mirrored. Materialization
       ! fills the created field with it (the export's or internal's own).
       real(ESMF_KIND_R4), allocatable :: fill_value
+      ! Not characteristics: never compared or mirrored. They only shape the
+      ! members of a VECTOR or BRACKET export the graph creates.
+      integer, allocatable :: bracket_size
+      type(MAPL_VectorBasisKind), allocatable :: vector_basis_kind
+      character(:), allocatable :: vector_component_name_1
+      character(:), allocatable :: vector_component_name_2
    contains
       procedure :: has_characteristic => descriptor_has_characteristic
       procedure :: get_characteristic => descriptor_get_characteristic
@@ -110,6 +117,14 @@ module mapl_StateItemDescriptor_mod
            descriptor_take_declared_item_type_from_shape
       procedure :: set_fill_value => descriptor_set_fill_value
       procedure :: get_fill_value => descriptor_get_fill_value
+      procedure :: set_bracket_size => descriptor_set_bracket_size
+      procedure :: get_bracket_size => descriptor_get_bracket_size
+      procedure :: set_vector_basis_kind => descriptor_set_vector_basis_kind
+      procedure :: get_vector_basis_kind => descriptor_get_vector_basis_kind
+      procedure :: set_vector_component_names => &
+           descriptor_set_vector_component_names
+      procedure :: get_vector_component_names => &
+           descriptor_get_vector_component_names
       procedure :: get_expression => descriptor_get_expression
       procedure :: add_expression_result_defaults => &
            descriptor_add_expression_result_defaults
@@ -797,6 +812,67 @@ contains
       fill_value = 0.0
       if (found) fill_value = this%fill_value
    end subroutine descriptor_get_fill_value
+
+   subroutine descriptor_set_bracket_size(this, bracket_size)
+      class(StateItemDescriptor), intent(inout) :: this
+      integer, intent(in) :: bracket_size
+
+      this%bracket_size = bracket_size
+   end subroutine descriptor_set_bracket_size
+
+   ! found is .false. (and bracket_size 0) when none was declared.
+   subroutine descriptor_get_bracket_size(this, bracket_size, found)
+      class(StateItemDescriptor), intent(in) :: this
+      integer, intent(out) :: bracket_size
+      logical, intent(out) :: found
+
+      found = allocated(this%bracket_size)
+      bracket_size = 0
+      if (found) bracket_size = this%bracket_size
+   end subroutine descriptor_get_bracket_size
+
+   subroutine descriptor_set_vector_basis_kind(this, basis_kind)
+      class(StateItemDescriptor), intent(inout) :: this
+      type(MAPL_VectorBasisKind), intent(in) :: basis_kind
+
+      this%vector_basis_kind = basis_kind
+   end subroutine descriptor_set_vector_basis_kind
+
+   ! found is .false. when none was declared; basis_kind is then undefined.
+   subroutine descriptor_get_vector_basis_kind(this, basis_kind, found)
+      class(StateItemDescriptor), intent(in) :: this
+      type(MAPL_VectorBasisKind), intent(out) :: basis_kind
+      logical, intent(out) :: found
+
+      found = allocated(this%vector_basis_kind)
+      if (found) basis_kind = this%vector_basis_kind
+   end subroutine descriptor_get_vector_basis_kind
+
+   subroutine descriptor_set_vector_component_names(this, name_1, name_2)
+      class(StateItemDescriptor), intent(inout) :: this
+      character(*), intent(in) :: name_1
+      character(*), intent(in) :: name_2
+
+      this%vector_component_name_1 = name_1
+      this%vector_component_name_2 = name_2
+   end subroutine descriptor_set_vector_component_names
+
+   ! found is .false. (and both names empty) when none were declared.
+   subroutine descriptor_get_vector_component_names(this, name_1, name_2, found)
+      class(StateItemDescriptor), intent(in) :: this
+      character(:), allocatable, intent(out) :: name_1
+      character(:), allocatable, intent(out) :: name_2
+      logical, intent(out) :: found
+
+      found = allocated(this%vector_component_name_1) .and. &
+           allocated(this%vector_component_name_2)
+      name_1 = ''
+      name_2 = ''
+      if (found) then
+         name_1 = this%vector_component_name_1
+         name_2 = this%vector_component_name_2
+      end if
+   end subroutine descriptor_get_vector_component_names
 
    ! The expression string of an EXPRESSION item (possibly ''). Fails if
    ! the descriptor has no Expression entry.

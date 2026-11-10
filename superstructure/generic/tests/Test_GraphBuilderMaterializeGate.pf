@@ -2697,6 +2697,240 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_populate_state_reaches_grandchild_without_replacing
 
+   ! GRAPH mode, switch on, a connected VECTOR export V (no legacy item):
+   ! after the full populate the user export state of SRC holds V as a
+   ! FieldBundle that is an alias of the node bundle, with its two members
+   ! (they exist before the user component runs); the import V of DST holds
+   ! the same bundle through the producer walk.
+   ! Seeded to fail: with the bundle population off, V is absent from both
+   ! states.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_state_puts_connected_vector_bundle_in_states(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call check_populated_bundle(BUNDLE_VECTOR, .true.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_populate_state_puts_connected_vector_bundle_in_states
+
+   ! Same for a BRACKET export, which the FIELD import reaches through the
+   ! chain: the export state of SRC holds the bundle with bracket_size
+   ! members.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_state_puts_bracket_bundle_in_export_state(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call check_populated_bundle(BUNDLE_BRACKET, .false.)
+      _UNUSED_DUMMY(this)
+   end subroutine test_populate_state_puts_bracket_bundle_in_export_state
+
+   subroutine check_populated_bundle(mode, check_import)
+      integer, intent(in) :: mode
+      logical, intent(in) :: check_import
+
+      type(OuterMetaComponent), pointer :: p_meta, src_meta, dst_meta
+      type(GriddedComponentDriver) :: driver
+      type(ESMF_GridComp) :: gc
+      type(GriddedComponentDriver), pointer :: src_driver, dst_driver
+      type(MultiState) :: src_states, dst_states, p_states
+      type(ESMF_FieldBundle) :: legacy_bundle, state_bundle, node_bundle_h
+      type(ESMF_FieldBundle) :: import_bundle
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(ComponentGraph), pointer :: src_graph
+      type(NodeId), pointer :: id_ptr
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: payload
+      type(ESMF_StateItem_Flag) :: item_kind
+      logical :: same_export, same_import
+      integer :: status, st(6), n_members
+      type(GraphBuilder) :: gb
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_bundle_alias_fixture(mode, p_meta, src_meta, legacy_bundle, &
+           unresolved, unsupported, status, no_legacy=.true.)
+      @assertEqual(0, status)
+      driver = p_meta%get_child('DST', rc=status)
+      gc = driver%get_gridcomp()
+      dst_meta => get_outer_meta(gc, rc=status)
+
+      p_states = make_plain_states('p')
+      call gb%populate_state(p_meta, p_states, status)
+      @assertEqual(0, status)
+      call gb%populate_state(p_meta, p_states, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      src_driver => src_meta%get_user_gc_driver()
+      src_states = src_driver%get_states()
+      call ESMF_StateGet(src_states%exportState, 'V', itemType=item_kind, &
+           rc=st(1))
+      @assertEqual(0, st(1))
+      @assertTrue(item_kind == ESMF_STATEITEM_FIELDBUNDLE)
+      call ESMF_StateGet(src_states%exportState, 'V', state_bundle, rc=st(2))
+      call ESMF_FieldBundleGet(state_bundle, fieldCount=n_members, rc=st(3))
+      src_graph => src_meta%get_component_graph()
+      id_ptr => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'V'))
+      node => src_graph%get_node(id_ptr)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+         node_bundle_h = payload%get_field_bundle(rc=st(4))
+      end select
+      same_export = MAPL_FieldBundlesAreAliased(state_bundle, node_bundle_h, &
+           rc=st(5))
+      @assertEqual(0, st(2))
+      @assertEqual(0, st(3))
+      @assertEqual(0, st(4))
+      @assertEqual(0, st(5))
+      @assertTrue(same_export)
+      @assertEqual(2, n_members)
+
+      if (check_import) then
+         dst_driver => dst_meta%get_user_gc_driver()
+         dst_states = dst_driver%get_states()
+         call ESMF_StateGet(dst_states%importState, 'V', import_bundle, &
+              rc=st(1))
+         same_import = MAPL_FieldBundlesAreAliased(import_bundle, &
+              node_bundle_h, rc=st(2))
+         @assertEqual(0, st(1))
+         @assertEqual(0, st(2))
+         @assertTrue(same_import)
+      end if
+   end subroutine check_populated_bundle
+
+   ! GRAPH mode, switch on, a VECTOR export nothing imports: the own-only
+   ! populate at advertise already puts V in the user export state, and it
+   ! stays a bundle with no members after the full populate, as in legacy
+   ! where only active items are allocated.
+   ! Seeded to fail: members created for every VECTOR export give a count of 2.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_state_unconnected_vector_stays_memberless(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(VariableSpec) :: var_spec
+      type(MultiState) :: states
+      type(ESMF_FieldBundle) :: early_bundle, late_bundle
+      type(ESMF_StateItem_Flag) :: item_kind
+      integer :: status, st(4), early_members, late_members
+      type(GraphBuilder) :: gb
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_outer_meta('comp_unconnected_vector', gc, meta, _RC)
+      spec => meta%get_component_spec()
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'V', units='m')
+      var_spec%itemType = MAPL_STATEITEM_VECTOR
+      var_spec%standard_name = '(eastward,northward) wind'
+      call spec%add_var_spec(var_spec)
+      call gb%advertise(meta, _RC)
+      states = make_plain_states('u')
+
+      call gb%populate_state(meta, states, status, own_only=.true.)
+      @assertEqual(0, status)
+      call ESMF_StateGet(states%exportState, 'V', itemType=item_kind, rc=st(1))
+      @assertEqual(0, st(1))
+      @assertTrue(item_kind == ESMF_STATEITEM_FIELDBUNDLE)
+      call ESMF_StateGet(states%exportState, 'V', early_bundle, rc=st(2))
+      call ESMF_FieldBundleGet(early_bundle, fieldCount=early_members, rc=st(3))
+
+      call gb%populate_state(meta, states, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+      call ESMF_StateGet(states%exportState, 'V', late_bundle, rc=st(4))
+      call ESMF_FieldBundleGet(late_bundle, fieldCount=late_members, rc=status)
+      @assertEqual(0, st(2))
+      @assertEqual(0, st(3))
+      @assertEqual(0, st(4))
+      @assertEqual(0, status)
+      @assertEqual(0, early_members)
+      @assertEqual(0, late_members)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_populate_state_unconnected_vector_stays_memberless
+
+   ! GRAPH mode, switch on, an unconnected VECTOR import VI and a VECTOR
+   ! internal VN (both with a geom): the import keeps its own created bundle
+   ! in the import state, without members, as an unconnected Field import
+   ! does; allocate_internals completes the internal bundle with its two
+   ! members and the full populate puts it in the internal state.
+   ! Seeded to fail: with the bundle branch of allocate_internals off, VN has
+   ! no members; with the import fallback off, VI is absent.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_populate_state_vector_import_and_internal(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentSpec), pointer :: spec
+      type(ESMF_GridComp) :: gc
+      type(VariableSpec) :: var_spec
+      type(MultiState) :: states
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: import_bundle, internal_bundle
+      type(ESMF_StateItem_Flag) :: import_kind, internal_kind
+      type(MAPL_StateItemAllocation) :: internal_alloc
+      integer :: status, st(6), import_members, internal_members
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      _VERIFY(status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      _VERIFY(status)
+      call GeomSetId(geom, 317, rc=status)
+      _VERIFY(status)
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
+      call make_outer_meta('comp_vector_imp_int', gc, meta, _RC)
+      spec => meta%get_component_spec()
+      var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'VI', units='m')
+      var_spec%itemType = MAPL_STATEITEM_VECTOR
+      var_spec%standard_name = '(eastward,northward) wind'
+      var_spec%geom = geom
+      call spec%add_var_spec(var_spec)
+      var_spec = make_var(ESMF_STATEINTENT_INTERNAL, 'VN', units='m')
+      var_spec%itemType = MAPL_STATEITEM_VECTOR
+      var_spec%standard_name = '(eastward,northward) wind'
+      var_spec%geom = geom
+      call spec%add_var_spec(var_spec)
+      call gb%advertise(meta, _RC)
+      states = make_plain_states('vi')
+
+      call gb%allocate_internals(meta, status)
+      @assertEqual(0, status)
+      call gb%populate_state(meta, states, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      @assertEqual(0, status)
+
+      call ESMF_StateGet(states%importState, 'VI', itemType=import_kind, rc=st(1))
+      call ESMF_StateGet(states%internalState, 'VN', itemType=internal_kind, rc=st(2))
+      @assertEqual(0, st(1))
+      @assertEqual(0, st(2))
+      @assertTrue(import_kind == ESMF_STATEITEM_FIELDBUNDLE)
+      @assertTrue(internal_kind == ESMF_STATEITEM_FIELDBUNDLE)
+      call ESMF_StateGet(states%importState, 'VI', import_bundle, rc=st(3))
+      call ESMF_FieldBundleGet(import_bundle, fieldCount=import_members, rc=st(4))
+      call ESMF_StateGet(states%internalState, 'VN', internal_bundle, rc=st(5))
+      call ESMF_FieldBundleGet(internal_bundle, fieldCount=internal_members, rc=st(6))
+      call MAPL_FieldBundleGet(internal_bundle, allocation_status=internal_alloc, rc=status)
+      @assertEqual(0, st(3))
+      @assertEqual(0, st(4))
+      @assertEqual(0, st(5))
+      @assertEqual(0, st(6))
+      @assertEqual(0, status)
+      @assertEqual(0, import_members)
+      @assertEqual(2, internal_members)
+      @assertTrue(internal_alloc == MAPL_STATEITEM_ALLOCATION_ALLOCATED)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_populate_state_vector_import_and_internal
+
    function make_plain_states(prefix) result(states)
       character(*), intent(in) :: prefix
       type(MultiState) :: states
@@ -3217,9 +3451,10 @@ contains
    ! expr to import I for BUNDLE_EXPRESSION).
    ! With no_legacy, legacy leaves nothing under V, so nothing is aliased.
    subroutine make_bundle_alias_fixture(mode, p_meta, src_meta, legacy_bundle, &
-        unresolved, unsupported, rc, no_legacy)
+        unresolved, unsupported, rc, no_legacy, advertised_bundle)
       integer, intent(in) :: mode
       logical, optional, intent(in) :: no_legacy
+      type(ESMF_FieldBundle), optional, intent(out) :: advertised_bundle
       type(OuterMetaComponent), pointer, intent(out) :: p_meta, src_meta
       type(ESMF_FieldBundle), intent(out) :: legacy_bundle
       type(GraphResolutionEntryVector), intent(out) :: unresolved, unsupported
@@ -3276,6 +3511,7 @@ contains
          var_spec%itemType = MAPL_STATEITEM_SERVICE
       case (BUNDLE_BRACKET)
          var_spec%itemType = MAPL_STATEITEM_BRACKET
+         var_spec%bracket_size = 2
       case (BUNDLE_NESTED, BUNDLE_FIELD_DECLARED)
          var_spec%itemType = MAPL_STATEITEM_FIELD
       case default
@@ -3302,6 +3538,9 @@ contains
       call gb%advertise(mid_meta, _RC)
       call gb%run_export_propagate_hook(mid_meta)
       call gb%advertise(p_meta, _RC)
+      if (present(advertised_bundle)) then
+         call get_node_bundle(src_meta, advertised_bundle, status)
+      end if
 
       own_driver => src_meta%get_user_gc_driver()
       own_states = own_driver%get_states()
@@ -3422,20 +3661,81 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_alias_bracket_export_feeds_chain
 
-   ! Switch OFF, a VECTOR export with a VECTOR import of the same geom and
-   ! units (an exact match), and legacy left no item to alias: the graph has
-   ! no bundle to make for an export, so the pair is reported as
-   ! unsupported_item_class:VECTOR and no bundle payload is created.
+   ! The FieldBundle payload of the export node V of meta.
+   subroutine get_node_bundle(meta, bundle, rc)
+      type(OuterMetaComponent), pointer, intent(in) :: meta
+      type(ESMF_FieldBundle), intent(out) :: bundle
+      integer, intent(out) :: rc
+
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: id_ptr
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: payload
+
+      rc = -1
+      graph => meta%get_component_graph()
+      id_ptr => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'V'))
+      if (.not. associated(id_ptr)) return
+      node => graph%get_node(id_ptr)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+         bundle = payload%get_field_bundle(rc=rc)
+      end select
+   end subroutine get_node_bundle
+
+   ! Switch OFF, a VECTOR export for which legacy has an item: the bundle the
+   ! graph created at advertise is replaced by the legacy bundle (and
+   ! destroyed: nothing else holds it, as for a created Field). A copy of a
+   ! destroyed handle still validates, so the destroy itself is not
+   ! observable here; the test pins the replacement.
+   ! Seeded to fail: with the replacement off the payload is the advertised
+   ! bundle.
    @Test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_exact_match_vector_without_alias_reported_unsupported(this)
+   subroutine test_alias_vector_export_destroys_created_bundle(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: p_meta, src_meta
+      type(ESMF_FieldBundle) :: legacy_bundle, advertised
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      logical :: is_bundle, aliased, was_advertised
+      integer :: status, st_n, st_v
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+      call make_bundle_alias_fixture(BUNDLE_VECTOR, p_meta, src_meta, &
+           legacy_bundle, unresolved, unsupported, status, &
+           advertised_bundle=advertised)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assertEqual(0, status)
+
+      call get_node_bundle_aliased(src_meta, legacy_bundle, is_bundle, aliased, st_n)
+      was_advertised = MAPL_FieldBundlesAreAliased(advertised, legacy_bundle, rc=st_v)
+      @assertEqual(0, st_n)
+      @assertEqual(0, st_v)
+      @assertTrue(is_bundle)
+      @assertTrue(aliased)
+      @assertFalse(was_advertised)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(p_meta)
+   end subroutine test_alias_vector_export_destroys_created_bundle
+
+   ! Switch OFF, a VECTOR export with a VECTOR import of the same geom and
+   ! units (an exact match), and legacy left no item to alias: the graph
+   ! creates the export bundle itself, VECTOR typed, with its two members, and
+   ! reports nothing unsupported.
+   ! Seeded to fail: with the gate back, the pair is reported as
+   ! unsupported_item_class:VECTOR and the payload is no bundle.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_exact_match_vector_without_alias_creates_bundle(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
       type(OuterMetaComponent), pointer :: p_meta, src_meta
       type(ESMF_FieldBundle) :: legacy_bundle
       type(GraphResolutionEntryVector) :: unresolved, unsupported
-      type(GraphResolutionEntry), pointer :: entry
       logical :: is_bundle, aliased
-      integer :: status, st_n, st_e, n_unsupported
+      integer :: status, st_n, n_unsupported, n_members
 
       call set_graph_mode(GRAPH_MODE_GRAPH)
       call set_graph_owns_user_states(.false.)
@@ -3445,32 +3745,31 @@ contains
       @assertEqual(0, status)
 
       n_unsupported = unsupported%size()
-      @assertEqual(1, n_unsupported)
-      if (n_unsupported == 1) then
-         entry => unsupported%at(1, st_e)
-         @assertEqual(0, st_e)
-         @assertEqual('unsupported_item_class:VECTOR', entry%reason)
-      end if
+      @assertEqual(0, n_unsupported)
       call get_node_bundle_aliased(src_meta, legacy_bundle, is_bundle, aliased, st_n)
-      @assertFalse(is_bundle)
+      @assertTrue(is_bundle)
+      @assertFalse(aliased)
+      call count_node_bundle_members(src_meta, n_members)
+      @assertEqual(2, n_members)
 
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(p_meta)
-   end subroutine test_exact_match_vector_without_alias_reported_unsupported
+   end subroutine test_exact_match_vector_without_alias_creates_bundle
 
    ! Switch OFF, a BRACKET export into a FIELD import and legacy left no
-   ! item to alias: the chain input would be an unallocated bundle that the
-   ! first Transform fails on at compute, so it is reported at resolve time
-   ! as unsupported_item_class:BRACKET.
+   ! item to alias: the chain input is a bundle the graph creates, with the
+   ! bracket_size (2) members, and nothing is reported unsupported.
+   ! Seeded to fail: with the gate back, the pair is reported as
+   ! unsupported_item_class:BRACKET.
    @Test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_chain_input_bracket_without_alias_reported_unsupported(this)
+   subroutine test_chain_input_bracket_without_alias_creates_bundle(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
       type(OuterMetaComponent), pointer :: p_meta, src_meta
       type(ESMF_FieldBundle) :: legacy_bundle
       type(GraphResolutionEntryVector) :: unresolved, unsupported
-      type(GraphResolutionEntry), pointer :: entry
-      integer :: status, st_e, n_unsupported
+      logical :: is_bundle, aliased
+      integer :: status, st_n, n_unsupported, n_members
 
       call set_graph_mode(GRAPH_MODE_GRAPH)
       call set_graph_owns_user_states(.false.)
@@ -3480,17 +3779,44 @@ contains
       @assertEqual(0, status)
 
       n_unsupported = unsupported%size()
-      @assertEqual(1, n_unsupported)
-      if (n_unsupported == 1) then
-         entry => unsupported%at(1, st_e)
-         @assertEqual(0, st_e)
-         @assertEqual('unsupported_item_class:BRACKET', entry%reason)
-      end if
+      @assertEqual(0, n_unsupported)
+      call get_node_bundle_aliased(src_meta, legacy_bundle, is_bundle, aliased, st_n)
+      @assertTrue(is_bundle)
+      @assertFalse(aliased)
+      call count_node_bundle_members(src_meta, n_members)
+      @assertEqual(2, n_members)
 
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(p_meta)
-      _UNUSED_DUMMY(src_meta)
-   end subroutine test_chain_input_bracket_without_alias_reported_unsupported
+   end subroutine test_chain_input_bracket_without_alias_creates_bundle
+
+   ! The number of members in the FieldBundle payload of the export node V of
+   ! meta, or -1 if the payload is no bundle.
+   subroutine count_node_bundle_members(meta, n_members)
+      type(OuterMetaComponent), pointer, intent(in) :: meta
+      integer, intent(out) :: n_members
+
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: id_ptr
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: payload
+      type(ESMF_FieldBundle) :: node_bundle
+      integer :: status
+
+      n_members = -1
+      graph => meta%get_component_graph()
+      id_ptr => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'V'))
+      if (.not. associated(id_ptr)) return
+      node => graph%get_node(id_ptr)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+         if (payload%itemType(rc=status) == ESMF_STATEITEM_FIELDBUNDLE) then
+            node_bundle = payload%get_field_bundle(rc=status)
+            call ESMF_FieldBundleGet(node_bundle, fieldCount=n_members, rc=status)
+         end if
+      end select
+   end subroutine count_node_bundle_members
 
    ! Switch OFF, a SERVICE pair with legacy having left no item to alias:
    ! only FIELD (and, for a chain, VECTOR and BRACKET) can be created, so the

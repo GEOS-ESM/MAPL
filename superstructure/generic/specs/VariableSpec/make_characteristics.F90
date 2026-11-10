@@ -104,8 +104,65 @@ contains
          call descriptor%set_fill_value(this%fill_value)
       end if
 
+      call record_bundle_member_attributes(this, descriptor, _RC)
+
       _RETURN(_SUCCESS)
    end subroutine make_characteristics
+
+   ! What the graph needs to create the members of a VECTOR or BRACKET
+   ! export. Plain attributes, not characteristics: the component names are
+   ! only used to name the members and are not compared at connect.
+   subroutine record_bundle_member_attributes(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: name_1, name_2
+
+      if (spec%itemType == MAPL_STATEITEM_BRACKET) then
+         if (allocated(spec%bracket_size)) then
+            call descriptor%set_bracket_size(spec%bracket_size)
+         end if
+      else if (spec%itemType == MAPL_STATEITEM_VECTOR) then
+         if (allocated(spec%vector_basis_kind)) then
+            call descriptor%set_vector_basis_kind(spec%vector_basis_kind)
+         end if
+         ! Members of a vector without a tuple name stay unnamed.
+         if (allocated(spec%standard_name)) then
+            if (index(spec%standard_name, '(') > 0) then
+               call split_component_names(spec%standard_name, name_1, name_2, _RC)
+               call descriptor%set_vector_component_names(name_1, name_2)
+            end if
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine record_bundle_member_attributes
+
+   ! `(n1,n2) suffix` gives `n1 suffix` and `n2 suffix`. Same rule as the
+   ! legacy VectorClassAspect names; a private copy, since split_name is not
+   ! callable from here.
+   subroutine split_component_names(encoded_name, name_1, name_2, rc)
+      character(*), intent(in) :: encoded_name
+      character(:), allocatable, intent(out) :: name_1
+      character(:), allocatable, intent(out) :: name_2
+      integer, optional, intent(out) :: rc
+
+      integer :: idx_open, idx_close, idx_comma
+
+      idx_open = index(encoded_name, '(')
+      idx_close = index(encoded_name, ')')
+      idx_comma = index(encoded_name, ',')
+
+      _ASSERT(idx_open > 0 .and. idx_close > 0, 'a vector standard name needs a tuple for the names of the components')
+      _ASSERT(idx_comma > idx_open + 1 .and. idx_comma < idx_close - 1, 'a vector standard name needs a tuple for the names of the components')
+
+      name_1 = encoded_name(idx_open+1:idx_comma-1) // encoded_name(idx_close+1:)
+      name_2 = encoded_name(idx_comma+1:idx_close-1) // encoded_name(idx_close+1:)
+
+      _RETURN(_SUCCESS)
+   end subroutine split_component_names
 
    ! Backstop for a hand-built spec that bypasses make_VariableSpec, and for
    ! fields set by direct assignment after it (conservation, normalization).

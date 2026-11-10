@@ -11,10 +11,12 @@
 ! materialize_field_extension() completes a CREATED Field in place; it is a
 ! no-op for any other existing Field (e.g. a reused extension chain).
 !
-! A node whose descriptor declares a VECTOR or BRACKET gets an ALLOCATED
-! FieldBundle of that type instead, with its descriptor written to it and no
-! members: the Transform that fills the bundle creates the members at
-! compute. The created-only states above are Field-only.
+! A node whose descriptor declares a VECTOR or BRACKET gets a FieldBundle of
+! that type instead, through the same statuses: create_bundle_extension makes
+! a memberless CREATED bundle, and materialization completes it in place and
+! marks it ALLOCATED. A bundle for an export the graph owns gets its members
+! (with_members); a chain link stays memberless, because the Transform that
+! fills it creates the members at compute.
 ! rebuild_field_extension() instead replaces an existing completed Field;
 ! an ESMF_State or importer holding the old Field is not updated.
 !------------------------------------------------------------------------------
@@ -30,14 +32,19 @@ module mapl_ExtensionMaterialization_mod
    use mapl_field_api, only: MAPL_FieldEmptyComplete, MAPL_FieldSet
    use mapl_field_api, only: MAPL_FieldGet
    use mapl_field_bundle_api, only: MAPL_FieldBundleCreate, MAPL_FieldBundleSet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet
    use mapl_StateItem_mod, only: MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_BRACKET
    use mapl_enums_api, only: MAPL_FieldBundleType_Flag
    use mapl_enums_api, only: MAPL_FIELDBUNDLETYPE_VECTOR
    use mapl_enums_api, only: MAPL_FIELDBUNDLETYPE_BRACKET
+   use mapl_enums_api, only: MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS
    use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_ALLOCATED
    use mapl_enums_api, only: MAPL_STATEITEM_ALLOCATION_CREATED
    use mapl_enums_api, only: MAPL_StateItemAllocation, operator(==)
    use ESMF, only: ESMF_Field, ESMF_FieldEmptyCreate, ESMF_FieldGet
+   use ESMF, only: ESMF_FieldBundleAdd, ESMF_Info, ESMF_InfoGetFromHost, &
+        ESMF_InfoIsPresent
+   use mapl_esmf_info_keys_mod, only: INFO_INTERNAL_NAMESPACE, KEY_ALLOCATION_STATUS
    use ESMF, only: ESMF_FieldBundle, ESMF_STATEITEM_FIELDBUNDLE
    use ESMF, only: ESMF_NamedAliasGet
    use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, operator(==)
@@ -50,6 +57,7 @@ module mapl_ExtensionMaterialization_mod
    public :: materialize_field_extension
    public :: rebuild_field_extension
    public :: create_field_extension
+   public :: create_bundle_extension
    public :: field_extension_is_created
    public :: complete_created_field
    public :: describe_created_field
@@ -61,16 +69,20 @@ contains
    ! descriptor: empty-create, write every keyword (sync_to_info STRUCTURAL;
    ! the geom goes on the empty field), then complete from Info. A node that
    ! declares a VECTOR or BRACKET gets a memberless FieldBundle instead. A
-   ! no-op if the payload already is a Field or a FieldBundle. Callers check
-   ! the materialization gate, the item class and descriptor completeness;
-   ! this module does not.
+   ! no-op if the payload already is a completed Field or FieldBundle. A
+   ! bundle that was only created is completed in place. Callers check the
+   ! materialization gate, the item class and descriptor completeness; this
+   ! module does not.
    !
    ! Optional `name` makes the field findable by short name once inserted
-   ! into an ESMF_State (ESMF_StateGet is by name).
-   subroutine materialize_field_extension(graph, node_id, name, rc)
+   ! into an ESMF_State (ESMF_StateGet is by name). `with_members` (default
+   ! false) gives a VECTOR or BRACKET bundle its members: an export the graph
+   ! owns needs them, a chain link does not.
+   subroutine materialize_field_extension(graph, node_id, name, with_members, rc)
       class(ComponentGraph), target, intent(inout) :: graph
       type(NodeId), intent(in) :: node_id
       character(*), optional, intent(in) :: name
+      logical, optional, intent(in) :: with_members
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -78,6 +90,10 @@ contains
       type(GraphStateItem), pointer :: payload
       type(ESMF_StateItem_Flag) :: kind_flag
       type(ESMF_Field) :: field
+      logical :: members
+
+      members = .false.
+      if (present(with_members)) members = with_members
 
       node => graph%get_node(node_id)
       _ASSERT(associated(node), 'ExtensionMaterialization: NodeId not found in graph')
@@ -86,8 +102,13 @@ contains
       class is (StateItemNode)
          payload => node%get_payload_ptr()
          kind_flag = payload%itemType(_RC)
-         ! An existing bundle is left alone (a reused extension chain).
-         _RETURN_IF(kind_flag == ESMF_STATEITEM_FIELDBUNDLE)
+         if (kind_flag == ESMF_STATEITEM_FIELDBUNDLE) then
+            ! A completed bundle is left alone (a reused extension chain).
+            if (payload_is_created(payload)) then
+               call complete_bundle(node, members, _RC)
+            end if
+            _RETURN(_SUCCESS)
+         end if
          if (kind_flag == ESMF_STATEITEM_FIELD) then
             ! Already materialized (a reused extension chain), unless it
             ! was only created: then complete that same Field object.
@@ -99,7 +120,7 @@ contains
          end if
 
          if (is_bundle_class(node)) then
-            call build_bundle_payload(node, name, _RC)
+            call build_bundle_payload(node, name, members, _RC)
          else
             call build_field_payload(node, name, _RC)
          end if
@@ -187,8 +208,44 @@ contains
       _RETURN(_SUCCESS)
    end subroutine create_field_extension
 
-   ! True when node_id's payload is a Field that has only been created, not
-   ! yet completed and allocated.
+   ! Gives node_id's StateItemNode an empty FieldBundle of its declared class
+   ! (VECTOR or BRACKET) with allocation status CREATED and no members, as
+   ! legacy creates it. A no-op for any other class or if the payload is
+   ! already a Field or a FieldBundle.
+   subroutine create_bundle_extension(graph, node_id, name, rc)
+      class(ComponentGraph), target, intent(inout) :: graph
+      type(NodeId), intent(in) :: node_id
+      character(*), intent(in) :: name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: payload
+      type(ESMF_StateItem_Flag) :: kind_flag
+      character(:), allocatable :: msg
+
+      node => graph%get_node(node_id)
+      msg = 'ExtensionMaterialization: NodeId not found in graph'
+      _ASSERT(associated(node), msg)
+
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+         kind_flag = payload%itemType(_RC)
+         _RETURN_IF(kind_flag == ESMF_STATEITEM_FIELD)
+         _RETURN_IF(kind_flag == ESMF_STATEITEM_FIELDBUNDLE)
+         _RETURN_UNLESS(is_bundle_class(node))
+         call new_bundle(node, name, .true., _RC)
+      class default
+         msg = 'ExtensionMaterialization: NodeId is not a StateItemNode'
+         _FAIL(msg)
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine create_bundle_extension
+
+   ! True when node_id's payload is a Field or FieldBundle that has only been
+   ! created, not yet completed and allocated.
    function field_extension_is_created(graph, node_id) result(is_created)
       class(ComponentGraph), target, intent(in) :: graph
       type(NodeId), intent(in) :: node_id
@@ -207,8 +264,9 @@ contains
       end select
    end function field_extension_is_created
 
-   ! Completes and allocates the node's Field if it was only created; any
-   ! other payload is left alone. Does not check descriptor completeness.
+   ! Completes and allocates the node's Field (or bundle, with its members)
+   ! if it was only created; any other payload is left alone. Does not check
+   ! descriptor completeness.
    subroutine complete_created_field(node, rc)
       class(StateItemNode), target, intent(inout) :: node
       integer, optional, intent(out) :: rc
@@ -216,9 +274,15 @@ contains
       integer :: status
       type(GraphStateItem), pointer :: payload
       type(ESMF_Field) :: field
+      type(ESMF_StateItem_Flag) :: kind_flag
 
       payload => node%get_payload_ptr()
       _RETURN_UNLESS(payload_is_created(payload))
+      kind_flag = payload%itemType(_RC)
+      if (kind_flag == ESMF_STATEITEM_FIELDBUNDLE) then
+         call complete_bundle(node, .true., _RC)
+         _RETURN(_SUCCESS)
+      end if
       field = payload%get_field(_RC)
       call complete_field(node, field, _RC)
 
@@ -265,29 +329,47 @@ contains
       _RETURN(_SUCCESS)
    end subroutine write_advertised_keys
 
-   ! Errors are swallowed: a Field with no allocation status is not CREATED.
-   ! The Field must also be an original, never a named alias (alias id 0):
-   ! legacy writes the same CREATED status on its own Fields, and the only
-   ! legacy Field a node ever holds is a MAPL_NamedAlias of it.
+   ! Errors are swallowed: a Field or FieldBundle with no allocation status is
+   ! not CREATED. The item must also be an original, never a named alias
+   ! (alias id 0): legacy writes the same CREATED status on its own items,
+   ! and the only legacy item a node ever holds is a MAPL_NamedAlias of it.
    logical function payload_is_created(payload)
       type(GraphStateItem), intent(in) :: payload
 
       integer :: status
       type(ESMF_StateItem_Flag) :: kind_flag
       type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Info) :: info
       type(MAPL_StateItemAllocation) :: alloc_status
       integer :: alias_id
 
       payload_is_created = .false.
       kind_flag = payload%itemType(rc=status)
       if (status /= 0) return
-      if (.not. (kind_flag == ESMF_STATEITEM_FIELD)) return
-      field = payload%get_field(rc=status)
-      if (status /= 0) return
-      call ESMF_NamedAliasGet(field, id=alias_id, rc=status)
-      if (status /= 0 .or. alias_id /= 0) return
-      call MAPL_FieldGet(field, allocation_status=alloc_status, rc=status)
-      if (status /= 0) return
+      if (kind_flag == ESMF_STATEITEM_FIELD) then
+         field = payload%get_field(rc=status)
+         if (status /= 0) return
+         call ESMF_NamedAliasGet(field, id=alias_id, rc=status)
+         if (status /= 0 .or. alias_id /= 0) return
+         call MAPL_FieldGet(field, allocation_status=alloc_status, rc=status)
+         if (status /= 0) return
+      else if (kind_flag == ESMF_STATEITEM_FIELDBUNDLE) then
+         bundle = payload%get_field_bundle(rc=status)
+         if (status /= 0) return
+         call ESMF_NamedAliasGet(bundle, id=alias_id, rc=status)
+         if (status /= 0 .or. alias_id /= 0) return
+         ! A bundle built by hand may carry no status; reading it would
+         ! record an error.
+         call ESMF_InfoGetFromHost(bundle, info, rc=status)
+         if (status /= 0) return
+         if (.not. ESMF_InfoIsPresent(info, &
+              key=INFO_INTERNAL_NAMESPACE // KEY_ALLOCATION_STATUS)) return
+         call MAPL_FieldBundleGet(bundle, allocation_status=alloc_status, rc=status)
+         if (status /= 0) return
+      else
+         return
+      end if
       payload_is_created = (alloc_status == MAPL_STATEITEM_ALLOCATION_CREATED)
    end function payload_is_created
 
@@ -323,10 +405,29 @@ contains
    end function is_bundle_class
 
    ! Installs a new FieldBundle of the node's declared class as its payload,
-   ! writes the descriptor on it and marks it ALLOCATED. It has no members.
-   subroutine build_bundle_payload(node, name, rc)
+   ! writes the descriptor on it and marks it ALLOCATED. Members only if asked.
+   subroutine build_bundle_payload(node, name, with_members, rc)
       class(StateItemNode), target, intent(inout) :: node
       character(*), optional, intent(in) :: name
+      logical, intent(in) :: with_members
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      call new_bundle(node, name, with_members, _RC)
+      call complete_bundle(node, with_members, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine build_bundle_payload
+
+   ! Installs a new empty FieldBundle of the node's declared class as its
+   ! payload. `legacy_attributes` also gives it what legacy create does: the
+   ! CREATED status, a vector's basis and a bracket's updated flag. A chain
+   ! link skips them: its Transform carries them over from its input.
+   subroutine new_bundle(node, name, legacy_attributes, rc)
+      class(StateItemNode), target, intent(inout) :: node
+      character(*), optional, intent(in) :: name
+      logical, intent(in) :: legacy_attributes
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -335,6 +436,8 @@ contains
       type(ESMF_FieldBundle) :: bundle
       type(MAPL_FieldBundleType_Flag) :: bundle_type
       type(ESMF_StateItem_Flag) :: item_class
+      type(MAPL_VectorBasisKind) :: basis_kind
+      logical :: has_basis
 
       descriptor => node%get_descriptor()
       item_class = descriptor%get_declared_item_type()
@@ -347,12 +450,98 @@ contains
       bundle = MAPL_FieldBundleCreate(name=name, fieldBundleType=bundle_type, _RC)
       payload => node%get_payload_ptr()
       call payload%set(bundle, _RC)
+      _RETURN_UNLESS(legacy_attributes)
+
+      call MAPL_FieldBundleSet(bundle, &
+           allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, _RC)
+      if (item_class == MAPL_STATEITEM_VECTOR) then
+         call descriptor%get_vector_basis_kind(basis_kind, has_basis)
+         if (.not. has_basis) basis_kind = MAPL_VECTOR_BASIS_KIND_NS
+         call MAPL_FieldBundleSet(bundle, vector_basis_kind=basis_kind, _RC)
+      else
+         call MAPL_FieldBundleSet(bundle, bracket_updated=.true., _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine new_bundle
+
+   ! Writes the descriptor on the node's bundle, gives it its members if
+   ! asked, and marks it ALLOCATED. The descriptor goes first: setting the
+   ! geom on a bundle resets it.
+   subroutine complete_bundle(node, with_members, rc)
+      class(StateItemNode), target, intent(inout) :: node
+      logical, intent(in) :: with_members
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(StateItemDescriptor), pointer :: descriptor
+      type(GraphStateItem), pointer :: payload
+      type(ESMF_FieldBundle) :: bundle
+
+      descriptor => node%get_descriptor()
+      payload => node%get_payload_ptr()
+      bundle = payload%get_field_bundle(_RC)
       call descriptor%sync_to_info(payload, SYNC_PHASE_STRUCTURAL, _RC)
+      if (with_members) then
+         call create_members(descriptor, bundle, _RC)
+      end if
       call MAPL_FieldBundleSet(bundle, &
            allocation_status=MAPL_STATEITEM_ALLOCATION_ALLOCATED, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine build_bundle_payload
+   end subroutine complete_bundle
+
+   ! Adds the members of a VECTOR (two, named for the components) or BRACKET
+   ! (bracket_size, at most two) to `bundle`, each a complete Field built
+   ! from the descriptor as an ordinary export Field is.
+   subroutine create_members(descriptor, bundle, rc)
+      type(StateItemDescriptor), intent(in) :: descriptor
+      type(ESMF_FieldBundle), intent(inout) :: bundle
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      integer :: i, n_members
+      logical :: has_size, has_names
+      character(:), allocatable :: name_1, name_2
+      type(ESMF_StateItem_Flag) :: item_class
+      type(ESMF_Field) :: member
+      type(GraphStateItem) :: handle
+      real(ESMF_KIND_R4) :: fill_value
+      logical :: has_fill_value
+
+      item_class = descriptor%get_declared_item_type()
+      has_names = .false.
+      if (item_class == MAPL_STATEITEM_VECTOR) then
+         n_members = 2
+         call descriptor%get_vector_component_names(name_1, name_2, has_names)
+      else
+         call descriptor%get_bracket_size(n_members, has_size)
+         _ASSERT(has_size, 'ExtensionMaterialization: a BRACKET export needs a bracket_size')
+         _ASSERT(n_members <= 2, 'ExtensionMaterialization: a BRACKET can only have 2 fields in the bundle')
+      end if
+      call descriptor%get_fill_value(fill_value, has_fill_value)
+
+      do i = 1, n_members
+         member = ESMF_FieldEmptyCreate(_RC)
+         call MAPL_FieldSet(member, &
+              allocation_status=MAPL_STATEITEM_ALLOCATION_CREATED, _RC)
+         call handle%set(member, _RC)
+         call descriptor%sync_to_info(handle, SYNC_PHASE_STRUCTURAL, _RC)
+         ! After the descriptor: a vector has no standard name entry of its
+         ! own that could overwrite the component name.
+         if (has_names) then
+            if (i == 1) call MAPL_FieldSet(member, standard_name=name_1, _RC)
+            if (i == 2) call MAPL_FieldSet(member, standard_name=name_2, _RC)
+         end if
+         call MAPL_FieldEmptyComplete(member, _RC)
+         if (has_fill_value) call FieldSet(member, fill_value, _RC)
+         call MAPL_FieldSet(member, &
+              allocation_status=MAPL_STATEITEM_ALLOCATION_ALLOCATED, _RC)
+         call ESMF_FieldBundleAdd(bundle, [member], multiflag=.true., _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine create_members
 
    ! Completes and allocates `field`, the node's payload Field, from the
    ! node's descriptor: write every keyword (sync_to_info STRUCTURAL; the

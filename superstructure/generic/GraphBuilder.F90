@@ -55,7 +55,7 @@
 ! GRAPH_MODE_REGISTRY.
 !------------------------------------------------------------------------------
 module mapl_GraphBuilder_mod
-   use esmf, only: ESMF_Field, ESMF_Geom, ESMF_STATEINTENT_EXPORT, ESMF_StateIntent_Flag, ESMF_STATEINTENT_IMPORT, ESMF_StateItem_Flag, operator(==)
+   use esmf, only: ESMF_Field, ESMF_FieldBundle, ESMF_Geom, ESMF_STATEINTENT_EXPORT, ESMF_StateIntent_Flag, ESMF_STATEINTENT_IMPORT, ESMF_StateItem_Flag, operator(==)
    use gFTL2_StringVector, only: StringVector
    use mapl_CallbackInterface_mod, only: CallbackInterface
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
@@ -539,14 +539,17 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine populate_one
-   module subroutine get_field_if_materialized(graph, node_id, field, found, rc)
+   module subroutine get_item_if_materialized(graph, node_id, field, bundle, &
+        item_kind, found, rc)
       type(ComponentGraph), target, intent(in) :: graph
       type(NodeId), intent(in) :: node_id
       type(ESMF_Field), intent(out) :: field
+      type(ESMF_FieldBundle), intent(out) :: bundle
+      type(ESMF_StateItem_Flag), intent(out) :: item_kind
       logical, intent(out) :: found
       integer, optional, intent(out) :: rc
 
-   end subroutine get_field_if_materialized
+   end subroutine get_item_if_materialized
    module function find_materialized_predecessor(graph, net, start_id, found) result(field_node_id)
       type(ComponentGraph), target, intent(in) :: graph
       type(DependencyNetwork), intent(in) :: net

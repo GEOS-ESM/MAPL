@@ -54,6 +54,13 @@ module Test_GraphBuilder_Advertising
    use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_REGISTRY, &
         GRAPH_MODE_GRAPH
    use mapl_ExtensionMaterialization_mod, only: field_extension_is_created
+   use mapl_GraphOwnsUserStates_mod, only: set_graph_owns_user_states
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_BRACKET
+   use mapl_enums_api, only: MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_GRID, &
+        MAPL_FieldBundleType_Flag, MAPL_FIELDBUNDLETYPE_VECTOR, &
+        MAPL_FIELDBUNDLETYPE_BRACKET, MAPL_StateItemAllocation, &
+        MAPL_STATEITEM_ALLOCATION_CREATED, operator(==)
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet
    use esmf
    use pfunit
    implicit none(type, external)
@@ -777,5 +784,318 @@ contains
          @assertTrue(.false., 'RESTART_MODE entry is a RestartModeCharacteristic')
       end select
    end function restart_mode_of
+
+   ! -- bundle exports -------------------------------------------------------
+
+   ! Advertises one export of `item_class` in GRAPH mode with the switch as
+   ! given, and returns its node payload kind and descriptor attributes.
+   ! The caller resets graph mode and the switch.
+   subroutine advertise_bundle_export(name, item_class, switch_on, meta, &
+        graph, id_ptr, rc, state_intent)
+      character(*), intent(in) :: name
+      type(ESMF_StateItem_Flag), intent(in) :: item_class
+      logical, intent(in) :: switch_on
+      type(OuterMetaComponent), pointer, intent(out) :: meta
+      type(ComponentGraph), pointer, intent(out) :: graph
+      type(NodeId), pointer, intent(out) :: id_ptr
+      integer, intent(out) :: rc
+      type(ESMF_StateIntent_Flag), optional, intent(in) :: state_intent
+
+      type(ESMF_GridComp) :: outer_gc
+      type(ComponentSpec), pointer :: comp_spec
+      type(VariableSpec) :: var_spec
+      type(ESMF_StateIntent_Flag) :: intent_used
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      intent_used = ESMF_STATEINTENT_EXPORT
+      if (present(state_intent)) intent_used = state_intent
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(switch_on)
+      call make_outer_meta(name, outer_gc, meta, _RC)
+      comp_spec => meta%get_component_spec()
+      var_spec = make_var(intent_used, 'UV', units='m s-1')
+      var_spec%itemType = item_class
+      if (item_class == MAPL_STATEITEM_VECTOR) then
+         var_spec%standard_name = '(eastward,northward) wind'
+         var_spec%vector_basis_kind = MAPL_VECTOR_BASIS_KIND_GRID
+      else
+         var_spec%bracket_size = 2
+      end if
+      call comp_spec%add_var_spec(var_spec)
+      call gb%advertise(meta, status)
+      ! Reset here so a failing assert in the caller cannot leak the globals.
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
+      rc = status
+      graph => meta%get_component_graph()
+      id_ptr => graph%get_resource_index(item_key(intent_used, 'UV'))
+   end subroutine advertise_bundle_export
+
+   ! The payload bundle of the node, and whether it is only created.
+   subroutine node_bundle(graph, id_ptr, bundle, is_bundle, is_created)
+      type(ComponentGraph), pointer, intent(in) :: graph
+      type(NodeId), pointer, intent(in) :: id_ptr
+      type(ESMF_FieldBundle), intent(out) :: bundle
+      logical, intent(out) :: is_bundle, is_created
+
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: payload
+      integer :: status
+
+      is_bundle = .false.
+      is_created = field_extension_is_created(graph, id_ptr)
+      node => graph%get_node(id_ptr)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+         is_bundle = (payload%itemType(rc=status) == ESMF_STATEITEM_FIELDBUNDLE)
+         if (is_bundle) bundle = payload%get_field_bundle(rc=status)
+      end select
+   end subroutine node_bundle
+
+   ! GRAPH mode with the switch on, a VECTOR export gets a memberless
+   ! bundle at advertise: type VECTOR, status CREATED, the declared basis.
+   ! Seeded to fail: with the bundle placeholder off, the node has no bundle.
+   @test(npes=[0])
+   subroutine test_advertise_creates_vector_bundle_when_graph_owns(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: id_ptr
+      type(ESMF_FieldBundle) :: bundle
+      type(MAPL_FieldBundleType_Flag) :: bundle_type
+      type(MAPL_StateItemAllocation) :: alloc_status
+      type(MAPL_VectorBasisKind) :: basis
+      logical :: is_bundle, is_created
+      integer :: status, st_get, n_members
+
+      call advertise_bundle_export('comp_adv_vector', MAPL_STATEITEM_VECTOR, &
+           .true., meta, graph, id_ptr, status)
+      @assertEqual(0, status)
+      @assertTrue(associated(id_ptr))
+      call node_bundle(graph, id_ptr, bundle, is_bundle, is_created)
+      @assertTrue(is_bundle)
+      @assertTrue(is_created)
+      call MAPL_FieldBundleGet(bundle, fieldBundleType=bundle_type, &
+           allocation_status=alloc_status, vector_basis_kind=basis, rc=st_get)
+      call ESMF_FieldBundleGet(bundle, fieldCount=n_members, rc=status)
+      @assertEqual(0, st_get)
+      @assertEqual(0, status)
+      @assertTrue(bundle_type == MAPL_FIELDBUNDLETYPE_VECTOR)
+      @assertTrue(alloc_status == MAPL_STATEITEM_ALLOCATION_CREATED)
+      @assertTrue(basis == MAPL_VECTOR_BASIS_KIND_GRID)
+      @assertEqual(0, n_members)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_advertise_creates_vector_bundle_when_graph_owns
+
+   ! Likewise a BRACKET export: type BRACKET, CREATED, bracket_updated set.
+   @test(npes=[0])
+   subroutine test_advertise_creates_bracket_bundle_when_graph_owns(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: id_ptr
+      type(ESMF_FieldBundle) :: bundle
+      type(MAPL_FieldBundleType_Flag) :: bundle_type
+      type(MAPL_StateItemAllocation) :: alloc_status
+      logical :: is_bundle, is_created, updated
+      integer :: status, st_get
+
+      call advertise_bundle_export('comp_adv_bracket', MAPL_STATEITEM_BRACKET, &
+           .true., meta, graph, id_ptr, status)
+      @assertEqual(0, status)
+      call node_bundle(graph, id_ptr, bundle, is_bundle, is_created)
+      @assertTrue(is_bundle)
+      @assertTrue(is_created)
+      call MAPL_FieldBundleGet(bundle, fieldBundleType=bundle_type, &
+           allocation_status=alloc_status, bracket_updated=updated, rc=st_get)
+      @assertEqual(0, st_get)
+      @assertTrue(bundle_type == MAPL_FIELDBUNDLETYPE_BRACKET)
+      @assertTrue(alloc_status == MAPL_STATEITEM_ALLOCATION_CREATED)
+      @assertTrue(updated)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_advertise_creates_bracket_bundle_when_graph_owns
+
+   ! A VECTOR item gets its bundle at advertise with the switch off too, as
+   ! a Field does: connections work the same either way, and a legacy
+   ! bundle aliased later replaces and destroys it.
+   ! Seeded to fail: a placeholder gated on the switch leaves no bundle.
+   @test(npes=[0])
+   subroutine test_advertise_creates_vector_bundle_when_switch_off(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: id_ptr
+      type(ESMF_FieldBundle) :: bundle
+      logical :: is_bundle, is_created
+      integer :: status
+
+      call advertise_bundle_export('comp_adv_vector_off', MAPL_STATEITEM_VECTOR, &
+           .false., meta, graph, id_ptr, status)
+      @assertEqual(0, status)
+      call node_bundle(graph, id_ptr, bundle, is_bundle, is_created)
+      @assertTrue(is_bundle)
+      @assertTrue(is_created)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_advertise_creates_vector_bundle_when_switch_off
+
+   ! A VECTOR import and a VECTOR internal each get a created bundle at
+   ! advertise, with either switch setting, as a Field does.
+   ! Seeded to fail: with the export-only gate back, neither has a bundle.
+   @test(npes=[0])
+   subroutine test_advertise_creates_vector_bundle_for_import_and_internal(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: id_ptr
+      type(ESMF_FieldBundle) :: bundle
+      logical :: import_on, import_off, internal_on, internal_off
+      logical :: is_bundle, is_created
+      integer :: status
+
+      call advertise_bundle_export('comp_adv_vector_imp_on', MAPL_STATEITEM_VECTOR, &
+           .true., meta, graph, id_ptr, status, state_intent=ESMF_STATEINTENT_IMPORT)
+      @assertEqual(0, status)
+      call node_bundle(graph, id_ptr, bundle, is_bundle, is_created)
+      import_on = is_bundle .and. is_created
+      call advertise_bundle_export('comp_adv_vector_imp_off', MAPL_STATEITEM_VECTOR, &
+           .false., meta, graph, id_ptr, status, state_intent=ESMF_STATEINTENT_IMPORT)
+      @assertEqual(0, status)
+      call node_bundle(graph, id_ptr, bundle, is_bundle, is_created)
+      import_off = is_bundle .and. is_created
+      call advertise_bundle_export('comp_adv_vector_int_on', MAPL_STATEITEM_VECTOR, &
+           .true., meta, graph, id_ptr, status, state_intent=ESMF_STATEINTENT_INTERNAL)
+      @assertEqual(0, status)
+      call node_bundle(graph, id_ptr, bundle, is_bundle, is_created)
+      internal_on = is_bundle .and. is_created
+      call advertise_bundle_export('comp_adv_vector_int_off', MAPL_STATEITEM_VECTOR, &
+           .false., meta, graph, id_ptr, status, state_intent=ESMF_STATEINTENT_INTERNAL)
+      @assertEqual(0, status)
+      call node_bundle(graph, id_ptr, bundle, is_bundle, is_created)
+      internal_off = is_bundle .and. is_created
+
+      @assertTrue(import_on)
+      @assertTrue(import_off)
+      @assertTrue(internal_on)
+      @assertTrue(internal_off)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_advertise_creates_vector_bundle_for_import_and_internal
+
+   ! A BRACKET exists only for ExtData, as an export: declared as an
+   ! internal it gets no bundle, and an export gets one with either switch
+   ! setting. (An import is refused by the spec itself, see
+   ! Test_VariableSpecCharacteristics.)
+   ! Seeded to fail: with the intent gate removed, the internal has a bundle.
+   @test(npes=[0])
+   subroutine test_advertise_creates_bracket_bundle_for_export_only(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: id_ptr
+      type(ESMF_FieldBundle) :: bundle
+      logical :: internal_bundle, export_off, is_bundle, is_created
+      integer :: status
+
+      call advertise_bundle_export('comp_adv_bracket_int', MAPL_STATEITEM_BRACKET, &
+           .true., meta, graph, id_ptr, status, state_intent=ESMF_STATEINTENT_INTERNAL)
+      @assertEqual(0, status)
+      call node_bundle(graph, id_ptr, bundle, is_bundle, is_created)
+      internal_bundle = is_bundle
+      call advertise_bundle_export('comp_adv_bracket_exp_off', MAPL_STATEITEM_BRACKET, &
+           .false., meta, graph, id_ptr, status)
+      @assertEqual(0, status)
+      call node_bundle(graph, id_ptr, bundle, is_bundle, is_created)
+      export_off = is_bundle .and. is_created
+
+      @assertFalse(internal_bundle)
+      @assertTrue(export_off)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_advertise_creates_bracket_bundle_for_export_only
+
+   ! The descriptor records the two component names split from the compound
+   ! standard name, the declared basis and bracket_size, as plain
+   ! attributes.
+   @test(npes=[0])
+   subroutine test_advertise_records_bundle_member_attributes(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: id_ptr
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: descriptor
+      character(:), allocatable :: name_1, name_2
+      type(MAPL_VectorBasisKind) :: basis
+      integer :: status, size_found
+      logical :: has_names, has_basis, has_size
+
+      call advertise_bundle_export('comp_adv_vector_attrs', MAPL_STATEITEM_VECTOR, &
+           .false., meta, graph, id_ptr, status)
+      @assertEqual(0, status)
+      node => graph%get_node(id_ptr)
+      select type (node)
+      class is (StateItemNode)
+         descriptor => node%get_descriptor()
+         call descriptor%get_vector_component_names(name_1, name_2, has_names)
+         call descriptor%get_vector_basis_kind(basis, has_basis)
+         call descriptor%get_bracket_size(size_found, has_size)
+      end select
+      @assertTrue(has_names)
+      @assertEqual('eastward wind', name_1)
+      @assertEqual('northward wind', name_2)
+      @assertTrue(has_basis)
+      @assertTrue(basis == MAPL_VECTOR_BASIS_KIND_GRID)
+      @assertFalse(has_size)
+
+      call advertise_bundle_export('comp_adv_bracket_attrs', MAPL_STATEITEM_BRACKET, &
+           .false., meta, graph, id_ptr, status)
+      @assertEqual(0, status)
+      node => graph%get_node(id_ptr)
+      select type (node)
+      class is (StateItemNode)
+         descriptor => node%get_descriptor()
+         call descriptor%get_bracket_size(size_found, has_size)
+         call descriptor%get_vector_component_names(name_1, name_2, has_names)
+      end select
+      @assertTrue(has_size)
+      @assertEqual(2, size_found)
+      @assertFalse(has_names)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_advertise_records_bundle_member_attributes
+
+   ! Harvesting deferred values must pass over a created bundle that has no
+   ! geom yet (the component has not realized the item).
+   @test(npes=[0])
+   subroutine test_harvest_deferred_skips_memberless_bundle(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: meta
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: id_ptr
+      type(GraphBuilder) :: gb
+      integer :: status, status_harvest
+
+      call advertise_bundle_export('comp_adv_harvest_bundle', MAPL_STATEITEM_VECTOR, &
+           .true., meta, graph, id_ptr, status)
+      @assertEqual(0, status)
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call gb%harvest_deferred(meta, rc=status_harvest)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assertEqual(0, status_harvest)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_harvest_deferred_skips_memberless_bundle
 
 end module Test_GraphBuilder_Advertising
