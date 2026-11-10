@@ -1988,6 +1988,12 @@ it runs goes in a follow-up commit with the same trailer. Label
   whether to keep the shards. Fallback if more binaries hit the limit
   first: keep one gridded component per PET count and reuse it across
   tests (tried: NAG ESSENTIAL green, unsharded scenarios green).
+  Update (owner, 2026-11-10): a new ESMF release nominally fixes the VM
+  bug. With it every ctest passes on the owner's machine, but restoring
+  the gridcomp destroy in the `ESMF_TestCase` harness breaks the
+  `MAPL.generic.scenarios.shard*` tests (everything else still passes).
+  Not investigated; deferred by the owner until after the merge into
+  `develop` on GitHub (task `E3-ESMFDestroy`).
 - `graph/transforms/TransformGraphNode.F90` ~91: `allocate(transformer,
   source=)` plus the HierarchyGraph insert corrupts a `PortSpecMap` with
   2+ entries under gfortran (SIGBUS in deep_copy). `ExpressionTransform`
@@ -2119,6 +2125,29 @@ team, with a PowerPoint deck. Length and number of sessions are not
 decided. Before authoring, meta asks the owner (dashboard): audience depth,
 sessions and length, framing from legacy terms, slides only or a live
 scenario demo, and the tool for the deck.
+- **Status:** not started
+
+**E3-ESMFDestroy** (owner, 2026-11-10; after the merge into `develop` on
+GitHub). With the new ESMF release, restoring `ESMF_GridCompDestroy` in
+`pfunit/ESMF_TestCase.F90` `clearInternalState` breaks only the scenario
+shard tests (see the harness-comm-leak note in Phase D). Investigate
+(evidence first: triage subagent; the owner leads anything that looks like
+an ESMF defect), then decide whether to keep the destroy and the shards.
+- **Status:** not started
+
+**rebase-case-sensitive** (owner, 2026-11-10; right after the next rebase
+onto or merge with `develop`). Develop PR #5501 (16ab40ed7) makes legacy
+connection matching case-sensitive: `VirtualConnectionPt%matches` drops
+the regex `i` flag and `equal_ignore_case`; `StateRegistry%filter` looks up
+literal names in the family map. The graph must follow that policy. The
+graph's Wildcard/callback matching and import-name checks call the same
+`VirtualConnectionPt%matches` (`GraphBuilder_ConnectionResolution_smod.F90`
+~123, ~761, ~1133, ~2330; `GraphBuilder.F90` ~978), so they follow
+automatically; its port and `NodeId` lookups are string-keyed maps (already
+exact). Task: after the rebase, grep the graph layer for any other case
+folding of item, port or component names; add a graph-mode test that a
+lower-case `moist/cape` does not connect to `MOIST/CAPE` (explicit and
+wildcard), and a parity row if anything differs.
 - **Status:** not started
 
 Author = writes the task and leaves it uncommitted. Reviewer = the
@@ -2261,6 +2290,8 @@ it may author D1/A4/B5 with sonnet review.
 | E1-intel | sonnet | - | run and classify only; remote build on bucy |
 | E1-early | volunteer | meta (report check) | outsourced; run and classify only, current HEAD, ifx-stack on bucy |
 | E2-TeamWalkthrough | opus | sonnet | after the develop merge; slide deck for the owner's team; scope questions first |
+| E3-ESMFDestroy | sonnet | sonnet | after the develop merge on GitHub; new ESMF release; destroy breaks only scenario shards |
+| rebase-case-sensitive | sonnet | sonnet | right after the next develop rebase/merge (PR #5501) |
 
 `(sonnet?)`/`(haiku?)` = move to that model only if it passes calibration.
 Always opus regardless: B0, B2, B3-Units, B3-ItemShape, A1-diagnosis,
