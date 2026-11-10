@@ -28,8 +28,8 @@ Landed changes (including `hierarchy-wide-component-graph`, phases
 7a/7b/7c and 12) are under `openspec/changes/archive/<date>-<name>/`.
 
 Facts below were verified against the tree on 2026-10-21 unless marked
-**[ASSUMPTION]**; updated 2026-11-09 through `39c16e40f` (§1.1-§1.2,
-§2.2-§2.4, §3, §4, §5).
+**[ASSUMPTION]**; updated 2026-11-10 through `480af45c5` (§1.1-§1.2,
+§2.2-§2.4, §2.6, §2.7, §3).
 
 ## 1. Module map (`superstructure/generic/`)
 
@@ -39,8 +39,10 @@ No dependency on `OuterComponent`/`StateRegistry` (REQ-CG-002). Layout:
 files at the top level, and subdirectories `characteristics/`,
 `transforms/`, `callback/`, `id_types/` (plus `IdTemplate.inc`),
 `containers/` (gFTL instantiations); tests are in `graph/tests/` (for example `Test_ForwardNetwork.pf` for the
-hierarchy's forward network and `Test_VerticalColumnRegridTransform.pf`
-for both vertical Transforms).
+hierarchy's forward network, `Test_VerticalColumnRegridTransform.pf`
+for both vertical Transforms, `Test_HorizontalBundleRegridTransform.pf` for
+the bundle-only regrid, and `Test_UnitsConverterTransform.pf` and
+`Test_TypeKindConverterTransform.pf`, which cover Fields and bundles).
 
 | File | Responsibility |
 |---|---|
@@ -139,6 +141,11 @@ Field in place and is a no-op for any other existing Field;
 means status `CREATED` and an original Field (alias id 0), so a legacy Field
 that carries the same status key is not mistaken for one
 (`payload_is_created` in `ExtensionMaterialization.F90`).
+A node whose descriptor declares a VECTOR or BRACKET is materialized as an
+`ALLOCATED` `FieldBundle` of that type, with the descriptor written to it
+and no members (`build_bundle_payload`, `is_bundle_class`,
+`ExtensionMaterialization.F90:313-355`); an existing bundle payload is left
+alone (`:90`). The Transform that fills it creates the members at compute.
 `advertise_one` creates the Field at advertise for INTERNAL, EXPORT and
 IMPORT nodes of FIELD class when graph mode is not `REGISTRY`; not for
 composites, bundles, vectors, brackets, expressions, services or state
@@ -170,13 +177,13 @@ factories (so far units, typekind, ungridded dims, geometry, vertical grid, vert
 
 | Characteristic | Kind constant | `build_transform` today |
 |---|---|---|
-| `PhysicalUnits` | `PHYSICAL_UNITS_CHARACTERISTIC_KIND` | Real: `UnitsConverterTransform` |
-| `TypeKind` | `TYPE_KIND_…` | Real: `TypeKindConverterTransform` |
+| `PhysicalUnits` | `PHYSICAL_UNITS_CHARACTERISTIC_KIND` | Real: `UnitsConverterTransform`, for a Field or, member by member, a VECTOR bundle (`UnitsConverterTransform.F90:114`; only VECTOR reaches it: plain FIELDBUNDLE links are refused at materialization) |
+| `TypeKind` | `TYPE_KIND_…` | Real: `TypeKindConverterTransform`, for a Field or, member by member, a VECTOR bundle (`TypeKindConverterTransform.F90:101`; only VECTOR reaches it: plain FIELDBUNDLE links are refused at materialization) |
 | `ItemShape` | `ITEM_SHAPE_…` | Every shape. Real for `BRACKET`→`FIELD` only (`BracketTimeInterpolationTransform`); `VECTORBRACKET`→`VECTOR` unsupported; pairs the shape matrix rejects (including `VECTORBRACKET`→`VECTORBRACKET`) are incompatible. Owns `get_extension_order` |
 | `Geometry` | `GEOMETRY_…` | Real for a pair that both hold an `ESMF_Geom`, with the param from `select_regridder_param` (the side that declares one, else the default). An id-only pair (component-level geometry wiring) is unsupported; both sides declaring a regridder param is incompatible, checked first (`GeometryCharacteristic.F90:190-224`, shared by both item paths). Overrides `build_transform_for_item` to dispatch on the tip's `ITEM_SHAPE` item class: FIELD gets `HorizontalRegridTransform`; VECTOR and BRACKET get `HorizontalBundleRegridTransform`; FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE and WILDCARD are unsupported. A tip with no `ITEM_SHAPE` entry (component-level wiring) is not restricted (`:230-263`). `get_signature` appends the regridder param's `to_string()`, so imports asking for different methods do not share a chain (`:267-303`) |
 | `VerticalGrid` | `VERTICAL_GRID_…` | Single overlap: still unsupported (`vcoord_build_transform` does not build `VerticalColumnRegridTransform`, `VerticalGridCharacteristic.F90:252-286`); incompatible and ambiguous overlaps `_FAIL` with distinct messages |
 | `VerticalStagger` | `VERTICAL_STAGGER_…` | Unsupported — mismatch is detected, repair is a stub (`VerticalStaggerCharacteristic.F90:98-108`) |
-| `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Unsupported — mismatch is detected, `build_transform` does not build `VerticalFlipTransform` (`VerticalOrientationCharacteristic.F90:97-107`). A grid with no direction (a single level) leaves the entry `SPECIFIED` holding `UNSPECIFIED`; `write_info` writes nothing for it, so the Field keeps `with_grid` (`VerticalOrientationCharacteristic.F90:135-136`). An `INVALID` direction still fails `write_info`. `UNSPECIFIED` against an explicit up or down still compares unequal |
+| `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Unsupported — mismatch is detected, `build_transform` does not build `VerticalFlipTransform` (`VerticalOrientationCharacteristic.F90:97-107`). A grid with no direction (a single level) leaves the entry `SPECIFIED` holding `UNSPECIFIED`; `write_info` writes nothing for it, so the Field keeps `with_grid` (`VerticalOrientationCharacteristic.F90:135-136`). An `INVALID` direction still fails `write_info`. `UNSPECIFIED` against an explicit up or down still compares unequal. `FixedLevelsVerticalGrid%derive_direction` sets a fixed-levels grid's direction from its levels and `physical_dimension` (exact, case-sensitive): `height` and `altitude` increasing = UP, decreasing = DOWN; `pressure`, `depth`, `layer`, any other name or an unset dimension: increasing = DOWN, decreasing = UP; one level is `UNSPECIFIED`; non-monotonic levels fail (`FixedLevelsVerticalGrid.F90:80-110`). `BasicVerticalGrid` and `MirrorVerticalGrid` are DOWN (the default in `VerticalGrid.F90:17`); `ModelVerticalGrid` is DOWN unless its YAML `direction:` is set (`ModelVerticalGrid.F90:47,330,445-449`). So by default a fixed height grid (UP) and a model height grid (DOWN) differ in direction |
 | `HorizontalDimsSpec` | `HORIZONTAL_DIMS_SPEC_…` | Incompatible — GEOM vs NONE is detected in both directions and can never connect |
 | `Attributes`, `UngriddedDims`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | Incompatible — legacy rejects every mismatch of two non-mirror values, so a detected mismatch can never connect |
 | `QuantityType` | `QUANTITY_TYPE_CHARACTERISTIC_KIND` | Incompatible for a quantity-type mismatch; unsupported when only the basis differs (both real bases; `BASIS_NONE` is a basis wildcard, `QUANTITY_UNKNOWN` is not a wildcard): a conversion is possible but not built. Factory status by intent: declared -> `SPECIFIED`; undeclared (or declared `QUANTITY_UNKNOWN`) -> `DEFERRED` on EXPORT/INTERNAL, `UNCHECKED` on IMPORT. `is_deferred_fatal` is `quantity_type_required()` (`ValidationPolicy.F90`, key `field_dictionary: require_quantity_type`, no legacy counterpart; strict validation alone does not set it). An unsupplied one falls back to `UNCHECKED` with one summary warning |
@@ -223,6 +230,9 @@ against the consumer as an ordinary pair. Each input reaches the adopted
 kinds through its own extension chain: precision gets real steps, other
 adopted kinds are unsupported; a `DEFERRED` adopted value waits. Chains
 are built before the transform, so a failing input leaves no evaluation.
+`ExpressionTransform` reads every input as a Field, so an input whose declared
+item type is not FIELD is reported `unsupported_item_class:<class>` at resolve
+time, before any aliasing (§2.7).
 
 #### Transforms (`graph/transforms/`)
 
@@ -230,7 +240,8 @@ are built before the transform, so a failing input leaves no evaluation.
 interface over named ports), `TransformGraphNode` (`get_transformer()`
 returns the held `Transform` read-only, `TransformGraphNode.F90:96-101`),
 and eight concrete transforms: `UnitsConverterTransform`,
-`TypeKindConverterTransform`, `BracketTimeInterpolationTransform` (built by
+`TypeKindConverterTransform` (both also convert a VECTOR bundle member by
+member), `BracketTimeInterpolationTransform` (built by
 `ItemShapeCharacteristic%build_transform`), `ExpressionTransform` (built
 by the connect-time expression path in `GraphBuilder_ConnectionResolution_smod.F90`, not by a characteristic),
 `HorizontalRegridTransform` (Field; built by
@@ -247,8 +258,15 @@ member count changes. A regridded VECTOR takes the input `vector_basis_kind`.
 A BRACKET is regridded when `bracket_updated` is true, and on the first
 compute or after a regridder, geom, typekind or member-set change whatever
 the flag says; it also copies the input interpolation weights to the output.
-No bundle payload is created yet, so the chain is built but a bundle item
-is not filled in the graph.
+`BundleMemberSupport.F90` (`ensure_output_members`, `copy_bundle_attributes`,
+`copy_vector_basis`, `copy_interpolation_weights`) holds the member code the
+bundle regrid and the units and typekind converters share. Each creates the
+output members at compute, one clone of each input member on the output
+bundle's geom and typekind, and again when the input member count differs;
+a created member takes the output bundle's typekind and units. The chain
+links they fill are memberless bundles made by `materialize_extension_chain`
+(§2.6). A units or typekind step never sees a BRACKET: its chain order
+(`BRACKET_ORDER`, `ItemShapeCharacteristic.F90:206-207`) has neither kind.
 `EsmfRegridderParam%to_string` (a deferred `RegridderParam` method; compact
 JSON of `make_info`, `EsmfRegridder.F90:292-306`) is what the Geometry
 signature, and so the chain key, carries.
@@ -278,7 +296,7 @@ type (stateless; every method is `nopass` and takes the
 | File | Responsibility |
 |---|---|
 | `GraphBuilder_Advertising_smod.F90` | `advertise_one` creates `StateItemNode`s from `VariableSpec`; `VariableSpec%make_characteristics` (called on the stored descriptor) fills the characteristics map, `declared_item_type` and `fill_value` |
-| `GraphBuilder_ConnectionResolution_smod.F90` | Ordinary/Simple/Match connection resolution (`resolve_one`, `for_each_matching_import`); extension-chain use; import mirroring (`run_propagate_hook`) and export propagation (`run_export_propagate_hook`); Expression names check (`run_expression_hook`) and per-consumer evaluation (`resolve_one_pair`); Wildcard fan-in (`resolve_wildcard_destination`); unsatisfied-import checks; qualified-name resolution |
+| `GraphBuilder_ConnectionResolution_smod.F90` | Ordinary/Simple/Match connection resolution (`resolve_one`, `for_each_matching_import`); extension-chain use; import mirroring (`run_propagate_hook`) and export propagation (`run_export_propagate_hook`); Expression names check (`run_expression_hook`) and per-consumer evaluation (`resolve_one_pair`); Wildcard fan-in (`resolve_wildcard_destination`); unsatisfied-import checks; qualified-name resolution; aliasing of a legacy export's Field or FieldBundle (`try_alias_export_field`, `find_alias_owner`, §2.7); chain-link materialization (`materialize_extension_chain`, `check_materializable`) |
 | `GraphBuilder_Freeze_smod.F90` | Hierarchy-wide freeze and convergence check (`run_graph_freeze_hook`): freezes every component's graph, then the hierarchy's forward network once (`freeze_forward_network`, `GraphBuilder_Freeze_smod.F90:49-54`) |
 | `GraphBuilder_Geometry_smod.F90` | Geometry push/pull (`run_geometry_hook`); its edges go in the forward network. The push skips a component's own `FROM_CHILD` provider, which would close a cycle (`:300-306`) |
 | `GraphBuilder_CallbackWiring_smod.F90` | Wildcard/regex callback-argument wiring against the flattened qualified-export namespace. Get arguments join the forward network; each method gets its own put (write-back) network (`:384-427`) |
@@ -297,12 +315,17 @@ tests and `apps/graph_diagnostic`), `OuterMetaComponent.F90` +
 submodule area), `Test_GraphBuilderPropagation.pf`,
 `Test_GraphBuilderEquivalence.pf`, `Test_GraphEquivalenceHarness.pf`,
 `Test_GraphModeDemonstration.pf`, `Test_GraphMode.pf`,
-`Test_GraphBuilderMaterializeGate.pf` (materialization gates and graph-mode
-state population, including the outer-state population tests
-`test_populate_outer_state_*`), `Test_GraphGeometryHook.pf`,
+`Test_GraphBuilderMaterializeGate.pf` (materialization gates, export
+aliasing by owner walk and for bundle exports `test_alias_*`, bundle chain
+links, and graph-mode state population, including the outer-state population
+tests `test_populate_outer_state_*`), `Test_GraphGeometryHook.pf`,
 `Test_ForwardNetworkErrors.pf` (the forward-producer error message), and
 the fixtures `tests/scenarios/` (legacy YAML scenarios) and
-`tests/graph-scenarios/` (graph-mode fixtures).
+`tests/graph-scenarios/` (graph-mode fixtures). `Test_Scenarios.pf` also has
+`check_legacy_couplers` (§2.4) and the bundle scenarios `vector_regrid` and
+`bracket_regrid`; the BRACKET export of the latter is declared in code by
+`tests/gridcomps/ProtoBracketGridComp.F90`, since YAML cannot declare a
+bracket.
 
 ### 1.3 Specification-to-source correspondence
 
@@ -357,10 +380,10 @@ Graph code also must not call into the legacy `specs/*Aspect`,
   checks first and records a pair-level `connection_conflicts` entry
   instead of failing the pass: the second producer is skipped and the first
   stays (`second_producer`, called at
-  `GraphBuilder_ConnectionResolution_smod.F90:410,519`; the inout borrower
-  case at `:1445-1450`). Only a second producer resolved in the same
+  `GraphBuilder_ConnectionResolution_smod.F90:413,533`; the inout borrower
+  case at `:1459-1464`). Only a second producer resolved in the same
   connect pass is seen: an import settled by an earlier pass is skipped
-  silently (`:254-273`). Wildcard fan-in, expression, callback-collection
+  silently (`:255-274`). Wildcard fan-in, expression, callback-collection
   and geometry edges have no pre-check and hit the `add_dependency`
   assertion. `Test_ForwardNetworkErrors.pf`
   and `Test_ForwardNetwork.pf` cover the graph side.
@@ -413,18 +436,19 @@ Graph code also must not call into the legacy `specs/*Aspect`,
 | `initialize_geom_b.F90` | `gb%run_geometry_hook` |
 | `initialize_realize_accepted.F90` | `recurse()` → user phase → legacy `registry%allocate` → `gb%allocate_internals` → user-state `add_to_states(mode='user')` (switch off only) → outer states: `gb%run_populate_outer_hook` (switch on, `GRAPH` mode) or `registry%add_to_states(mode='outer')` (`initialize_realize_accepted.F90:26-43`) |
 | `initialize_graph_freeze.F90` | `gb%run_graph_freeze_hook` (root only) |
-| `run_user.F90` | import couplers (legacy) → `gb%run_pull_hook` → user run → `gb%run_advance_hook` → export couplers (legacy); both coupler loops are skipped when `graph_populates_user_states()`, and so is the import-coupler initialize in `initialize_user.F90` (`run_user.F90:49-77`) |
+| `run_user.F90` | import couplers (legacy) → `gb%run_pull_hook` → user run → `gb%run_advance_hook` → export couplers (legacy); both coupler loops are skipped when `graph_populates_user_states()`, and so is the import-coupler initialize in `initialize_user.F90:32-38` (`run_user.F90:51-57,71-77`) |
 
 `run_reexport_hook` runs after `run_advertise_hook` and before export
 propagation: for each `ReexportConnection` it adds an export port named by
 the re-export destination, bound to the source's existing node (an own
 INTERNAL-intent node by resource index, or a descendant export's node by
 port name). A repeat of the same name and node is a no-op; a different node
-fails (`reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:919-969`).
+fails (`reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:957-1008`).
 The internal gets no port or mirror of its own.
 
 With the user-state switch off (default) legacy fills the real user states and
-the graph only creates, completes and aliases Fields; `populate` inserts only
+the graph only creates, completes and aliases Fields (and, for VECTOR, SERVICE
+and BRACKET exports, aliases their FieldBundles, §2.7); `populate` inserts only
 completed Fields and skips INTERNAL. At accept_transfer, off: legacy fills
 the real user states, then the call site passes scratch states (real import
 state, throwaway export and internal) to the populate hook
@@ -432,7 +456,18 @@ state, throwaway export and internal) to the populate hook
 user-state population is skipped (`initialize_advertise`,
 `initialize_realize_accepted`), the call site passes the real user states,
 and `populate` fills the real user import, internal and export states and
-completes INTERNAL Fields.
+completes INTERNAL Fields. In that mode the legacy import and export couplers
+do not run (`run_user.F90:51-57,71-77`), and the import couplers are not
+initialized (`initialize_user.F90:32-38`): their payload Fields are never
+written, so running them would convert the unwritten fill value. The graph
+pulls the imports itself (`run_pull_hook`) and advances the exports
+(`run_advance_hook`). With the switch off, in `REGISTRY` mode and in `BOTH`
+mode the couplers still run.
+`Test_Scenarios.pf` `check_legacy_couplers` asserts, for the four units
+scenarios that set the switch (`invalidate`, `units_mismatch_run_phase`,
+`grandparent_units_run_phase`, `units_and_typekind_mismatch`), that every
+legacy coupler's `import[1]` and `export[1]` Field still holds the fill
+sentinel, compared by bits (`Test_Scenarios.pf:1070-1088`).
 
 With the switch on, population runs twice. At the end of ADVERTISE
 (`initialize_advertise.F90:118-121`) the hook runs with `own_only`: only the
@@ -498,7 +533,7 @@ with the switch off, or outside `GRAPH` mode (the switch is gated by
 them at accept_transfer (`initialize_accept_transfer.F90:89-91`). The graph
 does not write position-labelled names such as `T(1)`; their expectation
 items carry `legacy_only: true`, which `Test_Scenarios` skips when it applied
-the switch (`Test_Scenarios.pf:557-561`).
+the switch (`Test_Scenarios.pf:562-566`).
 
 `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES` turns the switch on in
 `Test_Scenarios` for every scenario, and a `scenario_table()` entry can set
@@ -506,8 +541,8 @@ the switch (`Test_Scenarios.pf:557-561`).
 `regrid`, `regrid_r8`, `invalidate`, and the `graph-scenarios` `plain_field`,
 `units_mismatch_run_phase`, `grandparent_units_run_phase`,
 `units_and_typekind_mismatch` and `graphbuilder_propagation` do;
-`Test_Scenarios.pf:176-177,191-194,202-203,212-224`). Either way the switch is
-on only in `GRAPH` mode (`Test_Scenarios.pf:417-420`). Scenarios
+`Test_Scenarios.pf:180-181,195-198,208-209,218-230`). Either way the switch is
+on only in `GRAPH` mode (`Test_Scenarios.pf:423-426`). Scenarios
 that do not yet pass with the switch on are recorded in the tasks.md 3.41a,
 3.41b and 3.44 Status; `scenario-parity.md` lists the measured rows.
 
@@ -529,30 +564,86 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
 | Item class | Graph-mode path |
 |---|---|
 | FIELD, FIELDBUNDLE, STATE | Ordinary resolution + characteristic extension chain |
-| VECTOR, BRACKET (geometry mismatch) | The extension chain holds a `HorizontalBundleRegridTransform` link of the item's class (BRACKET→FIELD adds time interpolation after it). `materialize_extension_chain` refuses a link whose declared class is not FIELD with `unsupported_item_class:<class>`, so no bundle payload is created yet. A chain link takes its declared class from its `ITEM_SHAPE` entry (`StateItemDescriptor%take_declared_item_type_from_shape`; an EXPRESSION shape gives FIELD) |
+| VECTOR, BRACKET (geometry mismatch) | The extension chain holds a `HorizontalBundleRegridTransform` link of the item's class (BRACKET→FIELD adds time interpolation after it). `materialize_extension_chain` creates a VECTOR or BRACKET link as an `ALLOCATED` memberless `FieldBundle` of that type; the Transforms create the members at compute. It passes `admit_bundles=.true.` to `check_materializable`, which then admits VECTOR on the export and import side; without it only FIELD (and a BRACKET export, built as a plain Field) is admitted. A link declared any other non-FIELD class is refused with `unsupported_item_class:<class>` (`GraphBuilder_ConnectionResolution_smod.F90:1676-1761`). Exact-match exports and chain inputs are not created as bundles. An unaliased VECTOR or BRACKET chain input (no legacy bundle in the owner's user export state to alias) is reported `unsupported_item_class:<class>` at resolve time (`:485-512`): the graph creates no export bundle. A VECTOR with a vertical mismatch is unsupported at VERTICAL_GRID (no bundle vertical Transform). A chain link takes its declared class from its `ITEM_SHAPE` entry (`StateItemDescriptor%take_declared_item_type_from_shape`; an EXPRESSION shape gives FIELD) |
 | BRACKET → FIELD | `ItemShapeCharacteristic` + `BracketTimeInterpolationTransform` |
 | VECTORBRACKET | Not handled: legacy only (matrix: VECTOR unsupported, others incompatible). `to_itemtype` in the compiled parser does not parse `'vector_bracket'`. |
 | EXPRESSION | Placeholder export; names check in `graphbuilder_run_expression_hook`; one `ExpressionTransform` (N:1) evaluation per consumer, built in `resolve_one_pair` |
 | WILDCARD | `resolve_wildcard_destination` (fan-in of every matching FIELD producer as composite members; other shapes are skipped) |
-| SERVICE | Resolved like any other item by `resolve_one`. `is_ordinary_resolvable_import` only keeps an unresolved SERVICE import from being propagated to an ancestor. `try_alias_export_field` does not check the item class, so a SERVICE (or VECTOR) export found by name is read as a Field: the `ESMF_StateGet(field=)` call returns rc=13 (known bug; the intended behavior is that a SERVICE pair is aliased like any bundle). Being retired in favor of callbacks |
+| SERVICE | Resolved like any other item by `resolve_one`. `is_ordinary_resolvable_import` only keeps an unresolved SERVICE import from being propagated to an ancestor. `try_alias_export_field` aliases a SERVICE export's `FieldBundle` from the owner's user export state like any bundle, with no SERVICE special case (§2.7). Being retired in favor of callbacks |
 | Callback arguments | `GraphBuilder_CallbackWiring_smod.F90` |
+
+### 2.7 Aliasing the legacy export (`try_alias_export_field`)
+
+With the user-state switch off, resolution aliases the export's real payload
+from the legacy user export state instead of creating one. With the switch
+on (`graph_populates_user_states()`) it returns `found = .false.` at once,
+because the state holds the node's own created Field
+(`GraphBuilder_ConnectionResolution_smod.F90:1496-1584`).
+
+- It takes the export **port name** (`effective_source_name`, the key
+  `find_export_node_id` uses), not the node's short name. A qualified source
+  component (`a/b`) is resolved with `resolve_qualified_component`.
+- `find_alias_owner` walks the export-port tables down from the source
+  component to the component whose user export state holds the item, which is
+  read there under the leaf name. A name without `/` is the component's own
+  export or re-export. A `<child>/<leaf>` port is either passed up unchanged
+  from a deeper level (a child carries the same port name: recurse) or is
+  that child's own export (the child is named `<child>` and has a port
+  `<leaf>`). Port names are qualified once, at the immediate parent, so a
+  split at the last `/` is wrong for a port propagated through two or more
+  ancestors (`:1592-1625`). No owner found gives `found = .false.`.
+- By item kind in the owner's state: a Field is aliased with
+  `MAPL_NamedAlias` and set as the node payload (a created placeholder is
+  destroyed unless it shares its host with the alias); a `FieldBundle`
+  (VECTOR, SERVICE or BRACKET export) is aliased the same way, destroying a
+  created placeholder Field of a node declared FIELD; any other kind (a
+  nested State), or no item, gives `found = .false.` without failure and the
+  caller falls through to its existing path (`:1536-1576`).
+- An expression input is not aliased unless its declared item type is FIELD:
+  `ExpressionTransform` reads every input with `get_field`
+  (`ExpressionTransform.F90:157`), so `build_expression_evaluation` reports
+  `unsupported_item_class:<class>` at resolve time, before the alias call
+  (`GraphBuilder_ConnectionResolution_smod.F90:2047-2062`).
+- The Wildcard and callback paths, and `GraphBuilder.F90`'s own call, resolve
+  a source component with `component_for`, which rejects a qualified name
+  (`GraphBuilder_ConnectionResolution_smod.F90:118,2325`,
+  `GraphBuilder.F90:972`): a qualified source component still fails there.
 
 ## 3. Known limitations (current)
 
-- A horizontal regrid is built only for a Field whose two sides hold an
+- A horizontal regrid is built only for a pair whose two sides hold an
   `ESMF_Geom` (§1.1). An id-only geometry pair, and a geometry mismatch on a
   FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE or WILDCARD item, are reported
   unsupported, so the graph leaves those connections unwired. A VECTOR or
-  BRACKET geometry mismatch builds a `HorizontalBundleRegridTransform` chain,
-  but `materialize_extension_chain` refuses its non-FIELD links, so no
-  bundle payload exists and the bundle is not regridded in the graph.
+  BRACKET geometry mismatch builds a `HorizontalBundleRegridTransform` chain
+  whose links are memberless bundles filled at compute; units and typekind
+  steps on a VECTOR are built too. VECTORBRACKET and plain FIELDBUNDLE
+  have no bundle Transform.
+- The graph creates no export bundle: an exact-match VECTOR, SERVICE or
+  BRACKET export, and a VECTOR or BRACKET chain input, are filled only by
+  aliasing the bundle legacy put in the user export state (§2.7); an
+  unaliased one is reported `unsupported_item_class:<class>`. So a VECTOR
+  scenario with the user-state switch on (`vector_regrid`) is reported
+  unsupported at resolve (`C2-bundle-exports` in the plan).
+- A bundle (VECTOR or BRACKET) link whose step is a vertical-grid mismatch
+  is reported unsupported: `VerticalGridCharacteristic%build_transform`
+  builds nothing, and there is no bundle vertical regrid (plan
+  `C1-vertical-b`), so `vector_1` stays pending.
+- Two equal `BasicVerticalGrid`s from different components still mismatch:
+  `VerticalGridCharacteristic%needs_extension_for` compares the manager's grid
+  ids (`VerticalGridCharacteristic.F90:145`), where legacy compares by level
+  count (`scenario-parity.md`, difference rows). `vertical_dim_spec: center`
+  on both sides therefore builds a (unsupported) vertical chain.
+- A connection whose source component is a qualified path (`a/b`) fails in the
+  Wildcard and callback paths, which resolve the source with `component_for`
+  (§2.7); plan task `C2-qualified-src`.
 - `VerticalColumnRegridTransform` and `VerticalFlipTransform` exist, but no
   characteristic builds them: a single-overlap `VerticalGrid` mismatch, a
   `VerticalStagger` mismatch and a `VerticalOrientation` mismatch are all
   reported unsupported (incompatible and ambiguous VerticalGrid overlaps
   `_FAIL`). The `vertical_regridding*`, `vertical_alignment_regrid` and
   `vertical_alignment_with_grid` scenarios stay `graph_ready = .false.`
-  (`Test_Scenarios.pf:179-180,196,198-199`).
+  (`Test_Scenarios.pf:183-184,202,204-205`).
   The vertical column regrid is R4 and linear only, at level centers.
 - An expression whose consumer has precision R8 (`expression_per_consumer_r8`)
   cannot run end to end with the user-state switch off: the legacy couplers

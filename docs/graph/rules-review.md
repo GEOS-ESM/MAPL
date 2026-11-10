@@ -176,8 +176,8 @@ yet; INCOMPATIBLE = can never connect, A23).
 | Characteristic | Shapes | Undeclared: status at advertise (factory) | Undeclared: after GEOM_B / before freeze | Mirror (graph; where; spelling) | Compared / Transform (graph) | Info write | Legacy, and where it differs |
 |---|---|---|---|---|---|---|---|
 | ItemShape | all | SPECIFIED, the item class (`make_item_shape_characteristic`); default FIELD from the parser (`to_itemtype.F90:18`) | unchanged | none | `shape_outcome` (`ItemShapeCharacteristic.F90:166`); BRACKET->FIELD builds `BracketTimeInterpolationTransform`; VECTORBRACKET->VECTOR UNSUPPORTED; other mismatches INCOMPATIBLE | bundle type only, structural | CLASS aspect `matches`/`supports_conversion`; see §1.2. Differs: legacy VECTORBRACKET->VECTOR converts (`VectorBracketClassAspect.F90:357`); graph UNSUPPORTED. |
-| TypeKind | CFD | SPECIFIED R4 | unchanged | MIRRORED for `MAPL_TYPEKIND_MIRROR`; IMPORT or EXPRESSION | equal; `TypeKindConverterTransform` | field-wide, structural | `TypekindAspect%matches`: equal or exactly one side MIRROR (`TypekindAspect.F90:89`); converts always. Same. |
-| PhysicalUnits | CFD | Field-dictionary entry found (non-exempt shape) -> SPECIFIED with its units; otherwise UNCHECKED (also for `'<unknown>'`) (`make_units_characteristic`) | unchanged | none (factory never MIRRORED) | equal; `UnitsConverterTransform` | field-wide, structural | `UnitsAspect%matches`: UNCHECKED or `<unknown>` on either side matches (`UnitsAspect.F90:105-112`); else `are_convertible`. Same in effect. |
+| TypeKind | CFD | SPECIFIED R4 | unchanged | MIRRORED for `MAPL_TYPEKIND_MIRROR`; IMPORT or EXPRESSION | equal; `TypeKindConverterTransform` (a Field, or a VECTOR bundle member by member) | field-wide, structural | `TypekindAspect%matches`: equal or exactly one side MIRROR (`TypekindAspect.F90:89`); converts always. Same. |
+| PhysicalUnits | CFD | Field-dictionary entry found (non-exempt shape) -> SPECIFIED with its units; otherwise UNCHECKED (also for `'<unknown>'`) (`make_units_characteristic`) | unchanged | none (factory never MIRRORED) | equal; `UnitsConverterTransform` (a Field, or a VECTOR bundle member by member; legacy `ConvertUnitsTransform%update_field_bundle`) | field-wide, structural | `UnitsAspect%matches`: UNCHECKED or `<unknown>` on either side matches (`UnitsAspect.F90:105-112`); else `are_convertible`. Same in effect. |
 | StandardName | FIELD, BRACKET (since 3.27) | UNCHECKED (also `UNKNOWN_STANDARD_NAME`); the field dictionary never supplies it | unchanged | MIRRORED for `MAPL_STRING_MIRROR`; IMPORT only (A13) | equal; differ: strict INCOMPATIBLE, permissive match with a warning (3.27, design A25) | field-wide; UNCHECKED writes `UNKNOWN_STANDARD_NAME` (`StandardNameCharacteristic.F90:126`) | `StandardNameAspect%matches` (`:110`): dst UNCHECKED matches; src UNCHECKED matches with a warning; differ: STRICT rejects, PERMISSIVE matches with a warning. Built for every shape but consulted only via the class's mandatory/order lists (FIELD; VECTOR per component). Same rule in the graph since 3.27. |
 | LongName | FIELD, EXPRESSION | Field-dictionary entry found (FIELD only; EXPRESSION is exempt) -> SPECIFIED with its long_name, for every intent. Otherwise: IMPORT -> UNCHECKED, writes nothing; other intents -> the declared standard_name as long_name (SPECIFIED), else UNCHECKED (`make_long_name_characteristic`) | unchanged | MIRRORED for `MAPL_STRING_MIRROR`; IMPORT only | never (`needs = .false.`); UNSUPPORTED is unreachable | per-alias | `FieldClassAspect` carries it, not compared; undeclared import takes the export's (`mirror_name`). No standard_name fallback. Differs: fallback (graph only); undeclared-import inheritance (legacy only; graph gap, tasks.md 4.2). |
 | UngriddedDims | HFM (EXPRESSION included, 3.12) | SPECIFIED empty | unchanged | MIRRORED for `ungridded_dims%is_mirror()`; IMPORT only | equal; INCOMPATIBLE | field-wide, structural | `UngriddedDimsAspect%matches` equal; no conversion. Same. |
@@ -402,7 +402,7 @@ Graph only:
   MIRRORED (A12, A17); freeze fails if never supplied.
 - A second connection that arrives in a later connect pass, after the
   import settled, is silently skipped (`resolve_one` returns at
-  `is_import_settled`, `GraphBuilder_ConnectionResolution_smod.F90:254-273`;
+  `is_import_settled`, `GraphBuilder_ConnectionResolution_smod.F90:255-274`;
   "first wins"). A second producer resolved in the same pass is reported
   instead (§2.10).
 
@@ -419,7 +419,7 @@ Legacy only:
   connect). No graph characteristic or GraphBuilder code handles
   fill_value (grep of `superstructure/generic/graph` and
   `GraphBuilder*.F90`). Not in the 3.26 seeds; see R14.
-- *(Landed in 3.33: `run_reexport_hook` / `reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:919-970`, gives a re-export an export port.)* At review time, re-export (`ReexportConnection`) was resolved by the registry only; the
+- *(Landed in 3.33: `run_reexport_hook` / `reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:957-1008`, gives a re-export an export port.)* At review time, re-export (`ReexportConnection`) was resolved by the registry only; the
   graph skipped it (`class default`,
   `GraphBuilder_ConnectionResolution_smod.F90:977`). Export propagation
   (`run_export_propagate_hook`) covers child exports, but an
@@ -514,12 +514,12 @@ anyway. See R1.
   connection resolution checks first and records a per-pair
   `connection_conflicts` entry naming the item, skips the second producer,
   and continues the pass (`second_producer`, called at
-  `GraphBuilder_ConnectionResolution_smod.F90:410,519`; inout borrower at
-  `:1445-1450`). The first stays. Other edge kinds (wildcard fan-in,
+  `GraphBuilder_ConnectionResolution_smod.F90:413,533`; inout borrower at
+  `:1459-1464`). The first stays. Other edge kinds (wildcard fan-in,
   expression, callback collection, geometry) have no such check and reach
   the `add_dependency` assertion.
 - Graph, later pass: `resolve_one` returns early for an import that already
-  settled (`:254-273`), so a connection that arrives in a later pass is
+  settled (`:255-274`), so a connection that arrives in a later pass is
   silently skipped and the first wins, with no report.
 - Legacy: by reading, the last connection wins silently
   (`scenario-parity.md`, "Two connections into one import").
@@ -869,7 +869,7 @@ VectorBracket -> Field".
 Recommendation: (a).
 
 **R8. One export per import: enforce?**
-*Graph today: a second producer resolved in the same connect pass is reported per pair as a connection conflict naming the item (ordinary and inout-borrower pairings only), the first stays, and the pass continues; one arriving in a later pass is silently skipped (§2.10; `second_producer`, `GraphBuilder_ConnectionResolution_smod.F90:410,519,1445`). Task 3.31 (enforce in both paths) was dropped; legacy is unchanged.*
+*Graph today: a second producer resolved in the same connect pass is reported per pair as a connection conflict naming the item (ordinary and inout-borrower pairings only), the first stays, and the pass continues; one arriving in a later pass is silently skipped (§2.10; `second_producer`, `GraphBuilder_ConnectionResolution_smod.F90:413,533,1459`). Task 3.31 (enforce in both paths) was dropped; legacy is unchanged.*
 Legacy: the check is commented out (`SimpleConnection.F90:105`); by
 reading, the last connection wins. Example:
 
@@ -891,7 +891,7 @@ Follow-up, only if that grep finds MatchConnection/SimpleConnection
 overlaps: decide whether the explicit SimpleConnection may win.
 
 **R9. Which source intents may a re-export take?**
-*Resolved: option (a); the graph resolves both source intents in `run_reexport_hook` (3.33; `reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:919-970`).*
+*Resolved: option (a); the graph resolves both source intents in `run_reexport_hook` (3.33; `reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:957-1008`).*
 Legacy: `ReexportConnection` exposes an EXPORT (a child's) or an INTERNAL
 (own) item as a new export, with no comparison; `ComponentSpec%reexport`
 accepts `export` (default) or `internal` and fails otherwise
@@ -936,7 +936,7 @@ Recommendation: (a).
 Legacy: an INTERNAL -> EXPORT re-export makes the internal appear in the
 export state (`ReexportConnection.F90:116-117`). Graph, at review time (no
 longer current; see "Resolved" above and `reexport_one`,
-`GraphBuilder_ConnectionResolution_smod.F90:919-970`): re-export was
+`GraphBuilder_ConnectionResolution_smod.F90:957-1008`): re-export was
 skipped (`class default`) and internals have no port
 (`GraphBuilder_Advertising_smod.F90:115`, still true), so in graph mode the
 export had no node. Used by `scenario_1`, `scenario_2`,
