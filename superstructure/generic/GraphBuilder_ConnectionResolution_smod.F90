@@ -10,9 +10,10 @@
 ! re-derived from a VariableSpec.
 submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateGet, &
-        ESMF_FieldDestroy, &
-        ESMF_STATEITEM_NOTFOUND, &
-        ESMF_STATEINTENT_INTERNAL, operator(==)
+        ESMF_FieldDestroy, ESMF_FieldBundle, &
+        ESMF_STATEITEM_NOTFOUND, ESMF_STATEITEM_FIELD, &
+        ESMF_STATEITEM_FIELDBUNDLE, &
+        ESMF_STATEINTENT_INTERNAL, operator(==), operator(/=)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
    use mapl_ConnectionVector_mod, only: ConnectionVectorIterator, operator(/=)
    use mapl_ExpressionTransform_mod, only: ExpressionTransform
@@ -1461,12 +1462,15 @@ contains
    end subroutine resolve_inout_destination
 
    ! Materializes node_id's payload as a MAPL_NamedAlias of the export
-   ! component's real, already-realized field, read by name from that
-   ! component's export ESMF_State (no StateRegistry). Tried BEFORE
+   ! component's real, already-realized field (or field bundle, for a VECTOR,
+   ! SERVICE or BRACKET item), read by name from that component's export
+   ! ESMF_State (no StateRegistry). Tried BEFORE
    ! try_materialize_field_extension at resolve_one's export_node_id call
    ! sites: if found, the caller skips the FieldCreate path. If the field is
    ! not yet available by name (two-pass timing), returns success with
-   ! found = .false. and the caller falls back to FieldCreate.
+   ! found = .false. and the caller falls back to FieldCreate. An item that is
+   ! neither a Field nor a FieldBundle (e.g. a nested State) also gives
+   ! found = .false.
    !
    ! export_port_name is the export-port key (find_export_node_id's key). A
    ! propagated port is `<child>/<leaf>`, passed up unchanged through every
@@ -1497,6 +1501,7 @@ contains
       type(ESMF_StateItem_Flag) :: item_kind
       type(ESMF_Field) :: field
       type(ESMF_Field) :: alias, created
+      type(ESMF_FieldBundle) :: bundle, bundle_alias
       class(GraphNode), pointer :: node
       type(GraphStateItem), pointer :: payload
 
@@ -1522,11 +1527,12 @@ contains
          _RETURN(_SUCCESS)
       end if
 
-      call ESMF_StateGet(export_state, itemName=leaf, field=field, _RC)
-
-      ! MAPL_NamedAlias (not a bare ESMF_NamedAlias) carries MAPL's per-alias
-      ! metadata (standard_name/long_name/restart_mode), as populate_one does.
-      alias = MAPL_NamedAlias(field, name=leaf, _RC)
+      ! Only a Field or a FieldBundle (VECTOR, SERVICE, BRACKET) can be
+      ! aliased; any other kind (a nested State) is left to the caller.
+      if (item_kind /= ESMF_STATEITEM_FIELD .and. &
+           item_kind /= ESMF_STATEITEM_FIELDBUNDLE) then
+         _RETURN(_SUCCESS)
+      end if
 
       node => graph%get_node(node_id)
       _ASSERT(associated(node), 'GraphBuilder: try_alias_export_field - NodeId not found in graph')
@@ -1535,11 +1541,28 @@ contains
          ! Mutate the stored handle in place through a pointer rather than a
          ! get_payload()/set_payload() round trip (gfortran copy hazard).
          payload => node%get_payload_ptr()
-         if (field_extension_is_created(graph, node_id)) then
-            created = payload%get_field(_RC)
-            call destroy_if_not_aliased(created, field, _RC)
+         if (item_kind == ESMF_STATEITEM_FIELD) then
+            call ESMF_StateGet(export_state, itemName=leaf, field=field, _RC)
+            ! MAPL_NamedAlias (not a bare ESMF_NamedAlias) carries MAPL's
+            ! per-alias metadata (standard_name/long_name/restart_mode), as
+            ! populate_one does.
+            alias = MAPL_NamedAlias(field, name=leaf, _RC)
+            if (field_extension_is_created(graph, node_id)) then
+               created = payload%get_field(_RC)
+               call destroy_if_not_aliased(created, field, _RC)
+            end if
+            call payload%set(alias, _RC)
+         else
+            ! A node declared FIELD holds a created placeholder even though
+            ! legacy put a bundle in the state; nothing else holds it.
+            if (field_extension_is_created(graph, node_id)) then
+               created = payload%get_field(_RC)
+               call ESMF_FieldDestroy(created, noGarbage=.true., _RC)
+            end if
+            call ESMF_StateGet(export_state, itemName=leaf, fieldBundle=bundle, _RC)
+            bundle_alias = MAPL_NamedAlias(bundle, name=leaf, _RC)
+            call payload%set(bundle_alias, _RC)
          end if
-         call payload%set(alias, _RC)
       class default
          _FAIL('GraphBuilder: try_alias_export_field - NodeId does not refer to a StateItemNode')
       end select
@@ -2003,6 +2026,15 @@ contains
       if (graph_mode() /= GRAPH_MODE_REGISTRY) then
          do i = 1, names%size()
             name => names%of(i)
+            ! ExpressionTransform reads each input as a Field, so a bundle
+            ! input (VECTOR, SERVICE, BRACKET, ...) is refused here rather
+            ! than failing when the transform computes.
+            input_desc => mutable_descriptor(graph, input_ids(i), _RC)
+            input_type = input_desc%get_declared_item_type()
+            if (input_type /= MAPL_STATEITEM_FIELD) then
+               problem = 'unsupported_item_class:' // itemtype_name(input_type)
+               _RETURN(_SUCCESS)
+            end if
             call try_alias_export_field(this, src_comp, name, graph, &
                  input_ids(i), found, _RC)
             if (found) cycle

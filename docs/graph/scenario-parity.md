@@ -63,10 +63,10 @@ to "Verified root causes" below.
 | expression_defer_geom | yes | passes (measured 2026-11-08): each input on the file grid gets a geometry step (`HorizontalRegridTransform`) before the `ExpressionTransform`; the chain links carry the input names, which `StateEval` looks up |
 | history_1 | yes | passes in graph and both modes (the table entry is `.true.`), the deep pull going through the hierarchy's forward network. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it was last measured failing two checks: `B/E_B3` (vertical-grid mismatch, no provider) and the `A/E_A1` value (tasks.md 3.44 Status); not re-measured since the forward network landed |
 | statistics | yes | ready (masked pass per owner decision: legacy still fills the user states with the switch off). The earlier R1 failure no longer reproduces (measured 2026-11-09, with and without the R1 fix); its cause was not traced. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes: user states are populated at advertise |
-| statistics_real | no | FAILS: R2 (vector `A/UV`), P1 (see the measurement paragraph below the table); measured 2026-11-06: `MethodGraphNode: argument name already declared` (P1) |
-| service_service | no | FAILS: R2 only. After R2, passes, with masked SERVICE items (M3) |
-| service_with_options | no | same as `service_service` |
-| vector_1 | no | FAILS: R2 only. After R2, passes, with masked VECTOR items (M3) |
+| statistics_real | no | FAILS: P1 (see the measurement paragraph below the table). Measured 2026-11-10 with `C2-alias-nonfield` in the tree: no `rc=13` any more; every failing check (22) follows `build_run_phase_node step failed with rc=1` (P1) |
+| service_service | yes | ready (masked pass: the SERVICE items are aliased from the legacy user export state and the graph does not materialize them, M3). Red before `C2-alias-nonfield` (measured 2026-11-10: `Tests run: 43, Failures: 24`, first log line `resolve_connections step failed with rc=13`), green after |
+| service_with_options | yes | same as `service_service` |
+| vector_1 | no | passes, but run alone it already passed before `C2-alias-nonfield` (measured 2026-11-10: no `rc=13` in the log), so it is not flipped: it needs `C1-geom-c-b` (the geometry chain for a VECTOR is not materialized) |
 
 Re-measured 2026-11-09 on NAG, in a tree with `C2-alias-owner` applied, with
 `MAPL_SCENARIO_PENDING=1` through ctest (`MAPL.generic.scenarios.pending`;
@@ -160,11 +160,13 @@ In production, the same faults only log a warning and drop part of the graph.
   FieldBundles, so the call returns rc=13. This corrects the first-pass
   claim that "SERVICE items are excluded from graph resolution": they are
   not excluded. They reach `resolve_one`'s exact-match branch like any
-  other item. Experiment: return "not found" for a non-Field item. The
-  existing `try_materialize_field_extension` then reports
-  `unsupported_item_class:VECTOR/SERVICE` as a warning, and the scenarios
-  pass (see M3). Affects: service_service, service_with_options, vector_1,
-  statistics_real (`A/UV` and the other vector stats).
+  other item. Fixed by `C2-alias-nonfield`: the routine branches on
+  `item_kind`; a FieldBundle (VECTOR, SERVICE, BRACKET) is aliased with
+  `MAPL_NamedAlias(bundle)` and set as the node payload; any other kind is
+  "not found". `service_service` and `service_with_options` were red
+  (`Failures: 24` each, `rc=13`) and are green and ready (masked, M3).
+  `vector_1` already passed before the fix (no `rc=13` in its log) and stays
+  pending. `statistics_real` no longer logs `rc=13` but still fails for P1.
 - **P1. Run-phase method-node arguments are keyed by short name only.**
   `graphbuilder_build_run_phase_node` declares one argument per import/export
   under `var_spec%short_name`. `StatisticsGridComp` advertises an import and
@@ -204,12 +206,17 @@ In production, the same faults only log a warning and drop part of the graph.
   physical dimension is then reported unsupported (`build_transform`,
   `VerticalGridCharacteristic.F90:272-274`): the graph builds no
   `VerticalColumnRegridTransform` for it, and legacy does the regrid.
-- **M3. Non-Field shapes are not materialized by the graph.** After G1 and R2,
-  EXPRESSION, VECTOR (`vector_1`,
-  `statistics_real`) and SERVICE (`service_*`) connections log
-  `unsupported_item_class:<shape>` and leave those items to legacy
-  `add_to_states`. Flipping these scenarios to ready after G1/R2 gives a
-  masked pass, like the ready rows in the next section.
+- **M3. Non-Field shapes are not materialized by the graph.** An
+  exact-match SERVICE or VECTOR export is aliased from the bundle legacy put
+  in the user export state (`C2-alias-nonfield`); the graph creates no bundle
+  of its own. `unsupported_item_class:<shape>` now appears only when legacy
+  left no such item (`service_service`, `service_with_options`, `vector_1`
+  and `statistics_real` otherwise leave those items to legacy
+  `add_to_states`), for a non-Field chain link, or for a bundle used as an
+  expression input. Flipping these scenarios to ready gives a masked pass,
+  like the ready rows in the next section. `service_service` and
+  `service_with_options` are flipped; `vector_1` is not (needs
+  `C1-geom-c-b`).
   `expression_defer_geom` no longer logs this (re-measured 2026-11-08): its
   expression is evaluated on the graph path. Since C1-geom-c-a the graph
   builds a regrid chain for a VECTOR or BRACKET geometry mismatch, but still

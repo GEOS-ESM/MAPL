@@ -63,6 +63,7 @@ module Test_GraphBuilderMaterializeGate
    use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use mapl_GraphStateItem_mod, only: GraphStateItem, operator(==)
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
    use mapl_ExtensionMaterialization_mod, only: field_extension_is_created
@@ -72,6 +73,8 @@ module Test_GraphBuilderMaterializeGate
    use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE
    use mapl_GraphOwnsUserStates_mod, only: set_graph_owns_user_states
    use mapl_StateItem_mod, only: MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_FIELD
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_SERVICE
+   use mapl_field_bundle_api, only: MAPL_FieldBundlesAreAliased
    use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_REGISTRY, GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH
    use mapl_MultiState_mod, only: MultiState
    use mapl_FieldCreate_mod, only: FieldsAreAliased
@@ -95,6 +98,10 @@ module Test_GraphBuilderMaterializeGate
 
    integer, parameter :: ALIAS_PROPAGATED = 1, ALIAS_QUALIFIED = 2, &
         ALIAS_EXPRESSION = 3, ALIAS_RENAMED = 4
+
+   integer, parameter :: BUNDLE_VECTOR = 1, BUNDLE_SERVICE = 2, &
+        BUNDLE_BRACKET = 3, BUNDLE_NESTED = 4, BUNDLE_PROPAGATED = 5, &
+        BUNDLE_FIELD_DECLARED = 6, BUNDLE_EXPRESSION = 7
 
 contains
 
@@ -3025,6 +3032,369 @@ contains
       _UNUSED_DUMMY(src2_meta)
       _UNUSED_DUMMY(legacy_x)
    end subroutine test_alias_finds_renamed_reexport_in_reexporter_state
+
+   ! P holds MID and DST; MID holds SRC; SRC exports V; DST imports V. Switch
+   ! OFF: legacy has put an item named V in the user export state of SRC and
+   ! nothing else. The item is a FieldBundle for the first four item classes
+   ! and a nested State for BUNDLE_NESTED. Modes:
+   !   BUNDLE_VECTOR, BUNDLE_SERVICE: V is that class, both sides
+   !   BUNDLE_BRACKET: V is a BRACKET export into a FIELD import (a shape
+   !                   mismatch, so the export feeds a chain)
+   !   BUNDLE_NESTED:  V is a FIELD export, but legacy left a State under V
+   !   BUNDLE_PROPAGATED: V is a VECTOR; the connection takes MID port SRC/V
+   !   BUNDLE_FIELD_DECLARED: V is declared FIELD (so advertise created a
+   !                   placeholder) but legacy left a FieldBundle under V
+   !   BUNDLE_EXPRESSION: as BUNDLE_VECTOR, plus an export expr = V that DST
+   !                   imports as the FIELD I
+   ! Every other mode connects the source component MID/SRC, port V (port
+   ! expr to import I for BUNDLE_EXPRESSION).
+   subroutine make_bundle_alias_fixture(mode, p_meta, src_meta, legacy_bundle, &
+        unresolved, unsupported, rc)
+      integer, intent(in) :: mode
+      type(OuterMetaComponent), pointer, intent(out) :: p_meta, src_meta
+      type(ESMF_FieldBundle), intent(out) :: legacy_bundle
+      type(GraphResolutionEntryVector), intent(out) :: unresolved, unsupported
+      integer, intent(out) :: rc
+
+      type(OuterMetaComponent), pointer :: mid_meta, dst_meta
+      type(ESMF_GridComp) :: p_gc, gc
+      type(GriddedComponentDriver) :: driver
+      type(GriddedComponentDriver), pointer :: own_driver
+      type(MultiState) :: own_states
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: spec
+      type(SimpleConnection) :: conn
+      type(VariableSpec) :: var_spec
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: nested
+      character(:), allocatable :: import_name, source_name
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      _VERIFY(status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      _VERIFY(status)
+      call GeomSetId(geom, 315, rc=status)
+      _VERIFY(status)
+
+      call make_outer_meta('comp_bundle_alias_p', p_gc, p_meta, _RC)
+      child_spec = ChildSpec()
+      call p_meta%add_child('MID', child_spec, _RC)
+      child_spec = ChildSpec()
+      call p_meta%add_child('DST', child_spec, _RC)
+      driver = p_meta%get_child('MID', _RC)
+      gc = driver%get_gridcomp()
+      mid_meta => get_outer_meta(gc, _RC)
+      driver = p_meta%get_child('DST', _RC)
+      gc = driver%get_gridcomp()
+      dst_meta => get_outer_meta(gc, _RC)
+      child_spec = ChildSpec()
+      call mid_meta%add_child('SRC', child_spec, _RC)
+      driver = mid_meta%get_child('SRC', _RC)
+      gc = driver%get_gridcomp()
+      src_meta => get_outer_meta(gc, _RC)
+
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'V', units='m')
+      var_spec%geom = geom
+      spec => src_meta%get_component_spec()
+      select case (mode)
+      case (BUNDLE_SERVICE)
+         var_spec%itemType = MAPL_STATEITEM_SERVICE
+      case (BUNDLE_BRACKET)
+         var_spec%itemType = MAPL_STATEITEM_BRACKET
+      case (BUNDLE_NESTED, BUNDLE_FIELD_DECLARED)
+         var_spec%itemType = MAPL_STATEITEM_FIELD
+      case default
+         var_spec%itemType = MAPL_STATEITEM_VECTOR
+      end select
+      call spec%add_var_spec(var_spec)
+      if (mode == BUNDLE_EXPRESSION) then
+         var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'expr', units='m')
+         var_spec%geom = geom
+         var_spec%itemType = MAPL_STATEITEM_EXPRESSION
+         var_spec%expression = 'V'
+         call spec%add_var_spec(var_spec)
+      end if
+
+      import_name = 'V'
+      if (mode == BUNDLE_EXPRESSION) import_name = 'I'
+      var_spec = make_var(ESMF_STATEINTENT_IMPORT, import_name, units='m')
+      var_spec%itemType = var_item_type_for_import(mode)
+      spec => dst_meta%get_component_spec()
+      call spec%add_var_spec(var_spec)
+
+      call gb%advertise(src_meta, _RC)
+      call gb%advertise(dst_meta, _RC)
+      call gb%advertise(mid_meta, _RC)
+      call gb%run_export_propagate_hook(mid_meta)
+      call gb%advertise(p_meta, _RC)
+
+      own_driver => src_meta%get_user_gc_driver()
+      own_states = own_driver%get_states()
+      if (mode == BUNDLE_NESTED) then
+         nested = ESMF_StateCreate(name='V', rc=status)
+         _VERIFY(status)
+         call ESMF_StateAdd(own_states%exportState, [nested], rc=status)
+         _VERIFY(status)
+      else
+         legacy_bundle = ESMF_FieldBundleCreate(name='V', rc=status)
+         _VERIFY(status)
+         call ESMF_StateAdd(own_states%exportState, [legacy_bundle], rc=status)
+         _VERIFY(status)
+      end if
+
+      if (mode == BUNDLE_PROPAGATED) then
+         conn = SimpleConnection( &
+              ConnectionPt('MID', VirtualConnectionPt(state_intent='export', &
+              short_name='SRC/V')), &
+              ConnectionPt('DST', VirtualConnectionPt(state_intent='import', &
+              short_name='V')))
+      else
+         source_name = 'V'
+         if (mode == BUNDLE_EXPRESSION) source_name = 'expr'
+         conn = SimpleConnection( &
+              ConnectionPt('MID/SRC', VirtualConnectionPt( &
+              state_intent='export', short_name=source_name)), &
+              ConnectionPt('DST', VirtualConnectionPt(state_intent='import', &
+              short_name=import_name)))
+      end if
+      spec => p_meta%get_component_spec()
+      call spec%add_connection(conn)
+      call gb%resolve_connections(p_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, _RC)
+      rc = 0
+   end subroutine make_bundle_alias_fixture
+
+   function var_item_type_for_import(mode) result(item_type)
+      integer, intent(in) :: mode
+      type(ESMF_StateItem_Flag) :: item_type
+
+      select case (mode)
+      case (BUNDLE_SERVICE)
+         item_type = MAPL_STATEITEM_SERVICE
+      case (BUNDLE_BRACKET, BUNDLE_NESTED, BUNDLE_FIELD_DECLARED, BUNDLE_EXPRESSION)
+         item_type = MAPL_STATEITEM_FIELD
+      case default
+         item_type = MAPL_STATEITEM_VECTOR
+      end select
+   end function var_item_type_for_import
+
+   ! Reads the FieldBundle payload of the export node V of meta and whether
+   ! it is the same bundle as legacy_bundle. is_bundle is false if the
+   ! payload holds anything else.
+   subroutine get_node_bundle_aliased(meta, legacy_bundle, is_bundle, aliased, rc)
+      type(OuterMetaComponent), pointer, intent(in) :: meta
+      type(ESMF_FieldBundle), intent(in) :: legacy_bundle
+      logical, intent(out) :: is_bundle, aliased
+      integer, intent(out) :: rc
+
+      type(ComponentGraph), pointer :: graph
+      type(NodeId), pointer :: id_ptr
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: payload
+      type(ESMF_FieldBundle) :: node_bundle
+      integer :: status
+
+      rc = -1
+      is_bundle = .false.
+      aliased = .false.
+      graph => meta%get_component_graph()
+      id_ptr => graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'V'))
+      if (.not. associated(id_ptr)) return
+      node => graph%get_node(id_ptr)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+         is_bundle = (payload%itemType(rc=status) == ESMF_STATEITEM_FIELDBUNDLE)
+         if (is_bundle) then
+            node_bundle = payload%get_field_bundle(rc=status)
+            aliased = MAPL_FieldBundlesAreAliased(legacy_bundle, node_bundle, rc=status)
+         end if
+         rc = status
+      end select
+   end subroutine get_node_bundle_aliased
+
+   ! Switch OFF, a VECTOR export: its item in the user export state of the
+   ! owner is a FieldBundle, and the export node aliases it. Seeded to fail:
+   ! reading the item as a Field fails the connection step (rc=13).
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_vector_export_aliases_bundle(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call check_bundle_alias(BUNDLE_VECTOR)
+      _UNUSED_DUMMY(this)
+   end subroutine test_alias_vector_export_aliases_bundle
+
+   ! Switch OFF, a SERVICE export is aliased like any other bundle.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_service_export_aliases_bundle(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call check_bundle_alias(BUNDLE_SERVICE)
+      _UNUSED_DUMMY(this)
+   end subroutine test_alias_service_export_aliases_bundle
+
+   ! Switch OFF, a BRACKET export into a FIELD import: the connection goes
+   ! through the extension chain (shape mismatch), and the chain input is the
+   ! aliased bundle.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_bracket_export_feeds_chain(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call check_bundle_alias(BUNDLE_BRACKET)
+      _UNUSED_DUMMY(this)
+   end subroutine test_alias_bracket_export_feeds_chain
+
+   ! Switch OFF, a propagated (qualified) VECTOR export: the bundle is in the
+   ! user export state of the producing component, found by the port walk.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_propagated_bundle_export(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call check_bundle_alias(BUNDLE_PROPAGATED)
+      _UNUSED_DUMMY(this)
+   end subroutine test_alias_propagated_bundle_export
+
+   subroutine check_bundle_alias(mode)
+      integer, intent(in) :: mode
+
+      type(OuterMetaComponent), pointer :: p_meta, src_meta
+      type(ESMF_FieldBundle) :: legacy_bundle
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(ComponentGraph), pointer :: parent_graph, src_graph
+      type(DependencyNetwork), pointer :: net
+      type(NodeId), pointer :: export_id
+      type(NodeId) :: succ_id
+      class(GraphNode), pointer :: succ_node
+      logical :: is_bundle, aliased, successor_is_transform
+      integer :: status, st_n, n_unresolved, n_unsupported
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+      call make_bundle_alias_fixture(mode, p_meta, src_meta, legacy_bundle, &
+           unresolved, unsupported, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assertEqual(0, status)
+
+      call get_node_bundle_aliased(src_meta, legacy_bundle, is_bundle, aliased, st_n)
+      n_unresolved = unresolved%size()
+      n_unsupported = unsupported%size()
+      @assertEqual(0, st_n)
+      @assertEqual(0, n_unresolved)
+      @assertEqual(0, n_unsupported)
+      @assertTrue(is_bundle)
+      @assertTrue(aliased)
+
+      ! A shape mismatch sends the export into an extension chain; a direct
+      ! edge to the import would mean the exact-match caller was used.
+      if (mode == BUNDLE_BRACKET) then
+         parent_graph => p_meta%get_component_graph()
+         src_graph => src_meta%get_component_graph()
+         export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'V'))
+         @assertTrue(associated(export_id))
+         net => parent_graph%get_network(parent_graph%get_forward_network_id())
+         succ_id = single_successor(net, export_id)
+         succ_node => parent_graph%get_node(succ_id)
+         successor_is_transform = .false.
+         select type (succ_node)
+         type is (TransformGraphNode)
+            successor_is_transform = .true.
+         end select
+         @assertTrue(successor_is_transform)
+      end if
+   end subroutine check_bundle_alias
+
+   ! Switch OFF, a FIELD export whose name is held in the user export state
+   ! by a nested State (not a Field or FieldBundle): nothing is aliased and
+   ! the step does not fail; the node keeps a Field payload.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_nested_state_is_not_aliased(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: p_meta, src_meta
+      type(ESMF_FieldBundle) :: legacy_bundle
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(ComponentGraph), pointer :: src_graph
+      type(NodeId), pointer :: export_id
+      type(ESMF_Field) :: node_v
+      logical :: still_created
+      integer :: status, st_n, n_unresolved, n_unsupported
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+      call make_bundle_alias_fixture(BUNDLE_NESTED, p_meta, src_meta, legacy_bundle, &
+           unresolved, unsupported, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assertEqual(0, status)
+
+      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'V', node_v, st_n)
+      n_unresolved = unresolved%size()
+      n_unsupported = unsupported%size()
+      @assertEqual(0, st_n)
+      @assertEqual(0, n_unresolved)
+      @assertEqual(0, n_unsupported)
+
+      ! Not aliased, so the caller completed the placeholder Field in place
+      ! (try_materialize_field_extension); a found = .true. without a payload
+      ! would leave it merely created.
+      src_graph => src_meta%get_component_graph()
+      export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'V'))
+      @assertTrue(associated(export_id))
+      still_created = field_extension_is_created(src_graph, export_id)
+      @assertFalse(still_created)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(p_meta)
+   end subroutine test_alias_nested_state_is_not_aliased
+
+   ! Switch OFF, an export declared FIELD (advertise created a placeholder
+   ! Field for it) whose legacy item is a FieldBundle: the node ends up
+   ! aliasing the bundle. The placeholder is destroyed, not leaked; this
+   ! test checks only the aliasing and the absence of failure.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_bundle_replaces_created_placeholder(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call check_bundle_alias(BUNDLE_FIELD_DECLARED)
+      _UNUSED_DUMMY(this)
+   end subroutine test_alias_bundle_replaces_created_placeholder
+
+   ! Switch OFF, an expression whose input V is a VECTOR bundle: the
+   ! transform reads inputs as Fields, so the pairing is reported at resolve
+   ! time as unsupported_item_class:VECTOR and no bundle is aliased.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_expression_bundle_input_reported_unsupported(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: p_meta, src_meta
+      type(ESMF_FieldBundle) :: legacy_bundle
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(GraphResolutionEntry), pointer :: entry
+      logical :: is_bundle, aliased
+      integer :: status, st_n, st_e, n_unsupported
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+      call make_bundle_alias_fixture(BUNDLE_EXPRESSION, p_meta, src_meta, &
+           legacy_bundle, unresolved, unsupported, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assertEqual(0, status)
+
+      n_unsupported = unsupported%size()
+      @assertEqual(1, n_unsupported)
+      if (n_unsupported == 1) then
+         entry => unsupported%at(1, st_e)
+         @assertEqual(0, st_e)
+         @assertEqual('unsupported_item_class:VECTOR', entry%reason)
+      end if
+      call get_node_bundle_aliased(src_meta, legacy_bundle, is_bundle, aliased, st_n)
+      @assertFalse(aliased)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(p_meta)
+   end subroutine test_expression_bundle_input_reported_unsupported
 
    ! Switch OFF (production): legacy has filled the user states. Population
    ! must leave legacy Fields where they are: INTERNAL is not touched, a
