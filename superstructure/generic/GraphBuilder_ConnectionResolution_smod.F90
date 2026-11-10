@@ -422,7 +422,8 @@ contains
                ! be skipped: its FieldCreate would overwrite the alias.
                alias_found = .false.
                if (.not. is_evaluation) then
-                  call try_alias_export_field(this, src_pt%component_name, export_node%get_short_name(), &
+                  call try_alias_export_field(this, src_pt%component_name, &
+                       effective_source_name(conn, dst_node), &
                        this_graph, export_node_id, alias_found, _RC)
                end if
                if (.not. alias_found) then
@@ -474,7 +475,8 @@ contains
             ! Same alias-first treatment as the exact-match branch.
             alias_found = .false.
             if (.not. is_evaluation) then
-               call try_alias_export_field(this, src_pt%component_name, export_node%get_short_name(), &
+               call try_alias_export_field(this, src_pt%component_name, &
+                    effective_source_name(conn, dst_node), &
                     this_graph, export_node_id, alias_found, _RC)
             end if
             if (.not. alias_found) then
@@ -1466,22 +1468,29 @@ contains
    ! not yet available by name (two-pass timing), returns success with
    ! found = .false. and the caller falls back to FieldCreate.
    !
+   ! export_port_name is the export-port key (find_export_node_id's key). A
+   ! propagated port is `<child>/<leaf>`, passed up unchanged through every
+   ! ancestor, and legacy keeps it out of those ancestors' user states; the
+   ! Field is in the user export state of the component find_alias_owner
+   ! walks down to, under <leaf>.
+   !
    ! With graph_populates_user_states() there is nothing to alias: the state
    ! holds the node's own created Field, so found = .false. and the caller
    ! completes that Field in place. With it off, the created Field is
    ! replaced by the alias and destroyed (nothing else holds it).
-   module subroutine try_alias_export_field(this, export_comp_name, export_short_name, &
+   module subroutine try_alias_export_field(this, export_comp_name, export_port_name, &
         graph, node_id, found, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: export_comp_name
-      character(*), intent(in) :: export_short_name
+      character(*), intent(in) :: export_port_name
       type(ComponentGraph), target, intent(inout) :: graph
       type(NodeId), intent(in) :: node_id
       logical, intent(out) :: found
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      class(OuterMetaComponent), pointer :: export_meta
+      integer :: status, slash
+      character(:), allocatable :: leaf
+      type(OuterMetaComponent), pointer :: export_meta
       type(GriddedComponentDriver), pointer :: export_driver
       type(MultiState) :: export_states
       type(ESMF_State) :: export_state
@@ -1494,7 +1503,13 @@ contains
       found = .false.
       _RETURN_IF(graph_populates_user_states())
 
-      export_meta => component_for(this, export_comp_name, _RC)
+      slash = index(export_port_name, '/', back=.true.)
+      leaf = export_port_name(slash + 1:)
+
+      export_meta => resolve_qualified_component(this, export_comp_name, _RC)
+      export_meta => find_alias_owner(export_meta, export_port_name, _RC)
+      ! No component owns the port by that name: nothing to alias.
+      _RETURN_UNLESS(associated(export_meta))
       export_driver => export_meta%get_user_gc_driver()
       export_states = export_driver%get_states()
       call export_states%get_state(export_state, ESMF_STATEINTENT_EXPORT, _RC)
@@ -1502,16 +1517,16 @@ contains
       ! Plain by-name read; an absent item is not a failure (the field may not
       ! exist yet). Checked via itemType, as FieldClassAspect%add_to_state
       ! does, rather than trusting ESMF_StateGet's rc.
-      call ESMF_StateGet(export_state, itemName=export_short_name, itemType=item_kind, _RC)
+      call ESMF_StateGet(export_state, itemName=leaf, itemType=item_kind, _RC)
       if (item_kind == ESMF_STATEITEM_NOTFOUND) then
          _RETURN(_SUCCESS)
       end if
 
-      call ESMF_StateGet(export_state, itemName=export_short_name, field=field, _RC)
+      call ESMF_StateGet(export_state, itemName=leaf, field=field, _RC)
 
       ! MAPL_NamedAlias (not a bare ESMF_NamedAlias) carries MAPL's per-alias
       ! metadata (standard_name/long_name/restart_mode), as populate_one does.
-      alias = MAPL_NamedAlias(field, name=export_short_name, _RC)
+      alias = MAPL_NamedAlias(field, name=leaf, _RC)
 
       node => graph%get_node(node_id)
       _ASSERT(associated(node), 'GraphBuilder: try_alias_export_field - NodeId not found in graph')
@@ -1533,6 +1548,47 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine try_alias_export_field
+
+   ! The component whose user export state holds the Field behind export port
+   ! `port_name` of `meta`, or null if no descendant matches. A name without
+   ! '/' is meta's own export or re-export. A qualified `<child>/<leaf>` is
+   ! either passed up unchanged from a deeper level (a child carries the same
+   ! port name: recurse into it) or that child's own export (the child is
+   ! named <child> and has a port named <leaf>).
+   recursive function find_alias_owner(meta, port_name, rc) result(owner)
+      type(OuterMetaComponent), pointer :: owner
+      class(OuterMetaComponent), target, intent(inout) :: meta
+      character(*), intent(in) :: port_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status, slash, i
+      character(:), allocatable :: child_name
+      type(OuterMetaComponent), pointer :: child_meta
+
+      owner => null()
+      slash = index(port_name, '/', back=.true.)
+      if (slash == 0) then
+         owner => meta
+         _RETURN(_SUCCESS)
+      end if
+
+      do i = 1, meta%get_num_children()
+         child_name = meta%get_child_name(i, _RC)
+         child_meta => meta%get_child_outer_meta(child_name, _RC)
+         if (associated(find_export_node(child_meta, port_name))) then
+            owner => find_alias_owner(child_meta, port_name, _RC)
+            _RETURN(_SUCCESS)
+         end if
+         if (child_name == port_name(1:slash - 1)) then
+            if (associated(find_export_node(child_meta, port_name(slash + 1:)))) then
+               owner => child_meta
+               _RETURN(_SUCCESS)
+            end if
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+   end function find_alias_owner
 
    ! Destroys `old` unless it shares its host with `kept` (an alias of the
    ! same Field must not be destroyed).

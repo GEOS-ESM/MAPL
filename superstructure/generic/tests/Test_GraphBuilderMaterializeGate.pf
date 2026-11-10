@@ -93,6 +93,9 @@ module Test_GraphBuilderMaterializeGate
       integer :: import_count = -1, export_count = -1, a_count = -1
    end type AdvertisePopulationSnapshot
 
+   integer, parameter :: ALIAS_PROPAGATED = 1, ALIAS_QUALIFIED = 2, &
+        ALIAS_EXPRESSION = 3, ALIAS_RENAMED = 4
+
 contains
 
    @Test(type=ESMF_TestMethod, npes=[1])
@@ -2625,6 +2628,403 @@ contains
 
       rc = 0
    end subroutine make_three_level_fixture
+
+   ! P holds MID and DST; MID holds SRC (export T) and SRC2 (export X); DST
+   ! imports T, X and I. Switch OFF: legacy has put a Field named for each
+   ! export into the user export state of its producer (legacy_t in SRC,
+   ! legacy_x in SRC2), and nothing else. The one connection of P depends on mode:
+   !   ALIAS_PROPAGATED: MID port SRC/T (a propagated export) to DST.T
+   !   ALIAS_QUALIFIED:  source component MID/SRC2, export X, to DST.X
+   !   ALIAS_EXPRESSION: source component MID/SRC2, expression expr = X, to DST.I
+   !   ALIAS_RENAMED:    MID re-exports SRC.T as Tren; MID port Tren to DST.T,
+   !                     with legacy_t in the user export state of MID named Tren
+   subroutine make_alias_owner_fixture(mode, p_meta, &
+        src_meta, src2_meta, legacy_t, legacy_x, unsupported, rc)
+      integer, intent(in) :: mode
+      type(OuterMetaComponent), pointer, intent(out) :: p_meta
+      type(OuterMetaComponent), pointer, intent(out) :: src_meta, src2_meta
+      type(ESMF_Field), intent(out) :: legacy_t, legacy_x
+      type(GraphResolutionEntryVector), intent(out) :: unsupported
+      integer, intent(out) :: rc
+
+      type(OuterMetaComponent), pointer :: mid_meta, dst_meta
+      type(ESMF_GridComp) :: p_gc, gc
+      type(GriddedComponentDriver) :: driver
+      type(GriddedComponentDriver), pointer :: own_driver
+      type(MultiState) :: own_states
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: spec
+      type(SimpleConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved
+      type(VariableSpec) :: var_spec
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      _VERIFY(status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      _VERIFY(status)
+      call GeomSetId(geom, 313, rc=status)
+      _VERIFY(status)
+
+      call make_outer_meta('comp_alias_owner_p', p_gc, p_meta, _RC)
+      child_spec = ChildSpec()
+      call p_meta%add_child('MID', child_spec, _RC)
+      child_spec = ChildSpec()
+      call p_meta%add_child('DST', child_spec, _RC)
+      driver = p_meta%get_child('MID', _RC)
+      gc = driver%get_gridcomp()
+      mid_meta => get_outer_meta(gc, _RC)
+      driver = p_meta%get_child('DST', _RC)
+      gc = driver%get_gridcomp()
+      dst_meta => get_outer_meta(gc, _RC)
+      child_spec = ChildSpec()
+      call mid_meta%add_child('SRC', child_spec, _RC)
+      child_spec = ChildSpec()
+      call mid_meta%add_child('SRC2', child_spec, _RC)
+      driver = mid_meta%get_child('SRC', _RC)
+      gc = driver%get_gridcomp()
+      src_meta => get_outer_meta(gc, _RC)
+      driver = mid_meta%get_child('SRC2', _RC)
+      gc = driver%get_gridcomp()
+      src2_meta => get_outer_meta(gc, _RC)
+
+      spec => src_meta%get_component_spec()
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
+      var_spec%geom = geom
+      call spec%add_var_spec(var_spec)
+      spec => src2_meta%get_component_spec()
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'X', units='m')
+      var_spec%geom = geom
+      call spec%add_var_spec(var_spec)
+      if (mode == ALIAS_EXPRESSION) then
+         var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'expr', units='m')
+         var_spec%geom = geom
+         var_spec%itemType = MAPL_STATEITEM_EXPRESSION
+         var_spec%expression = 'X'
+         call spec%add_var_spec(var_spec)
+      end if
+      spec => dst_meta%get_component_spec()
+      call spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T', units='m'))
+      call spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'X', units='m'))
+      call spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'I', units='m'))
+
+      call gb%advertise(src_meta, _RC)
+      call gb%advertise(src2_meta, _RC)
+      call gb%advertise(dst_meta, _RC)
+      if (mode == ALIAS_RENAMED) then
+         spec => mid_meta%get_component_spec()
+         call spec%add_connection(ReexportConnection( &
+              ConnectionPt('SRC', VirtualConnectionPt(state_intent='export', &
+              short_name='T')), &
+              ConnectionPt('<self>', VirtualConnectionPt( &
+              state_intent='export', short_name='Tren'))))
+      end if
+      call gb%advertise(mid_meta, _RC)
+      call gb%run_reexport_hook(mid_meta, _RC)
+      call gb%run_export_propagate_hook(mid_meta)
+      call gb%advertise(p_meta, _RC)
+
+      if (mode == ALIAS_RENAMED) then
+         legacy_t = ESMF_FieldEmptyCreate(name='Tren', rc=status)
+         own_driver => mid_meta%get_user_gc_driver()
+      else
+         legacy_t = ESMF_FieldEmptyCreate(name='T', rc=status)
+         own_driver => src_meta%get_user_gc_driver()
+      end if
+      _VERIFY(status)
+      own_states = own_driver%get_states()
+      call ESMF_StateAdd(own_states%exportState, [legacy_t], rc=status)
+      _VERIFY(status)
+      legacy_x = ESMF_FieldEmptyCreate(name='X', rc=status)
+      _VERIFY(status)
+      own_driver => src2_meta%get_user_gc_driver()
+      own_states = own_driver%get_states()
+      call ESMF_StateAdd(own_states%exportState, [legacy_x], rc=status)
+      _VERIFY(status)
+
+      if (mode == ALIAS_RENAMED) then
+         conn = SimpleConnection( &
+              ConnectionPt('MID', VirtualConnectionPt(state_intent='export', &
+              short_name='Tren')), &
+              ConnectionPt('DST', VirtualConnectionPt(state_intent='import', &
+              short_name='T')))
+      else if (mode == ALIAS_PROPAGATED) then
+         conn = SimpleConnection( &
+              ConnectionPt('MID', VirtualConnectionPt(state_intent='export', &
+              short_name='SRC/T')), &
+              ConnectionPt('DST', VirtualConnectionPt(state_intent='import', &
+              short_name='T')))
+      else if (mode == ALIAS_EXPRESSION) then
+         conn = SimpleConnection( &
+              ConnectionPt('MID/SRC2', VirtualConnectionPt( &
+              state_intent='export', short_name='expr')), &
+              ConnectionPt('DST', VirtualConnectionPt(state_intent='import', &
+              short_name='I')))
+      else
+         conn = SimpleConnection( &
+              ConnectionPt('MID/SRC2', VirtualConnectionPt( &
+              state_intent='export', short_name='X')), &
+              ConnectionPt('DST', VirtualConnectionPt(state_intent='import', &
+              short_name='X')))
+      end if
+      spec => p_meta%get_component_spec()
+      call spec%add_connection(conn)
+      call gb%resolve_connections(p_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, _RC)
+      rc = 0
+      if (unresolved%size() /= 0) rc = -1
+   end subroutine make_alias_owner_fixture
+
+   ! Switch OFF, a connection from a PROPAGATED export (MID port SRC/T,
+   ! produced by SRC two levels down): legacy keeps propagated items out of
+   ! every ancestor user state, so the Field is only in the user export
+   ! state of SRC, under the leaf name T. The export node must alias that Field.
+   ! Seeded to fail: looking up the bare node name in the source component of
+   ! the connection (MID) finds nothing and a new Field is created instead.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_finds_propagated_export_in_owner_state(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: p_meta, src_meta, src2_meta
+      type(ESMF_Field) :: legacy_t, legacy_x, node_t
+      type(GraphResolutionEntryVector) :: unsupported
+      logical :: aliased
+      integer :: status, st_n, st_a
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+      call make_alias_owner_fixture(ALIAS_PROPAGATED, p_meta, src_meta, src2_meta, &
+           legacy_t, legacy_x, unsupported, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assert_that(status, is(0))
+
+      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'T', node_t, st_n)
+      aliased = FieldsAreAliased(legacy_t, node_t, rc=st_a)
+      @assertEqual(0, st_n)
+      @assertEqual(0, st_a)
+      @assertEqual(0, unsupported%size())
+      @assertTrue(aliased)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(p_meta)
+      _UNUSED_DUMMY(src2_meta)
+      _UNUSED_DUMMY(legacy_x)
+   end subroutine test_alias_finds_propagated_export_in_owner_state
+
+   ! Switch OFF, source component named by a two-level path (MID/SRC2): the
+   ! path resolves to the grandchild and its user export state is read.
+   ! Seeded to fail: a one-level child lookup rejects MID/SRC2 and the
+   ! connection step fails.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_resolves_qualified_source_component(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: p_meta, src_meta, src2_meta
+      type(ESMF_Field) :: legacy_t, legacy_x, node_x
+      type(GraphResolutionEntryVector) :: unsupported
+      logical :: aliased
+      integer :: status, st_n, st_a
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+      call make_alias_owner_fixture(ALIAS_QUALIFIED, p_meta, src_meta, src2_meta, &
+           legacy_t, legacy_x, unsupported, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assert_that(status, is(0))
+
+      call get_node_field(src2_meta, ESMF_STATEINTENT_EXPORT, 'X', node_x, st_n)
+      aliased = FieldsAreAliased(legacy_x, node_x, rc=st_a)
+      @assertEqual(0, st_n)
+      @assertEqual(0, st_a)
+      @assertEqual(0, unsupported%size())
+      @assertTrue(aliased)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(p_meta)
+      _UNUSED_DUMMY(src_meta)
+      _UNUSED_DUMMY(legacy_t)
+   end subroutine test_alias_resolves_qualified_source_component
+
+   ! Switch OFF, an expression whose input X is aliased through the same
+   ! lookup (the expression-input caller), with the source component named by
+   ! the path MID/SRC2. The input is a bare name: the expression parser takes
+   ! a slash as division, so a propagated port name cannot be an input.
+   ! Seeded to fail: a one-level child lookup rejects MID/SRC2.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_expression_input_uses_owner_state(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: p_meta, src_meta, src2_meta
+      type(ESMF_Field) :: legacy_t, legacy_x, node_x
+      type(GraphResolutionEntryVector) :: unsupported
+      logical :: aliased
+      integer :: status, st_n, st_a
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+      call make_alias_owner_fixture(ALIAS_EXPRESSION, p_meta, src_meta, &
+           src2_meta, legacy_t, legacy_x, unsupported, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assert_that(status, is(0))
+
+      call get_node_field(src2_meta, ESMF_STATEINTENT_EXPORT, 'X', node_x, st_n)
+      aliased = FieldsAreAliased(legacy_x, node_x, rc=st_a)
+      @assertEqual(0, st_n)
+      @assertEqual(0, st_a)
+      @assertEqual(0, unsupported%size())
+      @assertTrue(aliased)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(p_meta)
+      _UNUSED_DUMMY(src_meta)
+      _UNUSED_DUMMY(legacy_t)
+   end subroutine test_alias_expression_input_uses_owner_state
+
+   ! Switch OFF, an export propagated through two ancestors. G2 holds GP and
+   ! DST; GP holds MID; MID holds SRC (export T). Port names are qualified
+   ! once, at the immediate parent: MID and GP both carry SRC/T, so G2
+   ! names source component GP and port SRC/T, while the Field is in SRC
+   ! user export state, two levels below GP. Seeded to fail: splitting the
+   ! port name at the last slash and joining the prefix to GP looks for
+   ! GP/SRC, which does not exist, and the connection step fails.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_finds_export_propagated_through_two_ancestors(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: g2_meta, gp_meta, mid_meta
+      type(OuterMetaComponent), pointer :: src_meta, dst_meta
+      type(ESMF_GridComp) :: g2_gc, gc
+      type(GriddedComponentDriver) :: driver
+      type(GriddedComponentDriver), pointer :: own_driver
+      type(MultiState) :: own_states
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: spec
+      type(SimpleConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved, unsupported
+      type(VariableSpec) :: var_spec
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: legacy_t, node_t
+      logical :: aliased
+      integer :: status, st_n, st_a, st_f, st_s
+      type(GraphBuilder) :: gb
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 314, rc=status)
+      @assertEqual(0, status)
+
+      call make_outer_meta('comp_alias_owner_g2', g2_gc, g2_meta, _RC)
+      child_spec = ChildSpec()
+      call g2_meta%add_child('GP', child_spec, _RC)
+      child_spec = ChildSpec()
+      call g2_meta%add_child('DST', child_spec, _RC)
+      driver = g2_meta%get_child('GP', _RC)
+      gc = driver%get_gridcomp()
+      gp_meta => get_outer_meta(gc, _RC)
+      driver = g2_meta%get_child('DST', _RC)
+      gc = driver%get_gridcomp()
+      dst_meta => get_outer_meta(gc, _RC)
+      child_spec = ChildSpec()
+      call gp_meta%add_child('MID', child_spec, _RC)
+      driver = gp_meta%get_child('MID', _RC)
+      gc = driver%get_gridcomp()
+      mid_meta => get_outer_meta(gc, _RC)
+      child_spec = ChildSpec()
+      call mid_meta%add_child('SRC', child_spec, _RC)
+      driver = mid_meta%get_child('SRC', _RC)
+      gc = driver%get_gridcomp()
+      src_meta => get_outer_meta(gc, _RC)
+
+      spec => src_meta%get_component_spec()
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
+      var_spec%geom = geom
+      call spec%add_var_spec(var_spec)
+      spec => dst_meta%get_component_spec()
+      call spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T', units='m'))
+
+      call gb%advertise(src_meta, _RC)
+      call gb%advertise(dst_meta, _RC)
+      call gb%advertise(mid_meta, _RC)
+      call gb%run_export_propagate_hook(mid_meta)
+      call gb%advertise(gp_meta, _RC)
+      call gb%run_export_propagate_hook(gp_meta)
+      call gb%advertise(g2_meta, _RC)
+
+      legacy_t = ESMF_FieldEmptyCreate(name='T', rc=status)
+      @assertEqual(0, status)
+      own_driver => src_meta%get_user_gc_driver()
+      own_states = own_driver%get_states()
+      call ESMF_StateAdd(own_states%exportState, [legacy_t], rc=status)
+      @assertEqual(0, status)
+
+      conn = SimpleConnection( &
+           ConnectionPt('GP', VirtualConnectionPt(state_intent='export', &
+           short_name='SRC/T')), &
+           ConnectionPt('DST', VirtualConnectionPt(state_intent='import', &
+           short_name='T')))
+      spec => g2_meta%get_component_spec()
+      call spec%add_connection(conn)
+      call gb%resolve_connections(g2_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, rc=st_s)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assertEqual(0, st_s)
+
+      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'T', node_t, st_n)
+      aliased = FieldsAreAliased(legacy_t, node_t, rc=st_a)
+      st_f = unresolved%size()
+      @assertEqual(0, st_f)
+      @assertEqual(0, st_n)
+      @assertEqual(0, st_a)
+      @assertEqual(0, unsupported%size())
+      @assertTrue(aliased)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_alias_finds_export_propagated_through_two_ancestors
+
+   ! Switch OFF, a renamed re-export: MID re-exports SRC.T as Tren, and
+   ! legacy puts the Field in the own user export
+   ! state of the re-exporting component under that port name (not under T,
+   ! and not in the state of SRC). The
+   ! port-name lookup finds it, so the export node aliases it.
+   ! Seeded to fail: looking up the node name T in MID finds nothing.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_finds_renamed_reexport_in_reexporter_state(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: p_meta, src_meta, src2_meta
+      type(ESMF_Field) :: legacy_t, legacy_x, node_t
+      type(GraphResolutionEntryVector) :: unsupported
+      logical :: aliased
+      integer :: status, st_n, st_a
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+      call make_alias_owner_fixture(ALIAS_RENAMED, p_meta, src_meta, &
+           src2_meta, legacy_t, legacy_x, unsupported, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assert_that(status, is(0))
+
+      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'T', node_t, st_n)
+      aliased = FieldsAreAliased(legacy_t, node_t, rc=st_a)
+      @assertEqual(0, st_n)
+      @assertEqual(0, st_a)
+      @assertEqual(0, unsupported%size())
+      @assertTrue(aliased)
+
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(p_meta)
+      _UNUSED_DUMMY(src2_meta)
+      _UNUSED_DUMMY(legacy_x)
+   end subroutine test_alias_finds_renamed_reexport_in_reexporter_state
 
    ! Switch OFF (production): legacy has filled the user states. Population
    ! must leave legacy Fields where they are: INTERNAL is not touched, a

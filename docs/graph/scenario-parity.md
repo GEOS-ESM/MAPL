@@ -62,22 +62,34 @@ to "Verified root causes" below.
 | scenario_reexport_twice | yes | passes; graph builds the re-export ports. The table entry sets `graph_owns_user_states`, so it is also the regression for propagated names staying out of the user export state. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes in `GRAPH` mode: the user export state gets both re-exports from the port walk: `Eparent_B1`, a re-export of a child's export, and `Egrandparent_B1`, a re-export of that re-export |
 | expression_defer_geom | yes | passes (measured 2026-11-08): each input on the file grid gets a geometry step (`HorizontalRegridTransform`) before the `ExpressionTransform`; the chain links carry the input names, which `StateEval` looks up |
 | history_1 | yes | passes in graph and both modes (the table entry is `.true.`), the deep pull going through the hierarchy's forward network. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it was last measured failing two checks: `B/E_B3` (vertical-grid mismatch, no provider) and the `A/E_A1` value (tasks.md 3.44 Status); not re-measured since the forward network landed |
-| statistics | no | FAILS: R1 only. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it passes: user states are populated at advertise, so the gridcomp finds its export in `INIT_MODIFY_ADVERTISED` |
-| statistics_real | no | FAILS: R1, R2 (vector `A/UV`), P1; measured 2026-11-06: `MethodGraphNode: argument name already declared` (P1) |
+| statistics | yes | ready (masked pass per owner decision: legacy still fills the user states with the switch off). The earlier R1 failure no longer reproduces (measured 2026-11-09, with and without the R1 fix); its cause was not traced. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes: user states are populated at advertise |
+| statistics_real | no | FAILS: R2 (vector `A/UV`), P1 (see the measurement paragraph below the table); measured 2026-11-06: `MethodGraphNode: argument name already declared` (P1) |
 | service_service | no | FAILS: R2 only. After R2, passes, with masked SERVICE items (M3) |
 | service_with_options | no | same as `service_service` |
 | vector_1 | no | FAILS: R2 only. After R2, passes, with masked VECTOR items (M3) |
 
-Re-measured 2026-11-09 on NAG (`MAPL.generic.scenarios.pending`, before
-C1-geom-c-a): 4 of the 11 pending scenarios fail. `service_service` and
-`service_with_options`: `resolve_connections` rc=13 (R2).
-`statistics_real`: `argument name already declared` (P1) and
-`unsupported_item_class:VECTOR`. `expression_per_consumer_r8` (graph-only):
-all 11 checks fail; cause not traced yet. The other 7 pass in graph and both
-modes: the five `vertical_*` rows above (masked, M2), `vector_1` (masked,
-still logs `unsupported_item_class:VECTOR`; flips after `C1-geom-c-b`) and
-`statistics` (the R1 rows above are stale; it flips after `C2-alias-owner`
-as a masked pass). The per-row text above predates this measurement.
+Re-measured 2026-11-09 on NAG, in a tree with `C2-alias-owner` applied, with
+`MAPL_SCENARIO_PENDING=1` through ctest (`MAPL.generic.scenarios.pending`;
+running the binary directly under `with-nag` loses `DYLD_LIBRARY_PATH` and
+every scenario then fails with "shared object not found"). Full pending run:
+`Tests run: 232, Failures: 81`; the failing scenarios are
+`service_service` and `service_with_options` (24 each; first log line
+`resolve_connections step failed with rc=13`, R2), `statistics_real` (22;
+`build_run_phase_node step failed with rc=1` (P1) and
+`resolve_connections step failed with rc=13`) and
+`expression_per_consumer_r8` (11, graph-only; the first failed assertion is
+`Expected: is <0> but: was <1>`, with no log line before it; cause not
+traced). Each of `vertical_regridding`, `vertical_regridding_2`,
+`vertical_regridding_3`, `vertical_alignment_regrid`,
+`vertical_alignment_with_grid` and `vector_1`, run alone with
+`MAPL_SCENARIO_ONLY`, passes (22 checks, no failures); in the full run none of
+them fails. `statistics` is a ready scenario now (ready shards: 33 checks =
+11 checks x graph, both and registry modes, no failures). It also passed with
+`C2-alias-owner` reverted: run alone as a pending scenario on that tree
+(41 tests, `OK`: 22 `statistics` checks, 11 x graph and both modes, plus 19
+other tests in the binary), and alone through the ready shards with the fix
+reverted (the same 33 checks, no failures), so this measurement does not show
+R1 failing it. The per-row text above predates this measurement.
 
 Measured 2026-11-09 on NAG with the switch on in `GRAPH` mode (3.42): all pass
 (`plain_field`, `units_mismatch_run_phase`, `units_and_typekind_mismatch`,
@@ -117,7 +129,8 @@ In production, the same faults only log a warning and drop part of the graph.
   before the fix: it made `scenario_reexport_twice` and
   `expression_defer_geom` pass, and removed the assertion from `history_1`
   and `statistics_real`. After the fix `expression_defer_geom` and
-  `history_1` pass; `statistics_real` still fails for R1, R2 and P1.
+  `history_1` pass; `statistics_real` still fails for R1, R2 and P1 (as
+  diagnosed; with R1 in the tree it fails for R2 and P1 only).
   First-pass reading confirmed.
 - **R1. Export aliasing looks in the wrong component for propagated exports.**
   This corrects the first-pass "no import units" cause. That assertion
@@ -139,6 +152,8 @@ In production, the same faults only log a warning and drop part of the graph.
   `typekind: mirror` import). Affects: history_1, statistics,
   statistics_real. Latent (B2): imports with mirrored units/typekind
   have no characteristic, so any path that has to materialize for them fails.
+  Note 2026-11-09: `statistics` passes with and without the R1 fix in the tree
+  (see the measurement paragraph); the failure described here was not traced.
 - **R2. Export aliasing assumes every export is a Field.**
   `try_alias_export_field` calls `ESMF_StateGet(..., field=)` once the item
   is found, without checking `item_kind`. VECTOR and SERVICE exports are

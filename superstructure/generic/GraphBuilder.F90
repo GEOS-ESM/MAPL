@@ -433,11 +433,11 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine resolve_inout_destination
-   module subroutine try_alias_export_field(this, export_comp_name, export_short_name, &
+   module subroutine try_alias_export_field(this, export_comp_name, export_port_name, &
         graph, node_id, found, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: export_comp_name
-      character(*), intent(in) :: export_short_name
+      character(*), intent(in) :: export_port_name
       type(ComponentGraph), target, intent(inout) :: graph
       type(NodeId), intent(in) :: node_id
       logical, intent(out) :: found
