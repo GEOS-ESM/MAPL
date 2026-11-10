@@ -4,9 +4,11 @@
       tables required by B0 (design.md §1, §3.4, §4.2, §6).
 - [x] 0.2 Owner answers Q1, Q8, Q10, Q12 (needed for B1/B2); recorded
       in design.md "Owner decisions".
-- [ ] 0.3 Remaining questions are answered in the B3 task named beside
+- [x] 0.3 Remaining questions are answered in the B3 task named beside
       each in design.md. Each such task records the answer in design.md
-      (or its successor doc) before implementing.
+      (or its successor doc) before implementing. (Closed by the owner,
+      2026-11-10: every B3 task that carried a question has landed and
+      recorded its answer.)
 
 ## 1. Extract StateItemDescriptor (B1, no behavior change)
 
@@ -36,7 +38,9 @@
       align or delete `StateItemCharacteristicDetection`.
 - [x] 2.5 Convert TypeKind first: `MAPL_TYPEKIND_MIRROR` -> MIRRORED entry
       instead of omission. Verify StatisticsGridComp scenarios.
-- [ ] 2.6 Every B3 factory that maps "absent" to a status lists the
+- [x] 2.6 DROPPED (owner, 2026-11-10: a process note for the B3 commits,
+      all landed and not auditable afterwards; design.md §5 holds the
+      absent-means-MIRROR cases). Original text: Every B3 factory that maps "absent" to a status lists the
       legacy absent-means-MIRROR cases it found (design.md §5) in its
       commit message.
 - [x] 2.7 Done when ESSENTIAL passes on NAG and gfortran.
@@ -544,7 +548,9 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
         The unit-less materialization test needed an ESMF geom id on its
         raw geom (fixture fix, owner): geometry compares geom objects by
         that id, as legacy GeomAspect does.
-- [ ] 3.24 B3-ExpressionNativeGrid (optimization, after 3.23; owner
+- [x] 3.24 B3-ExpressionNativeGrid: MOVED to the post-merge backlog of
+      `docs/graph/plans/separation-of-concerns.md` (owner, 2026-11-10);
+      not started, nothing depends on it. Original text: (optimization, after 3.23; owner
       request). If all inputs share one geometry (or vertical grid),
       evaluate on that native grid and transform only the result to each
       consumer.
@@ -1007,7 +1013,8 @@ harvest reads through `MAPL_*Get`, never raw Info (A19).
       importers is not replaced there, so a production caller (History
       samplers) must re-insert the new field. The import-side gap stays
       as in 3.14 (plan C3 item 4). NAG 69/69, gfortran 69/69.
-- [ ] 3.41a B3-FieldPerNode (owner, 2026-11-07, answer c; after 3.33;
+- [x] 3.41a B3-FieldPerNode (landed 0b62e575d; checkbox ticked by the
+      owner's decision 2026-11-10) (owner, 2026-11-07, answer c; after 3.33;
       first half of the old 3.41). Legacy creates every declared item at
       advertise (`advertise_variable` -> `create()`: empty Field,
       `allocation_status=CREATED`), activates an INTERNAL always and an

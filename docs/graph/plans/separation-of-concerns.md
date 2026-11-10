@@ -2291,7 +2291,7 @@ it may author D1/A4/B5 with sonnet review.
 | B3-Expression | opus | gemini/gpt-sol | mechanical: Expression kind, factory applicability (design.md §4.3, Q3) |
 | B3-ExpressionPlaceholder | opus | sonnet | tasks.md 3.23a; test-first (gpt-sol tests); export placeholder, names check, one evaluation per consumer |
 | B3-ExpressionPerConsumer | opus | sonnet | tasks.md 3.23b; test-first (gpt-sol tests); precision/units per consumer, sharing by allowlist kinds (design.md §2.4) |
-| B3-ExpressionNativeGrid | sonnet | opus | optimization, after B3-ExpressionPerConsumer |
+| B3-ExpressionNativeGrid | sonnet | opus | tasks.md 3.24; optimization; post-merge backlog (owner 2026-11-10), not started |
 | B3-InternalNoMirror | sonnet | opus | design.md Q13; reports mirror defaults to the owner before changing them |
 | B3-RulesReview | opus | gemini/gpt-sol | read-only; report and proposals, no code; then owner session |
 | B3-StandardNameValidation | opus | sonnet | design-bearing; owner settles the design (possibly in B3-RulesReview's session); includes the V3 switch (R13) |
