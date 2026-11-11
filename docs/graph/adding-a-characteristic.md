@@ -315,9 +315,12 @@ Second kind with a DEFERRED value; it reuses Geometry's machinery.
 - `covered_kinds` claims `VERTICAL_ORIENTATION` when both sides carry it,
   because the column regrid also flips; stagger is never covered
   (`:341-352`).
-- `build_transform_for_item` adds the item checks: non-Field items, a
+- `build_transform_for_item` adds the item checks: items other than a
+  Field or a VECTOR (so a plain FIELDBUNDLE and a VECTORBRACKET), a
   non-CENTER stagger and an R8 tip (the regrid is R4 only) are
-  unsupported (`:358-412`).
+  unsupported. A VECTOR gets the same Transform; at compute it regrids the
+  members one by one with one weight build. A BRACKET never reaches this
+  step as a bundle: the time interpolation makes it a Field first.
 - When a later kind in the chain is unsupported (for example a stagger
   step after the regrid), the regrid link already built stays in the
   forward network with no successor; nothing pulls it, so its Transform
@@ -389,8 +392,11 @@ calls it alignment. It is independent of VerticalStagger.
   already resolved.
 - A MIRROR stagger does not imply a mirrored orientation.
 - `build_transform` builds a `VerticalFlipTransform` (index reversal,
-  Field, R4 and R8); `build_transform_for_item` reports non-Field items
-  unsupported (`VerticalOrientationCharacteristic.F90:107-151`).
+  Field or VECTOR bundle, R4 and R8); `build_transform_for_item` reports
+  other item classes unsupported. The bundle forms create their output
+  members at compute from the output bundle's level count, vertical grid,
+  stagger and alignment (`ensure_vertical_output_members`), which is why
+  `write_info` records the alignment on a memberless bundle too.
 - `parse_var_specs` reads the `vertical_alignment` key into
   `VariableSpec%vertical_alignment` (also set by `GridCompAddSpec`). The
   `vertical_alignment_*` scenarios carry real orientations. When the

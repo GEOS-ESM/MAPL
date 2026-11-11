@@ -156,6 +156,7 @@ contains
            typekind=typekind, interpolation_weights=interpolation_weights, &
            ungridded_dims=ungridded_dims, &
            num_levels=num_levels, vert_staggerloc=vert_staggerloc, &
+           vert_alignment=vert_alignment, &
            units=units, standard_name=standard_name, long_name=long_name, &
            allocation_status=allocation_status, &
            bracket_updated=bracket_updated, &

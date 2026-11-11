@@ -2,13 +2,15 @@
 
 !------------------------------------------------------------------------------
 ! VerticalColumnRegridTransform: regrids a field from the input field's
-! vertical grid to the output field's, column by column. Field only, R4
-! only, linear only.
+! vertical grid to the output field's, column by column. A Field, or a
+! VECTOR bundle whose members are regridded one by one; R4 only, linear only.
 !
 ! Each field carries its vertical grid, stagger, and alignment (read with
 ! FieldGet at compute). The weights are built at the first compute and again
 ! whenever one of those changes. One weight matrix serves every column,
 ! since only grids whose levels are the same in every column are supported.
+! The members of a bundle share one grid pair, so the weights are built for
+! the first member and reused for the rest.
 !
 ! Each side's level values are put in that field's own storage order
 ! (reversed when its alignment is opposite to its grid's direction), so the
@@ -32,6 +34,11 @@ module mapl_VerticalColumnRegridTransform_mod
    use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
    use mapl_VerticalFlipTransform_mod, only: copy_vertical_column
    use mapl_VerticalFlipTransform_mod, only: get_vertical_port_field
+   use mapl_VerticalFlipTransform_mod, only: port_is_bundle
+   use mapl_VerticalFlipTransform_mod, only: get_vertical_port_bundle
+   use mapl_BundleMemberSupport_mod, only: ensure_vertical_output_members
+   use mapl_BundleMemberSupport_mod, only: copy_bundle_attributes
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet
    use mapl_field_api, only: MAPL_FieldGet
    use mapl_FieldCondensedArray_mod, only: assign_fptr_condensed_array
    use mapl_VerticalGrid_mod, only: VerticalGrid
@@ -56,6 +63,7 @@ module mapl_VerticalColumnRegridTransform_mod
    use gftl2_StringVector, only: StringVector
    use pflogger, only: logging, Logger
    use ESMF, only: ESMF_Field, ESMF_FieldGet, ESMF_TypeKind_Flag
+   use ESMF, only: ESMF_FieldBundle
    use ESMF, only: ESMF_TYPEKIND_R4, ESMF_KIND_R4, ESMF_MAXSTR
    use ESMF, only: operator(==), operator(/=)
    use mapl_ErrorHandling_mod
@@ -87,6 +95,7 @@ module mapl_VerticalColumnRegridTransform_mod
       procedure :: get_num_out_of_range
       procedure :: get_num_builds
       procedure, private :: update_weights_for
+      procedure, private :: regrid_field
    end type VerticalColumnRegridTransform
 
    interface VerticalColumnRegridTransform
@@ -133,13 +142,45 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
+      integer :: i
+      logical :: is_bundle
       type(ESMF_Field) :: f_in, f_out
-      character(:), allocatable :: name
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      type(ESMF_Field), allocatable :: members_in(:), members_out(:)
+
+      call port_is_bundle(inputs, INPUT_PORT_NAME, is_bundle, _RC)
+      if (is_bundle) then
+         call get_vertical_port_bundle(inputs, INPUT_PORT_NAME, WHO, fb_in, _RC)
+         call get_vertical_port_bundle(outputs, OUTPUT_PORT_NAME, WHO, fb_out, _RC)
+         call ensure_vertical_output_members(fb_in, fb_out, _RC)
+         call copy_bundle_attributes(fb_in, fb_out, _RC)
+         call MAPL_FieldBundleGet(fb_in, fieldList=members_in, _RC)
+         call MAPL_FieldBundleGet(fb_out, fieldList=members_out, _RC)
+         do i = 1, size(members_in)
+            call this%regrid_field(members_in(i), members_out(i), _RC)
+         end do
+         _RETURN(_SUCCESS)
+      end if
 
       call get_vertical_port_field(inputs, INPUT_PORT_NAME, WHO, f_in, _RC)
       call get_vertical_port_field(outputs, OUTPUT_PORT_NAME, WHO, f_out, _RC)
-      call get_field_name(f_out, name, _RC)
+      call this%regrid_field(f_in, f_out, _RC)
 
+      _RETURN(_SUCCESS)
+   end subroutine vregrid_compute
+
+   ! The weights are rebuilt only when the grids, staggers or alignments of
+   ! the two fields differ from the last call, so the members of a bundle
+   ! share one build.
+   subroutine regrid_field(this, f_in, f_out, rc)
+      class(VerticalColumnRegridTransform), intent(inout) :: this
+      type(ESMF_Field), intent(inout) :: f_in, f_out
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: name
+
+      call get_field_name(f_out, name, _RC)
       call check_r4(f_in, name, _RC)
       call check_r4(f_out, name, _RC)
 
@@ -151,7 +192,7 @@ contains
       end if
 
       _RETURN(_SUCCESS)
-   end subroutine vregrid_compute
+   end subroutine regrid_field
 
    subroutine update_weights_for(this, f_in, f_out, name, rc)
       class(VerticalColumnRegridTransform), intent(inout) :: this

@@ -20,10 +20,12 @@ field, not the export's own bracket shape. A link that is a vector, or a
 bracket before its shape step, SHALL be materialized as an allocated
 field bundle of that type that has no members: the Transform that fills
 it creates the members at compute, one per input member. This holds for
-the geometry, units and typekind steps. A vector-bracket pair, and any
-link whose step has no Transform for a bundle (for example the
-vertical-grid step), remain outside this requirement's scope (see the
-"non-field, non-shape-convertible item class" scenario below).
+the geometry, units, typekind, vertical-grid and vertical-orientation
+steps. A vector-bracket pair, and any link whose step has no Transform
+for a bundle (for example a vertical-grid step between grids that supply
+no level values, such as model grids, or a stagger-only step), remain
+outside this requirement's scope (see the "non-field,
+non-shape-convertible item class" scenario below).
 
 #### Scenario: Resolved extension has a real payload
 - **WHEN** payload materialization is enabled and an extension chain is
@@ -77,7 +79,7 @@ vertical-grid step), remain outside this requirement's scope (see the
 - **WHEN** payload materialization is enabled and an extension chain is
   built for a vector export and vector import, or for a bracket export
   and field import, whose mismatches are resolved through the geometry,
-  units or typekind characteristic
+  units, typekind, vertical-grid or vertical-orientation characteristic
 - **THEN** each vector link, and the bracket link before its shape
   step, has a real, allocated field bundle of that type with the link's
   own geometry, typekind and units and with no members; the members are
@@ -113,9 +115,10 @@ vertical-grid step), remain outside this requirement's scope (see the
   service item, a wildcard item, a plain field-bundle item, a
   vector-bracket item, or a bracket item whose mismatch set does not
   include the shape-dispatch characteristic), or a vector or bracket
-  link needs a step that has no Transform for a bundle (the vertical-grid
-  step, which is reported as that unsupported characteristic and not
-  materialized)
+  link needs a step that has no Transform for a bundle (for example a
+  vertical-grid step between grids that supply no level values, or a
+  stagger-only step, which is reported as that unsupported characteristic
+  and not materialized)
 - **THEN** the system reports an explicit, distinguishable failure
   identifying the unsupported item class or characteristic rather than
   materializing an incomplete, incorrect, or empty payload — for any link

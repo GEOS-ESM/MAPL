@@ -15,8 +15,9 @@
 ! orientation values, never a VerticalGrid. MIRRORED means the import
 ! adopts the export's orientation.
 !
-! An orientation-only difference on a Field is a VerticalFlipTransform step;
-! other item shapes report unsupported. When the vertical grids also differ,
+! An orientation-only difference on a Field or a VECTOR is a
+! VerticalFlipTransform step; other item shapes (a BRACKET becomes a Field
+! before this step) report unsupported. When the vertical grids also differ,
 ! the vertical-grid step covers the orientation.
 !------------------------------------------------------------------------------
 module mapl_VerticalOrientationCharacteristic_mod
@@ -30,7 +31,7 @@ module mapl_VerticalOrientationCharacteristic_mod
    use mapl_StateItemCharacteristicKind_mod, only: &
         ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
-   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_VECTOR
    use mapl_VerticalFlipTransform_mod, only: VerticalFlipTransform
    use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, VCOORD_DIRECTION_DOWN, VCOORD_DIRECTION_UNSPECIFIED, operator(==), operator(/=)
    use mapl_VerticalAlignment_mod, only: VerticalAlignment, VALIGN_UP, VALIGN_DOWN
@@ -121,7 +122,7 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine orientation_build_transform
 
-   ! Only a Field has a flip. A tip with no shape entry is not restricted.
+   ! Only a Field or a VECTOR has a flip. A tip with no shape entry is not restricted.
    subroutine orientation_build_transform_for_item(this, goal, tip, &
         transformer, rc)
       class(VerticalOrientationCharacteristic), intent(in) :: this
@@ -137,8 +138,8 @@ contains
          item_shape => tip%at(ITEM_SHAPE_CHARACTERISTIC_KIND, _RC)
          select type (item_shape)
          type is (ItemShapeCharacteristic)
-            if (.not. (item_shape%get_item_class() == &
-                 MAPL_STATEITEM_FIELD)) then
+            if (.not. (item_shape%get_item_class() == MAPL_STATEITEM_FIELD &
+                 .or. item_shape%get_item_class() == MAPL_STATEITEM_VECTOR)) then
                call report_build_transform_unsupported(rc)
                return
             end if

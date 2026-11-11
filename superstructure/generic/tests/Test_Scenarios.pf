@@ -42,6 +42,7 @@ module Test_Scenarios
    use mapl_geom_api, only: mapl_GeomGet, mapl_GeomGetId, mapl_GeomId
    use mapl_vertical_grid_api, only: mapl_VerticalGrid
    use mapl_VerticalAlignment_mod, only: VerticalAlignment, operator(/=)
+   use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, operator(/=)
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, &
         VERTICAL_STAGGER_NONE, operator(/=)
    use mapl_field_api, only: MAPL_FieldGet
@@ -196,7 +197,8 @@ contains
                 graph_owns_user_states=.true.), &
            ScenarioEntry('regrid_r8',               'cap.yaml',         .true., &
                 graph_owns_user_states=.true.), &
-           ScenarioEntry('vector_1',                'parent.yaml',      .false.), &
+           ScenarioEntry('vector_1',                'parent.yaml',      .true., &
+                graph_owns_user_states=.true.), &
            ScenarioEntry('vector_regrid',           'cap.yaml',         .true., &
                 graph_owns_user_states=.true.), &
            ScenarioEntry('bracket_regrid',          'cap.yaml',         .true., &
@@ -207,6 +209,10 @@ contains
            ScenarioEntry('vertical_alignment_regrid',    'parent.yaml', .true.), &
            ScenarioEntry('vertical_alignment_with_grid', 'parent.yaml', .true.), &
            ScenarioEntry('vertical_orientation_flip',    'parent.yaml', .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('vector_orientation_flip', 'parent.yaml',      .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('vector_vertical_regrid',  'parent.yaml',      .true., &
                 graph_owns_user_states=.true.), &
            ScenarioEntry('expression_match',        'parent.yaml',      .true.), &
            ScenarioEntry('expression_defer_geom',   'parent.yaml',      .true.), &
@@ -376,38 +382,59 @@ contains
          all_digits = (len(str) <= 9 .and. verify(str, '0123456789') == 0)
       end function all_digits
 
+      ! Counts first and fills a sized array: growing it with [params, ...]
+      ! once per parameter crashes NAG at run time once the list is long.
       function add_params(check_name, check_stateitem, only) result(params)
          type(ScenarioDescription), allocatable :: params(:)
          character(*), intent(in) :: check_name
          procedure(I_check_stateitem) :: check_stateitem
          character(*), optional, intent(in) :: only(:)
 
-         integer :: i, j
+         integer :: i, j, n
          character(:), allocatable :: modes(:)
 
-         params = [ScenarioDescription:: ]
+         n = 0
          do i = 1, size(table)
-            if (len(only_name) > 0) then
-               if (table(i)%name /= only_name) cycle
-            end if
-            if (present(only)) then
-               if (.not. any([(trim(only(j)) == table(i)%name, j=1, size(only))])) cycle
-            end if
+            if (skip_entry(table(i), only)) cycle
+            modes = modes_for(table(i), pending_only)
+            n = n + size(modes)
+         end do
+
+         allocate(params(n))
+         n = 0
+         do i = 1, size(table)
+            if (skip_entry(table(i), only)) cycle
             modes = modes_for(table(i), pending_only)
             do j = 1, size(modes)
+               n = n + 1
                if (allocated(table(i)%expected_exception)) then
-                  params = [params, ScenarioDescription(table(i)%name, table(i)%root, trim(modes(j)), &
+                  params(n) = ScenarioDescription(table(i)%name, table(i)%root, trim(modes(j)), &
                        check_name, check_stateitem, table(i)%permissive, &
                        table(i)%expected_exception, &
-                       graph_owns_user_states=table(i)%graph_owns_user_states)]
+                       graph_owns_user_states=table(i)%graph_owns_user_states)
                else
-                  params = [params, ScenarioDescription(table(i)%name, table(i)%root, trim(modes(j)), &
+                  params(n) = ScenarioDescription(table(i)%name, table(i)%root, trim(modes(j)), &
                        check_name, check_stateitem, table(i)%permissive, &
-                       graph_owns_user_states=table(i)%graph_owns_user_states)]
+                       graph_owns_user_states=table(i)%graph_owns_user_states)
                end if
             end do
          end do
       end function add_params
+
+      logical function skip_entry(entry, only)
+         type(ScenarioEntry), intent(in) :: entry
+         character(*), optional, intent(in) :: only(:)
+
+         integer :: j
+
+         skip_entry = .false.
+         if (len(only_name) > 0) then
+            if (entry%name /= only_name) skip_entry = .true.
+         end if
+         if (present(only)) then
+            if (.not. any([(trim(only(j)) == entry%name, j=1, size(only))])) skip_entry = .true.
+         end if
+      end function skip_entry
 
    end function get_parameters
 
@@ -980,8 +1007,9 @@ contains
          differs(4) = has_vertical .and. &
               (in_stagger%to_string() /= out_stagger%to_string() .or. &
               vgrid_differs(in_vgrid, out_vgrid))
-         differs(5) = has_vertical .and. in_align /= out_align &
-              .and. .not. differs(4)
+         differs(5) = has_vertical .and. .not. differs(4)
+         if (differs(5)) differs(5) = alignment_differs(in_align, in_vgrid, &
+              out_align, out_vgrid)
          differs(6) = in_bundle .neqv. out_bundle
 
          if (count(differs) == 1) kind = KINDS(findloc(differs, .true., dim=1))
@@ -1013,6 +1041,23 @@ contains
          differs = a%get_id() /= b%get_id()
       end function vgrid_differs
 
+      ! Alignments compare as resolved directions, as legacy does: with_grid
+      ! and an explicit alignment equal to the grid's own are the same order.
+      logical function alignment_differs(a_align, a_vgrid, b_align, b_vgrid) &
+           result(differs)
+         type(VerticalAlignment), intent(in) :: a_align, b_align
+         class(mapl_VerticalGrid), pointer, intent(in) :: a_vgrid, b_vgrid
+
+         type(VerticalCoordinateDirection) :: dir_a, dir_b
+
+         differs = a_align /= b_align
+         if (.not. differs) return
+         if (.not. (associated(a_vgrid) .and. associated(b_vgrid))) return
+         dir_a = a_align%resolve(a_vgrid%get_coordinate_direction())
+         dir_b = b_align%resolve(b_vgrid%get_coordinate_direction())
+         differs = dir_a /= dir_b
+      end function alignment_differs
+
       ! What step_kind compares, read from the chain item's Field or, for a
       ! VECTOR or BRACKET link, from its FieldBundle.
       subroutine item_description(id, units, typekind, geom, vgrid, align, &
@@ -1033,6 +1078,8 @@ contains
          type(ESMF_StateItem_Flag) :: item_type
          type(ESMF_Field) :: field
          type(ESMF_FieldBundle) :: bundle
+         type(ESMF_Field), allocatable :: members(:)
+         integer :: n_members
 
          rc = 0
          node => root_graph%get_node(id)
@@ -1050,7 +1097,13 @@ contains
             @assertTrue(ESMF_FieldBundleIsCreated(bundle), 'graph chain item has a real, created bundle')
             call MAPL_FieldBundleGet(bundle, units=units, typekind=typekind, &
                  geom=geom, vgrid=vgrid, vert_alignment=align, &
-                 vert_staggerloc=stagger, _RC)
+                 vert_staggerloc=stagger, fieldCount=n_members, _RC)
+            ! Legacy records the alignment on the members only; a link bundle
+            ! with no members yet records it on the bundle.
+            if (n_members > 0) then
+               call MAPL_FieldBundleGet(bundle, fieldList=members, _RC)
+               call FieldGet(members(1), vert_alignment=align, _RC)
+            end if
             return
          end if
          field = payload%get_field(_RC)

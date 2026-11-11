@@ -3,8 +3,8 @@
 !------------------------------------------------------------------------------
 ! VerticalFlipTransform: copies a field into another of the same shape with
 ! the vertical index reversed. It is the step for an orientation-only
-! mismatch (same vertical grid, opposite UP/DOWN storage order). Field only;
-! R4 and R8.
+! mismatch (same vertical grid, opposite UP/DOWN storage order). A Field, or
+! a VECTOR bundle whose members are flipped one by one; R4 and R8.
 !
 ! The flip helpers are public so that VerticalColumnRegridTransform can use
 ! them for the same-grid case.
@@ -16,11 +16,16 @@ module mapl_VerticalFlipTransform_mod
    use mapl_Transform_mod, only: Transform
    use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
    use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_BundleMemberSupport_mod, only: ensure_vertical_output_members, &
+        copy_bundle_attributes
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet
    use mapl_FieldCondensedArray_mod, only: assign_fptr_condensed_array
    use ESMF, only: ESMF_Field, ESMF_FieldGet, ESMF_TypeKind_Flag
+   use ESMF, only: ESMF_FieldBundle
    use ESMF, only: ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8
    use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8
    use ESMF, only: ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD
+   use ESMF, only: ESMF_STATEITEM_FIELDBUNDLE
    use ESMF, only: operator(==), operator(/=)
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -29,6 +34,8 @@ module mapl_VerticalFlipTransform_mod
    public :: VerticalFlipTransform
    public :: copy_vertical_column
    public :: get_vertical_port_field
+   public :: port_is_bundle
+   public :: get_vertical_port_bundle
 
    type, extends(Transform) :: VerticalFlipTransform
    contains
@@ -60,7 +67,28 @@ contains
       integer, intent(out) :: rc
 
       integer :: status
+      integer :: i
+      logical :: is_bundle
       type(ESMF_Field) :: f_in, f_out
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      type(ESMF_Field), allocatable :: members_in(:), members_out(:)
+
+      call port_is_bundle(inputs, INPUT_PORT_NAME, is_bundle, _RC)
+      if (is_bundle) then
+         call get_vertical_port_bundle(inputs, INPUT_PORT_NAME, &
+              'VerticalFlipTransform', fb_in, _RC)
+         call get_vertical_port_bundle(outputs, OUTPUT_PORT_NAME, &
+              'VerticalFlipTransform', fb_out, _RC)
+         call ensure_vertical_output_members(fb_in, fb_out, _RC)
+         call copy_bundle_attributes(fb_in, fb_out, _RC)
+         call MAPL_FieldBundleGet(fb_in, fieldList=members_in, _RC)
+         call MAPL_FieldBundleGet(fb_out, fieldList=members_out, _RC)
+         do i = 1, size(members_in)
+            call copy_vertical_column(members_in(i), members_out(i), &
+                 flip=.true., _RC)
+         end do
+         _RETURN(_SUCCESS)
+      end if
 
       call get_vertical_port_field(inputs, INPUT_PORT_NAME, &
            'VerticalFlipTransform', f_in, _RC)
@@ -115,6 +143,49 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine copy_vertical_column
+
+   ! True when the port is bound to a FieldBundle. An unbound port is not
+   ! one; get_vertical_port_field then reports it.
+   subroutine port_is_bundle(items, port_name, is_bundle, rc)
+      type(PortNameGraphStateItemMap), intent(in) :: items
+      character(*), intent(in) :: port_name
+      logical, intent(out) :: is_bundle
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(GraphStateItem), pointer :: item
+      type(ESMF_StateItem_Flag) :: item_type
+
+      is_bundle = .false.
+      item => items%at(port_name)
+      _RETURN_UNLESS(associated(item))
+      item_type = item%itemType(_RC)
+      is_bundle = (item_type == ESMF_STATEITEM_FIELDBUNDLE)
+
+      _RETURN(_SUCCESS)
+   end subroutine port_is_bundle
+
+   subroutine get_vertical_port_bundle(items, port_name, who, bundle, rc)
+      type(PortNameGraphStateItemMap), intent(in) :: items
+      character(*), intent(in) :: port_name
+      character(*), intent(in) :: who
+      type(ESMF_FieldBundle), intent(out) :: bundle
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(GraphStateItem), pointer :: item
+      type(ESMF_StateItem_Flag) :: item_type
+
+      item => items%at(port_name)
+      _ASSERT(associated(item), who // ': port not bound: ' // port_name)
+      item_type = item%itemType(_RC)
+      if (item_type /= ESMF_STATEITEM_FIELDBUNDLE) then
+         _FAIL(who // ': port is not a field bundle: ' // port_name)
+      end if
+      bundle = item%get_field_bundle(_RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine get_vertical_port_bundle
 
    subroutine get_vertical_port_field(items, port_name, who, field, rc)
       type(PortNameGraphStateItemMap), intent(in) :: items

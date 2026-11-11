@@ -67,7 +67,9 @@ to "Verified root causes" below.
 | statistics_real | no | FAILS one check: `A/QV_MIN` value in `GRAPH` mode (cause not traced). P1 is resolved by no longer building the run-phase node at connect time, so the 22 failures behind `build_run_phase_node step failed with rc=1` are gone (measured 2026-11-10 on NAG: pending run `Tests run: 41, Failures: 1`; registry and both modes pass). The remaining check reads `expected=1.00000, range=[*,*]` for `history/stat/<user>::export::A/QV_MIN` (Test_Scenarios.pf:1553), then the step status is -1. With `graph_owns_user_states` it fails worse (3 checks per shard and a `characteristics_resolved` freeze failure), so the flag stays `.false.` |
 | service_service | yes | ready (masked pass: the SERVICE items are aliased from the legacy user export state and the graph does not materialize them, M3). Red before `C2-alias-nonfield` (measured 2026-11-10: `Tests run: 43, Failures: 24`, first log line `resolve_connections step failed with rc=13`), green after |
 | service_with_options | yes | same as `service_service` |
-| vector_1 | no | passes, but run alone it already passed before `C2-alias-nonfield` (measured 2026-11-10: no `rc=13` in the log), so it is not flipped: A has 3 fixed levels and B has 1, so its chain stops at the vertical-grid step, which has no bundle Transform; it waits for `C1-vertical-b` |
+| vector_1 | yes | passes in graph and both modes (measured 2026-11-11, NAG; red before C1-vertical-b2: the pending run logged `no registered extension provider ... child_B:uv:VERTICAL_GRID` and failed `[item type]` in graph and both modes). A has 3 fixed levels `[30, 20, 10]` hPa on 12x13 and B has 1 level `[23]` hPa on 8x5, so the chain is `[geometry, vertical]` (horizontal bundle regrid, then `VerticalColumnRegridTransform` on the bundle; the single-level import has an `UNSPECIFIED` direction, so the orientation difference rides on the vertical step). The table entry sets `graph_owns_user_states`, so the item-type, status and standard-name checks read the graph's bundles. No value is checked: the horizontal bundle regrid rotates the constant `fill_value` vector between the two grids, so the import members are not constant; with the vertical regrid output zeroed (mutation, NAG) this scenario still passes, and `vector_vertical_regrid` is the one that detects it. In the test, `step_kind` reads a bundle link's alignment from its first member when it has one (legacy records it on members only), and compares alignments as resolved directions |
+| vector_vertical_regrid | yes | new (C1-vertical-b2). A VECTOR `uv` on 3 fixed pressure levels into 2 others, same horizontal grid: `chain: [vertical]`, bundle `VerticalColumnRegridTransform`. The table entry sets `graph_owns_user_states`; the import members hold the constant fill value 1, which a linear regrid keeps, so the value check guards that the step ran and filled both members (with the regrid output zeroed, mutation on NAG, only `vector_vertical_regrid [value] mode=graph` fails). Member order and level numerics are checked by `Test_VerticalColumnRegridTransform.pf` |
+| vector_orientation_flip | yes | new (C1-vertical-b2). A VECTOR `uv` on the parent's shared fixed grid, export `downward`, import `upward`: `chain: [orientation]`, bundle `VerticalFlipTransform`. The table entry sets `graph_owns_user_states`. The values are constant (the test components cannot give vector members a profile; `default_vertical_profile` writes one Field), so the scenario cannot see the level order: it shows the step is built, runs and fills the members. Measured 2026-11-11 (NAG, through ctest): with the VECTOR flip output zeroed, `vector_orientation_flip [value] mode=graph` fails; with only the reversal removed (flip disabled) the scenario still passes. The level order is covered by `Test_VerticalColumnRegridTransform.pf` `test_flip_bundle`. Making the scenario order-sensitive needs the configurable test component to fill bundle members with a profile |
 | vector_regrid | yes | ready (masked pass: the values of the imports come from legacy). Two VECTOR pairs on 12x13 and 6x7 lat-lon grids, both with `vertical_dim_spec: NONE` (with `center` the same two basic vertical grids still mismatch, see the vertical-grid difference row below); `chain:` expectations check `uv` as `[geometry]` and `wind` (`m s-1` to `km s-1`) as `[geometry, units]`. In the default run the bundle regrid executes twice and the units conversion once per scenario run (measured 2026-11-10 with a temporary trace), so the Transforms do run at compute, on bundles the graph created for the links and on the legacy export bundle as input. Passes with `graph_owns_user_states` too (measured 2026-11-10, NAG, all four shards): the graph creates the export bundles `uv` and `wind` at advertise and gives them their two members at connect (`C2-bundle-exports`); the same bundles are created with the switch off, and the legacy alias then replaces them, so the export, import and root checks of the per-member standard names pass on graph-owned states. The table row sets it |
 | bracket_regrid | yes | ready (masked pass). A BRACKET export (declared in code by `ProtoBracketGridComp`, since YAML cannot declare a bracket) on a 12x13 grid into a Field import on a 6x7 grid, `vertical_dim_spec: NONE`; the `chain:` expectation checks `[geometry, item_shape]` (bundle regrid, then time interpolation to a Field). The values of the import come from legacy; the gridcomp fills no members. Passes with `graph_owns_user_states` too (measured 2026-11-10, NAG): the graph creates the export bundle with `bracket_size` members. The table row sets it |
 
@@ -182,7 +184,7 @@ In production, the same faults only log a warning and drop part of the graph.
   "not found". `service_service` and `service_with_options` were red
   (`Failures: 24` each, `rc=13`) and are green and ready (masked, M3).
   `vector_1` already passed before the fix (no `rc=13` in its log) and stays
-  pending (its vertical-grid mismatch needs `C1-vertical-b`). `statistics_real` no longer logs `rc=13`; its P1 failures are gone (see P1).
+  pending (its vertical-grid mismatch needed a bundle vertical Transform; ready since `C1-vertical-b2`). `statistics_real` no longer logs `rc=13`; its P1 failures are gone (see P1).
 - **P1. Run-phase method-node arguments are keyed by short name only (resolved: the node is no longer built at connect time).**
   `graphbuilder_build_run_phase_node` declares one argument per import/export
   under `var_spec%short_name`. `StatisticsGridComp` advertises an import and
@@ -225,9 +227,11 @@ In production, the same faults only log a warning and drop part of the graph.
   identical fixed levels still mismatch (as in legacy). Since C1-vertical-b1
   a Field pair whose two grids both have level values in their one shared
   dimension gets a `VerticalColumnRegridTransform` (`vertical_regridding`,
-  `vertical_alignment_*` are ready). Still unsupported at connect: a model
-  grid on either side (`vertical_regridding_2`, `_3`), a non-center stagger,
-  and a VECTOR or other bundle (`vector_1`, `C1-vertical-b2`).
+  `vertical_alignment_*` are ready), and a VECTOR pair gets the bundle form
+  of it since C1-vertical-b2 (`vector_1`). Still unsupported at connect: a
+  model grid on either side (`vertical_regridding_2`, `_3`), a non-center
+  stagger, a plain FIELDBUNDLE and a VECTORBRACKET. A BRACKET needs no
+  vertical bundle Transform: the time interpolation makes it a Field first.
 - **M3. SERVICE is not materialized by the graph; VECTOR and BRACKET
   bundles are.** In graph mode, as for a Field, the graph creates an empty
   CREATED bundle at advertise for every declared VECTOR item (import, export
@@ -252,8 +256,8 @@ In production, the same faults only log a warning and drop part of the graph.
   non-Field chain link other than VECTOR or BRACKET, and for a bundle used
   as an expression input. Flipping the SERVICE scenarios to ready gives a
   masked pass, like the ready rows in the next section. `service_service`
-  and `service_with_options` are flipped; `vector_1` is not (needs
-  `C1-vertical-b`).
+  and `service_with_options` are flipped, and `vector_1` since
+  `C1-vertical-b2`.
   `expression_defer_geom` no longer logs this (re-measured 2026-11-08): its
   expression is evaluated on the graph path. Since C1-geom-c-a the graph
   builds a regrid chain for a VECTOR or BRACKET geometry mismatch, and since
@@ -305,8 +309,9 @@ calls is plan work (D2 and the B tasks); do not remove them in a test task.
 
 `regrid*` and `propagate_geom` are ready since C1-geom-b. `vertical_regridding`,
 the `vertical_alignment_*` scenarios and `vertical_orientation_flip` are ready
-since C1-vertical-b1; `vertical_regridding_2`, `_3` (model grids) and
-`vector_1` (VECTOR) are not (M2).
+since C1-vertical-b1; `vector_1`, `vector_vertical_regrid` and
+`vector_orientation_flip` since C1-vertical-b2; `vertical_regridding_2`, `_3`
+(model grids) are not (M2).
 
 ## Legacy and graph behavior differences
 

@@ -262,8 +262,8 @@ contains
       @assertFalse(built)
    end subroutine test_vertical_grid_build_transform_basic_counts_incompatible
 
-   ! Only an R4 Field at level centers gets the regrid; a tip with no shape
-   ! entry is not restricted.
+   ! Only an R4 Field or VECTOR at level centers gets the regrid; a tip with
+   ! no shape entry is not restricted.
    @test
    subroutine test_vertical_grid_build_transform_for_item_dispatch()
       type(VerticalGridCharacteristic) :: a, b
@@ -278,9 +278,14 @@ contains
       call check_shape(S_FIELD, .true., VERTICAL_STAGGER_CENTER, 0)
       call check_shape(S_FIELD, .false., VERTICAL_STAGGER_CENTER, 0)
       call check_shape(S_FIELD, .true., VERTICAL_STAGGER_EDGE, UNSUPPORTED)
-      call check_shape(S_VECTOR, .true., VERTICAL_STAGGER_CENTER, UNSUPPORTED)
+      call check_shape(S_VECTOR, .true., VERTICAL_STAGGER_CENTER, 0)
+      call check_shape(S_VECTOR, .true., VERTICAL_STAGGER_EDGE, UNSUPPORTED)
+      call check_shape(S_VECTOR, .true., VERTICAL_STAGGER_CENTER, UNSUPPORTED, &
+           'R8')
       call check_shape(S_BRACKET, .true., VERTICAL_STAGGER_CENTER, UNSUPPORTED)
       call check_shape(S_BUNDLE, .true., VERTICAL_STAGGER_CENTER, UNSUPPORTED)
+      call check_shape(S_VECTORBRACKET, .true., VERTICAL_STAGGER_CENTER, &
+           UNSUPPORTED)
       call check_shape(S_FIELD, .true., VERTICAL_STAGGER_CENTER, 0, 'R4')
       call check_shape(S_FIELD, .true., VERTICAL_STAGGER_CENTER, UNSUPPORTED, &
            'R8')
@@ -617,7 +622,8 @@ contains
       @assertTrue(is_flip)
    end subroutine test_vertical_orientation_build_transform_flips
 
-   ! Only a Field has a flip; a tip with no shape entry is not restricted.
+   ! Only a Field or a VECTOR has a flip; a tip with no shape entry is not
+   ! restricted.
    @test
    subroutine test_vertical_orientation_build_transform_for_item_dispatch()
       type(VerticalOrientationCharacteristic) :: up, down
@@ -626,9 +632,10 @@ contains
       down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
 
       call check_shape(S_FIELD, .true., 0)
-      call check_shape(S_VECTOR, .true., BUILD_TRANSFORM_UNSUPPORTED)
+      call check_shape(S_VECTOR, .true., 0)
       call check_shape(S_BRACKET, .true., BUILD_TRANSFORM_UNSUPPORTED)
       call check_shape(S_BUNDLE, .true., BUILD_TRANSFORM_UNSUPPORTED)
+      call check_shape(S_VECTORBRACKET, .true., BUILD_TRANSFORM_UNSUPPORTED)
       call check_shape(S_FIELD, .false., 0)
 
    contains

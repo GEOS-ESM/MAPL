@@ -18,12 +18,14 @@
 !     grid_id or dimension set), the identity-token-else-dimension-set
 !     comparison is used.
 !
-! A Field mismatch between two held grids that share one dimension, both
-! with level values for it, is a VerticalColumnRegridTransform step that
-! also covers the orientation; the export must be at level centers. Two
-! basic grids with different level counts are incompatible. Any other
-! mismatch (a grid without level values, e.g. a model grid; a non-center
-! stagger; an R8 or non-Field item) reports unsupported.
+! A Field or VECTOR mismatch between two held grids that share one
+! dimension, both with level values for it, is a VerticalColumnRegridTransform
+! step that also covers the orientation; the export must be at level
+! centers. Two basic grids with different level counts are incompatible. Any
+! other mismatch (a grid without level values, e.g. a model grid; a
+! non-center stagger; an R8 tip; any other item class, such as a plain
+! FIELDBUNDLE or a BRACKET) reports unsupported. A BRACKET becomes a Field
+! before this step.
 !
 ! An item-level instance may also hold the VerticalGrid itself (written by
 ! write_info). Status: SPECIFIED when constructed with a value. DEFERRED
@@ -48,7 +50,7 @@ module mapl_VerticalGridCharacteristic_mod
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, &
         VERTICAL_STAGGER_CENTER
-   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_VECTOR
    use mapl_VerticalColumnRegridTransform_mod, only: &
         VerticalColumnRegridTransform
    use mapl_field_api, only: MAPL_FieldSet
@@ -351,10 +353,10 @@ contains
       end if
    end function vcoord_covered_kinds
 
-   ! Only a Field has a vertical regrid, and only at level centers. A tip
-   ! with no shape entry (component-level wiring), or a pair not holding
-   ! both grids, is not restricted. The regrid is R4 only, so an R8 tip is
-   ! unsupported at connect rather than failing at compute.
+   ! Only a Field or a VECTOR has a vertical regrid, and only at level
+   ! centers. A tip with no shape entry (component-level wiring), or a pair
+   ! not holding both grids, is not restricted. The regrid is R4 only, so an
+   ! R8 tip is unsupported at connect rather than failing at compute.
    subroutine vcoord_build_transform_for_item(this, goal, tip, transformer, rc)
       class(VerticalGridCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -375,7 +377,8 @@ contains
       entry => tip%at(ITEM_SHAPE_CHARACTERISTIC_KIND, _RC)
       select type (entry)
       type is (ItemShapeCharacteristic)
-         if (.not. (entry%get_item_class() == MAPL_STATEITEM_FIELD)) then
+         if (.not. (entry%get_item_class() == MAPL_STATEITEM_FIELD .or. &
+              entry%get_item_class() == MAPL_STATEITEM_VECTOR)) then
             call report_build_transform_unsupported(rc)
             return
          end if

@@ -22,20 +22,23 @@ module Test_VerticalColumnRegridTransform
    use mapl_VerticalAlignment_mod, only: VerticalAlignment
    use mapl_VerticalAlignment_mod, only: VALIGN_WITH_GRID
    use mapl_VerticalAlignment_mod, only: VALIGN_UP, VALIGN_DOWN
-   use mapl_VerticalAlignment_mod, only: VALIGN_INVALID
+   use mapl_VerticalAlignment_mod, only: VALIGN_INVALID, operator(==)
    use mapl_VerticalRegridMethod_mod, only: VERTICAL_REGRID_CONSERVATIVE
    use mapl_ModelVerticalGrid_mod, only: ModelVerticalGrid
    use pflogger, only: logging, Logger, AbstractHandler
    use PFL_LogRecord, only: LogRecord
    use PFL_KeywordEnforcer, only: KeywordEnforcer
-   use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldSet
+   use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldSet, MAPL_FieldGet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundleSet
+   use mapl_enums_api, only: MAPL_FIELDBUNDLETYPE_VECTOR
+   use mapl_BundleMemberSupport_mod, only: ensure_vertical_output_members
    use mapl_FieldInfo_mod, only: FieldInfoSetInternal
    use mapl_FieldCondensedArray_mod, only: assign_fptr_condensed_array
    use mapl_UngriddedDims_mod, only: UngriddedDims
-   use StateItemTestSupport_mod, only: make_test_field_bundle
+   use StateItemTestSupport_mod, only: make_test_field_bundle, make_test_bundle
    use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_Geom, ESMF_Grid, ESMF_Info
    use ESMF, only: ESMF_GridCreateNoPeriDim, ESMF_GeomCreate
-   use ESMF, only: ESMF_InfoGetFromHost
+   use ESMF, only: ESMF_InfoGetFromHost, ESMF_FieldBundleAdd
    use ESMF, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8
    use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8
    use funit
@@ -169,6 +172,53 @@ contains
            ungridded_dims=ungridded, rc=status)
       @assertEqual(0, status)
    end function make_field
+
+   subroutine bind_bundle(ports, port, bundle)
+      type(PortNameGraphStateItemMap), intent(inout) :: ports
+      character(*), intent(in) :: port
+      type(ESMF_FieldBundle), intent(in) :: bundle
+
+      type(GraphStateItem) :: item
+      integer :: status
+
+      call item%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call ports%clear()
+      call ports%insert(port, item)
+   end subroutine bind_bundle
+
+   ! VECTOR bundle holding `members`, recording grid, center stagger and
+   ! alignment itself.
+   function make_vbundle(geom, vgrid, members, alignment) result(bundle)
+      type(ESMF_Geom), intent(in) :: geom
+      class(mapl_VerticalGrid), intent(in) :: vgrid
+      type(ESMF_Field), intent(in) :: members(:)
+      type(VerticalAlignment), intent(in) :: alignment
+      type(ESMF_FieldBundle) :: bundle
+
+      integer :: status
+
+      bundle = make_test_bundle(geom, MAPL_FIELDBUNDLETYPE_VECTOR, members, &
+           status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(bundle, vgrid=vgrid, &
+           vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=alignment, rc=status)
+      @assertEqual(0, status)
+   end function make_vbundle
+
+   ! The same with no members: what the graph creates for a link.
+   function make_vbundle_empty(geom, vgrid, alignment) result(bundle)
+      type(ESMF_Geom), intent(in) :: geom
+      class(mapl_VerticalGrid), intent(in) :: vgrid
+      type(VerticalAlignment), intent(in) :: alignment
+      type(ESMF_FieldBundle) :: bundle
+
+      type(ESMF_Field), allocatable :: none(:)
+
+      allocate(none(0))
+      bundle = make_vbundle(geom, vgrid, none, alignment)
+   end function make_vbundle_empty
 
    function view(field) result(x)
       type(ESMF_Field), intent(inout) :: field
@@ -461,8 +511,9 @@ contains
       @assertEqual(EXPECTED, vertical_regrid_r8_message('T'))
    end subroutine test_r8_message
 
+   ! A bundle input needs a bundle output: a Field destination fails.
    @test
-   subroutine test_bundle_port_fails()
+   subroutine test_bundle_input_with_field_output_fails()
       type(ESMF_Geom) :: geom
       type(ESMF_Field) :: f_out
       type(ESMF_FieldBundle) :: bundle
@@ -485,7 +536,295 @@ contains
       transform = VerticalColumnRegridTransform()
       call transform%compute(inputs, outputs, status)
       @assertTrue(status /= 0)
-   end subroutine test_bundle_port_fails
+   end subroutine test_bundle_input_with_field_output_fails
+
+   ! A Field input needs a Field output: a bundle destination fails. So does
+   ! an output port that is not bound, for a Field input and for a bundle
+   ! input, in the regrid and in the flip.
+   @test
+   subroutine test_mixed_or_unbound_ports_fail()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in
+      type(ESMF_Field) :: members(1)
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      type(VerticalColumnRegridTransform) :: regrid_transform
+      type(VerticalFlipTransform) :: flip_transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs, no_outputs
+      integer :: status(5)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      f_in = make_field(geom, g_in, 'T')
+      members(1) = make_field(geom, g_in, 'u')
+      fb_in = make_vbundle(geom, g_in, members, VALIGN_WITH_GRID)
+      fb_out = make_vbundle_empty(geom, g_out, VALIGN_WITH_GRID)
+      regrid_transform = VerticalColumnRegridTransform()
+      flip_transform = VerticalFlipTransform()
+
+      ! Field input, bundle output
+      call bind(inputs, SRC_PORT, f_in)
+      call bind_bundle(outputs, DST_PORT, fb_out)
+      call regrid_transform%compute(inputs, outputs, status(1))
+      call flip_transform%compute(inputs, outputs, status(2))
+
+      ! Output port not bound
+      call regrid_transform%compute(inputs, no_outputs, status(3))
+      call bind_bundle(inputs, SRC_PORT, fb_in)
+      call regrid_transform%compute(inputs, no_outputs, status(4))
+      call flip_transform%compute(inputs, no_outputs, status(5))
+
+      @assertTrue(all(status /= 0))
+   end subroutine test_mixed_or_unbound_ports_fail
+
+   ! An output bundle that records no vertical grid cannot say what its
+   ! members should look like.
+   @test
+   subroutine test_bundle_output_without_vgrid_fails()
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g_in
+      type(ESMF_Field) :: members(1)
+      type(ESMF_Field), allocatable :: none(:)
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      integer :: status
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      members(1) = make_field(geom, g_in, 'u')
+      fb_in = make_vbundle(geom, g_in, members, VALIGN_WITH_GRID)
+      allocate(none(0))
+      fb_out = make_test_bundle(geom, MAPL_FIELDBUNDLETYPE_VECTOR, none, &
+           status)
+      @assertEqual(0, status)
+      call bind_bundle(inputs, SRC_PORT, fb_in)
+      call bind_bundle(outputs, DST_PORT, fb_out)
+
+      transform = VerticalColumnRegridTransform()
+      call transform%compute(inputs, outputs, status)
+      @assertTrue(status /= 0)
+   end subroutine test_bundle_output_without_vgrid_fails
+
+   ! Two members, regridded with one weight build. The output members are
+   ! created with the output level count and carry the output bundle vertical
+   ! grid, stagger and alignment, not the input ones.
+   @test
+   subroutine test_bundle_members_regridded_with_one_build()
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      type(ESMF_Field) :: members(2)
+      type(ESMF_Field), allocatable :: out_members(:)
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      class(mapl_VerticalGrid), pointer :: vgrid_m
+      type(VerticalStaggerLoc) :: stagger_m
+      type(VerticalAlignment) :: alignment_m
+      integer :: status, num_members, builds, id_out, id_m, levels(2)
+      logical :: stagger_is_center, alignment_is_down
+      real, allocatable :: c1(:), c2(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      members(1) = make_field(geom, g_in, 'u')
+      members(2) = make_field(geom, g_in, 'v')
+      call fill(members(1), [2001., 1001., 201.])
+      call fill(members(2), [4001., 2001., 401.])
+      fb_in = make_vbundle(geom, g_in, members, VALIGN_WITH_GRID)
+      fb_out = make_vbundle_empty(geom, g_out, VALIGN_DOWN)
+      call bind_bundle(inputs, SRC_PORT, fb_in)
+      call bind_bundle(outputs, DST_PORT, fb_out)
+
+      transform = VerticalColumnRegridTransform()
+      call transform%compute(inputs, outputs, status)
+      builds = transform%get_num_builds()
+
+      call MAPL_FieldBundleGet(fb_out, fieldList=out_members, &
+           fieldCount=num_members, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, num_members)
+      levels(1) = size(view(out_members(1)), 2)
+      levels(2) = size(view(out_members(2)), 2)
+      c1 = column(out_members(1))
+      c2 = column(out_members(2))
+      call MAPL_FieldGet(out_members(1), vgrid=vgrid_m, &
+           vert_staggerloc=stagger_m, vert_alignment=alignment_m, rc=status)
+      @assertEqual(0, status)
+      id_m = vgrid_m%get_id()
+      id_out = g_out%get_id()
+      stagger_is_center = (stagger_m%to_string() == &
+           VERTICAL_STAGGER_CENTER%to_string())
+      alignment_is_down = (alignment_m%to_string() == VALIGN_DOWN%to_string())
+
+      @assertEqual([2, 2], levels)
+      @assertEqual(1, builds)
+      @assertEqual(id_out, id_m)
+      @assertTrue(stagger_is_center)
+      @assertTrue(alignment_is_down)
+      ! The output is stored DOWN, so the 800 and 300 hPa values come last.
+      @assertEqual([601., 1601.], c1, tolerance=TOL)
+      @assertEqual([1201., 3201.], c2, tolerance=TOL)
+   end subroutine test_bundle_members_regridded_with_one_build
+
+   ! A second compute reuses both the weights and the output members.
+   @test
+   subroutine test_bundle_second_compute_keeps_members_and_weights()
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      type(ESMF_Field) :: members(1)
+      logical :: recreated(2)
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      integer :: status(4), builds
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      members(1) = make_field(geom, g_in, 'u')
+      call fill(members(1), [2001., 1001., 201.])
+      fb_in = make_vbundle(geom, g_in, members, VALIGN_WITH_GRID)
+      fb_out = make_vbundle_empty(geom, g_out, VALIGN_WITH_GRID)
+      call bind_bundle(inputs, SRC_PORT, fb_in)
+      call bind_bundle(outputs, DST_PORT, fb_out)
+
+      call ensure_vertical_output_members(fb_in, fb_out, recreated(1), &
+           rc=status(1))
+      call ensure_vertical_output_members(fb_in, fb_out, recreated(2), &
+           rc=status(2))
+      transform = VerticalColumnRegridTransform()
+      call transform%compute(inputs, outputs, status(3))
+      call transform%compute(inputs, outputs, status(4))
+      builds = transform%get_num_builds()
+
+      @assertEqual([0, 0, 0, 0], status)
+      @assertTrue(recreated(1))
+      @assertFalse(recreated(2))
+      @assertEqual(1, builds)
+   end subroutine test_bundle_second_compute_keeps_members_and_weights
+
+   ! The member count is equal but the output members have the wrong level
+   ! count (made for another grid): they are recreated with the right one.
+   @test
+   subroutine test_bundle_members_recreated_when_level_count_differs()
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      type(ESMF_Field) :: members(1), stale(1)
+      type(ESMF_Field), allocatable :: out_members(:)
+      logical :: recreated(2)
+      integer :: status(4), levels
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      members(1) = make_field(geom, g_in, 'u')
+      stale(1) = make_field(geom, g_in, 'u')
+      fb_in = make_vbundle(geom, g_in, members, VALIGN_WITH_GRID)
+      ! Output bundle records the 2-level grid but holds a 3-level member
+      ! (added after the grid, which would resize it otherwise).
+      fb_out = make_vbundle_empty(geom, g_out, VALIGN_WITH_GRID)
+      call ESMF_FieldBundleAdd(fb_out, stale, multiflag=.true., &
+           relaxedFlag=.true., rc=status(1))
+
+      call ensure_vertical_output_members(fb_in, fb_out, recreated(1), &
+           rc=status(2))
+      call MAPL_FieldBundleGet(fb_out, fieldList=out_members, rc=status(3))
+      levels = size(view(out_members(1)), 2)
+      call ensure_vertical_output_members(fb_in, fb_out, recreated(2), &
+           rc=status(4))
+
+      @assertEqual([0, 0, 0, 0], status)
+      @assertTrue(recreated(1))
+      @assertFalse(recreated(2))
+      @assertEqual(2, levels)
+   end subroutine test_bundle_members_recreated_when_level_count_differs
+
+   ! Same member and level counts, but the output bundle already holds a
+   ! member with another alignment (a bundle that arrives with members): the
+   ! member is recreated with the output bundle alignment, then left alone.
+   @test
+   subroutine test_bundle_members_recreated_when_alignment_differs()
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g
+      type(ESMF_Field) :: members(1), stale(1)
+      type(ESMF_Field), allocatable :: out_members(:)
+      type(VerticalAlignment) :: alignment_m
+      logical :: recreated(2), alignment_is_up
+      integer :: status(5)
+
+      geom = make_geom()
+      g => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      members(1) = make_field(geom, g, 'u', alignment=VALIGN_DOWN)
+      stale(1) = make_field(geom, g, 'u', alignment=VALIGN_DOWN)
+      fb_in = make_vbundle(geom, g, members, VALIGN_DOWN)
+      fb_out = make_vbundle_empty(geom, g, VALIGN_UP)
+      call ESMF_FieldBundleAdd(fb_out, stale, multiflag=.true., &
+           relaxedFlag=.true., rc=status(1))
+
+      call ensure_vertical_output_members(fb_in, fb_out, recreated(1), &
+           rc=status(2))
+      call MAPL_FieldBundleGet(fb_out, fieldList=out_members, rc=status(3))
+      call MAPL_FieldGet(out_members(1), vert_alignment=alignment_m, &
+           rc=status(4))
+      alignment_is_up = (alignment_m%to_string() == VALIGN_UP%to_string())
+      call ensure_vertical_output_members(fb_in, fb_out, recreated(2), &
+           rc=status(5))
+
+      @assertEqual([0, 0, 0, 0, 0], status)
+      @assertTrue(recreated(1))
+      @assertTrue(alignment_is_up)
+      @assertFalse(recreated(2))
+   end subroutine test_bundle_members_recreated_when_alignment_differs
+
+   ! An orientation-only flip of a bundle reverses every member and gives the
+   ! output members the output alignment.
+   @test
+   subroutine test_flip_bundle()
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g
+      type(ESMF_Field) :: members(2)
+      type(ESMF_Field), allocatable :: out_members(:)
+      type(VerticalFlipTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(VerticalAlignment) :: alignment_m
+      integer :: status
+      logical :: alignment_is_up
+      real, allocatable :: c1(:), c2(:)
+
+      geom = make_geom()
+      g => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      members(1) = make_field(geom, g, 'u', alignment=VALIGN_DOWN)
+      members(2) = make_field(geom, g, 'v', alignment=VALIGN_DOWN)
+      call fill(members(1), [1., 2., 3.])
+      call fill(members(2), [4., 5., 6.])
+      fb_in = make_vbundle(geom, g, members, VALIGN_DOWN)
+      fb_out = make_vbundle_empty(geom, g, VALIGN_UP)
+      call bind_bundle(inputs, SRC_PORT, fb_in)
+      call bind_bundle(outputs, DST_PORT, fb_out)
+
+      transform = VerticalFlipTransform()
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call MAPL_FieldBundleGet(fb_out, fieldList=out_members, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, size(out_members))
+      c1 = column(out_members(1))
+      c2 = column(out_members(2))
+      call MAPL_FieldGet(out_members(1), vert_alignment=alignment_m, rc=status)
+      @assertEqual(0, status)
+      alignment_is_up = (alignment_m%to_string() == VALIGN_UP%to_string())
+
+      @assertTrue(alignment_is_up)
+      @assertEqual([3., 2., 1.], c1)
+      @assertEqual([6., 5., 4.], c2)
+   end subroutine test_flip_bundle
 
    ! A second compute with the same fields reuses the weights; a new
    ! destination grid or a changed orientation rebuilds them.

@@ -1,0 +1,49 @@
+#include "MAPL_TestErr.h"
+
+module Test_FieldBundleSet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundleSet
+   use mapl_VerticalAlignment_mod, only: VerticalAlignment
+   use mapl_VerticalAlignment_mod, only: VALIGN_UP, VALIGN_DOWN, VALIGN_WITH_GRID
+   use pfunit
+   use esmf
+   implicit none(type,external)
+
+contains
+
+   ! A bundle with no members records its vertical alignment itself.
+   @test
+   subroutine test_vert_alignment_round_trips_on_memberless_bundle()
+      type(ESMF_FieldBundle) :: bundle
+      type(VerticalAlignment) :: alignment
+      character(:), allocatable :: text
+      integer :: status
+
+      bundle = ESMF_FieldBundleCreate(name='b', _RC)
+
+      call MAPL_FieldBundleSet(bundle, vert_alignment=VALIGN_UP, _RC)
+      call MAPL_FieldBundleGet(bundle, vert_alignment=alignment, _RC)
+      text = alignment%to_string()
+      @assertEqual(VALIGN_UP%to_string(), text)
+
+      call MAPL_FieldBundleSet(bundle, vert_alignment=VALIGN_DOWN, _RC)
+      call MAPL_FieldBundleGet(bundle, vert_alignment=alignment, _RC)
+      text = alignment%to_string()
+      @assertEqual(VALIGN_DOWN%to_string(), text)
+   end subroutine test_vert_alignment_round_trips_on_memberless_bundle
+
+   ! A bundle that never had an alignment set reads back with_grid.
+   @test
+   subroutine test_vert_alignment_defaults_to_with_grid()
+      type(ESMF_FieldBundle) :: bundle
+      type(VerticalAlignment) :: alignment
+      character(:), allocatable :: text
+      integer :: status
+
+      bundle = ESMF_FieldBundleCreate(name='b', _RC)
+
+      call MAPL_FieldBundleGet(bundle, vert_alignment=alignment, _RC)
+      text = alignment%to_string()
+      @assertEqual(VALIGN_WITH_GRID%to_string(), text)
+   end subroutine test_vert_alignment_defaults_to_with_grid
+
+end module Test_FieldBundleSet

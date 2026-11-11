@@ -43,20 +43,36 @@ Once a mismatch's adaptation dimension has been identified (or the
 mismatch has been reported as incompatible or ambiguous), resolution
 SHALL delegate to the same extension-reuse chain-creation path used for
 any other mismatched pair rather than wiring the export and import
-directly or silently dropping the connection. For a field item with a
-single adaptation dimension, where both grids carry level coordinate
-values for that dimension, the vertical-grid step SHALL be a column
-regrid that also reverses the level order when the two orientations
-differ. Two basic grids with different level counts SHALL be reported
-incompatible. A model grid, a side with no grid object, a non-field
-item, an R8 item, or a non-center vertical stagger SHALL be reported as
-an explicit unsupported vertical-grid step at connect time.
+directly or silently dropping the connection. For a field or vector item
+with a single adaptation dimension, where both grids carry level
+coordinate values for that dimension, the vertical-grid step SHALL be a
+column regrid that also reverses the level order when the two
+orientations differ; for a vector it regrids every member with one set of
+weights. Two basic grids with different level counts SHALL be reported
+incompatible. A model grid, a side with no grid object, an item that is
+neither a field nor a vector (a bracket is a field by this step; a plain
+field bundle and a vector-bracket are not), an R8 item, or a non-center
+vertical stagger SHALL be reported as an explicit unsupported
+vertical-grid step at connect time.
 
 #### Scenario: A resolvable single-dimension mismatch between fixed-level grids builds a column regrid
 - **WHEN** a mismatched field export and import have fixed-level vertical
   grids that share exactly one physical dimension
 - **THEN** resolution builds a vertical column regrid step, and that step
   also covers any vertical orientation mismatch between the two items
+
+#### Scenario: A vector with a single-dimension mismatch builds a bundle column regrid
+- **WHEN** a mismatched vector export and import have fixed-level
+  vertical grids that share exactly one physical dimension
+- **THEN** resolution builds one vertical column regrid step on the
+  bundle; the output members are created at compute with the import's
+  level count, vertical grid, stagger and alignment
+
+#### Scenario: A plain field bundle with a vertical-grid mismatch is unsupported
+- **WHEN** a mismatched plain field-bundle or vector-bracket export and
+  import have fixed-level vertical grids that share one physical dimension
+- **THEN** resolution reports the vertical-grid step unsupported and
+  builds no step
 
 #### Scenario: A resolvable single-dimension mismatch still fails explicitly when no provider exists
 - **WHEN** a mismatched vertical-grid export and import identify exactly
@@ -74,9 +90,10 @@ an explicit unsupported vertical-grid step at connect time.
 ## ADDED Requirements
 
 ### Requirement: An orientation-only vertical mismatch is resolved by a level flip
-When a field export and import share a vertical grid but differ only in
-vertical orientation, resolution SHALL build a step that reverses the
-level order. A non-field item with that mismatch SHALL be reported as an
+When a field or vector export and import share a vertical grid but
+differ only in vertical orientation, resolution SHALL build a step that
+reverses the level order (of every member, for a vector). An item that is
+neither a field nor a vector with that mismatch SHALL be reported as an
 explicit unsupported orientation step.
 
 #### Scenario: Same grid, opposite orientation
@@ -84,3 +101,9 @@ explicit unsupported orientation step.
   import with upward orientation on the same vertical grid
 - **THEN** resolution builds one orientation step and the import sees the
   levels in reversed order
+
+#### Scenario: Same grid, opposite orientation, vector
+- **WHEN** a vector export with downward orientation connects to a vector
+  import with upward orientation on the same vertical grid
+- **THEN** resolution builds one orientation step on the bundle and every
+  member of the import sees the levels in reversed order

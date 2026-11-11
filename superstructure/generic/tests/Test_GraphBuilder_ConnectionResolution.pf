@@ -109,6 +109,7 @@ module Test_GraphBuilder_ConnectionResolution
         get_field_dictionary_config
    use gFTL2_StringVector, only: StringVector
    use esmf
+   use mapl_GeomUtilities_mod, only: GeomSetId
    use pfunit
    implicit none(type, external)
 
@@ -3000,14 +3001,12 @@ contains
    ! for why (pFUnit @before/@after type-matching limitation when this suite's
    ! own tests mix MpiTestMethod/ESMF_TestMethod).
 
-   ! Spec "A non-field, non-shape-convertible item class fails explicitly
-   ! rather than getting a fabricated payload" (a bundle link whose step has
-   ! no bundle Transform): a Vector pair between two fixed-levels grids
-   ! (a Field pair would get a column regrid) is reported at resolve time
-   ! (the vertical step has no bundle Transform), not built as a bundle link
-   ! that fails at compute. Nothing is wired and no payload is fabricated.
+   ! A Vector pair between two fixed-levels grids with different levels gets
+   ! a vertical column regrid step: the pair is wired through a bundle link
+   ! (not reported unsupported, not a direct edge), and the link is
+   ! materialized as an allocated VECTOR bundle with no members.
    @test(npes=[0])
-   subroutine test_materialize_extensions_vector_vgrid_mismatch_unsupported(this)
+   subroutine test_materialize_extensions_vector_vgrid_builds_bundle_link(this)
       class(MpiTestMethod), intent(inout) :: this
 
       type(ESMF_GridComp) :: parent_gc
@@ -3019,11 +3018,25 @@ contains
       type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
       type(MatchConnection) :: conn
       type(GraphResolutionEntryVector) :: unresolved, unsupported
-      type(GraphResolutionEntry), pointer :: entry
       type(VariableSpec) :: export_var_spec, import_var_spec
+      type(ComponentGraph), pointer :: parent_graph, src_graph, dst_graph
+      type(NodeId), pointer :: t_export_id, t_import_id
+      type(DependencyNetwork), pointer :: net
+      type(DependencyNetworkId) :: net_id
       type(FixedLevelsVerticalGrid) :: export_vgrid, import_vgrid
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
       integer :: status
       type(GraphBuilder) :: gb
+
+      ! Both items sit on one geom (this synthetic component has no default
+      ! geom), so only the vertical grid differs.
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+      call GeomSetId(geom, 331, rc=status)
+      @assertEqual(0, status)
 
       call make_outer_meta('comp_parent_vector_vgrid_mismatch', parent_gc, parent_meta, _RC)
       child_spec = ChildSpec()
@@ -3047,6 +3060,7 @@ contains
 
       export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T')
       export_var_spec%itemType = MAPL_STATEITEM_VECTOR
+      export_var_spec%geom = geom
       export_var_spec%vertical_grid = export_vgrid
       export_var_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
       src_spec => src_meta%get_component_spec()
@@ -3054,6 +3068,7 @@ contains
 
       import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T')
       import_var_spec%itemType = MAPL_STATEITEM_VECTOR
+      import_var_spec%geom = geom
       import_var_spec%vertical_grid = import_vgrid
       import_var_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
       dst_spec => dst_meta%get_component_spec()
@@ -3074,17 +3089,25 @@ contains
       call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
            unsupported_characteristics=unsupported, rc=status)
       call set_materialize_extensions(.false.)
-      ! Reported as unsupported (status stays 0, nothing raised).
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
-      @assertEqual(1, unsupported%size())
-      entry => unsupported%at(1, status)
-      @assertEqual('child_dst', entry%component_name)
-      @assertEqual('T', entry%short_name)
-      @assertEqual('VERTICAL_GRID', entry%reason)
+      @assertEqual(0, unsupported%size())
+
+      parent_graph => parent_meta%get_component_graph()
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      t_import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      @assert_that(associated(t_export_id), is(true()))
+      @assert_that(associated(t_import_id), is(true()))
+      net_id = parent_graph%get_forward_network_id()
+      net => parent_graph%get_network(net_id)
+      @assert_that(net%contains_dependency(t_export_id, t_import_id), is(false()))
+      @assert_that(net%has_successors(t_export_id), is(true()))
+      @assert_that(net%has_predecessors(t_import_id), is(true()))
 
       _UNUSED_DUMMY(this)
-   end subroutine test_materialize_extensions_vector_vgrid_mismatch_unsupported
+   end subroutine test_materialize_extensions_vector_vgrid_builds_bundle_link
 
    ! Spec "A non-field, non-shape-convertible item class fails explicitly
    ! rather than getting a fabricated payload" (a VECTORBRACKET pair): it has no time-interpolation
