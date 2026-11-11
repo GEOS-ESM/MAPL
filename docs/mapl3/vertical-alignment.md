@@ -302,13 +302,13 @@ import:
 3. Apply the weights. The weights map stored data to stored data, so no data
    is reversed separately.
 
-The graph-native `VerticalColumnRegridTransform` handles a Field only, in
-single precision, with linear interpolation. When the grids differ, both
-fields must be at level centers, the two grids must share a physical dimension
-(for example `pressure`), and level values are converted to the destination's
-units when the units differ. The same-grid copy only needs the two staggers to
-agree. The legacy `VerticalRegridTransform` also accepts conservative
-regridding.
+The graph-native `VerticalColumnRegridTransform` handles a Field or, member by
+member, a `VECTOR` bundle, in single precision, with linear interpolation.
+When the grids differ, both fields must be at level centers, the two grids
+must share a physical dimension (for example `pressure`), and level values
+are converted to the destination's units when the units differ. The same-grid
+copy only needs the two staggers to agree. The legacy `VerticalRegridTransform`
+also accepts conservative regridding.
 
 ## ExtData Integration
 
@@ -361,11 +361,17 @@ out-of-range levels in debug builds.
 - On the legacy path, `VerticalGridAspect` compares the two items and chooses
   `NullTransform` (same grid, same resolved direction) or
   `VerticalRegridTransform`.
-- On the graph path, a `VerticalOrientation` mismatch and a `VerticalGrid`
-  mismatch are detected, but their `build_transform` reports unsupported;
-  `VerticalColumnRegridTransform` and `VerticalFlipTransform` exist with unit
-  tests and are not yet built by any characteristic. See
-  `docs/graph/ARCHITECTURE.md`.
+- On the graph path, a `VerticalGrid` mismatch is resolved by
+  `VerticalGridCharacteristic%build_transform`, which builds a
+  `VerticalColumnRegridTransform`, and a `VerticalOrientation` mismatch by
+  `VerticalOrientationCharacteristic%build_transform`, which builds a
+  `VerticalFlipTransform`. Each handles a Field or, member by member, a
+  `VECTOR` bundle. When the grids also differ, the grid step covers the
+  orientation and no separate flip step is built. Some cases remain
+  unsupported: a grid without level values (for example a model grid), or a
+  side with no grid, as the regrid source; a
+  stagger other than `CENTER`; an R8 tip for the regrid; and item classes
+  other than `FIELD` and `VECTOR`. See `docs/graph/ARCHITECTURE.md`.
 
 ## Examples
 
@@ -488,8 +494,8 @@ Run the scenarios from a build directory with:
 ```bash
 ctest -R MAPL.generic.scenarios.shard
 ```
-(`vertical_alignment_regrid` and `vertical_alignment_with_grid` are not yet
-`graph_ready`; see `docs/graph/scenario-parity.md`.)
+(All three scenarios are `graph_ready`, so they also run under graph mode; see
+`docs/graph/scenario-parity.md`.)
 
 ## Related Files
 

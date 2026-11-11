@@ -93,8 +93,8 @@ which `is_valid()` returns `.false.`, distinct from any value returned by
 
 ### Requirement: Default-valued instance where required
 `DependencyNetworkId` SHALL additionally provide a distinguished default
-value (distinct from `INVALID_DependencyNetworkId`) for use as
-`ComponentGraph`'s default network id.
+valid value (`DEFAULT_DependencyNetworkId`), distinct from
+`INVALID_DependencyNetworkId`.
 
 #### Scenario: Default id is valid and distinct
 - **WHEN** the default `DependencyNetworkId` instance is compared against
