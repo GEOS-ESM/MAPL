@@ -1593,7 +1593,26 @@ ready means today" in `scenario-parity.md`). May be split into
   sonnet review): bundle branch of both vertical Transforms, level-aware
   member creation in `BundleMemberSupport`, `FieldBundleSet.F90` passes
   `vert_alignment` to the bundle-level Info (owner approved 2026-11-10),
-  flips `vector_1` (`chain: [geometry, vertical]`). Not started.
+  flips `vector_1` (`chain: [geometry, vertical]`).
+  C1-vertical-b2 done (087add3b5, auto-landed). Both vertical
+  characteristics build the Transforms for a VECTOR too (FIELD and VECTOR
+  only; BRACKET becomes a Field before the vertical step, plain
+  FIELDBUNDLE and VECTORBRACKET stay unsupported); the Transforms have a
+  bundle branch with weights built once per bundle;
+  `ensure_vertical_output_members` (BundleMemberSupport) recreates an
+  output member whose level count, vgrid, stagger or alignment differs
+  from the output bundle's (a bundle can arrive with members);
+  `FieldBundleSet` records `vert_alignment` on the bundle (the one
+  infrastructure edit). `vector_1` ready (`chain: [geometry, vertical]`,
+  no value check: the horizontal rotation makes the members non-constant);
+  new `vector_vertical_regrid` (values) and `vector_orientation_flip`
+  (constant values: zeroing the flip output fails it, removing the
+  reversal does not; member order is pinned by `test_flip_bundle`). The
+  scenario table crashed NAG at 47 rows (per-row array growth); the
+  helper now counts, then fills. No new legacy/graph difference row. NAG
+  and gfortran ESSENTIAL 69/69; two sonnet reviews accepted. Found: the
+  four scenario shards run 386-387 tests each against the ~407 where MPICH
+  aborted (owner question scenario-shards). C1-vertical-b is complete.
   C1-geom-c-a done (c1dd7cbed, owner commit):
   `HorizontalBundleRegridTransform` regrids a VECTOR (one rotated
   `Regridder%regrid(fb_in, fb_out)` call, exporter basis kept) or a
@@ -2461,7 +2480,7 @@ it may author D1/A4/B5 with sonnet review.
 | C1-geom-c-b | sonnet | sonnet | landed d9238c088; bundle materialization, member creation, units/typekind bundle branch, new vector_regrid scenario, bracket test gridcomp, extension-reuse delta spec |
 | C1-vertical-direction | sonnet | sonnet | fixed_levels direction depends on physical_dimension (height/altitude increasing = UP), legacy and graph (owner exception 2026-11-09); landed ffc978344 |
 | C1-vertical-a | opus | sonnet | after C1-geom-a; numerics duplication, orientation flip; worktree |
-| C1-vertical-b | opus | sonnet | after C1-vertical-a and B4; includes bundles (VECTOR, BRACKET), flips vector_1; fix basic-grid id mismatch (parity row) |
+| C1-vertical-b | opus | sonnet | after C1-vertical-a and B4; includes bundles (VECTOR, BRACKET), flips vector_1; fix basic-grid id mismatch (parity row); landed as b1 (2da1c1801) and b2 (087add3b5) |
 | C4-ForwardNetwork | opus | sonnet | openspec hierarchy-wide-forward-network; test-first (gpt-sol tests); owner commit; landed |
 | C4-b | opus | sonnet | follow-up: population, geometry merge, carve-out; needs its own openspec change |
 | C2-geom-push | sonnet | opus | |
