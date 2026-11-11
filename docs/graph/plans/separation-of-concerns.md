@@ -1899,6 +1899,21 @@ affected scenarios to ready (unless masked: M3).
     a DEFERRED characteristic at freeze). `statistics_real` therefore stays
     pending; follow-up task `C2-statistics-real` below. NAG and gfortran
     ESSENTIAL 69/69; sonnet review accepted, comment nits fixed.
+- `C1-vertical-basic-orientation` (owner, 2026-11-11, option c; after the
+  develop merge): a Basic vertical grid carries no direction, so an
+  orientation difference where either grid is Basic produces no step, and a
+  connect-time warning (via `StateItemCharacteristic%match_warning`) when
+  the Basic grid is connected to an inconsistent partner (for example
+  opposite explicit alignment). Owner (2026-11-10): "BasicGrid exists
+  because there are NetCDF files that lack metadata beyond number of levels
+  ... There is no other purpose for the BasicGrid and its exception to rules
+  (including orientation) so restricting it to very narrow scenarios is
+  reasonable." and "Basic should probably still at least issue a warning if
+  it is connected to inconsistent other vert grids ... Lower priority".
+  Legacy flips instead (`get_resolved_alignment` gives a Basic grid DOWN):
+  a parity row, tests, and changes to `VerticalOrientationCharacteristic`
+  and the covered-orientation path of `VerticalColumnRegridTransform`.
+  Sonnet author, sonnet review. **Status:** not started
 - `C1-vertical-r8` (owner, 2026-11-10; after the develop merge): support R8
   in the graph vertical regrid. Owner: "The intent is to eventually support
   R8. It should be an almost trivial near duplication of the R4 logic. It is
@@ -2431,6 +2446,7 @@ it may author D1/A4/B5 with sonnet review.
 | C2-service-exports | opus | opus | AFTER the develop merge (owner 2026-11-10); SERVICE members from subscribers; own preflight |
 | C2-runphase-args | - | - | dropped (owner 2026-11-10); see C2-runphase-dormant |
 | C2-runphase-dormant | sonnet | sonnet | landed 323b53caf; run-phase method node no longer built at connect |
+| C1-vertical-basic-orientation | sonnet | sonnet | after the develop merge (owner 2026-11-11); Basic grid: no orientation step, inconsistent-alignment warning |
 | C1-vertical-r8 | sonnet | sonnet | after the develop merge (owner 2026-11-10); R8 vertical regrid as a near duplicate of the R4 path |
 | C2-statistics-real | sonnet | sonnet | trace A/QV_MIN wrong value in GRAPH mode; flip statistics_real |
 | D1 | sonnet (haiku?) | sonnet if haiku | `public ::` rule |
