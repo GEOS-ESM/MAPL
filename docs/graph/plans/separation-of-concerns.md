@@ -1899,6 +1899,15 @@ affected scenarios to ready (unless masked: M3).
     a DEFERRED characteristic at freeze). `statistics_real` therefore stays
     pending; follow-up task `C2-statistics-real` below. NAG and gfortran
     ESSENTIAL 69/69; sonnet review accepted, comment nits fixed.
+- `C1-vertical-r8` (owner, 2026-11-10; after the develop merge): support R8
+  in the graph vertical regrid. Owner: "The intent is to eventually support
+  R8. It should be an almost trivial near duplication of the R4 logic. It is
+  not necessary to support it immediately though. Can wait until merge with
+  develop." Until then `C1-vertical-b1` reports a vertical step on an R8
+  tip unsupported at connect (parity row). Task: duplicate the R4 path of
+  `VerticalColumnRegridTransform` for R8, drop the unsupported check and
+  the message, flip any R8 test. Sonnet author, sonnet review. **Status:**
+  not started.
 - `C2-statistics-real` (new): trace why `history/stat/<user>::export::A/QV_MIN`
   has the wrong value in GRAPH mode in `statistics_real` and flip the
   scenario; note `statistics` (ready) passes. Sonnet author, preflight-style
@@ -2422,6 +2431,7 @@ it may author D1/A4/B5 with sonnet review.
 | C2-service-exports | opus | opus | AFTER the develop merge (owner 2026-11-10); SERVICE members from subscribers; own preflight |
 | C2-runphase-args | - | - | dropped (owner 2026-11-10); see C2-runphase-dormant |
 | C2-runphase-dormant | sonnet | sonnet | landed 323b53caf; run-phase method node no longer built at connect |
+| C1-vertical-r8 | sonnet | sonnet | after the develop merge (owner 2026-11-10); R8 vertical regrid as a near duplicate of the R4 path |
 | C2-statistics-real | sonnet | sonnet | trace A/QV_MIN wrong value in GRAPH mode; flip statistics_real |
 | D1 | sonnet (haiku?) | sonnet if haiku | `public ::` rule |
 | D2 | sonnet | opus | lifecycle-phase ordering |
