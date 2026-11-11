@@ -27,8 +27,11 @@ disagree about characteristics, the descriptor or status resolution,
 that `design.md` wins.
 
 Facts below were verified against the tree on 2026-10-21 unless marked
-**[ASSUMPTION]**; updated 2026-11-11 through `087add3b5` (§1.1-§1.2,
-§2.2-§2.4, §2.6, §2.7, §3, §4).
+**[ASSUMPTION]**; updated 2026-11-11 through `fed45b04d` (§1.1-§1.2,
+§2.2-§2.4, §2.6, §2.7, §3, §4). Re-verified on 2026-11-11 against the
+source: the vertical R4/R8 statements in §1.1 and §3, the
+`GraphBuilder_ConnectionResolution_smod.F90` line cites in §2.2, §2.6 and
+§2.7, and the §4 ESSENTIAL count.
 
 ## 1. Module map (`superstructure/generic/`)
 
@@ -60,14 +63,13 @@ the bundle-only regrid, and `Test_UnitsConverterTransform.pf` and
 | `GraphStateItem.F90` | Payload of a `StateItemNode`: Field/FieldBundle/State handle (at most one allocated) and the member maps. The variant tag is read and written only through `MAPL_FieldGet/Set(state_item_variant=)`, `MAPL_FieldBundleGet/Set(state_item_variant=)` and `MAPL_StateGet/Set(state_item_variant=)`; `MAPL_StateItem_Flag` lives in `enums/StateItemFlag.F90` and its Info key in `infrastructure/field/StateItemVariantInfo.F90` and `utils/MAPL_ESMF_InfoKeys.F90`. |
 | `StateItemDescriptor.F90` | Description of a state item, owned by `StateItemNode` (`get_descriptor()` returns a pointer): the characteristics map (`has/get/set_characteristic`, `get_characteristics`) plus the `declared_*` values, and the (item type, kind) mirrored-export allowlist. Independent of any ESMF handle. |
 | `DependencyNetwork.F90` | Acyclic adjacency-list storage |
-| `ComponentGraph.F90`, `ComponentGraph_DemandDrivenUpdate.F90` | Per-`OuterComponent` owner of resource index, import/export port tables, child-port bindings, its own write-back networks, lifecycle state; demand-driven `update(node_id, rc)` over the forward network. It has no network of its own for forward edges: `get_forward_network_id` returns the hierarchy's. Node/network storage is in `HierarchyGraph`, reached via a stored `HierarchyId`. |
+| `ComponentGraph.F90`, `ComponentGraph_DemandDrivenUpdate.F90` | Per-`OuterComponent` owner of resource index, import/export port tables, its own write-back networks, lifecycle state; demand-driven `update(node_id, rc)` over the forward network. It has no network of its own for forward edges: `get_forward_network_id` returns the hierarchy's. Node/network storage is in `HierarchyGraph`, reached via a stored `HierarchyId`. |
 | `NodeRevision.F90`, `NodeLabel.F90` | Revision stamps; visualization labels |
 | `PortSpec.F90`, `PortBindingKey.F90`, `PortBindingTable.F90`, `ArgumentSpec.F90`, `AccessSpec.F90` | Transform port declarations and external port-binding table; method argument specs |
 | `ExtensionResolution.F90` | Mismatch detection (`find_mismatched_characteristics`), extension-chain build (`find_or_build_extension_chain`), reuse lookup |
 | `ExtensionMaterialization.F90`, `CompositeStateMaterialization.F90`, `GeomProxyField.F90` | Real ESMF object creation for extension nodes, composite members, geometry nodes |
 | `MethodInvocation*.F90`, `GridCompMethodInvocation.F90`, `StateMethodInvocation.F90`, `GridCompDriverPhaseInvoker.F90` | Method invocation layer |
 | `callback/*` | Callback interface/method/state-binding data model and registry |
-| `RouteHandleKey.F90` | Semantic key for route-handle reuse |
 | `GraphExport.F90` | Graph-neutral DOT/JSON topology export |
 | `GraphOwnsUserStates.F90` | Test-only switch `set_graph_owns_user_states` (off by default); `graph_populates_user_states()` is the switch AND `GRAPH` mode, and every gate asks that, never the bare switch |
 | `GraphMode.F90` | `registry` / `graph` / `both` selector (`mapl_GraphMode_mod`) |
@@ -208,7 +210,7 @@ factories (so far units, typekind, ungridded dims, geometry, vertical grid, vert
 | `TypeKind` | `TYPE_KIND_…` | Real: `TypeKindConverterTransform`, for a Field or, member by member, a VECTOR bundle (`TypeKindConverterTransform.F90:101`; only VECTOR reaches it: plain FIELDBUNDLE links are refused at materialization) |
 | `ItemShape` | `ITEM_SHAPE_…` | Every shape. Real for `BRACKET`→`FIELD` only (`BracketTimeInterpolationTransform`); `VECTORBRACKET`→`VECTOR` unsupported; pairs the shape matrix rejects (including `VECTORBRACKET`→`VECTORBRACKET`) are incompatible. Owns `get_extension_order` |
 | `Geometry` | `GEOMETRY_…` | Real for a pair that both hold an `ESMF_Geom`, with the param from `select_regridder_param` (the side that declares one, else the default). An id-only pair (component-level geometry wiring) is unsupported; both sides declaring a regridder param is incompatible, checked first (`GeometryCharacteristic.F90:190-224`, shared by both item paths). Overrides `build_transform_for_item` to dispatch on the tip's `ITEM_SHAPE` item class: FIELD gets `HorizontalRegridTransform`; VECTOR and BRACKET get `HorizontalBundleRegridTransform`; FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE and WILDCARD are unsupported. A tip with no `ITEM_SHAPE` entry (component-level wiring) is not restricted (`:230-263`). `get_signature` appends the regridder param's `to_string()`, so imports asking for different methods do not share a chain (`:267-303`) |
-| `VerticalGrid` | `VERTICAL_GRID_…` | Real: `VerticalColumnRegridTransform`, for a Field or, member by member, a VECTOR bundle (`vcoord_build_transform`, `vcoord_build_transform_for_item`). `needs_extension_for` follows the legacy `VerticalGridAspect%typesafe_matches` rule when both sides hold a grid (no mismatch iff the same id or `export_grid%matches(import_grid)`; a `BasicVerticalGrid` matches any grid with the same level count); two real referenced NodeIds are compared as ids first, and a side holding no grid falls back to the grid id token, then the dimension set. `build_transform` (one shared dimension): both grids hold level values for it (`VerticalGrid%has_column_coordinate`, true only for `FixedLevelsVerticalGrid` and its own dimension, `FixedLevelsVerticalGrid.F90:223-230`) gives the regrid; two Basic grids of different level counts are incompatible; a model grid, or a side with no grid, is unsupported (the graph cannot bind a model grid's PLE/ZLE field as a Transform input). A Basic grid names no physical dimension, so against a fixed or model grid of another level count there is no common dimension and `build_transform` fails (status 1, the value of `BUILD_TRANSFORM_UNSUPPORTED`), which `ExtensionResolution` reports unsupported. `build_transform_for_item` makes an item class other than FIELD and VECTOR (a BRACKET becomes a Field before the vertical step; FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE and WILDCARD are unsupported), a non-`CENTER` stagger and an R8 tip unsupported at connect, when the pair holds both grids; the stagger, R8 and holds-both guards apply to a VECTOR as to a Field; a tip with no `ITEM_SHAPE` entry is not restricted. `covered_kinds` adds `VERTICAL_ORIENTATION`. Other overlaps `_FAIL` with distinct messages (no overlap, or more than one) |
+| `VerticalGrid` | `VERTICAL_GRID_…` | Real: `VerticalColumnRegridTransform`, for a Field or, member by member, a VECTOR bundle (`vcoord_build_transform`, `vcoord_build_transform_for_item`). `needs_extension_for` follows the legacy `VerticalGridAspect%typesafe_matches` rule when both sides hold a grid (no mismatch iff the same id or `export_grid%matches(import_grid)`; a `BasicVerticalGrid` matches any grid with the same level count); two real referenced NodeIds are compared as ids first, and a side holding no grid falls back to the grid id token, then the dimension set. `build_transform` (one shared dimension): both grids hold level values for it (`VerticalGrid%has_column_coordinate`, true only for `FixedLevelsVerticalGrid` and its own dimension, `FixedLevelsVerticalGrid.F90:223-230`) gives the regrid; two Basic grids of different level counts are incompatible; a model grid, or a side with no grid, is unsupported (the graph cannot bind a model grid's PLE/ZLE field as a Transform input). A Basic grid names no physical dimension, so against a fixed or model grid of another level count there is no common dimension and `build_transform` fails (status 1, the value of `BUILD_TRANSFORM_UNSUPPORTED`), which `ExtensionResolution` reports unsupported. `build_transform_for_item` makes an item class other than FIELD and VECTOR (a BRACKET becomes a Field before the vertical step; FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE and WILDCARD are unsupported), and a non-`CENTER` stagger unsupported at connect, when the pair holds both grids; the stagger and holds-both guards apply to a VECTOR as to a Field; a tip with no `ITEM_SHAPE` entry is not restricted. `covered_kinds` adds `VERTICAL_ORIENTATION`. Other overlaps `_FAIL` with distinct messages (no overlap, or more than one) |
 | `VerticalStagger` | `VERTICAL_STAGGER_…` | Unsupported — mismatch is detected, repair is a stub: no Transform moves data between level centers and edges (`stagger_build_transform`). A stagger-only mismatch stays unsupported, and a vertical-grid step needs `CENTER` on the tip |
 | `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Real: `VerticalFlipTransform` for a Field or, member by member, a VECTOR bundle (`orientation_build_transform`); `orientation_build_transform_for_item` makes an item class other than FIELD and VECTOR unsupported, and a tip with no `ITEM_SHAPE` entry is not restricted. When the vertical grids also mismatch, the vertical-grid step covers the orientation and no flip step is built. A grid with no direction (a single level) leaves the entry `SPECIFIED` holding `UNSPECIFIED`; `write_info` writes nothing for it, so the Field keeps `with_grid` (`orientation_write_info`). An `INVALID` direction still fails `write_info`. `UNSPECIFIED` against an explicit up or down still compares unequal. `FixedLevelsVerticalGrid%derive_direction` sets a fixed-levels grid's direction from its levels and `physical_dimension` (exact, case-sensitive): `height` and `altitude` increasing = UP, decreasing = DOWN; `pressure`, `depth`, `layer`, any other name or an unset dimension: increasing = DOWN, decreasing = UP; one level is `UNSPECIFIED`; non-monotonic levels fail (`FixedLevelsVerticalGrid.F90:81-111`). `BasicVerticalGrid` and `MirrorVerticalGrid` are DOWN (the default in `VerticalGrid.F90:17`); `ModelVerticalGrid` is DOWN unless its YAML `direction:` is set (`ModelVerticalGrid.F90:47,330,445-449`). So by default a fixed height grid (UP) and a model height grid (DOWN) differ in direction |
 | `HorizontalDimsSpec` | `HORIZONTAL_DIMS_SPEC_…` | Incompatible — GEOM vs NONE is detected in both directions and can never connect |
@@ -306,10 +308,10 @@ links they fill are memberless bundles made by `materialize_extension_chain`
 JSON of `make_info`, `EsmfRegridder.F90:292-306`) is what the Geometry
 signature, and so the chain key, carries.
 
-`VerticalColumnRegridTransform` (Field or VECTOR bundle, R4 only, linear only; copy or
+`VerticalColumnRegridTransform` (Field or VECTOR bundle, R4 and R8, linear only; copy or
 flip when the two grids match, otherwise weights between the grids'
 column coordinates at level centers, rebuilt when a grid, stagger or
-alignment changes) is built by `VerticalGridCharacteristic%build_transform`,
+alignment or typekind changes; the transform keeps a single-precision and a double-precision matrix and only the one for the typekind it was built for is current) is built by `VerticalGridCharacteristic%build_transform`,
 and `VerticalFlipTransform` (Field or VECTOR bundle, R4 and R8; index reversal for an
 orientation-only mismatch) by `VerticalOrientationCharacteristic%build_transform`
 (table above). Both have a bundle branch, taken when the input port is bound
@@ -323,11 +325,15 @@ Each side's level values are put in that field's own storage
 order, so the weights map stored data to stored data. Import levels outside
 the export's range take the end value with one logged warning per weight
 build (`build_weights`, `VerticalColumnRegridTransform.F90`). An R8 field
-fails at compute (`check_r4`, message shared through
-`vertical_regrid_r8_message`), so `build_transform_for_item` reports an R8
-tip unsupported at connect and the pair stays unwired. A vertical step is
+gets R8 weights (`compute_linear_map` is a generic in
+`infrastructure/vertical/vertical/VerticalLinearMap.F90` with an R4 and an
+R8 overload; the level values are widened to R8). The Transform needs both
+fields to have the same typekind and fails a mixed R4/R8 pair at compute,
+which is reachable only when the Transform is driven directly: through the
+graph the vertical step runs before the typekind step and its output link
+keeps the export typekind. A vertical step is
 not built for a model grid (no level values the graph can read), a
-non-center stagger, an R8 tip, or an item class other than FIELD and VECTOR
+non-center stagger, or an item class other than FIELD and VECTOR
 (a BRACKET reaches the vertical step as a Field; §3). A
 geometry mismatch on a FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE or
 WILDCARD item is likewise unsupported.
@@ -441,10 +447,10 @@ Graph code also must not call into the legacy `specs/*Aspect`,
   checks first and records a pair-level `connection_conflicts` entry
   instead of failing the pass: the second producer is skipped and the first
   stays (`second_producer`, called at
-  `GraphBuilder_ConnectionResolution_smod.F90:413,533`; the inout borrower
-  case at `:1459-1464`). Only a second producer resolved in the same
+  `GraphBuilder_ConnectionResolution_smod.F90:414,536`; the inout borrower
+  case at `:1462-1468`). Only a second producer resolved in the same
   connect pass is seen: an import settled by an earlier pass is skipped
-  silently (`:255-274`). Wildcard fan-in, expression, callback-collection
+  silently (`:263-275`). Wildcard fan-in, expression, callback-collection
   and geometry edges have no pre-check and hit the `add_dependency`
   assertion. `Test_ForwardNetworkErrors.pf`
   and `Test_ForwardNetwork.pf` cover the graph side.
@@ -504,7 +510,7 @@ propagation: for each `ReexportConnection` it adds an export port named by
 the re-export destination, bound to the source's existing node (an own
 INTERNAL-intent node by resource index, or a descendant export's node by
 port name). A repeat of the same name and node is a no-op; a different node
-fails (`reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:957-1008`).
+fails (`reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:960-1011`).
 The internal gets no port or mirror of its own.
 
 With the user-state switch off (default) legacy fills the real user states and
@@ -624,7 +630,7 @@ the switch (the `legacy_only` test in `check`).
 `scenario_table()` in `Test_Scenarios.pf`). Either way the switch is
 on only in `GRAPH` mode (`this%graph_owns_states` in `Scenario%setup`). Scenarios
 that do not yet pass with the switch on are recorded in the tasks.md 3.41a,
-3.41b and 3.44 Status; `scenario-parity.md` lists the measured rows.
+3.41b and 3.44 Status; `scenario-parity.md` lists the measured rows. `statistics_real` keeps the flag off because, with the switch on, `graph_freeze:characteristics_resolved` fails: GEOMETRY is still DEFERRED at freeze on 33 `stat` items (`mirror_geom` internals and the VECTOR stats' exports), not because of the slash-named export alias (`scenario-parity.md`, `statistics_real` row).
 
 `run_propagate_hook` must follow `run_activate_hook`: an import resolved
 by a connection declared at this level must be reflected before this
@@ -644,7 +650,7 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
 | Item class | Graph-mode path |
 |---|---|
 | FIELD, FIELDBUNDLE, STATE | Ordinary resolution + characteristic extension chain |
-| VECTOR, BRACKET (geometry mismatch) | The extension chain holds a `HorizontalBundleRegridTransform` link of the item's class (BRACKET→FIELD adds time interpolation after it). `materialize_extension_chain` completes a VECTOR or BRACKET link as an `ALLOCATED` memberless `FieldBundle` of that type; the Transforms create the members at compute. A link declared any other non-FIELD class is refused with `unsupported_item_class:<class>` (`GraphBuilder_ConnectionResolution_smod.F90:1732-1775`). `check_materializable` (`:1697-1724`) admits FIELD, VECTOR and BRACKET on both sides (a BRACKET import side is admitted for a chain input, where the export is passed as its own import); SERVICE and every other class give `unsupported_item_class:<class>`. A VECTOR or BRACKET export the graph consumes (exact match, or the input of a chain) is not aliased from legacy when none is there: the graph's advertise-created bundle is completed in place with its members by `try_materialize_field_extension` (`with_members`, `:1671-1690`); a legacy bundle in the owner's user export state is aliased instead when the switch is off (§2.7). A VECTOR with a vertical-grid or orientation mismatch gets a vertical Transform link of the item's class (`VerticalColumnRegridTransform` or `VerticalFlipTransform`, bundle branch), a memberless bundle filled at compute like the horizontal link; a BRACKET's vertical link is a Field link, because the time interpolation makes it a Field first. A chain link takes its declared class from its `ITEM_SHAPE` entry (`StateItemDescriptor%take_declared_item_type_from_shape`; an EXPRESSION shape gives FIELD) |
+| VECTOR, BRACKET (geometry mismatch) | The extension chain holds a `HorizontalBundleRegridTransform` link of the item's class (BRACKET→FIELD adds time interpolation after it). `materialize_extension_chain` completes a VECTOR or BRACKET link as an `ALLOCATED` memberless `FieldBundle` of that type; the Transforms create the members at compute. A link declared any other non-FIELD class is refused with `unsupported_item_class:<class>` (`GraphBuilder_ConnectionResolution_smod.F90:1790-1833`). `check_materializable` (`:1755-1782`) admits FIELD, VECTOR and BRACKET on both sides (a BRACKET import side is admitted for a chain input, where the export is passed as its own import); SERVICE and every other class give `unsupported_item_class:<class>`. A VECTOR or BRACKET export the graph consumes (exact match, or the input of a chain) is not aliased from legacy when none is there: the graph's advertise-created bundle is completed in place with its members by `try_materialize_field_extension` (`with_members`, `:1729-1748`); a legacy bundle in the owner's user export state is aliased instead when the switch is off (§2.7). A VECTOR with a vertical-grid or orientation mismatch gets a vertical Transform link of the item's class (`VerticalColumnRegridTransform` or `VerticalFlipTransform`, bundle branch), a memberless bundle filled at compute like the horizontal link; a BRACKET's vertical link is a Field link, because the time interpolation makes it a Field first. A chain link takes its declared class from its `ITEM_SHAPE` entry (`StateItemDescriptor%take_declared_item_type_from_shape`; an EXPRESSION shape gives FIELD) |
 | BRACKET → FIELD | `ItemShapeCharacteristic` + `BracketTimeInterpolationTransform` |
 | VECTORBRACKET | Not handled: legacy only (matrix: VECTOR unsupported, others incompatible). `to_itemtype` in the compiled parser does not parse `'vector_bracket'`. |
 | EXPRESSION | Placeholder export; names check in `graphbuilder_run_expression_hook`; one `ExpressionTransform` (N:1) evaluation per consumer, built in `resolve_one_pair` |
@@ -658,20 +664,33 @@ With the user-state switch off, resolution aliases the export's real payload
 from the legacy user export state instead of creating one. With the switch
 on (`graph_populates_user_states()`) it returns `found = .false.` at once,
 because the state holds the node's own created Field
-(`GraphBuilder_ConnectionResolution_smod.F90:1499-1601`).
+(`GraphBuilder_ConnectionResolution_smod.F90:1501-1610`).
 
 - It takes the export **port name** (`effective_source_name`, the key
   `find_export_node_id` uses), not the node's short name. A qualified source
   component (`a/b`) is resolved with `resolve_qualified_component`.
 - `find_alias_owner` walks the export-port tables down from the source
-  component to the component whose user export state holds the item, which is
-  read there under the leaf name. A name without `/` is the component's own
-  export or re-export. A `<child>/<leaf>` port is either passed up unchanged
-  from a deeper level (a child carries the same port name: recurse) or is
-  that child's own export (the child is named `<child>` and has a port
-  `<leaf>`). Port names are qualified once, at the immediate parent, so a
-  split at the last `/` is wrong for a port propagated through two or more
-  ancestors (`:1592-1625`). No owner found gives `found = .false.`.
+  component to the component whose user export state holds the item, and
+  returns that component plus a `sub_path` (the nested States inside its
+  export state down to the item; empty at the top level). The item is read
+  there under the leaf name. A name without `/` is the component's own
+  export or re-export (`sub_path` empty). A `<child>/<leaf>` port is either
+  passed up unchanged from a deeper level (a child carries the same port
+  name: recurse) or is that child's own export (the child is named `<child>`
+  and has a port `<leaf>`). Otherwise a name with a `/` that the component
+  itself exports (for example a stat gridcomp's `A/QV_MIN`) is its own
+  export: the component is returned with `sub_path` equal to everything
+  before the last `/`, because legacy `FieldClassAspect%add_to_state` puts
+  that Field under the leaf in the nested State `<sub_path>`. Port names are
+  qualified once, at the immediate parent, so a split at the last `/` alone
+  is wrong for a port propagated through two or more ancestors
+  (`:1622-1663`). No owner found gives `found = .false.`.
+- `try_alias_export_field` reads the leaf from that sub-state through the
+  read-only `find_substate` (`:1668-1700`): it walks the `sub_path` levels
+  without creating any, and a level that is absent, or not a State, gives
+  `found = .false.` (nothing to alias yet, as for a missing item). Only
+  the owner's own export state is searched; the alias is made under the leaf
+  name.
 - By item kind in the owner's state: a Field is aliased with
   `MAPL_NamedAlias` and set as the node payload (a created placeholder is
   destroyed unless it shares its host with the alias); a `FieldBundle`
@@ -679,16 +698,16 @@ because the state holds the node's own created Field
   that is only created is replaced and destroyed: the placeholder Field of
   a node declared FIELD, or an advertise-created VECTOR or BRACKET bundle
   with its members (`MAPL_FieldBundleDestroy`). A legacy Field aliased over
-  a created bundle destroys it the same way (`:1565-1573`). A bundle already completed
+  a created bundle destroys it the same way (`:1574-1581`). A bundle already completed
   by a connection is not destroyed when later replaced by an alias. Any
   other kind (a nested State), or no item, gives `found = .false.` without
   failure and the caller falls through to its existing path
-  (`:1544-1600`).
+  (`:1548-1558`, `:1584-1600`).
 - An expression input is not aliased unless its declared item type is FIELD:
   `ExpressionTransform` reads every input with `get_field`
   (`ExpressionTransform.F90:157`), so `build_expression_evaluation` reports
   `unsupported_item_class:<class>` at resolve time, before the alias call
-  (`GraphBuilder_ConnectionResolution_smod.F90:2047-2062`).
+  (`GraphBuilder_ConnectionResolution_smod.F90:2119-2132`).
 - The Wildcard and callback paths resolve a qualified source component
   (`MID/SRC`) with `resolve_qualified_component`, like the other paths; the
   namespace entry names are relative to that source component.
@@ -719,8 +738,8 @@ because the state holds the node's own created Field
   needs none, because it is a Field before the vertical step.
 - A vertical regrid is built only between two grids that both hold level
   values for their one shared dimension (fixed-levels grids), at level
-  centers, for R4 and linear interpolation. A model grid on either side (its
-  levels are a PLE/ZLE field), a non-`CENTER` stagger, and an R8 tip are
+  centers, for R4 and R8 and linear interpolation. A model grid on either side (its
+  levels are a PLE/ZLE field) and a non-`CENTER` stagger are
   reported unsupported at connect (`vertical_regridding_2` and
   `vertical_regridding_3` stay `graph_ready = .false.`), and so is a
   stagger-only mismatch. A Basic grid against a fixed or model grid of another
@@ -762,7 +781,7 @@ because the state holds the node's own created Field
   not found past one; payload readers must tolerate EMPTY and GRIDSET
   Fields.
 - Some mismatches are detected but not repaired (see §1.1): VerticalGrid
-  for a model grid, a non-`CENTER` stagger, an R8 tip or an item class other
+  for a model grid, a non-`CENTER` stagger or an item class other
   than FIELD and VECTOR, VerticalStagger, VerticalOrientation for an item
   class other than FIELD and VECTOR, a QuantityType
   basis-only mismatch, VECTORBRACKET→VECTOR, and Geometry for an id-only
@@ -829,8 +848,9 @@ Primary records are under `openspec/changes/archive/`; read the relevant
 - **Propagation is one recursive mirror step per level** (D3). An
   earlier "search the subtree" design was rejected: it needed a
   connection to trigger and materialized nothing at intermediate levels.
-- **Export visibility is a query, not a push** (D4,
-  `query_component_exports`).
+- **Export visibility is a walk, not a push** (D4): a hierarchy-wide
+  consumer reads the exports by walking the component tree
+  (`build_qualified_export_namespace`), with no list the producer pushes up.
 - **Qualified-path resolution stays a tree walk** (D5).
 - **Composite-member non-addressability and connection direction are
   explicit, test-covered requirements** (D6).
