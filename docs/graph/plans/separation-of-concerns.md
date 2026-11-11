@@ -1885,7 +1885,24 @@ affected scenarios to ready (unless masked: M3).
   builder, `Test_GraphBuilder_RunPhaseNode` and the OuterMetaComponent
   accessors as dormant code; flip `statistics_real` to ready if it passes.
   Brief `~/.opencode/plan/briefs/C2-runphase-dormant.md`.
-  - **Status:** in progress
+  - **Status:** done (323b53caf, auto-landed). The call in
+    `graphbuilder_run_connect_hook` is gone; the builder, its binding, the
+    OuterMetaComponent accessors and `Test_GraphBuilder_RunPhaseNode` stay
+    as dormant code with corrected comments. New test
+    `test_run_connect_hook_does_not_build_node` (seeded). The root graph
+    has one node fewer, so the `graph: nodes:` expectation of 10 scenarios
+    (`regrid`, `regrid_r8` and 8 graph-scenarios) dropped by 1. Red before:
+    `statistics_real` 22 failures (`argument name already declared`).
+    After: 1 failure, `history/stat/<user>::export::A/QV_MIN` value in
+    GRAPH mode (registry and both pass; not traced); plain `.true.` fails
+    it and `graph_owns_user_states` is worse (a history connection waits on
+    a DEFERRED characteristic at freeze). `statistics_real` therefore stays
+    pending; follow-up task `C2-statistics-real` below. NAG and gfortran
+    ESSENTIAL 69/69; sonnet review accepted, comment nits fixed.
+- `C2-statistics-real` (new): trace why `history/stat/<user>::export::A/QV_MIN`
+  has the wrong value in GRAPH mode in `statistics_real` and flip the
+  scenario; note `statistics` (ready) passes. Sonnet author, preflight-style
+  trace first. Not started.
 - Note for whichever task takes up `statistics`/`statistics_real` (found
   by B3-InternalNoMirror; unchecked): the statistics gridcomp has no geom,
   so its internals (`sum_*`, `counts_*`, ...) get DEFERRED geometry and
@@ -2404,7 +2421,8 @@ it may author D1/A4/B5 with sonnet review.
 | C2-bundle-exports | sonnet | opus | landed 2594dc1fb; graph-created VECTOR (all intents) and BRACKET (export) bundles (SERVICE split out) |
 | C2-service-exports | opus | opus | AFTER the develop merge (owner 2026-11-10); SERVICE members from subscribers; own preflight |
 | C2-runphase-args | - | - | dropped (owner 2026-11-10); see C2-runphase-dormant |
-| C2-runphase-dormant | sonnet | sonnet | stop building the run-phase method node at connect; statistics_real ready |
+| C2-runphase-dormant | sonnet | sonnet | landed 323b53caf; run-phase method node no longer built at connect |
+| C2-statistics-real | sonnet | sonnet | trace A/QV_MIN wrong value in GRAPH mode; flip statistics_real |
 | D1 | sonnet (haiku?) | sonnet if haiku | `public ::` rule |
 | D2 | sonnet | opus | lifecycle-phase ordering |
 | D3-cleanup | sonnet | - | items are small and independent |
