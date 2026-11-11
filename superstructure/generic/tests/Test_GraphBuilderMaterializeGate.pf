@@ -3482,6 +3482,213 @@ contains
       _UNUSED_DUMMY(legacy_x)
    end subroutine test_alias_finds_renamed_reexport_in_reexporter_state
 
+   ! P holds SRC and DST; SRC has an own export named by port_name (it has
+   ! a slash, for example A/QV) and DST imports it as I. Switch OFF: legacy
+   ! puts the Field named for the part after the last slash in the nested
+   ! sub-states named by the part before it, in the user export state of
+   ! SRC, as FieldClassAspect%add_to_state does, when with_legacy is true;
+   ! otherwise legacy has put nothing there.
+   subroutine make_slash_export_fixture(port_name, with_legacy, src_meta, &
+        legacy_qv, unsupported, rc)
+      character(*), intent(in) :: port_name
+      logical, intent(in) :: with_legacy
+      type(OuterMetaComponent), pointer, intent(out) :: src_meta
+      type(ESMF_Field), intent(out) :: legacy_qv
+      type(GraphResolutionEntryVector), intent(out) :: unsupported
+      integer, intent(out) :: rc
+
+      type(OuterMetaComponent), pointer :: p_meta, dst_meta
+      type(ESMF_GridComp) :: p_gc, gc
+      type(GriddedComponentDriver) :: driver
+      type(GriddedComponentDriver), pointer :: own_driver
+      type(MultiState) :: own_states
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: spec
+      type(SimpleConnection) :: conn
+      type(GraphResolutionEntryVector) :: unresolved
+      type(VariableSpec) :: var_spec
+      type(ESMF_Grid) :: grid
+      type(ESMF_Geom) :: geom
+      type(ESMF_State) :: inner, outer
+      character(:), allocatable :: rest
+      integer :: status, slash
+      type(GraphBuilder) :: gb
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], rc=status)
+      _VERIFY(status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      _VERIFY(status)
+      call GeomSetId(geom, 317, rc=status)
+      _VERIFY(status)
+
+      call make_outer_meta('comp_slash_export_p', p_gc, p_meta, _RC)
+      child_spec = ChildSpec()
+      call p_meta%add_child('SRC', child_spec, _RC)
+      child_spec = ChildSpec()
+      call p_meta%add_child('DST', child_spec, _RC)
+      driver = p_meta%get_child('SRC', _RC)
+      gc = driver%get_gridcomp()
+      src_meta => get_outer_meta(gc, _RC)
+      driver = p_meta%get_child('DST', _RC)
+      gc = driver%get_gridcomp()
+      dst_meta => get_outer_meta(gc, _RC)
+
+      spec => src_meta%get_component_spec()
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, port_name, units='m')
+      var_spec%geom = geom
+      call spec%add_var_spec(var_spec)
+      spec => dst_meta%get_component_spec()
+      call spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'I', units='m'))
+
+      call gb%advertise(src_meta, _RC)
+      call gb%advertise(dst_meta, _RC)
+      call gb%advertise(p_meta, _RC)
+
+      slash = index(port_name, '/', back=.true.)
+      legacy_qv = ESMF_FieldEmptyCreate(name=port_name(slash + 1:), rc=status)
+      _VERIFY(status)
+      if (with_legacy) then
+         ! Innermost sub-state first, each wrapped by the next one out.
+         rest = port_name(1:slash - 1)
+         inner = ESMF_StateCreate( &
+              name=rest(index(rest, '/', back=.true.) + 1:), rc=status)
+         _VERIFY(status)
+         call ESMF_StateAdd(inner, [legacy_qv], rc=status)
+         _VERIFY(status)
+         do while (index(rest, '/') > 0)
+            rest = rest(1:index(rest, '/', back=.true.) - 1)
+            outer = ESMF_StateCreate( &
+                 name=rest(index(rest, '/', back=.true.) + 1:), rc=status)
+            _VERIFY(status)
+            call ESMF_StateAdd(outer, [inner], rc=status)
+            _VERIFY(status)
+            inner = outer
+         end do
+         own_driver => src_meta%get_user_gc_driver()
+         own_states = own_driver%get_states()
+         call ESMF_StateAdd(own_states%exportState, [inner], rc=status)
+         _VERIFY(status)
+      end if
+
+      conn = SimpleConnection( &
+           ConnectionPt('SRC', VirtualConnectionPt(state_intent='export', &
+           short_name=port_name)), &
+           ConnectionPt('DST', VirtualConnectionPt(state_intent='import', &
+           short_name='I')))
+      spec => p_meta%get_component_spec()
+      call spec%add_connection(conn)
+      call gb%resolve_connections(p_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, _RC)
+      rc = 0
+      if (unresolved%size() /= 0) rc = -1
+   end subroutine make_slash_export_fixture
+
+   ! Switch OFF, an own export whose port name has a slash (A/QV): legacy
+   ! holds the Field QV in the sub-state A of the export state of the
+   ! component itself. The export node must alias that Field.
+   ! Seeded to fail: a component with no children has no alias owner for a
+   ! name with a slash, so a new Field is created and nothing is aliased.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_finds_own_slash_export_in_substate(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: src_meta
+      type(ESMF_Field) :: legacy_qv, node_qv
+      type(GraphResolutionEntryVector) :: unsupported
+      logical :: aliased
+      integer :: status, st_n, st_a
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+      call make_slash_export_fixture('A/QV', .true., src_meta, legacy_qv, &
+           unsupported, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assert_that(status, is(0))
+
+      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'A/QV', &
+           node_qv, st_n)
+      @assertEqual(0, st_n)
+      if (st_n /= 0) return
+      aliased = FieldsAreAliased(legacy_qv, node_qv, rc=st_a)
+      @assertEqual(0, st_a)
+      @assertEqual(0, unsupported%size())
+      @assertTrue(aliased)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_alias_finds_own_slash_export_in_substate
+
+   ! Switch OFF, as above with two levels of sub-state (A/B/QV): the Field
+   ! QV is in the sub-state B of the sub-state A.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_finds_own_slash_export_in_nested_substates(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: src_meta
+      type(ESMF_Field) :: legacy_qv, node_qv
+      type(GraphResolutionEntryVector) :: unsupported
+      logical :: aliased
+      integer :: status, st_n, st_a
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+      call make_slash_export_fixture('A/B/QV', .true., src_meta, legacy_qv, &
+           unsupported, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assert_that(status, is(0))
+
+      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'A/B/QV', &
+           node_qv, st_n)
+      @assertEqual(0, st_n)
+      if (st_n /= 0) return
+      aliased = FieldsAreAliased(legacy_qv, node_qv, rc=st_a)
+      @assertEqual(0, st_a)
+      @assertEqual(0, unsupported%size())
+      @assertTrue(aliased)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_alias_finds_own_slash_export_in_nested_substates
+
+   ! Switch OFF, as above but legacy has not put the sub-state A in the
+   ! export state yet: nothing is aliased, the connection still resolves
+   ! with a created Field, and the lookup does not create the sub-state.
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_alias_own_slash_export_without_substate_creates_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: src_meta
+      type(ESMF_Field) :: legacy_qv, node_qv
+      type(GraphResolutionEntryVector) :: unsupported
+      type(GriddedComponentDriver), pointer :: own_driver
+      type(MultiState) :: own_states
+      type(ESMF_StateItem_Flag) :: item_kind
+      logical :: aliased
+      integer :: status, st_n, st_a, st_s
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.false.)
+      call make_slash_export_fixture('A/QV', .false., src_meta, legacy_qv, &
+           unsupported, status)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      @assert_that(status, is(0))
+
+      call get_node_field(src_meta, ESMF_STATEINTENT_EXPORT, 'A/QV', &
+           node_qv, st_n)
+      @assertEqual(0, st_n)
+      if (st_n /= 0) return
+      aliased = FieldsAreAliased(legacy_qv, node_qv, rc=st_a)
+      own_driver => src_meta%get_user_gc_driver()
+      own_states = own_driver%get_states()
+      call ESMF_StateGet(own_states%exportState, itemName='A', &
+           itemType=item_kind, rc=st_s)
+      @assertEqual(0, st_a)
+      @assertEqual(0, st_s)
+      @assertEqual(0, unsupported%size())
+      @assertFalse(aliased)
+      @assertTrue(item_kind == ESMF_STATEITEM_NOTFOUND)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_alias_own_slash_export_without_substate_creates_field
+
    ! P holds MID and DST; MID holds SRC; SRC exports V; DST imports V. Switch
    ! OFF: legacy has put an item named V in the user export state of SRC and
    ! nothing else. The item is a FieldBundle for the first four item classes

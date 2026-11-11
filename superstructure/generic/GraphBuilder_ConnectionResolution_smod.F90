@@ -12,7 +12,7 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateGet, &
         ESMF_FieldDestroy, &
         ESMF_STATEITEM_NOTFOUND, ESMF_STATEITEM_FIELD, &
-        ESMF_STATEITEM_FIELDBUNDLE, &
+        ESMF_STATEITEM_FIELDBUNDLE, ESMF_STATEITEM_STATE, &
         ESMF_STATEINTENT_INTERNAL, operator(==), operator(/=)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
    use mapl_ConnectionVector_mod, only: ConnectionVectorIterator, operator(/=)
@@ -1490,7 +1490,9 @@ contains
    ! propagated port is `<child>/<leaf>`, passed up unchanged through every
    ! ancestor, and legacy keeps it out of those ancestors' user states; the
    ! Field is in the user export state of the component find_alias_owner
-   ! walks down to, under <leaf>.
+   ! walks down to, under <leaf>. A component's own export whose name has a
+   ! slash (`<path>/<leaf>`) is a Field under <leaf> in the sub-state
+   ! <path> of its export state, as FieldClassAspect%add_to_state puts it.
    !
    ! With graph_populates_user_states() there is nothing to alias: the state
    ! holds the node's own created Field, so found = .false. and the caller
@@ -1507,11 +1509,12 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status, slash
-      character(:), allocatable :: leaf
+      character(:), allocatable :: leaf, sub_path
+      logical :: has_substate
       type(OuterMetaComponent), pointer :: export_meta
       type(GriddedComponentDriver), pointer :: export_driver
       type(MultiState) :: export_states
-      type(ESMF_State) :: export_state
+      type(ESMF_State) :: export_state, holder
       type(ESMF_StateItem_Flag) :: item_kind, payload_kind
       type(ESMF_Field) :: field
       type(ESMF_Field) :: alias, created
@@ -1526,17 +1529,23 @@ contains
       leaf = export_port_name(slash + 1:)
 
       export_meta => resolve_qualified_component(this, export_comp_name, _RC)
-      export_meta => find_alias_owner(export_meta, export_port_name, _RC)
+      export_meta => find_alias_owner(export_meta, export_port_name, &
+           sub_path, _RC)
       ! No component owns the port by that name: nothing to alias.
       _RETURN_UNLESS(associated(export_meta))
       export_driver => export_meta%get_user_gc_driver()
       export_states = export_driver%get_states()
       call export_states%get_state(export_state, ESMF_STATEINTENT_EXPORT, _RC)
 
+      ! Read only: unlike get_substate, a missing sub-state is not created
+      ! (the field may not exist yet).
+      call find_substate(export_state, sub_path, holder, has_substate, _RC)
+      _RETURN_UNLESS(has_substate)
+
       ! Plain by-name read; an absent item is not a failure (the field may not
       ! exist yet). Checked via itemType, as FieldClassAspect%add_to_state
       ! does, rather than trusting ESMF_StateGet's rc.
-      call ESMF_StateGet(export_state, itemName=leaf, itemType=item_kind, _RC)
+      call ESMF_StateGet(holder, itemName=leaf, itemType=item_kind, _RC)
       if (item_kind == ESMF_STATEITEM_NOTFOUND) then
          _RETURN(_SUCCESS)
       end if
@@ -1556,7 +1565,7 @@ contains
          ! get_payload()/set_payload() round trip (gfortran copy hazard).
          payload => node%get_payload_ptr()
          if (item_kind == ESMF_STATEITEM_FIELD) then
-            call ESMF_StateGet(export_state, itemName=leaf, field=field, _RC)
+            call ESMF_StateGet(holder, itemName=leaf, field=field, _RC)
             ! MAPL_NamedAlias (not a bare ESMF_NamedAlias) carries MAPL's
             ! per-alias metadata (standard_name/long_name/restart_mode), as
             ! populate_one does.
@@ -1587,7 +1596,7 @@ contains
                   call MAPL_FieldBundleDestroy(created_bundle, destroy_contents=.true., _RC)
                end if
             end if
-            call ESMF_StateGet(export_state, itemName=leaf, fieldBundle=bundle, _RC)
+            call ESMF_StateGet(holder, itemName=leaf, fieldBundle=bundle, _RC)
             bundle_alias = MAPL_NamedAlias(bundle, name=leaf, _RC)
             call payload%set(bundle_alias, _RC)
          end if
@@ -1601,15 +1610,21 @@ contains
    end subroutine try_alias_export_field
 
    ! The component whose user export state holds the Field behind export port
-   ! `port_name` of `meta`, or null if no descendant matches. A name without
-   ! '/' is meta's own export or re-export. A qualified `<child>/<leaf>` is
-   ! either passed up unchanged from a deeper level (a child carries the same
-   ! port name: recurse into it) or that child's own export (the child is
-   ! named <child> and has a port named <leaf>).
-   recursive function find_alias_owner(meta, port_name, rc) result(owner)
+   ! `port_name` of `meta`, or null if no descendant matches; `sub_path` is
+   ! the path of nested States inside that export state down to the Field
+   ! (empty when it is at the top level). A name without '/' is meta's own
+   ! export or re-export. A qualified `<child>/<leaf>` is either passed up
+   ! unchanged from a deeper level (a child carries the same port name:
+   ! recurse into it) or that child's own export (the child is named
+   ! <child> and has a port named <leaf>). Otherwise a name with a slash that
+   ! meta itself exports is meta's own export, held in the sub-state
+   ! <path> (all before the last '/') as FieldClassAspect%add_to_state does.
+   recursive function find_alias_owner(meta, port_name, sub_path, rc) &
+        result(owner)
       type(OuterMetaComponent), pointer :: owner
       class(OuterMetaComponent), target, intent(inout) :: meta
       character(*), intent(in) :: port_name
+      character(:), allocatable, intent(out) :: sub_path
       integer, optional, intent(out) :: rc
 
       integer :: status, slash, i
@@ -1617,6 +1632,7 @@ contains
       type(OuterMetaComponent), pointer :: child_meta
 
       owner => null()
+      sub_path = ''
       slash = index(port_name, '/', back=.true.)
       if (slash == 0) then
          owner => meta
@@ -1627,7 +1643,7 @@ contains
          child_name = meta%get_child_name(i, _RC)
          child_meta => meta%get_child_outer_meta(child_name, _RC)
          if (associated(find_export_node(child_meta, port_name))) then
-            owner => find_alias_owner(child_meta, port_name, _RC)
+            owner => find_alias_owner(child_meta, port_name, sub_path, _RC)
             _RETURN(_SUCCESS)
          end if
          if (child_name == port_name(1:slash - 1)) then
@@ -1638,8 +1654,50 @@ contains
          end if
       end do
 
+      if (associated(find_export_node(meta, port_name))) then
+         owner => meta
+         sub_path = port_name(1:slash - 1)
+      end if
+
       _RETURN(_SUCCESS)
    end function find_alias_owner
+
+   ! The State nested under `state` along the '/'-separated `path`, without
+   ! creating any level; found is false if a level is absent or is not a
+   ! State. An empty path is `state` itself.
+   subroutine find_substate(state, path, substate, found, rc)
+      type(ESMF_State), intent(in) :: state
+      character(*), intent(in) :: path
+      type(ESMF_State), intent(out) :: substate
+      logical, intent(out) :: found
+      integer, optional, intent(out) :: rc
+
+      integer :: status, idx
+      character(:), allocatable :: rest, level
+      type(ESMF_State) :: inner
+      type(ESMF_StateItem_Flag) :: item_kind
+
+      found = .false.
+      substate = state
+      rest = path
+      do while (len(rest) > 0)
+         idx = index(rest, '/')
+         if (idx == 0) then
+            level = rest
+            rest = ''
+         else
+            level = rest(1:idx - 1)
+            rest = rest(idx + 1:)
+         end if
+         call ESMF_StateGet(substate, itemName=level, itemType=item_kind, _RC)
+         _RETURN_UNLESS(item_kind == ESMF_STATEITEM_STATE)
+         call ESMF_StateGet(substate, itemName=level, nestedState=inner, _RC)
+         substate = inner
+      end do
+      found = .true.
+
+      _RETURN(_SUCCESS)
+   end subroutine find_substate
 
    ! Destroys `old` unless it shares its host with `kept` (an alias of the
    ! same Field must not be destroyed).
