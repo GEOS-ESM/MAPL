@@ -49,43 +49,6 @@ contains
       @assertFalse(net%has_successors(b))
    end subroutine test_add_dependency_is_bidirectional
 
-   ! remove_dependency clears both adjacency directions.
-   @test
-   subroutine test_remove_dependency_clears_both_directions()
-      type(NodeIdGenerator) :: gen
-      type(DependencyNetwork) :: net
-      type(NodeId) :: a, b
-      integer :: status
-
-      a = gen%next()
-      b = gen%next()
-
-      call net%add_dependency(a, b, rc=status)
-      @assertEqual(0, status)
-
-      call net%remove_dependency(a, b, rc=status)
-      @assertEqual(0, status)
-
-      @assertFalse(net%contains_dependency(a, b))
-      @assertFalse(net%has_successors(a))
-      @assertFalse(net%has_predecessors(b))
-   end subroutine test_remove_dependency_clears_both_directions
-
-   ! Removing an absent pair is a harmless no-op.
-   @test
-   subroutine test_remove_dependency_absent_pair_is_noop()
-      type(NodeIdGenerator) :: gen
-      type(DependencyNetwork) :: net
-      type(NodeId) :: a, b
-      integer :: status
-
-      a = gen%next()
-      b = gen%next()
-
-      call net%remove_dependency(a, b, rc=status)
-      @assertEqual(0, status)
-   end subroutine test_remove_dependency_absent_pair_is_noop
-
    ! clear() empties all adjacency.
    @test
    subroutine test_clear_empties_network()
@@ -200,9 +163,6 @@ contains
       @assertTrue(net%is_frozen())
 
       call net%add_dependency(b, c, rc=status)
-      @assertTrue(status /= 0)
-
-      call net%remove_dependency(a, b, rc=status)
       @assertTrue(status /= 0)
 
       call net%clear(rc=status)

@@ -39,7 +39,7 @@ arbitrary integer, and no arithmetic. The only way to get a valid id is
 |---|---|---|
 | `NodeId` | `HierarchyGraph` (one generator per hierarchy) | identifies any `GraphNode` hierarchy-wide |
 | `DependencyNetworkId` | `HierarchyGraph` | identifies a `DependencyNetwork` hierarchy-wide |
-| `PortId` | `ComponentGraph` (per-component) | identifies a public import/export/child port |
+| `PortId` | `ComponentGraph` (per-component) | identifies a public import/export port |
 | `CallbackInterfaceId` | `CallbackInterfaceRegistry` | identifies a registered `CallbackInterface` |
 | `HierarchyId` | `HierarchyRegistry` | identifies one component hierarchy (one per `OuterMetaComponent` tree, or one per standalone test graph) |
 

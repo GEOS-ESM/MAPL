@@ -16,7 +16,7 @@
 ! a consumer, whichever component declared it), the transform port-binding
 ! table, and the reuse index (extension chains, expression evaluations,
 ! collections). PortId generation, the advertised-item resource indexes,
-! ports, child-port bindings, write-back network ownership and lifecycle
+! ports, write-back network ownership and lifecycle
 ! state stay component-local in ComponentGraph.
 !------------------------------------------------------------------------------
 module mapl_HierarchyGraph_mod

@@ -36,9 +36,8 @@ used to find an already-built extension chain, expression evaluation or
 collection. Each `OuterComponent` MUST continue to own its own local
 resource index of its advertised items (short name and state intent to
 `NodeId`), its own public
-import/export ports, its own child-port bindings, and its own lifecycle
-state; everything else about a component's local graph view remains
-component-local.
+import/export ports, and its own lifecycle state; everything else about
+a component's local graph view remains component-local.
 
 #### Scenario: Two components' nodes live in one shared store
 - **WHEN** two different `OuterComponent`s each register a graph node
@@ -53,9 +52,9 @@ component-local.
   name to its own component's node, with no collision or
   cross-contamination between the two components' local resource indexes
 
-#### Scenario: A component's public ports and child-port bindings remain its own
-- **WHEN** a component publishes a port or records a child-port binding
-- **THEN** that port or binding is recorded only in that component's own
+#### Scenario: A component's public ports remain its own
+- **WHEN** a component publishes a port
+- **THEN** that port is recorded only in that component's own
   per-component storage, retrievable through that component alone
 
 #### Scenario: Two components see the same forward network

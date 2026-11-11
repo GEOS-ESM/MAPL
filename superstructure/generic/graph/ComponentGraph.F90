@@ -2,7 +2,7 @@
 
 !------------------------------------------------------------------------------
 ! ComponentGraph: graph-neutral owner of a component's own public import/
-! export ports, child-port bindings, advertised-item resource index,
+! export ports, advertised-item resource index,
 ! write-back networks, port-identity generation, and mutable/frozen/finalized
 ! lifecycle state.
 !
@@ -31,9 +31,9 @@
 ! submodule can reach private components, which would void the "depends only
 ! on the public query API" guarantee of REQ-VIZ-003.
 !
-! PortId is the only per-instance generator. The three PortId -> NodeId
-! tables (import ports, export ports, child-port bindings) are bundled in
-! the private GraphPortRegistry. lifecycle_status is a single
+! PortId is the only per-instance generator. The two PortId -> NodeId
+! tables (import ports, export ports) and the export-name side table are
+! bundled in the private GraphPortRegistry. lifecycle_status is a single
 ! mutable/frozen/finalized state; see graph_freeze() and graph_finalize()
 ! for the only two transitions.
 !
@@ -72,8 +72,8 @@ module mapl_ComponentGraph_mod
    integer, parameter :: GRAPH_LIFECYCLE_FROZEN = 2
    integer, parameter :: GRAPH_LIFECYCLE_FINALIZED = 3
 
-   ! Private aggregation of the three PortId -> NodeId lookup tables
-   ! (import ports, export ports, child-port bindings).
+   ! Private aggregation of the PortId -> NodeId lookup tables (import
+   ! ports, export ports) and the export-name side table.
    !
    ! export_port_names is a sparse side-table, PortId -> overriding qualified
    ! name, populated only for export ports created by export propagation, never
@@ -85,7 +85,6 @@ module mapl_ComponentGraph_mod
       type(PortIdNodeIdMap) :: import_ports
       type(PortIdNodeIdMap) :: export_ports
       type(PortIdStringMap) :: export_port_names
-      type(PortIdNodeIdMap) :: child_bindings
    end type GraphPortRegistry
 
    type :: ComponentGraph
@@ -122,15 +121,11 @@ module mapl_ComponentGraph_mod
       procedure :: next_port_id => graph_next_port_id
       procedure :: add_import_port => graph_add_import_port
       procedure :: add_export_port => graph_add_export_port
-      procedure :: add_child_port_binding => graph_add_child_port_binding
-      procedure :: get_import_port => graph_get_import_port
-      procedure :: get_export_port => graph_get_export_port
-      ! qualified-name counterpart of get_export_port: the export-propagation
+      ! the name an export port matches connections by: the export-propagation
       ! override if one exists, else the node's own unqualified short_name
       procedure :: get_export_port_name => graph_get_export_port_name
-      procedure :: get_child_port_binding => graph_get_child_port_binding
-      ! full-table enumeration counterparts of the single-key lookups above;
-      ! same "return a copy, empty once finalized" contract as get_node_ids()
+      ! full-table enumeration: same "return a copy, empty once finalized"
+      ! contract as get_node_ids()
       procedure :: get_import_ports => graph_get_import_ports
       procedure :: get_export_ports => graph_get_export_ports
       ! -- transform port bindings --------------------------
@@ -515,43 +510,6 @@ contains
       _RETURN(_SUCCESS)
    end subroutine graph_add_export_port
 
-   subroutine graph_add_child_port_binding(this, port_id, node_id, rc)
-      class(ComponentGraph), intent(inout) :: this
-      type(PortId), intent(in) :: port_id
-      type(NodeId), intent(in) :: node_id
-      integer, optional, intent(out) :: rc
-
-      _ASSERT(.not. this%is_finalized(), 'ComponentGraph: add_child_port_binding called after finalize')
-      _ASSERT(.not. this%is_frozen(), 'ComponentGraph: add_child_port_binding called on a frozen graph')
-      _ASSERT(port_id%is_valid(), 'ComponentGraph: add_child_port_binding requires a PortId obtained via next_port_id()')
-      _ASSERT(this%ports%child_bindings%count(port_id) == 0, 'ComponentGraph: add_child_port_binding - PortId is already bound')
-      _ASSERT(this%owns_node(node_id), 'ComponentGraph: add_child_port_binding - NodeId is not owned by this graph')
-
-      call this%ports%child_bindings%insert(port_id, node_id)
-
-      _RETURN(_SUCCESS)
-   end subroutine graph_add_child_port_binding
-
-   function graph_get_import_port(this, port_id) result(node_id)
-      class(ComponentGraph), target, intent(in) :: this
-      type(PortId), intent(in) :: port_id
-      type(NodeId), pointer :: node_id
-
-      node_id => null()
-      if (this%is_finalized()) return
-      node_id => this%ports%import_ports%at(port_id)
-   end function graph_get_import_port
-
-   function graph_get_export_port(this, port_id) result(node_id)
-      class(ComponentGraph), target, intent(in) :: this
-      type(PortId), intent(in) :: port_id
-      type(NodeId), pointer :: node_id
-
-      node_id => null()
-      if (this%is_finalized()) return
-      node_id => this%ports%export_ports%at(port_id)
-   end function graph_get_export_port
-
    ! The name an exact-match connection matches this export port against:
    ! the export-propagation override if one was recorded for port_id, else
    ! the node's own unqualified short_name. Returns '' if port_id is unbound
@@ -585,16 +543,6 @@ contains
          name = generic_node%get_short_name()
       end select
    end function graph_get_export_port_name
-
-   function graph_get_child_port_binding(this, port_id) result(node_id)
-      class(ComponentGraph), target, intent(in) :: this
-      type(PortId), intent(in) :: port_id
-      type(NodeId), pointer :: node_id
-
-      node_id => null()
-      if (this%is_finalized()) return
-      node_id => this%ports%child_bindings%at(port_id)
-   end function graph_get_child_port_binding
 
    ! Full import-port table, returned by value; empty once finalized like
    ! every other post-finalize accessor.

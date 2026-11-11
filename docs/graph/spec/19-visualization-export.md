@@ -180,7 +180,8 @@ distinct DOT shape/style, or a `"proxy": true` JSON field) — they are
 hidden from user-facing *APIs* per REQ-HIER-006, but that requirement does
 not extend to a diagnostic visualization; a rendering that silently
 presents proxy nodes as if they were ordinary local nodes would misrepresent
-the graph's actual encapsulation boundaries.
+the graph's actual encapsulation boundaries. (Not implemented: the
+exporter has no proxy marking, since no proxy nodes exist.)
 
 ## 19.7 Revision/staleness overlay `[SPECULATIVE]`
 

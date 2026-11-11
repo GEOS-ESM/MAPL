@@ -27,9 +27,8 @@ function export_graph_json(graph, include_revisions, label_map, rc) result(json_
 ```
 
 Both take an **optional** `NodeIdLabelMap` (`NodeId -> NodeLabel`): when
-an entry exists, its text replaces `NodeId%to_string()` in the label,
-and `is_proxy` adds `shape="doublecircle"` (DOT) / `"proxy": true`
-(JSON). Omitting `label_map` entirely preserves byte-for-byte prior
+an entry exists, its text replaces `NodeId%to_string()` in the label.
+Omitting `label_map` entirely preserves byte-for-byte prior
 output — purely additive.
 
 ## Output schema (versioned, not spec-frozen)
@@ -37,12 +36,12 @@ output — purely additive.
 ```
 DOT:  digraph ComponentGraph {
         "<NodeId>" [label="...", kind="...", payload="..."?,
-                    revision="..."?, shape="doublecircle"?];
+                    revision="..."?];
         "<src>" -> "<dst>" [network="...", label="<port>"?];
       }
 JSON: { "schema_version": <int>,
         "nodes": [ {"id", "kind", "payload_kind"?, "revision"?,
-                     "label"?, "proxy"?} ],
+                     "label"?} ],
         "edges": [ {"source", "target", "network", "port"?} ] }
 ```
 

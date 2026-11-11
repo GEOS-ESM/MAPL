@@ -3,10 +3,9 @@
 ## Purpose
 
 Builds a `NodeId -> label` lookup for one component's own local graph,
-from the component's own advertised item names and its cached
-child-proxy nodes, so the graph-neutral exporter can render
-human-readable diagrams without itself depending on `OuterComponent` or
-`StateRegistry`.
+from the component's own advertised item names, so the graph-neutral
+exporter can render human-readable diagrams without itself depending on
+`OuterComponent` or `StateRegistry`.
 
 ## Requirements
 
@@ -21,18 +20,6 @@ declared name.
   item, and its graph is exported through the enrichment layer
 - **THEN** each of the three items' exported label is its own declared
   name, not a raw `NodeId` string
-
-### Requirement: Enrichment layer labels cached child-proxy nodes distinguishably
-For each child whose proxy node is cached in this component's own
-graph, the enrichment layer SHALL label that node with the child's name
-combined with the child's own item name, and SHALL mark it as a
-boundary/proxy node.
-
-#### Scenario: Cached proxy node carries a child-qualified label
-- **WHEN** a connection has created a cached proxy node in this
-  component's graph standing in for a named child's item
-- **THEN** that node's exported label combines the child's name and the
-  child's item name, and the node is marked as a proxy in the export
 
 ### Requirement: Enrichment never fails export when a name is unavailable
 If an item has no discoverable name (e.g. a framework-created extension
@@ -56,4 +43,4 @@ NOT query a child's own internal graph, `NodeId`s, or
 - **WHEN** the label lookup is built for a component with children
 - **THEN** no child's internal graph or `NodeId`/`DependencyNetwork`
   identity is accessed — only the child's already-published item names
-  and this component's own cached proxy nodes are used
+  are used

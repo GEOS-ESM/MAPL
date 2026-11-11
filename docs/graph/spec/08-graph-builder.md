@@ -50,7 +50,6 @@ component-hierarchy context and stays a `GraphBuilder` responsibility. See
 | Mirroring exports up one hierarchy level, recursively, under a child-qualified name `[NEW]` | symmetric to import mirroring: an exported item bubbles into the parent's own export-port table under `child_name/short_name`, left unchanged at every further ancestor level (`graphbuilder_run_export_propagate_hook`, same submodule) — required for ordinary resolution to find a propagated export's own ESMF-sub-state-qualified name (e.g. History's `A/E_A1` shape) |
 | Resolving wildcard/virtual connection points | `15-callbacks.md` §15.8 |
 | Resolving callback connections | `15-callbacks.md` |
-| Querying one component's own local export index directly, with no propagation step `[NEW]` | `query_component_exports(root, path, rc)` — composes the existing qualified-component-path resolution with a single-level resource-index read; added for History-style deep-hierarchy export visibility (Task Group 7) |
 | Validating and freezing the graph | now a single, hierarchy-wide operation invoked once at the true hierarchy root (`GENERIC_INIT_GRAPH_FREEZE` phase, `graphbuilder_run_graph_freeze_hook`, `GraphBuilder_Freeze_smod.F90`), not a per-component call — see `07-component-graph.md` §7.3 `[RE-EVALUATED]` |
 | Compiling graph relationships into direct ESMF/MAPL runtime relationships | eventual; `11-revision-and-update.md` §11.5 |
 

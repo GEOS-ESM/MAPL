@@ -89,9 +89,7 @@ resource index (`resolve_qualified_export_node_id`,
 (`allowed_foreign_node`, `ComponentGraph.F90:439-447`; see
 `hierarchy-and-component-graph.md`). The dependency edge lands in the
 hierarchy's single forward network, shared by every component
-(`HierarchyGraph.F90:14-20`). `add_child_port_binding` is a
-`ComponentGraph` method that the tests call
-(`Test_ComponentHierarchyGraph.pf:158`); `GraphBuilder` does not.
+(`HierarchyGraph.F90:14-20`).
 
 ## GraphMode: the legacy/graph-native switch
 
@@ -112,15 +110,11 @@ anything in production.**
 
 ## Qualified-export resolution (shared primitive)
 
-`resolve_qualified_component`/`enumerate_qualified_exports`
-(`graph-builder-resolution-index`) generalize an earlier
+`resolve_qualified_component` generalizes an earlier
 callback-wiring-only recursion (`resolve_descendant`) into a shared
 multi-level qualified-path resolution primitive, used by both ordinary
-connection resolution and callback wiring. `QualifiedExportIndexEntry`
-deliberately carries no `VariableSpec` — the primitive's whole point is
-not to reintroduce a `var_spec` dependency into resolution's own
-vocabulary. Contrast with `QualifiedExportEntry` (callback-wiring's own
-earlier type), which *does* carry a `VariableSpec` because interface
+connection resolution and callback wiring. `QualifiedExportEntry`
+(callback-wiring's own type) carries a `VariableSpec` because interface
 conformance checking needs it.
 
 ## A real gfortran gotcha

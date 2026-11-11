@@ -52,7 +52,7 @@ design decision that amends this document.
 | `11-revision-and-update.md` | NodeRevision, demand-driven update algorithm, runtime-vs-compiled execution |
 | `12-methods-and-drivers.md` | MethodGraphNode, invocation adapters, GriddedComponentDriver, SetServices lifecycle |
 | `13-geometry-and-vertical-grids.md` | Geometry as GraphValue, vertical grid representation |
-| `14-route-handles.md` | RouteHandleValue, RouteHandleKey, sharing and renewal |
+| `14-route-handles.md` | RouteHandleValue, RouteHandleKey, sharing and renewal (RouteHandleKey not implemented) |
 | `15-callbacks.md` | CallbackInterface model, registry, Handler/Invoker roles, wildcard aggregation |
 | `16-inout-items.md` | Forward/return network model for borrowed and inout items (speculative) |
 | `17-open-questions.md` | The original ten open design questions plus later additions (Q11–Q14), current recommendation, and status |
@@ -126,6 +126,6 @@ design decision that amends this document.
 - **Handler** — owns a callback State and its attached implementation.
 - **Invoker** — calls an attached method on a callback State it does not own.
 - **RouteHandleKey** — semantic key (geometries, method, masks, ...)
-  identifying a reusable RouteHandleValue.
+  identifying a reusable RouteHandleValue. Not implemented.
 - **NodeRevision** — 64-bit monotonically-advancing version stamp on a
   StateItemNode's logical value.

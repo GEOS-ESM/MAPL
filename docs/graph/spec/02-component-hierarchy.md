@@ -40,7 +40,7 @@ root (`HierarchyGraph`/`HierarchyResources`,
 `HierarchyId` each `OuterComponent` holds as a plain value, not a
 pointer. Each `OuterComponent` still owns, exactly as component-local
 as before: its own local resource index, its own public import/export
-ports, its own child-port bindings, and its own lifecycle state — this
+ports, and its own lifecycle state — this
 change moved only node/network *storage* ownership, not any of
 `ComponentGraph`'s other responsibilities (REQ-CG-001).
 
@@ -57,7 +57,7 @@ shape. See `openspec/changes/hierarchy-wide-component-graph/proposal.md`
 ("Why") for the full motivation.
 
 **Rationale (unaffected by this change):** encapsulation of a child's
-*local* concerns (resource index, ports, child-port bindings,
+*local* concerns (resource index, ports,
 lifecycle state) is preserved exactly as before — only the shared
 node/network maps and id generators moved. ESMF-level component
 encapsulation (REQ-HIER-003: a child cannot reach its parent) is now
@@ -111,12 +111,9 @@ speculative view would need is already in one place
 (`HierarchyGraph`); what remains speculative/out-of-scope is only a
 dedicated *read-only query API* over that shared storage for
 diagnostics/optimization purposes, not the storage unification itself.
-`openspec/changes/hierarchy-wide-component-graph` Task Group 7 added
-one narrow instance of such a query
-(`GraphBuilder.F90:query_component_exports` — a qualified-path lookup
-of one component's own local resource index, with no push/propagation
-step) for History's deep-hierarchy export-visibility need
-specifically; a general-purpose diagnostic/optimization view remains
+A narrow query of that kind (a qualified-path lookup of one
+component's own local resource index) was built and later removed for
+lack of a caller; a general-purpose diagnostic/optimization view remains
 unbuilt.
 
 See `17-open-questions.md` Q1 for the open question of whether this remains

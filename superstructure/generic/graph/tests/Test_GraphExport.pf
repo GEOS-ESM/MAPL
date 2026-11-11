@@ -348,33 +348,4 @@ contains
       @assertTrue(index(json_labeled, '"label": "' // extra_input_id%to_string() // '"') > 0)
    end subroutine test_label_lookup_overrides_identity_with_fallback
 
-   ! A proxy node is visually distinct in DOT and carries a proxy field in
-   ! JSON; an ordinary node carries no proxy marking.
-   @test
-   subroutine test_proxy_flag_marks_node_distinguishably()
-      type(ComponentGraph) :: graph
-      type(NodeId) :: input_id, extra_input_id, transform_id, output_id
-      type(DependencyNetworkId) :: default_id
-      type(NodeIdLabelMap) :: label_map
-      character(:), allocatable :: dot_text, json_text
-      integer :: status
-
-      call build_synthetic_graph(graph, input_id, extra_input_id, transform_id, output_id, default_id)
-
-      call label_map%insert(input_id, NodeLabel('child:T', is_proxy=.true.))
-      call label_map%insert(output_id, NodeLabel('Q_export', is_proxy=.false.))
-
-      dot_text = export_graph_dot(graph, rc=status, label_map=label_map)
-      @assertEqual(0, status)
-      @assertTrue(index(dot_text, 'label="child:T", kind="StateItemNode", payload="NOTFOUND", shape="doublecircle"') > 0)
-      ! Ordinary labeled node: no shape attribute at all.
-      @assertTrue(index(dot_text, 'label="Q_export", kind="StateItemNode", payload="NOTFOUND"];') > 0)
-      @assertFalse(index(dot_text, 'label="Q_export", kind="StateItemNode", payload="NOTFOUND", shape') > 0)
-
-      json_text = export_graph_json(graph, rc=status, label_map=label_map)
-      @assertEqual(0, status)
-      @assertTrue(index(json_text, '"label": "child:T", "proxy": true') > 0)
-      @assertTrue(index(json_text, '"label": "Q_export"}') > 0)
-   end subroutine test_proxy_flag_marks_node_distinguishably
-
 end module Test_GraphExport

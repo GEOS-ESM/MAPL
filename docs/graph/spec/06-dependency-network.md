@@ -62,7 +62,6 @@ operations:
 | Operation | Contract |
 |---|---|
 | `add_dependency(source, target)` | Adds `source → target`. MUST reject if it would create a cycle (§6.4) or fail validation. MUST fail if `frozen`. |
-| `remove_dependency(source, target)` | Removes the pair if present. MUST fail if `frozen`. **No confirmed use case as of this writing** — checked against the concrete initialization phase cycle (`12-methods-and-drivers.md` REQ-MTH-011c: `realize_provided` → `accept_transfer` → `realize_accepted`, iterated to convergence), which appears strictly monotonic (each iteration only processes items newly reaching `SPECIFIED` status; nothing observed that retracts an already-made connection). Kept in the API for completeness and symmetry with `add_dependency`, and in case `modify_advertised` (currently a no-op, REQ-MTH-011b) later needs to undo a not-yet-realized connection — not because a current requirement demands it. |
 | `contains_dependency(source, target)` | Query, no mutation. |
 | `get_predecessors(node)` | Returns predecessor `NodeIdSet`. |
 | `get_successors(node)` | Returns successor `NodeIdSet`. |

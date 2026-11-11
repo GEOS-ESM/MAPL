@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------
-! NodeIdLabelMap: gFTL map of NodeId -> NodeLabel (a label string plus an
-! is_proxy flag), built by GraphBuilder's enrichment procedure and
+! NodeIdLabelMap: gFTL map of NodeId -> NodeLabel (a label string), built
+! by GraphBuilder's enrichment procedure and
 ! consumed by GraphExport.F90's optional label-lookup parameter.
 ! Mirrors the existing
 ! NodeId-keyed containers in this directory (NodeIdGraphNodeMap,

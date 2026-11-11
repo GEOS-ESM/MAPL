@@ -70,8 +70,8 @@ and `DependencyNetwork`.
 
 Owns, locally:
 
-- **Public ports**: three `PortId -> NodeId` tables — import ports,
-  export ports, child-port bindings (`GraphPortRegistry`,
+- **Public ports**: two `PortId -> NodeId` tables — import ports and
+  export ports (`GraphPortRegistry`,
   `ComponentGraph.F90:104`). `PortId` generation is per-component (not
   hierarchy-wide, unlike `NodeId`).
 - **Transform port-binding table** (`PortBindingTable`) — external

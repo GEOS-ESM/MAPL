@@ -122,12 +122,6 @@ module mapl_GraphBuilder_mod
    ! ordinary connection resolution. Public for the same gfortran
    ! cross-submodule-linkage reason as is_self above.
    public :: resolve_qualified_component
-   public :: QualifiedExportIndexEntry
-   ! History support: given a qualified component path, returns that
-   ! component's own resource-index entries (no recursion into children,
-   ! no push/propagation). Composes resolve_qualified_component with the
-   ! same per-item scan as append_own_export_index_entries.
-   public :: query_component_exports
 
    ! Same gfortran cross-submodule-linkage reason as is_self above:
    ! called from GraphBuilder_LifecycleHooks_smod.F90, defined in
@@ -256,16 +250,6 @@ module mapl_GraphBuilder_mod
       character(:), allocatable :: comp_path
       type(VariableSpec) :: var_spec
    end type QualifiedExportEntry
-
-   ! One (qualified_path, owner, node_id) tuple from a resolved-export
-   ! scan. Deliberately carries no VariableSpec, unlike
-   ! QualifiedExportEntry. qualified_path is '' for the enumeration
-   ! root's own export, else the '/'-joined descendant path.
-   type :: QualifiedExportIndexEntry
-      character(:), allocatable :: qualified_path
-      type(OuterMetaComponent), pointer :: owner => null()
-      type(NodeId) :: node_id
-   end type QualifiedExportIndexEntry
 
    ! One entry in graphbuilder_unresolved_import_node_ids's scan result:
    ! a still-unresolved import, by short_name (for GraphResolutionEntry
@@ -808,85 +792,6 @@ contains
 
       _RETURN(_SUCCESS)
    end function resolve_qualified_component
-
-   ! Per-item resolved-export scan, factored out so query_component_exports
-   ! can reuse it for ONE component without recursing into children.
-   ! Appends owner's resolved exports (one entry per export present in
-   ! its resource index; an unadvertised or unresolved export adds none)
-   ! to entries, in place.
-   subroutine append_own_export_index_entries(owner, path_prefix, entries, rc)
-      class(OuterMetaComponent), target, intent(inout) :: owner
-      character(*), intent(in) :: path_prefix
-      type(QualifiedExportIndexEntry), allocatable, intent(inout) :: entries(:)
-      integer, optional, intent(out) :: rc
-
-      integer :: status
-      type(ComponentSpec), pointer :: comp_spec
-      type(ComponentGraph), pointer :: owner_graph
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-      type(QualifiedExportIndexEntry) :: entry
-      type(QualifiedExportIndexEntry), allocatable :: grown_entries(:)
-      type(NodeId), pointer :: resolved_id
-      integer :: n
-
-      comp_spec => owner%get_component_spec()
-      owner_graph => owner%get_component_graph()
-
-      associate (e => comp_spec%var_specs%ftn_end())
-         iter = comp_spec%var_specs%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            var_spec => iter%of()
-            if (.not. (var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) cycle
-
-            resolved_id => owner_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, var_spec%short_name))
-            if (.not. associated(resolved_id)) cycle
-
-            if (len(path_prefix) == 0) then
-               entry%qualified_path = var_spec%short_name
-            else
-               entry%qualified_path = path_prefix // '/' // var_spec%short_name
-            end if
-            entry%owner => owner
-            entry%node_id = resolved_id
-
-            ! Classic ifort ICE on array-constructor growth; see
-            ! collect_qualified_exports.
-            n = size(entries)
-            allocate(grown_entries(n + 1))
-            if (n > 0) grown_entries(1:n) = entries
-            grown_entries(n + 1) = entry
-            call move_alloc(grown_entries, entries)
-         end do
-      end associate
-
-      _RETURN(_SUCCESS)
-   end subroutine append_own_export_index_entries
-
-   ! Resolves `path` against hierarchy root `root` (same convention as
-   ! resolve_qualified_component, including resolving to root itself) and
-   ! returns ONLY that component's own resource-index entries: no
-   ! recursion, no push/propagation. A hierarchy-wide consumer (e.g.
-   ! History) walks the OuterMetaComponent tree itself, calling this per
-   ! path.
-   function query_component_exports(root, path, rc) result(entries)
-      class(OuterMetaComponent), target, intent(inout) :: root
-      character(*), intent(in) :: path
-      integer, optional, intent(out) :: rc
-      type(QualifiedExportIndexEntry), allocatable :: entries(:)
-
-      integer :: status
-      type(OuterMetaComponent), pointer :: target_meta
-
-      ! An allocatable result must be allocated on error paths too; the caller copies it.
-      allocate(entries(0))
-      target_meta => resolve_qualified_component(root, path, _RC)
-
-      call append_own_export_index_entries(target_meta, '', entries, _RC)
-
-      _RETURN(_SUCCESS)
-   end function query_component_exports
 
    ! Human-readable item-class name for unsupported-item-class failure
    ! messages; mirrors VariableSpec.F90's %itemType%ot select-case.

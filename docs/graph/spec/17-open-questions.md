@@ -401,7 +401,8 @@ Two sub-decisions are needed:
    explicitly addressed the way the Grid/Mesh/LocStream/XGrid case has.
    This still has not been checked line-by-line against
    `13-geometry-and-vertical-grids.md` REQ-GEO-002/008 or
-   `14-route-handles.md`'s `RouteHandleKey` geometry references.
+   `14-route-handles.md`'s `RouteHandleKey` geometry references
+   (`RouteHandleKey` is not implemented).
 
 **Confidence:** high on sub-item 2's Grid/Mesh/LocStream/XGrid case (settled
 by the spec author) and on sub-item 1 (membership maps, confirmed below);

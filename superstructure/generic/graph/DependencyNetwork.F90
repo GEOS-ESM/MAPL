@@ -36,7 +36,6 @@ module mapl_DependencyNetwork_mod
       logical :: frozen = .false.
    contains
       procedure :: add_dependency => network_add_dependency
-      procedure :: remove_dependency => network_remove_dependency
       procedure :: contains_dependency => network_contains_dependency
       procedure :: get_predecessors => network_get_predecessors
       procedure :: get_successors => network_get_successors
@@ -99,27 +98,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine network_add_dependency
-
-   ! Removes the pair if present; no-op (success) if absent.
-   subroutine network_remove_dependency(this, source, target, rc)
-      class(DependencyNetwork), intent(inout) :: this
-      type(NodeId), intent(in) :: source
-      type(NodeId), intent(in) :: target
-      integer, optional, intent(out) :: rc
-
-      type(NodeIdSet), pointer :: successors, predecessors
-      integer :: n_removed
-
-      _ASSERT(.not. this%frozen, 'DependencyNetwork: remove_dependency called on a frozen network')
-
-      successors => this%successors_map%at(source)
-      if (associated(successors)) n_removed = int(successors%erase(target))
-
-      predecessors => this%predecessors_map%at(target)
-      if (associated(predecessors)) n_removed = int(predecessors%erase(source))
-
-      _RETURN(_SUCCESS)
-   end subroutine network_remove_dependency
 
    subroutine network_clear(this, rc)
       class(DependencyNetwork), intent(inout) :: this

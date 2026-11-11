@@ -39,9 +39,8 @@ still own, exactly as component-local as before:
   port-binding table, keyed by `(DependencyNetworkId, NodeId)`, is owned
   by the hierarchy (`HierarchyGraph`) and shared by every
   `ComponentGraph`
-- child-port bindings
-- semantic resource indexes (e.g., `RouteHandleKey → NodeId`; see
-  `14-route-handles.md`)
+- semantic resource indexes (e.g., advertised-item key → `NodeId`; see
+  `14-route-handles.md` for a route-handle index that is not implemented)
 - initialized/frozen lifecycle state (though "frozen" is now a
   hierarchy-wide fact once set — see §7.3)
 - an explicit, private `NodeIdSet`/`DependencyNetworkIdSet` recording

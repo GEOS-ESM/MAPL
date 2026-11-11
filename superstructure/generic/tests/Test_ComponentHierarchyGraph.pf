@@ -24,6 +24,7 @@ module Test_ComponentHierarchyGraph
    use mapl_NodeId_mod, only: NodeId
    use mapl_NodeIdSet_mod, only: NodeIdSet
    use mapl_PortId_mod, only: PortId
+   use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap
    use GraphBuilderTestSupport_mod, only: make_outer_meta
    use esmf
    use pfunit
@@ -115,9 +116,9 @@ contains
 
    ! The graph reachable through
    ! OuterMetaComponent%get_component_graph() is fully functional for
-   ! public ports (import/export) and child-port bindings - reuse of
-   ! ComponentGraph's own PortIdNodeIdMap-backed tables, not a new storage
-   ! type on OuterMetaComponent.
+   ! public ports (import/export) - reuse of ComponentGraph's own
+   ! PortIdNodeIdMap-backed tables, not a new storage type on
+   ! OuterMetaComponent.
    @test(npes=[0])
    subroutine test_graph_port_tables_reachable_through_accessor(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -129,7 +130,8 @@ contains
       type(StateItemNode) :: node
       type(GraphStateItem) :: payload
       type(NodeRevision) :: revision
-      type(PortId) :: import_port, export_port, child_port
+      type(PortId) :: import_port, export_port
+      type(PortIdNodeIdMap) :: import_ports, export_ports
       type(NodeId), pointer :: bound_id
       integer :: status
 
@@ -153,20 +155,13 @@ contains
       call graph%add_export_port(export_port, node_id, rc=status)
       @assert_that(status, is(0))
 
-      child_port = graph%next_port_id(rc=status)
-      @assert_that(status, is(0))
-      call graph%add_child_port_binding(child_port, node_id, rc=status)
-      @assert_that(status, is(0))
-
-      bound_id => graph%get_import_port(import_port)
+      import_ports = graph%get_import_ports()
+      bound_id => import_ports%at(import_port)
       @assert_that(associated(bound_id), is(true()))
       @assert_that(bound_id%to_string(), is(equal_to(node_id%to_string())))
 
-      bound_id => graph%get_export_port(export_port)
-      @assert_that(associated(bound_id), is(true()))
-      @assert_that(bound_id%to_string(), is(equal_to(node_id%to_string())))
-
-      bound_id => graph%get_child_port_binding(child_port)
+      export_ports = graph%get_export_ports()
+      bound_id => export_ports%at(export_port)
       @assert_that(associated(bound_id), is(true()))
       @assert_that(bound_id%to_string(), is(equal_to(node_id%to_string())))
 

@@ -18,20 +18,18 @@ contains
       key_a = gen%next()
       key_b = gen%next()
 
-      call map%insert(key_a, NodeLabel('T', is_proxy=.false.))
-      call map%insert(key_b, NodeLabel('child:Q', is_proxy=.true.))
+      call map%insert(key_a, NodeLabel('T'))
+      call map%insert(key_b, NodeLabel('child:Q'))
 
       @assertEqual(2, map%size())
 
       retrieved => map%at(key_a)
       @assertTrue(associated(retrieved))
       @assertEqual('T', retrieved%get_label())
-      @assertFalse(retrieved%get_is_proxy())
 
       retrieved => map%at(key_b)
       @assertTrue(associated(retrieved))
       @assertEqual('child:Q', retrieved%get_label())
-      @assertTrue(retrieved%get_is_proxy())
    end subroutine test_insert_and_lookup
 
    @test

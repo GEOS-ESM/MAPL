@@ -150,26 +150,3 @@ graph-neutral query APIs).
   node in the graph
 - **THEN** that node's identity is rendered as `NodeId%to_string()`,
   unchanged from the no-lookup case
-
-### Requirement: Boundary/proxy nodes are marked distinguishably
-When the caller identifies a node as a boundary/proxy node, the DOT and
-JSON exporters SHALL render it distinguishably from an ordinary node:
-DOT SHALL use a distinct node shape or style attribute for it, and JSON
-SHALL include a `"proxy": true` field for it. A node not identified as a
-proxy SHALL carry no such marking.
-
-#### Scenario: Proxy node is visually distinct in DOT
-- **WHEN** a node in the graph is identified to the exporter as a
-  boundary/proxy node
-- **THEN** its DOT entry carries a distinct shape/style attribute not
-  present on an ordinary node's entry
-
-#### Scenario: Proxy node carries a proxy field in JSON
-- **WHEN** a node in the graph is identified to the exporter as a
-  boundary/proxy node
-- **THEN** its JSON entry includes `"proxy": true`
-
-#### Scenario: Ordinary node carries no proxy marking
-- **WHEN** a node in the graph is not identified to the exporter as a
-  boundary/proxy node
-- **THEN** neither its DOT nor its JSON entry carries any proxy marking

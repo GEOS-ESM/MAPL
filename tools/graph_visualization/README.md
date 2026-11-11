@@ -10,7 +10,7 @@ on `PATH`).
 1. A Fortran component's local `ComponentGraph` is exported to a `.dot`
    file via `superstructure/generic/graph/GraphExport.F90`'s
    `export_graph_dot` (optionally enriched with human-readable
-   import/export/internal names and child-proxy markers via
+   import/export/internal names via
    `superstructure/generic/GraphBuilder.F90`'s `build_label_map`).
 2. Render that `.dot` file to an image:
 

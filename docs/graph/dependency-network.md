@@ -30,7 +30,6 @@ or node-kind knowledge lives here; this type is pure adjacency.
   it to get ownership/foreign-id checking; omit it for the standalone
   synthetic tests that exercise pure adjacency with no `ComponentGraph`
   present.
-- `remove_dependency` (`:111`) — no-op success if the pair is absent.
 - `freeze()` (`:142`) — irreversible, no failure path.
 - `validate(rc, valid_ids, producer_ids, state_item_ids)` (`:250`) —
   the real integrity check: every referenced id must be in `valid_ids`

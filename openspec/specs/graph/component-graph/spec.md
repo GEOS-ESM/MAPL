@@ -11,7 +11,7 @@ component-hierarchy dependencies.
 ### Requirement: ComponentGraph owns graph structure and identity generation
 `ComponentGraph` MUST own: a generator for port identities (port
 identities remain scoped to the single component that declares them);
-public import/export ports; child-port bindings; and the resource index
+public import/export ports; and the resource index
 of its own advertised items. The polymorphic node map keyed by `NodeId`,
 the map of dependency networks keyed by `DependencyNetworkId`, the
 generators that issue fresh `NodeId`/`DependencyNetworkId` values, the
@@ -58,7 +58,7 @@ separate copies. A `ComponentGraph` has no default network of its own.
 
 ### Requirement: ComponentGraph supports mutable initialization
 Before freezing or finalization, the graph MUST allow valid node and network
-registration, dependency wiring, port creation, child-port binding,
+registration, dependency wiring, port creation,
 transform port-binding table updates, and resource-index updates, subject to
 network and graph validation rules.
 

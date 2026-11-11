@@ -39,7 +39,7 @@ contains
             key = item_key(var_spec%state_intent, var_spec%short_name)
             found_id => graph%get_resource_index(key)
             if (associated(found_id)) then
-               call label_map%insert(found_id, NodeLabel(var_spec%short_name, is_proxy=.false.))
+               call label_map%insert(found_id, NodeLabel(var_spec%short_name))
             end if
          end do
       end associate

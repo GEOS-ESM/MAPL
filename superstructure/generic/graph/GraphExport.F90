@@ -17,16 +17,14 @@
 !
 !   DOT:  digraph ComponentGraph {
 !           "<NodeId>" [label="<NodeId or supplied label>", kind="<kind>",
-!                       payload="<payload kind>"?, revision="<rev>"?,
-!                       shape="doublecircle"?];
+!                       payload="<payload kind>"?, revision="<rev>"?];
 !           "<source NodeId>" -> "<target NodeId>"
 !                       [network="<DependencyNetworkId>", label="<port>"?];
 !         }
 !   JSON: { "schema_version": <int>,
 !           "nodes": [ {"id": "<NodeId>", "kind": "<kind>",
 !                       "payload_kind": "<kind>"?, "revision": "<rev>"?,
-!                       "label": "<NodeId or supplied label>"?,
-!                       "proxy": true?} ],
+!                       "label": "<NodeId or supplied label>"?} ],
 !           "edges": [ {"source": "<NodeId>", "target": "<NodeId>",
 !                       "network": "<DependencyNetworkId>",
 !                       "port": "<port>"?} ] }
@@ -34,14 +32,12 @@
 ! ("?" marks optional fields, present only when applicable/requested.)
 ! DOT and JSON carry the same node/edge/metadata content.
 !
-! Label/proxy enrichment: both exporters take an optional,
+! Label enrichment: both exporters take an optional,
 ! caller-supplied NodeIdLabelMap (NodeId -> NodeLabel). When an entry exists
 ! for a node, its label replaces NodeId%to_string() in DOT's label="..."
 ! attribute and is emitted as a "label" field in JSON (omitted entirely with
-! no label_map). An entry's is_proxy flag adds shape="doublecircle" in DOT
-! and "proxy": true in JSON. This module resolves nothing itself
-! (REQ-VIZ-003); the caller (GraphBuilder's build_label_map) builds the
-! lookup.
+! no label_map). This module resolves nothing itself (REQ-VIZ-003); the
+! caller (GraphBuilder's build_label_map) builds the lookup.
 !
 ! Not implemented: hierarchy-wide export and component clustering, which need
 ! multi-ComponentGraph composition absent from this single-graph core, and
@@ -102,7 +98,7 @@ contains
       character(:), allocatable :: kind_label, payload_kind_label, revision_label
       character(:), allocatable :: attrs, edge_attrs, port_label
       character(:), allocatable :: node_label
-      logical :: has_payload_kind, has_revision, is_proxy
+      logical :: has_payload_kind, has_revision
       type(DependencyNetworkId) :: network_id
       type(DependencyNetwork), pointer :: network
       type(NodeIdSet), target :: successors
@@ -146,12 +142,11 @@ contains
          call describe_node(node, kind_label, has_payload_kind, payload_kind_label, &
                               has_revision, revision_label, _RC)
 
-         call resolve_node_label(label_map, id, node_label, is_proxy)
+         call resolve_node_label(label_map, id, node_label)
 
          attrs = 'label="' // dot_escape(node_label) // '", kind="' // dot_escape(kind_label) // '"'
          if (has_payload_kind) attrs = attrs // ', payload="' // dot_escape(payload_kind_label) // '"'
          if (want_revisions .and. has_revision) attrs = attrs // ', revision="' // dot_escape(revision_label) // '"'
-         if (is_proxy) attrs = attrs // ', shape="doublecircle"'
 
          dot_text = dot_text // '  "' // dot_escape(id%to_string()) // '" [' // attrs // '];' // NEW_LINE('a')
       end do
@@ -209,7 +204,7 @@ contains
       character(:), allocatable :: kind_label, payload_kind_label, revision_label
       character(:), allocatable :: entry, port_label
       character(:), allocatable :: node_label
-      logical :: has_payload_kind, has_revision, is_proxy
+      logical :: has_payload_kind, has_revision
       logical :: first_entry
       type(DependencyNetworkId) :: network_id
       type(DependencyNetwork), pointer :: network
@@ -250,13 +245,12 @@ contains
          call describe_node(node, kind_label, has_payload_kind, payload_kind_label, &
                               has_revision, revision_label, _RC)
 
-         call resolve_node_label(label_map, id, node_label, is_proxy)
+         call resolve_node_label(label_map, id, node_label)
 
          entry = '    {"id": "' // json_escape(id%to_string()) // '", "kind": "' // json_escape(kind_label) // '"'
          if (has_payload_kind) entry = entry // ', "payload_kind": "' // json_escape(payload_kind_label) // '"'
          if (want_revisions .and. has_revision) entry = entry // ', "revision": "' // json_escape(revision_label) // '"'
          if (present(label_map)) entry = entry // ', "label": "' // json_escape(node_label) // '"'
-         if (is_proxy) entry = entry // ', "proxy": true'
          entry = entry // '}'
 
          if (.not. first_entry) json_text = json_text // ',' // NEW_LINE('a')
@@ -363,21 +357,19 @@ contains
 
    ! -- optional node-label enrichment --
 
-   ! Resolves one node's display label and proxy status against an optional,
-   ! caller-supplied NodeIdLabelMap. With no label_map, or no entry for the node,
-   ! label falls back to id%to_string() and is_proxy is false.
+   ! Resolves one node's display label against an optional, caller-supplied
+   ! NodeIdLabelMap. With no label_map, or no entry for the node, label falls
+   ! back to id%to_string().
    ! This exporter never resolves a label itself (REQ-VIZ-003); it only looks up
    ! an entry the caller built.
-   subroutine resolve_node_label(label_map, id, label, is_proxy)
+   subroutine resolve_node_label(label_map, id, label)
       type(NodeIdLabelMap), optional, target, intent(in) :: label_map
       type(NodeId), intent(in) :: id
       character(:), allocatable, intent(out) :: label
-      logical, intent(out) :: is_proxy
 
       type(NodeLabel), pointer :: entry
 
       label = id%to_string()
-      is_proxy = .false.
 
       if (.not. present(label_map)) return
 
@@ -385,7 +377,6 @@ contains
       if (.not. associated(entry)) return
 
       label = entry%get_label()
-      is_proxy = entry%get_is_proxy()
    end subroutine resolve_node_label
 
    ! -- port-binding edge labels ------------------------------

@@ -4,7 +4,7 @@
 Standalone, non-Fortran companion to the graph exporter
 (superstructure/generic/graph/GraphExport.F90): turns a .dot file
 produced by that exporter (optionally enriched with human-readable
-labels/proxy markers by GraphBuilder.F90's build_label_map) into a
+labels by GraphBuilder.F90's build_label_map) into a
 rendered image, per REQ-VIZ-002's "delegated to established external
 tools" posture.
 

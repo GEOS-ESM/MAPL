@@ -43,7 +43,7 @@ budget fast for little marginal benefit on a typical change.
 | `characteristics.md` | `StateItemCharacteristic` hierarchy, extension/mismatch reconciliation |
 | `adding-a-characteristic.md` | Checklist for adding or converting a characteristic (status, `write_info`, `VariableSpec` factory) |
 | `callbacks.md` | `CallbackInterface`/registry, Handler/Invoker, callback State wiring |
-| `route-handles.md` | `RouteHandleKey`, route handle sharing/representation |
+| `route-handles.md` | Route handle representation (persistent wrapper State) |
 | `visualization-export.md` | `GraphExport` DOT/JSON topology export |
 | `graph-builder.md` | The `GraphBuilder` integration layer: advertising, connection resolution, extension reuse, geometry, state population, submodule map |
 | `open-questions.md` | Condensed list of genuinely unresolved design questions (full discussion remains in `spec/17-open-questions.md`) |

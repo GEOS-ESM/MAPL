@@ -38,7 +38,6 @@ target_sources(MAPL.generic PRIVATE
   MethodInvocation.F90
 
   PortBindingKey.F90
-  RouteHandleKey.F90
   containers/PortBindingKeyPortMap.F90
   PortBindingTable.F90
 
