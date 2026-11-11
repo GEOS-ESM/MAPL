@@ -40,8 +40,8 @@ contains
    ! An export's field is on its own node. An import's field is found by
    ! walking predecessor edges to the first node with a real Field
    ! (find_materialized_predecessor), which handles a direct match and
-   ! an extension chain alike. A VECTOR or BRACKET export goes in as its
-   ! bundle. Other items are skipped. An unresolved
+   ! an extension chain alike. With the switch on, a VECTOR or BRACKET
+   ! export goes in as its bundle. Other items are skipped. An unresolved
    ! import gets its own created Field when graph_populates_user_states()
    ! is on, and nothing otherwise.
    !
@@ -56,9 +56,9 @@ contains
    ! replaces the same entries.
    !
    ! With graph_populates_user_states() off, only Fields already completed
-   ! are inserted and INTERNAL items are skipped: legacy filled the user
-   ! states and must keep them. With it on, an INTERNAL item is completed
-   ! and allocated, and a created export goes in as it is (GRIDSET).
+   ! are inserted, and INTERNAL and EXPORT items are skipped: legacy filled
+   ! those user states and must keep them. With it on, an INTERNAL item is
+   ! completed and allocated, and a created export goes in as it is (GRIDSET).
    module subroutine graphbuilder_populate_state(this, multi_state, rc, &
         own_only)
       class(OuterMetaComponent), target, intent(inout) :: this
@@ -261,6 +261,11 @@ contains
 
       owns = graph_populates_user_states()
       if (state_intent == ESMF_STATEINTENT_INTERNAL .and. .not. owns) then
+         _RETURN(_SUCCESS)
+      end if
+      ! Legacy created the export Field its gridcomp holds; replacing it
+      ! leaves the gridcomp writing to a Field no one reads.
+      if (state_intent == ESMF_STATEINTENT_EXPORT .and. .not. owns) then
          _RETURN(_SUCCESS)
       end if
       if (own_only) then

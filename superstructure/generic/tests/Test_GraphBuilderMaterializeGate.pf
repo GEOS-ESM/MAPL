@@ -66,7 +66,7 @@ module Test_GraphBuilderMaterializeGate
    use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use mapl_GraphStateItem_mod, only: GraphStateItem, operator(==)
    use mapl_ExtensionResolution_mod, only: set_materialize_extensions
-   use mapl_ExtensionMaterialization_mod, only: field_extension_is_created
+   use mapl_ExtensionMaterialization_mod, only: field_extension_is_created, complete_created_field
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_StateItemCharacteristicKind_mod, only: GEOMETRY_CHARACTERISTIC_KIND
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
@@ -909,7 +909,7 @@ contains
    ! parent). The parent-supplied `multi_state` is explicitly asserted to
    ! receive NEITHER field.
    @Test(type=ESMF_TestMethod, npes=[1])
-   subroutine test_populate_state_aliases_export_and_skips_unresolved(this)
+   subroutine test_populate_state_aliases_import_skips_unresolved(this)
       class(ESMF_TestMethod), intent(inout) :: this
 
       type(ESMF_GridComp) :: parent_gc
@@ -925,7 +925,9 @@ contains
       type(NodeId), pointer :: t_export_id
       class(GraphNode), pointer :: node
       type(GraphStateItem) :: export_payload
-      type(VariableSpec) :: export_var_spec
+      type(VariableSpec) :: export_var_spec, import_var_spec
+      type(RestartMode) :: import_mode
+      character(:), allocatable :: import_long_name
       type(ESMF_Grid) :: grid
       type(ESMF_Geom) :: geom
       type(ESMF_Field) :: export_field, import_state_field
@@ -962,7 +964,10 @@ contains
       call src_spec%add_var_spec(export_var_spec)
 
       dst_spec => dst_meta%get_component_spec()
-      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T', units='m'))
+      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T', units='m')
+      import_var_spec%restart_mode = RESTART_SKIP
+      import_var_spec%long_name = 'Import T'
+      call dst_spec%add_var_spec(import_var_spec)
       ! Declared but never connected - must be silently skipped, not an
       ! error (spec "Unresolved import is not populated").
       call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'Q', units='m'))
@@ -1022,6 +1027,14 @@ contains
       @assertEqual(0, status)
       @assertTrue(FieldsAreAliased(export_field, import_state_field))
 
+      ! The import alias carries the import own restart_mode and long_name
+      ! with the switch off too, the production default.
+      call MAPL_FieldGet(import_state_field, restart_mode=import_mode, &
+           long_name=import_long_name, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(import_mode == RESTART_SKIP)
+      @assertEqual('Import T', import_long_name)
+
       ! Q was never connected (never wired, never populated) - no
       ! entry, no error, on child_dst's own state.
       call ESMF_StateGet(dst_own_import_state, itemCount=item_count, rc=status)
@@ -1039,15 +1052,14 @@ contains
       @assertEqual(0, item_count)
 
       _UNUSED_DUMMY(this)
-   end subroutine test_populate_state_aliases_export_and_skips_unresolved
+   end subroutine test_populate_state_aliases_import_skips_unresolved
 
-   ! Direct coverage of the per-child state population - child_src's own real EXPORT state and
-   ! child_dst's own real IMPORT state each receive the resolved field under
-   ! its own short name, the two states hold the SAME field object
-   ! (FieldsAreAliased), and the parent's own multi_state is confirmed empty -
-   ! the one assertion test_populate_state_aliases_export_and_skips_unresolved
-   ! above does not make (it checks child_dst's own import state and the Q
-   ! unresolved-import case, but not child_src's own export state explicitly).
+   ! Direct coverage of the per-child state population with graph_owns_user_states
+   ! off: child_dst's own real IMPORT state receives the resolved field under its
+   ! own short name (the SAME field object as the export's, FieldsAreAliased).
+   ! child_src's own real EXPORT state holds the Field legacy put there and is
+   ! left exactly as it was: the graph never writes a child's real export state
+   ! while legacy owns it. The parent's own multi_state is confirmed empty.
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_populate_state_reaches_each_childs_own_state(this)
       class(ESMF_TestMethod), intent(inout) :: this
@@ -1069,7 +1081,11 @@ contains
       type(MultiState) :: parent_multi_state
       type(MultiState) :: src_own_states, dst_own_states
       type(GriddedComponentDriver), pointer :: src_own_driver, dst_own_driver
-      type(ESMF_Field) :: src_field, dst_field
+      type(ESMF_Field) :: src_field, dst_field, legacy_field, graph_field
+      type(ComponentGraph), pointer :: src_graph
+      type(NodeId), pointer :: t_export_id
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: export_payload
       integer :: src_item_count, dst_item_count, parent_import_count, parent_export_count
       integer :: status
       type(GraphBuilder) :: gb
@@ -1100,6 +1116,8 @@ contains
       dst_spec => dst_meta%get_component_spec()
       call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, 'T', units='m'))
 
+      ! Graph mode at advertise, so the export node holds a Field.
+      call set_graph_mode(GRAPH_MODE_GRAPH)
       call gb%advertise(src_meta, status)
       @assert_that(status, is(0))
       call gb%advertise(dst_meta, status)
@@ -1111,11 +1129,38 @@ contains
       parent_spec => parent_meta%get_component_spec()
       call parent_spec%add_connection(conn)
 
-      call set_graph_mode(GRAPH_MODE_GRAPH)
       call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
            unsupported_characteristics=unsupported, rc=status)
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
+
+      ! Legacy's own export Field, already in the child's real export state
+      ! next to the graph's Field for the same item.
+      src_own_driver => src_meta%get_user_gc_driver()
+      src_own_states = src_own_driver%get_states()
+      src_own_export_state = src_own_states%exportState
+      legacy_field = ESMF_FieldEmptyCreate(name='T', rc=status)
+      @assertEqual(0, status)
+      call ESMF_StateAdd(src_own_export_state, [legacy_field], rc=status)
+      @assertEqual(0, status)
+
+      ! The graph's export Field is complete, so only the ownership rule
+      ! keeps populate_one from replacing legacy's Field in the real state.
+      src_graph => src_meta%get_component_graph()
+      t_export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      @assert_that(associated(t_export_id), is(true()))
+      node => src_graph%get_node(t_export_id)
+      select type (node)
+      class is (StateItemNode)
+         call complete_created_field(node, rc=status)
+         @assertEqual(0, status)
+         export_payload = node%get_payload()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      graph_field = export_payload%get_field(rc=status)
+      @assertEqual(0, status)
+      @assertFalse(FieldsAreAliased(graph_field, legacy_field))
 
       parent_import_state = ESMF_StateCreate(name='import', rc=status)
       @assertEqual(0, status)
@@ -1127,13 +1172,11 @@ contains
       call set_graph_mode(GRAPH_MODE_REGISTRY)
       @assert_that(status, is(0))
 
-      ! child_src's own real EXPORT state (the export side is touched
-      ! symmetrically with the import side).
-      src_own_driver => src_meta%get_user_gc_driver()
-      src_own_states = src_own_driver%get_states()
-      src_own_export_state = src_own_states%exportState
+      ! child_src's own real EXPORT state still holds legacy's Field, not
+      ! an alias of the graph's.
       call ESMF_StateGet(src_own_export_state, 'T', src_field, rc=status)
       @assertEqual(0, status)
+      @assertTrue(FieldsAreAliased(legacy_field, src_field))
       call ESMF_StateGet(src_own_export_state, itemCount=src_item_count, rc=status)
       @assertEqual(0, status)
       @assertEqual(1, src_item_count)
@@ -1148,9 +1191,9 @@ contains
       @assertEqual(0, status)
       @assertEqual(1, dst_item_count)
 
-      ! Same field object on both sides - not two independently
+      ! The import holds the graph's export Field, not two independently
       ! materialized fields that happen to compare equal.
-      @assertTrue(FieldsAreAliased(src_field, dst_field))
+      @assertTrue(FieldsAreAliased(graph_field, dst_field))
 
       ! Neither child's own field reaches the parent's own multi_state.
       call ESMF_StateGet(parent_import_state, itemCount=parent_import_count, rc=status)
@@ -1269,6 +1312,7 @@ contains
       call parent_spec%add_connection(conn)
 
       call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_graph_owns_user_states(.true.)
       call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
            unsupported_characteristics=unsupported, rc=status)
       @assert_that(status, is(0))
@@ -1299,6 +1343,7 @@ contains
 
       call gb%populate_state(parent_meta, parent_multi_state, status)
       call set_graph_mode(GRAPH_MODE_REGISTRY)
+      call set_graph_owns_user_states(.false.)
       @assert_that(status, is(0))
 
       src_own_driver => src_meta%get_user_gc_driver()
@@ -1319,6 +1364,9 @@ contains
       ! raw field's SKIP.
       call ESMF_StateGet(src_export_state, 'T', field, rc=status)
       @assertEqual(0, status)
+      ! With the switch on the graph does write the real export entry: it
+      ! is an alias of the export node's Field.
+      @assertTrue(FieldsAreAliased(raw_field, field))
       call MAPL_FieldGet(field, restart_mode=mode, long_name=long_name, rc=status)
       @assertEqual(0, status)
       @assertTrue(mode == RESTART_REQUIRED)

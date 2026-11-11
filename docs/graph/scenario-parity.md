@@ -64,7 +64,7 @@ to "Verified root causes" below.
 | expression_defer_geom | yes | passes (measured 2026-11-08): each input on the file grid gets a geometry step (`HorizontalRegridTransform`) before the `ExpressionTransform`; the chain links carry the input names, which `StateEval` looks up |
 | history_1 | yes | passes in graph and both modes (the table entry is `.true.`), the deep pull going through the hierarchy's forward network. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it was last measured failing two checks: `B/E_B3` (vertical-grid mismatch, no provider) and the `A/E_A1` value (tasks.md 3.44 Status); not re-measured since the forward network landed |
 | statistics | yes | ready (masked pass per owner decision: legacy still fills the user states with the switch off). The earlier R1 failure no longer reproduces (measured 2026-11-09, with and without the R1 fix); its cause was not traced. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes: user states are populated at advertise |
-| statistics_real | no | FAILS one check: `A/QV_MIN` value in `GRAPH` mode (cause not traced). P1 is resolved by no longer building the run-phase node at connect time, so the 22 failures behind `build_run_phase_node step failed with rc=1` are gone (measured 2026-11-10 on NAG: pending run `Tests run: 41, Failures: 1`; registry and both modes pass). The remaining check reads `expected=1.00000, range=[*,*]` for `history/stat/<user>::export::A/QV_MIN` (Test_Scenarios.pf:1553), then the step status is -1. With `graph_owns_user_states` it fails worse (3 checks per shard and a `characteristics_resolved` freeze failure), so the flag stays `.false.` |
+| statistics_real | yes | ready (masked pass: legacy fills the user states, and the graph does not write a child's real export state while it does). Measured 2026-11-11, NAG and gfortran: all checks pass in registry, `both` and `GRAPH` modes. Red before `C2-statistics-real`: one check failed, `history/stat/<user>::export::A/QV_MIN` value in `GRAPH` mode (`range=[****,****]`). Cause (traced): `populate_one` replaced (AddReplace) the child's real export entry `A/QV_MIN` with an alias of the graph's own export Field; the trace showed the replacement Field has a different data address than the one it replaced. That the stat gridcomp (`make_min_stat`) holds the Field legacy put there, and `TimeMin` writes it, is inferred, not traced: its `farrayPtr` was not allocated at realize time (rc=51), so its address could not be printed. Fixed by `populate_one` skipping EXPORT items when the graph does not own the user states. With the fix reverted (mutation, NAG) only `statistics_real [value] mode=graph` fails. With `graph_owns_user_states` it failed worse when last measured (2026-11-10, before this fix, not re-measured since): 3 checks per shard and a `characteristics_resolved` freeze failure (the stat gridcomp has no geometry), so the flag stays `.false.`. Follow-up, left unfixed: `try_alias_export_field` / `find_alias_owner` (`GraphBuilder_ConnectionResolution_smod.F90`) cannot alias an own export whose name contains a slash (legacy puts it in a sub-state, `A` for `A/QV_MIN`); the trace did not show that it matters for this scenario |
 | service_service | yes | ready (masked pass: the SERVICE items are aliased from the legacy user export state and the graph does not materialize them, M3). Red before `C2-alias-nonfield` (measured 2026-11-10: `Tests run: 43, Failures: 24`, first log line `resolve_connections step failed with rc=13`), green after |
 | service_with_options | yes | same as `service_service` |
 | vector_1 | yes | passes in graph and both modes (measured 2026-11-11, NAG; red before C1-vertical-b2: the pending run logged `no registered extension provider ... child_B:uv:VERTICAL_GRID` and failed `[item type]` in graph and both modes). A has 3 fixed levels `[30, 20, 10]` hPa on 12x13 and B has 1 level `[23]` hPa on 8x5, so the chain is `[geometry, vertical]` (horizontal bundle regrid, then `VerticalColumnRegridTransform` on the bundle; the single-level import has an `UNSPECIFIED` direction, so the orientation difference rides on the vertical step). The table entry sets `graph_owns_user_states`, so the item-type, status and standard-name checks read the graph's bundles. No value is checked: the horizontal bundle regrid rotates the constant `fill_value` vector between the two grids, so the import members are not constant; with the vertical regrid output zeroed (mutation, NAG) this scenario still passes, and `vector_vertical_regrid` is the one that detects it. In the test, `step_kind` reads a bundle link's alignment from its first member when it has one (legacy records it on members only), and compares alignments as resolved directions |
@@ -104,8 +104,8 @@ Measured 2026-11-10 on NAG with `MAPL_SCENARIO_ONLY=statistics_real` through
 the pending ctest, before the run-phase node was dropped from the connect
 hook: `Tests run: 41, Failures: 22`, first error `MethodGraphNode.F90:92`
 `argument name already declared`. After: `Tests run: 41, Failures: 1`
-(`value` check in `GRAPH` mode, see its table row); the scenario stays
-pending.
+(`value` check in `GRAPH` mode, see its table row). The remaining failure was
+fixed by `C2-statistics-real`; the scenario is ready.
 
 Measured 2026-11-09 on NAG with the switch on in `GRAPH` mode (3.42): all pass
 (`plain_field`, `units_mismatch_run_phase`, `units_and_typekind_mismatch`,
@@ -184,7 +184,7 @@ In production, the same faults only log a warning and drop part of the graph.
   "not found". `service_service` and `service_with_options` were red
   (`Failures: 24` each, `rc=13`) and are green and ready (masked, M3).
   `vector_1` already passed before the fix (no `rc=13` in its log) and stays
-  pending (its vertical-grid mismatch needed a bundle vertical Transform; ready since `C1-vertical-b2`). `statistics_real` no longer logs `rc=13`; its P1 failures are gone (see P1).
+  pending (its vertical-grid mismatch needed a bundle vertical Transform; ready since `C1-vertical-b2`). `statistics_real` no longer logs `rc=13`; its P1 failures are gone (see P1) and it is ready (see its table row).
 - **P1. Run-phase method-node arguments are keyed by short name only (resolved: the node is no longer built at connect time).**
   `graphbuilder_build_run_phase_node` declares one argument per import/export
   under `var_spec%short_name`. `StatisticsGridComp` advertises an import and
@@ -201,7 +201,7 @@ In production, the same faults only log a warning and drop part of the graph.
   is revived: key arguments structurally by (state intent, short name), or
   keep separate import/export argument sets, with intent passed to
   `get_argument`/`get_argument_binding`. Effect: `statistics_real` loses its
-  22 P1 failures but stays pending for one other check (see its table row).
+  22 P1 failures; one other check remained until `C2-statistics-real` (see its table row).
 
 ### Masked passes (not failures, but not graph-produced)
 
