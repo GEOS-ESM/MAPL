@@ -28,8 +28,8 @@ Landed changes (including `hierarchy-wide-component-graph`, phases
 7a/7b/7c and 12) are under `openspec/changes/archive/<date>-<name>/`.
 
 Facts below were verified against the tree on 2026-10-21 unless marked
-**[ASSUMPTION]**; updated 2026-11-11 through `2da1c1801` (§1.1-§1.2,
-§2.2-§2.4, §2.6, §2.7, §3).
+**[ASSUMPTION]**; updated 2026-11-11 through `087add3b5` (§1.1-§1.2,
+§2.2-§2.4, §2.6, §2.7, §3, §4).
 
 ## 1. Module map (`superstructure/generic/`)
 
@@ -40,10 +40,14 @@ files at the top level, and subdirectories `characteristics/`,
 `transforms/`, `callback/`, `id_types/` (plus `IdTemplate.inc`),
 `containers/` (gFTL instantiations); tests are in `graph/tests/` (for example `Test_ForwardNetwork.pf` for the
 hierarchy's forward network, `Test_VerticalColumnRegridTransform.pf`
-for both vertical Transforms, `Test_StateItemCharacteristicSubclasses.pf` for
+for both vertical Transforms (Field and bundle: one weight build per bundle,
+member recreation on a level-count or alignment change, the bundle flip),
+`Test_StateItemCharacteristicSubclasses.pf` for
 each characteristic's `needs_extension_for`, `build_transform` and
 `build_transform_for_item`, `Test_ExtensionResolution.pf` for chain
-building (including the vertical-grid step that also covers orientation),
+building (including the vertical-grid step that also covers orientation, the
+VECTOR vertical and orientation chains, and that a BRACKET's vertical link is
+a Field link),
 `Test_HorizontalBundleRegridTransform.pf` for
 the bundle-only regrid, and `Test_UnitsConverterTransform.pf` and
 `Test_TypeKindConverterTransform.pf`, which cover Fields and bundles).
@@ -205,9 +209,9 @@ factories (so far units, typekind, ungridded dims, geometry, vertical grid, vert
 | `TypeKind` | `TYPE_KIND_…` | Real: `TypeKindConverterTransform`, for a Field or, member by member, a VECTOR bundle (`TypeKindConverterTransform.F90:101`; only VECTOR reaches it: plain FIELDBUNDLE links are refused at materialization) |
 | `ItemShape` | `ITEM_SHAPE_…` | Every shape. Real for `BRACKET`→`FIELD` only (`BracketTimeInterpolationTransform`); `VECTORBRACKET`→`VECTOR` unsupported; pairs the shape matrix rejects (including `VECTORBRACKET`→`VECTORBRACKET`) are incompatible. Owns `get_extension_order` |
 | `Geometry` | `GEOMETRY_…` | Real for a pair that both hold an `ESMF_Geom`, with the param from `select_regridder_param` (the side that declares one, else the default). An id-only pair (component-level geometry wiring) is unsupported; both sides declaring a regridder param is incompatible, checked first (`GeometryCharacteristic.F90:190-224`, shared by both item paths). Overrides `build_transform_for_item` to dispatch on the tip's `ITEM_SHAPE` item class: FIELD gets `HorizontalRegridTransform`; VECTOR and BRACKET get `HorizontalBundleRegridTransform`; FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE and WILDCARD are unsupported. A tip with no `ITEM_SHAPE` entry (component-level wiring) is not restricted (`:230-263`). `get_signature` appends the regridder param's `to_string()`, so imports asking for different methods do not share a chain (`:267-303`) |
-| `VerticalGrid` | `VERTICAL_GRID_…` | Real: `VerticalColumnRegridTransform`, for a Field only (`vcoord_build_transform`, `vcoord_build_transform_for_item`). `needs_extension_for` follows the legacy `VerticalGridAspect%typesafe_matches` rule when both sides hold a grid (no mismatch iff the same id or `export_grid%matches(import_grid)`; a `BasicVerticalGrid` matches any grid with the same level count); two real referenced NodeIds are compared as ids first, and a side holding no grid falls back to the grid id token, then the dimension set. `build_transform` (one shared dimension): both grids hold level values for it (`VerticalGrid%has_column_coordinate`, true only for `FixedLevelsVerticalGrid` and its own dimension, `FixedLevelsVerticalGrid.F90:223-230`) gives the regrid; two Basic grids of different level counts are incompatible; a model grid, or a side with no grid, is unsupported (the graph cannot bind a model grid's PLE/ZLE field as a Transform input). A Basic grid names no physical dimension, so against a fixed or model grid of another level count there is no common dimension and `build_transform` fails (status 1, the value of `BUILD_TRANSFORM_UNSUPPORTED`), which `ExtensionResolution` reports unsupported. `build_transform_for_item` makes a non-Field item (a VECTOR included), a non-`CENTER` stagger and an R8 tip unsupported at connect, when the pair holds both grids; a tip with no `ITEM_SHAPE` entry is not restricted. `covered_kinds` adds `VERTICAL_ORIENTATION`. Other overlaps `_FAIL` with distinct messages (no overlap, or more than one) |
+| `VerticalGrid` | `VERTICAL_GRID_…` | Real: `VerticalColumnRegridTransform`, for a Field or, member by member, a VECTOR bundle (`vcoord_build_transform`, `vcoord_build_transform_for_item`). `needs_extension_for` follows the legacy `VerticalGridAspect%typesafe_matches` rule when both sides hold a grid (no mismatch iff the same id or `export_grid%matches(import_grid)`; a `BasicVerticalGrid` matches any grid with the same level count); two real referenced NodeIds are compared as ids first, and a side holding no grid falls back to the grid id token, then the dimension set. `build_transform` (one shared dimension): both grids hold level values for it (`VerticalGrid%has_column_coordinate`, true only for `FixedLevelsVerticalGrid` and its own dimension, `FixedLevelsVerticalGrid.F90:223-230`) gives the regrid; two Basic grids of different level counts are incompatible; a model grid, or a side with no grid, is unsupported (the graph cannot bind a model grid's PLE/ZLE field as a Transform input). A Basic grid names no physical dimension, so against a fixed or model grid of another level count there is no common dimension and `build_transform` fails (status 1, the value of `BUILD_TRANSFORM_UNSUPPORTED`), which `ExtensionResolution` reports unsupported. `build_transform_for_item` makes an item class other than FIELD and VECTOR (a BRACKET becomes a Field before the vertical step; FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE and WILDCARD are unsupported), a non-`CENTER` stagger and an R8 tip unsupported at connect, when the pair holds both grids; the stagger, R8 and holds-both guards apply to a VECTOR as to a Field; a tip with no `ITEM_SHAPE` entry is not restricted. `covered_kinds` adds `VERTICAL_ORIENTATION`. Other overlaps `_FAIL` with distinct messages (no overlap, or more than one) |
 | `VerticalStagger` | `VERTICAL_STAGGER_…` | Unsupported — mismatch is detected, repair is a stub: no Transform moves data between level centers and edges (`stagger_build_transform`). A stagger-only mismatch stays unsupported, and a vertical-grid step needs `CENTER` on the tip |
-| `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Real: `VerticalFlipTransform` for a Field (`orientation_build_transform`); `orientation_build_transform_for_item` makes a non-Field item (a VECTOR included) unsupported, and a tip with no `ITEM_SHAPE` entry is not restricted. When the vertical grids also mismatch, the vertical-grid step covers the orientation and no flip step is built. A grid with no direction (a single level) leaves the entry `SPECIFIED` holding `UNSPECIFIED`; `write_info` writes nothing for it, so the Field keeps `with_grid` (`orientation_write_info`). An `INVALID` direction still fails `write_info`. `UNSPECIFIED` against an explicit up or down still compares unequal. `FixedLevelsVerticalGrid%derive_direction` sets a fixed-levels grid's direction from its levels and `physical_dimension` (exact, case-sensitive): `height` and `altitude` increasing = UP, decreasing = DOWN; `pressure`, `depth`, `layer`, any other name or an unset dimension: increasing = DOWN, decreasing = UP; one level is `UNSPECIFIED`; non-monotonic levels fail (`FixedLevelsVerticalGrid.F90:81-111`). `BasicVerticalGrid` and `MirrorVerticalGrid` are DOWN (the default in `VerticalGrid.F90:17`); `ModelVerticalGrid` is DOWN unless its YAML `direction:` is set (`ModelVerticalGrid.F90:47,330,445-449`). So by default a fixed height grid (UP) and a model height grid (DOWN) differ in direction |
+| `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Real: `VerticalFlipTransform` for a Field or, member by member, a VECTOR bundle (`orientation_build_transform`); `orientation_build_transform_for_item` makes an item class other than FIELD and VECTOR unsupported, and a tip with no `ITEM_SHAPE` entry is not restricted. When the vertical grids also mismatch, the vertical-grid step covers the orientation and no flip step is built. A grid with no direction (a single level) leaves the entry `SPECIFIED` holding `UNSPECIFIED`; `write_info` writes nothing for it, so the Field keeps `with_grid` (`orientation_write_info`). An `INVALID` direction still fails `write_info`. `UNSPECIFIED` against an explicit up or down still compares unequal. `FixedLevelsVerticalGrid%derive_direction` sets a fixed-levels grid's direction from its levels and `physical_dimension` (exact, case-sensitive): `height` and `altitude` increasing = UP, decreasing = DOWN; `pressure`, `depth`, `layer`, any other name or an unset dimension: increasing = DOWN, decreasing = UP; one level is `UNSPECIFIED`; non-monotonic levels fail (`FixedLevelsVerticalGrid.F90:81-111`). `BasicVerticalGrid` and `MirrorVerticalGrid` are DOWN (the default in `VerticalGrid.F90:17`); `ModelVerticalGrid` is DOWN unless its YAML `direction:` is set (`ModelVerticalGrid.F90:47,330,445-449`). So by default a fixed height grid (UP) and a model height grid (DOWN) differ in direction |
 | `HorizontalDimsSpec` | `HORIZONTAL_DIMS_SPEC_…` | Incompatible — GEOM vs NONE is detected in both directions and can never connect |
 | `Attributes`, `UngriddedDims`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | Incompatible — legacy rejects every mismatch of two non-mirror values, so a detected mismatch can never connect |
 | `QuantityType` | `QUANTITY_TYPE_CHARACTERISTIC_KIND` | Incompatible for a quantity-type mismatch; unsupported when only the basis differs (both real bases; `BASIS_NONE` is a basis wildcard, `QUANTITY_UNKNOWN` is not a wildcard): a conversion is possible but not built. Factory status by intent: declared -> `SPECIFIED`; undeclared (or declared `QUANTITY_UNKNOWN`) -> `DEFERRED` on EXPORT/INTERNAL, `UNCHECKED` on IMPORT. `is_deferred_fatal` is `quantity_type_required()` (`ValidationPolicy.F90`, key `field_dictionary: require_quantity_type`, no legacy counterpart; strict validation alone does not set it). An unsupplied one falls back to `UNCHECKED` with one summary warning |
@@ -282,12 +286,20 @@ member count changes. A regridded VECTOR takes the input `vector_basis_kind`.
 A BRACKET is regridded when `bracket_updated` is true, and on the first
 compute or after a regridder, geom, typekind or member-set change whatever
 the flag says; it also copies the input interpolation weights to the output.
-`BundleMemberSupport.F90` (`ensure_output_members`, `copy_bundle_attributes`,
+`BundleMemberSupport.F90` (`ensure_output_members`,
+`ensure_vertical_output_members`, `copy_bundle_attributes`,
 `copy_vector_basis`, `copy_interpolation_weights`) holds the member code the
-bundle regrid and the units and typekind converters share. Each creates the
-output members at compute, one clone of each input member on the output
-bundle's geom and typekind, and again when the input member count differs;
-a created member takes the output bundle's typekind and units. The chain
+bundle regrid, the units and typekind converters and the vertical Transforms
+share. The horizontal, units and typekind callers use `ensure_output_members`:
+they create the output members at compute, one clone of each input member on
+the output bundle's geom and typekind, and again when the input member count
+differs; a created member takes the output bundle's typekind and units. The
+vertical callers use `ensure_vertical_output_members`: a member is also
+recreated when its level count, vertical grid, stagger or alignment is not the
+output bundle's (a graph-owned VECTOR export has members from connect, and a
+reused chain link keeps the members an earlier compute made), and a created
+member takes the output bundle's level count, vertical grid, stagger and
+alignment instead of the input member's. The chain
 links they fill are memberless bundles made by `materialize_extension_chain`
 (§2.6). A units or typekind step never sees a BRACKET: its chain order
 (`BRACKET_ORDER`, `ItemShapeCharacteristic.F90:206-207`) has neither kind.
@@ -295,13 +307,20 @@ links they fill are memberless bundles made by `materialize_extension_chain`
 JSON of `make_info`, `EsmfRegridder.F90:292-306`) is what the Geometry
 signature, and so the chain key, carries.
 
-`VerticalColumnRegridTransform` (Field, R4 only, linear only; copy or
+`VerticalColumnRegridTransform` (Field or VECTOR bundle, R4 only, linear only; copy or
 flip when the two grids match, otherwise weights between the grids'
 column coordinates at level centers, rebuilt when a grid, stagger or
 alignment changes) is built by `VerticalGridCharacteristic%build_transform`,
-and `VerticalFlipTransform` (Field, R4 and R8; index reversal for an
+and `VerticalFlipTransform` (Field or VECTOR bundle, R4 and R8; index reversal for an
 orientation-only mismatch) by `VerticalOrientationCharacteristic%build_transform`
-(table above). Each side's level values are put in that field's own storage
+(table above). Both have a bundle branch, taken when the input port is bound
+to a FieldBundle (`port_is_bundle`, `get_vertical_port_bundle`, both public
+in `VerticalFlipTransform.F90`): it ensures the output members
+(`ensure_vertical_output_members`), copies the bundle attributes and vector
+basis, and runs the Field compute over the member pairs. The regrid builds its
+weights once per bundle and reuses them for the other members.
+
+Each side's level values are put in that field's own storage
 order, so the weights map stored data to stored data. Import levels outside
 the export's range take the end value with one logged warning per weight
 build (`build_weights`, `VerticalColumnRegridTransform.F90`). An R8 field
@@ -309,7 +328,8 @@ fails at compute (`check_r4`, message shared through
 `vertical_regrid_r8_message`), so `build_transform_for_item` reports an R8
 tip unsupported at connect and the pair stays unwired. A vertical step is
 not built for a model grid (no level values the graph can read), a
-non-center stagger, an R8 tip, or a VECTOR or other non-Field item (§3). A
+non-center stagger, an R8 tip, or an item class other than FIELD and VECTOR
+(a BRACKET reaches the vertical step as a Field; §3). A
 geometry mismatch on a FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE or
 WILDCARD item is likewise unsupported.
 
@@ -361,9 +381,11 @@ the fixtures `tests/scenarios/` (legacy YAML scenarios) and
 bracket. The Field vertical scenarios `vertical_regridding`,
 `vertical_alignment_regrid`, `vertical_alignment_with_grid` and
 `vertical_alignment_same_grid` (each `chain: [vertical]`) and
-`vertical_orientation_flip` (`chain: [orientation]`) are `graph_ready`;
-`vertical_regridding_2` and `vertical_regridding_3` (model grids) and
-`vector_1` are not (`scenario_table()`). The scenario checker's `step_kind`
+`vertical_orientation_flip` (`chain: [orientation]`) are `graph_ready`, as are
+the VECTOR scenarios `vector_1` (`chain: [geometry, vertical]`),
+`vector_vertical_regrid` (`chain: [vertical]`) and `vector_orientation_flip`
+(`chain: [orientation]`); `vertical_regridding_2` and `vertical_regridding_3`
+(model grids) are not (`scenario_table()`, 47 entries). The scenario checker's `step_kind`
 names a step that changes both the vertical grid and the orientation
 `vertical`.
 
@@ -593,7 +615,8 @@ the switch (the `legacy_only` test in `check`).
 `Test_Scenarios` for every scenario, and a `scenario_table()` entry can set
 `graph_owns_user_states` for one scenario (`scenario_reexport_twice`,
 `regrid`, `regrid_r8`, `vector_regrid`, `bracket_regrid`, `invalidate`,
-`vertical_regridding`, `vertical_orientation_flip`,
+`vertical_regridding`, `vertical_orientation_flip`, `vector_1`,
+`vector_vertical_regrid`, `vector_orientation_flip`,
 `expression_per_consumer_r8` (graph mode only), and the `graph-scenarios` `plain_field`,
 `units_mismatch_run_phase`, `grandparent_units_run_phase`,
 `units_and_typekind_mismatch` and `graphbuilder_propagation` do;
@@ -620,7 +643,7 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
 | Item class | Graph-mode path |
 |---|---|
 | FIELD, FIELDBUNDLE, STATE | Ordinary resolution + characteristic extension chain |
-| VECTOR, BRACKET (geometry mismatch) | The extension chain holds a `HorizontalBundleRegridTransform` link of the item's class (BRACKET→FIELD adds time interpolation after it). `materialize_extension_chain` completes a VECTOR or BRACKET link as an `ALLOCATED` memberless `FieldBundle` of that type; the Transforms create the members at compute. A link declared any other non-FIELD class is refused with `unsupported_item_class:<class>` (`GraphBuilder_ConnectionResolution_smod.F90:1732-1775`). `check_materializable` (`:1697-1724`) admits FIELD, VECTOR and BRACKET on both sides (a BRACKET import side is admitted for a chain input, where the export is passed as its own import); SERVICE and every other class give `unsupported_item_class:<class>`. A VECTOR or BRACKET export the graph consumes (exact match, or the input of a chain) is not aliased from legacy when none is there: the graph's advertise-created bundle is completed in place with its members by `try_materialize_field_extension` (`with_members`, `:1671-1690`); a legacy bundle in the owner's user export state is aliased instead when the switch is off (§2.7). A VECTOR with a vertical-grid or orientation mismatch is unsupported (the vertical Transforms are Field only). A chain link takes its declared class from its `ITEM_SHAPE` entry (`StateItemDescriptor%take_declared_item_type_from_shape`; an EXPRESSION shape gives FIELD) |
+| VECTOR, BRACKET (geometry mismatch) | The extension chain holds a `HorizontalBundleRegridTransform` link of the item's class (BRACKET→FIELD adds time interpolation after it). `materialize_extension_chain` completes a VECTOR or BRACKET link as an `ALLOCATED` memberless `FieldBundle` of that type; the Transforms create the members at compute. A link declared any other non-FIELD class is refused with `unsupported_item_class:<class>` (`GraphBuilder_ConnectionResolution_smod.F90:1732-1775`). `check_materializable` (`:1697-1724`) admits FIELD, VECTOR and BRACKET on both sides (a BRACKET import side is admitted for a chain input, where the export is passed as its own import); SERVICE and every other class give `unsupported_item_class:<class>`. A VECTOR or BRACKET export the graph consumes (exact match, or the input of a chain) is not aliased from legacy when none is there: the graph's advertise-created bundle is completed in place with its members by `try_materialize_field_extension` (`with_members`, `:1671-1690`); a legacy bundle in the owner's user export state is aliased instead when the switch is off (§2.7). A VECTOR with a vertical-grid or orientation mismatch gets a vertical Transform link of the item's class (`VerticalColumnRegridTransform` or `VerticalFlipTransform`, bundle branch), a memberless bundle filled at compute like the horizontal link; a BRACKET's vertical link is a Field link, because the time interpolation makes it a Field first. A chain link takes its declared class from its `ITEM_SHAPE` entry (`StateItemDescriptor%take_declared_item_type_from_shape`; an EXPRESSION shape gives FIELD) |
 | BRACKET → FIELD | `ItemShapeCharacteristic` + `BracketTimeInterpolationTransform` |
 | VECTORBRACKET | Not handled: legacy only (matrix: VECTOR unsupported, others incompatible). `to_itemtype` in the compiled parser does not parse `'vector_bracket'`. |
 | EXPRESSION | Placeholder export; names check in `graphbuilder_run_expression_hook`; one `ExpressionTransform` (N:1) evaluation per consumer, built in `resolve_one_pair` |
@@ -689,9 +712,10 @@ because the state holds the node's own created Field
   none until the first compute: chain links are memberless. A BRACKET
   export with no `bracket_size`, or more than 2, fails at connect with a
   message.
-- The vertical steps are Field only. A VECTOR (or other bundle) pair with a
-  vertical-grid or orientation mismatch is reported unsupported, so
-  `vector_1` stays pending.
+- The vertical steps cover a Field and a VECTOR. A pair of any other bundle
+  class (FIELDBUNDLE, VECTORBRACKET) or of SERVICE, STATE or WILDCARD with a
+  vertical-grid or orientation mismatch is reported unsupported; a BRACKET
+  needs none, because it is a Field before the vertical step.
 - A vertical regrid is built only between two grids that both hold level
   values for their one shared dimension (fixed-levels grids), at level
   centers, for R4 and linear interpolation. A model grid on either side (its
@@ -738,8 +762,9 @@ because the state holds the node's own created Field
   not found past one; payload readers must tolerate EMPTY and GRIDSET
   Fields.
 - Some mismatches are detected but not repaired (see §1.1): VerticalGrid
-  for a model grid, a non-`CENTER` stagger, an R8 tip or a non-Field item,
-  VerticalStagger, VerticalOrientation for a non-Field item, a QuantityType
+  for a model grid, a non-`CENTER` stagger, an R8 tip or an item class other
+  than FIELD and VECTOR, VerticalStagger, VerticalOrientation for an item
+  class other than FIELD and VECTOR, a QuantityType
   basis-only mismatch, VECTORBRACKET→VECTOR, and Geometry for an id-only
   pair or a FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE or WILDCARD item.
 - A mirrored (propagated) import is not inserted into the real
@@ -784,6 +809,7 @@ names, not the `generic3g`/`MAPL.generic3g.*` names in the generic
 | Target | Covers |
 |---|---|
 | `MAPL.generic.graph` | `graph/tests/` (core, characteristics, transforms, callbacks, forward network). The executable initializes through `GraphCoreTestInit.F90`: ESMF, udunits and `pfl_initialize()` (`GraphCoreTestInit.F90:11,32-34`), because code under test may log warnings (the vertical regrid does) and pflogger aborts if never set up |
+| `MAPL.field_bundle.tests` | `infrastructure/field_bundle/tests/`, including `Test_FieldBundleSet.pf` (`vert_alignment` round trip on a memberless bundle; `with_grid` default). `MAPL_FieldBundleSet` stores `vert_alignment` on the bundle itself, so a bundle with no members records its alignment |
 | `MAPL.generic.components` | `Test_GraphBuilder*.pf`, propagation, mode tests, spec/parser tests |
 | `MAPL.generic.components.quiet` | Two deliberate negative-path hook tests, run at `--level ERROR` |
 | `MAPL.generic.scenarios.shard0` .. `.shard3` | `Test_Scenarios.pf`, equivalence harness, graph-mode demonstration (strict field dictionary). One binary run in 4 processes via `MAPL_SCENARIO_SHARD=k/4`, because `ESMF_TestCase` leaks MPI communicators per test (MPICH limit). `-R MAPL.generic.scenarios.shard` runs all; the plain `MAPL.generic.scenarios` entry is disabled |

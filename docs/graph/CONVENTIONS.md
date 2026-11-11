@@ -123,8 +123,9 @@ and `graph/tests/` stay facade-only.
   level counts. QuantityType too, except a basis-only mismatch (same
   quantity type, two real bases), which is unsupported because a
   conversion can exist. A kind or pairing whose Transform is merely not
-  built yet (VerticalStagger; VerticalGrid for a model grid or a non-Field
-  item; VerticalOrientation for a non-Field item; Geometry for an id-only
+  built yet (VerticalStagger; VerticalGrid for a model grid or an item class
+  other than FIELD and VECTOR; VerticalOrientation for an item class other
+  than FIELD and VECTOR; Geometry for an id-only
   pair or an item other than FIELD, VECTOR and BRACKET; ItemShape's
   VECTORBRACKET to VECTOR) stays unsupported. So does
   StandardName, because it fails the test: legacy permissive
