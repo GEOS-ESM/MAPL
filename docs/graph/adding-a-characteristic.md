@@ -316,11 +316,12 @@ Second kind with a DEFERRED value; it reuses Geometry's machinery.
   because the column regrid also flips; stagger is never covered
   (`:341-352`).
 - `build_transform_for_item` adds the item checks: items other than a
-  Field or a VECTOR (so a plain FIELDBUNDLE and a VECTORBRACKET), a
-  non-CENTER stagger and an R8 tip (the regrid is R4 only) are
-  unsupported. A VECTOR gets the same Transform; at compute it regrids the
-  members one by one with one weight build. A BRACKET never reaches this
-  step as a bundle: the time interpolation makes it a Field first.
+  Field or a VECTOR (so a plain FIELDBUNDLE and a VECTORBRACKET) and a
+  non-CENTER stagger are unsupported. The regrid takes R4 or R8 fields,
+  both of one kind. A VECTOR gets the same Transform; at compute it
+  regrids the members one by one with one weight build. A BRACKET never
+  reaches this step as a bundle: the time interpolation makes it a Field
+  first.
 - When a later kind in the chain is unsupported (for example a stagger
   step after the regrid), the regrid link already built stays in the
   forward network with no successor; nothing pulls it, so its Transform

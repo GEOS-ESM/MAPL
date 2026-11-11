@@ -156,8 +156,8 @@ orientations differ; for a vector it regrids every member with one set of
 weights. Two basic grids with different level counts SHALL be reported
 incompatible. A model grid, a side with no grid object, an item that is
 neither a field nor a vector (a bracket is a field by this step; a plain
-field bundle and a vector-bracket are not), an R8 item, or a non-center
-vertical stagger SHALL be reported as an explicit unsupported
+field bundle and a vector-bracket are not), or a non-center vertical
+stagger SHALL be reported as an explicit unsupported
 vertical-grid step at connect time.
 
 #### Scenario: A resolvable single-dimension mismatch between fixed-level grids builds a column regrid

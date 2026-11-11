@@ -3,14 +3,17 @@
 !------------------------------------------------------------------------------
 ! VerticalColumnRegridTransform: regrids a field from the input field's
 ! vertical grid to the output field's, column by column. A Field, or a
-! VECTOR bundle whose members are regridded one by one; R4 only, linear only.
+! VECTOR bundle whose members are regridded one by one; linear only. Both
+! fields have the same typekind, R4 or R8.
 !
 ! Each field carries its vertical grid, stagger, and alignment (read with
 ! FieldGet at compute). The weights are built at the first compute and again
 ! whenever one of those changes. One weight matrix serves every column,
 ! since only grids whose levels are the same in every column are supported.
 ! The members of a bundle share one grid pair, so the weights are built for
-! the first member and reused for the rest.
+! the first member and reused for the rest. The level values are R4, so
+! they are widened before any arithmetic; R8 fields get R8 weights, R4
+! fields R4 weights.
 !
 ! Each side's level values are put in that field's own storage order
 ! (reversed when its alignment is opposite to its grid's direction), so the
@@ -57,6 +60,7 @@ module mapl_VerticalColumnRegridTransform_mod
    use mapl_VerticalRegridMethod_mod, only: operator(==), operator(/=)
    use mapl_VerticalLinearMap_mod, only: compute_linear_map
    use mapl_CSR_SparseMatrix_mod, only: SparseMatrix_sp => CSR_SparseMatrix_sp
+   use mapl_CSR_SparseMatrix_mod, only: SparseMatrix_dp => CSR_SparseMatrix_dp
    use mapl_CSR_SparseMatrix_mod, only: matmul, shape
    use udunits2f, only: UDUNITS_Converter => Converter
    use udunits2f, only: UDUNITS_GetConverter => get_converter
@@ -65,13 +69,14 @@ module mapl_VerticalColumnRegridTransform_mod
    use ESMF, only: ESMF_Field, ESMF_FieldGet, ESMF_TypeKind_Flag
    use ESMF, only: ESMF_FieldBundle
    use ESMF, only: ESMF_TYPEKIND_R4, ESMF_KIND_R4, ESMF_MAXSTR
+   use ESMF, only: ESMF_TYPEKIND_R8, ESMF_KIND_R8
+   use, intrinsic :: iso_fortran_env, only: REAL64
    use ESMF, only: operator(==), operator(/=)
    use mapl_ErrorHandling_mod
    implicit none(type, external)
    private
 
    public :: VerticalColumnRegridTransform
-   public :: vertical_regrid_r8_message
 
    type, extends(Transform) :: VerticalColumnRegridTransform
       private
@@ -84,10 +89,13 @@ module mapl_VerticalColumnRegridTransform_mod
       type(VerticalStaggerLoc) :: stagger_out
       type(VerticalAlignment) :: alignment_in
       type(VerticalAlignment) :: alignment_out
+      type(ESMF_TypeKind_Flag) :: typekind
       ! Copy (flip or not) instead of weights.
       logical :: copy_only = .false.
       logical :: flip = .false.
-      type(SparseMatrix_sp) :: matrix
+      ! Only the one for the typekind above is current.
+      type(SparseMatrix_sp) :: matrix_sp
+      type(SparseMatrix_dp) :: matrix_dp
       integer :: num_out_of_range = 0
       integer :: num_builds = 0
    contains
@@ -105,7 +113,12 @@ module mapl_VerticalColumnRegridTransform_mod
    character(*), parameter :: INPUT_PORT_NAME = 'source_field'
    character(*), parameter :: OUTPUT_PORT_NAME = 'destination_field'
    character(*), parameter :: WHO = 'VerticalColumnRegridTransform'
-   real, parameter :: RANGE_TOL = 1.0e-5
+   real(REAL64), parameter :: RANGE_TOL = 1.0d-5
+
+   interface apply_weights
+      procedure apply_weights_sp
+      procedure apply_weights_dp
+   end interface apply_weights
 
 contains
 
@@ -119,14 +132,6 @@ contains
       call transform%declare_input_port(INPUT_PORT_NAME, rc=status)
       call transform%declare_output_port(OUTPUT_PORT_NAME, rc=status)
    end function new_VerticalColumnRegridTransform
-
-   ! Shared with the connect-time check, so both report R8 the same way.
-   function vertical_regrid_r8_message(name) result(m)
-      character(*), intent(in) :: name
-      character(:), allocatable :: m
-
-      m = 'vertical regrid of ' // name // ': R8 not supported'
-   end function vertical_regrid_r8_message
 
    function msg(name, text) result(m)
       character(*), intent(in) :: name, text
@@ -169,9 +174,9 @@ contains
       _RETURN(_SUCCESS)
    end subroutine vregrid_compute
 
-   ! The weights are rebuilt only when the grids, staggers or alignments of
-   ! the two fields differ from the last call, so the members of a bundle
-   ! share one build.
+   ! The weights are rebuilt only when the grids, staggers, alignments or
+   ! typekind of the two fields differ from the last call, so the members of
+   ! a bundle share one build.
    subroutine regrid_field(this, f_in, f_out, rc)
       class(VerticalColumnRegridTransform), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: f_in, f_out
@@ -179,24 +184,32 @@ contains
 
       integer :: status
       character(:), allocatable :: name
+      type(ESMF_TypeKind_Flag) :: tk_in, tk_out
 
       call get_field_name(f_out, name, _RC)
-      call check_r4(f_in, name, _RC)
-      call check_r4(f_out, name, _RC)
+      call ESMF_FieldGet(f_in, typekind=tk_in, _RC)
+      call ESMF_FieldGet(f_out, typekind=tk_out, _RC)
+      _ASSERT(tk_in == tk_out, msg(name, 'typekinds differ'))
+      if (tk_in /= ESMF_TYPEKIND_R4 .and. tk_in /= ESMF_TYPEKIND_R8) then
+         _FAIL(msg(name, 'only R4 and R8 regrid'))
+      end if
 
-      call this%update_weights_for(f_in, f_out, name, _RC)
+      call this%update_weights_for(f_in, f_out, tk_in, name, _RC)
       if (this%copy_only) then
          call copy_vertical_column(f_in, f_out, this%flip, _RC)
+      else if (tk_in == ESMF_TYPEKIND_R8) then
+         call apply_weights(this%matrix_dp, f_in, f_out, name, _RC)
       else
-         call apply_weights(this%matrix, f_in, f_out, name, _RC)
+         call apply_weights(this%matrix_sp, f_in, f_out, name, _RC)
       end if
 
       _RETURN(_SUCCESS)
    end subroutine regrid_field
 
-   subroutine update_weights_for(this, f_in, f_out, name, rc)
+   subroutine update_weights_for(this, f_in, f_out, typekind, name, rc)
       class(VerticalColumnRegridTransform), intent(inout) :: this
       type(ESMF_Field), intent(inout) :: f_in, f_out
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
       character(*), intent(in) :: name
       integer, optional, intent(out) :: rc
 
@@ -221,7 +234,8 @@ contains
               .or. stagger_in /= this%stagger_in &
               .or. stagger_out /= this%stagger_out &
               .or. alignment_in /= this%alignment_in &
-              .or. alignment_out /= this%alignment_out
+              .or. alignment_out /= this%alignment_out &
+              .or. typekind /= this%typekind
       end if
       _RETURN_UNLESS(changed)
 
@@ -252,8 +266,8 @@ contains
             _FAIL(msg(name, 'only linear is supported'))
          end if
          call build_weights(vgrid_in, stagger_in, dir_in, vgrid_out, &
-              stagger_out, dir_out, name, this%matrix, &
-              this%num_out_of_range, _RC)
+              stagger_out, dir_out, typekind, name, this%matrix_sp, &
+              this%matrix_dp, this%num_out_of_range, _RC)
          this%copy_only = .false.
          this%flip = .false.
       end if
@@ -264,6 +278,7 @@ contains
       this%stagger_out = stagger_out
       this%alignment_in = alignment_in
       this%alignment_out = alignment_out
+      this%typekind = typekind
       this%num_builds = this%num_builds + 1
       this%ready = .true.
 
@@ -279,23 +294,26 @@ contains
    end function opposite
 
    subroutine build_weights(vgrid_in, stagger_in, dir_in, vgrid_out, &
-        stagger_out, dir_out, name, matrix, num_out_of_range, rc)
+        stagger_out, dir_out, typekind, name, matrix_sp, matrix_dp, &
+        num_out_of_range, rc)
       class(VerticalGrid), intent(in) :: vgrid_in, vgrid_out
       type(VerticalStaggerLoc), intent(in) :: stagger_in, stagger_out
       type(VerticalCoordinateDirection), intent(in) :: dir_in, dir_out
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
       character(*), intent(in) :: name
-      type(SparseMatrix_sp), intent(out) :: matrix
+      type(SparseMatrix_sp), intent(out) :: matrix_sp
+      type(SparseMatrix_dp), intent(out) :: matrix_dp
       integer, intent(out) :: num_out_of_range
       integer, optional, intent(out) :: rc
 
       integer :: status
       character(:), allocatable :: dimension, units_in, units_out, grids
       character(:), allocatable :: text
-      real, allocatable :: levels_in(:), levels_out(:)
+      real(REAL64), allocatable :: levels_in(:), levels_out(:)
       type(UDUNITS_Converter) :: converter
       class(Logger), pointer :: lgr
       character(16) :: buf
-      real :: tol
+      real(REAL64) :: tol
 
       num_out_of_range = 0
       write(buf, '(i0," and ",i0)') vgrid_in%get_id(), vgrid_out%get_id()
@@ -351,24 +369,32 @@ contains
          call lgr%warning(msg(name, text))
       end if
 
-      call compute_linear_map(levels_in, levels_out, matrix, &
-           allow_out_of_range=.true., _RC)
+      if (typekind == ESMF_TYPEKIND_R8) then
+         call compute_linear_map(levels_in, levels_out, matrix_dp, &
+              allow_out_of_range=.true., _RC)
+      else
+         call compute_linear_map(real(levels_in, ESMF_KIND_R4), &
+              real(levels_out, ESMF_KIND_R4), matrix_sp, &
+              allow_out_of_range=.true., _RC)
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine build_weights
 
-   ! Grids that do not match need level values on both sides.
+   ! Grids that do not match need level values on both sides. The grid
+   ! supplies R4 values; they are returned widened.
    subroutine get_levels(vgrid, other, side, dimension, name, levels, rc)
       class(VerticalGrid), intent(in) :: vgrid, other
       character(*), intent(in) :: side, dimension, name
-      real, allocatable, intent(out) :: levels(:)
+      real(REAL64), allocatable, intent(out) :: levels(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
       character(64) :: buf
       character(:), allocatable :: text
+      real, allocatable :: levels_r4(:)
 
-      call vgrid%get_column_coordinate(dimension, levels, rc=status)
+      call vgrid%get_column_coordinate(dimension, levels_r4, rc=status)
       if (status /= 0) then
          write(buf, '(i0," and ",i0)') vgrid%get_num_layers(), &
               other%get_num_layers()
@@ -376,6 +402,7 @@ contains
               ' not match (' // trim(buf) // ' levels)'
          _FAIL(msg(name, text))
       end if
+      levels = real(levels_r4, REAL64)
 
       _RETURN(_SUCCESS)
    end subroutine get_levels
@@ -400,7 +427,7 @@ contains
       end do
    end subroutine find_common_dimension
 
-   subroutine apply_weights(matrix, f_in, f_out, name, rc)
+   subroutine apply_weights_sp(matrix, f_in, f_out, name, rc)
       type(SparseMatrix_sp), intent(in) :: matrix
       type(ESMF_Field), intent(inout) :: f_in, f_out
       character(*), intent(in) :: name
@@ -425,23 +452,34 @@ contains
       end do
 
       _RETURN(_SUCCESS)
-   end subroutine apply_weights
+   end subroutine apply_weights_sp
 
-   subroutine check_r4(field, name, rc)
-      type(ESMF_Field), intent(in) :: field
+   subroutine apply_weights_dp(matrix, f_in, f_out, name, rc)
+      type(SparseMatrix_dp), intent(in) :: matrix
+      type(ESMF_Field), intent(inout) :: f_in, f_out
       character(*), intent(in) :: name
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(ESMF_TypeKind_Flag) :: typekind
+      integer :: status, horz, ungrd
+      real(kind=ESMF_KIND_R8), pointer :: x_in(:,:,:), x_out(:,:,:)
+      integer :: s_in(3), s_out(3), m(2)
 
-      call ESMF_FieldGet(field, typekind=typekind, _RC)
-      if (typekind /= ESMF_TYPEKIND_R4) then
-         _FAIL(vertical_regrid_r8_message(name))
-      end if
+      call assign_fptr_condensed_array(f_in, x_in, _RC)
+      call assign_fptr_condensed_array(f_out, x_out, _RC)
+      s_in = shape(x_in)
+      s_out = shape(x_out)
+      m = shape(matrix)
+      _ASSERT(s_in(1) == s_out(1), msg(name, 'horizontal sizes differ'))
+      _ASSERT(s_in(3) == s_out(3), msg(name, 'ungridded sizes differ'))
+      _ASSERT(s_in(2) == m(2), msg(name, 'source levels do not fit grid'))
+      _ASSERT(s_out(2) == m(1), msg(name, 'destination levels do not fit grid'))
+
+      do concurrent (horz=1:s_in(1), ungrd=1:s_in(3))
+         x_out(horz, :, ungrd) = matmul(matrix, x_in(horz, :, ungrd))
+      end do
 
       _RETURN(_SUCCESS)
-   end subroutine check_r4
+   end subroutine apply_weights_dp
 
    subroutine get_field_name(field, name, rc)
       type(ESMF_Field), intent(in) :: field

@@ -23,7 +23,7 @@
 ! step that also covers the orientation; the export must be at level
 ! centers. Two basic grids with different level counts are incompatible. Any
 ! other mismatch (a grid without level values, e.g. a model grid; a
-! non-center stagger; an R8 tip; any other item class, such as a plain
+! non-center stagger; any other item class, such as a plain
 ! FIELDBUNDLE or a BRACKET) reports unsupported. A BRACKET becomes a Field
 ! before this step.
 !
@@ -47,7 +47,6 @@ module mapl_VerticalGridCharacteristic_mod
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_VerticalStaggerCharacteristic_mod, only: &
         VerticalStaggerCharacteristic
-   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, &
         VERTICAL_STAGGER_CENTER
    use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_VECTOR
@@ -61,7 +60,7 @@ module mapl_VerticalGridCharacteristic_mod
    use mapl_StateItemCharacteristicKind_mod, only: &
         VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
         VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
-        ITEM_SHAPE_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND
+        ITEM_SHAPE_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, operator(==), operator(/=)
    use mapl_TransformBase_mod, only: TransformBase
    use gFTL2_StringVector, only: StringVector
@@ -355,8 +354,7 @@ contains
 
    ! Only a Field or a VECTOR has a vertical regrid, and only at level
    ! centers. A tip with no shape entry (component-level wiring), or a pair
-   ! not holding both grids, is not restricted. The regrid is R4 only, so an
-   ! R8 tip is unsupported at connect rather than failing at compute.
+   ! not holding both grids, is not restricted.
    subroutine vcoord_build_transform_for_item(this, goal, tip, transformer, rc)
       class(VerticalGridCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -397,17 +395,6 @@ contains
             end if
          class default
             _FAIL('VerticalGridCharacteristic: bad VERTICAL_STAGGER entry')
-         end select
-      end if
-
-      if (tip%count(TYPE_KIND_CHARACTERISTIC_KIND) > 0) then
-         entry => tip%at(TYPE_KIND_CHARACTERISTIC_KIND, _RC)
-         select type (entry)
-         type is (TypeKindCharacteristic)
-            if (entry%get_type_kind() == 'R8') then
-               call report_build_transform_unsupported(rc)
-               return
-            end if
          end select
       end if
 

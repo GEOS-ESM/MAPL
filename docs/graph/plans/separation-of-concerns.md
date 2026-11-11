@@ -1969,7 +1969,26 @@ affected scenarios to ready (unless masked: M3).
   tip unsupported at connect (parity row). Task: duplicate the R4 path of
   `VerticalColumnRegridTransform` for R8, drop the unsupported check and
   the message, flip any R8 test. Sonnet author, sonnet review. **Status:**
-  not started.
+  done (2026-11-11, not committed). `VerticalColumnRegridTransform` regrids
+  R8 fields (same typekind both sides, else it fails at compute); the
+  connect-time R8 refusal, `check_r4` and `vertical_regrid_r8_message` are
+  gone. Weights: `compute_linear_map` has a REAL64 overload
+  (`VerticalLinearMap.F90`), so R8 data gets R8 weights built from the R4
+  level values widened; the Transform caches the matrix for the typekind it
+  was built for and rebuilds when the kind changes. R4 level conversion and
+  the range tolerance now run in REAL64 and narrow back, so R4 weights can
+  differ in the last ulp. Through the graph the vertical step precedes the
+  typekind step and its output link keeps the export typekind (checked in
+  `Test_ExtensionResolution.pf`): an R8 export regrids with R8 weights, an
+  R4 export into an R8 import regrids with R4 weights and is then
+  converted; the Transform mixed-kind failure is reachable only by driving
+  it directly. Tests: R8 up-to-up, opposite alignment, copy and flip,
+  VECTOR bundle, mixed-kind failures (fields, and a bundle with an R4 and
+  an R8 member), an I4 pair, rebuild on kind change, dp linear map unit
+  test, the two chain-order tests; R8 expectations in
+  `Test_StateItemCharacteristicSubclasses.pf` flipped. Gap: a bundle cannot
+  exercise a rebuild on a kind change, since its output members all take
+  the output bundle typekind. ESSENTIAL: NAG 71/71, gfortran 71/71.
 - `C2-statistics-real` (new): trace why `history/stat/<user>::export::A/QV_MIN`
   has the wrong value in GRAPH mode in `statistics_real` and flip the
   scenario; note `statistics` (ready) passes. Sonnet author, preflight-style

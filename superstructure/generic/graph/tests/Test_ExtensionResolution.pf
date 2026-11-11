@@ -42,6 +42,7 @@ module Test_ExtensionResolution
    use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE
    use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
    use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_TypeKindConverterTransform_mod, only: TypeKindConverterTransform
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use mapl_HorizontalRegridTransform_mod, only: HorizontalRegridTransform
@@ -1429,6 +1430,125 @@ contains
       preds = net%get_predecessors(transform_id)
       @assertTrue(preds%count(export_id) == 1)
    end subroutine test_vertical_grid_step_covers_orientation
+
+   ! A vertical grid mismatch plus a typekind mismatch on a Field: the
+   ! vertical step comes first, and its output link still has the export
+   ! typekind, so an R4 export is regridded in R4 and then converted.
+   @test
+   subroutine test_vertical_then_typekind_r4_export_r8_import()
+      call check_vertical_then_typekind('R4', 'R8', 91)
+   end subroutine test_vertical_then_typekind_r4_export_r8_import
+
+   ! The reverse: an R8 export is regridded in R8 and then narrowed.
+   @test
+   subroutine test_vertical_then_typekind_r8_export_r4_import()
+      call check_vertical_then_typekind('R8', 'R4', 93)
+   end subroutine test_vertical_then_typekind_r8_export_r4_import
+
+   subroutine check_vertical_then_typekind(export_kind, import_kind, id)
+      character(*), intent(in) :: export_kind, import_kind
+      integer, intent(in) :: id
+
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      class(GraphNode), pointer :: node
+      type(DependencyNetwork), pointer :: net
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: iter
+      class(Transform), pointer :: transformer
+      class(StateItemCharacteristic), allocatable :: c
+      type(StateItemDescriptor), pointer :: link
+      logical :: first_is_regrid, second_is_convert
+      character(:), allocatable :: first_kind, second_kind
+      integer :: status, n, n_mismatched
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_FIELD))
+      call import_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_FIELD))
+      call insert_fixed_grid(export_map, id, [30., 20., 10.])
+      call insert_fixed_grid(import_map, id + 1, [25., 15.])
+      call export_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic(export_kind))
+      call import_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic(import_kind))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      n_mismatched = size(mismatched)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status)
+      n = size(intermediate_ids)
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertEqual(2, n_mismatched)
+      @assertEqual(2, n)
+
+      first_is_regrid = .false.
+      second_is_convert = .false.
+      net => graph%get_network(net_id)
+      preds = net%get_predecessors(intermediate_ids(1))
+      iter = preds%ftn_begin()
+      call iter%next()
+      node => graph%get_node(iter%of())
+      select type (node)
+      class is (TransformGraphNode)
+         transformer => node%get_transformer()
+         select type (transformer)
+         type is (VerticalColumnRegridTransform)
+            first_is_regrid = .true.
+         end select
+      end select
+      preds = net%get_predecessors(intermediate_ids(2))
+      iter = preds%ftn_begin()
+      call iter%next()
+      node => graph%get_node(iter%of())
+      select type (node)
+      class is (TransformGraphNode)
+         transformer => node%get_transformer()
+         select type (transformer)
+         type is (TypeKindConverterTransform)
+            second_is_convert = .true.
+         end select
+      end select
+
+      node => graph%get_node(intermediate_ids(1))
+      select type (node)
+      class is (StateItemNode)
+         link => node%get_descriptor()
+      end select
+      call link%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, c, &
+           rc=status)
+      first_kind = c%get_signature()
+      node => graph%get_node(intermediate_ids(2))
+      select type (node)
+      class is (StateItemNode)
+         link => node%get_descriptor()
+      end select
+      call link%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, c, &
+           rc=status)
+      second_kind = c%get_signature()
+
+      @assertTrue(first_is_regrid)
+      @assertTrue(second_is_convert)
+      @assertEqual('typekind=' // export_kind, first_kind)
+      @assertEqual('typekind=' // import_kind, second_kind)
+   end subroutine check_vertical_then_typekind
 
    ! A grid mismatch plus a stagger mismatch: the regrid step is built,
    ! then the stagger step is unsupported. The pair is reported, nothing

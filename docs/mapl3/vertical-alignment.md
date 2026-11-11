@@ -370,7 +370,7 @@ out-of-range levels in debug builds.
   orientation and no separate flip step is built. Some cases remain
   unsupported: a grid without level values (for example a model grid), or a
   side with no grid, as the regrid source; a
-  stagger other than `CENTER`; an R8 tip for the regrid; and item classes
+  stagger other than `CENTER`; and item classes
   other than `FIELD` and `VECTOR`. See `docs/graph/ARCHITECTURE.md`.
 
 ## Examples
