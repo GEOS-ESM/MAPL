@@ -72,7 +72,8 @@ module mapl_OuterMetaComponent_mod
       ! populated by GraphBuilder.
       type(ComponentGraph) :: local_graph
 
-      ! NodeId for the one run-phase MethodGraphNode constructed by GraphBuilder.
+      ! NodeId for the one run-phase MethodGraphNode built by the dormant
+      ! graphbuilder_build_run_phase_node.
       ! A NodeId has its own "unset" sentinel (INVALID_NodeId/is_valid());
       ! returned as a plain value, never allocatable/pointer.
       type(NodeId) :: run_phase_method_node_id = INVALID_NodeId
@@ -132,10 +133,9 @@ module mapl_OuterMetaComponent_mod
       procedure :: get_geom_id
       procedure :: get_registry
       procedure :: get_component_graph
-      ! setter pair for the run-phase MethodGraphNode's own NodeId -
-      ! setter used only by GraphBuilder.F90's own construction step
-      ! (graphbuilder_build_run_phase_node). Not currently read by any
-      ! invocation call site - construction only.
+      ! NodeId of the run-phase MethodGraphNode. Set only by
+      ! graphbuilder_build_run_phase_node, which no lifecycle hook calls,
+      ! and read by nothing.
       procedure :: get_run_phase_method_node_id
       procedure :: set_run_phase_method_node_id
       ! 9: accessor/mark-done pair for connections_resolved above - used

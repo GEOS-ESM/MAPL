@@ -116,13 +116,6 @@ contains
          msg = 'GraphBuilder: ' // entry%component_name // ':' // entry%short_name // ': ' // entry%reason
          call lgr%warning(msg)
       end do
-
-      ! Argument bindings come only from this component's advertised
-      ! items (resolved at ADVERTISE time), so there is no ordering
-      ! dependency on freeze. Construction only; see
-      ! graphbuilder_build_run_phase_node.
-      call graphbuilder_build_run_phase_node(this, status)
-      call report_if_failed(this, 'build_run_phase_node', status)
    end subroutine graphbuilder_run_connect_hook
 
    ! Walks this component's own StateItemNodes (not its children's - each

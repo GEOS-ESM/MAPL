@@ -63,7 +63,7 @@ to "Verified root causes" below.
 | expression_defer_geom | yes | passes (measured 2026-11-08): each input on the file grid gets a geometry step (`HorizontalRegridTransform`) before the `ExpressionTransform`; the chain links carry the input names, which `StateEval` looks up |
 | history_1 | yes | passes in graph and both modes (the table entry is `.true.`), the deep pull going through the hierarchy's forward network. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it was last measured failing two checks: `B/E_B3` (vertical-grid mismatch, no provider) and the `A/E_A1` value (tasks.md 3.44 Status); not re-measured since the forward network landed |
 | statistics | yes | ready (masked pass per owner decision: legacy still fills the user states with the switch off). The earlier R1 failure no longer reproduces (measured 2026-11-09, with and without the R1 fix); its cause was not traced. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes: user states are populated at advertise |
-| statistics_real | no | FAILS: P1 (see the measurement paragraph below the table). Measured 2026-11-10 with `C2-alias-nonfield` in the tree: no `rc=13` any more; every failing check (22) follows `build_run_phase_node step failed with rc=1` (P1) |
+| statistics_real | no | FAILS one check: `A/QV_MIN` value in `GRAPH` mode (cause not traced). P1 is resolved by no longer building the run-phase node at connect time, so the 22 failures behind `build_run_phase_node step failed with rc=1` are gone (measured 2026-11-10 on NAG: pending run `Tests run: 41, Failures: 1`; registry and both modes pass). The remaining check reads `expected=1.00000, range=[*,*]` for `history/stat/<user>::export::A/QV_MIN` (Test_Scenarios.pf:1553), then the step status is -1. With `graph_owns_user_states` it fails worse (3 checks per shard and a `characteristics_resolved` freeze failure), so the flag stays `.false.` |
 | service_service | yes | ready (masked pass: the SERVICE items are aliased from the legacy user export state and the graph does not materialize them, M3). Red before `C2-alias-nonfield` (measured 2026-11-10: `Tests run: 43, Failures: 24`, first log line `resolve_connections step failed with rc=13`), green after |
 | service_with_options | yes | same as `service_service` |
 | vector_1 | no | passes, but run alone it already passed before `C2-alias-nonfield` (measured 2026-11-10: no `rc=13` in the log), so it is not flipped: A has 3 fixed levels and B has 1, so its chain stops at the vertical-grid step, which has no bundle Transform; it waits for `C1-vertical-b` |
@@ -97,6 +97,13 @@ R1 failing it. The per-row text above predates this measurement.
 A pending run on 2026-11-10 on NAG, after `expression_per_consumer_r8` became
 ready, gave `Tests run: 173, Failures: 22`, all of them `statistics_real`.
 
+Measured 2026-11-10 on NAG with `MAPL_SCENARIO_ONLY=statistics_real` through
+the pending ctest, before the run-phase node was dropped from the connect
+hook: `Tests run: 41, Failures: 22`, first error `MethodGraphNode.F90:92`
+`argument name already declared`. After: `Tests run: 41, Failures: 1`
+(`value` check in `GRAPH` mode, see its table row); the scenario stays
+pending.
+
 Measured 2026-11-09 on NAG with the switch on in `GRAPH` mode (3.42): all pass
 (`plain_field`, `units_mismatch_run_phase`, `units_and_typekind_mismatch`,
 `invalidate`, `graphbuilder_propagation`, `scenario_1`, `scenario_2`,
@@ -112,6 +119,7 @@ Method: each pending scenario was run alone, under graph and both modes
 Unique failure locations matched on both compilers. Each cause was then
 confirmed by a minimal source experiment (reverted afterwards). With the G1,
 R1, R2 and P1 experiments applied together, `MAPL.generic.scenarios.pending`
+(the P1 experiment is superseded: see the 2026-11-10 measurement paragraph)
 passed on NAG and the then-single ESSENTIAL `MAPL.generic.scenarios` entry
 stayed green.
 
@@ -136,7 +144,8 @@ In production, the same faults only log a warning and drop part of the graph.
   `expression_defer_geom` pass, and removed the assertion from `history_1`
   and `statistics_real`. After the fix `expression_defer_geom` and
   `history_1` pass; `statistics_real` still fails for R1, R2 and P1 (as
-  diagnosed; with R1 in the tree it fails for R2 and P1 only).
+  diagnosed; with R1 in the tree it fails for R2 and P1 only). Outdated:
+  see the 2026-11-10 measurement paragraph above (P1 resolved, one check left).
   First-pass reading confirmed.
 - **R1. Export aliasing looks in the wrong component for propagated exports.**
   This corrects the first-pass "no import units" cause. That assertion
@@ -172,8 +181,8 @@ In production, the same faults only log a warning and drop part of the graph.
   "not found". `service_service` and `service_with_options` were red
   (`Failures: 24` each, `rc=13`) and are green and ready (masked, M3).
   `vector_1` already passed before the fix (no `rc=13` in its log) and stays
-  pending (its vertical-grid mismatch needs `C1-vertical-b`). `statistics_real` no longer logs `rc=13` but still fails for P1.
-- **P1. Run-phase method-node arguments are keyed by short name only.**
+  pending (its vertical-grid mismatch needs `C1-vertical-b`). `statistics_real` no longer logs `rc=13`; its P1 failures are gone (see P1).
+- **P1. Run-phase method-node arguments are keyed by short name only (resolved: the node is no longer built at connect time).**
   `graphbuilder_build_run_phase_node` declares one argument per import/export
   under `var_spec%short_name`. `StatisticsGridComp` advertises an import and
   an export with the same name (`A/TS` in and `A/TS` out), so
@@ -182,9 +191,14 @@ In production, the same faults only log a warning and drop part of the graph.
   anything from item names. Experiment (a hack, not a fix): mangling the
   key as `'in:'//short_name` made `statistics_real` pass, but broke
   `Test_GraphBuilder_RunPhaseNode` (it looks arguments up by bare name).
-  Fix: key arguments structurally by (state intent, short name), or keep
-  separate import/export argument sets, with intent passed to
-  `get_argument`/`get_argument_binding`. Affects: statistics_real.
+  Resolution (owner decision, 2026-11-10): nothing reads or invokes the
+  node, so `graphbuilder_run_connect_hook` no longer builds it;
+  `graphbuilder_build_run_phase_node` stays as dormant code (still called by
+  `Test_GraphBuilder_RunPhaseNode`). The keying problem remains if the node
+  is revived: key arguments structurally by (state intent, short name), or
+  keep separate import/export argument sets, with intent passed to
+  `get_argument`/`get_argument_binding`. Effect: `statistics_real` loses its
+  22 P1 failures but stays pending for one other check (see its table row).
 
 ### Masked passes (not failures, but not graph-produced)
 

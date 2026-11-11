@@ -1,9 +1,10 @@
 #include "MAPL.h"
 
-! OuterMetaComponent.F90's run_phase_method_node_id field-declaration
-! comment. Rejects a second call (no silent replace) - matches this
-! repo's established no-silent-replace registration convention
-! (ComponentGraph%register_node, MethodGraphNode%bind_argument, etc.);
+! Setter for run_phase_method_node_id; only the dormant
+! graphbuilder_build_run_phase_node calls it. Rejects a second call (no
+! silent replace) - matches this repo's established no-silent-replace
+! registration convention (ComponentGraph%register_node,
+! MethodGraphNode%bind_argument, etc.);
 ! GraphBuilder%build_run_phase_node's own idempotent-construction guard
 ! (mirroring advertise_one's "already indexed -> nothing to do") is
 ! what prevents a second real call from ever reaching this setter

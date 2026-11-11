@@ -1,6 +1,7 @@
 #include "MAPL.h"
 
-! Ordinary-phase MethodGraphNode construction.
+! Ordinary-phase MethodGraphNode construction. Dormant: not built by any
+! lifecycle hook (see graphbuilder_build_run_phase_node).
 
 submodule (mapl_GraphBuilder_mod) GraphBuilder_RunPhaseNode_smod
    use esmf, only: operator(==)
@@ -20,15 +21,15 @@ contains
    ! Builds one run-phase MethodGraphNode for `this`, wrapping its
    ! GENERIC::RUN_USER phase, and stores its NodeId on `this`. Arguments
    ! come from the component's advertised import/export VariableSpecs.
-   ! No-op in registry graph mode; idempotent, since
-   ! graphbuilder_run_connect_hook may run more than once per the
-   ! two-pass init schedule.
+   ! No-op in registry graph mode; idempotent, so repeated explicit calls
+   ! leave the first node in place.
    !
-   ! CONSTRUCTION ONLY: nothing may invoke this node. Doing so would run
-   ! the user's run phase a second time after run_user.F90's legacy
-   ! call. Safe invocation needs (a) a graph-mode skip of the legacy run
-   ! call and (b) graph-only population working end to end; neither
-   ! exists yet.
+   ! DORMANT: no lifecycle hook calls this, and nothing may invoke the
+   ! node: that would run the user's run phase a second time after
+   ! run_user.F90's legacy call, so invoking it needs a graph-mode skip of
+   ! the legacy run call. Arguments are keyed by short name only, so a
+   ! component with an import and an export of the same name (e.g. TS)
+   ! fails here with rc=1; key by intent before reviving.
    module subroutine graphbuilder_build_run_phase_node(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc

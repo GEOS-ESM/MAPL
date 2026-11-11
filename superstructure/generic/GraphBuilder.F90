@@ -208,8 +208,8 @@ module mapl_GraphBuilder_mod
       ! states. GRAPH_MODE_GRAPH with graph_populates_user_states() only.
       procedure, nopass :: populate_outer_state => graphbuilder_populate_outer_state
       procedure, nopass :: run_populate_outer_hook => graphbuilder_run_populate_outer_hook
-      ! Construction only; see graphbuilder_build_run_phase_node. Do not
-      ! add an invocation hook without resolving the blockers named there.
+      ! Dormant: no lifecycle hook builds the run-phase node; see
+      ! graphbuilder_build_run_phase_node for what reviving it needs.
       procedure, nopass :: build_run_phase_node => graphbuilder_build_run_phase_node
       ! Pulls the component's own imports through the forward network
       ! before its run (ComponentGraph%update() only, never a
