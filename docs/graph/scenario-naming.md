@@ -150,7 +150,10 @@ Same format as the legacy scenarios, consumed by the same checkers as
   connection must be one the root declares, since chains live in the
   root's graph.
   `chain` lists the extension steps from export to import (`units`,
-  `typekind`; `[]` means a direct edge). `wired: false` asserts there is
+  `typekind`, `geometry`, `vertical`, `orientation`, `item_shape`; `[]`
+  means a direct edge). A vertical-grid step that also changes the
+  orientation is one `vertical` step; `orientation` is an orientation-only
+  step. `wired: false` asserts there is
   no edge and no predecessor on the import. Checked in graph and both
   modes only.
 - A scenario that must raise a pFUnit exception, or must run with a

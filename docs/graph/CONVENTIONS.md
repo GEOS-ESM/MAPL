@@ -119,11 +119,14 @@ and `graph/tests/` stay facade-only.
   that kind, and no reachable case converts data (so no Transform will ever
   exist). It applies to HorizontalDimsSpec (GEOM vs NONE), the pairs the
   ItemShape matrix rejects, and Attributes, UngriddedDims, Conservation
-  and Normalization. QuantityType too, except a basis-only mismatch (same
+  and Normalization. VerticalGrid too, for two Basic grids of different
+  level counts. QuantityType too, except a basis-only mismatch (same
   quantity type, two real bases), which is unsupported because a
-  conversion can exist. A kind whose Transform is merely not
-  built yet (Geometry, VerticalGrid, VerticalStagger, VerticalOrientation,
-  ItemShape's VECTORBRACKET to VECTOR) stays unsupported. So does
+  conversion can exist. A kind or pairing whose Transform is merely not
+  built yet (VerticalStagger; VerticalGrid for a model grid or a non-Field
+  item; VerticalOrientation for a non-Field item; Geometry for an id-only
+  pair or an item other than FIELD, VECTOR and BRACKET; ItemShape's
+  VECTORBRACKET to VECTOR) stays unsupported. So does
   StandardName, because it fails the test: legacy permissive
   `ValidationMode` (the default) connects a mismatch with a warning and the
   export's name wins; only strict mode rejects it. Its graph behavior

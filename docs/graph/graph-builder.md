@@ -1,8 +1,8 @@
 # GraphBuilder: the integration layer
 
-Source: `superstructure/generic/GraphBuilder.F90` (1465 lines — public
+Source: `superstructure/generic/GraphBuilder.F90` (about 980 lines — public
 API, shared types/helpers, submodule interface declarations) plus ten
-`GraphBuilder_*_smod.F90` submodules (procedure bodies, ~3000 lines
+`GraphBuilder_*_smod.F90` submodules (procedure bodies, about 5,100 lines
 combined). This is the one place in the graph layer that **is**
 allowed to depend on `OuterMetaComponent`/`StateRegistry`/
 `GriddedComponentDriver` — everything under `graph/` proper must not
@@ -19,7 +19,7 @@ contains
 end type
 ```
 
-(`GraphBuilder.F90:252`.) Every binding is `NOPASS` — `GraphBuilder`
+(`GraphBuilder.F90:145`.) Every binding is `NOPASS` — `GraphBuilder`
 carries **no state of its own**. Every procedure takes the
 `OuterMetaComponent` it operates on as an explicit argument and
 reads/writes only that component's own `ComponentGraph` (plus, for
@@ -34,7 +34,7 @@ gb%run_advertise_hook(this)`) over what were previously free functions
 | Submodule | Responsibility |
 |---|---|
 | `GraphBuilder_Advertising_smod.F90` | Creating `StateItemNode`s for advertised import/export/internal items (`advertise_one`) |
-| `GraphBuilder_ConnectionResolution_smod.F90` | Ordinary (exact short-name match) connection resolution — `MatchConnection` only, not `SimpleConnection`/`ReexportConnection` |
+| `GraphBuilder_ConnectionResolution_smod.F90` | Ordinary connection resolution — `SimpleConnection` and `MatchConnection` (`ReexportConnection` goes through `run_reexport_hook`, `reexport_one`) |
 | `GraphBuilder_CallbackWiring_smod.F90` | Wildcard/named callback resolution, `CallbackStateBinding`/`CallbackMethodBinding` construction |
 | `GraphBuilder_Geometry_smod.F90` | Horizontal geometry advertise/resolve, parent↔child geometry push/pull |
 | `GraphBuilder_StatePopulation_smod.F90` | Graph-native equivalent of `StateRegistry%add_to_states` — inserts materialized fields into the real `ESMF_State` |
@@ -48,12 +48,12 @@ All ten were mechanically split out of one originally-monolithic
 `GraphBuilder.F90` (`graphbuilder-submodule-split`) — procedure bodies
 moved verbatim, `subroutine`→`module subroutine`/`function`→`module
 function` only. The interface declarations for every moved procedure
-still live in `GraphBuilder.F90` itself (`:375` onward).
+still live in `GraphBuilder.F90` itself (the interface block from `:285`).
 
 ## Two-phase timing: advertise vs. real wiring
 
 Mirrors the legacy imperative coupler's `Connection%activate()`/
-`connect()` split (`GraphBuilder.F90:40-58`):
+`connect()` split (`GraphBuilder.F90:31-38`):
 
 - **`GENERIC_INIT_ADVERTISE`**: `graphbuilder_check_unsatisfied_imports()`
   — read-only, determines which ordinary-match imports *would* be
@@ -79,7 +79,7 @@ sentinel), `GraphBuilder` finds the descendant component
 (`resolve_qualified_component`, a downward walk only) and uses that
 component's own real `NodeId`. Ordinary connection resolution takes it from
 the descendant's export-port table (`find_export_node_id` over
-`find_export_node`, `GraphBuilder_ConnectionResolution_smod.F90:1257-1325`):
+`find_export_node`, `GraphBuilder_ConnectionResolution_smod.F90:1274-1342`):
 a resource-index lookup by short name would fail for a propagated export,
 whose port name is qualified. Callback wiring takes it from the owner's
 resource index (`resolve_qualified_export_node_id`,
@@ -135,5 +135,5 @@ when nothing marks them public — a submodule's separately-compiled
 rules say it should work. NAG doesn't have this limitation. If you add
 a new submodule-shared helper, mark it `public` in `GraphBuilder.F90`
 even if it has no legitimate external caller — see the comment at
-`GraphBuilder.F90:184` before "cleaning up" an apparently-unused public
+`GraphBuilder.F90:100` before "cleaning up" an apparently-unused public
 export.
