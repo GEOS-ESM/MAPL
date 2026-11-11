@@ -201,10 +201,13 @@ contains
                 graph_owns_user_states=.true.), &
            ScenarioEntry('bracket_regrid',          'cap.yaml',         .true., &
                 graph_owns_user_states=.true.), &
-           ScenarioEntry('vertical_regridding',     'parent.yaml',      .false.), &
+           ScenarioEntry('vertical_regridding',     'parent.yaml',      .true., &
+                graph_owns_user_states=.true.), &
            ScenarioEntry('vertical_alignment_same_grid', 'parent.yaml', .true.), &
-           ScenarioEntry('vertical_alignment_regrid',    'parent.yaml', .false.), &
-           ScenarioEntry('vertical_alignment_with_grid', 'parent.yaml', .false.), &
+           ScenarioEntry('vertical_alignment_regrid',    'parent.yaml', .true.), &
+           ScenarioEntry('vertical_alignment_with_grid', 'parent.yaml', .true.), &
+           ScenarioEntry('vertical_orientation_flip',    'parent.yaml', .true., &
+                graph_owns_user_states=.true.), &
            ScenarioEntry('expression_match',        'parent.yaml',      .true.), &
            ScenarioEntry('expression_defer_geom',   'parent.yaml',      .true.), &
            ScenarioEntry('invalidate',              'cap.yaml',         .true., &
@@ -938,7 +941,9 @@ contains
       end function is_transform
 
       ! The one aspect that differs between the items either side of a
-      ! transform names the step; none or several give unknown.
+      ! transform names the step; none or several give unknown. A vertical
+      ! regrid also writes the import orientation, so an orientation change
+      ! alongside a vertical one is part of the vertical step.
       function step_kind(in_id, out_id, rc) result(kind)
          character(len=16) :: kind
          type(NodeId), intent(in) :: in_id, out_id
@@ -969,11 +974,14 @@ contains
          differs(2) = .not. (in_tk == out_tk)
          differs(3) = geom_differs(in_geom, out_geom, _RC)
          ! Items with no vertical dim still carry their component vgrid.
-         has_vertical = in_stagger /= VERTICAL_STAGGER_NONE .or. &
-              out_stagger /= VERTICAL_STAGGER_NONE
-         differs(4) = has_vertical .and. (in_stagger /= out_stagger .or. &
+         ! Stagger compares by name: its == treats MIRROR as a wildcard.
+         has_vertical = .not. (in_stagger%is_none() .and. &
+              out_stagger%is_none())
+         differs(4) = has_vertical .and. &
+              (in_stagger%to_string() /= out_stagger%to_string() .or. &
               vgrid_differs(in_vgrid, out_vgrid))
-         differs(5) = has_vertical .and. in_align /= out_align
+         differs(5) = has_vertical .and. in_align /= out_align &
+              .and. .not. differs(4)
          differs(6) = in_bundle .neqv. out_bundle
 
          if (count(differs) == 1) kind = KINDS(findloc(differs, .true., dim=1))

@@ -299,11 +299,29 @@ Second kind with a DEFERRED value; it reuses Geometry's machinery.
 - `write_info` writes `vgrid=` through `MAPL_FieldSet` /
   `MAPL_FieldBundleSet`; `is_structural()` is `.true.`. `FieldGet` finds the
   grid by id, so the grid must be known to the vertical grid manager.
-- Hybrid `needs_extension_for` is kept; the single-overlap `build_transform`
-  calls `report_build_transform_unsupported`
-  (`VerticalGridCharacteristic.F90:252-286`).
-  `VerticalColumnRegridTransform` exists in `graph/transforms/` but is not
-  wired into `build_transform`.
+- When both entries hold a grid object, `needs_extension_for` uses the
+  legacy rule: no mismatch if the ids are equal or
+  `export%matches(import)` (two Basic grids with the same level count
+  match). Otherwise it compares ids, then dimension sets.
+- The single-overlap `build_transform` builds a
+  `VerticalColumnRegridTransform` when both grids have a column
+  coordinate for the shared dimension (`VerticalGrid%has_column_coordinate`;
+  only `FixedLevelsVerticalGrid` says yes). Two Basic grids with different
+  level counts are incompatible; a model grid, or a side with no grid
+  object, is reported unsupported (`VerticalGridCharacteristic.F90:286-336`).
+  A Basic grid names no dimension (`<unknown>`), so a Basic against a
+  fixed or model grid of another level count has no common dimension and
+  fails (as legacy does), not the INCOMPATIBLE status.
+- `covered_kinds` claims `VERTICAL_ORIENTATION` when both sides carry it,
+  because the column regrid also flips; stagger is never covered
+  (`:341-352`).
+- `build_transform_for_item` adds the item checks: non-Field items, a
+  non-CENTER stagger and an R8 tip (the regrid is R4 only) are
+  unsupported (`:358-412`).
+- When a later kind in the chain is unsupported (for example a stagger
+  step after the regrid), the regrid link already built stays in the
+  forward network with no successor; nothing pulls it, so its Transform
+  never runs.
 - `StateItemDescriptor` no longer has `declared_vertical_grid`;
   materialization takes the vertical grid only from the
   node's characteristic (no owner fallback).
@@ -370,42 +388,17 @@ calls it alignment. It is independent of VerticalStagger.
   SPECIFIED entries only; `with_grid` is never written because the value is
   already resolved.
 - A MIRROR stagger does not imply a mirrored orientation.
-- `build_transform` reports unsupported
-  (`VerticalOrientationCharacteristic.F90:97-107`).
-  `VerticalFlipTransform` (an index reversal for an orientation-only
-  mismatch, Field, R4 and R8) exists in `graph/transforms/` but is not wired
-  into `build_transform`.
+- `build_transform` builds a `VerticalFlipTransform` (index reversal,
+  Field, R4 and R8); `build_transform_for_item` reports non-Field items
+  unsupported (`VerticalOrientationCharacteristic.F90:107-151`).
 - `parse_var_specs` reads the `vertical_alignment` key into
   `VariableSpec%vertical_alignment` (also set by `GridCompAddSpec`). The
-  `vertical_alignment_*` scenarios carry real orientations. In
-  `vertical_alignment_same_grid` and `vertical_alignment_regrid` the
-  orientation mismatch is masked by the `VERTICAL_GRID` mismatch, for these
-  reasons:
-  - Each component builds its own vertical grid from its config through
-    the grid manager, which gives every grid a new id
-    (`ComponentSpecParser/parse_geometry_spec.F90:115-116`,
-    `VerticalGridManager.F90:100-117,354-357`). The items declare no grid of
-    their own, so `resolve_deferred` fills each `VerticalGridCharacteristic`
-    from the component grid (`VerticalGridCharacteristic.F90:105-116,192-207`)
-    and `needs_extension_for` compares the grid ids, so two components with
-    identical levels still mismatch (`:144-145`).
-  - `get_extension_order` lists `VERTICAL_GRID` before `VERTICAL_STAGGER`
-    and `VERTICAL_ORIENTATION` (`ItemShapeCharacteristic.F90:201-204,224`).
-  - The chain stops at the first kind whose `build_transform` reports
-    unsupported, and builds nothing for the later kinds
-    (`ExtensionResolution.F90:113-117,291-300`). A single common physical
-    dimension (pressure here) is unsupported for `VERTICAL_GRID`
-    (`VerticalGridCharacteristic.F90:272-274`), so the orientation kind is
-    never tried.
-  - `vertical_alignment_with_grid` has no orientation mismatch to mask:
-    both items follow a downward grid, so both resolve to DOWN
-    (`make_characteristics.F90:480-485`;
-    `VerticalOrientationCharacteristic.F90:169-183`). Only its grid
-    mismatch (3 vs 2 levels) is reported.
-  - Both orientation entries are SPECIFIED, so an orientation-only
-    mismatch (same grid object, different `vertical_alignment`) would
-    reach `VerticalOrientationCharacteristic%build_transform`, which is
-    unsupported. No scenario builds that pair.
+  `vertical_alignment_*` scenarios carry real orientations. When the
+  vertical grids also differ, the `VERTICAL_GRID` step covers the
+  orientation (`covered_kinds`), so one column regrid handles both; the
+  chain shows only `[vertical]`. `vertical_orientation_flip` is the
+  orientation-only case (one shared grid, different `vertical_alignment`)
+  and builds `[orientation]`.
 - The resolved direction is written, not `with_grid` (owner-accepted
   deviation from legacy; readers resolve either against the same grid). A
   SPECIFIED entry whose direction is neither up nor down fails the write.

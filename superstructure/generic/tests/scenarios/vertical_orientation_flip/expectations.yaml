@@ -1,0 +1,18 @@
+# Same vertical grid (the parent's [30, 20, 10] hPa pressure levels, which
+# go UP), export stored downward, import stored upward: one orientation step
+# (VerticalFlipTransform) reverses the vertical index. The profile check
+# detects a missing or wrong flip; the table entry sets
+# graph_owns_user_states so that in GRAPH mode the import is the graph's.
+
+- component: A
+  export:
+    E_A: {status: complete, typekind: R4, rank: 3, vertical_profile: [30., 20., 10.]}
+
+- component: B
+  import:
+    I_B: {status: complete, typekind: R4, rank: 3, vertical_profile: [10., 20., 30.]}
+
+- component: <root>
+  graph:
+    connections:
+      - {export: A/E_A, import: B/I_B, chain: [orientation]}

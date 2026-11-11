@@ -65,6 +65,22 @@ module Test_ExtensionResolution
    use ESMF, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
    use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, set_field_dictionary_config, &
         get_field_dictionary_config
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+        VERTICAL_STAGGER_CHARACTERISTIC_KIND
+   use mapl_VerticalOrientationCharacteristic_mod, only: &
+        VerticalOrientationCharacteristic
+   use mapl_VerticalStaggerCharacteristic_mod, only: &
+        VerticalStaggerCharacteristic
+   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_CENTER, &
+        VERTICAL_STAGGER_EDGE
+   use mapl_VerticalCoordinateDirection_mod, only: VCOORD_DIRECTION_UP, &
+        VCOORD_DIRECTION_DOWN
+   use mapl_VerticalColumnRegridTransform_mod, only: &
+        VerticalColumnRegridTransform
+   use mapl_FixedLevelsVerticalGrid_mod, only: FixedLevelsVerticalGrid, &
+        FixedLevelsVerticalGridSpec
+   use mapl_vertical_grid_api, only: mapl_VerticalGrid
    use funit
    implicit none
 
@@ -348,8 +364,8 @@ contains
       call import_map%insert(VERTICAL_GRID_CHARACTERISTIC_KIND, VerticalGridCharacteristic(grid_id='gridB'))
       mismatched = find_mismatched_characteristics(export_map, import_map)
 
-      ! VerticalGridCharacteristic%build_transform always fails -
-      ! no real vertical-regrid Transform exists yet.
+      ! Grid ids only, no VerticalGrid held: no level values to regrid
+      ! between, so the step is unsupported.
       call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
            mismatched, final_id, intermediate_ids, unsupported, rc=status)
 
@@ -1343,5 +1359,152 @@ contains
 
       call set_field_dictionary_config(saved)
    end subroutine test_no_item_shape_orders_by_name
+
+
+   ! A grid and an orientation mismatch between fixed grids: the column
+   ! regrid covers the orientation, so the chain has one step.
+   @test
+   subroutine test_vertical_grid_step_covers_orientation()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id, transform_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      class(GraphNode), pointer :: node
+      type(DependencyNetwork), pointer :: net
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: iter
+      class(Transform), pointer :: transformer
+      logical :: is_regrid
+      integer :: status, n
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call insert_fixed_grid(export_map, 81, [30., 20., 10.])
+      call insert_fixed_grid(import_map, 82, [25., 15.])
+      call export_map%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      call import_map%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      n = size(mismatched)
+      @assertEqual(2, n)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      n = size(intermediate_ids)
+      @assertEqual(1, n)
+
+      net => graph%get_network(net_id)
+      preds = net%get_predecessors(final_id)
+      @assertEqual(1, preds%size())
+      iter = preds%ftn_begin()
+      call iter%next()
+      transform_id = iter%of()
+      is_regrid = .false.
+      node => graph%get_node(transform_id)
+      select type (node)
+      class is (TransformGraphNode)
+         transformer => node%get_transformer()
+         select type (transformer)
+         type is (VerticalColumnRegridTransform)
+            is_regrid = .true.
+         end select
+      end select
+      @assertTrue(is_regrid)
+      preds = net%get_predecessors(transform_id)
+      @assertTrue(preds%count(export_id) == 1)
+   end subroutine test_vertical_grid_step_covers_orientation
+
+   ! A grid mismatch plus a stagger mismatch: the regrid step is built,
+   ! then the stagger step is unsupported. The pair is reported, nothing
+   ! consumes the regrid link, and no reuse entry is recorded.
+   @test
+   subroutine test_vertical_grid_then_unsupported_stagger_wires_nothing()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id, dangling_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      type(DependencyNetwork), pointer :: net
+      type(NodeIdSet), target :: succs
+      integer :: status, n
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call insert_fixed_grid(export_map, 83, [30., 20., 10.])
+      call insert_fixed_grid(import_map, 84, [25., 15.])
+      call export_map%insert(VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+           VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER))
+      call import_map%insert(VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+           VerticalStaggerCharacteristic(VERTICAL_STAGGER_EDGE))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      n = size(mismatched)
+      @assertEqual(2, n)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('VERTICAL_STAGGER', unsupported)
+      n = size(intermediate_ids)
+      @assertEqual(1, n)
+
+      ! The regrid link is a dead end: no successor pulls it.
+      dangling_id = intermediate_ids(1)
+      net => graph%get_network(net_id)
+      succs = net%get_successors(dangling_id)
+      @assertEqual(0, succs%size())
+
+      ! No reuse entry: a repeat call builds and reports again.
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('VERTICAL_STAGGER', unsupported)
+      n = size(intermediate_ids)
+      @assertEqual(1, n)
+   end subroutine test_vertical_grid_then_unsupported_stagger_wires_nothing
+
+   subroutine insert_fixed_grid(map, id, levels)
+      type(StateItemCharacteristicMap), intent(inout) :: map
+      integer, intent(in) :: id
+      real, intent(in) :: levels(:)
+
+      type(FixedLevelsVerticalGrid) :: fixed
+      class(mapl_VerticalGrid), allocatable :: g
+      integer :: status
+
+      call fixed%initialize(FixedLevelsVerticalGridSpec('pressure', &
+           levels, 'hPa'), rc=status)
+      @assertEqual(0, status)
+      call fixed%set_id(id)
+      allocate(g, source=fixed)
+      call map%insert(VERTICAL_GRID_CHARACTERISTIC_KIND, &
+           VerticalGridCharacteristic(vgrid=g))
+   end subroutine insert_fixed_grid
 
 end module Test_ExtensionResolution

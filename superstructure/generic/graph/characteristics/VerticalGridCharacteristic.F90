@@ -11,9 +11,19 @@
 !   - when a real referenced_node_id is set on BOTH sides (sharing is
 !     two map entries holding the same NodeId), that identity
 !     comparison is authoritative.
+!   - when both sides hold a VerticalGrid, the legacy rule: same grid id,
+!     or the export grid matches the import grid (VerticalGrid%matches: a
+!     basic grid matches any grid with the same level count).
 !   - otherwise (a GraphBuilder call site that supplies only an opaque
 !     grid_id or dimension set), the identity-token-else-dimension-set
 !     comparison is used.
+!
+! A Field mismatch between two held grids that share one dimension, both
+! with level values for it, is a VerticalColumnRegridTransform step that
+! also covers the orientation; the export must be at level centers. Two
+! basic grids with different level counts are incompatible. Any other
+! mismatch (a grid without level values, e.g. a model grid; a non-center
+! stagger; an R8 or non-Field item) reports unsupported.
 !
 ! An item-level instance may also hold the VerticalGrid itself (written by
 ! write_info). Status: SPECIFIED when constructed with a value. DEFERRED
@@ -24,15 +34,32 @@
 module mapl_VerticalGridCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ReferenceCharacteristic
    use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL, report_build_transform_unsupported
+   use mapl_StateItemCharacteristic_mod, only: &
+        report_build_transform_incompatible
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristicMap
    use mapl_CharacteristicStatus_mod, only: operator(==), CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_DEFERRED
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_VerticalGrid_mod, only: VerticalGrid
+   use mapl_BasicVerticalGrid_mod, only: BasicVerticalGrid
+   use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
+   use mapl_VerticalStaggerCharacteristic_mod, only: &
+        VerticalStaggerCharacteristic
+   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, &
+        VERTICAL_STAGGER_CENTER
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD
+   use mapl_VerticalColumnRegridTransform_mod, only: &
+        VerticalColumnRegridTransform
    use mapl_field_api, only: MAPL_FieldSet
    use mapl_field_bundle_api, only: MAPL_FieldBundleSet
    use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_StateItem_Flag, ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
    use ESMF, only: operator(==)
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, VERTICAL_GRID_CHARACTERISTIC_KIND
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+        VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+        ITEM_SHAPE_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, operator(==), operator(/=)
    use mapl_TransformBase_mod, only: TransformBase
    use gFTL2_StringVector, only: StringVector
@@ -60,6 +87,8 @@ module mapl_VerticalGridCharacteristic_mod
       procedure, nopass :: get_kind => vcoord_get_kind
       procedure :: needs_extension_for => vcoord_needs_extension_for
       procedure :: build_transform => vcoord_build_transform
+      procedure :: covered_kinds => vcoord_covered_kinds
+      procedure :: build_transform_for_item => vcoord_build_transform_for_item
       procedure :: get_signature => vcoord_get_signature
       procedure :: write_info => vcoord_write_info
       procedure :: is_structural => vcoord_is_structural
@@ -127,8 +156,9 @@ contains
    ! set_characteristic asserts kind match before inserting). The class
    ! default branch below should be checked by the calling procedure.
    !
-   ! Real NodeId on both sides is authoritative; otherwise the identity token,
-   ! else the dimension set, decides (module header).
+   ! Real NodeId on both sides is authoritative; then two held grids (legacy
+   ! rule); otherwise the identity token, else the dimension set, decides
+   ! (module header).
    logical function vcoord_needs_extension_for(this, goal) result(needs_extension)
       class(VerticalGridCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -141,6 +171,8 @@ contains
          goal_node_id = goal%get_referenced_node_id()
          if (this_node_id%is_valid() .and. goal_node_id%is_valid()) then
             needs_extension = (this_node_id /= goal_node_id)
+         else if (allocated(this%vgrid) .and. allocated(goal%vgrid)) then
+            needs_extension = .not. grids_match(this%vgrid, goal%vgrid)
          else if (allocated(this%grid_id) .and. allocated(goal%grid_id)) then
             needs_extension = (this%grid_id /= goal%grid_id)
          else
@@ -248,7 +280,9 @@ contains
    end function get_dimensions
 
    ! Three-way dimension-overlap classification, computed from
-   ! `dimensions` whichever comparison path detected the mismatch.
+   ! `dimensions` whichever comparison path detected the mismatch. A single
+   ! overlap needs both grids held, each with level values in that
+   ! dimension; two basic grids (no level values) cannot connect.
    subroutine vcoord_build_transform(this, goal, transformer, rc)
       class(VerticalGridCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
@@ -264,26 +298,153 @@ contains
       select type (goal)
       class is (VerticalGridCharacteristic)
          outcome = classify_dimension_overlap(this%dimensions, goal%dimensions, overlap_name, overlap_list, _RC)
+
+         select case (outcome)
+         case (DIMENSION_OVERLAP_SINGLE)
+            if (.not. (allocated(this%vgrid) .and. allocated(goal%vgrid))) then
+               call report_build_transform_unsupported(rc)
+            else if (is_basic(this%vgrid) .and. is_basic(goal%vgrid)) then
+               call report_build_transform_incompatible(rc)
+            else if (this%vgrid%has_column_coordinate(overlap_name) .and. &
+                 goal%vgrid%has_column_coordinate(overlap_name)) then
+               allocate(transformer, source=VerticalColumnRegridTransform())
+               _RETURN(_SUCCESS)
+            else
+               ! A model grid's levels are a field (PLE, ZLE), which the
+               ! graph cannot yet bind as a Transform input.
+               call report_build_transform_unsupported(rc)
+            end if
+         case (DIMENSION_OVERLAP_INCOMPATIBLE)
+            failure_message = 'VerticalGridCharacteristic: incompatible - ' // &
+                 'no common physical dimension between export and ' // &
+                 'import vertical grids'
+            _FAIL(failure_message)
+         case (DIMENSION_OVERLAP_AMBIGUOUS)
+            failure_message = 'VerticalGridCharacteristic: ambiguous - ' // &
+                 'more than one common physical dimension between ' // &
+                 'export and import vertical grids (' // &
+                 overlap_list // ')'
+            _FAIL(failure_message)
+         case default
+            failure_message = 'VerticalGridCharacteristic: ' // &
+                 'unrecognized dimension-overlap outcome'
+            _FAIL(failure_message)
+         end select
       class default
          _FAIL('VerticalGridCharacteristic: goal is not a VerticalGridCharacteristic')
       end select
-
-      select case (outcome)
-      case (DIMENSION_OVERLAP_SINGLE)
-         ! One candidate dimension, but no vertical-regrid Transform exists yet.
-         call report_build_transform_unsupported(rc)
-      case (DIMENSION_OVERLAP_INCOMPATIBLE)
-         failure_message = 'VerticalGridCharacteristic: incompatible - no common physical dimension ' // &
-              'between export and import vertical grids'
-         _FAIL(failure_message)
-      case (DIMENSION_OVERLAP_AMBIGUOUS)
-         failure_message = 'VerticalGridCharacteristic: ambiguous - more than one common physical ' // &
-              'dimension between export and import vertical grids (' // overlap_list // ')'
-         _FAIL(failure_message)
-      case default
-         _FAIL('VerticalGridCharacteristic: unrecognized dimension-overlap outcome')
-      end select
    end subroutine vcoord_build_transform
+
+   ! The regrid writes the import's orientation, so it also resolves an
+   ! orientation difference. A stagger difference stays its own step, which
+   ! reports unsupported: the regrid needs level centers on both sides.
+   function vcoord_covered_kinds(this, tip, goal) result(kinds)
+      class(VerticalGridCharacteristic), intent(in) :: this
+      type(StateItemCharacteristicMap), target, intent(in) :: tip
+      type(StateItemCharacteristicMap), target, intent(in) :: goal
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+
+      kinds = [this%get_kind()]
+      if (tip%count(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND) > 0 .and. &
+           goal%count(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND) > 0) then
+         kinds = [kinds, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND]
+      end if
+   end function vcoord_covered_kinds
+
+   ! Only a Field has a vertical regrid, and only at level centers. A tip
+   ! with no shape entry (component-level wiring), or a pair not holding
+   ! both grids, is not restricted. The regrid is R4 only, so an R8 tip is
+   ! unsupported at connect rather than failing at compute.
+   subroutine vcoord_build_transform_for_item(this, goal, tip, transformer, rc)
+      class(VerticalGridCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      type(StateItemCharacteristicMap), target, intent(in) :: tip
+      class(TransformBase), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(StateItemCharacteristic), pointer :: entry
+      type(VerticalStaggerLoc) :: stagger
+
+      if (tip%count(ITEM_SHAPE_CHARACTERISTIC_KIND) == 0 .or. &
+           .not. holds_both(this, goal)) then
+         call this%build_transform(goal, transformer, rc)
+         return
+      end if
+
+      entry => tip%at(ITEM_SHAPE_CHARACTERISTIC_KIND, _RC)
+      select type (entry)
+      type is (ItemShapeCharacteristic)
+         if (.not. (entry%get_item_class() == MAPL_STATEITEM_FIELD)) then
+            call report_build_transform_unsupported(rc)
+            return
+         end if
+      class default
+         _FAIL('VerticalGridCharacteristic: ITEM_SHAPE entry has wrong type')
+      end select
+
+      if (tip%count(VERTICAL_STAGGER_CHARACTERISTIC_KIND) > 0) then
+         entry => tip%at(VERTICAL_STAGGER_CHARACTERISTIC_KIND, _RC)
+         select type (entry)
+         type is (VerticalStaggerCharacteristic)
+            stagger = entry%get_vertical_stagger()
+            if (stagger%to_string() /= VERTICAL_STAGGER_CENTER%to_string()) then
+               call report_build_transform_unsupported(rc)
+               return
+            end if
+         class default
+            _FAIL('VerticalGridCharacteristic: bad VERTICAL_STAGGER entry')
+         end select
+      end if
+
+      if (tip%count(TYPE_KIND_CHARACTERISTIC_KIND) > 0) then
+         entry => tip%at(TYPE_KIND_CHARACTERISTIC_KIND, _RC)
+         select type (entry)
+         type is (TypeKindCharacteristic)
+            if (entry%get_type_kind() == 'R8') then
+               call report_build_transform_unsupported(rc)
+               return
+            end if
+         end select
+      end if
+
+      call this%build_transform(goal, transformer, rc)
+   end subroutine vcoord_build_transform_for_item
+
+   ! Legacy VerticalGridAspect rule: the same grid, or the export grid
+   ! matches the import grid (a basic grid matches on level count alone).
+   logical function grids_match(export_grid, import_grid)
+      class(VerticalGrid), intent(in) :: export_grid
+      class(VerticalGrid), intent(in) :: import_grid
+
+      grids_match = export_grid%get_id() == import_grid%get_id()
+      if (.not. grids_match) grids_match = export_grid%matches(import_grid)
+   end function grids_match
+
+   ! Only a pair holding both grids can get a Transform; any other pair
+   ! (e.g. VERTICALGRID composites, which hold dimension names) keeps the
+   ! plain dimension-overlap outcome whatever the item shape.
+   logical function holds_both(this, goal)
+      class(VerticalGridCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+
+      holds_both = .false.
+      select type (goal)
+      class is (VerticalGridCharacteristic)
+         holds_both = allocated(this%vgrid) .and. allocated(goal%vgrid)
+      end select
+   end function holds_both
+
+   logical function is_basic(vgrid)
+      class(VerticalGrid), intent(in) :: vgrid
+
+      select type (vgrid)
+      type is (BasicVerticalGrid)
+         is_basic = .true.
+      class default
+         is_basic = .false.
+      end select
+   end function is_basic
 
    ! Includes the identity token (when present) and the sorted dimension set
    ! (when non-empty), so characteristics differing in either get distinct keys.

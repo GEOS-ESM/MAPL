@@ -15,15 +15,23 @@
 ! orientation values, never a VerticalGrid. MIRRORED means the import
 ! adopts the export's orientation.
 !
-! build_transform reports unsupported: no index-reversal Transform exists.
+! An orientation-only difference on a Field is a VerticalFlipTransform step;
+! other item shapes report unsupported. When the vertical grids also differ,
+! the vertical-grid step covers the orientation.
 !------------------------------------------------------------------------------
 module mapl_VerticalOrientationCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
    use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_STRUCTURAL, report_build_transform_unsupported
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristicMap
    use mapl_CharacteristicStatus_mod, only: operator(==), CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_DEFERRED
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        ITEM_SHAPE_CHARACTERISTIC_KIND
+   use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD
+   use mapl_VerticalFlipTransform_mod, only: VerticalFlipTransform
    use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, VCOORD_DIRECTION_DOWN, VCOORD_DIRECTION_UNSPECIFIED, operator(==), operator(/=)
    use mapl_VerticalAlignment_mod, only: VerticalAlignment, VALIGN_UP, VALIGN_DOWN
    use mapl_VerticalGrid_mod, only: VerticalGrid
@@ -46,6 +54,8 @@ module mapl_VerticalOrientationCharacteristic_mod
       procedure, nopass :: get_kind => orientation_get_kind
       procedure :: needs_extension_for => orientation_needs_extension_for
       procedure :: build_transform => orientation_build_transform
+      procedure :: build_transform_for_item => &
+           orientation_build_transform_for_item
       procedure :: get_signature => orientation_get_signature
       procedure :: write_info => orientation_write_info
       procedure :: is_structural => orientation_is_structural
@@ -100,11 +110,45 @@ contains
       class(TransformBase), allocatable, intent(out) :: transformer
       integer, optional, intent(out) :: rc
 
-      _UNUSED_DUMMY(this)
-      _UNUSED_DUMMY(goal)
+      select type (goal)
+      class is (VerticalOrientationCharacteristic)
+         allocate(transformer, source=VerticalFlipTransform())
+      class default
+         _FAIL('VerticalOrientationCharacteristic: goal is not an orientation')
+      end select
 
-      call report_build_transform_unsupported(rc)
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
    end subroutine orientation_build_transform
+
+   ! Only a Field has a flip. A tip with no shape entry is not restricted.
+   subroutine orientation_build_transform_for_item(this, goal, tip, &
+        transformer, rc)
+      class(VerticalOrientationCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      type(StateItemCharacteristicMap), target, intent(in) :: tip
+      class(TransformBase), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(StateItemCharacteristic), pointer :: item_shape
+
+      if (tip%count(ITEM_SHAPE_CHARACTERISTIC_KIND) > 0) then
+         item_shape => tip%at(ITEM_SHAPE_CHARACTERISTIC_KIND, _RC)
+         select type (item_shape)
+         type is (ItemShapeCharacteristic)
+            if (.not. (item_shape%get_item_class() == &
+                 MAPL_STATEITEM_FIELD)) then
+               call report_build_transform_unsupported(rc)
+               return
+            end if
+         class default
+            _FAIL('VerticalOrientationCharacteristic: bad ITEM_SHAPE entry')
+         end select
+      end if
+
+      call this%build_transform(goal, transformer, rc)
+   end subroutine orientation_build_transform_for_item
 
    function orientation_get_signature(this) result(signature)
       class(VerticalOrientationCharacteristic), intent(in) :: this

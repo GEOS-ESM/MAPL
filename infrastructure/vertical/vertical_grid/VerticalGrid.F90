@@ -24,6 +24,7 @@ module mapl_VerticalGrid_mod
       procedure :: get_primary_coordinate
       procedure :: set_primary_coordinate
       procedure :: get_column_coordinate
+      procedure :: has_column_coordinate
       procedure(I_get_coordinate_field), deferred :: get_coordinate_field
       procedure(I_get_supported_physical_dimensions), deferred :: get_supported_physical_dimensions
       procedure(I_get_units), deferred :: get_units
@@ -150,5 +151,16 @@ contains
       _UNUSED_DUMMY(this)
       _UNUSED_DUMMY(levels)
    end subroutine get_column_coordinate
+
+   ! Whether get_column_coordinate succeeds for this dimension. It does not
+   ! raise, so connect-time checks can ask without recording an error.
+   logical function has_column_coordinate(this, physical_dimension) result(has)
+      class(VerticalGrid), intent(in) :: this
+      character(*), intent(in) :: physical_dimension
+
+      has = .false.
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(physical_dimension)
+   end function has_column_coordinate
 end module mapl_VerticalGrid_mod
 

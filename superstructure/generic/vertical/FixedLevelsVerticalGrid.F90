@@ -42,6 +42,7 @@ module mapl_FixedLevelsVerticalGrid_mod
        procedure :: get_num_layers
        procedure :: get_coordinate_field
        procedure :: get_column_coordinate
+       procedure :: has_column_coordinate
        procedure :: get_supported_physical_dimensions
        procedure :: matches
     end type FixedLevelsVerticalGrid
@@ -218,6 +219,15 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine get_column_coordinate
+
+   logical function has_column_coordinate(this, physical_dimension) result(has)
+      class(FixedLevelsVerticalGrid), intent(in) :: this
+      character(*), intent(in) :: physical_dimension
+
+      has = .false.
+      if (.not. allocated(this%spec%physical_dimension)) return
+      has = physical_dimension == this%spec%physical_dimension
+   end function has_column_coordinate
 
    function get_supported_physical_dimensions(this) result(dimensions)
       type(StringVector) :: dimensions

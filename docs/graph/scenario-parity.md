@@ -50,15 +50,16 @@ to "Verified root causes" below.
 | history_wildcard | yes | passes |
 | extdata_1 | yes | passes |
 | names_1 | yes | passes |
-| vertical_alignment_same_grid | yes | passes |
+| vertical_alignment_same_grid | yes | passes (measured 2026-11-10, NAG): no longer masked. The two components declare separate fixed-levels grids with identical levels, which do not match (legacy rule: a fixed grid matches only a basic one), so the graph builds one `VerticalColumnRegridTransform` step (`chain: [vertical]`) that also covers the orientation (export downward, import upward). Constant value: guards that the step runs, not a flip; `vertical_orientation_flip` covers the flip |
 | regrid | yes | passes (measured 2026-11-08): one geometry step (`HorizontalRegridTransform`), chain checked. The table entry sets `graph_owns_user_states`, so in `GRAPH` mode the value check reads the graph-regridded import (a corrupted regrid output fails it) |
 | regrid_r8 | yes | passes (measured 2026-11-08): geometry then typekind step, chain checked; graph-owned user states as for `regrid` |
 | propagate_geom | yes | passes (measured 2026-11-08): same grid on both sides, direct edge (`chain: []`). With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes in `GRAPH` mode: the re-exported internal `Z_A1` (expected as `child_A/Z_A1`) comes from the export-port walk |
-| vertical_regridding | no | passes through legacy (M2): A has a 3-level and B a 2-level fixed-levels grid, both `pressure`, so `B:I_B` has a VERTICAL_GRID mismatch with one common dimension; `VerticalGridCharacteristic%build_transform` reports it unsupported and the graph builds no regrid |
-| vertical_regridding_2 | no | same as `vertical_regridding` for `B:I_B` (A: model grid with `pressure` and `height`; B: fixed levels, `pressure`) and `D:I_D` (C: model grid, `height`; D: fixed levels, `height`): one common dimension each, unsupported. Passes with `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` too: a single-level grid's orientation entry holds UNSPECIFIED and `write_info` writes nothing for it |
-| vertical_regridding_3 | no | same as `vertical_regridding` for `C:I_C` and `PHYS:T_PHYS` (DYN: model grid, `pressure`; C and PHYS: fixed-levels `pressure` grids): one common dimension, unsupported |
-| vertical_alignment_regrid | no | same as `vertical_regridding`: A has 3 levels, B has 4, both `pressure`, so `B:I_B` has a VERTICAL_GRID mismatch; the orientation mismatch (A downward, B upward) is masked by it (`adding-a-characteristic.md`, "VerticalOrientation as implemented") |
-| vertical_alignment_with_grid | no | same as `vertical_regridding`: A has 3 levels and B has 2, both `pressure` and both downward, so `B:I_B` has a real VERTICAL_GRID mismatch and no orientation mismatch |
+| vertical_regridding | yes | passes (measured 2026-11-10, NAG; red before C1-vertical-b1: ready only via legacy, the pending run logged `no registered extension provider ... B:I_B:VERTICAL_GRID`): A has a 3-level and B a 2-level fixed-levels grid, both `pressure`; the graph builds a `VerticalColumnRegridTransform` step (`chain: [vertical]`). The table entry sets `graph_owns_user_states`, so in `GRAPH` mode the value check reads the graph-regridded import: with the regrid output zeroed (mutation, NAG) only `vertical_regridding [value] mode=graph` fails. Constant value 15: guards that the step runs, not the numerics (`Test_VerticalColumnRegridTransform.pf` covers those) |
+| vertical_regridding_2 | no | stays pending: `B:I_B` (A: model grid with `pressure` and `height`; B: fixed levels, `pressure`) and `D:I_D` (C: model grid, `height`; D: fixed levels, `height`) share one dimension, but a model grid has no level values the graph can read at connect (its PLE/ZLE coordinate is a field; no coordinate input port yet), so `build_transform` reports unsupported VERTICAL_GRID at connect, not a failure at compute (re-measured 2026-11-10, NAG, pending run passes through legacy). Passes with `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` too: a single-level grid's orientation entry holds UNSPECIFIED and `write_info` writes nothing for it |
+| vertical_regridding_3 | no | stays pending, as `vertical_regridding_2`: `C:I_C` and `PHYS:T_PHYS` (DYN: model grid, `pressure`; C and PHYS: fixed-levels `pressure` grids) are reported unsupported VERTICAL_GRID at connect (model grid; also `I_C` is fed by the edge-staggered `PLE`) |
+| vertical_alignment_regrid | yes | passes (measured 2026-11-10, NAG; red before: as `vertical_regridding`): A has 3 levels downward, B 4 levels upward, both `pressure`; one vertical step (`chain: [vertical]`) also covers the orientation. Constant value: cannot detect a flip (masked for values; the chain is graph-checked) |
+| vertical_alignment_with_grid | yes | passes (measured 2026-11-10, NAG; red before: as `vertical_regridding`): A has 3 levels and B 2, both `pressure` and `with_grid`; one vertical step (`chain: [vertical]`). Constant value, chain graph-checked |
+| vertical_orientation_flip | yes | new (C1-vertical-b1). Both children take the parent's fixed-levels grid (`[30, 20, 10]` hPa, from_parent), export `downward` with `default_vertical_profile: [30, 20, 10]`, import `upward`: one `VerticalFlipTransform` step (`chain: [orientation]`), and the import profile is checked as `[10, 20, 30]`. The table entry sets `graph_owns_user_states`; with the flip disabled (mutation, NAG) only `vertical_orientation_flip [vertical_profile] mode=graph` fails |
 | scenario_reexport_twice | yes | passes; graph builds the re-export ports. The table entry sets `graph_owns_user_states`, so it is also the regression for propagated names staying out of the user export state. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it also passes in `GRAPH` mode: the user export state gets both re-exports from the port walk: `Eparent_B1`, a re-export of a child's export, and `Egrandparent_B1`, a re-export of that re-export |
 | expression_defer_geom | yes | passes (measured 2026-11-08): each input on the file grid gets a geometry step (`HorizontalRegridTransform`) before the `ExpressionTransform`; the chain links carry the input names, which `StateEval` looks up |
 | history_1 | yes | passes in graph and both modes (the table entry is `.true.`), the deep pull going through the hierarchy's forward network. With `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES=1` it was last measured failing two checks: `B/E_B3` (vertical-grid mismatch, no provider) and the `A/E_A1` value (tasks.md 3.44 Status); not re-measured since the forward network landed |
@@ -217,15 +218,16 @@ In production, the same faults only log a warning and drop part of the graph.
   `vertical_*` scenario the grid is declared per component, not per item.
   `make_vertical_grid_characteristic` gives each field-carrying item a
   DEFERRED VERTICAL_GRID entry (`make_characteristics.F90:332-338`), and
-  `resolve_deferred` fills it from the component grid at GEOM_B
-  (`VerticalGridCharacteristic.F90:192-207`). Each component builds its grid
-  through the grid manager, which assigns a fresh id
-  (`VerticalGridManager.F90:100-117,354-357`), and `needs_extension_for`
-  compares those ids (`VerticalGridCharacteristic.F90:144-145`), so two
-  components with identical levels still mismatch. A pair with one common
-  physical dimension is then reported unsupported (`build_transform`,
-  `VerticalGridCharacteristic.F90:272-274`): the graph builds no
-  `VerticalColumnRegridTransform` for it, and legacy does the regrid.
+  `resolve_deferred` fills it from the component grid at GEOM_B. Each
+  component builds its grid through the grid manager, which assigns a fresh
+  id, and `needs_extension_for` compares the two held grids by the legacy
+  rule (same id, or `VerticalGrid%matches`), so two components with
+  identical fixed levels still mismatch (as in legacy). Since C1-vertical-b1
+  a Field pair whose two grids both have level values in their one shared
+  dimension gets a `VerticalColumnRegridTransform` (`vertical_regridding`,
+  `vertical_alignment_*` are ready). Still unsupported at connect: a model
+  grid on either side (`vertical_regridding_2`, `_3`), a non-center stagger,
+  and a VECTOR or other bundle (`vector_1`, `C1-vertical-b2`).
 - **M3. SERVICE is not materialized by the graph; VECTOR and BRACKET
   bundles are.** In graph mode, as for a Field, the graph creates an empty
   CREATED bundle at advertise for every declared VECTOR item (import, export
@@ -301,9 +303,10 @@ Gaps: INTERNAL items, imports and exports with no connection, and
 expression/wildcard/bracket-indexed exports (`T(1)`). Retiring the legacy
 calls is plan work (D2 and the B tasks); do not remove them in a test task.
 
-`regrid*` and `propagate_geom` are ready since C1-geom-b. The `vertical_*`
-family stays `graph_ready = .false.`: `VerticalColumnRegridTransform` and
-`VerticalFlipTransform` exist, but no characteristic builds them (M2).
+`regrid*` and `propagate_geom` are ready since C1-geom-b. `vertical_regridding`,
+the `vertical_alignment_*` scenarios and `vertical_orientation_flip` are ready
+since C1-vertical-b1; `vertical_regridding_2`, `_3` (model grids) and
+`vector_1` (VECTOR) are not (M2).
 
 ## Legacy and graph behavior differences
 
@@ -322,7 +325,12 @@ checklist for switching legacy off.
 | Unconnected export that a re-export names | allocated: the re-export chain activates the source, so `allocate_items` allocates it (a legacy bug; owner decision 2026-11-07) | stays created (GRIDSET once its geometry is written), not allocated; only a connection that consumes the export allocates it | 3.41a B3-FieldPerNode |
 | Propagated child export in the user export state | `add_to_states(mode='user')` skips every item whose `comp_name` is non-empty (`registry/StateRegistry_Actions_smod.F90:73`), so a child's propagated export is not in the parent's user export state | with the user-state switch on, a propagated port (`child/E`, a slash in the name) is skipped by the user passes (advertise and accept_transfer) and written only to the OUTER export state, in a substate, at REALIZE_ACCEPTED (`populate_export_ports` with `include_propagated`); same as legacy | 3.41b B3-ExportPortPopulation; corrected by 3.42 B3-OuterStatePopulation |
 | Position-labelled names (`T(1)`, `T(2)`, `I_A1(1)`, `A/E_A1(1)`) in the user and outer states | `add_to_states` writes some extension Fields under a name with a position suffix | the graph writes each item once under its declared or port name; no position-labelled copies. Expectation items for these names carry `legacy_only: true`, which `Test_Scenarios` skips when the graph owns the states (registry and both modes still check them). Owner decision 2026-11-07 | 3.42 B3-OuterStatePopulation |
-| Equal basic vertical grids (same layer count, different manager ids) | `VerticalGridAspect%typesafe_matches` (`specs/VerticalGridAspect.F90` ~262-264) uses `vertical_grid%matches()`, which for `BasicVerticalGrid` compares layer counts, so two basic grids with the same `num_levels` match | `VerticalGridCharacteristic%needs_extension_for` (`VerticalGridCharacteristic.F90` ~140-147) compares manager grid ids, so the same two grids mismatch and the pair is reported unsupported VERTICAL_GRID (seen with `vertical_dim_spec: center` in `vector_regrid` before it used `NONE`) | to schedule (probably C1-vertical-b) |
+| Equal basic vertical grids (same layer count, different manager ids) | `VerticalGridAspect%typesafe_matches` (`specs/VerticalGridAspect.F90` ~262-264) uses `vertical_grid%matches()`, which for `BasicVerticalGrid` compares layer counts, so two basic grids with the same `num_levels` match | fixed: when both sides hold a grid, `needs_extension_for` uses the same rule (same id, or the export grid `matches` the import grid), so no difference remains. Two basic grids with different counts are INCOMPATIBLE at connect (owner decision 2026-11-08); legacy has no basic-to-basic regrid either (its coordinate field fails) | fixed in C1-vertical-b1 |
+| Stagger-only mismatch on the same (or matching) vertical grid, e.g. a CENTER export into an EDGE import | `typesafe_matches` (`specs/VerticalGridAspect.F90:193-277`) never compares the staggers: equal grids match, so no extension is built; the field shapes then disagree | VERTICAL_STAGGER mismatch, reported unsupported at connect (no Transform moves data between centers and edges; plan C1-vertical-a) | C1-vertical-b1 |
+| 2D source (`vertical_dim_spec: NONE`) into a 3D import | `typesafe_matches` returns match when the source stagger is NONE (`:232-235`): connects with no step | an explicit NONE still mismatches a 3D import (design §5.1): a stagger step, reported unsupported | C1-vertical-b1 |
+| Edge-staggered field between different vertical grids | `VerticalRegridTransform` adjusts the coordinates for the field's stagger (`adjust_coords`, `transforms/VerticalRegridTransform.F90`) | reported unsupported at connect (`VerticalGridCharacteristic%build_transform_for_item`: the column regrid handles level centers only between different grids) | C1-vertical-b1 |
+| Model grid (PLE/ZLE coordinate) as source or destination of a vertical regrid | builds the coordinate fields through `ModelVerticalGrid%get_coordinate_field_with_coupler` (a `StateRegistry` extension with a coupler; `specs/VerticalGridAspect/make_transform.F90:96-110`) | reported unsupported VERTICAL_GRID at connect (`VerticalGrid%has_column_coordinate` is false for a model grid; no coordinate input port yet, a later task). Hybrid mode is unaffected: legacy does the regrid | C1-vertical-b1 |
+| R8 field across a vertical regrid | `VerticalRegridTransform` reads R4 pointers only | reported unsupported `VERTICAL_GRID` at connect (an R8 tip, `build_transform_for_item`), so the pair is not wired; the typekind step comes after the vertical step, so it cannot rescue it. Legacy connects and fails inside ESMF at the first compute. Owner 2026-11-10: R8 support is planned as a near duplicate of the R4 path, after the develop merge | C1-vertical-r8 |
 | Both export and import declare a regridder param, on different geoms | `GeomAspect%make_transform` `_FAIL`s (`specs/GeomAspect.F90:191-213`); connection setup aborts | reported per pair as an incompatible GEOMETRY conflict naming both signatures (with params); the component's other connections still resolve. Owner decision 2026-11-08 | C1-geom-b |
 | Geometry mismatch on a FIELDBUNDLE or VECTORBRACKET item | `RegridTransform%update` regrids Fields and FieldBundles (`transforms/RegridTransform.F90:218-235`) | reports unsupported GEOMETRY (owner decisions 2026-11-08 and 2026-11-09; VECTORBRACKET is a follow-up, FIELDBUNDLE only if a client needs it). Hybrid mode is unaffected: legacy does the regrid | C1-geom-b; C1-geom-c-a |
 | Geometry mismatch on a VECTOR or BRACKET item | `RegridTransform%update` regrids the bundle (`transforms/RegridTransform.F90:218-235`) | chain built with `HorizontalBundleRegridTransform` (one rotated regrid call for a VECTOR, exporter basis kept); the chain link is an allocated bundle without members, whose members the Transform creates at compute (a clone of each input member on the output geom, created again when the input member count changes) | C1-geom-c-a; C1-geom-c-b |

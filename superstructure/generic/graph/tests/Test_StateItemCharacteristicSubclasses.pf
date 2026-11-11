@@ -24,6 +24,7 @@ module Test_StateItemCharacteristicSubclasses
                                                     STANDARD_NAME_CHARACTERISTIC_KIND, &
                                                     ITEM_SHAPE_CHARACTERISTIC_KIND, &
                                                     VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+                                                    TYPE_KIND_CHARACTERISTIC_KIND, &
                                                     VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
         HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
         LONG_NAME_CHARACTERISTIC_KIND, &
@@ -61,6 +62,14 @@ module Test_StateItemCharacteristicSubclasses
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_HorizontalRegridTransform_mod, only: HorizontalRegridTransform
    use mapl_HorizontalBundleRegridTransform_mod, only: HorizontalBundleRegridTransform
+   use mapl_VerticalColumnRegridTransform_mod, only: &
+        VerticalColumnRegridTransform
+   use mapl_VerticalFlipTransform_mod, only: VerticalFlipTransform
+   use mapl_FixedLevelsVerticalGrid_mod, only: FixedLevelsVerticalGrid, &
+        FixedLevelsVerticalGridSpec
+   use mapl_ModelVerticalGrid_mod, only: ModelVerticalGrid
+   use mapl_vertical_grid_api, only: mapl_VerticalGrid, &
+        mapl_BasicVerticalGrid, mapl_BasicVerticalGridSpec
    use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
    use StateItemTestSupport_mod, only: make_latlon_geom
    use ESMF, only: ESMF_Geom, ESMF_REGRIDMETHOD_CONSERVE
@@ -132,6 +141,342 @@ contains
       @assertFalse(a%needs_extension_for(same_as_a))
       @assertTrue(a%needs_extension_for(b))
    end subroutine test_vcoord_needs_extension_compares_node_id
+
+   ! Held grids follow the legacy rule: the same grid id, or the export
+   ! grid matches the import grid. Separate fixed grids with identical
+   ! levels do not match.
+   @test
+   subroutine test_vcoord_needs_extension_held_grids_legacy_rule()
+      type(VerticalGridCharacteristic) :: fixed_a, fixed_a_again, fixed_b
+      class(mapl_VerticalGrid), allocatable :: g
+
+      call make_fixed_grid(1, [30., 20., 10.], g)
+      fixed_a = VerticalGridCharacteristic(vgrid=g)
+      fixed_a_again = VerticalGridCharacteristic(vgrid=g)
+      call make_fixed_grid(2, [30., 20., 10.], g)
+      fixed_b = VerticalGridCharacteristic(vgrid=g)
+
+      @assertFalse(fixed_a%needs_extension_for(fixed_a_again))
+      @assertTrue(fixed_a%needs_extension_for(fixed_b))
+   end subroutine test_vcoord_needs_extension_held_grids_legacy_rule
+
+   ! A basic grid matches any grid with the same level count, in either
+   ! order; a fixed or model grid matches a basic grid only (legacy
+   ! VerticalGrid%matches), so a model export to a fixed import of the same
+   ! count still mismatches.
+   @test
+   subroutine test_vcoord_needs_extension_basic_grid_level_count()
+      type(VerticalGridCharacteristic) :: basic3, basic3b, basic2
+      type(VerticalGridCharacteristic) :: fixed3, model3
+      class(mapl_VerticalGrid), allocatable :: g
+
+      call make_basic_grid(11, 3, g)
+      basic3 = VerticalGridCharacteristic(vgrid=g)
+      call make_basic_grid(12, 3, g)
+      basic3b = VerticalGridCharacteristic(vgrid=g)
+      call make_basic_grid(13, 2, g)
+      basic2 = VerticalGridCharacteristic(vgrid=g)
+      call make_fixed_grid(14, [30., 20., 10.], g)
+      fixed3 = VerticalGridCharacteristic(vgrid=g)
+      call make_model_grid(15, 'pressure', 3, g)
+      model3 = VerticalGridCharacteristic(vgrid=g)
+
+      @assertFalse(basic3%needs_extension_for(basic3b))
+      @assertTrue(basic3%needs_extension_for(basic2))
+      @assertFalse(basic3%needs_extension_for(fixed3))
+      @assertFalse(fixed3%needs_extension_for(basic3))
+      @assertFalse(model3%needs_extension_for(basic3))
+      @assertTrue(model3%needs_extension_for(fixed3))
+   end subroutine test_vcoord_needs_extension_basic_grid_level_count
+
+   ! Two held grids with level values in their one shared dimension get a
+   ! column regrid.
+   @test
+   subroutine test_vertical_grid_build_transform_fixed_grids_regrid()
+      type(VerticalGridCharacteristic) :: a, b
+      class(mapl_VerticalGrid), allocatable :: g
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+      logical :: is_regrid
+
+      call make_fixed_grid(21, [30., 20., 10.], g)
+      a = VerticalGridCharacteristic(vgrid=g)
+      call make_fixed_grid(22, [25., 15.], g)
+      b = VerticalGridCharacteristic(vgrid=g)
+
+      call a%build_transform(b, transformer, rc=status)
+      @assertEqual(0, status)
+      is_regrid = .false.
+      if (allocated(transformer)) then
+         select type (transformer)
+         type is (VerticalColumnRegridTransform)
+            is_regrid = .true.
+         end select
+      end if
+      @assertTrue(is_regrid)
+   end subroutine test_vertical_grid_build_transform_fixed_grids_regrid
+
+   ! A model grid has no level values the graph can read at connect, so a
+   ! model-to-fixed mismatch reports unsupported (either direction).
+   @test
+   subroutine test_vertical_grid_build_transform_model_grid_unsupported()
+      type(VerticalGridCharacteristic) :: model, fixed
+      class(mapl_VerticalGrid), allocatable :: g
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+      logical :: built
+
+      call make_model_grid(31, 'pressure', 4, g)
+      model = VerticalGridCharacteristic(vgrid=g)
+      call make_fixed_grid(32, [25., 15.], g)
+      fixed = VerticalGridCharacteristic(vgrid=g)
+
+      call model%build_transform(fixed, transformer, rc=status)
+      built = allocated(transformer)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(built)
+
+      call fixed%build_transform(model, transformer, rc=status)
+      built = allocated(transformer)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(built)
+   end subroutine test_vertical_grid_build_transform_model_grid_unsupported
+
+   ! Two basic grids with different level counts can never connect.
+   @test
+   subroutine test_vertical_grid_build_transform_basic_counts_incompatible()
+      type(VerticalGridCharacteristic) :: a, b
+      class(mapl_VerticalGrid), allocatable :: g
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+      logical :: built
+
+      call make_basic_grid(41, 3, g)
+      a = VerticalGridCharacteristic(vgrid=g)
+      call make_basic_grid(42, 2, g)
+      b = VerticalGridCharacteristic(vgrid=g)
+
+      call a%build_transform(b, transformer, rc=status)
+      built = allocated(transformer)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(built)
+   end subroutine test_vertical_grid_build_transform_basic_counts_incompatible
+
+   ! Only an R4 Field at level centers gets the regrid; a tip with no shape
+   ! entry is not restricted.
+   @test
+   subroutine test_vertical_grid_build_transform_for_item_dispatch()
+      type(VerticalGridCharacteristic) :: a, b
+      integer, parameter :: UNSUPPORTED = BUILD_TRANSFORM_UNSUPPORTED
+      class(mapl_VerticalGrid), allocatable :: g
+
+      call make_fixed_grid(51, [30., 20., 10.], g)
+      a = VerticalGridCharacteristic(vgrid=g)
+      call make_fixed_grid(52, [25., 15.], g)
+      b = VerticalGridCharacteristic(vgrid=g)
+
+      call check_shape(S_FIELD, .true., VERTICAL_STAGGER_CENTER, 0)
+      call check_shape(S_FIELD, .false., VERTICAL_STAGGER_CENTER, 0)
+      call check_shape(S_FIELD, .true., VERTICAL_STAGGER_EDGE, UNSUPPORTED)
+      call check_shape(S_VECTOR, .true., VERTICAL_STAGGER_CENTER, UNSUPPORTED)
+      call check_shape(S_BRACKET, .true., VERTICAL_STAGGER_CENTER, UNSUPPORTED)
+      call check_shape(S_BUNDLE, .true., VERTICAL_STAGGER_CENTER, UNSUPPORTED)
+      call check_shape(S_FIELD, .true., VERTICAL_STAGGER_CENTER, 0, 'R4')
+      call check_shape(S_FIELD, .true., VERTICAL_STAGGER_CENTER, UNSUPPORTED, &
+           'R8')
+
+   contains
+
+      subroutine check_shape(item_class, with_shape, stagger, &
+           expected_status, typekind)
+         type(ESMF_StateItem_Flag), intent(in) :: item_class
+         logical, intent(in) :: with_shape
+         type(VerticalStaggerLoc), intent(in) :: stagger
+         integer, intent(in) :: expected_status
+         character(*), optional, intent(in) :: typekind
+
+         type(StateItemCharacteristicMap) :: tip
+         class(TransformBase), allocatable :: transformer
+         integer :: status
+         logical :: built
+
+         if (with_shape) then
+            call tip%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+                 ItemShapeCharacteristic(item_class))
+         end if
+         call tip%insert(VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+              VerticalStaggerCharacteristic(stagger))
+         if (present(typekind)) then
+            call tip%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
+                 TypeKindCharacteristic(typekind))
+         end if
+         call a%build_transform_for_item(b, tip, transformer, rc=status)
+         built = allocated(transformer)
+         @assertEqual(expected_status, status)
+         @assertEqual(expected_status == 0, built)
+      end subroutine check_shape
+
+   end subroutine test_vertical_grid_build_transform_for_item_dispatch
+
+   ! The regrid also covers an orientation difference present on both
+   ! sides, but never a stagger difference.
+   @test
+   subroutine test_vertical_grid_covered_kinds()
+      type(VerticalGridCharacteristic) :: a
+      type(StateItemCharacteristicMap) :: tip, goal
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+      integer :: n
+
+      a = VerticalGridCharacteristic(grid_id='gridA')
+      kinds = a%covered_kinds(tip, goal)
+      n = size(kinds)
+      @assertEqual(1, n)
+      @assertTrue(kinds(1) == VERTICAL_GRID_CHARACTERISTIC_KIND)
+
+      call tip%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      call goal%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      call tip%insert(VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+           VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER))
+      call goal%insert(VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+           VerticalStaggerCharacteristic(VERTICAL_STAGGER_EDGE))
+      deallocate(kinds)
+      kinds = a%covered_kinds(tip, goal)
+      n = size(kinds)
+      @assertEqual(2, n)
+      @assertTrue(kinds(1) == VERTICAL_GRID_CHARACTERISTIC_KIND)
+      @assertTrue(kinds(2) == VERTICAL_ORIENTATION_CHARACTERISTIC_KIND)
+   end subroutine test_vertical_grid_covered_kinds
+
+   ! The orientation is covered only when both sides carry it; one side
+   ! alone leaves the orientation kind to its own step.
+   @test
+   subroutine test_vertical_grid_covered_kinds_one_sided_orientation()
+      type(VerticalGridCharacteristic) :: a
+      type(StateItemCharacteristicMap) :: with_orientation, without
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+      integer :: n
+
+      a = VerticalGridCharacteristic(grid_id='gridA')
+      call with_orientation%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+
+      kinds = a%covered_kinds(with_orientation, without)
+      n = size(kinds)
+      @assertEqual(1, n)
+      @assertTrue(kinds(1) == VERTICAL_GRID_CHARACTERISTIC_KIND)
+
+      deallocate(kinds)
+      kinds = a%covered_kinds(without, with_orientation)
+      n = size(kinds)
+      @assertEqual(1, n)
+      @assertTrue(kinds(1) == VERTICAL_GRID_CHARACTERISTIC_KIND)
+   end subroutine test_vertical_grid_covered_kinds_one_sided_orientation
+
+   ! A basic grid matches a fixed grid only with the same level count.
+   @test
+   subroutine test_vcoord_needs_extension_basic_vs_fixed_other_count()
+      type(VerticalGridCharacteristic) :: basic2, fixed3
+      class(mapl_VerticalGrid), allocatable :: g
+
+      call make_basic_grid(61, 2, g)
+      basic2 = VerticalGridCharacteristic(vgrid=g)
+      call make_fixed_grid(62, [30., 20., 10.], g)
+      fixed3 = VerticalGridCharacteristic(vgrid=g)
+
+      @assertTrue(basic2%needs_extension_for(fixed3))
+      @assertTrue(fixed3%needs_extension_for(basic2))
+   end subroutine test_vcoord_needs_extension_basic_vs_fixed_other_count
+
+   ! A basic grid names no physical dimension, so against a fixed grid of
+   ! another level count the overlap is empty and build_transform fails
+   ! (not the INCOMPATIBLE status). Legacy fails here too. The failure
+   ! status equals BUILD_TRANSFORM_UNSUPPORTED, so a chain reports the pair
+   ! unsupported.
+   @test
+   subroutine test_vertical_grid_build_transform_basic_vs_fixed_fails()
+      type(VerticalGridCharacteristic) :: basic2, fixed3
+      class(mapl_VerticalGrid), allocatable :: g
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+      logical :: built
+
+      call make_basic_grid(63, 2, g)
+      basic2 = VerticalGridCharacteristic(vgrid=g)
+      call make_fixed_grid(64, [30., 20., 10.], g)
+      fixed3 = VerticalGridCharacteristic(vgrid=g)
+
+      call basic2%build_transform(fixed3, transformer, rc=status)
+      built = allocated(transformer)
+      @assertFalse(status == 0)
+      @assertFalse(status == BUILD_TRANSFORM_INCOMPATIBLE)
+      @assertFalse(built)
+   end subroutine test_vertical_grid_build_transform_basic_vs_fixed_fails
+
+   ! Only a fixed-levels grid has level values, and only for its own
+   ! physical dimension; the base default is false.
+   @test
+   subroutine test_has_column_coordinate()
+      class(mapl_VerticalGrid), allocatable :: g
+      logical :: has
+
+      call make_fixed_grid(71, [30., 20., 10.], g)
+      has = g%has_column_coordinate('pressure')
+      @assertTrue(has)
+      has = g%has_column_coordinate('height')
+      @assertFalse(has)
+
+      deallocate(g)
+      call make_basic_grid(72, 3, g)
+      has = g%has_column_coordinate('pressure')
+      @assertFalse(has)
+      has = g%has_column_coordinate('<unknown>')
+      @assertFalse(has)
+
+      deallocate(g)
+      call make_model_grid(73, 'pressure', 3, g)
+      has = g%has_column_coordinate('pressure')
+      @assertFalse(has)
+   end subroutine test_has_column_coordinate
+
+   subroutine make_fixed_grid(id, levels, vgrid)
+      integer, intent(in) :: id
+      real, intent(in) :: levels(:)
+      class(mapl_VerticalGrid), allocatable, intent(out) :: vgrid
+
+      type(FixedLevelsVerticalGrid) :: fixed
+      integer :: status
+
+      call fixed%initialize(FixedLevelsVerticalGridSpec('pressure', levels, &
+           'hPa'), rc=status)
+      @assertEqual(0, status)
+      call fixed%set_id(id)
+      allocate(vgrid, source=fixed)
+   end subroutine make_fixed_grid
+
+   subroutine make_basic_grid(id, num_levels, vgrid)
+      integer, intent(in) :: id, num_levels
+      class(mapl_VerticalGrid), allocatable, intent(out) :: vgrid
+
+      type(mapl_BasicVerticalGrid) :: basic
+
+      call basic%initialize(mapl_BasicVerticalGridSpec(num_levels=num_levels))
+      call basic%set_id(id)
+      allocate(vgrid, source=basic)
+   end subroutine make_basic_grid
+
+   subroutine make_model_grid(id, dimension, num_levels, vgrid)
+      integer, intent(in) :: id, num_levels
+      character(*), intent(in) :: dimension
+      class(mapl_VerticalGrid), allocatable, intent(out) :: vgrid
+
+      type(ModelVerticalGrid) :: model
+
+      model = ModelVerticalGrid(dimension, 'PL', num_levels)
+      call model%set_id(id)
+      allocate(vgrid, source=model)
+   end subroutine make_model_grid
 
    ! --- 3.5: UngriddedDimsCharacteristic ---
 
@@ -250,17 +595,65 @@ contains
       @assertTrue(got == VCOORD_DIRECTION_DOWN)
    end subroutine test_vertical_orientation_signature_and_getter
 
+   ! An orientation-only difference is an index reversal.
    @test
-   subroutine test_vertical_orientation_build_transform_unsupported()
+   subroutine test_vertical_orientation_build_transform_flips()
       type(VerticalOrientationCharacteristic) :: up, down
       class(TransformBase), allocatable :: transformer
       integer :: status
+      logical :: is_flip
 
       up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
       down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
       call up%build_transform(down, transformer, rc=status)
-      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
-   end subroutine test_vertical_orientation_build_transform_unsupported
+      @assertEqual(0, status)
+      is_flip = .false.
+      if (allocated(transformer)) then
+         select type (transformer)
+         type is (VerticalFlipTransform)
+            is_flip = .true.
+         end select
+      end if
+      @assertTrue(is_flip)
+   end subroutine test_vertical_orientation_build_transform_flips
+
+   ! Only a Field has a flip; a tip with no shape entry is not restricted.
+   @test
+   subroutine test_vertical_orientation_build_transform_for_item_dispatch()
+      type(VerticalOrientationCharacteristic) :: up, down
+
+      up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+
+      call check_shape(S_FIELD, .true., 0)
+      call check_shape(S_VECTOR, .true., BUILD_TRANSFORM_UNSUPPORTED)
+      call check_shape(S_BRACKET, .true., BUILD_TRANSFORM_UNSUPPORTED)
+      call check_shape(S_BUNDLE, .true., BUILD_TRANSFORM_UNSUPPORTED)
+      call check_shape(S_FIELD, .false., 0)
+
+   contains
+
+      subroutine check_shape(item_class, with_shape, expected_status)
+         type(ESMF_StateItem_Flag), intent(in) :: item_class
+         logical, intent(in) :: with_shape
+         integer, intent(in) :: expected_status
+
+         type(StateItemCharacteristicMap) :: tip
+         class(TransformBase), allocatable :: transformer
+         integer :: status
+         logical :: built
+
+         if (with_shape) then
+            call tip%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+                 ItemShapeCharacteristic(item_class))
+         end if
+         call up%build_transform_for_item(down, tip, transformer, rc=status)
+         built = allocated(transformer)
+         @assertEqual(expected_status, status)
+         @assertEqual(expected_status == 0, built)
+      end subroutine check_shape
+
+   end subroutine test_vertical_orientation_build_transform_for_item_dispatch
 
    ! --- HorizontalDimsSpecCharacteristic ---
 
@@ -1142,8 +1535,8 @@ contains
       @assertEqual('typekind=R4', r4%get_signature())
    end subroutine test_type_kind_get_signature
 
-   ! VerticalGridCharacteristic's single-overlap build_transform
-   ! reports unsupported (no real vertical-regrid Transform exists yet).
+   ! A single-overlap pair that holds no grids (ids only) has no level
+   ! values to regrid between, so it reports unsupported.
    @test
    subroutine test_vertical_grid_build_transform_reports_unsupported()
       type(VerticalGridCharacteristic) :: grid_a, grid_b

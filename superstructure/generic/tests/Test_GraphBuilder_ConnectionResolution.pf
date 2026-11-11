@@ -91,7 +91,9 @@ module Test_GraphBuilder_ConnectionResolution
    use mapl_StateItemFlag_mod, only: MAPL_VARIANT_FIELDBUNDLE => MAPL_STATEITEM_FIELDBUNDLE
    ! -- vertical-grid state items ----------------------------------------
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID
-   use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid
+   use mapl_ModelVerticalGrid_mod, only: ModelVerticalGrid
+   use mapl_FixedLevelsVerticalGrid_mod, only: FixedLevelsVerticalGrid, &
+        FixedLevelsVerticalGridSpec
    use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
    use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
@@ -715,9 +717,10 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_standard_name_mismatch_is_conflict_when_strict
 
-   ! A pair left unwired as UNSUPPORTED (a vertical-grid mismatch: no
-   ! Transform yet) is recorded on the resolving component; the freeze check
-   ! passes in permissive mode and fails in strict mode.
+   ! A pair left unwired as UNSUPPORTED (a vertical-grid mismatch between
+   ! two model grids: no level values the graph can read) is recorded on
+   ! the resolving component; the freeze check passes in permissive mode and
+   ! fails in strict mode.
    @test(npes=[0])
    subroutine test_unsupported_pair_fails_freeze_check_only_when_strict(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -725,11 +728,13 @@ contains
       type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
       type(GraphResolutionEntryVector) :: unsupported
       type(VariableSpec) :: export_var_spec, import_var_spec
-      type(mapl_BasicVerticalGrid) :: export_vgrid, import_vgrid
+      type(ModelVerticalGrid) :: export_vgrid, import_vgrid
       type(StringVector) :: pairs
       integer :: status
       type(GraphBuilder) :: gb
 
+      export_vgrid = ModelVerticalGrid('pressure', 'PLE', 4)
+      import_vgrid = ModelVerticalGrid('pressure', 'PLE', 4)
       call export_vgrid%set_id(1)
       call import_vgrid%set_id(2)
       export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T')
@@ -2997,10 +3002,10 @@ contains
 
    ! Spec "A non-field, non-shape-convertible item class fails explicitly
    ! rather than getting a fabricated payload" (a bundle link whose step has
-   ! no bundle Transform): a Vector pair with a vertical-grid mismatch is reported at
-   ! resolve time (the vertical step has no bundle Transform), not built as a
-   ! bundle link that fails at compute. Nothing is wired and no payload is
-   ! fabricated.
+   ! no bundle Transform): a Vector pair between two fixed-levels grids
+   ! (a Field pair would get a column regrid) is reported at resolve time
+   ! (the vertical step has no bundle Transform), not built as a bundle link
+   ! that fails at compute. Nothing is wired and no payload is fabricated.
    @test(npes=[0])
    subroutine test_materialize_extensions_vector_vgrid_mismatch_unsupported(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -3016,7 +3021,7 @@ contains
       type(GraphResolutionEntryVector) :: unresolved, unsupported
       type(GraphResolutionEntry), pointer :: entry
       type(VariableSpec) :: export_var_spec, import_var_spec
-      type(mapl_BasicVerticalGrid) :: export_vgrid, import_vgrid
+      type(FixedLevelsVerticalGrid) :: export_vgrid, import_vgrid
       integer :: status
       type(GraphBuilder) :: gb
 
@@ -3033,6 +3038,10 @@ contains
       src_meta => get_outer_meta(src_gc, _RC)
       dst_meta => get_outer_meta(dst_gc, _RC)
 
+      call export_vgrid%initialize(FixedLevelsVerticalGridSpec('pressure', &
+           [30., 20., 10.], 'hPa'), _RC)
+      call import_vgrid%initialize(FixedLevelsVerticalGridSpec('pressure', &
+           [25., 15.], 'hPa'), _RC)
       call export_vgrid%set_id(1)
       call import_vgrid%set_id(2)
 
@@ -3065,12 +3074,7 @@ contains
       call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
            unsupported_characteristics=unsupported, rc=status)
       call set_materialize_extensions(.false.)
-      ! The single-overlap vertical case is reported as unsupported (status
-      ! stays 0, nothing raised).
-      ! mapl_BasicVerticalGrid%get_supported_physical_dimensions()
-      ! (BasicVerticalGrid.F90) always reports exactly one dimension,
-      ! the literal "<unknown>" - both sides here report that same
-      ! single dimension, so this is the "exactly one overlap" case.
+      ! Reported as unsupported (status stays 0, nothing raised).
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())
@@ -3154,8 +3158,8 @@ contains
    end subroutine test_materialize_extensions_vectorbracket_export_unsupported
 
    ! Spec "An extension with no executing provider is still not given a
-   ! payload": a vertical-grid mismatch (an unregistered characteristic
-   ! fails loudly: no real build_transform) is unaffected by the
+   ! payload": a vertical-grid mismatch between two model grids (no level
+   ! values the graph can read, so no Transform) is unaffected by the
    ! materialization gate.
    @test(npes=[0])
    subroutine test_materialize_extensions_vgrid_mismatch_unaffected(this)
@@ -3172,7 +3176,7 @@ contains
       type(GraphResolutionEntryVector) :: unresolved, unsupported
       type(GraphResolutionEntry), pointer :: entry
       type(VariableSpec) :: export_var_spec, import_var_spec
-      type(mapl_BasicVerticalGrid) :: export_vgrid, import_vgrid
+      type(ModelVerticalGrid) :: export_vgrid, import_vgrid
       integer :: status
       type(GraphBuilder) :: gb
 
@@ -3189,6 +3193,8 @@ contains
       src_meta => get_outer_meta(src_gc, _RC)
       dst_meta => get_outer_meta(dst_gc, _RC)
 
+      export_vgrid = ModelVerticalGrid('pressure', 'PLE', 4)
+      import_vgrid = ModelVerticalGrid('pressure', 'PLE', 4)
       call export_vgrid%set_id(1)
       call import_vgrid%set_id(2)
 
@@ -3219,12 +3225,8 @@ contains
       call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
            unsupported_characteristics=unsupported, rc=status)
       call set_materialize_extensions(.false.)
-      ! The single-overlap vertical case is reported as unsupported (status
-      ! stays 0, nothing raised).
-      ! mapl_BasicVerticalGrid%get_supported_physical_dimensions()
-      ! (BasicVerticalGrid.F90) always reports exactly one dimension,
-      ! the literal "<unknown>" - both sides here report that same
-      ! single dimension, so this is the "exactly one overlap" case.
+      ! Both grids report the one dimension "pressure": a single overlap,
+      ! reported as unsupported (status stays 0, nothing raised).
       @assert_that(status, is(0))
       @assertEqual(0, unresolved%size())
       @assertEqual(1, unsupported%size())

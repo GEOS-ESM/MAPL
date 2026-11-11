@@ -15,7 +15,8 @@
 ! needs_extension_for compares the two values exactly. VerticalStaggerLoc's
 ! own operator(==) treats MIRROR as a wildcard, which never applies here
 ! because a MIRRORED instance holds no value and is never compared.
-! build_transform reports unsupported: no vertical-regrid Transform exists.
+! build_transform reports unsupported: no Transform moves data between level
+! centers and edges, and the vertical regrid between grids needs centers.
 !------------------------------------------------------------------------------
 module mapl_VerticalStaggerCharacteristic_mod
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
