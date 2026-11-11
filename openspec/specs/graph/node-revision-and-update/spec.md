@@ -53,13 +53,15 @@ value to represent "the value changed."
 - **THEN** every call returns an identical revision value
 
 ### Requirement: Demand-driven update executes a transform only when stale
-Requesting an up-to-date value for a `StateItemNode` SHALL recursively
-ensure every required predecessor value is current first, following
-`DependencyNetwork` adjacency for the network the request is made
-against. A `TransformGraphNode` reached this way SHALL execute only if
-it has never executed, or if at least one of its declared inputs'
-current revisions differs from the revision recorded after its
-previous successful execution.
+Requesting an up-to-date value for a `StateItemNode` SHALL name only
+the item. It SHALL recursively ensure every required predecessor value
+is current first, following the hierarchy's forward network, whichever
+component's declaration added each edge and whichever component makes
+the request. Write-back networks SHALL NOT be followed. A
+`TransformGraphNode` reached this way SHALL execute only if it has never
+executed, or if at least one of its declared inputs' current revisions
+differs from the revision recorded after its previous successful
+execution.
 
 #### Scenario: First request executes the transform
 - **WHEN** an output of a `TransformGraphNode` that has never executed
@@ -84,6 +86,13 @@ previous successful execution.
   changed
 - **THEN** the upstream transform executes and advances its output
   before the downstream transform's staleness is evaluated
+
+#### Scenario: Result does not depend on who asks
+- **WHEN** the same item is requested once through the graph of the
+  component that declared its producing edge and once through the graph
+  of the component that owns the item
+- **THEN** both requests reach the same producer and give the same
+  result
 
 ### Requirement: Successful execution advances all declared outputs
 On successful execution, a `TransformGraphNode` SHALL advance the

@@ -11,25 +11,22 @@ component-hierarchy dependencies.
 ### Requirement: ComponentGraph owns graph structure and identity generation
 `ComponentGraph` MUST own: a generator for port identities (port
 identities remain scoped to the single component that declares them);
-a per-instance default network identity (its own valid
-`DependencyNetworkId`, drawn from the shared generator below, but
-distinctly its own); public import/export ports; child-port bindings;
-a `TransformGraphNode` port-binding table keyed by
-`(DependencyNetworkId, NodeId)` mapping port name to `NodeId`; and
-semantic resource indexes. The polymorphic node map keyed by `NodeId`,
-the map of dependency networks keyed by `DependencyNetworkId`, and the
-generators that issue fresh `NodeId`/`DependencyNetworkId` values are
+public import/export ports; child-port bindings; and the resource index
+of its own advertised items. The polymorphic node map keyed by `NodeId`,
+the map of dependency networks keyed by `DependencyNetworkId`, the
+generators that issue fresh `NodeId`/`DependencyNetworkId` values, the
+one forward dependency network, the `TransformGraphNode` port-binding
+table keyed by `(DependencyNetworkId, NodeId)`, and the reuse index are
 NOT owned per-instance — they are shared across every `ComponentGraph`
 instance within one hierarchy (see `graph/component-hierarchy`'s "One
-shared hierarchy-wide graph store" requirement), so that two different
-components can never be issued the same `NodeId` or
-`DependencyNetworkId`; each `ComponentGraph` instance references that
-shared storage (maps and generators alike) rather than holding its own
-separate copies.
+shared hierarchy-wide graph store" requirement). Each `ComponentGraph`
+instance references that shared storage rather than holding its own
+separate copies. A `ComponentGraph` has no default network of its own.
 
 #### Scenario: Graph owns distinct default network identity
-- **WHEN** two component graphs are created
-- **THEN** each has its own valid default dependency-network identity
+- **WHEN** two component graphs are created in the same hierarchy
+- **THEN** neither has a default network of its own: both report the
+  same forward dependency-network identity
 
 #### Scenario: Node registration preserves identity
 - **WHEN** a valid graph node is registered
@@ -37,10 +34,11 @@ separate copies.
   silently replaces it
 
 #### Scenario: Port binding is retrievable by network and node
-- **WHEN** a port on a `TransformGraphNode` owned by the graph is bound to a
-  `NodeId`, for a given `DependencyNetworkId`
-- **THEN** the graph can retrieve that binding by the same
-  `(DependencyNetworkId, NodeId, port name)` combination
+- **WHEN** a port on a `TransformGraphNode` is bound to a `NodeId`, for a
+  given `DependencyNetworkId`, through one component's graph
+- **THEN** any component graph in the same hierarchy can retrieve that
+  binding by the same `(DependencyNetworkId, NodeId, port name)`
+  combination
 
 #### Scenario: A node registered through one component's graph is visible through another's
 - **WHEN** a node is registered through component A's `ComponentGraph`
@@ -75,54 +73,55 @@ network and graph validation rules.
 - **THEN** the binding operation fails without partial mutation
 
 ### Requirement: ComponentGraph validates ownership and cross-network writes
-Graph validation MUST verify that owned nodes and networks are valid,
-network references are consistent, each network is valid, and no single
-update pass writes the same state item more than once across owned
-networks. Because node and network storage is now shared across the
-hierarchy (not per-`ComponentGraph`), "owned" here means tracked by an
-explicit, per-instance record of which ids this particular
-`ComponentGraph` registered (populated at registration time), not
-"stored in this instance's own private map" — the record is forward
-only ("which ids are mine"); no hierarchy-wide reverse lookup ("which
-component owns an arbitrary id") is introduced or required. A graph
-MUST reject wiring that violates the cross-network same-pass write
-constraint.
+Graph validation MUST verify that every node referenced by a network is
+registered in the hierarchy and that each network is valid (acyclic, at
+most one producer per state item). Validation of the forward network
+covers the whole hierarchy. A write-back network is validated on its
+own. Validation SHALL NOT reject an edge because one of its endpoints
+was registered through a different component's graph; endpoint scope is
+enforced by connection-name resolution (see `graph/component-hierarchy`,
+"Connection endpoint resolution never resolves upward past its declaring
+component").
 
 #### Scenario: Invalid foreign node is rejected
-- **WHEN** client attempts to wire a node identity not owned by any
-  graph reachable from this operation's own component or its
-  descendants, per the connection-endpoint-resolution requirement in
-  `graph/component-hierarchy`
+- **WHEN** client attempts to wire a node identity that is not
+  registered anywhere in the hierarchy
 - **THEN** operation fails without partial graph mutation
 
 #### Scenario: Same-pass cross-network write is rejected
-- **WHEN** wiring would write one state item more than once during one update
-  pass across graph-owned networks
-- **THEN** graph validation rejects the wiring
+- **WHEN** wiring would add a second, different forward producer for one
+  state item, from any component's declaration
+- **THEN** the wiring fails when the edge is added; a write-back edge
+  into an item that also has a forward producer is not rejected, because
+  the write-back fires only after the method runs, never in the same pull
+
+#### Scenario: Node registered by another component is accepted
+- **WHEN** an edge joins a node registered through component A's graph
+  to a node registered through component B's graph in the same hierarchy
+- **THEN** the edge is added to the forward network without error
 
 #### Scenario: Ownership is explicit, not inferred from shared-map membership
 - **WHEN** a `ComponentGraph` instance checks whether a given `NodeId`
   is one of its own
 - **THEN** the answer comes from that instance's own explicit
   registration record, not from whether the shared node store happens
-  to contain that key — because the shared store now contains every
-  component's nodes together, so mere presence in it no longer
-  distinguishes one component's nodes from another's
+  to contain that key
 
 ### Requirement: Freeze transitions graph from mutable to runtime-updateable
 Freezing MUST irreversibly freeze graph structure for the entire
-hierarchy and all owned dependency networks, applied as a single
-hierarchy-wide operation rather than once per `ComponentGraph` instance
-(see `graph/component-hierarchy`'s "Freeze is a single hierarchy-wide
-operation" requirement). After freezing, nodes, dependencies, ports,
-transform port bindings, members, networks, and structural indexes MUST
-NOT be added or changed anywhere in the hierarchy, while runtime payload
-values and revisions MAY be updated in place.
+hierarchy, including the forward network and every write-back network,
+applied as a single hierarchy-wide operation rather than once per
+`ComponentGraph` instance (see `graph/component-hierarchy`'s "Freeze is a
+single hierarchy-wide operation" requirement). After freezing, nodes,
+dependencies, ports, transform port bindings, members, networks, and
+structural indexes MUST NOT be added or changed anywhere in the
+hierarchy, while runtime payload values and revisions MAY be updated in
+place.
 
 #### Scenario: Graph freeze propagates to networks
 - **WHEN** the hierarchy-wide freeze operation is invoked once
-- **THEN** every dependency network owned by every component in the
-  hierarchy reports frozen state afterward
+- **THEN** the forward network and every write-back network in the
+  hierarchy report frozen state afterward
 
 #### Scenario: Frozen structure rejects mutation
 - **WHEN** client attempts to add a node, dependency, port, member, or
@@ -152,9 +151,10 @@ destructor action. After finalization, graph use MUST be rejected.
 
 ### Requirement: ComponentGraph exposes node and network identity enumeration
 `ComponentGraph` MUST expose public read-only operations returning the
-complete set of currently-owned `NodeId`s and the complete set of
-currently-owned `DependencyNetworkId`s, sufficient for a caller to walk the
-entire graph using only public query operations.
+complete set of `NodeId`s it registered and the complete set of
+`DependencyNetworkId`s it uses: the forward network and every write-back
+network it created. This is sufficient for a caller to walk the graph
+using only public query operations.
 
 #### Scenario: All owned node identities are enumerable
 - **WHEN** client registers several nodes and then requests the graph's full
@@ -163,10 +163,10 @@ entire graph using only public query operations.
   unregistered identity is present
 
 #### Scenario: All owned network identities are enumerable
-- **WHEN** client creates an additional dependency network beyond the default
-  and then requests the graph's full set of network identities
-- **THEN** both the default network's identity and the additional network's
-  identity are present in the returned set
+- **WHEN** client creates a write-back network and then requests the
+  graph's full set of network identities
+- **THEN** both the forward network's identity and the write-back
+  network's identity are present in the returned set
 
 #### Scenario: Enumeration is unavailable after finalization
 - **WHEN** node or network identity enumeration is requested after the graph

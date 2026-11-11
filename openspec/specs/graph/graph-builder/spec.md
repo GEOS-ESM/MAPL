@@ -64,8 +64,8 @@ export's payload matches what the import requires, using only each
 state item's own already-established identity and characteristics
 (set once when that item was advertised), never by looking up a
 `VariableSpec` on a different component by name. If it matches, the
-system SHALL add a dependency edge, in the consuming component's
-default dependency network, directly from the export's node to the
+system SHALL add a dependency edge, in the hierarchy's
+forward dependency network, directly from the export's node to the
 matching import's node, and SHALL materialize a real field payload on
 the export's node when the graph mode (see the graph-mode capability)
 is `graph` or `both`. If it does not match, the system SHALL delegate
@@ -93,7 +93,7 @@ table reduces each match to the same exact-name resolution a declared
   a source component's export, an ordinary connection between the two
   components is declared, and the export's payload already matches what
   the import requires
-- **THEN** the destination's default dependency network contains a
+- **THEN** the forward dependency network contains a
   dependency edge directly from the export's node to the import's node,
   with no extension chain interposed
 
@@ -177,23 +177,6 @@ table reduces each match to the same exact-name resolution a declared
   established characteristics (set once when each item was advertised),
   not a freshly recomputed value derived from re-reading either
   component's own declaration
-
-### Requirement: Resolution creates or reuses the default dependency network
-Ordinary connection resolution for a component SHALL occur in that
-component's default dependency network, creating it first if the
-component's local graph does not already have one.
-
-#### Scenario: First resolution creates the default network
-- **WHEN** ordinary connection resolution runs for a component whose local
-  graph has no dependency network yet
-- **THEN** afterward the component's local graph has exactly one dependency
-  network containing the resolved edges
-
-#### Scenario: Later resolution reuses the existing default network
-- **WHEN** ordinary connection resolution runs again for a component that
-  already has a default dependency network
-- **THEN** new edges are added to that same network rather than a second
-  network being created
 
 ### Requirement: Public ports and child proxies are populated during resolution
 When a component's advertised state item is declared a public port, the
@@ -592,40 +575,49 @@ more extension-chain transform nodes.
   connection's extension chain applies
 
 ### Requirement: A sibling connection's extension chain is re-evaluated after a run phase
-After a component's own run phase completes, for each of that
-component's own declared children, the system SHALL re-evaluate every
-dependency that child's own advertised import items have on an
-extension-chain transform, using the same demand-driven update
-mechanism already defined for transform re-evaluation. This
-re-evaluation SHALL happen only when the graph mode is `graph`; it
-SHALL NOT invoke, construct, or otherwise schedule any method node, and
-SHALL NOT cause any GridComp phase to execute a second time.
+Before a component's own run method executes, and only when the graph
+mode is `graph`, the system SHALL bring each of that component's own
+advertised import items up to date, using the demand-driven update
+mechanism on the forward network. This SHALL reach the import's
+producer wherever the edge was declared (by the component's parent, or
+by any ancestor), so an import fed through an extension chain declared
+several levels up is re-evaluated as well. This re-evaluation SHALL NOT
+invoke, construct, or otherwise schedule any method node, and SHALL NOT
+cause any GridComp phase to execute a second time.
 
 This requirement covers the re-evaluation mechanism itself, not
 whether a run phase's own newly-written value is connected to that
 mechanism's own input - whether a changed value actually reaches a
-sibling's own extension-chain transform depends on that transform's
-own input node already holding the component's real, run-phase-written
-field, which is a separate concern from re-evaluation timing.
+consumer's extension-chain transform depends on that transform's own
+input node already holding the producing component's real,
+run-phase-written field, which is a separate concern from re-evaluation
+timing.
 
 #### Scenario: Re-evaluation runs after a run phase completes
-- **WHEN** a component's own run phase completes while its graph mode
-  is `graph`
-- **THEN** the system re-evaluates every one of that component's own
-  declared children's advertised import items for staleness, using the
-  existing demand-driven update mechanism
+- **WHEN** a component's run phase completes, advancing its exports, and
+  a consumer of one of those exports is next about to run, while the
+  graph mode is `graph`
+- **THEN** the consumer first re-evaluates every one of its own
+  advertised import items for staleness, using the existing
+  demand-driven update mechanism, so it sees the producer's new value
+
+#### Scenario: An import connected by a grandparent is re-evaluated
+- **WHEN** a connection declared on a grandparent feeds a grandchild's
+  import through an extension chain, the chain's source export has
+  changed, and the grandchild's run phase is about to execute
+- **THEN** the chain's transform executes and the grandchild's import
+  holds the converted current value before its run method starts
 
 #### Scenario: Re-propagation never invokes a method node or a GridComp phase
-- **WHEN** a component's own run phase completes and re-evaluation
-  runs for its own declared children
+- **WHEN** a component's imports are re-evaluated before its run phase
 - **THEN** no method node is invoked, and no GridComp phase executes,
   as a result of that re-evaluation
 
 #### Scenario: Re-propagation is a no-op outside graph mode
-- **WHEN** a component's own run phase completes while its graph mode
-  is `registry` or `both`
-- **THEN** no re-evaluation occurs, and no sibling's own real
-  `ESMF_State` is touched as a result
+- **WHEN** a component's run phase executes while its graph mode is
+  `registry` or `both`
+- **THEN** no re-evaluation occurs, and no real `ESMF_State` is touched
+  as a result
 
 ### Requirement: Mismatch detection covers all established StateItemCharacteristic axes, not only units, type-kind, and vertical-coordinate
 When determining whether a matched export/import pair's payloads
@@ -662,10 +654,23 @@ axes.
   mismatch detected on one of the attributes, ungridded-dimensions,
   quantity-type, conservation, normalization, or standard-name axes
 - **THEN** the attempt fails explicitly, reporting that axis as an
-  unsupported characteristic — the same outcome the system already
-  produces for any other characteristic axis with no registered
-  adaptation — and no dependency edge is silently created in place of
-  the failed chain
+  unsupported characteristic or a connection conflict — the same outcome
+  the system already produces for any other characteristic axis with no
+  registered adaptation — and no dependency edge is silently created in
+  place of the failed chain
+
+#### Scenario: A tolerated standard-name mismatch is wired with a warning
+- **WHEN** the validation mode is permissive and a matched pair's
+  standard names differ
+- **THEN** the standard-name axis is not a mismatch, the pair is wired
+  directly, and the disagreement is reported in `connection_warnings`
+
+#### Scenario: Unsupported pairs are recorded for a strict freeze check
+- **WHEN** a pair is left unwired because a characteristic reported
+  `BUILD_TRANSFORM_UNSUPPORTED`
+- **THEN** the resolving component records it, and
+  `check_unsupported_pairs` fails on it in strict validation mode and
+  passes in permissive mode
 
 ### Requirement: An expression-typed export's N named references are resolved into a multi-input transform chain
 For every advertised state item whose declared item class is
@@ -748,8 +753,17 @@ bind that export's own already-established node as a member of one
 composite collection, keyed by that export's own qualified name, owned
 by the wildcard import's own already-advertised node — reusing that
 node's own existing identity rather than creating a separate collection
-node. This resolution SHALL run once per matched wildcard import,
-independent of how many exports the pattern matches.
+node. Only an export whose declared item class is `FIELD` SHALL be a
+member: an export of any other class (for example `FIELDBUNDLE`, `STATE`,
+`VECTOR`, `BRACKET`, `VECTORBRACKET`, `EXPRESSION` or `SERVICE`) whose
+name matches the pattern SHALL be skipped, not bound, and the skip SHALL
+NOT be reported as a connection conflict. Each skip SHALL be logged at
+debug level; when every export matching the pattern was skipped, one
+warning SHALL be logged saying why the import is unresolved. The
+read-only check that decides whether a wildcard import already has a
+match SHALL apply the same membership rule. This resolution SHALL run once
+per matched wildcard import, independent of how many exports the pattern
+matches.
 
 A wildcard-typed export's own producers reachable through a descendant
 level SHALL be matched using the same qualified export namespace
@@ -762,7 +776,8 @@ mechanism is introduced for wildcard resolution specifically.
   one export in the connection's own source export namespace
 - **THEN** the import's own composite collection has exactly one member
   per matching export, each individually addressable by that export's
-  own qualified name, and no additional or missing members
+  own qualified name, and no additional or missing members (every
+  matching export is a `FIELD`; see the non-field scenarios below)
 
 #### Scenario: A pattern matching exactly one export is resolved the same way as a multi-match
 - **WHEN** a wildcard-typed import's declared pattern matches exactly
@@ -793,6 +808,21 @@ mechanism is introduced for wildcard resolution specifically.
 - **THEN** that export is still matched and included as a composite
   member, using the same qualified export namespace already available
   for this purpose
+
+#### Scenario: A non-field export matching the pattern is not a member
+- **WHEN** a wildcard-typed import's declared pattern matches a `FIELD`
+  export and also matches an export whose declared item class is not
+  `FIELD` (for example a `FIELDBUNDLE`)
+- **THEN** the import's own composite collection has a member only for
+  the `FIELD` export, the non-field export is not bound, and the skip is
+  not reported as a connection conflict
+
+#### Scenario: A pattern matching only non-field exports is unresolved
+- **WHEN** every export a wildcard-typed import's declared pattern
+  matches has a declared item class other than `FIELD`
+- **THEN** the import is reported as unresolved, no composite collection
+  is created, one warning is logged, and the read-only already-matched
+  check reports the import as unmatched as well
 
 ### Requirement: A wildcard-typed import with zero matching exports is reported as a resolution failure, not silently resolved
 When a wildcard-typed import's declared pattern matches no export at

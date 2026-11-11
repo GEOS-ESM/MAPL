@@ -61,9 +61,12 @@ step for that connection.
 
 ### Requirement: Existing extensions are reused before creating a new one
 Before creating a new extension item for a given export, the system
-SHALL search the extensions already created from that export for one
-whose payload already matches what the new import requires, and reuse
-it instead of creating a duplicate.
+SHALL search the extensions already created from that export, anywhere
+in the hierarchy, for one whose payload already matches what the new
+import requires, and reuse it instead of creating a duplicate. The
+search SHALL NOT depend on which component declared the connection that
+created the existing extension, or on which component declares the new
+one.
 
 #### Scenario: Second importer needing the same variant reuses the first extension
 - **WHEN** a second import, needing the same variant of an export as an
@@ -71,6 +74,14 @@ it instead of creating a duplicate.
 - **THEN** the second import is wired to the same extension item the
   first import uses, and no duplicate extension item or transform step
   is created
+
+#### Scenario: Reuse across declaring components
+- **WHEN** a parent declares a connection from a child's export to one
+  import that needs a conversion, and a grandparent declares a
+  connection from the same export to another import that needs the same
+  conversion
+- **THEN** both imports are wired to the same extension item, and only
+  one transform step for that conversion exists in the hierarchy
 
 #### Scenario: Different variant still creates a new extension
 - **WHEN** a second import needs a different variant of the same export
@@ -133,23 +144,28 @@ enabled or not.
 When payload materialization is explicitly enabled, every
 framework-created extension item the system successfully builds or
 reuses for a mismatched export/import pair whose underlying item is a
-plain field, or whose mismatch is resolved entirely through the
-shape-dispatch characteristic for a bracket export resolving into a
-field import, SHALL be materialized as a real, allocated payload, not
-left as graph structure only — correct `NodeId`s and dependency edges
-with no real, computable payload behind them. This applies to every
-intermediate item in a multi-step chain, not only the chain's own final
-item: a chain resolving two or more mismatched characteristics SHALL
-have every link's own item materialized with its own correctly-evolved
-typekind, units, and geometry — the state after the
+plain field, a vector, or a bracket export resolving into a field import
+through the shape-dispatch characteristic, SHALL be materialized as a
+real, allocated payload, not left as graph structure only — correct
+`NodeId`s and dependency edges with no real, computable payload behind
+them. This applies to every intermediate item in a multi-step chain, not
+only the chain's own final item: a chain resolving two or more mismatched
+characteristics SHALL have every link's own item materialized with its
+own correctly-evolved typekind, units, and geometry — the state after the
 immediately-preceding link's own conversion has notionally applied —
 before the next link's own conversion runs against it. A chain whose
 mismatch set includes the shape-dispatch characteristic for a
 bracket-to-field pairing SHALL have its final item materialized as a
-field, not the export's own bracket shape. A vector-bracket or vector
-export/import pair remains outside this requirement's scope (see the
-"non-field, non-shape-convertible item class" scenario below) — its own
-materialization is a distinct, not-yet-addressed gap.
+field, not the export's own bracket shape. A link that is a vector, or a
+bracket before its shape step, SHALL be materialized as an allocated
+field bundle of that type that has no members: the Transform that fills
+it creates the members at compute, one per input member. This holds for
+the geometry, units, typekind, vertical-grid and vertical-orientation
+steps. A vector-bracket pair, and any link whose step has no Transform
+for a bundle (for example a vertical-grid step between grids that supply
+no level values, such as model grids, or a stagger-only step), remain
+outside this requirement's scope (see the "non-field,
+non-shape-convertible item class" scenario below).
 
 #### Scenario: Resolved extension has a real payload
 - **WHEN** payload materialization is enabled and an extension chain is
@@ -199,17 +215,54 @@ materialization is a distinct, not-yet-addressed gap.
 - **THEN** no duplicate payload is materialized for any already-real
   item in that chain, intermediate or final
 
+#### Scenario: A vector or bracket link is materialized as a bundle without members
+- **WHEN** payload materialization is enabled and an extension chain is
+  built for a vector export and vector import, or for a bracket export
+  and field import, whose mismatches are resolved through the geometry,
+  units, typekind, vertical-grid or vertical-orientation characteristic
+- **THEN** each vector link, and the bracket link before its shape
+  step, has a real, allocated field bundle of that type with the link's
+  own geometry, typekind and units and with no members; the members are
+  created by the Transform at compute
+
+#### Scenario: A vector item gets its bundle at advertise as a field does; a bracket only as an export
+- **WHEN** graph mode is active and a vector item of any state intent
+  (import, export or internal), or a bracket export, is advertised, with
+  either user-state switch setting
+- **THEN** the item's node holds an empty field bundle of that type with
+  allocation status created; a bracket declared as an internal gets none
+  (a bracket exists only as an export, for time interpolation by ExtData);
+  a legacy bundle aliased over the created one replaces it, and the created
+  bundle is destroyed with its members
+
+#### Scenario: A vector or bracket export with no legacy bundle to alias gets a bundle with members
+- **WHEN** graph mode is active and a vector or bracket
+  export is consumed by a connection (as an exact match, or as the input
+  of an extension chain) and no existing bundle of that name is aliased
+- **THEN** the export has a real, allocated field bundle of that type with
+  its two members (vector) or `bracket_size` members (bracket, at most
+  two), each a complete field with the export's geometry, typekind, units
+  and fill value; a vector's members carry the two component standard
+  names; the bundle has the declared vector basis, or a bracket's
+  `bracket_updated` set; a bracket export without `bracket_size` fails with
+  an explicit message
+
 #### Scenario: A non-field, non-shape-convertible item class fails explicitly rather than getting a fabricated payload
 - **WHEN** payload materialization is enabled and a mismatched
-  export/import pair's underlying item is not a plain field and is not
-  a bracket export resolving into a field import through the
-  shape-dispatch characteristic (e.g. a state-typed item, a
-  vector-bracket or vector item of any kind, or a bracket item whose
-  mismatch set does not include the shape-dispatch characteristic)
+  export/import pair's underlying item is not a plain field, is not a
+  vector pair, and is not a bracket export resolving into a field import
+  through the shape-dispatch characteristic (e.g. a state-typed item, a
+  service item, a wildcard item, a plain field-bundle item, a
+  vector-bracket item, or a bracket item whose mismatch set does not
+  include the shape-dispatch characteristic), or a vector or bracket
+  link needs a step that has no Transform for a bundle (for example a
+  vertical-grid step between grids that supply no level values, or a
+  stagger-only step, which is reported as that unsupported characteristic
+  and not materialized)
 - **THEN** the system reports an explicit, distinguishable failure
-  identifying the unsupported item class rather than materializing an
-  incomplete, incorrect, or empty payload — for any link in the chain,
-  intermediate or final
+  identifying the unsupported item class or characteristic rather than
+  materializing an incomplete, incorrect, or empty payload — for any link
+  in the chain, intermediate or final
 
 #### Scenario: A bracket export resolved through shape dispatch is materialized as a field
 - **WHEN** payload materialization is enabled and a bracket-shaped
@@ -227,3 +280,23 @@ materialization is a distinct, not-yet-addressed gap.
   with the connection failing rather than partially succeeding — and no
   later link in the chain is materialized either, since chain
   construction stops at the first unsupported characteristic
+
+### Requirement: Expression evaluations and collections are reused hierarchy-wide
+An expression evaluation over a given set of inputs and goal
+characteristics, and a callback or wildcard collection for a given
+import, SHALL each be built at most once in the hierarchy. A later
+resolution that needs the same evaluation or collection SHALL reuse it,
+whichever component declares that resolution.
+
+#### Scenario: Same expression evaluation reused by two declaring components
+- **WHEN** two connections declared on different components need the
+  same evaluation of one expression export with the same goal
+  characteristics
+- **THEN** both are wired to the same evaluation result item, and one
+  expression transform exists for it
+
+#### Scenario: Collection resolved twice is built once
+- **WHEN** resolution for one wildcard or callback import runs again,
+  from the same or a different declaring component
+- **THEN** the existing collection is reused and no second collection
+  is created
