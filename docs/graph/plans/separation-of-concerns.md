@@ -1973,7 +1973,35 @@ affected scenarios to ready (unless masked: M3).
 - `C2-statistics-real` (new): trace why `history/stat/<user>::export::A/QV_MIN`
   has the wrong value in GRAPH mode in `statistics_real` and flip the
   scenario; note `statistics` (ready) passes. Sonnet author, preflight-style
-  trace first. Not started.
+  trace first.
+  - **Status:** done (29c6c1870, auto-landed). The traced run confirmed
+    that `populate_one` replaced the stat gridcomp's real export entry
+    `A/QV_MIN` with a graph-made Field (different data address) while
+    `TimeMin` writes legacy's Field. Fix: with the switch off, `populate_one`
+    skips EXPORT as it already skipped INTERNAL (legacy owns both; only the
+    real import state is written). `statistics_real` is ready, switch off.
+    `test_populate_state_reaches_each_childs_own_state` now pins that the
+    child's real export entry stays legacy's Field;
+    `test_populate_state_writes_per_alias_keys` runs with the switch on and
+    asserts the export alias; the import per-alias keys keep a switch-off
+    test. Mutations (guard off; export skip with the switch on; no
+    per-alias sync with the switch off) each fail the intended test. NAG and
+    gfortran ESSENTIAL 71/71; sonnet review accepted. Found, not fixed:
+    `try_alias_export_field` / `find_alias_owner` cannot alias an own
+    export whose name contains a slash (legacy puts it in a sub-state):
+    task `C2-slash-export-alias` below. `graph_owns_user_states` on still
+    fails `statistics_real` (3 checks per shard and
+    `characteristics_resolved`; stat has no geometry); last measured
+    2026-11-10, not re-measured.
+- `C2-slash-export-alias` (new, found by `C2-statistics-real`): make
+  `try_alias_export_field` and `find_alias_owner`
+  (`GraphBuilder_ConnectionResolution_smod.F90`) alias an own export whose
+  port name contains a slash: legacy `FieldClassAspect%add_to_state` splits
+  at the last `/` and puts the Field in a sub-state, so the leaf must be
+  read from that sub-state and a component with no children has no alias
+  owner today. Needed before `statistics_real` can run with
+  `graph_owns_user_states`. Sonnet author, sonnet review. **Status:** not
+  started; owner picks before or after the merge.
 - Note for whichever task takes up `statistics`/`statistics_real` (found
   by B3-InternalNoMirror; unchecked): the statistics gridcomp has no geom,
   so its internals (`sum_*`, `counts_*`, ...) get DEFERRED geometry and
@@ -2495,7 +2523,8 @@ it may author D1/A4/B5 with sonnet review.
 | C2-runphase-dormant | sonnet | sonnet | landed 323b53caf; run-phase method node no longer built at connect |
 | C1-vertical-basic-orientation | sonnet | sonnet | after the develop merge (owner 2026-11-11); Basic grid: no orientation step, inconsistent-alignment warning |
 | C1-vertical-r8 | sonnet | sonnet | after the develop merge (owner 2026-11-10); R8 vertical regrid as a near duplicate of the R4 path |
-| C2-statistics-real | sonnet | sonnet | trace A/QV_MIN wrong value in GRAPH mode; flip statistics_real |
+| C2-statistics-real | sonnet | sonnet | trace A/QV_MIN wrong value in GRAPH mode; flip statistics_real; landed 29c6c1870 |
+| C2-slash-export-alias | sonnet | sonnet | own export whose name has a slash (found by C2-statistics-real); owner picks before/after the merge |
 | D1 | sonnet (haiku?) | sonnet if haiku | `public ::` rule |
 | D2 | sonnet | opus | lifecycle-phase ordering |
 | D3-cleanup | sonnet | - | items are small and independent |

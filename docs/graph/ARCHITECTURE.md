@@ -512,7 +512,9 @@ With the user-state switch off (default) legacy fills the real user states and
 the graph creates, completes and aliases Fields, creates and completes VECTOR
 and BRACKET bundles (§2.6), and aliases the legacy FieldBundle of a VECTOR,
 SERVICE or BRACKET export (§2.7); `populate` inserts only completed Fields
-(never a bundle) and skips INTERNAL. At accept_transfer, off: legacy fills
+(never a bundle). With the switch off it writes only the real import state
+and skips INTERNAL and EXPORT, which legacy filled and its gridcomp holds
+(`populate_one`). At accept_transfer, off: legacy fills
 the real user states, then the call site passes scratch states (real import
 state, throwaway export and internal) to the populate hook
 (`initialize_accept_transfer.F90:62-86`). On, in `GRAPH` mode: legacy
@@ -736,9 +738,8 @@ because the state holds the node's own created Field
   and `OuterMetaComponent%get_run_phase_method_node_id` are dormant, because
   nothing invokes the node and its arguments are keyed by short name only (a
   component with an import and an export of one name cannot be built).
-  Reviving it needs a graph-mode skip of the legacy run call. `statistics_real`
-  stays pending for one failing value check (`A/QV_MIN`, `GRAPH` mode;
-  `scenario-parity.md`). The `graph: nodes:` count of a scenario's root graph
+  Reviving it needs a graph-mode skip of the legacy run call. The
+  `graph: nodes:` count of a scenario's root graph
   therefore holds no run-phase node.
 - The outer states are written by the graph only with the user-state switch
   on in `GRAPH` mode (§2.4); otherwise legacy fills them. The outer
