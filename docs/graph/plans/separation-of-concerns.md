@@ -1612,7 +1612,9 @@ ready means today" in `scenario-parity.md`). May be split into
   helper now counts, then fills. No new legacy/graph difference row. NAG
   and gfortran ESSENTIAL 69/69; two sonnet reviews accepted. Found: the
   four scenario shards run 386-387 tests each against the ~407 where MPICH
-  aborted (owner question scenario-shards). C1-vertical-b is complete.
+  aborted; scenario-shards (c924886ea, auto, owner decision 2026-11-11)
+  raised `MAPL_SCENARIO_SHARDS` from 4 to 6 (about 264 tests each; ESSENTIAL
+  is now 71 tests). C1-vertical-b is complete.
   C1-geom-c-a done (c1dd7cbed, owner commit):
   `HorizontalBundleRegridTransform` regrids a VECTOR (one rotated
   `Regridder%regrid(fb_in, fb_out)` call, exporter basis kept) or a
