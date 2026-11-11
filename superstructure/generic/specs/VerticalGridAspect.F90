@@ -417,7 +417,6 @@ contains
       
       type(VerticalCoordinateDirection) :: grid_direction
       
-      !wdb fixme deleteme Should this use is_mirror()?
       if (.not. allocated(this%vertical_grid)) then
          direction = VCOORD_DIRECTION_INVALID
          return
