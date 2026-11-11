@@ -267,7 +267,8 @@ First kind with a DEFERRED value (a value the component supplies later).
   an EXPRESSION shape gives FIELD). `materialize_extension_chain` materializes
   a VECTOR or BRACKET link as an allocated bundle with no members (the
   Transform creates the members at compute) and refuses any other non-FIELD
-  link with `unsupported_item_class:<class>`.
+  link with `unsupported_item_class:<class>`. An export the graph creates as a
+  VECTOR or BRACKET bundle (not a chain link) gets its members at connect.
 
 ## VerticalGrid as implemented
 
@@ -560,8 +561,9 @@ a step for it.
   "RestartMode as implemented"). An UNCHECKED import alias writes nothing and
   keeps whatever `MAPL_NamedAlias` copied from the field (see the gap
   above). A bundle's long_name is bundle-wide (id 0), so a bundle is never written per alias;
-  `populate_one` handles Field items only, and `sync_per_alias_to_info`
-  ignores any other handle.
+  `sync_alias_info` (the per-alias write) reaches only Field aliases, and
+  `sync_per_alias_to_info` ignores any other handle; `populate_one` still
+  inserts a VECTOR or BRACKET bundle as a named alias, with no per-alias keys.
 - `parse_var_specs` already reads `standard_name` and `long_name`; the YAML
   test covers `"<mirror>"` for both.
 
@@ -600,7 +602,8 @@ A never-compared, per-alias kind. `needs_extension_for` is always false and
   false; RestartMode and LongName return true.
   `StateItemDescriptor%sync_per_alias_to_info(handle, phase)` runs
   `write_info` only for per-alias entries (SPECIFIED or UNCHECKED), and only
-  for a Field handle. `populate_one` creates the `MAPL_NamedAlias`, wraps it
+  for a Field handle. `populate_one` creates the `MAPL_NamedAlias` (a bundle
+  alias is inserted too, but gets no per-alias write), wraps it
   in a `GraphStateItem`, and calls it with `item_id`'s own descriptor.
   `GraphBuilder` names no kind. A full `sync_to_info` is not used there:
   an import's UNCHECKED standard_name would overwrite the export's

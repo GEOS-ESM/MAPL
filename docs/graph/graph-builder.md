@@ -38,7 +38,7 @@ gb%run_advertise_hook(this)`) over what were previously free functions
 | `GraphBuilder_CallbackWiring_smod.F90` | Wildcard/named callback resolution, `CallbackStateBinding`/`CallbackMethodBinding` construction |
 | `GraphBuilder_Geometry_smod.F90` | Horizontal geometry advertise/resolve, parent↔child geometry push/pull |
 | `GraphBuilder_StatePopulation_smod.F90` | Graph-native equivalent of `StateRegistry%add_to_states` — inserts materialized fields into the real `ESMF_State` |
-| `GraphBuilder_RunPhaseNode_smod.F90` | Constructs the ordinary-phase `MethodGraphNode` (construction only — no invocation hook; see its own header before adding one) |
+| `GraphBuilder_RunPhaseNode_smod.F90` | Dormant: constructs the ordinary-phase `MethodGraphNode`, but no lifecycle hook builds it and nothing invokes it (see its own header before reviving it) |
 | `GraphBuilder_RunPhasePull_smod.F90` | Post-run re-propagation pull (plain `ComponentGraph%update()`, never a second driver call) |
 | `GraphBuilder_LifecycleHooks_smod.F90` | Thin per-init-phase hook wrappers called from `OuterMetaComponent` |
 | `GraphBuilder_Visualization_smod.F90` | `NodeIdLabelMap` enrichment for `GraphExport` |

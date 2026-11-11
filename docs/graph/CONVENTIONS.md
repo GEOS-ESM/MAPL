@@ -140,6 +140,10 @@ and `graph/tests/` stay facade-only.
   records another one, `status=<rc>`. A test must consume each one with
   `@assertExceptionRaised` (exact text), or it fails even when
   `rc` is right. Checking `rc` with `@assertEqual` does not consume them.
+  This holds for the generic suites (`superstructure/generic/tests/`). The
+  graph suite (`MAPL.generic.graph`, `graph/tests/`) never uses
+  `@assertExceptionRaised`, because it installs no exception handler: its tests check
+  `status /= 0` (or the reported entry) instead.
 - Never call a failure "pre-existing" without reproducing it on a clean
   baseline: a temporary `git worktree` of `HEAD`, removed afterward.
   Reverting only your own newest file proves nothing about the rest of

@@ -121,10 +121,10 @@ extension node's descriptor is the tip after its step;
 `intermediate_node_ids` has one entry per step. Materialization reads
 each link's own descriptor.
 
-Materialization: `materialize_field_extension(graph, node_id [, name],
-rc)` creates an empty field, calls the node's `sync_to_info(STRUCTURAL)`,
-runs `MAPL_FieldEmptyComplete`, and sets `allocation_status` to
-`ALLOCATED`. A characteristic must therefore write in `write_info`
+Materialization: `materialize_field_extension(graph, node_id [, name
+[, with_members]], rc)` creates an empty field, calls the node's
+`sync_to_info(STRUCTURAL)`, runs `MAPL_FieldEmptyComplete`, and sets
+`allocation_status` to `ALLOCATED`. A characteristic must therefore write in `write_info`
 (STRUCTURAL) whatever `FieldEmptyComplete` needs. Geom and vgrid come
 only from the descriptor; `GraphBuilder` names no characteristic kind or
 concrete characteristic type. The descriptor's `fill_value` (recorded by
@@ -141,16 +141,33 @@ Field in place and is a no-op for any other existing Field;
 means status `CREATED` and an original Field (alias id 0), so a legacy Field
 that carries the same status key is not mistaken for one
 (`payload_is_created` in `ExtensionMaterialization.F90`).
-A node whose descriptor declares a VECTOR or BRACKET is materialized as an
-`ALLOCATED` `FieldBundle` of that type, with the descriptor written to it
-and no members (`build_bundle_payload`, `is_bundle_class`,
-`ExtensionMaterialization.F90:313-355`); an existing bundle payload is left
-alone (`:90`). The Transform that fills it creates the members at compute.
+A node whose descriptor declares a VECTOR or BRACKET goes through the same
+statuses with a `FieldBundle` of that type (`is_bundle_class`, `new_bundle`,
+`complete_bundle`, `create_members`, `ExtensionMaterialization.F90:395-544`).
+`create_bundle_extension` makes the empty `CREATED` bundle (alias id 0, with
+the vector basis, default `NS`, or `bracket_updated`);
+`materialize_field_extension` completes a `CREATED` bundle in place: the
+descriptor is written, then, when `with_members` is true, a VECTOR gets two
+members named for the components and a BRACKET `bracket_size` members (a
+missing `bracket_size`, or more than 2, fails), each a complete Field with
+units, typekind, geom and fill value (`create_members`); the status becomes
+`ALLOCATED`. A completed bundle is left alone (`:101-109`). A chain link is
+completed without members: the Transform that fills it creates them at
+compute. `payload_is_created` is true for such a bundle (an original, with
+an allocation status in its Info) as for a Field.
 `advertise_one` creates the Field at advertise for INTERNAL, EXPORT and
-IMPORT nodes of FIELD class when graph mode is not `REGISTRY`; not for
-composites, bundles, vectors, brackets, expressions, services or state
-items (`GraphBuilder_Advertising_smod.F90:109-122`). A declared name containing
-`/` gets a Field named by the part after the last slash.
+IMPORT nodes of FIELD class when graph mode is not `REGISTRY`, and the empty
+bundle (`create_bundle_extension`) for every VECTOR item and for a BRACKET
+export, whichever way the user-state switch is set. A BRACKET import or
+internal gets none (a bracket exists only for ExtData, as an export).
+Composites, expressions, services, state items and plain FIELDBUNDLEs get
+no payload (`GraphBuilder_Advertising_smod.F90:109-134`). A declared name
+containing `/` gets a Field or bundle named by the part after the last slash.
+`make_characteristics` records a VECTOR's `vector_basis_kind` and component
+names (split from a `(n1,n2) suffix` standard name; none when there is no
+tuple) and a BRACKET's `bracket_size` as plain descriptor attributes, like
+`fill_value`: never compared or mirrored, only used to shape the members
+(`StateItemDescriptor.F90:89-97`, `make_characteristics.F90:107-165`).
 `StateItemCharacteristic%is_complete()` (default `.true.`) feeds
 `StateItemDescriptor%get_incomplete_kinds` and `check_materializable`
 (failure reason `incomplete_characteristic:<KIND>`). `harvest(handle,
@@ -316,10 +333,17 @@ submodule area), `Test_GraphBuilderPropagation.pf`,
 `Test_GraphBuilderEquivalence.pf`, `Test_GraphEquivalenceHarness.pf`,
 `Test_GraphModeDemonstration.pf`, `Test_GraphMode.pf`,
 `Test_GraphBuilderMaterializeGate.pf` (materialization gates, export
-aliasing by owner walk and for bundle exports `test_alias_*`, bundle chain
-links, and graph-mode state population, including the outer-state population
-tests `test_populate_outer_state_*`), `Test_GraphGeometryHook.pf`,
-`Test_ForwardNetworkErrors.pf` (the forward-producer error message), and
+aliasing by owner walk and for bundle exports `test_alias_*`, graph-created
+VECTOR and BRACKET bundles for exact-match exports and chain inputs, bundle
+chain links, and graph-mode state population, including bundles
+(`test_populate_state_*bundle*`) and the outer-state population tests
+`test_populate_outer_state_*`), `Test_GraphGeometryHook.pf`,
+`Test_ForwardNetworkErrors.pf` (the forward-producer error message),
+`Test_GraphBuilder_ConnectionResolution.pf` (includes the Wildcard and
+callback paths with a qualified source component such as `MID/SRC`: members
+and descendants bind with names relative to the source, a missing source
+fails with `status /= 0`), `Test_GraphBuilder_RunPhaseNode.pf` (the dormant run-phase builder, and that
+`run_connect_hook` leaves the run-phase NodeId invalid), and
 the fixtures `tests/scenarios/` (legacy YAML scenarios) and
 `tests/graph-scenarios/` (graph-mode fixtures). `Test_Scenarios.pf` also has
 `check_legacy_couplers` (§2.4) and the bundle scenarios `vector_regrid` and
@@ -447,9 +471,10 @@ fails (`reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:957-1008`).
 The internal gets no port or mirror of its own.
 
 With the user-state switch off (default) legacy fills the real user states and
-the graph only creates, completes and aliases Fields (and, for VECTOR, SERVICE
-and BRACKET exports, aliases their FieldBundles, §2.7); `populate` inserts only
-completed Fields and skips INTERNAL. At accept_transfer, off: legacy fills
+the graph creates, completes and aliases Fields, creates and completes VECTOR
+and BRACKET bundles (§2.6), and aliases the legacy FieldBundle of a VECTOR,
+SERVICE or BRACKET export (§2.7); `populate` inserts only completed Fields
+(never a bundle) and skips INTERNAL. At accept_transfer, off: legacy fills
 the real user states, then the call site passes scratch states (real import
 state, throwaway export and internal) to the populate hook
 (`initialize_accept_transfer.F90:62-86`). On, in `GRAPH` mode: legacy
@@ -467,7 +492,7 @@ mode the couplers still run.
 scenarios that set the switch (`invalidate`, `units_mismatch_run_phase`,
 `grandparent_units_run_phase`, `units_and_typekind_mismatch`), that every
 legacy coupler's `import[1]` and `export[1]` Field still holds the fill
-sentinel, compared by bits (`Test_Scenarios.pf:1070-1088`).
+sentinel, compared by bits (`Test_Scenarios.pf:1072-1090`).
 
 With the switch on, population runs twice. At the end of ADVERTISE
 (`initialize_advertise.F90:118-121`) the hook runs with `own_only`: only the
@@ -499,7 +524,7 @@ re-export or a re-exported INTERNAL. A port is skipped only when the
 declared export of the same name resolves to the same node; a same-named re-export of a child's export is a different node
 and is added. An INTERNAL-bound port is completed and allocated; an
 export-bound port is only described, so it stays `CREATED`/`GRIDSET`.
-Non-Field nodes are skipped. A propagated port (a slash in the name)
+A node holding neither a Field nor a FieldBundle is skipped. A propagated port (a slash in the name)
 is skipped by the user passes (advertise and accept_transfer): the
 `include_propagated` argument is false for them
 (`GraphBuilder_StatePopulation_smod.F90:111,352`), and a propagated child
@@ -507,6 +532,19 @@ export is written only to the outer export state, as legacy does
 (`registry/StateRegistry_Actions_smod.F90:73`). `sync_alias_info` writes the
 per-alias keys (long_name, restart mode) on each alias. With the switch off,
 or in `BOTH` mode, the walk adds nothing.
+
+Bundles: with the switch on, `populate_one` and `populate_export_port` read
+the node's payload with `get_item_if_materialized` (a Field or a FieldBundle)
+and insert a bundle as a named alias, like a Field
+(`GraphBuilder_StatePopulation_smod.F90:233-336,565-599`). A VECTOR or
+BRACKET export goes into the user and outer export states; an import is
+found by the producer walk (`find_materialized_predecessor` accepts a bundle
+payload that is not merely created); an unconnected VECTOR import keeps its
+own empty bundle, and an unconnected export keeps its empty bundle too.
+`allocate_internals` completes a VECTOR internal with its two members, as it
+does a Field internal. With the switch off legacy fills the states and the
+graph adds only Fields (`:299-301`). `sync_alias_info` does nothing for a
+bundle alias.
 
 The graph also fills the **outer** import and export states, the ones the
 parent sees, at `INIT_REALIZE_ACCEPTED` (`initialize_realize_accepted.F90:38-44`,
@@ -533,16 +571,17 @@ with the switch off, or outside `GRAPH` mode (the switch is gated by
 them at accept_transfer (`initialize_accept_transfer.F90:89-91`). The graph
 does not write position-labelled names such as `T(1)`; their expectation
 items carry `legacy_only: true`, which `Test_Scenarios` skips when it applied
-the switch (`Test_Scenarios.pf:562-566`).
+the switch (`Test_Scenarios.pf:563-568`).
 
 `MAPL_SCENARIO_GRAPH_OWNS_USER_STATES` turns the switch on in
 `Test_Scenarios` for every scenario, and a `scenario_table()` entry can set
 `graph_owns_user_states` for one scenario (`scenario_reexport_twice`,
-`regrid`, `regrid_r8`, `invalidate`, and the `graph-scenarios` `plain_field`,
+`regrid`, `regrid_r8`, `vector_regrid`, `bracket_regrid`, `invalidate`,
+`expression_per_consumer_r8` (graph mode only), and the `graph-scenarios` `plain_field`,
 `units_mismatch_run_phase`, `grandparent_units_run_phase`,
 `units_and_typekind_mismatch` and `graphbuilder_propagation` do;
-`Test_Scenarios.pf:180-181,195-198,208-209,218-230`). Either way the switch is
-on only in `GRAPH` mode (`Test_Scenarios.pf:423-426`). Scenarios
+`Test_Scenarios.pf:180-181,195-203,210-211,218-232`). Either way the switch is
+on only in `GRAPH` mode (`Test_Scenarios.pf:425-427`). Scenarios
 that do not yet pass with the switch on are recorded in the tasks.md 3.41a,
 3.41b and 3.44 Status; `scenario-parity.md` lists the measured rows.
 
@@ -564,12 +603,12 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
 | Item class | Graph-mode path |
 |---|---|
 | FIELD, FIELDBUNDLE, STATE | Ordinary resolution + characteristic extension chain |
-| VECTOR, BRACKET (geometry mismatch) | The extension chain holds a `HorizontalBundleRegridTransform` link of the item's class (BRACKET→FIELD adds time interpolation after it). `materialize_extension_chain` creates a VECTOR or BRACKET link as an `ALLOCATED` memberless `FieldBundle` of that type; the Transforms create the members at compute. It passes `admit_bundles=.true.` to `check_materializable`, which then admits VECTOR on the export and import side; without it only FIELD (and a BRACKET export, built as a plain Field) is admitted. A link declared any other non-FIELD class is refused with `unsupported_item_class:<class>` (`GraphBuilder_ConnectionResolution_smod.F90:1676-1761`). Exact-match exports and chain inputs are not created as bundles. An unaliased VECTOR or BRACKET chain input (no legacy bundle in the owner's user export state to alias) is reported `unsupported_item_class:<class>` at resolve time (`:485-512`): the graph creates no export bundle. A VECTOR with a vertical mismatch is unsupported at VERTICAL_GRID (no bundle vertical Transform). A chain link takes its declared class from its `ITEM_SHAPE` entry (`StateItemDescriptor%take_declared_item_type_from_shape`; an EXPRESSION shape gives FIELD) |
+| VECTOR, BRACKET (geometry mismatch) | The extension chain holds a `HorizontalBundleRegridTransform` link of the item's class (BRACKET→FIELD adds time interpolation after it). `materialize_extension_chain` completes a VECTOR or BRACKET link as an `ALLOCATED` memberless `FieldBundle` of that type; the Transforms create the members at compute. A link declared any other non-FIELD class is refused with `unsupported_item_class:<class>` (`GraphBuilder_ConnectionResolution_smod.F90:1732-1775`). `check_materializable` (`:1697-1724`) admits FIELD, VECTOR and BRACKET on both sides (a BRACKET import side is admitted for a chain input, where the export is passed as its own import); SERVICE and every other class give `unsupported_item_class:<class>`. A VECTOR or BRACKET export the graph consumes (exact match, or the input of a chain) is not aliased from legacy when none is there: the graph's advertise-created bundle is completed in place with its members by `try_materialize_field_extension` (`with_members`, `:1671-1690`); a legacy bundle in the owner's user export state is aliased instead when the switch is off (§2.7). A VECTOR with a vertical mismatch is unsupported at VERTICAL_GRID (no bundle vertical Transform). A chain link takes its declared class from its `ITEM_SHAPE` entry (`StateItemDescriptor%take_declared_item_type_from_shape`; an EXPRESSION shape gives FIELD) |
 | BRACKET → FIELD | `ItemShapeCharacteristic` + `BracketTimeInterpolationTransform` |
 | VECTORBRACKET | Not handled: legacy only (matrix: VECTOR unsupported, others incompatible). `to_itemtype` in the compiled parser does not parse `'vector_bracket'`. |
 | EXPRESSION | Placeholder export; names check in `graphbuilder_run_expression_hook`; one `ExpressionTransform` (N:1) evaluation per consumer, built in `resolve_one_pair` |
 | WILDCARD | `resolve_wildcard_destination` (fan-in of every matching FIELD producer as composite members; other shapes are skipped) |
-| SERVICE | Resolved like any other item by `resolve_one`. `is_ordinary_resolvable_import` only keeps an unresolved SERVICE import from being propagated to an ancestor. `try_alias_export_field` aliases a SERVICE export's `FieldBundle` from the owner's user export state like any bundle, with no SERVICE special case (§2.7). Being retired in favor of callbacks |
+| SERVICE | Resolved like any other item by `resolve_one`. `is_ordinary_resolvable_import` only keeps an unresolved SERVICE import from being propagated to an ancestor. `try_alias_export_field` aliases a SERVICE export's `FieldBundle` from the owner's user export state like any bundle, with no SERVICE special case (§2.7). The graph creates no SERVICE bundle (`check_materializable` refuses it), so with the user-state switch on a SERVICE connection is reported `unsupported_item_class:SERVICE`. Being retired in favor of callbacks |
 | Callback arguments | `GraphBuilder_CallbackWiring_smod.F90` |
 
 ### 2.7 Aliasing the legacy export (`try_alias_export_field`)
@@ -578,7 +617,7 @@ With the user-state switch off, resolution aliases the export's real payload
 from the legacy user export state instead of creating one. With the switch
 on (`graph_populates_user_states()`) it returns `found = .false.` at once,
 because the state holds the node's own created Field
-(`GraphBuilder_ConnectionResolution_smod.F90:1496-1584`).
+(`GraphBuilder_ConnectionResolution_smod.F90:1499-1601`).
 
 - It takes the export **port name** (`effective_source_name`, the key
   `find_export_node_id` uses), not the node's short name. A qualified source
@@ -595,10 +634,15 @@ because the state holds the node's own created Field
 - By item kind in the owner's state: a Field is aliased with
   `MAPL_NamedAlias` and set as the node payload (a created placeholder is
   destroyed unless it shares its host with the alias); a `FieldBundle`
-  (VECTOR, SERVICE or BRACKET export) is aliased the same way, destroying a
-  created placeholder Field of a node declared FIELD; any other kind (a
-  nested State), or no item, gives `found = .false.` without failure and the
-  caller falls through to its existing path (`:1536-1576`).
+  (VECTOR, SERVICE or BRACKET export) is aliased the same way. A payload
+  that is only created is replaced and destroyed: the placeholder Field of
+  a node declared FIELD, or an advertise-created VECTOR or BRACKET bundle
+  with its members (`MAPL_FieldBundleDestroy`). A legacy Field aliased over
+  a created bundle destroys it the same way (`:1565-1573`). A bundle already completed
+  by a connection is not destroyed when later replaced by an alias. Any
+  other kind (a nested State), or no item, gives `found = .false.` without
+  failure and the caller falls through to its existing path
+  (`:1544-1600`).
 - An expression input is not aliased unless its declared item type is FIELD:
   `ExpressionTransform` reads every input with `get_field`
   (`ExpressionTransform.F90:157`), so `build_expression_evaluation` reports
@@ -618,12 +662,16 @@ because the state holds the node's own created Field
   whose links are memberless bundles filled at compute; units and typekind
   steps on a VECTOR are built too. VECTORBRACKET and plain FIELDBUNDLE
   have no bundle Transform.
-- The graph creates no export bundle: an exact-match VECTOR, SERVICE or
-  BRACKET export, and a VECTOR or BRACKET chain input, are filled only by
-  aliasing the bundle legacy put in the user export state (§2.7); an
-  unaliased one is reported `unsupported_item_class:<class>`. So a VECTOR
-  scenario with the user-state switch on (`vector_regrid`) is reported
-  unsupported at resolve (`C2-bundle-exports` in the plan).
+- The graph creates no SERVICE bundle: a SERVICE export is filled only by
+  aliasing the bundle legacy put in the user export state (§2.7), and
+  `check_materializable` reports an unaliased one
+  `unsupported_item_class:SERVICE`. So the `service_*` scenarios do not set
+  the user-state switch (plan task C2-service-exports).
+- A VECTOR or BRACKET export is created by the graph (§1.1, §2.6), but a
+  user that reads the members of a chain-tip import bundle at init sees
+  none until the first compute: chain links are memberless. A BRACKET
+  export with no `bracket_size`, or more than 2, fails at connect with a
+  message.
 - A bundle (VECTOR or BRACKET) link whose step is a vertical-grid mismatch
   is reported unsupported: `VerticalGridCharacteristic%build_transform`
   builds nothing, and there is no bundle vertical regrid (plan
@@ -646,12 +694,23 @@ because the state holds the node's own created Field
   run and fail on the expression item. With the switch on they are skipped
   and the scenario passes: its table entry sets `graph_owns_user_states`
   and it runs ready, in graph mode only (see `docs/graph/scenario-parity.md`).
+- No run-phase node is built at connect time: `graphbuilder_build_run_phase_node`
+  and `OuterMetaComponent%get_run_phase_method_node_id` are dormant, because
+  nothing invokes the node and its arguments are keyed by short name only (a
+  component with an import and an export of one name cannot be built).
+  Reviving it needs a graph-mode skip of the legacy run call. `statistics_real`
+  stays pending for one failing value check (`A/QV_MIN`, `GRAPH` mode;
+  `scenario-parity.md`). The `graph: nodes:` count of a scenario's root graph
+  therefore holds no run-phase node.
 - The outer states are written by the graph only with the user-state switch
   on in `GRAPH` mode (§2.4); otherwise legacy fills them. The outer
-  population covers Field items only (the same limit as the user passes,
-  below) and never writes position-labelled names (`T(1)`).
-- User-state population at advertise is Field items only: bundles, states,
-  vectors and composites are not populated at advertise or later. Items a
+  population covers Fields and, with the switch on, VECTOR and BRACKET
+  bundles (`graphbuilder_populate_outer_state` reuses `populate_one`,
+  `GraphBuilder_StatePopulation_smod.F90:318-323`), and never writes
+  position-labelled names (`T(1)`).
+- User-state population covers Fields and, with the switch on, VECTOR and
+  BRACKET bundles (empty at advertise, §2.4); states and composites are
+  not populated at advertise or later. Items a
   user gridcomp advertises itself with `mapl_GridCompAdvertiseVariable` are
   not in the graph, so they are not populated (tasks.md 3.44 Status).
 - Export-port population: a port name that collides with an existing
@@ -659,8 +718,8 @@ because the state holds the node's own created Field
   The port walk reads the
   component's own export-port table and has no depth limit; the walk over
   the declared imports and exports of the descendants reaches every
-  descendant (`populate_descendants`). Bundles and composites (`vector_1`)
-  are not populated. The scenarios that still fail with the switch on are in the
+  descendant (`populate_descendants`). Composites are not populated (and
+  `vector_1` stays pending for its vertical-grid mismatch). The scenarios that still fail with the switch on are in the
   tasks.md 3.41b and 3.44 Status.
 - `find_materialized_predecessor` skips a created-only Field and reports
   not found past one; payload readers must tolerate EMPTY and GRIDSET
