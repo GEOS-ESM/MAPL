@@ -1950,8 +1950,8 @@ affected scenarios to ready (unless masked: M3).
     a DEFERRED characteristic at freeze). `statistics_real` therefore stays
     pending; follow-up task `C2-statistics-real` below. NAG and gfortran
     ESSENTIAL 69/69; sonnet review accepted, comment nits fixed.
-- `C1-vertical-basic-orientation` (owner, 2026-11-11, option c; after the
-  develop merge): a Basic vertical grid carries no direction, so an
+- `C1-vertical-basic-orientation` (owner, 2026-11-11, option c; pulled
+  before the develop merge the same day): a Basic vertical grid carries no direction, so an
   orientation difference where either grid is Basic produces no step, and a
   connect-time warning (via `StateItemCharacteristic%match_warning`) when
   the Basic grid is connected to an inconsistent partner (for example
@@ -1964,7 +1964,18 @@ affected scenarios to ready (unless masked: M3).
   Legacy flips instead (`get_resolved_alignment` gives a Basic grid DOWN):
   a parity row, tests, and changes to `VerticalOrientationCharacteristic`
   and the covered-orientation path of `VerticalColumnRegridTransform`.
-  Sonnet author, sonnet review. **Status:** not started
+  Sonnet author, sonnet review. Owner answers 2026-11-11 (all the
+  recommendations): (1) two Basic grids with opposite explicit alignments
+  also produce no step and a warning (one rule, no special case for Basic
+  against Basic); (2) the warning fires only when the Basic side has an
+  explicit alignment that conflicts with the partner's real direction, never
+  for a Basic grid with no alignment; (3) a single-level grid's UNSPECIFIED
+  orientation keeps comparing unequal to up/down (unchanged); (4) an
+  explicit `vertical_alignment:` on a Basic item is still stored and
+  written, but no longer causes a flip (the override decision applies to
+  non-Basic grids only). Design from the preflight (flags on
+  `VerticalOrientationCharacteristic`, not an UNSPECIFIED wildcard).
+  **Status:** not started
 - `C1-vertical-r8` (owner, 2026-11-10; after the develop merge): support R8
   in the graph vertical regrid. Owner: "The intent is to eventually support
   R8. It should be an almost trivial near duplication of the R4 logic. It is
@@ -2243,6 +2254,21 @@ it runs goes in a follow-up commit with the same trailer. Label
   propagates `get_geom` errors (was dropped), with a test;
   `parse_var_specs.F90` indentation. NAG and gfortran Debug ESSENTIAL
   69/69. The other items remain.
+  Batch b done (51190dd95, auto-landed 2026-11-11): the dead
+  `superstructure/generic/tests/Test_FixedLevelsVerticalGrid.pf` deleted
+  (the live copy is in `infrastructure/vertical/vertical_grid/tests`); the
+  `is_mirror()` fixme in `VerticalGridAspect.F90` removed (a mirror aspect
+  has no vertical grid and `get_resolved_alignment` returns INVALID for it;
+  its callers handle mirror first; `make_transform.F90` had no such
+  comment); the harvest's Field path reads the geom through
+  `MAPL_FieldGet(geom=)` (the bundle path stays on `ESMF_FieldBundleGet`:
+  `MAPL_FieldBundleGet(geom=)` needs the bundle Info `has_geom` flag, which
+  a member-sourced harvest does not guarantee; pursue only if the owner
+  wants `has_geom` set where bundles are realised). Follow-ups found:
+  `FixedLevelsVerticalGrid%matches` has no direct test (a Fixed grid
+  against another Fixed grid with identical levels returns false: decide if
+  intended); `rules-review.md` lines ~405, 422, 424, 517, 939 carry stale
+  `GraphBuilder_ConnectionResolution_smod.F90` line cites.
 
 **D4. NAG Debug green.** Owner rule (2026-11-05): every build is Debug,
 on every compiler. NAG Debug (`-C=dangling`) aborts about 40 ESSENTIAL
