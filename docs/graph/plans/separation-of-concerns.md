@@ -101,7 +101,11 @@ Preferences stated in discussion, not obvious from the rest of the plan:
   batches them every few landings (from the commits since the last
   batch), or runs a small doc task. A task brief names the docs to update.
 - No `CHANGELOG.md` entries per task: one entry when the graph work is
-  complete, pointing at the documentation.
+  complete, pointing at the documentation. Owner (2026-11-11): add it at
+  the merge into `develop`, short (a summary of the change plus references
+  to the in-source documentation: `docs/graph/ARCHITECTURE.md`,
+  `superstructure/generic/AGENTS.md`), nothing verbose. Merge checklist
+  item.
 - Fix-as-needed beats speculative completeness (e.g. `MAPL_StateSet` is
   extended when a task needs it); no speculative compiler workarounds.
 - Prefer overloading existing MAPL generic names (`MAPL_FieldGet`,
@@ -2019,8 +2023,22 @@ affected scenarios to ready (unless masked: M3).
   at the last `/` and puts the Field in a sub-state, so the leaf must be
   read from that sub-state and a component with no children has no alias
   owner today. Needed before `statistics_real` can run with
-  `graph_owns_user_states`. Sonnet author, sonnet review. **Status:** not
-  started; owner picks before or after the merge.
+  `graph_owns_user_states`. Sonnet author, sonnet review. **Status:** done
+  (fed45b04d, auto-landed; owner chose before the merge, 2026-11-11).
+  `find_alias_owner` returns the component itself for its own slash-named
+  export plus the sub-state path (all before the last slash);
+  `try_alias_export_field` walks it with the new read-only
+  `find_substate` and reads the leaf there. Names without a slash and the
+  qualified child cases are unchanged. Three tests in
+  `Test_GraphBuilderMaterializeGate.pf` (A/QV, A/B/QV, sub-state absent);
+  the first fails with the own-export branch disabled. `statistics_real`
+  keeps `graph_owns_user_states` off: with it on, the same 11 GRAPH-mode
+  checks and the `characteristics_resolved` freeze failure (GEOMETRY
+  DEFERRED on 33 `stat` items, `mirror_geom` with no resolvable geometry,
+  `StatisticsGridComp.F90:93`) occur with and without the fix, so the
+  blocker is the stat items' geometry, not the alias (a follow-up task
+  if the owner wants the switch on for it). The new branch fires in
+  `statistics_real` in `both` mode (16 stat exports, sub_path `A`).
 - Note for whichever task takes up `statistics`/`statistics_real` (found
   by B3-InternalNoMirror; unchecked): the statistics gridcomp has no geom,
   so its internals (`sum_*`, `counts_*`, ...) get DEFERRED geometry and
@@ -2365,7 +2383,15 @@ path uses yet. Owner decisions:
   `remove_dependency`, NodeLabel `is_proxy`, `RouteHandleKey.F90`); keep
   `graphbuilder_freeze` and `check_unsupported_pairs`. Owner answered "a"
   without naming a consumer, so the History sampler and ExtData need none
-  of them.
+  of them. **Status:** done before the merge (f4036567d, auto-landed;
+  owner 2026-11-11 pulled it forward since it conflicts with nothing in
+  develop). Removed those APIs, `NodeLabel` `is_proxy` (and the DOT
+  `doublecircle` / JSON `proxy` output it alone could produce),
+  `RouteHandleKey.F90` and `Test_RouteHandleKey.pf`, the `route-handle`
+  spec capability, and every false "child-port binding" statement in the
+  landed `component-graph`/`component-hierarchy` specs and docs. Kept
+  `graphbuilder_freeze`, `check_unsupported_pairs`, `resolve_descendant`.
+  ESSENTIAL 71/71 on NAG and gfortran; `openspec validate --specs` 31 passed.
 - `F3-FinalizeLifecycle` (owner leans to b): call `ComponentGraph%finalize`
   at the end of initialize so the 16 FINALIZED asserts catch late
   mutation; a separate task after the merge (a small behavior change).
@@ -2543,7 +2569,7 @@ it may author D1/A4/B5 with sonnet review.
 | C1-vertical-basic-orientation | sonnet | sonnet | after the develop merge (owner 2026-11-11); Basic grid: no orientation step, inconsistent-alignment warning |
 | C1-vertical-r8 | sonnet | sonnet | after the develop merge (owner 2026-11-10); R8 vertical regrid as a near duplicate of the R4 path |
 | C2-statistics-real | sonnet | sonnet | trace A/QV_MIN wrong value in GRAPH mode; flip statistics_real; landed 29c6c1870 |
-| C2-slash-export-alias | sonnet | sonnet | own export whose name has a slash (found by C2-statistics-real); owner picks before/after the merge |
+| C2-slash-export-alias | sonnet | sonnet | own export whose name has a slash (found by C2-statistics-real); landed fed45b04d (before the merge) |
 | D1 | sonnet (haiku?) | sonnet if haiku | `public ::` rule |
 | D2 | sonnet | opus | lifecycle-phase ordering |
 | D3-cleanup | sonnet | - | items are small and independent |
