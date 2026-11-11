@@ -558,8 +558,8 @@ All carry `LABELS "ESSENTIAL"` and (except `.components.quiet`)
 | `MAPL.generic.core` | `Test_VirtualConnectionPt.pf`, `Test_ConnectionPt.pf`, `Test_FieldDictionary.pf`, `Test_FieldDictIntegration.pf`, `Test_StateRegistry.pf`, `Test_Couplers.pf`, `Test_CSR_SparseMatrix.pf`, `Test_timestep_propagation.pf`, `Test_propagate_time_varying.pf`, `Test_ClockGet.pf`, `Test_VariableSpec_private.pf`, `Test_VectorBasisKind.pf`, `Test_QuantityType.pf`, `Test_ConservationType.pf`, `Test_PolymorphicSetMirror.pf` | §1.3 `registry/` (`StateRegistry`/`Couplers`), §1.4 `connection/` (`ConnectionPt`/`VirtualConnectionPt`), field-dictionary integration. |
 
 `MAPL.generic.scenarios` runs as ctest entries `MAPL.generic.scenarios.shard0`
-to `.shard3`: the same binary, each process taking every fourth
-`Test_Scenarios.pf` parameter via `MAPL_SCENARIO_SHARD=k/4`. Sharding keeps
+to `.shard5`: the same binary, each process taking every sixth
+`Test_Scenarios.pf` parameter via `MAPL_SCENARIO_SHARD=k/6`. Sharding keeps
 each process under the MPI communicator limit, because `ESMF_TestCase` leaks
 one VM per test. The unsharded ctest entry is disabled.
 

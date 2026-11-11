@@ -795,7 +795,7 @@ with-gfortran cmake --build gfortran -j 10 --target build-tests > gfortran/build
 with-gfortran ctest --test-dir gfortran -L ESSENTIAL -j 6 > gfortran/ctest.log 2>&1; tail -15 gfortran/ctest.log
 ```
 
-`ctest -L ESSENTIAL` passes 69/69 on both NAG and gfortran (Debug). NAG
+`ctest -L ESSENTIAL` passes 71/71 on both NAG and gfortran (Debug). NAG
 Debug (`-C=dangling`) is a gate: a gFTL set or map iterated through a
 non-`TARGET` local or dummy aborts there, so add `TARGET`. A full unlabeled `ctest` additionally runs
 four `apps/tests/Regrid_Util/` regression tests (`ll-ll`, `cs-cs`,
@@ -812,7 +812,7 @@ names, not the `generic3g`/`MAPL.generic3g.*` names in the generic
 | `MAPL.field_bundle.tests` | `infrastructure/field_bundle/tests/`, including `Test_FieldBundleSet.pf` (`vert_alignment` round trip on a memberless bundle; `with_grid` default). `MAPL_FieldBundleSet` stores `vert_alignment` on the bundle itself, so a bundle with no members records its alignment |
 | `MAPL.generic.components` | `Test_GraphBuilder*.pf`, propagation, mode tests, spec/parser tests |
 | `MAPL.generic.components.quiet` | Two deliberate negative-path hook tests, run at `--level ERROR` |
-| `MAPL.generic.scenarios.shard0` .. `.shard3` | `Test_Scenarios.pf`, equivalence harness, graph-mode demonstration (strict field dictionary). One binary run in 4 processes via `MAPL_SCENARIO_SHARD=k/4`, because `ESMF_TestCase` leaks MPI communicators per test (MPICH limit). `-R MAPL.generic.scenarios.shard` runs all; the plain `MAPL.generic.scenarios` entry is disabled |
+| `MAPL.generic.scenarios.shard0` .. `.shard5` | `Test_Scenarios.pf`, equivalence harness, graph-mode demonstration (strict field dictionary). One binary run in 6 processes via `MAPL_SCENARIO_SHARD=k/6`, because `ESMF_TestCase` leaks MPI communicators per test (MPICH limit). `-R MAPL.generic.scenarios.shard` runs all; the plain `MAPL.generic.scenarios` entry is disabled |
 | `MAPL.generic.scenarios.pending` (label `PENDING`, not ESSENTIAL) | Scenarios not yet `graph_ready`, under graph/both; expected to fail; see `docs/graph/scenario-parity.md` |
 | `MAPL.generic.core`, `.aspects`, `.transforms`, `.vertical` | Legacy layer; see `docs/generic/ARCHITECTURE.md` §4.2 |
 

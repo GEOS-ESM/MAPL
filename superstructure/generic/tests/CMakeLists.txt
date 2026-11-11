@@ -292,7 +292,7 @@ endif()
 # ESMF_TestCase leaks one VM (several MPI communicators on rank 0) per test,
 # and MPICH allows ~2048 communicators per process. Run the scenarios binary
 # in this many separate processes so each one stays well under that limit.
-set(MAPL_SCENARIO_SHARDS 4)
+set(MAPL_SCENARIO_SHARDS 6)
 set(scenario_mpi_preflags ${MPIEXEC_PREFLAGS})
 if (MPIEXEC_EXECUTABLE MATCHES ".*openmpi*")
   list(APPEND scenario_mpi_preflags "--oversubscribe")
