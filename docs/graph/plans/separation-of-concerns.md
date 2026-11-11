@@ -1568,7 +1568,33 @@ ready means today" in `scenario-parity.md`). May be split into
   in Test_Scenarios.pf, the connect-time R8 warning and basic-count
   INCOMPATIBLE, scenario flips, and doc drift (ARCHITECTURE.md ~168,
   ~229, ~407; VerticalOrientationCharacteristic.F90:18 header).
-  C1-vertical-b: not started. C1-geom-c-a done (c1dd7cbed, owner commit):
+  C1-vertical-b is split into b1 (Fields) and b2 (VECTOR/BRACKET).
+  C1-vertical-b1 done (2da1c1801, owner commit). Owner decisions
+  (2026-11-10/11): grid matching follows legacy `typesafe_matches` (same
+  id or `export%matches(import)`; a Basic grid matches by level count;
+  Fixed and Model match only a Basic of equal count); `FieldBundleSet`
+  change and VECTOR are b2; BRACKET needs no vertical bundle Transform;
+  R8 refused at connect (C1-vertical-r8 later); `VerticalGrid%
+  has_column_coordinate` approved (outside generic/); the Basic-grid
+  orientation exception and warning are the post-merge task
+  C1-vertical-basic-orientation (legacy flips today, parity row).
+  `VerticalGridCharacteristic` and `VerticalOrientationCharacteristic`
+  build the landed Transforms; the vertical step covers orientation;
+  stagger is never covered. Scenarios: `vertical_regridding`,
+  `vertical_alignment_regrid`, `vertical_alignment_with_grid` ready with
+  `chain: [vertical]`; `vertical_alignment_same_grid` no longer masked;
+  new `vertical_orientation_flip`; `vertical_regridding_2/_3` pending
+  (model grids, unsupported at connect). NAG and gfortran ESSENTIAL
+  69/69; mutation checks passed; sonnet review accepted after one fix
+  round. Found: a regrid link built before a later unsupported kind
+  stays in the network unreferenced and never runs; NAG does not
+  recompile dependents when `mapl_verticalgrid_mod` changes (delete the
+  stale .o; D3/triage item). C1-vertical-b2 (VECTOR; sonnet author,
+  sonnet review): bundle branch of both vertical Transforms, level-aware
+  member creation in `BundleMemberSupport`, `FieldBundleSet.F90` passes
+  `vert_alignment` to the bundle-level Info (owner approved 2026-11-10),
+  flips `vector_1` (`chain: [geometry, vertical]`). Not started.
+  C1-geom-c-a done (c1dd7cbed, owner commit):
   `HorizontalBundleRegridTransform` regrids a VECTOR (one rotated
   `Regridder%regrid(fb_in, fb_out)` call, exporter basis kept) or a
   BRACKET (only when `bracket_updated`, and on the first compute or after a
