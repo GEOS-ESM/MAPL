@@ -62,18 +62,16 @@ terms. ARCHITECTURE.md describes the current tree only and covers:
 - which characteristics have a real `build_transform` and which are
   stubs, and which item classes (Bracket, Expression, Wildcard, ...)
   the graph path resolves
-- known limitations (no geometry or vertical regrid `Transform`)
+- known limitations (for example no vertical regrid between model grids
+  or for R8, and no stagger repair)
 - build/test commands and the `MAPL.generic.*` ctest target names
   (this repo uses `superstructure/generic/`, not `generic3g`)
 
-Two openspec changes are active:
-`openspec/changes/characteristic-separation-of-concerns/` (the B0 design
-for Phase B of `docs/graph/plans/separation-of-concerns.md`; B1-B5
-implement its `tasks.md`) and
-`openspec/changes/hierarchy-wide-forward-network/` (plan task C4: one
-forward dependency network per hierarchy). Everything else is under
-`archive/`. Session
-narratives are in `docs/graph/history/`.
+No openspec change is active; all are under `openspec/changes/archive/`
+(including `characteristic-separation-of-concerns`, the B0 design for
+Phase B of `docs/graph/plans/separation-of-concerns.md`, and
+`hierarchy-wide-forward-network`, plan task C4: one forward dependency
+network per hierarchy). Session narratives are in `docs/graph/history/`.
 
 Do not re-derive this context by reading all of `docs/graph/spec/` (20
 files) or all of `GraphBuilder.F90` and its 11 submodules (about 6,200

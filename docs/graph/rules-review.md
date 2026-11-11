@@ -1151,7 +1151,7 @@ B4), which R1 and R12 name as the point to revisit.
   `AttributesAspect`) have no production caller (§0). The first four have
   unit tests; the rest have no caller at all. `StandardNameAspect%connect_to_export`
   is live (VECTOR, `VectorClassAspect.F90:289-296`) and must stay.
-- `openspec/changes/characteristic-separation-of-concerns/design.md:487`
+- `openspec/changes/archive/2026-11-11-characteristic-separation-of-concerns/design.md:487`
   says legacy `StandardNameAspect%connect_to_export` adopts the export's
   name across BRACKET -> FIELD; that procedure is not called for a
   BRACKET or FIELD connect (§0). The conclusion (no check, PERMISSIVE-like)

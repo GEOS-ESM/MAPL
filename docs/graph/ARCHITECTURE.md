@@ -17,15 +17,14 @@ legacy-to-graph vocabulary in `docs/graph/GLOSSARY.md`.
 4. `docs/graph/*.md` topic files (see `docs/graph/README.md`).
 5. **This file** — a navigational summary.
 
-Two openspec changes are active:
-`openspec/changes/characteristic-separation-of-concerns/`, which
-implements Phase B of `docs/graph/plans/separation-of-concerns.md`, and
-`openspec/changes/hierarchy-wide-forward-network/` (plan task C4, one
-forward network per hierarchy).
-Where this file and the first change's `design.md` disagree about
-characteristics, the descriptor or status resolution, `design.md` wins.
-Landed changes (including `hierarchy-wide-component-graph`, phases
-7a/7b/7c and 12) are under `openspec/changes/archive/<date>-<name>/`.
+No openspec change is active. Landed changes are under
+`openspec/changes/archive/<date>-<name>/`: `characteristic-separation-of-concerns`
+(Phase B of `docs/graph/plans/separation-of-concerns.md`),
+`hierarchy-wide-forward-network` (plan task C4, one forward network per
+hierarchy), `hierarchy-wide-component-graph`, and phases 7a/7b/7c and 12.
+Where this file and the `design.md` of `characteristic-separation-of-concerns`
+disagree about characteristics, the descriptor or status resolution,
+that `design.md` wins.
 
 Facts below were verified against the tree on 2026-10-21 unless marked
 **[ASSUMPTION]**; updated 2026-11-11 through `087add3b5` (§1.1-§1.2,

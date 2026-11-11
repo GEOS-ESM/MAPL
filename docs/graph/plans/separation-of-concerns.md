@@ -516,12 +516,12 @@ commit. May run in a worktree only while no B3 task touches graph tests.
 ### Phase B - characteristic architecture
 
 B1 through B5 each implement their section of
-`openspec/changes/characteristic-separation-of-concerns/tasks.md`, using
-its `design.md`. These take precedence over the summaries below. Each
+`openspec/changes/archive/2026-11-11-characteristic-separation-of-concerns/tasks.md`,
+using its `design.md`. These take precedence over the summaries below. Each
 task ticks the checkboxes it completes.
 
 **B0. Openspec design change (no code).** Write
-`openspec/changes/characteristic-separation-of-concerns/` covering
+`openspec/changes/characteristic-separation-of-concerns/` (now under `archive/2026-11-11-`) covering
 D1-D6. Must specifically study and document:
 - `specs/ExpressionClassAspect.F90`: how expressions convert to a field
   then use field rules -> defines the EXPRESSION export-MIRROR allowlist

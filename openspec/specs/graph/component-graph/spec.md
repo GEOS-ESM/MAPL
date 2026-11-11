@@ -23,7 +23,7 @@ shared hierarchy-wide graph store" requirement). Each `ComponentGraph`
 instance references that shared storage rather than holding its own
 separate copies. A `ComponentGraph` has no default network of its own.
 
-#### Scenario: Graph owns distinct default network identity
+#### Scenario: Graphs in one hierarchy share the forward network identity
 - **WHEN** two component graphs are created in the same hierarchy
 - **THEN** neither has a default network of its own: both report the
   same forward dependency-network identity
@@ -63,7 +63,7 @@ transform port-binding table updates, and resource-index updates, subject to
 network and graph validation rules.
 
 #### Scenario: Initialization builds graph structure
-- **WHEN** client registers nodes, obtains the default network, and adds valid
+- **WHEN** client registers nodes, obtains the forward network, and adds valid
   dependencies
 - **THEN** graph exposes the resulting structure through its query API
 
