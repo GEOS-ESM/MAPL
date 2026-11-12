@@ -322,9 +322,12 @@ contains
          ! as a dictionary alias); a miss here is always just a warning,
          ! independent of ValidationMode - this VarSpec never claimed
          ! standard_name-convention compliance in the first place.
-         call lgr%warning('short_name "' // short_name // &
-              '" not found in field dictionary (as an alias); ' // &
-              'units and long_name defaults will not be applied.')
+         fd_config => get_field_dictionary_config()
+         if (.not. fd_config%suppress_field_name_warnings_flag()) then
+            call lgr%warning('short_name "' // short_name // &
+                 '" not found in field dictionary (as an alias); ' // &
+                 'units and long_name defaults will not be applied.')
+         end if
       else
          ! standard_name was declared but has no FieldDictionary entry: a
          ! standard-name-convention violation whose severity is governed by
@@ -333,7 +336,7 @@ contains
          if (fd_config%get_validation_mode() == MAPL_VALIDATION_MODE_STRICT) then
             _FAIL('standard_name "' // standard_name // '" not found in field dictionary (strict mode).')
          else
-            if (.not. fd_config%suppress_standard_name_warnings_flag()) then
+            if (.not. fd_config%suppress_field_name_warnings_flag()) then
                call lgr%warning('standard_name "' // standard_name // &
                     '" not found in field dictionary; ' // &
                     'units and long_name defaults will not be applied.')

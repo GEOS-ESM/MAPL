@@ -1191,10 +1191,10 @@ contains
    !     Path only; ValidationMode defaults to permissive.
    !   - a mapping (generic/standard-name-enforcement):
    !     field_dictionary: {path: <path>, validation_mode: strict|permissive,
-   !                         suppress_standard_name_warnings: false}
-   ! The 'suppress_standard_name_warnings' key is optional; it defaults to false
+   !                         suppress_field_name_warnings: false}
+   ! The 'suppress_field_name_warnings' key is optional; it defaults to false
    ! (warnings are shown). Set it to true to suppress warnings about missing
-   ! standard names (useful for systems still under development).
+   ! standard and short names (useful for systems still under development).
    ! Either way, a FieldDictionaryConfig is always stored via
    ! set_field_dictionary_config so StandardNameAspect/VariableSpec have one
    ! consistent place to query the active mode/exemptions, even when the
