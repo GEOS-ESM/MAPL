@@ -12,14 +12,21 @@
 
 Status: agreed in discussion with tclune, 2026-10-21.
 
-**Workflow: no PRs.** Work lands directly on the owner's integration
-branch (currently `feature/#5286-graph-phase-5`); one task = one commit,
-or a short series of commits. Agents **do not commit**: they leave the
-task as uncommitted changes plus a proposed message in
+**Workflow (owner, 2026-11-12, after PR #5502 merged into `develop`).**
+Work lands on the owner's integration branch (currently
+`feature/#5286-graph-phase-6`, cut from `develop` at 9bd622071); one task =
+one commit, or a short series of commits. Agents **do not commit**: they
+leave the task as uncommitted changes plus a proposed message in
 `.git/PLAN_TASK_MSG`, and the owner reviews the working tree before
 committing (or meta lands it under auto-landing; see "Working with the
-owner") (see "Review and commit" below). The integration branch goes to `develop` as
-one final PR, followed by a walkthrough with the senior developers.
+owner") (see "Review and commit" below). Pure refactors and documentation
+batches accumulate on the integration branch; tasks that change behavior
+colleagues can see (parser rules, legacy matching, GEOS regression YAML
+needs) go to `develop` in their own PR. Because the CI matrix takes 2 to 3
+hours, tasks are combined so that about two PRs per day reach `develop`.
+The history of the earlier branch (the `Plan-Task:` trailers) is the tag
+`graph-phase-5-final`; `git log --grep='^Plan-Task: B3-Units'
+graph-phase-5-final` finds a task there.
 Every task commit ends with a git trailer naming its task:
 
 ```
