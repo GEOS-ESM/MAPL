@@ -67,7 +67,10 @@ contains
 
       integer :: status
       integer :: i
-      type(Factory) :: factories(17)
+      ! A named constant, not size(factories): ifort rejects size() of this
+      ! array of procedure-pointer wrappers.
+      integer, parameter :: NUM_FACTORIES = 17
+      type(Factory) :: factories(NUM_FACTORIES)
 
       factories(1)%make => make_units_characteristic
       factories(2)%make => make_typekind_characteristic
@@ -87,7 +90,7 @@ contains
       factories(16)%make => make_normalization_characteristic
       factories(17)%make => make_expression_characteristic
 
-      do i = 1, size(factories)
+      do i = 1, NUM_FACTORIES
          call factories(i)%make(this, descriptor, _RC)
       end do
 
