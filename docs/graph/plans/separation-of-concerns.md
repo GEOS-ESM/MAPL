@@ -2488,7 +2488,20 @@ exact). Task: after the rebase, grep the graph layer for any other case
 folding of item, port or component names; add a graph-mode test that a
 lower-case `moist/cape` does not connect to `MOIST/CAPE` (explicit and
 wildcard), and a parity row if anything differs.
-- **Status:** not started
+- **Status:** done (2026-11-12, e6ff8b499). Develop PR #5501 reaches the graph
+  with no source change: every graph-side matcher (the advertise path in
+  `GraphBuilder.F90`; `wildcard_import_has_match`, `for_each_matching_import`,
+  `resolve_match_connection` and the qualified-export scan in
+  `GraphBuilder_ConnectionResolution_smod.F90`) calls
+  `VirtualConnectionPt%matches`; explicit-connection lookups are string-keyed
+  maps, already exact; the graph does not use `StateRegistry%filter`. No case
+  folding of item, port or component names in `graph/` or `GraphBuilder*.F90`;
+  the only case folds in shared paths are on configuration keywords. No
+  scenario YAML relies on case-insensitive matching; no parity row changes.
+  Seven tests in `Test_GraphBuilder_ConnectionResolution.pf`
+  (`MAPL.generic.components`): explicit source/destination name, match-all,
+  wildcard and literal patterns that differ only in case do not connect, with
+  two exact-case controls. ESSENTIAL 72/72 on NAG and gfortran (combined tree).
 
 Author = writes the task and leaves it uncommitted. Reviewer = the
 read-only `reviewer` subagent (`.opencode/agents/reviewer.md`):
