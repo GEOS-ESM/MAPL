@@ -314,18 +314,12 @@ contains
          type(NodeId) :: import_node_id, export_node_id, final_node_id
          type(NodeId), allocatable :: intermediate_node_ids(:)
          logical :: has_export
-         ! Set by try_alias_export_field. When true the export node already has a
-         ! real field, so try_materialize_field_extension is skipped (its
-         ! FieldCreate would overwrite the alias).
-         logical :: alias_found
          class(StateItemNode), pointer :: export_node
          type(StateItemDescriptor), pointer :: export_item, import_item
          type(StateItemCharacteristicKind), allocatable :: mismatched(:)
          character(:), allocatable :: unsupported_characteristic
          character(:), allocatable :: incompatible_pair
          character(:), allocatable :: materialization_failure
-         type(GraphStateItem), pointer :: chain_input_payload
-         type(ESMF_StateItem_Flag) :: chain_input_type
          type(StringVector) :: callback_rejected
          character(:), pointer :: rejected_item
          integer :: j
@@ -443,28 +437,13 @@ contains
 
             ! Give the export node a real, allocated field using the same geom/vgrid
             ! resolution as the mismatch branch. Gated on graph mode, not on
-            ! materialize_extensions_enabled() (an orthogonal gate); no-op in
-            ! GRAPH_MODE_REGISTRY.
-            if (graph_mode() /= GRAPH_MODE_REGISTRY) then
-               ! Try aliasing the export component's real field first. If found, the
-               ! node already has a real field and try_materialize_field_extension must
-               ! be skipped: its FieldCreate would overwrite the alias.
-               alias_found = .false.
-               if (.not. is_evaluation) then
-                  call try_alias_export_field(this, src_pt%component_name, &
-                       effective_source_name(conn, dst_node), &
-                       this_graph, export_node_id, alias_found, _RC)
-               end if
-               if (.not. alias_found) then
-                  call try_materialize_field_extension(export_item, &
-                       import_item, this_graph, export_node_id, &
-                       materialization_failure, &
-                       name=export_node%get_short_name(), _RC)
-                  if (materialization_failure /= '') then
-                     ! The edge above still exists; only payload materialization failed.
-                     call push_entry(unsupported, dst_pt, dst_node, materialization_failure)
-                  end if
-               end if
+            ! materialize_extensions_enabled() (an orthogonal gate).
+            call ensure_export_payload(this, src_pt%component_name, effective_source_name(conn, dst_node), &
+                 this_graph, export_node_id, export_item, import_item, export_node%get_short_name(), &
+                 .not. is_evaluation, materialization_failure, _RC)
+            if (materialization_failure /= '') then
+               ! The edge above still exists; only payload materialization failed.
+               call push_entry(unsupported, dst_pt, dst_node, materialization_failure)
             end if
 
             _RETURN(_SUCCESS)
@@ -494,45 +473,16 @@ contains
 
          ! The chain's input node (export_node_id) must be materialized too: the
          ! chain's compute() fails on an unallocated input. export_item is passed
-         ! as BOTH export and import so try_materialize_field_extension uses the
-         ! export's typekind/units here (the chain's final node, below, keeps the
-         ! import's). Gated on graph_mode() like the exact-match branch.
-         if (graph_mode() /= GRAPH_MODE_REGISTRY) then
-            ! Same alias-first treatment as the exact-match branch.
-            alias_found = .false.
-            if (.not. is_evaluation) then
-               call try_alias_export_field(this, src_pt%component_name, &
-                    effective_source_name(conn, dst_node), &
-                    this_graph, export_node_id, alias_found, _RC)
-            end if
-            if (.not. alias_found) then
-               ! A Field, VECTOR or BRACKET input is created here (a bundle
-               ! with its members). Any other class has no payload the graph
-               ! can make: report it now rather than when the chain's
-               ! Transform fails at compute.
-               if (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
-                    .or. export_item%get_declared_item_type() == MAPL_STATEITEM_VECTOR &
-                    .or. export_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET) then
-                  call try_materialize_field_extension(export_item, &
-                       export_item, this_graph, export_node_id, &
-                       materialization_failure, &
-                       name=export_node%get_short_name(), _RC)
-               else
-                  ! Only a test that sets a bundle payload by hand reaches
-                  ! here holding one.
-                  chain_input_payload => export_node%get_payload_ptr()
-                  chain_input_type = chain_input_payload%itemType(_RC)
-                  materialization_failure = ''
-                  if (.not. (chain_input_type == ESMF_STATEITEM_FIELDBUNDLE)) then
-                     materialization_failure = 'unsupported_item_class:' // &
-                          itemtype_name(export_item%get_declared_item_type())
-                  end if
-               end if
-               if (materialization_failure /= '') then
-                  call push_entry(unsupported, dst_pt, dst_node, materialization_failure)
-                  _RETURN(_SUCCESS)
-               end if
-            end if
+         ! as BOTH export and import so the export's typekind/units are used here
+         ! (the chain's final node, below, keeps the import's). A class the graph
+         ! cannot create is reported now, not when the chain's Transform fails at
+         ! compute; only a test that sets a bundle payload by hand gets past that.
+         call ensure_export_payload(this, src_pt%component_name, effective_source_name(conn, dst_node), &
+              this_graph, export_node_id, export_item, export_item, export_node%get_short_name(), &
+              .not. is_evaluation, materialization_failure, chain_input=export_node, _RC)
+         if (materialization_failure /= '') then
+            call push_entry(unsupported, dst_pt, dst_node, materialization_failure)
+            _RETURN(_SUCCESS)
          end if
 
          ! Chain *structure* above is unconditional; only the FieldCreate-based
@@ -1474,13 +1424,12 @@ contains
    ! Materializes node_id's payload as a MAPL_NamedAlias of the export
    ! component's real, already-realized field (or field bundle, for a VECTOR,
    ! SERVICE or BRACKET item), read by name from that component's export
-   ! ESMF_State (no StateRegistry). Tried BEFORE
-   ! try_materialize_field_extension at resolve_one's export_node_id call
-   ! sites: if found, the caller skips the FieldCreate path. If the field is
-   ! not yet available by name (two-pass timing), returns success with
-   ! found = .false. and the caller falls back to FieldCreate. An item that is
-   ! neither a Field nor a FieldBundle (e.g. a nested State) also gives
-   ! found = .false.
+   ! ESMF_State (no StateRegistry). Tried by ensure_export_payload BEFORE
+   ! try_materialize_field_extension: if found, the FieldCreate path is
+   ! skipped. If the field is not yet available by name (two-pass timing),
+   ! returns success with found = .false. and the caller falls back to
+   ! FieldCreate. An item that is neither a Field nor a FieldBundle (e.g. a
+   ! nested State) also gives found = .false.
    !
    ! export_port_name is the export-port key (find_export_node_id's key). A
    ! propagated port is `<child>/<leaf>`, passed up unchanged through every
@@ -1511,10 +1460,10 @@ contains
       type(GriddedComponentDriver), pointer :: export_driver
       type(MultiState) :: export_states
       type(ESMF_State) :: export_state, holder
-      type(ESMF_StateItem_Flag) :: item_kind, payload_kind
+      type(ESMF_StateItem_Flag) :: item_kind
       type(ESMF_Field) :: field
-      type(ESMF_Field) :: alias, created
-      type(ESMF_FieldBundle) :: bundle, bundle_alias, created_bundle
+      type(ESMF_Field) :: alias
+      type(ESMF_FieldBundle) :: bundle, bundle_alias
       class(GraphNode), pointer :: node
       type(GraphStateItem), pointer :: payload
 
@@ -1566,32 +1515,14 @@ contains
             ! per-alias metadata (standard_name/long_name/restart_mode), as
             ! populate_one does.
             alias = MAPL_NamedAlias(field, name=leaf, _RC)
-            payload_kind = payload%itemType(_RC)
-            if (field_extension_is_created(graph, node_id)) then
-               if (payload_kind == ESMF_STATEITEM_FIELD) then
-                  created = payload%get_field(_RC)
-                  call destroy_if_not_aliased(created, field, _RC)
-               else if (payload_kind == ESMF_STATEITEM_FIELDBUNDLE) then
-                  created_bundle = payload%get_field_bundle(_RC)
-                  call MAPL_FieldBundleDestroy(created_bundle, destroy_contents=.true., _RC)
-               end if
-            end if
+            call destroy_created_payload(payload, graph, node_id, kept=field, _RC)
             call payload%set(alias, _RC)
          else
             ! A created payload is replaced and destroyed (nothing else holds
             ! it): the placeholder Field of a node declared FIELD whose legacy
             ! item is a bundle, or a created VECTOR or BRACKET bundle with its
             ! members.
-            payload_kind = payload%itemType(_RC)
-            if (field_extension_is_created(graph, node_id)) then
-               if (payload_kind == ESMF_STATEITEM_FIELD) then
-                  created = payload%get_field(_RC)
-                  call ESMF_FieldDestroy(created, noGarbage=.true., _RC)
-               else if (payload_kind == ESMF_STATEITEM_FIELDBUNDLE) then
-                  created_bundle = payload%get_field_bundle(_RC)
-                  call MAPL_FieldBundleDestroy(created_bundle, destroy_contents=.true., _RC)
-               end if
-            end if
+            call destroy_created_payload(payload, graph, node_id, _RC)
             call ESMF_StateGet(holder, itemName=leaf, fieldBundle=bundle, _RC)
             bundle_alias = MAPL_NamedAlias(bundle, name=leaf, _RC)
             call payload%set(bundle_alias, _RC)
@@ -1695,6 +1626,38 @@ contains
       _RETURN(_SUCCESS)
    end subroutine find_substate
 
+   ! Destroys node_id's payload if the graph created it, before it is
+   ! replaced by an alias. A created Field is kept when it shares its host
+   ! with `kept`; without `kept` (a bundle item) it is always destroyed.
+   subroutine destroy_created_payload(payload, graph, node_id, kept, rc)
+      type(GraphStateItem), intent(in) :: payload
+      type(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: node_id
+      type(ESMF_Field), optional, intent(in) :: kept
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_StateItem_Flag) :: payload_kind
+      type(ESMF_Field) :: created
+      type(ESMF_FieldBundle) :: created_bundle
+
+      payload_kind = payload%itemType(_RC)
+      _RETURN_UNLESS(field_extension_is_created(graph, node_id))
+      if (payload_kind == ESMF_STATEITEM_FIELD) then
+         created = payload%get_field(_RC)
+         if (present(kept)) then
+            call destroy_if_not_aliased(created, kept, _RC)
+         else
+            call ESMF_FieldDestroy(created, noGarbage=.true., _RC)
+         end if
+      else if (payload_kind == ESMF_STATEITEM_FIELDBUNDLE) then
+         created_bundle = payload%get_field_bundle(_RC)
+         call MAPL_FieldBundleDestroy(created_bundle, destroy_contents=.true., _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine destroy_created_payload
+
    ! Destroys `old` unless it shares its host with `kept` (an alias of the
    ! same Field must not be destroyed).
    subroutine destroy_if_not_aliased(old, kept, rc)
@@ -1742,6 +1705,57 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine try_materialize_field_extension
+
+   ! Gives export node node_id a real payload outside GRAPH_MODE_REGISTRY:
+   ! an alias of the export component's field (alias_name) if try_alias and
+   ! one exists, else one created from export_item/import_item. Creating
+   ! after an alias would overwrite it. failure is empty unless creation was
+   ! refused. With chain_input, a class that cannot be created is accepted
+   ! when chain_input already holds a bundle payload.
+   subroutine ensure_export_payload(this, alias_comp, alias_name, graph, node_id, export_item, import_item, &
+        materialize_name, try_alias, failure, chain_input, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: alias_comp
+      character(*), intent(in) :: alias_name
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(NodeId), intent(in) :: node_id
+      type(StateItemDescriptor), intent(in) :: export_item
+      type(StateItemDescriptor), intent(in) :: import_item
+      character(*), intent(in) :: materialize_name
+      logical, intent(in) :: try_alias
+      character(:), allocatable, intent(out) :: failure
+      class(StateItemNode), target, optional, intent(in) :: chain_input
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: alias_found
+      type(GraphStateItem), pointer :: payload
+      type(ESMF_StateItem_Flag) :: payload_type
+
+      failure = ''
+      _RETURN_IF(graph_mode() == GRAPH_MODE_REGISTRY)
+
+      alias_found = .false.
+      if (try_alias) then
+         call try_alias_export_field(this, alias_comp, alias_name, graph, node_id, alias_found, _RC)
+      end if
+      _RETURN_IF(alias_found)
+
+      if (present(chain_input) .and. .not. (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
+           .or. export_item%get_declared_item_type() == MAPL_STATEITEM_VECTOR &
+           .or. export_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET)) then
+         payload => chain_input%get_payload_ptr()
+         payload_type = payload%itemType(_RC)
+         if (.not. (payload_type == ESMF_STATEITEM_FIELDBUNDLE)) then
+            failure = 'unsupported_item_class:' // itemtype_name(export_item%get_declared_item_type())
+         end if
+      else
+         call try_materialize_field_extension(export_item, import_item, graph, node_id, failure, &
+              name=materialize_name, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine ensure_export_payload
 
    ! failure_reason is empty when a payload can be created for `item`. The
    ! export side admits FIELD, VECTOR and BRACKET (the graph creates a bundle
@@ -2125,12 +2139,8 @@ contains
                problem = 'unsupported_item_class:' // itemtype_name(input_type)
                _RETURN(_SUCCESS)
             end if
-            call try_alias_export_field(this, src_comp, name, graph, &
-                 input_ids(i), found, _RC)
-            if (found) cycle
-            input_desc => mutable_descriptor(graph, input_ids(i), _RC)
-            call try_materialize_field_extension(input_desc, &
-                 input_desc, graph, input_ids(i), failure, name=name, _RC)
+            call ensure_export_payload(this, src_comp, name, graph, input_ids(i), input_desc, input_desc, &
+                 name, .true., failure, _RC)
             if (failure /= '') then
                problem = failure
                _RETURN(_SUCCESS)

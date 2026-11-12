@@ -2439,6 +2439,10 @@ path uses yet. Owner decisions:
   (3 call sites) in `GraphBuilder_ConnectionResolution_smod.F90`; no test
   changes; resolution vectors and warnings identical before and after on
   ESSENTIAL (NAG). R2 and R1 remain.
+  **Status:** R2 done: `ensure_export_payload` folds all three
+  alias-then-materialize blocks and `destroy_created_payload` the created-payload
+  destroys in `try_alias_export_field`; no test changes; resolution vectors and
+  alias/destroy decisions identical before and after on ESSENTIAL (NAG).
 - Keep the callback stack and the inout borrower (they are the base of
   the SERVICE-to-callbacks migration). The run-phase `MethodGraphNode`
   (built at every connect, never invoked) is under a follow-up check in
