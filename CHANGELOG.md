@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added agent-oriented architecture documentation for MAPL3 (`AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/decisions.md`, `docs/generic/`, one `ARCHITECTURE.md` per layer and for cap, History, ExtData and geometry)
+- Add hack so that edge level geos-chem inputs can be read and correctly identified as edge instead of centers
 - Enforced the `standard_name` convention between a connected Import and
   Export (GEOS-ESM/MAPL#5413). A new `StandardNameAspect`
   (`superstructure/generic/specs/StandardNameAspect.F90`), modeled directly
@@ -56,9 +58,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ExtData now supports the `update_frequency`, `update_reference_time` and
   `update_offset` sampling keys, with the same behavior as MAPL2. Added
   component test case29.
+- ExtData now detects ungridded dimensions in the files it reads. The new
+  `ungridded_dims_from_metadata` (`infrastructure/geom_io/SharedIO.F90`,
+  exported as `mapl_ungridded_dims_from_metadata`) is the read-side inverse of
+  `add_ungridded_dimensions`: it returns an `UngriddedDims` for every
+  dimension of a variable that is not a geom (gridded) dimension, the vertical
+  dimension, or `time`. `VerticalCoordinate` now records the file's vertical
+  dimension name in `file_lev_name`. Added unit tests
+  (`Test_UngriddedDimsFromMetadata.pf`) and component test case46.
 
 ### Changed
 
+- Connection matching (`MatchConnection`, e.g. the cap's Root-to-History `connect_all`) is now case-sensitive, like explicit connections: a History entry must use the export's exact case (`MOIST/CAPE`, not `moist/cape`). `VirtualConnectionPt%matches` drops `REG_ICASE`, and `StateRegistry%filter` looks a pattern without regex metacharacters up in its map instead of scanning every item (**BREAKING** for configurations that relied on case-insensitive matching).
 - Conserve, bilinear, patch, and conserve_2nd regridding now create their masks with `handleAllElements = .false.` to match MAPL2
 - Activated `superstructure/generic/tests/field_dictionary_test.yaml` (a
   checked-in fixture that had never actually been loaded by anything) as
@@ -144,6 +155,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `VirtualConnectionPt%matches` (`VirtualConnectionPt.F90`) now frees the regex it
+  compiles. Without `regfree`, every wildcard match (e.g. the cap's Root-to-History
+  `MatchConnection` from `connect_all`) leaked the compiled pattern and glibc's DFA tables;
+  in a GEOS Moist standalone regression with 281 History fields this was ~6 GB per PET.
+  Patterns without regex metacharacters (plain names, as in the cap's History imports) are now compared as strings instead of compiling a regex; this took about 1.5-2 s off each GEOS Moist standalone regression test.
+- `get_or_create_outer_meta` (`GenericGridComp.F90`) no longer leaves a
+  spurious `esmf_usercompgetinternalstate Failure` error in every
+  `PET*.ESMF_LogFile`. It probed for the outer meta with a labelled
+  `ESMF_InternalStateGet`, which ESMF logs as an error when the label is
+  absent (always the case for the cap gridcomp). It now checks the label
+  list first.
+
+- History collection imports now mirror the ungridded dimensions of the
+  exports they are connected to, so fields with ungridded dimensions can be
+  written by History.
+- Field broadcast (`FieldsAreBroadcastConformable`/`FieldCopy`) now supports
+  any number of extra trailing dimensions rather than exactly one.
 - Fixed logging of resource values that contain `%` (e.g. file-name templates
   such as `%y4%m2%d2`): the HConfig value loggers passed the message to
   pFlogger as its format string, which then failed with "not enough position

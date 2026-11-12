@@ -335,7 +335,8 @@ contains
       local_tk=MAPL_TYPEKIND_MIRROR
       if (allocated(opts%typekind)) local_tk=opts%typekind
       call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, varspec_short_name,  &
-            units=opts%units, typekind=local_tk, regrid_param=opts%regrid_param, mirror_geom=mirror_geom, mirror_vgrid=mirror_vgrid, itemtype=item_type, _RC)
+            units=opts%units, typekind=local_tk, regrid_param=opts%regrid_param, mirror_geom=mirror_geom, mirror_vgrid=mirror_vgrid, itemtype=item_type, &
+            ungridded_dims=mapl_UngriddedDims(is_mirror=.true.), _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_var_specs
