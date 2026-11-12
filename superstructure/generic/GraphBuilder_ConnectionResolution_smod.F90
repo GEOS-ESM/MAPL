@@ -60,6 +60,36 @@ contains
       end do
    end subroutine push_warnings
 
+   ! Entry for a destination import; the caller chooses the vector.
+   subroutine push_entry(entries, dst_pt, dst_node, reason)
+      type(GraphResolutionEntryVector), intent(inout) :: entries
+      type(ConnectionPt), intent(in) :: dst_pt
+      class(StateItemNode), intent(in) :: dst_node
+      character(*), optional, intent(in) :: reason
+
+      call entries%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), reason))
+   end subroutine push_entry
+
+   ! Records a pair-level conflict, instead of failing the whole pass, when
+   ! another connection already produces this import. True if recorded.
+   logical function record_second_producer(graph, source_id, import_id, dst_pt, dst_node, conflicts)
+      type(ComponentGraph), intent(in) :: graph
+      type(NodeId), intent(in) :: source_id
+      type(NodeId), intent(in) :: import_id
+      type(ConnectionPt), intent(in) :: dst_pt
+      class(StateItemNode), intent(in) :: dst_node
+      type(GraphResolutionEntryVector), intent(inout) :: conflicts
+
+      character(:), allocatable :: item_name
+
+      item_name = graph%forward_producer_conflict(source_id, import_id)
+      record_second_producer = (item_name /= '')
+      if (record_second_producer) then
+         call push_entry(conflicts, dst_pt, dst_node, 'import "' // item_name // &
+              '" already has a different producer (another connection)')
+      end if
+   end function record_second_producer
+
    ! The one place a Connection's concrete subtype matters for resolution.
    ! SimpleConnection: its declared source name, which may differ from the
    ! destination's name. MatchConnection (class default): the destination's own
@@ -183,7 +213,7 @@ contains
             callback_matches = resolve_callback_import(this, src_pt, callback_interface_id, rc=status)
             _VERIFY(status)
             if (size(callback_matches) == 0) then
-               call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, node%get_short_name()))
+               call push_entry(unresolved, dst_pt, node)
             end if
             _RETURN(_SUCCESS)
          end if
@@ -194,14 +224,14 @@ contains
          if (node_descriptor%get_declared_item_type() == MAPL_STATEITEM_WILDCARD) then
             has_match = wildcard_import_has_match(this, src_pt%component_name, node, _RC)
             if (.not. has_match) then
-               call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, node%get_short_name()))
+               call push_entry(unresolved, dst_pt, node)
             end if
             _RETURN(_SUCCESS)
          end if
 
          has_export = associated(find_export_node(src_meta, effective_source_name(conn, node)))
          if (.not. has_export) then
-            call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, node%get_short_name()))
+            call push_entry(unresolved, dst_pt, node)
          end if
 
          _RETURN(_SUCCESS)
@@ -311,8 +341,8 @@ contains
          ! neither silently wins.
          callback_interface_id = dst_node%get_callback_interface_id()
          if (callback_interface_id%is_valid() .and. dst_node%is_inout_borrower()) then
-            call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
-                 'declares both an expected callback interface and inout borrower intent (mutually exclusive)'))
+            call push_entry(unsupported, dst_pt, dst_node, &
+                 'declares both an expected callback interface and inout borrower intent (mutually exclusive)')
             _RETURN(_SUCCESS)
          end if
 
@@ -324,8 +354,7 @@ contains
                   callback_interface_id, callback_rejected, _RC)
              do j = 1, callback_rejected%size()
                 rejected_item => callback_rejected%of(j)
-                call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
-                     rejected_item))
+                call push_entry(unsupported, dst_pt, dst_node, rejected_item)
              end do
              _RETURN(_SUCCESS)
           end if
@@ -364,7 +393,7 @@ contains
 
          if (.not. has_export) then
             ! Reported as unresolved, not silently dropped.
-            call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name()))
+            call push_entry(unresolved, dst_pt, dst_node)
             _RETURN(_SUCCESS)
          end if
 
@@ -380,15 +409,11 @@ contains
                  export_node_id, evaluated, expression_problem, &
                  incompatible_pair, waiting, expression_strict, _RC)
             if (incompatible_pair /= '') then
-               call conflicts%push_back(GraphResolutionEntry( &
-                    dst_pt%component_name, dst_node%get_short_name(), &
-                    incompatible_pair))
+               call push_entry(conflicts, dst_pt, dst_node, incompatible_pair)
                _RETURN(_SUCCESS)
             end if
             if (expression_problem /= '') then
-               call unsupported%push_back(GraphResolutionEntry( &
-                    dst_pt%component_name, dst_node%get_short_name(), &
-                    expression_problem))
+               call push_entry(unsupported, dst_pt, dst_node, expression_problem)
                if (expression_strict) then
                   call this%note_unsupported_pair(dst_pt%component_name // &
                        ':' // dst_node%get_short_name() // ':' // &
@@ -404,15 +429,14 @@ contains
          _VERIFY(status)
          _RETURN_IF(waiting)
          if (status_conflict /= '') then
-            call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
-                 status_conflict))
+            call push_entry(unsupported, dst_pt, dst_node, status_conflict)
             _RETURN(_SUCCESS)
          end if
          call push_warnings(warnings, dst_pt%component_name, dst_node%get_short_name(), match_warnings)
 
          if (size(mismatched) == 0) then
             ! Exact match: wire directly, no extension.
-            if (second_producer(export_node_id, import_node_id, dst_node%get_short_name())) then
+            if (record_second_producer(this_graph, export_node_id, import_node_id, dst_pt, dst_node, conflicts)) then
                _RETURN(_SUCCESS)
             end if
             call this_graph%add_dependency(net_id, export_node_id, import_node_id, _RC)
@@ -438,8 +462,7 @@ contains
                        name=export_node%get_short_name(), _RC)
                   if (materialization_failure /= '') then
                      ! The edge above still exists; only payload materialization failed.
-                     call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
-                          materialization_failure))
+                     call push_entry(unsupported, dst_pt, dst_node, materialization_failure)
                   end if
                end if
             end if
@@ -456,15 +479,13 @@ contains
          if (incompatible_pair /= '') then
             ! Reported apart from "no registered extension provider": this pair
             ! can never connect. The component's other connections still resolve.
-            call conflicts%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
-                 incompatible_pair))
+            call push_entry(conflicts, dst_pt, dst_node, incompatible_pair)
             _RETURN(_SUCCESS)
          end if
 
          if (unsupported_characteristic /= '') then
             ! Distinguishable from "import has no matching export".
-            call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
-                 unsupported_characteristic))
+            call push_entry(unsupported, dst_pt, dst_node, unsupported_characteristic)
             ! Kept for the freeze check, which fails on these in strict mode.
             call this%note_unsupported_pair(dst_pt%component_name // ':' // dst_node%get_short_name() // ':' // &
                  unsupported_characteristic)
@@ -508,8 +529,7 @@ contains
                   end if
                end if
                if (materialization_failure /= '') then
-                  call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
-                       materialization_failure))
+                  call push_entry(unsupported, dst_pt, dst_node, materialization_failure)
                   _RETURN(_SUCCESS)
                end if
             end if
@@ -528,37 +548,18 @@ contains
             if (materialization_failure /= '') then
                ! Distinguishable from "no matching export" and "unregistered
                ! characteristic" above.
-               call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
-                    materialization_failure))
+               call push_entry(unsupported, dst_pt, dst_node, materialization_failure)
                _RETURN(_SUCCESS)
             end if
          end if
 
-         if (second_producer(final_node_id, import_node_id, dst_node%get_short_name())) then
+         if (record_second_producer(this_graph, final_node_id, import_node_id, dst_pt, dst_node, conflicts)) then
             _RETURN(_SUCCESS)
          end if
          call this_graph%add_dependency(net_id, final_node_id, import_node_id, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine resolve_one_pair
-
-      ! Records a pair-level conflict, instead of failing the whole pass,
-      ! when another connection already produces this import.
-      logical function second_producer(source_id, import_id, short_name)
-         type(NodeId), intent(in) :: source_id
-         type(NodeId), intent(in) :: import_id
-         character(*), intent(in) :: short_name
-
-         character(:), allocatable :: item_name
-
-         item_name = this_graph%forward_producer_conflict(source_id, import_id)
-         second_producer = (item_name /= '')
-         if (second_producer) then
-            call conflicts%push_back(GraphResolutionEntry(dst_pt%component_name, &
-                 short_name, 'import "' // item_name // &
-                 '" already has a different producer (another connection)'))
-         end if
-      end function second_producer
 
    end subroutine resolve_match_connection
 
@@ -1379,7 +1380,7 @@ contains
       class(GraphNode), pointer :: candidate_node
       logical :: owner_is_chained
       type(StateItemDescriptor), pointer :: owner_item, borrower_item
-      character(:), allocatable :: status_conflict, item_name
+      character(:), allocatable :: status_conflict
       type(StateItemCharacteristicKind), allocatable :: mismatched(:)
       type(StringVector) :: match_warnings
 
@@ -1396,8 +1397,7 @@ contains
       if (.not. has_owner) then
          ! No identifiable owner: reported, never silently treated as an ordinary
          ! import.
-         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
-              'inout borrower has no identifiable owner'))
+         call push_entry(unsupported, dst_pt, dst_node, 'inout borrower has no identifiable owner')
          _RETURN(_SUCCESS)
       end if
 
@@ -1432,8 +1432,8 @@ contains
          end do
       end associate
       if (owner_is_chained) then
-         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
-              'inout borrower owner is itself a declared inout borrower (chained borrowing)'))
+         call push_entry(unsupported, dst_pt, dst_node, &
+              'inout borrower owner is itself a declared inout borrower (chained borrowing)')
          _RETURN(_SUCCESS)
       end if
 
@@ -1441,8 +1441,7 @@ contains
       borrower_item => mutable_descriptor(graph, import_node_id, _RC)
       call resolve_descriptors(owner_item, borrower_item, mismatched, status_conflict, warnings=match_warnings, _RC)
       if (status_conflict /= '') then
-         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
-              status_conflict))
+         call push_entry(unsupported, dst_pt, dst_node, status_conflict)
          _RETURN(_SUCCESS)
       end if
 
@@ -1450,8 +1449,8 @@ contains
          ! A mismatched pairing is rejected rather than chained: the
          ! non-direct-alias case is reserved, so extension-chain construction must
          ! not be used.
-         call unsupported%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name(), &
-              'inout borrower payload does not exactly match its owner (non-direct-alias case not supported)'))
+         call push_entry(unsupported, dst_pt, dst_node, &
+              'inout borrower payload does not exactly match its owner (non-direct-alias case not supported)')
          _RETURN(_SUCCESS)
       end if
 
@@ -1460,11 +1459,7 @@ contains
       ! write-back network. No TransformGraphNode for either.
       ! A different owner already feeds this borrower: record it and skip the
       ! pairing (no forward edge, no return network).
-      item_name = graph%forward_producer_conflict(owner_node_id, import_node_id)
-      if (item_name /= '') then
-         call conflicts%push_back(GraphResolutionEntry(dst_pt%component_name, &
-              dst_node%get_short_name(), 'import "' // item_name // &
-              '" already has a different producer (another connection)'))
+      if (record_second_producer(graph, owner_node_id, import_node_id, dst_pt, dst_node, conflicts)) then
          _RETURN(_SUCCESS)
       end if
       call graph%add_dependency(net_id, owner_node_id, import_node_id, _RC)
@@ -2434,7 +2429,7 @@ contains
                  'matching exports are non-FIELD and are not Wildcard members'
             call lgr%warning(msg)
          end if
-         call unresolved%push_back(GraphResolutionEntry(dst_pt%component_name, dst_node%get_short_name()))
+         call push_entry(unresolved, dst_pt, dst_node)
          _RETURN(_SUCCESS)
       end if
 

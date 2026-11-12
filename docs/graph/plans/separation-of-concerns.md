@@ -2435,6 +2435,10 @@ path uses yet. Owner decisions:
   D1 (R1, R2, R10) and then the rest, one single-purpose task each, no
   test changes except renames, serialized with feature work (they touch
   the files feature tasks touch). Nothing before the merge.
+  **Status:** R10 done: `push_entry` (19 sites) and `record_second_producer`
+  (3 call sites) in `GraphBuilder_ConnectionResolution_smod.F90`; no test
+  changes; resolution vectors and warnings identical before and after on
+  ESSENTIAL (NAG). R2 and R1 remain.
 - Keep the callback stack and the inout borrower (they are the base of
   the SERVICE-to-callbacks migration). The run-phase `MethodGraphNode`
   (built at every connect, never invoked) is under a follow-up check in
