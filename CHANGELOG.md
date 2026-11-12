@@ -94,6 +94,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   other names keep increasing = `DOWN`. For such a height grid an explicit
   `vertical_alignment: upward` now means stored in grid order; see
   `docs/mapl3/vertical-alignment.md`.
+- A geometry (`geom`) or vertical grid (`vertical_grid`) that a variable declares
+  for itself in its spec is no longer overwritten by the component-wide
+  `MAPL_GridCompSetGeom` or `MAPL_GridCompSetVerticalGrid`. Before, every
+  registered item took the component's value; now an item that declared its own
+  keeps it, and only items without one take the component's. The explicit
+  per-item `MAPL_GridCompSetGeometry` still replaces the item's value, which is
+  then also kept against a later component-wide call.
+  Connection matching of two items whose horizontal dims spec is
+  `HORIZONTAL_DIMS_NONE` on both sides no longer looks at their geoms (they
+  match), and a `HORIZONTAL_DIMS_MIRROR` dims spec is treated as equal to any
+  other dims spec (the geoms are still compared).
+- `make_VariableSpec` (and so `MAPL_GridCompAddSpec`) now fails at spec creation
+  for an expression that is not an export, a wildcard that is not an import,
+  a bracket or vector bracket on an import (before, only connecting it failed),
+  and an explicit mirror value on anything but an import or an expression
+  export.
+  Component names must now be unique across the whole hierarchy, not only
+  among siblings; `MAPL_GridCompAddChild` fails on a repeated name.
 - Connection matching (`MatchConnection`, e.g. the cap's Root-to-History `connect_all`) is now case-sensitive, like explicit connections: a History entry must use the export's exact case (`MOIST/CAPE`, not `moist/cape`). `VirtualConnectionPt%matches` drops `REG_ICASE`, and `StateRegistry%filter` looks a pattern without regex metacharacters up in its map instead of scanning every item (**BREAKING** for configurations that relied on case-insensitive matching).
 - Conserve, bilinear, patch, and conserve_2nd regridding now create their masks with `handleAllElements = .false.` to match MAPL2
 - Activated `superstructure/generic/tests/field_dictionary_test.yaml` (a
