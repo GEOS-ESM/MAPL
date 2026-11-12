@@ -13,7 +13,8 @@ module Test_StatusResolution
    use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
    use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
    use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_MIRROR
-   use mapl_VerticalCoordinateDirection_mod, only: VCOORD_DIRECTION_UP, VCOORD_DIRECTION_DOWN
+   use mapl_VerticalCoordinateDirection_mod, only: VCOORD_DIRECTION_UP, VCOORD_DIRECTION_DOWN, &
+        VCOORD_DIRECTION_UNSPECIFIED
    use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
         CHARACTERISTIC_STATUS_INVALID, CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_DEFERRED
@@ -71,6 +72,48 @@ contains
       @assertEqual(PAIR_EXTEND, resolve_pair(up, down, MAPL_STATEITEM_FIELD))
       @assertEqual(PAIR_ADOPT, resolve_pair(up, mirrored, MAPL_STATEITEM_FIELD))
    end subroutine test_vertical_orientation_pairs
+
+   ! A Basic grid carries no direction: opposite orientations match (no step)
+   ! and warn once; plain opposite orientations still extend. The same pair
+   ! with an implicit Basic side (UNSPECIFIED) matches without a warning.
+   @test
+   subroutine test_basic_orientation_matches_and_warns()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicMap) :: plain_export, plain_import
+      type(StateItemCharacteristicMap) :: implicit_import
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:), adopted(:)
+      character(:), allocatable :: conflict
+      type(StringVector) :: warnings, plain_warnings, implicit_warnings
+      integer :: status(3)
+
+      call export_map%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      call import_map%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP, &
+           directionless=.true., grid_known=.true.))
+      call resolve_characteristics(export_map, import_map, MAPL_STATEITEM_FIELD, &
+           mismatched, adopted, conflict, rc=status(1), warnings=warnings)
+
+      call plain_export%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      call plain_import%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      call resolve_characteristics(plain_export, plain_import, MAPL_STATEITEM_FIELD, &
+           mismatched, adopted, conflict, rc=status(2), warnings=plain_warnings)
+      @assertEqual(1, size(mismatched))
+
+      call implicit_import%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UNSPECIFIED, &
+           directionless=.true., grid_known=.true.))
+      call resolve_characteristics(export_map, implicit_import, MAPL_STATEITEM_FIELD, &
+           mismatched, adopted, conflict, rc=status(3), warnings=implicit_warnings)
+
+      @assertEqual([0, 0, 0], status)
+      @assertEqual(0, size(mismatched))
+      @assertEqual(1, int(warnings%size()))
+      @assertEqual(0, int(plain_warnings%size()))
+      @assertEqual(0, int(implicit_warnings%size()))
+   end subroutine test_basic_orientation_matches_and_warns
 
    ! QUANTITY_UNKNOWN is not a value wildcard. BASIS_NONE remains one.
    @test

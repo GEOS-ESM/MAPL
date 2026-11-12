@@ -48,7 +48,7 @@ module Test_StateItemCharacteristicSubclasses
    use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE, &
         HORIZONTAL_DIMS_MIRROR, operator(==)
    use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, &
-        VCOORD_DIRECTION_DOWN, operator(==)
+        VCOORD_DIRECTION_DOWN, VCOORD_DIRECTION_UNSPECIFIED, operator(==)
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
    use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
    use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
@@ -586,6 +586,75 @@ contains
       @assertTrue(up%needs_extension_for(down))
       @assertTrue(down%needs_extension_for(up))
    end subroutine test_vertical_orientation_needs_extension_for
+
+   ! A directionless (Basic grid) side never needs a step, on either side.
+   @test
+   subroutine test_vertical_orientation_directionless_needs_no_extension()
+      type(VerticalOrientationCharacteristic) :: up, down, basic_up, basic_down
+      logical :: results(5)
+
+      up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+      basic_up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP, &
+           directionless=.true., grid_known=.true.)
+      basic_down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN, &
+           directionless=.true., grid_known=.true.)
+
+      results(1) = down%needs_extension_for(basic_up)
+      results(2) = basic_up%needs_extension_for(down)
+      results(3) = basic_up%needs_extension_for(basic_down)
+      results(4) = up%needs_extension_for(down)
+      results(5) = basic_up%is_directionless()
+      @assertEqual([.false., .false., .false., .true., .true.], results)
+   end subroutine test_vertical_orientation_directionless_needs_no_extension
+
+   ! Only a directionless side with a stated direction opposite to its
+   ! partner warns. Implicit, same-direction and single-level (UNSPECIFIED)
+   ! partners do not.
+   @test
+   subroutine test_vertical_orientation_match_warning()
+      type(VerticalOrientationCharacteristic) :: up, down, unspecified
+      type(VerticalOrientationCharacteristic) :: basic_up, basic_unspecified
+      character(:), allocatable :: expected
+      character(:), allocatable :: w_explicit, w_reverse, w_implicit
+      character(:), allocatable :: w_same, w_single, w_plain, w_both
+      type(VerticalOrientationCharacteristic) :: basic_down
+
+      up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+      unspecified = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UNSPECIFIED)
+      basic_up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP, &
+           directionless=.true., grid_known=.true.)
+      basic_unspecified = VerticalOrientationCharacteristic( &
+           VCOORD_DIRECTION_UNSPECIFIED, directionless=.true., grid_known=.true.)
+
+      basic_down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN, &
+           directionless=.true., grid_known=.true.)
+      w_both = basic_down%match_warning(basic_up)
+      w_explicit = down%match_warning(basic_up)
+      w_reverse = basic_up%match_warning(down)
+      w_implicit = down%match_warning(basic_unspecified)
+      w_same = up%match_warning(basic_up)
+      w_single = unspecified%match_warning(basic_up)
+      w_plain = up%match_warning(down)
+
+      expected = 'vertical orientation: a Basic vertical grid carries no ' // &
+           'direction; export downward and import upward differ, so the ' // &
+           'data are copied in the export''s level order, with no flip.'
+      @assertEqual(expected, w_explicit)
+      @assertEqual('vertical orientation: a Basic vertical grid carries no ' // &
+           'direction; export upward and import downward differ, so the ' // &
+           'data are copied in the export''s level order, with no flip.', &
+           w_reverse)
+      @assertEqual('vertical orientation: a Basic vertical grid carries no ' // &
+           'direction; export downward and import upward differ, so the ' // &
+           'data are copied in the export''s level order, with no flip.', &
+           w_both)
+      @assertEqual('', w_implicit)
+      @assertEqual('', w_same)
+      @assertEqual('', w_single)
+      @assertEqual('', w_plain)
+   end subroutine test_vertical_orientation_match_warning
 
    @test
    subroutine test_vertical_orientation_signature_and_getter()

@@ -21,6 +21,7 @@ module mapl_VerticalGrid_mod
       procedure :: set_id
       procedure :: get_coordinate_direction
       procedure :: set_coordinate_direction
+      procedure :: carries_direction
       procedure :: get_primary_coordinate
       procedure :: set_primary_coordinate
       procedure :: get_column_coordinate
@@ -110,6 +111,16 @@ contains
       
       this%coordinate_direction = coordinate_direction
    end subroutine set_coordinate_direction
+
+   ! Whether the coordinate direction is a property of the grid. A grid that
+   ! has only a level count (BasicVerticalGrid) overrides this to .false.:
+   ! its stored direction is a placeholder, not an ordering of its levels.
+   logical function carries_direction(this) result(carries)
+      class(VerticalGrid), intent(in) :: this
+
+      carries = .true.
+      _UNUSED_DUMMY(this)
+   end function carries_direction
 
    !> Get the primary vertical coordinate name for conservative regridding
    !!

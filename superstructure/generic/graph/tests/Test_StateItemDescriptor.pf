@@ -51,7 +51,7 @@ module Test_StateItemDescriptor
    use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE, &
         HORIZONTAL_DIMS_UNKNOWN, operator(==)
    use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, &
-        VCOORD_DIRECTION_DOWN, operator(==)
+        VCOORD_DIRECTION_DOWN, VCOORD_DIRECTION_UNSPECIFIED, operator(==)
    use mapl_VerticalAlignment_mod, only: VerticalAlignment, VALIGN_UP, VALIGN_DOWN, VALIGN_WITH_GRID, operator(==)
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, &
         VERTICAL_STAGGER_EDGE
@@ -59,6 +59,8 @@ module Test_StateItemDescriptor
         mapl_BasicVerticalGridFactory, mapl_VerticalGridManager, mapl_VerticalGridFactory, &
         mapl_get_vertical_grid_manager
    use mapl_VerticalGrid_mod, only: VerticalGrid
+   use mapl_FixedLevelsVerticalGrid_mod, only: FixedLevelsVerticalGrid, &
+        FixedLevelsVerticalGridSpec
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_field_api, only: MAPL_FieldGet, MAPL_FieldSet
    use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundleSet
@@ -1802,12 +1804,15 @@ contains
       type(StateItemDescriptor) :: item
       type(VerticalOrientationCharacteristic) :: deferred
       type(CharacteristicDefaults) :: defaults
-      type(mapl_BasicVerticalGrid) :: vgrid
+      type(FixedLevelsVerticalGrid) :: vgrid
       type(VerticalCoordinateDirection) :: direction
       integer :: status
 
       call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
       call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, deferred)
+      call vgrid%initialize(FixedLevelsVerticalGridSpec('pressure', &
+           [1000., 500., 100.], 'hPa'), rc=status)
+      @assertEqual(0, status)
       call vgrid%set_coordinate_direction(VCOORD_DIRECTION_UP)
       defaults = CharacteristicDefaults(vgrid=vgrid)
       call defaults%set_component_scope()
@@ -1815,6 +1820,104 @@ contains
       @assertTrue(orientation_after(item, defaults, direction, status) == CHARACTERISTIC_STATUS_SPECIFIED)
       @assertTrue(direction == VCOORD_DIRECTION_UP)
    end subroutine test_resolve_deferred_orientation_takes_grid_direction
+
+   ! Whether the orientation entry of an item is directionless.
+   logical function orientation_is_directionless(item) result(directionless)
+      type(StateItemDescriptor), intent(in) :: item
+
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      directionless = .false.
+      call item%get_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      select type (c)
+      type is (VerticalOrientationCharacteristic)
+         directionless = c%is_directionless()
+      end select
+   end function orientation_is_directionless
+
+   ! A DEFERRED entry on a Basic component grid has no direction to take.
+   @test
+   subroutine test_resolve_deferred_orientation_basic_grid_is_directionless()
+      type(StateItemDescriptor) :: item
+      type(VerticalOrientationCharacteristic) :: deferred
+      type(CharacteristicDefaults) :: defaults
+      type(mapl_BasicVerticalGrid) :: vgrid
+      type(VerticalCoordinateDirection) :: direction
+      logical :: directionless
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, deferred)
+      call vgrid%initialize(mapl_BasicVerticalGridSpec(num_levels=3))
+      call vgrid%set_coordinate_direction(VCOORD_DIRECTION_UP)
+      defaults = CharacteristicDefaults(vgrid=vgrid)
+      call defaults%set_component_scope()
+
+      @assertTrue(orientation_after(item, defaults, direction, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      directionless = orientation_is_directionless(item)
+      @assertTrue(direction == VCOORD_DIRECTION_UNSPECIFIED)
+      @assertTrue(directionless)
+   end subroutine test_resolve_deferred_orientation_basic_grid_is_directionless
+
+   ! An explicit alignment keeps its value, and learns from a Basic
+   ! component grid that it is directionless.
+   @test
+   subroutine test_resolve_deferred_specified_orientation_learns_basic_grid()
+      type(StateItemDescriptor) :: item
+      type(CharacteristicDefaults) :: defaults
+      type(mapl_BasicVerticalGrid) :: vgrid
+      type(VerticalCoordinateDirection) :: direction
+      logical :: directionless
+      integer :: status
+
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      call vgrid%initialize(mapl_BasicVerticalGridSpec(num_levels=3))
+      defaults = CharacteristicDefaults(vgrid=vgrid)
+      call defaults%set_component_scope()
+
+      @assertTrue(orientation_after(item, defaults, direction, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      directionless = orientation_is_directionless(item)
+      @assertTrue(direction == VCOORD_DIRECTION_UP)
+      @assertTrue(directionless)
+   end subroutine test_resolve_deferred_specified_orientation_learns_basic_grid
+
+   ! An entry built from the item own grid is not changed by the component
+   ! grid, and a fixed component grid never makes an entry directionless.
+   @test
+   subroutine test_resolve_deferred_item_grid_entry_not_overwritten()
+      type(StateItemDescriptor) :: item, item_fixed
+      type(CharacteristicDefaults) :: defaults, defaults_fixed
+      type(mapl_BasicVerticalGrid) :: basic
+      type(FixedLevelsVerticalGrid) :: fixed
+      type(VerticalCoordinateDirection) :: direction
+      logical :: directionless_known, directionless_fixed
+      integer :: status
+
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP, &
+           grid_known=.true.))
+      call basic%initialize(mapl_BasicVerticalGridSpec(num_levels=3))
+      defaults = CharacteristicDefaults(vgrid=basic)
+      call defaults%set_component_scope()
+      @assertTrue(orientation_after(item, defaults, direction, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      directionless_known = orientation_is_directionless(item)
+
+      call item_fixed%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      call fixed%initialize(FixedLevelsVerticalGridSpec('pressure', &
+           [1000., 500., 100.], 'hPa'), rc=status)
+      @assertEqual(0, status)
+      defaults_fixed = CharacteristicDefaults(vgrid=fixed)
+      call defaults_fixed%set_component_scope()
+      @assertTrue(orientation_after(item_fixed, defaults_fixed, direction, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      directionless_fixed = orientation_is_directionless(item_fixed)
+
+      @assertFalse(directionless_known)
+      @assertFalse(directionless_fixed)
+   end subroutine test_resolve_deferred_item_grid_entry_not_overwritten
 
    @test
    subroutine test_resolve_deferred_orientation_leaves_specified()

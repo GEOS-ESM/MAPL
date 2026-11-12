@@ -210,9 +210,10 @@ separate reference to be declared.
 ### Requirement: An orientation-only vertical mismatch is resolved by a level flip
 When a field or vector export and import share a vertical grid but
 differ only in vertical orientation, resolution SHALL build a step that
-reverses the level order (of every member, for a vector). An item that is
-neither a field nor a vector with that mismatch SHALL be reported as an
-explicit unsupported orientation step.
+reverses the level order (of every member, for a vector), except when
+either grid is a basic grid, which has no direction and gets no step. An
+item that is neither a field nor a vector with that mismatch SHALL be
+reported as an explicit unsupported orientation step.
 
 #### Scenario: Same grid, opposite orientation
 - **WHEN** a field export with downward orientation connects to a field
@@ -225,3 +226,19 @@ explicit unsupported orientation step.
   import with upward orientation on the same vertical grid
 - **THEN** resolution builds one orientation step on the bundle and every
   member of the import sees the levels in reversed order
+
+#### Scenario: A basic vertical grid has no orientation step
+- **WHEN** a field export with downward orientation connects to a field
+  import with upward orientation, and the vertical grid of either item is a
+  basic grid (one defined only by its level count)
+- **THEN** resolution builds no orientation step and the data are copied in
+  the export's level order
+- **AND** a connect-time warning is logged when the basic side states an
+  alignment (upward or downward) that is opposite to the other side's
+  direction, and none when the basic side states no alignment
+
+#### Scenario: An alignment on a basic grid is kept but reorders nothing
+- **WHEN** an item on a basic vertical grid declares `vertical_alignment:
+  upward`
+- **THEN** the alignment is stored on the item and written to its Field
+- **AND** it never causes a level flip

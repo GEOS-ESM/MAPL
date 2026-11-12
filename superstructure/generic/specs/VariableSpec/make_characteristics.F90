@@ -37,7 +37,8 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
    use mapl_VerticalStaggerCharacteristic_mod, only: VerticalStaggerCharacteristic
    use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_INVALID
    use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
-   use mapl_VerticalCoordinateDirection_mod, only: VCOORD_DIRECTION_UP, VCOORD_DIRECTION_DOWN
+   use mapl_VerticalCoordinateDirection_mod, only: VCOORD_DIRECTION_UP, VCOORD_DIRECTION_DOWN, &
+        VCOORD_DIRECTION_UNSPECIFIED
    use mapl_VerticalAlignment_mod, only: VerticalAlignment, VALIGN_UP, VALIGN_DOWN, VALIGN_WITH_GRID, &
         VALIGN_INVALID, operator(/=), operator(==)
    implicit none(type, external)
@@ -495,7 +496,9 @@ contains
 
    ! vertical_alignment 'upward' or 'downward' is SPECIFIED. 'mirror' is
    ! MIRRORED (see check_intent_rules for where that is allowed). Absent or
-   ! 'with_grid' follows the grid: SPECIFIED with the item grid's direction,
+   ! 'with_grid' follows the grid: SPECIFIED with the item grid's direction
+   ! (UNSPECIFIED for a Basic grid, which has none; an explicit alignment on a
+   ! Basic grid is kept but never reorders data),
    ! else MIRRORED for an EXPRESSION or with mirror_vgrid, else DEFERRED until
    ! the component grid is known. A DEFERRED entry whose component has no
    ! vertical grid is dropped at GEOM_B. An explicit vertical_stagger NONE
@@ -509,7 +512,7 @@ contains
       type(VerticalOrientationCharacteristic) :: orientation_char
       character(:), allocatable :: requested
       type(VerticalAlignment) :: alignment
-      logical :: is_mirror
+      logical :: is_mirror, grid_known, directionless
 
       if (allocated(spec%state_item_variant)) then
          _RETURN_IF(spec%state_item_variant == MAPL_STATEITEM_VERTICALGRID)
@@ -519,6 +522,8 @@ contains
          _RETURN_IF(spec%vertical_stagger%is_none())
       end if
 
+      grid_known = .false.
+      directionless = .false.
       is_mirror = .false.
       alignment = VALIGN_WITH_GRID
       if (allocated(spec%vertical_alignment)) then
@@ -528,14 +533,28 @@ contains
          _ASSERT(alignment /= VALIGN_INVALID, 'unknown vertical_alignment: ' // spec%vertical_alignment)
       end if
 
+      if (allocated(spec%vertical_grid)) then
+         grid_known = .true.
+         directionless = .not. spec%vertical_grid%carries_direction()
+      end if
+
       if (is_mirror) then
          call orientation_char%set_status(CHARACTERISTIC_STATUS_MIRRORED)
       else if (alignment == VALIGN_UP) then
-         orientation_char = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+         orientation_char = VerticalOrientationCharacteristic( &
+              VCOORD_DIRECTION_UP, directionless, grid_known)
       else if (alignment == VALIGN_DOWN) then
-         orientation_char = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+         orientation_char = VerticalOrientationCharacteristic( &
+              VCOORD_DIRECTION_DOWN, directionless, grid_known)
       else if (allocated(spec%vertical_grid)) then
-         orientation_char = VerticalOrientationCharacteristic(spec%vertical_grid%get_coordinate_direction())
+         if (directionless) then
+            orientation_char = VerticalOrientationCharacteristic( &
+                 VCOORD_DIRECTION_UNSPECIFIED, directionless, grid_known)
+         else
+            orientation_char = VerticalOrientationCharacteristic( &
+                 spec%vertical_grid%get_coordinate_direction(), &
+                 directionless, grid_known)
+         end if
       else if (spec%itemType == MAPL_STATEITEM_EXPRESSION .or. spec%mirror_vgrid) then
          call orientation_char%set_status(CHARACTERISTIC_STATUS_MIRRORED)
       else

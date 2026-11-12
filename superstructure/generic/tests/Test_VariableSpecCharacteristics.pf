@@ -54,7 +54,9 @@ module Test_VariableSpecCharacteristics
    use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
    use mapl_UngriddedDims_mod, only: UngriddedDims, operator(==)
    use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
-   use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid
+   use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid, mapl_BasicVerticalGridSpec
+   use mapl_FixedLevelsVerticalGrid_mod, only: FixedLevelsVerticalGrid, &
+        FixedLevelsVerticalGridSpec
    use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
    use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
    use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE, &
@@ -1635,11 +1637,14 @@ contains
    @test
    subroutine test_item_vgrid_resolves_vertical_orientation()
       type(VariableSpec) :: var_spec
-      type(mapl_BasicVerticalGrid) :: vgrid
+      type(FixedLevelsVerticalGrid) :: vgrid
       logical :: has_entry
       type(VerticalCoordinateDirection) :: direction
       integer :: status
 
+      call vgrid%initialize(FixedLevelsVerticalGridSpec('pressure', &
+           [1000., 500., 100.], 'hPa'), rc=status)
+      @assertEqual(0, status)
       call vgrid%set_coordinate_direction(VCOORD_DIRECTION_UP)
       var_spec = make_spec(MAPL_STATEITEM_FIELD)
       var_spec%vertical_grid = vgrid
@@ -1652,6 +1657,111 @@ contains
       @assertEqual(0, status)
       @assertTrue(direction == VCOORD_DIRECTION_DOWN)
    end subroutine test_item_vgrid_resolves_vertical_orientation
+
+   ! Direction and the directionless flag of the orientation entry that a
+   ! spec makes.
+   subroutine orientation_entry_shape(var_spec, direction, directionless, rc)
+      type(VariableSpec), intent(in) :: var_spec
+      type(VerticalCoordinateDirection), intent(out) :: direction
+      logical, intent(out) :: directionless
+      integer, intent(out) :: rc
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+
+      direction = VCOORD_DIRECTION_INVALID
+      directionless = .false.
+      call var_spec%make_characteristics(descriptor, rc=rc)
+      if (rc /= 0) return
+      call descriptor%get_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, c, rc=rc)
+      if (rc /= 0) return
+      select type (c)
+      type is (VerticalOrientationCharacteristic)
+         direction = c%get_direction()
+         directionless = c%is_directionless()
+      end select
+   end subroutine orientation_entry_shape
+
+   ! An item-declared Basic grid has no direction: UNSPECIFIED and
+   ! directionless, whatever direction the grid stores as a placeholder.
+   @test
+   subroutine test_item_basic_vgrid_orientation_is_directionless()
+      type(VariableSpec) :: var_spec
+      type(mapl_BasicVerticalGrid) :: vgrid
+      type(VerticalCoordinateDirection) :: direction
+      logical :: directionless
+      integer :: status
+
+      call vgrid%initialize(mapl_BasicVerticalGridSpec(num_levels=3))
+      call vgrid%set_coordinate_direction(VCOORD_DIRECTION_UP)
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_grid = vgrid
+      call orientation_entry_shape(var_spec, direction, directionless, status)
+      @assertEqual(0, status)
+      @assertTrue(direction == VCOORD_DIRECTION_UNSPECIFIED)
+      @assertTrue(directionless)
+   end subroutine test_item_basic_vgrid_orientation_is_directionless
+
+   ! An explicit alignment on a Basic grid is kept as the direction, and the
+   ! entry is still directionless.
+   @test
+   subroutine test_item_basic_vgrid_with_explicit_alignment()
+      type(VariableSpec) :: var_spec
+      type(mapl_BasicVerticalGrid) :: vgrid
+      type(VerticalCoordinateDirection) :: direction
+      logical :: directionless
+      integer :: status
+
+      call vgrid%initialize(mapl_BasicVerticalGridSpec(num_levels=3))
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_grid = vgrid
+      var_spec%vertical_alignment = 'upward'
+      call orientation_entry_shape(var_spec, direction, directionless, status)
+      @assertEqual(0, status)
+      @assertTrue(direction == VCOORD_DIRECTION_UP)
+      @assertTrue(directionless)
+   end subroutine test_item_basic_vgrid_with_explicit_alignment
+
+   ! A non-Basic item grid, and an explicit alignment with no item grid, are
+   ! not directionless at construction.
+   @test
+   subroutine test_item_fixed_vgrid_and_gridless_alignment_not_directionless()
+      type(VariableSpec) :: var_spec
+      type(FixedLevelsVerticalGrid) :: vgrid
+      type(VerticalCoordinateDirection) :: direction
+      logical :: dl_fixed, dl_gridless
+      integer :: status
+
+      call vgrid%initialize(FixedLevelsVerticalGridSpec('pressure', &
+           [1000., 500., 100.], 'hPa'), rc=status)
+      @assertEqual(0, status)
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_grid = vgrid
+      call orientation_entry_shape(var_spec, direction, dl_fixed, status)
+      @assertEqual(0, status)
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_alignment = 'upward'
+      call orientation_entry_shape(var_spec, direction, dl_gridless, status)
+      @assertEqual(0, status)
+      @assertFalse(dl_fixed)
+      @assertFalse(dl_gridless)
+   end subroutine test_item_fixed_vgrid_and_gridless_alignment_not_directionless
+
+   ! The Field keeps the explicit alignment of a Basic item (write_info is
+   ! unchanged); only the comparison ignores it.
+   @test
+   subroutine test_explicit_alignment_on_basic_item_is_written()
+      type(VerticalOrientationCharacteristic) :: basic_up
+      type(VerticalAlignment) :: alignment
+      integer :: status
+
+      basic_up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP, &
+           directionless=.true., grid_known=.true.)
+      alignment = alignment_after_write(basic_up, status)
+      @assertEqual(0, status)
+      @assertTrue(alignment == VALIGN_UP)
+   end subroutine test_explicit_alignment_on_basic_item_is_written
 
    ! Alignment a fresh Field reads back after the characteristic writes to it.
    function alignment_after_write(characteristic, rc) result(alignment)

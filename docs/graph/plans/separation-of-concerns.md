@@ -1581,7 +1581,7 @@ ready means today" in `scenario-parity.md`). May be split into
   R8 refused at connect (C1-vertical-r8 later); `VerticalGrid%
   has_column_coordinate` approved (outside generic/); the Basic-grid
   orientation exception and warning are the post-merge task
-  C1-vertical-basic-orientation (legacy flips today, parity row).
+  C1-vertical-basic-orientation (legacy errors at connect, parity row).
   `VerticalGridCharacteristic` and `VerticalOrientationCharacteristic`
   build the landed Transforms; the vertical step covers orientation;
   stagger is never covered. Scenarios: `vertical_regridding`,
@@ -1961,9 +1961,9 @@ affected scenarios to ready (unless masked: M3).
   (including orientation) so restricting it to very narrow scenarios is
   reasonable." and "Basic should probably still at least issue a warning if
   it is connected to inconsistent other vert grids ... Lower priority".
-  Legacy flips instead (`get_resolved_alignment` gives a Basic grid DOWN):
-  a parity row, tests, and changes to `VerticalOrientationCharacteristic`
-  and the covered-orientation path of `VerticalColumnRegridTransform`.
+  Legacy errors at connect for such a pair (see the Status): a parity row,
+  tests, and changes to `VerticalOrientationCharacteristic` and the
+  covered-orientation path of `VerticalColumnRegridTransform`.
   Sonnet author, sonnet review. Owner answers 2026-11-11 (all the
   recommendations): (1) two Basic grids with opposite explicit alignments
   also produce no step and a warning (one rule, no special case for Basic
@@ -1975,7 +1975,37 @@ affected scenarios to ready (unless masked: M3).
   written, but no longer causes a flip (the override decision applies to
   non-Basic grids only). Design from the preflight (flags on
   `VerticalOrientationCharacteristic`, not an UNSPECIFIED wildcard).
-  **Status:** not started
+  **Status:** done (2026-11-11, uncommitted). `VerticalGrid%carries_direction()`
+  is `.false.` for `BasicVerticalGrid`. `VerticalOrientationCharacteristic`
+  gains `directionless` and `grid_known` (constructor options, accessor
+  `is_directionless`). `needs_extension_for` is false when either side is
+  directionless. A new `match_warning` fires only when a directionless side
+  and its partner hold opposite UP/DOWN. `resolve_deferred` also runs on
+  SPECIFIED entries (`descriptor_resolve_deferred` offers it to them; every
+  other override guards on status), so an explicit alignment learns that the
+  component grid is Basic. An entry built from the item's own grid
+  (`grid_known`) is never overwritten. `VerticalColumnRegridTransform`
+  `copy_only` never flips when a grid has no direction.
+  Legacy does not flip such a pair: `make_transform` calls
+  `find_common_physical_dimension` and `get_coordinate_field` before it reads
+  the alignments, and `BasicVerticalGrid%get_coordinate_field`
+  (`BasicVerticalGrid.F90:84`) fails, so legacy errors at connect in every
+  mode. The graph wires the pair directly. Parity row added.
+  Tests (each seeded once): characteristic needs-extension and warning text;
+  `resolve_characteristics` match plus one warning; no chain; descriptor
+  resolution (4); item-grid entry shape (4); and two whole-connect tests,
+  `test_basic_grid_opposite_alignments_wire_directly_with_warning` and
+  `test_fixed_grid_opposite_alignments_build_chain_without_warning` (one
+  fixture each: two fixtures in one test crashed gfortran; the second
+  asserts a chain), and `test_hook_basic_comp_grid_directionless_orientation`
+  (a component-level Basic grid through the real GEOM_B resolution, for an
+  item with and one without an explicit alignment). Three
+  `Test_VerticalColumnRegridTransform.pf` tests and two others that used a
+  Basic grid as a directional grid now use a fixed grid; the Basic flip test
+  became a copy test. No scenario: legacy fails the connection in every
+  mode, so none can run.
+  ESSENTIAL (NAG): 100% tests passed, 0 tests failed out of 71
+  ESSENTIAL (gfortran): 100% tests passed, 0 tests failed out of 71
 - `C1-vertical-r8` (owner, 2026-11-10; after the develop merge): support R8
   in the graph vertical regrid. Owner: "The intent is to eventually support
   R8. It should be an almost trivial near duplication of the R4 logic. It is

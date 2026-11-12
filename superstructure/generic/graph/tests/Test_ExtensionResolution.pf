@@ -1363,6 +1363,32 @@ contains
    end subroutine test_no_item_shape_orders_by_name
 
 
+   ! Opposite orientations with a Basic grid on either side need no step: the
+   ! mismatch list is empty, so no chain is built.
+   @test
+   subroutine test_basic_grid_orientation_difference_builds_no_chain()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicMap) :: plain_export, plain_import
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:), plain(:)
+
+      call export_map%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      call import_map%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP, &
+           directionless=.true., grid_known=.true.))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      ! The same pair without the Basic flag still needs a step.
+      call plain_export%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      call plain_import%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      plain = find_mismatched_characteristics(plain_export, plain_import)
+
+      @assertEqual(0, size(mismatched))
+      @assertEqual(1, size(plain))
+   end subroutine test_basic_grid_orientation_difference_builds_no_chain
+
    ! A grid and an orientation mismatch between fixed grids: the column
    ! regrid covers the orientation, so the chain has one step.
    @test

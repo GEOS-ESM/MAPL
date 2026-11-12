@@ -76,7 +76,11 @@ module Test_GraphGeometryHook
         operator(==)
    use mapl_geom_api, only: mapl_new_GeomId
    use mapl_StateItemCharacteristicKind_mod, only: VERTICAL_GRID_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND
-   use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid
+   use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid, mapl_BasicVerticalGridSpec
+   use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
+   use mapl_StateItemCharacteristicKind_mod, only: VERTICAL_ORIENTATION_CHARACTERISTIC_KIND
+   use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, &
+        VCOORD_DIRECTION_UP, VCOORD_DIRECTION_UNSPECIFIED, VCOORD_DIRECTION_INVALID, operator(==)
    use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_NONE
    use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
    use mapl_StateItemCharacteristicKind_mod, only: GEOMETRY_CHARACTERISTIC_KIND
@@ -886,6 +890,85 @@ contains
       end select
       _RETURN(_SUCCESS)
    end subroutine find_descriptor
+
+   ! The direction and directionless flag of the item VERTICAL_ORIENTATION
+   ! entry.
+   subroutine read_orientation(descriptor, direction, directionless, rc)
+      type(StateItemDescriptor), intent(in) :: descriptor
+      type(VerticalCoordinateDirection), intent(out) :: direction
+      logical, intent(out) :: directionless
+      integer, optional, intent(out) :: rc
+
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      direction = VCOORD_DIRECTION_INVALID
+      directionless = .false.
+      call descriptor%get_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, c, _RC)
+      select type (c)
+      type is (VerticalOrientationCharacteristic)
+         direction = c%get_direction()
+         directionless = c%is_directionless()
+      end select
+      _RETURN(_SUCCESS)
+   end subroutine read_orientation
+
+   ! A component with a Basic vertical grid: through the real GEOM_B
+   ! resolution, an item with an explicit upward alignment keeps UP and learns
+   ! that it is directionless, and an item with no alignment gets UNSPECIFIED
+   ! and is directionless.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_hook_basic_comp_grid_directionless_orientation(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(mapl_BasicVerticalGrid) :: vgrid
+      type(ComponentSpec), pointer :: comp_spec
+      type(VariableSpec) :: explicit_spec, plain_spec
+      type(StateItemDescriptor), pointer :: explicit_item, plain_item
+      type(VerticalCoordinateDirection) :: explicit_dir, plain_dir
+      logical :: explicit_directionless, plain_directionless
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call make_outer_meta('basic_orientation_comp', gc, meta, _RC)
+      call vgrid%initialize(mapl_BasicVerticalGridSpec(num_levels=3))
+      call vgrid%set_id(9)
+      call meta%set_vertical_grid(vgrid, _RC)
+
+      explicit_spec%state_intent = ESMF_STATEINTENT_EXPORT
+      explicit_spec%short_name = 'E'
+      explicit_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
+      explicit_spec%geom_id = mapl_new_GeomId(1)
+      explicit_spec%quantity_type = QUANTITY_TEMPERATURE
+      explicit_spec%vertical_alignment = 'upward'
+      plain_spec = explicit_spec
+      plain_spec%short_name = 'P'
+      deallocate(plain_spec%vertical_alignment)
+      comp_spec => meta%get_component_spec()
+      call comp_spec%add_var_spec(explicit_spec)
+      call comp_spec%add_var_spec(plain_spec)
+      call gb%advertise(meta, _RC)
+
+      call find_descriptor(meta, 'E', ESMF_STATEINTENT_EXPORT, explicit_item, _RC)
+      call read_orientation(explicit_item, explicit_dir, explicit_directionless, _RC)
+      @assertFalse(explicit_directionless)
+
+      call gb%run_geometry_hook(meta)
+
+      call read_orientation(explicit_item, explicit_dir, explicit_directionless, _RC)
+      call find_descriptor(meta, 'P', ESMF_STATEINTENT_EXPORT, plain_item, _RC)
+      call read_orientation(plain_item, plain_dir, plain_directionless, _RC)
+      @assertTrue(explicit_dir == VCOORD_DIRECTION_UP)
+      @assertTrue(explicit_directionless)
+      @assertTrue(plain_dir == VCOORD_DIRECTION_UNSPECIFIED)
+      @assertTrue(plain_directionless)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+   end subroutine test_hook_basic_comp_grid_directionless_orientation
 
    ! The status of the item's VERTICAL_STAGGER entry and, when it is
    ! SPECIFIED, its value.

@@ -15,6 +15,14 @@
 ! orientation values, never a VerticalGrid. MIRRORED means the import
 ! adopts the export's orientation.
 !
+! A Basic vertical grid knows only its level count, so it has no direction.
+! An entry on a Basic grid is "directionless": it holds UNSPECIFIED, or an
+! explicit alignment that is stored and written but never reorders data.
+! Any pair with a directionless side needs no step. If the two values are
+! opposite (UP and DOWN), match_warning says the data are copied in the
+! export's level order. The entry records whether its grid came from the
+! item itself (grid_known), so the component's grid cannot replace it.
+!
 ! An orientation-only difference on a Field or a VECTOR is a
 ! VerticalFlipTransform step; other item shapes (a BRACKET becomes a Field
 ! before this step) report unsupported. When the vertical grids also differ,
@@ -51,9 +59,14 @@ module mapl_VerticalOrientationCharacteristic_mod
    type, extends(ValueCharacteristic) :: VerticalOrientationCharacteristic
       private
       type(VerticalCoordinateDirection) :: direction
+      ! A Basic vertical grid is involved, so this entry never orders data.
+      logical :: directionless = .false.
+      ! Built from the item's own grid; the component's grid is not consulted.
+      logical :: grid_known = .false.
    contains
       procedure, nopass :: get_kind => orientation_get_kind
       procedure :: needs_extension_for => orientation_needs_extension_for
+      procedure :: match_warning => orientation_match_warning
       procedure :: build_transform => orientation_build_transform
       procedure :: build_transform_for_item => &
            orientation_build_transform_for_item
@@ -63,6 +76,7 @@ module mapl_VerticalOrientationCharacteristic_mod
       procedure :: resolve_deferred => orientation_resolve_deferred
       procedure :: drop_if_unsupplied => orientation_drop_if_unsupplied
       procedure :: get_direction
+      procedure :: is_directionless
    end type VerticalOrientationCharacteristic
 
    interface VerticalOrientationCharacteristic
@@ -71,11 +85,16 @@ module mapl_VerticalOrientationCharacteristic_mod
 
 contains
 
-   function new_VerticalOrientationCharacteristic(direction) result(characteristic)
+   function new_VerticalOrientationCharacteristic(direction, directionless, &
+        grid_known) result(characteristic)
       type(VerticalCoordinateDirection), intent(in) :: direction
+      logical, optional, intent(in) :: directionless
+      logical, optional, intent(in) :: grid_known
       type(VerticalOrientationCharacteristic) :: characteristic
 
       characteristic%direction = direction
+      if (present(directionless)) characteristic%directionless = directionless
+      if (present(grid_known)) characteristic%grid_known = grid_known
       call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
    end function new_VerticalOrientationCharacteristic
 
@@ -93,17 +112,53 @@ contains
       direction = this%direction
    end function get_direction
 
+   logical function is_directionless(this) result(directionless)
+      class(VerticalOrientationCharacteristic), intent(in) :: this
+
+      directionless = this%directionless
+   end function is_directionless
+
    logical function orientation_needs_extension_for(this, goal) result(needs_extension)
       class(VerticalOrientationCharacteristic), intent(in) :: this
       class(StateItemCharacteristic), intent(in) :: goal
 
       select type (goal)
       class is (VerticalOrientationCharacteristic)
-         needs_extension = (this%direction /= goal%direction)
+         needs_extension = (this%direction /= goal%direction) .and. &
+              .not. (this%directionless .or. goal%directionless)
       class default
          error stop 'VerticalOrientationCharacteristic: needs_extension_for called with a non-VerticalOrientationCharacteristic goal - should be checked by calling procedure'
       end select
    end function orientation_needs_extension_for
+
+   ! Only a Basic side that states a direction opposite to its partner is
+   ! worth a warning: with no stated direction nothing was contradicted.
+   function orientation_match_warning(this, goal) result(msg)
+      class(VerticalOrientationCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      character(:), allocatable :: msg
+
+      msg = ''
+      select type (goal)
+      class is (VerticalOrientationCharacteristic)
+         if (.not. (this%directionless .or. goal%directionless)) return
+         if (.not. (is_up_or_down(this%direction) .and. &
+              is_up_or_down(goal%direction))) return
+         if (this%direction == goal%direction) return
+         msg = 'vertical orientation: a Basic vertical grid carries no ' // &
+              'direction; export ' // this%direction%to_string() // &
+              ' and import ' // goal%direction%to_string() // &
+              ' differ, so the data are copied in the export''s level ' // &
+              'order, with no flip.'
+      end select
+   end function orientation_match_warning
+
+   logical function is_up_or_down(direction) result(is_ud)
+      type(VerticalCoordinateDirection), intent(in) :: direction
+
+      is_ud = direction == VCOORD_DIRECTION_UP .or. &
+           direction == VCOORD_DIRECTION_DOWN
+   end function is_up_or_down
 
    subroutine orientation_build_transform(this, goal, transformer, rc)
       class(VerticalOrientationCharacteristic), intent(in) :: this
@@ -210,7 +265,10 @@ contains
    end function orientation_is_structural
 
    ! An item that follows its grid takes the component grid's direction. With
-   ! no component grid it stays DEFERRED (it may still be dropped).
+   ! no component grid it stays DEFERRED (it may still be dropped). A Basic
+   ! component grid gives no direction, so the entry holds UNSPECIFIED. An
+   ! entry that already has a value (an explicit alignment) keeps it, and only
+   ! learns from the component grid that it is directionless.
    subroutine orientation_resolve_deferred(this, defaults, rc)
       class(VerticalOrientationCharacteristic), intent(inout) :: this
       type(CharacteristicDefaults), intent(in) :: defaults
@@ -218,12 +276,24 @@ contains
 
       class(VerticalGrid), allocatable :: vgrid
 
-      _RETURN_UNLESS(this%get_status() == CHARACTERISTIC_STATUS_DEFERRED)
       _RETURN_UNLESS(defaults%has_vgrid())
 
-      call defaults%get_vgrid(vgrid)
-      this%direction = vgrid%get_coordinate_direction()
-      call this%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
+      if (this%get_status() == CHARACTERISTIC_STATUS_DEFERRED) then
+         call defaults%get_vgrid(vgrid)
+         if (vgrid%carries_direction()) then
+            this%direction = vgrid%get_coordinate_direction()
+         else
+            this%direction = VCOORD_DIRECTION_UNSPECIFIED
+            this%directionless = .true.
+         end if
+         this%grid_known = .true.
+         call this%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
+      else if (this%get_status() == CHARACTERISTIC_STATUS_SPECIFIED) then
+         _RETURN_IF(this%grid_known)
+         call defaults%get_vgrid(vgrid)
+         if (.not. vgrid%carries_direction()) this%directionless = .true.
+         this%grid_known = .true.
+      end if
 
       _RETURN(_SUCCESS)
    end subroutine orientation_resolve_deferred

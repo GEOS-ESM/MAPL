@@ -120,10 +120,11 @@ only the lines that matter and are abbreviated.
   - An item with `with_grid` alignment on such a grid now resolves to `UP`. A
     basic grid (direction `DOWN`) with the same number of levels counts as the
     same grid as a `fixed_levels` grid, in either order. Between an item on
-    the height grid and an item on that basic grid, both the graph path
-    (`VerticalColumnRegridTransform`) and the legacy path (`VerticalGridAspect`
-    resolved alignments) now reverse the vertical index where they used to
-    copy it.
+    the height grid and an item on that basic grid, the graph path
+    (`VerticalColumnRegridTransform` called directly) copies the data and never
+    reverses them, because a basic grid has no direction (see "Basic grids"
+    below). The legacy path (`VerticalGridAspect`) fails the connection for
+    such a pair.
 
   Review those alignments and connections. A `model` grid keeps its own
   direction (`DOWN` unless its `direction:` key says otherwise), so a
@@ -132,7 +133,9 @@ only the lines that matter and are abbreviated.
 - A `model` grid accepts an optional `direction:` key (`upward` or `downward`,
   or the short forms `up`, `u`, `down`, `d`, or `unspecified`); the default is
   `DOWN`.
-- A basic grid (one defined only by `num_levels`) has direction `DOWN`.
+- A basic grid (one defined only by `num_levels`) stores direction `DOWN`
+  as a placeholder. On the legacy path that `DOWN` counts as its direction. On
+  the graph path a basic grid has no direction (see "Basic grids" below).
 
 ### Alignment Options
 
@@ -242,6 +245,19 @@ When the grids are the same and the two items' alignments resolve to different
 directions, MAPL3 copies the data with the vertical index reversed and does not
 interpolate. When they resolve to the same direction, nothing is done. The two
 staggers must agree.
+
+**Basic grids.** A basic grid knows only its number of levels, so on the graph
+path it has no direction. If either item's grid is a basic grid, the graph
+builds no orientation step: the data are copied in the export's level order.
+An explicit `vertical_alignment` on an item with a basic grid is still stored
+and written to its Field, but it never reverses the data. The graph logs a
+warning when the basic side gives an explicit `upward` or `downward` that is
+opposite to the other side's direction (two basic grids with opposite explicit
+alignments warn too), and says nothing when the basic side has no alignment.
+The legacy path fails the connection instead: it looks for a common physical
+dimension and a coordinate field before it reads the alignments, and a basic
+grid supplies neither (`BasicVerticalGrid` fails with "should have been
+connected to a different subclass"), whatever the alignments are.
 
 **Parent grid shared by children A and B (neither declares its own):**
 ```yaml

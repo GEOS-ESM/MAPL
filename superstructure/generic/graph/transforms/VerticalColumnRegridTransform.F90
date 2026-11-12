@@ -21,8 +21,9 @@
 !
 ! Cases:
 ! - same grid, or grids that match (a basic grid matches any grid with the
-!   same level count): copy, reversed if the two orientations differ. The
-!   staggers must agree.
+!   same level count): copy, reversed if the two orientations differ and
+!   both grids have a direction (a basic grid has none, so it never
+!   reverses). The staggers must agree.
 ! - otherwise both grids must supply level values
 !   (VerticalGrid%get_column_coordinate) in a shared physical dimension;
 !   the export levels are converted to the import's units if needed. Both
@@ -258,7 +259,8 @@ contains
             _FAIL(msg(name, 'stagger differs on the same vertical grid'))
          end if
          this%copy_only = .true.
-         this%flip = opposite(dir_in, dir_out)
+         this%flip = opposite(dir_in, dir_out) .and. &
+              vgrid_in%carries_direction() .and. vgrid_out%carries_direction()
          this%num_out_of_range = 0
       else
          ! A copy or flip needs no method, so only a real regrid checks it.

@@ -94,6 +94,7 @@ module Test_GraphBuilder_ConnectionResolution
    use mapl_ModelVerticalGrid_mod, only: ModelVerticalGrid
    use mapl_FixedLevelsVerticalGrid_mod, only: FixedLevelsVerticalGrid, &
         FixedLevelsVerticalGridSpec
+   use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid, mapl_BasicVerticalGridSpec
    use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use mapl_GraphResolutionEntryVector_mod, only: GraphResolutionEntryVector
    use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
@@ -677,6 +678,99 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_standard_name_mismatch_wires_with_warning_when_permissive
+
+   ! Opposite explicit alignments on a Basic grid need no step: the pair is
+   ! wired directly and one warning says the data are copied in the export
+   ! level order.
+   @test(npes=[0])
+   subroutine test_basic_grid_opposite_alignments_wire_directly_with_warning(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(GraphResolutionEntryVector) :: unresolved, unsupported, conflicts, warnings
+      type(GraphResolutionEntry), pointer :: entry
+      type(VariableSpec) :: export_var_spec, import_var_spec
+      type(mapl_BasicVerticalGrid) :: basic
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call basic%initialize(mapl_BasicVerticalGridSpec(num_levels=3))
+      call basic%set_id(1)
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T')
+      export_var_spec%vertical_grid = basic
+      export_var_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
+      export_var_spec%vertical_alignment = 'downward'
+      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T')
+      import_var_spec%vertical_grid = basic
+      import_var_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
+      import_var_spec%vertical_alignment = 'upward'
+      call make_pair_fixture('comp_parent_basic_orientation', export_var_spec, import_var_spec, &
+           parent_meta, src_meta, dst_meta, _RC)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, connection_conflicts=conflicts, &
+           connection_warnings=warnings, rc=status)
+      @assert_that(status, is(0))
+
+      @assertEqual(0, unresolved%size())
+      @assertEqual(0, unsupported%size())
+      @assertEqual(0, conflicts%size())
+      @assertEqual(1, warnings%size())
+      entry => warnings%at(1, status)
+      @assertEqual('child_dst', entry%component_name)
+      @assertEqual('T', entry%short_name)
+      @assertEqual('vertical orientation: a Basic vertical grid carries no direction; export downward and import upward differ, so the data are copied in the export''s level order, with no flip.', entry%reason)
+      @assert_that(pair_is_wired(parent_meta, src_meta, dst_meta, 'T'), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_basic_grid_opposite_alignments_wire_directly_with_warning
+
+   ! The same alignments on a grid with a direction are not wired directly
+   ! (an orientation step is interposed) and warn about nothing.
+   @test(npes=[0])
+   subroutine test_fixed_grid_opposite_alignments_build_chain_without_warning(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(GraphResolutionEntryVector) :: unresolved, unsupported, warnings
+      type(ComponentGraph), pointer :: parent_graph, src_graph
+      type(NodeId), pointer :: export_id
+      type(DependencyNetwork), pointer :: net
+      type(VariableSpec) :: export_var_spec, import_var_spec
+      type(FixedLevelsVerticalGrid) :: fixed
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call fixed%initialize(FixedLevelsVerticalGridSpec('pressure', &
+           [30., 20., 10.], 'hPa'), _RC)
+      call fixed%set_id(2)
+      export_var_spec = make_var(ESMF_STATEINTENT_EXPORT, 'T')
+      export_var_spec%vertical_grid = fixed
+      export_var_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
+      export_var_spec%vertical_alignment = 'downward'
+      import_var_spec = make_var(ESMF_STATEINTENT_IMPORT, 'T')
+      import_var_spec%vertical_grid = fixed
+      import_var_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
+      import_var_spec%vertical_alignment = 'upward'
+      call make_pair_fixture('comp_parent_fixed_orientation', export_var_spec, import_var_spec, &
+           parent_meta, src_meta, dst_meta, _RC)
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, &
+           unsupported_characteristics=unsupported, &
+           connection_warnings=warnings, rc=status)
+      @assert_that(status, is(0))
+
+      parent_graph => parent_meta%get_component_graph()
+      src_graph => src_meta%get_component_graph()
+      export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      net => parent_graph%get_network(parent_graph%get_forward_network_id())
+
+      @assertEqual(0, unresolved%size())
+      @assertEqual(0, unsupported%size())
+      @assertEqual(0, warnings%size())
+      @assert_that(pair_is_wired(parent_meta, src_meta, dst_meta, 'T'), is(false()))
+      @assert_that(net%has_successors(export_id), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_fixed_grid_opposite_alignments_build_chain_without_warning
 
    ! The same pair in strict validation mode can never connect: it is a
    ! connection conflict naming both names, and nothing is wired.

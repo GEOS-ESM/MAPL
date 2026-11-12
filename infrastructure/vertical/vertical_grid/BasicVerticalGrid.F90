@@ -38,6 +38,7 @@ module mapl_BasicVerticalGrid_mod
        procedure :: get_supported_physical_dimensions
        procedure :: get_units
        procedure :: matches
+       procedure :: carries_direction
     end type BasicVerticalGrid
 
    ! Factory type
@@ -115,6 +116,14 @@ contains
 
       matches = this%get_num_layers() == other%get_num_layers()
    end function matches
+
+   ! The level count is all a basic grid knows; the DOWN it stores is a default.
+   logical function carries_direction(this) result(carries)
+      class(BasicVerticalGrid), intent(in) :: this
+
+      carries = .false.
+      _UNUSED_DUMMY(this)
+   end function carries_direction
 
    ! Factory methods
    function get_name(this) result(name)

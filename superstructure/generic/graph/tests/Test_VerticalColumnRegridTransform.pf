@@ -574,23 +574,23 @@ contains
       @assertEqual([1601.d0, 601.d0], c, tolerance=1.d-9)
    end subroutine test_r8_source_alignment_opposite_grid
 
-   ! Matching grids copy and flip without weights, also for R8.
+   ! The same grid copies and flips without weights, also for R8. The grid
+   ! has a direction (a Basic grid has none and never flips).
    @test
    subroutine test_r8_matching_grids_copy_and_flip()
       type(ESMF_Geom) :: geom
       type(ESMF_Field) :: f_in, f_out, f_flip
-      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      class(mapl_VerticalGrid), pointer :: g
       integer :: status(2)
       real(kind=ESMF_KIND_R8), allocatable :: c_copy(:), c_flip(:)
 
       geom = make_geom()
-      g_in => make_basic(3)
-      g_out => make_basic(3)
-      f_in = make_field(geom, g_in, 'T', alignment=VALIGN_UP, &
+      g => make_fixed('height', [0., 100., 500.], 'm')
+      f_in = make_field(geom, g, 'T', alignment=VALIGN_UP, &
            typekind=ESMF_TYPEKIND_R8)
-      f_out = make_field(geom, g_out, 'T', alignment=VALIGN_UP, &
+      f_out = make_field(geom, g, 'T', alignment=VALIGN_UP, &
            typekind=ESMF_TYPEKIND_R8)
-      f_flip = make_field(geom, g_out, 'T', alignment=VALIGN_DOWN, &
+      f_flip = make_field(geom, g, 'T', alignment=VALIGN_DOWN, &
            typekind=ESMF_TYPEKIND_R8)
       call fill8(f_in, [1.d0, 2.d0, 3.d0])
 
@@ -1183,10 +1183,10 @@ contains
       @assertTrue(status /= 0)
    end subroutine test_level_count_mismatch_fails
 
-   ! Basic grids with the same level count are the same grid: opposite
-   ! orientations give a reversed copy.
+   ! Basic grids with the same level count are the same grid, and a Basic
+   ! grid has no direction: opposite alignments give a plain copy.
    @test
-   subroutine test_basic_equal_count_flips()
+   subroutine test_basic_equal_count_copies_despite_alignment()
       type(ESMF_Geom) :: geom
       type(ESMF_Field) :: f_in, f_out
       class(mapl_VerticalGrid), pointer :: g_in, g_out
@@ -1203,8 +1203,8 @@ contains
       status = regrid(f_in, f_out)
       c = column(f_out)
       @assertEqual(0, status)
-      @assertEqual([3., 2., 1.], c)
-   end subroutine test_basic_equal_count_flips
+      @assertEqual([1., 2., 3.], c)
+   end subroutine test_basic_equal_count_copies_despite_alignment
 
    ! A height grid with increasing levels is UP. On the same grid a field
    ! stored as the grid and one aligned upward are the same order: a copy.
@@ -1567,17 +1567,16 @@ contains
    subroutine test_conservative_on_matching_grids_flips()
       type(ESMF_Geom) :: geom
       type(ESMF_Field) :: f_in, f_out
-      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      class(mapl_VerticalGrid), pointer :: g
       type(VerticalColumnRegridTransform) :: transform
       type(PortNameGraphStateItemMap) :: inputs, outputs
       integer :: status
       real, allocatable :: c(:)
 
       geom = make_geom()
-      g_in => make_basic(3)
-      g_out => make_basic(3)
-      f_in = make_field(geom, g_in, 'T', alignment=VALIGN_UP)
-      f_out = make_field(geom, g_out, 'T', alignment=VALIGN_DOWN)
+      g => make_fixed('height', [0., 100., 500.], 'm')
+      f_in = make_field(geom, g, 'T', alignment=VALIGN_UP)
+      f_out = make_field(geom, g, 'T', alignment=VALIGN_DOWN)
       call fill(f_in, [1., 2., 3.])
       call bind(inputs, SRC_PORT, f_in)
       call bind(outputs, DST_PORT, f_out)
