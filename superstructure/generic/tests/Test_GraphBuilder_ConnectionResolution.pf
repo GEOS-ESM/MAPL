@@ -417,6 +417,94 @@ contains
       wired = net%contains_dependency(export_id, import_id)
    end function pair_is_wired
 
+   ! Fixture for the case-sensitivity tests: parent with children child_src
+   ! (exporting export_name) and child_dst (importing import_name), both
+   ! advertised, and one connection on the parent. use_simple selects a
+   ! SimpleConnection (source_name -> dest_name); otherwise a MatchConnection
+   ! whose destination pattern is dest_name (source is all names). Reports
+   ! whether the export is wired to the import, how many imports the
+   ! connect-time resolution leaves unresolved, and how many the
+   ! advertise-time check reports.
+   subroutine run_case_fixture(parent_name, use_simple, source_name, dest_name, &
+        export_name, import_name, wired, n_unresolved, n_unsatisfied, rc)
+      character(*), intent(in) :: parent_name
+      logical, intent(in) :: use_simple
+      character(*), intent(in) :: source_name, dest_name, export_name, import_name
+      logical, intent(out) :: wired
+      integer, intent(out) :: n_unresolved, n_unsatisfied
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_GridComp) :: parent_gc, src_gc, dst_gc
+      type(OuterMetaComponent), pointer :: parent_meta, src_meta, dst_meta
+      type(GriddedComponentDriver) :: src_driver, dst_driver
+      type(ChildSpec) :: child_spec
+      type(ComponentSpec), pointer :: parent_spec, src_spec, dst_spec
+      type(ComponentGraph), pointer :: parent_graph, src_graph, dst_graph
+      type(SimpleConnection) :: simple_conn
+      type(MatchConnection) :: match_conn
+      type(GraphResolutionEntryVector) :: unresolved, unsatisfied
+      type(NodeId), pointer :: export_id, import_id
+      type(DependencyNetwork), pointer :: net
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta(parent_name, parent_gc, parent_meta, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_src', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child_dst', child_spec, _RC)
+
+      src_driver = parent_meta%get_child('child_src', _RC)
+      dst_driver = parent_meta%get_child('child_dst', _RC)
+      src_gc = src_driver%get_gridcomp()
+      dst_gc = dst_driver%get_gridcomp()
+      src_meta => get_outer_meta(src_gc, _RC)
+      dst_meta => get_outer_meta(dst_gc, _RC)
+
+      src_spec => src_meta%get_component_spec()
+      call src_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, export_name))
+      dst_spec => dst_meta%get_component_spec()
+      call dst_spec%add_var_spec(make_var(ESMF_STATEINTENT_IMPORT, import_name))
+
+      call gb%advertise(src_meta, _RC)
+      call gb%advertise(dst_meta, _RC)
+
+      parent_spec => parent_meta%get_component_spec()
+      if (use_simple) then
+         simple_conn = SimpleConnection( &
+              ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name=source_name)), &
+              ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name=dest_name)))
+         call parent_spec%add_connection(simple_conn)
+      else
+         match_conn = MatchConnection( &
+              ConnectionPt('child_src', VirtualConnectionPt(state_intent='export', short_name='^.*$')), &
+              ConnectionPt('child_dst', VirtualConnectionPt(state_intent='import', short_name=dest_name)))
+         call parent_spec%add_connection(match_conn)
+      end if
+
+      call gb%check_unsatisfied_imports(parent_meta, unresolved_imports=unsatisfied, _RC)
+      n_unsatisfied = unsatisfied%size()
+
+      call gb%resolve_connections(parent_meta, unresolved_imports=unresolved, _RC)
+      n_unresolved = unresolved%size()
+
+      parent_graph => parent_meta%get_component_graph()
+      src_graph => src_meta%get_component_graph()
+      dst_graph => dst_meta%get_component_graph()
+      export_id => src_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, export_name))
+      import_id => dst_graph%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, import_name))
+      @assertTrue(associated(export_id) .and. associated(import_id))
+      if (.not. (associated(export_id) .and. associated(import_id))) then
+         wired = .false.
+         if (present(rc)) rc = 1
+         return
+      end if
+      net => parent_graph%get_network(parent_graph%get_forward_network_id())
+      wired = net%contains_dependency(export_id, import_id)
+
+      _RETURN(_SUCCESS)
+   end subroutine run_case_fixture
+
    subroutine set_quantity_basis(meta, state_intent, name, quantity_type, &
         basis, rc)
       type(OuterMetaComponent), pointer, intent(inout) :: meta
@@ -2586,6 +2674,142 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_check_unsatisfied_imports_reports_without_mutating_graph
+
+   ! Connection matching is case-sensitive. An explicit (SimpleConnection)
+   ! connection whose source name differs in case from the export finds no
+   ! export: the import is reported unresolved and nothing is wired. Pins
+   ! the exact-name export lookup (find_export_node).
+   @test(npes=[0])
+   subroutine test_explicit_connection_source_name_case_must_match(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      logical :: wired
+      integer :: n_unresolved, n_unsatisfied, status
+
+      call run_case_fixture('comp_case_src', .true., 'moist_cape', 'MOIST_CAPE', &
+           'MOIST_CAPE', 'MOIST_CAPE', wired, n_unresolved, n_unsatisfied, status)
+      @assert_that(status, is(0))
+      @assert_that(wired, is(false()))
+      @assertEqual(1, n_unresolved)
+      @assertEqual(1, n_unsatisfied)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_explicit_connection_source_name_case_must_match
+
+   ! The destination name of an explicit connection is also exact: a
+   ! lower-case destination does not select the upper-case import. Pins
+   ! VirtualConnectionPt%matches.
+   @test(npes=[0])
+   subroutine test_explicit_connection_destination_name_case_must_match(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      logical :: wired
+      integer :: n_unresolved, n_unsatisfied, status
+
+      call run_case_fixture('comp_case_dst', .true., 'MOIST_CAPE', 'moist_cape', &
+           'MOIST_CAPE', 'MOIST_CAPE', wired, n_unresolved, n_unsatisfied, status)
+      @assert_that(status, is(0))
+      @assert_that(wired, is(false()))
+      @assertEqual(0, n_unresolved)
+      @assertEqual(0, n_unsatisfied)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_explicit_connection_destination_name_case_must_match
+
+   ! Control for the two tests above: exact case connects.
+   @test(npes=[0])
+   subroutine test_explicit_connection_exact_case_connects(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      logical :: wired
+      integer :: n_unresolved, n_unsatisfied, status
+
+      call run_case_fixture('comp_case_ctl', .true., 'MOIST_CAPE', 'MOIST_CAPE', &
+           'MOIST_CAPE', 'MOIST_CAPE', wired, n_unresolved, n_unsatisfied, status)
+      @assert_that(status, is(0))
+      @assert_that(wired, is(true()))
+      @assertEqual(0, n_unresolved)
+      @assertEqual(0, n_unsatisfied)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_explicit_connection_exact_case_connects
+
+   ! A matched connection pairs an import with the export of the same name.
+   ! Matching all names, a lower-case import does not pick up the upper-case
+   ! export. Pins the exact-name export lookup (find_export_node).
+   @test(npes=[0])
+   subroutine test_match_all_connection_does_not_pair_names_differing_in_case(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      logical :: wired
+      integer :: n_unresolved, n_unsatisfied, status
+
+      call run_case_fixture('comp_case_all', .false., '^.*$', '^.*$', &
+           'MOIST_CAPE', 'moist_cape', wired, n_unresolved, n_unsatisfied, status)
+      @assert_that(status, is(0))
+      @assert_that(wired, is(false()))
+      @assertEqual(1, n_unresolved)
+      @assertEqual(1, n_unsatisfied)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_match_all_connection_does_not_pair_names_differing_in_case
+
+   ! A wildcard destination pattern is case-sensitive: lower-case pattern
+   ! does not select an upper-case import. Pins VirtualConnectionPt%matches.
+   @test(npes=[0])
+   subroutine test_match_wildcard_pattern_case_must_match(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      logical :: wired
+      integer :: n_unresolved, n_unsatisfied, status
+
+      call run_case_fixture('comp_case_wild', .false., '^.*$', 'moist_.*', &
+           'MOIST_CAPE', 'MOIST_CAPE', wired, n_unresolved, n_unsatisfied, status)
+      @assert_that(status, is(0))
+      @assert_that(wired, is(false()))
+      @assertEqual(0, n_unresolved)
+      @assertEqual(0, n_unsatisfied)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_match_wildcard_pattern_case_must_match
+
+   ! A literal (no metacharacter) destination pattern is also exact. Pins
+   ! VirtualConnectionPt%matches.
+   @test(npes=[0])
+   subroutine test_match_literal_pattern_case_must_match(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      logical :: wired
+      integer :: n_unresolved, n_unsatisfied, status
+
+      call run_case_fixture('comp_case_lit', .false., '^.*$', 'moist_cape', &
+           'MOIST_CAPE', 'MOIST_CAPE', wired, n_unresolved, n_unsatisfied, status)
+      @assert_that(status, is(0))
+      @assert_that(wired, is(false()))
+      @assertEqual(0, n_unresolved)
+      @assertEqual(0, n_unsatisfied)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_match_literal_pattern_case_must_match
+
+   ! Control for the matched-connection tests: a pattern in the right case
+   ! connects.
+   @test(npes=[0])
+   subroutine test_match_wildcard_pattern_exact_case_connects(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      logical :: wired
+      integer :: n_unresolved, n_unsatisfied, status
+
+      call run_case_fixture('comp_case_wctl', .false., '^.*$', 'MOIST_.*', &
+           'MOIST_CAPE', 'MOIST_CAPE', wired, n_unresolved, n_unsatisfied, status)
+      @assert_that(status, is(0))
+      @assert_that(wired, is(true()))
+      @assertEqual(0, n_unresolved)
+      @assertEqual(0, n_unsatisfied)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_match_wildcard_pattern_exact_case_connects
 
    ! A declared SimpleConnection is not skipped: a SimpleConnection and an
    ! equivalent single-match MatchConnection produce IDENTICAL outcomes (spec "A declared

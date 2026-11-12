@@ -211,11 +211,12 @@ contains
 
    ! Mirrors MatchConnection%activate() (connection/MatchConnection.F90):
    ! filter the destination's imports against the declared pattern, then for
-   ! each match require an EXACT-name export on the source side. Computed
-   ! against the destination ComponentGraph's import-port table rather than
-   ! StateRegistry's subregistry machinery. VirtualConnectionPt%matches() and
-   ! the ConnectionPt/VirtualConnectionPt accessors are plain queries, used
-   ! as-is.
+   ! each match require an EXACT-name export on the source side (both
+   ! comparisons are case-sensitive, like VirtualConnectionPt%matches).
+   ! Computed against the destination ComponentGraph's import-port table
+   ! rather than StateRegistry's subregistry machinery.
+   ! VirtualConnectionPt%matches() and the ConnectionPt/VirtualConnectionPt
+   ! accessors are plain queries, used as-is.
    !
    ! Accepts any Connection subtype: a SimpleConnection is the exact-match
    ! case of MatchConnection's pattern expansion, with no separate code path.
