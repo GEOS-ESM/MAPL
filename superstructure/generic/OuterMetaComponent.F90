@@ -15,6 +15,10 @@ module mapl_OuterMetaComponent_mod
    use mapl_ComponentDriverVector_mod
    use mapl_GriddedComponentDriverMap_mod, only: GriddedComponentDriverMap
    use mapl_GriddedComponentDriverMap_mod, only: operator(/=)
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_HierarchyId_mod, only: HierarchyId
+   use mapl_NodeId_mod, only: NodeId, INVALID_NodeId
+   use mapl_NodeIdSet_mod, only: NodeIdSet
    use mapl_VerticalGrid_mod
    use mapl_SimpleAlarm_mod
    use gFTL2_StringVector
@@ -55,6 +59,57 @@ module mapl_OuterMetaComponent_mod
 ! Hierarchy
       type(GriddedComponentDriverMap)             :: children
       type(StateRegistry) :: registry
+      ! Hierarchy-wide HierarchyResources registry entry.
+      ! All ComponentGraphs in one hierarchy share the same HierarchyGraph.
+      type(HierarchyId) :: hierarchy_id
+      ! Distinguishes true hierarchy roots from descendants.
+      ! Used only by initialize_graph_freeze to perform the whole-hierarchy freeze
+      ! walk once, at the root, and be a no-op elsewhere.
+      logical :: is_hierarchy_root = .false.
+      ! Graph-neutral core (docs/graph/hierarchy-and-component-graph.md):
+      ! exactly one local ComponentGraph per
+      ! OuterComponent. Constructed in init_meta (see init_meta.F90) and
+      ! populated by GraphBuilder.
+      type(ComponentGraph) :: local_graph
+
+      ! NodeId for the one run-phase MethodGraphNode built by the dormant
+      ! graphbuilder_build_run_phase_node.
+      ! A NodeId has its own "unset" sentinel (INVALID_NodeId/is_valid());
+      ! returned as a plain value, never allocatable/pointer.
+      type(NodeId) :: run_phase_method_node_id = INVALID_NodeId
+
+      ! idempotency gate - set once that procedure completes real
+      ! resolution for this component. Replaces the former
+      ! graph%is_frozen() gate (GraphBuilder_ConnectionResolution_
+      ! smod.F90's own prior header comment), which stopped being a
+      ! valid "has this component's own connect()-time resolution
+      ! already run" signal once freeze moved off the per-component
+      ! GENERIC_INIT_ACCEPT_TRANSFER call site entirely (freeze now
+      ! happens once, hierarchy-wide, at the new, later
+      ! GENERIC_INIT_GRAPH_FREEZE phase - this component's own graph is
+      ! therefore still MUTABLE across both GENERIC_INIT_ACCEPT_TRANSFER
+      ! passes of the fixed realize/accept/realize schedule,
+      ! GenericPhases.F90, so `is_frozen()` can never again serve as this
+      ! guard). A plain, private boolean (not a NodeId-shaped sentinel
+      ! like run_phase_method_node_id above) because there is no
+      ! existing value this procedure produces whose own "unset" state
+      ! could double as the flag.
+      ! could double as the flag.
+      logical :: connections_resolved = .false.
+      ! Imports whose connection has reached a final outcome, so a later
+      ! connect pass skips them. An import whose pair has a DEFERRED side is
+      ! left out and retried. pending_settled_imports holds this pass's
+      ! additions, merged at the end of the pass so two connections naming
+      ! one import are both handled within a pass. waiting_imports holds the
+      ! imports a connection waited on this pass; they are never merged, even
+      ! if another connection settled the same import.
+      type(NodeIdSet) :: settled_imports
+      type(NodeIdSet) :: pending_settled_imports
+      type(NodeIdSet) :: waiting_imports
+      logical :: connections_waiting = .false.
+      ! "component:item:KIND" of each settled pair left unwired because its
+      ! build_transform reported UNSUPPORTED; checked at freeze.
+      type(StringVector) :: unsupported_pairs
 
       class(Logger), pointer :: lgr  => null() ! "MAPL.Generic" // name
 
@@ -70,11 +125,33 @@ module mapl_OuterMetaComponent_mod
    contains
 
       procedure :: get_user_gc_driver
+      procedure :: get_child_driver
       procedure :: set_hconfig
       procedure :: get_hconfig
       procedure :: has_geom
       procedure :: get_geom
+      procedure :: get_geom_id
       procedure :: get_registry
+      procedure :: get_component_graph
+      ! NodeId of the run-phase MethodGraphNode. Set only by
+      ! graphbuilder_build_run_phase_node, which no lifecycle hook calls,
+      ! and read by nothing.
+      procedure :: get_run_phase_method_node_id
+      procedure :: set_run_phase_method_node_id
+      ! 9: accessor/mark-done pair for connections_resolved above - used
+      ! only by graphbuilder_resolve_connections's own replacement
+      ! idempotency gate (GraphBuilder_ConnectionResolution_smod.F90).
+      ! idempotency gate (GraphBuilder_ConnectionResolution_smod.F90).
+      procedure :: connections_already_resolved
+      procedure :: mark_connections_resolved
+      procedure :: is_import_settled
+      procedure :: note_import_settled
+      procedure :: note_connection_waiting
+      procedure :: has_waiting_connections
+      procedure :: note_unsupported_pair
+      procedure :: get_unsupported_pairs
+      procedure :: begin_connection_pass
+      procedure :: end_connection_pass
       procedure :: get_logger
       procedure :: set_misc
       procedure :: set_checkpoint_controls_flags
@@ -97,6 +174,14 @@ module mapl_OuterMetaComponent_mod
       procedure :: initialize_realize_provided
       procedure :: initialize_accept_transfer
       procedure :: initialize_realize_accepted
+      ! enums/GenericPhases.F90's own enumerator comment and
+      ! OuterMetaComponent/initialize_graph_freeze.F90's module header
+      ! for the full "why a new phase, why non-recursive" rationale.
+      ! Deliberately NOT given a `recursive` qualifier the way every
+      ! other initialize_* phase handler here is - see that file for
+      ! why.
+      ! why.
+      procedure :: initialize_graph_freeze
       procedure :: initialize_read_restart
 
       procedure :: run_user
@@ -134,6 +219,9 @@ module mapl_OuterMetaComponent_mod
       procedure :: get_gridcomp
 
       procedure :: get_component_spec
+      procedure :: get_child_component_spec
+      procedure :: get_child_component_graph
+      procedure :: get_child_outer_meta
       procedure :: get_internal_state
 
       procedure :: set_vertical_grid
@@ -186,8 +274,16 @@ module mapl_OuterMetaComponent_mod
           type(ESMF_HConfig), intent(in) :: hconfig
        end function new_outer_meta
 
-      module subroutine init_meta(this, rc)
+      ! hierarchy_id is optional here so a root component (no caller
+      ! supplies one) requests a fresh hierarchy for itself; a
+      ! descendant (add_child_by_spec.F90) always passes its parent's
+      ! own hierarchy_id explicitly, so every component in one
+      ! hierarchy's own local_graph resolves against the same shared
+      ! HierarchyGraph.
+      ! HierarchyGraph.
+      module subroutine init_meta(this, hierarchy_id, rc)
          class(OuterMetaComponent), intent(inout) :: this
+         type(HierarchyId), optional, intent(in) :: hierarchy_id
          integer, optional, intent(out) :: rc
       end subroutine init_meta
 
@@ -268,6 +364,18 @@ module mapl_OuterMetaComponent_mod
          integer, intent(out), optional :: rc
       end function get_geom
 
+      ! GraphBuilder.F90's geometry hook needs this component's own
+      ! resolved GeomId directly (mirroring how UnitsCharacteristic/
+      ! VerticalGridCharacteristic's own callers already read
+      ! var_spec%units/vertical_grid%get_id() - this is the geometry
+      ! analog, sourced from OuterMetaComponent since geometry, unlike
+      ! units/vertical_grid, has no per-item VariableSpec of its own).
+      ! units/vertical_grid, has no per-item VariableSpec of its own).
+      module function get_geom_id(this) result(geom_id)
+         type(GeomId) :: geom_id
+         class(OuterMetaComponent), intent(in) :: this
+      end function get_geom_id
+
       module recursive subroutine initialize_set_clock(this, outer_clock, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
          type(ESMF_Clock), intent(in) :: outer_clock
@@ -344,6 +452,16 @@ module mapl_OuterMetaComponent_mod
           class(KE), optional, intent(in) :: unusable
           integer, optional, intent(out) :: rc
       end subroutine initialize_realize_accepted
+
+      ! 9: NOT `recursive` - see initialize_graph_freeze.F90's own
+      ! module header for why this phase handler must not call
+      ! recurse() the way every other init-phase handler in this
+      ! interface block does.
+      ! interface block does.
+      module subroutine initialize_graph_freeze(this, rc)
+          class(OuterMetaComponent), target, intent(inout) :: this
+          integer, optional, intent(out) :: rc
+      end subroutine initialize_graph_freeze
 
       module recursive subroutine initialize_read_restart(this, unusable, rc)
          class(OuterMetaComponent), target, intent(inout) :: this
@@ -522,10 +640,132 @@ module mapl_OuterMetaComponent_mod
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_registry
 
+      ! docs/graph/spec/02-component-hierarchy.md: the
+      ! one local ComponentGraph owned by this OuterComponent. Read-only
+      ! accessor; mutation happens only through ComponentGraph's own
+      ! type-bound procedures on the returned pointer.
+      module function get_component_graph(this) result(local_graph)
+         type(ComponentGraph), pointer :: local_graph
+         class(OuterMetaComponent), target, intent(in) :: this
+      end function get_component_graph
+
+      ! field-declaration comment above (run_phase_method_node_id).
+      ! Returns by value, not a pointer - a NodeId is a tiny value
+      ! type, not something worth guarding against the target
+      ! changing underneath a held pointer (CallbackMethodBinding%
+      ! get_method_node_id's own precedent). "Unset" is reported via
+      ! NodeId%is_valid(), not an association test.
+      ! NodeId%is_valid(), not an association test.
+      module function get_run_phase_method_node_id(this) result(node_id)
+         type(NodeId) :: node_id
+         class(OuterMetaComponent), intent(in) :: this
+      end function get_run_phase_method_node_id
+
+      module subroutine set_run_phase_method_node_id(this, node_id, rc)
+         class(OuterMetaComponent), intent(inout) :: this
+         type(NodeId), intent(in) :: node_id
+         integer, optional, intent(out) :: rc
+      end subroutine set_run_phase_method_node_id
+
+      ! 9: see connections_resolved's own field-declaration comment
+      ! above.
+      ! above.
+      module function connections_already_resolved(this) result(resolved)
+         logical :: resolved
+         class(OuterMetaComponent), intent(in) :: this
+      end function connections_already_resolved
+
+      module subroutine mark_connections_resolved(this)
+         class(OuterMetaComponent), intent(inout) :: this
+      end subroutine mark_connections_resolved
+
+      module function is_import_settled(this, import_node_id) result(settled)
+         logical :: settled
+         class(OuterMetaComponent), intent(in) :: this
+         type(NodeId), intent(in) :: import_node_id
+      end function is_import_settled
+
+      module subroutine note_import_settled(this, import_node_id)
+         class(OuterMetaComponent), intent(inout) :: this
+         type(NodeId), intent(in) :: import_node_id
+      end subroutine note_import_settled
+
+      module subroutine note_connection_waiting(this, import_node_id)
+         class(OuterMetaComponent), intent(inout) :: this
+         type(NodeId), intent(in) :: import_node_id
+      end subroutine note_connection_waiting
+
+      module function has_waiting_connections(this) result(waiting)
+         logical :: waiting
+         class(OuterMetaComponent), intent(in) :: this
+      end function has_waiting_connections
+
+      module subroutine note_unsupported_pair(this, description)
+         class(OuterMetaComponent), intent(inout) :: this
+         character(*), intent(in) :: description
+      end subroutine note_unsupported_pair
+
+      module function get_unsupported_pairs(this) result(pairs)
+         type(StringVector) :: pairs
+         class(OuterMetaComponent), intent(in) :: this
+      end function get_unsupported_pairs
+
+      module subroutine begin_connection_pass(this)
+         class(OuterMetaComponent), intent(inout) :: this
+      end subroutine begin_connection_pass
+
+      ! Merges the pass's settled imports. Marks the connections resolved,
+      ! which makes later calls no-ops, only if no pair is still waiting.
+      module subroutine end_connection_pass(this)
+         class(OuterMetaComponent), target, intent(inout) :: this
+      end subroutine end_connection_pass
+
       module function get_component_spec(this) result(component_spec)
          type(ComponentSpec), pointer :: component_spec
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_component_spec
+
+      ! Framework-internal reach into a named child's own ComponentSpec/
+      ! ComponentGraph/OuterMetaComponent
+      ! (docs/graph/spec/02-component-hierarchy.md's
+      ! "framework may reach into a child's own state" carve-out;
+      ! this is kept out of OuterMetaComponent's general
+      ! public API). Fortran has no friend-module/package-private
+      ! visibility, so these three ARE Fortran-public - "internal use
+      ! only" here is a documented convention, the same class of trust
+      ! already extended to the framework, not a compiler-enforced boundary.
+      ! Not re-exported by any user-facing aggregator module; intended
+      ! callers are framework code inside mapl_generic (e.g.
+      ! mapl_GraphBuilder_mod) that already has this same reach
+      ! justified some other way, not ordinary user-facing API.
+      module function get_child_component_spec(this, child_name, rc) result(component_spec)
+         type(ComponentSpec), pointer :: component_spec
+         class(OuterMetaComponent), target, intent(inout) :: this
+         character(*), intent(in) :: child_name
+         integer, optional, intent(out) :: rc
+      end function get_child_component_spec
+
+      module function get_child_component_graph(this, child_name, rc) result(local_graph)
+         type(ComponentGraph), pointer :: local_graph
+         class(OuterMetaComponent), target, intent(inout) :: this
+         character(*), intent(in) :: child_name
+         integer, optional, intent(out) :: rc
+      end function get_child_component_graph
+
+      ! GraphBuilder.F90's own materialization step needs a named child's
+      ! component-wide geom/vertical_grid defaults (has_geom()/get_geom()/
+      ! get_vertical_grid(), all already-public OuterMetaComponent
+      ! accessors) - unlike get_child_component_spec/
+      ! get_child_component_graph above, no existing accessor exposes
+      ! those without the whole child OuterMetaComponent object itself.
+      ! Same framework-internal carve-out and visibility convention as the two
+      ! above, not a new kind of exposure.
+      module function get_child_outer_meta(this, child_name, rc) result(child_meta)
+         type(OuterMetaComponent), pointer :: child_meta
+         class(OuterMetaComponent), target, intent(inout) :: this
+         character(*), intent(in) :: child_name
+         integer, optional, intent(out) :: rc
+      end function get_child_outer_meta
 
       module function get_internal_state(this) result(internal_state)
          type(ESMF_State) :: internal_state
@@ -541,6 +781,20 @@ module mapl_OuterMetaComponent_mod
          type(GriddedComponentDriver), pointer :: user_gc_driver
          class(OuterMetaComponent), target, intent(in) :: this
       end function get_user_gc_driver
+
+      ! Pointer-returning child-driver lookup, deliberately narrower
+      ! than get_child_by_name()'s existing value-copy convention
+      ! (get_child_by_name.F90's own "deep copy of shallow ESMF objects
+      ! - be careful using result" caveat): added for
+      ! OuterMetaComponentDriverResolver.F90, which needs a driver only
+      ! transiently, inside one resolve() call, and never retains it.
+      ! Keeps `children` itself private to this module.
+      module function get_child_driver(this, child_name, rc) result(driver)
+         class(GriddedComponentDriver), pointer :: driver
+         class(OuterMetaComponent), target, intent(in) :: this
+         character(*), intent(in) :: child_name
+         integer, optional, intent(out) :: rc
+      end function get_child_driver
 
       module subroutine connect_all(this, src_comp, dst_comp, rc)
          class(OuterMetaComponent), intent(inout) :: this

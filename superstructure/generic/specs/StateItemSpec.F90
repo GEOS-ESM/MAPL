@@ -255,6 +255,8 @@ contains
       integer :: status
       class(ClassAspect), pointer :: src_class_aspect
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(ids(0))
       src_class_aspect => to_ClassAspect(src_spec%aspects, _RC)
       ids = src_class_aspect%get_aspect_order(dst_spec%get_aspects(), _RC)
 
@@ -576,25 +578,28 @@ contains
       
    end subroutine add_to_state
 
-   subroutine set_geometry(this, geom, vertical_grid, rc)
+   ! Component-wide push: an aspect the item declared itself is left alone.
+   ! force_replace (explicit per-item call) replaces it and marks it declared.
+   subroutine set_geometry(this, geom, vertical_grid, force_replace, rc)
       class(StateItemSpec), intent(inout) :: this
       type(ESMF_Geom), optional, intent(in) :: geom
       class(VerticalGrid), optional, intent(in) :: vertical_grid
+      logical, optional, intent(in) :: force_replace
       integer, optional, intent(out) :: rc
 
-      integer :: status
-
-      call target_set_geom(this, geom, vertical_grid)
-      _RETURN(_SUCCESS)
+      call target_set_geom(this, geom, vertical_grid, force_replace, rc)
 
    contains
 
       ! Helper needed to add target attribute to "this"
-      subroutine target_set_geom(this, geom, vertical_grid)
+      subroutine target_set_geom(this, geom, vertical_grid, force_replace, rc)
          class(StateItemSpec), target, intent(inout) :: this
          type(ESMF_Geom), optional, intent(in) :: geom
          class(VerticalGrid), optional, intent(in) :: vertical_grid
+         logical, optional, intent(in) :: force_replace
+         integer, optional, intent(out) :: rc
 
+         integer :: status
          class(StateItemAspect), pointer :: poly_aspect
          type(GeomAspect) :: geom_aspect
          type(VerticalGridAspect) :: vertical_grid_aspect
@@ -610,11 +615,12 @@ contains
 
                select type (poly_aspect)
                type is (GeomAspect)
-                  call poly_aspect%set_geom(geom)
+                  call poly_aspect%set_component_geom(geom, force_replace, _RC)
                end select
 
             else
-               poly_aspect => this%aspects%at(GEOM_ASPECT_ID, _RC)
+               geom_aspect = GeomAspect(geom=geom, declared_by_item=force_replace)
+               call this%aspects%insert(GEOM_ASPECT_ID, geom_aspect)
             end if
 
             call update_payload_from_aspects(this, field=field, bundle=bundle, state=state, _RC)
@@ -627,19 +633,20 @@ contains
 
                select type (poly_aspect)
                type is (VerticalGridAspect)
-                  call poly_aspect%set_vertical_grid(vertical_grid)
+                  call poly_aspect%set_component_vertical_grid(vertical_grid, force_replace, _RC)
                end select
             else
-               call this%aspects%insert(VERTICAL_GRID_ASPECT_ID,  VerticalGridAspect(vertical_grid=vertical_grid, geom=geom))
+               vertical_grid_aspect = VerticalGridAspect(vertical_grid=vertical_grid, declared_by_item=force_replace)
+               call this%aspects%insert(VERTICAL_GRID_ASPECT_ID, vertical_grid_aspect)
             end if
 
          end if
 
+         class_aspect => to_ClassAspect(this%aspects, _RC)
+         call class_aspect%get_payload(field=field, bundle=bundle, state=state, _RC)
+         call update_payload_from_aspects(this, field=field, bundle=bundle, state=state, _RC)
 
-      class_aspect => to_ClassAspect(this%aspects, _RC)
-      call class_aspect%get_payload(field=field, bundle=bundle, state=state, _RC)
-      call update_payload_from_aspects(this, field=field, bundle=bundle, state=state, _RC)
-
+         _RETURN(_SUCCESS)
       end subroutine target_set_geom
 
    end subroutine set_geometry

@@ -21,8 +21,11 @@ module mapl_VerticalGrid_mod
       procedure :: set_id
       procedure :: get_coordinate_direction
       procedure :: set_coordinate_direction
+      procedure :: carries_direction
       procedure :: get_primary_coordinate
       procedure :: set_primary_coordinate
+      procedure :: get_column_coordinate
+      procedure :: has_column_coordinate
       procedure(I_get_coordinate_field), deferred :: get_coordinate_field
       procedure(I_get_supported_physical_dimensions), deferred :: get_supported_physical_dimensions
       procedure(I_get_units), deferred :: get_units
@@ -109,6 +112,16 @@ contains
       this%coordinate_direction = coordinate_direction
    end subroutine set_coordinate_direction
 
+   ! Whether the coordinate direction is a property of the grid. A grid that
+   ! has only a level count (BasicVerticalGrid) overrides this to .false.:
+   ! its stored direction is a placeholder, not an ordering of its levels.
+   logical function carries_direction(this) result(carries)
+      class(VerticalGrid), intent(in) :: this
+
+      carries = .true.
+      _UNUSED_DUMMY(this)
+   end function carries_direction
+
    !> Get the primary vertical coordinate name for conservative regridding
    !!
    !! @return The primary coordinate name (e.g., "pressure" or "height")
@@ -136,5 +149,29 @@ contains
       
       this%primary_coordinate = primary_coordinate
    end subroutine set_primary_coordinate
+
+   ! Level values of one column, in grid index order, for grids whose
+   ! levels are the same in every column. Other grids report failure.
+   subroutine get_column_coordinate(this, physical_dimension, levels, rc)
+      class(VerticalGrid), intent(in) :: this
+      character(*), intent(in) :: physical_dimension
+      real, allocatable, intent(out) :: levels(:)
+      integer, optional, intent(out) :: rc
+
+      _FAIL('vertical grid has no column coordinate for ' // physical_dimension)
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(levels)
+   end subroutine get_column_coordinate
+
+   ! Whether get_column_coordinate succeeds for this dimension. It does not
+   ! raise, so connect-time checks can ask without recording an error.
+   logical function has_column_coordinate(this, physical_dimension) result(has)
+      class(VerticalGrid), intent(in) :: this
+      character(*), intent(in) :: physical_dimension
+
+      has = .false.
+      _UNUSED_DUMMY(this)
+      _UNUSED_DUMMY(physical_dimension)
+   end function has_column_coordinate
 end module mapl_VerticalGrid_mod
 

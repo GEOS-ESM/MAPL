@@ -59,6 +59,7 @@ module mapl_enums_api
     use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_REALIZE_PROVIDED => GENERIC_INIT_REALIZE_PROVIDED
     use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_ACCEPT_TRANSFER => GENERIC_INIT_ACCEPT_TRANSFER
     use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_REALIZE_ACCEPTED => GENERIC_INIT_REALIZE_ACCEPTED
+    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_GRAPH_FREEZE    => GENERIC_INIT_GRAPH_FREEZE
     use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_READ_RESTART    => GENERIC_INIT_READ_RESTART
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_INIT_USER            => GENERIC_INIT_USER
    use mapl_GenericPhases_mod, only: MAPL_GENERIC_RUN_OFFSET           => GENERIC_RUN_OFFSET
@@ -135,6 +136,7 @@ module mapl_enums_api
     public :: MAPL_GENERIC_INIT_REALIZE_PROVIDED
     public :: MAPL_GENERIC_INIT_ACCEPT_TRANSFER
     public :: MAPL_GENERIC_INIT_REALIZE_ACCEPTED
+    public :: MAPL_GENERIC_INIT_GRAPH_FREEZE
     public :: MAPL_GENERIC_INIT_READ_RESTART
    public :: MAPL_GENERIC_INIT_USER
 

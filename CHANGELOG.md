@@ -66,9 +66,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   dimension, or `time`. `VerticalCoordinate` now records the file's vertical
   dimension name in `file_lev_name`. Added unit tests
   (`Test_UngriddedDimsFromMetadata.pf`) and component test case46.
+- Added an explicit dependency graph for the generic layer
+  (`superstructure/generic/graph/`, built by `GraphBuilder`). Each state item
+  is a node with a `NodeId` and a descriptor of characteristics (item shape,
+  geometry, vertical grid, units, typekind, ...). Where a connected export
+  and import differ, extension nodes holding a `Transform` are inserted: units
+  and typekind conversion (Field, VECTOR), horizontal regrid (Field, VECTOR,
+  BRACKET), vertical regrid between fixed-level grids and orientation flip
+  (Field, VECTOR), and bracket time interpolation. Not yet repaired: vertical
+  stagger, vertical regrid from a model grid, quantity-type basis, FieldBundle
+  and VectorBracket items, SERVICE, STATE and WILDCARD items for geometry and
+  vertical steps, and others; see `docs/graph/ARCHITECTURE.md`.
+  `graph_diagnostic.x` exports the graph as DOT/JSON. The graph is built and
+  run alongside the legacy path. The global graph mode (`mapl_GraphMode_mod`:
+  `registry`, `graph`, `both`; only test code sets another value) decides who
+  populates the ESMF states; by default the legacy path still does. The graph
+  logs `GraphBuilder:` warnings for problems it finds and fails initialization
+  when an EXPRESSION item cannot be resolved or is unsupported. It does not
+  yet replace the legacy path. Also see `docs/graph/GLOSSARY.md` and
+  `superstructure/generic/AGENTS.md`.
 
 ### Changed
 
+- `FixedLevelsVerticalGrid` now derives the vertical direction from the
+  physical dimension: for `height` and `altitude`, increasing levels mean `UP`
+  (before: `DOWN` for any increasing levels); `pressure`, `depth`, `layer` and
+  other names keep increasing = `DOWN`. For such a height grid an explicit
+  `vertical_alignment: upward` now means stored in grid order; see
+  `docs/mapl3/vertical-alignment.md`.
+- A geometry (`geom`) or vertical grid (`vertical_grid`) that a variable declares
+  for itself in its spec is no longer overwritten by the component-wide
+  `MAPL_GridCompSetGeom` or `MAPL_GridCompSetVerticalGrid`. Before, every
+  registered item took the component's value; now an item that declared its own
+  keeps it, and only items without one take the component's. The explicit
+  per-item `MAPL_GridCompSetGeometry` still replaces the item's value, which is
+  then also kept against a later component-wide call.
+  Connection matching of two items whose horizontal dims spec is
+  `HORIZONTAL_DIMS_NONE` on both sides no longer looks at their geoms (they
+  match), and a `HORIZONTAL_DIMS_MIRROR` dims spec is treated as equal to any
+  other dims spec (the geoms are still compared).
+- `make_VariableSpec` (and so `MAPL_GridCompAddSpec`) now fails at spec creation
+  for an expression that is not an export, a wildcard that is not an import,
+  a bracket or vector bracket on an import (before, only connecting it failed),
+  and an explicit mirror value on anything but an import or an expression
+  export.
+  Component names must now be unique across the whole hierarchy, not only
+  among siblings; `MAPL_GridCompAddChild` fails on a repeated name.
 - Connection matching (`MatchConnection`, e.g. the cap's Root-to-History `connect_all`) is now case-sensitive, like explicit connections: a History entry must use the export's exact case (`MOIST/CAPE`, not `moist/cape`). `VirtualConnectionPt%matches` drops `REG_ICASE`, and `StateRegistry%filter` looks a pattern without regex metacharacters up in its map instead of scanning every item (**BREAKING** for configurations that relied on case-insensitive matching).
 - Conserve, bilinear, patch, and conserve_2nd regridding now create their masks with `handleAllElements = .false.` to match MAPL2
 - Activated `superstructure/generic/tests/field_dictionary_test.yaml` (a
@@ -276,6 +319,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   plain `ESMF_REGRIDMETHOD_CONSERVE`, so ExtData outputs for masked regrids and `CONSERVE_2ND`
   may change. Added `Test_EsmfRegridderParam.pf`
 
+- Fixed a NAG compile-time error in `EsmfRegridder.F90`
+  ("Redeclaration of symbol EQUAL_TO from USEd module MAPL_DYNAMICMASK_MOD"),
+  surfaced by a recent extension of `mapl_DynamicMask_mod` that grew a
+  module-private `equal_to` specific procedure behind its `operator(==)`
+  interface. The bare `use mapl_DynamicMask_mod` collided with
+  `EsmfRegridderParam`'s own `equal_to` type-bound-procedure target name.
+  Restricted to `use mapl_DynamicMask_mod, only: DynamicMask,
+  operator(/=)` - the only two entities this file actually uses.
 - Fixed a crash in `RestartHandler` when a state's restart-eligible bundle ends up empty
   after filtering (e.g. a component whose exports are all unallocated because nothing is
   connected downstream and `activate_all_exports` is off). The state's non-zero item count
@@ -283,6 +334,113 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   uninitialized geom and `ESMF_InfoGetFromHost` then failed in `GeomGetId`. `write_bundle_`
   and `read_bundle_` now return early when the bundle holds no fields, resolving a
   pre-existing TODO
+- Fixed an ifort internal compiler error in `GraphBuilder.F90` by replacing
+  self-referencing array-constructor growth (`x = [x, y]`) of an allocatable
+  `QualifiedExportEntry` array with an explicit allocate/copy/`move_alloc`
+  temporary.
+- Avoided passing the HConfig geometry-factory predicate as an internal
+  procedure callback, fixing a Flang 23 crash on hardened macOS systems; see
+  [LLVM #223705](https://github.com/llvm/llvm-project/issues/223705).
+- Avoided passing the file-metadata geometry-factory predicate as an internal
+  procedure callback, preventing the same Flang 23 crash in metadata-based
+  geometry creation; see [LLVM #223705](https://github.com/llvm/llvm-project/issues/223705).
+- Extended History and StatisticsGridComp so one can take average, min, max, accumulation, and variance for vectors
+- Fixed Generic components created through direct SetServices to inherit their parent VM, preventing communicator-context exhaustion during repeated setup.
+- Fixed corrupted cubed-sphere coordinate endpoints in NAG-generated output
+- Fixed detection of NetCDF quantization and Zstandard support when using Spack
+- Fixed documentation workflows so manual runs publish only from trusted branches and v2 and MAPL3 documentation deployments preserve each other's output
+- Removed deployment and build-cache credentials from pull request jobs and restricted PR workflow tokens to read-only access
+- Dangling pointer in ExtDataFileReader due to a missing target attribute on ExtDataReader
+- Fixed omission of setting FieldBundle allocation status in create() for ServiceClassAspect
+- Fixed `standard_name`/`long_name` Field metadata being collapsed to a single,
+  field-wide value across a connection. Because a connected Import's `ESMF_Field`
+  is an `ESMF_NamedAlias` of its Export's field, and aliases share one underlying
+  `ESMF_Info` host, only the Export side's declared `standard_name`/`long_name`
+  ever survived; an Import (or a re-export several hops away) that declared its
+  own value had it silently discarded. Each connection endpoint - Export, Import,
+  and any intermediate transform/coupler hop - now persists its own
+  `standard_name`/`long_name` in a per-`NamedAlias`-id namespace of the shared
+  `ESMF_Info` (the same pattern already used for `restart_mode`). An endpoint
+  that declares neither now inherits its predecessor's value (one-directional,
+  downstream only) instead of resolving to a hardcoded `'unknown'`.
+  `MAPL_FieldGet(field, standard_name=, long_name=)` resolves the value for the
+  specific alias represented by the `field` handle passed in; no signature
+  change was needed since callers already hold the correct alias from a specific
+  `ESMF_State`.
+- Fixed two further gaps in the `standard_name`/`long_name` propagation above.
+  (1) An `expression:`-derived export (e.g. `E_sum: {expression: A+B,
+  standard_name: "foo", long_name: "bar"}`) always lost its declared name: its
+  `ExpressionClassAspect` never carried `standard_name`/`long_name` at all, and
+  because `ExpressionClassAspect` never "matches" a `FieldClassAspect`, any
+  connection into it - including an implicit same-name match (the mechanism
+  `MAPL_GridCompConnectAll`/History's `var_list: {source: ...}` use) - always
+  went through `StateItemSpec%make_extension`'s aspect substitution, which
+  unconditionally replaced it with the consumer's own nameless goal aspect.
+  `ExpressionClassAspect` now carries its declared name, and a new
+  `inherit_descriptive_metadata` hook (default no-op on `StateItemAspect`,
+  overridden on `FieldClassAspect`) lets the superseded aspect hand its name to
+  its replacement when the replacement doesn't already have its own. (2) Even
+  for plain Fields, `MAPL_FieldGet`'s alias-scoped read had no symmetric
+  counterpart in `MAPL_FieldSet`, which still wrote to a single unaliased slot;
+  a consumer that duplicates a field via `ESMF_FieldCreate` (as History's
+  `create_alias_field` does, rather than `ESMF_NamedAlias`) gets its own,
+  different alias id, so the name written under the original field's id was
+  never found. `MAPL_FieldSet` now writes `standard_name`/`long_name` through
+  the same alias-scoped path `MAPL_FieldGet` reads from, and
+  `create_alias_field` explicitly re-copies the names across its field
+  duplication.
+- Fixed `standard_name`/`long_name` always resolving to `'unknown'` for
+  fields placed into a `FieldBundle` (`class: service`, `class: vector`,
+  `class: bracket`, `class: vector_bracket`). `FieldClassAspect%add_to_bundle`
+  adds a field via a plain `ESMF_FieldBundleAdd`, not `ESMF_NamedAlias`, so it
+  never went through the alias-scoped write path added for #5399; any field
+  later retrieved from such a bundle resolved `ESMF_NamedAliasGet` to id=0,
+  an empty slot. `standard_name`/`long_name` are now attached via
+  `FieldClassAspect%update_payload` at field-creation time - the same point
+  every other characteristic aspect (units, typekind, geom, ...) attaches its
+  metadata - so the unaliased field's own id=0 slot is populated before it is
+  ever placed in a bundle. `VectorClassAspect`, `BracketClassAspect`, and
+  `VectorBracketClassAspect` each drove their per-component field through a
+  local `update_payload` helper that forwarded to sibling aspects but never
+  invoked the component's own `update_payload`; fixed to call it.
+- Closed a remaining gap in the `standard_name`/`long_name` alias-scoping
+  above: the base (unnamespaced) `FieldInfoSetInternal`/`FieldInfoGetInternal`
+  overload still accepted `standard_name`/`long_name` as plain, non-aliased
+  keys - a leftover from before the per-`NamedAlias`-id scheme, and a footgun
+  for any future caller. `MAPL_FieldCreate`/`FieldEmptyComplete`
+  (`field_empty_complete` in `FieldCreate.F90`) used exactly that path, so a
+  field built via `MAPL_FieldCreate(..., standard_name=, long_name=)` had its
+  name written to a key `MAPL_FieldGet` - which always reads through the
+  alias-scoped overload - could never find, resolving to `'unknown'`
+  regardless of any `FieldClassAspect` involvement. `standard_name`/
+  `long_name` are now handled entirely inside `field_info_set_internal`/
+  `field_info_get_internal` themselves (like every other item there - units,
+  typekind, ...), with a `named_alias_id` argument that scopes just those two
+  keys to their own per-alias namespace; `MAPL_FieldSet`/`MAPL_FieldGet`/
+  `FieldClassAspect%add_to_state` each resolve their own alias id once and
+  pass it through in the same call as everything else. `FieldBundleInfo`'s
+  unrelated bundle-wide "field prototype" template (describing the bundle as
+  a whole, not any specific Field's own identity) passes a fixed `id=0`.
+- Fixed `superstructure/state/StateGet.F90`'s `state_get_bundle` (used to
+  serialize a `State` into a synthetic `FieldBundle`, e.g. for I/O) silently
+  dropping `standard_name`/`long_name`/`restart_mode` when re-aliasing a
+  `FieldBundle` member field: it called bare `ESMF_NamedAlias`, which has no
+  knowledge of MAPL's per-`NamedAlias`-id metadata, so the field's brand new
+  alias id resolved to defaults regardless of what the source field carried.
+  Added `MAPL_NamedAlias` (`infrastructure/field/FieldNamedAlias.F90`) as the
+  one place that wraps `ESMF_NamedAlias` for `ESMF_Field` and additionally
+  copies `standard_name`/`long_name`/`restart_mode` from the source field's
+  own resolved alias id onto the new alias's own (different) id; every
+  `ESMF_NamedAlias(field, ...)` call site in MAPL - `state_get_bundle` and
+  each `ClassAspect%add_to_state`/`connect_to_import` that creates a Field
+  alias - now goes through it. `MAPL_NamedAlias` also accepts
+  `ESMF_FieldBundle`/`ESMF_State` (used by the bundle/vector/bracket/service/
+  state `ClassAspect`s' own `add_to_state`), as a plain pass-through: MAPL
+  does not attach per-alias-id metadata to bundles (their `standard_name`/
+  `long_name` "field prototype" template lives at a single fixed id, shared
+  by every alias of the same bundle) or to nested states today, so there is
+  nothing to propagate for those two - they are included so every
+  `ESMF_NamedAlias` call in MAPL shares one consistent, safe name.
 
 - Fixed `LatLonDecomposition`'s topology constructor to pack out zero-extent bins returned
   by `mapl_GetPartition()` when a LatLon grid is too coarse to be decomposed onto the

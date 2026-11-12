@@ -41,6 +41,8 @@ module mapl_FixedLevelsVerticalGrid_mod
        procedure :: get_units
        procedure :: get_num_layers
        procedure :: get_coordinate_field
+       procedure :: get_column_coordinate
+       procedure :: has_column_coordinate
        procedure :: get_supported_physical_dimensions
        procedure :: matches
     end type FixedLevelsVerticalGrid
@@ -74,25 +76,32 @@ contains
       spec%units = units
    end function new_FixedLevelsVerticalGridSpec
 
-   ! The vertical direction is not supplied by the user; it is derived from
-   ! the levels, which must be strictly monotonic:
-   !   increasing values -> VCOORD_DIRECTION_DOWN
-   !   decreasing values -> VCOORD_DIRECTION_UP
-   !   a single level    -> VCOORD_DIRECTION_UNSPECIFIED
-   function derive_direction(levels, rc) result(direction)
+   ! Height and altitude increase going up, so they invert the numbers rule;
+   ! an unallocated dimension takes the numbers rule.
+   function derive_direction(levels, physical_dimension, rc) result(direction)
       type(VerticalCoordinateDirection) :: direction
       real, intent(in) :: levels(:)
+      character(len=:), allocatable, intent(in) :: physical_dimension
       integer, optional, intent(out) :: rc
 
       integer :: n
+      logical :: increases_upward
 
       n = size(levels)
       direction = VCOORD_DIRECTION_UNSPECIFIED
+      increases_upward = .false.
+      if (allocated(physical_dimension)) then
+         select case (physical_dimension)
+         case ('height', 'altitude')
+            increases_upward = .true.
+         end select
+      end if
+
       if (n > 1) then
          if (all(levels(2:n) > levels(1:n-1))) then
-            direction = VCOORD_DIRECTION_DOWN
+            direction = merge(VCOORD_DIRECTION_UP, VCOORD_DIRECTION_DOWN, increases_upward)
          else if (all(levels(2:n) < levels(1:n-1))) then
-            direction = VCOORD_DIRECTION_UP
+            direction = merge(VCOORD_DIRECTION_DOWN, VCOORD_DIRECTION_UP, increases_upward)
          else
             _FAIL('levels must be strictly monotonic (all increasing or all decreasing)')
          end if
@@ -110,8 +119,8 @@ contains
 
       this%spec = spec
       ! VerticalGrid's own coordinate_direction defaults to DOWN; override it
-      ! with the direction derived from the levels.
-      call this%set_coordinate_direction(derive_direction(spec%levels, rc=status))
+      ! with the direction derived from the levels and physical dimension.
+      call this%set_coordinate_direction(derive_direction(spec%levels, spec%physical_dimension, rc=status))
       _VERIFY(STATUS)
       _RETURN(_SUCCESS)
    end subroutine initialize
@@ -136,6 +145,8 @@ contains
       character(len=*), intent(in) :: physical_dimension
       integer, optional, intent(out) :: rc
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      units = ''
       _ASSERT(physical_dimension == this%get_physical_dimension(), 'Unsupported physical dimension: '//physical_dimension)
       units = this%spec%units
 
@@ -194,6 +205,29 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(physical_dimension)
    end function get_coordinate_field
+
+   subroutine get_column_coordinate(this, physical_dimension, levels, rc)
+      class(FixedLevelsVerticalGrid), intent(in) :: this
+      character(*), intent(in) :: physical_dimension
+      real, allocatable, intent(out) :: levels(:)
+      integer, optional, intent(out) :: rc
+
+      if (physical_dimension /= this%get_physical_dimension()) then
+         _FAIL('Unsupported physical dimension: ' // physical_dimension)
+      end if
+      levels = this%spec%levels
+
+      _RETURN(_SUCCESS)
+   end subroutine get_column_coordinate
+
+   logical function has_column_coordinate(this, physical_dimension) result(has)
+      class(FixedLevelsVerticalGrid), intent(in) :: this
+      character(*), intent(in) :: physical_dimension
+
+      has = .false.
+      if (.not. allocated(this%spec%physical_dimension)) return
+      has = physical_dimension == this%spec%physical_dimension
+   end function has_column_coordinate
 
    function get_supported_physical_dimensions(this) result(dimensions)
       type(StringVector) :: dimensions
@@ -293,6 +327,8 @@ contains
       type(VerticalCoordinateDirection) :: direction
       integer :: status
       
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(spec, source=local_spec)
       _ASSERT(this%supports(config), 'FixedLevelsVerticalGridFactory does not support this configuration')
       
       ! Get physical dimension (required)
@@ -311,11 +347,12 @@ contains
          local_spec%units = get_default_units(local_spec%physical_dimension)
       end if
 
-      ! Direction is derived from levels; validate monotonicity here.
+      ! Direction is derived from levels and dimension; validate monotonicity here.
       _ASSERT(.not. esmf_HConfigIsDefined(config, keyString="direction"), "'direction' is not allowed for fixed_levels vertical_grid; it is derived from levels")
-      direction = derive_direction(local_spec%levels, _RC)
+      direction = derive_direction(local_spec%levels, local_spec%physical_dimension, _RC)
 
       ! Use polymorphic allocation
+      deallocate(spec)
       allocate(spec, source=local_spec)
       
       _RETURN(_SUCCESS)
@@ -346,9 +383,12 @@ contains
       type(FixedLevelsVerticalGrid) :: local_grid
       integer :: status
       
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(grid, source=local_grid)
       select type (spec)
       type is (FixedLevelsVerticalGridSpec)
          call local_grid%initialize(spec, _RC)
+         deallocate(grid)
          allocate(grid, source=local_grid)
       class default
          _RETURN(_FAILURE)

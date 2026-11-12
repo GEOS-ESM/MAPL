@@ -17,6 +17,8 @@ contains
 
       type(GriddedComponentDriverMapIterator) :: iter
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      name = ''
       _ASSERT(index > 0, "index should be >= 1")
       _ASSERT(index <= this%get_num_children(), "index should be <= num_children")
 

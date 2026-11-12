@@ -1,0 +1,151 @@
+#include "MAPL.h"
+
+! Advertising: one StateItemNode per declared import/export/internal item.
+
+submodule (mapl_GraphBuilder_mod) GraphBuilder_Advertising_smod
+   use esmf, only: operator(==), operator(/=)
+   use mapl_CompositeStateMaterialization_mod, only: materialize_composite
+   use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_REGISTRY
+   use mapl_ExtensionMaterialization_mod, only: create_field_extension, &
+        create_bundle_extension
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
+   use mapl_ErrorHandling_mod
+   implicit none(type, external)
+
+contains
+
+   ! One StateItemNode per advertised import/export/internal
+   ! item. Imports and exports are also recorded as public ports (any
+   ! sibling's connect_all can reach them by name); internal items are
+   ! component-private.
+   module subroutine graphbuilder_advertise(this, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpecVectorIterator) :: iter
+      type(VariableSpec), pointer :: var_spec
+
+      comp_spec => this%get_component_spec()
+      graph => this%get_component_graph()
+
+      associate (e => comp_spec%var_specs%ftn_end())
+         iter = comp_spec%var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            call advertise_one(graph, var_spec, _RC)
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine graphbuilder_advertise
+
+   module subroutine advertise_one(graph, var_spec, rc)
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(VariableSpec), intent(in) :: var_spec
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      character(:), allocatable :: key, leaf
+      type(NodeId), pointer :: existing
+      type(NodeId) :: id
+      type(StateItemNode) :: node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(PortId) :: port_id
+      type(StringVector) :: member_names
+      class(GraphNode), pointer :: registered_node
+      type(StateItemDescriptor), pointer :: descriptor
+
+      key = item_key(var_spec%state_intent, var_spec%short_name)
+
+      ! Idempotent: an already-indexed identity already has its node.
+      existing => graph%get_resource_index(key)
+      if (associated(existing)) then
+         _RETURN(_SUCCESS)
+      end if
+
+      ! A VariableSpec with declared members is a composite: build its
+      ! node tree instead of the flat node below. Identity key, resource
+      ! index and port registration apply uniformly to both cases.
+      member_names = var_spec%get_member_names()
+      if (member_names%size() > 0) then
+         id = materialize_composite(graph, var_spec, _RC)
+      else
+         id = graph%next_node_id(_RC)
+
+         ! payload/revision stay default-initialized: the item is
+         ! advertised, not yet realized. Identity fields are set once
+         ! here so later resolution steps read them off the node.
+         node = StateItemNode(id, payload, revision, short_name=var_spec%short_name, &
+              state_intent=var_spec%state_intent, is_inout_borrower=var_spec%is_inout_borrower, &
+              callback_interface_id=var_spec%callback_interface_id)
+         call graph%register_node(node, _RC)
+      end if
+      call graph%add_resource_index(key, id, _RC)
+
+      ! Populate the node's characteristics once at advertise time, for
+      ! both branches above (a composite VERTICALGRID item needs its
+      ! vertical-coordinate entry too, and materialize_composite cannot
+      ! derive it without the var_spec). Also (re)sets the identity
+      ! fields: materialize_composite builds its top-level node without
+      ! them, so a composite import/export would otherwise be invisible
+      ! to for_each_matching_import. Harmless repeat for the flat branch.
+      registered_node => graph%get_node(id)
+      _ASSERT(associated(registered_node), 'GraphBuilder: advertise_one - newly-registered node not found')
+      select type (registered_node)
+      class is (StateItemNode)
+         call registered_node%set_short_name(var_spec%short_name)
+         call registered_node%set_state_intent(var_spec%state_intent)
+         call registered_node%set_is_inout_borrower(var_spec%is_inout_borrower)
+         call registered_node%set_callback_interface_id(var_spec%callback_interface_id)
+         ! Mutate the stored descriptor in place through a pointer, not a
+         ! copy: copying a populated characteristics map can corrupt
+         ! nondeterministically under gfortran -fcheck=all.
+         descriptor => registered_node%get_descriptor()
+         call var_spec%make_characteristics(descriptor, _RC)
+
+         ! Legacy creates every declared item's Field or bundle (empty, not
+         ! allocated) at advertise. A name with a slash (a propagated
+         ! name) gets a Field named by the part after the last slash,
+         ! as legacy names the Field it puts in a substate.
+         if (graph_mode() /= GRAPH_MODE_REGISTRY .and. &
+              member_names%size() == 0) then
+            if (descriptor%get_declared_item_type() == &
+                 MAPL_STATEITEM_FIELD) then
+               leaf = var_spec%short_name(index(var_spec%short_name, '/', &
+                    back=.true.)+1:)
+               call create_field_extension(graph, id, leaf, _RC)
+            else if (descriptor%get_declared_item_type() == &
+                 MAPL_STATEITEM_VECTOR .or. &
+                 (descriptor%get_declared_item_type() == &
+                 MAPL_STATEITEM_BRACKET .and. &
+                 var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) then
+               ! As a Field. A BRACKET exists only for ExtData as an export,
+               ! so one declared as an import or internal gets none.
+               leaf = var_spec%short_name(index(var_spec%short_name, '/', &
+                    back=.true.)+1:)
+               call create_bundle_extension(graph, id, leaf, _RC)
+            end if
+         end if
+      class default
+         _FAIL('GraphBuilder: advertise_one - newly-registered node is not a StateItemNode')
+      end select
+
+      if (var_spec%state_intent == ESMF_STATEINTENT_IMPORT) then
+         port_id = graph%next_port_id(_RC)
+         call graph%add_import_port(port_id, id, _RC)
+      else if (var_spec%state_intent == ESMF_STATEINTENT_EXPORT) then
+         port_id = graph%next_port_id(_RC)
+         call graph%add_export_port(port_id, id, _RC)
+      end if
+      ! INTERNAL items get no port: not visible outside the component.
+
+      _RETURN(_SUCCESS)
+   end subroutine advertise_one
+
+end submodule GraphBuilder_Advertising_smod

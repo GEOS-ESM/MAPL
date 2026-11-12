@@ -13,7 +13,17 @@ module Test_ComponentSpecParser
    use mapl_ComponentSpecParser_mod
    use mapl_ChildSpec_mod
    use mapl_ChildSpecMap_mod
+   use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_QuantityType_mod, only: QUANTITY_UNKNOWN, QUANTITY_TEMPERATURE, &
+        QUANTITY_MIXING_RATIO, operator(==)
+   use mapl_VariableSpecVector_mod, only: VariableSpecVector, VariableSpecVectorIterator, operator(/=)
    use mapl_ErrorHandling_mod
+   use mapl_Connection_mod
+   use mapl_ConnectionPt_mod
+   use mapl_ConnectionVector_mod
+   use mapl_SimpleConnection_mod
+   use mapl_MatchConnection_mod
+   use mapl_ReexportConnection_mod
    use esmf
    implicit none(type,external)
 
@@ -63,6 +73,287 @@ contains
       @assert_that(spec%setservices == ss_expected, is(true()))
 
    end subroutine test_parse_component_spec_setServices
+
+   ! geometry_mirror: true marks an import to adopt the connected export's
+   ! geometry; an item that omits it does not.
+   @test
+   subroutine test_parse_var_specs_geometry_mirror()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: var_spec
+      type(VariableSpecVectorIterator) :: iter
+      integer :: rc, status, n_mirror, n_plain
+
+      config = ESMF_HConfigCreate(content='{states: {import: {' // &
+           'A: {typekind: R4, geometry_mirror: true},' // &
+           'B: {typekind: R4}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      @assertEqual(2, var_specs%size())
+
+      n_mirror = 0
+      n_plain = 0
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            if (var_spec%short_name == 'A') then
+               @assertTrue(var_spec%mirror_geom)
+               n_mirror = n_mirror + 1
+            else
+               @assertFalse(var_spec%mirror_geom)
+               n_plain = n_plain + 1
+            end if
+         end do
+      end associate
+      @assertEqual(1, n_mirror)
+      @assertEqual(1, n_plain)
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_geometry_mirror
+
+   ! A mirror request on an internal is rejected by make_VariableSpec, which
+   ! the parser calls; an import with the same request is accepted.
+   @test
+   subroutine test_parse_var_specs_rejects_mirror_on_internal()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      integer :: rc, status
+
+      config = ESMF_HConfigCreate(content='{states: {internal: {' // &
+           'A: {typekind: mirror}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: A')
+      ! parse_state_specs and parse_var_specs each pass the failure up
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+      call ESMF_HConfigDestroy(config, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {import: {' // &
+           'A: {typekind: mirror}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      @assertEqual(1, var_specs%size())
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_rejects_mirror_on_internal
+
+   ! An `expression` key makes the item an EXPRESSION whatever the block, so
+   ! the parser itself does not stop one under import or internal; the intent
+   ! rule in make_VariableSpec does.
+   @test
+   subroutine test_parse_var_specs_rejects_expression_on_import_and_internal()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      integer :: rc, status
+
+      config = ESMF_HConfigCreate(content='{states: {import: {' // &
+           'E: {expression: "A + B"}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('an expression is only valid on an export: E')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+      call ESMF_HConfigDestroy(config, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {internal: {' // &
+           'E: {expression: "A + B"}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('an expression is only valid on an export: E')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+      call ESMF_HConfigDestroy(config, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'E: {expression: "A + B"}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      @assertEqual(1, var_specs%size())
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_rejects_expression_on_import_and_internal
+
+   ! vertical_grid_mirror: true marks an import to adopt the connected
+   ! export's vertical grid; an item that omits it does not.
+   @test
+   subroutine test_parse_var_specs_vertical_grid_mirror()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: var_spec
+      type(VariableSpecVectorIterator) :: iter
+      integer :: rc, status, n_mirror, n_plain
+
+      config = ESMF_HConfigCreate(content='{states: {import: {' // &
+           'A: {typekind: R4, vertical_grid_mirror: true},' // &
+           'B: {typekind: R4}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      @assertEqual(2, var_specs%size())
+
+      n_mirror = 0
+      n_plain = 0
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            if (var_spec%short_name == 'A') then
+               @assertTrue(var_spec%mirror_vgrid)
+               n_mirror = n_mirror + 1
+            else
+               @assertFalse(var_spec%mirror_vgrid)
+               n_plain = n_plain + 1
+            end if
+         end do
+      end associate
+      @assertEqual(1, n_mirror)
+      @assertEqual(1, n_plain)
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_vertical_grid_mirror
+
+   ! "<mirror>" for standard_name or long_name sets the mirror flag and is not
+   ! stored; an item that omits it keeps its declared values.
+   @test
+   subroutine test_parse_var_specs_string_mirror()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: var_spec
+      type(VariableSpecVectorIterator) :: iter
+      integer :: rc, status, n_seen
+
+      config = ESMF_HConfigCreate(content='{states: {import: {' // &
+           'A: {typekind: R4, standard_name: "<mirror>", ' // &
+           'long_name: "<mirror>"},' // &
+           'B: {typekind: R4, standard_name: foo, long_name: Bar}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      @assertEqual(2, var_specs%size())
+
+      n_seen = 0
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            n_seen = n_seen + 1
+            if (var_spec%short_name == 'A') then
+               @assertTrue(var_spec%standard_name_mirror)
+               @assertTrue(var_spec%long_name_mirror)
+               @assertFalse(allocated(var_spec%standard_name))
+               @assertFalse(allocated(var_spec%long_name))
+            else
+               @assertFalse(var_spec%standard_name_mirror)
+               @assertFalse(var_spec%long_name_mirror)
+               @assertEqual('foo', var_spec%standard_name)
+               @assertEqual('Bar', var_spec%long_name)
+            end if
+         end do
+      end associate
+      @assertEqual(2, n_seen)
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_string_mirror
+
+   ! quantity_type takes the full QuantityType name, case-folded; omitted
+   ! stays QUANTITY_UNKNOWN.
+   @test
+   subroutine test_parse_var_specs_quantity_type()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: var_spec
+      type(VariableSpecVectorIterator) :: iter
+      integer :: rc, status, n_seen
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'A: {quantity_type: QUANTITY_TEMPERATURE},' // &
+           'B: {quantity_type: Quantity_Mixing_Ratio},' // &
+           'C: {quantity_type: quantity_unknown},' // &
+           'D: {typekind: R4}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      @assertEqual(4, var_specs%size())
+
+      n_seen = 0
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            n_seen = n_seen + 1
+            select case (var_spec%short_name)
+            case ('A')
+               @assertTrue(var_spec%quantity_type == QUANTITY_TEMPERATURE)
+            case ('B')
+               @assertTrue(var_spec%quantity_type == QUANTITY_MIXING_RATIO)
+            case default
+               @assertTrue(var_spec%quantity_type == QUANTITY_UNKNOWN)
+            end select
+         end do
+      end associate
+      @assertEqual(4, n_seen)
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_quantity_type
+
+   ! An unknown value, including a short spelling, is an error.
+   @test
+   subroutine test_parse_var_specs_rejects_unknown_quantity_type()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      integer :: rc, status
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // &
+           'A: {quantity_type: temperature}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('Unsupported quantity_type: <temperature>')
+      ! parse_state_specs and parse_var_specs each pass it up
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_rejects_unknown_quantity_type
+
+   ! vertical_alignment reaches the VariableSpec as written; omitted stays unallocated.
+   @test
+   subroutine test_parse_var_specs_vertical_alignment()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: var_spec
+      type(VariableSpecVectorIterator) :: iter
+      integer :: rc, status, n_up, n_plain
+
+      config = ESMF_HConfigCreate(content='{states: {import: {' // &
+           'A: {typekind: R4, vertical_alignment: upward},' // &
+           'B: {typekind: R4}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      @assertEqual(2, var_specs%size())
+
+      n_up = 0
+      n_plain = 0
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            if (var_spec%short_name == 'A') then
+               @assertTrue(allocated(var_spec%vertical_alignment))
+               @assertEqual('upward', var_spec%vertical_alignment)
+               n_up = n_up + 1
+            else
+               @assertFalse(allocated(var_spec%vertical_alignment))
+               n_plain = n_plain + 1
+            end if
+         end do
+      end associate
+      @assertEqual(1, n_up)
+      @assertEqual(1, n_plain)
+
+      call ESMF_HConfigDestroy(config, _RC)
+   end subroutine test_parse_var_specs_vertical_alignment
 
    @test
    subroutine test_equal_child_spec_ss_differs()
@@ -306,6 +597,260 @@ contains
       call ESMF_HConfigDestroy(hconfig)
 
    end subroutine test_to_itemType
+
+   ! A SimpleConnection must be export -> import. The defaults are export
+   ! and import, so a connection that names neither is accepted.
+   @test
+   subroutine test_parse_connection_default_intents()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+
+      call parse_one_connection( &
+           '{src_comp: A, src_name: Z, dst_comp: B, dst_name: Z}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertEqual(0, rc)
+      @assertEqual('simple', conn_kind)
+      @assertEqual('export', src_intent)
+      @assertEqual('import', dst_intent)
+   end subroutine test_parse_connection_default_intents
+
+   @test
+   subroutine test_parse_connection_explicit_export_import()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+
+      call parse_one_connection( &
+           '{src_comp: A, src_name: Z, src_intent: export, ' // &
+           'dst_comp: B, dst_name: Z, dst_intent: import}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertEqual(0, rc)
+      @assertEqual('simple', conn_kind)
+      @assertEqual('export', src_intent)
+      @assertEqual('import', dst_intent)
+   end subroutine test_parse_connection_explicit_export_import
+
+   @test
+   subroutine test_parse_connection_simple_internal_source_fails()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+      character(*), parameter :: expected = &
+           'Simple connection needs export -> import, got ' // &
+           'src_intent=internal dst_intent=import (A/Z -> B/Z)'
+
+      call parse_one_connection( &
+           '{src_comp: A, src_name: Z, src_intent: internal, ' // &
+           'dst_comp: B, dst_name: Z, dst_intent: import}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertExceptionRaised(expected)
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, rc)
+   end subroutine test_parse_connection_simple_internal_source_fails
+
+   @test
+   subroutine test_parse_connection_simple_internal_dest_fails()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+      character(*), parameter :: expected = &
+           'Simple connection needs export -> import, got ' // &
+           'src_intent=export dst_intent=internal (A/Z -> B/Z)'
+
+      call parse_one_connection( &
+           '{src_comp: A, src_name: Z, src_intent: export, ' // &
+           'dst_comp: B, dst_name: Z, dst_intent: internal}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertExceptionRaised(expected)
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, rc)
+   end subroutine test_parse_connection_simple_internal_dest_fails
+
+   @test
+   subroutine test_parse_connection_simple_import_source_fails()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+      character(*), parameter :: expected = &
+           'Simple connection needs export -> import, got ' // &
+           'src_intent=import dst_intent=import (A/Z -> B/Z)'
+
+      call parse_one_connection( &
+           '{src_comp: A, src_name: Z, src_intent: import, ' // &
+           'dst_comp: B, dst_name: Z}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertExceptionRaised(expected)
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, rc)
+   end subroutine test_parse_connection_simple_import_source_fails
+
+   ! Intent strings are case-sensitive and not trimmed; a typo is rejected
+   ! rather than silently taken as a simple connection.
+   @test
+   subroutine test_parse_connection_wrong_case_fails()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+      character(*), parameter :: expected = &
+           'Simple connection needs export -> import, got ' // &
+           'src_intent=Export dst_intent=import (A/Z -> B/Z)'
+
+      call parse_one_connection( &
+           '{src_comp: A, src_name: Z, src_intent: Export, ' // &
+           'dst_comp: B, dst_name: Z}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertExceptionRaised(expected)
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, rc)
+   end subroutine test_parse_connection_wrong_case_fails
+
+   @test
+   subroutine test_parse_connection_typo_dst_fails()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+      character(*), parameter :: expected = &
+           'Simple connection needs export -> import, got ' // &
+           'src_intent=export dst_intent=imports (A/Z -> B/Z)'
+
+      call parse_one_connection( &
+           '{src_comp: A, src_name: Z, dst_comp: B, dst_name: Z, ' // &
+           'dst_intent: imports}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertExceptionRaised(expected)
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, rc)
+   end subroutine test_parse_connection_typo_dst_fails
+
+   ! A re-export (dst_intent: export) takes an export or internal source and
+   ! is exempt from the simple-connection rule.
+   @test
+   subroutine test_parse_connection_reexport_export_source()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+
+      call parse_one_connection( &
+           '{src_comp: child, src_name: Z, src_intent: export, ' // &
+           'dst_comp: <self>, dst_name: Z, dst_intent: export}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertEqual(0, rc)
+      @assertEqual('reexport', conn_kind)
+      @assertEqual('export', src_intent)
+      @assertEqual('export', dst_intent)
+   end subroutine test_parse_connection_reexport_export_source
+
+   ! The src_intent default is export, so a re-export that names no src_intent
+   ! reads a child's export.
+   @test
+   subroutine test_parse_connection_reexport_default_src()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+
+      call parse_one_connection( &
+           '{src_comp: child, src_name: Z, dst_comp: <self>, ' // &
+           'dst_name: Z, dst_intent: export}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertEqual(0, rc)
+      @assertEqual('reexport', conn_kind)
+      @assertEqual('export', src_intent)
+      @assertEqual('export', dst_intent)
+   end subroutine test_parse_connection_reexport_default_src
+
+   @test
+   subroutine test_parse_connection_reexport_internal_source()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+
+      call parse_one_connection( &
+           '{src_comp: <self>, src_name: Z, src_intent: internal, ' // &
+           'dst_comp: <self>, dst_name: Z, dst_intent: export}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertEqual(0, rc)
+      @assertEqual('reexport', conn_kind)
+      @assertEqual('internal', src_intent)
+      @assertEqual('export', dst_intent)
+   end subroutine test_parse_connection_reexport_internal_source
+
+   @test
+   subroutine test_parse_connection_reexport_import_source_fails()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+      character(*), parameter :: expected = &
+           'Re-export needs src export or internal, got ' // &
+           'src_intent=import dst_intent=export ' // &
+           '(child/Z -> <self>/Z)'
+
+      call parse_one_connection( &
+           '{src_comp: child, src_name: Z, src_intent: import, ' // &
+           'dst_comp: <self>, dst_name: Z, dst_intent: export}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertExceptionRaised(expected)
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, rc)
+   end subroutine test_parse_connection_reexport_import_source_fails
+
+   ! all_unsatisfied is not checked against the intent rules: it always makes
+   ! a MatchConnection, export -> import.
+   @test
+   subroutine test_parse_connection_all_unsatisfied_is_match()
+      character(:), allocatable :: conn_kind, src_intent, dst_intent
+      integer :: rc
+
+      call parse_one_connection( &
+           '{src_comp: A, dst_comp: B, all_unsatisfied: true}', &
+           conn_kind, src_intent, dst_intent, rc)
+      @assertEqual(0, rc)
+      @assertEqual('match', conn_kind)
+      @assertEqual('export', src_intent)
+      @assertEqual('import', dst_intent)
+   end subroutine test_parse_connection_all_unsatisfied_is_match
+
+   ! Parses one connection from YAML. conn_kind is 'simple', 'reexport',
+   ! 'match',
+   ! or 'none' if the parse failed or did not yield exactly one connection.
+   subroutine parse_one_connection(content, conn_kind, src_intent, &
+        dst_intent, rc)
+      character(*), intent(in) :: content
+      character(:), allocatable, intent(out) :: conn_kind
+      character(:), allocatable, intent(out) :: src_intent
+      character(:), allocatable, intent(out) :: dst_intent
+      integer, intent(out) :: rc
+
+      type(ESMF_HConfig) :: config
+      type(ConnectionVector) :: conns
+      type(ConnectionVectorIterator) :: iter
+      class(Connection), pointer :: c
+      type(ConnectionPt) :: src_pt, dst_pt
+      integer :: status
+
+      conn_kind = 'none'
+      src_intent = ''
+      dst_intent = ''
+      config = ESMF_HConfigCreate( &
+           content='{connections: [' // content // ']}', &
+           rc=status)
+      rc = status
+      if (status /= 0) return
+
+      conns = parse_connections(config, rc=status)
+      rc = status
+      call ESMF_HConfigDestroy(config)
+      if (status /= 0) return
+      if (conns%size() /= 1) return
+
+      iter = conns%begin()
+      c => iter%of()
+
+      select type (c)
+      type is (SimpleConnection)
+         conn_kind = 'simple'
+      type is (ReexportConnection)
+         conn_kind = 'reexport'
+      type is (MatchConnection)
+         conn_kind = 'match'
+      class default
+         conn_kind = 'unknown'
+      end select
+
+      src_pt = c%get_source()
+      dst_pt = c%get_destination()
+      src_intent = src_pt%get_state_intent()
+      dst_intent = dst_pt%get_state_intent()
+   end subroutine parse_one_connection
 
    subroutine write_text_file(filename, content)
       character(*), intent(in) :: filename

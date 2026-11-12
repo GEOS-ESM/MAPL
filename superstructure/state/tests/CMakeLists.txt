@@ -8,7 +8,8 @@ set (test_srcs
   Test_StateGetBundle.pf
   Test_StateGetGeom.pf
   Test_StateGetPointerVector.pf
-  Test_StateMerge.pf)
+  Test_StateMerge.pf
+  Test_StateVariant.pf)
 
 add_pfunit_ctest(MAPL.state.tests
   TEST_SOURCES ${test_srcs}

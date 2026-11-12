@@ -30,6 +30,7 @@ module mapl_EsmfRegridder_mod
        procedure :: equal_to
        procedure :: get_routehandle_param
        procedure :: make_info
+       procedure :: to_string
        procedure :: is_conservative
     end type EsmfRegridderParam
 
@@ -276,6 +277,24 @@ contains
 
       routehandle_param = this%routehandle_param
    end function get_routehandle_param
+
+   ! Compact JSON of make_info: the routehandle param (regrid method) and
+   ! the dynamic mask, the settings that travel with a field.
+   function to_string(this, rc) result(str)
+      class(EsmfRegridderParam), intent(in) :: this
+      integer, optional, intent(out) :: rc
+      character(:), allocatable :: str
+
+      integer :: status
+      type(esmf_Info) :: info
+
+      str = ''
+      info = this%make_info(_RC)
+      str = esmf_InfoDump(info, _RC)
+      call esmf_InfoDestroy(info, _RC)
+
+      _RETURN(_SUCCESS)
+   end function to_string
 
    function make_info(this, rc) result(info)
       type(esmf_Info) :: info

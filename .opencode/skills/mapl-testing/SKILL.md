@@ -4,6 +4,15 @@ description: Run and debug MAPL tests with pFUnit framework
 compatibility: opencode
 ---
 
+> **Local macOS (this machine): each agent shell call is a fresh shell,
+> so `module load` does not persist between calls.** Use the wrappers
+> `with-nag <cmd>` / `with-gfortran <cmd>` (e.g. `with-nag cmake --build
+> nag -j 10 --target build-tests`) instead of the `module load ...` lines
+> below. The wrappers load the unversioned `nag-stack`,
+> `gfortran-stack`, or `ifx-stack` (bucy only); each machine's module
+> default is the version MAPL needs. Never pick a different compiler
+> version to get past an error.
+
 ## What I Do
 
 Guide you through running and debugging MAPL tests, including:

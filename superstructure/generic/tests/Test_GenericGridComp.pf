@@ -3,7 +3,19 @@
 
 module Test_GenericGridComp
    use mapl_UserSetServices_mod
+   use mapl_Generic_api, only: mapl_GridCompAdvertiseVariable
    use mapl_Generic_api, only: mapl_GridCompCreate
+   use mapl_Generic_api, only: mapl_GridCompGetRegistry
+   use mapl_Generic_api, only: mapl_GridCompSetGeom
+   use mapl_Generic_api, only: mapl_GridCompSetGeometry
+   use mapl_VariableSpec_mod, only: VariableSpec, make_VariableSpec
+   use mapl_StateRegistry_mod, only: StateRegistry
+   use mapl_StateItemSpec_mod, only: StateItemSpec
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD
+   use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
+   use mapl_GeomAspect_mod, only: GeomAspect, to_GeomAspect
+   use mapl_geom_api, only: mapl_SameGeom
+   use mapl_GeomUtilities_mod, only: GeomSetId
    use ESMF
    use pfunit
    implicit none
@@ -32,4 +44,51 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_is_generic
+
+   @test(npes=[1])
+   subroutine test_explicit_item_geom_survives_component_push(this)
+      class(MpiTestMethod), intent(inout) :: this
+      type(ESMF_GridComp) :: outer_gc
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_Grid) :: grid1, grid3
+      type(ESMF_Geom) :: geom1, geom3, actual_geom
+      type(VariableSpec) :: var_spec
+      type(StateRegistry), pointer :: registry
+      type(StateItemSpec), pointer :: spec
+      type(VirtualConnectionPt) :: virtual_pt
+      type(GeomAspect) :: aspect
+      logical :: same
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content='{}')
+      outer_gc = MAPL_GridCompCreate('ROOT', &
+         & DsoSetServices('libsimple_parent_gridcomp'), hconfig, _RC)
+      grid1 = ESMF_GridCreate(maxindex=[4, 5], _RC)
+      grid3 = ESMF_GridCreate(maxindex=[7, 8], _RC)
+      geom1 = ESMF_GeomCreate(grid=grid1, _RC)
+      geom3 = ESMF_GeomCreate(grid=grid3, _RC)
+      call GeomSetId(geom1, 201, _RC)
+      call GeomSetId(geom3, 203, _RC)
+      same = mapl_SameGeom(geom1, geom3)
+      @assertFalse(same, 'Seed geoms must differ.')
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, 'ITEM_GEOM', &
+         & typekind=ESMF_TYPEKIND_R4, itemtype=MAPL_STATEITEM_FIELD, _RC)
+      call mapl_GridCompAdvertiseVariable(outer_gc, var_spec, _RC)
+      call mapl_GridCompSetGeometry(outer_gc, ESMF_STATEINTENT_EXPORT, &
+         & 'ITEM_GEOM', geom=geom3, _RC)
+      call mapl_GridCompSetGeom(outer_gc, geom1, _RC)
+
+      call mapl_GridCompGetRegistry(outer_gc, registry, _RC)
+      virtual_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, 'ITEM_GEOM')
+      spec => registry%get_primary_spec(virtual_pt, _RC)
+      aspect = to_GeomAspect(spec%get_aspects(), _RC)
+      actual_geom = aspect%get_geom(_RC)
+      same = mapl_SameGeom(actual_geom, geom3)
+      @assertTrue(same, &
+         & 'Explicit item geom must survive a component-wide push.')
+
+      call ESMF_HConfigDestroy(hconfig, _RC)
+      _UNUSED_DUMMY(this)
+   end subroutine test_explicit_item_geom_survives_component_push
 end module Test_GenericGridComp

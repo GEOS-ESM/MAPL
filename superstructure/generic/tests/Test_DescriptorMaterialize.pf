@@ -1,0 +1,710 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+module Test_DescriptorMaterialize
+   use ESMF
+   use pfunit
+   use ESMF_TestMethod_mod
+   use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
+   use mapl_OuterMetaComponent_mod
+   use mapl_ComponentSpec_mod, only: ComponentSpec
+   use mapl_VariableSpec_mod, only: VariableSpec
+   use mapl_ChildSpec_mod, only: ChildSpec
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_GraphBuilder_mod
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_NodeId_mod, only: NodeId, operator(==)
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_ExtensionResolution_mod, only: set_materialize_extensions
+   use mapl_ExtensionMaterialization_mod, only: materialize_field_extension
+   use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_GRAPH, &
+        GRAPH_MODE_REGISTRY
+   use mapl_MultiState_mod, only: MultiState
+   use mapl_MatchConnection_mod, only: MatchConnection
+   use mapl_ConnectionPt_mod, only: ConnectionPt
+   use mapl_VirtualConnectionPt_mod, only: VirtualConnectionPt
+   use mapl_FieldCreate_mod, only: FieldsAreAliased
+   use mapl_field_api, only: MAPL_FieldGet, MAPL_FieldSet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleSet
+   use mapl_GeomUtilities_mod, only: GeomSetId
+   use mapl_geom_api, only: mapl_SameGeom
+   use mapl_UngriddedDims_mod, only: UngriddedDims, operator(==)
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, &
+        VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, operator(==)
+   use mapl_VerticalGrid_mod, only: VerticalGrid
+   use mapl_vertical_grid_api, only: mapl_get_vertical_grid_manager, &
+        mapl_VerticalGridManager, mapl_VerticalGridFactory, &
+        mapl_BasicVerticalGridSpec, mapl_BasicVerticalGridFactory
+   use mapl_QuantityType_mod, only: QUANTITY_TEMPERATURE, operator(==)
+   use mapl_QuantityTypeMetadata_mod, only: QuantityTypeMetadata
+   use mapl_ConservationMetadata_mod, only: ConservationMetadata, operator(==)
+   use mapl_ConservationType_mod, only: CONSERVE_NONE
+   use mapl_NormalizationMetadata_mod, only: NormalizationMetadata, &
+        operator(==)
+   use mapl_NormalizationType_mod, only: NORMALIZE_NONE
+   use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        STANDARD_NAME_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
+   use mapl_CharacteristicStatus_mod, only: &
+        CHARACTERISTIC_STATUS_UNCHECKED, operator(==)
+   use mapl_RestartModes_mod, only: RestartMode, RESTART_REQUIRED, operator(==)
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_BRACKET
+   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag, &
+        MAPL_STATEITEM_INVALID, operator(==)
+   use mapl_enums_api, only: MAPL_FIELDBUNDLETYPE_BRACKET
+   use mapl_esmf_info_keys_mod
+   use Test_GraphBuilderMaterializeGate, only: &
+        test_unitless_expression_input_precision_materializes
+   implicit none(type, external)
+
+   type :: PairFixture
+      type(OuterMetaComponent), pointer :: parent, src, dst
+      type(ComponentGraph), pointer :: graph, sg, dg
+      type(NodeId) :: export_id, import_id, tip_id
+      type(ESMF_Geom) :: geom
+      class(VerticalGrid), pointer :: vgrid
+   end type PairFixture
+
+   interface has_key
+      module procedure field_has_key, bundle_has_key
+   end interface has_key
+
+contains
+
+   @before
+   subroutine reset_modes(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      call set_materialize_extensions(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+   end subroutine reset_modes
+
+   @after
+   subroutine restore_modes(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      call set_materialize_extensions(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+   end subroutine restore_modes
+
+   ! Build topology first so descriptor-only tests have no scalar inputs.
+   subroutine build_pair(f, extension, vertical, bracket, materialize, rc)
+      type(PairFixture), intent(out) :: f
+      logical, intent(in) :: extension
+      logical, optional, intent(in) :: vertical, bracket
+      logical, optional, intent(in) :: materialize
+      integer, optional, intent(out) :: rc
+      type(ESMF_GridComp) :: gc, child_gc
+      type(GriddedComponentDriver) :: driver
+      type(ChildSpec) :: child
+      type(ComponentSpec), pointer :: spec
+      type(VariableSpec) :: var
+      type(MatchConnection) :: connection
+      type(ESMF_Grid) :: grid
+      type(NodeId), pointer :: id
+      class(GraphNode), pointer :: node
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      type(DependencyNetwork), pointer :: net
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[2,2], _RC)
+      f%geom = ESMF_GeomCreate(grid, _RC)
+      call GeomSetId(f%geom, 701, _RC)
+      call make_outer_meta('descriptor_pair', gc, f%parent, _RC)
+      child = ChildSpec()
+      call f%parent%add_child('src', child, _RC)
+      call f%parent%add_child('dst', child, _RC)
+      driver = f%parent%get_child('src', _RC)
+      child_gc = driver%get_gridcomp()
+      f%src => get_outer_meta(child_gc, _RC)
+      driver = f%parent%get_child('dst', _RC)
+      child_gc = driver%get_gridcomp()
+      f%dst => get_outer_meta(child_gc, _RC)
+      f%vgrid => null()
+
+      var = make_var(ESMF_STATEINTENT_EXPORT, 'T', units='m')
+      var%geom = f%geom
+      var%long_name = 'Export temperature'
+      var%quantity_type = QUANTITY_TEMPERATURE
+      if (present(vertical)) then
+         if (vertical) then
+            call registered_vgrid(f%vgrid, _RC)
+            allocate(var%vertical_grid, source=f%vgrid)
+            var%vertical_stagger = VERTICAL_STAGGER_CENTER
+            var%ungridded_dims = UngriddedDims([3])
+         end if
+      end if
+      if (present(bracket)) then
+         if (bracket) var%itemType = MAPL_STATEITEM_BRACKET
+      end if
+      spec => f%src%get_component_spec()
+      call spec%add_var_spec(var)
+      var = make_var(ESMF_STATEINTENT_IMPORT, 'T', units='m')
+      if (associated(f%vgrid)) then
+         allocate(var%vertical_grid, source=f%vgrid)
+         var%vertical_stagger = VERTICAL_STAGGER_CENTER
+         var%ungridded_dims = UngriddedDims([3])
+      end if
+      if (extension) then
+         var%units = 'km'
+         var%typekind = ESMF_TYPEKIND_R8
+      end if
+      spec => f%dst%get_component_spec()
+      call spec%add_var_spec(var)
+      connection = MatchConnection( &
+           ConnectionPt('src', VirtualConnectionPt( &
+           state_intent='export', short_name='^T$')), &
+           ConnectionPt('dst', VirtualConnectionPt( &
+           state_intent='import', short_name='^T$')))
+      spec => f%parent%get_component_spec()
+      call spec%add_connection(connection)
+      call gb%advertise(f%src, _RC)
+      call gb%advertise(f%dst, _RC)
+      if (present(bracket)) then
+         if (bracket) then
+            bundle = ESMF_FieldBundleCreate(name='T', _RC)
+            call MAPL_FieldBundleSet(bundle, &
+                 fieldBundleType=MAPL_FIELDBUNDLETYPE_BRACKET, &
+                 units='m', typekind=ESMF_TYPEKIND_R4, &
+                 interpolation_weights=[0.25_ESMF_KIND_R4, &
+                 0.75_ESMF_KIND_R4], bracket_updated=.true., _RC)
+            call handle%set(bundle, _RC)
+            f%sg => f%src%get_component_graph()
+            id => f%sg%get_resource_index( &
+                 item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+            node => f%sg%get_node(id)
+            select type (node)
+            class is (StateItemNode)
+               call node%set_payload(handle)
+            end select
+         end if
+      end if
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_materialize_extensions(.true.)
+      if (present(materialize)) then
+         if (.not. materialize) then
+            call set_graph_mode(GRAPH_MODE_REGISTRY)
+            call set_materialize_extensions(.false.)
+         end if
+      end if
+      call gb%resolve_connections(f%parent, _RC)
+      f%graph => f%parent%get_component_graph()
+      f%sg => f%src%get_component_graph()
+      f%dg => f%dst%get_component_graph()
+      id => f%sg%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'T'))
+      f%export_id = id
+      id => f%dg%get_resource_index(item_key(ESMF_STATEINTENT_IMPORT, 'T'))
+      f%import_id = id
+      net => f%graph%get_network(f%graph%get_forward_network_id())
+      f%tip_id = predecessor(net, f%import_id)
+      _RETURN(_SUCCESS)
+   end subroutine build_pair
+
+   function predecessor(net, id) result(pred)
+      type(DependencyNetwork), intent(in) :: net
+      type(NodeId), intent(in) :: id
+      type(NodeId) :: pred
+      type(NodeIdSet), target :: ids
+      type(NodeIdSetIterator) :: iter
+      ids = net%get_predecessors(id)
+      @assertEqual(1, ids%size())
+      iter = ids%ftn_begin()
+      call iter%next()
+      pred = iter%of()
+   end function predecessor
+
+   subroutine registered_vgrid(vgrid, rc)
+      class(VerticalGrid), pointer, intent(out) :: vgrid
+      integer, optional, intent(out) :: rc
+      type(mapl_VerticalGridManager), pointer :: manager
+      class(mapl_VerticalGridFactory), pointer :: factory
+      integer :: status
+      manager => mapl_get_vertical_grid_manager(_RC)
+      factory => manager%find_factory(mapl_BasicVerticalGridSpec(1), _RC)
+      if (.not. associated(factory)) then
+         call manager%register_factory('Basic', &
+              mapl_BasicVerticalGridFactory(), _RC)
+      end if
+      vgrid => manager%add_grid(mapl_BasicVerticalGridSpec(num_levels=4), _RC)
+      _RETURN(_SUCCESS)
+   end subroutine registered_vgrid
+
+   subroutine tip_field(f, field, rc)
+      type(PairFixture), intent(in) :: f
+      type(ESMF_Field), intent(out) :: field
+      integer, optional, intent(out) :: rc
+      class(GraphNode), pointer :: node
+      type(GraphStateItem), pointer :: handle
+      integer :: status
+      node => f%graph%get_node(f%tip_id)
+      select type (node)
+      class is (StateItemNode)
+         handle => node%get_payload_ptr()
+         field = handle%get_field(_RC)
+      class default
+         @assertTrue(.false., 'test tip is not a state item')
+         _RETURN(1)
+      end select
+      _RETURN(_SUCCESS)
+   end subroutine tip_field
+
+   subroutine resolve_fields(f, rc)
+      type(PairFixture), intent(inout) :: f
+      integer, optional, intent(out) :: rc
+      type(GraphBuilder) :: gb
+      integer :: status
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call set_materialize_extensions(.true.)
+      call gb%resolve_connections(f%parent, _RC)
+      _RETURN(_SUCCESS)
+   end subroutine resolve_fields
+
+   subroutine populate_import(f, field, rc)
+      type(PairFixture), intent(inout) :: f
+      type(ESMF_Field), intent(out) :: field
+      integer, optional, intent(out) :: rc
+      type(GriddedComponentDriver), pointer :: driver
+      type(MultiState) :: parent_states, dst_states
+      type(GraphBuilder) :: gb
+      integer :: status
+      driver => f%parent%get_user_gc_driver()
+      parent_states = driver%get_states()
+      call gb%populate_state(f%parent, parent_states, _RC)
+      driver => f%dst%get_user_gc_driver()
+      dst_states = driver%get_states()
+      call ESMF_StateGet(dst_states%importState, 'T', field, _RC)
+      _RETURN(_SUCCESS)
+   end subroutine populate_import
+
+   subroutine check_import_long_name_unchecked(f)
+      type(PairFixture), intent(in) :: f
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: descriptor
+      class(StateItemCharacteristic), allocatable :: characteristic
+      integer :: status
+
+      node => f%dg%get_node(f%import_id)
+      select type (node)
+      class is (StateItemNode)
+         descriptor => node%get_descriptor()
+         call descriptor%get_characteristic(LONG_NAME_CHARACTERISTIC_KIND, &
+              characteristic, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(characteristic%get_status() == &
+              CHARACTERISTIC_STATUS_UNCHECKED)
+      class default
+         @assertTrue(.false., 'import is not a state item')
+      end select
+   end subroutine check_import_long_name_unchecked
+
+   ! Read-only inspection distinguishes absent entries from getter defaults.
+   logical function field_has_key(field, key) result(found)
+      type(ESMF_Field), intent(in) :: field
+      character(*), intent(in) :: key
+      type(ESMF_Info) :: info
+      integer :: status
+      call ESMF_InfoGetFromHost(field, info, rc=status)
+      @assertEqual(0, status)
+      found = ESMF_InfoIsPresent(info, key, rc=status)
+      @assertEqual(0, status)
+   end function field_has_key
+
+   logical function bundle_has_key(bundle, key) result(found)
+      type(ESMF_FieldBundle), intent(in) :: bundle
+      character(*), intent(in) :: key
+      type(ESMF_Info) :: info
+      integer :: status
+      call ESMF_InfoGetFromHost(bundle, info, rc=status)
+      @assertEqual(0, status)
+      found = ESMF_InfoIsPresent(info, key, rc=status)
+      @assertEqual(0, status)
+   end function bundle_has_key
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_extension_materializes_from_own_descriptor(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(PairFixture) :: f
+      type(ESMF_Field) :: field
+      type(ESMF_Geom), allocatable :: geom
+      type(ESMF_TypeKind_Flag) :: typekind
+      type(UngriddedDims) :: dims
+      type(VerticalStaggerLoc) :: stagger
+      class(VerticalGrid), pointer :: vgrid
+      character(:), allocatable :: units, name
+      integer :: status, rank, levels
+
+      call build_pair(f, .true., vertical=.true., materialize=.false., &
+           rc=status)
+      @assertEqual(0, status)
+      call materialize_field_extension(f%graph, f%tip_id, &
+           name='descriptor_field', rc=status)
+      @assertEqual(0, status)
+      if (status /= 0) return
+      call tip_field(f, field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, geom=geom, typekind=typekind, units=units, &
+           ungridded_dims=dims, vgrid=vgrid, vert_staggerloc=stagger, &
+           short_name=name, num_levels=levels, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(allocated(geom))
+      if (allocated(geom)) then
+         @assertTrue(mapl_SameGeom(f%geom, geom))
+      end if
+      @assertTrue(typekind == ESMF_TYPEKIND_R8)
+      @assertEqual('km', units)
+      @assertTrue(dims == UngriddedDims([3]))
+      @assertTrue(associated(vgrid))
+      if (associated(vgrid)) then
+         @assertEqual(f%vgrid%get_id(), vgrid%get_id())
+      end if
+      @assertTrue(stagger == VERTICAL_STAGGER_CENTER)
+      @assertEqual(4, levels)
+      @assertEqual('descriptor_field', name)
+      call ESMF_FieldGet(field, rank=rank, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(4, rank)
+      _UNUSED_DUMMY(this)
+   end subroutine test_extension_materializes_from_own_descriptor
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_none_stagger_extension_has_no_vgrid(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(PairFixture) :: f
+      type(ESMF_Field) :: field
+      class(VerticalGrid), pointer :: vgrid
+      type(VerticalStaggerLoc) :: stagger
+      integer :: status, rank
+
+      call build_pair(f, .true., materialize=.false., rc=status)
+      @assertEqual(0, status)
+      call registered_vgrid(f%vgrid, rc=status)
+      @assertEqual(0, status)
+      call f%src%set_vertical_grid(f%vgrid)
+      call materialize_field_extension(f%graph, f%tip_id, rc=status)
+      @assertEqual(0, status)
+      if (status /= 0) return
+      call tip_field(f, field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, vgrid=vgrid, vert_staggerloc=stagger, &
+           rc=status)
+      @assertEqual(0, status)
+      @assertFalse(associated(vgrid))
+      @assertTrue(stagger%is_none())
+      call ESMF_FieldGet(field, rank=rank, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, rank)
+      _UNUSED_DUMMY(this)
+   end subroutine test_none_stagger_extension_has_no_vgrid
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_extension_info_contents(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(PairFixture) :: f
+      type(ESMF_Field) :: field
+      integer :: status
+
+      call build_pair(f, .true., rc=status)
+      @assertEqual(0, status)
+      call resolve_fields(f, rc=status)
+      @assertEqual(0, status)
+      call tip_field(f, field, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(has_key(field, &
+           INFO_INTERNAL_NAMESPACE // KEY_STANDARD_NAME))
+      @assertTrue(has_key(field, &
+           INFO_INTERNAL_NAMESPACE // KEY_QUANTITY_TYPE_METADATA))
+      @assertTrue(has_key(field, &
+           INFO_INTERNAL_NAMESPACE // KEY_HORIZONTAL_DIMS_SPEC))
+      @assertTrue(has_key(field, &
+           INFO_INTERNAL_NAMESPACE // KEY_CONSERVATION_METADATA))
+      @assertTrue(has_key(field, &
+           INFO_INTERNAL_NAMESPACE // KEY_NORMALIZATION_METADATA))
+      @assertTrue(has_key(field, &
+           INFO_INTERNAL_NAMESPACE // KEY_TYPEKIND))
+      @assertTrue(has_key(field, &
+           INFO_INTERNAL_NAMESPACE // KEY_UNGRIDDED_DIMS))
+      @assertTrue(has_key(field, &
+           INFO_INTERNAL_NAMESPACE // KEY_VERT_STAGGERLOC))
+      @assertTrue(has_key(field, &
+           INFO_INTERNAL_NAMESPACE // '/alias0' // KEY_LONG_NAME))
+      @assertTrue(has_key(field, &
+           INFO_INTERNAL_NAMESPACE // '/alias0' // KEY_RESTART_MODE))
+      @assertFalse(has_key(field, INFO_INTERNAL_NAMESPACE // KEY_VGRID_ID))
+      @assertFalse(has_key(field, &
+           INFO_INTERNAL_NAMESPACE // KEY_VERT_ALIGNMENT))
+      _UNUSED_DUMMY(this)
+   end subroutine test_extension_info_contents
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_extension_info_values(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(PairFixture) :: f
+      type(ESMF_Field) :: field, alias
+      type(QuantityTypeMetadata) :: quantity, alias_quantity
+      type(ConservationMetadata) :: conservation
+      type(NormalizationMetadata) :: normalization
+      type(RestartMode) :: restart
+      character(:), allocatable :: units, standard_name, long_name
+      character(:), allocatable :: alias_units, alias_standard_name
+      logical :: has_conservation, conservation_matches
+      integer :: status
+
+      call build_pair(f, .true., rc=status)
+      @assertEqual(0, status)
+      call tip_field(f, field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, units=units, standard_name=standard_name, &
+           long_name=long_name, quantity_type_metadata=quantity, &
+           normalization_metadata=normalization, &
+           restart_mode=restart, rc=status)
+      @assertEqual(0, status)
+      has_conservation = has_key(field, &
+           INFO_INTERNAL_NAMESPACE // KEY_CONSERVATION_METADATA)
+      conservation_matches = .false.
+      ! Conservation getter fails on an absent entry instead of defaulting.
+      if (has_conservation) then
+         call MAPL_FieldGet(field, conservation_metadata=conservation, &
+              rc=status)
+         @assertEqual(0, status)
+         conservation_matches = conservation == &
+              ConservationMetadata(CONSERVE_NONE, is_conservable=.false.)
+      end if
+      call populate_import(f, alias, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(alias, units=alias_units, &
+           standard_name=alias_standard_name, &
+           quantity_type_metadata=alias_quantity, rc=status)
+      @assertEqual(0, status)
+
+      ! Direct assertions keep one absent value from hiding later pins.
+      ! Regression guards: converted units and unchecked standard name match.
+      call assertEqual('km', units, &
+           location=SourceLocation(__FILE__, __LINE__))
+      call assertEqual('<unknown>', standard_name, &
+           location=SourceLocation(__FILE__, __LINE__))
+      call assertEqual('Export temperature', long_name, &
+           location=SourceLocation(__FILE__, __LINE__))
+      call assertTrue(quantity%get_quantity_type() == QUANTITY_TEMPERATURE, &
+           location=SourceLocation(__FILE__, __LINE__))
+      call assertTrue(conservation_matches, &
+           message='conservation value missing or incorrect', &
+           location=SourceLocation(__FILE__, __LINE__))
+      ! Pin the specified non-mirror default, not the absent-key mirror.
+      call assertTrue(normalization == &
+           NormalizationMetadata(NORMALIZE_NONE, normalization_scale=1.0), &
+           location=SourceLocation(__FILE__, __LINE__))
+      ! Regression guards: default restart and alias scalar values match.
+      call assertTrue(restart == RESTART_REQUIRED, &
+           location=SourceLocation(__FILE__, __LINE__))
+      call assertEqual('km', alias_units, &
+           location=SourceLocation(__FILE__, __LINE__))
+      call assertEqual('<unknown>', alias_standard_name, &
+           location=SourceLocation(__FILE__, __LINE__))
+      call assertTrue(alias_quantity%get_quantity_type() == &
+           QUANTITY_TEMPERATURE, &
+           location=SourceLocation(__FILE__, __LINE__))
+      _UNUSED_DUMMY(this)
+   end subroutine test_extension_info_values
+
+   ! Regression guard: reuse must retain field identity, not just metadata.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_second_resolve_reuses_extension_field(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(PairFixture) :: f
+      type(ESMF_Field) :: first, second
+      type(GraphBuilder) :: gb
+      integer :: status
+      call build_pair(f, .true., rc=status)
+      @assertEqual(0, status)
+      call resolve_fields(f, rc=status)
+      @assertEqual(0, status)
+      call tip_field(f, first, rc=status)
+      @assertEqual(0, status)
+      call gb%resolve_connections(f%parent, rc=status)
+      @assertEqual(0, status)
+      call materialize_field_extension(f%graph, f%tip_id, rc=status)
+      @assertEqual(0, status)
+      call tip_field(f, second, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(FieldsAreAliased(first, second))
+      _UNUSED_DUMMY(this)
+   end subroutine test_second_resolve_reuses_extension_field
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_direct_import_inherits_export_long_name(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(PairFixture) :: f
+      type(ESMF_Field) :: field, owning_field
+      character(:), allocatable :: long_name, owning_long_name
+      integer :: status
+      call build_pair(f, .false., rc=status)
+      @assertEqual(0, status)
+      @assertTrue(f%tip_id == f%export_id)
+      call resolve_fields(f, rc=status)
+      @assertEqual(0, status)
+      call check_import_long_name_unchecked(f)
+      call populate_import(f, field, rc=status)
+      @assertEqual(0, status)
+      call tip_field(f, owning_field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(owning_field, long_name=owning_long_name, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, long_name=long_name, rc=status)
+      @assertEqual(0, status)
+      ! Read both namespaces before either failure can hide the other.
+      call assertEqual('Export temperature', owning_long_name, &
+           location=SourceLocation(__FILE__, __LINE__))
+      call assertEqual('Export temperature', long_name, &
+           location=SourceLocation(__FILE__, __LINE__))
+      _UNUSED_DUMMY(this)
+   end subroutine test_direct_import_inherits_export_long_name
+
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_extended_import_inherits_export_long_name(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(PairFixture) :: f
+      type(ESMF_Field) :: field, owning_field
+      character(:), allocatable :: long_name, owning_long_name
+      integer :: status
+      call build_pair(f, .true., rc=status)
+      @assertEqual(0, status)
+      @assertFalse(f%tip_id == f%export_id)
+      call resolve_fields(f, rc=status)
+      @assertEqual(0, status)
+      call check_import_long_name_unchecked(f)
+      call populate_import(f, field, rc=status)
+      @assertEqual(0, status)
+      call tip_field(f, owning_field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(owning_field, long_name=owning_long_name, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, long_name=long_name, rc=status)
+      @assertEqual(0, status)
+      ! Read both namespaces before either failure can hide the other.
+      call assertEqual('Export temperature', owning_long_name, &
+           location=SourceLocation(__FILE__, __LINE__))
+      call assertEqual('Export temperature', long_name, &
+           location=SourceLocation(__FILE__, __LINE__))
+      _UNUSED_DUMMY(this)
+   end subroutine test_extended_import_inherits_export_long_name
+
+   ! Regression guard: an unchecked import must not clobber owning metadata.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_import_alias_preserves_field_wide_standard_name(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(PairFixture) :: f
+      integer :: status
+      call build_pair(f, .false., rc=status)
+      @assertEqual(0, status)
+      call check_alias_preserves_standard_name(f)
+      _UNUSED_DUMMY(this)
+   end subroutine test_import_alias_preserves_field_wide_standard_name
+
+   ! Regression guard: extension-backed aliases have the same ownership rule.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_extended_alias_preserves_field_wide_standard_name(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(PairFixture) :: f
+      integer :: status
+      call build_pair(f, .true., rc=status)
+      @assertEqual(0, status)
+      @assertFalse(f%tip_id == f%export_id)
+      call check_alias_preserves_standard_name(f)
+      _UNUSED_DUMMY(this)
+   end subroutine test_extended_alias_preserves_field_wide_standard_name
+
+   subroutine check_alias_preserves_standard_name(f)
+      type(PairFixture), intent(inout) :: f
+      type(ESMF_Field) :: field, alias
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: descriptor
+      character(:), allocatable :: standard_name
+      integer :: status
+      call resolve_fields(f, rc=status)
+      @assertEqual(0, status)
+      call tip_field(f, field, rc=status)
+      @assertEqual(0, status)
+      node => f%graph%get_node(f%tip_id)
+      select type (node)
+      class is (StateItemNode)
+         descriptor => node%get_descriptor()
+         call descriptor%set_characteristic( &
+              STANDARD_NAME_CHARACTERISTIC_KIND, &
+              StandardNameCharacteristic('owning_field_name'), rc=status)
+         @assertEqual(0, status)
+      end select
+      call MAPL_FieldSet(field, standard_name='owning_field_name', rc=status)
+      @assertEqual(0, status)
+      call populate_import(f, alias, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(alias, standard_name=standard_name, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('owning_field_name', standard_name)
+      call MAPL_FieldGet(field, standard_name=standard_name, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('owning_field_name', standard_name)
+   end subroutine check_alias_preserves_standard_name
+
+   ! Regression guard: bracket metadata belongs on source bundle only.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_bracket_to_field_drops_bracket_only_info(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(PairFixture) :: f
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      type(GraphStateItem), pointer :: handle
+      class(GraphNode), pointer :: node
+      type(MAPL_StateItem_Flag) :: variant
+      integer :: status
+
+      call build_pair(f, .false., bracket=.true., rc=status)
+      @assertEqual(0, status)
+      node => f%sg%get_node(f%export_id)
+      select type (node)
+      class is (StateItemNode)
+         handle => node%get_payload_ptr()
+         bundle = handle%get_field_bundle(rc=status)
+         @assertEqual(0, status)
+      end select
+      @assertTrue(has_key(bundle, &
+           INFO_INTERNAL_NAMESPACE // KEY_INTERPOLATION_WEIGHTS))
+      @assertTrue(has_key(bundle, &
+           INFO_INTERNAL_NAMESPACE // KEY_FIELDBUNDLETYPE_FLAG))
+      @assertTrue(has_key(bundle, &
+           INFO_INTERNAL_NAMESPACE // KEY_BRACKET_UPDATED))
+      @assertTrue(has_key(bundle, &
+           INFO_INTERNAL_NAMESPACE // KEY_FIELD_PROTOTYPE))
+      call resolve_fields(f, rc=status)
+      @assertEqual(0, status)
+      call tip_field(f, field, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, state_item_variant=variant, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(variant == MAPL_STATEITEM_INVALID)
+      @assertFalse(has_key(field, &
+           INFO_INTERNAL_NAMESPACE // KEY_FIELDBUNDLETYPE_FLAG))
+      @assertFalse(has_key(field, &
+           INFO_INTERNAL_NAMESPACE // KEY_INTERPOLATION_WEIGHTS))
+      @assertFalse(has_key(field, &
+           INFO_INTERNAL_NAMESPACE // KEY_BRACKET_UPDATED))
+      @assertFalse(has_key(field, &
+           INFO_INTERNAL_NAMESPACE // KEY_FIELD_PROTOTYPE))
+      _UNUSED_DUMMY(this)
+   end subroutine test_bracket_to_field_drops_bracket_only_info
+
+   ! Re-runs the materialization-gate test as a regression guard.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_unitless_precision_input_still_materializes(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      call test_unitless_expression_input_precision_materializes(this)
+   end subroutine test_unitless_precision_input_still_materializes
+
+end module Test_DescriptorMaterialize

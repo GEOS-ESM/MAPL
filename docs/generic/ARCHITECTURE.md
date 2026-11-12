@@ -1,435 +1,705 @@
-# MAPL3 Generic Layer Architecture: Implementation Reference
+# MAPL3 Generic Layer Architecture — Implementation Reference
 
-**Audience:** coding agents and developers working on `superstructure/generic/`.
-**Describes:** the MAPL3 line, branch `develop`.
-**Verified against:** `MAPL` @ `1a5a5acf` (2026-11-06).
-**Placement:** as in the GEOSgcm fixture (`components.yaml` @ `56ce4e8`, GEOSgcm `release/MAPL-v3`): key `MAPL`, checked out at `src/Shared/@MAPL`.
-Other fixtures (for example GEOSadas, GEOSldas) may place this repository
-elsewhere; paths inside this repository do not change.
+**Audience:** coding agents and developers working in
+`superstructure/generic/` **outside** `superstructure/generic/graph/`.
+That subdirectory (the explicit dependency-graph architecture) has its
+own, separately maintained documentation set — see
+`docs/graph/README.md` / `docs/graph/ARCHITECTURE.md` — and is treated
+here only as a dependency this layer calls into (§2.4), never
+re-described.
 
-Parent: [`docs/ARCHITECTURE.md`](../ARCHITECTURE.md); repository
-agent rules: [`AGENTS.md`](../../AGENTS.md); scoped rules:
-[`superstructure/generic/AGENTS.md`](../../superstructure/generic/AGENTS.md);
-index: [`README.md`](README.md).
-
-**Relationship to other documents:**
-- `openspec/specs/generic/*/spec.md`: requirement/scenario specs for
-  landed generic-layer capabilities (`field-name-propagation`,
-  `standard-name-enforcement`, `expression-vertical-dim-resolution`).
-  Authoritative for the behavior they cover.
-- `openspec/specs/internal-checkpoint/spec.md`: landed checkpoint
+**Relationship to other docs:**
+- `docs/graph/` — the graph-native layer's own docs. Read those for
+  `ComponentGraph`/`GraphBuilder`/`NodeId`/`StateItemNode` work.
+- `openspec/specs/generic/*/spec.md` — machine-checkable
+  requirement/scenario specs for landed, generic-layer-specific
+  capabilities (field-name-propagation, standard-name-enforcement,
+  expression-vertical-dim-resolution). Treat as authoritative for the
+  behavior they cover.
+- `openspec/specs/internal-checkpoint/spec.md` — landed checkpoint
   (restart) requirements.
-- `openspec/changes/archive/`: landed, folded-in proposals. Each
-  directory's `proposal.md`/`design.md` is the primary record of *why* a
-  piece of this layer looks the way it does; this file cites them rather
-  than restating their reasoning.
-- The component-graph layer (an explicit dependency graph alongside this
-  layer's `StateRegistry`) is not on this line; nothing here describes it.
-- **This file**: a navigational layer on top of the above, for quick
-  orientation. Where this file and the sources it cites disagree, the
-  sources win.
+- `openspec/changes/archive/` — landed, folded-in proposals; removed
+  from the tree, read one with `git show
+  graph-phase-5-archive:openspec/changes/archive/<date>-<name>/design.md`
+  (for example `2026-11-11-hierarchy-wide-forward-network`; `git ls-tree -d
+  graph-phase-5-archive:openspec/changes/archive/` lists the names). Each
+  directory's `proposal.md`/`design.md` is the primary record of *why*
+  a piece of this layer looks the way it does; this file cites them
+  rather than restating their reasoning.
+- **This file** — a navigational layer on top of the above, written for
+  quick orientation without re-reading ~34,000 lines of source across
+  ~140 files. Where this file and the sources it cites disagree, the
+  sources win — this file may lag.
 
-All statements below were checked against the tree at the commit above
-(`git ls-files`, reading source and `CMakeLists.txt` files) unless
-labelled *Inferred* or *Unverified*. No build or test was run for this
-document.
+All facts below were verified by reading the actual source tree,
+`CMakeLists.txt` files, and `git log`/`git show` output on 2026-10-21,
+unless marked **[ASSUMPTION]**. On 2026-10-21 `ctest -L ESSENTIAL` passed
+65/65 on NAG 7.2.41 and on gfortran; §4's commands use the
+`with-nag`/`with-gfortran` wrappers described in the root `AGENTS.md`.
 
 ## 0. What is "the generic layer," and what is out of scope here
 
 `superstructure/generic/` (CMake target `MAPL.generic`) is the single
 library that implements:
 - the user-facing `GenericSetServices`/`GenericGridComp` entry points
-  every MAPL gridded component goes through (`GenericGridComp.F90`),
-- the private per-component state type (`OuterMetaComponent`) and its 54
-  lifecycle-phase submodules,
+  every MAPL gridded component goes through,
+- the private per-component state type (`OuterMetaComponent`) and its
+  ~65 lifecycle-phase submodules,
 - the YAML-driven `ComponentSpec` description of a component's
   variables, children, and connections, and its parser,
-- the imperative `StateRegistry`/`Connection`/`ExtensionFamily` coupler
-  machinery that resolves those connections and builds automatic
-  unit/typekind/regrid couplers,
+- the legacy imperative `StateRegistry`/`Connection`/`ExtensionFamily`
+  coupler machinery that resolves those connections and builds
+  automatic unit/typekind/regrid couplers,
 - the `ClassAspect`/`StateItemAspect` family of per-variable metadata
-  descriptors the coupler machinery dispatches on,
-- the `ExtensionTransform` family of concrete data converters (units,
-  typekind, regrid, time-interpolate, normalize, conservative-regrid),
-- vertical-grid support (`ModelVerticalGrid`, `FixedLevelsVerticalGrid`).
+  descriptors the legacy machinery dispatches on,
+- the `Transform` (legacy `ExtensionTransform`) family of concrete data
+  converters (units, typekind, regrid, time-interpolate, normalize,
+  conservative-regrid),
+- vertical-grid support (`ModelVerticalGrid`, `FixedLevelsVerticalGrid`),
+- and the **integration points** (`GraphBuilder*.F90`) that let a parallel,
+  explicit-dependency-graph implementation (`superstructure/generic/
+  graph/`) run alongside or in place of the legacy path, selected by
+  `mapl_GraphMode_mod`'s 3-way switch.
 
-**Noted but not detailed:** `superstructure/component/` (sibling
-directory: `GriddedComponentDriver`/`ComponentDriver`; the generic layer
-depends on it, not the reverse; see §2.4) and `infrastructure/` (for
-example `infrastructure/vertical/vertical_grid/`, which owns
-`VerticalGrid`/`VerticalGridSpec`/`VerticalGridFactory`, consumed but not
-defined by `superstructure/generic/vertical/`).
+**Out of scope for this file:** everything under
+`superstructure/generic/graph/` itself (graph-neutral core:
+`GraphNode`/`ComponentGraph`/`DependencyNetwork`/`StateItemCharacteristic`/
+`Transform` (graph-native) /callbacks/route handles — 89 non-test files,
+~12,300 lines). Fully documented in `docs/graph/`. This file documents
+only the *rest* of `superstructure/generic/`, plus the handful of
+integration files (`GraphBuilder*.F90`, `OuterMetaComponent*`) that sit
+at the seam between the two and are needed to understand how legacy
+code calls into the graph layer — those files are also covered by
+`docs/graph/ARCHITECTURE.md` §1.2 in more depth; this file only notes
+the call-site shape (§2.4), not their internals.
+
+**Also out of scope / noted but not detailed:** `superstructure/
+component/` (sibling directory: `GriddedComponentDriver`/
+`ComponentDriver` — the generic layer depends on it, not the reverse;
+see §2.5) and `infrastructure/` (e.g. `infrastructure/vertical/
+vertical_grid/` which owns `VerticalGrid`/`VerticalGridSpec`/
+`VerticalGridFactory`, consumed but not defined by `superstructure/
+generic/vertical/`).
 
 ## 1. Module map
 
-### 1.1 Top-level files (`superstructure/generic/*.F90`)
+### 1.1 Top-level integration/entry-point files (`superstructure/generic/*.F90`)
 
 | File | Module | Lines | Responsibility |
 |---|---|---|---|
-| `API.F90` | `mapl_generic_api` | 124 | Umbrella module that `use`s `mapl_Generic_mod` and re-`public`s selected symbols (`mapl_GridCompAddVarSpec`, `mapl_GridCompGet`, ...). |
-| `Generic.F90` | `mapl_Generic` | 20 | A second umbrella (re-exports `OuterMetaComponent`, `MAPL_GridCompCreate`, vertical-grid types, `ChildSpec`, `UserSetServices`, OpenMP support). It is not in the `srcs` list of `CMakeLists.txt` and no `use mapl_Generic` was found in the repository by grep: not compiled, apparently unused. *Inferred:* a leftover. |
-| `MAPL_Generic.F90` | `mapl_Generic_mod` | 1332 | The long-standing facade: public `GridComp*` procedures (`GridCompAddVarSpec`, `GridCompAddSpec`, `GridCompGet`, `GridCompAddChild`, `GridCompRunChild(ren)`, `GridCompAddConnection`, `GridCompConnectAll`, `GridCompSetGeometry`, `GridCompGetCheckpointDir`, ...) delegating to `OuterMetaComponent` methods. |
-| `GenericGrid.F90` | `mapl3_GenericGrid` | 14 | Defines the type `GenericGrid` (an `ESMF_Grid` and an `ESMF_LocStream`); `use`d by `InnerMetaComponent.F90`. |
-| `GenericGridComp.F90` | `mapl_GenericGridComp_mod` | 378 | `GenericSetServices`/`MAPL_GridCompCreate`: the ESMF wiring. Its header comment lists the generic initialize phases (`MAPL_PROPAGATE_GRID`, `MAPL_ADVERTISE`, `MAPL_REALIZE`) that a user gridcomp's own phases can supplement with a `_PRE`/`_POST` suffix; phase constants come from `mapl_GenericPhases_mod` (`enums/GenericPhases.F90`). |
-| `ComponentSpecParser.F90` + `ComponentSpecParser/` (9 files, 1034 lines) | `mapl_ComponentSpecParser_mod` | 146 (+ submodules) | Interface block of the YAML `ComponentSpec` parser (children, connections, variable specs, geometry spec, set-services, timespec). See §1.5. |
-| `to_itemtype.F90` | *(submodule of `mapl_ComponentSpecParser_mod`)* | 56 | **Not compiled.** A duplicate of `ComponentSpecParser/to_itemtype.F90` (54 lines; the one wired in `CMakeLists.txt` through `esma_add_fortran_submodules`). The top-level copy has one extra `case` arm (`'vector_bracket'` to `MAPL_STATEITEM_VECTORBRACKET`) and is referenced by no `CMakeLists.txt`. Editing it has no effect. |
-| `UserSetServices.F90` | `mapl_UserSetServices_mod` | 238 | Wraps a user's `SetServices` procedure so `OuterMetaComponent` can invoke it uniformly. |
-| `MethodPhasesMap.F90` | `mapl_MethodPhasesMap_private_mod`, `mapl_MethodPhasesMapUtils_mod`, `mapl_MethodPhasesMap_mod` | 191 | Maps ESMF method/phase names and indices for initialize/run. |
-| `InnerMetaComponent.F90` | `mapl_InnerMetaComponent_mod` | 84 | The inner (user) gridcomp's private state, distinct from `OuterMetaComponent` (the wrapping component MAPL creates). |
-| `OuterMetaComponent.F90` + `OuterMetaComponent/` (54 files, 2582 lines) | `mapl_OuterMetaComponent_mod` | 627 (+ submodules) | The central component-hierarchy type. See §1.2. |
+| `API.F90` | `mapl_generic_api` | 124 | Umbrella `use`-and-re-`public` module; the one file most external code should `use` instead of reaching into individual generic-layer modules directly. |
+| `Generic.F90` | `mapl_Generic` | 14 | A second, much smaller umbrella (re-exports a handful of symbols: `OuterMetaComponent`, `MAPL_GridCompCreate`, `VerticalGrid`/`ModelVerticalGrid`, `ChildSpec`, `UserSetServices`, OpenMP support). **[ASSUMPTION]** Not itself referenced by any other `CMakeLists.txt`/`.F90` file found by a repo-wide grep in this pass; likely a legacy or convenience alias module. Verify before assuming it is dead — not confirmed unreachable, only confirmed *unused by anything this pass searched*. |
+| `MAPL_Generic.F90` | `mapl_Generic_mod` | 1332 | The real, long-standing "generic" facade: thin wrapper procedures (`MAPL_AddImportSpec`, `MAPL_AddExportSpec`, etc.) intended to be backward-compatible with MAPL2-era call sites, delegating to `OuterMetaComponent`/`InnerMetaComponent` methods. |
+| `GenericGrid.F90` | `mapl3_GenericGrid` | 14 | Tiny re-export shim. |
+| `GenericGridComp.F90` | `mapl_GenericGridComp_mod` | 390 | `GenericSetServices`/`GridCompCreate` — the actual ESMF ally wiring. Declares the generic init phases (`MAPL_PROPAGATE_GRID`, `MAPL_ADVERTISE`, `MAPL_REALIZE`) that a user gridcomp's own phases can be appended to with `_PRE`/`_POST`. |
+| `ComponentSpecParser.F90` + `ComponentSpecParser/` (9 files, 1034 lines) | `mapl_ComponentSpecParser_mod` | 146 (+ submodules) | Parses a component's YAML `ComponentSpec` (children, connections, variable specs, geometry spec, set-services, timespec) into the `specs/` type hierarchy. See §1.5. |
+| `to_itemtype.F90` | *(submodule of `mapl_ComponentSpecParser_mod`)* | 56 | **[NOTE]** An apparently-stale **duplicate** of `ComponentSpecParser/to_itemtype.F90` lives at the top level. The top-level copy is one `case` arm *ahead* (`'vector_bracket'` → `MAPL_STATEITEM_VECTORBRACKET`) of the one actually compiled (`ComponentSpecParser/to_itemtype.F90`, wired via `esma_add_fortran_submodules` at `CMakeLists.txt:124-130`); the top-level file is **not referenced by any `CMakeLists.txt`** in this checkout (confirmed by grep) and is therefore not compiled. Treat the `ComponentSpecParser/` copy as the real one; the top-level file looks like an accidental leftover from a refactor, not a second valid implementation. Do not edit the top-level copy expecting it to take effect. |
+| `UserSetServices.F90` | `mapl_UserSetServices_mod` | 238 | Wraps a user's own `SetServices` procedure pointer/interface so `OuterMetaComponent` can invoke it uniformly. |
+| `MethodPhasesMap.F90` | `mapl_MethodPhasesMap_private_mod` | 191 | Maps ESMF phase names/indices for init/run methods. |
+| `InnerMetaComponent.F90` | `mapl_InnerMetaComponent_mod` | 84 | The *inner* gridcomp's private state (distinct from `OuterMetaComponent`, the wrapping component MAPL itself creates). Holds the user's own `GridComp`, its own `Clock`, and a pointer back to the owning `OuterMetaComponent`. |
+| `OuterMetaComponent.F90` + `OuterMetaComponent/` (64 files, 3089 lines) | `mapl_OuterMetaComponent_mod` | 857 (+ submodules) | The central component-hierarchy type. See §1.2. |
+| `OuterMetaComponentDriverResolver.F90` | `mapl_OuterMetaComponentDriverResolver_mod` | 84 | Small helper resolving a child's `GriddedComponentDriver` from an `OuterMetaComponent`. |
+| `GraphScenarioBootstrap.F90` | `mapl_GraphScenarioBootstrap_mod` | 135 | Test/scenario-harness bootstrap helper (YAML-driven fixture setup for scenario tests and the `graph_diagnostic` app). |
+| `GraphResolutionEntry.F90`, `GraphResolutionEntryVector.F90` | `mapl_GraphResolutionEntry_mod`, `...Vector_mod` | 42, 14 | Structured resolution-report record type used by `GraphBuilder`'s lifecycle hooks (shared with the graph layer; documented in depth in `docs/graph/ARCHITECTURE.md`). |
+| `GraphBuilder.F90` + eleven `GraphBuilder_*_smod.F90` | `mapl_GraphBuilder_mod` | 1206 (+ 11 submodules) | The graph integration layer. **Documented in `docs/graph/ARCHITECTURE.md` §1.2** — listed here only because the files live in this directory; this doc does not re-describe their internals. |
 | `MAPL3_Deprecated.F90` | `mapl_Deprecated_mod` | 13 | Marker module for deprecated-symbol bookkeeping. |
-| `RestartHandler.F90` | `mapl_RestartHandler_mod` | 306 | Restart read/write orchestration, used by `OuterMetaComponent/write_restart.F90`, `read_restart.F90` and `initialize_read_restart.F90`. |
-| `RunEntryPoint.F90`, `EntryPointVector.F90` | `mapl_RunEntryPoint_mod`, `mapl_EntryPointVector_mod` | 11, 15 | Small supporting types for registering custom run-phase entry points (`OuterMetaComponent/set_entry_point.F90`). |
-| `OpenMP_Support.F90` | `mapl_OpenMP_Support_mod` | 461 | OpenMP thread/region helpers; `API.F90` re-exports only `mapl_find_bounds`, `mapl_get_num_threads` and `mapl_get_current_thread` (renamed from `find_bounds`, `get_num_threads`, `get_current_thread`). |
+| `RestartHandler.F90` | `mapl_RestartHandler_mod` | 220 | Read/write-restart orchestration helper used by `OuterMetaComponent/write_restart.F90` / `read_restart.F90`. |
+| `RunEntryPoint.F90`, `EntryPointVector.F90` | `mapl_RunEntryPoint_mod`, `mapl_EntryPointVector_mod` | 11, 15 | Tiny supporting types for registering custom run-phase entry points (`set_entry_point.F90`). |
+| `OpenMP_Support.F90` | `mapl_OpenMP_Support_mod` | 461 | OpenMP thread/region helpers used by generic-layer run-phase dispatch. |
 
-### 1.2 `OuterMetaComponent/`: the component-hierarchy type and its lifecycle
+### 1.2 `OuterMetaComponent/` — the component-hierarchy type and its lifecycle
 
-`OuterMetaComponent.F90` declares the type's private state and every
-type-bound-procedure interface; the 54 files in `OuterMetaComponent/` are
-its submodules (one procedure or tightly related group per file),
-totaling 2582 lines. All 54 are listed in the first
-`esma_add_fortran_submodules` call in `CMakeLists.txt`; that list is the
-authoritative inventory.
+`OuterMetaComponent.F90` (857 lines) declares the type's full private
+state and every type-bound-procedure interface; the 64 files in
+`OuterMetaComponent/` are its submodules (one procedure or tightly
+related group per file), totaling 3089 lines. This is the largest
+single type in the generic layer by procedure count.
 
-Key state owned by `OuterMetaComponent` (its own `use` list and
-declarations in `OuterMetaComponent.F90`):
-- `self_gridcomp` and `user_gc_driver` (a `GriddedComponentDriver`), the
-  `user_setservices`, timestep/offset and `user_phases_map`;
-- `hconfig`;
-- `geom_id`, `geom` and `vertical_grid` (geometry state);
-- `memory_checkpoint`, a nested `ESMF_State` created lazily by
-  `ensure_memory_checkpoint_`;
-- `children`, a `GriddedComponentDriverMap` (drivers are owned by sibling
-  `superstructure/component/`, §2.4);
-- `registry`, a `StateRegistry` (`mapl_StateRegistry_mod`);
-- the `ComponentSpec` (`component_spec`), `CheckpointControls`, and a
-  logger and profiler.
+Key state owned by `OuterMetaComponent` (from its own `use` list and
+declarations, `OuterMetaComponent.F90:1-30`):
+- a `HierarchyId` (`mapl_HierarchyId_mod`) + local `ComponentGraph`
+  (`mapl_ComponentGraph_mod`) — the graph-layer attachment point.
+- a `NodeId` for its own run-phase `MethodGraphNode`
+  (`get_run_phase_method_node_id`/`set_run_phase_method_node_id`).
+- a `StateRegistry` (`mapl_StateRegistry_mod`) — the legacy coupler
+  machinery, still the only producer of a component's real `ESMF_State`
+  under the default `GRAPH_MODE_REGISTRY`.
+- a `GriddedComponentDriverMap` of children (`children`), each entry a
+  `GriddedComponentDriver` (owned by sibling `superstructure/
+  component/`, not this layer — see §2.5).
+- a `ComponentSpec` (the parsed YAML description) and a `ChildSpec`.
+- a `CheckpointControls` value and vertical-grid/geometry state
+  (`GeomId`, `VerticalGrid`).
 
-Representative submodule groupings (not exhaustive):
+Representative submodule groupings (not exhaustive — see
+`CMakeLists.txt:99-122` for the authoritative file list):
 
 | Group | Files | Covers |
 |---|---|---|
-| Construction/teardown | `new_outer_meta.F90`, `init_meta.F90`, `free_outer_meta.F90`, `attach_outer_meta.F90`, `get_outer_meta_from_outer_gc.F90`, `SetServices.F90` | Allocating and attaching an `OuterMetaComponent` to an ESMF `GridComp`'s private state; the generic `SetServices`. |
-| Child management | `add_child_by_spec.F90`, `get_num_children.F90`, `get_child_name.F90`, `get_child_by_name.F90`, `apply_to_children_custom.F90` | Building and querying the child hierarchy (`add_child_by_spec.F90` parses the child's YAML with `mapl_ComponentSpecParser_mod`). |
-| Initialize phases | `initialize_advertise.F90`, `initialize_modify_advertised.F90`, `initialize_realize_provided.F90`, `initialize_accept_transfer.F90`, `initialize_realize_accepted.F90`, `initialize_geom_a.F90`, `initialize_geom_b.F90`, `initialize_set_clock.F90`, `initialize_user.F90`, `initialize_read_restart.F90` | The ordered generic initialize sub-phases; see §2.3 for the call order inside `initialize_advertise.F90`. |
-| Run dispatch | `run_children.F90`, `run_child_by_name.F90`, `run_custom.F90`, `run_user.F90`, `run_clock_advance.F90`, `recurse.F90` | `recurse_` (`recurse.F90`) calls `child%initialize(phase_idx=...)` for each child; `recurse_write_restart_` does the same for restart writing. |
-| Connections | `connect_all.F90`, `advertise_variable.F90` | `connect_all` (reached from `MAPL_Generic.F90`, `gridcomp_connect_all`) and `advertise_variable` (used by `self_advertise` in `initialize_advertise.F90`). |
-| Geometry/vertical grid | `set_geom.F90`, `get_geom.F90`, `has_geom.F90`, `propagate_geom_to_children.F90`, `set_vertical_grid.F90`, `get_vertical_grid.F90` | `propagate_geom_to_children` pushes a parent's geometry to children whose spec kind is `GEOMETRY_FROM_PARENT`. |
-| Restart | `write_restart.F90`, `read_restart.F90`, `get_checkpoint_dir.F90`, `ensure_memory_checkpoint.F90`, `get_memory_checkpoint_state.F90` | Delegates to `RestartHandler.F90`; uses `GENERIC_INTERNAL_WRITE_RESTART`/`GENERIC_INTERNAL_READ_RESTART` from `mapl_GenericPhases_mod`; see §5. |
-| Accessors | `get_name.F90`, `get_gridcomp.F90`, `get_hconfig.F90`, `set_hconfig.F90`, `get_phases.F90`, `get_internal_state.F90`, `get_logger.F90`, `get_registry.F90`, `get_component_spec.F90`, `get_user_gc_driver.F90`, `set_entry_point.F90`, `start_timer.F90`, `stop_timer.F90`, `finalize.F90` | Field accessors and small utilities. |
+| Construction/teardown | `new_outer_meta.F90`, `init_meta.F90`, `free_outer_meta.F90`, `attach_outer_meta.F90`, `get_outer_meta_from_outer_gc.F90` | Allocating and attaching an `OuterMetaComponent` to an ESMF `GridComp`'s private state. |
+| Child management | `add_child_by_spec.F90`, `get_num_children.F90`, `get_child_name.F90`, `get_child_by_name.F90`, `get_child_driver.F90`, `get_child_outer_meta.F90`, `get_child_component_spec.F90`, `get_child_component_graph.F90`, `apply_to_children_custom.F90` | Building and querying the child hierarchy. |
+| Init-phase lifecycle | `initialize_advertise.F90`, `initialize_modify_advertised.F90`, `initialize_realize_provided.F90`, `initialize_accept_transfer.F90`, `initialize_realize_accepted.F90`, `initialize_graph_freeze.F90`, `initialize_geom_a.F90`, `initialize_geom_b.F90`, `initialize_set_clock.F90`, `initialize_user.F90`, `initialize_read_restart.F90` | The ordered sequence of generic init sub-phases; see §2.4 for the verified call order inside `initialize_advertise.F90`. |
+| Run-phase dispatch | `run_children.F90`, `run_child_by_name.F90`, `run_custom.F90`, `run_user.F90`, `run_clock_advance.F90`, `recurse.F90` | Recursing a given ESMF phase index down the child hierarchy (`recurse_`, `OuterMetaComponent/recurse.F90:12`) and dispatching user vs. generic run code. |
+| Connections | `connect_all.F90`, `advertise_variable.F90` | Drives the legacy `Connection`/`StateRegistry` resolution for a component's declared connections. |
+| Geometry/vertical grid | `set_geom.F90`, `get_geom.F90`, `get_geom_id.F90`, `has_geom.F90`, `propagate_geom_to_children.F90`, `set_vertical_grid.F90`, `get_vertical_grid.F90` | `propagate_geom_to_children` (`OuterMetaComponent/propagate_geom_to_children.F90:10`) pushes a parent's geometry down to any child whose `component_spec%geometry_spec%kind == GEOMETRY_FROM_PARENT`. |
+| Restart | `write_restart.F90`, `read_restart.F90`, `get_checkpoint_dir.F90`, `ensure_memory_checkpoint.F90`, `get_memory_checkpoint_state.F90` | Delegates to `RestartHandler.F90`; see §5 (internal/memory checkpoint decisions). |
+| Graph-layer attachment | `get_component_graph.F90`, `get_child_component_graph.F90`, `get_run_phase_method_node_id.F90`, `set_run_phase_method_node_id.F90`, `connections_resolved.F90` | Accessors `GraphBuilder*.F90` uses; documented from the graph side in `docs/graph/ARCHITECTURE.md`. |
+| Misc accessors | `get_name.F90`, `get_gridcomp.F90`, `get_hconfig.F90`, `set_hconfig.F90`, `get_phases.F90`, `get_internal_state.F90`, `get_logger.F90`, `get_registry.F90`, `get_component_spec.F90`, `get_user_gc_driver.F90`, `set_entry_point.F90`, `start_timer.F90`, `stop_timer.F90`, `finalize.F90` | Plain field accessors and small utility procedures. |
 
-### 1.3 `registry/`: `StateRegistry` and extension bookkeeping (20 files, 1638 lines)
+### 1.3 `registry/` — legacy `StateRegistry` and extension bookkeeping (20 files, 1638 lines)
 
 | File | Responsibility |
 |---|---|
-| `StateRegistry.F90` | The type declaration and all module-procedure interfaces. Holds per-component maps keyed by `VirtualConnectionPt`/`ActualConnectionPt`. |
-| `StateRegistry_Lifecycle_smod.F90` | Construction, naming, existence queries (`has_virtual_pt`, `num_owned_items`). |
-| `StateRegistry_Hierarchy_smod.F90` | Subregistry (child-registry) management: `add_subregistry`, `has_subregistry`, `get_subregistry_by_name`, `get_subregistry_by_conn_pt`. |
-| `StateRegistry_Extensions_smod.F90` | `add_virtual_pt`, `add_family`, `add_primary_spec`: the `ExtensionFamily` bookkeeping for a virtual connection point. |
-| `StateRegistry_Propagation_smod.F90` | `propagate_unsatisfied_imports_{all,subregistry,virtual_pt}` and `propagate_exports_{all,subregistry,virtual_pt}`. |
-| `StateRegistry_Actions_smod.F90` | `allocate_items`, `add_to_states` (populates a real `ESMF_State`/`ESMF_FieldBundle` from registry contents), `filter` (pattern-matching query, comment "for MatchConnection"). |
-| `StateRegistry_SetGeometry_smod.F90` | `set_geometry`: pushes a geom/vertical-grid pair onto registered items through the aspects' set-geometry methods. |
-| `AbstractRegistry.F90` | Abstract marker type, `StateRegistry`'s nominal parent. |
-| `ExtensionFamily.F90` | Tracks the `StateItemSpec`s related by extension (one primary spec plus derived specs) for a `VirtualConnectionPt`; its header comment says the primary spec is tracked separately to control which appears in user states. |
+| `StateRegistry.F90` | The type declaration + all module-procedure interfaces (public API surface). Holds per-component maps keyed by `VirtualConnectionPt`/`ActualConnectionPt`. |
+| `StateRegistry_Lifecycle_smod.F90` | Construction, naming, basic existence queries (`has_virtual_pt`). |
+| `StateRegistry_Hierarchy_smod.F90` | Subregistry (child-registry) management: `add_subregistry`, `has_subregistry`, `get_subregistry_by_name`. |
+| `StateRegistry_Extensions_smod.F90` | `add_virtual_pt`, `add_family`, `add_primary_spec` — the `ExtensionFamily` bookkeeping for a given virtual connection point. |
+| `StateRegistry_Propagation_smod.F90` | `propagate_unsatisfied_imports_{all,subregistry,virtual_pt}` and (by symmetry, confirmed in source) the export-propagation counterpart — the legacy, unconditional one-level-up bubbling that `GraphBuilder_ConnectionResolution_smod.F90`'s `run_propagate_hook`/`run_export_propagate_hook` now parallel on the graph side (see `docs/graph/ARCHITECTURE.md` §3.1 for the full graph-side account of why this was replicated, not reused, there). |
+| `StateRegistry_Actions_smod.F90` | `allocate_items`, `add_to_states` (populates a real `ESMF_State`/`ESMF_FieldBundle` from registry contents), `filter` (pattern-matching query). |
+| `StateRegistry_SetGeometry_smod.F90` | `set_geometry` — pushes an `ESMF_Geom`/`VerticalGrid` pair onto every registered item through `GeomAspect%set_component_geom` / `VerticalGridAspect%set_component_vertical_grid`; an aspect the item declared itself is left alone (explicit `MAPL_GridCompSetGeometry` passes `force_replace` and wins). |
+| `AbstractRegistry.F90` | Bare abstract marker type (empty, no deferred methods) — `StateRegistry`'s nominal parent; exists for a possible future second concrete registry, not currently used for polymorphic dispatch anywhere found in this pass. |
+| `ExtensionFamily.F90` | Tracks the set of `StateItemSpec`s that are mutually related by extension (one "primary" spec plus its couplers' derived specs), keyed by `VirtualConnectionPt`. |
 | Container files: `ActualPtSpecPtrMap.F90`, `ActualPtComponentDriverMap.F90`, `VirtualPtStateItemPtrMap.F90`, `VirtualPtStateItemSpecMap.F90`, `ActualPtStateItemSpecMap.F90`, `StateItemVector.F90`, `RegistryPtr.F90`, `RegistryPtrMap.F90`, `ActualPtVector.F90`, `ActualPtVec_Map.F90`, `VirtualPtFamilyMap.F90` | gFTL map/vector instantiations backing the above. |
 
-`StateRegistry` populates the user import, export and internal states:
-`add_to_states` (called from `initialize_advertise.F90` with
-`mode='user'`) calls `spec%add_to_state`, implemented in
-`specs/FieldClassAspect.F90` (which calls `ESMF_StateAddReplace`) and
-`specs/ServiceClassAspect.F90`. The memory-checkpoint states and the
-restart-write states are built outside the registry
-(`OuterMetaComponent/ensure_memory_checkpoint.F90`,
-`OuterMetaComponent/write_restart.F90`).
+This is the legacy imperative coupler machinery. It is **still the
+sole producer of a component's real `ESMF_State`** under the default
+`GRAPH_MODE_REGISTRY` (see §2.3), and remains active and tested
+regardless of graph-layer progress. Per `docs/graph/ARCHITECTURE.md`
+§6, legacy `StateRegistry` retirement ("Phase 6a") is explicitly gated
+on a five-item prerequisite list in `docs/graph/spec/
+20-implementation-roadmap.md` §20.4.11 — **do not treat this directory
+as dead code**; it has no scheduled removal date, only a list of
+graph-side prerequisites that must land first.
 
-### 1.4 `connection/`: the `Connection` family (10 files, 1256 lines)
+### 1.4 `connection/` — the `Connection` family (10 files, 1256 lines)
 
 | File | Responsibility |
 |---|---|
-| `Connection.F90` | Abstract base (`get_source`/`get_destination`/`activate`/`connect`). |
-| `ConnectionPt.F90`, `ConnectionPtVector.F90` | A (component, item-name) address and its vector container. |
-| `VirtualConnectionPt.F90`, `VirtualConnectionPtVector.F90` | An unresolved connection endpoint (declared name). |
-| `ActualConnectionPt.F90` | A resolved endpoint. |
-| `SimpleConnection.F90` | Explicit, named source and destination. |
-| `MatchConnection.F90` | Matches by pattern/wildcard rather than an explicit pair (uses `StateRegistry%filter`). |
-| `ReexportConnection.F90` | Re-exports an already-connected item. |
+| `Connection.F90` | Abstract base: `get_source`/`get_destination`/`activate`/`connect`, all deferred. |
+| `ConnectionPt.F90`, `ConnectionPtVector.F90` | A resolved (component, item-name) address and its vector container. |
+| `VirtualConnectionPt.F90`, `VirtualConnectionPtVector.F90` | An *unresolved* connection endpoint (declared name, before matching). |
+| `ActualConnectionPt.F90` | A resolved endpoint bound to a real `StateItemSpec`. |
+| `SimpleConnection.F90` | A connection with explicit, named source and destination (`ConnectionPt` pair) — the ordinary case. |
+| `MatchConnection.F90` | A connection matching by pattern/wildcard rather than an explicit pair; shares `connect`/structural-resolution logic with `SimpleConnection` on the graph-integration side (see `docs/graph/ARCHITECTURE.md` §1.2's note on `connection_pt_pair_resolves`). |
+| `ReexportConnection.F90` | Re-exports an already-connected item under a different name/level; stays on the `class default` (not-specially-handled) path in `GraphBuilder_ConnectionResolution_smod.F90`'s resolution dispatch. |
 | `ConnectionVector.F90` | gFTL vector of `class(Connection)`. |
 
-`SimpleConnection.F90` and the other concrete types `use
-mapl_StateRegistry_mod`: the connection family and the registry reference
-each other's modules (§2.1). `initialize_advertise.F90`
-(`process_connections`) iterates `component_spec%connections` and calls
-`activate(registry)` on each.
+Every concrete `Connection` subtype, plus `StateRegistry`, is
+referenced directly by `superstructure/generic/graph/` integration
+code (`GraphBuilder_ConnectionResolution_smod.F90` dispatches on
+`class is (SimpleConnection)` / `class is (MatchConnection)`) — this is
+one of the two families (along with `specs/`) that both the legacy
+path and the graph integration layer depend on directly.
 
-### 1.5 `ComponentSpecParser/`: YAML to `ComponentSpec` (9 files, 1034 lines)
+### 1.5 `ComponentSpecParser/` — YAML → `ComponentSpec` (9 files, 1034 lines)
 
 | File | Responsibility |
 |---|---|
-| `parse_component_spec.F90` | Top-level entry: one component's YAML block into a `ComponentSpec`. |
-| `parse_children.F90`, `parse_child.F90` | The `children:` list into `ChildSpec`s. |
-| `parse_connections.F90` | The `connections:` list into `Connection` objects. |
-| `parse_var_specs.F90` | The variable (import/export/internal) list into `VariableSpec`s; calls `to_itemtype` per entry. |
-| `parse_geometry_spec.F90` | The `geometry:` block into a `GeometrySpec`. |
-| `parse_setservices.F90` | Resolves the named user `SetServices`. |
-| `parse_timespec.F90` | Run-phase timestep/offset configuration. |
-| `to_itemtype.F90` | Classifies a variable's item type from its YAML attributes. This is the compiled copy; see the top-level duplicate in §1.1. |
+| `parse_component_spec.F90` | Top-level entry: parses one component's full YAML block into a `ComponentSpec`. |
+| `parse_children.F90`, `parse_child.F90` | Recursively parses the `children:` list into `ChildSpec`s. |
+| `parse_connections.F90` | Parses the `connections:` list into `Connection` objects (dispatches to `SimpleConnection`/`MatchConnection`/`ReexportConnection` construction based on YAML shape). |
+| `parse_var_specs.F90` | Parses the `variables:`/import/export list into `VariableSpec`s; calls `to_itemtype` (below) per entry. |
+| `parse_geometry_spec.F90` | Parses the `geometry:` block into a `GeometrySpec`. |
+| `parse_setservices.F90` | Resolves the named user `SetServices` procedure. |
+| `parse_timespec.F90` | Parses run-phase timestep/alarm configuration. |
+| `to_itemtype.F90` | Classifies a variable's declared item type (`field`/`expression`/`vector`/`service`/`wildcard`/`bracket`/`vector_bracket`) from its YAML `class:`/`expression:` keys. **This is the file actually compiled** — see the top-level duplicate's note in §1.1. |
 
-### 1.6 `specs/`: the spec and aspect type hierarchy (40 `.F90` files, 10,740 lines, including `GeomAspect/` and `VerticalGridAspect/`; largest subdirectory)
+### 1.6 `specs/` — the `ComponentSpec`/`VariableSpec`/aspect type hierarchy (42 `.F90` files, 10,971 lines incl. `GeomAspect/`, `VerticalGridAspect/` — largest subdirectory)
 
-This is the metadata model the coupler machinery dispatches on. Three
-loosely layered families.
+This is the metadata model the legacy coupler (and, for a handful of
+axes, the parser) dispatches on. Three loosely-layered families:
 
 **Spec containers** (what a component declares):
-- `ComponentSpec.F90`: a component's full declaration (children,
-  variables, connections, geometry spec, set-services reference).
-- `ChildSpec.F90` + `ChildSpecMap.F90`: one child's declaration
-  (`user_setservices`, `hconfig`, timestep, offset).
-- `VariableSpec.F90` (plus `VariableSpecVector.F90`,
-  `VariableSpec_private.F90`): one import/export/internal's declaration.
-- `GeometrySpec.F90`, `GridSpec.F90`: declared geometry.
-- `CheckpointControls.F90`: four independent logical flags
-  (`import`/`export`/`internal`/`bootstrap`, all default `.false.`)
-  controlling which state categories participate in restart I/O.
+- `ComponentSpec.F90` — a component's full declaration: children,
+  variables, connections, geometry spec, set-services reference.
+- `ChildSpec.F90` + `ChildSpecMap.F90` — one child's declaration
+  (name, YAML source, geometry-inheritance mode).
+- `VariableSpec.F90` (plus `VariableSpecTag.F90`, `VariableSpecMemberMap.F90`,
+  `VariableSpecVector.F90`, `VariableSpec_private.F90`) — one
+  import/export's full declaration: name, units, typekind, ungridded
+  dims, standard name, restart mode, and (per `openspec/changes/
+  archive/2026-09-18-composite-state-spec`) a polymorphic map of
+  declared composite *members* of itself, keyed by name
+  (`VariableSpecMemberMap`, templated over the bare marker type
+  `VariableSpecTag` specifically to let `VariableSpec` contain a map of
+  its own type without a circular module dependency — see that file's
+  own header comment and `design.md` "Decisions").
+- `GeometrySpec.F90`, `GridSpec.F90` — declared geometry (grid kind,
+  resolution, or "inherit from parent").
+- `CheckpointControls.F90` — four independent boolean flags
+  (`import`/`export`/`internal`/`bootstrap`) controlling which
+  categories of state participate in restart I/O.
 
-**Resolved state-item model** (what a connection resolves against):
-- `StateItemSpec.F90`: the resolved representation of one state item: an
-  `AspectMap` of its `StateItemAspect` values, its intent, its
-  dependencies, and (comment "merged from StateItemExtension") producer
-  and consumer tracking: a `ComponentDriverVector` of `consumers` and a
-  `producer` pointer.
+**Resolved state-item model** (what a connection actually resolves
+against):
+- `StateItemSpec.F90` — the resolved, in-memory representation of one
+  state item: an `AspectMap` of its `StateItemAspect` values, its
+  `ESMF_StateIntent_Flag`, its dependency list
+  (`VirtualConnectionPtVector`), and (per the "merged from
+  StateItemExtension" comment at `StateItemSpec.F90:40-44`) direct
+  producer/consumer tracking — a `ComponentDriverVector` of consumers
+  and a single `producer` pointer, used by the legacy coupler to know
+  which `ComponentDriver` computes/depends on this spec.
 - `StateItemSpecVector.F90`, `StateItemSpecPtrVector.F90`,
-  `StateItemSpecMap.F90`: containers.
+  `StateItemSpecMap.F90` — containers.
 
-**`StateItemAspect`/`ClassAspect` family** (per-axis metadata and the
+**`StateItemAspect`/`ClassAspect` family** (the per-axis metadata
+values a `StateItemSpec` carries in its `AspectMap`, and the
 connection-compatibility rules between them):
-- `StateItemAspect.F90`: abstract base. Its header comment documents the
-  table of allowed connections between `simple`/`mirror`/`timedep`
-  aspects and when a coupler is required. Read it before changing any
+- `StateItemAspect.F90` — abstract base. Its header comment
+  (`StateItemAspect.F90:2-30`) documents the full allowed-connection
+  table between `simple`/`mirror`/`timedep` aspect kinds and when a
+  coupler is required — read this comment directly before changing any
   `can_connect_to`/`matches` override.
-- `ClassAspect.F90`: abstract subclass for a state item's structural
-  class. Concrete subclasses: `FieldClassAspect.F90` (+
-  `FieldClassAspect_smod.F90`), `FieldBundleClassAspect.F90`,
-  `StateClassAspect.F90`, `VectorClassAspect.F90` (+
-  `ActualPtFieldAspectMap.F90`), `WildcardClassAspect.F90`,
-  `ServiceClassAspect.F90`, `BracketClassAspect.F90` and
-  `VectorBracketClassAspect.F90` (time-interpolation brackets, converted
-  by `transforms/TimeInterpolateTransform.F90`), and
-  `ExpressionClassAspect.F90` (formula-driven items; see
-  `openspec/specs/generic/expression-vertical-dim-resolution/spec.md`).
-- Value aspects, one per axis: `UnitsAspect.F90`, `TypekindAspect.F90`,
-  `UngriddedDimsAspect.F90`, `GeomAspect.F90` (+
+- `ClassAspect.F90` — abstract subclass distinguishing a state item's
+  *structural class* (plain field vs. one of the special subclasses
+  below) from its other (`GeomAspect`/`UnitsAspect`/etc.) metadata.
+  Concrete subclasses, one per YAML `class:` value:
+  - `FieldClassAspect.F90` (+ `FieldClassAspect_smod.F90`) — ordinary
+    field; `matches_a` accepts another `FieldClassAspect` or a
+    `WildcardClassAspect`.
+  - `FieldBundleClassAspect.F90`, `StateClassAspect.F90` — bundle/state
+    structural classes.
+  - `VectorClassAspect.F90` (+ `ActualPtFieldAspectMap.F90`) — a
+    multi-component vector quantity.
+  - `WildcardClassAspect.F90` — matches any structural class (used for
+    the catch-all export side of a wildcard import).
+  - `ServiceClassAspect.F90` — a callable service, not a data value.
+  - `BracketClassAspect.F90`, `VectorBracketClassAspect.F90` — a
+    time-interpolation bracket (2-field/2-fieldbundle holding adjacent
+    time levels + weights); legacy's own shape-changing conversion to
+    an ordinary field/vector (`TimeInterpolateTransform.F90`). The
+    graph-native layer's analogous but independently-implemented
+    `ItemShapeCharacteristic`/`BracketTimeInterpolationTransform`
+    (`BRACKET`→`FIELD` only, landed Phase 7a) is a **separate, parallel
+    mechanism** — see §2.4/§6 for how the two relate.
+  - `ExpressionClassAspect.F90` — a computed (formula-driven) item;
+    see `openspec/specs/generic/expression-vertical-dim-resolution/
+    spec.md` for the one landed cross-cutting rule governing it
+    (§1.7 below).
+- Value aspects (one per metadata axis, each a concrete
+  `StateItemAspect` subclass with its own `can_connect_to`/`matches`
+  compatibility rule): `UnitsAspect.F90`, `TypekindAspect.F90`,
+  `UngriddedDimsAspect.F90`, `GeomAspect.F90` (+ submodule directory
   `GeomAspect/make_transform.F90`), `VerticalGridAspect.F90` (+
-  `VerticalGridAspect/make_transform.F90`), `AttributesAspect.F90`,
-  `StandardNameAspect.F90`, `QuantityTypeAspect.F90`,
-  `ConservationAspect.F90`, `NormalizationAspect.F90`.
-- `AspectId.F90`, `AspectStatus.F90`: ids and statuses used by `AspectMap`
-  (`AspectMap` itself is exercised by `tests/Test_AspectMap.pf`).
+  submodule directory `VerticalGridAspect/make_transform.F90`),
+  `AttributesAspect.F90`, `StandardNameAspect.F90`,
+  `QuantityTypeAspect.F90`, `ConservationAspect.F90`,
+  `NormalizationAspect.F90`.
+- `AspectId.F90`, `AspectStatus.F90` — small supporting enums/ids used
+  by `AspectMap` to key and status-tag aspect entries.
 
-### 1.7 `transforms/`: the `ExtensionTransform` family (15 `.F90` files + `notes.md`, 3211 lines)
+**[ASSUMPTION]** The `specs/` family's `StateItemAspect`/`ClassAspect`
+hierarchy and the graph-neutral `graph/characteristics/
+StateItemCharacteristic` hierarchy (`docs/graph/README.md`'s
+`characteristics.md`) are **structurally parallel but code-independent
+reimplementations** of largely the same axis list (units, typekind,
+geometry, ungridded dims, standard name, quantity type, conservation,
+normalization, item-shape/bracket). This parallel-reimplementation
+relationship is stated directly in multiple places already read this
+session (`docs/graph/ARCHITECTURE.md` §1.1's characteristics table,
+`docs/graph/GLOSSARY.md`, and the Phase 7a proposal's "No change to
+legacy `ClassAspect`" impact note) — treated as verified, not an
+assumption of this pass, but flagged because no single file states "these
+two hierarchies are intentionally kept separate forever"; the roadmap's
+own framing is that the graph-native side is being built up to
+eventually make the `specs/` aspect side removable (Phase 6a), not that
+the two will coexist indefinitely.
+
+### 1.7 `transforms/` — concrete data converters, legacy `ExtensionTransform` family (15 files + 1 note, 3211 lines)
 
 | File | Responsibility |
 |---|---|
-| `TransformId.F90` | Id/key type identifying a transform instance. |
-| `ExtensionTransform.F90` | Abstract base of the coupler's transforms. |
-| `NullTransform.F90` | No-op placeholder so a function returning an `ExtensionTransform` can allocate a return value under error conditions (its own comment). |
-| `ExtendTransform.F90` | Near-no-op transform for an export that mirrors an aspect value. |
+| `TransformId.F90` | Small id/key type identifying a transform instance. |
+| `ExtensionTransform.F90` | Abstract base (legacy coupler's transform interface — distinct from, and not a parent of, the graph-native `mapl_Transform_mod` the graph layer defines independently). |
+| `NullTransform.F90` | No-op placeholder, used so a function returning an `ExtensionTransform` can allocate a return value under error conditions. |
+| `ExtendTransform.F90` | A near-no-op transform used when an export simply "mirrors" an aspect value onto a differently-typed import (no real data conversion). |
 | `TransformVector.F90` | gFTL vector of `class(ExtensionTransform)`. |
-| `RegridTransform.F90` | Horizontal regrid. |
-| `VerticalRegridTransform.F90` | Vertical regrid, using `infrastructure/vertical/vertical/` numerics (`VerticalConservativeMap`, `VerticalLinearMap`, `CSR_SparseMatrix`). |
-| `CopyTransform.F90` | Plain field copy. |
-| `ConvertUnitsTransform.F90` | Units conversion (udunits2). |
-| `NormalizationTransform.F90` | Normalization-aspect-driven rescaling. |
-| `TimeInterpolateTransform.F90` | Bracket (two fields plus weights) to ordinary field. |
-| `EvalTransform.F90` | Expression formula evaluation. |
-| `ExtensionTransformUtils.F90` | Shared helpers. |
-| `CouplerMetaComponent.F90`, `GenericCoupler.F90` | The ESMF gridcomp wrapper around a transform (a coupler as a child gridcomp). Listed in `transforms/CMakeLists.txt`. |
-| `notes.md` | Free-form developer notes (connection/extension walk-through). |
+| `RegridTransform.F90` | Horizontal regrid (via `MAPL_FieldClone`/`MAPL_FieldGet`, ESMF regrid handles). |
+| `VerticalRegridTransform.F90` | Vertical regrid, delegating to `superstructure/generic/vertical/` and `infrastructure/vertical/`. |
+| `CopyTransform.F90` | Plain field copy (same shape/units/typekind — still routed through the coupler machinery for uniformity). |
+| `ConvertUnitsTransform.F90` | Units conversion via `udunits2`. |
+| `NormalizationTransform.F90` | Normalization-aspect-driven value rescaling. |
+| `TimeInterpolateTransform.F90` | Bracket (2-field + weights) → ordinary field time interpolation — legacy's own implementation of the same operation Phase 7a's graph-native `BracketTimeInterpolationTransform` (in `graph/transforms/`) independently reimplements. |
+| `EvalTransform.F90` | Expression (`ExpressionClassAspect`) formula evaluation. |
+| `ExtensionTransformUtils.F90` | Shared helper procedures for the above. |
+| `CouplerMetaComponent.F90`, `GenericCoupler.F90` | **Historically lived in `couplers/`** (see below); absorbed into `transforms/` per that directory's own `CMakeLists.txt` comment. The actual ESMF gridcomp wrapper around one `ExtensionTransform` instance, used to run a coupler as a genuine child gridcomp when a transform needs its own `Initialize`/`Run`/`Finalize` lifecycle rather than being called as a plain procedure. |
+| `notes.md` | Free-form developer notes file; not a doc this pass restructured — read directly if touching this directory. |
 
-`couplers/` contains only a `CMakeLists.txt` with the comment
-`# Sources moved to transforms/: CouplerMetaComponent.F90, GenericCoupler.F90`.
-It is still listed by `add_subdirectory(couplers)` in the parent
-`CMakeLists.txt` and contributes no sources.
+**`couplers/` subdirectory is now empty** — its `CMakeLists.txt`
+contains only the comment `# Sources moved to transforms/:
+CouplerMetaComponent.F90, GenericCoupler.F90`. It is still listed in
+the parent `CMakeLists.txt`'s `add_subdirectory(couplers)` (so CMake
+configuration does not break), but contributes zero sources. Treat it
+as a historical marker, not a live module group — do not add new files
+there.
 
-### 1.8 `vertical/`: layer-specific vertical grids (2 files, 905 lines)
+### 1.8 `vertical/` — vertical-grid types specific to the generic layer (2 files, 905 lines)
 
 | File | Responsibility |
 |---|---|
-| `ModelVerticalGrid.F90` | `mapl_ModelVerticalGrid_mod`: a vertical grid built from a component's declared levels; its `use` list pulls in `StateRegistry`, `ExtensionFamily` and most of the `specs/` aspects. |
-| `FixedLevelsVerticalGrid.F90` | `mapl_FixedLevelsVerticalGrid_mod`: a grid with an explicit fixed level list, built on `mapl_VerticalGridSpec_mod`/`mapl_VerticalGridFactory_mod` from `infrastructure/vertical/vertical_grid/`. |
+| `ModelVerticalGrid.F90` | `mapl_ModelVerticalGrid_mod` — a `StateRegistry`-aware vertical grid built from a component's own declared levels; pulls in nearly the whole `specs/` aspect family (see its own `use` list) because it must participate in the same aspect-matching machinery as any other `StateItemAspect`. |
+| `FixedLevelsVerticalGrid.F90` | `mapl_FixedLevelsVerticalGrid_mod` — a vertical grid defined by an explicit, fixed list of levels (parsed from YAML `ESMF_HConfig`), extending the generic (non-layer-specific) `mapl_VerticalGridSpec_mod` from `infrastructure/vertical/vertical_grid/`. |
 
-The general vertical-grid machinery (`VerticalGrid`, `VerticalGridSpec`,
-`VerticalGridFactory`, regrid maps) is in
-`infrastructure/vertical/vertical_grid/` and
-`infrastructure/vertical/vertical/`, not in this directory.
+The genuinely generic vertical-grid machinery (`VerticalGrid`,
+`VerticalGridSpec`, `VerticalGridFactory`, `VerticalCoordinateDirection`,
+`VerticalStaggerLoc`, the actual regrid-method numerics —
+`CSR_SparseMatrix`/`VerticalConservativeMap`/`VerticalLinearMap`) lives
+in `infrastructure/vertical/vertical_grid/` and `infrastructure/
+vertical/vertical/`, **not** in this directory — confirmed by
+`vertical/CMakeLists.txt`'s own comment ("moved to infrastructure/
+vertical/vertical/"). This directory holds only the two
+layer-specific concrete grid types above.
 
 ## 2. Important interfaces and dependencies
 
-### 2.1 Dependency direction among the subdirectories (from `use` statements)
+### 2.1 Dependency direction among the subdirectories in this file
 
-- `specs/` aspects `use` transform modules to build couplers
-  (`UnitsAspect.F90` uses `mapl_ConvertUnitsTransform_mod`,
-  `mapl_ExtensionTransform_mod`, `mapl_NullTransform_mod`; the
-  `make_transform.F90` submodules of `GeomAspect` and `VerticalGridAspect`
-  produce transforms, and the former uses `mapl_ModelVerticalGrid_mod`).
-  `transforms/ExtensionTransform.F90` uses `mapl_AspectId_mod` from
-  `specs/`: the two directories reference each other.
-- `registry/` uses `specs/` modules (7 of its files use
-  `mapl_StateItemSpec_mod` or an aspect module) and `connection/` modules.
-- `connection/` types `use mapl_StateRegistry_mod` (for example
-  `SimpleConnection.F90`).
-- `specs/ExpressionClassAspect.F90`, `ServiceClassAspect.F90` and
-  `VariableSpec.F90` use `StateRegistry` or `ExtensionFamily`.
-- `vertical/ModelVerticalGrid.F90` uses `StateRegistry` and the aspects.
-- `ComponentSpecParser` is used by `OuterMetaComponent/add_child_by_spec.F90`,
-  `OuterMetaComponent/SetServices.F90` and `MAPL_Generic.F90`.
+```
+specs/            <-- depended on by: connection/, registry/, transforms/,
+                       vertical/, ComponentSpecParser/, OuterMetaComponent/
+connection/       <-- depended on by: registry/ (StateRegistry uses Connection
+                       indirectly via resolved specs), OuterMetaComponent/
+                       (connect_all.F90), GraphBuilder_ConnectionResolution_smod.F90
+registry/         <-- depended on by: OuterMetaComponent/ (owns one StateRegistry),
+                       connection/ (SimpleConnection/MatchConnection/
+                       ReexportConnection all `use mapl_StateRegistry_mod`),
+                       vertical/ModelVerticalGrid.F90
+transforms/       <-- depended on by: registry/ (StateRegistry_Actions_smod /
+                       ExtensionFamily resolution builds transforms),
+                       vertical/ (VerticalRegridTransform wraps
+                       infrastructure/vertical/ numerics)
+ComponentSpecParser/ <-- depended on only by OuterMetaComponent/ (add_child_by_spec.F90
+                       and friends parse a child's YAML into a ComponentSpec)
+```
 
-Because of these mutual references, the subdirectories are not a strict
-layering; Fortran module dependency order is resolved by the build.
+No subdirectory here depends on `superstructure/generic/graph/` —
+confirmed by grep (no `graph/` or `mapl_ComponentGraph_mod`/
+`mapl_NodeId_mod`/`mapl_StateItemCharacteristic_mod` `use` statement
+found in `specs/`, `connection/`, `registry/`, `transforms/`,
+`vertical/`, or `ComponentSpecParser/`). The *only* files in this
+directory tree that depend on the graph layer are the top-level
+`GraphBuilder*.F90` files and `OuterMetaComponent.F90`/its submodules
+(§2.4) — i.e. exactly the integration seam, nothing deeper.
 
-### 2.2 `StateItemSpec`/`AspectMap`: the coupler's central value type
+### 2.2 `StateItemSpec`/`AspectMap` — the legacy coupler's central value type
 
-A `StateItemSpec` (`specs/StateItemSpec.F90`) is the resolved
-representation of one import or export. It carries an `AspectMap` keyed by
-`AspectId` of `StateItemAspect` values (one per axis), its intent, its own
-declared dependencies, and `producer`/`consumers` driver tracking (see
-§1.6).
+A `StateItemSpec` (`specs/StateItemSpec.F90:30` onward) is the resolved
+representation of one import or export. It carries:
+- an `AspectMap` (keyed by `AspectId`) of `StateItemAspect` values —
+  one entry per axis (units, typekind, geometry, class, ...), looked up
+  via `get_aspect_order()`/`get_aspect_priorities()` to determine
+  comparison/resolution order;
+- its `ESMF_StateIntent_Flag` (import/export/internal);
+- a `VirtualConnectionPtVector` of its own declared dependencies (for
+  `expression`/composite items that reference other items);
+- direct producer/consumer tracking: `producer` (the single
+  `ComponentDriver` that computes this spec, if any) and `consumers`
+  (every `ComponentDriver` that depends on it) — per the file's own
+  comment, this was "merged from StateItemExtension," i.e. an earlier,
+  separate type whose responsibility was folded in here.
 
 Connection compatibility between two `StateItemSpec`s is decided
-per aspect, through each aspect's `can_connect_to`/`matches` methods, not
-by a single comparison. The header comment of `specs/StateItemAspect.F90`
-is the statement of the cross-aspect-kind rules.
+per-aspect, via each aspect's own `can_connect_to`/`matches` method —
+**not** by a single top-level comparison. `StateItemAspect.F90`'s
+header-comment table (simple/mirror/timedep × simple/mirror/timedep,
+whether a coupler is required) is the one authoritative statement of
+the cross-aspect-kind connection rules; read it directly, do not
+re-derive it from individual aspect files.
 
-### 2.3 Initialize call order
+### 2.3 `GRAPH_MODE_*` — who actually produces a component's `ESMF_State`
 
-`OuterMetaComponent/initialize_advertise.F90`, `initialize_advertise`:
+`superstructure/generic/graph/GraphMode.F90` (`mapl_GraphMode_mod`) is
+the single global 3-way selector between the legacy path this file
+documents and the graph-native path `docs/graph/` documents:
+
+| Mode | Behavior |
+|---|---|
+| `GRAPH_MODE_REGISTRY` (default) | Only `StateRegistry`/`transforms/` populate the real `ESMF_State`. Zero behavior change from before the graph layer existed. This is what every real production run uses today — nothing sets `set_graph_mode()` outside test code. |
+| `GRAPH_MODE_BOTH` | Graph-native materialization runs *alongside* the legacy coupler, but never inserts into the same `ESMF_State` — readable only out of band, directly from the graph node's own payload. Used to compare the two paths with no collision risk. |
+| `GRAPH_MODE_GRAPH` | Graph-native state population is the *sole* producer; the legacy coupler's population step is skipped for that component. Not yet exercised end-to-end against any real fixture by design (`docs/graph/spec/20-implementation-roadmap.md` "demonstrate before replace") — unit-testable regardless. |
+
+This file's own subdirectories (`specs/`, `connection/`, `registry/`,
+`transforms/`) run **unconditionally** regardless of `graph_mode()` —
+legacy resolution (`StateRegistry%propagate_unsatisfied_imports`/
+`propagate_exports`, `process_connections`) always executes; only
+*whether the graph-native path also runs, and whether its result feeds
+the real `ESMF_State`*, is gated by this selector. A mismatch detected
+by a legacy aspect's own `can_connect_to`/`matches` (e.g.
+`UngriddedDimsAspect`, which rejects disagreement unconditionally,
+independent of `ValidationMode`) can hard-fail `process_connections()`
+*before* `GraphBuilder`'s own resolution ever runs, regardless of
+`graph_mode()` — a real, previously-encountered gotcha recorded in
+`docs/graph/history/2026-10-session-narratives.md` (Phase 12 narrative, second surprise).
+
+### 2.4 Lifecycle call sites where this layer calls into the graph layer
+
+Verified in `OuterMetaComponent/initialize_advertise.F90` (also stated
+from the graph side in `docs/graph/ARCHITECTURE.md` §2.4; repeated here
+because it is the one place this layer's own lifecycle code explicitly
+calls out to `GraphBuilder`):
 
 ```
-recurse(this, phase_idx=MAPL_GENERIC_INIT_ADVERTISE)  ! children first
-self_advertise(this)                    ! advertise_variable per VariableSpec
-this%run_custom(ESMF_METHOD_INITIALIZE, 'GENERIC::INIT_ADVERTISE')
-process_connections(this)               ! Connection%activate(registry)
-registry%propagate_unsatisfied_imports
-registry%propagate_exports
-registry%add_to_states(user_states, mode='user')
+recurse()                              ! bottom-up: every child's own advertise pass first
+run_advertise_hook(this)               ! GraphBuilder — creates StateItemNodes from VariableSpec
+run_activate_hook(this)                ! GraphBuilder — connection resolution
+run_propagate_hook(this)               ! GraphBuilder — import mirroring (graph-native analog of
+                                        !   StateRegistry%propagate_unsatisfied_imports, below)
+registry%propagate_unsatisfied_imports ! legacy — unchanged, still runs in parallel
+registry%propagate_exports             ! legacy — unchanged
 ```
 
-The profiler (`DistributedProfiler`, `MpiTimerGauge`) is started at the top
-of the routine. Other phases are in their own submodules (§1.2).
+Both the legacy registry calls and the `GraphBuilder` hook calls run
+unconditionally in sequence — the graph-native hooks do not replace the
+legacy calls; they run *alongside* them, with `GRAPH_MODE_*` only
+gating whether the graph-native result ends up in the real `ESMF_State`
+(§2.3). Other `OuterMetaComponent` lifecycle submodules with their own
+`GraphBuilder` call sites, by phase:
+- `initialize_accept_transfer.F90` — `run_connect_hook`
+  (post-connection-resolution convergence check).
+- `initialize_graph_freeze.F90` — the hierarchy-wide `freeze()` call
+  (see `docs/graph/ARCHITECTURE.md` §2.2's "freeze() is one
+  hierarchy-wide operation" account).
+- `connect_all.F90` — drives legacy `Connection`/`StateRegistry`
+  resolution; does not itself call `GraphBuilder` (confirmed by
+  reading the file in this pass; graph-native connection resolution
+  is driven entirely from `initialize_advertise.F90`'s hooks above).
 
-### 2.4 `superstructure/component/`: a dependency
+### 2.5 `superstructure/component/` — a dependency, not a sibling-owned-the-same-way concern
 
 `GriddedComponentDriver`, `ComponentDriver`, `ComponentDriverVector`,
 `GriddedComponentDriverMap`, `GriddedComponentDriverVector`,
-`ComponentDriverPtrVector` are defined in `superstructure/component/`, a
-sibling of `superstructure/generic/`. `OuterMetaComponent` owns a
+`ComponentDriverPtrVector` are all defined in `superstructure/
+component/`, a **sibling** directory to `superstructure/generic/`, not
+a subdirectory of it. `OuterMetaComponent` owns a
 `GriddedComponentDriverMap` of its children and `StateItemSpec` tracks
-`ComponentDriver` pointers, so the generic layer depends on
-`superstructure/component/` (`MAPL.component` is a dependency in
-`CMakeLists.txt`). `superstructure/CMakeLists.txt` adds `state`,
-`component`, then `generic`. `superstructure/component/` is not documented
-by this file.
+`ComponentDriver` producer/consumer pointers directly — i.e. the
+generic layer depends on `superstructure/component/`, never the
+reverse. This dependency edge is real and load-bearing (confirmed by
+`use mapl_GriddedComponentDriver_mod` appearing throughout
+`OuterMetaComponent/`, `registry/`, `connection/`, and `vertical/
+ModelVerticalGrid.F90`), but `superstructure/component/` itself is
+**not documented by this file** — it is a separate library with its
+own CMake target, outside this pass's scope.
 
-## 3. `CMakeLists.txt` structure
+## 3. `CMakeLists.txt` structure (verified, all files read directly)
 
-`superstructure/generic/CMakeLists.txt` defines the `MAPL.generic` library
-(`esma_set_this (OVERRIDE MAPL.generic)`, `TYPE SHARED`) with:
-- a top-level `srcs` list (`API.F90`, `GenericGrid.F90`,
-  `ComponentSpecParser.F90`, `UserSetServices.F90`, `MethodPhasesMap.F90`,
-  `InnerMetaComponent.F90`, `OuterMetaComponent.F90`,
-  `GenericGridComp.F90`, `MAPL_Generic.F90`, `MAPL3_Deprecated.F90`,
-  `RestartHandler.F90`, `RunEntryPoint.F90`, `EntryPointVector.F90`,
-  `OpenMP_Support.F90`; `Generic.F90` and the top-level `to_itemtype.F90`
-  are not in it);
-- `add_subdirectory()` for `specs` (with binary directory
-  `generic_specs`; the file's own long comment explains a Spack/Intel
-  `ifort`-under-GCC collision with a directory named `specs`),
-  `registry`, `connection`, `transforms`, `couplers` (no sources),
-  `vertical`; each subdirectory `CMakeLists.txt` calls
-  `target_sources(MAPL.generic PRIVATE ...)`;
-- two `esma_add_fortran_submodules()` calls: one for `OuterMetaComponent`
-  (54 files) and one for `ComponentSpecParser` (9 files, including
-  `to_itemtype.F90`). The macro is defined in the ESMA_cmake dependency,
-  outside this repository. *Unverified:* its documented purpose is to avoid
-  object-file name collisions between submodule directories.
+`superstructure/generic/CMakeLists.txt` defines the `MAPL.generic`
+library (`esma_set_this (OVERRIDE MAPL.generic)`) with:
+- a top-level `srcs` list (the files in §1.1, minus `GraphBuilder_*_smod.F90`'s
+  own submodule machinery which is listed in the same `srcs` list
+  directly — NAG/gfortran submodule files are ordinary sources here,
+  unlike the `esma_add_fortran_submodules` mechanism used for
+  `OuterMetaComponent/` and `ComponentSpecParser/`, see below);
+- `add_subdirectory()` for `specs` (aliased to build dir
+  `generic_specs` — see the file's own long comment explaining a
+  Spack/Intel/`ifort`-under-GCC `specs`-file-name collision this
+  avoids), `registry`, `connection`, `transforms`, `couplers` (now
+  empty), `graph` (out of scope here), `vertical` — each of those
+  subdirectories' own `CMakeLists.txt` calls `target_sources(MAPL.generic
+  PRIVATE ...)` directly, listed in full in §1.3-§1.8 above;
+- two `esma_add_fortran_submodules()` calls — one for
+  `OuterMetaComomponent/` (all 64 files, listed verbatim at
+  `CMakeLists.txt:99-122`), one for `ComponentSpecParser/` (9 files,
+  `CMakeLists.txt:124-130`). This macro
+  (`ESMA_cmake/esma_support/esma_add_fortran_submodules.cmake`) exists
+  specifically to avoid a same-filename collision across separate
+  submodule subdirectories — it copies each source into a
+  `${SUBDIRECTORY}_SMOD_${file}`-named build artifact rather than
+  compiling it in place, so two different subdirectories may each
+  contain a file with the same base name (not currently the case here,
+  but this is the mechanism that would make it safe) without clashing
+  object-file names.
 - library dependencies: `MAPL.enums`, `MAPL.regridder_mgr`, `MAPL.geom`,
   `MAPL.vertical_grid`, `MAPL.GeomIO`, `MAPL.esmf`, `MAPL.field`,
-  `MAPL.state`, `MAPL.utils`, `MAPL.vertical`, `MAPL.component`,
-  `MAPL.field_bundle`, `MAPL.infrastructure`, plus `ESMF::ESMF`,
-  `NetCDF::NetCDF_Fortran`, `udunits2f`, `PFLOGGER::pflogger`,
-  `GFTL_SHARED::gftl-shared-v2`, `GFTL::gftl-v2`;
-- `add_subdirectory(tests EXCLUDE_FROM_ALL)` guarded by `if (PFUNIT_FOUND)`.
+  `MAPL.state`, `MAPL.utils`, `MAPL.vertical`, `MAPL.component`
+  (confirms §2.5's dependency direction), `MAPL.field_bundle`,
+  `MAPL.infrastructure`, plus `ESMF::ESMF`, `NetCDF::NetCDF_Fortran`,
+  `udunits2f`, `PFLOGGER::pflogger`, `GFTL_SHARED`/`GFTL`.
+- `add_subdirectory(tests EXCLUDE_FROM_ALL)` guarded by
+  `if (PFUNIT_FOUND)`.
 
-## 4. Tests
+## 4. Verified build and test commands
 
-`superstructure/generic/tests/CMakeLists.txt` defines six pFUnit ctest
-targets, built by the `build-tests` target. All carry `LABELS "ESSENTIAL"`
-and `MAX_PES 4`, and depend on `proto_extdata_gc proto_stat_gc` (fixture
-gridcomps built from `tests/gridcomps/`: `ProtoExtDataGC.F90`,
-`ProtoStatGridComp.F90`). All link the shared `MAPL.generic.test_common`
-library (`MockUserGridComp.F90`, `MockAspect.F90`).
+Same commands as `docs/graph/ARCHITECTURE.md` §4 (re-run 2026-10-21 on
+this checkout's `nag`/`gfortran` build trees). The ctest target
+names below are the authoritative, non-`graph`-specific suites this
+file's subdirectories feed into; `docs/graph/ARCHITECTURE.md` §4
+documents the same commands with `MAPL.generic.components`/
+`MAPL.generic.scenarios` emphasis for graph-layer regressions
+specifically.
 
-| Target | Test sources | Covers |
+### 4.1 Standard build/test invocation
+
+```bash
+module load nag-stack/7.2.41
+cmake --build nag --target build-tests -j 8
+ctest --test-dir nag -L ESSENTIAL --output-on-failure -j 4   # all 7 MAPL.generic.* suites carry this label
+
+module load gfortran-stack
+cmake --build gfortran --target build-tests -j 8
+ctest --test-dir gfortran -L ESSENTIAL --output-on-failure -j 4
+```
+
+(`nag-stack/7.2.41` is the correct meta-module for this checkout's
+configured toolchain — confirmed previously by reading
+`nag/CMakeCache.txt`'s `BASEDIR`; a bare `module load nag mpi
+baselibs` does not resolve on this host's Lmod setup.)
+
+### 4.2 The seven `superstructure/generic/tests/` ctest targets (verified by reading `tests/CMakeLists.txt` directly)
+
+All carry `LABELS "ESSENTIAL"` and (except `.components.quiet`)
+`MAX_PES 4`:
+
+| Target | Test sources (file) | Covers (relative to this doc's directories) |
 |---|---|---|
-| `MAPL.generic.scenarios` | `Test_Scenarios.pf`, `Test_MemoryCheckpoint.pf` | End-to-end YAML scenario fixtures (copied from `tests/scenarios/`, 33 scenario directories) across the full initialize lifecycle. Runs under strict field-dictionary `ValidationMode` (`EXTRA_INITIALIZE Initialize_strict`); the other suites use `Initialize`. Also depends on the `copy_scenarios` target. |
+| `MAPL.generic.scenarios` (see note below) | `Test_Scenarios.pf`, `Test_MemoryCheckpoint.pf`, `Test_GraphBuilderEquivalence.pf`, `Test_GraphEquivalenceHarness.pf`, `Test_GraphModeDemonstration.pf` | End-to-end YAML-driven scenario fixtures exercising the full init-phase lifecycle (both legacy and graph-native paths, all three `GRAPH_MODE_*` values). Runs under **strict** field-dictionary `ValidationMode` (`EXTRA_INITIALIZE Initialize_strict`) — the only suite here that does. |
 | `MAPL.generic.transforms` | `Test_TimeInterpolateTransform.pf`, `Test_ConvertUnitsTransform.pf`, `Test_CopyTransform.pf`, `Test_ExtensionTransform.pf`, `Test_ExtensionTransformUtils.pf`, `Test_2DConservativeRegrid.pf`, `Test_NormalizationTransform.pf`, `Test_3DConservativeMixingRatio.pf`, `Test_IntegratedNormalization.pf`, `Test_RegridTransform.pf` | §1.7 `transforms/`. |
-| `MAPL.generic.vertical` | `Test_VerticalRegridTransform.pf`, `Test_ModelVerticalGrid.pf`, `Test_VerticalLinearMap.pf`, `Test_VerticalConservativeMap.pf` | §1.8 `vertical/` and `infrastructure/vertical/` numerics. |
-| `MAPL.generic.aspects` | `Test_BaseAspect.pf`, `Test_AspectMap.pf`, `Test_Aspects.pf`, `Test_TypekindAspect.pf`, `Test_UngriddedDimsAspect.pf`, `Test_BracketClassAspect.pf`, `Test_VectorBracketClassAspect.pf`, `Test_UnitsAspect.pf`, `Test_QuantityTypeAspect.pf`, `Test_GeomAspect.pf`, `Test_ConservationAspect.pf`, `Test_NormalizationAspect.pf`, `Test_ExpressionClassAspect.pf`, `Test_VerticalGridAspect_NoneMatch.pf` | §1.6 aspect family. |
-| `MAPL.generic.components` | `Test_GenericGridComp.pf`, `Test_ComponentSpec.pf`, `Test_ComponentSpecParser.pf`, `Test_WriteYaml.pf`, `Test_ExtensionFamily.pf` | §1.5 parser, `GenericGridComp`, `ExtensionFamily`. |
-| `MAPL.generic.core` | `Test_VirtualConnectionPt.pf`, `Test_ConnectionPt.pf`, `Test_FieldDictionary.pf`, `Test_FieldDictIntegration.pf`, `Test_StateRegistry.pf`, `Test_Couplers.pf`, `Test_CSR_SparseMatrix.pf`, `Test_timestep_propagation.pf`, `Test_propagate_time_varying.pf`, `Test_ClockGet.pf`, `Test_VariableSpec_private.pf`, `Test_VectorBasisKind.pf`, `Test_QuantityType.pf`, `Test_ConservationType.pf`, `Test_PolymorphicSetMirror.pf`, `Test_RestartBootstrap.pf` | §1.3 `registry/`, §1.4 `connection/`, field-dictionary integration, restart bootstrap. |
+| `MAPL.generic.vertical` | `Test_VerticalRegridTransform.pf`, `Test_ModelVerticalGrid.pf`, `Test_VerticalLinearMap.pf`, `Test_VerticalConservativeMap.pf` | §1.8 `vertical/` (plus `infrastructure/vertical/` numerics). |
+| `MAPL.generic.aspects` | `Test_BaseAspect.pf`, `Test_AspectMap.pf`, `Test_Aspects.pf`, `Test_TypekindAspect.pf`, `Test_UngriddedDimsAspect.pf`, `Test_BracketClassAspect.pf`, `Test_VectorBracketClassAspect.pf`, `Test_UnitsAspect.pf`, `Test_QuantityTypeAspect.pf`, `Test_GeomAspect.pf`, `Test_ConservationAspect.pf`, `Test_NormalizationAspect.pf`, `Test_ExpressionClassAspect.pf`, `Test_VerticalGridAspect_NoneMatch.pf` | §1.6 `specs/` aspect family. |
+| `MAPL.generic.components` | `Test_GenericGridComp.pf`, `Test_ComponentSpec.pf`, `Test_VariableSpecMembers.pf`, `Test_VariableSpecCallback.pf`, `Test_VariableSpecInout.pf`, `Test_ComponentSpecParser.pf`, `Test_WriteYaml.pf`, `Test_ExtensionFamily.pf`, `Test_ComponentHierarchyGraph.pf`, `Test_GraphBuilder*.pf` (5 files), `Test_GraphBuilderMaterializeGate.pf`, `Test_GraphMode.pf`, `Test_OuterMetaComponentDriverResolver.pf`, `Test_GraphBuilderPropagation.pf`, `Test_GridCompDriverPhaseInvoker.pf` | §1.2 `OuterMetaComponent/`, §1.5 `ComponentSpecParser/`, plus every `GraphBuilder*` unit suite (graph-integration-layer tests; detailed in `docs/graph/`). |
+| `MAPL.generic.components.quiet` | `Test_GraphGeometryHook.pf`, `Test_GraphBuilder_ConvergenceCheck.pf` | Same scope as `.components`, split out because both files deliberately drive a `GraphBuilder` hook down a negative path that logs a `report_if_failed` warning; run with `MAX_PES 1` and `COMMAND_LINE_ARGS --level ERROR` to suppress that expected noise without hiding real warnings elsewhere (pFUnit upstream PR #585 mechanism, manually backported into this tree's installed pFUnit). |
+| `MAPL.generic.core` | `Test_VirtualConnectionPt.pf`, `Test_ConnectionPt.pf`, `Test_FieldDictionary.pf`, `Test_FieldDictIntegration.pf`, `Test_StateRegistry.pf`, `Test_Couplers.pf`, `Test_CSR_SparseMatrix.pf`, `Test_timestep_propagation.pf`, `Test_propagate_time_varying.pf`, `Test_ClockGet.pf`, `Test_VariableSpec_private.pf`, `Test_VectorBasisKind.pf`, `Test_QuantityType.pf`, `Test_ConservationType.pf`, `Test_PolymorphicSetMirror.pf` | §1.3 `registry/` (`StateRegistry`/`Couplers`), §1.4 `connection/` (`ConnectionPt`/`VirtualConnectionPt`), field-dictionary integration. |
 
-Test files present in `tests/` but not listed in any suite in
-`tests/CMakeLists.txt`: `Test_AddVarSpec.pf`, `Test_BracketSpec.pf`,
-`Test_FixedLevelsVerticalGrid.pf`, `Test_VerticalGridAspect.pf`.
+`MAPL.generic.scenarios` runs as ctest entries `MAPL.generic.scenarios.shard0`
+to `.shard5`: the same binary, each process taking every sixth
+`Test_Scenarios.pf` parameter via `MAPL_SCENARIO_SHARD=k/6`. Sharding keeps
+each process under the MPI communicator limit, because `ESMF_TestCase` leaks
+one VM per test. The unsharded ctest entry is disabled.
 
-## 5. Previous architectural decisions
+All seven depend on `proto_extdata_gc proto_stat_gc` (fixture gridcomps
+built from `superstructure/generic/tests/gridcomps/`:
+`ProtoExtDataGC.F90`, `ProtoStatGridComp.F90`) and link a shared
+`MAPL.generic.test_common` library (`MockUserGridComp.F90`,
+`MockAspect.F90`, `GraphBuilderTestSupport.F90`) built once to avoid
+parallel-build race conditions across the seven executables.
 
-Each item cites the `openspec/changes/archive/` directory that is the
-primary record; read its `proposal.md`/`design.md` before making a related
-change. This is a pointer list. Landed specs are under `openspec/specs/`.
+### 4.3 Correction to the generic `mapl-build`/`mapl-testing` skills
+
+Those skills reference a `generic3g/tests` build subdirectory and
+`MAPL.generic3g.*` ctest target names. **This checkout uses
+`superstructure/generic/` and `MAPL.generic.*` target names** —
+confirmed by reading both `superstructure/generic/CMakeLists.txt` and
+`superstructure/generic/tests/CMakeLists.txt` directly, and already
+documented from the graph side in `docs/graph/ARCHITECTURE.md` §4.
+Use the seven real target names in §4.2 above, not the skill's
+`generic3g` examples, on this branch/repo state.
+
+## 5. Previous architectural decisions (this layer, non-graph)
+
+Each item below cites the `openspec/changes/archive/` directory that
+is the primary record (removed from the tree; read it with `git show
+graph-phase-5-archive:openspec/changes/archive/<date>-<name>/design.md`, or
+`proposal.md`; the `<date>-<name>` in each citation below is the directory name) before making a related change — this is a pointer list, not
+a restatement of the reasoning.
 
 - **Standard-name enforcement**
-  (`openspec/changes/archive/2026-09-24-enforce-standard-name-convention/`;
-  spec: `openspec/specs/generic/standard-name-enforcement/spec.md`). The
-  header comment of `specs/StandardNameAspect.F90` says it enforces the
-  standard-name convention between a connected Import and Export, modeled
-  on `UnitsAspect`, with equal-or-unchecked/wildcard agreement. The
-  detailed rules are in the spec.
+  (`openspec/changes/archive/2026-09-24-enforce-standard-name-convention/`,
+  landed spec: `openspec/specs/generic/standard-name-enforcement/spec.md`).
+  A connected Import/Export pair's `standard_name` values must agree
+  (when both are declared and non-wildcard); disagreement is fatal
+  under strict `ValidationMode`, a warning otherwise. Matching
+  `standard_name` also back-fills `long_name`/`units` from the
+  `FieldDictionary`. Implemented on the legacy side via
+  `StandardNameAspect.F90`'s `matches()`; the graph-native
+  `StandardNameCharacteristic` (landed Phase 12, `graph/
+  characteristics/`) implements the equivalent detection but — per
+  `docs/graph/ARCHITECTURE.md` §1.1 — has no real
+  `build_transform` repair step yet (any genuine mismatch on this axis
+  fails loudly rather than converting).
 - **Field-dictionary use in scenario tests**
   (`openspec/changes/archive/2026-09-24-use-field-dictionary-in-scenario-tests/`).
   `MAPL.generic.scenarios` runs under strict `ValidationMode`
-  (`Initialize_strict`); the other suites use the permissive default
-  (`Initialize`) (`tests/CMakeLists.txt`).
-- **Expression vertical-dimension-spec resolution**
-  (`openspec/changes/archive/2026-09-22-derive-expression-vertical-dim-spec/`;
-  spec: `openspec/specs/generic/expression-vertical-dim-resolution/spec.md`).
-  Concerns `specs/ExpressionClassAspect.F90`.
-- **Field-name propagation**
-  (`openspec/changes/archive/2026-09-21-field-name-propagation/`;
-  spec: `openspec/specs/generic/field-name-propagation/spec.md`), and its
-  expression counterpart
-  (`openspec/changes/archive/2026-09-21-expression-field-name-propagation/`;
-  `EvalTransform.F90`). The first proposal describes an Import's
-  `ESMF_Field` as an `ESMF_NamedAlias` of the Export's field, with
-  `standard_name`/`long_name` stored per alias.
+  process-wide (`Initialize_strict`); every other pFUnit suite here
+  still uses the permissive default (`Initialize`). `ValidationMode` is
+  a process-wide singleton set once at `EXTRA_INITIALIZE` time — it
+  cannot vary per-test within one executable, which is why
+  `MAPL.generic.components.quiet` had to be split into its own
+  executable (§4.2) rather than just filtering within `.components`.
+- **Expression vertical-dim-spec resolution**
+  (`openspec/changes/archive/2026-09-22-derive-expression-vertical-dim-spec/`,
+  landed spec: `openspec/specs/generic/expression-vertical-dim-resolution/
+  spec.md`). An `expression` item's unspecified vertical dim spec
+  resolves from its referenced variables' agreeing stagger, treated as
+  a resolution *candidate*, not a fixed authoritative value — declaring
+  `vertical_dim_spec` explicitly on the expression item is required
+  only when it references no variables.
+- **Expression field-name propagation**
+  (`openspec/changes/archive/2026-09-21-expression-field-name-propagation/`,
+  landed spec: `openspec/specs/generic/field-name-propagation/spec.md`).
+  Governs how a referenced field's real name flows into an expression's
+  own formula evaluation (`EvalTransform.F90`).
+- **Extension-registry visibility**
+  (`openspec/changes/archive/2026-09-17-extension-registry-visibility/`).
+  Governs which `ExtensionFamily` members (primary vs. derived specs)
+  are visible under which short name in a user-facing `ESMF_State` —
+  the `ExtensionFamily.F90` header comment ("primary/base item spec is
+  tracked separately to enable control of which will appear in user
+  states") is this decision's direct implementation.
 - **Internal/memory checkpoint**
   (`openspec/changes/archive/2026-08-26-internal-checkpoint/`,
-  `openspec/changes/archive/2026-08-26-add-memory-checkpoint/`; spec:
-  `openspec/specs/internal-checkpoint/spec.md`). Phase-aware internal
-  read/write restart hooks and an in-memory checkpoint
-  (`ensure_memory_checkpoint.F90`, `get_memory_checkpoint_state.F90`,
-  `RestartHandler.F90`); `CheckpointControls.F90` holds the
-  `import`/`export`/`internal`/`bootstrap` flags.
+  `openspec/changes/archive/2026-08-26-add-memory-checkpoint/`, landed
+  spec: `openspec/specs/internal-checkpoint/spec.md`). Defines restart
+  I/O for `internal` state specifically (as opposed to import/export),
+  and an in-memory (non-file) checkpoint mechanism
+  (`ensure_memory_checkpoint.F90`/`get_memory_checkpoint_state.F90`,
+  `RestartHandler.F90`). `CheckpointControls.F90`'s four independent
+  flags (`import`/`export`/`internal`/`bootstrap`) are this decision's
+  direct data representation.
+- **GriddedComponentDriver integration lifecycle**
+  (`openspec/changes/archive/2026-09-20-griddedcomponentdriver-integration-lifecycle/`).
+  Governs how a child's `GriddedComponentDriver` (owned by
+  `superstructure/component/`, §2.5) participates in this layer's own
+  init/run phase sequencing — relevant whenever touching
+  `OuterMetaComponent/run_children.F90`,
+  `OuterMetaComponentDriverResolver.F90`, or `get_child_driver.F90`.
+- **Grid blurring**
+  (`openspec/changes/archive/2026-09-15-grid-blurring/`). A
+  geometry-aspect-adjacent capability; read that proposal directly if
+  touching `GeomAspect.F90`/`GeomAspect/make_transform.F90`.
+- **Component-hierarchy foundation**
+  (`openspec/changes/archive/2026-09-15-component-hierarchy-foundation/`).
+  The original design establishing `OuterMetaComponent` owning both a
+  `ComponentGraph` and a legacy `StateRegistry` side by side — the
+  architectural decision that makes §2.1-§2.4 of this file (and the
+  whole graph/legacy coexistence this layer implements) possible in
+  the first place. Read this one first if the "why does
+  `OuterMetaComponent` own both?" question comes up.
 
-The archived change `2026-09-15-grid-blurring` concerns coordinate
-tolerance in the geometry manager (`openspec/specs/geom/` and
-`openspec/specs/extdata/` hold the landed specs), not this layer.
+## 6. Completed phases and outstanding work (cross-reference)
 
-## 6. Observations (noted, not fixed)
+This layer (everything in this file, i.e. *not* `graph/`) is **stable,
+legacy, and still load-bearing** — it is not itself undergoing active
+phase-based development the way `graph/` is. The relevant "work" from
+this file's perspective is tracked entirely on the *graph* side, as
+prerequisites for eventually retiring parts of this layer. See
+`docs/graph/ARCHITECTURE.md` §6 for a roadmap pointer and
+`docs/graph/spec/20-implementation-roadmap.md` §20.4 for the
+authoritative phase list. The two facts from that list most relevant to
+this file:
 
-- `superstructure/generic/to_itemtype.F90` and `Generic.F90` are not
-  compiled (§1.1).
-- `couplers/` has no sources (§1.7).
-- Four test files are not in any suite (§4).
-- `MethodPhasesMap.F90` defines three modules in one file, the first named
-  `mapl_MethodPhasesMap_private_mod`.
-- The `specs/` and `transforms/` directories reference each other (§2.1).
+- **Phase 6a (legacy `StateRegistry` retirement) has an explicit,
+  five-item prerequisite list** (`docs/graph/spec/
+  20-implementation-roadmap.md` §20.4.11) that has **not** been
+  satisfied as of this file's writing — do not treat any part of
+  `registry/`, `connection/`, or `specs/`'s aspect hierarchy as
+  deprecated or scheduled for near-term removal. There is no removal
+  date; only a prerequisite list, still in progress on the graph side.
+- **Phases 7a (Bracket→Field), 7b (Expression), and 7c (Wildcard) are
+  landed** (archived under `openspec/changes/archive/2026-10-20-…`/
+  `2026-10-21-…`). The graph-native path resolves those item classes
+  without routing through this layer's `BracketClassAspect`,
+  `ExpressionClassAspect`/`EvalTransform`, or `WildcardClassAspect`;
+  those classes remain here as the legacy implementation. Service is
+  excluded from graph resolution (being retired in favor of callbacks).
+  `VectorBracketClassAspect` (vector-shaped bracket→vector) has no graph
+  counterpart and remains legacy-only; the compiled `to_itemtype` in
+  `ComponentSpecParser/` does not parse `'vector_bracket'`, though a
+  stray `superstructure/generic/to_itemtype.F90` copy (not in the build)
+  does.
+
+No other outstanding work specific to this file's directories was
+found in this pass's `openspec/changes/` survey — every other archived
+change touching `specs/`/`registry/`/`connection/`/`transforms/`/
+`vertical/`/`ComponentSpecParser/` (§5 above) is fully landed, with no
+open follow-up filed against it.

@@ -1,0 +1,22 @@
+mapl:
+
+  children:
+    A:
+      config_file: scenarios/vector_regrid/A.yaml
+    B:
+      config_file: scenarios/vector_regrid/B.yaml
+
+  states: {}
+
+  setServices:
+    sharedObj: libconfigurable_gridcomp
+
+  connections:
+    - src_name: uv
+      dst_name: uv
+      src_comp: A
+      dst_comp: B
+    - src_name: wind
+      dst_name: wind
+      src_comp: A
+      dst_comp: B

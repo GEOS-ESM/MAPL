@@ -1,0 +1,120 @@
+! Stable, distinct StateItemCharacteristicKind values and to_string(), and
+! CharacteristicStatus default/invalid construction, each named value
+! distinct, to_string().
+module Test_StateItemCharacteristicKind
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), operator(/=), &
+                                                    PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+                                                    TYPE_KIND_CHARACTERISTIC_KIND, &
+                                                    GEOMETRY_CHARACTERISTIC_KIND, &
+                                                    VERTICAL_GRID_CHARACTERISTIC_KIND, &
+                                                    ATTRIBUTES_CHARACTERISTIC_KIND, &
+                                                    UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
+                                                    QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+                                                    CONSERVATION_CHARACTERISTIC_KIND, &
+                                                    NORMALIZATION_CHARACTERISTIC_KIND, &
+                                                    STANDARD_NAME_CHARACTERISTIC_KIND, &
+                                                    VERTICAL_STAGGER_CHARACTERISTIC_KIND, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+        LONG_NAME_CHARACTERISTIC_KIND, RESTART_MODE_CHARACTERISTIC_KIND, &
+                                                    INVALID_CHARACTERISTIC_KIND
+   use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), operator(/=), &
+                                             CHARACTERISTIC_STATUS_INVALID, &
+                                             CHARACTERISTIC_STATUS_SPECIFIED, &
+                                             CHARACTERISTIC_STATUS_MIRRORED, &
+                                             CHARACTERISTIC_STATUS_UNCHECKED, &
+                                             CHARACTERISTIC_STATUS_DEFERRED
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_kind_constants_are_stable_and_distinct()
+      @assertTrue(PHYSICAL_UNITS_CHARACTERISTIC_KIND == PHYSICAL_UNITS_CHARACTERISTIC_KIND)
+      @assertTrue(PHYSICAL_UNITS_CHARACTERISTIC_KIND /= TYPE_KIND_CHARACTERISTIC_KIND)
+      @assertTrue(PHYSICAL_UNITS_CHARACTERISTIC_KIND /= GEOMETRY_CHARACTERISTIC_KIND)
+      @assertTrue(TYPE_KIND_CHARACTERISTIC_KIND /= GEOMETRY_CHARACTERISTIC_KIND)
+      @assertTrue(PHYSICAL_UNITS_CHARACTERISTIC_KIND /= INVALID_CHARACTERISTIC_KIND)
+   end subroutine test_kind_constants_are_stable_and_distinct
+
+   @test
+   subroutine test_kind_to_string()
+      @assertEqual('PHYSICAL_UNITS', PHYSICAL_UNITS_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('TYPE_KIND', TYPE_KIND_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('GEOMETRY', GEOMETRY_CHARACTERISTIC_KIND%to_string())
+   end subroutine test_kind_to_string
+
+   ! Seven newer kinds (values 4-10) are each stable, distinct
+   ! from one another and from the three 5a already registered, and have
+   ! a correct to_string().
+   @test
+   subroutine test_new_kind_constants_are_stable_and_distinct()
+      @assertTrue(VERTICAL_GRID_CHARACTERISTIC_KIND == VERTICAL_GRID_CHARACTERISTIC_KIND)
+      @assertTrue(VERTICAL_GRID_CHARACTERISTIC_KIND /= ATTRIBUTES_CHARACTERISTIC_KIND)
+      @assertTrue(ATTRIBUTES_CHARACTERISTIC_KIND /= UNGRIDDED_DIMS_CHARACTERISTIC_KIND)
+      @assertTrue(UNGRIDDED_DIMS_CHARACTERISTIC_KIND /= QUANTITY_TYPE_CHARACTERISTIC_KIND)
+      @assertTrue(QUANTITY_TYPE_CHARACTERISTIC_KIND /= CONSERVATION_CHARACTERISTIC_KIND)
+      @assertTrue(CONSERVATION_CHARACTERISTIC_KIND /= NORMALIZATION_CHARACTERISTIC_KIND)
+      @assertTrue(NORMALIZATION_CHARACTERISTIC_KIND /= STANDARD_NAME_CHARACTERISTIC_KIND)
+      @assertTrue(STANDARD_NAME_CHARACTERISTIC_KIND /= VERTICAL_GRID_CHARACTERISTIC_KIND)
+      ! Distinct from the three 5a already registered.
+      @assertTrue(VERTICAL_GRID_CHARACTERISTIC_KIND /= PHYSICAL_UNITS_CHARACTERISTIC_KIND)
+      @assertTrue(VERTICAL_GRID_CHARACTERISTIC_KIND /= TYPE_KIND_CHARACTERISTIC_KIND)
+      @assertTrue(VERTICAL_GRID_CHARACTERISTIC_KIND /= GEOMETRY_CHARACTERISTIC_KIND)
+      @assertTrue(ATTRIBUTES_CHARACTERISTIC_KIND /= GEOMETRY_CHARACTERISTIC_KIND)
+      ! Distinct from INVALID.
+      @assertTrue(STANDARD_NAME_CHARACTERISTIC_KIND /= INVALID_CHARACTERISTIC_KIND)
+      @assertTrue(VERTICAL_STAGGER_CHARACTERISTIC_KIND /= VERTICAL_GRID_CHARACTERISTIC_KIND)
+      @assertTrue(VERTICAL_STAGGER_CHARACTERISTIC_KIND /= GEOMETRY_CHARACTERISTIC_KIND)
+      @assertTrue(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND /= VERTICAL_STAGGER_CHARACTERISTIC_KIND)
+      @assertTrue(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND /= VERTICAL_GRID_CHARACTERISTIC_KIND)
+      @assertTrue(LONG_NAME_CHARACTERISTIC_KIND /= &
+           STANDARD_NAME_CHARACTERISTIC_KIND)
+      @assertTrue(LONG_NAME_CHARACTERISTIC_KIND /= INVALID_CHARACTERISTIC_KIND)
+      @assertTrue(RESTART_MODE_CHARACTERISTIC_KIND /= LONG_NAME_CHARACTERISTIC_KIND)
+      @assertTrue(RESTART_MODE_CHARACTERISTIC_KIND /= INVALID_CHARACTERISTIC_KIND)
+   end subroutine test_new_kind_constants_are_stable_and_distinct
+
+   @test
+   subroutine test_new_kind_to_string()
+      @assertEqual('VERTICAL_GRID', VERTICAL_GRID_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('ATTRIBUTES', ATTRIBUTES_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('UNGRIDDED_DIMS', UNGRIDDED_DIMS_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('QUANTITY_TYPE', QUANTITY_TYPE_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('CONSERVATION', CONSERVATION_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('NORMALIZATION', NORMALIZATION_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('STANDARD_NAME', STANDARD_NAME_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('VERTICAL_STAGGER', VERTICAL_STAGGER_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('VERTICAL_ORIENTATION', VERTICAL_ORIENTATION_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('LONG_NAME', LONG_NAME_CHARACTERISTIC_KIND%to_string())
+      @assertEqual('RESTART_MODE', RESTART_MODE_CHARACTERISTIC_KIND%to_string())
+   end subroutine test_new_kind_to_string
+
+   ! The default field initializer (0) is the
+   ! INVALID value, so a default-constructed CharacteristicStatus() is
+   ! invalid with no explicit constructor call.
+   @test
+   subroutine test_status_default_is_invalid()
+      type(CharacteristicStatus) :: status
+
+      @assertTrue(status == CHARACTERISTIC_STATUS_INVALID)
+   end subroutine test_status_default_is_invalid
+
+   @test
+   subroutine test_status_values_are_distinct()
+      @assertTrue(CHARACTERISTIC_STATUS_INVALID /= CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(CHARACTERISTIC_STATUS_SPECIFIED /= CHARACTERISTIC_STATUS_MIRRORED)
+      @assertTrue(CHARACTERISTIC_STATUS_MIRRORED /= CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertTrue(CHARACTERISTIC_STATUS_UNCHECKED /= CHARACTERISTIC_STATUS_DEFERRED)
+      @assertTrue(CHARACTERISTIC_STATUS_DEFERRED /= CHARACTERISTIC_STATUS_INVALID)
+   end subroutine test_status_values_are_distinct
+
+   @test
+   subroutine test_status_to_string()
+      @assertEqual('INVALID', CHARACTERISTIC_STATUS_INVALID%to_string())
+      @assertEqual('SPECIFIED', CHARACTERISTIC_STATUS_SPECIFIED%to_string())
+      @assertEqual('MIRRORED', CHARACTERISTIC_STATUS_MIRRORED%to_string())
+      @assertEqual('UNCHECKED', CHARACTERISTIC_STATUS_UNCHECKED%to_string())
+      @assertEqual('DEFERRED', CHARACTERISTIC_STATUS_DEFERRED%to_string())
+   end subroutine test_status_to_string
+
+end module Test_StateItemCharacteristicKind

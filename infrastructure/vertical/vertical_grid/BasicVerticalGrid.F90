@@ -22,7 +22,9 @@ module mapl_BasicVerticalGrid_mod
 
    ! Spec type
    type, extends(VerticalGridSpec) :: BasicVerticalGridSpec
-      integer :: num_levels
+      ! Default-initialized so the error-path placeholder copies of this
+      ! type are well defined.
+      integer :: num_levels = 0
    end type BasicVerticalGridSpec
 
    ! Grid type
@@ -36,6 +38,7 @@ module mapl_BasicVerticalGrid_mod
        procedure :: get_supported_physical_dimensions
        procedure :: get_units
        procedure :: matches
+       procedure :: carries_direction
     end type BasicVerticalGrid
 
    ! Factory type
@@ -114,6 +117,14 @@ contains
       matches = this%get_num_layers() == other%get_num_layers()
    end function matches
 
+   ! The level count is all a basic grid knows; the DOWN it stores is a default.
+   logical function carries_direction(this) result(carries)
+      class(BasicVerticalGrid), intent(in) :: this
+
+      carries = .false.
+      _UNUSED_DUMMY(this)
+   end function carries_direction
+
    ! Factory methods
    function get_name(this) result(name)
       character(len=:), allocatable :: name
@@ -186,6 +197,9 @@ contains
       type(BasicVerticalGridSpec) :: local_spec
       integer :: status
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(spec, source=local_spec)
+
       ! Get number of levels if specified, otherwise use default
       if (esmf_HConfigIsDefined(config, keyString="num_levels")) then
          local_spec%num_levels = esmf_HConfigAsI4(config, keyString="num_levels", _RC)
@@ -196,6 +210,7 @@ contains
       _ASSERT(local_spec%num_levels > 0, 'Number of levels must be positive')
 
       ! Use polymorphic allocation
+      deallocate(spec)
       allocate(spec, source=local_spec)
 
       _RETURN(_SUCCESS)
@@ -255,9 +270,12 @@ contains
 
       type(BasicVerticalGrid) :: local_grid
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(grid, source=local_grid)
       select type (spec)
       type is (BasicVerticalGridSpec)
          call local_grid%initialize(spec)
+         deallocate(grid)
          allocate(grid, source=local_grid)
       class default
          _RETURN(_FAILURE)

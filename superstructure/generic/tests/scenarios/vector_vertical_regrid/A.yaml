@@ -1,0 +1,27 @@
+mapl:
+
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 12
+      jm_world: 13
+      pole: PC
+      dateline: DC
+    vertical_grid:
+      class: fixed_levels
+      levels: [30., 20., 10.]
+      units: hPa
+      physical_dimension: pressure
+
+  states:
+    import: {}
+    export:
+      uv:
+        class: vector
+        standard_name: '(eastward,northward) horizontal velocity'
+        units: 'm s-1'
+        fill_value: 1
+        vertical_dim_spec: center
+
+  setServices:
+    sharedObj: libconfigurable_gridcomp

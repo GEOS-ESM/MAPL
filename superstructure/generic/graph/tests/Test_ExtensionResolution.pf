@@ -1,0 +1,1834 @@
+#include "MAPL.h"
+
+! Unit tests for mapl_StateItemCharacteristic_mod /
+! mapl_ExtensionResolution_mod.
+!
+! Uses only synthetic graph nodes (StateItemNode/TransformGraphNode) - no
+! OuterComponent/StateRegistry/GraphBuilder type is referenced anywhere,
+! matching Test_ComponentGraph_PortBindings.pf's existing style. The
+! multi-step chain test uses a test-only FakeCharacteristic
+! (MOCK_CHARACTERISTIC_KIND, mirroring AspectId.F90's own MOCK_ASPECT_ID
+! precedent) so the chain-building loop can be exercised with two links
+! without needing a second real, executing characteristic.
+!
+! FakeCharacteristic extends StateItemCharacteristic (nopass get_kind,
+! four-argument build_transform, no graph/NodeId argument); its
+! get_signature returns a simple mock= prefix plus this%value.
+module Test_ExtensionResolution
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_HierarchyId_mod, only: HierarchyId
+   use mapl_HierarchyRegistry_mod, only: request_new_hierarchy
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
+   use mapl_NodeId_mod, only: NodeId, operator(==)
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_Transform_mod, only: Transform
+   use mapl_TransformBase_mod, only: TransformBase
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+        VERTICAL_GRID_CHARACTERISTIC_KIND, MOCK_CHARACTERISTIC_KIND, operator(==)
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
+   use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
+   use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain
+   ! ITEM_SHAPE_CHARACTERISTIC_KIND walked by this same, uniform
+   ! find_mismatched_characteristics/build_chain machinery.
+   use mapl_StateItemCharacteristicKind_mod, only: ITEM_SHAPE_CHARACTERISTIC_KIND
+   use mapl_StateItemCharacteristicKind_mod, only: HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND
+   use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
+   use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE
+   use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
+   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_TypeKindConverterTransform_mod, only: TypeKindConverterTransform
+   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_HorizontalRegridTransform_mod, only: HorizontalRegridTransform
+   use mapl_HorizontalBundleRegridTransform_mod, only: HorizontalBundleRegridTransform
+   use mapl_BracketTimeInterpolationTransform_mod, only: BracketTimeInterpolationTransform
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
+   use StateItemTestSupport_mod, only: make_latlon_geom
+   use ESMF, only: ESMF_Geom, ESMF_REGRIDMETHOD_CONSERVE
+   use ESMF, only: ESMF_REGRIDMETHOD_PATCH
+   use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
+   use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        TYPE_KIND_CHARACTERISTIC_KIND, &
+        GEOMETRY_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_VECTOR, &
+        MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_UNKNOWN
+   use ESMF, only: ESMF_StateItem_Flag, operator(==)
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_SPECIFIED
+   use ESMF, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, set_field_dictionary_config, &
+        get_field_dictionary_config
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+        VERTICAL_STAGGER_CHARACTERISTIC_KIND
+   use mapl_VerticalOrientationCharacteristic_mod, only: &
+        VerticalOrientationCharacteristic
+   use mapl_VerticalStaggerCharacteristic_mod, only: &
+        VerticalStaggerCharacteristic
+   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_CENTER, &
+        VERTICAL_STAGGER_EDGE
+   use mapl_VerticalCoordinateDirection_mod, only: VCOORD_DIRECTION_UP, &
+        VCOORD_DIRECTION_DOWN
+   use mapl_VerticalColumnRegridTransform_mod, only: &
+        VerticalColumnRegridTransform
+   use mapl_VerticalFlipTransform_mod, only: VerticalFlipTransform
+   use mapl_FixedLevelsVerticalGrid_mod, only: FixedLevelsVerticalGrid, &
+        FixedLevelsVerticalGridSpec
+   use mapl_vertical_grid_api, only: mapl_VerticalGrid
+   use funit
+   implicit none
+
+   type, extends(Transform) :: FakeCompute
+      integer :: placeholder = 1
+   contains
+      procedure :: compute => fake_compute
+   end type FakeCompute
+
+   ! Test-only StateItemCharacteristic - see module header.
+   type, extends(StateItemCharacteristic) :: FakeCharacteristic
+      private
+      character(:), allocatable :: value
+      ! When set, this step also resolves the units kind.
+      logical :: covers_units = .false.
+      ! When set, covered_kinds wrongly omits the step's own kind.
+      logical :: omits_own_kind = .false.
+   contains
+      procedure, nopass :: get_kind => fake_get_kind
+      procedure :: covered_kinds => fake_covered_kinds
+      procedure :: get_signature => fake_get_signature
+      procedure :: needs_extension_for => fake_needs_extension_for
+      procedure :: build_transform => fake_build_transform
+   end type FakeCharacteristic
+
+   interface FakeCharacteristic
+      module procedure new_FakeCharacteristic
+   end interface FakeCharacteristic
+
+contains
+
+   function new_FakeCharacteristic(value, covers_units, omits_own_kind) &
+        result(characteristic)
+      character(*), intent(in) :: value
+      logical, optional, intent(in) :: covers_units
+      logical, optional, intent(in) :: omits_own_kind
+      type(FakeCharacteristic) :: characteristic
+
+      characteristic%value = value
+      if (present(covers_units)) characteristic%covers_units = covers_units
+      if (present(omits_own_kind)) then
+         characteristic%omits_own_kind = omits_own_kind
+      end if
+      call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
+   end function new_FakeCharacteristic
+
+   function fake_get_kind() result(kind)
+      type(StateItemCharacteristicKind) :: kind
+
+      kind = MOCK_CHARACTERISTIC_KIND
+   end function fake_get_kind
+
+   function fake_covered_kinds(this, tip, goal) result(kinds)
+      class(FakeCharacteristic), intent(in) :: this
+      type(StateItemCharacteristicMap), target, intent(in) :: tip
+      type(StateItemCharacteristicMap), target, intent(in) :: goal
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+
+      if (this%omits_own_kind) then
+         kinds = [PHYSICAL_UNITS_CHARACTERISTIC_KIND]
+      else if (this%covers_units) then
+         kinds = [MOCK_CHARACTERISTIC_KIND, PHYSICAL_UNITS_CHARACTERISTIC_KIND]
+      else
+         kinds = [MOCK_CHARACTERISTIC_KIND]
+      end if
+
+      _UNUSED_DUMMY(tip)
+      _UNUSED_DUMMY(goal)
+   end function fake_covered_kinds
+
+   function fake_get_signature(this) result(signature)
+      class(FakeCharacteristic), intent(in) :: this
+      character(:), allocatable :: signature
+
+      signature = 'mock=' // this%value
+   end function fake_get_signature
+
+   logical function fake_needs_extension_for(this, goal) result(needs_extension)
+      class(FakeCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+
+      select type (goal)
+      class is (FakeCharacteristic)
+         needs_extension = (this%value /= goal%value)
+      class default
+         needs_extension = .true.
+      end select
+   end function fake_needs_extension_for
+
+   subroutine fake_build_transform(this, goal, transformer, rc)
+      class(FakeCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      class(TransformBase), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
+      type(FakeCompute) :: strategy
+
+      ! kludge      
+      strategy%placeholder = 2
+      allocate(transformer, source=strategy)
+      call transformer%declare_input_port('source_field')
+      call transformer%declare_output_port('destination_field')
+      if (present(rc)) rc = 0
+   end subroutine fake_build_transform
+
+   subroutine fake_compute(this, inputs, outputs, rc)
+      class(FakeCompute), intent(inout) :: this
+      type(PortNameGraphStateItemMap), intent(in) :: inputs
+      type(PortNameGraphStateItemMap), intent(in) :: outputs
+      integer, intent(out) :: rc
+
+      rc = 0
+   end subroutine fake_compute
+
+   ! -- mismatch detection ---------------------------------------------
+
+   @test
+   subroutine test_no_mismatch_reports_empty()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(0, size(mismatched))
+   end subroutine test_no_mismatch_reports_empty
+
+   @test
+   subroutine test_units_mismatch_detected()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'))
+
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(1, size(mismatched))
+      @assertTrue(mismatched(1) == PHYSICAL_UNITS_CHARACTERISTIC_KIND)
+   end subroutine test_units_mismatch_detected
+
+   @test
+   subroutine test_units_and_vertical_grid_mismatch_detected()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call export_map%insert(VERTICAL_GRID_CHARACTERISTIC_KIND, VerticalGridCharacteristic(grid_id='gridA'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'))
+      call import_map%insert(VERTICAL_GRID_CHARACTERISTIC_KIND, VerticalGridCharacteristic(grid_id='gridB'))
+
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(2, size(mismatched))
+   end subroutine test_units_and_vertical_grid_mismatch_detected
+
+   ! -- chain creation ---------------------------------------------------
+
+   @test
+   subroutine test_single_step_chain_creates_one_transform()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
+
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertFalse(final_id == export_id)
+      ! A single-characteristic chain: the intermediate_ids array has
+      ! length 1, and that one entry is the chain's own final node.
+      @assertEqual(1, size(intermediate_ids))
+      @assertTrue(intermediate_ids(1) == final_id)
+   end subroutine test_single_step_chain_creates_one_transform
+
+   @test
+   subroutine test_multi_step_chain_with_fake_characteristic()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call export_map%insert(MOCK_CHARACTERISTIC_KIND, FakeCharacteristic('a'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'))
+      call import_map%insert(MOCK_CHARACTERISTIC_KIND, FakeCharacteristic('b'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(2, size(mismatched))
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
+
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertFalse(final_id == export_id)
+      ! A two-characteristic chain:
+      ! intermediate_ids array has length 2, its last entry equals
+      ! final_node_id, and both entries are distinct NodeIds.
+      @assertEqual(2, size(intermediate_ids))
+      @assertTrue(intermediate_ids(2) == final_id)
+      @assertFalse(intermediate_ids(1) == intermediate_ids(2))
+      @assertFalse(intermediate_ids(1) == export_id)
+   end subroutine test_multi_step_chain_with_fake_characteristic
+
+   @test
+   subroutine test_no_mismatch_case_creates_nothing()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      ! spec "No-op case creates nothing": nothing to chain-build - the
+      ! no-mismatch case is handled entirely by the caller
+      ! (GraphBuilder.F90's resolve_one) wiring the import directly to
+      ! the export, never calling find_or_build_extension_chain at all.
+      @assertEqual(0, size(mismatched))
+   end subroutine test_no_mismatch_case_creates_nothing
+
+   ! -- unregistered characteristic --------------------------------------
+
+   @test
+   subroutine test_unregistered_characteristic_fails_loudly()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(VERTICAL_GRID_CHARACTERISTIC_KIND, VerticalGridCharacteristic(grid_id='gridA'))
+      call import_map%insert(VERTICAL_GRID_CHARACTERISTIC_KIND, VerticalGridCharacteristic(grid_id='gridB'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      ! Grid ids only, no VerticalGrid held: no level values to regrid
+      ! between, so the step is unsupported.
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
+
+      @assertEqual(0, status)
+      @assertEqual('VERTICAL_GRID', unsupported)
+   end subroutine test_unregistered_characteristic_fails_loudly
+
+   ! -- incompatible pair ---------------------------------------------------
+
+   ! HorizontalDimsSpec GEOM vs NONE can never connect: with `conflict`
+   ! present the chain reports it there, naming the kind and both values,
+   ! and leaves unsupported_characteristic empty.
+   @test
+   subroutine test_incompatible_pair_reports_conflict()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported, conflict
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM))
+      call import_map%insert(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(1, size(mismatched))
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id, intermediate_ids, unsupported, rc=status, conflict=conflict)
+
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertEqual('incompatible HORIZONTAL_DIMS_SPEC: export horizontal_dims_spec=HORIZONTAL_DIMS_GEOM, ' // &
+           'import horizontal_dims_spec=HORIZONTAL_DIMS_NONE', conflict)
+      @assertEqual(0, size(intermediate_ids))
+
+      ! No reuse entry is recorded, so a repeat call reports the conflict again.
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id, intermediate_ids, unsupported, rc=status, conflict=conflict)
+      @assertEqual(0, status)
+      @assertTrue(len(conflict) > 0)
+   end subroutine test_incompatible_pair_reports_conflict
+
+   ! A caller that passes no `conflict` still sees the failure, as unsupported.
+   @test
+   subroutine test_incompatible_pair_without_conflict_argument_is_unsupported()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE))
+      call import_map%insert(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
+
+      @assertEqual(0, status)
+      @assertEqual('HORIZONTAL_DIMS_SPEC', unsupported)
+   end subroutine test_incompatible_pair_without_conflict_argument_is_unsupported
+
+   ! One step covering two kinds: one extension node, both kinds at the
+   ! goal's value, reused by a second resolve.
+   @test
+   subroutine test_covering_step_resolves_two_kinds_in_one_link()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id, final_id2
+      type(NodeId), allocatable :: intermediate_ids(:), intermediate_ids2(:)
+      character(:), allocatable :: unsupported
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: link
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'))
+      call export_map%insert(MOCK_CHARACTERISTIC_KIND, &
+           FakeCharacteristic('a', covers_units=.true.))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('km'))
+      call import_map%insert(MOCK_CHARACTERISTIC_KIND, FakeCharacteristic('b'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(2, size(mismatched))
+      ! Order is by kind name: MOCK sorts before PHYSICAL_UNITS, so the MOCK
+      ! step (which covers units) comes first.
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, &
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertEqual(1, size(intermediate_ids))
+      @assertTrue(intermediate_ids(1) == final_id)
+
+      node => graph%get_node(final_id)
+      select type (node)
+      class is (StateItemNode)
+         link => node%get_descriptor()
+      end select
+      call link%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, c, &
+           rc=status)
+      @assertEqual('units=km', c%get_signature())
+      call link%get_characteristic(MOCK_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual('mock=b', c%get_signature())
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, &
+           mismatched, final_id2, intermediate_ids2, unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(final_id == final_id2)
+      @assertEqual(0, size(intermediate_ids2))
+   end subroutine test_covering_step_resolves_two_kinds_in_one_link
+
+   ! Default covered kinds is the step's own kind: two mismatches make two
+   ! steps, and each link is the export plus the goal for kinds so far.
+   @test
+   subroutine test_default_coverage_links_are_export_plus_goal_so_far()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: link
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'))
+      call export_map%insert(MOCK_CHARACTERISTIC_KIND, FakeCharacteristic('a'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('km'))
+      call import_map%insert(MOCK_CHARACTERISTIC_KIND, FakeCharacteristic('b'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, &
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, size(intermediate_ids))
+
+      ! Step 1 is the first kind in order (MOCK sorts before PHYSICAL_UNITS).
+      node => graph%get_node(intermediate_ids(1))
+      select type (node)
+      class is (StateItemNode)
+         link => node%get_descriptor()
+      end select
+      call link%get_characteristic(MOCK_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual('mock=b', c%get_signature())
+      call link%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, c, &
+           rc=status)
+      @assertEqual('units=m', c%get_signature())
+
+      node => graph%get_node(intermediate_ids(2))
+      select type (node)
+      class is (StateItemNode)
+         link => node%get_descriptor()
+      end select
+      call link%get_characteristic(MOCK_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual('mock=b', c%get_signature())
+      call link%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, c, &
+           rc=status)
+      @assertEqual('units=km', c%get_signature())
+   end subroutine test_default_coverage_links_are_export_plus_goal_so_far
+
+   ! covered_kinds that omits the step's own kind is a contract violation.
+   @test
+   subroutine test_covered_kinds_omitting_own_kind_fails()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'))
+      call export_map%insert(MOCK_CHARACTERISTIC_KIND, &
+           FakeCharacteristic('a', omits_own_kind=.true.))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('km'))
+      call import_map%insert(MOCK_CHARACTERISTIC_KIND, FakeCharacteristic('b'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, &
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
+      ! This suite's driver does not capture MAPL error messages, so only
+      ! the failure status is checked.
+      @assertTrue(status /= 0)
+      @assertEqual('', unsupported)
+   end subroutine test_covered_kinds_omitting_own_kind_fails
+
+   ! -- reuse -------------------------------------------------------------
+
+   @test
+   subroutine test_reuse_second_import_same_variant()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id1, final_id2
+      type(NodeId), allocatable :: intermediate_ids1(:), intermediate_ids2(:)
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id1, intermediate_ids1, unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, size(intermediate_ids1))
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id2, intermediate_ids2, unsupported, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(final_id1 == final_id2)
+      ! The reuse-hit path returns a zero-size
+      ! intermediate_node_ids array - a reused chain's own links were
+      ! already materialized by the first call, no re-materialization
+      ! work is ever needed.
+      @assertEqual(0, size(intermediate_ids2))
+   end subroutine test_reuse_second_import_same_variant
+
+   @test
+   subroutine test_reuse_same_variant_across_declaring_graphs()
+      type(HierarchyId) :: hierarchy_id
+      type(ComponentGraph), target :: parent_graph, grandparent_graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id, final_id1, final_id2
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId), allocatable :: intermediate_ids1(:), intermediate_ids2(:)
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      hierarchy_id = request_new_hierarchy()
+      parent_graph = ComponentGraph(hierarchy_id)
+      grandparent_graph = ComponentGraph(hierarchy_id)
+      net_id = parent_graph%get_forward_network_id(status)
+      export_id = parent_graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call parent_graph%register_node(export_node, rc=status)
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('km'))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(parent_graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id1, intermediate_ids1, &
+           unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, size(intermediate_ids1))
+      call find_or_build_extension_chain(grandparent_graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id2, intermediate_ids2, &
+           unsupported, rc=status)
+
+      @assertEqual(0, status)
+      @assertTrue(final_id1 == final_id2)
+      @assertEqual(0, size(intermediate_ids2))
+   end subroutine test_reuse_same_variant_across_declaring_graphs
+
+   @test
+   subroutine test_different_variant_creates_new_extension()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map1, import_map2
+      type(StateItemCharacteristicKind), allocatable :: mismatched1(:), mismatched2(:)
+      type(NodeId) :: final_id1, final_id2
+      type(NodeId), allocatable :: intermediate_ids1(:), intermediate_ids2(:)
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map1%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'))
+      call import_map2%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('cm'))
+
+      mismatched1 = find_mismatched_characteristics(export_map, import_map1)
+      mismatched2 = find_mismatched_characteristics(export_map, import_map2)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map1, &
+           mismatched1, final_id1, intermediate_ids1, unsupported, rc=status)
+      @assertEqual(0, status)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map2, &
+           mismatched2, final_id2, intermediate_ids2, unsupported, rc=status)
+      @assertEqual(0, status)
+
+      @assertFalse(final_id1 == final_id2)
+      @assertEqual(1, size(intermediate_ids2))
+   end subroutine test_different_variant_creates_new_extension
+
+   ! -- A genuine BRACKET (export) -> FIELD (import) mismatch is reported by
+   ! find_mismatched_characteristics and successfully chain-built (no
+   ! unsupported_characteristic), producing one
+   ! BracketTimeInterpolationTransform-backed extension node
+   ! (structure-only - find_mismatched_characteristics/build_chain
+   ! exercised directly, exactly as every other characteristic above,
+   ! with no GraphBuilder/OuterMetaComponent involved). ------------------
+
+   @test
+   subroutine test_bracket_to_field_mismatch_builds_interpolation_chain()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      ! Units/typekind deliberately matched on both sides - isolating
+      ! the shape axis.
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call export_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, ItemShapeCharacteristic(MAPL_STATEITEM_BRACKET))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, ItemShapeCharacteristic(MAPL_STATEITEM_FIELD))
+
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(1, size(mismatched))
+      @assertTrue(mismatched(1) == ITEM_SHAPE_CHARACTERISTIC_KIND)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, export_map, import_map, &
+           mismatched, final_id, intermediate_ids, unsupported, rc=status)
+
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertFalse(final_id == export_id)
+      @assertEqual(1, size(intermediate_ids))
+      @assertTrue(intermediate_ids(1) == final_id)
+   end subroutine test_bracket_to_field_mismatch_builds_interpolation_chain
+
+   ! Two held geoms: one regrid step, a link on the import geometry, and a
+   ! transform between export and link.
+   @test
+   subroutine test_geometry_mismatch_builds_regrid_chain()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id, transform_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported, conflict
+      type(ESMF_Geom) :: src_geom, dst_geom
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: link
+      class(StateItemCharacteristic), allocatable :: c
+      type(DependencyNetwork), pointer :: net
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: iter
+      class(Transform), pointer :: transformer
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      call export_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='1', geom=src_geom))
+      call import_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='2', geom=dst_geom))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(1, size(mismatched))
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status, conflict=conflict)
+
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertEqual('', conflict)
+      @assertEqual(1, size(intermediate_ids))
+      @assertTrue(intermediate_ids(1) == final_id)
+
+      node => graph%get_node(final_id)
+      select type (node)
+      class is (StateItemNode)
+         link => node%get_descriptor()
+      class default
+         @assertTrue(.false., 'chain link is not a StateItemNode')
+         return
+      end select
+      call link%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('geom=2', c%get_signature())
+
+      net => graph%get_network(net_id)
+      preds = net%get_predecessors(final_id)
+      @assertEqual(1, preds%size())
+      iter = preds%ftn_begin()
+      call iter%next()
+      transform_id = iter%of()
+      node => graph%get_node(transform_id)
+      select type (node)
+      class is (TransformGraphNode)
+         transformer => node%get_transformer()
+         select type (transformer)
+         type is (HorizontalRegridTransform)
+         class default
+            @assertTrue(.false., 'chain transform is not a regrid')
+         end select
+      class default
+         @assertTrue(.false., 'link predecessor is not a TransformGraphNode')
+      end select
+      preds = net%get_predecessors(transform_id)
+      @assertEqual(1, preds%size())
+      @assertTrue(preds%count(export_id) == 1)
+   end subroutine test_geometry_mismatch_builds_regrid_chain
+
+   ! Both sides declaring a regridder param is reported as a conflict, so
+   ! nothing is wired and the caller can go on with other connections.
+   @test
+   subroutine test_geometry_both_params_reports_conflict()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported, conflict
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(EsmfRegridderParam) :: param
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      call export_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='1', geom=src_geom, &
+           regridder_param=param))
+      call import_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='2', geom=dst_geom, &
+           regridder_param=param))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(1, size(mismatched))
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status, conflict=conflict)
+
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertEqual(1, index(conflict, 'incompatible GEOMETRY: export geom=1'))
+      @assertTrue(index(conflict, 'import geom=2') > 0)
+      @assertEqual(0, size(intermediate_ids))
+   end subroutine test_geometry_both_params_reports_conflict
+
+   ! Builds the chain for an export of shape export_class and an import of
+   ! shape import_class that differ in geometry (and so in shape when the
+   ! classes differ). Test helper: the graph and the ids stay with the caller.
+   subroutine build_shaped_geometry_chain(graph, export_class, import_class, &
+        final_id, intermediate_ids, unsupported, conflict)
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(ESMF_StateItem_Flag), intent(in) :: export_class, import_class
+      type(NodeId), intent(out) :: final_id
+      type(NodeId), allocatable, intent(out) :: intermediate_ids(:)
+      character(:), allocatable, intent(out) :: unsupported, conflict
+
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(ESMF_Geom) :: src_geom, dst_geom
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      call export_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(export_class))
+      call export_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='1', geom=src_geom))
+      call import_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(import_class))
+      call import_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='2', geom=dst_geom))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status, conflict=conflict)
+      @assertEqual(0, status)
+   end subroutine build_shaped_geometry_chain
+
+   ! The Transform that produces the item node `node_id`, or an unassociated
+   ! pointer when there is none. Test helper.
+   subroutine producer_of(graph, node_id, transformer)
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(NodeId), intent(in) :: node_id
+      class(Transform), pointer, intent(out) :: transformer
+
+      type(DependencyNetwork), pointer :: net
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: iter
+      class(GraphNode), pointer :: node
+
+      transformer => null()
+      net => graph%get_network(graph%get_forward_network_id())
+      preds = net%get_predecessors(node_id)
+      if (preds%size() /= 1) return
+      iter = preds%ftn_begin()
+      call iter%next()
+      node => graph%get_node(iter%of())
+      select type (node)
+      class is (TransformGraphNode)
+         transformer => node%get_transformer()
+      end select
+   end subroutine producer_of
+
+   ! The declared item type of the chain link `node_id`.
+   function link_item_type(graph, node_id) result(item_type)
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(NodeId), intent(in) :: node_id
+      type(ESMF_StateItem_Flag) :: item_type
+
+      class(GraphNode), pointer :: node
+      type(StateItemDescriptor), pointer :: link
+
+      item_type = MAPL_STATEITEM_UNKNOWN
+      node => graph%get_node(node_id)
+      select type (node)
+      class is (StateItemNode)
+         link => node%get_descriptor()
+         item_type = link%get_declared_item_type()
+      end select
+   end function link_item_type
+
+   ! A VECTOR export into a VECTOR import on another geom: one bundle regrid
+   ! step, and the link is a VECTOR so that a later step or the
+   ! materialization sees the item class and not the Field default.
+   @test
+   subroutine test_vector_geometry_mismatch_builds_bundle_regrid_chain()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported, conflict
+      class(Transform), pointer :: transformer
+      logical :: is_bundle_regrid, is_vector
+
+      call build_shaped_geometry_chain(graph, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTOR, final_id, intermediate_ids, unsupported, &
+           conflict)
+      @assertEqual('', unsupported)
+      @assertEqual('', conflict)
+      @assertEqual(1, size(intermediate_ids))
+
+      call producer_of(graph, intermediate_ids(1), transformer)
+      is_bundle_regrid = .false.
+      if (associated(transformer)) then
+         select type (transformer)
+         type is (HorizontalBundleRegridTransform)
+            is_bundle_regrid = .true.
+         end select
+      end if
+      is_vector = (link_item_type(graph, intermediate_ids(1)) == &
+           MAPL_STATEITEM_VECTOR)
+      @assertTrue(is_bundle_regrid)
+      @assertTrue(is_vector)
+   end subroutine test_vector_geometry_mismatch_builds_bundle_regrid_chain
+
+   ! A bracket export into a Field import on another geom: the bundle regrid
+   ! comes first and leaves a BRACKET link, then the time interpolation
+   ! produces the FIELD link.
+   @test
+   subroutine test_bracket_geometry_mismatch_builds_regrid_then_interpolation()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported, conflict
+      class(Transform), pointer :: first_transformer, second_transformer
+      logical :: first_is_regrid, second_is_interpolation
+      logical :: first_is_bracket, second_is_field
+      integer :: n
+
+      call build_shaped_geometry_chain(graph, MAPL_STATEITEM_BRACKET, &
+           MAPL_STATEITEM_FIELD, final_id, intermediate_ids, unsupported, &
+           conflict)
+      @assertEqual('', unsupported)
+      @assertEqual('', conflict)
+      n = size(intermediate_ids)
+      @assertEqual(2, n)
+      @assertTrue(intermediate_ids(2) == final_id)
+
+      call producer_of(graph, intermediate_ids(1), first_transformer)
+      call producer_of(graph, intermediate_ids(2), second_transformer)
+      first_is_regrid = .false.
+      second_is_interpolation = .false.
+      if (associated(first_transformer)) then
+         select type (first_transformer)
+         type is (HorizontalBundleRegridTransform)
+            first_is_regrid = .true.
+         end select
+      end if
+      if (associated(second_transformer)) then
+         select type (second_transformer)
+         type is (BracketTimeInterpolationTransform)
+            second_is_interpolation = .true.
+         end select
+      end if
+      first_is_bracket = (link_item_type(graph, intermediate_ids(1)) == &
+           MAPL_STATEITEM_BRACKET)
+      second_is_field = (link_item_type(graph, intermediate_ids(2)) == &
+           MAPL_STATEITEM_FIELD)
+      @assertTrue(first_is_regrid)
+      @assertTrue(second_is_interpolation)
+      @assertTrue(first_is_bracket)
+      @assertTrue(second_is_field)
+   end subroutine test_bracket_geometry_mismatch_builds_regrid_then_interpolation
+
+   ! A plain FIELDBUNDLE has no regrid: GEOMETRY is unsupported and nothing
+   ! is wired.
+   @test
+   subroutine test_fieldbundle_geometry_mismatch_is_unsupported()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported, conflict
+
+      call build_shaped_geometry_chain(graph, MAPL_STATEITEM_FIELDBUNDLE, &
+           MAPL_STATEITEM_FIELDBUNDLE, final_id, intermediate_ids, &
+           unsupported, conflict)
+      @assertEqual('GEOMETRY', unsupported)
+      @assertEqual('', conflict)
+      @assertEqual(0, size(intermediate_ids))
+   end subroutine test_fieldbundle_geometry_mismatch_is_unsupported
+
+   ! A VECTORBRACKET has no regrid either, even though it is a bracket: the
+   ! rule is by item shape, not by the bracket family.
+   @test
+   subroutine test_vectorbracket_geometry_mismatch_is_unsupported()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported, conflict
+
+      call build_shaped_geometry_chain(graph, MAPL_STATEITEM_VECTORBRACKET, &
+           MAPL_STATEITEM_VECTOR, final_id, intermediate_ids, &
+           unsupported, conflict)
+      @assertEqual('GEOMETRY', unsupported)
+      @assertEqual('', conflict)
+      @assertEqual(0, size(intermediate_ids))
+   end subroutine test_vectorbracket_geometry_mismatch_is_unsupported
+
+   ! Two imports on the same geom but with different regridder params get
+   ! separate chains; a repeat of the first reuses its chain.
+   @test
+   subroutine test_geometry_chain_not_shared_across_params()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, conserve_map, patch_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: conserve_id, patch_id, again_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported, conflict
+      type(ESMF_Geom) :: src_geom, dst_geom
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      call export_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='1', geom=src_geom))
+      call conserve_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='2', geom=dst_geom, &
+           regridder_param=EsmfRegridderParam( &
+           regridmethod=ESMF_REGRIDMETHOD_CONSERVE)))
+      call patch_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='2', geom=dst_geom, &
+           regridder_param=EsmfRegridderParam( &
+           regridmethod=ESMF_REGRIDMETHOD_PATCH)))
+      mismatched = find_mismatched_characteristics(export_map, conserve_map)
+      @assertEqual(1, size(mismatched))
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, conserve_map, mismatched, conserve_id, &
+           intermediate_ids, unsupported, rc=status, conflict=conflict)
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, patch_map, mismatched, patch_id, &
+           intermediate_ids, unsupported, rc=status, conflict=conflict)
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertFalse(conserve_id == patch_id)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, conserve_map, mismatched, again_id, &
+           intermediate_ids, unsupported, rc=status, conflict=conflict)
+      @assertEqual(0, status)
+      @assertTrue(again_id == conserve_id)
+      @assertEqual(0, size(intermediate_ids))
+   end subroutine test_geometry_chain_not_shared_across_params
+
+   ! --- extension order of mismatched kinds ---
+
+   @test
+   subroutine test_field_order_follows_legacy()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+
+      call export_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_FIELD))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'))
+      call export_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R4'))
+      call export_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='1'))
+      call import_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_FIELD))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('km'))
+      call import_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R8'))
+      call import_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='2'))
+
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(3, size(mismatched))
+      @assertEqual('GEOMETRY', mismatched(1)%to_string())
+      @assertEqual('PHYSICAL_UNITS', mismatched(2)%to_string())
+      @assertEqual('TYPE_KIND', mismatched(3)%to_string())
+   end subroutine test_field_order_follows_legacy
+
+   ! BRACKET does not list units: the shape step comes first, then the FIELD
+   ! order of the new tip places units.
+   @test
+   subroutine test_bracket_orders_units_after_shape_step()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+
+      call export_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_BRACKET))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'))
+      call export_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R4'))
+      call import_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_FIELD))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('km'))
+      call import_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R8'))
+
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(3, size(mismatched))
+      @assertEqual('ITEM_SHAPE', mismatched(1)%to_string())
+      @assertEqual('PHYSICAL_UNITS', mismatched(2)%to_string())
+      @assertEqual('TYPE_KIND', mismatched(3)%to_string())
+   end subroutine test_bracket_orders_units_after_shape_step
+
+   ! BRACKET lists GEOMETRY before ITEM_SHAPE, so a regrid precedes the time
+   ! interpolation; units are not in the BRACKET list and follow under the
+   ! FIELD order of the new tip.
+   @test
+   subroutine test_bracket_orders_geometry_shape_then_units()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+
+      call export_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_BRACKET))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'))
+      call export_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='1'))
+      call export_map%insert(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM))
+      call import_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_FIELD))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('km'))
+      call import_map%insert(GEOMETRY_CHARACTERISTIC_KIND, &
+           GeometryCharacteristic(geom_id='2'))
+      call import_map%insert(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM))
+
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(3, size(mismatched))
+      @assertEqual('GEOMETRY', mismatched(1)%to_string())
+      @assertEqual('ITEM_SHAPE', mismatched(2)%to_string())
+      @assertEqual('PHYSICAL_UNITS', mismatched(3)%to_string())
+   end subroutine test_bracket_orders_geometry_shape_then_units
+
+   ! A kind the shape does not list follows the listed ones, by name.
+   @test
+   subroutine test_unlisted_kinds_follow_by_name()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+
+      call export_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_FIELD))
+      call export_map%insert(MOCK_CHARACTERISTIC_KIND, FakeCharacteristic('a'))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_FIELD))
+      call import_map%insert(MOCK_CHARACTERISTIC_KIND, FakeCharacteristic('b'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('km'))
+
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(2, size(mismatched))
+      @assertEqual('PHYSICAL_UNITS', mismatched(1)%to_string())
+      @assertEqual('MOCK', mismatched(2)%to_string())
+   end subroutine test_unlisted_kinds_follow_by_name
+
+   ! With no ITEM_SHAPE entry every kind is unlisted, so all go by name.
+   ! Strict validation mode, so the standard names count as a mismatch.
+   @test
+   subroutine test_no_item_shape_orders_by_name()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(FieldDictionaryConfig) :: saved
+      type(ESMF_HConfig) :: node
+
+      saved = get_field_dictionary_config()
+      node = ESMF_HConfigCreate(content='{validation_mode: strict}')
+      call set_field_dictionary_config(FieldDictionaryConfig(node))
+      call ESMF_HConfigDestroy(node)
+
+      call export_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R4'))
+      call export_map%insert(STANDARD_NAME_CHARACTERISTIC_KIND, &
+           StandardNameCharacteristic('x'))
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'))
+      call import_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R8'))
+      call import_map%insert(STANDARD_NAME_CHARACTERISTIC_KIND, &
+           StandardNameCharacteristic('y'))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('km'))
+
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      @assertEqual(3, size(mismatched))
+      @assertEqual('PHYSICAL_UNITS', mismatched(1)%to_string())
+      @assertEqual('STANDARD_NAME', mismatched(2)%to_string())
+      @assertEqual('TYPE_KIND', mismatched(3)%to_string())
+
+      call set_field_dictionary_config(saved)
+   end subroutine test_no_item_shape_orders_by_name
+
+
+   ! Opposite orientations with a Basic grid on either side need no step: the
+   ! mismatch list is empty, so no chain is built.
+   @test
+   subroutine test_basic_grid_orientation_difference_builds_no_chain()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicMap) :: plain_export, plain_import
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:), plain(:)
+
+      call export_map%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      call import_map%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP, &
+           directionless=.true., grid_known=.true.))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      ! The same pair without the Basic flag still needs a step.
+      call plain_export%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      call plain_import%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      plain = find_mismatched_characteristics(plain_export, plain_import)
+
+      @assertEqual(0, size(mismatched))
+      @assertEqual(1, size(plain))
+   end subroutine test_basic_grid_orientation_difference_builds_no_chain
+
+   ! A grid and an orientation mismatch between fixed grids: the column
+   ! regrid covers the orientation, so the chain has one step.
+   @test
+   subroutine test_vertical_grid_step_covers_orientation()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id, transform_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      class(GraphNode), pointer :: node
+      type(DependencyNetwork), pointer :: net
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: iter
+      class(Transform), pointer :: transformer
+      logical :: is_regrid
+      integer :: status, n
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call insert_fixed_grid(export_map, 81, [30., 20., 10.])
+      call insert_fixed_grid(import_map, 82, [25., 15.])
+      call export_map%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      call import_map%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      n = size(mismatched)
+      @assertEqual(2, n)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      n = size(intermediate_ids)
+      @assertEqual(1, n)
+
+      net => graph%get_network(net_id)
+      preds = net%get_predecessors(final_id)
+      @assertEqual(1, preds%size())
+      iter = preds%ftn_begin()
+      call iter%next()
+      transform_id = iter%of()
+      is_regrid = .false.
+      node => graph%get_node(transform_id)
+      select type (node)
+      class is (TransformGraphNode)
+         transformer => node%get_transformer()
+         select type (transformer)
+         type is (VerticalColumnRegridTransform)
+            is_regrid = .true.
+         end select
+      end select
+      @assertTrue(is_regrid)
+      preds = net%get_predecessors(transform_id)
+      @assertTrue(preds%count(export_id) == 1)
+   end subroutine test_vertical_grid_step_covers_orientation
+
+   ! A vertical grid mismatch plus a typekind mismatch on a Field: the
+   ! vertical step comes first, and its output link still has the export
+   ! typekind, so an R4 export is regridded in R4 and then converted.
+   @test
+   subroutine test_vertical_then_typekind_r4_export_r8_import()
+      call check_vertical_then_typekind('R4', 'R8', 91)
+   end subroutine test_vertical_then_typekind_r4_export_r8_import
+
+   ! The reverse: an R8 export is regridded in R8 and then narrowed.
+   @test
+   subroutine test_vertical_then_typekind_r8_export_r4_import()
+      call check_vertical_then_typekind('R8', 'R4', 93)
+   end subroutine test_vertical_then_typekind_r8_export_r4_import
+
+   subroutine check_vertical_then_typekind(export_kind, import_kind, id)
+      character(*), intent(in) :: export_kind, import_kind
+      integer, intent(in) :: id
+
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      class(GraphNode), pointer :: node
+      type(DependencyNetwork), pointer :: net
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: iter
+      class(Transform), pointer :: transformer
+      class(StateItemCharacteristic), allocatable :: c
+      type(StateItemDescriptor), pointer :: link
+      logical :: first_is_regrid, second_is_convert
+      character(:), allocatable :: first_kind, second_kind
+      integer :: status, n, n_mismatched
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_FIELD))
+      call import_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_FIELD))
+      call insert_fixed_grid(export_map, id, [30., 20., 10.])
+      call insert_fixed_grid(import_map, id + 1, [25., 15.])
+      call export_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic(export_kind))
+      call import_map%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic(import_kind))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      n_mismatched = size(mismatched)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status)
+      n = size(intermediate_ids)
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertEqual(2, n_mismatched)
+      @assertEqual(2, n)
+
+      first_is_regrid = .false.
+      second_is_convert = .false.
+      net => graph%get_network(net_id)
+      preds = net%get_predecessors(intermediate_ids(1))
+      iter = preds%ftn_begin()
+      call iter%next()
+      node => graph%get_node(iter%of())
+      select type (node)
+      class is (TransformGraphNode)
+         transformer => node%get_transformer()
+         select type (transformer)
+         type is (VerticalColumnRegridTransform)
+            first_is_regrid = .true.
+         end select
+      end select
+      preds = net%get_predecessors(intermediate_ids(2))
+      iter = preds%ftn_begin()
+      call iter%next()
+      node => graph%get_node(iter%of())
+      select type (node)
+      class is (TransformGraphNode)
+         transformer => node%get_transformer()
+         select type (transformer)
+         type is (TypeKindConverterTransform)
+            second_is_convert = .true.
+         end select
+      end select
+
+      node => graph%get_node(intermediate_ids(1))
+      select type (node)
+      class is (StateItemNode)
+         link => node%get_descriptor()
+      end select
+      call link%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, c, &
+           rc=status)
+      first_kind = c%get_signature()
+      node => graph%get_node(intermediate_ids(2))
+      select type (node)
+      class is (StateItemNode)
+         link => node%get_descriptor()
+      end select
+      call link%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, c, &
+           rc=status)
+      second_kind = c%get_signature()
+
+      @assertTrue(first_is_regrid)
+      @assertTrue(second_is_convert)
+      @assertEqual('typekind=' // export_kind, first_kind)
+      @assertEqual('typekind=' // import_kind, second_kind)
+   end subroutine check_vertical_then_typekind
+
+   ! A grid mismatch plus a stagger mismatch: the regrid step is built,
+   ! then the stagger step is unsupported. The pair is reported, nothing
+   ! consumes the regrid link, and no reuse entry is recorded.
+   @test
+   subroutine test_vertical_grid_then_unsupported_stagger_wires_nothing()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id, dangling_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      type(DependencyNetwork), pointer :: net
+      type(NodeIdSet), target :: succs
+      integer :: status, n
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call insert_fixed_grid(export_map, 83, [30., 20., 10.])
+      call insert_fixed_grid(import_map, 84, [25., 15.])
+      call export_map%insert(VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+           VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER))
+      call import_map%insert(VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+           VerticalStaggerCharacteristic(VERTICAL_STAGGER_EDGE))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+      n = size(mismatched)
+      @assertEqual(2, n)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('VERTICAL_STAGGER', unsupported)
+      n = size(intermediate_ids)
+      @assertEqual(1, n)
+
+      ! The regrid link is a dead end: no successor pulls it.
+      dangling_id = intermediate_ids(1)
+      net => graph%get_network(net_id)
+      succs = net%get_successors(dangling_id)
+      @assertEqual(0, succs%size())
+
+      ! No reuse entry: a repeat call builds and reports again.
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('VERTICAL_STAGGER', unsupported)
+      n = size(intermediate_ids)
+      @assertEqual(1, n)
+   end subroutine test_vertical_grid_then_unsupported_stagger_wires_nothing
+
+   ! Chain between two fixed grids with different levels, with the given
+   ! item classes. Test helper.
+   subroutine build_vertical_chain(graph, export_class, import_class, &
+        final_id, intermediate_ids, unsupported)
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(ESMF_StateItem_Flag), intent(in) :: export_class, import_class
+      type(NodeId), intent(out) :: final_id
+      type(NodeId), allocatable, intent(out) :: intermediate_ids(:)
+      character(:), allocatable, intent(out) :: unsupported
+
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+
+      call export_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(export_class))
+      call import_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(import_class))
+      call insert_fixed_grid(export_map, 91, [30., 20., 10.])
+      call insert_fixed_grid(import_map, 92, [25., 15.])
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status)
+      @assertEqual(0, status)
+   end subroutine build_vertical_chain
+
+   ! A VECTOR with a vertical-grid mismatch gets one column regrid step and
+   ! the link is a VECTOR.
+   @test
+   subroutine test_vector_vertical_mismatch_builds_bundle_regrid_chain()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      class(Transform), pointer :: transformer
+      logical :: is_regrid, is_vector
+
+      call build_vertical_chain(graph, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTOR, final_id, intermediate_ids, unsupported)
+      @assertEqual('', unsupported)
+      @assertEqual(1, size(intermediate_ids))
+
+      call producer_of(graph, intermediate_ids(1), transformer)
+      is_regrid = .false.
+      if (associated(transformer)) then
+         select type (transformer)
+         type is (VerticalColumnRegridTransform)
+            is_regrid = .true.
+         end select
+      end if
+      is_vector = (link_item_type(graph, intermediate_ids(1)) == &
+           MAPL_STATEITEM_VECTOR)
+      @assertTrue(is_regrid)
+      @assertTrue(is_vector)
+   end subroutine test_vector_vertical_mismatch_builds_bundle_regrid_chain
+
+   ! A BRACKET needs no vertical bundle step: the time interpolation makes it
+   ! a Field first, so the vertical link is a Field link.
+   @test
+   subroutine test_bracket_vertical_mismatch_vertical_link_is_field()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+      class(Transform), pointer :: first, second
+      logical :: first_is_interpolation, second_is_regrid, second_is_field
+
+      call build_vertical_chain(graph, MAPL_STATEITEM_BRACKET, &
+           MAPL_STATEITEM_FIELD, final_id, intermediate_ids, unsupported)
+      @assertEqual('', unsupported)
+      @assertEqual(2, size(intermediate_ids))
+
+      call producer_of(graph, intermediate_ids(1), first)
+      call producer_of(graph, intermediate_ids(2), second)
+      first_is_interpolation = .false.
+      second_is_regrid = .false.
+      if (associated(first)) then
+         select type (first)
+         type is (BracketTimeInterpolationTransform)
+            first_is_interpolation = .true.
+         end select
+      end if
+      if (associated(second)) then
+         select type (second)
+         type is (VerticalColumnRegridTransform)
+            second_is_regrid = .true.
+         end select
+      end if
+      second_is_field = (link_item_type(graph, intermediate_ids(2)) == &
+           MAPL_STATEITEM_FIELD)
+      @assertTrue(first_is_interpolation)
+      @assertTrue(second_is_regrid)
+      @assertTrue(second_is_field)
+   end subroutine test_bracket_vertical_mismatch_vertical_link_is_field
+
+   ! A plain FIELDBUNDLE has no vertical step: VERTICAL_GRID is unsupported
+   ! and nothing is wired.
+   @test
+   subroutine test_fieldbundle_vertical_mismatch_is_unsupported()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      character(:), allocatable :: unsupported
+
+      call build_vertical_chain(graph, MAPL_STATEITEM_FIELDBUNDLE, &
+           MAPL_STATEITEM_FIELDBUNDLE, final_id, intermediate_ids, &
+           unsupported)
+      @assertEqual('VERTICAL_GRID', unsupported)
+      @assertEqual(0, size(intermediate_ids))
+   end subroutine test_fieldbundle_vertical_mismatch_is_unsupported
+
+   ! An orientation-only mismatch on a VECTOR is one flip step.
+   @test
+   subroutine test_vector_orientation_mismatch_builds_bundle_flip_chain()
+      type(ComponentGraph), target :: graph
+      type(DependencyNetworkId) :: net_id
+      type(NodeId) :: export_id, final_id
+      type(NodeId), allocatable :: intermediate_ids(:)
+      type(StateItemNode) :: export_node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      character(:), allocatable :: unsupported
+      class(Transform), pointer :: transformer
+      logical :: is_flip, is_vector
+      integer :: status
+
+      graph = ComponentGraph()
+      net_id = graph%get_forward_network_id()
+      export_id = graph%next_node_id(rc=status)
+      export_node = StateItemNode(export_id, payload, revision)
+      call graph%register_node(export_node, rc=status)
+      call export_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_VECTOR))
+      call import_map%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_VECTOR))
+      call export_map%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      call import_map%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      mismatched = find_mismatched_characteristics(export_map, import_map)
+
+      call find_or_build_extension_chain(graph, net_id, export_id, &
+           export_map, import_map, mismatched, final_id, intermediate_ids, &
+           unsupported, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', unsupported)
+      @assertEqual(1, size(intermediate_ids))
+
+      call producer_of(graph, intermediate_ids(1), transformer)
+      is_flip = .false.
+      if (associated(transformer)) then
+         select type (transformer)
+         type is (VerticalFlipTransform)
+            is_flip = .true.
+         end select
+      end if
+      is_vector = (link_item_type(graph, intermediate_ids(1)) == &
+           MAPL_STATEITEM_VECTOR)
+      @assertTrue(is_flip)
+      @assertTrue(is_vector)
+   end subroutine test_vector_orientation_mismatch_builds_bundle_flip_chain
+
+   subroutine insert_fixed_grid(map, id, levels)
+      type(StateItemCharacteristicMap), intent(inout) :: map
+      integer, intent(in) :: id
+      real, intent(in) :: levels(:)
+
+      type(FixedLevelsVerticalGrid) :: fixed
+      class(mapl_VerticalGrid), allocatable :: g
+      integer :: status
+
+      call fixed%initialize(FixedLevelsVerticalGridSpec('pressure', &
+           levels, 'hPa'), rc=status)
+      @assertEqual(0, status)
+      call fixed%set_id(id)
+      allocate(g, source=fixed)
+      call map%insert(VERTICAL_GRID_CHARACTERISTIC_KIND, &
+           VerticalGridCharacteristic(vgrid=g))
+   end subroutine insert_fixed_grid
+
+end module Test_ExtensionResolution

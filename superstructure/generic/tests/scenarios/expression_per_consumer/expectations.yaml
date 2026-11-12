@@ -1,0 +1,30 @@
+- component: A/<user>
+  export:
+    A: {status: complete, typekind: R4, units: m, value: 1.}
+    B: {status: complete, typekind: R4, units: m, value: 2.}
+    C: {status: complete, typekind: R4, units: m, value: 3.}
+- component: B/<user>
+  import:
+    I: {status: complete, typekind: R4, units: m, value: 1.}
+- component: B
+  import:
+    I: {status: complete, typekind: R4, units: m, value: 1.}
+- component: C/<user>
+  import:
+    I: {status: complete, typekind: R4, units: cm, value: 100.}
+- component: C
+  import:
+    I: {status: complete, typekind: R4, units: cm, value: 100.}
+- component: <root>
+  graph:
+    connections:
+      - export: A/expr
+        import: B/I
+        expression: true
+        inputs: {A: [], B: [], C: []}
+        chain: []
+      - export: A/expr
+        import: C/I
+        expression: true
+        inputs: {A: [], B: [], C: []}
+        chain: [units]

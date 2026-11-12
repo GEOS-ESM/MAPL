@@ -1,0 +1,190 @@
+#include "MAPL.h"
+
+! ExpressionTransform numerical correctness (real ESMF_Field data via
+! StateArithmeticParser_mod::StateEval, no legacy
+! EvalTransform/ExtensionTransform/ESMF_Field-via-MultiState
+! involvement) - exercised directly via compute(), the same "exercise
+! the Transform directly" idiom Test_BracketTimeInterpolationTransform.pf
+! already uses.
+module Test_ExpressionTransform
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
+   use mapl_ExpressionTransform_mod, only: ExpressionTransform
+   use mapl_FieldPointerUtilities_mod, only: assign_fptr
+   use ESMF, only: ESMF_Field, ESMF_FieldCreate, ESMF_FieldDestroy
+   use ESMF, only: ESMF_Grid, ESMF_GridCreateNoPeriDim, ESMF_GridDestroy
+   use ESMF, only: ESMF_TYPEKIND_R4, ESMF_KIND_R4
+   use mapl_ErrorHandling_mod
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_expression_transform_two_variables()
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: a, b, dest
+      type(GraphStateItem) :: a_payload, b_payload, dest_payload
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ExpressionTransform) :: transform
+      real(kind=ESMF_KIND_R4), pointer :: x(:)
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[2], countsPerDeDim2=[2], rc=status)
+      @assertEqual(0, status)
+
+      a = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='A', rc=status)
+      @assertEqual(0, status)
+      call assign_fptr(a, x, rc=status)
+      @assertEqual(0, status)
+      x = 2.0
+
+      b = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='B', rc=status)
+      @assertEqual(0, status)
+      call assign_fptr(b, x, rc=status)
+      @assertEqual(0, status)
+      x = 3.0
+
+      dest = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='dest', rc=status)
+      @assertEqual(0, status)
+
+      transform = ExpressionTransform('A + B', rc=status)
+      @assertEqual(0, status)
+
+      call a_payload%set(a, rc=status)
+      @assertEqual(0, status)
+      call b_payload%set(b, rc=status)
+      @assertEqual(0, status)
+      call dest_payload%set(dest, rc=status)
+      @assertEqual(0, status)
+      call inputs%insert('A', a_payload)
+      call inputs%insert('B', b_payload)
+      call outputs%insert('destination_field', dest_payload)
+
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call assign_fptr(dest, x, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(5.0, x(1), tolerance=1.0e-5)
+
+      call ESMF_FieldDestroy(a, rc=status)
+      call ESMF_FieldDestroy(b, rc=status)
+      call ESMF_FieldDestroy(dest, rc=status)
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine test_expression_transform_two_variables
+
+   ! Degenerate N=1 case still resolves and
+   ! evaluates correctly.
+   @test
+   subroutine test_expression_transform_single_variable()
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: a, dest
+      type(GraphStateItem) :: a_payload, dest_payload
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ExpressionTransform) :: transform
+      real(kind=ESMF_KIND_R4), pointer :: x(:)
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[2], countsPerDeDim2=[2], rc=status)
+      @assertEqual(0, status)
+
+      a = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='A', rc=status)
+      @assertEqual(0, status)
+      call assign_fptr(a, x, rc=status)
+      @assertEqual(0, status)
+      x = 7.0
+
+      dest = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='dest', rc=status)
+      @assertEqual(0, status)
+
+      transform = ExpressionTransform('2.0 * A', rc=status)
+      @assertEqual(0, status)
+
+      call a_payload%set(a, rc=status)
+      @assertEqual(0, status)
+      call dest_payload%set(dest, rc=status)
+      @assertEqual(0, status)
+      call inputs%insert('A', a_payload)
+      call outputs%insert('destination_field', dest_payload)
+
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call assign_fptr(dest, x, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(14.0, x(1), tolerance=1.0e-5)
+
+      call ESMF_FieldDestroy(a, rc=status)
+      call ESMF_FieldDestroy(dest, rc=status)
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine test_expression_transform_single_variable
+
+   ! Real N:1 with three or more referenced
+   ! variables.
+   @test
+   subroutine test_expression_transform_three_variables()
+      type(ESMF_Grid) :: grid
+      type(ESMF_Field) :: a, b, c, dest
+      type(GraphStateItem) :: a_payload, b_payload, c_payload, dest_payload
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ExpressionTransform) :: transform
+      real(kind=ESMF_KIND_R4), pointer :: x(:)
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[2], countsPerDeDim2=[2], rc=status)
+      @assertEqual(0, status)
+
+      a = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='A', rc=status)
+      @assertEqual(0, status)
+      call assign_fptr(a, x, rc=status)
+      @assertEqual(0, status)
+      x = 10.0
+
+      b = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='B', rc=status)
+      @assertEqual(0, status)
+      call assign_fptr(b, x, rc=status)
+      @assertEqual(0, status)
+      x = 4.0
+
+      c = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='C', rc=status)
+      @assertEqual(0, status)
+      call assign_fptr(c, x, rc=status)
+      @assertEqual(0, status)
+      x = 2.0
+
+      dest = ESMF_FieldCreate(grid, ESMF_TYPEKIND_R4, name='dest', rc=status)
+      @assertEqual(0, status)
+
+      transform = ExpressionTransform('(A + B) / C', rc=status)
+      @assertEqual(0, status)
+
+      call a_payload%set(a, rc=status)
+      @assertEqual(0, status)
+      call b_payload%set(b, rc=status)
+      @assertEqual(0, status)
+      call c_payload%set(c, rc=status)
+      @assertEqual(0, status)
+      call dest_payload%set(dest, rc=status)
+      @assertEqual(0, status)
+      call inputs%insert('A', a_payload)
+      call inputs%insert('B', b_payload)
+      call inputs%insert('C', c_payload)
+      call outputs%insert('destination_field', dest_payload)
+
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call assign_fptr(dest, x, rc=status)
+      @assertEqual(0, status)
+      ! (10 + 4) / 2 = 7
+      @assertEqual(7.0, x(1), tolerance=1.0e-5)
+
+      call ESMF_FieldDestroy(a, rc=status)
+      call ESMF_FieldDestroy(b, rc=status)
+      call ESMF_FieldDestroy(c, rc=status)
+      call ESMF_FieldDestroy(dest, rc=status)
+      call ESMF_GridDestroy(grid, rc=status)
+   end subroutine test_expression_transform_three_variables
+
+end module Test_ExpressionTransform

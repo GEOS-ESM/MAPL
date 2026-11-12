@@ -17,6 +17,7 @@ module Test_Aspects
    use mapl_enums_api, only: MAPL_VECTOR_BASIS_KIND_NS
    use mapl_AspectId_mod
    use mapl_GeomAspect_mod
+   use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_MIRROR
    use mapl_UngriddedDims_mod
    use mapl_UngriddedDim_mod
    use mapl_UngriddedDimVector_mod
@@ -25,7 +26,7 @@ module Test_Aspects
    use esmf
    implicit none
 
-   type(ESMF_Geom) :: geom1, geom2
+   type(ESMF_Geom) :: geom1, geom2, geom3
 
 contains
 
@@ -47,6 +48,11 @@ contains
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
       mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
       geom2 = mapl_geom%get_geom()
+      call ESMF_HConfigDestroy(hconfig)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 7, pole: PC, dateline: DC}", _RC)
+      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom3 = mapl_geom%get_geom()
       call ESMF_HConfigDestroy(hconfig)
    end subroutine setup
 
@@ -196,6 +202,75 @@ contains
       @assert_that(export%can_connect_to(import), is(true()))
 
    end subroutine test_connect_geoms
+
+   @test
+   subroutine test_none_dims_ignore_geom()
+      type(GeomAspect) :: import, export
+
+      import = GeomAspect(geom3, horizontal_dims_spec=HORIZONTAL_DIMS_NONE)
+      export = GeomAspect(geom1, horizontal_dims_spec=HORIZONTAL_DIMS_NONE)
+
+      @assert_that(export%matches(import), is(true()))
+      @assert_that(export%can_connect_to(import), is(true()))
+      @assert_that(export%needs_extension_for(import), is(false()))
+
+   end subroutine test_none_dims_ignore_geom
+
+   @test
+   subroutine test_none_dims_ignore_geom_id()
+      type(GeomAspect) :: import, export
+
+      import = GeomAspect(geom_id=mapl_new_GeomId(31), horizontal_dims_spec=HORIZONTAL_DIMS_NONE)
+      export = GeomAspect(geom_id=mapl_new_GeomId(32), horizontal_dims_spec=HORIZONTAL_DIMS_NONE)
+
+      @assert_that(export%matches(import), is(true()))
+      @assert_that(export%needs_extension_for(import), is(false()))
+
+   end subroutine test_none_dims_ignore_geom_id
+
+   @test
+   subroutine test_none_dims_mirror_source_needs_no_extension()
+      type(GeomAspect) :: import, export
+
+      ! A NONE export without a geom still needs no geom extension.
+      import = GeomAspect(geom3, horizontal_dims_spec=HORIZONTAL_DIMS_NONE)
+      export = GeomAspect(horizontal_dims_spec=HORIZONTAL_DIMS_NONE)
+
+      @assert_that(export%is_mirror(), is(true()))
+      @assert_that(export%matches(import), is(true()))
+      @assert_that(export%needs_extension_for(import), is(false()))
+
+   end subroutine test_none_dims_mirror_source_needs_no_extension
+
+   @test
+   subroutine test_none_dims_vs_geom_dims_does_not_match()
+      type(GeomAspect) :: import, export
+
+      import = GeomAspect(geom3, horizontal_dims_spec=HORIZONTAL_DIMS_GEOM)
+      export = GeomAspect(geom1, horizontal_dims_spec=HORIZONTAL_DIMS_NONE)
+      @assert_that(export%matches(import), is(false()))
+      @assert_that(export%can_connect_to(import), is(false()))
+
+      ! Same geom: only the dims spec differs.
+      import = GeomAspect(geom1, horizontal_dims_spec=HORIZONTAL_DIMS_GEOM)
+      @assert_that(export%matches(import), is(false()))
+      @assert_that(export%can_connect_to(import), is(false()))
+
+   end subroutine test_none_dims_vs_geom_dims_does_not_match
+
+   @test
+   subroutine test_mirror_dims_goes_through_dims_specs_agree()
+      type(GeomAspect) :: import, export
+
+      ! A MIRROR spec is not the NONE shortcut: geoms are still compared.
+      import = GeomAspect(geom3, horizontal_dims_spec=HORIZONTAL_DIMS_MIRROR)
+      export = GeomAspect(geom1, horizontal_dims_spec=HORIZONTAL_DIMS_NONE)
+      @assert_that(export%matches(import), is(false()))
+
+      import = GeomAspect(geom1, horizontal_dims_spec=HORIZONTAL_DIMS_MIRROR)
+      @assert_that(export%matches(import), is(true()))
+
+   end subroutine test_mirror_dims_goes_through_dims_specs_agree
 
    @test
    subroutine test_mirror_geom()
@@ -371,8 +446,8 @@ contains
    end subroutine test_standardname_export_unset
 
    @test
-   ! Vector standard_name agreement is checked per-component (design.md
-   ! Decision 6): component 1 agrees, component 2 disagrees - the whole
+   ! Vector standard_name agreement is checked per-component:
+   ! component 1 agrees, component 2 disagrees - the whole
    ! Vector fails to match in strict mode.
    subroutine test_vector_standardname_partial_mismatch_strict()
       type(VectorClassAspect) :: import, export

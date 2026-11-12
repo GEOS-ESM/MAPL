@@ -1,0 +1,539 @@
+#include "MAPL.h"
+
+!------------------------------------------------------------------------------
+! DependencyNetwork: graph-neutral dependency wiring with direct
+! predecessor/successor adjacency, keyed by NodeId. No first-class edge objects: a dependency is
+! addressed only by its (source, target) NodeId pair.
+!
+! Two synchronized gFTL maps (NodeId -> NodeIdSet) hold successor and
+! predecessor adjacency. Ownership/classification of NodeIds is not known to
+! this type (that is ComponentGraph's job) - callers
+! that need ownership or producer-count validation pass the relevant NodeId
+! sets into add_dependency()/validate() as optional arguments; if omitted,
+! those specific checks are skipped, which is how the standalone synthetic
+! tests exercise adjacency/cycle/self-edge behavior without a real
+! ComponentGraph.
+!
+! Iteration convention: every gFTL walk here uses ftn_begin()/ftn_end() with
+! the %next() call at the top of the loop body (iter = c%ftn_begin() sits
+! one position before the first element; next() must run before the first
+! use of iter).
+!------------------------------------------------------------------------------
+module mapl_DependencyNetwork_mod
+   use mapl_NodeId_mod
+   use mapl_NodeIdSet_mod
+   use mapl_NodeId_NodeIdSet_Map_mod
+   use mapl_ErrorHandling_mod
+   implicit none(type, external)
+   private
+
+   public :: DependencyNetwork
+
+   type :: DependencyNetwork
+      private
+      type(NodeId_NodeIdSet_Map) :: predecessors_map
+      type(NodeId_NodeIdSet_Map) :: successors_map
+      logical :: frozen = .false.
+   contains
+      procedure :: add_dependency => network_add_dependency
+      procedure :: contains_dependency => network_contains_dependency
+      procedure :: get_predecessors => network_get_predecessors
+      procedure :: get_successors => network_get_successors
+      procedure :: has_predecessors => network_has_predecessors
+      procedure :: has_successors => network_has_successors
+      procedure :: would_create_cycle => network_would_create_cycle
+      procedure :: validate => network_validate
+      procedure :: freeze => network_freeze
+      procedure :: is_frozen => network_is_frozen
+      procedure :: clear => network_clear
+      ! exposes collect_referenced_ids() so ComponentGraph%validate() can build a
+      ! per-call allowed-id set for this network's referenced ids without this
+      ! type knowing about hierarchy-wide storage
+      procedure :: get_referenced_ids => network_get_referenced_ids
+   end type DependencyNetwork
+
+   ! One explicit-stack DFS frame for has_cycle_from: the node being explored
+   ! and where its successor iteration has got to, so resuming after
+   ! "descending" into a child needs no call-stack frame.
+   type :: DfsFrame
+      type(NodeId) :: node
+      type(NodeIdSetIterator) :: iter
+      type(NodeIdSet), pointer :: successors => null()
+   end type DfsFrame
+
+contains
+
+   ! -- mutators ---------------------------------------------------------
+
+   ! Validates before mutating either map; on any
+   ! rejection (frozen, invalid id, self-dependency, foreign id, cycle),
+   ! no adjacency changes.
+   subroutine network_add_dependency(this, source, target, rc, valid_ids)
+      class(DependencyNetwork), target, intent(inout) :: this
+      type(NodeId), intent(in) :: source
+      type(NodeId), intent(in) :: target
+      integer, optional, intent(out) :: rc
+      type(NodeIdSet), optional, intent(in) :: valid_ids
+
+      type(NodeIdSet), pointer :: successors, predecessors
+
+      _ASSERT(.not. this%frozen, 'DependencyNetwork: add_dependency called on a frozen network')
+      _ASSERT(source%is_valid(), 'DependencyNetwork: add_dependency source NodeId is not valid')
+      _ASSERT(target%is_valid(), 'DependencyNetwork: add_dependency target NodeId is not valid')
+      _ASSERT(source /= target, 'DependencyNetwork: add_dependency rejects self-dependency')
+      if (present(valid_ids)) then
+         _ASSERT(valid_ids%count(source) > 0, 'DependencyNetwork: add_dependency source NodeId is foreign to this network')
+         _ASSERT(valid_ids%count(target) > 0, 'DependencyNetwork: add_dependency target NodeId is foreign to this network')
+      end if
+      _ASSERT(.not. this%would_create_cycle(source, target), 'DependencyNetwork: add_dependency would create a cycle')
+
+      call ensure_entry(this%successors_map, source)
+      call ensure_entry(this%predecessors_map, target)
+
+      successors => this%successors_map%at(source)
+      call successors%insert(target)
+
+      predecessors => this%predecessors_map%at(target)
+      call predecessors%insert(source)
+
+      _RETURN(_SUCCESS)
+   end subroutine network_add_dependency
+
+   subroutine network_clear(this, rc)
+      class(DependencyNetwork), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      _ASSERT(.not. this%frozen, 'DependencyNetwork: clear called on a frozen network')
+
+      call this%predecessors_map%clear()
+      call this%successors_map%clear()
+
+      _RETURN(_SUCCESS)
+   end subroutine network_clear
+
+   ! Irreversible; no failure path defined by the spec.
+   subroutine network_freeze(this)
+      class(DependencyNetwork), intent(inout) :: this
+
+      this%frozen = .true.
+   end subroutine network_freeze
+
+   ! -- queries (read-only, remain available after freeze) ---------------
+
+   logical function network_is_frozen(this) result(frozen)
+      class(DependencyNetwork), intent(in) :: this
+
+      frozen = this%frozen
+   end function network_is_frozen
+
+   ! Public wrapper over collect_referenced_ids(), used by
+   ! ComponentGraph%validate() to check every NodeId this network references
+   ! against the ids that instance may reference (its own, or registered
+   ! elsewhere in the hierarchy), without hierarchy-wide knowledge here.
+   function network_get_referenced_ids(this) result(ids)
+      class(DependencyNetwork), target, intent(in) :: this
+      type(NodeIdSet) :: ids
+
+      ids = collect_referenced_ids(this)
+   end function network_get_referenced_ids
+
+   logical function network_contains_dependency(this, source, target) result(found)
+      class(DependencyNetwork), intent(in) :: this
+      type(NodeId), intent(in) :: source
+      type(NodeId), intent(in) :: target
+
+      type(NodeIdSet), pointer :: successors
+
+      found = .false.
+      successors => this%successors_map%at(source)
+      if (associated(successors)) found = successors%count(target) > 0
+   end function network_contains_dependency
+
+   function network_get_predecessors(this, node) result(predecessors)
+      class(DependencyNetwork), intent(in) :: this
+      type(NodeId), intent(in) :: node
+      type(NodeIdSet) :: predecessors
+
+      type(NodeIdSet), pointer :: found
+
+      found => this%predecessors_map%at(node)
+      if (associated(found)) predecessors = found
+   end function network_get_predecessors
+
+   function network_get_successors(this, node) result(successors)
+      class(DependencyNetwork), intent(in) :: this
+      type(NodeId), intent(in) :: node
+      type(NodeIdSet) :: successors
+
+      type(NodeIdSet), pointer :: found
+
+      found => this%successors_map%at(node)
+      if (associated(found)) successors = found
+   end function network_get_successors
+
+   logical function network_has_predecessors(this, node) result(has)
+      class(DependencyNetwork), intent(in) :: this
+      type(NodeId), intent(in) :: node
+
+      type(NodeIdSet), pointer :: found
+
+      found => this%predecessors_map%at(node)
+      has = associated(found)
+      if (has) has = .not. found%empty()
+   end function network_has_predecessors
+
+   logical function network_has_successors(this, node) result(has)
+      class(DependencyNetwork), intent(in) :: this
+      type(NodeId), intent(in) :: node
+
+      type(NodeIdSet), pointer :: found
+
+      found => this%successors_map%at(node)
+      has = associated(found)
+      if (has) has = .not. found%empty()
+   end function network_has_successors
+
+   ! Pure query - no side effects. Searches downstream from
+   ! `target`; if `source` is reachable, adding source->target would close
+   ! a cycle.
+   logical function network_would_create_cycle(this, source, target) result(cyclic)
+      class(DependencyNetwork), target, intent(in) :: this
+      type(NodeId), intent(in) :: source
+      type(NodeId), intent(in) :: target
+
+      type(NodeIdSet) :: visited
+
+      cyclic = node_reachable(this, target, source, visited)
+   end function network_would_create_cycle
+
+   ! -- validation ---------------------------------------------------------
+
+   ! Full structural validation. `valid_ids`, `producer_ids`,
+   ! and `state_item_ids` are optional NodeId classification sets, normally
+   ! supplied by the owning ComponentGraph (this type
+   ! itself stays graph-neutral - it does not know about GraphNode subclasses).
+   ! Omitting them skips only the checks that need that classification
+   ! (ownership, one-producer-per-state-item); symmetry, self-dependency,
+   ! and acyclicity are always checked.
+   subroutine network_validate(this, rc, valid_ids, producer_ids, state_item_ids)
+      class(DependencyNetwork), target, intent(in) :: this
+      integer, optional, intent(out) :: rc
+      type(NodeIdSet), optional, target, intent(in) :: valid_ids
+      type(NodeIdSet), optional, target, intent(in) :: producer_ids
+      type(NodeIdSet), optional, target, intent(in) :: state_item_ids
+
+      type(NodeIdSet), target :: all_ids
+      type(NodeIdSet), target :: visiting, visited
+      type(NodeId_NodeIdSet_MapIterator) :: map_iter
+      type(NodeIdSetIterator) :: set_iter
+      type(NodeId), pointer :: node, other
+      type(NodeIdSet), pointer :: neighbor_set, reverse_set
+
+      all_ids = collect_referenced_ids(this)
+      ! All referenced ids are owned by the graph.
+      if (present(valid_ids)) then
+         set_iter = all_ids%ftn_begin()
+         do while (set_iter /= all_ids%ftn_end())
+            call set_iter%next()
+            node => set_iter%of()
+            _ASSERT(associated(node), 'DependencyNetwork: validate - iterator%of() unassociated')
+            _ASSERT(valid_ids%count(node) > 0, 'DependencyNetwork: validate found a NodeId not owned by the graph')
+         end do
+      end if
+
+      ! No self-dependencies.
+      map_iter = this%successors_map%ftn_begin()
+      do while (map_iter /= this%successors_map%ftn_end())
+         call map_iter%next()
+         node => map_iter%first()
+         _ASSERT(associated(node), 'DependencyNetwork: validate - iterator%first() unassociated')
+         neighbor_set => map_iter%second()
+         _ASSERT(neighbor_set%count(node) == 0, 'DependencyNetwork: validate found a self-dependency')
+      end do
+
+      ! Predecessor/successor symmetry, both directions.
+      map_iter = this%successors_map%ftn_begin()
+      do while (map_iter /= this%successors_map%ftn_end())
+         call map_iter%next()
+         node => map_iter%first()
+         _ASSERT(associated(node), 'DependencyNetwork: validate - iterator%first() unassociated')
+         neighbor_set => map_iter%second()
+         set_iter = neighbor_set%ftn_begin()
+         do while (set_iter /= neighbor_set%ftn_end())
+            call set_iter%next()
+            other => set_iter%of()
+            _ASSERT(associated(other), 'DependencyNetwork: validate - iterator%of() unassociated')
+            reverse_set => this%predecessors_map%at(other)
+            _ASSERT(associated(reverse_set), 'DependencyNetwork: validate found asymmetric adjacency (missing predecessor entry)')
+            _ASSERT(reverse_set%count(node) > 0, 'DependencyNetwork: validate found asymmetric adjacency (predecessor set missing source)')
+         end do
+      end do
+
+      map_iter = this%predecessors_map%ftn_begin()
+      do while (map_iter /= this%predecessors_map%ftn_end())
+         call map_iter%next()
+         node => map_iter%first()
+         _ASSERT(associated(node), 'DependencyNetwork: validate - iterator%first() unassociated')
+         neighbor_set => map_iter%second()
+         set_iter = neighbor_set%ftn_begin()
+         do while (set_iter /= neighbor_set%ftn_end())
+            call set_iter%next()
+            other => set_iter%of()
+            _ASSERT(associated(other), 'DependencyNetwork: validate - iterator%of() unassociated')
+            reverse_set => this%successors_map%at(other)
+            _ASSERT(associated(reverse_set), 'DependencyNetwork: validate found asymmetric adjacency (missing successor entry)')
+            _ASSERT(reverse_set%count(node) > 0, 'DependencyNetwork: validate found asymmetric adjacency (successor set missing target)')
+         end do
+      end do
+
+      ! Acyclicity of the whole network.
+      set_iter = all_ids%ftn_begin()
+      do while (set_iter /= all_ids%ftn_end())
+         call set_iter%next()
+         node => set_iter%of()
+         _ASSERT(associated(node), 'DependencyNetwork: validate - iterator%of() unassociated')
+         if (visited%count(node) == 0) then
+            block
+              logical :: flag
+              flag = has_cycle_from(this, node, visiting, visited)
+              ! has_cycle_from mutates visiting/visited - a second call
+              ! for the same node would always short-circuit false via
+              ! the visited%count(start_node) > 0 early-return, not
+              ! actually re-checking anything. Assert on the one real
+              ! result instead of calling it again.
+              _ASSERT(.not. flag, 'DependencyNetwork: validate found a cycle')
+            end block
+         end if
+      end do
+
+      ! At most one producer per state item.
+      if (present(producer_ids) .and. present(state_item_ids)) then
+         call validate_producer_counts(this, producer_ids, state_item_ids, rc=rc)
+         if (present(rc)) then
+            if (rc /= _SUCCESS) return
+         end if
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine network_validate
+
+   subroutine validate_producer_counts(this, producer_ids, state_item_ids, rc)
+      class(DependencyNetwork), target, intent(in) :: this
+      type(NodeIdSet), target, intent(in) :: producer_ids
+      type(NodeIdSet), target, intent(in) :: state_item_ids
+      integer, optional, intent(out) :: rc
+
+      type(NodeIdSetIterator) :: item_iter, pred_iter
+      type(NodeId), pointer :: item, pred
+      type(NodeIdSet), pointer :: predecessors
+      integer :: producer_count
+
+      item_iter = state_item_ids%ftn_begin()
+      do while (item_iter /= state_item_ids%ftn_end())
+         call item_iter%next()
+         item => item_iter%of()
+         _ASSERT(associated(item), 'DependencyNetwork: validate_producer_counts - iterator%of() unassociated')
+         predecessors => this%predecessors_map%at(item)
+         if (associated(predecessors)) then
+            producer_count = 0
+            pred_iter = predecessors%ftn_begin()
+            do while (pred_iter /= predecessors%ftn_end())
+               call pred_iter%next()
+               pred => pred_iter%of()
+               _ASSERT(associated(pred), 'DependencyNetwork: validate_producer_counts - iterator%of() unassociated')
+               if (producer_ids%count(pred) > 0) producer_count = producer_count + 1
+            end do
+            _ASSERT(producer_count <= 1, 'DependencyNetwork: validate found more than one producer for a state item')
+         end if
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine validate_producer_counts
+
+   ! -- private helpers ----------------------------------------------------
+
+   ! Ensures a (possibly empty) NodeIdSet entry exists for `key` so that a
+   ! subsequent %at(key) call returns an associated pointer.
+   subroutine ensure_entry(map, key)
+      type(NodeId_NodeIdSet_Map), intent(inout) :: map
+      type(NodeId), intent(in) :: key
+
+      type(NodeIdSet) :: empty_set
+
+      if (map%count(key) == 0) call map%insert(key, empty_set)
+   end subroutine ensure_entry
+
+   ! Is `needle` reachable from `start` by following successor adjacency?
+   ! Explicit-worklist (non-recursive) search: a recursive Fortran function
+   ! here corrupted its local variables on return from a deeper call under
+   ! gfortran (not reproducible under NAG). Plain reachability needs only one
+   ! `visited` set, no resumable iteration state.
+   function node_reachable(this, start, needle, visited) result(found)
+      class(DependencyNetwork), target, intent(in) :: this
+      type(NodeId), intent(in) :: start
+      type(NodeId), intent(in) :: needle
+      type(NodeIdSet), intent(inout) :: visited
+      logical :: found
+
+      type(NodeId), allocatable :: worklist(:)
+      type(NodeId) :: current
+      type(NodeId), pointer :: next_node
+      type(NodeIdSet), pointer :: successors
+      type(NodeIdSetIterator) :: iter
+      integer :: n
+
+      found = .false.
+      allocate(worklist(0))
+      worklist = [worklist, start]
+
+      do while (size(worklist) > 0)
+         n = size(worklist)
+         current = worklist(n)
+         worklist = worklist(1:n - 1)
+
+         if (current == needle) then
+            found = .true.
+            return
+         end if
+         if (visited%count(current) > 0) cycle
+         call visited%insert(current)
+
+         successors => this%successors_map%at(current)
+         if (associated(successors)) then
+            iter = successors%ftn_begin()
+            do while (iter /= successors%ftn_end())
+               call iter%next()
+               next_node => iter%of()
+               if (.not. associated(next_node)) error stop 'DependencyNetwork: node_reachable - iterator%of() unassociated'
+               worklist = [worklist, next_node]
+            end do
+         end if
+      end do
+   end function node_reachable
+
+   ! Classic white/gray/black DFS cycle detection: `visiting` holds nodes
+   ! currently on the (now explicit) DFS stack, `visited` holds
+   ! Explicit-stack (non-recursive) DFS: a recursive function corrupted its
+   ! local `successors` pointer on return from a deeper call under gfortran
+   ! (not reproducible under NAG). Each DfsFrame holds its node and a stored
+   ! NodeIdSetIterator so the parent's iteration can resume after "descending".
+   function has_cycle_from(this, start_node, visiting, visited) result(found)
+      class(DependencyNetwork), target, intent(in) :: this
+      type(NodeId), intent(in) :: start_node
+      type(NodeIdSet), intent(inout) :: visiting
+      type(NodeIdSet), intent(inout) :: visited
+      logical :: found
+
+      type(DfsFrame), allocatable :: stack(:)
+      type(NodeId), pointer :: next_node
+      logical :: descended, has_more
+      integer :: top
+      integer :: n_removed
+
+      found = .false.
+      if (visiting%count(start_node) > 0) then
+         found = .true.
+         return
+      end if
+      if (visited%count(start_node) > 0) return
+
+      call visiting%insert(start_node)
+      allocate(stack(0))
+      stack = [stack, make_dfs_frame(this, start_node)]
+
+      ! Every frame is always unwound (erase from `visiting`, insert into
+      ! `visited`), even once `found` is set, so `visiting` is never left dirty;
+      ! `found` only gates further exploration.
+      do while (size(stack) > 0)
+         top = size(stack)
+         descended = .false.
+
+         if (.not. found) then
+            has_more = associated(stack(top)%successors)
+            if (has_more) has_more = (stack(top)%iter /= stack(top)%successors%ftn_end())
+
+            do while (has_more)
+               call stack(top)%iter%next()
+               next_node => stack(top)%iter%of()
+               if (.not. associated(next_node)) error stop 'DependencyNetwork: has_cycle_from - iterator%of() unassociated'
+
+               if (visiting%count(next_node) > 0) then
+                  found = .true.
+                  exit
+               end if
+
+               if (visited%count(next_node) == 0) then
+                  call visiting%insert(next_node)
+                  stack = [stack, make_dfs_frame(this, next_node)]
+                  descended = .true.
+                  exit
+               end if
+
+               has_more = (stack(top)%iter /= stack(top)%successors%ftn_end())
+            end do
+         end if
+
+         if (.not. descended) then
+            n_removed = int(visiting%erase(stack(top)%node))
+            call visited%insert(stack(top)%node)
+            stack = stack(1:top - 1)
+         end if
+      end do
+   end function has_cycle_from
+
+   ! Builds one has_cycle_from DFS stack frame for `node`: its successor set
+   ! (if any) and an iterator positioned before its first element.
+   function make_dfs_frame(this, node) result(frame)
+      class(DependencyNetwork), target, intent(in) :: this
+      type(NodeId), intent(in) :: node
+      type(DfsFrame) :: frame
+
+      frame%node = node
+      frame%successors => this%successors_map%at(node)
+      if (associated(frame%successors)) frame%iter = frame%successors%ftn_begin()
+   end function make_dfs_frame
+
+   ! All NodeIds referenced anywhere in either adjacency map, as keys or
+   ! as set members.
+   function collect_referenced_ids(this) result(ids)
+      class(DependencyNetwork), target, intent(in) :: this
+      type(NodeIdSet) :: ids
+
+      type(NodeId_NodeIdSet_MapIterator) :: map_iter
+      type(NodeIdSetIterator) :: set_iter
+      type(NodeIdSet), pointer :: neighbor_set
+      type(NodeId), pointer :: node, member
+
+      ! No `rc` argument here, so the assert macro (which references `rc`) cannot be
+      ! used; the ftn_begin/next/of() discipline keeps of()/first()/second() on
+      ! valid positions.
+      map_iter = this%successors_map%ftn_begin()
+      do while (map_iter /= this%successors_map%ftn_end())
+         call map_iter%next()
+         node => map_iter%first()
+         call ids%insert(node)
+         neighbor_set => map_iter%second()
+         set_iter = neighbor_set%ftn_begin()
+         do while (set_iter /= neighbor_set%ftn_end())
+            call set_iter%next()
+            member => set_iter%of()
+            call ids%insert(member)
+         end do
+      end do
+
+      map_iter = this%predecessors_map%ftn_begin()
+      do while (map_iter /= this%predecessors_map%ftn_end())
+         call map_iter%next()
+         node => map_iter%first()
+         call ids%insert(node)
+         neighbor_set => map_iter%second()
+         set_iter = neighbor_set%ftn_begin()
+         do while (set_iter /= neighbor_set%ftn_end())
+            call set_iter%next()
+            member => set_iter%of()
+            call ids%insert(member)
+         end do
+      end do
+   end function collect_referenced_ids
+
+end module mapl_DependencyNetwork_mod

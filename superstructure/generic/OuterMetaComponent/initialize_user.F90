@@ -5,6 +5,7 @@ submodule (mapl_OuterMetaComponent_mod) initialize_user_smod
    use mapl_enums_api, only: MAPL_GENERIC_INIT_USER, MAPL_GENERIC_COUPLER_INITIALIZE
    use mapl_ComponentDriver_mod
    use mapl_ComponentDriverPtrVector_mod
+   use mapl_GraphOwnsUserStates_mod, only: graph_populates_user_states
    use mapl_ErrorHandling_mod
    use pflogger, only: logger_t => logger
 
@@ -26,11 +27,15 @@ contains
 
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_USER, _RC)
 
-      import_couplers = this%registry%get_import_couplers()
-      do i = 1, import_couplers%size()
-         drvr = import_couplers%of(i)
-          call drvr%ptr%initialize(phase_idx=MAPL_GENERIC_COUPLER_INITIALIZE, _RC)
-      end do
+      ! run_user does not run these couplers when the graph populates the user
+      ! states, so they need no initialization.
+      if (.not. graph_populates_user_states()) then
+         import_couplers = this%registry%get_import_couplers()
+         do i = 1, import_couplers%size()
+            drvr = import_couplers%of(i)
+            call drvr%ptr%initialize(phase_idx=MAPL_GENERIC_COUPLER_INITIALIZE, _RC)
+         end do
+      end if
 
       logger => this%get_logger()
       call logger%info("Initialize:: starting...")

@@ -118,6 +118,95 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_matches_center_differing_grids_still_mismatch
 
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_declared_component_vgrid_no_op(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalGridAspect) :: aspect
+      class(VerticalGrid), pointer :: actual_vgrid
+      logical :: same
+      integer :: status
+
+      same = SourceVertGrid%matches(DestVertGrid)
+      @assertFalse(same, 'Seed vertical grids must differ.')
+      aspect = VerticalGridAspect(vertical_grid=SourceVertGrid, &
+         & declared_by_item=.true.)
+
+      call aspect%set_component_vertical_grid(DestVertGrid, rc=status)
+      _VERIFY(status)
+
+      actual_vgrid => aspect%get_vertical_grid(_RC)
+      same = actual_vgrid%matches(SourceVertGrid)
+      @assertTrue(same, 'Component push must preserve an item vertical grid.')
+      _UNUSED_DUMMY(this)
+   end subroutine test_declared_component_vgrid_no_op
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_component_vgrid_replaces_component_value(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalGridAspect) :: aspect
+      class(VerticalGrid), pointer :: actual_vgrid
+      logical :: same
+      integer :: status
+
+      same = SourceVertGrid%matches(DestVertGrid)
+      @assertFalse(same, 'Seed vertical grids must differ.')
+      aspect = VerticalGridAspect(vertical_grid=SourceVertGrid, &
+         & declared_by_item=.false.)
+
+      call aspect%set_component_vertical_grid(DestVertGrid, rc=status)
+      _VERIFY(status)
+
+      actual_vgrid => aspect%get_vertical_grid(_RC)
+      same = actual_vgrid%matches(DestVertGrid)
+      @assertTrue(same, 'Component push must replace a component value.')
+      _UNUSED_DUMMY(this)
+   end subroutine test_component_vgrid_replaces_component_value
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_set_vgrid_unconditional(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalGridAspect) :: aspect
+      class(VerticalGrid), pointer :: actual_vgrid
+      logical :: same
+      integer :: status
+
+      same = SourceVertGrid%matches(DestVertGrid)
+      @assertFalse(same, 'Seed vertical grids must differ.')
+      aspect = VerticalGridAspect(vertical_grid=SourceVertGrid, &
+         & declared_by_item=.true.)
+
+      call aspect%set_vertical_grid(DestVertGrid)
+
+      actual_vgrid => aspect%get_vertical_grid(_RC)
+      same = actual_vgrid%matches(DestVertGrid)
+      @assertTrue(same, 'Direct setter must replace an item value.')
+      _UNUSED_DUMMY(this)
+   end subroutine test_set_vgrid_unconditional
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_declared_vgrid_flag_survives_copy(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(VerticalGridAspect) :: source_aspect, copied_aspect
+      class(VerticalGrid), pointer :: actual_vgrid
+      logical :: same
+      integer :: status
+
+      same = SourceVertGrid%matches(DestVertGrid)
+      @assertFalse(same, 'Seed vertical grids must differ.')
+      source_aspect = VerticalGridAspect(vertical_grid=SourceVertGrid, &
+         & declared_by_item=.true.)
+      copied_aspect = source_aspect
+
+      call copied_aspect%set_component_vertical_grid(DestVertGrid, &
+         & rc=status)
+      _VERIFY(status)
+
+      actual_vgrid => copied_aspect%get_vertical_grid(_RC)
+      same = actual_vgrid%matches(SourceVertGrid)
+      @assertTrue(same, 'Copied item declaration must remain protected.')
+      _UNUSED_DUMMY(this)
+   end subroutine test_declared_vgrid_flag_survives_copy
+
 !===============================================================================
 !HELPER PROCEDURES
 !===============================================================================

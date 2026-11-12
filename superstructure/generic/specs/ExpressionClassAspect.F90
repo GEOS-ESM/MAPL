@@ -162,7 +162,7 @@ contains
       ! (VERTICAL_STAGGER_INVALID) when this item is first connected crashes
       ! while extending the VERTICAL_GRID_ASPECT_ID aspect itself, before
       ! CLASS_ASPECT_ID - and this expression's own make_transform - is ever
-      ! reached. See design.md Decisions.
+      ! reached.
       expression_variables = parser_variables_in_expression(this%expression, _RC)
       call check_vertical_stagger_consistency(this, other_aspects, expression_variables, _RC)
 
@@ -320,8 +320,7 @@ contains
          ! each other and to this item's own (already resolved, since
          ! VERTICAL_GRID_ASPECT_ID precedes CLASS_ASPECT_ID in
          ! get_aspect_order) resolved stagger. A variable whose stagger is
-         ! not yet resolved is skipped rather than treated as an error - see
-         ! design.md Decisions.
+         ! not yet resolved is skipped rather than treated as an error.
          call check_vertical_stagger_consistency(src, other_aspects, expression_variables, _RC)
 
          ! goal_spec is used below to "extend" (find/create the actual field
@@ -381,8 +380,8 @@ contains
    ! variables (plus the expression's own already-declared value, if any)
    ! already have a resolved vertical stagger at this point; a variable that
    ! is still genuinely mirrored (not yet resolved) is skipped rather than
-   ! treated as an error. See design.md Decisions for why this cannot be a
-   ! hard requirement.
+   ! treated as an error: a stagger can legitimately be unresolved here,
+   ! so this cannot be a hard requirement.
    !
    ! If this expression's own vertical_dim_spec was omitted (parsed as
    ! VERTICAL_STAGGER_INVALID - see ComponentSpecParser/parse_var_specs.F90)
@@ -400,8 +399,7 @@ contains
    ! not a reliable signal of "not yet declared"; VERTICAL_STAGGER_INVALID is.
    ! By the time this make_transform runs (at actual connection time), that
    ! one-time component-level override has already happened, so directly
-   ! setting the resolved value here is safe and final. See design.md
-   ! Decisions.
+   ! setting the resolved value here is safe and final.
    subroutine check_vertical_stagger_consistency(src, other_aspects, expression_variables, rc)
       class(ExpressionClassAspect), intent(in) :: src
       type(AspectMap), intent(in) :: other_aspects
@@ -465,7 +463,7 @@ contains
          ! called early, from create(), as well as later from
          ! make_transform): treat "not yet in the registry" the same as "not
          ! yet resolved" - skip, best effort - rather than treating it as an
-         ! error. See design.md Decisions.
+         ! error.
          if (.not. src%registry%has_virtual_pt(v_pt)) cycle
 
          var_spec => src%registry%get_primary_spec(v_pt, _RC)

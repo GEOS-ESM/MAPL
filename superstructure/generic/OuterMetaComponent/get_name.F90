@@ -14,6 +14,8 @@ contains
       integer :: status
       character(len=ESMF_MAXSTR) :: buffer
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      name = ''
       call ESMF_GridCompGet(this%self_gridcomp, name=buffer, _RC)
       name=trim(buffer)
 

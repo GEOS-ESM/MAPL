@@ -13,6 +13,8 @@ module mapl_FieldBundleGet_mod
    use mapl_Enums_api, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, &
         MAPL_StateItemAllocation, mapl_VerticalStaggerLoc
    use mapl_FieldBundleInfo_mod
+   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
+   use mapl_StateItemVariantInfo_mod, only: StateItemVariantInfoGet
    use mapl_InfoUtilities_mod
    use mapl_LU_Bound_mod
    use esmf
@@ -47,6 +49,7 @@ contains
         quantity_type_metadata, &
         normalization_metadata, &
         conservation_metadata, &
+        state_item_variant, &
         rc)
       type(ESMF_FieldBundle), intent(in) :: fieldBundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -73,6 +76,8 @@ contains
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
       type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
       type(ConservationMetadata), optional, intent(out) :: conservation_metadata
+      ! MAPL_STATEITEM_INVALID if no variant was ever attached.
+      type(MAPL_StateItem_Flag), optional, intent(out) :: state_item_variant
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -119,9 +124,13 @@ contains
            conservation_metadata=conservation_metadata, &
            _RC)
 
+      if (present(state_item_variant)) then
+         state_item_variant = StateItemVariantInfoGet(bundle_info, _RC)
+      end if
+
       if (present(geom) .and. has_geom) then
          allocate(geom)
-         call get_geom(fieldBundle, geom, rc)
+         call get_geom(fieldBundle, geom, _RC)
       end if
 
       if (present(vgrid)) then
@@ -134,6 +143,7 @@ contains
       end if
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
 
    contains
 
@@ -157,7 +167,6 @@ contains
          _FAIL('unsupported geomtype; needs simple extension')
 
          _RETURN(_SUCCESS)
-         _UNUSED_DUMMY(unusable)
 
       end subroutine get_geom
 

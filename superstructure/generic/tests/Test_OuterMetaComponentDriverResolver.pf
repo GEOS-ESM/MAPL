@@ -1,0 +1,111 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! Spec: spec/12-methods-and-drivers.md.
+! The real driver_key resolution of OuterMetaComponentDriverResolver
+! against the driver ownership of a real OuterMetaComponent (own driver
+! + one driver per child), without exposing driver identity as a
+! pointer.
+!
+! Test-only OuterMetaComponent instances are built the same way
+! Test_ComponentHierarchyGraph.pf/Test_GraphBuilder.pf do (bypassing
+! SetServices/DSO machinery).
+module Test_OuterMetaComponentDriverResolver
+   use mapl_OuterMetaComponent_mod
+   use mapl_OuterMetaComponentDriverResolver_mod, only: OuterMetaComponentDriverResolver
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_ChildSpec_mod, only: ChildSpec
+   use GraphBuilderTestSupport_mod, only: make_outer_meta
+   use esmf
+   use pfunit
+   implicit none(type, external)
+
+contains
+
+   ! make_outer_meta shared via GraphBuilderTestSupport_mod
+   ! (docs/graph/spec/20-implementation-roadmap.md sec 20.4.17).
+
+   ! Spec scenario "Own-driver key resolves to the component's own
+   ! driver": both the '<self>' sentinel and an empty key resolve to
+   ! exactly the same driver get_user_gc_driver() itself returns.
+   @test(npes=[0])
+   subroutine test_self_key_resolves_to_own_driver(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(OuterMetaComponentDriverResolver) :: resolver
+      class(GriddedComponentDriver), pointer :: expected, resolved_self, resolved_empty
+      integer :: status
+
+      call make_outer_meta('comp_resolver_self', outer_gc, outer_meta, _RC)
+      resolver = OuterMetaComponentDriverResolver(outer_meta)
+
+      expected => outer_meta%get_user_gc_driver()
+
+      resolved_self => resolver%resolve('<self>', rc=status)
+      @assertEqual(0, status)
+      @assert_that(associated(resolved_self, expected), is(true()))
+
+      resolved_empty => resolver%resolve('', rc=status)
+      @assertEqual(0, status)
+      @assert_that(associated(resolved_empty, expected), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_self_key_resolves_to_own_driver
+
+   ! Spec scenario "Child-driver key resolves to the named child's
+   ! driver".
+   @test(npes=[0])
+   subroutine test_child_key_resolves_to_child_driver(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(OuterMetaComponentDriverResolver) :: resolver
+      type(ChildSpec) :: child_spec
+      class(GriddedComponentDriver), pointer :: expected, resolved
+      integer :: status
+
+      call make_outer_meta('comp_resolver_child', outer_gc, outer_meta, _RC)
+      child_spec = ChildSpec()
+      call outer_meta%add_child('child_a', child_spec, _RC)
+
+      resolver = OuterMetaComponentDriverResolver(outer_meta)
+
+      expected => outer_meta%get_child_driver('child_a', _RC)
+      resolved => resolver%resolve('child_a', rc=status)
+      @assertEqual(0, status)
+      @assert_that(associated(resolved, expected), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_child_key_resolves_to_child_driver
+
+   ! Spec scenario "Unresolvable driver key fails loudly".
+   @test(npes=[0])
+   subroutine test_unknown_key_fails_loudly(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(OuterMetaComponentDriverResolver) :: resolver
+      class(GriddedComponentDriver), pointer :: resolved
+      integer :: status
+
+      call make_outer_meta('comp_resolver_unknown', outer_gc, outer_meta, _RC)
+      resolver = OuterMetaComponentDriverResolver(outer_meta)
+
+      resolved => resolver%resolve('no-such-child', rc=status)
+      ! Two propagated frames to unwind, innermost first: get_child_driver's
+      ! own descriptive _ASSERT, then resolver_resolve's own bare
+      ! "status=1" _VERIFY propagation - same pattern
+      ! Test_GraphBuilder.pf's test_freeze_fails_and_leaves_graph_unfrozen_on_conflict
+      ! documents for a comparable multi-frame unwind.
+      @assertExceptionRaised('OuterMetaComponent: get_child_driver - child not found: <no-such-child>.')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_unknown_key_fails_loudly
+
+end module Test_OuterMetaComponentDriverResolver

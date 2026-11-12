@@ -1,0 +1,31 @@
+mapl:
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 12
+      jm_world: 13
+      pole: PC
+      dateline: DC
+
+  children:
+    A:
+      config_file: scenarios/expression_per_consumer/A.yaml
+    B:
+      config_file: scenarios/expression_per_consumer/B.yaml
+    C:
+      config_file: scenarios/expression_per_consumer/C.yaml
+
+  states: {}
+
+  setServices:
+    sharedObj: libconfigurable_gridcomp
+
+  connections:
+    - src_comp: A
+      src_name: expr
+      dst_comp: B
+      dst_name: I
+    - src_comp: A
+      src_name: expr
+      dst_comp: C
+      dst_name: I

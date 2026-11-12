@@ -1,0 +1,34 @@
+# Orientation-only mismatch on a vector: both children take the parent's
+# vertical grid (default from_parent geometry), so the grids are the same and
+# only the vertical index order differs. See expectations.yaml.
+mapl:
+
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 12
+      jm_world: 13
+      pole: PC
+      dateline: DC
+    vertical_grid:
+      class: fixed_levels
+      levels: [30., 20., 10.]
+      units: hPa
+      physical_dimension: pressure
+
+  children:
+    A:
+      config_file: scenarios/vector_orientation_flip/A.yaml
+    B:
+      config_file: scenarios/vector_orientation_flip/B.yaml
+
+  states: {}
+
+  setServices:
+    sharedObj: libconfigurable_gridcomp
+
+  connections:
+    - src_name: uv
+      dst_name: uv
+      src_comp: A
+      dst_comp: B

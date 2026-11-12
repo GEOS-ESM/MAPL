@@ -4,7 +4,9 @@ module mapl_VariableSpec_private_mod
    use esmf, only: ESMF_KIND_R4, ESMF_RegridMethod_Flag
    use esmf, only: ESMF_StateItem_Flag, ESMF_StateIntent_Flag
    use esmf, only: ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
-   use esmf, only: ESMF_STATEINTENT_UNSPECIFIED
+   use esmf, only: ESMF_STATEINTENT_UNSPECIFIED, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_IMPORT
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_BRACKET
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_WILDCARD
    use esmf, only: operator(==), operator(/=)
    use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
    use gFTL2_StringVector
@@ -15,8 +17,42 @@ module mapl_VariableSpec_private_mod
    public :: verify_short_name
    public :: verify_state_intent
    public :: verify_regrid
+   public :: intent_rule_violation
 
 contains
+
+   ! The rules tying a spec's intent to its item type. A mirror is meaningful
+   ! only where a connection can resolve it: on an IMPORT, or on an EXPRESSION
+   ! export (which has no geometry or grid of its own). An EXPRESSION exists
+   ! only as an export. A bracket (or vector bracket) is never an import; a
+   ! wildcard is only an import. Returns the reason a spec breaks them, or ''
+   ! if none. Both checks (make_VariableSpec, and make_characteristics for a
+   ! hand-built spec) call this, so the rule is written once.
+   function intent_rule_violation(state_intent, item_type, mirror) result(reason)
+      character(:), allocatable :: reason
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      type(ESMF_StateItem_Flag), intent(in) :: item_type
+      logical, intent(in) :: mirror
+
+      logical :: is_expression, is_export, is_import
+
+      is_expression = item_type == MAPL_STATEITEM_EXPRESSION
+      is_export = state_intent == ESMF_STATEINTENT_EXPORT
+      is_import = state_intent == ESMF_STATEINTENT_IMPORT
+
+      reason = ''
+      if (is_expression .and. .not. is_export) then
+         reason = 'an expression is only valid on an export'
+      else if (item_type == MAPL_STATEITEM_BRACKET .and. is_import) then
+         reason = 'a bracket is not valid on an import'
+      else if (item_type == MAPL_STATEITEM_VECTORBRACKET .and. is_import) then
+         reason = 'a vector bracket is not valid on an import'
+      else if (item_type == MAPL_STATEITEM_WILDCARD .and. .not. is_import) then
+         reason = 'a wildcard is only valid on an import'
+      else if (mirror .and. .not. (is_import .or. is_expression)) then
+         reason = 'mirror is only valid on an import or an expression export'
+      end if
+   end function intent_rule_violation
 
    function to_string(array) result(string)
       character, intent(in) :: array(:)

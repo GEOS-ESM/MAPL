@@ -9,6 +9,8 @@ submodule (mapl_OuterMetaComponent_mod) add_child_by_spec_smod
    use mapl_Validation_mod
    use mapl_MultiState_mod
    use mapl_HConfigUtilities_mod, only: merge_hconfig
+   use mapl_HierarchyResources_mod, only: HierarchyResources
+   use mapl_HierarchyRegistry_mod, only: get_hierarchy_resources
    use mapl_ErrorHandling_mod
    use esmf
 
@@ -31,13 +33,21 @@ contains
       type(ESMF_Context_Flag) :: contextFlag
       class(Logger), pointer :: lgr
       character(:), allocatable :: this_name
+      type(HierarchyResources), pointer :: resources
 
       _ASSERT(is_valid_name(child_name), 'Child name <' // child_name //'> does not conform to GEOS standards.')
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
+      ! Hierarchy-wide name uniqueness. Sibling check above
+      ! is not sufficient; names must be unique across the entire hierarchy.
+      resources => get_hierarchy_resources(this%hierarchy_id)
+      _ASSERT(resources%component_names%count(child_name) == 0, 'duplicate component name elsewhere in the hierarchy: <'//child_name//'>.')
 
       total_hconfig = merge_hconfig(this%hconfig, child_spec%hconfig, _RC)
       if (allocated(child_spec%user_setservices)) then
-         child_outer_gc = MAPL_GridCompCreate(child_name, child_spec%user_setservices, total_hconfig, _RC)
+         ! Pass parent's hierarchy_id to keep child in this hierarchy.
+         child_outer_gc = MAPL_GridCompCreate(child_name, child_spec%user_setservices, total_hconfig, &
+              hierarchy_id=this%hierarchy_id, rc=status)
+         _VERIFY(status)
       else
          contextFlag = ESMF_CONTEXT_PARENT_VM
          child_outer_gc = ESMF_GridCompCreate(name='[' // trim(child_name) // ']', contextFlag=contextFlag, _RC)
@@ -54,7 +64,11 @@ contains
 #else
          call ridiculous(child_meta, OuterMetaComponent(child_outer_gc, child_driver, hconfig=total_hconfig))
 #endif
-         call child_meta%init_meta(_RC)
+         ! Pass this%hierarchy_id down explicitly, so the
+         ! child's own local_graph shares this component's hierarchy
+         ! rather than requesting a fresh one of its own.
+         call child_meta%init_meta(hierarchy_id=this%hierarchy_id, rc=status)
+         _VERIFY(status)
       end if
 
       ! Meta stuff
@@ -67,6 +81,12 @@ contains
 
       child_driver = GriddedComponentDriver(child_outer_gc)
       call this%children%insert(child_name, child_driver)
+      ! Record this name in the hierarchy-wide registry (graph/
+      ! component-hierarchy delta spec) only once the child is fully
+      ! and successfully added - matching the sibling-level
+      ! this%children%insert() above, not inserted speculatively before
+      ! construction could still fail.
+      call resources%component_names%insert(child_name)
 
       lgr => this%get_logger()
       this_name = this%get_name() ! workaround for gfortran

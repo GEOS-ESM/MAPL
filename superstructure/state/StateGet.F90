@@ -9,6 +9,8 @@ module mapl_StateGet_mod
    use mapl_ErrorHandling_mod
    use mapl_KeywordEnforcer_mod
    use mapl_field_bundle_api, only: MAPL_FieldBundleAdd, MAPL_FieldBundleGet
+   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
+   use mapl_StateItemVariantInfo_mod, only: StateItemVariantInfoGet
    use esmf
 
    implicit none(type,external)
@@ -20,6 +22,7 @@ module mapl_StateGet_mod
       procedure state_get_status
       procedure state_get
       procedure state_get_bundle
+      procedure state_get_own
    end interface StateGet
 
 contains
@@ -66,6 +69,26 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine state_get
+
+   ! Properties of the State itself (as opposed to an item in it).
+   ! state_item_variant is MAPL_STATEITEM_INVALID if none was ever attached.
+   subroutine state_get_own(state, unusable, state_item_variant, rc)
+      type(ESMF_State), intent(in) :: state
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      type(MAPL_StateItem_Flag), optional, intent(out) :: state_item_variant
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: info
+
+      if (present(state_item_variant)) then
+         call ESMF_InfoGetFromHost(state, info, _RC)
+         state_item_variant = StateItemVariantInfoGet(info, _RC)
+      end if
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine state_get_own
 
    recursive subroutine state_get_status(state, itemName, itemType, rc)
       type(ESMF_State), intent(in) :: state
