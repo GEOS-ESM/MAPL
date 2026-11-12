@@ -9,10 +9,12 @@ points at real file locations, describes current behavior rather than
 design history.
 
 **This supplements, not replaces, the `openspec/changes/archive/`
-proposals it cites.** Those remain the primary record of *why* a
-decision was made; this doc states current fact and points at them for
-rationale. If source and this doc disagree, trust source, then fix the
-doc in the same change.
+proposals it cites** (removed from the tree; read one with `git show
+graph-phase-5-archive:openspec/changes/archive/<date>-<name>/design.md`,
+for example `2026-11-11-hierarchy-wide-forward-network`). Those remain the
+primary record of *why* a decision was made; this doc states current fact
+and points at them for rationale. If source and this doc disagree, trust
+source, then fix the doc in the same change.
 
 ## How to use these docs
 

@@ -17,8 +17,11 @@ legacy-to-graph vocabulary in `docs/graph/GLOSSARY.md`.
 4. `docs/graph/*.md` topic files (see `docs/graph/README.md`).
 5. **This file** — a navigational summary.
 
-No openspec change is active. Landed changes are under
-`openspec/changes/archive/<date>-<name>/`: `characteristic-separation-of-concerns`
+No openspec change is active. Landed changes were archived as
+`openspec/changes/archive/<date>-<name>/`, which is removed from the tree;
+read one with `git show graph-phase-5-archive:openspec/changes/archive/<date>-<name>/design.md`
+(`git ls-tree -d graph-phase-5-archive:openspec/changes/archive/` lists the
+names): `characteristic-separation-of-concerns`
 (Phase B of `docs/graph/plans/separation-of-concerns.md`),
 `hierarchy-wide-forward-network` (plan task C4, one forward network per
 hierarchy), `hierarchy-wide-component-graph`, and phases 7a/7b/7c and 12.
@@ -824,7 +827,7 @@ with-gfortran cmake --build gfortran -j 10 --target build-tests > gfortran/build
 with-gfortran ctest --test-dir gfortran -L ESSENTIAL -j 6 > gfortran/ctest.log 2>&1; tail -15 gfortran/ctest.log
 ```
 
-`ctest -L ESSENTIAL` passes 71/71 on both NAG and gfortran (Debug). NAG
+`ctest -L ESSENTIAL` passes 72/72 on both NAG and gfortran (Debug). NAG
 Debug (`-C=dangling`) is a gate: a gFTL set or map iterated through a
 non-`TARGET` local or dummy aborts there, so add `TARGET`. A full unlabeled `ctest` additionally runs
 four `apps/tests/Regrid_Util/` regression tests (`ll-ll`, `cs-cs`,
@@ -849,8 +852,9 @@ Fast path: `with-nag ctest --test-dir nag -R MAPL.generic.components --output-on
 
 ## 5. Architectural decisions still in force
 
-Primary records are under `openspec/changes/archive/`; read the relevant
-`design.md` before changing the area.
+Primary records are the archived changes (`openspec/changes/archive/`,
+removed from the tree; see the recovery command in the header); read the
+relevant `design.md` before changing the area.
 
 - **Shared storage keyed by `HierarchyId`** (`2026-10-17-hierarchy-wide-component-graph`,
   D1): not threaded pointers, not a bare singleton.
@@ -892,8 +896,8 @@ Primary records are under `openspec/changes/archive/`; read the relevant
 
 ## 6. Roadmap pointer
 
-Each landed phase has an archived change under
-`openspec/changes/archive/`: 5a/5a2 (characteristics), 5b (ordinary
+Each landed phase has an archived change (in `openspec/changes/archive/` of
+the tag `graph-phase-5-archive`): 5a/5a2 (characteristics), 5b (ordinary
 inout, direct alias), 7a, 7b, 7c (Wildcard only), 9, 10a-d, 11a/b, 12,
 16 (`hierarchy-wide-component-graph`), 17-19. Phase 13 (restart) and
 phases 20-21 (`MAPL.generic.components.quiet`, `apps/graph_diagnostic`

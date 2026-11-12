@@ -66,9 +66,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   dimension, or `time`. `VerticalCoordinate` now records the file's vertical
   dimension name in `file_lev_name`. Added unit tests
   (`Test_UngriddedDimsFromMetadata.pf`) and component test case46.
+- Added an explicit dependency graph for the generic layer
+  (`superstructure/generic/graph/`, built by `GraphBuilder`). Each state item
+  is a node with a `NodeId` and a descriptor of characteristics (item shape,
+  geometry, vertical grid, units, typekind, ...). Where a connected export
+  and import differ, extension nodes holding a `Transform` are inserted: units
+  and typekind conversion (Field, VECTOR), horizontal regrid (Field, VECTOR,
+  BRACKET), vertical regrid between fixed-level grids and orientation flip
+  (Field, VECTOR), and bracket time interpolation. Not yet repaired: vertical
+  stagger, vertical regrid from a model grid, quantity-type basis, FieldBundle
+  and VectorBracket items, SERVICE, STATE and WILDCARD items for geometry and
+  vertical steps, and others; see `docs/graph/ARCHITECTURE.md`.
+  `graph_diagnostic.x` exports the graph as DOT/JSON. The graph is built and
+  run alongside the legacy path. The global graph mode (`mapl_GraphMode_mod`:
+  `registry`, `graph`, `both`; only test code sets another value) decides who
+  populates the ESMF states; by default the legacy path still does. The graph
+  logs `GraphBuilder:` warnings for problems it finds and fails initialization
+  when an EXPRESSION item cannot be resolved or is unsupported. It does not
+  yet replace the legacy path. Also see `docs/graph/GLOSSARY.md` and
+  `superstructure/generic/AGENTS.md`.
 
 ### Changed
 
+- `FixedLevelsVerticalGrid` now derives the vertical direction from the
+  physical dimension: for `height` and `altitude`, increasing levels mean `UP`
+  (before: `DOWN` for any increasing levels); `pressure`, `depth`, `layer` and
+  other names keep increasing = `DOWN`. For such a height grid an explicit
+  `vertical_alignment: upward` now means stored in grid order; see
+  `docs/mapl3/vertical-alignment.md`.
 - Connection matching (`MatchConnection`, e.g. the cap's Root-to-History `connect_all`) is now case-sensitive, like explicit connections: a History entry must use the export's exact case (`MOIST/CAPE`, not `moist/cape`). `VirtualConnectionPt%matches` drops `REG_ICASE`, and `StateRegistry%filter` looks a pattern without regex metacharacters up in its map instead of scanning every item (**BREAKING** for configurations that relied on case-insensitive matching).
 - Conserve, bilinear, patch, and conserve_2nd regridding now create their masks with `handleAllElements = .false.` to match MAPL2
 - Activated `superstructure/generic/tests/field_dictionary_test.yaml` (a

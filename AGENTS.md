@@ -7,7 +7,7 @@ Repo-level instructions for coding agents working in this MAPL3 checkout.
 - Do not put `openspec/changes/...` paths, task/decision numbers, or
   change history ("previously", "now-removed", "Phase N added") in
   source comments. Put the change name in the commit message instead;
-  git history and `openspec/changes/archive/` keep the rest.
+  git history keeps the rest.
 - Comments explain *why* (non-obvious constraints, ordering, compiler
   workarounds) in 1-2 lines, not *what* or *when*.
 - A spec reference is allowed only as a stable requirement ID from
@@ -62,16 +62,20 @@ terms. ARCHITECTURE.md describes the current tree only and covers:
 - which characteristics have a real `build_transform` and which are
   stubs, and which item classes (Bracket, Expression, Wildcard, ...)
   the graph path resolves
-- known limitations (for example no vertical regrid between model grids
-  or for R8, and no stagger repair)
+- known limitations (for example no vertical regrid from or to a model grid,
+  and no stagger repair)
 - build/test commands and the `MAPL.generic.*` ctest target names
   (this repo uses `superstructure/generic/`, not `generic3g`)
 
-No openspec change is active; all are under `openspec/changes/archive/`
-(including `characteristic-separation-of-concerns`, the B0 design for
-Phase B of `docs/graph/plans/separation-of-concerns.md`, and
-`hierarchy-wide-forward-network`, plan task C4: one forward dependency
-network per hierarchy). Session narratives are in `docs/graph/history/`.
+No openspec change is active. `openspec/changes/archive/` is removed from
+the tree; read an archived change with
+`git show graph-phase-5-archive:openspec/changes/archive/<date>-<name>/design.md`
+(for example `2026-11-11-hierarchy-wide-forward-network`;
+`git ls-tree -d graph-phase-5-archive:openspec/changes/archive/` lists the names).
+The archived changes include `characteristic-separation-of-concerns`
+(the design for Phase B of `docs/graph/plans/separation-of-concerns.md`)
+and `hierarchy-wide-forward-network` (one forward dependency network per
+hierarchy). Session narratives are in `docs/graph/history/`.
 
 Do not re-derive this context by reading all of `docs/graph/spec/` (20
 files) or all of `GraphBuilder.F90` and its 11 submodules (about 6,200
@@ -140,7 +144,7 @@ Parent: the GEOSgcm architecture document (`../../../docs/ARCHITECTURE.md` in th
 - Libraries: [base/](base/ARCHITECTURE.md), [pfio/](pfio/ARCHITECTURE.md), [utils/](utils/ARCHITECTURE.md), [mp_utils/](mp_utils/ARCHITECTURE.md), [mapl/](mapl/ARCHITECTURE.md).
 - MAPL3 guides: [diffs-from-mapl2](docs/mapl3/diffs-from-mapl2.md), [api-changes](docs/mapl3/api-changes.md), [gridcomp-template](docs/mapl3/gridcomp-template.md), [vertical-alignment](docs/mapl3/vertical-alignment.md), [field_dictionary_developer](docs/mapl3/field_dictionary_developer.md).
 - User guide: [docs/user_guide/README.md](docs/user_guide/README.md).
-- Change proposals: `openspec/` (archived changes under `openspec/changes/archive/`, capability specs under `openspec/specs/`).
+- Change proposals: `openspec/` (capability specs under `openspec/specs/`; archived changes are not in the tree, see "Graph architecture work" above).
 
 ### Rules for agents
 - Note bugs in the relevant document's Observations section; do not fix them unless asked.

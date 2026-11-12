@@ -18,7 +18,11 @@ re-described.
   behavior they cover.
 - `openspec/specs/internal-checkpoint/spec.md` — landed checkpoint
   (restart) requirements.
-- `openspec/changes/archive/` — landed, folded-in proposals. Each
+- `openspec/changes/archive/` — landed, folded-in proposals; removed
+  from the tree, read one with `git show
+  graph-phase-5-archive:openspec/changes/archive/<date>-<name>/design.md`
+  (for example `2026-11-11-hierarchy-wide-forward-network`; `git ls-tree -d
+  graph-phase-5-archive:openspec/changes/archive/` lists the names). Each
   directory's `proposal.md`/`design.md` is the primary record of *why*
   a piece of this layer looks the way it does; this file cites them
   rather than restating their reasoning.
@@ -584,8 +588,9 @@ Use the seven real target names in §4.2 above, not the skill's
 ## 5. Previous architectural decisions (this layer, non-graph)
 
 Each item below cites the `openspec/changes/archive/` directory that
-is the primary record; read that directory's `proposal.md`/`design.md`
-directly before making a related change — this is a pointer list, not
+is the primary record (removed from the tree; read it with `git show
+graph-phase-5-archive:openspec/changes/archive/<date>-<name>/design.md`, or
+`proposal.md`; the `<date>-<name>` in each citation below is the directory name) before making a related change — this is a pointer list, not
 a restatement of the reasoning.
 
 - **Standard-name enforcement**

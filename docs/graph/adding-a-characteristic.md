@@ -17,6 +17,8 @@ the worked example for three kinds that share one shape set and one
 metadata-valued Info key each. Later B3 tasks refine this file.
 
 Design authority: `openspec/changes/archive/2026-11-11-characteristic-separation-of-concerns/design.md`
+(removed from the tree; read with `git show
+graph-phase-5-archive:openspec/changes/archive/2026-11-11-characteristic-separation-of-concerns/design.md`)
 (§2 status, §3 Info facade, §4.3 applicability, §5 factories). Rules:
 `docs/graph/CONVENTIONS.md`.
 

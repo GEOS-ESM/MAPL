@@ -15,8 +15,7 @@ once it exists. Root `AGENTS.md` carries the build/test procedure.
 - Do not put `openspec/changes/...` paths, task or decision numbers
   (`task 6.8`, `design.md D3`), or change history ("previously",
   "now-removed", "Phase N added", "moved here verbatim") in source. Put
-  the change name in the commit message. Git history and
-  `openspec/changes/archive/` keep the rest.
+  the change name in the commit message. Git history keeps the rest.
 - A spec reference is allowed only as a stable requirement ID that
   exists under `openspec/specs/` (for example `REQ-CG-002`), never as a
   change path.

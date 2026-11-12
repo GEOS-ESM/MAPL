@@ -32,7 +32,10 @@ This file is distinct from the repo-root `AGENTS.md` and from
   - verified build/test commands and the seven `MAPL.generic.*` ctest
     targets this tree's tests build into (§4)
   - previous architectural decisions, each cited back to its
-    `openspec/changes/archive/` source (§5)
+    `openspec/changes/archive/` source (§5; that directory is removed
+    from the tree, read it with `git show
+    graph-phase-5-archive:openspec/changes/archive/<date>-<name>/design.md`,
+    for example `2026-11-11-hierarchy-wide-forward-network`)
   - what is and is not scheduled for change (this layer is stable —
     see §6's prerequisite-gated retirement note before assuming any
     part of `registry/`/`connection/`/`specs/` is deprecated)
@@ -48,7 +51,8 @@ versus directly-verified facts.
 ARCHITECTURE.md` disagrees with any of these:**
 1. The actual source files (`superstructure/generic/*`, excluding
    `graph/`)
-2. `openspec/changes/archive/*/{design.md,proposal.md}` for the
+2. `openspec/changes/archive/*/{design.md,proposal.md}` (removed from the
+   tree; see above) for the
    specific decision in question (§5 of `ARCHITECTURE.md` has the
    index)
 3. `openspec/specs/generic/*/spec.md`, `openspec/specs/
