@@ -27,11 +27,13 @@ disagree about characteristics, the descriptor or status resolution,
 that `design.md` wins.
 
 Facts below were verified against the tree on 2026-10-21 unless marked
-**[ASSUMPTION]**; updated 2026-11-11 through `fed45b04d` (§1.1-§1.2,
+**[ASSUMPTION]**; updated 2026-11-11 through `002164e39` (§1.1-§1.2,
 §2.2-§2.4, §2.6, §2.7, §3, §4). Re-verified on 2026-11-11 against the
-source: the vertical R4/R8 statements in §1.1 and §3, the
-`GraphBuilder_ConnectionResolution_smod.F90` line cites in §2.2, §2.6 and
-§2.7, and the §4 ESSENTIAL count.
+source in this pass: the VerticalOrientation row and the
+DEFERRED-resolution paragraph in §1.1, and the Basic-grid statement in the
+vertical-regridding limitation in §3, all against
+`VerticalOrientationCharacteristic.F90`, `StateItemDescriptor.F90`,
+`VerticalColumnRegridTransform.F90` and `make_characteristics.F90`.
 
 ## 1. Module map (`superstructure/generic/`)
 
@@ -105,7 +107,10 @@ is not compared. At freeze, `run_graph_freeze_hook` calls
 `StateItemDescriptor%check_resolved` on every owned `StateItemNode` and
 reports any `DEFERRED`/`INVALID` entry through `report_if_failed`.
 A `DEFERRED` value is filled in two ways: `resolve_deferred` offers the
-component's default geom (`CharacteristicDefaults`) at GEOM_B, and
+component's default geom (`CharacteristicDefaults`) at GEOM_B (the descriptor offers
+it to every `DEFERRED`, `UNCHECKED` and `SPECIFIED` entry; each override stays
+status-guarded except `VerticalOrientationCharacteristic`, whose `SPECIFIED` entry
+learns that the component grid is Basic), and
 `graphbuilder_harvest_deferred` (at the start of the connect hook) reads
 the geom, vertical stagger and quantity type/basis the component's own phase
 set on the item's exported or internal field/bundle, read-only (the item's
@@ -212,7 +217,7 @@ factories (so far units, typekind, ungridded dims, geometry, vertical grid, vert
 | `Geometry` | `GEOMETRY_…` | Real for a pair that both hold an `ESMF_Geom`, with the param from `select_regridder_param` (the side that declares one, else the default). An id-only pair (component-level geometry wiring) is unsupported; both sides declaring a regridder param is incompatible, checked first (`GeometryCharacteristic.F90:190-224`, shared by both item paths). Overrides `build_transform_for_item` to dispatch on the tip's `ITEM_SHAPE` item class: FIELD gets `HorizontalRegridTransform`; VECTOR and BRACKET get `HorizontalBundleRegridTransform`; FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE and WILDCARD are unsupported. A tip with no `ITEM_SHAPE` entry (component-level wiring) is not restricted (`:230-263`). `get_signature` appends the regridder param's `to_string()`, so imports asking for different methods do not share a chain (`:267-303`) |
 | `VerticalGrid` | `VERTICAL_GRID_…` | Real: `VerticalColumnRegridTransform`, for a Field or, member by member, a VECTOR bundle (`vcoord_build_transform`, `vcoord_build_transform_for_item`). `needs_extension_for` follows the legacy `VerticalGridAspect%typesafe_matches` rule when both sides hold a grid (no mismatch iff the same id or `export_grid%matches(import_grid)`; a `BasicVerticalGrid` matches any grid with the same level count); two real referenced NodeIds are compared as ids first, and a side holding no grid falls back to the grid id token, then the dimension set. `build_transform` (one shared dimension): both grids hold level values for it (`VerticalGrid%has_column_coordinate`, true only for `FixedLevelsVerticalGrid` and its own dimension, `FixedLevelsVerticalGrid.F90:223-230`) gives the regrid; two Basic grids of different level counts are incompatible; a model grid, or a side with no grid, is unsupported (the graph cannot bind a model grid's PLE/ZLE field as a Transform input). A Basic grid names no physical dimension, so against a fixed or model grid of another level count there is no common dimension and `build_transform` fails (status 1, the value of `BUILD_TRANSFORM_UNSUPPORTED`), which `ExtensionResolution` reports unsupported. `build_transform_for_item` makes an item class other than FIELD and VECTOR (a BRACKET becomes a Field before the vertical step; FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE and WILDCARD are unsupported), and a non-`CENTER` stagger unsupported at connect, when the pair holds both grids; the stagger and holds-both guards apply to a VECTOR as to a Field; a tip with no `ITEM_SHAPE` entry is not restricted. `covered_kinds` adds `VERTICAL_ORIENTATION`. Other overlaps `_FAIL` with distinct messages (no overlap, or more than one) |
 | `VerticalStagger` | `VERTICAL_STAGGER_…` | Unsupported — mismatch is detected, repair is a stub: no Transform moves data between level centers and edges (`stagger_build_transform`). A stagger-only mismatch stays unsupported, and a vertical-grid step needs `CENTER` on the tip |
-| `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Real: `VerticalFlipTransform` for a Field or, member by member, a VECTOR bundle (`orientation_build_transform`); `orientation_build_transform_for_item` makes an item class other than FIELD and VECTOR unsupported, and a tip with no `ITEM_SHAPE` entry is not restricted. When the vertical grids also mismatch, the vertical-grid step covers the orientation and no flip step is built. A grid with no direction (a single level) leaves the entry `SPECIFIED` holding `UNSPECIFIED`; `write_info` writes nothing for it, so the Field keeps `with_grid` (`orientation_write_info`). An `INVALID` direction still fails `write_info`. `UNSPECIFIED` against an explicit up or down still compares unequal. `FixedLevelsVerticalGrid%derive_direction` sets a fixed-levels grid's direction from its levels and `physical_dimension` (exact, case-sensitive): `height` and `altitude` increasing = UP, decreasing = DOWN; `pressure`, `depth`, `layer`, any other name or an unset dimension: increasing = DOWN, decreasing = UP; one level is `UNSPECIFIED`; non-monotonic levels fail (`FixedLevelsVerticalGrid.F90:81-111`). `BasicVerticalGrid` and `MirrorVerticalGrid` are DOWN (the default in `VerticalGrid.F90:17`); `ModelVerticalGrid` is DOWN unless its YAML `direction:` is set (`ModelVerticalGrid.F90:47,330,445-449`). So by default a fixed height grid (UP) and a model height grid (DOWN) differ in direction |
+| `VerticalOrientation` | `VERTICAL_ORIENTATION_…` | Real: `VerticalFlipTransform` for a Field or, member by member, a VECTOR bundle (`orientation_build_transform`); `orientation_build_transform_for_item` makes an item class other than FIELD and VECTOR unsupported, and a tip with no `ITEM_SHAPE` entry is not restricted. When the vertical grids also mismatch, the vertical-grid step covers the orientation and no flip step is built. A Basic grid has no direction (`VerticalGrid%carries_direction()` is false for `BasicVerticalGrid`, which stores DOWN only as a placeholder), so an entry on a Basic grid is directionless (private `directionless` flag, `is_directionless()`): `needs_extension_for` is false when either side is directionless, no flip step is built, and the data are copied in the export's level order. `match_warning` logs a connect-time warning only when a Basic side has an explicit alignment opposite to the partner's real direction; a Basic side with no alignment holds `UNSPECIFIED` and never warns. An explicit `vertical_alignment` on a Basic item is still stored and written to the Field but never flips. `descriptor_resolve_deferred` also reaches `SPECIFIED` entries, so an explicit alignment learns that the component grid is Basic (`resolve_deferred`); an entry built from the item's own grid (private `grid_known` flag) is not overwritten. A grid with no direction (a single level) leaves the entry `SPECIFIED` holding `UNSPECIFIED`; `write_info` writes nothing for it, so the Field keeps `with_grid` (`orientation_write_info`). An `INVALID` direction still fails `write_info`. `UNSPECIFIED` against an explicit up or down still compares unequal. `FixedLevelsVerticalGrid%derive_direction` sets a fixed-levels grid's direction from its levels and `physical_dimension` (exact, case-sensitive): `height` and `altitude` increasing = UP, decreasing = DOWN; `pressure`, `depth`, `layer`, any other name or an unset dimension: increasing = DOWN, decreasing = UP; one level is `UNSPECIFIED`; non-monotonic levels fail (`FixedLevelsVerticalGrid.F90:81-111`). `MirrorVerticalGrid` is DOWN (the default in `VerticalGrid.F90:17`) and `BasicVerticalGrid` stores that DOWN but carries no direction (see above); `ModelVerticalGrid` is DOWN unless its YAML `direction:` is set (`ModelVerticalGrid.F90:47,330,445-449`). So by default a fixed height grid (UP) and a model height grid (DOWN) differ in direction |
 | `HorizontalDimsSpec` | `HORIZONTAL_DIMS_SPEC_…` | Incompatible — GEOM vs NONE is detected in both directions and can never connect |
 | `Attributes`, `UngriddedDims`, `Conservation`, `Normalization` | `…_CHARACTERISTIC_KIND` | Incompatible — legacy rejects every mismatch of two non-mirror values, so a detected mismatch can never connect |
 | `QuantityType` | `QUANTITY_TYPE_CHARACTERISTIC_KIND` | Incompatible for a quantity-type mismatch; unsupported when only the basis differs (both real bases; `BASIS_NONE` is a basis wildcard, `QUANTITY_UNKNOWN` is not a wildcard): a conversion is possible but not built. Factory status by intent: declared -> `SPECIFIED`; undeclared (or declared `QUANTITY_UNKNOWN`) -> `DEFERRED` on EXPORT/INTERNAL, `UNCHECKED` on IMPORT. `is_deferred_fatal` is `quantity_type_required()` (`ValidationPolicy.F90`, key `field_dictionary: require_quantity_type`, no legacy counterpart; strict validation alone does not set it). An unsupplied one falls back to `UNCHECKED` with one summary warning |
@@ -309,7 +314,7 @@ JSON of `make_info`, `EsmfRegridder.F90:292-306`) is what the Geometry
 signature, and so the chain key, carries.
 
 `VerticalColumnRegridTransform` (Field or VECTOR bundle, R4 and R8, linear only; copy or
-flip when the two grids match, otherwise weights between the grids'
+flip when the two grids match (it flips only if both grids carry a direction; a Basic grid does not), otherwise weights between the grids'
 column coordinates at level centers, rebuilt when a grid, stagger or
 alignment or typekind changes; the transform keeps a single-precision and a double-precision matrix and only the one for the typekind it was built for is current) is built by `VerticalGridCharacteristic%build_transform`,
 and `VerticalFlipTransform` (Field or VECTOR bundle, R4 and R8; index reversal for an
@@ -744,9 +749,14 @@ because the state holds the node's own created Field
   `vertical_regridding_3` stay `graph_ready = .false.`), and so is a
   stagger-only mismatch. A Basic grid against a fixed or model grid of another
   level count fails `build_transform` (no common dimension), as in legacy.
-  An orientation-only mismatch gets a `VerticalFlipTransform`. A Basic grid
-  reports DOWN, so two grids that match by level count still get a flip when
-  their orientations differ, as in legacy.
+  An orientation-only mismatch gets a `VerticalFlipTransform`, except where
+  either grid is Basic: a Basic grid has no direction, so the pair builds no
+  step and the data are copied in the export's level order, with a connect-time
+  warning only when the Basic side has an explicit alignment opposite to the
+  partner's real direction. Legacy errors at connect for a Basic pair whose
+  alignments differ (`make_transform` needs a common physical dimension and
+  `BasicVerticalGrid%get_coordinate_field` fails), so no scenario covers it
+  (`scenario-parity.md`).
 - An expression whose consumer has precision R8 (`expression_per_consumer_r8`)
   cannot run end to end with the user-state switch off: the legacy couplers
   run and fail on the expression item. With the switch on they are skipped

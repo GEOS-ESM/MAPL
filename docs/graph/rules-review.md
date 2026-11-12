@@ -161,7 +161,7 @@ The two undeclared columns: "at advertise" is the factory's status;
 (`GraphBuilder_Geometry_smod.F90:91-131`: `resolve_deferred`, then
 `drop_unsupplied`) and the connect-hook harvest
 (`graphbuilder_harvest_deferred`, `:136`) make of it. Only the four
-vertical/geometry kinds override `resolve_deferred`; only VerticalGrid and
+vertical/geometry kinds override `resolve_deferred` (the descriptor offers it to every DEFERRED, UNCHECKED or SPECIFIED entry, and the other overrides stay status-guarded); only VerticalGrid and
 VerticalOrientation override `drop_if_unsupplied`
 (`StateItemCharacteristic.F90:304-323` defaults: no-op, never drop).
 
@@ -183,9 +183,9 @@ yet; INCOMPATIBLE = can never connect, A23).
 | UngriddedDims | HFM (EXPRESSION included, 3.12) | SPECIFIED empty | unchanged | MIRRORED for `ungridded_dims%is_mirror()`; IMPORT only | equal; INCOMPATIBLE | field-wide, structural | `UngriddedDimsAspect%matches` equal; no conversion. Same. |
 | Geometry | CFD + SERVICE | DEFERRED; UNCHECKED if `horizontal_dims_spec` NONE (not compared); MIRRORED for EXPRESSION (`make_geometry_characteristic`) | DEFERRED -> SPECIFIED with the component geom at GEOM_B; else stays DEFERRED and may be filled from the realized field (`graphbuilder_harvest_deferred`, connect hook); still DEFERRED at freeze -> error (`check_resolved`). The uncompared UNCHECKED one takes the component geom and stays UNCHECKED (`geometry_resolve_deferred`). Never dropped. | MIRRORED for `mirror_geom` (YAML `geometry_mirror: true`); IMPORT or EXPRESSION | node identity / `mapl_SameGeom` / geom_id; Field with two held geoms: `HorizontalRegridTransform` (C1-geom-b; `GeometryCharacteristic.F90:190-224`); VECTOR or BRACKET tip: `HorizontalBundleRegridTransform` (C1-geom-c-a; `:230-263`); id-only pair or any other tip class (FIELDBUNDLE, VECTORBRACKET, SERVICE, STATE, WILDCARD): UNSUPPORTED; both sides declaring a regridder param: INCOMPATIBLE | field-wide, structural | `make_GeomAspect` (`VariableSpec.F90:789`): item geom, else component geom, else item id, else component id (FROM_COMP), else **MIRRORED**. An item's own geom survives the GEOM_A push (private "declared by the item" flag, legacy's stand-in for DEFERRED; fixed 3.38). Differs: undeclared is DEFERRED in graph, MIRRORED in legacy (A12). |
 | HorizontalDimsSpec | HDS | SPECIFIED GEOM | unchanged | MIRRORED for `HORIZONTAL_DIMS_MIRROR` (YAML `dims: mirror`); IMPORT only | equal; INCOMPATIBLE | field-wide, structural | Inside `GeomAspect%matches` with `dims_specs_agree` (mirror agrees with any); NONE x NONE matches (A22). Same. |
-| VerticalGrid | CFD (and the VERTICALGRID variant) | DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid`; no entry for stagger NONE (`make_vertical_grid_characteristic`) | DEFERRED -> SPECIFIED from the component vgrid (`vcoord_resolve_deferred`); -> dropped if the component has none (`vcoord_drop_if_unsupplied`) | MIRRORED for `mirror_vgrid` (YAML `vertical_grid_mirror: true`) or EXPRESSION; IMPORT or EXPRESSION | both sides hold a grid: no mismatch iff same id or `export_grid%matches(import_grid)` (a Basic grid matches by level count; `grids_match`); else id token / dims set. Transform: `VerticalColumnRegridTransform` for a Field or a VECTOR with level values for the one shared dimension (also covers orientation); two Basic grids of different counts INCOMPATIBLE; a model grid, a non-CENTER stagger or an item class other than FIELD and VECTOR UNSUPPORTED at connect (R4 and R8 both regrid) | field-wide, structural | `make_VerticalGridAspect` (`VariableSpec.F90:884`): item grid, else component grid, else **MIRRORED** (SPECIFIED when the item's stagger is NONE). An item's own grid survives the GEOM_A push (declared flag; fixed 3.38). `VerticalGridAspect%matches` true if dst is mirror; otherwise `typesafe_matches` (`VerticalGridAspect.F90:193-277`): same id or `matches()`, then equal resolved alignment. The graph uses the same grid rule and compares orientation as its own kind. Differs: undeclared DEFERRED vs MIRRORED; a model grid is regridded in legacy, unsupported in the graph. |
+| VerticalGrid | CFD (and the VERTICALGRID variant) | DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid`; no entry for stagger NONE (`make_vertical_grid_characteristic`) | DEFERRED -> SPECIFIED from the component vgrid (`vcoord_resolve_deferred`); -> dropped if the component has none (`vcoord_drop_if_unsupplied`) | MIRRORED for `mirror_vgrid` (YAML `vertical_grid_mirror: true`) or EXPRESSION; IMPORT or EXPRESSION | both sides hold a grid: no mismatch iff same id or `export_grid%matches(import_grid)` (a Basic grid matches by level count; `grids_match`); else id token / dims set. Transform: `VerticalColumnRegridTransform` for a Field or a VECTOR with level values for the one shared dimension (also covers orientation); two Basic grids of different counts INCOMPATIBLE; a model grid, a non-CENTER stagger or an item class other than FIELD and VECTOR UNSUPPORTED at connect (R4 and R8 both regrid) | field-wide, structural | `make_VerticalGridAspect` (`VariableSpec.F90:884`): item grid, else component grid, else **MIRRORED** (SPECIFIED when the item's stagger is NONE). An item's own grid survives the GEOM_A push (declared flag; fixed 3.38). `VerticalGridAspect%matches` true if dst is mirror; otherwise `typesafe_matches` (`VerticalGridAspect.F90:193-277`): same id or `matches()`, then equal resolved alignment. The graph uses the same grid rule and compares orientation as its own kind, exempting a Basic grid (no orientation step; legacy cannot connect a Basic pair that differs in alignment, `make_transform` needs a common physical dimension and `BasicVerticalGrid%get_coordinate_field` fails). Differs: undeclared DEFERRED vs MIRRORED; a model grid is regridded in legacy, unsupported in the graph. |
 | VerticalStagger | CFD | DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid` | component has no vgrid -> SPECIFIED NONE at GEOM_B; with a vgrid stays DEFERRED until harvested from a realized field (`stagger_resolve_deferred`, `VerticalStaggerCharacteristic%harvest`); still DEFERRED at freeze -> error. Never dropped. | MIRRORED for `VERTICAL_STAGGER_MIRROR` (YAML `vertical_dim_spec: MIRROR`); IMPORT or EXPRESSION | equal; UNSUPPORTED (a stagger-only mismatch is never repaired; legacy `typesafe_matches` handles NONE and MIRROR but never compares two real staggers such as CENTER and EDGE) | field-wide, structural | Inside `VerticalGridAspect`; unallocated stagger treated as mirror (design §5.1). Differs: undeclared DEFERRED (A17) vs mirror; a difference between two real staggers (CENTER vs EDGE) is a graph mismatch but no legacy mismatch. |
-| VerticalOrientation | CFD minus stagger NONE | `with_grid`: SPECIFIED from the item grid, else DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid` | DEFERRED -> SPECIFIED from the component vgrid's direction (`orientation_resolve_deferred`); -> dropped if the component has none (`orientation_drop_if_unsupplied`) | MIRRORED for `vertical_alignment: mirror`; IMPORT or EXPRESSION | equal direction; `VerticalFlipTransform` for a Field or a VECTOR (UNSUPPORTED for another item class); covered by the VerticalGrid step when the grids also mismatch | field-wide, structural | Inside `VerticalGridAspect` (alignment, compared as the resolved direction after the grids match). Graph-only split (Q7). |
+| VerticalOrientation | CFD minus stagger NONE | `with_grid`: SPECIFIED from the item grid, else DEFERRED; MIRRORED for EXPRESSION or `mirror_vgrid` | DEFERRED -> SPECIFIED from the component vgrid's direction (`orientation_resolve_deferred`; UNSPECIFIED and directionless for a Basic component grid). `resolve_deferred` also runs on SPECIFIED entries (`descriptor_resolve_deferred` offers every non-final entry), so an explicit alignment learns that the component grid is Basic; an entry built from the item's own grid (`grid_known`) is not overwritten. -> dropped if the component has none (`orientation_drop_if_unsupplied`) | MIRRORED for `vertical_alignment: mirror`; IMPORT or EXPRESSION | equal direction unless either side is directionless (a Basic grid is involved), in which case no step and no mismatch; `match_warning` logs a connect-time warning only when a Basic side has an explicit alignment opposite to the partner's real direction (a Basic side with no alignment holds UNSPECIFIED and never warns). `VerticalFlipTransform` for a Field or a VECTOR (UNSUPPORTED for another item class); covered by the VerticalGrid step when the grids also mismatch | field-wide, structural | Inside `VerticalGridAspect` (alignment, compared as the resolved direction after the grids match). Graph-only split (Q7). Differs: a Basic grid has no direction in the graph; legacy errors at connect for such a pair when the alignments differ (`scenario-parity.md`). |
 | Attributes | HFM (EXPRESSION included, 3.12) | SPECIFIED empty | unchanged | none | import's set included in export's; INCOMPATIBLE | none written | `AttributesAspect%matches` includes (`AttributesAspect.F90:77`). Same. |
 | QuantityType | HFM (EXPRESSION included, 3.12) | Declared -> SPECIFIED. Undeclared (or declared QUANTITY_UNKNOWN): DEFERRED on EXPORT/INTERNAL, UNCHECKED on IMPORT (`make_quantity_type_characteristic`; landed 3.36) | Unsupplied DEFERRED: non-fatal falls back to UNCHECKED with one summary warning; fatal (freeze error) only with `field_dictionary: require_quantity_type` (`quantity_type_required()`) | none | quantity type equal; basis equal or either BASIS_NONE; INCOMPATIBLE for a quantity-type mismatch, UNSUPPORTED for a basis-only mismatch | field-wide (`quantity_type_metadata`) | `make_QuantityTypeAspect` ignores the declared value: always UNKNOWN (Q9). `matches` same rule. Differs: declared value used in graph only. |
 | Conservation | HFM (EXPRESSION included, 3.12) | SPECIFIED CONSERVE_NONE | unchanged | MIRRORED for `conservation%is_mirror()`; IMPORT only | `metadata ==`; INCOMPATIBLE | field-wide | `make_ConservationAspect` ignores the declared value (CONSERVE_NONE). Differs as QuantityType. |
@@ -402,7 +402,7 @@ Graph only:
   MIRRORED (A12, A17); freeze fails if never supplied.
 - A second connection that arrives in a later connect pass, after the
   import settled, is silently skipped (`resolve_one` returns at
-  `is_import_settled`, `GraphBuilder_ConnectionResolution_smod.F90:255-274`;
+  `is_import_settled`, `GraphBuilder_ConnectionResolution_smod.F90:263-275`;
   "first wins"). A second producer resolved in the same pass is reported
   instead (§2.10).
 
@@ -419,9 +419,9 @@ Legacy only:
   connect). No graph characteristic or GraphBuilder code handles
   fill_value (grep of `superstructure/generic/graph` and
   `GraphBuilder*.F90`). Not in the 3.26 seeds; see R14.
-- *(Landed in 3.33: `run_reexport_hook` / `reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:957-1008`, gives a re-export an export port.)* At review time, re-export (`ReexportConnection`) was resolved by the registry only; the
-  graph skipped it (`class default`,
-  `GraphBuilder_ConnectionResolution_smod.F90:977`). Export propagation
+- *(Landed in 3.33: `run_reexport_hook` / `reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:960-1011`, gives a re-export an export port.)* At review time, re-export (`ReexportConnection`) was resolved by the registry only; the
+  graph skipped it (the hook's `class default`, since replaced by
+  `reexport_one`). Export propagation
   (`run_export_propagate_hook`) covers child exports, but an
   INTERNAL->EXPORT re-export has no graph path: internals get no port
   (`GraphBuilder_Advertising_smod.F90:115`). Scenarios using it:
@@ -514,8 +514,8 @@ anyway. See R1.
   connection resolution checks first and records a per-pair
   `connection_conflicts` entry naming the item, skips the second producer,
   and continues the pass (`second_producer`, called at
-  `GraphBuilder_ConnectionResolution_smod.F90:413,533`; inout borrower at
-  `:1459-1464`). The first stays. Other edge kinds (wildcard fan-in,
+  `GraphBuilder_ConnectionResolution_smod.F90:414,536`; inout borrower at
+  `:1462-1468`). The first stays. Other edge kinds (wildcard fan-in,
   expression, callback collection, geometry) have no such check and reach
   the `add_dependency` assertion.
 - Graph, later pass: `resolve_one` returns early for an import that already
@@ -869,7 +869,7 @@ VectorBracket -> Field".
 Recommendation: (a).
 
 **R8. One export per import: enforce?**
-*Graph today: a second producer resolved in the same connect pass is reported per pair as a connection conflict naming the item (ordinary and inout-borrower pairings only), the first stays, and the pass continues; one arriving in a later pass is silently skipped (§2.10; `second_producer`, `GraphBuilder_ConnectionResolution_smod.F90:413,533,1459`). Task 3.31 (enforce in both paths) was dropped; legacy is unchanged.*
+*Graph today: a second producer resolved in the same connect pass is reported per pair as a connection conflict naming the item (ordinary and inout-borrower pairings only), the first stays, and the pass continues; one arriving in a later pass is silently skipped (§2.10; `second_producer`, `GraphBuilder_ConnectionResolution_smod.F90:414,536,1462`). Task 3.31 (enforce in both paths) was dropped; legacy is unchanged.*
 Legacy: the check is commented out (`SimpleConnection.F90:105`); by
 reading, the last connection wins. Example:
 
@@ -891,7 +891,7 @@ Follow-up, only if that grep finds MatchConnection/SimpleConnection
 overlaps: decide whether the explicit SimpleConnection may win.
 
 **R9. Which source intents may a re-export take?**
-*Resolved: option (a); the graph resolves both source intents in `run_reexport_hook` (3.33; `reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:957-1008`).*
+*Resolved: option (a); the graph resolves both source intents in `run_reexport_hook` (3.33; `reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:960-1011`).*
 Legacy: `ReexportConnection` exposes an EXPORT (a child's) or an INTERNAL
 (own) item as a new export, with no comparison; `ComponentSpec%reexport`
 accepts `export` (default) or `internal` and fails otherwise
@@ -936,7 +936,7 @@ Recommendation: (a).
 Legacy: an INTERNAL -> EXPORT re-export makes the internal appear in the
 export state (`ReexportConnection.F90:116-117`). Graph, at review time (no
 longer current; see "Resolved" above and `reexport_one`,
-`GraphBuilder_ConnectionResolution_smod.F90:957-1008`): re-export was
+`GraphBuilder_ConnectionResolution_smod.F90:960-1011`): re-export was
 skipped (`class default`) and internals have no port
 (`GraphBuilder_Advertising_smod.F90:115`, still true), so in graph mode the
 export had no node. Used by `scenario_1`, `scenario_2`,
