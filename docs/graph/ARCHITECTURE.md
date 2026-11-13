@@ -454,9 +454,9 @@ Graph code also must not call into the legacy `specs/*Aspect`,
   limited. For ordinary and inout-borrower pairings, connection resolution
   checks first and records a pair-level `connection_conflicts` entry
   instead of failing the pass: the second producer is skipped and the first
-  stays (`second_producer`, called at
-  `GraphBuilder_ConnectionResolution_smod.F90:414,536`; the inout borrower
-  case at `:1462-1468`). Only a second producer resolved in the same
+  stays (`record_second_producer`, called at
+  `GraphBuilder_ConnectionResolution_smod.F90:495,568`; the inout borrower
+  case at `:1409`). Only a second producer resolved in the same
   connect pass is seen: an import settled by an earlier pass is skipped
   silently (`:263-275`). Wildcard fan-in, expression, callback-collection
   and geometry edges have no pre-check and hit the `add_dependency`
