@@ -45,7 +45,7 @@ module MAPL_ESMFFieldBundleRead
           integer :: num_fields,dims,location
           logical :: create_variable, var_has_levels
           class (AbstractGridFactory), pointer :: factory
-          character(len=:), allocatable :: grid_vars,exclude_vars
+          character(len=:), allocatable :: grid_vars,exclude_vars,exclude_dims
           type(StringVariableMap), pointer :: variables
           type(Variable), pointer :: this_variable
           type(StringVariableMapIterator) :: var_iter
@@ -70,6 +70,7 @@ module MAPL_ESMFFieldBundleRead
           _VERIFY(status)
           grid_vars = factory%get_file_format_vars()
           exclude_vars = ","//grid_vars//",edge,lev,time,time_bnds,"
+          exclude_dims = ","//grid_vars//",time,"
 
          variables => metadata%get_variables()
          var_iter = variables%begin()
@@ -84,10 +85,12 @@ module MAPL_ESMFFieldBundleRead
              dim_iter = dimensions%begin()
              do while (dim_iter /= dimensions%end())
                 dim_name => dim_iter%get()
-                dim_size = metadata%get_dimension(trim(dim_name))
-                if (dim_size == grid_size(3) .or. dim_size == grid_size(3)+1) then
-                   var_has_levels = .true.
-                   lev_size = dim_size
+                if (index(exclude_dims, ","//trim(dim_name)//",") == 0) then
+                   dim_size = metadata%get_dimension(trim(dim_name))
+                   if (dim_size == grid_size(3) .or. dim_size == grid_size(3)+1) then
+                      var_has_levels = .true.
+                      lev_size = dim_size
+                   end if
                 end if
                 call dim_iter%next()
              enddo
