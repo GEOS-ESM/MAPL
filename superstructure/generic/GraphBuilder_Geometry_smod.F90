@@ -23,6 +23,11 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Geometry_smod
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
+   ! Which way wire_geometry adds the edge: PULL from a child into this
+   ! component, PUSH from this component into a child.
+   integer, parameter :: GEOMETRY_PULL = 1
+   integer, parameter :: GEOMETRY_PUSH = 2
+
 contains
 
    module subroutine graphbuilder_run_geometry_hook(this)
@@ -333,90 +338,46 @@ contains
       character(*), intent(in) :: provider_name
       integer, optional, intent(out) :: rc
 
-      integer :: status
-      type(ComponentGraph), pointer :: this_graph
-      type(ComponentGraph), pointer :: child_graph
-      type(DependencyNetworkId) :: net_id
-      type(NodeId), pointer :: existing
-      type(NodeId) :: this_own_id
-      type(NodeId) :: child_own_id
-      type(NodeId) :: final_id
-      type(NodeId), allocatable :: intermediate_ids(:)
-      type(OuterMetaComponent), pointer :: child_meta
-      type(StateItemCharacteristicMap), target :: this_map, child_map
-      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
-      character(:), allocatable :: unsupported
-      character(:), allocatable :: assertion_message
-      type(GeomId) :: this_own_geom_id
-      type(GeomId) :: provider_geom_id
-
-      this_graph => this%get_component_graph()
-      net_id = this_graph%get_forward_network_id(_RC)
-      existing => this_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
-      _ASSERT(associated(existing), 'GraphBuilder: resolve_geometry_from_child called before this component advertised its own geometry')
-      this_own_id = existing
-
-      child_meta => this%get_child_outer_meta(provider_name, _RC)
-      child_graph => child_meta%get_component_graph()
-      existing => child_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
-      assertion_message = 'GraphBuilder: resolve_geometry_from_child - child "' // provider_name // &
-           '" has not advertised its own geometry yet'
-      _ASSERT(associated(existing), assertion_message)
-      child_own_id = existing
-
-      ! `this%get_geom_id()%get_value()` is not a valid designator
-      ! (NAG rejects it); bind the intermediate result first.
-      this_own_geom_id = this%get_geom_id()
-      provider_geom_id = child_meta%get_geom_id()
-      call add_geom_proxy_identity(child_map, provider_geom_id)
-      call add_geom_proxy_identity(this_map, this_own_geom_id)
-
-      ! Same dispatch shape as resolve_one: direct edge on
-      ! exact match, else extension chain. A mismatch should be
-      ! unreachable given GeometrySpec's exclusive resolution, but goes
-      ! through the real path rather than being assumed away.
-      mismatched = find_mismatched_characteristics(child_map, this_map, _RC)
-      if (size(mismatched) == 0) then
-         call this_graph%add_dependency(net_id, child_own_id, this_own_id, _RC)
-         _RETURN(_SUCCESS)
-      end if
-
-      call find_or_build_extension_chain(this_graph, net_id, child_own_id, &
-           child_map, this_map, mismatched, final_id, intermediate_ids, unsupported, _RC)
-      assertion_message = 'GraphBuilder: geometry from child ' // provider_name // &
-            ' does not match the receiving component own resolved geometry (unsupported: ' // &
-            unsupported // ') - should be unreachable given GeometrySpec own exclusive resolution'
-      _ASSERT(unsupported == '', assertion_message)
-      ! No materialize_extension_chain call: component-level entries hold
-      ! only a geom id, so the geometry build_transform reports unsupported
-      ! and `unsupported` is never '' in practice. The assertion above flags
-      ! this site if that changes.
-
-      call this_graph%add_dependency(net_id, final_id, this_own_id, _RC)
-
-      _RETURN(_SUCCESS)
+      ! Pass rc through unwrapped so this wrapper adds no exception layer.
+      call wire_geometry(this, provider_name, GEOMETRY_PULL, rc=rc)
    end subroutine resolve_geometry_from_child
 
    ! Push direction: adds a dependency edge, in the forward network, from
    ! this (parent)'s geometry NodeId to the named child's, through the
-   ! CHILD's graph via the framework-internal get_child_component_graph()
-   ! carve-out.
+   ! CHILD's graph.
    module subroutine push_geometry_to_child(this, child_name, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: child_name
       integer, optional, intent(out) :: rc
 
+      ! Pass rc through unwrapped so this wrapper adds no exception layer.
+      call wire_geometry(this, child_name, GEOMETRY_PUSH, rc=rc)
+   end subroutine push_geometry_to_child
+
+   ! Adds the geometry edge between this component and the named child.
+   ! The edge, and any extension chain, goes on the graph that owns the
+   ! destination node: this_graph for PULL, the child's graph for PUSH
+   ! (add_dependency admits the other side as a cross-component endpoint).
+   subroutine wire_geometry(this, child_name, direction, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: child_name
+      integer, intent(in) :: direction
+      integer, optional, intent(out) :: rc
+
       integer :: status
       type(ComponentGraph), pointer :: this_graph
       type(ComponentGraph), pointer :: child_graph
-      type(DependencyNetworkId) :: child_net_id
+      type(ComponentGraph), pointer :: owner_graph
+      type(DependencyNetworkId) :: net_id
       type(NodeId), pointer :: existing
       type(NodeId) :: this_own_id
       type(NodeId) :: child_own_id
+      type(NodeId) :: source_id, dest_id
       type(NodeId) :: final_id
       type(NodeId), allocatable :: intermediate_ids(:)
       type(OuterMetaComponent), pointer :: child_meta
       type(StateItemCharacteristicMap), target :: this_map, child_map
+      type(StateItemCharacteristicMap), pointer :: source_map, dest_map
       type(StateItemCharacteristicKind), allocatable :: mismatched(:)
       character(:), allocatable :: unsupported
       character(:), allocatable :: assertion_message
@@ -425,46 +386,80 @@ contains
 
       this_graph => this%get_component_graph()
       existing => this_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
-      _ASSERT(associated(existing), 'GraphBuilder: push_geometry_to_child called before this component advertised its own geometry')
+      if (direction == GEOMETRY_PULL) then
+         assertion_message = 'GraphBuilder: resolve_geometry_from_child called before this component advertised its own geometry'
+      else
+         assertion_message = 'GraphBuilder: push_geometry_to_child called before this component advertised its own geometry'
+      end if
+      _ASSERT(associated(existing), assertion_message)
       this_own_id = existing
 
-      child_graph => this%get_child_component_graph(child_name, _RC)
+      ! Same ComponentGraph that get_child_component_graph() returns.
       child_meta => this%get_child_outer_meta(child_name, _RC)
-
+      child_graph => child_meta%get_component_graph()
       existing => child_graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, GEOMETRY_ITEM_NAME))
-      assertion_message = 'GraphBuilder: child "' // child_name // &
-            '" has no geometry to receive into - has it run its own advertise_geometry yet?'
+      if (direction == GEOMETRY_PULL) then
+         assertion_message = 'GraphBuilder: resolve_geometry_from_child - child "' // child_name // &
+              '" has not advertised its own geometry yet'
+      else
+         assertion_message = 'GraphBuilder: child "' // child_name // &
+              '" has no geometry to receive into - has it run its own advertise_geometry yet?'
+      end if
       _ASSERT(associated(existing), assertion_message)
       child_own_id = existing
 
-      ! Bind intermediates first; see resolve_geometry_from_child.
+      ! `this%get_geom_id()%get_value()` is not a valid designator
+      ! (NAG rejects it); bind the intermediate result first.
       this_geom_id = this%get_geom_id()
       child_geom_id = child_meta%get_geom_id()
       call add_geom_proxy_identity(this_map, this_geom_id)
       call add_geom_proxy_identity(child_map, child_geom_id)
 
-      ! Same dispatch shape as resolve_geometry_from_child. Any chain is
-      ! registered through the CHILD's graph because the receiving node is
-      ! a child_graph node; add_dependency admits this_own_id as a
-      ! cross-component endpoint.
-      child_net_id = child_graph%get_forward_network_id(_RC)
-      mismatched = find_mismatched_characteristics(this_map, child_map, _RC)
+      if (direction == GEOMETRY_PULL) then
+         owner_graph => this_graph
+         source_id = child_own_id
+         source_map => child_map
+         dest_id = this_own_id
+         dest_map => this_map
+      else
+         owner_graph => child_graph
+         source_id = this_own_id
+         source_map => this_map
+         dest_id = child_own_id
+         dest_map => child_map
+      end if
+      net_id = owner_graph%get_forward_network_id(_RC)
+
+      ! Same dispatch shape as resolve_one: direct edge on
+      ! exact match, else extension chain. A mismatch should be
+      ! unreachable given GeometrySpec's exclusive resolution, but goes
+      ! through the real path rather than being assumed away.
+      mismatched = find_mismatched_characteristics(source_map, dest_map, _RC)
       if (size(mismatched) == 0) then
-         call child_graph%add_dependency(child_net_id, this_own_id, child_own_id, _RC)
+         call owner_graph%add_dependency(net_id, source_id, dest_id, _RC)
          _RETURN(_SUCCESS)
       end if
 
-      call find_or_build_extension_chain(child_graph, child_net_id, this_own_id, &
-           this_map, child_map, mismatched, final_id, intermediate_ids, unsupported, _RC)
-      assertion_message = 'GraphBuilder: parent geometry does not match child ' // child_name // &
-            ' own resolved geometry (unsupported: ' // unsupported // &
-            ') - should be unreachable given GeometrySpec own exclusive resolution'
+      call find_or_build_extension_chain(owner_graph, net_id, source_id, &
+           source_map, dest_map, mismatched, final_id, intermediate_ids, unsupported, _RC)
+      if (direction == GEOMETRY_PULL) then
+         assertion_message = 'GraphBuilder: geometry from child ' // child_name // &
+               ' does not match the receiving component own resolved geometry (unsupported: ' // &
+               unsupported // ') - should be unreachable given GeometrySpec own exclusive resolution'
+      else
+         assertion_message = 'GraphBuilder: parent geometry does not match child ' // child_name // &
+               ' own resolved geometry (unsupported: ' // unsupported // &
+               ') - should be unreachable given GeometrySpec own exclusive resolution'
+      end if
       _ASSERT(unsupported == '', assertion_message)
-      ! No materialization; see resolve_geometry_from_child.
+      ! No materialize_extension_chain call: component-level entries hold
+      ! only a geom id, so the geometry build_transform reports unsupported
+      ! and `unsupported` is never '' in practice. The assertion above flags
+      ! this site if that changes.
 
-      call child_graph%add_dependency(child_net_id, final_id, child_own_id, _RC)
+      call owner_graph%add_dependency(net_id, final_id, dest_id, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine push_geometry_to_child
+   end subroutine wire_geometry
 
 end submodule GraphBuilder_Geometry_smod
