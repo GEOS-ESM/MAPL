@@ -26,10 +26,10 @@
   with container. Unit tests.
 - [ ] 1.5 `CallbackMethodSpec`: per-argument options (`put_flavour`);
   reject unknown option names. Unit tests.
-- [ ] 1.6 `CallbackInterface`: version, summary, description, subject;
+- [ ] 1.6 `CallbackInterface`: version, summary, description;
   declare/get for attributes, call scalars, rules; enforce slash-free
-  names, rule consistency, weight consistency, subject rules. Unit tests
-  for every rejection in the data-model delta spec.
+  names, rule consistency, weight consistency, host-argument rules. Unit
+  tests for every rejection in the data-model delta spec.
 - [ ] 1.7 Registry: `freeze_callback_registry`, frozen-registration
   error naming the interface, `list_callback_interface_names` (sorted).
   Unit tests.
@@ -85,9 +85,9 @@
   Tests on hand-built States covering F1-F8 and MF1, MF1b, MF4-MF8,
   P4, P5. Depends on 1.x, 2.1, 4.1.
 - [ ] 4.4 `MAPL_CallbackGetAttribute` (namespace from the State's
-  recorded interface, subject member or State host, default, undeclared
-  name lists legal names) and `MAPL_CallbackSetScalar` (name, type,
-  writer). Tests on hand-built States. Depends on 2.1, 4.3.
+  recorded interface, host-argument member or State host, default,
+  undeclared name lists legal names) and `MAPL_CallbackSetScalar` (name,
+  type, writer). Tests on hand-built States. Depends on 2.1, 4.3.
 
 ## 5. Invoker-side execution (owner track; critical path)
 
@@ -150,7 +150,7 @@
 ## 9. GEOS slice: turbulent_mixing
 
 - [ ] 9.1 `turbulent_mixing` entry in the GEOS file, as in the design
-  note (subject `mixed_quantity`).
+  note (`mix_like` with `host_argument: mixed_quantity`).
 - [ ] 9.2 `TurbulentMixingTestInvoker`: per `mix_like` class one implicit
   diffusion column operator using the delivered `air_mass`; four bottom
   conditions; realized flux; unused-argument check (MF9). Column solver

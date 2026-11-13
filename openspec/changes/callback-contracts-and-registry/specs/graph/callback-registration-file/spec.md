@@ -22,18 +22,18 @@ interface entry.
 ### Requirement: The registration file format
 An interface entry SHALL accept these keys and no others: `version`
 (integer at least 1, required), `summary` (string, required),
-`description` (string, optional), `subject` (argument name, required
-when any attribute has scope `member`), `arguments` (mapping, required,
-may be empty), `methods` (mapping, required, at least one method),
-`attributes` (mapping, optional), `call_scalars` (mapping, optional),
-`rules` (list, optional). An argument entry SHALL accept `kind`
-(`field`, `bundle` or `state`, default `field`), `dims` (`xyz` or `xy`,
-required for fields), `optional`, `extensive`, `weight_of`,
-`description`. A method entry SHALL map each argument name either to an
-access (`in`, `out`, `inout`) or to a mapping with `access` and
-per-argument options (`put_flavour`). An attribute entry SHALL accept
-`type` (`integer`, `real`, `logical`, `string`, or `list of <type>`),
-`scope` (`member` or `state`, default `member`), `required`, `default`,
+`description` (string, optional), `arguments` (mapping, required, may be
+empty), `methods` (mapping, required, at least one method), `attributes`
+(mapping, optional), `call_scalars` (mapping, optional), `rules` (list,
+optional). An argument entry SHALL accept `kind` (`field`, `bundle` or
+`state`, default `field`), `dims` (`xyz` or `xy`, required for fields),
+`optional`, `extensive`, `weight_of`, `description`. A method entry
+SHALL map each argument name either to an access (`in`, `out`, `inout`)
+or to a mapping with `access` and per-argument options (`put_flavour`).
+An attribute entry SHALL accept `type` (`integer`, `real`, `logical`,
+`string`, or `list of <type>`), `scope` (`member` or `state`, default
+`member`), `host_argument` (argument name, required when `scope` is
+`member`, rejected when `scope` is `state`), `required`, `default`,
 `allowed`, `description`. A call-scalar entry SHALL accept `type`,
 `written_by` (`invoker` or `handler`), `description`. A rule entry SHALL
 have `when` (a one-entry mapping attribute: value) and `requires` (a

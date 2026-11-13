@@ -33,8 +33,8 @@ SHALL check, against the realized ESMF State and the Info of its
 members: every required argument is present as a member; every present
 member has the declared item kind and gridded dimensions; every
 required attribute is present on its host (the Info of the member bound
-to the interface's subject argument for scope `member`, the callback
-State's Info for scope `state`) under
+to the attribute's declared host argument for scope `member`, the
+callback State's Info for scope `state`) under
 `<interface>/<attribute>`; every present attribute's stored value type
 is compatible with the declared type, read without conversion (integer
 and real distinct; 4-byte and 8-byte real both "real"; a list type
@@ -190,12 +190,12 @@ reported.
 
 ### Requirement: Attributes and call scalars are hosted under the interface namespace
 A per-member attribute SHALL be stored in the Info of the member bound
-to the interface's subject argument, under `<interface>/<attribute>`.
-Other members (for example a shared air-mass field bound by many
-callback States) SHALL NOT need to carry it. A per-State attribute and every call scalar
-SHALL be stored in the callback State's own Info under
-`<interface>/<name>`. The prefix `mapl_mock/` SHALL be reserved for the
-test tools.
+to the attribute's declared host argument, under
+`<interface>/<attribute>`. Other members (for example a shared air-mass
+field bound by many callback States) SHALL NOT carry it. A per-State
+attribute and every call scalar SHALL be stored in the callback State's
+own Info under `<interface>/<name>`. The prefix `mapl_mock/` SHALL be
+reserved for the test tools.
 
 #### Scenario: Member and State hosts
 - **WHEN** a Handler sets `mix_like` on member `DU001` and `operation` on

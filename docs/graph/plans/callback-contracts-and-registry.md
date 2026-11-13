@@ -8,12 +8,18 @@
 > work: tick its `tasks.md` items and update its Status line here. If
 > the plan and the source disagree, stop and report rather than guess.
 
-Status: proposed, not yet reviewed by the owner (2026-11-13). Drafted
-from the design note `mapl3-callback-contracts-and-registry.md`
-(2026-11-07) of the `geos-mapl3-design` planning repository, binding
-decisions 62, 63, 64 and 66 of its `PLAN.md`. That repository is not
-part of this checkout; design.md restates everything implementation
-needs.
+Status: reviewed by the owner (2026-11-13); see "Owner questions"
+below for the resolution of each item. Drafted from the design note
+`mapl3-callback-contracts-and-registry.md` (2026-11-07) of the
+`geos-mapl3-design` planning repository, binding decisions 62, 63, 64
+and 66 of its `PLAN.md`. That repository is not part of this checkout;
+design.md restates everything implementation needs.
+
+**Integration branch:** `feature/callback-contracts-and-registry` (own
+branch, Q-W1 resolved: does not share `feature/#5286-graph-phase-6`).
+Tracking issue: GEOS-ESM/MAPL#5513. Proposal PR (artifacts only, no
+code): GEOS-ESM/MAPL#5514. The 14 ready tasks below are open as
+volunteer issues (Q-W2 resolved: go): GEOS-ESM/MAPL#5515-#5528.
 
 **Verified against:** `callback/openspec-conversion` @ `e9da20e1d`
 (2026-11-13, on top of `feature/#5286-graph-phase-6`). The design note
@@ -62,9 +68,8 @@ Docs-only tasks write "docs only; ctest not run".
 - **Exact contract, structural conformance.** An interface states
   version, summary, arguments (kind, dims, optional, extensive,
   `weight_of`), per-method access (+ `put_flavour`), attributes (type,
-  scope, required/default, allowed), call scalars, rules, and a
-  `subject` argument hosting member-scoped attributes. A Handler may
-  provide more, never less.
+  scope, `host_argument` for scope `member`, required/default, allowed),
+  call scalars, and rules. A Handler may provide more, never less.
 - **Files only.** `./callback_interfaces.yaml`, loaded in
   `mapl_initialize`, all-or-nothing validation, frozen by
   `mapl_cap_create` before the root `SetServices`, CRC-32 startup
@@ -125,7 +130,7 @@ Risk: what is most likely to go wrong.
 | CB1-CallScalarSpec | 1.3 | haiku | sonnet | **yes** | S / low | - |
 | CB1-Rule | 1.4 | haiku | sonnet | **yes** | S / low | - |
 | CB1-MethodOptions | 1.5 | sonnet | sonnet | **yes** | S / low; second map beside `AccessSpecMap` | - |
-| CB1-Interface | 1.6 | sonnet | opus | no | M / medium; cross-checks (rules, weights, subject) | CB1-ArgSpec, -AttributeSpec, -CallScalarSpec, -Rule, -MethodOptions |
+| CB1-Interface | 1.6 | sonnet | opus | no | M / medium; cross-checks (rules, weights, host arguments) | CB1-ArgSpec, -AttributeSpec, -CallScalarSpec, -Rule, -MethodOptions |
 | CB1-RegistryFreeze | 1.7 | haiku | sonnet | **yes** | S / low; singleton state in tests (unfreeze for tests?) | - |
 | CB2-InfoWrappers | 2.1 | sonnet | opus | no | M / medium; touches infrastructure API, overload ambiguity | CB0-InfoTypes |
 | CB3-CRC32 | 3.1 | haiku | sonnet | **yes** | S / low | - |
@@ -371,13 +376,14 @@ review, or new ambiguities found while converting it.
     `air_mass` (for example `DELP`) is shared by many owners' callback
     States. Putting `turbulent_mixing/mix_like` on every member would
     make owners with different `mix_like` conflict on the shared
-    `DELP` Info. Call made: an interface with member-scoped attributes
-    names a `subject` argument (`mixed_quantity` for
-    `turbulent_mixing`); only that member hosts them. Options: (a) the
-    `subject` key, as drafted; (b) host on every member and require
-    equal values; (c) always host member-scoped attributes on the
-    callback State instead, since there is one tracer per State.
-    Recommendation: (a).
+    `DELP` Info. **Resolved (2026-11-13):** the owner rejected the
+    drafted interface-wide `subject` indirection as unnecessary framing
+    — `mix_like` is simply an attribute of the `mixed_quantity`
+    argument, so it is declared that way directly. Each member-scoped
+    attribute now names its own `host_argument` (the argument whose
+    bound member hosts it); there is no `subject` concept. Applied to
+    the data-model, registration-file and conformance specs and to
+    `design.md` Decision 2.
 21. **Making conformance a wiring error without breaking today's
     behavior.** Today a pattern match that does not conform is skipped
     and reported as a warning ("no registered extension provider for

@@ -40,13 +40,14 @@ with name and kind only: required, not extensive, no weight.
 ### Requirement: A callback interface declares an attribute schema
 A callback interface SHALL support declaring named attributes. Each
 attribute SHALL declare a value type (integer, real, logical, string, or
-a list of one of these), a scope (`member`: hosted on each member's
-Info; `state`: hosted on the callback State's own Info; default
-`member`), whether it is required (default not required), an optional
-default value, and, for string and integer types only, an optional set
-of allowed values. A required attribute SHALL NOT have a default. A
-default SHALL have the declared type and, when an allowed set exists,
-lie in it. Real SHALL accept either 4-byte or 8-byte storage.
+a list of one of these), a scope (`member`: hosted on the Info of the
+argument it names as its host; `state`: hosted on the callback State's
+own Info; default `member`), whether it is required (default not
+required), an optional default value, and, for string and integer types
+only, an optional set of allowed values. A required attribute SHALL NOT
+have a default. A default SHALL have the declared type and, when an
+allowed set exists, lie in it. Real SHALL accept either 4-byte or 8-byte
+storage.
 
 #### Scenario: Attribute with allowed values is retrievable
 - **WHEN** attribute `operation` is declared as a required string with
@@ -67,21 +68,39 @@ lie in it. Real SHALL accept either 4-byte or 8-byte storage.
 - **WHEN** a real attribute is declared with an allowed set
 - **THEN** the declaration is rejected
 
-### Requirement: An interface with member-scoped attributes names its subject argument
-An interface that declares any attribute with scope `member` SHALL name
-one of its arguments as its subject: the member whose Info hosts the
-member-scoped attributes. The subject SHALL be a declared, required
-argument that is not the weight of another. An interface with no
-member-scoped attribute MAY omit the subject.
+### Requirement: A member-scoped attribute names the argument that hosts it
+An attribute declared with scope `member` SHALL name the argument whose
+Info hosts it (`host_argument`). The named argument SHALL be a declared,
+required argument that is not the weight of another (a weight argument
+can be shared across many unrelated Handlers' bindings, so it cannot
+host a value specific to one of them). An attribute declared with scope
+`state` SHALL NOT name a host argument.
 
-#### Scenario: Subject is retrievable
-- **WHEN** `turbulent_mixing` declares `subject: mixed_quantity` and the
-  member-scoped attribute `mix_like`
-- **THEN** the interface reports `mixed_quantity` as its subject
+#### Scenario: Host argument is retrievable
+- **WHEN** `turbulent_mixing` declares the member-scoped attribute
+  `mix_like` with `host_argument: mixed_quantity`
+- **THEN** the interface reports `mixed_quantity` as `mix_like`'s host
+  argument
 
-#### Scenario: Member-scoped attribute without a subject is rejected
-- **WHEN** an interface declares a member-scoped attribute and no
-  subject
+#### Scenario: Member-scoped attribute without a host argument is rejected
+- **WHEN** an attribute is declared with scope `member` and no
+  `host_argument`
+- **THEN** the declaration is rejected
+
+#### Scenario: State-scoped attribute with a host argument is rejected
+- **WHEN** an attribute is declared with scope `state` and a
+  `host_argument`
+- **THEN** the declaration is rejected
+
+#### Scenario: Host argument naming an unknown argument is rejected
+- **WHEN** an attribute names `host_argument: quantiy` and no such
+  argument is declared
+- **THEN** the declaration is rejected, naming the unknown argument and
+  the declared argument names
+
+#### Scenario: Host argument that is a weight is rejected
+- **WHEN** an attribute names `host_argument: air_mass`, and `air_mass`
+  is declared `weight_of: mixed_quantity`
 - **THEN** the declaration is rejected
 
 ### Requirement: A callback interface declares call scalars

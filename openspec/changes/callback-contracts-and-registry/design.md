@@ -86,7 +86,7 @@ The current tree (verified for this change) has these gaps:
 live in `graph/callback/` beside the existing ones, with gFTL map or
 vector containers in `graph/containers/` following
 `CallbackArgumentSpecMap`. `CallbackInterface` gains `version`,
-`summary`, `description`, `subject`, and the three new collections.
+`summary`, `description`, and the three new collections.
 `CallbackMethodSpec` keeps its `AccessSpecMap` and adds a parallel
 per-argument options map (only `put_flavour` recognized). Every check the
 loader does is also enforced by the declaring procedures, so a test
@@ -95,18 +95,25 @@ that builds an interface in code gets the same errors.
 Rejected: two types for one concept, and every existing caller would have
 to choose.
 
-**2. A `subject` argument hosts member-scoped attributes.**
+**2. Each member-scoped attribute names its own `host_argument`.**
 The note puts member-scoped attributes "on each member's Info" and states
 that a callback State has one member (one tracer). `turbulent_mixing`
 has several field arguments (`mixed_quantity`, `air_mass`, fluxes), and
 `air_mass` (for example `DELP`) is shared by many owners' callback
 States. Requiring `turbulent_mixing/mix_like` on every member would
 force the same key, with possibly different values, onto one shared
-Info. So an interface with member-scoped attributes names one argument
-as its subject, and only that member hosts them. *Alternative:* host on
-every member and require equal values. Rejected: shared Info would make
-two owners with different `mix_like` conflict. This is an addition to
-the note; see Owner questions in the plan.
+Info. A single interface-wide `subject` does not fix this either when an
+interface has several member-scoped attributes that belong to different
+arguments (for example `mix_like` belonging to `mixed_quantity` and a
+second attribute belonging to a flux argument): one subject can only
+name one of them. So each attribute declares its own `host_argument`,
+and only that argument's bound member hosts it. *Alternative:* a single
+interface-level `subject` naming one host for every member-scoped
+attribute. Rejected: does not generalize past interfaces with exactly
+one member-scoped attribute. *Alternative:* host on every member and
+require equal values. Rejected: shared Info would make two owners with
+different `mix_like` conflict. This is an addition to the note; see
+Owner questions in the plan.
 
 **3. Keys sit under MAPL's shared namespace.** `<interface>/<name>` is
 relative to `INFO_SHARED_NAMESPACE`, so the stored key is
@@ -200,8 +207,10 @@ callback State is bound, the framework writes the interface name into
 the State's own Info (`/MAPL/callback/interface`). The accessor
 `MAPL_CallbackGetAttribute(state, name, value, unusable, member, rc)`
 (generic over the value types) reads that name, checks `name` against
-the interface's schema, reads from the subject member or the State, and
-returns the default when absent. It also records "default used" for the
+the interface's schema, and reads from the given `member`'s Info (scope
+`member`; the caller passes the member bound to the attribute's declared
+`host_argument`) or the State's own Info (scope `state`), returning the
+default when absent. It also records "default used" for the
 report. The call-scalar setter `MAPL_CallbackSetScalar(state, name,
 value, rc)` checks name, type and writer; the writer is known from the
 calling context (`invoker` from the execute API, `handler` inside the
