@@ -14,7 +14,7 @@ whole remaining scope comes in as one change, not as later increments.
 
 - **Exact contracts.** A registered interface states its name, version,
   summary, arguments (kind, gridded dims `xyz|xy`, optional, extensive,
-  `weight_of`), per-method access (with per-argument options such as
+  `weight_for`), per-method access (with per-argument options such as
   `put_flavour`), attributes (value type, scope `member|state`, required
   or default, allowed set), call scalars, and rules ("when attribute `a`
   is `v`, arguments `x, y` are required"). R4 and R8 are both "real".
@@ -55,7 +55,7 @@ whole remaining scope comes in as one change, not as later increments.
   for per-area outputs.
 - **Weighted delta-back** for the value put flavour: the change of an
   intensive argument returns as `R†(m_T Δ_T) / m_O`, where `m` is the
-  argument marked `weight_of`. It is followed by conservative column
+  argument marked `weight_for`. It is followed by conservative column
   filling (with a diagnostic) when the owner declares `non_negative`.
 - **Test tools.** A configurable Handler (first supply and record,
   under the reserved Info namespace `mapl_mock/`; expectations later)

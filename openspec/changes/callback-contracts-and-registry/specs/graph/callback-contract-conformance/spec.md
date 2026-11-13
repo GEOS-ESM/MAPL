@@ -42,7 +42,7 @@ needs an array of the element type); every present string or integer
 attribute with an allowed set has a value in it; every key under
 `<interface>/` on any host is a declared attribute or call scalar; for
 every rule whose attribute has the rule's value, every argument it
-requires is present; for every argument `w` with `weight_of: a`, if `a`
+requires is present; for every argument `w` with `weight_for: a`, if `a`
 is present then `w` is present, and `w`'s geometry equals `a`'s.
 
 #### Scenario: Required argument missing (F1)

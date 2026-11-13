@@ -27,7 +27,7 @@ empty), `methods` (mapping, required, at least one method), `attributes`
 (mapping, optional), `call_scalars` (mapping, optional), `rules` (list,
 optional). An argument entry SHALL accept `kind` (`field`, `bundle` or
 `state`, default `field`), `dims` (`xyz` or `xy`, required for fields),
-`optional`, `extensive`, `weight_of`, `description`. A method entry
+`optional`, `extensive`, `weight_for`, `description`. A method entry
 SHALL map each argument name either to an access (`in`, `out`, `inout`)
 or to a mapping with `access` and per-argument options (`put_flavour`).
 An attribute entry SHALL accept `type` (`integer`, `real`, `logical`,
@@ -60,7 +60,7 @@ Before registering an entry, the loader SHALL check that: every
 argument named in a method exists; every rule names an existing
 attribute, a value legal for it, and existing optional arguments; every
 default has the declared type and lies in the allowed set; every
-`weight_of` names an existing non-extensive argument, and the argument
+`weight_for` names an existing non-extensive argument, and the argument
 carrying it is extensive and is required whenever the weighted argument
 is; no name contains `/`. A failure SHALL name the file and the
 interface, and SHALL list the legal names where a name was wrong.
@@ -74,7 +74,7 @@ the file.
 
 #### Scenario: Weight of an unknown argument
 - **WHEN** `turbulent_mixing` declares `air_mass` with
-  `weight_of: mixed_quantiy`
+  `weight_for: mixed_quantiy`
 - **THEN** loading fails with a message naming the file,
   `turbulent_mixing`, `mixed_quantiy`, and the legal argument names
 

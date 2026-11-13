@@ -19,13 +19,13 @@ declare: its gridded dimensions (`xyz` or `xy`), required for a field
 argument; whether it is optional (default not optional); whether it is
 extensive, meaning a per-area quantity (default not extensive); and,
 optionally, the name of another argument whose mass weight it is
-(`weight_of`). Defaults SHALL keep the meaning of an argument declared
+(`weight_for`). Defaults SHALL keep the meaning of an argument declared
 with name and kind only: required, not extensive, no weight.
 
 #### Scenario: Defaults match a name-and-kind-only declaration
 - **WHEN** an argument is declared with a name and a field kind and
   dims `xyz` only
-- **THEN** it reports required, not extensive, and no `weight_of`
+- **THEN** it reports required, not extensive, and no `weight_for`
 
 #### Scenario: A field argument without dims is rejected
 - **WHEN** a field argument is declared without gridded dimensions
@@ -33,7 +33,7 @@ with name and kind only: required, not extensive, no weight.
 
 #### Scenario: Weight relation is retrievable
 - **WHEN** argument `air_mass` is declared extensive with
-  `weight_of: mixed_quantity`
+  `weight_for: mixed_quantity`
 - **THEN** the interface reports `air_mass` as the weight of
   `mixed_quantity`
 
@@ -100,7 +100,7 @@ host a value specific to one of them). An attribute declared with scope
 
 #### Scenario: Host argument that is a weight is rejected
 - **WHEN** an attribute names `host_argument: air_mass`, and `air_mass`
-  is declared `weight_of: mixed_quantity`
+  is declared `weight_for: mixed_quantity`
 - **THEN** the declaration is rejected
 
 ### Requirement: A callback interface declares call scalars
@@ -145,18 +145,18 @@ in Info.
 - **THEN** the declaration is rejected
 
 ### Requirement: Weight declarations are consistent
-An argument carrying `weight_of` SHALL name another declared argument
+An argument carrying `weight_for` SHALL name another declared argument
 that is not extensive. The weight argument itself SHALL be extensive,
 and SHALL be required whenever the weighted argument is required.
 
 #### Scenario: Weight of an unknown argument is rejected
-- **WHEN** `air_mass` declares `weight_of: mixed_quantiy` and no such
+- **WHEN** `air_mass` declares `weight_for: mixed_quantiy` and no such
   argument exists
 - **THEN** the declaration is rejected, naming the unknown argument and
   the declared argument names
 
 #### Scenario: Non-extensive weight is rejected
-- **WHEN** `air_mass` declares `weight_of: mixed_quantity` without being
+- **WHEN** `air_mass` declares `weight_for: mixed_quantity` without being
   extensive
 - **THEN** the declaration is rejected
 

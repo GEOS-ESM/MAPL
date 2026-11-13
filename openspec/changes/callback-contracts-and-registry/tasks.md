@@ -15,7 +15,7 @@
 ## 1. Data model
 
 - [ ] 1.1 `CallbackArgumentSpec`: add `dims`, `optional`, `extensive`,
-  `weight_of` (optional constructor arguments, defaults keep today's
+  `weight_for` (optional constructor arguments, defaults keep today's
   meaning); reject a field argument without dims. Unit tests.
 - [ ] 1.2 New `CallbackAttributeSpec` (type incl. list types, scope,
   required, default, allowed set) with its container and declaration

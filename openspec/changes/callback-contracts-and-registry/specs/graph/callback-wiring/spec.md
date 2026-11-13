@@ -99,7 +99,7 @@ For a `put` argument with `put_flavour: value` whose Handler side is on
 another grid, the framework SHALL take a snapshot `c0` of the
 Invoker-side copy when `get` delivers it, and at `put` SHALL form
 `ΔT = c − c0` on the Invoker grid. When the argument has a weight `w`
-(`weight_of`), it SHALL return `ΔO = R†(mT ΔT) / mO`, where `mT` is the
+(`weight_for`), it SHALL return `ΔO = R†(mT ΔT) / mO`, where `mT` is the
 weight delivered to the Invoker at `get`, `mO` the owner's bound weight
 read at `put`, and `R†` the first-order conservative map back to the
 owner grid; then add `ΔO` to the owner field. Without a weight (an

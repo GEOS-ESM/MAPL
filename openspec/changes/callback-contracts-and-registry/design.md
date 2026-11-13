@@ -81,7 +81,7 @@ The current tree (verified for this change) has these gaps:
 
 **1. Additive data model with defaults that keep today's meaning.**
 `CallbackArgumentSpec` gains `dims`, `optional`, `extensive`,
-`weight_of` as optional constructor arguments. New small value types
+`weight_for` as optional constructor arguments. New small value types
 `CallbackAttributeSpec`, `CallbackCallScalarSpec` and `CallbackRule`
 live in `graph/callback/` beside the existing ones, with gFTL map or
 vector containers in `graph/containers/` following
