@@ -181,11 +181,13 @@ State exports, and today's specs describe a rejection as a report.
   keys, rules after attributes, weights, geometry of weights). It has no
   graph dependency, so it is testable on hand-built States. It runs
   lazily before the first `execute` on each callback State, or when an
-  Invoker asks for its collection. It cannot run earlier because Handlers
-  set attribute values in their own user initialization, and an Invoker's
-  initialization may run before a sibling Handler's. A per-State
-  "checked" flag (in the callback State's Info, under `/MAPL/callback/`)
-  keeps it to one run.
+  Invoker asks for its collection. It cannot run earlier because a
+  Handler cannot set attribute values during `SetServices` at all (the
+  callback State's members have no realized `ESMF_Info` to write to
+  until after every component's `SetServices` has run), and in practice
+  sets them in its own user initialization, which may run after an
+  Invoker's. A per-State "checked" flag (in the callback State's Info,
+  under `/MAPL/callback/`) keeps it to one run.
 
 **10. Message format.** One failure per callback State, header
 `callback contract violation: interface '<name>' (version <v>), Handler

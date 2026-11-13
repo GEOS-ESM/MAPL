@@ -148,11 +148,15 @@ SHALL NOT supply a value for it.
 The full check SHALL run before any method on a callback State is
 executed, and after every component has finished its user
 initialization (the last point at which a Handler may set its attribute
-values). The first method execution on a callback State not yet checked
-SHALL run the check first. An Invoker SHALL also be able to request the
-check for its whole collection explicitly at any point after
-initialization, for example at the start of its first run. A State
-SHALL be checked at most once.
+values). A Handler SHALL NOT set attribute values during `SetServices`:
+the callback State and its members do not exist as realized `ESMF_State`
+objects, with a real `ESMF_Info`, until after `SetServices` completes
+for every component; the earliest a Handler can set an attribute value
+is its own user initialization. The first method execution on a
+callback State not yet checked SHALL run the check first. An Invoker
+SHALL also be able to request the check for its whole collection
+explicitly at any point after initialization, for example at the start
+of its first run. A State SHALL be checked at most once.
 
 #### Scenario: Invoker requests the check explicitly
 - **WHEN** an Invoker requests the conformance check of its collection
