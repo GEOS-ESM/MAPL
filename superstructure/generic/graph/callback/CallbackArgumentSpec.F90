@@ -17,8 +17,11 @@
 ! The remaining attributes are optional and default to the meaning of a
 ! name-and-kind-only declaration: no gridded dims, required, not
 ! extensive, not the weight of another argument. A field argument must
-! declare its gridded dims ('xyz' or 'xy'). weight_of is stored as a name
-! only; checking that it names a real argument needs the whole interface.
+! declare its gridded dims ('xyz' or 'xy'). weight_for is stored as a
+! name only; checking that it names a real argument needs the whole
+! interface. Read as "this argument is the weight for" the named one
+! (not "this argument's weight is"), matching how every other attribute
+! here describes the argument itself.
 !------------------------------------------------------------------------------
 module mapl_CallbackArgumentSpec_mod
    use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag, MAPL_STATEITEM_FIELD, operator(==)
@@ -35,7 +38,7 @@ module mapl_CallbackArgumentSpec_mod
       character(:), allocatable :: dims
       logical :: optional = .false.
       logical :: extensive = .false.
-      character(:), allocatable :: weight_of
+      character(:), allocatable :: weight_for
    contains
       procedure :: get_name => argspec_get_name
       procedure :: get_expected_kind => argspec_get_expected_kind
@@ -43,8 +46,8 @@ module mapl_CallbackArgumentSpec_mod
       procedure :: get_dims => argspec_get_dims
       procedure :: is_optional => argspec_is_optional
       procedure :: is_extensive => argspec_is_extensive
-      procedure :: has_weight_of => argspec_has_weight_of
-      procedure :: get_weight_of => argspec_get_weight_of
+      procedure :: has_weight_for => argspec_has_weight_for
+      procedure :: get_weight_for => argspec_get_weight_for
    end type CallbackArgumentSpec
 
    interface CallbackArgumentSpec
@@ -53,13 +56,13 @@ module mapl_CallbackArgumentSpec_mod
 
 contains
 
-   function new_CallbackArgumentSpec(name, expected_kind, dims, optional, extensive, weight_of, rc) result(spec)
+   function new_CallbackArgumentSpec(name, expected_kind, dims, optional, extensive, weight_for, rc) result(spec)
       character(*), intent(in) :: name
       type(MAPL_StateItem_Flag), intent(in) :: expected_kind
       character(*), optional, intent(in) :: dims
       logical, optional, intent(in) :: optional
       logical, optional, intent(in) :: extensive
-      character(*), optional, intent(in) :: weight_of
+      character(*), optional, intent(in) :: weight_for
       integer, optional, intent(out) :: rc
       type(CallbackArgumentSpec) :: spec
 
@@ -76,7 +79,7 @@ contains
 
       if (present(optional)) spec%optional = optional
       if (present(extensive)) spec%extensive = extensive
-      if (present(weight_of)) spec%weight_of = weight_of
+      if (present(weight_for)) spec%weight_for = weight_for
 
       _RETURN(_SUCCESS)
    end function new_CallbackArgumentSpec
@@ -122,19 +125,19 @@ contains
       is_extensive = this%extensive
    end function argspec_is_extensive
 
-   logical function argspec_has_weight_of(this) result(has_weight_of)
+   logical function argspec_has_weight_for(this) result(has_weight_for)
       class(CallbackArgumentSpec), intent(in) :: this
 
-      has_weight_of = allocated(this%weight_of)
-   end function argspec_has_weight_of
+      has_weight_for = allocated(this%weight_for)
+   end function argspec_has_weight_for
 
    ! Returns '' when this argument is not the weight of another.
-   function argspec_get_weight_of(this) result(weight_of)
+   function argspec_get_weight_for(this) result(weight_for)
       class(CallbackArgumentSpec), intent(in) :: this
-      character(:), allocatable :: weight_of
+      character(:), allocatable :: weight_for
 
-      weight_of = ''
-      if (allocated(this%weight_of)) weight_of = this%weight_of
-   end function argspec_get_weight_of
+      weight_for = ''
+      if (allocated(this%weight_for)) weight_for = this%weight_for
+   end function argspec_get_weight_for
 
 end module mapl_CallbackArgumentSpec_mod

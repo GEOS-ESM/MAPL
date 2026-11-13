@@ -31,8 +31,8 @@ contains
       @assertEqual('xyz', spec%get_dims())
       @assertFalse(spec%is_optional())
       @assertFalse(spec%is_extensive())
-      @assertFalse(spec%has_weight_of())
-      @assertEqual('', spec%get_weight_of())
+      @assertFalse(spec%has_weight_for())
+      @assertEqual('', spec%get_weight_for())
    end subroutine test_defaults_match_name_and_kind_only
 
    ! A non-field argument keeps its old meaning: no dims needed.
@@ -47,7 +47,7 @@ contains
       @assertEqual('', spec%get_dims())
       @assertFalse(spec%is_optional())
       @assertFalse(spec%is_extensive())
-      @assertFalse(spec%has_weight_of())
+      @assertFalse(spec%has_weight_for())
    end subroutine test_bundle_argument_needs_no_dims
 
    @test
@@ -86,11 +86,11 @@ contains
       integer :: status
 
       spec = CallbackArgumentSpec('air_mass', MAPL_STATEITEM_FIELD, dims='xyz', &
-           extensive=.true., weight_of='mixed_quantity', rc=status)
+           extensive=.true., weight_for='mixed_quantity', rc=status)
       @assertEqual(0, status)
       @assertTrue(spec%is_extensive())
-      @assertTrue(spec%has_weight_of())
-      @assertEqual('mixed_quantity', spec%get_weight_of())
+      @assertTrue(spec%has_weight_for())
+      @assertEqual('mixed_quantity', spec%get_weight_for())
       @assertFalse(spec%is_optional())
    end subroutine test_weight_relation_retrievable
 
