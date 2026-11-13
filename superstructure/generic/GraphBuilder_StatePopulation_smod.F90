@@ -16,11 +16,19 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_StatePopulation_smod
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
-   use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
+   use mapl_VariableSpecVector_mod, only: VariableSpecVector, &
+        VariableSpecVectorIterator, operator(/=)
    use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
    use mapl_ESMF_Utilities_mod, only: get_substate
    use mapl_ErrorHandling_mod
    implicit none(type, external)
+
+   ! A declared item paired with its node in the graph; id_ptr is
+   ! unassociated if the graph has no node for it.
+   type :: SpecEntry
+      type(VariableSpec), pointer :: var_spec => null()
+      type(NodeId), pointer :: id_ptr => null()
+   end type SpecEntry
 
 contains
 
@@ -72,9 +80,7 @@ contains
       type(ComponentGraph), pointer :: graph
       type(ComponentGraph), pointer :: child_graph
       type(DependencyNetwork), pointer :: net
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-      type(NodeId), pointer :: id_ptr
+      type(SpecEntry), allocatable :: entries(:)
       character(:), allocatable :: child_name
       integer :: n, i
       type(OuterMetaComponent), pointer :: child_meta
@@ -91,20 +97,14 @@ contains
 
       ! Same-component case: item connected entirely to itself.
       this_spec => this%get_component_spec()
-      associate (e => this_spec%var_specs%ftn_end())
-         iter = this_spec%var_specs%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            var_spec => iter%of()
-            if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT .or. &
-                 var_spec%state_intent == ESMF_STATEINTENT_EXPORT .or. &
-                 var_spec%state_intent == ESMF_STATEINTENT_INTERNAL)) cycle
-            id_ptr => graph%get_resource_index(item_key(var_spec%state_intent, var_spec%short_name))
-            call populate_one(graph, net, multi_state, id_ptr, &
-                 var_spec%state_intent, var_spec%short_name, only_own, &
-                 .true., _RC)
-         end do
-      end associate
+      call collect_spec_entries(graph, this_spec%var_specs, &
+           want_import=.true., want_export=.true., want_internal=.true., &
+           entries=entries)
+      do i = 1, size(entries)
+         call populate_one(graph, net, multi_state, entries(i)%id_ptr, &
+              entries(i)%var_spec%state_intent, &
+              entries(i)%var_spec%short_name, only_own, .true., _RC)
+      end do
 
       ! Export ports: a re-exported or propagated item is an export under the
       ! port's name that no declared item names.
@@ -138,9 +138,8 @@ contains
       type(ComponentSpec), pointer :: this_spec
       type(ComponentGraph), pointer :: graph
       type(DependencyNetwork), pointer :: net
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-      type(NodeId), pointer :: id_ptr
+      type(SpecEntry), allocatable :: entries(:)
+      integer :: i
 
       _RETURN_UNLESS(graph_populates_user_states())
 
@@ -148,19 +147,14 @@ contains
       net => graph%get_network(graph%get_forward_network_id())
 
       this_spec => this%get_component_spec()
-      associate (e => this_spec%var_specs%ftn_end())
-         iter = this_spec%var_specs%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            var_spec => iter%of()
-            if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT .or. &
-                 var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) cycle
-            id_ptr => graph%get_resource_index(item_key(var_spec%state_intent, var_spec%short_name))
-            call populate_one(graph, net, multi_state, id_ptr, &
-                 var_spec%state_intent, var_spec%short_name, .false., &
-                 .true., _RC)
-         end do
-      end associate
+      call collect_spec_entries(graph, this_spec%var_specs, &
+           want_import=.true., want_export=.true., want_internal=.false., &
+           entries=entries)
+      do i = 1, size(entries)
+         call populate_one(graph, net, multi_state, entries(i)%id_ptr, &
+              entries(i)%var_spec%state_intent, &
+              entries(i)%var_spec%short_name, .false., .true., _RC)
+      end do
 
       call populate_export_ports(graph, multi_state, .false., .true., _RC)
 
@@ -182,11 +176,9 @@ contains
       integer :: status
       type(ComponentSpec), pointer :: child_spec
       type(ComponentGraph), pointer :: child_graph
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-      type(NodeId), pointer :: id_ptr
+      type(SpecEntry), allocatable :: entries(:)
       character(:), allocatable :: child_name
-      integer :: n, i
+      integer :: n, i, k
       type(OuterMetaComponent), pointer :: child_meta
       type(GriddedComponentDriver), pointer :: child_driver
       type(MultiState) :: child_states
@@ -199,19 +191,14 @@ contains
          child_meta => owner%get_child_outer_meta(child_name, _RC)
          child_driver => child_meta%get_user_gc_driver()
          child_states = child_driver%get_states()
-         associate (e => child_spec%var_specs%ftn_end())
-            iter = child_spec%var_specs%ftn_begin()
-            do while (iter /= e)
-               call iter%next()
-               var_spec => iter%of()
-               if (.not. (var_spec%state_intent == ESMF_STATEINTENT_IMPORT .or. &
-                    var_spec%state_intent == ESMF_STATEINTENT_EXPORT)) cycle
-               id_ptr => child_graph%get_resource_index(item_key(var_spec%state_intent, var_spec%short_name))
-               call populate_one(graph, net, child_states, id_ptr, &
-                    var_spec%state_intent, var_spec%short_name, .false., &
-                    direct, _RC)
-            end do
-         end associate
+         call collect_spec_entries(child_graph, child_spec%var_specs, &
+              want_import=.true., want_export=.true., want_internal=.false., &
+              entries=entries)
+         do k = 1, size(entries)
+            call populate_one(graph, net, child_states, entries(k)%id_ptr, &
+                 entries(k)%var_spec%state_intent, &
+                 entries(k)%var_spec%short_name, .false., direct, _RC)
+         end do
          if (graph_populates_user_states()) then
             call populate_descendants(child_meta, graph, net, .false., _RC)
          end if
@@ -246,11 +233,9 @@ contains
       type(NodeId) :: item_id, field_node_id
       logical :: found
       type(ESMF_Field) :: field
-      type(ESMF_Field) :: alias
-      type(ESMF_FieldBundle) :: bundle, bundle_alias
+      type(ESMF_FieldBundle) :: bundle
       type(ESMF_StateItem_Flag) :: item_kind
       type(ESMF_State) :: substate
-      type(GraphStateItem) :: alias_handle
       logical :: owns, created_only
       character(:), allocatable :: inner_name
 
@@ -318,24 +303,13 @@ contains
       call get_target_substate(multi_state, state_intent, short_name, &
            substate, inner_name, _RC)
 
-      ! Add-or-replace by the alias's stable name: idempotent across the
-      ! two ACCEPT_TRANSFER passes.
-      if (item_kind == ESMF_STATEITEM_FIELDBUNDLE) then
-         bundle_alias = MAPL_NamedAlias(bundle, name=inner_name, _RC)
-         call ESMF_StateAddReplace(substate, [bundle_alias], _RC)
-         call alias_handle%set(bundle_alias, _RC)
-      else
-         alias = MAPL_NamedAlias(field, name=inner_name, _RC)
-         call ESMF_StateAddReplace(substate, [alias], _RC)
-         call alias_handle%set(alias, _RC)
-      end if
-
       ! Per-alias keys (restart_mode, long_name) come from item_id's own
       ! descriptor, not field_node_id's: each declared item keeps its own
       ! values regardless of which field backs it. Field-wide keys belong to
       ! the exporting item and are not touched here. For a bundle alias
       ! sync_alias_info runs and does nothing.
-      call sync_alias_info(graph, item_id, inner_name, alias_handle, _RC)
+      call insert_alias(graph, item_id, substate, inner_name, item_kind, &
+           field, bundle, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine populate_one
@@ -395,11 +369,10 @@ contains
 
       integer :: status
       logical :: found
-      type(ESMF_Field) :: field, alias
-      type(ESMF_FieldBundle) :: bundle, bundle_alias
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
       type(ESMF_StateItem_Flag) :: item_kind
       type(ESMF_State) :: substate
-      type(GraphStateItem) :: alias_handle
       character(:), allocatable :: inner_name
 
       call get_item_if_materialized(graph, node_id, field, bundle, &
@@ -417,6 +390,32 @@ contains
       call get_target_substate(multi_state, ESMF_STATEINTENT_EXPORT, &
            port_name, substate, inner_name, _RC)
 
+      call insert_alias(graph, node_id, substate, inner_name, item_kind, &
+           field, bundle, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine populate_export_port
+
+   ! Adds-or-replaces a named alias of the item's Field or FieldBundle in
+   ! substate, then syncs the per-alias keys from node_id's descriptor.
+   ! Keyed by the alias's stable name, so it is idempotent across the two
+   ! ACCEPT_TRANSFER passes.
+   subroutine insert_alias(graph, node_id, substate, inner_name, item_kind, &
+        field, bundle, rc)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: node_id
+      type(ESMF_State), intent(inout) :: substate
+      character(*), intent(in) :: inner_name
+      type(ESMF_StateItem_Flag), intent(in) :: item_kind
+      type(ESMF_Field), intent(in) :: field
+      type(ESMF_FieldBundle), intent(in) :: bundle
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Field) :: alias
+      type(ESMF_FieldBundle) :: bundle_alias
+      type(GraphStateItem) :: alias_handle
+
       if (item_kind == ESMF_STATEITEM_FIELDBUNDLE) then
          bundle_alias = MAPL_NamedAlias(bundle, name=inner_name, _RC)
          call ESMF_StateAddReplace(substate, [bundle_alias], _RC)
@@ -429,7 +428,45 @@ contains
       call sync_alias_info(graph, node_id, inner_name, alias_handle, _RC)
 
       _RETURN(_SUCCESS)
-   end subroutine populate_export_port
+   end subroutine insert_alias
+
+   ! The declared items of var_specs whose intent is selected, each with its
+   ! node in `graph` (unassociated id_ptr if none), in declaration order.
+   subroutine collect_spec_entries(graph, var_specs, want_import, &
+        want_export, want_internal, entries)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(VariableSpecVector), target, intent(in) :: var_specs
+      logical, intent(in) :: want_import, want_export, want_internal
+      type(SpecEntry), allocatable, intent(out) :: entries(:)
+
+      type(VariableSpecVectorIterator) :: iter
+      type(VariableSpec), pointer :: var_spec
+      type(SpecEntry), allocatable :: buffer(:)
+      integer :: n
+
+      allocate(buffer(var_specs%size()))
+      n = 0
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            if (.not. ((want_import .and. &
+                 var_spec%state_intent == ESMF_STATEINTENT_IMPORT) .or. &
+                 (want_export .and. &
+                 var_spec%state_intent == ESMF_STATEINTENT_EXPORT) .or. &
+                 (want_internal .and. &
+                 var_spec%state_intent == ESMF_STATEINTENT_INTERNAL))) cycle
+            n = n + 1
+            buffer(n)%var_spec => var_spec
+            buffer(n)%id_ptr => graph%get_resource_index( &
+                 item_key(var_spec%state_intent, var_spec%short_name))
+         end do
+      end associate
+
+      allocate(entries(n))
+      entries(:) = buffer(1:n)
+   end subroutine collect_spec_entries
 
    ! The State a name is inserted into: the part of the name before the last
    ! slash is a substate (created if missing), the rest the inner name.
@@ -486,27 +523,21 @@ contains
       integer :: status
       type(ComponentSpec), pointer :: spec
       type(ComponentGraph), pointer :: graph
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
-      type(NodeId), pointer :: id_ptr
+      type(SpecEntry), allocatable :: entries(:)
+      integer :: i
 
       _RETURN_UNLESS(graph_populates_user_states())
 
       graph => this%get_component_graph()
       spec => this%get_component_spec()
-      associate (e => spec%var_specs%ftn_end())
-         iter = spec%var_specs%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            var_spec => iter%of()
-            if (.not. (var_spec%state_intent == &
-                 ESMF_STATEINTENT_INTERNAL)) cycle
-            id_ptr => graph%get_resource_index( &
-                 item_key(var_spec%state_intent, var_spec%short_name))
-            if (.not. associated(id_ptr)) cycle
-            call prepare_created_field(graph, id_ptr, .true., _RC)
-         end do
-      end associate
+      call collect_spec_entries(graph, spec%var_specs, &
+           want_import=.false., want_export=.false., want_internal=.true., &
+           entries=entries)
+      do i = 1, size(entries)
+         ! prepare_created_field takes a non-pointer NodeId.
+         if (.not. associated(entries(i)%id_ptr)) cycle
+         call prepare_created_field(graph, entries(i)%id_ptr, .true., _RC)
+      end do
 
       _RETURN(_SUCCESS)
    end subroutine graphbuilder_allocate_internals

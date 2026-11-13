@@ -2490,6 +2490,20 @@ path uses yet. Owner decisions:
   refactor: DOT and JSON output byte-identical; no test changes;
   ESSENTIAL NAG 72/72 and gfortran 72/72 (meta's own runs, on the merged
   commit).
+  **Status:** R8 done (in-house, not outsourced): in
+  `GraphBuilder_StatePopulation_smod.F90`, `collect_spec_entries` (returning
+  an array of the private `SpecEntry` type: var_spec pointer plus node-id
+  pointer) folds the four var_spec intent-filter loops in
+  `graphbuilder_populate_state`, `graphbuilder_populate_outer_state`,
+  `populate_descendants` and `graphbuilder_allocate_internals`; `insert_alias`
+  folds the alias add-or-replace, `alias_handle%set` and `sync_alias_info`
+  sequence at the two call sites in `populate_one` and
+  `populate_export_port`. Pure refactor, no behavior change, no test changes.
+  The file got about 30 lines longer (the helpers and the new type cost more
+  than the duplicated blocks they replace). ESSENTIAL NAG 72/72 and gfortran
+  72/72 (meta's own runs, on the tree as committed, after the review nits:
+  comment placement, keyword arguments at the `collect_spec_entries` calls,
+  and a continuation-line indentation fix a second review pass caught).
 - Keep the callback stack and the inout borrower (they are the base of
   the SERVICE-to-callbacks migration). The run-phase `MethodGraphNode`
   (built at every connect, never invoked) is under a follow-up check in
