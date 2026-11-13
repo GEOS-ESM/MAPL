@@ -46,7 +46,7 @@
 ! A cross-component edge declared at THIS component (both endpoints owned by
 ! children) is single-ComponentGraph data: this component's DependencyNetwork
 ! stores it (ComponentGraph's allowed_foreign_node admits it) and it is
-! exported; see export_graph_dot. That is distinct from stitching two
+! exported; see collect_graph. That is distinct from stitching two
 ! separate ComponentGraph instances, which is not implemented.
 !------------------------------------------------------------------------------
 module mapl_GraphExport_mod
@@ -76,6 +76,24 @@ module mapl_GraphExport_mod
 
    integer, parameter :: GRAPH_EXPORT_SCHEMA_VERSION = 1
 
+   ! One node or edge as both exporters see it, before format-specific escaping.
+   type :: ExportNode
+      character(:), allocatable :: id
+      character(:), allocatable :: label
+      character(:), allocatable :: kind
+      logical :: has_payload_kind = .false.
+      character(:), allocatable :: payload_kind
+      logical :: has_revision = .false.
+      character(:), allocatable :: revision
+   end type ExportNode
+
+   type :: ExportEdge
+      character(:), allocatable :: source
+      character(:), allocatable :: target
+      character(:), allocatable :: network
+      character(:), allocatable :: port
+   end type ExportEdge
+
 contains
 
    ! -- public exporters ----------------------------------------------------
@@ -88,6 +106,109 @@ contains
       integer, optional, intent(out) :: rc
       character(:), allocatable :: dot_text
 
+      type(ExportNode), allocatable :: nodes(:)
+      type(ExportEdge), allocatable :: edges(:)
+      character(:), allocatable :: attrs
+      integer :: i
+      integer :: status
+
+      call collect_graph(graph, include_revisions, label_map, nodes, edges, _RC)
+
+      dot_text = 'digraph ComponentGraph {' // NEW_LINE('a')
+      dot_text = dot_text // '  // schema_version=' // int_to_string(GRAPH_EXPORT_SCHEMA_VERSION) // NEW_LINE('a')
+      dot_text = dot_text // '  rankdir=LR;' // NEW_LINE('a')
+
+      do i = 1, size(nodes)
+         associate (n => nodes(i))
+            attrs = 'label="' // dot_escape(n%label) // '", kind="' // dot_escape(n%kind) // '"'
+            if (n%has_payload_kind) attrs = attrs // ', payload="' // dot_escape(n%payload_kind) // '"'
+            if (n%has_revision) attrs = attrs // ', revision="' // dot_escape(n%revision) // '"'
+            dot_text = dot_text // '  "' // dot_escape(n%id) // '" [' // attrs // '];' // NEW_LINE('a')
+         end associate
+      end do
+
+      do i = 1, size(edges)
+         associate (e => edges(i))
+            attrs = 'network="' // dot_escape(e%network) // '"'
+            if (len(e%port) > 0) attrs = attrs // ', label="' // dot_escape(e%port) // '"'
+            dot_text = dot_text // '  "' // dot_escape(e%source) // '" -> "' // &
+                        dot_escape(e%target) // '" [' // attrs // '];' // NEW_LINE('a')
+         end associate
+      end do
+
+      dot_text = dot_text // '}' // NEW_LINE('a')
+
+      _RETURN(_SUCCESS)
+   end function export_graph_dot
+
+   ! Secondary JSON output, same content as DOT.
+   function export_graph_json(graph, include_revisions, label_map, rc) result(json_text)
+      class(ComponentGraph), target, intent(in) :: graph
+      logical, optional, intent(in) :: include_revisions
+      type(NodeIdLabelMap), optional, target, intent(in) :: label_map
+      integer, optional, intent(out) :: rc
+      character(:), allocatable :: json_text
+
+      type(ExportNode), allocatable :: nodes(:)
+      type(ExportEdge), allocatable :: edges(:)
+      character(:), allocatable :: entry
+      integer :: i
+      integer :: status
+
+      call collect_graph(graph, include_revisions, label_map, nodes, edges, _RC)
+
+      json_text = '{' // NEW_LINE('a')
+      json_text = json_text // '  "schema_version": ' // int_to_string(GRAPH_EXPORT_SCHEMA_VERSION) // ',' // NEW_LINE('a')
+      json_text = json_text // '  "nodes": [' // NEW_LINE('a')
+
+      do i = 1, size(nodes)
+         associate (n => nodes(i))
+            entry = '    {"id": "' // json_escape(n%id) // '", "kind": "' // json_escape(n%kind) // '"'
+            if (n%has_payload_kind) entry = entry // ', "payload_kind": "' // json_escape(n%payload_kind) // '"'
+            if (n%has_revision) entry = entry // ', "revision": "' // json_escape(n%revision) // '"'
+            ! JSON emits "label" only when the caller supplied a label_map; DOT always does.
+            if (present(label_map)) entry = entry // ', "label": "' // json_escape(n%label) // '"'
+            entry = entry // '}'
+         end associate
+         if (i > 1) json_text = json_text // ',' // NEW_LINE('a')
+         json_text = json_text // entry
+      end do
+
+      json_text = json_text // NEW_LINE('a') // '  ],' // NEW_LINE('a')
+      json_text = json_text // '  "edges": [' // NEW_LINE('a')
+
+      do i = 1, size(edges)
+         associate (e => edges(i))
+            entry = '    {"source": "' // json_escape(e%source) // &
+                     '", "target": "' // json_escape(e%target) // &
+                     '", "network": "' // json_escape(e%network) // '"'
+            if (len(e%port) > 0) entry = entry // ', "port": "' // json_escape(e%port) // '"'
+            entry = entry // '}'
+         end associate
+         if (i > 1) json_text = json_text // ',' // NEW_LINE('a')
+         json_text = json_text // entry
+      end do
+
+      json_text = json_text // NEW_LINE('a') // '  ]' // NEW_LINE('a')
+      json_text = json_text // '}' // NEW_LINE('a')
+
+      _RETURN(_SUCCESS)
+   end function export_graph_json
+
+   ! -- shared node/edge enumeration ----------------------------------------
+
+   ! Walks the graph once into format-neutral records so both exporters see
+   ! the same nodes and edges in the same order. Node order is NodeIdSet
+   ! order; edges are network-major, then source node, then successor.
+   ! has_revision already folds in include_revisions.
+   subroutine collect_graph(graph, include_revisions, label_map, nodes, edges, rc)
+      class(ComponentGraph), target, intent(in) :: graph
+      logical, optional, intent(in) :: include_revisions
+      type(NodeIdLabelMap), optional, target, intent(in) :: label_map
+      type(ExportNode), allocatable, intent(out) :: nodes(:)
+      type(ExportEdge), allocatable, intent(out) :: edges(:)
+      integer, optional, intent(out) :: rc
+
       logical :: want_revisions
       type(NodeIdSet), target :: node_ids
       type(NodeIdSetIterator) :: node_iter
@@ -95,22 +216,16 @@ contains
       type(DependencyNetworkIdSetIterator) :: net_iter
       type(NodeId) :: id, target_id
       class(GraphNode), pointer :: node
-      character(:), allocatable :: kind_label, payload_kind_label, revision_label
-      character(:), allocatable :: attrs, edge_attrs, port_label
-      character(:), allocatable :: node_label
-      logical :: has_payload_kind, has_revision
       type(DependencyNetworkId) :: network_id
       type(DependencyNetwork), pointer :: network
       type(NodeIdSet), target :: successors
       type(NodeIdSetIterator) :: succ_iter
+      type(ExportEdge) :: edge
+      integer :: i
       integer :: status
 
       want_revisions = .false.
       if (present(include_revisions)) want_revisions = include_revisions
-
-      dot_text = 'digraph ComponentGraph {' // NEW_LINE('a')
-      dot_text = dot_text // '  // schema_version=' // int_to_string(GRAPH_EXPORT_SCHEMA_VERSION) // NEW_LINE('a')
-      dot_text = dot_text // '  rankdir=LR;' // NEW_LINE('a')
 
       network_ids = graph%get_network_ids()
 
@@ -132,6 +247,8 @@ contains
          call union_into(node_ids, network%get_referenced_ids())
       end do
 
+      allocate(nodes(node_ids%size()))
+      i = 0
       node_iter = node_ids%ftn_begin()
       do while (node_iter /= node_ids%ftn_end())
          call node_iter%next()
@@ -139,18 +256,17 @@ contains
          node => graph%get_node(id)
          _ASSERT(associated(node), 'GraphExport: enumerated NodeId is not retrievable')
 
-         call describe_node(node, kind_label, has_payload_kind, payload_kind_label, &
-                              has_revision, revision_label, _RC)
-
-         call resolve_node_label(label_map, id, node_label)
-
-         attrs = 'label="' // dot_escape(node_label) // '", kind="' // dot_escape(kind_label) // '"'
-         if (has_payload_kind) attrs = attrs // ', payload="' // dot_escape(payload_kind_label) // '"'
-         if (want_revisions .and. has_revision) attrs = attrs // ', revision="' // dot_escape(revision_label) // '"'
-
-         dot_text = dot_text // '  "' // dot_escape(id%to_string()) // '" [' // attrs // '];' // NEW_LINE('a')
+         i = i + 1
+         associate (n => nodes(i))
+            n%id = id%to_string()
+            call describe_node(node, n%kind, n%has_payload_kind, n%payload_kind, &
+                                 n%has_revision, n%revision, _RC)
+            n%has_revision = want_revisions .and. n%has_revision
+            call resolve_node_label(label_map, id, n%label)
+         end associate
       end do
 
+      allocate(edges(0))
       net_iter = network_ids%ftn_begin()
       do while (net_iter /= network_ids%ftn_end())
          call net_iter%next()
@@ -170,137 +286,17 @@ contains
                call succ_iter%next()
                target_id = succ_iter%of()
 
-               port_label = find_port_label(graph, network_id, id, target_id, _RC)
-
-               edge_attrs = 'network="' // dot_escape(network_id%to_string()) // '"'
-               if (len(port_label) > 0) edge_attrs = edge_attrs // ', label="' // dot_escape(port_label) // '"'
-
-               dot_text = dot_text // '  "' // dot_escape(id%to_string()) // '" -> "' // &
-                           dot_escape(target_id%to_string()) // '" [' // edge_attrs // '];' // NEW_LINE('a')
+               edge%source = id%to_string()
+               edge%target = target_id%to_string()
+               edge%network = network_id%to_string()
+               edge%port = find_port_label(graph, network_id, id, target_id, _RC)
+               edges = [edges, edge]
             end do
          end do
       end do
 
-      dot_text = dot_text // '}' // NEW_LINE('a')
-
       _RETURN(_SUCCESS)
-   end function export_graph_dot
-
-   ! Secondary JSON output, same content as DOT.
-   function export_graph_json(graph, include_revisions, label_map, rc) result(json_text)
-      class(ComponentGraph), target, intent(in) :: graph
-      logical, optional, intent(in) :: include_revisions
-      type(NodeIdLabelMap), optional, target, intent(in) :: label_map
-      integer, optional, intent(out) :: rc
-      character(:), allocatable :: json_text
-
-      logical :: want_revisions
-      type(NodeIdSet), target :: node_ids
-      type(NodeIdSetIterator) :: node_iter
-      type(DependencyNetworkIdSet), target :: network_ids
-      type(DependencyNetworkIdSetIterator) :: net_iter
-      type(NodeId) :: id, target_id
-      class(GraphNode), pointer :: node
-      character(:), allocatable :: kind_label, payload_kind_label, revision_label
-      character(:), allocatable :: entry, port_label
-      character(:), allocatable :: node_label
-      logical :: has_payload_kind, has_revision
-      logical :: first_entry
-      type(DependencyNetworkId) :: network_id
-      type(DependencyNetwork), pointer :: network
-      type(NodeIdSet), target :: successors
-      type(NodeIdSetIterator) :: succ_iter
-      integer :: status
-
-      want_revisions = .false.
-      if (present(include_revisions)) want_revisions = include_revisions
-
-      json_text = '{' // NEW_LINE('a')
-      json_text = json_text // '  "schema_version": ' // int_to_string(GRAPH_EXPORT_SCHEMA_VERSION) // ',' // NEW_LINE('a')
-      json_text = json_text // '  "nodes": [' // NEW_LINE('a')
-
-      network_ids = graph%get_network_ids()
-
-      ! As in export_graph_dot: union in every network's get_referenced_ids() so
-      ! foreign-but-referenced endpoints are declared and reachable by the edge
-      ! walk instead of silently dropped.
-      node_ids = graph%get_node_ids()
-      net_iter = network_ids%ftn_begin()
-      do while (net_iter /= network_ids%ftn_end())
-         call net_iter%next()
-         network_id = net_iter%of()
-         network => graph%get_network(network_id)
-         _ASSERT(associated(network), 'GraphExport: enumerated DependencyNetworkId is not retrievable')
-         call union_into(node_ids, network%get_referenced_ids())
-      end do
-
-      first_entry = .true.
-      node_iter = node_ids%ftn_begin()
-      do while (node_iter /= node_ids%ftn_end())
-         call node_iter%next()
-         id = node_iter%of()
-         node => graph%get_node(id)
-         _ASSERT(associated(node), 'GraphExport: enumerated NodeId is not retrievable')
-
-         call describe_node(node, kind_label, has_payload_kind, payload_kind_label, &
-                              has_revision, revision_label, _RC)
-
-         call resolve_node_label(label_map, id, node_label)
-
-         entry = '    {"id": "' // json_escape(id%to_string()) // '", "kind": "' // json_escape(kind_label) // '"'
-         if (has_payload_kind) entry = entry // ', "payload_kind": "' // json_escape(payload_kind_label) // '"'
-         if (want_revisions .and. has_revision) entry = entry // ', "revision": "' // json_escape(revision_label) // '"'
-         if (present(label_map)) entry = entry // ', "label": "' // json_escape(node_label) // '"'
-         entry = entry // '}'
-
-         if (.not. first_entry) json_text = json_text // ',' // NEW_LINE('a')
-         json_text = json_text // entry
-         first_entry = .false.
-      end do
-
-      json_text = json_text // NEW_LINE('a') // '  ],' // NEW_LINE('a')
-      json_text = json_text // '  "edges": [' // NEW_LINE('a')
-
-      first_entry = .true.
-      net_iter = network_ids%ftn_begin()
-      do while (net_iter /= network_ids%ftn_end())
-         call net_iter%next()
-         network_id = net_iter%of()
-         network => graph%get_network(network_id)
-         _ASSERT(associated(network), 'GraphExport: enumerated DependencyNetworkId is not retrievable')
-
-         node_iter = node_ids%ftn_begin()
-         do while (node_iter /= node_ids%ftn_end())
-            call node_iter%next()
-            id = node_iter%of()
-            if (.not. network%has_successors(id)) cycle
-            successors = network%get_successors(id)
-
-            succ_iter = successors%ftn_begin()
-            do while (succ_iter /= successors%ftn_end())
-               call succ_iter%next()
-               target_id = succ_iter%of()
-
-               port_label = find_port_label(graph, network_id, id, target_id, _RC)
-
-               entry = '    {"source": "' // json_escape(id%to_string()) // &
-                        '", "target": "' // json_escape(target_id%to_string()) // &
-                        '", "network": "' // json_escape(network_id%to_string()) // '"'
-               if (len(port_label) > 0) entry = entry // ', "port": "' // json_escape(port_label) // '"'
-               entry = entry // '}'
-
-               if (.not. first_entry) json_text = json_text // ',' // NEW_LINE('a')
-               json_text = json_text // entry
-               first_entry = .false.
-            end do
-         end do
-      end do
-
-      json_text = json_text // NEW_LINE('a') // '  ]' // NEW_LINE('a')
-      json_text = json_text // '}' // NEW_LINE('a')
-
-      _RETURN(_SUCCESS)
-   end function export_graph_json
+   end subroutine collect_graph
 
    ! -- per-node-kind metadata --
 
