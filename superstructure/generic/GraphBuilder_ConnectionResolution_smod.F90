@@ -123,11 +123,11 @@ contains
    end function is_wildcard_member_shape
 
    ! Read-only counterpart of resolve_wildcard_destination's matching loop,
-   ! shared by the "already resolved?" checks (check_one,
-   ! connection_pt_pair_resolves). The exact-name export lookup cannot work
-   ! for a WILDCARD import: its short name is the regex pattern itself. The
-   ! pattern is rebuilt here with EXPORT intent because the connection's own
-   ! dst_pt%v_pt is IMPORT-intent and so never matches an export.
+   ! used by the "already resolved?" check (source_satisfies_import). The
+   ! exact-name export lookup cannot work for a WILDCARD import: its short
+   ! name is the regex pattern itself. The pattern is rebuilt here with
+   ! EXPORT intent because the connection's own dst_pt%v_pt is IMPORT-intent
+   ! and so never matches an export.
    function wildcard_import_has_match(owner, src_component_name, node, rc) result(has_match)
       class(OuterMetaComponent), target, intent(inout) :: owner
       character(*), intent(in) :: src_component_name
@@ -159,6 +159,96 @@ contains
 
       _RETURN(_SUCCESS)
    end function wildcard_import_has_match
+
+   ! The one loop over a component's declared connections for ordinary
+   ! resolution. Only MatchConnection and SimpleConnection reach op; other
+   ! subtypes (e.g. ReexportConnection) are skipped (some callers handle them
+   ! separately, e.g. the reexport loop; connection_resolves_import skips them
+   ! deliberately, so mirroring is not wrongly suppressed).
+   subroutine for_each_connection_pair(owner, op, rc)
+      class(OuterMetaComponent), target, intent(inout) :: owner
+      procedure(I_pair_op) :: op
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ComponentSpec), pointer :: comp_spec
+      type(ConnectionVectorIterator) :: iter
+      class(Connection), pointer :: c
+      logical :: is_pair, done
+
+      comp_spec => owner%get_component_spec()
+
+      associate (e => comp_spec%connections%ftn_end())
+         iter = comp_spec%connections%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            c => iter%of()
+            select type (c)
+            class is (MatchConnection)
+               is_pair = .true.
+            class is (SimpleConnection)
+               is_pair = .true.
+            class default
+               is_pair = .false.
+            end select
+            if (.not. is_pair) cycle
+            call op(c, done, _RC)
+            if (done) exit
+         end do
+      end associate
+
+      _RETURN(_SUCCESS)
+   end subroutine for_each_connection_pair
+
+   ! Read-only: does conn's source satisfy the destination import node? A
+   ! callback destination needs at least one interface match, a WILDCARD one
+   ! a regex match; any other (an inout borrower included) an exact-name export.
+   ! The caller may pass src_meta already resolved; otherwise it is resolved
+   ! only for the exact-name lookup, so a bad source path does not fail there.
+   logical function source_satisfies_import(owner, conn, node, src_meta, rc) result(satisfied)
+      class(OuterMetaComponent), target, intent(inout) :: owner
+      class(Connection), intent(in) :: conn
+      class(StateItemNode), target, intent(in) :: node
+      class(OuterMetaComponent), target, optional, intent(inout) :: src_meta
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ConnectionPt) :: src_pt
+      type(CallbackInterfaceId) :: callback_interface_id
+      type(QualifiedExportEntry), allocatable :: callback_matches(:)
+      type(StateItemDescriptor), pointer :: node_descriptor
+      class(OuterMetaComponent), pointer :: lookup_meta
+
+      satisfied = .false.
+      src_pt = conn%get_source()
+
+      ! Checked against the flattened namespace, not by exact name.
+      ! resolve_callback_import never mutates the graph.
+      ! NAG rejects `f()%method()` on a function result; use a local temporary.
+      callback_interface_id = node%get_callback_interface_id()
+      if (callback_interface_id%is_valid()) then
+         callback_matches = resolve_callback_import(owner, src_pt, callback_interface_id, rc=status)
+         _VERIFY(status)
+         satisfied = (size(callback_matches) > 0)
+         _RETURN(_SUCCESS)
+      end if
+
+      ! The exact-name find_export_node below can never match a regex short name.
+      node_descriptor => node%get_descriptor()
+      if (node_descriptor%get_declared_item_type() == MAPL_STATEITEM_WILDCARD) then
+         satisfied = wildcard_import_has_match(owner, src_pt%component_name, node, _RC)
+         _RETURN(_SUCCESS)
+      end if
+
+      if (present(src_meta)) then
+         lookup_meta => src_meta
+      else
+         lookup_meta => resolve_qualified_component(owner, src_pt%component_name, _RC)
+      end if
+      satisfied = associated(find_export_node(lookup_meta, effective_source_name(conn, node)))
+
+      _RETURN(_SUCCESS)
+   end function source_satisfies_import
 
    ! Read-only counterpart of resolve_match_connection() below: same
    ! destination-import filtering and same-name export existence check,
@@ -197,40 +287,12 @@ contains
          integer, optional, intent(out) :: rc
 
          integer :: status
-         logical :: has_export
-         logical :: has_match
-         type(CallbackInterfaceId) :: callback_interface_id
-         type(QualifiedExportEntry), allocatable :: callback_matches(:)
-         type(StateItemDescriptor), pointer :: node_descriptor
+         logical :: satisfied
 
-         ! A destination declaring an expected callback interface is checked
-         ! against the flattened namespace, not by exact name. Read-only:
-         ! resolve_callback_import never mutates the graph.
-         !
-         ! NAG rejects `f()%method()` on a function result; use a local temporary.
-         callback_interface_id = node%get_callback_interface_id()
-         if (callback_interface_id%is_valid()) then
-            callback_matches = resolve_callback_import(this, src_pt, callback_interface_id, rc=status)
-            _VERIFY(status)
-            if (size(callback_matches) == 0) then
-               call push_entry(unresolved, dst_pt, node)
-            end if
-            _RETURN(_SUCCESS)
-         end if
-
-         ! WILDCARD destinations use wildcard_import_has_match: the exact-name
-         ! find_export_node fallback below can never match a regex short name.
-         node_descriptor => node%get_descriptor()
-         if (node_descriptor%get_declared_item_type() == MAPL_STATEITEM_WILDCARD) then
-            has_match = wildcard_import_has_match(this, src_pt%component_name, node, _RC)
-            if (.not. has_match) then
-               call push_entry(unresolved, dst_pt, node)
-            end if
-            _RETURN(_SUCCESS)
-         end if
-
-         has_export = associated(find_export_node(src_meta, effective_source_name(conn, node)))
-         if (.not. has_export) then
+         ! src_meta was resolved eagerly above: a bad source path fails even
+         ! when no destination import matches.
+         satisfied = source_satisfies_import(this, conn, node, src_meta=src_meta, _RC)
+         if (.not. satisfied) then
             call push_entry(unresolved, dst_pt, node)
          end if
 
@@ -527,35 +589,29 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ComponentSpec), pointer :: comp_spec
-      type(ConnectionVectorIterator) :: iter
-      class(Connection), pointer :: c
       type(GraphResolutionEntryVector) :: unresolved
 
-      comp_spec => this%get_component_spec()
-
-      associate (e => comp_spec%connections%ftn_end())
-         iter = comp_spec%connections%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            c => iter%of()
-            select type (c)
-            class is (MatchConnection)
-               call check_match_connection_unsatisfied(this, c, unresolved, _RC)
-            class is (SimpleConnection)
-               ! Same call as the MatchConnection arm: check_match_connection_unsatisfied
-               ! only uses Connection-base accessors.
-               call check_match_connection_unsatisfied(this, c, unresolved, _RC)
-            class default
-               ! Other subtypes (e.g. ReexportConnection) are not resolved here.
-            end select
-         end do
-      end associate
+      call for_each_connection_pair(this, check_pair, _RC)
 
       if (present(unresolved_imports)) unresolved_imports = unresolved
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+   contains
+
+      subroutine check_pair(conn, done, rc)
+         class(Connection), intent(in) :: conn
+         logical, intent(out) :: done
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+
+         done = .false.
+         call check_match_connection_unsatisfied(this, conn, unresolved, _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine check_pair
+
    end subroutine graphbuilder_check_unsatisfied_imports
 
    ! Returns child_meta's imports that no connection resolves yet, which
@@ -640,14 +696,13 @@ contains
    ! Shared by graphbuilder_unresolved_import_node_ids (cases (a) and (b)):
    ! does some Match/SimpleConnection declared on `owner`, whose destination
    ! resolves to `target_meta`, match `node`'s short name AND find a real
-   ! source export? A positive collector: returns at the first resolving
-   ! connection. Read-only.
+   ! source export? A positive collector: stops at the first resolving
+   ! connection, so later connections are not evaluated. Read-only.
    !
-   ! The per-connection check (connection_pt_pair_resolves) is shared by both
-   ! subtypes. A connection naming a destination whose source does not exist
-   ! must NOT count as resolved, or mirroring would be wrongly suppressed.
-   ! ReexportConnection and other subtypes fall through unresolved, so the
-   ! import is still mirrored.
+   ! A connection naming a destination whose source does not exist must NOT
+   ! count as resolved, or mirroring would be wrongly suppressed.
+   ! ReexportConnection and other subtypes are never visited, so the import
+   ! is still mirrored.
    function connection_resolves_import(owner, target_meta, node, rc) result(resolved)
       class(OuterMetaComponent), target, intent(inout) :: owner
       class(OuterMetaComponent), target, intent(in) :: target_meta
@@ -656,88 +711,36 @@ contains
       logical :: resolved
 
       integer :: status
-      type(ComponentSpec), pointer :: owner_spec
-      type(ConnectionVectorIterator) :: iter
-      class(Connection), pointer :: c
 
       resolved = .false.
-      owner_spec => owner%get_component_spec()
-
-      associate (e => owner_spec%connections%ftn_end())
-         iter = owner_spec%connections%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            c => iter%of()
-            select type (c)
-            class is (MatchConnection)
-               resolved = connection_pt_pair_resolves(owner, target_meta, node, c, _RC)
-            class is (SimpleConnection)
-               ! Exact (non-regex) destination; same shared check as a MatchConnection
-               ! match.
-               resolved = connection_pt_pair_resolves(owner, target_meta, node, c, _RC)
-            class default
-               ! ReexportConnection and others: not resolved here, so still mirrored.
-            end select
-            if (resolved) exit
-         end do
-      end associate
+      call for_each_connection_pair(owner, try_pair, _RC)
 
       _RETURN(_SUCCESS)
+   contains
+
+      subroutine try_pair(conn, done, rc)
+         class(Connection), intent(in) :: conn
+         logical, intent(out) :: done
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(ConnectionPt) :: dst_pt
+         type(OuterMetaComponent), pointer :: dst_meta
+
+         done = .false.
+         dst_pt = conn%get_destination()
+
+         dst_meta => resolve_qualified_component(owner, dst_pt%component_name, _RC)
+         _RETURN_UNLESS(associated(dst_meta, target_meta))
+         _RETURN_UNLESS(dst_pt%v_pt%matches(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, node%get_short_name())))
+
+         resolved = source_satisfies_import(owner, conn, node, _RC)
+         done = resolved
+
+         _RETURN(_SUCCESS)
+      end subroutine try_pair
+
    end function connection_resolves_import
-
-   ! The source-export lookup uses effective_source_name: a
-   ! SimpleConnection's source name may differ from node's (destination-side)
-   ! short name.
-   function connection_pt_pair_resolves(owner, target_meta, node, c, rc) result(resolved)
-      class(OuterMetaComponent), target, intent(inout) :: owner
-      class(OuterMetaComponent), target, intent(in) :: target_meta
-      class(StateItemNode), target, intent(in) :: node
-      class(Connection), intent(in) :: c
-      integer, optional, intent(out) :: rc
-      logical :: resolved
-
-      integer :: status
-      type(ConnectionPt) :: src_pt, dst_pt
-      type(OuterMetaComponent), pointer :: dst_meta, src_meta
-      type(CallbackInterfaceId) :: callback_interface_id
-      type(QualifiedExportEntry), allocatable :: callback_matches(:)
-      logical :: has_export
-      type(StateItemDescriptor), pointer :: node_descriptor
-
-      resolved = .false.
-
-      src_pt = c%get_source()
-      dst_pt = c%get_destination()
-
-      dst_meta => resolve_qualified_component(owner, dst_pt%component_name, _RC)
-      if (.not. associated(dst_meta, target_meta)) then
-         _RETURN(_SUCCESS)
-      end if
-      if (.not. dst_pt%v_pt%matches(VirtualConnectionPt(ESMF_STATEINTENT_IMPORT, node%get_short_name()))) then
-         _RETURN(_SUCCESS)
-      end if
-
-      callback_interface_id = node%get_callback_interface_id()
-      if (callback_interface_id%is_valid()) then
-         callback_matches = resolve_callback_import(owner, src_pt, callback_interface_id, rc=status)
-         _VERIFY(status)
-         resolved = (size(callback_matches) > 0)
-         _RETURN(_SUCCESS)
-      end if
-
-      ! Same wildcard_import_has_match substitution as check_one.
-      node_descriptor => node%get_descriptor()
-      if (node_descriptor%get_declared_item_type() == MAPL_STATEITEM_WILDCARD) then
-         resolved = wildcard_import_has_match(owner, src_pt%component_name, node, _RC)
-         _RETURN(_SUCCESS)
-      end if
-
-      src_meta => resolve_qualified_component(owner, src_pt%component_name, _RC)
-      has_export = associated(find_export_node(src_meta, effective_source_name(c, node)))
-      resolved = has_export
-
-      _RETURN(_SUCCESS)
-   end function connection_pt_pair_resolves
 
    ! For each direct child C of `this`, obtains C's still-unresolved imports
    ! (graphbuilder_unresolved_import_node_ids, via the framework-internal
@@ -1123,9 +1126,6 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(ComponentSpec), pointer :: comp_spec
-      type(ConnectionVectorIterator) :: iter
-      class(Connection), pointer :: c
       type(GraphResolutionEntryVector) :: unresolved
       type(GraphResolutionEntryVector) :: unsupported
       type(GraphResolutionEntryVector) :: conflicts
@@ -1148,26 +1148,8 @@ contains
       ! to fall back.
       call fallback_unsupplied_deferred_tree(this, _RC)
 
-      comp_spec => this%get_component_spec()
-
       call this%begin_connection_pass()
-      associate (e => comp_spec%connections%ftn_end())
-         iter = comp_spec%connections%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            c => iter%of()
-            select type (c)
-            class is (MatchConnection)
-               call resolve_match_connection(this, c, unresolved, unsupported, conflicts, warnings, _RC)
-            class is (SimpleConnection)
-               ! Same call as the MatchConnection arm: resolve_match_connection only
-               ! uses Connection-base accessors.
-               call resolve_match_connection(this, c, unresolved, unsupported, conflicts, warnings, _RC)
-            class default
-               ! Other subtypes (e.g. ReexportConnection) are not resolved here.
-            end select
-         end do
-      end associate
+      call for_each_connection_pair(this, resolve_pair, _RC)
 
       call this%end_connection_pass()
 
@@ -1178,6 +1160,21 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+   contains
+
+      subroutine resolve_pair(conn, done, rc)
+         class(Connection), intent(in) :: conn
+         logical, intent(out) :: done
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+
+         done = .false.
+         call resolve_match_connection(this, conn, unresolved, unsupported, conflicts, warnings, _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine resolve_pair
+
    end subroutine graphbuilder_resolve_connections
 
    ! Applies graphbuilder_fallback_unsupplied_deferred to meta and every
@@ -1214,8 +1211,8 @@ contains
 
    ! Read-only scan of src_meta's ComponentGraph export-port table for a node
    ! whose effective port name matches short_name. Used by
-   ! find_export_node_id (which then mutates the graph) and by check_one,
-   ! which must NOT create graph structure.
+   ! find_export_node_id (which then mutates the graph) and by
+   ! source_satisfies_import, which must NOT create graph structure.
    !
    ! Matches against get_export_port_name (the export-propagation override
    ! when one exists, else the node's short_name), not the node's

@@ -2443,6 +2443,10 @@ path uses yet. Owner decisions:
   alias-then-materialize blocks and `destroy_created_payload` the created-payload
   destroys in `try_alias_export_field`; no test changes; resolution vectors and
   alias/destroy decisions identical before and after on ESSENTIAL (NAG).
+  **Status:** R1 done: `for_each_connection_pair` is the one Match/Simple loop for
+  the three connection passes, and `source_satisfies_import` the one read-only
+  source check (callback, wildcard, exact); `resolve_one_pair`'s head left as is.
+  One test's `status=1` count changed (+2 frames); resolution vectors identical.
 - Keep the callback stack and the inout borrower (they are the base of
   the SERVICE-to-callbacks migration). The run-phase `MethodGraphNode`
   (built at every connect, never invoked) is under a follow-up check in

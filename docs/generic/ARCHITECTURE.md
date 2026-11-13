@@ -180,7 +180,7 @@ graph-side prerequisites that must land first.
 | `VirtualConnectionPt.F90`, `VirtualConnectionPtVector.F90` | An *unresolved* connection endpoint (declared name, before matching). |
 | `ActualConnectionPt.F90` | A resolved endpoint bound to a real `StateItemSpec`. |
 | `SimpleConnection.F90` | A connection with explicit, named source and destination (`ConnectionPt` pair) — the ordinary case. |
-| `MatchConnection.F90` | A connection matching by pattern/wildcard rather than an explicit pair; shares `connect`/structural-resolution logic with `SimpleConnection` on the graph-integration side (see `docs/graph/ARCHITECTURE.md` §1.2's note on `connection_pt_pair_resolves`). |
+| `MatchConnection.F90` | A connection matching by pattern/wildcard rather than an explicit pair; shares `connect`/structural-resolution logic with `SimpleConnection` on the graph-integration side (see `docs/graph/ARCHITECTURE.md` §1.2's note on `source_satisfies_import`/`for_each_connection_pair`). |
 | `ReexportConnection.F90` | Re-exports an already-connected item under a different name/level; stays on the `class default` (not-specially-handled) path in `GraphBuilder_ConnectionResolution_smod.F90`'s resolution dispatch. |
 | `ConnectionVector.F90` | gFTL vector of `class(Connection)`. |
 

@@ -239,6 +239,17 @@ module mapl_GraphBuilder_mod
       end subroutine I_match_op
    end interface
 
+   ! Per-connection callback for for_each_connection_pair(), called only for
+   ! a MatchConnection or SimpleConnection. Setting done stops the iteration.
+   abstract interface
+      subroutine I_pair_op(conn, done, rc)
+         import Connection
+         class(Connection), intent(in) :: conn
+         logical, intent(out) :: done
+         integer, optional, intent(out) :: rc
+      end subroutine I_pair_op
+   end interface
+
    ! One entry in the flattened qualified-export namespace
    ! (build_qualified_export_namespace). comp_path is '' for the
    ! namespace root's own export, else the '/'-joined descendant path
@@ -296,11 +307,10 @@ module mapl_GraphBuilder_mod
    ! sees connections the child itself declares, missing a parent's
    ! connection naming the child, and mirroring an already-resolved
    ! import risks a two-producer violation in the forward network). An import is
-   ! unresolved iff NEITHER (a) a MatchConnection declared on `child_meta`
-   ! whose destination resolves back to it, NOR (b) a MatchConnection
-   ! declared on `this_parent` whose destination resolves to `child_meta`,
-   ! finds a matching source export (the per-item check of
-   ! check_match_connection_unsatisfied, used as a positive match).
+   ! unresolved iff NEITHER (a) a Match/SimpleConnection declared on `child_meta`
+   ! whose destination resolves back to it, NOR (b) one declared on
+   ! `this_parent` whose destination resolves to `child_meta`, finds a
+   ! matching source export (source_satisfies_import, as a positive match).
    ! `child_meta` MUST be a direct child of `this_parent`. Read-only.
    module function graphbuilder_unresolved_import_node_ids(this_parent, child_meta, rc) result(unresolved)
       class(OuterMetaComponent), target, intent(inout) :: this_parent
