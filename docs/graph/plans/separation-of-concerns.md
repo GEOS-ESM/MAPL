@@ -2468,6 +2468,19 @@ path uses yet. Owner decisions:
   the three connection passes, and `source_satisfies_import` the one read-only
   source check (callback, wildcard, exact); `resolve_one_pair`'s head left as is.
   One test's `status=1` count changed (+2 frames); resolution vectors identical.
+  **Status:** R7 done (outsourced, @weiyuan-jiang, PR #5529, landed 61cda0c08):
+  `resolve_geometry_from_child` (pull) and `push_geometry_to_child` (push) in
+  `GraphBuilder_Geometry_smod.F90` folded into one direction-parameterized
+  `wire_geometry`; the two entry points stay as thin wrappers, `rc` passed
+  through unwrapped so the pFUnit exception chain depth is unchanged. No test
+  changes; every `_ASSERT` message kept verbatim per direction; ESSENTIAL NAG
+  72/72 and gfortran 72/72 (meta's own run, on the merged commit). One narrow,
+  untested behavior wrinkle noted by review: the PULL direction now fetches
+  the owner graph's forward-network id after the advertise/mismatch checks
+  (matching what PUSH already did), instead of before; this only changes which
+  error is reported when a network-id failure coincides with one of those
+  checks, a defensive path `graphbuilder_run_geometry_hook` logs as a warning
+  either way. Accepted as in scope for this refactor.
 - Keep the callback stack and the inout borrower (they are the base of
   the SERVICE-to-callbacks migration). The run-phase `MethodGraphNode`
   (built at every connect, never invoked) is under a follow-up check in
