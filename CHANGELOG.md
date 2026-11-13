@@ -94,7 +94,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   loops into one shared iterator, the duplicated reporting calls into one
   helper, and the duplicated read-only "does the source satisfy this
   import" checks into one shared function. No behavior change; verified
-  zero-diff against the full `MAPL.generic.*` test suite.
+  zero-diff against the full `MAPL.generic.*` test suite. The same file
+  was then split by concern into six files (`GraphBuilder_ConnectionMatching_smod.F90`,
+  `GraphBuilder_ConnectionDestinations_smod.F90`,
+  `GraphBuilder_ImportExportPropagation_smod.F90`,
+  `GraphBuilder_PayloadMaterialization_smod.F90`,
+  `GraphBuilder_ExpressionResolution_smod.F90`, and a slimmed-down
+  `GraphBuilder_ConnectionResolution_smod.F90` holding only shared
+  helpers), also with no behavior change.
 - `FixedLevelsVerticalGrid` now derives the vertical direction from the
   physical dimension: for `height` and `altitude`, increasing levels mean `UP`
   (before: `DOWN` for any increasing levels); `pressure`, `depth`, `layer` and
