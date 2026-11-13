@@ -2481,6 +2481,15 @@ path uses yet. Owner decisions:
   error is reported when a network-id failure coincides with one of those
   checks, a defensive path `graphbuilder_run_geometry_hook` logs as a warning
   either way. Accepted as in scope for this refactor.
+  **Status:** R6 done (outsourced, @weiyuan-jiang, PR #5512, landed
+  1bd119ffc): `export_graph_dot` and `export_graph_json` in
+  `GraphExport.F90` each resolved `include_revisions`, built the node-id
+  set, and walked every network's edges separately; folded into one
+  private `collect_graph` returning `ExportNode`/`ExportEdge` record
+  arrays (private to this file) that both exporters format from. Pure
+  refactor: DOT and JSON output byte-identical; no test changes;
+  ESSENTIAL NAG 72/72 and gfortran 72/72 (meta's own runs, on the merged
+  commit).
 - Keep the callback stack and the inout borrower (they are the base of
   the SERVICE-to-callbacks migration). The run-phase `MethodGraphNode`
   (built at every connect, never invoked) is under a follow-up check in
