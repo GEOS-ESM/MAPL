@@ -12,14 +12,21 @@
 
 Status: agreed in discussion with tclune, 2026-10-21.
 
-**Workflow: no PRs.** Work lands directly on the owner's integration
-branch (currently `feature/#5286-graph-phase-5`); one task = one commit,
-or a short series of commits. Agents **do not commit**: they leave the
-task as uncommitted changes plus a proposed message in
+**Workflow (owner, 2026-11-12, after PR #5502 merged into `develop`).**
+Work lands on the owner's integration branch (currently
+`feature/#5286-graph-phase-6`, cut from `develop` at 9bd622071); one task =
+one commit, or a short series of commits. Agents **do not commit**: they
+leave the task as uncommitted changes plus a proposed message in
 `.git/PLAN_TASK_MSG`, and the owner reviews the working tree before
 committing (or meta lands it under auto-landing; see "Working with the
-owner") (see "Review and commit" below). The integration branch goes to `develop` as
-one final PR, followed by a walkthrough with the senior developers.
+owner") (see "Review and commit" below). Pure refactors and documentation
+batches accumulate on the integration branch; tasks that change behavior
+colleagues can see (parser rules, legacy matching, GEOS regression YAML
+needs) go to `develop` in their own PR. Because the CI matrix takes 2 to 3
+hours, tasks are combined so that about two PRs per day reach `develop`.
+The history of the earlier branch (the `Plan-Task:` trailers) is the tag
+`graph-phase-5-final`; `git log --grep='^Plan-Task: B3-Units'
+graph-phase-5-final` finds a task there.
 Every task commit ends with a git trailer naming its task:
 
 ```
@@ -2129,7 +2136,28 @@ until then.
 by concern: matching, propagation (import mirroring / export
 propagation), extension-chain build, qualified-name resolution. No
 behavior change.
-- **Status:** not started
+- **Status:** done. Split into six files (`GraphBuilder_
+  ConnectionResolution_smod.F90` down to 421 lines, holding 13 shared
+  helpers including `find_export_node_id`; five new sibling files —
+  `ConnectionMatching` 664, `ConnectionDestinations` 310,
+  `ImportExportPropagation` 328, `PayloadMaterialization` 438,
+  `ExpressionResolution` 404 lines). All 44 procedure bodies verified
+  byte-identical to `HEAD` except documented `subroutine`/`function` ->
+  `module subroutine`/`module function` promotions and fixed
+  cross-file comment references; same count before/after. Owner's
+  nested-descendant-submodule design (shared helpers in the parent
+  submodule, concerns as its descendant submodules) failed on NAG with
+  a genuine compiler error (`Bad module file format ... could not ref
+  CONNECTIONPT`, confirmed from the build log, not a stale-build
+  artifact) at three nesting levels; the 16 procedures the five new
+  files call across file boundaries were promoted to ordinary
+  `mapl_GraphBuilder_mod` module procedures (declared in
+  `GraphBuilder.F90`'s interface block, same pattern as every other
+  GraphBuilder submodule) instead, making all six files flat siblings.
+  NAG build + ESSENTIAL ctest 72/72 pass; gfortran `build-tests`
+  compiles clean. `docs/graph/ARCHITECTURE.md`, `docs/graph/
+  graph-builder.md` and `docs/generic/ARCHITECTURE.md` updated for the
+  new file set and their line citations into the old file.
 
 **D2. Localize `graph_mode()`** checks (currently in 9 production
 files) to lifecycle hooks only.
@@ -2428,6 +2456,18 @@ path uses yet. Owner decisions:
   D1 (R1, R2, R10) and then the rest, one single-purpose task each, no
   test changes except renames, serialized with feature work (they touch
   the files feature tasks touch). Nothing before the merge.
+  **Status:** R10 done: `push_entry` (19 sites) and `record_second_producer`
+  (3 call sites) in `GraphBuilder_ConnectionResolution_smod.F90`; no test
+  changes; resolution vectors and warnings identical before and after on
+  ESSENTIAL (NAG). R2 and R1 remain.
+  **Status:** R2 done: `ensure_export_payload` folds all three
+  alias-then-materialize blocks and `destroy_created_payload` the created-payload
+  destroys in `try_alias_export_field`; no test changes; resolution vectors and
+  alias/destroy decisions identical before and after on ESSENTIAL (NAG).
+  **Status:** R1 done: `for_each_connection_pair` is the one Match/Simple loop for
+  the three connection passes, and `source_satisfies_import` the one read-only
+  source check (callback, wildcard, exact); `resolve_one_pair`'s head left as is.
+  One test's `status=1` count changed (+2 frames); resolution vectors identical.
 - Keep the callback stack and the inout borrower (they are the base of
   the SERVICE-to-callbacks migration). The run-phase `MethodGraphNode`
   (built at every connect, never invoked) is under a follow-up check in
