@@ -30,6 +30,7 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_PayloadMaterialization_smod
    use mapl_FieldNamedAlias_mod, only: MAPL_NamedAlias
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_REGISTRY
    use mapl_GraphOwnsUserStates_mod, only: graph_populates_user_states
+   use mapl_ItemClassPredicates_mod, only: is_graph_creatable_class
    use mapl_ExtensionMaterialization_mod, only: field_extension_is_created
    use mapl_FieldCreate_mod, only: FieldsAreAliased
    use mapl_field_bundle_api, only: MAPL_FieldBundleDestroy
@@ -369,9 +370,8 @@ contains
       end if
       _RETURN_IF(alias_found)
 
-      if (present(chain_input) .and. .not. (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
-           .or. export_item%get_declared_item_type() == MAPL_STATEITEM_VECTOR &
-           .or. export_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET)) then
+      if (present(chain_input) .and. &
+           .not. is_graph_creatable_class(export_item%get_declared_item_type())) then
          payload => chain_input%get_payload_ptr()
          payload_type = payload%itemType(_RC)
          if (.not. (payload_type == ESMF_STATEITEM_FIELDBUNDLE)) then
@@ -387,9 +387,8 @@ contains
 
    ! failure_reason is empty when a payload can be created for `item`. The
    ! export side admits FIELD, VECTOR and BRACKET (the graph creates a bundle
-   ! for the latter two); the import side admits FIELD, VECTOR and BRACKET
-   ! (a bracket only as the export passed as its own import, for a chain
-   ! input); and item lacks no creation value. SERVICE is never admitted.
+   ! for the latter two); the import side admits the same three classes; and
+   ! item lacks no creation value. SERVICE is never admitted.
    subroutine check_materializable(export_item, import_item, item, &
         failure_reason)
       type(StateItemDescriptor), intent(in) :: export_item
@@ -400,15 +399,11 @@ contains
       type(StateItemCharacteristicKind), allocatable :: incomplete(:)
 
       failure_reason = ''
-      if (.not. (export_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
-           .or. export_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET &
-           .or. export_item%get_declared_item_type() == MAPL_STATEITEM_VECTOR)) then
+      if (.not. is_graph_creatable_class(export_item%get_declared_item_type())) then
          failure_reason = 'unsupported_item_class:' // itemtype_name(export_item%get_declared_item_type())
          return
       end if
-      if (.not. (import_item%get_declared_item_type() == MAPL_STATEITEM_FIELD &
-           .or. import_item%get_declared_item_type() == MAPL_STATEITEM_VECTOR &
-           .or. import_item%get_declared_item_type() == MAPL_STATEITEM_BRACKET)) then
+      if (.not. is_graph_creatable_class(import_item%get_declared_item_type())) then
          failure_reason = 'unsupported_item_class:' // itemtype_name(import_item%get_declared_item_type())
          return
       end if
@@ -454,9 +449,7 @@ contains
             link_descriptor => link_node%get_descriptor()
             link_type = link_descriptor%get_declared_item_type()
             if (failure_reason == '' .and. &
-                 .not. (link_type == MAPL_STATEITEM_FIELD .or. &
-                 link_type == MAPL_STATEITEM_VECTOR .or. &
-                 link_type == MAPL_STATEITEM_BRACKET)) then
+                 .not. is_graph_creatable_class(link_type)) then
                failure_reason = 'unsupported_item_class:' // itemtype_name(link_type)
             end if
          class default

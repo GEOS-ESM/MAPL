@@ -75,6 +75,7 @@ target_sources(MAPL.generic PRIVATE
   transforms/VerticalColumnRegridTransform.F90
   ExtensionResolution.F90
   GraphOwnsUserStates.F90
+  ItemClassPredicates.F90
   ExtensionMaterialization.F90
 
   CompositeStateMaterialization.F90

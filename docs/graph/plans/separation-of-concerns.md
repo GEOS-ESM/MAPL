@@ -2504,6 +2504,23 @@ path uses yet. Owner decisions:
   72/72 (meta's own runs, on the tree as committed, after the review nits:
   comment placement, keyword arguments at the `collect_spec_entries` calls,
   and a continuation-line indentation fix a second review pass caught).
+  **Status:** R9 done (in-house, not outsourced): the new module
+  `graph/ItemClassPredicates.F90` (`mapl_ItemClassPredicates_mod`, added to
+  `graph/CMakeLists.txt`) holds `is_graph_creatable_class(item_class)`, true
+  for FIELD, VECTOR or BRACKET. It folds the four identical allowlist tests in
+  `GraphBuilder_PayloadMaterialization_smod.F90`: the chain-input gate in
+  `ensure_export_payload`, the export and import checks in
+  `check_materializable`, and the chain-link check in
+  `materialize_extension_chain`; each site keeps its own failure message and
+  control flow. Not folded, because they are different rules: `is_bundle_class`
+  in `ExtensionMaterialization.F90` (VECTOR or BRACKET, excluding FIELD) and
+  `advertise_one` in `GraphBuilder_Advertising_smod.F90` (BRACKET only for an
+  export); both untouched. The function is not `pure`, because ESMF's `==` on
+  `ESMF_StateItem_Flag` is not. The stale `check_materializable` comment that
+  said a BRACKET import is admitted only as the export passed as its own
+  import was corrected (the code admits it unconditionally). Pure refactor, no
+  behavior change, no test changes. ESSENTIAL NAG 72/72 and gfortran 72/72
+  (the author's own runs).
 - Keep the callback stack and the inout borrower (they are the base of
   the SERVICE-to-callbacks migration). The run-phase `MethodGraphNode`
   (built at every connect, never invoked) is under a follow-up check in
