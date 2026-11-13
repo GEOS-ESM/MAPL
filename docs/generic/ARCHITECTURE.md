@@ -154,7 +154,7 @@ Representative submodule groupings (not exhaustive — see
 | `StateRegistry_Lifecycle_smod.F90` | Construction, naming, basic existence queries (`has_virtual_pt`). |
 | `StateRegistry_Hierarchy_smod.F90` | Subregistry (child-registry) management: `add_subregistry`, `has_subregistry`, `get_subregistry_by_name`. |
 | `StateRegistry_Extensions_smod.F90` | `add_virtual_pt`, `add_family`, `add_primary_spec` — the `ExtensionFamily` bookkeeping for a given virtual connection point. |
-| `StateRegistry_Propagation_smod.F90` | `propagate_unsatisfied_imports_{all,subregistry,virtual_pt}` and (by symmetry, confirmed in source) the export-propagation counterpart — the legacy, unconditional one-level-up bubbling that `GraphBuilder_ConnectionResolution_smod.F90`'s `run_propagate_hook`/`run_export_propagate_hook` now parallel on the graph side (see `docs/graph/ARCHITECTURE.md` §3.1 for the full graph-side account of why this was replicated, not reused, there). |
+| `StateRegistry_Propagation_smod.F90` | `propagate_unsatisfied_imports_{all,subregistry,virtual_pt}` and (by symmetry, confirmed in source) the export-propagation counterpart — the legacy, unconditional one-level-up bubbling that `GraphBuilder_ImportExportPropagation_smod.F90`'s `run_propagate_hook`/`run_export_propagate_hook` now parallel on the graph side (see `docs/graph/ARCHITECTURE.md` §3.1 for the full graph-side account of why this was replicated, not reused, there). |
 | `StateRegistry_Actions_smod.F90` | `allocate_items`, `add_to_states` (populates a real `ESMF_State`/`ESMF_FieldBundle` from registry contents), `filter` (pattern-matching query). |
 | `StateRegistry_SetGeometry_smod.F90` | `set_geometry` — pushes an `ESMF_Geom`/`VerticalGrid` pair onto every registered item through `GeomAspect%set_component_geom` / `VerticalGridAspect%set_component_vertical_grid`; an aspect the item declared itself is left alone (explicit `MAPL_GridCompSetGeometry` passes `force_replace` and wins). |
 | `AbstractRegistry.F90` | Bare abstract marker type (empty, no deferred methods) — `StateRegistry`'s nominal parent; exists for a possible future second concrete registry, not currently used for polymorphic dispatch anywhere found in this pass. |
@@ -181,12 +181,12 @@ graph-side prerequisites that must land first.
 | `ActualConnectionPt.F90` | A resolved endpoint bound to a real `StateItemSpec`. |
 | `SimpleConnection.F90` | A connection with explicit, named source and destination (`ConnectionPt` pair) — the ordinary case. |
 | `MatchConnection.F90` | A connection matching by pattern/wildcard rather than an explicit pair; shares `connect`/structural-resolution logic with `SimpleConnection` on the graph-integration side (see `docs/graph/ARCHITECTURE.md` §1.2's note on `source_satisfies_import`/`for_each_connection_pair`). |
-| `ReexportConnection.F90` | Re-exports an already-connected item under a different name/level; stays on the `class default` (not-specially-handled) path in `GraphBuilder_ConnectionResolution_smod.F90`'s resolution dispatch. |
+| `ReexportConnection.F90` | Re-exports an already-connected item under a different name/level; stays on the `class default` (not-specially-handled) path in `GraphBuilder_ConnectionMatching_smod.F90`'s resolution dispatch. |
 | `ConnectionVector.F90` | gFTL vector of `class(Connection)`. |
 
 Every concrete `Connection` subtype, plus `StateRegistry`, is
 referenced directly by `superstructure/generic/graph/` integration
-code (`GraphBuilder_ConnectionResolution_smod.F90` dispatches on
+code (`GraphBuilder_ConnectionMatching_smod.F90` dispatches on
 `class is (SimpleConnection)` / `class is (MatchConnection)`) — this is
 one of the two families (along with `specs/`) that both the legacy
 path and the graph integration layer depend on directly.
@@ -360,7 +360,9 @@ specs/            <-- depended on by: connection/, registry/, transforms/,
                        vertical/, ComponentSpecParser/, OuterMetaComponent/
 connection/       <-- depended on by: registry/ (StateRegistry uses Connection
                        indirectly via resolved specs), OuterMetaComponent/
-                       (connect_all.F90), GraphBuilder_ConnectionResolution_smod.F90
+                       (connect_all.F90), GraphBuilder_Connection{Resolution,
+                       Matching,Destinations}_smod.F90, GraphBuilder_
+                       ImportExportPropagation_smod.F90
 registry/         <-- depended on by: OuterMetaComponent/ (owns one StateRegistry),
                        connection/ (SimpleConnection/MatchConnection/
                        ReexportConnection all `use mapl_StateRegistry_mod`),

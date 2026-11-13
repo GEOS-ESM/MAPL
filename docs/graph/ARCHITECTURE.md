@@ -350,12 +350,20 @@ WILDCARD item is likewise unsupported.
 
 `GraphBuilder.F90` is the public module: the `GraphBuilder`
 type (stateless; every method is `nopass` and takes the
-`OuterMetaComponent`) and cross-submodule interfaces. Ten submodules:
+`OuterMetaComponent`) and cross-submodule interfaces. Fifteen submodules;
+connection resolution is split by concern across six of them (one
+holding helpers shared by more than one of the other five — see
+`docs/graph/plans/separation-of-concerns.md` task D1):
 
 | File | Responsibility |
 |---|---|
 | `GraphBuilder_Advertising_smod.F90` | `advertise_one` creates `StateItemNode`s from `VariableSpec`; `VariableSpec%make_characteristics` (called on the stored descriptor) fills the characteristics map, `declared_item_type` and `fill_value` |
-| `GraphBuilder_ConnectionResolution_smod.F90` | Ordinary/Simple/Match connection resolution (`resolve_one`, `for_each_matching_import`); extension-chain use; import mirroring (`run_propagate_hook`) and export propagation (`run_export_propagate_hook`); Expression names check (`run_expression_hook`) and per-consumer evaluation (`resolve_one_pair`); Wildcard fan-in (`resolve_wildcard_destination`); unsatisfied-import checks; qualified-name resolution; aliasing of a legacy export's Field or FieldBundle (`try_alias_export_field`, `find_alias_owner`, §2.7); chain-link materialization (`materialize_extension_chain`, `check_materializable`) |
+| `GraphBuilder_ConnectionResolution_smod.F90` | Connection-resolution helpers shared by more than one of the next five files (`push_warnings`, `push_entry`, `record_second_producer`, `effective_source_name`, `is_wildcard_member_shape`, `wildcard_import_has_match`, `for_each_connection_pair`, `source_satisfies_import`, `find_export_node`, `find_export_node_id`, `resolve_local_node_id`, `is_ordinary_resolvable_import`, `mutable_descriptor`) |
+| `GraphBuilder_ConnectionMatching_smod.F90` | Match-connection resolution (`resolve_match_connection`, `for_each_matching_import`); unsatisfied-import checks (`graphbuilder_check_unsatisfied_imports`, `graphbuilder_unresolved_import_node_ids`, `connection_resolves_import`) |
+| `GraphBuilder_ConnectionDestinations_smod.F90` | Destination-kind resolution for a matched connection: inout-borrower aliasing (`resolve_inout_destination`), callback destinations (`resolve_callback_destination`), Wildcard fan-in (`resolve_wildcard_destination`) |
+| `GraphBuilder_ImportExportPropagation_smod.F90` | Import mirroring (`run_propagate_hook`) and export propagation (`run_export_propagate_hook`) up the hierarchy; re-export passthrough (`run_reexport_hook`, `reexport_one`); qualified-name resolution |
+| `GraphBuilder_PayloadMaterialization_smod.F90` | Aliasing of a legacy export's Field or FieldBundle (`try_alias_export_field`, `find_alias_owner`, §2.7); export payload creation (`ensure_export_payload`); chain-link materialization (`materialize_extension_chain`, `check_materializable`) |
+| `GraphBuilder_ExpressionResolution_smod.F90` | Expression names check (`run_expression_hook`, `check_expression_item`) and per-consumer evaluation (`build_expression_evaluation`) |
 | `GraphBuilder_Freeze_smod.F90` | Hierarchy-wide freeze and convergence check (`run_graph_freeze_hook`): freezes every component's graph, then the hierarchy's forward network once (`freeze_forward_network`, `GraphBuilder_Freeze_smod.F90:49-54`) |
 | `GraphBuilder_Geometry_smod.F90` | Geometry push/pull (`run_geometry_hook`); its edges go in the forward network. The push skips a component's own `FROM_CHILD` provider, which would close a cycle (`:300-306`) |
 | `GraphBuilder_CallbackWiring_smod.F90` | Wildcard/regex callback-argument wiring against the flattened qualified-export namespace. Get arguments join the forward network; each method gets its own put (write-back) network (`:384-427`) |
@@ -455,8 +463,8 @@ Graph code also must not call into the legacy `specs/*Aspect`,
   checks first and records a pair-level `connection_conflicts` entry
   instead of failing the pass: the second producer is skipped and the first
   stays (`record_second_producer`, called at
-  `GraphBuilder_ConnectionResolution_smod.F90:495,568`; the inout borrower
-  case at `:1409`). Only a second producer resolved in the same
+  `GraphBuilder_ConnectionMatching_smod.F90:294,367`; the inout borrower
+  case at `GraphBuilder_ConnectionDestinations_smod.F90:167`). Only a second producer resolved in the same
   connect pass is seen: an import settled by an earlier pass is skipped
   silently (`:263-275`). Wildcard fan-in, expression, callback-collection
   and geometry edges have no pre-check and hit the `add_dependency`
@@ -518,7 +526,7 @@ propagation: for each `ReexportConnection` it adds an export port named by
 the re-export destination, bound to the source's existing node (an own
 INTERNAL-intent node by resource index, or a descendant export's node by
 port name). A repeat of the same name and node is a no-op; a different node
-fails (`reexport_one`, `GraphBuilder_ConnectionResolution_smod.F90:960-1011`).
+fails (`reexport_one`, `GraphBuilder_ImportExportPropagation_smod.F90:266-317`).
 The internal gets no port or mirror of its own.
 
 With the user-state switch off (default) legacy fills the real user states and
@@ -658,7 +666,7 @@ accepts a missing one; gfortran fails at link with `Undefined symbols`.
 | Item class | Graph-mode path |
 |---|---|
 | FIELD, FIELDBUNDLE, STATE | Ordinary resolution + characteristic extension chain |
-| VECTOR, BRACKET (geometry mismatch) | The extension chain holds a `HorizontalBundleRegridTransform` link of the item's class (BRACKET→FIELD adds time interpolation after it). `materialize_extension_chain` completes a VECTOR or BRACKET link as an `ALLOCATED` memberless `FieldBundle` of that type; the Transforms create the members at compute. A link declared any other non-FIELD class is refused with `unsupported_item_class:<class>` (`GraphBuilder_ConnectionResolution_smod.F90:1790-1833`). `check_materializable` (`:1755-1782`) admits FIELD, VECTOR and BRACKET on both sides (a BRACKET import side is admitted for a chain input, where the export is passed as its own import); SERVICE and every other class give `unsupported_item_class:<class>`. A VECTOR or BRACKET export the graph consumes (exact match, or the input of a chain) is not aliased from legacy when none is there: the graph's advertise-created bundle is completed in place with its members by `try_materialize_field_extension` (`with_members`, `:1729-1748`); a legacy bundle in the owner's user export state is aliased instead when the switch is off (§2.7). A VECTOR with a vertical-grid or orientation mismatch gets a vertical Transform link of the item's class (`VerticalColumnRegridTransform` or `VerticalFlipTransform`, bundle branch), a memberless bundle filled at compute like the horizontal link; a BRACKET's vertical link is a Field link, because the time interpolation makes it a Field first. A chain link takes its declared class from its `ITEM_SHAPE` entry (`StateItemDescriptor%take_declared_item_type_from_shape`; an EXPRESSION shape gives FIELD) |
+| VECTOR, BRACKET (geometry mismatch) | The extension chain holds a `HorizontalBundleRegridTransform` link of the item's class (BRACKET→FIELD adds time interpolation after it). `materialize_extension_chain` completes a VECTOR or BRACKET link as an `ALLOCATED` memberless `FieldBundle` of that type; the Transforms create the members at compute. A link declared any other non-FIELD class is refused with `unsupported_item_class:<class>` (`GraphBuilder_PayloadMaterialization_smod.F90:421-464`). `check_materializable` (`:393-420`) admits FIELD, VECTOR and BRACKET on both sides (a BRACKET import side is admitted for a chain input, where the export is passed as its own import); SERVICE and every other class give `unsupported_item_class:<class>`. A VECTOR or BRACKET export the graph consumes (exact match, or the input of a chain) is not aliased from legacy when none is there: the graph's advertise-created bundle is completed in place with its members by `try_materialize_field_extension` (`with_members`, `:308-335`); a legacy bundle in the owner's user export state is aliased instead when the switch is off (§2.7). A VECTOR with a vertical-grid or orientation mismatch gets a vertical Transform link of the item's class (`VerticalColumnRegridTransform` or `VerticalFlipTransform`, bundle branch), a memberless bundle filled at compute like the horizontal link; a BRACKET's vertical link is a Field link, because the time interpolation makes it a Field first. A chain link takes its declared class from its `ITEM_SHAPE` entry (`StateItemDescriptor%take_declared_item_type_from_shape`; an EXPRESSION shape gives FIELD) |
 | BRACKET → FIELD | `ItemShapeCharacteristic` + `BracketTimeInterpolationTransform` |
 | VECTORBRACKET | Not handled: legacy only (matrix: VECTOR unsupported, others incompatible). `to_itemtype` in the compiled parser does not parse `'vector_bracket'`. |
 | EXPRESSION | Placeholder export; names check in `graphbuilder_run_expression_hook`; one `ExpressionTransform` (N:1) evaluation per consumer, built in `resolve_one_pair` |
@@ -672,7 +680,7 @@ With the user-state switch off, resolution aliases the export's real payload
 from the legacy user export state instead of creating one. With the switch
 on (`graph_populates_user_states()`) it returns `found = .false.` at once,
 because the state holds the node's own created Field
-(`GraphBuilder_ConnectionResolution_smod.F90:1501-1610`).
+(`GraphBuilder_PayloadMaterialization_smod.F90:125-241`).
 
 - It takes the export **port name** (`effective_source_name`, the key
   `find_export_node_id` uses), not the node's short name. A qualified source
@@ -692,9 +700,9 @@ because the state holds the node's own created Field
   that Field under the leaf in the nested State `<sub_path>`. Port names are
   qualified once, at the immediate parent, so a split at the last `/` alone
   is wrong for a port propagated through two or more ancestors
-  (`:1622-1663`). No owner found gives `found = .false.`.
+  (`:256-294`). No owner found gives `found = .false.`.
 - `try_alias_export_field` reads the leaf from that sub-state through the
-  read-only `find_substate` (`:1668-1700`): it walks the `sub_path` levels
+  read-only `find_substate` (`:299-331`): it walks the `sub_path` levels
   without creating any, and a level that is absent, or not a State, gives
   `found = .false.` (nothing to alias yet, as for a missing item). Only
   the owner's own export state is searched; the alias is made under the leaf
@@ -706,16 +714,16 @@ because the state holds the node's own created Field
   that is only created is replaced and destroyed: the placeholder Field of
   a node declared FIELD, or an advertise-created VECTOR or BRACKET bundle
   with its members (`MAPL_FieldBundleDestroy`). A legacy Field aliased over
-  a created bundle destroys it the same way (`:1574-1581`). A bundle already completed
+  a created bundle destroys it the same way (`:205-212`). A bundle already completed
   by a connection is not destroyed when later replaced by an alias. Any
   other kind (a nested State), or no item, gives `found = .false.` without
   failure and the caller falls through to its existing path
-  (`:1548-1558`, `:1584-1600`).
+  (`:179-189`, `:215-231`).
 - An expression input is not aliased unless its declared item type is FIELD:
   `ExpressionTransform` reads every input with `get_field`
   (`ExpressionTransform.F90:157`), so `build_expression_evaluation` reports
   `unsupported_item_class:<class>` at resolve time, before the alias call
-  (`GraphBuilder_ConnectionResolution_smod.F90:2119-2132`).
+  (`GraphBuilder_ExpressionResolution_smod.F90:265-278`).
 - The Wildcard and callback paths resolve a qualified source component
   (`MID/SRC`) with `resolve_qualified_component`, like the other paths; the
   namespace entry names are relative to that source component.

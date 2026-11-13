@@ -2136,7 +2136,28 @@ until then.
 by concern: matching, propagation (import mirroring / export
 propagation), extension-chain build, qualified-name resolution. No
 behavior change.
-- **Status:** not started
+- **Status:** done. Split into six files (`GraphBuilder_
+  ConnectionResolution_smod.F90` down to 421 lines, holding 13 shared
+  helpers including `find_export_node_id`; five new sibling files —
+  `ConnectionMatching` 664, `ConnectionDestinations` 310,
+  `ImportExportPropagation` 328, `PayloadMaterialization` 438,
+  `ExpressionResolution` 404 lines). All 44 procedure bodies verified
+  byte-identical to `HEAD` except documented `subroutine`/`function` ->
+  `module subroutine`/`module function` promotions and fixed
+  cross-file comment references; same count before/after. Owner's
+  nested-descendant-submodule design (shared helpers in the parent
+  submodule, concerns as its descendant submodules) failed on NAG with
+  a genuine compiler error (`Bad module file format ... could not ref
+  CONNECTIONPT`, confirmed from the build log, not a stale-build
+  artifact) at three nesting levels; the 16 procedures the five new
+  files call across file boundaries were promoted to ordinary
+  `mapl_GraphBuilder_mod` module procedures (declared in
+  `GraphBuilder.F90`'s interface block, same pattern as every other
+  GraphBuilder submodule) instead, making all six files flat siblings.
+  NAG build + ESSENTIAL ctest 72/72 pass; gfortran `build-tests`
+  compiles clean. `docs/graph/ARCHITECTURE.md`, `docs/graph/
+  graph-builder.md` and `docs/generic/ARCHITECTURE.md` updated for the
+  new file set and their line citations into the old file.
 
 **D2. Localize `graph_mode()`** checks (currently in 9 production
 files) to lifecycle hooks only.
