@@ -456,6 +456,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   nothing to propagate for those two - they are included so every
   `ESMF_NamedAlias` call in MAPL shares one consistent, safe name.
 
+- Fixed `MAPL_LocStreamGet` accessing unassociated geometry when requesting
+  `tilelons` or `tilelats` with GNU Fortran.
 - Fixed `LatLonDecomposition`'s topology constructor to pack out zero-extent bins returned
   by `mapl_GetPartition()` when a LatLon grid is too coarse to be decomposed onto the
   requested `nx`/`ny` topology given ESMF's `min_extent=2` constraint, and updated
