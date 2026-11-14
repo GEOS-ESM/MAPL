@@ -48,9 +48,7 @@ contains
       integer :: status
 
       call set_graph_mode('bogus', status)
-      @assertExceptionRaised( &
-           'mapl_GraphMode_mod: invalid graph mode <bogus> - must be one of '// &
-           '"registry", "graph", "both"')
+      @assertExceptionMatches('invalid graph mode <bogus> - must be one of "registry", "graph", "both"$')
       @assertEqual(1, status)
 
       ! Rejected setter call must not have changed the selector.

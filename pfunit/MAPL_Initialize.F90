@@ -40,7 +40,7 @@ contains
       use MAPL
       use esmf, only: ESMF_GridComp
       use fArgParse
-      use mapl_Throw_mod, only: MAPL_set_throw_method
+      use mapl_Throw_mod, only: MAPL_set_throw_method, MAPL_set_propagate_method
       use MAPL_pFUnit_ThrowMod
       use pflogger, only: pfl_initialize => initialize, WARNING, DEBUG
       use gFTL2_StringUnlimitedMap
@@ -62,6 +62,7 @@ contains
       call MAPL_CreateServers(servers)
 
       call MAPL_set_throw_method(throw)
+      call MAPL_set_propagate_method(propagate)
    contains
 
       subroutine set_command_line_options()

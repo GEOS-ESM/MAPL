@@ -120,7 +120,7 @@ contains
          write(status_string,'(i0)') status
          message = 'status=' // trim(status_string)
          !$omp critical (MAPL_ErrorHandling3)
-         call MAPL_throw_exception(filename, line, message=message)
+         call MAPL_propagate_exception(filename, line, message=message)
          !$omp end critical (MAPL_ErrorHandling3)
          if (present(rc)) rc = status
       end if
@@ -142,7 +142,7 @@ contains
       if (fail) then
          message = get_error_message(status)
          !$omp critical (MAPL_ErrorHandling4)
-         call MAPL_throw_exception(filename, line, message=message)
+         call MAPL_propagate_exception(filename, line, message=message)
          !$omp end critical (MAPL_ErrorHandling4)
       end if
       ! Regardless of error:

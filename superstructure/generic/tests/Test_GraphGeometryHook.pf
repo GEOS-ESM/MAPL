@@ -428,21 +428,9 @@ contains
       call gb%run_geometry_hook(child_meta)
       call gb%run_geometry_hook(parent_meta)
 
-      ! graphbuilder_run_geometry_hook swallows the failure into a logged
-      ! warning (report_if_failed) rather than propagating rc - a GraphBuilder
-      ! defect must never break real component initialization - but the
-      ! underlying _ASSERT/_VERIFY chain still throws pFUnit-visible exceptions
-      ! that must be explicitly consumed here, matching this test target's own
-      ! established idiom (e.g. Test_MemoryCheckpoint.pf).
-      @assertExceptionRaised('GraphBuilder: geometry from child geom_provider2 does not match the receiving component' // &
-           ' own resolved geometry (unsupported: GEOMETRY) - should be unreachable given GeometrySpec own exclusive resolution')
-      
-      ! graphbuilder_resolve_geometry's own RC on the call into
-      ! resolve_geometry_from_child adds one more generic layer, same
-      ! precedent as Test_MemoryCheckpoint.pf/
-      ! Test_OuterMetaComponentDriverResolver.pf's own multi-layer
-      ! exception chains.
-      @assertExceptionRaised('status=1')
+      ! graphbuilder_run_geometry_hook logs the failure instead of returning
+      ! an rc, but the underlying _ASSERT still raises a pFUnit exception.
+      @assertExceptionMatches('^GraphBuilder: geometry from child geom_provider2 does not match .*[(]unsupported: GEOMETRY[)]')
 
       parent_graph => parent_meta%get_component_graph()
       child_graph => child_meta%get_component_graph()

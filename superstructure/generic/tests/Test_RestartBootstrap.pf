@@ -224,9 +224,6 @@ contains
       call handler%read(internal_state, FILENAME, bootstrap=.false., rc=status)
 
       @assertExceptionRaised('Variable Z_B1 not found in restart file ' // FILENAME)
-      ! Drop the _VERIFY propagation of the error through the callers.
-      do while (catch('status=1'))
-      end do
       @assertFalse(status == 0)
 
       _UNUSED_DUMMY(this)
