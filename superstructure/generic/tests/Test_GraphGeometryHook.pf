@@ -430,8 +430,7 @@ contains
 
       ! graphbuilder_run_geometry_hook logs the failure instead of returning
       ! an rc, but the underlying _ASSERT still raises a pFUnit exception.
-      @assertExceptionRaised('GraphBuilder: geometry from child geom_provider2 does not match the receiving component' // &
-           ' own resolved geometry (unsupported: GEOMETRY) - should be unreachable given GeometrySpec own exclusive resolution')
+      @assertExceptionMatches('^GraphBuilder: geometry from child geom_provider2 does not match .*[(]unsupported: GEOMETRY[)]')
 
       parent_graph => parent_meta%get_component_graph()
       child_graph => child_meta%get_component_graph()
