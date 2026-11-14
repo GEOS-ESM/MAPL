@@ -5,18 +5,19 @@
 module mapl_mp_utils_api
    use mapl_ArrayReductions_mod, only: MAPL_AreaMean => AreaMean
    use mapl_ArrayReductions_mod, only: MAPL_MaxMin => MaxMin
-   ! Import all PackedTime functions (both prefixed and unprefixed)
-   use mapl_PackedTime_mod,      only: MAPL_PackedDateCreate => PackedDateCreate, &
-                                       MAPL_PackedTimeCreate => PackedTimeCreate, &
-                                       MAPL_PackedDateTimeCreate => PackedDateTimeCreate, &
-                                       MAPL_ESMFTimeFromPacked => ESMFTimeFromPacked, &
-                                       MAPL_UnpackDate => UnpackDate, &
-                                       MAPL_UnpackTime => UnpackTime, &
-                                       MAPL_UnpackDateTime => UnpackDateTime
 
-   use mapl_StringTemplate_mod,  only: mapl_StrTemplate => StrTemplate
-   use mapl_StringTemplate_mod,  only: mapl_fill_grads_template => fill_grads_template
-   use mapl_StringTemplate_mod,  only: mapl_fill_grads_template_esmf => fill_grads_template_esmf
+   ! Import all PackedTime functions (both prefixed and unprefixed)
+   use mapl_PackedTime_mod, only: MAPL_PackedDateCreate => PackedDateCreate
+   use mapl_PackedTime_mod, only: MAPL_PackedTimeCreate => PackedTimeCreate
+   use mapl_PackedTime_mod, only: MAPL_PackedDateTimeCreate => PackedDateTimeCreate
+   use mapl_PackedTime_mod, only: MAPL_ESMFTimeFromPacked => ESMFTimeFromPacked
+   use mapl_PackedTime_mod, only: MAPL_UnpackDate => UnpackDate
+   use mapl_PackedTime_mod, only: MAPL_UnpackTime => UnpackTime
+   use mapl_PackedTime_mod, only: MAPL_UnpackDateTime => UnpackDateTime
+
+   use mapl_StringTemplate_mod, only: mapl_StrTemplate => StrTemplate
+   use mapl_StringTemplate_mod, only: mapl_fill_grads_template => fill_grads_template
+   use mapl_StringTemplate_mod, only: mapl_fill_grads_template_esmf => fill_grads_template_esmf
 
    use mapl_Shmem_mod, only: MAPL_GetNodeInfo => GetNodeInfo
    use mapl_Shmem_mod, only: MAPL_CoresPerNodeGet => CoresPerNodeGet
@@ -36,19 +37,14 @@ module mapl_mp_utils_api
    use mapl_Shmem_mod, only: MAPL_MyNodeNum
    use mapl_Shmem_mod, only: MAPL_AmNodeRoot
    use mapl_Shmem_mod, only: MAPL_ShmInitialized
-   use mapl_LoadBalancer_mod, only: MAPL_LoadBalancerRun => LoadBalancerRun, &
-                                   MAPL_LoadBalancerCreate => LoadBalancerCreate, &
-                                   MAPL_LoadBalancerDestroy => LoadBalancerDestroy, &
-                                   MAPL_LoadBalancerGet => LoadBalancerGet, &
-                                   MAPL_LOADBALANCER_DISTRIBUTE => LOADBALANCER_DISTRIBUTE, &
-                                   MAPL_LOADBALANCER_RETRIEVE => LOADBALANCER_RETRIEVE
-   ! Temporary pre-LoadBalancer aliases, to be removed once clients are updated.
-   use mapl_LoadBalancer_mod, only: MAPL_LoadBalanceRun => LoadBalancerRun, &
-                                   MAPL_LoadBalanceCreate => LoadBalancerCreate, &
-                                   MAPL_LoadBalanceDestroy => LoadBalancerDestroy, &
-                                   MAPL_LoadBalanceGet => LoadBalancerGet, &
-                                   MAPL_LOADBALANCE_DISTRIBUTE => LOADBALANCER_DISTRIBUTE, &
-                                   MAPL_LOADBALANCE_RETRIEVE => LOADBALANCER_RETRIEVE
+
+   use mapl_LoadBalancer_mod, only: MAPL_LoadBalancerRun => LoadBalancerRun
+   use mapl_LoadBalancer_mod, only: MAPL_LoadBalancerCreate => LoadBalancerCreate
+   use mapl_LoadBalancer_mod, only: MAPL_LoadBalancerDestroy => LoadBalancerDestroy
+   use mapl_LoadBalancer_mod, only: MAPL_LoadBalancerGet => LoadBalancerGet
+   use mapl_LoadBalancer_mod, only: MAPL_LOADBALANCER_DISTRIBUTE => LOADBALANCER_DISTRIBUTE
+   use mapl_LoadBalancer_mod, only: MAPL_LOADBALANCER_RETRIEVE => LOADBALANCER_RETRIEVE
+
    implicit none
    private
 
@@ -100,13 +96,5 @@ module mapl_mp_utils_api
    public :: MAPL_LoadBalancerGet
    public :: MAPL_LOADBALANCER_DISTRIBUTE
    public :: MAPL_LOADBALANCER_RETRIEVE
-
-   ! Temporary aliases
-   public :: MAPL_LoadBalanceRun
-   public :: MAPL_LoadBalanceCreate
-   public :: MAPL_LoadBalanceDestroy
-   public :: MAPL_LoadBalanceGet
-   public :: MAPL_LOADBALANCE_DISTRIBUTE
-   public :: MAPL_LOADBALANCE_RETRIEVE
 
 end module mapl_mp_utils_api
