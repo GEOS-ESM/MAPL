@@ -388,7 +388,6 @@ contains
       var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', rc=status)
       call set_field_dictionary_config(saved)
       @assertExceptionRaised('standard_name required: FIELD "X" declares none (strict mode).')
-      @assertExceptionRaised('status=1')
    end subroutine test_required_standard_name_missing_fails_when_strict
 
    @test
@@ -403,7 +402,6 @@ contains
            rc=status)
       call set_field_dictionary_config(saved)
       @assertExceptionRaised('standard_name required: FIELD "X" declares none (strict mode).')
-      @assertExceptionRaised('status=1')
    end subroutine test_required_standard_name_unknown_fails_when_strict
 
    ! A mirror request counts as declared, and only a FIELD is checked.
@@ -460,7 +458,6 @@ contains
       var_spec%standard_name_mirror = .true.
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('mirror is only valid on an import or an expression export: X (STANDARD_NAME)')
-      @assertExceptionRaised('status=1')
    end subroutine test_mirror_standard_name_on_export_is_an_error
 
    ! make_VariableSpec strips the sentinel so the legacy FieldDictionary and
@@ -629,7 +626,6 @@ contains
       var_spec%state_intent = ESMF_STATEINTENT_IMPORT
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('a bracket is not valid on an import: X')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
    end subroutine test_hand_built_bracket_import_rejected_by_backstop
 
@@ -643,7 +639,6 @@ contains
       var_spec%state_intent = ESMF_STATEINTENT_EXPORT
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('a wildcard is only valid on an import: X')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
    end subroutine test_hand_built_export_wildcard_rejected_by_backstop
 
@@ -657,7 +652,6 @@ contains
       var_spec%state_intent = ESMF_STATEINTENT_IMPORT
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('a vector bracket is not valid on an import: X')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
    end subroutine test_hand_built_vectorbracket_import_rejected_by_backstop
 
@@ -681,7 +675,6 @@ contains
       var_spec%state_intent = ESMF_STATEINTENT_INTERNAL
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('a wildcard is only valid on an import: X')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
    end subroutine test_hand_built_internal_wildcard_rejected_by_backstop
 
@@ -705,7 +698,6 @@ contains
       var_spec%mirror_geom = .true.
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('mirror is only valid on an import or an expression export: X (GEOMETRY)')
-      @assertExceptionRaised('status=1')
    end subroutine test_geometry_factory_rejects_hand_built_mirror_geom_export
 
    @test
@@ -718,7 +710,6 @@ contains
       var_spec%mirror_vgrid = .true.
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('mirror is only valid on an import or an expression export: X (VERTICAL_GRID)')
-      @assertExceptionRaised('status=1')
    end subroutine test_vgrid_factory_rejects_hand_built_mirror_export
 
    @test
@@ -796,7 +787,6 @@ contains
       var_spec%typekind = MAPL_TYPEKIND_MIRROR
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('mirror is only valid on an import or an expression export: X (TYPE_KIND)')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
    end subroutine test_typekind_factory_rejects_hand_built_mirror_export
 
@@ -810,7 +800,6 @@ contains
       var_spec%ungridded_dims = UngriddedDims(is_mirror=.true.)
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('mirror is only valid on an import or an expression export: X (UNGRIDDED_DIMS)')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
    end subroutine test_ungridded_dims_factory_rejects_hand_built_mirror_export
 
@@ -985,7 +974,6 @@ contains
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised( &
            'mirror is only valid on an import or an expression export: X (LONG_NAME)')
-      @assertExceptionRaised('status=1')
    end subroutine test_mirror_long_name_on_export_is_an_error
 
    @test
@@ -1384,7 +1372,6 @@ contains
       var_spec%horizontal_dims_spec = HORIZONTAL_DIMS_MIRROR
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('mirror is only valid on an import or an expression export: X (HORIZONTAL_DIMS_SPEC)')
-      @assertExceptionRaised('status=1')
    end subroutine test_mirror_horizontal_dims_spec_on_export_is_an_error
 
    ! A mirror_geom request on a NONE item is moot: its geometry is not compared.
@@ -1905,7 +1892,6 @@ contains
       var_spec%vertical_alignment = 'mirror'
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('mirror is only valid on an import or an expression export: X (VERTICAL_ORIENTATION)')
-      @assertExceptionRaised('status=1')
    end subroutine test_mirror_vertical_orientation_on_field_export_fails
 
    @test
@@ -1918,7 +1904,6 @@ contains
       var_spec%vertical_alignment = 'sideways'
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('unknown vertical_alignment: sideways')
-      @assertExceptionRaised('status=1')
    end subroutine test_unknown_vertical_alignment_fails
 
    ! A 2D item (stagger NONE) has no vertical index to order.
@@ -2000,7 +1985,6 @@ contains
       var_spec%vertical_stagger = VERTICAL_STAGGER_MIRROR
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('mirror is only valid on an import or an expression export: X (VERTICAL_STAGGER)')
-      @assertExceptionRaised('status=1')
    end subroutine test_mirror_vertical_stagger_on_field_export_fails
 
    ! mirror_vgrid with no stagger mirrors it too; a declared stagger wins.
@@ -2653,7 +2637,6 @@ contains
       var_spec%conservation = new_ConservationMetadata_mirror()
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('mirror is only valid on an import or an expression export: X (CONSERVATION)')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
    end subroutine test_export_rejects_conservation_mirror
 
@@ -2667,7 +2650,6 @@ contains
       var_spec%normalization = NormalizationMetadata()
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('mirror is only valid on an import or an expression export: X (NORMALIZATION)')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
    end subroutine test_export_rejects_normalization_mirror
 
@@ -2880,7 +2862,6 @@ contains
       var_spec%conservation = new_ConservationMetadata_mirror()
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('mirror is only valid on an import or an expression export: X (CONSERVATION)')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
    end subroutine test_internal_rejects_conservation_mirror
 
@@ -2896,7 +2877,6 @@ contains
       var_spec%mirror_geom = .true.
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('mirror is only valid on an import or an expression export: X (GEOMETRY)')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
    end subroutine test_internal_rejects_hand_built_mirror_geom
 
@@ -2913,7 +2893,6 @@ contains
       var_spec%typekind = MAPL_TYPEKIND_MIRROR
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
       @assertFalse(descriptor%has_characteristic(TYPE_KIND_CHARACTERISTIC_KIND))
    end subroutine test_internal_rejects_hand_built_request_on_shape_without_entry
@@ -2977,7 +2956,6 @@ contains
       var_spec%state_intent = ESMF_STATEINTENT_IMPORT
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('an expression is only valid on an export: X')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
    end subroutine test_hand_built_expression_import_rejected
 
@@ -2991,7 +2969,6 @@ contains
       var_spec%state_intent = ESMF_STATEINTENT_INTERNAL
       call var_spec%make_characteristics(descriptor, rc=status)
       @assertExceptionRaised('an expression is only valid on an export: X')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
    end subroutine test_hand_built_expression_internal_rejected
 

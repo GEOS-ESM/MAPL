@@ -303,12 +303,8 @@ contains
 
       invoker = GridCompDriverPhaseInvoker(resolver, ESMF_METHOD_RUN)
       call invoker%invoke_phase('nonexistent-driver', 1, arguments, bindings, rc=status)
-      ! GridCompDriverPhaseInvoker.F90's own driver => this%resolver%resolve(driver_key, _RC)
-      ! propagates the resolver's non-zero rc through a bare _VERIFY,
-      ! which raises a pFUnit-visible exception in this suite (its
-      ! EXTRA_INITIALIZE installs the pFUnit-aware throw method) - must
-      ! be consumed here, same pattern as
-      ! Test_GraphBuilder.pf's own multi-frame-unwind precedent.
+      ! The resolver returns rc=1 without raising, so the invoker's _VERIFY
+      ! raises the only exception.
       @assertExceptionRaised('status=1')
       @assertTrue(status /= 0)
 

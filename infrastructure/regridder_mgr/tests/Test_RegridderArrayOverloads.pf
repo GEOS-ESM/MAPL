@@ -270,10 +270,6 @@ contains
       q_out = 0.0_REAL64
       call my_regridder%regrid(q_in, q_out, rc=status)
 
-      block
-        logical :: ignore
-        ignore = catch('status=1') ! uninteresting secondary error
-      end block
       @assertExceptionRaised('f_in typekind does not match route handle; set typekind_in in RegridderSpec')
 
 

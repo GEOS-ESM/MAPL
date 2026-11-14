@@ -411,16 +411,12 @@ contains
       ! MID has no child literally named after its own parent.
       resolved => resolve_qualified_component(mid_meta, 'comp_resolve_ancestor_root', status)
       @assertExceptionRaised('Child not found: <comp_resolve_ancestor_root>.')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
       @assert_that(status, is(not(equal_to(0))))
 
       ! Naming a sibling (SIBLING - neither MID itself nor a descendant
       ! of MID) starting from MID also fails, for the same reason.
       resolved => resolve_qualified_component(mid_meta, 'SIBLING', status)
       @assertExceptionRaised('Child not found: <SIBLING>.')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
       @assert_that(status, is(not(equal_to(0))))
 
       _UNUSED_DUMMY(this)

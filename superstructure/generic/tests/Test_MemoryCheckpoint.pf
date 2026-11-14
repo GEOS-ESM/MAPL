@@ -160,10 +160,7 @@ contains
    ! Reading an in-memory checkpoint for a state with no prior write
    ! must fail with an error rather than silently leaving the live
    ! state unmodified. The failure originates from an _ASSERT deep in
-   ! OuterMetaComponent%read_restart and propagates outward through
-   ! three additional _VERIFY-wrapped call frames (each raising its
-   ! own pFUnit exception via MAPL_throw_exception); each layer must
-   ! be unwound with its own @assertExceptionRaised.
+   ! OuterMetaComponent%read_restart.
    @test(npes=[0])
    subroutine test_read_with_no_prior_write_fails(this)
       class(MpiTestMethod), intent(inout) :: this
@@ -183,10 +180,6 @@ contains
 
       ! Innermost: OuterMetaComponent/read_restart.F90 copy_checkpoint_into_state_
       @assertExceptionRaised('In-memory checkpoint read requested but no in-memory checkpoint write has occurred.')
-      ! OuterMetaComponent/read_restart.F90 read_memory_checkpoint_ (_VERIFY propagation)
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
 
       _UNUSED_DUMMY(this)
    end subroutine test_read_with_no_prior_write_fails

@@ -126,9 +126,6 @@ contains
            'A: {typekind: mirror}}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
       @assertExceptionRaised('mirror is only valid on an import or an expression export: A')
-      ! parse_state_specs and parse_var_specs each pass the failure up
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
       call ESMF_HConfigDestroy(config, _RC)
 
@@ -153,8 +150,6 @@ contains
            'E: {expression: "A + B"}}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
       @assertExceptionRaised('an expression is only valid on an export: E')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
       call ESMF_HConfigDestroy(config, _RC)
 
@@ -162,8 +157,6 @@ contains
            'E: {expression: "A + B"}}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
       @assertExceptionRaised('an expression is only valid on an export: E')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
       call ESMF_HConfigDestroy(config, _RC)
 
@@ -309,9 +302,6 @@ contains
            'A: {quantity_type: temperature}}}}', _RC)
       var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
       @assertExceptionRaised('Unsupported quantity_type: <temperature>')
-      ! parse_state_specs and parse_var_specs each pass it up
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
       @assertEqual(1, status)
       call ESMF_HConfigDestroy(config, _RC)
    end subroutine test_parse_var_specs_rejects_unknown_quantity_type
@@ -642,7 +632,6 @@ contains
            'dst_comp: B, dst_name: Z, dst_intent: import}', &
            conn_kind, src_intent, dst_intent, rc)
       @assertExceptionRaised(expected)
-      @assertExceptionRaised('status=1')
       @assertEqual(1, rc)
    end subroutine test_parse_connection_simple_internal_source_fails
 
@@ -659,7 +648,6 @@ contains
            'dst_comp: B, dst_name: Z, dst_intent: internal}', &
            conn_kind, src_intent, dst_intent, rc)
       @assertExceptionRaised(expected)
-      @assertExceptionRaised('status=1')
       @assertEqual(1, rc)
    end subroutine test_parse_connection_simple_internal_dest_fails
 
@@ -676,7 +664,6 @@ contains
            'dst_comp: B, dst_name: Z}', &
            conn_kind, src_intent, dst_intent, rc)
       @assertExceptionRaised(expected)
-      @assertExceptionRaised('status=1')
       @assertEqual(1, rc)
    end subroutine test_parse_connection_simple_import_source_fails
 
@@ -695,7 +682,6 @@ contains
            'dst_comp: B, dst_name: Z}', &
            conn_kind, src_intent, dst_intent, rc)
       @assertExceptionRaised(expected)
-      @assertExceptionRaised('status=1')
       @assertEqual(1, rc)
    end subroutine test_parse_connection_wrong_case_fails
 
@@ -712,7 +698,6 @@ contains
            'dst_intent: imports}', &
            conn_kind, src_intent, dst_intent, rc)
       @assertExceptionRaised(expected)
-      @assertExceptionRaised('status=1')
       @assertEqual(1, rc)
    end subroutine test_parse_connection_typo_dst_fails
 
@@ -779,7 +764,6 @@ contains
            'dst_comp: <self>, dst_name: Z, dst_intent: export}', &
            conn_kind, src_intent, dst_intent, rc)
       @assertExceptionRaised(expected)
-      @assertExceptionRaised('status=1')
       @assertEqual(1, rc)
    end subroutine test_parse_connection_reexport_import_source_fails
 

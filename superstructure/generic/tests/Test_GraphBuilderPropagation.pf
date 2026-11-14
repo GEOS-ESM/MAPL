@@ -1223,7 +1223,6 @@ contains
 
       call gb%run_reexport_hook(meta, status)
       @assertExceptionRaised('Re-export destination already exists: E')
-      @assertExceptionRaised('status=1')
       _UNUSED_DUMMY(this)
    end subroutine test_reexport_duplicate_destination_fails
 
@@ -1251,7 +1250,6 @@ contains
 
       call gb%run_reexport_hook(meta, status)
       @assertExceptionRaised('Re-export source does not exist: Q')
-      @assertExceptionRaised('status=1')
       _UNUSED_DUMMY(this)
    end subroutine test_reexport_missing_source_fails
 
@@ -1287,7 +1285,6 @@ contains
 
       call gb%run_reexport_hook(meta, status)
       @assertExceptionRaised('Re-export source does not exist: T')
-      @assertExceptionRaised('status=1')
       _UNUSED_DUMMY(this)
    end subroutine test_reexport_missing_descendant_source_fails
 
@@ -1316,10 +1313,6 @@ contains
 
       call gb%run_reexport_hook(meta, status)
       @assertExceptionRaised('Child not found: <NOPE>.')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
-      @assertExceptionRaised('status=1')
       _UNUSED_DUMMY(this)
    end subroutine test_reexport_bad_component_path_fails
 

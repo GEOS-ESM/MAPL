@@ -20,3 +20,9 @@ target_link_libraries (${this}
   GFTL_SHARED::gftl-shared-v1
 )
 set_target_properties (${this} PROPERTIES Fortran_MODULE_DIRECTORY ${include_${this}})
+
+# MAPL's tests rely on propagate() (pFUnit 4.22.0), which folds a failure
+# passed up a call stack into the pending exception's traceback.
+if (PFUNIT_VERSION VERSION_LESS 4.22.0)
+  message (FATAL_ERROR "MAPL tests require pFUnit 4.22.0 or newer (found ${PFUNIT_VERSION})")
+endif ()
