@@ -74,6 +74,7 @@ target_sources(MAPL.generic PRIVATE
   transforms/VerticalFlipTransform.F90
   transforms/VerticalColumnRegridTransform.F90
   transforms/SnapshotTransform.F90
+  transforms/WeightedDeltaBackTransform.F90
   ExtensionResolution.F90
   GraphOwnsUserStates.F90
   ExtensionMaterialization.F90
