@@ -103,6 +103,8 @@ module mapl_GraphBuilder_mod
    ! limitation). Each is called from at least one submodule.
    public :: is_self
    public :: itemtype_name
+   public :: for_each_child
+   public :: for_each_descendant
    ! Public so tests and other code that identify a geometry node need not
    ! duplicate the key format.
    public :: GEOMETRY_ITEM_NAME
@@ -250,6 +252,25 @@ module mapl_GraphBuilder_mod
          logical, intent(out) :: done
          integer, optional, intent(out) :: rc
       end subroutine I_pair_op
+   end interface
+
+   ! Per-component callbacks for for_each_child() and for_each_descendant().
+   ! Callers pass an internal procedure that host-associates its context.
+   ! Clearing descend skips meta's subtree in for_each_descendant().
+   abstract interface
+      subroutine I_child_op(child_name, child_meta, rc)
+         import OuterMetaComponent
+         character(*), intent(in) :: child_name
+         class(OuterMetaComponent), target, intent(inout) :: child_meta
+         integer, optional, intent(out) :: rc
+      end subroutine I_child_op
+
+      subroutine I_component_op(meta, descend, rc)
+         import OuterMetaComponent
+         class(OuterMetaComponent), target, intent(inout) :: meta
+         logical, intent(out) :: descend
+         integer, optional, intent(out) :: rc
+      end subroutine I_component_op
    end interface
 
    ! One entry in the flattened qualified-export namespace
@@ -628,7 +649,7 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine graphbuilder_resolve_deferred
-   module recursive subroutine graphbuilder_harvest_deferred(this, rc)
+   module subroutine graphbuilder_harvest_deferred(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
@@ -1055,6 +1076,77 @@ contains
       _RETURN(_SUCCESS)
    end function resolve_callback_import
 
+   ! Calls op on each of parent's children, in child order. A failed child
+   ! lookup fails the walk, unless report_label is given (reported on
+   ! parent as '<report_label>:get_child_name' etc., child skipped) or
+   ! skip_failed is .true. (child skipped silently). A failing op always
+   ! stops the walk.
+   recursive subroutine for_each_child(parent, op, report_label, skip_failed, rc)
+      class(OuterMetaComponent), target, intent(inout) :: parent
+      procedure(I_child_op) :: op
+      character(*), optional, intent(in) :: report_label
+      logical, optional, intent(in) :: skip_failed
+      integer, optional, intent(out) :: rc
 
+      integer :: status, i
+      logical :: skip
+      character(:), allocatable :: child_name
+      type(OuterMetaComponent), pointer :: child_meta
+
+      skip = present(report_label)
+      if (present(skip_failed)) skip = skip .or. skip_failed
+
+      do i = 1, parent%get_num_children()
+         child_name = parent%get_child_name(i, status)
+         if (present(report_label)) call report_if_failed(parent, report_label // ':get_child_name', status)
+         if (skip .and. status /= 0) cycle
+         _VERIFY(status)
+
+         child_meta => parent%get_child_outer_meta(child_name, status)
+         if (present(report_label)) call report_if_failed(parent, report_label // ':get_child_outer_meta', status)
+         if (skip .and. status /= 0) cycle
+         _VERIFY(status)
+
+         call op(child_name, child_meta, _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine for_each_child
+
+   ! Pre-order walk: op on meta, then (unless op clears descend) on each
+   ! child's subtree in child order. report_label and skip_failed apply to
+   ! child lookups at every level, as in for_each_child.
+   recursive subroutine for_each_descendant(meta, op, report_label, skip_failed, rc)
+      class(OuterMetaComponent), target, intent(inout) :: meta
+      procedure(I_component_op) :: op
+      character(*), optional, intent(in) :: report_label
+      logical, optional, intent(in) :: skip_failed
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      logical :: descend
+
+      call op(meta, descend, _RC)
+      _RETURN_UNLESS(descend)
+
+      call for_each_child(meta, visit_subtree, report_label, skip_failed, _RC)
+
+      _RETURN(_SUCCESS)
+   contains
+
+      recursive subroutine visit_subtree(child_name, child_meta, rc)
+         character(*), intent(in) :: child_name
+         class(OuterMetaComponent), target, intent(inout) :: child_meta
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+
+         call for_each_descendant(child_meta, op, report_label, skip_failed, _RC)
+
+         _RETURN(_SUCCESS)
+         _UNUSED_DUMMY(child_name)
+      end subroutine visit_subtree
+
+   end subroutine for_each_descendant
 
 end module mapl_GraphBuilder_mod

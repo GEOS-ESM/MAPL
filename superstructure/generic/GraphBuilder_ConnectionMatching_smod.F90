@@ -668,32 +668,40 @@ contains
    ! descendant, so a connection resolved directly (bypassing each
    ! descendant's own connect hook) still sees a non-fatal DEFERRED side
    ! converted before matching.
-   recursive subroutine fallback_unsupplied_deferred_tree(meta, rc)
+   subroutine fallback_unsupplied_deferred_tree(meta, rc)
       class(OuterMetaComponent), target, intent(inout) :: meta
       integer, optional, intent(out) :: rc
 
-      integer :: status, j
-      type(GraphResolutionEntryVector) :: fallback
-      type(GraphResolutionEntry), pointer :: entry
-      class(Logger), pointer :: lgr
-      character(:), allocatable :: msg
-      type(OuterMetaComponent), pointer :: child_meta
-      character(:), allocatable :: child_name
+      integer :: status
 
-      call graphbuilder_fallback_unsupplied_deferred(meta, fallback, _RC)
-      lgr => meta%get_logger()
-      do j = 1, fallback%size()
-         entry => fallback%of(j)
-         msg = 'GraphBuilder: ' // entry%component_name // ': ' // entry%reason
-         call lgr%warning(msg)
-      end do
-      do j = 1, meta%get_num_children()
-         child_name = meta%get_child_name(j, _RC)
-         child_meta => meta%get_child_outer_meta(child_name, _RC)
-         call fallback_unsupplied_deferred_tree(child_meta, _RC)
-      end do
+      call for_each_descendant(meta, fallback_one, _RC)
 
       _RETURN(_SUCCESS)
+   contains
+
+      subroutine fallback_one(component, descend, rc)
+         class(OuterMetaComponent), target, intent(inout) :: component
+         logical, intent(out) :: descend
+         integer, optional, intent(out) :: rc
+
+         integer :: status, j
+         type(GraphResolutionEntryVector) :: fallback
+         type(GraphResolutionEntry), pointer :: entry
+         class(Logger), pointer :: lgr
+         character(:), allocatable :: msg
+
+         descend = .true.
+         call graphbuilder_fallback_unsupplied_deferred(component, fallback, _RC)
+         lgr => component%get_logger()
+         do j = 1, fallback%size()
+            entry => fallback%of(j)
+            msg = 'GraphBuilder: ' // entry%component_name // ': ' // entry%reason
+            call lgr%warning(msg)
+         end do
+
+         _RETURN(_SUCCESS)
+      end subroutine fallback_one
+
    end subroutine fallback_unsupplied_deferred_tree
 
 end submodule GraphBuilder_ConnectionMatching_smod

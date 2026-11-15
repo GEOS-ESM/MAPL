@@ -137,49 +137,56 @@ contains
    ! creation value, from what the component's own phase put on the item's
    ! field or bundle (a component with no default geom supplies it there).
    ! Walks the subtree.
-   module recursive subroutine graphbuilder_harvest_deferred(this, rc)
+   module subroutine graphbuilder_harvest_deferred(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
 
-      integer :: status, i
-      type(ComponentGraph), pointer :: graph
-      type(NodeIdSet), target :: node_ids
-      type(NodeIdSetIterator) :: iter
-      class(GraphNode), pointer :: node
-      type(StateItemDescriptor), pointer :: descriptor
-      type(OuterMetaComponent), pointer :: child_meta
-      type(GriddedComponentDriver), pointer :: driver
-      type(MultiState) :: states
-      character(:), allocatable :: child_name
+      integer :: status
 
-      driver => this%get_user_gc_driver()
-      states = driver%get_states()
-
-      graph => this%get_component_graph()
-      node_ids = graph%get_node_ids()
-      associate (e => node_ids%ftn_end())
-         iter = node_ids%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            node => graph%get_node(iter%of())
-            if (.not. associated(node)) cycle
-            select type (node)
-            class is (StateItemNode)
-               descriptor => node%get_descriptor()
-               if (size(descriptor%get_unresolved_kinds()) == 0 .and. &
-                    size(descriptor%get_incomplete_kinds()) == 0) cycle
-               call fill_deferred_from_handle(states, node, descriptor, _RC)
-            end select
-         end do
-      end associate
-
-      do i = 1, this%get_num_children()
-         child_name = this%get_child_name(i, _RC)
-         child_meta => this%get_child_outer_meta(child_name, _RC)
-         call graphbuilder_harvest_deferred(child_meta, _RC)
-      end do
+      call for_each_descendant(this, harvest_one, _RC)
 
       _RETURN(_SUCCESS)
+   contains
+
+      subroutine harvest_one(meta, descend, rc)
+         class(OuterMetaComponent), target, intent(inout) :: meta
+         logical, intent(out) :: descend
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(ComponentGraph), pointer :: graph
+         type(NodeIdSet), target :: node_ids
+         type(NodeIdSetIterator) :: iter
+         class(GraphNode), pointer :: node
+         type(StateItemDescriptor), pointer :: descriptor
+         type(GriddedComponentDriver), pointer :: driver
+         type(MultiState) :: states
+
+         descend = .true.
+         driver => meta%get_user_gc_driver()
+         states = driver%get_states()
+
+         graph => meta%get_component_graph()
+         node_ids = graph%get_node_ids()
+         associate (e => node_ids%ftn_end())
+            iter = node_ids%ftn_begin()
+            do while (iter /= e)
+               call iter%next()
+               node => graph%get_node(iter%of())
+               if (.not. associated(node)) cycle
+               select type (node)
+               class is (StateItemNode)
+                  descriptor => node%get_descriptor()
+                  if (size(descriptor%get_unresolved_kinds()) == 0 .and. &
+                       size(descriptor%get_incomplete_kinds()) == 0) cycle
+                  call fill_deferred_from_handle(states, node, descriptor, _RC)
+               end select
+            end do
+         end associate
+
+         _RETURN(_SUCCESS)
+      end subroutine harvest_one
+
    end subroutine graphbuilder_harvest_deferred
 
    logical function status_has_geom(field_status) result(has_geom)
