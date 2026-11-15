@@ -378,6 +378,18 @@ tests and `apps/graph_diagnostic`), `OuterMetaComponent.F90` +
 `OuterMetaComponent/` (submodule files; owns a `HierarchyId`, a
 `ComponentGraph`, child drivers, and the legacy `StateRegistry`).
 
+Three shared walk helpers, all using the same internal-procedure callback
+idiom (the caller passes a host-associated internal procedure as `op`, so no
+context type is needed): `for_each_connection_pair`
+(`GraphBuilder_ConnectionResolution_smod.F90`, the one Match/Simple loop for
+the three connection-resolution passes); `for_each_child`/
+`for_each_descendant` (`GraphBuilder.F90`, public for the same gfortran
+cross-submodule linkage reason as `is_self`; pre-order over the component
+tree, the op can clear its `descend` flag to skip a subtree); and
+`for_each_state_item_node` (`mapl_StateItemNodeWalk_mod`, a
+`StateItemNode`-filtered walk over a graph's own `get_node_ids()`, skipping
+null or non-`StateItemNode` targets).
+
 `superstructure/generic/tests/` holds `Test_GraphBuilder_*.pf` (one per
 submodule area), `Test_GraphBuilderPropagation.pf`,
 `Test_GraphBuilderEquivalence.pf`, `Test_GraphEquivalenceHarness.pf`,
@@ -509,6 +521,16 @@ Graph code also must not call into the legacy `specs/*Aspect`,
   found `StateItemNode%get_node_id()`. Same for `find_export_node_id`.
 - Composite members are not independently addressable: they appear in no
   resource index or port table.
+- `ComponentGraph` scans its own private port tables in place for three
+  lookups, instead of a caller deep-copying the table with
+  `get_export_ports`/`get_import_ports` and scanning by hand:
+  `find_export_port(name, node_id)` (first match in `PortId` order, skips
+  `''` names and non-`StateItemNode` targets), `has_export_port(id, name)`
+  (exact `(id, name)` pair, the diamond case) and
+  `has_import_port_value(node_id)` (`NodeId` match on the import-port
+  values). `find_export_node` (`GraphBuilder_ConnectionResolution_smod.F90`,
+  the hot path for connection/expression lookups) is a thin wrapper over
+  `find_export_port` and no longer copies the port table.
 
 ### 2.4 Lifecycle call sites (all in `OuterMetaComponent/`)
 

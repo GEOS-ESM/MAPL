@@ -2468,6 +2468,51 @@ path uses yet. Owner decisions:
   the three connection passes, and `source_satisfies_import` the one read-only
   source check (callback, wildcard, exact); `resolve_one_pair`'s head left as is.
   One test's `status=1` count changed (+2 frames); resolution vectors identical.
+  **Status:** R3 done (in-house, not outsourced, 486e3826e): new module
+  `mapl_StateItemNodeWalk_mod` (`for_each_state_item_node(graph, op)`), using
+  the internal-procedure callback idiom of `for_each_connection_pair` and
+  `for_each_descendant`. Replaces the skip-if-null-or-not-a-StateItemNode
+  `graph%get_node_ids()` loop in five routines: `graphbuilder_resolve_deferred`,
+  the per-component op in `graphbuilder_harvest_deferred`,
+  `graphbuilder_fallback_unsupplied_deferred`, the freeze-time
+  unresolved-characteristics accumulator (its op reports success even when
+  `check_resolved` fails, so every node is still visited) and
+  `graphbuilder_run_expression_hook`. New `Test_StateItemNodeWalk` covers skip,
+  visit order, early return on a failing callback, and empty/finalized graphs.
+  No behavior change. ESSENTIAL NAG 72/72 and gfortran 72/72.
+  **Status:** R4 done (in-house, not outsourced, PR #5536, 3e37f6698): new
+  `for_each_child(parent, op, ...)` and pre-order `for_each_descendant(meta,
+  op, ...)` in `GraphBuilder.F90`, same internal-procedure callback idiom; the
+  op can clear its `descend` flag to skip a subtree (freeze uses this when a
+  graph fails to freeze). Replaces six routines' own
+  `get_num_children`/`get_child_name`/`get_child_outer_meta` loop and
+  recursion: `freeze_subtree_`, `collect_unresolved_subtree_` (reports each
+  failed child lookup as `graph_freeze:...` and skips that child), the
+  unresolved-characteristics and unsupported-pairs accumulators (now internal
+  procedures of their only callers; a failed lookup is skipped silently),
+  `graphbuilder_harvest_deferred` and `fallback_unsupplied_deferred_tree` (a
+  failed lookup or op stops the walk). Visit order, failure handling and
+  messages unchanged. Both helpers are public for the same gfortran
+  cross-submodule linkage reason as `is_self`. ESSENTIAL NAG 72/72 and
+  gfortran 72/72.
+  **Status:** R5 done (in-house, not outsourced, a54a70236): three new
+  `ComponentGraph` methods scan the private port tables in place instead of
+  deep-copying them through `get_export_ports`/`get_import_ports` and
+  scanning by hand: `find_export_port(name, node_id)` (first match in PortId
+  order, skips `''` names and non-StateItemNode targets, `.false.` when
+  finalized or name is `''`), `has_export_port(id, name)` (exact (id, name)
+  pair, the diamond case) and `has_import_port_value(node_id)` (NodeId match
+  on the import-port values). `find_export_node` is now a thin wrapper over
+  `find_export_port` (same signature, was the hot path copying the table
+  twice per call). The module-private `find_export_port_by_name`,
+  `already_exported` and `already_mirrored` are deleted; their callers use
+  the new methods. `get_export_ports`/`get_import_ports` are unchanged; the
+  three other copy-and-scan import-port walks (`resolve_inout_destination`,
+  `for_each_matching_import`, `graphbuilder_unresolved_import_node_ids`) are
+  deliberately untouched. New unit tests in `Test_ComponentHierarchyGraph.pf`
+  cover found/not found, empty name, propagated name, first-match-wins,
+  finalized graph, the diamond pair match, and `has_import_port_value`. Pure
+  refactor, no behavior change. ESSENTIAL NAG 72/72 and gfortran 72/72.
   **Status:** R7 done (outsourced, @weiyuan-jiang, PR #5529, landed 61cda0c08):
   `resolve_geometry_from_child` (pull) and `push_geometry_to_child` (push) in
   `GraphBuilder_Geometry_smod.F90` folded into one direction-parameterized
