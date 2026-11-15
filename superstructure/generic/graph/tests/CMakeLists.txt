@@ -54,6 +54,7 @@ set(test_srcs
   Test_HorizontalRegridTransform.pf
   Test_HorizontalBundleRegridTransform.pf
   Test_VerticalColumnRegridTransform.pf
+  Test_SnapshotTransform.pf
   Test_GeometryRegridderParam.pf
   Test_StateItemCharacteristicKind.pf
   Test_StateItemCharacteristic.pf

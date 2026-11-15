@@ -243,7 +243,7 @@ add the explicit collection check.
 / -WireDeltaBack.** Per the `graph/callback-wiring` delta. The three
 Transforms are tested stand-alone first (decision 14 of the design
 track: each transform tested once, alone).
-- **Status:** not started (each)
+- **Status:** CB6-Snapshot done; -ArgCharacteristics / -WeightedDeltaBack / -ColumnFill / -WireDeltaBack not started
 
 **CB7-MockHandler / -MockFunction / -MockInvoker / -Expectations.**
 Per the `graph/callback-test-tools` delta. Configurable components
