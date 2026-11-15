@@ -6,8 +6,7 @@
 submodule (mapl_GraphBuilder_mod) GraphBuilder_LifecycleHooks_smod
    use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
-   use mapl_GraphNode_mod, only: GraphNode
-   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
+   use mapl_StateItemNodeWalk_mod, only: for_each_state_item_node
    use pflogger, only: Logger
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -130,51 +129,18 @@ contains
       type(GraphResolutionEntryVector), intent(inout) :: warnings
       integer, optional, intent(out) :: rc
 
-      integer :: status, i, g
+      integer :: status, g
       type(ComponentGraph), pointer :: graph
-      type(NodeIdSet), target :: node_ids
-      type(NodeIdSetIterator) :: iter
-      class(GraphNode), pointer :: node
-      type(StateItemDescriptor), pointer :: descriptor
-      type(StateItemCharacteristicKind), allocatable :: fallen_back(:)
       type(StateItemCharacteristicKind), allocatable :: kinds_seen(:)
       type(StringVector), allocatable :: names_by_kind(:)
-      character(:), allocatable :: component_name, item_name, reason
+      character(:), allocatable :: component_name, reason
 
       component_name = this%get_name(_RC)
       allocate(kinds_seen(0))
       allocate(names_by_kind(0))
 
       graph => this%get_component_graph()
-      node_ids = graph%get_node_ids()
-      associate (e => node_ids%ftn_end())
-         iter = node_ids%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            node => graph%get_node(iter%of())
-            if (.not. associated(node)) cycle
-            select type (node)
-            class is (StateItemNode)
-               descriptor => node%get_descriptor()
-               call descriptor%fallback_unsupplied_deferred(fallen_back, _RC)
-               if (size(fallen_back) == 0) cycle
-               if (node%has_short_name()) then
-                  item_name = node%get_short_name()
-               else
-                  item_name = '<extension>'
-               end if
-               do i = 1, size(fallen_back)
-                  g = index_of_kind(kinds_seen, fallen_back(i))
-                  if (g == 0) then
-                     kinds_seen = [kinds_seen, fallen_back(i)]
-                     call grow_names_by_kind(names_by_kind)
-                     g = size(kinds_seen)
-                  end if
-                  call names_by_kind(g)%push_back(item_name)
-               end do
-            end select
-         end do
-      end associate
+      call for_each_state_item_node(graph, record_fallback, _RC)
 
       do g = 1, size(kinds_seen)
          reason = summarize_fallback(kinds_seen(g), names_by_kind(g))
@@ -183,6 +149,40 @@ contains
       end do
 
       _RETURN(_SUCCESS)
+   contains
+
+      subroutine record_fallback(node, rc)
+         class(StateItemNode), target, intent(inout) :: node
+         integer, optional, intent(out) :: rc
+
+         integer :: status, i, g
+         type(StateItemDescriptor), pointer :: descriptor
+         type(StateItemCharacteristicKind), allocatable :: fallen_back(:)
+         character(:), allocatable :: item_name
+
+         descriptor => node%get_descriptor()
+         call descriptor%fallback_unsupplied_deferred(fallen_back, _RC)
+         if (size(fallen_back) == 0) then
+            _RETURN(_SUCCESS)
+         end if
+         if (node%has_short_name()) then
+            item_name = node%get_short_name()
+         else
+            item_name = '<extension>'
+         end if
+         do i = 1, size(fallen_back)
+            g = index_of_kind(kinds_seen, fallen_back(i))
+            if (g == 0) then
+               kinds_seen = [kinds_seen, fallen_back(i)]
+               call grow_names_by_kind(names_by_kind)
+               g = size(kinds_seen)
+            end if
+            call names_by_kind(g)%push_back(item_name)
+         end do
+
+         _RETURN(_SUCCESS)
+      end subroutine record_fallback
+
    end subroutine graphbuilder_fallback_unsupplied_deferred
 
    integer function index_of_kind(kinds, kind) result(idx)

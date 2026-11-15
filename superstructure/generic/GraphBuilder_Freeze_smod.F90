@@ -6,8 +6,7 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Freeze_smod
    use mapl_ErrorHandling_mod
    use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use pflogger, only: Logger
-   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
-   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNodeWalk_mod, only: for_each_state_item_node
    use mapl_ValidationPolicy_mod, only: validation_is_strict
    use gFTL2_StringVector, only: StringVector
    implicit none(type, external)
@@ -146,6 +145,7 @@ contains
 
       integer :: status
       logical :: failed
+      character(:), allocatable :: comp_name
 
       failed = .false.
       call for_each_descendant(this, accumulate_unresolved_characteristics, skip_failed=.true., _RC)
@@ -160,11 +160,6 @@ contains
 
          integer :: status
          type(ComponentGraph), pointer :: graph
-         type(NodeIdSet), target :: node_ids
-         type(NodeIdSetIterator) :: iter
-         class(GraphNode), pointer :: node
-         type(StateItemDescriptor), pointer :: descriptor
-         character(:), allocatable :: comp_name, item_name
          class(Logger), pointer :: lgr
 
          descend = .true.
@@ -177,29 +172,34 @@ contains
          end if
 
          graph => meta%get_component_graph()
-         node_ids = graph%get_node_ids()
-         associate (e => node_ids%ftn_end())
-            iter = node_ids%ftn_begin()
-            do while (iter /= e)
-               call iter%next()
-               node => graph%get_node(iter%of())
-               if (.not. associated(node)) cycle
-               select type (node)
-               class is (StateItemNode)
-                  descriptor => node%get_descriptor()
-                  if (node%has_short_name()) then
-                     item_name = node%get_short_name()
-                  else
-                     item_name = '<extension>'
-                  end if
-                  call descriptor%check_resolved(comp_name // ':' // item_name, rc=status)
-                  if (status /= 0) failed = .true.
-               end select
-            end do
-         end associate
+         call for_each_state_item_node(graph, check_node, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine accumulate_unresolved_characteristics
+
+      ! Per-node op for accumulate_unresolved_characteristics; comp_name is
+      ! the component's, set there. Reports success even when check_resolved
+      ! fails (recorded in failed) so every node is visited and every message
+      ! logged.
+      subroutine check_node(node, rc)
+         class(StateItemNode), target, intent(inout) :: node
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(StateItemDescriptor), pointer :: descriptor
+         character(:), allocatable :: item_name
+
+         descriptor => node%get_descriptor()
+         if (node%has_short_name()) then
+            item_name = node%get_short_name()
+         else
+            item_name = '<extension>'
+         end if
+         call descriptor%check_resolved(comp_name // ':' // item_name, rc=status)
+         if (status /= 0) failed = .true.
+
+         _RETURN(_SUCCESS)
+      end subroutine check_node
 
    end subroutine check_characteristics_resolved_subtree_
 

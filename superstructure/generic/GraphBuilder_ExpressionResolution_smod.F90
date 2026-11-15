@@ -32,10 +32,9 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_ExpressionResolution_smod
    use mapl_ExtensionMaterialization_mod, only: field_extension_is_created
    use mapl_FieldCreate_mod, only: FieldsAreAliased
    use mapl_field_bundle_api, only: MAPL_FieldBundleDestroy
-   use mapl_GraphNode_mod, only: GraphNode
    use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
-   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
+   use mapl_StateItemNodeWalk_mod, only: for_each_state_item_node
    use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
    use mapl_PortId_mod, only: PortId
    use mapl_StateArithmeticParser_mod, only: parser_variables_in_expression
@@ -62,37 +61,36 @@ contains
 
       integer :: status
       type(ComponentGraph), pointer :: graph
-      type(NodeIdSet), target :: node_ids
-      type(NodeIdSetIterator) :: node_iter
-      type(NodeId) :: node_id
-      class(GraphNode), pointer :: generic_node
       type(GraphResolutionEntryVector) :: local_unresolved
       type(GraphResolutionEntryVector) :: local_unsupported
-      type(StateItemDescriptor), pointer :: descriptor
 
       graph => this%get_component_graph()
-      node_ids = graph%get_node_ids()
-
-      node_iter = node_ids%ftn_begin()
-      do while (node_iter /= node_ids%ftn_end())
-         call node_iter%next()
-         node_id = node_iter%of()
-         generic_node => graph%get_node(node_id)
-         if (.not. associated(generic_node)) cycle
-         select type (generic_node)
-         class is (StateItemNode)
-            descriptor => generic_node%get_descriptor()
-            if (.not. (descriptor%get_declared_item_type() == MAPL_STATEITEM_EXPRESSION)) cycle
-            call check_expression_item(this, generic_node, local_unresolved, &
-                 local_unsupported, _RC)
-         end select
-      end do
+      call for_each_state_item_node(graph, check_if_expression, _RC)
 
       if (present(unresolved)) unresolved = local_unresolved
       if (present(unsupported)) unsupported = local_unsupported
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
+   contains
+
+      subroutine check_if_expression(node, rc)
+         class(StateItemNode), target, intent(inout) :: node
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(StateItemDescriptor), pointer :: descriptor
+
+         descriptor => node%get_descriptor()
+         if (.not. (descriptor%get_declared_item_type() == MAPL_STATEITEM_EXPRESSION)) then
+            _RETURN(_SUCCESS)
+         end if
+         call check_expression_item(this, node, local_unresolved, &
+              local_unsupported, _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine check_if_expression
+
    end subroutine graphbuilder_run_expression_hook
 
    ! Per-item worker for graphbuilder_run_expression_hook: one entry per

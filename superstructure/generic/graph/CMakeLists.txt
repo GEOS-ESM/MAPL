@@ -63,6 +63,7 @@ target_sources(MAPL.generic PRIVATE
   ComponentGraph.F90
   ComponentGraph_DemandDrivenUpdate.F90
   GraphExport.F90
+  StateItemNodeWalk.F90
 
   transforms/UnitsConverterTransform.F90
   transforms/TypeKindConverterTransform.F90

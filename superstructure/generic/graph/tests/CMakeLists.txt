@@ -45,6 +45,7 @@ set(test_srcs
   Test_MethodGraphNode.pf
   Test_MethodInvocation.pf
   Test_GraphExport.pf
+  Test_StateItemNodeWalk.pf
   Test_ExtensionResolution.pf
   Test_ExtensionMaterialization.pf
   Test_UnitsConverterTransform.pf

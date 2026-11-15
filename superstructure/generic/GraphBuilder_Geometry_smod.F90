@@ -6,8 +6,7 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Geometry_smod
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
    use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain
    use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
-   use mapl_GraphNode_mod, only: GraphNode
-   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
+   use mapl_StateItemNodeWalk_mod, only: for_each_state_item_node
    use mapl_GeometrySpec_mod, only: GEOMETRY_FROM_CHILD, GEOMETRY_FROM_PARENT
    use mapl_GeomId_mod, only: GeomId
    use mapl_GeomProxyField_mod, only: new_geom_proxy_item, &
@@ -100,10 +99,6 @@ contains
       type(ESMF_Geom) :: geom
       class(VerticalGrid), pointer :: vgrid
       type(ComponentGraph), pointer :: graph
-      type(NodeIdSet), target :: node_ids
-      type(NodeIdSetIterator) :: iter
-      class(GraphNode), pointer :: node
-      type(StateItemDescriptor), pointer :: descriptor
 
       if (this%has_geom()) then
          geom = this%get_geom(_RC)
@@ -114,23 +109,25 @@ contains
       call defaults%set_component_scope()
 
       graph => this%get_component_graph()
-      node_ids = graph%get_node_ids()
-      associate (e => node_ids%ftn_end())
-         iter = node_ids%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            node => graph%get_node(iter%of())
-            if (.not. associated(node)) cycle
-            select type (node)
-            class is (StateItemNode)
-               descriptor => node%get_descriptor()
-               call descriptor%resolve_deferred(defaults, _RC)
-               call descriptor%drop_unsupplied(defaults, _RC)
-            end select
-         end do
-      end associate
+      call for_each_state_item_node(graph, resolve_one, _RC)
 
       _RETURN(_SUCCESS)
+   contains
+
+      subroutine resolve_one(node, rc)
+         class(StateItemNode), target, intent(inout) :: node
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(StateItemDescriptor), pointer :: descriptor
+
+         descriptor => node%get_descriptor()
+         call descriptor%resolve_deferred(defaults, _RC)
+         call descriptor%drop_unsupplied(defaults, _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine resolve_one
+
    end subroutine graphbuilder_resolve_deferred
 
    ! Fills still-DEFERRED characteristics, and settled ones still missing a
@@ -142,6 +139,7 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
+      type(MultiState) :: states
 
       call for_each_descendant(this, harvest_one, _RC)
 
@@ -155,37 +153,35 @@ contains
 
          integer :: status
          type(ComponentGraph), pointer :: graph
-         type(NodeIdSet), target :: node_ids
-         type(NodeIdSetIterator) :: iter
-         class(GraphNode), pointer :: node
-         type(StateItemDescriptor), pointer :: descriptor
          type(GriddedComponentDriver), pointer :: driver
-         type(MultiState) :: states
 
          descend = .true.
          driver => meta%get_user_gc_driver()
          states = driver%get_states()
 
          graph => meta%get_component_graph()
-         node_ids = graph%get_node_ids()
-         associate (e => node_ids%ftn_end())
-            iter = node_ids%ftn_begin()
-            do while (iter /= e)
-               call iter%next()
-               node => graph%get_node(iter%of())
-               if (.not. associated(node)) cycle
-               select type (node)
-               class is (StateItemNode)
-                  descriptor => node%get_descriptor()
-                  if (size(descriptor%get_unresolved_kinds()) == 0 .and. &
-                       size(descriptor%get_incomplete_kinds()) == 0) cycle
-                  call fill_deferred_from_handle(states, node, descriptor, _RC)
-               end select
-            end do
-         end associate
+         call for_each_state_item_node(graph, harvest_node, _RC)
 
          _RETURN(_SUCCESS)
       end subroutine harvest_one
+
+      ! Per-node op for harvest_one; states is the component's, set there.
+      subroutine harvest_node(node, rc)
+         class(StateItemNode), target, intent(inout) :: node
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         type(StateItemDescriptor), pointer :: descriptor
+
+         descriptor => node%get_descriptor()
+         if (size(descriptor%get_unresolved_kinds()) == 0 .and. &
+              size(descriptor%get_incomplete_kinds()) == 0) then
+            _RETURN(_SUCCESS)
+         end if
+         call fill_deferred_from_handle(states, node, descriptor, _RC)
+
+         _RETURN(_SUCCESS)
+      end subroutine harvest_node
 
    end subroutine graphbuilder_harvest_deferred
 

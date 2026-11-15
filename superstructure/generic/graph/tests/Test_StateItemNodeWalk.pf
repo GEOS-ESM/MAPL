@@ -1,0 +1,166 @@
+! Walks the StateItemNodes a ComponentGraph owns: skips other node kinds,
+! visits in NodeIdSet order, stops on the first failing callback.
+module Test_StateItemNodeWalk
+   use mapl_StateItemNodeWalk_mod, only: for_each_state_item_node
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_Transform_mod, only: Transform
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_NodeId_mod, only: NodeId, operator(==)
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
+   use funit
+   implicit none
+
+   integer, parameter :: MAX_VISITS = 8
+
+   type, extends(Transform) :: NoopCompute
+   contains
+      procedure :: compute => noop_compute
+   end type NoopCompute
+
+contains
+
+   subroutine noop_compute(this, inputs, outputs, rc)
+      class(NoopCompute), intent(inout) :: this
+      type(PortNameGraphStateItemMap), intent(in) :: inputs
+      type(PortNameGraphStateItemMap), intent(in) :: outputs
+      integer, intent(out) :: rc
+
+      rc = 0
+   end subroutine noop_compute
+
+   ! Three StateItemNodes interleaved with one TransformGraphNode.
+   subroutine build_graph(graph, item_ids, transform_id)
+      type(ComponentGraph), intent(out) :: graph
+      type(NodeId), intent(out) :: item_ids(3)
+      type(NodeId), intent(out) :: transform_id
+
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(TransformGraphNode) :: transform
+      type(NoopCompute) :: strategy
+      integer :: i, status
+
+      graph = ComponentGraph()
+      do i = 1, 3
+         item_ids(i) = graph%next_node_id(rc=status)
+         item = StateItemNode(item_ids(i), payload, revision)
+         call graph%register_node(item, rc=status)
+         @assertEqual(0, status)
+         if (i == 2) then
+            transform_id = graph%next_node_id(rc=status)
+            transform = TransformGraphNode(transform_id, strategy)
+            call graph%register_node(transform, rc=status)
+            @assertEqual(0, status)
+         end if
+      end do
+   end subroutine build_graph
+
+   @test
+   subroutine test_visits_only_state_item_nodes_in_set_order()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: item_ids(3), transform_id
+      type(NodeId) :: visited(MAX_VISITS)
+      type(NodeIdSet), target :: ids
+      type(NodeIdSetIterator) :: iter
+      integer :: n_visits, n_expected, i, j, status
+      logical :: found
+
+      call build_graph(graph, item_ids, transform_id)
+
+      n_visits = 0
+      call for_each_state_item_node(graph, record_visit, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(3, n_visits)
+
+      ! Expected order: the set's own iteration order, minus the transform.
+      ids = graph%get_node_ids()
+      n_expected = 0
+      iter = ids%ftn_begin()
+      do while (iter /= ids%ftn_end())
+         call iter%next()
+         if (iter%of() == transform_id) cycle
+         n_expected = n_expected + 1
+         @assertTrue(visited(n_expected) == iter%of())
+      end do
+      @assertEqual(3, n_expected)
+      do i = 1, 3
+         found = .false.
+         do j = 1, 3
+            if (visited(j) == item_ids(i)) found = .true.
+         end do
+         @assertTrue(found)
+      end do
+   contains
+
+      subroutine record_visit(node, rc)
+         class(StateItemNode), target, intent(inout) :: node
+         integer, optional, intent(out) :: rc
+
+         n_visits = n_visits + 1
+         visited(n_visits) = node%get_node_id()
+         if (present(rc)) rc = 0
+      end subroutine record_visit
+
+   end subroutine test_visits_only_state_item_nodes_in_set_order
+
+   @test
+   subroutine test_stops_at_first_failing_callback()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: item_ids(3), transform_id
+      integer :: n_visits, status
+
+      call build_graph(graph, item_ids, transform_id)
+
+      n_visits = 0
+      call for_each_state_item_node(graph, fail_on_second, rc=status)
+      @assertEqual(1, status)
+      @assertEqual(2, n_visits)
+   contains
+
+      subroutine fail_on_second(node, rc)
+         class(StateItemNode), target, intent(inout) :: node
+         integer, optional, intent(out) :: rc
+
+         n_visits = n_visits + 1
+         if (present(rc)) rc = 0
+         if (n_visits == 2 .and. present(rc)) rc = 1
+      end subroutine fail_on_second
+
+   end subroutine test_stops_at_first_failing_callback
+
+   @test
+   subroutine test_empty_graph_and_finalized_graph_visit_nothing()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: item_ids(3), transform_id
+      integer :: n_visits, status
+
+      graph = ComponentGraph()
+      n_visits = 0
+      call for_each_state_item_node(graph, count_visit, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, n_visits)
+
+      call build_graph(graph, item_ids, transform_id)
+      call graph%finalize(rc=status)
+      @assertEqual(0, status)
+      call for_each_state_item_node(graph, count_visit, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, n_visits)
+   contains
+
+      subroutine count_visit(node, rc)
+         class(StateItemNode), target, intent(inout) :: node
+         integer, optional, intent(out) :: rc
+
+         n_visits = n_visits + 1
+         if (present(rc)) rc = 0
+      end subroutine count_visit
+
+   end subroutine test_empty_graph_and_finalized_graph_visit_nothing
+
+end module Test_StateItemNodeWalk
