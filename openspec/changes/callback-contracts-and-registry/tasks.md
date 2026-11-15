@@ -72,7 +72,7 @@
 
 ## 4. Conformance
 
-- [ ] 4.1 Violation list type and message formatter (header plus one
+- [x] 4.1 Violation list type and message formatter (header plus one
   line per violation, wording as in the conformance spec). Unit tests on
   formatted text.
 - [ ] 4.2 Extend `export_conforms_to_interface`: optional arguments,

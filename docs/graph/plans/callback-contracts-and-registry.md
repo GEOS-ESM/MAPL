@@ -229,7 +229,7 @@ change deferred.
 `graph/callback-contract-conformance` delta. CB4-DeclCheck changes how
 a non-conforming match is reported only for a Handler that declares
 its interface; undeclared matches keep today's skip-and-report.
-- **Status:** not started (each)
+- **Status:** CB4-Messages done; -DeclCheck / -StateCheck / -Accessors not started
 
 **CB5-Execute (owner track; critical path).** See "Critical path"
 above. Reserved for the owner; not offered to volunteers.
