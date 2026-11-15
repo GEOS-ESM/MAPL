@@ -303,9 +303,13 @@ ESMF's conservative weights prove less accurate.
   (data model, loader, freeze, Info wrappers, checker on hand-built
   States, the two Transforms stand-alone, the column solver) is ordered
   first and can proceed in parallel.
-- [HConfig may silently keep one of two duplicate keys] → A probe test
-  records the behavior; the shipped files' headers and the user guide
-  document it. MAPL does not add its own YAML parser.
+- [HConfig may silently keep one of two duplicate keys] → Resolved: a
+  probe test (`Test_HConfigDuplicateKeys.pf`) found `ESMF_HConfigGetSize`
+  and `ESMF_HConfigIter` both see two entries, in file order, but the
+  `ESMF_HConfigCreateAt(keyString=...)` lookup every existing parser
+  uses silently returns only the first occurrence's value; the shipped
+  files' headers and the user guide document this. MAPL does not add
+  its own YAML parser.
 - [`ESMF_InfoInquire` may not distinguish what the checks need] → The
   Info probe runs first; if R4/R8 or integer/real cannot be told apart,
   the type check is weakened to what ESMF reports and the gap is
@@ -328,7 +332,12 @@ Cap). Rollback is reverting the change's commits.
 
 ## Open Questions
 
-- Which entry wins for duplicate keys in HConfig (settled by the probe
-  task; changes only documentation).
+- Resolved: duplicate top-level keys in HConfig are not collapsed or
+  flagged. `ESMF_HConfigGetSize` reports 2 for a map with a duplicate
+  top-level key, and `ESMF_HConfigIter` visits both entries in file
+  order under the same key name; but `ESMF_HConfigCreateAt(hconfig,
+  keyString=...)` — the lookup pattern production parsers use — silently
+  returns only the first occurrence's value, never the last, never an
+  error (`Test_HConfigDuplicateKeys.pf`).
 - Whether `ESMF_InfoGet` converts silently (settled by the Info probe;
   affects only which ESMF call the type check uses).

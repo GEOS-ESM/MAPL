@@ -1,6 +1,6 @@
 ## 0. Probes (no production code)
 
-- [ ] 0.1 HConfig duplicate keys: a test loads a file with two
+- [x] 0.1 HConfig duplicate keys: a test loads a file with two
   `toy_scaling:` entries (versions 1 and 2) and records which wins and
   whether any HConfig call reports the duplicate. Done: test asserts the
   observed behavior; result written to design.md Open Questions and to

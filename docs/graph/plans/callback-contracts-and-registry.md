@@ -194,7 +194,7 @@ track)**.
 **CB0-HConfigDup.** Fact-finding test for duplicate top-level keys
 (design note §3.3, F11): which entry wins, whether any HConfig option
 reports it. No production code; MAPL must not add a second YAML parser.
-- **Status:** not started
+- **Status:** done
 
 **CB0-InfoTypes.** Probe what `ESMF_InfoInquire` reports for each stored
 type (i4/i8/r4/r8/logical/string, arrays), whether `ESMF_InfoGet`
