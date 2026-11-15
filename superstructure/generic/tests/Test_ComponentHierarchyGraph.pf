@@ -21,7 +21,7 @@ module Test_ComponentHierarchyGraph
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_NodeRevision_mod, only: NodeRevision
-   use mapl_NodeId_mod, only: NodeId
+   use mapl_NodeId_mod, only: NodeId, operator(==)
    use mapl_NodeIdSet_mod, only: NodeIdSet
    use mapl_PortId_mod, only: PortId
    use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap
@@ -305,5 +305,229 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_add_child_rejects_cross_branch_cousin_collision
+
+   ! -- port-table scans: find_export_port / has_export_port /
+   ! -- has_import_port_value ---------------------------------------------
+
+   ! Registers a named StateItemNode in graph and returns its id.
+   function register_named_node(graph, short_name) result(id)
+      type(ComponentGraph), intent(inout) :: graph
+      character(*), intent(in) :: short_name
+      type(NodeId) :: id
+
+      type(StateItemNode) :: node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      integer :: status
+
+      id = graph%next_node_id(rc=status)
+      node = StateItemNode(id, payload, revision, short_name=short_name)
+      call graph%register_node(node, rc=status)
+   end function register_named_node
+
+   subroutine add_export(graph, id, qualified_name)
+      type(ComponentGraph), intent(inout) :: graph
+      type(NodeId), intent(in) :: id
+      character(*), optional, intent(in) :: qualified_name
+
+      type(PortId) :: port
+      integer :: status
+
+      port = graph%next_port_id(rc=status)
+      call graph%add_export_port(port, id, rc=status, qualified_name=qualified_name)
+   end subroutine add_export
+
+   @test(npes=[0])
+   subroutine test_find_export_port_found_and_not_found(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentGraph), pointer :: graph
+      type(NodeId) :: id_a, id_b, found_id
+      integer :: status
+
+      call make_outer_meta('comp_fe1', outer_gc, outer_meta, _RC)
+      graph => outer_meta%get_component_graph()
+
+      id_a = register_named_node(graph, 'alpha')
+      id_b = register_named_node(graph, 'beta')
+      call add_export(graph, id_a)
+      call add_export(graph, id_b)
+
+      @assert_that(graph%find_export_port('alpha', found_id), is(true()))
+      @assert_that(found_id == id_a, is(true()))
+      @assert_that(graph%find_export_port('beta', found_id), is(true()))
+      @assert_that(found_id == id_b, is(true()))
+      @assert_that(graph%find_export_port('gamma', found_id), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_find_export_port_found_and_not_found
+
+   ! An empty name never matches, even with an unnamed port present.
+   @test(npes=[0])
+   subroutine test_find_export_port_empty_name(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentGraph), pointer :: graph
+      type(NodeId) :: id_a, found_id
+      type(StateItemNode) :: unnamed
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(NodeId) :: id_u
+      integer :: status
+
+      call make_outer_meta('comp_fe2', outer_gc, outer_meta, _RC)
+      graph => outer_meta%get_component_graph()
+
+      ! A node with no short_name yields an unnamed export port.
+      id_u = graph%next_node_id(rc=status)
+      unnamed = StateItemNode(id_u, payload, revision)
+      call graph%register_node(unnamed, rc=status)
+      call add_export(graph, id_u)
+      id_a = register_named_node(graph, 'alpha')
+      call add_export(graph, id_a)
+
+      @assert_that(graph%find_export_port('', found_id), is(false()))
+      @assert_that(graph%find_export_port('alpha', found_id), is(true()))
+      @assert_that(found_id == id_a, is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_find_export_port_empty_name
+
+   ! A propagated export matches its qualified name, not the node short name.
+   @test(npes=[0])
+   subroutine test_find_export_port_propagated_name(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentGraph), pointer :: graph
+      type(NodeId) :: id_a, found_id
+      integer :: status
+
+      call make_outer_meta('comp_fe3', outer_gc, outer_meta, _RC)
+      graph => outer_meta%get_component_graph()
+
+      id_a = register_named_node(graph, 'alpha')
+      call add_export(graph, id_a, qualified_name='kid/alpha')
+
+      @assert_that(graph%find_export_port('kid/alpha', found_id), is(true()))
+      @assert_that(found_id == id_a, is(true()))
+      @assert_that(graph%find_export_port('alpha', found_id), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_find_export_port_propagated_name
+
+   ! Two ports with the same name: the first one added (lowest PortId) wins.
+   @test(npes=[0])
+   subroutine test_find_export_port_first_match_wins(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentGraph), pointer :: graph
+      type(NodeId) :: id_one, id_two, found_id
+      integer :: status
+
+      call make_outer_meta('comp_fe4', outer_gc, outer_meta, _RC)
+      graph => outer_meta%get_component_graph()
+
+      id_one = register_named_node(graph, 'x')
+      id_two = register_named_node(graph, 'x')
+      call add_export(graph, id_one, qualified_name='kid1/x')
+      call add_export(graph, id_two, qualified_name='kid1/x')
+
+      @assert_that(graph%find_export_port('kid1/x', found_id), is(true()))
+      @assert_that(found_id == id_one, is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_find_export_port_first_match_wins
+
+   @test(npes=[0])
+   subroutine test_find_export_port_finalized(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentGraph), pointer :: graph
+      type(NodeId) :: id_a, found_id
+      integer :: status
+
+      call make_outer_meta('comp_fe5', outer_gc, outer_meta, _RC)
+      graph => outer_meta%get_component_graph()
+
+      id_a = register_named_node(graph, 'alpha')
+      call add_export(graph, id_a)
+      @assert_that(graph%find_export_port('alpha', found_id), is(true()))
+
+      call graph%finalize(rc=status)
+      @assert_that(status, is(0))
+      @assert_that(graph%find_export_port('alpha', found_id), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_find_export_port_finalized
+
+   ! Diamond: one NodeId under two names. Only the exact pair matches.
+   @test(npes=[0])
+   subroutine test_has_export_port_matches_pair_not_id(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentGraph), pointer :: graph
+      type(NodeId) :: id_a, id_b
+      integer :: status
+
+      call make_outer_meta('comp_he1', outer_gc, outer_meta, _RC)
+      graph => outer_meta%get_component_graph()
+
+      id_a = register_named_node(graph, 'alpha')
+      id_b = register_named_node(graph, 'beta')
+      call add_export(graph, id_a, qualified_name='left/alpha')
+      call add_export(graph, id_a, qualified_name='right/alpha')
+
+      @assert_that(graph%has_export_port(id_a, 'left/alpha'), is(true()))
+      @assert_that(graph%has_export_port(id_a, 'right/alpha'), is(true()))
+      @assert_that(graph%has_export_port(id_a, 'other/alpha'), is(false()))
+      @assert_that(graph%has_export_port(id_b, 'left/alpha'), is(false()))
+      @assert_that(graph%has_export_port(id_a, ''), is(false()))
+
+      call graph%finalize(rc=status)
+      @assert_that(graph%has_export_port(id_a, 'left/alpha'), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_has_export_port_matches_pair_not_id
+
+   @test(npes=[0])
+   subroutine test_has_import_port_value(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentGraph), pointer :: graph
+      type(NodeId) :: id_a, id_b
+      type(PortId) :: port
+      integer :: status
+
+      call make_outer_meta('comp_hi1', outer_gc, outer_meta, _RC)
+      graph => outer_meta%get_component_graph()
+
+      id_a = register_named_node(graph, 'alpha')
+      id_b = register_named_node(graph, 'beta')
+      port = graph%next_port_id(rc=status)
+      call graph%add_import_port(port, id_a, rc=status)
+      @assert_that(status, is(0))
+
+      @assert_that(graph%has_import_port_value(id_a), is(true()))
+      @assert_that(graph%has_import_port_value(id_b), is(false()))
+
+      call graph%finalize(rc=status)
+      @assert_that(graph%has_import_port_value(id_a), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_has_import_port_value
 
 end module Test_ComponentHierarchyGraph

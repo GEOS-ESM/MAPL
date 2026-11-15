@@ -57,7 +57,7 @@ module mapl_ComponentGraph_mod
    use mapl_DependencyNetwork_mod, only: DependencyNetwork
    use mapl_NodeIdSet_mod
    use mapl_DependencyNetworkIdSet_mod, only: DependencyNetworkIdSet, DependencyNetworkIdSetIterator, operator(/=)
-   use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap
+   use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
    use mapl_PortIdStringMap_mod, only: PortIdStringMap
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
    use mapl_PortBindingTable_mod, only: PortBindingTable
@@ -78,8 +78,8 @@ module mapl_ComponentGraph_mod
    ! export_port_names is a sparse side-table, PortId -> overriding qualified
    ! name, populated only for export ports created by export propagation, never
    ! for directly advertised ones (those match on the node's own unqualified
-   ! short_name). find_export_node (GraphBuilder_ConnectionResolution_smod.F90)
-   ! is its sole reader, via graph_get_export_port_name.
+   ! short_name). It is read only through graph_get_export_port_name, which
+   ! find_export_port, has_export_port and export propagation all go through.
    type :: GraphPortRegistry
       private
       type(PortIdNodeIdMap) :: import_ports
@@ -124,6 +124,10 @@ module mapl_ComponentGraph_mod
       ! the name an export port matches connections by: the export-propagation
       ! override if one exists, else the node's own unqualified short_name
       procedure :: get_export_port_name => graph_get_export_port_name
+      ! in-place scans of the port tables (no table copy)
+      procedure :: find_export_port => graph_find_export_port
+      procedure :: has_export_port => graph_has_export_port
+      procedure :: has_import_port_value => graph_has_import_port_value
       ! full-table enumeration: same "return a copy, empty once finalized"
       ! contract as get_node_ids()
       procedure :: get_import_ports => graph_get_import_ports
@@ -543,6 +547,105 @@ contains
          name = generic_node%get_short_name()
       end select
    end function graph_get_export_port_name
+
+   ! First export port (in PortId order) whose get_export_port_name equals
+   ! name; node_id is its node. Skips unnamed ports and targets that are not
+   ! StateItemNodes. found is .false. once finalized and for an empty name
+   ! (an unbound or non-StateItemNode port's name is '', which would
+   ! otherwise match). Scans in place; get_export_ports would copy the table.
+   function graph_find_export_port(this, name, node_id) result(found)
+      class(ComponentGraph), target, intent(in) :: this
+      character(*), intent(in) :: name
+      type(NodeId), intent(out) :: node_id
+      logical :: found
+
+      type(PortIdNodeIdMapIterator) :: iter
+      class(GraphNode), pointer :: candidate_node
+      character(:), allocatable :: candidate_name
+
+      found = .false.
+      if (this%is_finalized()) return
+      if (len(name) == 0) return
+
+      associate (e => this%ports%export_ports%ftn_end())
+         iter = this%ports%export_ports%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            candidate_node => this%get_node(iter%second())
+            if (.not. associated(candidate_node)) cycle
+            select type (candidate_node)
+            class is (StateItemNode)
+               candidate_name = this%get_export_port_name(iter%first())
+               if (len(candidate_name) == 0) cycle
+               if (candidate_name == name) then
+                  found = .true.
+                  node_id = iter%second()
+                  return
+               end if
+            class default
+               ! Not a StateItemNode: not an export candidate.
+            end select
+         end do
+      end associate
+   end function graph_find_export_port
+
+   ! Is the pair (id, name) present in the export-port table? Both must
+   ! match, not id alone: in a diamond-shaped hierarchy one export NodeId can
+   ! legitimately appear under several qualified names, and only an identical
+   ! pair indicates a repeat advertise. Unnamed ports never match. Scans in
+   ! place; .false. once finalized.
+   function graph_has_export_port(this, id, name) result(found)
+      class(ComponentGraph), target, intent(in) :: this
+      type(NodeId), intent(in) :: id
+      character(*), intent(in) :: name
+      logical :: found
+
+      type(PortIdNodeIdMapIterator) :: iter
+      character(:), allocatable :: candidate_name
+
+      found = .false.
+      if (this%is_finalized()) return
+
+      associate (e => this%ports%export_ports%ftn_end())
+         iter = this%ports%export_ports%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            if (.not. (iter%second() == id)) cycle
+            candidate_name = this%get_export_port_name(iter%first())
+            if (len(candidate_name) == 0) cycle
+            if (candidate_name == name) then
+               found = .true.
+               return
+            end if
+         end do
+      end associate
+   end function graph_has_export_port
+
+   ! Does any import port hold node_id as its VALUE (not a key: PortId keys
+   ! are freshly minted, so a key check would never match)? A mirrored import
+   ! stores the child's NodeId, so this is hierarchy-wide. .false. once
+   ! finalized.
+   function graph_has_import_port_value(this, node_id) result(found)
+      class(ComponentGraph), target, intent(in) :: this
+      type(NodeId), intent(in) :: node_id
+      logical :: found
+
+      type(PortIdNodeIdMapIterator) :: iter
+
+      found = .false.
+      if (this%is_finalized()) return
+
+      associate (e => this%ports%import_ports%ftn_end())
+         iter = this%ports%import_ports%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            if (iter%second() == node_id) then
+               found = .true.
+               return
+            end if
+         end do
+      end associate
+   end function graph_has_import_port_value
 
    ! Full import-port table, returned by value; empty once finalized like
    ! every other post-finalize accessor.

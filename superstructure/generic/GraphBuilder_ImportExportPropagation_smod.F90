@@ -58,7 +58,7 @@ contains
    ! GENERIC_INIT_ADVERTISE (and so this hook) more than once per component;
    ! unguarded, it hangs under gfortran and re-logs warnings. A NodeId already
    ! present as a VALUE in this import-port table is skipped
-   ! (already_mirrored); a repeat call re-derives the same set, so that check
+   ! (has_import_port_value); a repeat call re-derives the same set, so that check
    ! is sufficient.
    module subroutine graphbuilder_run_propagate_hook(this)
       class(OuterMetaComponent), target, intent(inout) :: this
@@ -89,7 +89,7 @@ contains
          if (status /= 0) cycle
 
          do j = 1, size(unresolved)
-            if (already_mirrored(this_graph, unresolved(j)%node_id)) cycle
+            if (this_graph%has_import_port_value(unresolved(j)%node_id)) cycle
 
             port_id = this_graph%next_port_id(status)
             call report_if_failed(this, 'run_propagate_hook:next_port_id', status)
@@ -99,35 +99,6 @@ contains
          end do
       end do
    end subroutine graphbuilder_run_propagate_hook
-
-   ! Idempotency helper for graphbuilder_run_propagate_hook above: does
-   ! graph's own import-port table already contain target_id as a
-   ! VALUE (not a key - PortId keys are always freshly minted, so a key
-   ! check would never match)? A plain linear scan - this table is
-   ! bounded by one component's own import count, not hierarchy-wide.
-   function already_mirrored(graph, target_id) result(found)
-      type(ComponentGraph), target, intent(in) :: graph
-      type(NodeId), intent(in) :: target_id
-      logical :: found
-
-      type(PortIdNodeIdMap), target :: import_ports
-      type(PortIdNodeIdMapIterator) :: iter
-      type(NodeId) :: candidate
-
-      found = .false.
-      import_ports = graph%get_import_ports()
-      associate (e => import_ports%ftn_end())
-         iter = import_ports%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            candidate = iter%second()
-            if (candidate == target_id) then
-               found = .true.
-               return
-            end if
-         end do
-      end associate
-   end function already_mirrored
 
    ! For each direct child C of `this`, propagates every export-port entry of
    ! C into `this`'s export-port table under C's own NodeId, with the
@@ -175,7 +146,7 @@ contains
                qualified_name = qualify_exported_name(child_graph, child_port_id, child_name)
                if (len(qualified_name) == 0) cycle
 
-               if (already_exported(this_graph, export_node_id, qualified_name)) cycle
+               if (this_graph%has_export_port(export_node_id, qualified_name)) cycle
 
                new_port_id = this_graph%next_port_id(status)
                call report_if_failed(this, 'run_export_propagate_hook:next_port_id', status)
@@ -256,7 +227,7 @@ contains
          src_node_id = export_node%get_node_id()
       end if
 
-      call find_export_port_by_name(this_graph, dst_name, taken, existing_id)
+      taken = this_graph%find_export_port(dst_name, existing_id)
       if (taken) then
          msg = 'Re-export destination already exists: ' // dst_name
          _ASSERT(existing_id == src_node_id, msg)
@@ -270,30 +241,6 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine reexport_one
-
-   subroutine find_export_port_by_name(graph, name, found, node_id)
-      type(ComponentGraph), target, intent(in) :: graph
-      character(*), intent(in) :: name
-      logical, intent(out) :: found
-      type(NodeId), intent(out) :: node_id
-
-      type(PortIdNodeIdMap), target :: export_ports
-      type(PortIdNodeIdMapIterator) :: iter
-
-      found = .false.
-      export_ports = graph%get_export_ports()
-      associate (e => export_ports%ftn_end())
-         iter = export_ports%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            if (graph%get_export_port_name(iter%first()) == name) then
-               found = .true.
-               node_id = iter%second()
-               return
-            end if
-         end do
-      end associate
-   end subroutine find_export_port_by_name
 
    ! Name a child's export-port entry carries once propagated into the
    ! parent's export-port table. Mirrors legacy propagate_exports_virtual_pt:
@@ -322,42 +269,5 @@ contains
          qualified_name = child_name // '/' // own_name
       end if
    end function qualify_exported_name
-
-   ! Idempotency helper for graphbuilder_run_export_propagate_hook, symmetric
-   ! to already_mirrored: is (target_id, target_name) already present in
-   ! graph's export-port table? Both must be checked: in a diamond-shaped
-   ! hierarchy one export NodeId can legitimately appear under several
-   ! qualified names; only an identical pair indicates a repeat ADVERTISE
-   ! call.
-   function already_exported(graph, target_id, target_name) result(found)
-      type(ComponentGraph), target, intent(in) :: graph
-      type(NodeId), intent(in) :: target_id
-      character(*), intent(in) :: target_name
-      logical :: found
-
-      type(PortIdNodeIdMap), target :: export_ports
-      type(PortIdNodeIdMapIterator) :: iter
-      type(PortId) :: candidate_port_id
-      type(NodeId) :: candidate_id
-      character(:), allocatable :: candidate_name
-
-      found = .false.
-      export_ports = graph%get_export_ports()
-      associate (e => export_ports%ftn_end())
-         iter = export_ports%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            candidate_port_id = iter%first()
-            candidate_id = iter%second()
-            if (.not. (candidate_id == target_id)) cycle
-            candidate_name = graph%get_export_port_name(candidate_port_id)
-            if (len(candidate_name) == 0) cycle
-            if (candidate_name == target_name) then
-               found = .true.
-               return
-            end if
-         end do
-      end associate
-   end function already_exported
 
 end submodule GraphBuilder_ImportExportPropagation_smod

@@ -47,8 +47,6 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_ConnectionResolution_smod
    use mapl_GraphResolutionEntry_mod, only: GraphResolutionEntry
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator, operator(/=)
-   use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap, PortIdNodeIdMapIterator, operator(/=)
-   use mapl_PortId_mod, only: PortId
    use mapl_StateArithmeticParser_mod, only: parser_variables_in_expression
    use mapl_TransformGraphNode_mod, only: TransformGraphNode
    use gFTL2_StringVector, only: StringVectorIterator, operator(/=)
@@ -280,39 +278,20 @@ contains
       class(StateItemNode), pointer :: export_node
 
       type(ComponentGraph), pointer :: src_graph
-      type(PortIdNodeIdMap), target :: export_ports
-      type(PortIdNodeIdMapIterator) :: iter
-      type(PortId) :: candidate_port_id
-      type(NodeId) :: candidate_id
-      class(GraphNode), pointer :: candidate_node
-      character(:), allocatable :: candidate_name
+      type(NodeId) :: node_id
+      class(GraphNode), pointer :: node
 
       export_node => null()
 
       src_graph => src_meta%get_component_graph()
-      export_ports = src_graph%get_export_ports()
+      if (.not. src_graph%find_export_port(short_name, node_id)) return
 
-      associate (e => export_ports%ftn_end())
-         iter = export_ports%ftn_begin()
-         do while (iter /= e)
-            call iter%next()
-            candidate_port_id = iter%first()
-            candidate_id = iter%second()
-            candidate_node => src_graph%get_node(candidate_id)
-            if (.not. associated(candidate_node)) cycle
-            select type (candidate_node)
-            class is (StateItemNode)
-               candidate_name = src_graph%get_export_port_name(candidate_port_id)
-               if (len(candidate_name) == 0) cycle
-               if (candidate_name == short_name) then
-                  export_node => candidate_node
-                  return
-               end if
-            class default
-               ! Not a StateItemNode: not an export candidate; skip.
-            end select
-         end do
-      end associate
+      node => src_graph%get_node(node_id)
+      if (.not. associated(node)) return
+      select type (node)
+      class is (StateItemNode)
+         export_node => node
+      end select
    end function find_export_node
 
    ! export_node is the exact match find_export_node found in src_meta's
