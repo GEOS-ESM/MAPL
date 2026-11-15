@@ -5,7 +5,7 @@
   whether any HConfig call reports the duplicate. Done: test asserts the
   observed behavior; result written to design.md Open Questions and to
   the plan's Status line.
-- [ ] 0.2 ESMF Info typing: a test stores i4, i8, r4, r8, logical,
+- [x] 0.2 ESMF Info typing: a test stores i4, i8, r4, r8, logical,
   string, and arrays of each, then records what `ESMF_InfoInquire`
   reports and whether `ESMF_InfoGet` converts (real into integer,
   string into real). Also record whether keys under a nested prefix can

@@ -200,7 +200,7 @@ reports it. No production code; MAPL must not add a second YAML parser.
 type (i4/i8/r4/r8/logical/string, arrays), whether `ESMF_InfoGet`
 converts silently, and whether keys under a nested prefix can be
 enumerated. Result goes into design.md Decision 4.
-- **Status:** not started
+- **Status:** done
 
 **CB1-ArgSpec / -AttributeSpec / -CallScalarSpec / -Rule /
 -MethodOptions / -Interface / -RegistryFreeze.** Data model per the

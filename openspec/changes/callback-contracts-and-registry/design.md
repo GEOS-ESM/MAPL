@@ -130,10 +130,18 @@ enum: integer, real, logical, string, list of each, absent, other);
 logical, `i4`, `r4`, `r8` (scope `state` needs them). A key enumeration
 under a prefix supports the unknown-key check (via `ESMF_InfoInquire`'s
 key count and indexed key retrieval; the probe confirms it works on
-nested objects). A small probe test first
-records whether `ESMF_InfoGet` converts silently and what
-`ESMF_InfoInquire` reports for R4 and R8 values (both are unverified in
-the note).
+nested objects). A probe test recorded the following, stored directly
+in a raw `ESMF_Info` (no production code):
+`ESMF_InfoInquire` (via the generic `ESMF_InfoGet` with `typekind=`,
+`isArray=`, `size=`) correctly reports the stored kind for every one of
+i4, i8, r4, r8, logical, and string, both scalar and array; there is no
+kind it cannot distinguish. `ESMF_InfoGet` does not convert silently
+across kind: reading a stored r8 value as i4, or a stored string (even
+a numeric-looking one such as `'2.5'`) as r8, both return a
+non-success `rc` rather than a converted value. Keys nested under a
+prefix can be enumerated from the `ESMF_Info` object itself: `size=` at
+the parent key gives the child count, then `idx=`/`ikey=` (1-based)
+for each index returns that child's own unqualified key name.
 
 **5. The loader is a graph-layer module that only uses HConfig.**
 `mapl_CallbackRegistrationLoader_mod` (in `graph/callback/`) reads
