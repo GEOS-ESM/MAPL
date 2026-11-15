@@ -223,7 +223,7 @@ delta. CB3-InitLoad changes every pFUnit executable that uses
 registry stays empty and nothing changes; check ESSENTIAL on both
 compilers. CB3-YamlKey adds the YAML key the landed `callback-wiring`
 change deferred.
-- **Status:** not started (each)
+- **Status:** CB3-CRC32 done; all others not started (each)
 
 **CB4-Messages / -DeclCheck / -StateCheck / -Accessors.** Per the
 `graph/callback-contract-conformance` delta. CB4-DeclCheck changes how

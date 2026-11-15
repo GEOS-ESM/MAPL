@@ -14,6 +14,7 @@ set (TEST_SRCS
   test_OS.pf
   test_sort.pf
   test_DirPath.pf
+  test_CRC32.pf
 )
 
 # Test_MemInfoWrite only works on Linux (requires /proc/self/status)

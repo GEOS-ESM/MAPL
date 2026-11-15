@@ -24,6 +24,7 @@ set (srcs
     MAPL_ISO8601_DateTime.F90
     MAPL_DateTime_Parsing.F90
     MAPL_Sleep.F90
+    MAPL_CRC32.F90
     MAPL_CF_Time.F90
     MAPL_ESMF_InfoKeys.F90
     # Umbrella module for the utils layer (#5004)

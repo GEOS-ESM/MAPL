@@ -32,6 +32,7 @@ Three library targets are built from this directory tree.
 | Strings | `String.F90`, `StringUtilities.F90`, `StringDictionary.F90`, `KeywordEnforcer.F90` (the `unusable` sentinel type) |
 | Numeric | `MAPL_Hash.F90`+`hash.c`, `MAPL_Sort.F90`+`sort.c`, `MAPL_MinMax.F90`, `MAPL_Range.F90`, `ShaveMantissa.c`/`.h`, `Interp/` |
 | Time | `TimeUtilities.F90`, `MAPL_ISO8601_DateTime.F90`, `MAPL_DateTime_Parsing.F90`, `MAPL_CF_Time.F90`, `MAPL_Sleep.F90` |
+| Checksum | `MAPL_CRC32.F90` (`mapl_CRC32_mod`: table-driven CRC-32 of a buffer or file, `CRC32`, `CRC32File`, `CRC32Hex` for 8 hex digits) |
 | Other | `MemInfo.F90`, `Validation.F90`, `MAPL_ESMF_InfoKeys.F90` (keys for `ESMF_Info` objects) |
 | `Constants/` | `InternalConstants`, `MathConstants`, `PhysicalConstants`, `EarthConstants`, `EarthAtmosphericConstants`, and `Constants.F90` (module `MAPL_Constants`) |
 | `Interp/` | `Interp.F90` (module `mapl_Interp_mod`, interfaces) and `Interp_implementation.F90` (a submodule); linear interpolation specifics named `INTERP_LIN_<ranks>_<n>` |

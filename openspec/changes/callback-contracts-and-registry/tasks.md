@@ -43,7 +43,7 @@
 
 ## 3. Registration file
 
-- [ ] 3.1 CRC-32 utility over a file's bytes (utils), with a known-vector
+- [x] 3.1 CRC-32 utility over a file's bytes (utils), with a known-vector
   test.
 - [ ] 3.2 Loader: read `./callback_interfaces.yaml` with HConfig, build
   and validate every entry, register all or none; errors name file,
