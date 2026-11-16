@@ -1,7 +1,7 @@
 # GraphBuilder: the integration layer
 
-Source: `superstructure/generic/GraphBuilder.F90` (about 980 lines — public
-API, shared types/helpers, submodule interface declarations) plus ten
+Source: `superstructure/generic/GraphBuilder.F90` (about 1050 lines — public
+API, shared types/helpers, submodule interface declarations) plus fifteen
 `GraphBuilder_*_smod.F90` submodules (procedure bodies, about 5,100 lines
 combined). This is the one place in the graph layer that **is**
 allowed to depend on `OuterMetaComponent`/`StateRegistry`/
@@ -34,7 +34,12 @@ gb%run_advertise_hook(this)`) over what were previously free functions
 | Submodule | Responsibility |
 |---|---|
 | `GraphBuilder_Advertising_smod.F90` | Creating `StateItemNode`s for advertised import/export/internal items (`advertise_one`) |
-| `GraphBuilder_ConnectionResolution_smod.F90` | Ordinary connection resolution — `SimpleConnection` and `MatchConnection` (`ReexportConnection` goes through `run_reexport_hook`, `reexport_one`) |
+| `GraphBuilder_ConnectionResolution_smod.F90` | Connection-resolution helpers shared by the next five submodules |
+| `GraphBuilder_ConnectionMatching_smod.F90` | Ordinary connection resolution — `SimpleConnection` and `MatchConnection` matching/dispatch |
+| `GraphBuilder_ConnectionDestinations_smod.F90` | Inout-borrower, callback and Wildcard destination resolution for an already-matched connection |
+| `GraphBuilder_ImportExportPropagation_smod.F90` | Hierarchy import/export propagation (`ReexportConnection` goes through `run_reexport_hook`, `reexport_one`) |
+| `GraphBuilder_PayloadMaterialization_smod.F90` | Export payload creation/aliasing and extension-chain materialization |
+| `GraphBuilder_ExpressionResolution_smod.F90` | EXPRESSION-item advertise check and per-consumer evaluation |
 | `GraphBuilder_CallbackWiring_smod.F90` | Wildcard/named callback resolution, `CallbackStateBinding`/`CallbackMethodBinding` construction |
 | `GraphBuilder_Geometry_smod.F90` | Horizontal geometry advertise/resolve, parent↔child geometry push/pull |
 | `GraphBuilder_StatePopulation_smod.F90` | Graph-native equivalent of `StateRegistry%add_to_states` — inserts materialized fields into the real `ESMF_State` |
@@ -44,11 +49,14 @@ gb%run_advertise_hook(this)`) over what were previously free functions
 | `GraphBuilder_Visualization_smod.F90` | `NodeIdLabelMap` enrichment for `GraphExport` |
 | `GraphBuilder_Freeze_smod.F90` | Validate-and-freeze |
 
-All ten were mechanically split out of one originally-monolithic
+All ten were originally mechanically split out of one monolithic
 `GraphBuilder.F90` (`graphbuilder-submodule-split`) — procedure bodies
 moved verbatim, `subroutine`→`module subroutine`/`function`→`module
-function` only. The interface declarations for every moved procedure
-still live in `GraphBuilder.F90` itself (the interface block from `:285`).
+function` only. `GraphBuilder_ConnectionResolution_smod.F90` was later
+split by concern into the five further submodules listed above (plan
+task D1, `docs/graph/plans/separation-of-concerns.md`), so the tree now
+has fifteen. The interface declarations for every moved procedure
+still live in `GraphBuilder.F90` itself (the interface block from `:280`).
 
 ## Two-phase timing: advertise vs. real wiring
 
@@ -79,7 +87,7 @@ sentinel), `GraphBuilder` finds the descendant component
 (`resolve_qualified_component`, a downward walk only) and uses that
 component's own real `NodeId`. Ordinary connection resolution takes it from
 the descendant's export-port table (`find_export_node_id` over
-`find_export_node`, `GraphBuilder_ConnectionResolution_smod.F90:1274-1342`):
+`find_export_node`, `GraphBuilder_ConnectionResolution_smod.F90:323-345`):
 a resource-index lookup by short name would fail for a propagated export,
 whose port name is qualified. Callback wiring takes it from the owner's
 resource index (`resolve_qualified_export_node_id`,
