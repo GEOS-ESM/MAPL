@@ -134,8 +134,10 @@ delta, and nonzero only in columns that went negative.
 
 #### Scenario: Finer nested owner with fill (M4)
 - **WHEN** four owner cells under one Invoker cell have bottom-layer
-  `c = (0, 2, 0, 2)` and `mO = (10, 30, 10, 30)`, and the Invoker's
-  bottom change is −1
+  `c = (0, 2, 0, 2)` and `mO = (10, 30, 10, 30)`, two upper layers with
+  `c = 2` and `c = 1` and `mO = 10` in every owner column (so every
+  column total stays non-negative after the change), and the Invoker's
+  bottom change is −1 with no change in the upper layers
 - **THEN** the pre-fill change is `(−2, −2/3, −2, −2/3)`, every owner
   column changes by −20, after the fill every value is non-negative,
   column totals are unchanged, and the fill diagnostic is nonzero only

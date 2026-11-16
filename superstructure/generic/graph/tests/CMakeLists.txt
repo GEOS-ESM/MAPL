@@ -56,6 +56,7 @@ set(test_srcs
   Test_VerticalColumnRegridTransform.pf
   Test_SnapshotTransform.pf
   Test_WeightedDeltaBackTransform.pf
+  Test_ConservativeColumnFillTransform.pf
   Test_GeometryRegridderParam.pf
   Test_StateItemCharacteristicKind.pf
   Test_StateItemCharacteristic.pf

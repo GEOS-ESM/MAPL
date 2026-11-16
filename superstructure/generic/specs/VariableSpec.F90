@@ -48,6 +48,7 @@ module mapl_VariableSpec_mod
    use mapl_ValidationPolicy_mod, only: validation_is_strict, standard_name_warnings_suppressed, &
         standard_name_required
    use mapl_StandardNameCharacteristic_mod, only: UNKNOWN_STANDARD_NAME
+   use mapl_NonNegativeCharacteristic_mod, only: NON_NEGATIVE_FILL_COLUMN
    use mapl_StateRegistry_mod
    use mapl_StateItem_mod
    use mapl_AspectId_mod
@@ -109,6 +110,9 @@ module mapl_VariableSpec_mod
       ! Set by a MAPL_STRING_MIRROR request; long_name stays unallocated.
       logical :: long_name_mirror = .false.
       type(RestartMode), allocatable :: restart_mode
+      ! Fill method of a field declared non-negative ('column'); unallocated
+      ! when not declared.
+      character(:), allocatable :: non_negative
       !---------------------
       ! Vector
       !---------------------
@@ -313,6 +317,7 @@ contains
         vector_basis_kind, &
         restart_mode, &
         quantity_type, &
+        non_negative, &
         rc) result(var_spec)
 
       type(VariableSpec) :: var_spec
@@ -344,6 +349,7 @@ contains
       character(*), optional, intent(in) :: vector_basis_kind
       type(RestartMode), optional, intent(in) :: restart_mode
       type(MAPL_QuantityType), optional, intent(in) :: quantity_type
+      character(*), optional, intent(in) :: non_negative
       integer, optional, intent(out) :: rc
 
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
@@ -395,11 +401,19 @@ contains
       _SET_OPTIONAL(mirror_vgrid)
       _SET_OPTIONAL(restart_mode)
       _SET_OPTIONAL(quantity_type)
+      _SET_OPTIONAL(non_negative)
 
       reason = intent_rule_violation(state_intent, var_spec%itemType, var_spec%requests_mirror())
       _ASSERT(len(reason) == 0, reason // ': ' // short_name)
 
       call check_standard_name_required_(var_spec, _RC)
+
+      if (present(non_negative)) then
+         reason = 'non_negative can only be specified for a field: ' // short_name
+         _ASSERT(var_spec%itemType == MAPL_STATEITEM_FIELD, reason)
+         reason = 'non_negative fill must be column, not <' // non_negative // '>: ' // short_name
+         _ASSERT(non_negative == NON_NEGATIVE_FILL_COLUMN, reason)
+      end if
 
       var_spec%vector_basis_kind = MAPL_VECTOR_BASIS_KIND_NS
       if (present(vector_basis_kind)) then

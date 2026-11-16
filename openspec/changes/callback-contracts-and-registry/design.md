@@ -269,6 +269,25 @@ be filled; that is an error naming the column. `non_negative` is read
 from the owner's declaration as a never-compared characteristic
 (design-note Group C precedent: `RestartMode`).
 
+The characteristic landed with the Transform, not deferred:
+`NonNegativeCharacteristic` (kind `NON_NEGATIVE`), YAML
+`non_negative: {fill: column}` and `make_VariableSpec(non_negative='column')`,
+FIELD only, with `column` as the only fill. It writes no Info key; 6.5
+reads it from the owner's descriptor to place the Transform.
+
+Round-off tolerance (author decision, for owner confirmation): a column
+whose total is below zero by at most a small fraction of its column
+scale `Σk mO,k |ck|` is treated as a zero total and filled to all zeros,
+so a column an Invoker fully drains does not fail on regrid round-off.
+The fraction is 10⁻¹² for R8 fields and 4 ε(R4) (about 5·10⁻⁷) for R4
+fields, whose regrid round-off summing in R8 does not remove. These are
+runtime judgment calls: 10⁻¹² matches the Decision 18 test tolerance, but
+Decision 18's 10⁻¹⁰ fallback is test-only and has no runtime equivalent.
+A column total of exactly zero is filled to zeros too. A total below that
+bound, or a column holding a NaN or infinite value or weight, is the
+error naming the column; the error names the PET and the PET-local
+column index.
+
 **16. Recorded values are held by the mock (open point 4 resolved).**
 The configurable Handler keeps its scalar records in its callback State's
 Info under `mapl_mock/` (as the note requires) and its full-value records

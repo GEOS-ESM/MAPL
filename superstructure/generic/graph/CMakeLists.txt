@@ -75,6 +75,7 @@ target_sources(MAPL.generic PRIVATE
   transforms/VerticalColumnRegridTransform.F90
   transforms/SnapshotTransform.F90
   transforms/WeightedDeltaBackTransform.F90
+  transforms/ConservativeColumnFillTransform.F90
   ExtensionResolution.F90
   GraphOwnsUserStates.F90
   ExtensionMaterialization.F90
@@ -101,6 +102,7 @@ target_sources(MAPL.generic PRIVATE
   characteristics/StandardNameCharacteristic.F90
   characteristics/LongNameCharacteristic.F90
   characteristics/RestartModeCharacteristic.F90
+  characteristics/NonNegativeCharacteristic.F90
   characteristics/ExpressionCharacteristic.F90
   characteristics/ItemShapeCharacteristic.F90
 

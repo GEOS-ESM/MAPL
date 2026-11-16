@@ -116,7 +116,7 @@
 - [ ] 6.3 `WeightedDeltaBackTransform` (ports value, snapshot,
   weight_invoker, weight_owner, owner). Stand-alone test M2 with exact
   numbers, and an unweighted case.
-- [ ] 6.4 `ConservativeColumnFillTransform` with fill diagnostic;
+- [x] 6.4 `ConservativeColumnFillTransform` with fill diagnostic;
   `non_negative` as a never-compared characteristic. Stand-alone test
   with the M4 numbers.
 - [ ] 6.5 Wire 6.2-6.4 into the `put` network for `put_flavour: value`
