@@ -10,8 +10,14 @@ module Test_Aspects
    use mapl_UngriddedDimsAspect_mod
    use mapl_FieldClassAspect_mod
    use mapl_BracketClassAspect_mod
+   use mapl_StandardNameAspect_mod
+   use mapl_VectorClassAspect_mod
+   use mapl_FieldDictionaryConfig_mod
+   use mapl_ValidationMode_mod
+   use mapl_enums_api, only: MAPL_VECTOR_BASIS_KIND_NS
    use mapl_AspectId_mod
    use mapl_GeomAspect_mod
+   use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_MIRROR
    use mapl_UngriddedDims_mod
    use mapl_UngriddedDim_mod
    use mapl_UngriddedDimVector_mod
@@ -20,7 +26,7 @@ module Test_Aspects
    use esmf
    implicit none
 
-   type(ESMF_Geom) :: geom1, geom2
+   type(ESMF_Geom) :: geom1, geom2, geom3
 
 contains
 
@@ -42,6 +48,11 @@ contains
       hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
       mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
       geom2 = mapl_geom%get_geom()
+      call ESMF_HConfigDestroy(hconfig)
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 6, jm_world: 7, pole: PC, dateline: DC}", _RC)
+      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom3 = mapl_geom%get_geom()
       call ESMF_HConfigDestroy(hconfig)
    end subroutine setup
 
@@ -193,6 +204,75 @@ contains
    end subroutine test_connect_geoms
 
    @test
+   subroutine test_none_dims_ignore_geom()
+      type(GeomAspect) :: import, export
+
+      import = GeomAspect(geom3, horizontal_dims_spec=HORIZONTAL_DIMS_NONE)
+      export = GeomAspect(geom1, horizontal_dims_spec=HORIZONTAL_DIMS_NONE)
+
+      @assert_that(export%matches(import), is(true()))
+      @assert_that(export%can_connect_to(import), is(true()))
+      @assert_that(export%needs_extension_for(import), is(false()))
+
+   end subroutine test_none_dims_ignore_geom
+
+   @test
+   subroutine test_none_dims_ignore_geom_id()
+      type(GeomAspect) :: import, export
+
+      import = GeomAspect(geom_id=mapl_new_GeomId(31), horizontal_dims_spec=HORIZONTAL_DIMS_NONE)
+      export = GeomAspect(geom_id=mapl_new_GeomId(32), horizontal_dims_spec=HORIZONTAL_DIMS_NONE)
+
+      @assert_that(export%matches(import), is(true()))
+      @assert_that(export%needs_extension_for(import), is(false()))
+
+   end subroutine test_none_dims_ignore_geom_id
+
+   @test
+   subroutine test_none_dims_mirror_source_needs_no_extension()
+      type(GeomAspect) :: import, export
+
+      ! A NONE export without a geom still needs no geom extension.
+      import = GeomAspect(geom3, horizontal_dims_spec=HORIZONTAL_DIMS_NONE)
+      export = GeomAspect(horizontal_dims_spec=HORIZONTAL_DIMS_NONE)
+
+      @assert_that(export%is_mirror(), is(true()))
+      @assert_that(export%matches(import), is(true()))
+      @assert_that(export%needs_extension_for(import), is(false()))
+
+   end subroutine test_none_dims_mirror_source_needs_no_extension
+
+   @test
+   subroutine test_none_dims_vs_geom_dims_does_not_match()
+      type(GeomAspect) :: import, export
+
+      import = GeomAspect(geom3, horizontal_dims_spec=HORIZONTAL_DIMS_GEOM)
+      export = GeomAspect(geom1, horizontal_dims_spec=HORIZONTAL_DIMS_NONE)
+      @assert_that(export%matches(import), is(false()))
+      @assert_that(export%can_connect_to(import), is(false()))
+
+      ! Same geom: only the dims spec differs.
+      import = GeomAspect(geom1, horizontal_dims_spec=HORIZONTAL_DIMS_GEOM)
+      @assert_that(export%matches(import), is(false()))
+      @assert_that(export%can_connect_to(import), is(false()))
+
+   end subroutine test_none_dims_vs_geom_dims_does_not_match
+
+   @test
+   subroutine test_mirror_dims_goes_through_dims_specs_agree()
+      type(GeomAspect) :: import, export
+
+      ! A MIRROR spec is not the NONE shortcut: geoms are still compared.
+      import = GeomAspect(geom3, horizontal_dims_spec=HORIZONTAL_DIMS_MIRROR)
+      export = GeomAspect(geom1, horizontal_dims_spec=HORIZONTAL_DIMS_NONE)
+      @assert_that(export%matches(import), is(false()))
+
+      import = GeomAspect(geom1, horizontal_dims_spec=HORIZONTAL_DIMS_MIRROR)
+      @assert_that(export%matches(import), is(true()))
+
+   end subroutine test_mirror_dims_goes_through_dims_specs_agree
+
+   @test
    subroutine test_mirror_geom()
       type(GeomAspect) :: import, export
 
@@ -266,13 +346,143 @@ contains
       type(BracketClassAspect) :: export
       type(FieldClassAspect) :: import
 
-      export = BracketClassAspect(2, 'A', 'Abc')
-      import = FieldClassASpect('B','Efg')
+      export = BracketClassAspect(2, 'Abc')
+      import = FieldClassASpect('Efg')
 
       ! cannot connect to another bracket
       @assert_that(export%can_connect_to(export), is(false()))
       @assert_that(export%can_connect_to(import), is(true()))
 
    end subroutine test_can_connect_bracket_to_field
+
+   ! ---------------------------------------------------------------
+   ! StandardNameAspect (generic/standard-name-enforcement,
+   ! GEOS-ESM/MAPL#5413) - modeled on the UnitsAspect tests above.
+   ! ---------------------------------------------------------------
+
+   @test
+   subroutine test_standardname_matching()
+      type(StandardNameAspect) :: import, export
+
+      import = StandardNameAspect('surface_temperature')
+      export = StandardNameAspect('surface_temperature')
+
+      @assert_that(export%can_connect_to(import), is(true()))
+
+   end subroutine test_standardname_matching
+
+   @test
+   ! Default ValidationMode is permissive: a disagreement is still allowed
+   ! to connect (a warning is logged, not asserted here).
+   subroutine test_standardname_mismatch_permissive()
+      type(StandardNameAspect) :: import, export
+
+      call set_field_dictionary_config(FieldDictionaryConfig()) ! explicit permissive
+
+      import = StandardNameAspect('air_temperature')
+      export = StandardNameAspect('surface_temperature')
+
+      @assert_that(export%can_connect_to(import), is(true()))
+
+   end subroutine test_standardname_mismatch_permissive
+
+   @test
+   ! In strict mode, a standard_name disagreement is rejected outright.
+   subroutine test_standardname_mismatch_strict()
+      type(StandardNameAspect) :: import, export
+      type(ESMF_HConfig) :: node
+
+      node = ESMF_HConfigCreate(content='{validation_mode: strict}')
+      call set_field_dictionary_config(FieldDictionaryConfig(node))
+
+      import = StandardNameAspect('air_temperature')
+      export = StandardNameAspect('surface_temperature')
+
+      @assert_that(export%can_connect_to(import), is(false()))
+
+      ! Reset to the default (permissive) so later tests in this process
+      ! are unaffected by this test's global singleton mutation.
+      call set_field_dictionary_config(FieldDictionaryConfig())
+
+   end subroutine test_standardname_mismatch_strict
+
+   @test
+   ! An Import declaring no standard_name (unchecked/"wildcard") accepts any
+   ! Export, in either ValidationMode.
+   subroutine test_standardname_wildcard_import()
+      type(StandardNameAspect) :: import, export
+      type(ESMF_HConfig) :: node
+
+      import = StandardNameAspect() ! unchecked/wildcard
+      export = StandardNameAspect('surface_temperature')
+      @assert_that(export%can_connect_to(import), is(true()))
+
+      node = ESMF_HConfigCreate(content='{validation_mode: strict}')
+      call set_field_dictionary_config(FieldDictionaryConfig(node))
+      @assert_that(export%can_connect_to(import), is(true()))
+
+      call set_field_dictionary_config(FieldDictionaryConfig())
+
+   end subroutine test_standardname_wildcard_import
+
+   @test
+   ! An Export declaring no standard_name still connects to an Import that
+   ! declares one (a warning is logged, not asserted here) - never a fatal
+   ! error, independent of ValidationMode.
+   subroutine test_standardname_export_unset()
+      type(StandardNameAspect) :: import, export
+      type(ESMF_HConfig) :: node
+
+      import = StandardNameAspect('surface_temperature')
+      export = StandardNameAspect() ! unchecked
+      @assert_that(export%can_connect_to(import), is(true()))
+
+      node = ESMF_HConfigCreate(content='{validation_mode: strict}')
+      call set_field_dictionary_config(FieldDictionaryConfig(node))
+      @assert_that(export%can_connect_to(import), is(true()))
+
+      call set_field_dictionary_config(FieldDictionaryConfig())
+
+   end subroutine test_standardname_export_unset
+
+   @test
+   ! Vector standard_name agreement is checked per-component:
+   ! component 1 agrees, component 2 disagrees - the whole
+   ! Vector fails to match in strict mode.
+   subroutine test_vector_standardname_partial_mismatch_strict()
+      type(VectorClassAspect) :: import, export
+      type(FieldClassAspect) :: components(2)
+      type(ESMF_HConfig) :: node
+
+      node = ESMF_HConfigCreate(content='{validation_mode: strict}')
+      call set_field_dictionary_config(FieldDictionaryConfig(node))
+
+      components = [FieldClassAspect(), FieldClassAspect()]
+      export = VectorClassAspect(components, MAPL_VECTOR_BASIS_KIND_NS, &
+           standard_name_1='eastward_wind', standard_name_2='northward_wind')
+      import = VectorClassAspect(components, MAPL_VECTOR_BASIS_KIND_NS, &
+           standard_name_1='eastward_wind', standard_name_2='DISAGREES')
+
+      @assert_that(export%can_connect_to(import), is(false()))
+
+      call set_field_dictionary_config(FieldDictionaryConfig())
+
+   end subroutine test_vector_standardname_partial_mismatch_strict
+
+   @test
+   ! Same as above, but fully agreeing components connect cleanly.
+   subroutine test_vector_standardname_full_match()
+      type(VectorClassAspect) :: import, export
+      type(FieldClassAspect) :: components(2)
+
+      components = [FieldClassAspect(), FieldClassAspect()]
+      export = VectorClassAspect(components, MAPL_VECTOR_BASIS_KIND_NS, &
+           standard_name_1='eastward_wind', standard_name_2='northward_wind')
+      import = VectorClassAspect(components, MAPL_VECTOR_BASIS_KIND_NS, &
+           standard_name_1='eastward_wind', standard_name_2='northward_wind')
+
+      @assert_that(export%can_connect_to(import), is(true()))
+
+   end subroutine test_vector_standardname_full_match
 
 end module Test_ASpects

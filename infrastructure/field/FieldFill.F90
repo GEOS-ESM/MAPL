@@ -2,7 +2,7 @@
 
 module mapl_FieldFill_mod
    use mapl_FieldFillDefault_mod
-   use mapl_FieldPointerUtilities_mod, only: assign_fptr
+   use mapl_FieldPointerUtilities_mod, only: assign_fptr, FieldHasDE => field_has_de
    use mapl_ErrorHandling_mod
    use esmf
    implicit none(type,external)
@@ -28,11 +28,16 @@ contains
       integer :: status
       type(ESMF_FieldStatus_Flag) :: field_status
       type(ESMF_TypeKind_Flag) :: typekind
+      logical :: has_de
 
        ! Verify field is complete (has allocated data)
        call ESMF_FieldGet(field, status=field_status, _RC)
        _ASSERT(field_status == ESMF_FIELDSTATUS_COMPLETE, 'Field must be completed prior to fill')
-
+       has_de = FieldHasDE(field, _RC)
+       if (.not. has_de) then
+          _RETURN(_SUCCESS)
+       end if
+       
        ! Get typekind from the field
        call ESMF_FieldGet(field, typekind=typekind, _RC)
 

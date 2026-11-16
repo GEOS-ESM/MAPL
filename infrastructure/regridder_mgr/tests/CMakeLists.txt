@@ -5,6 +5,7 @@ set (TEST_SRCS
   Test_RouteHandleManager.pf
   Test_RegridderManager.pf
   Test_RegridderArrayOverloads.pf
+  Test_EsmfRegridderParam.pf
   )
 
 add_pfunit_ctest(${this}

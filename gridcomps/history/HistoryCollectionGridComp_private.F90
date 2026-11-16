@@ -15,6 +15,7 @@ module mapl_HistoryCollectionGridComp_private_mod
    private
 
    public :: make_geom
+   public :: make_vertical_grid
    public :: register_imports
    public :: create_output_bundle
    public :: set_start_stop_time
@@ -62,6 +63,21 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_geom
+
+   function make_vertical_grid(hconfig, rc) result(vertical_grid)
+      class(MAPL_VerticalGrid), pointer :: vertical_grid
+      type(ESMF_HConfig), intent(inout) :: hconfig
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_HConfig) :: vertical_grid_hconfig
+      type(MAPL_VerticalGridManager), pointer :: vgrid_manager
+
+      vgrid_manager => mapl_get_vertical_grid_manager()
+      vertical_grid_hconfig = ESMF_HConfigCreateAt(hconfig, keystring='vertical_grid', _RC)
+      vertical_grid => vgrid_manager%create_grid(vertical_grid_hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_vertical_grid
 
    function create_output_bundle(hconfig, import_state, rc) result(bundle)
       type(ESMF_FieldBundle) :: bundle
@@ -125,12 +141,27 @@ contains
 
       integer :: status
       type(ESMF_Info) :: info, new_info
+      character(:), allocatable :: standard_name, long_name
 
       new_field = ESMF_FieldCreate(old_field, dataCopyFlag=ESMF_DATACOPY_REFERENCE, name=alias,  _RC)
       call ESMF_InfoGetFromHost(old_field, info, _RC)
       call ESMF_InfoGetFromHost(new_field, new_info, _RC)
       call ESMF_InfoSet(new_info, key="", value=info, _RC)
       call compression_settings%sync_to_info(new_info, _RC)
+
+      ! long_name is per-NamedAlias-id metadata (see
+      ! generic/field-name-propagation).  The wholesale Info copy above
+      ! carries over old_field's alias-scoped entry under old_field's own id,
+      ! but new_field was built with ESMF_FieldCreate (not ESMF_NamedAlias),
+      ! so it has its own, different id - that copied entry is orphaned and
+      ! never looked up.  Explicitly re-resolve long_name from old_field and
+      ! re-set it, scoped to new_field's own id. standard_name, by contrast,
+      ! is unaliased/field-wide (generic/standard-name-enforcement) - the
+      ! wholesale Info copy above already carries it over correctly onto
+      ! new_field with no orphaning possible; re-fetching/re-setting it here
+      ! is redundant but harmless (a no-op re-write of the same value).
+      call MAPL_FieldGet(old_field, standard_name=standard_name, long_name=long_name, _RC)
+      call MAPL_FieldSet(new_field, standard_name=standard_name, long_name=long_name, _RC)
 
       _RETURN(_SUCCESS)
    end function create_alias_field
@@ -225,7 +256,13 @@ contains
       character(len=:), allocatable :: short_name
       type(HistoryOptionsBase) :: coll_opts
       type(VarOptions)        :: var_opts
+      logical :: mirror_geom, mirror_vgrid
       integer :: status
+
+      ! A collection with no geom (or vertical_grid) of its own takes the
+      ! geometry (or vertical grid) of what it is connected to.
+      mirror_geom = .not. ESMF_HConfigIsDefined(hconfig, keystring='geom', _RC)
+      mirror_vgrid = .not. ESMF_HConfigIsDefined(hconfig, keystring='vertical_grid', _RC)
 
       ! Parse collection-level options (typekind, timeStep, accumulation_type, regrid_param).
       call parse_collection_options(hconfig, coll_opts, _RC)
@@ -268,17 +305,19 @@ contains
             _ASSERT(var_opts%typekind == coll_opts%typekind, 'Cannot override typekind for an individual variable when the collection specifies typekind')
          end if
 
-         call add_var_specs(gridcomp, short_name, alias, var_opts, _RC)
+         call add_var_specs(gridcomp, short_name, alias, var_opts, mirror_geom, mirror_vgrid, _RC)
       end do
 
       _RETURN(_SUCCESS)
    end subroutine register_imports
 
-   subroutine add_var_specs(gridcomp, short_name, alias, opts, rc)
+   subroutine add_var_specs(gridcomp, short_name, alias, opts, mirror_geom, mirror_vgrid, rc)
       type(ESMF_GridComp),  intent(inout) :: gridcomp
       character(len=*),     intent(in)    :: short_name
       character(len=*),     intent(in)    :: alias
       type(VarOptions),     intent(in)    :: opts
+      logical,              intent(in)    :: mirror_geom
+      logical,              intent(in)    :: mirror_vgrid
       integer, optional, intent(out) :: rc
       integer :: status, slash_loc
       type(ESMF_StateItem_Flag) :: item_type
@@ -296,7 +335,8 @@ contains
       local_tk=MAPL_TYPEKIND_MIRROR
       if (allocated(opts%typekind)) local_tk=opts%typekind
       call MAPL_GridCompAddSpec(gridcomp, ESMF_STATEINTENT_IMPORT, varspec_short_name,  &
-            units=opts%units, typekind=local_tk, regrid_param=opts%regrid_param, itemtype=item_type, _RC)
+            units=opts%units, typekind=local_tk, regrid_param=opts%regrid_param, mirror_geom=mirror_geom, mirror_vgrid=mirror_vgrid, itemtype=item_type, &
+            ungridded_dims=mapl_UngriddedDims(is_mirror=.true.), _RC)
 
       _RETURN(_SUCCESS)
    end subroutine add_var_specs

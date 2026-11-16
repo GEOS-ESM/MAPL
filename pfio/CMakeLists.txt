@@ -120,7 +120,8 @@ endif ()
 ###############################################################
 
 include(CheckCSourceCompiles)
-set(CMAKE_REQUIRED_INCLUDES ${NETCDF_INCLUDE_DIRS})
+get_target_property(_netcdf_c_include_dirs NetCDF::NetCDF_C INTERFACE_INCLUDE_DIRECTORIES)
+set(CMAKE_REQUIRED_INCLUDES ${_netcdf_c_include_dirs})
 check_c_source_compiles("
   #include <netcdf_meta.h>
   #if !NC_HAS_QUANTIZE

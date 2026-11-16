@@ -18,7 +18,7 @@ set (srcs
     SplitCommunicator.F90
     SimpleCommSplitter.F90
     # Load balancing / partitioning
-    MAPL_LoadBalance.F90
+    MAPL_LoadBalancer.F90
     Partition.F90
     # Shared memory
     Shmem/Shmem.F90   Shmem/Shmem_implementation.F90
@@ -91,7 +91,7 @@ esma_add_library (${this}
 
 # NAG and other strict compilers need relaxed flags for MPI interfaces
 if (DUSTY)
-  set_property (SOURCE Shmem/Shmem.F90 Shmem/Shmem_implementation.F90 MAPL_LoadBalance.F90
+  set_property (SOURCE Shmem/Shmem.F90 Shmem/Shmem_implementation.F90 MAPL_LoadBalancer.F90
                 PROPERTY COMPILE_FLAGS ${DUSTY})
 endif ()
 

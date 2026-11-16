@@ -1,0 +1,102 @@
+! GeometryCharacteristic regridder-param accessors and the rule that picks
+! the param for a regrid from source to destination: the one side that
+! declares a param, the default if neither does, an error if both do.
+module Test_GeometryRegridderParam
+   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
+   use ESMF, only: ESMF_REGRIDMETHOD_CONSERVE, ESMF_REGRIDMETHOD_PATCH
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_regridder_param_accessors()
+      type(GeometryCharacteristic) :: with_param, without_param
+      type(EsmfRegridderParam) :: param, got
+      integer :: status
+
+      param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      with_param = GeometryCharacteristic(geom_id='1', regridder_param=param)
+      without_param = GeometryCharacteristic(geom_id='1')
+
+      @assertTrue(with_param%has_regridder_param())
+      call with_param%get_regridder_param(got, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(got == param)
+      @assertFalse(without_param%has_regridder_param())
+   end subroutine test_regridder_param_accessors
+
+   @test
+   subroutine test_get_regridder_param_fails_without_param()
+      type(GeometryCharacteristic) :: without_param
+      type(EsmfRegridderParam) :: got
+      integer :: status
+
+      without_param = GeometryCharacteristic(geom_id='1')
+
+      call without_param%get_regridder_param(got, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_get_regridder_param_fails_without_param
+
+   @test
+   subroutine test_select_default_when_neither_declares()
+      type(GeometryCharacteristic) :: src, dst
+      type(EsmfRegridderParam) :: selected
+      integer :: status
+
+      src = GeometryCharacteristic(geom_id='1')
+      dst = GeometryCharacteristic(geom_id='2')
+
+      call src%select_regridder_param(dst, selected, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(selected == EsmfRegridderParam())
+   end subroutine test_select_default_when_neither_declares
+
+   @test
+   subroutine test_select_source_param()
+      type(GeometryCharacteristic) :: src, dst
+      type(EsmfRegridderParam) :: param, selected
+      integer :: status
+
+      param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      src = GeometryCharacteristic(geom_id='1', regridder_param=param)
+      dst = GeometryCharacteristic(geom_id='2')
+
+      call src%select_regridder_param(dst, selected, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(selected == param)
+   end subroutine test_select_source_param
+
+   @test
+   subroutine test_select_destination_param()
+      type(GeometryCharacteristic) :: src, dst
+      type(EsmfRegridderParam) :: param, selected
+      integer :: status
+
+      param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_PATCH)
+      src = GeometryCharacteristic(geom_id='1')
+      dst = GeometryCharacteristic(geom_id='2', regridder_param=param)
+
+      call src%select_regridder_param(dst, selected, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(selected == param)
+      @assertFalse(selected == EsmfRegridderParam())
+   end subroutine test_select_destination_param
+
+   ! Fails even when both sides declare the same param.
+   @test
+   subroutine test_select_fails_when_both_declare()
+      type(GeometryCharacteristic) :: src, dst
+      type(EsmfRegridderParam) :: param, selected
+      integer :: status
+
+      param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      src = GeometryCharacteristic(geom_id='1', regridder_param=param)
+      dst = GeometryCharacteristic(geom_id='2', regridder_param=param)
+
+      call src%select_regridder_param(dst, selected, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_select_fails_when_both_declare
+
+end module Test_GeometryRegridderParam

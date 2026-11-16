@@ -2,11 +2,14 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.field/tests")
 
 add_pfunit_ctest(MAPL.field.test_fieldcreate
                 TEST_SOURCES Test_FieldCreate.pf Test_FieldFill.pf Test_FieldApplyUserRoutine.pf
+                             Test_FieldNamedAlias.pf
                 LINK_LIBRARIES MAPL.field MAPL.pfunit
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE mapl_pFUnit_Initialize_mod
                 MAX_PES 1
                 )
+# Each pFUnit executable generates a loader module. Keep their module output
+# directories distinct so Ninja has only one producer for each .mod file.
 set_target_properties(MAPL.field.test_fieldcreate PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/create")
 set_tests_properties(MAPL.field.test_fieldcreate PROPERTIES LABELS "ESSENTIAL")
 
@@ -17,7 +20,7 @@ add_pfunit_ctest(MAPL.field.test_utils
                 EXTRA_INITIALIZE Initialize
                 EXTRA_USE mapl_pFUnit_Initialize_mod
                 OTHER_SOURCES field_utils_setup.F90
-                MAX_PES 4
+                MAX_PES 5
                 )
 set_target_properties(MAPL.field.test_utils PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/utils")
 set_tests_properties(MAPL.field.test_utils PROPERTIES LABELS "ESSENTIAL")

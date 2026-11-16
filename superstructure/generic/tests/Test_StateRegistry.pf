@@ -446,5 +446,23 @@ contains
       _UNUSED_DUMMY(this)
    end subroutine test_add_to_state
 
+   @test
+   ! The result of get_specs is allocatable, so the caller copies it even
+   ! when the virtual point is absent.  It must be allocated on that path.
+   subroutine test_get_specs_allocates_result_on_error()
+      type(StateRegistry) :: r
+      type(VirtualConnectionPt) :: x
+      type(StateItemSpecPtr), allocatable :: specs(:)
+      integer :: status
+
+      r = StateRegistry('A')
+      x = VirtualConnectionPt(state_intent='import', short_name='missing')
+
+      specs = r%get_specs(x, rc=status)
+      @assertExceptionRaised('Virtual connection point does not exist in registry')
+      @assert_that(status, is(not(equal_to(0))))
+      @assert_that(allocated(specs), is(true()))
+
+   end subroutine test_get_specs_allocates_result_on_error
 
 end module Test_StateRegistry

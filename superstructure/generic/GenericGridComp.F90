@@ -62,10 +62,14 @@ contains
          type(GriddedComponentDriver) :: user_gc_driver
          integer :: status
          character(ESMF_MAXSTR) :: name
+         character(len=:), allocatable :: labels(:)
+         character(*), parameter :: OUTER_META_LABEL = 'MAPL::OuterMetaComponent::private'
 
-         call ESMF_InternalStateGet(gridcomp, internalState=wrapper, &
-              label='MAPL::OuterMetaComponent::private', rc=status)
-         if (status == ESMF_SUCCESS) then
+         ! Check the label list first: a get with a missing label logs an
+         ! ESMF error, even though a missing outer meta is expected here.
+         call ESMF_InternalStateGet(gridcomp, labelList=labels, _RC)
+         if (any(labels == OUTER_META_LABEL)) then
+            call ESMF_InternalStateGet(gridcomp, internalState=wrapper, label=OUTER_META_LABEL, _RC)
             outer_meta => wrapper%ptr
             _RETURN(_SUCCESS)
          end if
@@ -74,7 +78,8 @@ contains
          call ESMF_GridCompGet(gridcomp, name=name, _RC)
          call ESMF_ConfigGet(config, hconfig=hconfig, _RC)
 
-         user_gridcomp = ESMF_GridCompCreate(name=trim(name), _RC)
+         user_gridcomp = ESMF_GridCompCreate(name=trim(name), &
+               contextFlag=ESMF_CONTEXT_PARENT_VM, _RC)
          call set_is_generic(user_gridcomp, .false., _RC)
          user_gc_driver = GriddedComponentDriver(user_gridcomp)
          call set_is_generic(gridcomp, _RC)
@@ -115,8 +120,9 @@ contains
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_MODIFY_ADVERTISED, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE_PROVIDED, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_ACCEPT_TRANSFER, _RC)
-         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE_ACCEPTED, _RC)
-         call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_READ_RESTART, _RC)
+        call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_REALIZE_ACCEPTED, _RC)
+        call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_GRAPH_FREEZE, _RC)
+        call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_READ_RESTART, _RC)
          call ESMF_GridCompSetEntryPoint(gridcomp, ESMF_METHOD_INITIALIZE, initialize, phase=GENERIC_INIT_USER, _RC)
 
          ! Run phases, including mandatory
@@ -146,13 +152,18 @@ contains
 
 
    recursive type(ESMF_GridComp) function create_grid_comp_primary( &
-        name, set_services, config, unusable, petlist, rc) result(gridcomp)
+        name, set_services, config, unusable, hierarchy_id, petlist, rc) result(gridcomp)
       use :: mapl_UserSetServices_mod, only: UserSetServices
+      use :: mapl_HierarchyId_mod, only: HierarchyId
 
       character(*), intent(in) :: name
       class(UserSetServices), optional, intent(in) :: set_services
       type(ESMF_HConfig), intent(in) :: config
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      ! Framework-internal keyword. When absent,
+      ! the component gets a fresh hierarchy. When supplied (internal use
+      ! only), the child joins the parent's hierarchy instead of starting a new one.
+      type(HierarchyId), optional, intent(in) :: hierarchy_id
       integer, optional, intent(in) :: petlist(:)
       integer, optional, intent(out) :: rc
 
@@ -195,7 +206,7 @@ contains
          call ridiculous(outer_meta, OuterMetaComponent(gridcomp, user_gc_driver, hconfig=config))
       end if
 #endif
-      call outer_meta%init_meta(_RC)
+      call outer_meta%init_meta(hierarchy_id=hierarchy_id, _RC)
 
       _RETURN(ESMF_SUCCESS)
       _UNUSED_DUMMY(unusable)
@@ -243,6 +254,8 @@ contains
           call outer_meta%initialize_accept_transfer(importState, exportState, clock, _RC)
        case (GENERIC_INIT_REALIZE_ACCEPTED)
           call outer_meta%initialize_realize_accepted(importState, exportState, clock, _RC)
+       case (GENERIC_INIT_GRAPH_FREEZE)
+          call outer_meta%initialize_graph_freeze(_RC)
        case (GENERIC_INIT_READ_RESTART)
           call outer_meta%initialize_read_restart(_RC)
       case (GENERIC_INIT_USER)

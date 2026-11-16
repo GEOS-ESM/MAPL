@@ -19,6 +19,7 @@ set (srcs
   VerticalStaggerLoc.F90
   VerticalCoordinateDirection.F90
   VerticalAlignment.F90
+  StateItemFlag.F90
   )
 
 esma_add_library (${this}

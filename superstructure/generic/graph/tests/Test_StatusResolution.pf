@@ -1,0 +1,643 @@
+! Generic status resolution in mapl_StateItemDescriptor_mod: every cell of
+! the export x import status table, the MIRRORED-export allowlist, MIRRORED
+! import adoption, and the freeze-time unresolved check.
+module Test_StatusResolution
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor, resolve_pair, resolve_descriptors, &
+        resolve_characteristics, is_mirrored_export_allowed, &
+        PAIR_MATCH, PAIR_EXTEND, PAIR_ADOPT, PAIR_CONFLICT, PAIR_INVALID, PAIR_WAIT
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, operator(==), &
+         PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
+         VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+         VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND
+   use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
+   use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
+   use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_MIRROR
+   use mapl_VerticalCoordinateDirection_mod, only: VCOORD_DIRECTION_UP, VCOORD_DIRECTION_DOWN, &
+        VCOORD_DIRECTION_UNSPECIFIED
+   use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
+        CHARACTERISTIC_STATUS_INVALID, CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED, &
+        CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_DEFERRED
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
+   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
+   use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
+   use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
+   use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
+   use mapl_QuantityType_mod, only: QUANTITY_UNKNOWN, QUANTITY_TEMPERATURE, &
+         QUANTITY_PRESSURE, BASIS_NONE, BASIS_WET_MASS, BASIS_DRY_MASS, &
+         operator(==)
+   use mapl_ConservationMetadata_mod, only: ConservationMetadata
+   use mapl_ConservationType_mod, only: CONSERVE_MASS, CONSERVE_ENERGY
+   use mapl_NormalizationMetadata_mod, only: NormalizationMetadata
+   use mapl_NormalizationType_mod, only: NORMALIZE_DELP, NORMALIZE_DZ
+   use gFTL2_StringVector, only: StringVector
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_EXPRESSION
+   use ESMF, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, set_field_dictionary_config, &
+        get_field_dictionary_config
+   use funit
+   implicit none
+
+contains
+
+   function units(value, status) result(c)
+      character(*), intent(in) :: value
+      type(CharacteristicStatus), intent(in) :: status
+      type(PhysicalUnitsCharacteristic) :: c
+
+      c = PhysicalUnitsCharacteristic(value)
+      call c%set_status(status)
+   end function units
+
+   integer function outcome(export_status, import_status) result(o)
+      type(CharacteristicStatus), intent(in) :: export_status, import_status
+
+      o = resolve_pair(units('m', export_status), units('m', import_status), MAPL_STATEITEM_FIELD)
+   end function outcome
+
+   ! -- VerticalOrientation pairs --
+
+   @test
+   subroutine test_vertical_orientation_pairs()
+      type(VerticalOrientationCharacteristic) :: up, down, mirrored
+
+      up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+
+      @assertEqual(PAIR_MATCH, resolve_pair(up, up, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(up, down, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_ADOPT, resolve_pair(up, mirrored, MAPL_STATEITEM_FIELD))
+   end subroutine test_vertical_orientation_pairs
+
+   ! A Basic grid carries no direction: opposite orientations match (no step)
+   ! and warn once; plain opposite orientations still extend. The same pair
+   ! with an implicit Basic side (UNSPECIFIED) matches without a warning.
+   @test
+   subroutine test_basic_orientation_matches_and_warns()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicMap) :: plain_export, plain_import
+      type(StateItemCharacteristicMap) :: implicit_import
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:), adopted(:)
+      character(:), allocatable :: conflict
+      type(StringVector) :: warnings, plain_warnings, implicit_warnings
+      integer :: status(3)
+
+      call export_map%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      call import_map%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP, &
+           directionless=.true., grid_known=.true.))
+      call resolve_characteristics(export_map, import_map, MAPL_STATEITEM_FIELD, &
+           mismatched, adopted, conflict, rc=status(1), warnings=warnings)
+
+      call plain_export%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      call plain_import%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      call resolve_characteristics(plain_export, plain_import, MAPL_STATEITEM_FIELD, &
+           mismatched, adopted, conflict, rc=status(2), warnings=plain_warnings)
+      @assertEqual(1, size(mismatched))
+
+      call implicit_import%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UNSPECIFIED, &
+           directionless=.true., grid_known=.true.))
+      call resolve_characteristics(export_map, implicit_import, MAPL_STATEITEM_FIELD, &
+           mismatched, adopted, conflict, rc=status(3), warnings=implicit_warnings)
+
+      @assertEqual([0, 0, 0], status)
+      @assertEqual(0, size(mismatched))
+      @assertEqual(1, int(warnings%size()))
+      @assertEqual(0, int(plain_warnings%size()))
+      @assertEqual(0, int(implicit_warnings%size()))
+   end subroutine test_basic_orientation_matches_and_warns
+
+   ! QUANTITY_UNKNOWN is not a value wildcard. BASIS_NONE remains one.
+   @test
+   subroutine test_quantity_type_unknown_is_not_a_value_wildcard()
+      type(QuantityTypeCharacteristic) :: unknown, temperature, pressure
+      type(QuantityTypeCharacteristic) :: wet, dry, no_basis
+
+      unknown = QuantityTypeCharacteristic(QUANTITY_UNKNOWN)
+      temperature = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE)
+      pressure = QuantityTypeCharacteristic(QUANTITY_PRESSURE)
+      wet = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_WET_MASS)
+      dry = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_DRY_MASS)
+      no_basis = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_NONE)
+
+      @assertEqual(PAIR_EXTEND, resolve_pair(temperature, unknown, &
+            MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(unknown, temperature, &
+            MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(temperature, pressure, &
+           MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_MATCH, resolve_pair(wet, no_basis, &
+           MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(wet, dry, MAPL_STATEITEM_FIELD))
+   end subroutine test_quantity_type_unknown_is_not_a_value_wildcard
+
+   @test
+   subroutine test_deferred_quantity_type_waits()
+      type(QuantityTypeCharacteristic) :: deferred, specified
+
+      deferred = QuantityTypeCharacteristic(QUANTITY_UNKNOWN)
+      specified = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE)
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+
+      @assertEqual(PAIR_WAIT, resolve_pair(deferred, specified, &
+           MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_WAIT, resolve_pair(specified, deferred, &
+           MAPL_STATEITEM_FIELD))
+   end subroutine test_deferred_quantity_type_waits
+
+   @test
+   subroutine test_conservation_and_normalization_pairs()
+      type(ConservationCharacteristic) :: mass, energy, mirrored_c
+      type(NormalizationCharacteristic) :: delp, dz, mirrored_n
+
+      mass = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+      energy = ConservationCharacteristic(ConservationMetadata(CONSERVE_ENERGY))
+      call mirrored_c%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(PAIR_MATCH, resolve_pair(mass, mass, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(mass, energy, &
+           MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_ADOPT, resolve_pair(mass, mirrored_c, &
+           MAPL_STATEITEM_FIELD))
+
+      delp = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+      dz = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DZ))
+      call mirrored_n%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(PAIR_MATCH, resolve_pair(delp, delp, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(delp, dz, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_ADOPT, resolve_pair(delp, mirrored_n, &
+           MAPL_STATEITEM_FIELD))
+   end subroutine test_conservation_and_normalization_pairs
+
+   ! -- HorizontalDimsSpec pairs and the uncompared geometry of a NONE item --
+
+   @test
+   subroutine test_horizontal_dims_spec_pairs()
+      type(HorizontalDimsSpecCharacteristic) :: geom, none, mirrored
+
+      geom = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM)
+      none = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE)
+      mirrored = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_MIRROR)
+
+      @assertEqual(PAIR_MATCH, resolve_pair(none, none, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_MATCH, resolve_pair(geom, geom, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(geom, none, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(none, geom, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_ADOPT, resolve_pair(geom, mirrored, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_ADOPT, resolve_pair(none, mirrored, MAPL_STATEITEM_FIELD))
+   end subroutine test_horizontal_dims_spec_pairs
+
+   ! Two NONE items on different horizontal grids still match.
+   @test
+   subroutine test_uncompared_geometries_match_across_grids()
+      type(GeometryCharacteristic) :: a, b
+
+      a = GeometryCharacteristic(geom_id='1', compared=.false.)
+      b = GeometryCharacteristic(geom_id='2', compared=.false.)
+      @assertEqual(PAIR_MATCH, resolve_pair(a, b, MAPL_STATEITEM_FIELD))
+   end subroutine test_uncompared_geometries_match_across_grids
+
+   ! -- export SPECIFIED row --
+
+   @test
+   subroutine test_specified_specified_equal_matches()
+      @assertEqual(PAIR_MATCH, outcome(CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_SPECIFIED))
+   end subroutine test_specified_specified_equal_matches
+
+   @test
+   subroutine test_specified_specified_different_extends()
+      @assertEqual(PAIR_EXTEND, resolve_pair(units('m', CHARACTERISTIC_STATUS_SPECIFIED), &
+           units('km', CHARACTERISTIC_STATUS_SPECIFIED), MAPL_STATEITEM_FIELD))
+   end subroutine test_specified_specified_different_extends
+
+   @test
+   subroutine test_specified_mirrored_adopts()
+      @assertEqual(PAIR_ADOPT, outcome(CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_MIRRORED))
+   end subroutine test_specified_mirrored_adopts
+
+   ! Values differ but UNCHECKED never compares.
+   @test
+   subroutine test_specified_unchecked_matches()
+      @assertEqual(PAIR_MATCH, resolve_pair(units('m', CHARACTERISTIC_STATUS_SPECIFIED), &
+           units('km', CHARACTERISTIC_STATUS_UNCHECKED), MAPL_STATEITEM_FIELD))
+   end subroutine test_specified_unchecked_matches
+
+   @test
+   subroutine test_specified_deferred_waits()
+      @assertEqual(PAIR_WAIT, outcome(CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_DEFERRED))
+   end subroutine test_specified_deferred_waits
+
+   ! -- export MIRRORED row --
+
+   @test
+   subroutine test_mirrored_specified_not_allowlisted_conflicts()
+      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_MIRRORED, CHARACTERISTIC_STATUS_SPECIFIED))
+   end subroutine test_mirrored_specified_not_allowlisted_conflicts
+
+   @test
+   subroutine test_mirrored_mirrored_conflicts()
+      @assertEqual(PAIR_CONFLICT, outcome(CHARACTERISTIC_STATUS_MIRRORED, CHARACTERISTIC_STATUS_MIRRORED))
+   end subroutine test_mirrored_mirrored_conflicts
+
+   @test
+   subroutine test_mirrored_unchecked_matches()
+      @assertEqual(PAIR_MATCH, outcome(CHARACTERISTIC_STATUS_MIRRORED, CHARACTERISTIC_STATUS_UNCHECKED))
+   end subroutine test_mirrored_unchecked_matches
+
+   @test
+   subroutine test_mirrored_deferred_waits()
+      @assertEqual(PAIR_WAIT, outcome(CHARACTERISTIC_STATUS_MIRRORED, CHARACTERISTIC_STATUS_DEFERRED))
+   end subroutine test_mirrored_deferred_waits
+
+   ! -- export UNCHECKED row --
+
+   @test
+   subroutine test_unchecked_specified_matches()
+      @assertEqual(PAIR_MATCH, resolve_pair(units('m', CHARACTERISTIC_STATUS_UNCHECKED), &
+           units('km', CHARACTERISTIC_STATUS_SPECIFIED), MAPL_STATEITEM_FIELD))
+   end subroutine test_unchecked_specified_matches
+
+   @test
+   subroutine test_unchecked_mirrored_adopts()
+      @assertEqual(PAIR_ADOPT, outcome(CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED))
+   end subroutine test_unchecked_mirrored_adopts
+
+   @test
+   subroutine test_unchecked_unchecked_matches()
+      @assertEqual(PAIR_MATCH, outcome(CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_UNCHECKED))
+   end subroutine test_unchecked_unchecked_matches
+
+   @test
+   subroutine test_unchecked_deferred_waits()
+      @assertEqual(PAIR_WAIT, outcome(CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_DEFERRED))
+   end subroutine test_unchecked_deferred_waits
+
+   ! -- export DEFERRED row --
+
+   @test
+   subroutine test_deferred_row_always_waits()
+      @assertEqual(PAIR_WAIT, outcome(CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED))
+      @assertEqual(PAIR_WAIT, outcome(CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_MIRRORED))
+      @assertEqual(PAIR_WAIT, outcome(CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_UNCHECKED))
+      @assertEqual(PAIR_WAIT, outcome(CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_DEFERRED))
+   end subroutine test_deferred_row_always_waits
+
+   ! -- INVALID on either side --
+
+   @test
+   subroutine test_invalid_on_either_side_is_reported()
+      @assertEqual(PAIR_INVALID, outcome(CHARACTERISTIC_STATUS_INVALID, CHARACTERISTIC_STATUS_SPECIFIED))
+      @assertEqual(PAIR_INVALID, outcome(CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_INVALID))
+      @assertEqual(PAIR_INVALID, outcome(CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_INVALID))
+   end subroutine test_invalid_on_either_side_is_reported
+
+   @test
+   subroutine test_invalid_fails_resolve_characteristics()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:), adopted(:)
+      character(:), allocatable :: conflict
+      type(PhysicalUnitsCharacteristic) :: unset
+      integer :: status
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, unset)
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      call resolve_characteristics(export_map, import_map, MAPL_STATEITEM_FIELD, mismatched, adopted, conflict, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_invalid_fails_resolve_characteristics
+
+   ! -- allowlist --
+
+   @test
+   subroutine test_allowlist_entries()
+      @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, GEOMETRY_CHARACTERISTIC_KIND))
+      @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, VERTICAL_GRID_CHARACTERISTIC_KIND))
+      @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, VERTICAL_STAGGER_CHARACTERISTIC_KIND))
+      @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND))
+      @assertTrue(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, TYPE_KIND_CHARACTERISTIC_KIND))
+      @assertFalse(is_mirrored_export_allowed(MAPL_STATEITEM_EXPRESSION, PHYSICAL_UNITS_CHARACTERISTIC_KIND))
+      @assertFalse(is_mirrored_export_allowed(MAPL_STATEITEM_FIELD, GEOMETRY_CHARACTERISTIC_KIND))
+      @assertFalse(is_mirrored_export_allowed(MAPL_STATEITEM_FIELD, VERTICAL_STAGGER_CHARACTERISTIC_KIND))
+      @assertFalse(is_mirrored_export_allowed(MAPL_STATEITEM_FIELD, VERTICAL_ORIENTATION_CHARACTERISTIC_KIND))
+   end subroutine test_allowlist_entries
+
+   ! Allowlisted: an EXPRESSION export with MIRRORED TYPE_KIND matches a
+   ! SPECIFIED import; the export is left unmodified.
+   @test
+   subroutine test_allowlisted_mirrored_export_matches()
+      type(StateItemDescriptor) :: export, import
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      character(:), allocatable :: conflict
+      class(StateItemCharacteristic), allocatable :: found
+      type(TypeKindCharacteristic) :: mirrored
+      integer :: status
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call export%set_declared_item_type(MAPL_STATEITEM_EXPRESSION)
+      call export%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, mirrored, rc=status)
+      call import%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), rc=status)
+
+      call resolve_descriptors(export, import, mismatched, conflict, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', conflict)
+      @assertEqual(0, size(mismatched))
+
+      call export%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, found, rc=status)
+      @assertTrue(found%get_status() == CHARACTERISTIC_STATUS_MIRRORED)
+   end subroutine test_allowlisted_mirrored_export_matches
+
+   ! Not allowlisted: a FIELD export with MIRRORED GEOMETRY fails, naming the kind.
+   @test
+   subroutine test_non_allowlisted_mirrored_export_conflicts()
+      type(StateItemDescriptor) :: export, import
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      character(:), allocatable :: conflict
+      type(GeometryCharacteristic) :: mirrored
+      integer :: status
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call export%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, mirrored, rc=status)
+      call import%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom_id='1'), rc=status)
+
+      call resolve_descriptors(export, import, mismatched, conflict, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(index(conflict, 'GEOMETRY') > 0)
+   end subroutine test_non_allowlisted_mirrored_export_conflicts
+
+   ! -- adoption --
+
+   ! Spec "Mirrored import adopts the export's value".
+   @test
+   subroutine test_mirrored_import_adopts_export_value()
+      type(StateItemDescriptor) :: export, import
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      character(:), allocatable :: conflict
+      class(StateItemCharacteristic), allocatable :: found
+      type(TypeKindCharacteristic) :: mirrored
+      integer :: status
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call export%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'), rc=status)
+      call import%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, mirrored, rc=status)
+
+      call resolve_descriptors(export, import, mismatched, conflict, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', conflict)
+      @assertEqual(0, size(mismatched))
+
+      call import%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, found, rc=status)
+      @assertTrue(found%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (found)
+      type is (TypeKindCharacteristic)
+         @assertEqual('R8', found%get_type_kind())
+      class default
+         @assertTrue(.false., 'adopted entry is not a TypeKindCharacteristic')
+      end select
+   end subroutine test_mirrored_import_adopts_export_value
+
+   ! A mirrored import against an UNCHECKED export becomes UNCHECKED: there is
+   ! no name to copy, and nothing is compared.
+   @test
+   subroutine test_mirrored_import_adopts_unchecked_export()
+      type(StateItemDescriptor) :: export, import
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      character(:), allocatable :: conflict
+      class(StateItemCharacteristic), allocatable :: found
+      type(StandardNameCharacteristic) :: unchecked, mirrored
+      integer :: status
+
+      call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call export%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, unchecked, rc=status)
+      call import%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, mirrored, rc=status)
+
+      call resolve_descriptors(export, import, mismatched, conflict, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', conflict)
+      @assertEqual(0, size(mismatched))
+
+      call import%get_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, found, rc=status)
+      @assertTrue(found%get_status() == CHARACTERISTIC_STATUS_UNCHECKED)
+   end subroutine test_mirrored_import_adopts_unchecked_export
+
+   @test
+   subroutine test_unchecked_quantity_import_does_not_adopt_export_value()
+      type(StateItemDescriptor) :: export, import
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      character(:), allocatable :: conflict
+      class(StateItemCharacteristic), allocatable :: found
+      type(QuantityTypeCharacteristic) :: unchecked
+      integer :: status
+
+      unchecked = QuantityTypeCharacteristic(QUANTITY_UNKNOWN)
+      call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call export%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+           QuantityTypeCharacteristic(QUANTITY_TEMPERATURE), rc=status)
+      call import%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+           unchecked, rc=status)
+
+      call resolve_descriptors(export, import, mismatched, conflict, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', conflict)
+      @assertEqual(0, size(mismatched))
+      call import%get_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+           found, rc=status)
+      @assertTrue(found%get_status() == CHARACTERISTIC_STATUS_UNCHECKED)
+      select type (found)
+      type is (QuantityTypeCharacteristic)
+         @assertTrue(found%get_quantity_type() == QUANTITY_UNKNOWN)
+      class default
+         @assertTrue(.false., 'entry is not a QuantityTypeCharacteristic')
+      end select
+   end subroutine test_unchecked_quantity_import_does_not_adopt_export_value
+
+   ! Bare maps cannot record an adoption, so the map form fails.
+   @test
+   subroutine test_map_form_reports_needed_adoption()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:), adopted(:)
+      character(:), allocatable :: conflict
+      integer :: status
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, units('m', CHARACTERISTIC_STATUS_SPECIFIED))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, units('m', CHARACTERISTIC_STATUS_MIRRORED))
+      call resolve_characteristics(export_map, import_map, MAPL_STATEITEM_FIELD, mismatched, adopted, conflict, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, size(adopted))
+      @assertTrue(adopted(1) == PHYSICAL_UNITS_CHARACTERISTIC_KIND)
+   end subroutine test_map_form_reports_needed_adoption
+
+   ! A caller that cannot retry passes no `waiting`; a DEFERRED pair is then
+   ! a conflict, and with `waiting` it is a wait and no conflict.
+   @test
+   subroutine test_map_form_without_waiting_reports_conflict()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:), adopted(:)
+      character(:), allocatable :: conflict
+      logical :: waiting
+      integer :: status
+
+      call export_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, units('m', CHARACTERISTIC_STATUS_SPECIFIED))
+      call import_map%insert(PHYSICAL_UNITS_CHARACTERISTIC_KIND, units('m', CHARACTERISTIC_STATUS_DEFERRED))
+
+      call resolve_characteristics(export_map, import_map, MAPL_STATEITEM_FIELD, mismatched, adopted, conflict, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(len(conflict) > 0)
+
+      call resolve_characteristics(export_map, import_map, MAPL_STATEITEM_FIELD, mismatched, adopted, conflict, &
+           rc=status, waiting=waiting)
+      @assertEqual(0, status)
+      @assertEqual('', conflict)
+      @assertTrue(waiting)
+   end subroutine test_map_form_without_waiting_reports_conflict
+
+   ! The standard-name comparison has no status check of its own: the table
+   ! does it. Two different names extend only in strict validation mode.
+   @test
+   subroutine test_standard_name_unchecked_matches_and_specified_compares()
+      type(StandardNameCharacteristic) :: a, b, unchecked
+      type(FieldDictionaryConfig) :: saved
+
+      a = StandardNameCharacteristic('air_temperature')
+      b = StandardNameCharacteristic('surface_pressure')
+      unchecked = StandardNameCharacteristic('ignored')
+      call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      saved = get_field_dictionary_config()
+      call use_validation('{validation_mode: strict}')
+
+      @assertEqual(PAIR_MATCH, resolve_pair(a, unchecked, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_MATCH, resolve_pair(unchecked, b, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(a, b, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_MATCH, resolve_pair(a, a, MAPL_STATEITEM_FIELD))
+
+      call use_validation('{validation_mode: permissive}')
+      @assertEqual(PAIR_MATCH, resolve_pair(a, b, MAPL_STATEITEM_FIELD))
+
+      call set_field_dictionary_config(saved)
+   end subroutine test_standard_name_unchecked_matches_and_specified_compares
+
+   ! A matched pair's match_warning text is collected; a pair that extends
+   ! (strict mode) contributes none.
+   @test
+   subroutine test_map_form_collects_match_warnings()
+      type(StateItemCharacteristicMap) :: export_map, import_map
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:), adopted(:)
+      character(:), allocatable :: conflict
+      type(StringVector) :: warnings
+      type(FieldDictionaryConfig) :: saved
+      integer :: status
+
+      call export_map%insert(STANDARD_NAME_CHARACTERISTIC_KIND, StandardNameCharacteristic('air_temperature'))
+      call import_map%insert(STANDARD_NAME_CHARACTERISTIC_KIND, StandardNameCharacteristic('surface_pressure'))
+      saved = get_field_dictionary_config()
+
+      call use_validation('{validation_mode: permissive}')
+      call resolve_characteristics(export_map, import_map, MAPL_STATEITEM_FIELD, mismatched, adopted, conflict, &
+           rc=status, warnings=warnings)
+      @assertEqual(0, status)
+      @assertEqual(0, size(mismatched))
+      @assertEqual(1, int(warnings%size()))
+
+      call use_validation('{validation_mode: strict}')
+      call resolve_characteristics(export_map, import_map, MAPL_STATEITEM_FIELD, mismatched, adopted, conflict, &
+           rc=status, warnings=warnings)
+      @assertEqual(0, status)
+      @assertEqual(1, size(mismatched))
+      @assertEqual(0, int(warnings%size()))
+
+      call set_field_dictionary_config(saved)
+   end subroutine test_map_form_collects_match_warnings
+
+   ! The export is the provides side: an empty export set does not satisfy an
+   ! import that requires an attribute, and a superset does.
+   @test
+   subroutine test_attributes_export_must_provide_what_import_requires()
+      type(AttributesCharacteristic) :: empty, required, extra
+      type(StringVector) :: required_names, extra_names
+
+      call required_names%push_back('shared_attr')
+      call extra_names%push_back('shared_attr')
+      call extra_names%push_back('other_attr')
+      empty = AttributesCharacteristic(StringVector())
+      required = AttributesCharacteristic(required_names)
+      extra = AttributesCharacteristic(extra_names)
+
+      @assertEqual(PAIR_EXTEND, resolve_pair(empty, required, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_MATCH, resolve_pair(extra, required, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_EXTEND, resolve_pair(required, extra, MAPL_STATEITEM_FIELD))
+      @assertEqual(PAIR_MATCH, resolve_pair(empty, empty, MAPL_STATEITEM_FIELD))
+   end subroutine test_attributes_export_must_provide_what_import_requires
+
+   ! -- one-sided absence --
+
+   ! Spec "Bracket without standard name": absence on one side is not a mismatch.
+   @test
+   subroutine test_one_sided_kind_is_not_mismatched()
+      type(StateItemDescriptor) :: export, import
+      type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      character(:), allocatable :: conflict
+      integer :: status
+
+      call import%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, StandardNameCharacteristic('x'), rc=status)
+      call resolve_descriptors(export, import, mismatched, conflict, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('', conflict)
+      @assertEqual(0, size(mismatched))
+   end subroutine test_one_sided_kind_is_not_mismatched
+
+   ! -- freeze check --
+
+   @test
+   subroutine test_resolved_descriptor_passes_freeze_check()
+      type(StateItemDescriptor) :: item
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+      integer :: status
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, units('m', CHARACTERISTIC_STATUS_SPECIFIED), rc=status)
+      call item%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, typekind_with_status(CHARACTERISTIC_STATUS_MIRRORED), rc=status)
+      kinds = item%get_unresolved_kinds()
+      @assertEqual(0, size(kinds))
+      call item%check_resolved('COMP:X', rc=status)
+      @assertEqual(0, status)
+   end subroutine test_resolved_descriptor_passes_freeze_check
+
+   ! The message naming item and kind is checked through the real freeze
+   ! hook in Test_GraphBuilder_ConvergenceCheck.pf.
+   @test
+   subroutine test_deferred_fails_freeze_check()
+      type(StateItemDescriptor) :: item
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+      integer :: status
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, units('m', CHARACTERISTIC_STATUS_DEFERRED), rc=status)
+      kinds = item%get_unresolved_kinds()
+      @assertEqual(1, size(kinds))
+      @assertTrue(kinds(1) == PHYSICAL_UNITS_CHARACTERISTIC_KIND)
+
+      call item%check_resolved('COMP:X', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_deferred_fails_freeze_check
+
+   function typekind_with_status(status) result(c)
+      type(CharacteristicStatus), intent(in) :: status
+      type(TypeKindCharacteristic) :: c
+
+      call c%set_status(status)
+   end function typekind_with_status
+
+   subroutine use_validation(content)
+      character(*), intent(in) :: content
+      type(ESMF_HConfig) :: node
+
+      node = ESMF_HConfigCreate(content=content)
+      call set_field_dictionary_config(FieldDictionaryConfig(node))
+      call ESMF_HConfigDestroy(node)
+   end subroutine use_validation
+
+end module Test_StatusResolution

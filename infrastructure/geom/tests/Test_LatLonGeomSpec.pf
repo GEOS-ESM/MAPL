@@ -1,8 +1,11 @@
 module Test_LatLonGeomSpec
 
    use mapl_LatLonGeomSpec_mod
+   use mapl_LatLonTestHelper_mod
+   use pfio, only: FileMetadata
    use esmf
    use funit
+   use, intrinsic :: iso_fortran_env, only: REAL64
 
    implicit none
 
@@ -188,5 +191,233 @@ contains
       call ESMF_HConfigDestroy(hconfig, rc=status)
       @assertEqual(0, status)
    end subroutine test_get_horz_ij_index_zero_points
+
+   ! -----------------------------------------------------------------------
+   ! make_LatLonGeomSpec_from_metadata: "coordinate_tolerance" attribute
+   ! handling (absent / present / wrong type / negative).
+   ! -----------------------------------------------------------------------
+
+   @test
+   subroutine test_make_from_metadata_no_tolerance_attribute()
+      type(FileMetadata) :: file_metadata
+      type(LatLonGeomSpec) :: spec
+      integer :: status
+
+      call create_latlon_file('test_ll_meta_absent.nc', 12, 8, rc=status)
+      @assert_that(status, is(0))
+      file_metadata = read_latlon_metadata('test_ll_meta_absent.nc', rc=status)
+      @assert_that(status, is(0))
+
+      spec = make_LatLonGeomSpec(file_metadata, rc=status)
+      @assert_that(status, is(0))
+   end subroutine test_make_from_metadata_no_tolerance_attribute
+
+   @test
+   subroutine test_make_from_metadata_with_tolerance_attribute()
+      type(FileMetadata) :: file_metadata
+      type(LatLonGeomSpec) :: spec
+      integer :: status
+
+      call create_latlon_file('test_ll_meta_present.nc', 12, 8, rc=status)
+      @assert_that(status, is(0))
+      file_metadata = read_latlon_metadata('test_ll_meta_present.nc', rc=status)
+      @assert_that(status, is(0))
+      call file_metadata%add_attribute('coordinate_tolerance', 0.01_REAL64)
+
+      spec = make_LatLonGeomSpec(file_metadata, rc=status)
+      @assert_that(status, is(0))
+   end subroutine test_make_from_metadata_with_tolerance_attribute
+
+   @test
+   subroutine test_make_from_metadata_rejects_non_real_tolerance()
+      type(FileMetadata) :: file_metadata
+      type(LatLonGeomSpec) :: spec
+      integer :: status
+
+      call create_latlon_file('test_ll_meta_badtype.nc', 12, 8, rc=status)
+      @assert_that(status, is(0))
+      file_metadata = read_latlon_metadata('test_ll_meta_badtype.nc', rc=status)
+      @assert_that(status, is(0))
+      call file_metadata%add_attribute('coordinate_tolerance', 'oops')
+
+      spec = make_LatLonGeomSpec(file_metadata, rc=status)
+      @assertExceptionRaised()
+      @assertExceptionRaised()
+   end subroutine test_make_from_metadata_rejects_non_real_tolerance
+
+   @test
+   subroutine test_make_from_metadata_rejects_negative_tolerance()
+      type(FileMetadata) :: file_metadata
+      type(LatLonGeomSpec) :: spec
+      integer :: status
+
+      call create_latlon_file('test_ll_meta_negative.nc', 12, 8, rc=status)
+      @assert_that(status, is(0))
+      file_metadata = read_latlon_metadata('test_ll_meta_negative.nc', rc=status)
+      @assert_that(status, is(0))
+      call file_metadata%add_attribute('coordinate_tolerance', -1.0_REAL64)
+
+      spec = make_LatLonGeomSpec(file_metadata, rc=status)
+      @assertExceptionRaised()
+      @assertExceptionRaised()
+   end subroutine test_make_from_metadata_rejects_negative_tolerance
+
+   ! -----------------------------------------------------------------------
+   ! equal_to: coordinate-tolerance-aware comparison at the LatLonGeomSpec
+   ! level (mirrors CoordinateAxis cases in Test_CoordinateAxis.pf).
+   ! -----------------------------------------------------------------------
+
+   @test
+   subroutine test_equal_to_within_tolerance()
+      ! `a` (metadata_a) plays the role of an already-registered geom;
+      ! `b` (metadata_b) plays the role of a newly-loaded candidate not
+      ! yet in the registry - matching GeomManager's actual lookup order
+      ! (`find` compares each registered entry, "a", against the new
+      ! lookup value, "b"; see CoordinateAxis/equal_to.F90). Only the
+      ! candidate's own declared tolerance (a fraction of ITS OWN local
+      ! grid spacing, here 10 deg for a 36x18 grid) is consulted.
+      type(FileMetadata) :: metadata_a, metadata_b
+      type(LatLonGeomSpec) :: a, b
+      integer :: status
+
+      ! Same im/jm; b's coordinates are perturbed by a tiny amount
+      ! relative to the grid spacing (10 deg for 36x18).
+      call create_latlon_file('test_ll_eq_tol_a.nc', 36, 18, rc=status)
+      @assert_that(status, is(0))
+      call create_latlon_file('test_ll_eq_tol_b.nc', 36, 18, rc=status, perturbation=1.0e-4_REAL64)
+      @assert_that(status, is(0))
+
+      metadata_a = read_latlon_metadata('test_ll_eq_tol_a.nc', rc=status)
+      @assert_that(status, is(0))
+      metadata_b = read_latlon_metadata('test_ll_eq_tol_b.nc', rc=status)
+      @assert_that(status, is(0))
+      ! Tolerance is a FRACTION of b's own spacing: 1.e-3 * 10 deg = 0.01
+      ! deg, comfortably covering the 1.e-4 deg perturbation.
+      call metadata_b%add_attribute('coordinate_tolerance', 1.0e-3_REAL64)
+
+      a = make_LatLonGeomSpec(metadata_a, rc=status)
+      @assert_that(status, is(0))
+      b = make_LatLonGeomSpec(metadata_b, rc=status)
+      @assert_that(status, is(0))
+
+      ! a == b models the real GeomManager lookup: does candidate b
+      ! accept already-registered a as close enough?
+      @assertTrue(a == b)
+   end subroutine test_equal_to_within_tolerance
+
+   @test
+   subroutine test_equal_to_is_directional_not_symmetric()
+      ! Same setup as test_equal_to_within_tolerance, but demonstrating
+      ! that swapping which side is "the candidate" changes the result:
+      ! only the tolerance declared on the not-yet-registered side is
+      ! ever consulted, so equal_to is not a symmetric relation.
+      type(FileMetadata) :: metadata_a, metadata_b
+      type(LatLonGeomSpec) :: a, b
+      integer :: status
+
+      call create_latlon_file('test_ll_eq_dir_a.nc', 36, 18, rc=status)
+      @assert_that(status, is(0))
+      call create_latlon_file('test_ll_eq_dir_b.nc', 36, 18, rc=status, perturbation=1.0e-4_REAL64)
+      @assert_that(status, is(0))
+
+      metadata_a = read_latlon_metadata('test_ll_eq_dir_a.nc', rc=status)
+      @assert_that(status, is(0))
+      metadata_b = read_latlon_metadata('test_ll_eq_dir_b.nc', rc=status)
+      @assert_that(status, is(0))
+      ! Only metadata_b declares a tolerance; metadata_a does not.
+      call metadata_b%add_attribute('coordinate_tolerance', 1.0e-3_REAL64)
+
+      a = make_LatLonGeomSpec(metadata_a, rc=status)
+      @assert_that(status, is(0))
+      b = make_LatLonGeomSpec(metadata_b, rc=status)
+      @assert_that(status, is(0))
+
+      ! a == b: b is the candidate, and its tolerance covers the
+      ! perturbation.
+      @assertTrue(a == b)
+      ! b == a: now a is the candidate, but a declared no tolerance
+      ! (strict/0), so the same perturbation is rejected.
+      @assertFalse(b == a)
+   end subroutine test_equal_to_is_directional_not_symmetric
+
+   @test
+   subroutine test_equal_to_outside_tolerance()
+      type(FileMetadata) :: metadata_a, metadata_b
+      type(LatLonGeomSpec) :: a, b
+      integer :: status
+
+      call create_latlon_file('test_ll_eq_notol_a.nc', 36, 18, rc=status)
+      @assert_that(status, is(0))
+      call create_latlon_file('test_ll_eq_notol_b.nc', 36, 18, rc=status, perturbation=1.0e-1_REAL64)
+      @assert_that(status, is(0))
+
+      metadata_a = read_latlon_metadata('test_ll_eq_notol_a.nc', rc=status)
+      @assert_that(status, is(0))
+      metadata_b = read_latlon_metadata('test_ll_eq_notol_b.nc', rc=status)
+      @assert_that(status, is(0))
+      call metadata_b%add_attribute('coordinate_tolerance', 1.0e-3_REAL64)
+
+      a = make_LatLonGeomSpec(metadata_a, rc=status)
+      @assert_that(status, is(0))
+      b = make_LatLonGeomSpec(metadata_b, rc=status)
+      @assert_that(status, is(0))
+
+      @assertFalse(a == b)
+   end subroutine test_equal_to_outside_tolerance
+
+   @test
+   subroutine test_equal_to_default_no_attribute_is_strict()
+      type(FileMetadata) :: metadata_a, metadata_b
+      type(LatLonGeomSpec) :: a, b
+      integer :: status
+
+      call create_latlon_file('test_ll_eq_strict_a.nc', 36, 18, rc=status)
+      @assert_that(status, is(0))
+      call create_latlon_file('test_ll_eq_strict_b.nc', 36, 18, rc=status, perturbation=1.0e-4_REAL64)
+      @assert_that(status, is(0))
+
+      metadata_a = read_latlon_metadata('test_ll_eq_strict_a.nc', rc=status)
+      @assert_that(status, is(0))
+      metadata_b = read_latlon_metadata('test_ll_eq_strict_b.nc', rc=status)
+      @assert_that(status, is(0))
+      ! No coordinate_tolerance attribute stamped on either side.
+
+      a = make_LatLonGeomSpec(metadata_a, rc=status)
+      @assert_that(status, is(0))
+      b = make_LatLonGeomSpec(metadata_b, rc=status)
+      @assert_that(status, is(0))
+
+      @assertFalse(a == b)
+   end subroutine test_equal_to_default_no_attribute_is_strict
+
+   @test
+   subroutine test_decomposition_mismatch_ignores_tolerance()
+      type(FileMetadata) :: metadata_a, metadata_b
+      type(LatLonGeomSpec) :: a, b
+      integer :: status
+
+      ! Different im_world (12 vs 10) - a huge tolerance must not paper
+      ! over a fundamentally different number of gridpoints/decomposition.
+      call create_latlon_file('test_ll_eq_decomp_a.nc', 12, 8, rc=status)
+      @assert_that(status, is(0))
+      call create_latlon_file('test_ll_eq_decomp_b.nc', 10, 8, rc=status)
+      @assert_that(status, is(0))
+
+      metadata_a = read_latlon_metadata('test_ll_eq_decomp_a.nc', rc=status)
+      @assert_that(status, is(0))
+      metadata_b = read_latlon_metadata('test_ll_eq_decomp_b.nc', rc=status)
+      @assert_that(status, is(0))
+      ! Only b's (the candidate's) tolerance is ever consulted; set a
+      ! huge one here to confirm it still cannot paper over the size
+      ! mismatch.
+      call metadata_b%add_attribute('coordinate_tolerance', 1.0e6_REAL64)
+
+      a = make_LatLonGeomSpec(metadata_a, rc=status)
+      @assert_that(status, is(0))
+      b = make_LatLonGeomSpec(metadata_b, rc=status)
+      @assert_that(status, is(0))
+
+      @assertFalse(a == b)
+   end subroutine test_decomposition_mismatch_ignores_tolerance
 
 end module Test_LatLonGeomSpec

@@ -266,6 +266,24 @@ contains
          _RETURN(_SUCCESS)
       end subroutine update_time_varying_fieldbundle_fieldbundle
 
+      ! Cached (this%time_varying%...) geoms start out unallocated (never
+      ! yet set, e.g. on the very first update() call for a newly-created
+      ! coupler). ESMF_Geom's operator(/=) does not handle an unallocated
+      ! operand, so guard here rather than crash with a raw runtime
+      ! "Attempt to fetch from allocatable variable ... when it is not
+      ! allocated" error; an unallocated cache always counts as "differs"
+      ! so the caller updates/primes it on first use.
+      logical function geom_differs(new_geom, cached_geom) result(differs)
+         type(ESMF_Geom), allocatable, intent(in) :: new_geom
+         type(ESMF_Geom), allocatable, intent(in) :: cached_geom
+
+         if (.not. allocated(cached_geom)) then
+            differs = .true.
+            return
+         end if
+         differs = (new_geom /= cached_geom)
+      end function geom_differs
+
       logical function same_weights(w1, w2) result(same)
          real, allocatable, intent(in) :: w1(:), w2(:)
 
@@ -296,15 +314,16 @@ contains
          call get_geom(exportState, EXPORT_NAME, geom_out, _RC)
 
          if (this%transform%get_transformId() /= GEOM_TRANSFORM_ID) then ! only one side can vary
-            if (geom_in /= this%time_varying%geom) then
+            if (geom_differs(geom_in, this%time_varying%geom)) then
                call MAPL_FieldSet(f_out, geom=geom_in, _RC)
                this%time_varying%geom = geom_in
-            else if (geom_out /= this%time_varying%geom) then
+            else if (geom_differs(geom_out, this%time_varying%geom)) then
                call MAPL_FieldBundleSet(fb_in, geom=geom_out)
                this%time_varying%geom = geom_out
             end if
          else
-            if (geom_in /= this%time_varying%geom_in .or. geom_out /= this%time_varying%geom_out) then
+            if (geom_differs(geom_in, this%time_varying%geom_in) .or. &
+                geom_differs(geom_out, this%time_varying%geom_out)) then
                 call this%transform%initialize(importState, exportState, clock, _RC)
                 this%time_varying%geom_in = geom_in
                 this%time_varying%geom_out = geom_out
@@ -330,15 +349,16 @@ contains
          call get_geom(exportState, EXPORT_NAME, geom_out, _RC)
 
          if (this%transform%get_transformId() /= GEOM_TRANSFORM_ID) then ! only one side can vary
-            if (geom_in /= this%time_varying%geom) then
+            if (geom_differs(geom_in, this%time_varying%geom)) then
                call MAPL_FieldSet(f_out, geom=geom_in, _RC)
                this%time_varying%geom = geom_in
-            else if (geom_out /= this%time_varying%geom) then
+            else if (geom_differs(geom_out, this%time_varying%geom)) then
                call MAPL_FieldSet(f_in, geom=geom_out)
                this%time_varying%geom = geom_out
             end if
          else
-            if (geom_in /= this%time_varying%geom_in .or. geom_out /= this%time_varying%geom_out) then
+            if (geom_differs(geom_in, this%time_varying%geom_in) .or. &
+                geom_differs(geom_out, this%time_varying%geom_out)) then
                 call this%transform%initialize(importState, exportState, clock, _RC)
                 this%time_varying%geom_in = geom_in
                 this%time_varying%geom_out = geom_out

@@ -37,6 +37,18 @@ if(BUILD_WITH_FARGPARSE)
   target_include_directories (Regrid_Util.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
 endif()
 
+# docs/graph/spec/20-implementation-roadmap.md sec 20.4.21 (Phase 21):
+# standalone, hierarchy-wide graph diagnostic driver - walks a real
+# OuterMetaComponent tree built from a top-level YAML config and emits
+# one .dot/.json pair per component via the already-landed
+# GraphExport.F90 exporters. Diagnostic tooling, not a production CLI
+# (see graph_diagnostic.F90's own header comment) - no fargparse
+# dependency needed, unlike Regrid_Util.x above.
+ecbuild_add_executable (TARGET graph_diagnostic.x SOURCES graph_diagnostic/graph_diagnostic.F90)
+target_link_libraries (graph_diagnostic.x PRIVATE MAPL MPI::MPI_Fortran ESMF::ESMF)
+target_include_directories (graph_diagnostic.x PRIVATE $<BUILD_INTERFACE:${MAPL_SOURCE_DIR}/include>)
+add_dependencies (build-tests graph_diagnostic.x)
+
 if (PFUNIT_FOUND)
   add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()

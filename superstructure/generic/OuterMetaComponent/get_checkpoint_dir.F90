@@ -24,6 +24,8 @@ contains
       logical :: is_private_
       integer :: status
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      dir = ''
       is_private_ = .false.
       if (present(is_private)) is_private_ = is_private
 

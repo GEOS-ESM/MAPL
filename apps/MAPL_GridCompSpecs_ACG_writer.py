@@ -2,11 +2,13 @@
 import re
 import argparse
 import sys
-from functools import reduce, partial
+from functools import reduce
 from pathlib import Path
-from itertools import filterfalse, chain
+from itertools import filterfalse, chain, tee, takewhile, dropwhile
 from collections import defaultdict
 from os import linesep as newline
+from operator import methodcaller
+from io import StringIO
 
 #================================= CONSTANTS ==================================#
 SUCCESS = 0
@@ -18,9 +20,12 @@ RS = r' | '
 # Line continuation character
 AMP = r'&'
 
+REQ_ARGS = ('GC', 'SHORT_NAME')
 # These are used for ordering the output.
-FIRST_COLUMNS = 'SHORT_NAME UNITS DIMS VLOCATION'.split()
-LAST_COLUMNS = 'LONG_NAME'.split()
+FIRST_COLUMNS = ('SHORT_NAME', 'UNITS', 'DIMS', 'VLOCATION')
+LAST_COLUMNS = ('LONG_NAME')
+# These are columns that should not be used as column headings.
+IGNORE_COLUMNS = ('GC',)
 
 #============================= REGULAR EXPRESSIONS ============================#
 # This regular expression is used for process the state and arguments for MAPL_Add___Specs calls.
@@ -129,7 +134,7 @@ def join_line(line, lines=[BLANK]):
         lines.append(BLANK)
     return lines
 
-#==============================================================================#
+#================================ PARSING =====================================#
 
 def parse_line(line, skipped=None):
     """ Return state and arguments, if line of text matches pattern"""
@@ -140,23 +145,41 @@ def parse_line(line, skipped=None):
         skipped.append(line)
     return (None, None)
 
-def parse_file(args, skipped=None):
+join_lines = lambda lines: reduce(lambda a, c: join_line(c, a), (strip_comment(l) for l in lines), [])
+
+def parse_file(args, sio=None, skipped=None):
     """ Read, join, parse, and return list of (state, dict[arguments]) """
-    with open(args.input, 'r') as f:
+    with (sio if sio else open(args.input, 'r')) as f:
         lines = f.readlines()
         joined = reduce(lambda a, c: join_line(c, a), (strip_comment(l) for l in lines), [])
-    calls = (parse_line(line, skipped) for line in joined)
-    calls = ((state.upper(), args_str) for state, args_str in calls if state)
-    return [(state, parse_call(args_str)) for state, args_str in calls]
+    return joined
 
-def parse_call(args):
+def make_records(lines, skipped=None):
+    calls = (parse_line(line, skipped) for line in lines)
+    calls = ((state.upper(), args_str) for state, args_str in calls if state)
+    return [(state, parse_call(args_str, *REQ_ARGS)) for state, args_str in calls]
+
+def parse_call(string, *keys):
     """ Return dict[argument name, argument value] from argument str """
-    _, short, *tail = [ap.strip().split('=') for ap in args.split(',')]
-    tuples = [('SHORT_NAME', short[-1])] + [t for t in tail if len(t) == 2]
-    k, v = zip(*tuples)
-    tuples = zip((e.strip().upper() for e in k), (remove_delimiters(e.strip()) for e in v))
-    #return dict((k.strip().upper(), remove_delimiters(v.strip())) for k, v in tuples)
-    return dict(tuples)
+    equals = r'='
+    strip = methodcaller('strip')
+    upper = methodcaller('upper')
+    split = methodcaller('split', equals)
+    has_eq = lambda a: equals in a
+    no_eq = lambda a: not has_eq(a)
+    def format_tuple(t):
+        a, b = t
+        return upper(a), remove_delimiters(b)
+    def strip_split(s):
+        return map(strip, split(s))
+    def parse_positional(pos):
+        return map(strip, takewhile(no_eq, pos))
+    def parse_keyword(kw):
+        return map(strip_split, takewhile(has_eq, dropwhile(no_eq, kw)))
+    pos, kw = tee(string.split(r','))
+    pos = list(map(format_tuple, zip(keys, parse_positional(pos))))
+    kw = list(map(format_tuple, parse_keyword(kw)))
+    return dict(filterfalse(lambda t: t[0] in IGNORE_COLUMNS, chain(pos, kw)))
 
 def make_output(state, records):
     """ Return list of output (str) lines for state from records with header """
@@ -165,7 +188,6 @@ def make_output(state, records):
     cols = list(chain.from_iterable(cols))
     cols = unique(cols)
     cols = list(cols)
-#    cols = unique(chain.from_iterable(map(lambda d: d.keys(), records)))
     cols = sorted(list(filter(key_filter, cols)))
     for col in LAST_COLUMNS:
         cols = pop_push(cols, col, start=False)
@@ -179,58 +201,142 @@ def make_output(state, records):
     cols_line, *lines = lines
     return [f'category: {state}', divider, cols_line, divider, *lines]
 
-def make_parser():
+def parse_args():
     description = 'Generate import/export/internal config specs file for MAPL Gridded Component'
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument("input", action='store', help="source Gridded Component filename")
+    parser.add_argument("input", nargs=r'?', default=None, action='store', help="source Gridded Component filename")
     parser.add_argument("-o", "--output", action='store', help="destination specs filename")
     parser.add_argument("-c", "--component", action='store', default=None, help="component name")
     parser.add_argument("-d", "--debug", action='store', default=None, help="debug log")
     # Flag to run in testing mode for development troubleshooting
-    parser.add_argument("--run-tests", action='store_true', default=False, help="run internal tests")
-    return parser
+    parser.add_argument("-t", "--run-tests", action='store_true', default=False, help="run internal tests")
+    return parser.parse_args()
 
-#==============================================================================#
-
-def test(args):
-    """ Test functions for development """
-    regex = r'(?P<tag>regex)'
-    line_code = r'y = sin(x) '
-    commented_line = line_code + r'! Trig'
-    uncommented_line = strip_comment(commented_line)
-    if uncommented_line != r'y=sin(x)':
-        print('Failure for strip_comment')
-        return FAILURE
-    return SUCCESS
-
-#==============================================================================#
-
-def main(args):
-    """ Write acg spec file based on Fortran code """
-    """ args is dict of arguments: {input: ..., component: ..., output: ...} """
-    rc = FAILURE
-    # Run tests if run_tests parameter is present
-    if args.run_tests:
-        rc = test(args)
-        return rc
-    # Array for lines that are skipped for debugging
-    skipped = [] if args.debug else None
-    # Get gridded component name
-    component = get_component(args)
+def convert(component, args=None, test_data=None, skipped=None):
+    """ Convert source (file or internal) to ACG spec files lines """
+    if not(args or test_data) or (args and test_data):
+        return None
     # Parse file of Fortran code as specified in command-line arguments
-    records = parse_file(args, skipped)
+    lines = parse_file(args, sio=test_data, skipped=skipped)
+    # Make records from lines
+    records = make_records(lines, skipped=skipped)
     # Make dict using state as key and the records for that state as value
     state_records = reduce(update, records, defaultdict(list))
     # Make output sections by state
     sections = [newline.join(l) for l in (make_output(*sr) for sr in sorted(state_records.items(), key=lambda t: t[0]))]
     # Output acg spec file
-    with open(args.output, 'w') as f:
-        # Write header lines
-        f.write(f'schema_version: 2.0.0{newline}component: {component}{newlines(2)}')
-        # Write sections (lines) joined by 2 newline characters
-        f.write(newlines(2).join(sections))
-        # Add final newline to file
-        f.write(newline)
+    return f'schema_version: 2.0.0{newline}component: {component}{newlines(2)}{newlines(2).join(sections)}{newline}'
+
+#================================== TESTING ===================================#
+
+TEST_DATA = (
+r"""    call MAPL_AddImportSpec  (                                   &
+                              LONG_NAME  = 'air_pressure',       &
+                              SHORT_NAME = 'PLE',                &
+                              GC         = GC,                   &
+                              UNITS      = 'Pa',                 &
+                              DIMS       = MAPL_DimsHorzVert,    &
+                              VLOCATION  = MAPL_VLocationEdge,   &
+                              RC         = STATUS)
+
+
+    call MAPL_AddExportSpec  (GC,                                &
+                              SHORT_NAME = 'U',                  &
+                              LONG_NAME  = 'eastward_wind',      &
+                              UNITS      = 'm s-1',              &
+                              DIMS       = MAPL_DimsHorzVert,    &
+                              VLOCATION  = MAPL_VLocationCenter, &
+                              RC         = STATUS)
+
+
+    call MAPL_AddInternalSpec(GC,                                &
+                              SHORT_NAME = 'PKZ',                &
+                              LONG_NAME  = 'pressure_to_kappa',  &
+                              UNITS      = 'Pa$^\kappa$',        &
+                              PRECISION  = ESMF_KIND_R8,         &
+                              DIMS       = MAPL_DimsHorzVert,    &
+                              VLOCATION  = MAPL_VLocationCenter, &
+                              RC         = STATUS)""",
+r"""schema_version: 2.0.0
+component: acg_writer_test
+
+category: EXPORT
+#-------------------------------------------------------------------------------------
+SHORT_NAME   | UNITS   | DIMS                | VLOCATION              | LONG_NAME      
+#-------------------------------------------------------------------------------------
+U            | m s-1   | MAPL_DimsHorzVert   | MAPL_VLocationCenter   | eastward_wind  
+
+category: IMPORT
+#----------------------------------------------------------------------------------
+SHORT_NAME   | UNITS   | DIMS                | VLOCATION            | LONG_NAME     
+#----------------------------------------------------------------------------------
+PLE          | Pa      | MAPL_DimsHorzVert   | MAPL_VLocationEdge   | air_pressure  
+
+category: INTERNAL
+#----------------------------------------------------------------------------------------------------------------
+SHORT_NAME   | UNITS         | DIMS                | VLOCATION              | LONG_NAME           | PRECISION     
+#----------------------------------------------------------------------------------------------------------------
+PKZ          | Pa$^\kappa$   | MAPL_DimsHorzVert   | MAPL_VLocationCenter   | pressure_to_kappa   | ESMF_KIND_R8  """
+)
+
+#==============================================================================#
+
+def verification(test_data, error_msgs=None):
+    component = 'acg_writer_test'
+    a, b = test_data
+    results = convert(component, test_data=StringIO(a))
+    result_lines = results.splitlines()
+    b_lines = b.splitlines()
+    if len(b_lines) != len(result_lines):
+        if error_msgs is not None:
+            error_msgs.append('Number of lines differs')
+            error_msgs.append('')
+        return FAILURE
+    pairs = zip(result_lines, b_lines)
+    for rl, bl in pairs:
+        if rl == bl:
+            continue
+        if error_msgs is not None:
+            error_msgs.append('Lines differ')
+            error_msgs.append(f'"{bl.strip()}"')
+            error_msgs.append(f'"{rl.strip()}"')
+            error_msgs.append('')
+        return FAILURE
+    return SUCCESS
+
+def test(args, error_msgs=None):
+    """ Test functions for development """
+    return verification(TEST_DATA, error_msgs)
+
+#==================================== MAIN ====================================#
+
+def main(args):
+    """ Write acg spec file based on Fortran code """
+    """ args is dict of arguments: {input: ..., component: ..., output: ...} """
+    rc = FAILURE
+    error_msgs = []
+    # Run tests if run_tests parameter is present
+    if args.run_tests:
+        rc = test(args, error_msgs)
+        if rc == FAILURE:
+            sys.stderr.write('Tests failed.\n')
+            for line in error_msgs:
+                sys.stderr.write(line)
+        else:
+            sys.stderr.write('Success.\n')
+        return rc
+    if not args.input:
+        sys.stderr.write('input filename missing.\n')
+        return rc
+    # Array for lines that are skipped for debugging
+    skipped = [] if args.debug else None
+    # Get gridded component name
+    component = get_component(args)
+    # Convert source code
+    results = convert(component, args=args, skipped=skipped)
+    # Write ACG spec file
+    with (open(args.output, 'w') if args.output else sys.stdout) as f:
+        f.writelines(results)
     # If not debugging or no skipped lines, return
     if not (args.debug and (skipped)):
         return SUCCESS
@@ -245,7 +351,6 @@ def main(args):
 # Main
 if __name__ == '__main__':
     # Get command-line arguments
-    args = make_parser().parse_args()
+    args = parse_args()
     # Make acg specs file
     rc = main(args)
-#==============================================================================#

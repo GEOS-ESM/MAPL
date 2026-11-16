@@ -36,10 +36,19 @@ module mapl_mp_utils_api
    use mapl_Shmem_mod, only: MAPL_MyNodeNum
    use mapl_Shmem_mod, only: MAPL_AmNodeRoot
    use mapl_Shmem_mod, only: MAPL_ShmInitialized
-   use mapl_LoadBalance_mod, only: MAPL_BalanceWork => BalanceWork, &
-                                   MAPL_BalanceCreate => BalanceCreate, &
-                                   MAPL_BalanceDestroy => BalanceDestroy, &
-                                   MAPL_BalanceGet => BalanceGet
+   use mapl_LoadBalancer_mod, only: MAPL_LoadBalancerRun => LoadBalancerRun, &
+                                   MAPL_LoadBalancerCreate => LoadBalancerCreate, &
+                                   MAPL_LoadBalancerDestroy => LoadBalancerDestroy, &
+                                   MAPL_LoadBalancerGet => LoadBalancerGet, &
+                                   MAPL_LOADBALANCER_DISTRIBUTE => LOADBALANCER_DISTRIBUTE, &
+                                   MAPL_LOADBALANCER_RETRIEVE => LOADBALANCER_RETRIEVE
+   ! Temporary pre-LoadBalancer aliases, to be removed once clients are updated.
+   use mapl_LoadBalancer_mod, only: MAPL_LoadBalanceRun => LoadBalancerRun, &
+                                   MAPL_LoadBalanceCreate => LoadBalancerCreate, &
+                                   MAPL_LoadBalanceDestroy => LoadBalancerDestroy, &
+                                   MAPL_LoadBalanceGet => LoadBalancerGet, &
+                                   MAPL_LOADBALANCE_DISTRIBUTE => LOADBALANCER_DISTRIBUTE, &
+                                   MAPL_LOADBALANCE_RETRIEVE => LOADBALANCER_RETRIEVE
    implicit none
    private
 
@@ -62,18 +71,18 @@ module mapl_mp_utils_api
 
    public :: mapl_fill_grads_template
    public :: mapl_fill_grads_template_esmf
-   
+
    public :: MAPL_GetNodeInfo
    public :: MAPL_CoresPerNodeGet
    public :: MAPL_InitializeShmem
    public :: MAPL_FinalizeShmem
-   
+
    public :: MAPL_AllocNodeArray
    public :: MAPL_DeAllocNodeArray
    public :: MAPL_ShmemAmOnFirstNode
    public :: MAPL_SyncSharedMemory
    public :: MAPL_BroadcastToNodes
-   
+
    public :: MAPL_AllocateShared
    public :: MAPL_GetSharedMemory
    public :: MAPL_ReleaseSharedMemory
@@ -85,9 +94,19 @@ module mapl_mp_utils_api
    public :: MAPL_AmNodeRoot
    public :: MAPL_ShmInitialized
 
-   public :: MAPL_BalanceWork
-   public :: MAPL_BalanceCreate
-   public :: MAPL_BalanceDestroy
-   public :: MAPL_BalanceGet
+   public :: MAPL_LoadBalancerRun
+   public :: MAPL_LoadBalancerCreate
+   public :: MAPL_LoadBalancerDestroy
+   public :: MAPL_LoadBalancerGet
+   public :: MAPL_LOADBALANCER_DISTRIBUTE
+   public :: MAPL_LOADBALANCER_RETRIEVE
+
+   ! Temporary aliases
+   public :: MAPL_LoadBalanceRun
+   public :: MAPL_LoadBalanceCreate
+   public :: MAPL_LoadBalanceDestroy
+   public :: MAPL_LoadBalanceGet
+   public :: MAPL_LOADBALANCE_DISTRIBUTE
+   public :: MAPL_LOADBALANCE_RETRIEVE
 
 end module mapl_mp_utils_api

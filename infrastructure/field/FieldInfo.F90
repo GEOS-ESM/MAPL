@@ -11,7 +11,7 @@ module mapl_FieldInfo_mod
       & KEY_ALLOCATION_STATUS, KEY_QUANTITY_TYPE_METADATA, &
       & KEY_NORMALIZATION_METADATA, KEY_CONSERVATION_METADATA, &
       & KEY_REGRIDDER_PARAM,  KEY_UNDEF_VALUE, KEY_MISSING_VALUE, &
-      & KEY_FILL_VALUE, KEY_RESTART_MODE, DELIMITER
+      & KEY_FILL_VALUE, KEY_RESTART_MODE, KEY_BOOTSTRAPPED, DELIMITER
    use mapl_InfoUtilities_mod
    use mapl_vertical_grid_api, only: mapl_VerticalGrid, MAPL_VERTICAL_GRID_NOT_FOUND, mapl_VerticalGridManager, mapl_get_vertical_grid_manager
    use mapl_UngriddedDims_mod
@@ -72,10 +72,12 @@ contains
         quantity_type_metadata, &
         normalization_metadata, &
         conservation_metadata, &
-        units, long_name, standard_name, &
-        allocation_status, &
-        regridder_param_info, &
-        rc)
+         units, long_name, standard_name, &
+         named_alias_id, &
+         allocation_status, &
+         regridder_param_info, &
+         bootstrapped, &
+         rc)
       type(ESMF_Info), intent(inout) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
       character(*), optional, intent(in) :: namespace
@@ -90,14 +92,25 @@ contains
       type(ConservationMetadata), optional, intent(in) :: conservation_metadata
       character(*), optional, intent(in) :: units
       character(*), optional, intent(in) :: long_name
+      ! long_name is per-NamedAlias-id metadata (see
+      ! generic/field-name-propagation): named_alias_id is required whenever
+      ! it is present, and scopes its write to that specific alias's own
+      ! namespace, unlike every other item here (including standard_name,
+      ! see generic/standard-name-enforcement) which uses the plain
+      ! namespace_ (shared across all aliases of the same underlying Field).
       character(*), optional, intent(in) :: standard_name
+      integer, optional, intent(in) :: named_alias_id
       type(MAPL_StateItemAllocation), optional, intent(in) :: allocation_status
       type(esmf_info), optional, intent(in) :: regridder_param_info
+      ! bootstrapped: field-wide, like units. Set by the restart read when the
+      ! field was not restarted and keeps its initial value.
+      logical, optional, intent(in) :: bootstrapped
       integer, optional, intent(out) :: rc
 
       integer :: status
       type(ESMF_Info) :: ungridded_info, quantity_info, normalization_info, conservation_info
       character(:), allocatable :: namespace_
+      character(:), allocatable :: alias_namespace_
       character(:), allocatable :: str
       logical :: isPresent
 
@@ -148,12 +161,20 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_UNITS, units, _RC)
       end if
 
-      if (present(long_name)) then
-         call MAPL_InfoSet(info, namespace_ // KEY_LONG_NAME, long_name, _RC)
-      end if
-
+      ! standard_name: unaliased/field-wide, like units (see
+      ! generic/standard-name-enforcement) - agreement between a connection's
+      ! endpoints is enforced at connection time, so there is at most one
+      ! value to store; no named_alias_id needed.
       if (present(standard_name)) then
          call MAPL_InfoSet(info, namespace_ // KEY_STANDARD_NAME, standard_name, _RC)
+      end if
+
+      if (present(long_name)) then
+         _ASSERT(present(named_alias_id), 'named_alias_id is required to set long_name')
+         str = ESMF_UtilStringInt2String(named_alias_id, _RC)
+         ! NOTE: the 'alias' is to keep ESMF_Info from getting confused
+         alias_namespace_ = namespace_ // "/alias" // trim(str)
+         call MAPL_InfoSet(info, alias_namespace_ // KEY_LONG_NAME, long_name, _RC)
       end if
 
       if (present(regridder_param_info)) then
@@ -172,6 +193,10 @@ contains
          call MAPL_InfoSet(info, namespace_ // KEY_ALLOCATION_STATUS, allocation_status%to_string(), _RC)
       end if
 
+      if (present(bootstrapped)) then
+         call MAPL_InfoSet(info, namespace_ // KEY_BOOTSTRAPPED, bootstrapped, _RC)
+      end if
+
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine field_info_set_internal
@@ -183,12 +208,14 @@ contains
         vgrid_id, num_levels, num_layers, vert_staggerloc, vert_alignment, num_vgrid_levels, &
         units, &
         long_name, standard_name, &
+        named_alias_id, &
         ungridded_dims, &
         quantity_type_metadata, &
         normalization_metadata, &
         conservation_metadata, &
         allocation_status, &
         regridder_param_info, &
+        bootstrapped, &
         rc)
       type(ESMF_Info), intent(in) :: info
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -204,12 +231,17 @@ contains
       character(:), optional, allocatable, intent(out) :: units
       character(:), optional, allocatable, intent(out) :: long_name
       character(:), optional, allocatable, intent(out) :: standard_name
+      ! long_name is per-NamedAlias-id metadata; see field_info_set_internal.
+      ! standard_name is unaliased/field-wide (see generic/standard-name-enforcement)
+      ! and does not need named_alias_id.
+      integer, optional, intent(in) :: named_alias_id
       type(UngriddedDims), optional, intent(out) :: ungridded_dims
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
       type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
       type(ConservationMetadata), optional, intent(out) :: conservation_metadata
       type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
       type(esmf_Info), allocatable, optional, intent(out) :: regridder_param_info
+      logical, optional, intent(out) :: bootstrapped
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -218,6 +250,10 @@ contains
       character(:), allocatable :: vert_staggerloc_str, vert_alignment_str, allocation_status_str
       type(VerticalStaggerLoc) :: vert_staggerloc_
       character(:), allocatable :: namespace_
+      character(:), allocatable :: alias_namespace_, key
+      character(*), parameter :: DEFAULT_NAME = 'unknown'
+      character(*), parameter :: UNKNOWN_STANDARD_NAME = '<unknown>'
+      logical :: key_is_present
       character(:), allocatable :: str
       logical :: is_present
 
@@ -294,9 +330,15 @@ contains
           call derive_num_levels_from_vgrid(info, namespace_, num_levels, num_layers, num_vgrid_levels, _RC)
        end if
 
-      if (present(vert_staggerloc) .and. .not. present(num_levels) .and. .not. present(num_vgrid_levels)) then
-         call MAPL_InfoGet(info, namespace_ // KEY_VERT_STAGGERLOC, vert_staggerloc_str, _RC)
-         vert_staggerloc = VerticalStaggerLoc(vert_staggerloc_str)
+      if (present(vert_staggerloc)) then
+         ! A stagger that was never recorded comes back INVALID.
+         is_present = esmf_InfoIsPresent(info, namespace_ // KEY_VERT_STAGGERLOC, _RC)
+         if (is_present) then
+            call MAPL_InfoGet(info, namespace_ // KEY_VERT_STAGGERLOC, vert_staggerloc_str, _RC)
+            vert_staggerloc = VerticalStaggerLoc(vert_staggerloc_str)
+         else
+            vert_staggerloc = VERTICAL_STAGGER_INVALID
+         end if
       end if
 
       if (present(vert_alignment)) then
@@ -316,17 +358,45 @@ contains
          end if
       end if
 
-      if (present(long_name)) then
-         call MAPL_InfoGet(info, namespace_ // KEY_LONG_NAME, long_name, _RC)
+      ! standard_name: unaliased/field-wide (see generic/standard-name-enforcement),
+      ! same storage model as units. Defaults to '<unknown>' (matching
+      ! UnitsAspect's own "unspecified" sentinel) when nothing was ever
+      ! assigned - never requires named_alias_id.
+      if (present(standard_name)) then
+         standard_name = UNKNOWN_STANDARD_NAME
+         key = namespace_ // KEY_STANDARD_NAME
+         key_is_present = ESMF_InfoIsPresent(info, key=key, _RC)
+         if (key_is_present) call MAPL_InfoGet(info, key, standard_name, _RC)
       end if
 
-      if (present(standard_name)) then
-         call MAPL_InfoGet(info, namespace_ // KEY_STANDARD_NAME, standard_name, _RC)
+      ! long_name is per-NamedAlias-id metadata (see field_info_set_internal):
+      ! named_alias_id is required whenever it is present. The output is
+      ! guaranteed to come back allocated: either the value recorded for this
+      ! specific alias, or DEFAULT_NAME when nothing was ever assigned for it.
+      ! Callers never need to check allocated(...) themselves.
+      if (present(long_name)) then
+         _ASSERT(present(named_alias_id), 'named_alias_id is required to get long_name')
+         str = ESMF_UtilStringInt2String(named_alias_id, _RC)
+         ! NOTE: the 'alias' is to keep ESMF_Info from getting confused
+         alias_namespace_ = namespace_ // "/alias" // trim(str)
+
+         long_name = DEFAULT_NAME
+         key = alias_namespace_ // KEY_LONG_NAME
+         key_is_present = ESMF_InfoIsPresent(info, key=key, _RC)
+         if (key_is_present) call MAPL_InfoGet(info, key, long_name, _RC)
       end if
 
       if (present(allocation_status)) then
          call MAPL_InfoGet(info, namespace_ // KEY_ALLOCATION_STATUS, allocation_status_str, _RC)
          allocation_status = MAPL_StateItemAllocation(allocation_status_str)
+      end if
+
+      ! .false. unless the restart read marked the field as bootstrapped.
+      if (present(bootstrapped)) then
+         bootstrapped = .false.
+         key = namespace_ // KEY_BOOTSTRAPPED
+         key_is_present = ESMF_InfoIsPresent(info, key=key, _RC)
+         if (key_is_present) call MAPL_InfoGet(info, key, bootstrapped, _RC)
       end if
 
      _RETURN(_SUCCESS)

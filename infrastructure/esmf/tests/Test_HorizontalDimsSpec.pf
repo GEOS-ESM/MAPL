@@ -1,0 +1,28 @@
+module Test_HorizontalDimsSpec
+   use mapl_HorizontalDimsSpec_mod
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_string_round_trip()
+      type(HorizontalDimsSpec) :: all_specs(3), got
+      integer :: i
+
+      all_specs = [HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_MIRROR]
+      do i = 1, size(all_specs)
+         got = to_HorizontalDimsSpec(all_specs(i)%to_string())
+         @assertTrue(got == all_specs(i))
+      end do
+   end subroutine test_string_round_trip
+
+   @test
+   subroutine test_mirror_is_distinct()
+      @assertTrue(HORIZONTAL_DIMS_MIRROR /= HORIZONTAL_DIMS_GEOM)
+      @assertTrue(HORIZONTAL_DIMS_MIRROR /= HORIZONTAL_DIMS_NONE)
+      @assertTrue(HORIZONTAL_DIMS_MIRROR /= HORIZONTAL_DIMS_UNKNOWN)
+      @assertEqual('HORIZONTAL_DIMS_MIRROR', HORIZONTAL_DIMS_MIRROR%to_string())
+   end subroutine test_mirror_is_distinct
+
+end module Test_HorizontalDimsSpec

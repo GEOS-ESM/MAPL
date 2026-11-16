@@ -2,6 +2,9 @@
 
 module mapl_FieldGet_mod
    use mapl_enums_api
+   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
+   use mapl_StateItemVariantInfo_mod, only: StateItemVariantInfoGet
+   use mapl_RestartModes_mod, only: RestartMode
    use mapl_vertical_grid_api
    use mapl_FieldInfo_mod
    use mapl_KeywordEnforcer_mod
@@ -32,6 +35,9 @@ contains
         units, standard_name, long_name, &
         allocation_status, &
         regridder_param_info, &
+        bootstrapped, &
+        restart_mode, &
+        state_item_variant, &
         rc)
       type(ESMF_Field), intent(in) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -54,6 +60,10 @@ contains
       character(len=:), optional, allocatable, intent(out) :: long_name
       type(MAPL_StateItemAllocation), optional, intent(out) :: allocation_status
       type(esmf_Info), optional, allocatable,  intent(out) :: regridder_param_info
+      logical, optional, intent(out) :: bootstrapped ! field kept its initial value at restart
+      type(RestartMode), optional, intent(out) :: restart_mode
+      ! MAPL_STATEITEM_INVALID if no variant was ever attached.
+      type(MAPL_StateItem_Flag), optional, intent(out) :: state_item_variant
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -62,6 +72,7 @@ contains
       type(ESMF_FieldStatus_Flag) :: fstatus
       integer :: vgrid_id
       type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      integer :: named_alias_id
 
       if (present(short_name)) then
          call ESMF_FieldGet(field, name=fname, _RC)
@@ -70,16 +81,26 @@ contains
 
       if (present(geom)) then
          call esmf_FieldGet(field, status=fstatus, _RC)
-         if (fstatus == ESMF_FIELDSTATUS_EMPTY) then
-            ! no op - already deallocated
-         end if
          if (any(fstatus == [ESMF_FIELDSTATUS_GRIDSET, ESMF_FIELDSTATUS_COMPLETE])) then
             allocate(geom)
             call ESMF_FieldGet(field, geom=geom, _RC)
          end if
       end if
 
+      ! long_name is per-connection-endpoint metadata: named_alias_id
+      ! resolves it for the specific NamedAlias represented by this `field`
+      ! handle, not a single field-wide value. standard_name, by contrast, is
+      ! unaliased/field-wide (see generic/standard-name-enforcement) - the
+      ! same value is visible from every NamedAlias of the field, and
+      ! named_alias_id plays no role in resolving it.
+      ! ESMF_NamedAliasGet never fails; it returns id=0 for a field that was
+      ! never placed via ESMF_NamedAlias (e.g. a hand-built field in a unit
+      ! test), which simply resolves to its own (unshared) namespace.
+      ! FieldInfoGetInternal always returns an allocated string for each
+      ! output that is present (defaulting to 'unknown'/'<unknown>'
+      ! internally), so no post-processing is needed here.
       call ESMF_InfoGetFromHost(field, field_info, _RC)
+      call ESMF_NamedAliasGet(field, id=named_alias_id, _RC)
       call FieldInfoGetInternal(field_info, &
            typekind=typekind, &
            horizontal_dims_spec=horizontal_dims_spec, &
@@ -93,10 +114,22 @@ contains
            quantity_type_metadata=quantity_type_metadata, &
            normalization_metadata=normalization_metadata, &
            conservation_metadata=conservation_metadata, &
-           units=units, standard_name=standard_name, long_name=long_name, &
+           units=units, &
            allocation_status=allocation_status, &
            regridder_param_info=regridder_param_info, &
+           bootstrapped=bootstrapped, &
+           named_alias_id=named_alias_id, &
+           standard_name=standard_name, &
+           long_name=long_name, &
            _RC)
+
+      if (present(restart_mode)) then
+         call FieldInfoGetInternal(field_info, named_alias_id, restart_mode, _RC)
+      end if
+
+      if (present(state_item_variant)) then
+         state_item_variant = StateItemVariantInfoGet(field_info, _RC)
+      end if
 
       if (present(vgrid)) then
          if (vgrid_id == MAPL_VERTICAL_GRID_NOT_FOUND) then

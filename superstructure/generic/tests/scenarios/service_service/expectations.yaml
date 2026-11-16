@@ -3,70 +3,102 @@
 #   - list the fields expected in each import/export/internal states
 #   - annotate whether field is "complete"
 
+# NOTE on standard_name/long_name for 'service'-class bundles (S/S1):
+# each bundle member's name should match the standard_name/long_name
+# declared on the corresponding internal field of the subscriber that
+# published it into the service (see field-name-propagation spec).
+# Member order follows declaration order in each subscriber's 'items:'
+# list, and - for the provider's aggregated bundle - the order in which
+# subscribers were connected in parent.yaml (subscriber_A then subscriber_B).
+
 - component: subscriber_A/<user>
   import:
     S:
       class: bundle
       fieldcount: 2
+      standard_name: ['Z_A1 standard name', 'Z_A2 standard name']
+      long_name: ['Z_A1 long name', 'Z_A2 long name']
   export:
     S:
       class: bundle
       fieldcount: 2
+      standard_name: ['Z_A1 standard name', 'Z_A2 standard name']
+      long_name: ['Z_A1 long name', 'Z_A2 long name']
   internal:
-    Z_A1: {status: complete}
-    Z_A2: {status: complete}
+    Z_A1: {status: complete, standard_name: 'Z_A1 standard name', long_name: 'Z_A1 long name'}
+    Z_A2: {status: complete, standard_name: 'Z_A2 standard name', long_name: 'Z_A2 long name'}
 
 - component: subscriber_A
   import:
     S:
       class: bundle
       fieldcount: 2
+      standard_name: ['Z_A1 standard name', 'Z_A2 standard name']
+      long_name: ['Z_A1 long name', 'Z_A2 long name']
   export:
     S:
       class: bundle
       fieldcount: 2
+      standard_name: ['Z_A1 standard name', 'Z_A2 standard name']
+      long_name: ['Z_A1 long name', 'Z_A2 long name']
 
 - component: subscriber_B/<user>
   import:
     S1:
       class: bundle
       fieldcount: 1
+      standard_name: ['W standard name']
+      long_name: ['W long name']
   export:
     S1:
       class: bundle
       fieldcount: 1
+      standard_name: ['W standard name']
+      long_name: ['W long name']
   internal:
-    W: {status: complete}
+    W: {status: complete, standard_name: 'W standard name', long_name: 'W long name'}
 
 - component: subscriber_B
   import:
     S1:
       class: bundle
       fieldcount: 1
+      standard_name: ['W standard name']
+      long_name: ['W long name']
   export:
     S1:
       class: bundle
       fieldcount: 1
+      standard_name: ['W standard name']
+      long_name: ['W long name']
 
 - component: provider/<user>
   import:
     S:
       class: bundle
       fieldcount: 3
+      standard_name: ['Z_A1 standard name', 'Z_A2 standard name', 'W standard name']
+      long_name: ['Z_A1 long name', 'Z_A2 long name', 'W long name']
   export:
     S:
       class: bundle
       fieldcount: 3
+      standard_name: ['Z_A1 standard name', 'Z_A2 standard name', 'W standard name']
+      long_name: ['Z_A1 long name', 'Z_A2 long name', 'W long name']
 
 - component: provider
   import:
     S:
       class: bundle
       fieldcount: 3
+      standard_name: ['Z_A1 standard name', 'Z_A2 standard name', 'W standard name']
+      long_name: ['Z_A1 long name', 'Z_A2 long name', 'W long name']
   export:
     S:
       class: bundle
       fieldcount: 3
+      standard_name: ['Z_A1 standard name', 'Z_A2 standard name', 'W standard name']
+      long_name: ['Z_A1 long name', 'Z_A2 long name', 'W long name']
 
 - component: <user>
   import: {}

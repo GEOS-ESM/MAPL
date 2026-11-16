@@ -6,6 +6,8 @@ set (test_srcs
   Test_ESMF_Time_Utilities.pf
   Test_Comms.pf
   Test_HConfigMatch.pf
+  Test_HorizontalDimsSpec.pf
+  Test_FieldPointerUtilities.pf
   )
 
 add_pfunit_ctest(MAPL.esmf.tests

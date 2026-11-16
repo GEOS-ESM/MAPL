@@ -23,10 +23,13 @@ target_sources(MAPL.generic PRIVATE
   VerticalGridAspect.F90
   UngriddedDimsAspect.F90
   UnitsAspect.F90
+  StandardNameAspect.F90
   QuantityTypeAspect.F90
   ConservationAspect.F90
   NormalizationAspect.F90
 
+  VariableSpecTag.F90
+  VariableSpecMemberMap.F90
   VariableSpec.F90
   # StateItem.F90 moved to infrastructure/esmf/
   VariableSpecVector.F90
@@ -58,3 +61,8 @@ esma_add_fortran_submodules(
   TARGET MAPL.generic
   SUBDIRECTORY VerticalGridAspect
   SOURCES make_transform.F90)
+
+esma_add_fortran_submodules(
+  TARGET MAPL.generic
+  SUBDIRECTORY VariableSpec
+  SOURCES make_characteristics.F90)

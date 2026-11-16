@@ -11,9 +11,10 @@ submodule (mapl_LatAxis_mod) make_lataxis_from_metadata_smod
 
 contains
 
-   module function make_lataxis_from_metadata(file_metadata, rc) result(axis)
+   module function make_lataxis_from_metadata(file_metadata, tolerance, rc) result(axis)
       type(LatAxis) :: axis
       type(FileMetadata), intent(in) :: file_metadata
+      real(kind=R8), optional, intent(in) :: tolerance
       integer, optional, intent(out) :: rc
 
       real(kind=R8), allocatable :: centers(:)
@@ -31,7 +32,7 @@ contains
       if (corners(1) < -90) corners(1) = -90
       if (corners(jm_world+1) > 90) corners(jm_world+1) = 90
 
-      axis = LatAxis(centers, corners)
+      axis = LatAxis(centers, corners, tolerance)
 
       _RETURN(_SUCCESS)
    end function make_lataxis_from_metadata

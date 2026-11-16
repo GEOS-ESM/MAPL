@@ -11,8 +11,21 @@ module mapl_HistoryUtilities_mod
 
    public :: replace_delimiter
    public :: parse_item
+   public :: is_vector_item
 
 contains
+
+   logical function is_vector_item(name) 
+      character(len=*), intent(in) :: name
+
+      integer :: comma, start_bracket, end_bracket
+     
+      comma = index(name, ',')
+      start_bracket = index(name, '[')
+      end_bracket = index(name, ']')
+      is_vector_item = (comma > 0 .and. start_bracket > 0 .and. end_bracket > 0) 
+
+   end function is_vector_item
 
    function replace_delimiter(string, delimiter, replacement) result(replaced)
       character(len=:), allocatable :: replaced

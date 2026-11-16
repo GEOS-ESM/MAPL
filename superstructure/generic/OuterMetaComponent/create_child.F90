@@ -17,15 +17,18 @@ submodule (mapl_OuterMetaComponent_mod) create_child_smod
 contains
 
    ! Creates a child component and configures it from the parent-supplied
-   ! values: merged hconfig, registry linkage, timestep and offset. The caller
-   ! owns the parent's child map and inserts child_driver itself.
+   ! values: merged hconfig, registry linkage, timestep, offset and hierarchy.
+   ! The caller owns the parent's child map, inserts child_driver itself, and
+   ! owns the hierarchy-wide component-name registry.
    module recursive subroutine create_child(child_name, child_spec, &
-        parent_hconfig, parent_registry, parent_offset, child_driver, rc)
+        parent_hconfig, parent_registry, parent_offset, parent_hierarchy_id, &
+        child_driver, rc)
       character(*), intent(in) :: child_name
       type(ChildSpec), intent(inout) :: child_spec
       type(ESMF_HConfig), intent(in) :: parent_hconfig
       type(StateRegistry), intent(inout) :: parent_registry
       type(ESMF_TimeInterval), intent(in) :: parent_offset
+      type(HierarchyId), intent(in) :: parent_hierarchy_id
       type(GriddedComponentDriver), intent(out) :: child_driver
       integer, optional, intent(out) :: rc
 
@@ -41,7 +44,10 @@ contains
 
       total_hconfig = merge_hconfig(parent_hconfig, child_spec%hconfig, _RC)
       if (allocated(child_spec%user_setservices)) then
-         child_outer_gc = MAPL_GridCompCreate(child_name, child_spec%user_setservices, total_hconfig, _RC)
+         ! Pass the parent's hierarchy_id to keep the child in this hierarchy.
+         child_outer_gc = MAPL_GridCompCreate(child_name, child_spec%user_setservices, total_hconfig, &
+              hierarchy_id=parent_hierarchy_id, rc=status)
+         _VERIFY(status)
       else
          contextFlag = ESMF_CONTEXT_PARENT_VM
          child_outer_gc = ESMF_GridCompCreate(name='[' // trim(child_name) // ']', contextFlag=contextFlag, _RC)
@@ -58,7 +64,11 @@ contains
 #else
          call ridiculous(child_meta, OuterMetaComponent(child_outer_gc, user_gc_driver, hconfig=total_hconfig))
 #endif
-         call child_meta%init_meta(_RC)
+         ! Pass the parent's hierarchy_id down explicitly, so the child's own
+         ! local_graph shares the parent's hierarchy rather than requesting a
+         ! fresh one of its own.
+         call child_meta%init_meta(hierarchy_id=parent_hierarchy_id, rc=status)
+         _VERIFY(status)
       end if
 
       ! Meta stuff

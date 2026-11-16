@@ -1,0 +1,73 @@
+FILL_DEF:
+  E_1: 18.
+  E_2: fixed_columns
+  PLE: PLE_int
+  UV;comp_1: fixed_columns
+  UV;comp_2: fixed_columns
+
+apply_perturbation: false
+
+#RUN_MODE: FillExportsFromImports
+#RUN_MODE: FillImports
+RUN_MODE: GenerateExports
+
+REF_TIME: 2004-07-01T00:00:00
+
+vertical_levels:
+  PLE_int: [700., 600., 500., 400., 300., 200.]
+  fixed_columns: [65., 55., 45., 35., 25.]
+
+mapl:
+
+  misc:
+    activate_all_exports: true
+
+  states:
+    internal:
+      PLE_int:
+        standard_name: "air_pressure"
+        units: "hPa"
+        typekind: R4
+        fill_value: 17.
+        vertical_dim_spec: edge
+    export:
+      E_1:
+        standard_name: "NA"
+        units: "NA"
+        typekind: R4
+        fill_value: 17.
+        vertical_dim_spec: NONE
+      E_2:
+        standard_name: "NA"
+        units: "NA"
+        typekind: R4
+        fill_value: 17.
+        vertical_dim_spec: CENTER
+      UV:
+        class: vector
+        standard_name: '(eastward_wind, northward_wind) horizontal velocity'
+        units: "m s-1"
+        typekind: R4
+        fill_value: 17.
+        vertical_dim_spec: CENTER
+      PLE:
+        standard_name: "air_pressure"
+        units: "hPa"
+        typekind: R4
+        fill_value: 17.
+        vertical_dim_spec: edge
+
+  geometry:
+    esmf_geom:
+      class: latlon
+      im_world: 6
+      jm_world: 5
+      pole: PC
+      dateline: DC
+    vertical_grid:
+      grid_type: model
+      fields: {pressure: PLE}
+      num_levels: 5
+
+  setServices:
+    sharedObj: libMAPL.componentDriverGridComp

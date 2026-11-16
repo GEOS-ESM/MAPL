@@ -89,11 +89,14 @@ module mapl_OpenMP_Support_mod
         type(ESMF_Grid) :: primary_grid
         type(ESMF_Info) :: info_in, info_out
 
+        ! An allocatable result must be allocated on error paths too; the caller copies it.
+        allocate(subfields(0))
         call ESMF_FieldGet(primary_field, grid=primary_grid, typekind=typekind, rank=rank, name=name, _RC)
         call GridGet(primary_grid, jm=jm, _RC)
 
         bounds = find_bounds(jm, num_subgrids)
         subgrids = make_subgrids(primary_grid, num_subgrids, _RC)
+        deallocate(subfields)
         allocate(subfields(size(bounds)))
 
         ! 1d, r4 or r8

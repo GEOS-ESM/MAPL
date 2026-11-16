@@ -93,14 +93,19 @@ contains
       type(esmf_HConfig) :: hconfig
       logical :: has_run_section
       type(esmf_HConfig) :: run_cfg
+      type(esmf_HConfig) :: member_seq_cfg, member_cfg
       type(ESMF_HConfigIter) :: iter, e, b
       integer(kind=ESMF_KIND_I8) :: advanceCount
       integer, allocatable :: value
       real(ESMF_KIND_R4), pointer :: r4_ptr(:)
       real(ESMF_KIND_R8), pointer :: r8_ptr(:)
       type(esmf_Field) :: field
+      type(esmf_Field), allocatable :: field_list(:)
+      type(esmf_FieldBundle) :: bundle
+      type(ESMF_StateItem_Flag) :: itemtype
       character(:), allocatable :: field_name
       type(esmf_TypeKind_Flag) :: typekind
+      integer :: j
 
       call mapl_GridCompGet(gridcomp, hconfig=hconfig, _RC)
 
@@ -113,16 +118,42 @@ contains
          iter = b
          do while (ESMF_HConfigIterLoop(iter, b, e))
             field_name = ESMF_HConfigAsStringMapKey(iter, _RC)
-            value = esmf_HConfigAsI4MapVal(iter, index=int(advanceCount+1), _RC)
 
-            call esmf_StateGet(exportState, itemName=field_name, field=field, _RC)
-            call esmf_FieldGet(field, typekind=typekind, _RC)
-            if (typekind == ESMF_TYPEKIND_R4) then
-               call mapl_AssignFptr(field, r4_ptr, _RC)
-               r4_ptr = value
-            else if (typekind == ESMF_TYPEKIND_R8) then
-               call mapl_AssignFptr(field, r8_ptr, _RC)
-               r8_ptr = value
+            call esmf_StateGet(exportState, itemName=field_name, itemtype=itemtype, _RC)
+
+            if (itemtype == ESMF_STATEITEM_FIELDBUNDLE) then
+               ! Vector/bundle item: the yaml value is a list of per-member
+               ! sequences (one sub-list per bundle member, in add-order),
+               ! each itself a per-timestep sequence.
+               call esmf_StateGet(exportState, itemName=field_name, fieldbundle=bundle, _RC)
+               call MAPL_FieldBundleGet(bundle, fieldList=field_list, _RC)
+               member_seq_cfg = ESMF_HConfigCreateAtMapVal(iter, _RC)
+               do j = 1, size(field_list)
+                  member_cfg = ESMF_HConfigCreateAt(member_seq_cfg, index=j, _RC)
+                  value = ESMF_HConfigAsI4(member_cfg, index=int(advanceCount+1), _RC)
+                  call esmf_FieldGet(field_list(j), typekind=typekind, _RC)
+                  if (typekind == ESMF_TYPEKIND_R4) then
+                     call mapl_AssignFptr(field_list(j), r4_ptr, _RC)
+                     r4_ptr = value
+                  else if (typekind == ESMF_TYPEKIND_R8) then
+                     call mapl_AssignFptr(field_list(j), r8_ptr, _RC)
+                     r8_ptr = value
+                  end if
+                  call esmf_HConfigDestroy(member_cfg, _RC)
+               end do
+               call esmf_HConfigDestroy(member_seq_cfg, _RC)
+            else
+               value = esmf_HConfigAsI4MapVal(iter, index=int(advanceCount+1), _RC)
+
+               call esmf_StateGet(exportState, itemName=field_name, field=field, _RC)
+               call esmf_FieldGet(field, typekind=typekind, _RC)
+               if (typekind == ESMF_TYPEKIND_R4) then
+                  call mapl_AssignFptr(field, r4_ptr, _RC)
+                  r4_ptr = value
+               else if (typekind == ESMF_TYPEKIND_R8) then
+                  call mapl_AssignFptr(field, r8_ptr, _RC)
+                  r8_ptr = value
+               end if
             end if
          end do
          call esmf_HConfigDestroy(run_cfg, _RC)

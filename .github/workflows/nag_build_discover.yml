@@ -28,5 +28,16 @@ defaults:
 
 jobs:
   run-nag-build-discover:
-    if: github.event.pull_request.draft == false
+    # Fork PRs cannot normally use the NCCS runner. A maintainer can opt in by
+    # re-running the workflow; the reusable workflow then authorizes the
+    # maintainer through github.triggering_actor.
+    if: >-
+      github.event_name != 'pull_request' ||
+      (
+        github.event.pull_request.draft == false &&
+        (
+          github.event.pull_request.head.repo.full_name == github.repository ||
+          github.run_attempt > 1
+        )
+      )
     uses: GEOS-ESM/CI-workflows/.github/workflows/nag-build.yml@project/mapl

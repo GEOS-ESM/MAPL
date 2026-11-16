@@ -9,6 +9,9 @@ module mapl_FieldSet_mod
    use mapl_FieldGet_mod
    use mapl_FieldDelta_mod
    use mapl_enums_api, only: MAPL_StateItemAllocation
+   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
+   use mapl_StateItemVariantInfo_mod, only: StateItemVariantInfoSet
+   use mapl_RestartModes_mod, only: RestartMode
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
    use mapl_ConservationMetadata_mod
@@ -47,6 +50,8 @@ contains
         attributes, &
         allocation_status, &
         regridder_param_info, &
+        restart_mode, &
+        state_item_variant, &
         rc)
       type(ESMF_Field), intent(inout) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -67,6 +72,8 @@ contains
       type(StringVector), optional, intent(in) :: attributes
       type(MAPL_StateItemAllocation), optional, intent(in) :: allocation_status
       type(esmf_Info), optional, intent(in) :: regridder_param_info
+      type(RestartMode), optional, intent(in) :: restart_mode
+      type(MAPL_StateItem_Flag), optional, intent(in) :: state_item_variant
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -78,9 +85,14 @@ contains
       integer :: rank, ungriddedDimCount
       integer, allocatable :: localElementCount(:)
       type(VerticalStaggerLoc) :: stagger
+      integer :: named_alias_id
 
       call esmf_FieldGet(field, status=fstatus, _RC)
-      if (fstatus == ESMF_FIELDSTATUS_COMPLETE) then
+      ! Info-only calls (e.g. restart_mode, state_item_variant) must not enter
+      ! the FieldDelta path, which can reallocate the field.
+      if (fstatus == ESMF_FIELDSTATUS_COMPLETE .and. &
+           (present(geom) .or. present(vgrid) .or. present(typekind) .or. &
+           present(num_levels) .or. present(units))) then
          ! Determine num_levels to pass to FieldDelta
          if (present(vgrid) .and. .not. present(num_levels)) then
             ! vgrid is present but num_levels wasn't explicitly provided
@@ -124,21 +136,44 @@ contains
          vgrid_id = vgrid%get_id() ! allocate so "present" below
       end if
 
+      ! long_name is per-NamedAlias-id metadata (see
+      ! generic/field-name-propagation): named_alias_id resolves THIS field's
+      ! own alias id (via ESMF_NamedAliasGet), matching how FieldGet resolves
+      ! it on read.  id=0 (a field never placed via ESMF_NamedAlias) is a
+      ! valid, self-consistent scope like any other - it just means "this
+      ! specific field object's own slot", which is exactly what a caller
+      ! setting long_name directly on `field` wants. standard_name, by
+      ! contrast, is unaliased/field-wide (see
+      ! generic/standard-name-enforcement); named_alias_id is passed through
+      ! here but plays no role in resolving it.
       call esmf_InfoGetFromHost(field, field_info, _RC)
+      call ESMF_NamedAliasGet(field, id=named_alias_id, _RC)
       call FieldInfoSetInternal(field_info, &
            horizontal_dims_spec=horizontal_dims_spec, &
            vgrid_id=vgrid_id, &
            vert_staggerloc=vert_staggerloc, &
            vert_alignment=vert_alignment, &
            typekind=typekind, &
-           units=units, standard_name=standard_name, long_name=long_name, &
+           units=units, &
            ungridded_dims=ungridded_dims, &
            quantity_type_metadata=quantity_type_metadata, &
            normalization_metadata=normalization_metadata, &
            conservation_metadata=conservation_metadata, &
            allocation_status=allocation_status, &
            regridder_param_info=regridder_param_info, &
+           named_alias_id=named_alias_id, &
+           standard_name=standard_name, &
+           long_name=long_name, &
            _RC)
+
+      ! restart_mode is per-alias metadata, like long_name.
+      if (present(restart_mode)) then
+         call FieldInfoSetInternal(field_info, named_alias_id, restart_mode, _RC)
+      end if
+
+      if (present(state_item_variant)) then
+         call StateItemVariantInfoSet(field_info, state_item_variant, _RC)
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

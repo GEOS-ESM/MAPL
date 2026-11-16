@@ -29,7 +29,6 @@ module mapl_FieldBundleClassAspect_mod
       private
       logical :: is_created = .false.
       type(ESMF_FieldBundle) :: payload
-      character(:), allocatable :: standard_name
       character(:), allocatable :: long_name
    contains
       procedure :: get_aspect_order
@@ -56,15 +55,9 @@ module mapl_FieldBundleClassAspect_mod
 
 contains
 
-   function new_FieldBundleClassAspect(standard_name, long_name) result(aspect)
+   function new_FieldBundleClassAspect(long_name) result(aspect)
       type(FieldBundleClassAspect) :: aspect
-      character(*), optional, intent(in) :: standard_name
       character(*), optional, intent(in) :: long_name
-
-      aspect%standard_name = "unknown"
-      if (present(standard_name)) then
-         aspect%standard_name = standard_name
-      end if
 
       aspect%long_name = "unknown"
       if (present(long_name)) then
@@ -267,7 +260,7 @@ contains
       call get_substate(state, full_name(:idx-1), substate=substate, _RC)
       inner_name = full_name(idx+1:)
 
-      alias = ESMF_NamedAlias(this%payload, name=inner_name, _RC)
+      alias = MAPL_NamedAlias(this%payload, name=inner_name, _RC)
 
       call ESMF_StateGet(substate, itemName=inner_name, itemType=itemType, _RC)
       if (itemType /= ESMF_STATEITEM_NOTFOUND) then

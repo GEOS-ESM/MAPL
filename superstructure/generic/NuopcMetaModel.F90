@@ -13,6 +13,11 @@ module mapl_NuopcMetaModel_mod
    use mapl_InnerMetaComponent_mod
    use mapl_OuterMetaComponent_mod, only: create_child
    use mapl_ChildSpec_mod, only: ChildSpec
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_HierarchyId_mod, only: HierarchyId
+   use mapl_HierarchyRegistry_mod, only: request_new_hierarchy, get_hierarchy_resources
+   use mapl_HierarchyRegistry_mod, only: release_hierarchy
+   use mapl_HierarchyResources_mod, only: HierarchyResources
    use mapl_geom_api, only: mapl_GeomManager, mapl_get_geom_manager, mapl_MaplGeom
    use mapl_GriddedComponentDriver_mod
    use mapl_GriddedComponentDriverVector_mod
@@ -74,6 +79,17 @@ module mapl_NuopcMetaModel_mod
       type(ComponentSpec) :: component_spec
       type(SimpleAlarm) :: user_run_alarm
       logical :: run_if_alarm_rings_next = .FALSE.
+      ! Graph architecture. A GenericNuopcModel is always the root of its own
+      ! MAPL hierarchy: NUOPC is not hierarchical in the MAPL sense, there is
+      ! a single GenericNuopcModel with no siblings, and the MAPL user
+      ! GridComp is the top of the MAPL GridComp hierarchy beneath it. So this
+      ! always takes the root branch of OuterMetaComponent%init_meta's pattern:
+      ! mint a fresh hierarchy rather than joining a parent's.
+      type(HierarchyId) :: hierarchy_id
+      ! One local ComponentGraph per outer component, as for
+      ! OuterMetaComponent. Dormant while graph_mode() is GRAPH_MODE_REGISTRY
+      ! (the default for every non-test run).
+      type(ComponentGraph) :: local_graph
    contains
       procedure :: get_user_gc_driver
       procedure :: get_registry
@@ -171,11 +187,30 @@ contains
       type(ESMF_GridComp), intent(in) :: model
       type(GriddedComponentDriver), intent(in) :: user_gc_driver
       type(ESMF_HConfig), intent(in) :: hconfig
-      
+
+      type(HierarchyResources), pointer :: resources
+      character(len=:), allocatable :: user_name
+
       meta_model%self_model = model
       meta_model%user_gc_driver = user_gc_driver
       meta_model%hconfig = hconfig
       call initialize_phases_map(meta_model%user_phases_map)
+
+      ! Hierarchy root: mint a fresh hierarchy and register this component's
+      ! own name, mirroring the root branch of OuterMetaComponent%init_meta.
+      ! No create_child call ever runs for this component, so nothing else
+      ! would record its name. Use the plain user GridComp name, matching what
+      ! create_child inserts for every descendant.
+      !
+      ! Done here rather than in setServices_ so that hierarchy_id is valid
+      ! for every constructed object. OuterMetaComponent gets the same
+      ! invariant from init_meta, which always runs right after its
+      ! constructor.
+      user_name = user_gc_driver%get_name()
+      meta_model%hierarchy_id = request_new_hierarchy()
+      resources => get_hierarchy_resources(meta_model%hierarchy_id)
+      call resources%component_names%insert(user_name)
+      meta_model%local_graph = ComponentGraph(meta_model%hierarchy_id)
 
    end function construct_meta_model
 
@@ -490,6 +525,13 @@ contains
       call NUOPC_ModelGet(this%self_model, modelClock=modelClock, _RC)
       call this%set_clock(modelClock, _RC)
 
+      ! GENERIC_INIT_GRAPH_FREEZE maps here: develop places it after the last
+      ! REALIZE_ACCEPTED and before READ_RESTART. Not called yet, because
+      ! GraphBuilder%run_graph_freeze_hook takes class(OuterMetaComponent) and
+      ! so cannot accept this type. Harmless while graph_mode() is
+      ! GRAPH_MODE_REGISTRY (the default for every non-test run); becomes
+      ! blocking when the graph goes canonical. See plan Phase 8.
+
       ! Extra MAPL phases
       call this%read_restart(_RC)
       call recurse(this, phase_idx=MAPL_GENERIC_INIT_USER, _RC)
@@ -764,14 +806,21 @@ contains
       integer :: status
       type(GriddedComponentDriver) :: child_driver
       type(ESMF_TimeInterval) :: parent_offset
+      type(HierarchyResources), pointer :: resources
 
       _ASSERT(this%children%count(child_name) == 0, 'duplicate child name: <'//child_name//'>.')
+      ! Hierarchy-wide name uniqueness; the sibling check above is not
+      ! sufficient. Mirrors OuterMetaComponent%add_child_by_spec.
+      resources => get_hierarchy_resources(this%hierarchy_id)
+      _ASSERT(resources%component_names%count(child_name) == 0, 'duplicate component name elsewhere in the hierarchy: <'//child_name//'>.')
 
       call ESMF_TimeIntervalSet(parent_offset, s=0, _RC)
       call create_child(child_name, child_spec, this%hconfig, this%registry, &
-           parent_offset, child_driver, _RC)
+           parent_offset, this%hierarchy_id, child_driver, _RC)
 
       call this%children%insert(child_name, child_driver)
+      ! Recorded only once the child is fully and successfully added.
+      call resources%component_names%insert(child_name)
 
       _RETURN(_SUCCESS)
 
@@ -983,6 +1032,10 @@ contains
       class(NuopcMetaModel), intent(inout) :: this
       integer, optional, intent(out) :: rc
       integer :: status
+
+      ! This component is its own hierarchy root, so it owns the registry
+      ! entry and releases it. Other hierarchies' entries stay live.
+      call release_hierarchy(this%hierarchy_id)
 
       _RETURN(_SUCCESS)
 

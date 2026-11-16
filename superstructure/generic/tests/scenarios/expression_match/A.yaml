@@ -1,0 +1,29 @@
+mapl:
+  states:
+    import: {}
+    export:
+      A:
+        standard_name: A
+        units: 'm'
+        fill_value: 2
+        vertical_dim_spec: NONE
+      B:
+        standard_name: B
+        units: 'm'
+        fill_value: 3
+        vertical_dim_spec: NONE
+      # Mirrors the reported user case (E_sum: {expression: E_1+E_2, standard_name,
+      # long_name}) consumed via an implicit, same-name MatchConnection rather than
+      # an explicit connections: entry (see parent.yaml's all_unsatisfied connection,
+      # the same mechanism MAPL_GridCompConnectAll/History's var_list sourcing use).
+      E_sum:
+        expression: A + B
+        units: m
+        vertical_dim_spec: NONE
+        standard_name: 'E_sum standard name'
+        long_name: 'E_sum long name'
+
+    internal: {}
+
+  setServices:
+    sharedObj: libconfigurable_gridcomp

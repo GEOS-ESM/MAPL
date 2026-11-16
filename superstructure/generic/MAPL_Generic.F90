@@ -684,14 +684,14 @@ contains
       class(NuopcMetaModel), pointer :: nuopc_meta
       logical :: is_nuopc
 
-      ! Always allocate the result, even on the error path, so callers never
-      ! see an unallocated string.
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
       name = ''
       call get_hierarchy_meta_(gridcomp, nuopc_meta, outer_meta, is_nuopc, _RC)
       if (is_nuopc) then
          name = nuopc_meta%get_child_name(index, _RC)
          _RETURN(_SUCCESS)
       end if
+      call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       name = outer_meta%get_child_name(index, _RC)
 
       _RETURN(_SUCCESS)
@@ -770,8 +770,9 @@ contains
         dependencies, &
         regrid_param, &
         horizontal_dims_spec, &
+        mirror_geom, &
+        mirror_vgrid, &
         vector_basis_kind, &
-        use_field_dictionary, &
         restart_mode, &
 
         dims, &
@@ -803,8 +804,9 @@ contains
       type(StringVector), optional, intent(in) :: dependencies
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
+      logical, optional, intent(in) :: mirror_geom
+      logical, optional, intent(in) :: mirror_vgrid
       character(*), optional, intent(in) :: vector_basis_kind
-      logical, optional, intent(in) :: use_field_dictionary
       type(RestartMode), optional, intent(in) :: restart_mode
 
       character(*), optional, intent(in) :: dims
@@ -863,8 +865,9 @@ contains
               dependencies=dependencies, &
               regrid_param=regrid_param, &
               horizontal_dims_spec=horizontal_dims_spec_, &
+              mirror_geom=mirror_geom, &
+              mirror_vgrid=mirror_vgrid, &
               vector_basis_kind=vector_basis_kind, &
-              use_field_dictionary=use_field_dictionary, &
               restart_mode=restart_mode, &
               _RC)
 
@@ -1333,7 +1336,7 @@ contains
       spec => primary
       _ASSERT(associated(spec), 'null pointer for spec')
 
-      call spec%set_geometry(geom=geom, vertical_grid=vertical_grid, _RC)
+      call spec%set_geometry(geom=geom, vertical_grid=vertical_grid, force_replace=.true., _RC)
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_set_geometry
@@ -1457,6 +1460,8 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: status
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      dir = ''
       call fail_if_nuopc_user_gc_(gridcomp, 'gridcomp_get_checkpoint_dir', _RC)
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       dir = outer_meta%get_checkpoint_dir(current_time, is_private=is_private, _RC)

@@ -1,0 +1,38 @@
+mapl:
+  setServices:
+    sharedObj: libMAPL.history
+
+run_next_step: false
+
+geoms:
+  geom1: &geom1
+    class: latlon
+    im_world: 20
+    jm_world: 15
+    pole: PC
+    dateline: DC
+
+vertical_grids:
+  pressure_levs: &pressure_levs
+    grid_type: fixed_levels
+    units: hPa
+    levels: [650., 550., 450.]
+    physical_dimension: pressure
+
+active_collections:
+  - test
+
+time_specs:
+  three_hour: &one_hour
+    frequency: PT1H
+
+collections:
+  test:
+    template: "%c.nc4"
+    vertical_grid: *pressure_levs
+    #geom: *geom1
+    time_spec: *one_hour
+    var_list:
+      E_1: {source: E_1}
+      E_2: {source: E_2}
+      '[U,V]': {source: UV}

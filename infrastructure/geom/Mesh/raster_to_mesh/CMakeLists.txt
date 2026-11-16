@@ -13,6 +13,7 @@ find_package (GFTL_SHARED REQUIRED)
 esma_add_library (${this}
   SRCS ${srcs}
   DEPENDENCIES MAPL.utils MAPL.pfio
+  TYPE SHARED
 )
 
 target_link_libraries (${this} PUBLIC GFTL::gftl-v2 GFTL_SHARED::gftl-shared-v2 ESMF::ESMF NetCDF::NetCDF_Fortran

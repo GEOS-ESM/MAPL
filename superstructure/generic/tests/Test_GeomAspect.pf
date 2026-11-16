@@ -4,7 +4,9 @@
 module Test_GeomAspect
    use mapl_AspectStatus_mod, only: ASPECT_STATUS_FROM_COMP
    use mapl_GeomAspect_mod, only: GeomAspect
-   use mapl_geom_api, only: mapl_GeomId, mapl_new_GeomId
+   use mapl_geom_api, only: mapl_GeomGetId, mapl_GeomId
+   use mapl_geom_api, only: mapl_new_GeomId, mapl_SameGeom
+   use mapl_GeomUtilities_mod, only: GeomSetId
    use mapl_field_api, only: MAPL_FieldSet, MAPL_FieldGet
    use mapl_field_bundle_api, only: MAPL_FieldBundleSet, MAPL_FieldBundleGet
    use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, operator(==)
@@ -38,7 +40,7 @@ module Test_GeomAspect
    type(HorizontalDimsSpec), parameter :: HORZ_DIMS_SPEC = HORIZONTAL_DIMS_GEOM
    type(HorizontalDimsSpec), parameter :: ALT_HORZ_DIMS_SPEC = HORIZONTAL_DIMS_NONE
    character(len=*), parameter :: GEOM_MISMATCH = &
-      & 'The actual_geom does not match expected_geom.' 
+      & 'The actual_geom does not match expected_geom.'
    character(len=*), parameter :: HORZ_MISMATCH = &
       & 'The actual HorizontalDimsSpec does not match the expected HorizontalDimsSpec.'
    character(len=*), parameter :: REGRIDDER_MISMATCH = &
@@ -123,7 +125,7 @@ contains
       @assertTrue(is_match, REGRIDDER_MISMATCH)
 
       actual_horizontal_dims_spec = aspect%get_horizontal_dims_spec(_RC)
-      is_match = expected_horizontal_dims_spec == actual_horizontal_dims_spec 
+      is_match = expected_horizontal_dims_spec == actual_horizontal_dims_spec
       @assertTrue(is_match, HORZ_MISMATCH)
 
       _UNUSED_DUMMY(this)
@@ -174,7 +176,7 @@ contains
       _UNUSED_DUMMY(this)
 
    end subroutine test_update_payload_field
-   
+
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_from_payload_no_geom_field(this)
       class(ESMF_TestMethod), intent(inout) :: this
@@ -317,7 +319,7 @@ contains
       _UNUSED_DUMMY(this)
 
    end subroutine test_update_payload_bundle
-   
+
    @Test(type=ESMF_TestMethod, npes=[1])
    subroutine test_update_from_payload_no_geom_bundle(this)
        class(ESMF_TestMethod), intent(inout) :: this
@@ -438,7 +440,7 @@ contains
    function get_geom_match_string(gm) result(string)
       character(len=:), allocatable :: string
       type(ESMF_GeomMatch_Flag), intent(in) :: gm
-      
+
       if(gm == ESMF_GEOMMATCH_INVALID) then
          string = 'ESMF_GEOMMATCH_INVALID'
       else if(gm == ESMF_GEOMMATCH_NONE) then
@@ -452,12 +454,12 @@ contains
       end if
 
    end function get_geom_match_string
-         
+
    function get_regridder_param(default) result(rp)
       type(EsmfRegridderParam) :: rp
       logical, optional, intent(in) :: default
       type(ESMF_RegridMethod_Flag) :: regridmethod
-      
+
       regridmethod = REGRID_METHOD
       if(present(default)) then
          if(.not. default) regridmethod = ALT_REGRID_METHOD
@@ -466,6 +468,17 @@ contains
 
    end function get_regridder_param
 
+   subroutine get_geom_other(geom, rc)
+      type(ESMF_Geom), intent(out) :: geom
+      integer, optional, intent(out) :: rc
+      integer :: status
+      type(ESMF_Grid) :: grid_
+      grid_ = ESMF_GridCreate(maxindex=ALTMAXINDEX, _RC)
+      geom = ESMF_GeomCreate(grid=grid_, _RC)
+      call GeomSetId(geom, 102, _RC)
+      _RETURN(_SUCCESS)
+   end subroutine get_geom_other
+
    subroutine get_geom(geom, grid, maxindex, rc)
       type(ESMF_Geom), intent(out) :: geom
       type(ESMF_Grid), optional, intent(in) :: grid
@@ -473,7 +486,7 @@ contains
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_Grid) :: grid_
-      
+
       grid_ = ESMF_GridCreate(maxindex=MAXINDEX_, _RC)
       if(present(grid)) then
          grid_ = grid
@@ -483,6 +496,7 @@ contains
          end if
       end if
       geom = ESMF_GeomCreate(grid=grid_, _RC)
+      call GeomSetId(geom, 101, _RC)
       _RETURN(_SUCCESS)
 
    end subroutine get_geom
@@ -514,7 +528,7 @@ contains
 
       call get_geom(geom_, _RC)
       if(present(geom)) geom_ = geom
-         
+
       field = ESMF_FieldCreate(geom_, TK4, _RC)
       _RETURN(_SUCCESS)
 
@@ -532,7 +546,7 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine destroy_field
-   
+
    subroutine destroy_fields(fields, rc)
       type(ESMF_Field), intent(inout) :: fields(:)
       integer, optional, intent(out) :: rc
@@ -545,7 +559,7 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine destroy_fields
-   
+
    subroutine get_bundle(bundle, geom, field_count, basename, rc)
       type(ESMF_FieldBundle), intent(out) :: bundle
       type(ESMF_Geom), optional, intent(in) :: geom
@@ -574,7 +588,7 @@ contains
       if(present(geom)) geom_ = geom
       call MAPL_FieldBundleSet(bundle, geom=geom_, _RC)
       _RETURN(_SUCCESS)
-      
+
    end subroutine get_bundle
 
    subroutine get_fields(field_count, fields, basename, rc)
@@ -585,7 +599,7 @@ contains
       integer :: status
       integer :: i
       character(len=:), allocatable :: field_name
-      
+
       allocate(fields(field_count))
       do i=1, size(fields)
          call make_field_name(field_name, base=basename, num=i, _RC)
@@ -594,7 +608,7 @@ contains
       _RETURN(_SUCCESS)
 
    end subroutine get_fields
-     
+
    subroutine destroy_bundle(bundle, rc)
       type(ESMF_FieldBundle), intent(inout) :: bundle
       integer, optional, intent(out) :: rc
@@ -656,11 +670,182 @@ contains
       class(ESMF_TestMethod), intent(inout) :: this
       _UNUSED_DUMMY(this)
    end subroutine setUp
-   
+
    @After
    subroutine shutDown(this)
       class(ESMF_TestMethod), intent(inout) :: this
       _UNUSED_DUMMY(this)
    end subroutine shutDown
-   
+
+
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_declared_by_item_component_geom_no_op(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: geom1, geom2, actual_geom
+      integer :: status
+      logical :: same
+
+      call get_geom(geom1, _RC)
+      call get_geom_other(geom2, _RC)
+
+      aspect = GeomAspect(geom=geom1, declared_by_item=.true.)
+      call aspect%set_component_geom(geom2, rc=status)
+      _VERIFY(status)
+
+      actual_geom = aspect%get_geom(_RC)
+      same = mapl_SameGeom(actual_geom, geom1)
+      @assertTrue(same, 'set_component_geom should be a no-op if declared_by_item=.true.')
+      _UNUSED_DUMMY(this)
+   end subroutine test_declared_by_item_component_geom_no_op
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_not_declared_by_item_component_geom_replaces(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: geom1, geom2, actual_geom
+      integer :: status
+      logical :: same
+
+      call get_geom(geom1, _RC)
+      call get_geom_other(geom2, _RC)
+
+      aspect = GeomAspect(geom=geom1, declared_by_item=.false.)
+      call aspect%set_component_geom(geom2, rc=status)
+      _VERIFY(status)
+
+      actual_geom = aspect%get_geom(_RC)
+      same = mapl_SameGeom(actual_geom, geom2)
+      @assertTrue(same, 'set_component_geom should replace if declared_by_item=.false.')
+      _UNUSED_DUMMY(this)
+   end subroutine test_not_declared_by_item_component_geom_replaces
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_set_geom_unconditional(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: geom1, geom2, actual_geom
+      integer :: status
+      logical :: same
+
+      call get_geom(geom1, _RC)
+      call get_geom_other(geom2, _RC)
+      same = mapl_SameGeom(geom1, geom2)
+      @assertFalse(same, 'Geoms must differ.')
+
+      aspect = GeomAspect(geom=geom1, declared_by_item=.true.)
+      call aspect%set_geom(geom2)
+      actual_geom = aspect%get_geom(_RC)
+      same = mapl_SameGeom(actual_geom, geom2)
+      @assertTrue(same, 'set_geom should replace even if declared_by_item')
+      _UNUSED_DUMMY(this)
+   end subroutine test_set_geom_unconditional
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_declared_flag_survives_copy(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomAspect) :: aspect1, aspect2
+      type(ESMF_Geom) :: geom1, geom2, actual_geom
+      integer :: status
+      logical :: same
+
+      call get_geom(geom1, _RC)
+      call get_geom_other(geom2, _RC)
+
+      aspect1 = GeomAspect(geom=geom1, declared_by_item=.true.)
+      aspect2 = aspect1
+
+      call aspect2%set_component_geom(geom2, rc=status)
+      _VERIFY(status)
+
+      actual_geom = aspect2%get_geom(_RC)
+      same = mapl_SameGeom(actual_geom, geom1)
+      @assertTrue(same, 'Copied aspect should ignore set_component_geom.')
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_declared_flag_survives_copy
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_set_component_geom_replaces_geom_id_if_not_declared(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: geom1, geom2
+      type(mapl_GeomId) :: geom_id1, geom_id2, actual_id
+      integer :: status
+      logical :: same_id
+
+      call get_geom(geom1, _RC)
+      call get_geom_other(geom2, _RC)
+      geom_id1 = mapl_GeomGetId(geom1, _RC)
+      geom_id2 = mapl_GeomGetId(geom2, _RC)
+      same_id = (geom_id1%get_value() == geom_id2%get_value())
+      @assertFalse(same_id, 'Geom IDs must differ.')
+
+      ! Start with a geom but not declared by item
+      aspect = GeomAspect(geom=geom1, geom_id=geom_id1, declared_by_item=.false., geom_id_declared_by_item=.false.)
+      call aspect%set_component_geom(geom2, rc=status)
+      _VERIFY(status)
+
+      actual_id = aspect%get_geom_id()
+      same_id = (actual_id%get_value() == geom_id2%get_value())
+      @assertTrue(same_id, 'set_component_geom on non-declared aspect replaces geom_id with pushed geom_id.')
+      _UNUSED_DUMMY(this)
+   end subroutine test_set_component_geom_replaces_geom_id_if_not_declared
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_declared_geom_id_survives_component_geom(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: geom2, actual_geom
+      type(mapl_GeomId) :: id7, geom2_id, actual_id
+      logical :: same
+      integer :: status
+
+      call get_geom_other(geom2, _RC)
+      id7 = mapl_new_GeomId(7)
+      geom2_id = mapl_GeomGetId(geom2, _RC)
+      @assertNotEqual(id7%get_value(), geom2_id%get_value())
+      aspect = GeomAspect(geom_id=id7, declared_by_item=.false., &
+         & geom_id_declared_by_item=.true.)
+
+      call aspect%set_component_geom(geom2, rc=status)
+      _VERIFY(status)
+
+      actual_geom = aspect%get_geom(_RC)
+      same = mapl_SameGeom(actual_geom, geom2)
+      @assertTrue(same, 'An id-only item must take the component geom.')
+      actual_id = aspect%get_geom_id()
+      @assertEqual(id7%get_value(), actual_id%get_value())
+      _UNUSED_DUMMY(this)
+   end subroutine test_declared_geom_id_survives_component_geom
+
+   @Test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_declared_geom_and_id_survive_component_geom(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      type(GeomAspect) :: aspect
+      type(ESMF_Geom) :: geom1, geom2, actual_geom
+      type(mapl_GeomId) :: id7, actual_id
+      logical :: same
+      integer :: status
+
+      call get_geom(geom1, _RC)
+      call get_geom_other(geom2, _RC)
+      same = mapl_SameGeom(geom1, geom2)
+      @assertFalse(same, 'Seed geoms must differ.')
+      id7 = mapl_new_GeomId(7)
+      aspect = GeomAspect(geom=geom1, geom_id=id7, &
+         & declared_by_item=.true., geom_id_declared_by_item=.true.)
+
+      call aspect%set_component_geom(geom2, rc=status)
+      _VERIFY(status)
+
+      actual_geom = aspect%get_geom(_RC)
+      same = mapl_SameGeom(actual_geom, geom1)
+      @assertTrue(same, 'Component push must preserve an item geom.')
+      actual_id = aspect%get_geom_id()
+      @assertEqual(id7%get_value(), actual_id%get_value())
+      _UNUSED_DUMMY(this)
+   end subroutine test_declared_geom_and_id_survive_component_geom
+
 end module Test_GeomAspect

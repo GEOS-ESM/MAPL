@@ -31,6 +31,7 @@ module mapl_esmf_info_keys_mod
    public :: KEY_CONSERVATION_METADATA
    public :: KEY_FIELDBUNDLETYPE_FLAG
    public :: KEY_HAS_GEOM
+   public :: KEY_STATE_ITEM_VARIANT
    public :: KEY_NORMALIZATION_METADATA
    public :: KEY_QUANTITY_TYPE_METADATA
    public :: VAR_LIST_KEY
@@ -48,6 +49,7 @@ module mapl_esmf_info_keys_mod
    public :: KEY_MISSING_VALUE
    public :: KEY_REGRIDDER_PARAM
    public :: KEY_RESTART_MODE
+   public :: KEY_BOOTSTRAPPED
    public :: KEY_UNDEF_VALUE
    public :: KEY_VERT_ALIGNMENT
    public :: KEY_VGRID_ID
@@ -91,6 +93,7 @@ module mapl_esmf_info_keys_mod
    character(len=*), parameter :: KEY_CONSERVATION_METADATA = "/conservation_metadata"
    character(len=*), parameter :: KEY_FIELDBUNDLETYPE_FLAG = '/MAPL_FieldBundleType_Flag'
    character(len=*), parameter :: KEY_HAS_GEOM = "/has_geom"
+   character(len=*), parameter :: KEY_STATE_ITEM_VARIANT = PREFIX // "/GraphStateItem/variant"
    character(len=*), parameter :: KEY_NORMALIZATION_METADATA = "/normalization_metadata"
    character(len=*), parameter :: KEY_QUANTITY_TYPE_METADATA = "/quantity_type_metadata"
 
@@ -112,6 +115,7 @@ module mapl_esmf_info_keys_mod
    character(len=*), parameter :: KEY_MISSING_VALUE = '/missing_value'
    character(len=*), parameter :: KEY_REGRIDDER_PARAM = '/EsmfRegridderParam'
    character(len=*), parameter :: KEY_RESTART_MODE = '/restart_mode'
+   character(len=*), parameter :: KEY_BOOTSTRAPPED = '/bootstrapped'
    character(len=*), parameter :: KEY_UNDEF_VALUE = '/undef_value'
    character(len=*), parameter :: KEY_VERT_ALIGNMENT = '/vert_alignment'
    character(len=*), parameter :: KEY_VGRID_ID = '/vgrid_id'

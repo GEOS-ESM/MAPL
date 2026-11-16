@@ -3,7 +3,7 @@
 module mapl_FieldUtilities_mod
    use mapl_FieldInfo_mod
    use mapl_ErrorHandling_mod
-   use mapl_FieldPointerUtilities_mod
+   use mapl_FieldPointerUtilities_mod, FieldHasDE => field_has_de
    use mapl_InfoUtilities_mod
    use mapl_UngriddedDims_mod
    use mapl_LU_Bound_mod
@@ -18,6 +18,7 @@ module mapl_FieldUtilities_mod
    public :: FieldNegate
    public :: FieldPow
    public :: FieldsDestroy
+   public :: FieldHasDE
 
    interface FieldIsConstant
       procedure FieldIsConstantR4
@@ -99,6 +100,11 @@ contains
       integer(kind=ESMF_KIND_I4), pointer :: f_ptr_i4(:)
       integer :: status
 
+      logical :: has_de
+      has_de = FieldHasDE(field, _RC)
+      if (.not. has_de) then
+         _RETURN(_SUCCESS)
+      end if
       call ESMF_FieldGet(field,typekind=type_kind,_RC)
       if (type_kind == ESMF_TYPEKIND_R4) then
          call assign_fptr(field,f_ptr_r4,_RC)
@@ -126,6 +132,11 @@ contains
       integer(kind=ESMF_KIND_I4), pointer :: f_ptr_i4(:)
       integer :: status
 
+      logical :: has_de
+      has_de = FieldHasDE(field, _RC)
+      if (.not. has_de) then
+         _RETURN(_SUCCESS)
+      end if  
       call ESMF_FieldGet(field,typekind=type_kind,_RC)
       if (type_kind == ESMF_TYPEKIND_R4) then
          call assign_fptr(field,f_ptr_r4,_RC)

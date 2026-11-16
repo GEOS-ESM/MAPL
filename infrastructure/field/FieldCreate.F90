@@ -215,12 +215,14 @@ contains
       type(ESMF_Geom), allocatable :: geom
       type(HorizontalDimsSpec) :: horizontal_dims_spec
       integer :: idim, dim_count
+      logical :: is_geom_or_none
 
       grid_to_field_map = [integer::] ! function result must always be allocated
 
       call FieldGet(field, geom=geom, horizontal_dims_spec=horizontal_dims_spec, _RC)
       _ASSERT(allocated(geom), "Must specify a geom before FieldComplete.")
-      _ASSERT(horizontal_dims_spec /= HORIZONTAL_DIMS_UNKNOWN, "should be one of GEOM/NONE")
+      is_geom_or_none = (horizontal_dims_spec == HORIZONTAL_DIMS_GEOM) .or. (horizontal_dims_spec == HORIZONTAL_DIMS_NONE)
+      _ASSERT(is_geom_or_none, "should be one of GEOM/NONE")
 
       call ESMF_GeomGet(geom, dimCount=dim_count, _RC)
       grid_to_field_map = [(0, idim=1,dim_count)]
@@ -325,10 +327,20 @@ contains
            vert_staggerloc=vert_staggerloc_, &
            vert_alignment=vert_alignment, &
            units=units, &
-           standard_name=standard_name, &
-           long_name=long_name, &
            allocation_status=MAPL_STATEITEM_ALLOCATION_ALLOCATED, &
            _RC)
+
+      ! standard_name/long_name are per-NamedAlias-id metadata (see
+      ! generic/field-name-propagation) - unlike the other characteristics
+      ! set above, they must NOT go through the flat, unnamespaced key of the
+      ! base FieldInfoSetInternal overload.  FieldSet already resolves this
+      ! field's own alias id (0 if `field` was never placed via
+      ! ESMF_NamedAlias) and writes through the alias-scoped path
+      ! FieldGet reads from; reuse it rather than duplicating that
+      ! resolution here.
+      if (present(standard_name) .or. present(long_name)) then
+         call FieldSet(field, standard_name=standard_name, long_name=long_name, _RC)
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

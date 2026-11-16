@@ -1,0 +1,26 @@
+# A vector on 3 fixed pressure levels into 2 others, same horizontal grid:
+# one vertical step (VerticalColumnRegridTransform on the bundle). The
+# members hold the constant fill value, which a linear regrid keeps; the
+# value check shows the step ran and filled both members. The table entry
+# sets graph_owns_user_states so that in GRAPH mode the import is the
+# graph's.
+
+- component: A
+  export:
+    uv:
+      status: complete
+      class: bundle
+      standard_name: ['eastward horizontal velocity', 'northward horizontal velocity']
+
+- component: B
+  import:
+    uv:
+      status: complete
+      class: bundle
+      value: [1., 1.]
+      standard_name: ['eastward horizontal velocity', 'northward horizontal velocity']
+
+- component: <root>
+  graph:
+    connections:
+      - {export: A/uv, import: B/uv, chain: [vertical]}

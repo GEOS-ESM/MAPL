@@ -1,0 +1,367 @@
+#include "MAPL_TestErr.h"
+module Test_ExpressionClassAspect
+   use funit
+   use mapl_StateRegistry_mod
+   use mapl_StateItemSpec_mod
+   use mapl_StateItemAspect_mod, only: AspectMap, StateItemAspect
+   use mapl_VariableSpec_mod, only: VariableSpec, make_VariableSpec
+   use mapl_VirtualConnectionPt_mod
+   use mapl_AspectId_mod, only: VERTICAL_GRID_ASPECT_ID
+   use mapl_VerticalGridAspect_mod
+   use mapl_VerticalStaggerLoc_mod
+   use mapl_AspectStatus_mod, only: ASPECT_STATUS_MIRRORED, ASPECT_STATUS_SPECIFIED
+   use mapl_ClassAspect_mod, only: ClassAspect, to_ClassAspect
+   use mapl_ExpressionClassAspect_mod, only: ExpressionClassAspect, check_vertical_stagger_consistency
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION
+   use gftl2_StringVector
+   use mapl_ErrorHandling_mod
+   use esmf
+   implicit none(type,external)
+
+contains
+
+   ! Registers an export item named short_name with the given (explicit)
+   ! vertical_dim_spec, so it is immediately resolved (not mirrored).
+   subroutine add_resolved_export(registry, short_name, stagger, rc)
+      type(StateRegistry), target, intent(inout) :: registry
+      character(*), intent(in) :: short_name
+      type(VerticalStaggerLoc), intent(in) :: stagger
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(VariableSpec) :: var_spec
+      type(StateItemSpec), target :: item_spec
+      type(AspectMap), pointer :: aspects
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, &
+           units='1', vertical_stagger=stagger, _RC)
+      item_spec = var_spec%make_StateItemSpec(registry, _RC)
+      aspects => item_spec%get_aspects()
+      call aspects%insert(VERTICAL_GRID_ASPECT_ID, &
+           VerticalGridAspect(vertical_stagger=stagger, aspect_status=ASPECT_STATUS_SPECIFIED))
+      call registry%add_primary_spec(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, short_name), item_spec, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_resolved_export
+
+   ! Registers an export item whose vertical grid aspect is left genuinely
+   ! mirrored (not yet resolved).
+   subroutine add_unresolved_export(registry, short_name, rc)
+      type(StateRegistry), target, intent(inout) :: registry
+      character(*), intent(in) :: short_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(VariableSpec) :: var_spec
+      type(StateItemSpec), target :: item_spec
+      type(AspectMap), pointer :: aspects
+      class(StateItemAspect), pointer :: vg_poly
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name, units='1', _RC)
+      item_spec = var_spec%make_StateItemSpec(registry, _RC)
+      aspects => item_spec%get_aspects()
+      vg_poly => aspects%at(VERTICAL_GRID_ASPECT_ID, _RC)
+      call vg_poly%set_characteristic_state(ASPECT_STATUS_MIRRORED)
+      call registry%add_primary_spec(VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, short_name), item_spec, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine add_unresolved_export
+
+   ! Builds an expression item's StateItemSpec (registered as 'expr') and runs
+   ! create() on it. expr_spec is intent(out) so the CALLER owns the storage
+   ! (its aspect map, and any pointer derived from it via get_aspects(), must
+   ! outlive this subroutine's return).
+   !
+   ! explicit_stagger, if absent, simulates the key being omitted in YAML -
+   ! which the real parser (ComponentSpecParser/parse_var_specs.F90) always
+   ! represents as VERTICAL_STAGGER_INVALID, *not* by leaving the argument
+   ! absent (calling make_VariableSpec directly without vertical_stagger, as
+   ! this helper would otherwise do, hits VerticalGridAspect's own
+   ! CENTER-if-absent constructor default instead - a different case).
+   !
+   ! simulate_component_grid, if true, forces the item's VerticalGridAspect to
+   ! ASPECT_STATUS_SPECIFIED immediately after construction, before create()
+   ! runs - simulating the exact real-bug precondition (a component-level
+   ! vertical grid resource made the aspect wrongly appear resolved) so that
+   ! create()'s corrective behavior (or lack thereof) can actually be
+   ! observed, rather than being masked by this minimal test registry never
+   ! supplying a component geom/grid at all (which already defaults to
+   ! ASPECT_STATUS_MIRRORED on its own).
+   subroutine make_expr_item(registry, expression, explicit_stagger, simulate_component_grid, &
+        expr_spec, expr_aspect, rc)
+      type(StateRegistry), target, intent(inout) :: registry
+      character(*), intent(in) :: expression
+      type(VerticalStaggerLoc), optional, intent(in) :: explicit_stagger
+      logical, optional, intent(in) :: simulate_component_grid
+      type(StateItemSpec), target, intent(out) :: expr_spec
+      type(ExpressionClassAspect), intent(out) :: expr_aspect
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(VariableSpec) :: expr_var_spec
+      type(VerticalStaggerLoc) :: declared_stagger
+      type(AspectMap), pointer :: aspects
+      class(StateItemAspect), pointer :: class_aspect
+      class(StateItemAspect), pointer :: vg_poly
+
+      declared_stagger = VERTICAL_STAGGER_INVALID
+      if (present(explicit_stagger)) declared_stagger = explicit_stagger
+
+      expr_var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, 'expr', &
+           itemtype=MAPL_STATEITEM_EXPRESSION, expression=expression, units='1', &
+           vertical_stagger=declared_stagger, _RC)
+      expr_spec = expr_var_spec%make_StateItemSpec(registry, _RC)
+      aspects => expr_spec%get_aspects()
+
+      if (present(simulate_component_grid)) then
+         if (simulate_component_grid) then
+            vg_poly => aspects%at(VERTICAL_GRID_ASPECT_ID, _RC)
+            call vg_poly%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
+         end if
+      end if
+
+      ! Deliberately not using the usual test-mode error-check macros here
+      ! (see MAPL_TestErr.h): in test files those expand to an unconditional
+      ! pFUnit assertion that status equals success, which would make it
+      ! impossible for any caller of this helper to exercise the failure path
+      ! of create() (e.g. the "variables disagree" test below). A genuine
+      ! create() failure is instead simply propagated to the caller's rc,
+      ! without asserting anything about it here.
+      call expr_spec%create(rc=status)
+      if (status /= _SUCCESS) then
+         if (present(rc)) rc = status
+         return
+      end if
+
+      class_aspect => to_ClassAspect(aspects, _RC)
+      select type (class_aspect)
+      type is (ExpressionClassAspect)
+         expr_aspect = class_aspect
+      class default
+         status = _FAILURE
+         _VERIFY(status)
+      end select
+
+      _RETURN(_SUCCESS)
+   end subroutine make_expr_item
+
+   function own_vertical_grid_aspect(aspects, rc) result(vg)
+      type(AspectMap), pointer, intent(in) :: aspects
+      integer, optional, intent(out) :: rc
+      type(VerticalGridAspect) :: vg
+
+      integer :: status
+      class(StateItemAspect), pointer :: poly
+
+      poly => aspects%at(VERTICAL_GRID_ASPECT_ID, _RC)
+      select type (poly)
+      type is (VerticalGridAspect)
+         vg = poly
+      class default
+         status = _FAILURE
+         _VERIFY(status)
+      end select
+
+      _RETURN(_SUCCESS)
+   end function own_vertical_grid_aspect
+
+   ! Requirement: "An expression's unspecified vertical dim spec is resolved
+   ! directly from its already-resolved referenced variables" - create() must
+   ! adopt the agreeing value immediately, rather than merely marking the
+   ! aspect mirrored. A mirror/characteristic_state-based signal is not
+   ! reliable here: a component-level vertical grid resource
+   ! (MAPL_GridCompSetVerticalGrid) unconditionally overwrites every item's
+   ! VerticalGridAspect characteristic_state to SPECIFIED well before
+   ! connection time (see StateItemSpec::set_geometry/target_set_geom),
+   ! without ever touching vertical_stagger - so vertical_stagger is the only
+   ! signal that survives.
+   @test
+   subroutine test_create_resolves_omitted_stagger_from_agreeing_variables()
+      type(StateRegistry), target :: registry
+      type(StateItemSpec), target :: expr_spec
+      type(ExpressionClassAspect) :: expr_aspect
+      type(AspectMap), pointer :: aspects
+      type(VerticalGridAspect) :: vg
+      type(VerticalStaggerLoc) :: resolved_stagger
+      integer :: status
+
+      registry = StateRegistry('test')
+      call add_resolved_export(registry, 'A', VERTICAL_STAGGER_NONE, _RC)
+      call add_resolved_export(registry, 'B', VERTICAL_STAGGER_NONE, _RC)
+
+      call make_expr_item(registry, 'A+B', expr_spec=expr_spec, expr_aspect=expr_aspect, rc=status)
+      @assertEqual(0, status, 'setting up expression item should succeed')
+      aspects => expr_spec%get_aspects()
+
+      vg = own_vertical_grid_aspect(aspects, rc=status)
+      @assertEqual(0, status, 'expression item should have a VerticalGridAspect')
+      resolved_stagger = vg%get_vertical_stagger(rc=status)
+      @assertEqual(0, status, 'expression item vertical_stagger should now be resolved (not left VERTICAL_STAGGER_INVALID)')
+      @assertTrue(resolved_stagger == VERTICAL_STAGGER_NONE, &
+           'omitted vertical_dim_spec should adopt the agreeing value found among referenced variables')
+   end subroutine test_create_resolves_omitted_stagger_from_agreeing_variables
+
+   ! Requirement: "Expressions with no referenced state items are unaffected"
+   @test
+   subroutine test_create_leaves_constant_expression_alone()
+      type(StateRegistry), target :: registry
+      type(StateItemSpec), target :: expr_spec
+      type(ExpressionClassAspect) :: expr_aspect
+      type(AspectMap), pointer :: aspects
+      type(VerticalGridAspect) :: vg
+      integer :: status
+
+      registry = StateRegistry('test')
+
+      ! simulate_component_grid=.true. reproduces the exact real-bug
+      ! precondition (a component-level grid resource made the aspect
+      ! wrongly appear SPECIFIED); without this, this minimal registry would
+      ! leave the aspect at its own default (MIRRORED) regardless of
+      ! create()'s logic, masking the behavior under test.
+      call make_expr_item(registry, '2+3', simulate_component_grid=.true., &
+           expr_spec=expr_spec, expr_aspect=expr_aspect, rc=status)
+      @assertEqual(0, status, 'setting up a constant expression item should succeed')
+      aspects => expr_spec%get_aspects()
+
+      vg = own_vertical_grid_aspect(aspects, rc=status)
+      @assertEqual(0, status, 'expression item should have a VerticalGridAspect')
+      @assertFalse(vg%is_mirror(), 'a constant expression (no referenced variables) must not be forced to mirror')
+   end subroutine test_create_leaves_constant_expression_alone
+
+   ! Requirement: explicit declaration is unaffected by create()'s mirror logic.
+   @test
+   subroutine test_create_leaves_explicit_value_alone()
+      type(StateRegistry), target :: registry
+      type(StateItemSpec), target :: expr_spec
+      type(ExpressionClassAspect) :: expr_aspect
+      type(AspectMap), pointer :: aspects
+      type(VerticalGridAspect) :: vg
+      integer :: status
+
+      registry = StateRegistry('test')
+      call add_resolved_export(registry, 'A', VERTICAL_STAGGER_NONE, _RC)
+      call add_resolved_export(registry, 'B', VERTICAL_STAGGER_NONE, _RC)
+
+      ! simulate_component_grid=.true. - see comment in
+      ! test_create_leaves_constant_expression_alone.
+      call make_expr_item(registry, 'A+B', explicit_stagger=VERTICAL_STAGGER_NONE, &
+           simulate_component_grid=.true., expr_spec=expr_spec, expr_aspect=expr_aspect, rc=status)
+      @assertEqual(0, status, 'setting up expression item should succeed')
+      aspects => expr_spec%get_aspects()
+
+      vg = own_vertical_grid_aspect(aspects, rc=status)
+      @assertEqual(0, status, 'expression item should have a VerticalGridAspect')
+      @assertFalse(vg%is_mirror(), 'an explicitly declared vertical_dim_spec must not be forced to mirror')
+   end subroutine test_create_leaves_explicit_value_alone
+
+   ! Requirement: "Consistency with referenced inputs is checked on a
+   ! best-effort basis" - agreement case.
+   @test
+   subroutine test_consistency_check_passes_when_variables_agree()
+      type(StateRegistry), target :: registry
+      type(StateItemSpec), target :: expr_spec
+      type(ExpressionClassAspect) :: expr_aspect
+      type(AspectMap), pointer :: aspects
+      type(StringVector) :: expression_variables
+      integer :: status
+
+      registry = StateRegistry('test')
+      call add_resolved_export(registry, 'A', VERTICAL_STAGGER_NONE, _RC)
+      call add_resolved_export(registry, 'B', VERTICAL_STAGGER_NONE, _RC)
+
+      call make_expr_item(registry, 'A+B', explicit_stagger=VERTICAL_STAGGER_NONE, &
+           expr_spec=expr_spec, expr_aspect=expr_aspect, rc=status)
+      @assertEqual(0, status, 'setting up expression item should succeed')
+      aspects => expr_spec%get_aspects()
+
+      call expression_variables%push_back('A')
+      call expression_variables%push_back('B')
+
+      call check_vertical_stagger_consistency(expr_aspect, aspects, expression_variables, rc=status)
+      @assertEqual(0, status, 'agreeing, resolved inputs should not raise an error')
+   end subroutine test_consistency_check_passes_when_variables_agree
+
+   ! Requirement: "Mismatched, already-resolved inputs are rejected with a
+   ! clear error". A and D are deliberately registered *after* make_expr_item
+   ! runs, so create()'s own early resolution attempt finds nothing yet to
+   ! work with (both are skipped as "not yet in registry" - see
+   ! test_create_skips_variable_not_yet_in_registry) and create() succeeds
+   ! cleanly; the mismatch is instead discovered by the explicit
+   ! check_vertical_stagger_consistency call below, exactly as it would be at
+   ! real connection time (make_transform), once A and D are actually
+   ! resolved.
+   @test
+   subroutine test_consistency_check_fails_when_variables_disagree()
+      type(StateRegistry), target :: registry
+      type(StateItemSpec), target :: expr_spec
+      type(ExpressionClassAspect) :: expr_aspect
+      type(AspectMap), pointer :: aspects
+      type(StringVector) :: expression_variables
+      integer :: status
+
+      registry = StateRegistry('test')
+
+      call make_expr_item(registry, 'A+D', expr_spec=expr_spec, expr_aspect=expr_aspect, rc=status)
+      @assertEqual(0, status, 'setting up expression item should succeed')
+      aspects => expr_spec%get_aspects()
+
+      call add_resolved_export(registry, 'A', VERTICAL_STAGGER_NONE, _RC)
+      call add_resolved_export(registry, 'D', VERTICAL_STAGGER_CENTER, _RC)
+
+      call expression_variables%push_back('A')
+      call expression_variables%push_back('D')
+
+      call check_vertical_stagger_consistency(expr_aspect, aspects, expression_variables, rc=status)
+      @assertExceptionRaised('ExpressionClassAspect: inconsistent vertical_dim_spec among expression "A+D" and its resolved inputs: A=VERTICAL_STAGGER_NONE D=VERTICAL_STAGGER_CENTER')
+   end subroutine test_consistency_check_fails_when_variables_disagree
+
+   ! Requirement: "A referenced input that is not yet resolved does not block
+   ! initialization"
+   @test
+   subroutine test_consistency_check_skips_unresolved_variable()
+      type(StateRegistry), target :: registry
+      type(StateItemSpec), target :: expr_spec
+      type(ExpressionClassAspect) :: expr_aspect
+      type(AspectMap), pointer :: aspects
+      type(StringVector) :: expression_variables
+      integer :: status
+
+      registry = StateRegistry('test')
+      call add_resolved_export(registry, 'A', VERTICAL_STAGGER_NONE, _RC)
+      call add_unresolved_export(registry, 'E', _RC)
+
+      call make_expr_item(registry, 'A+E', expr_spec=expr_spec, expr_aspect=expr_aspect, rc=status)
+      @assertEqual(0, status, 'setting up expression item should succeed')
+      aspects => expr_spec%get_aspects()
+
+      call expression_variables%push_back('A')
+      call expression_variables%push_back('E')
+
+      call check_vertical_stagger_consistency(expr_aspect, aspects, expression_variables, rc=status)
+      @assertEqual(0, status, 'an unresolved input should be skipped, not treated as an error')
+   end subroutine test_consistency_check_skips_unresolved_variable
+
+   ! Requirement: "A referenced input not yet present in the registry at all
+   ! does not block initialization". create() runs at each item's own
+   ! construction time, before every other item in the component (let alone
+   ! other components) is necessarily registered yet - unlike
+   ! get_primary_spec, which fails hard for a virtual connection point that
+   ! does not exist, this must be treated the same as "not yet resolved":
+   ! skipped, best effort, not an error.
+   @test
+   subroutine test_create_skips_variable_not_yet_in_registry()
+      type(StateRegistry), target :: registry
+      type(StateItemSpec), target :: expr_spec
+      type(ExpressionClassAspect) :: expr_aspect
+      integer :: status
+
+      registry = StateRegistry('test')
+      ! Deliberately do not register 'A' before constructing the expression -
+      ! simulates a forward/cross-component reference that has not been
+      ! advertised yet.
+
+      call make_expr_item(registry, 'A+A', expr_spec=expr_spec, expr_aspect=expr_aspect, rc=status)
+      @assertEqual(0, status, 'a reference to a not-yet-registered variable should not block create()')
+   end subroutine test_create_skips_variable_not_yet_in_registry
+
+end module Test_ExpressionClassAspect

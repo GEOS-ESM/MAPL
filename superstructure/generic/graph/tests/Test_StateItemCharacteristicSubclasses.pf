@@ -1,0 +1,2178 @@
+! The seven newer concrete StateItemCharacteristic subclasses -
+! correct Value/Reference classification, correct get_kind(), and
+! needs_extension_for() comparison semantics.
+!
+! build_transform/get_signature coverage - incompatible for five of the six
+! subclasses with no Transform (Attributes, UngriddedDims, QuantityType,
+! Conservation, Normalization), incompatible for StandardName in strict
+! validation mode (permissive mode tolerates a mismatch), and the four real, moved
+! implementations (PhysicalUnitsCharacteristic/TypeKindCharacteristic/
+! VerticalGridCharacteristic/GeometryCharacteristic) producing the
+! same outcomes Test_Characteristic.pf/Test_GeomCharacteristic.pf
+! already asserted (ported, not just a smoke test).
+module Test_StateItemCharacteristicSubclasses
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic, &
+                                                ReferenceCharacteristic, &
+                                                BUILD_TRANSFORM_UNSUPPORTED, BUILD_TRANSFORM_INCOMPATIBLE
+   use mapl_StateItemCharacteristicKind_mod, only: operator(==), &
+                                                    VERTICAL_GRID_CHARACTERISTIC_KIND, &
+                                                    ATTRIBUTES_CHARACTERISTIC_KIND, &
+                                                    UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
+                                                    QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+                                                    CONSERVATION_CHARACTERISTIC_KIND, &
+                                                    NORMALIZATION_CHARACTERISTIC_KIND, &
+                                                    STANDARD_NAME_CHARACTERISTIC_KIND, &
+                                                    ITEM_SHAPE_CHARACTERISTIC_KIND, &
+                                                    VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+                                                    TYPE_KIND_CHARACTERISTIC_KIND, &
+                                                    VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+        HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+        LONG_NAME_CHARACTERISTIC_KIND, &
+        RESTART_MODE_CHARACTERISTIC_KIND, &
+        EXPRESSION_CHARACTERISTIC_KIND
+   use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
+   use mapl_TransformBase_mod, only: TransformBase
+
+   use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
+   use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
+   use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
+   use mapl_VerticalStaggerCharacteristic_mod, only: VerticalStaggerCharacteristic
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, &
+        VERTICAL_STAGGER_EDGE, VERTICAL_STAGGER_MIRROR
+   use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
+   use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_MIRRORED, &
+        CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED, &
+        CHARACTERISTIC_STATUS_UNCHECKED, operator(==)
+   use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
+   use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE, &
+        HORIZONTAL_DIMS_MIRROR, operator(==)
+   use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, &
+        VCOORD_DIRECTION_DOWN, VCOORD_DIRECTION_UNSPECIFIED, operator(==)
+   use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
+   use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
+   use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
+   use mapl_LongNameCharacteristic_mod, only: LongNameCharacteristic
+   use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
+   use mapl_RestartModes_mod, only: RestartMode, RESTART_REQUIRED, RESTART_SKIP, operator(==)
+   use mapl_ExpressionCharacteristic_mod, only: ExpressionCharacteristic
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
+   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_HorizontalRegridTransform_mod, only: HorizontalRegridTransform
+   use mapl_HorizontalBundleRegridTransform_mod, only: HorizontalBundleRegridTransform
+   use mapl_VerticalColumnRegridTransform_mod, only: &
+        VerticalColumnRegridTransform
+   use mapl_VerticalFlipTransform_mod, only: VerticalFlipTransform
+   use mapl_FixedLevelsVerticalGrid_mod, only: FixedLevelsVerticalGrid, &
+        FixedLevelsVerticalGridSpec
+   use mapl_ModelVerticalGrid_mod, only: ModelVerticalGrid
+   use mapl_vertical_grid_api, only: mapl_VerticalGrid, &
+        mapl_BasicVerticalGrid, mapl_BasicVerticalGridSpec
+   use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
+   use StateItemTestSupport_mod, only: make_latlon_geom
+   use ESMF, only: ESMF_Geom, ESMF_REGRIDMETHOD_CONSERVE
+   use ESMF, only: ESMF_REGRIDMETHOD_PATCH
+   use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
+   use mapl_BracketTimeInterpolationTransform_mod, only: BracketTimeInterpolationTransform
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, &
+        MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+        MAPL_STATEITEM_VECTORBRACKET
+   use mapl_StateItem_mod, only: S_FIELD => MAPL_STATEITEM_FIELD, &
+        S_BUNDLE => MAPL_STATEITEM_FIELDBUNDLE, &
+        S_STATE => MAPL_STATEITEM_STATE, &
+        S_SERVICE => MAPL_STATEITEM_SERVICE, &
+        S_WILDCARD => MAPL_STATEITEM_WILDCARD, &
+        S_BRACKET => MAPL_STATEITEM_BRACKET, &
+        S_VECTOR => MAPL_STATEITEM_VECTOR, &
+        S_VECTORBRACKET => MAPL_STATEITEM_VECTORBRACKET, &
+        S_EXPRESSION => MAPL_STATEITEM_EXPRESSION
+   use mapl_StateItemFlag_mod, only: VARIANT_GEOM => MAPL_STATEITEM_GEOM, &
+        VARIANT_VERTICALGRID => MAPL_STATEITEM_VERTICALGRID
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristicMap
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
+   use ESMF, only: ESMF_StateItem_Flag, ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, set_field_dictionary_config, &
+        get_field_dictionary_config
+
+   use mapl_UngriddedDims_mod, only: UngriddedDims
+   use mapl_QuantityType_mod, only: QUANTITY_MIXING_RATIO, QUANTITY_TEMPERATURE, QUANTITY_UNKNOWN, &
+                                     BASIS_WET_MASS, BASIS_DRY_MASS, BASIS_NONE, operator(==)
+   use mapl_ConservationMetadata_mod, only: ConservationMetadata, new_ConservationMetadata_mirror
+   use mapl_ConservationType_mod, only: CONSERVE_MASS, CONSERVE_ENERGY
+   use mapl_NormalizationMetadata_mod, only: NormalizationMetadata
+   use mapl_NormalizationType_mod, only: NORMALIZE_DELP, NORMALIZE_DZ
+
+   use gFTL2_StringVector, only: StringVector
+
+   use funit
+   implicit none
+
+contains
+
+   ! --- 2.3: VerticalGridCharacteristic (ReferenceCharacteristic) ---
+
+   @test
+   subroutine test_vertical_grid_is_a_reference_characteristic()
+      class(ReferenceCharacteristic), allocatable :: r
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: id
+
+      id = gen%next()
+      allocate(r, source=VerticalGridCharacteristic(id))
+
+      @assertTrue(r%get_kind() == VERTICAL_GRID_CHARACTERISTIC_KIND)
+      @assertTrue(r%get_referenced_node_id() == id)
+   end subroutine test_vertical_grid_is_a_reference_characteristic
+
+   @test
+   subroutine test_vcoord_needs_extension_compares_node_id()
+      type(VerticalGridCharacteristic) :: a, same_as_a, b
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: id_a, id_b
+
+      id_a = gen%next()
+      id_b = gen%next()
+      a = VerticalGridCharacteristic(id_a)
+      same_as_a = VerticalGridCharacteristic(id_a)
+      b = VerticalGridCharacteristic(id_b)
+
+      @assertFalse(a%needs_extension_for(same_as_a))
+      @assertTrue(a%needs_extension_for(b))
+   end subroutine test_vcoord_needs_extension_compares_node_id
+
+   ! Held grids follow the legacy rule: the same grid id, or the export
+   ! grid matches the import grid. Separate fixed grids with identical
+   ! levels do not match.
+   @test
+   subroutine test_vcoord_needs_extension_held_grids_legacy_rule()
+      type(VerticalGridCharacteristic) :: fixed_a, fixed_a_again, fixed_b
+      class(mapl_VerticalGrid), allocatable :: g
+
+      call make_fixed_grid(1, [30., 20., 10.], g)
+      fixed_a = VerticalGridCharacteristic(vgrid=g)
+      fixed_a_again = VerticalGridCharacteristic(vgrid=g)
+      call make_fixed_grid(2, [30., 20., 10.], g)
+      fixed_b = VerticalGridCharacteristic(vgrid=g)
+
+      @assertFalse(fixed_a%needs_extension_for(fixed_a_again))
+      @assertTrue(fixed_a%needs_extension_for(fixed_b))
+   end subroutine test_vcoord_needs_extension_held_grids_legacy_rule
+
+   ! A basic grid matches any grid with the same level count, in either
+   ! order; a fixed or model grid matches a basic grid only (legacy
+   ! VerticalGrid%matches), so a model export to a fixed import of the same
+   ! count still mismatches.
+   @test
+   subroutine test_vcoord_needs_extension_basic_grid_level_count()
+      type(VerticalGridCharacteristic) :: basic3, basic3b, basic2
+      type(VerticalGridCharacteristic) :: fixed3, model3
+      class(mapl_VerticalGrid), allocatable :: g
+
+      call make_basic_grid(11, 3, g)
+      basic3 = VerticalGridCharacteristic(vgrid=g)
+      call make_basic_grid(12, 3, g)
+      basic3b = VerticalGridCharacteristic(vgrid=g)
+      call make_basic_grid(13, 2, g)
+      basic2 = VerticalGridCharacteristic(vgrid=g)
+      call make_fixed_grid(14, [30., 20., 10.], g)
+      fixed3 = VerticalGridCharacteristic(vgrid=g)
+      call make_model_grid(15, 'pressure', 3, g)
+      model3 = VerticalGridCharacteristic(vgrid=g)
+
+      @assertFalse(basic3%needs_extension_for(basic3b))
+      @assertTrue(basic3%needs_extension_for(basic2))
+      @assertFalse(basic3%needs_extension_for(fixed3))
+      @assertFalse(fixed3%needs_extension_for(basic3))
+      @assertFalse(model3%needs_extension_for(basic3))
+      @assertTrue(model3%needs_extension_for(fixed3))
+   end subroutine test_vcoord_needs_extension_basic_grid_level_count
+
+   ! Two held grids with level values in their one shared dimension get a
+   ! column regrid.
+   @test
+   subroutine test_vertical_grid_build_transform_fixed_grids_regrid()
+      type(VerticalGridCharacteristic) :: a, b
+      class(mapl_VerticalGrid), allocatable :: g
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+      logical :: is_regrid
+
+      call make_fixed_grid(21, [30., 20., 10.], g)
+      a = VerticalGridCharacteristic(vgrid=g)
+      call make_fixed_grid(22, [25., 15.], g)
+      b = VerticalGridCharacteristic(vgrid=g)
+
+      call a%build_transform(b, transformer, rc=status)
+      @assertEqual(0, status)
+      is_regrid = .false.
+      if (allocated(transformer)) then
+         select type (transformer)
+         type is (VerticalColumnRegridTransform)
+            is_regrid = .true.
+         end select
+      end if
+      @assertTrue(is_regrid)
+   end subroutine test_vertical_grid_build_transform_fixed_grids_regrid
+
+   ! A model grid has no level values the graph can read at connect, so a
+   ! model-to-fixed mismatch reports unsupported (either direction).
+   @test
+   subroutine test_vertical_grid_build_transform_model_grid_unsupported()
+      type(VerticalGridCharacteristic) :: model, fixed
+      class(mapl_VerticalGrid), allocatable :: g
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+      logical :: built
+
+      call make_model_grid(31, 'pressure', 4, g)
+      model = VerticalGridCharacteristic(vgrid=g)
+      call make_fixed_grid(32, [25., 15.], g)
+      fixed = VerticalGridCharacteristic(vgrid=g)
+
+      call model%build_transform(fixed, transformer, rc=status)
+      built = allocated(transformer)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(built)
+
+      call fixed%build_transform(model, transformer, rc=status)
+      built = allocated(transformer)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(built)
+   end subroutine test_vertical_grid_build_transform_model_grid_unsupported
+
+   ! Two basic grids with different level counts can never connect.
+   @test
+   subroutine test_vertical_grid_build_transform_basic_counts_incompatible()
+      type(VerticalGridCharacteristic) :: a, b
+      class(mapl_VerticalGrid), allocatable :: g
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+      logical :: built
+
+      call make_basic_grid(41, 3, g)
+      a = VerticalGridCharacteristic(vgrid=g)
+      call make_basic_grid(42, 2, g)
+      b = VerticalGridCharacteristic(vgrid=g)
+
+      call a%build_transform(b, transformer, rc=status)
+      built = allocated(transformer)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(built)
+   end subroutine test_vertical_grid_build_transform_basic_counts_incompatible
+
+   ! Only an R4 Field or VECTOR at level centers gets the regrid; a tip with
+   ! no shape entry is not restricted.
+   @test
+   subroutine test_vertical_grid_build_transform_for_item_dispatch()
+      type(VerticalGridCharacteristic) :: a, b
+      integer, parameter :: UNSUPPORTED = BUILD_TRANSFORM_UNSUPPORTED
+      class(mapl_VerticalGrid), allocatable :: g
+
+      call make_fixed_grid(51, [30., 20., 10.], g)
+      a = VerticalGridCharacteristic(vgrid=g)
+      call make_fixed_grid(52, [25., 15.], g)
+      b = VerticalGridCharacteristic(vgrid=g)
+
+      call check_shape(S_FIELD, .true., VERTICAL_STAGGER_CENTER, 0)
+      call check_shape(S_FIELD, .false., VERTICAL_STAGGER_CENTER, 0)
+      call check_shape(S_FIELD, .true., VERTICAL_STAGGER_EDGE, UNSUPPORTED)
+      call check_shape(S_VECTOR, .true., VERTICAL_STAGGER_CENTER, 0)
+      call check_shape(S_VECTOR, .true., VERTICAL_STAGGER_EDGE, UNSUPPORTED)
+      call check_shape(S_VECTOR, .true., VERTICAL_STAGGER_CENTER, 0, 'R8')
+      call check_shape(S_BRACKET, .true., VERTICAL_STAGGER_CENTER, UNSUPPORTED)
+      call check_shape(S_BUNDLE, .true., VERTICAL_STAGGER_CENTER, UNSUPPORTED)
+      call check_shape(S_VECTORBRACKET, .true., VERTICAL_STAGGER_CENTER, &
+           UNSUPPORTED)
+      call check_shape(S_FIELD, .true., VERTICAL_STAGGER_CENTER, 0, 'R4')
+      call check_shape(S_FIELD, .true., VERTICAL_STAGGER_CENTER, 0, 'R8')
+
+   contains
+
+      subroutine check_shape(item_class, with_shape, stagger, &
+           expected_status, typekind)
+         type(ESMF_StateItem_Flag), intent(in) :: item_class
+         logical, intent(in) :: with_shape
+         type(VerticalStaggerLoc), intent(in) :: stagger
+         integer, intent(in) :: expected_status
+         character(*), optional, intent(in) :: typekind
+
+         type(StateItemCharacteristicMap) :: tip
+         class(TransformBase), allocatable :: transformer
+         integer :: status
+         logical :: built
+
+         if (with_shape) then
+            call tip%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+                 ItemShapeCharacteristic(item_class))
+         end if
+         call tip%insert(VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+              VerticalStaggerCharacteristic(stagger))
+         if (present(typekind)) then
+            call tip%insert(TYPE_KIND_CHARACTERISTIC_KIND, &
+                 TypeKindCharacteristic(typekind))
+         end if
+         call a%build_transform_for_item(b, tip, transformer, rc=status)
+         built = allocated(transformer)
+         @assertEqual(expected_status, status)
+         @assertEqual(expected_status == 0, built)
+      end subroutine check_shape
+
+   end subroutine test_vertical_grid_build_transform_for_item_dispatch
+
+   ! The regrid also covers an orientation difference present on both
+   ! sides, but never a stagger difference.
+   @test
+   subroutine test_vertical_grid_covered_kinds()
+      type(VerticalGridCharacteristic) :: a
+      type(StateItemCharacteristicMap) :: tip, goal
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+      integer :: n
+
+      a = VerticalGridCharacteristic(grid_id='gridA')
+      kinds = a%covered_kinds(tip, goal)
+      n = size(kinds)
+      @assertEqual(1, n)
+      @assertTrue(kinds(1) == VERTICAL_GRID_CHARACTERISTIC_KIND)
+
+      call tip%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      call goal%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      call tip%insert(VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+           VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER))
+      call goal%insert(VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+           VerticalStaggerCharacteristic(VERTICAL_STAGGER_EDGE))
+      deallocate(kinds)
+      kinds = a%covered_kinds(tip, goal)
+      n = size(kinds)
+      @assertEqual(2, n)
+      @assertTrue(kinds(1) == VERTICAL_GRID_CHARACTERISTIC_KIND)
+      @assertTrue(kinds(2) == VERTICAL_ORIENTATION_CHARACTERISTIC_KIND)
+   end subroutine test_vertical_grid_covered_kinds
+
+   ! The orientation is covered only when both sides carry it; one side
+   ! alone leaves the orientation kind to its own step.
+   @test
+   subroutine test_vertical_grid_covered_kinds_one_sided_orientation()
+      type(VerticalGridCharacteristic) :: a
+      type(StateItemCharacteristicMap) :: with_orientation, without
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+      integer :: n
+
+      a = VerticalGridCharacteristic(grid_id='gridA')
+      call with_orientation%insert(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+
+      kinds = a%covered_kinds(with_orientation, without)
+      n = size(kinds)
+      @assertEqual(1, n)
+      @assertTrue(kinds(1) == VERTICAL_GRID_CHARACTERISTIC_KIND)
+
+      deallocate(kinds)
+      kinds = a%covered_kinds(without, with_orientation)
+      n = size(kinds)
+      @assertEqual(1, n)
+      @assertTrue(kinds(1) == VERTICAL_GRID_CHARACTERISTIC_KIND)
+   end subroutine test_vertical_grid_covered_kinds_one_sided_orientation
+
+   ! A basic grid matches a fixed grid only with the same level count.
+   @test
+   subroutine test_vcoord_needs_extension_basic_vs_fixed_other_count()
+      type(VerticalGridCharacteristic) :: basic2, fixed3
+      class(mapl_VerticalGrid), allocatable :: g
+
+      call make_basic_grid(61, 2, g)
+      basic2 = VerticalGridCharacteristic(vgrid=g)
+      call make_fixed_grid(62, [30., 20., 10.], g)
+      fixed3 = VerticalGridCharacteristic(vgrid=g)
+
+      @assertTrue(basic2%needs_extension_for(fixed3))
+      @assertTrue(fixed3%needs_extension_for(basic2))
+   end subroutine test_vcoord_needs_extension_basic_vs_fixed_other_count
+
+   ! A basic grid names no physical dimension, so against a fixed grid of
+   ! another level count the overlap is empty and build_transform fails
+   ! (not the INCOMPATIBLE status). Legacy fails here too. The failure
+   ! status equals BUILD_TRANSFORM_UNSUPPORTED, so a chain reports the pair
+   ! unsupported.
+   @test
+   subroutine test_vertical_grid_build_transform_basic_vs_fixed_fails()
+      type(VerticalGridCharacteristic) :: basic2, fixed3
+      class(mapl_VerticalGrid), allocatable :: g
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+      logical :: built
+
+      call make_basic_grid(63, 2, g)
+      basic2 = VerticalGridCharacteristic(vgrid=g)
+      call make_fixed_grid(64, [30., 20., 10.], g)
+      fixed3 = VerticalGridCharacteristic(vgrid=g)
+
+      call basic2%build_transform(fixed3, transformer, rc=status)
+      built = allocated(transformer)
+      @assertFalse(status == 0)
+      @assertFalse(status == BUILD_TRANSFORM_INCOMPATIBLE)
+      @assertFalse(built)
+   end subroutine test_vertical_grid_build_transform_basic_vs_fixed_fails
+
+   ! Only a fixed-levels grid has level values, and only for its own
+   ! physical dimension; the base default is false.
+   @test
+   subroutine test_has_column_coordinate()
+      class(mapl_VerticalGrid), allocatable :: g
+      logical :: has
+
+      call make_fixed_grid(71, [30., 20., 10.], g)
+      has = g%has_column_coordinate('pressure')
+      @assertTrue(has)
+      has = g%has_column_coordinate('height')
+      @assertFalse(has)
+
+      deallocate(g)
+      call make_basic_grid(72, 3, g)
+      has = g%has_column_coordinate('pressure')
+      @assertFalse(has)
+      has = g%has_column_coordinate('<unknown>')
+      @assertFalse(has)
+
+      deallocate(g)
+      call make_model_grid(73, 'pressure', 3, g)
+      has = g%has_column_coordinate('pressure')
+      @assertFalse(has)
+   end subroutine test_has_column_coordinate
+
+   subroutine make_fixed_grid(id, levels, vgrid)
+      integer, intent(in) :: id
+      real, intent(in) :: levels(:)
+      class(mapl_VerticalGrid), allocatable, intent(out) :: vgrid
+
+      type(FixedLevelsVerticalGrid) :: fixed
+      integer :: status
+
+      call fixed%initialize(FixedLevelsVerticalGridSpec('pressure', levels, &
+           'hPa'), rc=status)
+      @assertEqual(0, status)
+      call fixed%set_id(id)
+      allocate(vgrid, source=fixed)
+   end subroutine make_fixed_grid
+
+   subroutine make_basic_grid(id, num_levels, vgrid)
+      integer, intent(in) :: id, num_levels
+      class(mapl_VerticalGrid), allocatable, intent(out) :: vgrid
+
+      type(mapl_BasicVerticalGrid) :: basic
+
+      call basic%initialize(mapl_BasicVerticalGridSpec(num_levels=num_levels))
+      call basic%set_id(id)
+      allocate(vgrid, source=basic)
+   end subroutine make_basic_grid
+
+   subroutine make_model_grid(id, dimension, num_levels, vgrid)
+      integer, intent(in) :: id, num_levels
+      character(*), intent(in) :: dimension
+      class(mapl_VerticalGrid), allocatable, intent(out) :: vgrid
+
+      type(ModelVerticalGrid) :: model
+
+      model = ModelVerticalGrid(dimension, 'PL', num_levels)
+      call model%set_id(id)
+      allocate(vgrid, source=model)
+   end subroutine make_model_grid
+
+   ! --- 3.5: UngriddedDimsCharacteristic ---
+
+   @test
+   subroutine test_ungridded_dims_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=UngriddedDimsCharacteristic(UngriddedDims([5])))
+      @assertTrue(v%get_kind() == UNGRIDDED_DIMS_CHARACTERISTIC_KIND)
+   end subroutine test_ungridded_dims_is_a_value_characteristic
+
+   @test
+   subroutine test_ungridded_dims_needs_extension_for()
+      type(UngriddedDimsCharacteristic) :: a, same_as_a, b
+
+      a = UngriddedDimsCharacteristic(UngriddedDims([5]))
+      same_as_a = UngriddedDimsCharacteristic(UngriddedDims([5]))
+      b = UngriddedDimsCharacteristic(UngriddedDims([3]))
+
+      @assertFalse(a%needs_extension_for(same_as_a))
+      @assertTrue(a%needs_extension_for(b))
+   end subroutine test_ungridded_dims_needs_extension_for
+
+   ! --- VerticalStaggerCharacteristic ---
+
+   @test
+   subroutine test_vertical_stagger_is_a_structural_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER))
+      @assertTrue(v%get_kind() == VERTICAL_STAGGER_CHARACTERISTIC_KIND)
+      @assertTrue(v%is_structural())
+   end subroutine test_vertical_stagger_is_a_structural_value_characteristic
+
+   @test
+   subroutine test_vertical_stagger_needs_extension_for()
+      type(VerticalStaggerCharacteristic) :: center, same_as_center, edge, none
+
+      center = VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER)
+      same_as_center = VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER)
+      edge = VerticalStaggerCharacteristic(VERTICAL_STAGGER_EDGE)
+      none = VerticalStaggerCharacteristic(VERTICAL_STAGGER_NONE)
+
+      @assertFalse(center%needs_extension_for(same_as_center))
+      @assertTrue(center%needs_extension_for(edge))
+      @assertTrue(center%needs_extension_for(none))
+      @assertTrue(none%needs_extension_for(center))
+   end subroutine test_vertical_stagger_needs_extension_for
+
+   ! VerticalStaggerLoc's own == treats MIRROR as a wildcard; the
+   ! characteristic must not.
+   @test
+   subroutine test_vertical_stagger_compare_ignores_mirror_wildcard()
+      type(VerticalStaggerCharacteristic) :: center, mirror
+
+      center = VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER)
+      mirror = VerticalStaggerCharacteristic(VERTICAL_STAGGER_MIRROR)
+      @assertTrue(center%needs_extension_for(mirror))
+   end subroutine test_vertical_stagger_compare_ignores_mirror_wildcard
+
+   @test
+   subroutine test_vertical_stagger_signature_and_getter()
+      type(VerticalStaggerCharacteristic) :: edge
+      type(VerticalStaggerLoc) :: got
+
+      edge = VerticalStaggerCharacteristic(VERTICAL_STAGGER_EDGE)
+      @assertEqual('vertical_stagger=VERTICAL_STAGGER_EDGE', edge%get_signature())
+      got = edge%get_vertical_stagger()
+      @assertEqual(VERTICAL_STAGGER_EDGE%to_string(), got%to_string())
+   end subroutine test_vertical_stagger_signature_and_getter
+
+   @test
+   subroutine test_vertical_stagger_build_transform_unsupported()
+      type(VerticalStaggerCharacteristic) :: center, edge
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      center = VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER)
+      edge = VerticalStaggerCharacteristic(VERTICAL_STAGGER_EDGE)
+      call center%build_transform(edge, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+   end subroutine test_vertical_stagger_build_transform_unsupported
+
+   ! --- VerticalOrientationCharacteristic ---
+
+   @test
+   subroutine test_vertical_orientation_is_a_structural_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      @assertTrue(v%get_kind() == VERTICAL_ORIENTATION_CHARACTERISTIC_KIND)
+      @assertTrue(v%is_structural())
+   end subroutine test_vertical_orientation_is_a_structural_value_characteristic
+
+   @test
+   subroutine test_vertical_orientation_needs_extension_for()
+      type(VerticalOrientationCharacteristic) :: up, same_as_up, down
+
+      up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      same_as_up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+
+      @assertFalse(up%needs_extension_for(same_as_up))
+      @assertTrue(up%needs_extension_for(down))
+      @assertTrue(down%needs_extension_for(up))
+   end subroutine test_vertical_orientation_needs_extension_for
+
+   ! A directionless (Basic grid) side never needs a step, on either side.
+   @test
+   subroutine test_vertical_orientation_directionless_needs_no_extension()
+      type(VerticalOrientationCharacteristic) :: up, down, basic_up, basic_down
+      logical :: results(5)
+
+      up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+      basic_up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP, &
+           directionless=.true., grid_known=.true.)
+      basic_down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN, &
+           directionless=.true., grid_known=.true.)
+
+      results(1) = down%needs_extension_for(basic_up)
+      results(2) = basic_up%needs_extension_for(down)
+      results(3) = basic_up%needs_extension_for(basic_down)
+      results(4) = up%needs_extension_for(down)
+      results(5) = basic_up%is_directionless()
+      @assertEqual([.false., .false., .false., .true., .true.], results)
+   end subroutine test_vertical_orientation_directionless_needs_no_extension
+
+   ! Only a directionless side with a stated direction opposite to its
+   ! partner warns. Implicit, same-direction and single-level (UNSPECIFIED)
+   ! partners do not.
+   @test
+   subroutine test_vertical_orientation_match_warning()
+      type(VerticalOrientationCharacteristic) :: up, down, unspecified
+      type(VerticalOrientationCharacteristic) :: basic_up, basic_unspecified
+      character(:), allocatable :: expected
+      character(:), allocatable :: w_explicit, w_reverse, w_implicit
+      character(:), allocatable :: w_same, w_single, w_plain, w_both
+      type(VerticalOrientationCharacteristic) :: basic_down
+
+      up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+      unspecified = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UNSPECIFIED)
+      basic_up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP, &
+           directionless=.true., grid_known=.true.)
+      basic_unspecified = VerticalOrientationCharacteristic( &
+           VCOORD_DIRECTION_UNSPECIFIED, directionless=.true., grid_known=.true.)
+
+      basic_down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN, &
+           directionless=.true., grid_known=.true.)
+      w_both = basic_down%match_warning(basic_up)
+      w_explicit = down%match_warning(basic_up)
+      w_reverse = basic_up%match_warning(down)
+      w_implicit = down%match_warning(basic_unspecified)
+      w_same = up%match_warning(basic_up)
+      w_single = unspecified%match_warning(basic_up)
+      w_plain = up%match_warning(down)
+
+      expected = 'vertical orientation: a Basic vertical grid carries no ' // &
+           'direction; export downward and import upward differ, so the ' // &
+           'data are copied in the export''s level order, with no flip.'
+      @assertEqual(expected, w_explicit)
+      @assertEqual('vertical orientation: a Basic vertical grid carries no ' // &
+           'direction; export upward and import downward differ, so the ' // &
+           'data are copied in the export''s level order, with no flip.', &
+           w_reverse)
+      @assertEqual('vertical orientation: a Basic vertical grid carries no ' // &
+           'direction; export downward and import upward differ, so the ' // &
+           'data are copied in the export''s level order, with no flip.', &
+           w_both)
+      @assertEqual('', w_implicit)
+      @assertEqual('', w_same)
+      @assertEqual('', w_single)
+      @assertEqual('', w_plain)
+   end subroutine test_vertical_orientation_match_warning
+
+   @test
+   subroutine test_vertical_orientation_signature_and_getter()
+      type(VerticalOrientationCharacteristic) :: down
+      type(VerticalCoordinateDirection) :: got
+
+      down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+      @assertEqual('vertical_orientation=downward', down%get_signature())
+      got = down%get_direction()
+      @assertTrue(got == VCOORD_DIRECTION_DOWN)
+   end subroutine test_vertical_orientation_signature_and_getter
+
+   ! An orientation-only difference is an index reversal.
+   @test
+   subroutine test_vertical_orientation_build_transform_flips()
+      type(VerticalOrientationCharacteristic) :: up, down
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+      logical :: is_flip
+
+      up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+      call up%build_transform(down, transformer, rc=status)
+      @assertEqual(0, status)
+      is_flip = .false.
+      if (allocated(transformer)) then
+         select type (transformer)
+         type is (VerticalFlipTransform)
+            is_flip = .true.
+         end select
+      end if
+      @assertTrue(is_flip)
+   end subroutine test_vertical_orientation_build_transform_flips
+
+   ! Only a Field or a VECTOR has a flip; a tip with no shape entry is not
+   ! restricted.
+   @test
+   subroutine test_vertical_orientation_build_transform_for_item_dispatch()
+      type(VerticalOrientationCharacteristic) :: up, down
+
+      up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+
+      call check_shape(S_FIELD, .true., 0)
+      call check_shape(S_VECTOR, .true., 0)
+      call check_shape(S_BRACKET, .true., BUILD_TRANSFORM_UNSUPPORTED)
+      call check_shape(S_BUNDLE, .true., BUILD_TRANSFORM_UNSUPPORTED)
+      call check_shape(S_VECTORBRACKET, .true., BUILD_TRANSFORM_UNSUPPORTED)
+      call check_shape(S_FIELD, .false., 0)
+
+   contains
+
+      subroutine check_shape(item_class, with_shape, expected_status)
+         type(ESMF_StateItem_Flag), intent(in) :: item_class
+         logical, intent(in) :: with_shape
+         integer, intent(in) :: expected_status
+
+         type(StateItemCharacteristicMap) :: tip
+         class(TransformBase), allocatable :: transformer
+         integer :: status
+         logical :: built
+
+         if (with_shape) then
+            call tip%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+                 ItemShapeCharacteristic(item_class))
+         end if
+         call up%build_transform_for_item(down, tip, transformer, rc=status)
+         built = allocated(transformer)
+         @assertEqual(expected_status, status)
+         @assertEqual(expected_status == 0, built)
+      end subroutine check_shape
+
+   end subroutine test_vertical_orientation_build_transform_for_item_dispatch
+
+   ! --- HorizontalDimsSpecCharacteristic ---
+
+   @test
+   subroutine test_horizontal_dims_spec_is_a_structural_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM))
+      @assertTrue(v%get_kind() == HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND)
+      @assertTrue(v%is_structural())
+   end subroutine test_horizontal_dims_spec_is_a_structural_value_characteristic
+
+   @test
+   subroutine test_horizontal_dims_spec_needs_extension_for()
+      type(HorizontalDimsSpecCharacteristic) :: geom, same_as_geom, none
+
+      geom = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM)
+      same_as_geom = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM)
+      none = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE)
+
+      @assertFalse(geom%needs_extension_for(same_as_geom))
+      @assertTrue(geom%needs_extension_for(none))
+      @assertTrue(none%needs_extension_for(geom))
+   end subroutine test_horizontal_dims_spec_needs_extension_for
+
+   @test
+   subroutine test_horizontal_dims_spec_signature_and_getter()
+      type(HorizontalDimsSpecCharacteristic) :: none
+      type(HorizontalDimsSpec) :: got
+
+      none = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE)
+      @assertEqual('horizontal_dims_spec=HORIZONTAL_DIMS_NONE', none%get_signature())
+      got = none%get_horizontal_dims_spec()
+      @assertTrue(got == HORIZONTAL_DIMS_NONE)
+   end subroutine test_horizontal_dims_spec_signature_and_getter
+
+   @test
+   subroutine test_horizontal_dims_spec_build_transform_incompatible()
+      type(HorizontalDimsSpecCharacteristic) :: geom, none
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      geom = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM)
+      none = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE)
+      call geom%build_transform(none, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+      call none%build_transform(geom, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_horizontal_dims_spec_build_transform_incompatible
+
+   ! HORIZONTAL_DIMS_MIRROR is not a value: it becomes MIRRORED status.
+   @test
+   subroutine test_horizontal_dims_spec_mirror_is_mirrored_without_value()
+      type(HorizontalDimsSpecCharacteristic) :: mirrored
+
+      mirrored = HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_MIRROR)
+      @assertTrue(mirrored%get_status() == CHARACTERISTIC_STATUS_MIRRORED)
+   end subroutine test_horizontal_dims_spec_mirror_is_mirrored_without_value
+
+   ! --- ConservationCharacteristic ---
+
+   @test
+   subroutine test_conservation_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS)))
+      @assertTrue(v%get_kind() == CONSERVATION_CHARACTERISTIC_KIND)
+   end subroutine test_conservation_is_a_value_characteristic
+
+   @test
+   subroutine test_conservation_needs_extension_for()
+      type(ConservationCharacteristic) :: a, same_as_a, b
+
+      a = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+      same_as_a = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+      b = ConservationCharacteristic(ConservationMetadata(CONSERVE_ENERGY))
+
+      @assertFalse(a%needs_extension_for(same_as_a))
+      @assertTrue(a%needs_extension_for(b))
+   end subroutine test_conservation_needs_extension_for
+
+   ! The constructor accepts mirror metadata and needs_extension_for relies
+   ! on the metadata's own mirror-aware operator(==) (both mirrors compare
+   ! equal). The factory never builds this state: it makes a MIRRORED entry
+   ! instead.
+   @test
+   subroutine test_conservation_mirror_instances_do_not_need_extension()
+      type(ConservationCharacteristic) :: mirror_a, mirror_b, mass
+
+      mirror_a = ConservationCharacteristic(new_ConservationMetadata_mirror())
+      mirror_b = ConservationCharacteristic(new_ConservationMetadata_mirror())
+      mass = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+
+      @assertFalse(mirror_a%needs_extension_for(mirror_b))
+      @assertTrue(mirror_a%needs_extension_for(mass))
+   end subroutine test_conservation_mirror_instances_do_not_need_extension
+
+   ! --- NormalizationCharacteristic ---
+
+   @test
+   subroutine test_normalization_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP)))
+      @assertTrue(v%get_kind() == NORMALIZATION_CHARACTERISTIC_KIND)
+   end subroutine test_normalization_is_a_value_characteristic
+
+   @test
+   subroutine test_normalization_needs_extension_for()
+      type(NormalizationCharacteristic) :: a, same_as_a, b
+
+      a = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+      same_as_a = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+      b = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DZ))
+
+      @assertFalse(a%needs_extension_for(same_as_a))
+      @assertTrue(a%needs_extension_for(b))
+   end subroutine test_normalization_needs_extension_for
+
+   @test
+   subroutine test_normalization_mirror_instances_do_not_need_extension()
+      type(NormalizationCharacteristic) :: mirror_a, mirror_b, delp
+
+      mirror_a = NormalizationCharacteristic(NormalizationMetadata())
+      mirror_b = NormalizationCharacteristic(NormalizationMetadata())
+      delp = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+
+      @assertFalse(mirror_a%needs_extension_for(mirror_b))
+      @assertTrue(mirror_a%needs_extension_for(delp))
+   end subroutine test_normalization_mirror_instances_do_not_need_extension
+
+   ! --- QuantityTypeCharacteristic ---
+
+   @test
+   subroutine test_quantity_type_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS))
+      @assertTrue(v%get_kind() == QUANTITY_TYPE_CHARACTERISTIC_KIND)
+   end subroutine test_quantity_type_is_a_value_characteristic
+
+   @test
+   subroutine test_quantity_type_matching_does_not_need_extension()
+      type(QuantityTypeCharacteristic) :: a, same_as_a
+
+      a = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      same_as_a = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+
+      @assertFalse(a%needs_extension_for(same_as_a))
+   end subroutine test_quantity_type_matching_does_not_need_extension
+
+   @test
+   subroutine test_quantity_type_either_side_unknown_needs_extension()
+      type(QuantityTypeCharacteristic) :: known, unknown
+
+      known = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      unknown = QuantityTypeCharacteristic(QUANTITY_UNKNOWN, BASIS_WET_MASS)
+
+      @assertTrue(known%needs_extension_for(unknown))
+      @assertTrue(unknown%needs_extension_for(known))
+   end subroutine test_quantity_type_either_side_unknown_needs_extension
+
+   @test
+   subroutine test_quantity_type_basis_none_no_extension()
+      type(QuantityTypeCharacteristic) :: with_basis, no_basis
+
+      with_basis = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      no_basis = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_NONE)
+
+      @assertFalse(with_basis%needs_extension_for(no_basis))
+      @assertFalse(no_basis%needs_extension_for(with_basis))
+   end subroutine test_quantity_type_basis_none_no_extension
+
+   ! Genuine quantity_type mismatch, neither side UNKNOWN: needs extension.
+   @test
+   subroutine test_quantity_type_mismatch_needs_extension()
+      type(QuantityTypeCharacteristic) :: mixing_ratio, temperature
+
+      mixing_ratio = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_NONE)
+      temperature = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_NONE)
+
+      @assertTrue(mixing_ratio%needs_extension_for(temperature))
+   end subroutine test_quantity_type_mismatch_needs_extension
+
+   ! Genuine basis mismatch, neither side NONE: needs extension.
+   @test
+   subroutine test_quantity_type_genuine_basis_mismatch_needs_extension()
+      type(QuantityTypeCharacteristic) :: wet_mass, dry_mass
+
+      wet_mass = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      dry_mass = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_DRY_MASS)
+
+      @assertTrue(wet_mass%needs_extension_for(dry_mass))
+   end subroutine test_quantity_type_genuine_basis_mismatch_needs_extension
+
+   ! A DEFERRED entry takes the harvested quantity type and basis.
+   @test
+   subroutine test_quantity_type_deferred_takes_supplied_value()
+      type(QuantityTypeCharacteristic) :: c
+      type(CharacteristicDefaults) :: defaults
+      integer :: status
+
+      c = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      call c%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call defaults%set_quantity_type(QUANTITY_TEMPERATURE, BASIS_DRY_MASS)
+
+      call c%resolve_deferred(defaults, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(c%get_quantity_type() == QUANTITY_TEMPERATURE)
+      @assertTrue(c%get_basis() == BASIS_DRY_MASS)
+   end subroutine test_quantity_type_deferred_takes_supplied_value
+
+   @test
+   subroutine test_quantity_type_deferred_without_value_stays_deferred()
+      type(QuantityTypeCharacteristic) :: c
+      integer :: status
+
+      c = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      call c%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+
+      call c%resolve_deferred(CharacteristicDefaults(), rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_DEFERRED)
+      @assertTrue(c%get_quantity_type() == QUANTITY_MIXING_RATIO)
+      @assertTrue(c%get_basis() == BASIS_WET_MASS)
+   end subroutine test_quantity_type_deferred_without_value_stays_deferred
+
+   ! A SPECIFIED or UNCHECKED entry keeps its value and status; the
+   ! descriptor offers the defaults to UNCHECKED ones too.
+   @test
+   subroutine test_quantity_type_resolve_leaves_specified_and_unchecked()
+      type(QuantityTypeCharacteristic) :: specified, unchecked
+      type(CharacteristicDefaults) :: defaults
+      integer :: status
+
+      specified = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      unchecked = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call defaults%set_quantity_type(QUANTITY_TEMPERATURE, BASIS_DRY_MASS)
+
+      call specified%resolve_deferred(defaults, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(specified%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(specified%get_quantity_type() == QUANTITY_MIXING_RATIO)
+      @assertTrue(specified%get_basis() == BASIS_WET_MASS)
+
+      call unchecked%resolve_deferred(defaults, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(unchecked%get_status() == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertTrue(unchecked%get_quantity_type() == QUANTITY_MIXING_RATIO)
+      @assertTrue(unchecked%get_basis() == BASIS_WET_MASS)
+   end subroutine test_quantity_type_resolve_leaves_specified_and_unchecked
+
+   ! --- 5.3: AttributesCharacteristic (asymmetric) ---
+
+   @test
+   subroutine test_attributes_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+      type(StringVector) :: names
+
+      call names%push_back('units')
+      allocate(v, source=AttributesCharacteristic(names))
+      @assertTrue(v%get_kind() == ATTRIBUTES_CHARACTERISTIC_KIND)
+   end subroutine test_attributes_is_a_value_characteristic
+
+   @test
+   subroutine test_attributes_provides_superset_does_not_need_extension()
+      type(AttributesCharacteristic) :: provides, requires
+      type(StringVector) :: provided_names, required_names
+
+      call provided_names%push_back('units')
+      call provided_names%push_back('long_name')
+      call provided_names%push_back('standard_name')
+      call required_names%push_back('units')
+      call required_names%push_back('long_name')
+
+      provides = AttributesCharacteristic(provided_names)
+      requires = AttributesCharacteristic(required_names)
+
+      @assertFalse(provides%needs_extension_for(requires))
+   end subroutine test_attributes_provides_superset_does_not_need_extension
+
+   @test
+   subroutine test_attributes_missing_required_name_needs_extension()
+      type(AttributesCharacteristic) :: provides, requires
+      type(StringVector) :: provided_names, required_names
+
+      call provided_names%push_back('units')
+      call required_names%push_back('units')
+      call required_names%push_back('standard_name')
+
+      provides = AttributesCharacteristic(provided_names)
+      requires = AttributesCharacteristic(required_names)
+
+      @assertTrue(provides%needs_extension_for(requires))
+   end subroutine test_attributes_missing_required_name_needs_extension
+
+   ! Swapping this/goal for the same two non-equal sets produces the
+   ! opposite result, making the asymmetry visible.
+   @test
+   subroutine test_attributes_needs_extension_for_is_asymmetric()
+      type(AttributesCharacteristic) :: larger, smaller
+      type(StringVector) :: larger_names, smaller_names
+
+      call larger_names%push_back('units')
+      call larger_names%push_back('long_name')
+      call smaller_names%push_back('units')
+
+      larger = AttributesCharacteristic(larger_names)
+      smaller = AttributesCharacteristic(smaller_names)
+
+      ! larger provides everything smaller requires.
+      @assertFalse(larger%needs_extension_for(smaller))
+      ! smaller does not provide everything larger requires.
+      @assertTrue(smaller%needs_extension_for(larger))
+   end subroutine test_attributes_needs_extension_for_is_asymmetric
+
+   ! --- 6.3: StandardNameCharacteristic (value comparison only) ---
+
+   @test
+   subroutine test_standard_name_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=StandardNameCharacteristic('air_temperature'))
+      @assertTrue(v%get_kind() == STANDARD_NAME_CHARACTERISTIC_KIND)
+   end subroutine test_standard_name_is_a_value_characteristic
+
+   @test
+   subroutine test_standard_name_equal_names_do_not_need_extension()
+      type(StandardNameCharacteristic) :: a, same_as_a
+
+      a = StandardNameCharacteristic('air_temperature')
+      same_as_a = StandardNameCharacteristic('air_temperature')
+
+      @assertFalse(a%needs_extension_for(same_as_a))
+   end subroutine test_standard_name_equal_names_do_not_need_extension
+
+   ! Permissive mode tolerates a disagreement (match with a warning); strict
+   ! mode does not.
+   @test
+   subroutine test_standard_name_mismatch_extends_only_when_strict()
+      type(StandardNameCharacteristic) :: a, b
+      type(FieldDictionaryConfig) :: saved
+
+      a = StandardNameCharacteristic('air_temperature')
+      b = StandardNameCharacteristic('surface_pressure')
+      saved = get_field_dictionary_config()
+
+      call use_validation('{validation_mode: permissive}')
+      @assertFalse(a%needs_extension_for(b))
+
+      call use_validation('{validation_mode: strict}')
+      @assertTrue(a%needs_extension_for(b))
+
+      call set_field_dictionary_config(saved)
+   end subroutine test_standard_name_mismatch_extends_only_when_strict
+
+   @test
+   subroutine test_standard_name_match_warning()
+      type(StandardNameCharacteristic) :: a, b, unchecked
+      type(FieldDictionaryConfig) :: saved
+
+      a = StandardNameCharacteristic('air_temperature')
+      b = StandardNameCharacteristic('surface_pressure')
+      call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      saved = get_field_dictionary_config()
+      call use_validation('{validation_mode: permissive}')
+
+      @assertEqual('standard_name convention violation (permissive mode): Export declares standard_name "air_temperature" but connected Import declares "surface_pressure". Connecting anyway; the Export value wins.', a%match_warning(b))
+      @assertEqual('', a%match_warning(a))
+      @assertEqual('standard_name convention: Import declares standard_name "surface_pressure" but the connected Export declares none.', unchecked%match_warning(b))
+      @assertEqual('', a%match_warning(unchecked))
+
+      call use_validation('{validation_mode: permissive, suppress_standard_name_warnings: true}')
+      @assertEqual('', a%match_warning(b))
+      @assertEqual('', unchecked%match_warning(b))
+
+      call set_field_dictionary_config(saved)
+   end subroutine test_standard_name_match_warning
+
+   ! --- LongNameCharacteristic (never compared) ---
+
+   @test
+   subroutine test_long_name_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=LongNameCharacteristic('Air Temperature'))
+      @assertTrue(v%get_kind() == LONG_NAME_CHARACTERISTIC_KIND)
+   end subroutine test_long_name_is_a_value_characteristic
+
+   @test
+   subroutine test_long_name_never_needs_extension()
+      type(LongNameCharacteristic) :: a, b
+
+      a = LongNameCharacteristic('Air Temperature')
+      b = LongNameCharacteristic('Surface Pressure')
+
+      @assertFalse(a%needs_extension_for(b))
+      @assertFalse(b%needs_extension_for(a))
+   end subroutine test_long_name_never_needs_extension
+
+   @test
+   subroutine test_long_name_signature_and_unvalued_accessor()
+      type(LongNameCharacteristic) :: a, unvalued
+
+      a = LongNameCharacteristic('Air Temperature')
+      @assertEqual('long_name=Air Temperature', a%get_signature())
+      @assertEqual('', unvalued%get_long_name())
+      @assertEqual('long_name=', unvalued%get_signature())
+   end subroutine test_long_name_signature_and_unvalued_accessor
+
+   @test
+   subroutine test_long_name_build_transform_reports_unsupported()
+      type(LongNameCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = LongNameCharacteristic('a')
+      b = LongNameCharacteristic('b')
+      call a%build_transform(b, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_long_name_build_transform_reports_unsupported
+
+   ! --- RestartModeCharacteristic (never compared) ---
+
+   @test
+   subroutine test_restart_mode_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=RestartModeCharacteristic(RESTART_SKIP))
+      @assertTrue(v%get_kind() == RESTART_MODE_CHARACTERISTIC_KIND)
+   end subroutine test_restart_mode_is_a_value_characteristic
+
+   @test
+   subroutine test_restart_mode_never_needs_extension()
+      type(RestartModeCharacteristic) :: a, b
+
+      a = RestartModeCharacteristic(RESTART_REQUIRED)
+      b = RestartModeCharacteristic(RESTART_SKIP)
+
+      @assertFalse(a%needs_extension_for(b))
+      @assertFalse(b%needs_extension_for(a))
+   end subroutine test_restart_mode_never_needs_extension
+
+   @test
+   subroutine test_restart_mode_signature_and_unvalued_accessor()
+      type(RestartModeCharacteristic) :: a, unvalued
+
+      a = RestartModeCharacteristic(RESTART_SKIP)
+      @assertEqual('restart_mode=1', a%get_signature())
+      @assertTrue(a%get_restart_mode() == RESTART_SKIP)
+      @assertTrue(unvalued%get_restart_mode() == RESTART_REQUIRED)
+      @assertEqual('restart_mode=0', unvalued%get_signature())
+   end subroutine test_restart_mode_signature_and_unvalued_accessor
+
+   @test
+   subroutine test_restart_mode_build_transform_reports_unsupported()
+      type(RestartModeCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = RestartModeCharacteristic(RESTART_REQUIRED)
+      b = RestartModeCharacteristic(RESTART_SKIP)
+      call a%build_transform(b, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_restart_mode_build_transform_reports_unsupported
+
+   ! Only the two characteristics stored under the item's own alias are
+   ! per-alias; the base default is field-wide.
+   @test
+   subroutine test_is_per_alias()
+      type(RestartModeCharacteristic) :: restart_mode
+      type(LongNameCharacteristic) :: long_name
+      type(StandardNameCharacteristic) :: standard_name
+      type(PhysicalUnitsCharacteristic) :: units
+
+      restart_mode = RestartModeCharacteristic(RESTART_SKIP)
+      long_name = LongNameCharacteristic('x')
+      standard_name = StandardNameCharacteristic('x')
+      units = PhysicalUnitsCharacteristic('K')
+      @assertTrue(restart_mode%is_per_alias())
+      @assertTrue(long_name%is_per_alias())
+      @assertFalse(standard_name%is_per_alias())
+      @assertFalse(units%is_per_alias())
+   end subroutine test_is_per_alias
+
+   ! --- ExpressionCharacteristic (never compared, no Info key) ---
+
+   @test
+   subroutine test_expression_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=ExpressionCharacteristic('A + B'))
+      @assertTrue(v%get_kind() == EXPRESSION_CHARACTERISTIC_KIND)
+   end subroutine test_expression_is_a_value_characteristic
+
+   @test
+   subroutine test_expression_never_needs_extension()
+      type(ExpressionCharacteristic) :: a, b
+
+      a = ExpressionCharacteristic('A')
+      b = ExpressionCharacteristic('B')
+
+      @assertFalse(a%needs_extension_for(b))
+      @assertFalse(b%needs_extension_for(a))
+   end subroutine test_expression_never_needs_extension
+
+   @test
+   subroutine test_expression_signature_and_accessor()
+      type(ExpressionCharacteristic) :: a, unvalued
+
+      a = ExpressionCharacteristic('A + B')
+      @assertEqual('expression=A + B', a%get_signature())
+      @assertEqual('A + B', a%get_expression())
+      @assertEqual('', unvalued%get_expression())
+      @assertEqual('expression=', unvalued%get_signature())
+   end subroutine test_expression_signature_and_accessor
+
+   @test
+   subroutine test_expression_build_transform_reports_unsupported()
+      type(ExpressionCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = ExpressionCharacteristic('A')
+      b = ExpressionCharacteristic('B')
+      call a%build_transform(b, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_expression_build_transform_reports_unsupported
+
+   ! --- build_transform reports BUILD_TRANSFORM_INCOMPATIBLE for the five
+   ! subclasses whose legacy aspect rejects every mismatch of two non-mirror
+   ! values and converts nothing (QuantityType: all but a basis-only
+   ! mismatch, which is UNSUPPORTED), and for StandardName (reached only in
+   ! strict validation mode) ---
+
+   @test
+   subroutine test_attributes_build_transform_reports_incompatible()
+      type(AttributesCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = AttributesCharacteristic()
+      b = AttributesCharacteristic()
+
+      call a%build_transform(b, transformer, rc=status)
+
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_attributes_build_transform_reports_incompatible
+
+   @test
+   subroutine test_conservation_build_transform_reports_incompatible()
+      type(ConservationCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+      b = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+
+      call a%build_transform(b, transformer, rc=status)
+
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_conservation_build_transform_reports_incompatible
+
+   @test
+   subroutine test_normalization_build_transform_reports_incompatible()
+      type(NormalizationCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+      b = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+
+      call a%build_transform(b, transformer, rc=status)
+
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_normalization_build_transform_reports_incompatible
+
+   ! A quantity-type mismatch can never connect.
+   @test
+   subroutine test_quantity_type_mismatch_reports_incompatible()
+      type(QuantityTypeCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      b = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_WET_MASS)
+
+      status = BUILD_TRANSFORM_UNSUPPORTED
+      call a%build_transform(b, transformer, rc=status)
+
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_quantity_type_mismatch_reports_incompatible
+
+   ! The quantity axis decides: a quantity mismatch is incompatible even
+   ! when the bases also differ.
+   @test
+   subroutine test_quantity_type_and_basis_mismatch_reports_incompatible()
+      type(QuantityTypeCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      b = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_DRY_MASS)
+
+      status = BUILD_TRANSFORM_UNSUPPORTED
+      call a%build_transform(b, transformer, rc=status)
+
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_quantity_type_and_basis_mismatch_reports_incompatible
+
+   ! Same quantity type, different real bases: a conversion is possible but
+   ! not built yet.
+   @test
+   subroutine test_quantity_type_basis_only_mismatch_reports_unsupported()
+      type(QuantityTypeCharacteristic) :: wet_mass, dry_mass
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      wet_mass = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, &
+           BASIS_WET_MASS)
+      dry_mass = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, &
+           BASIS_DRY_MASS)
+
+      status = BUILD_TRANSFORM_INCOMPATIBLE
+      call wet_mass%build_transform(dry_mass, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+
+      status = BUILD_TRANSFORM_INCOMPATIBLE
+      call dry_mass%build_transform(wet_mass, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_quantity_type_basis_only_mismatch_reports_unsupported
+
+   ! QUANTITY_UNKNOWN is a real mismatch against a known type; the quantity
+   ! axis wins even when the bases also differ.
+   @test
+   subroutine test_quantity_type_unknown_with_differing_bases_incompatible()
+      type(QuantityTypeCharacteristic) :: known, unknown
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      known = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      unknown = QuantityTypeCharacteristic(QUANTITY_UNKNOWN, BASIS_DRY_MASS)
+
+      @assertTrue(known%needs_extension_for(unknown))
+      @assertTrue(unknown%needs_extension_for(known))
+
+      status = BUILD_TRANSFORM_INCOMPATIBLE
+      call known%build_transform(unknown, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+
+      status = BUILD_TRANSFORM_INCOMPATIBLE
+      call unknown%build_transform(known, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_quantity_type_unknown_with_differing_bases_incompatible
+
+   ! BASIS_NONE matches any basis, but does not hide a quantity mismatch.
+   @test
+   subroutine test_quantity_type_basis_none_is_only_a_basis_wildcard()
+      type(QuantityTypeCharacteristic) :: wet_mass, no_basis, unknown_none
+
+      wet_mass = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, &
+           BASIS_WET_MASS)
+      no_basis = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_NONE)
+      unknown_none = QuantityTypeCharacteristic(QUANTITY_UNKNOWN, BASIS_NONE)
+
+      @assertFalse(wet_mass%needs_extension_for(no_basis))
+      @assertFalse(no_basis%needs_extension_for(wet_mass))
+      @assertTrue(wet_mass%needs_extension_for(unknown_none))
+      @assertTrue(unknown_none%needs_extension_for(wet_mass))
+   end subroutine test_quantity_type_basis_none_is_only_a_basis_wildcard
+
+   @test
+   subroutine test_quantity_type_deferred_is_fatal_only_when_required()
+      type(QuantityTypeCharacteristic) :: quantity_type
+      type(PhysicalUnitsCharacteristic) :: units
+      type(FieldDictionaryConfig) :: saved
+
+      quantity_type = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE)
+      units = PhysicalUnitsCharacteristic('K')
+      saved = get_field_dictionary_config()
+
+      call use_validation( &
+           '{validation_mode: permissive, require_quantity_type: false}')
+      @assertFalse(quantity_type%is_deferred_fatal())
+      @assertTrue(units%is_deferred_fatal())
+
+      call use_validation( &
+           '{validation_mode: strict, require_quantity_type: false}')
+      @assertFalse(quantity_type%is_deferred_fatal())
+
+      call use_validation( &
+           '{validation_mode: permissive, require_quantity_type: true}')
+      @assertTrue(quantity_type%is_deferred_fatal())
+
+      call use_validation( &
+           '{validation_mode: strict, require_quantity_type: true}')
+      @assertTrue(quantity_type%is_deferred_fatal())
+
+      call set_field_dictionary_config(saved)
+   end subroutine test_quantity_type_deferred_is_fatal_only_when_required
+
+   @test
+   subroutine test_standard_name_build_transform_reports_incompatible()
+      type(StandardNameCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = StandardNameCharacteristic('air_temperature')
+      b = StandardNameCharacteristic('surface_pressure')
+
+      call a%build_transform(b, transformer, rc=status)
+
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_standard_name_build_transform_reports_incompatible
+
+   @test
+   subroutine test_ungridded_dims_build_transform_reports_incompatible()
+      type(UngriddedDimsCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = UngriddedDimsCharacteristic(UngriddedDims([5]))
+      b = UngriddedDimsCharacteristic(UngriddedDims([5]))
+
+      call a%build_transform(b, transformer, rc=status)
+
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_ungridded_dims_build_transform_reports_incompatible
+
+   ! --- get_signature for the six subclasses with no Transform - two
+   ! equal-value instances produce identical signatures, two
+   ! different-value instances produce different ones (sufficient for
+   ! reuse-key correctness) ---
+
+   @test
+   subroutine test_attributes_get_signature_distinguishes_values()
+      type(AttributesCharacteristic) :: a, same_as_a, b
+      type(StringVector) :: names_a, names_b
+
+      call names_a%push_back('units')
+      call names_b%push_back('long_name')
+
+      a = AttributesCharacteristic(names_a)
+      same_as_a = AttributesCharacteristic(names_a)
+      b = AttributesCharacteristic(names_b)
+
+      @assertEqual(a%get_signature(), same_as_a%get_signature())
+      @assertTrue(a%get_signature() /= b%get_signature())
+   end subroutine test_attributes_get_signature_distinguishes_values
+
+   @test
+   subroutine test_conservation_get_signature_distinguishes_values()
+      type(ConservationCharacteristic) :: a, same_as_a, b
+
+      a = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+      same_as_a = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+      b = ConservationCharacteristic(ConservationMetadata(CONSERVE_ENERGY))
+
+      @assertEqual(a%get_signature(), same_as_a%get_signature())
+      @assertTrue(a%get_signature() /= b%get_signature())
+   end subroutine test_conservation_get_signature_distinguishes_values
+
+   @test
+   subroutine test_normalization_get_signature_distinguishes_values()
+      type(NormalizationCharacteristic) :: a, same_as_a, b
+
+      a = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+      same_as_a = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+      b = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DZ))
+
+      @assertEqual(a%get_signature(), same_as_a%get_signature())
+      @assertTrue(a%get_signature() /= b%get_signature())
+   end subroutine test_normalization_get_signature_distinguishes_values
+
+   @test
+   subroutine test_quantity_type_get_signature_distinguishes_values()
+      type(QuantityTypeCharacteristic) :: a, same_as_a, b
+
+      a = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      same_as_a = QuantityTypeCharacteristic(QUANTITY_MIXING_RATIO, BASIS_WET_MASS)
+      b = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_WET_MASS)
+
+      @assertEqual(a%get_signature(), same_as_a%get_signature())
+      @assertTrue(a%get_signature() /= b%get_signature())
+   end subroutine test_quantity_type_get_signature_distinguishes_values
+
+   @test
+   subroutine test_standard_name_get_signature_distinguishes_values()
+      type(StandardNameCharacteristic) :: a, same_as_a, b
+
+      a = StandardNameCharacteristic('air_temperature')
+      same_as_a = StandardNameCharacteristic('air_temperature')
+      b = StandardNameCharacteristic('surface_pressure')
+
+      @assertEqual(a%get_signature(), same_as_a%get_signature())
+      @assertTrue(a%get_signature() /= b%get_signature())
+   end subroutine test_standard_name_get_signature_distinguishes_values
+
+   @test
+   subroutine test_ungridded_dims_get_signature_distinguishes_values()
+      type(UngriddedDimsCharacteristic) :: a, same_as_a, b
+
+      a = UngriddedDimsCharacteristic(UngriddedDims([5]))
+      same_as_a = UngriddedDimsCharacteristic(UngriddedDims([5]))
+      b = UngriddedDimsCharacteristic(UngriddedDims([3]))
+
+      @assertEqual(a%get_signature(), same_as_a%get_signature())
+      @assertTrue(a%get_signature() /= b%get_signature())
+   end subroutine test_ungridded_dims_get_signature_distinguishes_values
+
+   ! --- build_transform/get_signature for the four real, moved
+   ! implementations - ports
+   ! Test_Characteristic.pf's/Test_GeomCharacteristic.pf's own
+   ! assertions onto the surviving StateItemCharacteristic-side types ---
+
+   @test
+   subroutine test_physical_units_build_transform_succeeds()
+      type(PhysicalUnitsCharacteristic) :: m, km
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      m = PhysicalUnitsCharacteristic('m')
+      km = PhysicalUnitsCharacteristic('km')
+
+      call m%build_transform(km, transformer, rc=status)
+
+      @assertEqual(0, status)
+      @assertTrue(allocated(transformer))
+   end subroutine test_physical_units_build_transform_succeeds
+
+   @test
+   subroutine test_physical_units_get_signature()
+      type(PhysicalUnitsCharacteristic) :: units
+
+      units = PhysicalUnitsCharacteristic('m')
+
+      @assertEqual('units=m', units%get_signature())
+   end subroutine test_physical_units_get_signature
+
+   @test
+   subroutine test_type_kind_build_transform_succeeds()
+      type(TypeKindCharacteristic) :: r4, r8
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      r4 = TypeKindCharacteristic('R4')
+      r8 = TypeKindCharacteristic('R8')
+
+      call r4%build_transform(r8, transformer, rc=status)
+
+      @assertEqual(0, status)
+      @assertTrue(allocated(transformer))
+   end subroutine test_type_kind_build_transform_succeeds
+
+   @test
+   subroutine test_type_kind_get_signature()
+      type(TypeKindCharacteristic) :: r4
+
+      r4 = TypeKindCharacteristic('R4')
+
+      @assertEqual('typekind=R4', r4%get_signature())
+   end subroutine test_type_kind_get_signature
+
+   ! A single-overlap pair that holds no grids (ids only) has no level
+   ! values to regrid between, so it reports unsupported.
+   @test
+   subroutine test_vertical_grid_build_transform_reports_unsupported()
+      type(VerticalGridCharacteristic) :: grid_a, grid_b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      grid_a = VerticalGridCharacteristic(grid_id='gridA')
+      grid_b = VerticalGridCharacteristic(grid_id='gridB')
+
+      call grid_a%build_transform(grid_b, transformer, rc=status)
+
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_vertical_grid_build_transform_reports_unsupported
+
+   @test
+   subroutine test_vertical_grid_get_signature()
+      type(VerticalGridCharacteristic) :: grid
+
+      grid = VerticalGridCharacteristic(grid_id='gridA')
+
+      @assertEqual('vertical_grid=gridA', grid%get_signature())
+   end subroutine test_vertical_grid_get_signature
+
+   ! An id-only pair (the component-level geometry wiring) holds no geom to
+   ! regrid between, so it stays unsupported.
+   @test
+   subroutine test_geometry_build_transform_reports_unsupported()
+      type(GeometryCharacteristic) :: geom_a, geom_b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      geom_a = GeometryCharacteristic(geom_id='1')
+      geom_b = GeometryCharacteristic(geom_id='2')
+
+      call geom_a%build_transform(geom_b, transformer, rc=status)
+
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_geometry_build_transform_reports_unsupported
+
+   ! Two held geoms give a regrid that uses the selected param.
+   @test
+   subroutine test_geometry_build_transform_regrids_held_geoms()
+      type(GeometryCharacteristic) :: src, dst
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(EsmfRegridderParam) :: param
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      src = GeometryCharacteristic(geom_id='1', geom=src_geom)
+      dst = GeometryCharacteristic(geom_id='2', geom=dst_geom, &
+           regridder_param=param)
+
+      call src%build_transform(dst, transformer, rc=status)
+
+      @assertEqual(0, status)
+      call check_param(param)
+
+      ! A param declared on the source side only is used too.
+      src = GeometryCharacteristic(geom_id='1', geom=src_geom, &
+           regridder_param=param)
+      dst = GeometryCharacteristic(geom_id='2', geom=dst_geom)
+      call src%build_transform(dst, transformer, rc=status)
+      @assertEqual(0, status)
+      call check_param(param)
+
+   contains
+
+      subroutine check_param(expected)
+         type(EsmfRegridderParam), intent(in) :: expected
+
+         @assertTrue(allocated(transformer))
+         select type (transformer)
+         type is (HorizontalRegridTransform)
+            @assertTrue(transformer%get_regridder_param() == expected)
+         class default
+            @assertTrue(.false., 'expected a HorizontalRegridTransform')
+         end select
+      end subroutine check_param
+
+   end subroutine test_geometry_build_transform_regrids_held_geoms
+
+   ! A geom on one side only is not enough to regrid.
+   @test
+   subroutine test_geometry_build_transform_one_geom_unsupported()
+      type(GeometryCharacteristic) :: src, dst
+      type(ESMF_Geom) :: src_geom
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      src = GeometryCharacteristic(geom_id='1', geom=src_geom)
+      dst = GeometryCharacteristic(geom_id='2')
+
+      call src%build_transform(dst, transformer, rc=status)
+
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+      call dst%build_transform(src, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_geometry_build_transform_one_geom_unsupported
+
+   ! Only one side may choose the regrid method.
+   @test
+   subroutine test_geometry_build_transform_both_params_incompatible()
+      type(GeometryCharacteristic) :: src, dst
+      type(ESMF_Geom) :: src_geom, dst_geom
+      type(EsmfRegridderParam) :: param
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      src = GeometryCharacteristic(geom_id='1', geom=src_geom, &
+           regridder_param=param)
+      dst = GeometryCharacteristic(geom_id='2', geom=dst_geom, &
+           regridder_param=param)
+
+      call src%build_transform(dst, transformer, rc=status)
+
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_geometry_build_transform_both_params_incompatible
+
+   ! A FIELD tip gets the Field regrid, a VECTOR or BRACKET tip the bundle
+   ! regrid. Every other item shape is unsupported and builds nothing.
+   @test
+   subroutine test_geometry_build_transform_for_item_dispatch()
+      type(GeometryCharacteristic) :: src, dst
+      type(ESMF_Geom) :: src_geom, dst_geom
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      src = GeometryCharacteristic(geom_id='1', geom=src_geom)
+      dst = GeometryCharacteristic(geom_id='2', geom=dst_geom)
+
+      call check_shape(S_FIELD, 0, 'field')
+      call check_shape(S_VECTOR, 0, 'bundle')
+      call check_shape(S_BRACKET, 0, 'bundle')
+      call check_shape(S_BUNDLE, BUILD_TRANSFORM_UNSUPPORTED, 'none')
+      call check_shape(S_VECTORBRACKET, BUILD_TRANSFORM_UNSUPPORTED, 'none')
+      call check_shape(S_SERVICE, BUILD_TRANSFORM_UNSUPPORTED, 'none')
+      call check_shape(S_STATE, BUILD_TRANSFORM_UNSUPPORTED, 'none')
+      call check_shape(S_WILDCARD, BUILD_TRANSFORM_UNSUPPORTED, 'none')
+
+   contains
+
+      subroutine check_shape(item_class, expected_status, expected_kind)
+         type(ESMF_StateItem_Flag), intent(in) :: item_class
+         integer, intent(in) :: expected_status
+         character(*), intent(in) :: expected_kind
+
+         type(StateItemCharacteristicMap) :: tip
+         character(:), allocatable :: kind
+
+         call tip%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+              ItemShapeCharacteristic(item_class))
+         call src%build_transform_for_item(dst, tip, transformer, rc=status)
+
+         kind = 'none'
+         if (allocated(transformer)) then
+            select type (transformer)
+            type is (HorizontalRegridTransform)
+               kind = 'field'
+            type is (HorizontalBundleRegridTransform)
+               kind = 'bundle'
+            class default
+               kind = 'other'
+            end select
+         end if
+         @assertEqual(expected_status, status)
+         @assertEqual(expected_kind, kind)
+      end subroutine check_shape
+
+   end subroutine test_geometry_build_transform_for_item_dispatch
+
+   ! The pair rules do not depend on the item shape: two regridder params
+   ! are incompatible and an id-only pair is unsupported for a bundle shape
+   ! just as for a Field.
+   @test
+   subroutine test_geometry_build_transform_for_item_bundle_pair_rules()
+      type(GeometryCharacteristic) :: src, dst, id_only
+      type(ESMF_Geom) :: src_geom, dst_geom
+      class(TransformBase), allocatable :: transformer
+      type(StateItemCharacteristicMap) :: tip
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      call tip%insert(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(S_VECTOR))
+
+      src = GeometryCharacteristic(geom_id='1', geom=src_geom, &
+           regridder_param=EsmfRegridderParam())
+      dst = GeometryCharacteristic(geom_id='2', geom=dst_geom, &
+           regridder_param=EsmfRegridderParam())
+      call src%build_transform_for_item(dst, tip, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+
+      src = GeometryCharacteristic(geom_id='1', geom=src_geom)
+      id_only = GeometryCharacteristic(geom_id='2')
+      call src%build_transform_for_item(id_only, tip, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_geometry_build_transform_for_item_bundle_pair_rules
+
+   ! With no shape entry (component-level wiring) the item is not
+   ! restricted.
+   @test
+   subroutine test_geometry_build_transform_for_item_without_shape()
+      type(GeometryCharacteristic) :: src, dst
+      type(ESMF_Geom) :: src_geom, dst_geom
+      class(TransformBase), allocatable :: transformer
+      type(StateItemCharacteristicMap) :: tip
+      integer :: status
+
+      src_geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      dst_geom = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      src = GeometryCharacteristic(geom_id='1', geom=src_geom)
+      dst = GeometryCharacteristic(geom_id='2', geom=dst_geom)
+
+      call src%build_transform_for_item(dst, tip, transformer, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(allocated(transformer))
+   end subroutine test_geometry_build_transform_for_item_without_shape
+
+   @test
+   subroutine test_geometry_get_signature()
+      type(GeometryCharacteristic) :: geom
+
+      geom = GeometryCharacteristic(geom_id='1')
+
+      @assertEqual('geom=1', geom%get_signature())
+   end subroutine test_geometry_get_signature
+
+   ! Different regridder params give different signatures.
+   @test
+   subroutine test_geometry_get_signature_includes_regridder_param()
+      type(GeometryCharacteristic) :: conserve, patch, plain
+
+      conserve = GeometryCharacteristic(geom_id='1', regridder_param= &
+           EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE))
+      patch = GeometryCharacteristic(geom_id='1', regridder_param= &
+           EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_PATCH))
+      plain = GeometryCharacteristic(geom_id='1')
+
+      @assertTrue(index(conserve%get_signature(), 'conserve') > 0)
+      @assertTrue(index(patch%get_signature(), 'patch') > 0)
+      @assertFalse(conserve%get_signature() == patch%get_signature())
+      @assertFalse(conserve%get_signature() == plain%get_signature())
+   end subroutine test_geometry_get_signature_includes_regridder_param
+
+   ! Equal params built separately give equal signatures.
+   @test
+   subroutine test_geometry_signature_equal_for_equal_params()
+      type(GeometryCharacteristic) :: a, b
+
+      a = GeometryCharacteristic(geom_id='1', regridder_param= &
+           EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE))
+      b = GeometryCharacteristic(geom_id='1', regridder_param= &
+           EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE))
+
+      @assertEqual(a%get_signature(), b%get_signature())
+      @assertEqual(0, index(a%get_signature(), new_line('a')))
+   end subroutine test_geometry_signature_equal_for_equal_params
+
+   ! Held geoms with no geom_id are named by their MAPL geom id, so two
+   ! distinct geoms do not share a signature (and an extension chain).
+   @test
+   subroutine test_geometry_signature_from_held_geom()
+      type(GeometryCharacteristic) :: a, b, a_again
+      type(ESMF_Geom) :: geom_a, geom_b
+      integer :: status
+
+      geom_a = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      geom_b = make_latlon_geom(6, 7, status)
+      @assertEqual(0, status)
+      a = GeometryCharacteristic(geom=geom_a)
+      b = GeometryCharacteristic(geom=geom_b)
+      a_again = GeometryCharacteristic(geom=geom_a)
+
+      @assertEqual(1, index(a%get_signature(), 'geom='))
+      @assertFalse(a%get_signature() == b%get_signature())
+      @assertEqual(a%get_signature(), a_again%get_signature())
+   end subroutine test_geometry_signature_from_held_geom
+
+   ! --- ItemShapeCharacteristic ---
+
+   @test
+   subroutine test_item_shape_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=ItemShapeCharacteristic(MAPL_STATEITEM_FIELD))
+      @assertTrue(v%get_kind() == ITEM_SHAPE_CHARACTERISTIC_KIND)
+   end subroutine test_item_shape_is_a_value_characteristic
+
+   @test
+   subroutine test_item_shape_matching_field_does_not_need_extension()
+      type(ItemShapeCharacteristic) :: a, same_as_a
+
+      a = ItemShapeCharacteristic(MAPL_STATEITEM_FIELD)
+      same_as_a = ItemShapeCharacteristic(MAPL_STATEITEM_FIELD)
+
+      @assertFalse(a%needs_extension_for(same_as_a))
+   end subroutine test_item_shape_matching_field_does_not_need_extension
+
+   @test
+   subroutine test_item_shape_bracket_vs_field_needs_extension()
+      type(ItemShapeCharacteristic) :: bracket, field
+
+      bracket = ItemShapeCharacteristic(MAPL_STATEITEM_BRACKET)
+      field = ItemShapeCharacteristic(MAPL_STATEITEM_FIELD)
+
+      @assertTrue(bracket%needs_extension_for(field))
+   end subroutine test_item_shape_bracket_vs_field_needs_extension
+
+   ! Mismatch correctly detected even though no Transform exists for
+   ! this particular pairing.
+   @test
+   subroutine test_item_shape_vectorbracket_vs_vector_needs_extension()
+      type(ItemShapeCharacteristic) :: vectorbracket, vector
+
+      vectorbracket = ItemShapeCharacteristic(MAPL_STATEITEM_VECTORBRACKET)
+      vector = ItemShapeCharacteristic(MAPL_STATEITEM_VECTOR)
+
+      @assertTrue(vectorbracket%needs_extension_for(vector))
+   end subroutine test_item_shape_vectorbracket_vs_vector_needs_extension
+
+   @test
+   subroutine test_item_shape_build_transform_bracket_to_field_succeeds()
+      type(ItemShapeCharacteristic) :: bracket, field
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      bracket = ItemShapeCharacteristic(MAPL_STATEITEM_BRACKET)
+      field = ItemShapeCharacteristic(MAPL_STATEITEM_FIELD)
+
+      call bracket%build_transform(field, transformer, rc=status)
+
+      @assertEqual(0, status)
+      @assertTrue(allocated(transformer))
+      select type (transformer)
+      type is (BracketTimeInterpolationTransform)
+         ! expected concrete type
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_item_shape_build_transform_bracket_to_field_succeeds
+
+   ! Matrix cells that need no step.
+   @test
+   subroutine test_item_shape_matching_cells()
+      @assertFalse(needs_extension(S_FIELD, S_WILDCARD))
+      @assertFalse(needs_extension(S_BUNDLE, S_BUNDLE))
+      @assertFalse(needs_extension(S_BUNDLE, S_WILDCARD))
+      @assertFalse(needs_extension(S_STATE, S_STATE))
+      @assertFalse(needs_extension(S_STATE, S_WILDCARD))
+      @assertFalse(needs_extension(S_VECTOR, S_VECTOR))
+      @assertFalse(needs_extension(S_SERVICE, S_SERVICE))
+      @assertFalse(needs_extension(S_EXPRESSION, S_FIELD))
+   end subroutine test_item_shape_matching_cells
+
+   ! VECTORBRACKET -> VECTOR has no time-interpolation step yet.
+   @test
+   subroutine test_item_shape_vectorbracket_reports_unsupported()
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+      type(ItemShapeCharacteristic) :: vectorbracket
+
+      vectorbracket = shape_of(S_VECTORBRACKET)
+      call vectorbracket%build_transform(shape_of(S_VECTOR), transformer, &
+           rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_item_shape_vectorbracket_reports_unsupported
+
+   ! Pairs that can never connect: each needs extension and reports
+   ! incompatible.
+   @test
+   subroutine test_item_shape_error_cells_report_incompatible()
+      call check_incompatible(S_FIELD, S_BUNDLE)
+      call check_incompatible(S_FIELD, S_STATE)
+      call check_incompatible(S_FIELD, S_VECTOR)
+      call check_incompatible(S_BRACKET, S_BUNDLE)
+      call check_incompatible(S_BRACKET, S_WILDCARD)
+      call check_incompatible(S_EXPRESSION, S_STATE)
+      call check_incompatible(S_EXPRESSION, S_WILDCARD)
+      call check_incompatible(S_BUNDLE, S_FIELD)
+      call check_incompatible(S_STATE, S_BUNDLE)
+      call check_incompatible(S_VECTOR, S_FIELD)
+      call check_incompatible(S_VECTOR, S_WILDCARD)
+      call check_incompatible(S_SERVICE, S_FIELD)
+      call check_incompatible(S_SERVICE, S_WILDCARD)
+      call check_incompatible(S_VECTORBRACKET, S_VECTORBRACKET)
+      call check_incompatible(S_VECTORBRACKET, S_FIELD)
+      call check_incompatible(S_VECTORBRACKET, S_WILDCARD)
+   end subroutine test_item_shape_error_cells_report_incompatible
+
+   subroutine check_incompatible(export_class, import_class)
+      type(ESMF_StateItem_Flag), intent(in) :: export_class, import_class
+
+      type(ItemShapeCharacteristic) :: export_shape
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      export_shape = shape_of(export_class)
+      @assertTrue(export_shape%needs_extension_for(shape_of(import_class)))
+      call export_shape%build_transform(shape_of(import_class), transformer, &
+           rc=status)
+      @assertEqual(BUILD_TRANSFORM_INCOMPATIBLE, status)
+      @assertFalse(allocated(transformer))
+   end subroutine check_incompatible
+
+   function shape_of(item_class) result(item_shape)
+      type(ESMF_StateItem_Flag), intent(in) :: item_class
+      type(ItemShapeCharacteristic) :: item_shape
+
+      item_shape = ItemShapeCharacteristic(item_class)
+   end function shape_of
+
+   logical function needs_extension(export_class, import_class)
+      type(ESMF_StateItem_Flag), intent(in) :: export_class, import_class
+
+      type(ItemShapeCharacteristic) :: export_shape
+
+      export_shape = shape_of(export_class)
+      needs_extension = &
+           export_shape%needs_extension_for(shape_of(import_class))
+   end function needs_extension
+
+   ! --- get_extension_order: one golden list per shape ---
+
+   @test
+   subroutine test_extension_order_field()
+      call check_order(shape_of(S_FIELD), [character(len=24) :: &
+           'ITEM_SHAPE', 'ATTRIBUTES', 'UNGRIDDED_DIMS', 'QUANTITY_TYPE', &
+           'CONSERVATION', 'HORIZONTAL_DIMS_SPEC', 'GEOMETRY', &
+           'VERTICAL_GRID', 'VERTICAL_STAGGER', 'VERTICAL_ORIENTATION', &
+           'NORMALIZATION', 'PHYSICAL_UNITS', 'STANDARD_NAME', 'TYPE_KIND'])
+   end subroutine test_extension_order_field
+
+   @test
+   subroutine test_extension_order_fieldbundle()
+      call check_order(shape_of(S_BUNDLE), [character(len=24) :: &
+           'ITEM_SHAPE', 'ATTRIBUTES', 'UNGRIDDED_DIMS', 'QUANTITY_TYPE', &
+           'CONSERVATION', 'HORIZONTAL_DIMS_SPEC', 'GEOMETRY', &
+           'VERTICAL_GRID', 'VERTICAL_STAGGER', 'VERTICAL_ORIENTATION', &
+           'NORMALIZATION', 'PHYSICAL_UNITS', 'TYPE_KIND'])
+   end subroutine test_extension_order_fieldbundle
+
+   @test
+   subroutine test_extension_order_vector()
+      call check_order(shape_of(S_VECTOR), [character(len=24) :: &
+           'ITEM_SHAPE', 'ATTRIBUTES', 'UNGRIDDED_DIMS', 'QUANTITY_TYPE', &
+           'CONSERVATION', 'HORIZONTAL_DIMS_SPEC', 'GEOMETRY', &
+           'VERTICAL_GRID', 'VERTICAL_STAGGER', 'VERTICAL_ORIENTATION', &
+           'NORMALIZATION', 'PHYSICAL_UNITS', 'TYPE_KIND'])
+   end subroutine test_extension_order_vector
+
+   @test
+   subroutine test_extension_order_bracket()
+      call check_order(shape_of(S_BRACKET), [character(len=24) :: &
+           'ATTRIBUTES', 'UNGRIDDED_DIMS', 'QUANTITY_TYPE', &
+           'HORIZONTAL_DIMS_SPEC', 'GEOMETRY', 'ITEM_SHAPE'])
+   end subroutine test_extension_order_bracket
+
+   @test
+   subroutine test_extension_order_vectorbracket()
+      call check_order(shape_of(S_VECTORBRACKET), [character(len=24) :: &
+           'ATTRIBUTES', 'UNGRIDDED_DIMS', 'QUANTITY_TYPE', &
+           'HORIZONTAL_DIMS_SPEC', 'GEOMETRY', 'ITEM_SHAPE'])
+   end subroutine test_extension_order_vectorbracket
+
+   @test
+   subroutine test_extension_order_expression()
+      call check_order(shape_of(S_EXPRESSION), [character(len=24) :: &
+           'GEOMETRY', 'VERTICAL_GRID', 'VERTICAL_STAGGER', &
+           'VERTICAL_ORIENTATION', 'TYPE_KIND', 'ITEM_SHAPE'])
+   end subroutine test_extension_order_expression
+
+   @test
+   subroutine test_extension_order_service()
+      call check_order(shape_of(S_SERVICE), &
+           [character(len=24) :: &
+           'ITEM_SHAPE', 'GEOMETRY'])
+   end subroutine test_extension_order_service
+
+   @test
+   subroutine test_extension_order_state()
+      character(len=24), allocatable :: empty(:)
+
+      allocate(empty(0))
+      call check_order(shape_of(S_STATE), empty)
+   end subroutine test_extension_order_state
+
+   @test
+   subroutine test_extension_order_wildcard()
+      character(len=24), allocatable :: empty(:)
+
+      allocate(empty(0))
+      call check_order(shape_of(S_WILDCARD), empty)
+   end subroutine test_extension_order_wildcard
+
+   @test
+   subroutine test_extension_order_geom_variant()
+      call check_order(ItemShapeCharacteristic(S_FIELD, VARIANT_GEOM), &
+           [character(len=24) :: &
+           'GEOMETRY'])
+   end subroutine test_extension_order_geom_variant
+
+   @test
+   subroutine test_extension_order_verticalgrid_variant()
+      call check_order(ItemShapeCharacteristic(S_STATE, VARIANT_VERTICALGRID), &
+           [character(len=24) :: &
+           'VERTICAL_GRID'])
+   end subroutine test_extension_order_verticalgrid_variant
+
+   subroutine check_order(item_shape, expected)
+      type(ItemShapeCharacteristic), intent(in) :: item_shape
+      character(len=*), intent(in) :: expected(:)
+
+      type(StateItemCharacteristicMap) :: goal
+      type(StateItemCharacteristicKind), allocatable :: order(:)
+      integer :: status, i
+
+      order = item_shape%get_extension_order(goal, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(size(expected), size(order))
+      if (size(expected) /= size(order)) return
+      do i = 1, size(order)
+         @assertEqual(trim(expected(i)), order(i)%to_string())
+      end do
+   end subroutine check_order
+
+   subroutine use_validation(content)
+      character(*), intent(in) :: content
+      type(ESMF_HConfig) :: node
+
+      node = ESMF_HConfigCreate(content=content)
+      call set_field_dictionary_config(FieldDictionaryConfig(node))
+      call ESMF_HConfigDestroy(node)
+   end subroutine use_validation
+
+end module Test_StateItemCharacteristicSubclasses

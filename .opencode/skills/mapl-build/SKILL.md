@@ -4,6 +4,15 @@ description: Build MAPL with NAG, gfortran, or Intel compilers on macOS and Linu
 compatibility: opencode
 ---
 
+> **Local macOS (this machine): each agent shell call is a fresh shell,
+> so `module load` does not persist between calls.** Use the wrappers
+> `with-nag <cmd>` / `with-gfortran <cmd>` (e.g. `with-nag cmake --build
+> nag -j 10 --target build-tests`) instead of the `module load ...` lines
+> below. The wrappers load the unversioned `nag-stack`,
+> `gfortran-stack`, or `ifx-stack` (bucy only); each machine's module
+> default is the version MAPL needs. Never pick a different compiler
+> version to get past an error.
+
 ## What I Do
 
 Provide step-by-step instructions for building MAPL with different compilers on different platforms, including:
@@ -67,7 +76,7 @@ NAG is the **fastest** compiler for MAPL (~81 seconds from scratch) and provides
 Check `~/.opencode/mapl-config.yaml` for your module names, or use common defaults:
 
 ```bash
-module load nag mpi baselibs
+module load nag-stack
 ```
 
 Common variations you might need:
@@ -88,8 +97,8 @@ which nagfor
 **IMPORTANT:** Always log build output to track progress and diagnose issues:
 
 ```bash
-module load nag mpi baselibs && cmake -B nag -DCMAKE_BUILD_TYPE=Debug 2>&1 | tee nag/cmake-config.log
-module load nag mpi baselibs && cmake --build nag -j 8 2>&1 | tee nag/build.log
+module load nag-stack && cmake -B nag -DCMAKE_BUILD_TYPE=Debug 2>&1 | tee nag/cmake-config.log
+module load nag-stack && cmake --build nag -j 8 2>&1 | tee nag/build.log
 ```
 ### Testing
 
@@ -97,14 +106,14 @@ module load nag mpi baselibs && cmake --build nag -j 8 2>&1 | tee nag/build.log
 
 ```bash
 # Build all tests
-module load nag mpi baselibs && cmake --build nag -j 8 --target build-tests 2>&1 | tee nag/build-tests.log
+module load nag-stack && cmake --build nag -j 8 --target build-tests 2>&1 | tee nag/build-tests.log
 
 # Run all tests (from source directory)
-module load nag mpi baselibs && ctest --test-dir nag --output-on-failure 2>&1 | tee nag/ctest.log
+module load nag-stack && ctest --test-dir nag --output-on-failure 2>&1 | tee nag/ctest.log
 
 # Build and run a specific test target
-module load nag mpi baselibs && cmake --build nag -j 8 --target <target> 2>&1 | tee nag/build-target.log
-module load nag mpi baselibs && ctest --test-dir nag -R <test-name-pattern> --output-on-failure
+module load nag-stack && cmake --build nag -j 8 --target <target> 2>&1 | tee nag/build-target.log
+module load nag-stack && ctest --test-dir nag -R <test-name-pattern> --output-on-failure
 ```
 
 **AI Agents:** When building MAPL, ALWAYS use `tee` to create logs in the build directory.
@@ -260,7 +269,7 @@ cmake --build nag -j 4
 module list
 
 # Load compiler module
-module load nag mpi baselibs  # Or gfortran
+module load nag-stack  # Or gfortran
 
 # Verify compiler accessible
 which nagfor  # or which gfortran
@@ -315,7 +324,7 @@ cmake --build nag
 
 ```bash
 module purge           # Clear all modules
-module load nag mpi baselibs
+module load nag-stack
 module list            # Verify correct modules loaded
 ```
 
@@ -379,10 +388,10 @@ After successful build, build and run tests with:
 
 ```bash
 # Build tests
-module load nag mpi baselibs && cmake --build nag -j 8 --target build-tests
+module load nag-stack && cmake --build nag -j 8 --target build-tests
 
 # Run tests (from source directory)
-module load nag mpi baselibs && ctest --test-dir nag --output-on-failure
+module load nag-stack && ctest --test-dir nag --output-on-failure
 ```
 
 **See the `mapl-testing` skill** for detailed testing workflows, including the fast generic3g-only testing method.
@@ -416,7 +425,7 @@ For continuous integration:
 
 ### NAG on macOS
 ```bash
-module load nag mpi baselibs
+module load nag-stack
 cmake -B nag -DCMAKE_BUILD_TYPE=Debug 2>&1 | tee nag/cmake-config.log
 cmake --build nag -j 8 2>&1 | tee nag/build.log
 cmake --build nag -j 8 --target build-tests 2>&1 | tee nag/build-tests.log
@@ -443,11 +452,11 @@ Each bash tool call runs in a fresh shell. This means:
 
 ```bash
 # WRONG - modules loaded in first call are lost in second call
-bash: module load nag mpi baselibs
+bash: module load nag-stack
 bash: cmake --build nag  # ERROR: modules not loaded!
 
 # CORRECT - chain commands in single bash call
-bash: module load nag mpi baselibs && cmake --build nag
+bash: module load nag-stack && cmake --build nag
 ```
 
 **Impact:**

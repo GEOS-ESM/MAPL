@@ -13,6 +13,8 @@ module mapl_FieldBundleGet_mod
    use mapl_Enums_api, only: MAPL_FieldBundleType_Flag, MAPL_VectorBasisKind, &
         MAPL_StateItemAllocation, mapl_VerticalStaggerLoc
    use mapl_FieldBundleInfo_mod
+   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
+   use mapl_StateItemVariantInfo_mod, only: StateItemVariantInfoGet
    use mapl_InfoUtilities_mod
    use mapl_LU_Bound_mod
    use esmf
@@ -33,7 +35,7 @@ contains
    ! For "bracket" bundles, additional metadata is stored in the info object
 
    subroutine bundle_get(fieldBundle, unusable, &
-        fieldCount, fieldList, geom, vgrid, &
+        short_name, fieldCount, fieldList, geom, vgrid, &
         fieldBundleType, &
                                 ! Bracket specific items
         typekind, interpolation_weights, &
@@ -47,9 +49,11 @@ contains
         quantity_type_metadata, &
         normalization_metadata, &
         conservation_metadata, &
+        state_item_variant, &
         rc)
       type(ESMF_FieldBundle), intent(in) :: fieldBundle
       class(KeywordEnforcer), optional, intent(in) :: unusable
+      character(len=:), optional, allocatable, intent(out) :: short_name
       integer, optional, intent(out) :: fieldCount
       type(ESMF_Field), optional, allocatable, intent(out) :: fieldList(:)
       type(ESMF_Geom), allocatable, optional, intent(out) :: geom
@@ -72,6 +76,8 @@ contains
       type(QuantityTypeMetadata), optional, intent(out) :: quantity_type_metadata
       type(NormalizationMetadata), optional, intent(out) :: normalization_metadata
       type(ConservationMetadata), optional, intent(out) :: conservation_metadata
+      ! MAPL_STATEITEM_INVALID if no variant was ever attached.
+      type(MAPL_StateItem_Flag), optional, intent(out) :: state_item_variant
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -80,6 +86,12 @@ contains
       logical :: has_geom
       integer :: vgrid_id
       type(mapl_VerticalGridManager), pointer :: vgrid_manager
+      character(len=ESMF_MAXSTR) :: fname
+
+      if (present(short_name)) then
+         call ESMF_FieldBundleGet(fieldBundle, name=fname, _RC)
+         short_name = trim(fname)
+      end if
 
       if (present(fieldCount) .or. present(fieldList)) then
          call ESMF_FieldBundleGet(fieldBundle, fieldCount=fieldCount_, _RC)
@@ -112,9 +124,13 @@ contains
            conservation_metadata=conservation_metadata, &
            _RC)
 
+      if (present(state_item_variant)) then
+         state_item_variant = StateItemVariantInfoGet(bundle_info, _RC)
+      end if
+
       if (present(geom) .and. has_geom) then
          allocate(geom)
-         call get_geom(fieldBundle, geom, rc)
+         call get_geom(fieldBundle, geom, _RC)
       end if
 
       if (present(vgrid)) then
@@ -127,6 +143,7 @@ contains
       end if
 
       _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
 
    contains
 
@@ -150,7 +167,6 @@ contains
          _FAIL('unsupported geomtype; needs simple extension')
 
          _RETURN(_SUCCESS)
-         _UNUSED_DUMMY(unusable)
 
       end subroutine get_geom
 

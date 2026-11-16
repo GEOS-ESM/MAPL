@@ -9,9 +9,10 @@ submodule (mapl_LonAxis_mod) make_LonAxis_from_metadata_smod
 
 contains
 
-   module function make_LonAxis_from_metadata(file_metadata, rc) result(axis)
+   module function make_LonAxis_from_metadata(file_metadata, tolerance, rc) result(axis)
       type(LonAxis) :: axis
       type(FileMetadata), intent(in) :: file_metadata
+      real(kind=R8), optional, intent(in) :: tolerance
       integer, optional, intent(out) :: rc
 
       real(kind=R8), allocatable :: centers(:)
@@ -28,7 +29,7 @@ contains
          where(centers > 180) centers = centers - 360
       end if
       corners = get_lon_corners(centers)
-      axis = LonAxis(centers, corners)
+      axis = LonAxis(centers, corners, tolerance)
 
       _RETURN(_SUCCESS)
    end function make_LonAxis_from_metadata
