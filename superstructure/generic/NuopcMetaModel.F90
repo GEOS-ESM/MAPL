@@ -37,6 +37,13 @@ module mapl_NuopcMetaModel_mod
    use mapl_Connection_mod
    use mapl_ConnectionPt_mod
    use mapl_MatchConnection_mod
+   use mapl_ExtensionFamily_mod, only: ExtensionFamily
+   use mapl_VirtualConnectionPtVector_mod, only: VirtualConnectionPtVector
+   use mapl_StandardNameAspect_mod, only: StandardNameAspect
+   use mapl_UnitsAspect_mod, only: UnitsAspect
+   use mapl_FieldClassAspect_mod, only: FieldClassAspect
+   use mapl_StateItemAspect_mod, only: StateItemAspect
+   use mapl_AspectId_mod, only: CLASS_ASPECT_ID, STANDARD_NAME_ASPECT_ID, UNITS_ASPECT_ID
    use mapl_ConnectionVector_mod, only: ConnectionVectorIterator
    use mapl_ConnectionVector_mod, only: operator(/=)
    use mapl_state_api
@@ -329,50 +336,134 @@ contains
       _RETURN(_SUCCESS)
    end subroutine process_connections
 
+   ! Advertises this model's NUOPC boundary for one state intent.
+   !
+   ! The MAPL hierarchy below this component is opaque to NUOPC: the boundary
+   ! is declared, not inferred. The test is comp_name == '', i.e. items that
+   ! live at this component's own level in the registry:
+   !
+   !   - this component's own declared items (advertise_variable registers
+   !     them with no comp_name);
+   !   - child exports this component explicitly re-exported (ReexportConnection
+   !     adds the child's family under a '<self>' destination point);
+   !   - NOT child exports that were merely propagated up, which
+   !     propagate_exports stamps with comp_name = <child name>.
+   !
+   ! An import at this level with no primary is a child import that nothing
+   ! inside the hierarchy provides and that this component never declared.
+   ! That is an error: the parent must declare the imports its children need
+   ! from NUOPC.
    subroutine advertise_outer(this, stateIntent, rc)
       class(NuopcMetaModel), intent(inout) :: this
       type(ESMF_StateIntent_Flag), intent(in) :: stateIntent
       integer, optional, intent(out) :: rc
       integer :: status
       type(ESMF_State) :: importState, exportState, outerState
-      character(len=:), allocatable :: standardName, units
-      type(VariableSpecVectorIterator) :: iter
-      type(VariableSpec), pointer :: var_spec
+      character(len=:), allocatable :: standardName, units, short_name
+      type(VirtualConnectionPt) :: pattern
+      type(VirtualConnectionPtVector) :: v_pts
+      type(VirtualConnectionPt), pointer :: v_pt
+      type(ExtensionFamily), pointer :: family
+      type(StateItemSpec), pointer :: primary
+      logical :: is_import
+      integer :: i
 
       call NUOPC_ModelGet(this%self_model, importState=importState, exportState=exportState, _RC)
+      is_import = (stateIntent == ESMF_STATEINTENT_IMPORT)
       outerState = importState
-      if(stateIntent == ESMF_STATEINTENT_EXPORT) outerState=exportState
+      if (.not. is_import) outerState = exportState
 
-      ! Only Field items are advertised to NUOPC. Bundles, states and other
-      ! item types are not exposed: NUOPC connectors operate on fields, and
-      ! there is no agreed mapping for the composite types yet.
-      !
-      ! Metadata comes from the variable specs: field metadata is only
-      ! attached to the ESMF fields during registry allocation, which is
-      ! after advertise.
-      !
-      ! NOTE: this iterates this component's own var_specs, so items
-      ! propagated up from children are not advertised yet. See the plan,
-      ! Phase 3 item 3.
-      associate (e => this%component_spec%var_specs%end())
-        iter = this%component_spec%var_specs%begin()
-        do while (iter /= e)
-           var_spec => iter%of()
-           if (var_spec%state_intent == stateIntent .and. var_spec%itemType == ESMF_STATEITEM_FIELD) then
-              standardName = var_spec%short_name
-              if (allocated(var_spec%standard_name)) standardName = var_spec%standard_name
-              units = ''
-              if (allocated(var_spec%units)) units = var_spec%units
-              call NUOPC_Advertise(outerState, StandardName=standardName, Units=units, &
-                   name=var_spec%short_name, _RC)
-           end if
-           call iter%next()
-        end do
-      end associate
+      ! Match every virtual point of this intent, then keep the ones at this
+      ! component's own level. Filtering on comp_name explicitly is clearer
+      ! than encoding it in the regex, which matches against full names.
+      pattern = VirtualConnectionPt(stateIntent, '^.*$')
+      v_pts = this%registry%filter(pattern)
+
+      do i = 1, v_pts%size()
+         v_pt => v_pts%of(i)
+         if (v_pt%get_comp_name() /= '') cycle
+
+         short_name = v_pt%get_esmf_name()
+         family => this%registry%get_extension_family(v_pt, _RC)
+
+         if (.not. family%has_primary()) then
+            _ASSERT(.not. is_import, 'Unsatisfied import <'//short_name// &
+                 '> is needed by a child of <'//this%get_name()// &
+                 '> but is not provided within the hierarchy and is not declared by it. ' // &
+                 'Declare it as an import of the top-level MAPL component.')
+            cycle
+         end if
+
+         primary => family%get_primary(_RC)
+         if (.not. is_field_spec(primary)) cycle
+
+         call get_field_metadata(primary, short_name, standardName, units, _RC)
+         call NUOPC_Advertise(outerState, StandardName=standardName, Units=units, &
+              name=short_name, _RC)
+      end do
 
       _RETURN(_SUCCESS)
 
    end subroutine advertise_outer
+
+   ! Only Field items are advertised to NUOPC. Bundles, states and other item
+   ! types are not exposed: NUOPC connectors operate on fields, and there is
+   ! no agreed mapping for the composite types yet.
+   logical function is_field_spec(spec)
+      type(StateItemSpec), pointer, intent(in) :: spec
+
+      integer :: status
+      class(StateItemAspect), pointer :: aspect
+
+      is_field_spec = .false.
+      aspect => spec%get_aspect_by_id(CLASS_ASPECT_ID, rc=status)
+      if (status /= ESMF_SUCCESS) return
+      if (.not. associated(aspect)) return
+
+      select type (aspect)
+      type is (FieldClassAspect)
+         is_field_spec = .true.
+      end select
+
+   end function is_field_spec
+
+   ! StandardName and Units come from the item's aspects. Both are optional in
+   ! practice: NUOPC accepts an empty Units, and falls back to the short name
+   ! when no standard name was declared.
+   subroutine get_field_metadata(spec, short_name, standardName, units, rc)
+      type(StateItemSpec), pointer, intent(in) :: spec
+      character(len=*), intent(in) :: short_name
+      character(len=:), allocatable, intent(out) :: standardName
+      character(len=:), allocatable, intent(out) :: units
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      class(StateItemAspect), pointer :: aspect
+
+      standardName = short_name
+      units = ''
+
+      aspect => spec%get_aspect_by_id(STANDARD_NAME_ASPECT_ID, rc=status)
+      if (status == ESMF_SUCCESS .and. associated(aspect)) then
+         select type (aspect)
+         type is (StandardNameAspect)
+            call aspect%get_standard_name(standardName)
+            if (.not. allocated(standardName)) standardName = short_name
+         end select
+      end if
+
+      aspect => spec%get_aspect_by_id(UNITS_ASPECT_ID, rc=status)
+      if (status == ESMF_SUCCESS .and. associated(aspect)) then
+         select type (aspect)
+         type is (UnitsAspect)
+            units = aspect%get_units(rc=status)
+            if (status /= ESMF_SUCCESS) units = ''
+         end select
+      end if
+
+      _RETURN(_SUCCESS)
+
+   end subroutine get_field_metadata
          
    subroutine self_advertise(this, unusable, rc)
       class(NuopcMetaModel), intent(inout) ::  this
