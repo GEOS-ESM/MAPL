@@ -88,6 +88,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update CI to use Baselibs 8.34.0 by default
+
 - pFUnit tests now need pFUnit 4.22.0 or newer (GEOS-ESM/MAPL#5535). A failure passed up the call stack by `_VERIFY`/`_RC` or a failing `_RETURN` is reported as one exception with a traceback (pFUnit `propagate`), so a test asserts only the original error and no longer needs one `@assertExceptionRaised('status=1')` per call level. Non-test behaviour is unchanged.
 
 - Internal refactor of connection resolution in the graph layer
