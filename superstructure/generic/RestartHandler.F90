@@ -150,6 +150,7 @@ contains
       type(ESMF_Geom) :: geom
       integer :: field_count, status
       class(ClientThread), pointer :: o_client
+      real, allocatable :: time_vector(:)
 
       ! An empty bundle carries no geom to write against.
       call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
@@ -161,6 +162,9 @@ contains
       allocate(writer, source=make_geom_pfio(metadata), _STAT)
       call writer%initialize(metadata, geom, _RC)
       call writer%update_time_on_server(this%current_time, _RC)
+      allocate(time_vector(1))
+      time_vector = 0.
+      call writer%stage_time_to_file(filename, time_vector, _RC)
       call writer%stage_coordinates_to_file(filename, _RC)
       call writer%stage_data_to_file(bundle, filename, 1, _RC)
       o_client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
