@@ -12,6 +12,8 @@ set (srcs
     StateMasking.F90
     StateFilter.F90
     StateDestroy.F90
+    ConfigurableCallbackSpec.F90
+    ConfigurableCallback.F90
     API.F90
 )
 
