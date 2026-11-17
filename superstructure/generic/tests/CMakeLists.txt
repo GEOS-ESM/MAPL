@@ -13,14 +13,24 @@ add_custom_target(copy_scenarios ALL
   VERBATIM
 )
 
+# Copy graph-scenarios directory to build directory at build time
+# (sibling to scenarios/, graph-mode-equivalence fixtures only).
+# Mirrors copy_scenarios above.
+add_custom_target(copy_graph_scenarios ALL
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/graph-scenarios
+    ${CMAKE_CURRENT_BINARY_DIR}/graph-scenarios
+  COMMENT "Copying graph-scenarios directory to build directory"
+  VERBATIM
+)
+
 # Copy field_dictionary_test.yaml to the binary dir so tests that call
 # load_field_dictionary can find it by relative path at runtime.
 configure_file(field_dictionary_test.yaml field_dictionary_test.yaml COPYONLY)
 
 # Also copy it under the default path MaplFramework%initialize_field_dictionary
 # looks for when no field_dictionary: cap.yaml key is present (which is the
-# case for every pFUnit binary here - see openspec change
-# use-field-dictionary-in-scenario-tests). This activates the fixture above
+# case for every pFUnit binary here). This activates the fixture above
 # for all six of this directory's pFUnit executables (they share this
 # WORKING_DIRECTORY), in PERMISSIVE ValidationMode (the default).
 configure_file(field_dictionary_test.yaml geos_field_dictionary.yaml COPYONLY)
@@ -31,6 +41,7 @@ configure_file(field_dictionary_test.yaml geos_field_dictionary.yaml COPYONLY)
 add_library(MAPL.generic.test_common SHARED
   MockUserGridComp.F90
   MockAspect.F90
+  GraphBuilderTestSupport.F90
 )
 target_link_libraries(MAPL.generic.test_common PUBLIC MAPL.generic MAPL.utils MAPL.pfunit)
 set_target_properties(MAPL.generic.test_common PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
@@ -42,14 +53,13 @@ set(COMMON_LINK_LIBRARIES MAPL.generic.test_common MAPL.pfunit MAPL.statistics)
 # 1. MAPL.generic.scenarios - End-to-end integration test scenarios.
 # All scenarios now run under STRICT field-dictionary ValidationMode
 # (Initialize_strict, same module as the default Initialize() every other
-# pFUnit binary here still uses) - see openspec change
-# use-field-dictionary-in-scenario-tests. This was previously split into a
-# separate MAPL.generic.scenarios/.strict pair while some scenarios were
-# still being migrated; now that all of them are STRICT-clean, it is a
-# single suite again.
+# pFUnit binary here still uses).
 set(scenarios_test_srcs
   Test_Scenarios.pf
   Test_MemoryCheckpoint.pf
+  Test_GraphBuilderEquivalence.pf
+  Test_GraphEquivalenceHarness.pf
+  Test_GraphModeDemonstration.pf
 )
 
 add_pfunit_ctest(
@@ -64,8 +74,10 @@ add_pfunit_ctest(
 # Each pFUnit executable generates a loader module. Keep their module output
 # directories distinct so Ninja has only one producer for each .mod file.
 set_target_properties(MAPL.generic.scenarios PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/scenarios")
-set_tests_properties(MAPL.generic.scenarios PROPERTIES LABELS "ESSENTIAL")
-add_dependencies(MAPL.generic.scenarios proto_extdata_gc proto_stat_gc copy_scenarios)
+# The unsharded ctest entry created above is replaced by the
+# MAPL.generic.scenarios.shard<k> entries defined after TEST_ENV below.
+set_tests_properties(MAPL.generic.scenarios PROPERTIES DISABLED TRUE)
+add_dependencies(MAPL.generic.scenarios proto_extdata_gc proto_stat_gc proto_bracket_gc copy_scenarios copy_graph_scenarios)
 
 # 2. MAPL.generic.transforms - Data transformation tests
 set(transforms_test_srcs
@@ -148,11 +160,29 @@ add_dependencies(MAPL.generic.aspects proto_extdata_gc proto_stat_gc)
 
 # 5. MAPL.generic.components - Component and specification tests
 set(components_test_srcs
+  Test_DescriptorMaterialize.pf
   Test_GenericGridComp.pf
   Test_ComponentSpec.pf
+  Test_VariableSpecMembers.pf
+  Test_VariableSpecCallback.pf
+  Test_VariableSpecInout.pf
+  Test_VariableSpecCharacteristics.pf
   Test_ComponentSpecParser.pf
   Test_WriteYaml.pf
   Test_ExtensionFamily.pf
+  Test_ComponentHierarchyGraph.pf
+  Test_GraphBuilder.pf
+  Test_GraphBuilder_Advertising.pf
+  Test_GraphBuilder_Freeze.pf
+  Test_GraphBuilder_ConnectionResolution.pf
+  Test_GraphBuilder_CallbackWiring.pf
+  Test_GraphBuilder_RunPhaseNode.pf
+  Test_ForwardNetworkErrors.pf
+  Test_GraphBuilderMaterializeGate.pf
+  Test_GraphMode.pf
+  Test_OuterMetaComponentDriverResolver.pf
+  Test_GraphBuilderPropagation.pf
+  Test_GridCompDriverPhaseInvoker.pf
 )
 
 add_pfunit_ctest(
@@ -167,6 +197,48 @@ add_pfunit_ctest(
 set_target_properties(MAPL.generic.components PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/components")
 set_tests_properties(MAPL.generic.components PROPERTIES LABELS "ESSENTIAL")
 add_dependencies(MAPL.generic.components proto_extdata_gc proto_stat_gc)
+
+# 5b. MAPL.generic.components.quiet - same as MAPL.generic.components above,
+# but holds the two .pf files whose tests deliberately drive a GraphBuilder
+# hook down a negative path that is expected to log a warning via
+# report_if_failed (docs/graph/spec/20-implementation-roadmap.md sec
+# 20.4.20: "field dictionary not found"-style noise is source
+# (a), out of scope here; this is source (b)). Rather than changing
+# report_if_failed's own severity (which would also silence genuinely
+# unexpected failures elsewhere), this suite is run with --level ERROR
+# (passed through via pFUnit's COMMAND_LINE_ARGS, https://github.com/
+# Goddard-Fortran-Ecosystem/pFUnit/pull/585) so the console handler never
+# prints WARNING-level messages here, while every other suite keeps the
+# default level and still surfaces real warnings. Split out, not just
+# filtered, because ValidationMode/logging level are both process-wide
+# singletons set once at EXTRA_INITIALIZE time (same constraint documented
+# for MAPL.generic.scenarios) - they cannot vary per-test within one
+# executable.
+#
+# MAX_PES 1 (not the usual 4): default_initialize_pflogger
+# (mapl/MaplFramework.F90) only honors --level on MPI rank 0 - every other
+# rank's console handler is hardcoded to WARNING regardless of --level, so
+# with more than one rank the warning would still print on ranks 1-3. Both
+# .pf files here only ever declare npes=[0]/npes=[1] tests, so MAX_PES 1
+# costs nothing and keeps every rank the (suppressed) root rank.
+set(components_quiet_test_srcs
+  Test_GraphGeometryHook.pf
+  Test_GraphBuilder_ConvergenceCheck.pf
+)
+
+add_pfunit_ctest(
+  MAPL.generic.components.quiet
+  TEST_SOURCES ${components_quiet_test_srcs}
+  LINK_LIBRARIES ${COMMON_LINK_LIBRARIES}
+  EXTRA_INITIALIZE Initialize
+  EXTRA_USE mapl_pFUnit_Initialize_mod
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  MAX_PES 1
+  COMMAND_LINE_ARGS --level ERROR
+)
+set_target_properties(MAPL.generic.components.quiet PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/components_quiet")
+set_tests_properties(MAPL.generic.components.quiet PROPERTIES LABELS "ESSENTIAL")
+add_dependencies(MAPL.generic.components.quiet proto_extdata_gc proto_stat_gc)
 
 # 6. MAPL.generic.core - Core functionality tests
 set(core_test_srcs
@@ -217,13 +289,56 @@ if(${GEOS_SITE} STREQUAL "NCCS" AND ${MPI_STACK} STREQUAL "intelmpi")
   list(APPEND TEST_ENV "I_MPI_OFI_PROVIDER=psm3")
 endif()
 
+# ESMF_TestCase leaks one VM (several MPI communicators on rank 0) per test,
+# and MPICH allows ~2048 communicators per process. Run the scenarios binary
+# in this many separate processes so each one stays well under that limit.
+set(MAPL_SCENARIO_SHARDS 6)
+set(scenario_mpi_preflags ${MPIEXEC_PREFLAGS})
+if (MPIEXEC_EXECUTABLE MATCHES ".*openmpi*")
+  list(APPEND scenario_mpi_preflags "--oversubscribe")
+endif ()
+set(scenario_fail_regex
+  "Encountered 1 or more failures/errors during testing")
+math(EXPR last_shard "${MAPL_SCENARIO_SHARDS} - 1")
+foreach (shard RANGE ${last_shard})
+  add_test(
+    NAME MAPL.generic.scenarios.shard${shard}
+    COMMAND ${MPIEXEC_EXECUTABLE} ${scenario_mpi_preflags}
+            ${MPIEXEC_NUMPROC_FLAG} 4
+            $<TARGET_FILE:MAPL.generic.scenarios> --verbose
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  )
+  set_tests_properties(MAPL.generic.scenarios.shard${shard} PROPERTIES
+    ENVIRONMENT
+      "${TEST_ENV};MAPL_SCENARIO_SHARD=${shard}/${MAPL_SCENARIO_SHARDS}"
+    LABELS "ESSENTIAL"
+    FAIL_REGULAR_EXPRESSION "${scenario_fail_regex}"
+  )
+endforeach ()
+
 # Apply environment settings to all test suites
-set_tests_properties(MAPL.generic.scenarios PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.transforms PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.vertical PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.aspects PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.components PROPERTIES ENVIRONMENT "${TEST_ENV}")
+set_tests_properties(MAPL.generic.components.quiet PROPERTIES ENVIRONMENT "${TEST_ENV}")
 set_tests_properties(MAPL.generic.core PROPERTIES ENVIRONMENT "${TEST_ENV}")
+
+# Not part of ESSENTIAL: runs only the scenarios whose graph_ready flag is
+# still false (Test_Scenarios.pf), under graph and both modes. Expected to
+# fail until those scenarios are fixed; see docs/graph/scenario-parity.md.
+add_test(
+  NAME MAPL.generic.scenarios.pending
+  COMMAND ${MPIEXEC_EXECUTABLE} ${scenario_mpi_preflags}
+          ${MPIEXEC_NUMPROC_FLAG} 4
+          $<TARGET_FILE:MAPL.generic.scenarios> --verbose
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+set_tests_properties(MAPL.generic.scenarios.pending PROPERTIES
+  ENVIRONMENT "${TEST_ENV};MAPL_SCENARIO_PENDING=1"
+  LABELS "PENDING"
+  FAIL_REGULAR_EXPRESSION "${scenario_fail_regex}"
+)
 
 # Add all test suites to build-tests target
 add_dependencies(build-tests
@@ -232,5 +347,6 @@ add_dependencies(build-tests
   MAPL.generic.vertical
   MAPL.generic.aspects
   MAPL.generic.components
+  MAPL.generic.components.quiet
   MAPL.generic.core
 )

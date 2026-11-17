@@ -49,6 +49,10 @@ module mapl_GeomAspect_mod
       type(ESMF_Geom), allocatable :: geom
       type(EsmfRegridderParam), allocatable :: regridder_param
       type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM ! none, geom
+      ! Legacy stand-in for the graph's DEFERRED: the item's own geom / geom_id
+      ! must survive the component-wide push.
+      logical :: declared_by_item = .false.
+      logical :: geom_id_declared_by_item = .false.
    contains
       procedure :: matches
       procedure :: make_transform
@@ -56,6 +60,7 @@ module mapl_GeomAspect_mod
       procedure :: supports_conversion_general
       procedure :: supports_conversion_specific
       procedure :: set_geom
+      procedure :: set_component_geom
       procedure :: set_geom_id
       procedure :: get_geom
       procedure :: get_geom_id
@@ -85,7 +90,7 @@ module mapl_GeomAspect_mod
 
 contains
 
-   function new_GeomAspect(geom, regridder_param, horizontal_dims_spec, is_time_dependent, geom_id, aspect_status) result(aspect)
+   function new_GeomAspect(geom, regridder_param, horizontal_dims_spec, is_time_dependent, geom_id, aspect_status, declared_by_item, geom_id_declared_by_item) result(aspect)
       type(GeomAspect) :: aspect
       type(ESMF_Geom), optional, intent(in) :: geom
       type(EsmfRegridderParam), optional, intent(in) :: regridder_param
@@ -93,6 +98,8 @@ contains
       logical, optional, intent(in) :: is_time_dependent
       type(GeomId), optional, intent(in) :: geom_id
       type(AspectStatus), optional, intent(in) :: aspect_status
+      logical, optional, intent(in) :: declared_by_item
+      logical, optional, intent(in) :: geom_id_declared_by_item
 
       call aspect%set_characteristic_state(ASPECT_STATUS_MIRRORED)
 
@@ -117,6 +124,9 @@ contains
          aspect%horizontal_dims_spec = horizontal_dims_spec
       end if
 
+      if (present(declared_by_item)) aspect%declared_by_item = declared_by_item
+      if (present(geom_id_declared_by_item)) aspect%geom_id_declared_by_item = geom_id_declared_by_item
+
       call aspect%set_time_dependent(is_time_dependent)
 
    end function new_GeomAspect
@@ -139,7 +149,7 @@ contains
       supports_conversion_specific = .false.
       select type(dst)
       class is (GeomAspect)
-         supports_conversion_specific = (src%horizontal_dims_spec == dst%horizontal_dims_spec)
+         supports_conversion_specific = dims_specs_agree(src%horizontal_dims_spec, dst%horizontal_dims_spec)
       end select
 
    end function supports_conversion_specific
@@ -150,12 +160,16 @@ contains
 
       select type(dst)
       class is (GeomAspect)
-         if (allocated(src%geom) .and. allocated(dst%geom)) then
+         if (src%horizontal_dims_spec == HORIZONTAL_DIMS_NONE .and. &
+              dst%horizontal_dims_spec == HORIZONTAL_DIMS_NONE) then
+            ! No horizontal dimension: the geom does not affect the data.
+            matches = .true.
+         else if (allocated(src%geom) .and. allocated(dst%geom)) then
             matches = MAPL_SameGeom(src%geom, dst%geom) .and. &
-                 (src%horizontal_dims_spec == dst%horizontal_dims_spec)
+                 dims_specs_agree(src%horizontal_dims_spec, dst%horizontal_dims_spec)
          else if (src%geom_id%is_assigned() .and. dst%geom_id%is_assigned()) then
             matches = (src%geom_id%get_value() == dst%geom_id%get_value()) .and. &
-                 (src%horizontal_dims_spec == dst%horizontal_dims_spec)
+                 dims_specs_agree(src%horizontal_dims_spec, dst%horizontal_dims_spec)
          else if (src%is_mirror()) then
             matches = .false. ! need geom extension
          else
@@ -166,6 +180,13 @@ contains
       end select
 
    end function matches
+
+   ! A mirror spec agrees with anything: it takes the other side's at connection.
+   elemental logical function dims_specs_agree(a, b)
+      type(HorizontalDimsSpec), intent(in) :: a, b
+
+      dims_specs_agree = (a == b) .or. (a == HORIZONTAL_DIMS_MIRROR) .or. (b == HORIZONTAL_DIMS_MIRROR)
+   end function dims_specs_agree
 
    function get_regridder_param(src_aspect, dst_aspect, rc) result(regridder_param)
       type(EsmfRegridderParam) :: regridder_param
@@ -191,23 +212,53 @@ contains
       _RETURN(_SUCCESS)
    end function get_regridder_param
 
+   ! Component-wide push (and, with force_replace, the explicit per-item call).
+   ! An item that declared its own geom keeps it; a pushed geom replaces an
+   ! earlier pushed one and, unless the item declared its own geom_id, its id.
+   subroutine set_component_geom(this, geom, force_replace, rc)
+      class(GeomAspect), intent(inout) :: this
+      type(ESMF_Geom), intent(in) :: geom
+      logical, optional, intent(in) :: force_replace
+      integer, optional, intent(out) :: rc
+
+      logical :: force
+
+      force = .false.
+      if (present(force_replace)) force = force_replace
+
+      if (this%declared_by_item .and. .not. force) then
+         _RETURN(_SUCCESS)
+      end if
+
+      if (.not. this%geom_id_declared_by_item) call assign_geom_id(this, geom)
+      call this%set_geom(geom)
+      if (force) this%declared_by_item = .true.
+
+      _RETURN(_SUCCESS)
+   end subroutine set_component_geom
+
+   subroutine assign_geom_id(this, geom)
+      class(GeomAspect), intent(inout) :: this
+      type(ESMF_Geom), intent(in) :: geom
+
+      type(mapl_GeomIdManager), pointer :: geom_id_manager
+      logical :: has_geom_id
+      type(GeomId) :: geom_id_value
+
+      geom_id_value = MAPL_GeomGetId(geom, isPresent=has_geom_id)
+      if (has_geom_id) then
+         this%geom_id = geom_id_value
+      else
+         geom_id_manager => mapl_get_geom_id_manager()
+         this%geom_id = geom_id_manager%get_next_geom_id()
+      end if
+   end subroutine assign_geom_id
+
    subroutine set_geom(this, geom)
        class(GeomAspect), intent(inout) :: this
        type(ESMF_Geom) :: geom
 
-       type(mapl_GeomIdManager), pointer :: geom_id_manager
-       logical :: has_geom_id
-       type(GeomId) :: geom_id_value
-
-       if (.not. this%geom_id%is_assigned()) then
-          geom_id_value = MAPL_GeomGetId(geom, isPresent=has_geom_id)
-          if (has_geom_id) then
-             this%geom_id = geom_id_value
-          else
-             geom_id_manager => mapl_get_geom_id_manager()
-             this%geom_id = geom_id_manager%get_next_geom_id()
-          end if
-       end if
+       if (.not. this%geom_id%is_assigned()) call assign_geom_id(this, geom)
 
        this%geom = geom
        call this%set_characteristic_state(ASPECT_STATUS_SPECIFIED)
@@ -269,6 +320,9 @@ contains
 
         export_ = to_GeomAspect(export, _RC)
         this%geom_id = export_%geom_id
+        if (this%horizontal_dims_spec == HORIZONTAL_DIMS_MIRROR) then
+           this%horizontal_dims_spec = export_%horizontal_dims_spec
+        end if
         if (allocated(export_%geom)) then
            this%geom = export_%geom
            call this%set_characteristic_state(ASPECT_STATUS_SPECIFIED)

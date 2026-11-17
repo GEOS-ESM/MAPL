@@ -168,9 +168,8 @@ contains
 
       integer :: status
 
-      ! For Phase 2, Task 2.1, we return NullTransform
-      ! Task 2.2 will create the actual NormalizationTransform
-      ! For now, normalization is handled by other mechanisms
+      ! A NullTransform is returned: there is no NormalizationTransform
+      ! wired in here yet; normalization is handled by other mechanisms.
       allocate(transform, source=NullTransform())
 
       _RETURN(_SUCCESS)

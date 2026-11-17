@@ -153,6 +153,9 @@ contains
 
       integer :: status
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(transform, source=NullTransform())
+
       ! ConservationAspect is metadata-only and should not create transforms
       ! This routine should be unreachable - conservation is handled via normalization
       _FAIL("ConservationAspect::make_transform() should not be called")

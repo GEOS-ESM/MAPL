@@ -1,0 +1,309 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! Tests for the ownership-shape wiring of
+! OuterMetaComponent%get_component_graph() (see
+! docs/graph/spec/20-implementation-roadmap.md sec 20.4.1 and
+! docs/graph/spec/02-component-hierarchy.md).
+!
+! Test-only OuterMetaComponent instances are built directly via
+! attach_outer_meta / OuterMetaComponent() / init_meta - the exact
+! sequence GenericGridComp.F90's get_or_create_outer_meta and
+! OuterMetaComponent/add_child_by_spec.F90's no-user-setservices branch
+! use internally - bypassing the full ESMF SetServices/Initialize
+! dispatch, since only the object's own field/accessor wiring is under
+! test here, not the GridComp method-dispatch lifecycle.
+module Test_ComponentHierarchyGraph
+   use mapl_OuterMetaComponent_mod
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_ChildSpec_mod, only: ChildSpec
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_NodeIdSet_mod, only: NodeIdSet
+   use mapl_PortId_mod, only: PortId
+   use mapl_PortIdNodeIdMap_mod, only: PortIdNodeIdMap
+   use GraphBuilderTestSupport_mod, only: make_outer_meta
+   use esmf
+   use pfunit
+   implicit none(type, external)
+
+contains
+
+   ! make_outer_meta shared via GraphBuilderTestSupport_mod
+   ! (docs/graph/spec/20-implementation-roadmap.md sec 20.4.17).
+
+   ! A new component owns its required parts, and exactly one local
+   ! ComponentGraph: a freshly constructed
+   ! OuterMetaComponent owns a valid, empty, mutable ComponentGraph.
+   @test(npes=[0])
+   subroutine test_new_component_owns_valid_empty_graph(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentGraph), pointer :: graph
+      type(NodeIdSet) :: ids
+      integer :: status
+
+      call make_outer_meta('comp_a', outer_gc, outer_meta, _RC)
+
+      graph => outer_meta%get_component_graph()
+      @assert_that(associated(graph), is(true()))
+      @assert_that(graph%is_frozen(), is(false()))
+      @assert_that(graph%is_finalized(), is(false()))
+
+      ids = graph%get_node_ids()
+      @assert_that(ids%empty(), is(true()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_new_component_owns_valid_empty_graph
+
+   ! Sibling components have distinct graphs:
+   ! two children of the same parent each own their own local
+   ! ComponentGraph - a node registered in one is invisible in the
+   ! other's graph query API.
+   @test(npes=[0])
+   subroutine test_sibling_components_have_distinct_graphs(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(OuterMetaComponent), pointer :: child1_meta, child2_meta
+      type(ComponentGraph), pointer :: graph1, graph2
+      type(GriddedComponentDriver) :: child1_driver, child2_driver
+      type(ESMF_GridComp) :: child1_gc, child2_gc
+      type(ChildSpec) :: child_spec
+      type(NodeId) :: id1
+      type(StateItemNode) :: node1
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      integer :: status
+
+      call make_outer_meta('comp_b', parent_gc, parent_meta, _RC)
+
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child1', child_spec, _RC)
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child2', child_spec, _RC)
+
+      child1_driver = parent_meta%get_child('child1', _RC)
+      child2_driver = parent_meta%get_child('child2', _RC)
+      child1_gc = child1_driver%get_gridcomp()
+      child2_gc = child2_driver%get_gridcomp()
+
+      child1_meta => get_outer_meta(child1_gc, _RC)
+      child2_meta => get_outer_meta(child2_gc, _RC)
+
+      graph1 => child1_meta%get_component_graph()
+      graph2 => child2_meta%get_component_graph()
+      @assert_that(associated(graph1), is(true()))
+      @assert_that(associated(graph2), is(true()))
+
+      id1 = graph1%next_node_id(rc=status)
+      @assert_that(status, is(0))
+      node1 = StateItemNode(id1, payload, revision)
+      call graph1%register_node(node1, rc=status)
+      @assert_that(status, is(0))
+
+      @assert_that(graph1%owns_node(id1), is(true()))
+      @assert_that(graph2%owns_node(id1), is(false()))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_sibling_components_have_distinct_graphs
+
+   ! The graph reachable through
+   ! OuterMetaComponent%get_component_graph() is fully functional for
+   ! public ports (import/export) - reuse of ComponentGraph's own
+   ! PortIdNodeIdMap-backed tables, not a new storage type on
+   ! OuterMetaComponent.
+   @test(npes=[0])
+   subroutine test_graph_port_tables_reachable_through_accessor(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentGraph), pointer :: graph
+      type(NodeId) :: node_id
+      type(StateItemNode) :: node
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(PortId) :: import_port, export_port
+      type(PortIdNodeIdMap) :: import_ports, export_ports
+      type(NodeId), pointer :: bound_id
+      integer :: status
+
+      call make_outer_meta('comp_c', outer_gc, outer_meta, _RC)
+
+      graph => outer_meta%get_component_graph()
+
+      node_id = graph%next_node_id(rc=status)
+      @assert_that(status, is(0))
+      node = StateItemNode(node_id, payload, revision)
+      call graph%register_node(node, rc=status)
+      @assert_that(status, is(0))
+
+      import_port = graph%next_port_id(rc=status)
+      @assert_that(status, is(0))
+      call graph%add_import_port(import_port, node_id, rc=status)
+      @assert_that(status, is(0))
+
+      export_port = graph%next_port_id(rc=status)
+      @assert_that(status, is(0))
+      call graph%add_export_port(export_port, node_id, rc=status)
+      @assert_that(status, is(0))
+
+      import_ports = graph%get_import_ports()
+      bound_id => import_ports%at(import_port)
+      @assert_that(associated(bound_id), is(true()))
+      @assert_that(bound_id%to_string(), is(equal_to(node_id%to_string())))
+
+      export_ports = graph%get_export_ports()
+      bound_id => export_ports%at(export_port)
+      @assert_that(associated(bound_id), is(true()))
+      @assert_that(bound_id%to_string(), is(equal_to(node_id%to_string())))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_graph_port_tables_reachable_through_accessor
+
+   ! Encapsulation boundary. Two things are verified
+   ! together here:
+   !
+   ! 1. (Runtime-checkable) The only public path from a parent to a
+   !    child is OuterMetaComponent%get_child(), which returns a
+   !    GriddedComponentDriver value - never the child's OuterMetaComponent,
+   !    ComponentGraph, or NodeId/DependencyNetworkId sets. This is
+   !    demonstrated below: the parent recovers only driver-level
+   !    identity (name/gridcomp) for its child, and GriddedComponentDriver
+   !    (mapl_GriddedComponentDriver_mod) has no get_component_graph,
+   !    get_outer_meta, or similar procedure - if it did, that call would
+   !    simply not compile, since GriddedComponentDriver's interface is
+   !    fixed and does not declare one.
+   !
+   ! 2. (Not runtime-checkable in Fortran, documented instead) There is
+   !    no "get_parent" procedure anywhere on OuterMetaComponent's public
+   !    interface (superstructure/generic/OuterMetaComponent.F90's
+   !    type-bound procedure list has no such entry as of this test's
+   !    writing) and no procedure that accepts a child reference and
+   !    returns that child's internal graph/NodeId/DependencyNetworkId
+   !    sets. Fortran has no reflection API to assert "this symbol does
+   !    not exist" at runtime; this guarantee is enforced by code review
+   !    against OuterMetaComponent.F90's interface block, not by this
+   !    test's assertions. Re-verify by inspection if that file's public
+   !    interface changes.
+   @test(npes=[0])
+   subroutine test_parent_reaches_child_only_through_driver(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(GriddedComponentDriver) :: child_driver
+      type(ChildSpec) :: child_spec
+      character(:), allocatable :: driver_name
+      integer :: status
+
+      call make_outer_meta('comp_d', parent_gc, parent_meta, _RC)
+
+      child_spec = ChildSpec()
+      call parent_meta%add_child('child1', child_spec, _RC)
+
+      ! The only public accessor for a child is get_child(), and its
+      ! result type is fixed at GriddedComponentDriver - see module
+      ! header comment for what that guarantees and what it does not.
+      child_driver = parent_meta%get_child('child1', _RC)
+      driver_name = child_driver%get_name(_RC)
+      @assert_that(driver_name, is(equal_to('[child1]')))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_parent_reaches_child_only_through_driver
+
+   ! Component names are unique across the entire hierarchy (a child with a
+   ! name already used elsewhere is rejected) - the sibling-level case: two
+   ! children of the same parent, same name. (Already covered implicitly today by
+   ! add_child_by_spec's own sibling-count assert - this test exercises it
+   ! directly, for the first time, rather than leaving it untested.)
+   @test(npes=[0])
+   subroutine test_add_child_rejects_sibling_name_collision(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: parent_gc
+      type(OuterMetaComponent), pointer :: parent_meta
+      type(ChildSpec) :: child_spec
+      integer :: status
+
+      call make_outer_meta('comp_e', parent_gc, parent_meta, _RC)
+
+      child_spec = ChildSpec()
+      call parent_meta%add_child('dup_name', child_spec, _RC)
+      @assert_that(status, is(0))
+
+      child_spec = ChildSpec()
+      call parent_meta%add_child('dup_name', child_spec, rc=status)
+      ! add_child_by_spec's own _ASSERT raises an exception rather than
+      ! returning a nonzero status for the caller to inspect directly -
+      ! same multi-frame-unwind pattern Test_GraphBuilder.pf's own
+      ! test_freeze_fails_and_leaves_graph_unfrozen_on_conflict and
+      ! Test_OuterMetaComponentDriverResolver.pf's
+      ! test_unknown_key_fails_loudly document: the raised exception
+      ! must be consumed via @assertExceptionRaised before status is
+      ! meaningful.
+      @assertExceptionRaised('duplicate child name: <dup_name>.')
+      @assert_that(status, is(not(equal_to(0))))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_add_child_rejects_sibling_name_collision
+
+   ! graph/component-hierarchy delta spec scenario "Sibling-unique but
+   ! hierarchy-duplicate names are rejected": a name that does not
+   ! collide with any of its own siblings, but does collide with a
+   ! component's name elsewhere in the hierarchy (a cousin, several
+   ! levels removed) - the new coverage this task adds. Hierarchy shape:
+   !   root
+   !   +-- branch_a
+   !   |     +-- cousin   (added first)
+   !   +-- branch_b
+   !         +-- cousin   (must be rejected: not branch_b's own sibling,
+   !                       but still a hierarchy-wide collision)
+   @test(npes=[0])
+   subroutine test_add_child_rejects_cross_branch_cousin_collision(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta
+      type(OuterMetaComponent), pointer :: branch_a_meta, branch_b_meta
+      type(GriddedComponentDriver) :: branch_a_driver, branch_b_driver
+      type(ESMF_GridComp) :: branch_a_gc, branch_b_gc
+      type(ChildSpec) :: child_spec
+      integer :: status
+
+      call make_outer_meta('comp_f', root_gc, root_meta, _RC)
+
+      child_spec = ChildSpec()
+      call root_meta%add_child('branch_a', child_spec, _RC)
+      child_spec = ChildSpec()
+      call root_meta%add_child('branch_b', child_spec, _RC)
+
+      branch_a_driver = root_meta%get_child('branch_a', _RC)
+      branch_b_driver = root_meta%get_child('branch_b', _RC)
+      branch_a_gc = branch_a_driver%get_gridcomp()
+      branch_b_gc = branch_b_driver%get_gridcomp()
+      branch_a_meta => get_outer_meta(branch_a_gc, _RC)
+      branch_b_meta => get_outer_meta(branch_b_gc, _RC)
+
+      ! "cousin" is not a sibling of anything under branch_b - no
+      ! sibling-level collision exists at the point this call is made.
+      child_spec = ChildSpec()
+      call branch_a_meta%add_child('cousin', child_spec, _RC)
+      @assert_that(status, is(0))
+
+      child_spec = ChildSpec()
+      call branch_b_meta%add_child('cousin', child_spec, rc=status)
+      @assertExceptionRaised('duplicate component name elsewhere in the hierarchy: <cousin>.')
+      @assert_that(status, is(not(equal_to(0))))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_add_child_rejects_cross_branch_cousin_collision
+
+end module Test_ComponentHierarchyGraph

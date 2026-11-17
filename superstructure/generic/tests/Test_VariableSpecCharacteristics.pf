@@ -1,0 +1,3109 @@
+#include "MAPL_TestErr.h"
+
+! VariableSpec characteristic factories: status rule and shape
+! applicability for each characteristic a factory inserts.
+module Test_VariableSpecCharacteristics
+   use pfunit
+   use mapl_VariableSpec_mod, only: VariableSpec, make_VariableSpec, MAPL_STRING_MIRROR
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_FIELD, MAPL_STATEITEM_FIELDBUNDLE, &
+        MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD, &
+        MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_UNKNOWN, &
+        MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
+   use mapl_ClassAspect_mod, only: ClassAspect
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
+   use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, &
+        UNGRIDDED_DIMS_CHARACTERISTIC_KIND, GEOMETRY_CHARACTERISTIC_KIND, &
+        VERTICAL_GRID_CHARACTERISTIC_KIND, STANDARD_NAME_CHARACTERISTIC_KIND, &
+        ATTRIBUTES_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+        VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+        HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND, &
+        RESTART_MODE_CHARACTERISTIC_KIND, QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+        CONSERVATION_CHARACTERISTIC_KIND, NORMALIZATION_CHARACTERISTIC_KIND, &
+        EXPRESSION_CHARACTERISTIC_KIND
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        ITEM_SHAPE => ITEM_SHAPE_CHARACTERISTIC_KIND, StateItemCharacteristicKind
+   use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID
+   use mapl_CharacteristicStatus_mod, only: CharacteristicStatus, operator(==), &
+        CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
+        CHARACTERISTIC_STATUS_DEFERRED
+   use mapl_geom_api, only: mapl_new_GeomId
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
+   use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic, UNKNOWN_STANDARD_NAME
+   use mapl_LongNameCharacteristic_mod, only: LongNameCharacteristic
+   use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
+   use mapl_RestartModes_mod, only: RestartMode, RESTART_REQUIRED, RESTART_SKIP, operator(==)
+   use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
+   use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
+   use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
+   use mapl_ExpressionCharacteristic_mod, only: ExpressionCharacteristic
+   use mapl_QuantityType_mod, only: QUANTITY_UNKNOWN, QUANTITY_TEMPERATURE, &
+        BASIS_NONE, operator(==)
+   use mapl_ConservationMetadata_mod, only: ConservationMetadata, &
+        new_ConservationMetadata_mirror
+   use mapl_ConservationType_mod, only: CONSERVE_NONE, &
+        CONSERVE_MASS, operator(==)
+   use mapl_NormalizationMetadata_mod, only: NormalizationMetadata
+   use mapl_NormalizationType_mod, only: NORMALIZE_NONE, &
+        NORMALIZE_DELP, operator(==)
+   use gFTL2_StringVector, only: StringVector
+   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
+   use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
+   use mapl_UngriddedDims_mod, only: UngriddedDims, operator(==)
+   use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
+   use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid, mapl_BasicVerticalGridSpec
+   use mapl_FixedLevelsVerticalGrid_mod, only: FixedLevelsVerticalGrid, &
+        FixedLevelsVerticalGridSpec
+   use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
+   use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
+   use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE, &
+        HORIZONTAL_DIMS_MIRROR, operator(==)
+   use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, &
+        VCOORD_DIRECTION_DOWN, VCOORD_DIRECTION_UNSPECIFIED, VCOORD_DIRECTION_INVALID, operator(==)
+   use mapl_VerticalAlignment_mod, only: VerticalAlignment, VALIGN_UP, VALIGN_DOWN, VALIGN_WITH_GRID, VALIGN_INVALID, operator(==)
+   use mapl_field_api, only: MAPL_FieldGet
+   use esmf, only: ESMF_Field, ESMF_FieldEmptyCreate, ESMF_FieldDestroy
+   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE, &
+        VERTICAL_STAGGER_MIRROR, VERTICAL_STAGGER_INVALID
+   use esmf, only: ESMF_StateItem_Flag, ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_INTERNAL, ESMF_StateIntent_Flag, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_I4
+   use esmf, only: operator(==)
+   use esmf, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, set_field_dictionary_config, &
+        get_field_dictionary_config
+   use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateDestroy
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_DESCRIPTIVE, SYNC_PHASE_STRUCTURAL
+   implicit none(type, external)
+
+contains
+
+   function make_spec(item_type, units) result(var_spec)
+      type(ESMF_StateItem_Flag), intent(in) :: item_type
+      character(*), optional, intent(in) :: units
+      type(VariableSpec) :: var_spec
+
+      ! A wildcard is only valid as an import; everything else defaults to export.
+      var_spec%state_intent = ESMF_STATEINTENT_EXPORT
+      if (item_type == MAPL_STATEITEM_WILDCARD) var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%short_name = 'X'
+      var_spec%itemType = item_type
+      if (present(units)) var_spec%units = units
+   end function make_spec
+
+   function units_status(var_spec, units, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      character(:), allocatable, intent(out) :: units
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, c, _RC)
+      char_status = c%get_status()
+      select type (c)
+      class is (PhysicalUnitsCharacteristic)
+         units = c%get_units()
+      class default
+         status = 1
+         _VERIFY(status)
+      end select
+      _RETURN(_SUCCESS)
+   end function units_status
+
+   function typekind_status(var_spec, type_kind, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      character(:), allocatable, intent(out) :: type_kind
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, c, _RC)
+      char_status = c%get_status()
+      select type (c)
+      class is (TypeKindCharacteristic)
+         type_kind = c%get_type_kind()
+      class default
+         status = 1
+         _VERIFY(status)
+      end select
+      _RETURN(_SUCCESS)
+   end function typekind_status
+
+   @test
+   subroutine test_declared_units_are_specified()
+      character(:), allocatable :: units
+      integer :: status
+
+      @assertTrue(units_status(make_spec(MAPL_STATEITEM_FIELD, 'm'), units, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertEqual('m', units)
+   end subroutine test_declared_units_are_specified
+
+   @test
+   subroutine test_undeclared_units_are_unchecked()
+      character(:), allocatable :: units
+      integer :: status
+
+      @assertTrue(units_status(make_spec(MAPL_STATEITEM_FIELD), units, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+      @assertEqual('', units)
+   end subroutine test_undeclared_units_are_unchecked
+
+   @test
+   subroutine test_unknown_units_are_unchecked()
+      character(:), allocatable :: units
+      integer :: status
+
+      @assertTrue(units_status(make_spec(MAPL_STATEITEM_EXPRESSION, UNKNOWN_UNITS), units, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+      @assertEqual('', units)
+   end subroutine test_unknown_units_are_unchecked
+
+   @test
+   subroutine test_bundle_units_are_inserted()
+      character(:), allocatable :: units
+      integer :: status
+
+      @assertTrue(units_status(make_spec(MAPL_STATEITEM_FIELDBUNDLE, 'K'), units, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertEqual('K', units)
+   end subroutine test_bundle_units_are_inserted
+
+   @test
+   subroutine test_all_unit_carrying_shapes_get_specified_units()
+      type(ESMF_StateItem_Flag) :: shapes(3)
+      character(:), allocatable :: units
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET]
+      do i = 1, size(shapes)
+         @assertTrue(units_status(make_spec(shapes(i), 'Pa'), units, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+         @assertEqual(0, status)
+         @assertEqual('Pa', units)
+      end do
+   end subroutine test_all_unit_carrying_shapes_get_specified_units
+
+   @test
+   subroutine test_shapes_without_units_get_no_entry()
+      type(ESMF_StateItem_Flag) :: shapes(6)
+      type(StateItemDescriptor) :: descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD, &
+           MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
+      do i = 1, size(shapes)
+         var_spec = make_spec(shapes(i), 'm')
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_shapes_without_units_get_no_entry
+
+   ! VariableSpec%typekind defaults to R4, which is SPECIFIED (never DEFERRED).
+   @test
+   subroutine test_default_typekind_is_specified_r4()
+      character(:), allocatable :: type_kind
+      integer :: status
+
+      @assertTrue(typekind_status(make_spec(MAPL_STATEITEM_FIELD), type_kind, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertEqual('R4', type_kind)
+   end subroutine test_default_typekind_is_specified_r4
+
+   @test
+   subroutine test_declared_typekind_is_specified()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: type_kind
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%typekind = ESMF_TYPEKIND_R8
+      @assertTrue(typekind_status(var_spec, type_kind, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertEqual('R8', type_kind)
+
+      var_spec%typekind = ESMF_TYPEKIND_I4
+      @assertTrue(typekind_status(var_spec, type_kind, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertEqual('I4', type_kind)
+   end subroutine test_declared_typekind_is_specified
+
+   @test
+   subroutine test_mirror_typekind_is_mirrored_without_value()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: type_kind
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%typekind = MAPL_TYPEKIND_MIRROR
+      @assertTrue(typekind_status(var_spec, type_kind, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+      @assertEqual('', type_kind)
+   end subroutine test_mirror_typekind_is_mirrored_without_value
+
+   @test
+   subroutine test_all_typekind_carrying_shapes_get_an_entry()
+      type(ESMF_StateItem_Flag) :: shapes(6)
+      character(:), allocatable :: type_kind
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_EXPRESSION]
+      do i = 1, size(shapes)
+         @assertTrue(typekind_status(make_spec(shapes(i)), type_kind, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+         @assertEqual(0, status)
+         @assertEqual('R4', type_kind)
+      end do
+   end subroutine test_all_typekind_carrying_shapes_get_an_entry
+
+   @test
+   subroutine test_shapes_without_typekind_get_no_entry()
+      type(ESMF_StateItem_Flag) :: shapes(6)
+      type(StateItemDescriptor) :: descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD, &
+           MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
+      do i = 1, size(shapes)
+         var_spec = make_spec(shapes(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(TYPE_KIND_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_shapes_without_typekind_get_no_entry
+
+   function standard_name_status(var_spec, standard_name, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      character(:), allocatable, intent(out) :: standard_name
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, c, _RC)
+      char_status = c%get_status()
+      select type (c)
+      class is (StandardNameCharacteristic)
+         standard_name = c%get_standard_name()
+      class default
+         status = 1
+         _VERIFY(status)
+      end select
+      _RETURN(_SUCCESS)
+   end function standard_name_status
+
+   @test
+   subroutine test_declared_standard_name_is_specified()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: standard_name
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%standard_name = 'air_temperature'
+      @assertTrue(standard_name_status(var_spec, standard_name, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertEqual('air_temperature', standard_name)
+   end subroutine test_declared_standard_name_is_specified
+
+   @test
+   subroutine test_undeclared_standard_name_is_unchecked()
+      character(:), allocatable :: standard_name
+      integer :: status
+
+      @assertTrue(standard_name_status(make_spec(MAPL_STATEITEM_FIELD), standard_name, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+      @assertEqual('', standard_name)
+   end subroutine test_undeclared_standard_name_is_unchecked
+
+   @test
+   subroutine test_unknown_standard_name_is_unchecked()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: standard_name
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%standard_name = UNKNOWN_STANDARD_NAME
+      @assertTrue(standard_name_status(var_spec, standard_name, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+      @assertEqual('', standard_name)
+   end subroutine test_unknown_standard_name_is_unchecked
+
+   @test
+   subroutine test_mirror_standard_name_on_import_is_mirrored()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: standard_name
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%standard_name_mirror = .true.
+      @assertTrue(standard_name_status(var_spec, standard_name, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_standard_name_on_import_is_mirrored
+
+   ! A BRACKET carries a standard name too, so a BRACKET -> FIELD pair
+   ! compares names.
+   @test
+   subroutine test_bracket_standard_name_is_specified()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: standard_name
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_BRACKET)
+      var_spec%standard_name = 'air_temperature'
+      @assertTrue(standard_name_status(var_spec, standard_name, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertEqual('air_temperature', standard_name)
+
+      @assertTrue(standard_name_status(make_spec(MAPL_STATEITEM_BRACKET), standard_name, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+   end subroutine test_bracket_standard_name_is_specified
+
+   ! require_standard_name: a FIELD with no standard_name is an error in
+   ! strict mode.
+   @test
+   subroutine test_required_standard_name_missing_fails_when_strict()
+      type(VariableSpec) :: var_spec
+      type(FieldDictionaryConfig) :: saved
+      integer :: status
+
+      saved = get_field_dictionary_config()
+      call use_validation('{validation_mode: strict, require_standard_name: true}')
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', rc=status)
+      call set_field_dictionary_config(saved)
+      @assertExceptionRaised('standard_name required: FIELD "X" declares none (strict mode).')
+      @assertExceptionRaised('status=1')
+   end subroutine test_required_standard_name_missing_fails_when_strict
+
+   @test
+   subroutine test_required_standard_name_unknown_fails_when_strict()
+      type(VariableSpec) :: var_spec
+      type(FieldDictionaryConfig) :: saved
+      integer :: status
+
+      saved = get_field_dictionary_config()
+      call use_validation('{validation_mode: strict, require_standard_name: true}')
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', standard_name=UNKNOWN_STANDARD_NAME, &
+           rc=status)
+      call set_field_dictionary_config(saved)
+      @assertExceptionRaised('standard_name required: FIELD "X" declares none (strict mode).')
+      @assertExceptionRaised('status=1')
+   end subroutine test_required_standard_name_unknown_fails_when_strict
+
+   ! A mirror request counts as declared, and only a FIELD is checked.
+   @test
+   subroutine test_required_standard_name_accepts_mirror_and_other_shapes()
+      type(VariableSpec) :: var_spec
+      type(FieldDictionaryConfig) :: saved
+      integer :: status
+
+      saved = get_field_dictionary_config()
+      call use_validation('{validation_mode: strict, require_standard_name: true}')
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', standard_name=MAPL_STRING_MIRROR, &
+           rc=status)
+      @assertEqual(0, status)
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', itemtype=MAPL_STATEITEM_FIELDBUNDLE, &
+           rc=status)
+      @assertEqual(0, status)
+      call set_field_dictionary_config(saved)
+   end subroutine test_required_standard_name_accepts_mirror_and_other_shapes
+
+   ! Permissive mode warns instead; with the switch off nothing is checked.
+   @test
+   subroutine test_required_standard_name_missing_warns_when_permissive()
+      type(VariableSpec) :: var_spec
+      type(FieldDictionaryConfig) :: saved
+      integer :: status
+
+      saved = get_field_dictionary_config()
+      call use_validation('{validation_mode: permissive, require_standard_name: true}')
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', rc=status)
+      @assertEqual(0, status)
+      call use_validation('{validation_mode: strict}')
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', rc=status)
+      @assertEqual(0, status)
+      call set_field_dictionary_config(saved)
+   end subroutine test_required_standard_name_missing_warns_when_permissive
+
+   subroutine use_validation(content)
+      character(*), intent(in) :: content
+      type(ESMF_HConfig) :: node
+
+      node = ESMF_HConfigCreate(content=content)
+      call set_field_dictionary_config(FieldDictionaryConfig(node))
+      call ESMF_HConfigDestroy(node)
+   end subroutine use_validation
+
+   @test
+   subroutine test_mirror_standard_name_on_export_is_an_error()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%standard_name_mirror = .true.
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X (STANDARD_NAME)')
+      @assertExceptionRaised('status=1')
+   end subroutine test_mirror_standard_name_on_export_is_an_error
+
+   ! make_VariableSpec strips the sentinel so the legacy FieldDictionary and
+   ! StandardNameAspect readers never see the literal string.
+   @test
+   subroutine test_make_VariableSpec_strips_mirror_sentinel()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', &
+           standard_name=MAPL_STRING_MIRROR, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(var_spec%standard_name_mirror)
+      @assertFalse(allocated(var_spec%standard_name))
+   end subroutine test_make_VariableSpec_strips_mirror_sentinel
+
+   @test
+   subroutine test_make_VariableSpec_rejects_mirror_sentinel_on_export()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           standard_name=MAPL_STRING_MIRROR, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_mirror_sentinel_on_export
+
+   @test
+   subroutine test_make_VariableSpec_rejects_mirror_flags_on_field_export()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           mirror_geom=.true., rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_mirror_flags_on_field_export
+
+   @test
+   subroutine test_make_VariableSpec_rejects_mirror_vgrid_on_field_export()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           mirror_vgrid=.true., rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_mirror_vgrid_on_field_export
+
+   @test
+   subroutine test_export_mirror_flag_with_geom_rejected()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, mirror_geom=.true., geom_id=mapl_new_GeomId(7), rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_export_mirror_flag_with_geom_rejected
+
+   @test
+   subroutine test_export_mirror_flag_with_vgrid_rejected()
+      type(VariableSpec) :: var_spec
+      type(mapl_BasicVerticalGrid) :: vgrid
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, mirror_vgrid=.true., vertical_grid=vgrid, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_export_mirror_flag_with_vgrid_rejected
+
+   @test
+   subroutine test_export_sentinel_on_field_rejected()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, standard_name=MAPL_STRING_MIRROR, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_export_sentinel_on_field_rejected
+
+   @test
+   subroutine test_make_VariableSpec_accepts_sentinel_on_export_expression()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_EXPRESSION, standard_name=MAPL_STRING_MIRROR, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_make_VariableSpec_accepts_sentinel_on_export_expression
+
+   @test
+   subroutine test_make_VariableSpec_accepts_export_expression_mirror()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_EXPRESSION, mirror_geom=.true., mirror_vgrid=.true., rc=status)
+      @assertEqual(0, status)
+   end subroutine test_make_VariableSpec_accepts_export_expression_mirror
+
+   ! A bracket is never an import; an INTERNAL bracket is still accepted.
+   @test
+   subroutine test_make_VariableSpec_rejects_bracket_import()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_BRACKET, rc=status)
+      @assertExceptionRaised('a bracket is not valid on an import: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_bracket_import
+
+   @test
+   subroutine test_make_VariableSpec_rejects_vectorbracket_import()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_VECTORBRACKET, rc=status)
+      @assertExceptionRaised('a vector bracket is not valid on an import: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_vectorbracket_import
+
+   @test
+   subroutine test_make_VariableSpec_accepts_internal_bracket()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_BRACKET, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_make_VariableSpec_accepts_internal_bracket
+
+   @test
+   subroutine test_make_VariableSpec_rejects_export_wildcard()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_WILDCARD, rc=status)
+      @assertExceptionRaised('a wildcard is only valid on an import: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_export_wildcard
+
+   @test
+   subroutine test_make_VariableSpec_rejects_internal_wildcard()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_WILDCARD, rc=status)
+      @assertExceptionRaised('a wildcard is only valid on an import: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_internal_wildcard
+
+   @test
+   subroutine test_hand_built_bracket_import_rejected_by_backstop()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_BRACKET)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('a bracket is not valid on an import: X')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_hand_built_bracket_import_rejected_by_backstop
+
+   @test
+   subroutine test_hand_built_export_wildcard_rejected_by_backstop()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_WILDCARD)
+      var_spec%state_intent = ESMF_STATEINTENT_EXPORT
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('a wildcard is only valid on an import: X')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_hand_built_export_wildcard_rejected_by_backstop
+
+   @test
+   subroutine test_hand_built_vectorbracket_import_rejected_by_backstop()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_VECTORBRACKET)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('a vector bracket is not valid on an import: X')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_hand_built_vectorbracket_import_rejected_by_backstop
+
+   @test
+   subroutine test_make_VariableSpec_accepts_internal_vectorbracket()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_VECTORBRACKET, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_make_VariableSpec_accepts_internal_vectorbracket
+
+   @test
+   subroutine test_hand_built_internal_wildcard_rejected_by_backstop()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_WILDCARD)
+      var_spec%state_intent = ESMF_STATEINTENT_INTERNAL
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('a wildcard is only valid on an import: X')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_hand_built_internal_wildcard_rejected_by_backstop
+
+   @test
+   subroutine test_make_VariableSpec_accepts_mirror_flags_on_import()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', &
+           mirror_geom=.true., mirror_vgrid=.true., rc=status)
+      @assertEqual(0, status)
+   end subroutine test_make_VariableSpec_accepts_mirror_flags_on_import
+
+   @test
+   subroutine test_geometry_factory_rejects_hand_built_mirror_geom_export()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%mirror_geom = .true.
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X (GEOMETRY)')
+      @assertExceptionRaised('status=1')
+   end subroutine test_geometry_factory_rejects_hand_built_mirror_geom_export
+
+   @test
+   subroutine test_vgrid_factory_rejects_hand_built_mirror_export()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%mirror_vgrid = .true.
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X (VERTICAL_GRID)')
+      @assertExceptionRaised('status=1')
+   end subroutine test_vgrid_factory_rejects_hand_built_mirror_export
+
+   @test
+   subroutine test_export_rejects_typekind_mirror()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, typekind=MAPL_TYPEKIND_MIRROR, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_export_rejects_typekind_mirror
+
+   @test
+   subroutine test_export_rejects_horizontal_dims_mirror()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, horizontal_dims_spec=HORIZONTAL_DIMS_MIRROR, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_export_rejects_horizontal_dims_mirror
+
+   @test
+   subroutine test_export_rejects_ungridded_dims_mirror()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, ungridded_dims=UngriddedDims(is_mirror=.true.), rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_export_rejects_ungridded_dims_mirror
+
+   @test
+   subroutine test_export_rejects_vertical_stagger_mirror()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, vertical_stagger=VERTICAL_STAGGER_MIRROR, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_export_rejects_vertical_stagger_mirror
+
+   @test
+   subroutine test_export_rejects_vertical_alignment_mirror()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, vertical_alignment='mirror', rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_export_rejects_vertical_alignment_mirror
+
+   @test
+   subroutine test_make_VariableSpec_accepts_plain_field_export()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_make_VariableSpec_accepts_plain_field_export
+
+   @test
+   subroutine test_typekind_factory_rejects_hand_built_mirror_export()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%typekind = MAPL_TYPEKIND_MIRROR
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X (TYPE_KIND)')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_typekind_factory_rejects_hand_built_mirror_export
+
+   @test
+   subroutine test_ungridded_dims_factory_rejects_hand_built_mirror_export()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%ungridded_dims = UngriddedDims(is_mirror=.true.)
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X (UNGRIDDED_DIMS)')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_ungridded_dims_factory_rejects_hand_built_mirror_export
+
+   function long_name_status(var_spec, long_name, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      character(:), allocatable, intent(out) :: long_name
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(LONG_NAME_CHARACTERISTIC_KIND, c, _RC)
+      char_status = c%get_status()
+      select type (c)
+      class is (LongNameCharacteristic)
+         long_name = c%get_long_name()
+      class default
+         status = 1
+         _VERIFY(status)
+      end select
+      _RETURN(_SUCCESS)
+   end function long_name_status
+
+   @test
+   subroutine test_declared_long_name_is_specified()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: long_name
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%long_name = 'Air Temperature'
+      var_spec%standard_name = 'other_name'
+      char_status = long_name_status(var_spec, long_name, rc=status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertEqual('Air Temperature', long_name)
+   end subroutine test_declared_long_name_is_specified
+
+   ! Legacy tests `allocated`, so an empty long_name is declared.
+   @test
+   subroutine test_empty_long_name_is_specified()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: long_name
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%long_name = ''
+      var_spec%standard_name = 'air_temperature'
+      char_status = long_name_status(var_spec, long_name, rc=status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertEqual('', long_name)
+   end subroutine test_empty_long_name_is_specified
+
+   @test
+   subroutine test_export_long_name_falls_back_to_standard_name()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: long_name
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%standard_name = 'air_temperature'
+      char_status = long_name_status(var_spec, long_name, rc=status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertEqual('air_temperature', long_name)
+   end subroutine test_export_long_name_falls_back_to_standard_name
+
+   ! Every intent but IMPORT falls back, so INTERNAL does too.
+   @test
+   subroutine test_internal_long_name_falls_back_to_standard_name()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: long_name
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_INTERNAL
+      var_spec%standard_name = 'air_temperature'
+      char_status = long_name_status(var_spec, long_name, rc=status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertEqual('air_temperature', long_name)
+   end subroutine test_internal_long_name_falls_back_to_standard_name
+
+   @test
+   subroutine test_export_long_name_without_standard_name_is_unchecked()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: long_name
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      char_status = long_name_status(var_spec, long_name, rc=status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+      @assertEqual('', long_name)
+
+      var_spec%standard_name = UNKNOWN_STANDARD_NAME
+      char_status = long_name_status(var_spec, long_name, rc=status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+   end subroutine test_export_long_name_without_standard_name_is_unchecked
+
+   ! An import never falls back; with no long_name it is UNCHECKED.
+   @test
+   subroutine test_import_long_name_does_not_fall_back()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: long_name
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%standard_name = 'air_temperature'
+      char_status = long_name_status(var_spec, long_name, rc=status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+      @assertEqual('', long_name)
+   end subroutine test_import_long_name_does_not_fall_back
+
+   ! An import that declares its own long_name keeps it (legacy: dst wins).
+   @test
+   subroutine test_import_declared_long_name_is_specified()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: long_name
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%long_name = 'X'
+      var_spec%standard_name = 'air_temperature'
+      char_status = long_name_status(var_spec, long_name, rc=status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertEqual('X', long_name)
+   end subroutine test_import_declared_long_name_is_specified
+
+   ! A mirrored long_name never falls back to the standard name.
+   @test
+   subroutine test_mirror_long_name_on_import_is_mirrored()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: long_name
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%long_name_mirror = .true.
+      var_spec%standard_name = 'air_temperature'
+      char_status = long_name_status(var_spec, long_name, rc=status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+      @assertEqual('', long_name)
+   end subroutine test_mirror_long_name_on_import_is_mirrored
+
+   @test
+   subroutine test_mirror_long_name_on_export_is_an_error()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%long_name_mirror = .true.
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised( &
+           'mirror is only valid on an import or an expression export: X (LONG_NAME)')
+      @assertExceptionRaised('status=1')
+   end subroutine test_mirror_long_name_on_export_is_an_error
+
+   @test
+   subroutine test_expression_carries_long_name()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: long_name
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_EXPRESSION)
+      var_spec%long_name = 'Derived'
+      char_status = long_name_status(var_spec, long_name, rc=status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertEqual('Derived', long_name)
+   end subroutine test_expression_carries_long_name
+
+   ! The fallback applies to an EXPRESSION export as it does to a FIELD.
+   @test
+   subroutine test_expression_export_long_name_falls_back_to_standard_name()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: long_name
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_EXPRESSION)
+      var_spec%standard_name = 'air_temperature'
+      char_status = long_name_status(var_spec, long_name, rc=status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertEqual('air_temperature', long_name)
+   end subroutine test_expression_export_long_name_falls_back_to_standard_name
+
+   ! An EXPRESSION export may declare a mirror (A21 exemption); a mirrored
+   ! long_name still never falls back to the standard name.
+   @test
+   subroutine test_expression_export_mirror_long_name_is_mirrored()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: long_name
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_EXPRESSION)
+      var_spec%long_name_mirror = .true.
+      var_spec%standard_name = 'air_temperature'
+      char_status = long_name_status(var_spec, long_name, rc=status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+      @assertEqual('', long_name)
+   end subroutine test_expression_export_mirror_long_name_is_mirrored
+
+   @test
+   subroutine test_shapes_without_long_name_get_no_entry()
+      type(ESMF_StateItem_Flag) :: shapes(10)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, &
+           MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, &
+           MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN, &
+           MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
+      do i = 1, size(shapes)
+         descriptor = empty_descriptor
+         var_spec = make_spec(shapes(i))
+         var_spec%long_name = 'Declared'
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse( &
+              descriptor%has_characteristic(LONG_NAME_CHARACTERISTIC_KIND))
+         var_spec%long_name_mirror = .true.
+         ! A bracket is never an import, so it has no import half.
+         if (shapes(i) == MAPL_STATEITEM_BRACKET .or. shapes(i) == MAPL_STATEITEM_VECTORBRACKET) cycle
+         var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse( &
+              descriptor%has_characteristic(LONG_NAME_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_shapes_without_long_name_get_no_entry
+
+   ! make_VariableSpec strips the sentinel, and the field dictionary default
+   ! does not replace it.
+   @test
+   subroutine test_make_VariableSpec_strips_long_name_sentinel()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', &
+           long_name=MAPL_STRING_MIRROR, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(var_spec%long_name_mirror)
+      @assertFalse(allocated(var_spec%long_name))
+      @assertTrue(var_spec%requests_mirror())
+   end subroutine test_make_VariableSpec_strips_long_name_sentinel
+
+   @test
+   subroutine test_make_VariableSpec_rejects_long_name_sentinel_on_export()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, &
+           long_name=MAPL_STRING_MIRROR, rc=status)
+      @assertExceptionRaised( &
+           'mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_long_name_sentinel_on_export
+
+   @test
+   subroutine test_shapes_without_standard_name_get_no_entry()
+      type(ESMF_StateItem_Flag) :: shapes(10)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, &
+           MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_EXPRESSION, &
+           MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD, &
+           MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
+      do i = 1, size(shapes)
+         var_spec = make_spec(shapes(i))
+         var_spec%standard_name = 'air_temperature'
+         descriptor = empty_descriptor
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND))
+         var_spec%standard_name_mirror = .true.
+         ! A vector bracket is never an import, so it has no import half; an EXPRESSION exists only as an export.
+         if (shapes(i) == MAPL_STATEITEM_VECTORBRACKET) cycle
+         if (.not. (shapes(i) == MAPL_STATEITEM_EXPRESSION)) var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_shapes_without_standard_name_get_no_entry
+
+   function ungridded_dims_status(var_spec, dims, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      type(UngriddedDims), intent(out) :: dims
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND, c, _RC)
+      char_status = c%get_status()
+      select type (c)
+      class is (UngriddedDimsCharacteristic)
+         dims = c%get_ungridded_dims()
+      class default
+         status = 1
+         _VERIFY(status)
+      end select
+      _RETURN(_SUCCESS)
+   end function ungridded_dims_status
+
+   @test
+   subroutine test_default_ungridded_dims_is_specified_empty()
+      type(UngriddedDims) :: dims
+      integer :: status
+
+      @assertTrue(ungridded_dims_status(make_spec(MAPL_STATEITEM_FIELD), dims, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertTrue(dims == UngriddedDims())
+   end subroutine test_default_ungridded_dims_is_specified_empty
+
+   @test
+   subroutine test_declared_ungridded_dims_is_specified()
+      type(VariableSpec) :: var_spec
+      type(UngriddedDims) :: dims
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%ungridded_dims = UngriddedDims([5])
+      @assertTrue(ungridded_dims_status(var_spec, dims, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertTrue(dims == UngriddedDims([5]))
+   end subroutine test_declared_ungridded_dims_is_specified
+
+   @test
+   subroutine test_mirror_ungridded_dims_is_mirrored_without_value()
+      type(VariableSpec) :: var_spec
+      type(UngriddedDims) :: dims
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%ungridded_dims = UngriddedDims(is_mirror=.true.)
+      @assertTrue(ungridded_dims_status(var_spec, dims, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+      @assertTrue(dims == UngriddedDims())
+   end subroutine test_mirror_ungridded_dims_is_mirrored_without_value
+
+   @test
+   subroutine test_all_ungridded_dims_carrying_shapes_get_an_entry()
+      type(ESMF_StateItem_Flag) :: shapes(6)
+      type(UngriddedDims) :: dims
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, &
+           MAPL_STATEITEM_EXPRESSION]
+      do i = 1, size(shapes)
+         @assertTrue(ungridded_dims_status(make_spec(shapes(i)), dims, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+         @assertEqual(0, status)
+      end do
+   end subroutine test_all_ungridded_dims_carrying_shapes_get_an_entry
+
+   @test
+   subroutine test_shapes_without_ungridded_dims_get_no_entry()
+      type(ESMF_StateItem_Flag) :: shapes(6)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, &
+           MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN, &
+           MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
+      do i = 1, size(shapes)
+         var_spec = make_spec(shapes(i))
+         descriptor = empty_descriptor
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_shapes_without_ungridded_dims_get_no_entry
+
+   function geometry_status(var_spec, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, c, _RC)
+      char_status = c%get_status()
+      _RETURN(_SUCCESS)
+   end function geometry_status
+
+   ! A value the item does not declare comes from the component later.
+   @test
+   subroutine test_default_geometry_is_deferred()
+      integer :: status
+
+      @assertTrue(geometry_status(make_spec(MAPL_STATEITEM_FIELD), rc=status) == CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+   end subroutine test_default_geometry_is_deferred
+
+   @test
+   subroutine test_declared_geom_id_is_specified()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%geom_id = mapl_new_GeomId(7)
+      @assertTrue(geometry_status(var_spec, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_declared_geom_id_is_specified
+
+   @test
+   subroutine test_expression_geometry_is_mirrored()
+      integer :: status
+
+      @assertTrue(geometry_status(make_spec(MAPL_STATEITEM_EXPRESSION), rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+   end subroutine test_expression_geometry_is_mirrored
+
+   @test
+   subroutine test_mirror_geom_is_mirrored()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%mirror_geom = .true.
+      @assertTrue(geometry_status(var_spec, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_geom_is_mirrored
+
+   ! A declared geometry wins over the mirror request.
+   @test
+   subroutine test_declared_geom_id_overrides_mirror_geom()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%mirror_geom = .true.
+      var_spec%geom_id = mapl_new_GeomId(7)
+      @assertTrue(geometry_status(var_spec, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_declared_geom_id_overrides_mirror_geom
+
+   @test
+   subroutine test_geometry_applicability()
+      type(ESMF_StateItem_Flag) :: with_entry(6), without_entry(3)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      with_entry = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_SERVICE]
+      do i = 1, size(with_entry)
+         var_spec = make_spec(with_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(descriptor%has_characteristic(GEOMETRY_CHARACTERISTIC_KIND))
+      end do
+
+      without_entry = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN]
+      do i = 1, size(without_entry)
+         descriptor = empty_descriptor
+         var_spec = make_spec(without_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(GEOMETRY_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_geometry_applicability
+
+   ! --- HorizontalDimsSpec ---
+
+   function dims_spec_entry(var_spec, dims_spec, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      type(HorizontalDimsSpec), intent(out) :: dims_spec
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, c, _RC)
+      char_status = c%get_status()
+      select type (c)
+      class is (HorizontalDimsSpecCharacteristic)
+         dims_spec = c%get_horizontal_dims_spec()
+      class default
+         status = 1
+         _VERIFY(status)
+      end select
+      _RETURN(_SUCCESS)
+   end function dims_spec_entry
+
+   @test
+   subroutine test_default_horizontal_dims_spec_is_specified_geom()
+      type(HorizontalDimsSpec) :: dims_spec
+      integer :: status
+
+      @assertTrue(dims_spec_entry(make_spec(MAPL_STATEITEM_FIELD), dims_spec, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertTrue(dims_spec == HORIZONTAL_DIMS_GEOM)
+   end subroutine test_default_horizontal_dims_spec_is_specified_geom
+
+   @test
+   subroutine test_declared_none_horizontal_dims_spec_is_specified_none()
+      type(VariableSpec) :: var_spec
+      type(HorizontalDimsSpec) :: dims_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%horizontal_dims_spec = HORIZONTAL_DIMS_NONE
+      @assertTrue(dims_spec_entry(var_spec, dims_spec, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertTrue(dims_spec == HORIZONTAL_DIMS_NONE)
+   end subroutine test_declared_none_horizontal_dims_spec_is_specified_none
+
+   @test
+   subroutine test_mirror_horizontal_dims_spec_on_import_is_mirrored()
+      type(VariableSpec) :: var_spec
+      type(HorizontalDimsSpec) :: dims_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%horizontal_dims_spec = HORIZONTAL_DIMS_MIRROR
+      @assertTrue(dims_spec_entry(var_spec, dims_spec, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_horizontal_dims_spec_on_import_is_mirrored
+
+   @test
+   subroutine test_mirror_horizontal_dims_spec_on_export_is_an_error()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%horizontal_dims_spec = HORIZONTAL_DIMS_MIRROR
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X (HORIZONTAL_DIMS_SPEC)')
+      @assertExceptionRaised('status=1')
+   end subroutine test_mirror_horizontal_dims_spec_on_export_is_an_error
+
+   ! A mirror_geom request on a NONE item is moot: its geometry is not compared.
+   @test
+   subroutine test_none_item_ignores_mirror_geom()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%horizontal_dims_spec = HORIZONTAL_DIMS_NONE
+      var_spec%mirror_geom = .true.
+      @assertTrue(geometry_status(var_spec, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+   end subroutine test_none_item_ignores_mirror_geom
+
+   @test
+   subroutine test_horizontal_dims_spec_applicability()
+      type(ESMF_StateItem_Flag) :: with_entry(5), without_entry(5)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      with_entry = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE]
+      do i = 1, size(with_entry)
+         descriptor = empty_descriptor
+         var_spec = make_spec(with_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(descriptor%has_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND))
+      end do
+
+      without_entry = [MAPL_STATEITEM_EXPRESSION, MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_STATE, &
+           MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN]
+      do i = 1, size(without_entry)
+         descriptor = empty_descriptor
+         var_spec = make_spec(without_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_horizontal_dims_spec_applicability
+
+   ! A NONE item is never compared on geometry, but still takes a geom later.
+   @test
+   subroutine test_none_item_geometry_is_unchecked()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%horizontal_dims_spec = HORIZONTAL_DIMS_NONE
+      @assertTrue(geometry_status(var_spec, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+
+      var_spec%geom_id = mapl_new_GeomId(7)
+      @assertTrue(geometry_status(var_spec, rc=status) == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+   end subroutine test_none_item_geometry_is_unchecked
+
+   ! Status of the VERTICAL_STAGGER entry; has_entry is false when the
+   ! item gets none.
+   function stagger_entry_status(var_spec, has_entry, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      logical, intent(out) :: has_entry
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      has_entry = descriptor%has_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND)
+      if (has_entry) then
+         call descriptor%get_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, c, _RC)
+         char_status = c%get_status()
+      end if
+      _RETURN(_SUCCESS)
+   end function stagger_entry_status
+
+   ! Status of the VERTICAL_GRID entry; has_entry is false when the
+   ! item gets none.
+   function vcoord_status(var_spec, has_entry, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      logical, intent(out) :: has_entry
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      has_entry = descriptor%has_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND)
+      if (has_entry) then
+         call descriptor%get_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND, c, _RC)
+         char_status = c%get_status()
+      end if
+      _RETURN(_SUCCESS)
+   end function vcoord_status
+
+   @test
+   subroutine test_default_vertical_grid_is_deferred()
+      logical :: has_entry
+      integer :: status
+
+      @assertTrue(vcoord_status(make_spec(MAPL_STATEITEM_FIELD), has_entry, rc=status) == CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+      @assertTrue(has_entry)
+   end subroutine test_default_vertical_grid_is_deferred
+
+   @test
+   subroutine test_declared_vgrid_is_specified()
+      type(VariableSpec) :: var_spec
+      type(mapl_BasicVerticalGrid) :: vgrid
+      logical :: has_entry
+      integer :: status
+
+      call vgrid%set_id(5)
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_grid = vgrid
+      @assertTrue(vcoord_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_declared_vgrid_is_specified
+
+   @test
+   subroutine test_expression_vertical_grid_is_mirrored()
+      logical :: has_entry
+      integer :: status
+
+      @assertTrue(vcoord_status(make_spec(MAPL_STATEITEM_EXPRESSION), has_entry, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+   end subroutine test_expression_vertical_grid_is_mirrored
+
+   @test
+   subroutine test_mirror_vgrid_is_mirrored()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%mirror_vgrid = .true.
+      @assertTrue(vcoord_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_vgrid_is_mirrored
+
+   ! A declared vertical grid wins over the mirror request.
+   @test
+   subroutine test_declared_vgrid_overrides_mirror_vgrid()
+      type(VariableSpec) :: var_spec
+      type(mapl_BasicVerticalGrid) :: vgrid
+      logical :: has_entry
+      integer :: status
+
+      call vgrid%set_id(5)
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%vertical_grid = vgrid
+      var_spec%mirror_vgrid = .true.
+      @assertTrue(vcoord_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_declared_vgrid_overrides_mirror_vgrid
+
+   ! Stagger NONE means no vertical dimension, so no entry.
+   @test
+   subroutine test_stagger_none_has_no_vertical_grid()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      type(CharacteristicStatus) :: char_status
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_stagger = VERTICAL_STAGGER_NONE
+      char_status = vcoord_status(var_spec, has_entry, rc=status)
+      @assertEqual(0, status)
+      @assertFalse(has_entry)
+
+      var_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
+      char_status = vcoord_status(var_spec, has_entry, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(has_entry)
+   end subroutine test_stagger_none_has_no_vertical_grid
+
+   ! Status of the VERTICAL_ORIENTATION entry and, for a SPECIFIED one, its
+   ! direction; has_entry is false when the item gets none.
+   function orientation_entry_status(var_spec, has_entry, direction, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      logical, intent(out) :: has_entry
+      type(VerticalCoordinateDirection), intent(out) :: direction
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      has_entry = descriptor%has_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND)
+      if (has_entry) then
+         call descriptor%get_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, c, _RC)
+         char_status = c%get_status()
+         select type (c)
+         type is (VerticalOrientationCharacteristic)
+            direction = c%get_direction()
+         end select
+      end if
+      _RETURN(_SUCCESS)
+   end function orientation_entry_status
+
+   ! Unspecified follows the grid, which the component supplies later.
+   @test
+   subroutine test_undeclared_vertical_orientation_is_deferred()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+      @assertTrue(has_entry)
+
+      var_spec%vertical_alignment = 'with_grid'
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+   end subroutine test_undeclared_vertical_orientation_is_deferred
+
+   @test
+   subroutine test_declared_vertical_orientation_is_specified()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_alignment = 'upward'
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertTrue(direction == VCOORD_DIRECTION_UP)
+
+      var_spec%vertical_alignment = 'downward'
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertTrue(direction == VCOORD_DIRECTION_DOWN)
+   end subroutine test_declared_vertical_orientation_is_specified
+
+   ! An item grid is known at construction, so with_grid resolves there.
+   @test
+   subroutine test_item_vgrid_resolves_vertical_orientation()
+      type(VariableSpec) :: var_spec
+      type(FixedLevelsVerticalGrid) :: vgrid
+      logical :: has_entry
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      call vgrid%initialize(FixedLevelsVerticalGridSpec('pressure', &
+           [1000., 500., 100.], 'hPa'), rc=status)
+      @assertEqual(0, status)
+      call vgrid%set_coordinate_direction(VCOORD_DIRECTION_UP)
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_grid = vgrid
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertTrue(direction == VCOORD_DIRECTION_UP)
+
+      var_spec%vertical_alignment = 'downward'
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertTrue(direction == VCOORD_DIRECTION_DOWN)
+   end subroutine test_item_vgrid_resolves_vertical_orientation
+
+   ! Direction and the directionless flag of the orientation entry that a
+   ! spec makes.
+   subroutine orientation_entry_shape(var_spec, direction, directionless, rc)
+      type(VariableSpec), intent(in) :: var_spec
+      type(VerticalCoordinateDirection), intent(out) :: direction
+      logical, intent(out) :: directionless
+      integer, intent(out) :: rc
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+
+      direction = VCOORD_DIRECTION_INVALID
+      directionless = .false.
+      call var_spec%make_characteristics(descriptor, rc=rc)
+      if (rc /= 0) return
+      call descriptor%get_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, c, rc=rc)
+      if (rc /= 0) return
+      select type (c)
+      type is (VerticalOrientationCharacteristic)
+         direction = c%get_direction()
+         directionless = c%is_directionless()
+      end select
+   end subroutine orientation_entry_shape
+
+   ! An item-declared Basic grid has no direction: UNSPECIFIED and
+   ! directionless, whatever direction the grid stores as a placeholder.
+   @test
+   subroutine test_item_basic_vgrid_orientation_is_directionless()
+      type(VariableSpec) :: var_spec
+      type(mapl_BasicVerticalGrid) :: vgrid
+      type(VerticalCoordinateDirection) :: direction
+      logical :: directionless
+      integer :: status
+
+      call vgrid%initialize(mapl_BasicVerticalGridSpec(num_levels=3))
+      call vgrid%set_coordinate_direction(VCOORD_DIRECTION_UP)
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_grid = vgrid
+      call orientation_entry_shape(var_spec, direction, directionless, status)
+      @assertEqual(0, status)
+      @assertTrue(direction == VCOORD_DIRECTION_UNSPECIFIED)
+      @assertTrue(directionless)
+   end subroutine test_item_basic_vgrid_orientation_is_directionless
+
+   ! An explicit alignment on a Basic grid is kept as the direction, and the
+   ! entry is still directionless.
+   @test
+   subroutine test_item_basic_vgrid_with_explicit_alignment()
+      type(VariableSpec) :: var_spec
+      type(mapl_BasicVerticalGrid) :: vgrid
+      type(VerticalCoordinateDirection) :: direction
+      logical :: directionless
+      integer :: status
+
+      call vgrid%initialize(mapl_BasicVerticalGridSpec(num_levels=3))
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_grid = vgrid
+      var_spec%vertical_alignment = 'upward'
+      call orientation_entry_shape(var_spec, direction, directionless, status)
+      @assertEqual(0, status)
+      @assertTrue(direction == VCOORD_DIRECTION_UP)
+      @assertTrue(directionless)
+   end subroutine test_item_basic_vgrid_with_explicit_alignment
+
+   ! A non-Basic item grid, and an explicit alignment with no item grid, are
+   ! not directionless at construction.
+   @test
+   subroutine test_item_fixed_vgrid_and_gridless_alignment_not_directionless()
+      type(VariableSpec) :: var_spec
+      type(FixedLevelsVerticalGrid) :: vgrid
+      type(VerticalCoordinateDirection) :: direction
+      logical :: dl_fixed, dl_gridless
+      integer :: status
+
+      call vgrid%initialize(FixedLevelsVerticalGridSpec('pressure', &
+           [1000., 500., 100.], 'hPa'), rc=status)
+      @assertEqual(0, status)
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_grid = vgrid
+      call orientation_entry_shape(var_spec, direction, dl_fixed, status)
+      @assertEqual(0, status)
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_alignment = 'upward'
+      call orientation_entry_shape(var_spec, direction, dl_gridless, status)
+      @assertEqual(0, status)
+      @assertFalse(dl_fixed)
+      @assertFalse(dl_gridless)
+   end subroutine test_item_fixed_vgrid_and_gridless_alignment_not_directionless
+
+   ! The Field keeps the explicit alignment of a Basic item (write_info is
+   ! unchanged); only the comparison ignores it.
+   @test
+   subroutine test_explicit_alignment_on_basic_item_is_written()
+      type(VerticalOrientationCharacteristic) :: basic_up
+      type(VerticalAlignment) :: alignment
+      integer :: status
+
+      basic_up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP, &
+           directionless=.true., grid_known=.true.)
+      alignment = alignment_after_write(basic_up, status)
+      @assertEqual(0, status)
+      @assertTrue(alignment == VALIGN_UP)
+   end subroutine test_explicit_alignment_on_basic_item_is_written
+
+   ! Alignment a fresh Field reads back after the characteristic writes to it.
+   function alignment_after_write(characteristic, rc) result(alignment)
+      class(StateItemCharacteristic), intent(in) :: characteristic
+      integer, intent(out) :: rc
+      type(VerticalAlignment) :: alignment
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      alignment = VALIGN_INVALID
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call characteristic%write_info(handle, SYNC_PHASE_STRUCTURAL, rc=rc)
+      call MAPL_FieldGet(field, vert_alignment=alignment, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function alignment_after_write
+
+   ! A grid with no direction (a single level) leaves the entry SPECIFIED
+   ! with an unspecified direction; writing it leaves the Field following
+   ! its grid.
+   @test
+   subroutine test_unspecified_direction_is_written_as_nothing()
+      type(VariableSpec) :: var_spec
+      type(mapl_BasicVerticalGrid) :: vgrid
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status, write_status
+
+      call vgrid%set_coordinate_direction(VCOORD_DIRECTION_UNSPECIFIED)
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_grid = vgrid
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertEqual(0, status)
+      call descriptor%get_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (VerticalOrientationCharacteristic)
+         @assertTrue(c%get_direction() == VCOORD_DIRECTION_UNSPECIFIED)
+      end select
+
+      @assertTrue(alignment_after_write(c, write_status) == VALIGN_WITH_GRID)
+      @assertEqual(0, write_status)
+   end subroutine test_unspecified_direction_is_written_as_nothing
+
+   ! An invalid direction is a defect and still fails.
+   @test
+   subroutine test_invalid_direction_write_info_fails()
+      type(VerticalOrientationCharacteristic) :: orientation
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      orientation = VerticalOrientationCharacteristic(VCOORD_DIRECTION_INVALID)
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call orientation%write_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertExceptionRaised('VerticalOrientationCharacteristic: SPECIFIED entry has no up or down direction')
+      @assertTrue(status /= 0)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_invalid_direction_write_info_fails
+
+   @test
+   subroutine test_up_and_down_directions_are_written()
+      type(VerticalOrientationCharacteristic) :: up, down
+      integer :: status
+
+      up = VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP)
+      down = VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN)
+      @assertTrue(alignment_after_write(up, status) == VALIGN_UP)
+      @assertEqual(0, status)
+      @assertTrue(alignment_after_write(down, status) == VALIGN_DOWN)
+      @assertEqual(0, status)
+   end subroutine test_up_and_down_directions_are_written
+
+   @test
+   subroutine test_mirror_vertical_orientation_is_mirrored()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%vertical_alignment = 'mirror'
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+
+      var_spec = make_spec(MAPL_STATEITEM_EXPRESSION)
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_vertical_orientation_is_mirrored
+
+   ! A MIRROR stagger does not imply a mirrored orientation.
+   @test
+   subroutine test_mirror_stagger_does_not_mirror_orientation()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%vertical_stagger = VERTICAL_STAGGER_MIRROR
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_stagger_does_not_mirror_orientation
+
+   @test
+   subroutine test_mirror_vgrid_mirrors_vertical_orientation()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%mirror_vgrid = .true.
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+
+      var_spec%vertical_alignment = 'upward'
+      @assertTrue(orientation_entry_status(var_spec, has_entry, direction, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(direction == VCOORD_DIRECTION_UP)
+   end subroutine test_mirror_vgrid_mirrors_vertical_orientation
+
+   @test
+   subroutine test_mirror_vertical_orientation_on_field_export_fails()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_alignment = 'mirror'
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X (VERTICAL_ORIENTATION)')
+      @assertExceptionRaised('status=1')
+   end subroutine test_mirror_vertical_orientation_on_field_export_fails
+
+   @test
+   subroutine test_unknown_vertical_alignment_fails()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_alignment = 'sideways'
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('unknown vertical_alignment: sideways')
+      @assertExceptionRaised('status=1')
+   end subroutine test_unknown_vertical_alignment_fails
+
+   ! A 2D item (stagger NONE) has no vertical index to order.
+   @test
+   subroutine test_stagger_none_has_no_vertical_orientation()
+      type(VariableSpec) :: var_spec
+      type(CharacteristicStatus) :: char_status
+      logical :: has_entry
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_stagger = VERTICAL_STAGGER_NONE
+      var_spec%vertical_alignment = 'upward'
+      char_status = orientation_entry_status(var_spec, has_entry, direction, rc=status)
+      @assertEqual(0, status)
+      @assertFalse(has_entry)
+   end subroutine test_stagger_none_has_no_vertical_orientation
+
+   @test
+   subroutine test_undeclared_vertical_stagger_is_deferred()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+      @assertTrue(has_entry)
+
+      var_spec%vertical_stagger = VERTICAL_STAGGER_INVALID
+      @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+   end subroutine test_undeclared_vertical_stagger_is_deferred
+
+   @test
+   subroutine test_declared_vertical_stagger_is_specified()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_stagger = VERTICAL_STAGGER_NONE
+      @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+      @assertTrue(has_entry)
+
+      var_spec%vertical_stagger = VERTICAL_STAGGER_EDGE
+      @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_declared_vertical_stagger_is_specified
+
+   ! MIRROR is legal on an import and on an expression export.
+   @test
+   subroutine test_mirror_vertical_stagger_is_mirrored()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%vertical_stagger = VERTICAL_STAGGER_MIRROR
+      @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+
+      var_spec = make_spec(MAPL_STATEITEM_EXPRESSION)
+      var_spec%vertical_stagger = VERTICAL_STAGGER_MIRROR
+      @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_vertical_stagger_is_mirrored
+
+   @test
+   subroutine test_mirror_vertical_stagger_on_field_export_fails()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%vertical_stagger = VERTICAL_STAGGER_MIRROR
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X (VERTICAL_STAGGER)')
+      @assertExceptionRaised('status=1')
+   end subroutine test_mirror_vertical_stagger_on_field_export_fails
+
+   ! mirror_vgrid with no stagger mirrors it too; a declared stagger wins.
+   @test
+   subroutine test_mirror_vgrid_without_stagger_is_mirrored()
+      type(VariableSpec) :: var_spec
+      logical :: has_entry
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%mirror_vgrid = .true.
+      @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+
+      var_spec%vertical_stagger = VERTICAL_STAGGER_CENTER
+      @assertTrue(stagger_entry_status(var_spec, has_entry, rc=status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_vgrid_without_stagger_is_mirrored
+
+   @test
+   subroutine test_expression_vertical_stagger_is_mirrored()
+      logical :: has_entry
+      integer :: status
+
+      @assertTrue(stagger_entry_status(make_spec(MAPL_STATEITEM_EXPRESSION), has_entry, rc=status) == CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+   end subroutine test_expression_vertical_stagger_is_mirrored
+
+   @test
+   subroutine test_vertical_stagger_applicability()
+      type(ESMF_StateItem_Flag) :: with_entry(6), without_entry(4)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      with_entry = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_EXPRESSION]
+      do i = 1, size(with_entry)
+         descriptor = empty_descriptor
+         var_spec = make_spec(with_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(descriptor%has_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND))
+      end do
+
+      without_entry = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE]
+      do i = 1, size(without_entry)
+         descriptor = empty_descriptor
+         var_spec = make_spec(without_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_vertical_stagger_applicability
+
+   @test
+   subroutine test_vertical_orientation_applicability()
+      type(ESMF_StateItem_Flag) :: with_entry(6), without_entry(4)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      with_entry = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_EXPRESSION]
+      do i = 1, size(with_entry)
+         descriptor = empty_descriptor
+         var_spec = make_spec(with_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(descriptor%has_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND))
+      end do
+
+      without_entry = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE]
+      do i = 1, size(without_entry)
+         descriptor = empty_descriptor
+         var_spec = make_spec(without_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_vertical_orientation_applicability
+
+   @test
+   subroutine test_vertical_grid_applicability()
+      type(ESMF_StateItem_Flag) :: with_entry(5), without_entry(4)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      with_entry = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE]
+      do i = 1, size(with_entry)
+         descriptor = empty_descriptor
+         var_spec = make_spec(with_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(descriptor%has_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND))
+      end do
+
+      without_entry = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE]
+      do i = 1, size(without_entry)
+         descriptor = empty_descriptor
+         var_spec = make_spec(without_entry(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_vertical_grid_applicability
+
+
+   function attribute_names_of(var_spec, char_status, rc) result(names)
+      type(VariableSpec), intent(in) :: var_spec
+      type(CharacteristicStatus), intent(out) :: char_status
+      integer, optional, intent(out) :: rc
+      type(StringVector) :: names
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND, c, _RC)
+      char_status = c%get_status()
+      select type (c)
+      class is (AttributesCharacteristic)
+         names = c%get_attribute_names()
+      class default
+         status = 1
+         _VERIFY(status)
+      end select
+      _RETURN(_SUCCESS)
+   end function attribute_names_of
+
+   @test
+   subroutine test_default_attributes_is_specified_and_empty()
+      type(StringVector) :: names
+      type(CharacteristicStatus) :: char_status
+      integer :: status
+
+      names = attribute_names_of(make_spec(MAPL_STATEITEM_FIELD), char_status, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, names%size())
+   end subroutine test_default_attributes_is_specified_and_empty
+
+   @test
+   subroutine test_declared_attributes_are_specified_with_names()
+      type(VariableSpec) :: var_spec
+      type(StringVector) :: names
+      type(CharacteristicStatus) :: char_status
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      call var_spec%attributes%push_back('shared_attr')
+      names = attribute_names_of(var_spec, char_status, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(1, names%size())
+      @assertEqual('shared_attr', names%of(1))
+   end subroutine test_declared_attributes_are_specified_with_names
+
+   @test
+   subroutine test_all_attribute_carrying_shapes_get_an_entry()
+      type(ESMF_StateItem_Flag) :: shapes(6)
+      type(StringVector) :: names
+      type(CharacteristicStatus) :: char_status
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, &
+           MAPL_STATEITEM_EXPRESSION]
+      do i = 1, size(shapes)
+         names = attribute_names_of(make_spec(shapes(i)), char_status, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      end do
+   end subroutine test_all_attribute_carrying_shapes_get_an_entry
+
+   @test
+   subroutine test_shapes_without_attributes_get_no_entry()
+      type(ESMF_StateItem_Flag) :: shapes(6)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, &
+           MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN, &
+           MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
+      do i = 1, size(shapes)
+         var_spec = make_spec(shapes(i))
+         descriptor = empty_descriptor
+         call var_spec%attributes%push_back('shared_attr')
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_shapes_without_attributes_get_no_entry
+
+   ! Every shape gets a SPECIFIED ItemShape holding its declared class.
+   @test
+   subroutine test_every_shape_gets_specified_item_shape()
+      type(ESMF_StateItem_Flag) :: shapes(9)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, &
+           MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, &
+           MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_EXPRESSION, &
+           MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, &
+           MAPL_STATEITEM_WILDCARD]
+      do i = 1, size(shapes)
+         var_spec = make_spec(shapes(i))
+         ! An EXPRESSION exists only as an export; a bracket is never an import.
+         if (.not. (shapes(i) == MAPL_STATEITEM_EXPRESSION .or. shapes(i) == MAPL_STATEITEM_BRACKET &
+              .or. shapes(i) == MAPL_STATEITEM_VECTORBRACKET)) var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+         descriptor = empty_descriptor
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         call descriptor%get_characteristic(ITEM_SHAPE, c, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+         select type (c)
+         type is (ItemShapeCharacteristic)
+            @assertTrue(c%get_item_class() == shapes(i))
+         class default
+            @assertTrue(.false., 'ITEM_SHAPE entry has the wrong type')
+         end select
+      end do
+   end subroutine test_every_shape_gets_specified_item_shape
+
+   function restart_mode_status(var_spec, mode, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      type(RestartMode), intent(out) :: mode
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, c, _RC)
+      char_status = c%get_status()
+      select type (c)
+      class is (RestartModeCharacteristic)
+         mode = c%get_restart_mode()
+      class default
+         status = 1
+         _VERIFY(status)
+      end select
+      _RETURN(_SUCCESS)
+   end function restart_mode_status
+
+   @test
+   subroutine test_declared_restart_mode_is_specified()
+      type(VariableSpec) :: var_spec
+      type(RestartMode) :: mode
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%restart_mode = RESTART_SKIP
+      char_status = restart_mode_status(var_spec, mode, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(mode == RESTART_SKIP)
+   end subroutine test_declared_restart_mode_is_specified
+
+   ! An undeclared mode is SPECIFIED RESTART_REQUIRED on every intent (the
+   ! exporter's mode is never adopted), so it is always written.
+   @test
+   subroutine test_undeclared_restart_mode_is_required()
+      type(VariableSpec) :: var_spec
+      type(RestartMode) :: mode
+      integer :: status, i
+      type(CharacteristicStatus) :: char_status
+      type(ESMF_StateIntent_Flag) :: intents(3)
+
+      intents = [ESMF_STATEINTENT_EXPORT, ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_INTERNAL]
+      do i = 1, size(intents)
+         var_spec = make_spec(MAPL_STATEITEM_FIELD)
+         var_spec%state_intent = intents(i)
+         char_status = restart_mode_status(var_spec, mode, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+         @assertTrue(mode == RESTART_REQUIRED)
+      end do
+   end subroutine test_undeclared_restart_mode_is_required
+
+   ! Legacy passes restart_mode to FieldClassAspect only; an EXPRESSION also
+   ! carries one (tested separately below).
+   @test
+   subroutine test_shapes_without_restart_mode_get_no_entry()
+      type(ESMF_StateItem_Flag) :: shapes(10)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, &
+           MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, &
+           MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN, &
+           MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
+      do i = 1, size(shapes)
+         descriptor = empty_descriptor
+         var_spec = make_spec(shapes(i))
+         var_spec%restart_mode = RESTART_SKIP
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(RESTART_MODE_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_shapes_without_restart_mode_get_no_entry
+
+   ! make_VariableSpec has no restart_mode keyword and never mirrors it.
+   @test
+   subroutine test_restart_mode_is_not_a_mirror_request()
+      type(VariableSpec) :: var_spec
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%restart_mode = RESTART_SKIP
+      @assertFalse(var_spec%requests_mirror())
+   end subroutine test_restart_mode_is_not_a_mirror_request
+
+   ! An EXPRESSION carries a restart mode too: same rule as FIELD, declared
+   ! or defaulted RESTART_REQUIRED.
+   @test
+   subroutine test_expression_declared_restart_mode_is_specified()
+      type(VariableSpec) :: var_spec
+      type(RestartMode) :: mode
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_EXPRESSION)
+      var_spec%restart_mode = RESTART_SKIP
+      char_status = restart_mode_status(var_spec, mode, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(mode == RESTART_SKIP)
+   end subroutine test_expression_declared_restart_mode_is_specified
+
+   @test
+   subroutine test_expression_undeclared_restart_mode_is_required()
+      type(VariableSpec) :: var_spec
+      type(RestartMode) :: mode
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_spec(MAPL_STATEITEM_EXPRESSION)
+      char_status = restart_mode_status(var_spec, mode, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(mode == RESTART_REQUIRED)
+   end subroutine test_expression_undeclared_restart_mode_is_required
+
+   ! --- QuantityType, Conservation, Normalization ---
+
+   function metadata_status(var_spec, kind, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      type(StateItemCharacteristicKind), intent(in) :: kind
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(kind, c, _RC)
+      char_status = c%get_status()
+      _RETURN(_SUCCESS)
+   end function metadata_status
+
+   ! An undeclared export quantity type is DEFERRED. Conservation and
+   ! normalization retain their SPECIFIED built-in defaults.
+   @test
+   subroutine test_default_export_quantity_type_is_deferred()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      type(ConservationMetadata) :: cmeta
+      type(NormalizationMetadata) :: nmeta
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertEqual(0, status)
+
+      call descriptor%get_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_DEFERRED)
+      select type (c)
+      type is (QuantityTypeCharacteristic)
+         @assertTrue(c%get_quantity_type() == QUANTITY_UNKNOWN)
+         @assertTrue(c%get_basis() == BASIS_NONE)
+      class default
+         @assertTrue(.false., 'QUANTITY_TYPE entry has the wrong type')
+      end select
+
+      call descriptor%get_characteristic(CONSERVATION_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (ConservationCharacteristic)
+         cmeta = c%get_metadata()
+         @assertFalse(cmeta%is_mirror())
+         @assertTrue(cmeta%get_conservation_type() == CONSERVE_NONE)
+         @assertFalse(cmeta%get_is_conservable())
+      class default
+         @assertTrue(.false., 'CONSERVATION entry has the wrong type')
+      end select
+
+      call descriptor%get_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (NormalizationCharacteristic)
+         nmeta = c%get_metadata()
+         @assertFalse(nmeta%is_mirror())
+         @assertTrue(nmeta%get_normalization_type() == NORMALIZE_NONE)
+         @assertEqual(1.0, nmeta%get_normalization_scale())
+      class default
+         @assertTrue(.false., 'NORMALIZATION entry has the wrong type')
+      end select
+   end subroutine test_default_export_quantity_type_is_deferred
+
+   @test
+   subroutine test_undeclared_quantity_type_status_depends_on_intent()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      @assertTrue(metadata_status(var_spec, &
+           QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertEqual(0, status)
+
+      var_spec%state_intent = ESMF_STATEINTENT_INTERNAL
+      @assertTrue(metadata_status(var_spec, &
+           QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+   end subroutine test_undeclared_quantity_type_status_depends_on_intent
+
+   @test
+   subroutine test_declared_unknown_quantity_type_is_deferred()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, 'X', &
+           quantity_type=QUANTITY_UNKNOWN, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(metadata_status(var_spec, &
+           QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+   end subroutine test_declared_unknown_quantity_type_is_deferred
+
+   @test
+   subroutine test_declared_quantity_type_is_specified_for_each_intent()
+      type(ESMF_StateIntent_Flag) :: intents(3)
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      intents = [ESMF_STATEINTENT_IMPORT, ESMF_STATEINTENT_EXPORT, &
+           ESMF_STATEINTENT_INTERNAL]
+      do i = 1, size(intents)
+         var_spec = make_spec(MAPL_STATEITEM_FIELD)
+         var_spec%state_intent = intents(i)
+         var_spec%quantity_type = QUANTITY_TEMPERATURE
+         @assertTrue(metadata_status(var_spec, &
+              QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
+              CHARACTERISTIC_STATUS_SPECIFIED)
+         @assertEqual(0, status)
+      end do
+   end subroutine test_declared_quantity_type_is_specified_for_each_intent
+
+   ! An EXPRESSION carries QuantityType too, with the same rule as FIELD:
+   ! undeclared on an export is DEFERRED, declared is SPECIFIED.
+   @test
+   subroutine test_expression_undeclared_quantity_type_is_deferred()
+      integer :: status
+
+      @assertTrue(metadata_status(make_spec(MAPL_STATEITEM_EXPRESSION), &
+           QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_DEFERRED)
+      @assertEqual(0, status)
+   end subroutine test_expression_undeclared_quantity_type_is_deferred
+
+   @test
+   subroutine test_expression_declared_quantity_type_is_specified()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_EXPRESSION)
+      var_spec%quantity_type = QUANTITY_TEMPERATURE
+      @assertTrue(metadata_status(var_spec, &
+           QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_expression_declared_quantity_type_is_specified
+
+   ! The make_VariableSpec keyword sets the field the factory reads, and is
+   ! not a mirror request.
+   @test
+   subroutine test_quantity_type_keyword_sets_field_and_characteristic()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, 'X', &
+           quantity_type=QUANTITY_TEMPERATURE, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(var_spec%quantity_type == QUANTITY_TEMPERATURE)
+      @assertFalse(var_spec%requests_mirror())
+
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertEqual(0, status)
+      call descriptor%get_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (QuantityTypeCharacteristic)
+         @assertTrue(c%get_quantity_type() == QUANTITY_TEMPERATURE)
+      class default
+         @assertTrue(.false., 'QUANTITY_TYPE entry has the wrong type')
+      end select
+   end subroutine test_quantity_type_keyword_sets_field_and_characteristic
+
+   @test
+   subroutine test_quantity_type_keyword_absent_leaves_unknown()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, 'X', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(var_spec%quantity_type == QUANTITY_UNKNOWN)
+   end subroutine test_quantity_type_keyword_absent_leaves_unknown
+
+   @test
+   subroutine test_default_spec_does_not_request_metadata_mirror()
+      type(VariableSpec) :: var_spec
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      @assertFalse(var_spec%requests_mirror())
+   end subroutine test_default_spec_does_not_request_metadata_mirror
+
+   ! The declared value is used, not legacy's fixed defaults.
+   @test
+   subroutine test_declared_metadata_values_are_used()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      type(ConservationMetadata) :: cmeta
+      type(NormalizationMetadata) :: nmeta
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%quantity_type = QUANTITY_TEMPERATURE
+      var_spec%conservation = ConservationMetadata(CONSERVE_MASS, &
+           is_conservable=.true.)
+      var_spec%normalization = NormalizationMetadata(NORMALIZE_DELP, &
+           normalization_scale=2.0)
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertEqual(0, status)
+
+      call descriptor%get_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (QuantityTypeCharacteristic)
+         @assertTrue(c%get_quantity_type() == QUANTITY_TEMPERATURE)
+      class default
+         @assertTrue(.false., 'QUANTITY_TYPE entry has the wrong type')
+      end select
+
+      call descriptor%get_characteristic(CONSERVATION_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (ConservationCharacteristic)
+         cmeta = c%get_metadata()
+         @assertTrue(cmeta%get_conservation_type() == CONSERVE_MASS)
+         @assertTrue(cmeta%get_is_conservable())
+      class default
+         @assertTrue(.false., 'CONSERVATION entry has the wrong type')
+      end select
+
+      call descriptor%get_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (NormalizationCharacteristic)
+         nmeta = c%get_metadata()
+         @assertTrue(nmeta%get_normalization_type() == NORMALIZE_DELP)
+         @assertEqual(2.0, nmeta%get_normalization_scale())
+      class default
+         @assertTrue(.false., 'NORMALIZATION entry has the wrong type')
+      end select
+   end subroutine test_declared_metadata_values_are_used
+
+   @test
+   subroutine test_mirror_conservation_on_import_is_mirrored()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%conservation = new_ConservationMetadata_mirror()
+      @assertTrue(var_spec%requests_mirror())
+      @assertTrue(metadata_status(var_spec, CONSERVATION_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+      ! Only its own kind turns mirrored.
+      @assertTrue(metadata_status(var_spec, NORMALIZATION_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_conservation_on_import_is_mirrored
+
+   @test
+   subroutine test_mirror_normalization_on_import_is_mirrored()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      var_spec%normalization = NormalizationMetadata()
+      @assertTrue(var_spec%requests_mirror())
+      @assertTrue(metadata_status(var_spec, NORMALIZATION_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_MIRRORED)
+      @assertEqual(0, status)
+      @assertTrue(metadata_status(var_spec, CONSERVATION_CHARACTERISTIC_KIND, rc=status) == &
+           CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, status)
+   end subroutine test_mirror_normalization_on_import_is_mirrored
+
+   ! These fields have no make_VariableSpec keyword and are assigned after
+   ! it runs, so only the check after the factory loop sees a mirror here.
+   @test
+   subroutine test_export_rejects_conservation_mirror()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%conservation = new_ConservationMetadata_mirror()
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X (CONSERVATION)')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_export_rejects_conservation_mirror
+
+   @test
+   subroutine test_export_rejects_normalization_mirror()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%normalization = NormalizationMetadata()
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X (NORMALIZATION)')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_export_rejects_normalization_mirror
+
+   @test
+   subroutine test_all_metadata_carrying_shapes_get_an_entry()
+      type(ESMF_StateItem_Flag) :: shapes(6)
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_VECTOR, &
+           MAPL_STATEITEM_VECTORBRACKET, MAPL_STATEITEM_FIELDBUNDLE, &
+           MAPL_STATEITEM_EXPRESSION]
+      do i = 1, size(shapes)
+          @assertTrue(metadata_status(make_spec(shapes(i)), &
+               QUANTITY_TYPE_CHARACTERISTIC_KIND, rc=status) == &
+               CHARACTERISTIC_STATUS_DEFERRED)
+         @assertEqual(0, status)
+         @assertTrue(metadata_status(make_spec(shapes(i)), CONSERVATION_CHARACTERISTIC_KIND, rc=status) == &
+              CHARACTERISTIC_STATUS_SPECIFIED)
+         @assertEqual(0, status)
+         @assertTrue(metadata_status(make_spec(shapes(i)), NORMALIZATION_CHARACTERISTIC_KIND, rc=status) == &
+              CHARACTERISTIC_STATUS_SPECIFIED)
+         @assertEqual(0, status)
+      end do
+   end subroutine test_all_metadata_carrying_shapes_get_an_entry
+
+   @test
+   subroutine test_shapes_without_metadata_kinds_get_no_entry()
+      type(ESMF_StateItem_Flag) :: shapes(6)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_STATE, MAPL_STATEITEM_SERVICE, &
+           MAPL_STATEITEM_WILDCARD, MAPL_STATEITEM_UNKNOWN, &
+           MAPL_STATEITEM_SERVICE_PROVIDER, MAPL_STATEITEM_SERVICE_SUBSCRIBER]
+      do i = 1, size(shapes)
+         var_spec = make_spec(shapes(i))
+         descriptor = empty_descriptor
+         var_spec%quantity_type = QUANTITY_TEMPERATURE
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse(descriptor%has_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND))
+         @assertFalse(descriptor%has_characteristic(CONSERVATION_CHARACTERISTIC_KIND))
+         @assertFalse(descriptor%has_characteristic(NORMALIZATION_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_shapes_without_metadata_kinds_get_no_entry
+
+   ! A State carries none of these kinds: write_info fails for it. A direct
+   ! call records only the kind's own message.
+   @test
+   subroutine test_metadata_write_info_fails_for_a_state_handle()
+      type(QuantityTypeCharacteristic) :: qty
+      type(ConservationCharacteristic) :: cons
+      type(NormalizationCharacteristic) :: norm
+      type(GraphStateItem) :: handle
+      type(ESMF_State) :: state
+      integer :: status
+
+      qty = QuantityTypeCharacteristic(QUANTITY_TEMPERATURE)
+      cons = ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS))
+      norm = NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP))
+      state = ESMF_StateCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(state, rc=status)
+      @assertEqual(0, status)
+
+      call qty%write_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertExceptionRaised('QuantityTypeCharacteristic: needs Field or FieldBundle')
+      @assertTrue(status /= 0)
+      call cons%write_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertExceptionRaised('ConservationCharacteristic: needs Field or FieldBundle')
+      @assertTrue(status /= 0)
+      call norm%write_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertExceptionRaised('NormalizationCharacteristic: needs Field or FieldBundle')
+      @assertTrue(status /= 0)
+      call ESMF_StateDestroy(state)
+   end subroutine test_metadata_write_info_fails_for_a_state_handle
+
+   ! A declared variant is carried in the signature.
+   @test
+   subroutine test_item_shape_carries_declared_variant()
+      type(StateItemDescriptor) :: descriptor
+      type(VariableSpec) :: var_spec
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_STATE)
+      var_spec%state_item_variant = MAPL_STATEITEM_VERTICALGRID
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertEqual(0, status)
+      call descriptor%get_characteristic(ITEM_SHAPE, c, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('item_class=STATE,variant=VERTICALGRID', &
+           c%get_signature())
+   end subroutine test_item_shape_carries_declared_variant
+
+   ! -- Intent rules: a mirror only on an IMPORT or an EXPRESSION export, and
+   ! an EXPRESSION only as an export. An INTERNAL never has a mirror; it
+   ! takes no part in connections, so nothing could resolve one. --
+
+   @test
+   subroutine test_make_VariableSpec_rejects_sentinel_on_internal()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, standard_name=MAPL_STRING_MIRROR, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_sentinel_on_internal
+
+   @test
+   subroutine test_make_VariableSpec_rejects_long_name_sentinel_on_internal()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, long_name=MAPL_STRING_MIRROR, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_long_name_sentinel_on_internal
+
+   @test
+   subroutine test_make_VariableSpec_rejects_mirror_geom_on_internal()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, mirror_geom=.true., rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_mirror_geom_on_internal
+
+   @test
+   subroutine test_make_VariableSpec_rejects_mirror_vgrid_on_internal()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, mirror_vgrid=.true., rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_mirror_vgrid_on_internal
+
+   @test
+   subroutine test_make_VariableSpec_rejects_typekind_mirror_on_internal()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, typekind=MAPL_TYPEKIND_MIRROR, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_typekind_mirror_on_internal
+
+   @test
+   subroutine test_make_VariableSpec_rejects_dims_mirror_on_internal()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, horizontal_dims_spec=HORIZONTAL_DIMS_MIRROR, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_dims_mirror_on_internal
+
+   @test
+   subroutine test_make_VariableSpec_rejects_stagger_mirror_on_internal()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, vertical_stagger=VERTICAL_STAGGER_MIRROR, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_stagger_mirror_on_internal
+
+   @test
+   subroutine test_make_VariableSpec_rejects_ungridded_mirror_on_internal()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, ungridded_dims=UngriddedDims(is_mirror=.true.), rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_ungridded_mirror_on_internal
+
+   @test
+   subroutine test_make_VariableSpec_rejects_alignment_mirror_on_internal()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, vertical_alignment='mirror', rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_alignment_mirror_on_internal
+
+   ! Conservation has no make_VariableSpec keyword, so only the check after
+   ! the factory loop sees it.
+   @test
+   subroutine test_internal_rejects_conservation_mirror()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_INTERNAL
+      var_spec%conservation = new_ConservationMetadata_mirror()
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X (CONSERVATION)')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_internal_rejects_conservation_mirror
+
+   ! A hand-built internal reaches the backstop with a MIRRORED entry.
+   @test
+   subroutine test_internal_rejects_hand_built_mirror_geom()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_FIELD)
+      var_spec%state_intent = ESMF_STATEINTENT_INTERNAL
+      var_spec%mirror_geom = .true.
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X (GEOMETRY)')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_internal_rejects_hand_built_mirror_geom
+
+   ! A STATE has no TYPE_KIND entry, so no MIRRORED entry exists to find;
+   ! the backstop still rejects the request, as make_VariableSpec would.
+   @test
+   subroutine test_internal_rejects_hand_built_request_on_shape_without_entry()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_STATE)
+      var_spec%state_intent = ESMF_STATEINTENT_INTERNAL
+      var_spec%typekind = MAPL_TYPEKIND_MIRROR
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('mirror is only valid on an import or an expression export: X')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+      @assertFalse(descriptor%has_characteristic(TYPE_KIND_CHARACTERISTIC_KIND))
+   end subroutine test_internal_rejects_hand_built_request_on_shape_without_entry
+
+   ! An internal without a mirror request is unaffected, whatever the shape.
+   @test
+   subroutine test_internal_without_mirror_is_accepted()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, rc=status)
+      @assertEqual(0, status)
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_internal_without_mirror_is_accepted
+
+   @test
+   subroutine test_make_VariableSpec_rejects_expression_import()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_EXPRESSION, expression='A', rc=status)
+      @assertExceptionRaised('an expression is only valid on an export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_expression_import
+
+   @test
+   subroutine test_make_VariableSpec_rejects_expression_internal()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_INTERNAL, short_name='X', &
+           itemtype=MAPL_STATEITEM_EXPRESSION, expression='A', rc=status)
+      @assertExceptionRaised('an expression is only valid on an export: X')
+      @assertTrue(status /= 0)
+   end subroutine test_make_VariableSpec_rejects_expression_internal
+
+   ! The placement rule is reported alone: no mirror message follows it.
+   @test
+   subroutine test_expression_import_with_mirror_reports_expression_only()
+      type(VariableSpec) :: var_spec
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_EXPRESSION, expression='A', mirror_geom=.true., rc=status)
+      @assertExceptionRaised('an expression is only valid on an export: X')
+      @assertEqual(1, status)
+   end subroutine test_expression_import_with_mirror_reports_expression_only
+
+   ! The rule also covers a hand-built spec that bypasses make_VariableSpec.
+   @test
+   subroutine test_hand_built_expression_import_rejected()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_EXPRESSION)
+      var_spec%state_intent = ESMF_STATEINTENT_IMPORT
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('an expression is only valid on an export: X')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_hand_built_expression_import_rejected
+
+   @test
+   subroutine test_hand_built_expression_internal_rejected()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_spec(MAPL_STATEITEM_EXPRESSION)
+      var_spec%state_intent = ESMF_STATEINTENT_INTERNAL
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertExceptionRaised('an expression is only valid on an export: X')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+   end subroutine test_hand_built_expression_internal_rejected
+
+   ! Regressions: the two allowed places for a mirror still work.
+   @test
+   subroutine test_import_mirror_still_accepted()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_FIELD, standard_name=MAPL_STRING_MIRROR, &
+           typekind=MAPL_TYPEKIND_MIRROR, mirror_geom=.true., rc=status)
+      @assertEqual(0, status)
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_import_mirror_still_accepted
+
+   @test
+   subroutine test_expression_export_mirror_still_accepted()
+      type(VariableSpec) :: var_spec
+      type(StateItemDescriptor) :: descriptor
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_EXPRESSION, expression='A', mirror_geom=.true., rc=status)
+      @assertEqual(0, status)
+      call var_spec%make_characteristics(descriptor, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_expression_export_mirror_still_accepted
+
+   ! --- Expression characteristic entry ---
+
+   function expression_entry(var_spec, expression, rc) result(char_status)
+      type(VariableSpec), intent(in) :: var_spec
+      character(:), allocatable, intent(out) :: expression
+      integer, optional, intent(out) :: rc
+      type(CharacteristicStatus) :: char_status
+
+      type(StateItemDescriptor) :: descriptor
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call var_spec%make_characteristics(descriptor, _RC)
+      call descriptor%get_characteristic(EXPRESSION_CHARACTERISTIC_KIND, c, _RC)
+      char_status = c%get_status()
+      select type (c)
+      class is (ExpressionCharacteristic)
+         expression = c%get_expression()
+      class default
+         status = 1
+         _VERIFY(status)
+      end select
+      _RETURN(_SUCCESS)
+   end function expression_entry
+
+   @test
+   subroutine test_declared_expression_is_specified()
+      type(VariableSpec) :: var_spec
+      character(:), allocatable :: expression
+      integer :: status
+      type(CharacteristicStatus) :: char_status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_EXPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_EXPRESSION, expression='A + B', rc=status)
+      @assertEqual(0, status)
+      char_status = expression_entry(var_spec, expression, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(char_status == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual('A + B', expression)
+   end subroutine test_declared_expression_is_specified
+
+   ! Only an EXPRESSION item carries an Expression entry.
+   @test
+   subroutine test_only_expression_gets_an_expression_entry()
+      type(ESMF_StateItem_Flag) :: shapes(11)
+      type(StateItemDescriptor) :: descriptor, empty_descriptor
+      type(VariableSpec) :: var_spec
+      integer :: i, status
+
+      shapes = [MAPL_STATEITEM_FIELD, MAPL_STATEITEM_BRACKET, &
+           MAPL_STATEITEM_VECTOR, MAPL_STATEITEM_VECTORBRACKET, &
+           MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_STATE, &
+           MAPL_STATEITEM_SERVICE, MAPL_STATEITEM_WILDCARD, &
+           MAPL_STATEITEM_UNKNOWN, MAPL_STATEITEM_SERVICE_PROVIDER, &
+           MAPL_STATEITEM_SERVICE_SUBSCRIBER]
+      do i = 1, size(shapes)
+         descriptor = empty_descriptor
+         var_spec = make_spec(shapes(i))
+         call var_spec%make_characteristics(descriptor, rc=status)
+         @assertEqual(0, status)
+         @assertFalse( &
+              descriptor%has_characteristic(EXPRESSION_CHARACTERISTIC_KIND))
+      end do
+   end subroutine test_only_expression_gets_an_expression_entry
+
+   ! The result of make_ClassAspect is allocatable, so the caller copies
+   ! it even when the Service item has no registry.
+   @test
+   subroutine test_make_ClassAspect_allocates_result_on_error()
+      type(VariableSpec) :: var_spec
+      class(ClassAspect), allocatable :: aspect
+      integer :: status
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', &
+           itemtype=MAPL_STATEITEM_SERVICE, rc=status)
+      @assertEqual(0, status)
+
+      aspect = var_spec%make_ClassAspect(rc=status)
+      @assertExceptionRaised('must have registry for creating a Service')
+      @assertTrue(status /= 0)
+      @assertTrue(allocated(aspect))
+   end subroutine test_make_ClassAspect_allocates_result_on_error
+
+end module Test_VariableSpecCharacteristics

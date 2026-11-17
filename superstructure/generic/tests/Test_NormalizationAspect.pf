@@ -208,7 +208,7 @@ contains
    @test(type=ESMF_TestMethod, npes=[1])
    subroutine test_make_transform_returns_null(this)
       ! Test that make_transform returns NullTransform for now
-      ! (Task 2.2 will implement actual NormalizationTransform)
+      ! (no NormalizationTransform is wired in yet)
       class(ESMF_TestMethod), intent(inout) :: this
       type(NormalizationAspect) :: src, dst
       type(AspectMap) :: other_aspects
@@ -222,7 +222,6 @@ contains
 
       @assertTrue(allocated(transform), 'transform should be allocated')
       ! For now, we just check that it returns something
-      ! In Task 2.2, we'll test that it returns NormalizationTransform
 
       _UNUSED_DUMMY(this)
 

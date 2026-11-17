@@ -9,6 +9,9 @@ module mapl_FieldSet_mod
    use mapl_FieldGet_mod
    use mapl_FieldDelta_mod
    use mapl_enums_api, only: MAPL_StateItemAllocation
+   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
+   use mapl_StateItemVariantInfo_mod, only: StateItemVariantInfoSet
+   use mapl_RestartModes_mod, only: RestartMode
    use mapl_QuantityTypeMetadata_mod
    use mapl_NormalizationMetadata_mod
    use mapl_ConservationMetadata_mod
@@ -47,6 +50,8 @@ contains
         attributes, &
         allocation_status, &
         regridder_param_info, &
+        restart_mode, &
+        state_item_variant, &
         rc)
       type(ESMF_Field), intent(inout) :: field
       class(KeywordEnforcer), optional, intent(in) :: unusable
@@ -67,6 +72,8 @@ contains
       type(StringVector), optional, intent(in) :: attributes
       type(MAPL_StateItemAllocation), optional, intent(in) :: allocation_status
       type(esmf_Info), optional, intent(in) :: regridder_param_info
+      type(RestartMode), optional, intent(in) :: restart_mode
+      type(MAPL_StateItem_Flag), optional, intent(in) :: state_item_variant
       integer, optional, intent(out) :: rc
 
       integer :: status
@@ -81,7 +88,11 @@ contains
       integer :: named_alias_id
 
       call esmf_FieldGet(field, status=fstatus, _RC)
-      if (fstatus == ESMF_FIELDSTATUS_COMPLETE) then
+      ! Info-only calls (e.g. restart_mode, state_item_variant) must not enter
+      ! the FieldDelta path, which can reallocate the field.
+      if (fstatus == ESMF_FIELDSTATUS_COMPLETE .and. &
+           (present(geom) .or. present(vgrid) .or. present(typekind) .or. &
+           present(num_levels) .or. present(units))) then
          ! Determine num_levels to pass to FieldDelta
          if (present(vgrid) .and. .not. present(num_levels)) then
             ! vgrid is present but num_levels wasn't explicitly provided
@@ -154,6 +165,15 @@ contains
            standard_name=standard_name, &
            long_name=long_name, &
            _RC)
+
+      ! restart_mode is per-alias metadata, like long_name.
+      if (present(restart_mode)) then
+         call FieldInfoSetInternal(field_info, named_alias_id, restart_mode, _RC)
+      end if
+
+      if (present(state_item_variant)) then
+         call StateItemVariantInfoSet(field_info, state_item_variant, _RC)
+      end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)

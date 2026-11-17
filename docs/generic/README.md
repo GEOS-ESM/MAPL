@@ -1,81 +1,87 @@
 # Generic layer documentation
 
-**Audience:** coding agents and developers working on `superstructure/generic/`.
-**Describes:** the MAPL3 line, branch `develop`.
-**Verified against:** `MAPL` @ `1a5a5acf` (2026-11-06).
-**Placement:** as in the GEOSgcm fixture (`components.yaml` @ `56ce4e8`, GEOSgcm `release/MAPL-v3`): key `MAPL`, checked out at `src/Shared/@MAPL`.
-Other fixtures (for example GEOSadas, GEOSldas) may place this repository
-elsewhere; paths inside this repository do not change.
-
 High-level, implementation-tracking documentation for
-`superstructure/generic/` (CMake target `MAPL.generic`). Written for AI
-agents making changes in the component-hierarchy and coupler layer: short,
+`superstructure/generic/` **excluding** `superstructure/generic/graph/`,
+which has its own doc set (`docs/graph/`). Written for AI agents making
+further changes in the legacy component-hierarchy/coupler layer and the
+integration seam that connects it to the graph-native layer — short,
 points at real file locations, describes current behavior rather than
-design history. The component-graph layer is not on this line, so none of
-these documents describe it.
+design history.
 
 **This supplements, not replaces, the `openspec/changes/archive/`
-proposals it cites.** Those remain the primary record of *why* a
-decision was made; this document states current fact and points at them
-for rationale. If source and this document disagree, trust source, then
-fix the document in the same change.
+proposals it cites** (removed from the tree; read one with `git show
+graph-phase-5-archive:openspec/changes/archive/<date>-<name>/design.md`,
+for example `2026-11-11-hierarchy-wide-forward-network`). Those remain the
+primary record of *why* a decision was made; this doc states current fact
+and points at them for rationale. If source and this doc disagree, trust
+source, then fix the doc in the same change.
 
 ## How to use these docs
 
 1. Start here to see which area you need.
-2. Read [`ARCHITECTURE.md`](ARCHITECTURE.md). It is one file, not split
-   per topic.
-3. Scoped agent instructions for the directory are in
-   [`superstructure/generic/AGENTS.md`](../../superstructure/generic/AGENTS.md);
-   the repository-wide ones are in the root [`AGENTS.md`](../../AGENTS.md).
-4. Follow the file references into real source for exact signatures.
+2. Read `ARCHITECTURE.md` — it is one file (not split into per-topic
+   files like `docs/graph/`, because this layer is stable/legacy, not
+   under active phase-based development — there is less churn to track
+   per-topic).
+3. If your task touches `superstructure/generic/graph/` or
+   `GraphBuilder*.F90` internals, go to `docs/graph/README.md` instead
+   — this doc only covers those files' existence and call-site shape
+   (`ARCHITECTURE.md` §1.1, §2.4), not their internals.
+4. Follow the file/line references into real source for exact
+   signatures.
 
 ## Topic map (all in `ARCHITECTURE.md`)
 
 | Section | Covers |
 |---|---|
-| §0 | Scope: what "the generic layer" is, what is excluded (`superstructure/component/`, `infrastructure/`) |
-| §1.1 | Top-level entry-point files (`API.F90`, `MAPL_Generic.F90`, `GenericGridComp.F90`, etc.), including a stale, uncompiled duplicate `to_itemtype.F90` and an uncompiled `Generic.F90` |
-| §1.2 | `OuterMetaComponent`/`OuterMetaComponent/`: the component-hierarchy type and its lifecycle submodules |
-| §1.3 | `registry/`: `StateRegistry`/`ExtensionFamily` |
-| §1.4 | `connection/`: `Connection`/`SimpleConnection`/`MatchConnection`/`ReexportConnection` |
-| §1.5 | `ComponentSpecParser/`: YAML to `ComponentSpec` |
-| §1.6 | `specs/`: `ComponentSpec`/`VariableSpec`/`StateItemSpec`/`StateItemAspect`/`ClassAspect` family (largest subdirectory) |
-| §1.7 | `transforms/`: `ExtensionTransform` family; `couplers/` is empty |
-| §1.8 | `vertical/`: `ModelVerticalGrid`/`FixedLevelsVerticalGrid` (layer-specific only; generic numerics live in `infrastructure/vertical/`) |
-| §2.1 | Dependency direction among this layer's own subdirectories |
-| §2.2 | `StateItemSpec`/`AspectMap`: the coupler's central value type |
-| §2.3 | Where the generic layer sits in the initialize sequence (`initialize_advertise.F90`) |
-| §2.4 | `superstructure/component/` dependency (`GriddedComponentDriver`) |
+| §0 | Scope: what "the generic layer" is, what's excluded (`graph/`, `superstructure/component/`, `infrastructure/`) |
+| §1.1 | Top-level entry-point files (`API.F90`, `MAPL_Generic.F90`, `GenericGridComp.F90`, etc.) — includes a note on a stale, uncompiled duplicate `to_itemtype.F90` |
+| §1.2 | `OuterMetaComponent`/`OuterMetaComponent/` — the component-hierarchy type and its ~65 lifecycle submodules |
+| §1.3 | `registry/` — legacy `StateRegistry`/`ExtensionFamily` |
+| §1.4 | `connection/` — `Connection`/`SimpleConnection`/`MatchConnection`/`ReexportConnection` |
+| §1.5 | `ComponentSpecParser/` — YAML → `ComponentSpec` |
+| §1.6 | `specs/` — `ComponentSpec`/`VariableSpec`/`StateItemSpec`/`StateItemAspect`/`ClassAspect` family (largest subdirectory) |
+| §1.7 | `transforms/` — `ExtensionTransform` family (units/typekind/regrid/time-interpolate/normalize), and `couplers/`'s now-empty status |
+| §1.8 | `vertical/` — `ModelVerticalGrid`/`FixedLevelsVerticalGrid` (layer-specific only; generic numerics live in `infrastructure/vertical/`) |
+| §2.1 | Dependency direction among this file's own subdirectories |
+| §2.2 | `StateItemSpec`/`AspectMap` — the legacy coupler's central value type |
+| §2.3 | `mapl_GraphMode_mod`'s 3-way selector — who actually produces a component's `ESMF_State` |
+| §2.4 | Lifecycle call sites where this layer calls into the graph layer (`initialize_advertise.F90` and others) |
+| §2.5 | `superstructure/component/` dependency (`GriddedComponentDriver`) — a sibling, not a subdirectory |
 | §3 | `CMakeLists.txt` structure, `esma_add_fortran_submodules` mechanism |
-| §4 | Test targets: the six `MAPL.generic.*` ctest suites |
-| §5 | Previous architectural decisions, each cited to its `openspec/` record |
+| §4 | Verified build/test commands, the seven `MAPL.generic.*` ctest targets |
+| §5 | Previous architectural decisions (standard-name enforcement, field-dictionary strict mode, expression vertical-dim/field-name propagation, extension-registry visibility, internal/memory checkpoint, griddedcomponentdriver integration lifecycle, grid blurring, component-hierarchy foundation) |
+| §6 | Completed phases / outstanding work — this layer is stable; the only live "work" is graph-side prerequisites (Phase 6a retirement gate, Phases 7a/7b/7c landed) |
 
 ## Source layout at a glance
 
-Counts are of `.F90` files and their lines on `develop` @ `1a5a5acf`.
-
-- `superstructure/generic/` top level (16 `.F90` files, 4016 lines):
-  entry points, umbrella modules, and the `OuterMetaComponent.F90` type.
-- `OuterMetaComponent/` (54 files, 2582 lines): lifecycle submodules.
-- `registry/` (20 files, 1638 lines): `StateRegistry`.
-- `connection/` (10 files, 1256 lines): `Connection` family.
-- `ComponentSpecParser/` (9 files, 1034 lines): YAML parsing.
-- `specs/` (40 `.F90` files incl. `GeomAspect/` and `VerticalGridAspect/`,
-  10,740 lines): spec and aspect type hierarchy.
-- `transforms/` (15 `.F90` files plus `notes.md`, 3211 lines): data
-  converters (`couplers/` has no sources; its files are in `transforms/`).
-- `vertical/` (2 files, 905 lines): layer-specific vertical grids.
-- `tests/`: six pFUnit suites plus scenario fixtures (§4).
+- `superstructure/generic/` top level (~20 `.F90` files) — entry
+  points, umbrella modules, and the `GraphBuilder*.F90`/
+  `OuterMetaComponent.F90` integration seam (seam internals documented
+  in `docs/graph/`, not here).
+- `OuterMetaComponent/` (64 files, 3089 lines) — lifecycle submodules.
+- `registry/` (20 files, 1638 lines) — legacy `StateRegistry`.
+- `connection/` (10 files, 1256 lines) — `Connection` family.
+- `ComponentSpecParser/` (9 files, 1034 lines) — YAML parsing.
+- `specs/` (42 `.F90` files, 10,971 lines) — spec/aspect type hierarchy.
+- `transforms/` (15 files + `notes.md`, 3211 lines) — data converters
+  (absorbed `couplers/`, now empty).
+- `vertical/` (2 files, 905 lines) — layer-specific vertical grids.
+- `graph/` — **out of scope here**, see `docs/graph/`.
 
 ## Conventions seen throughout the source
 
+- Mutation only through named accessor methods, never raw component
+  access — same convention as `graph/` (see `docs/graph/README.md`).
 - `_ASSERT`/`_RETURN`/`_VERIFY` MAPL error-handling macros
-  (`mapl_ErrorHandling_mod`) are used uniformly.
+  (`mapl_ErrorHandling_mod`) used uniformly; see
+  `.opencode/skills/mapl-error-handling/SKILL.md`.
 - Per-aspect connection compatibility is decided one axis at a time
   (`StateItemAspect%can_connect_to`/`matches`), dispatched through an
-  `AspectMap`, not by one monolithic comparison. See `ARCHITECTURE.md`
-  §2.2 and the header comment table in `specs/StateItemAspect.F90`.
+  `AspectMap`, not by one monolithic comparison — see
+  `ARCHITECTURE.md` §2.2 and `specs/StateItemAspect.F90`'s own header
+  comment table before changing any aspect's compatibility rule.
 - `esma_add_fortran_submodules()` (not plain `target_sources`) is used
-  for `OuterMetaComponent/` and `ComponentSpecParser/`; see
+  for `OuterMetaComponent/` and `ComponentSpecParser/` specifically to
+  avoid same-filename collisions across submodule subdirectories — see
   `ARCHITECTURE.md` §3.

@@ -3,9 +3,11 @@
 submodule (mapl_ComponentSpecParser_mod) parse_var_specs_smod
    use mapl_VerticalGrid_mod
    use mapl_HorizontalDimsSpec_mod
+   use mapl_QuantityType_mod, only: QuantityType, QUANTITY_UNKNOWN, operator(/=)
    implicit none(type,external)
 
    character(*), parameter :: KEY_DIMS = 'dims'
+   character(*), parameter :: KEY_QUANTITY_TYPE = 'quantity_type'
 
 contains
 
@@ -52,6 +54,8 @@ contains
          type(ESMF_TypeKind_Flag) :: typekind
          real, allocatable :: fill_value
          type(VerticalStaggerLoc) :: vertical_stagger
+         character(:), allocatable :: vertical_alignment
+         logical :: has_vertical_alignment
          type(UngriddedDims) :: ungridded_dims
          character(:), allocatable :: standard_name
          character(:), allocatable :: long_name
@@ -68,16 +72,19 @@ contains
          logical :: has_units
          logical :: has_expression
          logical :: has_dims
+         type(QuantityType) :: quantity_type
+         logical :: mirror_geom, has_mirror_geom
+         logical :: mirror_vgrid, has_mirror_vgrid
          character(:), allocatable :: dims_str
          type(HorizontalDimsSpec) :: horizontal_dims_spec
          type(ESMF_HConfig) :: subcfg
          type(StringVector) :: dependencies
 
-          type(GeometrySpec) :: geometry_spec
-          type(mapl_GeomId) :: geom_id
-          type(mapl_MaplGeom), pointer :: mapl_geom
-          type(mapl_GeomManager), pointer :: geom_mgr
-          type(ESMF_Geom), allocatable :: geom
+         type(GeometrySpec) :: geometry_spec
+         type(mapl_GeomId) :: geom_id
+         type(mapl_MaplGeom), pointer :: mapl_geom
+         type(mapl_GeomManager), pointer :: geom_mgr
+         type(ESMF_Geom), allocatable :: geom
          class(VerticalGrid), allocatable :: vertical_grid
 
          has_state = ESMF_HConfigIsDefined(hconfig,keyString=state_intent, _RC)
@@ -110,7 +117,29 @@ contains
                select case (ESMF_UtilStringLowerCase(dims_str))
                case ('z')
                   horizontal_dims_spec = HORIZONTAL_DIMS_NONE
+               case ('mirror')
+                  horizontal_dims_spec = HORIZONTAL_DIMS_MIRROR
                end select
+            end if
+
+            call to_quantity_type(quantity_type, attributes, _RC)
+
+            mirror_geom = .false.
+            has_mirror_geom = ESMF_HConfigIsDefined(attributes, keyString=KEY_GEOMETRY_MIRROR, _RC)
+            if (has_mirror_geom) then
+               mirror_geom = ESMF_HConfigAsLogical(attributes, keyString=KEY_GEOMETRY_MIRROR, _RC)
+            end if
+
+            if (allocated(vertical_alignment)) deallocate(vertical_alignment)
+            has_vertical_alignment = ESMF_HConfigIsDefined(attributes, keyString=KEY_VERTICAL_ALIGNMENT, _RC)
+            if (has_vertical_alignment) then
+               vertical_alignment = ESMF_HConfigAsString(attributes, keyString=KEY_VERTICAL_ALIGNMENT, _RC)
+            end if
+
+            mirror_vgrid = .false.
+            has_mirror_vgrid = ESMF_HConfigIsDefined(attributes, keyString=KEY_VERTICAL_GRID_MIRROR, _RC)
+            if (has_mirror_vgrid) then
+               mirror_vgrid = ESMF_HConfigAsLogical(attributes, keyString=KEY_VERTICAL_GRID_MIRROR, _RC)
             end if
 
             has_standard_name = ESMF_HConfigIsDefined(attributes,keyString='standard_name', _RC)
@@ -156,6 +185,7 @@ contains
                  itemtype=itemtype, &
                  typekind=typekind, &
                  vertical_stagger=vertical_stagger, &
+                 vertical_alignment=vertical_alignment, &
                  ungridded_dims=ungridded_dims, &
                  fill_value=fill_value, &
                  service_items=service_items, &
@@ -166,7 +196,10 @@ contains
                   geom_id=geom_id, &
                   geom=geom, &
                  vertical_grid=vertical_grid, &
-                 horizontal_dims_spec=horizontal_dims_spec, _RC)
+                 horizontal_dims_spec=horizontal_dims_spec, &
+                 quantity_type=quantity_type, &
+                 mirror_geom=mirror_geom, &
+                 mirror_vgrid=mirror_vgrid, _RC)
 
             if (allocated(units)) deallocate(units)
             if (allocated(standard_name)) deallocate(standard_name)
@@ -199,6 +232,30 @@ contains
 
          _RETURN(_SUCCESS)
       end subroutine val_to_float
+
+      ! The value is a full QuantityType name, case-folded. QuantityType(name)
+      ! maps an unknown string to QUANTITY_UNKNOWN, so the check is here.
+      subroutine to_quantity_type(quantity_type, attributes, rc)
+         type(QuantityType), intent(out) :: quantity_type
+         type(ESMF_HConfig), intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         logical :: has_quantity_type
+         character(:), allocatable :: written, name, msg
+
+         quantity_type = QUANTITY_UNKNOWN
+         has_quantity_type = ESMF_HConfigIsDefined(attributes, keyString=KEY_QUANTITY_TYPE, _RC)
+         _RETURN_UNLESS(has_quantity_type)
+
+         written = ESMF_HConfigAsString(attributes, keyString=KEY_QUANTITY_TYPE, _RC)
+         name = ESMF_UtilStringUpperCase(written)
+         quantity_type = QuantityType(name)
+         msg = 'Unsupported quantity_type: <' // written // '>'
+         _ASSERT(quantity_type /= QUANTITY_UNKNOWN .or. name == 'QUANTITY_UNKNOWN', msg)
+
+         _RETURN(_SUCCESS)
+      end subroutine to_quantity_type
 
       function to_typekind(attributes, rc) result(typekind)
          use :: mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR

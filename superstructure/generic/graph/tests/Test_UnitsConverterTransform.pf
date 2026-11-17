@@ -1,0 +1,268 @@
+! UnitsConverterTransform numerical correctness (real udunits2f conversion, real ESMF_Field data,
+! no legacy ExtensionTransform/StateRegistry involvement).
+module Test_UnitsConverterTransform
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
+   use mapl_UnitsConverterTransform_mod, only: UnitsConverterTransform
+   use mapl_FieldPointerUtilities_mod, only: assign_fptr
+   use StateItemTestSupport_mod, only: make_test_field, make_latlon_geom
+   use StateItemTestSupport_mod, only: make_test_member, make_test_bundle
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundleSet
+   use mapl_field_api, only: MAPL_FieldGet, MAPL_FieldSet
+   use mapl_enums_api, only: MAPL_FIELDBUNDLETYPE_VECTOR
+   use mapl_enums_api, only: MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_GRID
+   use mapl_enums_api, only: MAPL_VECTOR_BASIS_KIND_NS, operator(==)
+   use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_Geom
+   use ESMF, only: ESMF_FieldGet, ESMF_FieldBundleGet
+   use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8, ESMF_MAXSTR
+   use ESMF, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_units_converter_transform_computes_correct_value()
+      type(GraphStateItem) :: input_payload, output_payload
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Field) :: input_field, output_field
+      type(UnitsConverterTransform) :: transform
+      real(kind=ESMF_KIND_R4), pointer :: x_in(:), x_out(:)
+      integer :: status
+
+      input_field = make_test_field('input', rc=status)
+      @assertEqual(0, status)
+      output_field = make_test_field('output', rc=status)
+      @assertEqual(0, status)
+
+      call assign_fptr(input_field, x_in, rc=status)
+      @assertEqual(0, status)
+      x_in = 1000.0
+
+      call input_payload%set(input_field, rc=status)
+      @assertEqual(0, status)
+      call output_payload%set(output_field, rc=status)
+      @assertEqual(0, status)
+
+      call inputs%insert('source_field', input_payload)
+      call outputs%insert('destination_field', output_payload)
+
+      ! 1000 m == 1 km
+      transform = UnitsConverterTransform('m', 'km')
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call assign_fptr(output_field, x_out, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1.0, x_out(1), tolerance=1.0e-4)
+   end subroutine test_units_converter_transform_computes_correct_value
+
+   subroutine bind(ports, port, bundle)
+      type(PortNameGraphStateItemMap), intent(inout) :: ports
+      character(*), intent(in) :: port
+      type(ESMF_FieldBundle), intent(in) :: bundle
+
+      type(GraphStateItem) :: item
+      integer :: status
+
+      call item%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call ports%clear()
+      call ports%insert(port, item)
+   end subroutine bind
+
+   ! A vector of `n` members holding 1000 on a lat-lon grid, and an output
+   ! bundle on the same geom with no members.
+   subroutine make_bundles(n, typekind, fb_in, fb_out)
+      integer, intent(in) :: n
+      type(ESMF_TypeKind_Flag), intent(in) :: typekind
+      type(ESMF_FieldBundle), intent(out) :: fb_in, fb_out
+
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field), allocatable :: members(:)
+      character(1) :: names(3) = ['u', 'v', 'w']
+      integer :: i, status
+
+      geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      allocate(members(n))
+      do i = 1, n
+         members(i) = make_test_member(geom, names(i), 1000., status, &
+              typekind=typekind)
+         @assertEqual(0, status)
+      end do
+      fb_in = make_test_bundle(geom, MAPL_FIELDBUNDLETYPE_VECTOR, members, &
+           status, typekind=typekind)
+      @assertEqual(0, status)
+      fb_out = make_test_bundle(geom, MAPL_FIELDBUNDLETYPE_VECTOR, &
+           [ESMF_Field ::], status, typekind=typekind)
+      @assertEqual(0, status)
+   end subroutine make_bundles
+
+   ! Bundle input: every member is converted into a member the transform
+   ! created on the output bundle, which had none.
+   @test
+   subroutine test_bundle_members_created_and_converted_r4()
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(UnitsConverterTransform) :: transform
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      type(ESMF_Field), allocatable :: members(:)
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+      character(len=ESMF_MAXSTR) :: name
+      integer :: n_out, status
+
+      call make_bundles(2, ESMF_TYPEKIND_R4, fb_in, fb_out)
+      call bind(inputs, 'source_field', fb_in)
+      call bind(outputs, 'destination_field', fb_out)
+
+      transform = UnitsConverterTransform('m s-1', 'km s-1')
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call ESMF_FieldBundleGet(fb_out, fieldCount=n_out, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, n_out)
+      call MAPL_FieldBundleGet(fb_out, fieldList=members, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(members(1), name=name, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(members(1), farrayPtr=x, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('u', trim(name))
+      @assertEqual(1.0, x(1, 1), tolerance=1.0e-4)
+      call ESMF_FieldGet(members(2), name=name, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(members(2), farrayPtr=x, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('v', trim(name))
+      @assertEqual(1.0, x(1, 1), tolerance=1.0e-4)
+   end subroutine test_bundle_members_created_and_converted_r4
+
+   @test
+   subroutine test_bundle_members_converted_r8()
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(UnitsConverterTransform) :: transform
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      type(ESMF_Field), allocatable :: members(:)
+      real(kind=ESMF_KIND_R8), pointer :: x(:,:)
+      integer :: status
+
+      call make_bundles(2, ESMF_TYPEKIND_R8, fb_in, fb_out)
+      call bind(inputs, 'source_field', fb_in)
+      call bind(outputs, 'destination_field', fb_out)
+
+      transform = UnitsConverterTransform('m s-1', 'km s-1')
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call MAPL_FieldBundleGet(fb_out, fieldList=members, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, size(members))
+      call ESMF_FieldGet(members(2), farrayPtr=x, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1.0_ESMF_KIND_R8, x(1, 1), tolerance=1.0e-10_ESMF_KIND_R8)
+   end subroutine test_bundle_members_converted_r8
+
+   ! The output members follow the input member count at the next compute,
+   ! and a second compute with an unchanged count converts again in place.
+   @test
+   subroutine test_bundle_members_resized_when_input_count_changes()
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(UnitsConverterTransform) :: transform
+      type(ESMF_FieldBundle) :: fb_in, fb_out, fb_in3, fb_out_unused
+      type(ESMF_Field), allocatable :: members(:)
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+      integer :: n_out, status
+
+      call make_bundles(2, ESMF_TYPEKIND_R4, fb_in, fb_out)
+      call make_bundles(3, ESMF_TYPEKIND_R4, fb_in3, fb_out_unused)
+      call bind(inputs, 'source_field', fb_in)
+      call bind(outputs, 'destination_field', fb_out)
+
+      transform = UnitsConverterTransform('m s-1', 'km s-1')
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      call ESMF_FieldBundleGet(fb_out, fieldCount=n_out, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, n_out)
+
+      call bind(inputs, 'source_field', fb_in3)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      call ESMF_FieldBundleGet(fb_out, fieldCount=n_out, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(3, n_out)
+      call MAPL_FieldBundleGet(fb_out, fieldList=members, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(members(3), farrayPtr=x, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1.0, x(1, 1), tolerance=1.0e-4)
+   end subroutine test_bundle_members_resized_when_input_count_changes
+
+   ! A member the transform creates carries the units and typekind of the
+   ! output bundle, not those of the input member it was cloned from.
+   @test
+   subroutine test_bundle_created_members_take_output_units()
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(UnitsConverterTransform) :: transform
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      type(ESMF_Field), allocatable :: members(:)
+      character(:), allocatable :: units_in, units_out
+      integer :: status
+
+      call make_bundles(2, ESMF_TYPEKIND_R4, fb_in, fb_out)
+      call MAPL_FieldBundleSet(fb_in, units='m s-1', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(fb_out, units='km s-1', rc=status)
+      @assertEqual(0, status)
+      call bind(inputs, 'source_field', fb_in)
+      call bind(outputs, 'destination_field', fb_out)
+
+      call MAPL_FieldBundleGet(fb_in, fieldList=members, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(members(1), units='m s-1', rc=status)
+      @assertEqual(0, status)
+
+      transform = UnitsConverterTransform('m s-1', 'km s-1')
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call MAPL_FieldGet(members(1), units=units_in, rc=status)
+      @assertEqual(0, status)
+      deallocate(members)
+      call MAPL_FieldBundleGet(fb_out, fieldList=members, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(members(1), units=units_out, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('m s-1', units_in)
+      @assertEqual('km s-1', units_out)
+   end subroutine test_bundle_created_members_take_output_units
+
+   ! A vector keeps the basis of its input (the output bundle starts in the
+   ! default NS basis).
+   @test
+   subroutine test_bundle_vector_basis_is_carried_to_output()
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(UnitsConverterTransform) :: transform
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      type(MAPL_VectorBasisKind) :: basis_kind
+      integer :: status
+
+      call make_bundles(2, ESMF_TYPEKIND_R4, fb_in, fb_out)
+      call MAPL_FieldBundleSet(fb_in, vector_basis_kind=MAPL_VECTOR_BASIS_KIND_GRID, rc=status)
+      @assertEqual(0, status)
+      call bind(inputs, 'source_field', fb_in)
+      call bind(outputs, 'destination_field', fb_out)
+
+      transform = UnitsConverterTransform('m s-1', 'km s-1')
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call MAPL_FieldBundleGet(fb_out, vector_basis_kind=basis_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(basis_kind == MAPL_VECTOR_BASIS_KIND_GRID)
+   end subroutine test_bundle_vector_basis_is_carried_to_output
+
+end module Test_UnitsConverterTransform

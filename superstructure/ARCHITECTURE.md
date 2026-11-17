@@ -19,7 +19,7 @@ Up: [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md), [AGENTS.md](../AGENTS.md).
   - `GriddedComponentDriver.F90` and `GriddedComponentDriver/` (submodules `initialize`, `run`, `finalize`, `read_restart`, `write_restart`, `clock_advance`, `get_states`, `get_clock`, `set_clock`, `get_gridcomp`, `get_name`, `run_export_couplers`, `run_import_couplers`, `add_export_coupler`, `add_import_coupler`): `GriddedComponentDriver` extends `ComponentDriver`; holds an `ESMF_GridComp`, a `MultiState`, an `ESMF_Clock`, and vectors of export and import coupler drivers.
   - `MultiState.F90`: `MultiState` bundles import, export and internal `ESMF_State`s; `get_state` by string or ESMF intent.
   - `ComponentDriverVector.F90`, `ComponentDriverPtrVector.F90`, `GriddedComponentDriverMap.F90`, `GriddedComponentDriverVector.F90`: containers.
-- `generic/` (target `MAPL.generic`): see [docs/generic/ARCHITECTURE.md](../docs/generic/ARCHITECTURE.md) (module map and interfaces; not repeated here) and the scoped `superstructure/generic/AGENTS.md`. Subdirectories listed in its `CMakeLists.txt`: `specs`, `registry`, `connection`, `transforms`, `couplers`, `vertical`, `ComponentSpecParser`, `OuterMetaComponent`, `tests`.
+- `generic/` (target `MAPL.generic`): see [docs/generic/ARCHITECTURE.md](../docs/generic/ARCHITECTURE.md) (module map and interfaces; not repeated here) and the scoped `superstructure/generic/AGENTS.md`. Subdirectories listed in its `CMakeLists.txt`: `specs`, `registry`, `connection`, `transforms`, `couplers`, `vertical`, `graph`, `ComponentSpecParser`, `OuterMetaComponent`, `tests`. `graph/` holds the explicit dependency-graph architecture (component graph and builder, opt-in per scenario); see [docs/graph/ARCHITECTURE.md](../docs/graph/ARCHITECTURE.md).
 - `state/` (target `MAPL.state`): operations on `ESMF_State`: `StateGet`, `StateSet`, `StateGetPointer`, `StateGetGeom`, `StateAddMethod`, `StateMerge`, `StateUtils`, `StateArithmeticParser` (`ArthParser.md` describes its expression rules), `StateMasking`, `StateFilter`, `StateDestroy`, with templates `get_array_ptr_template.H`, `overload.macro`, `undef.macro`.
 
 ## 3. Public interfaces
@@ -36,7 +36,7 @@ From the `CMakeLists.txt` files:
 
 ## 5. Build and tests
 - Targets: `MAPL.superstructure`, `MAPL.state`, `MAPL.component`, `MAPL.generic`. `MAPL.component` and `MAPL.generic` define Fortran submodules with `esma_add_fortran_submodules`.
-- Tests: `state/tests` (ctest `MAPL.state.tests`, label `ESSENTIAL`); `generic/tests` (ctests `MAPL.generic.scenarios`, `.transforms`, `.vertical`, `.aspects`, `.components`, `.core`, each `ESSENTIAL`); `component/` has no `tests/` directory. Tests are pFUnit, added when `PFUNIT_FOUND`, `EXCLUDE_FROM_ALL`.
+- Tests: `state/tests` (ctest `MAPL.state.tests`, label `ESSENTIAL`); `generic/tests` (ctests `MAPL.generic.scenarios` (run as `.shard0` to `.shard5`), `.transforms`, `.vertical`, `.aspects`, `.components`, `.components.quiet`, `.core`, each `ESSENTIAL`) and `generic/graph/tests` (ctest `MAPL.generic.graph`, `ESSENTIAL`); `MAPL.generic.scenarios.pending` (label `PENDING`, not `ESSENTIAL`) runs the scenarios not yet ready for the graph path; `component/` has no `tests/` directory. Tests are pFUnit, added when `PFUNIT_FOUND`, `EXCLUDE_FROM_ALL`.
 
 ## 6. Known traps
 - `generic/CMakeLists.txt` adds `specs` with the binary directory `generic_specs`; the comment explains that a build directory named `specs` can make some compilers fail (spack Intel toolchain).

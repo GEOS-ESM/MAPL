@@ -1,62 +1,72 @@
-# AGENTS.md: `superstructure/generic/`
-
-**Describes:** the MAPL3 line, branch `develop`.
-**Verified against:** `MAPL` @ `1a5a5acf` (2026-11-06).
-**Placement:** as in the GEOSgcm fixture (`components.yaml` @ `56ce4e8`, GEOSgcm `release/MAPL-v3`): key `MAPL`, checked out at `src/Shared/@MAPL`.
-Other fixtures (for example GEOSadas, GEOSldas) may place this repository
-elsewhere; paths inside this repository do not change.
+# AGENTS.md — `superstructure/generic/` (non-graph)
 
 Scoped instructions for coding agents working anywhere under
-`superstructure/generic/`. This file is distinct from the repository-root
-[`AGENTS.md`](../../AGENTS.md), which applies as well.
+`superstructure/generic/` **except** `superstructure/generic/graph/`.
+This file is distinct from the repo-root `AGENTS.md` and from
+`docs/graph/`'s own guidance — see the routing rule immediately below.
 
-## Where to start
+## Routing: which doc set applies?
 
-Read [`docs/generic/ARCHITECTURE.md`](../../docs/generic/ARCHITECTURE.md)
-first when working on `OuterMetaComponent`, `StateRegistry`,
-`Connection`/`SimpleConnection`/`MatchConnection`, the `specs/`
-spec/aspect hierarchy (`ComponentSpec`, `VariableSpec`, `StateItemSpec`,
-`ClassAspect`, `StateItemAspect`), `ComponentSpecParser`, `transforms/`
-(`ExtensionTransform` family), or `vertical/`
-(`ModelVerticalGrid`/`FixedLevelsVerticalGrid`). It is a navigational
-summary covering:
+- If your task touches `superstructure/generic/graph/`,
+  `ComponentGraph`, `GraphBuilder`, `NodeId`, `StateItemNode`,
+  `HierarchyGraph`, `StateItemCharacteristic`, or any `GraphBuilder*.F90`
+  file — **stop, and read the repo-root `AGENTS.md`'s "Graph
+  architecture work" section, `docs/graph/ARCHITECTURE.md`, and
+  `docs/graph/CONVENTIONS.md` instead.** That is a separately
+  maintained, actively-evolving doc set; do not use this file for that
+  work. `docs/graph/GLOSSARY.md` maps the legacy names in this tree to
+  their graph counterparts.
+- Otherwise — for `OuterMetaComponent`, `StateRegistry`, `Connection`/
+  `SimpleConnection`/`MatchConnection`, the `specs/` spec/aspect
+  hierarchy (`ComponentSpec`, `VariableSpec`, `StateItemSpec`,
+  `ClassAspect`, `StateItemAspect`), `ComponentSpecParser`,
+  `transforms/` (`ExtensionTransform` family), or `vertical/`
+  (`ModelVerticalGrid`/`FixedLevelsVerticalGrid`) — **read
+  `docs/generic/ARCHITECTURE.md` first.** It is a navigational summary
+  covering:
+  - the module map for every file/subdirectory in this tree (module
+    map, §1)
+  - how this layer and the graph-native layer coexist today
+    (`mapl_GraphMode_mod`'s 3-way selector, the `initialize_advertise.F90`
+    call-site ordering, §2.2-§2.4)
+  - verified build/test commands and the seven `MAPL.generic.*` ctest
+    targets this tree's tests build into (§4)
+  - previous architectural decisions, each cited back to its
+    `openspec/changes/archive/` source (§5; that directory is removed
+    from the tree, read it with `git show
+    graph-phase-5-archive:openspec/changes/archive/<date>-<name>/design.md`,
+    for example `2026-11-11-hierarchy-wide-forward-network`)
+  - what is and is not scheduled for change (this layer is stable —
+    see §6's prerequisite-gated retirement note before assuming any
+    part of `registry/`/`connection/`/`specs/` is deprecated)
 
-- the module map for every file and subdirectory in this tree (§1)
-- dependencies among the subdirectories, and the initialize call order
-  (§2)
-- `CMakeLists.txt` structure (§3)
-- the six `MAPL.generic.*` ctest suites this tree's tests build into (§4)
-- previous architectural decisions, each cited back to its
-  `openspec/changes/archive/` source (§5)
+Do not re-derive this context from scratch by reading all ~34,000
+lines across this tree's ~140 files unless `docs/generic/
+ARCHITECTURE.md` is insufficient or you suspect it has drifted from
+source — it is a summary, not a replacement for the primary sources it
+cites, and it explicitly flags its own `[ASSUMPTION]`s and `[NOTE]`s
+versus directly-verified facts.
 
-The component-graph layer (`superstructure/generic/graph/`) is not on
-this line. If a document or issue refers to `GraphBuilder`,
-`ComponentGraph` or `GRAPH_MODE_*`, that code is not in this tree.
+**Source of truth, in order of authority, if `docs/generic/
+ARCHITECTURE.md` disagrees with any of these:**
+1. The actual source files (`superstructure/generic/*`, excluding
+   `graph/`)
+2. `openspec/changes/archive/*/{design.md,proposal.md}` (removed from the
+   tree; see above) for the
+   specific decision in question (§5 of `ARCHITECTURE.md` has the
+   index)
+3. `openspec/specs/generic/*/spec.md`, `openspec/specs/
+   internal-checkpoint/spec.md` (landed, machine-checkable
+   requirement/scenario specs)
+4. `docs/generic/ARCHITECTURE.md` / `docs/generic/README.md` (this
+   summary)
 
-This context is in `docs/generic/ARCHITECTURE.md`. It is a summary, not a
-replacement for the primary sources it cites. The index to the whole document set is
-[`docs/generic/README.md`](../../docs/generic/README.md).
+## General build/test
 
-**Source of truth, in order of authority, if the architecture document
-disagrees with any of these:**
-
-1. The actual source files under `superstructure/generic/`.
-2. `openspec/changes/archive/*/{design.md,proposal.md}` for the specific
-   decision in question (§5 of `ARCHITECTURE.md` has the index).
-3. `openspec/specs/generic/*/spec.md` and
-   `openspec/specs/internal-checkpoint/spec.md` (landed requirement and
-   scenario specs).
-4. `docs/generic/ARCHITECTURE.md` and `docs/generic/README.md`.
-
-## Rules
-
-- Note bugs you find; do not fix them unless asked.
-- Keep `docs/generic/ARCHITECTURE.md` current in the same change that
-  alters the structure it describes.
-
-## Build and test facts
-
-- Library target: `MAPL.generic`. Test targets are `MAPL.generic.*`
-  all labelled `ESSENTIAL`;
-  `docs/generic/ARCHITECTURE.md` §4 lists the six suites and what each
-  covers. Tests are built by the `build-tests` target.
+See `.opencode/skills/mapl-build`, `.opencode/skills/mapl-testing`, and
+`.opencode/skills/compiler-switching` — but note the same correction
+`docs/graph/ARCHITECTURE.md` §4 records: this repo uses
+`superstructure/generic/` and `MAPL.generic.*` ctest target names, not
+`generic3g`/`MAPL.generic3g.*`, and uses the `with-nag`/`with-gfortran`
+wrappers described in the root `AGENTS.md`. `docs/generic/ARCHITECTURE.md`
+§4.2 lists the seven real target names and what each one tests.

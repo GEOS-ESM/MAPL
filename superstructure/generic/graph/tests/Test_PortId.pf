@@ -1,0 +1,72 @@
+module Test_PortId
+   use mapl_PortId_mod
+   use IdGeneratorTestSupport_mod, only: seed_generator_near_exhaustion
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_sequential_distinct_ids()
+      type(PortIdGenerator) :: gen
+      type(PortId) :: ids(10)
+      integer :: i, j
+
+      do i = 1, size(ids)
+         ids(i) = gen%next()
+      end do
+
+      do i = 1, size(ids)
+         @assertTrue(ids(i)%is_valid())
+         do j = i + 1, size(ids)
+            @assertTrue(ids(i) /= ids(j))
+         end do
+      end do
+   end subroutine test_sequential_distinct_ids
+
+   @test
+   subroutine test_exhaustion_reports_status_and_no_wraparound()
+      type(PortIdGenerator) :: gen
+      type(PortId) :: last_valid, exhausted
+      integer :: status
+
+      call seed_generator_near_exhaustion(gen)
+
+      last_valid = gen%next()
+      @assertTrue(last_valid%is_valid())
+
+      exhausted = gen%next(status)
+      @assertFalse(exhausted%is_valid())
+      @assertTrue(status /= 0)
+      @assertTrue(exhausted /= last_valid)
+   end subroutine test_exhaustion_reports_status_and_no_wraparound
+
+   @test
+   subroutine test_invalid_value_is_invalid()
+      @assertFalse(INVALID_PortId%is_valid())
+   end subroutine test_invalid_value_is_invalid
+
+   @test
+   subroutine test_operator_consistency()
+      type(PortIdGenerator) :: gen
+      type(PortId) :: a, b
+
+      a = gen%next()
+      b = gen%next()
+
+      @assertTrue(a /= b)
+      @assertFalse(a == b)
+      @assertTrue((a < b) .neqv. (b < a))
+   end subroutine test_operator_consistency
+
+   @test
+   subroutine test_to_string()
+      type(PortIdGenerator) :: gen
+      type(PortId) :: a
+
+      a = gen%next()
+      @assertTrue(len(a%to_string()) > 0)
+      @assertEqual('', INVALID_PortId%to_string())
+   end subroutine test_to_string
+
+end module Test_PortId

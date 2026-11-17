@@ -9,12 +9,12 @@ elsewhere; paths inside this repository do not change.
 
 Up: [docs/ARCHITECTURE.md](ARCHITECTURE.md), [AGENTS.md](../AGENTS.md).
 
-Only decisions recorded in this tree are listed: code comments, archived change proposals (`openspec/changes/archive/`), and `docs/mapl3/`. Format per entry:
+Only decisions recorded in this tree are listed: code comments, archived change proposals (`openspec/changes/archive/`, removed from the tree), and `docs/mapl3/`. Format per entry:
 - Pattern: what the code does (citation). [Verified]
 - Likely reason: author's reading. [Inferred]; where the reason is written in a cited design, "Reason (recorded in <path>)" replaces it. [Verified]
 - Question for maintainers: optional.
 
-Paths of the form `2026-...` are under `openspec/changes/archive/`.
+Paths of the form `2026-...` are under `openspec/changes/archive/`, which is removed from the tree; read one with `git show graph-phase-5-archive:openspec/changes/archive/<date>-<name>/design.md` (for example `2026-11-11-hierarchy-wide-forward-network`; `git ls-tree -d graph-phase-5-archive:openspec/changes/archive/` lists the names).
 
 ### Layered directory structure with one library per layer
 - Pattern: the top `CMakeLists.txt` adds `enums`, `utils`, `mp_utils`, `pfio`, `infrastructure`, `include`, `base`, `superstructure`, `mapl`, `gridcomps` in that order; layer CMake files carry "Tier N in MAPL v3 restructuring" comments (`utils/CMakeLists.txt`, `mp_utils/CMakeLists.txt`, `infrastructure/esmf/CMakeLists.txt`, `superstructure/CMakeLists.txt`). [Verified]
@@ -50,7 +50,7 @@ Paths of the form `2026-...` are under `openspec/changes/archive/`.
 - Reason (recorded in the same `proposal.md`): GEOS-ESM/MAPL#5413; a runtime switch relaxes enforcement while the GEOS field dictionary catches up. [Verified]
 
 ### Scenario tests run under strict field-dictionary validation
-- Pattern: all scenarios run with `EXTRA_INITIALIZE Initialize_strict` as the single ctest `MAPL.generic.scenarios`, using `superstructure/generic/tests/field_dictionary_test.yaml` (`superstructure/generic/tests/CMakeLists.txt`, comment). [Verified]
+- Pattern: all scenarios run with `EXTRA_INITIALIZE Initialize_strict` as the ctest `MAPL.generic.scenarios` (run as `MAPL.generic.scenarios.shard0` to `.shard5`), using `superstructure/generic/tests/field_dictionary_test.yaml` (`superstructure/generic/tests/CMakeLists.txt`, comment). [Verified]
 - Reason (recorded in that comment and in `2026-09-24-use-field-dictionary-in-scenario-tests/design.md`, decision 6): a permissive/`.strict` pair of ctests was used while scenarios were migrated; once all were strict-clean the pair was dropped. [Verified]
 
 ### Vertical alignment separate from coordinate direction

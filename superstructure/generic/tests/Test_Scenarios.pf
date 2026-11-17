@@ -1,7 +1,6 @@
 #include "MAPL_TestErr.h"
 
-! All scenarios run under STRICT field-dictionary ValidationMode (see
-! openspec change use-field-dictionary-in-scenario-tests). Built via the
+! All scenarios run under STRICT field-dictionary ValidationMode. Built via the
 ! Initialize_strict() EXTRA_INITIALIZE hook (pfunit/MAPL_Initialize.F90).
 ! Every other pFUnit binary in this directory still uses plain Initialize()
 ! (default PERMISSIVE) and is unaffected.
@@ -11,14 +10,41 @@ module Test_Scenarios
    use mapl_GenericPhases_mod
    use mapl_MultiState_mod
    use mapl_OuterMetaComponent_mod
+   use mapl_GraphScenarioBootstrap_mod, only: build_scenario_tree
+   use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_REGISTRY, GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH
+   use mapl_ExtensionResolution_mod, only: set_materialize_extensions
+   use mapl_GraphOwnsUserStates_mod, only: set_graph_owns_user_states
    use mapl_GriddedComponentDriver_mod
+   use mapl_ComponentDriver_mod, only: ComponentDriverPtr
+   use mapl_ComponentDriverPtrVector_mod, only: ComponentDriverPtrVector
+   use mapl_StateRegistry_mod, only: StateRegistry
+   use mapl_FieldPointerUtilities_mod, only: assign_fptr, field_has_de
+   use mapl_FieldFillDefault_mod, only: get_field_fill_default_r4, get_field_fill_default_r8
+   use mapl_FieldDictionaryConfig_mod, only: FieldDictionaryConfig, &
+        set_field_dictionary_config, get_field_dictionary_config
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
+   use mapl_NodeId_mod, only: NodeId, operator(==)
+   use mapl_GraphBuilder_mod, only: item_key
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_PortSpecMap_mod, only: PortSpecMap
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_FieldGet_mod, only: FieldGet
    use mapl_Generic_api, only: mapl_GridCompCreate, &
                                mapl_GenericSetServices !, &
                                !mapl_GridCompSetEntryPoint, &
                                !mapl_GridCompGeta, &
                                !mapl_GridcompGetResource
    use mapl_ESMF_Utilities_mod
-   use mapl_geom_api, only: mapl_GeomGet
+   use mapl_geom_api, only: mapl_GeomGet, mapl_GeomGetId, mapl_GeomId
+   use mapl_vertical_grid_api, only: mapl_VerticalGrid
+   use mapl_VerticalAlignment_mod, only: VerticalAlignment, operator(/=)
+   use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, operator(/=)
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, &
+        VERTICAL_STAGGER_NONE, operator(/=)
    use mapl_field_api, only: MAPL_FieldGet
    use mapl_field_bundle_api, only: MAPL_FieldBundleGet
    use esmf
@@ -41,11 +67,36 @@ module Test_Scenarios
       end subroutine I_check_stateitem
    end interface
 
+   ! One row per scenario directory.  graph_ready is the gate for running
+   ! the scenario under GRAPH_MODE_GRAPH / GRAPH_MODE_BOTH in the ESSENTIAL
+   ! suite; see docs/graph/scenario-parity.md.
+   type :: ScenarioEntry
+      character(:), allocatable :: name
+      character(:), allocatable :: root
+      logical :: graph_ready
+      ! permissive: run with a PERMISSIVE field dictionary (the fixture
+      ! deliberately mismatches standard names, which STRICT rejects in the
+      ! legacy path before the graph sees it).
+      logical :: permissive = .false.
+      ! Exception text the graph path raises during initialization. Such a
+      ! scenario runs in graph and both modes only.
+      character(:), allocatable :: expected_exception
+      ! Legacy import couplers can block graph-only capabilities.
+      logical :: graph_only = .false.
+      ! In graph mode the graph owns the user states, so the checks read
+      ! what the graph produced (e.g. a graph-regridded import).
+      logical :: graph_owns_user_states = .false.
+   end type ScenarioEntry
+
    @testParameter
    type, extends(ESMF_TestParameter) :: ScenarioDescription
       character(:), allocatable :: name
       character(:), allocatable :: root
+      character(:), allocatable :: graph_mode
       character(:), allocatable :: check_name
+      logical :: permissive = .false.
+      logical :: graph_owns_user_states = .false.
+      character(:), allocatable :: expected_exception
       procedure(I_check_stateitem), nopass, pointer :: check_stateitem
    contains
       procedure :: tostring => tostring_description
@@ -55,7 +106,14 @@ module Test_Scenarios
    type, extends(ESMF_TestCase) :: Scenario
       character(:), allocatable :: scenario_name
       character(:), allocatable :: scenario_root
+      character(:), allocatable :: graph_mode
       character(:), allocatable :: check_name
+      logical :: permissive = .false.
+      logical :: graph_owns_user_states = .false.
+      ! The switch as setup applied it (table flag or environment, GRAPH only).
+      logical :: graph_owns_states = .false.
+      character(:), allocatable :: expected_exception
+      type(FieldDictionaryConfig) :: saved_fd_config
       procedure(I_check_stateitem), nopass, pointer :: check_stateitem
 
       type(ESMF_HConfig), allocatable :: expectations
@@ -82,28 +140,184 @@ contains
       type(Scenario) :: s
       s%scenario_name = desc%name
       s%scenario_root = desc%root
+      s%graph_mode = desc%graph_mode
       s%check_name = desc%check_name
+      s%permissive = desc%permissive
+      s%graph_owns_user_states = desc%graph_owns_user_states
+      if (allocated(desc%expected_exception)) s%expected_exception = desc%expected_exception
       s%check_stateitem => desc%check_stateitem
    end function new_Scenario
 
-   function new_ScenarioDescription(name, root, check_name, check_stateitem) result(s)
+   function new_ScenarioDescription(name, root, graph_mode, check_name, check_stateitem, &
+        permissive, expected_exception, graph_owns_user_states) result(s)
       type(ScenarioDescription) :: s
       character(*), intent(in) :: name
       character(*), intent(in) :: root
+      character(*), intent(in) :: graph_mode
       character(*), intent(in) :: check_name
       procedure(I_check_stateitem) :: check_stateitem
+      logical, optional, intent(in) :: permissive
+      character(*), optional, intent(in) :: expected_exception
+      logical, optional, intent(in) :: graph_owns_user_states
       s%name = name
       s%root = root
+      s%graph_mode = graph_mode
       s%check_name = check_name
       s%check_stateitem => check_stateitem
+      if (present(permissive)) s%permissive = permissive
+      if (present(expected_exception)) s%expected_exception = expected_exception
+      if (present(graph_owns_user_states)) &
+           s%graph_owns_user_states = graph_owns_user_states
 
       call s%setNumPETsRequested(1)
    end function new_ScenarioDescription
 
+   function scenario_table() result(table)
+      type(ScenarioEntry), allocatable :: table(:)
+
+      table = [ &
+           ScenarioEntry('scenario_1',              'parent.yaml',      .true.), &
+           ScenarioEntry('scenario_2',              'parent.yaml',      .true.), &
+           ScenarioEntry('scenario_reexport_twice', 'grandparent.yaml', .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('propagate_geom',          'parent.yaml',      .true.), &
+           ScenarioEntry('vertical_regridding_2',   'parent.yaml',      .false.), &
+           ScenarioEntry('vertical_regridding_3',   'AGCM.yaml',        .false.), &
+           ScenarioEntry('statistics',              'cap.yaml',         .true.), &
+           ScenarioEntry('statistics_real',         'cap.yaml',         .true.), &
+           ScenarioEntry('scenario_0',              'parent.yaml',      .true.), &
+           ScenarioEntry('precision_extension',     'parent.yaml',      .true.), &
+           ScenarioEntry('precision_extension_3d',  'parent.yaml',      .true.), &
+           ScenarioEntry('3d_specs',                'parent.yaml',      .true.), &
+           ScenarioEntry('ungridded_dims',          'parent.yaml',      .true.), &
+           ScenarioEntry('service_service',         'parent.yaml',      .true.), &
+           ScenarioEntry('service_with_options',    'parent.yaml',      .true.), &
+           ScenarioEntry('export_dependency',       'parent.yaml',      .true.), &
+           ScenarioEntry('regrid',                  'cap.yaml',         .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('regrid_r8',               'cap.yaml',         .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('vector_1',                'parent.yaml',      .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('vector_regrid',           'cap.yaml',         .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('bracket_regrid',          'cap.yaml',         .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('vertical_regridding',     'parent.yaml',      .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('vertical_alignment_same_grid', 'parent.yaml', .true.), &
+           ScenarioEntry('vertical_alignment_regrid',    'parent.yaml', .true.), &
+           ScenarioEntry('vertical_alignment_with_grid', 'parent.yaml', .true.), &
+           ScenarioEntry('vertical_orientation_flip',    'parent.yaml', .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('vector_orientation_flip', 'parent.yaml',      .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('vector_vertical_regrid',  'parent.yaml',      .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('expression_match',        'parent.yaml',      .true.), &
+           ScenarioEntry('expression_defer_geom',   'parent.yaml',      .true.), &
+           ScenarioEntry('invalidate',              'cap.yaml',         .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('history_1',               'cap.yaml',         .true.), &
+           ScenarioEntry('history_wildcard',        'cap.yaml',         .true.), &
+           ScenarioEntry('extdata_1',               'cap.yaml',         .true.), &
+           ScenarioEntry('names_1',                 'parent.yaml',      .true.), &
+           ScenarioEntry('expression',              'parent.yaml',      .true.), &
+           ScenarioEntry('expression_per_consumer', 'parent.yaml',      .true.), &
+           ScenarioEntry('expression_per_consumer_r8', 'parent.yaml', &
+                .true., graph_only=.true., graph_owns_user_states=.true.), &
+           ScenarioEntry('../graph-scenarios/plain_field',                  'cap.yaml', .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('../graph-scenarios/vertical_field',               'cap.yaml', .true.), &
+           ScenarioEntry('../graph-scenarios/ungridded_dims',               'cap.yaml', .true.), &
+           ScenarioEntry('../graph-scenarios/dims_z_field',                 'cap.yaml', .true.), &
+           ScenarioEntry('../graph-scenarios/units_mismatch_run_phase',     'cap.yaml', .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('../graph-scenarios/grandparent_units_run_phase', 'cap.yaml', .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('../graph-scenarios/units_and_typekind_mismatch',  'cap.yaml', .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('../graph-scenarios/graphbuilder_propagation',     'cap.yaml', .true., &
+                graph_owns_user_states=.true.), &
+           ScenarioEntry('../graph-scenarios/standard_name_and_ungridded_dims_mismatch', 'cap.yaml', .true., &
+                permissive=.true.) &
+           ]
+   end function scenario_table
+
+   function env_is_set(name) result(is_set)
+      character(*), intent(in) :: name
+      logical :: is_set
+      integer :: length, status
+
+      call get_environment_variable(name, length=length, status=status)
+      is_set = (status == 0 .and. length > 0)
+   end function env_is_set
+
+   function env_value(name) result(value)
+      character(*), intent(in) :: name
+      character(:), allocatable :: value
+      integer :: length, status
+
+      call get_environment_variable(name, length=length, status=status)
+      if (status /= 0) length = 0
+      allocate(character(length) :: value)
+      if (length > 0) call get_environment_variable(name, value=value, status=status)
+   end function env_value
+
+   function modes_for(entry, pending_only) result(modes)
+      character(:), allocatable :: modes(:)
+      type(ScenarioEntry), intent(in) :: entry
+      logical, intent(in) :: pending_only
+
+      if (pending_only) then
+         if (entry%graph_ready) then
+            allocate(character(len=8) :: modes(0))
+         else if (entry%graph_only) then
+            modes = [character(len=8) :: GRAPH_MODE_GRAPH]
+         else
+            modes = [character(len=8) :: GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH]
+         end if
+      else
+         if (entry%graph_only) then
+            if (entry%graph_ready) then
+               modes = [character(len=8) :: GRAPH_MODE_GRAPH]
+            else
+               allocate(character(len=8) :: modes(0))
+            end if
+         else if (entry%graph_ready .and. &
+              allocated(entry%expected_exception)) then
+            modes = [character(len=8) :: GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH]
+         else if (entry%graph_ready) then
+            modes = [character(len=8) :: GRAPH_MODE_REGISTRY, GRAPH_MODE_GRAPH, GRAPH_MODE_BOTH]
+         else
+            modes = [character(len=8) :: GRAPH_MODE_REGISTRY]
+         end if
+      end if
+   end function modes_for
+
+   ! Environment switches (both optional):
+   !   MAPL_SCENARIO_PENDING  set: run only the not-yet-graph_ready scenarios,
+   !                          under graph and both modes (non-ESSENTIAL target).
+   !   MAPL_SCENARIO_ONLY     scenario name: restrict to that scenario.
+   !   MAPL_SCENARIO_GRAPH_OWNS_USER_STATES  set: graph mode runs with the graph
+   !                          owning the user states (other modes unaffected).
+   !                          A table entry can also ask for this itself
+   !                          (graph_owns_user_states).
+   !   MAPL_SCENARIO_SHARD    "k/N" (0 <= k < N): keep every N-th parameter,
+   !                          starting at k, of the list left after the
+   !                          filters above. Each ctest shard thereby stays
+   !                          below the MPI communicator limit, because
+   !                          ESMF_TestCase leaks one VM per test.
    function get_parameters() result(params)
 
       type(ScenarioDescription), allocatable :: params(:)
-      type(ScenarioDescription) :: p
+      type(ScenarioEntry), allocatable :: table(:)
+      logical :: pending_only
+      character(:), allocatable :: only_name
+
+      table = scenario_table()
+      pending_only = env_is_set('MAPL_SCENARIO_PENDING')
+      only_name = env_value('MAPL_SCENARIO_ONLY')
 
       params = [ScenarioDescription:: ]
 
@@ -112,6 +326,7 @@ contains
       params = [params, add_params('exists', check_field_exists)]
       params = [params, add_params('status', check_field_status)]
       params = [params, add_params('typekind', check_field_typekind)]
+      params = [params, add_params('units', check_field_units)]
       params = [params, add_params('rank', check_field_rank)]
       params = [params, add_params('geom_name', check_field_geom_name)]
       params = [params, add_params('standard_name', check_field_standard_name)]
@@ -120,52 +335,106 @@ contains
       params = [params, add_params('vertical_profile', check_field_vertical_profile)]
 
       ! Service oriented tests
-      p = ScenarioDescription('service_service', 'parent.yaml', 'fieldcount', check_fieldcount)
-      params = [params, p]
-      p = ScenarioDescription('service_with_options', 'parent.yaml', 'fieldcount', check_fieldcount)
-      params = [params, p]
+      params = [params, add_params('fieldcount', check_fieldcount, &
+           only=['service_service     ', 'service_with_options'])]
+
+      call apply_shard(params, env_value('MAPL_SCENARIO_SHARD'))
 
    contains
 
-      function add_params(check_name, check_stateitem) result(params)
+      subroutine apply_shard(params, shard)
+         type(ScenarioDescription), allocatable, intent(inout) :: params(:)
+         character(*), intent(in) :: shard
+
+         integer :: slash, k, n, i
+         logical :: ok
+
+         if (len(shard) == 0) return
+
+         k = -1
+         n = -1
+         slash = index(shard, '/')
+         ok = (slash > 1 .and. slash < len(shard))
+         if (ok) ok = (index(shard(slash+1:), '/') == 0)
+         if (ok) ok = all_digits(shard(:slash-1)) .and. &
+              all_digits(shard(slash+1:))
+         if (ok) then
+            read(shard(:slash-1), '(i10)', iostat=i) k
+            ok = (i == 0)
+         end if
+         if (ok) then
+            read(shard(slash+1:), '(i10)', iostat=i) n
+            ok = (i == 0)
+         end if
+         if (ok) ok = (n >= 1 .and. k >= 0 .and. k < n)
+         if (.not. ok) then
+            error stop 'MAPL_SCENARIO_SHARD must be k/N with 0 <= k < N: ' &
+                 // shard
+         end if
+
+         params = pack(params, [(mod(i - 1, n) == k, i = 1, size(params))])
+      end subroutine apply_shard
+
+      logical function all_digits(str)
+         character(*), intent(in) :: str
+
+         ! At most 9 digits, so the (i10) read cannot overflow.
+         all_digits = (len(str) <= 9 .and. verify(str, '0123456789') == 0)
+      end function all_digits
+
+      ! Counts first and fills a sized array: growing it with [params, ...]
+      ! once per parameter crashes NAG at run time once the list is long.
+      function add_params(check_name, check_stateitem, only) result(params)
          type(ScenarioDescription), allocatable :: params(:)
          character(*), intent(in) :: check_name
          procedure(I_check_stateitem) :: check_stateitem
+         character(*), optional, intent(in) :: only(:)
 
-         params = [ &
-              ScenarioDescription('scenario_1',              'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('scenario_2',              'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('scenario_reexport_twice', 'grandparent.yaml', check_name, check_stateitem), &
-              ScenarioDescription('propagate_geom',          'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('vertical_regridding_2',   'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('vertical_regridding_3',   'AGCM.yaml',        check_name, check_stateitem), &
-              ScenarioDescription('statistics',              'cap.yaml',         check_name, check_stateitem), &
-              ScenarioDescription('statistics_real',         'cap.yaml',         check_name, check_stateitem), &
-              ScenarioDescription('scenario_0',              'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('precision_extension',     'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('precision_extension_3d',  'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('3d_specs',                'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('ungridded_dims',          'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('service_service',         'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('service_with_options',    'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('export_dependency',       'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('regrid',                  'cap.yaml',         check_name, check_stateitem), &
-              ScenarioDescription('regrid_r8',               'cap.yaml',         check_name, check_stateitem), &
-              ScenarioDescription('vector_1',                'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('vertical_regridding',     'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('vertical_alignment_same_grid',   'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('vertical_alignment_regrid',      'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('vertical_alignment_with_grid',   'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('expression_match',        'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('expression_defer_geom',   'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('invalidate',              'cap.yaml',         check_name, check_stateitem), &
-              ScenarioDescription('history_1',               'cap.yaml',         check_name, check_stateitem), &
-              ScenarioDescription('history_wildcard',        'cap.yaml',         check_name, check_stateitem), &
-              ScenarioDescription('extdata_1',               'cap.yaml',         check_name, check_stateitem), &
-              ScenarioDescription('names_1',                 'parent.yaml',      check_name, check_stateitem), &
-              ScenarioDescription('expression',              'parent.yaml',      check_name, check_stateitem) &
-              ]
+         integer :: i, j, n
+         character(:), allocatable :: modes(:)
+
+         n = 0
+         do i = 1, size(table)
+            if (skip_entry(table(i), only)) cycle
+            modes = modes_for(table(i), pending_only)
+            n = n + size(modes)
+         end do
+
+         allocate(params(n))
+         n = 0
+         do i = 1, size(table)
+            if (skip_entry(table(i), only)) cycle
+            modes = modes_for(table(i), pending_only)
+            do j = 1, size(modes)
+               n = n + 1
+               if (allocated(table(i)%expected_exception)) then
+                  params(n) = ScenarioDescription(table(i)%name, table(i)%root, trim(modes(j)), &
+                       check_name, check_stateitem, table(i)%permissive, &
+                       table(i)%expected_exception, &
+                       graph_owns_user_states=table(i)%graph_owns_user_states)
+               else
+                  params(n) = ScenarioDescription(table(i)%name, table(i)%root, trim(modes(j)), &
+                       check_name, check_stateitem, table(i)%permissive, &
+                       graph_owns_user_states=table(i)%graph_owns_user_states)
+               end if
+            end do
+         end do
       end function add_params
+
+      logical function skip_entry(entry, only)
+         type(ScenarioEntry), intent(in) :: entry
+         character(*), optional, intent(in) :: only(:)
+
+         integer :: j
+
+         skip_entry = .false.
+         if (len(only_name) > 0) then
+            if (entry%name /= only_name) skip_entry = .true.
+         end if
+         if (present(only)) then
+            if (.not. any([(trim(only(j)) == entry%name, j=1, size(only))])) skip_entry = .true.
+         end if
+      end function skip_entry
 
    end function get_parameters
 
@@ -173,16 +442,23 @@ contains
       class(Scenario), intent(inout) :: this
 
       type(ESMF_HConfig) :: config
-      type(ESMF_Config) :: config_cf
       integer :: status, user_status
-      integer :: i
       type(ESMF_State) :: importState, exportState
       character(:), allocatable :: file_name
-      type(ESMF_Time) :: t0, t1
-      type(ESMF_TimeInterval) :: dt
       type(ESMF_Clock) :: clock
+      type(OuterMetaComponent), pointer :: outer_meta
       integer :: n, numsteps
       logical :: has_numsteps
+
+      call set_graph_mode(this%graph_mode, _RC)
+      call set_materialize_extensions(this%graph_mode /= GRAPH_MODE_REGISTRY)
+      this%graph_owns_states = this%graph_mode == GRAPH_MODE_GRAPH .and. &
+           (this%graph_owns_user_states .or. &
+           env_is_set('MAPL_SCENARIO_GRAPH_OWNS_USER_STATES'))
+      call set_graph_owns_user_states(this%graph_owns_states)
+
+      this%saved_fd_config = get_field_dictionary_config()
+      if (this%permissive) call set_field_dictionary_config(FieldDictionaryConfig())
 
       file_name = './scenarios/' // this%scenario_name // '/' // this%scenario_root
       config = ESMF_HConfigCreate(filename=file_name, _RC)
@@ -191,28 +467,20 @@ contains
 
       associate (outer_gc => this%outer_gc, outer_states => this%outer_states, grid => this%grid)
 
-        call ESMF_TimeSet(t0, timeString="2000-04-03T21:00:00", _RC)
-        call ESMF_TimeSet(t1, timeString="2000-04-03T22:00:00", _RC)
-        call ESMF_TimeIntervalSet(dt, h=1)
-        clock = ESMF_ClockCreate(timestep=dt, startTime=t0, stoptime=t1, refTime=t0, _RC)
+        ! docs/graph/spec/20-implementation-roadmap.md sec 20.4.21:
+        ! the bootstrap sequence (ESMF_Config -> ESMF_GridCompCreate ->
+        ! SetServices -> GENERIC_INIT_PHASE_SEQUENCE) lives in
+        ! build_scenario_tree, shared with the standalone graph
+        ! diagnostic driver (apps/graph_diagnostic/). Everything below this
+        ! call (the run-phase loop, expectations loading) is specific to this test.
+        call build_scenario_tree(file_name, outer_gc, outer_meta, &
+             clock=clock, importState=importState, exportState=exportState, _RC)
 
-        config_cf = ESMF_ConfigCreate(hconfig=config, _RC)
-        outer_gc = ESMF_GridCompCreate(name='ROOT', config=config_cf, contextFlag=ESMF_CONTEXT_PARENT_VM, _RC)
-        call ESMF_GridCompSetServices(outer_gc, mapl_GenericSetservices, userRC=user_status, _RC)
-        _VERIFY(user_status)
-
-        importState = ESMF_StateCreate(_RC)
-        exportState = ESMF_StateCreate(_RC)
         outer_states = MultiState(importState=importState, exportState=exportState)
 
-        do i = 1, size(GENERIC_INIT_PHASE_SEQUENCE)
-           associate (phase => GENERIC_INIT_PHASE_SEQUENCE(i))
-             call ESMF_GridCompInitialize(outer_gc, &
-                  importState=importState, exportState=exportState, clock=clock, &
-                  phase=phase, userRC=user_status, _RC)
-             _VERIFY(user_status)
-           end associate
-        end do
+        if (allocated(this%expected_exception)) then
+           @assertExceptionRaised(this%expected_exception)
+        end if
 
         numsteps = 1
         has_numsteps = esmf_HConfigIsDefined(config, keystring='numsteps', _RC)
@@ -234,6 +502,10 @@ contains
 
       end associate
 
+      call set_materialize_extensions(.false.)
+      call set_graph_owns_user_states(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY, _RC)
+
       file_name = './scenarios/' // this%scenario_name // '/expectations.yaml'
       this%expectations = ESMF_HConfigCreate(filename=file_name, _RC)
    end subroutine setup
@@ -243,6 +515,11 @@ contains
       class(Scenario), intent(inout) :: this
 
       integer :: status
+
+      call set_materialize_extensions(.false.)
+      call set_graph_owns_user_states(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY, _RC)
+      call set_field_dictionary_config(this%saved_fd_config)
 
       !# call ESMF_GridCompDestroy(this%outer_gc, _RC)
 
@@ -276,6 +553,9 @@ contains
          call check_items_in_state('internal', _RC)
       end do components
 
+      call check_graph(this, _RC)
+      call check_legacy_couplers(this, _RC)
+
    contains
 
       subroutine check_items_in_state(state_intent, rc)
@@ -287,6 +567,7 @@ contains
          type(ESMF_State) :: state
          character(:), allocatable :: msg
          type(ESMF_HConfigIter) :: hconfigIter,hconfigIterBegin,hconfigIterEnd
+         logical :: legacy_only
 
          rc = -1
 
@@ -309,6 +590,13 @@ contains
             item_name = ESMF_HConfigAsStringMapKey(hconfigIter,_RC)
             expected_properties = ESMF_HConfigCreateAtMapVal(hconfigIter,_RC)
 
+            ! Position-labelled names such as T(1) exist only in legacy.
+            legacy_only = .false.
+            if (ESMF_HConfigIsDefined(expected_properties, keyString='legacy_only')) then
+               legacy_only = ESMF_HConfigAsLogical(expected_properties, keyString='legacy_only', _RC)
+            end if
+            if (legacy_only .and. this%graph_owns_states) cycle
+
             msg = comp_path // '::' // state_intent // '::' // item_name
 
             associate (test_description => msg // '::' // this%check_name)
@@ -319,6 +607,627 @@ contains
       end subroutine check_items_in_state
 
    end subroutine check
+
+   ! Graph-structure checks, driven by an optional `graph:` key on the
+   ! <root> entry of expectations.yaml:
+   !   graph:
+   !     nodes: 5          (optional: nodes owned by the root's own graph)
+   !     connections:
+   !       - {export: comp_src/T, import: comp_dst/T, chain: [units, typekind]}
+   !       - {export: comp_src/T, import: comp_dst/T, wired: false}
+   ! `chain` lists the extension steps in order from export to import; an empty
+   ! list means a direct edge. A step kind (units, typekind, geometry,
+   ! vertical, orientation, item_shape) is the one aspect that differs
+   ! between the items either side of its transform. Paths are relative
+   ! to the root component, and each connection is one the root declared
+   ! (chains live in the root's graph). Registry mode has no graph, so it is skipped; the
+   ! checks run once per scenario and mode, under the 'item type' parameter.
+   subroutine check_graph(this, rc)
+      class(Scenario), intent(inout) :: this
+      integer, intent(out) :: rc
+
+      integer :: status, i, j, expected_nodes
+      type(NodeIdSet), target :: node_ids
+      type(OuterMetaComponent), pointer :: root_meta
+      type(ComponentGraph), pointer :: root_graph
+      type(DependencyNetwork), pointer :: net
+      type(ESMF_HConfig) :: comp_expectations, graph_expectations, connections, connection
+      character(:), allocatable :: comp_path
+
+      rc = 0
+      if (this%graph_mode == GRAPH_MODE_REGISTRY) return
+      if (this%check_name /= 'item type') return
+
+      root_meta => get_outer_meta(this%outer_gc, _RC)
+      root_graph => root_meta%get_component_graph()
+      net => root_graph%get_network(root_graph%get_forward_network_id())
+
+      do i = 1, ESMF_HConfigGetSize(this%expectations)
+         comp_expectations = ESMF_HConfigCreateAt(this%expectations, index=i, _RC)
+         if (.not. ESMF_HConfigIsDefined(comp_expectations, keyString='graph')) cycle
+         comp_path = ESMF_HConfigAsString(comp_expectations, keyString='component', _RC)
+         @assertEqual('<root>', comp_path, 'graph expectations belong on the <root> entry')
+
+         graph_expectations = ESMF_HConfigCreateAt(comp_expectations, keyString='graph', _RC)
+         if (ESMF_HConfigIsDefined(graph_expectations, keyString='nodes')) then
+            expected_nodes = ESMF_HConfigAsI4(graph_expectations, keyString='nodes', _RC)
+            node_ids = root_graph%get_node_ids()
+            @assertEqual(expected_nodes, node_ids%size(), 'graph :: node count owned by the root graph')
+         end if
+         connections = ESMF_HConfigCreateAt(graph_expectations, keyString='connections', _RC)
+         do j = 1, ESMF_HConfigGetSize(connections)
+            connection = ESMF_HConfigCreateAt(connections, index=j, _RC)
+            call check_connection(connection, _RC)
+         end do
+      end do
+      rc = 0
+
+   contains
+
+      subroutine check_connection(connection, rc)
+         type(ESMF_HConfig), intent(in) :: connection
+         integer, intent(out) :: rc
+
+         integer :: status, k
+         character(:), allocatable :: export_path, import_path, msg
+         type(NodeId), pointer :: export_id, import_id
+         type(NodeId) :: cur, prev, transform_id
+         character(len=16), allocatable :: found(:), expected(:)
+         type(ESMF_HConfig) :: chain, step
+         character(len=16) :: kind
+         logical :: wired, ok, is_expression
+         integer, parameter :: MAX_CHAIN = 16
+
+         rc = 0
+         export_path = ESMF_HConfigAsString(connection, keyString='export', _RC)
+         import_path = ESMF_HConfigAsString(connection, keyString='import', _RC)
+         msg = 'graph :: ' // export_path // ' -> ' // import_path
+
+         export_id => resolve(export_path, ESMF_STATEINTENT_EXPORT, _RC)
+         import_id => resolve(import_path, ESMF_STATEINTENT_IMPORT, _RC)
+         @assert_that(msg // ' :: export resolved', associated(export_id), is(true()))
+         @assert_that(msg // ' :: import resolved', associated(import_id), is(true()))
+         if (.not. (associated(export_id) .and. associated(import_id))) then
+            rc = 0
+            return
+         end if
+
+         wired = .true.
+         if (ESMF_HConfigIsDefined(connection, keyString='wired')) then
+            wired = ESMF_HConfigAsLogical(connection, keyString='wired', _RC)
+         end if
+
+         is_expression = .false.
+         if (ESMF_HConfigIsDefined(connection, keyString='expression')) then
+            is_expression = ESMF_HConfigAsLogical(connection, &
+                 keyString='expression', _RC)
+         end if
+
+         if (.not. wired) then
+            @assert_that(msg // ' :: no edge', net%contains_dependency(export_id, import_id), is(false()))
+            @assert_that(msg // ' :: import has no predecessor', net%has_predecessors(import_id), is(false()))
+            rc = 0
+            return
+         end if
+
+         allocate(expected(0))
+         if (ESMF_HConfigIsDefined(connection, keyString='chain')) then
+            chain = ESMF_HConfigCreateAt(connection, keyString='chain', _RC)
+            deallocate(expected)
+            allocate(expected(ESMF_HConfigGetSize(chain)))
+            do k = 1, size(expected)
+               step = ESMF_HConfigCreateAt(chain, index=k, _RC)
+               expected(k) = ESMF_HConfigAsString(step, _RC)
+            end do
+         end if
+
+         allocate(found(0))
+         if (is_expression) then
+            call check_expression_connection(connection, export_id, &
+                 import_id, msg, _RC)
+            return
+         end if
+         if (.not. net%contains_dependency(export_id, import_id)) then
+            ! import <- final item <- transform <- item ... <- export
+            cur = import_id
+            prev = sole_predecessor(cur, ok)
+            @assert_that(msg // ' :: import has exactly one predecessor', ok, is(true()))
+            if (.not. ok) then
+               rc = 0
+               return
+            end if
+            cur = prev
+            do while (.not. cur == export_id)
+               transform_id = sole_predecessor(cur, ok)
+               @assert_that(msg // ' :: chain item has exactly one predecessor', ok, is(true()))
+               if (.not. ok) exit
+               @assert_that(msg // ' :: predecessor is a transform', is_transform(transform_id), is(true()))
+               if (.not. is_transform(transform_id)) exit
+               prev = sole_predecessor(transform_id, ok)
+               @assert_that(msg // ' :: transform has exactly one input', ok, is(true()))
+               if (.not. ok) exit
+               kind = step_kind(prev, cur, _RC)
+               found = [kind, found]
+               cur = prev
+               @assert_that(msg // ' :: chain longer than MAX_CHAIN (cycle?)', size(found) <= MAX_CHAIN, is(true()))
+               if (size(found) > MAX_CHAIN) exit
+            end do
+            @assert_that(msg // ' :: chain reaches the export', cur == export_id, is(true()))
+         end if
+
+         @assertEqual(size(expected), size(found), msg // ' :: chain length')
+         if (size(expected) == size(found)) then
+            do k = 1, size(expected)
+               @assertEqual(trim(expected(k)), trim(found(k)), msg // ' :: chain step ' // int_to_string(k))
+            end do
+         end if
+         rc = 0
+      end subroutine check_connection
+
+      subroutine check_expression_connection(connection, export_id, &
+           import_id, msg, rc)
+          type(ESMF_HConfig), intent(in) :: connection
+          type(NodeId), intent(in) :: export_id, import_id
+          character(*), intent(in) :: msg
+          integer, intent(out) :: rc
+
+          type(NodeId) :: result_id, expression_transform_id, bound_id
+          type(NodeId) :: transform_id, previous
+          type(NodeId), pointer :: binding
+          type(NodeIdSet), target :: preds
+          type(NodeIdSetIterator) :: pred_iter
+          type(ESMF_HConfig) :: inputs, input_steps, step
+          type(ESMF_HConfigIter) :: iter, begin_iter, end_iter
+          character(:), allocatable :: input_name, export_path, source_comp
+          character(:), allocatable :: expected_kind
+          character(len=16) :: actual_kind
+          class(GraphNode), pointer :: node
+          logical :: ok
+          integer :: slash, n, status
+          type(PortSpecMap) :: input_ports
+
+          rc = 0
+          result_id = sole_predecessor(import_id, ok)
+          @assertTrue(ok, msg // ' :: import has exactly one predecessor')
+          if (.not. ok) return
+          if (ESMF_HConfigIsDefined(connection, keyString='chain')) then
+             input_steps = ESMF_HConfigCreateAt(connection, &
+                  keyString='chain', _RC)
+             do n = ESMF_HConfigGetSize(input_steps), 1, -1
+                transform_id = sole_predecessor(result_id, ok)
+                @assertTrue(ok, msg // ' :: result chain predecessor')
+                if (.not. ok) return
+                @assertTrue(is_transform(transform_id), msg // &
+                     ' :: result chain predecessor is transform')
+                if (.not. is_transform(transform_id)) return
+                previous = sole_predecessor(transform_id, ok)
+                @assertTrue(ok, msg // ' :: result transform has one input')
+                if (.not. ok) return
+                step = ESMF_HConfigCreateAt(input_steps, index=n, _RC)
+                expected_kind = ESMF_HConfigAsString(step, _RC)
+                actual_kind = step_kind(previous, result_id, _RC)
+                @assertEqual(expected_kind, trim(actual_kind))
+                result_id = previous
+             end do
+          end if
+
+          @assertFalse(result_id == export_id, &
+               msg // ' :: evaluation result is not expression placeholder')
+          preds = net%get_predecessors(result_id)
+          @assertEqual(1, preds%size(), &
+               msg // ' :: result has exactly one producer')
+          if (preds%size() /= 1) return
+          pred_iter = preds%ftn_begin()
+          call pred_iter%next()
+          expression_transform_id = pred_iter%of()
+          node => root_graph%get_node(expression_transform_id)
+          select type (transform_node => node)
+          class is (TransformGraphNode)
+             @assertTrue(transform_node%is_output_port( &
+                  'destination_field'), msg // ' :: expression output port')
+             inputs = ESMF_HConfigCreateAt(connection, &
+                  keyString='inputs', _RC)
+             input_ports = transform_node%get_input_ports()
+             @assertEqual(ESMF_HConfigGetSize(inputs), input_ports%size(), &
+                  msg // ' :: exact expression input count')
+             begin_iter = ESMF_HConfigIterBegin(inputs, _RC)
+             end_iter = ESMF_HConfigIterEnd(inputs, _RC)
+             iter = begin_iter
+             export_path = ESMF_HConfigAsString(connection, &
+                  keyString='export', _RC)
+             slash = index(export_path, '/', back=.true.)
+             source_comp = export_path(:slash-1)
+             do while (ESMF_HConfigIterLoop(iter, begin_iter, end_iter))
+                input_name = ESMF_HConfigAsStringMapKey(iter, _RC)
+                @assertTrue(transform_node%is_input_port(input_name), &
+                     msg // ' :: expression input ' // input_name)
+                binding => root_graph%get_port_binding( &
+                     root_graph%get_forward_network_id(), &
+                     expression_transform_id, input_name)
+                @assertTrue(associated(binding), msg // &
+                     ' :: expression input is bound: ' // input_name)
+                if (.not. associated(binding)) cycle
+                bound_id = binding
+                input_steps = ESMF_HConfigCreateAtMapVal(iter, _RC)
+                do n = ESMF_HConfigGetSize(input_steps), 1, -1
+                   transform_id = sole_predecessor(bound_id, ok)
+                   @assertTrue(ok, msg // ' :: input chain predecessor')
+                   if (.not. ok) return
+                   @assertTrue(is_transform(transform_id), msg // &
+                        ' :: input chain predecessor is transform')
+                   if (.not. is_transform(transform_id)) return
+                   previous = sole_predecessor(transform_id, ok)
+                   @assertTrue(ok, msg // &
+                        ' :: input transform has one input')
+                   if (.not. ok) return
+                   step = ESMF_HConfigCreateAt(input_steps, index=n, _RC)
+                   expected_kind = ESMF_HConfigAsString(step, _RC)
+                   actual_kind = step_kind(previous, bound_id, _RC)
+                   @assertEqual(expected_kind, trim(actual_kind))
+                   bound_id = previous
+                end do
+                binding => resolve(source_comp // '/' // input_name, &
+                     ESMF_STATEINTENT_EXPORT, _RC)
+                @assertTrue(associated(binding), msg // &
+                     ' :: expression source resolved: ' // input_name)
+                if (associated(binding)) then
+                   @assertTrue(bound_id == binding, msg // &
+                        ' :: input chain reaches ' // input_name)
+                end if
+             end do
+          class default
+             @assertTrue(.false., msg // &
+                  ' :: result producer is an ExpressionTransform')
+             return
+          end select
+
+          @assertFalse(net%has_predecessors(export_id), &
+               msg // ' :: expression placeholder has no predecessor')
+          @assertFalse(net%has_successors(export_id), &
+               msg // ' :: expression placeholder has no successor')
+          rc = 0
+
+      end subroutine check_expression_connection
+
+      function resolve(path, intent, rc) result(id)
+         type(NodeId), pointer :: id
+         character(*), intent(in) :: path
+         type(ESMF_StateIntent_Flag), intent(in) :: intent
+         integer, intent(out) :: rc
+
+         integer :: status, idx, i
+         type(OuterMetaComponent), pointer :: meta
+         type(ComponentGraph), pointer :: graph
+         character(:), allocatable :: rest, child_name, candidate
+         logical :: found, traversed
+
+         rc = 0
+         id => null()
+         idx = index(path, '/', back=.true.)
+         @assertTrue(idx > 1, 'graph expectation path needs a component and an item: ' // path)
+         if (idx <= 1) then
+            rc = 0
+            return
+         end if
+         meta => root_meta
+         rest = path
+         traversed = .false.
+         do
+            idx = index(rest, '/')
+            if (idx == 0) exit
+            child_name = rest(:idx-1)
+            found = .false.
+            do i = 1, meta%get_num_children()
+               candidate = meta%get_child_name(i, status)
+               _VERIFY(status)
+               if (candidate == child_name) then
+                  found = .true.
+                  exit
+               end if
+            end do
+            if (.not. found) exit
+            meta => meta%get_child_outer_meta(child_name, _RC)
+            rest = rest(idx+1:)
+            traversed = .true.
+         end do
+         @assertTrue(traversed, &
+              'graph expectation path needs an existing component: ' // path)
+         if (.not. traversed) return
+         graph => meta%get_component_graph()
+         id => graph%get_resource_index(item_key(intent, rest))
+         rc = 0
+      end function resolve
+
+      function sole_predecessor(id, ok) result(pred)
+         type(NodeId) :: pred
+         type(NodeId), intent(in) :: id
+         logical, intent(out) :: ok
+
+         type(NodeIdSet), target :: preds
+         type(NodeIdSetIterator) :: iter
+
+         preds = net%get_predecessors(id)
+         ok = (preds%size() == 1)
+         if (.not. ok) return
+         iter = preds%ftn_begin()
+         call iter%next()
+         pred = iter%of()
+      end function sole_predecessor
+
+      logical function is_transform(id)
+         type(NodeId), intent(in) :: id
+         class(GraphNode), pointer :: node
+
+         node => root_graph%get_node(id)
+         is_transform = .false.
+         if (.not. associated(node)) return
+         select type (node)
+         class is (TransformGraphNode)
+            is_transform = .true.
+         end select
+      end function is_transform
+
+      ! The one aspect that differs between the items either side of a
+      ! transform names the step; none or several give unknown. A vertical
+      ! regrid also writes the import orientation, so an orientation change
+      ! alongside a vertical one is part of the vertical step.
+      function step_kind(in_id, out_id, rc) result(kind)
+         character(len=16) :: kind
+         type(NodeId), intent(in) :: in_id, out_id
+         integer, intent(out) :: rc
+
+         integer :: status
+         character(:), allocatable :: in_units, out_units
+         type(ESMF_TypeKind_Flag) :: in_tk, out_tk
+         type(ESMF_Geom), allocatable :: in_geom, out_geom
+         class(mapl_VerticalGrid), pointer :: in_vgrid, out_vgrid
+         type(VerticalAlignment) :: in_align, out_align
+         type(VerticalStaggerLoc) :: in_stagger, out_stagger
+         logical :: has_vertical
+         logical :: differs(6)
+         logical :: in_bundle, out_bundle
+         character(len=16), parameter :: KINDS(6) = [character(len=16) :: &
+              'units', 'typekind', 'geometry', 'vertical', 'orientation', &
+              'item_shape']
+
+         rc = 0
+         kind = 'unknown'
+         call item_description(in_id, in_units, in_tk, in_geom, in_vgrid, &
+              in_align, in_stagger, in_bundle, _RC)
+         call item_description(out_id, out_units, out_tk, out_geom, out_vgrid, &
+              out_align, out_stagger, out_bundle, _RC)
+
+         differs(1) = in_units /= out_units
+         differs(2) = .not. (in_tk == out_tk)
+         differs(3) = geom_differs(in_geom, out_geom, _RC)
+         ! Items with no vertical dim still carry their component vgrid.
+         ! Stagger compares by name: its == treats MIRROR as a wildcard.
+         has_vertical = .not. (in_stagger%is_none() .and. &
+              out_stagger%is_none())
+         differs(4) = has_vertical .and. &
+              (in_stagger%to_string() /= out_stagger%to_string() .or. &
+              vgrid_differs(in_vgrid, out_vgrid))
+         differs(5) = has_vertical .and. .not. differs(4)
+         if (differs(5)) differs(5) = alignment_differs(in_align, in_vgrid, &
+              out_align, out_vgrid)
+         differs(6) = in_bundle .neqv. out_bundle
+
+         if (count(differs) == 1) kind = KINDS(findloc(differs, .true., dim=1))
+         rc = 0
+      end function step_kind
+
+      ! Geoms compare by MAPL geom id, as the regrid does.
+      logical function geom_differs(a, b, rc) result(differs)
+         type(ESMF_Geom), allocatable, intent(in) :: a, b
+         integer, intent(out) :: rc
+
+         integer :: status
+         type(mapl_GeomId) :: id_a, id_b
+
+         rc = 0
+         differs = allocated(a) .neqv. allocated(b)
+         if (.not. (allocated(a) .and. allocated(b))) return
+         id_a = mapl_GeomGetId(a, _RC)
+         id_b = mapl_GeomGetId(b, _RC)
+         differs = id_a%get_value() /= id_b%get_value()
+         rc = 0
+      end function geom_differs
+
+      logical function vgrid_differs(a, b) result(differs)
+         class(mapl_VerticalGrid), pointer, intent(in) :: a, b
+
+         differs = associated(a) .neqv. associated(b)
+         if (.not. (associated(a) .and. associated(b))) return
+         differs = a%get_id() /= b%get_id()
+      end function vgrid_differs
+
+      ! Alignments compare as resolved directions, as legacy does: with_grid
+      ! and an explicit alignment equal to the grid's own are the same order.
+      logical function alignment_differs(a_align, a_vgrid, b_align, b_vgrid) &
+           result(differs)
+         type(VerticalAlignment), intent(in) :: a_align, b_align
+         class(mapl_VerticalGrid), pointer, intent(in) :: a_vgrid, b_vgrid
+
+         type(VerticalCoordinateDirection) :: dir_a, dir_b
+
+         differs = a_align /= b_align
+         if (.not. differs) return
+         if (.not. (associated(a_vgrid) .and. associated(b_vgrid))) return
+         dir_a = a_align%resolve(a_vgrid%get_coordinate_direction())
+         dir_b = b_align%resolve(b_vgrid%get_coordinate_direction())
+         differs = dir_a /= dir_b
+      end function alignment_differs
+
+      ! What step_kind compares, read from the chain item's Field or, for a
+      ! VECTOR or BRACKET link, from its FieldBundle.
+      subroutine item_description(id, units, typekind, geom, vgrid, align, &
+           stagger, is_bundle, rc)
+         type(NodeId), intent(in) :: id
+         character(:), allocatable, intent(out) :: units
+         type(ESMF_TypeKind_Flag), intent(out) :: typekind
+         type(ESMF_Geom), allocatable, intent(out) :: geom
+         class(mapl_VerticalGrid), pointer, intent(out) :: vgrid
+         type(VerticalAlignment), intent(out) :: align
+         type(VerticalStaggerLoc), intent(out) :: stagger
+         logical, intent(out) :: is_bundle
+         integer, intent(out) :: rc
+
+         integer :: status
+         class(GraphNode), pointer :: node
+         type(GraphStateItem), pointer :: payload
+         type(ESMF_StateItem_Flag) :: item_type
+         type(ESMF_Field) :: field
+         type(ESMF_FieldBundle) :: bundle
+         type(ESMF_Field), allocatable :: members(:)
+         integer :: n_members
+
+         rc = 0
+         node => root_graph%get_node(id)
+         select type (node)
+         class is (StateItemNode)
+            payload => node%get_payload_ptr()
+         class default
+            @assertTrue(.false., 'graph chain item is not a StateItemNode')
+            return
+         end select
+         item_type = payload%itemType(_RC)
+         is_bundle = (item_type == ESMF_STATEITEM_FIELDBUNDLE)
+         if (is_bundle) then
+            bundle = payload%get_field_bundle(_RC)
+            @assertTrue(ESMF_FieldBundleIsCreated(bundle), 'graph chain item has a real, created bundle')
+            call MAPL_FieldBundleGet(bundle, units=units, typekind=typekind, &
+                 geom=geom, vgrid=vgrid, vert_alignment=align, &
+                 vert_staggerloc=stagger, fieldCount=n_members, _RC)
+            ! Legacy records the alignment on the members only; a link bundle
+            ! with no members yet records it on the bundle.
+            if (n_members > 0) then
+               call MAPL_FieldBundleGet(bundle, fieldList=members, _RC)
+               call FieldGet(members(1), vert_alignment=align, _RC)
+            end if
+            return
+         end if
+         field = payload%get_field(_RC)
+         @assertTrue(ESMF_FieldIsCreated(field), 'graph chain item has a real, created field')
+         call FieldGet(field, units=units, typekind=typekind, geom=geom, &
+              vgrid=vgrid, vert_alignment=align, vert_staggerloc=stagger, _RC)
+         rc = 0
+      end subroutine item_description
+
+      function int_to_string(n) result(str)
+         character(:), allocatable :: str
+         integer, intent(in) :: n
+         character(len=12) :: buffer
+
+         write(buffer, '(i0)') n
+         str = trim(buffer)
+      end function int_to_string
+
+   end subroutine check_graph
+
+   ! When the graph populates the user states the legacy couplers must not
+   ! run, so the import[1] and export[1] Fields of each still hold the fill
+   ! value MAPL gives a new Field. Compared by bits: it is a signaling NaN.
+   ! Only for scenarios whose couplers read items without a fill_value; a
+   ! declared fill_value is also written into the legacy payload. Runs once
+   ! per scenario and mode, under the 'item type' parameter.
+   subroutine check_legacy_couplers(this, rc)
+      class(Scenario), intent(inout) :: this
+      integer, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: root_meta
+
+      rc = 0
+      if (this%check_name /= 'item type') return
+      if (.not. this%graph_owns_states) return
+      if (.not. any(this%scenario_name == [character(len=48) :: &
+           'invalidate', &
+           '../graph-scenarios/units_mismatch_run_phase', &
+           '../graph-scenarios/grandparent_units_run_phase', &
+           '../graph-scenarios/units_and_typekind_mismatch'])) return
+
+      root_meta => get_outer_meta(this%outer_gc, _RC)
+      call check_component_couplers(root_meta, 'ROOT', _RC)
+   end subroutine check_legacy_couplers
+
+   recursive subroutine check_component_couplers(meta, path, rc)
+      type(OuterMetaComponent), target, intent(inout) :: meta
+      character(*), intent(in) :: path
+      integer, intent(out) :: rc
+
+      integer :: status, i
+      type(OuterMetaComponent), pointer :: child_meta
+      type(StateRegistry), pointer :: registry
+      type(ComponentDriverPtrVector) :: couplers
+      character(:), allocatable :: child_name
+
+      rc = 0
+      registry => meta%get_registry()
+      couplers = registry%get_import_couplers()
+      call check_coupler_payloads(couplers, 'import coupler of ' // path, _RC)
+      couplers = registry%get_export_couplers()
+      call check_coupler_payloads(couplers, 'export coupler of ' // path, _RC)
+
+      do i = 1, meta%get_num_children()
+         child_name = meta%get_child_name(i, _RC)
+         child_meta => meta%get_child_outer_meta(child_name, _RC)
+         call check_component_couplers(child_meta, path // '/' // child_name, _RC)
+      end do
+   end subroutine check_component_couplers
+
+   subroutine check_coupler_payloads(couplers, description, rc)
+      type(ComponentDriverPtrVector), intent(in) :: couplers
+      character(*), intent(in) :: description
+      integer, intent(out) :: rc
+
+      integer :: status, i
+      type(ComponentDriverPtr) :: wrapper
+      type(MultiState) :: coupler_states
+      type(ESMF_StateItem_Flag) :: itemtype
+
+      rc = 0
+      do i = 1, couplers%size()
+         wrapper = couplers%of(i)
+         coupler_states = wrapper%ptr%get_states()
+         call ESMF_StateGet(coupler_states%importState, 'import[1]', itemtype=itemtype, _RC)
+         if (itemtype /= ESMF_STATEITEM_FIELD) cycle
+         call check_payload_is_fill(coupler_states%importState, 'import[1]', description, _RC)
+         call check_payload_is_fill(coupler_states%exportState, 'export[1]', description, _RC)
+      end do
+   end subroutine check_coupler_payloads
+
+   subroutine check_payload_is_fill(state, item_name, description, rc)
+      use, intrinsic :: iso_fortran_env, only: INT32, INT64
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: item_name
+      character(*), intent(in) :: description
+      integer, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Field) :: field
+      type(ESMF_FieldStatus_Flag) :: field_status
+      type(ESMF_TypeKind_Flag) :: typekind
+      real(ESMF_KIND_R4), pointer :: x4(:)
+      real(ESMF_KIND_R8), pointer :: x8(:)
+      logical :: has_de
+
+      rc = 0
+      call ESMF_StateGet(state, item_name, field, _RC)
+      call ESMF_FieldGet(field, status=field_status, typekind=typekind, _RC)
+      if (field_status /= ESMF_FIELDSTATUS_COMPLETE) return
+      has_de = field_has_de(field, _RC)
+      if (.not. has_de) return
+
+      if (typekind == ESMF_TYPEKIND_R4) then
+         call assign_fptr(field, x4, _RC)
+         @assertTrue(all(transfer(x4, [0_INT32]) == transfer(get_field_fill_default_r4(), 0_INT32)), &
+              description // ' ' // item_name // ': legacy payload was written, so the coupler ran')
+      else if (typekind == ESMF_TYPEKIND_R8) then
+         call assign_fptr(field, x8, _RC)
+         @assertTrue(all(transfer(x8, [0_INT64]) == transfer(get_field_fill_default_r8(), 0_INT64)), &
+              description // ' ' // item_name // ': legacy payload was written, so the coupler ran')
+      end if
+   end subroutine check_payload_is_fill
 
    function get_itemtype(state, short_name, rc) result(itemtype)
       type(ESMF_StateItem_Flag) :: itemtype
@@ -572,6 +1481,38 @@ contains
          end if
       end function typekind_to_string
    end subroutine check_field_typekind
+
+   subroutine check_field_units(expectations, state, short_name, description, rc)
+      type(ESMF_HConfig), intent(in) :: expectations
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: short_name
+      character(*), intent(in) :: description
+      integer, intent(out) :: rc
+
+      character(len=:), allocatable :: expected_units, found_units
+      type(ESMF_StateItem_Flag) :: itemtype
+      type(ESMF_Field) :: field
+      integer :: status
+
+      itemtype = get_itemtype(state, short_name, _RC)
+      if (itemtype /= ESMF_STATEITEM_FIELD) then ! that's ok
+         rc = 0
+         return
+      end if
+
+      if (.not. ESMF_HConfigIsDefined(expectations,keyString='units')) then
+         rc = 0
+         return
+      end if
+
+      expected_units = ESMF_HConfigAsString(expectations,keyString='units',_RC)
+      call ESMF_StateGet(state, short_name, field, _RC)
+      call FieldGet(field, units=found_units, _RC)
+      @assert_that(description // ' :: expected=' // expected_units // ', found=' // found_units, &
+           found_units == expected_units, is(true()))
+
+      rc = 0
+   end subroutine check_field_units
 
    subroutine check_field_value(expectations, state, short_name, description, rc)
       type(ESMF_HConfig), intent(in) :: expectations
@@ -1198,7 +2139,7 @@ contains
       character(:), allocatable :: s
       class(ScenarioDescription), intent(in) :: this
 
-      s = this%name // ' [' // this%check_name // ']'
+      s = this%name // ' [' // this%check_name // '] mode=' // this%graph_mode
    end function tostring_description
 
    recursive function num_fields(state, rc) result(n)

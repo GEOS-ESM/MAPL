@@ -24,7 +24,7 @@ contains
       num_specs = ESMF_HConfigGetSize(conn_specs, _RC)
       do i = 1, num_specs
          conn_spec = ESMF_HConfigCreateAt(conn_specs, index=i, _RC)
-         conn = parse_connection(conn_spec, _RC)
+         call parse_connection(conn_spec, conn, _RC)
          call connections%push_back(conn)
          deallocate(conn)
       enddo 
@@ -33,15 +33,17 @@ contains
 
    contains
 
-      function parse_connection(config, rc) result(conn)
-         class(Connection), allocatable :: conn
+      subroutine parse_connection(config, conn, rc)
          type(ESMF_HConfig), optional, intent(in) :: config
+         class(Connection), allocatable, intent(out) :: conn
          integer, optional, intent(out) :: rc
 
          integer :: status
          character(:), allocatable :: src_name, dst_name
          character(:), allocatable :: src_comp, dst_comp
          character(:), allocatable :: src_intent, dst_intent
+         character(:), allocatable :: msg, endpoints
+         logical :: ok
 
          call get_comps(config, src_comp, dst_comp, _RC)
 
@@ -55,6 +57,28 @@ contains
             
          call get_names(config, src_name, dst_name, _RC)
          call get_intents(config, src_intent, dst_intent, _RC)
+
+         ! A re-export takes an export or internal source; any other
+         ! connection is a simple export -> import.
+         endpoints = ' (' // src_comp // '/' // src_name // ' -> ' // &
+              dst_comp // '/' // dst_name // ')'
+         if (dst_intent == 'export') then
+            ok = src_intent == 'export' .or. src_intent == 'internal'
+            if (.not. ok) then
+               msg = 'Re-export needs src export or internal, got ' // &
+                    'src_intent=' // src_intent // ' dst_intent=' // &
+                    dst_intent // endpoints
+               _FAIL(msg)
+            end if
+         else
+            ok = src_intent == 'export' .and. dst_intent == 'import'
+            if (.not. ok) then
+               msg = 'Simple connection needs export -> import, got ' // &
+                    'src_intent=' // src_intent // ' dst_intent=' // &
+                    dst_intent // endpoints
+               _FAIL(msg)
+            end if
+         end if
 
          associate ( &
               src_pt => VirtualConnectionPt(state_intent=src_intent, short_name=src_name), &
@@ -73,7 +97,7 @@ contains
          end associate
 
          _RETURN(_SUCCESS)
-      end function parse_connection
+      end subroutine parse_connection
 
       subroutine get_names(config, src_name, dst_name, rc)
          type(ESMF_HConfig), intent(in) :: config

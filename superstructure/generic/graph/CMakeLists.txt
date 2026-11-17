@@ -1,0 +1,125 @@
+target_sources(MAPL.generic PRIVATE
+  StringSortUtilities.F90
+
+  id_types/NodeId.F90
+  id_types/DependencyNetworkId.F90
+  id_types/PortId.F90
+  id_types/CallbackInterfaceId.F90
+
+  GraphNode.F90
+  BaseGraphNode.F90
+  OperationGraphNode.F90
+  NodeRevision.F90
+  GraphMode.F90
+  ValidationPolicy.F90
+
+  containers/StateItemMemberMap.F90
+  GraphStateItem.F90
+  StateItemDescriptor.F90
+  StateItemNode.F90
+  GeomProxyField.F90
+
+  PortSpec.F90
+  containers/PortSpecMap.F90
+  containers/PortNameRevisionMap.F90
+  containers/PortNameGraphStateItemMap.F90
+  transforms/TransformBase.F90
+  transforms/Transform.F90
+  transforms/TransformGraphNode.F90
+
+  AccessSpec.F90
+  ArgumentSpec.F90
+  containers/ArgumentSpecMap.F90
+  MethodInvocationAdapter.F90
+  GridCompMethodInvocation.F90
+  GridCompDriverPhaseInvoker.F90
+  StateMethodInvocation.F90
+  MethodGraphNode.F90
+  MethodInvocation.F90
+
+  PortBindingKey.F90
+  containers/PortBindingKeyPortMap.F90
+  PortBindingTable.F90
+
+  containers/NodeIdSet.F90
+  containers/NodeId_NodeIdSet_Map.F90
+  containers/NodeIdGraphNodeMap.F90
+  containers/PortIdNodeIdMap.F90
+  containers/PortIdStringMap.F90
+
+  NodeLabel.F90
+  containers/NodeIdLabelMap.F90
+
+  containers/DependencyNetworkIdSet.F90
+  DependencyNetwork.F90
+  containers/DependencyNetworkIdNetworkMap.F90
+
+  id_types/HierarchyId.F90
+  HierarchyGraph.F90
+  HierarchyResources.F90
+  containers/HierarchyIdHierarchyResourcesMap.F90
+  HierarchyRegistry.F90
+
+  ComponentGraph.F90
+  ComponentGraph_DemandDrivenUpdate.F90
+  GraphExport.F90
+
+  transforms/UnitsConverterTransform.F90
+  transforms/TypeKindConverterTransform.F90
+  transforms/BracketTimeInterpolationTransform.F90
+  transforms/ExpressionTransform.F90
+  transforms/HorizontalRegridTransform.F90
+  transforms/BundleMemberSupport.F90
+  transforms/HorizontalBundleRegridTransform.F90
+  transforms/VerticalFlipTransform.F90
+  transforms/VerticalColumnRegridTransform.F90
+  ExtensionResolution.F90
+  GraphOwnsUserStates.F90
+  ExtensionMaterialization.F90
+
+  CompositeStateMaterialization.F90
+
+  characteristics/CharacteristicStatus.F90
+  characteristics/StateItemCharacteristicKind.F90
+  characteristics/CharacteristicDefaults.F90
+  characteristics/StateItemCharacteristic.F90
+  characteristics/PhysicalUnitsCharacteristic.F90
+  characteristics/TypeKindCharacteristic.F90
+  characteristics/GeometryCharacteristic.F90
+  characteristics/SetSharedCharacteristic.F90
+  characteristics/VerticalGridCharacteristic.F90
+  characteristics/VerticalStaggerCharacteristic.F90
+  characteristics/VerticalOrientationCharacteristic.F90
+  characteristics/HorizontalDimsSpecCharacteristic.F90
+  characteristics/UngriddedDimsCharacteristic.F90
+  characteristics/ConservationCharacteristic.F90
+  characteristics/NormalizationCharacteristic.F90
+  characteristics/QuantityTypeCharacteristic.F90
+  characteristics/AttributesCharacteristic.F90
+  characteristics/StandardNameCharacteristic.F90
+  characteristics/LongNameCharacteristic.F90
+  characteristics/RestartModeCharacteristic.F90
+  characteristics/ExpressionCharacteristic.F90
+  characteristics/ItemShapeCharacteristic.F90
+
+  callback/CallbackArgumentSpec.F90
+  containers/CallbackArgumentSpecMap.F90
+  containers/AccessSpecMap.F90
+  callback/CallbackMethodSpec.F90
+  containers/CallbackMethodSpecMap.F90
+  callback/CallbackInterface.F90
+  containers/CallbackInterfaceIdInterfaceMap.F90
+  containers/CallbackServiceNameIdMap.F90
+  callback/CallbackInterfaceRegistry.F90
+  containers/CallbackMethodAttachmentMap.F90
+  callback/CallbackStateBinding.F90
+  callback/CallbackMethodBinding.F90
+)
+
+target_include_directories(MAPL.generic PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/id_types
+)
+
+if (PFUNIT_FOUND)
+  add_subdirectory(tests EXCLUDE_FROM_ALL)
+endif ()

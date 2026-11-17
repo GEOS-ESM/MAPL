@@ -1,0 +1,42 @@
+module Test_ForwardNetworkErrors
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId
+   use mapl_NodeId_mod, only: NodeId
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_second_forward_producer_message_names_item()
+      type(ComponentGraph) :: graph
+      type(DependencyNetworkId) :: network_id
+      type(NodeId) :: first_id, second_id, target_id
+      type(StateItemNode) :: first, second, target
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      integer :: status, net_status
+
+      graph = ComponentGraph()
+      network_id = graph%get_forward_network_id(net_status)
+      first_id = graph%next_node_id(rc=status)
+      first = StateItemNode(first_id, payload, revision, 'first')
+      call graph%register_node(first, rc=status)
+      second_id = graph%next_node_id(rc=status)
+      second = StateItemNode(second_id, payload, revision, 'second')
+      call graph%register_node(second, rc=status)
+      target_id = graph%next_node_id(rc=status)
+      target = StateItemNode(target_id, payload, revision, 'named_target')
+      call graph%register_node(target, rc=status)
+      call graph%add_dependency(network_id, first_id, target_id, rc=status)
+      call graph%add_dependency(network_id, second_id, target_id, rc=status)
+
+      @assertExceptionRaised( &
+           'ComponentGraph: forward network item "named_target" already has a different producer')
+      @assertTrue(status /= 0)
+   end subroutine test_second_forward_producer_message_names_item
+
+end module Test_ForwardNetworkErrors

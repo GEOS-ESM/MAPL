@@ -578,6 +578,8 @@ contains
       integer :: status
       type(OuterMetaComponent), pointer :: outer_meta
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      name = ''
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       name = outer_meta%get_child_name(index, _RC)
 
@@ -640,6 +642,8 @@ contains
         dependencies, &
         regrid_param, &
         horizontal_dims_spec, &
+        mirror_geom, &
+        mirror_vgrid, &
         vector_basis_kind, &
         restart_mode, &
 
@@ -672,6 +676,8 @@ contains
       type(StringVector), optional, intent(in) :: dependencies
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
+      logical, optional, intent(in) :: mirror_geom
+      logical, optional, intent(in) :: mirror_vgrid
       character(*), optional, intent(in) :: vector_basis_kind
       type(RestartMode), optional, intent(in) :: restart_mode
 
@@ -729,6 +735,8 @@ contains
               dependencies=dependencies, &
               regrid_param=regrid_param, &
               horizontal_dims_spec=horizontal_dims_spec_, &
+              mirror_geom=mirror_geom, &
+              mirror_vgrid=mirror_vgrid, &
               vector_basis_kind=vector_basis_kind, &
               restart_mode=restart_mode, &
               _RC)
@@ -1177,7 +1185,7 @@ contains
       spec => primary
       _ASSERT(associated(spec), 'null pointer for spec')
 
-      call spec%set_geometry(geom=geom, vertical_grid=vertical_grid, _RC)
+      call spec%set_geometry(geom=geom, vertical_grid=vertical_grid, force_replace=.true., _RC)
 
       _RETURN(_SUCCESS)
    end subroutine gridcomp_set_geometry
@@ -1286,6 +1294,8 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       integer :: status
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      dir = ''
       call GridCompGetOuterMeta(gridcomp, outer_meta, _RC)
       dir = outer_meta%get_checkpoint_dir(current_time, is_private=is_private, _RC)
 

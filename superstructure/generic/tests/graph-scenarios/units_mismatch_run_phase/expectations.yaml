@@ -1,0 +1,31 @@
+# comp_src exports 10 hPa; comp_dst imports Pa, so one units extension (x100).
+- component: comp_src/<user>
+  export:
+    T: {status: complete, typekind: R4, rank: 2, value: 10.}
+
+- component: comp_src
+  export:
+    T: {status: complete, typekind: R4, rank: 2, units: 'hPa', value: 10.}
+    T(1): {legacy_only: true, status: complete, typekind: R4, rank: 2, units: 'Pa', value: 1000.}  # hPa --> Pa
+
+- component: comp_dst/<user>
+  import:
+    T: {status: complete, typekind: R4, rank: 2, units: 'Pa', value: 1000.}
+
+- component: comp_dst
+  import:
+    T: {status: complete, typekind: R4, rank: 2, units: 'Pa', value: 1000.}
+
+- component: <user>
+  import: {}
+  export: {}
+  internal: {}
+
+- component: <root>
+  export:
+    comp_src/T: {status: complete, typekind: R4, rank: 2, value: 10.}
+    comp_src/T(1): {legacy_only: true, status: complete, typekind: R4, rank: 2, units: 'Pa', value: 1000.}
+  graph:
+    nodes: 3
+    connections:
+      - {export: comp_src/T, import: comp_dst/T, chain: [units]}

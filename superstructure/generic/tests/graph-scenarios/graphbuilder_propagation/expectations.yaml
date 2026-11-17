@@ -1,0 +1,29 @@
+# cap -> comp_mid -> comp_dst: comp_dst's import is satisfied by comp_src's export.
+- component: comp_src/<user>
+  export:
+    T: {status: complete, typekind: R4, rank: 2, standard_name: 'A1 standard name', value: 42.}
+
+- component: comp_src
+  export:
+    T: {status: complete, typekind: R4, rank: 2, standard_name: 'A1 standard name', value: 42.}
+
+- component: comp_mid/comp_dst/<user>
+  import:
+    T: {status: complete, typekind: R4, rank: 2, standard_name: 'A1 standard name', value: 42.}
+
+- component: comp_mid/comp_dst
+  import:
+    T: {status: complete, typekind: R4, rank: 2, standard_name: 'A1 standard name', value: 42.}
+
+- component: <user>
+  import: {}
+  export: {}
+  internal: {}
+
+- component: <root>
+  export:
+    comp_src/T: {status: complete, typekind: R4, rank: 2, standard_name: 'A1 standard name', value: 42.}
+  graph:
+    nodes: 1
+    connections:
+      - {export: comp_src/T, import: comp_mid/comp_dst/T, chain: []}

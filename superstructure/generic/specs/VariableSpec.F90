@@ -30,10 +30,14 @@ module mapl_VariableSpec_mod
    use mapl_ConservationAspect_mod
    use mapl_NormalizationAspect_mod
    use mapl_enums_api, only: MAPL_NormalizationType, MAPL_NORMALIZE_NONE, &
-        MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS
+        MAPL_VectorBasisKind, MAPL_VECTOR_BASIS_KIND_NS, &
+        MAPL_QuantityType, MAPL_QUANTITY_UNKNOWN
+   use mapl_ConservationMetadata_mod, only: ConservationMetadata
+   use mapl_NormalizationMetadata_mod, only: NormalizationMetadata
    use mapl_UngriddedDims_mod
    use mapl_VerticalStaggerLoc_mod
    use mapl_HorizontalDimsSpec_mod
+   use mapl_typekind_mod, only: MAPL_TYPEKIND_MIRROR
     use mapl_VirtualConnectionPt_mod
     use mapl_ActualConnectionPt_mod
     use mapl_VerticalGrid_mod
@@ -41,6 +45,9 @@ module mapl_VariableSpec_mod
     use mapl_VirtualConnectionPtVector_mod
     use mapl_ErrorHandling_mod
    use pflogger, only: logging, logger_t => logger
+   use mapl_ValidationPolicy_mod, only: validation_is_strict, standard_name_warnings_suppressed, &
+        standard_name_required
+   use mapl_StandardNameCharacteristic_mod, only: UNKNOWN_STANDARD_NAME
    use mapl_StateRegistry_mod
    use mapl_StateItem_mod
    use mapl_AspectId_mod
@@ -56,18 +63,32 @@ module mapl_VariableSpec_mod
    use gFTL2_StringVector
    use nuopc
    use mapl_VariableSpec_private_mod
+   use mapl_VariableSpecTag_mod, only: VariableSpecTag
+   use mapl_VariableSpecMemberMap_mod
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
+   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
 
    implicit none
    private
 
    public :: VariableSpec
    public :: make_VariableSpec
+   public :: MAPL_STRING_MIRROR
+
+   ! standard_name or long_name value that requests the connected partner's
+   ! value (imports only). Write it quoted in YAML ("<mirror>").
+   character(*), parameter :: MAPL_STRING_MIRROR = '<mirror>'
 
    ! This type provides components that might be needed for _any_
    ! state item.  This is largely to support legacy interfaces, but it
    ! also allows us to defer interpretation until after user
    ! setservices() have run.
-   type VariableSpec
+   !
+   ! extends(VariableSpecTag): allows `members` below to be a map of VariableSpec
+   ! itself (composite is a VariableSpec with itemType == MAPL_STATEITEM_STATE
+   ! and declared members) without circular module dependency. VariableSpecTag is
+   type, extends(VariableSpecTag) :: VariableSpec
       ! TODO: delete - move to StateItemSpec
 
       ! Mandatory values:
@@ -82,7 +103,11 @@ module mapl_VariableSpec_mod
       ! Field & Vector
       !---------------------
       character(:), allocatable :: standard_name
+      ! Set by a MAPL_STRING_MIRROR request; standard_name stays unallocated.
+      logical :: standard_name_mirror = .false.
       character(:), allocatable :: long_name ! from FieldDictionary or override
+      ! Set by a MAPL_STRING_MIRROR request; long_name stays unallocated.
+      logical :: long_name_mirror = .false.
       type(RestartMode), allocatable :: restart_mode
       !---------------------
       ! Vector
@@ -114,6 +139,7 @@ module mapl_VariableSpec_mod
        type(mapl_GeomId) :: geom_id
        type(ESMF_Geom), allocatable :: geom
        type(HorizontalDimsSpec) :: horizontal_dims_spec = HORIZONTAL_DIMS_GEOM
+       logical :: mirror_geom = .false.
       ! next two items are mutually exclusive
       type(EsmfRegridderParam), allocatable :: regrid_param
       type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
@@ -122,6 +148,7 @@ module mapl_VariableSpec_mod
       ! vertical aspect
       !=====================
       class(VerticalGrid), allocatable :: vertical_grid
+      logical :: mirror_vgrid = .false.
       type(VerticalStaggerLoc), allocatable :: vertical_stagger
       character(:), allocatable :: vertical_alignment  ! "upward" | "downward" | "with_grid" (default)
 
@@ -144,6 +171,85 @@ module mapl_VariableSpec_mod
       !=====================
       type(StringVector) :: dependencies ! default empty
 
+      !=====================
+      ! Composite members
+      !=====================
+      ! Plain (not allocatable), always present, empty unless populated -
+      ! mirrors GraphStateItem's own state_members_map component shape.
+      ! Meaningful only when itemType == MAPL_STATEITEM_STATE
+      ! (declare_member enforces this at declaration time); a member's
+      ! own short_name field is never read - only the map key is a
+      ! member's identity.
+      type(VariableSpecMemberMap) :: members
+
+      !=====================
+      ! Callback interface
+      !=====================
+      ! Marks an import as a callback consumer expecting to satisfy the
+      ! given CallbackInterface, e.g. a `tracers` import expecting the
+      ! PassiveTracer interface (15-callbacks.md sec 15.3). Default
+      ! unset (is_valid() == .false., IdTemplate.inc's own default) for
+      ! an ordinary (non-callback) item - GraphBuilder branches on this
+      ! field's validity, not on itemType, since a callback-consuming
+      ! import is still an ordinary composite STATE item otherwise
+      ! (mirrors MAPL_STATEITEM_SERVICE's own "mark the item, not the
+      ! connection" precedent without overloading itemType itself). Set
+      ! via plain field assignment only (no make_VariableSpec keyword):
+      ! no ComponentSpecParser/YAML or SetServices-convenience entry
+      ! point exists for it, as for `members`, above.
+      type(CallbackInterfaceId) :: callback_interface_id
+
+      !=====================
+      ! Composite state variant
+      !=====================
+      ! Tags a composite declaration (itemType == MAPL_STATEITEM_STATE,
+      ! `members` above) with the graph-native MAPL_StateItem_Flag
+      ! (mapl_StateItemFlag_mod) its materialized GraphStateItem should
+      ! report from variant() - e.g. MAPL_STATEITEM_VERTICALGRID for a
+      ! component's vertical grid, whose declared members (one per physical
+      ! dimension) are otherwise ordinary composite members. Default
+      ! unallocated for an ordinary (non-tagged) composite or leaf -
+      ! mapl_CompositeStateMaterialization_mod only calls MAPL_StateSet(state_item_variant=)
+      ! when this is allocated, so every existing composite declaration
+      ! is unaffected. Mirrors `callback_interface_id`'s own precedent
+      ! exactly: "mark the item, not a new itemType," set via plain field
+      ! assignment only, no make_VariableSpec keyword -
+      ! chosen over a polymorphic role-class hierarchy since no second
+      ! composite role is anticipated yet and MAPL_StateItem_Flag already
+      ! provides the needed vocabulary.
+      type(MAPL_StateItem_Flag), allocatable :: state_item_variant
+
+      !=====================
+      ! Inout borrower
+      !=====================
+      ! Marks an import as an ordinary inout borrower (direct-alias case only):
+      ! the import's payload is expected to be the same underlying payload as the matched export
+      ! it borrows from, with GraphBuilder additionally wiring a
+      ! borrower-to-owner return-network edge so the owner's node
+      ! reflects the borrower's result after the borrower executes.
+      ! Default .false. for an ordinary (non-inout) import - GraphBuilder
+      ! branches on this field, not on itemType, mirroring
+      ! `callback_interface_id`'s own "mark the item, not a new itemType"
+      ! precedent exactly. The owner this borrower
+      ! pairs with is identified through the existing `MatchConnection`
+      ! mechanism already used for ordinary connections - no owner
+      ! reference is stored on the borrower's own VariableSpec. Set via
+      ! plain field assignment only, no make_VariableSpec keyword, same as
+      ! `callback_interface_id`/`state_item_variant`.
+      logical :: is_inout_borrower = .false.
+
+      !=====================
+      ! declared quantity-type/conservation/normalization
+      !=====================
+      ! Read by the QuantityType, Conservation and Normalization factories
+      ! in make_characteristics. quantity_type is also set by the
+      ! make_VariableSpec keyword and the YAML key `quantity_type`;
+      ! conservation and normalization only by field assignment. The legacy
+      ! make_*Aspect procedures ignore all three.
+      type(MAPL_QuantityType) :: quantity_type = MAPL_QUANTITY_UNKNOWN
+      type(ConservationMetadata) :: conservation
+      type(NormalizationMetadata) :: normalization
+
    contains
       procedure :: make_virtualPt
       procedure :: make_dependencies
@@ -161,7 +267,23 @@ module mapl_VariableSpec_mod
       procedure :: make_NormalizationAspect
       procedure :: make_VerticalGridAspect
       procedure :: make_ClassAspect
+
+      procedure :: make_characteristics
+      procedure :: requests_mirror
+
+      procedure :: declare_member
+      procedure :: has_member
+      procedure :: get_member
+      procedure :: get_member_names
    end type VariableSpec
+
+   interface
+      module subroutine make_characteristics(this, descriptor, rc)
+         class(VariableSpec), intent(in) :: this
+         type(StateItemDescriptor), intent(inout) :: descriptor
+         integer, optional, intent(out) :: rc
+      end subroutine make_characteristics
+   end interface
 
 contains
 
@@ -186,8 +308,11 @@ contains
         dependencies, &
         regrid_param, &
         horizontal_dims_spec, &
+        mirror_geom, &
+        mirror_vgrid, &
         vector_basis_kind, &
         restart_mode, &
+        quantity_type, &
         rc) result(var_spec)
 
       type(VariableSpec) :: var_spec
@@ -214,8 +339,11 @@ contains
       type(StringVector), optional, intent(in) :: dependencies
       type(EsmfRegridderParam), optional, intent(in) :: regrid_param
       type(HorizontalDimsSpec), optional, intent(in) :: horizontal_dims_spec
+      logical, optional, intent(in) :: mirror_geom
+      logical, optional, intent(in) :: mirror_vgrid
       character(*), optional, intent(in) :: vector_basis_kind
       type(RestartMode), optional, intent(in) :: restart_mode
+      type(MAPL_QuantityType), optional, intent(in) :: quantity_type
       integer, optional, intent(out) :: rc
 
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
@@ -223,6 +351,7 @@ contains
 
       integer :: status
       type(FieldDictionaryConfig), pointer :: fd_config
+      character(:), allocatable :: reason
 
       var_spec%short_name = short_name
       var_spec%state_intent = state_intent
@@ -231,8 +360,20 @@ contains
 #  undef _SET_OPTIONAL
 #endif
 #define _SET_OPTIONAL(opt) if (present(opt)) var_spec%opt = opt
-      _SET_OPTIONAL(standard_name)
-      _SET_OPTIONAL(long_name)
+      if (present(standard_name)) then
+         if (standard_name == MAPL_STRING_MIRROR) then
+            var_spec%standard_name_mirror = .true.
+         else
+            var_spec%standard_name = standard_name
+         end if
+      end if
+      if (present(long_name)) then
+         if (long_name == MAPL_STRING_MIRROR) then
+            var_spec%long_name_mirror = .true.
+         else
+            var_spec%long_name = long_name
+         end if
+      end if
       _SET_OPTIONAL(geom_id)
       _SET_OPTIONAL(geom)
       _SET_OPTIONAL(units)
@@ -250,7 +391,15 @@ contains
       _SET_OPTIONAL(dependencies)
       _SET_OPTIONAL(regrid_param)
       _SET_OPTIONAL(horizontal_dims_spec)
+      _SET_OPTIONAL(mirror_geom)
+      _SET_OPTIONAL(mirror_vgrid)
       _SET_OPTIONAL(restart_mode)
+      _SET_OPTIONAL(quantity_type)
+
+      reason = intent_rule_violation(state_intent, var_spec%itemType, var_spec%requests_mirror())
+      _ASSERT(len(reason) == 0, reason // ': ' // short_name)
+
+      call check_standard_name_required_(var_spec, _RC)
 
       var_spec%vector_basis_kind = MAPL_VECTOR_BASIS_KIND_NS
       if (present(vector_basis_kind)) then
@@ -265,12 +414,72 @@ contains
       ! carry no standard_name of their own to look up).
       fd_config => get_field_dictionary_config()
       if (.not. fd_config%is_exempt(var_spec%itemType)) then
-         call apply_field_dictionary_defaults_(var_spec, short_name, standard_name, units, long_name, _RC)
+         if (allocated(var_spec%standard_name)) then
+            call apply_field_dictionary_defaults_(var_spec, short_name, &
+                 standard_name=var_spec%standard_name, units=units, long_name=long_name, _RC)
+         else
+            call apply_field_dictionary_defaults_(var_spec, short_name, &
+                 units=units, long_name=long_name, _RC)
+         end if
       end if
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end function make_VariableSpec
+
+   ! True when the spec explicitly asks for a mirror. Expression defaults are
+   ! not requests: an EXPRESSION has no geometry, grid or stagger of its own
+   ! and is MIRRORED without asking.
+   logical function requests_mirror(this)
+      class(VariableSpec), intent(in) :: this
+
+      requests_mirror = this%standard_name_mirror .or. this%long_name_mirror
+      requests_mirror = requests_mirror .or. this%mirror_geom
+      requests_mirror = requests_mirror .or. this%mirror_vgrid
+      requests_mirror = requests_mirror .or. this%typekind == MAPL_TYPEKIND_MIRROR
+      requests_mirror = requests_mirror .or. this%horizontal_dims_spec == HORIZONTAL_DIMS_MIRROR
+      requests_mirror = requests_mirror .or. this%ungridded_dims%is_mirror()
+      requests_mirror = requests_mirror .or. this%conservation%is_mirror()
+      requests_mirror = requests_mirror .or. this%normalization%is_mirror()
+      if (allocated(this%vertical_stagger)) then
+         requests_mirror = requests_mirror .or. this%vertical_stagger%is_mirror()
+      end if
+      if (allocated(this%vertical_alignment)) then
+         requests_mirror = requests_mirror .or. (ESMF_UtilStringLowerCase(trim(this%vertical_alignment)) == 'mirror')
+      end if
+   end function requests_mirror
+
+   ! With require_standard_name set, a FIELD must declare a standard_name (a
+   ! mirror request counts; '<unknown>' does not). Severity follows the
+   ! validation mode.
+   subroutine check_standard_name_required_(var_spec, rc)
+      type(VariableSpec), intent(in) :: var_spec
+      integer, optional, intent(out) :: rc
+
+      logical :: declared
+      type(logger_t), pointer :: lgr
+      character(:), allocatable :: msg
+
+      _RETURN_UNLESS(standard_name_required())
+      _RETURN_UNLESS(var_spec%itemType == MAPL_STATEITEM_FIELD)
+
+      declared = var_spec%standard_name_mirror
+      if (allocated(var_spec%standard_name)) then
+         declared = declared .or. var_spec%standard_name /= UNKNOWN_STANDARD_NAME
+      end if
+      _RETURN_IF(declared)
+
+      msg = 'standard_name required: FIELD "' // var_spec%short_name // '" declares none'
+      if (validation_is_strict()) then
+         _FAIL(msg // ' (strict mode).')
+      end if
+      if (.not. standard_name_warnings_suppressed()) then
+         lgr => logging%get_logger('MAPL')
+         call lgr%warning(msg // '.')
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine check_standard_name_required_
 
    ! Apply field dictionary defaults for units and long_name.
    ! Lookup key priority:
@@ -533,8 +742,7 @@ contains
       aspect = this%make_NormalizationAspect(_RC)
       call aspects%insert(NORMALIZATION_ASPECT_ID, aspect)
 
-       aspect = this%make_VerticalGridAspect(vertical_grid, &
-            component_geom=component_geom, component_geom_id=component_geom_id, _RC)
+       aspect = this%make_VerticalGridAspect(vertical_grid, _RC)
       call aspects%insert(VERTICAL_GRID_ASPECT_ID, aspect)
 
       aspect = this%make_ClassAspect(registry, _RC)
@@ -558,9 +766,8 @@ contains
    ! for item types exempt from standard_name enforcement
    ! (FieldDictionaryConfig%is_exempt: FieldBundle, State, Wildcard,
    ! Expression, Service), or for Vector (which enforces its own two split
-   ! names internally - see make_ClassAspect's MAPL_STATEITEM_VECTOR case and
-   ! generic/standard-name-enforcement design.md Decision 6). Passing
-   ! `this%standard_name` unallocated is fine: make_StandardNameAspect/
+   ! names internally - see make_ClassAspect's MAPL_STATEITEM_VECTOR case).
+   ! Passing `this%standard_name` unallocated is fine: make_StandardNameAspect/
    ! StandardNameAspect's constructor leaves the aspect ASPECT_STATUS_UNCHECKED
    ! (wildcard) when no value is present.
    function make_StandardNameAspect(this, rc) result(aspect)
@@ -621,7 +828,8 @@ contains
       end if
 
        aspect = GeomAspect(geom=geom_, regridder_param=this%regrid_param, &
-            horizontal_dims_spec=this%horizontal_dims_spec, geom_id=geom_id_, aspect_status=aspect_status)
+            horizontal_dims_spec=this%horizontal_dims_spec, geom_id=geom_id_, aspect_status=aspect_status, &
+            declared_by_item=allocated(this%geom), geom_id_declared_by_item=this%geom_id%is_assigned())
 
       _RETURN(_SUCCESS)
    end function make_GeomAspect
@@ -673,44 +881,36 @@ contains
       _RETURN(_SUCCESS)
    end function make_NormalizationAspect
 
-    function make_VerticalGridAspect(this, vertical_grid, component_geom, component_geom_id, time_dependent, rc) result(aspect)
+    function make_VerticalGridAspect(this, vertical_grid, time_dependent, rc) result(aspect)
       type(VerticalGridAspect) :: aspect
       class(VariableSpec), intent(in) :: this
        class(VerticalGrid), optional, intent(in) :: vertical_grid
-       type(ESMF_Geom), optional, intent(in) :: component_geom
-       type(mapl_GeomId), optional, intent(in) :: component_geom_id
       logical, optional, intent(in) :: time_dependent
       integer, optional, intent(out) :: rc
 
-       type(ESMF_Geom) :: geom_
        class(VerticalGrid), allocatable :: vgrid
        type(AspectStatus) :: aspect_status
 
+      ! A grid in the var spec is prioritized over the component-wide grid.
+      ! If neither is given, the grid is mirrored and determined by a connection,
+      ! except for a 2D item (stagger NONE), which is SPECIFIED.
        aspect_status = ASPECT_STATUS_MIRRORED
-
-      ! If geom is allocated in var spec then it is prioritized over the
-      ! component-wide geom.
-      ! If not specified either way, then it indicates that the geom is
-      ! mirrored ind will be determined by a connection.
-      if (allocated(this%geom)) then
-         geom_ = this%geom
-       elseif (present(component_geom)) then
-          geom_ = component_geom
-          aspect_status = ASPECT_STATUS_FROM_COMP
-      end if
 
       if (allocated(this%vertical_grid)) then
          vgrid = this%vertical_grid
        elseif (present(vertical_grid)) then
           vgrid = vertical_grid
           aspect_status = ASPECT_STATUS_SPECIFIED
-       elseif (present(component_geom_id)) then
-          aspect_status = ASPECT_STATUS_FROM_COMP
+      else if (allocated(this%vertical_stagger)) then
+         ! A mirrored 2D input is skipped by check_vertical_stagger_consistency
+         ! and then crashes an expression in BasicVerticalGrid%get_coordinate_field.
+         ! is_none(), not ==: operator(==) treats MIRROR as equal to anything.
+         if (this%vertical_stagger%is_none()) aspect_status = ASPECT_STATUS_SPECIFIED
       end if
 
        aspect = VerticalGridAspect(vertical_grid=vgrid, vertical_stagger=this%vertical_stagger, &
-            vertical_alignment=VerticalAlignment(this%vertical_alignment), geom=geom_, typekind=this%typekind, &
-            aspect_status=aspect_status)
+            vertical_alignment=VerticalAlignment(this%vertical_alignment), &
+            aspect_status=aspect_status, declared_by_item=allocated(this%vertical_grid))
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(time_dependent)
@@ -726,27 +926,32 @@ contains
       character(:), allocatable :: std_name_1, std_name_2
       type(MAPL_VectorBasisKind) :: basis_kind
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      aspect = FieldClassAspect('')
+
       select case (this%itemType%ot)
       case (MAPL_STATEITEM_FIELD%ot)
+         deallocate(aspect)
          aspect = FieldClassAspect( &
               long_name=this%long_name, &
               fill_value=this%fill_value, &
               restart_mode=this%restart_mode)
       case (MAPL_STATEITEM_FIELDBUNDLE%ot)
+         deallocate(aspect)
          aspect = FieldBundleClassAspect()
       case (MAPL_STATEITEM_STATE%ot)
+         deallocate(aspect)
          aspect = StateClassAspect(state_intent=this%state_intent)
       case (MAPL_STATEITEM_VECTOR%ot)
-         ! Bugfix (found via openspec change use-field-dictionary-in-scenario-tests):
          ! std_name_1/std_name_2 are intentionally left UNALLOCATED (not
          ! defaulted to the literal 'unknown') when this%standard_name is
          ! absent, so StandardNameAspect's own constructor treats them as
          ! unchecked/wildcard - matching every other absent-standard_name
-         ! case (generic/standard-name-enforcement). The literal 'unknown'
-         ! string used here previously was treated as a real, specified
-         ! name, causing spurious standard_name mismatch warnings for any
-         ! Vector import/export left without an explicit standard_name
-         ! (e.g. the statistics gridcomp's internal vector accumulators).
+         ! case. A literal 'unknown' string would be treated as a real,
+         ! specified name, causing spurious standard_name mismatch warnings
+         ! for any Vector import/export left without an explicit
+         ! standard_name (e.g. the statistics gridcomp internal vector
+         ! accumulators).
          if (allocated(this%standard_name)) then
             call split_name(this%standard_name, std_name_1, std_name_2, _RC)
          end if
@@ -757,13 +962,13 @@ contains
          end if
          ! standard_name is a compound "(name1,name2)" encoding of two
          ! independent CF names (one per physical component), not one
-         ! shared scalar value like units/typekind - see
-         ! generic/standard-name-enforcement design.md Decision 6.
+         ! shared scalar value like units/typekind.
          ! VectorClassAspect enforces/carries the two split names itself
          ! (standard_name_1/standard_name_2), independent of the outer
          ! per-VarSpec StandardNameAspect built below (which is built from
          ! the raw, unsplit compound string and is never actually consulted
          ! for a Vector item - see VectorClassAspect%get_aspect_order).
+         deallocate(aspect)
          aspect = VectorClassAspect( &
               [ &
               FieldClassAspect(fill_value=this%fill_value), &
@@ -773,23 +978,27 @@ contains
               standard_name_1=std_name_1, &
               standard_name_2=std_name_2)
       case (MAPL_STATEITEM_BRACKET%ot)
+         deallocate(aspect)
          aspect = BracketClassAspect(this%bracket_size, fill_value=this%fill_value)
       case (MAPL_STATEITEM_VECTORBRACKET%ot)
+         deallocate(aspect)
          if (allocated(this%vector_basis_kind)) then
             aspect = VectorBracketClassAspect(this%bracket_size, vector_basis_kind=this%vector_basis_kind, fill_value=this%fill_value)
          else
             aspect = VectorBracketClassAspect(this%bracket_size, fill_value=this%fill_value)
          end if
       case (MAPL_STATEITEM_WILDCARD%ot)
+         deallocate(aspect)
          allocate(aspect,source=WildcardClassAspect())
       case (MAPL_STATEITEM_SERVICE%ot)
          _ASSERT(present(registry), 'must have registry for creating a Service')
+         deallocate(aspect)
          aspect = ServiceClassAspect(registry, this%service_items)
       case (MAPL_STATEITEM_EXPRESSION%ot)
+         deallocate(aspect)
          aspect = ExpressionClassAspect(registry=registry, expression=this%expression, &
               long_name=this%long_name)
       case default
-         aspect=FieldClassAspect('') ! must allocate something
          _FAIL('Unsupported itemType')
       end select
 
@@ -797,6 +1006,70 @@ contains
 
       _RETURN(_SUCCESS)
    end function make_ClassAspect
+
+   ! ========================================================================
+   ! ========================================================================
+
+   ! Asserts this%itemType is already MAPL_STATEITEM_STATE (fails loudly
+   ! otherwise: no implicit itemType mutation) and
+   ! that no member is already declared under `name` (spec scenario
+   ! "Duplicate member name at the same level is rejected"), leaving the
+   ! existing entry unchanged on failure. `member`'s own short_name field
+   ! is never read.
+   subroutine declare_member(this, name, member, rc)
+      class(VariableSpec), intent(inout) :: this
+      character(*), intent(in) :: name
+      type(VariableSpec), intent(in) :: member
+      integer, optional, intent(out) :: rc
+
+      _ASSERT(this%itemType == MAPL_STATEITEM_STATE, 'VariableSpec: declare_member called on a non-STATE itemType')
+      _ASSERT(this%members%count(name) == 0, 'VariableSpec: duplicate member name at this level: '//name)
+
+      call this%members%insert(name, member)
+
+      _RETURN(_SUCCESS)
+   end subroutine declare_member
+
+   logical function has_member(this, name) result(has)
+      class(VariableSpec), intent(in) :: this
+      character(*), intent(in) :: name
+
+      has = (this%members%count(name) > 0)
+   end function has_member
+
+   function get_member(this, name, rc) result(member)
+      class(VariableSpec), target, intent(in) :: this
+      character(*), intent(in) :: name
+      integer, optional, intent(out) :: rc
+      type(VariableSpec) :: member
+
+      class(VariableSpecTag), pointer :: found
+
+      found => this%members%at(name)
+      _ASSERT(associated(found), 'VariableSpec: no member declared with name: '//name)
+
+      select type (found)
+      type is (VariableSpec)
+         member = found
+      class default
+         _FAIL('VariableSpec: member map contains an unexpected VariableSpecTag concrete type')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function get_member
+
+   function get_member_names(this) result(names)
+      class(VariableSpec), target, intent(in) :: this
+      type(StringVector) :: names
+
+      type(VariableSpecMemberMapIterator) :: iter
+
+      iter = this%members%ftn_begin()
+      do while (iter /= this%members%ftn_end())
+         call iter%next()
+         call names%push_back(iter%first())
+      end do
+   end function get_member_names
 
    subroutine verify_variable_spec(spec, rc)
 

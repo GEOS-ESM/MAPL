@@ -330,9 +330,15 @@ contains
           call derive_num_levels_from_vgrid(info, namespace_, num_levels, num_layers, num_vgrid_levels, _RC)
        end if
 
-      if (present(vert_staggerloc) .and. .not. present(num_levels) .and. .not. present(num_vgrid_levels)) then
-         call MAPL_InfoGet(info, namespace_ // KEY_VERT_STAGGERLOC, vert_staggerloc_str, _RC)
-         vert_staggerloc = VerticalStaggerLoc(vert_staggerloc_str)
+      if (present(vert_staggerloc)) then
+         ! A stagger that was never recorded comes back INVALID.
+         is_present = esmf_InfoIsPresent(info, namespace_ // KEY_VERT_STAGGERLOC, _RC)
+         if (is_present) then
+            call MAPL_InfoGet(info, namespace_ // KEY_VERT_STAGGERLOC, vert_staggerloc_str, _RC)
+            vert_staggerloc = VerticalStaggerLoc(vert_staggerloc_str)
+         else
+            vert_staggerloc = VERTICAL_STAGGER_INVALID
+         end if
       end if
 
       if (present(vert_alignment)) then

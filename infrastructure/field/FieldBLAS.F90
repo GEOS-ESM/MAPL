@@ -312,8 +312,11 @@ contains
       integer :: i
       integer :: status
 
+      ! An allocatable result must be allocated on error paths too; the caller copies it.
+      allocate(vector(0))
       _ASSERT(ncopies > 0, 'ncopies must be positive')
 
+      deallocate(vector)
       allocate(vector(ncopies))
 
       do i=1, ncopies
