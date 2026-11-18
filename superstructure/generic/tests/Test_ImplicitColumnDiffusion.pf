@@ -1,0 +1,355 @@
+#include "MAPL_TestErr.h"
+
+! Stand-alone tests of the implicit column diffusion operator used by the
+! turbulent_mixing test Invoker. Layers are numbered top (1) to bottom (L).
+module Test_ImplicitColumnDiffusion
+
+   use mapl_ImplicitColumnDiffusion_mod
+   use funit
+   use, intrinsic :: iso_fortran_env, only: REAL64
+
+   implicit none
+
+   integer, parameter :: R8 = REAL64
+
+   ! M9 scenario: eight layers with strongly non-uniform mass and interface
+   ! coefficients spanning five orders of magnitude (one interface closed),
+   ! a profile with zeros next to large values, and a long time step.
+   integer, parameter :: M9_L = 8
+   real(R8), parameter :: M9_MASS(M9_L) = &
+        [50._R8, 80._R8, 120._R8, 200._R8, 400._R8, 700._R8, 1000._R8, 1300._R8]
+   real(R8), parameter :: M9_KAPPA(M9_L-1) = &
+        [0._R8, 5._R8, 40._R8, 0.01_R8, 300._R8, 2._R8, 80._R8]
+   real(R8), parameter :: M9_PHI0(M9_L) = &
+        [0._R8, 1.e-6_R8, 0._R8, 0._R8, 5.e-3_R8, 0._R8, 1._R8, 0._R8]
+   real(R8), parameter :: M9_DT = 1800._R8
+   ! Robin coefficient rho v_d with rho = 1.2 kg m-3 and v_d = 0.05 m s-1.
+   real(R8), parameter :: M9_ROBIN = 0.06_R8
+   real(R8), parameter :: M9_FLUX = 1.e-4_R8
+   integer, parameter :: M9_STEPS = 20
+
+contains
+
+   ! Two layers of unit mass, unit coefficient and unit step:
+   ! A = [[2,-1],[-1,2]] maps (3,0) to (2,1), exactly representable.
+   @test
+   subroutine test_two_layer_exact()
+      type(ImplicitColumnDiffusion) :: op
+      real(R8) :: phi(2)
+      integer :: status
+
+      op = ImplicitColumnDiffusion([1._R8])
+      phi = [3._R8, 0._R8]
+      call op%step(phi, [1._R8, 1._R8], 1._R8, BOTTOM_NEUMANN_HOMOGENEOUS, _RC)
+      @assertEqual([2._R8, 1._R8], phi)
+   end subroutine test_two_layer_exact
+
+   ! The discretized system is an M-matrix for every bottom condition:
+   ! positive diagonal, non-positive off-diagonals, strict diagonal dominance,
+   ! and an entrywise non-negative inverse. Column j of A^-1 is one step from a
+   ! unit right-hand side e_j with all forcings zero; for dirichlet the bottom
+   ! entry of the right-hand side is surface_value.
+   @test
+   subroutine test_m_matrix_property()
+      type(ImplicitColumnDiffusion) :: op
+      real(R8) :: lower(M9_L), diag(M9_L), upper(M9_L), rhs(M9_L)
+      real(R8) :: column(M9_L), phi_hat
+      integer :: bc, j, status
+
+      op = ImplicitColumnDiffusion(M9_KAPPA)
+      do bc = BOTTOM_NEUMANN_HOMOGENEOUS, BOTTOM_DIRICHLET
+         call assemble_for(op, bc, lower, diag, upper, rhs, status)
+         @assert_that(status, is(0))
+         @assertTrue(all(diag > 0), 'diagonal must be positive')
+         @assertTrue(all(lower <= 0), 'lower off-diagonal must be non-positive')
+         @assertTrue(all(upper <= 0), 'upper off-diagonal must be non-positive')
+         @assertTrue(all(diag - abs(lower) - abs(upper) > 0), 'rows must be strictly diagonally dominant')
+         @assertEqual(0._R8, lower(1))
+         @assertEqual(0._R8, upper(M9_L))
+         do j = 1, M9_L
+            column = 0
+            column(j) = 1
+            select case (bc)
+            case (BOTTOM_NEUMANN_HOMOGENEOUS)
+               call op%step(column, M9_MASS, M9_DT, bc, _RC)
+            case (BOTTOM_NEUMANN)
+               call op%step(column, M9_MASS, M9_DT, bc, surface_upward_flux=0._R8, _RC)
+            case (BOTTOM_ROBIN)
+               call op%step(column, M9_MASS, M9_DT, bc, robin_coefficient=M9_ROBIN, _RC)
+            case (BOTTOM_DIRICHLET)
+               phi_hat = column(M9_L)
+               call op%step(column, M9_MASS, M9_DT, bc, surface_value=phi_hat, _RC)
+            end select
+            @assertTrue(all(column >= 0), 'inverse must be entrywise non-negative')
+            @assertTrue(column(j) > 0, 'inverse must have a positive diagonal')
+         end do
+      end do
+   end subroutine test_m_matrix_property
+
+   ! M9 positivity for every bottom condition: from a non-negative profile
+   ! with zeros, neumann_homogeneous, neumann with F >= 0, robin with F >= 0,
+   ! and dirichlet with phi_hat >= 0 keep phi >= 0 exactly at every step.
+   @test
+   subroutine test_m9_positivity_all_conditions()
+      real(R8), parameter :: phi_hats(2) = [0._R8, 2.e-3_R8]
+      type(ImplicitColumnDiffusion) :: op
+      real(R8) :: phi(M9_L)
+      integer :: bc, i, n, status
+
+      op = ImplicitColumnDiffusion(M9_KAPPA)
+      do bc = BOTTOM_NEUMANN_HOMOGENEOUS, BOTTOM_DIRICHLET
+         do i = 1, size(phi_hats)
+            if (bc /= BOTTOM_DIRICHLET .and. i > 1) exit
+            phi = M9_PHI0
+            do n = 1, M9_STEPS
+               select case (bc)
+               case (BOTTOM_NEUMANN_HOMOGENEOUS)
+                  call op%step(phi, M9_MASS, M9_DT, bc, _RC)
+               case (BOTTOM_NEUMANN)
+                  call op%step(phi, M9_MASS, M9_DT, bc, surface_upward_flux=M9_FLUX, _RC)
+               case (BOTTOM_ROBIN)
+                  call op%step(phi, M9_MASS, M9_DT, bc, surface_upward_flux=M9_FLUX, &
+                       robin_coefficient=M9_ROBIN, _RC)
+               case (BOTTOM_DIRICHLET)
+                  call op%step(phi, M9_MASS, M9_DT, bc, surface_value=phi_hats(i), _RC)
+                  @assertEqual(phi_hats(i), phi(M9_L))
+               end select
+               @assertTrue(all(phi >= 0), 'step produced a negative value')
+            end do
+         end do
+      end do
+   end subroutine test_m9_positivity_all_conditions
+
+   ! M9 positivity: robin with v_d > 0 and F >= 0 from a non-negative
+   ! profile with zeros stays non-negative exactly (no tolerance, no fill)
+   ! for every step, and each step closes its budget.
+   @test
+   subroutine test_m9_robin_positivity()
+      type(ImplicitColumnDiffusion) :: op
+      real(R8) :: phi(M9_L), phi_old(M9_L), realized, scale
+      integer :: n, status
+
+      op = ImplicitColumnDiffusion(M9_KAPPA)
+      phi = M9_PHI0
+      do n = 1, M9_STEPS
+         phi_old = phi
+         call op%step(phi, M9_MASS, M9_DT, BOTTOM_ROBIN, surface_upward_flux=M9_FLUX, &
+              robin_coefficient=M9_ROBIN, realized_surface_upward_flux=realized, _RC)
+         @assertTrue(all(phi >= 0), 'robin step produced a negative value')
+         ! Same formula as the operator, but compilers may fuse or reorder it.
+         @assertEqual(M9_FLUX - M9_ROBIN * phi(M9_L), realized, tolerance=1.e-12_R8 * (M9_FLUX + M9_ROBIN * phi(M9_L)))
+         scale = sum(M9_MASS * abs(phi_old)) + M9_DT * abs(realized)
+         @assertEqual(M9_DT * realized, sum(M9_MASS * (phi - phi_old)), tolerance=1.e-12_R8 * scale)
+      end do
+   end subroutine test_m9_robin_positivity
+
+   ! M9 positivity under stress: a step 5000 times longer and a deposition
+   ! coefficient 10^4 times larger drive the bottom value toward zero hard.
+   @test
+   subroutine test_m9_robin_positivity_stiff()
+      type(ImplicitColumnDiffusion) :: op
+      real(R8) :: phi(M9_L)
+      integer :: n, status
+
+      op = ImplicitColumnDiffusion(M9_KAPPA)
+      phi = M9_PHI0
+      do n = 1, M9_STEPS
+         call op%step(phi, M9_MASS, 5000 * M9_DT, BOTTOM_ROBIN, robin_coefficient=1.e4_R8 * M9_ROBIN, _RC)
+         @assertTrue(all(phi >= 0), 'stiff robin step produced a negative value')
+      end do
+   end subroutine test_m9_robin_positivity_stiff
+
+   ! M9 zero profile: with F = 0 a zero column stays exactly zero; with F > 0
+   ! every layer connected to the bottom becomes positive, the closed top
+   ! interface keeps layer 1 at zero.
+   @test
+   subroutine test_m9_zero_profile()
+      type(ImplicitColumnDiffusion) :: op
+      real(R8) :: phi(M9_L)
+      integer :: status
+
+      op = ImplicitColumnDiffusion(M9_KAPPA)
+      phi = 0
+      call op%step(phi, M9_MASS, M9_DT, BOTTOM_ROBIN, robin_coefficient=M9_ROBIN, _RC)
+      @assertTrue(all(phi == 0), 'zero column must stay zero')
+
+      call op%step(phi, M9_MASS, M9_DT, BOTTOM_ROBIN, surface_upward_flux=M9_FLUX, &
+           robin_coefficient=M9_ROBIN, _RC)
+      @assertEqual(0._R8, phi(1))
+      @assertTrue(all(phi(2:) > 0), 'layers below the closed interface must gain tracer')
+   end subroutine test_m9_zero_profile
+
+   ! M9 conservation: with the no-flux bottom the column total is unchanged
+   ! to round-off after every step (10^-12 of the column scale, cumulative
+   ! over all steps; observed drift is 1e-14 to 1e-13 depending on compiler),
+   ! and the profile stays non-negative exactly.
+   @test
+   subroutine test_m9_no_flux_conservation()
+      type(ImplicitColumnDiffusion) :: op
+      real(R8) :: phi(M9_L), total0, scale, realized
+      integer :: n, status
+
+      op = ImplicitColumnDiffusion(M9_KAPPA)
+      phi = M9_PHI0
+      total0 = sum(M9_MASS * phi)
+      scale = sum(M9_MASS * abs(M9_PHI0))
+      do n = 1, M9_STEPS
+         call op%step(phi, M9_MASS, M9_DT, BOTTOM_NEUMANN_HOMOGENEOUS, &
+              realized_surface_upward_flux=realized, _RC)
+         @assertTrue(all(phi >= 0), 'no-flux step produced a negative value')
+         @assertEqual(total0, sum(M9_MASS * phi), tolerance=1.e-12_R8 * scale)
+         @assertEqual(0._R8, realized)
+      end do
+   end subroutine test_m9_no_flux_conservation
+
+   ! The four bottom conditions on one column, uniform initial value 1.
+   ! Each condition is pinned by its own property, and all four differ.
+   @test
+   subroutine test_bottom_conditions_distinguishable()
+      integer, parameter :: L = 4
+      real(R8), parameter :: mass(L) = [100._R8, 200._R8, 300._R8, 400._R8]
+      real(R8), parameter :: kappa(L-1) = [10._R8, 20._R8, 30._R8]
+      real(R8), parameter :: dt = 600._R8
+      real(R8), parameter :: flux = 0.05_R8
+      real(R8), parameter :: robin = 0.02_R8
+      real(R8), parameter :: phi_hat = 3._R8
+      real(R8), parameter :: phi0(L) = 1._R8
+      type(ImplicitColumnDiffusion) :: op
+      real(R8) :: phi(L, 4), realized(4), tol, expected, scale
+      integer :: a, b, status
+
+      op = ImplicitColumnDiffusion(kappa)
+      tol = 1.e-12_R8 * sum(mass * phi0)
+      phi = spread(phi0, dim=2, ncopies=4)
+
+      ! Homogeneous Neumann: rows of A sum to one, so a uniform column is a fixed point.
+      call op%step(phi(:, BOTTOM_NEUMANN_HOMOGENEOUS), mass, dt, BOTTOM_NEUMANN_HOMOGENEOUS, &
+           realized_surface_upward_flux=realized(BOTTOM_NEUMANN_HOMOGENEOUS), _RC)
+      @assertEqual(phi0, phi(:, BOTTOM_NEUMANN_HOMOGENEOUS), tolerance=1.e-12_R8)
+      @assertEqual(0._R8, realized(BOTTOM_NEUMANN_HOMOGENEOUS))
+
+      ! Neumann: the column gains exactly dt F.
+      call op%step(phi(:, BOTTOM_NEUMANN), mass, dt, BOTTOM_NEUMANN, surface_upward_flux=flux, &
+           realized_surface_upward_flux=realized(BOTTOM_NEUMANN), _RC)
+      @assertEqual(flux, realized(BOTTOM_NEUMANN))
+      @assertEqual(dt * flux, sum(mass * (phi(:, BOTTOM_NEUMANN) - phi0)), tolerance=tol)
+
+      ! Robin: the realized flux is F reduced by deposition of the new bottom value.
+      call op%step(phi(:, BOTTOM_ROBIN), mass, dt, BOTTOM_ROBIN, surface_upward_flux=flux, &
+           robin_coefficient=robin, realized_surface_upward_flux=realized(BOTTOM_ROBIN), _RC)
+      @assertEqual(flux - robin * phi(L, BOTTOM_ROBIN), realized(BOTTOM_ROBIN), tolerance=1.e-12_R8 * flux)
+      @assertTrue(realized(BOTTOM_ROBIN) < flux, 'deposition must reduce the realized flux')
+      @assertEqual(dt * realized(BOTTOM_ROBIN), sum(mass * (phi(:, BOTTOM_ROBIN) - phi0)), tolerance=tol)
+
+      ! Dirichlet: the bottom value is imposed exactly; the flux is implied.
+      call op%step(phi(:, BOTTOM_DIRICHLET), mass, dt, BOTTOM_DIRICHLET, surface_value=phi_hat, &
+           realized_surface_upward_flux=realized(BOTTOM_DIRICHLET), _RC)
+      @assertEqual(phi_hat, phi(L, BOTTOM_DIRICHLET))
+      @assertTrue(realized(BOTTOM_DIRICHLET) > 0, 'raising the bottom value implies an upward flux')
+      ! Independent of the operator's budget formula: the bottom layer is reset
+      ! to phi_hat (m_L (phi_hat - phi0_L) / dt), and the layers above gain what
+      ! interface L-1 carries upward, kappa_{L-1} (phi_hat - phi_new_{L-1}).
+      ! Relative tolerance 1e-12 of the summed magnitudes of both terms.
+      expected = kappa(L-1) * (phi_hat - phi(L-1, BOTTOM_DIRICHLET)) + mass(L) * (phi_hat - phi0(L)) / dt
+      scale = abs(kappa(L-1) * (phi_hat - phi(L-1, BOTTOM_DIRICHLET))) + abs(mass(L) * (phi_hat - phi0(L)) / dt) &
+           + sum(mass * (abs(phi(:, BOTTOM_DIRICHLET)) + abs(phi0))) / dt
+      @assertEqual(expected, realized(BOTTOM_DIRICHLET), tolerance=1.e-12_R8 * scale)
+
+      do a = 1, 4
+         do b = a + 1, 4
+            @assertTrue(maxval(abs(phi(:, a) - phi(:, b))) > 1.e-6_R8, 'bottom conditions must give different columns')
+         end do
+      end do
+   end subroutine test_bottom_conditions_distinguishable
+
+   @test
+   subroutine test_bottom_boundary_from_name()
+      integer :: bc, status
+
+      call bottom_boundary_from_name('neumann_homogeneous', bc, _RC)
+      @assertEqual(BOTTOM_NEUMANN_HOMOGENEOUS, bc)
+      call bottom_boundary_from_name('neumann', bc, _RC)
+      @assertEqual(BOTTOM_NEUMANN, bc)
+      call bottom_boundary_from_name('robin', bc, _RC)
+      @assertEqual(BOTTOM_ROBIN, bc)
+      call bottom_boundary_from_name('dirichlet', bc, _RC)
+      @assertEqual(BOTTOM_DIRICHLET, bc)
+      call bottom_boundary_from_name('neumann_homogenous', bc, rc=status)
+      @assertExceptionRaised("unknown bottom_boundary 'neumann_homogenous'; allowed: neumann_homogeneous, neumann, robin, dirichlet")
+      @assertFalse(status == 0, 'misspelled name must be rejected')
+   end subroutine test_bottom_boundary_from_name
+
+   ! Each condition requires the inputs it uses and rejects the ones it does not.
+   ! A failed check raises its message, then the propagating step raises status=1.
+   @test
+   subroutine test_inputs_checked()
+      type(ImplicitColumnDiffusion) :: op
+      real(R8) :: phi(2)
+      integer :: status
+
+      op = ImplicitColumnDiffusion([1._R8])
+      phi = 1
+
+      call op%step(phi, [1._R8, 1._R8], 1._R8, BOTTOM_NEUMANN, rc=status)
+      @assertExceptionRaised('neumann requires surface_upward_flux')
+      @assertExceptionRaised('status=1')
+      @assertFalse(status == 0, 'neumann without flux')
+      call op%step(phi, [1._R8, 1._R8], 1._R8, BOTTOM_ROBIN, rc=status)
+      @assertExceptionRaised('robin requires robin_coefficient')
+      @assertExceptionRaised('status=1')
+      @assertFalse(status == 0, 'robin without coefficient')
+      call op%step(phi, [1._R8, 1._R8], 1._R8, BOTTOM_DIRICHLET, rc=status)
+      @assertExceptionRaised('dirichlet requires surface_value')
+      @assertExceptionRaised('status=1')
+      @assertFalse(status == 0, 'dirichlet without surface value')
+      call op%step(phi, [1._R8, 1._R8], 1._R8, BOTTOM_NEUMANN_HOMOGENEOUS, surface_upward_flux=1._R8, rc=status)
+      @assertExceptionRaised('neumann_homogeneous takes no surface_upward_flux')
+      @assertExceptionRaised('status=1')
+      @assertFalse(status == 0, 'neumann_homogeneous with flux')
+      call op%step(phi, [1._R8, 1._R8], 1._R8, BOTTOM_DIRICHLET, surface_value=1._R8, &
+           surface_upward_flux=1._R8, rc=status)
+      @assertExceptionRaised('dirichlet takes no surface_upward_flux')
+      @assertExceptionRaised('status=1')
+      @assertFalse(status == 0, 'dirichlet with flux')
+      call op%step(phi, [1._R8, 1._R8], 1._R8, BOTTOM_ROBIN, robin_coefficient=-1._R8, rc=status)
+      @assertExceptionRaised('robin_coefficient must be non-negative')
+      @assertExceptionRaised('status=1')
+      @assertFalse(status == 0, 'negative robin coefficient')
+      call op%step(phi, [1._R8, 0._R8], 1._R8, BOTTOM_NEUMANN_HOMOGENEOUS, rc=status)
+      @assertExceptionRaised('layer mass must be positive')
+      @assertExceptionRaised('status=1')
+      @assertFalse(status == 0, 'zero layer mass')
+      call op%step(phi, [1._R8, 1._R8, 1._R8], 1._R8, BOTTOM_NEUMANN_HOMOGENEOUS, rc=status)
+      @assertExceptionRaised('mass size must equal the number of layers')
+      @assertExceptionRaised('status=1')
+      @assertFalse(status == 0, 'mass size mismatch')
+      call op%step(phi, [1._R8, 1._R8], 1._R8, 99, rc=status)
+      @assertExceptionRaised('unknown bottom boundary condition')
+      @assertExceptionRaised('status=1')
+      @assertFalse(status == 0, 'unknown condition')
+   end subroutine test_inputs_checked
+
+   subroutine assemble_for(op, bc, lower, diag, upper, rhs, rc)
+      type(ImplicitColumnDiffusion), intent(in) :: op
+      integer, intent(in) :: bc
+      real(R8), intent(out) :: lower(:), diag(:), upper(:), rhs(:)
+      integer, intent(out) :: rc
+
+      select case (bc)
+      case (BOTTOM_NEUMANN_HOMOGENEOUS)
+         call op%assemble(M9_PHI0, M9_MASS, M9_DT, bc, lower, diag, upper, rhs, rc=rc)
+      case (BOTTOM_NEUMANN)
+         call op%assemble(M9_PHI0, M9_MASS, M9_DT, bc, lower, diag, upper, rhs, &
+              surface_upward_flux=M9_FLUX, rc=rc)
+      case (BOTTOM_ROBIN)
+         call op%assemble(M9_PHI0, M9_MASS, M9_DT, bc, lower, diag, upper, rhs, &
+              surface_upward_flux=M9_FLUX, robin_coefficient=M9_ROBIN, rc=rc)
+      case (BOTTOM_DIRICHLET)
+         call op%assemble(M9_PHI0, M9_MASS, M9_DT, bc, lower, diag, upper, rhs, &
+              surface_value=0._R8, rc=rc)
+      case default
+         rc = -1
+      end select
+   end subroutine assemble_for
+
+end module Test_ImplicitColumnDiffusion
