@@ -142,7 +142,7 @@ Parent: the GEOSgcm architecture document (`../../../docs/ARCHITECTURE.md` in th
 - Infrastructure: [infrastructure/ARCHITECTURE.md](infrastructure/ARCHITECTURE.md), [infrastructure/geom/ARCHITECTURE.md](infrastructure/geom/ARCHITECTURE.md).
 - Gridcomps: [gridcomps/ARCHITECTURE.md](gridcomps/ARCHITECTURE.md), [cap](gridcomps/cap/ARCHITECTURE.md), [history](gridcomps/history/ARCHITECTURE.md), [extdata](gridcomps/extdata/ARCHITECTURE.md).
 - Libraries: [base/](base/ARCHITECTURE.md), [pfio/](pfio/ARCHITECTURE.md), [utils/](utils/ARCHITECTURE.md), [mp_utils/](mp_utils/ARCHITECTURE.md), [mapl/](mapl/ARCHITECTURE.md).
-- MAPL3 guides: [diffs-from-mapl2](docs/mapl3/diffs-from-mapl2.md), [api-changes](docs/mapl3/api-changes.md), [gridcomp-template](docs/mapl3/gridcomp-template.md), [vertical-alignment](docs/mapl3/vertical-alignment.md), [field_dictionary_developer](docs/mapl3/field_dictionary_developer.md).
+- MAPL3 guides: [diffs-from-mapl2](docs/mapl3/diffs-from-mapl2.md), [api-changes](docs/mapl3/api-changes.md), [gridcomp-template](docs/mapl3/gridcomp-template.md), [vertical-alignment](docs/mapl3/vertical-alignment.md), [field_dictionary_developer](docs/mapl3/field_dictionary_developer.md), [configurable-callback](docs/mapl3/configurable-callback.md).
 - User guide: [docs/user_guide/README.md](docs/user_guide/README.md).
 - Change proposals: `openspec/` (capability specs under `openspec/specs/`; archived changes are not in the tree, see "Graph architecture work" above).
 

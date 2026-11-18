@@ -9,7 +9,8 @@ set (test_srcs
   Test_StateGetGeom.pf
   Test_StateGetPointerVector.pf
   Test_StateMerge.pf
-  Test_StateVariant.pf)
+  Test_StateVariant.pf
+  Test_ConfigurableCallback.pf)
 
 add_pfunit_ctest(MAPL.state.tests
   TEST_SOURCES ${test_srcs}
@@ -17,7 +18,18 @@ add_pfunit_ctest(MAPL.state.tests
   EXTRA_INITIALIZE Initialize
   EXTRA_USE mapl_pFUnit_Initialize_mod
   OTHER_SOURCES state_utils_setup.F90
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAX_PES 1)
+
+# Test_ConfigurableCallback reads these by relative path at run time.
+add_custom_target(MAPL.state.tests.copy_scenarios
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/configurable_callback_scenarios
+    ${CMAKE_CURRENT_BINARY_DIR}/configurable_callback_scenarios
+  COMMENT "Copying configurable callback test scenarios to build directory"
+  VERBATIM
+)
+add_dependencies(MAPL.state.tests MAPL.state.tests.copy_scenarios)
 
 set_target_properties(MAPL.state.tests PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
 target_include_directories(MAPL.state.tests PRIVATE
