@@ -85,6 +85,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   when an EXPRESSION item cannot be resolved or is unsupported. It does not
   yet replace the legacy path. Also see `docs/graph/GLOSSARY.md` and
   `superstructure/generic/AGENTS.md`.
+- Added a configurable callback mock State (mark 1, GEOS-ESM/MAPL#5534):
+  `mapl_ConfigurableCallback_mod`/`mapl_ConfigurableCallbackSpec_mod`
+  (`superstructure/state/`) build a YAML-configured `ESMF_State` for testing
+  client code that calls `ESMF_MethodExecute` on a State. The mock records
+  each call's attributes and field values and the call order, can fail on
+  demand with a configured `userRc`, and can supply attributes and field
+  values for the client to read back. See `docs/mapl3/configurable-callback.md`.
 
 ### Changed
 
