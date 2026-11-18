@@ -33,8 +33,9 @@ module mapl_RestartHandler_mod
       procedure, private :: bootstrap_missing_fields_
    end type RestartHandler
 
-   ! Filter predicates for get_restart_bundle: on read, remove fields marked
-   ! RESTART_SKIP; on write, remove fields that are not complete.
+   ! Filter predicates: get_restart_bundle removes fields marked RESTART_SKIP
+   ! on read, and fields that are not complete on write. RestartHandler%write
+   ! also removes RESTART_SKIP fields (netCDF only).
    type, extends(MAPL_FieldPredicate) :: SkipRestartPredicate
    contains
       procedure :: remove => remove_skip_restart_
@@ -91,6 +92,9 @@ contains
       _RETURN_UNLESS(item_count>0)
 
       call get_restart_bundle(state, is_write=.true., bundle=bundle, _RC)
+      ! netCDF checkpoints omit RESTART_SKIP fields; the in-memory
+      ! checkpoint (which shares get_restart_bundle) keeps them.
+      call MAPL_FieldBundleFilter(bundle, SkipRestartPredicate(), _RC)
       call this%write_bundle_(bundle, filename, _RC)
       call ESMF_FieldBundleDestroy(bundle, _RC)
 
@@ -150,6 +154,7 @@ contains
       type(ESMF_Geom) :: geom
       integer :: field_count, status
       class(ClientThread), pointer :: o_client
+      real, allocatable :: time_vector(:)
 
       ! An empty bundle carries no geom to write against.
       call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
@@ -161,6 +166,9 @@ contains
       allocate(writer, source=make_geom_pfio(metadata), _STAT)
       call writer%initialize(metadata, geom, _RC)
       call writer%update_time_on_server(this%current_time, _RC)
+      allocate(time_vector(1))
+      time_vector = 0.
+      call writer%stage_time_to_file(filename, time_vector, _RC)
       call writer%stage_coordinates_to_file(filename, _RC)
       call writer%stage_data_to_file(bundle, filename, 1, _RC)
       o_client => get_client(MAPL_DEFAULT_OUTPUT_SERVER, _RC)
