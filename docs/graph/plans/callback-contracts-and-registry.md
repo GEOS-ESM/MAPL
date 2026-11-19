@@ -256,7 +256,24 @@ F1-F12.
 
 **CB9-GeosEntry / -ColumnSolver / -TestInvoker / -MockOwners /
 -Matrix.** `turbulent_mixing` slice, M1-M9 and MF1-MF9.
-- **Status:** not started (each)
+- **Status:** CB9-ColumnSolver done (`Plan-Task: CB9-ColumnSolver`); others
+  not started. `mapl_ImplicitColumnDiffusion_mod` lives in
+  `superstructure/generic/tests/ImplicitColumnDiffusion.F90`, part of the
+  test-only `MAPL.generic.test_common` library (owner decision: it is
+  test infrastructure for this slice, not a MAPL physics deliverable, and
+  must not ship as part of production `MAPL.vertical`). Mass-weighted
+  backward-Euler column diffusion (Thomas algorithm); M-matrix by
+  construction. All four bottom conditions implemented
+  (`neumann_homogeneous`, `neumann`, `robin`, `dirichlet`); only the first
+  three are named in a committed spec today, `dirichlet` (pin-the-bottom-
+  layer, realized flux includes the reset) is the task's own completion
+  of the set, kept on owner review -- `CB9-GeosEntry`'s registration file
+  can confirm or drop it later. M9 positivity/conservation scenario (8
+  layers, non-uniform mass/kappa with a closed interface, zeros in the
+  profile, dt=1800s, robin r=0.06, F=1e-4, 20 steps) is this task's own
+  choice, not pinned elsewhere. One shared coefficient profile per mixing
+  class (no per-column variation), confirmed sufficient for the test
+  driver.
 
 **CB10-Docs.** `docs/graph/callbacks.md` and the user-guide section.
 - **Status:** not started
