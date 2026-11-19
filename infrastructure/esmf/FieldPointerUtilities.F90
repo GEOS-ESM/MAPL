@@ -596,10 +596,11 @@ contains
       call ESMF_FieldGet(x, rank=rank_x, _RC)
       call ESMF_FieldGet(y, rank=rank_y, _RC)
 
-      if( (rank_x+1) == rank_y) then
+      ! y may have any number of extra trailing dimensions (i.e. vertical and/or ungridded)
+      if (rank_x < rank_y) then
          count_x = FieldGetLocalElementCount(x, _RC)
          count_y = FieldGetLocalElementCount(y, _RC)
-         conformable = all(count_x == count_y(:rank_y-1))
+         conformable = all(count_x == count_y(:rank_x))
       end if
 
       _RETURN(_SUCCESS)
@@ -695,7 +696,7 @@ contains
       call ESMF_FieldGet(x, typekind = tk_x, _RC)
 
       n_input = product(x_shape)
-      n_extra = y_shape(size(y_shape))
+      n_extra = product(int(y_shape(size(x_shape)+1:), kind=ESMF_KIND_I8))
 
       call FieldGetCptr(y, cptr_y, _RC)
       call ESMF_FieldGet(y, typekind = tk_y, _RC)

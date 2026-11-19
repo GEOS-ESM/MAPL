@@ -1,0 +1,2282 @@
+module Test_StateItemDescriptor
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
+   use mapl_NodeId_mod, only: NodeId, NodeIdGenerator
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, &
+        ValueCharacteristic, SYNC_PHASE_STRUCTURAL, SYNC_PHASE_DESCRIPTIVE, &
+        SYNC_PHASE_ADVERTISED, &
+        report_build_transform_unsupported
+   use mapl_TransformBase_mod, only: TransformBase
+   use mapl_StateItemCharacteristicKind_mod, only: PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+        GEOMETRY_CHARACTERISTIC_KIND, TYPE_KIND_CHARACTERISTIC_KIND, UNGRIDDED_DIMS_CHARACTERISTIC_KIND, &
+        QUANTITY_TYPE_CHARACTERISTIC_KIND, VERTICAL_GRID_CHARACTERISTIC_KIND, &
+        STANDARD_NAME_CHARACTERISTIC_KIND, ATTRIBUTES_CHARACTERISTIC_KIND, VERTICAL_STAGGER_CHARACTERISTIC_KIND, &
+        VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+        HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND, &
+        RESTART_MODE_CHARACTERISTIC_KIND, CONSERVATION_CHARACTERISTIC_KIND, &
+         NORMALIZATION_CHARACTERISTIC_KIND, StateItemCharacteristicKind, &
+         EXPRESSION_CHARACTERISTIC_KIND, &
+         MOCK_CHARACTERISTIC_KIND, operator(==)
+   use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
+        CHARACTERISTIC_STATUS_DEFERRED, CHARACTERISTIC_STATUS_SPECIFIED, CharacteristicStatus, operator(==)
+   use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
+   use mapl_TypeKindCharacteristic_mod, only: TypeKindCharacteristic
+   use mapl_ExpressionCharacteristic_mod, only: ExpressionCharacteristic
+   use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
+   use mapl_HorizontalDimsSpec_mod, only: HORIZONTAL_DIMS_NONE, HORIZONTAL_DIMS_GEOM, operator(==)
+   use mapl_UngriddedDimsCharacteristic_mod, only: UngriddedDimsCharacteristic
+   use mapl_UngriddedDims_mod, only: UngriddedDims, operator(==)
+   use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic, UNKNOWN_UNITS
+   use mapl_GeometryCharacteristic_mod, only: GeometryCharacteristic
+   use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
+   use mapl_ConservationCharacteristic_mod, only: ConservationCharacteristic
+   use mapl_NormalizationCharacteristic_mod, only: NormalizationCharacteristic
+   use mapl_QuantityTypeMetadata_mod, only: QuantityTypeMetadata, operator(==)
+   use mapl_ConservationMetadata_mod, only: ConservationMetadata, operator(==)
+   use mapl_NormalizationMetadata_mod, only: NormalizationMetadata, operator(==)
+   use mapl_QuantityType_mod, only: QUANTITY_TEMPERATURE, QUANTITY_PRESSURE, &
+        BASIS_WET_MASS
+   use mapl_ConservationType_mod, only: CONSERVE_MASS, CONSERVE_ENERGY
+   use mapl_NormalizationType_mod, only: NORMALIZE_DELP, NORMALIZE_DZ
+   use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic, UNKNOWN_STANDARD_NAME
+   use mapl_LongNameCharacteristic_mod, only: LongNameCharacteristic
+   use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
+   use mapl_RestartModes_mod, only: RestartMode, RESTART_REQUIRED, RESTART_SKIP, operator(==)
+   use mapl_AttributesCharacteristic_mod, only: AttributesCharacteristic
+   use mapl_ExpressionCharacteristic_mod, only: ExpressionCharacteristic
+   use gFTL2_StringVector, only: StringVector
+   use mapl_VerticalGridCharacteristic_mod, only: VerticalGridCharacteristic
+   use mapl_VerticalStaggerCharacteristic_mod, only: VerticalStaggerCharacteristic
+   use mapl_VerticalOrientationCharacteristic_mod, only: VerticalOrientationCharacteristic
+   use mapl_HorizontalDimsSpecCharacteristic_mod, only: HorizontalDimsSpecCharacteristic
+   use mapl_HorizontalDimsSpec_mod, only: HorizontalDimsSpec, HORIZONTAL_DIMS_GEOM, HORIZONTAL_DIMS_NONE, &
+        HORIZONTAL_DIMS_UNKNOWN, operator(==)
+   use mapl_VerticalCoordinateDirection_mod, only: VerticalCoordinateDirection, VCOORD_DIRECTION_UP, &
+        VCOORD_DIRECTION_DOWN, VCOORD_DIRECTION_UNSPECIFIED, operator(==)
+   use mapl_VerticalAlignment_mod, only: VerticalAlignment, VALIGN_UP, VALIGN_DOWN, VALIGN_WITH_GRID, operator(==)
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_NONE, VERTICAL_STAGGER_CENTER, &
+        VERTICAL_STAGGER_EDGE
+   use mapl_vertical_grid_api, only: mapl_BasicVerticalGrid, mapl_BasicVerticalGridSpec, &
+        mapl_BasicVerticalGridFactory, mapl_VerticalGridManager, mapl_VerticalGridFactory, &
+        mapl_get_vertical_grid_manager
+   use mapl_VerticalGrid_mod, only: VerticalGrid
+   use mapl_FixedLevelsVerticalGrid_mod, only: FixedLevelsVerticalGrid, &
+        FixedLevelsVerticalGridSpec
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_field_api, only: MAPL_FieldGet, MAPL_FieldSet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundleSet
+   use ESMF, only: ESMF_Field, ESMF_FieldEmptyCreate, ESMF_FieldDestroy, &
+        ESMF_TypeKind_Flag, ESMF_TYPEKIND_R8, ESMF_TYPEKIND_R4, operator(==), &
+        ESMF_FieldBundle, ESMF_FieldBundleCreate, ESMF_FieldBundleDestroy, ESMF_FieldBundleAdd, &
+        ESMF_Geom, ESMF_GeomCreate, ESMF_Grid, ESMF_GridCreateNoPeriDim
+   use mapl_ItemShapeCharacteristic_mod, only: ItemShapeCharacteristic
+   use mapl_StateItemCharacteristicKind_mod, only: &
+        ITEM_SHAPE_CHARACTERISTIC_KIND
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_EXPRESSION, &
+        MAPL_STATEITEM_BRACKET, MAPL_STATEITEM_STATE, MAPL_STATEITEM_VECTOR, &
+        MAPL_STATEITEM_FIELD
+   use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag, operator(==), &
+        VARIANT_INVALID => MAPL_STATEITEM_INVALID, &
+        VARIANT_VERTICALGRID => MAPL_STATEITEM_VERTICALGRID
+   use mapl_enums_api, only: MAPL_FieldBundleType_Flag, &
+        MAPL_FIELDBUNDLETYPE_BRACKET, MAPL_FIELDBUNDLETYPE_BASIC, operator(==)
+   use mapl_state_api, only: MAPL_StateGet
+   use ESMF, only: ESMF_State, ESMF_StateCreate, ESMF_StateDestroy
+   use funit
+   implicit none
+
+   ! Test-only kind with no write_info override: the base class fails for a
+   ! new kind that has none.
+   type, extends(ValueCharacteristic) :: NoWriteCharacteristic
+   contains
+      procedure, nopass :: get_kind => no_write_get_kind
+      procedure :: needs_extension_for => no_write_needs_extension_for
+      procedure :: build_transform => no_write_build_transform
+      procedure :: get_signature => no_write_get_signature
+   end type NoWriteCharacteristic
+
+contains
+
+   @test
+   subroutine test_expression_consumer_adopted_kinds_come_from_descriptor()
+      type(StateItemDescriptor) :: item
+      type(StateItemCharacteristicKind), allocatable :: kinds(:)
+      integer :: status
+
+      call item%set_declared_item_type(MAPL_STATEITEM_EXPRESSION)
+      call item%get_consumer_adopted_kinds(kinds, rc=status)
+
+      @assertEqual(0, status)
+      if (status /= 0) return
+      @assertEqual(5, size(kinds))
+      @assertTrue(any(kinds == GEOMETRY_CHARACTERISTIC_KIND))
+      @assertTrue(any(kinds == VERTICAL_GRID_CHARACTERISTIC_KIND))
+      @assertTrue(any(kinds == VERTICAL_STAGGER_CHARACTERISTIC_KIND))
+      @assertTrue(any(kinds == VERTICAL_ORIENTATION_CHARACTERISTIC_KIND))
+      @assertTrue(any(kinds == TYPE_KIND_CHARACTERISTIC_KIND))
+   end subroutine test_expression_consumer_adopted_kinds_come_from_descriptor
+
+   ! A descriptor built entry by entry takes the item class of its shape
+   ! entry: a VECTOR or BRACKET shape is not left at the Field default.
+   @test
+   subroutine test_declared_item_type_follows_shape_entry()
+      type(StateItemDescriptor) :: item
+      logical :: vector_ok, bracket_ok
+      integer :: status
+
+      call item%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_VECTOR), rc=status)
+      @assertEqual(0, status)
+      call item%take_declared_item_type_from_shape(rc=status)
+      @assertEqual(0, status)
+      vector_ok = (item%get_declared_item_type() == MAPL_STATEITEM_VECTOR)
+
+      call item%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_BRACKET), rc=status)
+      @assertEqual(0, status)
+      call item%take_declared_item_type_from_shape(rc=status)
+      @assertEqual(0, status)
+      bracket_ok = (item%get_declared_item_type() == MAPL_STATEITEM_BRACKET)
+
+      @assertTrue(vector_ok)
+      @assertTrue(bracket_ok)
+   end subroutine test_declared_item_type_follows_shape_entry
+
+   ! An EXPRESSION shape gives a FIELD link: the expression is evaluated
+   ! into a Field, and a link must not be taken for another expression item.
+   @test
+   subroutine test_declared_item_type_of_expression_shape_is_field()
+      type(StateItemDescriptor) :: item
+      logical :: is_field
+      integer :: status
+
+      call item%set_declared_item_type(MAPL_STATEITEM_EXPRESSION)
+      call item%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_EXPRESSION), rc=status)
+      @assertEqual(0, status)
+      call item%take_declared_item_type_from_shape(rc=status)
+      @assertEqual(0, status)
+      is_field = (item%get_declared_item_type() == MAPL_STATEITEM_FIELD)
+      @assertTrue(is_field)
+   end subroutine test_declared_item_type_of_expression_shape_is_field
+
+   ! With no shape entry the declared type is left as it was.
+   @test
+   subroutine test_declared_item_type_without_shape_entry_is_unchanged()
+      type(StateItemDescriptor) :: item
+      logical :: unchanged
+      integer :: status
+
+      call item%set_declared_item_type(MAPL_STATEITEM_BRACKET)
+      call item%take_declared_item_type_from_shape(rc=status)
+      @assertEqual(0, status)
+      unchanged = (item%get_declared_item_type() == MAPL_STATEITEM_BRACKET)
+      @assertTrue(unchanged)
+   end subroutine test_declared_item_type_without_shape_entry_is_unchanged
+
+   function no_write_get_kind() result(kind)
+      type(StateItemCharacteristicKind) :: kind
+
+      kind = MOCK_CHARACTERISTIC_KIND
+   end function no_write_get_kind
+
+   logical function no_write_needs_extension_for(this, goal) result(needs)
+      class(NoWriteCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+
+      needs = .false.
+   end function no_write_needs_extension_for
+
+   subroutine no_write_build_transform(this, goal, transformer, rc)
+      class(NoWriteCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      class(TransformBase), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
+      call report_build_transform_unsupported(rc)
+   end subroutine no_write_build_transform
+
+   function no_write_get_signature(this) result(signature)
+      class(NoWriteCharacteristic), intent(in) :: this
+      character(:), allocatable :: signature
+
+      signature = 'no_write'
+   end function no_write_get_signature
+
+   function make_no_write() result(c)
+      type(NoWriteCharacteristic) :: c
+
+      call c%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
+   end function make_no_write
+
+   @test
+   subroutine test_characteristics_map_starts_empty()
+      type(StateItemDescriptor) :: item
+
+      @assertFalse(item%has_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND))
+   end subroutine test_characteristics_map_starts_empty
+
+   ! Spec "Established characteristic is retrievable by its type tag":
+   ! round-trips through set_characteristic/get_characteristic/
+   ! has_characteristic, and a never-established kind stays absent
+   ! rather than reporting some INVALID placeholder.
+   @test
+   subroutine test_set_get_characteristic_roundtrip()
+      type(StateItemDescriptor) :: item
+      class(StateItemCharacteristic), allocatable :: found
+      integer :: status
+
+      @assertFalse(item%has_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND))
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'), rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(item%has_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND))
+      @assertFalse(item%has_characteristic(GEOMETRY_CHARACTERISTIC_KIND))
+
+      call item%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, found, rc=status)
+      @assertEqual(0, status)
+      select type (found)
+      class is (PhysicalUnitsCharacteristic)
+         @assertEqual('m', found%get_units())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_set_get_characteristic_roundtrip
+
+   @test
+   subroutine test_get_characteristic_absent_fails_explicitly()
+      type(StateItemDescriptor) :: item
+      class(StateItemCharacteristic), allocatable :: found
+      integer :: status
+
+      call item%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, found, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_get_characteristic_absent_fails_explicitly
+
+   @test
+   subroutine test_set_characteristic_replaces_existing_entry()
+      type(StateItemDescriptor) :: item
+      class(StateItemCharacteristic), allocatable :: found
+      integer :: status
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'), rc=status)
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('km'), rc=status)
+      @assertEqual(0, status)
+
+      call item%get_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, found, rc=status)
+      select type (found)
+      class is (PhysicalUnitsCharacteristic)
+         @assertEqual('km', found%get_units())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_set_characteristic_replaces_existing_entry
+
+   ! Invariant: a characteristic may only be stored
+   ! under its own kind's key - set_characteristic rejects a mismatched
+   ! pairing explicitly rather than silently accepting it (which would
+   ! otherwise let find_mismatched_state_item_characteristics pair a
+   ! GeometryCharacteristic against a PhysicalUnitsCharacteristic goal
+   ! later, a defect no reconciling Transform could ever resolve).
+   @test
+   subroutine test_set_characteristic_rejects_kind_mismatch()
+      type(StateItemDescriptor) :: item
+      type(NodeIdGenerator) :: gen
+      type(NodeId) :: id
+      integer :: status
+
+      id = gen%next()
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, GeometryCharacteristic(id), rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(item%has_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND))
+   end subroutine test_set_characteristic_rejects_kind_mismatch
+
+   @test
+   subroutine test_sync_structural_writes_specified_units()
+      type(StateItemDescriptor) :: item
+      character(:), allocatable :: units
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      units = synced_units(item, SYNC_PHASE_STRUCTURAL)
+      @assertEqual('m', units)
+   end subroutine test_sync_structural_writes_specified_units
+
+   @test
+   subroutine test_sync_structural_writes_unknown_for_unchecked_units()
+      type(StateItemDescriptor) :: item
+      type(PhysicalUnitsCharacteristic) :: unchecked
+      character(:), allocatable :: units
+
+      call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, unchecked)
+      units = synced_units(item, SYNC_PHASE_STRUCTURAL)
+      @assertEqual(UNKNOWN_UNITS, units)
+   end subroutine test_sync_structural_writes_unknown_for_unchecked_units
+
+   ! units= on a completed field would enter FieldDelta.
+   @test
+   subroutine test_sync_descriptive_skips_units()
+      type(StateItemDescriptor) :: item
+      character(:), allocatable :: units
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('m'))
+      units = synced_units(item, SYNC_PHASE_DESCRIPTIVE)
+      @assertEqual('(none)', units)
+   end subroutine test_sync_descriptive_skips_units
+
+   ! The ADVERTISED phase is for a Field that is only created: units are
+   ! safe to write there, structural keys are not.
+   @test
+   subroutine test_sync_advertised_writes_units()
+      type(StateItemDescriptor) :: item
+      character(:), allocatable :: units
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, &
+           PhysicalUnitsCharacteristic('m'))
+      units = synced_units(item, SYNC_PHASE_ADVERTISED)
+      @assertEqual('m', units)
+   end subroutine test_sync_advertised_writes_units
+
+   @test
+   subroutine test_sync_advertised_skips_typekind()
+      type(StateItemDescriptor) :: item
+      type(ESMF_TypeKind_Flag) :: type_kind
+
+      call item%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, &
+           TypeKindCharacteristic('R8'))
+      type_kind = synced_typekind(item, SYNC_PHASE_ADVERTISED)
+      @assertTrue(type_kind == ESMF_TYPEKIND_R4)
+   end subroutine test_sync_advertised_skips_typekind
+
+   @test
+   subroutine test_sync_skips_invalid_characteristic()
+      type(StateItemDescriptor) :: item
+      type(PhysicalUnitsCharacteristic) :: invalid
+      character(:), allocatable :: units
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, invalid)
+      units = synced_units(item, SYNC_PHASE_STRUCTURAL)
+      @assertEqual('(none)', units)
+   end subroutine test_sync_skips_invalid_characteristic
+
+   @test
+   subroutine test_sync_structural_writes_units_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      character(:), allocatable :: units
+      integer :: status
+
+      call item%set_characteristic(PHYSICAL_UNITS_CHARACTERISTIC_KIND, PhysicalUnitsCharacteristic('K'))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, units=units, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('K', units)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_structural_writes_units_on_bundle
+
+   @test
+   subroutine test_sync_structural_writes_typekind_on_field()
+      type(StateItemDescriptor) :: item
+      type(ESMF_TypeKind_Flag) :: type_kind
+
+      call item%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'))
+      type_kind = synced_typekind(item, SYNC_PHASE_STRUCTURAL)
+      @assertTrue(type_kind == ESMF_TYPEKIND_R8)
+   end subroutine test_sync_structural_writes_typekind_on_field
+
+   ! typekind= on a completed field would enter FieldDelta.
+   @test
+   subroutine test_sync_descriptive_skips_typekind()
+      type(StateItemDescriptor) :: item
+      type(ESMF_TypeKind_Flag) :: type_kind
+
+      call item%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'))
+      type_kind = synced_typekind(item, SYNC_PHASE_DESCRIPTIVE)
+      @assertTrue(type_kind == ESMF_TYPEKIND_R4)
+   end subroutine test_sync_descriptive_skips_typekind
+
+   @test
+   subroutine test_sync_skips_mirrored_typekind()
+      type(StateItemDescriptor) :: item
+      type(TypeKindCharacteristic) :: mirrored
+      type(ESMF_TypeKind_Flag) :: type_kind
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, mirrored)
+      type_kind = synced_typekind(item, SYNC_PHASE_STRUCTURAL)
+      @assertTrue(type_kind == ESMF_TYPEKIND_R4)
+   end subroutine test_sync_skips_mirrored_typekind
+
+   @test
+   subroutine test_sync_structural_writes_typekind_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_TypeKind_Flag) :: type_kind
+      integer :: status
+
+      call item%set_characteristic(TYPE_KIND_CHARACTERISTIC_KIND, TypeKindCharacteristic('R8'))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, typekind=type_kind, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(type_kind == ESMF_TYPEKIND_R8)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_structural_writes_typekind_on_bundle
+
+   @test
+   subroutine test_sync_structural_writes_ungridded_dims_on_field()
+      type(StateItemDescriptor) :: item
+      type(UngriddedDims) :: dims
+
+      call item%set_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND, UngriddedDimsCharacteristic(UngriddedDims([5])))
+      dims = synced_ungridded_dims(item, SYNC_PHASE_STRUCTURAL)
+      @assertTrue(dims == UngriddedDims([5]))
+   end subroutine test_sync_structural_writes_ungridded_dims_on_field
+
+   ! ungridded_dims= is a creation input: the DESCRIPTIVE phase leaves it alone.
+   @test
+   subroutine test_sync_descriptive_skips_ungridded_dims()
+      type(StateItemDescriptor) :: item
+      type(UngriddedDims) :: dims
+
+      call item%set_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND, UngriddedDimsCharacteristic(UngriddedDims([5])))
+      dims = synced_ungridded_dims(item, SYNC_PHASE_DESCRIPTIVE)
+      @assertTrue(dims == UngriddedDims([3]))
+   end subroutine test_sync_descriptive_skips_ungridded_dims
+
+   @test
+   subroutine test_sync_skips_mirrored_ungridded_dims()
+      type(StateItemDescriptor) :: item
+      type(UngriddedDimsCharacteristic) :: mirrored
+      type(UngriddedDims) :: dims
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND, mirrored)
+      dims = synced_ungridded_dims(item, SYNC_PHASE_STRUCTURAL)
+      @assertTrue(dims == UngriddedDims([3]))
+   end subroutine test_sync_skips_mirrored_ungridded_dims
+
+   @test
+   subroutine test_sync_structural_writes_ungridded_dims_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      type(UngriddedDims) :: dims
+      integer :: status
+
+      call item%set_characteristic(UNGRIDDED_DIMS_CHARACTERISTIC_KIND, UngriddedDimsCharacteristic(UngriddedDims([5])))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, ungridded_dims=dims, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(dims == UngriddedDims([5]))
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_structural_writes_ungridded_dims_on_bundle
+
+   @test
+   subroutine test_sync_writes_specified_standard_name_in_both_phases()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, StandardNameCharacteristic('air_temperature'))
+      @assertEqual('air_temperature', synced_standard_name(item, SYNC_PHASE_STRUCTURAL))
+      @assertEqual('air_temperature', synced_standard_name(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_writes_specified_standard_name_in_both_phases
+
+   @test
+   subroutine test_sync_writes_unknown_for_unchecked_standard_name()
+      type(StateItemDescriptor) :: item
+      type(StandardNameCharacteristic) :: unchecked
+
+      call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call item%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, unchecked)
+      @assertEqual(UNKNOWN_STANDARD_NAME, synced_standard_name(item, SYNC_PHASE_STRUCTURAL))
+      @assertEqual(UNKNOWN_STANDARD_NAME, synced_standard_name(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_writes_unknown_for_unchecked_standard_name
+
+   @test
+   subroutine test_sync_skips_invalid_standard_name()
+      type(StateItemDescriptor) :: item
+      type(StandardNameCharacteristic) :: invalid
+
+      call item%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, invalid)
+      @assertEqual('seed', synced_standard_name(item, SYNC_PHASE_STRUCTURAL))
+   end subroutine test_sync_skips_invalid_standard_name
+
+   @test
+   subroutine test_sync_writes_standard_name_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      character(:), allocatable :: standard_name
+      integer :: status
+
+      call item%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, StandardNameCharacteristic('air_temperature'))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, standard_name=standard_name, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('air_temperature', standard_name)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_writes_standard_name_on_bundle
+
+   @test
+   subroutine test_sync_writes_specified_long_name_in_both_phases()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, &
+           LongNameCharacteristic('Air Temperature'))
+      @assertEqual('Air Temperature', &
+           synced_long_name(item, SYNC_PHASE_STRUCTURAL))
+      @assertEqual('Air Temperature', &
+           synced_long_name(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_writes_specified_long_name_in_both_phases
+
+   ! An empty long_name is a declared value (legacy tests allocated).
+   @test
+   subroutine test_sync_writes_empty_long_name()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, &
+           LongNameCharacteristic(''))
+      @assertEqual('', synced_long_name(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_writes_empty_long_name
+
+   ! UNCHECKED writes nothing, so the seeded value is unchanged.
+   @test
+   subroutine test_sync_unchecked_long_name_writes_nothing()
+      type(StateItemDescriptor) :: item
+      type(LongNameCharacteristic) :: unchecked
+
+      call unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, unchecked)
+      @assertEqual('seed', synced_long_name(item, SYNC_PHASE_STRUCTURAL))
+      @assertEqual('seed', synced_long_name(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_unchecked_long_name_writes_nothing
+
+   @test
+   subroutine test_sync_skips_mirrored_and_invalid_long_name()
+      type(StateItemDescriptor) :: item
+      type(LongNameCharacteristic) :: mirrored, invalid
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, mirrored)
+      @assertEqual('seed', synced_long_name(item, SYNC_PHASE_DESCRIPTIVE))
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, invalid)
+      @assertEqual('seed', synced_long_name(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_skips_mirrored_and_invalid_long_name
+
+   @test
+   subroutine test_sync_writes_long_name_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      character(:), allocatable :: long_name
+      integer :: status
+
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, &
+           LongNameCharacteristic('Air Temperature'))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, long_name=long_name, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('Air Temperature', long_name)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_writes_long_name_on_bundle
+
+   @test
+   subroutine test_sync_fails_for_kind_without_write_info()
+      type(StateItemDescriptor) :: item
+      type(NodeIdGenerator) :: gen
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      call item%set_characteristic(MOCK_CHARACTERISTIC_KIND, make_no_write())
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field)
+      call item%sync_to_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertTrue(status /= 0)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_sync_fails_for_kind_without_write_info
+
+   ! Attributes have no Info key: sync succeeds on Field and FieldBundle.
+   @test
+   subroutine test_sync_attributes_succeeds()
+      type(StateItemDescriptor) :: item
+      type(StringVector) :: names
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+
+      call names%push_back('shared_attr')
+      call item%set_characteristic(ATTRIBUTES_CHARACTERISTIC_KIND, AttributesCharacteristic(names))
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_attributes_succeeds
+
+   ! Expression has no Info key either: sync succeeds and writes nothing.
+   @test
+   subroutine test_sync_expression_succeeds()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      call item%set_characteristic(EXPRESSION_CHARACTERISTIC_KIND, &
+           ExpressionCharacteristic('A + B'))
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_sync_expression_succeeds
+
+   ! --- QuantityType, Conservation, Normalization ---
+
+   ! The field starts with PRESSURE metadata, so a skipped write reads back
+   ! PRESSURE. normalization_metadata reads back as a mirror when its key was
+   ! never written, which shows that QuantityType writes only its own key.
+   function synced_quantity_type(item, phase, normalization) result(metadata)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(NormalizationMetadata), optional, intent(out) :: normalization
+      type(QuantityTypeMetadata) :: metadata
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(NormalizationMetadata) :: norm
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, rc=status, &
+           quantity_type_metadata=QuantityTypeMetadata(QUANTITY_PRESSURE))
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, quantity_type_metadata=metadata, &
+           normalization_metadata=norm, rc=status)
+      @assertEqual(0, status)
+      if (present(normalization)) normalization = norm
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_quantity_type
+
+   ! The field starts with ENERGY conservation. Reading conservation back
+   ! asserts the key exists, so the seed is required.
+   function synced_conservation(item, phase, quantity_type) result(metadata)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(QuantityTypeMetadata), optional, intent(out) :: quantity_type
+      type(ConservationMetadata) :: metadata
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(QuantityTypeMetadata) :: qty
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, rc=status, &
+           conservation_metadata=ConservationMetadata(CONSERVE_ENERGY))
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, conservation_metadata=metadata, &
+           quantity_type_metadata=qty, rc=status)
+      @assertEqual(0, status)
+      if (present(quantity_type)) quantity_type = qty
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_conservation
+
+   ! The field starts with DZ normalization.
+   function synced_normalization(item, phase, quantity_type) result(metadata)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(QuantityTypeMetadata), optional, intent(out) :: quantity_type
+      type(NormalizationMetadata) :: metadata
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(QuantityTypeMetadata) :: qty
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, rc=status, &
+           normalization_metadata=NormalizationMetadata(NORMALIZE_DZ))
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, normalization_metadata=metadata, &
+           quantity_type_metadata=qty, rc=status)
+      @assertEqual(0, status)
+      if (present(quantity_type)) quantity_type = qty
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_normalization
+
+   @test
+   subroutine test_sync_writes_specified_quantity_type_both_phases()
+      type(StateItemDescriptor) :: item
+      type(QuantityTypeMetadata) :: expected
+      type(NormalizationMetadata) :: norm
+
+      call item%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+           QuantityTypeCharacteristic(QUANTITY_TEMPERATURE, BASIS_WET_MASS))
+      expected = QuantityTypeMetadata(QUANTITY_TEMPERATURE, &
+           basis=BASIS_WET_MASS)
+      @assertTrue(expected == synced_quantity_type(item, &
+           SYNC_PHASE_STRUCTURAL, norm))
+      @assertTrue(expected == synced_quantity_type(item, &
+           SYNC_PHASE_DESCRIPTIVE))
+      ! Legacy also wrote a derived normalization; only the own key is written.
+      @assertTrue(norm%is_mirror())
+   end subroutine test_sync_writes_specified_quantity_type_both_phases
+
+   @test
+   subroutine test_sync_skips_mirrored_quantity_type()
+      type(StateItemDescriptor) :: item
+      type(QuantityTypeCharacteristic) :: mirrored
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, mirrored)
+      @assertTrue(QuantityTypeMetadata(QUANTITY_PRESSURE) == &
+           synced_quantity_type(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_skips_mirrored_quantity_type
+
+   @test
+   subroutine test_sync_writes_quantity_type_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      type(QuantityTypeMetadata) :: metadata
+      integer :: status
+
+      call item%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+           QuantityTypeCharacteristic(QUANTITY_TEMPERATURE))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, quantity_type_metadata=metadata, &
+           rc=status)
+      @assertEqual(0, status)
+      @assertTrue(QuantityTypeMetadata(QUANTITY_TEMPERATURE) == metadata)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_writes_quantity_type_on_bundle
+
+   @test
+   subroutine test_sync_writes_specified_conservation_both_phases()
+      type(StateItemDescriptor) :: item
+      type(ConservationMetadata) :: expected
+      type(QuantityTypeMetadata) :: qty
+
+      expected = ConservationMetadata(CONSERVE_MASS, is_conservable=.true.)
+      call item%set_characteristic(CONSERVATION_CHARACTERISTIC_KIND, &
+           ConservationCharacteristic(expected))
+      @assertTrue(expected == synced_conservation(item, &
+           SYNC_PHASE_STRUCTURAL, qty))
+      @assertTrue(expected == synced_conservation(item, &
+           SYNC_PHASE_DESCRIPTIVE))
+      @assertTrue(qty%is_mirror())
+   end subroutine test_sync_writes_specified_conservation_both_phases
+
+   @test
+   subroutine test_sync_skips_mirrored_conservation()
+      type(StateItemDescriptor) :: item
+      type(ConservationCharacteristic) :: mirrored
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(CONSERVATION_CHARACTERISTIC_KIND, mirrored)
+      @assertTrue(ConservationMetadata(CONSERVE_ENERGY) == &
+           synced_conservation(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_skips_mirrored_conservation
+
+   @test
+   subroutine test_sync_writes_conservation_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      type(ConservationMetadata) :: metadata
+      integer :: status
+
+      call item%set_characteristic(CONSERVATION_CHARACTERISTIC_KIND, &
+           ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS)))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, conservation_metadata=metadata, &
+           rc=status)
+      @assertEqual(0, status)
+      @assertTrue(ConservationMetadata(CONSERVE_MASS) == metadata)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_writes_conservation_on_bundle
+
+   @test
+   subroutine test_sync_writes_specified_normalization_both_phases()
+      type(StateItemDescriptor) :: item
+      type(NormalizationMetadata) :: expected
+      type(QuantityTypeMetadata) :: qty
+
+      expected = NormalizationMetadata(NORMALIZE_DELP, normalization_scale=2.0)
+      call item%set_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, &
+           NormalizationCharacteristic(expected))
+      @assertTrue(expected == synced_normalization(item, &
+           SYNC_PHASE_STRUCTURAL, qty))
+      @assertTrue(expected == synced_normalization(item, &
+           SYNC_PHASE_DESCRIPTIVE))
+      @assertTrue(qty%is_mirror())
+   end subroutine test_sync_writes_specified_normalization_both_phases
+
+   @test
+   subroutine test_sync_skips_mirrored_normalization()
+      type(StateItemDescriptor) :: item
+      type(NormalizationCharacteristic) :: mirrored
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, mirrored)
+      @assertTrue(NormalizationMetadata(NORMALIZE_DZ) == &
+           synced_normalization(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_skips_mirrored_normalization
+
+   ! The three kinds are field-wide: the per-alias sync must not write them.
+   @test
+   subroutine test_per_alias_sync_skips_metadata_kinds()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(QuantityTypeMetadata) :: qty
+      type(ConservationMetadata) :: cons
+      type(NormalizationMetadata) :: norm
+      integer :: status
+
+      call item%set_characteristic(QUANTITY_TYPE_CHARACTERISTIC_KIND, &
+           QuantityTypeCharacteristic(QUANTITY_TEMPERATURE))
+      call item%set_characteristic(CONSERVATION_CHARACTERISTIC_KIND, &
+           ConservationCharacteristic(ConservationMetadata(CONSERVE_MASS)))
+      call item%set_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, &
+           NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP)))
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, rc=status, &
+           quantity_type_metadata=QuantityTypeMetadata(QUANTITY_PRESSURE), &
+           conservation_metadata=ConservationMetadata(CONSERVE_ENERGY), &
+           normalization_metadata=NormalizationMetadata(NORMALIZE_DZ))
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_per_alias_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, quantity_type_metadata=qty, &
+           conservation_metadata=cons, normalization_metadata=norm, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(QuantityTypeMetadata(QUANTITY_PRESSURE) == qty)
+      @assertTrue(ConservationMetadata(CONSERVE_ENERGY) == cons)
+      @assertTrue(NormalizationMetadata(NORMALIZE_DZ) == norm)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_per_alias_sync_skips_metadata_kinds
+
+   @test
+   subroutine test_sync_writes_normalization_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      type(NormalizationMetadata) :: metadata
+      integer :: status
+
+      call item%set_characteristic(NORMALIZATION_CHARACTERISTIC_KIND, &
+           NormalizationCharacteristic(NormalizationMetadata(NORMALIZE_DELP)))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, normalization_metadata=metadata, &
+           rc=status)
+      @assertEqual(0, status)
+      @assertTrue(NormalizationMetadata(NORMALIZE_DELP) == metadata)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_writes_normalization_on_bundle
+
+   ! --- RestartMode ---
+
+   @test
+   subroutine test_sync_writes_specified_restart_mode_in_both_phases()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, &
+           RestartModeCharacteristic(RESTART_SKIP))
+      @assertTrue(RESTART_SKIP == synced_restart_mode(item, SYNC_PHASE_STRUCTURAL))
+      @assertTrue(RESTART_SKIP == synced_restart_mode(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_writes_specified_restart_mode_in_both_phases
+
+   ! The seeded SKIP is overwritten by the SPECIFIED default: an undeclared
+   ! mode is always written.
+   @test
+   subroutine test_sync_writes_default_restart_mode()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, &
+           RestartModeCharacteristic(RESTART_REQUIRED))
+      @assertTrue(RESTART_REQUIRED == synced_restart_mode(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_writes_default_restart_mode
+
+   @test
+   subroutine test_sync_skips_mirrored_and_invalid_restart_mode()
+      type(StateItemDescriptor) :: item
+      type(RestartModeCharacteristic) :: mirrored, invalid
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, mirrored)
+      @assertTrue(RESTART_SKIP == synced_restart_mode(item, SYNC_PHASE_DESCRIPTIVE))
+      call item%set_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, invalid)
+      @assertTrue(RESTART_SKIP == synced_restart_mode(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_skips_mirrored_and_invalid_restart_mode
+
+   ! Only a Field carries a restart mode: the bundle setter has no keyword.
+   @test
+   subroutine test_sync_restart_mode_fails_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+
+      call item%set_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, &
+           RestartModeCharacteristic(RESTART_SKIP))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertTrue(status /= 0)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_restart_mode_fails_on_bundle
+
+   ! --- per-alias sync ---
+
+   ! An import alias writes its own restart_mode and long_name, and leaves
+   ! the field-wide keys (here standard_name, units) of the exporter alone.
+   @test
+   subroutine test_per_alias_sync_writes_only_per_alias_entries()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      character(:), allocatable :: long_name, standard_name
+      type(RestartMode) :: mode
+      integer :: status
+
+      call item%set_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, &
+           RestartModeCharacteristic(RESTART_REQUIRED))
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, &
+           LongNameCharacteristic('Import Name'))
+      call item%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, &
+           StandardNameCharacteristic('import_standard_name'))
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, long_name='seed', standard_name='export_standard_name', &
+           restart_mode=RESTART_SKIP, rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+
+      call item%sync_per_alias_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, long_name=long_name, standard_name=standard_name, &
+           restart_mode=mode, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('Import Name', long_name)
+      @assertEqual('export_standard_name', standard_name)
+      @assertTrue(RESTART_REQUIRED == mode)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_per_alias_sync_writes_only_per_alias_entries
+
+   ! An UNCHECKED standard_name would write '<unknown>' field-wide in a full
+   ! sync; the per-alias sync does not touch it, and an UNCHECKED long_name
+   ! writes nothing, so both values are unchanged.
+   @test
+   subroutine test_per_alias_sync_writes_nothing_for_unchecked()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(LongNameCharacteristic) :: long_name_unchecked
+      type(StandardNameCharacteristic) :: standard_name_unchecked
+      character(:), allocatable :: long_name, standard_name
+      integer :: status
+
+      call long_name_unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call standard_name_unchecked%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, long_name_unchecked)
+      call item%set_characteristic(STANDARD_NAME_CHARACTERISTIC_KIND, standard_name_unchecked)
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, long_name='Seed Name', standard_name='seed_standard_name', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+
+      call item%sync_per_alias_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, long_name=long_name, standard_name=standard_name, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('Seed Name', long_name)
+      @assertEqual('seed_standard_name', standard_name)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_per_alias_sync_writes_nothing_for_unchecked
+
+   ! A kind without a write_info does not stop the per-alias sync, because
+   ! only per-alias entries are visited.
+   @test
+   subroutine test_per_alias_sync_skips_kinds_without_write_info()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      character(:), allocatable :: long_name
+      integer :: status
+
+      call item%set_characteristic(MOCK_CHARACTERISTIC_KIND, make_no_write())
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, LongNameCharacteristic('Name'))
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_per_alias_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, long_name=long_name, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('Name', long_name)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_per_alias_sync_skips_kinds_without_write_info
+
+   ! A bundle's long_name is bundle-wide (not per-alias), and the bundle
+   ! setter has no restart_mode, so the per-alias sync leaves a bundle alone.
+   @test
+   subroutine test_per_alias_sync_leaves_bundle_alone()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      character(:), allocatable :: long_name
+      integer :: status
+
+      call item%set_characteristic(RESTART_MODE_CHARACTERISTIC_KIND, &
+           RestartModeCharacteristic(RESTART_SKIP))
+      call item%set_characteristic(LONG_NAME_CHARACTERISTIC_KIND, LongNameCharacteristic('Import Name'))
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(bundle, long_name='Export Name', rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_per_alias_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, long_name=long_name, rc=status)
+      @assertEqual(0, status)
+      @assertEqual('Export Name', long_name)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_per_alias_sync_leaves_bundle_alone
+
+   ! The field starts with restart_mode SKIP, so a skipped write reads it back.
+   function synced_restart_mode(item, phase) result(mode)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(RestartMode) :: mode
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, restart_mode=RESTART_SKIP, rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, restart_mode=mode, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_restart_mode
+
+   ! The field starts with long_name 'seed'; a skipped write reads it back.
+   function synced_long_name(item, phase) result(long_name)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      character(:), allocatable :: long_name
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, long_name='seed', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, long_name=long_name, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_long_name
+
+   ! The field starts with standard_name 'seed', so a skipped write reads back 'seed'.
+   function synced_standard_name(item, phase) result(standard_name)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      character(:), allocatable :: standard_name
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, standard_name='seed', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, standard_name=standard_name, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_standard_name
+
+   function synced_units(item, phase) result(units)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      character(:), allocatable :: units
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, units=units, rc=status)
+      @assertEqual(0, status)
+      if (.not. allocated(units)) units = '(none)'
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_units
+
+   ! The field starts as R4, so a skipped write reads back R4.
+   function synced_typekind(item, phase) result(type_kind)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(ESMF_TypeKind_Flag) :: type_kind
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, typekind=ESMF_TYPEKIND_R4, rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, typekind=type_kind, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_typekind
+
+   ! The field starts with ungridded dims [3], so a skipped write reads back [3].
+   function synced_ungridded_dims(item, phase) result(dims)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(UngriddedDims) :: dims
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, ungridded_dims=UngriddedDims([3]), rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, ungridded_dims=dims, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_ungridded_dims
+
+   function make_test_geom(rc) result(geom)
+      integer, optional, intent(out) :: rc
+      type(ESMF_Geom) :: geom
+
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(countsPerDeDim1=[2], countsPerDeDim2=[2], rc=status)
+      if (status == 0) geom = ESMF_GeomCreate(grid=grid, rc=status)
+      if (present(rc)) rc = status
+   end function make_test_geom
+
+   ! True if the field has a geom after the sync.
+   function synced_has_geom(item, phase) result(has_geom)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      logical :: has_geom
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(ESMF_Geom), allocatable :: geom
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, geom=geom, rc=status)
+      @assertEqual(0, status)
+      has_geom = allocated(geom)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_has_geom
+
+   @test
+   subroutine test_sync_structural_writes_specified_geom()
+      type(StateItemDescriptor) :: item
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom=geom))
+      @assertTrue(synced_has_geom(item, SYNC_PHASE_STRUCTURAL))
+   end subroutine test_sync_structural_writes_specified_geom
+
+   @test
+   subroutine test_sync_descriptive_skips_geom()
+      type(StateItemDescriptor) :: item
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom=geom))
+      @assertFalse(synced_has_geom(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_descriptive_skips_geom
+
+   @test
+   subroutine test_sync_skips_deferred_geom()
+      type(StateItemDescriptor) :: item
+      type(GeometryCharacteristic) :: deferred
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, deferred)
+      @assertFalse(synced_has_geom(item, SYNC_PHASE_STRUCTURAL))
+   end subroutine test_sync_skips_deferred_geom
+
+   @test
+   subroutine test_resolve_deferred_fills_geometry_from_defaults()
+      type(StateItemDescriptor) :: item
+      type(GeometryCharacteristic) :: deferred
+      class(StateItemCharacteristic), allocatable :: c
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, deferred)
+
+      call item%resolve_deferred(CharacteristicDefaults(geom=geom), rc=status)
+      @assertEqual(0, status)
+      call item%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertEqual(0, size(item%get_unresolved_kinds()))
+   end subroutine test_resolve_deferred_fills_geometry_from_defaults
+
+   ! One side known by geom object only, the other by id only: nothing to
+   ! compare, so the pair is assumed to need an extension.
+   @test
+   subroutine test_geometry_needs_extension_mixed_geom_and_id()
+      type(GeometryCharacteristic) :: by_id, by_geom
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+      by_geom = GeometryCharacteristic(geom=geom)
+      by_id = GeometryCharacteristic(geom_id='1')
+      @assertTrue(by_geom%needs_extension_for(by_id))
+      @assertTrue(by_id%needs_extension_for(by_geom))
+      @assertFalse(by_id%needs_extension_for(GeometryCharacteristic(geom_id='1')))
+      @assertTrue(by_id%needs_extension_for(GeometryCharacteristic(geom_id='2')))
+   end subroutine test_geometry_needs_extension_mixed_geom_and_id
+
+   ! No default geom: an item the component fills later must stay DEFERRED.
+   @test
+   subroutine test_resolve_deferred_without_geom_stays_deferred()
+      type(StateItemDescriptor) :: item
+      type(GeometryCharacteristic) :: deferred
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, deferred)
+
+      call item%resolve_deferred(CharacteristicDefaults(), rc=status)
+      @assertEqual(0, status)
+      call item%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_DEFERRED)
+   end subroutine test_resolve_deferred_without_geom_stays_deferred
+
+   @test
+   subroutine test_resolve_deferred_leaves_specified_geometry()
+      type(StateItemDescriptor) :: item
+      class(StateItemCharacteristic), allocatable :: c
+      type(ESMF_Geom) :: geom, other
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+      other = make_test_geom(rc=status)
+      @assertEqual(0, status)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom=geom))
+
+      call item%resolve_deferred(CharacteristicDefaults(geom=other), rc=status)
+      @assertEqual(0, status)
+      call item%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+   end subroutine test_resolve_deferred_leaves_specified_geometry
+
+   function make_basic_vgrid() result(vgrid)
+      type(mapl_BasicVerticalGrid) :: vgrid
+
+      call vgrid%set_id(3)
+   end function make_basic_vgrid
+
+   ! A grid the manager knows, as FieldGet looks the grid up by id. The
+   ! manager is process-global, so ids depend on test order; callers must
+   ! use the id of the returned grid, not a fixed one.
+   function make_registered_vgrid(rc) result(vgrid)
+      integer, optional, intent(out) :: rc
+      class(VerticalGrid), pointer :: vgrid
+
+      type(mapl_VerticalGridManager), pointer :: mgr
+      class(mapl_VerticalGridFactory), pointer :: factory
+      integer :: status
+
+      mgr => mapl_get_vertical_grid_manager(rc=status)
+      if (status == 0) factory => mgr%find_factory(mapl_BasicVerticalGridSpec(1), rc=status)
+      if (status /= 0 .or. .not. associated(factory)) then
+         call mgr%register_factory('Basic', mapl_BasicVerticalGridFactory(), rc=status)
+      end if
+      if (status == 0) vgrid => mgr%add_grid(mapl_BasicVerticalGridSpec(num_levels=4), rc=status)
+      if (present(rc)) rc = status
+   end function make_registered_vgrid
+
+   ! True if the field has a vertical grid after the sync.
+   function synced_has_vgrid(item, phase) result(has_vgrid)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      logical :: has_vgrid
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      class(VerticalGrid), pointer :: vgrid
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      vgrid => null()
+      call MAPL_FieldGet(field, vgrid=vgrid, rc=status)
+      @assertEqual(0, status)
+      has_vgrid = associated(vgrid)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function synced_has_vgrid
+
+   @test
+   subroutine test_sync_structural_writes_specified_vgrid()
+      type(StateItemDescriptor) :: item
+      class(VerticalGrid), pointer :: vgrid
+      integer :: status
+
+      vgrid => make_registered_vgrid(rc=status)
+      @assertEqual(0, status)
+      call item%set_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND, &
+           VerticalGridCharacteristic(vgrid=vgrid))
+      @assertTrue(synced_has_vgrid(item, SYNC_PHASE_STRUCTURAL))
+   end subroutine test_sync_structural_writes_specified_vgrid
+
+   @test
+   subroutine test_sync_descriptive_skips_vgrid()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND, &
+           VerticalGridCharacteristic(vgrid=make_basic_vgrid()))
+      @assertFalse(synced_has_vgrid(item, SYNC_PHASE_DESCRIPTIVE))
+   end subroutine test_sync_descriptive_skips_vgrid
+
+   @test
+   subroutine test_sync_skips_deferred_vgrid()
+      type(StateItemDescriptor) :: item
+      type(VerticalGridCharacteristic) :: deferred
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND, deferred)
+      @assertFalse(synced_has_vgrid(item, SYNC_PHASE_STRUCTURAL))
+   end subroutine test_sync_skips_deferred_vgrid
+
+   @test
+   subroutine test_resolve_deferred_fills_vertical_grid_from_defaults()
+      type(StateItemDescriptor) :: item
+      type(VerticalGridCharacteristic) :: deferred
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND, deferred)
+
+      call item%resolve_deferred(CharacteristicDefaults(vgrid=make_basic_vgrid()), rc=status)
+      @assertEqual(0, status)
+      call item%get_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (VerticalGridCharacteristic)
+         @assertTrue(c%has_vgrid())
+         @assertEqual('3', c%get_grid_id())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_resolve_deferred_fills_vertical_grid_from_defaults
+
+   @test
+   subroutine test_resolve_deferred_without_vgrid_stays_deferred()
+      type(StateItemDescriptor) :: item
+      type(VerticalGridCharacteristic) :: deferred
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND, deferred)
+
+      call item%resolve_deferred(CharacteristicDefaults(), rc=status)
+      @assertEqual(0, status)
+      call item%get_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_DEFERRED)
+   end subroutine test_resolve_deferred_without_vgrid_stays_deferred
+
+   ! A DEFERRED vertical coordinate no component supplies is dropped: the
+   ! item has no vertical dimension. A DEFERRED geometry is kept.
+   @test
+   subroutine test_drop_unsupplied_removes_only_vertical_grid()
+      type(StateItemDescriptor) :: item
+      type(VerticalGridCharacteristic) :: vertical
+      type(GeometryCharacteristic) :: geometry
+      integer :: status
+
+      call vertical%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call geometry%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND, vertical)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, geometry)
+
+      call item%drop_unsupplied(CharacteristicDefaults(), rc=status)
+      @assertEqual(0, status)
+      @assertFalse(item%has_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND))
+      @assertTrue(item%has_characteristic(GEOMETRY_CHARACTERISTIC_KIND))
+   end subroutine test_drop_unsupplied_removes_only_vertical_grid
+
+   @test
+   subroutine test_drop_unsupplied_keeps_resolved_vertical_grid()
+      type(StateItemDescriptor) :: item
+      type(VerticalGridCharacteristic) :: deferred, mirrored
+      type(StateItemDescriptor) :: other
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND, deferred)
+      call item%resolve_deferred(CharacteristicDefaults(vgrid=make_basic_vgrid()), rc=status)
+      @assertEqual(0, status)
+      call item%drop_unsupplied(CharacteristicDefaults(), rc=status)
+      @assertEqual(0, status)
+      @assertTrue(item%has_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND))
+
+      call mirrored%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call other%set_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND, mirrored)
+      call other%drop_unsupplied(CharacteristicDefaults(), rc=status)
+      @assertEqual(0, status)
+      @assertTrue(other%has_characteristic(VERTICAL_GRID_CHARACTERISTIC_KIND))
+   end subroutine test_drop_unsupplied_keeps_resolved_vertical_grid
+
+   ! --- HorizontalDimsSpec and the uncompared geometry of a NONE item ---
+
+   function dims_spec_after_sync(item, phase) result(dims_spec)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(HorizontalDimsSpec) :: dims_spec
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, horizontal_dims_spec=dims_spec, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function dims_spec_after_sync
+
+   @test
+   subroutine test_sync_structural_writes_horizontal_dims_spec()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE))
+      @assertTrue(dims_spec_after_sync(item, SYNC_PHASE_STRUCTURAL) == HORIZONTAL_DIMS_NONE)
+
+      call item%set_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_GEOM))
+      @assertTrue(dims_spec_after_sync(item, SYNC_PHASE_STRUCTURAL) == HORIZONTAL_DIMS_GEOM)
+   end subroutine test_sync_structural_writes_horizontal_dims_spec
+
+   ! The key is never written in the descriptive phase, so reading it fails.
+   @test
+   subroutine test_sync_descriptive_skips_horizontal_dims_spec()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(HorizontalDimsSpec) :: written
+      integer :: status
+
+      call item%set_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE))
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, horizontal_dims_spec=written, rc=status)
+      @assertFalse(status == 0)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_sync_descriptive_skips_horizontal_dims_spec
+
+   ! An uncompared geometry holding a geom is written like a compared one.
+   @test
+   subroutine test_sync_structural_writes_uncompared_geom()
+      type(StateItemDescriptor) :: item
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, GeometryCharacteristic(geom=geom, compared=.false.))
+      @assertTrue(synced_has_geom(item, SYNC_PHASE_STRUCTURAL))
+   end subroutine test_sync_structural_writes_uncompared_geom
+
+   ! UNCHECKED with no geom is a wildcard: nothing to write.
+   @test
+   subroutine test_sync_skips_uncompared_geom_without_value()
+      type(StateItemDescriptor) :: item
+      type(GeometryCharacteristic) :: waiting
+
+      waiting = GeometryCharacteristic(compared=.false.)
+      call waiting%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, waiting)
+      @assertFalse(synced_has_geom(item, SYNC_PHASE_STRUCTURAL))
+   end subroutine test_sync_skips_uncompared_geom_without_value
+
+   ! The component's geom reaches an uncompared entry and it stays UNCHECKED.
+   @test
+   subroutine test_resolve_deferred_fills_uncompared_geometry()
+      type(StateItemDescriptor) :: item
+      type(GeometryCharacteristic) :: waiting
+      class(StateItemCharacteristic), allocatable :: c
+      type(ESMF_Geom) :: geom
+      integer :: status
+
+      geom = make_test_geom(rc=status)
+      @assertEqual(0, status)
+      waiting = GeometryCharacteristic(compared=.false.)
+      call waiting%set_status(CHARACTERISTIC_STATUS_UNCHECKED)
+      call item%set_characteristic(GEOMETRY_CHARACTERISTIC_KIND, waiting)
+
+      call item%resolve_deferred(CharacteristicDefaults(geom=geom), rc=status)
+      @assertEqual(0, status)
+      call item%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_UNCHECKED)
+      @assertTrue(synced_has_geom(item, SYNC_PHASE_STRUCTURAL))
+   end subroutine test_resolve_deferred_fills_uncompared_geometry
+
+   ! --- VerticalOrientation ---
+
+   function alignment_after_sync(item, phase) result(alignment)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(VerticalAlignment) :: alignment
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, vert_alignment=alignment, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function alignment_after_sync
+
+   @test
+   subroutine test_sync_structural_writes_vertical_orientation_on_field()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      @assertTrue(alignment_after_sync(item, SYNC_PHASE_STRUCTURAL) == VALIGN_UP)
+
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      @assertTrue(alignment_after_sync(item, SYNC_PHASE_STRUCTURAL) == VALIGN_DOWN)
+   end subroutine test_sync_structural_writes_vertical_orientation_on_field
+
+   @test
+   subroutine test_sync_structural_writes_vertical_orientation_on_bundle()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field) :: member
+      type(VerticalAlignment) :: alignment
+      integer :: status
+
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_DOWN))
+      member = ESMF_FieldEmptyCreate(name='m', rc=status)
+      @assertEqual(0, status)
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldBundleAdd(bundle, [member], rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(member, vert_alignment=alignment, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(alignment == VALIGN_DOWN)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+      call ESMF_FieldDestroy(member, noGarbage=.true.)
+   end subroutine test_sync_structural_writes_vertical_orientation_on_bundle
+
+   @test
+   subroutine test_sync_descriptive_skips_vertical_orientation()
+      type(StateItemDescriptor) :: item
+
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      @assertTrue(alignment_after_sync(item, SYNC_PHASE_DESCRIPTIVE) == VALIGN_WITH_GRID)
+   end subroutine test_sync_descriptive_skips_vertical_orientation
+
+   @test
+   subroutine test_sync_skips_deferred_and_mirrored_vertical_orientation()
+      type(StateItemDescriptor) :: item
+      type(VerticalOrientationCharacteristic) :: not_a_value
+
+      call not_a_value%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, not_a_value)
+      @assertTrue(alignment_after_sync(item, SYNC_PHASE_STRUCTURAL) == VALIGN_WITH_GRID)
+
+      call not_a_value%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, not_a_value)
+      @assertTrue(alignment_after_sync(item, SYNC_PHASE_STRUCTURAL) == VALIGN_WITH_GRID)
+   end subroutine test_sync_skips_deferred_and_mirrored_vertical_orientation
+
+   ! Resolves the orientation against defaults; returns the entry's status and,
+   ! when it is SPECIFIED, its direction.
+   function orientation_after(item, defaults, direction, rc) result(orientation_status)
+      type(StateItemDescriptor), intent(inout) :: item
+      type(CharacteristicDefaults), intent(in) :: defaults
+      type(VerticalCoordinateDirection), intent(out) :: direction
+      integer, intent(out) :: rc
+      type(CharacteristicStatus) :: orientation_status
+
+      class(StateItemCharacteristic), allocatable :: c
+
+      call item%resolve_deferred(defaults, rc=rc)
+      @assertEqual(0, rc)
+      call item%drop_unsupplied(defaults, rc=rc)
+      @assertEqual(0, rc)
+      call item%get_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, c, rc=rc)
+      @assertEqual(0, rc)
+      orientation_status = c%get_status()
+      select type (c)
+      type is (VerticalOrientationCharacteristic)
+         direction = c%get_direction()
+      end select
+   end function orientation_after
+
+   ! The component grid's direction, not a fixed one, fills the entry.
+   @test
+   subroutine test_resolve_deferred_orientation_takes_grid_direction()
+      type(StateItemDescriptor) :: item
+      type(VerticalOrientationCharacteristic) :: deferred
+      type(CharacteristicDefaults) :: defaults
+      type(FixedLevelsVerticalGrid) :: vgrid
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, deferred)
+      call vgrid%initialize(FixedLevelsVerticalGridSpec('pressure', &
+           [1000., 500., 100.], 'hPa'), rc=status)
+      @assertEqual(0, status)
+      call vgrid%set_coordinate_direction(VCOORD_DIRECTION_UP)
+      defaults = CharacteristicDefaults(vgrid=vgrid)
+      call defaults%set_component_scope()
+
+      @assertTrue(orientation_after(item, defaults, direction, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(direction == VCOORD_DIRECTION_UP)
+   end subroutine test_resolve_deferred_orientation_takes_grid_direction
+
+   ! Whether the orientation entry of an item is directionless.
+   logical function orientation_is_directionless(item) result(directionless)
+      type(StateItemDescriptor), intent(in) :: item
+
+      class(StateItemCharacteristic), allocatable :: c
+      integer :: status
+
+      directionless = .false.
+      call item%get_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status)
+      select type (c)
+      type is (VerticalOrientationCharacteristic)
+         directionless = c%is_directionless()
+      end select
+   end function orientation_is_directionless
+
+   ! A DEFERRED entry on a Basic component grid has no direction to take.
+   @test
+   subroutine test_resolve_deferred_orientation_basic_grid_is_directionless()
+      type(StateItemDescriptor) :: item
+      type(VerticalOrientationCharacteristic) :: deferred
+      type(CharacteristicDefaults) :: defaults
+      type(mapl_BasicVerticalGrid) :: vgrid
+      type(VerticalCoordinateDirection) :: direction
+      logical :: directionless
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, deferred)
+      call vgrid%initialize(mapl_BasicVerticalGridSpec(num_levels=3))
+      call vgrid%set_coordinate_direction(VCOORD_DIRECTION_UP)
+      defaults = CharacteristicDefaults(vgrid=vgrid)
+      call defaults%set_component_scope()
+
+      @assertTrue(orientation_after(item, defaults, direction, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      directionless = orientation_is_directionless(item)
+      @assertTrue(direction == VCOORD_DIRECTION_UNSPECIFIED)
+      @assertTrue(directionless)
+   end subroutine test_resolve_deferred_orientation_basic_grid_is_directionless
+
+   ! An explicit alignment keeps its value, and learns from a Basic
+   ! component grid that it is directionless.
+   @test
+   subroutine test_resolve_deferred_specified_orientation_learns_basic_grid()
+      type(StateItemDescriptor) :: item
+      type(CharacteristicDefaults) :: defaults
+      type(mapl_BasicVerticalGrid) :: vgrid
+      type(VerticalCoordinateDirection) :: direction
+      logical :: directionless
+      integer :: status
+
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      call vgrid%initialize(mapl_BasicVerticalGridSpec(num_levels=3))
+      defaults = CharacteristicDefaults(vgrid=vgrid)
+      call defaults%set_component_scope()
+
+      @assertTrue(orientation_after(item, defaults, direction, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      directionless = orientation_is_directionless(item)
+      @assertTrue(direction == VCOORD_DIRECTION_UP)
+      @assertTrue(directionless)
+   end subroutine test_resolve_deferred_specified_orientation_learns_basic_grid
+
+   ! An entry built from the item own grid is not changed by the component
+   ! grid, and a fixed component grid never makes an entry directionless.
+   @test
+   subroutine test_resolve_deferred_item_grid_entry_not_overwritten()
+      type(StateItemDescriptor) :: item, item_fixed
+      type(CharacteristicDefaults) :: defaults, defaults_fixed
+      type(mapl_BasicVerticalGrid) :: basic
+      type(FixedLevelsVerticalGrid) :: fixed
+      type(VerticalCoordinateDirection) :: direction
+      logical :: directionless_known, directionless_fixed
+      integer :: status
+
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP, &
+           grid_known=.true.))
+      call basic%initialize(mapl_BasicVerticalGridSpec(num_levels=3))
+      defaults = CharacteristicDefaults(vgrid=basic)
+      call defaults%set_component_scope()
+      @assertTrue(orientation_after(item, defaults, direction, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      directionless_known = orientation_is_directionless(item)
+
+      call item_fixed%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      call fixed%initialize(FixedLevelsVerticalGridSpec('pressure', &
+           [1000., 500., 100.], 'hPa'), rc=status)
+      @assertEqual(0, status)
+      defaults_fixed = CharacteristicDefaults(vgrid=fixed)
+      call defaults_fixed%set_component_scope()
+      @assertTrue(orientation_after(item_fixed, defaults_fixed, direction, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      directionless_fixed = orientation_is_directionless(item_fixed)
+
+      @assertFalse(directionless_known)
+      @assertFalse(directionless_fixed)
+   end subroutine test_resolve_deferred_item_grid_entry_not_overwritten
+
+   @test
+   subroutine test_resolve_deferred_orientation_leaves_specified()
+      type(StateItemDescriptor) :: item
+      type(CharacteristicDefaults) :: defaults
+      type(mapl_BasicVerticalGrid) :: vgrid
+      type(VerticalCoordinateDirection) :: direction
+      integer :: status
+
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, &
+           VerticalOrientationCharacteristic(VCOORD_DIRECTION_UP))
+      call vgrid%set_coordinate_direction(VCOORD_DIRECTION_DOWN)
+      defaults = CharacteristicDefaults(vgrid=vgrid)
+      call defaults%set_component_scope()
+
+      @assertTrue(orientation_after(item, defaults, direction, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      @assertTrue(direction == VCOORD_DIRECTION_UP)
+   end subroutine test_resolve_deferred_orientation_leaves_specified
+
+   ! No component grid: the item has no vertical index, so the entry goes.
+   @test
+   subroutine test_drop_unsupplied_drops_deferred_orientation_without_vgrid()
+      type(StateItemDescriptor) :: item
+      type(VerticalOrientationCharacteristic) :: deferred
+      type(CharacteristicDefaults) :: defaults
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND, deferred)
+      defaults = CharacteristicDefaults()
+      call defaults%set_component_scope()
+      call item%resolve_deferred(defaults, rc=status)
+      @assertEqual(0, status)
+      call item%drop_unsupplied(defaults, rc=status)
+      @assertEqual(0, status)
+      @assertFalse(item%has_characteristic(VERTICAL_ORIENTATION_CHARACTERISTIC_KIND))
+   end subroutine test_drop_unsupplied_drops_deferred_orientation_without_vgrid
+
+   ! --- VerticalStagger ---
+
+   function stagger_after_sync(item, phase) result(stagger)
+      type(StateItemDescriptor), intent(in) :: item
+      integer, intent(in) :: phase
+      type(VerticalStaggerLoc) :: stagger
+
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldSet(field, vert_staggerloc=VERTICAL_STAGGER_NONE, rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, phase, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldGet(field, vert_staggerloc=stagger, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end function stagger_after_sync
+
+   @test
+   subroutine test_sync_structural_writes_vertical_stagger_on_field()
+      type(StateItemDescriptor) :: item
+      type(VerticalStaggerLoc) :: stagger
+
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, VerticalStaggerCharacteristic(VERTICAL_STAGGER_EDGE))
+      stagger = stagger_after_sync(item, SYNC_PHASE_STRUCTURAL)
+      @assertEqual(VERTICAL_STAGGER_EDGE%to_string(), stagger%to_string())
+   end subroutine test_sync_structural_writes_vertical_stagger_on_field
+
+   @test
+   subroutine test_sync_descriptive_skips_vertical_stagger()
+      type(StateItemDescriptor) :: item
+      type(VerticalStaggerLoc) :: stagger
+
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, VerticalStaggerCharacteristic(VERTICAL_STAGGER_EDGE))
+      stagger = stagger_after_sync(item, SYNC_PHASE_DESCRIPTIVE)
+      @assertEqual(VERTICAL_STAGGER_NONE%to_string(), stagger%to_string())
+   end subroutine test_sync_descriptive_skips_vertical_stagger
+
+   @test
+   subroutine test_sync_skips_deferred_and_mirrored_vertical_stagger()
+      type(StateItemDescriptor) :: item
+      type(VerticalStaggerCharacteristic) :: not_a_value
+      type(VerticalStaggerLoc) :: stagger
+
+      call not_a_value%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, not_a_value)
+      stagger = stagger_after_sync(item, SYNC_PHASE_STRUCTURAL)
+      @assertEqual(VERTICAL_STAGGER_NONE%to_string(), stagger%to_string())
+
+      call not_a_value%set_status(CHARACTERISTIC_STATUS_MIRRORED)
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, not_a_value)
+      stagger = stagger_after_sync(item, SYNC_PHASE_STRUCTURAL)
+      @assertEqual(VERTICAL_STAGGER_NONE%to_string(), stagger%to_string())
+   end subroutine test_sync_skips_deferred_and_mirrored_vertical_stagger
+
+   function stagger_status_after(item, defaults, rc) result(stagger_status)
+      type(StateItemDescriptor), intent(inout) :: item
+      type(CharacteristicDefaults), intent(in) :: defaults
+      integer, intent(out) :: rc
+      type(CharacteristicStatus) :: stagger_status
+
+      class(StateItemCharacteristic), allocatable :: c
+
+      call item%resolve_deferred(defaults, rc=rc)
+      @assertEqual(0, rc)
+      call item%get_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, c, rc=rc)
+      @assertEqual(0, rc)
+      stagger_status = c%get_status()
+   end function stagger_status_after
+
+   ! A stagger harvested from a realized field fills the DEFERRED entry.
+   @test
+   subroutine test_resolve_deferred_takes_harvested_vertical_stagger()
+      type(StateItemDescriptor) :: item
+      type(VerticalStaggerCharacteristic) :: deferred
+      type(CharacteristicDefaults) :: defaults
+      class(StateItemCharacteristic), allocatable :: c
+      type(VerticalStaggerLoc) :: got
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, deferred)
+      call defaults%set_vert_stagger(VERTICAL_STAGGER_EDGE)
+
+      @assertTrue(stagger_status_after(item, defaults, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      call item%get_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, c, rc=status)
+      select type (c)
+      type is (VerticalStaggerCharacteristic)
+         got = c%get_vertical_stagger()
+         @assertEqual(VERTICAL_STAGGER_EDGE%to_string(), got%to_string())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_resolve_deferred_takes_harvested_vertical_stagger
+
+   ! At component scope with no vertical grid there is no vertical dimension.
+   @test
+   subroutine test_resolve_deferred_stagger_is_none_without_component_vgrid()
+      type(StateItemDescriptor) :: item
+      type(VerticalStaggerCharacteristic) :: deferred
+      type(CharacteristicDefaults) :: defaults
+      class(StateItemCharacteristic), allocatable :: c
+      type(VerticalStaggerLoc) :: got
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, deferred)
+      call defaults%set_component_scope()
+
+      @assertTrue(stagger_status_after(item, defaults, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      call item%get_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, c, rc=status)
+      select type (c)
+      type is (VerticalStaggerCharacteristic)
+         got = c%get_vertical_stagger()
+         @assertEqual(VERTICAL_STAGGER_NONE%to_string(), got%to_string())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_resolve_deferred_stagger_is_none_without_component_vgrid
+
+   ! With a component grid and nothing harvested, or with defaults that are
+   ! not component scope, the entry stays DEFERRED.
+   @test
+   subroutine test_resolve_deferred_stagger_stays_deferred_otherwise()
+      type(StateItemDescriptor) :: item, other
+      type(VerticalStaggerCharacteristic) :: deferred
+      type(CharacteristicDefaults) :: with_grid
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, deferred)
+      with_grid = CharacteristicDefaults(vgrid=make_basic_vgrid())
+      call with_grid%set_component_scope()
+      @assertTrue(stagger_status_after(item, with_grid, status) == CHARACTERISTIC_STATUS_DEFERRED)
+
+      call other%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, deferred)
+      @assertTrue(stagger_status_after(other, CharacteristicDefaults(), status) == CHARACTERISTIC_STATUS_DEFERRED)
+   end subroutine test_resolve_deferred_stagger_stays_deferred_otherwise
+
+   @test
+   subroutine test_resolve_deferred_leaves_specified_vertical_stagger()
+      type(StateItemDescriptor) :: item
+      type(CharacteristicDefaults) :: defaults
+      class(StateItemCharacteristic), allocatable :: c
+      type(VerticalStaggerLoc) :: got
+      integer :: status
+
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, VerticalStaggerCharacteristic(VERTICAL_STAGGER_CENTER))
+      call defaults%set_vert_stagger(VERTICAL_STAGGER_EDGE)
+      call defaults%set_component_scope()
+
+      @assertTrue(stagger_status_after(item, defaults, status) == CHARACTERISTIC_STATUS_SPECIFIED)
+      call item%get_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, c, rc=status)
+      select type (c)
+      type is (VerticalStaggerCharacteristic)
+         got = c%get_vertical_stagger()
+         @assertEqual(VERTICAL_STAGGER_CENTER%to_string(), got%to_string())
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_resolve_deferred_leaves_specified_vertical_stagger
+
+   ! A DEFERRED stagger is never dropped for lack of a component value: it
+   ! must be harvested, or freeze fails.
+   @test
+   subroutine test_drop_unsupplied_keeps_deferred_vertical_stagger()
+      type(StateItemDescriptor) :: item
+      type(VerticalStaggerCharacteristic) :: deferred
+      integer :: status
+
+      call deferred%set_status(CHARACTERISTIC_STATUS_DEFERRED)
+      call item%set_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND, deferred)
+      call item%drop_unsupplied(CharacteristicDefaults(), rc=status)
+      @assertEqual(0, status)
+      @assertTrue(item%has_characteristic(VERTICAL_STAGGER_CHARACTERISTIC_KIND))
+   end subroutine test_drop_unsupplied_keeps_deferred_vertical_stagger
+
+   ! An undeclared variant is not written: a Field reads back unset.
+   @test
+   subroutine test_sync_item_shape_writes_no_undeclared_variant()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_Field) :: field
+      type(MAPL_StateItem_Flag) :: variant
+      integer :: status, phase
+
+      call item%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_EXPRESSION))
+      field = ESMF_FieldEmptyCreate(name='f', rc=status)
+      @assertEqual(0, status)
+      call handle%set(field, rc=status)
+      @assertEqual(0, status)
+      do phase = SYNC_PHASE_STRUCTURAL, SYNC_PHASE_DESCRIPTIVE
+         call item%sync_to_info(handle, phase, rc=status)
+         @assertEqual(0, status)
+      end do
+      call MAPL_FieldGet(field, state_item_variant=variant, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(variant == VARIANT_INVALID)
+      call ESMF_FieldDestroy(field, noGarbage=.true.)
+   end subroutine test_sync_item_shape_writes_no_undeclared_variant
+
+   ! fieldBundleType is written in the STRUCTURAL phase only; no variant.
+   @test
+   subroutine test_sync_bracket_shape_writes_bundle_type_structural_only()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_FieldBundle) :: bundle
+      type(MAPL_StateItem_Flag) :: variant
+      type(MAPL_FieldBundleType_Flag) :: bundle_type
+      integer :: status
+
+      call item%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_BRACKET))
+
+      bundle = ESMF_FieldBundleCreate(rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(bundle, &
+           fieldBundleType=MAPL_FIELDBUNDLETYPE_BASIC, rc=status)
+      @assertEqual(0, status)
+      call handle%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, fieldBundleType=bundle_type, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(bundle_type == MAPL_FIELDBUNDLETYPE_BASIC)
+
+      call item%sync_to_info(handle, SYNC_PHASE_STRUCTURAL, rc=status)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleGet(bundle, state_item_variant=variant, &
+           fieldBundleType=bundle_type, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(bundle_type == MAPL_FIELDBUNDLETYPE_BRACKET)
+      @assertTrue(variant == VARIANT_INVALID)
+      call ESMF_FieldBundleDestroy(bundle, noGarbage=.true.)
+   end subroutine test_sync_bracket_shape_writes_bundle_type_structural_only
+
+   ! A declared variant is written in either phase.
+   @test
+   subroutine test_sync_writes_declared_variant_on_state()
+      type(StateItemDescriptor) :: item
+      type(GraphStateItem) :: handle
+      type(ESMF_State) :: state
+      type(MAPL_StateItem_Flag) :: variant
+      integer :: status
+
+      call item%set_characteristic(ITEM_SHAPE_CHARACTERISTIC_KIND, &
+           ItemShapeCharacteristic(MAPL_STATEITEM_STATE, VARIANT_VERTICALGRID))
+      state = ESMF_StateCreate(rc=status)
+      @assertEqual(0, status)
+      call handle%set(state, rc=status)
+      @assertEqual(0, status)
+      call item%sync_to_info(handle, SYNC_PHASE_DESCRIPTIVE, rc=status)
+      @assertEqual(0, status)
+      call MAPL_StateGet(state, state_item_variant=variant, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(variant == VARIANT_VERTICALGRID)
+      call ESMF_StateDestroy(state)
+   end subroutine test_sync_writes_declared_variant_on_state
+
+   ! get_expression returns the stored string, and fails when absent.
+   @test
+   subroutine test_get_expression_present_and_absent()
+      type(StateItemDescriptor) :: item, bare
+      character(:), allocatable :: expression
+      integer :: status_present, status_absent
+
+      call item%set_characteristic(EXPRESSION_CHARACTERISTIC_KIND, &
+           ExpressionCharacteristic('a + b'))
+      call bare%get_expression(expression, rc=status_absent)
+      call item%get_expression(expression, rc=status_present)
+      @assertEqual(0, status_present)
+      @assertEqual('a + b', expression)
+      @assertTrue(status_absent /= 0)
+   end subroutine test_get_expression_present_and_absent
+
+   ! add_expression_result_defaults gives a descriptor without a horizontal
+   ! dims spec a SPECIFIED GEOM entry, and keeps an existing one.
+   @test
+   subroutine test_add_expression_result_defaults_geom_and_keeps_existing()
+      type(StateItemDescriptor) :: item, kept
+      class(StateItemCharacteristic), allocatable :: c
+      logical :: had_before, has_after
+      integer :: status1, status2, status3, status4
+
+      had_before = item%has_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND)
+      call item%add_expression_result_defaults(rc=status1)
+      has_after = item%has_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND)
+      call item%get_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, c, rc=status2)
+      call kept%set_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
+           HorizontalDimsSpecCharacteristic(HORIZONTAL_DIMS_NONE), rc=status3)
+      call kept%add_expression_result_defaults(rc=status4)
+      @assertEqual(0, status1)
+      @assertEqual(0, status2)
+      @assertEqual(0, status3)
+      @assertEqual(0, status4)
+      @assertFalse(had_before)
+      @assertTrue(has_after)
+      @assertTrue(c%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+      select type (c)
+      type is (HorizontalDimsSpecCharacteristic)
+         @assertTrue(c%get_horizontal_dims_spec() == HORIZONTAL_DIMS_GEOM)
+      class default
+         @assertTrue(.false.)
+      end select
+      deallocate(c)
+      call kept%get_characteristic(HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, c, rc=status1)
+      @assertEqual(0, status1)
+      select type (c)
+      type is (HorizontalDimsSpecCharacteristic)
+         @assertTrue(c%get_horizontal_dims_spec() == HORIZONTAL_DIMS_NONE)
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_add_expression_result_defaults_geom_and_keeps_existing
+
+end module Test_StateItemDescriptor

@@ -1,0 +1,16 @@
+# A bracket export on a 12x13 grid into a Field import on a 6x7 grid: the
+# bundle is regridded, then interpolated in time to a Field. The values of
+# the import come from legacy; the graph result is checked through the chain.
+
+- component: B/<user>
+  import:
+    B: {status: complete, typekind: R4, rank: 2}
+
+- component: B
+  import:
+    B: {status: complete, typekind: R4, rank: 2}
+
+- component: <root>
+  graph:
+    connections:
+      - {export: A/B, import: B/B, chain: [geometry, item_shape]}

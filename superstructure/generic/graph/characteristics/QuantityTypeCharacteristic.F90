@@ -1,0 +1,270 @@
+#include "MAPL.h"
+
+!------------------------------------------------------------------------------
+! QuantityTypeCharacteristic: the "quantity type" StateItemCharacteristic, a
+! ValueCharacteristic holding the two fields that take part in comparison,
+! quantity_type and basis. Dimensions and molecular weight are not carried:
+! VariableSpec declares neither.
+!
+! needs_extension_for matches when quantity_type is equal and basis is equal
+! or either side is BASIS_NONE: BASIS_NONE is a basis wildcard, but
+! QUANTITY_UNKNOWN is not a quantity-axis wildcard (an undeclared quantity
+! type is a real gap in status, not a SPECIFIED value that matches
+! anything). The kind is never MIRRORED.
+!
+! A quantity-type mismatch can never connect (legacy converts nothing, its
+! NullTransform being reachable only for a time-dependent aspect, which
+! nothing sets): build_transform reports incompatible. A pair whose quantity
+! types match (by the rule above) and whose bases differ, neither being
+! BASIS_NONE, can be converted in principle: build_transform reports
+! unsupported until that conversion exists. write_info writes only
+! quantity_type_metadata=, in either phase, for SPECIFIED entries.
+!
+! A DEFERRED entry takes the quantity type and basis a component set on its
+! realized item (resolve_deferred); nothing else changes its status.
+!------------------------------------------------------------------------------
+module mapl_QuantityTypeCharacteristic_mod
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, ValueCharacteristic
+   use mapl_StateItemCharacteristic_mod, only: &
+        report_build_transform_incompatible, report_build_transform_unsupported
+   use mapl_CharacteristicStatus_mod, only: &
+        CHARACTERISTIC_STATUS_SPECIFIED, CHARACTERISTIC_STATUS_DEFERRED, &
+        operator(==)
+   use mapl_CharacteristicDefaults_mod, only: CharacteristicDefaults
+   use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind, QUANTITY_TYPE_CHARACTERISTIC_KIND
+   use mapl_QuantityType_mod, only: QuantityType, MixingRatioBasis, &
+                                     QUANTITY_UNKNOWN, BASIS_NONE, &
+                                     operator(==)
+   use mapl_QuantityTypeMetadata_mod, only: QuantityTypeMetadata
+   use mapl_ValidationPolicy_mod, only: quantity_type_required
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_field_api, only: MAPL_FieldSet, MAPL_FieldGet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleSet, MAPL_FieldBundleGet
+   use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_StateItem_Flag, &
+        ESMF_STATEITEM_FIELD, ESMF_STATEITEM_FIELDBUNDLE
+   use ESMF, only: operator(==)
+   use mapl_TransformBase_mod, only: TransformBase
+   use mapl_ErrorHandling_mod
+   implicit none(type, external)
+   private
+
+   public :: QuantityTypeCharacteristic
+
+   type, extends(ValueCharacteristic) :: QuantityTypeCharacteristic
+      private
+      type(QuantityType) :: quantity_type = QUANTITY_UNKNOWN
+      type(MixingRatioBasis) :: basis = BASIS_NONE
+   contains
+      procedure, nopass :: get_kind => quantity_type_get_kind
+      procedure :: needs_extension_for => quantity_type_needs_extension_for
+      procedure :: build_transform => quantity_type_build_transform
+      procedure :: get_signature => quantity_type_get_signature
+      procedure :: write_info => quantity_type_write_info
+      procedure :: resolve_deferred => quantity_type_resolve_deferred
+      procedure :: harvest => quantity_type_harvest
+      procedure :: is_deferred_fatal => quantity_type_is_deferred_fatal
+      procedure :: get_quantity_type
+      procedure :: get_basis
+   end type QuantityTypeCharacteristic
+
+   interface QuantityTypeCharacteristic
+      module procedure new_QuantityTypeCharacteristic
+   end interface QuantityTypeCharacteristic
+
+   ! How an export value and an import value relate on the two axes.
+   integer, parameter :: PAIR_MATCH = 0
+   integer, parameter :: PAIR_BASIS_ONLY = 1
+   integer, parameter :: PAIR_QUANTITY_MISMATCH = 2
+
+contains
+
+   function new_QuantityTypeCharacteristic(quantity_type, basis) result(characteristic)
+      type(QuantityType), optional, intent(in) :: quantity_type
+      type(MixingRatioBasis), optional, intent(in) :: basis
+      type(QuantityTypeCharacteristic) :: characteristic
+
+      if (present(quantity_type)) characteristic%quantity_type = quantity_type
+      if (present(basis)) characteristic%basis = basis
+      call characteristic%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
+   end function new_QuantityTypeCharacteristic
+
+   function quantity_type_get_kind() result(kind)
+      type(StateItemCharacteristicKind) :: kind
+
+      kind = QUANTITY_TYPE_CHARACTERISTIC_KIND
+   end function quantity_type_get_kind
+
+   ! `goal` is guaranteed a QuantityTypeCharacteristic by the caller.
+   logical function quantity_type_needs_extension_for(this, goal) result(needs_extension)
+      class(QuantityTypeCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+
+      select type (goal)
+      class is (QuantityTypeCharacteristic)
+         needs_extension = pair_outcome(this, goal) /= PAIR_MATCH
+      class default
+         error stop 'QuantityTypeCharacteristic: needs_extension_for called with a non-QuantityTypeCharacteristic goal - should be checked by calling procedure'
+      end select
+   end function quantity_type_needs_extension_for
+
+   ! The quantity axis wins: a quantity-type mismatch is reported even if the
+   ! bases also differ. Only the basis axis has a wildcard (BASIS_NONE);
+   ! QUANTITY_UNKNOWN on either side is an ordinary mismatch against a known
+   ! quantity type.
+   integer function pair_outcome(a, b) result(outcome)
+      type(QuantityTypeCharacteristic), intent(in) :: a
+      type(QuantityTypeCharacteristic), intent(in) :: b
+
+      logical :: quantity_matches, basis_matches
+
+      quantity_matches = (a%quantity_type == b%quantity_type)
+      basis_matches = (a%basis == b%basis) .or. &
+                       (a%basis == BASIS_NONE) .or. &
+                       (b%basis == BASIS_NONE)
+
+      if (.not. quantity_matches) then
+         outcome = PAIR_QUANTITY_MISMATCH
+      else if (.not. basis_matches) then
+         outcome = PAIR_BASIS_ONLY
+      else
+         outcome = PAIR_MATCH
+      end if
+   end function pair_outcome
+
+   function get_quantity_type(this) result(quantity_type)
+      class(QuantityTypeCharacteristic), intent(in) :: this
+      type(QuantityType) :: quantity_type
+
+      quantity_type = this%quantity_type
+   end function get_quantity_type
+
+   function get_basis(this) result(basis)
+      class(QuantityTypeCharacteristic), intent(in) :: this
+      type(MixingRatioBasis) :: basis
+
+      basis = this%basis
+   end function get_basis
+
+   subroutine quantity_type_build_transform(this, goal, transformer, rc)
+      class(QuantityTypeCharacteristic), intent(in) :: this
+      class(StateItemCharacteristic), intent(in) :: goal
+      class(TransformBase), allocatable, intent(out) :: transformer
+      integer, optional, intent(out) :: rc
+
+      select type (goal)
+      class is (QuantityTypeCharacteristic)
+         if (pair_outcome(this, goal) == PAIR_BASIS_ONLY) then
+            call report_build_transform_unsupported(rc)
+         else
+            call report_build_transform_incompatible(rc)
+         end if
+      class default
+         _FAIL('QuantityTypeCharacteristic: build_transform: goal is not a quantity type')
+      end select
+   end subroutine quantity_type_build_transform
+
+   ! Writes quantity_type_metadata= only (not a creation input, not a
+   ! FieldDelta trigger). Only SPECIFIED entries hold a value.
+   subroutine quantity_type_write_info(this, handle, phase, rc)
+      class(QuantityTypeCharacteristic), intent(in) :: this
+      type(GraphStateItem), intent(inout) :: handle
+      integer, intent(in) :: phase
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_StateItem_Flag) :: item_type
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      type(QuantityTypeMetadata) :: metadata
+
+      _UNUSED_DUMMY(phase)
+      _RETURN_UNLESS(this%get_status() == CHARACTERISTIC_STATUS_SPECIFIED)
+
+      metadata = QuantityTypeMetadata(quantity_type=this%quantity_type, &
+           basis=this%basis)
+      item_type = handle%itemType(_RC)
+      if (item_type == ESMF_STATEITEM_FIELD) then
+         field = handle%get_field(_RC)
+         call MAPL_FieldSet(field, quantity_type_metadata=metadata, _RC)
+      else if (item_type == ESMF_STATEITEM_FIELDBUNDLE) then
+         bundle = handle%get_field_bundle(_RC)
+         call MAPL_FieldBundleSet(bundle, quantity_type_metadata=metadata, _RC)
+      else
+         _FAIL('QuantityTypeCharacteristic: needs Field or FieldBundle')
+      end if
+
+      _RETURN(_SUCCESS)
+   end subroutine quantity_type_write_info
+
+   ! Only a DEFERRED entry takes a value; the descriptor also offers the
+   ! defaults to UNCHECKED ones, which stay as they are.
+   subroutine quantity_type_resolve_deferred(this, defaults, rc)
+      class(QuantityTypeCharacteristic), intent(inout) :: this
+      type(CharacteristicDefaults), intent(in) :: defaults
+      integer, optional, intent(out) :: rc
+
+      _RETURN_UNLESS(this%get_status() == CHARACTERISTIC_STATUS_DEFERRED)
+      _RETURN_UNLESS(defaults%has_quantity_type())
+
+      this%quantity_type = defaults%get_quantity_type()
+      this%basis = defaults%get_basis()
+      call this%set_status(CHARACTERISTIC_STATUS_SPECIFIED)
+
+      _RETURN(_SUCCESS)
+   end subroutine quantity_type_resolve_deferred
+
+   ! Unlike most characteristics, an unsupplied quantity type is advisory in
+   ! every validation_mode by default (strict mode alone does not make it
+   ! fatal); only the field_dictionary: require_quantity_type key does.
+   logical function quantity_type_is_deferred_fatal(this) result(fatal)
+      class(QuantityTypeCharacteristic), intent(in) :: this
+
+      fatal = quantity_type_required()
+      _UNUSED_DUMMY(this)
+   end function quantity_type_is_deferred_fatal
+
+   function quantity_type_get_signature(this) result(signature)
+      class(QuantityTypeCharacteristic), intent(in) :: this
+      character(:), allocatable :: signature
+
+      signature = 'quantity_type=' // this%quantity_type%to_string() // &
+           ';basis=' // this%basis%to_string()
+   end function quantity_type_get_signature
+
+   ! The quantity type and basis a component set on its Field or FieldBundle
+   ! with MAPL_FieldSet / MAPL_FieldBundleSet. An absent key reads back as a
+   ! mirror (Field) or QUANTITY_UNKNOWN (bundle), and an explicit UNKNOWN says
+   ! nothing either: none of them is a supplied value.
+   subroutine quantity_type_harvest(this, handle, defaults, rc)
+      class(QuantityTypeCharacteristic), intent(in) :: this
+      type(GraphStateItem), intent(in) :: handle
+      type(CharacteristicDefaults), intent(inout) :: defaults
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_StateItem_Flag) :: item_type
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      type(QuantityTypeMetadata) :: metadata
+
+      item_type = handle%itemType(_RC)
+      if (item_type == ESMF_STATEITEM_FIELD) then
+         field = handle%get_field(_RC)
+         call MAPL_FieldGet(field, quantity_type_metadata=metadata, _RC)
+      else if (item_type == ESMF_STATEITEM_FIELDBUNDLE) then
+         bundle = handle%get_field_bundle(_RC)
+         call MAPL_FieldBundleGet(bundle, quantity_type_metadata=metadata, _RC)
+      else
+         _RETURN(_SUCCESS)
+      end if
+      _RETURN_IF(metadata%is_mirror())
+      _RETURN_IF(metadata%get_quantity_type() == QUANTITY_UNKNOWN)
+
+      call defaults%set_quantity_type(metadata%get_quantity_type(), &
+           metadata%get_basis())
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(this)
+   end subroutine quantity_type_harvest
+
+end module mapl_QuantityTypeCharacteristic_mod

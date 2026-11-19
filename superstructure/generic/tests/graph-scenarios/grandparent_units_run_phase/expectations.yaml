@@ -1,0 +1,19 @@
+- component: source_branch/producer/<user>
+  export:
+    T: {status: complete, value: 5., rank: 2}
+
+- component: middle/consumer/<user>
+  import:
+    producer/T: {status: complete, value: 5000., rank: 2}
+
+- component: <user>
+  import: {}
+  export: {}
+  internal: {}
+
+- component: <root>
+  graph:
+    connections:
+      - export: source_branch/producer/T
+        import: middle/consumer/producer/T
+        chain: [units]

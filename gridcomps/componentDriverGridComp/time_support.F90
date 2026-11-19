@@ -56,7 +56,7 @@ contains
       this%update_ref_time = -1
       isPresent = ESMF_HConfigIsDefined(hconfig, keyString='UPDATE_OFFSET', _RC)
       if (isPresent) then
-         this%update_offset = mapl_HConfigAsTimeInterval(hconfig, keystring='UDATE_OFFSET', _RC)
+         this%update_offset = mapl_HConfigAsTimeInterval(hconfig, keystring='UPDATE_OFFSET', _RC)
          this%have_offset = .true.
       end if
       

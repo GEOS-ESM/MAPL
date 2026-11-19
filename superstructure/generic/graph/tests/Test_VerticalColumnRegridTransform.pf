@@ -1,0 +1,1661 @@
+#include "MAPL.h"
+
+! VerticalColumnRegridTransform and VerticalFlipTransform on real fields.
+! Profiles are not constant, so a reversed level order shows: a source
+! value at pressure p is 2p+1, so a regridded level at p must hold 2p+1.
+! Data is read through the condensed (horizontal, level, ungridded) view.
+module Test_VerticalColumnRegridTransform
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
+   use mapl_VerticalColumnRegridTransform_mod, only: &
+        VerticalColumnRegridTransform
+   use mapl_VerticalFlipTransform_mod, only: VerticalFlipTransform
+   use mapl_FixedLevelsVerticalGrid_mod, only: FixedLevelsVerticalGrid
+   use mapl_FixedLevelsVerticalGrid_mod, only: FixedLevelsVerticalGridSpec
+   use mapl_vertical_grid_api, only: mapl_VerticalGrid
+   use mapl_vertical_grid_api, only: mapl_BasicVerticalGridSpec
+   use mapl_vertical_grid_api, only: mapl_VerticalGridManager
+   use mapl_vertical_grid_api, only: mapl_get_vertical_grid_manager
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc
+   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_CENTER
+   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_EDGE
+   use mapl_VerticalAlignment_mod, only: VerticalAlignment
+   use mapl_VerticalAlignment_mod, only: VALIGN_WITH_GRID
+   use mapl_VerticalAlignment_mod, only: VALIGN_UP, VALIGN_DOWN
+   use mapl_VerticalAlignment_mod, only: VALIGN_INVALID, operator(==)
+   use mapl_VerticalRegridMethod_mod, only: VERTICAL_REGRID_CONSERVATIVE
+   use mapl_ModelVerticalGrid_mod, only: ModelVerticalGrid
+   use pflogger, only: logging, Logger, AbstractHandler
+   use PFL_LogRecord, only: LogRecord
+   use PFL_KeywordEnforcer, only: KeywordEnforcer
+   use mapl_field_api, only: MAPL_FieldCreate, MAPL_FieldSet, MAPL_FieldGet
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundleSet
+   use mapl_enums_api, only: MAPL_FIELDBUNDLETYPE_VECTOR
+   use mapl_BundleMemberSupport_mod, only: ensure_vertical_output_members
+   use mapl_FieldInfo_mod, only: FieldInfoSetInternal
+   use mapl_FieldCondensedArray_mod, only: assign_fptr_condensed_array
+   use mapl_UngriddedDims_mod, only: UngriddedDims
+   use StateItemTestSupport_mod, only: make_test_field_bundle, make_test_bundle
+   use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_Geom, ESMF_Grid, ESMF_Info
+   use ESMF, only: ESMF_GridCreateNoPeriDim, ESMF_GeomCreate
+   use ESMF, only: ESMF_InfoGetFromHost, ESMF_FieldBundleAdd
+   use ESMF, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8
+   use ESMF, only: ESMF_TYPEKIND_I4
+   use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8
+   use funit
+   implicit none
+
+   character(*), parameter :: SRC_PORT = 'source_field'
+   character(*), parameter :: DST_PORT = 'destination_field'
+   real, parameter :: TOL = 1.0e-3
+   integer, parameter :: NX = 2
+
+   ! Counts the warnings logged while it is attached to a logger.
+   type, extends(AbstractHandler) :: CaptureHandler
+      integer :: num_messages = 0
+      character(:), allocatable :: last_message
+   contains
+      procedure :: emit_message => capture_emit
+      procedure :: close => capture_close
+      procedure :: flush => capture_flush
+      procedure :: free => capture_free
+      procedure :: equal => capture_equal
+   end type CaptureHandler
+
+contains
+
+   subroutine capture_emit(this, record, unusable, rc)
+      class(CaptureHandler), intent(inout) :: this
+      type(LogRecord), intent(in) :: record
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      this%num_messages = this%num_messages + 1
+      this%last_message = record%get_message()
+      if (present(rc)) rc = 0
+   end subroutine capture_emit
+
+   subroutine capture_close(this)
+      class(CaptureHandler), intent(inout) :: this
+   end subroutine capture_close
+
+   subroutine capture_flush(this)
+      class(CaptureHandler), intent(in) :: this
+   end subroutine capture_flush
+
+   subroutine capture_free(this, rc)
+      class(CaptureHandler), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      if (present(rc)) rc = 0
+   end subroutine capture_free
+
+   logical function capture_equal(a, b)
+      class(CaptureHandler), intent(in) :: a
+      class(AbstractHandler), intent(in) :: b
+
+      capture_equal = same_type_as(a, b)
+   end function capture_equal
+
+   ! NX columns, one row: the condensed view has NX horizontal points.
+   function make_geom() result(geom)
+      type(ESMF_Geom) :: geom
+
+      type(ESMF_Grid) :: grid
+      integer :: status
+
+      grid = ESMF_GridCreateNoPeriDim(maxIndex=[NX, 1], regDecomp=[1, 1], &
+           rc=status)
+      @assertEqual(0, status)
+      geom = ESMF_GeomCreate(grid, rc=status)
+      @assertEqual(0, status)
+   end function make_geom
+
+   function make_fixed(dimension, levels, units) result(vgrid)
+      character(*), intent(in) :: dimension
+      real, intent(in) :: levels(:)
+      character(*), intent(in) :: units
+      class(mapl_VerticalGrid), pointer :: vgrid
+
+      type(FixedLevelsVerticalGrid) :: fixed
+      type(mapl_VerticalGridManager), pointer :: manager
+      integer :: status
+
+      call fixed%initialize( &
+           FixedLevelsVerticalGridSpec(dimension, levels, units), rc=status)
+      @assertEqual(0, status)
+      manager => mapl_get_vertical_grid_manager()
+      vgrid => manager%add_grid(fixed, rc=status)
+      @assertEqual(0, status)
+   end function make_fixed
+
+   function make_basic(num_levels) result(vgrid)
+      integer, intent(in) :: num_levels
+      class(mapl_VerticalGrid), pointer :: vgrid
+
+      type(mapl_VerticalGridManager), pointer :: manager
+      integer :: status
+
+      manager => mapl_get_vertical_grid_manager()
+      vgrid => manager%create_grid( &
+           mapl_BasicVerticalGridSpec(num_levels=num_levels), rc=status)
+      @assertEqual(0, status)
+   end function make_basic
+
+   function make_field(geom, vgrid, name, alignment, stagger, typekind, &
+        num_ungridded) result(field)
+      type(ESMF_Geom), intent(in) :: geom
+      class(mapl_VerticalGrid), intent(in) :: vgrid
+      character(*), intent(in) :: name
+      type(VerticalAlignment), optional, intent(in) :: alignment
+      type(VerticalStaggerLoc), optional, intent(in) :: stagger
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      integer, optional, intent(in) :: num_ungridded
+      type(ESMF_Field) :: field
+
+      type(VerticalAlignment) :: alignment_
+      type(VerticalStaggerLoc) :: stagger_
+      type(ESMF_TypeKind_Flag) :: typekind_
+      type(UngriddedDims) :: ungridded
+      integer :: status
+
+      alignment_ = VALIGN_WITH_GRID
+      if (present(alignment)) alignment_ = alignment
+      stagger_ = VERTICAL_STAGGER_CENTER
+      if (present(stagger)) stagger_ = stagger
+      typekind_ = ESMF_TYPEKIND_R4
+      if (present(typekind)) typekind_ = typekind
+      ungridded = UngriddedDims()
+      if (present(num_ungridded)) ungridded = UngriddedDims([num_ungridded])
+
+      field = MAPL_FieldCreate(geom, typekind_, name=name, vgrid=vgrid, &
+           vert_staggerloc=stagger_, vert_alignment=alignment_, &
+           ungridded_dims=ungridded, rc=status)
+      @assertEqual(0, status)
+   end function make_field
+
+   subroutine bind_bundle(ports, port, bundle)
+      type(PortNameGraphStateItemMap), intent(inout) :: ports
+      character(*), intent(in) :: port
+      type(ESMF_FieldBundle), intent(in) :: bundle
+
+      type(GraphStateItem) :: item
+      integer :: status
+
+      call item%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call ports%clear()
+      call ports%insert(port, item)
+   end subroutine bind_bundle
+
+   ! VECTOR bundle holding `members`, recording grid, center stagger and
+   ! alignment itself.
+   function make_vbundle(geom, vgrid, members, alignment, typekind) &
+        result(bundle)
+      type(ESMF_Geom), intent(in) :: geom
+      class(mapl_VerticalGrid), intent(in) :: vgrid
+      type(ESMF_Field), intent(in) :: members(:)
+      type(VerticalAlignment), intent(in) :: alignment
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      type(ESMF_FieldBundle) :: bundle
+
+      integer :: status
+
+      bundle = make_test_bundle(geom, MAPL_FIELDBUNDLETYPE_VECTOR, members, &
+           status, typekind=typekind)
+      @assertEqual(0, status)
+      call MAPL_FieldBundleSet(bundle, vgrid=vgrid, &
+           vert_staggerloc=VERTICAL_STAGGER_CENTER, &
+           vert_alignment=alignment, rc=status)
+      @assertEqual(0, status)
+   end function make_vbundle
+
+   ! The same with no members: what the graph creates for a link.
+   function make_vbundle_empty(geom, vgrid, alignment, typekind) &
+        result(bundle)
+      type(ESMF_Geom), intent(in) :: geom
+      class(mapl_VerticalGrid), intent(in) :: vgrid
+      type(VerticalAlignment), intent(in) :: alignment
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      type(ESMF_FieldBundle) :: bundle
+
+      type(ESMF_Field), allocatable :: none(:)
+
+      allocate(none(0))
+      bundle = make_vbundle(geom, vgrid, none, alignment, typekind)
+   end function make_vbundle_empty
+
+   function view(field) result(x)
+      type(ESMF_Field), intent(inout) :: field
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:,:)
+
+      integer :: status
+
+      call assign_fptr_condensed_array(field, x, rc=status)
+      @assertEqual(0, status)
+   end function view
+
+   function view8(field) result(x)
+      type(ESMF_Field), intent(inout) :: field
+      real(kind=ESMF_KIND_R8), pointer :: x(:,:,:)
+
+      integer :: status
+
+      call assign_fptr_condensed_array(field, x, rc=status)
+      @assertEqual(0, status)
+   end function view8
+
+   subroutine fill8(field, profile)
+      type(ESMF_Field), intent(inout) :: field
+      real(kind=ESMF_KIND_R8), intent(in) :: profile(:)
+
+      real(kind=ESMF_KIND_R8), pointer :: x(:,:,:)
+      integer :: i, u
+
+      x => view8(field)
+      do u = 1, size(x, 3)
+         do i = 1, size(x, 1)
+            x(i, :, u) = profile
+         end do
+      end do
+   end subroutine fill8
+
+   function column8(field) result(c)
+      type(ESMF_Field), intent(inout) :: field
+      real(kind=ESMF_KIND_R8), allocatable :: c(:)
+
+      real(kind=ESMF_KIND_R8), pointer :: x(:,:,:)
+
+      x => view8(field)
+      c = x(1, :, 1)
+   end function column8
+
+   ! Every column and ungridded slice gets the same profile.
+   subroutine fill(field, profile)
+      type(ESMF_Field), intent(inout) :: field
+      real, intent(in) :: profile(:)
+
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:,:)
+      integer :: i, u
+
+      x => view(field)
+      do u = 1, size(x, 3)
+         do i = 1, size(x, 1)
+            x(i, :, u) = profile
+         end do
+      end do
+   end subroutine fill
+
+   subroutine bind(ports, port, field)
+      type(PortNameGraphStateItemMap), intent(inout) :: ports
+      character(*), intent(in) :: port
+      type(ESMF_Field), intent(in) :: field
+
+      type(GraphStateItem) :: item
+      integer :: status
+
+      call item%set(field, rc=status)
+      @assertEqual(0, status)
+      call ports%clear()
+      call ports%insert(port, item)
+   end subroutine bind
+
+   ! Regrids f_in to f_out with a new linear transform; returns compute rc.
+   function regrid(f_in, f_out) result(status)
+      type(ESMF_Field), intent(in) :: f_in, f_out
+      integer :: status
+
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+
+      call bind(inputs, SRC_PORT, f_in)
+      call bind(outputs, DST_PORT, f_out)
+      transform = VerticalColumnRegridTransform()
+      call transform%compute(inputs, outputs, status)
+   end function regrid
+
+   ! Output column 1 of f_out, ungridded slice 1.
+   function column(field) result(c)
+      type(ESMF_Field), intent(inout) :: field
+      real, allocatable :: c(:)
+
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:,:)
+
+      x => view(field)
+      c = x(1, :, 1)
+   end function column
+
+   ! Pressure levels, field stored as its grid: decreasing (UP) both sides.
+   @test
+   subroutine test_linear_up_to_up()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status
+      real, allocatable :: c(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      f_in = make_field(geom, g_in, 'T')
+      f_out = make_field(geom, g_out, 'T')
+      call fill(f_in, [2001., 1001., 201.])
+      call fill(f_out, [-1., -1.])
+
+      status = regrid(f_in, f_out)
+      c = column(f_out)
+      @assertEqual(0, status)
+      @assertEqual([1601., 601.], c, tolerance=TOL)
+   end subroutine test_linear_up_to_up
+
+   ! Increasing levels (DOWN grids) both sides.
+   @test
+   subroutine test_linear_down_to_down()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status
+      real, allocatable :: c(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [100., 500., 1000.], 'hPa')
+      g_out => make_fixed('pressure', [300., 800.], 'hPa')
+      f_in = make_field(geom, g_in, 'T')
+      f_out = make_field(geom, g_out, 'T')
+      call fill(f_in, [201., 1001., 2001.])
+
+      status = regrid(f_in, f_out)
+      c = column(f_out)
+      @assertEqual(0, status)
+      @assertEqual([601., 1601.], c, tolerance=TOL)
+   end subroutine test_linear_down_to_down
+
+   ! Source grid is UP but the source field is stored DOWN: its level k
+   ! sits at the reversed grid level, so the output is still 2p+1.
+   @test
+   subroutine test_source_alignment_opposite_grid()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status
+      real, allocatable :: c(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      f_in = make_field(geom, g_in, 'T', alignment=VALIGN_DOWN)
+      f_out = make_field(geom, g_out, 'T')
+      call fill(f_in, [201., 1001., 2001.])
+
+      status = regrid(f_in, f_out)
+      c = column(f_out)
+      @assertEqual(0, status)
+      @assertEqual([1601., 601.], c, tolerance=TOL)
+   end subroutine test_source_alignment_opposite_grid
+
+   ! Destination grid is UP but the destination field is stored DOWN.
+   @test
+   subroutine test_destination_alignment_opposite_grid()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status
+      real, allocatable :: c(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      f_in = make_field(geom, g_in, 'T')
+      f_out = make_field(geom, g_out, 'T', alignment=VALIGN_DOWN)
+      call fill(f_in, [2001., 1001., 201.])
+
+      status = regrid(f_in, f_out)
+      c = column(f_out)
+      @assertEqual(0, status)
+      @assertEqual([601., 1601.], c, tolerance=TOL)
+   end subroutine test_destination_alignment_opposite_grid
+
+   ! Each column and each ungridded slice is regridded from its own values.
+   @test
+   subroutine test_columns_and_ungridded_independent()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:,:)
+      real :: got(2, 2, 2), expected(2, 2, 2)
+      integer :: status, i, u
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      f_in = make_field(geom, g_in, 'T', num_ungridded=2)
+      f_out = make_field(geom, g_out, 'T', num_ungridded=2)
+
+      ! Slice (i,u) holds a*p + b with a = i, b = 10*u.
+      x => view(f_in)
+      do u = 1, 2
+         do i = 1, NX
+            x(i, :, u) = i * [1000., 500., 100.] + 10*u
+            expected(i, :, u) = i * [800., 300.] + 10*u
+         end do
+      end do
+
+      status = regrid(f_in, f_out)
+      x => view(f_out)
+      got = x
+      @assertEqual(0, status)
+      @assertEqual([NX, 2, 2], shape(x))
+      @assertEqual(expected, got, tolerance=TOL)
+   end subroutine test_columns_and_ungridded_independent
+
+   ! Destination levels outside the source range get the end value, and
+   ! the count is recorded (a warning is logged; no debug abort).
+   @test
+   subroutine test_out_of_range_copies_end_value()
+      type(CaptureHandler), target, save :: handler
+      class(Logger), pointer :: lgr
+      integer :: status2
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      integer :: status, n
+      real, allocatable :: c(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [1200., 300., 50.], 'hPa')
+      f_in = make_field(geom, g_in, 'T')
+      f_out = make_field(geom, g_out, 'T')
+      call fill(f_in, [2001., 1001., 201.])
+
+      call bind(inputs, SRC_PORT, f_in)
+      call bind(outputs, DST_PORT, f_out)
+      lgr => logging%get_logger('mapl.generic')
+      call lgr%add_handler(handler)
+      transform = VerticalColumnRegridTransform()
+      call transform%compute(inputs, outputs, status)
+      ! Same inputs: no new weights, so no second warning.
+      call transform%compute(inputs, outputs, status2)
+      call lgr%remove_handler(handler)
+      c = column(f_out)
+      n = transform%get_num_out_of_range()
+      @assertEqual(0, status)
+      @assertEqual(0, status2)
+      @assertEqual([2001., 601., 201.], c, tolerance=TOL)
+      @assertEqual(2, n)
+      @assertEqual(1, handler%num_messages)
+      @assertTrue(index(handler%last_message, 'vertical regrid of T') > 0)
+      @assertTrue(index(handler%last_message, ': 2 destination levels') > 0)
+   end subroutine test_out_of_range_copies_end_value
+
+   ! Fixed levels are level centers: an EDGE field between different
+   ! grids fails.
+   @test
+   subroutine test_edge_between_grids_fails()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      f_in = make_field(geom, g_in, 'T', stagger=VERTICAL_STAGGER_EDGE)
+      f_out = make_field(geom, g_out, 'T', stagger=VERTICAL_STAGGER_EDGE)
+
+      status = regrid(f_in, f_out)
+      @assertTrue(status /= 0)
+   end subroutine test_edge_between_grids_fails
+
+   ! A stagger-only difference on one grid is not a regrid.
+   @test
+   subroutine test_stagger_only_on_same_grid_fails()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g
+      integer :: status
+
+      geom = make_geom()
+      g => make_basic(3)
+      f_in = make_field(geom, g, 'T', stagger=VERTICAL_STAGGER_EDGE)
+      f_out = make_field(geom, g, 'T')
+
+      status = regrid(f_in, f_out)
+      @assertTrue(status /= 0)
+   end subroutine test_stagger_only_on_same_grid_fails
+
+   ! The level values are R4 but the data is R8: the weights must be R8 too.
+   ! Source value at p is 2p+1. With R4 weights the result is off by roughly
+   ! 1e-5, far above the R8 tolerance used here.
+   @test
+   subroutine test_r8_linear_up_to_up()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status
+      real(kind=ESMF_KIND_R8), allocatable :: c(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      f_in = make_field(geom, g_in, 'T', typekind=ESMF_TYPEKIND_R8)
+      f_out = make_field(geom, g_out, 'T', typekind=ESMF_TYPEKIND_R8)
+      call fill8(f_in, [2001.d0, 1001.d0, 201.d0])
+      call fill8(f_out, [-1.d0, -1.d0])
+
+      status = regrid(f_in, f_out)
+      c = column8(f_out)
+      @assertEqual(0, status)
+      @assertEqual([1601.d0, 601.d0], c, tolerance=1.d-9)
+   end subroutine test_r8_linear_up_to_up
+
+   ! Opposite alignment on the source: weights follow the stored order.
+   @test
+   subroutine test_r8_source_alignment_opposite_grid()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status
+      real(kind=ESMF_KIND_R8), allocatable :: c(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      f_in = make_field(geom, g_in, 'T', alignment=VALIGN_DOWN, &
+           typekind=ESMF_TYPEKIND_R8)
+      f_out = make_field(geom, g_out, 'T', typekind=ESMF_TYPEKIND_R8)
+      call fill8(f_in, [201.d0, 1001.d0, 2001.d0])
+
+      status = regrid(f_in, f_out)
+      c = column8(f_out)
+      @assertEqual(0, status)
+      @assertEqual([1601.d0, 601.d0], c, tolerance=1.d-9)
+   end subroutine test_r8_source_alignment_opposite_grid
+
+   ! The same grid copies and flips without weights, also for R8. The grid
+   ! has a direction (a Basic grid has none and never flips).
+   @test
+   subroutine test_r8_matching_grids_copy_and_flip()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out, f_flip
+      class(mapl_VerticalGrid), pointer :: g
+      integer :: status(2)
+      real(kind=ESMF_KIND_R8), allocatable :: c_copy(:), c_flip(:)
+
+      geom = make_geom()
+      g => make_fixed('height', [0., 100., 500.], 'm')
+      f_in = make_field(geom, g, 'T', alignment=VALIGN_UP, &
+           typekind=ESMF_TYPEKIND_R8)
+      f_out = make_field(geom, g, 'T', alignment=VALIGN_UP, &
+           typekind=ESMF_TYPEKIND_R8)
+      f_flip = make_field(geom, g, 'T', alignment=VALIGN_DOWN, &
+           typekind=ESMF_TYPEKIND_R8)
+      call fill8(f_in, [1.d0, 2.d0, 3.d0])
+
+      status(1) = regrid(f_in, f_out)
+      status(2) = regrid(f_in, f_flip)
+      c_copy = column8(f_out)
+      c_flip = column8(f_flip)
+      @assertEqual([0, 0], status)
+      @assertEqual([1.d0, 2.d0, 3.d0], c_copy)
+      @assertEqual([3.d0, 2.d0, 1.d0], c_flip)
+   end subroutine test_r8_matching_grids_copy_and_flip
+
+   ! An R4 source with an R8 destination, or the reverse, fails at compute.
+   @test
+   subroutine test_mixed_typekinds_fail()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f4_in, f8_out, f8_in, f4_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status(2)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      f4_in = make_field(geom, g_in, 'T')
+      f8_in = make_field(geom, g_in, 'T', typekind=ESMF_TYPEKIND_R8)
+      f4_out = make_field(geom, g_out, 'T')
+      f8_out = make_field(geom, g_out, 'T', typekind=ESMF_TYPEKIND_R8)
+
+      status(1) = regrid(f4_in, f8_out)
+      status(2) = regrid(f8_in, f4_out)
+      @assertTrue(status(1) /= 0)
+      @assertTrue(status(2) /= 0)
+   end subroutine test_mixed_typekinds_fail
+
+   ! A Field can be created with a non-real typekind, so the branch that
+   ! refuses it is reachable: an I4 pair fails, it is not read as R4.
+   @test
+   subroutine test_integer_typekind_fails()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      f_in = make_field(geom, g_in, 'T', typekind=ESMF_TYPEKIND_I4)
+      f_out = make_field(geom, g_out, 'T', typekind=ESMF_TYPEKIND_I4)
+
+      status = regrid(f_in, f_out)
+      @assertTrue(status /= 0)
+   end subroutine test_integer_typekind_fails
+
+   ! One transform used first for R4 then for R8 over the same grids
+   ! rebuilds, so each kind gets weights of its own kind.
+   @test
+   subroutine test_weights_rebuilt_when_typekind_changes()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f4_in, f4_out, f8_in, f8_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      integer :: status(3), builds(3)
+      real, allocatable :: c4(:)
+      real(kind=ESMF_KIND_R8), allocatable :: c8(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      f4_in = make_field(geom, g_in, 'T')
+      f4_out = make_field(geom, g_out, 'T')
+      f8_in = make_field(geom, g_in, 'T', typekind=ESMF_TYPEKIND_R8)
+      f8_out = make_field(geom, g_out, 'T', typekind=ESMF_TYPEKIND_R8)
+      call fill(f4_in, [2001., 1001., 201.])
+      call fill8(f8_in, [2001.d0, 1001.d0, 201.d0])
+
+      transform = VerticalColumnRegridTransform()
+      call bind(inputs, SRC_PORT, f4_in)
+      call bind(outputs, DST_PORT, f4_out)
+      call transform%compute(inputs, outputs, status(1))
+      builds(1) = transform%get_num_builds()
+      call bind(inputs, SRC_PORT, f8_in)
+      call bind(outputs, DST_PORT, f8_out)
+      call transform%compute(inputs, outputs, status(2))
+      builds(2) = transform%get_num_builds()
+      call transform%compute(inputs, outputs, status(3))
+      builds(3) = transform%get_num_builds()
+      c4 = column(f4_out)
+      c8 = column8(f8_out)
+
+      @assertEqual([0, 0, 0], status)
+      @assertEqual([1, 2, 2], builds)
+      @assertEqual([1601., 601.], c4, tolerance=TOL)
+      @assertEqual([1601.d0, 601.d0], c8, tolerance=1.d-9)
+   end subroutine test_weights_rebuilt_when_typekind_changes
+
+   ! A VECTOR bundle of R8 members regrids member by member; the created
+   ! output members take the R8 typekind of the output bundle.
+   @test
+   subroutine test_r8_vector_bundle()
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      type(ESMF_Field) :: members(2)
+      type(ESMF_Field), allocatable :: out_members(:)
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      integer :: status(2), num_members, builds
+      real(kind=ESMF_KIND_R8), allocatable :: c1(:), c2(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      members(1) = make_field(geom, g_in, 'u', typekind=ESMF_TYPEKIND_R8)
+      members(2) = make_field(geom, g_in, 'v', typekind=ESMF_TYPEKIND_R8)
+      call fill8(members(1), [2001.d0, 1001.d0, 201.d0])
+      call fill8(members(2), [4001.d0, 2001.d0, 401.d0])
+      fb_in = make_vbundle(geom, g_in, members, VALIGN_WITH_GRID, &
+           ESMF_TYPEKIND_R8)
+      fb_out = make_vbundle_empty(geom, g_out, VALIGN_WITH_GRID, &
+           ESMF_TYPEKIND_R8)
+      call bind_bundle(inputs, SRC_PORT, fb_in)
+      call bind_bundle(outputs, DST_PORT, fb_out)
+
+      transform = VerticalColumnRegridTransform()
+      call transform%compute(inputs, outputs, status(1))
+      builds = transform%get_num_builds()
+
+      call MAPL_FieldBundleGet(fb_out, fieldList=out_members, &
+           fieldCount=num_members, rc=status(2))
+      c1 = column8(out_members(1))
+      c2 = column8(out_members(2))
+      @assertEqual([0, 0], status)
+      @assertEqual(2, num_members)
+      @assertEqual(1, builds)
+      @assertEqual([1601.d0, 601.d0], c1, tolerance=1.d-9)
+      @assertEqual([3201.d0, 1201.d0], c2, tolerance=1.d-9)
+   end subroutine test_r8_vector_bundle
+
+   ! Input members of kinds R4 then R8 into an R4 output bundle: the first
+   ! member regrids, the second fails. The output members all take the
+   ! bundle typekind, so a bundle cannot reach a rebuild for a changed kind.
+   @test
+   subroutine test_bundle_members_of_different_kinds_fail()
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      type(ESMF_Field) :: members(2)
+      type(ESMF_Field), allocatable :: out_members(:)
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      integer :: status(2)
+      real, allocatable :: c1(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      members(1) = make_field(geom, g_in, 'u')
+      members(2) = make_field(geom, g_in, 'v', typekind=ESMF_TYPEKIND_R8)
+      call fill(members(1), [2001., 1001., 201.])
+      call fill8(members(2), [4001.d0, 2001.d0, 401.d0])
+      fb_in = make_vbundle(geom, g_in, members, VALIGN_WITH_GRID)
+      fb_out = make_vbundle_empty(geom, g_out, VALIGN_WITH_GRID)
+      call bind_bundle(inputs, SRC_PORT, fb_in)
+      call bind_bundle(outputs, DST_PORT, fb_out)
+
+      transform = VerticalColumnRegridTransform()
+      call transform%compute(inputs, outputs, status(1))
+      call MAPL_FieldBundleGet(fb_out, fieldList=out_members, rc=status(2))
+      c1 = column(out_members(1))
+      @assertTrue(status(1) /= 0)
+      @assertEqual(0, status(2))
+      @assertEqual([1601., 601.], c1, tolerance=TOL)
+   end subroutine test_bundle_members_of_different_kinds_fail
+
+   ! A bundle whose members differ in typekind from the output bundle fails.
+   @test
+   subroutine test_bundle_mixed_typekinds_fail()
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      type(ESMF_Field) :: members(1)
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      integer :: status
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      members(1) = make_field(geom, g_in, 'u', typekind=ESMF_TYPEKIND_R8)
+      call fill8(members(1), [2001.d0, 1001.d0, 201.d0])
+      fb_in = make_vbundle(geom, g_in, members, VALIGN_WITH_GRID, &
+           ESMF_TYPEKIND_R8)
+      fb_out = make_vbundle_empty(geom, g_out, VALIGN_WITH_GRID)
+      call bind_bundle(inputs, SRC_PORT, fb_in)
+      call bind_bundle(outputs, DST_PORT, fb_out)
+
+      transform = VerticalColumnRegridTransform()
+      call transform%compute(inputs, outputs, status)
+      @assertTrue(status /= 0)
+   end subroutine test_bundle_mixed_typekinds_fail
+
+   ! A bundle input needs a bundle output: a Field destination fails.
+   @test
+   subroutine test_bundle_input_with_field_output_fails()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_out
+      type(ESMF_FieldBundle) :: bundle
+      class(mapl_VerticalGrid), pointer :: g
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(GraphStateItem) :: item
+      integer :: status
+
+      geom = make_geom()
+      g => make_fixed('pressure', [800., 300.], 'hPa')
+      f_out = make_field(geom, g, 'T')
+      bundle = make_test_field_bundle(rc=status)
+      @assertEqual(0, status)
+      call item%set(bundle, rc=status)
+      @assertEqual(0, status)
+      call inputs%insert(SRC_PORT, item)
+      call bind(outputs, DST_PORT, f_out)
+
+      transform = VerticalColumnRegridTransform()
+      call transform%compute(inputs, outputs, status)
+      @assertTrue(status /= 0)
+   end subroutine test_bundle_input_with_field_output_fails
+
+   ! A Field input needs a Field output: a bundle destination fails. So does
+   ! an output port that is not bound, for a Field input and for a bundle
+   ! input, in the regrid and in the flip.
+   @test
+   subroutine test_mixed_or_unbound_ports_fail()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in
+      type(ESMF_Field) :: members(1)
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      type(VerticalColumnRegridTransform) :: regrid_transform
+      type(VerticalFlipTransform) :: flip_transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs, no_outputs
+      integer :: status(5)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      f_in = make_field(geom, g_in, 'T')
+      members(1) = make_field(geom, g_in, 'u')
+      fb_in = make_vbundle(geom, g_in, members, VALIGN_WITH_GRID)
+      fb_out = make_vbundle_empty(geom, g_out, VALIGN_WITH_GRID)
+      regrid_transform = VerticalColumnRegridTransform()
+      flip_transform = VerticalFlipTransform()
+
+      ! Field input, bundle output
+      call bind(inputs, SRC_PORT, f_in)
+      call bind_bundle(outputs, DST_PORT, fb_out)
+      call regrid_transform%compute(inputs, outputs, status(1))
+      call flip_transform%compute(inputs, outputs, status(2))
+
+      ! Output port not bound
+      call regrid_transform%compute(inputs, no_outputs, status(3))
+      call bind_bundle(inputs, SRC_PORT, fb_in)
+      call regrid_transform%compute(inputs, no_outputs, status(4))
+      call flip_transform%compute(inputs, no_outputs, status(5))
+
+      @assertTrue(all(status /= 0))
+   end subroutine test_mixed_or_unbound_ports_fail
+
+   ! An output bundle that records no vertical grid cannot say what its
+   ! members should look like.
+   @test
+   subroutine test_bundle_output_without_vgrid_fails()
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g_in
+      type(ESMF_Field) :: members(1)
+      type(ESMF_Field), allocatable :: none(:)
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      integer :: status
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      members(1) = make_field(geom, g_in, 'u')
+      fb_in = make_vbundle(geom, g_in, members, VALIGN_WITH_GRID)
+      allocate(none(0))
+      fb_out = make_test_bundle(geom, MAPL_FIELDBUNDLETYPE_VECTOR, none, &
+           status)
+      @assertEqual(0, status)
+      call bind_bundle(inputs, SRC_PORT, fb_in)
+      call bind_bundle(outputs, DST_PORT, fb_out)
+
+      transform = VerticalColumnRegridTransform()
+      call transform%compute(inputs, outputs, status)
+      @assertTrue(status /= 0)
+   end subroutine test_bundle_output_without_vgrid_fails
+
+   ! Two members, regridded with one weight build. The output members are
+   ! created with the output level count and carry the output bundle vertical
+   ! grid, stagger and alignment, not the input ones.
+   @test
+   subroutine test_bundle_members_regridded_with_one_build()
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      type(ESMF_Field) :: members(2)
+      type(ESMF_Field), allocatable :: out_members(:)
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      class(mapl_VerticalGrid), pointer :: vgrid_m
+      type(VerticalStaggerLoc) :: stagger_m
+      type(VerticalAlignment) :: alignment_m
+      integer :: status, num_members, builds, id_out, id_m, levels(2)
+      logical :: stagger_is_center, alignment_is_down
+      real, allocatable :: c1(:), c2(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      members(1) = make_field(geom, g_in, 'u')
+      members(2) = make_field(geom, g_in, 'v')
+      call fill(members(1), [2001., 1001., 201.])
+      call fill(members(2), [4001., 2001., 401.])
+      fb_in = make_vbundle(geom, g_in, members, VALIGN_WITH_GRID)
+      fb_out = make_vbundle_empty(geom, g_out, VALIGN_DOWN)
+      call bind_bundle(inputs, SRC_PORT, fb_in)
+      call bind_bundle(outputs, DST_PORT, fb_out)
+
+      transform = VerticalColumnRegridTransform()
+      call transform%compute(inputs, outputs, status)
+      builds = transform%get_num_builds()
+
+      call MAPL_FieldBundleGet(fb_out, fieldList=out_members, &
+           fieldCount=num_members, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, num_members)
+      levels(1) = size(view(out_members(1)), 2)
+      levels(2) = size(view(out_members(2)), 2)
+      c1 = column(out_members(1))
+      c2 = column(out_members(2))
+      call MAPL_FieldGet(out_members(1), vgrid=vgrid_m, &
+           vert_staggerloc=stagger_m, vert_alignment=alignment_m, rc=status)
+      @assertEqual(0, status)
+      id_m = vgrid_m%get_id()
+      id_out = g_out%get_id()
+      stagger_is_center = (stagger_m%to_string() == &
+           VERTICAL_STAGGER_CENTER%to_string())
+      alignment_is_down = (alignment_m%to_string() == VALIGN_DOWN%to_string())
+
+      @assertEqual([2, 2], levels)
+      @assertEqual(1, builds)
+      @assertEqual(id_out, id_m)
+      @assertTrue(stagger_is_center)
+      @assertTrue(alignment_is_down)
+      ! The output is stored DOWN, so the 800 and 300 hPa values come last.
+      @assertEqual([601., 1601.], c1, tolerance=TOL)
+      @assertEqual([1201., 3201.], c2, tolerance=TOL)
+   end subroutine test_bundle_members_regridded_with_one_build
+
+   ! A second compute reuses both the weights and the output members.
+   @test
+   subroutine test_bundle_second_compute_keeps_members_and_weights()
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      type(ESMF_Field) :: members(1)
+      logical :: recreated(2)
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      integer :: status(4), builds
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      members(1) = make_field(geom, g_in, 'u')
+      call fill(members(1), [2001., 1001., 201.])
+      fb_in = make_vbundle(geom, g_in, members, VALIGN_WITH_GRID)
+      fb_out = make_vbundle_empty(geom, g_out, VALIGN_WITH_GRID)
+      call bind_bundle(inputs, SRC_PORT, fb_in)
+      call bind_bundle(outputs, DST_PORT, fb_out)
+
+      call ensure_vertical_output_members(fb_in, fb_out, recreated(1), &
+           rc=status(1))
+      call ensure_vertical_output_members(fb_in, fb_out, recreated(2), &
+           rc=status(2))
+      transform = VerticalColumnRegridTransform()
+      call transform%compute(inputs, outputs, status(3))
+      call transform%compute(inputs, outputs, status(4))
+      builds = transform%get_num_builds()
+
+      @assertEqual([0, 0, 0, 0], status)
+      @assertTrue(recreated(1))
+      @assertFalse(recreated(2))
+      @assertEqual(1, builds)
+   end subroutine test_bundle_second_compute_keeps_members_and_weights
+
+   ! The member count is equal but the output members have the wrong level
+   ! count (made for another grid): they are recreated with the right one.
+   @test
+   subroutine test_bundle_members_recreated_when_level_count_differs()
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      type(ESMF_Field) :: members(1), stale(1)
+      type(ESMF_Field), allocatable :: out_members(:)
+      logical :: recreated(2)
+      integer :: status(4), levels
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      members(1) = make_field(geom, g_in, 'u')
+      stale(1) = make_field(geom, g_in, 'u')
+      fb_in = make_vbundle(geom, g_in, members, VALIGN_WITH_GRID)
+      ! Output bundle records the 2-level grid but holds a 3-level member
+      ! (added after the grid, which would resize it otherwise).
+      fb_out = make_vbundle_empty(geom, g_out, VALIGN_WITH_GRID)
+      call ESMF_FieldBundleAdd(fb_out, stale, multiflag=.true., &
+           relaxedFlag=.true., rc=status(1))
+
+      call ensure_vertical_output_members(fb_in, fb_out, recreated(1), &
+           rc=status(2))
+      call MAPL_FieldBundleGet(fb_out, fieldList=out_members, rc=status(3))
+      levels = size(view(out_members(1)), 2)
+      call ensure_vertical_output_members(fb_in, fb_out, recreated(2), &
+           rc=status(4))
+
+      @assertEqual([0, 0, 0, 0], status)
+      @assertTrue(recreated(1))
+      @assertFalse(recreated(2))
+      @assertEqual(2, levels)
+   end subroutine test_bundle_members_recreated_when_level_count_differs
+
+   ! Same member and level counts, but the output bundle already holds a
+   ! member with another alignment (a bundle that arrives with members): the
+   ! member is recreated with the output bundle alignment, then left alone.
+   @test
+   subroutine test_bundle_members_recreated_when_alignment_differs()
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g
+      type(ESMF_Field) :: members(1), stale(1)
+      type(ESMF_Field), allocatable :: out_members(:)
+      type(VerticalAlignment) :: alignment_m
+      logical :: recreated(2), alignment_is_up
+      integer :: status(5)
+
+      geom = make_geom()
+      g => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      members(1) = make_field(geom, g, 'u', alignment=VALIGN_DOWN)
+      stale(1) = make_field(geom, g, 'u', alignment=VALIGN_DOWN)
+      fb_in = make_vbundle(geom, g, members, VALIGN_DOWN)
+      fb_out = make_vbundle_empty(geom, g, VALIGN_UP)
+      call ESMF_FieldBundleAdd(fb_out, stale, multiflag=.true., &
+           relaxedFlag=.true., rc=status(1))
+
+      call ensure_vertical_output_members(fb_in, fb_out, recreated(1), &
+           rc=status(2))
+      call MAPL_FieldBundleGet(fb_out, fieldList=out_members, rc=status(3))
+      call MAPL_FieldGet(out_members(1), vert_alignment=alignment_m, &
+           rc=status(4))
+      alignment_is_up = (alignment_m%to_string() == VALIGN_UP%to_string())
+      call ensure_vertical_output_members(fb_in, fb_out, recreated(2), &
+           rc=status(5))
+
+      @assertEqual([0, 0, 0, 0, 0], status)
+      @assertTrue(recreated(1))
+      @assertTrue(alignment_is_up)
+      @assertFalse(recreated(2))
+   end subroutine test_bundle_members_recreated_when_alignment_differs
+
+   ! An orientation-only flip of a bundle reverses every member and gives the
+   ! output members the output alignment.
+   @test
+   subroutine test_flip_bundle()
+      type(ESMF_Geom) :: geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      class(mapl_VerticalGrid), pointer :: g
+      type(ESMF_Field) :: members(2)
+      type(ESMF_Field), allocatable :: out_members(:)
+      type(VerticalFlipTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(VerticalAlignment) :: alignment_m
+      integer :: status
+      logical :: alignment_is_up
+      real, allocatable :: c1(:), c2(:)
+
+      geom = make_geom()
+      g => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      members(1) = make_field(geom, g, 'u', alignment=VALIGN_DOWN)
+      members(2) = make_field(geom, g, 'v', alignment=VALIGN_DOWN)
+      call fill(members(1), [1., 2., 3.])
+      call fill(members(2), [4., 5., 6.])
+      fb_in = make_vbundle(geom, g, members, VALIGN_DOWN)
+      fb_out = make_vbundle_empty(geom, g, VALIGN_UP)
+      call bind_bundle(inputs, SRC_PORT, fb_in)
+      call bind_bundle(outputs, DST_PORT, fb_out)
+
+      transform = VerticalFlipTransform()
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call MAPL_FieldBundleGet(fb_out, fieldList=out_members, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, size(out_members))
+      c1 = column(out_members(1))
+      c2 = column(out_members(2))
+      call MAPL_FieldGet(out_members(1), vert_alignment=alignment_m, rc=status)
+      @assertEqual(0, status)
+      alignment_is_up = (alignment_m%to_string() == VALIGN_UP%to_string())
+
+      @assertTrue(alignment_is_up)
+      @assertEqual([3., 2., 1.], c1)
+      @assertEqual([6., 5., 4.], c2)
+   end subroutine test_flip_bundle
+
+   ! A second compute with the same fields reuses the weights; a new
+   ! destination grid or a changed orientation rebuilds them.
+   @test
+   subroutine test_weights_rebuilt_when_bound_inputs_change()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out, f_out2
+      class(mapl_VerticalGrid), pointer :: g_in, g_out, g_out2
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      integer :: status(4), builds(4), set_status
+      real, allocatable :: c2(:), c3(:), c4(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      g_out2 => make_fixed('pressure', [900., 600., 200.], 'hPa')
+      f_in = make_field(geom, g_in, 'T')
+      f_out = make_field(geom, g_out, 'T')
+      f_out2 = make_field(geom, g_out2, 'T')
+      call fill(f_in, [2001., 1001., 201.])
+
+      transform = VerticalColumnRegridTransform()
+      call bind(inputs, SRC_PORT, f_in)
+      call bind(outputs, DST_PORT, f_out)
+      call transform%compute(inputs, outputs, status(1))
+      builds(1) = transform%get_num_builds()
+      call transform%compute(inputs, outputs, status(2))
+      builds(2) = transform%get_num_builds()
+      c2 = column(f_out)
+
+      call bind(outputs, DST_PORT, f_out2)
+      call transform%compute(inputs, outputs, status(3))
+      builds(3) = transform%get_num_builds()
+      c3 = column(f_out2)
+
+      ! Same grid, field now stored DOWN.
+      call MAPL_FieldSet(f_out2, vert_alignment=VALIGN_DOWN, rc=set_status)
+      call transform%compute(inputs, outputs, status(4))
+      builds(4) = transform%get_num_builds()
+      c4 = column(f_out2)
+
+      @assertEqual(0, set_status)
+      @assertEqual([0, 0, 0, 0], status)
+      @assertEqual([1, 1, 2, 3], builds)
+      @assertEqual([1601., 601.], c2, tolerance=TOL)
+      @assertEqual([1801., 1201., 401.], c3, tolerance=TOL)
+      @assertEqual([401., 1201., 1801.], c4, tolerance=TOL)
+   end subroutine test_weights_rebuilt_when_bound_inputs_change
+
+   ! A field whose array size disagrees with its grid level count fails
+   ! instead of reading past the column.
+   @test
+   subroutine test_level_count_mismatch_fails()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out, g_wrong
+      type(ESMF_Info) :: info
+      integer :: status
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      g_wrong => make_fixed('pressure', [1000., 700., 400., 100.], 'hPa')
+      f_in = make_field(geom, g_in, 'T')
+      f_out = make_field(geom, g_out, 'T')
+      ! Retag the 3-level source with a 4-level grid, without resizing.
+      call ESMF_InfoGetFromHost(f_in, info, rc=status)
+      @assertEqual(0, status)
+      call FieldInfoSetInternal(info, vgrid_id=g_wrong%get_id(), rc=status)
+      @assertEqual(0, status)
+
+      status = regrid(f_in, f_out)
+      @assertTrue(status /= 0)
+   end subroutine test_level_count_mismatch_fails
+
+   ! Basic grids with the same level count are the same grid, and a Basic
+   ! grid has no direction: opposite alignments give a plain copy.
+   @test
+   subroutine test_basic_equal_count_copies_despite_alignment()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status
+      real, allocatable :: c(:)
+
+      geom = make_geom()
+      g_in => make_basic(3)
+      g_out => make_basic(3)
+      f_in = make_field(geom, g_in, 'T', alignment=VALIGN_UP)
+      f_out = make_field(geom, g_out, 'T', alignment=VALIGN_DOWN)
+      call fill(f_in, [1., 2., 3.])
+
+      status = regrid(f_in, f_out)
+      c = column(f_out)
+      @assertEqual(0, status)
+      @assertEqual([1., 2., 3.], c)
+   end subroutine test_basic_equal_count_copies_despite_alignment
+
+   ! A height grid with increasing levels is UP. On the same grid a field
+   ! stored as the grid and one aligned upward are the same order: a copy.
+   @test
+   subroutine test_height_grid_upward_alignment_copies()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g
+      integer :: status
+      real, allocatable :: c(:)
+
+      geom = make_geom()
+      g => make_fixed('height', [0., 100., 500.], 'm')
+      f_in = make_field(geom, g, 'T')
+      f_out = make_field(geom, g, 'T', alignment=VALIGN_UP)
+      call fill(f_in, [1., 2., 3.])
+
+      status = regrid(f_in, f_out)
+      c = column(f_out)
+      @assertEqual(0, status)
+      @assertEqual([1., 2., 3.], c)
+   end subroutine test_height_grid_upward_alignment_copies
+
+   ! Downward alignment is the opposite of the UP height grid: reversed.
+   @test
+   subroutine test_height_grid_downward_alignment_reverses()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g
+      integer :: status
+      real, allocatable :: c(:)
+
+      geom = make_geom()
+      g => make_fixed('height', [0., 100., 500.], 'm')
+      f_in = make_field(geom, g, 'T')
+      f_out = make_field(geom, g, 'T', alignment=VALIGN_DOWN)
+      call fill(f_in, [1., 2., 3.])
+
+      status = regrid(f_in, f_out)
+      c = column(f_out)
+      @assertEqual(0, status)
+      @assertEqual([3., 2., 1.], c)
+   end subroutine test_height_grid_downward_alignment_reverses
+
+   ! Same orientation: a plain copy. Also a basic grid against fixed levels
+   ! with the same count.
+   @test
+   subroutine test_basic_equal_count_copies()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status
+      real, allocatable :: c(:)
+
+      geom = make_geom()
+      g_in => make_basic(3)
+      g_out => make_fixed('pressure', [100., 500., 1000.], 'hPa')
+      f_in = make_field(geom, g_in, 'T')
+      f_out = make_field(geom, g_out, 'T')
+      call fill(f_in, [1., 2., 3.])
+
+      status = regrid(f_in, f_out)
+      c = column(f_out)
+      @assertEqual(0, status)
+      @assertEqual([1., 2., 3.], c)
+   end subroutine test_basic_equal_count_copies
+
+   @test
+   subroutine test_basic_different_count_fails()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status
+
+      geom = make_geom()
+      g_in => make_basic(3)
+      g_out => make_basic(2)
+      f_in = make_field(geom, g_in, 'T')
+      f_out = make_field(geom, g_out, 'T')
+
+      status = regrid(f_in, f_out)
+      @assertTrue(status /= 0)
+   end subroutine test_basic_different_count_fails
+
+   ! Export levels in hPa, import levels in Pa.
+   @test
+   subroutine test_levels_converted_to_import_units()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status
+      real, allocatable :: c(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [80000., 30000.], 'Pa')
+      f_in = make_field(geom, g_in, 'T')
+      f_out = make_field(geom, g_out, 'T')
+      call fill(f_in, [2001., 1001., 201.])
+
+      status = regrid(f_in, f_out)
+      c = column(f_out)
+      @assertEqual(0, status)
+      @assertEqual([1601., 601.], c, tolerance=TOL)
+   end subroutine test_levels_converted_to_import_units
+
+   @test
+   subroutine test_inconvertible_units_fail()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'm')
+      f_in = make_field(geom, g_in, 'T')
+      f_out = make_field(geom, g_out, 'T')
+
+      status = regrid(f_in, f_out)
+      @assertTrue(status /= 0)
+   end subroutine test_inconvertible_units_fail
+
+   @test
+   subroutine test_different_dimensions_fail()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('height', [10., 20.], 'm')
+      f_in = make_field(geom, g_in, 'T')
+      f_out = make_field(geom, g_out, 'T')
+
+      status = regrid(f_in, f_out)
+      @assertTrue(status /= 0)
+   end subroutine test_different_dimensions_fail
+
+   @test
+   subroutine test_conservative_unsupported()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      integer :: status
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      f_in = make_field(geom, g_in, 'T')
+      f_out = make_field(geom, g_out, 'T')
+      call bind(inputs, SRC_PORT, f_in)
+      call bind(outputs, DST_PORT, f_out)
+
+      transform = VerticalColumnRegridTransform(VERTICAL_REGRID_CONSERVATIVE)
+      call transform%compute(inputs, outputs, status)
+      @assertTrue(status /= 0)
+   end subroutine test_conservative_unsupported
+
+   @test
+   subroutine test_column_coordinate_default_fails()
+      class(mapl_VerticalGrid), pointer :: g
+      real, allocatable :: levels(:)
+      integer :: status
+
+      g => make_basic(3)
+      call g%get_column_coordinate('pressure', levels, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_column_coordinate_default_fails
+
+   @test
+   subroutine test_column_coordinate_fixed_levels()
+      class(mapl_VerticalGrid), pointer :: g
+      real, allocatable :: levels(:)
+      integer :: status(2)
+
+      g => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      call g%get_column_coordinate('pressure', levels, rc=status(1))
+      @assertEqual(0, status(1))
+      @assertEqual([1000., 500., 100.], levels)
+      call g%get_column_coordinate('height', levels, rc=status(2))
+      @assertTrue(status(2) /= 0)
+   end subroutine test_column_coordinate_fixed_levels
+
+   ! The flip step reverses the level index, whichever way the two
+   ! orientations differ.
+   @test
+   subroutine test_flip_3d()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g
+      type(VerticalFlipTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      integer :: status(2)
+      real, allocatable :: c1(:), c2(:)
+
+      geom = make_geom()
+      g => make_basic(3)
+      f_in = make_field(geom, g, 'T', alignment=VALIGN_DOWN)
+      f_out = make_field(geom, g, 'T', alignment=VALIGN_UP)
+      call fill(f_in, [1., 2., 3.])
+      call bind(inputs, SRC_PORT, f_in)
+      call bind(outputs, DST_PORT, f_out)
+
+      transform = VerticalFlipTransform()
+      call transform%compute(inputs, outputs, status(1))
+      c1 = column(f_out)
+
+      call bind(inputs, SRC_PORT, f_out)
+      call bind(outputs, DST_PORT, f_in)
+      call fill(f_out, [4., 5., 6.])
+      call transform%compute(inputs, outputs, status(2))
+      c2 = column(f_in)
+
+      @assertEqual([0, 0], status)
+      @assertEqual([3., 2., 1.], c1)
+      @assertEqual([6., 5., 4.], c2)
+   end subroutine test_flip_3d
+
+   @test
+   subroutine test_flip_4d()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g
+      type(VerticalFlipTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:,:)
+      real :: got(NX, 3, 2), expected(NX, 3, 2)
+      integer :: status, i, u
+
+      geom = make_geom()
+      g => make_basic(3)
+      f_in = make_field(geom, g, 'T', alignment=VALIGN_DOWN, num_ungridded=2)
+      f_out = make_field(geom, g, 'T', alignment=VALIGN_UP, num_ungridded=2)
+      x => view(f_in)
+      do u = 1, 2
+         do i = 1, NX
+            x(i, :, u) = [1., 2., 3.] + 10*i + 100*u
+            expected(i, :, u) = [3., 2., 1.] + 10*i + 100*u
+         end do
+      end do
+      call bind(inputs, SRC_PORT, f_in)
+      call bind(outputs, DST_PORT, f_out)
+
+      transform = VerticalFlipTransform()
+      call transform%compute(inputs, outputs, status)
+      x => view(f_out)
+      got = x
+      @assertEqual(0, status)
+      @assertEqual(expected, got)
+   end subroutine test_flip_4d
+
+   @test
+   subroutine test_flip_r8()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g
+      type(VerticalFlipTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      real(kind=ESMF_KIND_R8), pointer :: x8(:,:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: c(:)
+      integer :: status(3)
+
+      geom = make_geom()
+      g => make_basic(3)
+      f_in = make_field(geom, g, 'T', typekind=ESMF_TYPEKIND_R8)
+      f_out = make_field(geom, g, 'T', typekind=ESMF_TYPEKIND_R8)
+      call assign_fptr_condensed_array(f_in, x8, rc=status(1))
+      x8(1, :, 1) = [1.d0, 2.d0, 3.d0]
+      call bind(inputs, SRC_PORT, f_in)
+      call bind(outputs, DST_PORT, f_out)
+
+      transform = VerticalFlipTransform()
+      call transform%compute(inputs, outputs, status(2))
+      call assign_fptr_condensed_array(f_out, x8, rc=status(3))
+      c = x8(1, :, 1)
+      @assertEqual([0, 0, 0], status)
+      @assertEqual([3.d0, 2.d0, 1.d0], c)
+   end subroutine test_flip_r8
+
+   ! Ocean to atmosphere: an increasing (DOWN) grid from a decreasing (UP)
+   ! one, both fields stored as their grids.
+   @test
+   subroutine test_up_grid_to_down_grid()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status
+      real, allocatable :: c(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [300., 800.], 'hPa')
+      f_in = make_field(geom, g_in, 'T')
+      f_out = make_field(geom, g_out, 'T')
+      call fill(f_in, [2001., 1001., 201.])
+
+      status = regrid(f_in, f_out)
+      c = column(f_out)
+      @assertEqual(0, status)
+      @assertEqual([601., 1601.], c, tolerance=TOL)
+   end subroutine test_up_grid_to_down_grid
+
+   ! Both fields stored opposite to their (UP) grids at once.
+   @test
+   subroutine test_both_alignments_opposite_grids()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status
+      real, allocatable :: c(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      f_in = make_field(geom, g_in, 'T', alignment=VALIGN_DOWN)
+      f_out = make_field(geom, g_out, 'T', alignment=VALIGN_DOWN)
+      call fill(f_in, [201., 1001., 2001.])
+
+      status = regrid(f_in, f_out)
+      c = column(f_out)
+      @assertEqual(0, status)
+      @assertEqual([601., 1601.], c, tolerance=TOL)
+   end subroutine test_both_alignments_opposite_grids
+
+   ! A single-level grid has no direction; an explicit alignment on it
+   ! changes nothing. Both as destination and as source.
+   @test
+   subroutine test_single_level_grid()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_one, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_one, g_out
+      integer :: status(2)
+      real, allocatable :: c1(:), c2(:)
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_one => make_fixed('pressure', [800.], 'hPa')
+      g_out => make_fixed('pressure', [900., 300.], 'hPa')
+      f_in = make_field(geom, g_in, 'T')
+      f_one = make_field(geom, g_one, 'T', alignment=VALIGN_DOWN)
+      f_out = make_field(geom, g_out, 'T')
+      call fill(f_in, [2001., 1001., 201.])
+
+      status(1) = regrid(f_in, f_one)
+      c1 = column(f_one)
+      status(2) = regrid(f_one, f_out)
+      c2 = column(f_out)
+      @assertEqual([0, 0], status)
+      @assertEqual([1601.], c1, tolerance=TOL)
+      @assertEqual([1601., 1601.], c2, tolerance=TOL)
+   end subroutine test_single_level_grid
+
+   ! A matching-grid pair is a copy or flip whatever the method, as in
+   ! legacy; only a real regrid needs linear.
+   @test
+   subroutine test_conservative_on_matching_grids_flips()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      integer :: status
+      real, allocatable :: c(:)
+
+      geom = make_geom()
+      g => make_fixed('height', [0., 100., 500.], 'm')
+      f_in = make_field(geom, g, 'T', alignment=VALIGN_UP)
+      f_out = make_field(geom, g, 'T', alignment=VALIGN_DOWN)
+      call fill(f_in, [1., 2., 3.])
+      call bind(inputs, SRC_PORT, f_in)
+      call bind(outputs, DST_PORT, f_out)
+
+      transform = VerticalColumnRegridTransform(VERTICAL_REGRID_CONSERVATIVE)
+      call transform%compute(inputs, outputs, status)
+      c = column(f_out)
+      @assertEqual(0, status)
+      @assertEqual([3., 2., 1.], c)
+   end subroutine test_conservative_on_matching_grids_flips
+
+   @test
+   subroutine test_invalid_alignment_fails()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      integer :: status, set_status
+
+      geom = make_geom()
+      g_in => make_fixed('pressure', [1000., 500., 100.], 'hPa')
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      f_in = make_field(geom, g_in, 'T')
+      f_out = make_field(geom, g_out, 'T')
+      call MAPL_FieldSet(f_in, vert_alignment=VALIGN_INVALID, rc=set_status)
+
+      status = regrid(f_in, f_out)
+      @assertEqual(0, set_status)
+      @assertTrue(status /= 0)
+   end subroutine test_invalid_alignment_fails
+
+   ! A model grid (coordinate from a PLE-like field) has no column
+   ! coordinate, so a regrid to fixed levels is unsupported.
+   @test
+   subroutine test_model_grid_fails()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      type(mapl_VerticalGridManager), pointer :: manager
+      integer :: status, add_status
+
+      geom = make_geom()
+      manager => mapl_get_vertical_grid_manager()
+      g_in => manager%add_grid(ModelVerticalGrid('pressure', 'PL', 4), &
+           rc=add_status)
+      g_out => make_fixed('pressure', [800., 300.], 'hPa')
+      f_in = make_field(geom, g_in, 'T')
+      f_out = make_field(geom, g_out, 'T')
+
+      status = regrid(f_in, f_out)
+      @assertEqual(0, add_status)
+      @assertTrue(status /= 0)
+   end subroutine test_model_grid_fails
+
+   ! Export levels that equal the import ends only up to rounding after a
+   ! units conversion are not reported out of range.
+   @test
+   subroutine test_out_of_range_tolerance()
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_in, f_out
+      class(mapl_VerticalGrid), pointer :: g_in, g_out
+      type(VerticalColumnRegridTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      integer :: status, n
+
+      geom = make_geom()
+      ! 543.21 hPa converts to 54321.004 Pa in R4, just above 54321.
+      g_in => make_fixed('pressure', [1000., 800., 543.21], 'hPa')
+      g_out => make_fixed('pressure', [90000., 54321.], 'Pa')
+      f_in = make_field(geom, g_in, 'T')
+      f_out = make_field(geom, g_out, 'T')
+      call fill(f_in, [2001., 1001., 201.])
+      call bind(inputs, SRC_PORT, f_in)
+      call bind(outputs, DST_PORT, f_out)
+
+      transform = VerticalColumnRegridTransform()
+      call transform%compute(inputs, outputs, status)
+      n = transform%get_num_out_of_range()
+      @assertEqual(0, status)
+      @assertEqual(0, n)
+   end subroutine test_out_of_range_tolerance
+
+end module Test_VerticalColumnRegridTransform

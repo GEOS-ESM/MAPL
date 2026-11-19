@@ -196,7 +196,7 @@ contains
    end subroutine MAPL_abort
 
   function get_error_message(error_code) result(description)
-     use gFTL_IntegerStringMap
+     use gFTL2_IntegerStringMap
      character(:), allocatable :: description
      integer, intent(in) :: error_code
 

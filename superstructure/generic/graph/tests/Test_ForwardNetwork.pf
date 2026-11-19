@@ -1,0 +1,445 @@
+module Test_ForwardNetwork
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_HierarchyId_mod, only: HierarchyId
+   use mapl_HierarchyRegistry_mod, only: request_new_hierarchy
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId, operator(==)
+   use mapl_NodeId_mod, only: NodeId, operator(==)
+   use mapl_NodeIdSet_mod, only: NodeIdSet
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_GraphNode_mod, only: GraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_Transform_mod, only: Transform
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
+   use funit
+   implicit none
+
+   type, extends(Transform) :: CountingTransform
+      integer, pointer :: count => null()
+   contains
+      procedure :: compute => count_compute
+   end type CountingTransform
+
+contains
+
+   subroutine count_compute(this, inputs, outputs, rc)
+      class(CountingTransform), intent(inout) :: this
+      type(PortNameGraphStateItemMap), intent(in) :: inputs
+      type(PortNameGraphStateItemMap), intent(in) :: outputs
+      integer, intent(out) :: rc
+
+      if (associated(this%count)) this%count = this%count + 1
+      rc = 0
+   end subroutine count_compute
+
+   @test
+   subroutine test_two_graphs_share_forward_network()
+      type(HierarchyId) :: hierarchy_id
+      type(ComponentGraph) :: graph_a, graph_b
+      type(DependencyNetworkId) :: id_a, id_b
+      integer :: status_a, status_b
+
+      hierarchy_id = request_new_hierarchy()
+      graph_a = ComponentGraph(hierarchy_id)
+      graph_b = ComponentGraph(hierarchy_id)
+      id_a = graph_a%get_forward_network_id(status_a)
+      id_b = graph_b%get_forward_network_id(status_b)
+
+      @assertEqual(0, status_a)
+      @assertEqual(0, status_b)
+      @assertTrue(id_a == id_b)
+   end subroutine test_two_graphs_share_forward_network
+
+   @test
+   subroutine test_reuse_entry_is_hierarchy_wide()
+      type(HierarchyId) :: hierarchy_id
+      type(ComponentGraph) :: graph_a, graph_b
+      type(NodeId) :: item_id
+      type(NodeId), pointer :: found
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      integer :: add_status, get_status, register_status
+
+      hierarchy_id = request_new_hierarchy()
+      graph_a = ComponentGraph(hierarchy_id)
+      graph_b = ComponentGraph(hierarchy_id)
+      item_id = graph_a%next_node_id(rc=register_status)
+      item = StateItemNode(item_id, payload, revision)
+      call graph_a%register_node(item, rc=register_status)
+      call graph_a%add_reuse_entry('EXTCHAIN:test', item_id, add_status)
+      found => graph_b%get_reuse_entry('EXTCHAIN:test', get_status)
+
+      @assertEqual(0, register_status)
+      @assertEqual(0, add_status)
+      @assertEqual(0, get_status)
+      @assertTrue(associated(found))
+      if (.not. associated(found)) return
+      @assertTrue(found == item_id)
+   end subroutine test_reuse_entry_is_hierarchy_wide
+
+   @test
+   subroutine test_expression_and_collection_reuse_is_hierarchy_wide()
+      type(HierarchyId) :: hierarchy_id
+      type(ComponentGraph) :: graph_a, graph_b
+      type(NodeId) :: item_id
+      type(NodeId), pointer :: expression_found, collection_found
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      integer :: status, expression_status, collection_status
+
+      hierarchy_id = request_new_hierarchy()
+      graph_a = ComponentGraph(hierarchy_id)
+      graph_b = ComponentGraph(hierarchy_id)
+      item_id = graph_a%next_node_id(rc=status)
+      item = StateItemNode(item_id, payload, revision)
+      call graph_a%register_node(item, rc=status)
+      call graph_a%add_reuse_entry('EXPREVAL:test', item_id, &
+           expression_status)
+      expression_found => graph_b%get_reuse_entry('EXPREVAL:test', status)
+      call graph_a%add_reuse_entry('CALLBACK_COLLECTION:test', item_id, &
+           collection_status)
+      collection_found => graph_b%get_reuse_entry( &
+           'CALLBACK_COLLECTION:test', status)
+
+      @assertEqual(0, expression_status)
+      @assertEqual(0, collection_status)
+      @assertTrue(associated(expression_found))
+      @assertTrue(associated(collection_found))
+      if (.not. associated(expression_found)) return
+      if (.not. associated(collection_found)) return
+      @assertTrue(expression_found == item_id)
+      @assertTrue(collection_found == item_id)
+   end subroutine test_expression_and_collection_reuse_is_hierarchy_wide
+
+   @test
+   subroutine test_absent_reuse_entry_returns_null()
+      type(ComponentGraph) :: graph
+      type(NodeId), pointer :: found
+      integer :: status
+
+      graph = ComponentGraph()
+      found => graph%get_reuse_entry('EXTCHAIN:absent', status)
+
+      @assertEqual(0, status)
+      @assertFalse(associated(found))
+   end subroutine test_absent_reuse_entry_returns_null
+
+   @test
+   subroutine test_identical_forward_edge_can_be_readded()
+      type(ComponentGraph) :: graph
+      type(DependencyNetworkId) :: network_id
+      type(NodeId) :: source_id, target_id
+      type(StateItemNode) :: source, target
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      integer :: net_status, status, first_status, second_status
+
+      graph = ComponentGraph()
+      network_id = graph%get_forward_network_id(net_status)
+      source_id = graph%next_node_id(rc=status)
+      source = StateItemNode(source_id, payload, revision, 'source')
+      call graph%register_node(source, rc=status)
+      target_id = graph%next_node_id(rc=status)
+      target = StateItemNode(target_id, payload, revision, 'target')
+      call graph%register_node(target, rc=status)
+      call graph%add_dependency(network_id, source_id, target_id, &
+           rc=first_status)
+      call graph%add_dependency(network_id, source_id, target_id, &
+           rc=second_status)
+
+      @assertEqual(0, net_status)
+      @assertEqual(0, status)
+      @assertEqual(0, first_status)
+      @assertEqual(0, second_status)
+   end subroutine test_identical_forward_edge_can_be_readded
+
+   @test
+   subroutine test_second_forward_producer_names_target()
+      type(ComponentGraph) :: graph
+      type(DependencyNetworkId) :: network_id
+      type(NodeId) :: first_id, second_id, target_id
+      type(StateItemNode) :: first, second, target
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(DependencyNetwork), pointer :: network
+      integer :: net_status, status, first_status, second_status
+
+      graph = ComponentGraph()
+      network_id = graph%get_forward_network_id(net_status)
+      first_id = graph%next_node_id(rc=status)
+      first = StateItemNode(first_id, payload, revision, 'first')
+      call graph%register_node(first, rc=status)
+      second_id = graph%next_node_id(rc=status)
+      second = StateItemNode(second_id, payload, revision, 'second')
+      call graph%register_node(second, rc=status)
+      target_id = graph%next_node_id(rc=status)
+      target = StateItemNode(target_id, payload, revision, 'named_target')
+      call graph%register_node(target, rc=status)
+      call graph%add_dependency(network_id, first_id, target_id, &
+           rc=first_status)
+      call graph%add_dependency(network_id, second_id, target_id, &
+           rc=second_status)
+      network => graph%get_network(network_id)
+
+      @assertEqual(0, net_status)
+      @assertEqual(0, status)
+      @assertEqual(0, first_status)
+      @assertTrue(second_status /= 0)
+      @assertFalse(network%contains_dependency(second_id, target_id))
+   end subroutine test_second_forward_producer_names_target
+
+   @test
+   subroutine test_cycle_across_graphs_is_rejected()
+      type(HierarchyId) :: hierarchy_id
+      type(ComponentGraph) :: graph_a, graph_b
+      type(DependencyNetworkId) :: network_id
+      type(NodeId) :: x_id, y_id
+      type(StateItemNode) :: x, y
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(DependencyNetwork), pointer :: network
+      integer :: net_status, status, first_status, cycle_status
+
+      hierarchy_id = request_new_hierarchy()
+      graph_a = ComponentGraph(hierarchy_id)
+      graph_b = ComponentGraph(hierarchy_id)
+      network_id = graph_a%get_forward_network_id(net_status)
+      x_id = graph_a%next_node_id(rc=status)
+      x = StateItemNode(x_id, payload, revision, 'X')
+      call graph_a%register_node(x, rc=status)
+      y_id = graph_b%next_node_id(rc=status)
+      y = StateItemNode(y_id, payload, revision, 'Y')
+      call graph_b%register_node(y, rc=status)
+      call graph_a%add_dependency(network_id, x_id, y_id, rc=first_status)
+      call graph_b%add_dependency(network_id, y_id, x_id, rc=cycle_status)
+      network => graph_a%get_network(network_id)
+
+      @assertEqual(0, net_status)
+      @assertEqual(0, status)
+      @assertEqual(0, first_status)
+      @assertTrue(cycle_status /= 0)
+      @assertFalse(network%contains_dependency(y_id, x_id))
+   end subroutine test_cycle_across_graphs_is_rejected
+
+   @test
+   subroutine test_binding_written_by_one_graph_is_read_by_another()
+      type(HierarchyId) :: hierarchy_id
+      type(ComponentGraph) :: graph_a, graph_b
+      type(DependencyNetworkId) :: network_id
+      type(NodeId) :: transform_id, item_id
+      type(NodeId), pointer :: found
+      type(TransformGraphNode) :: transform
+      type(CountingTransform) :: strategy
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      integer :: net_status, status, bind_status
+
+      hierarchy_id = request_new_hierarchy()
+      graph_a = ComponentGraph(hierarchy_id)
+      graph_b = ComponentGraph(hierarchy_id)
+      network_id = graph_a%get_forward_network_id(net_status)
+      transform_id = graph_a%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('in', rc=status)
+      call graph_a%register_node(transform, rc=status)
+      item_id = graph_b%next_node_id(rc=status)
+      item = StateItemNode(item_id, payload, revision)
+      call graph_b%register_node(item, rc=status)
+      call graph_b%bind_port(network_id, transform_id, 'in', item_id, &
+           rc=bind_status)
+      found => graph_a%get_port_binding(network_id, transform_id, 'in')
+
+      @assertEqual(0, net_status)
+      @assertEqual(0, status)
+      @assertEqual(0, bind_status)
+      @assertTrue(associated(found))
+      if (.not. associated(found)) return
+      @assertTrue(found == item_id)
+   end subroutine test_binding_written_by_one_graph_is_read_by_another
+
+   @test
+   subroutine test_transform_accepts_two_forward_inputs()
+      type(ComponentGraph) :: graph
+      type(DependencyNetworkId) :: network_id
+      type(NodeId) :: input1_id, input2_id, transform_id
+      type(StateItemNode) :: input1, input2
+      type(TransformGraphNode) :: transform
+      type(CountingTransform) :: strategy
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      integer :: net_status, status1, status2, status
+
+      graph = ComponentGraph()
+      network_id = graph%get_forward_network_id(net_status)
+      input1_id = graph%next_node_id(rc=status)
+      input1 = StateItemNode(input1_id, payload, revision)
+      call graph%register_node(input1, rc=status)
+      input2_id = graph%next_node_id(rc=status)
+      input2 = StateItemNode(input2_id, payload, revision)
+      call graph%register_node(input2, rc=status)
+      transform_id = graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call graph%register_node(transform, rc=status)
+      call graph%add_dependency(network_id, input1_id, transform_id, &
+           rc=status1)
+      call graph%add_dependency(network_id, input2_id, transform_id, &
+           rc=status2)
+
+      @assertEqual(0, net_status)
+      @assertEqual(0, status)
+      @assertEqual(0, status1)
+      @assertEqual(0, status2)
+   end subroutine test_transform_accepts_two_forward_inputs
+
+   @test
+   subroutine test_forward_and_writeback_producers_are_both_valid()
+      type(ComponentGraph) :: graph
+      type(DependencyNetworkId) :: forward_id, writeback_id
+      type(NodeId) :: forward_source_id, writeback_source_id, target_id
+      type(StateItemNode) :: forward_source, writeback_source, target
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      integer :: net_status, status, forward_status, writeback_status
+
+      graph = ComponentGraph()
+      forward_id = graph%get_forward_network_id(net_status)
+      writeback_id = graph%create_network(rc=status)
+      forward_source_id = graph%next_node_id(rc=status)
+      forward_source = StateItemNode(forward_source_id, payload, revision)
+      call graph%register_node(forward_source, rc=status)
+      writeback_source_id = graph%next_node_id(rc=status)
+      writeback_source = StateItemNode(writeback_source_id, payload, revision)
+      call graph%register_node(writeback_source, rc=status)
+      target_id = graph%next_node_id(rc=status)
+      target = StateItemNode(target_id, payload, revision, 'target')
+      call graph%register_node(target, rc=status)
+      call graph%add_dependency(forward_id, forward_source_id, target_id, &
+           rc=forward_status)
+      call graph%add_dependency(writeback_id, writeback_source_id, target_id, &
+           rc=writeback_status)
+
+      @assertEqual(0, net_status)
+      @assertEqual(0, status)
+      @assertEqual(0, forward_status)
+      @assertEqual(0, writeback_status)
+      call graph%validate(rc=status)
+      @assertEqual(0, status)
+   end subroutine test_forward_and_writeback_producers_are_both_valid
+
+   @test
+   subroutine test_item_pull_ignores_writeback_network()
+      type(ComponentGraph) :: graph
+      type(DependencyNetworkId) :: forward_id, writeback_id
+      type(NodeId) :: forward_transform_id, writeback_transform_id, target_id
+      type(TransformGraphNode) :: forward_transform, writeback_transform
+      type(CountingTransform) :: forward_strategy, writeback_strategy
+      type(StateItemNode) :: target
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      integer, target :: forward_count, writeback_count
+      integer :: net_status, status, pull_status
+
+      graph = ComponentGraph()
+      forward_id = graph%get_forward_network_id(net_status)
+      writeback_id = graph%create_network(rc=status)
+      forward_count = 0
+      forward_strategy%count => forward_count
+      forward_transform_id = graph%next_node_id(rc=status)
+      forward_transform = TransformGraphNode( &
+           forward_transform_id, forward_strategy)
+      call forward_transform%declare_output_port('out', rc=status)
+      call graph%register_node(forward_transform, rc=status)
+      writeback_count = 0
+      writeback_strategy%count => writeback_count
+      writeback_transform_id = graph%next_node_id(rc=status)
+      writeback_transform = TransformGraphNode( &
+           writeback_transform_id, writeback_strategy)
+      call writeback_transform%declare_output_port('out', rc=status)
+      call graph%register_node(writeback_transform, rc=status)
+      target_id = graph%next_node_id(rc=status)
+      target = StateItemNode(target_id, payload, revision, 'target')
+      call graph%register_node(target, rc=status)
+      call graph%add_dependency(forward_id, forward_transform_id, target_id, &
+           rc=status)
+      call graph%bind_port(forward_id, forward_transform_id, 'out', target_id, &
+           rc=status)
+      call graph%add_dependency(writeback_id, writeback_transform_id, &
+           target_id, rc=status)
+      call graph%bind_port(writeback_id, writeback_transform_id, 'out', &
+           target_id, rc=status)
+      call graph%update(target_id, pull_status)
+
+      @assertEqual(0, net_status)
+      @assertEqual(0, status)
+      @assertEqual(0, pull_status)
+      @assertEqual(1, forward_count)
+      @assertEqual(0, writeback_count)
+   end subroutine test_item_pull_ignores_writeback_network
+
+   @test
+   subroutine test_update_result_does_not_depend_on_requesting_graph()
+      type(HierarchyId) :: hierarchy_id
+      type(ComponentGraph) :: owner_graph, declaring_graph
+      type(DependencyNetworkId) :: network_id
+      type(NodeId) :: input_id, transform_id, output_id
+      type(StateItemNode) :: input_node, output_node
+      type(TransformGraphNode) :: transform
+      type(CountingTransform) :: strategy
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      integer, target :: count
+      class(GraphNode), pointer :: generic_node
+      type(NodeRevision) :: output_revision
+      integer :: net_status, status, owner_status, declaring_status
+
+      hierarchy_id = request_new_hierarchy()
+      owner_graph = ComponentGraph(hierarchy_id)
+      declaring_graph = ComponentGraph(hierarchy_id)
+      network_id = declaring_graph%get_forward_network_id(net_status)
+      input_id = owner_graph%next_node_id(rc=status)
+      input_node = StateItemNode(input_id, payload, revision)
+      call owner_graph%register_node(input_node, rc=status)
+      count = 0
+      strategy%count => count
+      transform_id = declaring_graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('in', rc=status)
+      call transform%declare_output_port('out', rc=status)
+      call declaring_graph%register_node(transform, rc=status)
+      output_id = owner_graph%next_node_id(rc=status)
+      output_node = StateItemNode(output_id, payload, revision)
+      call owner_graph%register_node(output_node, rc=status)
+      call declaring_graph%add_dependency(network_id, input_id, &
+           transform_id, rc=status)
+      call declaring_graph%add_dependency(network_id, transform_id, &
+           output_id, rc=status)
+      call owner_graph%bind_port(network_id, transform_id, 'in', input_id, &
+           rc=status)
+      call owner_graph%bind_port(network_id, transform_id, 'out', output_id, &
+           rc=status)
+      call owner_graph%update(output_id, owner_status)
+      @assertEqual(0, owner_status)
+      @assertEqual(1, count)
+      generic_node => owner_graph%get_node(output_id)
+      select type (generic_node)
+      class is (StateItemNode)
+         output_revision = generic_node%get_revision()
+      class default
+         @assertTrue(.false.)
+      end select
+      @assertTrue(output_revision%is_valid())
+
+      call declaring_graph%update(output_id, declaring_status)
+
+      @assertEqual(0, net_status)
+      @assertEqual(0, status)
+      @assertEqual(0, declaring_status)
+      @assertEqual(1, count)
+   end subroutine test_update_result_does_not_depend_on_requesting_graph
+
+end module Test_ForwardNetwork

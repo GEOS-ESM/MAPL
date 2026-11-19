@@ -30,6 +30,7 @@ module mapl_VirtualConnectionPt_mod
       procedure :: is_internal
 
       procedure :: matches
+      procedure :: is_literal
 
       procedure :: write_formatted
       generic :: write(formatted) => write_formatted
@@ -237,12 +238,31 @@ contains
 
       type(regex_type) :: regex
 
+      character(:), allocatable :: pattern
+
       matches = (this%get_state_intent() == item%get_state_intent())
       if (.not. matches) return
 
-      call regcomp(regex,'^'//this%get_full_name()//'$' // C_NULL_CHAR,flags='xmi')
+      pattern = this%get_full_name()
+
+      ! A pattern without regex metacharacters matches only its own name,
+      ! so skip compiling a regex. Matching is case-sensitive.
+      if (this%is_literal()) then
+         matches = (pattern == item%get_full_name())
+         return
+      end if
+
+      call regcomp(regex,'^'//pattern//'$' // C_NULL_CHAR,flags='xm')
       matches = regexec(regex,item%get_full_name() // C_NULL_CHAR)
+      call regfree(regex)
 
    end function matches
+
+   ! True if the full name has no POSIX ERE metacharacters, i.e. as a
+   ! pattern it matches only itself.
+   logical function is_literal(this)
+      class(VirtualConnectionPt), intent(in) :: this
+      is_literal = (scan(this%get_full_name(), '.[]()*+?{}|^$\') == 0)
+   end function is_literal
 
 end module mapl_VirtualConnectionPt_mod

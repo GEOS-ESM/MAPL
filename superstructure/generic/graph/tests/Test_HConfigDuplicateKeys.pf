@@ -1,0 +1,109 @@
+module Test_HConfigDuplicateKeys
+   use ESMF, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigCreateAt
+   use ESMF, only: ESMF_HConfigDestroy, ESMF_HConfigAsString, ESMF_HConfigGetSize
+   use ESMF, only: ESMF_HConfigIter, ESMF_HConfigIterBegin, ESMF_HConfigIterEnd
+   use ESMF, only: ESMF_HConfigIterLoop, ESMF_HConfigAsStringMapKey
+   use ESMF, only: ESMF_HConfigCreateAtMapVal
+   use funit
+   implicit none
+
+   character(len=*), parameter :: FILENAME = 'duplicate_toy_scaling.yaml'
+
+contains
+
+   ! A YAML file with two top-level mappings using the same key is not a
+   ! behavior MAPL chooses; this records what ESMF_HConfig actually does
+   ! with one, so callers do not have to guess.
+   @test
+   subroutine test_duplicate_top_level_key_file()
+      type(ESMF_HConfig) :: hconfig, toy_scaling_cfg
+      type(ESMF_HConfigIter) :: iter, iter_begin, iter_end
+      character(len=:), allocatable :: key, operation
+      integer :: status, top_level_size, n_toy_scaling_keys
+
+      call write_duplicate_key_file(FILENAME)
+
+      hconfig = ESMF_HConfigCreate(filename=FILENAME, rc=status)
+      @assertEqual(0, status, 'ESMF_HConfigCreate must accept a file whose top-level map repeats a key')
+
+      ! FINDING 1: ESMF_HConfigGetSize does not collapse the duplicate
+      ! key; it reports both top-level entries (2), with no error.
+      top_level_size = ESMF_HConfigGetSize(hconfig, rc=status)
+      @assertEqual(0, status, 'ESMF_HConfigGetSize failed')
+      @assertEqual(2, top_level_size, 'observed: ESMF_HConfigGetSize counts both duplicate-key entries')
+
+      ! FINDING 2: walking the top-level iterator visits BOTH entries, in
+      ! file order, each still keyed "toy_scaling"; the iterator does not
+      ! merge or flag them as duplicates in any way.
+      n_toy_scaling_keys = 0
+      iter_begin = ESMF_HConfigIterBegin(hconfig, rc=status)
+      @assertEqual(0, status, 'ESMF_HConfigIterBegin failed')
+      iter_end = ESMF_HConfigIterEnd(hconfig, rc=status)
+      @assertEqual(0, status, 'ESMF_HConfigIterEnd failed')
+      iter = iter_begin
+      do while (ESMF_HConfigIterLoop(iter, iter_begin, iter_end))
+         key = ESMF_HConfigAsStringMapKey(iter, rc=status)
+         @assertEqual(0, status, 'ESMF_HConfigAsStringMapKey failed')
+         @assertEqual('toy_scaling', key, 'observed: both iterated entries are still keyed toy_scaling')
+         n_toy_scaling_keys = n_toy_scaling_keys + 1
+         operation = ESMF_HConfigAsString(ESMF_HConfigCreateAtMapVal(iter, rc=status), &
+              keyString='operation', rc=status)
+         @assertEqual(0, status, 'ESMF_HConfigAsString(operation) on iterated entry failed')
+         if (n_toy_scaling_keys == 1) then
+            @assertEqual('v1', operation, 'observed: the iterator visits the earlier entry first')
+         else if (n_toy_scaling_keys == 2) then
+            @assertEqual('v2', operation, 'observed: the iterator visits the later entry second')
+         end if
+      end do
+      @assertEqual(2, n_toy_scaling_keys, 'observed: the iterator visits toy_scaling twice, once per duplicate')
+
+      ! FINDING 3: looking the key up directly, the way production code
+      ! does (ESMF_HConfigCreateAt with keyString), silently returns the
+      ! FIRST occurrence's value, not the last and not an error. This
+      ! disagrees with the iterator's "both visible" behavior above:
+      ! code that iterates sees both entries, code that looks the key up
+      ! directly only ever sees the first.
+      toy_scaling_cfg = ESMF_HConfigCreateAt(hconfig, keyString='toy_scaling', rc=status)
+      @assertEqual(0, status, 'ESMF_HConfigCreateAt(toy_scaling) failed')
+      operation = ESMF_HConfigAsString(toy_scaling_cfg, keyString='operation', rc=status)
+      @assertEqual(0, status, 'ESMF_HConfigAsString(operation) failed')
+      @assertEqual('v1', operation, 'observed: keyString lookup silently returns the FIRST duplicate entry')
+
+      call ESMF_HConfigDestroy(toy_scaling_cfg, rc=status)
+      @assertEqual(0, status, 'ESMF_HConfigDestroy(toy_scaling_cfg) failed')
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status, 'ESMF_HConfigDestroy(hconfig) failed')
+
+      call delete_file(FILENAME)
+   end subroutine test_duplicate_top_level_key_file
+
+   subroutine write_duplicate_key_file(filename)
+      character(*), intent(in) :: filename
+
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      integer :: unit
+
+      ! Two top-level toy_scaling: block mappings with different
+      ! operation values (v1 then v2), as a user might accidentally
+      ! produce by pasting one block twice with an edit in between.
+      content = 'toy_scaling:' // NL // &
+                '  operation: v1' // NL // &
+                'toy_scaling:' // NL // &
+                '  operation: v2' // NL
+
+      open(newunit=unit, file=filename, form='formatted', status='replace')
+      write(unit, '(a)') content
+      close(unit)
+   end subroutine write_duplicate_key_file
+
+   subroutine delete_file(filename)
+      character(*), intent(in) :: filename
+
+      integer :: unit
+
+      open(newunit=unit, file=filename, form='formatted', status='old')
+      close(unit, status='delete')
+   end subroutine delete_file
+
+end module Test_HConfigDuplicateKeys

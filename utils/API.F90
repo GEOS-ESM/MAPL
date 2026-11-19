@@ -49,6 +49,10 @@ module mapl_utils_api
    use mapl_ISO8601_DateTime_mod, only: mapl_ISO8601Interval => ISO8601Interval
    use mapl_DateTime_Parsing_mod
    use mapl_Sleep_mod
+   use mapl_CRC32_mod, only: &
+      & mapl_CRC32 => CRC32, &
+      & mapl_CRC32File => CRC32File, &
+      & mapl_CRC32Hex => CRC32Hex
    use mapl_CF_Time_mod
 
    ! Keys for ESMF_Info objects used in MAPL. See module for keys.
@@ -101,6 +105,11 @@ module mapl_utils_api
    public :: mapl_MakeSymbolicLink
    public :: get_file_extension
    public :: get_file_basename
+
+   ! Checksum
+   public :: mapl_CRC32
+   public :: mapl_CRC32File
+   public :: mapl_CRC32Hex
 
    ! Memory info
    public :: mapl_MemInfo

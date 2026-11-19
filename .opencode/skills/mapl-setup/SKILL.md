@@ -4,6 +4,15 @@ description: First-time MAPL development environment setup and configuration
 compatibility: opencode
 ---
 
+> **Local macOS (this machine): each agent shell call is a fresh shell,
+> so `module load` does not persist between calls.** Use the wrappers
+> `with-nag <cmd>` / `with-gfortran <cmd>` (e.g. `with-nag cmake --build
+> nag -j 10 --target build-tests`) instead of the `module load ...` lines
+> below. The wrappers load the unversioned `nag-stack`,
+> `gfortran-stack`, or `ifx-stack` (bucy only); each machine's module
+> default is the version MAPL needs. Never pick a different compiler
+> version to get past an error.
+
 ## What I Do
 
 Guide you through initial MAPL development environment setup, including:
@@ -76,7 +85,7 @@ paths:
 
 ```bash
 # Test loading NAG compiler
-module load nag mpi baselibs  # Or use your configured names
+module load nag-stack  # Or use your configured names
 module list
 
 # Verify compiler is accessible
@@ -160,7 +169,7 @@ This creates a persistent SSH connection that lasts 8 hours. All subsequent SSH 
 vi ~/.opencode/mapl-config.yaml
 
 # Or use the template directly and test
-module load nag mpi baselibs
+module load nag-stack
 module list
 ```
 
@@ -186,7 +195,7 @@ See the `mapl-build` skill for detailed build instructions.
 
 Quick test:
 ```bash
-module load nag mpi baselibs
+module load nag-stack
 cmake -B build-test -DCMAKE_BUILD_TYPE=Debug
 cmake --build build-test -j 4
 ```

@@ -1,0 +1,460 @@
+! Spec: spec/07-component-graph.md.
+!
+! Uses only synthetic graph nodes (StateItemNode plus a local
+! OperationGraphNode descendant, matching the pattern already established
+! by Test_GraphNodeHierarchy.pf's MockOperationGraphNode) - no
+! OuterComponent/StateRegistry/GraphBuilder/component-hierarchy type is
+! referenced anywhere, demonstrating the layering rule at the same time.
+module Test_ComponentGraph
+   use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_DependencyNetwork_mod, only: DependencyNetwork
+   use mapl_OperationGraphNode_mod, only: OperationGraphNode
+   use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_GraphStateItem_mod, only: GraphStateItem, operator(==)
+   use mapl_NodeRevision_mod, only: NodeRevision
+   use mapl_BaseGraphNode_mod, only: BaseGraphNode
+   use mapl_NodeId_mod, only: NodeId, operator(==), operator(/=)
+   use mapl_DependencyNetworkId_mod, only: DependencyNetworkId, operator(==)
+   use mapl_PortId_mod, only: PortId
+   use mapl_HierarchyId_mod, only: HierarchyId
+   use mapl_HierarchyRegistry_mod, only: request_new_hierarchy
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_Transform_mod, only: Transform
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
+   use StateItemTestSupport_mod, only: make_test_field
+   use ESMF, only: ESMF_Field
+   use ESMF, only: ESMF_STATEITEM_FIELD
+   use funit
+   implicit none
+
+   ! Test-only concrete OperationGraphNode descendant, standing in for the
+   ! not-yet-implemented TransformGraphNode.
+   type, extends(OperationGraphNode) :: MockOperationGraphNode
+   end type MockOperationGraphNode
+
+   type, extends(Transform) :: NoOpTransform
+   contains
+      procedure :: compute => noop_compute
+   end type NoOpTransform
+
+contains
+
+   subroutine noop_compute(this, inputs, outputs, rc)
+      class(NoOpTransform), intent(inout) :: this
+      type(PortNameGraphStateItemMap), intent(in) :: inputs
+      type(PortNameGraphStateItemMap), intent(in) :: outputs
+      integer, intent(out) :: rc
+      rc = 0
+   end subroutine noop_compute
+
+   ! Scenario "Graph owns distinct default network identity" (as
+   ! amended): no graph has a network of its own by default; every graph in
+   ! one hierarchy reports the same forward network, which none owns.
+   @test
+   subroutine test_graphs_in_one_hierarchy_share_forward_network()
+      use mapl_DependencyNetworkId_mod, only: DEFAULT_DependencyNetworkId
+      type(HierarchyId) :: hierarchy_id
+      type(ComponentGraph) :: graph1, graph2
+      type(DependencyNetworkId) :: id1, id2
+
+      hierarchy_id = request_new_hierarchy()
+      graph1 = ComponentGraph(hierarchy_id)
+      graph2 = ComponentGraph(hierarchy_id)
+
+      id1 = graph1%get_forward_network_id()
+      id2 = graph2%get_forward_network_id()
+
+      @assertTrue(id1 == id2)
+      @assertFalse(id1 == DEFAULT_DependencyNetworkId)
+      @assertFalse(graph1%owns_network(id1))
+      @assertFalse(graph2%owns_network(id2))
+   end subroutine test_graphs_in_one_hierarchy_share_forward_network
+
+   ! Scenario "Node registration preserves identity": no second
+   ! node silently replaces one already registered under the same NodeId.
+   @test
+   subroutine test_node_registration_preserves_identity_no_silent_replace()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: id
+      type(StateItemNode) :: node1, node2
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      integer :: status
+
+      graph = ComponentGraph()
+      id = graph%next_node_id(rc=status)
+      @assertEqual(0, status)
+
+      node1 = StateItemNode(id, payload, revision)
+      call graph%register_node(node1, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(graph%owns_node(id))
+
+      ! A second node built with the SAME id must not silently replace it.
+      node2 = StateItemNode(id, payload, revision)
+      call graph%register_node(node2, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_node_registration_preserves_identity_no_silent_replace
+
+   ! Initialization builds structure (nodes, default
+   ! network, dependency) using only synthetic types.
+   @test
+   subroutine test_initialization_builds_structure()
+      type(ComponentGraph), target :: graph
+      type(NodeId) :: producer_id, item_id
+      type(MockOperationGraphNode) :: producer
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(DependencyNetworkId) :: default_id
+      integer :: status
+
+      graph = ComponentGraph()
+
+      producer_id = graph%next_node_id(rc=status)
+      producer%BaseGraphNode = BaseGraphNode(producer_id)
+      call graph%register_node(producer, rc=status)
+      @assertEqual(0, status)
+
+      item_id = graph%next_node_id(rc=status)
+      item = StateItemNode(item_id, payload, revision)
+      call graph%register_node(item, rc=status)
+      @assertEqual(0, status)
+
+      default_id = graph%get_forward_network_id()
+      call graph%add_dependency(default_id, producer_id, item_id, rc=status)
+      @assertEqual(0, status)
+
+      call graph%validate(rc=status)
+      @assertEqual(0, status)
+   end subroutine test_initialization_builds_structure
+
+   ! Scenario "Invalid foreign node is rejected": wiring a
+   ! NodeId that was issued but never registered anywhere in the hierarchy
+   ! fails without partial mutation.
+   @test
+   subroutine test_add_dependency_rejects_unregistered_node()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: owned_id, never_registered_id
+      type(MockOperationGraphNode) :: owned_node
+      type(DependencyNetworkId) :: default_id
+      integer :: status
+
+      graph = ComponentGraph()
+
+      owned_id = graph%next_node_id(rc=status)
+      owned_node%BaseGraphNode = BaseGraphNode(owned_id)
+      call graph%register_node(owned_node, rc=status)
+      @assertEqual(0, status)
+
+      never_registered_id = graph%next_node_id(rc=status)
+
+      default_id = graph%get_forward_network_id()
+      call graph%add_dependency(default_id, owned_id, never_registered_id, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_add_dependency_rejects_unregistered_node
+
+   ! Scenario "Same-pass cross-network write is rejected" (as
+   ! amended): an item with a forward producer may also be the target of a
+   ! write-back edge, since the write-back fires only after the method runs.
+   @test
+   subroutine test_validate_accepts_forward_and_writeback_producers()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: producer1_id, producer2_id, item_id
+      type(MockOperationGraphNode) :: producer1, producer2
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(DependencyNetworkId) :: forward_id, writeback_id
+      integer :: status
+
+      graph = ComponentGraph()
+
+      producer1_id = graph%next_node_id(rc=status)
+      producer1%BaseGraphNode = BaseGraphNode(producer1_id)
+      call graph%register_node(producer1, rc=status)
+
+      producer2_id = graph%next_node_id(rc=status)
+      producer2%BaseGraphNode = BaseGraphNode(producer2_id)
+      call graph%register_node(producer2, rc=status)
+
+      item_id = graph%next_node_id(rc=status)
+      item = StateItemNode(item_id, payload, revision)
+      call graph%register_node(item, rc=status)
+
+      forward_id = graph%get_forward_network_id()
+      call graph%add_dependency(forward_id, producer1_id, item_id, rc=status)
+      @assertEqual(0, status)
+
+      writeback_id = graph%create_network(rc=status)
+      @assertEqual(0, status)
+      call graph%add_dependency(writeback_id, producer2_id, item_id, rc=status)
+      @assertEqual(0, status)
+
+      call graph%validate(rc=status)
+      @assertEqual(0, status)
+      call graph%freeze_forward_network(rc=status)
+      @assertEqual(0, status)
+   end subroutine test_validate_accepts_forward_and_writeback_producers
+
+   ! Freeze validates first and leaves no freeze-state
+   ! change on failure. Trigger: two producers of one item inside one
+   ! write-back network (no add-time producer check there).
+   @test
+   subroutine test_freeze_fails_and_does_not_change_state_on_invalid_graph()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: producer1_id, producer2_id, item_id
+      type(MockOperationGraphNode) :: producer1, producer2
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(DependencyNetworkId) :: forward_id, writeback_id
+      type(DependencyNetwork), pointer :: forward_network, writeback_network
+      integer :: status
+
+      graph = ComponentGraph()
+
+      producer1_id = graph%next_node_id(rc=status)
+      producer1%BaseGraphNode = BaseGraphNode(producer1_id)
+      call graph%register_node(producer1, rc=status)
+
+      producer2_id = graph%next_node_id(rc=status)
+      producer2%BaseGraphNode = BaseGraphNode(producer2_id)
+      call graph%register_node(producer2, rc=status)
+
+      item_id = graph%next_node_id(rc=status)
+      item = StateItemNode(item_id, payload, revision)
+      call graph%register_node(item, rc=status)
+
+      writeback_id = graph%create_network(rc=status)
+      call graph%add_dependency(writeback_id, producer1_id, item_id, rc=status)
+      @assertEqual(0, status)
+      call graph%add_dependency(writeback_id, producer2_id, item_id, rc=status)
+      @assertEqual(0, status)
+
+      call graph%freeze(rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(graph%is_frozen())
+
+      forward_id = graph%get_forward_network_id()
+      forward_network => graph%get_network(forward_id)
+      writeback_network => graph%get_network(writeback_id)
+      @assertFalse(forward_network%is_frozen())
+      @assertFalse(writeback_network%is_frozen())
+   end subroutine test_freeze_fails_and_does_not_change_state_on_invalid_graph
+
+   ! Scenario "Graph freeze propagates to networks": one graph
+   ! freeze freezes only its write-back networks; the hierarchy-wide forward
+   ! freeze then freezes the forward network, after which no graph in the
+   ! hierarchy, frozen or not, may add a forward edge or port binding.
+   @test
+   subroutine test_hierarchy_freeze_propagates_to_networks()
+      type(HierarchyId) :: hierarchy_id
+      type(ComponentGraph) :: graph, other_graph
+      type(DependencyNetworkId) :: forward_id, writeback_id
+      type(DependencyNetwork), pointer :: forward_network, writeback_network
+      type(NodeId) :: a_id, b_id, transform_id
+      type(StateItemNode) :: a, b
+      type(TransformGraphNode) :: transform
+      type(NoOpTransform) :: strategy
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      integer :: status
+
+      hierarchy_id = request_new_hierarchy()
+      graph = ComponentGraph(hierarchy_id)
+      other_graph = ComponentGraph(hierarchy_id)
+      forward_id = graph%get_forward_network_id()
+      writeback_id = graph%create_network(rc=status)
+      @assertEqual(0, status)
+
+      a_id = other_graph%next_node_id(rc=status)
+      a = StateItemNode(a_id, payload, revision)
+      call other_graph%register_node(a, rc=status)
+      b_id = other_graph%next_node_id(rc=status)
+      b = StateItemNode(b_id, payload, revision)
+      call other_graph%register_node(b, rc=status)
+      transform_id = other_graph%next_node_id(rc=status)
+      transform = TransformGraphNode(transform_id, strategy)
+      call transform%declare_input_port('x', rc=status)
+      call other_graph%register_node(transform, rc=status)
+      @assertEqual(0, status)
+
+      call graph%freeze(rc=status)
+      @assertEqual(0, status)
+      @assertTrue(graph%is_frozen())
+      writeback_network => graph%get_network(writeback_id)
+      forward_network => graph%get_network(forward_id)
+      @assertTrue(writeback_network%is_frozen())
+      @assertFalse(forward_network%is_frozen())
+
+      call graph%freeze_forward_network(rc=status)
+      @assertEqual(0, status)
+      forward_network => graph%get_network(forward_id)
+      @assertTrue(forward_network%is_frozen())
+
+      @assertFalse(other_graph%is_frozen())
+      call other_graph%add_dependency(forward_id, a_id, b_id, rc=status)
+      @assertTrue(status /= 0)
+      call other_graph%bind_port(forward_id, transform_id, 'x', a_id, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_hierarchy_freeze_propagates_to_networks
+
+   ! Scenario "Frozen structure rejects mutation": node,
+   ! dependency, network, and port-binding additions all fail after freeze.
+   @test
+   subroutine test_frozen_graph_rejects_all_structural_mutation()
+      type(ComponentGraph) :: graph
+      type(NodeId) :: item_id, new_node_id
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      type(MockOperationGraphNode) :: new_node
+      type(DependencyNetworkId) :: default_id, unused_network_id
+      type(PortId) :: port_id
+      integer :: status
+
+      graph = ComponentGraph()
+      item_id = graph%next_node_id(rc=status)
+      item = StateItemNode(item_id, payload, revision)
+      call graph%register_node(item, rc=status)
+      @assertEqual(0, status)
+
+      call graph%freeze(rc=status)
+      @assertEqual(0, status)
+      call graph%freeze_forward_network(rc=status)
+      @assertEqual(0, status)
+
+      ! No new node may be added.
+      new_node_id = graph%next_node_id(rc=status)
+      @assertTrue(status /= 0)
+
+      new_node%BaseGraphNode = BaseGraphNode(item_id)  ! id irrelevant; call must fail regardless
+      call graph%register_node(new_node, rc=status)
+      @assertTrue(status /= 0)
+
+      ! No new DependencyNetwork may be created.
+      unused_network_id = graph%create_network(rc=status)
+      @assertTrue(status /= 0)
+
+      ! No new dependency may be added.
+      default_id = graph%get_forward_network_id()
+      call graph%add_dependency(default_id, item_id, item_id, rc=status)
+      @assertTrue(status /= 0)
+
+      ! No new port binding may be added.
+      port_id = graph%next_port_id(rc=status)
+      @assertTrue(status /= 0)
+      call graph%add_import_port(port_id, item_id, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_frozen_graph_rejects_all_structural_mutation
+
+   ! Scenario "Runtime value update remains allowed": after
+   ! freeze, an existing StateItemNode's payload may still be updated in
+   ! place (through the pointer returned by get_node(), exactly as a real
+   ! caller would - no ComponentGraph API is involved in the mutation
+   ! itself), without changing its NodeId or graph topology.
+   @test
+   subroutine test_runtime_value_update_allowed_after_freeze()
+      use mapl_GraphNode_mod, only: GraphNode
+      type(ComponentGraph) :: graph
+      type(NodeId) :: item_id
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload, updated_payload
+      type(NodeRevision) :: revision
+      type(ESMF_Field) :: field
+      class(GraphNode), pointer :: retrieved
+      integer :: status
+
+      graph = ComponentGraph()
+      item_id = graph%next_node_id(rc=status)
+      item = StateItemNode(item_id, payload, revision)
+      call graph%register_node(item, rc=status)
+      @assertEqual(0, status)
+
+      call graph%freeze(rc=status)
+      @assertEqual(0, status)
+
+      field = make_test_field('t_runtime_update_field', rc=status)
+      @assertEqual(0, status)
+      call updated_payload%set(field, rc=status)
+      @assertEqual(0, status)
+
+      retrieved => graph%get_node(item_id)
+      @assertTrue(associated(retrieved))
+      select type (retrieved)
+      type is (StateItemNode)
+         call retrieved%set_payload(updated_payload)
+      class default
+         @assertTrue(.false.)
+      end select
+
+      ! Re-fetch: same NodeId, updated payload persisted.
+      retrieved => graph%get_node(item_id)
+      @assertTrue(associated(retrieved))
+      select type (retrieved)
+      type is (StateItemNode)
+         @assertTrue(retrieved%get_node_id() == item_id)
+         payload = retrieved%get_payload()
+         @assertTrue(payload%itemType(rc=status) == ESMF_STATEITEM_FIELD)
+         @assertEqual(0, status)
+      class default
+         @assertTrue(.false.)
+      end select
+   end subroutine test_runtime_value_update_allowed_after_freeze
+
+   ! freeze() is irreversible; calling it again is a
+   ! harmless no-op that leaves the graph frozen.
+   @test
+   subroutine test_graph_freeze_is_irreversible()
+      type(ComponentGraph) :: graph
+      integer :: status
+
+      graph = ComponentGraph()
+      call graph%freeze(rc=status)
+      @assertEqual(0, status)
+
+      call graph%freeze(rc=status)
+      @assertEqual(0, status)
+      @assertTrue(graph%is_frozen())
+   end subroutine test_graph_freeze_is_irreversible
+
+   ! Scenario "Finalized graph rejects use".
+   @test
+   subroutine test_finalized_graph_rejects_use()
+      use mapl_GraphNode_mod, only: GraphNode
+      type(ComponentGraph) :: graph
+      type(NodeId) :: item_id
+      type(StateItemNode) :: item
+      type(GraphStateItem) :: payload
+      type(NodeRevision) :: revision
+      class(GraphNode), pointer :: retrieved
+      integer :: status
+
+      graph = ComponentGraph()
+      item_id = graph%next_node_id(rc=status)
+      item = StateItemNode(item_id, payload, revision)
+      call graph%register_node(item, rc=status)
+      @assertEqual(0, status)
+
+      call graph%finalize(rc=status)
+      @assertEqual(0, status)
+      @assertTrue(graph%is_finalized())
+
+      retrieved => graph%get_node(item_id)
+      @assertFalse(associated(retrieved))
+
+      call graph%validate(rc=status)
+      @assertTrue(status /= 0)
+
+      call graph%freeze(rc=status)
+      @assertTrue(status /= 0)
+
+      ! Finalization itself is not idempotent: a second
+      ! call is also rejected as "use after finalize."
+      call graph%finalize(rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_finalized_graph_rejects_use
+
+end module Test_ComponentGraph

@@ -1,0 +1,302 @@
+# Extension Reuse Specification
+
+## Purpose
+
+Bridges a mismatched export/import pair (differing in grid, units,
+precision, or other declared characteristics) with a framework-created
+transform chain instead of wiring the pair directly or silently coercing
+the mismatch, and reuses an existing extension for a second import
+needing the same variant instead of duplicating it.
+
+## Requirements
+
+### Requirement: Extension chain bridges a mismatched export/import pair
+When an export's payload does not match what a connected import
+requires, the system SHALL interpose one or more framework-created
+transform steps between the export and the import rather than wiring
+them together directly or coercing the mismatch silently.
+
+#### Scenario: Single-step mismatch gets one transform
+- **WHEN** an export and its connected import differ in exactly one
+  declared characteristic (e.g. units)
+- **THEN** the system creates one transform step and one
+  framework-created extension item between the export and the import,
+  and the import ends up wired to that extension item rather than to
+  the original export
+
+#### Scenario: Multi-step mismatch gets a chain
+- **WHEN** an export and its connected import differ in more than one
+  declared characteristic
+- **THEN** the system creates a chain of transform steps and
+  intermediate extension items sufficient to resolve every differing
+  characteristic, with the import wired to the chain's final extension
+  item
+
+### Requirement: Import item remains distinct but shares extension payload
+The import SHALL remain its own distinct item, retrievable by its own
+identity, but SHALL NOT be independently materialized when it is fed by
+an extension chain — its payload SHALL be the same payload as the
+chain's final extension item.
+
+#### Scenario: Import identity is preserved
+- **WHEN** an import is fed through an extension chain
+- **THEN** the import is still retrievable by its own identity, distinct
+  from the export's identity and from any extension item's identity
+
+#### Scenario: Import payload is not independently allocated
+- **WHEN** an import is fed through an extension chain
+- **THEN** the import's payload is the same underlying payload as the
+  chain's final extension item, not a separately allocated copy
+
+### Requirement: Exact match requires no extension
+If an export's payload already matches what the import requires
+exactly, the system SHALL NOT create any extension item or transform
+step for that connection.
+
+#### Scenario: No-op case creates nothing
+- **WHEN** an export's payload matches what a connected import requires
+  exactly, with no mismatch in any declared characteristic
+- **THEN** no extension item or transform step is created for that
+  connection, and the import ends up wired to the export directly
+
+### Requirement: Existing extensions are reused before creating a new one
+Before creating a new extension item for a given export, the system
+SHALL search the extensions already created from that export, anywhere
+in the hierarchy, for one whose payload already matches what the new
+import requires, and reuse it instead of creating a duplicate. The
+search SHALL NOT depend on which component declared the connection that
+created the existing extension, or on which component declares the new
+one.
+
+#### Scenario: Second importer needing the same variant reuses the first extension
+- **WHEN** a second import, needing the same variant of an export as an
+  already-resolved first import, is resolved
+- **THEN** the second import is wired to the same extension item the
+  first import uses, and no duplicate extension item or transform step
+  is created
+
+#### Scenario: Reuse across declaring components
+- **WHEN** a parent declares a connection from a child's export to one
+  import that needs a conversion, and a grandparent declares a
+  connection from the same export to another import that needs the same
+  conversion
+- **THEN** both imports are wired to the same extension item, and only
+  one transform step for that conversion exists in the hierarchy
+
+#### Scenario: Different variant still creates a new extension
+- **WHEN** a second import needs a different variant of the same export
+  than any extension already created from that export
+- **THEN** the system creates a new extension item for the second
+  import without disturbing any existing extension already wired to
+  other importers
+
+### Requirement: A characteristic mismatch with no registered extension provider fails explicitly
+Resolving a mismatch requires the system to know how to bridge that
+specific characteristic. If the system has no such implementation
+registered for a characteristic a mismatch was detected on, it SHALL
+report an explicit, distinguishable failure for that connection rather
+than wiring the pair directly, silently ignoring the mismatch, or
+reporting it the same way as an unresolved import (no matching export
+at all).
+
+#### Scenario: Unregistered characteristic fails loudly
+- **WHEN** an export/import pair mismatches on a characteristic with no
+  registered extension provider
+- **THEN** the system reports an explicit failure identifying the
+  unsupported characteristic, distinguishable from "import has no
+  matching export," and does not wire the import to the export directly
+
+#### Scenario: Registered characteristic succeeds even when others are not
+- **WHEN** an export/import pair mismatches only on characteristics that
+  all have registered extension providers
+- **THEN** the system builds the extension chain normally, regardless of
+  how many or how few characteristics currently have a registered
+  provider
+
+### Requirement: Reuse search does not change which extensions get reused
+Restating the reuse search as a graph traversal SHALL NOT change, for
+any configuration also resolvable by the existing extension-reuse
+algorithm, which extension ends up reused versus newly created.
+
+#### Scenario: Same reuse decision as the existing algorithm
+- **WHEN** a configuration's export/import mismatches are resolved once
+  by the existing (non-graph) extension-reuse algorithm and once by this
+  capability's graph-based search
+- **THEN** both produce the same set of extension items and the same
+  import-to-extension pairings
+
+### Requirement: Payload materialization is disabled unless explicitly enabled
+Real payload materialization for a framework-created extension item is
+an opt-in capability. Unless explicitly enabled, the system SHALL NOT
+perform any real payload allocation for an extension item — an existing
+mismatch resolution's structural result (chain creation, reuse
+decisions) SHALL be completely unaffected by whether materialization is
+enabled or not.
+
+#### Scenario: Materialization disabled by default
+- **WHEN** an extension chain is built or reused for a mismatched pair,
+  and payload materialization has not been explicitly enabled
+- **THEN** the chain's final extension item is left with an unallocated
+  placeholder payload, exactly as if this capability did not exist, and
+  no real ESMF resource is allocated on its behalf
+
+### Requirement: Framework-created extension items have a real, materialized payload
+When payload materialization is explicitly enabled, every
+framework-created extension item the system successfully builds or
+reuses for a mismatched export/import pair whose underlying item is a
+plain field, a vector, or a bracket export resolving into a field import
+through the shape-dispatch characteristic, SHALL be materialized as a
+real, allocated payload, not left as graph structure only — correct
+`NodeId`s and dependency edges with no real, computable payload behind
+them. This applies to every intermediate item in a multi-step chain, not
+only the chain's own final item: a chain resolving two or more mismatched
+characteristics SHALL have every link's own item materialized with its
+own correctly-evolved typekind, units, and geometry — the state after the
+immediately-preceding link's own conversion has notionally applied —
+before the next link's own conversion runs against it. A chain whose
+mismatch set includes the shape-dispatch characteristic for a
+bracket-to-field pairing SHALL have its final item materialized as a
+field, not the export's own bracket shape. A link that is a vector, or a
+bracket before its shape step, SHALL be materialized as an allocated
+field bundle of that type that has no members: the Transform that fills
+it creates the members at compute, one per input member. This holds for
+the geometry, units, typekind, vertical-grid and vertical-orientation
+steps. A vector-bracket pair, and any link whose step has no Transform
+for a bundle (for example a vertical-grid step between grids that supply
+no level values, such as model grids, or a stagger-only step), remain
+outside this requirement's scope (see the "non-field,
+non-shape-convertible item class" scenario below).
+
+#### Scenario: Resolved extension has a real payload
+- **WHEN** payload materialization is enabled and an extension chain is
+  built or reused for a mismatched, field-typed export/import pair whose
+  mismatch has a registered, executing provider
+- **THEN** the chain's final extension item has a real, allocated
+  payload — not an empty or unallocated placeholder
+
+#### Scenario: Every intermediate link of a multi-step chain has a real payload
+- **WHEN** payload materialization is enabled and an extension chain
+  resolving two or more mismatched characteristics is built for a
+  field-typed export/import pair whose mismatches all have registered,
+  executing providers
+- **THEN** every intermediate item in the chain — not only the chain's
+  own final item — has a real, allocated payload, each reflecting that
+  link's own correctly-evolved typekind, units, and geometry rather than
+  an unallocated placeholder or the original export's own unmodified
+  payload
+
+#### Scenario: A chain of three or more links executes end to end
+- **WHEN** payload materialization is enabled and a chain resolves three
+  or more mismatched characteristics, each with a registered, executing
+  provider
+- **THEN** every transform step in the chain can read a real, allocated
+  payload from its own predecessor link and write a real, allocated
+  payload to its own successor link, with no step failing because an
+  intermediate link's payload was left unallocated
+
+#### Scenario: Resolved extension remains discoverable through the existing reuse search
+- **WHEN** payload materialization is enabled and an extension chain's
+  final item has a real payload
+- **THEN** that item remains discoverable through the same reuse-search
+  mechanism that locates any other extension item, without requiring a
+  separate lookup mechanism
+
+#### Scenario: Reused extension is not re-materialized
+- **WHEN** payload materialization is enabled and a second import is
+  wired to an already-existing extension item via reuse (no new chain
+  created)
+- **THEN** no duplicate payload is materialized for that already-real
+  extension item
+
+#### Scenario: A reused chain's intermediate links are not re-materialized
+- **WHEN** payload materialization is enabled and a second import is
+  wired to an already-existing extension chain via reuse (no new chain
+  created)
+- **THEN** no duplicate payload is materialized for any already-real
+  item in that chain, intermediate or final
+
+#### Scenario: A vector or bracket link is materialized as a bundle without members
+- **WHEN** payload materialization is enabled and an extension chain is
+  built for a vector export and vector import, or for a bracket export
+  and field import, whose mismatches are resolved through the geometry,
+  units, typekind, vertical-grid or vertical-orientation characteristic
+- **THEN** each vector link, and the bracket link before its shape
+  step, has a real, allocated field bundle of that type with the link's
+  own geometry, typekind and units and with no members; the members are
+  created by the Transform at compute
+
+#### Scenario: A vector item gets its bundle at advertise as a field does; a bracket only as an export
+- **WHEN** graph mode is active and a vector item of any state intent
+  (import, export or internal), or a bracket export, is advertised, with
+  either user-state switch setting
+- **THEN** the item's node holds an empty field bundle of that type with
+  allocation status created; a bracket declared as an internal gets none
+  (a bracket exists only as an export, for time interpolation by ExtData);
+  a legacy bundle aliased over the created one replaces it, and the created
+  bundle is destroyed with its members
+
+#### Scenario: A vector or bracket export with no legacy bundle to alias gets a bundle with members
+- **WHEN** graph mode is active and a vector or bracket
+  export is consumed by a connection (as an exact match, or as the input
+  of an extension chain) and no existing bundle of that name is aliased
+- **THEN** the export has a real, allocated field bundle of that type with
+  its two members (vector) or `bracket_size` members (bracket, at most
+  two), each a complete field with the export's geometry, typekind, units
+  and fill value; a vector's members carry the two component standard
+  names; the bundle has the declared vector basis, or a bracket's
+  `bracket_updated` set; a bracket export without `bracket_size` fails with
+  an explicit message
+
+#### Scenario: A non-field, non-shape-convertible item class fails explicitly rather than getting a fabricated payload
+- **WHEN** payload materialization is enabled and a mismatched
+  export/import pair's underlying item is not a plain field, is not a
+  vector pair, and is not a bracket export resolving into a field import
+  through the shape-dispatch characteristic (e.g. a state-typed item, a
+  service item, a wildcard item, a plain field-bundle item, a
+  vector-bracket item, or a bracket item whose mismatch set does not
+  include the shape-dispatch characteristic), or a vector or bracket
+  link needs a step that has no Transform for a bundle (for example a
+  vertical-grid step between grids that supply no level values, or a
+  stagger-only step, which is reported as that unsupported characteristic
+  and not materialized)
+- **THEN** the system reports an explicit, distinguishable failure
+  identifying the unsupported item class or characteristic rather than
+  materializing an incomplete, incorrect, or empty payload — for any link
+  in the chain, intermediate or final
+
+#### Scenario: A bracket export resolved through shape dispatch is materialized as a field
+- **WHEN** payload materialization is enabled and a bracket-shaped
+  export's mismatch with a field-typed import is resolved through the
+  shape-dispatch characteristic
+- **THEN** the chain's final extension item has a real, allocated field
+  payload — not the export's own bracket (field-bundle) shape, and not
+  an unallocated placeholder
+
+#### Scenario: An extension with no executing provider is still not given a payload
+- **WHEN** payload materialization is enabled and a characteristic
+  mismatch has no registered, executing provider (the existing
+  "unregistered characteristic fails loudly" case)
+- **THEN** no payload is materialized for that connection, consistent
+  with the connection failing rather than partially succeeding — and no
+  later link in the chain is materialized either, since chain
+  construction stops at the first unsupported characteristic
+
+### Requirement: Expression evaluations and collections are reused hierarchy-wide
+An expression evaluation over a given set of inputs and goal
+characteristics, and a callback or wildcard collection for a given
+import, SHALL each be built at most once in the hierarchy. A later
+resolution that needs the same evaluation or collection SHALL reuse it,
+whichever component declares that resolution.
+
+#### Scenario: Same expression evaluation reused by two declaring components
+- **WHEN** two connections declared on different components need the
+  same evaluation of one expression export with the same goal
+  characteristics
+- **THEN** both are wired to the same evaluation result item, and one
+  expression transform exists for it
+
+#### Scenario: Collection resolved twice is built once
+- **WHEN** resolution for one wildcard or callback import runs again,
+  from the same or a different declaring component
+- **THEN** the existing collection is reused and no second collection
+  is created

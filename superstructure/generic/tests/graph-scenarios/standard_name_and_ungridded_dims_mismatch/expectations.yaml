@@ -1,0 +1,31 @@
+# Runs with a permissive field dictionary (set in Test_Scenarios.pf's
+# scenario_table()). The graph wires the pair with a warning; the export's
+# standard_name wins.
+- component: comp_src/<user>
+  export:
+    T: {status: complete, typekind: R4, rank: 3, standard_name: 'air_temperature'}
+
+- component: comp_src
+  export:
+    T: {status: complete, typekind: R4, rank: 3, standard_name: 'air_temperature'}
+
+- component: comp_dst/<user>
+  import:
+    T: {status: complete, typekind: R4, rank: 3, standard_name: 'air_temperature'}
+
+- component: comp_dst
+  import:
+    T: {status: complete, typekind: R4, rank: 3, standard_name: 'air_temperature'}
+
+- component: <user>
+  import: {}
+  export: {}
+  internal: {}
+
+- component: <root>
+  export:
+    comp_src/T: {status: complete, typekind: R4, rank: 3, standard_name: 'air_temperature'}
+  graph:
+    nodes: 1
+    connections:
+      - {export: comp_src/T, import: comp_dst/T, wired: true}

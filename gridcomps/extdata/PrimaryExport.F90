@@ -14,6 +14,7 @@ module mapl_PrimaryExport_mod
    use mapl_ExtDataRule_mod
    use mapl_ExtDataCollection_mod
     use mapl_ExtDataSample_mod
+     use mapl_ExtDataPointerUpdate_mod
     use VerticalCoordinateMod
     use pflogger, only: logger
     use mapl_DefaultServerNames_mod, only: MAPL_DEFAULT_INPUT_SERVER
@@ -35,6 +36,7 @@ module mapl_PrimaryExport_mod
       character(len=:), allocatable :: regridding_method
       logical :: enable_vertical_regrid = .false.
       integer :: fraction_value
+      type(ExtDataPointerUpdate) :: pointer_update
       ! Coordinate-comparison tolerance from the collection's config
       ! (see GEOS-ESM/MAPL#5385 / ExtDataCollection%coordinate_tolerance),
       ! expressed as a FRACTION of this grid's own local spacing (DX),
@@ -55,7 +57,6 @@ module mapl_PrimaryExport_mod
          procedure :: get_file_selector
          procedure :: complete_export_spec
          procedure :: update_export_spec
-         !procedure :: get_file_var_name
          procedure :: get_export_var_name
          procedure :: get_bracket
          procedure :: update_my_bracket
@@ -114,6 +115,7 @@ module mapl_PrimaryExport_mod
           i_client => mapl_get_client(MAPL_DEFAULT_INPUT_SERVER, _RC)
          primary_export%client_collection_id = i_client%add_data_collection(file_template, _RC)
          call primary_export%bracket%set_parameters(time_interpolation=sample%time_interpolation)
+         call primary_export%pointer_update%create(sample, time_step, _RC)
          allocate(primary_export%start_and_end, source=time_range)
          primary_export%coordinate_tolerance = collection%get_coordinate_tolerance()
       end if
@@ -158,6 +160,8 @@ module mapl_PrimaryExport_mod
       class(mapl_VerticalGrid), pointer :: vertical_grid
       type(mapl_VerticalGridManager), pointer :: vgrid_manager
       character(len=:), pointer :: variable_name
+      type(mapl_UngriddedDims) :: ungridded_dims
+      character(len=:), allocatable :: lev_name
 
       if (this%is_constant) then
          _RETURN(_SUCCESS)
@@ -173,6 +177,10 @@ module mapl_PrimaryExport_mod
 
       variable_name => this%file_vars%of(1)
       this%vcoord = verticalCoordinate(metadata%metadata, variable_name, _RC)
+      ! get any ungridded dimensions
+      lev_name = ''
+      if (allocated(this%vcoord%file_lev_name)) lev_name = this%vcoord%file_lev_name
+      ungridded_dims = mapl_ungridded_dims_from_metadata(metadata%metadata, variable_name, geom, lev_name, _RC)
       regridder_param = mapl_generate_esmf_regrid_param(mapl_regrid_method_string_to_int(this%regridding_method), &
          ESMF_TYPEKIND_R4, _RC)
       regridder_param_info = regridder_param%make_info(_RC)
@@ -180,20 +188,21 @@ module mapl_PrimaryExport_mod
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
 
       if (this%vcoord%vertical_type == NO_COORD) then
-         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
+         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', ungridded_dims=ungridded_dims, typekind=ESMF_TYPEKIND_R4, &
                  vert_staggerloc=MAPL_VERTICAL_STAGGER_NONE, regridder_param_info=regridder_param_info, _RC)
       else if (this%vcoord%vertical_type == SIMPLE_COORD) then
          vertical_grid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
-         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
+         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', ungridded_dims=ungridded_dims, &
                  typekind=ESMF_TYPEKIND_R4, vgrid=vertical_grid, &
-                 vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER, regridder_param_info=regridder_param_info, _RC)
+                 vert_staggerloc=this%vcoord%stagger, regridder_param_info=regridder_param_info, _RC)
+                 !vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER, regridder_param_info=regridder_param_info, _RC)
       else
          if (this%enable_vertical_regrid) then
             _FAIL("unsupported vertical coordinate for item "//trim(this%export_var))
          else 
             this%vcoord%vertical_type = SIMPLE_COORD
             vertical_grid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
-            call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
+            call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', ungridded_dims=ungridded_dims, &
                  typekind=ESMF_TYPEKIND_R4, vgrid=vertical_grid, &
                  vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER, regridder_param_info=regridder_param_info, _RC)
          end if
@@ -219,6 +228,8 @@ module mapl_PrimaryExport_mod
       type(mapl_VerticalGridManager), pointer :: vgrid_manager
       class(mapl_VerticalGrid), pointer :: vertical_grid
       character(len=:), pointer :: variable_name
+      type(mapl_UngriddedDims) :: ungridded_dims
+      character(len=:), allocatable :: lev_name
 
       if (this%is_constant) then
          _RETURN(_SUCCESS)
@@ -233,14 +244,17 @@ module mapl_PrimaryExport_mod
 
       variable_name => this%file_vars%of(1)
       this%vcoord = verticalCoordinate(metadata%metadata, variable_name, _RC)
+      lev_name = ''
+      if (allocated(this%vcoord%file_lev_name)) lev_name = this%vcoord%file_lev_name
+      ungridded_dims = mapl_ungridded_dims_from_metadata(metadata%metadata, variable_name, geom, lev_name, _RC)
 
       call ESMF_StateGet(exportState, item_name, bundle, _RC)
       if (this%vcoord%vertical_type == NO_COORD) then
-         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', typekind=ESMF_TYPEKIND_R4, &
+         call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', ungridded_dims=ungridded_dims, typekind=ESMF_TYPEKIND_R4, &
                  vert_staggerloc=MAPL_VERTICAL_STAGGER_NONE,  _RC)
        else if (this%vcoord%vertical_type == SIMPLE_COORD) then
           vertical_grid => vgrid_manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=this%vcoord%num_levels), _RC)
-          call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', &
+          call MAPL_FieldBundleSet(bundle, geom=esmfgeom, units='<unknown>', ungridded_dims=ungridded_dims, &
                  typekind=ESMF_TYPEKIND_R4, vgrid=vertical_grid, &
                  vert_staggerloc=MAPL_VERTICAL_STAGGER_CENTER,  _RC)
       else
@@ -250,18 +264,18 @@ module mapl_PrimaryExport_mod
       _RETURN(_SUCCESS)
    end subroutine update_export_spec
 
-   subroutine update_my_bracket(this, bundle, current_time, weights, rc)
+   subroutine update_my_bracket(this, bundle, use_time, weights, rc)
       class(PrimaryExport), intent(inout) :: this
       type(ESMF_FieldBundle), intent(inout) :: bundle
-      type(ESMF_Time), intent(in) :: current_time
+      type(ESMF_Time), intent(in) :: use_time
       real, allocatable, intent(out) :: weights(:)
       integer, optional, intent(out) :: rc
 
       integer :: status
       real :: local_weights(2)
 
-      call this%file_selector%update_file_bracket(bundle, current_time, this%bracket, _RC)
-      local_weights = this%bracket%compute_bracket_weights(current_time, _RC)
+      call this%file_selector%update_file_bracket(bundle, use_time, this%bracket, _RC)
+      local_weights = this%bracket%compute_bracket_weights(use_time, _RC)
 
       if (this%file_vars%size() == 1) then
          allocate(weights(3),_STAT)

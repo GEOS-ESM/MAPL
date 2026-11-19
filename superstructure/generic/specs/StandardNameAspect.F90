@@ -6,7 +6,6 @@
 ! agreement, checked via the standard AspectMap matches()/connection-resolution
 ! machinery, with a single unaliased field-wide value (like units) rather than
 ! the per-alias storage generic/field-name-propagation gave standard_name
-! before this aspect existed. See openspec/changes/enforce-standard-name-
 ! convention (or, once archived, specs/generic/standard-name-enforcement).
 module mapl_StandardNameAspect_mod
 
@@ -200,8 +199,7 @@ contains
       ! Already validated equal-or-accepted by matches(); this endpoint
       ! adopts the export's value whenever the export declares one - this
       ! is "the export's value wins" for both the agreeing and the
-      ! permissive-mismatch case (see matches()). Bugfix (found via
-      ! openspec change use-field-dictionary-in-scenario-tests):
+      ! permissive-mismatch case (see matches()).
       ! export_%standard_name is unallocated whenever the export side is
       ! itself unchecked/wildcard (it declared no standard_name at all -
       ! matches()'s "Import declares one, Export does not" branch accepts

@@ -146,7 +146,8 @@ contains
       type(ExtDataGridComp), pointer :: extdata_gridcomp
       type(StringVectorIterator) :: iter
       type(PrimaryExport), pointer :: export_item
-      type(ESMF_Time) :: current_time
+      type(ESMF_Time) :: current_time, use_time
+      logical :: do_update
       real, allocatable :: weights(:)
       character(len=:), allocatable :: export_name
       character(len=:), pointer :: base_name
@@ -176,7 +177,9 @@ contains
          export_name = export_item%get_export_var_name()
          call ESMF_StateGet(exportState, export_name, bundle, _RC)
          call MAPL_FieldBundleSet(bundle, bracket_updated=.false., _RC)
-         call export_item%update_my_bracket(bundle, current_time, weights, _RC)
+         call export_item%pointer_update%check_update(do_update, use_time, current_time, _RC)
+         if (.not. do_update) cycle
+         call export_item%update_my_bracket(bundle, use_time, weights, _RC)
          call set_weights(exportState, export_name, weights, _RC)
          call export_item%append_state_to_reader(exportState, reader, lgr, _RC)
       end do

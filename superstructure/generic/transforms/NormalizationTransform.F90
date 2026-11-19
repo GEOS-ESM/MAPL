@@ -9,12 +9,12 @@
 !! Forward (is_inverse=false): mixing ratios [kg/kg] → column masses [kg/m²]
 !! Inverse (is_inverse=true):  column masses [kg/m²] → mixing ratios [kg/kg]
 !!
-!! @par Limitation (Phase 2, Task 2.2-2.4):
+!! @par Limitation:
 !! This is a simplified implementation for testing the core normalization logic.
 !! The auxiliary field must be provided at construction time and kept valid
 !! externally. The framework CANNOT use this in production form.
 !!
-!! @par Future Work (Task 2.2c or later):
+!! @par Future Work:
 !! Full coupler infrastructure needed:
 !! - Auxiliary field obtained via coupler (similar to VerticalRegridTransform)
 !! - Coupler run during update() to ensure latest values
@@ -42,7 +42,7 @@ module mapl_NormalizationTransform_mod
     !! (e.g., DELP, DZ) scaled by a constant factor (e.g., 1/g), or performs
     !! the inverse operation (division) for denormalization.
     !!
-    !! LIMITATION (Phase 2, Task 2.2-2.4):
+    !! LIMITATION:
     !! - Auxiliary field is stored directly in the transform
     !! - No coupler support yet - auxiliary field must be passed at construction
     !! - Framework cannot use this in production form

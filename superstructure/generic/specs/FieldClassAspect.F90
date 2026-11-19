@@ -342,7 +342,7 @@ contains
          if (dst /= src) then
             lgr => logging%get_logger('mapl.generic')
             write(buffer,*) actual_pt
-            call lgr%info('Mismatched default values for %a src = %g0~; dst = %g0 (src value wins)', trim(buffer), src, dst)
+            call lgr%info('Mismatched default values for %a src = %g0~; dst = %g0 (dst value kept)', trim(buffer), src, dst)
          end if
 
       end subroutine mirror

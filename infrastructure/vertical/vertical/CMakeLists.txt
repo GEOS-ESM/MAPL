@@ -18,7 +18,7 @@ endif ()
 
 esma_add_library(${this}
   SRCS ${srcs}
-  DEPENDENCIES MAPL.utils MAPL.utils MAPL.pfio udunits2f PFLOGGER::pflogger
+  DEPENDENCIES MAPL.enums MAPL.utils MAPL.pfio udunits2f PFLOGGER::pflogger
   TYPE SHARED
 )
 

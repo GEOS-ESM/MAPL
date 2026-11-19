@@ -1,0 +1,296 @@
+#include "MAPL_TestErr.h"
+module Test_ExtDataPointerUpdate
+   use pfunit
+   use mapl_ExtDataSample_mod
+   use mapl_ExtDataPointerUpdate_mod
+   use esmf
+   implicit none
+
+contains
+
+   subroutine make_update(content, step_seconds, upd)
+      character(len=*), intent(in) :: content
+      integer, intent(in) :: step_seconds
+      type(ExtDataPointerUpdate), intent(out) :: upd
+
+      type(ESMF_HConfig) :: config
+      type(ESMF_TimeInterval) :: time_step
+      type(ExtDataSample) :: sample
+      integer :: status
+
+      call ESMF_TimeIntervalSet(time_step, s=step_seconds, rc=status)
+      @assert_that(status, is(0))
+      config = ESMF_HConfigCreate(content=content, rc=status)
+      @assert_that(status, is(0))
+      sample = ExtDataSample(config, rc=status)
+      @assert_that(status, is(0))
+      call upd%create(sample, time_step, rc=status)
+      @assert_that(status, is(0))
+      call ESMF_HConfigDestroy(config, rc=status)
+   end subroutine make_update
+
+   function time_at(d, h, mi) result(t)
+      ! all times are in April 2004
+      type(ESMF_Time) :: t
+      integer, intent(in) :: d, h, mi
+      integer :: status
+      call ESMF_TimeSet(t, yy=2004, mm=4, dd=d, h=h, m=mi, s=0, rc=status)
+   end function time_at
+
+   subroutine check(upd, d, h, mi, do_update, use_time)
+      type(ExtDataPointerUpdate), intent(inout) :: upd
+      integer, intent(in) :: d, h, mi
+      logical, intent(out) :: do_update
+      type(ESMF_Time), intent(out) :: use_time
+      integer :: status
+      call upd%check_update(do_update, use_time, time_at(d, h, mi), rc=status)
+      @assert_that(status, is(0))
+   end subroutine check
+
+   @test
+   subroutine test_defaults_update_every_call()
+      type(ExtDataPointerUpdate) :: upd
+      logical :: do_update
+      type(ESMF_Time) :: use_time
+      integer :: h
+
+      call make_update("{}", 900, upd)
+      do h = 0, 5
+         call check(upd, 14, h, 0, do_update, use_time)
+         @assertTrue(do_update)
+         @assertTrue(use_time == time_at(14, h, 0))
+      end do
+      @assertFalse(upd%is_single_shot())
+   end subroutine test_defaults_update_every_call
+
+   @test
+   subroutine test_offset_only_updates_every_call()
+      type(ExtDataPointerUpdate) :: upd
+      logical :: do_update
+      type(ESMF_Time) :: use_time
+
+      call make_update("{update_offset: PT12H}", 900, upd)
+      call check(upd, 14, 3, 0, do_update, use_time)
+      @assertTrue(do_update)
+      @assertTrue(use_time == time_at(14, 15, 0))
+      call check(upd, 14, 4, 0, do_update, use_time)
+      @assertTrue(do_update)
+      @assertTrue(use_time == time_at(14, 16, 0))
+
+      call make_update("{update_offset: -PT6H}", 900, upd)
+      call check(upd, 14, 12, 0, do_update, use_time)
+      @assertTrue(do_update)
+      @assertTrue(use_time == time_at(14, 6, 0))
+
+      call make_update("{update_offset: HEARTBEAT}", 900, upd)
+      call check(upd, 14, 12, 0, do_update, use_time)
+      @assertTrue(do_update)
+      @assertTrue(use_time == time_at(14, 12, 15))
+   end subroutine test_offset_only_updates_every_call
+
+   @test
+   subroutine test_daily_ring_with_offset()
+      ! same sequence as MAPL3G component test case29
+      type(ExtDataPointerUpdate) :: upd
+      logical :: do_update
+      type(ESMF_Time) :: use_time
+
+      call make_update("{update_frequency: PT24H, update_offset: PT12H, update_reference_time: '0'}", 900, upd)
+
+      call check(upd, 14, 20, 45, do_update, use_time)
+      @assertTrue(do_update)
+      @assertTrue(use_time == time_at(14, 12, 0))
+
+      call check(upd, 14, 21, 0, do_update, use_time)
+      @assertFalse(do_update)
+      call check(upd, 14, 23, 45, do_update, use_time)
+      @assertFalse(do_update)
+
+      call check(upd, 15, 0, 0, do_update, use_time)
+      @assertTrue(do_update)
+      @assertTrue(use_time == time_at(15, 12, 0))
+
+      call check(upd, 15, 0, 15, do_update, use_time)
+      @assertFalse(do_update)
+      call check(upd, 15, 12, 0, do_update, use_time)
+      @assertFalse(do_update)
+   end subroutine test_daily_ring_with_offset
+
+   @test
+   subroutine test_nonzero_reference_time_after_ring()
+      type(ExtDataPointerUpdate) :: upd
+      logical :: do_update
+      type(ESMF_Time) :: use_time
+
+      call make_update("{update_frequency: PT24H, update_reference_time: '060000'}", 3600, upd)
+
+      call check(upd, 14, 7, 0, do_update, use_time)
+      @assertTrue(do_update)
+      @assertTrue(use_time == time_at(14, 6, 0))
+
+      call check(upd, 14, 8, 0, do_update, use_time)
+      @assertFalse(do_update)
+      call check(upd, 15, 5, 0, do_update, use_time)
+      @assertFalse(do_update)
+
+      call check(upd, 15, 6, 0, do_update, use_time)
+      @assertTrue(do_update)
+      @assertTrue(use_time == time_at(15, 6, 0))
+   end subroutine test_nonzero_reference_time_after_ring
+
+   @test
+   subroutine test_reference_time_after_start_updates_twice()
+      ! Matches MAPL2: if the first call is before the reference time of day,
+      ! the first call updates using the (future) ring time, and the same
+      ! ring updates again when the clock reaches it.
+      type(ExtDataPointerUpdate) :: upd
+      logical :: do_update
+      type(ESMF_Time) :: use_time
+
+      call make_update("{update_frequency: PT24H, update_reference_time: '060000'}", 3600, upd)
+
+      call check(upd, 14, 4, 0, do_update, use_time)
+      @assertTrue(do_update)
+      @assertTrue(use_time == time_at(14, 6, 0))
+
+      call check(upd, 14, 5, 0, do_update, use_time)
+      @assertFalse(do_update)
+
+      call check(upd, 14, 6, 0, do_update, use_time)
+      @assertTrue(do_update)
+      @assertTrue(use_time == time_at(14, 6, 0))
+
+      call check(upd, 14, 7, 0, do_update, use_time)
+      @assertFalse(do_update)
+   end subroutine test_reference_time_after_start_updates_twice
+
+   @test
+   subroutine test_six_hour_frequency()
+      type(ExtDataPointerUpdate) :: upd
+      logical :: do_update
+      type(ESMF_Time) :: use_time
+      integer :: h
+      logical :: expected
+
+      call make_update("{update_frequency: PT6H, update_reference_time: '0'}", 3600, upd)
+
+      do h = 0, 18
+         call check(upd, 14, h, 0, do_update, use_time)
+         expected = (mod(h, 6) == 0)
+         @assertEqual(expected, do_update)
+         if (do_update) then
+            @assertTrue(use_time == time_at(14, h, 0))
+         end if
+      end do
+   end subroutine test_six_hour_frequency
+
+   @test
+   subroutine test_ring_skipped_by_clock_is_missed()
+      ! Matches MAPL2: an update fires only when the clock lands exactly on a
+      ! ring. If a step jumps over a ring, that update is not made.
+      type(ExtDataPointerUpdate) :: upd
+      logical :: do_update
+      type(ESMF_Time) :: use_time
+
+      call make_update("{update_frequency: PT6H, update_reference_time: '0'}", 3600, upd)
+
+      call check(upd, 14, 0, 0, do_update, use_time)
+      @assertTrue(do_update)
+
+      call check(upd, 14, 7, 0, do_update, use_time)
+      @assertFalse(do_update)
+
+      call check(upd, 14, 12, 0, do_update, use_time)
+      @assertTrue(do_update)
+   end subroutine test_ring_skipped_by_clock_is_missed
+
+   @test
+   subroutine test_single_shot()
+      type(ExtDataPointerUpdate) :: upd
+      logical :: do_update
+      type(ESMF_Time) :: use_time
+
+      call make_update("{update_frequency: '-', update_offset: PT1H}", 900, upd)
+      @assertTrue(upd%is_single_shot())
+
+      call check(upd, 14, 0, 0, do_update, use_time)
+      @assertTrue(do_update)
+      @assertTrue(use_time == time_at(14, 1, 0))
+
+      call check(upd, 14, 0, 15, do_update, use_time)
+      @assertFalse(do_update)
+      call check(upd, 15, 0, 0, do_update, use_time)
+      @assertFalse(do_update)
+   end subroutine test_single_shot
+
+   @test
+   subroutine test_clock_rewind_across_ring()
+      type(ExtDataPointerUpdate) :: upd
+      logical :: do_update
+      type(ESMF_Time) :: use_time
+
+      call make_update("{update_frequency: PT24H, update_offset: PT12H, update_reference_time: '0'}", 900, upd)
+
+      call check(upd, 14, 20, 45, do_update, use_time)
+      call check(upd, 15, 0, 0, do_update, use_time)
+      @assertTrue(do_update)
+
+      ! rewind to before the last ring: use the previous ring plus offset
+      call check(upd, 14, 20, 0, do_update, use_time)
+      @assertTrue(do_update)
+      @assertTrue(use_time == time_at(14, 12, 0))
+   end subroutine test_clock_rewind_across_ring
+
+   @test
+   subroutine test_clock_rewind_without_crossing_ring()
+      type(ExtDataPointerUpdate) :: upd
+      logical :: do_update
+      type(ESMF_Time) :: use_time
+
+      call make_update("{update_frequency: PT24H, update_offset: PT12H, update_reference_time: '0'}", 900, upd)
+
+      call check(upd, 14, 20, 45, do_update, use_time)
+      @assertTrue(do_update)
+      call check(upd, 14, 21, 0, do_update, use_time)
+      @assertFalse(do_update)
+
+      ! the only update so far was the first one, so a rewind repeats it
+      call check(upd, 14, 20, 30, do_update, use_time)
+      @assertTrue(do_update)
+      @assertTrue(use_time == time_at(14, 12, 0))
+
+      ! after that, rewinding within the same ring interval does nothing
+      call check(upd, 14, 21, 0, do_update, use_time)
+      @assertFalse(do_update)
+      call check(upd, 14, 20, 30, do_update, use_time)
+      @assertFalse(do_update)
+   end subroutine test_clock_rewind_without_crossing_ring
+
+   @test
+   subroutine test_offset_does_not_change_when_updates_happen()
+      type(ExtDataPointerUpdate) :: upd_plain, upd_offset
+      logical :: do_update_plain, do_update_offset
+      type(ESMF_Time) :: use_plain, use_offset, current_time
+      type(ESMF_TimeInterval) :: dt, twelve_hours
+      integer :: i, status
+
+      call make_update("{update_frequency: PT24H, update_reference_time: '0'}", 900, upd_plain)
+      call make_update("{update_frequency: PT24H, update_reference_time: '0', update_offset: PT12H}", 900, upd_offset)
+
+      call ESMF_TimeIntervalSet(dt, m=15, rc=status)
+      call ESMF_TimeIntervalSet(twelve_hours, h=12, rc=status)
+      current_time = time_at(14, 20, 45)
+      do i = 1, 100
+         call upd_plain%check_update(do_update_plain, use_plain, current_time, rc=status)
+         @assert_that(status, is(0))
+         call upd_offset%check_update(do_update_offset, use_offset, current_time, rc=status)
+         @assert_that(status, is(0))
+         @assertEqual(do_update_plain, do_update_offset)
+         if (do_update_plain) then
+            @assertTrue(use_offset == use_plain + twelve_hours)
+         end if
+         current_time = current_time + dt
+      end do
+   end subroutine test_offset_does_not_change_when_updates_happen
+
+end module Test_ExtDataPointerUpdate

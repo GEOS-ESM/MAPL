@@ -1,0 +1,190 @@
+module Test_CallbackContractReport
+   use mapl_CallbackContractViolation_mod, only: CallbackContractViolation, &
+        missing_argument_violation, kind_mismatch_violation, &
+        missing_attribute_violation, attribute_type_violation, &
+        attribute_value_not_allowed_violation, &
+        rule_not_met_violation, unknown_key_violation, &
+        weight_missing_violation, weight_geometry_violation
+   use mapl_CallbackContractReport_mod, only: format_callback_contract_report
+   use funit
+   implicit none
+
+contains
+
+   ! Header wording alone (no violations): names the interface, its
+   ! version, the Handler and the callback State.
+   @test
+   subroutine test_header_wording_with_no_violations()
+      type(CallbackContractViolation) :: violations(0)
+      character(:), allocatable :: message
+
+      message = format_callback_contract_report('toy_scaling', 1, 'scaler_a', 'toy_scaling_state', violations)
+
+      @assertEqual("callback contract violation: interface 'toy_scaling' (version 1), " // &
+           "Handler 'scaler_a', callback State 'toy_scaling_state':", message)
+   end subroutine test_header_wording_with_no_violations
+
+   ! Spec scenario, Message wording: operation is ofset on Handler
+   ! scaler_b. Checks the full report text matches literally, including
+   ! the attribute key equals value is not allowed clause and the
+   ! allowed values list.
+   @test
+   subroutine test_message_wording_scenario_matches_exactly()
+      type(CallbackContractViolation) :: violations(1)
+      character(:), allocatable :: message
+
+      violations(1) = attribute_value_not_allowed_violation('toy_scaling/operation', 'ofset', &
+           ['scale ', 'offset'])
+
+      message = format_callback_contract_report('toy_scaling', 1, 'scaler_b', 'toy_scaling_state', violations)
+
+      @assertEqual("callback contract violation: interface 'toy_scaling' (version 1), " // &
+           "Handler 'scaler_b', callback State 'toy_scaling_state':" // NEW_LINE('a') // &
+           "  'toy_scaling/operation' = 'ofset' is not allowed; allowed values: scale, offset", &
+           message)
+      @assertEqual('attribute_value_not_allowed:toy_scaling/operation', violations(1)%get_code())
+   end subroutine test_message_wording_scenario_matches_exactly
+
+   ! Spec scenario F1, Required argument missing: a toy_scaling Handler
+   ! has no member quantity. Reuses the reason code
+   ! export_conforms_to_interface already uses today in
+   ! GraphBuilder_CallbackWiring_smod.F90.
+   @test
+   subroutine test_missing_argument_scenario_matches_exactly()
+      type(CallbackContractViolation) :: violations(1)
+      character(:), allocatable :: message
+
+      violations(1) = missing_argument_violation('quantity')
+
+      message = format_callback_contract_report('toy_scaling', 1, 'scaler_a', 'toy_scaling_state', violations)
+
+      @assertEqual("callback contract violation: interface 'toy_scaling' (version 1), " // &
+           "Handler 'scaler_a', callback State 'toy_scaling_state':" // NEW_LINE('a') // &
+           "  argument 'quantity' is missing", &
+           message)
+      @assertEqual('missing_member:quantity', violations(1)%get_code())
+   end subroutine test_missing_argument_scenario_matches_exactly
+
+   ! Spec scenario, Two violations one report: a toy_scaling Handler
+   ! lacks quantity and has operation ofset - one failure reports both
+   ! violations, each naming toy_scaling (version 1) and the Handler
+   ! (satisfied here by the shared header, named once).
+   @test
+   subroutine test_two_violations_reported_together()
+      type(CallbackContractViolation) :: violations(2)
+      character(:), allocatable :: message
+
+      violations(1) = missing_argument_violation('quantity')
+      violations(2) = attribute_value_not_allowed_violation('toy_scaling/operation', 'ofset', &
+           ['scale ', 'offset'])
+
+      message = format_callback_contract_report('toy_scaling', 1, 'scaler_a', 'toy_scaling_state', violations)
+
+      @assertEqual("callback contract violation: interface 'toy_scaling' (version 1), " // &
+           "Handler 'scaler_a', callback State 'toy_scaling_state':" // NEW_LINE('a') // &
+           "  argument 'quantity' is missing" // NEW_LINE('a') // &
+           "  'toy_scaling/operation' = 'ofset' is not allowed; allowed values: scale, offset", &
+           message)
+   end subroutine test_two_violations_reported_together
+
+   ! Spec scenario F2, Kind mismatch: quantity is bound to a bundle -
+   ! wiring fails naming quantity, the found kind and the expected kind.
+   @test
+   subroutine test_kind_mismatch_violation_names_found_and_expected()
+      type(CallbackContractViolation) :: v
+
+      v = kind_mismatch_violation('quantity', 'FieldBundle', 'Field')
+
+      @assertEqual('kind_mismatch:quantity', v%get_code())
+      @assertEqual("argument 'quantity' has kind 'FieldBundle', expected 'Field'", v%get_text())
+   end subroutine test_kind_mismatch_violation_names_found_and_expected
+
+   ! Spec scenario F4, Attribute type: toy_scaling/factor is stored as
+   ! the string 2.0 - wiring fails naming the stored type and the
+   ! declared type.
+   @test
+   subroutine test_attribute_type_violation_names_found_and_declared()
+      type(CallbackContractViolation) :: v
+
+      v = attribute_type_violation('toy_scaling/factor', 'string', 'real')
+
+      @assertEqual('attribute_type:toy_scaling/factor', v%get_code())
+      @assertEqual("'toy_scaling/factor' is stored as 'string', declared as 'real'", v%get_text())
+   end subroutine test_attribute_type_violation_names_found_and_declared
+
+   ! Spec scenario MF6, Required attribute missing, on a member Info:
+   ! turbulent_mixing/mix_like is absent from a member Info.
+   @test
+   subroutine test_missing_attribute_on_member_names_the_member()
+      type(CallbackContractViolation) :: v
+
+      v = missing_attribute_violation('turbulent_mixing/mix_like', 'DU001')
+
+      @assertEqual('missing_attribute:turbulent_mixing/mix_like', v%get_code())
+      @assertEqual("'turbulent_mixing/mix_like' is missing on member 'DU001'", v%get_text())
+   end subroutine test_missing_attribute_on_member_names_the_member
+
+   ! Spec scenario F3, Required attribute missing, at the State host:
+   ! toy_scaling/operation is absent from the callback State own Info
+   ! (the callback State is already named once in the report header, so
+   ! no host clause is added for the state-scope case).
+   @test
+   subroutine test_missing_attribute_on_state_has_no_host_clause()
+      type(CallbackContractViolation) :: v
+
+      v = missing_attribute_violation('toy_scaling/operation', '')
+
+      @assertEqual("'toy_scaling/operation' is missing", v%get_text())
+   end subroutine test_missing_attribute_on_state_has_no_host_clause
+
+   ! Spec scenario F6, Rule not met: operation is offset and no
+   ! offset_value member is bound.
+   @test
+   subroutine test_rule_not_met_states_rule_and_missing_argument()
+      type(CallbackContractViolation) :: v
+
+      v = rule_not_met_violation('operation', 'offset', 'offset_value')
+
+      @assertEqual('rule_not_met:offset_value', v%get_code())
+      @assertEqual("rule 'operation = offset' requires argument 'offset_value', which is missing", v%get_text())
+   end subroutine test_rule_not_met_states_rule_and_missing_argument
+
+   ! Spec scenario F8, Unknown key in the interface namespace: the
+   ! callback State Info has toy_scaling/facter - wiring fails with an
+   ! unknown-key error listing the legal names.
+   @test
+   subroutine test_unknown_key_lists_legal_names()
+      type(CallbackContractViolation) :: v
+
+      v = unknown_key_violation('toy_scaling/facter', ['operation', 'factor   '])
+
+      @assertEqual('unknown_key:toy_scaling/facter', v%get_code())
+      @assertEqual("'toy_scaling/facter' is not a declared attribute or call scalar; legal names: operation, factor", &
+           v%get_text())
+   end subroutine test_unknown_key_lists_legal_names
+
+   ! Spec scenario MF1, Required weight missing: a turbulent_mixing
+   ! owner binds no air_mass.
+   @test
+   subroutine test_weight_missing_names_weight_and_argument()
+      type(CallbackContractViolation) :: v
+
+      v = weight_missing_violation('air_mass', 'mixed_quantity')
+
+      @assertEqual('weight_missing:air_mass', v%get_code())
+      @assertEqual("'air_mass' is missing as the weight of 'mixed_quantity'", v%get_text())
+   end subroutine test_weight_missing_names_weight_and_argument
+
+   ! Spec scenario MF4, Weight on another geometry: air_mass is bound on
+   ! a geometry other than mixed_quantity geometry.
+   @test
+   subroutine test_weight_geometry_names_weight_and_argument()
+      type(CallbackContractViolation) :: v
+
+      v = weight_geometry_violation('air_mass', 'mixed_quantity')
+
+      @assertEqual('weight_geometry:air_mass', v%get_code())
+      @assertEqual("'air_mass' is on a different geometry than 'mixed_quantity'", v%get_text())
+   end subroutine test_weight_geometry_names_weight_and_argument
+
+end module Test_CallbackContractReport

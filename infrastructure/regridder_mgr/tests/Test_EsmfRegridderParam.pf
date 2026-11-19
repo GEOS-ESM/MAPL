@@ -117,4 +117,24 @@ contains
       @assertTrue(param == rebuilt)
    end subroutine test_no_mask_stays_no_mask
 
+   @test(type=ESMF_TestMethod, npes=[1])
+   ! Equal params give equal one-line strings; different methods differ.
+   subroutine test_to_string(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+      integer :: status
+      type(EsmfRegridderParam) :: a, b, c
+      character(:), allocatable :: sa, sb, sc
+
+      a = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      b = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      c = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_PATCH)
+      sa = a%to_string(_RC)
+      sb = b%to_string(_RC)
+      sc = c%to_string(_RC)
+      @assertEqual(sa, sb)
+      @assertFalse(sa == sc)
+      @assertEqual(0, index(sa, new_line('a')))
+      @assertTrue(index(sa, 'conserve') > 0)
+   end subroutine test_to_string
+
 end module Test_EsmfRegridderParam
