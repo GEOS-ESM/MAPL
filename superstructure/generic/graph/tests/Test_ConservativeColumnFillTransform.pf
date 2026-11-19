@@ -1,0 +1,526 @@
+! ConservativeColumnFillTransform removes negative values column by column
+! without changing column totals. Real ESMF fields, no graph wiring.
+!
+! M4 layout: the Invoker grid T is 4x4 and the owner grid O is 16x4, both
+! edge-aligned (pole PE, dateline DE), so each Invoker cell covers four
+! owner cells of equal area in one latitude band. Owner cell position
+! p = 1..4 within its Invoker cell is mod(i - 1, 4) + 1 for longitude
+! index i on O. Three levels; level 3 is the bottom layer.
+module Test_ConservativeColumnFillTransform
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
+   use mapl_ConservativeColumnFillTransform_mod, only: ConservativeColumnFillTransform
+   use mapl_WeightedDeltaBackTransform_mod, only: WeightedDeltaBackTransform
+   use mapl_PortSpecMap_mod, only: PortSpecMap
+   use mapl_geom_api, only: mapl_GeomManager, mapl_get_geom_manager, mapl_MaplGeom
+   use mapl_field_api, only: MAPL_FieldCreate
+   use mapl_vertical_grid_api, only: mapl_VerticalGrid
+   use mapl_vertical_grid_api, only: mapl_BasicVerticalGridSpec
+   use mapl_vertical_grid_api, only: mapl_VerticalGridManager
+   use mapl_vertical_grid_api, only: mapl_get_vertical_grid_manager
+   use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_CENTER
+   use ESMF, only: ESMF_Field, ESMF_FieldGet, ESMF_Geom
+   use ESMF, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use ESMF, only: ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8, ESMF_TypeKind_Flag
+   use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8
+   use ESMF, only: operator(==)
+   use, intrinsic :: ieee_arithmetic, only: ieee_value, ieee_quiet_nan
+   use funit
+   implicit none
+
+   integer, parameter :: R4 = ESMF_KIND_R4
+   integer, parameter :: R8 = ESMF_KIND_R8
+   integer, parameter :: IM_T = 4, IM_O = 16, JM = 4, LM = 3
+   real(R8), parameter :: TOL = 1.0e-12_R8
+   ! Values that went through the ESMF conservative regrid.
+   real(R8), parameter :: TOL_REGRID = 1.0e-10_R8
+   real(R4), parameter :: TOL_R4 = 1.0e-5_R4
+
+   ! Owner profiles by position p (columns) and level k (rows of reshape).
+   ! Bottom layer c = (0, 2, 0, 2) and mO = (10, 30, 10, 30) as in M4; the
+   ! upper two layers hold c = (2, 1) with mO = 10 in every column.
+   real(R8), parameter :: C_OWNER(LM, 4) = reshape([ &
+        2.0_R8, 1.0_R8, 0.0_R8, &
+        2.0_R8, 1.0_R8, 2.0_R8, &
+        2.0_R8, 1.0_R8, 0.0_R8, &
+        2.0_R8, 1.0_R8, 2.0_R8], [LM, 4])
+   real(R8), parameter :: M_OWNER(LM, 4) = reshape([ &
+        10.0_R8, 10.0_R8, 10.0_R8, &
+        10.0_R8, 10.0_R8, 30.0_R8, &
+        10.0_R8, 10.0_R8, 10.0_R8, &
+        10.0_R8, 10.0_R8, 30.0_R8], [LM, 4])
+   ! The Invoker weight is the area average of the four owner weights.
+   real(R8), parameter :: M_INVOKER(LM) = [10.0_R8, 10.0_R8, 20.0_R8]
+   real(R8), parameter :: C0_INVOKER(LM) = [5.0_R8, 5.0_R8, 5.0_R8]
+   real(R8), parameter :: DELTA_INVOKER(LM) = [0.0_R8, 0.0_R8, -1.0_R8]
+
+contains
+
+   function make_geom(im, jm) result(geom)
+      integer, intent(in) :: im, jm
+      type(ESMF_Geom) :: geom
+
+      type(mapl_GeomManager), pointer :: geom_mgr
+      type(mapl_MaplGeom), pointer :: mapl_geom
+      type(ESMF_HConfig) :: hconfig
+      character(200) :: content
+      integer :: status
+
+      write(content, '(a,i0,a,i0,a)') '{class: latlon, im_world: ', im, &
+           ', jm_world: ', jm, ', pole: PE, dateline: DE, nx: 1, ny: 1}'
+      hconfig = ESMF_HConfigCreate(content=trim(content), rc=status)
+      @assertEqual(0, status)
+      geom_mgr => mapl_get_geom_manager()
+      mapl_geom => geom_mgr%get_mapl_geom(hconfig, rc=status)
+      @assertEqual(0, status)
+      geom = mapl_geom%get_geom()
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end function make_geom
+
+   function make_vgrid() result(vgrid)
+      class(mapl_VerticalGrid), pointer :: vgrid
+
+      type(mapl_VerticalGridManager), pointer :: manager
+      integer :: status
+
+      manager => mapl_get_vertical_grid_manager()
+      vgrid => manager%create_grid(mapl_BasicVerticalGridSpec(num_levels=LM), rc=status)
+      @assertEqual(0, status)
+   end function make_vgrid
+
+   ! Field on geom with LM levels whose column at longitude index i holds
+   ! profiles(:, mod(i - 1, size(profiles, 2)) + 1) at every latitude.
+   function make_field(geom, profiles, typekind) result(field)
+      type(ESMF_Geom), intent(in) :: geom
+      real(R8), intent(in) :: profiles(:,:)
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      type(ESMF_Field) :: field
+
+      type(ESMF_TypeKind_Flag) :: typekind_
+      real(R8), pointer :: x8(:,:,:)
+      real(R4), pointer :: x4(:,:,:)
+      integer :: i, j, p, status
+
+      typekind_ = ESMF_TYPEKIND_R8
+      if (present(typekind)) typekind_ = typekind
+      field = MAPL_FieldCreate(geom, typekind_, vgrid=make_vgrid(), &
+           vert_staggerloc=VERTICAL_STAGGER_CENTER, rc=status)
+      @assertEqual(0, status)
+      if (typekind_ == ESMF_TYPEKIND_R4) then
+         call ESMF_FieldGet(field, farrayPtr=x4, rc=status)
+         @assertEqual(0, status)
+         @assertEqual(LM, size(x4, 3))
+         do j = 1, size(x4, 2)
+            do i = 1, size(x4, 1)
+               p = mod(i - 1, size(profiles, 2)) + 1
+               x4(i, j, :) = real(profiles(:, p), R4)
+            end do
+         end do
+      else
+         call ESMF_FieldGet(field, farrayPtr=x8, rc=status)
+         @assertEqual(0, status)
+         @assertEqual(LM, size(x8, 3))
+         do j = 1, size(x8, 2)
+            do i = 1, size(x8, 1)
+               p = mod(i - 1, size(profiles, 2)) + 1
+               x8(i, j, :) = profiles(:, p)
+            end do
+         end do
+      end if
+   end function make_field
+
+   function get_r8(field) result(x)
+      type(ESMF_Field), intent(in) :: field
+      real(R8), pointer :: x(:,:,:)
+
+      integer :: status
+
+      call ESMF_FieldGet(field, farrayPtr=x, rc=status)
+      @assertEqual(0, status)
+   end function get_r8
+
+   subroutine bind(ports, port, field)
+      type(PortNameGraphStateItemMap), intent(inout) :: ports
+      character(*), intent(in) :: port
+      type(ESMF_Field), intent(in) :: field
+
+      type(GraphStateItem) :: item
+      integer :: status
+
+      call item%set(field, rc=status)
+      @assertEqual(0, status)
+      call ports%insert(port, item)
+   end subroutine bind
+
+   ! Column totals sum_k mO c over every column of an R8 field.
+   function column_totals(x) result(totals)
+      real(R8), intent(in) :: x(:,:,:)
+      real(R8), allocatable :: totals(:,:)
+
+      integer :: i, p
+
+      allocate(totals(size(x, 1), size(x, 2)))
+      do i = 1, size(x, 1)
+         p = mod(i - 1, 4) + 1
+         totals(i, :) = matmul(x(i, :, :), M_OWNER(:, p))
+      end do
+   end function column_totals
+
+   @test
+   subroutine test_ports_declared()
+      type(ConservativeColumnFillTransform) :: transform
+      type(PortSpecMap) :: ports
+
+      transform = ConservativeColumnFillTransform()
+      @assertTrue(transform%is_input_port('owner'))
+      @assertTrue(transform%is_input_port('weight_owner'))
+      @assertFalse(transform%is_input_port('fill'))
+      @assertTrue(transform%is_output_port('owner'))
+      @assertTrue(transform%is_output_port('fill'))
+      @assertFalse(transform%is_output_port('weight_owner'))
+      ports = transform%get_input_ports()
+      @assertEqual(2, ports%size())
+      ports = transform%get_output_ports()
+      @assertEqual(2, ports%size())
+   end subroutine test_ports_declared
+
+   ! M4: the Invoker bottom change of -1 is returned by the weighted
+   ! delta-back as (-2, -2/3, -2, -2/3), every owner column changes by -20,
+   ! and columns 1 and 3 go negative at the bottom. The fill then makes
+   ! every value non-negative, keeps every column total, and its
+   ! diagnostic is nonzero only in columns 1 and 3.
+   @test
+   subroutine test_m4_fill_after_delta_back()
+      type(WeightedDeltaBackTransform) :: delta_back
+      type(ConservativeColumnFillTransform) :: fill
+      type(PortNameGraphStateItemMap) :: inputs, outputs, fill_inputs, fill_outputs
+      type(ESMF_Geom) :: geom_t, geom_o
+      type(ESMF_Field) :: f_owner, f_weight_owner, f_fill
+      real(R8), allocatable :: x_initial(:,:,:), pre_fill(:,:,:), totals_pre(:,:)
+      real(R8), pointer :: x(:,:,:), d(:,:,:)
+      real(R8) :: expected_delta(4)
+      integer :: i, p, status
+
+      geom_t = make_geom(IM_T, JM)
+      geom_o = make_geom(IM_O, JM)
+      f_owner = make_field(geom_o, C_OWNER)
+      f_weight_owner = make_field(geom_o, M_OWNER)
+      x_initial = get_r8(f_owner)
+
+      call bind(inputs, 'value', make_field(geom_t, reshape(C0_INVOKER + DELTA_INVOKER, [LM, 1])))
+      call bind(inputs, 'snapshot', make_field(geom_t, reshape(C0_INVOKER, [LM, 1])))
+      call bind(inputs, 'weight_invoker', make_field(geom_t, reshape(M_INVOKER, [LM, 1])))
+      call bind(inputs, 'weight_owner', f_weight_owner)
+      call bind(inputs, 'owner', f_owner)
+      call bind(outputs, 'owner', f_owner)
+      delta_back = WeightedDeltaBackTransform(weighted=.true.)
+      call delta_back%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      ! Pre-fill change and column change of -20 in mass terms.
+      pre_fill = get_r8(f_owner)
+      expected_delta = [-2.0_R8, -2.0_R8/3, -2.0_R8, -2.0_R8/3]
+      do i = 1, IM_O
+         p = mod(i - 1, 4) + 1
+         @assertEqual(expected_delta(p), pre_fill(i, :, LM) - x_initial(i, :, LM), TOL_REGRID)
+         @assertEqual(0.0_R8, pre_fill(i, :, 1:LM-1) - x_initial(i, :, 1:LM-1), TOL)
+      end do
+      @assertEqual(-20.0_R8, column_totals(pre_fill) - column_totals(x_initial), TOL_REGRID)
+      @assertTrue(all(pre_fill(1::4, :, LM) < 0))
+      @assertTrue(all(pre_fill(3::4, :, LM) < 0))
+      @assertTrue(all(pre_fill(2::4, :, :) >= 0))
+      @assertTrue(all(pre_fill(4::4, :, :) >= 0))
+      totals_pre = column_totals(pre_fill)
+
+      ! Fill in place, as it runs after the delta in production.
+      f_fill = make_field(geom_o, reshape([-99.0_R8, -99.0_R8, -99.0_R8], [LM, 1]))
+      call bind(fill_inputs, 'owner', f_owner)
+      call bind(fill_inputs, 'weight_owner', f_weight_owner)
+      call bind(fill_outputs, 'owner', f_owner)
+      call bind(fill_outputs, 'fill', f_fill)
+      fill = ConservativeColumnFillTransform()
+      call fill%compute(fill_inputs, fill_outputs, status)
+      @assertEqual(0, status)
+
+      x => get_r8(f_owner)
+      d => get_r8(f_fill)
+      @assertTrue(all(x >= 0))
+      @assertEqual(totals_pre, column_totals(x), TOL)
+      @assertEqual(x - pre_fill, d, TOL)
+
+      ! Fill diagnostic: nonzero only in columns 1 and 3.
+      @assertTrue(all(any(d(1::4, :, :) /= 0, dim=3)))
+      @assertTrue(all(any(d(3::4, :, :) /= 0, dim=3)))
+      @assertEqual(0.0_R8, d(2::4, :, :), 0.0_R8)
+      @assertEqual(0.0_R8, d(4::4, :, :), 0.0_R8)
+
+      ! Column 1 after the delta is (2, 1, -2) with mO = 10: total 10,
+      ! positive total 30, so max(c, 0) is scaled by 1/3.
+      do i = 1, IM_O, 2
+         @assertEqual(2.0_R8/3, x(i, :, 1), TOL)
+         @assertEqual(1.0_R8/3, x(i, :, 2), TOL)
+         @assertEqual(0.0_R8, x(i, :, 3), TOL)
+      end do
+   end subroutine test_m4_fill_after_delta_back
+
+   ! The fill alone on the M4 pre-fill values, with R4 fields and separate
+   ! owner fields in and out.
+   @test
+   subroutine test_m4_fill_r4()
+      type(ConservativeColumnFillTransform) :: fill
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: geom_o
+      type(ESMF_Field) :: f_in, f_out, f_fill
+      real(R8) :: pre_fill(LM, 4)
+      real(R4), pointer :: x(:,:,:), d(:,:,:), x_in(:,:,:)
+      integer :: status
+
+      pre_fill = C_OWNER
+      pre_fill(LM, :) = pre_fill(LM, :) + [-2.0_R8, -2.0_R8/3, -2.0_R8, -2.0_R8/3]
+
+      geom_o = make_geom(IM_O, JM)
+      f_in = make_field(geom_o, pre_fill, typekind=ESMF_TYPEKIND_R4)
+      f_out = make_field(geom_o, reshape([0.0_R8, 0.0_R8, 0.0_R8], [LM, 1]), typekind=ESMF_TYPEKIND_R4)
+      f_fill = make_field(geom_o, reshape([0.0_R8, 0.0_R8, 0.0_R8], [LM, 1]), typekind=ESMF_TYPEKIND_R4)
+      call bind(inputs, 'owner', f_in)
+      call bind(inputs, 'weight_owner', make_field(geom_o, M_OWNER, typekind=ESMF_TYPEKIND_R4))
+      call bind(outputs, 'owner', f_out)
+      call bind(outputs, 'fill', f_fill)
+
+      fill = ConservativeColumnFillTransform()
+      call fill%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call ESMF_FieldGet(f_out, farrayPtr=x, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(f_fill, farrayPtr=d, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(f_in, farrayPtr=x_in, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(all(x >= 0))
+      @assertEqual(real(column_totals(real(x_in, R8)), R4), real(column_totals(real(x, R8)), R4), TOL_R4)
+      @assertEqual(0.0_R4, d(2::4, :, :), 0.0_R4)
+      @assertEqual(0.0_R4, d(4::4, :, :), 0.0_R4)
+      @assertEqual(2.0_R4, d(1::4, :, 3), TOL_R4)
+      @assertEqual(2.0_R4, d(3::4, :, 3), TOL_R4)
+      @assertEqual(real(pre_fill(LM, 1), R4), x_in(1, 1, LM), TOL_R4)
+   end subroutine test_m4_fill_r4
+
+   ! Position 1 holds (2, 1, -2), fillable, and position 3 holds (1, 0, -5)
+   ! with mO = 10, a total of -40, which cannot be filled. Position 1 comes
+   ! first, so the outputs being unchanged there shows that every column is
+   ! checked before any is written.
+   @test
+   subroutine test_negative_column_total_fails()
+      type(ConservativeColumnFillTransform) :: fill
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: geom_o
+      type(ESMF_Field) :: f_in, f_out, f_fill
+      real(R8) :: profiles(LM, 4)
+      integer :: status
+
+      profiles = C_OWNER
+      profiles(:, 1) = [2.0_R8, 1.0_R8, -2.0_R8]
+      profiles(:, 3) = [1.0_R8, 0.0_R8, -5.0_R8]
+
+      geom_o = make_geom(IM_O, JM)
+      f_in = make_field(geom_o, profiles)
+      f_out = make_field(geom_o, reshape([7.0_R8, 7.0_R8, 7.0_R8], [LM, 1]))
+      f_fill = make_field(geom_o, reshape([7.0_R8, 7.0_R8, 7.0_R8], [LM, 1]))
+      call bind(inputs, 'owner', f_in)
+      call bind(inputs, 'weight_owner', make_field(geom_o, M_OWNER))
+      call bind(outputs, 'owner', f_out)
+      call bind(outputs, 'fill', f_fill)
+
+      fill = ConservativeColumnFillTransform()
+      call fill%compute(inputs, outputs, status)
+      @assertFalse(status == 0)
+      @assertEqual(7.0_R8, get_r8(f_out), 0.0_R8)
+      @assertEqual(7.0_R8, get_r8(f_fill), 0.0_R8)
+   end subroutine test_negative_column_total_fails
+
+   ! Position 1 holds (1, 0, -1) with mO = 10, a total of exactly zero: it
+   ! is filled to zero, and the fill is minus the pre-fill value.
+   @test
+   subroutine test_zero_column_total_fills_to_zero()
+      type(ConservativeColumnFillTransform) :: fill
+      real(R8) :: profiles(LM, 4)
+      real(R8), allocatable :: x(:,:,:), d(:,:,:)
+
+      profiles = C_OWNER
+      profiles(:, 1) = [1.0_R8, 0.0_R8, -1.0_R8]
+      call run_fill(fill, profiles, x, d)
+
+      @assertEqual(0.0_R8, x(1::4, :, :), 0.0_R8)
+      @assertEqual(-1.0_R8, d(1::4, :, 1), 0.0_R8)
+      @assertEqual(0.0_R8, d(1::4, :, 2), 0.0_R8)
+      @assertEqual(1.0_R8, d(1::4, :, 3), 0.0_R8)
+      @assertEqual(0.0_R8, d(2::4, :, :), 0.0_R8)
+   end subroutine test_zero_column_total_fills_to_zero
+
+   ! A drained column whose total is below zero only by round-off, here
+   ! 1e-14 of the column scale, is filled to zero instead of failing.
+   @test
+   subroutine test_round_off_negative_total_fills_to_zero()
+      type(ConservativeColumnFillTransform) :: fill
+      real(R8) :: profiles(LM, 4)
+      real(R8), allocatable :: x(:,:,:), d(:,:,:)
+      real(R8), parameter :: EPS = 1.0e-14_R8
+
+      profiles = C_OWNER
+      profiles(:, 1) = [1.0_R8, 0.0_R8, -1.0_R8 - EPS]
+      call run_fill(fill, profiles, x, d)
+
+      @assertEqual(0.0_R8, x(1::4, :, :), 0.0_R8)
+      @assertEqual(0.0_R8, d(2::4, :, :), 0.0_R8)
+   end subroutine test_round_off_negative_total_fills_to_zero
+
+   ! An R4 column that is drained to zero but lands two R4 ulps below it, as
+   ! a regrid can leave it. Its total is about 1e-7 of the column scale
+   ! below zero, far outside the R8 tolerance, and it is filled to zero.
+   @test
+   subroutine test_r4_round_off_negative_total_fills_to_zero()
+      type(ConservativeColumnFillTransform) :: fill
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: geom_o
+      type(ESMF_Field) :: f_out, f_fill
+      real(R8) :: profiles(LM, 4)
+      real(R4), pointer :: x(:,:,:), d(:,:,:)
+      integer :: status
+
+      profiles = C_OWNER
+      profiles(:, 1) = [1.0_R8, 0.0_R8, -1.0_R8 - 2 * real(epsilon(1.0_R4), R8)]
+
+      geom_o = make_geom(IM_O, JM)
+      f_out = make_field(geom_o, reshape([7.0_R8, 7.0_R8, 7.0_R8], [LM, 1]), typekind=ESMF_TYPEKIND_R4)
+      f_fill = make_field(geom_o, reshape([7.0_R8, 7.0_R8, 7.0_R8], [LM, 1]), typekind=ESMF_TYPEKIND_R4)
+      call bind(inputs, 'owner', make_field(geom_o, profiles, typekind=ESMF_TYPEKIND_R4))
+      call bind(inputs, 'weight_owner', make_field(geom_o, M_OWNER, typekind=ESMF_TYPEKIND_R4))
+      call bind(outputs, 'owner', f_out)
+      call bind(outputs, 'fill', f_fill)
+
+      fill = ConservativeColumnFillTransform()
+      call fill%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call ESMF_FieldGet(f_out, farrayPtr=x, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(f_fill, farrayPtr=d, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0.0_R4, x(1::4, :, :), 0.0_R4)
+      @assertEqual(-1.0_R4, d(1::4, :, 1), 0.0_R4)
+      @assertEqual(0.0_R4, d(2::4, :, :), 0.0_R4)
+   end subroutine test_r4_round_off_negative_total_fills_to_zero
+
+   ! A column holding a NaN has a NaN total, which compares false both ways.
+   ! It is an error, not a column filled to zero, and the outputs are left
+   ! unchanged. Position 2, with no negative value, also holds one.
+   @test
+   subroutine test_nan_in_column_fails()
+      real(R8) :: profiles(LM, 4), nan
+
+      nan = ieee_value(nan, ieee_quiet_nan)
+      profiles = C_OWNER
+      profiles(:, 1) = [1.0_R8, nan, -1.0_R8]
+      call expect_fill_fails(profiles)
+
+      profiles = C_OWNER
+      profiles(2, 2) = nan
+      call expect_fill_fails(profiles)
+   end subroutine test_nan_in_column_fails
+
+   ! Runs the fill on owner profiles with M_OWNER and expects it to fail with
+   ! both outputs unchanged.
+   subroutine expect_fill_fails(profiles)
+      real(R8), intent(in) :: profiles(:,:)
+
+      type(ConservativeColumnFillTransform) :: fill
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: geom_o
+      type(ESMF_Field) :: f_out, f_fill
+      integer :: status
+
+      geom_o = make_geom(IM_O, JM)
+      f_out = make_field(geom_o, reshape([7.0_R8, 7.0_R8, 7.0_R8], [LM, 1]))
+      f_fill = make_field(geom_o, reshape([7.0_R8, 7.0_R8, 7.0_R8], [LM, 1]))
+      call bind(inputs, 'owner', make_field(geom_o, profiles))
+      call bind(inputs, 'weight_owner', make_field(geom_o, M_OWNER))
+      call bind(outputs, 'owner', f_out)
+      call bind(outputs, 'fill', f_fill)
+
+      fill = ConservativeColumnFillTransform()
+      call fill%compute(inputs, outputs, status)
+      @assertFalse(status == 0)
+      @assertEqual(7.0_R8, get_r8(f_out), 0.0_R8)
+      @assertEqual(7.0_R8, get_r8(f_fill), 0.0_R8)
+   end subroutine expect_fill_fails
+
+   ! Runs the fill on owner profiles with M_OWNER, into separate outputs.
+   subroutine run_fill(fill, profiles, x, d)
+      type(ConservativeColumnFillTransform), intent(inout) :: fill
+      real(R8), intent(in) :: profiles(:,:)
+      real(R8), allocatable, intent(out) :: x(:,:,:), d(:,:,:)
+
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: geom_o
+      type(ESMF_Field) :: f_out, f_fill
+      integer :: status
+
+      geom_o = make_geom(IM_O, JM)
+      f_out = make_field(geom_o, reshape([7.0_R8, 7.0_R8, 7.0_R8], [LM, 1]))
+      f_fill = make_field(geom_o, reshape([7.0_R8, 7.0_R8, 7.0_R8], [LM, 1]))
+      call bind(inputs, 'owner', make_field(geom_o, profiles))
+      call bind(inputs, 'weight_owner', make_field(geom_o, M_OWNER))
+      call bind(outputs, 'owner', f_out)
+      call bind(outputs, 'fill', f_fill)
+
+      fill = ConservativeColumnFillTransform()
+      call fill%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      x = get_r8(f_out)
+      d = get_r8(f_fill)
+   end subroutine run_fill
+
+   ! The weight must be on the owner geom.
+   @test
+   subroutine test_weight_on_other_geom_fails()
+      type(ConservativeColumnFillTransform) :: fill
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: geom_t, geom_o
+      type(ESMF_Field) :: f_owner
+      integer :: status
+
+      geom_t = make_geom(IM_T, JM)
+      geom_o = make_geom(IM_O, JM)
+      f_owner = make_field(geom_o, C_OWNER)
+      call bind(inputs, 'owner', f_owner)
+      call bind(inputs, 'weight_owner', make_field(geom_t, reshape(M_INVOKER, [LM, 1])))
+      call bind(outputs, 'owner', f_owner)
+      call bind(outputs, 'fill', make_field(geom_o, C_OWNER))
+
+      fill = ConservativeColumnFillTransform()
+      call fill%compute(inputs, outputs, status)
+      @assertFalse(status == 0)
+   end subroutine test_weight_on_other_geom_fails
+
+   @test
+   subroutine test_missing_fill_port_fails()
+      type(ConservativeColumnFillTransform) :: fill
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: geom_o
+      type(ESMF_Field) :: f_owner
+      integer :: status
+
+      geom_o = make_geom(IM_O, JM)
+      f_owner = make_field(geom_o, C_OWNER)
+      call bind(inputs, 'owner', f_owner)
+      call bind(inputs, 'weight_owner', make_field(geom_o, M_OWNER))
+      call bind(outputs, 'owner', f_owner)
+
+      fill = ConservativeColumnFillTransform()
+      call fill%compute(inputs, outputs, status)
+      @assertFalse(status == 0)
+   end subroutine test_missing_fill_port_fails
+
+end module Test_ConservativeColumnFillTransform

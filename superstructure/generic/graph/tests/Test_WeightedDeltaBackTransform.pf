@@ -1,0 +1,346 @@
+! WeightedDeltaBackTransform returns an Invoker change to the owner grid.
+! Real ESMF fields and the real conservative regridder, no graph wiring.
+!
+! The Invoker grid T is 8x4 and the owner grid O is 4x4, both edge-aligned
+! (pole PE, dateline DE), so each owner cell covers exactly two Invoker
+! cells of equal area a in one latitude band: odd and even longitude
+! index i on T. That is the M2 layout, repeated in every owner cell.
+module Test_WeightedDeltaBackTransform
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
+   use mapl_WeightedDeltaBackTransform_mod, only: WeightedDeltaBackTransform
+   use mapl_PortSpecMap_mod, only: PortSpecMap
+   use mapl_geom_api, only: mapl_GeomManager, mapl_get_geom_manager, mapl_MaplGeom
+   use mapl_field_api, only: MAPL_FieldCreate
+   use ESMF, only: ESMF_Field, ESMF_FieldGet, ESMF_Geom
+   use ESMF, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use ESMF, only: operator(==)
+   use ESMF, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8
+   use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8
+   use funit
+   implicit none
+
+   integer, parameter :: R4 = ESMF_KIND_R4
+   integer, parameter :: R8 = ESMF_KIND_R8
+   integer, parameter :: IM_T = 8, IM_O = 4, JM = 4
+   real(R8), parameter :: TOL = 1.0e-10_R8
+   real(R4), parameter :: TOL_R4 = 1.0e-5_R4
+   real(R8), parameter :: C0 = 5.0_R8
+   real(R8), parameter :: X0 = 7.0_R8
+
+contains
+
+   function make_geom(im, jm) result(geom)
+      integer, intent(in) :: im, jm
+      type(ESMF_Geom) :: geom
+
+      type(mapl_GeomManager), pointer :: geom_mgr
+      type(mapl_MaplGeom), pointer :: mapl_geom
+      type(ESMF_HConfig) :: hconfig
+      character(200) :: content
+      integer :: status
+
+      write(content, '(a,i0,a,i0,a)') '{class: latlon, im_world: ', im, &
+           ', jm_world: ', jm, ', pole: PE, dateline: DE, nx: 1, ny: 1}'
+      hconfig = ESMF_HConfigCreate(content=trim(content), rc=status)
+      @assertEqual(0, status)
+      geom_mgr => mapl_get_geom_manager()
+      mapl_geom => geom_mgr%get_mapl_geom(hconfig, rc=status)
+      @assertEqual(0, status)
+      geom = mapl_geom%get_geom()
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end function make_geom
+
+   ! Field on geom (R8 unless typekind says R4) holding odd_value at odd
+   ! longitude index and even_value at even longitude index. Made by
+   ! MAPL_FieldCreate so that it carries the MAPL metadata the
+   ! condensed-array access reads.
+   function make_field(geom, odd_value, even_value, typekind) result(field)
+      type(ESMF_Geom), intent(in) :: geom
+      real(R8), intent(in) :: odd_value, even_value
+      type(ESMF_TypeKind_Flag), optional, intent(in) :: typekind
+      type(ESMF_Field) :: field
+
+      real(R8), pointer :: x8(:,:)
+      real(R4), pointer :: x4(:,:)
+      logical :: is_r4
+      integer :: i, status
+
+      is_r4 = .false.
+      if (present(typekind)) is_r4 = (typekind == ESMF_TYPEKIND_R4)
+      if (is_r4) then
+         field = MAPL_FieldCreate(geom, ESMF_TYPEKIND_R4, rc=status)
+         @assertEqual(0, status)
+         call ESMF_FieldGet(field, farrayPtr=x4, rc=status)
+         @assertEqual(0, status)
+         do i = 1, size(x4, 1)
+            x4(i, :) = real(merge(odd_value, even_value, mod(i, 2) == 1), R4)
+         end do
+      else
+         field = MAPL_FieldCreate(geom, ESMF_TYPEKIND_R8, rc=status)
+         @assertEqual(0, status)
+         call ESMF_FieldGet(field, farrayPtr=x8, rc=status)
+         @assertEqual(0, status)
+         do i = 1, size(x8, 1)
+            x8(i, :) = merge(odd_value, even_value, mod(i, 2) == 1)
+         end do
+      end if
+   end function make_field
+
+   function get_r8(field) result(x)
+      type(ESMF_Field), intent(in) :: field
+      real(R8), pointer :: x(:,:)
+
+      integer :: status
+
+      call ESMF_FieldGet(field, farrayPtr=x, rc=status)
+      @assertEqual(0, status)
+   end function get_r8
+
+   subroutine bind(ports, port, field)
+      type(PortNameGraphStateItemMap), intent(inout) :: ports
+      character(*), intent(in) :: port
+      type(ESMF_Field), intent(in) :: field
+
+      type(GraphStateItem) :: item
+      integer :: status
+
+      call item%set(field, rc=status)
+      @assertEqual(0, status)
+      call ports%insert(port, item)
+   end subroutine bind
+
+   ! Runs the transform once with the owner field bound to both owner
+   ! ports, so it is updated in place, and returns the owner change.
+   function run_delta_back(transform, d_odd, d_even, m_t, m_o) result(delta)
+      type(WeightedDeltaBackTransform), intent(inout) :: transform
+      real(R8), intent(in) :: d_odd, d_even
+      real(R8), optional, intent(in) :: m_t(2)
+      real(R8), optional, intent(in) :: m_o
+      real(R8), allocatable :: delta(:,:)
+
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: geom_t, geom_o
+      type(ESMF_Field) :: f_value, f_snapshot, f_owner
+      integer :: status
+
+      geom_t = make_geom(IM_T, JM)
+      geom_o = make_geom(IM_O, JM)
+      f_value = make_field(geom_t, C0 + d_odd, C0 + d_even)
+      f_snapshot = make_field(geom_t, C0, C0)
+      f_owner = make_field(geom_o, X0, X0)
+
+      call bind(inputs, 'value', f_value)
+      call bind(inputs, 'snapshot', f_snapshot)
+      call bind(inputs, 'owner', f_owner)
+      call bind(outputs, 'owner', f_owner)
+      if (present(m_t)) call bind(inputs, 'weight_invoker', make_field(geom_t, m_t(1), m_t(2)))
+      if (present(m_o)) call bind(inputs, 'weight_owner', make_field(geom_o, m_o, m_o))
+
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      delta = get_r8(f_owner) - X0
+   end function run_delta_back
+
+   @test
+   subroutine test_ports_declared()
+      type(WeightedDeltaBackTransform) :: transform
+      type(PortSpecMap) :: ports
+
+      transform = WeightedDeltaBackTransform(weighted=.true.)
+      @assertTrue(transform%is_input_port('value'))
+      @assertTrue(transform%is_input_port('snapshot'))
+      @assertTrue(transform%is_input_port('weight_invoker'))
+      @assertTrue(transform%is_input_port('weight_owner'))
+      @assertTrue(transform%is_input_port('owner'))
+      @assertTrue(transform%is_output_port('owner'))
+      @assertFalse(transform%is_output_port('value'))
+      ports = transform%get_input_ports()
+      @assertEqual(5, ports%size())
+
+      transform = WeightedDeltaBackTransform(weighted=.false.)
+      @assertTrue(transform%is_input_port('value'))
+      @assertTrue(transform%is_input_port('snapshot'))
+      @assertTrue(transform%is_input_port('owner'))
+      @assertFalse(transform%is_input_port('weight_invoker'))
+      @assertFalse(transform%is_input_port('weight_owner'))
+      ports = transform%get_input_ports()
+      @assertEqual(3, ports%size())
+   end subroutine test_ports_declared
+
+   ! M2: mT = (10, 30), dT = (4, 0) under one owner cell of area 2a with
+   ! mO = 20. The weighted result is dO = 1, a gain of 20 * 2a * 1 = 40a,
+   ! equal to the Invoker gain 10 * a * 4.
+   @test
+   subroutine test_m2_weighted_delta_is_one()
+      type(WeightedDeltaBackTransform) :: transform
+      real(R8), allocatable :: delta(:,:)
+
+      transform = WeightedDeltaBackTransform(weighted=.true.)
+      delta = run_delta_back(transform, 4.0_R8, 0.0_R8, &
+           m_t=[10.0_R8, 30.0_R8], m_o=20.0_R8)
+
+      @assertEqual([IM_O, JM], shape(delta))
+      @assertEqual(1.0_R8, delta, TOL)
+   end subroutine test_m2_weighted_delta_is_one
+
+   ! M2 contrast: the same dT returned by a plain area average, ignoring
+   ! the weights, gives dO = 2, a gain of 80a: twice the Invoker gain.
+   @test
+   subroutine test_m2_unweighted_average_is_two()
+      type(WeightedDeltaBackTransform) :: transform
+      real(R8), allocatable :: delta(:,:)
+
+      transform = WeightedDeltaBackTransform(weighted=.false.)
+      delta = run_delta_back(transform, 4.0_R8, 0.0_R8)
+
+      @assertEqual(2.0_R8, delta, TOL)
+      @assertTrue(all(abs(delta - 1.0_R8) > 0.5_R8))
+   end subroutine test_m2_unweighted_average_is_two
+
+   ! Unweighted argument: dT = (6, 2) on the two Invoker cells is returned
+   ! as their area average, dO = (6 a + 2 a) / 2a = 4, added to the owner.
+   @test
+   subroutine test_unweighted_delta_is_area_average()
+      type(WeightedDeltaBackTransform) :: transform
+      real(R8), allocatable :: delta(:,:)
+
+      transform = WeightedDeltaBackTransform(weighted=.false.)
+      delta = run_delta_back(transform, 6.0_R8, 2.0_R8)
+
+      @assertEqual(4.0_R8, delta, TOL)
+   end subroutine test_unweighted_delta_is_area_average
+
+   ! M2 with R4 fields: the same numbers, at R4 tolerance.
+   @test
+   subroutine test_m2_weighted_delta_is_one_r4()
+      type(WeightedDeltaBackTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: geom_t, geom_o
+      type(ESMF_Field) :: f_owner
+      real(R4), pointer :: x(:,:)
+      integer :: status
+
+      geom_t = make_geom(IM_T, JM)
+      geom_o = make_geom(IM_O, JM)
+      f_owner = make_field(geom_o, X0, X0, typekind=ESMF_TYPEKIND_R4)
+      call bind(inputs, 'value', make_field(geom_t, C0 + 4.0_R8, C0, typekind=ESMF_TYPEKIND_R4))
+      call bind(inputs, 'snapshot', make_field(geom_t, C0, C0, typekind=ESMF_TYPEKIND_R4))
+      call bind(inputs, 'weight_invoker', make_field(geom_t, 10.0_R8, 30.0_R8, typekind=ESMF_TYPEKIND_R4))
+      call bind(inputs, 'weight_owner', make_field(geom_o, 20.0_R8, 20.0_R8, typekind=ESMF_TYPEKIND_R4))
+      call bind(inputs, 'owner', f_owner)
+      call bind(outputs, 'owner', f_owner)
+
+      transform = WeightedDeltaBackTransform(weighted=.true.)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      call ESMF_FieldGet(f_owner, farrayPtr=x, rc=status)
+      @assertEqual(0, status)
+      @assertEqual([IM_O, JM], shape(x))
+      @assertEqual(real(X0, R4) + 1.0_R4, x, TOL_R4)
+   end subroutine test_m2_weighted_delta_is_one_r4
+
+   ! All ports share the typekind of value: an R4 owner weight against
+   ! otherwise R8 fields is rejected, and the owner is left unchanged.
+   @test
+   subroutine test_owner_weight_typekind_mismatch_fails()
+      type(WeightedDeltaBackTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: geom_t, geom_o
+      type(ESMF_Field) :: f_owner
+      integer :: status
+
+      geom_t = make_geom(IM_T, JM)
+      geom_o = make_geom(IM_O, JM)
+      f_owner = make_field(geom_o, X0, X0)
+      call bind(inputs, 'value', make_field(geom_t, C0 + 4.0_R8, C0))
+      call bind(inputs, 'snapshot', make_field(geom_t, C0, C0))
+      call bind(inputs, 'weight_invoker', make_field(geom_t, 10.0_R8, 30.0_R8))
+      call bind(inputs, 'weight_owner', make_field(geom_o, 20.0_R8, 20.0_R8, typekind=ESMF_TYPEKIND_R4))
+      call bind(inputs, 'owner', f_owner)
+      call bind(outputs, 'owner', f_owner)
+
+      transform = WeightedDeltaBackTransform(weighted=.true.)
+      call transform%compute(inputs, outputs, status)
+      @assertFalse(status == 0)
+      @assertEqual(X0, get_r8(f_owner), TOL)
+   end subroutine test_owner_weight_typekind_mismatch_fails
+
+   ! The same geom on both sides: no regrid, dO = mT dT / mO cell by cell.
+   @test
+   subroutine test_same_geom_weighted()
+      type(WeightedDeltaBackTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: geom
+      type(ESMF_Field) :: f_owner_in, f_owner_out
+      integer :: status
+
+      geom = make_geom(IM_T, JM)
+      f_owner_in = make_field(geom, X0, X0)
+      f_owner_out = make_field(geom, 0.0_R8, 0.0_R8)
+      call bind(inputs, 'value', make_field(geom, C0 + 4.0_R8, C0 + 3.0_R8))
+      call bind(inputs, 'snapshot', make_field(geom, C0, C0))
+      call bind(inputs, 'weight_invoker', make_field(geom, 10.0_R8, 30.0_R8))
+      call bind(inputs, 'weight_owner', make_field(geom, 20.0_R8, 15.0_R8))
+      call bind(inputs, 'owner', f_owner_in)
+      call bind(outputs, 'owner', f_owner_out)
+
+      transform = WeightedDeltaBackTransform(weighted=.true.)
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      associate (x => get_r8(f_owner_out))
+        @assertEqual(X0 + 2.0_R8, x(1::2, :), TOL)
+        @assertEqual(X0 + 6.0_R8, x(2::2, :), TOL)
+      end associate
+      @assertEqual(X0, get_r8(f_owner_in), TOL)
+   end subroutine test_same_geom_weighted
+
+   ! The owner weight must be on the owner geom.
+   @test
+   subroutine test_owner_weight_on_invoker_geom_fails()
+      type(WeightedDeltaBackTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: geom_t, geom_o
+      type(ESMF_Field) :: f_owner
+      integer :: status
+
+      geom_t = make_geom(IM_T, JM)
+      geom_o = make_geom(IM_O, JM)
+      f_owner = make_field(geom_o, X0, X0)
+      call bind(inputs, 'value', make_field(geom_t, C0, C0))
+      call bind(inputs, 'snapshot', make_field(geom_t, C0, C0))
+      call bind(inputs, 'weight_invoker', make_field(geom_t, 1.0_R8, 1.0_R8))
+      call bind(inputs, 'weight_owner', make_field(geom_t, 1.0_R8, 1.0_R8))
+      call bind(inputs, 'owner', f_owner)
+      call bind(outputs, 'owner', f_owner)
+
+      transform = WeightedDeltaBackTransform(weighted=.true.)
+      call transform%compute(inputs, outputs, status)
+      @assertFalse(status == 0)
+   end subroutine test_owner_weight_on_invoker_geom_fails
+
+   @test
+   subroutine test_missing_weight_fails()
+      type(WeightedDeltaBackTransform) :: transform
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Geom) :: geom_t, geom_o
+      type(ESMF_Field) :: f_owner
+      integer :: status
+
+      geom_t = make_geom(IM_T, JM)
+      geom_o = make_geom(IM_O, JM)
+      f_owner = make_field(geom_o, X0, X0)
+      call bind(inputs, 'value', make_field(geom_t, C0, C0))
+      call bind(inputs, 'snapshot', make_field(geom_t, C0, C0))
+      call bind(inputs, 'owner', f_owner)
+      call bind(outputs, 'owner', f_owner)
+
+      transform = WeightedDeltaBackTransform(weighted=.true.)
+      call transform%compute(inputs, outputs, status)
+      @assertFalse(status == 0)
+   end subroutine test_missing_weight_fails
+
+end module Test_WeightedDeltaBackTransform

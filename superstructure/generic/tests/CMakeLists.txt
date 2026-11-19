@@ -42,6 +42,7 @@ add_library(MAPL.generic.test_common SHARED
   MockUserGridComp.F90
   MockAspect.F90
   GraphBuilderTestSupport.F90
+  ImplicitColumnDiffusion.F90
 )
 target_link_libraries(MAPL.generic.test_common PUBLIC MAPL.generic MAPL.utils MAPL.pfunit)
 set_target_properties(MAPL.generic.test_common PROPERTIES Fortran_MODULE_DIRECTORY ${MODULE_DIRECTORY})
@@ -112,6 +113,7 @@ set(vertical_test_srcs
   Test_ModelVerticalGrid.pf
   Test_VerticalLinearMap.pf
   Test_VerticalConservativeMap.pf
+  Test_ImplicitColumnDiffusion.pf
 )
 
 add_pfunit_ctest(

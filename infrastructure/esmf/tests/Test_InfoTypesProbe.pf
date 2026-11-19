@@ -1,0 +1,330 @@
+#include "MAPL_TestErr.h"
+
+! Probe raw ESMF_Info type/conversion/enumeration behavior to inform
+! the MAPL_Info* wrapper design. No production code: records observed
+! ESMF_Info behavior only.
+!
+! Questions answered here, one @test per observation:
+!   - what ESMF_InfoGet(..., typekind=, isArray=, size=) reports for a
+!     scalar and for an array of each of i4, i8, r4, r8, logical, string;
+!   - whether ESMF_InfoGet silently converts a stored value to a
+!     different requested kind (real read back as integer; string read
+!     back as real);
+!   - whether the keys nested under one prefix can be enumerated
+!     (count via size=, then indexed name via idx=/ikey=) without
+!     already knowing their names.
+module Test_InfoTypesProbe
+   use funit
+   use esmf
+   implicit none (type, external)
+
+contains
+
+   @test
+   subroutine test_i4_scalar_inquire()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(ESMF_TypeKind_Flag) :: tk
+      logical :: is_array
+      integer :: item_size
+      integer(kind=ESMF_KIND_I4), parameter :: stored = 42_ESMF_KIND_I4
+
+      info = ESMF_InfoCreate(_RC)
+      call ESMF_InfoSet(info, key='v', value=stored, _RC)
+
+      call ESMF_InfoGet(info, key='v', typekind=tk, isArray=is_array, size=item_size, _RC)
+
+      @assert_that(tk == ESMF_TYPEKIND_I4, is(true()))
+      @assert_that(is_array, is(false()))
+      @assert_that(item_size, is(1))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_i4_scalar_inquire
+
+   @test
+   subroutine test_i8_scalar_inquire()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(ESMF_TypeKind_Flag) :: tk
+      logical :: is_array
+      integer :: item_size
+      integer(kind=ESMF_KIND_I8), parameter :: stored = 42_ESMF_KIND_I8
+
+      info = ESMF_InfoCreate(_RC)
+      call ESMF_InfoSet(info, key='v', value=stored, _RC)
+
+      call ESMF_InfoGet(info, key='v', typekind=tk, isArray=is_array, size=item_size, _RC)
+
+      @assert_that(tk == ESMF_TYPEKIND_I8, is(true()))
+      @assert_that(is_array, is(false()))
+      @assert_that(item_size, is(1))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_i8_scalar_inquire
+
+   @test
+   subroutine test_r4_scalar_inquire()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(ESMF_TypeKind_Flag) :: tk
+      logical :: is_array
+      integer :: item_size
+      real(kind=ESMF_KIND_R4), parameter :: stored = 1.5_ESMF_KIND_R4
+
+      info = ESMF_InfoCreate(_RC)
+      call ESMF_InfoSet(info, key='v', value=stored, _RC)
+
+      call ESMF_InfoGet(info, key='v', typekind=tk, isArray=is_array, size=item_size, _RC)
+
+      @assert_that(tk == ESMF_TYPEKIND_R4, is(true()))
+      @assert_that(is_array, is(false()))
+      @assert_that(item_size, is(1))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_r4_scalar_inquire
+
+   @test
+   ! Also the dedicated "real read back as integer" conversion check.
+   subroutine test_r8_scalar_inquire_and_no_conversion_to_i4()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(ESMF_TypeKind_Flag) :: tk
+      logical :: is_array
+      integer :: item_size
+      integer(kind=ESMF_KIND_I4) :: got_i4
+      logical :: converted
+      real(kind=ESMF_KIND_R8), parameter :: stored = 3.75_ESMF_KIND_R8
+
+      info = ESMF_InfoCreate(_RC)
+      call ESMF_InfoSet(info, key='v', value=stored, _RC)
+
+      call ESMF_InfoGet(info, key='v', typekind=tk, isArray=is_array, size=item_size, _RC)
+
+      @assert_that(tk == ESMF_TYPEKIND_R8, is(true()))
+      @assert_that(is_array, is(false()))
+      @assert_that(item_size, is(1))
+
+      ! Observed: ESMF_InfoGet does NOT silently convert a stored real
+      ! into an integer; it returns a non-success rc instead.
+      got_i4 = -1_ESMF_KIND_I4
+      call ESMF_InfoGet(info, key='v', value=got_i4, rc=status)
+      converted = (status == _SUCCESS)
+
+      @assert_that(converted, is(false()))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_r8_scalar_inquire_and_no_conversion_to_i4
+
+   @test
+   subroutine test_logical_scalar_inquire()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(ESMF_TypeKind_Flag) :: tk
+      logical :: is_array
+      integer :: item_size
+      logical, parameter :: stored = .true.
+
+      info = ESMF_InfoCreate(_RC)
+      call ESMF_InfoSet(info, key='v', value=stored, _RC)
+
+      call ESMF_InfoGet(info, key='v', typekind=tk, isArray=is_array, size=item_size, _RC)
+
+      @assert_that(tk == ESMF_TYPEKIND_LOGICAL, is(true()))
+      @assert_that(is_array, is(false()))
+      @assert_that(item_size, is(1))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_logical_scalar_inquire
+
+   @test
+   ! Also the dedicated "string read back as real" conversion check.
+   ! Uses a numeric-looking string ('2.5') so the check is of type
+   ! conversion, not merely of a non-numeric string failing to parse.
+   subroutine test_string_scalar_inquire_and_no_conversion_to_r8()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(ESMF_TypeKind_Flag) :: tk
+      logical :: is_array
+      integer :: item_size
+      real(kind=ESMF_KIND_R8) :: got_r8
+      logical :: converted
+      character(*), parameter :: stored = '2.5'
+
+      info = ESMF_InfoCreate(_RC)
+      call ESMF_InfoSet(info, key='v', value=stored, _RC)
+
+      call ESMF_InfoGet(info, key='v', typekind=tk, isArray=is_array, size=item_size, _RC)
+
+      @assert_that(tk == ESMF_TYPEKIND_CHARACTER, is(true()))
+      @assert_that(is_array, is(false()))
+      @assert_that(item_size, is(1))
+
+      ! Observed: ESMF_InfoGet does NOT silently convert a stored
+      ! (even numeric-looking) string into a real; it returns a
+      ! non-success rc instead.
+      got_r8 = -1.0_ESMF_KIND_R8
+      call ESMF_InfoGet(info, key='v', value=got_r8, rc=status)
+      converted = (status == _SUCCESS)
+
+      @assert_that(converted, is(false()))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_string_scalar_inquire_and_no_conversion_to_r8
+
+   @test
+   subroutine test_i4_array_inquire()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(ESMF_TypeKind_Flag) :: tk
+      logical :: is_array
+      integer :: item_size
+      integer(kind=ESMF_KIND_I4), parameter :: stored(*) = [1_ESMF_KIND_I4, 2_ESMF_KIND_I4, 3_ESMF_KIND_I4]
+
+      info = ESMF_InfoCreate(_RC)
+      call ESMF_InfoSet(info, key='v', values=stored, _RC)
+
+      call ESMF_InfoGet(info, key='v', typekind=tk, isArray=is_array, size=item_size, _RC)
+
+      @assert_that(tk == ESMF_TYPEKIND_I4, is(true()))
+      @assert_that(is_array, is(true()))
+      @assert_that(item_size, is(size(stored)))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_i4_array_inquire
+
+   @test
+   subroutine test_i8_array_inquire()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(ESMF_TypeKind_Flag) :: tk
+      logical :: is_array
+      integer :: item_size
+      integer(kind=ESMF_KIND_I8), parameter :: stored(*) = [1_ESMF_KIND_I8, 2_ESMF_KIND_I8, 3_ESMF_KIND_I8]
+
+      info = ESMF_InfoCreate(_RC)
+      call ESMF_InfoSet(info, key='v', values=stored, _RC)
+
+      call ESMF_InfoGet(info, key='v', typekind=tk, isArray=is_array, size=item_size, _RC)
+
+      @assert_that(tk == ESMF_TYPEKIND_I8, is(true()))
+      @assert_that(is_array, is(true()))
+      @assert_that(item_size, is(size(stored)))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_i8_array_inquire
+
+   @test
+   subroutine test_r4_array_inquire()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(ESMF_TypeKind_Flag) :: tk
+      logical :: is_array
+      integer :: item_size
+      real(kind=ESMF_KIND_R4), parameter :: stored(*) = [1.0_ESMF_KIND_R4, 2.0_ESMF_KIND_R4, 3.0_ESMF_KIND_R4]
+
+      info = ESMF_InfoCreate(_RC)
+      call ESMF_InfoSet(info, key='v', values=stored, _RC)
+
+      call ESMF_InfoGet(info, key='v', typekind=tk, isArray=is_array, size=item_size, _RC)
+
+      @assert_that(tk == ESMF_TYPEKIND_R4, is(true()))
+      @assert_that(is_array, is(true()))
+      @assert_that(item_size, is(size(stored)))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_r4_array_inquire
+
+   @test
+   subroutine test_r8_array_inquire()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(ESMF_TypeKind_Flag) :: tk
+      logical :: is_array
+      integer :: item_size
+      real(kind=ESMF_KIND_R8), parameter :: stored(*) = [1.0_ESMF_KIND_R8, 2.0_ESMF_KIND_R8, 3.0_ESMF_KIND_R8]
+
+      info = ESMF_InfoCreate(_RC)
+      call ESMF_InfoSet(info, key='v', values=stored, _RC)
+
+      call ESMF_InfoGet(info, key='v', typekind=tk, isArray=is_array, size=item_size, _RC)
+
+      @assert_that(tk == ESMF_TYPEKIND_R8, is(true()))
+      @assert_that(is_array, is(true()))
+      @assert_that(item_size, is(size(stored)))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_r8_array_inquire
+
+   @test
+   subroutine test_logical_array_inquire()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(ESMF_TypeKind_Flag) :: tk
+      logical :: is_array
+      integer :: item_size
+      logical, parameter :: stored(*) = [.true., .false., .true.]
+
+      info = ESMF_InfoCreate(_RC)
+      call ESMF_InfoSet(info, key='v', values=stored, _RC)
+
+      call ESMF_InfoGet(info, key='v', typekind=tk, isArray=is_array, size=item_size, _RC)
+
+      @assert_that(tk == ESMF_TYPEKIND_LOGICAL, is(true()))
+      @assert_that(is_array, is(true()))
+      @assert_that(item_size, is(size(stored)))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_logical_array_inquire
+
+   @test
+   subroutine test_string_array_inquire()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(ESMF_TypeKind_Flag) :: tk
+      logical :: is_array
+      integer :: item_size
+      character(len=10), parameter :: stored(*) = ['alpha     ', 'beta      ', 'gamma     ']
+
+      info = ESMF_InfoCreate(_RC)
+      call ESMF_InfoSet(info, key='v', values=stored, _RC)
+
+      call ESMF_InfoGet(info, key='v', typekind=tk, isArray=is_array, size=item_size, _RC)
+
+      @assert_that(tk == ESMF_TYPEKIND_CHARACTER, is(true()))
+      @assert_that(is_array, is(true()))
+      @assert_that(item_size, is(size(stored)))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_string_array_inquire
+
+   @test
+   ! Can the keys nested under one prefix (a/b/c, a/b/d) be enumerated
+   ! (count + indexed key retrieval) without already knowing their
+   ! names? Observed: yes, via size= at the prefix key for the count,
+   ! then idx=/ikey= to read back each child's own (unqualified) name.
+   subroutine test_nested_key_enumeration()
+      type(ESMF_Info) :: info
+      integer :: status
+      integer :: child_count
+      character(len=80) :: ikey1, ikey2
+      logical :: has_c, has_d
+
+      info = ESMF_InfoCreate(_RC)
+      call ESMF_InfoSet(info, key='a/b/c', value=1, _RC)
+      call ESMF_InfoSet(info, key='a/b/d', value=2, _RC)
+
+      call ESMF_InfoGet(info, key='a/b', size=child_count, _RC)
+      @assert_that(child_count, is(2))
+
+      call ESMF_InfoGet(info, key='a/b', idx=1, ikey=ikey1, _RC)
+      call ESMF_InfoGet(info, key='a/b', idx=2, ikey=ikey2, _RC)
+
+      has_c = (trim(ikey1) == 'c' .or. trim(ikey2) == 'c')
+      has_d = (trim(ikey1) == 'd' .or. trim(ikey2) == 'd')
+      @assert_that(has_c, is(true()))
+      @assert_that(has_d, is(true()))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_nested_key_enumeration
+
+end module Test_InfoTypesProbe

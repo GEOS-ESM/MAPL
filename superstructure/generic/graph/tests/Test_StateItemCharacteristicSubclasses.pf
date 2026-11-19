@@ -29,7 +29,8 @@ module Test_StateItemCharacteristicSubclasses
         HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
         LONG_NAME_CHARACTERISTIC_KIND, &
         RESTART_MODE_CHARACTERISTIC_KIND, &
-        EXPRESSION_CHARACTERISTIC_KIND
+        EXPRESSION_CHARACTERISTIC_KIND, &
+        NON_NEGATIVE_CHARACTERISTIC_KIND
    use mapl_NodeId_mod, only: NodeId, NodeIdGenerator, operator(==)
    use mapl_TransformBase_mod, only: TransformBase
 
@@ -55,6 +56,7 @@ module Test_StateItemCharacteristicSubclasses
    use mapl_StandardNameCharacteristic_mod, only: StandardNameCharacteristic
    use mapl_LongNameCharacteristic_mod, only: LongNameCharacteristic
    use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
+   use mapl_NonNegativeCharacteristic_mod, only: NonNegativeCharacteristic, NON_NEGATIVE_FILL_COLUMN
    use mapl_RestartModes_mod, only: RestartMode, RESTART_REQUIRED, RESTART_SKIP, operator(==)
    use mapl_ExpressionCharacteristic_mod, only: ExpressionCharacteristic
    use mapl_PhysicalUnitsCharacteristic_mod, only: PhysicalUnitsCharacteristic
@@ -1218,6 +1220,50 @@ contains
       @assertFalse(standard_name%is_per_alias())
       @assertFalse(units%is_per_alias())
    end subroutine test_is_per_alias
+
+   ! --- NonNegativeCharacteristic (never compared, no Info key) ---
+
+   @test
+   subroutine test_non_negative_is_a_value_characteristic()
+      class(ValueCharacteristic), allocatable :: v
+
+      allocate(v, source=NonNegativeCharacteristic(NON_NEGATIVE_FILL_COLUMN))
+      @assertTrue(v%get_kind() == NON_NEGATIVE_CHARACTERISTIC_KIND)
+      @assertTrue(v%is_per_alias())
+   end subroutine test_non_negative_is_a_value_characteristic
+
+   @test
+   subroutine test_non_negative_never_needs_extension()
+      type(NonNegativeCharacteristic) :: a, unvalued
+
+      a = NonNegativeCharacteristic(NON_NEGATIVE_FILL_COLUMN)
+      @assertFalse(a%needs_extension_for(unvalued))
+      @assertFalse(unvalued%needs_extension_for(a))
+      @assertFalse(a%needs_extension_for(a))
+   end subroutine test_non_negative_never_needs_extension
+
+   @test
+   subroutine test_non_negative_signature_and_unvalued_accessor()
+      type(NonNegativeCharacteristic) :: a, unvalued
+
+      a = NonNegativeCharacteristic(NON_NEGATIVE_FILL_COLUMN)
+      @assertEqual('column', a%get_fill())
+      @assertEqual('non_negative=column', a%get_signature())
+      @assertEqual('', unvalued%get_fill())
+   end subroutine test_non_negative_signature_and_unvalued_accessor
+
+   @test
+   subroutine test_non_negative_build_transform_reports_unsupported()
+      type(NonNegativeCharacteristic) :: a, b
+      class(TransformBase), allocatable :: transformer
+      integer :: status
+
+      a = NonNegativeCharacteristic(NON_NEGATIVE_FILL_COLUMN)
+      b = NonNegativeCharacteristic(NON_NEGATIVE_FILL_COLUMN)
+      call a%build_transform(b, transformer, rc=status)
+      @assertEqual(BUILD_TRANSFORM_UNSUPPORTED, status)
+      @assertFalse(allocated(transformer))
+   end subroutine test_non_negative_build_transform_reports_unsupported
 
    ! --- ExpressionCharacteristic (never compared, no Info key) ---
 
