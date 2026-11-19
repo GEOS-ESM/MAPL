@@ -220,8 +220,17 @@ freezes the singleton, a test-only reset is acceptable (precedent:
   name; accepts an empty trigger value and duplicate argument names.
   Cross-checking the attribute/arguments against the interface, and the
   canonical text form for a logical/real trigger, are left to
-  CB1-Interface. The rest (CB1-CallScalarSpec, -MethodOptions,
-  -Interface, -RegistryFreeze) not started.
+  CB1-Interface. CB1-CallScalarSpec done (`Plan-Task: CB1-CallScalarSpec`,
+  GitHub-outsourced, PR #5552, `11afd7862`): `CallbackCallScalarSpec`
+  (name, the shared `CallbackValueType`, and a writer --
+  `CallbackScalarWriter`, `invoker`/`handler`, no default) +
+  `CallbackCallScalarSpecMap`
+  (`superstructure/generic/graph/callback/CallbackCallScalarSpec.F90`,
+  `.../containers/CallbackCallScalarSpecMap.F90`). Rejects an empty
+  name, an unset value type, and an unset writer. Reuses
+  `mapl_CallbackValueType_mod` as required; the slash-free name rule and
+  cross-checks against other declared names are left to CB1-Interface.
+  The rest (CB1-MethodOptions, -Interface, -RegistryFreeze) not started.
   `superstructure/generic/graph/callback/CallbackAttributeSpec.F90`
   (value type, scope, host_argument, required/default/allowed-set
   validation) + `.../containers/CallbackAttributeSpecMap.F90` (gFTL map
