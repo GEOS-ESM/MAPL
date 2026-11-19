@@ -127,8 +127,8 @@ Risk: what is most likely to go wrong.
 | CB0-InfoTypes | 0.2 | sonnet | sonnet | **yes** | S / low; probe only, result shapes CB2 | - |
 | CB1-ArgSpec | 1.1 | sonnet | sonnet | **yes** | S / low; defaults must keep today's meaning | - |
 | CB1-AttributeSpec | 1.2 | sonnet | sonnet | **yes** | S / low; list-typed defaults | - |
-| CB1-CallScalarSpec | 1.3 | haiku | sonnet | **yes** | S / low | - |
-| CB1-Rule | 1.4 | haiku | sonnet | **yes** | S / low | - |
+| CB1-CallScalarSpec | 1.3 | haiku | sonnet | **yes** | S / low | CB1-AttributeSpec (`CallbackValueType`) |
+| CB1-Rule | 1.4 | haiku | sonnet | **yes** | S / low | CB1-AttributeSpec (`CallbackValueType`) |
 | CB1-MethodOptions | 1.5 | sonnet | sonnet | **yes** | S / low; second map beside `AccessSpecMap` | - |
 | CB1-Interface | 1.6 | sonnet | opus | no | M / medium; cross-checks (rules, weights, host arguments) | CB1-ArgSpec, -AttributeSpec, -CallScalarSpec, -Rule, -MethodOptions |
 | CB1-RegistryFreeze | 1.7 | haiku | sonnet | **yes** | S / low; singleton state in tests (unfreeze for tests?) | - |
@@ -208,7 +208,24 @@ enumerated. Result goes into design.md Decision 4.
 (defaults). CB1-RegistryFreeze must keep tests isolated: if a test
 freezes the singleton, a test-only reset is acceptable (precedent:
 `set_materialize_extensions`).
-- **Status:** not started (each)
+- **Status:** CB1-AttributeSpec done (`Plan-Task: CB1-AttributeSpec`);
+  others not started. `superstructure/generic/graph/callback/CallbackAttributeSpec.F90`
+  (value type, scope, host_argument, required/default/allowed-set
+  validation) + `.../containers/CallbackAttributeSpecMap.F90` (gFTL map
+  keyed by name). Value-of-wrong-type is rejected, never converted;
+  string values are stored trimmed. For a list attribute, an allowed set
+  constrains each element (spec is silent on this; kept as the natural
+  reading -- open for the owner to confirm or the spec delta to state
+  explicitly).
+  **Dependency not shown in the table above:** the value-type enum
+  (integer/real/logical/string, `CALLBACK_VALUE_*`) now lives in its own
+  module, `superstructure/generic/graph/callback/CallbackValueType.F90`,
+  split out of CB1-AttributeSpec specifically so CB1-CallScalarSpec
+  ("Each SHALL declare a value type, as for attributes") and CB1-Rule can
+  import it instead of duplicating it. Those two tasks should `use
+  mapl_CallbackValueType_mod`, not declare their own enum -- read this
+  note before starting either one, since the table's `-` (no
+  dependencies) predates this split.
 
 **CB2-InfoWrappers.** New `MAPL_InfoGetShared` / `MAPL_InfoSetShared`
 specifics (r8_1d, string list, State-own-Info for logical/i4/r4/r8),
