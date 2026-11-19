@@ -1,0 +1,176 @@
+! Spec: spec/15-callbacks.md.
+module Test_CallbackRule
+   use mapl_CallbackRule_mod
+   use mapl_CallbackRuleVector_mod, only: CallbackRuleVector
+   use gFTL2_StringVector, only: StringVector
+   use funit
+   implicit none
+
+contains
+
+   ! "When operation = offset, offset_value is required" is reported as
+   ! declared.
+   @test
+   subroutine test_rule_is_retrievable()
+      type(CallbackRule) :: rule
+      type(StringVector) :: required
+      integer :: status
+
+      rule = CallbackRule('operation', 'offset', ['offset_value'], rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual('operation', rule%get_attribute())
+      @assertEqual('offset', rule%get_value())
+      @assertEqual(1, rule%num_required_arguments())
+      required = rule%get_required_arguments()
+      @assertEqual(1, required%size())
+      @assertEqual('offset_value', required%of(1))
+   end subroutine test_rule_is_retrievable
+
+   ! Several required arguments keep their declared order.
+   @test
+   subroutine test_several_required_arguments_keep_order()
+      type(CallbackRule) :: rule
+      type(StringVector) :: required
+      integer :: status
+
+      rule = CallbackRule('operation', 'blend', ['weight ', 'other  ', &
+           'offset '], rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual(3, rule%num_required_arguments())
+      required = rule%get_required_arguments()
+      @assertEqual('weight', required%of(1))
+      @assertEqual('other', required%of(2))
+      @assertEqual('offset', required%of(3))
+   end subroutine test_several_required_arguments_keep_order
+
+   ! Padding from an array constructor is stripped from stored strings,
+   ! not merely ignored by comparison.
+   @test
+   subroutine test_strings_are_stored_trimmed()
+      type(CallbackRule) :: rule
+      type(StringVector) :: required
+      integer :: status
+
+      rule = CallbackRule('operation', 'offset   ', ['ab ', 'cde'], &
+           rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual(6, len(rule%get_value()))
+      required = rule%get_required_arguments()
+      @assertEqual(2, len(required%of(1)))
+      @assertEqual(3, len(required%of(2)))
+   end subroutine test_strings_are_stored_trimmed
+
+   ! The value is a string whatever the attribute type, so a number or a
+   ! logical is held in its text form.
+   @test
+   subroutine test_value_is_held_as_given_text()
+      type(CallbackRule) :: rule
+      integer :: status
+
+      rule = CallbackRule('mode', '3', ['extra'], rc=status)
+      @assertEqual(0, status)
+      @assertEqual('3', rule%get_value())
+
+      rule = CallbackRule('flag', 'yes', ['extra'], rc=status)
+      @assertEqual(0, status)
+      @assertEqual('yes', rule%get_value())
+   end subroutine test_value_is_held_as_given_text
+
+   @test
+   subroutine test_empty_attribute_name_rejected()
+      type(CallbackRule) :: rule
+      integer :: status
+
+      rule = CallbackRule('', 'offset', ['offset_value'], rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_empty_attribute_name_rejected
+
+   @test
+   subroutine test_blank_attribute_name_rejected()
+      type(CallbackRule) :: rule
+      integer :: status
+
+      rule = CallbackRule('   ', 'offset', ['offset_value'], rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_blank_attribute_name_rejected
+
+   ! An empty trigger value is allowed.
+   @test
+   subroutine test_empty_value_allowed()
+      type(CallbackRule) :: rule
+      integer :: status
+
+      rule = CallbackRule('operation', '', ['extra'], rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, len(rule%get_value()))
+   end subroutine test_empty_value_allowed
+
+   ! Duplicate argument names are kept, not merged.
+   @test
+   subroutine test_duplicate_argument_names_kept()
+      type(CallbackRule) :: rule
+      integer :: status
+
+      rule = CallbackRule('operation', 'offset', ['dup', 'dup'], rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, rule%num_required_arguments())
+   end subroutine test_duplicate_argument_names_kept
+
+   ! A rule that requires nothing says nothing.
+   @test
+   subroutine test_rule_with_no_arguments_rejected()
+      type(CallbackRule) :: rule
+      character(len=1) :: none(0)
+      integer :: status
+
+      rule = CallbackRule('operation', 'offset', none, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_rule_with_no_arguments_rejected
+
+   @test
+   subroutine test_blank_argument_name_rejected()
+      type(CallbackRule) :: rule
+      integer :: status
+
+      rule = CallbackRule('operation', 'offset', ['ok ', '   '], rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_blank_argument_name_rejected
+
+   ! This type does no cross-checking: names of undeclared attributes or
+   ! arguments are stored as given.
+   @test
+   subroutine test_no_cross_validation_here()
+      type(CallbackRule) :: rule
+      integer :: status
+
+      rule = CallbackRule('no_such_attribute', 'x', ['no_such_arg'], &
+           rc=status)
+      @assertEqual(0, status)
+   end subroutine test_no_cross_validation_here
+
+   ! Rules collect in a vector in declaration order.
+   @test
+   subroutine test_rules_collect_in_vector()
+      type(CallbackRule) :: first, second, stored
+      type(CallbackRuleVector) :: rules
+      integer :: status
+
+      first = CallbackRule('operation', 'offset', ['offset_value'], rc=status)
+      @assertEqual(0, status)
+      second = CallbackRule('operation', 'scale', ['scale_value'], rc=status)
+      @assertEqual(0, status)
+
+      call rules%push_back(first)
+      call rules%push_back(second)
+
+      @assertEqual(2, rules%size())
+      stored = rules%of(1)
+      @assertEqual('offset', stored%get_value())
+      stored = rules%of(2)
+      @assertEqual('scale', stored%get_value())
+   end subroutine test_rules_collect_in_vector
+
+end module Test_CallbackRule
