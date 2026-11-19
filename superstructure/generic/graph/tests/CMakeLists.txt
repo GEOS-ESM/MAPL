@@ -65,6 +65,7 @@ set(test_srcs
   Test_CallbackArgumentSpec.pf
   Test_CallbackAttributeSpec.pf
   Test_CallbackRule.pf
+  Test_CallbackCallScalarSpec.pf
   Test_CallbackMethodSpec.pf
   Test_CallbackInterface.pf
   Test_CallbackInterfaceRegistry.pf

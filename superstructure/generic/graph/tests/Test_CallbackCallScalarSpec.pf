@@ -1,0 +1,100 @@
+! Spec: spec/15-callbacks.md.
+module Test_CallbackCallScalarSpec
+   use mapl_CallbackValueType_mod
+   use mapl_CallbackCallScalarSpec_mod
+   use mapl_CallbackCallScalarSpecMap_mod, only: CallbackCallScalarSpecMap
+   use funit
+   implicit none
+
+contains
+
+   ! A string call scalar written by the invoker reports its type and
+   ! writer as declared.
+   @test
+   subroutine test_call_scalar_retrievable()
+      type(CallbackCallScalarSpec) :: spec
+      type(CallbackCallScalarWriter) :: writer
+      integer :: status
+
+      spec = CallbackCallScalarSpec('time_step', CALLBACK_VALUE_STRING, &
+           CALLBACK_WRITER_INVOKER, rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual('time_step', spec%get_name())
+      @assertTrue(spec%get_value_type() == CALLBACK_VALUE_STRING)
+      @assertTrue(spec%get_writer() == CALLBACK_WRITER_INVOKER)
+      writer = spec%get_writer()
+      @assertEqual('invoker', writer%to_string())
+   end subroutine test_call_scalar_retrievable
+
+   @test
+   subroutine test_handler_written_call_scalar_retrievable()
+      type(CallbackCallScalarSpec) :: spec
+      type(CallbackCallScalarWriter) :: writer
+      integer :: status
+
+      spec = CallbackCallScalarSpec('iterations', CALLBACK_VALUE_INTEGER, &
+           CALLBACK_WRITER_HANDLER, rc=status)
+      @assertEqual(0, status)
+
+      @assertTrue(spec%get_value_type() == CALLBACK_VALUE_INTEGER)
+      @assertTrue(spec%get_writer() == CALLBACK_WRITER_HANDLER)
+      @assertTrue(spec%get_writer() /= CALLBACK_WRITER_INVOKER)
+      writer = spec%get_writer()
+      @assertEqual('handler', writer%to_string())
+   end subroutine test_handler_written_call_scalar_retrievable
+
+   @test
+   subroutine test_empty_name_rejected()
+      type(CallbackCallScalarSpec) :: spec
+      integer :: status
+
+      spec = CallbackCallScalarSpec('', CALLBACK_VALUE_STRING, &
+           CALLBACK_WRITER_INVOKER, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_empty_name_rejected
+
+   @test
+   subroutine test_unknown_value_type_rejected()
+      type(CallbackCallScalarSpec) :: spec
+      type(CallbackValueType) :: unset
+      integer :: status
+
+      spec = CallbackCallScalarSpec('time_step', unset, &
+           CALLBACK_WRITER_INVOKER, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_unknown_value_type_rejected
+
+   @test
+   subroutine test_unknown_writer_rejected()
+      type(CallbackCallScalarSpec) :: spec
+      type(CallbackCallScalarWriter) :: unset
+      integer :: status
+
+      @assertFalse(unset%is_known())
+      spec = CallbackCallScalarSpec('time_step', CALLBACK_VALUE_STRING, &
+           unset, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_unknown_writer_rejected
+
+   @test
+   subroutine test_map_keyed_by_call_scalar_name()
+      type(CallbackCallScalarSpecMap) :: call_scalars
+      type(CallbackCallScalarSpec) :: spec
+      type(CallbackCallScalarSpec), pointer :: found
+      integer :: status
+
+      spec = CallbackCallScalarSpec('time_step', CALLBACK_VALUE_STRING, &
+           CALLBACK_WRITER_INVOKER, rc=status)
+      @assertEqual(0, status)
+      call call_scalars%insert('time_step', spec)
+
+      @assertEqual(1, call_scalars%count('time_step'))
+      @assertEqual(0, call_scalars%count('missing'))
+      found => call_scalars%at('time_step')
+      @assertTrue(associated(found))
+      @assertEqual('time_step', found%get_name())
+      @assertTrue(found%get_writer() == CALLBACK_WRITER_INVOKER)
+   end subroutine test_map_keyed_by_call_scalar_name
+
+end module Test_CallbackCallScalarSpec
