@@ -208,8 +208,12 @@ enumerated. Result goes into design.md Decision 4.
 (defaults). CB1-RegistryFreeze must keep tests isolated: if a test
 freezes the singleton, a test-only reset is acceptable (precedent:
 `set_materialize_extensions`).
-- **Status:** CB1-AttributeSpec done (`Plan-Task: CB1-AttributeSpec`);
-  others not started. `superstructure/generic/graph/callback/CallbackAttributeSpec.F90`
+- **Status:** CB1-ArgSpec done (`Plan-Task: CB1-ArgSpec`, PR #5530,
+  `1c2e59ee6`: `dims`, `optional`, `extensive`, `weight_for` -- renamed
+  from `weight_of` during owner review). CB1-AttributeSpec done
+  (`Plan-Task: CB1-AttributeSpec`); the rest (CB1-CallScalarSpec, -Rule,
+  -MethodOptions, -Interface, -RegistryFreeze) not started.
+  `superstructure/generic/graph/callback/CallbackAttributeSpec.F90`
   (value type, scope, host_argument, required/default/allowed-set
   validation) + `.../containers/CallbackAttributeSpecMap.F90` (gFTL map
   keyed by name). Value-of-wrong-type is rejected, never converted;
