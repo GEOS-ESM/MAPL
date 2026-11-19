@@ -63,6 +63,7 @@ set(test_srcs
   Test_StateItemCharacteristicSubclasses.pf
   Test_SetSharedCharacteristic.pf
   Test_CallbackArgumentSpec.pf
+  Test_CallbackAttributeSpec.pf
   Test_CallbackMethodSpec.pf
   Test_CallbackInterface.pf
   Test_CallbackInterfaceRegistry.pf

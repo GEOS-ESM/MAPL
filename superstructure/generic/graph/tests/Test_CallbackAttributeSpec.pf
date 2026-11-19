@@ -1,0 +1,516 @@
+! Spec: spec/15-callbacks.md.
+module Test_CallbackAttributeSpec
+   use, intrinsic :: iso_fortran_env, only: INT32, INT64, REAL32, REAL64
+   use mapl_CallbackValueType_mod
+   use mapl_CallbackAttributeSpec_mod
+   use mapl_CallbackAttributeSpecMap_mod, only: CallbackAttributeSpecMap
+   use gFTL2_StringVector, only: StringVector
+   use funit
+   implicit none
+
+contains
+
+   ! A required state-scoped string with allowed values reports its
+   ! declaration as given.
+   @test
+   subroutine test_attribute_with_allowed_values_retrievable()
+      type(CallbackAttributeSpec) :: spec
+      type(StringVector) :: allowed
+      integer :: status
+
+      spec = CallbackAttributeSpec('operation', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, required=.true., &
+           allowed_values=['scale ', 'offset'], rc=status)
+      @assertEqual(0, status)
+
+      @assertEqual('operation', spec%get_name())
+      @assertTrue(spec%get_value_type() == CALLBACK_VALUE_STRING)
+      @assertFalse(spec%is_list())
+      @assertTrue(spec%get_scope() == CALLBACK_SCOPE_STATE)
+      @assertTrue(spec%is_required())
+      @assertFalse(spec%has_default())
+      @assertFalse(spec%has_host_argument())
+      @assertTrue(spec%has_allowed_values())
+
+      allowed = spec%get_allowed_strings(rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, allowed%size())
+      @assertEqual('scale', allowed%of(1))
+      @assertEqual('offset', allowed%of(2))
+   end subroutine test_attribute_with_allowed_values_retrievable
+
+   ! Padding from an array constructor is stripped from stored strings,
+   ! not merely ignored by comparison.
+   @test
+   subroutine test_string_values_are_stored_trimmed()
+      type(CallbackAttributeSpec) :: spec
+      type(StringVector) :: allowed
+      integer :: status
+
+      spec = CallbackAttributeSpec('operation', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, &
+           allowed_values=['scale ', 'offset'], default='scale   ', rc=status)
+      @assertEqual(0, status)
+
+      allowed = spec%get_allowed_strings(rc=status)
+      @assertEqual(5, len(allowed%of(1)))
+      @assertEqual(6, len(allowed%of(2)))
+      @assertEqual(5, len(spec%get_default_string(rc=status)))
+   end subroutine test_string_values_are_stored_trimmed
+
+   @test
+   subroutine test_list_string_defaults_are_stored_trimmed()
+      type(CallbackAttributeSpec) :: spec
+      type(StringVector) :: names
+      integer :: status
+
+      spec = CallbackAttributeSpec('names', CALLBACK_VALUE_STRING, &
+           is_list=.true., scope=CALLBACK_SCOPE_STATE, &
+           default_list=['ab ', 'cde'], rc=status)
+      @assertEqual(0, status)
+      names = spec%get_default_strings(rc=status)
+      @assertEqual(2, len(names%of(1)))
+      @assertEqual(3, len(names%of(2)))
+   end subroutine test_list_string_defaults_are_stored_trimmed
+
+   ! Scope defaults to member, required to .false., and there is no
+   ! default or allowed set unless declared.
+   @test
+   subroutine test_defaults_of_a_minimal_declaration()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('mix_like', CALLBACK_VALUE_LOGICAL, &
+           host_argument='mixed_quantity', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%get_scope() == CALLBACK_SCOPE_MEMBER)
+      @assertFalse(spec%is_required())
+      @assertFalse(spec%is_list())
+      @assertFalse(spec%has_default())
+      @assertFalse(spec%has_allowed_values())
+   end subroutine test_defaults_of_a_minimal_declaration
+
+   @test
+   subroutine test_default_on_required_attribute_rejected()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('operation', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, required=.true., default='scale', &
+           rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_default_on_required_attribute_rejected
+
+   @test
+   subroutine test_default_outside_allowed_set_rejected()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('operation', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, allowed_values=['a', 'b'], &
+           default='c', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_default_outside_allowed_set_rejected
+
+   @test
+   subroutine test_default_inside_allowed_set_accepted()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('operation', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, allowed_values=['a', 'b'], &
+           default='b', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%has_default())
+      @assertEqual('b', spec%get_default_string(rc=status))
+      @assertEqual(0, status)
+   end subroutine test_default_inside_allowed_set_accepted
+
+   @test
+   subroutine test_allowed_set_on_real_attribute_rejected()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('factor', CALLBACK_VALUE_REAL, &
+           scope=CALLBACK_SCOPE_STATE, &
+           allowed_values=[1._REAL64, 2._REAL64], rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_allowed_set_on_real_attribute_rejected
+
+   @test
+   subroutine test_allowed_set_on_logical_attribute_rejected()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('flag', CALLBACK_VALUE_LOGICAL, &
+           scope=CALLBACK_SCOPE_STATE, allowed_values=[.true.], rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_allowed_set_on_logical_attribute_rejected
+
+   @test
+   subroutine test_integer_allowed_set_and_default()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('order', CALLBACK_VALUE_INTEGER, &
+           scope=CALLBACK_SCOPE_STATE, allowed_values=[1, 2, 3], &
+           default=2, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%has_allowed_values())
+      @assertEqual([1_INT64, 2_INT64, 3_INT64], &
+           spec%get_allowed_integers(rc=status))
+      @assertEqual(0, status)
+      @assertEqual(2_INT64, spec%get_default_integer(rc=status))
+      @assertEqual(0, status)
+
+      spec = CallbackAttributeSpec('order', CALLBACK_VALUE_INTEGER, &
+           scope=CALLBACK_SCOPE_STATE, allowed_values=[1, 2, 3], &
+           default=4, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_integer_allowed_set_and_default
+
+   ! Both 4-byte and 8-byte real inputs are accepted; a 4-byte value is
+   ! held widened to 8 bytes.
+   @test
+   subroutine test_real_constructor_accepts_both_kinds()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('factor', CALLBACK_VALUE_REAL, &
+           scope=CALLBACK_SCOPE_STATE, default=0.1_REAL32, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(real(0.1_REAL32, REAL64), &
+           spec%get_default_real(rc=status))
+      @assertEqual(0, status)
+
+      spec = CallbackAttributeSpec('factor', CALLBACK_VALUE_REAL, &
+           scope=CALLBACK_SCOPE_STATE, default=0.1_REAL64, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0.1_REAL64, spec%get_default_real(rc=status))
+      @assertEqual(0, status)
+   end subroutine test_real_constructor_accepts_both_kinds
+
+   @test
+   subroutine test_integer_constructor_accepts_both_kinds()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('count', CALLBACK_VALUE_INTEGER, &
+           scope=CALLBACK_SCOPE_STATE, default=3_INT32, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(3_INT64, spec%get_default_integer(rc=status))
+
+      spec = CallbackAttributeSpec('count', CALLBACK_VALUE_INTEGER, &
+           scope=CALLBACK_SCOPE_STATE, default=4_INT64, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(4_INT64, spec%get_default_integer(rc=status))
+   end subroutine test_integer_constructor_accepts_both_kinds
+
+   @test
+   subroutine test_logical_default()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('flag', CALLBACK_VALUE_LOGICAL, &
+           scope=CALLBACK_SCOPE_STATE, default=.true., rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%get_default_logical(rc=status))
+      @assertEqual(0, status)
+   end subroutine test_logical_default
+
+   ! A wrong-type default is rejected, never converted.
+   @test
+   subroutine test_default_of_wrong_type_rejected()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('factor', CALLBACK_VALUE_REAL, &
+           scope=CALLBACK_SCOPE_STATE, default='0.5', rc=status)
+      @assertTrue(status /= 0)
+
+      spec = CallbackAttributeSpec('count', CALLBACK_VALUE_INTEGER, &
+           scope=CALLBACK_SCOPE_STATE, default=1.5_REAL64, rc=status)
+      @assertTrue(status /= 0)
+
+      spec = CallbackAttributeSpec('flag', CALLBACK_VALUE_LOGICAL, &
+           scope=CALLBACK_SCOPE_STATE, default=1, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_default_of_wrong_type_rejected
+
+   @test
+   subroutine test_list_default_element_of_wrong_type_rejected()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('levels', CALLBACK_VALUE_INTEGER, &
+           is_list=.true., scope=CALLBACK_SCOPE_STATE, &
+           default_list=[1.0_REAL64, 2.0_REAL64], rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_list_default_element_of_wrong_type_rejected
+
+   @test
+   subroutine test_allowed_values_of_wrong_type_rejected()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('order', CALLBACK_VALUE_INTEGER, &
+           scope=CALLBACK_SCOPE_STATE, allowed_values=['a', 'b'], rc=status)
+      @assertTrue(status /= 0)
+
+      spec = CallbackAttributeSpec('operation', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, allowed_values=[1, 2], rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_allowed_values_of_wrong_type_rejected
+
+   @test
+   subroutine test_list_attribute_defaults()
+      type(CallbackAttributeSpec) :: spec
+      type(StringVector) :: names
+      integer :: status
+
+      spec = CallbackAttributeSpec('levels', CALLBACK_VALUE_INTEGER, &
+           is_list=.true., scope=CALLBACK_SCOPE_STATE, &
+           default_list=[1, 2, 3], rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%is_list())
+      @assertEqual([1_INT64, 2_INT64, 3_INT64], &
+           spec%get_default_integers(rc=status))
+      @assertEqual(0, status)
+
+      spec = CallbackAttributeSpec('weights', CALLBACK_VALUE_REAL, &
+           is_list=.true., scope=CALLBACK_SCOPE_STATE, &
+           default_list=[0.5_REAL64, 1.5_REAL64], rc=status)
+      @assertEqual(0, status)
+      @assertEqual([0.5_REAL64, 1.5_REAL64], &
+           spec%get_default_reals(rc=status))
+
+      spec = CallbackAttributeSpec('flags', CALLBACK_VALUE_LOGICAL, &
+           is_list=.true., scope=CALLBACK_SCOPE_STATE, &
+           default_list=[.true., .false.], rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, size(spec%get_default_logicals(rc=status)))
+
+      spec = CallbackAttributeSpec('names', CALLBACK_VALUE_STRING, &
+           is_list=.true., scope=CALLBACK_SCOPE_STATE, &
+           default_list=['x', 'y'], rc=status)
+      @assertEqual(0, status)
+      names = spec%get_default_strings(rc=status)
+      @assertEqual(2, names%size())
+      @assertEqual('y', names%of(2))
+   end subroutine test_list_attribute_defaults
+
+   ! For a list attribute the allowed set constrains each element.
+   @test
+   subroutine test_list_default_elements_checked_against_allowed_set()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('names', CALLBACK_VALUE_STRING, &
+           is_list=.true., scope=CALLBACK_SCOPE_STATE, &
+           allowed_values=['x', 'y'], default_list=['x', 'y'], rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%has_allowed_values())
+
+      spec = CallbackAttributeSpec('names', CALLBACK_VALUE_STRING, &
+           is_list=.true., scope=CALLBACK_SCOPE_STATE, &
+           allowed_values=['x', 'y'], default_list=['x', 'z'], rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_list_default_elements_checked_against_allowed_set
+
+   @test
+   subroutine test_scalar_and_list_default_arguments_must_match()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('levels', CALLBACK_VALUE_INTEGER, &
+           is_list=.true., scope=CALLBACK_SCOPE_STATE, default=1, &
+           rc=status)
+      @assertTrue(status /= 0)
+
+      spec = CallbackAttributeSpec('level', CALLBACK_VALUE_INTEGER, &
+           scope=CALLBACK_SCOPE_STATE, default_list=[1, 2], rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_scalar_and_list_default_arguments_must_match
+
+   @test
+   subroutine test_default_and_default_list_together_rejected()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('levels', CALLBACK_VALUE_INTEGER, &
+           is_list=.true., scope=CALLBACK_SCOPE_STATE, default=1, &
+           default_list=[1, 2], rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_default_and_default_list_together_rejected
+
+   @test
+   subroutine test_host_argument_retrievable()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('mix_like', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_MEMBER, host_argument='mixed_quantity', &
+           rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%has_host_argument())
+      @assertEqual('mixed_quantity', spec%get_host_argument())
+   end subroutine test_host_argument_retrievable
+
+   @test
+   subroutine test_member_scoped_without_host_argument_rejected()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('mix_like', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_MEMBER, rc=status)
+      @assertTrue(status /= 0)
+
+      ! Scope defaults to member, so omitting it is rejected too.
+      spec = CallbackAttributeSpec('mix_like', CALLBACK_VALUE_STRING, &
+           rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_member_scoped_without_host_argument_rejected
+
+   @test
+   subroutine test_state_scoped_with_host_argument_rejected()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('operation', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, host_argument='mixed_quantity', &
+           rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_state_scoped_with_host_argument_rejected
+
+   @test
+   subroutine test_empty_host_argument_rejected()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('mix_like', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_MEMBER, host_argument='', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_empty_host_argument_rejected
+
+   @test
+   subroutine test_empty_name_rejected()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_empty_name_rejected
+
+   @test
+   subroutine test_empty_allowed_set_rejected()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+      character(1) :: none(0)
+
+      spec = CallbackAttributeSpec('operation', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, allowed_values=none, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_empty_allowed_set_rejected
+
+   ! An allowed set on a list attribute is accepted, not rejected.
+   @test
+   subroutine test_allowed_set_on_list_attribute_accepted()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('names', CALLBACK_VALUE_STRING, &
+           is_list=.true., scope=CALLBACK_SCOPE_STATE, &
+           allowed_values=['x', 'y'], rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%is_list())
+      @assertTrue(spec%has_allowed_values())
+   end subroutine test_allowed_set_on_list_attribute_accepted
+
+   ! A default-initialized value type or scope is not a legal declaration.
+   @test
+   subroutine test_uninitialized_value_type_and_scope_rejected()
+      type(CallbackAttributeSpec) :: spec
+      type(CallbackValueType) :: unset_type
+      type(CallbackAttributeScope) :: unset_scope
+      integer :: status
+
+      spec = CallbackAttributeSpec('a', unset_type, &
+           scope=CALLBACK_SCOPE_STATE, rc=status)
+      @assertTrue(status /= 0)
+
+      spec = CallbackAttributeSpec('a', CALLBACK_VALUE_STRING, &
+           scope=unset_scope, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_uninitialized_value_type_and_scope_rejected
+
+   ! A getter for a value the attribute does not hold reports failure.
+   @test
+   subroutine test_getter_misuse_rejected()
+      type(CallbackAttributeSpec) :: spec
+      type(StringVector) :: strings
+      character(:), allocatable :: svalue
+      integer :: status
+
+      spec = CallbackAttributeSpec('order', CALLBACK_VALUE_INTEGER, &
+           scope=CALLBACK_SCOPE_STATE, default=2, rc=status)
+      @assertEqual(0, status)
+
+      svalue = spec%get_default_string(rc=status)
+      @assertTrue(status /= 0)
+      @assertEqual(0, size(spec%get_default_integers(rc=status)))
+      @assertTrue(status /= 0)
+      strings = spec%get_allowed_strings(rc=status)
+      @assertTrue(status /= 0)
+      ! No allowed set declared at all.
+      @assertEqual(0, size(spec%get_allowed_integers(rc=status)))
+      @assertTrue(status /= 0)
+   end subroutine test_getter_misuse_rejected
+
+   @test
+   subroutine test_getter_without_default_rejected()
+      type(CallbackAttributeSpec) :: spec
+      integer(INT64) :: ivalue
+      integer :: status
+
+      spec = CallbackAttributeSpec('order', CALLBACK_VALUE_INTEGER, &
+           scope=CALLBACK_SCOPE_STATE, rc=status)
+      @assertEqual(0, status)
+      ivalue = spec%get_default_integer(rc=status)
+      @assertTrue(status /= 0)
+      @assertEqual(0_INT64, ivalue)
+   end subroutine test_getter_without_default_rejected
+
+   ! Duplicate allowed values are kept as given.
+   @test
+   subroutine test_duplicate_allowed_values_accepted()
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = CallbackAttributeSpec('order', CALLBACK_VALUE_INTEGER, &
+           scope=CALLBACK_SCOPE_STATE, allowed_values=[1, 1, 2], &
+           rc=status)
+      @assertEqual(0, status)
+      @assertEqual(3, size(spec%get_allowed_integers(rc=status)))
+   end subroutine test_duplicate_allowed_values_accepted
+
+   @test
+   subroutine test_map_keyed_by_attribute_name()
+      type(CallbackAttributeSpecMap) :: attributes
+      type(CallbackAttributeSpec) :: spec
+      type(CallbackAttributeSpec), pointer :: found
+      integer :: status
+
+      spec = CallbackAttributeSpec('operation', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, rc=status)
+      @assertEqual(0, status)
+      call attributes%insert('operation', spec)
+
+      @assertEqual(1, attributes%count('operation'))
+      @assertEqual(0, attributes%count('missing'))
+      found => attributes%at('operation')
+      @assertTrue(associated(found))
+      @assertEqual('operation', found%get_name())
+   end subroutine test_map_keyed_by_attribute_name
+
+end module Test_CallbackAttributeSpec
