@@ -4,6 +4,8 @@ module mapl_Throw_mod
 
    public :: MAPL_throw_exception
    public :: MAPL_set_throw_method
+   public :: MAPL_propagate_exception
+   public :: MAPL_set_propagate_method
 
    abstract interface
       subroutine throw(filename, line_number, message)
@@ -14,6 +16,8 @@ module mapl_Throw_mod
    end interface
 
    procedure (throw), pointer :: throw_method => null()
+   ! Reports a failure passed up from a callee.  Unset means use throw_method.
+   procedure (throw), pointer :: propagate_method => null()
    logical, save :: initialized = .false.
 
 contains
@@ -23,6 +27,12 @@ contains
       if (.not. initialized) call initialize()
       throw_method => method
    end subroutine MAPL_set_throw_method
+
+   subroutine MAPL_set_propagate_method(method)
+      procedure (throw) :: method
+      if (.not. initialized) call initialize()
+      propagate_method => method
+   end subroutine MAPL_set_propagate_method
 
    subroutine initialize()
       throw_method => MAPL_serial_fail
@@ -42,6 +52,24 @@ contains
       call throw_method(filename, line_number, message=message)
       
    end subroutine MAPL_throw_exception
+
+
+   subroutine MAPL_propagate_exception(filename, line_number, message)
+      character(len=*), intent(in) :: filename
+      integer, intent(in) :: line_number
+      character(len=*), optional, intent(in) :: message
+
+      if (.not. initialized) then
+         call initialize()
+      end if
+
+      if (associated(propagate_method)) then
+         call propagate_method(filename, line_number, message=message)
+      else
+         call throw_method(filename, line_number, message=message)
+      end if
+
+   end subroutine MAPL_propagate_exception
 
 
    subroutine MAPL_serial_fail(filename, line, message)

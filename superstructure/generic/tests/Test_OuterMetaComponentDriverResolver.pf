@@ -96,13 +96,7 @@ contains
       resolver = OuterMetaComponentDriverResolver(outer_meta)
 
       resolved => resolver%resolve('no-such-child', rc=status)
-      ! Two propagated frames to unwind, innermost first: get_child_driver's
-      ! own descriptive _ASSERT, then resolver_resolve's own bare
-      ! "status=1" _VERIFY propagation - same pattern
-      ! Test_GraphBuilder.pf's test_freeze_fails_and_leaves_graph_unfrozen_on_conflict
-      ! documents for a comparable multi-frame unwind.
       @assertExceptionRaised('OuterMetaComponent: get_child_driver - child not found: <no-such-child>.')
-      @assertExceptionRaised('status=1')
       @assertTrue(status /= 0)
 
       _UNUSED_DUMMY(this)

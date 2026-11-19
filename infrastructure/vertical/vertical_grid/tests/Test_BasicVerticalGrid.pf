@@ -306,7 +306,6 @@ contains
       config = esmf_HConfigCreate(content='{num_levels: 0}')
       grid = factory%create_grid_from_config(config, rc=status)
       @assertExceptionRaised('Number of levels must be positive')
-      @assertExceptionRaised('status=1')
       @assertTrue(status /= 0, 'A non-positive level count must give a nonzero rc')
       @assertTrue(allocated(grid), 'The result must be allocated on the error path')
       call esmf_HConfigDestroy(config)

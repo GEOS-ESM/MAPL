@@ -665,6 +665,8 @@ Also exports module-level variable: `debug_unit` (integer, save).
 |---|---|
 | `MAPL_throw_exception` | subroutine |
 | `MAPL_set_throw_method` | subroutine |
+| `MAPL_propagate_exception` | subroutine |
+| `MAPL_set_propagate_method` | subroutine |
 
 ---
 
