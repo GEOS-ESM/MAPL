@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added the `callback-contracts-and-registry` OpenSpec change proposal
+  (planning artifacts only, no code): a registration file of named
+  callback interfaces (argument/attribute/rule/call-scalar schema), a
+  frozen interface registry, realized-State conformance checks, and
+  Invoker-side method execution with regrid-aware argument wiring. See
+  `docs/graph/plans/callback-contracts-and-registry.md` and
+  `openspec/changes/callback-contracts-and-registry/`.
 - Added agent-oriented architecture documentation for MAPL3 (`AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/decisions.md`, `docs/generic/`, one `ARCHITECTURE.md` per layer and for cap, History, ExtData and geometry)
 - Add hack so that edge level geos-chem inputs can be read and correctly identified as edge instead of centers
 - Enforced the `standard_name` convention between a connected Import and

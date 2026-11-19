@@ -1,0 +1,182 @@
+! SnapshotTransform copies a Field into a distinct Field. Real ESMF fields,
+! no regrid and no graph wiring.
+module Test_SnapshotTransform
+   use mapl_GraphStateItem_mod, only: GraphStateItem
+   use mapl_PortNameGraphStateItemMap_mod, only: PortNameGraphStateItemMap
+   use mapl_SnapshotTransform_mod, only: SnapshotTransform
+   use StateItemTestSupport_mod, only: make_latlon_geom, make_test_member
+   use ESMF, only: ESMF_Field, ESMF_Geom, ESMF_FieldGet
+   use ESMF, only: ESMF_KIND_R4, ESMF_KIND_R8
+   use ESMF, only: ESMF_TypeKind_Flag, ESMF_TYPEKIND_R4, ESMF_TYPEKIND_R8
+   use funit
+   implicit none
+
+contains
+
+   ! Binds the two fields to the transform's ports.
+   subroutine bind_fields(f_in, f_out, inputs, outputs)
+      type(ESMF_Field), intent(in) :: f_in, f_out
+      type(PortNameGraphStateItemMap), intent(out) :: inputs, outputs
+
+      type(GraphStateItem) :: item_in, item_out
+      integer :: status
+
+      call item_in%set(f_in, rc=status)
+      @assertEqual(0, status)
+      call item_out%set(f_out, rc=status)
+      @assertEqual(0, status)
+      call inputs%insert('source_field', item_in)
+      call outputs%insert('destination_field', item_out)
+   end subroutine bind_fields
+
+   @test
+   subroutine test_ports_declared()
+      type(SnapshotTransform) :: transform
+
+      transform = SnapshotTransform()
+      @assertTrue(transform%is_input_port('source_field'))
+      @assertTrue(transform%is_output_port('destination_field'))
+      @assertFalse(transform%is_input_port('destination_field'))
+      @assertFalse(transform%is_output_port('source_field'))
+   end subroutine test_ports_declared
+
+   @test
+   subroutine test_copies_r4_value()
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Field) :: f_in, f_out
+      type(ESMF_Geom) :: geom
+      type(SnapshotTransform) :: transform
+      real(kind=ESMF_KIND_R4), pointer :: x_in(:,:), x_out(:,:)
+      integer :: status
+
+      geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      f_in = make_test_member(geom, 'input', 2.5, status)
+      @assertEqual(0, status)
+      f_out = make_test_member(geom, 'output', 0., status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(f_in, farrayPtr=x_in, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(f_out, farrayPtr=x_out, rc=status)
+      @assertEqual(0, status)
+      x_in(1, 1) = -7.25
+
+      call bind_fields(f_in, f_out, inputs, outputs)
+      transform = SnapshotTransform()
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      @assertEqual(shape(x_in), shape(x_out))
+      @assertEqual(-7.25, x_out(1, 1))
+      @assertEqual(2.5, x_out(2, 2))
+      @assertTrue(all(x_out == x_in))
+   end subroutine test_copies_r4_value
+
+   @test
+   subroutine test_copies_r8_value()
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Field) :: f_in, f_out
+      type(ESMF_Geom) :: geom
+      type(SnapshotTransform) :: transform
+      real(kind=ESMF_KIND_R8), pointer :: x_in(:,:), x_out(:,:)
+      integer :: status
+
+      geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      f_in = make_test_member(geom, 'input', 2.5, status, typekind=ESMF_TYPEKIND_R8)
+      @assertEqual(0, status)
+      f_out = make_test_member(geom, 'output', 0., status, typekind=ESMF_TYPEKIND_R8)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(f_in, farrayPtr=x_in, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(f_out, farrayPtr=x_out, rc=status)
+      @assertEqual(0, status)
+      x_in(1, 1) = 1.0_ESMF_KIND_R8 / 3.0_ESMF_KIND_R8
+
+      call bind_fields(f_in, f_out, inputs, outputs)
+      transform = SnapshotTransform()
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      @assertTrue(all(x_out == x_in))
+   end subroutine test_copies_r8_value
+
+   ! The output holds the value as of compute, not a view of the input: a
+   ! later change to the input leaves it alone until the next compute.
+   @test
+   subroutine test_output_is_value_at_compute_time()
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Field) :: f_in, f_out
+      type(ESMF_Geom) :: geom
+      type(SnapshotTransform) :: transform
+      real(kind=ESMF_KIND_R4), pointer :: x_in(:,:), x_out(:,:)
+      integer :: status
+
+      geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      f_in = make_test_member(geom, 'input', 4., status)
+      @assertEqual(0, status)
+      f_out = make_test_member(geom, 'output', 0., status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(f_in, farrayPtr=x_in, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(f_out, farrayPtr=x_out, rc=status)
+      @assertEqual(0, status)
+
+      call bind_fields(f_in, f_out, inputs, outputs)
+      transform = SnapshotTransform()
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+
+      x_in = 9.
+      @assertTrue(all(x_out == 4.))
+
+      call transform%compute(inputs, outputs, status)
+      @assertEqual(0, status)
+      @assertTrue(all(x_out == 9.))
+   end subroutine test_output_is_value_at_compute_time
+
+   @test
+   subroutine test_typekind_mismatch_fails()
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(ESMF_Field) :: f_in, f_out
+      type(ESMF_Geom) :: geom
+      type(SnapshotTransform) :: transform
+      integer :: status
+
+      geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      f_in = make_test_member(geom, 'input', 1., status)
+      @assertEqual(0, status)
+      f_out = make_test_member(geom, 'output', 0., status, typekind=ESMF_TYPEKIND_R8)
+      @assertEqual(0, status)
+
+      call bind_fields(f_in, f_out, inputs, outputs)
+      transform = SnapshotTransform()
+      call transform%compute(inputs, outputs, status)
+      @assertFalse(status == 0)
+   end subroutine test_typekind_mismatch_fails
+
+   @test
+   subroutine test_unbound_output_fails()
+      type(PortNameGraphStateItemMap) :: inputs, outputs
+      type(GraphStateItem) :: item_in
+      type(ESMF_Field) :: f_in
+      type(ESMF_Geom) :: geom
+      type(SnapshotTransform) :: transform
+      integer :: status
+
+      geom = make_latlon_geom(12, 13, status)
+      @assertEqual(0, status)
+      f_in = make_test_member(geom, 'input', 1., status)
+      @assertEqual(0, status)
+      call item_in%set(f_in, rc=status)
+      @assertEqual(0, status)
+      call inputs%insert('source_field', item_in)
+
+      transform = SnapshotTransform()
+      call transform%compute(inputs, outputs, status)
+      @assertFalse(status == 0)
+   end subroutine test_unbound_output_fails
+
+end module Test_SnapshotTransform

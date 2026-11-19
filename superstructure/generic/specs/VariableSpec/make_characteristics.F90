@@ -8,7 +8,7 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
         HORIZONTAL_DIMS_SPEC_CHARACTERISTIC_KIND, &
         ITEM_SHAPE_CHARACTERISTIC_KIND, LONG_NAME_CHARACTERISTIC_KIND, RESTART_MODE_CHARACTERISTIC_KIND, &
         QUANTITY_TYPE_CHARACTERISTIC_KIND, CONSERVATION_CHARACTERISTIC_KIND, &
-        NORMALIZATION_CHARACTERISTIC_KIND, EXPRESSION_CHARACTERISTIC_KIND
+        NORMALIZATION_CHARACTERISTIC_KIND, EXPRESSION_CHARACTERISTIC_KIND, NON_NEGATIVE_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED, CHARACTERISTIC_STATUS_MIRRORED, &
         CHARACTERISTIC_STATUS_DEFERRED, operator(==)
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_VERTICALGRID, operator(==)
@@ -18,6 +18,7 @@ submodule (mapl_VariableSpec_mod) make_characteristics_smod
    use mapl_LongNameCharacteristic_mod, only: LongNameCharacteristic
    use mapl_RestartModeCharacteristic_mod, only: RestartModeCharacteristic
    use mapl_RestartModes_mod, only: RESTART_REQUIRED
+   use mapl_NonNegativeCharacteristic_mod, only: NonNegativeCharacteristic
    use mapl_ExpressionCharacteristic_mod, only: ExpressionCharacteristic
    use mapl_QuantityTypeCharacteristic_mod, only: QuantityTypeCharacteristic
    use mapl_QuantityType_mod, only: QUANTITY_UNKNOWN, operator(==)
@@ -69,7 +70,7 @@ contains
       integer :: i
       ! A named constant, not size(factories): ifort rejects size() of this
       ! array of procedure-pointer wrappers.
-      integer, parameter :: NUM_FACTORIES = 17
+      integer, parameter :: NUM_FACTORIES = 18
       type(Factory) :: factories(NUM_FACTORIES)
 
       factories(1)%make => make_units_characteristic
@@ -89,6 +90,7 @@ contains
       factories(15)%make => make_conservation_characteristic
       factories(16)%make => make_normalization_characteristic
       factories(17)%make => make_expression_characteristic
+      factories(18)%make => make_non_negative_characteristic
 
       do i = 1, NUM_FACTORIES
          call factories(i)%make(this, descriptor, _RC)
@@ -768,6 +770,24 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine make_expression_characteristic
+
+   ! Only a declared non_negative gives an entry; make_VariableSpec allows it
+   ! on a FIELD only.
+   subroutine make_non_negative_characteristic(spec, descriptor, rc)
+      class(VariableSpec), intent(in) :: spec
+      type(StateItemDescriptor), intent(inout) :: descriptor
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+
+      _RETURN_UNLESS(allocated(spec%non_negative))
+      _RETURN_UNLESS(spec%itemType == MAPL_STATEITEM_FIELD)
+
+      call descriptor%set_characteristic(NON_NEGATIVE_CHARACTERISTIC_KIND, &
+           NonNegativeCharacteristic(spec%non_negative), _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine make_non_negative_characteristic
 
    ! Shapes that carry the per-field metadata kinds (ungridded dims,
    ! attributes, quantity type, conservation, normalization): every

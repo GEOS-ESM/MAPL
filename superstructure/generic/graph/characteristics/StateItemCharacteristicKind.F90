@@ -45,6 +45,8 @@ module mapl_StateItemCharacteristicKind_mod
    public :: RESTART_MODE_CHARACTERISTIC_KIND
    ! Value 17: expression string.
    public :: EXPRESSION_CHARACTERISTIC_KIND
+   ! Value 18: non-negative declaration.
+   public :: NON_NEGATIVE_CHARACTERISTIC_KIND
    public :: MOCK_CHARACTERISTIC_KIND
 
    type :: StateItemCharacteristicKind
@@ -91,6 +93,10 @@ module mapl_StateItemCharacteristicKind_mod
    ! Value 17: expression string (ExpressionCharacteristic.F90).
    type(StateItemCharacteristicKind), parameter :: &
         EXPRESSION_CHARACTERISTIC_KIND = StateItemCharacteristicKind(17)
+
+   ! Value 18: non-negative declaration (NonNegativeCharacteristic.F90).
+   type(StateItemCharacteristicKind), parameter :: &
+        NON_NEGATIVE_CHARACTERISTIC_KIND = StateItemCharacteristicKind(18)
 
    ! Test-only, mirrors CharacteristicId.F90's own MOCK_CHARACTERISTIC_ID
    ! precedent - lets a test define a fake StateItemCharacteristic
@@ -150,6 +156,8 @@ contains
          s = "RESTART_MODE"
       case (EXPRESSION_CHARACTERISTIC_KIND%value)
          s = "EXPRESSION"
+      case (NON_NEGATIVE_CHARACTERISTIC_KIND%value)
+         s = "NON_NEGATIVE"
       case (MOCK_CHARACTERISTIC_KIND%value)
          s = "MOCK"
       case default
