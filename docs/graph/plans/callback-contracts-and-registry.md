@@ -211,8 +211,17 @@ freezes the singleton, a test-only reset is acceptable (precedent:
 - **Status:** CB1-ArgSpec done (`Plan-Task: CB1-ArgSpec`, PR #5530,
   `1c2e59ee6`: `dims`, `optional`, `extensive`, `weight_for` -- renamed
   from `weight_of` during owner review). CB1-AttributeSpec done
-  (`Plan-Task: CB1-AttributeSpec`); the rest (CB1-CallScalarSpec, -Rule,
-  -MethodOptions, -Interface, -RegistryFreeze) not started.
+  (`Plan-Task: CB1-AttributeSpec`). CB1-Rule done (`Plan-Task: CB1-Rule`,
+  `48e755670`): `CallbackRule` (attribute name, trigger value as a plain
+  string, required argument names in order) + `CallbackRuleVector`
+  (`superstructure/generic/graph/callback/CallbackRule.F90`,
+  `.../containers/CallbackRuleVector.F90`). Rejects an empty or blank
+  attribute name, an empty required-argument list, and a blank argument
+  name; accepts an empty trigger value and duplicate argument names.
+  Cross-checking the attribute/arguments against the interface, and the
+  canonical text form for a logical/real trigger, are left to
+  CB1-Interface. The rest (CB1-CallScalarSpec, -MethodOptions,
+  -Interface, -RegistryFreeze) not started.
   `superstructure/generic/graph/callback/CallbackAttributeSpec.F90`
   (value type, scope, host_argument, required/default/allowed-set
   validation) + `.../containers/CallbackAttributeSpecMap.F90` (gFTL map
