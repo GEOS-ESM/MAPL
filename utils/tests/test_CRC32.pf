@@ -1,0 +1,98 @@
+#include "MAPL_TestErr.h"
+
+module test_CRC32
+   use mapl_CRC32_mod
+   use mapl_os_mod, only: RemoveFile
+   use funit
+   use, intrinsic :: iso_fortran_env, only: INT32
+   implicit none(type, external)
+
+contains
+
+   @test
+   subroutine test_empty()
+      @assertEqual('00000000', CRC32Hex(CRC32('')))
+   end subroutine test_empty
+
+   @test
+   subroutine test_check_value()
+      ! The standard CRC-32 check value for the ASCII string 123456789.
+      @assertEqual('CBF43926', CRC32Hex(CRC32('123456789')))
+   end subroutine test_check_value
+
+   @test
+   subroutine test_known_strings()
+      @assertEqual('E8B7BE43', CRC32Hex(CRC32('a')))
+      @assertEqual('352441C2', CRC32Hex(CRC32('abc')))
+      @assertEqual('414FA339', CRC32Hex(CRC32('The quick brown fox jumps over the lazy dog')))
+   end subroutine test_known_strings
+
+   @test
+   subroutine test_hex_format()
+      ! Leading zeros are kept and the high bit is handled.
+      @assertEqual('00000001', CRC32Hex(1))
+      @assertEqual('FFFFFFFF', CRC32Hex(-1))
+   end subroutine test_hex_format
+
+   @test
+   subroutine test_file()
+      character(*), parameter :: FILENAME = 'test_CRC32_small.dat'
+      integer :: unit, status
+      integer(INT32) :: crc
+
+      open(newunit=unit, file=FILENAME, access='stream', form='unformatted', status='replace')
+      write(unit) '123456789'
+      close(unit)
+
+      crc = CRC32File(FILENAME, _RC)
+      @assertEqual('CBF43926', CRC32Hex(crc))
+      call RemoveFile(FILENAME, _RC)
+   end subroutine test_file
+
+   @test
+   subroutine test_empty_file()
+      character(*), parameter :: FILENAME = 'test_CRC32_empty.dat'
+      integer :: unit, status
+      integer(INT32) :: crc
+
+      open(newunit=unit, file=FILENAME, access='stream', form='unformatted', status='replace')
+      close(unit)
+
+      crc = CRC32File(FILENAME, _RC)
+      @assertEqual('00000000', CRC32Hex(crc))
+      call RemoveFile(FILENAME, _RC)
+   end subroutine test_empty_file
+
+   @test
+   subroutine test_multi_chunk_file()
+      ! Larger than the internal read chunk, so the file is folded in pieces.
+      character(*), parameter :: FILENAME = 'test_CRC32_large.dat'
+      integer, parameter :: N = 10000
+      character(len=N) :: text
+      integer :: unit, i, status
+      integer(INT32) :: crc
+
+      do i = 1, N
+         text(i:i) = achar(32 + mod(i, 90))
+      end do
+
+      open(newunit=unit, file=FILENAME, access='stream', form='unformatted', status='replace')
+      write(unit) text
+      close(unit)
+
+      crc = CRC32File(FILENAME, _RC)
+      @assertEqual(CRC32(text), crc)
+      call RemoveFile(FILENAME, _RC)
+   end subroutine test_multi_chunk_file
+
+   @test
+   subroutine test_missing_file()
+      integer :: status
+      integer :: crc_unused
+
+      crc_unused = CRC32File('no_such_file_for_CRC32.dat', rc=status)
+      @assertExceptionRaised('Unable to open file for CRC-32: no_such_file_for_CRC32.dat')
+      @assertTrue(status /= 0)
+   end subroutine test_missing_file
+
+end module test_CRC32

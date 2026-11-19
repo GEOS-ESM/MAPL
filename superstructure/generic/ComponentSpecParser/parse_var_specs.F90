@@ -8,6 +8,8 @@ submodule (mapl_ComponentSpecParser_mod) parse_var_specs_smod
 
    character(*), parameter :: KEY_DIMS = 'dims'
    character(*), parameter :: KEY_QUANTITY_TYPE = 'quantity_type'
+   character(*), parameter :: KEY_NON_NEGATIVE = 'non_negative'
+   character(*), parameter :: KEY_NON_NEGATIVE_FILL = 'fill'
 
 contains
 
@@ -61,6 +63,7 @@ contains
          character(:), allocatable :: long_name
          character(:), allocatable :: units
          character(:), allocatable :: expression
+         character(:), allocatable :: non_negative
          type(ESMF_StateItem_Flag) :: itemtype
          type(ESMF_StateIntent_Flag) :: esmf_state_intent
 
@@ -162,6 +165,8 @@ contains
                expression = ESMF_HConfigAsString(attributes,keyString='expression', _RC)
             end if
 
+            call to_non_negative(non_negative, attributes, _RC)
+
             itemtype = to_itemtype(attributes, _RC)
             call to_service_items(service_items, attributes, _RC)
 
@@ -199,7 +204,8 @@ contains
                  horizontal_dims_spec=horizontal_dims_spec, &
                  quantity_type=quantity_type, &
                  mirror_geom=mirror_geom, &
-                 mirror_vgrid=mirror_vgrid, _RC)
+                 mirror_vgrid=mirror_vgrid, &
+                 non_negative=non_negative, _RC)
 
             if (allocated(units)) deallocate(units)
             if (allocated(standard_name)) deallocate(standard_name)
@@ -232,6 +238,42 @@ contains
 
          _RETURN(_SUCCESS)
       end subroutine val_to_float
+
+      ! non_negative: {fill: column}. Unallocated when the key is absent. The
+      ! map must hold exactly one key, fill, with a scalar value.
+      subroutine to_non_negative(non_negative, attributes, rc)
+         character(:), allocatable, intent(out) :: non_negative
+         type(ESMF_HConfig), intent(in) :: attributes
+         integer, optional, intent(out) :: rc
+
+         integer :: status
+         logical :: has_key, valid
+         integer :: num_keys
+         type(ESMF_HConfig) :: subcfg
+
+         has_key = ESMF_HConfigIsDefined(attributes, keyString=KEY_NON_NEGATIVE, _RC)
+         _RETURN_UNLESS(has_key)
+
+         subcfg = ESMF_HConfigCreateAt(attributes, keyString=KEY_NON_NEGATIVE, _RC)
+         valid = ESMF_HConfigIsMap(subcfg, _RC)
+         if (valid) then
+            num_keys = ESMF_HConfigGetSize(subcfg, _RC)
+            valid = num_keys == 1
+         end if
+         if (valid) then
+            valid = ESMF_HConfigIsDefined(subcfg, keyString=KEY_NON_NEGATIVE_FILL, _RC)
+         end if
+         if (valid) then
+            valid = ESMF_HConfigIsScalar(subcfg, keyString=KEY_NON_NEGATIVE_FILL, _RC)
+         end if
+         if (valid) then
+            non_negative = ESMF_HConfigAsString(subcfg, keyString=KEY_NON_NEGATIVE_FILL, _RC)
+         end if
+         call ESMF_HConfigDestroy(subcfg, _RC)
+         _ASSERT(valid, 'non_negative must be a map with only a scalar fill key, e.g. {fill: column}')
+
+         _RETURN(_SUCCESS)
+      end subroutine to_non_negative
 
       ! The value is a full QuantityType name, case-folded. QuantityType(name)
       ! maps an unknown string to QUANTITY_UNKNOWN, so the check is here.

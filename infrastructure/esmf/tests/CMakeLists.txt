@@ -2,6 +2,7 @@ set(MODULE_DIRECTORY "${esma_include}/MAPL.esmf.tests")
 
 set (test_srcs
   Test_InfoUtilities.pf
+  Test_InfoTypesProbe.pf
   Test_Ungridded.pf
   Test_ESMF_Time_Utilities.pf
   Test_Comms.pf

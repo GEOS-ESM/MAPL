@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added the `callback-contracts-and-registry` OpenSpec change proposal
+  (planning artifacts only, no code): a registration file of named
+  callback interfaces (argument/attribute/rule/call-scalar schema), a
+  frozen interface registry, realized-State conformance checks, and
+  Invoker-side method execution with regrid-aware argument wiring. See
+  `docs/graph/plans/callback-contracts-and-registry.md` and
+  `openspec/changes/callback-contracts-and-registry/`.
 - Added agent-oriented architecture documentation for MAPL3 (`AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/decisions.md`, `docs/generic/`, one `ARCHITECTURE.md` per layer and for cap, History, ExtData and geometry)
 - Add hack so that edge level geos-chem inputs can be read and correctly identified as edge instead of centers
 - Enforced the `standard_name` convention between a connected Import and
@@ -85,6 +92,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   when an EXPRESSION item cannot be resolved or is unsupported. It does not
   yet replace the legacy path. Also see `docs/graph/GLOSSARY.md` and
   `superstructure/generic/AGENTS.md`.
+- Added a configurable callback mock State (mark 1, GEOS-ESM/MAPL#5534):
+  `mapl_ConfigurableCallback_mod`/`mapl_ConfigurableCallbackSpec_mod`
+  (`superstructure/state/`) build a YAML-configured `ESMF_State` for testing
+  client code that calls `ESMF_MethodExecute` on a State. The mock records
+  each call's attributes and field values and the call order, can fail on
+  demand with a configured `userRc`, and can supply attributes and field
+  values for the client to read back. See `docs/mapl3/configurable-callback.md`.
 
 ### Changed
 
