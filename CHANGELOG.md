@@ -92,9 +92,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   when an EXPRESSION item cannot be resolved or is unsupported. It does not
   yet replace the legacy path. Also see `docs/graph/GLOSSARY.md` and
   `superstructure/generic/AGENTS.md`.
+- Added a configurable callback mock State (mark 1, GEOS-ESM/MAPL#5534):
+  `mapl_ConfigurableCallback_mod`/`mapl_ConfigurableCallbackSpec_mod`
+  (`superstructure/state/`) build a YAML-configured `ESMF_State` for testing
+  client code that calls `ESMF_MethodExecute` on a State. The mock records
+  each call's attributes and field values and the call order, can fail on
+  demand with a configured `userRc`, and can supply attributes and field
+  values for the client to read back. See `docs/mapl3/configurable-callback.md`.
 
 ### Changed
 
+- Internal refactor of connection resolution in the graph layer
+  (`superstructure/generic/GraphBuilder_ConnectionResolution_smod.F90`,
+  GEOS-ESM/MAPL#5505): folded the three duplicated per-connection dispatch
+  loops into one shared iterator, the duplicated reporting calls into one
+  helper, and the duplicated read-only "does the source satisfy this
+  import" checks into one shared function. No behavior change; verified
+  zero-diff against the full `MAPL.generic.*` test suite. The same file
+  was then split by concern into six files (`GraphBuilder_ConnectionMatching_smod.F90`,
+  `GraphBuilder_ConnectionDestinations_smod.F90`,
+  `GraphBuilder_ImportExportPropagation_smod.F90`,
+  `GraphBuilder_PayloadMaterialization_smod.F90`,
+  `GraphBuilder_ExpressionResolution_smod.F90`, and a slimmed-down
+  `GraphBuilder_ConnectionResolution_smod.F90` holding only shared
+  helpers), also with no behavior change.
 - `FixedLevelsVerticalGrid` now derives the vertical direction from the
   physical dimension: for `height` and `altitude`, increasing levels mean `UP`
   (before: `DOWN` for any increasing levels); `pressure`, `depth`, `layer` and

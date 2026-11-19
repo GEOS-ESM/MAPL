@@ -124,8 +124,10 @@ module mapl_GraphBuilder_mod
    public :: resolve_qualified_component
 
    ! Same gfortran cross-submodule-linkage reason as is_self above:
-   ! called from GraphBuilder_LifecycleHooks_smod.F90, defined in
-   ! GraphBuilder_ConnectionResolution_smod.F90.
+   ! called from GraphBuilder_LifecycleHooks_smod.F90. graphbuilder_unresolved_import_node_ids
+   ! is implemented in GraphBuilder_ConnectionMatching_smod.F90; the three
+   ! run_*_hook procedures in GraphBuilder_ImportExportPropagation_smod.F90;
+   ! graphbuilder_allocate_internals in GraphBuilder_StatePopulation_smod.F90.
    public :: UnresolvedImportEntry
    public :: graphbuilder_unresolved_import_node_ids
    public :: graphbuilder_run_propagate_hook
@@ -239,6 +241,17 @@ module mapl_GraphBuilder_mod
       end subroutine I_match_op
    end interface
 
+   ! Per-connection callback for for_each_connection_pair(), called only for
+   ! a MatchConnection or SimpleConnection. Setting done stops the iteration.
+   abstract interface
+      subroutine I_pair_op(conn, done, rc)
+         import Connection
+         class(Connection), intent(in) :: conn
+         logical, intent(out) :: done
+         integer, optional, intent(out) :: rc
+      end subroutine I_pair_op
+   end interface
+
    ! One entry in the flattened qualified-export namespace
    ! (build_qualified_export_namespace). comp_path is '' for the
    ! namespace root's own export, else the '/'-joined descendant path
@@ -281,7 +294,14 @@ module mapl_GraphBuilder_mod
 
    end subroutine advertise_one
 
-      ! Ordinary connection resolution procedures (GraphBuilder_ConnectionResolution_smod.F90)
+      ! Ordinary connection resolution procedures, split by concern:
+      ! GraphBuilder_ConnectionMatching_smod.F90 (match-connection resolution,
+      ! most procedures below), GraphBuilder_ImportExportPropagation_smod.F90
+      ! (the run_propagate/run_export_propagate/run_reexport hooks),
+      ! GraphBuilder_ConnectionDestinations_smod.F90 (resolve_inout_destination),
+      ! and GraphBuilder_PayloadMaterialization_smod.F90 (try_alias_export_field).
+      ! graphbuilder_allocate_internals and find_export_node_id are noted
+      ! individually below; they are not part of this split.
    module subroutine graphbuilder_check_unsatisfied_imports(this, unusable, unresolved_imports, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       class(KE), optional, intent(in) :: unusable
@@ -296,11 +316,10 @@ module mapl_GraphBuilder_mod
    ! sees connections the child itself declares, missing a parent's
    ! connection naming the child, and mirroring an already-resolved
    ! import risks a two-producer violation in the forward network). An import is
-   ! unresolved iff NEITHER (a) a MatchConnection declared on `child_meta`
-   ! whose destination resolves back to it, NOR (b) a MatchConnection
-   ! declared on `this_parent` whose destination resolves to `child_meta`,
-   ! finds a matching source export (the per-item check of
-   ! check_match_connection_unsatisfied, used as a positive match).
+   ! unresolved iff NEITHER (a) a Match/SimpleConnection declared on `child_meta`
+   ! whose destination resolves back to it, NOR (b) one declared on
+   ! `this_parent` whose destination resolves to `child_meta`, finds a
+   ! matching source export (source_satisfies_import, as a positive match).
    ! `child_meta` MUST be a direct child of `this_parent`. Read-only.
    module function graphbuilder_unresolved_import_node_ids(this_parent, child_meta, rc) result(unresolved)
       class(OuterMetaComponent), target, intent(inout) :: this_parent
@@ -349,6 +368,8 @@ module mapl_GraphBuilder_mod
        class(OuterMetaComponent), target, intent(inout) :: this
        integer, optional, intent(out) :: rc
     end subroutine graphbuilder_run_reexport_hook
+   ! Implemented in GraphBuilder_StatePopulation_smod.F90; declared here
+   ! only to sit with the other per-hook interfaces.
    module subroutine graphbuilder_allocate_internals(this, rc)
       class(OuterMetaComponent), target, intent(inout) :: this
       integer, optional, intent(out) :: rc
@@ -394,6 +415,9 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine resolve_match_connection
+   ! Shared helper, implemented in GraphBuilder_ConnectionResolution_smod.F90
+   ! (grouped there with the other shared helpers below, not with the
+   ! match-connection procedures above).
    logical module function find_export_node_id(this, comp_name, short_name, export_node_id, export_node, rc) result(found)
       class(OuterMetaComponent), target, intent(inout) :: this
       character(*), intent(in) :: comp_name
@@ -428,12 +452,165 @@ module mapl_GraphBuilder_mod
 
    end subroutine try_alias_export_field
 
+      ! Connection-resolution helpers shared across more than one of
+      ! GraphBuilder_ConnectionResolution_smod.F90 (where each is implemented),
+      ! GraphBuilder_ConnectionMatching_smod.F90, GraphBuilder_ConnectionDestinations_smod.F90,
+      ! GraphBuilder_ImportExportPropagation_smod.F90, GraphBuilder_PayloadMaterialization_smod.F90
+      ! and GraphBuilder_ExpressionResolution_smod.F90.
+   module subroutine push_warnings(warnings, component_name, short_name, messages)
+      type(GraphResolutionEntryVector), intent(inout) :: warnings
+      character(*), intent(in) :: component_name
+      character(*), intent(in) :: short_name
+      type(StringVector), target, intent(in) :: messages
+
+   end subroutine push_warnings
+   module subroutine push_entry(entries, dst_pt, dst_node, reason)
+      type(GraphResolutionEntryVector), intent(inout) :: entries
+      type(ConnectionPt), intent(in) :: dst_pt
+      class(StateItemNode), intent(in) :: dst_node
+      character(*), optional, intent(in) :: reason
+
+   end subroutine push_entry
+   logical module function record_second_producer(graph, source_id, import_id, dst_pt, dst_node, conflicts)
+      type(ComponentGraph), intent(in) :: graph
+      type(NodeId), intent(in) :: source_id
+      type(NodeId), intent(in) :: import_id
+      type(ConnectionPt), intent(in) :: dst_pt
+      class(StateItemNode), intent(in) :: dst_node
+      type(GraphResolutionEntryVector), intent(inout) :: conflicts
+
+   end function record_second_producer
+   module function effective_source_name(conn, dst_node) result(name)
+      class(Connection), intent(in) :: conn
+      class(StateItemNode), intent(in) :: dst_node
+      character(:), allocatable :: name
+
+   end function effective_source_name
+   logical module function is_wildcard_member_shape(entry)
+      type(QualifiedExportEntry), intent(in) :: entry
+
+   end function is_wildcard_member_shape
+   module subroutine for_each_connection_pair(owner, op, rc)
+      class(OuterMetaComponent), target, intent(inout) :: owner
+      procedure(I_pair_op) :: op
+      integer, optional, intent(out) :: rc
+
+   end subroutine for_each_connection_pair
+   logical module function source_satisfies_import(owner, conn, node, src_meta, rc) result(satisfied)
+      class(OuterMetaComponent), target, intent(inout) :: owner
+      class(Connection), intent(in) :: conn
+      class(StateItemNode), target, intent(in) :: node
+      class(OuterMetaComponent), target, optional, intent(inout) :: src_meta
+      integer, optional, intent(out) :: rc
+
+   end function source_satisfies_import
+   module function find_export_node(src_meta, short_name) result(export_node)
+      class(OuterMetaComponent), target, intent(inout) :: src_meta
+      character(*), intent(in) :: short_name
+      class(StateItemNode), pointer :: export_node
+
+   end function find_export_node
+   module function resolve_local_node_id(this, comp_name, state_intent, short_name, rc) result(node_id)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: comp_name
+      type(ESMF_StateIntent_Flag), intent(in) :: state_intent
+      character(*), intent(in) :: short_name
+      integer, optional, intent(out) :: rc
+      type(NodeId) :: node_id
+
+   end function resolve_local_node_id
+   logical module function is_ordinary_resolvable_import(node) result(is_ordinary)
+      class(StateItemNode), target, intent(in) :: node
+
+   end function is_ordinary_resolvable_import
+   module function mutable_descriptor(graph, node_id, rc) result(descriptor)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: node_id
+      integer, optional, intent(out) :: rc
+      type(StateItemDescriptor), pointer :: descriptor
+
+   end function mutable_descriptor
+      ! Destination-kind resolvers implemented in
+      ! GraphBuilder_ConnectionDestinations_smod.F90, called from
+      ! GraphBuilder_ConnectionMatching_smod.F90's resolve_match_connection.
+   module subroutine resolve_callback_destination(this, src_pt, dst_pt, dst_short_name, expected_interface_id, rejected, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(ConnectionPt), intent(in) :: src_pt
+      type(ConnectionPt), intent(in) :: dst_pt
+      character(*), intent(in) :: dst_short_name
+      type(CallbackInterfaceId), intent(in) :: expected_interface_id
+      type(StringVector), optional, intent(out) :: rejected
+      integer, optional, intent(out) :: rc
+
+   end subroutine resolve_callback_destination
+   module subroutine resolve_wildcard_destination(this, src_pt, dst_pt, dst_node, unresolved, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(ConnectionPt), intent(in) :: src_pt
+      type(ConnectionPt), intent(in) :: dst_pt
+      class(StateItemNode), target, intent(in) :: dst_node
+      type(GraphResolutionEntryVector), intent(inout) :: unresolved
+      integer, optional, intent(out) :: rc
+
+   end subroutine resolve_wildcard_destination
+      ! Payload-materialization procedures implemented in
+      ! GraphBuilder_PayloadMaterialization_smod.F90, called from
+      ! GraphBuilder_ConnectionMatching_smod.F90 and
+      ! GraphBuilder_ExpressionResolution_smod.F90.
+   module subroutine ensure_export_payload(this, alias_comp, alias_name, graph, node_id, export_item, import_item, &
+        materialize_name, try_alias, failure, chain_input, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      character(*), intent(in) :: alias_comp
+      character(*), intent(in) :: alias_name
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(NodeId), intent(in) :: node_id
+      type(StateItemDescriptor), intent(in) :: export_item
+      type(StateItemDescriptor), intent(in) :: import_item
+      character(*), intent(in) :: materialize_name
+      logical, intent(in) :: try_alias
+      character(:), allocatable, intent(out) :: failure
+      class(StateItemNode), target, optional, intent(in) :: chain_input
+      integer, optional, intent(out) :: rc
+
+   end subroutine ensure_export_payload
+   module subroutine materialize_extension_chain(export_item, import_item, &
+        intermediate_node_ids, graph, failure_reason, rc, name)
+      type(StateItemDescriptor), intent(in) :: export_item
+      type(StateItemDescriptor), intent(in) :: import_item
+      type(NodeId), intent(in) :: intermediate_node_ids(:)
+      type(ComponentGraph), target, intent(inout) :: graph
+      character(:), allocatable, intent(out) :: failure_reason
+      integer, optional, intent(out) :: rc
+      character(*), optional, intent(in) :: name
+
+   end subroutine materialize_extension_chain
+      ! Expression-item evaluation builder implemented in
+      ! GraphBuilder_ExpressionResolution_smod.F90, called from
+      ! GraphBuilder_ConnectionMatching_smod.F90's resolve_match_connection.
+   module subroutine build_expression_evaluation(this, graph, net_id, src_comp, &
+        export_node, import_item, result_id, evaluated, problem, conflict, &
+        waiting, strict, rc)
+      class(OuterMetaComponent), target, intent(inout) :: this
+      type(ComponentGraph), target, intent(inout) :: graph
+      type(DependencyNetworkId), intent(in) :: net_id
+      character(*), intent(in) :: src_comp
+      class(StateItemNode), target, intent(in) :: export_node
+      type(StateItemDescriptor), intent(in) :: import_item
+      type(NodeId), intent(out) :: result_id
+      logical, intent(out) :: evaluated
+      character(:), allocatable, intent(out) :: problem
+      character(:), allocatable, intent(out) :: conflict
+      logical, intent(inout) :: waiting
+      logical, intent(out) :: strict
+      integer, optional, intent(out) :: rc
+
+   end subroutine build_expression_evaluation
+
       ! Horizontal geometry procedures (GraphBuilder_Geometry_smod.F90)
    module subroutine graphbuilder_run_geometry_hook(this)
       class(OuterMetaComponent), target, intent(inout) :: this
 
    end subroutine graphbuilder_run_geometry_hook
-   ! Implemented in GraphBuilder_ConnectionResolution_smod.F90; declared
+   ! Implemented in GraphBuilder_ExpressionResolution_smod.F90; declared
    ! here only to sit with the other per-hook interfaces. unresolved
    ! (optional) reports an expression's referenced name with no matching
    ! sibling export; unsupported reports nested, self, and empty expressions.

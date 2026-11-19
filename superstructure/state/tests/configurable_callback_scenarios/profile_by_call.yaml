@@ -1,0 +1,16 @@
+fields:
+  t_out: {dims: xyz}
+  q_out: {dims: xy, typekind: R8}
+methods:
+  step:
+    supply:
+      fields:
+        t_out: {profile: [210.5, 245.25, 287.75]}
+        q_out:
+          by_call:
+            - {constant: 0.0125}
+            - {constant: 0.0375}
+      attributes:
+        phase:
+          by_call: [warmup, steady]
+        n_steps: 42

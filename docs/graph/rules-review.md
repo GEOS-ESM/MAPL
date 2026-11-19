@@ -402,7 +402,7 @@ Graph only:
   MIRRORED (A12, A17); freeze fails if never supplied.
 - A second connection that arrives in a later connect pass, after the
   import settled, is silently skipped (`resolve_one` returns at
-  `is_import_settled`, `GraphBuilder_ConnectionResolution_smod.F90:263-275`;
+  `is_import_settled`, `GraphBuilder_ConnectionResolution_smod.F90:349-368`;
   "first wins"). A second producer resolved in the same pass is reported
   instead (§2.10).
 
@@ -513,13 +513,13 @@ anyway. See R1.
   `ComponentGraph.F90:365-433`). For ordinary and inout-borrower pairings
   connection resolution checks first and records a per-pair
   `connection_conflicts` entry naming the item, skips the second producer,
-  and continues the pass (`second_producer`, called at
-  `GraphBuilder_ConnectionResolution_smod.F90:414,536`; inout borrower at
-  `:1462-1468`). The first stays. Other edge kinds (wildcard fan-in,
+  and continues the pass (`record_second_producer`, called at
+  `GraphBuilder_ConnectionResolution_smod.F90:495,568`; inout borrower at
+  `:1409`). The first stays. Other edge kinds (wildcard fan-in,
   expression, callback collection, geometry) have no such check and reach
   the `add_dependency` assertion.
 - Graph, later pass: `resolve_one` returns early for an import that already
-  settled (`:255-274`), so a connection that arrives in a later pass is
+  settled (`:349-368`), so a connection that arrives in a later pass is
   silently skipped and the first wins, with no report.
 - Legacy: by reading, the last connection wins silently
   (`scenario-parity.md`, "Two connections into one import").
@@ -869,7 +869,7 @@ VectorBracket -> Field".
 Recommendation: (a).
 
 **R8. One export per import: enforce?**
-*Graph today: a second producer resolved in the same connect pass is reported per pair as a connection conflict naming the item (ordinary and inout-borrower pairings only), the first stays, and the pass continues; one arriving in a later pass is silently skipped (§2.10; `second_producer`, `GraphBuilder_ConnectionResolution_smod.F90:414,536,1462`). Task 3.31 (enforce in both paths) was dropped; legacy is unchanged.*
+*Graph today: a second producer resolved in the same connect pass is reported per pair as a connection conflict naming the item (ordinary and inout-borrower pairings only), the first stays, and the pass continues; one arriving in a later pass is silently skipped (§2.10; `record_second_producer`, `GraphBuilder_ConnectionResolution_smod.F90:495,568,1409`). Task 3.31 (enforce in both paths) was dropped; legacy is unchanged.*
 Legacy: the check is commented out (`SimpleConnection.F90:105`); by
 reading, the last connection wins. Example:
 
