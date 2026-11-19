@@ -102,6 +102,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Items marked `restart_skip` are no longer written to netCDF checkpoints (`RestartHandler%write`); the in-memory checkpoint is unchanged. A checkpoint file whose items are all `restart_skip` is no longer written. This changes the checkpoint files, so the checkpoint regression baselines were regenerated (variables dropped from files; some files absent)
 - Internal refactor of connection resolution in the graph layer
   (`superstructure/generic/GraphBuilder_ConnectionResolution_smod.F90`,
   GEOS-ESM/MAPL#5505): folded the three duplicated per-connection dispatch
@@ -226,6 +227,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- netCDF checkpoints written by `RestartHandler%write` now have a written `time`
+  variable (value 0). Before, `time` was defined
+  in the file but never written, so it held the netCDF fill value
+  (`9.96921e+36`). The checkpoint regression baselines were regenerated.
 - `VirtualConnectionPt%matches` (`VirtualConnectionPt.F90`) now frees the regex it
   compiles. Without `regfree`, every wildcard match (e.g. the cap's Root-to-History
   `MatchConnection` from `connect_all`) leaked the compiled pattern and glibc's DFA tables;
