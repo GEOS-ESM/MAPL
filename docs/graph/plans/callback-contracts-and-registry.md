@@ -255,18 +255,10 @@ freezes the singleton, a test-only reset is acceptable (precedent:
   needs the enum, not declare its own -- the table's `-` (no
   dependencies) predates the split.
 
-  **Owner preference (2026-11-19), applies going forward, not
-  retrospective:** see CONVENTIONS.md §5 -- prefer a structure
-  constructor that cannot fail (validate in a separate `make_TypeName`
-  factory instead); preferred style, not absolute. The four landed
-  types above validate inside the structure constructor and are
-  accepted debt, not scheduled for retrofit, except: CB1-Interface
-  should fix `CallbackRule`'s constructor as a small side item while it
-  is already touching that file (split out `make_CallbackRule`, keep
-  `CallbackRule(...)` trivial). Whichever pattern a new constructor
-  uses, the function result must be defined on every branch (already a
-  general Fortran rule; worth rechecking here since an early-return
-  branch is exactly where it is easiest to miss).
+  Constructor style: see CONVENTIONS.md §5. The four landed types above
+  are accepted debt; CB1-Interface should split out
+  `make_CallbackRule(..., rc)` from `CallbackRule`'s constructor as a
+  small side item while it's already touching that file.
 
 **CB2-InfoWrappers.** New `MAPL_InfoGetShared` / `MAPL_InfoSetShared`
 specifics (r8_1d, string list, State-own-Info for logical/i4/r4/r8),
