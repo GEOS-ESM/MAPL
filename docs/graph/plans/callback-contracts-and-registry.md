@@ -268,17 +268,37 @@ freezes the singleton, a test-only reset is acceptable (precedent:
   `.../containers/CallbackArgumentOptionsMap.F90`). The one recognized
   option is `put_flavour` (`value`/`delta`); an unrecognized option name
   or an illegal value is rejected and the options are left unchanged.
-  `CallbackInterface%set_method_argument_access` does not yet forward
-  `options` -- left to CB1-Interface.
 
-  The rest (CB1-Interface) not started. CB1-Interface should also `use
-  mapl_CallbackValueType_mod` where it needs the enum, not declare its
-  own -- the table's `-` (no dependencies) predates the split.
+  CB1-Interface done (`Plan-Task: CB1-Interface`, `99f44e3a7`):
+  `CallbackInterface` (`.../callback/CallbackInterface.F90`) gains
+  `version`/`summary`/`description` (`make_CallbackInterface(..., rc)`;
+  the structure constructor stores values and validates nothing, per
+  CONVENTIONS.md §5), `declare_attribute`, `declare_call_scalar`,
+  `declare_rule` with matching accessors, and the cross-checks only the
+  interface can make: a member-scoped attribute's `host_argument` is a
+  declared, required, non-weight argument; a `weight_for` target is a
+  declared, non-extensive argument that is extensive-required in step
+  with the weighted argument; a rule names a declared attribute, a value
+  legal for its type/allowed-set, and declared optional arguments; no
+  `/` in argument/method/attribute/call-scalar names (the interface name
+  itself is checked in `register_callback_interface`).
+  `set_method_argument_access` now forwards `options`.
+  `CallbackRule`'s constructor no longer validates; the checks moved to
+  a new `make_CallbackRule(..., rc)` (CONVENTIONS.md §5 retrofit, the one
+  piece of retroactive cleanup asked for).
+  **Two judgment calls open for the owner/CB3-Loader:** (1)
+  `weight_for`/`host_argument` are checked only against already-declared
+  arguments (a weight must be declared after the argument it weights);
+  CB3-Loader likely needs to declare non-weight arguments first, or the
+  registration-file spec should state the order explicitly. (2) rule
+  trigger values are compared as raw text (`2.5` != `2.50`; a logical
+  must be exactly `true`/`false`, so YAML's `True`/`TRUE` would be
+  rejected) -- CB3-Loader must normalize before calling `declare_rule`.
 
-  Constructor style: see CONVENTIONS.md §5. The four landed types above
-  are accepted debt; CB1-Interface should split out
-  `make_CallbackRule(..., rc)` from `CallbackRule`'s constructor as a
-  small side item while it's already touching that file.
+  Constructor style: see CONVENTIONS.md §5. CB1-ArgSpec,
+  -AttributeSpec and -CallScalarSpec still validate inside their
+  constructors (accepted debt, predate the convention); CB1-Rule's was
+  retrofitted by CB1-Interface above.
 
 **CB2-InfoWrappers.** New `MAPL_InfoGetShared` / `MAPL_InfoSetShared`
 specifics (r8_1d, string list, State-own-Info for logical/i4/r4/r8),

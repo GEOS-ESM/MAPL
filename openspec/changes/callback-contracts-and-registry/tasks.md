@@ -14,23 +14,23 @@
 
 ## 1. Data model
 
-- [ ] 1.1 `CallbackArgumentSpec`: add `dims`, `optional`, `extensive`,
+- [x] 1.1 `CallbackArgumentSpec`: add `dims`, `optional`, `extensive`,
   `weight_for` (optional constructor arguments, defaults keep today's
   meaning); reject a field argument without dims. Unit tests.
-- [ ] 1.2 New `CallbackAttributeSpec` (type incl. list types, scope,
+- [x] 1.2 New `CallbackAttributeSpec` (type incl. list types, scope,
   required, default, allowed set) with its container and declaration
   checks. Unit tests.
-- [ ] 1.3 New `CallbackCallScalarSpec` (type, writer) with container.
+- [x] 1.3 New `CallbackCallScalarSpec` (type, writer) with container.
   Unit tests.
-- [ ] 1.4 New `CallbackRule` (when attribute = value, requires list)
+- [x] 1.4 New `CallbackRule` (when attribute = value, requires list)
   with container. Unit tests.
-- [ ] 1.5 `CallbackMethodSpec`: per-argument options (`put_flavour`);
+- [x] 1.5 `CallbackMethodSpec`: per-argument options (`put_flavour`);
   reject unknown option names. Unit tests.
-- [ ] 1.6 `CallbackInterface`: version, summary, description;
+- [x] 1.6 `CallbackInterface`: version, summary, description;
   declare/get for attributes, call scalars, rules; enforce slash-free
   names, rule consistency, weight consistency, host-argument rules. Unit
   tests for every rejection in the data-model delta spec.
-- [ ] 1.7 Registry: `freeze_callback_registry`, frozen-registration
+- [x] 1.7 Registry: `freeze_callback_registry`, frozen-registration
   error naming the interface, `list_callback_interface_names` (sorted).
   Unit tests.
 
