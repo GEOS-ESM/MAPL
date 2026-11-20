@@ -210,27 +210,9 @@ freezes the singleton, a test-only reset is acceptable (precedent:
 `set_materialize_extensions`).
 - **Status:** CB1-ArgSpec done (`Plan-Task: CB1-ArgSpec`, PR #5530,
   `1c2e59ee6`: `dims`, `optional`, `extensive`, `weight_for` -- renamed
-  from `weight_of` during owner review). CB1-AttributeSpec done
-  (`Plan-Task: CB1-AttributeSpec`). CB1-Rule done (`Plan-Task: CB1-Rule`,
-  `48e755670`): `CallbackRule` (attribute name, trigger value as a plain
-  string, required argument names in order) + `CallbackRuleVector`
-  (`superstructure/generic/graph/callback/CallbackRule.F90`,
-  `.../containers/CallbackRuleVector.F90`). Rejects an empty or blank
-  attribute name, an empty required-argument list, and a blank argument
-  name; accepts an empty trigger value and duplicate argument names.
-  Cross-checking the attribute/arguments against the interface, and the
-  canonical text form for a logical/real trigger, are left to
-  CB1-Interface. CB1-CallScalarSpec done (`Plan-Task: CB1-CallScalarSpec`,
-  GitHub-outsourced, PR #5552, `11afd7862`): `CallbackCallScalarSpec`
-  (name, the shared `CallbackValueType`, and a writer --
-  `CallbackScalarWriter`, `invoker`/`handler`, no default) +
-  `CallbackCallScalarSpecMap`
-  (`superstructure/generic/graph/callback/CallbackCallScalarSpec.F90`,
-  `.../containers/CallbackCallScalarSpecMap.F90`). Rejects an empty
-  name, an unset value type, and an unset writer. Reuses
-  `mapl_CallbackValueType_mod` as required; the slash-free name rule and
-  cross-checks against other declared names are left to CB1-Interface.
-  The rest (CB1-MethodOptions, -Interface, -RegistryFreeze) not started.
+  from `weight_of` during owner review).
+
+  CB1-AttributeSpec done (`Plan-Task: CB1-AttributeSpec`):
   `superstructure/generic/graph/callback/CallbackAttributeSpec.F90`
   (value type, scope, host_argument, required/default/allowed-set
   validation) + `.../containers/CallbackAttributeSpecMap.F90` (gFTL map
@@ -244,10 +226,47 @@ freezes the singleton, a test-only reset is acceptable (precedent:
   module, `superstructure/generic/graph/callback/CallbackValueType.F90`,
   split out of CB1-AttributeSpec specifically so CB1-CallScalarSpec
   ("Each SHALL declare a value type, as for attributes") and CB1-Rule can
-  import it instead of duplicating it. Those two tasks should `use
-  mapl_CallbackValueType_mod`, not declare their own enum -- read this
-  note before starting either one, since the table's `-` (no
-  dependencies) predates this split.
+  import it instead of duplicating it.
+
+  CB1-Rule done (`Plan-Task: CB1-Rule`, `48e755670`): `CallbackRule`
+  (attribute name, trigger value as a plain string, required argument
+  names in order) + `CallbackRuleVector`
+  (`superstructure/generic/graph/callback/CallbackRule.F90`,
+  `.../containers/CallbackRuleVector.F90`). Rejects an empty or blank
+  attribute name, an empty required-argument list, and a blank argument
+  name; accepts an empty trigger value and duplicate argument names.
+  Cross-checking the attribute/arguments against the interface, and the
+  canonical text form for a logical/real trigger, are left to
+  CB1-Interface.
+
+  CB1-CallScalarSpec done (`Plan-Task: CB1-CallScalarSpec`,
+  GitHub-outsourced, PR #5552, `11afd7862`): `CallbackCallScalarSpec`
+  (name, the shared `CallbackValueType`, and a writer --
+  `CallbackScalarWriter`, `invoker`/`handler`, no default) +
+  `CallbackCallScalarSpecMap`
+  (`superstructure/generic/graph/callback/CallbackCallScalarSpec.F90`,
+  `.../containers/CallbackCallScalarSpecMap.F90`). Rejects an empty
+  name, an unset value type, and an unset writer. Reuses
+  `mapl_CallbackValueType_mod` as required; the slash-free name rule and
+  cross-checks against other declared names are left to CB1-Interface.
+
+  The rest (CB1-MethodOptions, -Interface, -RegistryFreeze) not started.
+  CB1-Interface should also `use mapl_CallbackValueType_mod` where it
+  needs the enum, not declare its own -- the table's `-` (no
+  dependencies) predates the split.
+
+  **Owner preference (2026-11-19), applies going forward, not
+  retrospective:** see CONVENTIONS.md §5 -- prefer a structure
+  constructor that cannot fail (validate in a separate `make_TypeName`
+  factory instead); preferred style, not absolute. The four landed
+  types above validate inside the structure constructor and are
+  accepted debt, not scheduled for retrofit, except: CB1-Interface
+  should fix `CallbackRule`'s constructor as a small side item while it
+  is already touching that file (split out `make_CallbackRule`, keep
+  `CallbackRule(...)` trivial). Whichever pattern a new constructor
+  uses, the function result must be defined on every branch (already a
+  general Fortran rule; worth rechecking here since an early-return
+  branch is exactly where it is easiest to miss).
 
 **CB2-InfoWrappers.** New `MAPL_InfoGetShared` / `MAPL_InfoSetShared`
 specifics (r8_1d, string list, State-own-Info for logical/i4/r4/r8),

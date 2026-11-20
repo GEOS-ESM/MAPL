@@ -84,6 +84,15 @@ must show only those base names. Do not add new references.
   `_RETURN`, `_VERIFY`); see `.opencode/skills/mapl-error-handling`.
 - Mutate through named accessors, not raw component access, even inside
   the same file family.
+- **Prefer a constructor that cannot fail.** A structure-constructor
+  overload (`interface TypeName ... end interface`) should not validate
+  its arguments; put validation in a separate `make_TypeName(..., rc)`
+  factory instead, so building a value and checking it are not
+  conflated. Preferred style, not an absolute rule. Whichever form is
+  used, the function result **must be defined on every branch**,
+  including every early `_ASSERT`/`_FAIL` return -- critical for an
+  allocatable result or an allocatable component, which must not be left
+  unallocated on a failure path.
 
 ## 5a. Info access
 
