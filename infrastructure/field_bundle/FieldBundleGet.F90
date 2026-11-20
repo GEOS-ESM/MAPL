@@ -130,7 +130,7 @@ contains
 
       if (present(geom) .and. has_geom) then
          allocate(geom)
-         call get_geom(fieldBundle, geom, _RC)
+         call ESMF_FieldBundleGet(fieldBundle, geom=geom, _RC)
       end if
 
       if (present(vgrid)) then
@@ -144,32 +144,6 @@ contains
 
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
-
-   contains
-
-      subroutine get_geom(fieldBundle, geom, rc)
-         type(ESMF_FieldBundle), intent(in) :: fieldBundle
-         type(ESMF_Geom), intent(inout) :: geom
-         integer, optional, intent(out) :: rc
-
-         integer :: status
-         type(ESMF_GeomType_Flag) :: geomtype
-         type(ESMF_Grid) :: grid
-
-         call ESMF_FieldBundleGet(fieldBundle, geomtype=geomtype, _RC)
-         if (geomtype == ESMF_GEOMTYPE_GRID) then
-            call ESMF_FieldBundleGet(fieldBundle, grid=grid, _RC)
-            ! probable memory leak
-            geom = ESMF_GeomCreate(grid=grid, _RC)
-            _RETURN(_SUCCESS)
-         end if
-
-         _FAIL('unsupported geomtype; needs simple extension')
-
-         _RETURN(_SUCCESS)
-
-      end subroutine get_geom
-
    end subroutine bundle_get
 
 end module mapl_FieldBundleGet_mod
