@@ -120,7 +120,10 @@ contains
    end subroutine state_get_status
 
    ! Serialize a state into a bundle of fields; non-field/bundle items are ignored.
-   ! Fields from a contained FieldBundle are renamed <bundle_name>_<field_index>.
+   ! Fields from a contained FieldBundle are renamed <bundle_name>_<field_name>.
+   ! A field without a name of its own (ESMF's generated name) is renamed
+   ! <bundle_name>_<field_index>, as is a field whose name is already taken in
+   ! the bundle, which would otherwise be a duplicate variable in a file.
    subroutine state_get_bundle(state, bundle, rc)
       type(ESMF_State), intent(in) :: state
       type(ESMF_FieldBundle), intent(out) :: bundle
@@ -132,7 +135,9 @@ contains
       type(ESMF_Field) :: field, alias
       type(ESMF_FieldBundle) :: bundle2
       character(len=:), allocatable :: item_name
-      character(len=ESMF_MAXSTR) :: short_name
+      character(len=ESMF_MAXSTR) :: short_name, member_name
+      character(len=:), allocatable :: new_name
+      logical :: taken
       integer :: item_count, idx, jdx, status
 
       bundle = ESMF_FieldBundleCreate(_RC)
@@ -151,7 +156,14 @@ contains
             call MAPL_FieldBundleGet(bundle2, fieldList=field_list, _RC) ! addorder
             do jdx = 1, size(field_list)
                write(short_name, '(I0)') jdx
-               alias = MAPL_NamedAlias(field_list(jdx), name=item_name//"_"//trim(short_name), _RC)
+               call ESMF_FieldGet(field_list(jdx), name=member_name, _RC)
+               new_name = item_name//"_"//trim(short_name)
+               if (.not. is_generated_name(member_name)) then
+                  new_name = item_name//"_"//trim(member_name)
+                  call ESMF_FieldBundleGet(bundle, trim(new_name), isPresent=taken, _RC)
+                  if (taken) new_name = item_name//"_"//trim(member_name)//"_"//trim(short_name)
+               end if
+               alias = MAPL_NamedAlias(field_list(jdx), name=new_name, _RC)
                call MAPL_FieldBundleAdd(bundle, [alias], _RC)
             end do
          end if
@@ -159,5 +171,26 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine state_get_bundle
+
+   ! ESMF names an object created without a name <class><3-digit id> (for
+   ! example Field001) or unnamed<id>.
+   logical function is_generated_name(name) result(generated)
+      character(*), intent(in) :: name
+
+      character(:), allocatable :: n
+      integer :: k
+
+      generated = .false.
+      n = trim(name)
+      if (len(n) == 0) then
+         generated = .true.
+         return
+      end if
+      k = 0
+      if (index(n, 'Field') == 1) k = len('Field')
+      if (index(n, 'unnamed') == 1) k = len('unnamed')
+      if (k == 0 .or. len(n) == k) return
+      generated = verify(n(k+1:), '0123456789') == 0
+   end function is_generated_name
 
 end module mapl_StateGet_mod
