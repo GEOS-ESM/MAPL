@@ -75,6 +75,24 @@ list (PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 set (CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
 
+# MAPL3 only supports gfortran 14.4+, 15.2+, and 16.1+ due do
+# compiler issues with older versions
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+  set(_version "${CMAKE_Fortran_COMPILER_VERSION}")
+
+  if(_version VERSION_LESS "14.4"
+     OR (_version VERSION_GREATER_EQUAL "15.0"
+         AND _version VERSION_LESS "15.2")
+     OR (_version VERSION_GREATER_EQUAL "16.0"
+         AND _version VERSION_LESS "16.1"))
+    message(FATAL_ERROR
+      "Unsupported GNU Fortran version ${_version}. "
+      "Minimum supported versions are 14.4 for GCC 14, "
+      "15.2 for GCC 15, and 16.1 for GCC 16."
+    )
+  endif()
+endif()
+
 # Some users of MAPL build GFE libraries inline with their application
 # using an add_subdirectory() call rather than as a pre-build library.
 # This would then populate the target already leading to find_package()

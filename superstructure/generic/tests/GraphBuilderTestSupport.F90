@@ -46,15 +46,7 @@ contains
 
       call attach_outer_meta(outer_gc, _RC)
       outer_meta => get_outer_meta(outer_gc, _RC)
-#ifndef __GFORTRAN__
       outer_meta = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
-#else
-      block
-         type(OuterMetaComponent) :: tmp
-         tmp = OuterMetaComponent(outer_gc, user_gc_driver, hconfig=hconfig)
-         outer_meta = tmp
-      end block
-#endif
       call outer_meta%init_meta(_RC)
 
       _RETURN(_SUCCESS)
