@@ -16,6 +16,11 @@ module Test_Threading
    use mapl_Generic_api, only: mapl_GridCompCreate, mapl_GridCompGet, mapl_GridCompSet, &
         MAPL_InternalStateGet
    use mapl_OpenMP_Support_mod, only: Interval, find_bounds, get_num_threads, get_current_thread
+   use mapl_GraphScenarioBootstrap_mod, only: build_scenario_tree
+   use mapl_OuterMetaComponent_mod, only: OuterMetaComponent
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use mapl_GenericPhases_mod, only: GENERIC_RUN_USER
+   use ThreadedPrivateStateGC, only: ThreadedPrivateStateWrapper, PRIVATE_STATE_LABEL
    use ESMF
    use pfunit
    implicit none(type,external)
@@ -187,5 +192,44 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_owning_gridcomp_plain_gc
+
+   ! Private-state sharing: ThreadedPrivateStateGC (loaded by the
+   ! threading_private_state scenario, use_threads: true, num_threads: 2)
+   ! writes its OpenMP thread index into a named private state looked up
+   ! via _GET_NAMED_PRIVATE_STATE on whatever gridcomp Run receives. On a
+   ! threaded run that gridcomp is a per-thread "mini" gridcomp, and
+   ! _GET_NAMED_PRIVATE_STATE must redirect the lookup to the primary user
+   ! gridcomp so every thread shares one object. After the run, both
+   ! slots must be visible through the primary user gridcomp's own
+   ! private state: slot(0) written by thread 0, slot(1) by thread 1.
+   @test(npes=[0])
+   subroutine test_threaded_private_state_sharing(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      integer :: status, user_status
+      type(ESMF_GridComp) :: outer_gc, user_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(GriddedComponentDriver), pointer :: user_gc_driver
+      type(ESMF_Clock) :: clock
+      type(ESMF_State) :: importState, exportState
+      type(ThreadedPrivateStateWrapper) :: w
+
+      call build_scenario_tree('./scenarios/threading_private_state/root.yaml', &
+           outer_gc, outer_meta, clock=clock, importState=importState, &
+           exportState=exportState, _RC)
+
+      call ESMF_GridCompRun(outer_gc, importState=importState, exportState=exportState, &
+           clock=clock, userRC=user_status, phase=GENERIC_RUN_USER, _RC)
+      _VERIFY(user_status)
+
+      user_gc_driver => outer_meta%get_user_gc_driver()
+      user_gc = user_gc_driver%get_gridcomp()
+      call MAPL_InternalStateGet(user_gc, internalState=w, label=PRIVATE_STATE_LABEL, _RC)
+
+      @assert_that(w%ptr%slot(0), is(0))
+      @assert_that(w%ptr%slot(1), is(1))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_threaded_private_state_sharing
 
 end module Test_Threading

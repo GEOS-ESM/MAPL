@@ -199,7 +199,13 @@ add_pfunit_ctest(
 )
 set_target_properties(MAPL.generic.components PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/components")
 set_tests_properties(MAPL.generic.components PROPERTIES LABELS "ESSENTIAL")
-add_dependencies(MAPL.generic.components proto_extdata_gc proto_stat_gc threaded_private_state_gc)
+add_dependencies(MAPL.generic.components proto_extdata_gc proto_stat_gc threaded_private_state_gc copy_scenarios)
+# Test_Threading.pf's private-state sharing test uses ThreadedPrivateStateGC's
+# own exported wrapper type (see ThreadedPrivateStateGC.F90) to read back the
+# private state without type punning; it needs that module's .mod file, built
+# by threaded_private_state_gc (gridcomps/CMakeLists.txt) but not placed under
+# this target's own Fortran_MODULE_DIRECTORY.
+target_include_directories(MAPL.generic.components PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/gridcomps)
 
 # 5b. MAPL.generic.components.quiet - same as MAPL.generic.components above,
 # but holds the two .pf files whose tests deliberately drive a GraphBuilder
