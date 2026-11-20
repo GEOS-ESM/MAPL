@@ -21,13 +21,18 @@
 ! register_callback_interface rejects a duplicate service_name
 ! (no-silent-replace, the same convention used throughout this module
 ! family), leaving the original registration's interface/id unchanged.
+! freeze_callback_registry ends registration once the interface set is
+! settled; list_callback_interface_names enumerates what was registered.
 !------------------------------------------------------------------------------
 module mapl_CallbackInterfaceRegistry_mod
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId, CallbackInterfaceIdGenerator
    use mapl_CallbackInterface_mod, only: CallbackInterface
    use mapl_CallbackInterfaceIdInterfaceMap_mod, only: CallbackInterfaceIdInterfaceMap
-   use mapl_CallbackServiceNameIdMap_mod, only: CallbackServiceNameIdMap
+   use mapl_CallbackServiceNameIdMap_mod, only: CallbackServiceNameIdMap, &
+        CallbackServiceNameIdMapIterator, operator(/=)
+   use mapl_StringSortUtilities_mod, only: sorted_names
    use mapl_ErrorHandling_mod
+   use gFTL2_StringVector, only: StringVector
    implicit none(type, external)
    private
 
@@ -35,12 +40,16 @@ module mapl_CallbackInterfaceRegistry_mod
    public :: get_callback_interface
    public :: get_callback_interface_by_name
    public :: lookup_callback_interface_id
+   public :: freeze_callback_registry
+   public :: list_callback_interface_names
+   public :: reset_callback_registry_for_testing
 
    type :: CallbackInterfaceRegistryType
       private
       type(CallbackInterfaceIdInterfaceMap) :: interfaces
       type(CallbackServiceNameIdMap) :: service_ids
       type(CallbackInterfaceIdGenerator) :: id_generator
+      logical :: frozen = .false.
    end type CallbackInterfaceRegistryType
 
    ! The one shared instance. Not exposed outside this
@@ -67,8 +76,15 @@ contains
 
       type(CallbackInterfaceRegistryType), pointer :: registry
       integer :: status
+      character(:), allocatable :: message
 
       registry => get_registry()
+
+      if (registry%frozen) then
+         message = 'CallbackInterfaceRegistry: registry is frozen, ' // &
+              'cannot register interface ' // service_name
+         _FAIL(message)
+      end if
 
       _ASSERT(registry%service_ids%count(service_name) == 0, 'CallbackInterfaceRegistry: service name already registered')
 
@@ -80,6 +96,50 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine register_callback_interface
+
+   ! Registration fails from now on; lookups and enumeration keep working.
+   ! Freezing a frozen registry changes nothing.
+   subroutine freeze_callback_registry()
+      type(CallbackInterfaceRegistryType), pointer :: registry
+
+      registry => get_registry()
+      registry%frozen = .true.
+   end subroutine freeze_callback_registry
+
+   ! Every registered service name in sorted order. Entries are blank-padded
+   ! to the longest name; callers trim.
+   function list_callback_interface_names() result(names)
+      character(:), allocatable :: names(:)
+
+      type(CallbackInterfaceRegistryType), pointer :: registry
+      type(StringVector) :: unsorted
+      type(CallbackServiceNameIdMap), pointer :: ids
+      type(CallbackServiceNameIdMapIterator) :: iter
+
+      registry => get_registry()
+      ids => registry%service_ids
+      associate (e => ids%ftn_end())
+         iter = ids%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            call unsorted%push_back(iter%first())
+         end do
+      end associate
+
+      names = sorted_names(unsorted)
+   end function list_callback_interface_names
+
+   ! Test-only: clears every registration and unfreezes, so tests that
+   ! register or freeze in code stay independent. No production caller.
+   subroutine reset_callback_registry_for_testing()
+      type(CallbackInterfaceRegistryType), pointer :: registry
+
+      registry => get_registry()
+      call registry%interfaces%clear()
+      call registry%service_ids%clear()
+      registry%id_generator = CallbackInterfaceIdGenerator()
+      registry%frozen = .false.
+   end subroutine reset_callback_registry_for_testing
 
    ! Spec scenario: "Registered interface is retrievable ... by the
    ! identity assigned at registration".

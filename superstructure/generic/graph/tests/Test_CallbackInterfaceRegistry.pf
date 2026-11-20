@@ -1,13 +1,13 @@
 ! Tests for the callback interface registry (spec/15-callbacks.md).
 !
-! The registry is a real module-level singleton - each test below uses
-! its own unique service_name to stay independent of test execution
-! order, the same convention the singleton flag in
-! ExtensionResolution.F90 relies on.
+! The registry is a real module-level singleton. Each test starts and
+! ends with a reset, so freezing and enumeration tests cannot leak into
+! the other tests of this executable regardless of execution order.
 module Test_CallbackInterfaceRegistry
    use mapl_CallbackInterfaceRegistry_mod, only: register_callback_interface, &
         get_callback_interface, get_callback_interface_by_name, &
-        lookup_callback_interface_id
+        lookup_callback_interface_id, freeze_callback_registry, &
+        list_callback_interface_names, reset_callback_registry_for_testing
    use mapl_CallbackInterface_mod, only: CallbackInterface
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId, operator(==)
    use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELDBUNDLE
@@ -15,6 +15,16 @@ module Test_CallbackInterfaceRegistry
    implicit none
 
 contains
+
+   @before
+   subroutine reset_before()
+      call reset_callback_registry_for_testing()
+   end subroutine reset_before
+
+   @after
+   subroutine reset_after()
+      call reset_callback_registry_for_testing()
+   end subroutine reset_after
 
    @test
    subroutine test_registration_assigns_retrievable_identity()
@@ -84,5 +94,123 @@ contains
       id = lookup_callback_interface_id('test-registry-never-registered', rc=status)
       @assertTrue(status /= 0)
    end subroutine test_lookup_of_unregistered_service_name_fails
+
+   @test
+   subroutine test_registration_after_freeze_fails()
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: id
+      integer :: status
+
+      call iface%declare_argument('tracers', &
+           MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+
+      call freeze_callback_registry()
+      call register_callback_interface('extra', iface, id, rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(id%is_valid())
+
+      ! The rejected interface was not recorded.
+      id = lookup_callback_interface_id('extra', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_registration_after_freeze_fails
+
+   @test
+   subroutine test_lookup_after_freeze_succeeds()
+      type(CallbackInterface) :: iface, retrieved
+      type(CallbackInterfaceId) :: id, looked_up
+      integer :: status
+
+      call iface%declare_argument('tracers', &
+           MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('reg-before-freeze', &
+           iface, id, rc=status)
+      @assertEqual(0, status)
+
+      call freeze_callback_registry()
+
+      retrieved = get_callback_interface_by_name('reg-before-freeze', &
+           rc=status)
+      @assertEqual(0, status)
+      @assertTrue(retrieved%is_argument('tracers'))
+      looked_up = lookup_callback_interface_id('reg-before-freeze', &
+           rc=status)
+      @assertEqual(0, status)
+      @assertTrue(looked_up == id)
+   end subroutine test_lookup_after_freeze_succeeds
+
+   @test
+   subroutine test_freeze_twice_is_a_no_op()
+      type(CallbackInterface) :: iface, retrieved
+      type(CallbackInterfaceId) :: id, id_after
+      integer :: status
+
+      call iface%declare_argument('tracers', &
+           MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('test-registry-freeze-twice', &
+           iface, id, rc=status)
+      @assertEqual(0, status)
+
+      call freeze_callback_registry()
+      call freeze_callback_registry()
+
+      retrieved = get_callback_interface_by_name('test-registry-freeze-twice', &
+           rc=status)
+      @assertEqual(0, status)
+      @assertTrue(retrieved%is_argument('tracers'))
+      call register_callback_interface('extra', iface, id_after, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_freeze_twice_is_a_no_op
+
+   @test
+   subroutine test_reset_unfreezes_the_registry()
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: id
+      integer :: status
+
+      call iface%declare_argument('tracers', &
+           MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+
+      call freeze_callback_registry()
+      call reset_callback_registry_for_testing()
+
+      call register_callback_interface('test-registry-after-reset', &
+           iface, id, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(id%is_valid())
+   end subroutine test_reset_unfreezes_the_registry
+
+   @test
+   subroutine test_enumeration_lists_names_sorted()
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: id
+      character(:), allocatable :: names(:)
+      integer :: status
+
+      call iface%declare_argument('tracers', &
+           MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+
+      call register_callback_interface('b_iface', iface, id, rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('a_iface', iface, id, rc=status)
+      @assertEqual(0, status)
+
+      names = list_callback_interface_names()
+      @assertEqual(2, size(names))
+      @assertEqual('a_iface', trim(names(1)))
+      @assertEqual('b_iface', trim(names(2)))
+   end subroutine test_enumeration_lists_names_sorted
+
+   @test
+   subroutine test_enumeration_of_empty_registry_is_empty()
+      character(:), allocatable :: names(:)
+
+      names = list_callback_interface_names()
+      @assertEqual(0, size(names))
+   end subroutine test_enumeration_of_empty_registry_is_empty
 
 end module Test_CallbackInterfaceRegistry
