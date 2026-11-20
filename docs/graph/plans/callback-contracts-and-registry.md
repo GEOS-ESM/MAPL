@@ -250,10 +250,30 @@ freezes the singleton, a test-only reset is acceptable (precedent:
   `mapl_CallbackValueType_mod` as required; the slash-free name rule and
   cross-checks against other declared names are left to CB1-Interface.
 
-  The rest (CB1-MethodOptions, -Interface, -RegistryFreeze) not started.
-  CB1-Interface should also `use mapl_CallbackValueType_mod` where it
-  needs the enum, not declare its own -- the table's `-` (no
-  dependencies) predates the split.
+  CB1-RegistryFreeze done (`Plan-Task: CB1-RegistryFreeze`, `8d32d01a2`):
+  `freeze_callback_registry`, `list_callback_interface_names`, and a
+  test-only `reset_callback_registry_for_testing` added to
+  `CallbackInterfaceRegistry`
+  (`superstructure/generic/graph/callback/CallbackInterfaceRegistry.F90`).
+  After freezing, registration fails naming the interface and the frozen
+  state; lookups still work; freezing twice is a no-op. Enumeration
+  returns every registered name sorted (blank-padded to the longest,
+  callers trim).
+
+  CB1-MethodOptions done (`Plan-Task: CB1-MethodOptions`, `464fad341`):
+  `CallbackMethodSpec` gains a parallel map so an argument's access
+  declaration can carry per-argument options
+  (`.../callback/CallbackMethodSpec.F90`, new
+  `.../callback/CallbackArgumentOptions.F90` +
+  `.../containers/CallbackArgumentOptionsMap.F90`). The one recognized
+  option is `put_flavour` (`value`/`delta`); an unrecognized option name
+  or an illegal value is rejected and the options are left unchanged.
+  `CallbackInterface%set_method_argument_access` does not yet forward
+  `options` -- left to CB1-Interface.
+
+  The rest (CB1-Interface) not started. CB1-Interface should also `use
+  mapl_CallbackValueType_mod` where it needs the enum, not declare its
+  own -- the table's `-` (no dependencies) predates the split.
 
   Constructor style: see CONVENTIONS.md §5. The four landed types above
   are accepted debt; CB1-Interface should split out
