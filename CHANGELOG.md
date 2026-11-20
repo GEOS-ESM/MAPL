@@ -233,6 +233,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `FieldBundleGet` (`FieldBundleGet.F90`) now returns the bundle's stored geom via `ESMF_FieldBundleGet(geom=)` instead of creating a new `ESMF_Geom` on each call. The new geom never compared equal to the cached one, so bundle-to-field couplers (e.g. ExtData imports) reallocated their output field every step, changing the import's data address and leaking a geom per step (#5541).
 - netCDF checkpoints written by `RestartHandler%write` now have a written `time`
   variable (value 0). Before, `time` was defined
   in the file but never written, so it held the netCDF fill value
