@@ -116,6 +116,8 @@ target_sources(MAPL.generic PRIVATE
   callback/CallbackCallScalarSpec.F90
   containers/CallbackCallScalarSpecMap.F90
   containers/AccessSpecMap.F90
+  callback/CallbackArgumentOptions.F90
+  containers/CallbackArgumentOptionsMap.F90
   callback/CallbackMethodSpec.F90
   containers/CallbackMethodSpecMap.F90
   callback/CallbackInterface.F90
