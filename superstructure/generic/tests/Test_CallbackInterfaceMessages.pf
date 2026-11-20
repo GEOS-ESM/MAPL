@@ -1,0 +1,93 @@
+! Message wording of CallbackInterface's declaration checks. These need
+! the exception handler the generic suites install; the graph suite
+! (graph/tests) does not have one, so they live here.
+module Test_CallbackInterfaceMessages
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackAttributeSpec_mod, only: CALLBACK_SCOPE_STATE
+   use mapl_CallbackValueType_mod, only: CALLBACK_VALUE_STRING
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELD
+   use funit
+   implicit none
+
+contains
+
+   ! mixed_quantity (required), air_mass (its weight) and offset_value
+   ! (optional), plus a string state attribute `operation`.
+   subroutine declare_arguments_and_attribute(iface)
+      type(CallbackInterface), intent(inout) :: iface
+
+      integer :: status
+
+      call iface%declare_argument('mixed_quantity', MAPL_STATEITEM_FIELD, &
+           dims='xyz', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('air_mass', MAPL_STATEITEM_FIELD, &
+           dims='xyz', extensive=.true., weight_for='mixed_quantity', &
+           rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('offset_value', MAPL_STATEITEM_FIELD, &
+           dims='xy', optional=.true., rc=status)
+      @assertEqual(0, status)
+      call iface%declare_attribute('operation', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, rc=status)
+      @assertEqual(0, status)
+   end subroutine declare_arguments_and_attribute
+
+   @test
+   subroutine test_host_argument_unknown_names_it_and_legal_names()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call declare_arguments_and_attribute(iface)
+
+      call iface%declare_attribute('mix_like', CALLBACK_VALUE_STRING, &
+           host_argument='quantiy', rc=status)
+      @assertExceptionRaised('CallbackInterface: attribute mix_like names unknown host argument quantiy; declared arguments: air_mass, mixed_quantity, offset_value')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+   end subroutine test_host_argument_unknown_names_it_and_legal_names
+
+   @test
+   subroutine test_weight_of_unknown_names_it_and_legal_names()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_argument('mixed_quantity', MAPL_STATEITEM_FIELD, &
+           dims='xyz', rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('air_mass', MAPL_STATEITEM_FIELD, &
+           dims='xyz', extensive=.true., weight_for='mixed_quantiy', &
+           rc=status)
+      @assertExceptionRaised('CallbackInterface: argument air_mass is the weight for unknown argument mixed_quantiy; declared arguments: mixed_quantity')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+   end subroutine test_weight_of_unknown_names_it_and_legal_names
+
+   @test
+   subroutine test_rule_unknown_argument_names_it_and_legal_names()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call declare_arguments_and_attribute(iface)
+
+      call iface%declare_rule('operation', 'offset', ['offset_valu'], &
+           rc=status)
+      @assertExceptionRaised('CallbackInterface: rule on operation names unknown argument offset_valu; declared arguments: air_mass, mixed_quantity, offset_value')
+      @assertTrue(status /= 0)
+   end subroutine test_rule_unknown_argument_names_it_and_legal_names
+
+   @test
+   subroutine test_rule_unknown_attribute_names_it_and_legal_names()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call declare_arguments_and_attribute(iface)
+
+      call iface%declare_rule('operaton', 'offset', ['offset_value'], &
+           rc=status)
+      @assertExceptionRaised('CallbackInterface: rule names unknown attribute operaton; declared attributes: operation')
+      @assertTrue(status /= 0)
+   end subroutine test_rule_unknown_attribute_names_it_and_legal_names
+
+end module Test_CallbackInterfaceMessages

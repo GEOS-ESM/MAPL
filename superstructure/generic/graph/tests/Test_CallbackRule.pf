@@ -16,7 +16,8 @@ contains
       type(StringVector) :: required
       integer :: status
 
-      rule = CallbackRule('operation', 'offset', ['offset_value'], rc=status)
+      rule = make_CallbackRule('operation', 'offset', ['offset_value'], &
+           rc=status)
       @assertEqual(0, status)
 
       @assertEqual('operation', rule%get_attribute())
@@ -34,7 +35,7 @@ contains
       type(StringVector) :: required
       integer :: status
 
-      rule = CallbackRule('operation', 'blend', ['weight ', 'other  ', &
+      rule = make_CallbackRule('operation', 'blend', ['weight ', 'other  ', &
            'offset '], rc=status)
       @assertEqual(0, status)
 
@@ -53,7 +54,7 @@ contains
       type(StringVector) :: required
       integer :: status
 
-      rule = CallbackRule('operation', 'offset   ', ['ab ', 'cde'], &
+      rule = make_CallbackRule('operation', 'offset   ', ['ab ', 'cde'], &
            rc=status)
       @assertEqual(0, status)
 
@@ -70,11 +71,11 @@ contains
       type(CallbackRule) :: rule
       integer :: status
 
-      rule = CallbackRule('mode', '3', ['extra'], rc=status)
+      rule = make_CallbackRule('mode', '3', ['extra'], rc=status)
       @assertEqual(0, status)
       @assertEqual('3', rule%get_value())
 
-      rule = CallbackRule('flag', 'yes', ['extra'], rc=status)
+      rule = make_CallbackRule('flag', 'yes', ['extra'], rc=status)
       @assertEqual(0, status)
       @assertEqual('yes', rule%get_value())
    end subroutine test_value_is_held_as_given_text
@@ -84,7 +85,7 @@ contains
       type(CallbackRule) :: rule
       integer :: status
 
-      rule = CallbackRule('', 'offset', ['offset_value'], rc=status)
+      rule = make_CallbackRule('', 'offset', ['offset_value'], rc=status)
       @assertTrue(status /= 0)
    end subroutine test_empty_attribute_name_rejected
 
@@ -93,7 +94,7 @@ contains
       type(CallbackRule) :: rule
       integer :: status
 
-      rule = CallbackRule('   ', 'offset', ['offset_value'], rc=status)
+      rule = make_CallbackRule('   ', 'offset', ['offset_value'], rc=status)
       @assertTrue(status /= 0)
    end subroutine test_blank_attribute_name_rejected
 
@@ -103,7 +104,7 @@ contains
       type(CallbackRule) :: rule
       integer :: status
 
-      rule = CallbackRule('operation', '', ['extra'], rc=status)
+      rule = make_CallbackRule('operation', '', ['extra'], rc=status)
       @assertEqual(0, status)
       @assertEqual(0, len(rule%get_value()))
    end subroutine test_empty_value_allowed
@@ -114,7 +115,7 @@ contains
       type(CallbackRule) :: rule
       integer :: status
 
-      rule = CallbackRule('operation', 'offset', ['dup', 'dup'], rc=status)
+      rule = make_CallbackRule('operation', 'offset', ['dup', 'dup'], rc=status)
       @assertEqual(0, status)
       @assertEqual(2, rule%num_required_arguments())
    end subroutine test_duplicate_argument_names_kept
@@ -126,7 +127,7 @@ contains
       character(len=1) :: none(0)
       integer :: status
 
-      rule = CallbackRule('operation', 'offset', none, rc=status)
+      rule = make_CallbackRule('operation', 'offset', none, rc=status)
       @assertTrue(status /= 0)
    end subroutine test_rule_with_no_arguments_rejected
 
@@ -135,7 +136,7 @@ contains
       type(CallbackRule) :: rule
       integer :: status
 
-      rule = CallbackRule('operation', 'offset', ['ok ', '   '], rc=status)
+      rule = make_CallbackRule('operation', 'offset', ['ok ', '   '], rc=status)
       @assertTrue(status /= 0)
    end subroutine test_blank_argument_name_rejected
 
@@ -146,10 +147,22 @@ contains
       type(CallbackRule) :: rule
       integer :: status
 
-      rule = CallbackRule('no_such_attribute', 'x', ['no_such_arg'], &
+      rule = make_CallbackRule('no_such_attribute', 'x', ['no_such_arg'], &
            rc=status)
       @assertEqual(0, status)
    end subroutine test_no_cross_validation_here
+
+   ! The structure constructor stores what it is given and checks
+   ! nothing; make_CallbackRule is the checking form.
+   @test
+   subroutine test_structure_constructor_does_not_validate()
+      type(CallbackRule) :: rule
+      character(len=1) :: none(0)
+
+      rule = CallbackRule('', 'offset', none)
+      @assertEqual(0, len(rule%get_attribute()))
+      @assertEqual(0, rule%num_required_arguments())
+   end subroutine test_structure_constructor_does_not_validate
 
    ! Rules collect in a vector in declaration order.
    @test
@@ -158,9 +171,11 @@ contains
       type(CallbackRuleVector) :: rules
       integer :: status
 
-      first = CallbackRule('operation', 'offset', ['offset_value'], rc=status)
+      first = make_CallbackRule('operation', 'offset', ['offset_value'], &
+           rc=status)
       @assertEqual(0, status)
-      second = CallbackRule('operation', 'scale', ['scale_value'], rc=status)
+      second = make_CallbackRule('operation', 'scale', ['scale_value'], &
+           rc=status)
       @assertEqual(0, status)
 
       call rules%push_back(first)

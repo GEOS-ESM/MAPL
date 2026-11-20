@@ -178,6 +178,7 @@ set(components_test_srcs
   Test_GraphBuilder_Freeze.pf
   Test_GraphBuilder_ConnectionResolution.pf
   Test_GraphBuilder_CallbackWiring.pf
+  Test_CallbackInterfaceMessages.pf
   Test_GraphBuilder_RunPhaseNode.pf
   Test_ForwardNetworkErrors.pf
   Test_GraphBuilderMaterializeGate.pf

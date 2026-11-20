@@ -95,6 +95,21 @@ contains
       @assertTrue(status /= 0)
    end subroutine test_lookup_of_unregistered_service_name_fails
 
+   ! '/' separates the interface namespace from the key in Info.
+   @test
+   subroutine test_slash_in_interface_name_rejected()
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: id
+      integer :: status
+
+      call register_callback_interface('a/b', iface, id, rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(id%is_valid())
+
+      id = lookup_callback_interface_id('a/b', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_slash_in_interface_name_rejected
+
    @test
    subroutine test_registration_after_freeze_fails()
       type(CallbackInterface) :: iface

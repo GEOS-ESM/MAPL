@@ -1,11 +1,25 @@
 ! Spec: spec/15-callbacks.md.
 module Test_CallbackInterface
-   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackInterface_mod, only: CallbackInterface, &
+        make_CallbackInterface
    use mapl_CallbackArgumentSpec_mod, only: CallbackArgumentSpec
+   use mapl_CallbackAttributeSpec_mod, only: CallbackAttributeSpec, &
+        CALLBACK_SCOPE_MEMBER, CALLBACK_SCOPE_STATE, operator(==)
+   use mapl_CallbackCallScalarSpec_mod, only: CallbackCallScalarSpec, &
+        CALLBACK_WRITER_INVOKER, CALLBACK_WRITER_HANDLER, operator(==)
+   use mapl_CallbackRule_mod, only: CallbackRule
+   use mapl_CallbackRuleVector_mod, only: CallbackRuleVector
+   use mapl_CallbackValueType_mod, only: CALLBACK_VALUE_INTEGER, &
+        CALLBACK_VALUE_REAL, CALLBACK_VALUE_LOGICAL, CALLBACK_VALUE_STRING, &
+        operator(==)
+   use mapl_CallbackArgumentOptions_mod, only: CallbackArgumentOptions, &
+        operator(==), CALLBACK_PUT_FLAVOUR_VALUE
    use mapl_CallbackMethodSpec_mod, only: CallbackMethodSpec
+   use gFTL2_StringVector, only: StringVector
    use mapl_AccessSpec_mod, only: AccessSpec, operator(==), &
         MAPL_ACCESS_OUT, MAPL_ACCESS_IN
-   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELDBUNDLE, operator(==)
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELDBUNDLE, &
+        MAPL_STATEITEM_FIELD, operator(==)
    use funit
    implicit none
 
@@ -120,5 +134,709 @@ contains
       @assertEqual(0, status)
       @assertTrue(access == MAPL_ACCESS_IN)
    end subroutine test_passive_tracer_example
+
+   ! Builds the turbulent_mixing-like argument set the cross-check tests
+   ! share: mixed_quantity (required, xyz), air_mass (required, extensive,
+   ! the weight of mixed_quantity) and offset_value (optional, xy).
+   subroutine declare_mixing_arguments(iface, rc)
+      type(CallbackInterface), intent(inout) :: iface
+      integer, intent(out) :: rc
+
+      call iface%declare_argument('mixed_quantity', MAPL_STATEITEM_FIELD, &
+           dims='xyz', rc=rc)
+      if (rc /= 0) return
+      call iface%declare_argument('air_mass', MAPL_STATEITEM_FIELD, &
+           dims='xyz', extensive=.true., weight_for='mixed_quantity', rc=rc)
+      if (rc /= 0) return
+      call iface%declare_argument('offset_value', MAPL_STATEITEM_FIELD, &
+           dims='xy', optional=.true., rc=rc)
+   end subroutine declare_mixing_arguments
+
+   ! ---- version, summary, description ----
+
+   @test
+   subroutine test_version_and_summary_retrievable()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      iface = make_CallbackInterface(1, 'Scale a field', rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, iface%get_version())
+      @assertEqual('Scale a field', iface%get_summary())
+      @assertFalse(iface%has_description())
+   end subroutine test_version_and_summary_retrievable
+
+   @test
+   subroutine test_description_retrievable()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      iface = make_CallbackInterface(3, 'Scale a field', &
+           description='A longer text.', rc=status)
+      @assertEqual(0, status)
+      @assertEqual(3, iface%get_version())
+      @assertTrue(iface%has_description())
+      @assertEqual('A longer text.', iface%get_description())
+   end subroutine test_description_retrievable
+
+   @test
+   subroutine test_version_below_one_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      iface = make_CallbackInterface(0, 'Scale a field', rc=status)
+      @assertTrue(status /= 0)
+      iface = make_CallbackInterface(-2, 'Scale a field', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_version_below_one_rejected
+
+   @test
+   subroutine test_blank_or_multiline_summary_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      iface = make_CallbackInterface(1, '   ', rc=status)
+      @assertTrue(status /= 0)
+      iface = make_CallbackInterface(1, 'one' // new_line('a') // 'two', &
+           rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_blank_or_multiline_summary_rejected
+
+   ! The structure constructor stores what it is given and checks nothing.
+   @test
+   subroutine test_structure_constructor_does_not_validate()
+      type(CallbackInterface) :: iface
+
+      iface = CallbackInterface(0, 'text')
+      @assertEqual(0, iface%get_version())
+      @assertEqual('text', iface%get_summary())
+   end subroutine test_structure_constructor_does_not_validate
+
+   ! ---- attribute schema ----
+
+   @test
+   subroutine test_attribute_with_allowed_values_retrievable()
+      type(CallbackInterface) :: iface
+      type(CallbackAttributeSpec) :: spec
+      type(StringVector) :: allowed
+      integer :: status
+
+      call iface%declare_attribute('operation', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, required=.true., &
+           allowed_values=['scale ', 'offset'], rc=status)
+      @assertEqual(0, status)
+      @assertTrue(iface%is_attribute('operation'))
+
+      spec = iface%get_attribute('operation', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%get_value_type() == CALLBACK_VALUE_STRING)
+      @assertTrue(spec%get_scope() == CALLBACK_SCOPE_STATE)
+      @assertTrue(spec%is_required())
+      @assertTrue(spec%has_allowed_values())
+      allowed = spec%get_allowed_strings(rc=status)
+      @assertEqual(2, allowed%size())
+      @assertEqual('scale', allowed%of(1))
+      @assertEqual('offset', allowed%of(2))
+   end subroutine test_attribute_with_allowed_values_retrievable
+
+   @test
+   subroutine test_attribute_default_on_required_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_attribute('operation', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, required=.true., default='scale', &
+           rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(iface%is_attribute('operation'))
+   end subroutine test_attribute_default_on_required_rejected
+
+   @test
+   subroutine test_attribute_default_outside_allowed_set_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_attribute('operation', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, allowed_values=['a', 'b'], &
+           default='c', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_attribute_default_outside_allowed_set_rejected
+
+   @test
+   subroutine test_attribute_allowed_set_on_real_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_attribute('factor', CALLBACK_VALUE_REAL, &
+           scope=CALLBACK_SCOPE_STATE, allowed_values=[1.0, 2.0], &
+           rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_attribute_allowed_set_on_real_rejected
+
+   @test
+   subroutine test_duplicate_attribute_name_rejected()
+      type(CallbackInterface) :: iface
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      call iface%declare_attribute('factor', CALLBACK_VALUE_REAL, &
+           scope=CALLBACK_SCOPE_STATE, default=2.0, rc=status)
+      @assertEqual(0, status)
+      call iface%declare_attribute('factor', CALLBACK_VALUE_INTEGER, &
+           scope=CALLBACK_SCOPE_STATE, rc=status)
+      @assertTrue(status /= 0)
+
+      ! The first declaration stands.
+      spec = iface%get_attribute('factor', rc=status)
+      @assertTrue(spec%get_value_type() == CALLBACK_VALUE_REAL)
+   end subroutine test_duplicate_attribute_name_rejected
+
+   @test
+   subroutine test_get_undeclared_attribute_rejected()
+      type(CallbackInterface) :: iface
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      spec = iface%get_attribute('nothing', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_get_undeclared_attribute_rejected
+
+   ! ---- host argument ----
+
+   @test
+   subroutine test_host_argument_retrievable()
+      type(CallbackInterface) :: iface
+      type(CallbackAttributeSpec) :: spec
+      integer :: status
+
+      call declare_mixing_arguments(iface, status)
+      @assertEqual(0, status)
+
+      call iface%declare_attribute('mix_like', CALLBACK_VALUE_STRING, &
+           host_argument='mixed_quantity', rc=status)
+      @assertEqual(0, status)
+
+      spec = iface%get_attribute('mix_like', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%get_scope() == CALLBACK_SCOPE_MEMBER)
+      @assertEqual('mixed_quantity', spec%get_host_argument())
+   end subroutine test_host_argument_retrievable
+
+   @test
+   subroutine test_member_attribute_without_host_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call declare_mixing_arguments(iface, status)
+      @assertEqual(0, status)
+
+      call iface%declare_attribute('mix_like', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_MEMBER, rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(iface%is_attribute('mix_like'))
+   end subroutine test_member_attribute_without_host_rejected
+
+   @test
+   subroutine test_state_attribute_with_host_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call declare_mixing_arguments(iface, status)
+      @assertEqual(0, status)
+
+      call iface%declare_attribute('mix_like', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, host_argument='mixed_quantity', &
+           rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_state_attribute_with_host_rejected
+
+   @test
+   subroutine test_host_argument_unknown_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call declare_mixing_arguments(iface, status)
+      @assertEqual(0, status)
+
+      call iface%declare_attribute('mix_like', CALLBACK_VALUE_STRING, &
+           host_argument='quantiy', rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(iface%is_attribute('mix_like'))
+   end subroutine test_host_argument_unknown_rejected
+
+   @test
+   subroutine test_host_argument_that_is_weight_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call declare_mixing_arguments(iface, status)
+      @assertEqual(0, status)
+
+      call iface%declare_attribute('mix_like', CALLBACK_VALUE_STRING, &
+           host_argument='air_mass', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_host_argument_that_is_weight_rejected
+
+   @test
+   subroutine test_host_argument_optional_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call declare_mixing_arguments(iface, status)
+      @assertEqual(0, status)
+
+      call iface%declare_attribute('mix_like', CALLBACK_VALUE_STRING, &
+           host_argument='offset_value', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_host_argument_optional_rejected
+
+   ! ---- call scalars ----
+
+   @test
+   subroutine test_call_scalar_retrievable()
+      type(CallbackInterface) :: iface
+      type(CallbackCallScalarSpec) :: spec
+      integer :: status
+
+      call iface%declare_call_scalar('time_step', CALLBACK_VALUE_STRING, &
+           CALLBACK_WRITER_INVOKER, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(iface%is_call_scalar('time_step'))
+
+      spec = iface%get_call_scalar('time_step', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%get_value_type() == CALLBACK_VALUE_STRING)
+      @assertTrue(spec%get_writer() == CALLBACK_WRITER_INVOKER)
+   end subroutine test_call_scalar_retrievable
+
+   @test
+   subroutine test_duplicate_call_scalar_rejected()
+      type(CallbackInterface) :: iface
+      type(CallbackCallScalarSpec) :: spec
+      integer :: status
+
+      call iface%declare_call_scalar('time_step', CALLBACK_VALUE_STRING, &
+           CALLBACK_WRITER_INVOKER, rc=status)
+      @assertEqual(0, status)
+      call iface%declare_call_scalar('time_step', CALLBACK_VALUE_INTEGER, &
+           CALLBACK_WRITER_HANDLER, rc=status)
+      @assertTrue(status /= 0)
+
+      spec = iface%get_call_scalar('time_step', rc=status)
+      @assertTrue(spec%get_writer() == CALLBACK_WRITER_INVOKER)
+   end subroutine test_duplicate_call_scalar_rejected
+
+   @test
+   subroutine test_get_undeclared_call_scalar_rejected()
+      type(CallbackInterface) :: iface
+      type(CallbackCallScalarSpec) :: spec
+      integer :: status
+
+      spec = iface%get_call_scalar('nothing', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_get_undeclared_call_scalar_rejected
+
+   ! ---- rules ----
+
+   subroutine declare_scaling_interface(iface, rc)
+      type(CallbackInterface), intent(inout) :: iface
+      integer, intent(out) :: rc
+
+      call declare_mixing_arguments(iface, rc)
+      if (rc /= 0) return
+      call iface%declare_attribute('operation', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, required=.true., &
+           allowed_values=['scale ', 'offset'], rc=rc)
+   end subroutine declare_scaling_interface
+
+   @test
+   subroutine test_rule_retrievable()
+      type(CallbackInterface) :: iface
+      type(CallbackRuleVector) :: rules
+      type(CallbackRule) :: rule
+      type(StringVector) :: required
+      integer :: status
+
+      call declare_scaling_interface(iface, status)
+      @assertEqual(0, status)
+
+      call iface%declare_rule('operation', 'offset', ['offset_value'], &
+           rc=status)
+      @assertEqual(0, status)
+
+      rules = iface%get_rules()
+      @assertEqual(1, rules%size())
+      rule = rules%of(1)
+      @assertEqual('operation', rule%get_attribute())
+      @assertEqual('offset', rule%get_value())
+      required = rule%get_required_arguments()
+      @assertEqual(1, required%size())
+      @assertEqual('offset_value', required%of(1))
+   end subroutine test_rule_retrievable
+
+   @test
+   subroutine test_rules_keep_declaration_order()
+      type(CallbackInterface) :: iface
+      type(CallbackRuleVector) :: rules
+      type(CallbackRule) :: rule
+      integer :: status
+
+      call declare_scaling_interface(iface, status)
+      @assertEqual(0, status)
+
+      call iface%declare_rule('operation', 'offset', ['offset_value'], &
+           rc=status)
+      @assertEqual(0, status)
+      call iface%declare_rule('operation', 'scale', ['offset_value'], &
+           rc=status)
+      @assertEqual(0, status)
+
+      rules = iface%get_rules()
+      @assertEqual(2, rules%size())
+      rule = rules%of(2)
+      @assertEqual('scale', rule%get_value())
+   end subroutine test_rules_keep_declaration_order
+
+   @test
+   subroutine test_rule_naming_required_argument_rejected()
+      type(CallbackInterface) :: iface
+      type(CallbackRuleVector) :: rules
+      integer :: status
+
+      call declare_scaling_interface(iface, status)
+      @assertEqual(0, status)
+
+      call iface%declare_rule('operation', 'offset', ['mixed_quantity'], &
+           rc=status)
+      @assertTrue(status /= 0)
+      call iface%declare_rule('operation', 'offset', &
+           ['offset_value  ', 'mixed_quantity'], rc=status)
+      @assertTrue(status /= 0)
+
+      rules = iface%get_rules()
+      @assertEqual(0, rules%size())
+   end subroutine test_rule_naming_required_argument_rejected
+
+   @test
+   subroutine test_rule_naming_unknown_attribute_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call declare_scaling_interface(iface, status)
+      @assertEqual(0, status)
+
+      call iface%declare_rule('operaton', 'offset', ['offset_value'], &
+           rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_rule_naming_unknown_attribute_rejected
+
+   @test
+   subroutine test_rule_naming_unknown_argument_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call declare_scaling_interface(iface, status)
+      @assertEqual(0, status)
+
+      call iface%declare_rule('operation', 'offset', ['offset_valu'], &
+           rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_rule_naming_unknown_argument_rejected
+
+   @test
+   subroutine test_rule_value_outside_allowed_set_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call declare_scaling_interface(iface, status)
+      @assertEqual(0, status)
+
+      call iface%declare_rule('operation', 'rotate', ['offset_value'], &
+           rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_rule_value_outside_allowed_set_rejected
+
+   @test
+   subroutine test_rule_value_must_have_attribute_type()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call declare_mixing_arguments(iface, status)
+      @assertEqual(0, status)
+      call iface%declare_attribute('mode', CALLBACK_VALUE_INTEGER, &
+           scope=CALLBACK_SCOPE_STATE, allowed_values=[1, 2, 3], &
+           rc=status)
+      @assertEqual(0, status)
+      call iface%declare_attribute('flag', CALLBACK_VALUE_LOGICAL, &
+           scope=CALLBACK_SCOPE_STATE, rc=status)
+      @assertEqual(0, status)
+      call iface%declare_attribute('factor', CALLBACK_VALUE_REAL, &
+           scope=CALLBACK_SCOPE_STATE, rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_rule('mode', '2', ['offset_value'], rc=status)
+      @assertEqual(0, status)
+      call iface%declare_rule('mode', 'two', ['offset_value'], rc=status)
+      @assertTrue(status /= 0)
+      call iface%declare_rule('mode', '4', ['offset_value'], rc=status)
+      @assertTrue(status /= 0)
+
+      call iface%declare_rule('flag', 'true', ['offset_value'], rc=status)
+      @assertEqual(0, status)
+      call iface%declare_rule('flag', 'yes', ['offset_value'], rc=status)
+      @assertTrue(status /= 0)
+
+      call iface%declare_rule('factor', '2.5', ['offset_value'], rc=status)
+      @assertEqual(0, status)
+      call iface%declare_rule('factor', 'big', ['offset_value'], rc=status)
+      @assertTrue(status /= 0)
+      ! Beyond default-real range, within 8-byte range.
+      call iface%declare_rule('factor', '1.0e300', ['offset_value'], &
+           rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_attribute('big', CALLBACK_VALUE_INTEGER, &
+           scope=CALLBACK_SCOPE_STATE, rc=status)
+      @assertEqual(0, status)
+      call iface%declare_rule('big', '9223372036854775807', &
+           ['offset_value'], rc=status)
+      @assertEqual(0, status)
+      call iface%declare_rule('big', '9223372036854775808', &
+           ['offset_value'], rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_rule_value_must_have_attribute_type
+
+   @test
+   subroutine test_rule_on_list_attribute_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call declare_mixing_arguments(iface, status)
+      @assertEqual(0, status)
+      call iface%declare_attribute('names', CALLBACK_VALUE_STRING, &
+           is_list=.true., scope=CALLBACK_SCOPE_STATE, rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_rule('names', 'a', ['offset_value'], rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_rule_on_list_attribute_rejected
+
+   @test
+   subroutine test_rule_that_requires_nothing_rejected()
+      type(CallbackInterface) :: iface
+      character(len=1) :: none(0)
+      integer :: status
+
+      call declare_scaling_interface(iface, status)
+      @assertEqual(0, status)
+
+      call iface%declare_rule('operation', 'offset', none, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_rule_that_requires_nothing_rejected
+
+   ! ---- slash-free names ----
+
+   @test
+   subroutine test_slash_in_attribute_name_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_attribute('a/b', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(iface%is_attribute('a/b'))
+   end subroutine test_slash_in_attribute_name_rejected
+
+   @test
+   subroutine test_slash_in_argument_name_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_argument('a/b', MAPL_STATEITEM_FIELDBUNDLE, &
+           rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(iface%is_argument('a/b'))
+   end subroutine test_slash_in_argument_name_rejected
+
+   @test
+   subroutine test_slash_in_method_name_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_method('a/b', rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(iface%is_method('a/b'))
+   end subroutine test_slash_in_method_name_rejected
+
+   @test
+   subroutine test_slash_in_call_scalar_name_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_call_scalar('a/b', CALLBACK_VALUE_STRING, &
+           CALLBACK_WRITER_INVOKER, rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(iface%is_call_scalar('a/b'))
+   end subroutine test_slash_in_call_scalar_name_rejected
+
+   ! ---- weights ----
+
+   @test
+   subroutine test_weight_relation_retrievable()
+      type(CallbackInterface) :: iface
+      type(CallbackArgumentSpec) :: spec
+      integer :: status
+
+      call declare_mixing_arguments(iface, status)
+      @assertEqual(0, status)
+
+      spec = iface%get_argument('air_mass', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%is_extensive())
+      @assertTrue(spec%has_weight_for())
+      @assertEqual('mixed_quantity', spec%get_weight_for())
+   end subroutine test_weight_relation_retrievable
+
+   @test
+   subroutine test_weight_of_unknown_argument_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_argument('mixed_quantity', MAPL_STATEITEM_FIELD, &
+           dims='xyz', rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('air_mass', MAPL_STATEITEM_FIELD, &
+           dims='xyz', extensive=.true., weight_for='mixed_quantiy', &
+           rc=status)
+      @assertTrue(status /= 0)
+      @assertFalse(iface%is_argument('air_mass'))
+   end subroutine test_weight_of_unknown_argument_rejected
+
+   ! A weight is declared after the argument it weights; the reverse
+   ! order names an argument that does not exist yet.
+   @test
+   subroutine test_weight_declared_before_weighted_argument_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_argument('air_mass', MAPL_STATEITEM_FIELD, &
+           dims='xyz', extensive=.true., weight_for='mixed_quantity', &
+           rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_weight_declared_before_weighted_argument_rejected
+
+   @test
+   subroutine test_non_extensive_weight_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_argument('mixed_quantity', MAPL_STATEITEM_FIELD, &
+           dims='xyz', rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('air_mass', MAPL_STATEITEM_FIELD, &
+           dims='xyz', weight_for='mixed_quantity', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_non_extensive_weight_rejected
+
+   @test
+   subroutine test_weight_of_extensive_argument_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_argument('mixed_quantity', MAPL_STATEITEM_FIELD, &
+           dims='xyz', extensive=.true., rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('air_mass', MAPL_STATEITEM_FIELD, &
+           dims='xyz', extensive=.true., weight_for='mixed_quantity', &
+           rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_weight_of_extensive_argument_rejected
+
+   @test
+   subroutine test_optional_weight_of_required_argument_rejected()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_argument('mixed_quantity', MAPL_STATEITEM_FIELD, &
+           dims='xyz', rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('air_mass', MAPL_STATEITEM_FIELD, &
+           dims='xyz', extensive=.true., optional=.true., &
+           weight_for='mixed_quantity', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_optional_weight_of_required_argument_rejected
+
+   ! An optional weight of an optional argument is consistent.
+   @test
+   subroutine test_optional_weight_of_optional_argument_accepted()
+      type(CallbackInterface) :: iface
+      integer :: status
+
+      call iface%declare_argument('mixed_quantity', MAPL_STATEITEM_FIELD, &
+           dims='xyz', optional=.true., rc=status)
+      @assertEqual(0, status)
+
+      call iface%declare_argument('air_mass', MAPL_STATEITEM_FIELD, &
+           dims='xyz', extensive=.true., optional=.true., &
+           weight_for='mixed_quantity', rc=status)
+      @assertEqual(0, status)
+   end subroutine test_optional_weight_of_optional_argument_accepted
+
+   ! ---- method argument options ----
+
+   @test
+   subroutine test_method_argument_options_forwarded()
+      type(CallbackInterface) :: iface
+      type(CallbackMethodSpec) :: put_spec
+      type(CallbackArgumentOptions) :: options, reported
+      type(AccessSpec) :: access
+      integer :: status
+
+      call declare_mixing_arguments(iface, status)
+      @assertEqual(0, status)
+      call iface%declare_method('put', rc=status)
+      @assertEqual(0, status)
+
+      call options%set_option('put_flavour', 'value', rc=status)
+      @assertEqual(0, status)
+      call iface%set_method_argument_access('put', 'mixed_quantity', &
+           MAPL_ACCESS_IN, options=options, rc=status)
+      @assertEqual(0, status)
+
+      put_spec = iface%get_method('put', rc=status)
+      @assertEqual(0, status)
+      access = put_spec%get_argument_access('mixed_quantity', rc=status)
+      @assertTrue(access == MAPL_ACCESS_IN)
+      reported = put_spec%get_argument_options('mixed_quantity', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(reported%has_put_flavour())
+      @assertTrue(reported%get_put_flavour() == CALLBACK_PUT_FLAVOUR_VALUE)
+   end subroutine test_method_argument_options_forwarded
+
+   ! Without options the argument reports no options.
+   @test
+   subroutine test_method_argument_without_options_reports_none()
+      type(CallbackInterface) :: iface
+      type(CallbackMethodSpec) :: get_spec
+      type(CallbackArgumentOptions) :: reported
+      integer :: status
+
+      call declare_mixing_arguments(iface, status)
+      @assertEqual(0, status)
+      call iface%declare_method('get', rc=status)
+      @assertEqual(0, status)
+      call iface%set_method_argument_access('get', 'mixed_quantity', &
+           MAPL_ACCESS_OUT, rc=status)
+      @assertEqual(0, status)
+
+      get_spec = iface%get_method('get', rc=status)
+      reported = get_spec%get_argument_options('mixed_quantity', rc=status)
+      @assertEqual(0, status)
+      @assertFalse(reported%has_put_flavour())
+   end subroutine test_method_argument_without_options_reports_none
 
 end module Test_CallbackInterface

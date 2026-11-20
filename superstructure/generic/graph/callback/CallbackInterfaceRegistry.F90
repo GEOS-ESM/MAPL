@@ -20,7 +20,9 @@
 !
 ! register_callback_interface rejects a duplicate service_name
 ! (no-silent-replace, the same convention used throughout this module
-! family), leaving the original registration's interface/id unchanged.
+! family), leaving the original registration's interface/id unchanged,
+! and a service_name containing '/' (the interface's own name has no
+! other home, so its slash-free rule is checked here).
 ! freeze_callback_registry ends registration once the interface set is
 ! settled; list_callback_interface_names enumerates what was registered.
 !------------------------------------------------------------------------------
@@ -85,6 +87,10 @@ contains
               'cannot register interface ' // service_name
          _FAIL(message)
       end if
+
+      message = 'CallbackInterfaceRegistry: interface name must not ' // &
+           'contain "/": ' // service_name
+      _ASSERT(index(service_name, '/') == 0, message)
 
       _ASSERT(registry%service_ids%count(service_name) == 0, 'CallbackInterfaceRegistry: service name already registered')
 
