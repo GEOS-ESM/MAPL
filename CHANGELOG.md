@@ -99,6 +99,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   each call's attributes and field values and the call order, can fail on
   demand with a configured `userRc`, and can supply attributes and field
   values for the client to read back. See `docs/mapl3/configurable-callback.md`.
+- The members of a service bundle (a `MAPL_STATEITEM_SERVICE` import or export)
+  now carry the short name of the subscriber's item, as a `NamedAlias` of the
+  subscribed field. Before, a member had no name of its own (ESMF's generated
+  name), so a service provider could not tell the subscribed fields apart except
+  through their `standard_name`. The data is shared with the subscriber's item,
+  as before. `FieldClassAspect%add_to_bundle` has a new optional `name` argument.
 
 ### Changed
 

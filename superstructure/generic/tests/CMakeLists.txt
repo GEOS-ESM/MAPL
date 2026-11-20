@@ -133,6 +133,7 @@ add_dependencies(MAPL.generic.vertical proto_extdata_gc proto_stat_gc)
 set(aspects_test_srcs
   Test_BaseAspect.pf
   Test_AspectMap.pf
+  Test_ServiceClassAspect.pf
   Test_Aspects.pf
   Test_TypekindAspect.pf
   Test_UngriddedDimsAspect.pf

@@ -1,0 +1,104 @@
+#include "MAPL_TestErr.h"
+module Test_ServiceClassAspect
+   use mapl_StateItem_mod
+   use mapl_AspectId_mod
+   use mapl_StateItemSpec_mod
+   use mapl_StateItemAspect_mod
+   use mapl_ServiceClassAspect_mod
+   use mapl_FieldClassAspect_mod
+   use mapl_VariableSpec_mod
+   use mapl_StateRegistry_mod
+   use mapl_VirtualConnectionPt_mod
+   use mapl_vertical_grid_api
+   use mapl_geom_api
+   use mapl_field_api, only: MAPL_FieldsAreAliased
+   use gftl2_StringVector
+   use funit
+   use esmf
+   implicit none
+
+   type(ESMF_Geom) :: geom
+
+contains
+
+   @before
+   subroutine setup()
+      type(ESMF_HConfig) :: hconfig
+      type(mapl_MaplGeom) :: mapl_geom
+      type(mapl_GeomManager), pointer :: geom_mgr
+      integer :: status
+
+      geom_mgr => mapl_get_geom_manager()
+
+      hconfig = ESMF_HConfigCreate(content="{class: latlon, im_world: 12, jm_world: 13, pole: PC, dateline: DC}", _RC)
+      mapl_geom = geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom = mapl_geom%get_geom()
+      call ESMF_HConfigDestroy(hconfig)
+   end subroutine setup
+
+   ! The members of a service bundle are the subscribers' internals, and each
+   ! keeps the subscriber's short name (the field the aspect holds has none
+   ! of its own). The member shares its data with the internal.
+   @test
+   subroutine test_service_members_keep_short_names()
+      type(StateRegistry), target :: registry
+      type(ServiceClassAspect) :: service
+      type(StringVector) :: item_names
+      type(ESMF_FieldBundle), allocatable :: bundle
+      type(ESMF_Field) :: member
+      type(ESMF_Field), allocatable :: internal_field
+      type(FieldClassAspect) :: field_aspect
+      class(StateItemAspect), pointer :: aspect
+      type(StateItemSpec), pointer :: primary
+      type(VirtualConnectionPt) :: v_pt
+      integer :: field_count, status
+      logical :: is_present
+
+      registry = StateRegistry('subscriber')
+      call add_internal(registry, 'Q', 'specific_humidity', _RC)
+      call add_internal(registry, 'T', 'air_temperature', _RC)
+
+      call item_names%push_back('Q')
+      call item_names%push_back('T')
+      service = ServiceClassAspect(registry, item_names)
+      call service%create(AspectMap(), _RC)
+      call service%connect_to_import(service, _RC)
+
+      call service%get_payload(bundle=bundle, _RC)
+      call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+      @assert_that(field_count, is(equal_to(2)))
+
+      call ESMF_FieldBundleGet(bundle, 'Q', isPresent=is_present, _RC)
+      @assert_that(is_present, is(true()))
+      call ESMF_FieldBundleGet(bundle, 'T', isPresent=is_present, _RC)
+      @assert_that(is_present, is(true()))
+
+      v_pt = VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, 'Q')
+      primary => registry%get_primary_spec(v_pt, _RC)
+      aspect => primary%get_aspect(CLASS_ASPECT_ID, _RC)
+      field_aspect = to_FieldClassAspect(aspect, _RC)
+      call field_aspect%get_payload(field=internal_field, _RC)
+      call ESMF_FieldBundleGet(bundle, 'Q', field=member, _RC)
+      @assert_that(MAPL_FieldsAreAliased(member, internal_field), is(true()))
+   end subroutine test_service_members_keep_short_names
+
+   subroutine add_internal(registry, short_name, standard_name, rc)
+      type(StateRegistry), target, intent(inout) :: registry
+      character(*), intent(in) :: short_name, standard_name
+      integer, intent(out) :: rc
+
+      type(VariableSpec) :: var_spec
+      type(StateItemSpec) :: spec
+      type(VirtualConnectionPt) :: v_pt
+      integer :: status
+
+      var_spec = make_VariableSpec(state_intent=ESMF_STATEINTENT_INTERNAL, &
+           short_name=short_name, standard_name=standard_name, geom=geom, units='1', _RC)
+      spec = var_spec%make_StateItemSpec(registry, _RC)
+      call spec%create(_RC)
+      v_pt = VirtualConnectionPt(ESMF_STATEINTENT_INTERNAL, short_name)
+      call registry%add_primary_spec(v_pt, spec, _RC)
+      rc = ESMF_SUCCESS
+   end subroutine add_internal
+
+end module Test_ServiceClassAspect
