@@ -256,7 +256,7 @@ contains
            spec => primary
            aspect => spec%get_aspect(CLASS_ASPECT_ID, _RC)
            field_aspect = to_FieldClassAspect(aspect, _RC)
-           call field_aspect%add_to_bundle(this%payload, _RC)
+           call field_aspect%add_to_bundle(this%payload, name=items%of(i), _RC)
         end do
       end associate
       
@@ -291,7 +291,7 @@ contains
               spec_ptrs(i)%ptr => primary
               aspect => primary%get_aspect(CLASS_ASPECT_ID, _RC)
               field_aspect = to_FieldClassAspect(aspect, _RC)
-              call field_aspect%add_to_bundle(this%payload, _RC)
+              call field_aspect%add_to_bundle(this%payload, name=item_names%of(i), _RC)
            end do
          end associate
          this%items_to_service = [this%items_to_service, spec_ptrs]
