@@ -1,0 +1,761 @@
+! Tests for mapl_CallbackRegistrationLoader_mod: loading, validating and
+! registering a callback registration file. These need the exception
+! handler the generic suites install; the graph suite (graph/tests)
+! does not have one, so they live here (see Test_CallbackInterfaceMessages.pf).
+module Test_CallbackRegistrationLoader
+   use mapl_CallbackRegistrationLoader_mod, only: load_callback_registration_file
+   use mapl_CallbackInterfaceRegistry_mod, only: get_callback_interface_by_name
+   use mapl_CallbackInterfaceRegistry_mod, only: list_callback_interface_names
+   use mapl_CallbackInterfaceRegistry_mod, only: reset_callback_registry_for_testing
+   use mapl_CallbackInterfaceRegistry_mod, only: is_callback_registry_no_file
+   use mapl_CallbackInterfaceRegistry_mod, only: register_callback_interface
+   use mapl_CallbackInterfaceRegistry_mod, only: freeze_callback_registry
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackArgumentSpec_mod, only: CallbackArgumentSpec
+   use mapl_CallbackArgumentSpecMap_mod, only: CallbackArgumentSpecMap
+   use mapl_CallbackMethodSpec_mod, only: CallbackMethodSpec
+   use mapl_CallbackMethodSpecMap_mod, only: CallbackMethodSpecMap
+   use mapl_CallbackAttributeSpec_mod, only: CallbackAttributeSpec
+   use mapl_CallbackAttributeSpec_mod, only: CALLBACK_SCOPE_STATE
+   use mapl_CallbackAttributeSpec_mod, only: operator(==)
+   use mapl_CallbackAttributeSpecMap_mod, only: CallbackAttributeSpecMap
+   use mapl_CallbackValueType_mod, only: CALLBACK_VALUE_STRING, &
+        CALLBACK_VALUE_REAL, operator(==)
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELD, operator(==)
+   use mapl_AccessSpec_mod, only: MAPL_ACCESS_IN, MAPL_ACCESS_OUT, operator(==)
+   use mapl_AccessSpecMap_mod, only: AccessSpecMap
+   use mapl_CallbackRule_mod, only: CallbackRule
+   use mapl_CallbackRuleVector_mod, only: CallbackRuleVector
+   use gFTL2_StringVector, only: StringVector
+   use funit
+   implicit none
+
+contains
+
+   subroutine write_file(filename, content)
+      character(*), intent(in) :: filename
+      character(*), intent(in) :: content
+
+      integer :: unit
+
+      open(newunit=unit, file=filename, form='formatted', status='replace')
+      write(unit, '(a)') content
+      close(unit)
+   end subroutine write_file
+
+   subroutine delete_file(filename)
+      character(*), intent(in) :: filename
+
+      integer :: unit
+
+      open(newunit=unit, file=filename, form='formatted', status='old')
+      close(unit, status='delete')
+   end subroutine delete_file
+
+   @test
+   subroutine test_toy_scaling_loads()
+      character(len=*), parameter :: FILENAME = 'toy_scaling_loads.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      type(CallbackInterface) :: iface
+      type(CallbackArgumentSpec) :: quantity, offset_value
+      type(CallbackArgumentSpecMap) :: arguments
+      type(CallbackMethodSpec) :: get_method, put_method
+      type(CallbackMethodSpecMap) :: methods
+      type(AccessSpecMap) :: get_accesses, put_accesses
+      type(CallbackAttributeSpec) :: operation, factor
+      type(CallbackAttributeSpecMap) :: attributes
+      type(StringVector) :: allowed
+      type(CallbackRuleVector) :: rules
+      type(CallbackRule), pointer :: rule
+      type(StringVector) :: requires
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      content = &
+           'toy_scaling:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: toy scaling callback interface' // NL // &
+           '  arguments:' // NL // &
+           '    quantity:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xyz' // NL // &
+           '    offset_value:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xy' // NL // &
+           '      optional: true' // NL // &
+           '  methods:' // NL // &
+           '    get:' // NL // &
+           '      quantity: out' // NL // &
+           '      offset_value: out' // NL // &
+           '    put:' // NL // &
+           '      quantity: in' // NL // &
+           '  attributes:' // NL // &
+           '    operation:' // NL // &
+           '      type: string' // NL // &
+           '      scope: state' // NL // &
+           '      required: true' // NL // &
+           '      allowed: [scale, offset]' // NL // &
+           '    factor:' // NL // &
+           '      type: real' // NL // &
+           '      scope: state' // NL // &
+           '      default: 2.0' // NL // &
+           '  rules:' // NL // &
+           '    - when:' // NL // &
+           '        operation: offset' // NL // &
+           '      requires:' // NL // &
+           '        - offset_value' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertEqual(0, status, 'load_callback_registration_file failed')
+      @assertTrue(found, 'toy_scaling_loads.yaml exists and must be found')
+
+      call delete_file(FILENAME)
+
+      iface = get_callback_interface_by_name('toy_scaling', rc=status)
+      @assertEqual(0, status, 'toy_scaling must be registered')
+
+      @assertEqual(1, iface%get_version())
+      @assertEqual('toy scaling callback interface', iface%get_summary())
+
+      ! Counts: exactly these declarations, no unexpected extra one.
+      arguments = iface%get_arguments()
+      @assertEqual(2, arguments%size(), 'toy_scaling must declare exactly 2 arguments')
+      methods = iface%get_methods()
+      @assertEqual(2, methods%size(), 'toy_scaling must declare exactly 2 methods')
+      attributes = iface%get_attributes()
+      @assertEqual(2, attributes%size(), 'toy_scaling must declare exactly 2 attributes')
+
+      @assertTrue(iface%is_argument('quantity'))
+      quantity = iface%get_argument('quantity', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(quantity%get_expected_kind() == MAPL_STATEITEM_FIELD)
+      @assertEqual('xyz', quantity%get_dims())
+      @assertFalse(quantity%is_optional())
+
+      @assertTrue(iface%is_argument('offset_value'))
+      offset_value = iface%get_argument('offset_value', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(offset_value%get_expected_kind() == MAPL_STATEITEM_FIELD)
+      @assertEqual('xy', offset_value%get_dims())
+      @assertTrue(offset_value%is_optional())
+
+      @assertTrue(iface%is_method('get'))
+      get_method = iface%get_method('get', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(get_method%get_argument_access('quantity', rc=status) == &
+           MAPL_ACCESS_OUT)
+      @assertEqual(0, status)
+      @assertTrue(get_method%get_argument_access('offset_value', &
+           rc=status) == MAPL_ACCESS_OUT)
+      @assertEqual(0, status)
+      get_accesses = get_method%get_argument_accesses()
+      @assertEqual(2, get_accesses%size(), 'method get must declare exactly 2 argument accesses')
+
+      @assertTrue(iface%is_method('put'))
+      put_method = iface%get_method('put', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(put_method%get_argument_access('quantity', rc=status) == &
+           MAPL_ACCESS_IN)
+      @assertEqual(0, status)
+      put_accesses = put_method%get_argument_accesses()
+      @assertEqual(1, put_accesses%size(), 'method put must declare exactly 1 argument access')
+
+      @assertTrue(iface%is_attribute('operation'))
+      operation = iface%get_attribute('operation', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(operation%get_value_type() == CALLBACK_VALUE_STRING)
+      @assertTrue(operation%get_scope() == CALLBACK_SCOPE_STATE)
+      @assertTrue(operation%is_required())
+      @assertFalse(operation%has_default(), 'operation has no default in the file')
+      @assertTrue(operation%has_allowed_values())
+      allowed = operation%get_allowed_strings(rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, allowed%size())
+      @assertEqual('scale', allowed%of(1))
+      @assertEqual('offset', allowed%of(2))
+
+      @assertTrue(iface%is_attribute('factor'))
+      factor = iface%get_attribute('factor', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(factor%get_value_type() == CALLBACK_VALUE_REAL)
+      @assertTrue(factor%get_scope() == CALLBACK_SCOPE_STATE)
+      @assertFalse(factor%is_required(), 'factor is not required in the file')
+      @assertTrue(factor%has_default())
+      @assertEqual(2.0d0, factor%get_default_real(rc=status), tolerance=1.0d-12)
+      @assertEqual(0, status)
+
+      rules = iface%get_rules()
+      @assertEqual(1, rules%size())
+      rule => rules%of(1)
+      @assertEqual('operation', rule%get_attribute())
+      @assertEqual('offset', rule%get_value())
+      requires = rule%get_required_arguments()
+      @assertEqual(1, requires%size())
+      @assertEqual('offset_value', requires%of(1))
+   end subroutine test_toy_scaling_loads
+
+   @test
+   subroutine test_unknown_key_in_argument_entry()
+      character(len=*), parameter :: FILENAME = 'toy_scaling_unknown_key.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      content = &
+           'toy_scaling:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: toy scaling callback interface' // NL // &
+           '  arguments:' // NL // &
+           '    quantity:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xyz' // NL // &
+           '      optinal: true' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertExceptionRaised(trim(FILENAME) // ': interface toy_scaling: argument quantity: unknown key optinal; legal keys: kind, dims, optional, extensive, weight_for, description')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      call delete_file(FILENAME)
+
+      @assertEqual(0, size(list_callback_interface_names()), &
+           'a file that fails to load registers nothing')
+   end subroutine test_unknown_key_in_argument_entry
+
+   @test
+   subroutine test_rule_names_unknown_argument()
+      character(len=*), parameter :: FILENAME = 'toy_scaling_bad_rule.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      content = &
+           'toy_scaling:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: toy scaling callback interface' // NL // &
+           '  arguments:' // NL // &
+           '    quantity:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xyz' // NL // &
+           '    offset_value:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xy' // NL // &
+           '      optional: true' // NL // &
+           '  methods:' // NL // &
+           '    get:' // NL // &
+           '      quantity: out' // NL // &
+           '      offset_value: out' // NL // &
+           '    put:' // NL // &
+           '      quantity: in' // NL // &
+           '  attributes:' // NL // &
+           '    operation:' // NL // &
+           '      type: string' // NL // &
+           '      scope: state' // NL // &
+           '      required: true' // NL // &
+           '      allowed: [scale, offset]' // NL // &
+           '  rules:' // NL // &
+           '    - when:' // NL // &
+           '        operation: offset' // NL // &
+           '      requires:' // NL // &
+           '        - offset_valu' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertExceptionRaised('CallbackInterface: rule on operation names unknown argument offset_valu; declared arguments: offset_value, quantity')
+      @assertExceptionRaised(trim(FILENAME) // ': interface toy_scaling: could not declare rule on operation')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      call delete_file(FILENAME)
+
+      @assertEqual(0, size(list_callback_interface_names()), &
+           'a file that fails to load registers nothing')
+   end subroutine test_rule_names_unknown_argument
+
+   @test
+   subroutine test_weight_of_unknown_argument()
+      character(len=*), parameter :: FILENAME = 'turbulent_mixing_bad_weight.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      content = &
+           'turbulent_mixing:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: turbulent mixing callback interface' // NL // &
+           '  arguments:' // NL // &
+           '    mixed_quantity:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xyz' // NL // &
+           '    air_mass:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xyz' // NL // &
+           '      extensive: true' // NL // &
+           '      weight_for: mixed_quantiy' // NL // &
+           '  methods:' // NL // &
+           '    get:' // NL // &
+           '      mixed_quantity: out' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertExceptionRaised('CallbackInterface: argument air_mass is the weight for unknown argument mixed_quantiy; declared arguments: mixed_quantity')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised(trim(FILENAME) // ': interface turbulent_mixing: could not declare argument air_mass')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      call delete_file(FILENAME)
+
+      @assertEqual(0, size(list_callback_interface_names()), &
+           'a file that fails to load registers nothing')
+   end subroutine test_weight_of_unknown_argument
+
+   @test
+   subroutine test_weight_not_extensive()
+      character(len=*), parameter :: FILENAME = 'turbulent_mixing_not_extensive.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      content = &
+           'turbulent_mixing:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: turbulent mixing callback interface' // NL // &
+           '  arguments:' // NL // &
+           '    mixed_quantity:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xyz' // NL // &
+           '    air_mass:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xyz' // NL // &
+           '      weight_for: mixed_quantity' // NL // &
+           '  methods:' // NL // &
+           '    get:' // NL // &
+           '      mixed_quantity: out' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertExceptionRaised('CallbackInterface: weight argument must be extensive: air_mass')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised(trim(FILENAME) // ': interface turbulent_mixing: could not declare argument air_mass')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      call delete_file(FILENAME)
+
+      @assertEqual(0, size(list_callback_interface_names()), &
+           'a file that fails to load registers nothing')
+   end subroutine test_weight_not_extensive
+
+   @test
+   subroutine test_missing_file()
+      character(len=*), parameter :: FILENAME = 'no_such_callback_interfaces.yaml'
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      @assertFalse(is_callback_registry_no_file(), &
+           'reset_callback_registry_for_testing clears the no-file mark')
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertEqual(0, status, 'a missing file is not an error')
+      @assertFalse(found, 'the file does not exist')
+      @assertEqual(0, size(list_callback_interface_names()), &
+           'a missing file registers nothing')
+      @assertTrue(is_callback_registry_no_file(), &
+           'a missing file must mark the registry "no file", not just leave it empty')
+   end subroutine test_missing_file
+
+   @test
+   subroutine test_malformed_yaml_is_an_error()
+      character(len=*), parameter :: FILENAME = 'toy_scaling_malformed.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      ! Unbalanced flow-mapping brace: not legal YAML. A file that
+      ! exists but fails to parse must raise a real error, not be
+      ! silently treated as a missing file.
+      content = &
+           'toy_scaling: {version: 1, summary: broken' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertExceptionRaised(trim(FILENAME) // ': could not parse YAML')
+
+      call delete_file(FILENAME)
+
+      @assertTrue(found, &
+           'toy_scaling_malformed.yaml exists, so this is not the missing-file case')
+      @assertTrue(status /= 0, &
+           'a file that exists but fails to parse must be an error')
+      @assertFalse(is_callback_registry_no_file(), &
+           'a malformed file is not the "no file" case')
+      @assertEqual(0, size(list_callback_interface_names()), &
+           'a file that fails to load registers nothing')
+   end subroutine test_malformed_yaml_is_an_error
+
+   @test
+   subroutine test_name_already_registered_in_code()
+      character(len=*), parameter :: FILENAME = &
+           'toy_scaling_already_registered.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      type(CallbackInterface) :: marker_iface, retrieved
+      type(CallbackInterfaceId) :: id
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      ! Registered directly through the declaring API (not through the
+      ! loader), so the file below collides with an interface the
+      ! loader never touched.
+      call marker_iface%declare_argument('marker_argument', &
+           MAPL_STATEITEM_FIELD, dims='xyz', rc=status)
+      @assertEqual(0, status)
+      call register_callback_interface('toy_scaling', marker_iface, id, &
+           rc=status)
+      @assertEqual(0, status)
+
+      content = &
+           'toy_scaling:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: a colliding interface loaded from file' // NL // &
+           '  arguments: {}' // NL // &
+           '  methods:' // NL // &
+           '    get: {}' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertExceptionRaised(trim(FILENAME) // ': interface toy_scaling: already registered')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      call delete_file(FILENAME)
+
+      @assertEqual(1, size(list_callback_interface_names()), &
+           'the file must not register anything on top of the already-registered interface')
+      retrieved = get_callback_interface_by_name('toy_scaling', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(retrieved%is_argument('marker_argument'), &
+           'the already-registered interface must be unchanged by the failed load')
+   end subroutine test_name_already_registered_in_code
+
+   @test
+   subroutine test_name_collides_with_frozen_registry()
+      character(len=*), parameter :: FILENAME = &
+           'toy_scaling_frozen_registry.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+      call freeze_callback_registry()
+
+      content = &
+           'toy_scaling:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: an interface loaded against a frozen registry' // NL // &
+           '  arguments: {}' // NL // &
+           '  methods:' // NL // &
+           '    get: {}' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertExceptionRaised('CallbackInterfaceRegistry: registry is frozen, cannot register interface toy_scaling')
+      @assertExceptionRaised(trim(FILENAME) // ': interface toy_scaling: could not register interface')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      call delete_file(FILENAME)
+
+      @assertEqual(0, size(list_callback_interface_names()), &
+           'a frozen registry must register nothing from the file')
+   end subroutine test_name_collides_with_frozen_registry
+
+   @test
+   subroutine test_unknown_kind_legal_values_message()
+      character(len=*), parameter :: FILENAME = 'toy_scaling_unknown_kind.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      content = &
+           'toy_scaling:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: toy scaling callback interface' // NL // &
+           '  arguments:' // NL // &
+           '    quantity:' // NL // &
+           '      kind: fieldy' // NL // &
+           '  methods:' // NL // &
+           '    get:' // NL // &
+           '      quantity: out' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertExceptionRaised(trim(FILENAME) // ': interface toy_scaling: argument quantity: unknown kind fieldy; legal kinds: field, bundle, state')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      call delete_file(FILENAME)
+
+      @assertEqual(0, size(list_callback_interface_names()), &
+           'a file that fails to load registers nothing')
+   end subroutine test_unknown_kind_legal_values_message
+
+   @test
+   subroutine test_partial_registration_all_or_nothing()
+      character(len=*), parameter :: FILENAME = 'two_interfaces_one_bad.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      ! valid_interface is a minimal but complete interface that would
+      ! register cleanly on its own; invalid_interface has an unknown
+      ! argument key. Neither must end up registered.
+      content = &
+           'valid_interface:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: a minimal valid interface' // NL // &
+           '  arguments: {}' // NL // &
+           '  methods:' // NL // &
+           '    get: {}' // NL // &
+           'invalid_interface:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: an interface with a bad argument key' // NL // &
+           '  arguments:' // NL // &
+           '    quantity:' // NL // &
+           '      kind: field' // NL // &
+           '      bogus_key: true' // NL // &
+           '  methods:' // NL // &
+           '    get:' // NL // &
+           '      quantity: out' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertExceptionRaised(trim(FILENAME) // ': interface invalid_interface: argument quantity: unknown key bogus_key; legal keys: kind, dims, optional, extensive, weight_for, description')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      call delete_file(FILENAME)
+
+      @assertEqual(0, size(list_callback_interface_names()), &
+           'one bad entry must register neither interface from the file')
+   end subroutine test_partial_registration_all_or_nothing
+
+   @test
+   subroutine test_duplicate_name_in_one_file()
+      character(len=*), parameter :: FILENAME = 'toy_scaling_duplicate_name.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      ! toy_scaling appears twice as a top-level key; each occurrence
+      ! is minimal but well-formed on its own. The duplicate must be a
+      ! hard load error, not "first one wins" or "last one wins".
+      content = &
+           'toy_scaling:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: first declaration of toy_scaling' // NL // &
+           '  arguments: {}' // NL // &
+           '  methods:' // NL // &
+           '    get: {}' // NL // &
+           'toy_scaling:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: second declaration of toy_scaling' // NL // &
+           '  arguments: {}' // NL // &
+           '  methods:' // NL // &
+           '    get: {}' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertExceptionRaised(trim(FILENAME) // ': interface toy_scaling: declared more than once in this file')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      call delete_file(FILENAME)
+
+      @assertEqual(0, size(list_callback_interface_names()), &
+           'a file with a name declared twice must register nothing')
+   end subroutine test_duplicate_name_in_one_file
+
+   @test
+   subroutine test_weight_optional_but_weighted_required()
+      character(len=*), parameter :: FILENAME = &
+           'turbulent_mixing_weight_optional.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      ! mixed_quantity is required (no optional key); its weight,
+      ! air_mass, is extensive but explicitly optional. A weight must
+      ! be required whenever the argument it weights is required.
+      content = &
+           'turbulent_mixing:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: turbulent mixing callback interface' // NL // &
+           '  arguments:' // NL // &
+           '    mixed_quantity:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xyz' // NL // &
+           '    air_mass:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xyz' // NL // &
+           '      extensive: true' // NL // &
+           '      weight_for: mixed_quantity' // NL // &
+           '      optional: true' // NL // &
+           '  methods:' // NL // &
+           '    get:' // NL // &
+           '      mixed_quantity: out' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertExceptionRaised('CallbackInterface: weight argument air_mass must be required because mixed_quantity is required')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised(trim(FILENAME) // ': interface turbulent_mixing: could not declare argument air_mass')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      call delete_file(FILENAME)
+
+      @assertEqual(0, size(list_callback_interface_names()), &
+           'a file that fails to load registers nothing')
+   end subroutine test_weight_optional_but_weighted_required
+
+   @test
+   subroutine test_rule_bool_normalization()
+      character(len=*), parameter :: FILENAME = 'toy_bool_rule.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      type(CallbackInterface) :: iface
+      type(CallbackRuleVector) :: rules
+      type(CallbackRule), pointer :: rule
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      ! "yes" is a core-schema YAML bool spelling, not the literal word
+      ! "true" that declare_rule requires for a logical attribute; the
+      ! loader must normalize it.
+      content = &
+           'toy_bool:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: toy bool normalization interface' // NL // &
+           '  arguments:' // NL // &
+           '    quantity:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xyz' // NL // &
+           '    extra:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xyz' // NL // &
+           '      optional: true' // NL // &
+           '  methods:' // NL // &
+           '    get:' // NL // &
+           '      quantity: out' // NL // &
+           '  attributes:' // NL // &
+           '    enabled:' // NL // &
+           '      type: logical' // NL // &
+           '      scope: state' // NL // &
+           '  rules:' // NL // &
+           '    - when:' // NL // &
+           '        enabled: yes' // NL // &
+           '      requires:' // NL // &
+           '        - extra' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertEqual(0, status, 'a "yes" rule value must normalize to a legal logical value')
+      @assertTrue(found)
+
+      call delete_file(FILENAME)
+
+      iface = get_callback_interface_by_name('toy_bool', rc=status)
+      @assertEqual(0, status, 'toy_bool must be registered')
+
+      rules = iface%get_rules()
+      @assertEqual(1, rules%size())
+      rule => rules%of(1)
+      @assertEqual('enabled', rule%get_attribute())
+      @assertEqual('true', rule%get_value(), &
+           'the "yes" spelling must normalize to the literal word true')
+   end subroutine test_rule_bool_normalization
+
+end module Test_CallbackRegistrationLoader

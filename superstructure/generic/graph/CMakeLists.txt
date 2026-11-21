@@ -124,6 +124,7 @@ target_sources(MAPL.generic PRIVATE
   containers/CallbackInterfaceIdInterfaceMap.F90
   containers/CallbackServiceNameIdMap.F90
   callback/CallbackInterfaceRegistry.F90
+  callback/CallbackRegistrationLoader.F90
   containers/CallbackMethodAttachmentMap.F90
   callback/CallbackStateBinding.F90
   callback/CallbackMethodBinding.F90

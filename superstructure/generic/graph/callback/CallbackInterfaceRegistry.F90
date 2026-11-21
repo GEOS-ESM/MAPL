@@ -25,6 +25,12 @@
 ! other home, so its slash-free rule is checked here).
 ! freeze_callback_registry ends registration once the interface set is
 ! settled; list_callback_interface_names enumerates what was registered.
+!
+! mark_callback_registry_no_file/is_callback_registry_no_file record
+! whether the registration file was found at load time: the loader
+! calls mark_callback_registry_no_file when no file exists, so an
+! empty registry that never had a file to load can be told apart from
+! one a file loaded with zero entries into.
 !------------------------------------------------------------------------------
 module mapl_CallbackInterfaceRegistry_mod
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId, CallbackInterfaceIdGenerator
@@ -45,6 +51,8 @@ module mapl_CallbackInterfaceRegistry_mod
    public :: freeze_callback_registry
    public :: list_callback_interface_names
    public :: reset_callback_registry_for_testing
+   public :: mark_callback_registry_no_file
+   public :: is_callback_registry_no_file
 
    type :: CallbackInterfaceRegistryType
       private
@@ -52,6 +60,7 @@ module mapl_CallbackInterfaceRegistry_mod
       type(CallbackServiceNameIdMap) :: service_ids
       type(CallbackInterfaceIdGenerator) :: id_generator
       logical :: frozen = .false.
+      logical :: no_file = .false.
    end type CallbackInterfaceRegistryType
 
    ! The one shared instance. Not exposed outside this
@@ -145,7 +154,26 @@ contains
       call registry%service_ids%clear()
       registry%id_generator = CallbackInterfaceIdGenerator()
       registry%frozen = .false.
+      registry%no_file = .false.
    end subroutine reset_callback_registry_for_testing
+
+   ! Records that the registration file was not found, so an empty
+   ! registry that never had a file to load can be told apart from one
+   ! a file loaded with zero entries into. Set by the loader;
+   ! registering an interface does not clear it.
+   subroutine mark_callback_registry_no_file()
+      type(CallbackInterfaceRegistryType), pointer :: registry
+
+      registry => get_registry()
+      registry%no_file = .true.
+   end subroutine mark_callback_registry_no_file
+
+   logical function is_callback_registry_no_file() result(no_file)
+      type(CallbackInterfaceRegistryType), pointer :: registry
+
+      registry => get_registry()
+      no_file = registry%no_file
+   end function is_callback_registry_no_file
 
    ! Spec scenario: "Registered interface is retrievable ... by the
    ! identity assigned at registration".

@@ -45,7 +45,7 @@
 
 - [x] 3.1 CRC-32 utility over a file's bytes (utils), with a known-vector
   test.
-- [ ] 3.2 Loader: read `./callback_interfaces.yaml` with HConfig, build
+- [x] 3.2 Loader: read `./callback_interfaces.yaml` with HConfig, build
   and validate every entry, register all or none; errors name file,
   interface, key and legal names. Tests: `toy_scaling` loads exactly;
   F9; MF2; MF3; unknown key; missing file leaves an empty registry

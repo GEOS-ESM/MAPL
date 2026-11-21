@@ -360,3 +360,9 @@ Cap). Rollback is reverting the change's commits.
   error (`Test_HConfigDuplicateKeys.pf`).
 - Whether `ESMF_InfoGet` converts silently (settled by the Info probe;
   affects only which ESMF call the type check uses).
+- A rule's trigger value is normalized from its YAML source text only
+  for the logical case (several bool spellings all become the literal
+  `true`/`false` `CallbackInterface` expects); no canonical textual
+  form is defined yet for comparing numeric rule values at
+  rule-matching time, since rule matching itself is not built. Left
+  for whoever builds rule matching.
