@@ -36,7 +36,7 @@
 
 ## 2. Info support
 
-- [ ] 2.1 `InfoUtilities.F90`: stored-type query, `r8_1d`, string-list
+- [x] 2.1 `InfoUtilities.F90`: stored-type query, `r8_1d`, string-list
   getters/setters, State-own-Info getters/setters for logical, i4, r4,
   r8, key enumeration under a prefix. Unit tests in the infrastructure
   test suite. Depends on 0.2.

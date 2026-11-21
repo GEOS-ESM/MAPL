@@ -3,6 +3,7 @@
 module Test_InfoUtilities
    use mapl_ESMF_info_keys_mod
    use mapl_InfoUtilities_mod
+   use gftl2_StringVector
    use esmf
    use funit
 
@@ -351,6 +352,877 @@ contains
 
    end subroutine test_setPrivate_is_private
 
+
+   ! ---- r8_1d ----------------------------------------------------
+
+   @test
+   subroutine test_info_r8_1d()
+      type(ESMF_Info) :: info
+      integer :: status
+      real(kind=ESMF_KIND_R8), allocatable :: r(:)
+      real(kind=ESMF_KIND_R8), parameter :: expected(*) = [1.5d0, 2.5d0, 1.0d-12]
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a', values=expected, _RC)
+      call MAPL_InfoGet(info, key='a', values=r, _RC)
+
+      @assert_that(r, is(equal_to(expected)))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_info_r8_1d
+
+   @test
+   subroutine test_set_stateitem_shared_r8_1d()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      real(kind=ESMF_KIND_R8), allocatable :: r(:)
+      real(kind=ESMF_KIND_R8), parameter :: expected(*) = [1.0d0, 2.0d0, 5.0d-10]
+
+      state = ESMF_StateCreate(name='export', _RC)
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetShared(state, short_name='f', key='a', values=expected, _RC)
+      call MAPL_InfoGetShared(state, short_name='f', key='a', values=r, _RC)
+
+      @assert_that(r, is(equal_to(expected)))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_set_stateitem_shared_r8_1d
+
+   @test
+   subroutine test_set_stateitem_private_r8_1d()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      real(kind=ESMF_KIND_R8), allocatable :: r(:)
+      real(kind=ESMF_KIND_R8), parameter :: expected(*) = [1.0d0, 3.0d0, 7.0d-10]
+
+      state = ESMF_StateCreate(name='import', _RC)
+      call MAPL_InfoSetNameSpace(state, namespace='/compA', _RC)
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetPrivate(state, short_name='f', key='a', values=expected, _RC)
+      call MAPL_InfoGetPrivate(state, short_name='f', key='a', values=r, _RC)
+
+      @assert_that(r, is(equal_to(expected)))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_set_stateitem_private_r8_1d
+
+   ! ---- string lists ---------------------------------------------
+
+   @test
+   ! Trailing blanks in a stored string do not survive a round trip.
+   ! @assertEqual pads the shorter side before comparing, so len_trim
+   ! (not @assertEqual against the padded literal) is what actually
+   ! distinguishes trimmed from untrimmed.
+   subroutine test_info_string_list()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(StringVector) :: v
+      character(len=6), parameter :: expected(*) = ['alpha ', 'beta  ', 'gamma ']
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a', values=expected, _RC)
+      call MAPL_InfoGet(info, key='a', values=v, _RC)
+
+      @assertEqual(3, v%size())
+      @assertEqual('alpha', v%of(1))
+      @assertEqual('beta', v%of(2))
+      @assertEqual('gamma', v%of(3))
+      @assertEqual(5, len_trim(v%of(1)))
+      @assertEqual(4, len_trim(v%of(2)))
+      @assertEqual(5, len_trim(v%of(3)))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_info_string_list
+
+   @test
+   subroutine test_info_string_list_absent_key_fails()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(StringVector) :: v
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoGet(info, key='nokey', values=v, rc=status)
+
+      @assertExceptionRaised()
+      @assertTrue(status /= _SUCCESS)
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_info_string_list_absent_key_fails
+
+   @test
+   subroutine test_set_stateitem_shared_string_list()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      type(StringVector) :: v
+      character(len=4), parameter :: expected(*) = ['one ', 'two ', 'tre ']
+
+      state = ESMF_StateCreate(name='export', _RC)
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetShared(state, short_name='f', key='a', values=expected, _RC)
+      call MAPL_InfoGetShared(state, short_name='f', key='a', values=v, _RC)
+
+      @assertEqual(3, v%size())
+      @assertEqual('one', v%of(1))
+      @assertEqual('two', v%of(2))
+      @assertEqual('tre', v%of(3))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_set_stateitem_shared_string_list
+
+   @test
+   subroutine test_set_stateitem_private_string_list()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      type(StringVector) :: v
+      character(len=4), parameter :: expected(*) = ['one ', 'two ']
+
+      state = ESMF_StateCreate(name='import', _RC)
+      call MAPL_InfoSetNameSpace(state, namespace='/compA', _RC)
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetPrivate(state, short_name='f', key='a', values=expected, _RC)
+      call MAPL_InfoGetPrivate(state, short_name='f', key='a', values=v, _RC)
+
+      @assertEqual(2, v%size())
+      @assertEqual('one', v%of(1))
+      @assertEqual('two', v%of(2))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_set_stateitem_private_string_list
+
+   ! ---- State's own Info (no short_name) -------------------------
+
+   @test
+   subroutine test_state_shared_logical()
+      type(ESMF_State) :: state
+      integer :: status
+      logical :: l
+
+      state = ESMF_StateCreate(name='export', _RC)
+
+      call MAPL_InfoSetShared(state, key='a', value=.true., _RC)
+      l = .false.
+      call MAPL_InfoGetShared(state, key='a', value=l, _RC)
+      @assert_that(l, is(true()))
+
+      call MAPL_InfoSetShared(state, key='a', value=.false., _RC)
+      l = .true.
+      call MAPL_InfoGetShared(state, key='a', value=l, _RC)
+      @assert_that(l, is(false()))
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_state_shared_logical
+
+   @test
+   subroutine test_state_shared_i4()
+      type(ESMF_State) :: state
+      integer :: status
+      integer(kind=ESMF_KIND_I4) :: i
+
+      state = ESMF_StateCreate(name='export', _RC)
+
+      call MAPL_InfoSetShared(state, key='a', value=7_ESMF_KIND_I4, _RC)
+      call MAPL_InfoGetShared(state, key='a', value=i, _RC)
+      @assert_that(i, is(7_ESMF_KIND_I4))
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_state_shared_i4
+
+   @test
+   subroutine test_state_shared_r4()
+      type(ESMF_State) :: state
+      integer :: status
+      real(kind=ESMF_KIND_R4) :: r
+
+      state = ESMF_StateCreate(name='export', _RC)
+
+      call MAPL_InfoSetShared(state, key='a', value=1.5_ESMF_KIND_R4, _RC)
+      call MAPL_InfoGetShared(state, key='a', value=r, _RC)
+      @assert_that(r, is(1.5_ESMF_KIND_R4))
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_state_shared_r4
+
+   @test
+   subroutine test_state_shared_r8()
+      type(ESMF_State) :: state
+      integer :: status
+      real(kind=ESMF_KIND_R8) :: r
+
+      state = ESMF_StateCreate(name='export', _RC)
+
+      call MAPL_InfoSetShared(state, key='a', value=2.25_ESMF_KIND_R8, _RC)
+      call MAPL_InfoGetShared(state, key='a', value=r, _RC)
+      @assert_that(r, is(2.25_ESMF_KIND_R8))
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_state_shared_r8
+
+   @test
+   ! The State's own Info is the host of the shared namespace, so the
+   ! value is readable by its fully qualified raw key.
+   subroutine test_state_shared_is_under_shared_namespace()
+      type(ESMF_State) :: state
+      type(ESMF_Info) :: state_info
+      integer :: status
+      integer(kind=ESMF_KIND_I4) :: i
+
+      state = ESMF_StateCreate(name='export', _RC)
+      call MAPL_InfoSetShared(state, key='a', value=3_ESMF_KIND_I4, _RC)
+
+      call ESMF_InfoGetFromHost(state, state_info, _RC)
+      call MAPL_InfoGet(state_info, key=INFO_SHARED_NAMESPACE // '/a', value=i, _RC)
+      @assert_that(i, is(3_ESMF_KIND_I4))
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_state_shared_is_under_shared_namespace
+
+   ! ---- stored-type query ----------------------------------------
+
+   @test
+   subroutine test_value_kind_scalars()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(InfoValueKind) :: k
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='i4', value=1_ESMF_KIND_I4, _RC)
+      call MAPL_InfoSet(info, key='i8', value=1_ESMF_KIND_I8, _RC)
+      call MAPL_InfoSet(info, key='r4', value=1.0_ESMF_KIND_R4, _RC)
+      call MAPL_InfoSet(info, key='r8', value=1.0_ESMF_KIND_R8, _RC)
+      call MAPL_InfoSet(info, key='lg', value=.true., _RC)
+      call MAPL_InfoSet(info, key='st', value='hello', _RC)
+
+      call MAPL_InfoGetValueKind(info, 'i4', k, _RC)
+      @assert_that(k == INFO_VALUE_INTEGER, is(true()))
+      call MAPL_InfoGetValueKind(info, 'i8', k, _RC)
+      @assert_that(k == INFO_VALUE_INTEGER, is(true()))
+      call MAPL_InfoGetValueKind(info, 'r4', k, _RC)
+      @assert_that(k == INFO_VALUE_REAL, is(true()))
+      call MAPL_InfoGetValueKind(info, 'r8', k, _RC)
+      @assert_that(k == INFO_VALUE_REAL, is(true()))
+      call MAPL_InfoGetValueKind(info, 'lg', k, _RC)
+      @assert_that(k == INFO_VALUE_LOGICAL, is(true()))
+      call MAPL_InfoGetValueKind(info, 'st', k, _RC)
+      @assert_that(k == INFO_VALUE_STRING, is(true()))
+      @assertFalse(k%is_list())
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_value_kind_scalars
+
+   @test
+   subroutine test_value_kind_lists()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(InfoValueKind) :: k
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='i4', values=[1_ESMF_KIND_I4, 2_ESMF_KIND_I4], _RC)
+      call MAPL_InfoSet(info, key='i8', values=[1_ESMF_KIND_I8, 2_ESMF_KIND_I8], _RC)
+      call MAPL_InfoSet(info, key='r4', values=[1.0_ESMF_KIND_R4, 2.0_ESMF_KIND_R4], _RC)
+      call MAPL_InfoSet(info, key='r8', values=[1.0_ESMF_KIND_R8, 2.0_ESMF_KIND_R8], _RC)
+      call MAPL_InfoSet(info, key='lg', values=[.true., .false.], _RC)
+      call MAPL_InfoSet(info, key='st', values=['aa', 'bb'], _RC)
+
+      call MAPL_InfoGetValueKind(info, 'i4', k, _RC)
+      @assert_that(k == INFO_VALUE_INTEGER_LIST, is(true()))
+      call MAPL_InfoGetValueKind(info, 'i8', k, _RC)
+      @assert_that(k == INFO_VALUE_INTEGER_LIST, is(true()))
+      call MAPL_InfoGetValueKind(info, 'r4', k, _RC)
+      @assert_that(k == INFO_VALUE_REAL_LIST, is(true()))
+      call MAPL_InfoGetValueKind(info, 'r8', k, _RC)
+      @assert_that(k == INFO_VALUE_REAL_LIST, is(true()))
+      call MAPL_InfoGetValueKind(info, 'lg', k, _RC)
+      @assert_that(k == INFO_VALUE_LOGICAL_LIST, is(true()))
+      call MAPL_InfoGetValueKind(info, 'st', k, _RC)
+      @assert_that(k == INFO_VALUE_STRING_LIST, is(true()))
+      @assertTrue(k%is_list())
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_value_kind_lists
+
+   @test
+   subroutine test_value_kind_absent()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(InfoValueKind) :: k
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a/b', value=1, _RC)
+
+      ! absent is reported, not an error
+      call MAPL_InfoGetValueKind(info, 'nokey', k, _RC)
+      @assert_that(k == INFO_VALUE_ABSENT, is(true()))
+      call MAPL_InfoGetValueKind(info, 'a/nokey', k, _RC)
+      @assert_that(k == INFO_VALUE_ABSENT, is(true()))
+      call MAPL_InfoGetValueKind(info, 'nokey/deeper/still', k, _RC)
+      @assert_that(k == INFO_VALUE_ABSENT, is(true()))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_value_kind_absent
+
+   @test
+   subroutine test_value_kind_other()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(InfoValueKind) :: k
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a/b/c', value=1, _RC)
+
+      ! A nested object is neither a scalar nor a list.
+      call MAPL_InfoGetValueKind(info, 'a/b', k, _RC)
+      @assert_that(k == INFO_VALUE_OTHER, is(true()))
+      @assertFalse(k%is_list())
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_value_kind_other
+
+   @test
+   subroutine test_value_kind_operators_and_names()
+      @assertTrue(INFO_VALUE_REAL == INFO_VALUE_REAL)
+      @assertTrue(INFO_VALUE_REAL /= INFO_VALUE_REAL_LIST)
+      @assertFalse(INFO_VALUE_REAL == INFO_VALUE_INTEGER)
+      @assertEqual('string list', INFO_VALUE_STRING_LIST%to_string())
+      @assertEqual('absent', INFO_VALUE_ABSENT%to_string())
+      @assertEqual('other', INFO_VALUE_OTHER%to_string())
+   end subroutine test_value_kind_operators_and_names
+
+   ! ---- key enumeration ------------------------------------------
+
+   @test
+   subroutine test_get_keys_under_prefix()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(StringVector) :: keys
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a/b/c', value=1, _RC)
+      call MAPL_InfoSet(info, key='a/b/d', value='x', _RC)
+      call MAPL_InfoSet(info, key='a/b/e/f', value=1.0, _RC)
+      call MAPL_InfoSet(info, key='a/z', value=1, _RC)
+
+      call MAPL_InfoGetKeys(info, 'a/b', keys, _RC)
+
+      ! immediate children only, unqualified, in any order
+      @assertEqual(3, keys%size())
+      @assertTrue(contains_key(keys, 'c'))
+      @assertTrue(contains_key(keys, 'd'))
+      @assertTrue(contains_key(keys, 'e'))
+      @assertFalse(contains_key(keys, 'f'))
+
+      call MAPL_InfoGetKeys(info, 'a', keys, _RC)
+      @assertEqual(2, keys%size())
+      @assertTrue(contains_key(keys, 'b'))
+      @assertTrue(contains_key(keys, 'z'))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_get_keys_under_prefix
+
+   @test
+   subroutine test_get_keys_under_shared_namespace_of_state()
+      type(ESMF_State) :: state
+      type(ESMF_Info) :: state_info
+      integer :: status
+      type(StringVector) :: keys
+
+      state = ESMF_StateCreate(name='export', _RC)
+      call MAPL_InfoSetShared(state, key='toy/scaling', value=2.0_ESMF_KIND_R8, _RC)
+      call MAPL_InfoSetShared(state, key='toy/offset', value=1.0_ESMF_KIND_R8, _RC)
+      call MAPL_InfoSetShared(state, key='other/x', value=1, _RC)
+
+      call ESMF_InfoGetFromHost(state, state_info, _RC)
+      call MAPL_InfoGetKeys(state_info, INFO_SHARED_NAMESPACE // '/toy', keys, _RC)
+
+      @assertEqual(2, keys%size())
+      @assertTrue(contains_key(keys, 'scaling'))
+      @assertTrue(contains_key(keys, 'offset'))
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_get_keys_under_shared_namespace_of_state
+
+   @test
+   subroutine test_get_keys_absent_prefix_is_empty()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(StringVector) :: keys
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a/b', value=1, _RC)
+
+      call MAPL_InfoGetKeys(info, 'nokey', keys, _RC)
+      @assertEqual(0, keys%size())
+
+      call MAPL_InfoGetKeys(info, 'a/nokey/deeper', keys, _RC)
+      @assertEqual(0, keys%size())
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_get_keys_absent_prefix_is_empty
+
+   @test
+   subroutine test_get_keys_on_empty_info_and_value_prefix()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(StringVector) :: keys
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoGetKeys(info, '', keys, _RC)
+      @assertEqual(0, keys%size())
+
+      call MAPL_InfoSet(info, key='a/b', value=1, _RC)
+      call MAPL_InfoSet(info, key='a/l', values=[1, 2, 3], _RC)
+
+      ! a prefix that holds a value has no children
+      call MAPL_InfoGetKeys(info, 'a/b', keys, _RC)
+      @assertEqual(0, keys%size())
+      call MAPL_InfoGetKeys(info, 'a/l', keys, _RC)
+      @assertEqual(0, keys%size())
+
+      ! empty prefix = top level
+      call MAPL_InfoGetKeys(info, '', keys, _RC)
+      @assertEqual(1, keys%size())
+      @assertTrue(contains_key(keys, 'a'))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_get_keys_on_empty_info_and_value_prefix
+
+   ! ---- investigated edge cases ------------------------------------
+
+   @test
+   ! A trailing '/' on the prefix is ignored.
+   subroutine test_get_keys_trailing_slash_in_prefix()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(StringVector) :: keys
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a/b/c', value=1, _RC)
+      call MAPL_InfoSet(info, key='a/b/d', value=2, _RC)
+
+      call MAPL_InfoGetKeys(info, 'a/b/', keys, _RC)
+
+      @assertEqual(2, keys%size())
+      @assertTrue(contains_key(keys, 'c'))
+      @assertTrue(contains_key(keys, 'd'))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_get_keys_trailing_slash_in_prefix
+
+   @test
+   ! Reading a scalar string through the list-returning getter
+   ! succeeds and silently returns it as a one-element list; it does
+   ! not fail cleanly.  A scalar value therefore wrongly satisfies a
+   ! declared-list type check built on this getter.
+   subroutine test_string_list_getter_on_scalar_value()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(StringVector) :: v
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a', value='hello', _RC)
+      call MAPL_InfoGet(info, key='a', values=v, _RC)
+
+      @assertEqual(1, v%size())
+      @assertEqual('hello', v%of(1))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_string_list_getter_on_scalar_value
+
+   @test
+   ! Unlike the string-list getter, a scalar real value read through
+   ! the r8_1d getter fails cleanly instead of silently succeeding as
+   ! a one-element array.
+   subroutine test_r8_1d_getter_on_scalar_value_fails()
+      type(ESMF_Info) :: info
+      integer :: status
+      real(kind=ESMF_KIND_R8), allocatable :: r(:)
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a', value=2.5_ESMF_KIND_R8, _RC)
+      call MAPL_InfoGet(info, key='a', values=r, rc=status)
+
+      @assertExceptionRaised()
+      @assertTrue(status /= _SUCCESS)
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_r8_1d_getter_on_scalar_value_fails
+
+   @test
+   ! Unlike the string-list getter, a scalar integer value read
+   ! through the i4_1d getter fails cleanly instead of silently
+   ! succeeding as a one-element array.
+   subroutine test_i4_1d_getter_on_scalar_value_fails()
+      type(ESMF_Info) :: info
+      integer :: status
+      integer(kind=ESMF_KIND_I4), allocatable :: i(:)
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a', value=7_ESMF_KIND_I4, _RC)
+      call MAPL_InfoGet(info, key='a', values=i, rc=status)
+
+      @assertExceptionRaised()
+      @assertTrue(status /= _SUCCESS)
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_i4_1d_getter_on_scalar_value_fails
+
+   @test
+   ! An empty array carries no element type for ESMF to inspect, so
+   ! MAPL_InfoGetValueKind reports it as OTHER, not as a list kind.
+   ! See the module header for the conformance-checker implication.
+   subroutine test_value_kind_empty_array_is_other()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(InfoValueKind) :: k
+      integer(kind=ESMF_KIND_I4) :: empty(0)
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a', values=empty, _RC)
+      call MAPL_InfoGetValueKind(info, 'a', k, _RC)
+
+      @assert_that(k == INFO_VALUE_OTHER, is(true()))
+      @assertFalse(k%is_list())
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_value_kind_empty_array_is_other
+
+   @test
+   ! A key name longer than ESMF_MAXSTR is silently truncated (to
+   ! ESMF_MAXSTR characters) by info_get_keys's own fixed-length
+   ! buffer, not rejected with an error.
+   subroutine test_get_keys_name_longer_than_maxstr_is_truncated()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(StringVector) :: keys
+      character(len=ESMF_MAXSTR+50) :: long_name
+
+      long_name = repeat('x', len(long_name))
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a/'//long_name, value=1, _RC)
+
+      call MAPL_InfoGetKeys(info, 'a', keys, _RC)
+
+      @assertEqual(1, keys%size())
+      @assertEqual(ESMF_MAXSTR, len_trim(keys%of(1)))
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_get_keys_name_longer_than_maxstr_is_truncated
+
+   ! ---- wrong-kind and absent-key coverage ------------------------
+
+   @test
+   subroutine test_info_r8_as_i4_fails()
+      type(ESMF_Info) :: info
+      integer :: status
+      integer(kind=ESMF_KIND_I4) :: i
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a', value=1.5_ESMF_KIND_R8, _RC)
+      call MAPL_InfoGet(info, key='a', value=i, rc=status)
+
+      @assertExceptionRaised()
+      @assertTrue(status /= _SUCCESS)
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_info_r8_as_i4_fails
+
+   @test
+   ! A scalar string read as r8_1d mismatches in both shape (scalar
+   ! vs. array) and element kind at once.
+   subroutine test_info_string_as_r8_1d_fails()
+      type(ESMF_Info) :: info
+      integer :: status
+      real(kind=ESMF_KIND_R8), allocatable :: r(:)
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a', value='2.5', _RC)
+      call MAPL_InfoGet(info, key='a', values=r, rc=status)
+
+      @assertExceptionRaised()
+      @assertTrue(status /= _SUCCESS)
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_info_string_as_r8_1d_fails
+
+   @test
+   ! A string-array value read as r8_1d isolates a pure element-kind
+   ! mismatch: both sides are lists, only the element type differs.
+   subroutine test_info_string_list_as_r8_1d_fails()
+      type(ESMF_Info) :: info
+      integer :: status
+      real(kind=ESMF_KIND_R8), allocatable :: r(:)
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a', values=['2.5', '3.5'], _RC)
+      call MAPL_InfoGet(info, key='a', values=r, rc=status)
+
+      @assertExceptionRaised()
+      @assertTrue(status /= _SUCCESS)
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_info_string_list_as_r8_1d_fails
+
+   @test
+   subroutine test_info_i4_1d_as_string_list_fails()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(StringVector) :: v
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a', values=[1_ESMF_KIND_I4, 2_ESMF_KIND_I4], _RC)
+      call MAPL_InfoGet(info, key='a', values=v, rc=status)
+
+      @assertExceptionRaised()
+      @assertTrue(status /= _SUCCESS)
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_info_i4_1d_as_string_list_fails
+
+   @test
+   subroutine test_info_r8_1d_absent_key_fails()
+      type(ESMF_Info) :: info
+      integer :: status
+      real(kind=ESMF_KIND_R8), allocatable :: r(:)
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoGet(info, key='nokey', values=r, rc=status)
+
+      @assertExceptionRaised()
+      @assertTrue(status /= _SUCCESS)
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_info_r8_1d_absent_key_fails
+
+   @test
+   subroutine test_state_shared_i4_absent_key_fails()
+      type(ESMF_State) :: state
+      integer :: status
+      integer(kind=ESMF_KIND_I4) :: i
+
+      state = ESMF_StateCreate(name='export', _RC)
+      call MAPL_InfoGetShared(state, key='nokey', value=i, rc=status)
+
+      ! one exception per level of rc propagation: the assertion
+      ! inside the raw getter, then the verify where the shared
+      ! wrapper's own call re-raises it
+      @assertExceptionRaised()
+      @assertExceptionRaised()
+      @assertTrue(status /= _SUCCESS)
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_state_shared_i4_absent_key_fails
+
+   @test
+   subroutine test_state_shared_r8_as_i4_fails()
+      type(ESMF_State) :: state
+      integer :: status
+      integer(kind=ESMF_KIND_I4) :: i
+
+      state = ESMF_StateCreate(name='export', _RC)
+      call MAPL_InfoSetShared(state, key='a', value=2.5_ESMF_KIND_R8, _RC)
+      call MAPL_InfoGetShared(state, key='a', value=i, rc=status)
+
+      ! one exception per level of rc propagation: the kind-mismatch
+      ! failure from ESMF, then the verify where the shared wrapper's
+      ! own call re-raises it
+      @assertExceptionRaised()
+      @assertExceptionRaised()
+      @assertTrue(status /= _SUCCESS)
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_state_shared_r8_as_i4_fails
+
+   ! ---- State- and item-scoped stored-type query / key enumeration -
+
+   @test
+   subroutine test_value_kind_state_shared()
+      type(ESMF_State) :: state
+      integer :: status
+      type(InfoValueKind) :: k
+
+      state = ESMF_StateCreate(name='export', _RC)
+      call MAPL_InfoSetShared(state, key='a', value=1_ESMF_KIND_I4, _RC)
+
+      call MAPL_InfoGetValueKind(state, key='a', value_kind=k, _RC)
+      @assert_that(k == INFO_VALUE_INTEGER, is(true()))
+
+      call MAPL_InfoGetValueKind(state, key='nokey', value_kind=k, _RC)
+      @assert_that(k == INFO_VALUE_ABSENT, is(true()))
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_value_kind_state_shared
+
+   @test
+   subroutine test_value_kind_stateitem_shared()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      type(InfoValueKind) :: k
+
+      state = ESMF_StateCreate(name='export', _RC)
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetShared(state, short_name='f', key='a', value='hello', _RC)
+
+      call MAPL_InfoGetValueKind(state, short_name='f', key='a', value_kind=k, _RC)
+      @assert_that(k == INFO_VALUE_STRING, is(true()))
+
+      call MAPL_InfoGetValueKind(state, short_name='f', key='nokey', value_kind=k, _RC)
+      @assert_that(k == INFO_VALUE_ABSENT, is(true()))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_value_kind_stateitem_shared
+
+   @test
+   subroutine test_get_keys_state_shared()
+      type(ESMF_State) :: state
+      integer :: status
+      type(StringVector) :: keys
+
+      state = ESMF_StateCreate(name='export', _RC)
+      call MAPL_InfoSetShared(state, key='toy/scaling', value=2.0_ESMF_KIND_R8, _RC)
+      call MAPL_InfoSetShared(state, key='toy/offset', value=1.0_ESMF_KIND_R8, _RC)
+
+      call MAPL_InfoGetKeys(state, key='toy', keys=keys, _RC)
+
+      @assertEqual(2, keys%size())
+      @assertTrue(contains_key(keys, 'scaling'))
+      @assertTrue(contains_key(keys, 'offset'))
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_get_keys_state_shared
+
+   @test
+   subroutine test_get_keys_stateitem_shared()
+      type(ESMF_State) :: state
+      type(ESMF_Field) :: field
+      integer :: status
+      type(StringVector) :: keys
+
+      state = ESMF_StateCreate(name='export', _RC)
+      field = ESMF_FieldEmptyCreate(name='f', _RC)
+      call ESMF_StateAdd(state, [field], _RC)
+
+      call MAPL_InfoSetShared(state, short_name='f', key='toy/scaling', value=2.0_ESMF_KIND_R8, _RC)
+      call MAPL_InfoSetShared(state, short_name='f', key='toy/offset', value=1.0_ESMF_KIND_R8, _RC)
+
+      call MAPL_InfoGetKeys(state, short_name='f', key='toy', keys=keys, _RC)
+
+      @assertEqual(2, keys%size())
+      @assertTrue(contains_key(keys, 'scaling'))
+      @assertTrue(contains_key(keys, 'offset'))
+
+      call ESMF_FieldDestroy(field, _RC)
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_get_keys_stateitem_shared
+
+   @test
+   ! An empty key argument lists every key directly under the shared
+   ! namespace, the same as naming no sub-prefix.
+   subroutine test_get_keys_state_shared_empty_key()
+      type(ESMF_State) :: state
+      integer :: status
+      type(StringVector) :: keys
+
+      state = ESMF_StateCreate(name='export', _RC)
+      call MAPL_InfoSetShared(state, key='a', value=1, _RC)
+      call MAPL_InfoSetShared(state, key='b', value=2, _RC)
+
+      call MAPL_InfoGetKeys(state, key='', keys=keys, _RC)
+
+      @assertEqual(2, keys%size())
+      @assertTrue(contains_key(keys, 'a'))
+      @assertTrue(contains_key(keys, 'b'))
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_get_keys_state_shared_empty_key
+
+   @test
+   ! A key argument that already starts with '/' (so concat() does
+   ! not insert its own separator) combined with a trailing '/' must
+   ! still enumerate correctly.
+   subroutine test_get_keys_state_shared_leading_and_trailing_slash()
+      type(ESMF_State) :: state
+      integer :: status
+      type(StringVector) :: keys
+
+      state = ESMF_StateCreate(name='export', _RC)
+      call MAPL_InfoSetShared(state, key='toy/scaling', value=2.0_ESMF_KIND_R8, _RC)
+      call MAPL_InfoSetShared(state, key='toy/offset', value=1.0_ESMF_KIND_R8, _RC)
+
+      call MAPL_InfoGetKeys(state, key='/toy/', keys=keys, _RC)
+
+      @assertEqual(2, keys%size())
+      @assertTrue(contains_key(keys, 'scaling'))
+      @assertTrue(contains_key(keys, 'offset'))
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_get_keys_state_shared_leading_and_trailing_slash
+
+   @test
+   ! A prefix whose value is an empty array has no children either.
+   subroutine test_get_keys_on_empty_array_value_prefix()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(StringVector) :: keys
+      integer(kind=ESMF_KIND_I4) :: empty(0)
+
+      info = ESMF_InfoCreate(_RC)
+      call MAPL_InfoSet(info, key='a', values=empty, _RC)
+
+      call MAPL_InfoGetKeys(info, 'a', keys, _RC)
+      @assertEqual(0, keys%size())
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_get_keys_on_empty_array_value_prefix
+
+   @test
+   ! A null-valued prefix has no children either, and the lookup does
+   ! not fail just because ESMF reports no useful type information
+   ! for a null.
+   subroutine test_get_keys_on_null_value_prefix()
+      type(ESMF_Info) :: info
+      integer :: status
+      type(StringVector) :: keys
+
+      info = ESMF_InfoCreate(_RC)
+      call ESMF_InfoSetNULL(info, 'a', _RC)
+
+      call MAPL_InfoGetKeys(info, 'a', keys, _RC)
+      @assertEqual(0, keys%size())
+
+      call ESMF_InfoDestroy(info, _RC)
+   end subroutine test_get_keys_on_null_value_prefix
+
+   logical function contains_key(keys, name) result(found)
+      type(StringVector), intent(in) :: keys
+      character(*), intent(in) :: name
+
+      integer :: i
+
+      found = .false.
+      do i = 1, keys%size()
+         if (keys%of(i) == name) found = .true.
+      end do
+   end function contains_key
 
 end module Test_InfoUtilities
 
