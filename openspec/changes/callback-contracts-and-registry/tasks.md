@@ -54,7 +54,7 @@
   P4, P5. Depends on 1.x, 2.1, 4.1.
   (P5 is unlabeled in the spec; it is the design note's pairing P5,
   the spec scenario "Extra member and foreign attribute are accepted".)
-- [ ] 4.4 `MAPL_CallbackGetAttribute` (namespace from the State's
+- [x] 4.4 `MAPL_CallbackGetAttribute` (namespace from the State's
   recorded interface, host-argument member or State host, default,
   undeclared name lists legal names) and `MAPL_CallbackSetScalar` (name,
   type -- the declared writer is a documented convention, not checked,
