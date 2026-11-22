@@ -786,6 +786,64 @@ contains
       @assertEqual(0, status)
    end subroutine test_optional_weight_of_optional_argument_accepted
 
+   ! ---- units ----
+
+   @test
+   subroutine test_concrete_units_passed_through()
+      type(CallbackInterface) :: iface
+      type(CallbackArgumentSpec) :: spec
+      integer :: status
+
+      call iface%declare_argument('mixed_quantity', MAPL_STATEITEM_FIELD, &
+           dims='xyz', units='kg kg-1', rc=status)
+      @assertEqual(0, status)
+
+      spec = iface%get_argument('mixed_quantity', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%has_units())
+      @assertEqual('kg kg-1', spec%get_units())
+   end subroutine test_concrete_units_passed_through
+
+   ! Arguments sharing a placeholder are linked only by the shared raw
+   ! name; no agreement check runs here.
+   @test
+   subroutine test_two_arguments_share_a_placeholder_name()
+      type(CallbackInterface) :: iface
+      type(CallbackArgumentSpec) :: mixed_quantity, offset_value
+      integer :: status
+
+      call iface%declare_argument('mixed_quantity', MAPL_STATEITEM_FIELD, &
+           dims='xyz', units='$U', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('offset_value', MAPL_STATEITEM_FIELD, &
+           dims='xy', optional=.true., units='$U', rc=status)
+      @assertEqual(0, status)
+
+      mixed_quantity = iface%get_argument('mixed_quantity', rc=status)
+      @assertEqual(0, status)
+      offset_value = iface%get_argument('offset_value', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(mixed_quantity%has_units())
+      @assertTrue(offset_value%has_units())
+      @assertEqual('$U', mixed_quantity%get_units())
+      @assertEqual(mixed_quantity%get_units(), offset_value%get_units())
+   end subroutine test_two_arguments_share_a_placeholder_name
+
+   @test
+   subroutine test_argument_without_units_declared()
+      type(CallbackInterface) :: iface
+      type(CallbackArgumentSpec) :: spec
+      integer :: status
+
+      call iface%declare_argument('tracers', MAPL_STATEITEM_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+
+      spec = iface%get_argument('tracers', rc=status)
+      @assertEqual(0, status)
+      @assertFalse(spec%has_units())
+      @assertEqual('', spec%get_units())
+   end subroutine test_argument_without_units_declared
+
    ! ---- method argument options ----
 
    @test

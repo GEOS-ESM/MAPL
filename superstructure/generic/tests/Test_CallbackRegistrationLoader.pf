@@ -307,6 +307,118 @@ contains
       @assertEqual('dry_deposition_velocity', requires%of(1))
    end subroutine test_shipped_geos_file_loads_turbulent_mixing
 
+   ! A concrete units: value and a $-prefixed placeholder units: value
+   ! are both scalar YAML and load without any shape distinction; the
+   ! loader stores each argument's raw string unchanged.
+   @test
+   subroutine test_units_concrete_and_placeholder_load()
+      character(len=*), parameter :: FILENAME = 'turbulent_mixing_units.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      type(CallbackInterface) :: iface
+      type(CallbackArgumentSpec) :: mixed_quantity, air_mass, offset_value
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      ! mixed_quantity and offset_value share the placeholder $U;
+      ! air_mass (the weight) has a concrete unit.
+      content = &
+           'turbulent_mixing:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: turbulent mixing callback interface' // NL // &
+           '  arguments:' // NL // &
+           '    mixed_quantity:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xyz' // NL // &
+           '      units: $U' // NL // &
+           '    offset_value:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xy' // NL // &
+           '      optional: true' // NL // &
+           '      units: $U' // NL // &
+           '    air_mass:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xyz' // NL // &
+           '      extensive: true' // NL // &
+           '      weight_for: mixed_quantity' // NL // &
+           '      units: kg m-2' // NL // &
+           '  methods:' // NL // &
+           '    get:' // NL // &
+           '      mixed_quantity: out' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertEqual(0, status, 'load_callback_registration_file failed')
+      @assertTrue(found)
+
+      call delete_file(FILENAME)
+
+      iface = get_callback_interface_by_name('turbulent_mixing', rc=status)
+      @assertEqual(0, status)
+
+      mixed_quantity = iface%get_argument('mixed_quantity', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(mixed_quantity%has_units())
+      @assertEqual('$U', mixed_quantity%get_units())
+
+      offset_value = iface%get_argument('offset_value', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(offset_value%has_units())
+      @assertEqual('$U', offset_value%get_units())
+      @assertEqual(mixed_quantity%get_units(), offset_value%get_units(), &
+           'two arguments sharing a placeholder must load the same raw name')
+
+      air_mass = iface%get_argument('air_mass', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(air_mass%has_units())
+      @assertEqual('kg m-2', air_mass%get_units())
+   end subroutine test_units_concrete_and_placeholder_load
+
+   ! An argument with no units: key reports none.
+   @test
+   subroutine test_argument_without_units_key_loads_none()
+      character(len=*), parameter :: FILENAME = 'toy_scaling_no_units.yaml'
+      character(len=*), parameter :: NL = new_line('a')
+      character(len=:), allocatable :: content
+      type(CallbackInterface) :: iface
+      type(CallbackArgumentSpec) :: quantity
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+
+      content = &
+           'toy_scaling:' // NL // &
+           '  version: 1' // NL // &
+           '  summary: toy scaling callback interface' // NL // &
+           '  arguments:' // NL // &
+           '    quantity:' // NL // &
+           '      kind: field' // NL // &
+           '      dims: xyz' // NL // &
+           '  methods:' // NL // &
+           '    get:' // NL // &
+           '      quantity: out' // NL
+
+      call write_file(FILENAME, content)
+
+      call load_callback_registration_file(FILENAME, found, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(found)
+
+      call delete_file(FILENAME)
+
+      iface = get_callback_interface_by_name('toy_scaling', rc=status)
+      @assertEqual(0, status)
+
+      quantity = iface%get_argument('quantity', rc=status)
+      @assertEqual(0, status)
+      @assertFalse(quantity%has_units())
+      @assertEqual('', quantity%get_units())
+   end subroutine test_argument_without_units_key_loads_none
+
    @test
    subroutine test_unknown_key_in_argument_entry()
       character(len=*), parameter :: FILENAME = 'toy_scaling_unknown_key.yaml'
@@ -330,7 +442,7 @@ contains
       call write_file(FILENAME, content)
 
       call load_callback_registration_file(FILENAME, found, rc=status)
-      @assertExceptionRaised(trim(FILENAME) // ': interface toy_scaling: argument quantity: unknown key optinal; legal keys: kind, dims, optional, extensive, weight_for, description')
+      @assertExceptionRaised(trim(FILENAME) // ': interface toy_scaling: argument quantity: unknown key optinal; legal keys: kind, dims, optional, extensive, weight_for, units, description')
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
@@ -699,7 +811,7 @@ contains
       call write_file(FILENAME, content)
 
       call load_callback_registration_file(FILENAME, found, rc=status)
-      @assertExceptionRaised(trim(FILENAME) // ': interface invalid_interface: argument quantity: unknown key bogus_key; legal keys: kind, dims, optional, extensive, weight_for, description')
+      @assertExceptionRaised(trim(FILENAME) // ': interface invalid_interface: argument quantity: unknown key bogus_key; legal keys: kind, dims, optional, extensive, weight_for, units, description')
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')
       @assertExceptionRaised('status=1')

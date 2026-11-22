@@ -240,7 +240,7 @@ contains
    ! declaration unchanged, and a weight that is inconsistent with the
    ! argument it weights (see the module header).
    subroutine interface_declare_argument(this, name, expected_kind, dims, &
-        optional, extensive, weight_for, rc)
+        optional, extensive, weight_for, units, rc)
       class(CallbackInterface), target, intent(inout) :: this
       character(*), intent(in) :: name
       type(MAPL_StateItem_Flag), intent(in) :: expected_kind
@@ -248,6 +248,7 @@ contains
       logical, optional, intent(in) :: optional
       logical, optional, intent(in) :: extensive
       character(*), optional, intent(in) :: weight_for
+      character(*), optional, intent(in) :: units
       integer, optional, intent(out) :: rc
 
       type(CallbackArgumentSpec) :: spec
@@ -259,7 +260,7 @@ contains
       _ASSERT(this%arguments%count(name) == 0, msg)
 
       spec = CallbackArgumentSpec(name, expected_kind, dims, optional, &
-           extensive, weight_for, rc=status)
+           extensive, weight_for, units, rc=status)
       _VERIFY(status)
 
       if (spec%has_weight_for()) then

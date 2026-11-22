@@ -16,12 +16,18 @@
 !
 ! The remaining attributes are optional and default to the meaning of a
 ! name-and-kind-only declaration: no gridded dims, required, not
-! extensive, not the weight of another argument. A field argument must
-! declare its gridded dims ('xyz' or 'xy'). weight_for is stored as a
-! name only; checking that it names a real argument needs the whole
-! interface. Read as "this argument is the weight for" the named one
-! (not "this argument's weight is"), matching how every other attribute
-! here describes the argument itself.
+! extensive, not the weight of another argument, no declared units.
+! A field argument must declare its gridded dims ('xyz' or 'xy').
+! weight_for is stored as a name only; checking that it names a real
+! argument needs the whole interface. Read as "this argument is the
+! weight for" the named one (not "this argument's weight is"), matching
+! how every other attribute here describes the argument itself.
+!
+! units is stored and returned as the raw YAML text, like dims and
+! weight_for: a value starting with '$' names a unit placeholder (e.g.
+! '$U'); any other value is a concrete, fixed unit. There is no separate
+! "is this a placeholder" query - a caller compares the leading character
+! itself, the same way it compares dims against 'xyz' directly.
 !------------------------------------------------------------------------------
 module mapl_CallbackArgumentSpec_mod
    use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag, MAPL_STATEITEM_FIELD, operator(==)
@@ -39,6 +45,7 @@ module mapl_CallbackArgumentSpec_mod
       logical :: optional = .false.
       logical :: extensive = .false.
       character(:), allocatable :: weight_for
+      character(:), allocatable :: units
    contains
       procedure :: get_name => argspec_get_name
       procedure :: get_expected_kind => argspec_get_expected_kind
@@ -48,6 +55,8 @@ module mapl_CallbackArgumentSpec_mod
       procedure :: is_extensive => argspec_is_extensive
       procedure :: has_weight_for => argspec_has_weight_for
       procedure :: get_weight_for => argspec_get_weight_for
+      procedure :: has_units => argspec_has_units
+      procedure :: get_units => argspec_get_units
    end type CallbackArgumentSpec
 
    interface CallbackArgumentSpec
@@ -56,13 +65,14 @@ module mapl_CallbackArgumentSpec_mod
 
 contains
 
-   function new_CallbackArgumentSpec(name, expected_kind, dims, optional, extensive, weight_for, rc) result(spec)
+   function new_CallbackArgumentSpec(name, expected_kind, dims, optional, extensive, weight_for, units, rc) result(spec)
       character(*), intent(in) :: name
       type(MAPL_StateItem_Flag), intent(in) :: expected_kind
       character(*), optional, intent(in) :: dims
       logical, optional, intent(in) :: optional
       logical, optional, intent(in) :: extensive
       character(*), optional, intent(in) :: weight_for
+      character(*), optional, intent(in) :: units
       integer, optional, intent(out) :: rc
       type(CallbackArgumentSpec) :: spec
 
@@ -80,6 +90,7 @@ contains
       if (present(optional)) spec%optional = optional
       if (present(extensive)) spec%extensive = extensive
       if (present(weight_for)) spec%weight_for = weight_for
+      if (present(units)) spec%units = units
 
       _RETURN(_SUCCESS)
    end function new_CallbackArgumentSpec
@@ -139,5 +150,21 @@ contains
       weight_for = ''
       if (allocated(this%weight_for)) weight_for = this%weight_for
    end function argspec_get_weight_for
+
+   logical function argspec_has_units(this) result(has_units)
+      class(CallbackArgumentSpec), intent(in) :: this
+
+      has_units = allocated(this%units)
+   end function argspec_has_units
+
+   ! Returns '' when no units were declared. A leading '$' marks a unit
+   ! placeholder name (e.g. '$U'); any other value is a concrete unit.
+   function argspec_get_units(this) result(units)
+      class(CallbackArgumentSpec), intent(in) :: this
+      character(:), allocatable :: units
+
+      units = ''
+      if (allocated(this%units)) units = this%units
+   end function argspec_get_units
 
 end module mapl_CallbackArgumentSpec_mod

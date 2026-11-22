@@ -99,9 +99,9 @@ module mapl_CallbackRegistrationLoader_mod
    character(MAX_KEY_LEN), parameter :: ENTRY_LEGAL_KEYS(8) = [ &
         'version      ', 'summary      ', 'description  ', 'arguments    ', &
         'methods      ', 'attributes   ', 'call_scalars ', 'rules        ']
-   character(MAX_KEY_LEN), parameter :: ARGUMENT_LEGAL_KEYS(6) = [ &
+   character(MAX_KEY_LEN), parameter :: ARGUMENT_LEGAL_KEYS(7) = [ &
         'kind         ', 'dims         ', 'optional     ', 'extensive    ', &
-        'weight_for   ', 'description  ']
+        'weight_for   ', 'units        ', 'description  ']
    character(MAX_KEY_LEN), parameter :: METHOD_ARG_LEGAL_KEYS(2) = [ &
         'access       ', 'put_flavour  ']
    character(MAX_KEY_LEN), parameter :: ATTRIBUTE_LEGAL_KEYS(7) = [ &
@@ -456,7 +456,7 @@ contains
       integer, optional, intent(out) :: rc
 
       type(MAPL_StateItem_Flag) :: expected_kind
-      character(:), allocatable :: kind_text, dims, weight_for, msg
+      character(:), allocatable :: kind_text, dims, weight_for, units, msg
       logical, allocatable :: optional_value, extensive_value
       logical :: kind_legal, is_defined
       integer :: status
@@ -503,9 +503,15 @@ contains
               _RC)
       end if
 
+      ! Interface units: is always scalar; a leading '$' names a placeholder.
+      is_defined = ESMF_HConfigIsDefined(one_cfg, keyString='units', _RC)
+      if (is_defined) then
+         units = ESMF_HConfigAsString(one_cfg, keyString='units', _RC)
+      end if
+
       call iface%declare_argument(name, expected_kind, dims=dims, &
            optional=optional_value, extensive=extensive_value, &
-           weight_for=weight_for, rc=status)
+           weight_for=weight_for, units=units, rc=status)
       if (status /= 0) then
          msg = trim(path) // ': interface ' // iface_name // &
               ': could not declare argument ' // name

@@ -94,4 +94,45 @@ contains
       @assertFalse(spec%is_optional())
    end subroutine test_weight_relation_retrievable
 
+   ! ---- units ----
+
+   @test
+   subroutine test_no_units_declared()
+      type(CallbackArgumentSpec) :: spec
+      integer :: status
+
+      spec = CallbackArgumentSpec('mixed_quantity', MAPL_STATEITEM_FIELD, dims='xyz', rc=status)
+      @assertEqual(0, status)
+      @assertFalse(spec%has_units())
+      @assertEqual('', spec%get_units())
+   end subroutine test_no_units_declared
+
+   @test
+   subroutine test_concrete_units_retrievable()
+      type(CallbackArgumentSpec) :: spec
+      integer :: status
+
+      spec = CallbackArgumentSpec('mixed_quantity', MAPL_STATEITEM_FIELD, dims='xyz', units='kg kg-1', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%has_units())
+      @assertEqual('kg kg-1', spec%get_units())
+   end subroutine test_concrete_units_retrievable
+
+   ! A placeholder name is just a '$'-prefixed string: the raw value is
+   ! returned unchanged, and a caller tells it apart from a concrete
+   ! unit by checking the leading character itself.
+   @test
+   subroutine test_placeholder_units_retrievable_as_raw_string()
+      type(CallbackArgumentSpec) :: spec
+      character(:), allocatable :: units
+      integer :: status
+
+      spec = CallbackArgumentSpec('mixed_quantity', MAPL_STATEITEM_FIELD, dims='xyz', units='$U', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(spec%has_units())
+      units = spec%get_units()
+      @assertEqual('$U', units)
+      @assertTrue(units(1:1) == '$')
+   end subroutine test_placeholder_units_retrievable_as_raw_string
+
 end module Test_CallbackArgumentSpec
