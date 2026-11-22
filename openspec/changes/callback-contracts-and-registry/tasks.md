@@ -63,7 +63,7 @@
 
 ## 5. Invoker-side execution (critical path; owner designs, subagents author)
 
-- [ ] 5.0 `CallbackArgumentSpec` gains a `units` field, interface side
+- [x] 5.0 `CallbackArgumentSpec` gains a `units` field, interface side
   only: scalar YAML key `units:` on an interface argument (`$<name>`
   declares a placeholder, any other value is a concrete unit --
   distinguish by the leading `$`, no HConfig-shape polymorphism needed
