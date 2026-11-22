@@ -357,7 +357,7 @@ track: each transform tested once, alone).
 **CB7-MockHandler / -MockFunction / -MockInvoker / -Expectations.**
 Per the `graph/callback-test-tools` delta. Configurable components
 follow `gridcomps/configurable/ConfigurableGridComp.F90`.
-- **Status:** not started (each)
+- **Status:** -MockHandler done, construction half only (`gridcomps/callback_test/ConfigurableCallbackHandler.F90`); not a GridComp wrapper with SetServices/lifecycle wiring, and recording is deferred to CB5-Execute as tasks.md 7.1 always specified. -MockFunction / -MockInvoker / -Expectations not started.
 
 **CB8-ToyComponents / -Matrix.** `toy_scaling` slice, P1-P5 and
 F1-F12.

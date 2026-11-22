@@ -97,11 +97,11 @@
 
 ## 7. Test tools
 
-- [ ] 7.1 Configurable Handler: callback States from the registry,
+- [x] 7.1 Configurable Handler: callback States from the registry,
   `state_attributes`, `member_attributes`, `geometry`, `supply`
   (constant, profile), `record` under `mapl_mock/` and as export fields,
   `non_negative`. Tests of construction and conformance without an
-  Invoker. Recording tests depend on 5.x.
+  Invoker. Recording tests depend on 5.x (not done here).
 - [ ] 7.2 Configurable Handler `supply: function` using the state
   arithmetic parser extended with `lon`, `lat`, `level`. Check first
   that `superstructure/state/ArthParser.md`'s parser fits; stop and
