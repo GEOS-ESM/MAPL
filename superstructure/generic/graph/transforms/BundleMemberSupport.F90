@@ -23,6 +23,7 @@ module mapl_BundleMemberSupport_mod
    use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc
    use mapl_VerticalAlignment_mod, only: VerticalAlignment
    use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundleSet
+   use mapl_UnownedGeom_mod, only: get_unowned_geom
    use mapl_esmf_info_keys_mod, only: INFO_INTERNAL_NAMESPACE, &
         KEY_INTERPOLATION_WEIGHTS
    use mapl_enums_api, only: MAPL_FieldBundleType_Flag, &
@@ -89,7 +90,8 @@ contains
       integer :: i
       integer :: n_in, n_out, num_levels
       type(ESMF_Field), allocatable :: members_in(:), members_out(:)
-      type(ESMF_Geom), allocatable :: geom_out
+      type(ESMF_Geom), allocatable :: bundle_geom
+      type(ESMF_Geom) :: geom_out
       type(ESMF_TypeKind_Flag) :: typekind_out
       character(:), allocatable :: units_out
       class(VerticalGrid), pointer :: vgrid_out
@@ -124,9 +126,12 @@ contains
       _RETURN_UNLESS(stale)
 
       call MAPL_FieldBundleGet(fb_in, fieldList=members_in, _RC)
-      call MAPL_FieldBundleGet(fb_out, geom=geom_out, typekind=typekind_out, &
-           units=units_out, _RC)
-      _ASSERT(allocated(geom_out), 'BundleMemberSupport: output bundle has no geom')
+      call MAPL_FieldBundleGet(fb_out, geom=bundle_geom, &
+           typekind=typekind_out, units=units_out, _RC)
+      _ASSERT(allocated(bundle_geom), 'BundleMemberSupport: output bundle has no geom')
+      ! Removing the old members can free the bundle's own geom, and members
+      ! on the factory geom are not reallocated by a later set of that geom.
+      call get_unowned_geom(bundle_geom, geom_out, _RC)
       call recreate_members(fb_out, members_in, geom_out, typekind_out, &
            num_levels, _RC)
 

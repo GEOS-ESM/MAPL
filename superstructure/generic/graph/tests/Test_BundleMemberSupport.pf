@@ -1,0 +1,83 @@
+! The members ensure_output_members creates sit on the output bundle's
+! factory geom, not on a wrapper the bundle owns: ESMF frees that wrapper
+! when the bundle goes empty, and ESMF_Geom equality is handle identity, so a
+! member on a wrapper would be reallocated by a later MAPL_FieldBundleSet of
+! the factory geom.
+module Test_BundleMemberSupport
+   use mapl_BundleMemberSupport_mod, only: ensure_output_members
+   use mapl_field_bundle_api, only: MAPL_FieldBundleGet, MAPL_FieldBundleSet
+   use mapl_enums_api, only: MAPL_FIELDBUNDLETYPE_VECTOR
+   use StateItemTestSupport_mod, only: make_latlon_geom, make_test_member
+   use StateItemTestSupport_mod, only: make_test_bundle
+   use ESMF, only: ESMF_Field, ESMF_FieldBundle, ESMF_FieldGet, ESMF_Geom
+   use ESMF, only: ESMF_KIND_R4, operator(==)
+   use iso_c_binding, only: c_loc, c_intptr_t
+   use funit
+   implicit none
+
+contains
+
+   @test
+   subroutine test_created_members_are_on_factory_geom()
+      type(ESMF_Geom) :: geom_in, geom_out, member_geom
+      type(ESMF_FieldBundle) :: fb_in, fb_out
+      type(ESMF_Field) :: u, v
+      type(ESMF_Field), allocatable :: members(:)
+      integer(c_intptr_t) :: before(2), after(2)
+      logical :: recreated
+      integer :: status, i
+
+      geom_in = make_latlon_geom(12, 13, rc=status)
+      @assertEqual(0, status)
+      geom_out = make_latlon_geom(24, 13, rc=status)
+      @assertEqual(0, status)
+      u = make_test_member(geom_in, 'u', 1., rc=status)
+      @assertEqual(0, status)
+      v = make_test_member(geom_in, 'v', 2., rc=status)
+      @assertEqual(0, status)
+      fb_in = make_test_bundle(geom_in, MAPL_FIELDBUNDLETYPE_VECTOR, &
+           [u, v], rc=status)
+      @assertEqual(0, status)
+      fb_out = make_test_bundle(geom_out, MAPL_FIELDBUNDLETYPE_VECTOR, &
+           [ESMF_Field ::], rc=status)
+      @assertEqual(0, status)
+
+      call ensure_output_members(fb_in, fb_out, recreated, rc=status)
+      @assertEqual(0, status)
+      @assertTrue(recreated)
+
+      call MAPL_FieldBundleGet(fb_out, fieldList=members, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2, size(members))
+      do i = 1, size(members)
+         call ESMF_FieldGet(members(i), geom=member_geom, rc=status)
+         @assertEqual(0, status)
+         @assertTrue(member_geom == geom_out)
+         before(i) = data_address(members(i))
+      end do
+
+      call MAPL_FieldBundleSet(fb_out, geom=geom_out, rc=status)
+      @assertEqual(0, status)
+      deallocate(members)
+      call MAPL_FieldBundleGet(fb_out, fieldList=members, rc=status)
+      @assertEqual(0, status)
+      do i = 1, size(members)
+         after(i) = data_address(members(i))
+      end do
+      @assertTrue(all(before == after), 'members were reallocated')
+   end subroutine test_created_members_are_on_factory_geom
+
+   function data_address(field) result(address)
+      integer(c_intptr_t) :: address
+      type(ESMF_Field), intent(in) :: field
+
+      real(kind=ESMF_KIND_R4), pointer :: x(:,:)
+      integer :: status
+
+      address = 0
+      call ESMF_FieldGet(field, farrayPtr=x, rc=status)
+      @assertEqual(0, status)
+      address = transfer(c_loc(x(lbound(x, 1), lbound(x, 2))), address)
+   end function data_address
+
+end module Test_BundleMemberSupport

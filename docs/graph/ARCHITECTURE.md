@@ -37,6 +37,9 @@ DEFERRED-resolution paragraph in §1.1, and the Basic-grid statement in the
 vertical-regridding limitation in §3, all against
 `VerticalOrientationCharacteristic.F90`, `StateItemDescriptor.F90`,
 `VerticalColumnRegridTransform.F90` and `make_characteristics.F90`.
+Bundle-geom ownership (`UnownedGeom.F90`, harvest, `BundleMemberSupport.F90`,
+`HorizontalBundleRegridTransform.F90`) verified against the source on
+2026-11-21.
 
 ## 1. Module map (`superstructure/generic/`)
 
@@ -56,7 +59,8 @@ building (including the vertical-grid step that also covers orientation, the
 VECTOR vertical and orientation chains, and that a BRACKET's vertical link is
 a Field link),
 `Test_HorizontalBundleRegridTransform.pf` for
-the bundle-only regrid, and `Test_UnitsConverterTransform.pf` and
+the bundle-only regrid, `Test_BundleMemberSupport.pf` for the geom created
+output members sit on, and `Test_UnitsConverterTransform.pf` and
 `Test_TypeKindConverterTransform.pf`, which cover Fields and bundles).
 
 | File | Responsibility |
@@ -76,6 +80,7 @@ the bundle-only regrid, and `Test_UnitsConverterTransform.pf` and
 | `MethodInvocation*.F90`, `GridCompMethodInvocation.F90`, `StateMethodInvocation.F90`, `GridCompDriverPhaseInvoker.F90` | Method invocation layer |
 | `callback/*` | Callback interface/method/state-binding data model and registry |
 | `GraphExport.F90` | Graph-neutral DOT/JSON topology export |
+| `UnownedGeom.F90` | `get_unowned_geom(geom, unowned, rc)`: for a geom read from an `ESMF_FieldBundle` (the bundle's own wrapper, freed by ESMF when the bundle goes empty), the `GeomManager` geom with the same MAPL geom id and an equal grid (`ESMF_GridMatch` EXACT or better, since ids minted outside the manager can coincide), else a new wrapper of the grid or mesh. Used wherever the graph keeps a bundle's geom: harvest, `ensure_output_members`, `HorizontalBundleRegridTransform`'s cached regridder geoms |
 | `GraphOwnsUserStates.F90` | Test-only switch `set_graph_owns_user_states` (off by default); `graph_populates_user_states()` is the switch AND `GRAPH` mode, and every gate asks that, never the bare switch |
 | `GraphMode.F90` | `registry` / `graph` / `both` selector (`mapl_GraphMode_mod`) |
 | `StringSortUtilities.F90` | Shared `sorted_names` helper |
@@ -117,7 +122,10 @@ learns that the component grid is Basic), and
 `graphbuilder_harvest_deferred` (at the start of the connect hook) reads
 the geom, vertical stagger and quantity type/basis the component's own phase
 set on the item's exported or internal field/bundle, read-only (the item's
-handle is not bound); imports are skipped. An item with neither stays `DEFERRED`
+handle is not bound); imports are skipped. A bundle's geom is not kept as
+ESMF returns it (the bundle's own wrapper, which ESMF frees when the bundle
+goes empty): `get_unowned_geom` replaces it by the factory geom
+(`UnownedGeom.F90`). An item with neither stays `DEFERRED`
 and freeze reports it.
 A `DEFERRED` characteristic that nothing supplied is converted to
 `UNCHECKED` by `StateItemDescriptor%fallback_unsupplied_deferred` when
@@ -302,7 +310,11 @@ bundle regrid, the units and typekind converters and the vertical Transforms
 share. The horizontal, units and typekind callers use `ensure_output_members`:
 they create the output members at compute, one clone of each input member on
 the output bundle's geom and typekind, and again when the input member count
-differs; a created member takes the output bundle's typekind and units. The
+differs; a created member takes the output bundle's typekind and units, and
+is created on `get_unowned_geom` of the output bundle's geom (normally the
+factory geom: removing the old members can free the bundle's own geom, and a
+member on a wrapper would be reallocated by a later `MAPL_FieldBundleSet` of
+the factory geom, since `ESMF_Geom` equality is handle identity). The
 vertical callers use `ensure_vertical_output_members`: a member is also
 recreated when its level count, vertical grid, stagger or alignment is not the
 output bundle's (a graph-owned VECTOR export has members from connect, and a
@@ -401,6 +413,10 @@ chain links, and graph-mode state population, including bundles
 (`test_populate_state_*bundle*`) and the outer-state population tests
 `test_populate_outer_state_*`), `Test_GraphGeometryHook.pf`,
 `Test_ForwardNetworkErrors.pf` (the forward-producer error message),
+`Test_GraphAddressStability.pf` (with the graph owning the user states, the
+data address of a BRACKET-to-FIELD import, of a regridded BRACKET-to-FIELD
+import and of the members of a regridded VECTOR import stays fixed over run
+steps; fixture `graph-scenarios/bracket_time_interp`),
 `Test_GraphBuilder_ConnectionResolution.pf` (includes the Wildcard and
 callback paths with a qualified source component such as `MID/SRC`: members
 and descendants bind with names relative to the source, a missing source

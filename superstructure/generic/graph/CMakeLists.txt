@@ -18,6 +18,7 @@ target_sources(MAPL.generic PRIVATE
   StateItemDescriptor.F90
   StateItemNode.F90
   GeomProxyField.F90
+  UnownedGeom.F90
 
   PortSpec.F90
   containers/PortSpecMap.F90

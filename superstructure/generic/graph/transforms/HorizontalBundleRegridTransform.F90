@@ -35,6 +35,7 @@ module mapl_HorizontalBundleRegridTransform_mod
    use mapl_RegridderManager_mod, only: RegridderManager, get_regridder_manager
    use mapl_geom_api, only: mapl_SameGeom, mapl_GeomGetId
    use mapl_GeomId_mod, only: GeomId
+   use mapl_UnownedGeom_mod, only: get_unowned_geom
    use mapl_BundleMemberSupport_mod, only: ensure_output_members, &
         copy_vector_basis, copy_interpolation_weights
    use mapl_field_bundle_api, only: MAPL_FieldBundleGet
@@ -152,6 +153,7 @@ contains
       type(RegridderSpec) :: spec
       type(RegridderManager), pointer :: regridder_manager
       class(Regridder), pointer :: new_regrdr
+      type(ESMF_Geom) :: src_geom, dst_geom
       logical :: changed
 
       changed = .not. associated(this%regrdr)
@@ -163,16 +165,21 @@ contains
       end if
       _RETURN_UNLESS(changed)
 
+      ! The regridder manager and this transform keep the geoms past this
+      ! call, and a bundle's own geom is freed when the bundle goes empty.
+      call get_unowned_geom(geom_in, src_geom, _RC)
+      call get_unowned_geom(geom_out, dst_geom, _RC)
+
       ! Cache nothing until the lookup succeeds, so a failed lookup cannot
       ! leave the old regridder paired with the new geoms.
       regridder_manager => get_regridder_manager()
-      spec = RegridderSpec(this%regridder_param, geom_in, geom_out, &
+      spec = RegridderSpec(this%regridder_param, src_geom, dst_geom, &
            typekind_in=typekind_in, typekind_out=typekind_out)
       new_regrdr => regridder_manager%get_regridder(spec, _RC)
 
       this%regrdr => new_regrdr
-      this%src_geom = geom_in
-      this%dst_geom = geom_out
+      this%src_geom = src_geom
+      this%dst_geom = dst_geom
       this%typekind_in = typekind_in
       this%typekind_out = typekind_out
       this%has_result = .false.

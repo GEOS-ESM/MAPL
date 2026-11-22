@@ -86,6 +86,9 @@ module Test_GraphGeometryHook
    use mapl_StateItemCharacteristicKind_mod, only: GEOMETRY_CHARACTERISTIC_KIND
    use mapl_CharacteristicStatus_mod, only: CHARACTERISTIC_STATUS_UNCHECKED
    use mapl_geom_api, only: mapl_SameGeom
+   use mapl_geom_api, only: mapl_GeomGetId, mapl_MaplGeom, mapl_GeomManager, &
+        mapl_get_geom_manager
+   use mapl_GeomId_mod, only: operator(==)
    use ESMF_TestMethod_mod
    use esmf
    use pfunit
@@ -655,6 +658,104 @@ contains
       call set_graph_mode(GRAPH_MODE_REGISTRY)
       _UNUSED_DUMMY(this)
    end subroutine test_harvest_fills_deferred_from_realized_field
+
+   ! ESMF frees a bundle's own geom wrapper when the bundle goes empty, so a
+   ! geom harvested from a bundle must not be that wrapper: the node keeps the
+   ! factory geom, which is still valid after every member is removed.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_harvested_bundle_geom_outlives_emptied_bundle(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: gc
+      type(OuterMetaComponent), pointer :: meta
+      type(StateItemDescriptor), pointer :: descriptor
+      type(GriddedComponentDriver), pointer :: driver
+      type(MultiState) :: states
+      type(ESMF_State) :: export_state
+      type(ESMF_Geom) :: factory_geom, bundle_geom
+      type(ESMF_Geom), allocatable :: harvested
+      type(ESMF_Field) :: field
+      type(ESMF_FieldBundle) :: bundle
+      type(ComponentSpec), pointer :: comp_spec
+      type(VariableSpec) :: var_spec
+      class(StateItemCharacteristic), allocatable :: characteristic
+      type(GeomId) :: factory_id, harvested_id
+      logical :: has_id
+      integer :: field_count
+      type(GraphBuilder) :: gb
+      integer :: status
+
+      call set_graph_mode(GRAPH_MODE_GRAPH)
+      call make_outer_meta('harvest_bundle_geom', gc, meta, _RC)
+      var_spec%state_intent = ESMF_STATEINTENT_EXPORT
+      var_spec%short_name = 'T'
+      var_spec%vertical_stagger = VERTICAL_STAGGER_NONE
+      var_spec%quantity_type = QUANTITY_TEMPERATURE
+      comp_spec => meta%get_component_spec()
+      call comp_spec%add_var_spec(var_spec)
+      call gb%advertise(meta, status)
+      @assert_that(status, is(0))
+      call find_descriptor(meta, 'T', ESMF_STATEINTENT_EXPORT, descriptor, _RC)
+
+      factory_geom = make_factory_geom(_RC)
+      factory_id = mapl_GeomGetId(factory_geom, _RC)
+      field = ESMF_FieldCreate(geom=factory_geom, typekind=ESMF_TYPEKIND_R4, &
+           name='F', _RC)
+      bundle = ESMF_FieldBundleCreate(fieldList=[field], name='T', _RC)
+      driver => meta%get_user_gc_driver()
+      states = driver%get_states()
+      export_state = states%exportState
+      call ESMF_StateAdd(export_state, fieldbundleList=[bundle], _RC)
+
+      call gb%harvest_deferred(meta, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, size(descriptor%get_unresolved_kinds()))
+      call descriptor%get_characteristic(GEOMETRY_CHARACTERISTIC_KIND, &
+           characteristic, _RC)
+      select type (characteristic)
+      class is (GeometryCharacteristic)
+         @assertTrue(characteristic%has_geom())
+         harvested = characteristic%get_geom()
+      class default
+         @assertTrue(.false.)
+         return
+      end select
+
+      call ESMF_FieldBundleGet(bundle, geom=bundle_geom, _RC)
+      call ESMF_FieldBundleRemove(bundle, ['F'], _RC)
+      call ESMF_FieldBundleGet(bundle, fieldCount=field_count, _RC)
+      @assertEqual(0, field_count)
+
+      harvested_id = mapl_GeomGetId(harvested, isPresent=has_id, _RC)
+      @assertTrue(has_id)
+      @assertTrue(harvested_id == factory_id)
+      ! ESMF_Geom equality is handle identity.
+      @assertFalse(harvested == bundle_geom)
+      @assertTrue(harvested == factory_geom)
+
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+      _UNUSED_DUMMY(this)
+   end subroutine test_harvested_bundle_geom_outlives_emptied_bundle
+
+   function make_factory_geom(rc) result(geom)
+      type(ESMF_Geom) :: geom
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_HConfig) :: hconfig
+      type(mapl_MaplGeom), pointer :: mapl_geom
+      type(mapl_GeomManager), pointer :: geom_mgr
+
+      geom_mgr => mapl_get_geom_manager()
+      hconfig = ESMF_HConfigCreate(content= &
+           '{class: latlon, im_world: 10, jm_world: 11, pole: PC, dateline: DC}', &
+           _RC)
+      mapl_geom => geom_mgr%get_mapl_geom(hconfig, _RC)
+      geom = mapl_geom%get_geom()
+      call ESMF_HConfigDestroy(hconfig, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_factory_geom
 
    ! An import is never harvested: its geometry comes from the connected
    ! export, even when the import state holds a field of that name.

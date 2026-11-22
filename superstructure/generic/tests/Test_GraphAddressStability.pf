@@ -1,0 +1,296 @@
+#include "MAPL_TestErr.h"
+#include "unused_dummy.H"
+
+! With the graph owning the user states, a consumer that saves the data
+! pointer of an import during initialization must still see that storage
+! after any number of run steps: the graph Transforms write into the output
+! they were given and never reallocate it while the input is unchanged.
+!
+! A Field import is complete at initialization. The members of a regridded
+! VECTOR import are created by the first compute, so their addresses are
+! taken after the first step.
+module Test_GraphAddressStability
+   use mapl_Generic_mod
+   use mapl_GenericPhases_mod
+   use mapl_MultiState_mod
+   use mapl_OuterMetaComponent_mod
+   use mapl_GraphScenarioBootstrap_mod, only: build_scenario_tree
+   use mapl_GraphMode_mod, only: set_graph_mode, GRAPH_MODE_GRAPH, &
+        GRAPH_MODE_REGISTRY
+   use mapl_ExtensionResolution_mod, only: set_materialize_extensions
+   use mapl_GraphOwnsUserStates_mod, only: set_graph_owns_user_states
+   use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
+   use esmf
+   use nuopc
+   use iso_c_binding, only: c_loc, c_intptr_t
+   use ESMF_TestMethod_mod
+   use pfunit
+   implicit none(type, external)
+
+   integer, parameter :: NUM_STEPS = 4
+
+contains
+
+   ! Reset unconditionally so a failed assertion cannot leak graph mode into later tests.
+   @before
+   subroutine setup(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call reset_graph_mode_switches()
+      _UNUSED_DUMMY(this)
+   end subroutine setup
+
+   @after
+   subroutine teardown(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call reset_graph_mode_switches()
+      _UNUSED_DUMMY(this)
+   end subroutine teardown
+
+   subroutine reset_graph_mode_switches()
+      call set_materialize_extensions(.false.)
+      call set_graph_owns_user_states(.false.)
+      call set_graph_mode(GRAPH_MODE_REGISTRY)
+   end subroutine reset_graph_mode_switches
+
+   ! BRACKET export into a FIELD import on the same grid: time
+   ! interpolation only.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_bracket_to_field_address_is_stable(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call check_field_import_is_stable( &
+           './graph-scenarios/bracket_time_interp/cap.yaml', 'B', 'B')
+      _UNUSED_DUMMY(this)
+   end subroutine test_bracket_to_field_address_is_stable
+
+   ! BRACKET export on another grid: a bundle regrid, then time
+   ! interpolation.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_regridded_bracket_address_is_stable(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      call check_field_import_is_stable( &
+           './scenarios/bracket_regrid/cap.yaml', 'B', 'B')
+      _UNUSED_DUMMY(this)
+   end subroutine test_regridded_bracket_address_is_stable
+
+   ! VECTOR export on another grid: `uv` is regridded, `wind` is regridded
+   ! and converted.
+   @test(type=ESMF_TestMethod, npes=[1])
+   subroutine test_regridded_vector_member_addresses_are_stable(this)
+      class(ESMF_TestMethod), intent(inout) :: this
+
+      integer :: status, step, i, k
+      type(ESMF_GridComp) :: outer_gc
+      type(ESMF_State) :: import_state, export_state, user_import
+      type(ESMF_Clock) :: clock
+      character(len=4), parameter :: names(2) = ['uv  ', 'wind']
+      integer(c_intptr_t) :: saved(2, 2), now(2, 2)
+      integer :: count
+      character(:), allocatable :: msg
+
+      call start_scenario('./scenarios/vector_regrid/cap.yaml', outer_gc, &
+           clock, import_state, export_state, _RC)
+      call get_user_import(outer_gc, 'B', user_import, _RC)
+
+      ! A regridded VECTOR/BRACKET chain link starts with no members - they
+      ! are created by the first compute, not by advertise.
+      do i = 1, size(names)
+         call member_addresses(user_import, trim(names(i)), count, &
+              now(:, i), _RC)
+         @assertEqual(0, count, trim(names(i)) // ' has members before the first compute')
+      end do
+
+      do step = 1, NUM_STEPS
+         call run_step(outer_gc, clock, import_state, export_state, _RC)
+         do i = 1, size(names)
+            call member_addresses(user_import, trim(names(i)), count, &
+                 now(:, i), _RC)
+            @assertEqual(2, count, trim(names(i)))
+         end do
+         if (step == 1) then
+            saved = now
+            cycle
+         end if
+         do i = 1, size(names)
+            do k = 1, 2
+               msg = trim(names(i)) // ' member moved'
+               @assertTrue(saved(k, i) == now(k, i), msg)
+            end do
+         end do
+      end do
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_regridded_vector_member_addresses_are_stable
+
+   subroutine check_field_import_is_stable(cap_file, child_name, item_name)
+      character(*), intent(in) :: cap_file
+      character(*), intent(in) :: child_name
+      character(*), intent(in) :: item_name
+
+      integer :: status, step
+      type(ESMF_GridComp) :: outer_gc
+      type(ESMF_State) :: import_state, export_state, user_import
+      type(ESMF_Clock) :: clock
+      integer(c_intptr_t) :: saved, now
+
+      call start_scenario(cap_file, outer_gc, clock, import_state, &
+           export_state, _RC)
+      call get_user_import(outer_gc, child_name, user_import, _RC)
+      saved = field_address(user_import, item_name, _RC)
+
+      do step = 1, NUM_STEPS
+         call run_step(outer_gc, clock, import_state, export_state, _RC)
+         now = field_address(user_import, item_name, _RC)
+         @assertTrue(saved == now, item_name // ' import moved')
+         ! The members hold 1 and 2 and the weights are 0.5 each.
+         @assertEqual(1.5, center_value(user_import, item_name), 1.e-5)
+      end do
+   end subroutine check_field_import_is_stable
+
+   subroutine start_scenario(cap_file, outer_gc, clock, import_state, &
+        export_state, rc)
+      character(*), intent(in) :: cap_file
+      type(ESMF_GridComp), intent(out) :: outer_gc
+      type(ESMF_Clock), intent(out) :: clock
+      type(ESMF_State), intent(out) :: import_state, export_state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta
+
+      call set_graph_mode(GRAPH_MODE_GRAPH, _RC)
+      call set_materialize_extensions(.true.)
+      call set_graph_owns_user_states(.true.)
+      call NUOPC_FieldDictionarySetup( &
+           filename='./scenarios/FieldDictionary.yml', _RC)
+      call build_scenario_tree(cap_file, outer_gc, outer_meta, clock=clock, &
+           importState=import_state, exportState=export_state, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine start_scenario
+
+   subroutine run_step(outer_gc, clock, import_state, export_state, rc)
+      type(ESMF_GridComp), intent(inout) :: outer_gc
+      type(ESMF_Clock), intent(inout) :: clock
+      type(ESMF_State), intent(inout) :: import_state, export_state
+      integer, optional, intent(out) :: rc
+
+      integer :: status, user_status
+
+      call ESMF_GridCompRun(outer_gc, importState=import_state, &
+           exportState=export_state, clock=clock, userRC=user_status, &
+           phase=GENERIC_RUN_USER, _RC)
+      _VERIFY(user_status)
+      call ESMF_ClockAdvance(clock, _RC)
+      call ESMF_GridCompRun(outer_gc, importState=import_state, &
+           exportState=export_state, clock=clock, userRC=user_status, &
+           phase=GENERIC_RUN_CLOCK_ADVANCE, _RC)
+      _VERIFY(user_status)
+
+      _RETURN(_SUCCESS)
+   end subroutine run_step
+
+   subroutine get_user_import(outer_gc, child_name, state, rc)
+      type(ESMF_GridComp), intent(inout) :: outer_gc
+      character(*), intent(in) :: child_name
+      type(ESMF_State), intent(out) :: state
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(OuterMetaComponent), pointer :: outer_meta, child_meta
+      type(GriddedComponentDriver) :: child
+      type(GriddedComponentDriver), pointer :: user_driver
+      type(ESMF_GridComp) :: child_gc
+      type(MultiState) :: states
+
+      outer_meta => get_outer_meta(outer_gc, _RC)
+      child = outer_meta%get_child(child_name, _RC)
+      child_gc = child%get_gridcomp()
+      child_meta => get_outer_meta(child_gc, _RC)
+      user_driver => child_meta%get_user_gc_driver()
+      states = user_driver%get_states()
+      state = states%importState
+
+      _RETURN(_SUCCESS)
+   end subroutine get_user_import
+
+   ! Looked up in the state each time, so a replaced Field is seen too.
+   function field_address(state, item_name, rc) result(address)
+      integer(c_intptr_t) :: address
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: item_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Field) :: field
+
+      address = 0
+      call ESMF_StateGet(state, itemName=item_name, field=field, _RC)
+      address = data_address(field, _RC)
+
+      _RETURN(_SUCCESS)
+   end function field_address
+
+   function center_value(state, item_name) result(value)
+      real :: value
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: item_name
+
+      integer :: status
+      type(ESMF_Field) :: field
+      real(ESMF_KIND_R4), pointer :: ptr(:,:)
+
+      value = -1.
+      call ESMF_StateGet(state, itemName=item_name, field=field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(field, farrayPtr=ptr, rc=status)
+      @assertEqual(0, status)
+      value = ptr((lbound(ptr, 1) + ubound(ptr, 1)) / 2, &
+           (lbound(ptr, 2) + ubound(ptr, 2)) / 2)
+   end function center_value
+
+   subroutine member_addresses(state, item_name, count, addresses, rc)
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: item_name
+      integer, intent(out) :: count
+      integer(c_intptr_t), intent(out) :: addresses(:)
+      integer, optional, intent(out) :: rc
+
+      integer :: status, i
+      type(ESMF_FieldBundle) :: bundle
+      type(ESMF_Field), allocatable :: members(:)
+
+      addresses = 0
+      call ESMF_StateGet(state, itemName=item_name, fieldbundle=bundle, _RC)
+      call ESMF_FieldBundleGet(bundle, fieldCount=count, _RC)
+      allocate(members(count))
+      if (count > 0) then
+         call ESMF_FieldBundleGet(bundle, fieldList=members, &
+              itemorderflag=ESMF_ITEMORDER_ADDORDER, _RC)
+      end if
+      do i = 1, min(count, size(addresses))
+         addresses(i) = data_address(members(i), _RC)
+      end do
+
+      _RETURN(_SUCCESS)
+   end subroutine member_addresses
+
+   function data_address(field, rc) result(address)
+      integer(c_intptr_t) :: address
+      type(ESMF_Field), intent(inout) :: field
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      real(ESMF_KIND_R4), pointer :: ptr(:,:)
+
+      address = 0
+      call ESMF_FieldGet(field, farrayPtr=ptr, _RC)
+      address = transfer(c_loc(ptr(lbound(ptr, 1), lbound(ptr, 2))), address)
+
+      _RETURN(_SUCCESS)
+   end function data_address
+
+end module Test_GraphAddressStability

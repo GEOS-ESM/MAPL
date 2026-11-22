@@ -183,6 +183,7 @@ set(components_test_srcs
   Test_OuterMetaComponentDriverResolver.pf
   Test_GraphBuilderPropagation.pf
   Test_GridCompDriverPhaseInvoker.pf
+  Test_GraphAddressStability.pf
 )
 
 add_pfunit_ctest(
@@ -196,7 +197,7 @@ add_pfunit_ctest(
 )
 set_target_properties(MAPL.generic.components PROPERTIES Fortran_MODULE_DIRECTORY "${MODULE_DIRECTORY}/components")
 set_tests_properties(MAPL.generic.components PROPERTIES LABELS "ESSENTIAL")
-add_dependencies(MAPL.generic.components proto_extdata_gc proto_stat_gc)
+add_dependencies(MAPL.generic.components proto_extdata_gc proto_stat_gc proto_bracket_gc copy_scenarios copy_graph_scenarios)
 
 # 5b. MAPL.generic.components.quiet - same as MAPL.generic.components above,
 # but holds the two .pf files whose tests deliberately drive a GraphBuilder

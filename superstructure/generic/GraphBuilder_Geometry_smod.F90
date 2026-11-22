@@ -11,6 +11,7 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_Geometry_smod
    use mapl_GeomId_mod, only: GeomId
    use mapl_GeomProxyField_mod, only: new_geom_proxy_item, &
         add_geom_proxy_identity
+   use mapl_UnownedGeom_mod, only: get_unowned_geom
    use mapl_GraphMode_mod, only: graph_mode, GRAPH_MODE_REGISTRY
    use mapl_GriddedComponentDriver_mod, only: GriddedComponentDriver
    use mapl_MultiState_mod, only: MultiState
@@ -211,6 +212,7 @@ contains
       type(ESMF_FieldBundle) :: bundle
       type(ESMF_FieldStatus_Flag) :: field_status
       type(ESMF_Geom), allocatable :: geom
+      type(ESMF_Geom) :: bundle_geom
       type(CharacteristicDefaults) :: defaults
       type(GeomId) :: geom_id
       logical :: has_id
@@ -265,14 +267,16 @@ contains
          end if
       end if
 
-      ! A bundle's geom is read from ESMF: MAPL_FieldBundleGet returns it
+      ! A bundle's geom is read from ESMF: ESMF_FieldBundleGet returns it
       ! only when the bundle Info records one, and members are the source
-      ! here (see above).
+      ! here (see above). The node keeps this geom and derived fields share
+      ! it, so the bundle's own wrapper, freed when it empties, is replaced.
       if (item_kind == ESMF_STATEITEM_FIELD) then
          call MAPL_FieldGet(field, geom=geom, _RC)
       else
+         call ESMF_FieldBundleGet(bundle, geom=bundle_geom, _RC)
          allocate(geom)
-         call ESMF_FieldBundleGet(bundle, geom=geom, _RC)
+         call get_unowned_geom(bundle_geom, geom, _RC)
       end if
 
       geom_id = MAPL_GeomGetId(geom, isPresent=has_id)
