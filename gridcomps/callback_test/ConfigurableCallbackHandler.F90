@@ -43,13 +43,16 @@ module mapl_ConfigurableCallbackHandler_mod
    use mapl_CallbackValueType_mod, only: CALLBACK_VALUE_LOGICAL, CALLBACK_VALUE_STRING
    use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag, MAPL_STATEITEM_FIELD, operator(==)
    use mapl_InfoUtilities_mod, only: MAPL_InfoSetShared
-   use mapl_geom_api, only: mapl_get_geom_manager, mapl_GeomManager, mapl_MaplGeom
+   use mapl_geom_api, only: mapl_get_geom_manager, mapl_GeomManager, mapl_MaplGeom, &
+        mapl_GridGetCoordinates
    use mapl_field_api, only: MAPL_FieldCreate
    use mapl_vertical_grid_api, only: mapl_VerticalGrid, mapl_get_vertical_grid_manager, &
         mapl_VerticalGridManager
    use mapl_VerticalStaggerLoc_mod, only: VERTICAL_STAGGER_CENTER
    use mapl_VariableSpec_mod, only: VariableSpec, make_VariableSpec
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
+   use mapl_StateArithmeticParser_mod, only: StateEval
+   use mapl_MathConstants_mod, only: MAPL_RADIANS_TO_DEGREES
    use esmf
    use mapl_ErrorHandling_mod
    implicit none(type, external)
@@ -371,7 +374,7 @@ contains
          arg_spec = iface%get_argument(arg_name, _RC)
          one_cfg = ESMF_HConfigCreateAtMapVal(iter, _RC)
          call ESMF_StateGet(cb_state, itemName=arg_name, field=field, _RC)
-         call fill_supplied_field(field, arg_spec, handler_name, vgrid, has_vgrid, one_cfg, _RC)
+         call fill_supplied_field(field, arg_spec, handler_name, geom, vgrid, has_vgrid, one_cfg, _RC)
          call ESMF_HConfigDestroy(one_cfg, _RC)
       end do
       call ESMF_HConfigDestroy(supply_cfg, _RC)
@@ -380,19 +383,22 @@ contains
    end subroutine build_supply
 
    ! Fills field (already a member of cb_state) per its supply entry's
-   ! single key: constant (one R8 value everywhere) or profile (xyz
-   ! only: one value per level, broadcast over every column). function
-   ! is rejected.
-   subroutine fill_supplied_field(field, arg_spec, handler_name, vgrid, has_vgrid, supply_entry_cfg, rc)
+   ! single key: constant (one R8 value everywhere), profile (xyz only:
+   ! one value per level, broadcast over every column), or function (an
+   ! arithmetic-parser expression of lon, lat, and - xyz only - level,
+   ! evaluated at every cell/column).
+   subroutine fill_supplied_field(field, arg_spec, handler_name, geom, vgrid, has_vgrid, &
+        supply_entry_cfg, rc)
       type(ESMF_Field), intent(inout) :: field
       type(CallbackArgumentSpec), intent(in) :: arg_spec
       character(*), intent(in) :: handler_name
+      type(ESMF_Geom), intent(in) :: geom
       class(mapl_VerticalGrid), pointer, intent(in) :: vgrid
       logical, intent(in) :: has_vgrid
       type(ESMF_HConfig), intent(in) :: supply_entry_cfg
       integer, optional, intent(out) :: rc
 
-      character(:), allocatable :: name, dims, msg
+      character(:), allocatable :: name, dims, msg, function_expr
       logical :: is_xyz, has_constant, has_profile, has_function
       real(kind=ESMF_KIND_R8) :: const_value
       real(kind=ESMF_KIND_R8), allocatable :: profile_values(:)
@@ -405,16 +411,12 @@ contains
 
       entry_size = ESMF_HConfigGetSize(supply_entry_cfg, _RC)
       msg = 'ConfigurableCallbackHandler ' // handler_name // ': argument ' // name // &
-           ': supply must name exactly one of constant, profile'
+           ': supply must name exactly one of constant, profile, function'
       _ASSERT(entry_size == 1, msg)
 
       has_constant = ESMF_HConfigIsDefined(supply_entry_cfg, keyString='constant', _RC)
       has_profile = ESMF_HConfigIsDefined(supply_entry_cfg, keyString='profile', _RC)
       has_function = ESMF_HConfigIsDefined(supply_entry_cfg, keyString='function', _RC)
-
-      msg = 'ConfigurableCallbackHandler ' // handler_name // ': argument ' // name // &
-           ': supply function is not yet supported'
-      _ASSERT(.not. has_function, msg)
 
       if (has_constant) then
          const_value = ESMF_HConfigAsR8(supply_entry_cfg, keyString='constant', _RC)
@@ -436,9 +438,12 @@ contains
          _ASSERT(size(profile_values) == vgrid%get_num_layers(), msg)
          call ESMF_FieldGet(field, farrayPtr=ptr3d, _RC)
          call broadcast_profile(ptr3d, profile_values)
+      else if (has_function) then
+         function_expr = ESMF_HConfigAsString(supply_entry_cfg, keyString='function', _RC)
+         call evaluate_function_field(field, handler_name, name, geom, vgrid, is_xyz, function_expr, _RC)
       else
          msg = 'ConfigurableCallbackHandler ' // handler_name // ': argument ' // name // &
-              ': supply needs one of constant, profile'
+              ': supply needs one of constant, profile, function'
          _FAIL(msg)
       end if
 
@@ -455,6 +460,85 @@ contains
          ptr3d(ii, jj, :) = profile_values
       end do
    end subroutine broadcast_profile
+
+   ! Evaluates function_expr with the state arithmetic parser (StateEval)
+   ! and writes the result into field. lon and lat are always available
+   ! (degrees, one real value per column, built once as 2-D fields on
+   ! geom); level (1-based level index, xyz only) is built as a full 3-D
+   ! field up front via broadcast_profile. A 2-D field sharing the
+   ! horizontal dims of an xyz target is promoted by StateEval to every
+   ! level automatically, which is why lon/lat need not be 3-D, but that
+   ! promotion does not apply to a field that varies only in the
+   ! vertical, which is why level is built as a full 3-D field instead.
+   ! Any other name in function_expr is not in this scratch state, so
+   ! StateEval's own CheckSyntax rejects it ('Invalid element: ...'); a
+   ! syntactically malformed function_expr is rejected the same way
+   ! ('Missing ) in ...', 'Missing operand in ...', etc.). Those parser
+   ! diagnostics are left on the exception stack as raised; the _ASSERT
+   ! below additionally reports the failure under this file's own
+   ! handler/argument-naming convention.
+   subroutine evaluate_function_field(field, handler_name, name, geom, vgrid, is_xyz, &
+        function_expr, rc)
+      type(ESMF_Field), intent(inout) :: field
+      character(*), intent(in) :: handler_name
+      character(*), intent(in) :: name
+      type(ESMF_Geom), intent(in) :: geom
+      class(mapl_VerticalGrid), pointer, intent(in) :: vgrid
+      logical, intent(in) :: is_xyz
+      character(*), intent(in) :: function_expr
+      integer, optional, intent(out) :: rc
+
+      type(ESMF_Grid) :: grid
+      type(ESMF_State) :: scratch_state
+      type(ESMF_Field) :: lon_field, lat_field, level_field
+      real(kind=ESMF_KIND_R8), pointer :: longitudes(:,:), latitudes(:,:)
+      real(kind=ESMF_KIND_R8), pointer :: lon_ptr(:,:), lat_ptr(:,:), level_ptr(:,:,:)
+      real(kind=ESMF_KIND_R8), allocatable :: level_values(:)
+      character(:), allocatable :: msg
+      integer :: k, status, eval_status
+
+      call ESMF_GeomGet(geom, grid=grid, _RC)
+      call mapl_GridGetCoordinates(grid, longitudes, latitudes, _RC)
+
+      lon_field = MAPL_FieldCreate(geom, ESMF_TYPEKIND_R8, name='lon', _RC)
+      lat_field = MAPL_FieldCreate(geom, ESMF_TYPEKIND_R8, name='lat', _RC)
+      call ESMF_FieldGet(lon_field, farrayPtr=lon_ptr, _RC)
+      call ESMF_FieldGet(lat_field, farrayPtr=lat_ptr, _RC)
+      lon_ptr = longitudes * MAPL_RADIANS_TO_DEGREES
+      lat_ptr = latitudes * MAPL_RADIANS_TO_DEGREES
+
+      scratch_state = ESMF_StateCreate(name='configurable_callback_handler_function', _RC)
+      call ESMF_StateAdd(scratch_state, [lon_field], _RC)
+      call ESMF_StateAdd(scratch_state, [lat_field], _RC)
+
+      if (is_xyz) then
+         level_field = MAPL_FieldCreate(geom, ESMF_TYPEKIND_R8, name='level', vgrid=vgrid, &
+              vert_staggerloc=VERTICAL_STAGGER_CENTER, _RC)
+         call ESMF_FieldGet(level_field, farrayPtr=level_ptr, _RC)
+         level_values = [(real(k, kind=ESMF_KIND_R8), k = 1, vgrid%get_num_layers())]
+         call broadcast_profile(level_ptr, level_values)
+         call ESMF_StateAdd(scratch_state, [level_field], _RC)
+      end if
+
+      ! StateEval only sets rc on failure (it has no success-path _RETURN
+      ! of its own); eval_status must start at 0 so a clean evaluation
+      ! is correctly recognized as success below.
+      eval_status = 0
+      call StateEval(scratch_state, function_expr, field, rc=eval_status)
+
+      call ESMF_FieldDestroy(lon_field, noGarbage=.true., _RC)
+      call ESMF_FieldDestroy(lat_field, noGarbage=.true., _RC)
+      if (is_xyz) then
+         call ESMF_FieldDestroy(level_field, noGarbage=.true., _RC)
+      end if
+      call ESMF_StateDestroy(scratch_state, _RC)
+
+      msg = 'ConfigurableCallbackHandler ' // handler_name // ': argument ' // name // &
+           ': supply function "' // function_expr // '" failed to evaluate'
+      _ASSERT(eval_status == 0, msg)
+
+      _RETURN(_SUCCESS)
+   end subroutine evaluate_function_field
 
    !--------------------------------------------------------------------
    ! state_attributes / member_attributes

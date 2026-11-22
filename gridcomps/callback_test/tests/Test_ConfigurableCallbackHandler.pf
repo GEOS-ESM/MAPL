@@ -485,7 +485,7 @@ contains
       call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
            cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
       @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: argument quantity: ' // &
-           'supply needs one of constant, profile')
+           'supply needs one of constant, profile, function')
       ! Drop the _RC propagation of the error through the callers.
       do while (catch('status=1'))
       end do
@@ -495,9 +495,97 @@ contains
       @assertEqual(0, status)
    end subroutine test_supply_unknown_key_fails
 
+   ! quantity (xy, mock_toy) supplied by function: lon - a simple
+   ! function of lon only, checkable against the known grid-point
+   ! longitudes of geometry_yaml()'s 4x3 dateline/pole-centered grid
+   ! (im_world=4 -> column longitudes -180, -90, 0, 90 degrees).
    @test
-   subroutine test_supply_function_is_rejected_as_not_yet_supported()
-      character(*), parameter :: FILENAME = 'supply_function_is_rejected.yaml'
+   subroutine test_supply_function_of_lon_on_xy_argument()
+      character(*), parameter :: FILENAME = 'supply_function_of_lon.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      type(ESMF_Field) :: field
+      real(kind=ESMF_KIND_R8), pointer :: ptr2d(:,:)
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  quantity: {function: lon}' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertEqual(0, status, 'build_configurable_handler failed')
+
+      call ESMF_StateGet(cb_state, itemName='quantity', field=field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(field, farrayPtr=ptr2d, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(-180.0_ESMF_KIND_R8, ptr2d(1,:), tolerance=TOL, message='column 1 longitude')
+      @assertEqual(-90.0_ESMF_KIND_R8, ptr2d(2,:), tolerance=TOL, message='column 2 longitude')
+      @assertEqual(0.0_ESMF_KIND_R8, ptr2d(3,:), tolerance=TOL, message='column 3 longitude')
+      @assertEqual(90.0_ESMF_KIND_R8, ptr2d(4,:), tolerance=TOL, message='column 4 longitude')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_supply_function_of_lon_on_xy_argument
+
+   ! mixed_quantity (xyz, mock_mixing) supplied by function: level - a
+   ! function of the (1-based) level index only, broadcast over every
+   ! column, checkable exactly like test_mock_mixing_profile_supply_and_record's
+   ! profile: [1.0e-6, 2.0e-6, 3.0e-6] checks its own per-level values.
+   @test
+   subroutine test_supply_function_of_level_on_xyz_argument()
+      character(*), parameter :: FILENAME = 'supply_function_of_level.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      type(ESMF_Field) :: field
+      real(kind=ESMF_KIND_R8), pointer :: ptr3d(:,:,:)
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_mixing' // NL // &
+           geometry_yaml(num_levels=3) // &
+           'supply:' // NL // &
+           '  mixed_quantity: {function: level*1.0e-6}' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'mixing_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertEqual(0, status, 'build_configurable_handler failed')
+
+      call ESMF_StateGet(cb_state, itemName='mixed_quantity', field=field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(field, farrayPtr=ptr3d, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1.0e-6_ESMF_KIND_R8, ptr3d(:,:,1), tolerance=TOL, message='level 1')
+      @assertEqual(2.0e-6_ESMF_KIND_R8, ptr3d(:,:,2), tolerance=TOL, message='level 2')
+      @assertEqual(3.0e-6_ESMF_KIND_R8, ptr3d(:,:,3), tolerance=TOL, message='level 3')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_supply_function_of_level_on_xyz_argument
+
+   ! An unparseable function: expression must fail clearly (the state
+   ! arithmetic parser's own diagnostic, not a cryptic internal error) -
+   ! here a bare operator with no operand.
+   @test
+   subroutine test_supply_function_malformed_expression_fails()
+      character(*), parameter :: FILENAME = 'supply_function_malformed_expression.yaml'
       type(ESMF_HConfig) :: hconfig
       type(ESMF_State) :: cb_state, mock_state
       character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
@@ -511,22 +599,62 @@ contains
            'interface: mock_toy' // NL // &
            geometry_yaml() // &
            'supply:' // NL // &
-           '  quantity: {function: some_profile_fn}' // NL
+           '  quantity: {function: "+"}' // NL
       hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
       @assertEqual(0, status)
 
       call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
            cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
       @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: argument quantity: ' // &
-           'supply function is not yet supported')
-      ! Drop the _RC propagation of the error through the callers.
+           'supply function "+" failed to evaluate')
+      ! Drop the parser's own diagnostic and the _RC propagation through the callers.
+      do while (catch('Missing operand in +'))
+      end do
       do while (catch('status=1'))
       end do
-      @assertFalse(status == 0, 'supply: function is not yet supported and must fail at build')
+      @assertFalse(status == 0, 'a malformed function expression must fail at build')
 
       call ESMF_HConfigDestroy(hconfig, rc=status)
       @assertEqual(0, status)
-   end subroutine test_supply_function_is_rejected_as_not_yet_supported
+   end subroutine test_supply_function_malformed_expression_fails
+
+   ! A function: expression referencing a name that is not lon, lat, or
+   ! (xyz only) level must fail clearly - here level on an xy argument,
+   ! which is legal syntax but not a variable available to a 2-D field.
+   @test
+   subroutine test_supply_function_unknown_variable_fails()
+      character(*), parameter :: FILENAME = 'supply_function_unknown_variable.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  quantity: {function: level}' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: argument quantity: ' // &
+           'supply function "level" failed to evaluate')
+      ! Drop the parser's own diagnostic and the _RC propagation through the callers.
+      do while (catch('Invalid element: level'))
+      end do
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'function: level on an xy argument must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_supply_function_unknown_variable_fails
 
    ! bias is "in" (not out/inout) in every method of mock_toy, so it is
    ! not legally configurable under supply.
@@ -870,7 +998,7 @@ contains
       call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
            cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
       @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: argument quantity: ' // &
-           'supply must name exactly one of constant, profile')
+           'supply must name exactly one of constant, profile, function')
       do while (catch('status=1'))
       end do
       @assertFalse(status == 0, 'a supply entry with two keys present must fail at build')
