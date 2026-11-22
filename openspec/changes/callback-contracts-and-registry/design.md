@@ -342,6 +342,26 @@ by an Info key recorded on the callback State at REALIZE_ACCEPTED
 attached routine on that same State) -- no separate global
 NodeId-keyed registry.
 
+**20. `wire_callback_argument` requires both sides already resolved; a
+DEFERRED characteristic is a caller-ordering bug, not something it
+retries.** Ordinary connection resolution tolerates a DEFERRED
+characteristic (e.g. an `EXPORT` with no `quantity_type:` yet) by
+reporting `waiting` and retrying on a later connect pass
+(`graphbuilder_resolve_connections`/`note_connection_waiting`).
+`wire_callback_argument` has no such retry loop, because
+`build_callback_method_binding` has no production caller yet (decision
+12); it compares the real descriptors with `resolve_characteristics`
+directly (passing `waiting`, not through `find_mismatched_characteristics`,
+which always fails hard on any conflict) and `_FAIL`s with a clear
+message if `waiting` comes back true, rather than silently skipping the
+characteristic or guessing at a retry mechanism that does not exist.
+This is deliberate: decision C1 places callback binding's Invoker-side
+realization at ACCEPT_TRANSFER, the same phase ordinary connections
+resolve in -- if a real caller ever invokes `build_callback_method_binding`
+while something is still DEFERRED, that is a caller-ordering bug in the
+code that invokes it (part of decision 12's reserved work), to be fixed
+there, not papered over here.
+
 ## Risks / Trade-offs
 
 - [Execution is unbuilt and large] → It is split out as the owner track.

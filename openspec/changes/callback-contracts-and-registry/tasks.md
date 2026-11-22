@@ -57,7 +57,9 @@
 - [ ] 4.4 `MAPL_CallbackGetAttribute` (namespace from the State's
   recorded interface, host-argument member or State host, default,
   undeclared name lists legal names) and `MAPL_CallbackSetScalar` (name,
-  type, writer). Tests on hand-built States. Depends on 2.1, 4.3.
+  type -- the declared writer is a documented convention, not checked,
+  design.md decision 11). Tests on hand-built States. Depends on 2.1,
+  4.3.
 
 ## 5. Invoker-side execution (owner track; critical path)
 

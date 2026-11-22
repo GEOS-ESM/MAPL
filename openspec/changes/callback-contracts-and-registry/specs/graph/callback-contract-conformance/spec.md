@@ -224,17 +224,15 @@ declare SHALL fail with a message listing the declared names.
 ### Requirement: Call scalars are written through a checked setter
 MAPL SHALL provide a setter for call scalars that writes into the
 callback State's own Info under the interface namespace. It SHALL reject
-a name the interface does not declare as a call scalar, a value of the
-wrong type, and a write by a party other than the declared writer.
+a name the interface does not declare as a call scalar, and a value of
+the wrong type. The declared writer (Handler or Invoker) is a documented
+convention for callers to follow; the setter does not check who is
+calling.
 
 #### Scenario: Invoker writes a declared scalar
 - **WHEN** an Invoker sets `time_step` = `PT900S` on a callback State
   whose interface declares it written by the invoker
 - **THEN** the Handler reads `PT900S`
-
-#### Scenario: Wrong writer
-- **WHEN** a Handler sets a call scalar declared `written_by: invoker`
-- **THEN** the setter fails
 
 ### Requirement: The framework does not check procedures or argument use
 The framework SHALL NOT check what the procedure attached to a method
