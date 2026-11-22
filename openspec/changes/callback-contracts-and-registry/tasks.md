@@ -63,17 +63,47 @@
 
 ## 5. Invoker-side execution (critical path; owner designs, subagents author)
 
+- [ ] 5.0 `CallbackArgumentSpec` gains a `units` field, interface side
+  only: scalar YAML key `units:` on an interface argument (`$<name>`
+  declares a placeholder, any other value is a concrete unit --
+  distinguish by the leading `$`, no HConfig-shape polymorphism needed
+  here since an interface's `units:` is always a scalar).
+  `declare_argument`/the loader (3.2) store it and expose placeholder
+  name vs. concrete unit; two arguments in one interface naming the same
+  placeholder are thereby linked (whatever unit a Handler eventually
+  binds applies to both). No Handler-side binding or validation here --
+  that needs the Handler's own `units: {<name>: '<unit>'}` YAML, which
+  does not exist until 5.1. Tests on hand-built interfaces (`toy_scaling`
+  or a new fixture). Depends on 1.1, 3.2. Design: design.md decision 21
+  (unit placeholder YAML), decision notes topic A-units (D1-D3).
 - [ ] 5.1 Realize each Handler's callback State as an `ESMF_State`
-  holding its member items; fill the Invoker's collection State with
-  the matched callback States; record the interface name in each
-  callback State's Info.
+  holding its member items. A plain `declare_member` is a new,
+  framework-allocated field: geometry from the Handler's component;
+  units from the interface's concrete value (5.0), or, for a placeholder,
+  from the Handler's own `units: {<name>: '<unit>'}` binding (new YAML
+  key on `declare_member`, told apart from a concrete scalar with
+  `ESMF_HConfigIsScalar`/`ESMF_HConfigIsMap` as `parse_var_specs.F90`
+  already does for other polymorphic keys); every placeholder the
+  interface declares must be bound before the callback State is
+  realized. `alias: <name>` makes the member a zero-copy view of an
+  existing Handler item (geometry/typekind/units come from the aliased
+  item, no units binding needed); `alias: <pattern>` with `template:
+  true` expands it, via the existing wildcard-matching regex code for
+  import names, into one member per matching internal item. Fill the
+  Invoker's collection State with the matched callback States; record
+  the interface name in each callback State's Info. Depends on 5.0.
+  Design: design.md decision 21 (unit placeholder binding, alias/template
+  YAML), decision notes topics A-units (D1-D3) and B.
 - [ ] 5.2 `ESMF_MethodExecute`-backed `StateMethodInvoker`; production
   calls to `build_callback_state_binding` /
   `build_callback_method_binding` for every collection member.
-- [ ] 5.3 Invoker API: collection count and access by position or
-  qualified name; `MAPL_CallbackExecute(state, method, rc)` running
-  check-if-needed, pre-call pull, the procedure, post-call advance;
-  failure propagation; unknown-method error. Same-grid get/put test.
+- [ ] 5.3 Invoker API: an iterator over one collection's bound Handlers
+  (advance, done, current) -- not count-and-index; qualified-name access
+  and detailed error behavior (loud `_FAIL` vs. a `found` out-argument)
+  deliberately left open past this task. `MAPL_CallbackExecute(state,
+  method, rc)` running check-if-needed, pre-call pull, the procedure,
+  post-call advance; failure propagation; unknown-method error. Same-grid
+  get/put test. Design: design.md decision 21 (Invoker API shape).
 - [ ] 5.4 Hook the lazy conformance check (4.3) into 5.3 and add the
   explicit collection check request.
 
