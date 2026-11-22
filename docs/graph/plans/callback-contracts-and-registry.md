@@ -347,7 +347,16 @@ change deferred.
 `graph/callback-contract-conformance` delta. CB4-DeclCheck changes how
 a non-conforming match is reported only for a Handler that declares
 its interface; undeclared matches keep today's skip-and-report.
-- **Status:** CB4-Messages, -StateCheck (tasks.md 4.3), -Accessors (tasks.md 4.4) done; -DeclCheck (tasks.md 4.2) not started
+- **Status:** CB4-Messages, -StateCheck (tasks.md 4.3), -Accessors
+  (tasks.md 4.4) done; -DeclCheck done (tasks.md 4.2,
+  `Plan-Task: CB4-DeclCheck`): `export_conforms_to_interface` reports
+  every violation (missing/unreadable/kind/dims), not just the first;
+  `resolve_callback_import` splits candidates three ways (undeclared
+  non-conforming: skip-and-report, unchanged; declares a *different*
+  interface: skip-and-report, not even shape-checked; declares the
+  expected interface and doesn't conform: hard wiring error).
+  Declaration-level dims come from `vertical_stagger`, not
+  `vertical_grid` (a real YAML-declared member never sets the latter).
 
 **CB5-Execute (critical path; design with owner, authored by subagents).**
 See "Critical path" above. Not a GitHub-volunteer task (too much

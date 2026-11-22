@@ -43,7 +43,7 @@
 - [x] 4.1 Violation list type and message formatter (header plus one
   line per violation, wording as in the conformance spec). Unit tests on
   formatted text.
-- [ ] 4.2 Extend `export_conforms_to_interface`: optional arguments,
+- [x] 4.2 Extend `export_conforms_to_interface`: optional arguments,
   dims, all violations returned; declared-Handler mismatch becomes a
   wiring error, undeclared keeps skip-and-report. Update
   `Test_GraphBuilder_CallbackWiring.pf`. Depends on 1.1, 3.7, 4.1.
