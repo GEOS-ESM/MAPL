@@ -231,18 +231,34 @@ this change has a production Handler and Invoker actually contesting a
 call scalar; the only user today is the Mock/Configurable Handler's own
 test tooling (task 7.4).
 
-**12. Invoker-side execution is owner work and the critical path.**
-None of execution exists today: realizing each Handler's callback State
-as a real `ESMF_State` holding its members, filling the Invoker's
-collection State, an `ESMF_MethodExecute`-backed `StateMethodInvoker`,
-production calls to `build_callback_state_binding` and
-`build_callback_method_binding`, and an Invoker API
-(`MAPL_CallbackCollectionGet(collection, count, ...)`,
-`MAPL_CallbackExecute(state, method, rc)`). The owner implements it
-directly. Every task that runs a method depends on it. The
-note's pre-call / post-call networks are the existing forward network
-(pull) and the per-method put network; this change does not rename
-them.
+**12. Invoker-side execution is the critical path; the owner designs it,
+subagents author it (amended 2026-11-22).** None of execution exists
+today: realizing each Handler's callback State as a real `ESMF_State`
+holding its members, filling the Invoker's collection State, an
+`ESMF_MethodExecute`-backed `StateMethodInvoker`, production calls to
+`build_callback_state_binding` and `build_callback_method_binding`, and
+an Invoker API (`MAPL_CallbackCollectionGet(collection, count, ...)`,
+`MAPL_CallbackExecute(state, method, rc)`). Every task that runs a
+method depends on it. The note's pre-call / post-call networks are the
+existing forward network (pull) and the per-method put network; this
+change does not rename them.
+
+Originally scoped as owner-implemented code (no volunteer/subagent
+author). Amended: the owner stays directly involved in *design*
+(working through the open questions with meta, as for every other task
+here), but once a design is settled it is handed to the usual
+author/reviewer subagent pipeline, same as any other task. Several
+design questions are already closed this way: execution mechanics for
+pulling get-arguments, advancing put-arguments and finding a method
+binding (Decision 19), and the writer-identity question (Decision 11).
+Open, and needed before 5.1-5.3 can be handed off: the member key
+namespace's actual separator (Decision 12 in the owner/meta working
+notes called its example key illustrative only), the YAML syntax for
+unit placeholders and for per-member aliases/templates (both decided in
+principle, not yet given a concrete syntax or added to
+`CallbackArgumentSpec`/`CallbackInterface`/`VariableSpec`), and the
+exact Invoker API shape for 5.3 (`MAPL_CallbackCollectionGet` and
+friends: names, arguments, what "qualified name" access means).
 
 **13. Callback arguments get characteristics from their members.**
 `wire_callback_argument` today compares two empty characteristic maps.

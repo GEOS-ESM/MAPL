@@ -61,7 +61,7 @@
   design.md decision 11). Tests on hand-built States. Depends on 2.1,
   4.3.
 
-## 5. Invoker-side execution (owner track; critical path)
+## 5. Invoker-side execution (critical path; owner designs, subagents author)
 
 - [ ] 5.1 Realize each Handler's callback State as an `ESMF_State`
   holding its member items; fill the Invoker's collection State with

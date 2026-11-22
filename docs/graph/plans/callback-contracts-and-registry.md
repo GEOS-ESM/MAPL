@@ -106,11 +106,20 @@ it is more than an "execute" call. Missing, all of it:
    them.
 4. No Invoker API to walk a collection and execute a method by name.
 
-The owner takes this on directly (`CB5-Execute`). It is **not** offered
-to volunteers. Every task that runs a callback method end to end waits
-for it: CB5-LazyCheck, CB6-ArgCharacteristics, CB6-WireDeltaBack, the
-recording half of CB7-MockHandler, CB7-MockInvoker, all of CB8 and the
-end-to-end half of CB9.
+`CB5-Execute` is the critical path. The owner is directly involved in
+its **design** (same owner+meta design-conversation process as every
+other task's open questions, not a separate track); once a design
+question is settled it is handed to the usual sonnet/opus author +
+reviewer pipeline, same as any other task here (amended 2026-11-22 --
+"owner track" originally meant owner-authored code, which was not the
+intent). Several of the open design questions are already closed this
+way (design.md decisions 11, 19, and the owner/meta working notes'
+topics A-D); what remains before 5.1-5.3 can be handed to an author is
+listed in design.md decision 12's amendment. Every task that runs a
+callback method end to end still waits for it: CB5-LazyCheck,
+CB6-ArgCharacteristics, CB6-WireDeltaBack, the recording half of
+CB7-MockHandler, CB7-MockInvoker, all of CB8 and the end-to-end half of
+CB9.
 
 ## Tasks
 
@@ -144,7 +153,7 @@ Risk: what is most likely to go wrong.
 | CB4-DeclCheck | 4.2 | sonnet | opus | no | M / medium; changes existing wiring tests | CB1-ArgSpec, CB3-YamlKey, CB4-Messages |
 | CB4-StateCheck | 4.3 | opus | sonnet | no | M / medium; check order, unknown keys, weight geometry | CB1-Interface, CB2-InfoWrappers, CB4-Messages |
 | CB4-Accessors | 4.4 | sonnet | opus | no | M / medium; writer tracking | CB2-InfoWrappers, CB4-StateCheck |
-| **CB5-Execute** | 5.1-5.3 | **owner** | sonnet / opus | **no: owner track** | L / high; critical path | CB1-Interface |
+| **CB5-Execute** | 5.1-5.3 | sonnet / opus | sonnet / opus | **no: design first** | L / high; critical path | CB1-Interface |
 | CB5-LazyCheck | 5.4 | sonnet | sonnet | no | S / low | CB5-Execute, CB4-StateCheck |
 | CB6-ArgCharacteristics | 6.1 | opus | sonnet | no | M / high; first real transforms on callback edges | CB5-Execute |
 | CB6-Snapshot | 6.2 | sonnet | sonnet | **yes** | S / low; stand-alone Transform | - |
@@ -186,8 +195,8 @@ wants them outsourced at all.
 
 Not ready, and why: CB1-Interface and everything after it waits on the
 CB1 value types; CB2-InfoWrappers waits for CB0-InfoTypes' facts;
-anything that executes a method waits for **CB5-Execute (owner
-track)**.
+anything that executes a method waits for **CB5-Execute**, whose design
+is not yet settled enough to author (critical path).
 
 ### Per-task notes
 
@@ -340,9 +349,14 @@ a non-conforming match is reported only for a Handler that declares
 its interface; undeclared matches keep today's skip-and-report.
 - **Status:** CB4-Messages, -StateCheck (tasks.md 4.3), -Accessors (tasks.md 4.4) done; -DeclCheck (tasks.md 4.2) not started
 
-**CB5-Execute (owner track; critical path).** See "Critical path"
-above. Reserved for the owner; not offered to volunteers.
-- **Status:** not started
+**CB5-Execute (critical path; design with owner, authored by subagents).**
+See "Critical path" above. Not a GitHub-volunteer task (too much
+in-flight design context), but author/reviewer subagents build it once
+design questions are settled with the owner.
+- **Status:** not started. Design groundwork partly done (owner/meta
+  working notes, folded into design.md decisions 11, 19, 12-amended);
+  open design items are listed in decision 12's amendment and are
+  restart priority #1.
 
 **CB5-LazyCheck.** Hook the realized-State check into execution and
 add the explicit collection check.
@@ -402,14 +416,16 @@ CB1 value types -> CB1-Interface -> {CB3-Loader -> CB3-InitLoad ->
 {CB3-CapFreeze, CB3-YamlKey}, CB4-StateCheck, CB7-MockHandler};
 CB0-InfoTypes -> CB2-InfoWrappers -> {CB4-StateCheck, CB4-Accessors};
 CB0-HConfigDup -> CB3-ShippedFiles.
-**CB5-Execute (owner)** -> {CB5-LazyCheck, CB6-ArgCharacteristics,
-CB7-MockInvoker, CB8-ToyComponents, CB9-TestInvoker}.
+**CB5-Execute (design with owner, authored by subagents)** ->
+{CB5-LazyCheck, CB6-ArgCharacteristics, CB7-MockInvoker,
+CB8-ToyComponents, CB9-TestInvoker}.
 {CB6-Snapshot, CB6-WeightedDeltaBack, CB6-ColumnFill,
 CB6-ArgCharacteristics} -> CB6-WireDeltaBack -> CB9-Matrix.
 CB8-Matrix closes the first slice; CB9-Matrix closes the GEOS slice.
 
 **Suggested run order:** volunteers take the ready set while the owner
-builds CB5-Execute; the main line runs CB1-Interface -> CB2 -> CB3 ->
+and meta settle CB5-Execute's remaining design questions, then subagents
+build it; the main line runs CB1-Interface -> CB2 -> CB3 ->
 CB4, which is everything the first slice needs except execution. When
 CB5-Execute lands, CB6-ArgCharacteristics, CB7 and CB8 follow; CB9
 after.
