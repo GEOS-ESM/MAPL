@@ -79,11 +79,13 @@
   dims, all violations returned; declared-Handler mismatch becomes a
   wiring error, undeclared keeps skip-and-report. Update
   `Test_GraphBuilder_CallbackWiring.pf`. Depends on 1.1, 3.7, 4.1.
-- [ ] 4.3 `check_callback_state_conformance` on a realized `ESMF_State`:
+- [x] 4.3 `check_callback_state_conformance` on a realized `ESMF_State`:
   presence, kind, attribute presence/type/allowed, unknown keys, rules
   after attributes, weights and weight geometry; defaults recorded.
   Tests on hand-built States covering F1-F8 and MF1, MF1b, MF4-MF8,
   P4, P5. Depends on 1.x, 2.1, 4.1.
+  (P5 is unlabeled in the spec; it is the design note's pairing P5,
+  the spec scenario "Extra member and foreign attribute are accepted".)
 - [ ] 4.4 `MAPL_CallbackGetAttribute` (namespace from the State's
   recorded interface, host-argument member or State host, default,
   undeclared name lists legal names) and `MAPL_CallbackSetScalar` (name,

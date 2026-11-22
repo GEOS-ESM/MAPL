@@ -154,6 +154,10 @@ module mapl_InfoUtilities_mod
       procedure :: info_state_get_shared_i4
       procedure :: info_state_get_shared_r4
       procedure :: info_state_get_shared_r8
+      procedure :: info_state_get_shared_i4_1d
+      procedure :: info_state_get_shared_r4_1d
+      procedure :: info_state_get_shared_r8_1d
+      procedure :: info_state_get_shared_string_list
       procedure :: info_stateitem_get_shared_string
       procedure :: info_stateitem_get_shared_logical
       procedure :: info_stateitem_get_shared_i4
@@ -171,6 +175,10 @@ module mapl_InfoUtilities_mod
       procedure :: info_state_set_shared_i4
       procedure :: info_state_set_shared_r4
       procedure :: info_state_set_shared_r8
+      procedure :: info_state_set_shared_i4_1d
+      procedure :: info_state_set_shared_r4_1d
+      procedure :: info_state_set_shared_r8_1d
+      procedure :: info_state_set_shared_string_list
       procedure :: info_stateitem_set_shared_string
       procedure :: info_stateitem_set_shared_logical
       procedure :: info_stateitem_set_shared_i4
@@ -694,6 +702,74 @@ contains
       _UNUSED_DUMMY(unusable)
    end subroutine info_state_get_shared_r8
 
+   subroutine info_state_get_shared_i4_1d(state, key, values, unusable, rc)
+      type(ESMF_State), intent(in) :: state
+      character(*), intent(in) :: key
+      integer(kind=ESMF_KIND_I4), allocatable, intent(out) :: values(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: state_info
+
+      call ESMF_InfoGetFromHost(state, state_info, _RC)
+      call MAPL_InfoGet(state_info, key=concat(INFO_SHARED_NAMESPACE,key), values=values, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine info_state_get_shared_i4_1d
+
+   subroutine info_state_get_shared_r4_1d(state, key, values, unusable, rc)
+      type(ESMF_State), intent(in) :: state
+      character(*), intent(in) :: key
+      real(kind=ESMF_KIND_R4), allocatable, intent(out) :: values(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: state_info
+
+      call ESMF_InfoGetFromHost(state, state_info, _RC)
+      call MAPL_InfoGet(state_info, key=concat(INFO_SHARED_NAMESPACE,key), values=values, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine info_state_get_shared_r4_1d
+
+   subroutine info_state_get_shared_r8_1d(state, key, values, unusable, rc)
+      type(ESMF_State), intent(in) :: state
+      character(*), intent(in) :: key
+      real(kind=ESMF_KIND_R8), allocatable, intent(out) :: values(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: state_info
+
+      call ESMF_InfoGetFromHost(state, state_info, _RC)
+      call MAPL_InfoGet(state_info, key=concat(INFO_SHARED_NAMESPACE,key), values=values, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine info_state_get_shared_r8_1d
+
+   subroutine info_state_get_shared_string_list(state, key, values, unusable, rc)
+      type(ESMF_State), intent(in) :: state
+      character(*), intent(in) :: key
+      type(StringVector), intent(out) :: values
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: state_info
+
+      call ESMF_InfoGetFromHost(state, state_info, _RC)
+      call MAPL_InfoGet(state_info, key=concat(INFO_SHARED_NAMESPACE,key), values=values, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine info_state_get_shared_string_list
+
    subroutine info_stateitem_get_shared_string(state, short_name, key, value, rc)
       type(ESMF_State), intent(in) :: state
       character(*), intent(in) :: short_name
@@ -923,6 +999,74 @@ contains
       _RETURN(_SUCCESS)
       _UNUSED_DUMMY(unusable)
    end subroutine info_state_set_shared_r8
+
+   subroutine info_state_set_shared_i4_1d(state, key, values, unusable, rc)
+      type(ESMF_State), intent(in) :: state
+      character(*), intent(in) :: key
+      integer(kind=ESMF_KIND_I4), intent(in) :: values(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: state_info
+
+      call ESMF_InfoGetFromHost(state, state_info, _RC)
+      call MAPL_InfoSet(state_info, key=concat(INFO_SHARED_NAMESPACE,key), values=values, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine info_state_set_shared_i4_1d
+
+   subroutine info_state_set_shared_r4_1d(state, key, values, unusable, rc)
+      type(ESMF_State), intent(in) :: state
+      character(*), intent(in) :: key
+      real(kind=ESMF_KIND_R4), intent(in) :: values(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: state_info
+
+      call ESMF_InfoGetFromHost(state, state_info, _RC)
+      call MAPL_InfoSet(state_info, key=concat(INFO_SHARED_NAMESPACE,key), values=values, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine info_state_set_shared_r4_1d
+
+   subroutine info_state_set_shared_r8_1d(state, key, values, unusable, rc)
+      type(ESMF_State), intent(in) :: state
+      character(*), intent(in) :: key
+      real(kind=ESMF_KIND_R8), intent(in) :: values(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: state_info
+
+      call ESMF_InfoGetFromHost(state, state_info, _RC)
+      call MAPL_InfoSet(state_info, key=concat(INFO_SHARED_NAMESPACE,key), values=values, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine info_state_set_shared_r8_1d
+
+   subroutine info_state_set_shared_string_list(state, key, values, unusable, rc)
+      type(ESMF_State), intent(in) :: state
+      character(*), intent(in) :: key
+      character(*), intent(in) :: values(:)
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: state_info
+
+      call ESMF_InfoGetFromHost(state, state_info, _RC)
+      call MAPL_InfoSet(state_info, key=concat(INFO_SHARED_NAMESPACE,key), values=values, _RC)
+
+      _RETURN(_SUCCESS)
+      _UNUSED_DUMMY(unusable)
+   end subroutine info_state_set_shared_string_list
 
    subroutine info_stateitem_set_shared_string(state, short_name, key, value, rc)
       type(ESMF_State), intent(in) :: state

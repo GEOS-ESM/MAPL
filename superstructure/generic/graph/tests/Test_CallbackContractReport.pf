@@ -163,8 +163,8 @@ contains
            v%get_text())
    end subroutine test_unknown_key_lists_legal_names
 
-   ! Spec scenario MF1, Required weight missing: a turbulent_mixing
-   ! owner binds no air_mass.
+   ! Spec scenario MF1b, Optional weighted pair half bound: an owner
+   ! binds mixed_quantity but not its optional weight air_mass.
    @test
    subroutine test_weight_missing_names_weight_and_argument()
       type(CallbackContractViolation) :: v
@@ -174,6 +174,18 @@ contains
       @assertEqual('weight_missing:air_mass', v%get_code())
       @assertEqual("'air_mass' is missing as the weight of 'mixed_quantity'", v%get_text())
    end subroutine test_weight_missing_names_weight_and_argument
+
+   ! Spec scenario MF1, Required weight missing: a turbulent_mixing
+   ! owner binds no air_mass; still a missing-argument code.
+   @test
+   subroutine test_missing_weight_argument_names_weighted_argument()
+      type(CallbackContractViolation) :: v
+
+      v = missing_argument_violation('air_mass', weight_of='mixed_quantity')
+
+      @assertEqual('missing_member:air_mass', v%get_code())
+      @assertEqual("argument 'air_mass' (the weight of 'mixed_quantity') is missing", v%get_text())
+   end subroutine test_missing_weight_argument_names_weighted_argument
 
    ! Spec scenario MF4, Weight on another geometry: air_mass is bound on
    ! a geometry other than mixed_quantity geometry.

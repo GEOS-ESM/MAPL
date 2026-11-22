@@ -1,0 +1,754 @@
+! Realized-State conformance checks on hand-built States. Scenario
+! labels (F1, MF4, P4, ...) are the scenario labels of the
+! callback-contract-conformance spec.
+module Test_CallbackStateConformance
+   use mapl_CallbackStateConformance_mod, only: check_callback_state_conformance
+   use mapl_CallbackContractViolation_mod, only: CallbackContractViolation
+   use mapl_CallbackContractReport_mod, only: format_callback_contract_report
+   use mapl_CallbackInterface_mod, only: CallbackInterface, make_CallbackInterface
+   use mapl_CallbackAttributeSpec_mod, only: CALLBACK_SCOPE_MEMBER, CALLBACK_SCOPE_STATE
+   use mapl_CallbackCallScalarSpec_mod, only: CALLBACK_WRITER_INVOKER
+   use mapl_CallbackValueType_mod, only: CALLBACK_VALUE_REAL, CALLBACK_VALUE_STRING, &
+        CALLBACK_VALUE_INTEGER
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELD
+   use mapl_InfoUtilities_mod, only: MAPL_InfoSetShared
+   use StateItemTestSupport_mod, only: make_latlon_geom, make_test_member
+   use gFTL2_StringVector, only: StringVector
+   use pflogger, only: logging, Logger, AbstractHandler, INFO
+   use PFL_LogRecord, only: LogRecord
+   use PFL_KeywordEnforcer, only: KeywordEnforcer
+   use ESMF, only: ESMF_State, ESMF_StateCreate, ESMF_StateAdd, ESMF_Field, ESMF_FieldBundle
+   use ESMF, only: ESMF_Geom, ESMF_KIND_R4, ESMF_KIND_R8
+   use funit
+   implicit none
+
+   character(*), parameter :: HEADER_TOY = "callback contract violation: interface 'toy_scaling' " // &
+        "(version 1), Handler 'scaler_b', callback State 'cb':"
+   character(*), parameter :: HEADER_TM = "callback contract violation: interface 'turbulent_mixing' " // &
+        "(version 1), Handler 'owner', callback State 'cb':"
+
+   ! Collects the messages logged while it is attached to a logger.
+   type, extends(AbstractHandler) :: CaptureHandler
+      integer :: num_messages = 0
+      character(:), allocatable :: last_message
+   contains
+      procedure :: emit_message => capture_emit
+      procedure :: close => capture_close
+      procedure :: flush => capture_flush
+      procedure :: free => capture_free
+      procedure :: equal => capture_equal
+   end type CaptureHandler
+
+contains
+
+   subroutine capture_emit(this, record, unusable, rc)
+      class(CaptureHandler), intent(inout) :: this
+      type(LogRecord), intent(in) :: record
+      class(KeywordEnforcer), optional, intent(in) :: unusable
+      integer, optional, intent(out) :: rc
+
+      this%num_messages = this%num_messages + 1
+      this%last_message = record%get_message()
+      if (present(rc)) rc = 0
+   end subroutine capture_emit
+
+   subroutine capture_close(this)
+      class(CaptureHandler), intent(inout) :: this
+   end subroutine capture_close
+
+   subroutine capture_flush(this)
+      class(CaptureHandler), intent(in) :: this
+   end subroutine capture_flush
+
+   subroutine capture_free(this, rc)
+      class(CaptureHandler), intent(inout) :: this
+      integer, optional, intent(out) :: rc
+
+      if (present(rc)) rc = 0
+   end subroutine capture_free
+
+   logical function capture_equal(a, b)
+      class(CaptureHandler), intent(in) :: a
+      class(AbstractHandler), intent(in) :: b
+
+      capture_equal = same_type_as(a, b)
+   end function capture_equal
+
+   ! toy_scaling: quantity, optional offset_value; State-scoped
+   ! operation (required, scale|offset) and factor (default 2.0); call
+   ! scalar time_step; rule operation = offset requires offset_value.
+   function toy_scaling() result(iface)
+      type(CallbackInterface) :: iface
+
+      integer :: status
+
+      iface = make_CallbackInterface(1, 'scale a field', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('quantity', MAPL_STATEITEM_FIELD, dims='xy', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('offset_value', MAPL_STATEITEM_FIELD, dims='xy', &
+           optional=.true., rc=status)
+      @assertEqual(0, status)
+      call iface%declare_attribute('operation', CALLBACK_VALUE_STRING, scope=CALLBACK_SCOPE_STATE, &
+           required=.true., allowed_values=['scale ', 'offset'], rc=status)
+      @assertEqual(0, status)
+      call iface%declare_attribute('factor', CALLBACK_VALUE_REAL, scope=CALLBACK_SCOPE_STATE, &
+           default=2.0, rc=status)
+      @assertEqual(0, status)
+      call iface%declare_call_scalar('time_step', CALLBACK_VALUE_STRING, CALLBACK_WRITER_INVOKER, &
+           rc=status)
+      @assertEqual(0, status)
+      call iface%declare_rule('operation', 'offset', ['offset_value'], rc=status)
+      @assertEqual(0, status)
+   end function toy_scaling
+
+   ! turbulent_mixing: mixed_quantity with required weight air_mass,
+   ! optional dry_deposition_velocity; member-scoped mix_like (required)
+   ! and bottom_boundary (default bottom_default) on mixed_quantity;
+   ! rule bottom_boundary = robin requires dry_deposition_velocity.
+   function turbulent_mixing(bottom_default) result(iface)
+      character(*), intent(in) :: bottom_default
+      type(CallbackInterface) :: iface
+
+      integer :: status
+
+      iface = make_CallbackInterface(1, 'mix a tracer', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('mixed_quantity', MAPL_STATEITEM_FIELD, dims='xyz', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('air_mass', MAPL_STATEITEM_FIELD, dims='xyz', extensive=.true., &
+           weight_for='mixed_quantity', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('dry_deposition_velocity', MAPL_STATEITEM_FIELD, dims='xy', &
+           optional=.true., rc=status)
+      @assertEqual(0, status)
+      call iface%declare_attribute('mix_like', CALLBACK_VALUE_STRING, scope=CALLBACK_SCOPE_MEMBER, &
+           host_argument='mixed_quantity', required=.true., &
+           allowed_values=['heat    ', 'moisture', 'momentum'], rc=status)
+      @assertEqual(0, status)
+      call iface%declare_attribute('bottom_boundary', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_MEMBER, host_argument='mixed_quantity', default=bottom_default, &
+           allowed_values=['neumann_homogeneous', 'robin              '], rc=status)
+      @assertEqual(0, status)
+      call iface%declare_rule('bottom_boundary', 'robin', ['dry_deposition_velocity'], rc=status)
+      @assertEqual(0, status)
+   end function turbulent_mixing
+
+   function new_state() result(state)
+      type(ESMF_State) :: state
+
+      integer :: status
+
+      state = ESMF_StateCreate(name='cb', rc=status)
+      @assertEqual(0, status)
+   end function new_state
+
+   subroutine add_field(state, name, geom)
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: name
+      type(ESMF_Geom), intent(in) :: geom
+
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = make_test_member(geom, name, 1.0, status)
+      @assertEqual(0, status)
+      call ESMF_StateAdd(state, [field], rc=status)
+      @assertEqual(0, status)
+   end subroutine add_field
+
+   subroutine set_state_string(state, key, value)
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: key
+      character(*), intent(in) :: value
+
+      integer :: status
+
+      call MAPL_InfoSetShared(state, key=key, value=value, rc=status)
+      @assertEqual(0, status)
+   end subroutine set_state_string
+
+   subroutine set_member_string(state, member, key, value)
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: member
+      character(*), intent(in) :: key
+      character(*), intent(in) :: value
+
+      integer :: status
+
+      call MAPL_InfoSetShared(state, member, key, value, rc=status)
+      @assertEqual(0, status)
+   end subroutine set_member_string
+
+   function geom_a() result(geom)
+      type(ESMF_Geom) :: geom
+
+      integer :: status
+
+      geom = make_latlon_geom(4, 3, status)
+      @assertEqual(0, status)
+   end function geom_a
+
+   function geom_b() result(geom)
+      type(ESMF_Geom) :: geom
+
+      integer :: status
+
+      geom = make_latlon_geom(8, 5, status)
+      @assertEqual(0, status)
+   end function geom_b
+
+   ! A conforming toy_scaling Handler: quantity and operation = scale.
+   function toy_state() result(state)
+      type(ESMF_State) :: state
+
+      state = new_state()
+      call add_field(state, 'quantity', geom_a())
+      call set_state_string(state, 'toy_scaling/operation', 'scale')
+   end function toy_state
+
+   ! A conforming turbulent_mixing owner: both fields on one geometry
+   ! and mix_like = heat.
+   function mixing_state() result(state)
+      type(ESMF_State) :: state
+
+      type(ESMF_Geom) :: geom
+
+      geom = geom_a()
+      state = new_state()
+      call add_field(state, 'mixed_quantity', geom)
+      call add_field(state, 'air_mass', geom)
+      call set_member_string(state, 'mixed_quantity', 'turbulent_mixing/mix_like', 'heat')
+   end function mixing_state
+
+   function report_toy(state) result(message)
+      type(ESMF_State), intent(in) :: state
+      character(:), allocatable :: message
+
+      type(CallbackContractViolation), allocatable :: violations(:)
+      integer :: status
+
+      call check_callback_state_conformance(state, toy_scaling(), 'toy_scaling', 'scaler_b', &
+           violations, rc=status)
+      @assertEqual(0, status)
+      message = format_callback_contract_report('toy_scaling', 1, 'scaler_b', 'cb', violations)
+   end function report_toy
+
+   function report_mixing(state, iface) result(message)
+      type(ESMF_State), intent(in) :: state
+      type(CallbackInterface), intent(in) :: iface
+      character(:), allocatable :: message
+
+      type(CallbackContractViolation), allocatable :: violations(:)
+      integer :: status
+
+      call check_callback_state_conformance(state, iface, 'turbulent_mixing', 'owner', &
+           violations, rc=status)
+      @assertEqual(0, status)
+      message = format_callback_contract_report('turbulent_mixing', 1, 'owner', 'cb', violations)
+   end function report_mixing
+
+   function line(text) result(joined)
+      character(*), intent(in) :: text
+      character(:), allocatable :: joined
+
+      joined = NEW_LINE('a') // '  ' // text
+   end function line
+
+   @test
+   subroutine test_conforming_toy_scaling()
+      @assertEqual(HEADER_TOY, report_toy(toy_state()))
+   end subroutine test_conforming_toy_scaling
+
+   @test
+   subroutine test_conforming_turbulent_mixing()
+      @assertEqual(HEADER_TM, report_mixing(mixing_state(), turbulent_mixing('neumann_homogeneous')))
+   end subroutine test_conforming_turbulent_mixing
+
+   ! P5: an extra member and an attribute in another namespace are
+   ! accepted (structural conformance); so is the reserved mapl_mock/
+   ! prefix.
+   @test
+   subroutine test_P5_extra_member_and_foreign_key_accepted()
+      type(ESMF_State) :: state
+
+      state = toy_state()
+      call add_field(state, 'extra', geom_a())
+      call set_state_string(state, 'other_iface/water', 'yes')
+      call set_member_string(state, 'extra', 'toy_scaling_x/factor', 'y')
+      call set_state_string(state, 'mapl_mock/calls', '0')
+      @assertEqual(HEADER_TOY, report_toy(state))
+   end subroutine test_P5_extra_member_and_foreign_key_accepted
+
+   ! F1: no member quantity.
+   @test
+   subroutine test_F1_required_argument_missing()
+      type(ESMF_State) :: state
+
+      state = new_state()
+      call set_state_string(state, 'toy_scaling/operation', 'scale')
+      @assertEqual(HEADER_TOY // line("argument 'quantity' is missing"), report_toy(state))
+   end subroutine test_F1_required_argument_missing
+
+   ! F2: quantity bound to a bundle.
+   @test
+   subroutine test_F2_kind_mismatch()
+      type(ESMF_State) :: state
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+
+      state = new_state()
+      bundle = make_named_bundle('quantity')
+      call ESMF_StateAdd(state, [bundle], rc=status)
+      @assertEqual(0, status)
+      call set_state_string(state, 'toy_scaling/operation', 'scale')
+      @assertEqual(HEADER_TOY // line("argument 'quantity' has kind 'FIELDBUNDLE', expected 'FIELD'"), &
+           report_toy(state))
+   end subroutine test_F2_kind_mismatch
+
+   function make_named_bundle(name) result(bundle)
+      use ESMF, only: ESMF_FieldBundleCreate
+      character(*), intent(in) :: name
+      type(ESMF_FieldBundle) :: bundle
+
+      integer :: status
+
+      bundle = ESMF_FieldBundleCreate(name=name, rc=status)
+      @assertEqual(0, status)
+   end function make_named_bundle
+
+   ! F3: toy_scaling/operation absent from the callback State's Info.
+   @test
+   subroutine test_F3_required_state_attribute_missing()
+      type(ESMF_State) :: state
+
+      state = new_state()
+      call add_field(state, 'quantity', geom_a())
+      @assertEqual(HEADER_TOY // line("'toy_scaling/operation' is missing"), report_toy(state))
+   end subroutine test_F3_required_state_attribute_missing
+
+   ! MF6: turbulent_mixing/mix_like absent from the host member's Info.
+   @test
+   subroutine test_MF6_required_member_attribute_missing()
+      type(ESMF_State) :: state
+      type(ESMF_Geom) :: geom
+
+      geom = geom_a()
+      state = new_state()
+      call add_field(state, 'mixed_quantity', geom)
+      call add_field(state, 'air_mass', geom)
+      @assertEqual(HEADER_TM // line("'turbulent_mixing/mix_like' is missing on member 'mixed_quantity'"), &
+           report_mixing(state, turbulent_mixing('neumann_homogeneous')))
+   end subroutine test_MF6_required_member_attribute_missing
+
+   ! F4: toy_scaling/factor stored as the string '2.0'.
+   @test
+   subroutine test_F4_attribute_type()
+      type(ESMF_State) :: state
+
+      state = toy_state()
+      call set_state_string(state, 'toy_scaling/factor', '2.0')
+      @assertEqual(HEADER_TOY // line("'toy_scaling/factor' is stored as 'string', declared as 'real'"), &
+           report_toy(state))
+   end subroutine test_F4_attribute_type
+
+   ! R4 and R8 both satisfy real.
+   @test
+   subroutine test_r4_and_r8_both_satisfy_real()
+      type(ESMF_State) :: state
+      integer :: status
+
+      state = toy_state()
+      call MAPL_InfoSetShared(state, key='toy_scaling/factor', value=3.0_ESMF_KIND_R4, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(HEADER_TOY, report_toy(state))
+
+      state = toy_state()
+      call MAPL_InfoSetShared(state, key='toy_scaling/factor', value=3.0_ESMF_KIND_R8, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(HEADER_TOY, report_toy(state))
+   end subroutine test_r4_and_r8_both_satisfy_real
+
+   ! Integer and real are distinct: an integer factor is a type error.
+   @test
+   subroutine test_integer_does_not_satisfy_real()
+      type(ESMF_State) :: state
+      integer :: status
+
+      state = toy_state()
+      call MAPL_InfoSetShared(state, key='toy_scaling/factor', value=3, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(HEADER_TOY // line("'toy_scaling/factor' is stored as 'integer', declared as 'real'"), &
+           report_toy(state))
+   end subroutine test_integer_does_not_satisfy_real
+
+   ! F5 and F7: operation is ofset and no offset_value is bound; only the
+   ! allowed-value error is reported, not a rule error.
+   @test
+   subroutine test_F5_F7_value_not_allowed_hides_rule()
+      type(ESMF_State) :: state
+
+      state = toy_state()
+      call set_state_string(state, 'toy_scaling/operation', 'ofset')
+      @assertEqual(HEADER_TOY // line("'toy_scaling/operation' = 'ofset' is not allowed; " // &
+           "allowed values: scale, offset"), report_toy(state))
+   end subroutine test_F5_F7_value_not_allowed_hides_rule
+
+   ! MF5: mix_like is moistre.
+   @test
+   subroutine test_MF5_member_value_not_allowed()
+      type(ESMF_State) :: state
+
+      state = mixing_state()
+      call set_member_string(state, 'mixed_quantity', 'turbulent_mixing/mix_like', 'moistre')
+      @assertEqual(HEADER_TM // line("'turbulent_mixing/mix_like' = 'moistre' is not allowed; " // &
+           "allowed values: heat, moisture, momentum"), &
+           report_mixing(state, turbulent_mixing('neumann_homogeneous')))
+   end subroutine test_MF5_member_value_not_allowed
+
+   ! F6: operation is offset and no offset_value member is bound.
+   @test
+   subroutine test_F6_rule_not_met()
+      type(ESMF_State) :: state
+
+      state = toy_state()
+      call set_state_string(state, 'toy_scaling/operation', 'offset')
+      @assertEqual(HEADER_TOY // line("rule 'toy_scaling/operation = offset' requires argument " // &
+           "'offset_value', which is missing"), report_toy(state))
+   end subroutine test_F6_rule_not_met
+
+   ! The same rule, met.
+   @test
+   subroutine test_rule_met()
+      type(ESMF_State) :: state
+
+      state = toy_state()
+      call add_field(state, 'offset_value', geom_a())
+      call set_state_string(state, 'toy_scaling/operation', 'offset')
+      @assertEqual(HEADER_TOY, report_toy(state))
+   end subroutine test_rule_met
+
+   ! MF7: bottom_boundary is robin and no dry_deposition_velocity.
+   @test
+   subroutine test_MF7_member_rule_not_met()
+      type(ESMF_State) :: state
+
+      state = mixing_state()
+      call set_member_string(state, 'mixed_quantity', 'turbulent_mixing/bottom_boundary', 'robin')
+      @assertEqual(HEADER_TM // line("rule 'turbulent_mixing/bottom_boundary = robin' requires " // &
+           "argument 'dry_deposition_velocity', which is missing"), &
+           report_mixing(state, turbulent_mixing('neumann_homogeneous')))
+   end subroutine test_MF7_member_rule_not_met
+
+   ! F8: the callback State's Info has toy_scaling/facter.
+   @test
+   subroutine test_F8_unknown_state_key()
+      type(ESMF_State) :: state
+
+      state = toy_state()
+      call set_state_string(state, 'toy_scaling/facter', '2.0')
+      @assertEqual(HEADER_TOY // line("'toy_scaling/facter' is not a declared attribute or call " // &
+           "scalar; legal names: factor, operation, time_step"), report_toy(state))
+   end subroutine test_F8_unknown_state_key
+
+   ! A declared call scalar under the namespace is not unknown.
+   @test
+   subroutine test_call_scalar_key_is_known()
+      type(ESMF_State) :: state
+
+      state = toy_state()
+      call set_state_string(state, 'toy_scaling/time_step', 'PT900S')
+      @assertEqual(HEADER_TOY, report_toy(state))
+   end subroutine test_call_scalar_key_is_known
+
+   ! MF8: a member's Info has turbulent_mixing/bottom_bondary.
+   @test
+   subroutine test_MF8_unknown_member_key()
+      type(ESMF_State) :: state
+
+      state = mixing_state()
+      call set_member_string(state, 'air_mass', 'turbulent_mixing/bottom_bondary', 'robin')
+      @assertEqual(HEADER_TM // line("'turbulent_mixing/bottom_bondary' is not a declared " // &
+           "attribute or call scalar; legal names: bottom_boundary, mix_like"), &
+           report_mixing(state, turbulent_mixing('neumann_homogeneous')))
+   end subroutine test_MF8_unknown_member_key
+
+   ! MF1: no air_mass. The weight of a required argument is itself
+   ! required, so this is a missing argument naming what it weights.
+   @test
+   subroutine test_MF1_required_weight_missing()
+      type(ESMF_State) :: state
+
+      state = new_state()
+      call add_field(state, 'mixed_quantity', geom_a())
+      call set_member_string(state, 'mixed_quantity', 'turbulent_mixing/mix_like', 'heat')
+      @assertEqual(HEADER_TM // line("argument 'air_mass' (the weight of 'mixed_quantity') is missing"), &
+           report_mixing(state, turbulent_mixing('neumann_homogeneous')))
+   end subroutine test_MF1_required_weight_missing
+
+   ! MF1b: optional mixed_quantity and optional weight air_mass, only
+   ! mixed_quantity bound.
+   @test
+   subroutine test_MF1b_optional_weighted_pair_half_bound()
+      type(CallbackInterface) :: iface
+      type(ESMF_State) :: state
+      integer :: status
+
+      iface = make_CallbackInterface(1, 'mix optionally', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('mixed_quantity', MAPL_STATEITEM_FIELD, dims='xyz', &
+           optional=.true., rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('air_mass', MAPL_STATEITEM_FIELD, dims='xyz', extensive=.true., &
+           optional=.true., weight_for='mixed_quantity', rc=status)
+      @assertEqual(0, status)
+
+      state = new_state()
+      call add_field(state, 'mixed_quantity', geom_a())
+      @assertEqual(HEADER_TM // line("'air_mass' is missing as the weight of 'mixed_quantity'"), &
+           report_mixing(state, iface))
+
+      state = new_state()
+      @assertEqual(HEADER_TM, report_mixing(state, iface))
+   end subroutine test_MF1b_optional_weighted_pair_half_bound
+
+   ! MF4: air_mass on a geometry other than mixed_quantity's.
+   @test
+   subroutine test_MF4_weight_on_another_geometry()
+      type(ESMF_State) :: state
+
+      state = new_state()
+      call add_field(state, 'mixed_quantity', geom_a())
+      call add_field(state, 'air_mass', geom_b())
+      call set_member_string(state, 'mixed_quantity', 'turbulent_mixing/mix_like', 'heat')
+      @assertEqual(HEADER_TM // line("'air_mass' is on a different geometry than 'mixed_quantity'"), &
+           report_mixing(state, turbulent_mixing('neumann_homogeneous')))
+   end subroutine test_MF4_weight_on_another_geometry
+
+   ! Two violations, one report.
+   @test
+   subroutine test_two_violations_reported_together()
+      type(ESMF_State) :: state
+
+      state = new_state()
+      call set_state_string(state, 'toy_scaling/operation', 'ofset')
+      @assertEqual(HEADER_TOY // line("argument 'quantity' is missing") // &
+           line("'toy_scaling/operation' = 'ofset' is not allowed; allowed values: scale, offset"), &
+           report_toy(state))
+   end subroutine test_two_violations_reported_together
+
+   ! P4: factor not set; the log states that factor used its default 2.0
+   ! for that Handler.
+   @test
+   subroutine test_P4_default_used_and_reported()
+      type(CaptureHandler), target, save :: handler
+      class(Logger), pointer :: lgr
+      type(CallbackContractViolation), allocatable :: violations(:)
+      type(StringVector) :: defaults_used
+      integer :: status, saved_level
+
+      lgr => logging%get_logger('mapl.generic')
+      saved_level = lgr%get_level()
+      call lgr%set_level(INFO)
+      call lgr%add_handler(handler)
+      call check_callback_state_conformance(toy_state(), toy_scaling(), 'toy_scaling', 'scaler_b', &
+           violations, defaults_used=defaults_used, rc=status)
+      call lgr%remove_handler(handler)
+      call lgr%set_level(saved_level)
+
+      @assertEqual(0, status)
+      @assertEqual(0, size(violations))
+      @assertEqual(1, defaults_used%size())
+      @assertEqual('factor', defaults_used%of(1))
+      @assertEqual(1, handler%num_messages)
+      @assertEqual("callback State 'cb' of Handler 'scaler_b': 'toy_scaling/factor' is not set; " // &
+           "using its default 2.0", handler%last_message)
+   end subroutine test_P4_default_used_and_reported
+
+   ! A set attribute is not reported as defaulted.
+   @test
+   subroutine test_set_attribute_not_defaulted()
+      type(ESMF_State) :: state
+      type(CallbackContractViolation), allocatable :: violations(:)
+      type(StringVector) :: defaults_used
+      integer :: status
+
+      state = toy_state()
+      call MAPL_InfoSetShared(state, key='toy_scaling/factor', value=3.0_ESMF_KIND_R8, rc=status)
+      @assertEqual(0, status)
+      call check_callback_state_conformance(state, toy_scaling(), 'toy_scaling', 'scaler_b', &
+           violations, defaults_used=defaults_used, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(0, defaults_used%size())
+   end subroutine test_set_attribute_not_defaulted
+
+   ! Rules are evaluated on an absent attribute's default: bottom_boundary
+   ! defaults to robin, so the missing dry_deposition_velocity is an error.
+   @test
+   subroutine test_rule_on_default_value_still_requires_argument()
+      type(ESMF_State) :: state
+
+      state = mixing_state()
+      @assertEqual(HEADER_TM // line("rule 'turbulent_mixing/bottom_boundary = robin' requires " // &
+           "argument 'dry_deposition_velocity', which is missing"), &
+           report_mixing(state, turbulent_mixing('robin')))
+   end subroutine test_rule_on_default_value_still_requires_argument
+
+   ! Integer attribute with an allowed set.
+   @test
+   subroutine test_integer_value_not_allowed()
+      type(CallbackInterface) :: iface
+      type(ESMF_State) :: state
+      integer :: status
+
+      iface = toy_scaling()
+      call iface%declare_attribute('order', CALLBACK_VALUE_INTEGER, scope=CALLBACK_SCOPE_STATE, &
+           allowed_values=[1, 2], rc=status)
+      @assertEqual(0, status)
+      state = toy_state()
+      call MAPL_InfoSetShared(state, key='toy_scaling/order', value=3, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(HEADER_TOY // line("'toy_scaling/order' = '3' is not allowed; allowed values: 1, 2"), &
+           report_iface(state, iface))
+   end subroutine test_integer_value_not_allowed
+
+   function report_iface(state, iface) result(message)
+      type(ESMF_State), intent(in) :: state
+      type(CallbackInterface), intent(in) :: iface
+      character(:), allocatable :: message
+
+      type(CallbackContractViolation), allocatable :: violations(:)
+      integer :: status
+
+      call check_callback_state_conformance(state, iface, 'toy_scaling', 'scaler_b', &
+           violations, rc=status)
+      @assertEqual(0, status)
+      message = format_callback_contract_report('toy_scaling', 1, 'scaler_b', 'cb', violations)
+   end function report_iface
+
+   ! A host bound with the wrong kind is reported once, as a kind
+   ! mismatch; its member attributes are not checked.
+   @test
+   subroutine test_wrong_kind_host_skips_its_attributes()
+      type(ESMF_State) :: state
+      type(ESMF_FieldBundle) :: bundle
+      integer :: status
+
+      state = new_state()
+      bundle = make_named_bundle('mixed_quantity')
+      call ESMF_StateAdd(state, [bundle], rc=status)
+      @assertEqual(0, status)
+      call add_field(state, 'air_mass', geom_a())
+      @assertEqual(HEADER_TM // line("argument 'mixed_quantity' has kind 'FIELDBUNDLE', expected 'FIELD'"), &
+           report_mixing(state, turbulent_mixing('neumann_homogeneous')))
+   end subroutine test_wrong_kind_host_skips_its_attributes
+
+   ! toy_scaling plus State-scoped lists: modes (string, a|b) and
+   ! orders (integer, 1|2).
+   function toy_with_state_lists() result(iface)
+      type(CallbackInterface) :: iface
+
+      integer :: status
+
+      iface = toy_scaling()
+      call iface%declare_attribute('modes', CALLBACK_VALUE_STRING, is_list=.true., &
+           scope=CALLBACK_SCOPE_STATE, allowed_values=['a', 'b'], rc=status)
+      @assertEqual(0, status)
+      call iface%declare_attribute('orders', CALLBACK_VALUE_INTEGER, is_list=.true., &
+           scope=CALLBACK_SCOPE_STATE, allowed_values=[1, 2], rc=status)
+      @assertEqual(0, status)
+   end function toy_with_state_lists
+
+   ! turbulent_mixing plus member-scoped lists on mixed_quantity: tags
+   ! (string, x|y) and levels (integer, 1|2).
+   function mixing_with_member_lists() result(iface)
+      type(CallbackInterface) :: iface
+
+      integer :: status
+
+      iface = turbulent_mixing('neumann_homogeneous')
+      call iface%declare_attribute('tags', CALLBACK_VALUE_STRING, is_list=.true., &
+           scope=CALLBACK_SCOPE_MEMBER, host_argument='mixed_quantity', &
+           allowed_values=['x', 'y'], rc=status)
+      @assertEqual(0, status)
+      call iface%declare_attribute('levels', CALLBACK_VALUE_INTEGER, is_list=.true., &
+           scope=CALLBACK_SCOPE_MEMBER, host_argument='mixed_quantity', &
+           allowed_values=[1, 2], rc=status)
+      @assertEqual(0, status)
+   end function mixing_with_member_lists
+
+   @test
+   subroutine test_state_lists_with_allowed_elements_conform()
+      type(ESMF_State) :: state
+      integer :: status
+
+      state = toy_state()
+      call MAPL_InfoSetShared(state, key='toy_scaling/modes', values=['b', 'a'], rc=status)
+      @assertEqual(0, status)
+      call MAPL_InfoSetShared(state, key='toy_scaling/orders', values=[2, 1], rc=status)
+      @assertEqual(0, status)
+      @assertEqual(HEADER_TOY, report_iface(state, toy_with_state_lists()))
+   end subroutine test_state_lists_with_allowed_elements_conform
+
+   ! One bad element in each State-scoped list.
+   @test
+   subroutine test_state_list_element_not_allowed()
+      type(ESMF_State) :: state
+      integer :: status
+
+      state = toy_state()
+      call MAPL_InfoSetShared(state, key='toy_scaling/modes', values=['a', 'c'], rc=status)
+      @assertEqual(0, status)
+      call MAPL_InfoSetShared(state, key='toy_scaling/orders', values=[1, 3], rc=status)
+      @assertEqual(0, status)
+      @assertEqual(HEADER_TOY // line("'toy_scaling/modes' = 'c' is not allowed; allowed values: a, b") // &
+           line("'toy_scaling/orders' = '3' is not allowed; allowed values: 1, 2"), &
+           report_iface(state, toy_with_state_lists()))
+   end subroutine test_state_list_element_not_allowed
+
+   @test
+   subroutine test_member_lists_with_allowed_elements_conform()
+      type(ESMF_State) :: state
+      integer :: status
+
+      state = mixing_state()
+      call MAPL_InfoSetShared(state, 'mixed_quantity', 'turbulent_mixing/tags', ['y', 'x'], rc=status)
+      @assertEqual(0, status)
+      call MAPL_InfoSetShared(state, 'mixed_quantity', 'turbulent_mixing/levels', [2], rc=status)
+      @assertEqual(0, status)
+      @assertEqual(HEADER_TM, report_mixing(state, mixing_with_member_lists()))
+   end subroutine test_member_lists_with_allowed_elements_conform
+
+   ! One bad element in each member-scoped list.
+   @test
+   subroutine test_member_list_element_not_allowed()
+      type(ESMF_State) :: state
+      integer :: status
+
+      state = mixing_state()
+      call MAPL_InfoSetShared(state, 'mixed_quantity', 'turbulent_mixing/tags', ['z', 'x'], rc=status)
+      @assertEqual(0, status)
+      call MAPL_InfoSetShared(state, 'mixed_quantity', 'turbulent_mixing/levels', [1, 5], rc=status)
+      @assertEqual(0, status)
+      @assertEqual(HEADER_TM // line("'turbulent_mixing/levels' = '5' is not allowed; allowed values: 1, 2") // &
+           line("'turbulent_mixing/tags' = 'z' is not allowed; allowed values: x, y"), &
+           report_mixing(state, mixing_with_member_lists()))
+   end subroutine test_member_list_element_not_allowed
+
+   ! A list needs an array of the element type: a real list and a
+   ! scalar both fail a declared integer list / string list.
+   @test
+   subroutine test_list_type_mismatch()
+      type(ESMF_State) :: state
+      integer :: status
+
+      state = toy_state()
+      call MAPL_InfoSetShared(state, key='toy_scaling/orders', values=[1.0_ESMF_KIND_R8], rc=status)
+      @assertEqual(0, status)
+      call set_state_string(state, 'toy_scaling/modes', 'a')
+      @assertEqual(HEADER_TOY // line("'toy_scaling/modes' is stored as 'string', declared as 'string list'") // &
+           line("'toy_scaling/orders' is stored as 'real list', declared as 'integer list'"), &
+           report_iface(state, toy_with_state_lists()))
+   end subroutine test_list_type_mismatch
+
+end module Test_CallbackStateConformance

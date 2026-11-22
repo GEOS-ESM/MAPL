@@ -67,13 +67,21 @@ contains
       text = this%text
    end function violation_get_text
 
-   ! Spec scenario F1 "Required argument missing".
-   function missing_argument_violation(argument_name) result(violation)
+   ! Spec scenarios F1 "Required argument missing" and MF1 "Required
+   ! weight missing": weight_of names the argument a missing required
+   ! weight belongs to.
+   function missing_argument_violation(argument_name, weight_of) result(violation)
       character(*), intent(in) :: argument_name
+      character(*), optional, intent(in) :: weight_of
       type(CallbackContractViolation) :: violation
 
-      violation = new_violation('missing_member:' // argument_name, &
-           "argument '" // argument_name // "' is missing")
+      if (present(weight_of)) then
+         violation = new_violation('missing_member:' // argument_name, &
+              "argument '" // argument_name // "' (the weight of '" // weight_of // "') is missing")
+      else
+         violation = new_violation('missing_member:' // argument_name, &
+              "argument '" // argument_name // "' is missing")
+      end if
    end function missing_argument_violation
 
    ! Spec scenario F2 "Kind mismatch".
@@ -160,7 +168,7 @@ contains
            join(legal_names))
    end function unknown_key_violation
 
-   ! Spec scenarios MF1, MF1b "Required weight missing".
+   ! Spec scenario MF1b "Optional weighted pair half bound".
    function weight_missing_violation(weight_name, argument_name) result(violation)
       character(*), intent(in) :: weight_name
       character(*), intent(in) :: argument_name

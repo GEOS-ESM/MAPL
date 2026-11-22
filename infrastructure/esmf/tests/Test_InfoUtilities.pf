@@ -574,6 +574,73 @@ contains
    end subroutine test_state_shared_r8
 
    @test
+   subroutine test_state_shared_i4_1d()
+      type(ESMF_State) :: state
+      integer :: status
+      integer(kind=ESMF_KIND_I4), allocatable :: v(:)
+      integer(kind=ESMF_KIND_I4), parameter :: expected(*) = [3, 1, 4]
+
+      state = ESMF_StateCreate(name='export', _RC)
+
+      call MAPL_InfoSetShared(state, key='a', values=expected, _RC)
+      call MAPL_InfoGetShared(state, key='a', values=v, _RC)
+      @assert_that(v, is(equal_to(expected)))
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_state_shared_i4_1d
+
+   @test
+   subroutine test_state_shared_r4_1d()
+      type(ESMF_State) :: state
+      integer :: status
+      real(kind=ESMF_KIND_R4), allocatable :: v(:)
+      real(kind=ESMF_KIND_R4), parameter :: expected(*) = [1.0, 2.0, 5.0]
+
+      state = ESMF_StateCreate(name='export', _RC)
+
+      call MAPL_InfoSetShared(state, key='a', values=expected, _RC)
+      call MAPL_InfoGetShared(state, key='a', values=v, _RC)
+      @assert_that(v, is(equal_to(expected)))
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_state_shared_r4_1d
+
+   @test
+   subroutine test_state_shared_r8_1d()
+      type(ESMF_State) :: state
+      integer :: status
+      real(kind=ESMF_KIND_R8), allocatable :: v(:)
+      real(kind=ESMF_KIND_R8), parameter :: expected(*) = [1.5_ESMF_KIND_R8, -2.25_ESMF_KIND_R8]
+
+      state = ESMF_StateCreate(name='export', _RC)
+
+      call MAPL_InfoSetShared(state, key='a', values=expected, _RC)
+      call MAPL_InfoGetShared(state, key='a', values=v, _RC)
+      @assert_that(v, is(equal_to(expected)))
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_state_shared_r8_1d
+
+   @test
+   subroutine test_state_shared_string_list()
+      type(ESMF_State) :: state
+      integer :: status
+      type(StringVector) :: v
+      character(len=4), parameter :: expected(*) = ['one ', 'two ', 'tre ']
+
+      state = ESMF_StateCreate(name='export', _RC)
+
+      call MAPL_InfoSetShared(state, key='a', values=expected, _RC)
+      call MAPL_InfoGetShared(state, key='a', values=v, _RC)
+      @assertEqual(3, v%size())
+      @assertEqual('one', v%of(1))
+      @assertEqual('two', v%of(2))
+      @assertEqual('tre', v%of(3))
+
+      call ESMF_StateDestroy(state, _RC)
+   end subroutine test_state_shared_string_list
+
+   @test
    ! The State's own Info is the host of the shared namespace, so the
    ! value is readable by its fully qualified raw key.
    subroutine test_state_shared_is_under_shared_namespace()
