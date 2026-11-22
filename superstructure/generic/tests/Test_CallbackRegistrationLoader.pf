@@ -254,13 +254,19 @@ contains
       @assertEqual('offset_value', requires%of(1))
    end subroutine test_shipped_toy_scaling_file_loads
 
-   ! The shipped GEOS registration file still ships no interfaces, and
-   ! must load cleanly as-is: a map with no interface entries is
-   ! accepted, like the "{}" case in test_file_load_clears_no_file_mark
-   ! below, not treated as missing or malformed.
+   ! The shipped GEOS registration file loads and registers turbulent_mixing.
+   ! Exercises the real shipped callback_interfaces_geos.yaml (copied
+   ! into this ctest working directory by this directory's CMakeLists.txt).
    @test
-   subroutine test_shipped_geos_file_loads_with_no_interfaces()
+   subroutine test_shipped_geos_file_loads_turbulent_mixing()
       character(len=*), parameter :: FILENAME = 'callback_interfaces_geos.yaml'
+      type(CallbackInterface) :: iface
+      type(CallbackArgumentSpecMap) :: arguments
+      type(CallbackMethodSpecMap) :: methods
+      type(CallbackAttributeSpecMap) :: attributes
+      type(CallbackRuleVector) :: rules
+      type(CallbackRule), pointer :: rule
+      type(StringVector) :: requires
       logical :: found
       integer :: status
 
@@ -269,9 +275,37 @@ contains
       call load_callback_registration_file(FILENAME, found, rc=status)
       @assertEqual(0, status, 'the shipped callback_interfaces_geos.yaml must load')
       @assertTrue(found, 'callback_interfaces_geos.yaml must be staged in this working directory')
-      @assertEqual(0, size(list_callback_interface_names()), &
-           'callback_interfaces_geos.yaml currently ships no interfaces')
-   end subroutine test_shipped_geos_file_loads_with_no_interfaces
+
+      iface = get_callback_interface_by_name('turbulent_mixing', rc=status)
+      @assertEqual(0, status, 'turbulent_mixing must be registered from the shipped file')
+      @assertEqual(1, iface%get_version())
+      @assertEqual('mix a tracer', iface%get_summary())
+
+      arguments = iface%get_arguments()
+      @assertEqual(3, arguments%size(), 'turbulent_mixing must declare exactly 3 arguments')
+      @assertTrue(iface%is_argument('mixed_quantity'))
+      @assertTrue(iface%is_argument('air_mass'))
+      @assertTrue(iface%is_argument('dry_deposition_velocity'))
+
+      methods = iface%get_methods()
+      @assertEqual(2, methods%size(), 'turbulent_mixing must declare exactly 2 methods')
+      @assertTrue(iface%is_method('get'))
+      @assertTrue(iface%is_method('put'))
+
+      attributes = iface%get_attributes()
+      @assertEqual(2, attributes%size(), 'turbulent_mixing must declare exactly 2 attributes')
+      @assertTrue(iface%is_attribute('mix_like'))
+      @assertTrue(iface%is_attribute('bottom_boundary'))
+
+      rules = iface%get_rules()
+      @assertEqual(1, rules%size())
+      rule => rules%of(1)
+      @assertEqual('bottom_boundary', rule%get_attribute())
+      @assertEqual('robin', rule%get_value())
+      requires = rule%get_required_arguments()
+      @assertEqual(1, requires%size())
+      @assertEqual('dry_deposition_velocity', requires%of(1))
+   end subroutine test_shipped_geos_file_loads_turbulent_mixing
 
    @test
    subroutine test_unknown_key_in_argument_entry()
