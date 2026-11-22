@@ -220,10 +220,16 @@ the interface's schema, and reads from the given `member`'s Info (scope
 `host_argument`) or the State's own Info (scope `state`), returning the
 default when absent. It also records "default used" for the
 report. The call-scalar setter `MAPL_CallbackSetScalar(state, name,
-value, rc)` checks name, type and writer; the writer is known from the
-calling context (`invoker` from the execute API, `handler` inside the
-attached procedure, tracked by a flag the execute API sets around the
-call).
+value, rc)` checks only name and declared type, the same cheap checks
+every other accessor in this change makes. A call scalar's declared
+writer (Handler or Invoker, decision 9) is not checked at the call site
+-- it is a documented convention, same trust level as decision 14's
+"every `select case` ends in an error default": the framework guards
+against what is cheap to tell apart from correct use (a typo'd name, a
+wrong type) and trusts implementors for the rest. No sourced example in
+this change has a production Handler and Invoker actually contesting a
+call scalar; the only user today is the Mock/Configurable Handler's own
+test tooling (task 7.4).
 
 **12. Invoker-side execution is owner work and the critical path.**
 None of execution exists today: realizing each Handler's callback State
@@ -314,6 +320,27 @@ the same grid, 6°×7.5° (non-nested) and 2°×2.5° (nested), all
 edge-aligned (`dateline: DE`, `pole: PE`). Tolerance: R8 fields,
 relative 10⁻¹² of the column scale `Σk mk |ck|`, fallback 10⁻¹⁰ if
 ESMF's conservative weights prove less accurate.
+
+**19. Execution mechanics reuse the existing demand-driven update, not
+new machinery (decision 12's reserved work, mechanics settled in
+advance).** `pull_callback_get_arguments` is a loop over `get_bindings`
+calling the existing `ComponentGraph%update(node_id)` on each
+get-binding's bound member NodeId -- the same "ensure this node's value
+is current, following the hierarchy's forward network" call every
+ordinary connection already uses; no new pull mechanism.
+`advance_callback_put_arguments` bumps the Invoker-side copy's node
+revision the same way `ComponentGraph_DemandDrivenUpdate`'s
+`finish_transform` already marks an ordinary transform's output fresh;
+propagation into the Handler's real internal item (through
+`SnapshotTransform`/`WeightedDeltaBackTransform`/etc., task 6.x) happens
+the next time something calls `update()` on that downstream item, not as
+a separate forced step inside `MAPL_CallbackExecute`.
+`MAPL_CallbackExecute(state, method, rc)` finds its `CallbackMethodBinding`
+by an Info key recorded on the callback State at REALIZE_ACCEPTED
+(decision C1 of the execution design notes), mirroring legacy
+`StateAddMethod.F90`'s `MAPL_CALLBACK_MAP` Info key (method name ->
+attached routine on that same State) -- no separate global
+NodeId-keyed registry.
 
 ## Risks / Trade-offs
 
