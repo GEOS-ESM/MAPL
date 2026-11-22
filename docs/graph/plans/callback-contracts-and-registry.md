@@ -390,8 +390,13 @@ F1-F12.
 -Matrix.** `turbulent_mixing` slice, M1-M9 and MF1-MF9.
 - **Status:** CB9-ColumnSolver done (`Plan-Task: CB9-ColumnSolver`);
   -GeosEntry done (tasks.md 9.1, `Plan-Task: CB9-GeosEntry`):
-  `callback_interfaces_geos.yaml` now ships `turbulent_mixing`; others
-  not started. `mapl_ImplicitColumnDiffusion_mod` lives in
+  `callback_interfaces_geos.yaml` now ships `turbulent_mixing`;
+  -MockOwners done (tasks.md 9.3, `Plan-Task: CB9-MockOwners`): three
+  mock `turbulent_mixing` owner configs of `ConfigurableCallbackHandler`
+  on the Invoker's own grid, a coarser non-nested grid and a finer
+  nested grid (design decision 18), construction and conformance only
+  (`check_callback_state_conformance`), no Invoker execution; -TestInvoker
+  and -Matrix not started. `mapl_ImplicitColumnDiffusion_mod` lives in
   `superstructure/generic/tests/ImplicitColumnDiffusion.F90`, part of the
   test-only `MAPL.generic.test_common` library (owner decision: it is
   test infrastructure for this slice, not a MAPL physics deliverable, and

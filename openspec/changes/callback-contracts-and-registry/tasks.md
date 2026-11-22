@@ -127,7 +127,7 @@
   diffusion column operator using the delivered `air_mass`; four bottom
   conditions; realized flux; unused-argument check (MF9). Column solver
   unit-tested on its own first (M-matrix positivity, M9).
-- [ ] 9.3 Mock tracer owners on the three owner geometries.
+- [x] 9.3 Mock tracer owners on the three owner geometries.
 - [ ] 9.4 Test matrix M1, M3-M9 and MF1-MF9 (M2 is 6.3).
 
 ## 10. Docs
