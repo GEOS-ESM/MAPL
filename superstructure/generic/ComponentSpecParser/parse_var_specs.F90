@@ -10,6 +10,7 @@ submodule (mapl_ComponentSpecParser_mod) parse_var_specs_smod
    character(*), parameter :: KEY_QUANTITY_TYPE = 'quantity_type'
    character(*), parameter :: KEY_NON_NEGATIVE = 'non_negative'
    character(*), parameter :: KEY_NON_NEGATIVE_FILL = 'fill'
+   character(*), parameter :: KEY_CALLBACK_INTERFACE = 'callback_interface'
 
 contains
 
@@ -64,6 +65,8 @@ contains
          character(:), allocatable :: units
          character(:), allocatable :: expression
          character(:), allocatable :: non_negative
+         character(:), allocatable :: callback_interface
+         logical :: has_callback_interface
          type(ESMF_StateItem_Flag) :: itemtype
          type(ESMF_StateIntent_Flag) :: esmf_state_intent
 
@@ -167,6 +170,11 @@ contains
 
             call to_non_negative(non_negative, attributes, _RC)
 
+            has_callback_interface = ESMF_HConfigIsDefined(attributes, keyString=KEY_CALLBACK_INTERFACE, _RC)
+            if (has_callback_interface) then
+               callback_interface = ESMF_HConfigAsString(attributes, keyString=KEY_CALLBACK_INTERFACE, _RC)
+            end if
+
             itemtype = to_itemtype(attributes, _RC)
             call to_service_items(service_items, attributes, _RC)
 
@@ -205,11 +213,13 @@ contains
                  quantity_type=quantity_type, &
                  mirror_geom=mirror_geom, &
                  mirror_vgrid=mirror_vgrid, &
-                 non_negative=non_negative, _RC)
+                 non_negative=non_negative, &
+                 callback_interface=callback_interface, _RC)
 
             if (allocated(units)) deallocate(units)
             if (allocated(standard_name)) deallocate(standard_name)
             if (allocated(long_name)) deallocate(long_name)
+            if (allocated(callback_interface)) deallocate(callback_interface)
             call var_specs%push_back(var_spec)
 
             call ESMF_HConfigDestroy(attributes, _RC)

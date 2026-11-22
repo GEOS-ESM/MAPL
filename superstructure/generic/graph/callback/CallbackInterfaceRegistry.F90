@@ -42,9 +42,10 @@
 ! is registered: "no callback_interfaces.yaml found in <cwd>". Both
 ! conditions are required, not the "no file" mark alone, so a file that
 ! was found (even an empty one, or one missing this particular name)
-! always gets the plain "service name not registered" message instead
-! - the specific message names a missing file as the cause, which is
-! only true when no entries came from anywhere.
+! always gets the generic "service name '<name>' not registered;
+! registered: <names>" message instead - the specific message names a
+! missing file as the cause, which is only true when no entries came
+! from anywhere.
 !------------------------------------------------------------------------------
 module mapl_CallbackInterfaceRegistry_mod
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId, CallbackInterfaceIdGenerator
@@ -277,6 +278,10 @@ contains
    ! registry was marked "no file" (see mark_callback_registry_no_file),
    ! the failure names the missing file and the current working
    ! directory instead of the generic message (module header comment).
+   ! The generic message itself names the attempted service_name and the
+   ! sorted list of registered names ('(none)' when the registry is
+   ! empty), per callback-wiring/spec.md's "Imports and exports declare
+   ! an expected callback interface by name".
    function lookup_callback_interface_id(service_name, rc) result(id)
       character(*), intent(in) :: service_name
       integer, optional, intent(out) :: rc
@@ -297,12 +302,36 @@ contains
                  'no callback_interfaces.yaml found in ' // cwd
             _FAIL(message)
          end if
-         _FAIL('CallbackInterfaceRegistry: lookup_callback_interface_id - service name not registered')
+         message = 'CallbackInterfaceRegistry: lookup_callback_interface_id - ' // &
+              "service name '" // service_name // "' not registered; registered: " // &
+              join_registered_names(list_callback_interface_names())
+         _FAIL(message)
       end if
       id = found
 
       _RETURN(_SUCCESS)
    end function lookup_callback_interface_id
+
+   ! Joins list_callback_interface_names()'s blank-padded, sorted entries
+   ! with ", ", trimming each; '(none)' when the list is empty. Used only
+   ! by lookup_callback_interface_id's failure message.
+   function join_registered_names(names) result(joined)
+      character(*), intent(in) :: names(:)
+      character(:), allocatable :: joined
+
+      integer :: i
+
+      if (size(names) == 0) then
+         joined = '(none)'
+         return
+      end if
+
+      joined = ''
+      do i = 1, size(names)
+         if (i > 1) joined = joined // ', '
+         joined = joined // trim(names(i))
+      end do
+   end function join_registered_names
 
    ! Spec scenario: "Registered interface is retrievable ... by the
    ! service name it was registered under" - composes the two lookups

@@ -17,6 +17,10 @@ module Test_ComponentSpecParser
    use mapl_QuantityType_mod, only: QUANTITY_UNKNOWN, QUANTITY_TEMPERATURE, &
         QUANTITY_MIXING_RATIO, operator(==)
    use mapl_VariableSpecVector_mod, only: VariableSpecVector, VariableSpecVectorIterator, operator(/=)
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId, operator(==)
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackInterfaceRegistry_mod, only: register_callback_interface, &
+        reset_callback_registry_for_testing
    use mapl_ErrorHandling_mod
    use mapl_Connection_mod
    use mapl_ConnectionPt_mod
@@ -374,6 +378,80 @@ contains
       @assertEqual(1, status)
       call ESMF_HConfigDestroy(config, _RC)
    end subroutine test_parse_var_specs_rejects_unknown_quantity_type
+
+   ! callback_interface: <name> resolves through CallbackInterfaceRegistry to
+   ! the registered CallbackInterfaceId, on both an import (callback
+   ! consumer role) and an export (Handler role; parse_var_specs has no YAML
+   ! way to declare a composite STATE item, so this uses an ordinary FIELD
+   ! export - the key's resolution does not depend on itemType); an item
+   ! that omits the key keeps an invalid (unset) callback_interface_id.
+   @test
+   subroutine test_parse_var_specs_callback_interface()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: var_spec
+      type(VariableSpecVectorIterator) :: iter
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: expected_id
+      integer :: rc, status, n_seen
+
+      call reset_callback_registry_for_testing()
+      call register_callback_interface('toy_scaling', iface, expected_id, _RC)
+
+      config = ESMF_HConfigCreate(content='{states: {' // &
+           'import: {A: {callback_interface: toy_scaling}, B: {typekind: R4}}, ' // &
+           'export: {C: {typekind: R4, callback_interface: toy_scaling}}' // &
+           '}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      @assertEqual(3, var_specs%size())
+
+      n_seen = 0
+      associate (e => var_specs%ftn_end())
+         iter = var_specs%ftn_begin()
+         do while (iter /= e)
+            call iter%next()
+            var_spec => iter%of()
+            n_seen = n_seen + 1
+            select case (var_spec%short_name)
+            case ('A', 'C')
+               @assertTrue(var_spec%callback_interface_id%is_valid())
+               @assertTrue(var_spec%callback_interface_id == expected_id)
+            case default
+               @assertFalse(var_spec%callback_interface_id%is_valid())
+            end select
+         end do
+      end associate
+      @assertEqual(3, n_seen)
+
+      call ESMF_HConfigDestroy(config, _RC)
+      call reset_callback_registry_for_testing()
+   end subroutine test_parse_var_specs_callback_interface
+
+   ! A callback_interface name that CallbackInterfaceRegistry does not
+   ! recognize is the registry's own unregistered-name error.
+   @test
+   subroutine test_parse_var_specs_rejects_unregistered_callback_interface()
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      integer :: rc, status
+
+      call reset_callback_registry_for_testing()
+
+      config = ESMF_HConfigCreate(content='{states: {import: {' // &
+           'A: {callback_interface: no_such_interface}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', rc=status)
+      @assertExceptionRaised('CallbackInterfaceRegistry: lookup_callback_interface_id - ' // &
+           "service name 'no_such_interface' not registered; registered: (none)")
+      ! make_VariableSpec, parse_state_specs and parse_var_specs each pass it up
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertExceptionRaised('status=1')
+      @assertEqual(1, status)
+      call ESMF_HConfigDestroy(config, _RC)
+      call reset_callback_registry_for_testing()
+   end subroutine test_parse_var_specs_rejects_unregistered_callback_interface
 
    ! vertical_alignment reaches the VariableSpec as written; omitted stays unallocated.
    @test

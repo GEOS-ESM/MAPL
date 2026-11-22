@@ -54,7 +54,7 @@ contains
       id = lookup_callback_interface_id('anything', rc=status)
       @assertExceptionRaised( &
            'CallbackInterfaceRegistry: lookup_callback_interface_id - ' // &
-           'service name not registered')
+           "service name 'anything' not registered; registered: (none)")
       @assertTrue(status /= 0)
    end subroutine test_lookup_without_no_file_mark_keeps_generic_message
 
@@ -81,7 +81,7 @@ contains
       id = lookup_callback_interface_id('some-other-name', rc=status)
       @assertExceptionRaised( &
            'CallbackInterfaceRegistry: lookup_callback_interface_id - ' // &
-           'service name not registered')
+           "service name 'some-other-name' not registered; registered: registered-despite-no-file")
       @assertTrue(status /= 0)
    end subroutine test_no_file_mark_but_entry_registered_keeps_generic_message
 

@@ -28,7 +28,7 @@
 - [ ] 3.6 Hand-written constants modules for `toy_scaling` and
   `turbulent_mixing`, with a test that each constant names something in
   the loaded file.
-- [ ] 3.7 YAML key `callback_interface: <name>` for imports and STATE
+- [x] 3.7 YAML key `callback_interface: <name>` for imports and STATE
   exports in `parse_var_specs`, and the matching `make_VariableSpec`
   keyword; resolve by name through the registry; unregistered-name
   error. Tests.

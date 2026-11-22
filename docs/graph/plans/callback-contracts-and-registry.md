@@ -314,8 +314,25 @@ registry stays empty and nothing changes; check ESSENTIAL on both
 compilers. CB3-YamlKey adds the YAML key the landed `callback-wiring`
 change deferred.
 - **Status:** CB3-CRC32, -Loader, -InitLoad done (`Plan-Task: CB3-CRC32`,
-  `Plan-Task: CB3-Loader`, `Plan-Task: CB3-InitLoad`); -CapFreeze,
-  -ShippedFiles, -Constants, -YamlKey not started
+  `Plan-Task: CB3-Loader`, `Plan-Task: CB3-InitLoad`); -CapFreeze done
+  (tasks.md 3.4, `Plan-Task: CB3-CapFreeze`); -ShippedFiles done
+  (`Plan-Task: CB3-ShippedFiles`): `callback_interfaces_test.yaml`
+  (`superstructure/generic/tests/`, toy_scaling only) and
+  `callback_interfaces_geos.yaml` (`superstructure/generic/graph/callback/`,
+  ships no interfaces yet -- `turbulent_mixing` is CB9-GeosEntry's own
+  deliverable, per tasks.md 9.1), each with a header documenting the
+  duplicate-key finding (open point 1 below, scoped to scalar keys read
+  by keyString lookup -- a duplicated name inside `arguments:`/
+  `methods:`/`attributes:`/`call_scalars:` is read by iteration instead
+  and is a hard load error, not silently shadowed); GEOS file installs
+  to `etc`, test file is copied into the ctest working directory, both
+  proven by tests that load the real shipped file by name; -YamlKey done
+  (`Plan-Task: CB3-YamlKey`): `callback_interface: <name>` resolved
+  inside `make_VariableSpec` per design.md decision 8's literal wording,
+  not the geom_id-style parser-resolves-then-passes-in split (reviewed,
+  both fit, no rewrite needed); the key is currently accepted on any
+  state intent (not restricted to imports/STATE exports -- open
+  question for the owner, not yet acted on); -Constants not started
 
 **CB4-Messages / -DeclCheck / -StateCheck / -Accessors.** Per the
 `graph/callback-contract-conformance` delta. CB4-DeclCheck changes how

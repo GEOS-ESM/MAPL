@@ -77,6 +77,10 @@ module Test_VariableSpecCharacteristics
    use esmf, only: ESMF_State, ESMF_StateCreate, ESMF_StateDestroy
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StateItemCharacteristic_mod, only: SYNC_PHASE_DESCRIPTIVE, SYNC_PHASE_STRUCTURAL
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId, operator(==)
+   use mapl_CallbackInterfaceRegistry_mod, only: register_callback_interface, &
+        reset_callback_registry_for_testing
    implicit none(type, external)
 
 contains
@@ -786,6 +790,28 @@ contains
            itemtype=MAPL_STATEITEM_FIELD, rc=status)
       @assertEqual(0, status)
    end subroutine test_make_VariableSpec_accepts_plain_field_export
+
+   ! make_VariableSpec's callback_interface keyword takes an interface
+   ! name and resolves it through CallbackInterfaceRegistry itself.
+   @test
+   subroutine test_make_VariableSpec_resolves_callback_interface_by_name()
+      type(VariableSpec) :: var_spec
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: expected_id
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+      call register_callback_interface('toy_scaling', iface, expected_id, rc=status)
+      @assertEqual(0, status)
+
+      var_spec = make_VariableSpec(ESMF_STATEINTENT_IMPORT, short_name='X', &
+           callback_interface='toy_scaling', rc=status)
+      @assertEqual(0, status)
+      @assertTrue(var_spec%callback_interface_id%is_valid())
+      @assertTrue(var_spec%callback_interface_id == expected_id)
+
+      call reset_callback_registry_for_testing()
+   end subroutine test_make_VariableSpec_resolves_callback_interface_by_name
 
    @test
    subroutine test_typekind_factory_rejects_hand_built_mirror_export()

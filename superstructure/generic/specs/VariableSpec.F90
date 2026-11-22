@@ -67,6 +67,7 @@ module mapl_VariableSpec_mod
    use mapl_VariableSpecTag_mod, only: VariableSpecTag
    use mapl_VariableSpecMemberMap_mod
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
+   use mapl_CallbackInterfaceRegistry_mod, only: lookup_callback_interface_id
    use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
    use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
 
@@ -197,10 +198,13 @@ module mapl_VariableSpec_mod
       ! field's validity, not on itemType, since a callback-consuming
       ! import is still an ordinary composite STATE item otherwise
       ! (mirrors MAPL_STATEITEM_SERVICE's own "mark the item, not the
-      ! connection" precedent without overloading itemType itself). Set
-      ! via plain field assignment only (no make_VariableSpec keyword):
-      ! no ComponentSpecParser/YAML or SetServices-convenience entry
-      ! point exists for it, as for `members`, above.
+      ! connection" precedent without overloading itemType itself). The
+      ! same field on a STATE export marks it as a Handler of that
+      ! interface. Settable by plain field assignment, or by name
+      ! through the registry via the `callback_interface` keyword below
+      ! and the matching YAML key `callback_interface: <name>` (import
+      ! or STATE export); an unregistered name fails with
+      ! CallbackInterfaceRegistry's own lookup error.
       type(CallbackInterfaceId) :: callback_interface_id
 
       !=====================
@@ -215,9 +219,10 @@ module mapl_VariableSpec_mod
       ! unallocated for an ordinary (non-tagged) composite or leaf -
       ! mapl_CompositeStateMaterialization_mod only calls MAPL_StateSet(state_item_variant=)
       ! when this is allocated, so every existing composite declaration
-      ! is unaffected. Mirrors `callback_interface_id`'s own precedent
-      ! exactly: "mark the item, not a new itemType," set via plain field
-      ! assignment only, no make_VariableSpec keyword -
+      ! is unaffected. Follows `callback_interface_id`'s own "mark the
+      ! item, not a new itemType" precedent; unlike that field,
+      ! state_item_variant is set via plain field assignment only, with
+      ! no make_VariableSpec keyword of its own -
       ! chosen over a polymorphic role-class hierarchy since no second
       ! composite role is anticipated yet and MAPL_StateItem_Flag already
       ! provides the needed vocabulary.
@@ -234,12 +239,12 @@ module mapl_VariableSpec_mod
       ! Default .false. for an ordinary (non-inout) import - GraphBuilder
       ! branches on this field, not on itemType, mirroring
       ! `callback_interface_id`'s own "mark the item, not a new itemType"
-      ! precedent exactly. The owner this borrower
+      ! precedent. The owner this borrower
       ! pairs with is identified through the existing `MatchConnection`
       ! mechanism already used for ordinary connections - no owner
       ! reference is stored on the borrower's own VariableSpec. Set via
       ! plain field assignment only, no make_VariableSpec keyword, same as
-      ! `callback_interface_id`/`state_item_variant`.
+      ! `state_item_variant`.
       logical :: is_inout_borrower = .false.
 
       !=====================
@@ -318,6 +323,7 @@ contains
         restart_mode, &
         quantity_type, &
         non_negative, &
+        callback_interface, &
         rc) result(var_spec)
 
       type(VariableSpec) :: var_spec
@@ -350,6 +356,9 @@ contains
       type(RestartMode), optional, intent(in) :: restart_mode
       type(MAPL_QuantityType), optional, intent(in) :: quantity_type
       character(*), optional, intent(in) :: non_negative
+      ! Resolved by name through CallbackInterfaceRegistry; an
+      ! unregistered name fails with that registry's own lookup error.
+      character(*), optional, intent(in) :: callback_interface
       integer, optional, intent(out) :: rc
 
 !#      type(ESMF_RegridMethod_Flag), allocatable :: regrid_method
@@ -402,6 +411,10 @@ contains
       _SET_OPTIONAL(restart_mode)
       _SET_OPTIONAL(quantity_type)
       _SET_OPTIONAL(non_negative)
+
+      if (present(callback_interface)) then
+         var_spec%callback_interface_id = lookup_callback_interface_id(callback_interface, _RC)
+      end if
 
       reason = intent_rule_violation(state_intent, var_spec%itemType, var_spec%requests_mirror())
       _ASSERT(len(reason) == 0, reason // ': ' // short_name)
