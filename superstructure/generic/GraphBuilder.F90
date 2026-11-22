@@ -57,9 +57,11 @@
 module mapl_GraphBuilder_mod
    use esmf, only: ESMF_Field, ESMF_FieldBundle, ESMF_Geom, ESMF_STATEINTENT_EXPORT, ESMF_StateIntent_Flag, ESMF_STATEINTENT_IMPORT, ESMF_StateItem_Flag, operator(==)
    use gFTL2_StringVector, only: StringVector
+   use mapl_CallbackContractReport_mod, only: format_callback_contract_report
+   use mapl_CallbackContractViolation_mod, only: CallbackContractViolation
    use mapl_CallbackInterface_mod, only: CallbackInterface
-   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
-   use mapl_CallbackInterfaceRegistry_mod, only: get_callback_interface
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId, operator(==)
+   use mapl_CallbackInterfaceRegistry_mod, only: get_callback_interface, get_callback_interface_name
    use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
    use mapl_CallbackStateBinding_mod, only: CallbackStateBinding
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic, StateItemCharacteristicMap
@@ -116,6 +118,7 @@ module mapl_GraphBuilder_mod
    public :: QualifiedExportEntry
    public :: build_qualified_export_namespace
    public :: resolve_callback_import
+   public :: export_conforms_to_interface
    public :: materialize_callback_collection
    public :: build_callback_state_binding
    public :: build_callback_method_binding
@@ -609,10 +612,10 @@ module mapl_GraphBuilder_mod
       type(NodeId) :: node_id
 
    end function resolve_qualified_export_node_id
-   module function export_conforms_to_interface(var_spec, expected_iface, reason) result(conforms)
+   module function export_conforms_to_interface(var_spec, expected_iface, violations) result(conforms)
       type(VariableSpec), target, intent(in) :: var_spec
       type(CallbackInterface), target, intent(in) :: expected_iface
-      character(:), allocatable, intent(out) :: reason
+      type(CallbackContractViolation), allocatable, intent(out) :: violations(:)
       logical :: conforms
 
    end function export_conforms_to_interface
@@ -843,9 +846,19 @@ contains
    ! against the flattened qualified-export namespace rooted at
    ! src_pt%component_name, keeping only matches that implement the
    ! CallbackInterface for expected_interface_id. rejected (optional)
-   ! collects a reason string per rejected match. Read-only (never
-   ! mutates a ComponentGraph), so safe from both the activate-time check
-   ! and connect-time resolution.
+   ! collects a reason string per rejected candidate: a joined-
+   ! violation-codes string for an undeclared export that does not
+   ! conform, or 'declares_other_interface:<name>' for an export that
+   ! declares a *different* callback interface as its own
+   ! callback_interface_id - that export is never even checked against
+   ! expected_iface, since matching its shape by coincidence would not
+   ! make it a Handler of this interface. A match whose VariableSpec
+   ! declares expected_interface_id itself but does not conform is a
+   ! wiring error, not a rejected candidate: the Handler claimed this
+   ! interface, so a mismatch is reported in full
+   ! (callback_declaration_report) and fails the build rather than being
+   ! silently skipped. Read-only (never mutates a ComponentGraph), so
+   ! safe from both the activate-time check and connect-time resolution.
    function resolve_callback_import(this, src_pt, expected_interface_id, rejected, rc) result(matches)
       class(OuterMetaComponent), target, intent(inout) :: this
       type(ConnectionPt), intent(in) :: src_pt
@@ -863,7 +876,11 @@ contains
       integer :: i
       integer :: n
       logical :: conforms
+      type(CallbackInterfaceId) :: declared_id
+      character(:), allocatable :: declared_name
+      type(CallbackContractViolation), allocatable :: violations(:)
       character(:), allocatable :: reason
+      character(:), allocatable :: report_message
       type(QualifiedExportEntry), allocatable :: grown_matches(:)
 
       allocate(matches(0))
@@ -876,8 +893,28 @@ contains
          candidate_v_pt = VirtualConnectionPt(ESMF_STATEINTENT_EXPORT, namespace(i)%qualified_name)
          if (.not. src_pt%v_pt%matches(candidate_v_pt)) cycle
 
-         conforms = export_conforms_to_interface(namespace(i)%var_spec, expected_iface, reason)
+         declared_id = namespace(i)%var_spec%callback_interface_id
+         if (declared_id%is_valid() .and. .not. (declared_id == expected_interface_id)) then
+            ! declared_id is valid, so it came from lookup_callback_interface_id,
+            ! which already fails the build if it cannot find a registered name
+            ! for the id - this lookup cannot fail for a valid id.
+            declared_name = get_callback_interface_name(declared_id, _RC)
+            call reject_reasons%push_back(namespace(i)%qualified_name // &
+                 ':declares_other_interface:' // declared_name)
+            cycle
+         end if
+
+         conforms = export_conforms_to_interface(namespace(i)%var_spec, expected_iface, violations)
          if (.not. conforms) then
+            ! declared_id%is_valid() here implies declared_id ==
+            ! expected_interface_id, since the mismatched-declaration
+            ! case above already cycled past any other value.
+            if (declared_id%is_valid()) then
+               report_message = callback_declaration_report(expected_interface_id, expected_iface, &
+                    root_meta, namespace(i), violations, _RC)
+               _FAIL(report_message)
+            end if
+            reason = join_violation_codes(violations)
             call reject_reasons%push_back(namespace(i)%qualified_name // ':' // reason)
             cycle
          end if
@@ -896,6 +933,55 @@ contains
       _RETURN(_SUCCESS)
    end function resolve_callback_import
 
+   ! Semicolon-joins every violation's short code (e.g.
+   ! "missing_member:tracers"), preserving each code as a substring for
+   ! callers (and tests) that search the combined reason string for one
+   ! of them.
+   function join_violation_codes(violations) result(joined)
+      type(CallbackContractViolation), intent(in) :: violations(:)
+      character(:), allocatable :: joined
 
+      integer :: i
+
+      joined = ''
+      do i = 1, size(violations)
+         if (i > 1) joined = joined // '; '
+         joined = joined // violations(i)%get_code()
+      end do
+   end function join_violation_codes
+
+   ! Full declaration-level hard-error report: resolves the Handler's own
+   ! name (the export's owning component, found the same way
+   ! resolve_qualified_export_node_id finds it) and the interface's
+   ! registered name, then hands both plus entry's short name and
+   ! violations to format_callback_contract_report.
+   function callback_declaration_report(interface_id, iface, root_meta, entry, violations, rc) result(message)
+      type(CallbackInterfaceId), intent(in) :: interface_id
+      type(CallbackInterface), intent(in) :: iface
+      class(OuterMetaComponent), target, intent(inout) :: root_meta
+      type(QualifiedExportEntry), intent(in) :: entry
+      type(CallbackContractViolation), intent(in) :: violations(:)
+      integer, optional, intent(out) :: rc
+      character(:), allocatable :: message
+
+      integer :: status
+      character(:), allocatable :: interface_name
+      class(OuterMetaComponent), pointer :: owner_meta
+      character(:), allocatable :: handler_name
+
+      interface_name = get_callback_interface_name(interface_id, _RC)
+
+      if (len(entry%comp_path) == 0) then
+         owner_meta => root_meta
+      else
+         owner_meta => resolve_qualified_component(root_meta, entry%comp_path, _RC)
+      end if
+      handler_name = owner_meta%get_name(_RC)
+
+      message = format_callback_contract_report(interface_name, iface%get_version(), handler_name, &
+           entry%var_spec%short_name, violations)
+
+      _RETURN(_SUCCESS)
+   end function callback_declaration_report
 
 end module mapl_GraphBuilder_mod

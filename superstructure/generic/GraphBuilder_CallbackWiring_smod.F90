@@ -20,6 +20,11 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_CallbackWiring_smod
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMapIterator, operator(/=)
    use mapl_StateMethodInvocation_mod, only: StateMethodInvocation
    use mapl_VariableSpecVector_mod, only: VariableSpecVectorIterator, operator(/=)
+   use mapl_CallbackContractViolation_mod, only: CallbackContractViolation, &
+        missing_argument_violation, kind_mismatch_violation, dims_mismatch_violation, &
+        unreadable_argument_violation
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, &
+        VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_EDGE, operator(==)
    use mapl_ErrorHandling_mod
    implicit none(type, external)
 
@@ -162,14 +167,25 @@ contains
    end function resolve_qualified_export_node_id
 
    ! An export "implements" expected_iface when its declared composite
-   ! members cover every argument name expected_iface declares, each with
-   ! a matching itemType (compared by name). Method presence is not
-   ! checked here; CallbackStateBinding%bind_method reports a missing
+   ! members cover every required argument name expected_iface declares
+   ! (an optional argument, CallbackArgumentSpec%is_optional, may be
+   ! absent with no violation), each present member matching the
+   ! argument's expected itemType (compared by name) and, for a FIELD
+   ! argument, its declared dims ('xy'/'xyz', read from the member's own
+   ! vertical_stagger - a real YAML-declared member's normal source of
+   ! truth for 2D/3D - rather than from resolved graph characteristics;
+   ! this runs before any graph node exists for the member). A kind
+   ! mismatch skips the dims comparison for that argument: dims are only
+   ! meaningful once the kind itself matches. A mirrored or not-yet-given
+   ! stagger (member_dims's `determinable` output false) also skips the
+   ! dims comparison, rather than guessing - see member_dims. Every
+   ! violation found is returned, not just the first. Method presence is
+   ! not checked here; CallbackStateBinding%bind_method reports a missing
    ! method attachment at binding time.
-   module function export_conforms_to_interface(var_spec, expected_iface, reason) result(conforms)
+   module function export_conforms_to_interface(var_spec, expected_iface, violations) result(conforms)
       type(VariableSpec), target, intent(in) :: var_spec
       type(CallbackInterface), target, intent(in) :: expected_iface
-      character(:), allocatable, intent(out) :: reason
+      type(CallbackContractViolation), allocatable, intent(out) :: violations(:)
       logical :: conforms
 
       type(CallbackArgumentSpecMap), target :: arguments
@@ -178,10 +194,11 @@ contains
       type(CallbackArgumentSpec) :: arg_spec
       type(MAPL_StateItem_Flag) :: expected_kind
       type(VariableSpec) :: member
+      character(:), allocatable :: found_dims, expected_dims
+      logical :: dims_determinable
       integer :: status
 
-      conforms = .true.
-      reason = ''
+      allocate(violations(0))
 
       arguments = expected_iface%get_arguments()
       iter = arguments%ftn_begin()
@@ -195,26 +212,97 @@ contains
          arg_spec = iter%second()
 
          if (.not. var_spec%has_member(argument_name)) then
-            conforms = .false.
-            reason = 'missing_member:' // argument_name
-            return
+            if (arg_spec%is_optional()) cycle
+            if (arg_spec%has_weight_for()) then
+               call append_violation(violations, &
+                    missing_argument_violation(argument_name, weight_of=arg_spec%get_weight_for()))
+            else
+               call append_violation(violations, missing_argument_violation(argument_name))
+            end if
+            cycle
          end if
 
          member = var_spec%get_member(argument_name, rc=status)
          if (status /= 0) then
-            conforms = .false.
-            reason = 'unreadable_member:' // argument_name
-            return
+            ! The member is declared but could not be read back as a
+            ! VariableSpec (StateItemSpecMap holding an unexpected
+            ! concrete type) - a real structural error, not "this
+            ! argument wasn't declared".
+            call append_violation(violations, unreadable_argument_violation(argument_name))
+            cycle
          end if
 
          expected_kind = arg_spec%get_expected_kind()
          if (itemtype_name(member%itemType) /= expected_kind%to_string()) then
-            conforms = .false.
-            reason = 'kind_mismatch:' // argument_name
-            return
+            call append_violation(violations, kind_mismatch_violation(argument_name, &
+                 itemtype_name(member%itemType), expected_kind%to_string()))
+            cycle
+         end if
+
+         if (expected_kind%to_string() == 'FIELD' .and. arg_spec%has_dims()) then
+            expected_dims = arg_spec%get_dims()
+            dims_determinable = member_dims(member, found_dims)
+            if (dims_determinable) then
+               if (found_dims /= expected_dims) then
+                  call append_violation(violations, dims_mismatch_violation(argument_name, found_dims, expected_dims))
+               end if
+            end if
          end if
       end do
+
+      conforms = size(violations) == 0
    end function export_conforms_to_interface
+
+   ! Duplicated from CallbackStateConformance.F90's own append: not
+   ! shared across module boundaries, same grow-allocate-copy pattern.
+   subroutine append_violation(violations, violation)
+      type(CallbackContractViolation), allocatable, intent(inout) :: violations(:)
+      type(CallbackContractViolation), intent(in) :: violation
+
+      type(CallbackContractViolation), allocatable :: grown(:)
+      integer :: n
+
+      n = size(violations)
+      allocate(grown(n + 1))
+      grown(1:n) = violations
+      grown(n + 1) = violation
+      call move_alloc(grown, violations)
+   end subroutine append_violation
+
+   ! Declaration-level dims source of truth: the member VariableSpec's own
+   ! vertical_stagger - parse_var_specs sets this from the YAML
+   ! 'vertical_dim_spec' key (CENTER/EDGE/NONE/MIRROR), not a resolved
+   ! StateItemDescriptor characteristic (no graph node exists for the
+   ! member yet at this point). A directly-set vertical_grid (rare
+   ! override case; parse_var_specs never sets one on a plain member)
+   ! takes precedence when present. MIRROR defers the real vertical grid
+   ! to another item, and an absent or explicit-INVALID stagger means the
+   ! declaration never said - either way dims cannot be determined yet,
+   ! so dims returns unset and determinable is false rather than
+   ! guessing 'xy'.
+   function member_dims(member, dims) result(determinable)
+      type(VariableSpec), intent(in) :: member
+      character(:), allocatable, intent(out) :: dims
+      logical :: determinable
+
+      determinable = .true.
+      if (allocated(member%vertical_grid)) then
+         dims = 'xyz'
+      else if (.not. allocated(member%vertical_stagger)) then
+         determinable = .false.
+      else if (member%vertical_stagger%is_mirror()) then
+         determinable = .false.
+      else if (member%vertical_stagger%is_none()) then
+         dims = 'xy'
+      else if (member%vertical_stagger == VERTICAL_STAGGER_CENTER .or. &
+           member%vertical_stagger == VERTICAL_STAGGER_EDGE) then
+         dims = 'xyz'
+      else
+         ! Explicit VERTICAL_STAGGER_INVALID: parse_var_specs's default
+         ! when the YAML key is absent.
+         determinable = .false.
+      end if
+   end function member_dims
 
    ! Materializes a flat callback collection: builds one
    ! StateItemNode (a real, structurally empty ESMF_State) in this's
