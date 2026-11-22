@@ -20,5 +20,45 @@
 # first occurrence's value, never the last, never an error. Keep every
 # key unique within an entry.
 #
-# This file currently ships no interfaces.
-{}
+# This file currently ships one interface: turbulent_mixing.
+turbulent_mixing:
+  version: 1
+  summary: mix a tracer
+  arguments:
+    mixed_quantity:
+      kind: field
+      dims: xyz
+    air_mass:
+      kind: field
+      dims: xyz
+      extensive: true
+      weight_for: mixed_quantity
+    dry_deposition_velocity:
+      kind: field
+      dims: xy
+      optional: true
+  methods:
+    get:
+      mixed_quantity: out
+      air_mass: out
+      dry_deposition_velocity: out
+    put:
+      mixed_quantity: in
+  attributes:
+    mix_like:
+      type: string
+      scope: member
+      host_argument: mixed_quantity
+      required: true
+      allowed: [heat, moisture, momentum]
+    bottom_boundary:
+      type: string
+      scope: member
+      host_argument: mixed_quantity
+      default: neumann_homogeneous
+      allowed: [neumann_homogeneous, robin]
+  rules:
+    - when:
+        bottom_boundary: robin
+      requires:
+        - dry_deposition_velocity
