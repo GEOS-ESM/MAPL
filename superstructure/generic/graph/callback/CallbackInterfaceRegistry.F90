@@ -48,7 +48,7 @@
 ! from anywhere.
 !------------------------------------------------------------------------------
 module mapl_CallbackInterfaceRegistry_mod
-   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId, CallbackInterfaceIdGenerator
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId, CallbackInterfaceIdGenerator, operator(==)
    use mapl_CallbackInterface_mod, only: CallbackInterface
    use mapl_CallbackInterfaceIdInterfaceMap_mod, only: CallbackInterfaceIdInterfaceMap
    use mapl_CallbackServiceNameIdMap_mod, only: CallbackServiceNameIdMap, &
@@ -63,6 +63,7 @@ module mapl_CallbackInterfaceRegistry_mod
    public :: register_callback_interface
    public :: get_callback_interface
    public :: get_callback_interface_by_name
+   public :: get_callback_interface_name
    public :: lookup_callback_interface_id
    public :: freeze_callback_registry
    public :: list_callback_interface_names
@@ -352,5 +353,37 @@ contains
 
       _RETURN(_SUCCESS)
    end function get_callback_interface_by_name
+
+   ! The service name an id was registered under - the reverse of
+   ! lookup_callback_interface_id, needed by a caller that only holds the
+   ! id (e.g. a GraphBuilder connect-time check) and must still word a
+   ! report naming the interface. A linear scan of service_ids: this
+   ! registry is sized for a handful of interfaces, and the call sites
+   ! are error-reporting paths, not a hot loop.
+   function get_callback_interface_name(id, rc) result(name)
+      type(CallbackInterfaceId), intent(in) :: id
+      integer, optional, intent(out) :: rc
+      character(:), allocatable :: name
+
+      type(CallbackInterfaceRegistryType), pointer :: registry
+      type(CallbackServiceNameIdMapIterator) :: iter
+      type(CallbackInterfaceId) :: candidate_id
+      character(:), allocatable :: message
+
+      registry => get_registry()
+
+      iter = registry%service_ids%ftn_begin()
+      do while (iter /= registry%service_ids%ftn_end())
+         call iter%next()
+         candidate_id = iter%second()
+         if (candidate_id == id) then
+            name = iter%first()
+            _RETURN(_SUCCESS)
+         end if
+      end do
+
+      message = 'CallbackInterfaceRegistry: get_callback_interface_name - id not registered'
+      _FAIL(message)
+   end function get_callback_interface_name
 
 end module mapl_CallbackInterfaceRegistry_mod

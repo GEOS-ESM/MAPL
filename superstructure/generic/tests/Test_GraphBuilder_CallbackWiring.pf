@@ -34,14 +34,20 @@ module Test_GraphBuilder_CallbackWiring
    use mapl_StateItemNode_mod, only: StateItemNode
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_StateItemMemberMap_mod, only: StateItemMemberMap
-   use mapl_StateItem_mod, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE
+   use mapl_StateItem_mod, only: MAPL_STATEITEM_STATE, MAPL_STATEITEM_FIELDBUNDLE, MAPL_STATEITEM_FIELD
    use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
    use mapl_CallbackInterface_mod, only: CallbackInterface
    use mapl_CallbackInterfaceRegistry_mod, only: register_callback_interface
    use mapl_CallbackStateBinding_mod, only: CallbackStateBinding
    use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
+   use mapl_CallbackContractReport_mod, only: format_callback_contract_report
+   use mapl_CallbackContractViolation_mod, only: CallbackContractViolation, &
+        missing_argument_violation, kind_mismatch_violation, dims_mismatch_violation
    use mapl_AccessSpec_mod, only: MAPL_ACCESS_IN, MAPL_ACCESS_OUT, MAPL_ACCESS_INOUT
-   use mapl_StateItemFlag_mod, only: MAPL_VARIANT_FIELDBUNDLE => MAPL_STATEITEM_FIELDBUNDLE
+   use mapl_StateItemFlag_mod, only: MAPL_VARIANT_FIELDBUNDLE => MAPL_STATEITEM_FIELDBUNDLE, &
+        MAPL_VARIANT_FIELD => MAPL_STATEITEM_FIELD
+   use mapl_VerticalStaggerLoc_mod, only: VerticalStaggerLoc, VERTICAL_STAGGER_NONE, &
+        VERTICAL_STAGGER_CENTER, VERTICAL_STAGGER_MIRROR, VERTICAL_STAGGER_INVALID
    use mapl_GeomUtilities_mod, only: GeomSetId
    use mapl_geom_api, only: mapl_new_GeomId
    use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
@@ -50,6 +56,10 @@ module Test_GraphBuilder_CallbackWiring
    use mapl_HorizontalRegridTransform_mod, only: HorizontalRegridTransform
    use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
    use mapl_QuantityType_mod, only: QUANTITY_TEMPERATURE
+   use mapl_StateRegistry_mod, only: StateRegistry
+   use mapl_ComponentSpecParser_mod, only: parse_var_specs
+   use mapl_VariableSpecVector_mod, only: VariableSpecVector, VariableSpecVectorIterator, operator(/=)
+   use gFTL2_StringVector, only: StringVector
    use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
    use esmf
    use pfunit
@@ -189,6 +199,999 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine build_tracer_hierarchy
+
+   ! Builds root -> CHEM -> BAD, structurally only (no var_specs, no
+   ! advertise calls): a smaller hierarchy than build_tracer_hierarchy for
+   ! the declaration-level hard-error tests, which need only one Handler
+   ! candidate. The caller adds BAD's export, then advertises bad_meta,
+   ! chem_meta, root_meta in that order.
+   subroutine build_handler_hierarchy(label, root_gc, root_meta, chem_meta, bad_meta, rc)
+      character(*), intent(in) :: label
+      type(ESMF_GridComp), intent(out) :: root_gc
+      type(OuterMetaComponent), pointer, intent(out) :: root_meta
+      type(OuterMetaComponent), pointer, intent(out) :: chem_meta
+      type(OuterMetaComponent), pointer, intent(out) :: bad_meta
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: chem_driver, bad_driver
+      type(ESMF_GridComp) :: chem_gc, bad_gc
+
+      call make_outer_meta('root_' // label, root_gc, root_meta, _RC)
+      child_spec = ChildSpec()
+      call root_meta%add_child('CHEM', child_spec, _RC)
+
+      chem_driver = root_meta%get_child('CHEM', _RC)
+      chem_gc = chem_driver%get_gridcomp()
+      chem_meta => get_outer_meta(chem_gc, _RC)
+
+      child_spec = ChildSpec()
+      call chem_meta%add_child('BAD', child_spec, _RC)
+      bad_driver = chem_meta%get_child('BAD', _RC)
+      bad_gc = bad_driver%get_gridcomp()
+      bad_meta => get_outer_meta(bad_gc, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine build_handler_hierarchy
+
+   ! Builds root -> CHEM -> {H1, H2}, structurally only (no var_specs, no
+   ! advertise calls) - a two-candidate counterpart to
+   ! build_handler_hierarchy, for tests resolving two Handler candidates
+   ! in the same call. The caller adds H1's and H2's exports, then
+   ! advertises h1_meta, h2_meta, chem_meta, root_meta in that order.
+   subroutine build_two_handler_hierarchy(label, root_gc, root_meta, chem_meta, h1_meta, h2_meta, rc)
+      character(*), intent(in) :: label
+      type(ESMF_GridComp), intent(out) :: root_gc
+      type(OuterMetaComponent), pointer, intent(out) :: root_meta
+      type(OuterMetaComponent), pointer, intent(out) :: chem_meta
+      type(OuterMetaComponent), pointer, intent(out) :: h1_meta
+      type(OuterMetaComponent), pointer, intent(out) :: h2_meta
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ChildSpec) :: child_spec
+      type(GriddedComponentDriver) :: chem_driver, h1_driver, h2_driver
+      type(ESMF_GridComp) :: chem_gc, h1_gc, h2_gc
+
+      call make_outer_meta('root_' // label, root_gc, root_meta, _RC)
+      child_spec = ChildSpec()
+      call root_meta%add_child('CHEM', child_spec, _RC)
+
+      chem_driver = root_meta%get_child('CHEM', _RC)
+      chem_gc = chem_driver%get_gridcomp()
+      chem_meta => get_outer_meta(chem_gc, _RC)
+
+      child_spec = ChildSpec()
+      call chem_meta%add_child('H1', child_spec, _RC)
+      h1_driver = chem_meta%get_child('H1', _RC)
+      h1_gc = h1_driver%get_gridcomp()
+      h1_meta => get_outer_meta(h1_gc, _RC)
+
+      child_spec = ChildSpec()
+      call chem_meta%add_child('H2', child_spec, _RC)
+      h2_driver = chem_meta%get_child('H2', _RC)
+      h2_gc = h2_driver%get_gridcomp()
+      h2_meta => get_outer_meta(h2_gc, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine build_two_handler_hierarchy
+
+   ! A richer interface than PassiveTracer: required 'tracers'
+   ! FieldBundle, required 'weight' Field with dims='xy', optional 'area'
+   ! Field with dims='xy' - covers the optional-argument-absent and
+   ! dims-mismatch cases PassiveTracer's single FieldBundle argument
+   ! cannot exercise. export_conforms_to_interface never checks method
+   ! presence, so no method is declared.
+   function make_surface_tracer_interface(rc) result(iface)
+      integer, optional, intent(out) :: rc
+      type(CallbackInterface) :: iface
+
+      integer :: status
+
+      call iface%declare_argument('tracers', MAPL_VARIANT_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('weight', MAPL_VARIANT_FIELD, dims='xy', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('area', MAPL_VARIANT_FIELD, dims='xy', optional=.true., rc=status)
+      @assertEqual(0, status)
+
+      _RETURN(_SUCCESS)
+   end function make_surface_tracer_interface
+
+   ! Same shape as make_surface_tracer_interface's 'tracers'/'weight'
+   ! pair, but 'weight' declares dims='xyz' instead of 'xy' - exercises a
+   ! declaration-level dims mismatch in the opposite direction (found
+   ! 'xy', expected 'xyz').
+   function make_profile_tracer_interface(rc) result(iface)
+      integer, optional, intent(out) :: rc
+      type(CallbackInterface) :: iface
+
+      integer :: status
+
+      call iface%declare_argument('tracers', MAPL_VARIANT_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('weight', MAPL_VARIANT_FIELD, dims='xyz', rc=status)
+      @assertEqual(0, status)
+
+      _RETURN(_SUCCESS)
+   end function make_profile_tracer_interface
+
+   ! A small interface with one weighted argument: 'tracers' (not
+   ! extensive, required) and 'tracer_weight' (extensive, weight_for=
+   ! 'tracers', required because 'tracers' is required). Lets a missing-
+   ! weight violation's message carry the "(the weight of '...')"
+   ! wording CallbackContractReport.F90/CallbackStateConformance.F90 use
+   ! for a realized-state weight violation, confirming the declaration-
+   ! level missing_argument_violation call site passes weight_of too.
+   function make_weighted_tracer_interface(rc) result(iface)
+      integer, optional, intent(out) :: rc
+      type(CallbackInterface) :: iface
+
+      integer :: status
+
+      call iface%declare_argument('tracers', MAPL_VARIANT_FIELDBUNDLE, rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('tracer_weight', MAPL_VARIANT_FIELD, dims='xy', &
+           extensive=.true., weight_for='tracers', rc=status)
+      @assertEqual(0, status)
+
+      _RETURN(_SUCCESS)
+   end function make_weighted_tracer_interface
+
+   ! A composite export shaped for make_surface_tracer_interface (or
+   ! make_profile_tracer_interface), with controllable member presence/
+   ! mismatch: include_tracers/include_weight .false. omits that member
+   ! entirely (a missing_member violation). weight_stagger sets the
+   ! weight member's declaration-level dims source of truth the way a
+   ! real YAML-declared member would (vertical_stagger, not
+   ! vertical_grid - parse_var_specs never sets vertical_grid on a plain
+   ! member): VERTICAL_STAGGER_CENTER/EDGE reads as 'xyz',
+   ! VERTICAL_STAGGER_NONE as 'xy'; VERTICAL_STAGGER_MIRROR, or omitting
+   ! weight_stagger entirely, makes dims undeterminable
+   ! (member_dims/GraphBuilder_CallbackWiring_smod.F90) - no violation
+   ! either way. make_var defaults a plain member's vertical_stagger to
+   ! VERTICAL_STAGGER_NONE (a convenience for fixtures that do not care
+   ! about dims at all), so omitting weight_stagger here explicitly
+   ! overrides that default to VERTICAL_STAGGER_INVALID - the value
+   ! parse_var_specs's to_VerticalStaggerLoc leaves a member whose YAML
+   ! never gave vertical_dim_spec - rather than silently landing on
+   ! VERTICAL_STAGGER_NONE, which would make dims determinable and
+   ! defeat the "omitted" case entirely. Irrelevant when include_weight
+   ! is .false.
+   function make_surface_tracer_export(short_name, include_tracers, include_weight, &
+        weight_stagger) result(var_spec)
+      character(*), intent(in) :: short_name
+      logical, intent(in) :: include_tracers
+      logical, intent(in) :: include_weight
+      type(VerticalStaggerLoc), optional, intent(in) :: weight_stagger
+      type(VariableSpec) :: var_spec
+
+      type(VariableSpec) :: tracers_member, weight_member
+      integer :: status
+
+      var_spec = make_var(ESMF_STATEINTENT_EXPORT, short_name)
+      var_spec%itemType = MAPL_STATEITEM_STATE
+
+      if (include_tracers) then
+         tracers_member = make_var(ESMF_STATEINTENT_EXPORT, 'tracers')
+         tracers_member%itemType = MAPL_STATEITEM_FIELDBUNDLE
+         call var_spec%declare_member('tracers', tracers_member, rc=status)
+         @assertEqual(0, status)
+      end if
+
+      if (include_weight) then
+         weight_member = make_var(ESMF_STATEINTENT_EXPORT, 'weight')
+         weight_member%itemType = MAPL_STATEITEM_FIELD
+         if (present(weight_stagger)) then
+            weight_member%vertical_stagger = weight_stagger
+         else
+            weight_member%vertical_stagger = VERTICAL_STAGGER_INVALID
+         end if
+         call var_spec%declare_member('weight', weight_member, rc=status)
+         @assertEqual(0, status)
+      end if
+   end function make_surface_tracer_export
+
+   ! Builds a single FIELD member the way parse_var_specs really would
+   ! from YAML (typekind + vertical_dim_spec), rather than hand-setting
+   ! vertical_stagger/vertical_grid directly - regression coverage for
+   ! the bug class where member_dims once read vertical_grid, a field a
+   ! real YAML-declared member never sets (only vertical_stagger, via
+   ! the 'vertical_dim_spec' key - see parse_var_specs.F90's
+   ! to_VerticalStaggerLoc). vertical_dim_spec is the YAML value ('none',
+   ! 'center', 'edge', 'mirror'), or '' to omit the key entirely.
+   function make_parsed_field_member(short_name, vertical_dim_spec, rc) result(member)
+      character(*), intent(in) :: short_name
+      character(*), intent(in) :: vertical_dim_spec
+      integer, optional, intent(out) :: rc
+      type(VariableSpec) :: member
+
+      type(ESMF_HConfig) :: config
+      type(StateRegistry) :: registry
+      type(VariableSpecVector) :: var_specs
+      type(VariableSpec), pointer :: parsed
+      type(VariableSpecVectorIterator) :: iter
+      character(:), allocatable :: attrs
+      integer :: status
+
+      attrs = 'typekind: R4'
+      if (len(vertical_dim_spec) > 0) attrs = attrs // ', vertical_dim_spec: ' // vertical_dim_spec
+
+      config = ESMF_HConfigCreate(content='{states: {export: {' // short_name // ': {' // attrs // '}}}}', _RC)
+      var_specs = parse_var_specs(config, registry, 'TEST', _RC)
+      @assertEqual(1, var_specs%size())
+      iter = var_specs%ftn_begin()
+      call iter%next()
+      parsed => iter%of()
+      member = parsed
+
+      call ESMF_HConfigDestroy(config, _RC)
+
+      _RETURN(_SUCCESS)
+   end function make_parsed_field_member
+
+   ! Spec "Declaration-level checks run at connect", scenario "Declared
+   ! Handler with a missing member": a Handler export that declares
+   ! expected_interface_id as its own callback_interface_id but is
+   ! missing a required member ('weight') is a hard wiring error, not a
+   ! rejected-and-skipped candidate.
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_declared_missing_member_fails(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, bad_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ComponentSpec), pointer :: bad_spec
+      type(VariableSpec) :: bad_export
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(CallbackContractViolation) :: expected_violations(1)
+      character(:), allocatable :: handler_name
+      character(:), allocatable :: expected_message
+      logical :: matched
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_handler_hierarchy('decl-missing', root_gc, root_meta, chem_meta, bad_meta, _RC)
+
+      iface = make_surface_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-decl-missing', iface, interface_id, status)
+      @assert_that(status, is(0))
+
+      bad_export = make_surface_tracer_export('tracer_callback', include_tracers=.true., &
+           include_weight=.false.)
+      bad_export%callback_interface_id = interface_id
+      bad_spec => bad_meta%get_component_spec()
+      call bad_spec%add_var_spec(bad_export)
+
+      call gb%advertise(bad_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(chem_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(root_meta, status)
+      @assert_that(status, is(0))
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
+
+      handler_name = bad_meta%get_name(status)
+      @assert_that(status, is(0))
+      expected_violations(1) = missing_argument_violation('weight')
+      expected_message = format_callback_contract_report('svc-decl-missing', iface%get_version(), &
+           handler_name, 'tracer_callback', expected_violations)
+
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+
+      ! The pending exception must be drained here, before any plain
+      ! @assertTrue/@assert_that: those expand to code that returns
+      ! early whenever an exception is still queued, which would skip
+      ! anything after it.
+      matched = catch(expected_message)
+      do while (catch('status=1'))
+      end do
+      @assertTrue(matched)
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_declared_missing_member_fails
+
+   ! A declared Handler missing a required weight argument gets the
+   ! "(the weight of '...')" wording in its violation message, the same
+   ! wording a realized-state weight violation carries - the missing-
+   ! member test above exercises an unweighted argument, this exercises
+   ! the weight_of branch of missing_argument_violation specifically.
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_declared_missing_weight_fails(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, bad_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ComponentSpec), pointer :: bad_spec
+      type(VariableSpec) :: bad_export, tracers_member
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(CallbackContractViolation) :: expected_violations(1)
+      character(:), allocatable :: handler_name
+      character(:), allocatable :: expected_message
+      logical :: matched
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_handler_hierarchy('decl-weight', root_gc, root_meta, chem_meta, bad_meta, _RC)
+
+      iface = make_weighted_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-decl-weight', iface, interface_id, status)
+      @assert_that(status, is(0))
+
+      bad_export = make_var(ESMF_STATEINTENT_EXPORT, 'tracer_callback')
+      bad_export%itemType = MAPL_STATEITEM_STATE
+
+      tracers_member = make_var(ESMF_STATEINTENT_EXPORT, 'tracers')
+      tracers_member%itemType = MAPL_STATEITEM_FIELDBUNDLE
+      call bad_export%declare_member('tracers', tracers_member, rc=status)
+      @assert_that(status, is(0))
+      ! 'tracer_weight' never declared.
+
+      bad_export%callback_interface_id = interface_id
+      bad_spec => bad_meta%get_component_spec()
+      call bad_spec%add_var_spec(bad_export)
+
+      call gb%advertise(bad_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(chem_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(root_meta, status)
+      @assert_that(status, is(0))
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
+
+      handler_name = bad_meta%get_name(status)
+      @assert_that(status, is(0))
+      expected_violations(1) = missing_argument_violation('tracer_weight', weight_of='tracers')
+      expected_message = format_callback_contract_report('svc-decl-weight', iface%get_version(), &
+           handler_name, 'tracer_callback', expected_violations)
+      @assertTrue(index(expected_message, "(the weight of 'tracers')") > 0)
+
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+
+      matched = catch(expected_message)
+      do while (catch('status=1'))
+      end do
+      @assertTrue(matched)
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_declared_missing_weight_fails
+
+   ! Spec scenario-adjacent: a missing *optional* argument (CallbackArgumentSpec%
+   ! is_optional) is not a violation at all - the export still conforms and
+   ! is selected as a match, declared interface or not.
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_optional_arg_absent_conforms(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, bad_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ComponentSpec), pointer :: bad_spec
+      type(VariableSpec) :: bad_export
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_handler_hierarchy('decl-optional', root_gc, root_meta, chem_meta, bad_meta, _RC)
+
+      iface = make_surface_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-decl-optional', iface, interface_id, status)
+      @assert_that(status, is(0))
+
+      ! Both required members present; the optional 'area' member is
+      ! simply never declared on the export.
+      bad_export = make_surface_tracer_export('tracer_callback', include_tracers=.true., &
+           include_weight=.true., weight_stagger=VERTICAL_STAGGER_NONE)
+      bad_export%callback_interface_id = interface_id
+      bad_spec => bad_meta%get_component_spec()
+      call bad_spec%add_var_spec(bad_export)
+
+      call gb%advertise(bad_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(chem_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(root_meta, status)
+      @assert_that(status, is(0))
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
+
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(1, size(matches))
+      @assertEqual('BAD/tracer_callback', matches(1)%qualified_name)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_optional_arg_absent_conforms
+
+   ! Spec scenario "Declared Handler with a missing member" (here, a
+   ! present-but-wrong-shape member rather than an absent one): the
+   ! 'weight' member is present with the right kind but the wrong dims
+   ! ('xyz' found vs 'xy' expected) - a hard wiring error, same as a
+   ! missing member.
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_declared_dims_mismatch_fails(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, bad_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ComponentSpec), pointer :: bad_spec
+      type(VariableSpec) :: bad_export
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(CallbackContractViolation) :: expected_violations(1)
+      character(:), allocatable :: handler_name
+      character(:), allocatable :: expected_message
+      logical :: matched
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_handler_hierarchy('decl-dims', root_gc, root_meta, chem_meta, bad_meta, _RC)
+
+      iface = make_surface_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-decl-dims', iface, interface_id, status)
+      @assert_that(status, is(0))
+
+      bad_export = make_surface_tracer_export('tracer_callback', include_tracers=.true., &
+           include_weight=.true., weight_stagger=VERTICAL_STAGGER_CENTER)
+      bad_export%callback_interface_id = interface_id
+      bad_spec => bad_meta%get_component_spec()
+      call bad_spec%add_var_spec(bad_export)
+
+      call gb%advertise(bad_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(chem_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(root_meta, status)
+      @assert_that(status, is(0))
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
+
+      handler_name = bad_meta%get_name(status)
+      @assert_that(status, is(0))
+      expected_violations(1) = dims_mismatch_violation('weight', 'xyz', 'xy')
+      expected_message = format_callback_contract_report('svc-decl-dims', iface%get_version(), &
+           handler_name, 'tracer_callback', expected_violations)
+
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+
+      matched = catch(expected_message)
+      do while (catch('status=1'))
+      end do
+      @assertTrue(matched)
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_declared_dims_mismatch_fails
+
+   ! Mirror image of test_resolve_callback_import_declared_dims_mismatch_fails:
+   ! make_profile_tracer_interface expects 'weight' dims='xyz', the export
+   ! declares it with VERTICAL_STAGGER_NONE ('xy') - a dims mismatch in
+   ! the opposite direction, to confirm the comparison is not only
+   ! correct one way.
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_declared_dims_mismatch_rev_fails(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, bad_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ComponentSpec), pointer :: bad_spec
+      type(VariableSpec) :: bad_export
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(CallbackContractViolation) :: expected_violations(1)
+      character(:), allocatable :: handler_name
+      character(:), allocatable :: expected_message
+      logical :: matched
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_handler_hierarchy('decl-dims-rev', root_gc, root_meta, chem_meta, bad_meta, _RC)
+
+      iface = make_profile_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-decl-dims-rev', iface, interface_id, status)
+      @assert_that(status, is(0))
+
+      bad_export = make_surface_tracer_export('tracer_callback', include_tracers=.true., &
+           include_weight=.true., weight_stagger=VERTICAL_STAGGER_NONE)
+      bad_export%callback_interface_id = interface_id
+      bad_spec => bad_meta%get_component_spec()
+      call bad_spec%add_var_spec(bad_export)
+
+      call gb%advertise(bad_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(chem_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(root_meta, status)
+      @assert_that(status, is(0))
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
+
+      handler_name = bad_meta%get_name(status)
+      @assert_that(status, is(0))
+      expected_violations(1) = dims_mismatch_violation('weight', 'xy', 'xyz')
+      expected_message = format_callback_contract_report('svc-decl-dims-rev', iface%get_version(), &
+           handler_name, 'tracer_callback', expected_violations)
+
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+
+      matched = catch(expected_message)
+      do while (catch('status=1'))
+      end do
+      @assertTrue(matched)
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_declared_dims_mismatch_rev_fails
+
+   ! Spec scenario-adjacent: a declared export whose 'weight' member has
+   ! the wrong kind (FIELDBUNDLE where the interface expects FIELD) is a
+   ! hard wiring error, same as a missing member or a dims mismatch - the
+   ! declared-missing-member and declared-dims-mismatch tests above have
+   ! no kind-mismatch counterpart until this one.
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_declared_kind_mismatch_fails(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, bad_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ComponentSpec), pointer :: bad_spec
+      type(VariableSpec) :: bad_export, tracers_member, weight_member
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(CallbackContractViolation) :: expected_violations(1)
+      character(:), allocatable :: handler_name
+      character(:), allocatable :: expected_message
+      logical :: matched
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_handler_hierarchy('decl-kind', root_gc, root_meta, chem_meta, bad_meta, _RC)
+
+      iface = make_surface_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-decl-kind', iface, interface_id, status)
+      @assert_that(status, is(0))
+
+      bad_export = make_var(ESMF_STATEINTENT_EXPORT, 'tracer_callback')
+      bad_export%itemType = MAPL_STATEITEM_STATE
+
+      tracers_member = make_var(ESMF_STATEINTENT_EXPORT, 'tracers')
+      tracers_member%itemType = MAPL_STATEITEM_FIELDBUNDLE
+      call bad_export%declare_member('tracers', tracers_member, rc=status)
+      @assert_that(status, is(0))
+
+      ! Wrong kind: the interface expects a FIELD, this declares a FIELDBUNDLE.
+      weight_member = make_var(ESMF_STATEINTENT_EXPORT, 'weight')
+      weight_member%itemType = MAPL_STATEITEM_FIELDBUNDLE
+      call bad_export%declare_member('weight', weight_member, rc=status)
+      @assert_that(status, is(0))
+
+      bad_export%callback_interface_id = interface_id
+      bad_spec => bad_meta%get_component_spec()
+      call bad_spec%add_var_spec(bad_export)
+
+      call gb%advertise(bad_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(chem_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(root_meta, status)
+      @assert_that(status, is(0))
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
+
+      handler_name = bad_meta%get_name(status)
+      @assert_that(status, is(0))
+      expected_violations(1) = kind_mismatch_violation('weight', 'FIELDBUNDLE', 'FIELD')
+      expected_message = format_callback_contract_report('svc-decl-kind', iface%get_version(), &
+           handler_name, 'tracer_callback', expected_violations)
+
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+
+      matched = catch(expected_message)
+      do while (catch('status=1'))
+      end do
+      @assertTrue(matched)
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_declared_kind_mismatch_fails
+
+   ! Declared Handler, otherwise-conforming, whose 'weight' member's
+   ! vertical_stagger cannot settle the dims question one way or the
+   ! other: VERTICAL_STAGGER_MIRROR defers the real vertical grid to
+   ! another item, and an omitted weight_stagger models a member whose
+   ! YAML never gave vertical_dim_spec at all. In both cases member_dims
+   ! reports the comparison as undeterminable, and
+   ! export_conforms_to_interface skips the dims check entirely rather
+   ! than claiming a pass or a fail about dims it cannot know - the
+   ! export still conforms overall only because every other member
+   ! checks out, not because the dims comparison itself succeeded.
+   !
+   ! Uses make_profile_tracer_interface (expects 'weight' dims='xyz'),
+   ! not make_surface_tracer_interface (expects 'xy'): against an 'xy'
+   ! expectation, the old bug (reading unallocated vertical_grid as
+   ! dims='xy') and a mistaken vertical_stagger == VERTICAL_STAGGER_NONE
+   ! check (true for MIRROR as well as NONE) would both also report zero
+   ! violations here, by accident. Expecting 'xyz' means zero violations
+   ! only happens if the dims check is genuinely skipped.
+   !
+   ! Calls export_conforms_to_interface directly rather than through
+   ! resolve_callback_import/advertise: VariableSpec's own intent rules
+   ! (VariableSpec_private.F90's intent_rule_violation, enforced at
+   ! advertise time by make_characteristics's check_intent_rules) reject
+   ! VERTICAL_STAGGER_MIRROR on a plain export FIELD member outright -
+   ! "mirror is only valid on an import or an expression export" - so a
+   ! Handler could never actually advertise this shape. The declaration-
+   ! level dims check in member_dims runs before any such validation (no
+   ! graph node or descriptor exists for the member yet), and must not
+   ! assume its input already passed those rules.
+   @test(npes=[0])
+   subroutine test_export_conforms_to_interface_mirror_or_unset(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(CallbackInterface) :: iface
+      type(VariableSpec) :: mirror_export, unset_export
+      type(CallbackContractViolation), allocatable :: violations(:)
+      logical :: conforms
+      integer :: status
+
+      iface = make_profile_tracer_interface(status)
+      @assert_that(status, is(0))
+
+      mirror_export = make_surface_tracer_export('tracer_callback', include_tracers=.true., &
+           include_weight=.true., weight_stagger=VERTICAL_STAGGER_MIRROR)
+      conforms = export_conforms_to_interface(mirror_export, iface, violations)
+      @assertTrue(conforms)
+      @assertEqual(0, size(violations))
+
+      ! weight_stagger omitted entirely: make_surface_tracer_export sets
+      ! VERTICAL_STAGGER_INVALID in that case, the same value
+      ! parse_var_specs leaves on a member whose YAML never gave
+      ! vertical_dim_spec.
+      unset_export = make_surface_tracer_export('tracer_callback', include_tracers=.true., &
+           include_weight=.true.)
+      conforms = export_conforms_to_interface(unset_export, iface, violations)
+      @assertTrue(conforms)
+      @assertEqual(0, size(violations))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_export_conforms_to_interface_mirror_or_unset
+
+   ! An export that does not declare expected_interface_id as its own
+   ! callback_interface_id keeps today's skip-and-report behavior even
+   ! when it is missing every required member: rejected, not failed.
+   ! CallbackArgumentSpecMap is a gFTL ordered map keyed by argument name,
+   ! so the joined reason lists violations in alphabetical-by-name order
+   ! ('tracers' before 'weight'), asserted exactly below rather than by
+   ! substring, so a reordering bug would be caught.
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_undeclared_missing_rejected(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, bad_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ComponentSpec), pointer :: bad_spec
+      type(VariableSpec) :: bad_export
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(StringVector) :: rejected
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_handler_hierarchy('undecl-missing', root_gc, root_meta, chem_meta, bad_meta, _RC)
+
+      iface = make_surface_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-undecl-missing', iface, interface_id, status)
+      @assert_that(status, is(0))
+
+      ! Neither 'tracers' nor 'weight' declared, and callback_interface_id
+      ! is left at its default (invalid) - never declares the interface.
+      bad_export = make_surface_tracer_export('tracer_callback', include_tracers=.false., &
+           include_weight=.false.)
+      bad_spec => bad_meta%get_component_spec()
+      call bad_spec%add_var_spec(bad_export)
+
+      call gb%advertise(bad_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(chem_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(root_meta, status)
+      @assert_that(status, is(0))
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
+
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rejected=rejected, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, size(matches))
+      @assertEqual(1, rejected%size())
+      @assertEqual('BAD/tracer_callback:missing_member:tracers; missing_member:weight', rejected%of(1))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_undeclared_missing_rejected
+
+   ! Spec scenario-adjacent: a declared Handler that fails more than one
+   ! check gets every violation in one report, not just the first found.
+   ! CallbackArgumentSpecMap is a gFTL ordered map keyed by argument name
+   ! (gFTL2's map/template.inc), so the two violations' relative order in
+   ! the report is deterministic, alphabetical by argument name
+   ! ('tracers' before 'weight') - asserted exactly, not tolerated either
+   ! way.
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_declared_multi_violation_fail(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, bad_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ComponentSpec), pointer :: bad_spec
+      type(VariableSpec) :: bad_export
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(CallbackContractViolation) :: expected_violations(2)
+      character(:), allocatable :: handler_name
+      character(:), allocatable :: expected_message
+      logical :: matched
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_handler_hierarchy('decl-multi', root_gc, root_meta, chem_meta, bad_meta, _RC)
+
+      iface = make_surface_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-decl-multi', iface, interface_id, status)
+      @assert_that(status, is(0))
+
+      bad_export = make_surface_tracer_export('tracer_callback', include_tracers=.false., &
+           include_weight=.false.)
+      bad_export%callback_interface_id = interface_id
+      bad_spec => bad_meta%get_component_spec()
+      call bad_spec%add_var_spec(bad_export)
+
+      call gb%advertise(bad_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(chem_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(root_meta, status)
+      @assert_that(status, is(0))
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
+
+      handler_name = bad_meta%get_name(status)
+      @assert_that(status, is(0))
+
+      expected_violations(1) = missing_argument_violation('tracers')
+      expected_violations(2) = missing_argument_violation('weight')
+      expected_message = format_callback_contract_report('svc-decl-multi', iface%get_version(), &
+           handler_name, 'tracer_callback', expected_violations)
+
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+
+      ! The pending exception must be drained here, before any plain
+      ! @assertTrue/@assert_that: those expand to code that returns
+      ! early whenever an exception is still queued, which would skip
+      ! anything after it.
+      matched = catch(expected_message)
+      do while (catch('status=1'))
+      end do
+      @assertTrue(matched)
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_declared_multi_violation_fail
+
+   ! An export that self-declares a *different* callback interface than
+   ! the one being resolved must not be silently collected just because
+   ! its shape happens to fit -
+   ! resolve_callback_import skips it before even calling
+   ! export_conforms_to_interface against the expected interface, with a
+   ! distinct 'declares_other_interface:<name>' rejection reason (not a
+   ! hard failure; connect keeps looking for other candidates). Here the
+   ! export's shape (a bare 'tracers' member) happens to be a structural
+   ! subset of the expected interface's own shape, which must not matter.
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_declares_other_iface_skip(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, bad_meta
+      type(CallbackInterface) :: other_iface, expected_iface
+      type(CallbackInterfaceId) :: other_id, expected_id
+      type(ComponentSpec), pointer :: bad_spec
+      type(VariableSpec) :: bad_export
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(StringVector) :: rejected
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_handler_hierarchy('decl-other', root_gc, root_meta, chem_meta, bad_meta, _RC)
+
+      other_iface = make_passive_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-other-decl', other_iface, other_id, status)
+      @assert_that(status, is(0))
+
+      expected_iface = make_surface_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-expected-decl', expected_iface, expected_id, status)
+      @assert_that(status, is(0))
+
+      ! Shaped for PassiveTracer (other_id): one 'tracers' member, no
+      ! 'weight' - a structural subset of the surface-tracer interface's
+      ! own shape too, so a shape-only check would wrongly let it through.
+      bad_export = make_tracer_callback_export('tracer_callback')
+      bad_export%callback_interface_id = other_id
+      bad_spec => bad_meta%get_component_spec()
+      call bad_spec%add_var_spec(bad_export)
+
+      call gb%advertise(bad_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(chem_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(root_meta, status)
+      @assert_that(status, is(0))
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
+
+      matches = resolve_callback_import(root_meta, src_pt, expected_id, rejected=rejected, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(0, size(matches))
+      @assertEqual(1, rejected%size())
+      @assertEqual('BAD/tracer_callback:declares_other_interface:svc-other-decl', rejected%of(1))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_declares_other_iface_skip
+
+   ! One undeclared, non-conforming export (skip-and-report, as before)
+   ! alongside one declared, conforming export resolved in the same
+   ! call: only a declared-and-nonconforming candidate is fatal - neither
+   ! an undeclared mismatch nor a declared match affects the other.
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_mixed_candidates(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, h1_meta, h2_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ComponentSpec), pointer :: h1_spec, h2_spec
+      type(VariableSpec) :: h1_export, h2_export
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      type(StringVector) :: rejected
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_two_handler_hierarchy('mixed', root_gc, root_meta, chem_meta, h1_meta, h2_meta, _RC)
+
+      iface = make_surface_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-mixed', iface, interface_id, status)
+      @assert_that(status, is(0))
+
+      ! H1: undeclared, missing both required members.
+      h1_export = make_surface_tracer_export('tracer_callback', include_tracers=.false., &
+           include_weight=.false.)
+      h1_spec => h1_meta%get_component_spec()
+      call h1_spec%add_var_spec(h1_export)
+
+      ! H2: declares the interface and conforms.
+      h2_export = make_surface_tracer_export('tracer_callback', include_tracers=.true., &
+           include_weight=.true., weight_stagger=VERTICAL_STAGGER_NONE)
+      h2_export%callback_interface_id = interface_id
+      h2_spec => h2_meta%get_component_spec()
+      call h2_spec%add_var_spec(h2_export)
+
+      call gb%advertise(h1_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(h2_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(chem_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(root_meta, status)
+      @assert_that(status, is(0))
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
+
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rejected=rejected, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(1, size(matches))
+      @assertEqual('H2/tracer_callback', matches(1)%qualified_name)
+      @assertEqual(1, rejected%size())
+      @assertEqual('H1/tracer_callback:missing_member:tracers; missing_member:weight', rejected%of(1))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_mixed_candidates
+
+   ! Regression coverage for the member_dims bug where dims were read
+   ! from a member's vertical_grid, a field parse_var_specs never sets on
+   ! a plain member: the 'weight' member here is built through
+   ! parse_var_specs itself (YAML 'vertical_dim_spec: center'), the way a
+   ! real Handler's composite member would be, rather than hand-set.
+   @test(npes=[0])
+   subroutine test_resolve_callback_import_parsed_member_conforms(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: root_gc
+      type(OuterMetaComponent), pointer :: root_meta, chem_meta, bad_meta
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(ComponentSpec), pointer :: bad_spec
+      type(VariableSpec) :: bad_export, tracers_member, weight_member
+      type(ConnectionPt) :: src_pt
+      type(QualifiedExportEntry), allocatable :: matches(:)
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call build_handler_hierarchy('decl-parsed', root_gc, root_meta, chem_meta, bad_meta, _RC)
+
+      ! make_profile_tracer_interface expects 'weight' dims='xyz'.
+      iface = make_profile_tracer_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-decl-parsed', iface, interface_id, status)
+      @assert_that(status, is(0))
+
+      bad_export = make_var(ESMF_STATEINTENT_EXPORT, 'tracer_callback')
+      bad_export%itemType = MAPL_STATEITEM_STATE
+
+      tracers_member = make_var(ESMF_STATEINTENT_EXPORT, 'tracers')
+      tracers_member%itemType = MAPL_STATEITEM_FIELDBUNDLE
+      call bad_export%declare_member('tracers', tracers_member, rc=status)
+      @assert_that(status, is(0))
+
+      weight_member = make_parsed_field_member('weight', 'center', status)
+      @assert_that(status, is(0))
+      call bad_export%declare_member('weight', weight_member, rc=status)
+      @assert_that(status, is(0))
+
+      bad_export%callback_interface_id = interface_id
+      bad_spec => bad_meta%get_component_spec()
+      call bad_spec%add_var_spec(bad_export)
+
+      call gb%advertise(bad_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(chem_meta, status)
+      @assert_that(status, is(0))
+      call gb%advertise(root_meta, status)
+      @assert_that(status, is(0))
+
+      src_pt = ConnectionPt('CHEM', VirtualConnectionPt(state_intent='export', short_name='.*/tracer_callback'))
+
+      matches = resolve_callback_import(root_meta, src_pt, interface_id, rc=status)
+      @assert_that(status, is(0))
+      @assertEqual(1, size(matches))
+      @assertEqual('BAD/tracer_callback', matches(1)%qualified_name)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_resolve_callback_import_parsed_member_conforms
 
    ! Spec "Descendant exports are visible under a
    ! hierarchically-qualified name": own export under own name,

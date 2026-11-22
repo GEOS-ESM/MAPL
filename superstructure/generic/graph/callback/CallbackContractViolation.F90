@@ -5,7 +5,8 @@
 ! callback State. Carries the internal short reason code already used
 ! by today's conformance path (GraphBuilder_CallbackWiring_smod.F90's
 ! export_conforms_to_interface - "missing_member:<name>",
-! "kind_mismatch:<name>") extended with one code per problem category a
+! "kind_mismatch:<name>", "dims_mismatch:<name>",
+! "unreadable_member:<name>") extended with one code per problem category a
 ! realized-state checker can find, plus the already-worded report line
 ! (the member if any, what was found, and what is legal; the shared
 ! header supplies the interface, its version, the Handler and the
@@ -24,7 +25,9 @@ module mapl_CallbackContractViolation_mod
 
    public :: CallbackContractViolation
    public :: missing_argument_violation
+   public :: unreadable_argument_violation
    public :: kind_mismatch_violation
+   public :: dims_mismatch_violation
    public :: missing_attribute_violation
    public :: attribute_type_violation
    public :: attribute_value_not_allowed_violation
@@ -84,6 +87,18 @@ contains
       end if
    end function missing_argument_violation
 
+   ! A member is declared under this name but could not be read back as
+   ! a VariableSpec (VariableSpec%get_member failed) - a real
+   ! structural problem with the declaration, distinct from
+   ! missing_argument_violation's "this argument was never declared".
+   function unreadable_argument_violation(argument_name) result(violation)
+      character(*), intent(in) :: argument_name
+      type(CallbackContractViolation) :: violation
+
+      violation = new_violation('unreadable_member:' // argument_name, &
+           "argument '" // argument_name // "' is declared but could not be read as a member")
+   end function unreadable_argument_violation
+
    ! Spec scenario F2 "Kind mismatch".
    function kind_mismatch_violation(argument_name, found_kind, expected_kind) result(violation)
       character(*), intent(in) :: argument_name
@@ -95,6 +110,21 @@ contains
            "argument '" // argument_name // "' has kind '" // found_kind // &
            "', expected '" // expected_kind // "'")
    end function kind_mismatch_violation
+
+   ! Declaration-level dims check (CallbackArgumentSpec%get_dims, 'xy' or
+   ! 'xyz'), compared against the matched export's declared member; the
+   ! realized-State checker (CallbackStateConformance.F90) does not check
+   ! dims at all, only the declaration-level check does.
+   function dims_mismatch_violation(argument_name, found_dims, expected_dims) result(violation)
+      character(*), intent(in) :: argument_name
+      character(*), intent(in) :: found_dims
+      character(*), intent(in) :: expected_dims
+      type(CallbackContractViolation) :: violation
+
+      violation = new_violation('dims_mismatch:' // argument_name, &
+           "argument '" // argument_name // "' has dims '" // found_dims // &
+           "', expected '" // expected_dims // "'")
+   end function dims_mismatch_violation
 
    ! Spec scenarios F3, MF6 "Required attribute missing". host is the
    ! member name the attribute is hosted on, or '' for a per-State
