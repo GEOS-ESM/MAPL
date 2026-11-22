@@ -62,10 +62,16 @@ The current tree (verified for this change) has these gaps:
 - Test tools and the two slices (`toy_scaling`, `turbulent_mixing`).
 
 **Non-Goals:**
-- Overloads for R4 and R8, units checks, geometry wildcards,
-  Handler-declared widths, a per-mode "consumed" table, a debug report of
-  requested arguments, and registration from component code (all later,
-  compatible additions).
+- Overloads for R4 and R8, geometry wildcards, Handler-declared widths, a
+  per-mode "consumed" table, a debug report of requested arguments, and
+  registration from component code (all later, compatible additions).
+- Unit *conversion* or compatibility checking beyond placeholder binding
+  (Decision 21): a placeholder's declared unit is recorded and shared
+  across arguments that name it, and every placeholder must be bound,
+  but nothing in this change converts between units or validates one
+  against UDUNITS; Invoker-side unit inference and unit expressions
+  (`$U s-1`) are later, compatible additions (decision notes, topic
+  A-units).
 - Enforcing compatibility by version (the version is recorded and
   reported only).
 - A per-argument `regrid:` key (second-order on request).
@@ -251,14 +257,10 @@ author/reviewer subagent pipeline, same as any other task. Several
 design questions are already closed this way: execution mechanics for
 pulling get-arguments, advancing put-arguments and finding a method
 binding (Decision 19), and the writer-identity question (Decision 11).
-Open, and needed before 5.1-5.3 can be handed off: the member key
-namespace's actual separator (Decision 12 in the owner/meta working
-notes called its example key illustrative only), the YAML syntax for
-unit placeholders and for per-member aliases/templates (both decided in
-principle, not yet given a concrete syntax or added to
-`CallbackArgumentSpec`/`CallbackInterface`/`VariableSpec`), and the
-exact Invoker API shape for 5.3 (`MAPL_CallbackCollectionGet` and
-friends: names, arguments, what "qualified name" access means).
+The four items this paragraph used to list as open (member key
+namespace, unit-placeholder YAML, alias/template YAML, the Invoker API
+shape for 5.3) are resolved; see Decision 21. 5.1-5.3 can now be handed
+to the usual author/reviewer pipeline.
 
 **13. Callback arguments get characteristics from their members.**
 `wire_callback_argument` today compares two empty characteristic maps.
@@ -377,6 +379,63 @@ resolve in -- if a real caller ever invokes `build_callback_method_binding`
 while something is still DEFERRED, that is a caller-ordering bug in the
 code that invokes it (part of decision 12's reserved work), to be fixed
 there, not papered over here.
+
+**21. Member key namespace, unit-placeholder and alias/template YAML
+syntax, and the 5.3 Invoker API shape (closes the four open items under
+Decision 12).**
+
+- **Member key namespace: no separator needed, no joined string built.**
+  `CompositeStateMaterialization%materialize_member` already keeps a
+  member out of ordinary connection/wildcard/History matching: it
+  registers the member's `NodeId` but never adds it to the
+  `ComponentGraph`'s flat `resource_index` map those paths use, so a
+  member is reachable only by walking its owning composite node's own
+  `state_members` map. There is nothing left to isolate with a
+  separator. Every accessor (`MAPL_CallbackGetAttribute`,
+  `MAPL_CallbackSetScalar`, decision 11) and every future message or API
+  that names "this member of this callback State" keeps the State name
+  and the member name as two separate strings; nothing ever joins them
+  into one compound key for lookup. A message that wants a
+  human-readable joined form for display only (never parsed back apart)
+  may use `::` (unused elsewhere in component/item naming); it must not
+  reuse `/`, which already means component path in a qualified export
+  name.
+- **Unit placeholder YAML: one `units:` key, scalar or one-entry
+  mapping.** On the interface, `units: $U` declares a placeholder named
+  `U`; every argument across the interface sharing `$U` must agree on
+  units. `units: 'kg'` (any value not starting with `$`) is a concrete,
+  fixed unit. A Handler binds a placeholder with a one-entry mapping at
+  the same key, `units: {U: 'kg kg-1'}`; every placeholder the interface
+  declares must be bound this way before the Handler's callback State
+  can be realized. The scalar/mapping shapes are told apart with
+  `ESMF_HConfigIsScalar`/`ESMF_HConfigIsMap`, the same calls
+  `parse_var_specs.F90` already uses for other polymorphic keys.
+- **Alias/template YAML: explicit opt-in keys on `declare_member`, new
+  field default unchanged.** A member declaration gains two optional
+  keys: `alias: <name>` binds the member as a zero-copy view of one
+  already-existing Handler item (geometry/typekind/units come from the
+  aliased item, per Decision B above); `template: true` on the same
+  declaration expands it, via the existing wildcard-matching regex code
+  already used for import names, into one member per matching internal
+  item (e.g. `alias: 'TR.*'` with `template: true` yields one member per
+  `TR001`, `TR002`, ...). Neither key changes `declare_member`'s
+  existing meaning when absent: a plain declaration is still always a
+  new, framework-allocated field.
+- **Invoker API shape for 5.3: an iterator, not count-and-index.**
+  `MAPL_CallbackCollectionGet` and friends present an iterator over the
+  bound Handlers for one collection (canonical pattern: advance, check
+  done, fetch current), not a `count` plus `GetAt(i)` pair -- this also
+  makes an out-of-range access harder to construct by accident. Access
+  by qualified name (a lookup by a specific Handler's identity, as
+  opposed to iterating all of them) and detailed error behavior (a loud
+  `_FAIL` vs. a `found` out-argument) are deliberately left open past
+  5.1-5.3: this is the first version of a new API with no real caller
+  yet to learn from, legacy's closest analogs (the old "service" and
+  "friendly" mechanisms) had essentially no error handling either, and
+  over-specifying now risks guessing wrong ahead of real usage. 5.1-5.3's
+  author should pick the smallest iterator shape that satisfies the
+  same-grid get/put test in task 5.3 and leave qualified-name access and
+  stricter error handling as later, compatible additions.
 
 ## Risks / Trade-offs
 
