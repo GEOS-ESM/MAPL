@@ -1,0 +1,1127 @@
+! Tests for mapl_ConfigurableCallbackHandler_mod: building a callback
+! State from a Handler's own YAML section and checking it with
+! check_callback_state_conformance - no Invoker, no graph STATE-item
+! population, just the same hand-built-State style
+! Test_CallbackStateConformance.pf uses, driven by YAML instead of
+! Fortran calls. Interfaces are registered the same way
+! Test_CallbackRegistrationLoader.pf does: write a real
+! callback_interfaces.yaml-style file at runtime, then
+! load_callback_registration_file it.
+module Test_ConfigurableCallbackHandler
+   use mapl_ConfigurableCallbackHandler_mod, only: build_configurable_handler
+   use mapl_CallbackRegistrationLoader_mod, only: load_callback_registration_file
+   use mapl_CallbackInterfaceRegistry_mod, only: get_callback_interface_by_name
+   use mapl_CallbackInterfaceRegistry_mod, only: reset_callback_registry_for_testing
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackStateConformance_mod, only: check_callback_state_conformance
+   use mapl_CallbackContractViolation_mod, only: CallbackContractViolation
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
+   use mapl_StateItemCharacteristicKind_mod, only: NON_NEGATIVE_CHARACTERISTIC_KIND
+   use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristic
+   use mapl_NonNegativeCharacteristic_mod, only: NonNegativeCharacteristic
+   use ESMF, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use ESMF, only: ESMF_State, ESMF_StateGet, ESMF_Field, ESMF_FieldGet
+   use ESMF, only: ESMF_MAXSTR, ESMF_KIND_R8
+   use funit
+   implicit none
+
+   character(*), parameter :: NL = new_line('a')
+   real(kind=ESMF_KIND_R8), parameter :: TOL = 1.0e-12_ESMF_KIND_R8
+
+   ! A small callback_interfaces.yaml with two interfaces:
+   !  - mock_toy: a 2-D argument (quantity, out in "get") plus a
+   !    second, in-only argument (bias, in in "get") so supply's
+   !    out/inout restriction has something illegal to reject. tag is a
+   !    member-scoped attribute hosted on quantity, so a misplaced
+   !    member_attributes entry (wrong host, or under state_attributes)
+   !    has something to be misplaced onto.
+   !  - mock_mixing: a 3-D argument (mixed_quantity), out in "get" and
+   !    in in "put" (the PassiveTracer-style shared-argument pattern),
+   !    so record has a legal (put) and an illegal (get) method to name.
+   character(*), parameter :: INTERFACES_YAML = &
+        'mock_toy:' // NL // &
+        '  version: 1' // NL // &
+        '  summary: mock toy interface for the Configurable Handler tests' // NL // &
+        '  arguments:' // NL // &
+        '    quantity:' // NL // &
+        '      kind: field' // NL // &
+        '      dims: xy' // NL // &
+        '    bias:' // NL // &
+        '      kind: field' // NL // &
+        '      dims: xy' // NL // &
+        '  methods:' // NL // &
+        '    get:' // NL // &
+        '      quantity: out' // NL // &
+        '      bias: in' // NL // &
+        '  attributes:' // NL // &
+        '    operation:' // NL // &
+        '      type: string' // NL // &
+        '      scope: state' // NL // &
+        '      required: true' // NL // &
+        '      allowed: [scale, offset]' // NL // &
+        '    factor:' // NL // &
+        '      type: real' // NL // &
+        '      scope: state' // NL // &
+        '      default: 2.0' // NL // &
+        '    tag:' // NL // &
+        '      type: string' // NL // &
+        '      scope: member' // NL // &
+        '      host_argument: quantity' // NL // &
+        'mock_mixing:' // NL // &
+        '  version: 1' // NL // &
+        '  summary: mock mixing interface for the Configurable Handler tests' // NL // &
+        '  arguments:' // NL // &
+        '    mixed_quantity:' // NL // &
+        '      kind: field' // NL // &
+        '      dims: xyz' // NL // &
+        '  methods:' // NL // &
+        '    get:' // NL // &
+        '      mixed_quantity: out' // NL // &
+        '    put:' // NL // &
+        '      mixed_quantity: in' // NL // &
+        '  attributes:' // NL // &
+        '    mix_like:' // NL // &
+        '      type: string' // NL // &
+        '      scope: member' // NL // &
+        '      host_argument: mixed_quantity' // NL // &
+        '      required: true' // NL // &
+        '      allowed: [heat, moisture]' // NL
+
+contains
+
+   subroutine write_file(filename, content)
+      character(*), intent(in) :: filename
+      character(*), intent(in) :: content
+
+      integer :: unit
+
+      open(newunit=unit, file=filename, form='formatted', status='replace')
+      write(unit, '(a)') content
+      close(unit)
+   end subroutine write_file
+
+   subroutine delete_file(filename)
+      character(*), intent(in) :: filename
+
+      integer :: unit
+
+      open(newunit=unit, file=filename, form='formatted', status='old')
+      close(unit, status='delete')
+   end subroutine delete_file
+
+   ! Registers mock_toy and mock_mixing from INTERFACES_YAML into a
+   ! freshly reset registry.
+   subroutine load_mock_interfaces(filename)
+      character(*), intent(in) :: filename
+
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+      call write_file(filename, INTERFACES_YAML)
+      call load_callback_registration_file(filename, found, rc=status)
+      @assertEqual(0, status, 'load_callback_registration_file failed')
+      @assertTrue(found, trim(filename) // ' must be found')
+      call delete_file(filename)
+   end subroutine load_mock_interfaces
+
+   ! geometry: a tiny global lat-lon grid, the same shape
+   ! StateItemTestSupport_mod's make_latlon_geom builds, under the
+   ! same esmf_geom/vertical_grid keys the generic layer's own
+   ! `geometry:` section uses.
+   function geometry_yaml(num_levels) result(text)
+      integer, optional, intent(in) :: num_levels
+      character(:), allocatable :: text
+      character(32) :: level_text
+
+      text = 'geometry:' // NL // &
+           '  esmf_geom: {class: latlon, im_world: 4, jm_world: 3, pole: PC, ' // &
+           'dateline: DC, nx: 1, ny: 1}' // NL
+      if (present(num_levels)) then
+         write(level_text, '(i0)') num_levels
+         text = text // '  vertical_grid: {num_levels: ' // trim(level_text) // '}' // NL
+      end if
+   end function geometry_yaml
+
+   ! Whether any of violations carries a code with this prefix (a
+   ! category check, not an exact-text check - message wording is the
+   ! conformance checker's own concern, tested there).
+   logical function has_violation_code(violations, prefix) result(found)
+      type(CallbackContractViolation), intent(in) :: violations(:)
+      character(*), intent(in) :: prefix
+
+      integer :: i
+
+      found = .false.
+      do i = 1, size(violations)
+         if (index(violations(i)%get_code(), prefix) == 1) then
+            found = .true.
+            return
+         end if
+      end do
+   end function has_violation_code
+
+   !-----------------------------------------------------------------
+   ! happy paths
+   !-----------------------------------------------------------------
+
+   @test
+   subroutine test_mock_toy_builds_a_conforming_state()
+      character(*), parameter :: FILENAME = 'mock_toy_builds_a_conforming_state.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(CallbackInterface) :: iface
+      type(ESMF_State) :: cb_state, mock_state
+      type(ESMF_Field) :: field
+      real(kind=ESMF_KIND_R8), pointer :: ptr2d(:,:)
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      type(CallbackContractViolation), allocatable :: violations(:)
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  quantity: {constant: 1.0}' // NL // &
+           'state_attributes:' // NL // &
+           '  operation: scale' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertEqual(0, status, 'build_configurable_handler failed')
+      @assertEqual('mock_toy', interface_name)
+      @assertEqual(0, size(non_negative_names), 'no non_negative section was configured')
+
+      ! quantity (configured under supply) must hold the constant
+      ! value; bias (not configured) must still exist as a real member.
+      call ESMF_StateGet(cb_state, itemName='quantity', field=field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(field, farrayPtr=ptr2d, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1.0_ESMF_KIND_R8, ptr2d, tolerance=TOL, message='quantity must be the configured constant')
+
+      call ESMF_StateGet(cb_state, itemName='bias', field=field, rc=status)
+      @assertEqual(0, status, 'bias must be a real member even though it is not under supply')
+
+      iface = get_callback_interface_by_name(interface_name, rc=status)
+      @assertEqual(0, status)
+      call check_callback_state_conformance(cb_state, iface, interface_name, &
+           'toy_handler', violations, rc=status)
+      @assertEqual(0, status, 'check_callback_state_conformance failed')
+      @assertEqual(0, size(violations), 'a correctly configured mock_toy must have no violations')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_mock_toy_builds_a_conforming_state
+
+   ! A richer happy path: mock_mixing's xyz mixed_quantity supplied by
+   ! profile (one value per level), member_attributes setting mix_like
+   ! on it, and record naming put/mixed_quantity (legal: mixed_quantity
+   ! is "in" in "put") - a placeholder export field in mock_state, not
+   ! a value, since recording an actual value needs a real Invoker to
+   ! drive the callback.
+   @test
+   subroutine test_mock_mixing_profile_supply_and_record()
+      character(*), parameter :: FILENAME = 'mock_mixing_profile_supply_and_record.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(CallbackInterface) :: iface
+      type(ESMF_State) :: cb_state, mock_state
+      type(ESMF_Field) :: field
+      real(kind=ESMF_KIND_R8), pointer :: ptr3d(:,:,:)
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      type(CallbackContractViolation), allocatable :: violations(:)
+      integer :: item_count, status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_mixing' // NL // &
+           geometry_yaml(num_levels=3) // &
+           'supply:' // NL // &
+           '  mixed_quantity: {profile: [1.0e-6, 2.0e-6, 3.0e-6]}' // NL // &
+           'member_attributes:' // NL // &
+           '  mixed_quantity:' // NL // &
+           '    mix_like: heat' // NL // &
+           'record:' // NL // &
+           '  put: [mixed_quantity]' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'mixing_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertEqual(0, status, 'build_configurable_handler failed')
+      @assertEqual('mock_mixing', interface_name)
+
+      call ESMF_StateGet(cb_state, itemName='mixed_quantity', field=field, rc=status)
+      @assertEqual(0, status)
+      call ESMF_FieldGet(field, farrayPtr=ptr3d, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1.0e-6_ESMF_KIND_R8, ptr3d(:,:,1), tolerance=TOL, message='level 1 of the profile')
+      @assertEqual(2.0e-6_ESMF_KIND_R8, ptr3d(:,:,2), tolerance=TOL, message='level 2 of the profile')
+      @assertEqual(3.0e-6_ESMF_KIND_R8, ptr3d(:,:,3), tolerance=TOL, message='level 3 of the profile')
+
+      iface = get_callback_interface_by_name(interface_name, rc=status)
+      @assertEqual(0, status)
+      call check_callback_state_conformance(cb_state, iface, interface_name, &
+           'mixing_handler', violations, rc=status)
+      @assertEqual(0, status, 'check_callback_state_conformance failed')
+      @assertEqual(0, size(violations), 'a correctly configured mock_mixing must have no violations')
+
+      ! The record placeholder landed in mock_state, not cb_state.
+      call ESMF_StateGet(mock_state, itemCount=item_count, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(1, item_count, 'mock_state must hold exactly the one record placeholder field')
+      call ESMF_StateGet(mock_state, itemName='mapl_mock_put_mixed_quantity', field=field, rc=status)
+      @assertEqual(0, status, 'the record placeholder must be named mapl_mock_<method>_<argument>')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_mock_mixing_profile_supply_and_record
+
+   ! non_negative is a Handler config key like any other, read in the
+   ! same build_configurable_handler call; it reports descriptors back
+   ! rather than writing to cb_state (NonNegativeCharacteristic writes
+   ! no Info key, so it cannot be observed on a realized State). Uses
+   ! mock_mixing's mixed_quantity (xyz): column fill is meaningless on
+   ! a 2-D argument, so the fixture must be a vertical one.
+   @test
+   subroutine test_non_negative_is_a_handler_config_key()
+      character(*), parameter :: FILENAME = 'non_negative_is_a_handler_config_key.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      class(StateItemCharacteristic), allocatable :: c
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_mixing' // NL // &
+           geometry_yaml(num_levels=3) // &
+           'supply:' // NL // &
+           '  mixed_quantity: {constant: 1.0}' // NL // &
+           'non_negative:' // NL // &
+           '  mixed_quantity: {fill: column}' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'mixing_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertEqual(0, status, 'build_configurable_handler failed')
+      @assertEqual(1, size(non_negative_names))
+      @assertEqual('mixed_quantity', trim(non_negative_names(1)))
+
+      call non_negative_descriptors(1)%get_characteristic(NON_NEGATIVE_CHARACTERISTIC_KIND, c, rc=status)
+      @assertEqual(0, status, 'descriptor must carry a NonNegativeCharacteristic')
+      select type (c)
+      type is (NonNegativeCharacteristic)
+         @assertEqual('column', c%get_fill())
+      class default
+         @assertTrue(.false., 'NON_NEGATIVE entry has the wrong type')
+      end select
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_non_negative_is_a_handler_config_key
+
+   !-----------------------------------------------------------------
+   ! conformance failures (build succeeds; check_callback_state_conformance
+   ! must catch a badly configured attribute)
+   !-----------------------------------------------------------------
+
+   ! operation: ofset (misspelled) is not in the allowed set [scale,
+   ! offset]: check_callback_state_conformance must catch it, and
+   ! report it as an attribute_value_not_allowed violation.
+   @test
+   subroutine test_mock_toy_value_not_allowed_is_caught()
+      character(*), parameter :: FILENAME = 'mock_toy_value_not_allowed_is_caught.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(CallbackInterface) :: iface
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      type(CallbackContractViolation), allocatable :: violations(:)
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  quantity: {constant: 1.0}' // NL // &
+           'state_attributes:' // NL // &
+           '  operation: ofset' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertEqual(0, status, 'build_configurable_handler failed')
+
+      iface = get_callback_interface_by_name(interface_name, rc=status)
+      @assertEqual(0, status)
+      call check_callback_state_conformance(cb_state, iface, interface_name, &
+           'toy_handler', violations, rc=status)
+      @assertEqual(0, status, 'check_callback_state_conformance failed')
+      @assertEqual(1, size(violations), 'operation: ofset is not an allowed value and must be caught')
+      @assertTrue(has_violation_code(violations, 'attribute_value_not_allowed:'), &
+           'the violation must be attribute_value_not_allowed, got ' // violations(1)%get_code())
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_mock_toy_value_not_allowed_is_caught
+
+   ! state_attributes omits operation, which is required: a missing
+   ! required attribute must be caught as a missing_attribute violation.
+   @test
+   subroutine test_mock_toy_missing_required_attribute_is_caught()
+      character(*), parameter :: FILENAME = 'mock_toy_missing_required_attribute_is_caught.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(CallbackInterface) :: iface
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      type(CallbackContractViolation), allocatable :: violations(:)
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  quantity: {constant: 1.0}' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertEqual(0, status, 'build_configurable_handler failed')
+
+      iface = get_callback_interface_by_name(interface_name, rc=status)
+      @assertEqual(0, status)
+      call check_callback_state_conformance(cb_state, iface, interface_name, &
+           'toy_handler', violations, rc=status)
+      @assertEqual(0, status, 'check_callback_state_conformance failed')
+      @assertEqual(1, size(violations), 'a missing required attribute (operation) must be caught')
+      @assertTrue(has_violation_code(violations, 'missing_attribute:'), &
+           'the violation must be missing_attribute, got ' // violations(1)%get_code())
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_mock_toy_missing_required_attribute_is_caught
+
+   !-----------------------------------------------------------------
+   ! build_configurable_handler failures (bad Handler config; build
+   ! itself must fail, not silently produce a bad State)
+   !-----------------------------------------------------------------
+
+   @test
+   subroutine test_supply_profile_wrong_length_fails()
+      character(*), parameter :: FILENAME = 'supply_profile_wrong_length_fails.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_mixing' // NL // &
+           geometry_yaml(num_levels=3) // &
+           'supply:' // NL // &
+           '  mixed_quantity: {profile: [1.0e-6, 2.0e-6]}' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'mixing_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler mixing_handler: argument mixed_quantity: ' // &
+           'supply profile length does not match the vertical grid')
+      ! Drop the _RC propagation of the error through the callers.
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, &
+           'a 2-value profile against a 3-level vertical grid must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_supply_profile_wrong_length_fails
+
+   @test
+   subroutine test_supply_unknown_key_fails()
+      character(*), parameter :: FILENAME = 'supply_unknown_key_fails.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  quantity: {bogus: 1.0}' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: argument quantity: ' // &
+           'supply needs one of constant, profile')
+      ! Drop the _RC propagation of the error through the callers.
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'an unrecognized supply key (bogus) must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_supply_unknown_key_fails
+
+   @test
+   subroutine test_supply_function_is_rejected_as_not_yet_supported()
+      character(*), parameter :: FILENAME = 'supply_function_is_rejected.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  quantity: {function: some_profile_fn}' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: argument quantity: ' // &
+           'supply function is not yet supported')
+      ! Drop the _RC propagation of the error through the callers.
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'supply: function is not yet supported and must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_supply_function_is_rejected_as_not_yet_supported
+
+   ! bias is "in" (not out/inout) in every method of mock_toy, so it is
+   ! not legally configurable under supply.
+   @test
+   subroutine test_supply_on_in_only_argument_fails()
+      character(*), parameter :: FILENAME = 'supply_on_in_only_argument_fails.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  bias: {constant: 1.0}' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: ' // &
+           'supply argument bias is not out or inout in any method')
+      ! Drop the _RC propagation of the error through the caller.
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, &
+           'supply on bias (in-only in every method) must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_supply_on_in_only_argument_fails
+
+   ! mixed_quantity is "out" (not in/inout) in method "get", so
+   ! record: {get: [mixed_quantity]} is illegal, even though the same
+   ! argument is legally recordable under "put".
+   @test
+   subroutine test_record_on_out_only_argument_in_that_method_fails()
+      character(*), parameter :: FILENAME = 'record_on_out_only_argument_fails.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_mixing' // NL // &
+           geometry_yaml(num_levels=3) // &
+           'supply:' // NL // &
+           '  mixed_quantity: {constant: 1.0}' // NL // &
+           'record:' // NL // &
+           '  get: [mixed_quantity]' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'mixing_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler mixing_handler: record: method get: ' // &
+           'argument mixed_quantity is out-only in this method')
+      ! Drop the _RC propagation of the error through the caller.
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, &
+           'record: get: [mixed_quantity] is illegal because mixed_quantity is out-only in get')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_record_on_out_only_argument_in_that_method_fails
+
+   @test
+   subroutine test_unknown_top_level_key_fails()
+      character(*), parameter :: FILENAME = 'unknown_top_level_key_fails.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supplly:' // NL // &
+           '  quantity: {constant: 1.0}' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: unknown top-level key supplly; ' // &
+           'legal keys: interface, geometry, supply, non_negative, record, ' // &
+           'state_attributes, member_attributes')
+      ! Drop the _RC propagation of the error through the caller, if any.
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'the misspelled top-level key supplly must be rejected by name')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_unknown_top_level_key_fails
+
+   @test
+   subroutine test_missing_geometry_fails()
+      character(*), parameter :: FILENAME = 'missing_geometry_fails.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = 'interface: mock_toy' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: missing required key geometry')
+      ! Drop the _RC propagation of the error through the caller, if any.
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'a Handler config with no geometry must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_missing_geometry_fails
+
+   @test
+   subroutine test_missing_interface_fails()
+      character(*), parameter :: FILENAME = 'missing_interface_fails.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = geometry_yaml()
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: missing required key interface')
+      ! Drop the _RC propagation of the error through the caller, if any.
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'a Handler config with no interface must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_missing_interface_fails
+
+   !-----------------------------------------------------------------
+   ! attribute placement (state_attributes vs member_attributes, and
+   ! member_attributes against the attribute's own declared host)
+   !-----------------------------------------------------------------
+
+   ! mix_like is declared scope: member (hosted on mixed_quantity); it
+   ! must be rejected under state_attributes.
+   @test
+   subroutine test_state_attributes_rejects_member_scoped_attribute()
+      character(*), parameter :: FILENAME = 'state_attributes_rejects_member_scoped.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_mixing' // NL // &
+           geometry_yaml(num_levels=3) // &
+           'supply:' // NL // &
+           '  mixed_quantity: {constant: 1.0}' // NL // &
+           'state_attributes:' // NL // &
+           '  mix_like: heat' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'mixing_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler mixing_handler: state_attributes names ' // &
+           'mix_like, which is a member-scoped attribute; put it under member_attributes')
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'a member-scoped attribute under state_attributes must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_state_attributes_rejects_member_scoped_attribute
+
+   ! operation is declared scope: state; it must be rejected under
+   ! member_attributes even when the named member (quantity) is real.
+   @test
+   subroutine test_member_attributes_rejects_state_scoped_attribute()
+      character(*), parameter :: FILENAME = 'member_attributes_rejects_state_scoped.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  quantity: {constant: 1.0}' // NL // &
+           'member_attributes:' // NL // &
+           '  quantity:' // NL // &
+           '    operation: scale' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: member_attributes names ' // &
+           'operation, which is a state-scoped attribute; put it under state_attributes')
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'a state-scoped attribute under member_attributes must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_member_attributes_rejects_state_scoped_attribute
+
+   ! tag's declared host_argument is quantity; putting it on bias (a
+   ! real argument, just not tag's host) must fail.
+   @test
+   subroutine test_member_attributes_rejects_wrong_host()
+      character(*), parameter :: FILENAME = 'member_attributes_rejects_wrong_host.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  quantity: {constant: 1.0}' // NL // &
+           'member_attributes:' // NL // &
+           '  bias:' // NL // &
+           '    tag: mislabeled' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: member_attributes puts ' // &
+           'tag on bias, but its declared host argument is quantity')
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'member_attributes on the wrong host argument must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_member_attributes_rejects_wrong_host
+
+   @test
+   subroutine test_member_attributes_rejects_unknown_argument()
+      character(*), parameter :: FILENAME = 'member_attributes_rejects_unknown_argument.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  quantity: {constant: 1.0}' // NL // &
+           'member_attributes:' // NL // &
+           '  bogus_arg:' // NL // &
+           '    tag: mislabeled' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: member_attributes names ' // &
+           'unknown argument bogus_arg')
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'member_attributes on an unknown argument must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_member_attributes_rejects_unknown_argument
+
+   !-----------------------------------------------------------------
+   ! supply entry shape (exactly one of constant/profile)
+   !-----------------------------------------------------------------
+
+   @test
+   subroutine test_supply_entry_rejects_two_keys()
+      character(*), parameter :: FILENAME = 'supply_entry_rejects_two_keys.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  quantity: {constant: 1.0, profile: [1.0, 2.0, 3.0]}' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: argument quantity: ' // &
+           'supply must name exactly one of constant, profile')
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'a supply entry with two keys present must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_supply_entry_rejects_two_keys
+
+   ! quantity is xy (horizontal-only); profile only makes sense on an
+   ! xyz argument.
+   @test
+   subroutine test_supply_profile_on_xy_argument_fails()
+      character(*), parameter :: FILENAME = 'supply_profile_on_xy_argument_fails.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  quantity: {profile: [1.0, 2.0, 3.0]}' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: argument quantity: ' // &
+           'supply profile needs dims xyz')
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'a profile on an xy argument must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_supply_profile_on_xy_argument_fails
+
+   @test
+   subroutine test_supply_unknown_argument_fails()
+      character(*), parameter :: FILENAME = 'supply_unknown_argument_fails.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  bogus_arg: {constant: 1.0}' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: supply names unknown ' // &
+           'argument bogus_arg')
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'supply naming an unknown argument must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_supply_unknown_argument_fails
+
+   !-----------------------------------------------------------------
+   ! non_negative validation
+   !-----------------------------------------------------------------
+
+   @test
+   subroutine test_non_negative_rejects_unknown_argument()
+      character(*), parameter :: FILENAME = 'non_negative_rejects_unknown_argument.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  quantity: {constant: 1.0}' // NL // &
+           'non_negative:' // NL // &
+           '  bogus_arg: {fill: column}' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: non_negative names ' // &
+           'unknown argument bogus_arg')
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'non_negative naming an unknown argument must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_non_negative_rejects_unknown_argument
+
+   @test
+   subroutine test_non_negative_rejects_extra_subkey()
+      character(*), parameter :: FILENAME = 'non_negative_rejects_extra_subkey.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_mixing' // NL // &
+           geometry_yaml(num_levels=3) // &
+           'supply:' // NL // &
+           '  mixed_quantity: {constant: 1.0}' // NL // &
+           'non_negative:' // NL // &
+           '  mixed_quantity: {fill: column, extra: 1}' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'mixing_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler mixing_handler: non_negative argument ' // &
+           'mixed_quantity: only fill is a legal key')
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'a non_negative entry with an extra sub-key must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_non_negative_rejects_extra_subkey
+
+   ! quantity is xy (horizontal-only); column fill is meaningless there.
+   @test
+   subroutine test_non_negative_rejects_non_xyz_argument()
+      character(*), parameter :: FILENAME = 'non_negative_rejects_non_xyz_argument.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  quantity: {constant: 1.0}' // NL // &
+           'non_negative:' // NL // &
+           '  quantity: {fill: column}' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: non_negative argument ' // &
+           'quantity: column fill needs dims xyz')
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'non_negative on an xy argument must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_non_negative_rejects_non_xyz_argument
+
+   !-----------------------------------------------------------------
+   ! record: unknown names
+   !-----------------------------------------------------------------
+
+   @test
+   subroutine test_record_unknown_argument_fails()
+      character(*), parameter :: FILENAME = 'record_unknown_argument_fails.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_mixing' // NL // &
+           geometry_yaml(num_levels=3) // &
+           'supply:' // NL // &
+           '  mixed_quantity: {constant: 1.0}' // NL // &
+           'record:' // NL // &
+           '  put: [bogus_arg]' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'mixing_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler mixing_handler: record: method put: ' // &
+           'unknown argument bogus_arg')
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'record naming an unknown argument must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_record_unknown_argument_fails
+
+   @test
+   subroutine test_record_unknown_method_fails()
+      character(*), parameter :: FILENAME = 'record_unknown_method_fails.yaml'
+      type(ESMF_HConfig) :: hconfig
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name, handler_cfg
+      integer :: status
+
+      call load_mock_interfaces(FILENAME)
+
+      handler_cfg = &
+           'interface: mock_toy' // NL // &
+           geometry_yaml() // &
+           'supply:' // NL // &
+           '  quantity: {constant: 1.0}' // NL // &
+           'record:' // NL // &
+           '  bogus_method: [quantity]' // NL
+      hconfig = ESMF_HConfigCreate(content=handler_cfg, rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, 'toy_handler', interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertExceptionRaised('ConfigurableCallbackHandler toy_handler: record names unknown ' // &
+           'method bogus_method')
+      do while (catch('status=1'))
+      end do
+      @assertFalse(status == 0, 'record naming an unknown method must fail at build')
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine test_record_unknown_method_fails
+
+end module Test_ConfigurableCallbackHandler
