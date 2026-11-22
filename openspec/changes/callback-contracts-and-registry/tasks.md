@@ -113,7 +113,7 @@
   on `get` and on `put`. Depends on 5.1.
 - [x] 6.2 `SnapshotTransform` (value copy on the `get` return path, only
   when a regrid lies between). Stand-alone test.
-- [ ] 6.3 `WeightedDeltaBackTransform` (ports value, snapshot,
+- [x] 6.3 `WeightedDeltaBackTransform` (ports value, snapshot,
   weight_invoker, weight_owner, owner). Stand-alone test M2 with exact
   numbers, and an unweighted case.
 - [x] 6.4 `ConservativeColumnFillTransform` with fill diagnostic;
