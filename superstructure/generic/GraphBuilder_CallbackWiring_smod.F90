@@ -11,7 +11,9 @@ submodule (mapl_GraphBuilder_mod) GraphBuilder_CallbackWiring_smod
    use mapl_CallbackMethodSpec_mod, only: CallbackMethodSpec
    use mapl_StateItemCharacteristic_mod, only: StateItemCharacteristicMap
    use mapl_StateItemCharacteristicKind_mod, only: StateItemCharacteristicKind
-   use mapl_ExtensionResolution_mod, only: find_mismatched_characteristics, find_or_build_extension_chain
+   use mapl_StateItemDescriptor_mod, only: resolve_characteristics
+   use mapl_ExtensionResolution_mod, only: find_or_build_extension_chain, &
+        materialize_extensions_enabled
    use mapl_GraphNode_mod, only: GraphNode
    use mapl_MethodGraphNode_mod, only: MethodGraphNode
    use mapl_StateItemFlag_mod, only: MAPL_StateItem_Flag
@@ -337,10 +339,8 @@ contains
    ! from CallbackStateBinding%bind_method) in this's graph, creates a
    ! put network, and wires each argument's dependency edge into the
    ! forward network (get) or the put network, by access mode, reusing
-   ! find_mismatched_characteristics/find_or_build_extension_chain as
-   ! ordinary connection resolution does. CallbackArgumentSpec declares
-   ! no characteristics yet, so the exact-match direct-edge branch is
-   ! always taken today.
+   ! resolve_characteristics/find_or_build_extension_chain as ordinary
+   ! connection resolution does (wire_callback_argument).
    module function build_callback_method_binding(this, iface, method_name, state_binding, &
         provider_get_ids, provider_put_ids, rc) result(binding)
       class(OuterMetaComponent), target, intent(inout) :: this
@@ -434,10 +434,30 @@ contains
       _RETURN(_SUCCESS)
    end function build_callback_method_binding
 
-   ! Wires one argument's data-flow edge into network_id, as ordinary
-   ! connection resolution does. Both characteristic maps are empty today
-   ! (CallbackArgumentSpec declares none), so the exact-match
-   ! direct-edge branch is always taken.
+   ! Wires one argument's data-flow edge into network_id, comparing the real
+   ! descriptors of source_id/target_id (both ordinary StateItemNodes - the
+   ! Handler's member and the Invoker-side copy) the same way ordinary
+   ! connection resolution compares an export/import pair:
+   ! resolve_characteristics decides whether an extension chain is needed,
+   ! find_or_build_extension_chain builds (or reuses) it, and
+   ! materialize_extension_chain fills it with real Fields when
+   ! materialize_extensions_enabled() (chain structure is unconditional,
+   ! same gating as ordinary connection resolution). A geometry mismatch is
+   ! resolved like any other: by whichever side's VariableSpec declared a
+   ! regridder_param (the Invoker-side copy is expected to declare the
+   ! default first-order-conservative one; this function has no
+   ! callback-specific regrid logic of its own).
+   !
+   ! Unlike ordinary connection resolution, this has no later-connect-pass
+   ! retry for a DEFERRED characteristic: callback binding has no production
+   ! caller yet, and its intended call site runs only after ordinary
+   ! connections have already resolved their own DEFERRED characteristics.
+   ! A DEFERRED side reaching here means that future caller ran this too
+   ! early - a caller-ordering bug to fix at the call site, not something to
+   ! retry or silently skip here - so resolve_characteristics is called
+   ! directly (passing waiting) instead of through the
+   ! find_mismatched_characteristics wrapper, which has no `waiting` output
+   ! and always fails hard.
    module subroutine wire_callback_argument(graph, network_id, source_id, target_id, rc)
       type(ComponentGraph), target, intent(inout) :: graph
       type(DependencyNetworkId), intent(in) :: network_id
@@ -446,13 +466,37 @@ contains
       integer, optional, intent(out) :: rc
 
       integer :: status
-      type(StateItemCharacteristicMap), target :: empty_characteristics
+      type(StateItemDescriptor), pointer :: source_item, target_item
+      type(StateItemCharacteristicMap) :: source_map, target_map
       type(StateItemCharacteristicKind), allocatable :: mismatched(:)
+      type(StateItemCharacteristicKind), allocatable :: adopted(:)
+      character(:), allocatable :: conflict
+      character(:), allocatable :: incompatible_pair
+      character(:), allocatable :: assert_message
+      logical :: waiting
       type(NodeId) :: final_id
       type(NodeId), allocatable :: intermediate_ids(:)
       character(:), allocatable :: unsupported
+      character(:), allocatable :: materialization_failure
 
-      mismatched = find_mismatched_characteristics(empty_characteristics, empty_characteristics, _RC)
+      source_item => callback_argument_descriptor(graph, source_id, _RC)
+      target_item => callback_argument_descriptor(graph, target_id, _RC)
+      source_map = source_item%get_characteristics()
+      target_map = target_item%get_characteristics()
+
+      waiting = .false.
+      call resolve_characteristics(source_map, target_map, source_item%get_declared_item_type(), &
+           mismatched, adopted, conflict, rc=status, waiting=waiting)
+      _VERIFY(status)
+      assert_message = 'GraphBuilder: wire_callback_argument - a characteristic is still unresolved ' // &
+           '(DEFERRED); callback binding must run after ordinary connections resolve'
+      _ASSERT(.not. waiting, assert_message)
+      _ASSERT(conflict == '', 'GraphBuilder: wire_callback_argument - ' // conflict)
+      if (size(adopted) > 0) then
+         assert_message = 'GraphBuilder: wire_callback_argument - MIRRORED import needs a descriptor to adopt ' // &
+              adopted(1)%to_string()
+         _FAIL(assert_message)
+      end if
 
       if (size(mismatched) == 0) then
          call graph%add_dependency(network_id, source_id, target_id, _RC)
@@ -460,16 +504,47 @@ contains
       end if
 
       call find_or_build_extension_chain(graph, network_id, source_id, &
-           empty_characteristics, empty_characteristics, mismatched, final_id, intermediate_ids, unsupported, _RC)
-      ! No materialize_extension_chain call: with empty characteristic
-      ! maps this branch is unreachable today, and no VariableSpec exists
-      ! here to call it with.
+           source_map, target_map, mismatched, final_id, intermediate_ids, unsupported, &
+           conflict=incompatible_pair, _RC)
+      _ASSERT(incompatible_pair == '', 'GraphBuilder: wire_callback_argument - ' // incompatible_pair)
       _ASSERT(unsupported == '', 'GraphBuilder: wire_callback_argument - unsupported characteristic: ' // unsupported)
+
+      if (materialize_extensions_enabled()) then
+         call materialize_extension_chain(source_item, target_item, intermediate_ids, graph, &
+              materialization_failure, _RC)
+         _ASSERT(materialization_failure == '', 'GraphBuilder: wire_callback_argument - ' // materialization_failure)
+      end if
 
       call graph%add_dependency(network_id, final_id, target_id, _RC)
 
       _RETURN(_SUCCESS)
    end subroutine wire_callback_argument
+
+   ! Mutable view of a node's descriptor, reached through the graph -
+   ! same pattern as GraphBuilder_ConnectionResolution_smod.F90's own
+   ! mutable_descriptor (not shared across submodule files; see
+   ! materialize_extension_chain's own cross-submodule precedent above for
+   ! why a plain, non-`module` procedure must be duplicated instead).
+   function callback_argument_descriptor(graph, node_id, rc) result(descriptor)
+      type(ComponentGraph), target, intent(in) :: graph
+      type(NodeId), intent(in) :: node_id
+      integer, optional, intent(out) :: rc
+      type(StateItemDescriptor), pointer :: descriptor
+
+      class(GraphNode), pointer :: node
+
+      descriptor => null()
+      node => graph%get_node(node_id)
+      _ASSERT(associated(node), 'GraphBuilder: wire_callback_argument - NodeId not found')
+      select type (node)
+      class is (StateItemNode)
+         descriptor => node%get_descriptor()
+      class default
+         _FAIL('GraphBuilder: wire_callback_argument - NodeId is not a StateItemNode')
+      end select
+
+      _RETURN(_SUCCESS)
+   end function callback_argument_descriptor
 
    ! Invoke once after all arguments are ready, in the same
    ! three-phase shape as mapl_MethodInvocation_mod%

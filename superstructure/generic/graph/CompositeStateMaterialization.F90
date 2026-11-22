@@ -21,8 +21,10 @@ module mapl_CompositeStateMaterialization_mod
    use ESMF, only: ESMF_State, ESMF_StateCreate
    use gFTL2_StringVector, only: StringVector
    use mapl_ComponentGraph_mod, only: ComponentGraph
+   use mapl_GraphNode_mod, only: GraphNode
    use mapl_NodeId_mod, only: NodeId
    use mapl_StateItemNode_mod, only: StateItemNode
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
    use mapl_GraphStateItem_mod, only: GraphStateItem
    use mapl_NodeRevision_mod, only: NodeRevision
    use mapl_VariableSpec_mod, only: VariableSpec
@@ -95,6 +97,8 @@ contains
       type(NodeRevision) :: revision
       type(StateItemNode) :: node
       type(StringVector) :: names
+      class(GraphNode), pointer :: registered_node
+      type(StateItemDescriptor), pointer :: descriptor
 
       names = var_spec%get_member_names()
       if (names%size() > 0) then
@@ -105,6 +109,22 @@ contains
          node_id = graph%next_node_id(_RC)
          node = StateItemNode(node_id, payload, revision)
          call graph%register_node(node, _RC)
+
+         ! A leaf member's own VariableSpec never reaches advertise_one (only
+         ! the composite's top-level var_spec does), so this is the only
+         ! place its characteristics (geometry, units, ...) get attached to
+         ! its node; wire_callback_argument and any other per-member
+         ! comparison depend on this. Mutate the stored descriptor in place
+         ! through a pointer, not a copy, as advertise_one does.
+         registered_node => graph%get_node(node_id)
+         _ASSERT(associated(registered_node), 'CompositeStateMaterialization: materialize_member - newly-registered node not found')
+         select type (registered_node)
+         class is (StateItemNode)
+            descriptor => registered_node%get_descriptor()
+            call var_spec%make_characteristics(descriptor, _RC)
+         class default
+            _FAIL('CompositeStateMaterialization: materialize_member - newly-registered node is not a StateItemNode')
+         end select
       end if
 
       _RETURN(_SUCCESS)

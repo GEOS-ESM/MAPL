@@ -72,7 +72,7 @@
 
 ## 6. Callback-argument transforms
 
-- [ ] 6.1 `wire_callback_argument` compares real member descriptors;
+- [x] 6.1 `wire_callback_argument` compares real member descriptors;
   Invoker-side copies take the Invoker's geometry; default regrid param
   first-order conservative. Test: Handler on another grid gets a regrid
   on `get` and on `put`. Depends on 5.1.

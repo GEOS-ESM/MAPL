@@ -42,6 +42,14 @@ module Test_GraphBuilder_CallbackWiring
    use mapl_CallbackMethodBinding_mod, only: CallbackMethodBinding
    use mapl_AccessSpec_mod, only: MAPL_ACCESS_IN, MAPL_ACCESS_OUT, MAPL_ACCESS_INOUT
    use mapl_StateItemFlag_mod, only: MAPL_VARIANT_FIELDBUNDLE => MAPL_STATEITEM_FIELDBUNDLE
+   use mapl_GeomUtilities_mod, only: GeomSetId
+   use mapl_geom_api, only: mapl_new_GeomId
+   use mapl_EsmfRegridder_mod, only: EsmfRegridderParam
+   use mapl_TransformGraphNode_mod, only: TransformGraphNode
+   use mapl_Transform_mod, only: Transform
+   use mapl_HorizontalRegridTransform_mod, only: HorizontalRegridTransform
+   use mapl_NodeIdSet_mod, only: NodeIdSet, NodeIdSetIterator
+   use mapl_QuantityType_mod, only: QUANTITY_TEMPERATURE
    use GraphBuilderTestSupport_mod, only: make_outer_meta, make_var
    use esmf
    use pfunit
@@ -389,7 +397,7 @@ contains
       type(OuterMetaComponent), pointer :: outer_meta
       type(ComponentSpec), pointer :: comp_spec
       type(ComponentGraph), pointer :: graph
-      type(VariableSpec) :: exchanger_export, exchanger_member
+      type(VariableSpec) :: exchanger_export, exchanger_member, provider_var
       type(NodeId) :: state_node_id
       type(NodeId), pointer :: member_node_id
       type(NodeId) :: provider_id
@@ -412,11 +420,26 @@ contains
       exchanger_export%itemType = MAPL_STATEITEM_STATE
       exchanger_member = make_var(ESMF_STATEINTENT_EXPORT, 'value')
       exchanger_member%itemType = MAPL_STATEITEM_FIELDBUNDLE
+      ! Same quantity type on both sides (an unset one is DEFERRED on an
+      ! EXPORT, and wire_callback_argument fails loudly on a DEFERRED pair
+      ! rather than waiting for it to resolve), so this test exercises an
+      ! exact-match wire, not a mismatch.
+      exchanger_member%quantity_type = QUANTITY_TEMPERATURE
       call exchanger_export%declare_member('value', exchanger_member, rc=status)
       @assert_that(status, is(0))
       call comp_spec%add_var_spec(exchanger_export)
 
-      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'provider_shared'))
+      provider_var = make_var(ESMF_STATEINTENT_EXPORT, 'provider_shared')
+      ! Same item class as exchanger_member (FIELDBUNDLE): a member's
+      ! descriptor carries its real item class, so a FIELD-vs-FIELDBUNDLE
+      ! pair here is a genuine ITEM_SHAPE mismatch with no build_transform
+      ! (ItemShapeCharacteristic's shape matrix reports it SHAPE_INCOMPATIBLE),
+      ! not something wire_callback_argument should paper over; match classes
+      ! so this test keeps exercising exact-match wiring, as it always
+      ! intended.
+      provider_var%itemType = MAPL_STATEITEM_FIELDBUNDLE
+      provider_var%quantity_type = QUANTITY_TEMPERATURE
+      call comp_spec%add_var_spec(provider_var)
 
       call gb%advertise(outer_meta, status)
       @assert_that(status, is(0))
@@ -472,5 +495,289 @@ contains
 
       _UNUSED_DUMMY(this)
    end subroutine test_callback_method_binding_builds_get_put_networks
+
+   ! A DEFERRED characteristic (here the provider's unset quantity_type) is
+   ! not a mismatch to extend or silently skip; it is a caller-ordering bug,
+   ! and wire_callback_argument fails loudly instead of waiting, since it
+   ! has no later-connect-pass retry.
+   @test(npes=[0])
+   subroutine test_callback_method_binding_fails_on_deferred_characteristic(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpec) :: exchanger_export, exchanger_member
+      type(NodeId) :: state_node_id
+      type(NodeId), pointer :: member_node_id
+      type(NodeId) :: provider_id
+      type(GraphStateItem), pointer :: payload
+      class(GraphNode), pointer :: node
+      type(StateItemMemberMap), pointer :: members
+      type(StateItemMemberMap) :: provider_get_ids, provider_put_ids
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(CallbackStateBinding) :: state_binding
+      type(CallbackMethodBinding) :: method_binding
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      call make_outer_meta('comp_exchanger_deferred', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+
+      exchanger_export = make_var(ESMF_STATEINTENT_EXPORT, 'exchanger')
+      exchanger_export%itemType = MAPL_STATEITEM_STATE
+      exchanger_member = make_var(ESMF_STATEINTENT_EXPORT, 'value')
+      exchanger_member%itemType = MAPL_STATEITEM_FIELDBUNDLE
+      exchanger_member%quantity_type = QUANTITY_TEMPERATURE
+      call exchanger_export%declare_member('value', exchanger_member, rc=status)
+      @assert_that(status, is(0))
+      call comp_spec%add_var_spec(exchanger_export)
+
+      ! provider_shared's quantity_type stays unset (DEFERRED on an
+      ! EXPORT), unlike the member's - an asymmetric DEFERRED pair, not a
+      ! real mismatch between two declared values.
+      call comp_spec%add_var_spec(make_var(ESMF_STATEINTENT_EXPORT, 'provider_shared'))
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      state_node_id = graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'exchanger'))
+      node => graph%get_node(state_node_id)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      members => payload%state_members_ptr()
+      member_node_id => members%at('value')
+      @assert_that(associated(member_node_id), is(true()))
+
+      iface = make_exchanger_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-6-1-deferred', iface, interface_id, status)
+      @assert_that(status, is(0))
+
+      state_binding = CallbackStateBinding(interface_id, iface, state_node_id)
+      call state_binding%bind_argument('value', member_node_id, status)
+      @assert_that(status, is(0))
+      call state_binding%bind_method('exchange', status)
+      @assert_that(status, is(0))
+
+      provider_id = graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'provider_shared'))
+      call provider_get_ids%insert('value', provider_id)
+      call provider_put_ids%insert('value', provider_id)
+
+      method_binding = build_callback_method_binding(outer_meta, iface, 'exchange', state_binding, &
+           provider_get_ids, provider_put_ids, status)
+      @assertExceptionRaised('GraphBuilder: wire_callback_argument - a characteristic is still unresolved ' // &
+           '(DEFERRED); callback binding must run after ordinary connections resolve')
+      @assertExceptionRaised('status=1')
+      @assertTrue(status /= 0)
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_callback_method_binding_fails_on_deferred_characteristic
+
+   ! The sole predecessor of `id` in `net`, or an invalid NodeId if there
+   ! is not exactly one (mirrors Test_GraphBuilder_ConnectionResolution.pf's
+   ! own sole_predecessor_of/single_predecessor helpers, duplicated here
+   ! rather than shared since neither file factors test helpers out).
+   function callback_regrid_predecessor(net, id) result(pred_id)
+      type(DependencyNetwork), intent(in) :: net
+      type(NodeId), intent(in) :: id
+      type(NodeId) :: pred_id
+
+      type(NodeIdSet), target :: preds
+      type(NodeIdSetIterator) :: iter
+
+      preds = net%get_predecessors(id)
+      if (preds%size() /= 1) return
+      iter = preds%ftn_begin()
+      call iter%next()
+      pred_id = iter%of()
+   end function callback_regrid_predecessor
+
+   ! wire_callback_argument compares real member/provider descriptors: the
+   ! 'value' member (Handler side) and 'provider_shared' (modeling the
+   ! Invoker-side copy) sit on different grids and the provider declares the
+   ! default first-order-conservative regrid param, the way an ordinary
+   ! connection's VariableSpec%regrid_param would. Both the get edge
+   ! (forward network) and the put edge (put network) get a real
+   ! HorizontalRegridTransform, not a direct dependency, and the transform
+   ! carries the conservative param.
+   @test(npes=[0])
+   subroutine test_callback_method_binding_wires_cross_grid_regrid(this)
+      class(MpiTestMethod), intent(inout) :: this
+
+      type(ESMF_GridComp) :: outer_gc
+      type(OuterMetaComponent), pointer :: outer_meta
+      type(ComponentSpec), pointer :: comp_spec
+      type(ComponentGraph), pointer :: graph
+      type(VariableSpec) :: exchanger_export, exchanger_member, provider_var
+      type(NodeId) :: state_node_id
+      type(NodeId), pointer :: member_node_id
+      type(NodeId) :: provider_id
+      type(GraphStateItem), pointer :: payload
+      class(GraphNode), pointer :: node
+      type(StateItemMemberMap), pointer :: members
+      type(StateItemMemberMap) :: provider_get_ids, provider_put_ids
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: interface_id
+      type(CallbackStateBinding) :: state_binding
+      type(CallbackMethodBinding) :: method_binding
+      type(DependencyNetwork), pointer :: get_net, put_net
+      type(ESMF_Grid) :: grid_member, grid_provider
+      type(ESMF_Geom) :: geom_member, geom_provider
+      type(NodeId) :: get_result_id, put_result_id
+      type(NodeId) :: get_transform_id, put_transform_id
+      class(Transform), pointer :: transformer
+      type(EsmfRegridderParam) :: regridder_param
+      integer :: status
+      type(GraphBuilder) :: gb
+
+      grid_member = ESMF_GridCreateNoPeriDim(maxIndex=[2, 2], rc=status)
+      @assert_that(status, is(0))
+      geom_member = ESMF_GeomCreate(grid_member, rc=status)
+      @assert_that(status, is(0))
+      call GeomSetId(geom_member, 601, rc=status)
+      @assert_that(status, is(0))
+
+      grid_provider = ESMF_GridCreateNoPeriDim(maxIndex=[3, 3], rc=status)
+      @assert_that(status, is(0))
+      geom_provider = ESMF_GeomCreate(grid_provider, rc=status)
+      @assert_that(status, is(0))
+      call GeomSetId(geom_provider, 602, rc=status)
+      @assert_that(status, is(0))
+
+      call make_outer_meta('comp_exchanger_regrid', outer_gc, outer_meta, _RC)
+      comp_spec => outer_meta%get_component_spec()
+
+      exchanger_export = make_var(ESMF_STATEINTENT_EXPORT, 'exchanger')
+      exchanger_export%itemType = MAPL_STATEITEM_STATE
+      exchanger_member = make_var(ESMF_STATEINTENT_EXPORT, 'value')
+      exchanger_member%geom = geom_member
+      exchanger_member%geom_id = mapl_new_GeomId(601)
+      ! Same quantity type on both sides so only GEOMETRY_CHARACTERISTIC_KIND
+      ! mismatches below; an unset quantity type is DEFERRED on an EXPORT,
+      ! and wire_callback_argument fails loudly on any DEFERRED
+      ! characteristic rather than reporting a mismatch for it.
+      exchanger_member%quantity_type = QUANTITY_TEMPERATURE
+      call exchanger_export%declare_member('value', exchanger_member, rc=status)
+      @assert_that(status, is(0))
+      call comp_spec%add_var_spec(exchanger_export)
+
+      ! Models the future Invoker-side copy (that creator does not exist
+      ! yet): a plain export holding its own geom and the conservative
+      ! default regrid param.
+      provider_var = make_var(ESMF_STATEINTENT_EXPORT, 'provider_shared')
+      provider_var%geom = geom_provider
+      provider_var%geom_id = mapl_new_GeomId(602)
+      provider_var%quantity_type = QUANTITY_TEMPERATURE
+      provider_var%regrid_param = EsmfRegridderParam(regridmethod=ESMF_REGRIDMETHOD_CONSERVE)
+      call comp_spec%add_var_spec(provider_var)
+
+      call gb%advertise(outer_meta, status)
+      @assert_that(status, is(0))
+
+      graph => outer_meta%get_component_graph()
+      state_node_id = graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'exchanger'))
+      node => graph%get_node(state_node_id)
+      select type (node)
+      class is (StateItemNode)
+         payload => node%get_payload_ptr()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      members => payload%state_members_ptr()
+      member_node_id => members%at('value')
+      @assert_that(associated(member_node_id), is(true()))
+
+      iface = make_exchanger_interface(status)
+      @assert_that(status, is(0))
+      call register_callback_interface('svc-6-1-regrid', iface, interface_id, status)
+      @assert_that(status, is(0))
+
+      state_binding = CallbackStateBinding(interface_id, iface, state_node_id)
+      call state_binding%bind_argument('value', member_node_id, status)
+      @assert_that(status, is(0))
+      call state_binding%bind_method('exchange', status)
+      @assert_that(status, is(0))
+
+      provider_id = graph%get_resource_index(item_key(ESMF_STATEINTENT_EXPORT, 'provider_shared'))
+      call provider_get_ids%insert('value', provider_id)
+      call provider_put_ids%insert('value', provider_id)
+
+      method_binding = build_callback_method_binding(outer_meta, iface, 'exchange', state_binding, &
+           provider_get_ids, provider_put_ids, status)
+      @assert_that(status, is(0))
+
+      get_net => graph%get_network(graph%get_forward_network_id())
+      put_net => graph%get_network(method_binding%get_put_network_id())
+      @assert_that(associated(get_net), is(true()))
+      @assert_that(associated(put_net), is(true()))
+
+      ! No direct edge either direction: a regrid transform sits between
+      ! the provider (Invoker-side copy) and the member (Handler argument).
+      @assert_that(get_net%contains_dependency(provider_id, member_node_id), is(false()))
+      @assert_that(put_net%contains_dependency(member_node_id, provider_id), is(false()))
+
+      ! Get direction: provider -> transform -> result (a new StateItemNode
+      ! carrying the member's goal geometry, ExtensionResolution.F90's
+      ! build_chain) -> member. Same two-hop shape as an ordinary connection's
+      ! extension chain (Test_GraphBuilder_ConnectionResolution.pf's
+      ! sole_predecessor_of(sole_predecessor_of(...))).
+      get_result_id = callback_regrid_predecessor(get_net, member_node_id)
+      @assert_that(get_result_id%is_valid(), is(true()))
+      get_transform_id = callback_regrid_predecessor(get_net, get_result_id)
+      @assert_that(get_transform_id%is_valid(), is(true()))
+      @assert_that(get_net%contains_dependency(provider_id, get_transform_id), is(true()))
+      node => graph%get_node(get_transform_id)
+      select type (node)
+      class is (TransformGraphNode)
+         transformer => node%get_transformer()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      select type (transformer)
+      class is (HorizontalRegridTransform)
+         regridder_param = transformer%get_regridder_param()
+         @assert_that(regridder_param%is_conservative(), is(true()))
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      ! Put direction: member -> transform -> result -> provider.
+      put_result_id = callback_regrid_predecessor(put_net, provider_id)
+      @assert_that(put_result_id%is_valid(), is(true()))
+      put_transform_id = callback_regrid_predecessor(put_net, put_result_id)
+      @assert_that(put_transform_id%is_valid(), is(true()))
+      @assert_that(put_net%contains_dependency(member_node_id, put_transform_id), is(true()))
+      node => graph%get_node(put_transform_id)
+      select type (node)
+      class is (TransformGraphNode)
+         transformer => node%get_transformer()
+      class default
+         @assert_that(.false., is(true()))
+      end select
+      select type (transformer)
+      class is (HorizontalRegridTransform)
+         regridder_param = transformer%get_regridder_param()
+         @assert_that(regridder_param%is_conservative(), is(true()))
+      class default
+         @assert_that(.false., is(true()))
+      end select
+
+      ! Each network individually acyclic, same freeze checks as the
+      ! same-grid counterpart above.
+      call graph%freeze(status)
+      @assert_that(status, is(0))
+      call graph%freeze_forward_network(status)
+      @assert_that(status, is(0))
+
+      _UNUSED_DUMMY(this)
+   end subroutine test_callback_method_binding_wires_cross_grid_regrid
 
 end module Test_GraphBuilder_CallbackWiring

@@ -103,6 +103,9 @@ module mapl_GraphBuilder_mod
    ! limitation). Each is called from at least one submodule.
    public :: is_self
    public :: itemtype_name
+   ! Called from GraphBuilder_CallbackWiring_smod.F90 as well as its home
+   ! submodule; public for the same gfortran cross-submodule-linkage reason.
+   public :: materialize_extension_chain
    ! Public so tests and other code that identify a geometry node need not
    ! duplicate the key format.
    public :: GEOMETRY_ITEM_NAME
@@ -427,6 +430,21 @@ module mapl_GraphBuilder_mod
       integer, optional, intent(out) :: rc
 
    end subroutine try_alias_export_field
+   ! Materializes every entry of intermediate_node_ids (in order), each from
+   ! that extension node's own descriptor - shared with callback argument
+   ! wiring (GraphBuilder_CallbackWiring_smod.F90), not only ordinary
+   ! connection resolution.
+   module subroutine materialize_extension_chain(export_item, import_item, &
+        intermediate_node_ids, graph, failure_reason, rc, name)
+      type(StateItemDescriptor), intent(in) :: export_item
+      type(StateItemDescriptor), intent(in) :: import_item
+      type(NodeId), intent(in) :: intermediate_node_ids(:)
+      type(ComponentGraph), target, intent(inout) :: graph
+      character(:), allocatable, intent(out) :: failure_reason
+      integer, optional, intent(out) :: rc
+      character(*), optional, intent(in) :: name
+
+   end subroutine materialize_extension_chain
 
       ! Horizontal geometry procedures (GraphBuilder_Geometry_smod.F90)
    module subroutine graphbuilder_run_geometry_hook(this)
