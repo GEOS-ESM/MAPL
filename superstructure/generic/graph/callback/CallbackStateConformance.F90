@@ -71,6 +71,7 @@ module mapl_CallbackStateConformance_mod
    private
 
    public :: check_callback_state_conformance
+   public :: integer_text
 
    ! Outcome of one attribute's own checks, consulted by the rules.
    type :: AttributeOutcome

@@ -68,6 +68,10 @@ module mapl_InfoUtilities_mod
    public :: MAPL_InfoGetValueKind
    public :: MAPL_InfoGetKeys
 
+   public :: MAPL_InfoHasCallbackInterface
+   public :: MAPL_InfoGetCallbackInterface
+   public :: MAPL_InfoSetCallbackInterface
+
    public :: InfoValueKind
    public :: operator(==)
    public :: operator(/=)
@@ -133,6 +137,20 @@ module mapl_InfoUtilities_mod
    interface MAPL_InfoCreateFromShared
       procedure :: info_field_create_from_shared
    end interface MAPL_InfoCreateFromShared
+
+   ! State's own Info, callback namespace: the interface name a callback
+   ! State's attribute and call scalar lookups resolve against.
+   interface MAPL_InfoHasCallbackInterface
+      procedure :: info_state_has_callback_interface
+   end interface MAPL_InfoHasCallbackInterface
+
+   interface MAPL_InfoGetCallbackInterface
+      procedure :: info_state_get_callback_interface
+   end interface MAPL_InfoGetCallbackInterface
+
+   interface MAPL_InfoSetCallbackInterface
+      procedure :: info_state_set_callback_interface
+   end interface MAPL_InfoSetCallbackInterface
 
    ! Direct access through ESMF_Info object
    interface MAPL_InfoGet
@@ -553,6 +571,52 @@ contains
 
       _RETURN(_SUCCESS)
    end subroutine info_stateitem_get_shared_keys
+
+   ! State's own Info, callback namespace
+   function info_state_has_callback_interface(state, rc) result(is_present)
+      type(ESMF_State), intent(in) :: state
+      integer, optional, intent(out) :: rc
+      logical :: is_present
+
+      integer :: status
+      type(ESMF_Info) :: state_info
+
+      call ESMF_InfoGetFromHost(state, state_info, _RC)
+      is_present = ESMF_InfoIsPresent(state_info, &
+           key=INFO_CALLBACK_NAMESPACE // KEY_CALLBACK_INTERFACE, _RC)
+
+      _RETURN(_SUCCESS)
+   end function info_state_has_callback_interface
+
+   subroutine info_state_get_callback_interface(state, interface_name, rc)
+      type(ESMF_State), intent(in) :: state
+      character(:), allocatable, intent(out) :: interface_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: state_info
+
+      call ESMF_InfoGetFromHost(state, state_info, _RC)
+      call MAPL_InfoGet(state_info, key=INFO_CALLBACK_NAMESPACE // KEY_CALLBACK_INTERFACE, &
+           value=interface_name, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine info_state_get_callback_interface
+
+   subroutine info_state_set_callback_interface(state, interface_name, rc)
+      type(ESMF_State), intent(in) :: state
+      character(*), intent(in) :: interface_name
+      integer, optional, intent(out) :: rc
+
+      integer :: status
+      type(ESMF_Info) :: state_info
+
+      call ESMF_InfoGetFromHost(state, state_info, _RC)
+      call MAPL_InfoSet(state_info, key=INFO_CALLBACK_NAMESPACE // KEY_CALLBACK_INTERFACE, &
+           value=interface_name, _RC)
+
+      _RETURN(_SUCCESS)
+   end subroutine info_state_set_callback_interface
 
    pure logical function infovaluekind_equal(left, right) result(equal)
       type(InfoValueKind), intent(in) :: left, right

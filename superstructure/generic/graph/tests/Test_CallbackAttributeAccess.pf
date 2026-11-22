@@ -1,0 +1,328 @@
+! Tests for MAPL_CallbackGetAttribute and MAPL_CallbackSetScalar on
+! hand-built States (spec/15-callbacks.md). The registry is a real
+! module-level singleton; each test starts and ends with a reset so
+! these tests cannot leak into, or be leaked into by, other suites.
+!
+! This suite has no exception handler installed (GraphCoreTestInit.F90
+! does not call MAPL_set_throw_method), so @assertExceptionRaised
+! cannot verify message text here - every failure test below only
+! checks the failure status. The "legal names" message wording is
+! checked in superstructure/generic/tests instead (see
+! Test_CallbackAttributeAccessMessages.pf), the same split used by
+! Test_CallbackInterfaceRegistry.pf / Test_CallbackInterfaceRegistryMessages.pf.
+module Test_CallbackAttributeAccess
+   use mapl_CallbackAttributeAccess_mod, only: record_callback_interface_name, &
+        MAPL_CallbackGetAttribute, MAPL_CallbackSetScalar
+   use mapl_CallbackInterfaceRegistry_mod, only: register_callback_interface, &
+        reset_callback_registry_for_testing
+   use mapl_CallbackInterface_mod, only: CallbackInterface, make_CallbackInterface
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
+   use mapl_CallbackAttributeSpec_mod, only: CALLBACK_SCOPE_MEMBER, CALLBACK_SCOPE_STATE
+   use mapl_CallbackCallScalarSpec_mod, only: CALLBACK_WRITER_INVOKER
+   use mapl_CallbackValueType_mod, only: CALLBACK_VALUE_REAL, CALLBACK_VALUE_STRING
+   use mapl_StateItemFlag_mod, only: MAPL_STATEITEM_FIELD
+   use mapl_InfoUtilities_mod, only: MAPL_InfoSetShared, MAPL_InfoGetShared
+   use StateItemTestSupport_mod, only: make_latlon_geom, make_test_member
+   use ESMF, only: ESMF_State, ESMF_StateCreate, ESMF_StateAdd, ESMF_Field, ESMF_Geom
+   use ESMF, only: ESMF_MAXSTR
+   use funit
+   implicit none
+
+   character(*), parameter :: IFACE_NAME = 'attribute_access_demo'
+
+contains
+
+   @before
+   subroutine reset_before()
+      call reset_callback_registry_for_testing()
+   end subroutine reset_before
+
+   @after
+   subroutine reset_after()
+      call reset_callback_registry_for_testing()
+   end subroutine reset_after
+
+   ! quantity; member-scoped string label on quantity (no default);
+   ! State-scoped real factor (default 2.0); call scalar time_step
+   ! (string, written by the invoker).
+   function demo_interface() result(iface)
+      type(CallbackInterface) :: iface
+
+      integer :: status
+
+      iface = make_CallbackInterface(1, 'attribute access fixture', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_argument('quantity', MAPL_STATEITEM_FIELD, dims='xy', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_attribute('label', CALLBACK_VALUE_STRING, scope=CALLBACK_SCOPE_MEMBER, &
+           host_argument='quantity', rc=status)
+      @assertEqual(0, status)
+      call iface%declare_attribute('factor', CALLBACK_VALUE_REAL, scope=CALLBACK_SCOPE_STATE, &
+           default=2.0, rc=status)
+      @assertEqual(0, status)
+      call iface%declare_call_scalar('time_step', CALLBACK_VALUE_STRING, CALLBACK_WRITER_INVOKER, &
+           rc=status)
+      @assertEqual(0, status)
+   end function demo_interface
+
+   subroutine register_demo()
+      type(CallbackInterfaceId) :: id
+      integer :: status
+
+      call register_callback_interface(IFACE_NAME, demo_interface(), id, rc=status)
+      @assertEqual(0, status)
+   end subroutine register_demo
+
+   function geom_a() result(geom)
+      type(ESMF_Geom) :: geom
+
+      integer :: status
+
+      geom = make_latlon_geom(4, 3, status)
+      @assertEqual(0, status)
+   end function geom_a
+
+   subroutine add_field(state, name, geom)
+      type(ESMF_State), intent(inout) :: state
+      character(*), intent(in) :: name
+      type(ESMF_Geom), intent(in) :: geom
+
+      type(ESMF_Field) :: field
+      integer :: status
+
+      field = make_test_member(geom, name, 1.0, status)
+      @assertEqual(0, status)
+      call ESMF_StateAdd(state, [field], rc=status)
+      @assertEqual(0, status)
+   end subroutine add_field
+
+   ! A State bound to demo_interface: created, named, and recorded, with
+   ! no members yet.
+   function new_bound_state() result(state)
+      type(ESMF_State) :: state
+
+      integer :: status
+
+      state = ESMF_StateCreate(name='cb', rc=status)
+      @assertEqual(0, status)
+      call record_callback_interface_name(state, IFACE_NAME, rc=status)
+      @assertEqual(0, status)
+   end function new_bound_state
+
+   ! value must be a fixed-length character buffer, not a deferred-length
+   ! allocatable: select type cannot grow a polymorphic actual argument.
+   @test
+   subroutine test_member_scope_get()
+      type(ESMF_State) :: state
+      character(ESMF_MAXSTR) :: value
+      integer :: status
+
+      call register_demo()
+      state = new_bound_state()
+      call add_field(state, 'quantity', geom_a())
+      call MAPL_InfoSetShared(state, 'quantity', 'attribute_access_demo/label', 'north pole', &
+           rc=status)
+      @assertEqual(0, status)
+
+      value = ''
+      call MAPL_CallbackGetAttribute(state, 'label', value, member='quantity', rc=status)
+      @assertEqual(0, status)
+      @assertEqual('north pole', trim(value))
+   end subroutine test_member_scope_get
+
+   ! label is member-scoped; omitting member is a usage error.
+   @test
+   subroutine test_member_scope_get_without_member_fails()
+      type(ESMF_State) :: state
+      character(ESMF_MAXSTR) :: value
+      integer :: status
+
+      call register_demo()
+      state = new_bound_state()
+      call add_field(state, 'quantity', geom_a())
+
+      value = ''
+      call MAPL_CallbackGetAttribute(state, 'label', value, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_member_scope_get_without_member_fails
+
+   @test
+   subroutine test_state_scope_get()
+      type(ESMF_State) :: state
+      real :: value
+      integer :: status
+
+      call register_demo()
+      state = new_bound_state()
+      call MAPL_InfoSetShared(state, key='attribute_access_demo/factor', value=3.5, rc=status)
+      @assertEqual(0, status)
+
+      value = 0.0
+      call MAPL_CallbackGetAttribute(state, 'factor', value, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(3.5, value)
+   end subroutine test_state_scope_get
+
+   ! factor is State-scoped; giving member anyway is a usage error.
+   @test
+   subroutine test_state_scope_get_with_member_fails()
+      type(ESMF_State) :: state
+      real :: value
+      integer :: status
+
+      call register_demo()
+      state = new_bound_state()
+      call add_field(state, 'quantity', geom_a())
+      call MAPL_InfoSetShared(state, key='attribute_access_demo/factor', value=3.5, rc=status)
+      @assertEqual(0, status)
+
+      value = 0.0
+      call MAPL_CallbackGetAttribute(state, 'factor', value, member='quantity', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_state_scope_get_with_member_fails
+
+   ! factor is not set; the default 2.0 is returned. Its use is not
+   ! logged here: that is the conformance checker's job, once per
+   ! callback State (see CallbackAttributeAccess.F90's header comment).
+   @test
+   subroutine test_default_used_get()
+      type(ESMF_State) :: state
+      real :: value
+      integer :: status
+
+      call register_demo()
+      state = new_bound_state()
+
+      value = 0.0
+      call MAPL_CallbackGetAttribute(state, 'factor', value, rc=status)
+      @assertEqual(0, status)
+      @assertEqual(2.0, value)
+   end subroutine test_default_used_get
+
+   ! label has no declared default; absent and member-scoped, it fails.
+   @test
+   subroutine test_absent_attribute_no_default_fails()
+      type(ESMF_State) :: state
+      character(ESMF_MAXSTR) :: value
+      integer :: status
+
+      call register_demo()
+      state = new_bound_state()
+      call add_field(state, 'quantity', geom_a())
+
+      value = ''
+      call MAPL_CallbackGetAttribute(state, 'label', value, member='quantity', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_absent_attribute_no_default_fails
+
+   ! factor is declared real; a string was stored under its key.
+   @test
+   subroutine test_stored_type_mismatch_fails()
+      type(ESMF_State) :: state
+      real :: value
+      integer :: status
+
+      call register_demo()
+      state = new_bound_state()
+      call MAPL_InfoSetShared(state, key='attribute_access_demo/factor', value='oops', rc=status)
+      @assertEqual(0, status)
+
+      value = 0.0
+      call MAPL_CallbackGetAttribute(state, 'factor', value, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_stored_type_mismatch_fails
+
+   ! factor is declared real; an integer value argument is a type error.
+   @test
+   subroutine test_value_argument_type_mismatch_fails()
+      type(ESMF_State) :: state
+      integer :: value
+      integer :: status
+
+      call register_demo()
+      state = new_bound_state()
+      call MAPL_InfoSetShared(state, key='attribute_access_demo/factor', value=3.5, rc=status)
+      @assertEqual(0, status)
+
+      value = 0
+      call MAPL_CallbackGetAttribute(state, 'factor', value, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_value_argument_type_mismatch_fails
+
+   ! label's stored value is longer than the caller's fixed-length buffer.
+   @test
+   subroutine test_get_string_buffer_too_short_fails()
+      type(ESMF_State) :: state
+      character(len=4) :: value
+      integer :: status
+
+      call register_demo()
+      state = new_bound_state()
+      call add_field(state, 'quantity', geom_a())
+      call MAPL_InfoSetShared(state, 'quantity', 'attribute_access_demo/label', 'north pole', &
+           rc=status)
+      @assertEqual(0, status)
+
+      value = ''
+      call MAPL_CallbackGetAttribute(state, 'label', value, member='quantity', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_get_string_buffer_too_short_fails
+
+   @test
+   subroutine test_undeclared_attribute_name_fails()
+      type(ESMF_State) :: state
+      real :: value
+      integer :: status
+
+      call register_demo()
+      state = new_bound_state()
+
+      value = 0.0
+      call MAPL_CallbackGetAttribute(state, 'not_declared', value, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_undeclared_attribute_name_fails
+
+   @test
+   subroutine test_set_scalar_success()
+      type(ESMF_State) :: state
+      character(:), allocatable :: stored
+      integer :: status
+
+      call register_demo()
+      state = new_bound_state()
+
+      call MAPL_CallbackSetScalar(state, 'time_step', '450.0', rc=status)
+      @assertEqual(0, status)
+
+      call MAPL_InfoGetShared(state, key='attribute_access_demo/time_step', value=stored, &
+           rc=status)
+      @assertEqual(0, status)
+      @assertEqual('450.0', stored)
+   end subroutine test_set_scalar_success
+
+   @test
+   subroutine test_set_scalar_undeclared_name_fails()
+      type(ESMF_State) :: state
+      integer :: status
+
+      call register_demo()
+      state = new_bound_state()
+
+      call MAPL_CallbackSetScalar(state, 'not_declared', '450.0', rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_set_scalar_undeclared_name_fails
+
+   ! time_step is declared string; an integer value is a type error.
+   @test
+   subroutine test_set_scalar_wrong_type_fails()
+      type(ESMF_State) :: state
+      integer :: status
+
+      call register_demo()
+      state = new_bound_state()
+
+      call MAPL_CallbackSetScalar(state, 'time_step', 900, rc=status)
+      @assertTrue(status /= 0)
+   end subroutine test_set_scalar_wrong_type_fails
+
+end module Test_CallbackAttributeAccess

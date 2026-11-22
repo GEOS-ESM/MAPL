@@ -131,6 +131,7 @@ target_sources(MAPL.generic PRIVATE
   callback/CallbackContractViolation.F90
   callback/CallbackContractReport.F90
   callback/CallbackStateConformance.F90
+  callback/CallbackAttributeAccess.F90
 )
 
 target_include_directories(MAPL.generic PRIVATE

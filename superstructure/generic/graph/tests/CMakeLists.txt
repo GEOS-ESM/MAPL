@@ -74,6 +74,7 @@ set(test_srcs
   Test_HConfigDuplicateKeys.pf
   Test_CallbackContractReport.pf
   Test_CallbackStateConformance.pf
+  Test_CallbackAttributeAccess.pf
 )
 
 add_pfunit_ctest(MAPL.generic.graph
