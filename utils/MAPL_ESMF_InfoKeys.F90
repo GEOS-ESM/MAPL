@@ -8,6 +8,8 @@ module mapl_esmf_info_keys_mod
    public :: INFO_SHARED_NAMESPACE
    public :: INFO_PRIVATE_NAMESPACE
    public :: INFO_INTERNAL_NAMESPACE
+   public :: INFO_CALLBACK_NAMESPACE
+   public :: KEY_CALLBACK_INTERFACE
    public :: KEY_UNGRIDDED_DIMS
    public :: KEY_VERT_DIM
    public :: KEY_VERT_GRID
@@ -61,6 +63,12 @@ module mapl_esmf_info_keys_mod
    character(len=*), parameter :: INFO_SHARED_NAMESPACE   = PREFIX // '/shared'
    character(len=*), parameter :: INFO_PRIVATE_NAMESPACE  = PREFIX // '/private'
    character(len=*), parameter :: INFO_INTERNAL_NAMESPACE = PREFIX // '/internal'
+   character(len=*), parameter :: INFO_CALLBACK_NAMESPACE = PREFIX // '/callback'
+
+   ! Callback State info keys (relative to INFO_CALLBACK_NAMESPACE, not
+   ! INFO_SHARED_NAMESPACE: a callback State's own recorded interface
+   ! name is framework bookkeeping, not a shared user-visible attribute).
+   character(len=*), parameter :: KEY_CALLBACK_INTERFACE = '/interface'
 
    character(len=*), parameter :: KEY_UNGRIDDED_DIMS = '/ungridded_dims'
    character(len=*), parameter :: KEY_VERT_DIM = '/vertical_dim'

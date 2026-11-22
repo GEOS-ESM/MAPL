@@ -1,0 +1,98 @@
+! Message wording of CallbackAttributeAccess's undeclared-name checks
+! (spec/15-callbacks.md "Misspelt name"). These need the exception
+! handler the generic suites install; the graph suite (graph/tests)
+! does not have one, so they live here (see
+! Test_CallbackInterfaceRegistryMessages.pf).
+module Test_CallbackAttributeAccessMessages
+   use mapl_CallbackAttributeAccess_mod, only: record_callback_interface_name, &
+        MAPL_CallbackGetAttribute, MAPL_CallbackSetScalar
+   use mapl_CallbackInterfaceRegistry_mod, only: register_callback_interface, &
+        reset_callback_registry_for_testing
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackInterfaceId_mod, only: CallbackInterfaceId
+   use mapl_CallbackAttributeSpec_mod, only: CALLBACK_SCOPE_STATE
+   use mapl_CallbackCallScalarSpec_mod, only: CALLBACK_WRITER_INVOKER
+   use mapl_CallbackValueType_mod, only: CALLBACK_VALUE_REAL, CALLBACK_VALUE_STRING
+   use ESMF, only: ESMF_State, ESMF_StateCreate
+   use funit
+   implicit none
+
+   character(*), parameter :: IFACE_NAME = 'attribute_access_messages_demo'
+
+contains
+
+   @before
+   subroutine reset_before()
+      call reset_callback_registry_for_testing()
+   end subroutine reset_before
+
+   @after
+   subroutine reset_after()
+      call reset_callback_registry_for_testing()
+   end subroutine reset_after
+
+   ! Two State-scoped attributes (alpha, beta) and one call scalar
+   ! (gamma), registered in that order but listed alphabetically.
+   subroutine register_demo()
+      type(CallbackInterface) :: iface
+      type(CallbackInterfaceId) :: id
+      integer :: status
+
+      call iface%declare_attribute('beta', CALLBACK_VALUE_STRING, &
+           scope=CALLBACK_SCOPE_STATE, rc=status)
+      @assertEqual(0, status)
+      call iface%declare_attribute('alpha', CALLBACK_VALUE_REAL, &
+           scope=CALLBACK_SCOPE_STATE, rc=status)
+      @assertEqual(0, status)
+      call iface%declare_call_scalar('gamma', CALLBACK_VALUE_STRING, &
+           CALLBACK_WRITER_INVOKER, rc=status)
+      @assertEqual(0, status)
+
+      call register_callback_interface(IFACE_NAME, iface, id, rc=status)
+      @assertEqual(0, status)
+   end subroutine register_demo
+
+   function new_bound_state() result(state)
+      type(ESMF_State) :: state
+
+      integer :: status
+
+      state = ESMF_StateCreate(name='cb_messages', rc=status)
+      @assertEqual(0, status)
+      call record_callback_interface_name(state, IFACE_NAME, rc=status)
+      @assertEqual(0, status)
+   end function new_bound_state
+
+   @test
+   subroutine test_undeclared_attribute_name_lists_legal_names()
+      type(ESMF_State) :: state
+      real :: value
+      integer :: status
+
+      call register_demo()
+      state = new_bound_state()
+
+      value = 0.0
+      call MAPL_CallbackGetAttribute(state, 'bogus', value, rc=status)
+      @assertExceptionRaised( &
+           "MAPL_CallbackGetAttribute: 'bogus' is not a declared attribute of " // &
+           "interface 'attribute_access_messages_demo'; legal attribute names: alpha, beta")
+      @assertTrue(status /= 0)
+   end subroutine test_undeclared_attribute_name_lists_legal_names
+
+   @test
+   subroutine test_undeclared_call_scalar_name_lists_legal_names()
+      type(ESMF_State) :: state
+      integer :: status
+
+      call register_demo()
+      state = new_bound_state()
+
+      call MAPL_CallbackSetScalar(state, 'bogus', 'value', rc=status)
+      @assertExceptionRaised( &
+           "MAPL_CallbackSetScalar: 'bogus' is not a declared call scalar of " // &
+           "interface 'attribute_access_messages_demo'; legal call scalar names: gamma")
+      @assertTrue(status /= 0)
+   end subroutine test_undeclared_call_scalar_name_lists_legal_names
+
+end module Test_CallbackAttributeAccessMessages
