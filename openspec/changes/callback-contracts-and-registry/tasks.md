@@ -121,7 +121,7 @@
 
 ## 9. GEOS slice: turbulent_mixing
 
-- [ ] 9.1 `turbulent_mixing` entry in the GEOS file, as in the design
+- [x] 9.1 `turbulent_mixing` entry in the GEOS file, as in the design
   note (`mix_like` with `host_argument: mixed_quantity`).
 - [ ] 9.2 `TurbulentMixingTestInvoker`: per `mix_like` class one implicit
   diffusion column operator using the delivered `air_mass`; four bottom

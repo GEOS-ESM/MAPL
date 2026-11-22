@@ -365,7 +365,9 @@ F1-F12.
 
 **CB9-GeosEntry / -ColumnSolver / -TestInvoker / -MockOwners /
 -Matrix.** `turbulent_mixing` slice, M1-M9 and MF1-MF9.
-- **Status:** CB9-ColumnSolver done (`Plan-Task: CB9-ColumnSolver`); others
+- **Status:** CB9-ColumnSolver done (`Plan-Task: CB9-ColumnSolver`);
+  -GeosEntry done (tasks.md 9.1, `Plan-Task: CB9-GeosEntry`):
+  `callback_interfaces_geos.yaml` now ships `turbulent_mixing`; others
   not started. `mapl_ImplicitColumnDiffusion_mod` lives in
   `superstructure/generic/tests/ImplicitColumnDiffusion.F90`, part of the
   test-only `MAPL.generic.test_common` library (owner decision: it is
