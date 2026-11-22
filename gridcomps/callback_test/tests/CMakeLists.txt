@@ -2,7 +2,17 @@ set(MODULE_DIRECTORY "${esma_include}/callback_test_gridcomp.tests")
 
 set (test_srcs
   Test_ConfigurableCallbackHandler.pf
+  Test_MockTracerOwners.pf
   )
+
+# Stage the shipped GEOS registration file so
+# Test_MockTracerOwners.pf can register the real turbulent_mixing
+# interface by relative path at runtime, the same copy-by-CMake
+# convention superstructure/generic/tests/CMakeLists.txt uses.
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../../superstructure/generic/graph/callback/callback_interfaces_geos.yaml
+  callback_interfaces_geos.yaml COPYONLY
+)
 
 add_pfunit_ctest(callback_test_gridcomp.tests
                 TEST_SOURCES ${test_srcs}

@@ -1,0 +1,177 @@
+! Mock turbulent_mixing owners on three representative owner geometries:
+! the Invoker's own grid (4 deg x 5 deg, 3 levels), a coarser non-nested
+! grid (6 deg x 7.5 deg), and a finer nested grid (2 deg x 2.5 deg).
+! A nested owner grid (every Invoker cell split into an exact number of
+! owner cells) and a non-nested one exercise different regridding paths,
+! so both must be checked. All three grids are edge-aligned (pole: PE,
+! dateline: DE): edge alignment makes im_world/jm_world alone determine
+! cell boundaries, so the nesting ratios below can be verified from
+! resolution numbers without needing each grid's actual cell edges.
+! Each owner is one build_configurable_handler call against the real,
+! shipped turbulent_mixing interface (callback_interfaces_geos.yaml,
+! copied into this directory by CMake) - construction and conformance
+! only, the same scope Test_ConfigurableCallbackHandler.pf exercises for
+! its own mock interfaces; no Invoker runs here.
+!
+! im_world/jm_world come from pole: PE (delta_lat = 180/jm_world) and
+! dateline: DE (delta_lon = 360/im_world): 4x5 is 45x72, 6x7.5 is 30x48,
+! 2x2.5 is 90x144. 144/72 = 2 and 90/45 = 2 exactly (the nested grid is
+! an exact refinement of the Invoker grid); 48/72 and 30/45 are not
+! integer ratios (the coarse grid is not nested in it).
+module Test_MockTracerOwners
+   use mapl_ConfigurableCallbackHandler_mod, only: build_configurable_handler
+   use mapl_CallbackRegistrationLoader_mod, only: load_callback_registration_file
+   use mapl_CallbackInterfaceRegistry_mod, only: get_callback_interface_by_name
+   use mapl_CallbackInterfaceRegistry_mod, only: reset_callback_registry_for_testing
+   use mapl_CallbackInterface_mod, only: CallbackInterface
+   use mapl_CallbackStateConformance_mod, only: check_callback_state_conformance
+   use mapl_CallbackContractViolation_mod, only: CallbackContractViolation
+   use mapl_StateItemDescriptor_mod, only: StateItemDescriptor
+   use ESMF, only: ESMF_HConfig, ESMF_HConfigCreate, ESMF_HConfigDestroy
+   use ESMF, only: ESMF_State, ESMF_StateGet, ESMF_Field, ESMF_FieldGet
+   use ESMF, only: ESMF_MAXSTR, ESMF_KIND_R8
+   use funit
+   implicit none
+
+   character(*), parameter :: NL = new_line('a')
+   character(*), parameter :: GEOS_INTERFACES_FILE = 'callback_interfaces_geos.yaml'
+
+contains
+
+   ! Registers the real, shipped turbulent_mixing interface (not a
+   ! hand-written test fixture) into a freshly reset registry.
+   subroutine load_geos_interfaces()
+      logical :: found
+      integer :: status
+
+      call reset_callback_registry_for_testing()
+      call load_callback_registration_file(GEOS_INTERFACES_FILE, found, rc=status)
+      @assertEqual(0, status, 'load_callback_registration_file failed')
+      @assertTrue(found, GEOS_INTERFACES_FILE // ' must be found')
+   end subroutine load_geos_interfaces
+
+   ! geometry: block for a lat-lon owner grid at im x jm resolution with
+   ! num_levels vertical layers, edge-aligned (pole: PE, dateline: DE) so
+   ! im/jm alone fix the cell boundaries and the nesting ratios between
+   ! grids are exact integer arithmetic on im_world/jm_world.
+   function owner_geometry_yaml(im, jm, num_levels) result(text)
+      integer, intent(in) :: im, jm, num_levels
+      character(:), allocatable :: text
+      character(16) :: im_text, jm_text, levels_text
+
+      write(im_text, '(i0)') im
+      write(jm_text, '(i0)') jm
+      write(levels_text, '(i0)') num_levels
+      text = 'geometry:' // NL // &
+           '  esmf_geom: {class: latlon, im_world: ' // trim(im_text) // ', jm_world: ' // &
+           trim(jm_text) // ', pole: PE, dateline: DE, nx: 1, ny: 1}' // NL // &
+           '  vertical_grid: {num_levels: ' // trim(levels_text) // '}' // NL
+   end function owner_geometry_yaml
+
+   ! A conforming turbulent_mixing owner on an im x jm x num_levels grid:
+   ! mixed_quantity and air_mass both supplied, mix_like set to heat (one
+   ! of the three allowed classes), bottom_boundary left at its default
+   ! (neumann_homogeneous), so dry_deposition_velocity (only required by
+   ! the robin rule) is correctly absent.
+   function owner_handler_cfg(im, jm, num_levels) result(text)
+      integer, intent(in) :: im, jm, num_levels
+      character(:), allocatable :: text
+
+      text = 'interface: turbulent_mixing' // NL // &
+           owner_geometry_yaml(im, jm, num_levels) // &
+           'supply:' // NL // &
+           '  mixed_quantity: {constant: 1.0e-6}' // NL // &
+           '  air_mass: {constant: 100.0}' // NL // &
+           'member_attributes:' // NL // &
+           '  mixed_quantity:' // NL // &
+           '    mix_like: heat' // NL
+   end function owner_handler_cfg
+
+   ! Builds one owner, checks it conforms, and returns its mixed_quantity
+   ! field so the caller can confirm the configured resolution actually
+   ! took effect.
+   subroutine build_and_check_owner(handler_name, im, jm, num_levels, field)
+      character(*), intent(in) :: handler_name
+      integer, intent(in) :: im, jm, num_levels
+      type(ESMF_Field), intent(out) :: field
+
+      type(ESMF_HConfig) :: hconfig
+      type(CallbackInterface) :: iface
+      type(ESMF_State) :: cb_state, mock_state
+      character(ESMF_MAXSTR), allocatable :: non_negative_names(:)
+      type(StateItemDescriptor), allocatable :: non_negative_descriptors(:)
+      character(:), allocatable :: interface_name
+      type(CallbackContractViolation), allocatable :: violations(:)
+      integer :: status
+
+      hconfig = ESMF_HConfigCreate(content=owner_handler_cfg(im, jm, num_levels), rc=status)
+      @assertEqual(0, status)
+
+      call build_configurable_handler(hconfig, handler_name, interface_name, &
+           cb_state, mock_state, non_negative_names, non_negative_descriptors, rc=status)
+      @assertEqual(0, status, 'build_configurable_handler failed for ' // handler_name)
+      @assertEqual('turbulent_mixing', interface_name)
+
+      iface = get_callback_interface_by_name(interface_name, rc=status)
+      @assertEqual(0, status)
+      call check_callback_state_conformance(cb_state, iface, interface_name, &
+           handler_name, violations, rc=status)
+      @assertEqual(0, status, 'check_callback_state_conformance failed for ' // handler_name)
+      @assertEqual(0, size(violations), handler_name // ' must have no conformance violations')
+
+      call ESMF_StateGet(cb_state, itemName='mixed_quantity', field=field, rc=status)
+      @assertEqual(0, status)
+
+      call ESMF_HConfigDestroy(hconfig, rc=status)
+      @assertEqual(0, status)
+   end subroutine build_and_check_owner
+
+   subroutine assert_field_shape(field, im, jm, num_levels, handler_name)
+      type(ESMF_Field), intent(in) :: field
+      integer, intent(in) :: im, jm, num_levels
+      character(*), intent(in) :: handler_name
+
+      real(kind=ESMF_KIND_R8), pointer :: ptr3d(:,:,:)
+      integer :: status
+
+      call ESMF_FieldGet(field, farrayPtr=ptr3d, rc=status)
+      @assertEqual(0, status, handler_name // ': ESMF_FieldGet failed')
+      @assertEqual([im, jm, num_levels], shape(ptr3d))
+   end subroutine assert_field_shape
+
+   ! Owner 1: the same grid as the turbulent_mixing Invoker, 4 deg x 5
+   ! deg (im_world=72, jm_world=45), 3 levels.
+   @test
+   subroutine test_owner_on_invoker_grid_conforms()
+      type(ESMF_Field) :: field
+
+      call load_geos_interfaces()
+      call build_and_check_owner('owner_invoker_grid', 72, 45, 3, field)
+      call assert_field_shape(field, 72, 45, 3, 'owner_invoker_grid')
+   end subroutine test_owner_on_invoker_grid_conforms
+
+   ! Owner 2: a coarser, non-nested grid, 6 deg x 7.5 deg
+   ! (im_world=48, jm_world=30), 3 levels. 48 does not divide 72 evenly
+   ! (nor 30 into 45): this grid's cells do not align with the Invoker's.
+   @test
+   subroutine test_owner_on_coarse_nonnested_grid_conforms()
+      type(ESMF_Field) :: field
+
+      call load_geos_interfaces()
+      call build_and_check_owner('owner_coarse_nonnested_grid', 48, 30, 3, field)
+      call assert_field_shape(field, 48, 30, 3, 'owner_coarse_nonnested_grid')
+   end subroutine test_owner_on_coarse_nonnested_grid_conforms
+
+   ! Owner 3: a finer, nested grid, 2 deg x 2.5 deg (im_world=144,
+   ! jm_world=90), 3 levels. 144 = 2*72 and 90 = 2*45: every Invoker
+   ! cell splits into exactly 4 owner cells.
+   @test
+   subroutine test_owner_on_fine_nested_grid_conforms()
+      type(ESMF_Field) :: field
+
+      call load_geos_interfaces()
+      call build_and_check_owner('owner_fine_nested_grid', 144, 90, 3, field)
+      call assert_field_shape(field, 144, 90, 3, 'owner_fine_nested_grid')
+   end subroutine test_owner_on_fine_nested_grid_conforms
+
+end module Test_MockTracerOwners
